@@ -1,0 +1,9 @@
+<mat-form-field class="example-form-field" appearance="outline">
+    <mat-label>{{normalizedLabel}}</mat-label>
+    <input matInput type="text" name="{{label}}-{{key}}"
+        #idField="ngModel"
+        [required]="required" [disabled]="readonly"
+        pattern="^[{]?[0-9a-fA-F]{8}-([0-9a-fA-F]{4}-){3}[0-9a-fA-F]{12}[}]?$"
+        [(ngModel)]="value" (ngModelChange)="onFieldChange.emit($event)">
+        <mat-error *ngIf="idField.errors?.pattern">Value doesn't match pattern.</mat-error>
+</mat-form-field>

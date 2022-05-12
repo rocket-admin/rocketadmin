@@ -1,0 +1,116 @@
+<mat-sidenav-container class="main-menu-container" autosize>
+    <mat-sidenav #drawer
+        fixedInViewport="true"
+        mode="over"
+        class="main-menu-sidenav"
+        >
+        <mat-toolbar>Autoadmin</mat-toolbar>
+        <mat-nav-list *ngIf="userLoggedIn === true">
+            <a mat-list-item routerLink="/connections-list"
+                routerLinkActive="nav-bar__button_active"
+                aria-label="List of connections">
+                Connections
+            </a>
+            <a mat-list-item routerLink="/user-settings"
+                routerLinkActive="nav-bar__button_active">
+                Settings
+            </a>
+            <a mat-list-item href="https://autoadmin.customerly.help/" target="_blank">
+                Help
+            </a>
+            <a mat-list-item class="nav-bar__upgrade-button" routerLink="/upgrade"
+                routerLinkActive="nav-bar__button_active">
+                Upgrade
+            </a>
+            <div mat-list-item>
+                <button mat-button class="logout-button" (click)="logOut()">
+                    Log out
+                    <mat-icon>exit_to_app</mat-icon>
+                </button>
+            </div>
+        </mat-nav-list>
+    </mat-sidenav>
+
+    <mat-sidenav-content class="main-menu-content">
+        <mat-toolbar color="primary" class="nav-bar" [ngClass]="{'nav-bar_white': !userLoggedIn}">
+            <a routerLink="/connections-list" *ngIf="userLoggedIn; else externalLink" class="logo">
+                <img src="../assets/logo.png" alt="Autoadmin logo">
+            </a>
+
+            <ng-template #externalLink>
+                <a href="https://autoadmin.org/" class="logo">
+                    <img src="../assets/autoadmin_logo_full_color.png" alt="Autoadmin logo">
+                </a>
+            </ng-template>
+
+            <div *ngIf="userLoggedIn === true" class="menu">
+                <a routerLink="/connections-list" mat-button class="action nav-bar__button"
+                    routerLinkActive="nav-bar__button_active"
+                    aria-label="List of connections">
+                    Connections
+                </a>
+                <a routerLink="/user-settings" mat-button
+                    matBadge="1" [matBadgeHidden]="currentUser.isActive"  matBadgeColor="accent" matBadgeSize="small"
+                    class="action nav-bar__button"
+                    routerLinkActive="nav-bar__button_active">
+                    Settings
+                </a>
+                <a href="https://autoadmin.customerly.help/" target="_blank" mat-button class="nav-bar__button">
+                    <!--<mat-icon>help_outline</mat-icon> -->
+                    Help
+                </a>
+            </div>
+
+            <button mat-icon-button color="primary" class="menu-button" (click)="drawer.toggle()">
+                <mat-icon>menu</mat-icon>
+            </button>
+
+            <div *ngIf="userLoggedIn === true" class="actions actions_auth">
+                <a routerLink="/upgrade" mat-flat-button
+                    routerLinkActive="mat-accent" class="nav-bar__upgrade-button">
+                    Upgrade
+                </a>
+                <button mat-button (click)="logOut()" class="nav-bar__button"
+                    matTooltip="Logout {{currentUser.email}}">
+                    Log out
+                    <mat-icon>exit_to_app</mat-icon>
+                </button>
+            </div>
+
+            <div *ngIf="userLoggedIn === null" class="actions">
+                <a class="authButton authButton_login"
+                    routerLink="/login">
+                    Login
+                </a>
+                <a class="authButton authButton_signup"
+                    routerLink="/registration">
+                    Sign up
+                </a>
+            </div>
+            <!-- <ng-template #nonAuthBlock>
+
+            </ng-template> -->
+        </mat-toolbar>
+
+        <div *ngIf="connectionID" class="mat-body-2 connectionName">
+            {{currantConnection.title || currantConnection.database}}
+        </div>
+
+        <nav mat-tab-nav-bar mat-align-tabs="center" *ngIf="connectionID">
+            <a mat-tab-link *ngFor="let tab of visibleTabs"
+                routerLink="{{tab}}/{{connectionID}}"
+                [active]="currentTab == tab">
+                <mat-icon class="tab-icon">{{navigationTabs[tab].icon}}</mat-icon>{{navigationTabs[tab].caption}}
+            </a>
+        </nav>
+
+        <div class="content">
+            <router-outlet></router-outlet>
+        </div>
+
+        <div *ngIf="!authBarTheme" class="footer">
+            <span class="footer__text">&copy; 2022 Autoadmin</span>
+        </div>
+    </mat-sidenav-content>
+</mat-sidenav-container>
+

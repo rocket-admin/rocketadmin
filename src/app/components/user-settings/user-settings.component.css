@@ -1,0 +1,30 @@
+.page {
+    display: flex;
+    flex-direction: column;
+    margin: 3em auto;
+    max-width: 520px;
+    min-width: 300px;
+    width: 96%;
+}
+
+.userInfo {
+    margin-bottom: 16px;
+}
+
+.mat-h1 {
+    margin-bottom: 1em;
+}
+
+.user-settings__button {
+    margin-left: 20px;
+}
+
+.upgrade-button {
+    margin-top: 32px;
+    align-self: center;
+}
+
+.delete-button {
+    align-self: center;
+    margin-top: 80px;
+}

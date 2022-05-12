@@ -1,0 +1,38 @@
+.sidenav-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 1rem;
+}
+
+.mat-h1 {
+    margin: 0;
+}
+
+.mat-icon-button {
+    margin-right: -8px;
+}
+
+.mat-line {
+    line-height: 48px;
+}
+
+::ng-deep .table-list-item .mat-list-item-content {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.list-item_active {
+    color: #ED4870;
+}
+
+.empty-message {
+    margin-top: 20px;
+    margin-left: 16px;
+}
+
+.search-input {
+    margin-left: 16px;
+    width: calc(100% - 32px);
+}

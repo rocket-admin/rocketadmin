@@ -1,0 +1,99 @@
+<div class="wrapper">
+    <div class="register-form-box">
+        <app-banner></app-banner>
+        <form class="register-form"
+            #registrationForm="ngForm"
+            (ngSubmit)="registerUser()">
+            <h1 class="mat-h1">Create an account to manage your database</h1>
+
+            <button type="button" class="soc-button"
+                angulartics2On="click"
+                angularticsAction="Reg: sign up with google"
+                (click)="loginWithGoogle()">
+                <img src="../../../assets/icons/google_logo.svg" alt="" class="soc-button-icon">
+                Continue with Google
+            </button>
+
+            <div class="divider"><span class="divider__label">or</span></div>
+
+            <mat-form-field appearance="outline">
+                <mat-label>Email</mat-label>
+                <input matInput type="email" name="email" #email="ngModel" required autofocus
+                    angulartics2On="change"
+                    angularticsAction="Reg: email is changed"
+                    [(ngModel)]="user.email">
+                <!-- <mat-error *ngIf="hostname.errors?.required && (hostname.invalid && hostname.touched)">Hostname should not be empty.</mat-error> -->
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+                <mat-label>Password</mat-label>
+                <input matInput [type]="passwordHidden ? 'text' : 'password'" name="password" #password="ngModel"
+                    required minlength="8" passwordValidator
+                    angulartics2On="change"
+                    angularticsAction="Reg: password is changed"
+                    [(ngModel)]="user.password">
+                <mat-icon matSuffix (click)="passwordHidden = !passwordHidden" class="password-visibility-button">
+                    {{passwordHidden ? 'visibility_off' : 'visibility'}}
+                </mat-icon>
+                <mat-hint>
+                    Password must contain:
+                    <ul class="password-requirements">
+                        <li [ngClass]="{
+                            'error': !password.errors?.oneLowerCaseLetter && password.touched,
+                            'success': (!password.errors || password.errors?.oneLowerCaseLetter) && password.dirty
+                        }">
+                            a lower case letter,
+                        </li>
+                        <li [ngClass]="{
+                            'error': !password.errors?.oneUpperCaseLetter && password.touched,
+                            'success': (!password.errors || password.errors?.oneUpperCaseLetter) && password.dirty
+                        }">
+                            an upper case letter,
+                        </li>
+                        <li [ngClass]="{
+                            'error': !password.errors?.oneNumber && password.touched,
+                            'success': (!password.errors || password.errors?.oneNumber) && password.dirty
+                        }">
+                            a number,
+                        </li>
+                        <li [ngClass]="{
+                            'error': !password.errors?.min8 && password.touched,
+                            'success': (!password.errors || password.errors?.min8) && password.dirty
+                        }">
+                            at least 8 characters
+                        </li>
+                    </ul>
+                </mat-hint>
+                <!-- <mat-error *ngIf="port.errors?.required && (port.invalid && port.touched)">Port should not be empty.</mat-error> -->
+            </mat-form-field>
+
+            <button type="submit" mat-raised-button color="accent" class="submit-button"
+                angulartics2On="click"
+                angularticsAction="Reg: sign up is clicked"
+                [disabled]="submitting || registrationForm.form.invalid || registrationForm.form.pristine">
+                {{ submitting ? 'Submitting' : 'Create account'}}
+            </button>
+
+            <div class="divider"></div>
+
+            <button type="button" class="soc-button"
+                angulartics2On="click"
+                angularticsAction="Reg: sign up with facebook"
+                (click)="loginWithFacebook()">
+                <img src="../../../assets/icons/fb_logo.svg" alt="" class="soc-button-icon">
+                Continue with Facebook
+            </button>
+        </form>
+
+        <p class="mat-caption agreement">
+            By creating this account you agree to Autoadmin's <br/>
+            <a href="https://autoadmin.org/privacy" class="link" target="_blanck">Privacy Policy</a>
+            and
+            <a href="https://autoadmin.org/terms" class="link">Terms and Conditions</a>.
+        </p>
+    </div>
+    <div class="register-image-box">
+        <img src="../assets/main-table-view.svg" class="register-image" alt="">
+        <img src="../assets/main-table-view.svg" class="register-image" alt="">
+    </div>
+</div>

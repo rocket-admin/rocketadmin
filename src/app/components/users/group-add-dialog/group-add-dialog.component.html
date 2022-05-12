@@ -1,0 +1,17 @@
+<h1 mat-dialog-title>Create group of users</h1>
+<form action="" #addGroupForm="ngForm" (ngSubmit)="addGroup()">
+    <div mat-dialog-content>
+        <mat-form-field appearance="outline">
+            <mat-label>Enter group title</mat-label>
+            <input matInput [(ngModel)]="groupTitle" name="title" #title="ngModel" required>
+            <mat-error *ngIf="title.errors?.required && (title.invalid && title.touched)">Title should not be empty.</mat-error>
+        </mat-form-field>
+    </div>
+    <div mat-dialog-actions>
+        <button mat-raised-button mat-dialog-close>Cancel</button>
+        <button mat-raised-button color="primary"
+            [disabled]="submitting || addGroupForm.form.invalid">
+                Create
+        </button>
+    </div>
+</form>

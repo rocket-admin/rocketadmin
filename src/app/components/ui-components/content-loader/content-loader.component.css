@@ -1,0 +1,18 @@
+.dots {
+	width: 20px;
+  height: 20px;
+	background: #171D39;
+  border-radius: 50%;
+  position: absolute;
+  top: calc(50% - 20px);
+  left: calc(50% - 20px);
+  box-shadow: #171D39 20px 0, #171D39 40px 0, #171D39 -20px 0, #171D39 -40px 0;
+  animation: pulse 1.25s infinite ease-in-out;
+}
+
+@keyframes pulse {
+  50% {
+    box-shadow: #171D39 45px 0, #171D39 90px 0, #171D39 -45px 0, #171D39 -90px 0;
+    transform: scale(.7)
+  }
+}

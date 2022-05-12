@@ -1,0 +1,37 @@
+<div class="sidenav-header">
+    <h1 class="mat-h1">Tables</h1>
+</div>
+
+<app-content-loader *ngIf="tables === null; else tablesList"></app-content-loader>
+
+<ng-template #tablesList>
+    <div *ngIf="tables && tables.length; else noTables">
+        <mat-form-field appearance="standard" class="search-input">
+                <mat-label>Search</mat-label>
+                <input matInput name="search" #search="ngModel"
+                    [(ngModel)]="searchString"
+                    (keyup)="serach()">
+                <mat-error *ngIf="foundTables.length === 0">Nothing found.</mat-error>
+            </mat-form-field>
+            <mat-nav-list>
+                <a mat-list-item *ngFor="let tableItem of foundTables"
+                    routerLink="/dashboard/{{connectionID}}/{{tableItem.table}}"
+                    [queryParams]="{page_index: 0, page_size: 30}"
+                    routerLinkActive="list-item_active"
+                    class="table-list-item">
+                    {{ tableItem.display_name || tableItem.normalizedTableName || tableItem.table }}
+                </a>
+            </mat-nav-list>
+    </div>
+
+
+    <ng-template #noTables>
+        <p class="mat-body-1 empty-message">
+            No tables in this connection.
+        </p>
+
+        <p class="mat-body-1 empty-message">
+            We do not provide adding and deleting database tables, only editing ones. You can add a table with SQL editor.
+        </p>
+    </ng-template>
+</ng-template>

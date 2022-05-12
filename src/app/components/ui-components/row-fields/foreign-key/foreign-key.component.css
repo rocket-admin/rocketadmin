@@ -1,0 +1,14 @@
+.full-width {
+    position: relative;
+    width: 100%;
+}
+
+.loader {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+}
+
+.disabled {
+    pointer-events: none;
+}

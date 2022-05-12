@@ -1,0 +1,10 @@
+.verified-message {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 120px 0;
+}
+
+.verified-message__text {
+    margin-bottom: 40px;
+}

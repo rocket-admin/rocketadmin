@@ -1,0 +1,18 @@
+<h1 mat-dialog-title>Confirm widget delete</h1>
+<div mat-dialog-content>
+    <p class="mat-body">
+        You are going to delete widget for <strong>{{ widgetFieldName }}</strong> field.
+    </p>
+    <br>
+    <p class="mat-body">Please confirm.</p>
+</div>
+<div mat-dialog-actions>
+  <button mat-raised-button mat-dialog-close
+    aria-label="Cancel">
+    Cancel
+  </button>
+  <button mat-raised-button color="warn"
+    (click)="onDeleteWidget()">
+      Delete
+  </button>
+</div>

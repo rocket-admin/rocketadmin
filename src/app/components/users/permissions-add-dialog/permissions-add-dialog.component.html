@@ -1,0 +1,100 @@
+<h1 mat-dialog-title>Create permissions for <strong>{{ group.title }}</strong> group</h1>
+<form action="" #addPermissionsForm="ngForm" (ngSubmit)="addPermissions()">
+    <div mat-dialog-content>
+        <div class="permissions">
+            <h2 class="mat-subheading-1"><strong>Connection credentials</strong></h2>
+            <mat-radio-group [(ngModel)]="connectionAccess" name="connection-permissions"
+                aria-labelledby="example-radio-group-label"
+                class="permission-radio-group">
+                <mat-radio-button class="permission-radio-button" name="connection-none" value="none">
+                    None
+                </mat-radio-button>
+                <mat-radio-button class="permission-radio-button" name="connection-readonly" value="readonly">
+                    ReadOnly
+                </mat-radio-button>
+                <mat-radio-button class="permission-radio-button" name="connection-full-access" value="edit">
+                    Full access
+                </mat-radio-button>
+            </mat-radio-group>
+
+            <h2 class="mat-subheading-1"><strong>User management</strong></h2>
+            <span *ngIf="connectionAccess === 'edit'; else groupAccessLevel" class="mat-body">Manage the list</span>
+            <ng-template #groupAccessLevel>
+                <mat-radio-group [(ngModel)]="groupAccess" name="users-permissions"
+                    aria-labelledby="permission-radio-group-label"
+                    class="example-radio-group">
+                    <mat-radio-button class="permission-radio-button" name="users-none" value="none">
+                        None
+                    </mat-radio-button>
+                    <mat-radio-button class="permission-radio-button" name="users-readonly" value="readonly">
+                        ReadOnly
+                    </mat-radio-button>
+                    <mat-radio-button class="permission-radio-button" name="users-full-access" value="edit">
+                        Manage the list
+                    </mat-radio-button>
+                </mat-radio-group>
+            </ng-template>
+
+            <h2 class="mat-subheading-1 mat-subheading-1_tables"><strong>Tables</strong></h2>
+            <app-content-loader *ngIf="loading"></app-content-loader>
+            <mat-list role="list" class="tables-list">
+                <div *ngIf="connectionAccess === 'edit'" class="tables-overlay">
+                    <span  class="mat-body-strong mat-boby-1">
+                        <strong>
+                            View all tables of database.<br/>
+                            Add, delete and edit rows.
+                        </strong>
+                    </span>
+                </div>
+                <mat-list-item role="listitem" class="table-permission-item" *ngFor="let table of tablesAccess">
+                    <span mat-line>{{table.tableName}}</span>
+
+                    <div class="tableVisibility">
+                        <input type="checkbox" name="{{table.tableName}}-visibility" id="{{table.tableName}}-visibility"
+                            class="visually-hidden"
+                            (change)="uncheckActions(table.tableName)"
+                            [(ngModel)]="table.accessLevel.visibility">
+                        <label for="{{table.tableName}}-visibility">
+                            <mat-icon class="visibilityIcon" [ngClass]="{'visibilityIcon_visible' : table.accessLevel.visibility}"
+                                matTooltip="{{ table.accessLevel.visibility ? 'Table visible' : 'Table invisible' }}">
+                                {{ table.accessLevel.visibility ? 'visibility' : 'visibility_off' }}
+                            </mat-icon>
+                        </label>
+                    </div>
+
+                    <mat-slide-toggle name="{{table.tableName}}-readonly-toggle"
+                        [disabled]="!table.accessLevel.visibility"
+                        (change)="uncheckActions(table.tableName)"
+                        [(ngModel)]="table.accessLevel.readonly">
+                        ReadOnly
+                    </mat-slide-toggle>
+                    <mat-checkbox name="{{table.tableName}}-add"
+                        class="permission-checkbox"
+                        [disabled]="!table.accessLevel.visibility || table.accessLevel.readonly"
+                        [(ngModel)]="table.accessLevel.add">
+                        Add
+                    </mat-checkbox>
+                    <mat-checkbox name="{{table.tableName}}-delete"
+                        class="permission-checkbox"
+                        [disabled]="!table.accessLevel.visibility || table.accessLevel.readonly"
+                        [(ngModel)]="table.accessLevel.delete">
+                        Delete
+                    </mat-checkbox>
+                    <mat-checkbox name="{{table.tableName}}-edit"
+                        class="permission-checkbox"
+                        [disabled]="!table.accessLevel.visibility || table.accessLevel.readonly"
+                        [(ngModel)]="table.accessLevel.edit">
+                        Edit
+                    </mat-checkbox>
+                </mat-list-item>
+            </mat-list>
+        </div>
+    </div>
+    <div mat-dialog-actions>
+        <button mat-raised-button mat-dialog-close>Cancel</button>
+        <button mat-raised-button color="primary"
+            [disabled]="submitting || addPermissionsForm.form.invalid">
+                Update
+        </button>
+    </div>
+</form>

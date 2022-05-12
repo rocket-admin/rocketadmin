@@ -1,0 +1,25 @@
+
+<!-- <pre>{{ value }}</pre> -->
+
+
+<mat-form-field class="full-width" appearance="outline">
+    <mat-label>{{normalizedLabel}}</mat-label>
+    <mat-spinner *ngIf="fetching" class="loader" diameter="20"></mat-spinner>
+    <input type="text" matInput
+            [required]="required" [disabled]="readonly"
+            [(ngModel)]="currentDisplayedString"
+            [matAutocomplete]="auto"
+            (ngModelChange)="autocmpleteUpdate.next($event)">
+    <mat-autocomplete autoActiveFirstOption #auto="matAutocomplete">
+        <mat-option *ngFor="let suggestion of suggestions"
+            [ngClass]="{'disabled': suggestion.displayString === 'No matches'}"
+            [value]="suggestion.displayString">
+            {{suggestion.displayString}}
+        </mat-option>
+    </mat-autocomplete>
+</mat-form-field>
+
+
+<!-- <pre>{{ relations | json }}</pre> -->
+<!-- <pre>{{ suggestions | json}}</pre> -->
+<!-- <p>foreign-key component</p> -->

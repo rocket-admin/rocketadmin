@@ -1,0 +1,79 @@
+.wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    margin: 0 auto;
+    width: clamp(300px, 75vw, 1000px);
+}
+
+header {
+    align-self: flex-start;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 2em 0 1em;
+    width: 100%;
+}
+
+.mat-h1 {
+    margin: 0;
+}
+
+.filters {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-gap: 24px;
+}
+
+.mat-table {
+    width: 100%;
+}
+
+th.mat-header-cell, td.mat-cell {
+    padding-right: 20px;
+}
+
+.table-cell-content_break-words {
+    padding: 16px 0;
+    word-break: break-all;
+}
+
+.table-wrapper {
+    position: relative;
+    min-height: 200px;
+}
+
+.spinner-wrapper {
+    position: absolute;
+    top: 56px; left: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.9);
+    height: calc(100% - 112px);
+    width: 100%;
+    z-index: 2;
+}
+
+.error-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 100px;
+    height: 100%;
+}
+
+.error-box {
+    background-color: rgb(253, 237, 237);
+    border-radius: 4px;
+    color: rgb(95, 33, 32);
+    padding: 20px;
+    width: clamp(300px, 50vw, 450px);
+}
+
+.error-actions {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-top: 16px;
+}

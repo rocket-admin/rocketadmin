@@ -1,0 +1,6 @@
+<span>{{ normalizedLabel }} {{ required ? '*' : '' }}</span>
+<json-editor [options]="editorOptions"
+    [data]="value"
+    (change)="onJSONchange($event)"
+    class="jsoneditor-wrapper">
+</json-editor>

@@ -1,0 +1,10 @@
+<mat-form-field *ngIf="value" appearance="outline">
+    <mat-label>{{normalizedLabel}} X coordinate</mat-label>
+    <input type="number" matInput [(ngModel)]="value.x" name="{{label}}-{{key}}-x"
+        [required]="required" [disabled]="readonly">
+</mat-form-field>
+<mat-form-field *ngIf="value" appearance="outline">
+    <mat-label>{{normalizedLabel}} Y coordinate</mat-label>
+    <input type="number" matInput [(ngModel)]="value.y" name="{{label}}-{{key}}-y"
+        [required]="required" [disabled]="readonly">
+</mat-form-field>

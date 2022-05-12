@@ -1,0 +1,100 @@
+<div class="wrapper">
+    <header>
+            <h1 class="mat-h1">User groups</h1>
+            <button mat-icon-button class="add-group-button"
+                angulartics2On="click"
+                angularticsAction="Users: add group dialog is opened"
+                matTooltip="Add new group of users"
+                (click)="openCreateUsersGroupDialog()">
+                <mat-icon color="primary">group_add</mat-icon>
+            </button>
+    </header>
+
+    <app-content-loader *ngIf="groups === null"></app-content-loader>
+
+    <mat-accordion multi="true" *ngIf="groups">
+        <mat-expansion-panel *ngFor="let groupItem of groups" (opened)="openUsersList(groupItem.group.id)">
+            <mat-expansion-panel-header>
+                <mat-panel-title>
+                    {{ groupItem.group.title }}
+                </mat-panel-title>
+                <mat-panel-description (click)="$event.stopPropagation();">
+                    <button mat-icon-button *ngIf="isPermitted(groupItem.accessLevel)"
+                        angulartics2On="click"
+                        angularticsAction="Users: permissions dialog is opened"
+                        matTooltip="Configure permissions"
+                        (click)="openPermissionsDialog(groupItem.group)">
+                        <mat-icon>vpn_key</mat-icon>
+                    </button>
+                    <button mat-icon-button *ngIf="isPermitted(groupItem.accessLevel) && groupItem.group.title !== 'Admin'"
+                        angulartics2On="click"
+                        angularticsAction="Users: delete group dialog is opened"
+                        matTooltip="Delete group"
+                        (click)="openDeleteGroupDialog(groupItem.group)">
+                        <mat-icon>delete_outline</mat-icon>
+                    </button>
+                    <button mat-icon-button *ngIf="isPermitted(groupItem.accessLevel)"
+                        angulartics2On="click"
+                        angularticsAction="Users: add user dialog is opened"
+                        matTooltip="Add user"
+                        (click)="openAddUserDialog(groupItem.group)">
+                        <mat-icon>person_add</mat-icon>
+                    </button>
+                </mat-panel-description>
+            </mat-expansion-panel-header>
+
+            <app-content-loader *ngIf="users[groupItem.group.id] === null"></app-content-loader>
+            <p class="body-2" *ngIf="users[groupItem.group.id] === 'empty'">No users in the group</p>
+            <mat-list role="list">
+                <mat-list-item role="listitem" *ngFor="let user of users[groupItem.group.id]">
+                    <div class="user">
+                        <span>{{user.email}}</span>
+                        <button mat-icon-button *ngIf="(currentUser?.email !== user.email) && isPermitted(groupItem.accessLevel)"
+                            angulartics2On="click"
+                            angularticsAction="Users: delete user dialog is opened"
+                            matTooltip="Delete user"
+                            (click)="openDeleteUserDialog(user, groupItem.group)">
+                            <mat-icon>person_remove</mat-icon>
+                        </button>
+                    </div>
+                </mat-list-item>
+            </mat-list>
+        </mat-expansion-panel>
+    </mat-accordion>
+
+    <!-- <table mat-table [dataSource]="users" class="mat-elevation-z8">
+        <ng-container matColumnDef="superuser">
+            <th mat-header-cell *matHeaderCellDef> Superuser </th>
+            <td mat-cell *matCellDef="let element">
+                <div *ngIf="element.email === 'andrey@kostenko.com' " class="aloisovich">
+                    <mat-icon>face</mat-icon>
+                    <div class="mustache"></div>
+                </div>
+                <mat-icon *ngIf="element.superuser" color="accent">star</mat-icon>
+            </td>
+        </ng-container>
+
+        <ng-container matColumnDef="email">
+            <th mat-header-cell *matHeaderCellDef> Email </th>
+            <td mat-cell *matCellDef="let element"> {{element.email}} </td>
+        </ng-container>
+
+        <ng-container matColumnDef="name">
+            <th mat-header-cell *matHeaderCellDef> Name </th>
+            <td mat-cell *matCellDef="let element"> {{element.name}} </td>
+        </ng-container>
+
+        <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef></th>
+            <td mat-cell *matCellDef="let element">
+                <a routerLink="{{element.id}}" mat-button color="primary">Edit</a>&nbsp;
+                <button mat-button color="warn" (click)="confirmDeleteUser(element)">Delete</button>
+            </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+    </table> -->
+</div>
+
+

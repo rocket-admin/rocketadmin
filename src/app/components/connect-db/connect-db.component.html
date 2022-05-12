@@ -1,0 +1,425 @@
+<app-banner></app-banner>
+<div class="connectPage">
+    <form action="" #connectForm="ngForm" class="form"
+        (ngSubmit)="db.id ? editConnection(connectForm) : createConnection(connectForm)">
+        <h1 class="mat-h1 connectForm__fullLine">
+            {{ connectionID ? 'Edit credentials' : 'Connect a database' }}
+        </h1>
+
+        <div *ngIf="db && connectionID; else warningBanner" class="warningMessage connectForm__fullLine">
+            <mat-icon class="warningMessage__icon">warning_amber</mat-icon>
+            <p  class="mat-body-1">
+                Please make sure our servers are able to access your database.
+                We use IP address <strong>18.221.81.73</strong> for all outbound requests.
+            </p>
+        </div>
+
+        <ng-template #warningBanner>
+            <app-banner [banner]="warning" class="connectForm__fullLine"></app-banner>
+        </ng-template>
+
+        <mat-form-field appearance="outline" class="connectForm__title">
+            <mat-label>Connection title</mat-label>
+            <input matInput name="title" #title="ngModel"
+                angulartics2On="change"
+                angularticsAction="Connection creds: title is edited"
+                [required]="db.connectionType === 'agent'"
+                [readonly]="accessLevel === 'readonly' && db.id"
+                [disabled]="submitting"
+                [(ngModel)]="db.title">
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+            <mat-label>Database type</mat-label>
+            <mat-select name="dbtype" #dbtype="ngModel"
+                angulartics2On="click"
+                angularticsAction="Connection creds: db type is set in {{ db.type }}"
+                [disabled]="submitting"
+                [(ngModel)]="db.type"
+                (ngModelChange)="dbTypeChange()" >
+                <mat-option value="mysql">MySQL</mat-option>
+                <mat-option value="postgres">PostgreSQL</mat-option>
+                <mat-option value="oracledb">Oracle</mat-option>
+                <mat-option value="mssql">MS SQL</mat-option>
+            </mat-select>
+        </mat-form-field>
+
+        <div class="connectForm__fullLine connectForm__agentRadio">
+            <mat-radio-group required
+                name="connectionType"
+                class="radio-group"
+                [disabled]="submitting"
+                [(ngModel)]="db.connectionType">
+                <mat-radio-button value='direct' class="radio-button">
+                    Direct connection
+                </mat-radio-button>
+                <mat-radio-button value='agent' class="radio-button">
+                    Agent connection
+                </mat-radio-button>
+            </mat-radio-group>
+        </div>
+
+        <ng-container *ngIf="db.connectionType === 'direct'">
+            <mat-form-field appearance="outline" class="connectForm__hostname">
+                <mat-label>Hostname</mat-label>
+                <input matInput name="hostname" #hostname="ngModel"
+                    angulartics2On="change"
+                    angularticsAction="Connection creds: hostname is edited"
+                    required
+                    [readonly]="accessLevel === 'readonly' && db.id" hostnameValidator
+                    [disabled]="submitting"
+                    [(ngModel)]="db.host">
+                <mat-hint>
+                    E.g. <code>my-test-db.cvfuxe8nltiq.us-east-2.rds.amazonaws.com</code>.
+                    Connections from internal IPs (e.g. localhost) are not supported.
+                </mat-hint>
+
+                <mat-error *ngIf="hostname.errors?.isLocalhost && hostname.invalid">
+                    To connect your database on internal IP
+                    <button (click)="switchToAgent()" class="connectForm__agent-connection-button">click here</button>.
+                </mat-error>
+                <mat-error *ngIf="hostname.errors?.isInvalidHostname && hostname.invalid">Hostname is invalid.</mat-error>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+                <mat-label>Port</mat-label>
+                <input matInput type="number" name="port" #port="ngModel"
+                    angulartics2On="change"
+                    angularticsAction="Connection creds: port is edited"
+                    required [readonly]="accessLevel === 'readonly' && db.id"
+                    [disabled]="submitting"
+                    [(ngModel)]="db.port">
+                <mat-error *ngIf="port.errors?.required && (port.invalid && port.touched)">Port should not be empty.</mat-error>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="connectForm__firstHalf">
+                <mat-label>Username</mat-label>
+                <input matInput name="username" #username="ngModel"
+                    angulartics2On="change"
+                    angularticsAction="Connection creds: username is edited"
+                    required [readonly]="accessLevel === 'readonly' && db.id"
+                    [disabled]="submitting"
+                    [(ngModel)]="db.username">
+                <mat-error *ngIf="username.errors?.required && (username.invalid && username.touched)">Username should not be empty.</mat-error>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="connectForm__secondHalf">
+                <mat-label>Password</mat-label>
+                <input type="password" matInput name="password" #password="ngModel"
+                    angulartics2On="change"
+                    angularticsAction="Connection creds: password is edited"
+                    [required]="!db.id || hostname.touched || port.touched"
+                    [readonly]="accessLevel === 'readonly' && db.id"
+                    [disabled]="submitting"
+                    [(ngModel)]="db.password">
+                <mat-hint *ngIf="db.id && (hostname.untouched && port.untouched)">To keep password the same please keep this field blank.</mat-hint>
+                <mat-hint *ngIf="db.id && (hostname.touched || port.touched)">Password is required if hostname or port was changed</mat-hint>
+                <!-- <mat-error *ngIf="email.errors.required && (email.invalid && email.touched)">Email should not be empty.</mat-error> -->
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" [ngClass]="db.type === 'mysql' ? 'connectForm__fullLine' : 'connectForm__firstHalf'">
+                <mat-label>Database Name</mat-label>
+                <input matInput name="database" #database="ngModel"
+                    angulartics2On="change"
+                    angularticsAction="Connection creds: database name is edited"
+                    required [readonly]="accessLevel === 'readonly' && db.id"
+                    [disabled]="submitting"
+                    [(ngModel)]="db.database">
+                <mat-error *ngIf="database.errors?.required && (database.invalid && database.touched)">Name should not be empty.</mat-error>
+            </mat-form-field>
+
+            <mat-form-field *ngIf="db.type !== 'mysql'" appearance="outline" class="connectForm__secondHalf">
+                <mat-label>Schema</mat-label>
+                <input matInput name="schema" #schema="ngModel"
+                    angulartics2On="change"
+                    angularticsAction="Connection creds: database schema is edited"
+                    [required]="db.type === 'mssql'"
+                    [readonly]="accessLevel === 'readonly' && db.id"
+                    [disabled]="submitting"
+                    [(ngModel)]="db.schema">
+                <mat-error *ngIf="schema.errors?.required && (schema.invalid && schema.touched)">Name should not be empty.</mat-error>
+            </mat-form-field>
+
+            <mat-expansion-panel class="connectForm__fullLine">
+                <mat-expansion-panel-header>
+                    <mat-panel-title>
+                        Advanced settings
+                    </mat-panel-title>
+                </mat-expansion-panel-header>
+
+                <div class="advanced-settings">
+                    <div class="encription-setting advanced-settings__fullLine">
+                        <mat-slide-toggle name="encryption"
+                            angulartics2On="click"
+                            angularticsAction="Connection creds: encryption is {{ db.masterEncryption ? 'on' : 'off' }}"
+                            [disabled]="accessLevel === 'readonly'"
+                            [(ngModel)]="db.masterEncryption"
+                            (ngModelChange)="generatePassword()">
+                            Use clientside encryption
+                        </mat-slide-toggle>
+                        <div *ngIf="db.masterEncryption" class="encription-password">
+                            <mat-form-field appearance="outline" style="width:100%">
+                                <mat-label>Master password</mat-label>
+                                <input matInput [(ngModel)]="masterKey" name="masterPassword" #masterPassword="ngModel" readonly>
+                                <mat-hint>
+                                    We do not store the key.
+                                    Please save this password on your computer in protected place,
+                                    we recommend using password managers.
+                                    Share this password with all users of the connection.
+                                </mat-hint>
+                            </mat-form-field>
+                            <button type="button"
+                                mat-icon-button
+                                class="encription-password__copy-button"
+                                matTooltip="Copy mater password"
+                                [cdkCopyToClipboard]="masterKey"
+                                (cdkCopyToClipboardCopied)="showCopyNotification('Master password was copied to clipboard.')">
+                                <mat-icon>content_copy</mat-icon>
+                            </button>
+                        </div>
+                    </div>
+
+                    <mat-form-field *ngIf="db.type === 'oracledb'" appearance="outline" class="advanced-settings__fullLine">
+                        <mat-label>SID</mat-label>
+                        <input matInput
+                            angulartics2On="change"
+                            angularticsAction="Connection creds: SID is edited"
+                            [readonly]="accessLevel === 'readonly' && db.id"
+                            [(ngModel)]="db.sid" name="sid" #sid="ngModel">
+                        <!-- <mat-error *ngIf="sid.invalid && sid.touched">Email should not be empty.</mat-error> -->
+                    </mat-form-field>
+
+                    <mat-checkbox class="checkbox-line advanced-settings__fullLine" name="ssh" #ssh="ngModel"
+                        labelPosition="after"
+                        angulartics2On="click"
+                        angularticsAction="Connection creds: SSH is {{ db.ssh ? 'on' : 'off' }}"
+                        [(ngModel)]="db.ssh">
+                        Use SSH tunnel
+                    </mat-checkbox>
+
+                    <mat-form-field *ngIf="db.ssh" appearance="outline" class="advanced-settings__fullLine">
+                        <mat-label>Private SSH key</mat-label>
+                        <textarea matInput resizeToFitContent rows="8" name="privateSSHKey" #privateSSHKey="ngModel"
+                            angulartics2On="change"
+                            angularticsAction="Connection creds: SSH key is edited"
+                            [required]="db.ssh && !db.id" [readonly]="accessLevel === 'readonly' && db.id"
+                            [(ngModel)]="db.privateSSHKey"
+                        ></textarea>
+                        <mat-error *ngIf="privateSSHKey.errors?.required && (privateSSHKey.invalid && privateSSHKey.touched)">Private SSH key should not be empty.</mat-error>
+                    </mat-form-field>
+
+                    <mat-form-field *ngIf="db.ssh" appearance="outline">
+                        <mat-label>SSH host</mat-label>
+                        <input matInput name="sshHost" #sshHost="ngModel"
+                            angulartics2On="change"
+                            angularticsAction="Connection creds: SSH host is edited"
+                            [required]="db.ssh" [readonly]="accessLevel === 'readonly' && db.id"
+                            [(ngModel)]="db.sshHost">
+                        <mat-error *ngIf="sshHost.errors?.required && (sshHost.invalid && sshHost.touched)">SSH host should not be empty.</mat-error>
+                    </mat-form-field>
+
+                    <mat-form-field *ngIf="db.ssh" appearance="outline">
+                        <mat-label>SSH port</mat-label>
+                        <input matInput type="number" name="sshPort" #sshPort="ngModel"
+                            angulartics2On="change"
+                            angularticsAction="Connection creds: SSH port is edited"
+                            [required]="db.ssh" [readonly]="accessLevel === 'readonly' && db.id"
+                            [(ngModel)]="db.sshPort">
+                        <mat-error *ngIf="sshPort.errors?.required && (sshPort.invalid && sshPort.touched)">SSH port should not be empty.</mat-error>
+                    </mat-form-field>
+
+                    <mat-form-field *ngIf="db.ssh" appearance="outline">
+                        <mat-label>SSH username</mat-label>
+                        <input matInput name="sshUsername" #sshUsername="ngModel"
+                            angulartics2On="change"
+                            angularticsAction="Connection creds: SSH username is edited"
+                            [required]="db.ssh" [readonly]="accessLevel === 'readonly' && db.id"
+                            [(ngModel)]="db.sshUsername">
+                        <mat-error *ngIf="sshUsername.errors?.required && (sshUsername.invalid && sshUsername.touched)">SSH username should not be empty.</mat-error>
+                    </mat-form-field>
+
+                    <mat-checkbox class="checkbox-line advanced-settings__fullLine" name="ssl" #ssh="ngModel"
+                        labelPosition="after"
+                        angulartics2On="click"
+                        angularticsAction="Connection creds: SSL is {{ db.ssl ? 'on' : 'off' }}"
+                        [(ngModel)]="db.ssl">
+                        Check SSL certificate
+                    </mat-checkbox>
+
+                    <mat-form-field *ngIf="db.ssl" appearance="outline" class="advanced-settings__fullLine">
+                        <mat-label>SSL certificate</mat-label>
+                        <textarea matInput resizeToFitContent rows="8" name="sslCert" #sslCert="ngModel"
+                            angulartics2On="change"
+                            angularticsAction="Connection creds: SSL certificate is edited"
+                            [required]="db.ssl" [readonly]="accessLevel === 'readonly' && db.id"
+                            [(ngModel)]="db.cert"
+                        ></textarea>
+                        <mat-error *ngIf="sslCert.errors?.required && (sslCert.invalid && sslCert.touched)">SSL certificate should not be empty.</mat-error>
+                    </mat-form-field>
+
+                    <mat-checkbox *ngIf="db.type === 'mssql'" class="checkbox-line advanced-settings__fullLine" name="ssl" #ssh="ngModel"
+                        labelPosition="after"
+                        angulartics2On="click"
+                        angularticsAction="Connection creds: azure encryption is {{ db.azure_encryption ? 'on' : 'off' }}"
+                        [(ngModel)]="db.azure_encryption">
+                        Encryption
+                    </mat-checkbox>
+                </div>
+            </mat-expansion-panel>
+
+        </ng-container>
+
+        <div *ngIf="db.connectionType === 'agent'" class="connectForm__fullLine mat-body-1 instruction">
+
+            <a mat-flat-button color="accent"
+                [href]="osAgents[userOS]">
+                Download for {{ userOS }}
+            </a>
+            <a mat-button  *ngFor="let os of otherOS"
+                [href]="osAgents[os]" class="download-button">
+                Download for {{os}}
+            </a>
+
+            <div class="docker-instruction">
+                <mat-accordion>
+                    <mat-expansion-panel>
+                        <mat-expansion-panel-header>
+                            <mat-panel-title>
+                                Installation
+                            </mat-panel-title>
+                        </mat-expansion-panel-header>
+                        <ol class="instruction-steps">
+                            <li class="instruction-step">
+                                Download the <strong>binary file</strong> that fits your OS.
+                            </li>
+                            <li class="instruction-step">
+                                Launch this file in <strong>the terminal</strong>.
+                            </li>
+                            <li class="instruction-step">
+                                Using CLI, <strong>enter the token</strong> you received after you add agent connection.
+                            </li>
+                            <li class="instruction-step">
+                                Continue and <strong>enter your database credentials</strong>, indicate 'localhost' as hostname.
+                            </li>
+                            <li class="instruction-step">
+                                After entering credentials and settings, you will see the
+                                "Credentials accepted. Try to <strong>launch application</strong>"
+                            </li>
+                            <li class="instruction-step">
+                                Open the list of connections and check that your local <strong>database is connected to Autoadmin interface</strong>.
+                            </li>
+                        </ol>
+                    </mat-expansion-panel>
+                </mat-accordion>
+
+                <mat-accordion>
+                    <mat-expansion-panel>
+                        <mat-expansion-panel-header>
+                            <mat-panel-title>
+                                Installation via Docker
+                            </mat-panel-title>
+                        </mat-expansion-panel-header>
+                        <ol class="instruction-steps">
+                            <li class="instruction-step">
+                                Install Docker. On Linux, please install
+                                <a href="https://docs.docker.com/compose/install/" target="_blank"
+                                    class="instruction-step__link">
+                                    Docker Compose
+                                </a>
+                                as well.<br/>
+                                Note: Docker Desktop on Windows and MacOS already include Docker Compose.
+                            </li>
+                            <li class="instruction-step">
+                                Create <strong>docker-compose.yml</strong> file.
+                                Copy and paste configuration from
+                                <a href="https://github.com/Autoadmin-org/autoadmin-agent/blob/master/docker-compose.yml" target="_blank"
+                                    class="instruction-step__link">
+                                    (source file)
+                                </a>
+                                or download this file.
+                            </li>
+                            <li class="instruction-step">
+                                Create <strong>.config.env</strong> file in the same directory. Copy and paste the contents of
+                                <a href="https://github.com/Autoadmin-org/autoadmin-agent/blob/master/.config.env" target="_blank"
+                                    class="instruction-step__link">
+                                    (source file)
+                                </a> or download this file.
+                            </li>
+                            <li class="instruction-step">
+                                Open <strong>.config.env</strong> file and specify all required credentials.
+                            </li>
+                            <li class="instruction-step">
+                                Open Terminal app and run:
+                                <code class="instruction-command">docker-compose up --build</code>
+                            </li>
+                        </ol>
+                        <p>After sucessfull execution, new connection will appear in Autoadmin Connections List.</p>
+                        <p>For more information visit <a href="https://github.com/Autoadmin-org/autoadmin-agent" class="instruction-step__link">docs</a>.</p>
+                    </mat-expansion-panel>
+                </mat-accordion>
+            </div>
+
+
+            <div *ngIf="connectionToken" class="encription-password">
+                <mat-form-field appearance="outline" style="width:100%">
+                    <mat-label>Token</mat-label>
+                    <input matInput [(ngModel)]="connectionToken" name="token" #token="ngModel" readonly>
+                    <mat-hint>
+                        Please save this token and use it to configure your agent connection in .config.env file.
+                    </mat-hint>
+                </mat-form-field>
+                <button type="button"
+                    mat-icon-button
+                    class="encription-password__copy-button"
+                    matTooltip="Copy mater password"
+                    [cdkCopyToClipboard]="connectionToken"
+                    (cdkCopyToClipboardCopied)="showCopyNotification('Connection token was copied to clipboard.')">
+                    <mat-icon>content_copy</mat-icon>
+                </button>
+            </div>
+        </div>
+
+        <div class="actions" *ngIf="accessLevel === 'edit' || !db.id">
+            <button type="button" *ngIf="db.id" mat-button color="warn"
+                class="delete-button"
+                angulartics2On="click"
+                angularticsAction="Connection creds: delete db"
+                [disabled]="submitting"
+                (click)="confirmDeleteConnection(db)">
+                Delete
+            </button>
+
+            <button *ngIf="db.id || db.connectionType === 'direct'" type="button" mat-button color="primary" class="test-button"
+                angulartics2On="click"
+                angularticsAction="Connection creds: test db creads"
+                (click)="testConnection()"
+                [disabled]="submitting">
+                Test connection
+            </button>
+
+            <button type="submit" *ngIf="db.id; else goButton"
+                mat-raised-button color="primary"
+                angulartics2On="click"
+                angularticsAction="Connection creds: db is edited"
+                [disabled]="submitting || connectForm.form.pristine">
+                {{ submitting ? 'Checking' : 'Edit'}}
+            </button>
+
+            <ng-template #goButton>
+                <a type="submit" *ngIf="connectionToken; else addButton"
+                    routerLink="/dashboard/{{connectionID}}"
+                    mat-raised-button color="primary">
+                    Open dashboard
+                </a>
+                <ng-template #addButton>
+                    <button type="submit" mat-raised-button color="primary"
+                        angulartics2On="click"
+                        angularticsAction="Connection creds: db is added"
+                        [disabled]="submitting">
+                        {{ submitting ? 'Checking' : 'Add'}}
+                    </button>
+                </ng-template>
+            </ng-template>
+        </div>
+    </form>
+</div>

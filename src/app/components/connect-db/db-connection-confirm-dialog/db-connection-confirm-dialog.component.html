@@ -1,0 +1,21 @@
+<h1 mat-dialog-title>Connection error</h1>
+<div mat-dialog-content>
+    <p>Connection does not exist or credentials are incorrect.</p>
+    <strong>Error: {{data.errorMessage}}</strong>
+</div>
+<div mat-dialog-actions>
+    <button mat-button mat-dialog-close="change" color="primary">
+        Keep editing
+    </button>
+    <button *ngIf="data.dbCreds && data.dbCreds.id; else addButton"
+        mat-button mat-dialog-close color="primary"
+        (click)="editConnection()">
+        Save anyway
+    </button>
+    <ng-template #addButton>
+        <button mat-button mat-dialog-close color="primary"
+            (click)="createConnection()">
+            Add anyway
+        </button>
+    </ng-template>
+</div>

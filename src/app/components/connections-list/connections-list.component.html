@@ -1,0 +1,54 @@
+<app-banner></app-banner>
+<div class="wrapper">
+    <div class="connectionsBox connectionsBox_main">
+        <header class="header">
+            <h1 class="mat-display-1">Connections</h1>
+        </header>
+
+        <app-content-loader *ngIf="connections === null"></app-content-loader>
+
+        <div *ngIf="!connections?.length && connections !== null" class="empty-state">
+            <img src="../../../assets/no-files.svg" alt="">
+            <p class="mat-body-2 empty-state__text">No connections</p>
+        </div>
+
+        <mat-nav-list *ngIf="connections" class="connectionsBox__connectionsList">
+            <a mat-list-item *ngFor="let connectionItem of connections" class="connection"
+                routerLink="/dashboard/{{connectionItem.connection.id}}">
+                <mat-icon *ngIf="connectionItem.connection.type; else defaultIcon" mat-list-icon [svgIcon]="connectionItem.connection.type" class="connection__icon"></mat-icon>
+                <ng-template #defaultIcon>
+                    <mat-icon mat-list-icon class="connection__icon">storage</mat-icon>
+                </ng-template>
+                {{ titles[connectionItem.connection.id] }}
+                <mat-icon class="connection__goIcon">arrow_forward</mat-icon>
+            </a>
+        </mat-nav-list>
+
+        <a mat-flat-button
+            color="accent" class="connectionsBox__addButton"
+            routerLink="/connect-db"
+            angulartics2On="click"
+            angularticsAction="Connections list is opened">
+            {{ connections?.length ? 'Add connection' : 'Connect your database' }}
+        </a>
+    </div>
+
+    <div class="connectionsBox connectionsBox_shadow">
+        <header class="header">
+            <h1 class="mat-display-1">Test connections</h1>
+        </header>
+
+        <div *ngIf="!testConnections?.length && testConnections !== null" class="empty-state">
+            No test connections
+        </div>
+
+        <mat-nav-list *ngIf="testConnections" class="connectionsBox__connectionsList">
+            <a mat-list-item *ngFor="let testConnectionItem of testConnections" class="connection"
+                routerLink="/dashboard/{{testConnectionItem.connection.id}}">
+                <mat-icon mat-list-icon [svgIcon]="testConnectionItem.connection.type" class="connection__icon"></mat-icon>
+                {{ titles[testConnectionItem.connection.id] }}
+                <mat-icon class="connection__goIcon">arrow_forward</mat-icon>
+            </a>
+        </mat-nav-list>
+    </div>
+</div>

@@ -1,0 +1,172 @@
+import { ActivatedRoute, ParamMap, Router } from '@angular/router';
+import { Component, OnInit } from '@angular/core';
+import { first, map } from 'rxjs/operators';
+
+import { ConnectionsService } from 'src/app/services/connections.service';
+import { DbRowDeleteDialogComponent } from './db-row-delete-dialog/db-row-delete-dialog.component';
+import { DbTableFiltersDialogComponent } from './db-table-filters-dialog/db-table-filters-dialog.component';
+import { MatDialog } from '@angular/material/dialog';
+import { NotificationsService } from 'src/app/services/notifications.service';
+import { TableProperties } from 'src/app/models/table';
+import { TableRowService } from 'src/app/services/table-row.service';
+import { TablesDataSource } from './db-tables-data-source';
+import { TablesService } from 'src/app/services/tables.service';
+import { User } from 'src/app/models/user';
+import { normalizeTableName } from '../../lib/normalize'
+import { getComparators, getFilters } from 'src/app/lib/parse-filter-params';
+
+@Component({
+  selector: 'app-dashboard',
+  templateUrl: './dashboard.component.html',
+  styleUrls: ['./dashboard.component.css']
+})
+export class DashboardComponent implements OnInit {
+
+  public user: User = null;
+  public tablesList: TableProperties[] = null;
+  public selectedTableName: string;
+  public selectedTableDisplayName: string;
+  public selectedTablePermissions: Object = null;
+  public currentPage: number = 1;
+  public shownTableTitles: boolean = true;
+  public connectionID: string;
+  public filtersCount: number;
+
+  public loading: boolean = true;
+  public dbFetchError: boolean = false;
+  public errorMessage: string;
+
+  public dataSource: TablesDataSource = null;
+
+  constructor(
+    private router: Router,
+    private route: ActivatedRoute,
+    public dialog: MatDialog,
+    private _connections: ConnectionsService,
+    private _tables: TablesService,
+    private _notifications: NotificationsService,
+    private _tableRow: TableRowService,
+  ) {}
+
+  get currentConnectionAccessLevel () {
+    return this._connections.currentConnectionAccessLevel
+  }
+
+  ngOnInit() {
+    this.connectionID = this._connections.currentConnectionID;
+    this.dataSource = new TablesDataSource(this._tables, this._notifications, this._connections);
+    this._tableRow.cast.subscribe( () =>  {
+      this.getData();
+    });
+  }
+
+  getData() {
+    this.loading = true;
+    this._tables.fetchTables(this.connectionID)
+    .subscribe(
+      res => {
+        if (res.length) {
+          this.tablesList = res.map((tableItem: TableProperties) => {
+            if (tableItem.display_name) return {...tableItem}
+            else return {...tableItem, normalizedTableName: normalizeTableName(tableItem.table)}
+          });
+          this.route.paramMap
+            .pipe(
+              map((params: ParamMap) => {
+                const tableName = params.get('table-name');
+                if (tableName) {
+                  this.setTable(tableName);
+                } else {
+                  this.router.navigate([`/dashboard/${this.connectionID}/${res[0].table}`], {replaceUrl: true})
+                  .then(() => {
+                    this.route.paramMap
+                      .pipe(
+                        map((params: ParamMap) => {
+                          this.setTable(tableName);
+                        })
+                      )
+                  });
+                }
+              })
+            ).subscribe();
+        } else {
+          this.tablesList = res;
+        }
+      this.loading = false;
+      },
+      (error) => {
+        this.loading = false;
+        this.dbFetchError = true;
+        this.errorMessage = error.error.message;
+        // @ts-ignore
+        customerly.open();
+      }
+    )
+  }
+
+  setTable(tableName: string) {
+    this.selectedTableName = tableName;
+    this.route.queryParams.pipe(first()).subscribe((queryParams) => {
+      const filters = getFilters(queryParams);
+      const comparators = getComparators(queryParams);
+
+      this.filtersCount = Object.keys(filters).length;
+      this.dataSource.fetchRows({
+        connectionID: this.connectionID,
+        tableName: tableName,
+        requstedPage: parseInt(queryParams.page_index, 10),
+        sortColumn: undefined,
+        sortOrder: undefined,
+        filters: filters,
+        comparators: comparators,
+      });
+    })
+    const selectedTableProperties = this.tablesList.find( (table: any) => table.table == this.selectedTableName);
+    this.selectedTableDisplayName = selectedTableProperties.display_name || normalizeTableName(selectedTableProperties.table);
+    this.selectedTablePermissions = selectedTableProperties.permissions;
+  }
+
+  openTableFilters() {
+    let filterDialodRef = this.dialog.open(DbTableFiltersDialogComponent, {
+      width: '50em',
+      height: '40em',
+      data: {
+        connectionID: this.connectionID,
+        tableName: this.selectedTableName,
+        displayTableName: this.selectedTableDisplayName
+      }
+    });
+    filterDialodRef.componentInstance.tableRowFieldsShown
+
+    filterDialodRef.afterClosed().subscribe(action => {
+      const filters = filterDialodRef.componentInstance.tableRowFieldsShown;
+      const comparators = filterDialodRef.componentInstance.tableRowFieldsComparator;
+
+      const filtersQueryParams = Object.keys(filters)
+      .reduce((paramsObj, key) => {
+        paramsObj[`f__${key}__${comparators[key]}`] = filters[key];
+        return paramsObj;
+      }, {});
+      if (action === 'filter' || action === 'reset') {
+        this.filtersCount = Object.keys(filters).length;
+        this.dataSource.fetchRows({
+          connectionID: this.connectionID,
+          tableName: this.selectedTableName,
+          requstedPage: 0,
+          sortColumn: undefined,
+          sortOrder: undefined,
+          filters: filters,
+          comparators: comparators
+        });
+        this.router.navigate([`/dashboard/${this.connectionID}/${this.selectedTableName}`], { queryParams: {...filtersQueryParams, page_index: 0} });
+      }
+    })
+  }
+
+  confirmDeleteRow(rowKeyAttributes: Object) {
+    this.dialog.open(DbRowDeleteDialogComponent, {
+      width: '25em',
+      data: rowKeyAttributes
+    });
+  }
+}

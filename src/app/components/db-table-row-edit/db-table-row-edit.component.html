@@ -1,0 +1,85 @@
+<app-banner></app-banner>
+<div class="wrapper">
+    <form *ngIf="tableRowValues; else loader" #editRowForm="ngForm" class="form"
+        (ngSubmit)="keyAttributes ? updateRow() : addRow()">
+        <h1 class="mat-h1">
+            {{ keyAttributes ? 'Edit row' : 'Add row' }} in <strong>{{ normalizedTableName }}</strong> table
+        </h1>
+
+        <div *ngFor="let value of tableRowValues | keyvalue: originalOrder; let index = index; trackBy:trackByFn">
+                <!-- <mat-form-field class="example-form-field" appearance="outline">
+                    <mat-label>test label</mat-label>
+                    <input matInput type="text" required name="test-name" ngModel>
+                    <mat-error>!!!</mat-error>
+                </mat-form-field> -->
+            <div *ngIf="isWidget(value.key); else defaultTableField" [ngClass]="{ widget: tableWidgets[value.key].description }">
+                <ndc-dynamic [ndcDynamicComponent]="tableWidgets[value.key].widget_type ? UIwidgets[tableWidgets[value.key].widget_type] : inputs[tableTypes[value.key]]"
+                    [ndcDynamicInputs]="{
+                        key: index,
+                        label: tableWidgets[value.key].name || value.key,
+                        value: tableRowValues[value.key],
+                        required: tableRowRequiredValues[value.key],
+                        readonly: isReadonly(value.key),
+                        widgetStructure: tableWidgets[value.key],
+                        relations: tableTypes[value.key] === 'foreign key' ? getRelations(value.key) : undefined
+                    }"
+                    [ndcDynamicOutputs]="{
+                        onFieldChange: { handler: updateField, args: ['$event', value.key] }
+                    }"
+                ></ndc-dynamic>
+                <mat-icon *ngIf="tableWidgets[value.key].description"
+                    class="widget-info"
+                    [ngClass]="{ 'widget-info_centered': tableWidgets[value.key].widget_type === 'Boolean' || tableTypes[value.key] === 'boolean' }"
+                    [matTooltip]="tableWidgets[value.key].description"
+                    matTooltipPosition="above">
+                    info_outline
+                </mat-icon>
+            </div>
+
+            <ng-template #defaultTableField>
+                <ndc-dynamic [ndcDynamicComponent]="inputs[tableTypes[value.key]]"
+                    [ndcDynamicInputs]="{
+                        key: index,
+                        label: value.key,
+                        value: tableRowValues[value.key],
+                        required: tableRowRequiredValues[value.key],
+                        readonly: isReadonly(value.key),
+                        structure: tableRowStructure[value.key],
+                        relations: tableTypes[value.key] === 'foreign key' ? getRelations(value.key) : undefined
+                    }"
+                    [ndcDynamicOutputs]="{
+                        onFieldChange: { handler: updateField, args: ['$event', value.key] }
+                    }"
+                ></ndc-dynamic>
+            </ng-template>
+        </div>
+
+        <div class="actions">
+            <a mat-stroked-button routerLink="/dashboard/{{connectionID}}/{{tableName}}">
+                Back
+            </a>
+            <button type="button" mat-button color="primary"
+                class="actions__continue"
+                [disabled]="submitting || editRowForm.form.invalid"
+                (click)="keyAttributes ? updateRow(true) : addRow(true)">
+                Save and continue editing
+            </button>
+
+            <button *ngIf="keyAttributes; else addButton"
+                type="submit" mat-raised-button color="primary"
+                [disabled]="submitting || editRowForm.form.invalid">
+                Edit
+            </button>
+
+            <ng-template #addButton>
+                <button type="submit" mat-raised-button color="primary" [disabled]="submitting || editRowForm.form.invalid">
+                    Add
+                </button>
+            </ng-template>
+        </div>
+    </form>
+
+    <ng-template #loader>
+        <app-content-loader></app-content-loader>
+    </ng-template>
+</div>

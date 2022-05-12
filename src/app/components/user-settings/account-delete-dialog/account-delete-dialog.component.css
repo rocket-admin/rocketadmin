@@ -1,0 +1,30 @@
+.mat-dialog-content {
+    padding-bottom: 1em;
+}
+
+.mat-dialog-actions {
+    justify-content: flex-end;
+    margin-top: -32px;
+    padding-bottom: 20px;
+}
+
+.radio-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.radio-group__message {
+    margin-bottom: 8px;
+}
+
+.radio-button {
+    margin: 8px 0;
+}
+
+.message {
+    width: 100%;
+}
+
+.message textarea {
+    resize: none;
+}

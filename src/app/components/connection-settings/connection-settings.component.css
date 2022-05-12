@@ -1,0 +1,58 @@
+.settings-page {
+    padding: 0 max(calc(50vw - 325px), 10%);
+}
+
+.mat-h1 {
+    margin-top: 2em;
+}
+
+.settings-form {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    padding-bottom: 72px;
+}
+
+.form-group-ordering {
+    display: flex;
+}
+
+.form-group-ordering__ordering-by {
+    width: 50%
+}
+
+.form-group-ordering__order-options {
+    margin-top: 24px;
+    margin-left: 16px;
+}
+
+.form-group-ordering__order-options * {
+    margin-right: 16px;
+}
+
+.actions {
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: #fff;
+    box-shadow: 0 3px 1px -2px rgba(0,0,0,.2),0 2px 2px 0 rgba(0,0,0,.14),0 1px 5px 0 rgba(0,0,0,.12);
+    height: 64px;
+    padding: 0 max(calc(50vw - 325px), 10%);
+    width: 100vw;
+}
+
+.mat-dialog-actions {
+    justify-content: flex-end;
+    padding: 8px 0 24px;
+}
+
+.settings-form__back-button {
+    margin-right: auto;
+}
+
+.settings-form__save-button {
+    margin-left: 20px;
+}

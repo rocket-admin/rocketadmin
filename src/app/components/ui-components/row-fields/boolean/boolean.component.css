@@ -1,0 +1,17 @@
+.radio-line {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.checkbox-line {
+    margin-bottom: 20px;
+}
+
+.radio-group {
+    margin-left: 12px;
+}
+
+.radio-button {
+    margin-right: 28px;
+}

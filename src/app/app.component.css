@@ -1,0 +1,204 @@
+.main-menu-container {
+    display: flex;
+    flex-direction: column;
+    background: #fff;
+    height: 100vh;
+}
+
+.main-menu-sidenav {
+    width: 60vw;
+}
+
+.nav-bar {
+    flex-shrink: 0;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    background-color: #171D39;
+}
+
+@media screen and (max-width: 600px) {
+    .nav-bar {
+        display: flex;
+        justify-content: space-between;
+    }
+}
+
+.nav-bar_white {
+    grid-template-columns: 1fr auto;
+    background-color: #fff;
+    box-shadow: 0px -10px 100px rgba(23, 29, 57, 0.08);
+}
+
+.nav-bar__button {
+    color: rgba(255, 255, 255, 0.56);
+    font-weight: 300;
+}
+
+.nav-bar__button >>> .mat-badge-content {
+    top: 6px;
+    right: 6px !important;
+    color: #ed4870;
+    height: 6px;
+    width: 6px;
+}
+
+.nav-bar__button_active {
+    color: #fff;
+    font-weight: 400;
+}
+
+@media screen and (max-width: 600px) {
+    .nav-bar__button_active {
+        color: inherit;
+        font-weight: 600;
+    }
+}
+
+.nav-bar__upgrade-button {
+    margin-right: 8px;
+}
+
+@media screen and (max-width: 600px) {
+    .nav-bar__upgrade-button {
+        color: #3258F0;
+    }
+}
+
+.authButton {
+    align-items: center;
+    background: var(--bg-color);
+    border-radius: 2.25vw;
+    box-sizing: border-box;
+    color: var(--text-color);
+    display: flex;
+    height: clamp(40px, 2.25vw, 80px);
+    justify-content: center;
+    padding: 0 2vw;
+    font-size: 14px;
+    text-decoration: none;
+    transition: background 300ms, color 300ms;
+}
+
+.authButton_login {
+    --bg-color: rgba(50, 88, 240, 0.1);
+    --text-color: rgb(10, 10, 10);
+}
+
+.authButton_signup {
+    --bg-color: #3258F0;
+    --text-color: #fff;
+
+    margin-right: 8px;
+    margin-left: 16px;
+}
+
+.logo {
+    color: #fff;
+    text-decoration: none;
+}
+
+.logo img {
+    height: 32px;
+    margin-top: 8px;
+}
+
+.menu {
+    text-align: center;
+}
+
+.menu-button {
+    color: #fff;
+}
+
+@media screen and (min-width: 600px) {
+    .menu-button {
+        display: none;
+    }
+}
+
+.actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    margin-right: -0.5em;
+}
+
+.action {
+    margin-left: 0.5em;
+}
+
+@media screen and (max-width: 600px) {
+    .menu,
+    .actions_auth {
+        display: none;
+    }
+}
+
+.connectionName {
+    /* color: #ff4081;
+    font-size: 0.875em;
+    margin-left: auto;
+    margin-right: 2%; */
+    background-color: rgba(0, 103, 140, 0.24);
+    padding: 8px 0;
+    text-align: center;
+    width: 100%;
+}
+
+.tab-icon {
+    margin-right: 8px;
+}
+
+.main-menu-content {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.content {
+    flex-grow: 1;
+    display: grid;
+    grid-template-rows: 0 100%;
+}
+
+.helpContainer {
+    position: fixed;
+    right: 16px;
+    bottom: 16px;
+    z-index: 100;
+}
+
+.footer {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    height: 60px;
+}
+
+.footer__text {
+    color: rgba(0,0,0,0.5);
+    font-size: 0.875em;
+}
+
+::ng-deep .visually-hidden {
+	position: absolute !important;
+	clip: rect(1px 1px 1px 1px); /* IE6, IE7 */
+	clip: rect(1px, 1px, 1px, 1px);
+	padding:0 !important;
+	border:0 !important;
+	height: 1px !important;
+	width: 1px !important;
+	overflow: hidden;
+}
+
+/* .interval-form-field .mat-form-field-infix {
+    width: auto !important;
+} */
+
+.logout-button {
+    font-size: inherit;
+    font-weight: inherit;
+    margin: 4px 0;
+}

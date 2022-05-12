@@ -1,0 +1,60 @@
+.wrapper {
+    height: 100%;
+    padding: 16px;
+}
+
+.login-page {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    height: 100%;
+    margin: 0 auto;
+    max-width: 460px;
+    min-width: 300px;
+    width: 90%;
+}
+
+.login-form {
+    display: flex;
+    flex-direction: column;
+}
+
+.login-button {
+    margin-top: 20px;
+}
+
+.soc-buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-column-gap: 16px;
+    margin: 20px 0 40px;
+}
+
+@media screen and (max-width: 600px) {
+    .soc-buttons {
+        grid-template-columns: 1fr;
+        grid-column-gap: 0;
+        grid-row-gap: 16px;
+    }
+}
+
+::ng-deep .soc-button .mat-button-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.soc-button-icon {
+    height: 16px;
+    margin-right: 4px;
+}
+
+.sing-up {
+    margin-top: 12px;
+    text-align: center;
+}
+
+.link {
+    color: #3258F0;
+    text-decoration: none;
+}

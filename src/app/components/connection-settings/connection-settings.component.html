@@ -1,0 +1,32 @@
+<app-banner></app-banner>
+<div class="settings-page">
+    <h1 class="mat-h1">Settings for <strong>{{connectionName}}</strong> connection</h1>
+
+    <app-content-loader *ngIf="loading"></app-content-loader>
+    <form action="" #connectionSettingsForm="ngForm" (ngSubmit)="isSettingsExist ? updateSettings() : createSettings()">
+        <div class="settings-form">
+            <mat-form-field appearance="outline">
+                <mat-label>Hidden tables</mat-label>
+                <mat-select multiple
+                    name="columns_view"
+                    [(ngModel)]="hiddenTables">
+                    <mat-option *ngFor="let table of tablesList" [value]="table.table">{{table.display_name || table.normalizedTableName}}</mat-option>
+                </mat-select>
+            </mat-form-field>
+        </div>
+        <div *ngIf="accessLevel !== 'readonly'" class="actions">
+            <button mat-raised-button color="warn"
+                type="button"
+                [disabled]="!isSettingsExist || submitting || connectionSettingsForm.form.invalid"
+                (click)="resetSettings()">
+                Reset
+            </button>
+            <button mat-raised-button color="primary"
+                type="submit"
+                class="settings-form__save-button"
+                [disabled]="submitting || connectionSettingsForm.form.invalid || connectionSettingsForm.form.pristine">
+                Save
+            </button>
+        </div>
+    </form>
+</div>

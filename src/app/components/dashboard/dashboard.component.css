@@ -1,0 +1,93 @@
+.error-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+}
+
+.error-box {
+    background-color: rgb(253, 237, 237);
+    border-radius: 4px;
+    color: rgb(95, 33, 32);
+    padding: 20px;
+    width: clamp(300px, 50vw, 450px);
+}
+
+.error-actions {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-top: 16px;
+}
+
+.mat-sidenav-container {
+    height: 100%;
+    overflow-x: hidden !important;
+}
+
+.mat-sidenav {
+    padding: 2rem 0;
+    width: clamp(200px, 15%, 280px);
+}
+
+.mat-list-item {
+    text-decoration: none;
+}
+
+.mat-sidenav-content {
+    padding: 2rem;
+}
+
+.toggle-button-position {
+    position: absolute;
+    top: 148px;
+    z-index: 10;
+
+}
+
+.toggle-button-position__opened {
+    left: clamp(188px, calc(15% - 12px), 268px);
+    transition: left 500ms;
+}
+
+.toggle-button-position__closed {
+    left: -4px;
+    transition: left 500ms;
+}
+
+.toggle-button {
+    background-color: #fff;
+    color: inherit;
+    line-height: 24px;
+    width: 24px;
+    height: 24px;
+    box-shadow: 0px 2px 4px -1px rgba(0, 0, 0, 0.1),0px 6px 8px 0px rgba(0, 0, 0, 0.07),0px 1px 8px 0px rgba(0, 0, 0, 0.06);
+}
+
+.toggle-button::ng-deep .mat-button-wrapper {
+    padding: 0;
+}
+
+.toggle-button::ng-deep .material-icons {
+    line-height: 22px;
+}
+
+.toggle-button-position__opened::ng-deep .material-icons {
+    margin-left: -2px;
+}
+
+.toggle-button-position__closed::ng-deep .material-icons {
+    margin-left: 2px;
+}
+
+.dashboard {
+    display: flex;
+    flex-direction: column;
+    max-width: 1000px;
+    margin: 20px auto;
+    widows: 96%;
+}
+
+.title {
+    align-self: center;
+}

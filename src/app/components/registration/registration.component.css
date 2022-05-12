@@ -1,0 +1,141 @@
+.wrapper {
+    display: grid;
+    grid-template-columns: repeat(2, 50%);
+    height: 100%;
+}
+
+@media screen and (max-width: 600px) {
+    .wrapper {
+        grid-template-columns: 1fr;
+    }
+}
+
+.register-form-box {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    background: linear-gradient(0deg, rgba(102, 188, 255, 0.12) -16.81%, rgba(102, 188, 255, 0) 73.59%);
+    padding-bottom: 20px;
+}
+
+.register-form {
+    display: flex;
+    flex-direction: column;
+    margin: 0 auto;
+    width: clamp(300px, 29vw, 450px);
+}
+
+@media screen and (max-width: 600px) {
+    .register-form {
+        width: 100%;
+    }
+}
+
+.mat-h1 {
+    align-self: center;
+    margin-top: 20px;
+    font-weight: 500;
+    text-align: center;
+    width: 70%;
+}
+
+@media screen and (max-width: 600px) {
+    .mat-h1 {
+        margin-top: 32px;
+        margin-bottom: 32px;
+        width: 100%;
+    }
+}
+
+.divider {
+    position: relative;
+    background-color: #E8E8E8;
+    height: 1px;
+    margin: 24px 0;
+    width: 100%
+}
+
+.divider__label {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #fff;
+    font-size: 14px;
+    padding: 0 16px;
+}
+
+.soc-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #66BCFF;
+    border: none;
+    border-radius: 4px;
+    color: #fff;
+    line-height: 36px;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.soc-button-icon {
+    height: 16px;
+    margin-right: 12px;
+}
+
+.submit-button {
+    margin-top: 64px;
+}
+
+.register-image-box {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+    background-color: #181D37;
+    max-height: calc(100vh - 64px);
+    overflow: hidden;
+    padding-top: 3vw;
+}
+
+@media screen and (max-width: 600px) {
+    .register-image-box {
+        display: none;
+    }
+}
+
+.password-visibility-button {
+    cursor: pointer;
+}
+
+.register-image {
+    margin: 0 -1.5vw;
+    transform: translateX(-70%);
+    height: 84.5vh;
+}
+
+.agreement {
+    margin-top: 12px;
+    text-align: center;
+}
+
+.link {
+    color: #66BCFF;
+    text-decoration: none;
+}
+
+.password-requirements {
+    list-style: none;
+    columns: 2;
+    gap: 60px;
+}
+
+.password-requirements li::before {
+    content: '—';
+}
+
+.error {
+    color: salmon;
+}
+
+.success {
+    color: #50a14f;
+}

@@ -1,0 +1,44 @@
+@import "~jsoneditor/dist/jsoneditor.min.css";
+
+
+.jsoneditor {
+    border: thin solid #171D39;
+    border-radius: 5px;
+}
+
+.jsoneditor-menu {
+    background-color: #171D39;
+    border-bottom: 1px solid #171D39;
+}
+
+.jsoneditor-frame {
+    border-radius: 4px;
+}
+
+.widget-params .jsoneditor {
+    border-radius: 5px;
+    border: 1px solid #E0E0E0;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    color: #0a0a0a;
+    font-family: Poppins, sans-serif;
+}
+
+html, body { height: 100%; }
+body {
+    background-color: #fff;
+    margin: 0;
+}
+
+.mainLayout {
+    display: flex;
+    flex-direction: column;
+    min-height: 100%;
+}

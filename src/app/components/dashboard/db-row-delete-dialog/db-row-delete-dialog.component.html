@@ -1,0 +1,15 @@
+<h1 mat-dialog-title>Confirm row delete from {{ selectedTableName }} table</h1>
+<div mat-dialog-content>
+    <p class="mat-body">You are going to delete table row with primary key(s)
+        <br>
+        <strong *ngFor="let attribute of rowKeyAttributes | keyvalue; let last = last">
+            {{attribute.key}} = {{attribute.value}}<span *ngIf="!last">,</span>
+        </strong>.
+    </p>
+    <p class="mat-body">Please confirm.</p>
+
+</div>
+<div mat-dialog-actions>
+  <button mat-raised-button mat-dialog-close>Cancel</button>
+  <button mat-raised-button color="warn" (click)="deleteRow()" [disabled]="submitting">Delete</button>
+</div>

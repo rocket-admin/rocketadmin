@@ -1,0 +1,114 @@
+<app-banner></app-banner>
+<div class="settings-page">
+    <h1 class="mat-h1">Settings for <strong>{{displayTableName}}</strong> ({{ tableName }}) table</h1>
+
+    <app-content-loader *ngIf="loading"></app-content-loader>
+    <form action="" #tableSettingsForm="ngForm" (ngSubmit)="updateSettings()">
+        <div class="settings-form">
+            <mat-form-field appearance="outline">
+                <mat-label>Table display name</mat-label>
+                <input matInput [(ngModel)]="tableSettings.display_name" name="display_name" #displayName="ngModel">
+                <!-- <mat-error *ngIf="title.errors?.required && (title.invalid && title.touched)">Title should not be empty.</mat-error> -->
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+                <mat-label>Columns visible by default</mat-label>
+                <mat-select multiple
+                    name="columns_view"
+                    [(ngModel)]="tableSettings.columns_view">
+                    <mat-option *ngFor="let field of fields" [value]="field">{{field}}</mat-option>
+                </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+                <mat-label>Autocomplete fields</mat-label>
+                <mat-select multiple
+                    name="autocomplete_columns"
+                    [(ngModel)]="tableSettings.autocomplete_columns">
+                    <mat-option *ngFor="let field of fields" [value]="field">{{field}}</mat-option>
+                </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+                <mat-label>Identity field</mat-label>
+                <mat-select
+                    name="identity_column"
+                    [(ngModel)]="tableSettings.identity_column">
+                    <mat-option *ngFor="let field of fields" [value]="field">{{field}}</mat-option>
+                </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+                <mat-label>Fields to search</mat-label>
+                <mat-select multiple
+                    name="search_fields"
+                    [(ngModel)]="tableSettings.search_fields">
+                    <mat-option *ngFor="let field of fields" [value]="field">{{field}}</mat-option>
+                </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+                <mat-label>Fields to exclude</mat-label>
+                <mat-select multiple
+                    name="excluded_fields"
+                    [(ngModel)]="tableSettings.excluded_fields">
+                    <mat-option *ngFor="let field of fields_to_exclude" [value]="field">{{field}}</mat-option>
+                </mat-select>
+            </mat-form-field>
+
+            <div class="form-group-ordering">
+                <mat-form-field appearance="outline" class="form-group-ordering__ordering-by">
+                    <mat-label>Ordering by field</mat-label>
+                    <mat-select name="ordering_field" [(ngModel)]="tableSettings.ordering_field">
+                        <mat-option *ngFor="let field of fields" [value]="field">
+                            {{field}}
+                        </mat-option>
+                    </mat-select>
+                </mat-form-field>
+                <mat-radio-group aria-label="Order"
+                    class="form-group-ordering__order-options"
+                    name="ordering"
+                    [(ngModel)]="tableSettings.ordering">
+                    <mat-radio-button value="ASC" checked>Ascending</mat-radio-button>
+                    <mat-radio-button value="DESC">Descending</mat-radio-button>
+                </mat-radio-group>
+            </div>
+
+            <mat-form-field appearance="outline">
+                <mat-label>Read-only fields</mat-label>
+                <mat-select multiple
+                    name="readonly_fields"
+                    [(ngModel)]="tableSettings.readonly_fields">
+                    <mat-option *ngFor="let field of fields" [value]="field">{{field}}</mat-option>
+                </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+                <mat-label>Sort fields by</mat-label>
+                <mat-select multiple
+                    name="sortable_by"
+                    [(ngModel)]="tableSettings.sortable_by">
+                    <mat-option *ngFor="let field of fields" [value]="field">{{field}}</mat-option>
+                </mat-select>
+            </mat-form-field>
+        </div>
+        <div class="actions">
+            <a mat-stroked-button class="settings-form__back-button"
+                routerLink="/dashboard/{{connectionID}}/{{tableName}}">Back</a>
+
+            <button mat-raised-button color="warn"
+                type="button"
+                [disabled]="submitting || !isSettingsExist"
+                (click)="resetSettings(tableSettingsForm)">
+                Reset
+            </button>
+            <button mat-raised-button color="primary"
+                type="submit"
+                class="settings-form__save-button"
+                [disabled]="submitting || tableSettingsForm.form.invalid || tableSettingsForm.form.pristine">
+                Save
+            </button>
+        </div>
+    </form>
+
+</div>

@@ -1,0 +1,23 @@
+.mat-dialog-actions {
+    justify-content: flex-end;
+    padding: 20px 0 24px;
+}
+
+.codeSnippet {
+    display: flex;
+    align-items: center;
+    /* justify-content: space-between; */
+    margin: 8px 0;
+}
+
+.code {
+    background: rgba(0, 0, 0, 0.04);
+    padding: 8px 12px;
+    border-radius: 4px;
+    margin-right: 20px;
+}
+
+.code pre {
+    white-space: break-spaces;
+}
+

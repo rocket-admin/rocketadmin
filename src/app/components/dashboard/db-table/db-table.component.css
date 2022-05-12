@@ -1,0 +1,79 @@
+/* .db-table-header__columnsCheckbox .mat-checkbox-layout,
+.db-table-header__columnsCheckbox .mat-checkbox-label {
+    width: 100%;
+    background-color: red;
+} */
+
+.hidden {
+    display: none;
+}
+
+.db-table-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    width: 100%;
+}
+
+.db-table-title {
+    display: flex;
+    align-items: center;
+}
+
+.db-table-title .mat-h2 {
+    margin-bottom: 0;
+}
+
+.db-table-manage-columns-button {
+    display: inline-block;
+}
+
+.empty-table-message {
+    display: inline-block;
+    margin-top: 40px;
+    text-align: center;
+    width: 100%;
+}
+
+.table-wrapper {
+    position: relative;
+    min-height: 100px;
+}
+
+table {
+    width: 100%;
+}
+
+.table-cell-content {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    width: 100%;
+    max-width: 200px;
+}
+
+th.mat-header-cell, td.mat-cell {
+    padding-right: 20px;
+}
+
+.mat-table-sticky {
+    background: #e0e0e0;
+    padding-left: 16px;
+    width: 124px;
+}
+
+.spinner-wrapper {
+    position: absolute;
+    top: 56px; left: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.9);
+    height: calc(100% - 112px);
+    width: 100%;
+    z-index: 2;
+}
+
+.foreign-key-link {
+    color: #ED4870;
+}

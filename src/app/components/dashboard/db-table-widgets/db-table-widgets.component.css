@@ -1,0 +1,60 @@
+.wrapper {
+    min-width: 300px;
+    /* max-width: 1000px; */
+    margin: 16px auto;
+    width: 90%;
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 2.5em 70px 1em 0;
+}
+
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 3em;
+}
+
+.empty-state__text {
+    color: rgba(0,0,0,0.5);
+    padding: 1rem 0;
+    text-align: center;
+}
+
+.widget-settings {
+    display: grid;
+    grid-template-columns: 8% 1fr 2fr 1fr 2fr 50px;
+    grid-gap: 0 20px;
+}
+
+.widget-field-name {
+    align-self: baseline;
+    margin-top: 28px;
+}
+
+.widget-params {
+    padding-top: 4px;
+}
+
+.widget-delete-button {
+    margin-top: 16px;
+}
+
+.actions {
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: #fff;
+    box-shadow: 0 3px 1px -2px rgba(0,0,0,.2),0 2px 2px 0 rgba(0,0,0,.14),0 1px 5px 0 rgba(0,0,0,.12);
+    height: 64px;
+    /* padding: 0 max(calc(50vw - 500px), 2%); */
+    padding: 0 calc(5% + 70px) 0 5%;
+    width: 100vw;
+}

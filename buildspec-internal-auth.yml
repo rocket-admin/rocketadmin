@@ -1,0 +1,30 @@
+version: 0.2
+env:
+    variables:
+        S3_BUCKET: "autoadmin-front-v2"
+APP_NAME: "dissendium"
+BUILD_ENV : "prod"
+phases:
+    install:
+        commands:
+        - n 16
+        - yarn global add @angular/cli
+        # Install node dependancies.
+        - yarn install
+        - echo '#!/bin/bash' > /usr/local/bin/ok; echo 'if [[ "$CODEBUILD_BUILD_SUCCEEDING" == "0" ]]; then exit 1; else exit 0; fi' >> /usr/local/bin/ok; chmod +x /usr/local/bin/ok
+    build:
+        commands:
+        # Builds Angular application. You can also build using custom environment here like mock or staging
+        - echo Build started on `date`
+        - node --max_old_space_size=4000 ./node_modules/@angular/cli/bin/ng build --prod --configuration=saas
+
+    post_build:
+        commands:
+        # Clear S3 bucket.
+        - ok && aws s3 rm s3://${S3_BUCKET} --recursive
+        - echo S3 bucket is cleared.
+        # Copy dist folder to S3 bucket, As of Angular 6, builds are stored inside an app folder in distribution and not at the root of the dist folder
+        - ok && aws s3 cp --acl=public-read dist s3://${S3_BUCKET}/${APP_NAME} --recursive
+        - ok && aws cloudfront create-invalidation --distribution-id=E1OBEHQ0QC01GL "--paths=/*"
+        - echo Build completed on `date`
+

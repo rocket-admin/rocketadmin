@@ -1,0 +1,36 @@
+<app-banner></app-banner>
+<app-banner *ngIf="currentUser.id && !currentUser.isActive" [banner]="emailVerificationWarning"></app-banner>
+
+<div class="page">
+    <h1 class="mat-h1">
+        User settings
+    </h1>
+
+    <div class="userInfo">
+        <strong>Email:</strong> {{currentUser.email}}
+        <button mat-button color="primary" class="user-settings__button"
+            [disabled]="!currentUser.isActive"
+            (click)="changeEmail()">
+            Change email
+        </button>
+    </div>
+
+    <div class="userInfo">
+        <strong>Password</strong>
+        <a mat-button routerLink="/change-password" color="primary" class="user-settings__button">
+            Change password
+        </a>
+    </div>
+
+    <a mat-raised-button color="accent" class="upgrade-button"
+        [href]="currentUser.portal_link" target="_blank">
+        Manage payment settings
+    </a>
+
+    <button mat-button class="delete-button"
+        type="button"
+        [disabled]="submittingDelete"
+        (click)="confirmDeleteAccount()">
+        Delete account
+    </button>
+</div>

@@ -1,0 +1,5 @@
+<mat-form-field class="date-field" appearance="outline">
+    <mat-label>{{normalizedLabel}}</mat-label>
+    <input type="date" matInput name="{{label}}-{{key}}" [required]="required" [disabled]="readonly"
+    [(ngModel)]="date" (ngModelChange)="onDateChange()">
+</mat-form-field>

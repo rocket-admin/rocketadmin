@@ -1,0 +1,15 @@
+<svg width="172" height="172" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <circle cx="86" cy="69.6" r="56.9" fill="#EFF0F3"/>
+  <rect x="63.7" y="68.5" width="55.7" height="78" rx="5.6" transform="rotate(2.5 63.7 68.5)" fill="#E6E7EC" stroke="#8F9099" stroke-width="1.6"/>
+  <rect x="30.5" y="63.8" width="58.9" height="81.2" rx="7.2" transform="rotate(-7.5 30.5 63.8)" fill="#F7F7FA" stroke="#8F9099" stroke-width="1.6"/>
+  <path d="M32.2 70.8c-.4-3.5 2-6.7 5.5-7.1L82 57.8c3.5-.4 6.7 2 7.2 5.5l1.6 11.9-56.9 7.5-1.6-11.9Z" fill="#E6E7EC"/>
+  <rect x="100.6" y="59.4" width="2.4" height="8" rx="1.2" transform="rotate(82.5 100.6 59.4)" fill="#8F9099"/>
+  <rect x="78.8" y="46.2" width="2.4" height="8" rx="1.2" transform="rotate(-7.5 78.8 46.2)" fill="#8F9099"/>
+  <rect x="92.8" y="48.4" width="2.4" height="8" rx="1.2" transform="rotate(37.5 92.8 48.4)" fill="#8F9099"/>
+  <rect x="39.7" y="85.1" width="46.2" height="3.2" rx="1.6" transform="rotate(-7.5 39.7 85)" fill="#D6D7DE"/>
+  <rect x="41.8" y="100.9" width="46.2" height="3.2" rx="1.6" transform="rotate(-7.5 41.8 100.9)" fill="#D6D7DE"/>
+  <rect x="43.9" y="116.7" width="46.2" height="3.2" rx="1.6" transform="rotate(-7.5 43.9 116.7)" fill="#D6D7DE"/>
+  <rect x="40.6" y="91.4" width="16.7" height="3.2" rx="1.6" transform="rotate(-7.5 40.6 91.4)" fill="#E6E7EC"/>
+  <rect x="42.7" y="107.2" width="16.7" height="3.2" rx="1.6" transform="rotate(-7.5 42.7 107.2)" fill="#E6E7EC"/>
+  <rect x="44.7" y="123" width="16.7" height="3.2" rx="1.6" transform="rotate(-7.5 44.7 123)" fill="#E6E7EC"/>
+</svg>

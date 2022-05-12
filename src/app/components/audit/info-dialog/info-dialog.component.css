@@ -1,0 +1,31 @@
+.mat-raised-button {
+    margin-left: auto;
+}
+
+.details {
+    margin-top: 16px;
+}
+
+table {
+    border-collapse: collapse;
+    border-top-width: 1px;
+    border-top-style: solid;
+    border-top-color: rgba(0,0,0,.12);
+    width: 100%;
+}
+
+td, th {
+    padding: 8px 36px 8px 24px;
+    border-bottom-width: 1px;
+    border-bottom-style: solid;
+    border-bottom-color: rgba(0,0,0,.12);
+}
+
+th {
+    font-weight: 500;
+    text-align: left;
+}
+
+.changed {
+    background: #ff4081;
+}

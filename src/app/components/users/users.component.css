@@ -1,0 +1,36 @@
+.wrapper {
+    margin: 0 auto;
+    width: clamp(18.75em, 96%, 42em);
+}
+
+header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 2em 0 1em;
+}
+
+.mat-h1 {
+    margin: 0;
+}
+
+.add-group-button .mat-icon{
+    font-size: 2em;
+}
+
+.mat-expansion-panel-header-title {
+    align-items: center;
+}
+
+.mat-expansion-panel-header-description {
+    justify-content: flex-end;
+    align-items: center;
+}
+
+.user {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 0 -1em;
+    width: calc(100% + 1em);
+}

@@ -1,0 +1,5 @@
+<mat-form-field class="example-form-field" appearance="outline">
+    <mat-label>{{normalizedLabel}}</mat-label>
+    <input type="number" matInput name="{{label}}-{{key}}" [required]="required" [disabled]="readonly"
+        [(ngModel)]="value" (ngModelChange)="onFieldChange.emit($event)">
+</mat-form-field>

@@ -1,0 +1,41 @@
+<h1 mat-dialog-title>Delete <strong>{{ connectionName }}</strong> connection</h1>
+<div mat-dialog-content>
+    <p class="mat-body">
+      Before you delete the connection, please let us know why.
+      Every bit of feedback helps!
+    </p>
+    <br>
+    <form action="" #deleteConnectionForm="ngForm" class="form">
+        <mat-radio-group required
+            name="reasons"
+            class="radio-group"
+            [(ngModel)]="reason">
+            <mat-radio-button value='missing-features' class="radio-button">
+                Missing features I need
+            </mat-radio-button>
+            <mat-radio-button value='technical-issues' class="radio-button">
+                Technical issues
+            </mat-radio-button>
+            <mat-radio-button value='another-product' class="radio-button">
+                Another product
+            </mat-radio-button>
+            <mat-radio-button value='other' class="radio-button">
+                Other
+            </mat-radio-button>
+        </mat-radio-group>
+        <mat-form-field appearance="outline" class="message">
+            <mat-label>Anything you want to share? (optional)</mat-label>
+            <textarea matInput resizeToFitContent rows="8" name="message"
+                [(ngModel)]="message"
+            ></textarea>
+        </mat-form-field>
+    </form>
+</div>
+<div mat-dialog-actions>
+  <button mat-raised-button mat-dialog-close mat-dialog-close="cancel">Abort</button>
+  <button mat-raised-button color="warn"
+    [disabled]="submitting"
+    (click)="deleteConnection()">
+    Proceed
+  </button>
+</div>

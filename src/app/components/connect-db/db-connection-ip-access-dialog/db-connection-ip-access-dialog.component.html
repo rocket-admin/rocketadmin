@@ -1,0 +1,96 @@
+<h1 mat-dialog-title>Give access to our IP address</h1>
+<div mat-dialog-content>
+    <p class="mat-body">
+        Please make sure our servers are able to access your database. We use IP address <strong>18.221.81.73</strong> for all outbound requests.
+    </p>
+    <br>
+    <div *ngIf="db.type === 'postgres'" class="mat-body">
+        Give privileges to a user:
+        <div class="codeSnippet">
+            <code class="code">
+                <pre>GRANT CONNECT ON DATABASE &quot;{{db.database}}&quot; TO &quot;{{db.username}}&quot;;</pre>
+                <pre>ALTER DEFAULT PRIVILEGES IN SCHEMA &quot;{{db.schema || 'public'}}&quot;;</pre>
+                <pre>GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO &quot;{{db.username}}&quot;;</pre>
+            </code>
+            <button type="button" mat-icon-button
+                matTooltip="Copy the command."
+                cdkCopyToClipboard="GRANT CONNECT ON DATABASE &quot;{{db.database}}&quot; TO &quot;{{db.username}}&quot;;
+ALTER DEFAULT PRIVILEGES IN SCHEMA &quot;{{db.schema || 'public'}}&quot;;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO &quot;{{db.username}}&quot;;"
+                (cdkCopyToClipboardCopied)="showCopyNotification('Command was copied to clipboard.')">
+                <mat-icon>content_copy</mat-icon>
+            </button>
+        </div>
+
+        Add the followinf line in file pg_hba.conf (/var/lib/pgsql/data/pg_hba.conf for Linux).
+
+        <div class="codeSnippet">
+            <code class="code">
+                <pre>host    all    all    18.221.81.73/port    trust</pre>
+            </code>
+            <button type="button" mat-icon-button
+                matTooltip="Copy the command."
+                cdkCopyToClipboard="host    all         all         18.221.81.73/port    trust"
+                (cdkCopyToClipboardCopied)="showCopyNotification('Command was copied to clipboard.')">
+                <mat-icon>content_copy</mat-icon>
+            </button>
+        </div>
+    </div>
+
+    <div *ngIf="db.type === 'mysql'" class="mat-body">
+        Give privileges to user and allow to connect: <br/>
+
+        <div class="codeSnippet">
+            <code class="code">
+                <pre>GRANT ALL PRIVILEGES ON {{db.database}} TO `{{db.username}}`@`18.221.81.73` IDENTIFIED BY `&lt;password&gt;` WITH GRANT OPTION;</pre>
+            </code>
+            <button type="button" mat-icon-button
+                matTooltip="Copy the command."
+                cdkCopyToClipboard="GRANT ALL PRIVILEGES ON {{db.database}} TO `{{db.username}}`@`18.221.81.73` IDENTIFIED BY `&lt;password&gt;` WITH GRANT OPTION;"
+                (cdkCopyToClipboardCopied)="showCopyNotification('Command was copied to clipboard.')">
+                <mat-icon>content_copy</mat-icon>
+            </button>
+        </div>
+
+        and then
+
+        <div class="codeSnippet">
+            <code class="code">
+                <pre>FLUSH PRIVILEGES;</pre>
+            </code>
+            <button type="button" mat-icon-button
+                matTooltip="Copy the command."
+                cdkCopyToClipboard="FLUSH PRIVILEGES;"
+                (cdkCopyToClipboardCopied)="showCopyNotification('Command was copied to clipboard.')">
+                <mat-icon>content_copy</mat-icon>
+            </button>
+        </div>
+    </div>
+
+    <div *ngIf="db.type === 'oracledb'" class="mat-body">
+        <p>
+            Start the SQL PLUS Command Line and connect to the database as user SYSTEM.
+            Provide the SYSTEM password that you assigned upon installation (Windows) or
+            configuration (Linux) of Oracle Database XE. Run the following command:
+        </p>
+
+        <div class="codeSnippet">
+            <code class="code">
+                <pre>EXEC DBMS_XDB.SETLISTENERLOCALACCESS(FALSE);</pre>
+            </code>
+            <button type="button" mat-icon-button
+                matTooltip="Copy the command."
+                cdkCopyToClipboard="EXEC DBMS_XDB.SETLISTENERLOCALACCESS(FALSE);"
+                (cdkCopyToClipboardCopied)="showCopyNotification('Command was copied to clipboard.')">
+                <mat-icon>content_copy</mat-icon>
+            </button>
+        </div>
+    </div>
+</div>
+<div mat-dialog-actions>
+  <button mat-raised-button mat-dialog-close mat-dialog-close>Cancel</button>
+  <button mat-raised-button color="primary"
+    mat-dialog-close="confirmed">
+    I gave access
+  </button>
+</div>

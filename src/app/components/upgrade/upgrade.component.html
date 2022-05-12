@@ -1,0 +1,44 @@
+<app-banner></app-banner>
+<div class="page">
+    <div class="plans">
+        <div class="header">
+            <h1 class="mat-h1">
+                Manage plans
+            </h1>
+            <div class="toggle">
+                <span class="toggle-label" [ngClass]="{'toggle-label-active': !isAnnually}">Monthly</span>
+                <mat-slide-toggle [(ngModel)]="isAnnually"></mat-slide-toggle>
+                <span class="toggle-label" [ngClass]="{'toggle-label-active': isAnnually}">Annually</span>
+            </div>
+        </div>
+
+        <table mat-table [dataSource]="plansTable" class="plansTable mat-elevation-z8">
+            <ng-container *ngFor="let column of columns" [matColumnDef]="column.key">
+                <th mat-header-cell *matHeaderCellDef>
+                    <div *ngIf="column.name" class="plan-header">
+                        <span class="mat-h3">{{column.name}} </span>
+                        <span class="price">${{isAnnually ? column.priceA : column.priceM}}</span>
+                        <span class="period">{{isAnnually ? 'annually' : 'monthly'}}</span>
+                        <span *ngIf="isCurrent(column.key); else activeButton" class="mat-body-1 current">
+                            Current
+                        </span>
+                        <ng-template #activeButton>
+                            <button mat-flat-button color="accent"
+                                [disabled]="submitting"
+                                (click)="upgradePlan(column.key, isAnnually)">
+                                Try for free
+                            </button>
+                        </ng-template>
+                    </div>
+                </th>
+                <td mat-cell *matCellDef="let element" [ngClass]="{'cell-centered': column.key !== 'title'}">
+                    <span *ngIf="element[column.key] === true; else nonBoolValue">✓</span>
+                    <ng-template #nonBoolValue>{{element[column.key]}}</ng-template>
+                </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        </table>
+    </div>
+</div>
