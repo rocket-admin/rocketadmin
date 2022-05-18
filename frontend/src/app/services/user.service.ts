@@ -54,7 +54,7 @@ export class UserService {
   }
 
   sendUserAction(message: string) {
-    return this._http.post<any>('https://api.autoadmin.org/action', {message: message})
+    return this._http.post<any>('https://api-v2.autoadmin.org/action', {message: message})
     .pipe(
       map(res => res),
       catchError((err) => {

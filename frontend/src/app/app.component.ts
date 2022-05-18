@@ -10,7 +10,7 @@ import { MatIconRegistry } from '@angular/material/icon';
 import { DomSanitizer } from '@angular/platform-browser';
 import { differenceInMilliseconds } from 'date-fns'
 import { AuthService } from './services/auth.service';
-import { SocialAuthService, FacebookLoginProvider, SocialUser } from 'angularx-social-login';
+import { SocialAuthService, FacebookLoginProvider, SocialUser } from '@abacritt/angularx-social-login';
 
 //@ts-ignore
 window.amplitude = amplitude;
