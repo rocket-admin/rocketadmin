@@ -7,7 +7,7 @@ import { Angulartics2Module } from 'angulartics2';
 import { RouterTestingModule } from '@angular/router/testing';
 import { AuthService } from 'src/app/services/auth.service';
 import { of } from 'rxjs';
-import { SocialAuthService, SocialLoginModule } from 'angularx-social-login';
+import { SocialAuthService, SocialLoginModule } from '@abacritt/angularx-social-login';
 
 describe('RegistrationComponent', () => {
   let component: RegistrationComponent;

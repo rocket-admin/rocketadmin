@@ -6,7 +6,7 @@ import { AppComponent } from './app.component';
 import { RouterTestingModule } from '@angular/router/testing';
 import { MatDialogModule } from '@angular/material/dialog';
 import { Angulartics2Module } from 'angulartics2';
-import { SocialLoginModule } from 'angularx-social-login';
+import { SocialLoginModule } from '@abacritt/angularx-social-login';
 
 describe('AppComponent', () => {
   beforeEach(async(() => {

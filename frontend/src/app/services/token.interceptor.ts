@@ -1,5 +1,4 @@
 import {
-  // HttpErrorResponse,
   HttpEvent,
   HttpHandler,
   HttpHeaders,
@@ -7,11 +6,11 @@ import {
   HttpRequest
 } from '@angular/common/http';
 import { Observable, from } from 'rxjs';
-import { switchMap } from 'rxjs/operators';
 
+import { ConnectionsService } from './connections.service';
 import { CookieService } from 'ngx-cookie-service';
 import { Injectable } from '@angular/core';
-import { ConnectionsService } from './connections.service';
+
 // import { Connection } from '../models/connection';
 // import { UserService } from './user.service';
 
@@ -26,16 +25,13 @@ export class TokenInterceptor implements HttpInterceptor {
 
   intercept(request: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
     const autoadmin_gclid_cookie = this.cookieService.get('autoadmin_gclid');
-    const masterKey = localStorage.getItem(`${this._connections.connectionID}__masterKey`);
-
-    // request = request.clone({
-    //   setHeaders: {
-    //     GCLID: autoadmin_gclid_cookie,
-    //     masterpwd: masterKey || undefined
-    //   }
-    // });
+    // const masterKey = localStorage.getItem(`${this._connections.connectionID}__masterKey`);
 
     request = request.clone({
+      setHeaders: {
+        GCLID: autoadmin_gclid_cookie,
+        // masterpwd: masterKey || undefined
+      },
       withCredentials: true
     });
 
