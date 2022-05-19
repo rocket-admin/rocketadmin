@@ -150,6 +150,7 @@ export class ConnectDBComponent implements OnInit {
     this._connections.updateConnection(this.db)
     .subscribe((res: any) => {
       this.ngZone.run(() => {
+        this.checkMasterPassword();
         const connectionID = res.connection.id!;
         if (this.db.connectionType === 'agent') {
           this.connectionToken = res.connection.token;
@@ -190,8 +191,6 @@ export class ConnectDBComponent implements OnInit {
   async editConnection(connectForm: NgForm) {
     this.submitting = true;
     let credsCorrect: TestConnection;
-
-    this.checkMasterPassword();
 
     (credsCorrect as any) = await this._connections.testConnection(this.connectionID, this.db).toPromise();
 

@@ -25,33 +25,24 @@ export class TokenInterceptor implements HttpInterceptor {
 
   intercept(request: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
     const autoadmin_gclid_cookie = this.cookieService.get('autoadmin_gclid');
-    // const masterKey = localStorage.getItem(`${this._connections.connectionID}__masterKey`);
+    const connectionID = this._connections.currentConnectionID;
 
     request = request.clone({
       setHeaders: {
-        GCLID: autoadmin_gclid_cookie,
-        // masterpwd: masterKey || undefined
+        GCLID: autoadmin_gclid_cookie
       },
       withCredentials: true
     });
 
-    return next.handle(request);
+    if (connectionID) {
+      const masterKey = localStorage.getItem(`${connectionID}__masterKey`) || '';
+      request = request.clone({
+        setHeaders: {
+          masterpwd: masterKey
+        },
+      });
+    };
 
-    // return from(Auth.currentAuthenticatedUser())
-    //   .pipe(
-    //       switchMap(user => {
-    //         let headers = request.headers
-    //           .set('Authorization', 'Bearer ' + user.signInUserSession.idToken.jwtToken)
-    //           .set('GCLID', autoadmin_gclid_cookie);
-    //          if (masterKey) {
-    //           headers = headers.set('masterpwd', masterKey);
-    //         }
-    //         const requestClone = request.clone({
-    //           headers,
-    //         });
-    //         return next.handle(requestClone);
-    //       }
-    //     )
-    //   );
+    return next.handle(request);
   }
 }

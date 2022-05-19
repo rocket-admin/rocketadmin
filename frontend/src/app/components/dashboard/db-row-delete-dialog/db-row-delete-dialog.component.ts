@@ -28,6 +28,7 @@ export class DbRowDeleteDialogComponent implements OnInit {
     this.selectedTableName = this._tables.currentTableName;
 
     this._tableRow.cast.subscribe();
+    // this._tables.cast.subscribe();
   }
 
   deleteRow() {

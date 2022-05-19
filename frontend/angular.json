@@ -73,6 +73,18 @@
                   "replace": "src/environments/environment.ts",
                   "with": "src/environments/environment.saas-prod.ts"
                 }
+              ]
+            },
+            "saas-production": {
+              "index": {
+                "input": "src/index.saas.html",
+                "output": "index.html"
+              },
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.saas-prod.ts"
+                }
               ],
               "optimization": true,
               "outputHashing": "all",

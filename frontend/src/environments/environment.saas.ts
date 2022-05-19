@@ -1,3 +1,4 @@
 export const environment = {
-    saas: true
-  };
+    saas: true,
+    production: false
+};
