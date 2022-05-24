@@ -38,6 +38,12 @@
 .table-wrapper {
     position: relative;
     min-height: 100px;
+    width: calc(85vw - 4rem);
+}
+
+.table-box {
+    overflow-x: auto;
+    width: 100%;
 }
 
 table {
