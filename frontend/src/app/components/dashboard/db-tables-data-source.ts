@@ -1,19 +1,19 @@
+import { Banner, BannerActionType, BannerType } from 'src/app/models/banner';
 import { BehaviorSubject, Observable, of } from 'rxjs';
+import { TableForeignKey, Widget } from 'src/app/models/table';
 import { catchError, finalize } from 'rxjs/operators';
 
+import { AccessLevel } from 'src/app/models/user';
 import { CollectionViewer } from '@angular/cdk/collections';
+import { ConnectionsService } from 'src/app/services/connections.service';
 import { DataSource } from '@angular/cdk/table';
 import { MatPaginator } from '@angular/material/paginator';
+import { NotificationsService } from 'src/app/services/notifications.service';
 // import { MatSort } from '@angular/material/sort';
 import { TablesService } from 'src/app/services/tables.service';
 import { filter } from "lodash";
 import { format } from 'date-fns'
 import { normalizeFieldName } from 'src/app/lib/normalize';
-import { TableForeignKey, Widget } from 'src/app/models/table';
-import { NotificationsService } from 'src/app/services/notifications.service';
-import { Banner, BannerActionType, BannerType } from 'src/app/models/banner';
-import { ConnectionsService } from 'src/app/services/connections.service';
-import { AccessLevel } from 'src/app/models/user';
 
 interface Column {
   title: string,
@@ -66,12 +66,14 @@ export class TablesDataSource implements DataSource<Object> {
   ) {}
 
   connect(collectionViewer: CollectionViewer): Observable<Object[]> {
+    console.log('connect');
     return this.rowsSubject.asObservable();
   }
 
   disconnect(collectionViewer: CollectionViewer): void {
       this.rowsSubject.complete();
       this.loadingSubject.complete();
+      console.trace('disconnect');
   }
 
   formatField(value, type) {
@@ -123,6 +125,8 @@ export class TablesDataSource implements DataSource<Object> {
     filters, comparators,
     isTablePageSwitched
   }: RowsParams) {
+      console.log('fetchRows');
+
       this.loadingSubject.next(true);
       this.banner_primaryKeysInfo = null;
       this.banner_settingsInfo = null;
@@ -138,6 +142,10 @@ export class TablesDataSource implements DataSource<Object> {
         comparators
       });
 
+      console.log('fetchedTable');
+      console.log(fetchedTable);
+
+
       if (fetchedTable) {
         fetchedTable
         .pipe(
@@ -146,13 +154,18 @@ export class TablesDataSource implements DataSource<Object> {
         )
         .subscribe((res: any) => {
 
+          console.log('fetchRows fetchedTable');
+          console.log(res);
+
           const columns = res.structure
             .reduce((items, item) => {
               items.set(item.column_name, item)
               return items;
             }, new Map());
 
-          const formattedRows = res.rows.map(row => this.formatRow(row, columns))
+          const formattedRows = res.rows.map(row => this.formatRow(row, columns));
+
+          console.log({formattedRows});
 
           this.rowsSubject.next(formattedRows);
           this.keyAttributes = res.primaryColumns;

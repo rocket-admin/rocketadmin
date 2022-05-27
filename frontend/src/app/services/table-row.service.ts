@@ -1,10 +1,10 @@
+import { BannerActionType, BannerType } from '../models/banner';
 import { BehaviorSubject, EMPTY } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { NotificationsService } from './notifications.service';
-import { BannerActionType, BannerType } from '../models/banner';
 
 @Injectable({
   providedIn: 'root'
@@ -98,7 +98,7 @@ export class TableRowService {
     })
       .pipe(
         map(() => {
-          this.row.next('');
+          this.row.next('delete row');
           this._notifications.showSuccessSnackbar(`Row has been deleted successfully from "${tableName}" table.`);
         }),
         catchError((err) => {
