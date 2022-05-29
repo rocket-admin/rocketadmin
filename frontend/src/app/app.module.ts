@@ -6,7 +6,6 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { Router, RouterModule } from '@angular/router';
 
-import { AccountDeleteConfirmationComponent } from './components/user-settings/account-delete-confirmation/account-delete-confirmation.component';
 import { AccountDeleteDialogComponent } from './components/user-settings/account-delete-dialog/account-delete-dialog.component';
 import { Angulartics2Module } from 'angulartics2';
 import { AppComponent } from './app.component';
@@ -45,7 +44,6 @@ import { GroupAddDialogComponent } from './components/users/group-add-dialog/gro
 import { GroupDeleteDialogComponent } from './components/users/group-delete-dialog/group-delete-dialog.component';
 import { HomeComponent } from './components/home/home.component';
 import { HostnameValidationDirective } from "./directives/hostnameValidator.directive";
-import { IdComponent } from "./components/ui-components/row-fields/id/id.component";
 import { InfoDialogComponent } from './components/audit/info-dialog/info-dialog.component';
 import { JsonEditorComponent } from './components/ui-components/row-fields/json-editor/json-editor.component';
 import { LoginComponent } from './components/login/login.component';
@@ -81,7 +79,9 @@ import { UserSettingsComponent } from './components/user-settings/user-settings.
 import { UsersComponent } from './components/users/users.component';
 import { UsersService } from './services/users.service';
 import { WidgetDeleteDialogComponent } from './components/dashboard/db-table-widgets/widget-delete-dialog/widget-delete-dialog.component';
+import { AccountDeleteConfirmationComponent } from './components/user-settings/account-delete-confirmation/account-delete-confirmation.component';
 import { environment } from '../environments/environment';
+import { IdComponent } from "./components/ui-components/row-fields/id/id.component";
 
 const saasExtraModules = environment.saas ? [
   {
@@ -92,7 +92,7 @@ const saasExtraModules = environment.saas ? [
         {
           id: GoogleLoginProvider.PROVIDER_ID,
           provider: new GoogleLoginProvider(
-            '837258495764-cos2bo2458qg1sf665avev05heagict6.apps.googleusercontent.com'
+            '600913874691-spojhqmeasej8692gjkuedqpk0ad24ng.apps.googleusercontent.com'
           )
         },
         {
