@@ -19,7 +19,6 @@ export class RegistrationComponent implements OnInit {
   };
   public submitting: boolean;
   public passwordHidden: boolean;
-  public socialAuthServiceInitialized: boolean;
 
   constructor(
     private angulartics2: Angulartics2,
@@ -35,8 +34,6 @@ export class RegistrationComponent implements OnInit {
 
     //@ts-ignore
     gtag('event', 'conversion', {'send_to': 'AW-419937947/auKoCOvwgoYDEJv9nsgB'});
-
-    this.socialAuthService.initState.subscribe((res) => this.socialAuthServiceInitialized = true);
 
     this.socialAuthService.authState.subscribe((authUser) => {
       console.log('regpage authUser from fb listener')
