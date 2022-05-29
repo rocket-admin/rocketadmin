@@ -1,16 +1,16 @@
-import { ChangeDetectorRef, Component, HostListener, NgZone } from '@angular/core';
-
-import { ConnectionsService } from './services/connections.service';
-import { UserService } from './services/user.service';
-import { Angulartics2Amplitude } from 'angulartics2/amplitude';
-import amplitude from 'amplitude-js';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Subject } from 'rxjs';
-import { MatIconRegistry } from '@angular/material/icon';
-import { DomSanitizer } from '@angular/platform-browser';
-import { differenceInMilliseconds } from 'date-fns'
+import { ChangeDetectorRef, Component, HostListener, NgZone } from '@angular/core';
+import { FacebookLoginProvider, SocialAuthService, SocialUser } from '@abacritt/angularx-social-login';
+
+import { Angulartics2Amplitude } from 'angulartics2/amplitude';
 import { AuthService } from './services/auth.service';
-import { SocialAuthService, FacebookLoginProvider, SocialUser } from '@abacritt/angularx-social-login';
+import { ConnectionsService } from './services/connections.service';
+import { DomSanitizer } from '@angular/platform-browser';
+import { MatIconRegistry } from '@angular/material/icon';
+import { Subject } from 'rxjs';
+import { UserService } from './services/user.service';
+import amplitude from 'amplitude-js';
+import { differenceInMilliseconds } from 'date-fns'
 
 //@ts-ignore
 window.amplitude = amplitude;
@@ -107,6 +107,7 @@ export class AppComponent {
 
     // this.setTimeout();
 
+    document.cookie = "G_AUTH2_MIGRATION=informational";
     this._auth.cast.subscribe( res =>  {
       if (res.expires) {
         const expirationTime = new Date(res.expires).toString();
