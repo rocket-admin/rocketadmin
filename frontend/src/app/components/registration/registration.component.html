@@ -9,6 +9,7 @@
             <button type="button" class="soc-button"
                 angulartics2On="click"
                 angularticsAction="Reg: sign up with google"
+                [disabled]="!socialAuthServiceInitialized"
                 (click)="loginWithGoogle()">
                 <img src="../../../assets/icons/google_logo.svg" alt="" class="soc-button-icon">
                 Continue with Google
@@ -79,6 +80,7 @@
             <button type="button" class="soc-button"
                 angulartics2On="click"
                 angularticsAction="Reg: sign up with facebook"
+                [disabled]="!socialAuthServiceInitialized"
                 (click)="loginWithFacebook()">
                 <img src="../../../assets/icons/fb_logo.svg" alt="" class="soc-button-icon">
                 Continue with Facebook
