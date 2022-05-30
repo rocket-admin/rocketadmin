@@ -52,8 +52,9 @@ export class RegistrationComponent implements OnInit {
       callback: (authUser) => {
         this.ngZone.run(() => {
           this._auth.loginWithGoogle(authUser.credential).subscribe();
+        })
       }
-    );
+    });
     //@ts-ignore
     google.accounts.id.renderButton(
       document.getElementById("google_registration_button"),
