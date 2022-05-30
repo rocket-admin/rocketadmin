@@ -187,6 +187,8 @@ export class AppComponent {
           // @ts-ignore
           google.accounts.id.revoke(this.currentUser.email, done => {
            console.log('consent revoked');
+           console.log(done);
+           console.log(this.currentUser.email);
           });
         } catch(error) {
           console.log(error);
