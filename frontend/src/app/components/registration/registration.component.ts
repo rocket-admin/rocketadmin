@@ -39,7 +39,7 @@ export class RegistrationComponent implements OnInit {
     window.loginWithGoogle = (authUser) => {
       console.log('google callback');
       console.log(authUser);
-      this._auth.loginWithGoogle(authUser.idToken).subscribe();
+      this._auth.loginWithGoogle(authUser.credential).subscribe();
     }
 
     this.socialAuthService.authState.subscribe((authUser) => {
