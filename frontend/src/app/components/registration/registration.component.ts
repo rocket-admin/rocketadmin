@@ -35,11 +35,18 @@ export class RegistrationComponent implements OnInit {
     //@ts-ignore
     gtag('event', 'conversion', {'send_to': 'AW-419937947/auKoCOvwgoYDEJv9nsgB'});
 
+    //@ts-ignore
+    window.loginWithGoogle = (authUser) => {
+      console.log('google callback');
+      console.log(authUser);
+      this._auth.loginWithGoogle(authUser.idToken).subscribe();
+    }
+
     this.socialAuthService.authState.subscribe((authUser) => {
       console.log('regpage authUser from fb listener')
       console.log(authUser)
       if (authUser.provider === "FACEBOOK") this._auth.loginWithFacebook(authUser.authToken).subscribe();
-      if (authUser.provider === "GOOGLE") this._auth.loginWithGoogle(authUser.idToken).subscribe();
+      // if (authUser.provider === "GOOGLE") this._auth.loginWithGoogle(authUser.idToken).subscribe();
     });
   }
 
@@ -63,7 +70,7 @@ export class RegistrationComponent implements OnInit {
     this.socialAuthService.signIn(FacebookLoginProvider.PROVIDER_ID);
   }
 
-  loginWithGoogle() {
-    this.socialAuthService.signIn(GoogleLoginProvider.PROVIDER_ID);
-  }
+  // loginWithGoogle() {
+  //   this.socialAuthService.signIn(GoogleLoginProvider.PROVIDER_ID);
+  // }
 }
