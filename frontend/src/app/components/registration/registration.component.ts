@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, NgZone, OnInit } from '@angular/core';
 import { FacebookLoginProvider, GoogleLoginProvider, SocialAuthService } from '@abacritt/angularx-social-login';
 
 import { Angulartics2 } from 'angulartics2';
@@ -21,6 +21,7 @@ export class RegistrationComponent implements OnInit {
   public passwordHidden: boolean;
 
   constructor(
+    private ngZone: NgZone,
     private angulartics2: Angulartics2,
     public router: Router,
     private _auth: AuthService,
@@ -39,7 +40,10 @@ export class RegistrationComponent implements OnInit {
     window.loginWithGoogle = (authUser) => {
       console.log('google callback');
       console.log(authUser);
-      this._auth.loginWithGoogle(authUser.credential).subscribe();
+      this.ngZone.run(() => {
+        this._auth.loginWithGoogle(authUser.credential).subscribe();
+      });
+
     }
 
     this.socialAuthService.authState.subscribe((authUser) => {
