@@ -67,11 +67,10 @@ export class DashboardComponent implements OnInit {
       customerly.open();
     }
 
-    // const tables = await this.getTables();
     if (tables) {
       this.formatTableNames(tables);
       this.route.paramMap
-        .pipe(
+        .pipe(first(),
           map((params: ParamMap) => {
             const tableName = params.get('table-name');
             if (tableName) {
@@ -83,11 +82,9 @@ export class DashboardComponent implements OnInit {
             };
           })
         ).subscribe();
-
-      this._tableRow.cast.subscribe((arg) =>  {
-        console.log(arg)
-        if (arg === 'delete row') this.setTable(this.selectedTableName);
-      });
+        this._tableRow.cast.subscribe((arg) =>  {
+          if (arg === 'delete row') this.setTable(this.selectedTableName);
+        });
     }
   }
 
@@ -102,62 +99,11 @@ export class DashboardComponent implements OnInit {
     })
   }
 
-  // getData() {
-  //   console.log('getData');
-  //   // this.loading = true;
-  //   this._tables.fetchTables(this.connectionID)
-  //   .subscribe(
-  //     res => {
-  //       console.log('_tables.fetchTables subscribe');
-  //       if (res.length) {
-  //         this.tablesList = res.map((tableItem: TableProperties) => {
-  //           if (tableItem.display_name) return {...tableItem}
-  //           else return {...tableItem, normalizedTableName: normalizeTableName(tableItem.table)}
-  //         });
-  //         console.log('getData tables');
-  //         console.log(res);
-  //         this.route.paramMap
-  //           .pipe(
-  //             map((params: ParamMap) => {
-  //               const tableName = params.get('table-name');
-  //               if (tableName) {
-  //                 this.setTable(tableName);
-  //                 console.log('getData route.paramMap', tableName);
-  //               } else {
-  //                 this.router.navigate([`/dashboard/${this.connectionID}/${res[0].table}`], {replaceUrl: true})
-  //                 .then(() => {
-  //                   this.route.paramMap
-  //                     .pipe(
-  //                       map((params: ParamMap) => {
-  //                         this.setTable(tableName);
-  //                       })
-  //                     )
-  //                 });
-  //               }
-  //             })
-  //           ).subscribe();
-  //       } else {
-  //         this.tablesList = res;
-  //       }
-  //     this.loading = false;
-  //     },
-  //     (error) => {
-  //       this.loading = false;
-  //       this.dbFetchError = true;
-  //       this.errorMessage = error.error.message;
-  //       // @ts-ignore
-  //       customerly.open();
-  //     }
-  //   )
-  // }
-
   setTable(tableName: string) {
     this.selectedTableName = tableName;
     this.route.queryParams.pipe(first()).subscribe((queryParams) => {
       const filters = getFilters(queryParams);
       const comparators = getComparators(queryParams);
-
-      console.log('setTable subscribe');
 
       this.filtersCount = Object.keys(filters).length;
       this.dataSource.fetchRows({

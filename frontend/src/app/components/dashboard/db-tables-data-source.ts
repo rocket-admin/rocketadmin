@@ -66,14 +66,12 @@ export class TablesDataSource implements DataSource<Object> {
   ) {}
 
   connect(collectionViewer: CollectionViewer): Observable<Object[]> {
-    console.log('connect');
     return this.rowsSubject.asObservable();
   }
 
   disconnect(collectionViewer: CollectionViewer): void {
       this.rowsSubject.complete();
       this.loadingSubject.complete();
-      console.trace('disconnect');
   }
 
   formatField(value, type) {
@@ -125,8 +123,6 @@ export class TablesDataSource implements DataSource<Object> {
     filters, comparators,
     isTablePageSwitched
   }: RowsParams) {
-      console.log('fetchRows');
-
       this.loadingSubject.next(true);
       this.banner_primaryKeysInfo = null;
       this.banner_settingsInfo = null;
@@ -142,10 +138,6 @@ export class TablesDataSource implements DataSource<Object> {
         comparators
       });
 
-      console.log('fetchedTable');
-      console.log(fetchedTable);
-
-
       if (fetchedTable) {
         fetchedTable
         .pipe(
@@ -153,10 +145,6 @@ export class TablesDataSource implements DataSource<Object> {
             finalize(() => this.loadingSubject.next(false))
         )
         .subscribe((res: any) => {
-
-          console.log('fetchRows fetchedTable');
-          console.log(res);
-
           const columns = res.structure
             .reduce((items, item) => {
               items.set(item.column_name, item)
@@ -164,9 +152,6 @@ export class TablesDataSource implements DataSource<Object> {
             }, new Map());
 
           const formattedRows = res.rows.map(row => this.formatRow(row, columns));
-
-          console.log({formattedRows});
-
           this.rowsSubject.next(formattedRows);
           this.keyAttributes = res.primaryColumns;
 
