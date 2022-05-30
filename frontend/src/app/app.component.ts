@@ -185,7 +185,7 @@ export class AppComponent {
         this.socialAuthService.signOut();
         try {
           // @ts-ignore
-          google.accounts.id.revoke('user@google.com', done => {
+          google.accounts.id.revoke(this.currentUser.email, done => {
            console.log('consent revoked');
           });
         } catch(error) {
