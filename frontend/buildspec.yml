@@ -16,7 +16,7 @@ phases:
         commands:
         # Builds Angular application. You can also build using custom environment here like mock or staging
         - echo Build started on `date`
-        - node --max_old_space_size=4000 ./node_modules/@angular/cli/bin/ng build --prod --configuration=saas
+        - node --max_old_space_size=4000 ./node_modules/@angular/cli/bin/ng build --configuration=saas
 
     post_build:
         commands:
