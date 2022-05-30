@@ -37,16 +37,6 @@ export class RegistrationComponent implements OnInit {
     gtag('event', 'conversion', {'send_to': 'AW-419937947/auKoCOvwgoYDEJv9nsgB'});
 
     //@ts-ignore
-    // window.loginWithGoogle = (authUser) => {
-    //   console.log('google callback');
-    //   console.log(authUser);
-    //   this.ngZone.run(() => {
-    //     this._auth.loginWithGoogle(authUser.credential).subscribe();
-    //   });
-
-    // }
-
-    //@ts-ignore
     google.accounts.id.initialize({
       client_id: "681163285738-e4l0lrv5vv7m616ucrfhnhso9r396lum.apps.googleusercontent.com",
       callback: (authUser) => {
@@ -67,7 +57,6 @@ export class RegistrationComponent implements OnInit {
       console.log('regpage authUser from fb listener')
       console.log(authUser)
       if (authUser.provider === "FACEBOOK") this._auth.loginWithFacebook(authUser.authToken).subscribe();
-      // if (authUser.provider === "GOOGLE") this._auth.loginWithGoogle(authUser.idToken).subscribe();
     });
   }
 
@@ -90,8 +79,4 @@ export class RegistrationComponent implements OnInit {
   loginWithFacebook() {
     this.socialAuthService.signIn(FacebookLoginProvider.PROVIDER_ID);
   }
-
-  // loginWithGoogle() {
-  //   this.socialAuthService.signIn(GoogleLoginProvider.PROVIDER_ID);
-  // }
 }
