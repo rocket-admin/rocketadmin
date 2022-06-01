@@ -64,7 +64,7 @@
     padding: 0 16px;
 }
 
-#google_registration_button iframe {
+#google_registration_button ::ng-deep iframe {
     width: 100% !important;
 }
 
