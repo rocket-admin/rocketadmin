@@ -39,7 +39,7 @@ export class LoginComponent implements OnInit {
     //@ts-ignore
     google.accounts.id.renderButton(
       document.getElementById("google_login_button"),
-      { theme: "outline", size: "large" }
+      { theme: "filled_blue", size: "large", 'width': "100%" }
     );
     //@ts-ignore
     google.accounts.id.prompt();
