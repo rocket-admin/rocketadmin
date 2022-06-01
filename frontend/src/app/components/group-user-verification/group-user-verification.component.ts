@@ -11,7 +11,9 @@ import { map } from 'rxjs/operators';
 })
 export class GroupUserVerificationComponent implements OnInit {
 
-  isVerified: boolean = null;
+  public submitting: boolean = false;
+  public token: string;
+  public password: string;
 
   constructor(
     private _usersService: UsersService,
@@ -24,20 +26,25 @@ export class GroupUserVerificationComponent implements OnInit {
     this.route.paramMap
     .pipe(
       map((params: ParamMap) => {
-        const verificationToken = params.get('verification-token');
-        const expirationTime = localStorage.getItem('token_expiration');
-
-        this._usersService.verifyGroupUserEmail(verificationToken)
-          .subscribe(() => {
-            if (expirationTime) {
-              this.router.navigate(['/user-settings']);
-            } else {
-              this.router.navigate(['/login']);
-            }
-            this.isVerified = true;
-          });
+        this.token = params.get('verification-token');
       })
     ).subscribe();
   }
 
+  verifyGroupUser() {
+    this.submitting = true;
+    const expirationTime = localStorage.getItem('token_expiration');
+
+    this._usersService.verifyGroupUserEmail(this.token, this.password)
+    .subscribe(() => {
+      if (expirationTime) {
+        this.router.navigate(['/user-settings']);
+      } else {
+        this.router.navigate(['/login']);
+      }
+      this.submitting = false;
+    });
+  }
 }
+
+

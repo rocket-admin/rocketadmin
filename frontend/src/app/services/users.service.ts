@@ -27,8 +27,10 @@ export class UsersService {
     private _notifications: NotificationsService
   ) { }
 
-  verifyGroupUserEmail(token: string) {
-    return this._http.put<any>(`${this._groupURL}/user/verify/${token}`, undefined)
+  verifyGroupUserEmail(token: string, password: string) {
+    return this._http.put<any>(`${this._groupURL}/user/verify/${token}`, {
+      password
+    })
     .pipe(
       map(res => {
         this._notifications.showSuccessSnackbar('Your email is verified.');
