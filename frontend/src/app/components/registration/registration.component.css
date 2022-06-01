@@ -64,6 +64,10 @@
     padding: 0 16px;
 }
 
+#google_registration_button iframe {
+    width: 100% !important;
+}
+
 .soc-button {
     display: flex;
     align-items: center;
