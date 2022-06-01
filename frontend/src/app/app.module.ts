@@ -82,6 +82,7 @@ import { WidgetDeleteDialogComponent } from './components/dashboard/db-table-wid
 import { AccountDeleteConfirmationComponent } from './components/user-settings/account-delete-confirmation/account-delete-confirmation.component';
 import { environment } from '../environments/environment';
 import { IdComponent } from "./components/ui-components/row-fields/id/id.component";
+import { GroupUserVerificationComponent } from './components/group-user-verification/group-user-verification.component';
 
 const saasExtraModules = environment.saas ? [
   {
@@ -171,7 +172,8 @@ const saasExtraModules = environment.saas ? [
     AccountDeleteDialogComponent,
     PasswordRequestComponent,
     PasswordChangeComponent,
-    AccountDeleteConfirmationComponent
+    AccountDeleteConfirmationComponent,
+    GroupUserVerificationComponent
   ],
   entryComponents: [
     DbRowDeleteDialogComponent,

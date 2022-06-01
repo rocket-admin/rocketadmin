@@ -1,3 +1,4 @@
+import { BannerActionType, BannerType } from '../models/banner';
 import { BehaviorSubject, EMPTY } from 'rxjs';
 import { catchError, filter, map } from 'rxjs/operators';
 
@@ -25,6 +26,27 @@ export class UsersService {
     private _http: HttpClient,
     private _notifications: NotificationsService
   ) { }
+
+  verifyGroupUserEmail(token: string) {
+    return this._http.put<any>(`${this._groupURL}/user/verify/${token}`, undefined)
+    .pipe(
+      map(res => {
+        this._notifications.showSuccessSnackbar('Your email is verified.');
+        return res
+      }),
+      catchError((err) => {
+        console.log(err);
+        this._notifications.showBanner(BannerType.Error, err.error.message, [
+          {
+            type: BannerActionType.Button,
+            caption: 'Dismiss',
+            action: (id: number) => this._notifications.dismissBanner()
+          }
+        ]);
+        return EMPTY;
+      })
+    );
+  }
 
   fetchConnectionUsers(connectionID: string) {
     return this._http.get<any>(`${this._connectionURL}/users/${connectionID}`)
