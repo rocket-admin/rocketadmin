@@ -48,7 +48,7 @@ export class RegistrationComponent implements OnInit {
     //@ts-ignore
     google.accounts.id.renderButton(
       document.getElementById("google_registration_button"),
-      { theme: "outline", size: "large" }
+      { theme: "filled_blue", size: "large", width: "100%" }
     );
     //@ts-ignore
     google.accounts.id.prompt();
