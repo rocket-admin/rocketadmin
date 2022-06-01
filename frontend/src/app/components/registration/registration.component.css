@@ -22,12 +22,12 @@
     display: flex;
     flex-direction: column;
     margin: 0 auto;
-    width: clamp(300px, 29vw, 450px);
+    width: 400px;
 }
 
 @media screen and (max-width: 600px) {
     .register-form {
-        width: 100%;
+        width: 90%;
     }
 }
 

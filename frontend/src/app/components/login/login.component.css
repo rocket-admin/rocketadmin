@@ -9,9 +9,13 @@
     justify-content: center;
     height: 100%;
     margin: 0 auto;
-    max-width: 460px;
-    min-width: 300px;
-    width: 90%;
+    width: 464px;
+}
+
+@media screen and (max-width: 600px) {
+    .login-page {
+        width: 98%;
+    }
 }
 
 .login-form {
@@ -24,17 +28,26 @@
 }
 
 .soc-buttons {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    grid-column-gap: 16px;
+    display: flex;
     margin: 20px 0 40px;
 }
 
 @media screen and (max-width: 600px) {
     .soc-buttons {
-        grid-template-columns: 1fr;
-        grid-column-gap: 0;
-        grid-row-gap: 16px;
+        flex-direction: column;
+        align-items: center;
+        gap: 20px;
+    }
+}
+
+.fb-button {
+    margin-left: 16px;
+    width: 224px;
+}
+
+@media screen and (max-width: 600px) {
+    .fb-button {
+        margin-left: 0;
     }
 }
 
