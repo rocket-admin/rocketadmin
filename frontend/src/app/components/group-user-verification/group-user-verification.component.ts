@@ -33,15 +33,10 @@ export class GroupUserVerificationComponent implements OnInit {
 
   verifyGroupUser() {
     this.submitting = true;
-    const expirationTime = localStorage.getItem('token_expiration');
 
     this._usersService.verifyGroupUserEmail(this.token, this.password)
     .subscribe(() => {
-      if (expirationTime) {
-        this.router.navigate(['/user-settings']);
-      } else {
-        this.router.navigate(['/login']);
-      }
+      this.router.navigate(['/login']);
       this.submitting = false;
     });
   }
