@@ -183,6 +183,17 @@ export class AppComponent {
     this._auth.logOutUser()
       .subscribe(() => {
         this.socialAuthService.signOut();
+        try {
+          // @ts-ignore
+          google.accounts.id.revoke(this.currentUser.email, done => {
+           console.log('consent revoked');
+           console.log(done);
+           console.log(this.currentUser.email);
+          });
+        } catch(error) {
+          console.log(error);
+        }
+
         this.setUserLoggedIn(null);
         localStorage.removeItem('token_expiration');
         window.location.href="https://autoadmin.org/";

@@ -22,12 +22,12 @@
     display: flex;
     flex-direction: column;
     margin: 0 auto;
-    width: clamp(300px, 29vw, 450px);
+    width: 400px;
 }
 
 @media screen and (max-width: 600px) {
     .register-form {
-        width: 100%;
+        width: 90%;
     }
 }
 
@@ -36,7 +36,7 @@
     margin-top: 20px;
     font-weight: 500;
     text-align: center;
-    width: 70%;
+    width: 75%;
 }
 
 @media screen and (max-width: 600px) {
@@ -62,6 +62,12 @@
     background-color: #fff;
     font-size: 14px;
     padding: 0 16px;
+}
+
+@media screen and (max-width: 600px) {
+    #google_registration_button ::ng-deep iframe {
+        width: 100% !important;
+    }
 }
 
 .soc-button {
