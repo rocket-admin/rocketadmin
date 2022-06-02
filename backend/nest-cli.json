@@ -1,0 +1,7 @@
+{
+  "collection": "@nestjs/schematics",
+  "compilerOptions": {
+    "plugins": ["@nestjs/swagger/plugin"]
+  },
+  "sourceRoot": "src"
+}
