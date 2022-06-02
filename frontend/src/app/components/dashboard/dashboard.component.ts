@@ -1,6 +1,7 @@
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { Component, OnInit } from '@angular/core';
 import { first, map } from 'rxjs/operators';
+import { getComparators, getFilters } from 'src/app/lib/parse-filter-params';
 
 import { ConnectionsService } from 'src/app/services/connections.service';
 import { DbRowDeleteDialogComponent } from './db-row-delete-dialog/db-row-delete-dialog.component';
@@ -13,7 +14,6 @@ import { TablesDataSource } from './db-tables-data-source';
 import { TablesService } from 'src/app/services/tables.service';
 import { User } from 'src/app/models/user';
 import { normalizeTableName } from '../../lib/normalize'
-import { getComparators, getFilters } from 'src/app/lib/parse-filter-params';
 
 @Component({
   selector: 'app-dashboard',
@@ -52,56 +52,51 @@ export class DashboardComponent implements OnInit {
     return this._connections.currentConnectionAccessLevel
   }
 
-  ngOnInit() {
+  async ngOnInit() {
     this.connectionID = this._connections.currentConnectionID;
     this.dataSource = new TablesDataSource(this._tables, this._notifications, this._connections);
-    this._tableRow.cast.subscribe( () =>  {
-      this.getData();
-    });
+
+    let tables;
+    try {
+      tables = await this.getTables();
+    } catch(error) {
+      this.loading = false;
+      this.dbFetchError = true;
+      this.errorMessage = error.error.message;
+      // @ts-ignore
+      customerly.open();
+    }
+
+    if (tables) {
+      this.formatTableNames(tables);
+      this.route.paramMap
+        .pipe(first(),
+          map((params: ParamMap) => {
+            const tableName = params.get('table-name');
+            if (tableName) {
+              this.selectedTableName = tableName;
+              this.setTable(tableName);
+            } else {
+              this.router.navigate([`/dashboard/${this.connectionID}/${this.tablesList[0].table}`], {replaceUrl: true})
+                .then(() => this.selectedTableName = this.tablesList[0].table);
+            };
+          })
+        ).subscribe();
+        this._tableRow.cast.subscribe((arg) =>  {
+          if (arg === 'delete row') this.setTable(this.selectedTableName);
+        });
+    }
   }
 
-  getData() {
-    this.loading = true;
-    this._tables.fetchTables(this.connectionID)
-    .subscribe(
-      res => {
-        if (res.length) {
-          this.tablesList = res.map((tableItem: TableProperties) => {
-            if (tableItem.display_name) return {...tableItem}
-            else return {...tableItem, normalizedTableName: normalizeTableName(tableItem.table)}
-          });
-          this.route.paramMap
-            .pipe(
-              map((params: ParamMap) => {
-                const tableName = params.get('table-name');
-                if (tableName) {
-                  this.setTable(tableName);
-                } else {
-                  this.router.navigate([`/dashboard/${this.connectionID}/${res[0].table}`], {replaceUrl: true})
-                  .then(() => {
-                    this.route.paramMap
-                      .pipe(
-                        map((params: ParamMap) => {
-                          this.setTable(tableName);
-                        })
-                      )
-                  });
-                }
-              })
-            ).subscribe();
-        } else {
-          this.tablesList = res;
-        }
-      this.loading = false;
-      },
-      (error) => {
-        this.loading = false;
-        this.dbFetchError = true;
-        this.errorMessage = error.error.message;
-        // @ts-ignore
-        customerly.open();
-      }
-    )
+  getTables() {
+    return this._tables.fetchTables(this.connectionID).toPromise();
+  }
+
+  formatTableNames(tables) {
+    this.tablesList = tables.map((tableItem: TableProperties) => {
+      if (tableItem.display_name) return {...tableItem}
+      else return {...tableItem, normalizedTableName: normalizeTableName(tableItem.table)}
+    })
   }
 
   setTable(tableName: string) {
@@ -124,6 +119,7 @@ export class DashboardComponent implements OnInit {
     const selectedTableProperties = this.tablesList.find( (table: any) => table.table == this.selectedTableName);
     this.selectedTableDisplayName = selectedTableProperties.display_name || normalizeTableName(selectedTableProperties.table);
     this.selectedTablePermissions = selectedTableProperties.permissions;
+    this.loading = false;
   }
 
   openTableFilters() {

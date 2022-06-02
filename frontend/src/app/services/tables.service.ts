@@ -1,12 +1,12 @@
+import { BannerActionType, BannerType } from '../models/banner';
 import { BehaviorSubject, EMPTY } from 'rxjs';
 import { NavigationEnd, Router, RouterEvent } from '@angular/router';
+import { TableSettings, Widget } from '../models/table';
 import { catchError, filter, map } from 'rxjs/operators';
 
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { NotificationsService } from './notifications.service';
-import { TableSettings, Widget } from '../models/table';
-import { BannerActionType, BannerType } from '../models/banner';
 
 export enum SortOrdering {
   Ascending = 'ASC',
@@ -75,6 +75,7 @@ export class TablesService {
   }
 
   fetchTables(connectionID: string, hidden?: boolean) {
+    console.log('fetchTables service');
     return this._http.get<any>(`${this._connectionURL}/tables/${connectionID}`, {
       params: {
         ...(hidden ? {hidden} : {}),
@@ -82,6 +83,7 @@ export class TablesService {
     })
       .pipe(
         map(res => {
+          console.log('fetchTables response');
           return res;
         }),
       );
