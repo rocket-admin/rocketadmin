@@ -8,6 +8,7 @@ import { Messages } from '../../../exceptions/text/messages';
 import { UserEntity } from '../../user/user.entity';
 import { sendInvitationToGroup } from '../../email/send-email';
 import { AddedUserInGroupDs } from '../application/data-sctructures/added-user-in-group.ds';
+import { StripeUtil } from '../../user/utils/stripe-util';
 
 @Injectable({ scope: Scope.REQUEST })
 export class AddUserInGroupUseCase
@@ -73,7 +74,11 @@ export class AddUserInGroupUseCase
     const newUser = new UserEntity();
     newUser.email = email;
     newUser.isActive = false;
-    const savedUser = await this._dbContext.userRepository.saveUserEntity(newUser);
+    let savedUser = await this._dbContext.userRepository.saveUserEntity(newUser);
+    if (savedUser && process.env.NODE_ENV !== 'test') {
+      savedUser.stripeId = await StripeUtil.createUserStripeCustomerAndReturnStripeId(savedUser.id);
+      savedUser = await this._dbContext.userRepository.saveUserEntity(newUser);
+    }
     const savedInvitation = await this._dbContext.userInvitationRepository.createOrUpdateInvitationEntity(savedUser);
     foundGroup.users.push(newUser);
     const savedGroup = await this._dbContext.groupRepository.saveNewOrUpdatedGroup(foundGroup);
