@@ -6,7 +6,7 @@ import { BaseType } from '../../../common/data-injection.tokens';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface';
 import { Messages } from '../../../exceptions/text/messages';
 import { UserEntity } from '../../user/user.entity';
-import { sendInvitationToGroup } from '../../email/send-email';
+import { sendEmailConfirmation, sendInvitationToGroup } from '../../email/send-email';
 import { AddedUserInGroupDs } from '../application/data-sctructures/added-user-in-group.ds';
 import { StripeUtil } from '../../user/utils/stripe-util';
 import { Constants } from '../../../helpers/constants/constants';
@@ -64,6 +64,10 @@ export class AddUserInGroupUseCase
       }
       const savedGroup = await this._dbContext.groupRepository.saveNewOrUpdatedGroup(foundGroup);
       delete savedGroup.connection;
+      const newEmailVerification = await this._dbContext.emailVerificationRepository.createOrUpdateEmailVerification(
+        foundUser,
+      );
+      await sendEmailConfirmation(foundUser.email, newEmailVerification.verification_string);
       await sendInvitationToGroup(foundUser.email, savedInvitation.verification_string);
       if (userAlreadyAdded) {
         throw new HttpException(
