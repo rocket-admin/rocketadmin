@@ -6,7 +6,7 @@ import { BaseType } from '../../../common/data-injection.tokens';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface';
 import { Messages } from '../../../exceptions/text/messages';
 import { UserEntity } from '../../user/user.entity';
-import { sendInvitationToGroup } from '../../email/send-email';
+import { sendEmailConfirmation, sendInvitationToGroup } from '../../email/send-email';
 import { AddedUserInGroupDs } from '../application/data-sctructures/added-user-in-group.ds';
 import { StripeUtil } from '../../user/utils/stripe-util';
 import { Constants } from '../../../helpers/constants/constants';
@@ -34,7 +34,7 @@ export class AddUserInGroupUseCase
   protected async implementation(inputData: AddUserInGroupDs): Promise<AddedUserInGroupDs> {
     const { email, groupId } = inputData;
     const foundGroup = await this._dbContext.groupRepository.findGroupById(groupId);
-    const foundUser = await this._dbContext.userRepository.findOneUserByEmail(email);
+    const foundUser = await this._dbContext.userRepository.findUserByEmailWithEmailVerificationAndInvitation(email);
 
     if (foundUser && foundUser.isActive) {
       const userAlreadyAdded = !!foundGroup.users.find((u) => u.id === foundUser.id);
@@ -64,6 +64,10 @@ export class AddUserInGroupUseCase
       }
       const savedGroup = await this._dbContext.groupRepository.saveNewOrUpdatedGroup(foundGroup);
       delete savedGroup.connection;
+      const newEmailVerification = await this._dbContext.emailVerificationRepository.createOrUpdateEmailVerification(
+        foundUser,
+      );
+      await sendEmailConfirmation(foundUser.email, newEmailVerification.verification_string);
       await sendInvitationToGroup(foundUser.email, savedInvitation.verification_string);
       if (userAlreadyAdded) {
         throw new HttpException(
