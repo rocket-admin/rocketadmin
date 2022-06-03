@@ -12,7 +12,7 @@ export class ConnectionRepository extends Repository<ConnectionEntity> implement
     super();
   }
 
-  async saveNewConnection(connection: ConnectionEntity): Promise<ConnectionEntity> {
+  public async saveNewConnection(connection: ConnectionEntity): Promise<ConnectionEntity> {
     const savedConnection = await this.save(connection);
     if (!isConnectionTypeAgent(savedConnection.type)) {
       savedConnection.host = Encryptor.decryptData(savedConnection.host);
@@ -31,7 +31,7 @@ export class ConnectionRepository extends Repository<ConnectionEntity> implement
     return savedConnection;
   }
 
-  async findAllUserConnections(
+  public async findAllUserConnections(
     userId: string,
   ): Promise<Array<Omit<ConnectionEntity, 'password' | 'privateSSHKey' | 'groups'>>> {
     const connectionQb = await getRepository(ConnectionEntity)
@@ -48,7 +48,7 @@ export class ConnectionRepository extends Repository<ConnectionEntity> implement
     });
   }
 
-  async findOneConnection(
+  public async findOneConnection(
     connectionId: string,
   ): Promise<Omit<ConnectionEntity, 'password' | 'privateSSHKey' | 'groups'>> {
     const connection = await this.findOne(connectionId);
@@ -62,7 +62,7 @@ export class ConnectionRepository extends Repository<ConnectionEntity> implement
     return await this.findOne(connectionId);
   }
 
-  async findAndDecryptConnection(connectionId: string, masterPwd: string): Promise<ConnectionEntity> {
+  public async findAndDecryptConnection(connectionId: string, masterPwd: string): Promise<ConnectionEntity> {
     let connection = await this.findOne(connectionId);
     if (connection.masterEncryption && masterPwd) {
       connection = Encryptor.decryptConnectionCredentials(connection, masterPwd);
@@ -70,11 +70,11 @@ export class ConnectionRepository extends Repository<ConnectionEntity> implement
     return connection;
   }
 
-  async removeConnection(connection: ConnectionEntity): Promise<ConnectionEntity> {
+  public async removeConnection(connection: ConnectionEntity): Promise<ConnectionEntity> {
     return await this.remove(connection);
   }
 
-  async findConnectionWithGroups(
+  public async findConnectionWithGroups(
     connectionId: string,
   ): Promise<Omit<ConnectionEntity, 'password' | 'privateSSHKey' | 'cert'>> {
     const qb = await getRepository(ConnectionEntity)
@@ -131,5 +131,9 @@ export class ConnectionRepository extends Repository<ConnectionEntity> implement
       .leftJoinAndSelect('connection.groups', 'group');
     qb.andWhere('group.id = :id', { id: groupId });
     return await qb.getOne();
+  }
+
+  public async findOneById(connectionId: string): Promise<ConnectionEntity> {
+    return await this.findOne(connectionId);
   }
 }

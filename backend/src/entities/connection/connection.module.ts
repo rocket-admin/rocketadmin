@@ -31,6 +31,7 @@ import { GetUserPermissionsForGroupInConnectionUseCase } from './use-cases/get-u
 import { TestConnectionUseCase } from './use-cases/test-connection.use.case';
 import { UpdateConnectionMasterPasswordUseCase } from './use-cases/update-connection-master-password.use.case';
 import { AmplitudeModule } from '../amplitude/amplitude.module';
+import { RestoreConnectionUseCase } from './use-cases/restore-connection-use.case';
 
 @Module({
   imports: [
@@ -107,6 +108,10 @@ import { AmplitudeModule } from '../amplitude/amplitude.module';
     {
       provide: UseCaseType.UPDATE_CONNECTION_MASTER_PASSWORD,
       useClass: UpdateConnectionMasterPasswordUseCase,
+    },
+    {
+      provide: UseCaseType.RESTORE_CONNECTION,
+      useClass: RestoreConnectionUseCase,
     },
   ],
   controllers: [ConnectionController],
