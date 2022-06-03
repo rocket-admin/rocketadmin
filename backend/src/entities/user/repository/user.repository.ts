@@ -72,6 +72,15 @@ export class UserRepository extends Repository<UserEntity> implements IUserRepos
     return await usersQb.getOne();
   }
 
+  public async findUserByEmailWithEmailVerificationAndInvitation(email: string): Promise<UserEntity> {
+    const usersQb = await getRepository(UserEntity)
+      .createQueryBuilder('user')
+      .leftJoinAndSelect('user.email_verification', 'email_verification')
+      .leftJoinAndSelect('user.user_invitation', 'user_invitation')
+      .where('user.email = :userEmail', { userEmail: email });
+    return await usersQb.getOne();
+  }
+
   public async findAllUsersInConnection(
     connectionId: string,
   ): Promise<Array<Omit<UserEntity, 'connections' | 'groups'>>> {

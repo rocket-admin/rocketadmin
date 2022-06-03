@@ -34,7 +34,7 @@ export class AddUserInGroupUseCase
   protected async implementation(inputData: AddUserInGroupDs): Promise<AddedUserInGroupDs> {
     const { email, groupId } = inputData;
     const foundGroup = await this._dbContext.groupRepository.findGroupById(groupId);
-    const foundUser = await this._dbContext.userRepository.findOneUserByEmail(email);
+    const foundUser = await this._dbContext.userRepository.findUserByEmailWithEmailVerificationAndInvitation(email);
 
     if (foundUser && foundUser.isActive) {
       const userAlreadyAdded = !!foundGroup.users.find((u) => u.id === foundUser.id);
