@@ -16,6 +16,7 @@ import { GetPermissionsInConnectionDs } from '../application/data-structures/get
 import { FoundPermissionsInConnectionDs } from '../application/data-structures/found-permissions-in-connection.ds';
 import { TestConnectionResultDs } from '../application/data-structures/test-connection-result.ds';
 import { UpdateMasterPasswordDs } from '../application/data-structures/update-master-password.ds';
+import { RestoredConnectionDs } from '../application/data-structures/restored-connection.ds';
 
 export interface IFindConnections {
   execute(user: CreateUserDs): Promise<FoundConnectionsDs>;
@@ -63,4 +64,8 @@ export interface ITestConnection {
 
 export interface IUpdateMasterPassword {
   execute(inputData: UpdateMasterPasswordDs): Promise<boolean>;
+}
+
+export interface IRestoreConnection {
+  execute(inputData: UpdateConnectionDs): Promise<RestoredConnectionDs>;
 }

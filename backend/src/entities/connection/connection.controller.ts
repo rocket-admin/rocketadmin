@@ -45,6 +45,7 @@ import {
   IFindUsersInConnection,
   IGetPermissionsForGroupInConnection,
   IGetUserGroupsInConnection,
+  IRestoreConnection,
   ITestConnection,
   IUpdateConnection,
   IUpdateMasterPassword,
@@ -66,6 +67,7 @@ import { UpdateMasterPasswordDs } from './application/data-structures/update-mas
 import { AmplitudeService } from '../amplitude/amplitude.service';
 import { processExceptionMessage } from '../../exceptions/utils/process-exception-message';
 import { isTestConnectionUtil } from './utils/is-test-connection-util';
+import { RestoredConnectionDs } from './application/data-structures/restored-connection.ds';
 
 @ApiBearerAuth()
 @ApiTags('connections')
@@ -99,6 +101,8 @@ export class ConnectionController {
     private readonly testConnectionUseCase: ITestConnection,
     @Inject(UseCaseType.UPDATE_CONNECTION_MASTER_PASSWORD)
     private readonly updateConnectionMasterPasswordUseCase: IUpdateMasterPassword,
+    @Inject(UseCaseType.RESTORE_CONNECTION)
+    private readonly restoreConnectionUseCase: IRestoreConnection,
     private readonly connectionService: ConnectionService,
     private readonly amplitudeService: AmplitudeService,
   ) {}
@@ -634,37 +638,44 @@ export class ConnectionController {
     @Body('cert') cert: string,
     @Body('azure_encryption') azure_encryption: boolean,
     @Param() params,
-  ): Promise<IConnectionRO> {
+  ): Promise<RestoredConnectionDs> {
     const cognitoUserName = getCognitoUserName(request);
-    const id = params.slug;
-    const connectionData = {
-      title: title,
-      masterEncryption: masterEncryption,
-      type: type,
-      host: host,
-      port: port,
-      username: username,
-      password: password,
-      database: database,
-      schema: schema,
-      sid: sid,
-      ssh: ssh,
-      privateSSHKey: privateSSHKey,
-      sshHost: sshHost,
-      sshPort: sshPort,
-      sshUsername: sshUsername,
-      ssl: ssl,
-      cert: cert,
-      azure_encryption: azure_encryption,
-    };
-
+    const connectionId = params.slug;
     const masterPwd = getMasterPwd(request);
 
-    const errors = this.validateParameters(connectionData);
+    const connectionData: UpdateConnectionDs = {
+      connection_parameters: {
+        title: title,
+        masterEncryption: masterEncryption,
+        type: type as ConnectionTypeEnum,
+        host: host,
+        port: port,
+        username: username,
+        password: password,
+        database: database,
+        schema: schema,
+        sid: sid,
+        ssh: ssh,
+        privateSSHKey: privateSSHKey,
+        sshHost: sshHost,
+        sshPort: sshPort,
+        sshUsername: sshUsername,
+        ssl: ssl,
+        cert: cert,
+        azure_encryption: azure_encryption,
+      },
+      update_info: {
+        connectionId: connectionId,
+        masterPwd: masterPwd,
+        authorId: cognitoUserName,
+      },
+    };
 
-    if (!id) errors.push(Messages.ID_MISSING);
+    const errors = this.validateParameters(connectionData.connection_parameters);
 
-    if (connectionData.masterEncryption && !masterPwd) {
+    if (!connectionId) errors.push(Messages.ID_MISSING);
+
+    if (connectionData.connection_parameters.masterEncryption && !masterPwd) {
       errors.push(Messages.MASTER_PASSWORD_REQUIRED);
     }
 
@@ -676,7 +687,7 @@ export class ConnectionController {
         HttpStatus.BAD_REQUEST,
       );
     }
-    return this.connectionService.restore(cognitoUserName, connectionData, id, masterPwd);
+    return await this.restoreConnectionUseCase.execute(connectionData);
   }
 
   @ApiOperation({ summary: 'Check connection token existence' })

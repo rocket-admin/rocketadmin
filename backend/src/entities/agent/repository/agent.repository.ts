@@ -14,7 +14,12 @@ export class AgentRepository extends Repository<AgentEntity> implements IAgentRe
     return await this.save(agent);
   }
 
-  async createNewAgentForConnection(connection: ConnectionEntity): Promise<string> {
+  async createNewAgentForConnectionAndReturnToken(connection: ConnectionEntity): Promise<string> {
+    const newAgent = await this.createNewAgentForConnection(connection);
+    return newAgent.token;
+  }
+
+  public async createNewAgentForConnection(connection: ConnectionEntity): Promise<AgentEntity> {
     const agent = new AgentEntity();
     const token = nanoid(64);
     if (process.env.NODE_ENV !== 'test') {
@@ -23,8 +28,7 @@ export class AgentRepository extends Repository<AgentEntity> implements IAgentRe
       agent.token = '_ueF-9gQ4Kv1YVITBn0W_Hzvr5tBBSRmhLEZv2IcejomK2LGBhaFkEzOSB3FvFDW';
     }
     agent.connection = connection;
-    await this.save(agent);
-    return token;
+    return await this.save(agent);
   }
 
   async renewOrCreateConnectionToken(connectionId: string): Promise<string> {
@@ -38,7 +42,7 @@ export class AgentRepository extends Repository<AgentEntity> implements IAgentRe
         .createQueryBuilder('connection')
         .andWhere('connection.id = :connectionId', { connectionId: connectionId });
       const foundConnection = await connectionQb.getOne();
-      return await this.createNewAgentForConnection(foundConnection);
+      return await this.createNewAgentForConnectionAndReturnToken(foundConnection);
     } else {
       const newToken = nanoid(64);
       foundAgent.token = newToken;

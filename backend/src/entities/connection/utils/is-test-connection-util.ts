@@ -6,6 +6,10 @@ export function isTestConnectionUtil(connection: ConnectionEntity | CreatedConne
   if (connection.isTestConnection) {
     return true;
   }
+  return isHostTest(connection.host);
+}
+
+export function isHostTest(hostname: string): boolean {
   const testConnectionsHosts = Constants.getTestConnectionsArr().map((el) => el.host);
-  return testConnectionsHosts.includes(connection.host);
+  return testConnectionsHosts.includes(hostname);
 }

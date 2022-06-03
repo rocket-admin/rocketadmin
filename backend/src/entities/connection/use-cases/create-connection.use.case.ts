@@ -45,7 +45,7 @@ export class CreateConnectionUseCase
     );
     let token;
     if (isConnectionTypeAgent(savedConnection.type)) {
-      token = await this._dbContext.agentRepository.createNewAgentForConnection(savedConnection);
+      token = await this._dbContext.agentRepository.createNewAgentForConnectionAndReturnToken(savedConnection);
     }
     const createdAdminGroup = await this._dbContext.groupRepository.createdAdminGroupInConnection(
       savedConnection,
