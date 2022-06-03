@@ -9,6 +9,15 @@ import { UserEntity } from '../../user/user.entity';
 import { sendInvitationToGroup } from '../../email/send-email';
 import { AddedUserInGroupDs } from '../application/data-sctructures/added-user-in-group.ds';
 import { StripeUtil } from '../../user/utils/stripe-util';
+import { Constants } from '../../../helpers/constants/constants';
+import { buildConnectionEntitiesFromTestDtos } from '../../user/utils/build-connection-entities-from-test-dtos';
+import { ConnectionEntity } from '../../connection/connection.entity';
+import { buildDefaultAdminGroups } from '../../user/utils/build-default-admin-groups';
+import { GroupEntity } from '../group.entity';
+import { buildDefaultAdminPermissions } from '../../user/utils/build-default-admin-permissions';
+import { PermissionEntity } from '../../permission/permission.entity';
+import { TableSettingsEntity } from '../../table-settings/table-settings.entity';
+import { buildTestTableSettings } from '../../user/utils/build-test-table-settings';
 
 @Injectable({ scope: Scope.REQUEST })
 export class AddUserInGroupUseCase
@@ -79,6 +88,36 @@ export class AddUserInGroupUseCase
       savedUser.stripeId = await StripeUtil.createUserStripeCustomerAndReturnStripeId(savedUser.id);
       savedUser = await this._dbContext.userRepository.saveUserEntity(newUser);
     }
+    const testConnections = Constants.getTestConnectionsArr();
+    const testConnectionsEntities = buildConnectionEntitiesFromTestDtos(testConnections);
+    const createdTestConnections = await Promise.all(
+      testConnectionsEntities.map(async (connection): Promise<ConnectionEntity> => {
+        connection.author = savedUser;
+        return await this._dbContext.connectionRepository.saveNewConnection(connection);
+      }),
+    );
+    const testGroupsEntities = buildDefaultAdminGroups(savedUser, createdTestConnections);
+    const createdTestGroups = await Promise.all(
+      testGroupsEntities.map(async (group: GroupEntity) => {
+        return await this._dbContext.groupRepository.saveNewOrUpdatedGroup(group);
+      }),
+    );
+    const testPermissionsEntities = buildDefaultAdminPermissions(createdTestGroups);
+    await Promise.all(
+      testPermissionsEntities.map(async (permission: PermissionEntity) => {
+        await this._dbContext.permissionRepository.saveNewOrUpdatedPermission(permission);
+      }),
+    );
+    const testTableSettingsArrays: Array<Array<TableSettingsEntity>> = buildTestTableSettings(createdTestConnections);
+    await Promise.all(
+      testTableSettingsArrays.map(async (array: Array<TableSettingsEntity>) => {
+        await Promise.all(
+          array.map(async (tableSettings: TableSettingsEntity) => {
+            await this._dbContext.tableSettingsRepository.saveNewOrUpdatedSettings(tableSettings);
+          }),
+        );
+      }),
+    );
     const savedInvitation = await this._dbContext.userInvitationRepository.createOrUpdateInvitationEntity(savedUser);
     foundGroup.users.push(newUser);
     const savedGroup = await this._dbContext.groupRepository.saveNewOrUpdatedGroup(foundGroup);
