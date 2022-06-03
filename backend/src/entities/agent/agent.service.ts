@@ -26,14 +26,6 @@ export class AgentService {
     return createdAgent;
   }
 
-  async findAgent(connectionId) {
-    const qb = await getRepository(AgentEntity)
-      .createQueryBuilder('agent')
-      .leftJoinAndSelect('agent.connection', 'connection')
-      .andWhere('connection.id = :connectionId', { connectionId: connectionId });
-    return await qb.getOne();
-  }
-
   async refreshConnectionAgentToken(cognitoUserName: string, connectionId: string): Promise<string> {
     const qb = await getRepository(AgentEntity)
       .createQueryBuilder('agent')
