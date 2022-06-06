@@ -2,7 +2,6 @@ import { AgentModule } from '../agent/agent.module';
 import { AuthMiddleware } from '../../authorization';
 import { ConnectionController } from './connection.controller';
 import { ConnectionEntity } from './connection.entity';
-import { ConnectionService } from './connection.service';
 import { CustomFieldsEntity } from '../custom-field/custom-fields.entity';
 import { GroupEntity } from '../group/group.entity';
 import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/common';
@@ -53,7 +52,6 @@ import { RefreshConnectionAgentTokenUseCase } from './use-cases/refresh-connecti
     AmplitudeModule,
   ],
   providers: [
-    ConnectionService,
     TableService,
     {
       provide: BaseType.GLOBAL_DB_CONTEXT,

@@ -13,7 +13,6 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { AmplitudeEventTypeEnum, ConnectionTypeEnum } from '../../enums';
-import { ConnectionService } from './connection.service';
 import { CreateConnectionDto, CreateGroupInConnectionDto, UpdateMasterPasswordDto } from './dto';
 import { GroupEntity } from '../group/group.entity';
 import { HttpException } from '@nestjs/common/exceptions/http.exception';
@@ -67,7 +66,7 @@ import { GetPermissionsInConnectionDs } from './application/data-structures/get-
 import { UpdateMasterPasswordDs } from './application/data-structures/update-master-password.ds';
 import { AmplitudeService } from '../amplitude/amplitude.service';
 import { processExceptionMessage } from '../../exceptions/utils/process-exception-message';
-import { isTestConnectionUtil } from './utils/is-test-connection-util';
+import { isTestConnectionById, isTestConnectionUtil } from './utils/is-test-connection-util';
 import { RestoredConnectionDs } from './application/data-structures/restored-connection.ds';
 
 @ApiBearerAuth()
@@ -108,7 +107,6 @@ export class ConnectionController {
     private readonly validateConnectionTokenUseCase: IValidateConnectionToken,
     @Inject(UseCaseType.REFRESH_CONNECTION_AGENT_TOKEN)
     private readonly refreshConnectionAgentTokenUseCase: IRefreshConnectionAgentToken,
-    private readonly connectionService: ConnectionService,
     private readonly amplitudeService: AmplitudeService,
   ) {}
 
@@ -139,7 +137,7 @@ export class ConnectionController {
     } catch (e) {
       throw e;
     } finally {
-      const isConnectionTest = await this.connectionService.isTestConnection(connectionId);
+      const isConnectionTest = await isTestConnectionById(connectionId);
       await this.amplitudeService.formAndSendLogRecord(
         isConnectionTest
           ? AmplitudeEventTypeEnum.connectionUsersReceivedTest
@@ -166,7 +164,7 @@ export class ConnectionController {
     } catch (e) {
       throw e;
     } finally {
-      const isTest = await this.connectionService.isTestConnection(id);
+      const isTest = await isTestConnectionById(id);
       await this.amplitudeService.formAndSendLogRecord(
         isTest ? AmplitudeEventTypeEnum.connectionReceivedTest : AmplitudeEventTypeEnum.connectionReceived,
         cognitoUserName,

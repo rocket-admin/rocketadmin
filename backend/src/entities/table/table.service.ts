@@ -1,7 +1,6 @@
 import * as winston from 'winston';
 import * as sjson from 'secure-json-parse';
 import { ConnectionEntity } from '../connection/connection.entity';
-import { ConnectionService } from '../connection/connection.service';
 import { createDao } from '../../dal/shared/create-dao';
 import { CreateTableSettingsDto } from '../table-settings/dto';
 import { Encryptor } from '../../helpers/encryption/encryptor';
@@ -59,13 +58,13 @@ import { buildTableLogsEntity } from '../table-logs/utils/build-table-logs-entit
 import { buildCreatedLogRecord } from '../table-logs/utils/build-created-log-record';
 import { PermissionEntity } from '../permission/permission.entity';
 import { CustomFieldsEntity } from '../custom-field/custom-fields.entity';
+import { isTestConnectionById } from '../connection/utils/is-test-connection-util';
 
 @Injectable()
 export class TableService {
   constructor(
     @InjectRepository(ConnectionEntity)
     private readonly connectionRepository: Repository<ConnectionEntity>,
-    private readonly connectionService: ConnectionService,
     private readonly amplitudeService: AmplitudeService,
     @InjectRepository(TableLogsEntity)
     private readonly tableLogsRepository: Repository<TableLogsEntity>,
@@ -442,7 +441,7 @@ export class TableService {
       operationResult = OperationResultStatusEnum.unsuccessfully;
       throw new HttpException(
         {
-          message: `${Messages.FAILED_GET_TABLE_ROWS} ${Messages.ERROR_MESSAGE} 
+          message: `${Messages.FAILED_GET_TABLE_ROWS} ${Messages.ERROR_MESSAGE}
          ${e.message} ${Messages.TRY_AGAIN_LATER}`,
         },
         HttpStatus.BAD_REQUEST,
@@ -491,7 +490,7 @@ export class TableService {
     } catch (e) {
       throw new HttpException(
         {
-          message: `${Messages.FAILED_GET_TABLES} ${Messages.ERROR_MESSAGE} 
+          message: `${Messages.FAILED_GET_TABLES} ${Messages.ERROR_MESSAGE}
          ${e.message} ${Messages.TRY_AGAIN_LATER}`,
         },
         HttpStatus.BAD_REQUEST,
@@ -730,7 +729,7 @@ export class TableService {
     } catch (e) {
       throw new HttpException(
         {
-          message: `${Messages.FAILED_GET_TABLE_STRUCTURE} ${Messages.ERROR_MESSAGE} 
+          message: `${Messages.FAILED_GET_TABLE_STRUCTURE} ${Messages.ERROR_MESSAGE}
          ${e.message} ${Messages.TRY_AGAIN_LATER}`,
         },
         HttpStatus.BAD_REQUEST,
@@ -739,7 +738,7 @@ export class TableService {
   }
 
   async isTestConnection(connectionId: string): Promise<boolean> {
-    return await this.connectionService.isTestConnection(connectionId);
+    return await isTestConnectionById(connectionId);
   }
 
   async updateRowInTable(

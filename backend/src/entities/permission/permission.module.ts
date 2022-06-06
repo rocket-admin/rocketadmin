@@ -1,7 +1,6 @@
 import { AgentModule } from '../agent/agent.module';
 import { AuthMiddleware } from '../../authorization';
 import { ConnectionEntity } from '../connection/connection.entity';
-import { ConnectionService } from '../connection/connection.service';
 import { CustomFieldsEntity } from '../custom-field/custom-fields.entity';
 import { GroupEntity } from '../group/group.entity';
 import { GroupModule } from '../group/group.module';
@@ -36,7 +35,6 @@ import { CreateOrUpdatePermissionsUseCase } from './use-cases/create-or-update-p
     GroupModule,
   ],
   providers: [
-    ConnectionService,
     TableService,
     {
       provide: BaseType.GLOBAL_DB_CONTEXT,

@@ -2,7 +2,6 @@ import { AgentModule } from '../agent/agent.module';
 import { AuthMiddleware } from '../../authorization';
 import { ConnectionEntity } from '../connection/connection.entity';
 import { ConnectionModule } from '../connection/connection.module';
-import { ConnectionService } from '../connection/connection.service';
 import { CustomFieldsEntity } from '../custom-field/custom-fields.entity';
 import { GroupEntity } from '../group/group.entity';
 import { MiddlewareConsumer, Module, RequestMethod } from '@nestjs/common';
@@ -37,7 +36,6 @@ import { GlobalDatabaseContext } from '../../common/application/global-database-
     UserModule,
   ],
   providers: [
-    ConnectionService,
     TableService,
     {
       provide: BaseType.GLOBAL_DB_CONTEXT,

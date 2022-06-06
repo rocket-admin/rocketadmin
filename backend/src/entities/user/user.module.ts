@@ -1,7 +1,6 @@
 import { AgentModule } from '../agent/agent.module';
 import { AuthMiddleware } from '../../authorization';
 import { ConnectionEntity } from '../connection/connection.entity';
-import { ConnectionService } from '../connection/connection.service';
 import { CustomFieldsEntity } from '../custom-field/custom-fields.entity';
 import { GroupEntity } from '../group/group.entity';
 import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/common';
@@ -49,7 +48,6 @@ import { DeleteUserAccountUseCase } from './use-cases/delete-user-account-use-ca
     AgentModule,
   ],
   providers: [
-    ConnectionService,
     TableService,
     UserRepository,
     {

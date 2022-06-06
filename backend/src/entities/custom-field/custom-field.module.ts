@@ -1,7 +1,6 @@
 import { AgentModule } from '../agent/agent.module';
 import { AuthMiddleware } from '../../authorization';
 import { ConnectionEntity } from '../connection/connection.entity';
-import { ConnectionService } from '../connection/connection.service';
 import { CustomFieldController } from './custom-field.controller';
 import { CustomFieldsEntity } from './custom-fields.entity';
 import { GroupEntity } from '../group/group.entity';
@@ -39,7 +38,6 @@ import { DeleteCustomFieldUseCase } from './use-cases/delete-custom-field.use.ca
     UserModule,
   ],
   providers: [
-    ConnectionService,
     TableService,
     {
       provide: BaseType.GLOBAL_DB_CONTEXT,
