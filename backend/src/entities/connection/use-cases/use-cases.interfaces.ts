@@ -69,3 +69,7 @@ export interface IUpdateMasterPassword {
 export interface IRestoreConnection {
   execute(inputData: UpdateConnectionDs): Promise<RestoredConnectionDs>;
 }
+
+export interface IValidateConnectionToken {
+  execute(token: string): Promise<boolean>;
+}

@@ -136,4 +136,12 @@ export class ConnectionRepository extends Repository<ConnectionEntity> implement
   public async findOneById(connectionId: string): Promise<ConnectionEntity> {
     return await this.findOne(connectionId);
   }
+
+  public async findOneAgentConnectionByToken(connectionToken: string): Promise<ConnectionEntity> {
+    const qb = await getRepository(ConnectionEntity)
+      .createQueryBuilder('connection')
+      .leftJoinAndSelect('connection.agent', 'agent');
+    qb.andWhere('agent.token = :agentToken', { agentToken: connectionToken });
+    return await qb.getOne();
+  }
 }

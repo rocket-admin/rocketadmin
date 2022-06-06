@@ -17,7 +17,6 @@ import { ConnectionService } from './connection.service';
 import { CreateConnectionDto, CreateGroupInConnectionDto, UpdateMasterPasswordDto } from './dto';
 import { GroupEntity } from '../group/group.entity';
 import { HttpException } from '@nestjs/common/exceptions/http.exception';
-import { IConnectionRO } from './connection.interface';
 import { IComplexPermission } from '../permission/permission.interface';
 import { IRequestWithCognitoInfo } from '../../authorization';
 import { Messages } from '../../exceptions/text/messages';
@@ -49,6 +48,7 @@ import {
   ITestConnection,
   IUpdateConnection,
   IUpdateMasterPassword,
+  IValidateConnectionToken,
 } from './use-cases/use-cases.interfaces';
 import { FoundConnectionsDs } from './application/data-structures/found-connections.ds';
 import { FindOneConnectionDs } from './application/data-structures/find-one-connection.ds';
@@ -103,6 +103,8 @@ export class ConnectionController {
     private readonly updateConnectionMasterPasswordUseCase: IUpdateMasterPassword,
     @Inject(UseCaseType.RESTORE_CONNECTION)
     private readonly restoreConnectionUseCase: IRestoreConnection,
+    @Inject(UseCaseType.VALIDATE_CONNECTION_TOKEN)
+    private readonly validateConnectionTokenUseCase: IValidateConnectionToken,
     private readonly connectionService: ConnectionService,
     private readonly amplitudeService: AmplitudeService,
   ) {}
@@ -696,7 +698,7 @@ export class ConnectionController {
     if (!token) {
       return false;
     }
-    return await this.connectionService.validateConnectionAgentToken(token);
+    return await this.validateConnectionTokenUseCase.execute(token);
   }
 
   @ApiOperation({ summary: 'Generate new connection token' })
