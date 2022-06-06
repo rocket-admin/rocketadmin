@@ -5,7 +5,6 @@ import { BaseType } from '../../../common/data-injection.tokens';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface';
 import { Messages } from '../../../exceptions/text/messages';
 import { VerifyAddUserInGroupDs } from '../application/data-sctructures/verify-add-user-in-group.ds';
-import { Encryptor } from '../../../helpers/encryption/encryptor';
 import { generateGwtToken, IToken } from '../../user/utils/generate-gwt-token';
 import { Constants } from '../../../helpers/constants/constants';
 
@@ -22,7 +21,7 @@ export class VerifyAddUserInGroupUseCase
   }
 
   protected async implementation(inputData: VerifyAddUserInGroupDs): Promise<IToken> {
-    const { verificationString, userPassword } = inputData;
+    const { verificationString } = inputData;
     const invitationEntity = await this._dbContext.userInvitationRepository.findUserInvitationWithVerificationString(
       verificationString,
     );
@@ -47,10 +46,7 @@ export class VerifyAddUserInGroupUseCase
     }
 
     const foundUser = await this._dbContext.userRepository.findOneUserById(invitationEntity.user.id);
-    foundUser.isActive = true;
-    foundUser.password = await Encryptor.hashUserPassword(userPassword);
-    const savedUser = await this._dbContext.userRepository.saveUserEntity(foundUser);
     await this._dbContext.userInvitationRepository.removeInvitationEntity(invitationEntity);
-    return generateGwtToken(savedUser);
+    return generateGwtToken(foundUser);
   }
 }

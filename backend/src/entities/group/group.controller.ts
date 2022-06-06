@@ -140,22 +140,9 @@ export class GroupController {
 
   @ApiOperation({ summary: 'Add an existing user in group by user email' })
   @ApiBody({ type: VerifyAddUserInGroupDs })
-  @Put('/group/user/verify/:slug')
-  async verifyUserInvitation(
-    @Param() params,
-    @Res({ passthrough: true }) response: Response,
-    @Body('password') password: string,
-  ): Promise<ITokenExp> {
-    if (!password) {
-      throw new HttpException(
-        {
-          message: 'Password is missing',
-        },
-        HttpStatus.BAD_REQUEST,
-      );
-    }
+  @Get('/group/user/verify/:slug')
+  async verifyUserInvitation(@Param() params, @Res({ passthrough: true }) response: Response): Promise<ITokenExp> {
     const inputData: VerifyAddUserInGroupDs = {
-      userPassword: password,
       verificationString: params.slug,
     };
     const token: IToken = await this.verifyAddUserInGroupUseCase.execute(inputData);
