@@ -22,7 +22,7 @@ export class VerifyAddUserInGroupUseCase
   }
 
   protected async implementation(inputData: VerifyAddUserInGroupDs): Promise<IToken> {
-    const { verificationString, userPassword } = inputData;
+    const { verificationString, user_password } = inputData;
     const invitationEntity = await this._dbContext.userInvitationRepository.findUserInvitationWithVerificationString(
       verificationString,
     );
@@ -48,7 +48,7 @@ export class VerifyAddUserInGroupUseCase
 
     const foundUser = await this._dbContext.userRepository.findOneUserById(invitationEntity.user.id);
     foundUser.isActive = true;
-    foundUser.password = await Encryptor.hashUserPassword(userPassword);
+    foundUser.password = await Encryptor.hashUserPassword(user_password);
     const savedUser = await this._dbContext.userRepository.saveUserEntity(foundUser);
     await this._dbContext.userInvitationRepository.removeInvitationEntity(invitationEntity);
     return generateGwtToken(savedUser);

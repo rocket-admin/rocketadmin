@@ -13,11 +13,9 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { AmplitudeEventTypeEnum, ConnectionTypeEnum } from '../../enums';
-import { ConnectionService } from './connection.service';
 import { CreateConnectionDto, CreateGroupInConnectionDto, UpdateMasterPasswordDto } from './dto';
 import { GroupEntity } from '../group/group.entity';
 import { HttpException } from '@nestjs/common/exceptions/http.exception';
-import { IConnectionRO } from './connection.interface';
 import { IComplexPermission } from '../permission/permission.interface';
 import { IRequestWithCognitoInfo } from '../../authorization';
 import { Messages } from '../../exceptions/text/messages';
@@ -45,10 +43,12 @@ import {
   IFindUsersInConnection,
   IGetPermissionsForGroupInConnection,
   IGetUserGroupsInConnection,
+  IRefreshConnectionAgentToken,
   IRestoreConnection,
   ITestConnection,
   IUpdateConnection,
   IUpdateMasterPassword,
+  IValidateConnectionToken,
 } from './use-cases/use-cases.interfaces';
 import { FoundConnectionsDs } from './application/data-structures/found-connections.ds';
 import { FindOneConnectionDs } from './application/data-structures/find-one-connection.ds';
@@ -66,7 +66,7 @@ import { GetPermissionsInConnectionDs } from './application/data-structures/get-
 import { UpdateMasterPasswordDs } from './application/data-structures/update-master-password.ds';
 import { AmplitudeService } from '../amplitude/amplitude.service';
 import { processExceptionMessage } from '../../exceptions/utils/process-exception-message';
-import { isTestConnectionUtil } from './utils/is-test-connection-util';
+import { isTestConnectionById, isTestConnectionUtil } from './utils/is-test-connection-util';
 import { RestoredConnectionDs } from './application/data-structures/restored-connection.ds';
 
 @ApiBearerAuth()
@@ -103,7 +103,10 @@ export class ConnectionController {
     private readonly updateConnectionMasterPasswordUseCase: IUpdateMasterPassword,
     @Inject(UseCaseType.RESTORE_CONNECTION)
     private readonly restoreConnectionUseCase: IRestoreConnection,
-    private readonly connectionService: ConnectionService,
+    @Inject(UseCaseType.VALIDATE_CONNECTION_TOKEN)
+    private readonly validateConnectionTokenUseCase: IValidateConnectionToken,
+    @Inject(UseCaseType.REFRESH_CONNECTION_AGENT_TOKEN)
+    private readonly refreshConnectionAgentTokenUseCase: IRefreshConnectionAgentToken,
     private readonly amplitudeService: AmplitudeService,
   ) {}
 
@@ -134,7 +137,7 @@ export class ConnectionController {
     } catch (e) {
       throw e;
     } finally {
-      const isConnectionTest = await this.connectionService.isTestConnection(connectionId);
+      const isConnectionTest = await isTestConnectionById(connectionId);
       await this.amplitudeService.formAndSendLogRecord(
         isConnectionTest
           ? AmplitudeEventTypeEnum.connectionUsersReceivedTest
@@ -161,7 +164,7 @@ export class ConnectionController {
     } catch (e) {
       throw e;
     } finally {
-      const isTest = await this.connectionService.isTestConnection(id);
+      const isTest = await isTestConnectionById(id);
       await this.amplitudeService.formAndSendLogRecord(
         isTest ? AmplitudeEventTypeEnum.connectionReceivedTest : AmplitudeEventTypeEnum.connectionReceived,
         cognitoUserName,
@@ -696,7 +699,7 @@ export class ConnectionController {
     if (!token) {
       return false;
     }
-    return await this.connectionService.validateConnectionAgentToken(token);
+    return await this.validateConnectionTokenUseCase.execute(token);
   }
 
   @ApiOperation({ summary: 'Generate new connection token' })
@@ -706,9 +709,7 @@ export class ConnectionController {
     @Req() request: IRequestWithCognitoInfo,
     @Param() params,
   ): Promise<{ token: string }> {
-    const cognitoUserName = getCognitoUserName(request);
     const connectionId = params.slug;
-
     if (!connectionId) {
       throw new HttpException(
         {
@@ -717,8 +718,7 @@ export class ConnectionController {
         HttpStatus.BAD_REQUEST,
       );
     }
-
-    return await this.connectionService.refreshConnectionAgentToken(cognitoUserName, connectionId);
+    return await this.refreshConnectionAgentTokenUseCase.execute(connectionId);
   }
 
   private validateParameters = (connectionData: CreateConnectionDto): Array<string> => {

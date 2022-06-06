@@ -2,7 +2,6 @@ import { AgentModule } from '../agent/agent.module';
 import { AuthMiddleware } from '../../authorization';
 import { ConnectionController } from './connection.controller';
 import { ConnectionEntity } from './connection.entity';
-import { ConnectionService } from './connection.service';
 import { CustomFieldsEntity } from '../custom-field/custom-fields.entity';
 import { GroupEntity } from '../group/group.entity';
 import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/common';
@@ -32,6 +31,8 @@ import { TestConnectionUseCase } from './use-cases/test-connection.use.case';
 import { UpdateConnectionMasterPasswordUseCase } from './use-cases/update-connection-master-password.use.case';
 import { AmplitudeModule } from '../amplitude/amplitude.module';
 import { RestoreConnectionUseCase } from './use-cases/restore-connection-use.case';
+import { ValidateConnectionTokenUseCase } from './use-cases/validate-connection-token.use.case';
+import { RefreshConnectionAgentTokenUseCase } from './use-cases/refresh-connection-agent-token.use.case';
 
 @Module({
   imports: [
@@ -51,7 +52,6 @@ import { RestoreConnectionUseCase } from './use-cases/restore-connection-use.cas
     AmplitudeModule,
   ],
   providers: [
-    ConnectionService,
     TableService,
     {
       provide: BaseType.GLOBAL_DB_CONTEXT,
@@ -112,6 +112,14 @@ import { RestoreConnectionUseCase } from './use-cases/restore-connection-use.cas
     {
       provide: UseCaseType.RESTORE_CONNECTION,
       useClass: RestoreConnectionUseCase,
+    },
+    {
+      provide: UseCaseType.VALIDATE_CONNECTION_TOKEN,
+      useClass: ValidateConnectionTokenUseCase,
+    },
+    {
+      provide: UseCaseType.REFRESH_CONNECTION_AGENT_TOKEN,
+      useClass: RefreshConnectionAgentTokenUseCase,
     },
   ],
   controllers: [ConnectionController],

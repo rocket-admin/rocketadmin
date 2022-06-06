@@ -26,4 +26,6 @@ export interface IConnectionRepository {
   getConnectionByGroupId(groupId: string): Promise<ConnectionEntity>;
 
   findOneById(connectionId: string): Promise<ConnectionEntity>;
+
+  findOneAgentConnectionByToken(connectionToken: string): Promise<ConnectionEntity>;
 }

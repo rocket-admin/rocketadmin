@@ -1,7 +1,6 @@
 import { AgentModule } from '../agent/agent.module';
 import { AuthMiddleware } from '../../authorization';
 import { ConnectionEntity } from '../connection/connection.entity';
-import { ConnectionService } from '../connection/connection.service';
 import { CustomFieldsEntity } from '../custom-field/custom-fields.entity';
 import { GroupEntity } from '../group/group.entity';
 import { MiddlewareConsumer, Module, RequestMethod } from '@nestjs/common';
@@ -39,7 +38,6 @@ import { DeleteTableSettingsUseCase } from './use-cases/delete-table-settings.us
     UserModule,
   ],
   providers: [
-    ConnectionService,
     TableService,
     {
       provide: BaseType.GLOBAL_DB_CONTEXT,

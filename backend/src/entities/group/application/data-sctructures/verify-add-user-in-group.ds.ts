@@ -1,4 +1,4 @@
 export class VerifyAddUserInGroupDs {
   verificationString: string;
-  userPassword: string;
+  user_password: string;
 }

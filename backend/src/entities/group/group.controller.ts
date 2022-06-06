@@ -143,8 +143,8 @@ export class GroupController {
   @Put('/group/user/verify/:slug')
   async verifyUserInvitation(
     @Param() params,
-    @Res({ passthrough: true }) response: Response,
     @Body('password') password: string,
+    @Res({ passthrough: true }) response: Response,
   ): Promise<ITokenExp> {
     if (!password) {
       throw new HttpException(
@@ -155,8 +155,8 @@ export class GroupController {
       );
     }
     const inputData: VerifyAddUserInGroupDs = {
-      userPassword: password,
       verificationString: params.slug,
+      user_password: password,
     };
     const token: IToken = await this.verifyAddUserInGroupUseCase.execute(inputData);
     response.cookie(Constants.JWT_COOKIE_KEY_NAME, token.token);
