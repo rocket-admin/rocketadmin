@@ -44,6 +44,7 @@ import {
   IFindUsersInConnection,
   IGetPermissionsForGroupInConnection,
   IGetUserGroupsInConnection,
+  IRefreshConnectionAgentToken,
   IRestoreConnection,
   ITestConnection,
   IUpdateConnection,
@@ -105,6 +106,8 @@ export class ConnectionController {
     private readonly restoreConnectionUseCase: IRestoreConnection,
     @Inject(UseCaseType.VALIDATE_CONNECTION_TOKEN)
     private readonly validateConnectionTokenUseCase: IValidateConnectionToken,
+    @Inject(UseCaseType.REFRESH_CONNECTION_AGENT_TOKEN)
+    private readonly refreshConnectionAgentTokenUseCase: IRefreshConnectionAgentToken,
     private readonly connectionService: ConnectionService,
     private readonly amplitudeService: AmplitudeService,
   ) {}
@@ -708,9 +711,7 @@ export class ConnectionController {
     @Req() request: IRequestWithCognitoInfo,
     @Param() params,
   ): Promise<{ token: string }> {
-    const cognitoUserName = getCognitoUserName(request);
     const connectionId = params.slug;
-
     if (!connectionId) {
       throw new HttpException(
         {
@@ -719,8 +720,7 @@ export class ConnectionController {
         HttpStatus.BAD_REQUEST,
       );
     }
-
-    return await this.connectionService.refreshConnectionAgentToken(cognitoUserName, connectionId);
+    return await this.refreshConnectionAgentTokenUseCase.execute(connectionId);
   }
 
   private validateParameters = (connectionData: CreateConnectionDto): Array<string> => {

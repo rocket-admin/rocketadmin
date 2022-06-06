@@ -33,6 +33,7 @@ import { UpdateConnectionMasterPasswordUseCase } from './use-cases/update-connec
 import { AmplitudeModule } from '../amplitude/amplitude.module';
 import { RestoreConnectionUseCase } from './use-cases/restore-connection-use.case';
 import { ValidateConnectionTokenUseCase } from './use-cases/validate-connection-token.use.case';
+import { RefreshConnectionAgentTokenUseCase } from './use-cases/refresh-connection-agent-token.use.case';
 
 @Module({
   imports: [
@@ -117,6 +118,10 @@ import { ValidateConnectionTokenUseCase } from './use-cases/validate-connection-
     {
       provide: UseCaseType.VALIDATE_CONNECTION_TOKEN,
       useClass: ValidateConnectionTokenUseCase,
+    },
+    {
+      provide: UseCaseType.REFRESH_CONNECTION_AGENT_TOKEN,
+      useClass: RefreshConnectionAgentTokenUseCase,
     },
   ],
   controllers: [ConnectionController],
