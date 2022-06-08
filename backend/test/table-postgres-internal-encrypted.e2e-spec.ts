@@ -1,5 +1,3 @@
-import * as AWS from 'aws-sdk';
-import * as AWSMock from 'aws-sdk-mock';
 import * as faker from 'faker';
 import * as request from 'supertest';
 
@@ -16,7 +14,7 @@ import { QueryOrderingEnum } from '../src/enums';
 import { Test } from '@nestjs/testing';
 import { TestUtils } from './test.utils';
 
-xdescribe('Tables with encryption (e2e)', () => {
+describe('Tables with encryption (e2e)', () => {
   jest.setTimeout(10000);
   let app: INestApplication;
   let testUtils: TestUtils;
@@ -51,28 +49,6 @@ xdescribe('Tables with encryption (e2e)', () => {
     decryptValueMaterPwd = function (data) {
       return Encryptor.decryptDataMasterPwd(data, masterPwd);
     };
-
-    AWSMock.setSDKInstance(AWS);
-    AWSMock.mock(
-      'CognitoIdentityServiceProvider',
-      'listUsers',
-      (newCognitoUserName, callback: (...args: any) => void) => {
-        callback(null, {
-          Users: [
-            {
-              Attributes: [
-                {},
-                {},
-                {
-                  Name: 'email',
-                  Value: 'Example@gmail.com',
-                },
-              ],
-            },
-          ],
-        });
-      },
-    );
     const findAllConnectionsResponse = await request(app.getHttpServer())
       .get('/connections')
       .set('Content-Type', 'application/json')
@@ -102,7 +78,6 @@ xdescribe('Tables with encryption (e2e)', () => {
     await testUtils.resetDb();
     await testUtils.closeDbConnection();
     await DaoPostgres.clearKnexCache();
-    AWSMock.restore('CognitoIdentityServiceProvider');
   });
 
   describe('GET /connection/tables/:slug', () => {
@@ -126,12 +101,12 @@ xdescribe('Tables with encryption (e2e)', () => {
         const getTablesRO = JSON.parse(getTablesResponse.text);
 
         expect(typeof getTablesRO).toBe('object');
-        expect(getTablesRO.length).toBe(15);
-        expect(getTablesRO[6].hasOwnProperty('table')).toBeTruthy();
+        expect(getTablesRO.length).toBe(20);
+        // expect(getTablesRO[6].hasOwnProperty('agent')).toBeTruthy();
         expect(getTablesRO[5].hasOwnProperty('permissions')).toBeTruthy();
         expect(typeof getTablesRO[7].permissions).toBe('object');
         expect(Object.keys(getTablesRO[1].permissions).length).toBe(5);
-        expect(getTablesRO[0].table).toBe('table');
+        expect(getTablesRO[0].table).toBe('agent');
         expect(getTablesRO[1].permissions.visibility).toBe(true);
         expect(getTablesRO[2].permissions.readonly).toBe(false);
         expect(getTablesRO[3].permissions.add).toBe(true);
@@ -229,7 +204,7 @@ xdescribe('Tables with encryption (e2e)', () => {
           expect(getTableRowsRO.hasOwnProperty('pagination')).toBeTruthy();
           expect(getTableRowsRO.rows.length).toBe(connectionCount + 5);
           expect(uuidRegex.test(getTableRowsRO.rows[0].id)).toBeTruthy();
-          expect(Object.keys(getTableRowsRO.rows[1]).length).toBe(22);
+          expect(Object.keys(getTableRowsRO.rows[1]).length).toBe(23);
           expect(getTableRowsRO.rows[2].hasOwnProperty('title')).toBeTruthy();
           expect(getTableRowsRO.rows[3].hasOwnProperty('type')).toBeTruthy();
           expect(getTableRowsRO.rows[0].hasOwnProperty('port')).toBeTruthy();
@@ -389,7 +364,7 @@ xdescribe('Tables with encryption (e2e)', () => {
           expect(getTableRowsRO.hasOwnProperty('pagination')).toBeTruthy();
           expect(getTableRowsRO.rows.length).toBe(1);
           expect(uuidRegex.test(getTableRowsRO.rows[0].id)).toBeTruthy();
-          expect(Object.keys(getTableRowsRO.rows[0]).length).toBe(22);
+          expect(Object.keys(getTableRowsRO.rows[0]).length).toBe(23);
           expect(getTableRowsRO.rows[0].title).toBe(newConnection2.title);
           expect(getTableRowsRO.rows[0].type).toBe(newConnection2.type);
           expect(decryptValue(getTableRowsRO.rows[0].host)).toBe(newConnection2.host);
@@ -706,7 +681,7 @@ xdescribe('Tables with encryption (e2e)', () => {
           expect(getTableRowsRO.hasOwnProperty('pagination')).toBeTruthy();
           expect(getTableRowsRO.rows.length).toBe(2);
           expect(uuidRegex.test(getTableRowsRO.rows[0].id)).toBeTruthy();
-          expect(Object.keys(getTableRowsRO.rows[1]).length).toBe(22);
+          expect(Object.keys(getTableRowsRO.rows[1]).length).toBe(23);
           expect(getTableRowsRO.rows[0].hasOwnProperty('title')).toBeTruthy();
           expect(getTableRowsRO.rows[1].hasOwnProperty('type')).toBeTruthy();
           expect(getTableRowsRO.rows[0].hasOwnProperty('host')).toBeTruthy();
@@ -768,7 +743,7 @@ xdescribe('Tables with encryption (e2e)', () => {
           expect(getTableRowsRO.hasOwnProperty('pagination')).toBeTruthy();
           expect(getTableRowsRO.rows.length).toBe(2);
           expect(uuidRegex.test(getTableRowsRO.rows[0].id)).toBeTruthy();
-          expect(Object.keys(getTableRowsRO.rows[1]).length).toBe(22);
+          expect(Object.keys(getTableRowsRO.rows[1]).length).toBe(23);
           expect(getTableRowsRO.rows[0].hasOwnProperty('title')).toBeTruthy();
           expect(getTableRowsRO.rows[1].hasOwnProperty('type')).toBeTruthy();
           expect(getTableRowsRO.rows[0].hasOwnProperty('host')).toBeTruthy();
@@ -1046,7 +1021,7 @@ xdescribe('Tables with encryption (e2e)', () => {
           expect(getTableRowsRO.hasOwnProperty('pagination')).toBeTruthy();
           expect(getTableRowsRO.rows.length).toBe(2);
           expect(uuidRegex.test(getTableRowsRO.rows[0].id)).toBeTruthy();
-          expect(Object.keys(getTableRowsRO.rows[1]).length).toBe(22);
+          expect(Object.keys(getTableRowsRO.rows[1]).length).toBe(23);
           expect(getTableRowsRO.rows[0].title).toBe(newConnection2.title);
           expect(getTableRowsRO.rows[1].type).toBe(newConnection2.type);
           expect(decryptValue(getTableRowsRO.rows[0].host)).toBe(newConnection2.host);
@@ -1162,7 +1137,7 @@ xdescribe('Tables with encryption (e2e)', () => {
           expect(getTableRowsRO.hasOwnProperty('pagination')).toBeTruthy();
           expect(getTableRowsRO.rows.length).toBe(3);
           expect(uuidRegex.test(getTableRowsRO.rows[0].id)).toBeTruthy();
-          expect(Object.keys(getTableRowsRO.rows[1]).length).toBe(22);
+          expect(Object.keys(getTableRowsRO.rows[1]).length).toBe(23);
           expect(getTableRowsRO.rows[0].title).toBe(newConnection2.title);
           expect(getTableRowsRO.rows[1].type).toBe(newConnection2.type);
           expect(decryptValue(getTableRowsRO.rows[0].host)).toBe(newConnection2.host);
@@ -1543,7 +1518,7 @@ xdescribe('Tables with encryption (e2e)', () => {
             .set('Accept', 'application/json');
           expect(getTableRowsResponse.status).toBe(400);
           const { message } = JSON.parse(getTableRowsResponse.text);
-          expect(message).toBe(Messages.TABLE_NOT_FOUND);
+          expect(message).toBe(Messages.TABLE_NAME_MISSING);
         } catch (err) {
           throw err;
         }
@@ -1613,9 +1588,9 @@ xdescribe('Tables with encryption (e2e)', () => {
           expect(getTableRowsRO.hasOwnProperty('pagination')).toBeTruthy();
           expect(getTableRowsRO.rows.length).toBe(connectionCount + 5);
           expect(uuidRegex.test(getTableRowsRO.rows[0].id)).toBeTruthy();
-          expect(Object.keys(getTableRowsRO.rows[1]).length).toBe(22);
+          expect(Object.keys(getTableRowsRO.rows[1]).length).toBe(23);
 
-          expect(getTableRowsRO.rows[0].port).toBe(8080);
+          expect(getTableRowsRO.rows[0].port).toBe(5432);
 
           expect(typeof getTableRowsRO.primaryColumns).toBe('object');
           expect(getTableRowsRO.primaryColumns[0].hasOwnProperty('column_name')).toBeTruthy();
@@ -1687,12 +1662,12 @@ xdescribe('Tables with encryption (e2e)', () => {
           expect(getTableRowsRO.hasOwnProperty('pagination')).toBeTruthy();
           expect(getTableRowsRO.rows.length).toBe(connectionCount + 5);
           expect(uuidRegex.test(getTableRowsRO.rows[0].id)).toBeTruthy();
-          expect(Object.keys(getTableRowsRO.rows[1]).length).toBe(22);
+          expect(Object.keys(getTableRowsRO.rows[1]).length).toBe(23);
 
           for (let i = 0; i < 10; i++) {
             expect(getTableRowsRO.rows[i].port).toBe(10 + i);
           }
-          expect(getTableRowsRO.rows[10].port).toBe(1433);
+          expect(getTableRowsRO.rows[10].port).toBe(5432);
           expect(typeof getTableRowsRO.primaryColumns).toBe('object');
           expect(getTableRowsRO.primaryColumns[0].hasOwnProperty('column_name')).toBeTruthy();
           expect(getTableRowsRO.primaryColumns[0].hasOwnProperty('data_type')).toBeTruthy();
@@ -1879,7 +1854,7 @@ xdescribe('Tables with encryption (e2e)', () => {
             .set('Accept', 'application/json');
           expect(getTableRowsResponse.status).toBe(400);
           const { message } = JSON.parse(getTableRowsResponse.text);
-          expect(message).toBe(Messages.TABLE_NOT_FOUND);
+          expect(message).toBe(Messages.TABLE_NAME_MISSING);
         } catch (err) {
           throw err;
         }
@@ -2012,9 +1987,9 @@ xdescribe('Tables with encryption (e2e)', () => {
           expect(getTableRowsRO.hasOwnProperty('pagination')).toBeTruthy();
           expect(getTableRowsRO.rows.length).toBe(2);
           expect(uuidRegex.test(getTableRowsRO.rows[0].id)).toBeTruthy();
-          expect(Object.keys(getTableRowsRO.rows[1]).length).toBe(22);
+          expect(Object.keys(getTableRowsRO.rows[1]).length).toBe(23);
 
-          expect(getTableRowsRO.rows[0].port).toBe(8080);
+          expect(getTableRowsRO.rows[0].port).toBe(5432);
           expect(getTableRowsRO.rows[1].port).toBe(5432);
 
           expect(typeof getTableRowsRO.primaryColumns).toBe('object');
@@ -2088,7 +2063,7 @@ xdescribe('Tables with encryption (e2e)', () => {
           expect(getTableRowsRO.hasOwnProperty('pagination')).toBeTruthy();
           expect(getTableRowsRO.rows.length).toBe(2);
           expect(uuidRegex.test(getTableRowsRO.rows[0].id)).toBeTruthy();
-          expect(Object.keys(getTableRowsRO.rows[1]).length).toBe(22);
+          expect(Object.keys(getTableRowsRO.rows[1]).length).toBe(23);
 
           expect(getTableRowsRO.rows[0].port).toBe(10);
           expect(getTableRowsRO.rows[1].port).toBe(11);
@@ -2164,10 +2139,10 @@ xdescribe('Tables with encryption (e2e)', () => {
           expect(getTableRowsRO.hasOwnProperty('pagination')).toBeTruthy();
           expect(getTableRowsRO.rows.length).toBe(3);
           expect(uuidRegex.test(getTableRowsRO.rows[0].id)).toBeTruthy();
-          expect(Object.keys(getTableRowsRO.rows[1]).length).toBe(22);
+          expect(Object.keys(getTableRowsRO.rows[1]).length).toBe(23);
 
-          expect(getTableRowsRO.rows[0].port).toBe(1521);
-          expect(getTableRowsRO.rows[1].port).toBe(1433);
+          expect(getTableRowsRO.rows[0].port).toBe(5432);
+          expect(getTableRowsRO.rows[1].port).toBe(5432);
 
           expect(typeof getTableRowsRO.primaryColumns).toBe('object');
           expect(getTableRowsRO.primaryColumns[0].hasOwnProperty('column_name')).toBeTruthy();
@@ -2447,7 +2422,7 @@ xdescribe('Tables with encryption (e2e)', () => {
           expect(getTableRowsRO.hasOwnProperty('pagination')).toBeTruthy();
           expect(getTableRowsRO.rows.length).toBe(2);
           expect(uuidRegex.test(getTableRowsRO.rows[0].id)).toBeTruthy();
-          expect(Object.keys(getTableRowsRO.rows[1]).length).toBe(22);
+          expect(Object.keys(getTableRowsRO.rows[1]).length).toBe(23);
 
           expect(getTableRowsRO.rows[0].port).toBe(8080);
           expect(getTableRowsRO.rows[1].port).toBe(8079);
@@ -2543,7 +2518,7 @@ xdescribe('Tables with encryption (e2e)', () => {
           expect(getTableRowsRO.hasOwnProperty('pagination')).toBeTruthy();
           expect(getTableRowsRO.rows.length).toBe(1);
           expect(uuidRegex.test(getTableRowsRO.rows[0].id)).toBeTruthy();
-          expect(Object.keys(getTableRowsRO.rows[0]).length).toBe(22);
+          expect(Object.keys(getTableRowsRO.rows[0]).length).toBe(23);
 
           expect(getTableRowsRO.rows[0].port).toBe(8078);
 
@@ -2638,7 +2613,7 @@ xdescribe('Tables with encryption (e2e)', () => {
           expect(getTableRowsRO.hasOwnProperty('pagination')).toBeTruthy();
           expect(getTableRowsRO.rows.length).toBe(2);
           expect(uuidRegex.test(getTableRowsRO.rows[0].id)).toBeTruthy();
-          expect(Object.keys(getTableRowsRO.rows[0]).length).toBe(22);
+          expect(Object.keys(getTableRowsRO.rows[0]).length).toBe(23);
 
           expect(getTableRowsRO.rows[0].port).toBe(8078);
           expect(getTableRowsRO.rows[1].port).toBe(8079);
@@ -2734,7 +2709,7 @@ xdescribe('Tables with encryption (e2e)', () => {
           expect(getTableRowsRO.hasOwnProperty('pagination')).toBeTruthy();
           expect(getTableRowsRO.rows.length).toBe(1);
           expect(uuidRegex.test(getTableRowsRO.rows[0].id)).toBeTruthy();
-          expect(Object.keys(getTableRowsRO.rows[0]).length).toBe(22);
+          expect(Object.keys(getTableRowsRO.rows[0]).length).toBe(23);
 
           expect(getTableRowsRO.rows[0].port).toBe(8080);
 
@@ -2978,7 +2953,7 @@ xdescribe('Tables with encryption (e2e)', () => {
             .set('Accept', 'application/json');
           expect(getTableRowsResponse.status).toBe(400);
           const { message } = JSON.parse(getTableRowsResponse.text);
-          expect(message).toBe(Messages.TABLE_NOT_FOUND);
+          expect(message).toBe(Messages.TABLE_NAME_MISSING);
         } catch (err) {
           throw err;
         }
@@ -3320,7 +3295,7 @@ xdescribe('Tables with encryption (e2e)', () => {
           expect(getTableRowsRO.hasOwnProperty('pagination')).toBeTruthy();
           expect(getTableRowsRO.rows.length).toBe(2);
           expect(uuidRegex.test(getTableRowsRO.rows[0].id)).toBeTruthy();
-          expect(Object.keys(getTableRowsRO.rows[1]).length).toBe(22);
+          expect(Object.keys(getTableRowsRO.rows[1]).length).toBe(23);
 
           expect(getTableRowsRO.rows[0].port).toBe(14);
           expect(getTableRowsRO.rows[1].port).toBe(13);
@@ -3418,7 +3393,7 @@ xdescribe('Tables with encryption (e2e)', () => {
           expect(getTableRowsRO.hasOwnProperty('pagination')).toBeTruthy();
           expect(getTableRowsRO.rows.length).toBe(5);
           expect(uuidRegex.test(getTableRowsRO.rows[0].id)).toBeTruthy();
-          expect(Object.keys(getTableRowsRO.rows[1]).length).toBe(22);
+          expect(Object.keys(getTableRowsRO.rows[1]).length).toBe(23);
 
           expect(getTableRowsRO.rows[0].port).toBe(14);
           expect(getTableRowsRO.rows[1].port).toBe(13);
@@ -3519,7 +3494,7 @@ xdescribe('Tables with encryption (e2e)', () => {
           expect(getTableRowsRO.hasOwnProperty('pagination')).toBeTruthy();
           expect(getTableRowsRO.rows.length).toBe(2);
           expect(uuidRegex.test(getTableRowsRO.rows[0].id)).toBeTruthy();
-          expect(Object.keys(getTableRowsRO.rows[1]).length).toBe(22);
+          expect(Object.keys(getTableRowsRO.rows[1]).length).toBe(23);
 
           expect(getTableRowsRO.rows[0].port).toBe(12);
           expect(getTableRowsRO.rows[1].port).toBe(11);
@@ -3617,7 +3592,7 @@ xdescribe('Tables with encryption (e2e)', () => {
           expect(getTableRowsRO.hasOwnProperty('pagination')).toBeTruthy();
           expect(getTableRowsRO.rows.length).toBe(2);
           expect(uuidRegex.test(getTableRowsRO.rows[0].id)).toBeTruthy();
-          expect(Object.keys(getTableRowsRO.rows[1]).length).toBe(22);
+          expect(Object.keys(getTableRowsRO.rows[1]).length).toBe(23);
 
           expect(getTableRowsRO.rows[0].port).toBe(12);
           expect(getTableRowsRO.rows[1].port).toBe(11);
@@ -3709,7 +3684,7 @@ xdescribe('Tables with encryption (e2e)', () => {
 
           const { message } = JSON.parse(getTableRowsResponse.text);
 
-          expect(message).toBe(Messages.CONNECTION_NOT_FOUND);
+          expect(message).toBe(Messages.CONNECTION_ID_MISSING);
         } catch (err) {
           throw err;
         }
@@ -3994,7 +3969,7 @@ xdescribe('Tables with encryption (e2e)', () => {
 
         expect(typeof getTableStructureRO).toBe('object');
         expect(typeof getTableStructureRO.structure).toBe('object');
-        expect(getTableStructureRO.structure.length).toBe(22);
+        expect(getTableStructureRO.structure.length).toBe(23);
 
         for (const element of getTableStructureRO.structure) {
           expect(element.hasOwnProperty('column_name')).toBeTruthy();
@@ -4123,7 +4098,7 @@ xdescribe('Tables with encryption (e2e)', () => {
           .set('Accept', 'application/json');
         expect(getTableStructure.status).toBe(400);
         const { message } = JSON.parse(getTableStructure.text);
-        expect(message).toBe(Messages.TABLE_NOT_FOUND);
+        expect(message).toBe(Messages.TABLE_NAME_MISSING);
       } catch (err) {
         throw err;
       }
@@ -4169,28 +4144,6 @@ xdescribe('Tables with encryption (e2e)', () => {
   describe('POST /table/row/:slug', () => {
     it('should add row in table and return result', async () => {
       try {
-        AWSMock.setSDKInstance(AWS);
-        AWSMock.mock(
-          'CognitoIdentityServiceProvider',
-          'listUsers',
-          (newCognitoUserName, callback: (...args: any) => void) => {
-            callback(null, {
-              Users: [
-                {
-                  Attributes: [
-                    {},
-                    {},
-                    {
-                      Name: 'email',
-                      Value: 'Example@gmail.com',
-                    },
-                  ],
-                },
-              ],
-            });
-          },
-        );
-
         const realConnection = JSON.parse(JSON.stringify(newConnection));
 
         const createConnectionResponse = await request(app.getHttpServer())
@@ -4202,38 +4155,31 @@ xdescribe('Tables with encryption (e2e)', () => {
         const createConnectionRO = JSON.parse(createConnectionResponse.text);
         expect(createConnectionResponse.status).toBe(201);
 
-        const fakeIntegerField = faker.random.number({ min: 5, max: 10 });
-        const fakeTextField = faker.random.word(faker.random.number({ min: 5, max: 10 }));
-        const fakeBooleanField = faker.random.boolean();
+        const fake_id = faker.random.uuid();
 
         const row = {
-          integerField: fakeIntegerField,
-          textField: fakeTextField,
-          booleanField: fakeBooleanField,
+          job_key: fake_id,
         };
 
         const addRowInTableResponse = await request(app.getHttpServer())
-          .post(`/table/row/${createConnectionRO.id}?tableName=mock`)
+          .post(`/table/row/${createConnectionRO.id}?tableName=job_list`)
           .send(JSON.stringify(row))
           .set('Content-Type', 'application/json')
           .set('masterpwd', 'ahalaimahalai')
           .set('Accept', 'application/json');
 
-        expect(addRowInTableResponse.status).toBe(201);
         const addRowInTableRO = JSON.parse(addRowInTableResponse.text);
-
+        expect(addRowInTableResponse.status).toBe(201);
         expect(addRowInTableRO.hasOwnProperty('row')).toBeTruthy();
         expect(addRowInTableRO.hasOwnProperty('structure')).toBeTruthy();
         expect(addRowInTableRO.hasOwnProperty('foreignKeys')).toBeTruthy();
         expect(addRowInTableRO.hasOwnProperty('primaryColumns')).toBeTruthy();
         expect(addRowInTableRO.hasOwnProperty('readonly_fields')).toBeTruthy();
-        expect(addRowInTableRO.row.integerField).toBe(row.integerField);
-        expect(addRowInTableRO.row.textField).toBe(row.textField);
-        expect(addRowInTableRO.row.booleanField).toBe(row.booleanField);
+        expect(addRowInTableRO.row.job_key).toBe(row.job_key);
 
         //checking that the line was added
         const getTableRowsResponse = await request(app.getHttpServer())
-          .get(`/table/rows/${createConnectionRO.id}?tableName=mock`)
+          .get(`/table/rows/${createConnectionRO.id}?tableName=job_list`)
           .set('Content-Type', 'application/json')
           .set('masterpwd', 'ahalaimahalai')
           .set('Accept', 'application/json');
@@ -4245,17 +4191,13 @@ xdescribe('Tables with encryption (e2e)', () => {
         expect(getTableRowsRO.hasOwnProperty('primaryColumns')).toBeTruthy();
         expect(getTableRowsRO.hasOwnProperty('pagination')).toBeTruthy();
 
-        const { rows, primaryColumns, pagination } = getTableRowsRO;
+        const { rows } = getTableRowsRO;
 
         expect(rows.length).toBe(1);
-        expect(rows[0].integerField).toBe(fakeIntegerField);
-        expect(rows[0].booleanField).toBe(fakeBooleanField);
-        expect(rows[0].textField).toBe(fakeTextField);
-        expect(rows[0].hasOwnProperty('integerGenerated')).toBeTruthy();
+        expect(rows[0].job_key).toBe(fake_id);
       } catch (err) {
         throw err;
       }
-      AWSMock.restore('CognitoIdentityServiceProvider');
     });
 
     it('should throw an exception when connection id is not passed in request', async () => {
@@ -4271,19 +4213,15 @@ xdescribe('Tables with encryption (e2e)', () => {
         const createConnectionRO = JSON.parse(createConnectionResponse.text);
         expect(createConnectionResponse.status).toBe(201);
 
-        const fakeIntegerField = faker.random.number({ min: 5, max: 10 });
-        const fakeTextField = faker.random.word(faker.random.number({ min: 5, max: 10 }));
-        const fakeBooleanField = faker.random.boolean();
+        const fake_id = faker.random.uuid();
 
         const row = {
-          integerField: fakeIntegerField,
-          textField: fakeTextField,
-          booleanField: fakeBooleanField,
+          job_key: fake_id,
         };
 
         const emptyId = '';
         const addRowInTableResponse = await request(app.getHttpServer())
-          .post(`/table/row/${emptyId}?tableName=mock`)
+          .post(`/table/row/${emptyId}?tableName=jobs_list`)
           .send(JSON.stringify(row))
           .set('Content-Type', 'application/json')
           .set('masterpwd', 'ahalaimahalai')
@@ -4293,14 +4231,14 @@ xdescribe('Tables with encryption (e2e)', () => {
 
         //checking that the line wasn't added
         const getTableRowsResponse = await request(app.getHttpServer())
-          .get(`/table/rows/${createConnectionRO.id}?tableName=mock`)
+          .get(`/table/rows/${createConnectionRO.id}?tableName=job_list`)
           .set('Content-Type', 'application/json')
           .set('masterpwd', 'ahalaimahalai')
           .set('Accept', 'application/json');
-        expect(getTableRowsResponse.status).toBe(200);
 
         const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
 
+        expect(getTableRowsResponse.status).toBe(200);
         expect(getTableRowsRO.hasOwnProperty('rows')).toBeTruthy();
         expect(getTableRowsRO.hasOwnProperty('primaryColumns')).toBeTruthy();
         expect(getTableRowsRO.hasOwnProperty('pagination')).toBeTruthy();
@@ -4326,14 +4264,10 @@ xdescribe('Tables with encryption (e2e)', () => {
         const createConnectionRO = JSON.parse(createConnectionResponse.text);
         expect(createConnectionResponse.status).toBe(201);
 
-        const fakeIntegerField = faker.random.number({ min: 5, max: 10 });
-        const fakeTextField = faker.random.word(faker.random.number({ min: 5, max: 10 }));
-        const fakeBooleanField = faker.random.boolean();
+        const fake_id = faker.random.uuid();
 
         const row = {
-          integerField: fakeIntegerField,
-          textField: fakeTextField,
-          booleanField: fakeBooleanField,
+          job_key: fake_id,
         };
 
         const addRowInTableResponse = await request(app.getHttpServer())
@@ -4345,11 +4279,11 @@ xdescribe('Tables with encryption (e2e)', () => {
 
         expect(addRowInTableResponse.status).toBe(400);
         const { message } = JSON.parse(addRowInTableResponse.text);
-        expect(message).toBe(Messages.PARAMETER_MISSING);
+        expect(message).toBe(Messages.TABLE_NAME_MISSING);
 
         //checking that the line wasn't added
         const getTableRowsResponse = await request(app.getHttpServer())
-          .get(`/table/rows/${createConnectionRO.id}?tableName=mock`)
+          .get(`/table/rows/${createConnectionRO.id}?tableName=job_list`)
           .set('Content-Type', 'application/json')
           .set('masterpwd', 'ahalaimahalai')
           .set('Accept', 'application/json');
@@ -4383,7 +4317,7 @@ xdescribe('Tables with encryption (e2e)', () => {
         expect(createConnectionResponse.status).toBe(201);
 
         const addRowInTableResponse = await request(app.getHttpServer())
-          .post(`/table/row/${createConnectionRO.id}?tableName=mock`)
+          .post(`/table/row/${createConnectionRO.id}?tableName=job_list`)
           .set('masterpwd', 'ahalaimahalai')
           .set('Content-Type', 'application/json')
           .set('Accept', 'application/json');
@@ -4394,7 +4328,7 @@ xdescribe('Tables with encryption (e2e)', () => {
 
         //checking that the line wasn't added
         const getTableRowsResponse = await request(app.getHttpServer())
-          .get(`/table/rows/${createConnectionRO.id}?tableName=mock`)
+          .get(`/table/rows/${createConnectionRO.id}?tableName=job_list`)
           .set('masterpwd', 'ahalaimahalai')
           .set('Content-Type', 'application/json')
           .set('Accept', 'application/json');
@@ -4451,7 +4385,7 @@ xdescribe('Tables with encryption (e2e)', () => {
 
         //checking that the line wasn't added
         const getTableRowsResponse = await request(app.getHttpServer())
-          .get(`/table/rows/${createConnectionRO.id}?tableName=mock`)
+          .get(`/table/rows/${createConnectionRO.id}?tableName=job_list`)
           .set('Content-Type', 'application/json')
           .set('masterpwd', 'ahalaimahalai')
           .set('Accept', 'application/json');
