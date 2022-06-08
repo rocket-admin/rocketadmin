@@ -40,7 +40,7 @@ export class FindUserUseCase
       return await FindUserUseCase.buildFoundUserDs(user);
     }
 
-    const savedUser = await this._dbContext.userRepository.createUser(userData);
+    let savedUser = await this._dbContext.userRepository.createUser(userData);
     const testConnections = Constants.getTestConnectionsArr();
     const testConnectionsEntities = buildConnectionEntitiesFromTestDtos(testConnections);
     const createdTestConnections = await Promise.all(
@@ -72,6 +72,10 @@ export class FindUserUseCase
       }),
     );
     await this.amplitudeService.formAndSendLogRecord(AmplitudeEventTypeEnum.userRegistered, savedUser.id);
+    if (!savedUser.stripeId && process.env.NODE_ENV !== 'test') {
+      savedUser.stripeId = await StripeUtil.createUserStripeCustomerAndReturnStripeId(savedUser.id);
+      savedUser = await this._dbContext.userRepository.saveUserEntity(savedUser);
+    }
     return await FindUserUseCase.buildFoundUserDs(savedUser);
   }
 
