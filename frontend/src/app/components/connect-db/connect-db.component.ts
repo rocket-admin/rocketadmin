@@ -202,31 +202,33 @@ export class ConnectDBComponent implements OnInit {
   }
 
   createConnection(connectForm: NgForm) {
-    if (connectForm.form.valid && this.db.connectionType === 'direct') {
-      const ipAddressDilaog = this.dialog.open(DbConnectionIpAccessDialogComponent, {
-        width: '36em',
-        data: this.db
-      });
+    if (connectForm.form.valid) {
+      if (this.db.connectionType === 'direct') {
+        const ipAddressDilaog = this.dialog.open(DbConnectionIpAccessDialogComponent, {
+          width: '36em',
+          data: this.db
+        });
 
-      ipAddressDilaog.afterClosed().subscribe( async (action) => {
-        if (action === 'confirmed') {
-          this.submitting = true;
-          let credsCorrect: TestConnection;
+        ipAddressDilaog.afterClosed().subscribe( async (action) => {
+          if (action === 'confirmed') {
+            this.submitting = true;
+            let credsCorrect: TestConnection;
 
-          this.checkMasterPassword();
+            this.checkMasterPassword();
 
-          (credsCorrect as any) = await this._connections.testConnection(this.connectionID, this.db).toPromise();
-          this.amplitudeTrackAddConnection(credsCorrect.result);
+            (credsCorrect as any) = await this._connections.testConnection(this.connectionID, this.db).toPromise();
+            this.amplitudeTrackAddConnection(credsCorrect.result);
 
-          if (credsCorrect.result) {
-            this.createConnectionRequest();
-          } else {
-            this.handleConnectionError(credsCorrect.message);
+            if (credsCorrect.result) {
+              this.createConnectionRequest();
+            } else {
+              this.handleConnectionError(credsCorrect.message);
+            }
           }
-        }
-      })
-    } else {
-      this.createConnectionRequest();
+        })
+      } else {
+        this.createConnectionRequest();
+      }
     }
   }
 
