@@ -309,26 +309,34 @@ describe('UserService', () => {
 
   it('should call deleteAccount', () => {
     let isDeleteuserCalled = false;
-
+    const metadata = {
+      reason: 'missing-features',
+      message: 'i want to add tables'
+    }
     const requestResponse = true;
 
-    service.deleteAccount().subscribe((res) => {
+    service.deleteAccount(metadata).subscribe((res) => {
       expect(fakeNotifications.showSuccessSnackbar).toHaveBeenCalledOnceWith('You account has been deleted.');
       isDeleteuserCalled = true;
     });
 
-    const req = httpMock.expectOne(`${service._userURLv2}`);
-    expect(req.request.method).toBe("DELETE");
+    const req = httpMock.expectOne(`${service._userURLv2}/delete`);
+    expect(req.request.method).toBe("PUT");
     req.flush(requestResponse);
 
     expect(isDeleteuserCalled).toBeTrue();
   });
 
   it('should fall for deleteAccount and show Error banner', async () => {
-    const resMessage = service.deleteAccount().toPromise();
+    const metadata = {
+      reason: 'missing-features',
+      message: 'i want to add tables'
+    }
 
-    const req = httpMock.expectOne(`${service._userURLv2}`);
-    expect(req.request.method).toBe("DELETE");
+    const resMessage = service.deleteAccount(metadata).toPromise();
+
+    const req = httpMock.expectOne(`${service._userURLv2}/delete`);
+    expect(req.request.method).toBe("PUT");
     req.flush(fakeError, {status: 400, statusText: ''});
     await resMessage;
 

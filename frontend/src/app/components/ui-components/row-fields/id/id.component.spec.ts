@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
+import { FormsModule } from '@angular/forms';
 import { IdComponent } from './id.component';
 
 describe('IdComponent', () => {
@@ -8,6 +9,7 @@ describe('IdComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
+      imports: [ FormsModule ],
       declarations: [ IdComponent ]
     })
     .compileComponents();

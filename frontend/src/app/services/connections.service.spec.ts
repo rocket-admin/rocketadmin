@@ -1,3 +1,4 @@
+import { BannerActionType, BannerType } from '../models/banner';
 import { ConnectionType, DBtype } from '../models/connection';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 
@@ -10,7 +11,6 @@ import { NotificationsService } from './notifications.service';
 import { RouterTestingModule } from "@angular/router/testing";
 import { TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
-import { BannerActionType, BannerType } from '../models/banner';
 
 describe('ConnectionsService', () => {
   let httpMock: HttpTestingController;
@@ -466,24 +466,33 @@ describe('ConnectionsService', () => {
 
   it('should call deleteConnection and show Success Snackbar', () => {
     let isSubscribeCalled = false;
+    const metadata = {
+      reason: 'missing-features',
+      message: 'i want to add tables'
+    }
 
-    service.deleteConnection('12345678').subscribe(res => {
+    service.deleteConnection('12345678', metadata).subscribe(res => {
       expect(fakeNotifications.showSuccessSnackbar).toHaveBeenCalledOnceWith('Connection has been deleted successfully.');
       isSubscribeCalled = true;
     });
 
-    const req = httpMock.expectOne(`${service._connectionURL}/12345678`);
-    expect(req.request.method).toBe("DELETE");
+    const req = httpMock.expectOne(`${service._connectionURL}/delete/12345678`);
+    expect(req.request.method).toBe("PUT");
     req.flush(connectionCredsNetwork);
 
     expect(isSubscribeCalled).toBe(true);
   });
 
   it('should fall for deleteConnection and show Error snackbar', async () => {
-    const deletedConnection = service.deleteConnection('12345678').toPromise();
+    const metadata = {
+      reason: 'missing-features',
+      message: 'i want to add tables'
+    }
 
-    const req = httpMock.expectOne(`${service._connectionURL}/12345678`);
-    expect(req.request.method).toBe("DELETE");
+    const deletedConnection = service.deleteConnection('12345678', metadata).toPromise();
+
+    const req = httpMock.expectOne(`${service._connectionURL}/delete/12345678`);
+    expect(req.request.method).toBe("PUT");
     req.flush(fakeError, {status: 400, statusText: ''});
     await deletedConnection;
 

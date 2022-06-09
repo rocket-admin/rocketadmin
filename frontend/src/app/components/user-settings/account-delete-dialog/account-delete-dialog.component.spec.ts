@@ -45,8 +45,6 @@ describe('AccountDeleteDialogComponent', () => {
   });
 
   it('should call delete user service', () => {
-    component.data.id = '12345678';
-    component.data.title = null;
     component.reason = 'technical-issues';
     component.message = 'I cannot add connection';
 
@@ -56,8 +54,6 @@ describe('AccountDeleteDialogComponent', () => {
     expect(fakeDeleteUserDialogOpen).toHaveBeenCalledOnceWith(AccountDeleteConfirmationComponent, {
       width: '20em',
       data: {
-        id: '12345678',
-        title: null,
         reason: 'technical-issues',
         message: 'I cannot add connection'
       }
