@@ -123,6 +123,17 @@ export const Constants = {
     maxAge: 1000 * 60 * 60,
   },
 
+  DEFAULT_TABLE_STRUCTURE_ELEMENTS_CACHE_OPTIONS: {
+    max: 2000,
+    length: function (n, key): number {
+      return n * 2 + key.length;
+    },
+    dispose: function (key, n): number {
+      return 1;
+    },
+    maxAge: 1000 * 30,
+  },
+
   DEFAULT_FORWARD_IN_HOST: '127.0.0.1',
   AUTOCOMPLETE_ROW_LIMIT: 20,
 

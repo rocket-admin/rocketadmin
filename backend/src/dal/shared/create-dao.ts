@@ -3,16 +3,16 @@ import { DaoAgent } from '../dao-agent/dao-agent';
 import { DaoMssql } from '../dao/dao-mssql';
 import { DaoMysql } from '../dao/dao-mysql';
 import { DaoOracledb } from '../dao/dao-oracledb';
-import { DaoPostgres } from '../dao/dao-postgres';
 import { DaoSshMysql } from '../dao-ssh/dao-ssh-mysql';
 import { HttpException } from '@nestjs/common/exceptions/http.exception';
 import { HttpStatus } from '@nestjs/common';
 import { IDaoInterface } from './dao-interface';
+import { DataAccessObjectPostgres } from '../../data-access-layer/shared/data-access-object-postgres';
 
 export function createDao(connection, cognitoUserName: string): IDaoInterface {
   switch (connection.type) {
     case ConnectionTypeEnum.postgres:
-      return new DaoPostgres(connection);
+      return new DataAccessObjectPostgres(connection) as any;
 
     case ConnectionTypeEnum.mysql:
       if (connection.ssh) {
