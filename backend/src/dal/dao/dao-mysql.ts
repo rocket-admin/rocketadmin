@@ -49,6 +49,7 @@ export class DaoMysql extends BasicDao implements IDaoInterface {
       }
     }
     const primaryColumns = await this.getTablePrimaryColumns(tableName);
+    //todo rework with complex primary key
     const primaryKey = primaryColumns[0];
     const primaryKeyIndexInStructure: number = tableStructure
       .map((e) => {

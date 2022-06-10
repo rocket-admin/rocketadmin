@@ -10,7 +10,7 @@ export interface IDataAccessObject {
     userEmail: string,
   ): Promise<Record<string, unknown> | number>;
 
-  configureKnex?(connectionConfig): Promise<Knex> | Knex;
+  configureKnex?(): Promise<Knex> | Knex;
 
   deleteRowInTable(
     tableName: string,
@@ -50,7 +50,7 @@ export interface IDataAccessObject {
 
   getTablesFromDB(email?: string): Promise<Array<string>>;
 
-  getTableStructure(tableName: string, userEmail: string): Promise<Array<any>>;
+  getTableStructure(tableName: string, userEmail: string): Promise<Array<ITableStructure>>;
 
   testConnect(): Promise<ITestConnectResult>;
 

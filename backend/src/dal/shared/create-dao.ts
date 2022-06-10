@@ -1,13 +1,13 @@
 import { ConnectionTypeEnum } from '../../enums';
 import { DaoAgent } from '../dao-agent/dao-agent';
 import { DaoMssql } from '../dao/dao-mssql';
-import { DaoMysql } from '../dao/dao-mysql';
 import { DaoOracledb } from '../dao/dao-oracledb';
 import { DaoSshMysql } from '../dao-ssh/dao-ssh-mysql';
 import { HttpException } from '@nestjs/common/exceptions/http.exception';
 import { HttpStatus } from '@nestjs/common';
 import { IDaoInterface } from './dao-interface';
-import { DataAccessObjectPostgres } from '../../data-access-layer/shared/data-access-object-postgres';
+import { DataAccessObjectPostgres } from '../../data-access-layer/data-access-objects/data-access-object-postgres';
+import { DataAccessObjectMysql } from '../../data-access-layer/data-access-objects/data-access-object-mysql';
 
 export function createDao(connection, cognitoUserName: string): IDaoInterface {
   switch (connection.type) {
@@ -18,7 +18,7 @@ export function createDao(connection, cognitoUserName: string): IDaoInterface {
       if (connection.ssh) {
         return new DaoSshMysql(connection);
       } else {
-        return new DaoMysql(connection);
+        return new DataAccessObjectMysql(connection) as any;
       }
 
     case ConnectionTypeEnum.oracledb:
