@@ -9,7 +9,7 @@ import {
   IRows,
   ITableStructure,
   ITestConnectResult,
-} from '../shared/data-access-layer-interface';
+} from '../shared/data-access-object-interface';
 import { ConnectionEntity } from '../../entities/connection/connection.entity';
 import { knex, Knex } from 'knex';
 import { TableSettingsEntity } from '../../entities/table-settings/table-settings.entity';

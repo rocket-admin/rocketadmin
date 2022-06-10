@@ -8,7 +8,7 @@ import {
   IRows,
   ITableStructure,
   ITestConnectResult,
-} from '../shared/data-access-layer-interface';
+} from '../shared/data-access-object-interface';
 import { ConnectionEntity } from '../../entities/connection/connection.entity';
 import { Injectable, Scope } from '@nestjs/common';
 import { Knex } from 'knex';

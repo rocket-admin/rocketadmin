@@ -2,7 +2,7 @@ import * as LRU from 'lru-cache';
 import { Constants } from '../constants/constants';
 import { Knex } from 'knex';
 import { ConnectionEntity } from '../../entities/connection/connection.entity';
-import { IForeignKey, IPrimaryKey, ITableStructure } from '../../data-access-layer/shared/data-access-layer-interface';
+import { IForeignKey, IPrimaryKey, ITableStructure } from '../../data-access-layer/shared/data-access-object-interface';
 
 const knexCache = new LRU(Constants.DEFAULT_CONNECTION_CACHE_OPTIONS);
 const tunnelCache = new LRU(Constants.DEFAULT_TUNNEL_CACHE_OPTIONS);
