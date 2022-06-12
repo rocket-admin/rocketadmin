@@ -11,8 +11,6 @@ import { NotificationsService } from './notifications.service';
   providedIn: 'root'
 })
 export class UserService {
-
-  _userURL = 'https://api.autoadmin.org/user';
   _userURLv2 = 'https://api-v2.autoadmin.org/user';
 
   public initialUserState = {

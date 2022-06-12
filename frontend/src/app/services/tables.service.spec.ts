@@ -553,7 +553,7 @@ describe('TablesService', () => {
       isSubscribeCalled = true;
     });
 
-    const req = httpMock.expectOne(`https://api.autoadmin.org/widget/12345678?tableName=users_table`);
+    const req = httpMock.expectOne(`https://api-v2.autoadmin.org/widget/12345678?tableName=users_table`);
     expect(req.request.method).toBe("POST");
     req.flush(tableWidgetsNetwork);
 
@@ -563,7 +563,7 @@ describe('TablesService', () => {
   it('should fall updateTableWidgets and show Error bannner', async () => {
     const fetchTableSettings = service.updateTableWidgets('12345678', 'users_table', tableWidgetsApp).toPromise();
 
-    const req = httpMock.expectOne(`https://api.autoadmin.org/widget/12345678?tableName=users_table`);
+    const req = httpMock.expectOne(`https://api-v2.autoadmin.org/widget/12345678?tableName=users_table`);
     expect(req.request.method).toBe("POST");
     req.flush(fakeError, {status: 400, statusText: ''});
     await fetchTableSettings;
