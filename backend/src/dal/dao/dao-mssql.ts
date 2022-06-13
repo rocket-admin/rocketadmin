@@ -340,11 +340,14 @@ export class DaoMssql extends BasicDao implements IDaoInterface {
            AND TABLE_SCHEMA = ?`,
         [this.connection.database, tableName, schema],
       );
+
       generatedColumns = generatedColumns.map((e) => e.COLUMN_NAME);
+
       const structureColumnsInLowercase = [];
       for (const structureColumn of structureColumns) {
         structureColumnsInLowercase.push(objectKeysToLowercase(structureColumn));
       }
+
       for (const element of structureColumnsInLowercase) {
         renameObjectKeyName(element, 'is_nullable', 'allow_null');
         element.allow_null = element.allow_null === 'YES';

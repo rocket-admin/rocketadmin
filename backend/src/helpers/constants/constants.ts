@@ -131,7 +131,7 @@ export const Constants = {
     dispose: function (key, n): number {
       return 1;
     },
-    maxAge: 1000 * 30,
+    maxAge: 1000 * 60,
   },
 
   DEFAULT_FORWARD_IN_HOST: '127.0.0.1',
