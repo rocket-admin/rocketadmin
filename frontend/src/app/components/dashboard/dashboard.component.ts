@@ -38,6 +38,9 @@ export class DashboardComponent implements OnInit {
 
   public dataSource: TablesDataSource = null;
 
+  private onDeleteSubscription;
+  private onUrlChange;
+
   constructor(
     private router: Router,
     private route: ActivatedRoute,
@@ -70,7 +73,7 @@ export class DashboardComponent implements OnInit {
     if (tables) {
       this.formatTableNames(tables);
       this.route.paramMap
-        .pipe(first(),
+        .pipe(
           map((params: ParamMap) => {
             const tableName = params.get('table-name');
             if (tableName) {
@@ -82,8 +85,10 @@ export class DashboardComponent implements OnInit {
             };
           })
         ).subscribe();
-        this._tableRow.cast.subscribe((arg) =>  {
-          if (arg === 'delete row') this.setTable(this.selectedTableName);
+        this._tableRow.cast.subscribe((arg) => {
+          if (arg === 'delete row' && this.selectedTableName) {
+            this.setTable(this.selectedTableName);
+          };
         });
     }
   }
