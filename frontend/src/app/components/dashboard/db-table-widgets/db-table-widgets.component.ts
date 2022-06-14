@@ -1,12 +1,13 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
+import { JsonEditorComponent, JsonEditorOptions } from 'ang-jsoneditor';
 import { TableField, Widget } from 'src/app/models/table';
+
 import { ConnectionsService } from 'src/app/services/connections.service';
+import { MatDialog } from '@angular/material/dialog';
 import { TablesService } from 'src/app/services/tables.service';
 import { UIwidgets } from "src/app/consts/field-types";
-import { MatDialog } from '@angular/material/dialog';
 import { WidgetDeleteDialogComponent } from './widget-delete-dialog/widget-delete-dialog.component';
 import { difference } from "lodash";
-import { JsonEditorComponent, JsonEditorOptions } from 'ang-jsoneditor';
 import { normalizeTableName } from 'src/app/lib/normalize';
 
 @Component({
@@ -47,13 +48,7 @@ export class DbTableWidgetsComponent implements OnInit {
     this._tables.fetchTableStructure(this.connectionID, this.tableName)
       .subscribe(res => {
         this.fields = res.structure.map((field: TableField) => field.column_name);
-
-        this._tables.fetchTableWidgets(this.connectionID, this.tableName)
-          .subscribe(res => {
-            const currentWidgetTypes = res.map((widget: Widget) => widget.field_name);
-            this.fields = difference(this.fields, currentWidgetTypes);
-            this.widgets = res
-          });
+        this.getWidgets();
       })
   }
 
@@ -100,13 +95,22 @@ export class DbTableWidgetsComponent implements OnInit {
     })
   }
 
+  getWidgets() {
+    this._tables.fetchTableWidgets(this.connectionID, this.tableName)
+    .subscribe(res => {
+      const currentWidgetTypes = res.map((widget: Widget) => widget.field_name);
+      this.fields = difference(this.fields, currentWidgetTypes);
+      this.widgets = res
+    });
+  }
+
   updateWidgets() {
     this.submitting = true;
     this._tables.updateTableWidgets(this.connectionID, this.tableName, this.widgets)
       .subscribe(res => {
-        this.widgets = res
         this.submitting = false;
         this.isAllWidgetsDeleted = false;
+        this.getWidgets();
       },
       undefined,
       () => {this.submitting = false});

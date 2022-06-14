@@ -1,5 +1,5 @@
 import { BannerActionType, BannerType } from '../models/banner';
-import { BehaviorSubject, EMPTY } from 'rxjs';
+import { BehaviorSubject, EMPTY, Observable, ReplaySubject, Subject } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 
 import { HttpClient } from '@angular/common/http';
@@ -13,13 +13,16 @@ export class TableRowService {
 
   _tableURL = 'https://api-v2.autoadmin.org/table';
 
-  private row = new BehaviorSubject<string>('');
-  public cast = this.row.asObservable();
+  private row;
+  public cast;
 
   constructor(
     private _http: HttpClient,
     private _notifications: NotificationsService
-  ) { }
+  ) {
+    this.row = new Subject<string>();
+    this.cast = this.row.asObservable();
+  }
 
   fetchTableRow(connectionID: string, tableName: string, params) {
     return this._http.get<any>(`${this._tableURL}/row/${connectionID}`, {

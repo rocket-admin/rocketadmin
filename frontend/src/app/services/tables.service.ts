@@ -261,7 +261,7 @@ export class TablesService {
   }
 
   updateTableWidgets(connectionID: string, tableName: string, widgets: Widget[]) {
-    return this._http.post<any>(`https://api.autoadmin.org/widget/${connectionID}`, { widgets }, {
+    return this._http.post<any>(`https://api-v2.autoadmin.org/widget/${connectionID}`, { widgets }, {
       params: {
         tableName
       }
