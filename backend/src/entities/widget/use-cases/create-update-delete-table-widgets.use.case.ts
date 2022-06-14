@@ -58,7 +58,8 @@ export class CreateUpdateDeleteTableWidgetsUseCase
       });
       if (availableWidgetIndex >= 0) {
         const updatedWidget = Object.assign(foundTableWidgets.at(availableWidgetIndex), widget);
-        await this._dbContext.tableWidgetsRepository.saveNewOrUpdatedTableWidget(updatedWidget);
+        foundTableWidgets[availableWidgetIndex] =
+          await this._dbContext.tableWidgetsRepository.saveNewOrUpdatedTableWidget(updatedWidget);
       } else {
         const newTableWidget = buildNewTableWidgetEntity(widget);
         const createdTableWidget = await this._dbContext.tableWidgetsRepository.saveNewOrUpdatedTableWidget(
@@ -67,6 +68,7 @@ export class CreateUpdateDeleteTableWidgetsUseCase
         tableSettingToUpdate.table_widgets.push(createdTableWidget);
       }
     }
+
     for (const foundTableWidget of foundTableWidgets) {
       const findWidgetIndex = widgets.findIndex((widget) => {
         return widget.field_name === foundTableWidget.field_name;
