@@ -19,6 +19,9 @@ export async function sendRemindersToUsers(userEmails: Array<string>): Promise<A
 
 function buildMailingResults(results: Array<SMTPTransport.SentMessageInfo>): Array<ICronMessagingResults> {
   return results.map((result) => {
+    if (!result) {
+      return;
+    }
     const { messageId, accepted, rejected } = result;
     return {
       messageId: messageId ? messageId : undefined,
