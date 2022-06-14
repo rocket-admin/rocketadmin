@@ -116,5 +116,6 @@ temp/
 .env.dev
 .amazon.env
 .development.env
+ormconfig.env
 
 # End of https://www.gitignore.io/api/node

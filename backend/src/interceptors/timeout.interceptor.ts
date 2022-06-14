@@ -7,7 +7,7 @@ import { Messages } from '../exceptions/text/messages';
 export class TimeoutInterceptor implements NestInterceptor {
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
     return next.handle().pipe(
-      timeout(7000),
+      timeout(15000),
       catchError((err) => {
         if (err instanceof TimeoutError) {
           return throwError(
