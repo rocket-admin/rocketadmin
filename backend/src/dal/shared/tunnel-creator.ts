@@ -47,7 +47,6 @@ export class TunnelCreator {
 
   private static getSshTunelConfig(connection, freePort: number) {
     const { host, port, privateSSHKey, sshPort, sshHost, sshUsername } = connection;
-
     return {
       host: sshHost,
       port: sshPort,

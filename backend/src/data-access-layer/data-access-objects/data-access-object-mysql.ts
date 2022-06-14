@@ -1,12 +1,19 @@
-import { knex, Knex } from 'knex';
-import { BasicDao } from '../shared/basic-dao';
-import { Cacher } from '../../helpers/cache/cacher';
+import { Injectable, Scope } from '@nestjs/common';
+import { BasicDao } from '../../dal/shared/basic-dao';
+import {
+  IAutocompleteFieldsData,
+  IDataAccessObject,
+  IFilteringFieldsData,
+  IForeignKey,
+  IPrimaryKey,
+  IRows,
+  ITableStructure,
+  ITestConnectResult,
+} from '../shared/data-access-object-interface';
 import { ConnectionEntity } from '../../entities/connection/connection.entity';
-import { Constants } from '../../helpers/constants/constants';
-import { CreateTableSettingsDto } from '../../entities/table-settings/dto';
-import { FilterCriteriaEnum } from '../../enums';
-import { IDaoInterface, IDaoRowsRO, ITestConnectResult } from '../shared/dao-interface';
+import { knex, Knex } from 'knex';
 import { TableSettingsEntity } from '../../entities/table-settings/table-settings.entity';
+import { CreateTableSettingsDto } from '../../entities/table-settings/dto';
 import {
   changeObjPropValByPropName,
   checkFieldAutoincrement,
@@ -18,24 +25,29 @@ import {
   renameObjectKeyName,
   tableSettingsFieldValidator,
 } from '../../helpers';
-import {
-  IAutocompleteFields,
-  IFilteringFields,
-  IForeignKeyInfo,
-  IStructureInfo,
-  ITablePrimaryColumnInfo,
-} from '../../entities/table/table.interface';
+import { Cacher } from '../../helpers/cache/cacher';
+import { Constants } from '../../helpers/constants/constants';
+import { FilterCriteriaEnum } from '../../enums';
 
-export class DaoMysql extends BasicDao implements IDaoInterface {
-  private readonly connection: any;
-
-  constructor(connection) {
+@Injectable({ scope: Scope.REQUEST })
+export class DataAccessObjectMysql extends BasicDao implements IDataAccessObject {
+  private readonly connection: ConnectionEntity;
+  constructor(connection: ConnectionEntity) {
     super();
     this.connection = connection;
   }
 
-  async addRowInTable(tableName: string, row: any): Promise<any> {
-    const tableStructure: Array<IStructureInfo> = await this.getTableStructure(tableName);
+  public async addRowInTable(
+    tableName: string,
+    row: Record<string, unknown>,
+    userEmail: string,
+  ): Promise<Record<string, unknown> | number> {
+    const promisesResults = await Promise.all([
+      this.getTableStructure(tableName),
+      this.getTablePrimaryColumns(tableName),
+    ]);
+    const tableStructure = promisesResults[0];
+    const primaryColumns = promisesResults[1];
     const jsonColumnNames = tableStructure
       .filter((structEl) => {
         return structEl.data_type.toLowerCase() === 'json';
@@ -48,8 +60,6 @@ export class DaoMysql extends BasicDao implements IDaoInterface {
         row = changeObjPropValByPropName(row, key, JSON.stringify(getPropertyValueByDescriptor(row, key)));
       }
     }
-    const primaryColumns = await this.getTablePrimaryColumns(tableName);
-    //todo rework with complex primary key
     const primaryKey = primaryColumns[0];
     const primaryKeyIndexInStructure: number = tableStructure
       .map((e) => {
@@ -57,8 +67,7 @@ export class DaoMysql extends BasicDao implements IDaoInterface {
       })
       .indexOf(primaryKey.column_name);
     const primaryKeyStructure = tableStructure.at(primaryKeyIndexInStructure);
-
-    const knex = await this.configureKnex(this.connection);
+    const knex = await this.configureKnex();
     await knex.raw('SET SQL_SAFE_UPDATES = 1;');
     if (primaryColumns?.length > 0) {
       if (!checkFieldAutoincrement(primaryKeyStructure.column_default)) {
@@ -86,35 +95,79 @@ export class DaoMysql extends BasicDao implements IDaoInterface {
     }
   }
 
-  async deleteRowInTable(tableName: string, primaryKey: string): Promise<string> {
-    const knex = await this.configureKnex(this.connection);
+  public async configureKnex(): Promise<Knex> {
+    const { host, username, password, database, port, ssl, cert } = this.connection;
+    const cachedKnex = Cacher.getCachedKnex(this.connection);
+    if (cachedKnex) {
+      return cachedKnex;
+    }
+    const newKnex = knex({
+      client: 'mysql2',
+      connection: {
+        host: host,
+        user: username,
+        password: password,
+        database: database,
+        port: port,
+        ssl: ssl ? { ca: cert ?? undefined, rejectUnauthorized: !cert } : false,
+      },
+    });
+    Cacher.setKnexCache(this.connection, newKnex);
+    return newKnex;
+  }
+
+  public async deleteRowInTable(
+    tableName: string,
+    primaryKey: Record<string, unknown>,
+  ): Promise<Record<string, unknown>> {
+    const knex = await this.configureKnex();
     await knex.raw('SET SQL_SAFE_UPDATES = 1;');
     return await knex(tableName).returning(Object.keys(primaryKey)).where(primaryKey).del();
   }
 
-  async getRowByPrimaryKey(
+  public async getIdentityColumns(
     tableName: string,
-    primaryKey: string,
-    settings: TableSettingsEntity,
+    referencedFieldName: string,
+    identityColumnName: string,
+    fieldValues: Array<string | number>,
+    email: string,
   ): Promise<Array<string>> {
-    if (!settings || isObjectEmpty(settings)) {
-      return this.configureKnex(this.connection)(tableName).where(primaryKey);
-    }
-    const availableFields = await this.findAvaliableFields(settings, tableName);
-    const knex = await this.configureKnex(this.connection);
-    return await knex(tableName).select(availableFields).where(primaryKey);
+    const knex = await this.configureKnex();
+    return await knex(tableName)
+      .modify((builder) => {
+        if (identityColumnName) {
+          builder.select(referencedFieldName, identityColumnName);
+        } else {
+          builder.select(referencedFieldName);
+        }
+      })
+      .whereIn(referencedFieldName, fieldValues);
   }
 
-  async getRowsFromTable(
+  public async getRowByPrimaryKey(
+    tableName: string,
+    primaryKey: Record<string, unknown>,
+    settings: TableSettingsEntity,
+    userEmail: string,
+  ): Promise<Record<string, unknown>> {
+    const knex = await this.configureKnex();
+    if (!settings) {
+      return knex(tableName).where(primaryKey) as unknown as Record<string, unknown>;
+    }
+    const availableFields = await this.findAvaliableFields(settings, tableName);
+    return (await knex(tableName).select(availableFields).where(primaryKey)) as unknown as Record<string, unknown>;
+  }
+
+  public async getRowsFromTable(
     tableName: string,
     settings: TableSettingsEntity,
     page: number,
     perPage: number,
     searchedFieldValue: string,
-    filteringFields: Array<IFilteringFields>,
-    autocompleteFields: IAutocompleteFields,
-  ): Promise<IDaoRowsRO> {
-    /* eslint-disable */
+    filteringFields: Array<IFilteringFieldsData>,
+    autocompleteFields: IAutocompleteFieldsData,
+    userEmail: string,
+  ): Promise<IRows> {
     if (!page || page <= 0) {
       page = Constants.DEFAULT_PAGINATION.page;
       const { list_per_page } = settings;
@@ -124,20 +177,18 @@ export class DaoMysql extends BasicDao implements IDaoInterface {
         perPage = Constants.DEFAULT_PAGINATION.perPage;
       }
     }
-    const knex = await this.configureKnex(this.connection);
-    const rowsCount = await this.getRowsCount(knex, tableName, this.connection.database);
+    const knex = await this.configureKnex();
+    const promisesResults = await Promise.all([
+      this.findAvaliableFields(settings, tableName),
+      this.getRowsCount(knex, tableName, this.connection.database),
+    ]);
+    const availableFields = promisesResults[0];
+    const rowsCount = promisesResults[1];
     const lastPage = Math.ceil(rowsCount / perPage);
-    /* eslint-enable */
 
-    const availableFields = await this.findAvaliableFields(settings, tableName);
     let rowsRO;
 
-    if (
-      autocompleteFields &&
-      !isObjectEmpty(autocompleteFields) &&
-      autocompleteFields.value &&
-      autocompleteFields.fields.length > 0
-    ) {
+    if (autocompleteFields && autocompleteFields.value && autocompleteFields.fields.length > 0) {
       const rows = await knex(tableName)
         .select(autocompleteFields.fields)
         .modify((builder) => {
@@ -235,14 +286,40 @@ export class DaoMysql extends BasicDao implements IDaoInterface {
     return rowsRO;
   }
 
-  async getTablesFromDB(): Promise<Array<string>> {
-    return await listTables(this.configureKnex(this.connection));
+  public async getTableForeignKeys(tableName: string, userEmail: string): Promise<Array<IForeignKey>> {
+    const cachedForeignKeys = Cacher.getTableForeignKeysCache(this.connection, tableName);
+    if (cachedForeignKeys) {
+      return cachedForeignKeys;
+    }
+    const knex = await this.configureKnex();
+    const foreignKeys = await knex(tableName)
+      .select(
+        knex.raw(`COLUMN_NAME,CONSTRAINT_NAME,
+       REFERENCED_TABLE_NAME,
+       REFERENCED_COLUMN_NAME`),
+      )
+      .from(
+        knex.raw(
+          `INFORMATION_SCHEMA.KEY_COLUMN_USAGE WHERE
+       TABLE_SCHEMA = ? AND
+       TABLE_NAME  = ? AND REFERENCED_COLUMN_NAME IS NOT NULL;`,
+          [this.connection.database, tableName],
+        ),
+      );
+
+    const foreignKeysInLowercase = foreignKeys.map((key) => {
+      return objectKeysToLowercase(key);
+    });
+    Cacher.setTableForeignKeysCache(this.connection, tableName, foreignKeysInLowercase);
+    return foreignKeysInLowercase;
   }
 
-  //**************************** Unique in different databases ******************************************
-  async getTablePrimaryColumns(tableName: string): Promise<Array<ITablePrimaryColumnInfo>> {
-    const connection = this.connection;
-    const knex = await this.configureKnex(this.connection);
+  public async getTablePrimaryColumns(tableName: string): Promise<Array<IPrimaryKey>> {
+    const cachedPrimaryColumns = Cacher.getTablePrimaryKeysCache(this.connection, tableName);
+    if (cachedPrimaryColumns) {
+      return cachedPrimaryColumns;
+    }
+    const knex = await this.configureKnex();
     const primaryColumns = await knex(tableName)
       .select('COLUMN_NAME', 'DATA_TYPE')
       .from(knex.raw('information_schema.COLUMNS'))
@@ -251,32 +328,34 @@ export class DaoMysql extends BasicDao implements IDaoInterface {
           `TABLE_SCHEMA = ? AND
       TABLE_NAME = ? AND
       COLUMN_KEY = 'PRI'`,
-          [connection.database, tableName],
+          [this.connection.database, tableName],
         ),
       );
 
-    const primaryColumnsInLowercase = [];
-    for (const primaryColumn of primaryColumns) {
-      primaryColumnsInLowercase.push(objectKeysToLowercase(primaryColumn));
-    }
+    const primaryColumnsInLowercase = primaryColumns.map((column) => {
+      return objectKeysToLowercase(column);
+    });
+    Cacher.setTablePrimaryKeysCache(this.connection, tableName, primaryColumnsInLowercase);
     return primaryColumnsInLowercase;
   }
 
-  async getTableStructure(tableName: string): Promise<Array<IStructureInfo>> {
-    const connection = this.connection;
-    const structureColumns = await this.configureKnex(this.connection)('information_schema.columns')
+  public async getTableStructure(tableName: string): Promise<Array<ITableStructure>> {
+    const cachedTableStructure = Cacher.getTableStructureCache(this.connection, tableName);
+    if (cachedTableStructure) {
+      return cachedTableStructure;
+    }
+    const knex = await this.configureKnex();
+    const structureColumns = await knex('information_schema.columns')
       .select('column_name', 'column_default', 'data_type', 'column_type', 'is_nullable', 'character_maximum_length')
       .orderBy('ordinal_position')
       .where({
-        table_schema: connection.database,
+        table_schema: this.connection.database,
         table_name: tableName,
       });
 
-    const structureColumnsInLowercase = [];
-
-    for (const structureColumn of structureColumns) {
-      structureColumnsInLowercase.push(objectKeysToLowercase(structureColumn));
-    }
+    const structureColumnsInLowercase = structureColumns.map((column) => {
+      return objectKeysToLowercase(column);
+    });
 
     for (const element of structureColumnsInLowercase) {
       element.is_nullable = element.is_nullable === 'YES';
@@ -295,88 +374,17 @@ export class DaoMysql extends BasicDao implements IDaoInterface {
         ? getNumbersFromString(element.column_type)
         : null;
     }
-
+    Cacher.setTableStructureCache(this.connection, tableName, structureColumnsInLowercase);
     return structureColumnsInLowercase;
   }
 
-  //**********************************************************************
-
-  configureKnex(connectionConfig: ConnectionEntity): Knex {
-    const { host, username, password, database, port, ssl, cert } = connectionConfig;
-    const cachedKnex = Cacher.getCachedKnex(connectionConfig);
-    if (cachedKnex) {
-      return cachedKnex;
-    } else {
-      const newKnex = knex({
-        client: 'mysql2',
-        connection: {
-          host: host,
-          user: username,
-          password: password,
-          database: database,
-          port: port,
-          ssl: ssl ? { ca: cert ?? undefined, rejectUnauthorized: !cert } : false,
-        },
-      });
-      Cacher.setKnexCache(connectionConfig, newKnex);
-      return newKnex;
-    }
+  public async getTablesFromDB(email?: string): Promise<Array<string>> {
+    const knex = await this.configureKnex();
+    return await listTables(knex);
   }
 
-  async updateRowInTable(tableName: string, row: any, primaryKey: string): Promise<string> {
-    const knex = await this.configureKnex(this.connection);
-    await knex.raw('SET SQL_SAFE_UPDATES = 1;');
-    const tableStructure = await this.getTableStructure(tableName);
-    const jsonColumnNames = tableStructure
-      .filter((structEl) => {
-        return structEl.data_type.toLowerCase() === 'json';
-      })
-      .map((structEl) => {
-        return structEl.column_name;
-      });
-    for (const key in row) {
-      if (jsonColumnNames.includes(key)) {
-        row = changeObjPropValByPropName(row, key, JSON.stringify(getPropertyValueByDescriptor(row, key)));
-      }
-    }
-
-    return await knex(tableName).returning(Object.keys(primaryKey)).where(primaryKey).update(row);
-  }
-
-  async getTableForeignKeys(tableName: string): Promise<Array<IForeignKeyInfo>> {
-    const knex = await this.configureKnex(this.connection);
-    const connection = this.connection;
-
-    const foreignKeys = await knex(tableName)
-      .select(
-        knex.raw(`COLUMN_NAME,CONSTRAINT_NAME,
-       REFERENCED_TABLE_NAME,
-       REFERENCED_COLUMN_NAME`),
-      )
-      .from(
-        knex.raw(
-          `INFORMATION_SCHEMA.KEY_COLUMN_USAGE WHERE
-       TABLE_SCHEMA = ? AND
-       TABLE_NAME  = ? AND REFERENCED_COLUMN_NAME IS NOT NULL;`,
-          [connection.database, tableName],
-        ),
-      );
-
-    const foreignKeysInLowercase = [];
-    for (const foreignKey of foreignKeys) {
-      foreignKeysInLowercase.push(objectKeysToLowercase(foreignKey));
-    }
-    return foreignKeysInLowercase;
-  }
-
-  async validateSettings(settings: CreateTableSettingsDto, tableName: string): Promise<Array<string>> {
-    const tableStructure = await this.getTableStructure(tableName);
-    const primaryColumns = await this.getTablePrimaryColumns(tableName);
-    return tableSettingsFieldValidator(tableStructure, primaryColumns, settings);
-  }
-
-  async testConnect(): Promise<ITestConnectResult> {
-    const knex = await this.configureKnex(this.connection);
+  public async testConnect(): Promise<ITestConnectResult> {
+    const knex = await this.configureKnex();
     let result;
     try {
       result = await knex().select(1);
@@ -396,6 +404,72 @@ export class DaoMysql extends BasicDao implements IDaoInterface {
       result: false,
       message: 'Connection failed',
     };
+  }
+
+  public async updateRowInTable(
+    tableName: string,
+    row: Record<string, unknown>,
+    primaryKey: Record<string, unknown>,
+    userEmail: string,
+  ): Promise<Record<string, unknown>> {
+    const knex = await this.configureKnex();
+    await knex.raw('SET SQL_SAFE_UPDATES = 1;');
+    const tableStructure = await this.getTableStructure(tableName);
+    const jsonColumnNames = tableStructure
+      .filter((structEl) => {
+        return structEl.data_type.toLowerCase() === 'json';
+      })
+      .map((structEl) => {
+        return structEl.column_name;
+      });
+    for (const key in row) {
+      if (jsonColumnNames.includes(key)) {
+        row = changeObjPropValByPropName(row, key, JSON.stringify(getPropertyValueByDescriptor(row, key)));
+      }
+    }
+
+    return await knex(tableName).returning(Object.keys(primaryKey)).where(primaryKey).update(row);
+  }
+
+  public async validateSettings(
+    settings: CreateTableSettingsDto,
+    tableName: string,
+    userEmail: string,
+  ): Promise<Array<string>> {
+    const promisesResults = await Promise.all([
+      this.getTableStructure(tableName),
+      this.getTablePrimaryColumns(tableName),
+    ]);
+    const tableStructure = promisesResults[0];
+    const primaryColumns = promisesResults[1];
+    return tableSettingsFieldValidator(tableStructure, primaryColumns, settings);
+  }
+
+  private async getRowsCount(knex: Knex, tableName: string, database: string): Promise<number> {
+    async function countWithTimeout() {
+      return new Promise(async function (resolve, reject) {
+        setTimeout(() => {
+          resolve(null);
+        }, Constants.COUNT_QUERY_TIMEOUT_MS);
+        const count = await knex(tableName).count('*');
+        const rowsCount = count[0]['count(*)'] as number;
+        if (rowsCount) {
+          resolve(rowsCount);
+        } else {
+          resolve(false);
+        }
+      });
+    }
+
+    const firstCount = (await countWithTimeout()) as number;
+    if (firstCount) {
+      return firstCount;
+    } else {
+      const secondCount = parseInt(
+        (await knex.raw(`SHOW TABLE STATUS IN ?? LIKE ?;`, [database, tableName]))[0][0].Rows,
+      );
+      return secondCount;
+    }
   }
 
   private async findAvaliableFields(settings: TableSettingsEntity, tableName: string): Promise<Array<string>> {
@@ -425,54 +499,5 @@ export class DaoMysql extends BasicDao implements IDaoInterface {
       }
     }
     return availableFields;
-  }
-
-  static async clearKnexCache() {
-    Cacher.clearKnexCache();
-  }
-
-  async getIdentityColumns(
-    tableName: string,
-    referencedFieldName: string,
-    identityColumnName: string,
-    fieldValues: Array<string | number>,
-  ): Promise<string> {
-    const knex = await this.configureKnex(this.connection);
-    return await knex(tableName)
-      .modify((builder) => {
-        if (identityColumnName) {
-          builder.select(referencedFieldName, identityColumnName);
-        } else {
-          builder.select(referencedFieldName);
-        }
-      })
-      .whereIn(referencedFieldName, fieldValues);
-  }
-
-  private async getRowsCount(knex: Knex, tableName: string, database: string): Promise<number> {
-    async function countWithTimeout() {
-      return new Promise(async function (resolve, reject) {
-        setTimeout(() => {
-          resolve(null);
-        }, Constants.COUNT_QUERY_TIMEOUT_MS);
-        const count = await knex(tableName).count('*');
-        const rowsCount = count[0]['count(*)'] as number;
-        if (rowsCount) {
-          resolve(rowsCount);
-        } else {
-          resolve(false);
-        }
-      });
-    }
-
-    const firstCount = (await countWithTimeout()) as number;
-    if (firstCount) {
-      return firstCount;
-    } else {
-      const secondCount = parseInt(
-        (await knex.raw(`SHOW TABLE STATUS IN ?? LIKE ?;`, [database, tableName]))[0][0].Rows,
-      );
-      return secondCount;
-    }
   }
 }
