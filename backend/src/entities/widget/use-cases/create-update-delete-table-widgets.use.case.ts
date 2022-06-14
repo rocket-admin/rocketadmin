@@ -41,10 +41,12 @@ export class CreateUpdateDeleteTableWidgetsUseCase
         HttpStatus.BAD_REQUEST,
       );
     }
+
     let tableSettingToUpdate = await this._dbContext.tableSettingsRepository.findTableSettingsWithTableWidgets(
       connectionId,
       tableName,
     );
+
     if (!tableSettingToUpdate) {
       const emptyTableSettingsDs = buildEmptyTableSettingsWithEmptyWidgets(connectionId, tableName, userId);
       const newTableSettings = buildNewTableSettingsEntity(emptyTableSettingsDs, foundConnection);
@@ -68,6 +70,7 @@ export class CreateUpdateDeleteTableWidgetsUseCase
         tableSettingToUpdate.table_widgets.push(createdTableWidget);
       }
     }
+    await this._dbContext.tableSettingsRepository.saveNewOrUpdatedSettings(tableSettingToUpdate);
 
     for (const foundTableWidget of foundTableWidgets) {
       const findWidgetIndex = widgets.findIndex((widget) => {
