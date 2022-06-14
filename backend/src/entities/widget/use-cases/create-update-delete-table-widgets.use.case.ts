@@ -70,7 +70,7 @@ export class CreateUpdateDeleteTableWidgetsUseCase
         tableSettingToUpdate.table_widgets.push(createdTableWidget);
       }
     }
-    await this._dbContext.tableSettingsRepository.saveNewOrUpdatedSettings(tableSettingToUpdate);
+    tableSettingToUpdate = await this._dbContext.tableSettingsRepository.saveNewOrUpdatedSettings(tableSettingToUpdate);
 
     for (const foundTableWidget of foundTableWidgets) {
       const findWidgetIndex = widgets.findIndex((widget) => {
