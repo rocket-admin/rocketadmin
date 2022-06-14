@@ -3,12 +3,14 @@
         <h1 class="mat-h1">Audit</h1>
         <div class="filters">
             <mat-form-field *ngIf="tablesList && !errorMessage" appearance="outline">
+                <mat-label>Tables</mat-label>
                 <mat-select [(ngModel)]="tableName" (ngModelChange)="loadLogsPage()">
                     <mat-option value="showAll">Show all</mat-option>
                     <mat-option *ngFor="let tableItem of tablesList" [value]="tableItem.table">{{tableItem.table}}</mat-option>
                 </mat-select>
             </mat-form-field>
             <mat-form-field *ngIf="usersList && !errorMessage" appearance="outline">
+                <mat-label>Users</mat-label>
                 <mat-select [(ngModel)]="userEmail" (ngModelChange)="loadLogsPage()">
                     <mat-option value="showAll">Show all</mat-option>
                     <mat-option *ngFor="let user of usersList" [value]="user.email">{{user.email}}</mat-option>
