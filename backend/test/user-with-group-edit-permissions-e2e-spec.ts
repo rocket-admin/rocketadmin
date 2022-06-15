@@ -12,7 +12,7 @@ import { INestApplication } from '@nestjs/common';
 import { Messages } from '../src/exceptions/text/messages';
 import { MockFactory } from './mock.factory';
 import { Test } from '@nestjs/testing';
-import { TestUtils } from './test.utils';
+import { TestUtils } from './utils/test.utils';
 import { compareArrayElements } from '../src/helpers';
 import * as cookieParser from 'cookie-parser';
 

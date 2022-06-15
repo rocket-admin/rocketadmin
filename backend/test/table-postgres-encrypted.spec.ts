@@ -15,7 +15,7 @@ import { Messages } from '../src/exceptions/text/messages';
 import { MockFactory } from './mock.factory';
 import { QueryOrderingEnum } from '../src/enums';
 import { Test } from '@nestjs/testing';
-import { TestUtils } from './test.utils';
+import { TestUtils } from './utils/test.utils';
 import { Encryptor } from '../src/helpers/encryption/encryptor';
 
 describe('Tables Postgres (e2e)', () => {

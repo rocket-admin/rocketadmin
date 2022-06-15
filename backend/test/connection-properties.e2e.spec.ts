@@ -10,7 +10,7 @@ import { DatabaseService } from '../src/shared/database/database.service';
 import { INestApplication } from '@nestjs/common';
 import { MockFactory } from './mock.factory';
 import { Test } from '@nestjs/testing';
-import { TestUtils } from './test.utils';
+import { TestUtils } from './utils/test.utils';
 import { knex } from 'knex';
 
 describe('Connection properties', () => {

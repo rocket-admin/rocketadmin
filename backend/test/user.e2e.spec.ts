@@ -6,7 +6,7 @@ import { DatabaseModule } from '../src/shared/database/database.module';
 import { DatabaseService } from '../src/shared/database/database.service';
 import { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
-import { TestUtils } from './test.utils';
+import { TestUtils } from './utils/test.utils';
 import { IUserInfo } from '../src/entities/user/user.interface';
 import { Constants } from '../src/helpers/constants/constants';
 import * as cookieParser from 'cookie-parser';

@@ -12,7 +12,7 @@ import { INestApplication } from '@nestjs/common';
 import { Messages } from '../src/exceptions/text/messages';
 import { MockFactory } from './mock.factory';
 import { Test } from '@nestjs/testing';
-import { TestUtils } from './test.utils';
+import { TestUtils } from './utils/test.utils';
 import * as cookieParser from 'cookie-parser';
 // yarn jest user-different-table-only-permissions.e2e.spec.ts
 describe('User permissions (connection none, group none) (e2e)', () => {

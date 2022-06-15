@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { DatabaseService } from '../src/shared/database/database.service';
-import { MockEntity } from './mocks/entities/mock.entity';
+import { DatabaseService } from '../../src/shared/database/database.service';
+import { MockEntity } from '../mocks/entities/mock.entity';
 import * as faker from 'faker';
 
 @Injectable()

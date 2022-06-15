@@ -1,5 +1,3 @@
-import * as AWS from 'aws-sdk';
-import * as AWSMock from 'aws-sdk-mock';
 import * as faker from 'faker';
 import * as request from 'supertest';
 
@@ -14,7 +12,8 @@ import { INestApplication } from '@nestjs/common';
 import { Messages } from '../src/exceptions/text/messages';
 import { MockFactory } from './mock.factory';
 import { Test } from '@nestjs/testing';
-import { TestUtils } from './test.utils';
+import { TestUtils } from './utils/test.utils';
+import { compareTableWidgetsArrays } from './utils/compare-table-widgets-arrays';
 
 describe('Table widgets(e2e)', () => {
   jest.setTimeout(20000);
@@ -57,26 +56,6 @@ describe('Table widgets(e2e)', () => {
       return Encryptor.decryptDataMasterPwd(data, masterPwd);
     };
 
-    AWSMock.setSDKInstance(AWS);
-    AWSMock.mock(
-      'CognitoIdentityServiceProvider',
-      'listUsers',
-      (newCognitoUserName, callback: (...args: any) => void) => {
-        callback(null, {
-          Users: [
-            {
-              Attributes: [
-                {},
-                {},
-                {
-                  Value: 'Example@gmail.com',
-                },
-              ],
-            },
-          ],
-        });
-      },
-    );
     const findAllConnectionsResponse = await request(app.getHttpServer())
       .get('/connections')
       .set('Content-Type', 'application/json')
@@ -106,7 +85,6 @@ describe('Table widgets(e2e)', () => {
     await testUtils.resetDb();
     await testUtils.closeDbConnection();
     await DaoPostgres.clearKnexCache();
-    AWSMock.restore('CognitoIdentityServiceProvider');
   });
 
   describe('GET /widgets/:slug', () => {
@@ -435,7 +413,6 @@ describe('Table widgets(e2e)', () => {
           .set('masterpwd', 'ahalaimahalai')
           .set('Accept', 'application/json');
         const updateTableWidgetRO = JSON.parse(updateTableWidgetResponse.text);
-        console.log('=>(table-widgets.e2e.spec.ts:438) updateTableWidgetRO', updateTableWidgetRO);
 
         expect(updateTableWidgetResponse.status).toBe(201);
 
@@ -454,6 +431,59 @@ describe('Table widgets(e2e)', () => {
           compareArrayElements(getTableWidgetsRO[1].widget_params, updatedTableWidgets[1].widget_params),
         ).toBeTruthy();
         expect(uuidRegex.test(getTableWidgetsRO[0].id)).toBeTruthy();
+      } catch (err) {
+        throw err;
+      }
+    });
+
+    it('should return updated table widgets when old widget updated and new added', async () => {
+      try {
+        const createConnectionResponse = await request(app.getHttpServer())
+          .post('/connection')
+          .send(newConnection)
+          .set('Content-Type', 'application/json')
+          .set('masterpwd', 'ahalaimahalai')
+          .set('Accept', 'application/json');
+        const createConnectionRO = JSON.parse(createConnectionResponse.text);
+        expect(createConnectionResponse.status).toBe(201);
+
+        console.log('=>(table-widgets.e2e.spec.ts:450) newTableWidgets', newTableWidgets);
+        console.log('=>(table-widgets.e2e.spec.ts:451) updatedTableWidgets', updatedTableWidgets);
+        newTableWidgets.shift();
+        const createTableWidgetResponse = await request(app.getHttpServer())
+          .post(`/widget/${createConnectionRO.id}?tableName=connection`)
+          .send({ widgets: newTableWidgets })
+          .set('Content-Type', 'application/json')
+          .set('masterpwd', 'ahalaimahalai')
+          .set('Accept', 'application/json');
+        const createTableWidgetRO = JSON.parse(createTableWidgetResponse.text);
+        expect(createTableWidgetResponse.status).toBe(201);
+
+        const updateTableWidgetResponse = await request(app.getHttpServer())
+          .post(`/widget/${createConnectionRO.id}?tableName=connection`)
+          .send({ widgets: updatedTableWidgets })
+          .set('Content-Type', 'application/json')
+          .set('masterpwd', 'ahalaimahalai')
+          .set('Accept', 'application/json');
+        const updateTableWidgetRO = JSON.parse(updateTableWidgetResponse.text);
+
+        expect(updateTableWidgetResponse.status).toBe(201);
+
+        const getTableWidgets = await request(app.getHttpServer())
+          .get(`/widgets/${createConnectionRO.id}?tableName=connection`)
+          .set('Content-Type', 'application/json')
+          .set('masterpwd', 'ahalaimahalai')
+          .set('Accept', 'application/json');
+        expect(getTableWidgets.status).toBe(200);
+        const getTableWidgetsRO = JSON.parse(getTableWidgets.text);
+        expect(typeof getTableWidgetsRO).toBe('object');
+        expect(getTableWidgetsRO.length).toBe(2);
+        expect(uuidRegex.test(getTableWidgetsRO[0].id)).toBeTruthy();
+        expect(getTableWidgetsRO[0].widget_type).toBe(updatedTableWidgets[0].widget_type);
+        console.log('=>(table-widgets.e2e.spec.ts:482) updatedTableWidgets', updatedTableWidgets);
+        console.log('=>(table-widgets.e2e.spec.ts:482) getTableWidgetsRO', getTableWidgetsRO);
+        expect(uuidRegex.test(getTableWidgetsRO[0].id)).toBeTruthy();
+        expect(compareTableWidgetsArrays(getTableWidgetsRO, updatedTableWidgets)).toBeTruthy();
       } catch (err) {
         throw err;
       }
