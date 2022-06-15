@@ -12,7 +12,7 @@ import { Messages } from '../src/exceptions/text/messages';
 import { MockFactory } from './mock.factory';
 import { QueryOrderingEnum } from '../src/enums';
 import { Test } from '@nestjs/testing';
-import { TestUtils } from './test.utils';
+import { TestUtils } from './utils/test.utils';
 
 describe('Tables with encryption (e2e)', () => {
   jest.setTimeout(10000);

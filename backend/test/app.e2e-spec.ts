@@ -4,7 +4,7 @@ import * as request from 'supertest';
 import { ApplicationModule } from '../src/app.module';
 import { DatabaseModule } from '../src/shared/database/database.module';
 import { DatabaseService } from '../src/shared/database/database.service';
-import { TestUtils } from './test.utils';
+import { TestUtils } from './utils/test.utils';
 import { Connection } from 'typeorm';
 
 describe('AppController (e2e)', () => {

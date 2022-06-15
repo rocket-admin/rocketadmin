@@ -14,7 +14,7 @@ import { Messages } from '../src/exceptions/text/messages';
 import { MockFactory } from './mock.factory';
 import { replaceTextInCurlies } from '../src/helpers';
 import { Test } from '@nestjs/testing';
-import { TestUtils } from './test.utils';
+import { TestUtils } from './utils/test.utils';
 
 describe('Custom fields(e2e)', () => {
   jest.setTimeout(20000);
