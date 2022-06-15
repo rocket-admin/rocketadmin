@@ -1,5 +1,5 @@
 import { INestApplication } from '@nestjs/common';
-import { TestUtils } from './test.utils';
+import { TestUtils } from './utils/test.utils';
 import { MockFactory } from './mock.factory';
 import { knex } from 'knex';
 import { Test } from '@nestjs/testing';

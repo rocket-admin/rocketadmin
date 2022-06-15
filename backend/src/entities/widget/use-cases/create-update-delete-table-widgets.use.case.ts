@@ -55,13 +55,16 @@ export class CreateUpdateDeleteTableWidgetsUseCase
     const foundTableWidgets = await this._dbContext.tableWidgetsRepository.findTableWidgets(connectionId, tableName);
 
     for (const widget of widgets) {
-      const availableWidgetIndex = foundTableWidgets.findIndex((widget) => {
-        return widget.field_name === widget.field_name;
+      const availableWidgetIndex = foundTableWidgets.findIndex((w) => {
+        return widget.field_name === w.field_name;
       });
       if (availableWidgetIndex >= 0) {
-        const updatedWidget = Object.assign(foundTableWidgets.at(availableWidgetIndex), widget);
-        foundTableWidgets[availableWidgetIndex] =
-          await this._dbContext.tableWidgetsRepository.saveNewOrUpdatedTableWidget(updatedWidget);
+        const updatedWidget = Object.assign(foundTableWidgets[availableWidgetIndex], widget);
+        await this._dbContext.tableWidgetsRepository.saveNewOrUpdatedTableWidget(updatedWidget);
+        const widgetIndexInTableSettings = tableSettingToUpdate.table_widgets.findIndex((w) => {
+          return w.field_name === updatedWidget.field_name;
+        });
+        tableSettingToUpdate.table_widgets[widgetIndexInTableSettings] = updatedWidget;
       } else {
         const newTableWidget = buildNewTableWidgetEntity(widget);
         const createdTableWidget = await this._dbContext.tableWidgetsRepository.saveNewOrUpdatedTableWidget(
@@ -70,7 +73,6 @@ export class CreateUpdateDeleteTableWidgetsUseCase
         tableSettingToUpdate.table_widgets.push(createdTableWidget);
       }
     }
-    tableSettingToUpdate = await this._dbContext.tableSettingsRepository.saveNewOrUpdatedSettings(tableSettingToUpdate);
 
     for (const foundTableWidget of foundTableWidgets) {
       const findWidgetIndex = widgets.findIndex((widget) => {
@@ -84,6 +86,7 @@ export class CreateUpdateDeleteTableWidgetsUseCase
         tableSettingToUpdate.table_widgets.splice(widgetIndexInTableSettings, 1);
       }
     }
+
     const savedSettings: TableSettingsEntity = await this._dbContext.tableSettingsRepository.saveNewOrUpdatedSettings(
       tableSettingToUpdate,
     );
