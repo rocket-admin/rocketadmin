@@ -1,12 +1,22 @@
-import { Knex, knex } from 'knex';
-import { BasicDao } from '../shared/basic-dao';
-import { Cacher } from '../../helpers/cache/cacher';
+import { BasicDao } from '../../dal/shared/basic-dao';
+import {
+  IAutocompleteFieldsData,
+  IDataAccessObject,
+  IFilteringFieldsData,
+  IForeignKey,
+  IPrimaryKey,
+  IRows,
+  ITableStructure,
+  ITestConnectResult,
+} from '../shared/data-access-object-interface';
 import { ConnectionEntity } from '../../entities/connection/connection.entity';
-import { Constants } from '../../helpers/constants/constants';
-import { CreateTableSettingsDto } from '../../entities/table-settings/dto';
-import { FilterCriteriaEnum } from '../../enums';
-import { IDaoInterface, ITestConnectResult } from '../shared/dao-interface';
+import { Injectable, Scope } from '@nestjs/common';
+import { Knex } from 'knex';
 import { TableSettingsEntity } from '../../entities/table-settings/table-settings.entity';
+import { CreateTableSettingsDto } from '../../entities/table-settings/dto';
+import { Cacher } from '../../helpers/cache/cacher';
+import { TunnelCreator } from '../../dal/shared/tunnel-creator';
+import { getPostgresKnex } from '../shared/utils/get-postgres-knex';
 import {
   changeObjPropValByPropName,
   getPropertyValueByDescriptor,
@@ -15,34 +25,29 @@ import {
   renameObjectKeyName,
   tableSettingsFieldValidator,
 } from '../../helpers';
-import { IForeignKeyInfo } from '../../entities/table/table.interface';
-import { TunnelCreator } from '../shared/tunnel-creator';
+import { Constants } from '../../helpers/constants/constants';
+import { FilterCriteriaEnum } from '../../enums';
 
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const types = require('pg').types;
-const timestampOID = 1114;
-/*
-types.setTypeParser(1114, function(stringValue) {
-  return stringValue;
-});
-
-types.setTypeParser(1184, function(stringValue) {
-  return stringValue;
-});
-*/
-types.setTypeParser(1186, (stringValue) => stringValue);
-
-export class DaoPostgres extends BasicDao implements IDaoInterface {
+@Injectable({ scope: Scope.REQUEST })
+export class DataAccessObjectPostgres extends BasicDao implements IDataAccessObject {
   private readonly connection: ConnectionEntity;
-
-  constructor(connection) {
+  constructor(connection: ConnectionEntity) {
     super();
     this.connection = connection;
   }
 
-  async addRowInTable(tableName, row) {
-    const knex = await this.configureKnex(this.connection);
-    const tableStructure = await this.getTableStructure(tableName);
+  public async addRowInTable(
+    tableName: string,
+    row: Record<string, unknown>,
+    userEmail: string,
+  ): Promise<Record<string, unknown>> {
+    const knex = await this.configureKnex();
+    const promisesResults = await Promise.all([
+      this.getTableStructure(tableName),
+      this.getTablePrimaryColumns(tableName),
+    ]);
+    const tableStructure = promisesResults[0];
+    const primaryColumns = promisesResults[1];
     const jsonColumnNames = tableStructure
       .filter((structEl) => {
         return structEl.data_type.toLowerCase() === 'json';
@@ -50,13 +55,15 @@ export class DaoPostgres extends BasicDao implements IDaoInterface {
       .map((structEl) => {
         return structEl.column_name;
       });
+
     for (const key in row) {
       if (jsonColumnNames.includes(key)) {
         row = changeObjPropValByPropName(row, key, JSON.stringify(getPropertyValueByDescriptor(row, key)));
       }
     }
-    const primaryColumns = await this.getTablePrimaryColumns(tableName);
+
     if (primaryColumns?.length > 0) {
+      //todo rework with complex primary key
       const primaryKey = primaryColumns[0];
       const result = await knex(tableName)
         .withSchema(this.connection.schema ? this.connection.schema : 'public')
@@ -71,42 +78,89 @@ export class DaoPostgres extends BasicDao implements IDaoInterface {
         .withSchema(this.connection.schema ? this.connection.schema : 'public')
         .returning(rowFields)
         .insert(row);
-      return result[0];
+      return result[0] as any;
     }
   }
 
-  async deleteRowInTable(tableName, primaryKey) {
-    return (await this.configureKnex(this.connection))(tableName)
+  public async configureKnex(): Promise<Knex> {
+    const cachedKnex = Cacher.getCachedKnex(this.connection);
+    if (cachedKnex) {
+      return cachedKnex;
+    }
+    if (this.connection.ssh) {
+      const newKnex = await TunnelCreator.createTunneledKnex(this.connection);
+      Cacher.setKnexCache(this.connection, newKnex);
+      return newKnex;
+    } else {
+      return getPostgresKnex(this.connection);
+    }
+  }
+
+  public async deleteRowInTable(
+    tableName: string,
+    primaryKey: Record<string, unknown>,
+    userEmail: string,
+  ): Promise<Record<string, unknown>> {
+    const knex = await this.configureKnex();
+    return await knex(tableName)
       .withSchema(this.connection.schema ? this.connection.schema : 'public')
       .returning(Object.keys(primaryKey))
       .where(primaryKey)
       .del();
   }
 
-  async getRowByPrimaryKey(tableName, primaryKey, settings: TableSettingsEntity) {
-    if (!settings || isObjectEmpty(settings)) {
-      return (await this.configureKnex(this.connection))(tableName)
+  public async getIdentityColumns(
+    tableName: string,
+    referencedFieldName: string,
+    identityColumnName: string,
+    fieldValues: Array<string | number>,
+    email: string,
+  ): Promise<Array<string>> {
+    const knex = await this.configureKnex();
+    return await knex(tableName)
+      .withSchema(this.connection.schema ? this.connection.schema : 'public')
+      .modify((builder) => {
+        if (identityColumnName) {
+          builder.select(referencedFieldName, identityColumnName);
+        } else {
+          builder.select(referencedFieldName);
+        }
+      })
+      .whereIn(referencedFieldName, fieldValues);
+  }
+
+  public async getRowByPrimaryKey(
+    tableName: string,
+    primaryKey: Record<string, unknown>,
+    settings: TableSettingsEntity,
+    userEmail: string,
+  ): Promise<Record<string, unknown>> {
+    if (!settings) {
+      const knex = await this.configureKnex();
+      const result = await knex(tableName)
         .withSchema(this.connection.schema ? this.connection.schema : 'public')
         .where(primaryKey);
+      return result as unknown as Record<string, unknown>;
     }
     const availableFields = await this.findAvaliableFields(settings, tableName);
-    const knex = await this.configureKnex(this.connection);
-    return await knex(tableName)
+    const knex = await this.configureKnex();
+    const result = await knex(tableName)
       .withSchema(this.connection.schema ? this.connection.schema : 'public')
       .select(availableFields)
       .where(primaryKey);
+    return result as unknown as Record<string, unknown>;
   }
 
-  async getRowsFromTable(
+  public async getRowsFromTable(
     tableName: string,
     settings: TableSettingsEntity,
     page: number,
     perPage: number,
     searchedFieldValue: string,
-    filteringFields: any,
-    autocompleteFields: any,
-  ) {
-    /* eslint-disable */
+    filteringFields: Array<IFilteringFieldsData>,
+    autocompleteFields: IAutocompleteFieldsData,
+    userEmail: string,
+  ): Promise<IRows> {
     if (!page || page <= 0) {
       page = Constants.DEFAULT_PAGINATION.page;
       const { list_per_page } = settings;
@@ -116,20 +170,20 @@ export class DaoPostgres extends BasicDao implements IDaoInterface {
         perPage = Constants.DEFAULT_PAGINATION.perPage;
       }
     }
-    const knex = await this.configureKnex(this.connection);
-    const tableSchema = this.connection.schema ? this.connection.schema : 'public';
-    const rowsCount = await this.getRowsCount(knex, tableName, tableSchema);
-    const lastPage = Math.ceil(rowsCount / perPage);
-    /* eslint-enable */
-    const availableFields = await this.findAvaliableFields(settings, tableName);
 
+    const knex = await this.configureKnex();
+    const tableSchema = this.connection.schema ? this.connection.schema : 'public';
+
+    const promisesResults = await Promise.all([
+      this.getRowsCount(knex, tableName, tableSchema),
+      this.findAvaliableFields(settings, tableName),
+    ]);
+    const rowsCount = promisesResults[0];
+    const availableFields = promisesResults[1];
+    const lastPage = Math.ceil(rowsCount / perPage);
     let rowsRO;
-    if (
-      autocompleteFields &&
-      !isObjectEmpty(autocompleteFields) &&
-      autocompleteFields.value &&
-      autocompleteFields.fields.length > 0
-    ) {
+
+    if (autocompleteFields && autocompleteFields.value && autocompleteFields.fields.length > 0) {
       const rows = await knex(tableName)
         .withSchema(this.connection.schema ? this.connection.schema : 'public')
         .select(autocompleteFields.fields)
@@ -151,9 +205,9 @@ export class DaoPostgres extends BasicDao implements IDaoInterface {
         data: rows,
         pagination: {},
       };
-
       return rowsRO;
     }
+
     const rows = await knex(tableName)
       .withSchema(this.connection.schema ? this.connection.schema : 'public')
       .select(availableFields)
@@ -228,8 +282,12 @@ export class DaoPostgres extends BasicDao implements IDaoInterface {
     return rowsRO;
   }
 
-  async getTableForeignKeys(tableName: string): Promise<Array<IForeignKeyInfo>> {
-    const knex = await this.configureKnex(this.connection);
+  public async getTableForeignKeys(tableName: string, userEmail: string): Promise<Array<IForeignKey>> {
+    const cachedForeignKeys = Cacher.getTableForeignKeysCache(this.connection, tableName);
+    if (cachedForeignKeys) {
+      return cachedForeignKeys;
+    }
+    const knex = await this.configureKnex();
     const tableSchema = this.connection.schema ? this.connection.schema : 'public';
     const foreignKeys: Array<{
       foreign_column_name: string;
@@ -256,68 +314,46 @@ export class DaoPostgres extends BasicDao implements IDaoInterface {
           [tableName, tableSchema],
         ),
       );
-
-    const transformedForeignKeys = [];
-    for (const foreignKey of foreignKeys) {
-      transformedForeignKeys.push({
-        /* eslint-disable */
-        referenced_column_name: foreignKey.foreign_column_name,
-        referenced_table_name: foreignKey.foreign_table_name,
-        constraint_name: foreignKey.constraint_name,
-        column_name: foreignKey.column_name,
-        /* eslint-enable */
-      });
-    }
-    return transformedForeignKeys;
+    const resultKeys = foreignKeys.map((key) => {
+      return {
+        referenced_column_name: key.foreign_column_name,
+        referenced_table_name: key.foreign_table_name,
+        constraint_name: key.constraint_name,
+        column_name: key.column_name,
+      };
+    });
+    Cacher.setTableForeignKeysCache(this.connection, tableName, resultKeys);
+    return resultKeys;
   }
 
-  async getTablePrimaryColumns(tableName) {
-    const knex = await this.configureKnex(this.connection);
+  public async getTablePrimaryColumns(tableName: string): Promise<Array<IPrimaryKey>> {
+    const cachedPrimaryColumns = Cacher.getTablePrimaryKeysCache(this.connection, tableName);
+    if (cachedPrimaryColumns) {
+      return cachedPrimaryColumns;
+    }
+    const knex = await this.configureKnex();
     tableName = this.attachSchemaNameToTableName(tableName);
     const primaryColumns: Array<any> = await knex(tableName)
       .select(knex.raw('a.attname, format_type(a.atttypid, a.atttypmod) AS data_type'))
       .from(knex.raw('pg_index i'))
       .join(knex.raw('pg_attribute a ON a.attrelid = i.indrelid AND a.attnum = ANY(i.indkey)'))
       .where(knex.raw(`i.indrelid = ?::regclass AND i.indisprimary;`, tableName));
+    const resultKeys = primaryColumns.map((column) => {
+      return {
+        column_name: column.attname,
+        data_type: column.data_type,
+      };
+    });
+    Cacher.setTablePrimaryKeysCache(this.connection, tableName, resultKeys);
+    return resultKeys;
+  }
 
-    const primaryColumnsToColumnName = [];
-    for (const primaryColumn of primaryColumns) {
-      primaryColumnsToColumnName.push({
-        /* eslint-disable */
-        column_name: primaryColumn.attname,
-        data_type: primaryColumn.data_type,
-        /* eslint-enable */
-      });
+  public async getTableStructure(tableName: string): Promise<Array<ITableStructure>> {
+    const cachedTableStructure = Cacher.getTableStructureCache(this.connection, tableName);
+    if (cachedTableStructure) {
+      return cachedTableStructure;
     }
-
-    return primaryColumnsToColumnName;
-  }
-
-  async getIdentityColumns(
-    tableName: string,
-    referencedFieldName: string,
-    identityColumnName: string,
-    fieldValues: Array<string | number>,
-  ): Promise<string> {
-    const knex = await this.configureKnex(this.connection);
-    return await knex(tableName)
-      .withSchema(this.connection.schema ? this.connection.schema : 'public')
-      .modify((builder) => {
-        if (identityColumnName) {
-          builder.select(referencedFieldName, identityColumnName);
-        } else {
-          builder.select(referencedFieldName);
-        }
-      })
-      .whereIn(referencedFieldName, fieldValues);
-  }
-
-  async getTablesFromDB() {
-    return await listTables(await this.configureKnex(this.connection), this.connection.schema);
-  }
-
-  async getTableStructure(tableName) {
-    const knex = await this.configureKnex(this.connection);
+    const knex = await this.configureKnex();
     let result = await knex('information_schema.columns')
       .select('column_name', 'column_default', 'data_type', 'udt_name', 'is_nullable', 'character_maximum_length')
       .orderBy('dtd_identifier')
@@ -391,11 +427,17 @@ export class DaoPostgres extends BasicDao implements IDaoInterface {
         }
       }
     }
+    Cacher.setTableStructureCache(this.connection, tableName, result);
     return result;
   }
 
-  async testConnect(): Promise<ITestConnectResult> {
-    const knex = await this.configureKnex(this.connection);
+  public async getTablesFromDB(email?: string): Promise<Array<string>> {
+    const knex = await this.configureKnex();
+    return await listTables(knex, this.connection.schema);
+  }
+
+  public async testConnect(): Promise<ITestConnectResult> {
+    const knex = await this.configureKnex();
     let result;
     try {
       result = await knex().select(1);
@@ -417,7 +459,12 @@ export class DaoPostgres extends BasicDao implements IDaoInterface {
     };
   }
 
-  async updateRowInTable(tableName, row, primaryKey) {
+  public async updateRowInTable(
+    tableName: string,
+    row: Record<string, unknown>,
+    primaryKey: Record<string, unknown>,
+    userEmail: string,
+  ): Promise<Record<string, unknown>> {
     const tableStructure = await this.getTableStructure(tableName);
     const jsonColumnNames = tableStructure
       .filter((structEl) => {
@@ -431,61 +478,26 @@ export class DaoPostgres extends BasicDao implements IDaoInterface {
         row = changeObjPropValByPropName(row, key, JSON.stringify(getPropertyValueByDescriptor(row, key)));
       }
     }
-
-    return (await this.configureKnex(this.connection))(tableName)
+    const knex = await this.configureKnex();
+    return await knex(tableName)
       .withSchema(this.connection.schema ? this.connection.schema : 'public')
       .returning(Object.keys(primaryKey))
       .where(primaryKey)
       .update(row);
   }
 
-  async validateSettings(settings: CreateTableSettingsDto, tableName: string): Promise<Array<string>> {
-    const tableStructure = await this.getTableStructure(tableName);
-    const primaryColumns = await this.getTablePrimaryColumns(tableName);
+  public async validateSettings(
+    settings: CreateTableSettingsDto,
+    tableName: string,
+    userEmail: string,
+  ): Promise<Array<string>> {
+    const promisesResults = await Promise.all([
+      this.getTableStructure(tableName),
+      this.getTablePrimaryColumns(tableName),
+    ]);
+    const tableStructure = promisesResults[0];
+    const primaryColumns = promisesResults[1];
     return tableSettingsFieldValidator(tableStructure, primaryColumns, settings);
-  }
-
-  async configureKnex(connectionConfig: ConnectionEntity): Promise<Knex> {
-    const cachedKnex = Cacher.getCachedKnex(connectionConfig);
-    if (cachedKnex) {
-      return cachedKnex;
-    }
-    if (connectionConfig.ssh) {
-      const newKnex = await TunnelCreator.createTunneledKnex(this.connection);
-      Cacher.setKnexCache(connectionConfig, newKnex);
-      return newKnex;
-    } else {
-      return DaoPostgres.configureKnex(connectionConfig);
-    }
-  }
-
-  private async findAvaliableFields(settings: TableSettingsEntity, tableName: string): Promise<Array<string>> {
-    let availableFields = [];
-    if (isObjectEmpty(settings)) {
-      const tableStructure = await this.getTableStructure(tableName);
-      availableFields = tableStructure.map((el) => {
-        return el.column_name;
-      });
-      return availableFields;
-    }
-    const excludedFields = settings.excluded_fields;
-    if (settings.list_fields && settings.list_fields.length > 0) {
-      availableFields = settings.list_fields;
-    } else {
-      const tableStructure = await this.getTableStructure(tableName);
-      availableFields = tableStructure.map((el) => {
-        return el.column_name;
-      });
-    }
-    if (excludedFields && excludedFields.length > 0) {
-      for (const field of excludedFields) {
-        const delIndex = availableFields.indexOf(field);
-        if (delIndex >= 0) {
-          availableFields.splice(availableFields.indexOf(field), 1);
-        }
-      }
-    }
-    return availableFields;
   }
 
   private attachSchemaNameToTableName(tableName: string): string {
@@ -495,42 +507,6 @@ export class DaoPostgres extends BasicDao implements IDaoInterface {
       tableName = `"public"."${tableName}"`;
     }
     return tableName;
-  }
-
-  public static configureKnex(connectionConfig) {
-    const { host, username, password, database, port, type, cert, ssl } = connectionConfig;
-    const cachedKnex = Cacher.getCachedKnex(connectionConfig);
-    if (cachedKnex) {
-      return cachedKnex;
-    } else {
-      if (process.env.NODE_ENV === 'test') {
-        const newKnex = knex({
-          client: type,
-          connection: {
-            host: host,
-            user: username,
-            password: password,
-            database: database,
-            port: port,
-          },
-        });
-        Cacher.setKnexCache(connectionConfig, newKnex);
-        return newKnex;
-      }
-      const newKnex = knex({
-        client: type,
-        connection: {
-          host: host,
-          user: username,
-          password: password,
-          database: database,
-          port: port,
-          ssl: ssl ? { ca: cert ?? undefined, rejectUnauthorized: !cert } : false,
-        },
-      });
-      Cacher.setKnexCache(connectionConfig, newKnex);
-      return newKnex;
-    }
   }
 
   static async clearKnexCache() {
@@ -561,7 +537,7 @@ export class DaoPostgres extends BasicDao implements IDaoInterface {
       return firstCount;
     } else {
       try {
-        const secondCount = await knex.raw(
+        return await knex.raw(
           `
     SELECT ((reltuples / relpages)
     * (pg_relation_size('??.??') / current_setting('block_size')::int)
@@ -570,10 +546,38 @@ FROM   pg_class
 WHERE  oid = '??.??'::regclass;`,
           [tableSchema, tableName, tableSchema, tableName],
         );
-        return secondCount;
       } catch (e) {
         return 0;
       }
     }
+  }
+
+  private async findAvaliableFields(settings: TableSettingsEntity, tableName: string): Promise<Array<string>> {
+    let availableFields = [];
+    if (isObjectEmpty(settings)) {
+      const tableStructure = await this.getTableStructure(tableName);
+      availableFields = tableStructure.map((el) => {
+        return el.column_name;
+      });
+      return availableFields;
+    }
+    const excludedFields = settings.excluded_fields;
+    if (settings.list_fields && settings.list_fields.length > 0) {
+      availableFields = settings.list_fields;
+    } else {
+      const tableStructure = await this.getTableStructure(tableName);
+      availableFields = tableStructure.map((el) => {
+        return el.column_name;
+      });
+    }
+    if (excludedFields && excludedFields.length > 0) {
+      for (const field of excludedFields) {
+        const delIndex = availableFields.indexOf(field);
+        if (delIndex >= 0) {
+          availableFields.splice(availableFields.indexOf(field), 1);
+        }
+      }
+    }
+    return availableFields;
   }
 }

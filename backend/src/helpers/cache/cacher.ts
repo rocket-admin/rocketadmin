@@ -2,6 +2,7 @@ import * as LRU from 'lru-cache';
 import { Constants } from '../constants/constants';
 import { Knex } from 'knex';
 import { ConnectionEntity } from '../../entities/connection/connection.entity';
+import { IForeignKey, IPrimaryKey, ITableStructure } from '../../data-access-layer/shared/data-access-object-interface';
 
 const knexCache = new LRU(Constants.DEFAULT_CONNECTION_CACHE_OPTIONS);
 const tunnelCache = new LRU(Constants.DEFAULT_TUNNEL_CACHE_OPTIONS);
@@ -9,6 +10,9 @@ const driverCache = new LRU(Constants.DEFAULT_DRIVER_CACHE_OPTIONS);
 // const tableSettingsCache = new LRU(Constants.DEFAULT_SETTINGS_CACHE_OPTIONS);
 const usersEmailsCache = new LRU(Constants.DEFAULT_USER_EMAILS_CACHE_OPTIONS);
 const invitationCache = new LRU(Constants.DEFAULT_INVITATION_CACHE_OPTIONS);
+const tableStructureCache = new LRU(Constants.DEFAULT_TABLE_STRUCTURE_ELEMENTS_CACHE_OPTIONS);
+const tableForeignKeysCache = new LRU(Constants.DEFAULT_TABLE_STRUCTURE_ELEMENTS_CACHE_OPTIONS);
+const tablePrimaryKeysCache = new LRU(Constants.DEFAULT_TABLE_STRUCTURE_ELEMENTS_CACHE_OPTIONS);
 
 export class Cacher {
   public static increaseGroupInvitationsCacheCount(groupId: string): void {
@@ -88,6 +92,69 @@ export class Cacher {
       await item.destroy();
     });
     return true;
+  }
+
+  public static setTableStructureCache(
+    connection: ConnectionEntity,
+    tableName: string,
+    structure: Array<ITableStructure>,
+  ): void {
+    const cacheObj = JSON.stringify({ connection, tableName });
+    tableStructureCache.set(cacheObj, structure);
+  }
+
+  public static getTableStructureCache(connection: ConnectionEntity, tableName: string): Array<ITableStructure> {
+    const cacheObj = JSON.stringify({ connection, tableName });
+    const foundStructure = tableStructureCache.get(cacheObj);
+    return foundStructure ? foundStructure : null;
+  }
+
+  public static clearTableStructureCache(): void {
+    tableStructureCache.forEach(async (item) => {
+      await item.destroy();
+    });
+  }
+
+  public static setTablePrimaryKeysCache(
+    connection: ConnectionEntity,
+    tableName: string,
+    primaryKeys: Array<IPrimaryKey>,
+  ): void {
+    const cacheObj = JSON.stringify({ connection, tableName });
+    tablePrimaryKeysCache.set(cacheObj, primaryKeys);
+  }
+
+  public static getTablePrimaryKeysCache(connection: ConnectionEntity, tableName: string): Array<IPrimaryKey> {
+    const cacheObj = JSON.stringify({ connection, tableName });
+    const foundKeys = tablePrimaryKeysCache.get(cacheObj);
+    return foundKeys ? foundKeys : null;
+  }
+
+  public static clearTablePrimaryKeysCache(): void {
+    tablePrimaryKeysCache.forEach(async (item) => {
+      await item.destroy();
+    });
+  }
+
+  public static setTableForeignKeysCache(
+    connection: ConnectionEntity,
+    tableName: string,
+    foreignKeys: Array<IForeignKey>,
+  ): void {
+    const cacheObj = JSON.stringify({ connection, tableName });
+    tableForeignKeysCache.set(cacheObj, foreignKeys);
+  }
+
+  public static getTableForeignKeysCache(connection: ConnectionEntity, tableName: string): Array<IForeignKey> {
+    const cacheObj = JSON.stringify({ connection, tableName });
+    const foundKeys = tableForeignKeysCache.get(cacheObj);
+    return foundKeys ? foundKeys : null;
+  }
+
+  public static clearTableForeignKeysCache(): void {
+    tableForeignKeysCache.forEach(async (item) => {
+      await item.destroy();
+    });
   }
 
   public static async clearKnexCache() {

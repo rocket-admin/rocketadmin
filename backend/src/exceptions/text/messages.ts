@@ -48,6 +48,7 @@ export const Messages = {
   CONNECTION_PROPERTIES_INVALID: 'Connection properties are invalid',
   CONNECTION_PROPERTIES_CANT_BE_EMPTY: `Connection properties cannot be empty`,
   CONNECTION_PROPERTIES_NOT_FOUND: `Connection properties not found`,
+  CONNECTION_TIMED_OUT: `Connection timed out no further information`,
   CONFIRMATION_EMAIL_SENDING_FAILED: `Email sending timed out. Please try again later. If the problem persists, please contact our support team`,
   CUSTOM_FIELD_ID_MISSING: 'Custom field id is missing',
   CUSTOM_FIELD_NOT_FOUND: 'Custom table field with this parameters not found',
