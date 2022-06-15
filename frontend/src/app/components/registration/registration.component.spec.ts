@@ -40,9 +40,11 @@ describe('RegistrationComponent', () => {
     global.window.gtag = jasmine.createSpy();
 
     // @ts-ignore
-    global.window.google = jasmine.createSpy();
+    global.window.google  = jasmine.createSpyObj(['accounts']);
     // @ts-ignore
-    // global.window.customerly = {open: jasmine.createSpy()};
+    global.window.google.accounts = jasmine.createSpyObj(['id']);
+    // @ts-ignore
+    global.window.google.accounts.id = jasmine.createSpyObj(['initialize', 'renderButton', 'prompt']);
   });
 
   beforeEach(() => {

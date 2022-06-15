@@ -1,14 +1,14 @@
-import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+
+import { ConnectionsService } from 'src/app/services/connections.service';
+import { DbTableWidgetsComponent } from './db-table-widgets.component';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { RouterTestingModule } from '@angular/router/testing';
-import { of } from 'rxjs';
-import { ConnectionsService } from 'src/app/services/connections.service';
 import { TablesService } from 'src/app/services/tables.service';
-
-import { DbTableWidgetsComponent } from './db-table-widgets.component';
 import { WidgetDeleteDialogComponent } from './widget-delete-dialog/widget-delete-dialog.component';
+import { of } from 'rxjs';
 
 describe('DbTableWidgetsComponent', () => {
   let component: DbTableWidgetsComponent;
@@ -297,10 +297,11 @@ describe('DbTableWidgetsComponent', () => {
         }
       ];
       spyOn(tablesService, 'updateTableWidgets').and.returnValue(of(tableWidgetsNetwork));
+      const fakeFatchWidgets = spyOn(tablesService, 'fetchTableWidgets').and.returnValue(of(tableWidgetsNetwork));
 
       component.updateWidgets();
 
-      expect(component.widgets).toEqual(tableWidgetsNetwork);
+      expect(fakeFatchWidgets).toHaveBeenCalledOnceWith('12345678', 'users');
       expect(component.submitting).toBeFalse();
       expect(component.isAllWidgetsDeleted).toBeFalse();
     });

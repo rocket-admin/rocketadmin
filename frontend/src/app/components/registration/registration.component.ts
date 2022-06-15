@@ -54,8 +54,6 @@ export class RegistrationComponent implements OnInit {
     google.accounts.id.prompt();
 
     this.socialAuthService.authState.subscribe((authUser) => {
-      console.log('regpage authUser from fb listener')
-      console.log(authUser)
       if (authUser.provider === "FACEBOOK") this._auth.loginWithFacebook(authUser.authToken).subscribe();
     });
   }
