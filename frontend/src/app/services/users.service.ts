@@ -11,14 +11,6 @@ import { Permissions } from 'src/app/models/user';
   providedIn: 'root'
 })
 export class UsersService {
-  _connectionGroupsURL = 'https://api-v2.autoadmin.org/connection/groups';
-  _connectionGroupURL = 'https://api-v2.autoadmin.org/connection/group';
-  _connectionURL = 'https://api-v2.autoadmin.org/connection';
-  _groupURL = 'https://api-v2.autoadmin.org/group';
-  _groupsURL = 'https://api-v2.autoadmin.org/groups';
-  _permissionURL = 'https://api-v2.autoadmin.org/permission'
-  _permissionsURL = 'https://api-v2.autoadmin.org/permissions'
-
   private groups = new BehaviorSubject<string>('');
   public cast = this.groups.asObservable();
 
@@ -28,7 +20,7 @@ export class UsersService {
   ) { }
 
   verifyGroupUserEmail(token: string, password: string) {
-    return this._http.put<any>(`${this._groupURL}/user/verify/${token}`, {
+    return this._http.put<any>(`/group/user/verify/${token}`, {
       password
     })
     .pipe(
@@ -51,7 +43,7 @@ export class UsersService {
   }
 
   fetchConnectionUsers(connectionID: string) {
-    return this._http.get<any>(`${this._connectionURL}/users/${connectionID}`)
+    return this._http.get<any>(`/connection/users/${connectionID}`)
       .pipe(
         map(res => res),
         catchError((err) => {
@@ -63,7 +55,7 @@ export class UsersService {
   }
 
   fetchConnectionGroups(connectionID: string) {
-    return this._http.get<any>(`${this._connectionGroupsURL}/${connectionID}`)
+    return this._http.get<any>(`/connection/groups/${connectionID}`)
       .pipe(
         map(res => res),
         catchError((err) => {
@@ -75,7 +67,7 @@ export class UsersService {
   }
 
   fetcGroupUsers(groupID: string) {
-    return this._http.get<any>(`${this._groupURL}/users/${groupID}`)
+    return this._http.get<any>(`/group/users/${groupID}`)
       .pipe(
         map(res => res),
         catchError((err) => {
@@ -87,7 +79,7 @@ export class UsersService {
   }
 
   createUsersGroup(connectionID: string, title: string) {
-    return this._http.post<any>(`${this._connectionGroupURL}/${connectionID}`, {title: title})
+    return this._http.post<any>(`/connection/group/${connectionID}`, {title: title})
       .pipe(
         map(() => {
           this.groups.next('groups');
@@ -102,7 +94,7 @@ export class UsersService {
   }
 
   fetchPermission(connectionID: string, groupID: string) {
-    return this._http.get<any>(`${this._connectionURL}/permissions`, {
+    return this._http.get<any>(`/connection/permissions`, {
       params: {
         "connectionId": `${connectionID}`,
         "groupId": `${groupID}`
@@ -119,7 +111,7 @@ export class UsersService {
   }
 
   updatePermission(permissions: Permissions) {
-    return this._http.put<any>(`${this._permissionsURL}/${permissions.group.groupId}`, {permissions})
+    return this._http.put<any>(`/permissions/${permissions.group.groupId}`, {permissions})
       .pipe(
         map(() => {
           this._notifications.showSuccessSnackbar('Permissions have been updated successfully.');
@@ -133,7 +125,7 @@ export class UsersService {
   }
 
   addGroupUser(groupID: string, userEmail: string) {
-    return this._http.put<any>(`${this._groupURL}/user`, {email: userEmail, groupId: groupID})
+    return this._http.put<any>(`/group/user`, {email: userEmail, groupId: groupID})
       .pipe(
         map((res) => {
           this.groups.next(groupID);
@@ -149,7 +141,7 @@ export class UsersService {
   }
 
   deleteUsersGroup(groupID: string) {
-    return this._http.delete<any>(`${this._groupURL}/${groupID}`)
+    return this._http.delete<any>(`/group/${groupID}`)
       .pipe(
         map(() => {
           this.groups.next('groups');
@@ -164,7 +156,7 @@ export class UsersService {
   }
 
   deleteGroupUser(email: string, groupID: string) {
-    return this._http.put<any>(`${this._groupURL}/user/delete`, {email: email, groupId: groupID})
+    return this._http.put<any>(`/group/user/delete`, {email: email, groupId: groupID})
       .pipe(
         map(() => {
           this.groups.next(groupID);

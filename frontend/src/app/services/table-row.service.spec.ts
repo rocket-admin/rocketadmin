@@ -93,7 +93,7 @@ describe('TableRowService', () => {
       isSubscribeCalled = true;
     });
 
-    const req = httpMock.expectOne(`${service._tableURL}/row/12345678?id=1&tableName=users_table`);
+    const req = httpMock.expectOne(`/table/row/12345678?id=1&tableName=users_table`);
     expect(req.request.method).toBe("GET");
     req.flush(tableRowNetwork);
 
@@ -103,7 +103,7 @@ describe('TableRowService', () => {
   it('should fall fetchTableRow and show Error snackbar', async () => {
     const fetchTableRow = service.fetchTableRow('12345678', 'users_table', {id: 1}).toPromise();
 
-    const req = httpMock.expectOne(`${service._tableURL}/row/12345678?id=1&tableName=users_table`);
+    const req = httpMock.expectOne(`/table/row/12345678?id=1&tableName=users_table`);
     expect(req.request.method).toBe("GET");
     req.flush(fakeError, {status: 400, statusText: ''});
     await fetchTableRow;
@@ -120,7 +120,7 @@ describe('TableRowService', () => {
       isSubscribeCalled = true;
     });
 
-    const req = httpMock.expectOne(`${service._tableURL}/row/12345678?tableName=users_table`);
+    const req = httpMock.expectOne(`/table/row/12345678?tableName=users_table`);
     expect(req.request.method).toBe("POST");
     expect(req.request.body).toEqual(tableRowValues);
     req.flush(tableRowValues);
@@ -131,7 +131,7 @@ describe('TableRowService', () => {
   it('should fall addTableRow and show Error banner', async () => {
     const addTableRow = service.addTableRow('12345678', 'users_table', tableRowValues).toPromise();
 
-    const req = httpMock.expectOne(`${service._tableURL}/row/12345678?tableName=users_table`);
+    const req = httpMock.expectOne(`/table/row/12345678?tableName=users_table`);
     expect(req.request.method).toBe("POST");
     req.flush(fakeError, {status: 400, statusText: ''});
     await addTableRow;
@@ -150,7 +150,7 @@ describe('TableRowService', () => {
       isSubscribeCalled = true;
     });
 
-    const req = httpMock.expectOne(`${service._tableURL}/row/12345678?id=1&tableName=users_table`);
+    const req = httpMock.expectOne(`/table/row/12345678?id=1&tableName=users_table`);
     expect(req.request.method).toBe("PUT");
     expect(req.request.body).toEqual(tableRowValues);
     req.flush(tableRowValues);
@@ -161,7 +161,7 @@ describe('TableRowService', () => {
   it('should fall updateTableRow and show Error banner', async () => {
     const addTableRow = service.updateTableRow('12345678', 'users_table', {id: 1}, tableRowValues).toPromise();
 
-    const req = httpMock.expectOne(`${service._tableURL}/row/12345678?id=1&tableName=users_table`);
+    const req = httpMock.expectOne(`/table/row/12345678?id=1&tableName=users_table`);
     expect(req.request.method).toBe("PUT");
     req.flush(fakeError, {status: 400, statusText: ''});
     await addTableRow;
@@ -180,7 +180,7 @@ describe('TableRowService', () => {
       isSubscribeCalled = true;
     });
 
-    const req = httpMock.expectOne(`${service._tableURL}/row/12345678?id=1&tableName=users_table`);
+    const req = httpMock.expectOne(`/table/row/12345678?id=1&tableName=users_table`);
     expect(req.request.method).toBe("DELETE");
     req.flush({deleted:	true});
 
@@ -190,7 +190,7 @@ describe('TableRowService', () => {
   it('should fall deleteTableRow and show Error snackbar', async () => {
     const deleteTableRow = service.deleteTableRow('12345678', 'users_table', {id: 1}).toPromise();
 
-    const req = httpMock.expectOne(`${service._tableURL}/row/12345678?id=1&tableName=users_table`);
+    const req = httpMock.expectOne(`/table/row/12345678?id=1&tableName=users_table`);
     expect(req.request.method).toBe("DELETE");
     req.flush(fakeError, {status: 400, statusText: ''});
     await deleteTableRow;

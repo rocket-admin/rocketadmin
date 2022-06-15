@@ -67,7 +67,7 @@ describe('AuthService', () => {
       isSignUpUserCalled = true;
     });
 
-    const req = httpMock.expectOne(`${service._userURLv2}/register`);
+    const req = httpMock.expectOne('/user/register');
     expect(req.request.method).toBe("POST");
     expect(req.request.body).toEqual(userData);
     req.flush(signUpResponse);
@@ -83,7 +83,7 @@ describe('AuthService', () => {
 
     const tokenExpiration = service.signUpUser(userData).toPromise();
 
-    const req = httpMock.expectOne(`${service._userURLv2}/register`);
+    const req = httpMock.expectOne('/user/register');
     expect(req.request.method).toBe("POST");
     req.flush(fakeError, {status: 400, statusText: ''});
     await tokenExpiration;
@@ -111,7 +111,7 @@ describe('AuthService', () => {
       isSignUpUserCalled = true;
     });
 
-    const req = httpMock.expectOne(`${service._userURLv2}/login`);
+    const req = httpMock.expectOne(`/user/login`);
     expect(req.request.method).toBe("POST");
     expect(req.request.body).toEqual(userData);
     req.flush(loginResponse);
@@ -127,7 +127,7 @@ describe('AuthService', () => {
 
     const tokenExpiration = service.loginUser(userData).toPromise();
 
-    const req = httpMock.expectOne(`${service._userURLv2}/login`);
+    const req = httpMock.expectOne(`/user/login`);
     expect(req.request.method).toBe("POST");
     req.flush(fakeError, {status: 400, statusText: ''});
     await tokenExpiration;
@@ -150,7 +150,7 @@ describe('AuthService', () => {
       isSignUpUserCalled = true;
     });
 
-    const req = httpMock.expectOne(`${service._userURLv2}/email/verify/12345678`);
+    const req = httpMock.expectOne(`/user/email/verify/12345678`);
     expect(req.request.method).toBe("GET");
     req.flush(verifyResponse);
 
@@ -160,7 +160,7 @@ describe('AuthService', () => {
   it('should fall for verifyEmail and show Error banner', async () => {
     const verifyResponse = service.verifyEmail('12345678').toPromise();
 
-    const req = httpMock.expectOne(`${service._userURLv2}/email/verify/12345678`);
+    const req = httpMock.expectOne(`/user/email/verify/12345678`);
     expect(req.request.method).toBe("GET");
     req.flush(fakeError, {status: 400, statusText: ''});
     await verifyResponse;
@@ -180,7 +180,7 @@ describe('AuthService', () => {
       isLogoutCalled = true;
     });
 
-    const req = httpMock.expectOne(`${service._userURLv2}/logout`);
+    const req = httpMock.expectOne(`/user/logout`);
     expect(req.request.method).toBe("POST");
     req.flush(logoutResponse);
 
@@ -190,7 +190,7 @@ describe('AuthService', () => {
   it('should fall for logOutUser and show Error snackbar', async () => {
     const logoutResponse = service.logOutUser().toPromise();
 
-    const req = httpMock.expectOne(`${service._userURLv2}/logout`);
+    const req = httpMock.expectOne(`/user/logout`);
     expect(req.request.method).toBe("POST");
     req.flush(fakeError, {status: 400, statusText: ''});
     await logoutResponse;

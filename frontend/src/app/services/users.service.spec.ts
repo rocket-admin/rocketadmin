@@ -135,7 +135,7 @@ describe('UsersService', () => {
       isSubscribeCalled = true;
     });
 
-    const req = httpMock.expectOne(`${service._connectionURL}/users/12345678`);
+    const req = httpMock.expectOne(`/connection/users/12345678`);
     expect(req.request.method).toBe("GET");
     req.flush(usersNetwork);
 
@@ -145,7 +145,7 @@ describe('UsersService', () => {
   it('should fall fetchConnectionUsers and show Error snackbar', async () => {
     const fetchConnectionUsers = service.fetchConnectionUsers('12345678').toPromise();
 
-    const req = httpMock.expectOne(`${service._connectionURL}/users/12345678`);
+    const req = httpMock.expectOne(`/connection/users/12345678`);
     expect(req.request.method).toBe("GET");
     req.flush(fakeError, {status: 400, statusText: ''});
     await fetchConnectionUsers;
@@ -171,7 +171,7 @@ describe('UsersService', () => {
       isSubscribeCalled = true;
     });
 
-    const req = httpMock.expectOne(`${service._connectionGroupsURL}/12345678`);
+    const req = httpMock.expectOne(`/connection/groups/12345678`);
     expect(req.request.method).toBe("GET");
     req.flush(groupsNetwork);
 
@@ -181,7 +181,7 @@ describe('UsersService', () => {
   it('should fall fetchConnectionGroups and show Error snackbar', async () => {
     const fetchConnectionGroups = service.fetchConnectionGroups('12345678').toPromise();
 
-    const req = httpMock.expectOne(`${service._connectionGroupsURL}/12345678`);
+    const req = httpMock.expectOne(`/connection/groups/12345678`);
     expect(req.request.method).toBe("GET");
     req.flush(fakeError, {status: 400, statusText: ''});
     await fetchConnectionGroups;
@@ -206,7 +206,7 @@ describe('UsersService', () => {
       isSubscribeCalled = true;
     });
 
-    const req = httpMock.expectOne(`${service._groupURL}/users/12345678`);
+    const req = httpMock.expectOne(`/group/users/12345678`);
     expect(req.request.method).toBe("GET");
     req.flush(groupUsersNetwork);
 
@@ -216,7 +216,7 @@ describe('UsersService', () => {
   it('should fall fetchConnectionGroups and show Error snackbar', async () => {
     const fetchConnectionGroups = service.fetcGroupUsers('12345678').toPromise();
 
-    const req = httpMock.expectOne(`${service._groupURL}/users/12345678`);
+    const req = httpMock.expectOne(`/group/users/12345678`);
     expect(req.request.method).toBe("GET");
     req.flush(fakeError, {status: 400, statusText: ''});
     await fetchConnectionGroups;
@@ -232,7 +232,7 @@ describe('UsersService', () => {
       isSubscribeCalled = true;
     });
 
-    const req = httpMock.expectOne(`${service._connectionGroupURL}/12345678`);
+    const req = httpMock.expectOne(`/connection/group/12345678`);
     expect(req.request.method).toBe("POST");
     expect(req.request.body).toEqual({title: 'Managers'});
     req.flush(groupNetwork);
@@ -243,7 +243,7 @@ describe('UsersService', () => {
   it('should fall createUsersGroup and show Error snackbar', async () => {
     const createUsersGroup = service.createUsersGroup('12345678', 'Managers').toPromise();
 
-    const req = httpMock.expectOne(`${service._connectionGroupURL}/12345678`);
+    const req = httpMock.expectOne(`/connection/group/12345678`);
     expect(req.request.method).toBe("POST");
     req.flush(fakeError, {status: 400, statusText: ''});
     await createUsersGroup;
@@ -259,7 +259,7 @@ describe('UsersService', () => {
       isSubscribeCalled = true;
     });
 
-    const req = httpMock.expectOne(`${service._connectionURL}/permissions?connectionId=12345678&groupId=group12345678`);
+    const req = httpMock.expectOne(`/connection/permissions?connectionId=12345678&groupId=group12345678`);
     expect(req.request.method).toBe("GET");
     req.flush(permissionsNetwork);
 
@@ -269,7 +269,7 @@ describe('UsersService', () => {
   it('should fall fetchPermission and show Error snackbar', async () => {
     const fetchPermission = service.fetchPermission('12345678', 'group12345678').toPromise();
 
-    const req = httpMock.expectOne(`${service._connectionURL}/permissions?connectionId=12345678&groupId=group12345678`);
+    const req = httpMock.expectOne(`/connection/permissions?connectionId=12345678&groupId=group12345678`);
     expect(req.request.method).toBe("GET");
     req.flush(fakeError, {status: 400, statusText: ''});
     await fetchPermission;
@@ -285,7 +285,7 @@ describe('UsersService', () => {
       isSubscribeCalled = true;
     });
 
-    const req = httpMock.expectOne(`${service._permissionsURL}/1c042912-326d-4fc5-bb0c-10da88dd37c4`);
+    const req = httpMock.expectOne(`/permissions/1c042912-326d-4fc5-bb0c-10da88dd37c4`);
     expect(req.request.method).toBe("PUT");
     expect(req.request.body).toEqual({permissions: permissionsApp});
     req.flush(permissionsNetwork);
@@ -296,7 +296,7 @@ describe('UsersService', () => {
   it('should fall updatePermission and show Error snackbar', async () => {
     const updatePermission = service.updatePermission(permissionsApp).toPromise();
 
-    const req = httpMock.expectOne(`${service._permissionsURL}/1c042912-326d-4fc5-bb0c-10da88dd37c4`);
+    const req = httpMock.expectOne(`/permissions/1c042912-326d-4fc5-bb0c-10da88dd37c4`);
     expect(req.request.method).toBe("PUT");
     req.flush(fakeError, {status: 400, statusText: ''});
     await updatePermission;
@@ -312,7 +312,7 @@ describe('UsersService', () => {
       isSubscribeCalled = true;
     });
 
-    const req = httpMock.expectOne(`${service._groupURL}/user`);
+    const req = httpMock.expectOne(`/group/user`);
     expect(req.request.method).toBe("PUT");
     expect(req.request.body).toEqual({
       email: 'eric.cartman@south.park',
@@ -326,7 +326,7 @@ describe('UsersService', () => {
   it('should fall addGroupUser and show Error snackbar', async () => {
     const addGroupUser = service.addGroupUser('group12345678', 'eric.cartman@south.park').toPromise();
 
-    const req = httpMock.expectOne(`${service._groupURL}/user`);
+    const req = httpMock.expectOne(`/group/user`);
     expect(req.request.method).toBe("PUT");
     req.flush(fakeError, {status: 400, statusText: ''});
     await addGroupUser;
@@ -347,7 +347,7 @@ describe('UsersService', () => {
       isSubscribeCalled = true;
     });
 
-    const req = httpMock.expectOne(`${service._groupURL}/group12345678`);
+    const req = httpMock.expectOne(`/group/group12345678`);
     expect(req.request.method).toBe("DELETE");
     req.flush(deleteGroup);
 
@@ -357,7 +357,7 @@ describe('UsersService', () => {
   it('should fall deleteUsersGroup and show Error snackbar', async () => {
     const deleteUsersGroup = service.deleteUsersGroup('group12345678').toPromise();
 
-    const req = httpMock.expectOne(`${service._groupURL}/group12345678`);
+    const req = httpMock.expectOne(`/group/group12345678`);
     expect(req.request.method).toBe("DELETE");
     req.flush(fakeError, {status: 400, statusText: ''});
     await deleteUsersGroup;
@@ -378,7 +378,7 @@ describe('UsersService', () => {
       isSubscribeCalled = true;
     });
 
-    const req = httpMock.expectOne(`${service._groupURL}/user/delete`);
+    const req = httpMock.expectOne(`/group/user/delete`);
     expect(req.request.method).toBe("PUT");
     expect(req.request.body).toEqual({
       email: 'eric.cartman@south.park',
@@ -392,7 +392,7 @@ describe('UsersService', () => {
   it('should fall deleteGroupUser and show Error snackbar', async () => {
     const deleteGroupUser = service.deleteGroupUser('eric.cartman@south.park', 'group12345678').toPromise();
 
-    const req = httpMock.expectOne(`${service._groupURL}/user/delete`);
+    const req = httpMock.expectOne(`/group/user/delete`);
     expect(req.request.method).toBe("PUT");
     req.flush(fakeError, {status: 400, statusText: ''});
     await deleteGroupUser;

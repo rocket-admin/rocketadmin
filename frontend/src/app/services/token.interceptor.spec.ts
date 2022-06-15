@@ -5,6 +5,7 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { RouterTestingModule } from '@angular/router/testing';
 
 import { TokenInterceptor } from './token.interceptor';
+import { ConfigurationService } from './configuration.service';
 
 describe('TokenInterceptor', () => {
   beforeEach(() => TestBed.configureTestingModule({
@@ -15,7 +16,11 @@ describe('TokenInterceptor', () => {
       MatDialogModule
     ],
     providers: [
-      TokenInterceptor
+      TokenInterceptor,
+      {
+        provide: ConfigurationService,
+        useValue: { CONFIG_URL: 'https://api-v2.autoadmin.org' }
+      }
     ]
   }));
 

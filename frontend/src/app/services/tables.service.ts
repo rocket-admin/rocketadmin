@@ -32,12 +32,6 @@ interface TableParams {
 })
 
 export class TablesService {
-
-  _connectionURL = 'https://api-v2.autoadmin.org/connection';
-  _tableURL = 'https://api-v2.autoadmin.org/table';
-  _settingsURL = 'https://api-v2.autoadmin.org/settings';
-  _widgetsURL = 'https://api-v2.autoadmin.org/widgets';
-
   public tableName: string | null = null;
 
   private tables = new BehaviorSubject<string>('');
@@ -76,7 +70,7 @@ export class TablesService {
 
   fetchTables(connectionID: string, hidden?: boolean) {
     console.log('fetchTables service');
-    return this._http.get<any>(`${this._connectionURL}/tables/${connectionID}`, {
+    return this._http.get<any>(`/connection/tables/${connectionID}`, {
       params: {
         ...(hidden ? {hidden} : {}),
       }
@@ -111,7 +105,7 @@ export class TablesService {
     }
 
     if (tableName) {
-      return this._http.get<any>(`${this._tableURL}/rows/${connectionID}`, {
+      return this._http.get<any>(`/table/rows/${connectionID}`, {
         params: {
           tableName,
           perPage: chunkSize.toString(),
@@ -142,7 +136,7 @@ export class TablesService {
   }
 
   fetchTableStructure(connectionID: string, tableName: string) {
-    return this._http.get<any>(`${this._tableURL}/structure/${connectionID}`, {
+    return this._http.get<any>(`/table/structure/${connectionID}`, {
       params: {
         tableName
       }
@@ -158,7 +152,7 @@ export class TablesService {
   }
 
   fetchTableSettings(connectionID: string, tableName: string) {
-    return this._http.get<any>(`${this._settingsURL}`, {
+    return this._http.get<any>('/settings', {
       params: {
         connectionId: connectionID,
         tableName
@@ -187,7 +181,7 @@ export class TablesService {
       method = 'put'
     } else method = 'post';
 
-    return this._http[method]<any>(`${this._settingsURL}`, settings, {
+    return this._http[method]<any>('/settings', settings, {
       params: {
         connectionId: connectionID,
         tableName
@@ -213,7 +207,7 @@ export class TablesService {
   }
 
   deleteTableSettings(connectionID: string, tableName: string) {
-    return this._http.delete<any>(`${this._settingsURL}`, {
+    return this._http.delete<any>('/settings', {
       params: {
         connectionId: connectionID,
         tableName
@@ -239,7 +233,7 @@ export class TablesService {
   }
 
   fetchTableWidgets(connectionID: string, tableName: string) {
-    return this._http.get<any>(`${this._widgetsURL}/${connectionID}`, {
+    return this._http.get<any>(`/widgets/${connectionID}`, {
       params: {
         tableName
       }
@@ -261,7 +255,7 @@ export class TablesService {
   }
 
   updateTableWidgets(connectionID: string, tableName: string, widgets: Widget[]) {
-    return this._http.post<any>(`https://api-v2.autoadmin.org/widget/${connectionID}`, { widgets }, {
+    return this._http.post<any>(`/widget/${connectionID}`, { widgets }, {
       params: {
         tableName
       }

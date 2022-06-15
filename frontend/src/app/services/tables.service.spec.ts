@@ -258,7 +258,7 @@ describe('TablesService', () => {
       isSubscribeCalled = true;
     });
 
-    const req = httpMock.expectOne(`${service._connectionURL}/tables/12345678`);
+    const req = httpMock.expectOne(`/connection/tables/12345678`);
     expect(req.request.method).toBe("GET");
     req.flush(tablesNetwork);
 
@@ -278,7 +278,7 @@ describe('TablesService', () => {
       isSubscribeCalled = true;
     });
 
-    const req = httpMock.expectOne(`${service._tableURL}/rows/12345678?tableName=users_table&perPage=30&page=1`);
+    const req = httpMock.expectOne(`/table/rows/12345678?tableName=users_table&perPage=30&page=1`);
     expect(req.request.method).toBe("GET");
     req.flush(usersTableNetwork);
 
@@ -302,7 +302,7 @@ describe('TablesService', () => {
     });
 
     const req = httpMock.expectOne(
-      `${service._tableURL}/rows/12345678?tableName=users_table&perPage=30&page=1&f_position_id__eq=9876&referencedColumn=id`
+      `/table/rows/12345678?tableName=users_table&perPage=30&page=1&f_position_id__eq=9876&referencedColumn=id`
     );
     expect(req.request.method).toBe("GET");
     req.flush(usersTableNetwork);
@@ -331,7 +331,7 @@ describe('TablesService', () => {
       isSubscribeCalled = true;
     });
 
-    const req = httpMock.expectOne(`${service._tableURL}/rows/12345678?tableName=users_table&perPage=30&page=1&f_city__eq=NewYork&f_age__eq=42`);
+    const req = httpMock.expectOne(`/table/rows/12345678?tableName=users_table&perPage=30&page=1&f_city__eq=NewYork&f_age__eq=42`);
     expect(req.request.method).toBe("GET");
     req.flush(usersTableNetwork);
 
@@ -354,7 +354,7 @@ describe('TablesService', () => {
     });
 
     const req = httpMock.expectOne(
-      `${service._tableURL}/rows/12345678?tableName=users_table&perPage=30&page=1&sort_by=city&sort_order=DESC`
+      `/table/rows/12345678?tableName=users_table&perPage=30&page=1&sort_by=city&sort_order=DESC`
     );
     expect(req.request.method).toBe("GET");
     req.flush(usersTableNetwork);
@@ -370,7 +370,7 @@ describe('TablesService', () => {
       chunkSize: 30
     }).toPromise();
 
-    const req = httpMock.expectOne(`${service._tableURL}/rows/12345678?tableName=users_table&perPage=30&page=1`);
+    const req = httpMock.expectOne(`/table/rows/12345678?tableName=users_table&perPage=30&page=1`);
     expect(req.request.method).toBe("GET");
     req.flush(fakeError, {status: 400, statusText: ''});
     await fetchTableRow;
@@ -396,7 +396,7 @@ describe('TablesService', () => {
       isSubscribeCalled = true;
     });
 
-    const req = httpMock.expectOne(`${service._tableURL}/structure/12345678?tableName=users_table`);
+    const req = httpMock.expectOne(`/table/structure/12345678?tableName=users_table`);
     expect(req.request.method).toBe("GET");
     req.flush(tableStructureNetwork);
 
@@ -406,7 +406,7 @@ describe('TablesService', () => {
   it('should fall fetchTableStructure and show Error snackbar', async () => {
     const fetchTableStructure = service.fetchTableStructure('12345678', 'users_table').toPromise();
 
-    const req = httpMock.expectOne(`${service._tableURL}/structure/12345678?tableName=users_table`);
+    const req = httpMock.expectOne(`/table/structure/12345678?tableName=users_table`);
     expect(req.request.method).toBe("GET");
     req.flush(fakeError, {status: 400, statusText: ''});
     await fetchTableStructure;
@@ -422,7 +422,7 @@ describe('TablesService', () => {
       isSubscribeCalled = true;
     });
 
-    const req = httpMock.expectOne(`${service._settingsURL}?connectionId=12345678&tableName=users_table`);
+    const req = httpMock.expectOne(`/settings?connectionId=12345678&tableName=users_table`);
     expect(req.request.method).toBe("GET");
     req.flush(tableSettingsNetwork);
 
@@ -432,7 +432,7 @@ describe('TablesService', () => {
   it('should fall fetchTableSettings and show Error snackbar', async () => {
     const fetchTableSettings = service.fetchTableSettings('12345678', 'users_table').toPromise();
 
-    const req = httpMock.expectOne(`${service._settingsURL}?connectionId=12345678&tableName=users_table`);
+    const req = httpMock.expectOne(`/settings?connectionId=12345678&tableName=users_table`);
     expect(req.request.method).toBe("GET");
     req.flush(fakeError, {status: 400, statusText: ''});
     await fetchTableSettings;
@@ -451,7 +451,7 @@ describe('TablesService', () => {
       isSubscribeCalled = true;
     });
 
-    const req = httpMock.expectOne(`${service._settingsURL}?connectionId=12345678&tableName=users_table`);
+    const req = httpMock.expectOne(`/settings?connectionId=12345678&tableName=users_table`);
     expect(req.request.method).toBe("PUT");
     expect(req.request.body).toEqual(tableSettingsApp);
     req.flush(tableSettingsNetwork);
@@ -467,7 +467,7 @@ describe('TablesService', () => {
       isSubscribeCalled = true;
     });
 
-    const req = httpMock.expectOne(`${service._settingsURL}?connectionId=12345678&tableName=users_table`);
+    const req = httpMock.expectOne(`/settings?connectionId=12345678&tableName=users_table`);
     expect(req.request.method).toBe("POST");
     expect(req.request.body).toEqual(tableSettingsApp);
     req.flush(tableSettingsNetwork);
@@ -478,7 +478,7 @@ describe('TablesService', () => {
   it('should fall updateTableSettings and show Error banner', async () => {
     const fetchTableSettings = service.updateTableSettings(true, '12345678', 'users_table', tableSettingsApp).toPromise();
 
-    const req = httpMock.expectOne(`${service._settingsURL}?connectionId=12345678&tableName=users_table`);
+    const req = httpMock.expectOne(`/settings?connectionId=12345678&tableName=users_table`);
     expect(req.request.method).toBe("PUT");
     req.flush(fakeError, {status: 400, statusText: ''});
     await fetchTableSettings;
@@ -496,7 +496,7 @@ describe('TablesService', () => {
       isSubscribeCalled = true;
     });
 
-    const req = httpMock.expectOne(`${service._settingsURL}?connectionId=12345678&tableName=users_table`);
+    const req = httpMock.expectOne(`/settings?connectionId=12345678&tableName=users_table`);
     expect(req.request.method).toBe("DELETE");
     req.flush(tableSettingsNetwork);
 
@@ -506,7 +506,7 @@ describe('TablesService', () => {
   it('should fall deleteTableSettings and show Error snackbar', async () => {
     const fetchTableSettings = service.deleteTableSettings('12345678', 'users_table').toPromise();
 
-    const req = httpMock.expectOne(`${service._settingsURL}?connectionId=12345678&tableName=users_table`);
+    const req = httpMock.expectOne(`/settings?connectionId=12345678&tableName=users_table`);
     expect(req.request.method).toBe("DELETE");
     req.flush(fakeError, {status: 400, statusText: ''});
     await fetchTableSettings;
@@ -524,7 +524,7 @@ describe('TablesService', () => {
       isSubscribeCalled = true;
     });
 
-    const req = httpMock.expectOne(`${service._widgetsURL}/12345678?tableName=users_table`);
+    const req = httpMock.expectOne(`/widgets/12345678?tableName=users_table`);
     expect(req.request.method).toBe("GET");
     req.flush(tableSettingsNetwork);
 
@@ -534,7 +534,7 @@ describe('TablesService', () => {
   it('should fall fetchTableWidgets and show Error banner', async () => {
     const fetchTableSettings = service.fetchTableWidgets('12345678', 'users_table').toPromise();
 
-    const req = httpMock.expectOne(`${service._widgetsURL}/12345678?tableName=users_table`);
+    const req = httpMock.expectOne(`/widgets/12345678?tableName=users_table`);
     expect(req.request.method).toBe("GET");
     req.flush(fakeError, {status: 400, statusText: ''});
     await fetchTableSettings;
@@ -553,7 +553,7 @@ describe('TablesService', () => {
       isSubscribeCalled = true;
     });
 
-    const req = httpMock.expectOne(`https://api-v2.autoadmin.org/widget/12345678?tableName=users_table`);
+    const req = httpMock.expectOne('/widget/12345678?tableName=users_table');
     expect(req.request.method).toBe("POST");
     req.flush(tableWidgetsNetwork);
 
@@ -563,7 +563,7 @@ describe('TablesService', () => {
   it('should fall updateTableWidgets and show Error bannner', async () => {
     const fetchTableSettings = service.updateTableWidgets('12345678', 'users_table', tableWidgetsApp).toPromise();
 
-    const req = httpMock.expectOne(`https://api-v2.autoadmin.org/widget/12345678?tableName=users_table`);
+    const req = httpMock.expectOne('/widget/12345678?tableName=users_table');
     expect(req.request.method).toBe("POST");
     req.flush(fakeError, {status: 400, statusText: ''});
     await fetchTableSettings;
