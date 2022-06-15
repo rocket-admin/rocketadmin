@@ -19,7 +19,7 @@ phases:
         - node --max_old_space_size=4000 ./node_modules/@angular/cli/bin/ng build --configuration=saas
         - docker build -t frontend .
         - docker tag frontend:latest public.ecr.aws/o1a6p9d1/frontend:latest
-        - docker push public.ecr.aws/o1a6p9d1/frontend:latest
+        # - docker push public.ecr.aws/o1a6p9d1/frontend:latest
 
     post_build:
         commands:
