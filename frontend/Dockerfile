@@ -8,4 +8,4 @@ COPY src ./src/
 RUN ng build
 
 FROM nginx:alpine
-COPY --from=builder /app/dist/dissendium-v0/* /usr/share/nginx/html/
+COPY --from=builder /app/dist/dissendium-v0/ /usr/share/nginx/html/
