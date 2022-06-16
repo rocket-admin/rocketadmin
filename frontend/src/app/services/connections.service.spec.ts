@@ -1,3 +1,4 @@
+import { BannerActionType, BannerType } from '../models/banner';
 import { ConnectionType, DBtype } from '../models/connection';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 
@@ -10,7 +11,6 @@ import { NotificationsService } from './notifications.service';
 import { RouterTestingModule } from "@angular/router/testing";
 import { TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
-import { BannerActionType, BannerType } from '../models/banner';
 
 describe('ConnectionsService', () => {
   let httpMock: HttpTestingController;
@@ -315,7 +315,7 @@ describe('ConnectionsService', () => {
       isSubscribeCalled = true;
     });
 
-    const req = httpMock.expectOne(`${service._connectionsURL}`);
+    const req = httpMock.expectOne(`/connections`);
     expect(req.request.method).toBe("GET");
     req.flush(connectionsList);
 
@@ -324,7 +324,7 @@ describe('ConnectionsService', () => {
 
   it('should fall with error for fetchConnections and show Error banner', async () => {
     const connections = service.fetchConnections().toPromise();
-    const req = httpMock.expectOne(`${service._connectionsURL}`);
+    const req = httpMock.expectOne(`/connections`);
     expect(req.request.method).toBe("GET");
     req.flush(fakeError, {status: 400, statusText: ''});
     await connections;
@@ -348,7 +348,7 @@ describe('ConnectionsService', () => {
       isSubscribeCalled = true;
     });
 
-    const req = httpMock.expectOne(`${service._connectionURL}/one/12345678`);
+    const req = httpMock.expectOne(`/connection/one/12345678`);
     expect(req.request.method).toBe("GET");
     req.flush(connectionItem);
 
@@ -358,7 +358,7 @@ describe('ConnectionsService', () => {
   it('should fall for fetchConnection and show Error snackbar', async () => {
     const connection = service.fetchConnection('12345678').toPromise();
 
-    const req = httpMock.expectOne(`${service._connectionURL}/one/12345678`);
+    const req = httpMock.expectOne(`/connection/one/12345678`);
     expect(req.request.method).toBe("GET");
     req.flush(fakeError, {status: 400, statusText: ''});
     await connection;
@@ -371,7 +371,7 @@ describe('ConnectionsService', () => {
 
     const connection = service.fetchConnection('12345678').toPromise();
 
-    const req = httpMock.expectOne(`${service._connectionURL}/one/12345678`);
+    const req = httpMock.expectOne(`/connection/one/12345678`);
     expect(req.request.method).toBe("GET");
     req.flush(fakeError, {status: 400, statusText: ''});
     await connection;
@@ -387,7 +387,7 @@ describe('ConnectionsService', () => {
       isSubscribeCalled = true;
     });
 
-    const req = httpMock.expectOne(`${service._connectionURL}/test?connectionId=12345678`);
+    const req = httpMock.expectOne(`/connection/test?connectionId=12345678`);
     expect(req.request.method).toBe("POST");
     expect(req.request.body).toEqual(connectionCredsRequested);
     req.flush(true);
@@ -398,7 +398,7 @@ describe('ConnectionsService', () => {
   it('should fall testConnection and show Error banner', async () => {
     const isConnectionWorks = service.testConnection('12345678', connectionCredsApp).toPromise();
 
-    const req = httpMock.expectOne(`${service._connectionURL}/test?connectionId=12345678`);
+    const req = httpMock.expectOne(`/connection/test?connectionId=12345678`);
     expect(req.request.method).toBe("POST");
     expect(req.request.body).toEqual(connectionCredsRequested);
     req.flush(fakeError, {status: 400, statusText: ''});
@@ -416,7 +416,7 @@ describe('ConnectionsService', () => {
       isSubscribeCalled = true;
     });
 
-    const req = httpMock.expectOne(`${service._connectionURL}`);
+    const req = httpMock.expectOne(`/connection`);
     expect(req.request.method).toBe("POST");
     expect(req.request.body).toEqual(connectionCredsRequested);
     req.flush(connectionCredsNetwork);
@@ -427,7 +427,7 @@ describe('ConnectionsService', () => {
   it('should fall for createConnection and show Error snackbar', async () => {
     const createdConnection = service.createConnection(connectionCredsApp).toPromise();
 
-    const req = httpMock.expectOne(`${service._connectionURL}`);
+    const req = httpMock.expectOne(`/connection`);
     expect(req.request.method).toBe("POST");
     expect(req.request.body).toEqual(connectionCredsRequested);
     req.flush(fakeError, {status: 400, statusText: ''});
@@ -444,7 +444,7 @@ describe('ConnectionsService', () => {
       isSubscribeCalled = true;
     });
 
-    const req = httpMock.expectOne(`${service._connectionURL}/9d5f6d0f-9516-4598-91c4-e4fe6330b4d4`);
+    const req = httpMock.expectOne(`/connection/9d5f6d0f-9516-4598-91c4-e4fe6330b4d4`);
     expect(req.request.method).toBe("PUT");
     expect(req.request.body).toEqual(connectionCredsRequested);
     req.flush(connectionCredsNetwork);
@@ -455,7 +455,7 @@ describe('ConnectionsService', () => {
   it('should fall for updateConnection and show Error snackbar', async () => {
     const updatedConnection = service.updateConnection(connectionCredsApp).toPromise();
 
-    const req = httpMock.expectOne(`${service._connectionURL}/9d5f6d0f-9516-4598-91c4-e4fe6330b4d4`);
+    const req = httpMock.expectOne(`/connection/9d5f6d0f-9516-4598-91c4-e4fe6330b4d4`);
     expect(req.request.method).toBe("PUT");
     expect(req.request.body).toEqual(connectionCredsRequested);
     req.flush(fakeError, {status: 400, statusText: ''});
@@ -466,24 +466,33 @@ describe('ConnectionsService', () => {
 
   it('should call deleteConnection and show Success Snackbar', () => {
     let isSubscribeCalled = false;
+    const metadata = {
+      reason: 'missing-features',
+      message: 'i want to add tables'
+    }
 
-    service.deleteConnection('12345678').subscribe(res => {
+    service.deleteConnection('12345678', metadata).subscribe(res => {
       expect(fakeNotifications.showSuccessSnackbar).toHaveBeenCalledOnceWith('Connection has been deleted successfully.');
       isSubscribeCalled = true;
     });
 
-    const req = httpMock.expectOne(`${service._connectionURL}/12345678`);
-    expect(req.request.method).toBe("DELETE");
+    const req = httpMock.expectOne(`/connection/delete/12345678`);
+    expect(req.request.method).toBe("PUT");
     req.flush(connectionCredsNetwork);
 
     expect(isSubscribeCalled).toBe(true);
   });
 
   it('should fall for deleteConnection and show Error snackbar', async () => {
-    const deletedConnection = service.deleteConnection('12345678').toPromise();
+    const metadata = {
+      reason: 'missing-features',
+      message: 'i want to add tables'
+    }
 
-    const req = httpMock.expectOne(`${service._connectionURL}/12345678`);
-    expect(req.request.method).toBe("DELETE");
+    const deletedConnection = service.deleteConnection('12345678', metadata).toPromise();
+
+    const req = httpMock.expectOne(`/connection/delete/12345678`);
+    expect(req.request.method).toBe("PUT");
     req.flush(fakeError, {status: 400, statusText: ''});
     await deletedConnection;
 
@@ -503,7 +512,7 @@ describe('ConnectionsService', () => {
       isSubscribeCalled = true;
     });
 
-    const req = httpMock.expectOne(`${service._auditURL}/12345678?page=2&perPage=10&tableName=users_table&email=eric.cartman@south.park`);
+    const req = httpMock.expectOne(`/logs/12345678?page=2&perPage=10&tableName=users_table&email=eric.cartman@south.park`);
     expect(req.request.method).toBe("GET");
     req.flush({});
 
@@ -523,7 +532,7 @@ describe('ConnectionsService', () => {
       isSubscribeCalled = true;
     });
 
-    const req = httpMock.expectOne(`${service._auditURL}/12345678?page=2&perPage=10&email=eric.cartman@south.park`);
+    const req = httpMock.expectOne(`/logs/12345678?page=2&perPage=10&email=eric.cartman@south.park`);
     req.flush({});
 
     expect(isSubscribeCalled).toBe(true);
@@ -542,7 +551,7 @@ describe('ConnectionsService', () => {
       isSubscribeCalled = true;
     });
 
-    const req = httpMock.expectOne(`${service._auditURL}/12345678?page=2&perPage=10&tableName=users_table`);
+    const req = httpMock.expectOne(`/logs/12345678?page=2&perPage=10&tableName=users_table`);
     req.flush({});
 
     expect(isSubscribeCalled).toBe(true);
@@ -557,7 +566,7 @@ describe('ConnectionsService', () => {
       chunkSize: 10
     }).toPromise();
 
-    const req = httpMock.expectOne(`${service._auditURL}/12345678?page=2&perPage=10&tableName=users_table&email=eric.cartman@south.park`);
+    const req = httpMock.expectOne(`/logs/12345678?page=2&perPage=10&tableName=users_table&email=eric.cartman@south.park`);
     expect(req.request.method).toBe("GET");
     req.flush(fakeError, {status: 400, statusText: ''});
     await logs;
@@ -572,7 +581,7 @@ describe('ConnectionsService', () => {
       isSubscribeCalled = true;
     });
 
-    const req = httpMock.expectOne(`${service._connectionURL}/properties/12345678`);
+    const req = httpMock.expectOne(`/connection/properties/12345678`);
     expect(req.request.method).toBe("GET");
     req.flush(['users', 'orders']);
 
@@ -582,7 +591,7 @@ describe('ConnectionsService', () => {
   it('should fall for getConnectionSettings and show Error snackbar', async () => {
     const settings = service.getConnectionSettings('12345678').toPromise();
 
-    const req = httpMock.expectOne(`${service._connectionURL}/properties/12345678`);
+    const req = httpMock.expectOne(`/connection/properties/12345678`);
     expect(req.request.method).toBe("GET");
     req.flush(fakeError, {status: 400, statusText: ''});
     await settings;
@@ -598,7 +607,7 @@ describe('ConnectionsService', () => {
       isSubscribeCalled = true;
     });
 
-    const req = httpMock.expectOne(`${service._connectionURL}/properties/12345678`);
+    const req = httpMock.expectOne(`/connection/properties/12345678`);
     expect(req.request.method).toBe("POST");
     expect(req.request.body).toEqual({
       "hidden_tables": [
@@ -621,7 +630,7 @@ describe('ConnectionsService', () => {
   it('should fall createConnectionSettings and show Error banner', async () => {
     const createSettings = service.createConnectionSettings('12345678', ['users', 'orders']).toPromise();
 
-    const req = httpMock.expectOne(`${service._connectionURL}/properties/12345678`);
+    const req = httpMock.expectOne(`/connection/properties/12345678`);
     expect(req.request.method).toBe("POST");
     expect(req.request.body).toEqual({
       "hidden_tables": [
@@ -643,7 +652,7 @@ describe('ConnectionsService', () => {
       isSubscribeCalled = true;
     });
 
-    const req = httpMock.expectOne(`${service._connectionURL}/properties/12345678`);
+    const req = httpMock.expectOne(`/connection/properties/12345678`);
     expect(req.request.method).toBe("PUT");
     expect(req.request.body).toEqual({
       "hidden_tables": [
@@ -668,7 +677,7 @@ describe('ConnectionsService', () => {
   it('should fall createConnectionSettings and show Error banner', async () => {
     const updateSettings = service.updateConnectionSettings('12345678', ['users', 'orders', 'products']).toPromise();
 
-    const req = httpMock.expectOne(`${service._connectionURL}/properties/12345678`);
+    const req = httpMock.expectOne(`/connection/properties/12345678`);
     expect(req.request.method).toBe("PUT");
     expect(req.request.body).toEqual({
       "hidden_tables": [
@@ -691,7 +700,7 @@ describe('ConnectionsService', () => {
       isSubscribeCalled = true;
     });
 
-    const req = httpMock.expectOne(`${service._connectionURL}/properties/12345678`);
+    const req = httpMock.expectOne(`/connection/properties/12345678`);
     expect(req.request.method).toBe("DELETE");
     req.flush({});
 
@@ -701,7 +710,7 @@ describe('ConnectionsService', () => {
   it('should fall deleteConnectionSettings and show Error banner', async () => {
     const deleteSettings = service.deleteConnectionSettings('12345678').toPromise();
 
-    const req = httpMock.expectOne(`${service._connectionURL}/properties/12345678`);
+    const req = httpMock.expectOne(`/connection/properties/12345678`);
     expect(req.request.method).toBe("DELETE");
     req.flush(fakeError, {status: 400, statusText: ''});
     await deleteSettings;

@@ -61,7 +61,7 @@ describe('UserService', () => {
       isSubscribeCalled = true;
     });
 
-    const req = httpMock.expectOne(`${service._userURLv2}`);
+    const req = httpMock.expectOne(`/user`);
     expect(req.request.method).toBe("GET");
     req.flush(user);
 
@@ -71,7 +71,7 @@ describe('UserService', () => {
   it('should fall fetchUser and show Error snackbar', async () => {
     const fetchUser = service.fetchUser().toPromise();
 
-    const req = httpMock.expectOne(`${service._userURLv2}`);
+    const req = httpMock.expectOne(`/user`);
     expect(req.request.method).toBe("GET");
     req.flush(fakeError, {status: 400, statusText: ''});
     await fetchUser;
@@ -95,7 +95,7 @@ describe('UserService', () => {
       isSubscribeCalled = true;
     });
 
-    const req = httpMock.expectOne(`${service._userURLv2}/subscription/upgrade`);
+    const req = httpMock.expectOne(`/user/subscription/upgrade`);
     expect(req.request.method).toBe("POST");
     expect(req.request.body).toEqual({subscriptionLevel: 'ANNUAL_ENTERPRISE_PLAN'});
     req.flush(user);
@@ -106,7 +106,7 @@ describe('UserService', () => {
   it('should fall upgradeUser and show Error banner', async () => {
     const upgradeUser = service.upgradeUser('ANNUAL_ENTERPRISE_PLAN').toPromise();
 
-    const req = httpMock.expectOne(`${service._userURLv2}/subscription/upgrade`);
+    const req = httpMock.expectOne(`/user/subscription/upgrade`);
     expect(req.request.method).toBe("POST");
     req.flush(fakeError, {status: 400, statusText: ''});
     await upgradeUser;
@@ -140,7 +140,7 @@ describe('UserService', () => {
       isEmailChangeRequestedCalled = true;
     });
 
-    const req = httpMock.expectOne(`${service._userURLv2}/email/change/request`);
+    const req = httpMock.expectOne(`/user/email/change/request`);
     expect(req.request.method).toBe("GET");
     req.flush(requestResponse);
 
@@ -150,7 +150,7 @@ describe('UserService', () => {
   it('should fall for requestEmailChange and show Error banner', async () => {
     const resMessage = service.requestEmailChange().toPromise();
 
-    const req = httpMock.expectOne(`${service._userURLv2}/email/change/request`);
+    const req = httpMock.expectOne(`/user/email/change/request`);
     expect(req.request.method).toBe("GET");
     req.flush(fakeError, {status: 400, statusText: ''});
     await resMessage;
@@ -174,7 +174,7 @@ describe('UserService', () => {
       isEmailChangedCalled = true;
     });
 
-    const req = httpMock.expectOne(`${service._userURLv2}/email/change/verify/123456789`);
+    const req = httpMock.expectOne(`/user/email/change/verify/123456789`);
     expect(req.request.method).toBe("POST");
     expect(req.request.body).toEqual({email: 'new-new@email.com'});
     req.flush(requestResponse);
@@ -185,7 +185,7 @@ describe('UserService', () => {
   it('should fall for changeEmail and show Error banner', async () => {
     const resMessage = service.changeEmail('123456789', 'new-new@email.com').toPromise();
 
-    const req = httpMock.expectOne(`${service._userURLv2}/email/change/verify/123456789`);
+    const req = httpMock.expectOne(`/user/email/change/verify/123456789`);
     expect(req.request.method).toBe("POST");
     req.flush(fakeError, {status: 400, statusText: ''});
     await resMessage;
@@ -212,7 +212,7 @@ describe('UserService', () => {
       isPasswordChangeRequestedCalled = true;
     });
 
-    const req = httpMock.expectOne(`${service._userURLv2}/password/reset/request`);
+    const req = httpMock.expectOne(`/user/password/reset/request`);
     expect(req.request.method).toBe("POST");
     req.flush(requestResponse);
 
@@ -222,7 +222,7 @@ describe('UserService', () => {
   it('should fall for requestPasswordReset and show Error banner', async () => {
     const resMessage = service.requestPasswordReset('john@smith.com').toPromise();
 
-    const req = httpMock.expectOne(`${service._userURLv2}/password/reset/request`);
+    const req = httpMock.expectOne(`/user/password/reset/request`);
     expect(req.request.method).toBe("POST");
     req.flush(fakeError, {status: 400, statusText: ''});
     await resMessage;
@@ -246,7 +246,7 @@ describe('UserService', () => {
       isPasswordChangedCalled = true;
     });
 
-    const req = httpMock.expectOne(`${service._userURLv2}/password/reset/verify/123456789`);
+    const req = httpMock.expectOne(`/user/password/reset/verify/123456789`);
     expect(req.request.method).toBe("POST");
     expect(req.request.body).toEqual({password: 'newpassword123'});
     req.flush(requestResponse);
@@ -257,7 +257,7 @@ describe('UserService', () => {
   it('should fall for resetPassword and show Error banner', async () => {
     const resMessage = service.resetPassword('123456789', 'newpassword123').toPromise();
 
-    const req = httpMock.expectOne(`${service._userURLv2}/password/reset/verify/123456789`);
+    const req = httpMock.expectOne(`/user/password/reset/verify/123456789`);
     expect(req.request.method).toBe("POST");
     req.flush(fakeError, {status: 400, statusText: ''});
     await resMessage;
@@ -281,7 +281,7 @@ describe('UserService', () => {
       isPasswordChangedCalled = true;
     });
 
-    const req = httpMock.expectOne(`${service._userURLv2}/password/change/`);
+    const req = httpMock.expectOne(`/user/password/change/`);
     expect(req.request.method).toBe("POST");
     expect(req.request.body).toEqual({
       email: 'john@smith.com',
@@ -296,7 +296,7 @@ describe('UserService', () => {
   it('should fall for changePassword and show Error banner', async () => {
     const resMessage = service.changePassword('old-password', 'new-password', 'john@smith.com').toPromise();
 
-    const req = httpMock.expectOne(`${service._userURLv2}/password/change/`);
+    const req = httpMock.expectOne(`/user/password/change/`);
     expect(req.request.method).toBe("POST");
     req.flush(fakeError, {status: 400, statusText: ''});
     await resMessage;
@@ -309,26 +309,34 @@ describe('UserService', () => {
 
   it('should call deleteAccount', () => {
     let isDeleteuserCalled = false;
-
+    const metadata = {
+      reason: 'missing-features',
+      message: 'i want to add tables'
+    }
     const requestResponse = true;
 
-    service.deleteAccount().subscribe((res) => {
+    service.deleteAccount(metadata).subscribe((res) => {
       expect(fakeNotifications.showSuccessSnackbar).toHaveBeenCalledOnceWith('You account has been deleted.');
       isDeleteuserCalled = true;
     });
 
-    const req = httpMock.expectOne(`${service._userURLv2}`);
-    expect(req.request.method).toBe("DELETE");
+    const req = httpMock.expectOne(`/user/delete`);
+    expect(req.request.method).toBe("PUT");
     req.flush(requestResponse);
 
     expect(isDeleteuserCalled).toBeTrue();
   });
 
   it('should fall for deleteAccount and show Error banner', async () => {
-    const resMessage = service.deleteAccount().toPromise();
+    const metadata = {
+      reason: 'missing-features',
+      message: 'i want to add tables'
+    }
 
-    const req = httpMock.expectOne(`${service._userURLv2}`);
-    expect(req.request.method).toBe("DELETE");
+    const resMessage = service.deleteAccount(metadata).toPromise();
+
+    const req = httpMock.expectOne(`/user/delete`);
+    expect(req.request.method).toBe("PUT");
     req.flush(fakeError, {status: 400, statusText: ''});
     await resMessage;
 

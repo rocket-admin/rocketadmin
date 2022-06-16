@@ -1,16 +1,16 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { PasswordChangeComponent } from './password-change.component';
+import { FormsModule }   from '@angular/forms';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
-import { RouterTestingModule } from "@angular/router/testing";
-import { FormsModule }   from '@angular/forms';
-import { of } from 'rxjs';
-import { UserService } from 'src/app/services/user.service';
+import { PasswordChangeComponent } from './password-change.component';
 import { Router } from '@angular/router';
+import { RouterTestingModule } from "@angular/router/testing";
 import { SubscriptionPlans } from 'src/app/models/user';
+import { UserService } from 'src/app/services/user.service';
+import { of } from 'rxjs';
 
-fdescribe('PasswordChangeComponent', () => {
+describe('PasswordChangeComponent', () => {
   let component: PasswordChangeComponent;
   let fixture: ComponentFixture<PasswordChangeComponent>;
   let userService: UserService;

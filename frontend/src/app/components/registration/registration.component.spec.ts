@@ -1,13 +1,14 @@
-import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { SocialAuthService, SocialLoginModule } from '@abacritt/angularx-social-login';
+
+import { Angulartics2Module } from 'angulartics2';
+import { AuthService } from 'src/app/services/auth.service';
+import { FormsModule } from '@angular/forms';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { RegistrationComponent } from './registration.component';
-import { FormsModule } from '@angular/forms';
-import { Angulartics2Module } from 'angulartics2';
 import { RouterTestingModule } from '@angular/router/testing';
-import { AuthService } from 'src/app/services/auth.service';
 import { of } from 'rxjs';
-import { SocialAuthService, SocialLoginModule } from '@abacritt/angularx-social-login';
 
 describe('RegistrationComponent', () => {
   let component: RegistrationComponent;
@@ -37,6 +38,13 @@ describe('RegistrationComponent', () => {
 
     // @ts-ignore
     global.window.gtag = jasmine.createSpy();
+
+    // @ts-ignore
+    global.window.google  = jasmine.createSpyObj(['accounts']);
+    // @ts-ignore
+    global.window.google.accounts = jasmine.createSpyObj(['id']);
+    // @ts-ignore
+    global.window.google.accounts.id = jasmine.createSpyObj(['initialize', 'renderButton', 'prompt']);
   });
 
   beforeEach(() => {
@@ -72,12 +80,5 @@ describe('RegistrationComponent', () => {
 
     component.loginWithFacebook();
     expect(fakeLoginFB).toHaveBeenCalled();
-  });
-
-  it('should login a user with FB', () => {
-    const fakeLoginGoogle = spyOn(socialAuthService, 'signIn');
-
-    component.loginWithGoogle();
-    expect(fakeLoginGoogle).toHaveBeenCalled();
   });
 });
