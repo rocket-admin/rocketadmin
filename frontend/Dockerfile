@@ -5,7 +5,7 @@ COPY package.json yarn.lock ./
 RUN yarn install
 COPY angular.json browserslist tsconfig.app.json tsconfig.json tslint.json ./
 COPY src ./src/
-RUN ng build
+RUN ng build --configuration=production
 
 FROM nginx:alpine
 COPY --from=builder /app/dist/dissendium-v0/ /usr/share/nginx/html/

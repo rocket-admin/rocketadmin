@@ -33,9 +33,6 @@ services:
       context: frontend
     ports:
       - 80:80
-    volumes:
-      - ./frontend/dist:/app/dist
-      - ./frontend/src:/app/src
     depends_on:
       - backend
     links:

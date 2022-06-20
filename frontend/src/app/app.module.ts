@@ -85,7 +85,7 @@ import { UsersService } from './services/users.service';
 import { WidgetDeleteDialogComponent } from './components/dashboard/db-table-widgets/widget-delete-dialog/widget-delete-dialog.component';
 import { environment } from '../environments/environment';
 
-const saasExtraModules = environment.saas ? [
+const saasExtraModules = (environment as any).saas ? [
   {
     provide: 'SocialAuthServiceConfig',
     useValue: {
