@@ -161,6 +161,21 @@ export class PermissionRepository extends Repository<PermissionEntity> implement
     return await groupQb.getOne();
   }
 
+  public async getAllUserPermissionsForAllTablesInConnection(
+    userId: string,
+    connectionId: string,
+  ): Promise<Array<PermissionEntity>> {
+    const qb = await getRepository(PermissionEntity)
+      .createQueryBuilder('permission')
+      .leftJoinAndSelect('permission.groups', 'group')
+      .leftJoinAndSelect('group.users', 'user')
+      .leftJoinAndSelect('group.connection', 'connection')
+      .andWhere('connection.id = :connectionId', { connectionId: connectionId })
+      .andWhere('user.id = :userId', { userId: userId })
+      .andWhere('permission.type = :permissionType', { permissionType: PermissionTypeEnum.Table });
+    return await qb.getMany();
+  }
+
   public async removePermissionEntity(permission: PermissionEntity): Promise<PermissionEntity> {
     return await this.remove(permission);
   }

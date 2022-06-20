@@ -64,6 +64,9 @@ export class ConnectionRepository extends Repository<ConnectionEntity> implement
 
   public async findAndDecryptConnection(connectionId: string, masterPwd: string): Promise<ConnectionEntity> {
     let connection = await this.findOne(connectionId);
+    if (!connection) {
+      return null;
+    }
     if (connection.masterEncryption && masterPwd) {
       connection = Encryptor.decryptConnectionCredentials(connection, masterPwd);
     }

@@ -1,39 +1,49 @@
 import {
-  Get,
+  Body,
   Controller,
-  Req,
+  Delete,
+  Get,
   HttpException,
   HttpStatus,
+  Inject,
   Param,
   Post,
-  Body,
-  Query,
-  UseInterceptors,
   Put,
-  Delete,
+  Query,
+  Req,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { TableService } from './table.service';
-import { ApiOperation, ApiResponse, ApiTags, ApiBearerAuth, ApiBody } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { AddRowDto } from './dto/add-row-dto';
 import { AmplitudeEventTypeEnum } from '../../enums';
 import { DeleteRowDto } from './dto/delete-row-dto';
 import { FindTableDto } from './dto/find-table.dto';
 import { IRequestWithCognitoInfo } from '../../authorization';
-import { isObjectEmpty, getMasterPwd, getCognitoUserName } from '../../helpers';
-import { IStructureRO, ITableRowRO, ITableRowsRO, ITablesWithTableAccessLevel } from './table.interface';
+import { getCognitoUserName, getMasterPwd, isObjectEmpty } from '../../helpers';
+import { IStructureRO, ITableRowRO, ITableRowsRO } from './table.interface';
 import { Messages } from '../../exceptions/text/messages';
 import { SentryInterceptor } from '../../interceptors';
 import { UpdateRowDto } from './dto/update-row-dto';
 import { TableAddGuard, TableDeleteGuard, TableEditGuard, TableReadGuard } from '../../guards';
 import { AmplitudeService } from '../amplitude/amplitude.service';
+import { UseCaseType } from '../../common/data-injection.tokens';
+import { IFindTablesInConnection } from './use-cases/table-use-cases.interface';
+import { FindTablesDs } from './application/data-structures/find-tables.ds';
+import { FoundTableDs } from './application/data-structures/found-table.ds';
 
 @ApiBearerAuth()
 @ApiTags('tables')
 @UseInterceptors(SentryInterceptor)
 @Controller()
 export class TableController {
-  constructor(private readonly tableService: TableService, private readonly amplitudeService: AmplitudeService) {}
+  constructor(
+    private readonly tableService: TableService,
+    private readonly amplitudeService: AmplitudeService,
+    @Inject(UseCaseType.FIND_TABLES_IN_CONNECTION)
+    private readonly findTablesInConnectionUseCase: IFindTablesInConnection,
+  ) {}
 
   @ApiOperation({ summary: 'Get tables in connection' })
   @ApiResponse({
@@ -45,7 +55,7 @@ export class TableController {
     @Req() request: IRequestWithCognitoInfo,
     @Param() params,
     @Query('hidden') hidden_tables: string,
-  ): Promise<Array<ITablesWithTableAccessLevel>> {
+  ): Promise<Array<FoundTableDs>> {
     const hiddenTablesOption = hidden_tables === 'true';
     const connectionId = params.slug;
     const cognitoUserName = getCognitoUserName(request);
@@ -58,7 +68,13 @@ export class TableController {
       );
     }
     const masterPwd = getMasterPwd(request);
-    return await this.tableService.findTablesInConnection(cognitoUserName, connectionId, masterPwd, hiddenTablesOption);
+    const inputData: FindTablesDs = {
+      connectionId: connectionId,
+      hiddenTablesOption: hiddenTablesOption,
+      masterPwd: masterPwd,
+      userId: cognitoUserName,
+    };
+    return await this.findTablesInConnectionUseCase.execute(inputData);
   }
 
   @ApiOperation({ summary: 'Get all rows in table in this connection' })
