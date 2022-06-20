@@ -21,4 +21,6 @@ export interface IPermissionRepository {
   getPermissionEntityForGroup(connectionId: string, groupId: string): Promise<PermissionEntity>;
 
   removePermissionEntity(permission: PermissionEntity): Promise<PermissionEntity>;
+
+  getAllUserPermissionsForAllTablesInConnection(userId: string, connectionId: string): Promise<Array<PermissionEntity>>;
 }

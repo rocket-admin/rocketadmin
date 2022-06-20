@@ -15,8 +15,9 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserEntity } from '../user/user.entity';
 import { UserModule } from '../user/user.module';
 import { ConnectionPropertiesEntity } from '../connection-properties/connection-properties.entity';
-import { BaseType } from '../../common/data-injection.tokens';
+import { BaseType, UseCaseType } from '../../common/data-injection.tokens';
 import { GlobalDatabaseContext } from '../../common/application/global-database-context';
+import { FindTablesInConnectionUseCase } from './use-cases/find-tables-in-connection.use.case';
 
 @Module({
   imports: [
@@ -40,6 +41,10 @@ import { GlobalDatabaseContext } from '../../common/application/global-database-
     {
       provide: BaseType.GLOBAL_DB_CONTEXT,
       useClass: GlobalDatabaseContext,
+    },
+    {
+      provide: UseCaseType.FIND_TABLES_IN_CONNECTION,
+      useClass: FindTablesInConnectionUseCase,
     },
   ],
   controllers: [TableController],
