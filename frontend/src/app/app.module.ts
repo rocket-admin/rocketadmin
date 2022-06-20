@@ -85,32 +85,21 @@ import { UsersService } from './services/users.service';
 import { WidgetDeleteDialogComponent } from './components/dashboard/db-table-widgets/widget-delete-dialog/widget-delete-dialog.component';
 import { environment } from '../environments/environment';
 
-const saasExtraModules = (environment as any).saas ? [
-  {
-    provide: 'SocialAuthServiceConfig',
-    useValue: {
-      autoLogin: false,
-      providers: [
-        {
-          id: GoogleLoginProvider.PROVIDER_ID,
-          provider: new GoogleLoginProvider(
-            '600913874691-spojhqmeasej8692gjkuedqpk0ad24ng.apps.googleusercontent.com'
-          )
-        },
-        {
-          id: FacebookLoginProvider.PROVIDER_ID,
-          provider: new FacebookLoginProvider('2931389687130672')
-        }
-      ],
-      onError: (err) => {
-        console.error(err);
-      }
-    } as SocialAuthServiceConfig,
-  },
+const saasExtraProviders = (environment as any).saas ? [
   {
     provide: Sentry.TraceService,
     deps: [Router],
-  }
+  },
+  {
+    provide: ErrorHandler,
+    useValue: Sentry.createErrorHandler({
+      showDialog: true,
+    }),
+  },
+] : [];
+
+const saasExtraModules = (environment as any).saas ? [
+  SocialLoginModule,
 ] : [];
 
 @NgModule({
@@ -201,18 +190,33 @@ const saasExtraModules = (environment as any).saas ? [
       multi: true
     },
     {
-      provide: ErrorHandler,
-      useValue: Sentry.createErrorHandler({
-        showDialog: true,
-      }),
-    },
-    {
       provide: APP_INITIALIZER,
       useFactory: () => () => {},
-      deps: [Sentry.TraceService],
+      deps: (environment as any).saas ? [Sentry.TraceService] : [],
       multi: true,
     },
-    ... saasExtraModules
+    {
+      provide: 'SocialAuthServiceConfig',
+      useValue: {
+        autoLogin: false,
+        providers: (environment as any).saas ? [
+          {
+            id: GoogleLoginProvider.PROVIDER_ID,
+            provider: new GoogleLoginProvider(
+              '600913874691-spojhqmeasej8692gjkuedqpk0ad24ng.apps.googleusercontent.com'
+            )
+          },
+          {
+            id: FacebookLoginProvider.PROVIDER_ID,
+            provider: new FacebookLoginProvider('2931389687130672')
+          }
+        ] : [],
+        onError: (err) => {
+          console.error(err);
+        }
+      } as SocialAuthServiceConfig,
+    },
+    ... saasExtraProviders
   ],
   imports: [
     BrowserModule,
@@ -228,7 +232,7 @@ const saasExtraModules = (environment as any).saas ? [
     NgmatTableQueryReflectorModule,
     NgJsonEditorModule,
     Angulartics2Module.forRoot(),
-    SocialLoginModule,
+    ...saasExtraModules,
     ConfigModule.buildForConfigUrl('/config.json')
   ],
   bootstrap: [AppComponent]
