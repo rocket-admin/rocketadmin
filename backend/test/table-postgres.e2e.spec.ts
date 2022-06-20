@@ -81,27 +81,7 @@ describe('Tables Postgres (e2e)', () => {
     await app.init();
 
     newConnection = mockFactory.generateConnectionToTestPostgresDBInDocker();
-    AWSMock.setSDKInstance(AWS);
-    AWSMock.mock(
-      'CognitoIdentityServiceProvider',
-      'listUsers',
-      (newCognitoUserName, callback: (...ars: any) => void) => {
-        callback(null, {
-          Users: [
-            {
-              Attributes: [
-                {},
-                {},
-                {
-                  Name: 'email',
-                  Value: 'Example@gmail.com',
-                },
-              ],
-            },
-          ],
-        });
-      },
-    );
+
     await resetPostgresTestDB();
     const findAllConnectionsResponse = await request(app.getHttpServer())
       .get('/connections')
