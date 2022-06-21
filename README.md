@@ -14,6 +14,13 @@ Available environment variables for frontend container:
 
 API_ROOT - http root for backend container
 
+Environment variables for backend container:
+
+TYPEORM_HOST - hostname of the database, where autoadmin stores its metadata
+TYPEORM_USERNAME - username to database with metadata
+TYPEORM_PASSWORD - password to database with metadata
+TYPEORM_DATABASE - database with metadata name
+
 ## Running development server
 
 1. Change default API_ROOT value in docker-compose.yml
