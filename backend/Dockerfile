@@ -6,8 +6,8 @@ COPY . /app
 RUN yarn run nest build
 CMD [ "./node_modules/.bin/nest", "start"]
 
-RUN apt update
-RUN apt install libaio1 libc6 curl -y && \
+RUN apt update && \
+    apt install libaio1 libc6 curl -y && \
     cd /tmp && \
     curl -o instantclient-basiclite.zip https://download.oracle.com/otn_software/linux/instantclient/instantclient-basiclite-linuxx64.zip -SL && \
     unzip instantclient-basiclite.zip && \
@@ -25,3 +25,5 @@ ENV ORACLE_BASE /usr/lib/instantclient
 ENV LD_LIBRARY_PATH /usr/lib/instantclient
 ENV TNS_ADMIN /usr/lib/instantclient
 ENV ORACLE_HOME /usr/lib/instantclient
+ENV TYPEORM_CONNECTION postgres
+ENV TYPEORM_MIGRATIONS dist/src/migrations/*.js
