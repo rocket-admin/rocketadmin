@@ -31,6 +31,8 @@ services:
   frontend:
     build:
       context: frontend
+    environment:
+      API_ROOT: http://backend:3000
     ports:
       - 80:80
     depends_on:

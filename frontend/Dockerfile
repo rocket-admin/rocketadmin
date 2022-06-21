@@ -8,3 +8,4 @@ RUN ./node_modules/@angular/cli/bin/ng build --configuration=production
 
 FROM nginx:alpine
 COPY --from=builder /app/dist/dissendium-v0/ /usr/share/nginx/html/
+COPY nginx/default.conf.template /etc/nginx/templates/
