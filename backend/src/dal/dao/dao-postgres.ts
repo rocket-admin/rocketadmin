@@ -256,7 +256,6 @@ export class DaoPostgres extends BasicDao implements IDaoInterface {
           [tableName, tableSchema],
         ),
       );
-
     const transformedForeignKeys = [];
     for (const foreignKey of foreignKeys) {
       transformedForeignKeys.push({

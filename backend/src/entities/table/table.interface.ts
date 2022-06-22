@@ -89,7 +89,7 @@ export interface ITableRowRO {
 }
 
 export interface ITableRowsRO {
-  rows: Array<string>;
+  rows: Array<Record<string, unknown>>;
   primaryColumns: Array<IPrimaryColumnName>;
   pagination: IPaginationRO | Record<string, unknown>;
   sortable_by: Array<string>;

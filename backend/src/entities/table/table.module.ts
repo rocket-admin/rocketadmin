@@ -18,6 +18,7 @@ import { ConnectionPropertiesEntity } from '../connection-properties/connection-
 import { BaseType, UseCaseType } from '../../common/data-injection.tokens';
 import { GlobalDatabaseContext } from '../../common/application/global-database-context';
 import { FindTablesInConnectionUseCase } from './use-cases/find-tables-in-connection.use.case';
+import { GetTableRowsUseCase } from './use-cases/get-table-rows.use.case';
 
 @Module({
   imports: [
@@ -45,6 +46,10 @@ import { FindTablesInConnectionUseCase } from './use-cases/find-tables-in-connec
     {
       provide: UseCaseType.FIND_TABLES_IN_CONNECTION,
       useClass: FindTablesInConnectionUseCase,
+    },
+    {
+      provide: UseCaseType.GET_ALL_TABLE_ROWS,
+      useClass: GetTableRowsUseCase,
     },
   ],
   controllers: [TableController],

@@ -22,16 +22,18 @@ import { DeleteRowDto } from './dto/delete-row-dto';
 import { FindTableDto } from './dto/find-table.dto';
 import { IRequestWithCognitoInfo } from '../../authorization';
 import { getCognitoUserName, getMasterPwd, isObjectEmpty } from '../../helpers';
-import { IStructureRO, ITableRowRO, ITableRowsRO } from './table.interface';
+import { IStructureRO, ITableRowRO } from './table.interface';
 import { Messages } from '../../exceptions/text/messages';
 import { SentryInterceptor } from '../../interceptors';
 import { UpdateRowDto } from './dto/update-row-dto';
 import { TableAddGuard, TableDeleteGuard, TableEditGuard, TableReadGuard } from '../../guards';
 import { AmplitudeService } from '../amplitude/amplitude.service';
 import { UseCaseType } from '../../common/data-injection.tokens';
-import { IFindTablesInConnection } from './use-cases/table-use-cases.interface';
+import { IFindTablesInConnection, IGetTableRows } from './use-cases/table-use-cases.interface';
 import { FindTablesDs } from './application/data-structures/find-tables.ds';
 import { FoundTableDs } from './application/data-structures/found-table.ds';
+import { GetTableRowsDs } from './application/data-structures/get-table-rows.ds';
+import { FoundTableRowsDs } from './application/data-structures/found-table-rows.ds';
 
 @ApiBearerAuth()
 @ApiTags('tables')
@@ -43,6 +45,8 @@ export class TableController {
     private readonly amplitudeService: AmplitudeService,
     @Inject(UseCaseType.FIND_TABLES_IN_CONNECTION)
     private readonly findTablesInConnectionUseCase: IFindTablesInConnection,
+    @Inject(UseCaseType.GET_ALL_TABLE_ROWS)
+    private readonly getTableRowsUseCase: IGetTableRows,
   ) {}
 
   @ApiOperation({ summary: 'Get tables in connection' })
@@ -90,7 +94,7 @@ export class TableController {
     @Query('search') searchingFieldValue: string,
     @Query() query,
     @Param() params,
-  ): Promise<ITableRowsRO> {
+  ): Promise<FoundTableRowsDs> {
     const connectionID = params.slug;
     const cognitoUserName = getCognitoUserName(request);
     if (!connectionID) {
@@ -114,16 +118,17 @@ export class TableController {
       }
     }
     const masterPwd = getMasterPwd(request);
-    return await this.tableService.findAllRows(
-      cognitoUserName,
-      connectionID,
-      tableName,
-      page,
-      perPage,
-      searchingFieldValue,
-      query,
-      masterPwd,
-    );
+    const inputData: GetTableRowsDs = {
+      connectionId: connectionID,
+      masterPwd: masterPwd,
+      page: page,
+      perPage: perPage,
+      query: query,
+      searchingFieldValue: searchingFieldValue,
+      tableName: tableName,
+      userId: cognitoUserName,
+    };
+    return await this.getTableRowsUseCase.execute(inputData);
   }
 
   @ApiOperation({ summary: 'Get structure of this table in this connection' })
