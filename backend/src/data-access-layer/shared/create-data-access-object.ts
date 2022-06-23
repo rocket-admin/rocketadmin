@@ -11,7 +11,7 @@ import { HttpException } from '@nestjs/common/exceptions/http.exception';
 import { HttpStatus } from '@nestjs/common';
 import { Messages } from '../../exceptions/text/messages';
 
-export function createDataAccessObject(connection: ConnectionEntity, cognitoUserName: string): IDataAccessObject {
+export function createDataAccessObject(connection: ConnectionEntity, userId: string): IDataAccessObject {
   switch (connection.type) {
     case ConnectionTypeEnum.postgres:
       return new DataAccessObjectPostgres(connection);
@@ -29,7 +29,7 @@ export function createDataAccessObject(connection: ConnectionEntity, cognitoUser
     case ConnectionTypeEnum.agent_mysql:
     case ConnectionTypeEnum.agent_postgres:
     case ConnectionTypeEnum.agent_oracledb:
-      return new DataAccessObjectAgent(connection, cognitoUserName);
+      return new DataAccessObjectAgent(connection, userId);
     default:
       throw new HttpException(
         {
