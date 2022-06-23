@@ -486,15 +486,16 @@ export class DataAccessObjectMysqlSsh implements IDataAccessObject {
   }
 
   private async getMySqlDriver(): Promise<any> {
-    const cachedDriver = Cacher.getDriverCache(this.connection);
+    const connectionCopy = Object.assign({}, this.connection);
+    const cachedDriver = Cacher.getDriverCache(connectionCopy);
     if (cachedDriver) {
       return cachedDriver;
     } else {
       const freePort = await getPort();
       let mySqlDriver;
       try {
-        mySqlDriver = (await getSshMySqlClient(this.connection, freePort)) as any;
-        Cacher.setDriverCache(this.connection, mySqlDriver);
+        mySqlDriver = (await getSshMySqlClient(connectionCopy, freePort)) as any;
+        Cacher.setDriverCache(connectionCopy, mySqlDriver);
       } catch (e) {
         throw new HttpException(
           {
