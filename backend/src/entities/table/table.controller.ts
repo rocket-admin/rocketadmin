@@ -29,11 +29,12 @@ import { UpdateRowDto } from './dto/update-row-dto';
 import { TableAddGuard, TableDeleteGuard, TableEditGuard, TableReadGuard } from '../../guards';
 import { AmplitudeService } from '../amplitude/amplitude.service';
 import { UseCaseType } from '../../common/data-injection.tokens';
-import { IFindTablesInConnection, IGetTableRows } from './use-cases/table-use-cases.interface';
+import { IFindTablesInConnection, IGetTableRows, IGetTableStructure } from './use-cases/table-use-cases.interface';
 import { FindTablesDs } from './application/data-structures/find-tables.ds';
 import { FoundTableDs } from './application/data-structures/found-table.ds';
 import { GetTableRowsDs } from './application/data-structures/get-table-rows.ds';
 import { FoundTableRowsDs } from './application/data-structures/found-table-rows.ds';
+import { GetTableStructureDs } from './application/data-structures/get-table-structure-ds';
 
 @ApiBearerAuth()
 @ApiTags('tables')
@@ -47,6 +48,8 @@ export class TableController {
     private readonly findTablesInConnectionUseCase: IFindTablesInConnection,
     @Inject(UseCaseType.GET_ALL_TABLE_ROWS)
     private readonly getTableRowsUseCase: IGetTableRows,
+    @Inject(UseCaseType.GET_TABLE_STRUCTURE)
+    private readonly getTableStructureUseCase: IGetTableStructure,
   ) {}
 
   @ApiOperation({ summary: 'Get tables in connection' })
@@ -143,9 +146,9 @@ export class TableController {
     @Query('tableName') tableName: string,
     @Param() params,
   ): Promise<IStructureRO> {
-    const connectionID = params.slug;
+    const connectionId = params.slug;
     const cognitoUserName = getCognitoUserName(request);
-    if (!connectionID) {
+    if (!connectionId) {
       throw new HttpException(
         {
           message: Messages.CONNECTION_ID_MISSING,
@@ -154,7 +157,13 @@ export class TableController {
       );
     }
     const masterPwd = getMasterPwd(request);
-    return await this.tableService.getTableStructure(cognitoUserName, connectionID, tableName, masterPwd);
+    const inputData: GetTableStructureDs = {
+      connectionId: connectionId,
+      masterPwd: masterPwd,
+      tableName: tableName,
+      userId: cognitoUserName,
+    };
+    return await this.getTableStructureUseCase.execute(inputData);
   }
 
   @ApiOperation({ summary: 'Insert values into table' })

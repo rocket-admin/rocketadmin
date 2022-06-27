@@ -100,8 +100,9 @@ export class DataAccessObjectMysqlSsh implements IDataAccessObject {
   }
 
   public async configureKnex(): Promise<Knex> {
-    const { host, username, password, database, port, ssl, cert } = this.connection;
-    const cachedKnex = Cacher.getCachedKnex(this.connection);
+    const connectionCopy = Object.assign({}, this.connection);
+    const { host, username, password, database, port, ssl, cert } = connectionCopy;
+    const cachedKnex = Cacher.getCachedKnex(connectionCopy);
     if (cachedKnex) {
       return cachedKnex;
     }
@@ -117,7 +118,7 @@ export class DataAccessObjectMysqlSsh implements IDataAccessObject {
       },
       pool: { min: 0, max: 1 },
     });
-    Cacher.setDriverCache(this.connection, newKnex);
+    Cacher.setDriverCache(connectionCopy, newKnex);
     return newKnex;
   }
 
