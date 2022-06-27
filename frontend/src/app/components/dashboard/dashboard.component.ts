@@ -42,7 +42,7 @@ export class DashboardComponent implements OnInit {
   private onUrlChange;
 
   constructor(
-    private router: Router,
+    public router: Router,
     private route: ActivatedRoute,
     public dialog: MatDialog,
     private _connections: ConnectionsService,

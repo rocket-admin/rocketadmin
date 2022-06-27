@@ -5,12 +5,66 @@ import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { RouterTestingModule } from "@angular/router/testing";
+import { ConnectionsService } from 'src/app/services/connections.service';
+import { of } from 'rxjs';
+import { TablesService } from 'src/app/services/tables.service';
+import { AccessLevel } from 'src/app/models/user';
+import { ActivatedRoute, convertToParamMap, Router } from '@angular/router';
 
-describe('DashboardComponent', () => {
+fdescribe('DashboardComponent', () => {
   let component: DashboardComponent;
   let fixture: ComponentFixture<DashboardComponent>;
+  // let routerSpy;
+  // let connectionsService: ConnectionsService;
+  // let tablesService: TablesService;
+
+  const fakeTablesSevice = jasmine.createSpyObj('tablesService', ['fetchTables']);
+  const fakeConnectionsSevice = {
+    get currentConnectionID(): string {
+      return ''
+    },
+    get currentConnectionAccessLevel(): AccessLevel {
+      return AccessLevel.None;
+    }
+  };
+  // const fakeRouter = jasmine.createSpyObj('Router', ['navigate']);
+
+  const fakeTables = [
+    {
+      "table": "actor",
+      "permissions": {
+        "visibility": true,
+        "readonly": false,
+        "add": true,
+        "delete": true,
+        "edit": true
+      }
+    },
+    {
+      "table": "city",
+      "permissions": {
+        "visibility": true,
+        "readonly": false,
+        "add": true,
+        "delete": true,
+        "edit": true
+      }
+    },
+    {
+      "table": "film",
+      "permissions": {
+        "visibility": true,
+        "readonly": false,
+        "add": true,
+        "delete": true,
+        "edit": true
+      }
+    }
+  ]
 
   beforeEach(async(() => {
+    // routerSpy = {navigate: jasmine.createSpy('navigate')};
+
     TestBed.configureTestingModule({
       declarations: [ DashboardComponent ],
       imports: [
@@ -18,6 +72,24 @@ describe('DashboardComponent', () => {
         RouterTestingModule.withRoutes([]),
         MatSnackBarModule,
         MatDialogModule
+      ],
+      providers: [
+        {
+          provide: ConnectionsService,
+          useValue: fakeConnectionsSevice
+        },
+        {
+          provide: TablesService,
+          useValue: fakeTablesSevice
+        },
+        // { provide: ActivatedRoute,
+        //   useValue: {paramMap: of(convertToParamMap({
+        //         'table-name': undefined
+        //       })
+        //     ),
+        //   }
+        // },
+        // { provide: Router, useValue: fakeRouter }
       ]
     })
     .compileComponents();
@@ -32,4 +104,31 @@ describe('DashboardComponent', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
   });
+
+  it('should get access level of current connection', () => {
+    spyOnProperty(fakeConnectionsSevice, 'currentConnectionAccessLevel', 'get').and.returnValue('readonly');
+    expect(component.currentConnectionAccessLevel).toEqual('readonly');
+  });
+
+  xit('should redirect on first table, when no table-name in url param', async () => {
+    spyOnProperty(fakeConnectionsSevice, 'currentConnectionID', 'get').and.returnValue('12345678');
+    spyOn(component, 'getTables').and.returnValue(Promise.resolve(fakeTables));
+    // fakeRouter.navigate.and.returnValue(Promise.resolve());
+    // spyOn(component.router, 'navigate').and.returnValue(Promise.resolve());
+
+    component.ngOnInit();
+    fixture.detectChanges();
+
+    expect(component.connectionID).toEqual('12345678');
+    expect(component.selectedTableName).toEqual('actor');
+    // expect(fakeRouter.navigate).toHaveBeenCalledWith(['/dashboard/12345678/actor'], {replaceUrl: true});
+  });
+
+  it('should call getTables', async () => {
+    fakeTablesSevice.fetchTables.and.returnValue(of(fakeTables));
+    const tables = await component.getTables();
+    expect(tables).toEqual(fakeTables);
+  });
+
+
 });
