@@ -19,6 +19,7 @@ import { BaseType, UseCaseType } from '../../common/data-injection.tokens';
 import { GlobalDatabaseContext } from '../../common/application/global-database-context';
 import { FindTablesInConnectionUseCase } from './use-cases/find-tables-in-connection.use.case';
 import { GetTableRowsUseCase } from './use-cases/get-table-rows.use.case';
+import { GetTableStructureUseCase } from './use-cases/get-table-structure.use.case';
 
 @Module({
   imports: [
@@ -50,6 +51,10 @@ import { GetTableRowsUseCase } from './use-cases/get-table-rows.use.case';
     {
       provide: UseCaseType.GET_ALL_TABLE_ROWS,
       useClass: GetTableRowsUseCase,
+    },
+    {
+      provide: UseCaseType.GET_TABLE_STRUCTURE,
+      useClass: GetTableStructureUseCase,
     },
   ],
   controllers: [TableController],

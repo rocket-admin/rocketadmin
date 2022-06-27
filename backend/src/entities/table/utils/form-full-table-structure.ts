@@ -8,7 +8,7 @@ export function formFullTableStructure(
   tableSettings: TableSettingsEntity,
 ): Array<FullTableStructureDs> {
   const fullStructure = [];
-  const { search_fields, excluded_fields } = tableSettings;
+  const { search_fields, excluded_fields } = tableSettings || {};
   for (const element of structure) {
     const { column_name, column_default, data_type, data_type_params, allow_null, character_maximum_length } = element;
     const indexSearch = search_fields?.indexOf(column_name);
