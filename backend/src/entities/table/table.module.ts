@@ -20,6 +20,7 @@ import { GlobalDatabaseContext } from '../../common/application/global-database-
 import { FindTablesInConnectionUseCase } from './use-cases/find-tables-in-connection.use.case';
 import { GetTableRowsUseCase } from './use-cases/get-table-rows.use.case';
 import { GetTableStructureUseCase } from './use-cases/get-table-structure.use.case';
+import { AddRowInTableUseCase } from './use-cases/add-row-in-table.use.case';
 
 @Module({
   imports: [
@@ -55,6 +56,10 @@ import { GetTableStructureUseCase } from './use-cases/get-table-structure.use.ca
     {
       provide: UseCaseType.GET_TABLE_STRUCTURE,
       useClass: GetTableStructureUseCase,
+    },
+    {
+      provide: UseCaseType.ADD_ROW_IN_TABLE,
+      useClass: AddRowInTableUseCase,
     },
   ],
   controllers: [TableController],

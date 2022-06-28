@@ -80,7 +80,7 @@ export interface ITablePrimaryColumnInfo {
 }
 
 export interface ITableRowRO {
-  row: string;
+  row: string | Record<string, unknown>;
   structure: Array<IStructureRowInfo>;
   foreignKeys: Array<IForeignKeyStructure>;
   primaryColumns: Array<IPrimaryColumnName>;

@@ -152,10 +152,12 @@ export class DataAccessObjectMysql extends BasicDao implements IDataAccessObject
   ): Promise<Record<string, unknown>> {
     const knex = await this.configureKnex();
     if (!settings) {
-      return knex(tableName).where(primaryKey) as unknown as Record<string, unknown>;
+      const result = await knex(tableName).where(primaryKey);
+      return result[0] as Record<string, unknown>;
     }
     const availableFields = await this.findAvaliableFields(settings, tableName);
-    return (await knex(tableName).select(availableFields).where(primaryKey)) as unknown as Record<string, unknown>;
+    const result = await knex(tableName).select(availableFields).where(primaryKey);
+    return result[0] as Record<string, unknown>;
   }
 
   public async getRowsFromTable(
