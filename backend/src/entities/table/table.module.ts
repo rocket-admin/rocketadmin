@@ -21,6 +21,7 @@ import { FindTablesInConnectionUseCase } from './use-cases/find-tables-in-connec
 import { GetTableRowsUseCase } from './use-cases/get-table-rows.use.case';
 import { GetTableStructureUseCase } from './use-cases/get-table-structure.use.case';
 import { AddRowInTableUseCase } from './use-cases/add-row-in-table.use.case';
+import { UpdateRowInTableUseCase } from './use-cases/update-row-in-table.use.case';
 
 @Module({
   imports: [
@@ -60,6 +61,10 @@ import { AddRowInTableUseCase } from './use-cases/add-row-in-table.use.case';
     {
       provide: UseCaseType.ADD_ROW_IN_TABLE,
       useClass: AddRowInTableUseCase,
+    },
+    {
+      provide: UseCaseType.UPDATE_ROW_IN_TABLE,
+      useClass: UpdateRowInTableUseCase,
     },
   ],
   controllers: [TableController],

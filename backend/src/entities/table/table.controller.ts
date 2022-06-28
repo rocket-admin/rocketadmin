@@ -34,6 +34,7 @@ import {
   IFindTablesInConnection,
   IGetTableRows,
   IGetTableStructure,
+  IUpdateRowInTable,
 } from './use-cases/table-use-cases.interface';
 import { FindTablesDs } from './application/data-structures/find-tables.ds';
 import { FoundTableDs } from './application/data-structures/found-table.ds';
@@ -41,6 +42,7 @@ import { GetTableRowsDs } from './application/data-structures/get-table-rows.ds'
 import { FoundTableRowsDs } from './application/data-structures/found-table-rows.ds';
 import { GetTableStructureDs } from './application/data-structures/get-table-structure-ds';
 import { AddRowInTableDs } from './application/data-structures/add-row-in-table.ds';
+import { UpdateRowInTableDs } from './application/data-structures/update-row-in-table.ds';
 
 @ApiBearerAuth()
 @ApiTags('tables')
@@ -58,6 +60,8 @@ export class TableController {
     private readonly getTableStructureUseCase: IGetTableStructure,
     @Inject(UseCaseType.ADD_ROW_IN_TABLE)
     private readonly addRowInTableUseCase: IAddRowInTable,
+    @Inject(UseCaseType.UPDATE_ROW_IN_TABLE)
+    private readonly updateRowInTableUseCase: IUpdateRowInTable,
   ) {}
 
   @ApiOperation({ summary: 'Get tables in connection' })
@@ -220,8 +224,8 @@ export class TableController {
   ): Promise<ITableRowRO> {
     const tableName = query['tableName'];
     const cognitoUserName = getCognitoUserName(request);
-    const connectionID = params.slug;
-    if (!connectionID || !tableName || !body) {
+    const connectionId = params.slug;
+    if (!connectionId || !tableName || !body) {
       throw new HttpException(
         {
           message: Messages.PARAMETER_MISSING,
@@ -230,20 +234,21 @@ export class TableController {
       );
     }
     const masterPwd = getMasterPwd(request);
-    const primaryKeys = await this.getPrimaryKeys(cognitoUserName, connectionID, tableName, query, masterPwd);
+    const primaryKeys = await this.getPrimaryKeys(cognitoUserName, connectionId, tableName, query, masterPwd);
     const propertiesArray = primaryKeys.map((el) => {
       return Object.entries(el)[0];
     });
 
     const primaryKey = Object.fromEntries(propertiesArray);
-    return await this.tableService.updateRowInTable(
-      cognitoUserName,
-      connectionID,
-      tableName,
-      body,
-      primaryKey,
-      masterPwd,
-    );
+    const inputData: UpdateRowInTableDs = {
+      connectionId: connectionId,
+      masterPwd: masterPwd,
+      primaryKey: primaryKey,
+      row: body as unknown as Record<string, unknown>,
+      tableName: tableName,
+      userId: cognitoUserName,
+    };
+    return await this.updateRowInTableUseCase.execute(inputData);
   }
 
   @ApiOperation({ summary: 'Delete row in table' })

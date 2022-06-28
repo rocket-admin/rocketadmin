@@ -5,6 +5,7 @@ import { FoundTableRowsDs } from '../application/data-structures/found-table-row
 import { IStructureRO, ITableRowRO } from '../table.interface';
 import { GetTableStructureDs } from '../application/data-structures/get-table-structure-ds';
 import { AddRowInTableDs } from '../application/data-structures/add-row-in-table.ds';
+import { UpdateRowInTableDs } from '../application/data-structures/update-row-in-table.ds';
 
 export interface IFindTablesInConnection {
   execute(inputData: FindTablesDs): Promise<Array<FoundTableDs>>;
@@ -20,4 +21,8 @@ export interface IGetTableStructure {
 
 export interface IAddRowInTable {
   execute(inputData: AddRowInTableDs): Promise<ITableRowRO>;
+}
+
+export interface IUpdateRowInTable {
+  execute(inputData: UpdateRowInTableDs): Promise<ITableRowRO>;
 }
