@@ -29,12 +29,18 @@ import { UpdateRowDto } from './dto/update-row-dto';
 import { TableAddGuard, TableDeleteGuard, TableEditGuard, TableReadGuard } from '../../guards';
 import { AmplitudeService } from '../amplitude/amplitude.service';
 import { UseCaseType } from '../../common/data-injection.tokens';
-import { IFindTablesInConnection, IGetTableRows, IGetTableStructure } from './use-cases/table-use-cases.interface';
+import {
+  IAddRowInTable,
+  IFindTablesInConnection,
+  IGetTableRows,
+  IGetTableStructure,
+} from './use-cases/table-use-cases.interface';
 import { FindTablesDs } from './application/data-structures/find-tables.ds';
 import { FoundTableDs } from './application/data-structures/found-table.ds';
 import { GetTableRowsDs } from './application/data-structures/get-table-rows.ds';
 import { FoundTableRowsDs } from './application/data-structures/found-table-rows.ds';
 import { GetTableStructureDs } from './application/data-structures/get-table-structure-ds';
+import { AddRowInTableDs } from './application/data-structures/add-row-in-table.ds';
 
 @ApiBearerAuth()
 @ApiTags('tables')
@@ -50,6 +56,8 @@ export class TableController {
     private readonly getTableRowsUseCase: IGetTableRows,
     @Inject(UseCaseType.GET_TABLE_STRUCTURE)
     private readonly getTableStructureUseCase: IGetTableStructure,
+    @Inject(UseCaseType.ADD_ROW_IN_TABLE)
+    private readonly addRowInTableUseCase: IAddRowInTable,
   ) {}
 
   @ApiOperation({ summary: 'Get tables in connection' })
@@ -179,8 +187,8 @@ export class TableController {
   ): Promise<ITableRowRO | boolean> {
     const tableName = query['tableName'];
     const cognitoUserName = getCognitoUserName(request);
-    const connectionID = params.slug;
-    if (!connectionID || !tableName || isObjectEmpty(body)) {
+    const connectionId = params.slug;
+    if (!connectionId || !tableName || isObjectEmpty(body)) {
       throw new HttpException(
         {
           message: Messages.PARAMETER_MISSING,
@@ -189,7 +197,14 @@ export class TableController {
       );
     }
     const masterPwd = getMasterPwd(request);
-    return await this.tableService.addRowInTable(cognitoUserName, connectionID, tableName, body, masterPwd);
+    const inputData: AddRowInTableDs = {
+      connectionId: connectionId,
+      masterPwd: masterPwd,
+      row: body as unknown as Record<string, unknown>,
+      tableName: tableName,
+      userId: cognitoUserName,
+    };
+    return await this.addRowInTableUseCase.execute(inputData);
   }
 
   @ApiOperation({ summary: 'Update values into table (by "id" in row)' })

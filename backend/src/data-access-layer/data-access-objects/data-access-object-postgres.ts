@@ -140,7 +140,7 @@ export class DataAccessObjectPostgres extends BasicDao implements IDataAccessObj
       const result = await knex(tableName)
         .withSchema(this.connection.schema ? this.connection.schema : 'public')
         .where(primaryKey);
-      return result as unknown as Record<string, unknown>;
+      return result[0] as unknown as Record<string, unknown>;
     }
     const availableFields = await this.findAvaliableFields(settings, tableName);
     const knex = await this.configureKnex();
@@ -148,7 +148,7 @@ export class DataAccessObjectPostgres extends BasicDao implements IDataAccessObj
       .withSchema(this.connection.schema ? this.connection.schema : 'public')
       .select(availableFields)
       .where(primaryKey);
-    return result as unknown as Record<string, unknown>;
+    return result[0] as unknown as Record<string, unknown>;
   }
 
   public async getRowsFromTable(

@@ -2971,28 +2971,6 @@ describe('Tables Postgres (e2e)', () => {
   describe('POST /table/row/:slug', () => {
     it('should add row in table and return result', async () => {
       try {
-        AWSMock.setSDKInstance(AWS);
-        AWSMock.mock(
-          'CognitoIdentityServiceProvider',
-          'listUsers',
-          (newCognitoUserName, callback: (...ars: any) => void) => {
-            callback(null, {
-              Users: [
-                {
-                  Attributes: [
-                    {},
-                    {},
-                    {
-                      Name: 'email',
-                      Value: 'Example@gmail.com',
-                    },
-                  ],
-                },
-              ],
-            });
-          },
-        );
-
         const createConnectionResponse = await request(app.getHttpServer())
           .post('/connection')
           .send(newConnection)
@@ -3039,6 +3017,7 @@ describe('Tables Postgres (e2e)', () => {
         expect(getTableRowsRO.hasOwnProperty('pagination')).toBeTruthy();
 
         const { rows, primaryColumns, pagination } = getTableRowsRO;
+        console.log('=>(table-postgres.e2e.spec.ts:3020) rows', rows);
 
         expect(rows.length).toBe(43);
         expect(rows[42][testTableColumnName]).toBe(row[testTableColumnName]);

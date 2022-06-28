@@ -163,13 +163,12 @@ export class DataAccessObjectMysqlSsh implements IDataAccessObject {
     const mySqlDriver = await this.getMySqlDriver();
     const knex = await this.configureKnex();
     if (!settings) {
-      return (await knex(tableName).connection(mySqlDriver).where(primaryKey)) as unknown as Record<string, unknown>;
+      const result = await knex(tableName).connection(mySqlDriver).where(primaryKey);
+      return result[0] as unknown as Record<string, unknown>;
     }
     const availableFields = await this.findAvaliableFields(settings, tableName);
-    return (await knex(tableName)
-      .connection(mySqlDriver)
-      .select(availableFields)
-      .where(primaryKey)) as unknown as Record<string, unknown>;
+    const result = await knex(tableName).connection(mySqlDriver).select(availableFields).where(primaryKey);
+    return result[0] as unknown as Record<string, unknown>;
   }
 
   public async getRowsFromTable(

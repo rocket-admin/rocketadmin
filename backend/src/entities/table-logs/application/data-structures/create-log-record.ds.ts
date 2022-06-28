@@ -6,7 +6,7 @@ export class CreateLogRecordDs {
   old_data?: unknown;
   operationStatusResult: OperationResultStatusEnum;
   operationType: LogOperationTypeEnum;
-  row?: string;
+  row?: string | Record<string, unknown>;
   table_name: string;
   userId: string;
 }
