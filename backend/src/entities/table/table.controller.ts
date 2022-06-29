@@ -31,9 +31,12 @@ import { AmplitudeService } from '../amplitude/amplitude.service';
 import { UseCaseType } from '../../common/data-injection.tokens';
 import {
   IAddRowInTable,
+  IDeleteRowFromTable,
   IFindTablesInConnection,
+  IGetRowByPrimaryKey,
   IGetTableRows,
   IGetTableStructure,
+  IUpdateRowInTable,
 } from './use-cases/table-use-cases.interface';
 import { FindTablesDs } from './application/data-structures/find-tables.ds';
 import { FoundTableDs } from './application/data-structures/found-table.ds';
@@ -41,6 +44,10 @@ import { GetTableRowsDs } from './application/data-structures/get-table-rows.ds'
 import { FoundTableRowsDs } from './application/data-structures/found-table-rows.ds';
 import { GetTableStructureDs } from './application/data-structures/get-table-structure-ds';
 import { AddRowInTableDs } from './application/data-structures/add-row-in-table.ds';
+import { UpdateRowInTableDs } from './application/data-structures/update-row-in-table.ds';
+import { DeleteRowFromTableDs } from './application/data-structures/delete-row-from-table.ds';
+import { DeletedRowFromTableDs } from './application/data-structures/deleted-row-from-table.ds';
+import { GetRowByPrimaryKeyDs } from './application/data-structures/get-row-by-primary-key.ds';
 
 @ApiBearerAuth()
 @ApiTags('tables')
@@ -58,6 +65,12 @@ export class TableController {
     private readonly getTableStructureUseCase: IGetTableStructure,
     @Inject(UseCaseType.ADD_ROW_IN_TABLE)
     private readonly addRowInTableUseCase: IAddRowInTable,
+    @Inject(UseCaseType.UPDATE_ROW_IN_TABLE)
+    private readonly updateRowInTableUseCase: IUpdateRowInTable,
+    @Inject(UseCaseType.DELETE_ROW_FROM_TABLE)
+    private readonly deleteRowFromTableUseCase: IDeleteRowFromTable,
+    @Inject(UseCaseType.GET_ROW_BY_PRIMARY_KEY)
+    private readonly getRowByPrimaryKeyUseCase: IGetRowByPrimaryKey,
   ) {}
 
   @ApiOperation({ summary: 'Get tables in connection' })
@@ -220,8 +233,8 @@ export class TableController {
   ): Promise<ITableRowRO> {
     const tableName = query['tableName'];
     const cognitoUserName = getCognitoUserName(request);
-    const connectionID = params.slug;
-    if (!connectionID || !tableName || !body) {
+    const connectionId = params.slug;
+    if (!connectionId || !tableName || !body) {
       throw new HttpException(
         {
           message: Messages.PARAMETER_MISSING,
@@ -230,20 +243,21 @@ export class TableController {
       );
     }
     const masterPwd = getMasterPwd(request);
-    const primaryKeys = await this.getPrimaryKeys(cognitoUserName, connectionID, tableName, query, masterPwd);
+    const primaryKeys = await this.getPrimaryKeys(cognitoUserName, connectionId, tableName, query, masterPwd);
     const propertiesArray = primaryKeys.map((el) => {
       return Object.entries(el)[0];
     });
 
     const primaryKey = Object.fromEntries(propertiesArray);
-    return await this.tableService.updateRowInTable(
-      cognitoUserName,
-      connectionID,
-      tableName,
-      body,
-      primaryKey,
-      masterPwd,
-    );
+    const inputData: UpdateRowInTableDs = {
+      connectionId: connectionId,
+      masterPwd: masterPwd,
+      primaryKey: primaryKey,
+      row: body as unknown as Record<string, unknown>,
+      tableName: tableName,
+      userId: cognitoUserName,
+    };
+    return await this.updateRowInTableUseCase.execute(inputData);
   }
 
   @ApiOperation({ summary: 'Delete row in table' })
@@ -255,18 +269,18 @@ export class TableController {
     @Req() request: IRequestWithCognitoInfo,
     @Param() params,
     @Query() query: string,
-  ): Promise<{ deletedRowPrimaryKey: number } | { deleted: boolean }> {
+  ): Promise<DeletedRowFromTableDs> {
     const masterPwd = getMasterPwd(request);
-    const connectionID = params.slug;
+    const connectionId = params.slug;
     const tableName = query['tableName'];
     const cognitoUserName = getCognitoUserName(request);
-    const primaryKeys = await this.getPrimaryKeys(cognitoUserName, connectionID, tableName, query, masterPwd);
+    const primaryKeys = await this.getPrimaryKeys(cognitoUserName, connectionId, tableName, query, masterPwd);
     const propertiesArray = primaryKeys.map((el) => {
       return Object.entries(el)[0];
     });
     const primaryKey = Object.fromEntries(propertiesArray);
 
-    if (!connectionID || !tableName || !primaryKey) {
+    if (!connectionId || !tableName || !primaryKey) {
       throw new HttpException(
         {
           message: Messages.PARAMETER_MISSING,
@@ -274,7 +288,14 @@ export class TableController {
         HttpStatus.BAD_REQUEST,
       );
     }
-    return await this.tableService.deleteRowInTable(cognitoUserName, connectionID, tableName, primaryKey, masterPwd);
+    const inputData: DeleteRowFromTableDs = {
+      connectionId: connectionId,
+      masterPwd: masterPwd,
+      primaryKey: primaryKey,
+      tableName: tableName,
+      userId: cognitoUserName,
+    };
+    return await this.deleteRowFromTableUseCase.execute(inputData);
   }
 
   @ApiOperation({ summary: 'Get row by primary key' })
@@ -305,14 +326,14 @@ export class TableController {
       );
     }
     try {
-      return await this.tableService.getRowByPrimaryKey(
-        request.decoded.sub,
-        connectionId,
-        tableName,
-        primaryKey,
-        masterPwd,
-        true,
-      );
+      const inputData: GetRowByPrimaryKeyDs = {
+        connectionId: connectionId,
+        masterPwd: masterPwd,
+        primaryKey: primaryKey,
+        tableName: tableName,
+        userId: cognitoUserName,
+      };
+      return await this.getRowByPrimaryKeyUseCase.execute(inputData);
     } catch (e) {
       throw e;
     } finally {

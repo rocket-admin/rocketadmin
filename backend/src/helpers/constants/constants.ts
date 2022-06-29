@@ -218,6 +218,8 @@ export const Constants = {
     return this.getTestConnectionsArr().map((connection) => connection.host);
   },
 
+  APP_DOMAIN_ADDRESS: process.env.APP_DOMAIN_ADDRESS || `https://v2.autoadmin.org`,
+
   AUTOADMIN_SUPPORT_MAIL: 'support@autoadmin.org',
   AUTOADMIN_EMAIL_TEXT: `Hi!
 
@@ -251,7 +253,7 @@ export const Constants = {
     PASSWORD: {
       RESET_PASSWORD_REQUEST_SUBJECT_DATA: 'Reset password requested',
       RESET_PASSWORD_EMAIL_TEXT: function (requestString: string): string {
-        return `Hi! Password change requested. Follow the link to confirm - https://v2.autoadmin.org/api/user/password/reset/verify/${requestString}
+        return `Hi! Password change requested. Follow the link to confirm - ${Constants.APP_DOMAIN_ADDRESS}/api/user/password/reset/verify/${requestString}
          If it wasn't you, please contact our support team.`;
       },
       RESET_PASSWORD_EMAIL_HTML: function (requestString: string): string {
@@ -262,7 +264,7 @@ export const Constants = {
           </p>
           <p>
           Password change requested. Follow the link to confirm -
-          <a href="https://${Constants.EMAIL.API_PATH}user/password/reset/verify/${requestString}"></a>
+          <a href="${Constants.APP_DOMAIN_ADDRESS}/api/user/password/reset/verify/${requestString}"></a>
           </p>
           <p>
           If it wasn't you, please contact our support team or reply to this email with your questions.
@@ -302,7 +304,7 @@ export const Constants = {
     EMAIL: {
       CHANGE_EMAIL_SUBJECT_DATA: 'Change email requested',
       CHANGE_EMAIL_TEXT: function (requestString: string) {
-        return `Hi! Email change requested. Follow the link to confirm - https://${Constants.EMAIL.API_PATH}/user/email/change/verify/${requestString}
+        return `Hi! Email change requested. Follow the link to confirm - ${Constants.APP_DOMAIN_ADDRESS}/api/user/email/change/verify/${requestString}
          If it wasn't you, please contact our support team.`;
       },
       CHANGED_EMAIL_TEXT: 'Hi! Your email successfully changed.',
@@ -315,7 +317,7 @@ export const Constants = {
           </p>
           <p>
           Password email change requested. Follow the link to confirm -
-          <a href="https://${Constants.EMAIL.API_PATH}/user/email/change/verify/${requestString}"></a>
+          <a href="${Constants.APP_DOMAIN_ADDRESS}/api/user/email/change/verify/${requestString}"></a>
           </p>
           <p>
           If it wasn't you, please contact our support team or reply to this email with your questions.
@@ -341,7 +343,7 @@ export const Constants = {
       CONFIRM_EMAIL_SUBJECT: `Finish your registration in Autoadmin project`,
       CONFIRM_EMAIL_TEXT: function (verificationString: string) {
         return `Hi! You have registered in the Autoadmin project. Please follow the link and verify your email:
-       https://${Constants.EMAIL.API_PATH}/user/email/verify/${verificationString}
+       ${Constants.APP_DOMAIN_ADDRESS}/api/user/email/verify/${verificationString}
        `;
       },
       CONFIRM_EMAIL_HTML: function (verificationString: string) {
@@ -352,7 +354,7 @@ export const Constants = {
           </p>
           <p>
           Password email change requested. Follow the link to confirm -
-          <a href="https://${Constants.EMAIL.API_PATH}/user/email/verify/${verificationString}"></a>
+          <a href="${Constants.APP_DOMAIN_ADDRESS}/api/user/email/verify/${verificationString}"></a>
           </p>
           <p>
           If it wasn't you, please contact our support team or reply to this email with your questions.
@@ -369,7 +371,7 @@ export const Constants = {
       GROUP_INVITE_TEXT_DATA: function (verificationString) {
         return `You have been added to a group in the Autoadmin project.
          Please follow the link and accept the invitation:
-           https://${Constants.EMAIL.API_PATH}/group/user/verify/${verificationString}/`;
+           ${Constants.APP_DOMAIN_ADDRESS}/api/group/user/verify/${verificationString}/`;
       },
       GROUP_INVITE_HTML_DATA: function (verificationString) {
         return `
@@ -380,7 +382,7 @@ export const Constants = {
           <p>
           You have been added to a group in the Autoadmin project.
           Please follow the link and accept the invitation:
-          <a href="https://${Constants.EMAIL.API_PATH}/group/user/verify/${verificationString}"></a>
+          <a href="${Constants.APP_DOMAIN_ADDRESS}/api/group/user/verify/${verificationString}"></a>
           </p>
           <p>
             Thanks.
