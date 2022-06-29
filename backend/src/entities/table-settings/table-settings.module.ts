@@ -6,7 +6,6 @@ import { GroupEntity } from '../group/group.entity';
 import { MiddlewareConsumer, Module, RequestMethod } from '@nestjs/common';
 import { PermissionEntity } from '../permission/permission.entity';
 import { TableLogsEntity } from '../table-logs/table-logs.entity';
-import { TableService } from '../table/table.service';
 import { TableSettingsController } from './table-settings.controller';
 import { TableSettingsEntity } from './table-settings.entity';
 import { TableWidgetEntity } from '../widget/table-widget.entity';
@@ -38,7 +37,6 @@ import { DeleteTableSettingsUseCase } from './use-cases/delete-table-settings.us
     UserModule,
   ],
   providers: [
-    TableService,
     {
       provide: BaseType.GLOBAL_DB_CONTEXT,
       useClass: GlobalDatabaseContext,

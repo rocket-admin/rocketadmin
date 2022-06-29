@@ -14,21 +14,20 @@ import {
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import { TableService } from './table.service';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { AddRowDto } from './dto/add-row-dto';
 import { AmplitudeEventTypeEnum } from '../../enums';
 import { DeleteRowDto } from './dto/delete-row-dto';
 import { FindTableDto } from './dto/find-table.dto';
 import { IRequestWithCognitoInfo } from '../../authorization';
-import { getCognitoUserName, getMasterPwd, isObjectEmpty } from '../../helpers';
+import { getCognitoUserName, getMasterPwd, isConnectionTypeAgent, isObjectEmpty } from '../../helpers';
 import { IStructureRO, ITableRowRO } from './table.interface';
 import { Messages } from '../../exceptions/text/messages';
 import { SentryInterceptor } from '../../interceptors';
 import { UpdateRowDto } from './dto/update-row-dto';
 import { TableAddGuard, TableDeleteGuard, TableEditGuard, TableReadGuard } from '../../guards';
 import { AmplitudeService } from '../amplitude/amplitude.service';
-import { UseCaseType } from '../../common/data-injection.tokens';
+import { BaseType, UseCaseType } from '../../common/data-injection.tokens';
 import {
   IAddRowInTable,
   IDeleteRowFromTable,
@@ -48,6 +47,9 @@ import { UpdateRowInTableDs } from './application/data-structures/update-row-in-
 import { DeleteRowFromTableDs } from './application/data-structures/delete-row-from-table.ds';
 import { DeletedRowFromTableDs } from './application/data-structures/deleted-row-from-table.ds';
 import { GetRowByPrimaryKeyDs } from './application/data-structures/get-row-by-primary-key.ds';
+import { IGlobalDatabaseContext } from '../../common/application/global-database-context.intarface';
+import { createDataAccessObject } from '../../data-access-layer/shared/create-data-access-object';
+import { isTestConnectionById } from '../connection/utils/is-test-connection-util';
 
 @ApiBearerAuth()
 @ApiTags('tables')
@@ -55,7 +57,6 @@ import { GetRowByPrimaryKeyDs } from './application/data-structures/get-row-by-p
 @Controller()
 export class TableController {
   constructor(
-    private readonly tableService: TableService,
     private readonly amplitudeService: AmplitudeService,
     @Inject(UseCaseType.FIND_TABLES_IN_CONNECTION)
     private readonly findTablesInConnectionUseCase: IFindTablesInConnection,
@@ -71,6 +72,8 @@ export class TableController {
     private readonly deleteRowFromTableUseCase: IDeleteRowFromTable,
     @Inject(UseCaseType.GET_ROW_BY_PRIMARY_KEY)
     private readonly getRowByPrimaryKeyUseCase: IGetRowByPrimaryKey,
+    @Inject(BaseType.GLOBAL_DB_CONTEXT)
+    private readonly dbContext: IGlobalDatabaseContext,
   ) {}
 
   @ApiOperation({ summary: 'Get tables in connection' })
@@ -337,7 +340,7 @@ export class TableController {
     } catch (e) {
       throw e;
     } finally {
-      const isTest = await this.tableService.isTestConnection(connectionId);
+      const isTest = await isTestConnectionById(connectionId);
       await this.amplitudeService.formAndSendLogRecord(
         isTest ? AmplitudeEventTypeEnum.tableRowReceivedTest : AmplitudeEventTypeEnum.tableRowReceived,
         cognitoUserName,
@@ -346,19 +349,20 @@ export class TableController {
   }
 
   private async getPrimaryKeys(
-    cognitoUserName: string,
-    connectionID: string,
+    userId: string,
+    connectionId: string,
     tableName: string,
     query: string,
     masterPwd: string,
   ): Promise<Array<any>> {
     const primaryKeys = [];
-    const { primaryColumns } = await this.tableService.getTableStructure(
-      cognitoUserName,
-      connectionID,
-      tableName,
-      masterPwd,
-    );
+    const connection = await this.dbContext.connectionRepository.findAndDecryptConnection(connectionId, masterPwd);
+    let userEmail: string;
+    if (isConnectionTypeAgent(connection.type)) {
+      userEmail = await this.dbContext.userRepository.getUserEmailOrReturnNull(userId);
+    }
+    const dao = createDataAccessObject(connection, userEmail);
+    const primaryColumns = await dao.getTablePrimaryColumns(tableName, userEmail);
 
     for (const primaryColumn of primaryColumns) {
       let property = {};

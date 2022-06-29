@@ -6,7 +6,6 @@ import { GroupEntity } from '../group/group.entity';
 import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/common';
 import { PermissionEntity } from '../permission/permission.entity';
 import { TableLogsEntity } from '../table-logs/table-logs.entity';
-import { TableService } from '../table/table.service';
 import { TableSettingsEntity } from '../table-settings/table-settings.entity';
 import { TableWidgetEntity } from '../widget/table-widget.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -48,7 +47,6 @@ import { DeleteUserAccountUseCase } from './use-cases/delete-user-account-use-ca
     AgentModule,
   ],
   providers: [
-    TableService,
     UserRepository,
     {
       provide: BaseType.GLOBAL_DB_CONTEXT,
