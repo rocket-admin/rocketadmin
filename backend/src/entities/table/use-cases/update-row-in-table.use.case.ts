@@ -45,7 +45,7 @@ export class UpdateRowInTableUseCase
     let { connectionId, masterPwd, primaryKey, row, tableName, userId } = inputData;
     let operationResult = OperationResultStatusEnum.unknown;
 
-    const errors = [];
+    let errors = [];
     if (!primaryKey) {
       errors.push(Messages.PRIMARY_KEY_MISSING);
     }
@@ -76,7 +76,7 @@ export class UpdateRowInTableUseCase
     ]);
 
     const validationErrors = validateTableRowUtil(row, tableStructure);
-    errors.concat(validationErrors);
+    errors = errors.concat(validationErrors);
     if (errors.length > 0) {
       throw new HttpException(
         {
