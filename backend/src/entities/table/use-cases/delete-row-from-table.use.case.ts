@@ -7,7 +7,7 @@ import { IGlobalDatabaseContext } from '../../../common/application/global-datab
 import { AmplitudeService } from '../../amplitude/amplitude.service';
 import { AmplitudeEventTypeEnum, LogOperationTypeEnum, OperationResultStatusEnum } from '../../../enums';
 import { Messages } from '../../../exceptions/text/messages';
-import { compareArrayElements, isConnectionTypeAgent, toPrettyErrorsMsg } from '../../../helpers';
+import { compareArrayElements, isConnectionTypeAgent } from '../../../helpers';
 import { createDataAccessObject } from '../../../data-access-layer/shared/create-data-access-object';
 import { crateAndSaveNewLogUtil } from '../../table-logs/utils/crate-and-save-new-log-util';
 import { isTestConnectionUtil } from '../../connection/utils/is-test-connection-util';
@@ -29,14 +29,10 @@ export class DeleteRowFromTableUseCase
   protected async implementation(inputData: DeleteRowFromTableDs): Promise<DeletedRowFromTableDs> {
     const { connectionId, masterPwd, primaryKey, tableName, userId } = inputData;
     let operationResult = OperationResultStatusEnum.unknown;
-    const errors = [];
     if (!primaryKey) {
-      errors.push(Messages.PRIMARY_KEY_MISSING);
-    }
-    if (errors.length > 0) {
       throw new HttpException(
         {
-          message: toPrettyErrorsMsg(errors),
+          message: Messages.PRIMARY_KEY_MISSING,
         },
         HttpStatus.BAD_REQUEST,
       );

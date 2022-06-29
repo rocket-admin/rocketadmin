@@ -23,6 +23,7 @@ import { GetTableStructureUseCase } from './use-cases/get-table-structure.use.ca
 import { AddRowInTableUseCase } from './use-cases/add-row-in-table.use.case';
 import { UpdateRowInTableUseCase } from './use-cases/update-row-in-table.use.case';
 import { DeleteRowFromTableUseCase } from './use-cases/delete-row-from-table.use.case';
+import { GetRowByPrimaryKeyUseCase } from './use-cases/get-row-by-primary-key.use.case';
 
 @Module({
   imports: [
@@ -70,6 +71,10 @@ import { DeleteRowFromTableUseCase } from './use-cases/delete-row-from-table.use
     {
       provide: UseCaseType.DELETE_ROW_FROM_TABLE,
       useClass: DeleteRowFromTableUseCase,
+    },
+    {
+      provide: UseCaseType.GET_ROW_BY_PRIMARY_KEY,
+      useClass: GetRowByPrimaryKeyUseCase,
     },
   ],
   controllers: [TableController],

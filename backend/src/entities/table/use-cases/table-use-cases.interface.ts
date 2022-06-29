@@ -8,6 +8,7 @@ import { AddRowInTableDs } from '../application/data-structures/add-row-in-table
 import { UpdateRowInTableDs } from '../application/data-structures/update-row-in-table.ds';
 import { DeletedRowFromTableDs } from '../application/data-structures/deleted-row-from-table.ds';
 import { DeleteRowFromTableDs } from '../application/data-structures/delete-row-from-table.ds';
+import { GetRowByPrimaryKeyDs } from '../application/data-structures/get-row-by-primary-key.ds';
 
 export interface IFindTablesInConnection {
   execute(inputData: FindTablesDs): Promise<Array<FoundTableDs>>;
@@ -31,4 +32,8 @@ export interface IUpdateRowInTable {
 
 export interface IDeleteRowFromTable {
   execute(inputData: DeleteRowFromTableDs): Promise<DeletedRowFromTableDs>;
+}
+
+export interface IGetRowByPrimaryKey {
+  execute(inputData: GetRowByPrimaryKeyDs): Promise<ITableRowRO>;
 }

@@ -33,6 +33,7 @@ import {
   IAddRowInTable,
   IDeleteRowFromTable,
   IFindTablesInConnection,
+  IGetRowByPrimaryKey,
   IGetTableRows,
   IGetTableStructure,
   IUpdateRowInTable,
@@ -46,6 +47,7 @@ import { AddRowInTableDs } from './application/data-structures/add-row-in-table.
 import { UpdateRowInTableDs } from './application/data-structures/update-row-in-table.ds';
 import { DeleteRowFromTableDs } from './application/data-structures/delete-row-from-table.ds';
 import { DeletedRowFromTableDs } from './application/data-structures/deleted-row-from-table.ds';
+import { GetRowByPrimaryKeyDs } from './application/data-structures/get-row-by-primary-key.ds';
 
 @ApiBearerAuth()
 @ApiTags('tables')
@@ -67,6 +69,8 @@ export class TableController {
     private readonly updateRowInTableUseCase: IUpdateRowInTable,
     @Inject(UseCaseType.DELETE_ROW_FROM_TABLE)
     private readonly deleteRowFromTableUseCase: IDeleteRowFromTable,
+    @Inject(UseCaseType.GET_ROW_BY_PRIMARY_KEY)
+    private readonly getRowByPrimaryKeyUseCase: IGetRowByPrimaryKey,
   ) {}
 
   @ApiOperation({ summary: 'Get tables in connection' })
@@ -322,14 +326,14 @@ export class TableController {
       );
     }
     try {
-      return await this.tableService.getRowByPrimaryKey(
-        request.decoded.sub,
-        connectionId,
-        tableName,
-        primaryKey,
-        masterPwd,
-        true,
-      );
+      const inputData: GetRowByPrimaryKeyDs = {
+        connectionId: connectionId,
+        masterPwd: masterPwd,
+        primaryKey: primaryKey,
+        tableName: tableName,
+        userId: cognitoUserName,
+      };
+      return await this.getRowByPrimaryKeyUseCase.execute(inputData);
     } catch (e) {
       throw e;
     } finally {
