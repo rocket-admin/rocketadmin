@@ -8,7 +8,6 @@ import { MiddlewareConsumer, Module, RequestMethod } from '@nestjs/common';
 import { PermissionEntity } from '../permission/permission.entity';
 import { TableController } from './table.controller';
 import { TableLogsEntity } from '../table-logs/table-logs.entity';
-import { TableService } from './table.service';
 import { TableSettingsEntity } from '../table-settings/table-settings.entity';
 import { TableWidgetEntity } from '../widget/table-widget.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -43,7 +42,6 @@ import { GetRowByPrimaryKeyUseCase } from './use-cases/get-row-by-primary-key.us
     UserModule,
   ],
   providers: [
-    TableService,
     {
       provide: BaseType.GLOBAL_DB_CONTEXT,
       useClass: GlobalDatabaseContext,
