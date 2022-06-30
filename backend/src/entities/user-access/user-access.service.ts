@@ -1,6 +1,5 @@
 import { AccessLevelEnum, PermissionTypeEnum } from '../../enums';
 import { ConnectionEntity } from '../connection/connection.entity';
-import { createDao } from '../../dal/shared/create-dao';
 import { Encryptor } from '../../helpers/encryption/encryptor';
 import { getRepository, Repository } from 'typeorm';
 import { HttpException } from '@nestjs/common/exceptions/http.exception';
@@ -10,6 +9,7 @@ import { ITablePermissionData } from '../permission/permission.interface';
 import { Messages } from '../../exceptions/text/messages';
 import { PermissionEntity } from '../permission/permission.entity';
 import { UserEntity } from '../user/user.entity';
+import { createDataAccessObject } from '../../data-access-layer/shared/create-data-access-object';
 
 @Injectable()
 export class UserAccessService {
@@ -171,7 +171,7 @@ export class UserAccessService {
     if (foundConnection.masterEncryption) {
       foundConnection = Encryptor.decryptConnectionCredentials(foundConnection, masterPwd);
     }
-    const dao = createDao(foundConnection, cognitoUserName);
+    const dao = createDataAccessObject(foundConnection, cognitoUserName);
     const availableTables = await dao.getTablesFromDB();
     if (availableTables.indexOf(tableName) < 0) {
       throw new HttpException(

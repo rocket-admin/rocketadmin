@@ -1,10 +1,10 @@
 import { CreateConnectionPropertiesDs } from '../application/data-structures/create-connection-properties.ds';
-import { createDao } from '../../../dal/shared/create-dao';
 import { toPrettyErrorsMsg } from '../../../helpers';
 import { HttpException } from '@nestjs/common/exceptions/http.exception';
 import { Messages } from '../../../exceptions/text/messages';
 import { HttpStatus } from '@nestjs/common';
 import { ConnectionEntity } from '../../connection/connection.entity';
+import { createDataAccessObject } from '../../../data-access-layer/shared/create-data-access-object';
 
 export async function validateCreateConnectionPropertiesDs(
   createConnectionProperties: CreateConnectionPropertiesDs,
@@ -12,7 +12,7 @@ export async function validateCreateConnectionPropertiesDs(
 ): Promise<boolean> {
   const { userId, hidden_tables } = createConnectionProperties;
   const errors = [];
-  const dao = createDao(connection, userId);
+  const dao = createDataAccessObject(connection, userId);
   const tablesInConnection = await dao.getTablesFromDB();
   if (!Array.isArray(hidden_tables)) {
     errors.push(Messages.HIDDEN_TABLES_MUST_BE_ARRAY);

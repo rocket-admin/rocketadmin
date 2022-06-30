@@ -6,6 +6,7 @@ import { AllExceptionsFilter } from './exceptions/all-exceptions.filter';
 import { ApplicationModule } from './app.module';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { Constants } from './helpers/constants/constants';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 require('dotenv').config();
@@ -36,7 +37,7 @@ async function bootstrap() {
     app.use(cookieParser());
 
     app.enableCors({
-      origin: ['https://app.autoadmin.org', 'http://localhost:4200', 'https://v2.autoadmin.org'],
+      origin: ['https://app.autoadmin.org', 'http://localhost:4200', Constants.APP_DOMAIN_ADDRESS],
       methods: 'GET,PUT,PATCH,POST,DELETE',
       credentials: true,
       preflightContinue: false,

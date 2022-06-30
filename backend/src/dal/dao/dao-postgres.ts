@@ -1,5 +1,5 @@
 import { Knex, knex } from 'knex';
-import { BasicDao } from '../shared/basic-dao';
+import { BasicDao } from '../../data-access-layer/shared/basic-dao';
 import { Cacher } from '../../helpers/cache/cacher';
 import { ConnectionEntity } from '../../entities/connection/connection.entity';
 import { Constants } from '../../helpers/constants/constants';
