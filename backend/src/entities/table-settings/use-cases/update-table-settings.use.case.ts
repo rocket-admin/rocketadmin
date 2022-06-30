@@ -5,12 +5,12 @@ import { BaseType } from '../../../common/data-injection.tokens';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface';
 import { FoundTableSettingsDs } from '../application/data-structures/found-table-settings.ds';
 import { CreateTableSettingsDs } from '../application/data-structures/create-table-settings.ds';
-import { createDao } from '../../../dal/shared/create-dao';
 import { HttpException } from '@nestjs/common/exceptions/http.exception';
 import { toPrettyErrorsMsg } from '../../../helpers';
 import { Messages } from '../../../exceptions/text/messages';
 import { buildNewTableSettingsEntity } from '../utils/build-new-table-settings-entity';
 import { buildFoundTableSettingsDs } from '../utils/build-found-table-settings-ds';
+import { createDataAccessObject } from '../../../data-access-layer/shared/create-data-access-object';
 
 @Injectable({ scope: Scope.REQUEST })
 export class UpdateTableSettingsUseCase
@@ -30,7 +30,7 @@ export class UpdateTableSettingsUseCase
       connection_id,
       masterPwd,
     );
-    const dao = createDao(foundConnection, userId);
+    const dao = createDataAccessObject(foundConnection, userId);
     const errors: Array<string> = await dao.validateSettings(inputData, table_name, undefined);
     if (errors.length > 0) {
       throw new HttpException(

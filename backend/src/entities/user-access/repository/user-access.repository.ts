@@ -8,7 +8,7 @@ import { HttpException } from '@nestjs/common/exceptions/http.exception';
 import { Messages } from '../../../exceptions/text/messages';
 import { HttpStatus } from '@nestjs/common';
 import { Encryptor } from '../../../helpers/encryption/encryptor';
-import { createDao } from '../../../dal/shared/create-dao';
+import { createDataAccessObject } from '../../../data-access-layer/shared/create-data-access-object';
 
 @EntityRepository(PermissionEntity)
 export class UserAccessRepository extends Repository<PermissionEntity> implements IUserAccessRepository {
@@ -161,7 +161,7 @@ export class UserAccessRepository extends Repository<PermissionEntity> implement
     if (foundConnection.masterEncryption) {
       foundConnection = Encryptor.decryptConnectionCredentials(foundConnection, masterPwd);
     }
-    const dao = createDao(foundConnection, cognitoUserName);
+    const dao = createDataAccessObject(foundConnection, cognitoUserName);
     const availableTables = await dao.getTablesFromDB();
     if (availableTables.indexOf(tableName) < 0) {
       throw new HttpException(

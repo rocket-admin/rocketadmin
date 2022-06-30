@@ -1,5 +1,5 @@
 import { HttpStatus, Injectable, Scope } from '@nestjs/common';
-import { BasicDao } from '../../dal/shared/basic-dao';
+import { BasicDao } from '../shared/basic-dao';
 import {
   IAutocompleteFieldsData,
   IDataAccessObject,

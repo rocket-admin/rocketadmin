@@ -1,13 +1,12 @@
 import AbstractUseCase from '../../../common/abstract-use.case';
 import { BaseType } from '../../../common/data-injection.tokens';
-import { createDao } from '../../../dal/shared/create-dao';
 import { FoundPermissionsInConnectionDs } from '../application/data-structures/found-permissions-in-connection.ds';
 import { GetPermissionsInConnectionDs } from '../application/data-structures/get-permissions-in-connection.ds';
-import { IDaoInterface } from '../../../dal/shared/dao-interface';
 import { IGetPermissionsForGroupInConnection } from './use-cases.interfaces';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface';
 import { Inject, Injectable, Scope } from '@nestjs/common';
 import { TablePermissionDs } from '../../permission/application/data-structures/create-permissions.ds';
+import { createDataAccessObject } from '../../../data-access-layer/shared/create-data-access-object';
 
 @Injectable({ scope: Scope.REQUEST })
 export class GetPermissionsForGroupInConnectionUseCase
@@ -34,7 +33,7 @@ export class GetPermissionsForGroupInConnectionUseCase
       inputData.connectionId,
       inputData.masterPwd,
     );
-    const dao: IDaoInterface = createDao(connection, inputData.cognitoUserName);
+    const dao = createDataAccessObject(connection, inputData.cognitoUserName);
     const tables: Array<string> = await dao.getTablesFromDB();
 
     const tablesWithAccessLevels: Array<TablePermissionDs> = await Promise.all(
