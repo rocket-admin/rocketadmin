@@ -4,15 +4,25 @@
 <div *ngIf="widgets" class="wrapper">
     <header class="header">
         <h1 class="mat-h1">Widgets for <strong>{{normalizedTableName}}</strong> table</h1>
-        <button *ngIf="widgets.length || isAllWidgetsDeleted" mat-flat-button color="accent"
-            type="button"
-            (click)="addNewWidget()"
-            [disabled]="fields.length === 0">
-            Add widget
-        </button>
+        <div *ngIf="widgets.length" class="header-actions">
+            <button  mat-stroked-button
+                type="button"
+                (click)="openClearAllConfirmation()"
+                [disabled]="fields.length === 0">
+                Clear All
+            </button>
+            <button mat-stroked-button color="accent"
+                type="button"
+                (click)="addNewWidget()"
+                [disabled]="fields.length === 0">
+                <mat-icon>add</mat-icon>
+                Add widget
+            </button>
+        </div>
+
     </header>
 
-    <form *ngIf="widgets.length || isAllWidgetsDeleted; else emptyState" (ngSubmit)="updateWidgets()" class="widget-settings">
+    <form *ngIf="widgets.length; else emptyState" (ngSubmit)="updateWidgets()" class="widget-settings">
         <ng-container *ngFor="let widget of widgets; let i = index">
 
             <span *ngIf="widget.field_name; else fieldsSelect" class="widget-field-name">
@@ -72,7 +82,7 @@
 
             <button mat-raised-button color="primary"
                 type="submit" [disabled]="submitting">
-                {{ isAllWidgetsDeleted ? 'Clear widgets' : 'Save'}}
+                Save
             </button>
         </div>
     </form>
@@ -83,8 +93,20 @@
             <button mat-flat-button
                 color="accent"
                 (click)="addNewWidget()">
+                <mat-icon>add</mat-icon>
                 Add widget
-        </button>
+            </button>
+
+            <div class="actions">
+                <a mat-stroked-button routerLink="/dashboard/{{connectionID}}/{{tableName}}">
+                    Back
+                </a>
+
+                <button mat-raised-button color="primary"
+                    type="submit" disabled>
+                    Save
+                </button>
+            </div>
         </div>
     </ng-template>
 </div>

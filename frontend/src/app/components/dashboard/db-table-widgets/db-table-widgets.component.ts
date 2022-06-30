@@ -25,7 +25,6 @@ export class DbTableWidgetsComponent implements OnInit {
   public widgets: Widget[] = null;
   public widgetTypes = Object.keys(UIwidgets);
   public submitting: Boolean = false;
-  public isAllWidgetsDeleted: Boolean = false;
 
   constructor(
     private _connections: ConnectionsService,
@@ -60,7 +59,6 @@ export class DbTableWidgetsComponent implements OnInit {
       name: '',
       description: ''
     });
-    this.isAllWidgetsDeleted = (this.widgets.length === 0);
   }
 
   selectWidgetField(column_name: string) {
@@ -87,11 +85,26 @@ export class DbTableWidgetsComponent implements OnInit {
       data: widgetFieldName
     })
 
-    dialogRef.componentInstance.deleteWidget.subscribe((widgetFieldName: string) => {
-      this.fields.push(widgetFieldName);
-      this.widgets = this.widgets.filter((widget: Widget) => widget.field_name !== widgetFieldName);
-      this.isAllWidgetsDeleted = (this.widgets.length === 0);
-      dialogRef.close();
+    dialogRef.afterClosed().subscribe(action => {
+      if (action === 'delete') {
+        this.fields.push(widgetFieldName);
+        this.widgets = this.widgets.filter((widget: Widget) => widget.field_name !== widgetFieldName);
+      }
+    })
+  }
+
+  openClearAllConfirmation() {
+    const dialogRef = this.dialog.open(WidgetDeleteDialogComponent, {
+      width: '25em'
+    })
+
+    dialogRef.afterClosed().subscribe(action => {
+      if (action === 'delete') {
+        const widgetsToDelete = this.widgets.map(widget => widget.field_name);
+        this.fields = [...this.fields, ...widgetsToDelete];
+        this.widgets = [];
+        this.updateWidgets();
+      }
     })
   }
 
@@ -109,7 +122,6 @@ export class DbTableWidgetsComponent implements OnInit {
     this._tables.updateTableWidgets(this.connectionID, this.tableName, this.widgets)
       .subscribe(res => {
         this.submitting = false;
-        this.isAllWidgetsDeleted = false;
         this.getWidgets();
       },
       undefined,
