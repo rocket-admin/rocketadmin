@@ -16,6 +16,7 @@ import { DBtype } from 'src/app/models/connection';
   styleUrls: ['./db-table-row-edit.component.css']
 })
 export class DbTableRowEditComponent implements OnInit {
+  public loading: boolean = true;
   public connectionID: string | null = null;
   public tableName: string | null = null;
   public normalizedTableName: string | null = null;
@@ -31,6 +32,7 @@ export class DbTableRowEditComponent implements OnInit {
   public shownRows;
   public submitting = false;
   public UIwidgets = UIwidgets;
+  public rowError: string = null;
 
   public tableForeignKeys: TableForeignKey[];
 
@@ -47,6 +49,7 @@ export class DbTableRowEditComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
+    this.loading = true;
     this.connectionID = this._connections.currentConnectionID;
     this.tableName = this._tables.currentTableName;
     this.normalizedTableName = normalizeTableName(this.tableName);
@@ -64,6 +67,7 @@ export class DbTableRowEditComponent implements OnInit {
             this.tableRowValues = Object.assign({}, ...this.shownRows.map((field: TableField) => ({[field.column_name]: allowNullFields.includes(field.column_name) ? null : ''})));
             res.table_widgets && this.setWidgets(res.table_widgets);
             this.setRowStructure(res.structure);
+            this.loading = false;
           })
       } else {
         this.keyAttributes = params;
@@ -75,6 +79,13 @@ export class DbTableRowEditComponent implements OnInit {
             this.tableRowValues = Object.assign({}, ...this.shownRows.map((field: TableField) => ({[field.column_name]: res.row[field.column_name]})));
             res.table_widgets && this.setWidgets(res.table_widgets);
             this.setRowStructure(res.structure);
+            this.loading = false;
+          },
+          (error) => {
+            this.rowError = error.error.message;
+            this.loading = false;
+            console.log('this.rowError');
+            console.log(this.rowError);
           })
       }
     })
