@@ -8,7 +8,6 @@ import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/c
 import { PermissionController } from './permission.controller';
 import { PermissionEntity } from './permission.entity';
 import { TableLogsEntity } from '../table-logs/table-logs.entity';
-import { TableService } from '../table/table.service';
 import { TableSettingsEntity } from '../table-settings/table-settings.entity';
 import { TableWidgetEntity } from '../widget/table-widget.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -35,7 +34,6 @@ import { CreateOrUpdatePermissionsUseCase } from './use-cases/create-or-update-p
     GroupModule,
   ],
   providers: [
-    TableService,
     {
       provide: BaseType.GLOBAL_DB_CONTEXT,
       useClass: GlobalDatabaseContext,

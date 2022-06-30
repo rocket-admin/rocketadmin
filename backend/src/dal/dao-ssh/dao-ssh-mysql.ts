@@ -12,14 +12,14 @@ import { IForeignKeyInfo, IStructureInfo, ITablePrimaryColumnInfo } from '../../
 import { Messages } from '../../exceptions/text/messages';
 import { TableSettingsEntity } from '../../entities/table-settings/table-settings.entity';
 import {
-  objectKeysToLowercase,
-  tableSettingsFieldValidator,
-  isObjectEmpty,
-  renameObjectKeyName,
+  changeObjPropValByPropName,
   checkFieldAutoincrement,
   getNumbersFromString,
-  changeObjPropValByPropName,
   getPropertyValueByDescriptor,
+  isObjectEmpty,
+  objectKeysToLowercase,
+  renameObjectKeyName,
+  tableSettingsFieldValidator,
 } from '../../helpers';
 
 export class DaoSshMysql implements IDaoInterface {
@@ -147,10 +147,12 @@ export class DaoSshMysql implements IDaoInterface {
     };
     const knex = await this.configureKnex(connectionConfig);
     if (!settings || isObjectEmpty(settings)) {
-      return await knex(tableName).connection(mySqlDriver).where(primaryKey);
+      const result = await knex(tableName).connection(mySqlDriver).where(primaryKey);
+      return result[0];
     }
     const availableFields = await this.findAvaliableFields(settings, tableName);
-    return await knex(tableName).connection(mySqlDriver).select(availableFields).where(primaryKey);
+    const result = await knex(tableName).connection(mySqlDriver).select(availableFields).where(primaryKey);
+    return result[0];
   }
 
   async getRowsFromTable(

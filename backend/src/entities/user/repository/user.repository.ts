@@ -116,6 +116,11 @@ export class UserRepository extends Repository<UserEntity> implements IUserRepos
     return await usersQB.getMany();
   }
 
+  public async getUserEmailOrReturnNull(userId: string): Promise<string> {
+    const user = await this.findOne({ id: userId });
+    return user?.email ? user.email : null;
+  }
+
   public async getTrue(): Promise<boolean> {
     return !!(await this.manager.query(`SELECT (1);`));
   }

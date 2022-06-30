@@ -1,0 +1,12 @@
+server {  
+  listen 80;
+  server_name frontend;
+  location /config.json {
+    return 200 '{"baseURL": "${API_ROOT}"}';
+  }
+  location / {
+    # This would be the directory where your React app's static files are stored at
+    root /usr/share/nginx/html;
+    try_files $uri /index.html;
+  }
+}

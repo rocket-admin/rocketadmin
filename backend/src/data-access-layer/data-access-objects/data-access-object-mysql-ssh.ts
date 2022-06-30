@@ -100,8 +100,9 @@ export class DataAccessObjectMysqlSsh implements IDataAccessObject {
   }
 
   public async configureKnex(): Promise<Knex> {
-    const { host, username, password, database, port, ssl, cert } = this.connection;
-    const cachedKnex = Cacher.getCachedKnex(this.connection);
+    const connectionCopy = Object.assign({}, this.connection);
+    const { host, username, password, database, port, ssl, cert } = connectionCopy;
+    const cachedKnex = Cacher.getCachedKnex(connectionCopy);
     if (cachedKnex) {
       return cachedKnex;
     }
@@ -117,7 +118,7 @@ export class DataAccessObjectMysqlSsh implements IDataAccessObject {
       },
       pool: { min: 0, max: 1 },
     });
-    Cacher.setDriverCache(this.connection, newKnex);
+    Cacher.setDriverCache(connectionCopy, newKnex);
     return newKnex;
   }
 
@@ -162,13 +163,12 @@ export class DataAccessObjectMysqlSsh implements IDataAccessObject {
     const mySqlDriver = await this.getMySqlDriver();
     const knex = await this.configureKnex();
     if (!settings) {
-      return (await knex(tableName).connection(mySqlDriver).where(primaryKey)) as unknown as Record<string, unknown>;
+      const result = await knex(tableName).connection(mySqlDriver).where(primaryKey);
+      return result[0] as unknown as Record<string, unknown>;
     }
     const availableFields = await this.findAvaliableFields(settings, tableName);
-    return (await knex(tableName)
-      .connection(mySqlDriver)
-      .select(availableFields)
-      .where(primaryKey)) as unknown as Record<string, unknown>;
+    const result = await knex(tableName).connection(mySqlDriver).select(availableFields).where(primaryKey);
+    return result[0] as unknown as Record<string, unknown>;
   }
 
   public async getRowsFromTable(
@@ -486,15 +486,16 @@ export class DataAccessObjectMysqlSsh implements IDataAccessObject {
   }
 
   private async getMySqlDriver(): Promise<any> {
-    const cachedDriver = Cacher.getDriverCache(this.connection);
+    const connectionCopy = Object.assign({}, this.connection);
+    const cachedDriver = Cacher.getDriverCache(connectionCopy);
     if (cachedDriver) {
       return cachedDriver;
     } else {
       const freePort = await getPort();
       let mySqlDriver;
       try {
-        mySqlDriver = (await getSshMySqlClient(this.connection, freePort)) as any;
-        Cacher.setDriverCache(this.connection, mySqlDriver);
+        mySqlDriver = (await getSshMySqlClient(connectionCopy, freePort)) as any;
+        Cacher.setDriverCache(connectionCopy, mySqlDriver);
       } catch (e) {
         throw new HttpException(
           {

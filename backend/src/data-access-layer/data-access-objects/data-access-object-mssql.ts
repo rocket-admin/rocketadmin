@@ -106,13 +106,13 @@ export class DataAccessObjectMssql extends BasicDao implements IDataAccessObject
       const schemaName = await this.getSchemaName(tableName);
       tableName = `${schemaName}.[${tableName}]`;
       const knex = await this.configureKnex();
-      return (await knex(tableName).where(primaryKey)) as unknown as Record<string, unknown>;
+      return (await knex(tableName).where(primaryKey))[0] as unknown as Record<string, unknown>;
     }
     const availableFields = await this.findAvaliableFields(settings, tableName);
     const knex = await this.configureKnex();
     const schemaName = await this.getSchemaName(tableName);
     tableName = `${schemaName}.[${tableName}]`;
-    return (await knex(tableName).select(availableFields).where(primaryKey)) as unknown as Record<string, unknown>;
+    return (await knex(tableName).select(availableFields).where(primaryKey))[0] as unknown as Record<string, unknown>;
   }
 
   public async getRowsFromTable(

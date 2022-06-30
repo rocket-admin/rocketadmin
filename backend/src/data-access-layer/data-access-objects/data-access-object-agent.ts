@@ -133,7 +133,7 @@ export class DataAccessObjectAgent implements IDataAccessObject {
       if (res.data.commandResult instanceof Error) {
         throw new Error(res.data.commandResult.message);
       }
-      return res.data.commandResult;
+      return res.data.commandResult[0];
     } catch (e) {
       throw new Error(e.response.data);
     }
