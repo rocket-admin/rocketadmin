@@ -9,7 +9,7 @@ import { DataAccessObjectAgent } from '../data-access-objects/data-access-object
 import { HttpException } from '@nestjs/common/exceptions/http.exception';
 import { HttpStatus } from '@nestjs/common';
 import { Messages } from '../../exceptions/text/messages';
-import { DaoSshMysql } from '../../dal/dao-ssh/dao-ssh-mysql';
+import { DataAccessObjectMysqlSsh } from '../data-access-objects/data-access-object-mysql-ssh';
 
 export function createDataAccessObject(connection: ConnectionEntity, userId: string): IDataAccessObject {
   switch (connection.type) {
@@ -17,7 +17,7 @@ export function createDataAccessObject(connection: ConnectionEntity, userId: str
       return new DataAccessObjectPostgres(connection);
     case ConnectionTypeEnum.mysql:
       if (connection.ssh) {
-        return new DaoSshMysql(connection) as any;
+        return new DataAccessObjectMysqlSsh(connection);
       } else {
         return new DataAccessObjectMysql(connection);
       }

@@ -43,7 +43,7 @@ export class Cacher {
     return userInvitations <= 10 && groupInvitations <= 10;
   }
 
-  public static getCachedKnex(connectionConfig): any {
+  public static getCachedKnex(connectionConfig): Knex {
     const cachedKnex = knexCache.get(JSON.stringify(connectionConfig));
     return cachedKnex ? cachedKnex : null;
   }
