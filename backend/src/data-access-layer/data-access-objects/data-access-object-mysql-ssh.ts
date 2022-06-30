@@ -30,6 +30,7 @@ import { HttpException } from '@nestjs/common/exceptions/http.exception';
 import { Messages } from '../../exceptions/text/messages';
 import { Constants } from '../../helpers/constants/constants';
 import { FilterCriteriaEnum } from '../../enums';
+import { Client } from 'ssh2';
 
 @Injectable({ scope: Scope.REQUEST })
 export class DataAccessObjectMysqlSsh implements IDataAccessObject {
@@ -100,9 +101,8 @@ export class DataAccessObjectMysqlSsh implements IDataAccessObject {
   }
 
   public async configureKnex(): Promise<Knex> {
-    const connectionCopy = Object.assign({}, this.connection);
-    const { host, username, password, database, port, ssl, cert } = connectionCopy;
-    const cachedKnex = Cacher.getCachedKnex(connectionCopy);
+    const { host, username, password, database, port, ssl, cert } = this.connection;
+    const cachedKnex = Cacher.getCachedKnex(this.connection);
     if (cachedKnex) {
       return cachedKnex;
     }
@@ -118,7 +118,7 @@ export class DataAccessObjectMysqlSsh implements IDataAccessObject {
       },
       pool: { min: 0, max: 1 },
     });
-    Cacher.setDriverCache(connectionCopy, newKnex);
+    Cacher.setKnexCache(this.connection, newKnex);
     return newKnex;
   }
 
@@ -485,17 +485,16 @@ export class DataAccessObjectMysqlSsh implements IDataAccessObject {
     return tableSettingsFieldValidator(tableStructure, primaryColumns, settings);
   }
 
-  private async getMySqlDriver(): Promise<any> {
-    const connectionCopy = Object.assign({}, this.connection);
-    const cachedDriver = Cacher.getDriverCache(connectionCopy);
+  private async getMySqlDriver(): Promise<Client> {
+    const cachedDriver = Cacher.getDriverCache(this.connection);
     if (cachedDriver) {
       return cachedDriver;
     } else {
       const freePort = await getPort();
       let mySqlDriver;
       try {
-        mySqlDriver = (await getSshMySqlClient(connectionCopy, freePort)) as any;
-        Cacher.setDriverCache(connectionCopy, mySqlDriver);
+        mySqlDriver = (await getSshMySqlClient(this.connection, freePort)) as Client;
+        Cacher.setDriverCache(this.connection, mySqlDriver);
       } catch (e) {
         throw new HttpException(
           {
