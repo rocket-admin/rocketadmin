@@ -84,6 +84,7 @@ import { UsersComponent } from './components/users/users.component';
 import { UsersService } from './services/users.service';
 import { WidgetDeleteDialogComponent } from './components/dashboard/db-table-widgets/widget-delete-dialog/widget-delete-dialog.component';
 import { environment } from '../environments/environment';
+import { FileComponent } from './components/ui-components/row-fields/file/file.component';
 
 const saasExtraModules = environment.saas ? [
   {
@@ -174,7 +175,8 @@ const saasExtraModules = environment.saas ? [
     PasswordRequestComponent,
     PasswordChangeComponent,
     AccountDeleteConfirmationComponent,
-    GroupUserVerificationComponent
+    GroupUserVerificationComponent,
+    FileComponent
   ],
   entryComponents: [
     DbRowDeleteDialogComponent,
