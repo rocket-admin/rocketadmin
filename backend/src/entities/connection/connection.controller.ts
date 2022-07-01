@@ -26,6 +26,7 @@ import {
   getCognitoUserName,
   getMasterPwd,
   isConnectionEntityAgent,
+  isConnectionTypeAgent,
   toPrettyErrorsMsg,
 } from '../../helpers';
 import validator from 'validator';
@@ -203,7 +204,7 @@ export class ConnectionController {
   ): Promise<CreatedConnectionDs> {
     const cognitoUserName = getCognitoUserName(request);
     const masterPwd = getMasterPwd(request);
-    if (!password) {
+    if (!password && !isConnectionTypeAgent(type)) {
       throw new HttpException(
         {
           message: Messages.PASSWORD_MISSING,
