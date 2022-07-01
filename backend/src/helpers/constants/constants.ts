@@ -1,6 +1,7 @@
 import { CreateConnectionDto } from '../../entities/connection/dto';
 import { getProcessVariable } from '../get-process-variable';
 import { ConnectionTypeEnum } from '../../enums';
+import { Knex } from 'knex';
 
 export const Constants = {
   JWT_COOKIE_KEY_NAME: 'jwt',
@@ -45,93 +46,50 @@ export const Constants = {
   EXCEPTIONS_CHANNELS: '#autoadmin-errors',
   KEEP_ALIVE_INTERVAL: 30000,
   KEEP_ALIVE_COUNT_MAX: 120,
+
   DEFAULT_CONNECTION_CACHE_OPTIONS: {
     max: 50,
-    length: function (n, key): number {
-      return n * 2 + key.length;
+    ttl: 1000 * 60 * 60,
+    updateAgeOnGet: false,
+    updateAgeOnHas: false,
+    dispose: async (knex: Knex, key) => {
+      await knex.destroy();
     },
-    dispose: async function (key, n): Promise<void> {
-      await n.destroy();
-    },
-    maxAge: 1000 * 60 * 60,
   },
 
   DEFAULT_TUNNEL_CACHE_OPTIONS: {
     max: 10000,
-    length: function (n, key): number {
-      return n * 2 + key.length;
-    },
-    dispose: async function (key, n): Promise<void> {
-      await n.knex.destroy();
-      await n.tnl.close();
-    },
-    maxAge: 1000 * 60 * 60,
+    ttl: 1000 * 60 * 60,
   },
 
   DEFAULT_DRIVER_CACHE_OPTIONS: {
     max: 50,
-    length: function (n, key): number {
-      return n * 2 + key.length;
-    },
-    dispose: function (key, n): number {
-      return 1;
-    },
-    maxAge: 1000 * 60 * 60,
+    ttl: 1000 * 60 * 60,
   },
 
   DEFAULT_SETTINGS_CACHE_OPTIONS: {
     max: 1000,
-    length: function (n, key): number {
-      return n * 2 + key.length;
-    },
-    dispose: function (key, n): number {
-      return 1;
-    },
-    maxAge: 1000 * 60 * 60,
+    ttl: 1000 * 60 * 60,
   },
 
   DEFAULT_CONNECTIONS_CACHE_OPTIONS: {
     max: 1000,
-    length: function (n, key): number {
-      return n * 2 + key.length;
-    },
-    dispose: function (key, n): number {
-      return 1;
-    },
-    maxAge: 1000 * 60 * 60,
+    ttl: 1000 * 60 * 60,
   },
 
   DEFAULT_USER_EMAILS_CACHE_OPTIONS: {
     max: 1000,
-    length: function (n, key): number {
-      return n * 2 + key.length;
-    },
-    dispose: function (key, n): number {
-      return 1;
-    },
-    maxAge: 3600000 * 3,
+    ttl: 3600000 * 3,
   },
 
   DEFAULT_INVITATION_CACHE_OPTIONS: {
     max: 10000,
-    length: function (n, key): number {
-      return n * 2 + key.length;
-    },
-    dispose: function (key, n): number {
-      return 1;
-    },
-    maxAge: 1000 * 60 * 60,
+    ttl: 1000 * 60 * 60,
   },
 
   DEFAULT_TABLE_STRUCTURE_ELEMENTS_CACHE_OPTIONS: {
     max: 2000,
-    length: function (n, key): number {
-      return n * 2 + key.length;
-    },
-    dispose: function (key, n): number {
-      return 1;
-    },
-    maxAge: 1000 * 60,
+    ttl: 1000 * 60,
   },
 
   DEFAULT_FORWARD_IN_HOST: '127.0.0.1',

@@ -7,7 +7,6 @@ import * as request from 'supertest';
 import { ApplicationModule } from '../src/app.module';
 import { Connection } from 'typeorm';
 import { Constants } from '../src/helpers/constants/constants';
-import { DaoOracledb } from '../src/dal/dao/dao-oracledb';
 import { DatabaseModule } from '../src/shared/database/database.module';
 import { DatabaseService } from '../src/shared/database/database.service';
 import { INestApplication } from '@nestjs/common';
@@ -16,6 +15,7 @@ import { MockFactory } from './mock.factory';
 import { QueryOrderingEnum } from '../src/enums';
 import { Test } from '@nestjs/testing';
 import { TestUtils } from './utils/test.utils';
+import { Cacher } from '../src/helpers/cache/cacher';
 
 describe('Tables OracleDB With Schema(e2e)', () => {
   jest.setTimeout(10000);
@@ -117,7 +117,6 @@ describe('Tables OracleDB With Schema(e2e)', () => {
   afterEach(async () => {
     await testUtils.resetDb();
     await testUtils.closeDbConnection();
-    await DaoOracledb.clearKnexCache();
     AWSMock.restore('CognitoIdentityServiceProvider');
   });
 
@@ -127,6 +126,7 @@ describe('Tables OracleDB With Schema(e2e)', () => {
 
   afterAll(async () => {
     try {
+      await Cacher.clearAllCache();
       jest.setTimeout(5000);
       await testUtils.shutdownServer(app.getHttpAdapter());
       const connect = await app.get(Connection);

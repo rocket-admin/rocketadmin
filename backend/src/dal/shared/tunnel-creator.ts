@@ -1,13 +1,13 @@
 import * as getPort from 'get-port';
-import tunnel = require('tunnel-ssh');
 import { Cacher } from '../../helpers/cache/cacher';
 import { ConnectionEntity } from '../../entities/connection/connection.entity';
 import { ConnectionTypeEnum } from '../../enums';
 import { Constants } from '../../helpers/constants/constants';
-import { DaoMssql } from '../dao/dao-mssql';
-import { DaoOracledb } from '../dao/dao-oracledb';
-import { DaoPostgres } from '../dao/dao-postgres';
 import { isObjectEmpty } from '../../helpers';
+import { getMssqlKnex } from '../../data-access-layer/shared/utils/get-mssql-knex';
+import { getOracleKnex } from '../../data-access-layer/shared/utils/get-oracle-knex';
+import { getPostgresKnex } from '../../data-access-layer/shared/utils/get-postgres-knex';
+import tunnel = require('tunnel-ssh');
 
 export class TunnelCreator {
   static async createTunneledKnex(connection: ConnectionEntity) {
@@ -32,7 +32,7 @@ export class TunnelCreator {
           knex: knex,
         };
         tnl.on('error', (e) => {
-          Cacher.delTunnelCache(connection, tnlCachedObj);
+          Cacher.delTunnelCache(connection);
           reject(e);
           return;
         });
@@ -45,7 +45,7 @@ export class TunnelCreator {
     });
   }
 
-  private static getSshTunelConfig(connection, freePort: number) {
+  private static getSshTunelConfig(connection: ConnectionEntity, freePort: number) {
     const { host, port, privateSSHKey, sshPort, sshHost, sshUsername } = connection;
     return {
       host: sshHost,
@@ -60,16 +60,16 @@ export class TunnelCreator {
     };
   }
 
-  private static configureKnex(connectionConfig) {
+  private static configureKnex(connectionConfig: ConnectionEntity) {
     switch (connectionConfig.type) {
       case ConnectionTypeEnum.postgres:
-        return DaoPostgres.configureKnex(connectionConfig);
+        return getPostgresKnex(connectionConfig);
 
       case ConnectionTypeEnum.oracledb:
-        return DaoOracledb.configureKnex(connectionConfig);
+        return getOracleKnex(connectionConfig);
 
       case ConnectionTypeEnum.mssql:
-        return DaoMssql.configureKnex(connectionConfig);
+        return getMssqlKnex(connectionConfig);
       default:
         break;
     }
