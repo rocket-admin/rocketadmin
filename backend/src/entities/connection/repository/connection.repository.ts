@@ -63,7 +63,11 @@ export class ConnectionRepository extends Repository<ConnectionEntity> implement
   }
 
   public async findAndDecryptConnection(connectionId: string, masterPwd: string): Promise<ConnectionEntity> {
-    let connection = await this.findOne(connectionId);
+    const qb = await getRepository(ConnectionEntity)
+      .createQueryBuilder('connection')
+      .leftJoinAndSelect('connection.agent', 'agent')
+      .andWhere('connection.id = :connectionId', { connectionId: connectionId });
+    let connection = await qb.getOne();
     if (!connection) {
       return null;
     }
