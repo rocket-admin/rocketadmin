@@ -10,9 +10,9 @@ import { isConnectionTypeAgent } from '../../../helpers';
 import { getRepository } from 'typeorm';
 import { ConnectionEntity } from '../connection.entity';
 import { Encryptor } from '../../../helpers/encryption/encryptor';
-import { createDao } from '../../../dal/shared/create-dao';
 import { UpdateConnectionDs } from '../application/data-structures/update-connection.ds';
 import { processExceptionMessage } from '../../../exceptions/utils/process-exception-message';
+import { createDataAccessObject } from '../../../data-access-layer/shared/create-data-access-object';
 
 @Injectable({ scope: Scope.REQUEST })
 export class TestConnectionUseCase
@@ -94,7 +94,7 @@ export class TestConnectionUseCase
         };
       }
       const updated = Object.assign(toUpdate, connectionData);
-      const dao = createDao(updated, authorId);
+      const dao = createDataAccessObject(updated, authorId);
 
       try {
         return await dao.testConnect();
@@ -113,7 +113,7 @@ export class TestConnectionUseCase
           message: Messages.PASSWORD_MISSING,
         };
       }
-      const dao = createDao(connectionData, authorId);
+      const dao = createDataAccessObject(connectionData as ConnectionEntity, authorId);
       try {
         return await dao.testConnect();
       } catch (e) {
