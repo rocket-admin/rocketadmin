@@ -509,10 +509,6 @@ export class DataAccessObjectPostgres extends BasicDao implements IDataAccessObj
     return tableName;
   }
 
-  static async clearKnexCache() {
-    await Cacher.clearKnexCache();
-  }
-
   private async getRowsCount(knex: Knex, tableName: string, tableSchema: string): Promise<number> {
     async function countWithTimeout() {
       return new Promise(async function (resolve, reject) {

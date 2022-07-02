@@ -4,7 +4,6 @@ import * as faker from 'faker';
 import * as request from 'supertest';
 import { ApplicationModule } from '../src/app.module';
 import { Connection } from 'typeorm';
-import { DaoPostgres } from '../src/dal/dao/dao-postgres';
 import { DatabaseModule } from '../src/shared/database/database.module';
 import { DatabaseService } from '../src/shared/database/database.service';
 import { INestApplication } from '@nestjs/common';
@@ -12,6 +11,7 @@ import { MockFactory } from './mock.factory';
 import { Test } from '@nestjs/testing';
 import { TestUtils } from './utils/test.utils';
 import { knex } from 'knex';
+import { Cacher } from '../src/helpers/cache/cacher';
 
 describe('Connection properties', () => {
   jest.setTimeout(30000);
@@ -111,9 +111,9 @@ describe('Connection properties', () => {
   });
 
   afterEach(async () => {
+    await Cacher.clearAllCache();
     await testUtils.resetDb();
     await testUtils.closeDbConnection();
-    await DaoPostgres.clearKnexCache();
     AWSMock.restore('CognitoIdentityServiceProvider');
   });
 
