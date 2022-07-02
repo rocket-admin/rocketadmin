@@ -116,6 +116,7 @@ describe('Tables MsSQL with schema (e2e)', () => {
   });
 
   afterEach(async () => {
+    await Cacher.clearAllCache();
     await testUtils.resetDb();
     await testUtils.closeDbConnection();
     AWSMock.restore('CognitoIdentityServiceProvider');

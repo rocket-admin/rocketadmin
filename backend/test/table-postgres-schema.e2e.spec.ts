@@ -109,6 +109,7 @@ xdescribe('Tables Postgres With Schema (e2e)', () => {
   });
 
   afterEach(async () => {
+    await Cacher.clearAllCache();
     await testUtils.resetDb();
     await testUtils.closeDbConnection();
     AWSMock.restore('CognitoIdentityServiceProvider');

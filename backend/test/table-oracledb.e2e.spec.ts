@@ -117,6 +117,7 @@ describe('Tables OracleDB (e2e)', () => {
   afterEach(async () => {
     await testUtils.resetDb();
     await testUtils.closeDbConnection();
+    await Cacher.clearAllCache();
     AWSMock.restore('CognitoIdentityServiceProvider');
   });
 

@@ -1,6 +1,7 @@
 import { ConnectionEntity } from '../connection.entity';
 import { CreatedConnectionDs } from '../application/data-structures/created-connection.ds';
 import { Encryptor } from '../../../helpers/encryption/encryptor';
+import { GroupEntity } from '../../group/group.entity';
 
 export function buildCreatedConnectionDs(
   connection: ConnectionEntity,
@@ -10,13 +11,18 @@ export function buildCreatedConnectionDs(
   if (connection.masterEncryption && masterPwd) {
     connection = Encryptor.decryptConnectionCredentials(connection, masterPwd);
   }
-  const groupsWithProcessedUsers = connection.groups.map((group) => {
-    group.users = group.users.map((user) => {
-      delete user.password;
-      return user;
+  let groupsWithProcessedUsers: Array<GroupEntity>;
+  if (connection.groups) {
+    groupsWithProcessedUsers = connection.groups.map((group) => {
+      if (group.users) {
+        group.users = group.users.map((user) => {
+          delete user.password;
+          return user;
+        });
+      }
+      return group;
     });
-    return group;
-  });
+  }
   return {
     author: connection.author?.id ? connection.author.id : undefined,
     azure_encryption: connection.azure_encryption,

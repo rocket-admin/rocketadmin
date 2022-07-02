@@ -106,6 +106,7 @@ describe('User permissions (connection readonly, group edit) (e2e)', () => {
   });
 
   afterEach(async () => {
+    await Cacher.clearAllCache();
     await testUtils.resetDb();
     await testUtils.closeDbConnection();
   });

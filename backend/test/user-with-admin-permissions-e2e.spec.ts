@@ -183,6 +183,7 @@ describe('User permissions (connection admin) (e2e)', () => {
   });
 
   afterEach(async () => {
+    await Cacher.clearAllCache();
     await testUtils.resetDb();
     await testUtils.closeDbConnection();
     AWSMock.restore('CognitoIdentityServiceProvider');

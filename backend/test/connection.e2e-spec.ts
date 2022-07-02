@@ -77,13 +77,13 @@ describe('Connections (e2e)', () => {
   });
 
   afterEach(async () => {
+    await Cacher.clearAllCache();
     await testUtils.resetDb();
     await testUtils.closeDbConnection();
   });
 
   afterAll(async () => {
     try {
-      await Cacher.clearAllCache();
       jest.setTimeout(5000);
       await testUtils.shutdownServer(app.getHttpAdapter());
       const connect = await app.get(Connection);

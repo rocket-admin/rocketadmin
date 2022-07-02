@@ -43,7 +43,6 @@ export class Cacher {
 
   public static getCachedKnex(connectionConfig): Knex {
     const cachedKnex = knexCache.get(JSON.stringify(connectionConfig)) as Knex;
-    console.log('=>(cacher.ts:46) cachedKnex', cachedKnex);
     return cachedKnex ? cachedKnex : null;
   }
 

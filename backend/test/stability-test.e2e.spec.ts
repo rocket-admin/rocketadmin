@@ -11,7 +11,7 @@ import * as faker from 'faker';
 import { Connection } from 'typeorm';
 import { Cacher } from '../src/helpers/cache/cacher';
 
-describe('Tables Postgres (e2e)', () => {
+xdescribe('Tables Postgres (e2e)', () => {
   jest.setTimeout(20000);
   let app: INestApplication;
   let testUtils: TestUtils;

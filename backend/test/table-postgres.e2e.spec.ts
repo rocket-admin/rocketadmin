@@ -99,6 +99,7 @@ describe('Tables Postgres (e2e)', () => {
 
   afterAll(async () => {
     try {
+      await Cacher.clearAllCache();
       jest.setTimeout(5000);
       await testUtils.shutdownServer(app.getHttpAdapter());
       const connect = await app.get(Connection);
