@@ -10,6 +10,13 @@ export function buildCreatedConnectionDs(
   if (connection.masterEncryption && masterPwd) {
     connection = Encryptor.decryptConnectionCredentials(connection, masterPwd);
   }
+  const groupsWithProcessedUsers = connection.groups.map((group) => {
+    group.users = group.users.map((user) => {
+      delete user.password;
+      return user;
+    });
+    return group;
+  });
   return {
     author: connection.author?.id ? connection.author.id : undefined,
     azure_encryption: connection.azure_encryption,
@@ -33,6 +40,6 @@ export function buildCreatedConnectionDs(
     type: connection.type,
     updatedAt: connection.updatedAt,
     username: connection.username,
-    groups: connection.groups,
+    groups: groupsWithProcessedUsers,
   };
 }
