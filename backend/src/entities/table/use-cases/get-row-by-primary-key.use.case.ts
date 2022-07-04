@@ -68,7 +68,7 @@ export class GetRowByPrimaryKeyUseCase
     const availablePrimaryColumns: Array<string> = tablePrimaryKeys.map((column) => column.column_name);
     for (const key in primaryKey) {
       // eslint-disable-next-line security/detect-object-injection
-      if (!primaryKey[key]) delete primaryKey[key];
+      if (!primaryKey[key] && primaryKey[key] !== '') delete primaryKey[key];
     }
     const receivedPrimaryColumns = Object.keys(primaryKey);
     if (!compareArrayElements(availablePrimaryColumns, receivedPrimaryColumns)) {

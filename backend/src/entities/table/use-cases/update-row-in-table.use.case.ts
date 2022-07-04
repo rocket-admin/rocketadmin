@@ -115,7 +115,7 @@ export class UpdateRowInTableUseCase
     });
     for (const key in primaryKey) {
       // eslint-disable-next-line security/detect-object-injection
-      if (!primaryKey[key]) delete primaryKey[key];
+      if (!primaryKey[key] && primaryKey[key] !== '') delete primaryKey[key];
     }
     const receivedPrimaryColumns = Object.keys(primaryKey);
 
