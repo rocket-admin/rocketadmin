@@ -13,7 +13,7 @@ import { UpdateConnectionDs } from '../application/data-structures/update-connec
 export async function validateCreateConnectionData(
   createConnectionData: CreateConnectionDs | UpdateConnectionDs,
 ): Promise<boolean> {
-  if (process.env.NODE_ENV !== 'test') return true;
+  if (process.env.NODE_ENV === 'test') return true;
   const {
     connection_parameters: {
       azure_encryption,
