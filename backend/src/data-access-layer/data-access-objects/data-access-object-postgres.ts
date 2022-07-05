@@ -68,10 +68,7 @@ export class DataAccessObjectPostgres extends BasicDao implements IDataAccessObj
         .withSchema(this.connection.schema ? this.connection.schema : 'public')
         .returning(primaryKey)
         .insert(row);
-      const operationResult: Record<string, unknown> = result[0] as unknown as Record<string, unknown>;
-      return {
-        ...operationResult,
-      };
+      return result[0] as unknown as Record<string, unknown>;
     } else {
       const rowFields = Object.keys(row);
       const result = await knex(tableName)
