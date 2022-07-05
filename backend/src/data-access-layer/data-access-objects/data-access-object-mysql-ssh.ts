@@ -40,7 +40,6 @@ export class DataAccessObjectMysqlSsh implements IDataAccessObject {
     this.connection = connection;
   }
 
-  //todo rework with complex primary keys
   public async addRowInTable(
     tableName: string,
     row: Record<string, unknown>,
