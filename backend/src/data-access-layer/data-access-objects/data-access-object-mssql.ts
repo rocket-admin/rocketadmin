@@ -39,16 +39,24 @@ export class DataAccessObjectMssql extends BasicDao implements IDataAccessObject
   ): Promise<Record<string, unknown> | number> {
     const knex = await this.configureKnex();
     const primaryColumns = await this.getTablePrimaryColumns(tableName);
-    const primaryKey = primaryColumns[0];
+    const primaryKeys = primaryColumns.map((column) => column.column_name);
     const schemaName = await this.getSchemaName(tableName);
     tableName = `${schemaName}.[${tableName}]`;
     if (primaryColumns?.length > 0) {
-      const result = await knex(tableName).returning(primaryKey.column_name).insert(row);
-      return {
-        [primaryKey.column_name]: result[0],
-      };
+      const result = await knex(tableName).returning(primaryKeys).insert(row);
+      const resultsArray = [];
+      for (let i = 0; i < primaryKeys.length; i++) {
+        resultsArray.push([primaryKeys[i], result[i]]);
+      }
+      return Object.fromEntries(resultsArray);
     } else {
-      return (await knex(tableName).insert(row)) as unknown as Record<string, unknown>;
+      const rowKeys = Object.keys(row);
+      const resultsArray = [];
+      const result = await knex(tableName).returning(rowKeys).insert(row);
+      for (let i = 0; i < rowKeys.length; i++) {
+        resultsArray.push([primaryKeys[i], result[i]]);
+      }
+      return Object.fromEntries(resultsArray);
     }
   }
 
