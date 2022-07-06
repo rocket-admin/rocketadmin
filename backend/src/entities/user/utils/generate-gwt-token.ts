@@ -4,7 +4,7 @@ import { UserEntity } from '../user.entity';
 export function generateGwtToken(user: UserEntity): IToken {
   const today = new Date();
   const exp = new Date(today);
-  exp.setTime(today.getTime() + 60 * 60 * 1000);
+  exp.setTime(today.getTime() + 60 * 60 * 1000 * 24 * 7);
   const jwtSecret = process.env.JWT_SECRET;
   const token = jwt.sign(
     {
