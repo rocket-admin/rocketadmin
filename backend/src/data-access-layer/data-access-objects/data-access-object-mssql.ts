@@ -142,10 +142,8 @@ export class DataAccessObjectMssql extends BasicDao implements IDataAccessObject
       }
     }
     const knex = await this.configureKnex();
-    const [rowsCount, availableFields] = await Promise.all([
-      this.getRowsCount(tableName),
-      this.findAvaliableFields(settings, tableName),
-    ]);
+    const rowsCount = await this.getRowsCount(tableName);
+    const availableFields = await this.findAvaliableFields(settings, tableName);
 
     let tableSchema = await this.getSchemaName(tableName);
     if (tableSchema) {
