@@ -99,7 +99,7 @@ async function checkIsHostAllowed(createConnectionData: CreateConnectionDs | Upd
   if (isConnectionTypeAgent(createConnectionData.connection_parameters.type) || process.env.NODE_ENV === 'test') {
     return true;
   }
-  if (!isSaaS()) {
+  if (process.env.NODE_ENV !== 'test' && !isSaaS()) {
     return true;
   }
   return new Promise<boolean>((resolve, reject) => {
