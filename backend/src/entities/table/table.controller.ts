@@ -6,11 +6,13 @@ import {
   HttpException,
   HttpStatus,
   Inject,
+  Injectable,
   Param,
   Post,
   Put,
   Query,
   Req,
+  Scope,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
@@ -55,6 +57,7 @@ import { isTestConnectionById } from '../connection/utils/is-test-connection-uti
 @ApiTags('tables')
 @UseInterceptors(SentryInterceptor)
 @Controller()
+@Injectable({ scope: Scope.REQUEST })
 export class TableController {
   constructor(
     private readonly amplitudeService: AmplitudeService,

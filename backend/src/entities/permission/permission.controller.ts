@@ -4,9 +4,11 @@ import {
   HttpException,
   HttpStatus,
   Inject,
+  Injectable,
   Param,
   Put,
   Req,
+  Scope,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
@@ -26,6 +28,7 @@ import { CreatePermissionsDs } from './application/data-structures/create-permis
 @ApiTags('permissions')
 @UseInterceptors(SentryInterceptor)
 @Controller()
+@Injectable({ scope: Scope.REQUEST })
 export class PermissionController {
   constructor(
     @Inject(UseCaseType.CREATE_OR_UPDATE_PERMISSIONS)
