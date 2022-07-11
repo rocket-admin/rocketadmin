@@ -1,17 +1,18 @@
-import { CanActivate, ExecutionContext, forwardRef, Inject, Injectable } from '@nestjs/common';
+import { CanActivate, ExecutionContext, Inject, Injectable } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { IRequestWithCognitoInfo } from '../authorization';
-import { UserAccessService } from '../entities/user-access/user-access.service';
 import { Messages } from '../exceptions/text/messages';
 import { getMasterPwd } from '../helpers';
 import { buildBadRequestException, buildForbiddenException } from './utils';
 import { validateUuidByRegex } from './utils/validate-uuid-by-regex';
+import { BaseType } from '../common/data-injection.tokens';
+import { IGlobalDatabaseContext } from '../common/application/global-database-context.intarface';
 
 @Injectable()
 export class TableAddGuard implements CanActivate {
   constructor(
-    @Inject(forwardRef(() => UserAccessService))
-    private readonly userAccessService: UserAccessService,
+    @Inject(BaseType.GLOBAL_DB_CONTEXT)
+    protected _dbContext: IGlobalDatabaseContext,
   ) {}
 
   canActivate(context: ExecutionContext): boolean | Promise<boolean> | Observable<boolean> {
@@ -31,7 +32,12 @@ export class TableAddGuard implements CanActivate {
       }
       let userTableAdd = false;
       try {
-        userTableAdd = await this.userAccessService.checkTableAdd(cognitoUserName, connectionId, tableName, masterPwd);
+        userTableAdd = await this._dbContext.userAccessRepository.checkTableAdd(
+          cognitoUserName,
+          connectionId,
+          tableName,
+          masterPwd,
+        );
       } catch (e) {
         reject(e);
         return;

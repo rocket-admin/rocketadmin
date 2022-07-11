@@ -7,11 +7,13 @@ import {
   HttpException,
   HttpStatus,
   Inject,
+  Injectable,
   Param,
   Post,
   Put,
   Req,
   Res,
+  Scope,
   UseInterceptors,
 } from '@nestjs/common';
 import { findGclidCookieValue, getCognitoUserName } from '../../helpers';
@@ -59,6 +61,7 @@ import { AmplitudeService } from '../amplitude/amplitude.service';
 @ApiTags('user')
 @UseInterceptors(SentryInterceptor)
 @Controller()
+@Injectable({ scope: Scope.REQUEST })
 export class UserController {
   constructor(
     @Inject(UseCaseType.FIND_USER)

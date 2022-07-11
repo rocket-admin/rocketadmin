@@ -6,10 +6,12 @@ import {
   Get,
   HttpStatus,
   Inject,
+  Injectable,
   Post,
   Put,
   Query,
   Req,
+  Scope,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
@@ -39,6 +41,7 @@ import { DeleteTableSettingsDs } from './application/data-structures/delete-tabl
 @ApiTags('settings')
 @UseInterceptors(SentryInterceptor)
 @Controller()
+@Injectable({ scope: Scope.REQUEST })
 export class TableSettingsController {
   constructor(
     @Inject(UseCaseType.FIND_TABLE_SETTINGS)

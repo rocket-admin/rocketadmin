@@ -10,6 +10,8 @@ import { TestUtils } from './utils/test.utils';
 import { IUserInfo } from '../src/entities/user/user.interface';
 import { Constants } from '../src/helpers/constants/constants';
 import * as cookieParser from 'cookie-parser';
+import { Cacher } from '../src/helpers/cache/cacher';
+import { Messages } from '../src/exceptions/text/messages';
 
 describe('User (e2e)', () => {
   let app: INestApplication;
@@ -32,6 +34,7 @@ describe('User (e2e)', () => {
   });
 
   afterEach(async () => {
+    await Cacher.clearAllCache();
     await testUtils.resetDb();
     await testUtils.closeDbConnection();
     AWSMock.restore('CognitoIdentityServiceProvider');
@@ -77,7 +80,7 @@ describe('User (e2e)', () => {
         expect(getUserRO.isActive).toBeFalsy();
         expect(getUserRO.email).toBe('firstUser@example.com');
         expect(getUserRO.hasOwnProperty('createdAt')).toBeTruthy();
-        expect(getUserRO.portal_link).toBe('teststripelink');
+        expect(getUserRO.portal_link).toBe(Messages.NO_STRIPE);
       } catch (err) {
         throw err;
       }

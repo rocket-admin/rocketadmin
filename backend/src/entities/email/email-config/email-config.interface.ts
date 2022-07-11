@@ -9,7 +9,7 @@ export interface IEmailConfig {
 }
 
 export interface IEmailConfigService {
-  getEmailServiceConfig(): IEmailConfig | Promise<IEmailConfig>;
+  getEmailServiceConfig(): IEmailConfig | Promise<IEmailConfig> | string | Promise<string>;
 }
 
 interface IAuth {

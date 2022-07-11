@@ -34,7 +34,7 @@ export class EmailVerificationRepository
       newEmailVerification.user = user;
       return await this.save(newEmailVerification);
     }
-    const foundEmailVerification = await this.findOne(user.email_verification.id);
+    const foundEmailVerification = await this.findOne({ id: user.email_verification.id });
     await this.remove(foundEmailVerification);
     const newEmailVerification = new EmailVerificationEntity();
     newEmailVerification.verification_string = Encryptor.generateRandomString();

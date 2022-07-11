@@ -65,7 +65,7 @@ export class AppComponent {
     if (window.screen.width > 600) {
       this.userInactive.subscribe(() => {
         // @ts-ignore
-        customerly.open();
+        customerly?.open();
         this.chatHasBeenShownOnce = true;
       });
     }

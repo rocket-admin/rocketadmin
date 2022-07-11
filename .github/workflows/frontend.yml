@@ -1,0 +1,31 @@
+name: frontend
+on: push
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - run: cd frontend && yarn install
+      - name: run tests
+        run: cd frontend && yarn test
+  license:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: earthly/actions/setup-earthly@v1
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+      - uses: extractions/setup-just@v1
+      - name: license checker
+        run: 'cd frontend && npx license-checker --onlyAllow="MIT;ISC;Python-2.0;Apache-2.0;BSD;MPL;CC;Custom: http://github.com/dscape/statsd-parser;" --excludePrivatePackages'
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: extractions/setup-just@v1
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+      - run: cd frontend && yarn install
+      - run: cd frontend && yarn run lint

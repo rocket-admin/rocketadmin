@@ -7,7 +7,6 @@ import * as cookieParser from 'cookie-parser';
 import { AccessLevelEnum } from '../src/enums';
 import { ApplicationModule } from '../src/app.module';
 import { Connection } from 'typeorm';
-import { DaoPostgres } from '../src/dal/dao/dao-postgres';
 import { DatabaseModule } from '../src/shared/database/database.module';
 import { DatabaseService } from '../src/shared/database/database.service';
 import { INestApplication } from '@nestjs/common';
@@ -16,6 +15,7 @@ import { MockFactory } from './mock.factory';
 import { Test } from '@nestjs/testing';
 import { TestUtils } from './utils/test.utils';
 import { Constants } from '../src/helpers/constants/constants';
+import { Cacher } from '../src/helpers/cache/cacher';
 
 describe('Groups (e2e)', () => {
   type RegisterUserData = {
@@ -84,13 +84,14 @@ describe('Groups (e2e)', () => {
   });
 
   afterEach(async () => {
+    await Cacher.clearAllCache();
     await testUtils.resetDb();
     await testUtils.closeDbConnection();
-    await DaoPostgres.clearKnexCache();
   });
 
   afterAll(async () => {
     try {
+      await Cacher.clearAllCache();
       jest.setTimeout(5000);
       await testUtils.shutdownServer(app.getHttpAdapter());
       const connect = await app.get(Connection);

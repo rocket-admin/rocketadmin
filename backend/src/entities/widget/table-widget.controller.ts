@@ -5,10 +5,12 @@ import {
   Get,
   HttpStatus,
   Inject,
+  Injectable,
   Param,
   Post,
   Query,
   Req,
+  Scope,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
@@ -31,6 +33,7 @@ import { FoundTableWidgetsDs } from './application/data-sctructures/found-table-
 @ApiTags('table_widgets')
 @UseInterceptors(SentryInterceptor)
 @Controller()
+@Injectable({ scope: Scope.REQUEST })
 export class TableWidgetController {
   constructor(
     @Inject(UseCaseType.FIND_TABLE_WIDGETS)

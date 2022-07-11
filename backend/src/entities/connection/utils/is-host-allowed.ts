@@ -3,11 +3,16 @@ import * as ipRangeCheck from 'ip-range-check';
 import { Constants } from '../../../helpers/constants/constants';
 import { CreateConnectionDto } from '../dto';
 import { isConnectionEntityAgent } from '../../../helpers';
+import { isSaaS } from '../../../helpers/app/is-saas';
 
 export async function isHostAllowed(connectionData: CreateConnectionDto): Promise<boolean> {
   if (isConnectionEntityAgent(connectionData) || process.env.NODE_ENV === 'test') {
     return true;
   }
+  if (process.env.NODE_ENV !== 'test' && !isSaaS()) {
+    return true;
+  }
+
   return new Promise<boolean>((resolve, reject) => {
     const testHosts = Constants.getTestConnectionsHostNamesArr();
     if (!connectionData.ssh) {

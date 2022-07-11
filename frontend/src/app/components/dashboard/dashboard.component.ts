@@ -67,7 +67,7 @@ export class DashboardComponent implements OnInit {
       this.dbFetchError = true;
       this.errorMessage = error.error.message;
       // @ts-ignore
-      customerly.open();
+      customerly?.open();
     }
 
     if (tables) {

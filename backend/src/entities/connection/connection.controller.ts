@@ -4,11 +4,13 @@ import {
   Get,
   HttpStatus,
   Inject,
+  Injectable,
   Param,
   Post,
   Put,
   Query,
   Req,
+  Scope,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
@@ -26,6 +28,7 @@ import {
   getCognitoUserName,
   getMasterPwd,
   isConnectionEntityAgent,
+  isConnectionTypeAgent,
   toPrettyErrorsMsg,
 } from '../../helpers';
 import validator from 'validator';
@@ -73,6 +76,7 @@ import { RestoredConnectionDs } from './application/data-structures/restored-con
 @ApiTags('connections')
 @UseInterceptors(SentryInterceptor)
 @Controller()
+@Injectable({ scope: Scope.REQUEST })
 export class ConnectionController {
   constructor(
     @Inject(UseCaseType.FIND_CONNECTIONS)
@@ -203,7 +207,7 @@ export class ConnectionController {
   ): Promise<CreatedConnectionDs> {
     const cognitoUserName = getCognitoUserName(request);
     const masterPwd = getMasterPwd(request);
-    if (!password) {
+    if (!password && !isConnectionTypeAgent(type)) {
       throw new HttpException(
         {
           message: Messages.PASSWORD_MISSING,

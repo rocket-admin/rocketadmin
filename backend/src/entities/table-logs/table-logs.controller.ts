@@ -1,4 +1,15 @@
-import { Controller, Get, HttpStatus, Inject, Param, Query, Req, UseInterceptors } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  HttpStatus,
+  Inject,
+  Injectable,
+  Param,
+  Query,
+  Req,
+  Scope,
+  UseInterceptors,
+} from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { getCognitoUserName } from '../../helpers';
 import { HttpException } from '@nestjs/common/exceptions/http.exception';
@@ -14,6 +25,7 @@ import { FindLogsDs } from './application/data-structures/find-logs.ds';
 @ApiTags('logs')
 @UseInterceptors(SentryInterceptor)
 @Controller()
+@Injectable({ scope: Scope.REQUEST })
 export class TableLogsController {
   constructor(
     @Inject(UseCaseType.FIND_LOGS)
@@ -30,7 +42,7 @@ export class TableLogsController {
   dateFrom=value &
   dateTo=value (to get logs between two dates) |
   email=value |
-  limit=value (if you do not want use pagination. default limit is 500) 
+  limit=value (if you do not want use pagination. default limit is 500)
   `,
   })
   @ApiResponse({ status: 200, description: 'Return all table logs.' })

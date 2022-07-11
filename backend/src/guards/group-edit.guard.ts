@@ -1,16 +1,17 @@
-import { CanActivate, ExecutionContext, forwardRef, Inject, Injectable } from '@nestjs/common';
+import { CanActivate, ExecutionContext, Inject, Injectable } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { IRequestWithCognitoInfo } from '../authorization';
-import { UserAccessService } from '../entities/user-access/user-access.service';
 import { Messages } from '../exceptions/text/messages';
 import { buildBadRequestException, buildForbiddenException } from './utils';
 import { validateUuidByRegex } from './utils/validate-uuid-by-regex';
+import { BaseType } from '../common/data-injection.tokens';
+import { IGlobalDatabaseContext } from '../common/application/global-database-context.intarface';
 
 @Injectable()
 export class GroupEditGuard implements CanActivate {
   constructor(
-    @Inject(forwardRef(() => UserAccessService))
-    private readonly userAccessService: UserAccessService,
+    @Inject(BaseType.GLOBAL_DB_CONTEXT)
+    protected _dbContext: IGlobalDatabaseContext,
   ) {}
 
   canActivate(context: ExecutionContext): boolean | Promise<boolean> | Observable<boolean> {
@@ -27,7 +28,7 @@ export class GroupEditGuard implements CanActivate {
       }
       let userGroupEdit = false;
       try {
-        userGroupEdit = await this.userAccessService.checkUserGroupEdit(cognitoUserName, groupId);
+        userGroupEdit = await this._dbContext.userAccessRepository.checkUserGroupEdit(cognitoUserName, groupId);
       } catch (e) {
         reject(e);
         return;
