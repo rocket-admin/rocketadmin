@@ -8,9 +8,11 @@ import { ConnectionsService } from './services/connections.service';
 import { DomSanitizer } from '@angular/platform-browser';
 import { MatIconRegistry } from '@angular/material/icon';
 import { Subject } from 'rxjs';
+import { TablesService } from './services/tables.service';
 import { UserService } from './services/user.service';
 import amplitude from 'amplitude-js';
 import { differenceInMilliseconds } from 'date-fns'
+import { normalizeTableName } from './lib/normalize'
 
 //@ts-ignore
 window.amplitude = amplitude;
@@ -37,6 +39,7 @@ export class AppComponent {
   activeLink: string;
   navigationTabs: object;
   currentUser;
+  normalizedTableName;
 
   // connectionID: string;
 
@@ -48,6 +51,7 @@ export class AppComponent {
     public _connections: ConnectionsService,
     public _user: UserService,
     public _auth: AuthService,
+    private _tables: TablesService,
     angulartics2Amplitude: Angulartics2Amplitude,
     private domSanitizer: DomSanitizer,
     private matIconRegistry: MatIconRegistry,
@@ -110,8 +114,8 @@ export class AppComponent {
     document.cookie = "G_AUTH2_MIGRATION=informational";
     this._auth.cast.subscribe( res =>  {
       if (res.expires) {
-        const expirationTime = new Date(res.expires).toString();
-        if (expirationTime) localStorage.setItem('token_expiration', expirationTime);
+        const expirationTime = new Date(res.expires);
+        if (expirationTime) localStorage.setItem('token_expiration', expirationTime.toString());
 
         this._user.fetchUser()
           .subscribe(res => {
@@ -120,6 +124,13 @@ export class AppComponent {
               this.router.navigate(['/connections-list'])
             }
         )
+
+        const expirationInterval = differenceInMilliseconds(expirationTime, new Date());
+        setTimeout(() => {
+          this.logOut(true);
+          this.router.navigate(['/login'])
+        }, expirationInterval);
+
       } else {
         const expirationTime = new Date(localStorage.getItem('token_expiration'));
         const currantTime = new Date();
@@ -132,7 +143,12 @@ export class AppComponent {
                   this.currentUser = res;
                   this.setUserLoggedIn(true);
                 }
-            )
+            );
+
+            setTimeout(() => {
+              this.logOut(true);
+              this.router.navigate(['/login'])
+            }, expirationInterval);
           }
         }
       }
@@ -174,12 +190,17 @@ export class AppComponent {
     return this._connections.currentTab;
   }
 
+  get tableName() {
+    this.normalizedTableName = normalizeTableName(this._tables.currentTableName);
+    return this._tables.currentTableName;
+  }
+
   setUserLoggedIn(state) {
     this.userLoggedIn = state;
     this.changeDetector.detectChanges();
   }
 
-  logOut() {
+  logOut(isTokenExpired?: boolean) {
     this._auth.logOutUser()
       .subscribe(() => {
         this.socialAuthService.signOut();
@@ -196,7 +217,7 @@ export class AppComponent {
 
         this.setUserLoggedIn(null);
         localStorage.removeItem('token_expiration');
-        window.location.href="https://autoadmin.org/";
+        if (!isTokenExpired) window.location.href="https://autoadmin.org/";
       })
   }
 }
