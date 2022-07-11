@@ -1,7 +1,11 @@
 import { IEmailConfig, IEmailConfigService } from './email-config.interface';
 
 export class EmailConfigService implements IEmailConfigService {
-  public getEmailServiceConfig(): IEmailConfig {
+  public getEmailServiceConfig(): IEmailConfig | string {
+    const pullConfig = process.env.EMAIL_CONFIG_STRING;
+    if (pullConfig) {
+      return pullConfig;
+    }
     const emailServiceHost = process.env.EMAIL_SERVICE_HOST;
     const emailServicePort = parseInt(process.env.EMAIL_SERVICE_PORT) || 25;
     const emailServiceUserName = process.env.EMAIL_SERVICE_USERNAME;

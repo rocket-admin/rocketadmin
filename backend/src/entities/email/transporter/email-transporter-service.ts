@@ -19,7 +19,7 @@ export class EmailTransporterService implements IEmailTransporterInterface {
   }
 
   private async createTransporter(): Promise<nodemailer.Transporter<SMTPTransport.SentMessageInfo>> {
-    const transportConfig = await this.emailConfigService.getEmailServiceConfig();
+    const transportConfig = this.emailConfigService.getEmailServiceConfig();
     return nodemailer.createTransport(transportConfig);
   }
 }
