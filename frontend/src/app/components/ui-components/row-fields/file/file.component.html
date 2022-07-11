@@ -1,0 +1,14 @@
+<input type="file" class="file-input" name="{{label}}-{{key}}" [required]="required" [disabled]="readonly"
+    (change)="onFileSelected($event)" #fileUpload>
+
+<div class="file-uploader-appearance">
+
+    <span class="file-label">{{ normalizedLabel }}</span>
+
+    <span class="file-name mat-body-2">{{ value ? 'File is uploaded.' : 'No file uploaded yet.' }}</span>
+
+    <button type="button" mat-stroked-button class="upload-btn"
+        (click)="fileUpload.click()">
+        Upload file
+    </button>
+</div>

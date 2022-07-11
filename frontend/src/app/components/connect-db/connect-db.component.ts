@@ -106,7 +106,7 @@ export class ConnectDBComponent implements OnInit {
               }
             ]);
             //@ts-ignore
-            customerly.open()
+            customerly?.open()
           };
         },
         undefined,
@@ -173,7 +173,7 @@ export class ConnectDBComponent implements OnInit {
     });
     this.submitting = false;
     //@ts-ignore
-    customerly.open()
+    customerly?.open()
   }
 
   amplitudeTrackAddConnection(isCorrectCreds: boolean) {

@@ -1,18 +1,15 @@
 <h1 mat-dialog-title>Confirm widget delete</h1>
 <div mat-dialog-content>
-    <p class="mat-body">
+    <p *ngIf="widgetFieldName; else clearAllMessage" class="mat-body">
         You are going to delete widget for <strong>{{ widgetFieldName }}</strong> field.
     </p>
+    <ng-template #clearAllMessage>
+      <p>Do you want to delete all widgets?</p>
+    </ng-template>
     <br>
     <p class="mat-body">Please confirm.</p>
 </div>
 <div mat-dialog-actions>
-  <button mat-raised-button mat-dialog-close
-    aria-label="Cancel">
-    Cancel
-  </button>
-  <button mat-raised-button color="warn"
-    (click)="onDeleteWidget()">
-      Delete
-  </button>
+  <button mat-raised-button mat-dialog-close>Cancel</button>
+  <button mat-raised-button color="warn" mat-dialog-close="delete">Delete</button>
 </div>
