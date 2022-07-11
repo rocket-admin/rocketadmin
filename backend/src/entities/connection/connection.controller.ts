@@ -4,11 +4,13 @@ import {
   Get,
   HttpStatus,
   Inject,
+  Injectable,
   Param,
   Post,
   Put,
   Query,
   Req,
+  Scope,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
@@ -74,6 +76,7 @@ import { RestoredConnectionDs } from './application/data-structures/restored-con
 @ApiTags('connections')
 @UseInterceptors(SentryInterceptor)
 @Controller()
+@Injectable({ scope: Scope.REQUEST })
 export class ConnectionController {
   constructor(
     @Inject(UseCaseType.FIND_CONNECTIONS)

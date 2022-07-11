@@ -1,5 +1,16 @@
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { Body, Controller, HttpException, HttpStatus, Inject, Post, Req, UseInterceptors } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  HttpException,
+  HttpStatus,
+  Inject,
+  Injectable,
+  Post,
+  Req,
+  Scope,
+  UseInterceptors,
+} from '@nestjs/common';
 import { SentryInterceptor } from '../../interceptors';
 import { IRequestWithCognitoInfo } from '../../authorization';
 import { UserActionEntity } from './user-action.entity';
@@ -15,6 +26,7 @@ import { CreateUserActionDs } from './application/data-sctructures/create-user-a
 @ApiBearerAuth()
 @ApiTags('user_action')
 @UseInterceptors(SentryInterceptor)
+@Injectable({ scope: Scope.REQUEST })
 @Controller()
 export class UserActionController {
   constructor(

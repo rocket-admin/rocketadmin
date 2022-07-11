@@ -6,11 +6,13 @@ import {
   Get,
   HttpStatus,
   Inject,
+  Injectable,
   Param,
   Post,
   Put,
   Query,
   Req,
+  Scope,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
@@ -41,6 +43,7 @@ import { FoundTableSettingsDs } from '../table-settings/application/data-structu
 @ApiTags('custom_fields')
 @UseInterceptors(SentryInterceptor)
 @Controller()
+@Injectable({ scope: Scope.REQUEST })
 export class CustomFieldController {
   constructor(
     @Inject(UseCaseType.GET_CUSTOM_FIELDS)
