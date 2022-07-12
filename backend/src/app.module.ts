@@ -24,7 +24,6 @@ import { GlobalDatabaseContext } from './common/application/global-database-cont
 import { BaseType, UseCaseType } from './common/data-injection.tokens';
 import { GetHelloUseCase } from './use-cases-app/get-hello.use.case';
 import { AppLoggerMiddleware } from './middlewares/logging-middleware/app-logger-middlewate';
-import { UserAccessModule } from './entities/user-access/user-access.module';
 
 @Module({
   imports: [
@@ -44,7 +43,6 @@ import { UserAccessModule } from './entities/user-access/user-access.module';
     UserModule,
     UserActionModule,
     CronJobsModule,
-    UserAccessModule,
   ],
   controllers: [AppController],
   providers: [
