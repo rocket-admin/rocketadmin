@@ -203,7 +203,7 @@ export class AppComponent {
   logOut(isTokenExpired?: boolean) {
     this._auth.logOutUser()
       .subscribe(() => {
-        this.socialAuthService.signOut();
+        // this.socialAuthService.signOut();
         try {
           // @ts-ignore
           google.accounts.id.revoke(this.currentUser.email, done => {
