@@ -60,7 +60,9 @@ export class RegistrationComponent implements OnInit {
       FB.getLoginStatus(function(response) {
         console.log(response);
         console.log(response.authResponse.accessToken);
-        this._auth.loginWithFacebook(response.authResponse.accessToken).subscribe();
+        this.ngZone.run(() => {
+          this._auth.loginWithFacebook(response.authResponse.accessToken).subscribe();
+        })
       });
     }
 
