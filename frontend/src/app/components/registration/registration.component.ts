@@ -54,13 +54,13 @@ export class RegistrationComponent implements OnInit {
     google.accounts.id.prompt();
 
     //@ts-ignore
-    FB.init({
-      appId      : '2931389687130672',
-      cookie     : true,  // enable cookies to allow the server to access
-                          // the session
-      xfbml      : true,  // parse social plugins on this page
-      version    : 'v14.0' // Specify the Graph API version to use
-    });
+    // FB.init({
+    //   appId      : '2931389687130672',
+    //   cookie     : true,  // enable cookies to allow the server to access
+    //                       // the session
+    //   xfbml      : true,  // parse social plugins on this page
+    //   version    : 'v14.0' // Specify the Graph API version to use
+    // });
 
     // this.socialAuthService.authState.subscribe((authUser) => {
     //   if (authUser.provider === "FACEBOOK") this._auth.loginWithFacebook(authUser.authToken).subscribe();
