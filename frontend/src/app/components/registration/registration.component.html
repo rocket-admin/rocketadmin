@@ -77,13 +77,23 @@
 
             <div class="divider"></div>
 
-            <button type="button" class="soc-button"
+            <!-- <button type="button" class="soc-button"
                 angulartics2On="click"
                 angularticsAction="Reg: sign up with facebook"
                 (click)="loginWithFacebook()">
                 <img src="../../../assets/icons/fb_logo.svg" alt="" class="soc-button-icon">
                 Continue with Facebook
-            </button>
+            </button> -->
+
+            <div class="fb-login-button"
+                data-width="400"
+                data-size="large"
+                data-button-type="continue_with"
+                data-layout="default"
+                data-auto-logout-link="false"
+                data-use-continue-as="false"
+                onlogin="loginWithFacebook">
+            </div>
         </form>
 
         <p class="mat-caption agreement">

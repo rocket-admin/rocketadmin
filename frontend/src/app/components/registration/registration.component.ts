@@ -53,9 +53,18 @@ export class RegistrationComponent implements OnInit {
     //@ts-ignore
     google.accounts.id.prompt();
 
-    this.socialAuthService.authState.subscribe((authUser) => {
-      if (authUser.provider === "FACEBOOK") this._auth.loginWithFacebook(authUser.authToken).subscribe();
+    //@ts-ignore
+    FB.init({
+      appId      : '2931389687130672',
+      cookie     : true,  // enable cookies to allow the server to access
+                          // the session
+      xfbml      : true,  // parse social plugins on this page
+      version    : 'v14.0' // Specify the Graph API version to use
     });
+
+    // this.socialAuthService.authState.subscribe((authUser) => {
+    //   if (authUser.provider === "FACEBOOK") this._auth.loginWithFacebook(authUser.authToken).subscribe();
+    // });
   }
 
   registerUser() {
@@ -75,6 +84,10 @@ export class RegistrationComponent implements OnInit {
   }
 
   loginWithFacebook() {
-    this.socialAuthService.signIn(FacebookLoginProvider.PROVIDER_ID);
+    //@ts-ignore
+    FB.getLoginStatus(function(response) {
+      console.log(response);
+      // this._auth.loginWithFacebook(authUser.authToken).subscribe();
+    });
   }
 }
