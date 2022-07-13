@@ -26,7 +26,16 @@ export class RegistrationComponent implements OnInit {
     public router: Router,
     private _auth: AuthService,
     private socialAuthService: SocialAuthService
-  ) { }
+  ) {
+    //@ts-ignore
+    window.loginWithFacebook = () => {
+      //@ts-ignore
+      FB.getLoginStatus(function(response) {
+        console.log(response);
+        this._auth.loginWithFacebook(response.authResponse.accessToken).subscribe();
+      });
+    }
+   }
 
   ngOnInit(): void {
     this.angulartics2.eventTrack.next({

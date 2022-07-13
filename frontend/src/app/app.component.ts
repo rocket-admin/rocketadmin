@@ -11,8 +11,8 @@ import { Subject } from 'rxjs';
 import { TablesService } from './services/tables.service';
 import { UserService } from './services/user.service';
 import amplitude from 'amplitude-js';
-import { differenceInMilliseconds } from 'date-fns'
-import { normalizeTableName } from './lib/normalize'
+import { differenceInMilliseconds } from 'date-fns';
+import { normalizeTableName } from './lib/normalize';
 
 //@ts-ignore
 window.amplitude = amplitude;
