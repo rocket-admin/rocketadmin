@@ -83,11 +83,11 @@ export class RegistrationComponent implements OnInit {
     }, () => this.submitting = false)
   }
 
-  loginWithFacebook() {
-    //@ts-ignore
-    FB.getLoginStatus(function(response) {
-      console.log(response);
-      // this._auth.loginWithFacebook(authUser.authToken).subscribe();
-    });
-  }
+  // loginWithFacebook() {
+  //   //@ts-ignore
+  //   FB.getLoginStatus(function(response) {
+  //     console.log(response);
+  //     // this._auth.loginWithFacebook(authUser.authToken).subscribe();
+  //   });
+  // }
 }

@@ -84,6 +84,16 @@
     }
   </script>
 
+  <script>
+    window.loginWithFacebook = () => {
+        //@ts-ignore
+        FB.getLoginStatus(function(response) {
+          console.log(response);
+          // this._auth.loginWithFacebook(authUser.authToken).subscribe();
+        });
+      }
+  </script>
+
   <!-- <script>
       (function(d, s, id) {
         var js, fjs = d.getElementsByTagName(s)[0];
