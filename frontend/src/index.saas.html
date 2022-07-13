@@ -73,6 +73,7 @@
   <script async defer crossorigin="anonymous" src="https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v14.0" nonce="Fb790BHM"></script>
 
   <script>
+    window.fbAsyncInit = function() {
     FB.init({
       appId      : '2931389687130672',
       cookie     : true,  // enable cookies to allow the server to access
@@ -81,6 +82,7 @@
       version    : 'v14.0' // Specify the Graph API version to use
     });
   </script>
+
   <!-- <script>
       (function(d, s, id) {
         var js, fjs = d.getElementsByTagName(s)[0];
