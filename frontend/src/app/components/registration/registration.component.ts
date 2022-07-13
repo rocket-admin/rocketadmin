@@ -27,14 +27,6 @@ export class RegistrationComponent implements OnInit {
     private _auth: AuthService,
     private socialAuthService: SocialAuthService
   ) {
-    //@ts-ignore
-    window.loginWithFacebook = () => {
-      //@ts-ignore
-      FB.getLoginStatus(function(response) {
-        console.log(response);
-        this._auth.loginWithFacebook(response.authResponse.accessToken).subscribe();
-      });
-    }
    }
 
   ngOnInit(): void {
@@ -61,6 +53,16 @@ export class RegistrationComponent implements OnInit {
     );
     //@ts-ignore
     google.accounts.id.prompt();
+
+    //@ts-ignore
+    window.loginWithFacebook = () => {
+      //@ts-ignore
+      FB.getLoginStatus(function(response) {
+        console.log(response);
+        console.log(response.authResponse.accessToken);
+        this._auth.loginWithFacebook(response.authResponse.accessToken).subscribe();
+      });
+    }
 
     //@ts-ignore
     // FB.init({
