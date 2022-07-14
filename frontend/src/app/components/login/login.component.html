@@ -35,15 +35,10 @@
                 {{ submitting ? 'Submitting' : 'Login'}}
             </button>
             <div class="soc-buttons">
-                <!--<button type="button" mat-stroked-button class="soc-button"
+                <div id="google_login_button"
                     angulartics2On="click"
-                    angularticsAction="Login: login with google is clicked"
-                    (click)="loginWithGoogle()">
-                    <img src="../../../assets/icons/google_logo.webp" alt="" class="soc-button-icon">
-                    Continue with Google
-                </button>-->
-
-                <div id="google_login_button"></div>
+                    angularticsAction="Login: login with facebook is clicked">
+                </div>
                 <div class="fb-login-button"
                     data-width="200"
                     data-size="large"
@@ -51,17 +46,12 @@
                     data-layout="default"
                     data-auto-logout-link="false"
                     data-use-continue-as="false"
-                    onlogin="loginWithFacebook()">
+                    onlogin="loginWithFacebook()"
+                    angulartics2On="click"
+                    angularticsAction="Login: login with facebook is clicked">
                 </div>
             </div>
         </form>
-
-        <!-- <p class="sing-up mat-body-1">Need an account?
-            <a routerLink="/registration" class="link">
-                Sign up
-            </a>
-        </p> -->
-
     </div>
 </div>
 

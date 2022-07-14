@@ -31,7 +31,11 @@ export class LoginComponent implements OnInit {
       client_id: "681163285738-e4l0lrv5vv7m616ucrfhnhso9r396lum.apps.googleusercontent.com",
       callback: (authUser) => {
         this.ngZone.run(() => {
-          this._auth.loginWithGoogle(authUser.credential).subscribe();
+          this._auth.loginWithGoogle(authUser.credential).subscribe(() => {
+            this.angulartics2.eventTrack.next({
+              action: 'Login: google login success'
+            });
+          });
         })
       }
     });
@@ -48,7 +52,11 @@ export class LoginComponent implements OnInit {
       //@ts-ignore
       FB.getLoginStatus((response) => {
         this.ngZone.run(() => {
-          this._auth.loginWithFacebook(response.authResponse.accessToken).subscribe();
+          this._auth.loginWithFacebook(response.authResponse.accessToken).subscribe(() => {
+            this.angulartics2.eventTrack.next({
+              action: 'Login: fb login success'
+            });
+          });
         })
       });
     }
