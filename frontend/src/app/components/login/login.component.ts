@@ -1,9 +1,9 @@
 import { Component, NgZone, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
-import { AuthUser } from 'src/app/models/user';
+
 import { Angulartics2 } from 'angulartics2';
 import { AuthService } from 'src/app/services/auth.service';
-import { SocialAuthService, FacebookLoginProvider, GoogleLoginProvider } from '@abacritt/angularx-social-login';
+import { AuthUser } from 'src/app/models/user';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-login',
@@ -22,7 +22,6 @@ export class LoginComponent implements OnInit {
     private _auth: AuthService,
     public router: Router,
     private angulartics2: Angulartics2,
-    private socialAuthService: SocialAuthService,
     private ngZone: NgZone,
   ) { }
 
@@ -44,11 +43,15 @@ export class LoginComponent implements OnInit {
     //@ts-ignore
     google.accounts.id.prompt();
 
-    this.socialAuthService.authState.subscribe((authUser) => {
-      console.log('loginpage authUser from fb listener')
-      console.log(authUser)
-      if (authUser.provider === "FACEBOOK") this._auth.loginWithFacebook(authUser.authToken).subscribe();
-    });
+    //@ts-ignore
+    window.loginWithFacebook = () => {
+      //@ts-ignore
+      FB.getLoginStatus((response) => {
+        this.ngZone.run(() => {
+          this._auth.loginWithFacebook(response.authResponse.accessToken).subscribe();
+        })
+      });
+    }
   }
 
   loginUser() {
@@ -65,9 +68,5 @@ export class LoginComponent implements OnInit {
         });
         this.submitting = false;
       }, () => this.submitting = false)
-  }
-
-  loginWithFacebook() {
-    this.socialAuthService.signIn(FacebookLoginProvider.PROVIDER_ID);
   }
 }

@@ -1,6 +1,5 @@
 import { ActivatedRoute, Router } from '@angular/router';
 import { ChangeDetectorRef, Component, HostListener, NgZone } from '@angular/core';
-import { FacebookLoginProvider, SocialAuthService, SocialUser } from '@abacritt/angularx-social-login';
 
 import { Angulartics2Amplitude } from 'angulartics2/amplitude';
 import { AuthService } from './services/auth.service';
@@ -54,8 +53,7 @@ export class AppComponent {
     private _tables: TablesService,
     angulartics2Amplitude: Angulartics2Amplitude,
     private domSanitizer: DomSanitizer,
-    private matIconRegistry: MatIconRegistry,
-    private socialAuthService: SocialAuthService
+    private matIconRegistry: MatIconRegistry
   ) {
     this.matIconRegistry.addSvgIcon("mysql", this.domSanitizer.bypassSecurityTrustResourceUrl("/assets/icons/mysql_logo.svg"));
     this.matIconRegistry.addSvgIcon("mssql", this.domSanitizer.bypassSecurityTrustResourceUrl("/assets/icons/mssql_logo.svg"));
@@ -154,19 +152,6 @@ export class AppComponent {
       }
     });
 
-    // this.socialAuthService.authState.subscribe((authUser) => {
-    //   // this.currentUser = authUser;
-    //   // this.isSignedin = (user != null);
-    //   this._user.fetchUser()
-    //     .subscribe(res => {
-    //         this.currentUser = res;
-    //         this.setUserLoggedIn(true);
-    //         console.log(res);
-    //       }
-    //   )
-    //   console.log(authUser);
-    // });
-
     this._user.cast.subscribe( arg => {
       if (arg === 'delete') {
         this.logOut();
@@ -203,7 +188,6 @@ export class AppComponent {
   logOut(isTokenExpired?: boolean) {
     this._auth.logOutUser()
       .subscribe(() => {
-        // this.socialAuthService.signOut();
         try {
           // @ts-ignore
           google.accounts.id.revoke(this.currentUser.email, done => {
@@ -212,6 +196,17 @@ export class AppComponent {
            console.log(this.currentUser.email);
           });
         } catch(error) {
+          console.log('google error');
+          console.log(error);
+        }
+
+        try {
+          // @ts-ignore
+          FB.logout(function(response) {
+            console.log(response);
+          });
+        } catch(error) {
+          console.log('fb error');
           console.log(error);
         }
 

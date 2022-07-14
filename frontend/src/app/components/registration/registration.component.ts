@@ -1,5 +1,4 @@
 import { Component, NgZone, OnInit } from '@angular/core';
-import { FacebookLoginProvider, GoogleLoginProvider, SocialAuthService } from '@abacritt/angularx-social-login';
 
 import { Angulartics2 } from 'angulartics2';
 import { AuthService } from 'src/app/services/auth.service';
@@ -24,8 +23,7 @@ export class RegistrationComponent implements OnInit {
     private ngZone: NgZone,
     private angulartics2: Angulartics2,
     public router: Router,
-    private _auth: AuthService,
-    private socialAuthService: SocialAuthService
+    private _auth: AuthService
   ) {
    }
 
@@ -58,26 +56,11 @@ export class RegistrationComponent implements OnInit {
     window.loginWithFacebook = () => {
       //@ts-ignore
       FB.getLoginStatus((response) => {
-        console.log(response);
-        console.log(response.authResponse.accessToken);
         this.ngZone.run(() => {
           this._auth.loginWithFacebook(response.authResponse.accessToken).subscribe();
         })
       });
     }
-
-    //@ts-ignore
-    // FB.init({
-    //   appId      : '2931389687130672',
-    //   cookie     : true,  // enable cookies to allow the server to access
-    //                       // the session
-    //   xfbml      : true,  // parse social plugins on this page
-    //   version    : 'v14.0' // Specify the Graph API version to use
-    // });
-
-    // this.socialAuthService.authState.subscribe((authUser) => {
-    //   if (authUser.provider === "FACEBOOK") this._auth.loginWithFacebook(authUser.authToken).subscribe();
-    // });
   }
 
   registerUser() {
@@ -95,12 +78,4 @@ export class RegistrationComponent implements OnInit {
       this.submitting = false;
     }, () => this.submitting = false)
   }
-
-  // loginWithFacebook() {
-  //   //@ts-ignore
-  //   FB.getLoginStatus(function(response) {
-  //     console.log(response);
-  //     // this._auth.loginWithFacebook(authUser.authToken).subscribe();
-  //   });
-  // }
 }

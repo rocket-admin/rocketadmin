@@ -44,14 +44,15 @@
                 </button>-->
 
                 <div id="google_login_button"></div>
-
-                <button type="button" mat-stroked-button class="fb-button"
-                    angulartics2On="click"
-                    angularticsAction="Login: login with facebook is clicked"
-                    (click)="loginWithFacebook()">
-                    <img src="../../../assets/icons/fb_logo.png" alt="" class="soc-button-icon">
-                    Continue with Facebook
-                </button>
+                <div class="fb-login-button"
+                    data-width="224"
+                    data-size="large"
+                    data-button-type="continue_with"
+                    data-layout="default"
+                    data-auto-logout-link="false"
+                    data-use-continue-as="false"
+                    onlogin="loginWithFacebook()">
+                </div>
             </div>
         </form>
 
