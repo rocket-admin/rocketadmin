@@ -2994,28 +2994,6 @@ describe('Tables MsSQL (e2e)', () => {
   describe('POST /table/row/:slug', () => {
     it('should add row in table and return result', async () => {
       try {
-        AWSMock.setSDKInstance(AWS);
-        AWSMock.mock(
-          'CognitoIdentityServiceProvider',
-          'listUsers',
-          (newCognitoUserName, callback: (...args: any) => void) => {
-            callback(null, {
-              Users: [
-                {
-                  Attributes: [
-                    {},
-                    {},
-                    {
-                      Name: 'email',
-                      Value: 'Example@gmail.com',
-                    },
-                  ],
-                },
-              ],
-            });
-          },
-        );
-
         const createConnectionResponse = await request(app.getHttpServer())
           .post('/connection')
           .send(newConnection)
@@ -3037,8 +3015,10 @@ describe('Tables MsSQL (e2e)', () => {
           .send(JSON.stringify(row))
           .set('Content-Type', 'application/json')
           .set('Accept', 'application/json');
-        expect(addRowInTableResponse.status).toBe(201);
+
         const addRowInTableRO = JSON.parse(addRowInTableResponse.text);
+        console.log('=>(table-mssql.e2e.spec.ts:3020) addRowInTableRO', addRowInTableRO);
+        expect(addRowInTableResponse.status).toBe(201);
 
         expect(addRowInTableRO.hasOwnProperty('row')).toBeTruthy();
         expect(addRowInTableRO.hasOwnProperty('structure')).toBeTruthy();

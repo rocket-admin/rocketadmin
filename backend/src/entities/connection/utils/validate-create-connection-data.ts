@@ -14,7 +14,6 @@ import { isSaaS } from '../../../helpers/app/is-saas';
 export async function validateCreateConnectionData(
   createConnectionData: CreateConnectionDs | UpdateConnectionDs,
 ): Promise<boolean> {
-  // if (process.env.NODE_ENV === 'test') return true;
   const {
     connection_parameters: {
       azure_encryption,
