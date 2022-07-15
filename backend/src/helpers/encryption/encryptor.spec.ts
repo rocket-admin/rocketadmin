@@ -54,7 +54,7 @@ describe('Encryptor', () => {
 
     it('should encrypt data with algorithm argon2', async () => {
       const processedData = await Encryptor.processDataWithAlgorithm(testString, EncryptionAlgorithmEnum.argon2);
-      expect(processedData.length).toBe(95);
+      expect(processedData.length).toBe(96);
     });
 
     it('should encrypt data with algorithm pbkdf2', async () => {
