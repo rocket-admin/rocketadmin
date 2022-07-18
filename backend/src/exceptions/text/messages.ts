@@ -177,6 +177,8 @@ export const Messages = {
     `User "${email}" was registered. ${provider ? `Provider: "${provider}".` : ''}`,
   USER_CREATION_FAILED: 'Creating a new user failed.',
   USER_EMAIL_MISSING: `User email is missing`,
+  USER_MISSING_EMAIL_OR_SOCIAL_REGISTERED: `User with this email not found in our database. Please check your email.
+  Hint: if you registered through google or facebook, you need to change your password in these providers`,
   VERIFICATION_LINK_INCORRECT: 'Verification link is incorrect',
   VERIFICATION_LINK_EXPIRED: 'Verification link expired',
   EMAIL_ALREADY_CONFIRMED: 'Email is already confirmed',

@@ -20,6 +20,14 @@ export class RequestResetUserPasswordUseCase
 
   protected async implementation(email: string): Promise<OperationResultMessageDs> {
     const foundUser = await this._dbContext.userRepository.findOneUserByEmail(email);
+    if (!foundUser) {
+      throw new HttpException(
+        {
+          message: Messages.USER_MISSING_EMAIL_OR_SOCIAL_REGISTERED,
+        },
+        HttpStatus.FORBIDDEN,
+      );
+    }
     if (!foundUser.isActive) {
       throw new HttpException(
         {
