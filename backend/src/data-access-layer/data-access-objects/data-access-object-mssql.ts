@@ -44,19 +44,11 @@ export class DataAccessObjectMssql extends BasicDao implements IDataAccessObject
     tableName = `${schemaName}.[${tableName}]`;
     if (primaryColumns?.length > 0) {
       const result = await knex(tableName).returning(primaryKeys).insert(row);
-      const resultsArray = [];
-      for (let i = 0; i < primaryKeys.length; i++) {
-        resultsArray.push([primaryKeys[i], result[i]]);
-      }
-      return Object.fromEntries(resultsArray);
+      return result[0];
     } else {
       const rowKeys = Object.keys(row);
-      const resultsArray = [];
       const result = await knex(tableName).returning(rowKeys).insert(row);
-      for (let i = 0; i < rowKeys.length; i++) {
-        resultsArray.push([primaryKeys[i], result[i]]);
-      }
-      return Object.fromEntries(resultsArray);
+      return result[0];
     }
   }
 
