@@ -12,6 +12,11 @@
     margin: 2.5em 70px 1em 0;
 }
 
+.header-actions {
+    display: flex;
+    gap: 20px;
+}
+
 .empty-state {
     display: flex;
     flex-direction: column;

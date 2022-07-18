@@ -1,5 +1,5 @@
 import { HttpStatus, Injectable, Scope } from '@nestjs/common';
-import { BasicDao } from '../../dal/shared/basic-dao';
+import { BasicDao } from '../shared/basic-dao';
 import {
   IAutocompleteFieldsData,
   IDataAccessObject,
@@ -39,16 +39,24 @@ export class DataAccessObjectMssql extends BasicDao implements IDataAccessObject
   ): Promise<Record<string, unknown> | number> {
     const knex = await this.configureKnex();
     const primaryColumns = await this.getTablePrimaryColumns(tableName);
-    const primaryKey = primaryColumns[0];
+    const primaryKeys = primaryColumns.map((column) => column.column_name);
     const schemaName = await this.getSchemaName(tableName);
     tableName = `${schemaName}.[${tableName}]`;
     if (primaryColumns?.length > 0) {
-      const result = await knex(tableName).returning(primaryKey.column_name).insert(row);
-      return {
-        [primaryKey.column_name]: result[0],
-      };
+      const result = await knex(tableName).returning(primaryKeys).insert(row);
+      const resultsArray = [];
+      for (let i = 0; i < primaryKeys.length; i++) {
+        resultsArray.push([primaryKeys[i], result[i]]);
+      }
+      return Object.fromEntries(resultsArray);
     } else {
-      return (await knex(tableName).insert(row)) as unknown as Record<string, unknown>;
+      const rowKeys = Object.keys(row);
+      const resultsArray = [];
+      const result = await knex(tableName).returning(rowKeys).insert(row);
+      for (let i = 0; i < rowKeys.length; i++) {
+        resultsArray.push([primaryKeys[i], result[i]]);
+      }
+      return Object.fromEntries(resultsArray);
     }
   }
 
@@ -106,13 +114,13 @@ export class DataAccessObjectMssql extends BasicDao implements IDataAccessObject
       const schemaName = await this.getSchemaName(tableName);
       tableName = `${schemaName}.[${tableName}]`;
       const knex = await this.configureKnex();
-      return (await knex(tableName).where(primaryKey)) as unknown as Record<string, unknown>;
+      return (await knex(tableName).where(primaryKey))[0] as unknown as Record<string, unknown>;
     }
     const availableFields = await this.findAvaliableFields(settings, tableName);
     const knex = await this.configureKnex();
     const schemaName = await this.getSchemaName(tableName);
     tableName = `${schemaName}.[${tableName}]`;
-    return (await knex(tableName).select(availableFields).where(primaryKey)) as unknown as Record<string, unknown>;
+    return (await knex(tableName).select(availableFields).where(primaryKey))[0] as unknown as Record<string, unknown>;
   }
 
   public async getRowsFromTable(
@@ -134,10 +142,8 @@ export class DataAccessObjectMssql extends BasicDao implements IDataAccessObject
       }
     }
     const knex = await this.configureKnex();
-    const [rowsCount, availableFields] = await Promise.all([
-      this.getRowsCount(tableName),
-      this.findAvaliableFields(settings, tableName),
-    ]);
+    const rowsCount = await this.getRowsCount(tableName);
+    const availableFields = await this.findAvaliableFields(settings, tableName);
 
     let tableSchema = await this.getSchemaName(tableName);
     if (tableSchema) {

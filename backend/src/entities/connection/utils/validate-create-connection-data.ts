@@ -9,11 +9,12 @@ import { HttpStatus } from '@nestjs/common';
 import { isConnectionTypeAgent, toPrettyErrorsMsg } from '../../../helpers';
 import { Messages } from '../../../exceptions/text/messages';
 import { UpdateConnectionDs } from '../application/data-structures/update-connection.ds';
+import { isSaaS } from '../../../helpers/app/is-saas';
 
 export async function validateCreateConnectionData(
   createConnectionData: CreateConnectionDs | UpdateConnectionDs,
 ): Promise<boolean> {
-  if (process.env.NODE_ENV !== 'test') return true;
+  // if (process.env.NODE_ENV === 'test') return true;
   const {
     connection_parameters: {
       azure_encryption,
@@ -96,6 +97,9 @@ function validateConnectionType(type: string): string {
 
 async function checkIsHostAllowed(createConnectionData: CreateConnectionDs | UpdateConnectionDs): Promise<boolean> {
   if (isConnectionTypeAgent(createConnectionData.connection_parameters.type) || process.env.NODE_ENV === 'test') {
+    return true;
+  }
+  if (process.env.NODE_ENV !== 'test' && !isSaaS()) {
     return true;
   }
   return new Promise<boolean>((resolve, reject) => {

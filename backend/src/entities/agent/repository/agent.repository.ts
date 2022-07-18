@@ -28,7 +28,9 @@ export class AgentRepository extends Repository<AgentEntity> implements IAgentRe
       agent.token = '_ueF-9gQ4Kv1YVITBn0W_Hzvr5tBBSRmhLEZv2IcejomK2LGBhaFkEzOSB3FvFDW';
     }
     agent.connection = connection;
-    return await this.save(agent);
+    const savedAgent = await this.save(agent);
+    savedAgent.token = token;
+    return savedAgent;
   }
 
   async renewOrCreateConnectionToken(connectionId: string): Promise<string> {

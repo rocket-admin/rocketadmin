@@ -11,9 +11,6 @@ import { NotificationsService } from './notifications.service';
   providedIn: 'root'
 })
 export class AuthService {
-
-  _userURLv2 = 'https://api-v2.autoadmin.org/user';
-
   private auth = new BehaviorSubject<any>('');
   public cast = this.auth.asObservable();
 
@@ -23,7 +20,7 @@ export class AuthService {
   ) { }
 
   signUpUser(userData: AuthUser) {
-    return this._http.post<any>(`${this._userURLv2}/register`, userData)
+    return this._http.post<any>('/user/register', userData)
       .pipe(
         map(res => {
           // @ts-ignore
@@ -47,7 +44,7 @@ export class AuthService {
   }
 
   loginUser(userData: AuthUser) {
-    return this._http.post<any>(`${this._userURLv2}/login`, userData)
+    return this._http.post<any>('/user/login', userData)
     .pipe(
       map(res => {
         this.auth.next(res);
@@ -68,7 +65,7 @@ export class AuthService {
   }
 
   loginWithFacebook(token: string) {
-    return this._http.post<any>(`${this._userURLv2}/facebook/login`, {token})
+    return this._http.post<any>('/user/facebook/login', {token})
     .pipe(
       map(res => {
         console.log('loginWithFacebook our api');
@@ -91,7 +88,7 @@ export class AuthService {
   }
 
   loginWithGoogle(token: string) {
-    return this._http.post<any>(`${this._userURLv2}/google/login`, {token})
+    return this._http.post<any>('/user/google/login', {token})
     .pipe(
       map(res => {
         this.auth.next(res);
@@ -112,7 +109,7 @@ export class AuthService {
   }
 
   requestEmailVerifications() {
-    return this._http.get<any>(`${this._userURLv2}/email/verify/request`)
+    return this._http.get<any>('/user/email/verify/request')
     .pipe(
       map(res => {
         this._notifications.showSuccessSnackbar('Confirmation email has been sent.');
@@ -133,7 +130,7 @@ export class AuthService {
   }
 
   verifyEmail(token: string) {
-    return this._http.get<any>(`${this._userURLv2}/email/verify/${token}`)
+    return this._http.get<any>(`/user/email/verify/${token}`)
     .pipe(
       map(res => {
         this._notifications.showSuccessSnackbar('Your email is verified.');
@@ -155,7 +152,7 @@ export class AuthService {
   }
 
   logOutUser() {
-    return this._http.post<any>(`${this._userURLv2}/logout`, undefined)
+    return this._http.post<any>('/user/logout', undefined)
       .pipe(
         map(() => {
           this._notifications.showSuccessSnackbar('User is logged out.');

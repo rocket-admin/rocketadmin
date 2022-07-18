@@ -80,7 +80,7 @@ export interface ITablePrimaryColumnInfo {
 }
 
 export interface ITableRowRO {
-  row: string;
+  row: string | Record<string, unknown>;
   structure: Array<IStructureRowInfo>;
   foreignKeys: Array<IForeignKeyStructure>;
   primaryColumns: Array<IPrimaryColumnName>;
@@ -89,7 +89,7 @@ export interface ITableRowRO {
 }
 
 export interface ITableRowsRO {
-  rows: Array<string>;
+  rows: Array<Record<string, unknown>>;
   primaryColumns: Array<IPrimaryColumnName>;
   pagination: IPaginationRO | Record<string, unknown>;
   sortable_by: Array<string>;

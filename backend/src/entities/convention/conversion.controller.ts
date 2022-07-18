@@ -1,4 +1,4 @@
-import { Controller, Get, Inject, Req, Res, UseInterceptors } from '@nestjs/common';
+import { Controller, Get, Inject, Injectable, Req, Res, Scope, UseInterceptors } from '@nestjs/common';
 import { ApiBasicAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Request, Response } from 'express';
 import { SentryInterceptor } from '../../interceptors';
@@ -9,6 +9,7 @@ import { IGetConversions } from './use-cases/get-conversions-use-cases.interface
 @ApiTags('conversions')
 @UseInterceptors(SentryInterceptor)
 @Controller()
+@Injectable({ scope: Scope.REQUEST })
 export class ConversionController {
   constructor(
     @Inject(UseCaseType.GET_CONVERSIONS)

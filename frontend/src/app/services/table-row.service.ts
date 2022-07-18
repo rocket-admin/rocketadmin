@@ -10,9 +10,6 @@ import { NotificationsService } from './notifications.service';
   providedIn: 'root'
 })
 export class TableRowService {
-
-  _tableURL = 'https://api-v2.autoadmin.org/table';
-
   private row;
   public cast;
 
@@ -25,7 +22,7 @@ export class TableRowService {
   }
 
   fetchTableRow(connectionID: string, tableName: string, params) {
-    return this._http.get<any>(`${this._tableURL}/row/${connectionID}`, {
+    return this._http.get<any>(`/table/row/${connectionID}`, {
       params: {
         ...params,
         tableName
@@ -33,16 +30,16 @@ export class TableRowService {
     })
       .pipe(
         map(res => res),
-        catchError((err) => {
-          console.log(err);
-          this._notifications.showErrorSnackbar(err.error.message);
-          return EMPTY;
-        })
+        // catchError((err) => {
+        //   console.log(err);
+        //   this._notifications.showErrorSnackbar(err.error.message);
+        //   return EMPTY;
+        // })
       );
   }
 
   addTableRow(connectionID: string, tableName: string, row) {
-    return this._http.post<any>(`${this._tableURL}/row/${connectionID}`, row, {
+    return this._http.post<any>(`/table/row/${connectionID}`, row, {
       params: {
         tableName
       }
@@ -67,7 +64,7 @@ export class TableRowService {
   }
 
   updateTableRow(connectionID: string, tableName: string, params, tableRow) {
-    return this._http.put<any>(`${this._tableURL}/row/${connectionID}`, tableRow  , {
+    return this._http.put<any>(`/table/row/${connectionID}`, tableRow  , {
       params: {
         ...params,
         tableName
@@ -93,7 +90,7 @@ export class TableRowService {
   }
 
   deleteTableRow(connectionID: string, tableName: string, params) {
-    return this._http.delete<any>(`${this._tableURL}/row/${connectionID}`, {
+    return this._http.delete<any>(`/table/row/${connectionID}`, {
       params: {
         ...params,
         tableName

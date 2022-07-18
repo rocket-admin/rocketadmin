@@ -1,4 +1,4 @@
-import { BasicDao } from '../../dal/shared/basic-dao';
+import { BasicDao } from '../shared/basic-dao';
 import {
   IAutocompleteFieldsData,
   IDataAccessObject,
@@ -63,15 +63,12 @@ export class DataAccessObjectPostgres extends BasicDao implements IDataAccessObj
     }
 
     if (primaryColumns?.length > 0) {
-      //todo rework with complex primary key
-      const primaryKey = primaryColumns[0];
+      const primaryKey = primaryColumns.map((column) => column.column_name);
       const result = await knex(tableName)
         .withSchema(this.connection.schema ? this.connection.schema : 'public')
-        .returning(primaryKey.column_name)
+        .returning(primaryKey)
         .insert(row);
-      return {
-        [primaryKey.column_name]: result[0],
-      };
+      return result[0] as unknown as Record<string, unknown>;
     } else {
       const rowFields = Object.keys(row);
       const result = await knex(tableName)
@@ -140,7 +137,7 @@ export class DataAccessObjectPostgres extends BasicDao implements IDataAccessObj
       const result = await knex(tableName)
         .withSchema(this.connection.schema ? this.connection.schema : 'public')
         .where(primaryKey);
-      return result as unknown as Record<string, unknown>;
+      return result[0] as unknown as Record<string, unknown>;
     }
     const availableFields = await this.findAvaliableFields(settings, tableName);
     const knex = await this.configureKnex();
@@ -148,7 +145,8 @@ export class DataAccessObjectPostgres extends BasicDao implements IDataAccessObj
       .withSchema(this.connection.schema ? this.connection.schema : 'public')
       .select(availableFields)
       .where(primaryKey);
-    return result as unknown as Record<string, unknown>;
+    console.log('=>(data-access-object-postgres.ts:152) get row by primary key', result);
+    return result[0] as unknown as Record<string, unknown>;
   }
 
   public async getRowsFromTable(
@@ -507,10 +505,6 @@ export class DataAccessObjectPostgres extends BasicDao implements IDataAccessObj
       tableName = `"public"."${tableName}"`;
     }
     return tableName;
-  }
-
-  static async clearKnexCache() {
-    await Cacher.clearKnexCache();
   }
 
   private async getRowsCount(knex: Knex, tableName: string, tableSchema: string): Promise<number> {

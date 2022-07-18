@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Inject, OnInit, Output } from '@angular/core';
+import { Component, Inject, OnInit } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 @Component({
@@ -8,8 +8,6 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 })
 export class WidgetDeleteDialogComponent implements OnInit {
 
-  @Output() deleteWidget = new EventEmitter();
-
   constructor(
     @Inject(MAT_DIALOG_DATA) public widgetFieldName: any,
     private dialogRef: MatDialogRef<WidgetDeleteDialogComponent>
@@ -17,9 +15,4 @@ export class WidgetDeleteDialogComponent implements OnInit {
 
   ngOnInit(): void {
   }
-
-  onDeleteWidget() {
-    this.deleteWidget.emit(this.widgetFieldName);
-  }
-
 }

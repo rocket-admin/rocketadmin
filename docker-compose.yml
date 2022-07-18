@@ -1,0 +1,92 @@
+version: "3.7"
+services:
+  backend:
+    build:
+      context: backend
+    ports:
+      - 3000:3000
+    env_file: ./backend/.development.env
+    volumes:
+      - ./backend/dist:/app/dist
+      - ./backend/src:/app/src
+      - ./backend/src/migrations:/app/src/migrations
+    depends_on:
+      - postgres
+      - testDB
+      - testMySQL-e2e-testing
+      - testPg-e2e-testing
+      - mssql-e2e-testing
+      - nestjsTesting
+      - test-oracle-e2e-testing
+    links:
+      - postgres
+      - testDB
+      - testMySQL-e2e-testing
+      - testPg-e2e-testing
+      - mssql-e2e-testing
+      - nestjsTesting
+      - test-oracle-e2e-testing
+    command: ["yarn", "start:dev"]
+
+  frontend:
+    build:
+      context: frontend
+    environment:
+      API_ROOT: http://backend:3000
+    ports:
+      - 80:80
+    depends_on:
+      - backend
+    links:
+      - backend
+
+  testDB:
+    image: postgres
+    ports:
+      - 8000:8000
+    environment:
+      POSTGRES_PASSWORD: 123
+
+  nestjsTesting:
+    image: postgres
+    ports:
+      - 8001:5432
+    environment:
+      POSTGRES_PASSWORD: postgres
+
+  testMySQL-e2e-testing:
+    image: mysql:8.0.23
+    ports:
+      - 3308:3306
+    environment:
+      MYSQL_ROOT_PASSWORD: 123
+      MYSQL_DATABASE: testDB
+
+  testPg-e2e-testing:
+    image: postgres
+    ports:
+      - 9002:5432
+    environment:
+      POSTGRES_PASSWORD: 123
+
+  postgres:
+    image: postgres
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_PASSWORD: abc123
+
+  mssql-e2e-testing:
+    image: mcr.microsoft.com/mssql/server:2019-latest
+    environment:
+      - SA_PASSWORD=yNuXf@6T#BgoQ%U6knMp
+      - ACCEPT_EULA=Y
+    ports:
+      - "5434:1433"
+
+  test-oracle-e2e-testing:
+    image: gvenzl/oracle-xe:latest
+    ports:
+      - 1521:1521
+    environment:
+      ORACLE_PASSWORD: 12345

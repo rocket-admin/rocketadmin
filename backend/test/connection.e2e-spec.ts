@@ -3,16 +3,16 @@ import * as request from 'supertest';
 import { AccessLevelEnum } from '../src/enums';
 import { ApplicationModule } from '../src/app.module';
 import { Connection } from 'typeorm';
-import { DaoPostgres } from '../src/dal/dao/dao-postgres';
 import { DatabaseModule } from '../src/shared/database/database.module';
 import { DatabaseService } from '../src/shared/database/database.service';
 import { INestApplication } from '@nestjs/common';
 import { Messages } from '../src/exceptions/text/messages';
 import { MockFactory } from './mock.factory';
 import { Test } from '@nestjs/testing';
-import { TestUtils } from './test.utils';
+import { TestUtils } from './utils/test.utils';
 import { Constants } from '../src/helpers/constants/constants';
 import * as cookieParser from 'cookie-parser';
+import { Cacher } from '../src/helpers/cache/cacher';
 
 describe('Connections (e2e)', () => {
   jest.setTimeout(60000);
@@ -77,9 +77,9 @@ describe('Connections (e2e)', () => {
   });
 
   afterEach(async () => {
+    await Cacher.clearAllCache();
     await testUtils.resetDb();
     await testUtils.closeDbConnection();
-    await DaoPostgres.clearKnexCache();
   });
 
   afterAll(async () => {

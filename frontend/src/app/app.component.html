@@ -73,7 +73,7 @@
                 <button mat-button (click)="logOut()" class="nav-bar__button"
                     matTooltip="Logout {{currentUser.email}}">
                     Log out
-                    <mat-icon>exit_to_app</mat-icon>
+                    <mat-icon inline>exit_to_app</mat-icon>
                 </button>
             </div>
 
@@ -92,8 +92,18 @@
             </ng-template> -->
         </mat-toolbar>
 
-        <div *ngIf="connectionID" class="mat-body-2 connectionName">
-            {{currantConnection.title || currantConnection.database}}
+        <div *ngIf="connectionID" class="mat-body-2 breadcrumbs">
+            <a mat-button
+                routerLink="/dashboard/{{connectionID}}">
+                {{currantConnection.title || currantConnection.database}}
+            </a>
+            <div *ngIf="tableName" class="breadcrumbs__tableName">
+                <mat-icon class="breadcrumbs__arrowIcon">arrow_forward_ios</mat-icon>
+                <a mat-button routerLink="/dashboard/{{connectionID}}/{{tableName}}">
+                    {{normalizedTableName}}
+                </a>
+            </div>
+
         </div>
 
         <nav mat-tab-nav-bar mat-align-tabs="center" *ngIf="connectionID">

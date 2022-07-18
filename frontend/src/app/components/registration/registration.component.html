@@ -6,14 +6,10 @@
             (ngSubmit)="registerUser()">
             <h1 class="mat-h1">Create an account to manage your database</h1>
 
-            <div id="google_registration_button"></div>
-            <!--<button type="button" class="soc-button"
+            <div id="google_registration_button"
                 angulartics2On="click"
-                angularticsAction="Reg: sign up with google"
-                (click)="loginWithGoogle()">
-                <img src="../../../assets/icons/google_logo.svg" alt="" class="soc-button-icon">
-                Continue with Google
-            </button>-->
+                angularticsAction="Reg: sign up with google">
+            </div>
 
             <div class="divider"><span class="divider__label">or</span></div>
 
@@ -77,13 +73,17 @@
 
             <div class="divider"></div>
 
-            <button type="button" class="soc-button"
+            <div class="fb-login-button"
+                data-width="400"
+                data-size="large"
+                data-button-type="continue_with"
+                data-layout="default"
+                data-auto-logout-link="false"
+                data-use-continue-as="false"
+                onlogin="loginWithFacebook()"
                 angulartics2On="click"
-                angularticsAction="Reg: sign up with facebook"
-                (click)="loginWithFacebook()">
-                <img src="../../../assets/icons/fb_logo.svg" alt="" class="soc-button-icon">
-                Continue with Facebook
-            </button>
+                angularticsAction="Reg: sign up with fb">
+            </div>
         </form>
 
         <p class="mat-caption agreement">

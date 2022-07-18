@@ -1,5 +1,5 @@
 import { INestApplication } from '@nestjs/common';
-import { TestUtils } from './test.utils';
+import { TestUtils } from './utils/test.utils';
 import { MockFactory } from './mock.factory';
 import { knex } from 'knex';
 import { Test } from '@nestjs/testing';
@@ -8,10 +8,10 @@ import { DatabaseModule } from '../src/shared/database/database.module';
 import { DatabaseService } from '../src/shared/database/database.service';
 import * as request from 'supertest';
 import * as faker from 'faker';
-import { DaoPostgres } from '../src/dal/dao/dao-postgres';
 import { Connection } from 'typeorm';
+import { Cacher } from '../src/helpers/cache/cacher';
 
-describe('Tables Postgres (e2e)', () => {
+xdescribe('Tables Postgres (e2e)', () => {
   jest.setTimeout(20000);
   let app: INestApplication;
   let testUtils: TestUtils;
@@ -87,7 +87,7 @@ describe('Tables Postgres (e2e)', () => {
     try {
       await testUtils.resetDb();
       await testUtils.closeDbConnection();
-      await DaoPostgres.clearKnexCache();
+      await Cacher.clearAllCache();
       jest.setTimeout(5000);
       await testUtils.shutdownServer(app.getHttpAdapter());
       const connect = await app.get(Connection);

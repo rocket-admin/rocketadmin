@@ -1,0 +1,17 @@
+.file-input {
+    display: none;
+}
+
+.file-uploader-appearance {
+    margin-bottom: 20px;
+}
+
+.file-label {
+    margin-right: 20px;
+}
+
+.file-name {
+    color: rgba(0, 0, 0, 0.5);
+    font-style: italic;
+    margin-right: 20px;
+}

@@ -1,5 +1,5 @@
 import { Injectable, Scope } from '@nestjs/common';
-import { BasicDao } from '../../dal/shared/basic-dao';
+import { BasicDao } from '../shared/basic-dao';
 import {
   IAutocompleteFieldsData,
   IDataAccessObject,
@@ -70,12 +70,15 @@ export class DataAccessObjectMysql extends BasicDao implements IDataAccessObject
     const knex = await this.configureKnex();
     await knex.raw('SET SQL_SAFE_UPDATES = 1;');
     if (primaryColumns?.length > 0) {
+      const primaryKeys = primaryColumns.map((column) => column.column_name);
       if (!checkFieldAutoincrement(primaryKeyStructure.column_default)) {
         try {
           await knex(tableName).insert(row);
-          return {
-            [primaryKey.column_name]: row[primaryKey.column_name],
-          };
+          const resultsArray = [];
+          for (let i = 0; i < primaryKeys.length; i++) {
+            resultsArray.push([primaryKeys[i], row[primaryKeys[i]]]);
+          }
+          return Object.fromEntries(resultsArray);
         } catch (e) {
           throw new Error(e);
         }
@@ -152,10 +155,12 @@ export class DataAccessObjectMysql extends BasicDao implements IDataAccessObject
   ): Promise<Record<string, unknown>> {
     const knex = await this.configureKnex();
     if (!settings) {
-      return knex(tableName).where(primaryKey) as unknown as Record<string, unknown>;
+      const result = await knex(tableName).where(primaryKey);
+      return result[0] as Record<string, unknown>;
     }
     const availableFields = await this.findAvaliableFields(settings, tableName);
-    return (await knex(tableName).select(availableFields).where(primaryKey)) as unknown as Record<string, unknown>;
+    const result = await knex(tableName).select(availableFields).where(primaryKey);
+    return result[0] as Record<string, unknown>;
   }
 
   public async getRowsFromTable(

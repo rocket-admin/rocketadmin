@@ -51,7 +51,7 @@ export class ConnectionRepository extends Repository<ConnectionEntity> implement
   public async findOneConnection(
     connectionId: string,
   ): Promise<Omit<ConnectionEntity, 'password' | 'privateSSHKey' | 'groups'>> {
-    const connection = await this.findOne(connectionId);
+    const connection = await this.findOne({ id: connectionId });
     delete connection.password;
     delete connection.privateSSHKey;
     delete connection.groups;
@@ -59,11 +59,18 @@ export class ConnectionRepository extends Repository<ConnectionEntity> implement
   }
 
   public async findFullConnectionEntity(connectionId: string): Promise<ConnectionEntity> {
-    return await this.findOne(connectionId);
+    return await this.findOne({ id: connectionId });
   }
 
   public async findAndDecryptConnection(connectionId: string, masterPwd: string): Promise<ConnectionEntity> {
-    let connection = await this.findOne(connectionId);
+    const qb = await getRepository(ConnectionEntity)
+      .createQueryBuilder('connection')
+      .leftJoinAndSelect('connection.agent', 'agent')
+      .andWhere('connection.id = :connectionId', { connectionId: connectionId });
+    let connection = await qb.getOne();
+    if (!connection) {
+      return null;
+    }
     if (connection.masterEncryption && masterPwd) {
       connection = Encryptor.decryptConnectionCredentials(connection, masterPwd);
     }
@@ -134,7 +141,7 @@ export class ConnectionRepository extends Repository<ConnectionEntity> implement
   }
 
   public async findOneById(connectionId: string): Promise<ConnectionEntity> {
-    return await this.findOne(connectionId);
+    return await this.findOne({ id: connectionId });
   }
 
   public async findOneAgentConnectionByToken(connectionToken: string): Promise<ConnectionEntity> {

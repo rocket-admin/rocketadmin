@@ -13,10 +13,12 @@ import {
   HttpException,
   HttpStatus,
   Inject,
+  Injectable,
   Param,
   Put,
   Req,
   Res,
+  Scope,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
@@ -47,6 +49,7 @@ import { DeletedGroupResultDs } from './application/data-sctructures/deleted-gro
 @ApiTags('groups')
 @UseInterceptors(SentryInterceptor)
 @Controller()
+@Injectable({ scope: Scope.REQUEST })
 export class GroupController {
   constructor(
     @Inject(UseCaseType.INVITE_USER_IN_GROUP)

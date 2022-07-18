@@ -7,7 +7,6 @@ import * as request from 'supertest';
 import { ApplicationModule } from '../src/app.module';
 import { Connection } from 'typeorm';
 import { Constants } from '../src/helpers/constants/constants';
-import { DaoPostgres } from '../src/dal/dao/dao-postgres';
 import { DatabaseModule } from '../src/shared/database/database.module';
 import { DatabaseService } from '../src/shared/database/database.service';
 import { INestApplication } from '@nestjs/common';
@@ -15,7 +14,8 @@ import { Messages } from '../src/exceptions/text/messages';
 import { MockFactory } from './mock.factory';
 import { QueryOrderingEnum } from '../src/enums';
 import { Test } from '@nestjs/testing';
-import { TestUtils } from './test.utils';
+import { TestUtils } from './utils/test.utils';
+import { Cacher } from '../src/helpers/cache/cacher';
 
 describe('Tables Postgres (e2e)', () => {
   jest.setTimeout(20000);
@@ -81,27 +81,7 @@ describe('Tables Postgres (e2e)', () => {
     await app.init();
 
     newConnection = mockFactory.generateConnectionToTestPostgresDBInDocker();
-    AWSMock.setSDKInstance(AWS);
-    AWSMock.mock(
-      'CognitoIdentityServiceProvider',
-      'listUsers',
-      (newCognitoUserName, callback: (...ars: any) => void) => {
-        callback(null, {
-          Users: [
-            {
-              Attributes: [
-                {},
-                {},
-                {
-                  Name: 'email',
-                  Value: 'Example@gmail.com',
-                },
-              ],
-            },
-          ],
-        });
-      },
-    );
+
     await resetPostgresTestDB();
     const findAllConnectionsResponse = await request(app.getHttpServer())
       .get('/connections')
@@ -113,12 +93,13 @@ describe('Tables Postgres (e2e)', () => {
   afterEach(async () => {
     await testUtils.resetDb();
     await testUtils.closeDbConnection();
-    await DaoPostgres.clearKnexCache();
+    await Cacher.clearAllCache();
     AWSMock.restore('CognitoIdentityServiceProvider');
   });
 
   afterAll(async () => {
     try {
+      await Cacher.clearAllCache();
       jest.setTimeout(5000);
       await testUtils.shutdownServer(app.getHttpAdapter());
       const connect = await app.get(Connection);
@@ -2991,28 +2972,6 @@ describe('Tables Postgres (e2e)', () => {
   describe('POST /table/row/:slug', () => {
     it('should add row in table and return result', async () => {
       try {
-        AWSMock.setSDKInstance(AWS);
-        AWSMock.mock(
-          'CognitoIdentityServiceProvider',
-          'listUsers',
-          (newCognitoUserName, callback: (...ars: any) => void) => {
-            callback(null, {
-              Users: [
-                {
-                  Attributes: [
-                    {},
-                    {},
-                    {
-                      Name: 'email',
-                      Value: 'Example@gmail.com',
-                    },
-                  ],
-                },
-              ],
-            });
-          },
-        );
-
         const createConnectionResponse = await request(app.getHttpServer())
           .post('/connection')
           .send(newConnection)
@@ -3059,6 +3018,7 @@ describe('Tables Postgres (e2e)', () => {
         expect(getTableRowsRO.hasOwnProperty('pagination')).toBeTruthy();
 
         const { rows, primaryColumns, pagination } = getTableRowsRO;
+        console.log('=>(table-postgres.e2e.spec.ts:3020) rows', rows);
 
         expect(rows.length).toBe(43);
         expect(rows[42][testTableColumnName]).toBe(row[testTableColumnName]);

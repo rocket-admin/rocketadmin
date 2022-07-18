@@ -2,9 +2,9 @@ import { CreateFieldDto } from '../application/data-structures/create-custom-fie
 import { ConnectionEntity } from '../../connection/connection.entity';
 import { Messages } from '../../../exceptions/text/messages';
 import { getValuesBetweenCurlies, toPrettyErrorsMsg } from '../../../helpers';
-import { createDao } from '../../../dal/shared/create-dao';
 import { HttpException } from '@nestjs/common/exceptions/http.exception';
 import { HttpStatus } from '@nestjs/common';
+import { createDataAccessObject } from '../../../data-access-layer/shared/create-data-access-object';
 
 export async function validateCreateCustomFieldDto(
   createFieldDto: CreateFieldDto,
@@ -19,7 +19,7 @@ export async function validateCreateCustomFieldDto(
   if (!template_string) errors.push(Messages.CUSTOM_FIELD_TEMPLATE_MISSING);
   if (type && type !== 'AA:Link') errors.push(Messages.CUSTOM_FIELD_TYPE_INCORRECT);
   const tableFieldsFromTemplate = getValuesBetweenCurlies(template_string);
-  const dao = createDao(connection, userId);
+  const dao = createDataAccessObject(connection, userId);
   const tablesInConnection: Array<string> = await dao.getTablesFromDB();
   const tableIndexInTables = tablesInConnection.findIndex((table_name) => table_name === tableName);
   if (tableIndexInTables < 0) {

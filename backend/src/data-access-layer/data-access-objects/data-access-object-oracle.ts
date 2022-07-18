@@ -98,9 +98,12 @@ export class DataAccessObjectOracle implements IDataAccessObject {
           .catch((e) => {
             throw new Error(e);
           });
-        result = {
-          [primaryKey.column_name]: row[primaryKey.column_name],
-        };
+        const primaryKeys = primaryColumns.map((column) => column.column_name);
+        const resultsArray = [];
+        for (let i = 0; i < primaryKeys.length; i++) {
+          resultsArray.push([primaryKeys[i], row[primaryKeys[i]]]);
+        }
+        result = Object.fromEntries(resultsArray);
       }
     } else {
       result = await knex
@@ -180,9 +183,21 @@ export class DataAccessObjectOracle implements IDataAccessObject {
     settings: TableSettingsEntity,
   ): Promise<Record<string, unknown>> {
     const knex = await this.configureKnex();
-    return (await knex(tableName)
-      .withSchema(this.connection.schema ? this.connection.schema : this.connection.username.toUpperCase())
-      .where(primaryKey)) as unknown as Record<string, unknown>;
+    if (!settings) {
+      return (
+        await knex(tableName)
+          .withSchema(this.connection.schema ? this.connection.schema : this.connection.username.toUpperCase())
+          .where(primaryKey)
+      )[0] as unknown as Record<string, unknown>;
+    } else {
+      const availableFields = await this.findAvaliableFields(settings, tableName);
+      return (
+        await knex(tableName)
+          .withSchema(this.connection.schema ? this.connection.schema : this.connection.username.toUpperCase())
+          .select(availableFields)
+          .where(primaryKey)
+      )[0] as unknown as Record<string, unknown>;
+    }
   }
 
   public async getRowsFromTable(

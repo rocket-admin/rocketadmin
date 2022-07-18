@@ -1,11 +1,11 @@
 import * as Sentry from "@sentry/angular";
 
 import { APP_INITIALIZER, ErrorHandler, NgModule } from '@angular/core';
-import { FacebookLoginProvider, GoogleLoginProvider, SocialAuthServiceConfig, SocialLoginModule } from '@abacritt/angularx-social-login';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { Router, RouterModule } from '@angular/router';
 
+import { AccountDeleteConfirmationComponent } from './components/user-settings/account-delete-confirmation/account-delete-confirmation.component';
 import { AccountDeleteDialogComponent } from './components/user-settings/account-delete-dialog/account-delete-dialog.component';
 import { Angulartics2Module } from 'angulartics2';
 import { AppComponent } from './app.component';
@@ -16,6 +16,7 @@ import { BinaryDataCaptionComponent } from './components/ui-components/row-field
 import { BooleanComponent } from './components/ui-components/row-fields/boolean/boolean.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { BrowserModule } from '@angular/platform-browser';
+import { ConfigModule } from './modules/config.module';
 import { ConnectDBComponent } from './components/connect-db/connect-db.component';
 import { ConnectionSettingsComponent } from "./components/connection-settings/connection-settings.component";
 import { ConnectionsListComponent } from './components/connections-list/connections-list.component';
@@ -39,18 +40,21 @@ import { DynamicModule } from 'ng-dynamic-component';
 import { EmailChangeComponent } from './components/email-change/email-change.component';
 import { EmailVerificationComponent } from './components/email-verification/email-verification.component';
 import { EncodeUrlParamsSafelyInterceptor } from './services/url-params.interceptor';
+import { FileComponent } from './components/ui-components/row-fields/file/file.component';
 import { ForeignKeyComponent } from './components/ui-components/row-fields/foreign-key/foreign-key.component';
 import { GroupAddDialogComponent } from './components/users/group-add-dialog/group-add-dialog.component';
 import { GroupDeleteDialogComponent } from './components/users/group-delete-dialog/group-delete-dialog.component';
+import { GroupUserVerificationComponent } from './components/group-user-verification/group-user-verification.component';
 import { HomeComponent } from './components/home/home.component';
 import { HostnameValidationDirective } from "./directives/hostnameValidator.directive";
+import { IdComponent } from "./components/ui-components/row-fields/id/id.component";
 import { InfoDialogComponent } from './components/audit/info-dialog/info-dialog.component';
 import { JsonEditorComponent } from './components/ui-components/row-fields/json-editor/json-editor.component';
 import { LoginComponent } from './components/login/login.component';
 import { LongTextComponent } from './components/ui-components/row-fields/long-text/long-text.component';
 import { MasterPasswordDialogComponent } from './components/master-password-dialog/master-password-dialog.component';
 import { MatMenuModule } from '@angular/material/menu';
-import { MaterialModule } from './material/material.module';
+import { MaterialModule } from './modules/material.module';
 import { NgJsonEditorModule } from 'ang-jsoneditor'
 import { NgmatTableQueryReflectorModule } from '@nghacks/ngmat-table-query-reflector';
 import { NotificationsService } from './services/notifications.service';
@@ -79,38 +83,24 @@ import { UserSettingsComponent } from './components/user-settings/user-settings.
 import { UsersComponent } from './components/users/users.component';
 import { UsersService } from './services/users.service';
 import { WidgetDeleteDialogComponent } from './components/dashboard/db-table-widgets/widget-delete-dialog/widget-delete-dialog.component';
-import { AccountDeleteConfirmationComponent } from './components/user-settings/account-delete-confirmation/account-delete-confirmation.component';
 import { environment } from '../environments/environment';
-import { IdComponent } from "./components/ui-components/row-fields/id/id.component";
-import { GroupUserVerificationComponent } from './components/group-user-verification/group-user-verification.component';
 
-const saasExtraModules = environment.saas ? [
-  {
-    provide: 'SocialAuthServiceConfig',
-    useValue: {
-      autoLogin: false,
-      providers: [
-        {
-          id: GoogleLoginProvider.PROVIDER_ID,
-          provider: new GoogleLoginProvider(
-            '600913874691-spojhqmeasej8692gjkuedqpk0ad24ng.apps.googleusercontent.com'
-          )
-        },
-        {
-          id: FacebookLoginProvider.PROVIDER_ID,
-          provider: new FacebookLoginProvider('2931389687130672')
-        }
-      ],
-      onError: (err) => {
-        console.error(err);
-      }
-    } as SocialAuthServiceConfig,
-  },
+const saasExtraProviders = (environment as any).saas ? [
   {
     provide: Sentry.TraceService,
     deps: [Router],
-  }
+  },
+  {
+    provide: ErrorHandler,
+    useValue: Sentry.createErrorHandler({
+      showDialog: true,
+    }),
+  },
 ] : [];
+
+// const saasExtraModules = (environment as any).saas ? [
+//   SocialLoginModule,
+// ] : [];
 
 @NgModule({
   declarations: [
@@ -173,7 +163,8 @@ const saasExtraModules = environment.saas ? [
     PasswordRequestComponent,
     PasswordChangeComponent,
     AccountDeleteConfirmationComponent,
-    GroupUserVerificationComponent
+    GroupUserVerificationComponent,
+    FileComponent
   ],
   entryComponents: [
     DbRowDeleteDialogComponent,
@@ -200,18 +191,12 @@ const saasExtraModules = environment.saas ? [
       multi: true
     },
     {
-      provide: ErrorHandler,
-      useValue: Sentry.createErrorHandler({
-        showDialog: true,
-      }),
-    },
-    {
       provide: APP_INITIALIZER,
       useFactory: () => () => {},
-      deps: [Sentry.TraceService],
+      deps: (environment as any).saas ? [Sentry.TraceService] : [],
       multi: true,
     },
-    ... saasExtraModules
+    ... saasExtraProviders
   ],
   imports: [
     BrowserModule,
@@ -227,7 +212,8 @@ const saasExtraModules = environment.saas ? [
     NgmatTableQueryReflectorModule,
     NgJsonEditorModule,
     Angulartics2Module.forRoot(),
-    SocialLoginModule
+    // ...saasExtraModules,
+    ConfigModule.buildForConfigUrl('/config.json')
   ],
   bootstrap: [AppComponent]
 })

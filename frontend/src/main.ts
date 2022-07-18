@@ -11,7 +11,7 @@ if (environment.production) {
   enableProdMode();
 }
 
-if (environment.saas) {
+if ((environment as any).saas) {
   Sentry.init({
     dsn: "https://c1a66b79dbed442bb8a8598eaa8608f5@o64941.ingest.sentry.io/5624913",
     integrations: [

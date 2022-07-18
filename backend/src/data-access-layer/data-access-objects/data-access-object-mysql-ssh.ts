@@ -30,6 +30,7 @@ import { HttpException } from '@nestjs/common/exceptions/http.exception';
 import { Messages } from '../../exceptions/text/messages';
 import { Constants } from '../../helpers/constants/constants';
 import { FilterCriteriaEnum } from '../../enums';
+import { Client } from 'ssh2';
 
 @Injectable({ scope: Scope.REQUEST })
 export class DataAccessObjectMysqlSsh implements IDataAccessObject {
@@ -39,7 +40,6 @@ export class DataAccessObjectMysqlSsh implements IDataAccessObject {
     this.connection = connection;
   }
 
-  //todo rework with complex primary keys
   public async addRowInTable(
     tableName: string,
     row: Record<string, unknown>,
@@ -74,12 +74,15 @@ export class DataAccessObjectMysqlSsh implements IDataAccessObject {
     const knex = await this.configureKnex();
     await knex.raw('SET SQL_SAFE_UPDATES = 1;').connection(mySqlDriver);
     if (primaryColumns?.length > 0) {
+      const primaryKeys = primaryColumns.map((column) => column.column_name);
       if (!checkFieldAutoincrement(primaryKeyStructure.column_default)) {
         try {
           await knex(tableName).connection(mySqlDriver).insert(row);
-          return {
-            [primaryKey.column_name]: row[primaryKey.column_name],
-          };
+          const resultsArray = [];
+          for (let i = 0; i < primaryKeys.length; i++) {
+            resultsArray.push([primaryKeys[i], row[primaryKeys[i]]]);
+          }
+          return Object.fromEntries(resultsArray);
         } catch (e) {
           throw new Error(e);
         }
@@ -117,7 +120,7 @@ export class DataAccessObjectMysqlSsh implements IDataAccessObject {
       },
       pool: { min: 0, max: 1 },
     });
-    Cacher.setDriverCache(this.connection, newKnex);
+    Cacher.setKnexCache(this.connection, newKnex);
     return newKnex;
   }
 
@@ -162,13 +165,12 @@ export class DataAccessObjectMysqlSsh implements IDataAccessObject {
     const mySqlDriver = await this.getMySqlDriver();
     const knex = await this.configureKnex();
     if (!settings) {
-      return (await knex(tableName).connection(mySqlDriver).where(primaryKey)) as unknown as Record<string, unknown>;
+      const result = await knex(tableName).connection(mySqlDriver).where(primaryKey);
+      return result[0] as unknown as Record<string, unknown>;
     }
     const availableFields = await this.findAvaliableFields(settings, tableName);
-    return (await knex(tableName)
-      .connection(mySqlDriver)
-      .select(availableFields)
-      .where(primaryKey)) as unknown as Record<string, unknown>;
+    const result = await knex(tableName).connection(mySqlDriver).select(availableFields).where(primaryKey);
+    return result[0] as unknown as Record<string, unknown>;
   }
 
   public async getRowsFromTable(
@@ -485,7 +487,7 @@ export class DataAccessObjectMysqlSsh implements IDataAccessObject {
     return tableSettingsFieldValidator(tableStructure, primaryColumns, settings);
   }
 
-  private async getMySqlDriver(): Promise<any> {
+  private async getMySqlDriver(): Promise<Client> {
     const cachedDriver = Cacher.getDriverCache(this.connection);
     if (cachedDriver) {
       return cachedDriver;
@@ -493,7 +495,7 @@ export class DataAccessObjectMysqlSsh implements IDataAccessObject {
       const freePort = await getPort();
       let mySqlDriver;
       try {
-        mySqlDriver = (await getSshMySqlClient(this.connection, freePort)) as any;
+        mySqlDriver = (await getSshMySqlClient(this.connection, freePort)) as Client;
         Cacher.setDriverCache(this.connection, mySqlDriver);
       } catch (e) {
         throw new HttpException(

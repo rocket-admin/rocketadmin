@@ -21,11 +21,13 @@ export interface IUserRepository {
 
   findOneUserWithEmailVerification(userId: string): Promise<UserEntity>;
 
-  findUserByEmailWithEmailVerificationAndInvitation(email: string): Promise<UserEntity>
+  findUserByEmailWithEmailVerificationAndInvitation(email: string): Promise<UserEntity>;
 
   deleteUserEntity(user: UserEntity): Promise<UserEntity>;
 
   getUsersWithNotNullGCLIDsInTwoWeeks(): Promise<Array<UserEntity>>;
+
+  getUserEmailOrReturnNull(userId: string): Promise<string>;
 
   getTrue(): Promise<boolean>;
 }

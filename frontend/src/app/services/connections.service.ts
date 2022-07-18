@@ -22,10 +22,6 @@ interface LogParams {
   providedIn: 'root'
 })
 export class ConnectionsService {
-  _connectionURL = 'https://api-v2.autoadmin.org/connection';
-  _connectionsURL = 'https://api-v2.autoadmin.org/connections';
-  _auditURL = 'https://api-v2.autoadmin.org/logs';
-
   public connectionID: string | null = null;
   public connectionInitialState: Connection = Object.freeze({
     id: null,
@@ -139,7 +135,7 @@ export class ConnectionsService {
   }
 
   fetchConnections() {
-    return this._http.get<any>(this._connectionsURL)
+    return this._http.get<any>('/connections')
       .pipe(
         map(res => {
           const connections = res.connections.map(connectionItem => {
@@ -164,7 +160,7 @@ export class ConnectionsService {
   }
 
   fetchConnection(id: string) {
-    return this._http.get<any>(`${this._connectionURL}/one/${id}`)
+    return this._http.get<any>(`/connection/one/${id}`)
       .pipe(
         map(res => {
           const connection = this.defineConnecrionType(res.connection);
@@ -194,7 +190,7 @@ export class ConnectionsService {
       dbCredentials.type = `agent_${dbCredentials.type}`
     }
 
-    return this._http.post(`${this._connectionURL}/test`, dbCredentials,
+    return this._http.post(`/connection/test`, dbCredentials,
       {params: {
         ...(connectionID ? {connectionId: connectionID} : {})
       }})
@@ -221,7 +217,7 @@ export class ConnectionsService {
       dbCredentials.type = `agent_${dbCredentials.type}`
     }
 
-    return this._http.post(this._connectionURL, dbCredentials)
+    return this._http.post('/connection', dbCredentials)
     .pipe(
       map(res => {
         this._notifications.showSuccessSnackbar('Connection was added successfully.');
@@ -248,7 +244,7 @@ export class ConnectionsService {
       dbCredentials.type = `agent_${dbCredentials.type}`
     }
 
-    return this._http.put(`${this._connectionURL}/${connection.id}`, dbCredentials)
+    return this._http.put(`/connection/${connection.id}`, dbCredentials)
     .pipe(
       map(res => {
         this._notifications.showSuccessSnackbar('Connection has been updated successfully.');
@@ -264,7 +260,7 @@ export class ConnectionsService {
   }
 
   deleteConnection(id: string, metadata) {
-    return this._http.put(`${this._connectionURL}/delete/${id}`, metadata)
+    return this._http.put(`/connection/delete/${id}`, metadata)
     .pipe(
       map(() => {
         this._notifications.showSuccessSnackbar('Connection has been deleted successfully.');
@@ -281,7 +277,7 @@ export class ConnectionsService {
   fetchAuditLog({connectionID, tableName, userEmail, requstedPage, chunkSize}: LogParams) {
     if (tableName === "showAll") tableName = null;
     if (userEmail === "showAll") userEmail = null;
-    return this._http.get(`${this._auditURL}/${connectionID}`, {
+    return this._http.get(`/logs/${connectionID}`, {
       params: {
         page: requstedPage.toString(),
         perPage: chunkSize.toString(),
@@ -301,7 +297,7 @@ export class ConnectionsService {
   }
 
   getConnectionSettings(connectionID: string) {
-    return this._http.get(`${this._connectionURL}/properties/${connectionID}`)
+    return this._http.get(`/connection/properties/${connectionID}`)
     .pipe(
       map(res => {
         return res;
@@ -316,7 +312,7 @@ export class ConnectionsService {
   }
 
   createConnectionSettings(connectionID: string, hiddenTables: string[]) {
-    return this._http.post(`${this._connectionURL}/properties/${connectionID}`, {hidden_tables: hiddenTables})
+    return this._http.post(`/connection/properties/${connectionID}`, {hidden_tables: hiddenTables})
     .pipe(
       map(res => {
         this._notifications.showSuccessSnackbar('Connection settings has been created successfully.');
@@ -332,7 +328,7 @@ export class ConnectionsService {
   }
 
   updateConnectionSettings(connectionID: string, hiddenTables: string[]) {
-    return this._http.put(`${this._connectionURL}/properties/${connectionID}`, {hidden_tables: hiddenTables})
+    return this._http.put(`/connection/properties/${connectionID}`, {hidden_tables: hiddenTables})
     .pipe(
       map(res => {
         this._notifications.showSuccessSnackbar('Connection settings has been updated successfully.');
@@ -348,7 +344,7 @@ export class ConnectionsService {
   }
 
   deleteConnectionSettings(connectionID: string) {
-    return this._http.delete(`${this._connectionURL}/properties/${connectionID}`)
+    return this._http.delete(`/connection/properties/${connectionID}`)
     .pipe(
       map(() => {
         this._notifications.showSuccessSnackbar('Connection settings has been removed successfully.');

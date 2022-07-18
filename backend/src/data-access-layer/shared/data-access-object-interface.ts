@@ -83,6 +83,10 @@ export interface IForeignKey {
   column_name: string;
 }
 
+export interface IForeignKeyWithForeignColumnName extends IForeignKey {
+  autocomplete_columns: Array<string>;
+}
+
 export interface ITestConnectResult {
   result: boolean;
   message: string;
@@ -105,10 +109,11 @@ export interface IFilteringFieldsData {
 }
 
 export interface ITableStructure {
-  column_name: string;
-  column_default: string | null;
-  data_type: string;
-  udt_name: string;
-  character_maximum_length: number | null;
   allow_null: boolean;
+  character_maximum_length: number | null;
+  column_default: string | null;
+  column_name: string;
+  data_type: string;
+  data_type_params: string;
+  udt_name: string;
 }

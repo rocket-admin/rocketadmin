@@ -14,6 +14,7 @@ import { TextComponent } from 'src/app/components/ui-components/row-fields/text/
 import { TimeComponent } from '../components/ui-components/row-fields/time/time.component';
 import { TimeIntervalComponent } from '../components/ui-components/row-fields/time-interval/time-interval.component';
 import { IdComponent } from '../components/ui-components/row-fields/id/id.component';
+import { FileComponent } from '../components/ui-components/row-fields/file/file.component';
 
 export const UIwidgets = {
     Default: '',
@@ -39,7 +40,6 @@ export const fieldTypes = {
         integer: NumberComponent,
         bigint: NumberComponent,
         numeric: NumberComponent,
-        bytea: NumberComponent,
 
         //boolean (checkbox)
         boolean: BooleanComponent,
@@ -70,6 +70,9 @@ export const fieldTypes = {
         // json-editor
         json: JsonEditorComponent, //json-editor
         jsonb: JsonEditorComponent, //json-editor
+
+        //file
+        bytea: FileComponent,
 
         //etc
         money: TextComponent,
@@ -121,14 +124,16 @@ export const fieldTypes = {
         //select (select)
         enum: SelectComponent,
 
+        //file
+        binary: FileComponent,
+        varbinary: FileComponent,
+        blob: FileComponent,
+        tinyblob: FileComponent,
+        mediumblob: FileComponent,
+        longblob: FileComponent,
+
         //etc
         set: TextComponent, //(text)
-        binary: TextComponent, //(text)
-        varbinary: TextComponent, //(text)
-        blob: BinaryDataCaptionComponent, //(span) "binary data"
-        tinyblob: BinaryDataCaptionComponent, //(span) "binary data"
-        mediumblob: BinaryDataCaptionComponent, //(span) "binary data"
-        longblob: BinaryDataCaptionComponent, //(span) "binary data"
 
         "foreign key": ForeignKeyComponent
     },
@@ -153,14 +158,14 @@ export const fieldTypes = {
         VARCHAR: TextComponent,
         NVARCHAR2: TextComponent,
 
-        //etc
-        BLOB: BinaryDataCaptionComponent, //(span) binary data
-        CLOB: BinaryDataCaptionComponent, //(span) binary data
-        NCLOB: BinaryDataCaptionComponent, //(span) binary data
-        BFILE: BinaryDataCaptionComponent, //(span) binary data
-        RAW: BinaryDataCaptionComponent, //(span) binary data
-        "LONG RAW" : BinaryDataCaptionComponent, //(span) binary data
-        LONG : BinaryDataCaptionComponent, //(span) binary data
+        //file
+        BLOB: FileComponent,
+        CLOB: FileComponent,
+        NCLOB: FileComponent,
+        BFILE: FileComponent,
+        RAW: FileComponent,
+        "LONG RAW" : FileComponent,
+        LONG : FileComponent,
 
         "foreign key": ForeignKeyComponent
     },
@@ -191,12 +196,14 @@ export const fieldTypes = {
         smalldatetime: DateTimeComponent,
         timestamp: DateTimeComponent,
 
+        //file
+        binary: FileComponent,
+        varbinary: FileComponent,
+        image: FileComponent,
+
         // etc
         money: TextComponent,
         smallmoney: TextComponent,
-        binary: BinaryDataCaptionComponent,
-        varbinary: BinaryDataCaptionComponent,
-        image: BinaryDataCaptionComponent,
 
         "foreign key": ForeignKeyComponent
     }

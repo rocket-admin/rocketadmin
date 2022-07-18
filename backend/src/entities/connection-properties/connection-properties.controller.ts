@@ -6,10 +6,12 @@ import {
   Get,
   HttpStatus,
   Inject,
+  Injectable,
   Param,
   Post,
   Put,
   Req,
+  Scope,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
@@ -35,6 +37,7 @@ import { CreateConnectionPropertiesDs } from './application/data-structures/crea
 @ApiTags('connection properties')
 @UseInterceptors(SentryInterceptor)
 @Controller()
+@Injectable({ scope: Scope.REQUEST })
 export class ConnectionPropertiesController {
   constructor(
     @Inject(UseCaseType.FIND_CONNECTION_PROPERTIES)

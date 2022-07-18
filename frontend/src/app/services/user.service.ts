@@ -1,5 +1,5 @@
 import { BannerActionType, BannerType } from '../models/banner';
-import { BehaviorSubject, EMPTY, Subject } from 'rxjs';
+import { BehaviorSubject, EMPTY } from 'rxjs';
 import { SubscriptionPlans, User } from '../models/user';
 import { catchError, map } from 'rxjs/operators';
 
@@ -11,8 +11,6 @@ import { NotificationsService } from './notifications.service';
   providedIn: 'root'
 })
 export class UserService {
-  _userURLv2 = 'https://api-v2.autoadmin.org/user';
-
   public initialUserState = {
     id: '',
     isActive: false,
@@ -25,7 +23,6 @@ export class UserService {
   private user = new BehaviorSubject<any>(this.initialUserState);
   public cast = this.user.asObservable();
 
-
   constructor(
     private _http: HttpClient,
     private _notifications: NotificationsService
@@ -36,7 +33,7 @@ export class UserService {
   }
 
   fetchUser() {
-    return this._http.get<any>(`${this._userURLv2}`)
+    return this._http.get<any>('/user')
       .pipe(
         map(res => {
           console.log(res);
@@ -52,7 +49,7 @@ export class UserService {
   }
 
   sendUserAction(message: string) {
-    return this._http.post<any>('https://api-v2.autoadmin.org/action', {message: message})
+    return this._http.post<any>('/action', {message: message})
     .pipe(
       map(res => res),
       catchError((err) => {
@@ -63,7 +60,7 @@ export class UserService {
   }
 
   upgradeUser(subscriptionLevel) {
-    return this._http.post<any>(`${this._userURLv2}/subscription/upgrade`, {subscriptionLevel})
+    return this._http.post<any>(`/user/subscription/upgrade`, {subscriptionLevel})
       .pipe(
         map(res => {
           this._notifications.showSuccessSnackbar('Your plan has been upgraded successfully.');
@@ -89,7 +86,7 @@ export class UserService {
   }
 
   requestEmailChange() {
-    return this._http.get<any>(`${this._userURLv2}/email/change/request`)
+    return this._http.get<any>(`/user/email/change/request`)
     .pipe(
       map(res => {
         this._notifications.showBanner(BannerType.Info, 'Link has been sent to your email. Please check it.', [
@@ -116,7 +113,7 @@ export class UserService {
   }
 
   changeEmail(token: string, newEmail: string) {
-    return this._http.post<any>(`${this._userURLv2}/email/change/verify/${token}`, {email: newEmail})
+    return this._http.post<any>(`/user/email/change/verify/${token}`, {email: newEmail})
     .pipe(
       map(res => {
         this._notifications.showSuccessSnackbar('You email has been changed successfully.');
@@ -137,7 +134,7 @@ export class UserService {
   }
 
   requestPasswordReset(email: string) {
-    return this._http.post<any>(`${this._userURLv2}/password/reset/request`, { email })
+    return this._http.post<any>(`/user/password/reset/request`, { email })
     .pipe(
       map(res => {
         this._notifications.showBanner(BannerType.Success, 'Check your email.', [
@@ -164,7 +161,7 @@ export class UserService {
   }
 
   resetPassword(token: string, newPassword: string) {
-    return this._http.post<any>(`${this._userURLv2}/password/reset/verify/${token}`, {password: newPassword})
+    return this._http.post<any>(`/user/password/reset/verify/${token}`, {password: newPassword})
     .pipe(
       map(res => {
         this._notifications.showSuccessSnackbar('Your password has been reset successfully.');
@@ -185,7 +182,7 @@ export class UserService {
   }
 
   changePassword(oldPassword: string, newPassword: string, email: string) {
-    return this._http.post<any>(`${this._userURLv2}/password/change/`, {email, oldPassword, newPassword})
+    return this._http.post<any>(`/user/password/change/`, {email, oldPassword, newPassword})
     .pipe(
       map(res => {
         this._notifications.showSuccessSnackbar('Your password has been changed successfully.');
@@ -206,7 +203,7 @@ export class UserService {
   }
 
   deleteAccount(metadata) {
-    return this._http.put<any>(`${this._userURLv2}/delete`, metadata)
+    return this._http.put<any>(`/user/delete`, metadata)
     .pipe(
       map(() => {
         this.user.next('delete');

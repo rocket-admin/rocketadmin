@@ -113,6 +113,7 @@ export const Messages = {
   MASTER_PASSWORD_MISSING: `Master password is missing.`,
   MASTER_PASSWORD_REQUIRED: `A master password is required if you want to apply additional encryption.`,
   MUST_BE_ARRAY: (fieldName: string) => `The field "${fieldName}" must be an array`,
+  NO_STRIPE: 'no_stripe_in_this_mode',
   NO_SUCH_FIELDS_IN_TABLES: (fields: Array<string>, tableName: string) =>
     `There are no such fields: ${fields.join(', ')} - in the table "${tableName}"`,
   NO_SUCH_FIELD_IN_TABLE: (fieldName: string, tableName: string) =>
