@@ -25,7 +25,9 @@
 .warningMessage {
     display: flex;
     align-items: center;
-    margin-bottom: 12px;
+    border: 2px solid rgba(0, 0, 0, 0.87);
+    border-radius: 6px;
+    padding: 16px 12px;
 }
 
 .warningMessage__icon {
