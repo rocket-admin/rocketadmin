@@ -11,7 +11,7 @@ import { TablesService } from 'src/app/services/tables.service';
 import { AccessLevel } from 'src/app/models/user';
 import { ActivatedRoute, convertToParamMap, Router } from '@angular/router';
 
-fdescribe('DashboardComponent', () => {
+describe('DashboardComponent', () => {
   let component: DashboardComponent;
   let fixture: ComponentFixture<DashboardComponent>;
   // let routerSpy;

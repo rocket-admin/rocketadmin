@@ -263,10 +263,9 @@ describe('DbTableWidgetsComponent', () => {
       }
     ];
 
-    const fakeDialog = spyOn(dialog, 'open').and.returnValue(dialogRefSpyObj);
     component.openDeleteWidgetDialog('user_name');
+    const fakeDialog = spyOn(dialog, 'open').and.returnValue(dialogRefSpyObj);
 
-    expect(component.isAllWidgetsDeleted).toBeFalse();
     expect(component.fields).toEqual(['user_age', 'user_name']);
     expect(component.widgets).toEqual([
       {
@@ -303,6 +302,5 @@ describe('DbTableWidgetsComponent', () => {
 
       expect(fakeFatchWidgets).toHaveBeenCalledOnceWith('12345678', 'users');
       expect(component.submitting).toBeFalse();
-      expect(component.isAllWidgetsDeleted).toBeFalse();
     });
 });

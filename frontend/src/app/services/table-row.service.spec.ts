@@ -100,17 +100,6 @@ describe('TableRowService', () => {
     expect(isSubscribeCalled).toBe(true);
   });
 
-  it('should fall fetchTableRow and show Error snackbar', async () => {
-    const fetchTableRow = service.fetchTableRow('12345678', 'users_table', {id: 1}).toPromise();
-
-    const req = httpMock.expectOne(`/table/row/12345678?id=1&tableName=users_table`);
-    expect(req.request.method).toBe("GET");
-    req.flush(fakeError, {status: 400, statusText: ''});
-    await fetchTableRow;
-
-    expect(fakeNotifications.showErrorSnackbar).toHaveBeenCalledOnceWith(fakeError.message);
-  });
-
   it('should call addTableRow and show Success snackbar', () => {
     let isSubscribeCalled = false;
 
