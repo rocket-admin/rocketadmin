@@ -17,8 +17,8 @@ describe('DashboardComponent', () => {
   // let routerSpy;
   // let connectionsService: ConnectionsService;
   // let tablesService: TablesService;
+  let fakeTablesService;
 
-  const fakeTablesSevice = jasmine.createSpyObj('tablesService', ['fetchTables']);
   const fakeConnectionsSevice = {
     get currentConnectionID(): string {
       return ''
@@ -27,7 +27,7 @@ describe('DashboardComponent', () => {
       return AccessLevel.None;
     }
   };
-  // const fakeRouter = jasmine.createSpyObj('Router', ['navigate']);
+  const fakeRouter = jasmine.createSpyObj('Router', {navigate: Promise.resolve('')});
 
   const fakeTables = [
     {
@@ -64,6 +64,7 @@ describe('DashboardComponent', () => {
 
   beforeEach(async(() => {
     // routerSpy = {navigate: jasmine.createSpy('navigate')};
+    fakeTablesService = jasmine.createSpyObj('tablesService', {fetchTables: of(fakeTables)});
 
     TestBed.configureTestingModule({
       declarations: [ DashboardComponent ],
@@ -80,16 +81,16 @@ describe('DashboardComponent', () => {
         },
         {
           provide: TablesService,
-          useValue: fakeTablesSevice
+          useValue: fakeTablesService
         },
-        // { provide: ActivatedRoute,
-        //   useValue: {paramMap: of(convertToParamMap({
-        //         'table-name': undefined
-        //       })
-        //     ),
-        //   }
-        // },
-        // { provide: Router, useValue: fakeRouter }
+        { provide: ActivatedRoute,
+          useValue: {paramMap: of(convertToParamMap({
+                'table-name': undefined
+              })
+            ),
+          }
+        },
+        { provide: Router, useValue: fakeRouter }
       ]
     })
     .compileComponents();
@@ -125,7 +126,7 @@ describe('DashboardComponent', () => {
   });
 
   it('should call getTables', async () => {
-    fakeTablesSevice.fetchTables.and.returnValue(of(fakeTables));
+    // fakeTablesService.fetchTables.and.returnValue(of(fakeTables));
     const tables = await component.getTables();
     expect(tables).toEqual(fakeTables);
   });
