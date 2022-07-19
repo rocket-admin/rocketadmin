@@ -9,6 +9,7 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { TablesService } from 'src/app/services/tables.service';
 import { WidgetDeleteDialogComponent } from './widget-delete-dialog/widget-delete-dialog.component';
 import { of } from 'rxjs';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 describe('DbTableWidgetsComponent', () => {
   let component: DbTableWidgetsComponent;
@@ -16,7 +17,7 @@ describe('DbTableWidgetsComponent', () => {
   let tablesService: TablesService;
   let connectionsService: ConnectionsService;
   let dialog: MatDialog;
-  let dialogRefSpyObj = jasmine.createSpyObj({ afterClosed : of({}), close: null });
+  let dialogRefSpyObj = jasmine.createSpyObj({ afterClosed : of('delete'), close: null });
   dialogRefSpyObj.componentInstance = { deleteWidget: of('user_name') };
 
   const fakeFirstName = {
@@ -91,7 +92,8 @@ describe('DbTableWidgetsComponent', () => {
         HttpClientTestingModule,
         RouterTestingModule.withRoutes([]),
         MatSnackBarModule,
-        MatDialogModule
+        MatDialogModule,
+        BrowserAnimationsModule
       ],
       providers: [
         // { provide: MAT_DIALOG_DATA, useValue: {} },
@@ -266,7 +268,11 @@ describe('DbTableWidgetsComponent', () => {
     const fakeDialog = spyOn(dialog, 'open').and.returnValue(dialogRefSpyObj);
     component.openDeleteWidgetDialog('user_name');
 
-    expect(component.isAllWidgetsDeleted).toBeFalse();
+    expect(fakeDialog).toHaveBeenCalledOnceWith(WidgetDeleteDialogComponent, {
+      width: '25em',
+      data: 'user_name'
+    });
+
     expect(component.fields).toEqual(['user_age', 'user_name']);
     expect(component.widgets).toEqual([
       {
@@ -277,32 +283,26 @@ describe('DbTableWidgetsComponent', () => {
         description: ''
       }
     ]);
+  });
 
-    expect(fakeDialog).toHaveBeenCalledOnceWith(WidgetDeleteDialogComponent, {
-          width: '25em',
-          data: 'user_name'
-        });
-    });
+  it('should update widgets', () => {
+    component.connectionID = '12345678';
+    component.tableName = 'users';
+    component.widgets = [
+      {
+        field_name: "email",
+        widget_type: "Textarea",
+        widget_params: {},
+        name: "user email",
+        description: ""
+      }
+    ];
+    spyOn(tablesService, 'updateTableWidgets').and.returnValue(of(tableWidgetsNetwork));
+    const fakeFatchWidgets = spyOn(tablesService, 'fetchTableWidgets').and.returnValue(of(tableWidgetsNetwork));
 
-    it('should update widgets', () => {
-      component.connectionID = '12345678';
-      component.tableName = 'users';
-      component.widgets = [
-        {
-          field_name: "email",
-          widget_type: "Textarea",
-          widget_params: {},
-          name: "user email",
-          description: ""
-        }
-      ];
-      spyOn(tablesService, 'updateTableWidgets').and.returnValue(of(tableWidgetsNetwork));
-      const fakeFatchWidgets = spyOn(tablesService, 'fetchTableWidgets').and.returnValue(of(tableWidgetsNetwork));
+    component.updateWidgets();
 
-      component.updateWidgets();
-
-      expect(fakeFatchWidgets).toHaveBeenCalledOnceWith('12345678', 'users');
-      expect(component.submitting).toBeFalse();
-      expect(component.isAllWidgetsDeleted).toBeFalse();
-    });
+    expect(fakeFatchWidgets).toHaveBeenCalledOnceWith('12345678', 'users');
+    expect(component.submitting).toBeFalse();
+  });
 });
