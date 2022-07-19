@@ -1,22 +1,24 @@
 import * as AWS from 'aws-sdk';
 import * as AWSMock from 'aws-sdk-mock';
-import * as faker from 'faker';
+import { faker } from '@faker-js/faker';
 import { knex } from 'knex';
 import * as request from 'supertest';
 
-import { ApplicationModule } from '../src/app.module';
+import { ApplicationModule } from '../../src/app.module';
 import { Connection } from 'typeorm';
-import { DatabaseModule } from '../src/shared/database/database.module';
-import { DatabaseService } from '../src/shared/database/database.service';
+import { Constants } from '../../src/helpers/constants/constants';
+import { DatabaseModule } from '../../src/shared/database/database.module';
+import { DatabaseService } from '../../src/shared/database/database.service';
 import { INestApplication } from '@nestjs/common';
-import { Messages } from '../src/exceptions/text/messages';
-import { MockFactory } from './mock.factory';
-import { QueryOrderingEnum } from '../src/enums';
+import { Messages } from '../../src/exceptions/text/messages';
+import { MockFactory } from '../mock.factory';
+import { QueryOrderingEnum } from '../../src/enums';
 import { Test } from '@nestjs/testing';
-import { TestUtils } from './utils/test.utils';
-import { Cacher } from '../src/helpers/cache/cacher';
+import { TestUtils } from '../utils/test.utils';
+import { Cacher } from '../../src/helpers/cache/cacher';
 
-describe('Tables MsSQL with schema (e2e)', () => {
+describe('Tables Postgres (e2e)', () => {
+  jest.setTimeout(20000);
   let app: INestApplication;
   let testUtils: TestUtils;
   const mockFactory = new MockFactory();
@@ -27,7 +29,7 @@ describe('Tables MsSQL with schema (e2e)', () => {
   const testSearchedUserName = 'Vasia';
   const testEntitiesSeedsCount = 42;
 
-  async function resetMsSQLTestDB() {
+  async function resetPostgresTestDB() {
     const { host, username, password, database, port, type, ssl, cert } = newConnection;
     const Knex = knex({
       client: type,
@@ -39,12 +41,8 @@ describe('Tables MsSQL with schema (e2e)', () => {
         port: port,
       },
     });
-    await Knex.raw(`IF NOT EXISTS ( SELECT  *
-                FROM    sys.schemas
-                WHERE   name = N'test_schema' )
-    EXEC('CREATE SCHEMA [test_schema]');`);
-    await Knex.schema.dropTableIfExists('test_schema.users');
-    await Knex.schema.createTableIfNotExists(`test_schema.users`, function (table) {
+    await Knex.schema.dropTableIfExists(testTableName);
+    await Knex.schema.createTableIfNotExists(testTableName, function (table) {
       table.increments();
       table.string(testTableColumnName);
       table.string(testTAbleSecondColumnName);
@@ -53,23 +51,19 @@ describe('Tables MsSQL with schema (e2e)', () => {
 
     for (let i = 0; i < testEntitiesSeedsCount; i++) {
       if (i === 0 || i === testEntitiesSeedsCount - 21 || i === testEntitiesSeedsCount - 5) {
-        await Knex(testTableName)
-          .withSchema('test_schema')
-          .insert({
-            [testTableColumnName]: testSearchedUserName,
-            [testTAbleSecondColumnName]: faker.internet.email(),
-            created_at: new Date(),
-            updated_at: new Date(),
-          });
+        await Knex(testTableName).insert({
+          [testTableColumnName]: testSearchedUserName,
+          [testTAbleSecondColumnName]: faker.internet.email(),
+          created_at: new Date(),
+          updated_at: new Date(),
+        });
       } else {
-        await Knex(testTableName)
-          .withSchema('test_schema')
-          .insert({
-            [testTableColumnName]: faker.name.findName(),
-            [testTAbleSecondColumnName]: faker.internet.email(),
-            created_at: new Date(),
-            updated_at: new Date(),
-          });
+        await Knex(testTableName).insert({
+          [testTableColumnName]: faker.name.findName(),
+          [testTAbleSecondColumnName]: faker.internet.email(),
+          created_at: new Date(),
+          updated_at: new Date(),
+        });
       }
     }
     await Knex.destroy();
@@ -86,28 +80,9 @@ describe('Tables MsSQL with schema (e2e)', () => {
     app = moduleFixture.createNestApplication();
     await app.init();
 
-    newConnection = mockFactory.generateConnectionToTestSchemaMsSQlDBInDocker();
-    AWSMock.setSDKInstance(AWS);
-    AWSMock.mock(
-      'CognitoIdentityServiceProvider',
-      'listUsers',
-      (newCognitoUserName, callback: (...args: any) => void) => {
-        callback(null, {
-          Users: [
-            {
-              Attributes: [
-                {},
-                {},
-                {
-                  Value: 'Example@gmail.com',
-                },
-              ],
-            },
-          ],
-        });
-      },
-    );
-    await resetMsSQLTestDB();
+    newConnection = mockFactory.generateConnectionToTestPostgresDBInDocker();
+
+    await resetPostgresTestDB();
     const findAllConnectionsResponse = await request(app.getHttpServer())
       .get('/connections')
       .set('Content-Type', 'application/json')
@@ -116,14 +91,10 @@ describe('Tables MsSQL with schema (e2e)', () => {
   });
 
   afterEach(async () => {
-    await Cacher.clearAllCache();
     await testUtils.resetDb();
     await testUtils.closeDbConnection();
+    await Cacher.clearAllCache();
     AWSMock.restore('CognitoIdentityServiceProvider');
-  });
-
-  beforeAll(() => {
-    jest.setTimeout(10000);
   });
 
   afterAll(async () => {
@@ -137,7 +108,7 @@ describe('Tables MsSQL with schema (e2e)', () => {
       }
       await app.close();
     } catch (e) {
-      console.error('After all custom field error: ' + e);
+      console.error('After all table-postgres field error: ' + e);
     }
   });
 
@@ -207,7 +178,7 @@ describe('Tables MsSQL with schema (e2e)', () => {
         const createConnectionRO = JSON.parse(createConnectionResponse.text);
         expect(createConnectionResponse.status).toBe(201);
 
-        createConnectionRO.id = faker.random.uuid();
+        createConnectionRO.id = faker.datatype.uuid();
         const getTablesResponse = await request(app.getHttpServer())
           .get(`/connection/tables/${createConnectionRO.id}`)
           .set('Content-Type', 'application/json')
@@ -234,24 +205,22 @@ describe('Tables MsSQL with schema (e2e)', () => {
           expect(createConnectionResponse.status).toBe(201);
 
           const getTableRowsResponse = await request(app.getHttpServer())
-            .get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=1&perPage=50`)
+            .get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}`)
             .set('Content-Type', 'application/json')
             .set('Accept', 'application/json');
-          expect(getTableRowsResponse.status).toBe(200);
-
           const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
-
+          expect(getTableRowsResponse.status).toBe(200);
           expect(typeof getTableRowsRO).toBe('object');
           expect(getTableRowsRO.hasOwnProperty('rows')).toBeTruthy();
           expect(getTableRowsRO.hasOwnProperty('primaryColumns')).toBeTruthy();
           expect(getTableRowsRO.hasOwnProperty('pagination')).toBeTruthy();
-          expect(getTableRowsRO.rows.length).toBe(testEntitiesSeedsCount);
+          expect(getTableRowsRO.rows.length).toBe(Constants.DEFAULT_PAGINATION.perPage);
           expect(Object.keys(getTableRowsRO.rows[1]).length).toBe(5);
           expect(getTableRowsRO.rows[0].hasOwnProperty('id')).toBeTruthy();
           expect(getTableRowsRO.rows[1].hasOwnProperty('name')).toBeTruthy();
           expect(getTableRowsRO.rows[10].hasOwnProperty('email')).toBeTruthy();
-          expect(getTableRowsRO.rows[25].hasOwnProperty('created_at')).toBeTruthy();
-          expect(getTableRowsRO.rows[41].hasOwnProperty('updated_at')).toBeTruthy();
+          expect(getTableRowsRO.rows[15].hasOwnProperty('created_at')).toBeTruthy();
+          expect(getTableRowsRO.rows[12].hasOwnProperty('updated_at')).toBeTruthy();
 
           expect(typeof getTableRowsRO.primaryColumns).toBe('object');
           expect(getTableRowsRO.primaryColumns[0].hasOwnProperty('column_name')).toBeTruthy();
@@ -263,7 +232,7 @@ describe('Tables MsSQL with schema (e2e)', () => {
 
       it('should throw an exception when connection id not passed in request', async () => {
         try {
-          const connectionCount = faker.random.number({ min: 5, max: 15 });
+          const connectionCount = faker.datatype.number({ min: 5, max: 15, precision: 1 });
           for (let i = 0; i < connectionCount; i++) {
             const createConnectionResponse = await request(app.getHttpServer())
               .post('/connection')
@@ -294,7 +263,7 @@ describe('Tables MsSQL with schema (e2e)', () => {
 
       it('should throw an exception when connection id is incorrect', async () => {
         try {
-          const connectionCount = faker.random.number({ min: 5, max: 15 });
+          const connectionCount = faker.datatype.number({ min: 5, max: 15, precision: 1 });
           for (let i = 0; i < connectionCount; i++) {
             const createConnectionResponse = await request(app.getHttpServer())
               .post('/connection')
@@ -312,7 +281,7 @@ describe('Tables MsSQL with schema (e2e)', () => {
           const createConnectionRO = JSON.parse(createConnectionResponse.text);
           expect(createConnectionResponse.status).toBe(201);
 
-          createConnectionRO.id = faker.random.uuid();
+          createConnectionRO.id = faker.datatype.uuid();
           const getTableRowsResponse = await request(app.getHttpServer())
             .get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}`)
             .set('Content-Type', 'application/json')
@@ -389,7 +358,7 @@ describe('Tables MsSQL with schema (e2e)', () => {
 
       it('should return throw an error when connectionId is not passed in request', async () => {
         try {
-          const connectionCount = faker.random.number({ min: 5, max: 15 });
+          const connectionCount = faker.datatype.number({ min: 5, max: 15, precision: 1 });
           for (let i = 0; i < connectionCount; i++) {
             const createConnectionResponse = await request(app.getHttpServer())
               .post('/connection')
@@ -474,7 +443,7 @@ describe('Tables MsSQL with schema (e2e)', () => {
             .set('Accept', 'application/json');
           expect(createTableSettingsResponse.status).toBe(201);
           const searchedDescription = '5';
-          createConnectionRO.id = faker.random.uuid();
+          createConnectionRO.id = faker.datatype.uuid();
           const getTableRowsResponse = await request(app.getHttpServer())
             .get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&search=${searchedDescription}`)
             .set('Content-Type', 'application/json')
@@ -520,7 +489,7 @@ describe('Tables MsSQL with schema (e2e)', () => {
             .set('Accept', 'application/json');
           expect(createTableSettingsResponse.status).toBe(201);
 
-          const search = faker.random.word(1);
+          const search = faker.random.words(1);
           const getTableRowsResponse = await request(app.getHttpServer())
             .get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&search=${search}`)
             .set('Content-Type', 'application/json')
@@ -551,7 +520,7 @@ describe('Tables MsSQL with schema (e2e)', () => {
           const createConnectionRO = JSON.parse(createConnectionResponse.text);
           expect(createConnectionResponse.status).toBe(201);
 
-          const randomTableName = faker.random.word(1);
+          const randomTableName = faker.random.words(1);
           const searchedDescription = '5';
           const getTableRowsResponse = await request(app.getHttpServer())
             .get(`/table/rows/${createConnectionRO.id}?tableName=${randomTableName}&search=${searchedDescription}`)
@@ -621,7 +590,7 @@ describe('Tables MsSQL with schema (e2e)', () => {
           expect(getTableRowsRO.primaryColumns[0].hasOwnProperty('column_name')).toBeTruthy();
           expect(getTableRowsRO.primaryColumns[0].hasOwnProperty('data_type')).toBeTruthy();
           expect(getTableRowsRO.primaryColumns[0].column_name).toBe('id');
-          expect(getTableRowsRO.primaryColumns[0].data_type).toBe('int');
+          expect(getTableRowsRO.primaryColumns[0].data_type).toBe('integer');
 
           expect(getTableRowsRO.pagination.total).toBe(42);
           expect(getTableRowsRO.pagination.lastPage).toBe(21);
@@ -685,7 +654,7 @@ describe('Tables MsSQL with schema (e2e)', () => {
           expect(getTableRowsRO.primaryColumns[0].hasOwnProperty('column_name')).toBeTruthy();
           expect(getTableRowsRO.primaryColumns[0].hasOwnProperty('data_type')).toBeTruthy();
           expect(getTableRowsRO.primaryColumns[0].column_name).toBe('id');
-          expect(getTableRowsRO.primaryColumns[0].data_type).toBe('int');
+          expect(getTableRowsRO.primaryColumns[0].data_type).toBe('integer');
 
           expect(getTableRowsRO.pagination.total).toBe(42);
           expect(getTableRowsRO.pagination.lastPage).toBe(21);
@@ -746,7 +715,7 @@ describe('Tables MsSQL with schema (e2e)', () => {
           expect(getTableRowsRO.primaryColumns[0].hasOwnProperty('column_name')).toBeTruthy();
           expect(getTableRowsRO.primaryColumns[0].hasOwnProperty('data_type')).toBeTruthy();
           expect(getTableRowsRO.primaryColumns[0].column_name).toBe('id');
-          expect(getTableRowsRO.primaryColumns[0].data_type).toBe('int');
+          expect(getTableRowsRO.primaryColumns[0].data_type).toBe('integer');
 
           expect(getTableRowsRO.pagination.total).toBe(42);
           expect(getTableRowsRO.pagination.lastPage).toBe(21);
@@ -790,7 +759,7 @@ describe('Tables MsSQL with schema (e2e)', () => {
             .set('Accept', 'application/json');
           expect(createTableSettingsResponse.status).toBe(201);
 
-          const fakeTableName = faker.random.word(1);
+          const fakeTableName = faker.random.words(1);
           const getTableRowsResponse = await request(app.getHttpServer())
             .get(`/table/rows/${createConnectionRO.id}?tableName=${fakeTableName}&page=1&perPage=2`)
             .set('Content-Type', 'application/json')
@@ -868,7 +837,7 @@ describe('Tables MsSQL with schema (e2e)', () => {
           const createConnectionRO = JSON.parse(createConnectionResponse.text);
           expect(createConnectionResponse.status).toBe(201);
 
-          createConnectionRO.id = faker.random.uuid();
+          createConnectionRO.id = faker.datatype.uuid();
           const getTableRowsResponse = await request(app.getHttpServer())
             .get(`/table/rows/${createConnectionRO.id}?tableName=connection&page=1&perPage=2`)
             .set('Content-Type', 'application/json')
@@ -937,7 +906,7 @@ describe('Tables MsSQL with schema (e2e)', () => {
           expect(getTableRowsRO.primaryColumns[0].hasOwnProperty('column_name')).toBeTruthy();
           expect(getTableRowsRO.primaryColumns[0].hasOwnProperty('data_type')).toBeTruthy();
           expect(getTableRowsRO.primaryColumns[0].column_name).toBe('id');
-          expect(getTableRowsRO.primaryColumns[0].data_type).toBe('int');
+          expect(getTableRowsRO.primaryColumns[0].data_type).toBe('integer');
 
           expect(getTableRowsRO.pagination.total).toBe(3);
           expect(getTableRowsRO.pagination.lastPage).toBe(2);
@@ -1001,7 +970,7 @@ describe('Tables MsSQL with schema (e2e)', () => {
           expect(getTableRowsRO.primaryColumns[0].hasOwnProperty('column_name')).toBeTruthy();
           expect(getTableRowsRO.primaryColumns[0].hasOwnProperty('data_type')).toBeTruthy();
           expect(getTableRowsRO.primaryColumns[0].column_name).toBe('id');
-          expect(getTableRowsRO.primaryColumns[0].data_type).toBe('int');
+          expect(getTableRowsRO.primaryColumns[0].data_type).toBe('integer');
 
           expect(getTableRowsRO.pagination.total).toBe(3);
           expect(getTableRowsRO.pagination.lastPage).toBe(1);
@@ -1090,7 +1059,7 @@ describe('Tables MsSQL with schema (e2e)', () => {
             .set('Content-Type', 'application/json')
             .set('Accept', 'application/json');
           expect(createTableSettingsResponse.status).toBe(201);
-          createConnectionRO.id = faker.random.uuid();
+          createConnectionRO.id = faker.datatype.uuid();
 
           const getTableRowsResponse = await request(app.getHttpServer())
             .get(
@@ -1140,7 +1109,7 @@ describe('Tables MsSQL with schema (e2e)', () => {
             .set('Accept', 'application/json');
           expect(createTableSettingsResponse.status).toBe(201);
 
-          const fakeTableName = faker.random.word(1);
+          const fakeTableName = faker.random.words(1);
           const getTableRowsResponse = await request(app.getHttpServer())
             .get(
               `/table/rows/${createConnectionRO.id}?tableName=${fakeTableName}&search=${testSearchedUserName}&page=1&perPage=3`,
@@ -1240,7 +1209,7 @@ describe('Tables MsSQL with schema (e2e)', () => {
           expect(createTableSettingsResponse.status).toBe(201);
 
           const getTableRowsResponse = await request(app.getHttpServer())
-            .get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=1&perPage=50`)
+            .get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}`)
             .set('Content-Type', 'application/json')
             .set('Accept', 'application/json');
           expect(getTableRowsResponse.status).toBe(200);
@@ -1250,11 +1219,11 @@ describe('Tables MsSQL with schema (e2e)', () => {
           expect(getTableRowsRO.hasOwnProperty('rows')).toBeTruthy();
           expect(getTableRowsRO.hasOwnProperty('primaryColumns')).toBeTruthy();
           expect(getTableRowsRO.hasOwnProperty('pagination')).toBeTruthy();
-          expect(getTableRowsRO.rows.length).toBe(42);
+          expect(getTableRowsRO.rows.length).toBe(3);
           expect(Object.keys(getTableRowsRO.rows[1]).length).toBe(5);
           expect(getTableRowsRO.rows[0].id).toBe(42);
           expect(getTableRowsRO.rows[1].id).toBe(41);
-          expect(getTableRowsRO.rows[41].id).toBe(1);
+          expect(getTableRowsRO.rows[2].id).toBe(40);
 
           expect(typeof getTableRowsRO.primaryColumns).toBe('object');
           expect(getTableRowsRO.primaryColumns[0].hasOwnProperty('column_name')).toBeTruthy();
@@ -1298,7 +1267,7 @@ describe('Tables MsSQL with schema (e2e)', () => {
           expect(createTableSettingsResponse.status).toBe(201);
 
           const getTableRowsResponse = await request(app.getHttpServer())
-            .get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=1&perPage=50`)
+            .get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}`)
             .set('Content-Type', 'application/json')
             .set('Accept', 'application/json');
           expect(getTableRowsResponse.status).toBe(200);
@@ -1308,11 +1277,11 @@ describe('Tables MsSQL with schema (e2e)', () => {
           expect(getTableRowsRO.hasOwnProperty('rows')).toBeTruthy();
           expect(getTableRowsRO.hasOwnProperty('primaryColumns')).toBeTruthy();
           expect(getTableRowsRO.hasOwnProperty('pagination')).toBeTruthy();
-          expect(getTableRowsRO.rows.length).toBe(42);
+          expect(getTableRowsRO.rows.length).toBe(3);
           expect(Object.keys(getTableRowsRO.rows[1]).length).toBe(5);
           expect(getTableRowsRO.rows[0].id).toBe(1);
           expect(getTableRowsRO.rows[1].id).toBe(2);
-          expect(getTableRowsRO.rows[41].id).toBe(42);
+          expect(getTableRowsRO.rows[2].id).toBe(3);
 
           expect(typeof getTableRowsRO.primaryColumns).toBe('object');
           expect(getTableRowsRO.primaryColumns[0].hasOwnProperty('column_name')).toBeTruthy();
@@ -1398,7 +1367,7 @@ describe('Tables MsSQL with schema (e2e)', () => {
             .set('Content-Type', 'application/json')
             .set('Accept', 'application/json');
           expect(createTableSettingsResponse.status).toBe(201);
-          createConnectionRO.id = faker.random.uuid();
+          createConnectionRO.id = faker.datatype.uuid();
           const getTableRowsResponse = await request(app.getHttpServer())
             .get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}`)
             .set('Content-Type', 'application/json')
@@ -1490,7 +1459,7 @@ describe('Tables MsSQL with schema (e2e)', () => {
             .set('Accept', 'application/json');
           expect(createTableSettingsResponse.status).toBe(201);
 
-          const fakeTableName = faker.random.word(1);
+          const fakeTableName = faker.random.words(1);
           const getTableRowsResponse = await request(app.getHttpServer())
             .get(`/table/rows/${createConnectionRO.id}?tableName=${fakeTableName}`)
             .set('Content-Type', 'application/json')
@@ -1756,7 +1725,7 @@ describe('Tables MsSQL with schema (e2e)', () => {
             .set('Accept', 'application/json');
           expect(createTableSettingsResponse.status).toBe(201);
 
-          createConnectionRO.id = faker.random.uuid();
+          createConnectionRO.id = faker.datatype.uuid();
           const getTableRowsResponse = await request(app.getHttpServer())
             .get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=2&perPage=3`)
             .set('Content-Type', 'application/json')
@@ -1804,7 +1773,7 @@ describe('Tables MsSQL with schema (e2e)', () => {
             .set('Accept', 'application/json');
           expect(createTableSettingsResponse.status).toBe(201);
 
-          const fakeTableName = faker.random.word(1);
+          const fakeTableName = faker.random.words(1);
           const getTableRowsResponse = await request(app.getHttpServer())
             .get(`/table/rows/${createConnectionRO.id}?tableName=${fakeTableName}&page=2&perPage=3`)
             .set('Content-Type', 'application/json')
@@ -2146,7 +2115,7 @@ describe('Tables MsSQL with schema (e2e)', () => {
             .set('Accept', 'application/json');
           expect(createTableSettingsResponse.status).toBe(201);
 
-          createConnectionRO.id = faker.random.uuid();
+          createConnectionRO.id = faker.datatype.uuid();
           const getTableRowsResponse = await request(app.getHttpServer())
             .get(
               `/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=2&perPage=2&search=${testSearchedUserName}`,
@@ -2242,7 +2211,7 @@ describe('Tables MsSQL with schema (e2e)', () => {
             .set('Accept', 'application/json');
           expect(createTableSettingsResponse.status).toBe(201);
 
-          const fakeTableName = faker.random.uuid();
+          const fakeTableName = faker.datatype.uuid();
           const getTableRowsResponse = await request(app.getHttpServer())
             .get(
               `/table/rows/${createConnectionRO.id}?tableName=${fakeTableName}&page=2&perPage=2&search=${testSearchedUserName}`,
@@ -2290,7 +2259,7 @@ describe('Tables MsSQL with schema (e2e)', () => {
             .set('Accept', 'application/json');
           expect(createTableSettingsResponse.status).toBe(201);
 
-          const searchedDescription = faker.random.word(1);
+          const searchedDescription = faker.random.words(1);
           const getTableRowsResponse = await request(app.getHttpServer())
             .get(
               `/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=1&perPage=2&search=${searchedDescription}`,
@@ -2348,7 +2317,7 @@ describe('Tables MsSQL with schema (e2e)', () => {
             .set('Accept', 'application/json');
           expect(createTableSettingsResponse.status).toBe(201);
 
-          const searchedDescription = faker.random.word(1);
+          const searchedDescription = faker.random.words(1);
           const getTableRowsResponse = await request(app.getHttpServer())
             .get(
               `/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=1&perPage=420&search=${searchedDescription}`,
@@ -2564,7 +2533,6 @@ describe('Tables MsSQL with schema (e2e)', () => {
 
           expect(getTableRowsRO.rows[0].name).toBe(testSearchedUserName);
           expect(getTableRowsRO.rows[0].id).toBe(1);
-
           expect(getTableRowsRO.pagination.currentPage).toBe(2);
           expect(getTableRowsRO.pagination.perPage).toBe(2);
 
@@ -2730,7 +2698,7 @@ describe('Tables MsSQL with schema (e2e)', () => {
           const fieldGtvalue = '25';
           const fieldLtvalue = '40';
 
-          createConnectionRO.id = faker.random.uuid();
+          createConnectionRO.id = faker.datatype.uuid();
           const getTableRowsResponse = await request(app.getHttpServer())
             .get(
               `/table/rows/${createConnectionRO.id}?tableName=${testTableName}&search=${testSearchedUserName}&page=1&perPage=2&f_${fieldname}__lt=${fieldLtvalue}&f_${fieldname}__gt=${fieldGtvalue}`,
@@ -2784,7 +2752,7 @@ describe('Tables MsSQL with schema (e2e)', () => {
           const fieldGtvalue = '25';
           const fieldLtvalue = '40';
 
-          const fakeTableName = faker.random.word(1);
+          const fakeTableName = faker.random.words(1);
           const getTableRowsResponse = await request(app.getHttpServer())
             .get(
               `/table/rows/${createConnectionRO.id}?tableName=${fakeTableName}&search=${testSearchedUserName}&page=1&perPage=2&f_${fieldname}__lt=${fieldLtvalue}&f_${fieldname}__gt=${fieldGtvalue}`,
@@ -2834,7 +2802,7 @@ describe('Tables MsSQL with schema (e2e)', () => {
             .set('Accept', 'application/json');
           expect(createTableSettingsResponse.status).toBe(201);
 
-          const fieldname = faker.random.word(1);
+          const fieldname = faker.random.words(1);
           const fieldGtvalue = '25';
           const fieldLtvalue = '40';
 
@@ -2891,6 +2859,8 @@ describe('Tables MsSQL with schema (e2e)', () => {
 
         expect(getTableStructureRO.hasOwnProperty('primaryColumns')).toBeTruthy();
         expect(getTableStructureRO.hasOwnProperty('foreignKeys')).toBeTruthy();
+        expect(getTableStructureRO.hasOwnProperty('readonly_fields')).toBeTruthy();
+        expect(getTableStructureRO.hasOwnProperty('table_widgets')).toBeTruthy();
 
         for (const element of getTableStructureRO.primaryColumns) {
           expect(element.hasOwnProperty('column_name')).toBeTruthy();
@@ -2939,7 +2909,7 @@ describe('Tables MsSQL with schema (e2e)', () => {
         const createConnectionRO = JSON.parse(createConnectionResponse.text);
         expect(createConnectionResponse.status).toBe(201);
 
-        createConnectionRO.id = faker.random.uuid();
+        createConnectionRO.id = faker.datatype.uuid();
         const getTableStructure = await request(app.getHttpServer())
           .get(`/table/structure/${createConnectionRO.id}?tableName=${testTableName}`)
           .set('Content-Type', 'application/json')
@@ -2985,7 +2955,7 @@ describe('Tables MsSQL with schema (e2e)', () => {
         const createConnectionRO = JSON.parse(createConnectionResponse.text);
         expect(createConnectionResponse.status).toBe(201);
 
-        const tableName = faker.random.word(1);
+        const tableName = faker.random.words(1);
         const getTableStructure = await request(app.getHttpServer())
           .get(`/table/structure/${createConnectionRO.id}?tableName=${tableName}`)
           .set('Content-Type', 'application/json')
@@ -3002,27 +2972,6 @@ describe('Tables MsSQL with schema (e2e)', () => {
   describe('POST /table/row/:slug', () => {
     it('should add row in table and return result', async () => {
       try {
-        AWSMock.setSDKInstance(AWS);
-        AWSMock.mock(
-          'CognitoIdentityServiceProvider',
-          'listUsers',
-          (newCognitoUserName, callback: (...args: any) => void) => {
-            callback(null, {
-              Users: [
-                {
-                  Attributes: [
-                    {},
-                    {},
-                    {
-                      Value: 'Example@gmail.com',
-                    },
-                  ],
-                },
-              ],
-            });
-          },
-        );
-
         const createConnectionResponse = await request(app.getHttpServer())
           .post('/connection')
           .send(newConnection)
@@ -3069,6 +3018,7 @@ describe('Tables MsSQL with schema (e2e)', () => {
         expect(getTableRowsRO.hasOwnProperty('pagination')).toBeTruthy();
 
         const { rows, primaryColumns, pagination } = getTableRowsRO;
+        console.log('=>(table-postgres.e2e.spec.ts:3020) rows', rows);
 
         expect(rows.length).toBe(43);
         expect(rows[42][testTableColumnName]).toBe(row[testTableColumnName]);
@@ -3086,7 +3036,7 @@ describe('Tables MsSQL with schema (e2e)', () => {
         AWSMock.mock(
           'CognitoIdentityServiceProvider',
           'listUsers',
-          (newCognitoUserName, callback: (...args: any) => void) => {
+          (newCognitoUserName, callback: (...ars: any) => void) => {
             callback(null, {
               Users: [
                 {
@@ -3094,6 +3044,7 @@ describe('Tables MsSQL with schema (e2e)', () => {
                     {},
                     {},
                     {
+                      Name: 'email',
                       Value: 'Example@gmail.com',
                     },
                   ],
@@ -3155,7 +3106,7 @@ describe('Tables MsSQL with schema (e2e)', () => {
         AWSMock.mock(
           'CognitoIdentityServiceProvider',
           'listUsers',
-          (newCognitoUserName, callback: (...args: any) => void) => {
+          (newCognitoUserName, callback: (...ars: any) => void) => {
             callback(null, {
               Users: [
                 {
@@ -3163,6 +3114,7 @@ describe('Tables MsSQL with schema (e2e)', () => {
                     {},
                     {},
                     {
+                      Name: 'email',
                       Value: 'Example@gmail.com',
                     },
                   ],
@@ -3227,7 +3179,7 @@ describe('Tables MsSQL with schema (e2e)', () => {
         AWSMock.mock(
           'CognitoIdentityServiceProvider',
           'listUsers',
-          (newCognitoUserName, callback: (...args: any) => void) => {
+          (newCognitoUserName, callback: (...ars: any) => void) => {
             callback(null, {
               Users: [
                 {
@@ -3235,6 +3187,7 @@ describe('Tables MsSQL with schema (e2e)', () => {
                     {},
                     {},
                     {
+                      Name: 'email',
                       Value: 'Example@gmail.com',
                     },
                   ],
@@ -3289,7 +3242,7 @@ describe('Tables MsSQL with schema (e2e)', () => {
         AWSMock.mock(
           'CognitoIdentityServiceProvider',
           'listUsers',
-          (newCognitoUserName, callback: (...args: any) => void) => {
+          (newCognitoUserName, callback: (...ars: any) => void) => {
             callback(null, {
               Users: [
                 {
@@ -3297,6 +3250,7 @@ describe('Tables MsSQL with schema (e2e)', () => {
                     {},
                     {},
                     {
+                      Name: 'email',
                       Value: 'Example@gmail.com',
                     },
                   ],
@@ -3323,7 +3277,7 @@ describe('Tables MsSQL with schema (e2e)', () => {
           [testTAbleSecondColumnName]: fakeMail,
         };
 
-        const fakeTableName = faker.random.word(1);
+        const fakeTableName = faker.random.words(1);
         const addRowInTableResponse = await request(app.getHttpServer())
           .post(`/table/row/${createConnectionRO.id}?tableName=${fakeTableName}`)
           .send(JSON.stringify(row))
@@ -3362,27 +3316,6 @@ describe('Tables MsSQL with schema (e2e)', () => {
   describe('PUT /table/row/:slug', () => {
     it('should update row in table and return result', async () => {
       try {
-        AWSMock.setSDKInstance(AWS);
-        AWSMock.mock(
-          'CognitoIdentityServiceProvider',
-          'listUsers',
-          (newCognitoUserName, callback: (...args: any) => void) => {
-            callback(null, {
-              Users: [
-                {
-                  Attributes: [
-                    {},
-                    {},
-                    {
-                      Value: 'Example@gmail.com',
-                    },
-                  ],
-                },
-              ],
-            });
-          },
-        );
-
         const createConnectionResponse = await request(app.getHttpServer())
           .post('/connection')
           .send(newConnection)
@@ -3405,8 +3338,8 @@ describe('Tables MsSQL with schema (e2e)', () => {
           .set('Content-Type', 'application/json')
           .set('Accept', 'application/json');
 
-        expect(updateRowInTableResponse.status).toBe(200);
         const updateRowInTableRO = JSON.parse(updateRowInTableResponse.text);
+        expect(updateRowInTableResponse.status).toBe(200);
 
         expect(updateRowInTableRO.hasOwnProperty('row')).toBeTruthy();
         expect(updateRowInTableRO.hasOwnProperty('structure')).toBeTruthy();
@@ -3447,7 +3380,7 @@ describe('Tables MsSQL with schema (e2e)', () => {
         AWSMock.mock(
           'CognitoIdentityServiceProvider',
           'listUsers',
-          (newCognitoUserName, callback: (...args: any) => void) => {
+          (newCognitoUserName, callback: (...ars: any) => void) => {
             callback(null, {
               Users: [
                 {
@@ -3455,6 +3388,7 @@ describe('Tables MsSQL with schema (e2e)', () => {
                     {},
                     {},
                     {
+                      Name: 'email',
                       Value: 'Example@gmail.com',
                     },
                   ],
@@ -3500,7 +3434,7 @@ describe('Tables MsSQL with schema (e2e)', () => {
         AWSMock.mock(
           'CognitoIdentityServiceProvider',
           'listUsers',
-          (newCognitoUserName, callback: (...args: any) => void) => {
+          (newCognitoUserName, callback: (...ars: any) => void) => {
             callback(null, {
               Users: [
                 {
@@ -3508,6 +3442,7 @@ describe('Tables MsSQL with schema (e2e)', () => {
                     {},
                     {},
                     {
+                      Name: 'email',
                       Value: 'Example@gmail.com',
                     },
                   ],
@@ -3533,7 +3468,7 @@ describe('Tables MsSQL with schema (e2e)', () => {
           [testTAbleSecondColumnName]: fakeMail,
         };
 
-        createConnectionRO.id = faker.random.uuid();
+        createConnectionRO.id = faker.datatype.uuid();
         const updateRowInTableResponse = await request(app.getHttpServer())
           .put(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&id=1`)
           .send(JSON.stringify(row))
@@ -3555,7 +3490,7 @@ describe('Tables MsSQL with schema (e2e)', () => {
         AWSMock.mock(
           'CognitoIdentityServiceProvider',
           'listUsers',
-          (newCognitoUserName, callback: (...args: any) => void) => {
+          (newCognitoUserName, callback: (...ars: any) => void) => {
             callback(null, {
               Users: [
                 {
@@ -3563,6 +3498,7 @@ describe('Tables MsSQL with schema (e2e)', () => {
                     {},
                     {},
                     {
+                      Name: 'email',
                       Value: 'Example@gmail.com',
                     },
                   ],
@@ -3588,7 +3524,7 @@ describe('Tables MsSQL with schema (e2e)', () => {
           [testTAbleSecondColumnName]: fakeMail,
         };
 
-        createConnectionRO.id = faker.random.uuid();
+        createConnectionRO.id = faker.datatype.uuid();
         const updateRowInTableResponse = await request(app.getHttpServer())
           .put(`/table/row/${createConnectionRO.id}?tableName=&id=1`)
           .send(JSON.stringify(row))
@@ -3610,7 +3546,7 @@ describe('Tables MsSQL with schema (e2e)', () => {
         AWSMock.mock(
           'CognitoIdentityServiceProvider',
           'listUsers',
-          (newCognitoUserName, callback: (...args: any) => void) => {
+          (newCognitoUserName, callback: (...ars: any) => void) => {
             callback(null, {
               Users: [
                 {
@@ -3618,6 +3554,7 @@ describe('Tables MsSQL with schema (e2e)', () => {
                     {},
                     {},
                     {
+                      Name: 'email',
                       Value: 'Example@gmail.com',
                     },
                   ],
@@ -3643,7 +3580,7 @@ describe('Tables MsSQL with schema (e2e)', () => {
           [testTAbleSecondColumnName]: fakeMail,
         };
 
-        const fakeTableName = faker.random.uuid();
+        const fakeTableName = faker.datatype.uuid();
         const updateRowInTableResponse = await request(app.getHttpServer())
           .put(`/table/row/${createConnectionRO.id}?tableName=${fakeTableName}&id=1`)
           .send(JSON.stringify(row))
@@ -3665,7 +3602,7 @@ describe('Tables MsSQL with schema (e2e)', () => {
         AWSMock.mock(
           'CognitoIdentityServiceProvider',
           'listUsers',
-          (newCognitoUserName, callback: (...args: any) => void) => {
+          (newCognitoUserName, callback: (...ars: any) => void) => {
             callback(null, {
               Users: [
                 {
@@ -3673,6 +3610,7 @@ describe('Tables MsSQL with schema (e2e)', () => {
                     {},
                     {},
                     {
+                      Name: 'email',
                       Value: 'Example@gmail.com',
                     },
                   ],
@@ -3719,7 +3657,7 @@ describe('Tables MsSQL with schema (e2e)', () => {
         AWSMock.mock(
           'CognitoIdentityServiceProvider',
           'listUsers',
-          (newCognitoUserName, callback: (...args: any) => void) => {
+          (newCognitoUserName, callback: (...ars: any) => void) => {
             callback(null, {
               Users: [
                 {
@@ -3727,6 +3665,7 @@ describe('Tables MsSQL with schema (e2e)', () => {
                     {},
                     {},
                     {
+                      Name: 'email',
                       Value: 'Example@gmail.com',
                     },
                   ],
@@ -3773,7 +3712,7 @@ describe('Tables MsSQL with schema (e2e)', () => {
         AWSMock.mock(
           'CognitoIdentityServiceProvider',
           'listUsers',
-          (newCognitoUserName, callback: (...args: any) => void) => {
+          (newCognitoUserName, callback: (...ars: any) => void) => {
             callback(null, {
               Users: [
                 {
@@ -3781,6 +3720,7 @@ describe('Tables MsSQL with schema (e2e)', () => {
                     {},
                     {},
                     {
+                      Name: 'email',
                       Value: 'Example@gmail.com',
                     },
                   ],
@@ -3814,7 +3754,7 @@ describe('Tables MsSQL with schema (e2e)', () => {
 
         expect(updateRowInTableResponse.status).toBe(400);
         const { message } = JSON.parse(updateRowInTableResponse.text);
-        expect(message).toBe(Messages.ROW_PRIMARY_KEY_NOT_FOUND);
+        expect(message).toBe(`${Messages.ROW_PRIMARY_KEY_NOT_FOUND}`);
       } catch (err) {
         throw err;
       }
@@ -3829,7 +3769,7 @@ describe('Tables MsSQL with schema (e2e)', () => {
         AWSMock.mock(
           'CognitoIdentityServiceProvider',
           'listUsers',
-          (newCognitoUserName, callback: (...args: any) => void) => {
+          (newCognitoUserName, callback: (...ars: any) => void) => {
             callback(null, {
               Users: [
                 {
@@ -3837,6 +3777,7 @@ describe('Tables MsSQL with schema (e2e)', () => {
                     {},
                     {},
                     {
+                      Name: 'email',
                       Value: 'Example@gmail.com',
                     },
                   ],
@@ -3896,7 +3837,7 @@ describe('Tables MsSQL with schema (e2e)', () => {
         AWSMock.mock(
           'CognitoIdentityServiceProvider',
           'listUsers',
-          (newCognitoUserName, callback: (...args: any) => void) => {
+          (newCognitoUserName, callback: (...ars: any) => void) => {
             callback(null, {
               Users: [
                 {
@@ -3904,6 +3845,7 @@ describe('Tables MsSQL with schema (e2e)', () => {
                     {},
                     {},
                     {
+                      Name: 'email',
                       Value: 'Example@gmail.com',
                     },
                   ],
@@ -3960,7 +3902,7 @@ describe('Tables MsSQL with schema (e2e)', () => {
         AWSMock.mock(
           'CognitoIdentityServiceProvider',
           'listUsers',
-          (newCognitoUserName, callback: (...args: any) => void) => {
+          (newCognitoUserName, callback: (...ars: any) => void) => {
             callback(null, {
               Users: [
                 {
@@ -3968,6 +3910,7 @@ describe('Tables MsSQL with schema (e2e)', () => {
                     {},
                     {},
                     {
+                      Name: 'email',
                       Value: 'Example@gmail.com',
                     },
                   ],
@@ -3986,7 +3929,7 @@ describe('Tables MsSQL with schema (e2e)', () => {
         expect(createConnectionResponse.status).toBe(201);
 
         const idForDeletion = 1;
-        const connectionId = faker.random.uuid();
+        const connectionId = faker.datatype.uuid();
         const deleteRowInTableResponse = await request(app.getHttpServer())
           .delete(`/table/row/${connectionId}?tableName=${testTableName}&id=${idForDeletion}`)
           .set('Content-Type', 'application/json')
@@ -4026,7 +3969,7 @@ describe('Tables MsSQL with schema (e2e)', () => {
         AWSMock.mock(
           'CognitoIdentityServiceProvider',
           'listUsers',
-          (newCognitoUserName, callback: (...args: any) => void) => {
+          (newCognitoUserName, callback: (...ars: any) => void) => {
             callback(null, {
               Users: [
                 {
@@ -4034,6 +3977,7 @@ describe('Tables MsSQL with schema (e2e)', () => {
                     {},
                     {},
                     {
+                      Name: 'email',
                       Value: 'Example@gmail.com',
                     },
                   ],
@@ -4092,7 +4036,7 @@ describe('Tables MsSQL with schema (e2e)', () => {
         AWSMock.mock(
           'CognitoIdentityServiceProvider',
           'listUsers',
-          (newCognitoUserName, callback: (...args: any) => void) => {
+          (newCognitoUserName, callback: (...ars: any) => void) => {
             callback(null, {
               Users: [
                 {
@@ -4100,6 +4044,7 @@ describe('Tables MsSQL with schema (e2e)', () => {
                     {},
                     {},
                     {
+                      Name: 'email',
                       Value: 'Example@gmail.com',
                     },
                   ],
@@ -4118,7 +4063,7 @@ describe('Tables MsSQL with schema (e2e)', () => {
         expect(createConnectionResponse.status).toBe(201);
 
         const idForDeletion = 1;
-        const fakeTableName = faker.random.word(1);
+        const fakeTableName = faker.random.words(1);
         const deleteRowInTableResponse = await request(app.getHttpServer())
           .delete(`/table/row/${createConnectionRO.id}?tableName=${fakeTableName}&id=${idForDeletion}`)
           .set('Content-Type', 'application/json')
@@ -4158,7 +4103,7 @@ describe('Tables MsSQL with schema (e2e)', () => {
         AWSMock.mock(
           'CognitoIdentityServiceProvider',
           'listUsers',
-          (newCognitoUserName, callback: (...args: any) => void) => {
+          (newCognitoUserName, callback: (...ars: any) => void) => {
             callback(null, {
               Users: [
                 {
@@ -4166,6 +4111,7 @@ describe('Tables MsSQL with schema (e2e)', () => {
                     {},
                     {},
                     {
+                      Name: 'email',
                       Value: 'Example@gmail.com',
                     },
                   ],
@@ -4195,7 +4141,7 @@ describe('Tables MsSQL with schema (e2e)', () => {
 
         //checking that the line wasn't deleted
         const getTableRowsResponse = await request(app.getHttpServer())
-          .get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}`)
+          .get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=1&perPage=50`)
           .set('Content-Type', 'application/json')
           .set('Accept', 'application/json');
         expect(getTableRowsResponse.status).toBe(200);
@@ -4208,7 +4154,7 @@ describe('Tables MsSQL with schema (e2e)', () => {
 
         const { rows, primaryColumns, pagination } = getTableRowsRO;
 
-        expect(rows.length).toBe(20);
+        expect(rows.length).toBe(42);
         const deletedRowIndex = rows.map((row) => row.id).indexOf(idForDeletion);
         expect(deletedRowIndex < 0).toBeFalsy();
       } catch (err) {
@@ -4223,7 +4169,7 @@ describe('Tables MsSQL with schema (e2e)', () => {
         AWSMock.mock(
           'CognitoIdentityServiceProvider',
           'listUsers',
-          (newCognitoUserName, callback: (...args: any) => void) => {
+          (newCognitoUserName, callback: (...ars: any) => void) => {
             callback(null, {
               Users: [
                 {
@@ -4231,6 +4177,7 @@ describe('Tables MsSQL with schema (e2e)', () => {
                     {},
                     {},
                     {
+                      Name: 'email',
                       Value: 'Example@gmail.com',
                     },
                   ],
@@ -4260,7 +4207,7 @@ describe('Tables MsSQL with schema (e2e)', () => {
 
         //checking that the line wasn't deleted
         const getTableRowsResponse = await request(app.getHttpServer())
-          .get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}`)
+          .get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=1&perPage=50`)
           .set('Content-Type', 'application/json')
           .set('Accept', 'application/json');
         expect(getTableRowsResponse.status).toBe(200);
@@ -4273,7 +4220,7 @@ describe('Tables MsSQL with schema (e2e)', () => {
 
         const { rows, primaryColumns, pagination } = getTableRowsRO;
 
-        expect(rows.length).toBe(20);
+        expect(rows.length).toBe(42);
         const deletedRowIndex = rows.map((row) => row.id).indexOf(idForDeletion);
         expect(deletedRowIndex < 0).toBeFalsy();
       } catch (err) {
@@ -4282,13 +4229,13 @@ describe('Tables MsSQL with schema (e2e)', () => {
       AWSMock.restore('CognitoIdentityServiceProvider');
     });
 
-    it('should return positive delete result when primary key passed in request has incorrect field value', async () => {
+    it('should throw an exception when primary key passed in request has incorrect field value', async () => {
       try {
         AWSMock.setSDKInstance(AWS);
         AWSMock.mock(
           'CognitoIdentityServiceProvider',
           'listUsers',
-          (newCognitoUserName, callback: (...args: any) => void) => {
+          (newCognitoUserName, callback: (...ars: any) => void) => {
             callback(null, {
               Users: [
                 {
@@ -4296,6 +4243,7 @@ describe('Tables MsSQL with schema (e2e)', () => {
                     {},
                     {},
                     {
+                      Name: 'email',
                       Value: 'Example@gmail.com',
                     },
                   ],
@@ -4313,13 +4261,14 @@ describe('Tables MsSQL with schema (e2e)', () => {
         const createConnectionRO = JSON.parse(createConnectionResponse.text);
         expect(createConnectionResponse.status).toBe(201);
 
-        const idForDeletion = 1;
         const deleteRowInTableResponse = await request(app.getHttpServer())
           .delete(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&id=100000`)
           .set('Content-Type', 'application/json')
           .set('Accept', 'application/json');
 
         expect(deleteRowInTableResponse.status).toBe(400);
+        const deleteRowInTableRO = JSON.parse(deleteRowInTableResponse.text);
+        expect(deleteRowInTableRO.message).toBe(Messages.ROW_PRIMARY_KEY_NOT_FOUND);
       } catch (err) {
         throw err;
       }
@@ -4334,7 +4283,7 @@ describe('Tables MsSQL with schema (e2e)', () => {
         AWSMock.mock(
           'CognitoIdentityServiceProvider',
           'listUsers',
-          (newCognitoUserName, callback: (...args: any) => void) => {
+          (newCognitoUserName, callback: (...ars: any) => void) => {
             callback(null, {
               Users: [
                 {
@@ -4342,6 +4291,7 @@ describe('Tables MsSQL with schema (e2e)', () => {
                     {},
                     {},
                     {
+                      Name: 'email',
                       Value: 'Example@gmail.com',
                     },
                   ],
@@ -4380,6 +4330,7 @@ describe('Tables MsSQL with schema (e2e)', () => {
         expect(foundRowInTableRO.row.id).toBe(1);
         expect(foundRowInTableRO.row.name).toBe(testSearchedUserName);
         expect(Object.keys(foundRowInTableRO.row).length).toBe(5);
+        expect(foundRowInTableRO.foreignKeys.hasOwnProperty('autocomplete_columns')).toBeFalsy();
       } catch (err) {
         throw err;
       }
@@ -4393,7 +4344,7 @@ describe('Tables MsSQL with schema (e2e)', () => {
         AWSMock.mock(
           'CognitoIdentityServiceProvider',
           'listUsers',
-          (newCognitoUserName, callback: (...args: any) => void) => {
+          (newCognitoUserName, callback: (...ars: any) => void) => {
             callback(null, {
               Users: [
                 {
@@ -4401,6 +4352,7 @@ describe('Tables MsSQL with schema (e2e)', () => {
                     {},
                     {},
                     {
+                      Name: 'email',
                       Value: 'Example@gmail.com',
                     },
                   ],
@@ -4439,7 +4391,7 @@ describe('Tables MsSQL with schema (e2e)', () => {
         AWSMock.mock(
           'CognitoIdentityServiceProvider',
           'listUsers',
-          (newCognitoUserName, callback: (...args: any) => void) => {
+          (newCognitoUserName, callback: (...ars: any) => void) => {
             callback(null, {
               Users: [
                 {
@@ -4447,6 +4399,7 @@ describe('Tables MsSQL with schema (e2e)', () => {
                     {},
                     {},
                     {
+                      Name: 'email',
                       Value: 'Example@gmail.com',
                     },
                   ],
@@ -4465,7 +4418,7 @@ describe('Tables MsSQL with schema (e2e)', () => {
         expect(createConnectionResponse.status).toBe(201);
 
         const idForSearch = 1;
-        createConnectionRO.id = faker.random.uuid();
+        createConnectionRO.id = faker.datatype.uuid();
         const foundRowInTableResponse = await request(app.getHttpServer())
           .get(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&id=${idForSearch}`)
           .set('Content-Type', 'application/json')
@@ -4487,7 +4440,7 @@ describe('Tables MsSQL with schema (e2e)', () => {
         AWSMock.mock(
           'CognitoIdentityServiceProvider',
           'listUsers',
-          (newCognitoUserName, callback: (...args: any) => void) => {
+          (newCognitoUserName, callback: (...ars: any) => void) => {
             callback(null, {
               Users: [
                 {
@@ -4495,6 +4448,7 @@ describe('Tables MsSQL with schema (e2e)', () => {
                     {},
                     {},
                     {
+                      Name: 'email',
                       Value: 'Example@gmail.com',
                     },
                   ],
@@ -4535,7 +4489,7 @@ describe('Tables MsSQL with schema (e2e)', () => {
         AWSMock.mock(
           'CognitoIdentityServiceProvider',
           'listUsers',
-          (newCognitoUserName, callback: (...args: any) => void) => {
+          (newCognitoUserName, callback: (...ars: any) => void) => {
             callback(null, {
               Users: [
                 {
@@ -4543,6 +4497,7 @@ describe('Tables MsSQL with schema (e2e)', () => {
                     {},
                     {},
                     {
+                      Name: 'email',
                       Value: 'Example@gmail.com',
                     },
                   ],
@@ -4561,7 +4516,7 @@ describe('Tables MsSQL with schema (e2e)', () => {
         expect(createConnectionResponse.status).toBe(201);
 
         const idForSearch = 1;
-        const fakeTableName = faker.random.word(1);
+        const fakeTableName = faker.random.words(1);
         const foundRowInTableResponse = await request(app.getHttpServer())
           .get(`/table/row/${createConnectionRO.id}?tableName=${fakeTableName}&id=${idForSearch}`)
           .set('Content-Type', 'application/json')
@@ -4583,7 +4538,7 @@ describe('Tables MsSQL with schema (e2e)', () => {
         AWSMock.mock(
           'CognitoIdentityServiceProvider',
           'listUsers',
-          (newCognitoUserName, callback: (...args: any) => void) => {
+          (newCognitoUserName, callback: (...ars: any) => void) => {
             callback(null, {
               Users: [
                 {
@@ -4591,6 +4546,7 @@ describe('Tables MsSQL with schema (e2e)', () => {
                     {},
                     {},
                     {
+                      Name: 'email',
                       Value: 'Example@gmail.com',
                     },
                   ],
@@ -4629,7 +4585,7 @@ describe('Tables MsSQL with schema (e2e)', () => {
         AWSMock.mock(
           'CognitoIdentityServiceProvider',
           'listUsers',
-          (newCognitoUserName, callback: (...args: any) => void) => {
+          (newCognitoUserName, callback: (...ars: any) => void) => {
             callback(null, {
               Users: [
                 {
@@ -4637,6 +4593,7 @@ describe('Tables MsSQL with schema (e2e)', () => {
                     {},
                     {},
                     {
+                      Name: 'email',
                       Value: 'Example@gmail.com',
                     },
                   ],
@@ -4676,7 +4633,7 @@ describe('Tables MsSQL with schema (e2e)', () => {
         AWSMock.mock(
           'CognitoIdentityServiceProvider',
           'listUsers',
-          (newCognitoUserName, callback: (...args: any) => void) => {
+          (newCognitoUserName, callback: (...ars: any) => void) => {
             callback(null, {
               Users: [
                 {
@@ -4684,6 +4641,7 @@ describe('Tables MsSQL with schema (e2e)', () => {
                     {},
                     {},
                     {
+                      Name: 'email',
                       Value: 'Example@gmail.com',
                     },
                   ],

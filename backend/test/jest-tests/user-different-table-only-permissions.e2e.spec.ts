@@ -1,19 +1,19 @@
-import * as faker from 'faker';
+import { faker } from '@faker-js/faker';
 import { knex } from 'knex';
 import * as request from 'supertest';
-import { AccessLevelEnum } from '../src/enums';
-import { ApplicationModule } from '../src/app.module';
+import { AccessLevelEnum } from '../../src/enums';
+import { ApplicationModule } from '../../src/app.module';
 import { Connection } from 'typeorm';
-import { Constants } from '../src/helpers/constants/constants';
-import { DatabaseModule } from '../src/shared/database/database.module';
-import { DatabaseService } from '../src/shared/database/database.service';
+import { Constants } from '../../src/helpers/constants/constants';
+import { DatabaseModule } from '../../src/shared/database/database.module';
+import { DatabaseService } from '../../src/shared/database/database.service';
 import { INestApplication } from '@nestjs/common';
-import { Messages } from '../src/exceptions/text/messages';
-import { MockFactory } from './mock.factory';
+import { Messages } from '../../src/exceptions/text/messages';
+import { MockFactory } from '../mock.factory';
 import { Test } from '@nestjs/testing';
-import { TestUtils } from './utils/test.utils';
+import { TestUtils } from '../utils/test.utils';
 import * as cookieParser from 'cookie-parser';
-import { Cacher } from '../src/helpers/cache/cacher';
+import { Cacher } from '../../src/helpers/cache/cacher';
 // yarn jest user-different-table-only-permissions.e2e.spec.ts
 describe('User permissions (connection none, group none) (e2e)', () => {
   jest.setTimeout(60000);
@@ -311,7 +311,7 @@ describe('User permissions (connection none, group none) (e2e)', () => {
       it('should throw an exception, when connection id passed in request is incorrect', async () => {
         const connectionIds = await createConnectionsAndInviteNewUserInNewGroupInFirstConnection();
 
-        const fakeConnectionId = faker.random.uuid();
+        const fakeConnectionId = faker.datatype.uuid();
         const getTablesInConnection = await request(app.getHttpServer())
           .get(`/connection/tables/${fakeConnectionId}`)
           .set('Cookie', simpleUserToken)
@@ -354,7 +354,7 @@ describe('User permissions (connection none, group none) (e2e)', () => {
       });
 
       it('should throw an exception when connection id passed in request is incorrect', async () => {
-        const fakeId = faker.random.uuid();
+        const fakeId = faker.datatype.uuid();
         const getTableRows = await request(app.getHttpServer())
           .get(`/table/rows/${fakeId}?tableName=${testTableName}`)
           .set('Cookie', simpleUserToken)
@@ -368,7 +368,7 @@ describe('User permissions (connection none, group none) (e2e)', () => {
       it('should throw an exception when table name passed in request is incorrect', async () => {
         const connectionIds = await createConnectionsAndInviteNewUserInNewGroupInFirstConnection();
 
-        const fakeTableName = faker.random.word(1);
+        const fakeTableName = faker.random.words(1);
         const getTablesRows = await request(app.getHttpServer())
           .get(`/table/rows/${connectionIds.firstId}?tableName=${fakeTableName}`)
           .set('Cookie', simpleUserToken)
@@ -415,7 +415,7 @@ describe('User permissions (connection none, group none) (e2e)', () => {
       it('should throw an exception when connection id passed in request is incorrect', async () => {
         const connectionIds = await createConnectionsAndInviteNewUserInNewGroupInFirstConnection();
 
-        const fakeConnectionId = faker.random.uuid();
+        const fakeConnectionId = faker.datatype.uuid();
         const getTablesStructure = await request(app.getHttpServer())
           .get(`/table/structure/${fakeConnectionId}?tableName=${testTableName}`)
           .set('Cookie', simpleUserToken)
@@ -442,7 +442,7 @@ describe('User permissions (connection none, group none) (e2e)', () => {
       it('should throw an exception when table name passed in request is incorrect', async () => {
         const connectionIds = await createConnectionsAndInviteNewUserInNewGroupInFirstConnection();
 
-        const fakeTableName = faker.random.word(1);
+        const fakeTableName = faker.random.words(1);
         const getTablesStructure = await request(app.getHttpServer())
           .get(`/table/structure/${connectionIds.firstId}?tableName=${fakeTableName}`)
           .set('Cookie', simpleUserToken)

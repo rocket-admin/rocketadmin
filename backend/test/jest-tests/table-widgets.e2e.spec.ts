@@ -1,19 +1,19 @@
-import * as faker from 'faker';
+import { faker } from '@faker-js/faker';
 import * as request from 'supertest';
 
-import { ApplicationModule } from '../src/app.module';
-import { compareArrayElements } from '../src/helpers';
+import { ApplicationModule } from '../../src/app.module';
+import { compareArrayElements } from '../../src/helpers';
 import { Connection } from 'typeorm';
-import { DatabaseModule } from '../src/shared/database/database.module';
-import { DatabaseService } from '../src/shared/database/database.service';
-import { Encryptor } from '../src/helpers/encryption/encryptor';
+import { DatabaseModule } from '../../src/shared/database/database.module';
+import { DatabaseService } from '../../src/shared/database/database.service';
+import { Encryptor } from '../../src/helpers/encryption/encryptor';
 import { INestApplication } from '@nestjs/common';
-import { Messages } from '../src/exceptions/text/messages';
-import { MockFactory } from './mock.factory';
+import { Messages } from '../../src/exceptions/text/messages';
+import { MockFactory } from '../mock.factory';
 import { Test } from '@nestjs/testing';
-import { TestUtils } from './utils/test.utils';
-import { compareTableWidgetsArrays } from './utils/compare-table-widgets-arrays';
-import { Cacher } from '../src/helpers/cache/cacher';
+import { TestUtils } from '../utils/test.utils';
+import { compareTableWidgetsArrays } from '../utils/compare-table-widgets-arrays';
+import { Cacher } from '../../src/helpers/cache/cacher';
 
 describe('Table widgets(e2e)', () => {
   jest.setTimeout(20000);
@@ -244,7 +244,7 @@ describe('Table widgets(e2e)', () => {
         expect(uuidRegex.test(createTableWidgetRO[1].id)).toBeTruthy();
         expect(createTableWidgetRO[0].description).toBe(newTableWidgets[0].description);
 
-        createConnectionRO.id = faker.random.uuid();
+        createConnectionRO.id = faker.datatype.uuid();
         const getTableWidgets = await request(app.getHttpServer())
           .get(`/widgets/${createConnectionRO.id}?tableName=connection`)
           .set('Content-Type', 'application/json')
@@ -287,7 +287,7 @@ describe('Table widgets(e2e)', () => {
         expect(uuidRegex.test(createTableWidgetRO[1].id)).toBeTruthy();
         expect(createTableWidgetRO[0].description).toBe(newTableWidgets[0].description);
 
-        const fakeTableName = faker.random.word(1);
+        const fakeTableName = faker.random.words(1);
         const getTableWidgets = await request(app.getHttpServer())
           .get(`/widgets/${createConnectionRO.id}?tableName=${fakeTableName}`)
           .set('Content-Type', 'application/json')
@@ -551,7 +551,7 @@ describe('Table widgets(e2e)', () => {
         expect(createConnectionResponse.status).toBe(201);
 
         const copyWidgets = [...newTableWidgets];
-        copyWidgets[0].widget_type = faker.random.word(1);
+        copyWidgets[0].widget_type = faker.random.words(1);
         const createTableWidgetResponse = await request(app.getHttpServer())
           .post(`/widget/${createConnectionRO.id}?tableName=connection`)
           .send({ widgets: copyWidgets })
@@ -578,7 +578,7 @@ describe('Table widgets(e2e)', () => {
         expect(createConnectionResponse.status).toBe(201);
 
         const copyWidgets = [...newTableWidgets];
-        copyWidgets[0].field_name = faker.random.word(1);
+        copyWidgets[0].field_name = faker.random.words(1);
         const createTableWidgetResponse = await request(app.getHttpServer())
           .post(`/widget/${createConnectionRO.id}?tableName=connection`)
           .send({ widgets: newTableWidgets })
@@ -628,7 +628,7 @@ describe('Table widgets(e2e)', () => {
         const createConnectionRO = JSON.parse(createConnectionResponse.text);
         expect(createConnectionResponse.status).toBe(201);
 
-        createConnectionRO.id = faker.random.uuid();
+        createConnectionRO.id = faker.datatype.uuid();
         const createTableWidgetResponse = await request(app.getHttpServer())
           .post(`/widget/${createConnectionRO.id}?tableName=connection`)
           .send({ widgets: newTableWidgets })
@@ -654,7 +654,7 @@ describe('Table widgets(e2e)', () => {
         const createConnectionRO = JSON.parse(createConnectionResponse.text);
         expect(createConnectionResponse.status).toBe(201);
 
-        const fakeTableName = faker.random.word(1);
+        const fakeTableName = faker.random.words(1);
         const createTableWidgetResponse = await request(app.getHttpServer())
           .post(`/widget/${createConnectionRO.id}?tableName=${fakeTableName}`)
           .send({ widgets: newTableWidgets })

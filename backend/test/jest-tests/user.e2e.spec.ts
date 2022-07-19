@@ -1,17 +1,17 @@
 import * as AWSMock from 'aws-sdk-mock';
 import * as request from 'supertest';
-import { ApplicationModule } from '../src/app.module';
+import { ApplicationModule } from '../../src/app.module';
 import { Connection } from 'typeorm';
-import { DatabaseModule } from '../src/shared/database/database.module';
-import { DatabaseService } from '../src/shared/database/database.service';
+import { DatabaseModule } from '../../src/shared/database/database.module';
+import { DatabaseService } from '../../src/shared/database/database.service';
 import { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
-import { TestUtils } from './utils/test.utils';
-import { IUserInfo } from '../src/entities/user/user.interface';
-import { Constants } from '../src/helpers/constants/constants';
+import { TestUtils } from '../utils/test.utils';
+import { IUserInfo } from '../../src/entities/user/user.interface';
+import { Constants } from '../../src/helpers/constants/constants';
 import * as cookieParser from 'cookie-parser';
-import { Cacher } from '../src/helpers/cache/cacher';
-import { Messages } from '../src/exceptions/text/messages';
+import { Cacher } from '../../src/helpers/cache/cacher';
+import { Messages } from '../../src/exceptions/text/messages';
 
 describe('User (e2e)', () => {
   let app: INestApplication;

@@ -1,18 +1,18 @@
-import * as faker from 'faker';
+import { faker } from '@faker-js/faker';
 import * as request from 'supertest';
-import { AccessLevelEnum } from '../src/enums';
-import { ApplicationModule } from '../src/app.module';
+import { AccessLevelEnum } from '../../src/enums';
+import { ApplicationModule } from '../../src/app.module';
 import { Connection } from 'typeorm';
-import { DatabaseModule } from '../src/shared/database/database.module';
-import { DatabaseService } from '../src/shared/database/database.service';
+import { DatabaseModule } from '../../src/shared/database/database.module';
+import { DatabaseService } from '../../src/shared/database/database.service';
 import { INestApplication } from '@nestjs/common';
-import { Messages } from '../src/exceptions/text/messages';
-import { MockFactory } from './mock.factory';
+import { Messages } from '../../src/exceptions/text/messages';
+import { MockFactory } from '../mock.factory';
 import { Test } from '@nestjs/testing';
-import { TestUtils } from './utils/test.utils';
-import { Constants } from '../src/helpers/constants/constants';
+import { TestUtils } from '../utils/test.utils';
+import { Constants } from '../../src/helpers/constants/constants';
 import * as cookieParser from 'cookie-parser';
-import { Cacher } from '../src/helpers/cache/cacher';
+import { Cacher } from '../../src/helpers/cache/cacher';
 
 describe('Connections (e2e)', () => {
   jest.setTimeout(60000);
@@ -306,7 +306,7 @@ describe('Connections (e2e)', () => {
           .set('Accept', 'application/json');
         expect(addUserInGroupResponse.status).toBe(200);
 
-        const fakeConnectionId = faker.random.uuid();
+        const fakeConnectionId = faker.datatype.uuid();
         const findAllUsersResponce = await request(app.getHttpServer())
           .get(`/connection/users/${fakeConnectionId}`)
           .set('Content-Type', 'application/json')
@@ -1101,7 +1101,7 @@ describe('Connections (e2e)', () => {
           .set('Accept', 'application/json');
 
         const createConnectionRO = JSON.parse(createConnectionResult.text);
-        createConnectionRO.id = faker.random.uuid();
+        createConnectionRO.id = faker.datatype.uuid();
 
         const response = await request(app.getHttpServer())
           .put(`/connection/delete/${createConnectionRO.id}`)
@@ -1278,7 +1278,7 @@ describe('Connections (e2e)', () => {
           .set('Accept', 'application/json');
 
         const createConnectionRO = JSON.parse(createConnectionResponse.text);
-        createConnectionRO.id = faker.random.uuid();
+        createConnectionRO.id = faker.datatype.uuid();
         const createGroupResponse = await request(app.getHttpServer())
           .post(`/connection/group/${createConnectionRO.id}`)
           .send(newGroup1)
@@ -1546,7 +1546,7 @@ describe('Connections (e2e)', () => {
         expect(result.title).toBe('Generated test group DTO 1');
 
         const createGroupRO = JSON.parse(createGroupResponse.text);
-        createGroupRO.id = faker.random.uuid();
+        createGroupRO.id = faker.datatype.uuid();
         const response = await request(app.getHttpServer())
           .put(`/connection/group/delete/${createConnectionRO.id}`)
           .send({ groupId: createGroupRO.id })
@@ -1597,7 +1597,7 @@ describe('Connections (e2e)', () => {
         expect(result.title).toBe('Generated test group DTO 1');
 
         const createGroupRO = JSON.parse(createGroupResponse.text);
-        createConnectionRO.id = faker.random.uuid();
+        createConnectionRO.id = faker.datatype.uuid();
         const response = await request(app.getHttpServer())
           .put(`/connection/group/delete/${createConnectionRO.id}`)
           .send({ groupId: createGroupRO.id })
@@ -1821,7 +1821,7 @@ describe('Connections (e2e)', () => {
           .set('Accept', 'application/json');
 
         expect(createGroupResponse.status).toBe(201);
-        createConnectionRO.id = faker.random.uuid();
+        createConnectionRO.id = faker.datatype.uuid();
         const response = await request(app.getHttpServer())
           .get(`/connection/groups/${createConnectionRO.id}`)
           .send(newConnection)
@@ -2081,7 +2081,7 @@ describe('Connections (e2e)', () => {
 
         expect(createGroupResponse.status).toBe(201);
 
-        createConnectionRO.id = faker.random.uuid();
+        createConnectionRO.id = faker.datatype.uuid();
 
         const response = await request(app.getHttpServer())
           .get(`/connection/permissions?connectionId=${createConnectionRO.id}&groupId=${createGroupRO.id}`)
@@ -2140,7 +2140,7 @@ describe('Connections (e2e)', () => {
 
         expect(createGroupResponse.status).toBe(201);
 
-        createGroupRO.id = faker.random.uuid();
+        createGroupRO.id = faker.datatype.uuid();
 
         const response = await request(app.getHttpServer())
           .get(`/connection/permissions?connectionId=${createConnectionRO.id}&groupId=${createGroupRO.id}`)
@@ -2451,7 +2451,7 @@ describe('Connections (e2e)', () => {
 
         expect(createGroupResponse.status).toBe(201);
 
-        createConnectionRO.id = faker.random.uuid();
+        createConnectionRO.id = faker.datatype.uuid();
 
         const response = await request(app.getHttpServer())
           .get(
@@ -2512,7 +2512,7 @@ describe('Connections (e2e)', () => {
 
         expect(createGroupResponse.status).toBe(201);
 
-        createConnectionRO.groups[0].id = faker.random.uuid();
+        createConnectionRO.groups[0].id = faker.datatype.uuid();
 
         const response = await request(app.getHttpServer())
           .get(

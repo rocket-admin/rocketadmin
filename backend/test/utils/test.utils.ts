@@ -1,9 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { DatabaseService } from '../../src/shared/database/database.service';
 import { MockEntity } from '../mocks/entities/mock.entity';
-import * as faker from 'faker';
+import { faker } from '@faker-js/faker';
 
 @Injectable()
+// @ts-ignore
 export class TestUtils {
   databaseService: DatabaseService;
 
@@ -74,9 +75,9 @@ export class TestUtils {
 
   private async addMockEntities() {
     const newMockEntity = new MockEntity();
-    newMockEntity.textField = faker.random.word(1);
-    newMockEntity.booleanField = faker.random.boolean();
-    newMockEntity.integerField = faker.random.number({ min: 5, max: 10 });
+    newMockEntity.textField = faker.random.words(1);
+    newMockEntity.booleanField = faker.datatype.boolean();
+    newMockEntity.integerField = faker.datatype.number({ min: 5, max: 10, precision: 1 });
     const repository = await this.databaseService.getRepository('MockEntity');
     await repository.save(newMockEntity);
   }

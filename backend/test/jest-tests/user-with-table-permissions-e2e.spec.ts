@@ -1,23 +1,23 @@
-import * as faker from 'faker';
+import { faker } from '@faker-js/faker';
 import { knex } from 'knex';
 import * as request from 'supertest';
 
-import { AccessLevelEnum, QueryOrderingEnum } from '../src/enums';
-import { ApplicationModule } from '../src/app.module';
-import { compareArrayElements } from '../src/helpers';
+import { AccessLevelEnum, QueryOrderingEnum } from '../../src/enums';
+import { ApplicationModule } from '../../src/app.module';
+import { compareArrayElements } from '../../src/helpers';
 import { Connection } from 'typeorm';
-import { Constants } from '../src/helpers/constants/constants';
-import { DatabaseModule } from '../src/shared/database/database.module';
-import { DatabaseService } from '../src/shared/database/database.service';
+import { Constants } from '../../src/helpers/constants/constants';
+import { DatabaseModule } from '../../src/shared/database/database.module';
+import { DatabaseService } from '../../src/shared/database/database.service';
 import { INestApplication } from '@nestjs/common';
-import { Messages } from '../src/exceptions/text/messages';
-import { MockFactory } from './mock.factory';
+import { Messages } from '../../src/exceptions/text/messages';
+import { MockFactory } from '../mock.factory';
 import { Test } from '@nestjs/testing';
-import { TestUtils } from './utils/test.utils';
+import { TestUtils } from '../utils/test.utils';
 import * as cookieParser from 'cookie-parser';
-import { Cacher } from '../src/helpers/cache/cacher';
+import { Cacher } from '../../src/helpers/cache/cacher';
 
-describe('User permissions (connection none, group none) (e2e)', () => {
+describe('User permissions (connection readonly, group readonly) (e2e)', () => {
   jest.setTimeout(50000);
   let app: INestApplication;
   let testUtils: TestUtils;
@@ -45,25 +45,6 @@ describe('User permissions (connection none, group none) (e2e)', () => {
     add: true,
     delete: true,
     edit: false,
-  };
-
-  type RegisterUserData = {
-    email: string;
-    password: string;
-  };
-
-  const adminUserRegisterInfo: RegisterUserData = {
-    email: 'firstUser@example.com',
-    password: 'ahalai-mahalai',
-  };
-  const simpleUserRegisterInfo: RegisterUserData = {
-    email: 'secondUser@example.com',
-    password: 'mahalai-ahalai',
-  };
-
-  const thirdUserRegisterInfo: RegisterUserData = {
-    email: 'third@example.com',
-    password: 'hamalai-lahalai',
   };
 
   async function resetPostgresTestDB() {
@@ -106,7 +87,66 @@ describe('User permissions (connection none, group none) (e2e)', () => {
     await Knex.destroy();
   }
 
+  async function resetMySQLTestDB() {
+    const { host, username, password, database, port, type, ssl, cert } = newConnection2;
+    const Knex = knex({
+      client: 'mysql2',
+      connection: {
+        host: host,
+        user: username,
+        password: password,
+        database: database,
+        port: port,
+      },
+    });
+    await Knex.schema.dropTableIfExists(testTableName);
+    await Knex.schema.createTableIfNotExists(testTableName, function (table) {
+      table.increments();
+      table.string(testTableColumnName);
+      table.string(testTAbleSecondColumnName);
+      table.timestamps();
+    });
+
+    for (let i = 0; i < testEntitiesSeedsCount; i++) {
+      if (i === 0 || i === testEntitiesSeedsCount - 21 || i === testEntitiesSeedsCount - 5) {
+        await Knex(testTableName).insert({
+          [testTableColumnName]: testSearchedUserName,
+          [testTAbleSecondColumnName]: faker.internet.email(),
+          created_at: new Date(),
+          updated_at: new Date(),
+        });
+      } else {
+        await Knex(testTableName).insert({
+          [testTableColumnName]: faker.name.findName(),
+          [testTAbleSecondColumnName]: faker.internet.email(),
+          created_at: new Date(),
+          updated_at: new Date(),
+        });
+      }
+    }
+    await Knex.destroy();
+  }
+
   const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+  type RegisterUserData = {
+    email: string;
+    password: string;
+  };
+
+  const adminUserRegisterInfo: RegisterUserData = {
+    email: 'firstUser@example.com',
+    password: 'ahalai-mahalai',
+  };
+  const simpleUserRegisterInfo: RegisterUserData = {
+    email: 'secondUser@example.com',
+    password: 'mahalai-ahalai',
+  };
+
+  const thirdUserRegisterInfo: RegisterUserData = {
+    email: 'third@example.com',
+    password: 'hamalai-lahalai',
+  };
 
   beforeAll(() => {
     jest.setTimeout(30000);
@@ -132,6 +172,7 @@ describe('User permissions (connection none, group none) (e2e)', () => {
     newTableWidgets = mockFactory.generateCreateWidgetDTOsArrayForUsersTable();
     updatedTableWidgets = mockFactory.generateUpdateWidgetDTOsArrayForUsersTable();
     await resetPostgresTestDB();
+    await resetMySQLTestDB();
 
     const registerAdminUserResponse = await request(app.getHttpServer())
       .post('/user/register/')
@@ -175,6 +216,20 @@ describe('User permissions (connection none, group none) (e2e)', () => {
   });
 
   //****************************************** SUPPORT FUNCTIONS *********************************************************
+  async function createAdminConnections() {
+    await request(app.getHttpServer())
+      .post('/connection')
+      .set('Cookie', connectionAdminUserToken)
+      .send(newConnection)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+    await request(app.getHttpServer())
+      .post('/connection')
+      .set('Cookie', connectionAdminUserToken)
+      .send(newConnection2)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+  }
 
   async function createConnectionsAndInviteNewUserInNewGroupInFirstConnection() {
     const findAllConnectionsResponse = await request(app.getHttpServer())
@@ -183,7 +238,6 @@ describe('User permissions (connection none, group none) (e2e)', () => {
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
     expect(findAllConnectionsResponse.status).toBe(200);
-
     const connectionsId = {
       firstId: null,
       secondId: null,
@@ -224,11 +278,11 @@ describe('User permissions (connection none, group none) (e2e)', () => {
     const permissions = {
       connection: {
         connectionId: connectionsId.firstId,
-        accessLevel: AccessLevelEnum.none,
+        accessLevel: AccessLevelEnum.readonly,
       },
       group: {
         groupId: groupId,
-        accessLevel: AccessLevelEnum.none,
+        accessLevel: AccessLevelEnum.readonly,
       },
       tables: [
         {
@@ -244,14 +298,12 @@ describe('User permissions (connection none, group none) (e2e)', () => {
       .set('Cookie', connectionAdminUserToken)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
-
     const findAllConnectionsResponse_2 = await request(app.getHttpServer())
       .get('/connections')
       .set('Cookie', simpleUserToken)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
     expect(findAllConnectionsResponse_2.status).toBe(200);
-
     await request(app.getHttpServer())
       .put('/group/user')
       .set('Cookie', connectionAdminUserToken)
@@ -284,7 +336,7 @@ describe('User permissions (connection none, group none) (e2e)', () => {
               .set('Content-Type', 'application/json')
               .set('Cookie', simpleUserToken)
               .set('Accept', 'application/json');
-
+            const findAllRo = JSON.parse(findAll.text);
             expect(findAll.status).toBe(200);
 
             const result = findAll.body.connections;
@@ -292,25 +344,20 @@ describe('User permissions (connection none, group none) (e2e)', () => {
             expect(result[0].hasOwnProperty('connection')).toBe(true);
             expect(result[1].hasOwnProperty('accessLevel')).toBe(true);
             expect(result[2].accessLevel).toBe(AccessLevelEnum.edit);
-            const noneConnectionIndex = result.findIndex((el) => {
-              return el.connection.title === newConnection.title;
-            });
-            expect(result[noneConnectionIndex].accessLevel).toBe(AccessLevelEnum.none);
             expect(uuidRegex.test(result[0].connection.id)).toBe(true);
-            expect(result[noneConnectionIndex].hasOwnProperty('accessLevel')).toBeTruthy();
-            expect(result[noneConnectionIndex].connection.hasOwnProperty('host')).toBeFalsy();
-            expect(result[noneConnectionIndex].connection.hasOwnProperty('title')).toBeTruthy();
-            expect(result[noneConnectionIndex].connection.hasOwnProperty('host')).toBeFalsy();
-            //expect(typeof result[0].connection.port).toBe('number');
-            expect(result[noneConnectionIndex].connection.hasOwnProperty('port')).toBeFalsy();
-            expect(result[noneConnectionIndex].connection.hasOwnProperty('username')).toBeFalsy();
-            expect(result[noneConnectionIndex].connection.hasOwnProperty('database')).toBeTruthy();
-            expect(result[noneConnectionIndex].connection.hasOwnProperty('sid')).toBeFalsy();
-            expect(result[noneConnectionIndex].connection.hasOwnProperty('createdAt')).toBeFalsy();
-            expect(result[noneConnectionIndex].connection.hasOwnProperty('updatedAt')).toBeFalsy();
-            expect(result[noneConnectionIndex].connection.hasOwnProperty('password')).toBeFalsy();
-            expect(result[noneConnectionIndex].connection.hasOwnProperty('groups')).toBeFalsy();
-            expect(result[noneConnectionIndex].connection.hasOwnProperty('author')).toBeFalsy();
+            expect(result[3].hasOwnProperty('accessLevel')).toBeTruthy();
+            expect(result[4].connection.hasOwnProperty('host')).toBeTruthy();
+            expect(result[3].connection.hasOwnProperty('host')).toBeTruthy();
+            expect(typeof result[0].connection.port).toBe('number');
+            expect(result[1].connection.hasOwnProperty('port')).toBeTruthy();
+            expect(result[2].connection.hasOwnProperty('username')).toBeTruthy();
+            expect(result[3].connection.hasOwnProperty('database')).toBeTruthy();
+            expect(result[4].connection.hasOwnProperty('sid')).toBeTruthy();
+            expect(result[0].connection.hasOwnProperty('createdAt')).toBe(true);
+            expect(result[1].connection.hasOwnProperty('updatedAt')).toBe(true);
+            expect(result[2].connection.hasOwnProperty('password')).toBe(false);
+            expect(result[3].connection.hasOwnProperty('groups')).toBe(false);
+            expect(result[4].connection.hasOwnProperty('author')).toBe(false);
           } catch (e) {
             throw e;
           }
@@ -327,9 +374,23 @@ describe('User permissions (connection none, group none) (e2e)', () => {
               .set('Content-Type', 'application/json')
               .set('Cookie', simpleUserToken)
               .set('Accept', 'application/json');
-            // todo add checking connection object properties
-            expect(findOneResponce.status).toBe(403);
-            expect(JSON.parse(findOneResponce.text).message).toBe(Messages.DONT_HAVE_PERMISSIONS);
+            expect(findOneResponce.status).toBe(200);
+
+            const result = findOneResponce.body.connection;
+            expect(uuidRegex.test(result.id)).toBe(true);
+            expect(result.title).toBe(newConnection.title);
+            expect(result.type).toBe('postgres');
+            expect(result.host).toBe(newConnection.host);
+            expect(typeof result.port).toBe('number');
+            expect(result.port).toBe(newConnection.port);
+            expect(result.username).toBe('postgres');
+            expect(result.database).toBe(newConnection.database);
+            expect(result.sid).toBe(null);
+            expect(result.hasOwnProperty('createdAt')).toBe(true);
+            expect(result.hasOwnProperty('updatedAt')).toBe(true);
+            expect(result.hasOwnProperty('password')).toBe(false);
+            expect(result.hasOwnProperty('groups')).toBe(false);
+            expect(result.hasOwnProperty('author')).toBe(false);
           } catch (err) {
             throw err;
           }
@@ -344,8 +405,8 @@ describe('User permissions (connection none, group none) (e2e)', () => {
               .set('Content-Type', 'application/json')
               .set('Cookie', simpleUserToken)
               .set('Accept', 'application/json');
+            // todo add checking connection object properties
             expect(findOneResponce.status).toBe(403);
-            //todo add checking connection object
             expect(JSON.parse(findOneResponce.text).message).toBe(Messages.DONT_HAVE_PERMISSIONS);
           } catch (err) {
             throw err;
@@ -404,7 +465,7 @@ describe('User permissions (connection none, group none) (e2e)', () => {
             //deleted connection found in database
             const findOneResponce = await request(app.getHttpServer())
               .get(`/connection/one/${connectionsIds.firstId}`)
-              .set('Cookie', connectionAdminUserToken)
+              .set('Cookie', simpleUserToken)
               .set('Content-Type', 'application/json')
               .set('Accept', 'application/json');
 
@@ -429,7 +490,7 @@ describe('User permissions (connection none, group none) (e2e)', () => {
             //connection wasn't deleted
             const findOneResponce = await request(app.getHttpServer())
               .get(`/connection/one/${connectionsIds.firstId}`)
-              .set('Cookie', connectionAdminUserToken)
+              .set('Cookie', simpleUserToken)
               .set('Content-Type', 'application/json')
               .set('Accept', 'application/json');
 
@@ -577,7 +638,7 @@ describe('User permissions (connection none, group none) (e2e)', () => {
             const groupId = result[0].group.id;
             expect(uuidRegex.test(groupId)).toBe(true);
             expect(result[0].group.hasOwnProperty('title')).toBeTruthy();
-            expect(result[0].accessLevel).toBe(AccessLevelEnum.none);
+            expect(result[0].accessLevel).toBe(AccessLevelEnum.readonly);
 
             const index = result
               .map((e) => {
@@ -647,8 +708,8 @@ describe('User permissions (connection none, group none) (e2e)', () => {
             expect(typeof result.group).toBe('object');
             expect(result.connection.connectionId).toBe(connectionIds.firstId);
             expect(result.group.groupId).toBe(groupId);
-            expect(result.connection.accessLevel).toBe(AccessLevelEnum.none);
-            expect(result.group.accessLevel).toBe(AccessLevelEnum.none);
+            expect(result.connection.accessLevel).toBe(AccessLevelEnum.readonly);
+            expect(result.group.accessLevel).toBe(AccessLevelEnum.readonly);
             expect(typeof result.tables).toBe('object');
 
             const { tables } = result;
@@ -752,8 +813,8 @@ describe('User permissions (connection none, group none) (e2e)', () => {
             expect(typeof result.group).toBe('object');
             expect(result.connection.connectionId).toBe(connectionIds.firstId);
             expect(result.group.groupId).toBe(groupId);
-            expect(result.connection.accessLevel).toBe(AccessLevelEnum.none);
-            expect(result.group.accessLevel).toBe(AccessLevelEnum.none);
+            expect(result.connection.accessLevel).toBe(AccessLevelEnum.readonly);
+            expect(result.group.accessLevel).toBe(AccessLevelEnum.readonly);
             expect(typeof result.tables).toBe('object');
 
             const { tables } = result;
@@ -845,7 +906,7 @@ describe('User permissions (connection none, group none) (e2e)', () => {
       });
 
       describe('GET /group/users/:slug', () => {
-        it('should throw an exception do not have permission', async () => {
+        it('it should return users in group', async () => {
           const connectionIds = await createConnectionsAndInviteNewUserInNewGroupInFirstConnection();
           const getGroupsResponse = await request(app.getHttpServer())
             .get(`/connection/groups/${connectionIds.firstId}`)
@@ -858,14 +919,19 @@ describe('User permissions (connection none, group none) (e2e)', () => {
             return !element.group.isMain;
           });
           const groupId = getGroupsRO[nonAdminGroupIndex].group.id;
+
           const response = await request(app.getHttpServer())
             .get(`/group/users/${groupId}`)
             .set('Cookie', simpleUserToken)
             .set('Content-Type', 'application/json')
             .set('Accept', 'application/json');
           const getUsersRO = JSON.parse(response.text);
-          expect(response.status).toBe(403);
-          expect(getUsersRO.message).toBe(Messages.DONT_HAVE_PERMISSIONS);
+          expect(getUsersRO.length).toBe(2);
+          expect(getUsersRO[0].id === getUsersRO[1].id).toBeFalsy();
+          expect(getUsersRO[0].hasOwnProperty('createdAt')).toBeTruthy();
+          expect(getUsersRO[0].hasOwnProperty('password')).toBeFalsy();
+          expect(getUsersRO[0].hasOwnProperty('isActive')).toBeTruthy();
+          expect(getUsersRO[0].hasOwnProperty('email')).toBeTruthy();
         });
 
         it('it should throw an exception when you try to receive user in group where you dont have permission', async () => {
@@ -891,7 +957,7 @@ describe('User permissions (connection none, group none) (e2e)', () => {
       });
 
       describe('PUT /group/user', () => {
-        it('should throw an exception do not have permission', async () => {
+        it('should return group with added user', async () => {
           const connectionIds = await createConnectionsAndInviteNewUserInNewGroupInFirstConnection();
           const getGroupsResponse = await request(app.getHttpServer())
             .get(`/connection/groups/${connectionIds.firstId}`)
@@ -976,7 +1042,7 @@ describe('User permissions (connection none, group none) (e2e)', () => {
           const getGroupsRO = JSON.parse(getGroupsResponse.text);
 
           const email = thirdUserRegisterInfo.email;
-          const groupId = faker.random.uuid();
+          const groupId = faker.datatype.uuid();
           const addUserInGroupResponse = await request(app.getHttpServer())
             .put('/group/user')
             .set('Cookie', simpleUserToken)
@@ -990,7 +1056,7 @@ describe('User permissions (connection none, group none) (e2e)', () => {
       });
 
       describe('DELETE /group/:slug', () => {
-        it('should throw an exception do not have permission', async () => {
+        it('should delete result after group deletion', async () => {
           const connectionIds = await createConnectionsAndInviteNewUserInNewGroupInFirstConnection();
           const getGroupsResponse = await request(app.getHttpServer())
             .get(`/connection/groups/${connectionIds.firstId}`)
@@ -1062,7 +1128,7 @@ describe('User permissions (connection none, group none) (e2e)', () => {
 
           expect(getGroupsResponse.status).toBe(200);
 
-          const groupId = faker.random.uuid();
+          const groupId = faker.datatype.uuid();
           const deleteGroupResponse = await request(app.getHttpServer())
             .delete(`/group/${groupId}`)
             .set('Cookie', simpleUserToken)
@@ -1074,7 +1140,7 @@ describe('User permissions (connection none, group none) (e2e)', () => {
       });
 
       describe('PUT /group/user/delete', () => {
-        it('should throw an exception do not have permission', async () => {
+        it('should return group without deleted user', async () => {
           const connectionIds = await createConnectionsAndInviteNewUserInNewGroupInFirstConnection();
           const getGroupsResponse = await request(app.getHttpServer())
             .get(`/connection/groups/${connectionIds.firstId}`)
@@ -1193,7 +1259,7 @@ describe('User permissions (connection none, group none) (e2e)', () => {
             .set('Accept', 'application/json');
           expect(addUserInGroupResponse.status).toBe(200);
 
-          groupId = faker.random.uuid();
+          groupId = faker.datatype.uuid();
           const deleteUserInGroupResponse = await request(app.getHttpServer())
             .put('/group/user/delete')
             .set('Cookie', simpleUserToken)
@@ -1382,7 +1448,7 @@ describe('User permissions (connection none, group none) (e2e)', () => {
         it('should throw an exception, when connection id passed in request is incorrect', async () => {
           const connectionIds = await createConnectionsAndInviteNewUserInNewGroupInFirstConnection();
 
-          const fakeConnectionId = faker.random.uuid();
+          const fakeConnectionId = faker.datatype.uuid();
           const getTablesInConnection = await request(app.getHttpServer())
             .get(`/connection/tables/${fakeConnectionId}`)
             .set('Cookie', simpleUserToken)
@@ -1425,7 +1491,7 @@ describe('User permissions (connection none, group none) (e2e)', () => {
         });
 
         it('should throw an exception when connection id passed in request is incorrect', async () => {
-          const fakeId = faker.random.uuid();
+          const fakeId = faker.datatype.uuid();
           const getTableRows = await request(app.getHttpServer())
             .get(`/table/rows/${fakeId}?tableName=users`)
             .set('Cookie', simpleUserToken)
@@ -1439,7 +1505,7 @@ describe('User permissions (connection none, group none) (e2e)', () => {
         it('should throw an exception when table name passed in request is incorrect', async () => {
           const connectionIds = await createConnectionsAndInviteNewUserInNewGroupInFirstConnection();
 
-          const fakeTableName = faker.random.word(1);
+          const fakeTableName = faker.random.words(1);
           const getTablesRows = await request(app.getHttpServer())
             .get(`/table/rows/${connectionIds.firstId}?tableName=${fakeTableName}`)
             .set('Cookie', simpleUserToken)
@@ -1486,7 +1552,7 @@ describe('User permissions (connection none, group none) (e2e)', () => {
         it('should throw an exception when connection id passed in request is incorrect', async () => {
           const connectionIds = await createConnectionsAndInviteNewUserInNewGroupInFirstConnection();
 
-          const fakeConnectionId = faker.random.uuid();
+          const fakeConnectionId = faker.datatype.uuid();
           const getTablesStructure = await request(app.getHttpServer())
             .get(`/table/structure/${fakeConnectionId}?tableName=users`)
             .set('Cookie', simpleUserToken)
@@ -1513,7 +1579,7 @@ describe('User permissions (connection none, group none) (e2e)', () => {
         it('should throw an exception when table name passed in request is incorrect', async () => {
           const connectionIds = await createConnectionsAndInviteNewUserInNewGroupInFirstConnection();
 
-          const fakeTableName = faker.random.word(1);
+          const fakeTableName = faker.random.words(1);
           const getTablesStructure = await request(app.getHttpServer())
             .get(`/table/structure/${connectionIds.firstId}?tableName=${fakeTableName}`)
             .set('Cookie', simpleUserToken)
@@ -1567,7 +1633,7 @@ describe('User permissions (connection none, group none) (e2e)', () => {
           /* eslint-disable */
           const created_at = new Date();
           const updated_at = new Date();
-          const fakeConnectionId = faker.random.uuid();
+          const fakeConnectionId = faker.datatype.uuid();
           const addRowInTable = await request(app.getHttpServer())
             .post(`/table/row/${fakeConnectionId}?tableName=users`)
             .send({
@@ -1592,7 +1658,7 @@ describe('User permissions (connection none, group none) (e2e)', () => {
           /* eslint-disable */
           const created_at = new Date();
           const updated_at = new Date();
-          const fakeTableName = faker.random.word(1);
+          const fakeTableName = faker.random.words(1);
           const addRowInTable = await request(app.getHttpServer())
             .post(`/table/row/${connectionIds.firstId}?tableName=${fakeTableName}`)
             .send({
@@ -1645,7 +1711,7 @@ describe('User permissions (connection none, group none) (e2e)', () => {
           /* eslint-disable */
           const created_at = new Date();
           const updated_at = new Date();
-          const fakeConnectionId = faker.random.uuid();
+          const fakeConnectionId = faker.datatype.uuid();
           const addRowInTable = await request(app.getHttpServer())
             .put(`/table/row/${fakeConnectionId}?tableName=users&id=1`)
             .send({
@@ -1670,7 +1736,7 @@ describe('User permissions (connection none, group none) (e2e)', () => {
           /* eslint-disable */
           const created_at = new Date();
           const updated_at = new Date();
-          const fakeTableName = faker.random.word(1);
+          const fakeTableName = faker.random.words(1);
           const addRowInTable = await request(app.getHttpServer())
             .put(`/table/row/${connectionIds.firstId}?tableName=${fakeTableName}&id=1`)
             .send({
@@ -1705,7 +1771,7 @@ describe('User permissions (connection none, group none) (e2e)', () => {
         it('should throw an exception when connection id passed in request is incorrect', async () => {
           const connectionIds = await createConnectionsAndInviteNewUserInNewGroupInFirstConnection();
 
-          const fakeConnectionId = faker.random.uuid();
+          const fakeConnectionId = faker.datatype.uuid();
           const deleteRowInTable = await request(app.getHttpServer())
             .delete(`/table/row/${fakeConnectionId}?tableName=users&id=1`)
             .set('Cookie', simpleUserToken)
@@ -1719,7 +1785,7 @@ describe('User permissions (connection none, group none) (e2e)', () => {
         it('should throw an exception when table name passed in request is incorrect', async () => {
           const connectionIds = await createConnectionsAndInviteNewUserInNewGroupInFirstConnection();
 
-          const fakeTableName = faker.random.word(1);
+          const fakeTableName = faker.random.words(1);
           const deleteRowInTable = await request(app.getHttpServer())
             .delete(`/table/row/${connectionIds.firstId}?tableName=${fakeTableName}&id=1`)
             .set('Cookie', simpleUserToken)
@@ -1753,7 +1819,7 @@ describe('User permissions (connection none, group none) (e2e)', () => {
         it('should throw an exception when connection id passed in request is incorrect', async () => {
           const connectionIds = await createConnectionsAndInviteNewUserInNewGroupInFirstConnection();
 
-          const fakeConnectionId = faker.random.uuid();
+          const fakeConnectionId = faker.datatype.uuid();
           const addRowInTable = await request(app.getHttpServer())
             .get(`/table/row/${fakeConnectionId}?tableName=users&id=5`)
             .set('Cookie', simpleUserToken)
@@ -1766,7 +1832,7 @@ describe('User permissions (connection none, group none) (e2e)', () => {
         it('should throw an exception when table name passed in request is incorrect', async () => {
           const connectionIds = await createConnectionsAndInviteNewUserInNewGroupInFirstConnection();
 
-          const fakeTableName = faker.random.word(1);
+          const fakeTableName = faker.random.words(1);
           const addRowInTable = await request(app.getHttpServer())
             .get(`/table/row/${connectionIds.firstId}?tableName=${fakeTableName}&id=5`)
             .set('Cookie', simpleUserToken)
@@ -1829,7 +1895,7 @@ describe('User permissions (connection none, group none) (e2e)', () => {
 
     describe('Table settings controller', () => {
       describe('GET /settings/', () => {
-        it('should throw an exception do not have permissions, and settings was not created ', async () => {
+        it('should return empty table settings when it was not created ', async () => {
           const connectionIds = await createConnectionsAndInviteNewUserInNewGroupInFirstConnection();
 
           const getTableSettings = await request(app.getHttpServer())
@@ -1838,11 +1904,11 @@ describe('User permissions (connection none, group none) (e2e)', () => {
             .set('Content-Type', 'application/json')
             .set('Accept', 'application/json');
           const getTableSettingsRO = JSON.parse(getTableSettings.text);
-          expect(getTableSettings.status).toBe(403);
-          expect(getTableSettingsRO.message).toBe(Messages.DONT_HAVE_PERMISSIONS);
+          expect(getTableSettings.status).toBe(200);
+          expect(JSON.stringify(getTableSettingsRO)).toBe(JSON.stringify({}));
         });
 
-        it('should throw an exception do not have permissions, and settings was created ', async () => {
+        it('should return table settings when it was created ', async () => {
           const connectionIds = await createConnectionsAndInviteNewUserInNewGroupInFirstConnection();
 
           const createTableSettingsDTO = mockFactory.generateTableSettings(
@@ -1875,8 +1941,31 @@ describe('User permissions (connection none, group none) (e2e)', () => {
             .set('Content-Type', 'application/json')
             .set('Accept', 'application/json');
           const getTableSettingsRO = JSON.parse(getTableSettings.text);
-          expect(getTableSettings.status).toBe(403);
-          expect(getTableSettingsRO.message).toBe(Messages.DONT_HAVE_PERMISSIONS);
+          expect(getTableSettings.status).toBe(200);
+          expect(getTableSettingsRO.hasOwnProperty('id')).toBeTruthy();
+          expect(getTableSettingsRO.table_name).toBe(createTableSettingsDTO.table_name);
+          expect(getTableSettingsRO.display_name).toBe(createTableSettingsDTO.display_name);
+          expect(JSON.stringify(getTableSettingsRO.search_fields)).toBe(
+            JSON.stringify(createTableSettingsDTO.search_fields),
+          );
+          expect(JSON.stringify(getTableSettingsRO.excluded_fields)).toBe(
+            JSON.stringify(createTableSettingsDTO.excluded_fields),
+          );
+          expect(JSON.stringify(getTableSettingsRO.list_fields)).toBe(
+            JSON.stringify(createTableSettingsDTO.list_fields),
+          );
+          expect(JSON.stringify(getTableSettingsRO.identification_fields)).toBe(JSON.stringify([]));
+          expect(getTableSettingsRO.list_per_page).toBe(createTableSettingsDTO.list_per_page);
+          expect(getTableSettingsRO.ordering).toBe(createTableSettingsDTO.ordering);
+          expect(getTableSettingsRO.ordering_field).toBe(createTableSettingsDTO.ordering_field);
+          expect(JSON.stringify(getTableSettingsRO.readonly_fields)).toBe(
+            JSON.stringify(createTableSettingsDTO.readonly_fields),
+          );
+          expect(JSON.stringify(getTableSettingsRO.sortable_by)).toBe(
+            JSON.stringify(createTableSettingsDTO.sortable_by),
+          );
+          expect(JSON.stringify(getTableSettingsRO.autocomplete_columns)).toBe(JSON.stringify([]));
+          expect(getTableSettingsRO.connection_id).toBe(connectionIds.firstId);
         });
 
         it('should throw an exception when you try get settings in connection where you do not have permission ', async () => {
@@ -1980,7 +2069,7 @@ describe('User permissions (connection none, group none) (e2e)', () => {
       });
 
       describe('PUT /settings/', () => {
-        it('should throw an exception do not have permission', async () => {
+        it('should return updated table settings', async () => {
           const connectionIds = await createConnectionsAndInviteNewUserInNewGroupInFirstConnection();
 
           const createTableSettingsDTO = mockFactory.generateTableSettings(
@@ -2088,7 +2177,7 @@ describe('User permissions (connection none, group none) (e2e)', () => {
       });
 
       describe('DELETE /settings/', () => {
-        it('throw an exception do not have permissions', async () => {
+        it('should return array without deleted table settings', async () => {
           const connectionIds = await createConnectionsAndInviteNewUserInNewGroupInFirstConnection();
 
           const createTableSettingsDTO = mockFactory.generateTableSettings(
@@ -2168,7 +2257,7 @@ describe('User permissions (connection none, group none) (e2e)', () => {
 
     describe('Table widgets controller', () => {
       describe('GET /widgets/:slug', () => {
-        it('throw an exception do not have permissions, and widgets not created', async () => {
+        it('should return empty widgets array when widgets not created', async () => {
           const connectionIds = await createConnectionsAndInviteNewUserInNewGroupInFirstConnection();
 
           const getTableWidgets = await request(app.getHttpServer())
@@ -2177,11 +2266,12 @@ describe('User permissions (connection none, group none) (e2e)', () => {
             .set('Content-Type', 'application/json')
             .set('Accept', 'application/json');
           const getTableWidgetsRO = JSON.parse(getTableWidgets.text);
-          expect(getTableWidgets.status).toBe(403);
-          expect(getTableWidgetsRO.message).toBe(Messages.DONT_HAVE_PERMISSIONS);
+          expect(getTableWidgets.status).toBe(200);
+          expect(typeof getTableWidgetsRO).toBe('object');
+          expect(getTableWidgetsRO.length).toBe(0);
         });
 
-        it('throw an exception do not have permissions, and widgets was created', async () => {
+        it('should return array of table widgets for table', async () => {
           try {
             const connectionIds = await createConnectionsAndInviteNewUserInNewGroupInFirstConnection();
             const createTableWidgetResponse = await request(app.getHttpServer())
@@ -2205,9 +2295,16 @@ describe('User permissions (connection none, group none) (e2e)', () => {
               .set('Content-Type', 'application/json')
               .set('Cookie', simpleUserToken)
               .set('Accept', 'application/json');
-            expect(getTableWidgets.status).toBe(403);
+            expect(getTableWidgets.status).toBe(200);
             const getTableWidgetsRO = JSON.parse(getTableWidgets.text);
-            expect(getTableWidgetsRO.message).toBe(Messages.DONT_HAVE_PERMISSIONS);
+            expect(typeof getTableWidgetsRO).toBe('object');
+            expect(getTableWidgetsRO.length).toBe(2);
+            expect(uuidRegex.test(getTableWidgetsRO[0].id)).toBeTruthy();
+            expect(getTableWidgetsRO[0].field_name).toBe(newTableWidgets[0].field_name);
+            expect(getTableWidgetsRO[1].widget_type).toBe(newTableWidgets[1].widget_type);
+            expect(
+              compareArrayElements(getTableWidgetsRO[1].widget_params, newTableWidgets[1].widget_params),
+            ).toBeTruthy();
 
             const getTableStructureResponse = await request(app.getHttpServer())
               .get(`/table/structure/${connectionIds.firstId}?tableName=users`)
@@ -2284,7 +2381,7 @@ describe('User permissions (connection none, group none) (e2e)', () => {
 
           const createTableWidgetResponse = await request(app.getHttpServer())
             .post(`/widget/${connectionIds.secondId}?tableName=users`)
-            .send({ widgets: newTableWidgets })
+            .send(newTableWidget)
             .set('Content-Type', 'application/json')
             .set('Cookie', simpleUserToken)
             .set('Accept', 'application/json');
