@@ -1,3 +1,19 @@
+.file {
+    margin-bottom: 24px;
+}
+
+.header {
+    margin-bottom: 20px;
+}
+
+.file-type {
+    margin-right: 20px;
+}
+
+.file-raw-data {
+    width: 100%;
+}
+
 .file-input {
     display: none;
 }
