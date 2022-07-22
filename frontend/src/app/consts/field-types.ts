@@ -154,14 +154,14 @@ export const fieldTypes = {
         // short text (text)
         CHAR: TextComponent,
         NCHAR: TextComponent,
+        CLOB: TextComponent,
+        NCLOB: TextComponent,
         VARCHAR2: TextComponent,
         VARCHAR: TextComponent,
         NVARCHAR2: TextComponent,
 
         //file
         BLOB: FileComponent,
-        CLOB: FileComponent,
-        NCLOB: FileComponent,
         BFILE: FileComponent,
         RAW: FileComponent,
         "LONG RAW" : FileComponent,
