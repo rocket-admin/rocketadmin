@@ -10,7 +10,14 @@
     </div>
 </div>
 
-<ng-container *ngIf="!loading && !dbFetchError">
+<div *ngIf="noTablesError" class="error-wrapper">
+    <div class="info-box">
+        <h3 class='mat-subheading-2'>No tables in this connection.</h3>
+        <p class="mat-body-1">We do not provide adding and deleting database tables, only editing ones. You can add a table with SQL editor.</p>
+    </div>
+</div>
+
+<ng-container *ngIf="!loading && !dbFetchError && !noTablesError">
     <div class="toggle-button-position"
         [ngClass]="(shownTableTitles)?'toggle-button-position__opened':'toggle-button-position__closed'">
         <button mat-mini-fab class="toggle-button" (click)="sideList.toggle()">

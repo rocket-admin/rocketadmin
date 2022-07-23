@@ -37,6 +37,8 @@ export class DashboardComponent implements OnInit {
   public dbFetchError: boolean = false;
   public errorMessage: string;
 
+  public noTablesError: boolean = false;
+
   public dataSource: TablesDataSource = null;
 
   constructor(
@@ -70,7 +72,10 @@ export class DashboardComponent implements OnInit {
       customerly?.open();
     }
 
-    if (tables) {
+    if (tables.length === 0) {
+      this.noTablesError = true;
+      this.loading = false;
+    } else {
       this.formatTableNames(tables);
       this.route.paramMap
         .pipe(

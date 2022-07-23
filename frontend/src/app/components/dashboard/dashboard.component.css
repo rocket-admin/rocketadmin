@@ -20,6 +20,14 @@
     margin-top: 16px;
 }
 
+.info-box {
+    background-color: rgb(229, 246, 253);
+    border-radius: 4px;
+    color: rgb(1, 67, 97);
+    padding: 20px;
+    width: clamp(300px, 50vw, 450px);
+}
+
 .mat-sidenav-container {
     height: 100%;
     overflow-x: hidden !important;
