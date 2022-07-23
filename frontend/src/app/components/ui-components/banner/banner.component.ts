@@ -14,7 +14,7 @@ export class BannerComponent implements OnInit {
     error: 'error_outline',
     warning: 'warning_amber',
     info: 'info_outline',
-    succes: 'task_alt'
+    success: 'task_alt'
   }
 
   constructor(
