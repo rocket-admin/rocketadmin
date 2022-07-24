@@ -1,5 +1,5 @@
 import { ActivatedRoute, Router } from '@angular/router';
-import { Banner, BannerActionType, BannerType } from 'src/app/models/banner';
+import { Alert, AlertActionType, AlertType } from 'src/app/models/alert';
 import { Component, NgZone, OnInit } from '@angular/core';
 import { Connection, ConnectionType, DBtype, TestConnection } from 'src/app/models/connection';
 
@@ -27,12 +27,12 @@ export class ConnectDBComponent implements OnInit {
   public submitting: boolean = false;
   public userOS = null;
   public otherOS = [];
-  public warning: Banner = {
+  public warning: Alert = {
     id: 10000000,
-    type: BannerType.Warning,
+    type: AlertType.Warning,
     message: 'You need to allow access from <strong>18.221.81.73</strong> IP address to manage the database.',
   }
-  // public errorBanner: Banner;
+  // public errorAlert: Alert;
 
   public ports = {
     [DBtype.MySQL]: '3306',
@@ -95,14 +95,14 @@ export class ConnectDBComponent implements OnInit {
       .subscribe(
         (credsCorrect: TestConnection) => {
           if (credsCorrect.result) {
-            this._notifications.dismissBanner();
+            this._notifications.dismissAlert();
             this._notifications.showSuccessSnackbar('Connection exists. Your credentials are correct.')
           } else {
-            this._notifications.showBanner(BannerType.Error, credsCorrect.message, [
+            this._notifications.showAlert(AlertType.Error, credsCorrect.message, [
               {
-                type: BannerActionType.Button,
+                type: AlertActionType.Button,
                 caption: 'Dismiss',
-                action: (id: number) => this._notifications.dismissBanner()
+                action: (id: number) => this._notifications.dismissAlert()
               }
             ]);
             //@ts-ignore

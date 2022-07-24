@@ -1,33 +1,3 @@
-.error-wrapper {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 100%;
-}
-
-.error-box {
-    background-color: rgb(253, 237, 237);
-    border-radius: 4px;
-    color: rgb(95, 33, 32);
-    padding: 20px;
-    width: clamp(300px, 50vw, 450px);
-}
-
-.error-actions {
-    display: flex;
-    justify-content: center;
-    gap: 20px;
-    margin-top: 16px;
-}
-
-.info-box {
-    background-color: rgb(229, 246, 253);
-    border-radius: 4px;
-    color: rgb(1, 67, 97);
-    padding: 20px;
-    width: clamp(300px, 50vw, 450px);
-}
-
 .mat-sidenav-container {
     height: 100%;
     overflow-x: hidden !important;

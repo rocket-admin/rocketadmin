@@ -1,4 +1,4 @@
-import { BannerActionType, BannerType } from '../models/banner';
+import { AlertActionType, AlertType } from '../models/alert';
 import { BehaviorSubject, EMPTY } from 'rxjs';
 import { NavigationEnd, Router, RouterEvent } from '@angular/router';
 import { TableSettings, Widget } from '../models/table';
@@ -122,11 +122,11 @@ export class TablesService {
         catchError((err) => {
           console.log(err);
           // this._notifications.showErrorSnackbar(err.error.message);
-          this._notifications.showBanner(BannerType.Error, err.error.message, [
+          this._notifications.showAlert(AlertType.Error, err.error.message, [
             {
-              type: BannerActionType.Button,
+              type: AlertActionType.Button,
               caption: 'Dismiss',
-              action: (id: number) => this._notifications.dismissBanner()
+              action: (id: number) => this._notifications.dismissAlert()
             }
           ]);
           return EMPTY;
@@ -162,11 +162,11 @@ export class TablesService {
         map(res => res),
         catchError((err) => {
           console.log(err);
-          this._notifications.showBanner(BannerType.Error, err.error.message, [
+          this._notifications.showAlert(AlertType.Error, err.error.message, [
             {
-              type: BannerActionType.Button,
+              type: AlertActionType.Button,
               caption: 'Dismiss',
-              action: (id: number) => this._notifications.dismissBanner()
+              action: (id: number) => this._notifications.dismissAlert()
             }
           ]);
           return EMPTY;
@@ -194,11 +194,11 @@ export class TablesService {
         }),
         catchError((err) => {
           console.log(err);
-          this._notifications.showBanner(BannerType.Error, err.error.message, [
+          this._notifications.showAlert(AlertType.Error, err.error.message, [
             {
-              type: BannerActionType.Button,
+              type: AlertActionType.Button,
               caption: 'Dismiss',
-              action: (id: number) => this._notifications.dismissBanner()
+              action: (id: number) => this._notifications.dismissAlert()
             }
           ]);
           return EMPTY;
@@ -220,11 +220,11 @@ export class TablesService {
         }),
         catchError((err) => {
           console.log(err);
-          this._notifications.showBanner(BannerType.Error, err.error.message, [
+          this._notifications.showAlert(AlertType.Error, err.error.message, [
             {
-              type: BannerActionType.Button,
+              type: AlertActionType.Button,
               caption: 'Dismiss',
-              action: (id: number) => this._notifications.dismissBanner()
+              action: (id: number) => this._notifications.dismissAlert()
             }
           ]);
           return EMPTY;
@@ -242,11 +242,11 @@ export class TablesService {
         map(res => res),
         catchError((err) => {
           console.log(err);
-          this._notifications.showBanner(BannerType.Error, err.error.message, [
+          this._notifications.showAlert(AlertType.Error, err.error.message, [
             {
-              type: BannerActionType.Button,
+              type: AlertActionType.Button,
               caption: 'Dismiss',
-              action: (id: number) => this._notifications.dismissBanner()
+              action: (id: number) => this._notifications.dismissAlert()
             }
           ]);
           return EMPTY;
@@ -268,11 +268,11 @@ export class TablesService {
         catchError((err) => {
           console.log(err);
           // this._notifications.showErrorSnackbar(err.error.message);
-          this._notifications.showBanner(BannerType.Error, err.error.message, [
+          this._notifications.showAlert(AlertType.Error, err.error.message, [
             {
-              type: BannerActionType.Button,
+              type: AlertActionType.Button,
               caption: 'Dismiss',
-              action: (id: number) => this._notifications.dismissBanner()
+              action: (id: number) => this._notifications.dismissAlert()
             }
           ]);
           return EMPTY;

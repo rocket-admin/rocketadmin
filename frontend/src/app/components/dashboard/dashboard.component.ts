@@ -72,10 +72,10 @@ export class DashboardComponent implements OnInit {
       customerly?.open();
     }
 
-    if (tables.length === 0) {
+    if (tables && tables.length === 0) {
       this.noTablesError = true;
       this.loading = false;
-    } else {
+    } else if (tables) {
       this.formatTableNames(tables);
       this.route.paramMap
         .pipe(

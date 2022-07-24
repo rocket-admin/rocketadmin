@@ -1,21 +1,17 @@
 <app-content-loader *ngIf="loading"></app-content-loader>
 
-<div *ngIf="dbFetchError" class="error-wrapper">
-    <div class="error-box">
-        <p class="mat-body-1 error-message">{{errorMessage}}</p>
-        <div class="error-actions">
-            <a mat-button routerLink="/edit-db/{{connectionID}}">Connection settings</a>
-            <a mat-button routerLink="/connections-list">Connections list</a>
-        </div>
+<app-banner *ngIf="dbFetchError" type="error">
+    <p class="mat-body-1 error-message">{{errorMessage}}</p>
+    <div class="error-actions">
+        <a mat-button routerLink="/edit-db/{{connectionID}}">Connection settings</a>
+        <a mat-button routerLink="/connections-list">Connections list</a>
     </div>
-</div>
+</app-banner>
 
-<div *ngIf="noTablesError" class="error-wrapper">
-    <div class="info-box">
-        <h3 class='mat-subheading-2'>No tables in this connection.</h3>
-        <p class="mat-body-1">We do not provide adding and deleting database tables, only editing ones. You can add a table with SQL editor.</p>
-    </div>
-</div>
+<app-banner *ngIf="noTablesError" type="info">
+    <h3 class='mat-subheading-2'>No tables in this connection.</h3>
+    <p class="mat-body-1">We do not provide adding and deleting database tables, only editing ones. You can add a table with SQL editor.</p>
+</app-banner>
 
 <ng-container *ngIf="!loading && !dbFetchError && !noTablesError">
     <div class="toggle-button-position"
@@ -32,10 +28,10 @@
             </app-db-tables-list>
         </mat-sidenav>
         <mat-sidenav-content>
-            <app-banner></app-banner>
-            <app-banner [banner]="dataSource.banner_settingsInfo"></app-banner>
-            <app-banner [banner]="dataSource.banner_primaryKeysInfo"></app-banner>
-            <app-banner [banner]="dataSource.banner_widgetsWarning"></app-banner>
+            <app-alert></app-alert>
+            <app-alert [alert]="dataSource.alert_settingsInfo"></app-alert>
+            <app-alert [alert]="dataSource.alert_primaryKeysInfo"></app-alert>
+            <app-alert [alert]="dataSource.alert_widgetsWarning"></app-alert>
 
             <app-content-loader *ngIf="dataSource === null"></app-content-loader>
             <app-db-table *ngIf="dataSource && selectedTablePermissions"
