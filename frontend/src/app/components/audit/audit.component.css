@@ -20,9 +20,9 @@ header {
 }
 
 .filters {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    grid-gap: 24px;
+    display: flex;
+    /* grid-template-columns: 1fr 1fr; */
+    gap: 24px;
 }
 
 .mat-table {
@@ -76,4 +76,8 @@ th.mat-header-cell, td.mat-cell {
     justify-content: center;
     gap: 20px;
     margin-top: 16px;
+}
+
+.audit-banner {
+    margin-top: 60px;
 }

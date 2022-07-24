@@ -56,3 +56,7 @@
 .settings-form__save-button {
     margin-left: 20px;
 }
+
+.settings-banner >>> .banner-wrapper {
+    margin-top: 60px;
+}
