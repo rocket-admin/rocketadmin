@@ -89,6 +89,7 @@ export class DbTableWidgetsComponent implements OnInit {
       if (action === 'delete') {
         this.fields.push(widgetFieldName);
         this.widgets = this.widgets.filter((widget: Widget) => widget.field_name !== widgetFieldName);
+        this.updateWidgets();
       }
     })
   }
