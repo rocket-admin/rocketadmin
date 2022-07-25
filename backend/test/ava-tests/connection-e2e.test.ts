@@ -12,32 +12,17 @@ import * as request from 'supertest';
 import { Constants } from '../../src/helpers/constants/constants';
 import { Connection } from 'typeorm';
 import { AccessLevelEnum } from '../../src/enums';
+import { Messages } from '../../src/exceptions/text/messages';
 
 const mockFactory = new MockFactory();
 let app: INestApplication;
-let connectionAdminUserToken;
-let newConnection2;
-let newConnection;
-let newConnectionToTestDB;
-let newGroup1;
 let testUtils: TestUtils;
-let updateConnection;
 let currentTest;
 
 type RegisterUserData = {
   email: string;
   password: string;
 };
-
-const adminUserRegisterInfo: RegisterUserData = {
-  email: 'firstUser@example.com',
-  password: 'ahalai-mahalai',
-};
-const simpleUserRegisterInfo: RegisterUserData = {
-  email: 'secondUser@example.com',
-  password: 'mahalai-ahalai',
-};
-
 const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 test.before(async () => {
@@ -48,19 +33,27 @@ test.before(async () => {
   app = moduleFixture.createNestApplication();
   app.use(cookieParser());
   await app.init();
+  app.getHttpServer().listen(0);
   testUtils = moduleFixture.get<TestUtils>(TestUtils);
-});
-
-test.beforeEach(async () => {
   await testUtils.resetDb();
-  newConnection = mockFactory.generateCreateConnectionDto();
-  newConnection2 = mockFactory.generateCreateConnectionDto2();
-  newConnectionToTestDB = mockFactory.generateCreateConnectionDtoToTEstDB();
-  updateConnection = mockFactory.generateUpdateConnectionDto();
-  newGroup1 = mockFactory.generateCreateGroupDto1();
 });
 
-async function registerUserAndReturnToken(): Promise<{
+function getTestData() {
+  const newConnection = mockFactory.generateCreateConnectionDto();
+  const newConnection2 = mockFactory.generateCreateConnectionDto2();
+  const newConnectionToTestDB = mockFactory.generateCreateConnectionDtoToTEstDB();
+  const updateConnection = mockFactory.generateUpdateConnectionDto();
+  const newGroup1 = mockFactory.generateCreateGroupDto1();
+  return {
+    newConnection,
+    newConnection2,
+    newConnectionToTestDB,
+    updateConnection,
+    newGroup1,
+  };
+}
+
+async function registerUserAndReturnUserInfo(): Promise<{
   token: string;
   email: string;
   password: string;
@@ -76,10 +69,8 @@ async function registerUserAndReturnToken(): Promise<{
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
 
-  connectionAdminUserToken = `${Constants.JWT_COOKIE_KEY_NAME}=${TestUtils.getJwtTokenFromResponse(
-    registerAdminUserResponse,
-  )}`;
-  return { token: connectionAdminUserToken, ...adminUserRegisterInfo };
+  const token = `${Constants.JWT_COOKIE_KEY_NAME}=${TestUtils.getJwtTokenFromResponse(registerAdminUserResponse)}`;
+  return { token: token, ...adminUserRegisterInfo };
 }
 
 test.after.always('Close app connection', async () => {
@@ -94,9 +85,11 @@ test.after.always('Close app connection', async () => {
 currentTest = '> GET /connections >';
 test(`${currentTest} should return all connections for this user`, async (t) => {
   try {
+    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
+    const { token } = await registerUserAndReturnUserInfo();
     const findAllConnectionsResponse = await request(app.getHttpServer())
       .get('/connections')
-      .set('Cookie', connectionAdminUserToken)
+      .set('Cookie', token)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
 
@@ -106,7 +99,7 @@ test(`${currentTest} should return all connections for this user`, async (t) => 
     let createConnectionResult = await request(app.getHttpServer())
       .post('/connection')
       .send(newConnection)
-      .set('Cookie', connectionAdminUserToken)
+      .set('Cookie', token)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
 
@@ -115,7 +108,7 @@ test(`${currentTest} should return all connections for this user`, async (t) => 
     createConnectionResult = await request(app.getHttpServer())
       .post('/connection')
       .send(newConnection2)
-      .set('Cookie', connectionAdminUserToken)
+      .set('Cookie', token)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
 
@@ -123,7 +116,7 @@ test(`${currentTest} should return all connections for this user`, async (t) => 
 
     const findAll = await request(app.getHttpServer())
       .get('/connections')
-      .set('Cookie', connectionAdminUserToken)
+      .set('Cookie', token)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
 
@@ -156,10 +149,12 @@ test(`${currentTest} should return all connections for this user`, async (t) => 
 currentTest = '> GET connection/users/:slug >';
 test(`${currentTest} should return all connection users`, async (t) => {
   try {
+    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
+    const { token } = await registerUserAndReturnUserInfo();
     const createConnectionResponse = await request(app.getHttpServer())
       .post('/connection')
       .send(newConnection)
-      .set('Cookie', connectionAdminUserToken)
+      .set('Cookie', token)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
 
@@ -170,7 +165,7 @@ test(`${currentTest} should return all connection users`, async (t) => {
     const findAllUsersResponse = await request(app.getHttpServer())
       .get(`/connection/users/${connectionRO.id}`)
       .set('Content-Type', 'application/json')
-      .set('Cookie', connectionAdminUserToken)
+      .set('Cookie', token)
       .set('Accept', 'application/json');
 
     t.is(findAllUsersResponse.status, 200);
@@ -188,10 +183,12 @@ test(`${currentTest} should return all connection users`, async (t) => {
 
 test(`${currentTest} should return all connection users from different groups`, async (t) => {
   try {
+    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
+    const { token } = await registerUserAndReturnUserInfo();
     const createConnectionResponse = await request(app.getHttpServer())
       .post('/connection')
       .send(newConnection)
-      .set('Cookie', connectionAdminUserToken)
+      .set('Cookie', token)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
 
@@ -202,7 +199,7 @@ test(`${currentTest} should return all connection users from different groups`, 
     const createGroupResponse = await request(app.getHttpServer())
       .post(`/connection/group/${connectionRO.id}`)
       .send(newGroup1)
-      .set('Cookie', connectionAdminUserToken)
+      .set('Cookie', token)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
 
@@ -216,17 +213,16 @@ test(`${currentTest} should return all connection users from different groups`, 
     const addUserInGroupResponse = await request(app.getHttpServer())
       .put(`/group/user/`)
       .send(requestBody)
-      .set('Cookie', connectionAdminUserToken)
+      .set('Cookie', token)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
 
     t.is(addUserInGroupResponse.status, 200);
-    const result = JSON.parse(addUserInGroupResponse.text);
 
     const findAllUsersResponse = await request(app.getHttpServer())
       .get(`/connection/users/${connectionRO.id}`)
       .set('Content-Type', 'application/json')
-      .set('Cookie', connectionAdminUserToken)
+      .set('Cookie', token)
       .set('Accept', 'application/json');
 
     t.is(findAllUsersResponse.status, 200);
@@ -248,40 +244,1450 @@ test(`${currentTest} should return all connection users from different groups`, 
   }
 });
 
+test(`${currentTest} should throw an exception, when connection id is incorrect`, async (t) => {
+  try {
+    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
+    const { token } = await registerUserAndReturnUserInfo();
+    const createConnectionResponse = await request(app.getHttpServer())
+      .post('/connection')
+      .send(newConnection)
+      .set('Cookie', token)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+
+    t.is(createConnectionResponse.status, 201);
+    const connectionRO = JSON.parse(createConnectionResponse.text);
+
+    const createGroupResponse = await request(app.getHttpServer())
+      .post(`/connection/group/${connectionRO.id}`)
+      .send(newGroup1)
+      .set('Cookie', token)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+    t.is(createGroupResponse.status, 201);
+    const createGroupRO = JSON.parse(createGroupResponse.text);
+
+    const requestBody = {
+      email: 'SecondExample@gmail.com',
+      groupId: createGroupRO.id,
+    };
+
+    const addUserInGroupResponse = await request(app.getHttpServer())
+      .put(`/group/user/`)
+      .send(requestBody)
+      .set('Content-Type', 'application/json')
+      .set('Cookie', token)
+      .set('Accept', 'application/json');
+    t.is(addUserInGroupResponse.status, 200);
+
+    const fakeConnectionId = faker.datatype.uuid();
+    const findAllUsersResponse = await request(app.getHttpServer())
+      .get(`/connection/users/${fakeConnectionId}`)
+      .set('Content-Type', 'application/json')
+      .set('Cookie', token)
+      .set('Accept', 'application/json');
+    const findAllUsersRO = JSON.parse(findAllUsersResponse.text);
+    t.is(findAllUsersResponse.status, 403);
+    t.is(findAllUsersRO.message, Messages.DONT_HAVE_PERMISSIONS);
+
+    t.pass();
+  } catch (e) {
+    throw e;
+  }
+});
+
+currentTest = 'GET /connection/one/:slug';
+test(`${currentTest} should return a found connection`, async (t) => {
+  try {
+    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
+    const { token } = await registerUserAndReturnUserInfo();
+
+    const createConnectionResponse = await request(app.getHttpServer())
+      .post('/connection')
+      .send(newConnection)
+      .set('Cookie', token)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+
+    const createConnectionRO = JSON.parse(createConnectionResponse.text);
+
+    const findOneResponce = await request(app.getHttpServer())
+      .get(`/connection/one/${createConnectionRO.id}`)
+      .set('Content-Type', 'application/json')
+      .set('Cookie', token)
+      .set('Accept', 'application/json');
+
+    t.is(findOneResponce.status, 200);
+    const result = findOneResponce.body.connection;
+    t.is(uuidRegex.test(result.id), true);
+    t.is(result.title, 'Test Connection');
+    t.is(result.type, 'postgres');
+    t.is(result.host, 'nestjs_testing');
+    t.is(typeof result.port, 'number');
+    t.is(result.port, 5432);
+    t.is(result.username, 'postgres');
+    t.is(result.database, 'nestjs_testing');
+    t.is(result.sid, null);
+    t.is(result.hasOwnProperty('createdAt'), true);
+    t.is(result.hasOwnProperty('updatedAt'), true);
+    t.is(result.hasOwnProperty('password'), false);
+    t.is(result.hasOwnProperty('groups'), false);
+    t.is(result.hasOwnProperty('author'), false);
+
+    t.pass();
+  } catch (e) {
+    throw e;
+  }
+});
+
+test(`${currentTest} should throw an exception "id is missing" when connection id not passed in the request`, async (t) => {
+  try {
+    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
+    const { token } = await registerUserAndReturnUserInfo();
+
+    const createConnectionResponse = await request(app.getHttpServer())
+      .post('/connection')
+      .send(newConnection)
+      .set('Cookie', token)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+
+    const createConnectionRO = JSON.parse(createConnectionResponse.text);
+    createConnectionRO.id = undefined;
+    const findOneResponce = await request(app.getHttpServer())
+      .get(`/connection/one/${createConnectionRO.id}`)
+      .set('Content-Type', 'application/json')
+      .set('Cookie', token)
+      .set('Accept', 'application/json');
+
+    t.is(findOneResponce.status, 400);
+    const { message } = JSON.parse(findOneResponce.text);
+    t.is(message, Messages.CONNECTION_ID_MISSING);
+
+    t.pass();
+  } catch (e) {
+    throw e;
+  }
+});
+
+currentTest = 'POST /connection';
+test(`${currentTest} should return created connection`, async (t) => {
+  try {
+    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
+    const { token } = await registerUserAndReturnUserInfo();
+
+    const response = await request(app.getHttpServer())
+      .post('/connection')
+      .send(newConnection)
+      .set('Cookie', token)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+
+    t.is(response.status, 201);
+    const result = JSON.parse(response.text);
+
+    t.is(uuidRegex.test(result.id), true);
+    t.is(result.title, 'Test Connection');
+    t.is(result.type, 'postgres');
+    t.is(result.host, 'nestjs_testing');
+    t.is(typeof result.port, 'number');
+    t.is(result.port, 5432);
+    t.is(result.username, 'postgres');
+    t.is(result.database, 'nestjs_testing');
+    t.is(result.sid, null);
+    t.is(result.hasOwnProperty('createdAt'), true);
+    t.is(result.hasOwnProperty('updatedAt'), true);
+    t.is(result.hasOwnProperty('password'), false);
+    t.is(result.hasOwnProperty('groups'), true);
+    t.is(typeof result.groups, 'object');
+    t.is(result.groups.length >= 1, true);
+    t.is(uuidRegex.test(result.groups[0].id), true);
+
+    const index = result.groups
+      .map((e) => {
+        return e.title;
+      })
+      .indexOf('Admin');
+
+    t.is(index >= 0, true);
+
+    t.pass();
+  } catch (e) {
+    throw e;
+  }
+});
+
+test(`${currentTest} should throw error when create connection without type`, async (t) => {
+  try {
+    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
+    const { token } = await registerUserAndReturnUserInfo();
+
+    delete newConnection.type;
+    const response = await request(app.getHttpServer())
+      .post('/connection')
+      .send(newConnection)
+      .set('Cookie', token)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+
+    t.is(response.status, 400);
+    const { message } = JSON.parse(response.text);
+    t.is(message, `${Messages.TYPE_MISSING}, ${Messages.CONNECTION_TYPE_INVALID}`);
+
+    t.pass();
+  } catch (e) {
+    throw e;
+  }
+});
+
+test(`${currentTest} should throw error when create connection without host`, async (t) => {
+  try {
+    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
+    const { token } = await registerUserAndReturnUserInfo();
+    delete newConnection.host;
+    const response = await request(app.getHttpServer())
+      .post('/connection')
+      .send(newConnection)
+      .set('Cookie', token)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+
+    t.is(response.status, 400);
+    const { message } = JSON.parse(response.text);
+    t.is(message, Messages.HOST_MISSING);
+
+    t.pass();
+  } catch (e) {
+    throw e;
+  }
+});
+
+test(`${currentTest} should throw error when create connection without port`, async (t) => {
+  try {
+    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
+    const { token } = await registerUserAndReturnUserInfo();
+    delete newConnection.port;
+    const response = await request(app.getHttpServer())
+      .post('/connection')
+      .send(newConnection)
+      .set('Content-Type', 'application/json')
+      .set('Cookie', token)
+      .set('Accept', 'application/json');
+
+    t.is(response.status, 400);
+    const { message } = JSON.parse(response.text);
+    t.is(message, `${Messages.PORT_MISSING}, ${Messages.PORT_FORMAT_INCORRECT}`);
+
+    t.pass();
+  } catch (e) {
+    throw e;
+  }
+});
+
+test(`${currentTest} should throw error when create connection wit port value more than 65535`, async (t) => {
+  try {
+    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
+    const { token } = await registerUserAndReturnUserInfo();
+    newConnection.port = 65536;
+    const response = await request(app.getHttpServer())
+      .post('/connection')
+      .send(newConnection)
+      .set('Content-Type', 'application/json')
+      .set('Cookie', token)
+      .set('Accept', 'application/json');
+
+    t.is(response.status, 400);
+    const { message } = JSON.parse(response.text);
+    t.is(message, Messages.PORT_MISSING);
+
+    t.pass();
+  } catch (e) {
+    throw e;
+  }
+});
+
+test(`${currentTest} should throw error when create connection wit port value less than 0`, async (t) => {
+  try {
+    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
+    const { token } = await registerUserAndReturnUserInfo();
+
+    newConnection.port = -1;
+    const response = await request(app.getHttpServer())
+      .post('/connection')
+      .send(newConnection)
+      .set('Content-Type', 'application/json')
+      .set('Cookie', token)
+      .set('Accept', 'application/json');
+
+    t.is(response.status, 400);
+    const { message } = JSON.parse(response.text);
+    t.is(message, Messages.PORT_MISSING);
+    t.pass();
+  } catch (e) {
+    throw e;
+  }
+});
+
+test(`${currentTest} should throw error when create connection without username`, async (t) => {
+  try {
+    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
+    const { token } = await registerUserAndReturnUserInfo();
+    delete newConnection.username;
+    const response = await request(app.getHttpServer())
+      .post('/connection')
+      .send(newConnection)
+      .set('Content-Type', 'application/json')
+      .set('Cookie', token)
+      .set('Accept', 'application/json');
+
+    t.is(response.status, 400);
+    const { message } = JSON.parse(response.text);
+    t.is(message, Messages.USERNAME_MISSING);
+
+    t.pass();
+  } catch (e) {
+    throw e;
+  }
+});
+
+test(`${currentTest} should throw error when create connection without database`, async (t) => {
+  try {
+    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
+    const { token } = await registerUserAndReturnUserInfo();
+    delete newConnection.database;
+    const response = await request(app.getHttpServer())
+      .post('/connection')
+      .send(newConnection)
+      .set('Content-Type', 'application/json')
+      .set('Cookie', token)
+      .set('Accept', 'application/json');
+
+    t.is(response.status, 400);
+    const { message } = JSON.parse(response.text);
+    t.is(message, Messages.DATABASE_MISSING);
+
+    t.pass();
+  } catch (e) {
+    throw e;
+  }
+});
+
+test(`${currentTest} should throw error when create connection without password`, async (t) => {
+  try {
+    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
+    const { token } = await registerUserAndReturnUserInfo();
+    delete newConnection.password;
+    const response = await request(app.getHttpServer())
+      .post('/connection')
+      .send(newConnection)
+      .set('Content-Type', 'application/json')
+      .set('Cookie', token)
+      .set('Accept', 'application/json');
+
+    t.is(response.status, 400);
+    const { message } = JSON.parse(response.text);
+    t.is(message, Messages.PASSWORD_MISSING);
+    t.pass();
+  } catch (e) {
+    throw e;
+  }
+});
+
+test(`${currentTest} should throw error with complex message when create connection without database, type, port`, async (t) => {
+  try {
+    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
+    const { token } = await registerUserAndReturnUserInfo();
+    delete newConnection.database;
+    delete newConnection.type;
+    delete newConnection.port;
+
+    const response = await request(app.getHttpServer())
+      .post('/connection')
+      .send(newConnection)
+      .set('Content-Type', 'application/json')
+      .set('Cookie', token)
+      .set('Accept', 'application/json');
+
+    t.is(response.status, 400);
+    const { message } = JSON.parse(response.text);
+    t.is(
+      message,
+      `${Messages.TYPE_MISSING}, ${Messages.CONNECTION_TYPE_INVALID}, ${Messages.PORT_MISSING}, ${Messages.PORT_FORMAT_INCORRECT}, ${Messages.DATABASE_MISSING}`,
+    );
+
+    t.pass();
+  } catch (e) {
+    throw e;
+  }
+});
+
+currentTest = 'PUT /connection';
+test(`${currentTest} should return updated connection`, async (t) => {
+  try {
+    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
+    const { token } = await registerUserAndReturnUserInfo();
+    const createConnectionResponse = await request(app.getHttpServer())
+      .post('/connection')
+      .send(newConnection)
+      .set('Content-Type', 'application/json')
+      .set('Cookie', token)
+      .set('Accept', 'application/json');
+    const createConnectionRO = JSON.parse(createConnectionResponse.text);
+
+    const updateConnectionResponse = await request(app.getHttpServer())
+      .put(`/connection/${createConnectionRO.id}`)
+      .send(updateConnection)
+      .set('Content-Type', 'application/json')
+      .set('Cookie', token)
+      .set('Accept', 'application/json');
+
+    t.is(updateConnectionResponse.status, 200);
+    const result = updateConnectionResponse.body.connection;
+    t.is(uuidRegex.test(result.id), true);
+    t.is(result.title, 'Updated Test Connection');
+    t.is(result.type, 'postgres');
+    t.is(result.host, 'testing_nestjs');
+    t.is(typeof result.port, 'number');
+    t.is(result.port, 5432);
+    t.is(result.username, 'admin');
+    t.is(result.database, 'testing_nestjs');
+    t.is(result.sid, null);
+    t.is(result.hasOwnProperty('createdAt'), true);
+    t.is(result.hasOwnProperty('updatedAt'), true);
+    t.is(result.hasOwnProperty('password'), false);
+    t.is(result.hasOwnProperty('groups'), false);
+
+    t.pass();
+  } catch (e) {
+    throw e;
+  }
+});
+
+test(`${currentTest} 'should throw error when update connection without type'`, async (t) => {
+  try {
+    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
+    const { token } = await registerUserAndReturnUserInfo();
+    const createConnectionResponse = await request(app.getHttpServer())
+      .post('/connection')
+      .send(newConnection)
+      .set('Content-Type', 'application/json')
+      .set('Cookie', token)
+      .set('Accept', 'application/json');
+    const createConnectionRO = JSON.parse(createConnectionResponse.text);
+
+    delete updateConnection.type;
+
+    const response = await request(app.getHttpServer())
+      .put(`/connection/${createConnectionRO.id}`)
+      .send(updateConnection)
+      .set('Content-Type', 'application/json')
+      .set('Cookie', token)
+      .set('Accept', 'application/json');
+
+    t.is(response.status, 400);
+    const { message } = JSON.parse(response.text);
+    t.is(message, `${Messages.TYPE_MISSING}, ${Messages.CONNECTION_TYPE_INVALID}`);
+
+    t.pass();
+  } catch (e) {
+    throw e;
+  }
+});
+
+test(`${currentTest} should throw error when update connection without host`, async (t) => {
+  try {
+    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
+    const { token } = await registerUserAndReturnUserInfo();
+    const createConnectionResponse = await request(app.getHttpServer())
+      .post('/connection')
+      .send(newConnection)
+      .set('Content-Type', 'application/json')
+      .set('Cookie', token)
+      .set('Accept', 'application/json');
+    const createConnectionRO = JSON.parse(createConnectionResponse.text);
+
+    delete updateConnection.host;
+
+    const response = await request(app.getHttpServer())
+      .put(`/connection/${createConnectionRO.id}`)
+      .send(updateConnection)
+      .set('Content-Type', 'application/json')
+      .set('Cookie', token)
+      .set('Accept', 'application/json');
+
+    t.is(response.status, 400);
+    const { message } = JSON.parse(response.text);
+    t.is(message, Messages.HOST_MISSING);
+    t.pass();
+  } catch (e) {
+    throw e;
+  }
+});
+
+test(`${currentTest} should throw error when update connection without port`, async (t) => {
+  try {
+    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
+    const { token } = await registerUserAndReturnUserInfo();
+
+    const createConnectionResponse = await request(app.getHttpServer())
+      .post('/connection')
+      .send(newConnection)
+      .set('Cookie', token)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+    const createConnectionRO = JSON.parse(createConnectionResponse.text);
+
+    delete updateConnection.port;
+
+    const response = await request(app.getHttpServer())
+      .put(`/connection/${createConnectionRO.id}`)
+      .send(updateConnection)
+      .set('Content-Type', 'application/json')
+      .set('Cookie', token)
+      .set('Accept', 'application/json');
+
+    t.is(response.status, 400);
+    const { message } = JSON.parse(response.text);
+    t.is(message, `${Messages.PORT_MISSING}, ${Messages.PORT_FORMAT_INCORRECT}`);
+
+    t.pass();
+  } catch (e) {
+    throw e;
+  }
+});
+
+test(`${currentTest} should throw error when update connection wit port value more than 65535`, async (t) => {
+  try {
+    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
+    const { token } = await registerUserAndReturnUserInfo();
+    const createConnectionResponse = await request(app.getHttpServer())
+      .post('/connection')
+      .send(newConnection)
+      .set('Content-Type', 'application/json')
+      .set('Cookie', token)
+      .set('Accept', 'application/json');
+    const createConnectionRO = JSON.parse(createConnectionResponse.text);
+
+    updateConnection.port = 65536;
+
+    const response = await request(app.getHttpServer())
+      .put(`/connection/${createConnectionRO.id}`)
+      .send(updateConnection)
+      .set('Content-Type', 'application/json')
+      .set('Cookie', token)
+      .set('Accept', 'application/json');
+
+    t.is(response.status, 400);
+    const { message } = JSON.parse(response.text);
+    t.is(message, Messages.PORT_MISSING);
+
+    t.pass();
+  } catch (e) {
+    throw e;
+  }
+});
+
+test(`${currentTest} should throw error when update connection wit port value less than 0`, async (t) => {
+  try {
+    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
+    const { token } = await registerUserAndReturnUserInfo();
+
+    const createConnectionResponse = await request(app.getHttpServer())
+      .post('/connection')
+      .send(newConnection)
+      .set('Content-Type', 'application/json')
+      .set('Cookie', token)
+      .set('Accept', 'application/json');
+    const createConnectionRO = JSON.parse(createConnectionResponse.text);
+
+    updateConnection.port = -1;
+
+    const response = await request(app.getHttpServer())
+      .put(`/connection/${createConnectionRO.id}`)
+      .send(updateConnection)
+      .set('Cookie', token)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+
+    t.is(response.status, 400);
+    const { message } = JSON.parse(response.text);
+    t.is(message, Messages.PORT_MISSING);
+
+    t.pass();
+  } catch (e) {
+    throw e;
+  }
+});
+
+test(`${currentTest} should throw error when update connection without username`, async (t) => {
+  try {
+    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
+    const { token } = await registerUserAndReturnUserInfo();
+    const createConnectionResponse = await request(app.getHttpServer())
+      .post('/connection')
+      .send(newConnection)
+      .set('Cookie', token)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+    const createConnectionRO = JSON.parse(createConnectionResponse.text);
+
+    delete updateConnection.username;
+
+    const response = await request(app.getHttpServer())
+      .put(`/connection/${createConnectionRO.id}`)
+      .send(updateConnection)
+      .set('Content-Type', 'application/json')
+      .set('Cookie', token)
+      .set('Accept', 'application/json');
+
+    t.is(response.status, 400);
+    const { message } = JSON.parse(response.text);
+    t.is(message, Messages.USERNAME_MISSING);
+
+    t.pass();
+  } catch (e) {
+    throw e;
+  }
+});
+
+test(`${currentTest} should throw error when update connection without database`, async (t) => {
+  try {
+    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
+    const { token } = await registerUserAndReturnUserInfo();
+
+    const createConnectionResponse = await request(app.getHttpServer())
+      .post('/connection')
+      .send(newConnection)
+      .set('Content-Type', 'application/json')
+      .set('Cookie', token)
+      .set('Accept', 'application/json');
+    const createConnectionRO = JSON.parse(createConnectionResponse.text);
+
+    delete updateConnection.database;
+
+    const response = await request(app.getHttpServer())
+      .put(`/connection/${createConnectionRO.id}`)
+      .send(updateConnection)
+      .set('Cookie', token)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+
+    t.is(response.status, 400);
+    const { message } = JSON.parse(response.text);
+    t.is(message, Messages.DATABASE_MISSING);
+
+    t.pass();
+  } catch (e) {
+    throw e;
+  }
+});
+
+test(`${currentTest} should throw error with complex message when update connection without database, type, port`, async (t) => {
+  try {
+    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
+    const { token } = await registerUserAndReturnUserInfo();
+
+    const createConnectionResponse = await request(app.getHttpServer())
+      .post('/connection')
+      .send(newConnection)
+      .set('Content-Type', 'application/json')
+      .set('Cookie', token)
+      .set('Accept', 'application/json');
+    const createConnectionRO = JSON.parse(createConnectionResponse.text);
+
+    delete updateConnection.database;
+    delete updateConnection.type;
+    delete updateConnection.port;
+
+    const response = await request(app.getHttpServer())
+      .put(`/connection/${createConnectionRO.id}`)
+      .send(updateConnection)
+      .set('Content-Type', 'application/json')
+      .set('Cookie', token)
+      .set('Accept', 'application/json');
+
+    t.is(response.status, 400);
+    const { message } = JSON.parse(response.text);
+    t.is(
+      message,
+      `${Messages.TYPE_MISSING}, ${Messages.CONNECTION_TYPE_INVALID}, ${Messages.PORT_MISSING}, ${Messages.PORT_FORMAT_INCORRECT}, ${Messages.DATABASE_MISSING}`,
+    );
+
+    t.pass();
+  } catch (e) {
+    throw e;
+  }
+});
+
+currentTest = 'DELETE /connection/:slug';
+test(`${currentTest} should return delete result`, async (t) => {
+  try {
+    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
+    const { token } = await registerUserAndReturnUserInfo();
+    const createConnectionResult = await request(app.getHttpServer())
+      .post('/connection')
+      .send(newConnection)
+      .set('Cookie', token)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+
+    const createConnectionRO = JSON.parse(createConnectionResult.text);
+
+    const response = await request(app.getHttpServer())
+      .put(`/connection/delete/${createConnectionRO.id}`)
+      .set('Content-Type', 'application/json')
+      .set('Cookie', token)
+      .set('Accept', 'application/json');
+
+    t.is(response.status, 200);
+    const result = response.body;
+
+    //deleted connection not found in database
+    const findOneResponce = await request(app.getHttpServer())
+      .get(`/connection/one/${createConnectionRO.id}`)
+      .set('Content-Type', 'application/json')
+      .set('Cookie', token)
+      .set('Accept', 'application/json');
+
+    t.is(findOneResponce.status, 403);
+
+    const { message } = JSON.parse(findOneResponce.text);
+    t.is(message, Messages.DONT_HAVE_PERMISSIONS);
+
+    t.is(result.hasOwnProperty('id'), false);
+    t.is(result.title, 'Test Connection');
+    t.is(result.type, 'postgres');
+    t.is(result.host, 'nestjs_testing');
+    t.is(typeof result.port, 'number');
+    t.is(result.port, 5432);
+    t.is(result.username, 'postgres');
+    t.is(result.database, 'nestjs_testing');
+    t.is(result.sid, null);
+    t.is(result.hasOwnProperty('createdAt'), true);
+    t.is(result.hasOwnProperty('updatedAt'), true);
+    t.is(result.hasOwnProperty('password'), false);
+    t.is(result.hasOwnProperty('groups'), false);
+    t.is(result.hasOwnProperty('author'), false);
+    t.pass();
+  } catch (e) {
+    throw e;
+  }
+});
+
+test(`${currentTest} should throw an exception when connection not found`, async (t) => {
+  try {
+    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
+    const { token } = await registerUserAndReturnUserInfo();
+
+    const createConnectionResult = await request(app.getHttpServer())
+      .post('/connection')
+      .send(newConnection)
+      .set('Content-Type', 'application/json')
+      .set('Cookie', token)
+      .set('Accept', 'application/json');
+
+    const createConnectionRO = JSON.parse(createConnectionResult.text);
+    createConnectionRO.id = faker.datatype.uuid();
+
+    const response = await request(app.getHttpServer())
+      .put(`/connection/delete/${createConnectionRO.id}`)
+      .set('Content-Type', 'application/json')
+      .set('Cookie', token)
+      .set('Accept', 'application/json');
+
+    t.is(response.status, 403);
+
+    const { message } = JSON.parse(response.text);
+    t.is(message, Messages.DONT_HAVE_PERMISSIONS);
+    t.pass();
+  } catch (e) {
+    throw e;
+  }
+});
+
+test(`${currentTest} should throw an exception when connection id not passed in the request`, async (t) => {
+  try {
+    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
+    const { token } = await registerUserAndReturnUserInfo();
+
+    const createConnectionResult = await request(app.getHttpServer())
+      .post('/connection')
+      .send(newConnection)
+      .set('Content-Type', 'application/json')
+      .set('Cookie', token)
+      .set('Accept', 'application/json');
+
+    const createConnectionRO = JSON.parse(createConnectionResult.text);
+    createConnectionRO.id = '';
+
+    const response = await request(app.getHttpServer())
+      .delete(`/connection/${createConnectionRO.id}`)
+      .set('Content-Type', 'application/json')
+      .set('Cookie', token)
+      .set('Accept', 'application/json');
+
+    t.is(response.status, 404);
+
+    t.pass();
+  } catch (e) {
+    throw e;
+  }
+});
+
+currentTest = 'POST /connection/group/:slug';
+test(`${currentTest} should return a created group`, async (t) => {
+  try {
+    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
+    const { token, email } = await registerUserAndReturnUserInfo();
+
+    const createConnectionResponse = await request(app.getHttpServer())
+      .post('/connection')
+      .send(newConnection)
+      .set('Cookie', token)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+
+    const createConnectionRO = JSON.parse(createConnectionResponse.text);
+
+    const createGroupResponse = await request(app.getHttpServer())
+      .post(`/connection/group/${createConnectionRO.id}`)
+      .send(newGroup1)
+      .set('Content-Type', 'application/json')
+      .set('Cookie', token)
+      .set('Accept', 'application/json');
+
+    t.is(createGroupResponse.status, 201);
+    const result = JSON.parse(createGroupResponse.text);
+    t.is(uuidRegex.test(result.id), true);
+    t.is(result.title, 'Generated test group DTO 1');
+    t.is(result.hasOwnProperty('users'), true);
+    t.is(typeof result.users, 'object');
+    t.is(result.users.length, 1);
+    t.is(result.users[0].email, email);
+    t.is(result.users[0].isActive, false);
+    t.is(uuidRegex.test(result.users[0].id), true);
+
+    t.pass();
+  } catch (e) {
+    throw e;
+  }
+});
+
+test(`${currentTest} throw an exception when connectionId not passed in request`, async (t) => {
+  try {
+    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
+    const { token } = await registerUserAndReturnUserInfo();
+
+    const createConnectionResponse = await request(app.getHttpServer())
+      .post('/connection')
+      .send(newConnection)
+      .set('Content-Type', 'application/json')
+      .set('Cookie', token)
+      .set('Accept', 'application/json');
+
+    const createConnectionRO = JSON.parse(createConnectionResponse.text);
+    createConnectionRO.id = '';
+    const createGroupResponse = await request(app.getHttpServer())
+      .post(`/connection/group/${createConnectionRO.id}`)
+      .send(newGroup1)
+      .set('Content-Type', 'application/json')
+      .set('Cookie', token)
+      .set('Accept', 'application/json');
+
+    t.is(createGroupResponse.status, 404);
+
+    t.pass();
+  } catch (e) {
+    throw e;
+  }
+});
+
+test(`${currentTest} throw an exception when group title not passed in request`, async (t) => {
+  try {
+    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
+    const { token } = await registerUserAndReturnUserInfo();
+
+    const createConnectionResponse = await request(app.getHttpServer())
+      .post('/connection')
+      .send(newConnection)
+      .set('Content-Type', 'application/json')
+      .set('Cookie', token)
+      .set('Accept', 'application/json');
+
+    const createConnectionRO = JSON.parse(createConnectionResponse.text);
+    delete newGroup1.title;
+    const createGroupResponse = await request(app.getHttpServer())
+      .post(`/connection/group/${createConnectionRO.id}`)
+      .send(newGroup1)
+      .set('Content-Type', 'application/json')
+      .set('Cookie', token)
+      .set('Accept', 'application/json');
+
+    const { message } = JSON.parse(createGroupResponse.text);
+
+    t.is(createGroupResponse.status, 400);
+    t.is(message, Messages.GROUP_TITLE_MISSING);
+
+    t.pass();
+  } catch (e) {
+    throw e;
+  }
+});
+
+test(`${currentTest} throw an exception when connectionId is incorrect`, async (t) => {
+  try {
+    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
+    const { token } = await registerUserAndReturnUserInfo();
+
+    const createConnectionResponse = await request(app.getHttpServer())
+      .post('/connection')
+      .send(newConnection)
+      .set('Cookie', token)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+
+    const createConnectionRO = JSON.parse(createConnectionResponse.text);
+    createConnectionRO.id = faker.datatype.uuid();
+    const createGroupResponse = await request(app.getHttpServer())
+      .post(`/connection/group/${createConnectionRO.id}`)
+      .send(newGroup1)
+      .set('Content-Type', 'application/json')
+      .set('Cookie', token)
+      .set('Accept', 'application/json');
+
+    const { message } = JSON.parse(createGroupResponse.text);
+
+    t.is(createGroupResponse.status, 403);
+    t.is(message, Messages.DONT_HAVE_PERMISSIONS);
+
+    t.pass();
+  } catch (e) {
+    throw e;
+  }
+});
+
+test(`${currentTest} throw an exception when group name is not unique`, async (t) => {
+  try {
+    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
+    const { token } = await registerUserAndReturnUserInfo();
+
+    const createConnectionResponse = await request(app.getHttpServer())
+      .post('/connection')
+      .set('Cookie', token)
+      .send(newConnection)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+
+    const createConnectionRO = JSON.parse(createConnectionResponse.text);
+    newGroup1.title = 'Admin';
+    const createGroupResponse = await request(app.getHttpServer())
+      .post(`/connection/group/${createConnectionRO.id}`)
+      .send(newGroup1)
+      .set('Cookie', token)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+
+    const { message } = JSON.parse(createGroupResponse.text);
+
+    t.is(createGroupResponse.status, 400);
+    t.is(message, Messages.GROUP_NAME_UNIQUE);
+
+    t.pass();
+  } catch (e) {
+    throw e;
+  }
+});
+
+currentTest = 'PUT /connection/group/delete/:slug';
+test(`${currentTest} should return connection without deleted group result`, async (t) => {
+  try {
+    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
+    const { token } = await registerUserAndReturnUserInfo();
+
+    const createConnectionResult = await request(app.getHttpServer())
+      .post('/connection')
+      .send(newConnection)
+      .set('Cookie', token)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+
+    const createConnectionRO = JSON.parse(createConnectionResult.text);
+
+    const createGroupResponse = await request(app.getHttpServer())
+      .post(`/connection/group/${createConnectionRO.id}`)
+      .send(newGroup1)
+      .set('Cookie', token)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+
+    // create group in connection
+    let result = createGroupResponse.body;
+
+    t.is(createGroupResponse.status, 201);
+
+    t.is(result.hasOwnProperty('id'), true);
+    t.is(result.title, 'Generated test group DTO 1');
+
+    const createGroupRO = JSON.parse(createGroupResponse.text);
+
+    let response = await request(app.getHttpServer())
+      .put(`/connection/group/delete/${createConnectionRO.id}`)
+      .send({ groupId: createGroupRO.id })
+      .set('Content-Type', 'application/json')
+      .set('Cookie', token)
+      .set('Accept', 'application/json');
+
+    //after deleting group
+    result = response.body;
+
+    t.is(response.status, 200);
+    t.is(result.hasOwnProperty('title'), true);
+    t.is(result.title, createGroupRO.title);
+    t.is(result.isMain, false);
+    // check that group was deleted
+
+    response = await request(app.getHttpServer())
+      .get(`/connection/groups/${createConnectionRO.id}`)
+      .set('Content-Type', 'application/json')
+      .set('Cookie', token)
+      .set('Accept', 'application/json');
+
+    t.is(response.status, 200);
+    result = JSON.parse(response.text);
+    t.is(result.length, 1);
+    const groupId = result[0].group.id;
+    t.is(uuidRegex.test(groupId), true);
+    t.is(result[0].group.hasOwnProperty('title'), true);
+    t.is(result[0].accessLevel, AccessLevelEnum.edit);
+
+    const index = result
+      .map((e) => {
+        return e.group.title;
+      })
+      .indexOf('Admin');
+
+    t.is(index >= 0, true);
+
+    t.pass();
+  } catch (e) {
+    throw e;
+  }
+});
+
+test(`${currentTest}`, async (t) => {
+  try {
+    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
+    const { token } = await registerUserAndReturnUserInfo();
+    t.pass();
+  } catch (e) {
+    throw e;
+  }
+});
+
+test(`${currentTest} should throw an exception when connection id is not passed in the request`, async (t) => {
+  try {
+    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
+    const { token } = await registerUserAndReturnUserInfo();
+    const createConnectionResult = await request(app.getHttpServer())
+      .post('/connection')
+      .send(newConnection)
+      .set('Content-Type', 'application/json')
+      .set('Cookie', token)
+      .set('Accept', 'application/json');
+
+    const createConnectionRO = JSON.parse(createConnectionResult.text);
+
+    const createGroupResponse = await request(app.getHttpServer())
+      .post(`/connection/group/${createConnectionRO.id}`)
+      .send(newGroup1)
+      .set('Content-Type', 'application/json')
+      .set('Cookie', token)
+      .set('Accept', 'application/json');
+
+    // create group in connection
+    const result = createGroupResponse.body;
+
+    t.is(createGroupResponse.status, 201);
+
+    t.is(result.hasOwnProperty('id'), true);
+    t.is(result.title, 'Generated test group DTO 1');
+
+    const createGroupRO = JSON.parse(createGroupResponse.text);
+    createConnectionRO.id = '';
+    const response = await request(app.getHttpServer())
+      .put(`/connection/group/delete/${createConnectionRO.id}`)
+      .send({ groupId: createGroupRO.id })
+      .set('Cookie', token)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+
+    t.is(response.status, 404);
+    t.pass();
+  } catch (e) {
+    throw e;
+  }
+});
+
+test(`${currentTest} should throw an exception when group id is not passed in the request`, async (t) => {
+  try {
+    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
+    const { token } = await registerUserAndReturnUserInfo();
+
+    const createConnectionResult = await request(app.getHttpServer())
+      .post('/connection')
+      .send(newConnection)
+      .set('Content-Type', 'application/json')
+      .set('Cookie', token)
+      .set('Accept', 'application/json');
+
+    const createConnectionRO = JSON.parse(createConnectionResult.text);
+
+    const createGroupResponse = await request(app.getHttpServer())
+      .post(`/connection/group/${createConnectionRO.id}`)
+      .send(newGroup1)
+      .set('Cookie', token)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+    // create group in connection
+    const result = createGroupResponse.body;
+
+    t.is(createGroupResponse.status, 201);
+
+    t.is(result.hasOwnProperty('id'), true);
+    t.is(result.title, 'Generated test group DTO 1');
+
+    const createGroupRO = JSON.parse(createGroupResponse.text);
+    delete createGroupRO.id;
+    const response = await request(app.getHttpServer())
+      .put(`/connection/group/delete/${createConnectionRO.id}`)
+      .send({ groupId: createGroupRO.id })
+      .set('Cookie', token)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+
+    const { message } = JSON.parse(response.text);
+    t.is(response.status, 400);
+    t.is(message, Messages.GROUP_ID_MISSING);
+
+    t.pass();
+  } catch (e) {
+    throw e;
+  }
+});
+
+test(`${currentTest} should throw an exception when group id is incorrect`, async (t) => {
+  try {
+    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
+    const { token } = await registerUserAndReturnUserInfo();
+
+    const createConnectionResult = await request(app.getHttpServer())
+      .post('/connection')
+      .send(newConnection)
+      .set('Content-Type', 'application/json')
+      .set('Cookie', token)
+      .set('Accept', 'application/json');
+
+    const createConnectionRO = JSON.parse(createConnectionResult.text);
+
+    const createGroupResponse = await request(app.getHttpServer())
+      .post(`/connection/group/${createConnectionRO.id}`)
+      .send(newGroup1)
+      .set('Content-Type', 'application/json')
+      .set('Cookie', token)
+      .set('Accept', 'application/json');
+
+    // create group in connection
+    const result = createGroupResponse.body;
+
+    t.is(createGroupResponse.status, 201);
+
+    t.is(result.hasOwnProperty('id'), true);
+    t.is(result.title, 'Generated test group DTO 1');
+
+    const createGroupRO = JSON.parse(createGroupResponse.text);
+    createGroupRO.id = faker.datatype.uuid();
+    const response = await request(app.getHttpServer())
+      .put(`/connection/group/delete/${createConnectionRO.id}`)
+      .send({ groupId: createGroupRO.id })
+      .set('Cookie', token)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+
+    const { message } = JSON.parse(response.text);
+    t.is(response.status, 400);
+    t.is(message, Messages.GROUP_NOT_FOUND);
+
+    t.pass();
+  } catch (e) {
+    throw e;
+  }
+});
+
+test(`${currentTest} should throw an exception when connection id is incorrect`, async (t) => {
+  try {
+    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
+    const { token } = await registerUserAndReturnUserInfo();
+
+    const createConnectionResult = await request(app.getHttpServer())
+      .post('/connection')
+      .send(newConnection)
+      .set('Cookie', token)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+
+    const createConnectionRO = JSON.parse(createConnectionResult.text);
+
+    const createGroupResponse = await request(app.getHttpServer())
+      .post(`/connection/group/${createConnectionRO.id}`)
+      .send(newGroup1)
+      .set('Content-Type', 'application/json')
+      .set('Cookie', token)
+      .set('Accept', 'application/json');
+
+    // create group in connection
+    const result = createGroupResponse.body;
+
+    t.is(createGroupResponse.status, 201);
+
+    t.is(result.hasOwnProperty('id'), true);
+    t.is(result.title, 'Generated test group DTO 1');
+
+    const createGroupRO = JSON.parse(createGroupResponse.text);
+    createConnectionRO.id = faker.datatype.uuid();
+    const response = await request(app.getHttpServer())
+      .put(`/connection/group/delete/${createConnectionRO.id}`)
+      .send({ groupId: createGroupRO.id })
+      .set('Content-Type', 'application/json')
+      .set('Cookie', token)
+      .set('Accept', 'application/json');
+
+    const { message } = JSON.parse(response.text);
+    t.is(response.status, 403);
+    t.is(message, Messages.DONT_HAVE_PERMISSIONS);
+
+    t.pass();
+  } catch (e) {
+    throw e;
+  }
+});
+
+test(`${currentTest} should throw an exception when trying delete admin group`, async (t) => {
+  try {
+    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
+    const { token } = await registerUserAndReturnUserInfo();
+
+    const createConnectionResult = await request(app.getHttpServer())
+      .post('/connection')
+      .send(newConnection)
+      .set('Content-Type', 'application/json')
+      .set('Cookie', token)
+      .set('Accept', 'application/json');
+
+    const createConnectionRO = JSON.parse(createConnectionResult.text);
+
+    const response = await request(app.getHttpServer())
+      .put(`/connection/group/delete/${createConnectionRO.id}`)
+      .send({ groupId: createConnectionRO.groups[0].id })
+      .set('Content-Type', 'application/json')
+      .set('Cookie', token)
+      .set('Accept', 'application/json');
+
+    const { message } = JSON.parse(response.text);
+    t.is(response.status, 403);
+    t.is(message, Messages.CANT_DELETE_ADMIN_GROUP);
+
+    t.pass();
+  } catch (e) {
+    throw e;
+  }
+});
+
+currentTest = 'PUT /connection/encryption/restore/:slug';
+test(`${currentTest} should return restored connection`, async (t) => {
+  try {
+    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
+    const { token } = await registerUserAndReturnUserInfo();
+
+    const newPgConnection = mockFactory.generateConnectionToTestPostgresDBInDocker();
+    newPgConnection.masterEncryption = true;
+
+    const createConnectionResult = await request(app.getHttpServer())
+      .post('/connection')
+      .send(newPgConnection)
+      .set('masterpwd', 'ahalaimahalai')
+      .set('Cookie', token)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+    t.is(createConnectionResult.status, 201);
+
+    const createConnectionRO = JSON.parse(createConnectionResult.text);
+    const { id, groups } = createConnectionRO;
+    const groupId = groups[0].id;
+    const restoreConnectionResult = await request(app.getHttpServer())
+      .put(`/connection/encryption/restore/${id}`)
+      .send(newPgConnection)
+      .set('masterpwd', 'hamalaiahalai')
+      .set('Cookie', token)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+    t.is(restoreConnectionResult.status, 200);
+    const restoreConnectionResultRO = JSON.parse(restoreConnectionResult.text);
+    const { connection } = restoreConnectionResultRO;
+    t.is(connection.id, id);
+
+    const response = await request(app.getHttpServer())
+      .get(`/connection/groups/${id}`)
+      .set('Content-Type', 'application/json')
+      .set('Cookie', token)
+      .set('Accept', 'application/json');
+
+    const result = JSON.parse(response.text);
+    t.is(response.status, 200);
+    const groupIdInRestoredConnection = result[0].group.id;
+    t.is(groupIdInRestoredConnection, groupId);
+
+    t.pass();
+  } catch (e) {
+    throw e;
+  }
+});
+
+currentTest = 'GET /connection/groups/:slug';
+test(`${currentTest} should groups in connection`, async (t) => {
+  try {
+    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
+    const { token } = await registerUserAndReturnUserInfo();
+
+    const createConnectionResponse = await request(app.getHttpServer())
+      .post('/connection')
+      .send(newConnection)
+      .set('Content-Type', 'application/json')
+      .set('Cookie', token)
+      .set('Accept', 'application/json');
+    const createConnectionRO = JSON.parse(createConnectionResponse.text);
+    t.is(createConnectionResponse.status, 201);
+
+    const createGroupResponse = await request(app.getHttpServer())
+      .post(`/connection/group/${createConnectionRO.id}`)
+      .send(newGroup1)
+      .set('Content-Type', 'application/json')
+      .set('Cookie', token)
+      .set('Accept', 'application/json');
+
+    t.is(createGroupResponse.status, 201);
+
+    const response = await request(app.getHttpServer())
+      .get(`/connection/groups/${createConnectionRO.id}`)
+      .set('Content-Type', 'application/json')
+      .set('Cookie', token)
+      .set('Accept', 'application/json');
+
+    t.is(response.status, 200);
+    const result = JSON.parse(response.text);
+    const groupId = result[0].group.id;
+    t.is(uuidRegex.test(groupId), true);
+    t.is(result[1].group.hasOwnProperty('title'), true);
+    t.is(result[0].accessLevel, AccessLevelEnum.edit);
+
+    const index = result
+      .map((e) => {
+        return e.group.title;
+      })
+      .indexOf('Admin');
+
+    t.is(index >= 0, true);
+
+    t.pass();
+  } catch (e) {
+    throw e;
+  }
+});
+
+test(`${currentTest} should throw an exception when connection id not passed in the request`, async (t) => {
+  try {
+    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
+    const { token } = await registerUserAndReturnUserInfo();
+
+    const createConnectionResponse = await request(app.getHttpServer())
+      .post('/connection')
+      .send(newConnection)
+      .set('Content-Type', 'application/json')
+      .set('Cookie', token)
+      .set('Accept', 'application/json');
+    const createConnectionRO = JSON.parse(createConnectionResponse.text);
+    t.is(createConnectionResponse.status, 201);
+
+    const createGroupResponse = await request(app.getHttpServer())
+      .post(`/connection/group/${createConnectionRO.id}`)
+      .send(newGroup1)
+      .set('Content-Type', 'application/json')
+      .set('Cookie', token)
+      .set('Accept', 'application/json');
+
+    t.is(createGroupResponse.status, 201);
+
+    createConnectionRO.id = '';
+    const response = await request(app.getHttpServer())
+      .get(`/connection/groups/${createConnectionRO.id}`)
+      .send(newConnection)
+      .set('Content-Type', 'application/json')
+      .set('Cookie', token)
+      .set('Accept', 'application/json');
+
+    t.is(response.status, 404);
+    t.pass();
+  } catch (e) {
+    throw e;
+  }
+});
+
+test(`${currentTest} should throw an exception when connection id is invalid`, async (t) => {
+  try {
+    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
+    const { token } = await registerUserAndReturnUserInfo();
+    const createConnectionResponse = await request(app.getHttpServer())
+      .post('/connection')
+      .send(newConnection)
+      .set('Content-Type', 'application/json')
+      .set('Cookie', token)
+      .set('Accept', 'application/json');
+    const createConnectionRO = JSON.parse(createConnectionResponse.text);
+    t.is(createConnectionResponse.status, 201);
+
+    const createGroupResponse = await request(app.getHttpServer())
+      .post(`/connection/group/${createConnectionRO.id}`)
+      .send(newGroup1)
+      .set('Content-Type', 'application/json')
+      .set('Cookie', token)
+      .set('Accept', 'application/json');
+
+    t.is(createGroupResponse.status, 201);
+    createConnectionRO.id = faker.datatype.uuid();
+    const response = await request(app.getHttpServer())
+      .get(`/connection/groups/${createConnectionRO.id}`)
+      .send(newConnection)
+      .set('Cookie', token)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+
+    t.is(response.status, 200);
+    const getGroupsRO = JSON.parse(response.text);
+    t.is(Array.isArray(getGroupsRO), true);
+    t.is(getGroupsRO.length, 0);
+
+    t.pass();
+  } catch (e) {
+    throw e;
+  }
+});
+
+//todo realise
+currentTest = 'GET /connection/permissions';
+currentTest = 'GET /connection/user/permissions';
 // test(`${currentTest}`, async (t) => {
 //   try {
-//     t.pass();
-//   } catch (e) {
-//     throw e;
-//   }
-// });
-//
-// test(`${currentTest}`, async (t) => {
-//   try {
-//     t.pass();
-//   } catch (e) {
-//     throw e;
-//   }
-// });
-//
-// test(`${currentTest}`, async (t) => {
-//   try {
-//     t.pass();
-//   } catch (e) {
-//     throw e;
-//   }
-// });
-//
-// test(`${currentTest}`, async (t) => {
-//   try {
-//     t.pass();
-//   } catch (e) {
-//     throw e;
-//   }
-// });
-//
-// test(`${currentTest}`, async (t) => {
-//   try {
+//     const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
+//     const { token } = await registerUserAndReturnUserInfo();
 //     t.pass();
 //   } catch (e) {
 //     throw e;
