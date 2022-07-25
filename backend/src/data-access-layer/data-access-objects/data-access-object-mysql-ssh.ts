@@ -80,6 +80,7 @@ export class DataAccessObjectMysqlSsh implements IDataAccessObject {
           await knex(tableName).connection(mySqlDriver).insert(row);
           const resultsArray = [];
           for (let i = 0; i < primaryKeys.length; i++) {
+            // eslint-disable-next-line security/detect-object-injection
             resultsArray.push([primaryKeys[i], row[primaryKeys[i]]]);
           }
           return Object.fromEntries(resultsArray);

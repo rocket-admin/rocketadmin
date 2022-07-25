@@ -1,21 +1,21 @@
 import * as AWS from 'aws-sdk';
 import * as AWSMock from 'aws-sdk-mock';
-import * as faker from 'faker';
+import { faker } from '@faker-js/faker';
 import * as request from 'supertest';
 import * as cookieParser from 'cookie-parser';
 
-import { AccessLevelEnum } from '../src/enums';
-import { ApplicationModule } from '../src/app.module';
+import { AccessLevelEnum } from '../../src/enums';
+import { ApplicationModule } from '../../src/app.module';
 import { Connection } from 'typeorm';
-import { DatabaseModule } from '../src/shared/database/database.module';
-import { DatabaseService } from '../src/shared/database/database.service';
+import { DatabaseModule } from '../../src/shared/database/database.module';
+import { DatabaseService } from '../../src/shared/database/database.service';
 import { INestApplication } from '@nestjs/common';
-import { Messages } from '../src/exceptions/text/messages';
-import { MockFactory } from './mock.factory';
+import { Messages } from '../../src/exceptions/text/messages';
+import { MockFactory } from '../mock.factory';
 import { Test } from '@nestjs/testing';
-import { TestUtils } from './utils/test.utils';
-import { Constants } from '../src/helpers/constants/constants';
-import { Cacher } from '../src/helpers/cache/cacher';
+import { TestUtils } from '../utils/test.utils';
+import { Constants } from '../../src/helpers/constants/constants';
+import { Cacher } from '../../src/helpers/cache/cacher';
 
 describe('Groups (e2e)', () => {
   type RegisterUserData = {
@@ -229,7 +229,7 @@ describe('Groups (e2e)', () => {
         expect(createGroupResponse.status).toBe(201);
         const createGroupRO = JSON.parse(createGroupResponse.text);
 
-        createGroupRO.id = faker.random.uuid();
+        createGroupRO.id = faker.datatype.uuid();
         const findAllUsersInGroup = await request(app.getHttpServer())
           .get(`/group/users/${createGroupRO.id}`)
           .set('Content-Type', 'application/json')
@@ -460,7 +460,7 @@ describe('Groups (e2e)', () => {
         expect(createGroupResponse.status).toBe(201);
 
         const createGroupRO = JSON.parse(createGroupResponse.text);
-        createGroupRO.id = faker.random.uuid();
+        createGroupRO.id = faker.datatype.uuid();
         const requestBody = {
           email: secondUserRegisterInfo.email,
           groupId: createGroupRO.id,
@@ -633,7 +633,7 @@ describe('Groups (e2e)', () => {
 
         const createGroupRO = JSON.parse(createGroupResponse.text);
 
-        createGroupRO.id = faker.random.uuid();
+        createGroupRO.id = faker.datatype.uuid();
         const deleteResult = await request(app.getHttpServer())
           .delete(`/group/${createGroupRO.id}`)
           .set('Cookie', firstUserToken)
@@ -918,7 +918,7 @@ describe('Groups (e2e)', () => {
         const createGroupRO = JSON.parse(createGroupResponse.text);
 
         AWSMock.restore('CognitoIdentityServiceProvider');
-        const fakeUserUuid = faker.random.uuid();
+        const fakeUserUuid = faker.datatype.uuid();
         AWSMock.setSDKInstance(AWS);
         AWSMock.mock(
           'CognitoIdentityServiceProvider',
@@ -1029,7 +1029,7 @@ describe('Groups (e2e)', () => {
         expect(result.users[1].email).toBe(secondUserRegisterInfo.email);
         // expect(result.users[0].isActive).toBe(true);
 
-        requestBody.groupId = faker.random.uuid();
+        requestBody.groupId = faker.datatype.uuid();
         const removeUserFromGroup = await request(app.getHttpServer())
           .put(`/group/user/delete/`)
           .send(requestBody)

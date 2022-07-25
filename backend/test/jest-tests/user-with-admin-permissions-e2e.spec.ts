@@ -1,24 +1,27 @@
-import * as faker from 'faker';
-import { knex } from 'knex';
+import * as AWS from 'aws-sdk';
+import * as AWSMock from 'aws-sdk-mock';
+import { faker } from '@faker-js/faker';
 import * as request from 'supertest';
 
-import { AccessLevelEnum, QueryOrderingEnum } from '../src/enums';
-import { ApplicationModule } from '../src/app.module';
-import { compareArrayElements } from '../src/helpers';
+import { AccessLevelEnum, QueryOrderingEnum } from '../../src/enums';
+import { ApplicationModule } from '../../src/app.module';
 import { Connection } from 'typeorm';
-import { Constants } from '../src/helpers/constants/constants';
-import { DatabaseModule } from '../src/shared/database/database.module';
-import { DatabaseService } from '../src/shared/database/database.service';
+import { Constants } from '../../src/helpers/constants/constants';
+import { DatabaseModule } from '../../src/shared/database/database.module';
+import { DatabaseService } from '../../src/shared/database/database.service';
 import { INestApplication } from '@nestjs/common';
-import { Messages } from '../src/exceptions/text/messages';
-import { MockFactory } from './mock.factory';
+import { Messages } from '../../src/exceptions/text/messages';
+import { MockFactory } from '../mock.factory';
 import { Test } from '@nestjs/testing';
-import { TestUtils } from './utils/test.utils';
+import { TestConstants } from '../mocks/test-constants';
+import { TestUtils } from '../utils/test.utils';
+import { compareArrayElements } from '../../src/helpers';
+import { knex } from 'knex';
 import * as cookieParser from 'cookie-parser';
-import { Cacher } from '../src/helpers/cache/cacher';
+import { Cacher } from '../../src/helpers/cache/cacher';
 
-describe('User permissions (connection readonly, group readonly) (e2e)', () => {
-  jest.setTimeout(50000);
+describe('User permissions (connection admin) (e2e)', () => {
+  jest.setTimeout(30000);
   let app: INestApplication;
   let testUtils: TestUtils;
   const mockFactory = new MockFactory();
@@ -30,7 +33,6 @@ describe('User permissions (connection readonly, group readonly) (e2e)', () => {
   let connectionAdminUserToken;
   let simpleUserToken;
   let newTableWidget;
-  let newRandomGroup2;
   let newTableWidgets;
   let updatedTableWidgets;
   const testTableName = 'users';
@@ -39,12 +41,18 @@ describe('User permissions (connection readonly, group readonly) (e2e)', () => {
   const testSearchedUserName = 'Vasia';
   const testEntitiesSeedsCount = 42;
 
-  const tablePermissions = {
-    visibility: true,
-    readonly: false,
-    add: true,
-    delete: true,
-    edit: false,
+  type RegisterUserData = {
+    email: string;
+    password: string;
+  };
+
+  const adminUserRegisterInfo: RegisterUserData = {
+    email: 'firstUser@example.com',
+    password: 'ahalai-mahalai',
+  };
+  const simpleUserRegisterInfo: RegisterUserData = {
+    email: 'secondUser@example.com',
+    password: 'mahalai-ahalai',
   };
 
   async function resetPostgresTestDB() {
@@ -129,25 +137,6 @@ describe('User permissions (connection readonly, group readonly) (e2e)', () => {
 
   const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
-  type RegisterUserData = {
-    email: string;
-    password: string;
-  };
-
-  const adminUserRegisterInfo: RegisterUserData = {
-    email: 'firstUser@example.com',
-    password: 'ahalai-mahalai',
-  };
-  const simpleUserRegisterInfo: RegisterUserData = {
-    email: 'secondUser@example.com',
-    password: 'mahalai-ahalai',
-  };
-
-  const thirdUserRegisterInfo: RegisterUserData = {
-    email: 'third@example.com',
-    password: 'hamalai-lahalai',
-  };
-
   beforeAll(() => {
     jest.setTimeout(30000);
   });
@@ -168,7 +157,6 @@ describe('User permissions (connection readonly, group readonly) (e2e)', () => {
     updateConnection = mockFactory.generateUpdateConnectionDto();
     newGroup1 = mockFactory.generateCreateGroupDto1();
     newTableWidget = mockFactory.generateCreateWidgetDTOForConnectionTable();
-    newRandomGroup2 = MockFactory.generateCreateGroupDtoWithRandomTitle();
     newTableWidgets = mockFactory.generateCreateWidgetDTOsArrayForUsersTable();
     updatedTableWidgets = mockFactory.generateUpdateWidgetDTOsArrayForUsersTable();
     await resetPostgresTestDB();
@@ -198,6 +186,7 @@ describe('User permissions (connection readonly, group readonly) (e2e)', () => {
     await Cacher.clearAllCache();
     await testUtils.resetDb();
     await testUtils.closeDbConnection();
+    AWSMock.restore('CognitoIdentityServiceProvider');
   });
 
   afterAll(async () => {
@@ -216,22 +205,8 @@ describe('User permissions (connection readonly, group readonly) (e2e)', () => {
   });
 
   //****************************************** SUPPORT FUNCTIONS *********************************************************
-  async function createAdminConnections() {
-    await request(app.getHttpServer())
-      .post('/connection')
-      .set('Cookie', connectionAdminUserToken)
-      .send(newConnection)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-    await request(app.getHttpServer())
-      .post('/connection')
-      .set('Cookie', connectionAdminUserToken)
-      .send(newConnection2)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-  }
 
-  async function createConnectionsAndInviteNewUserInNewGroupInFirstConnection() {
+  async function createConnectionsAndInviteNewUserInAdminGroupOfFirstConnection() {
     const findAllConnectionsResponse = await request(app.getHttpServer())
       .get('/connections')
       .set('Cookie', connectionAdminUserToken)
@@ -259,45 +234,15 @@ describe('User permissions (connection readonly, group readonly) (e2e)', () => {
       .set('Accept', 'application/json');
     const firstConnectionRO = JSON.parse(createSecondConnectionResponse.text);
     connectionsId.secondId = firstConnectionRO.id;
-    // const getGroupsInFirstConnection = await request(app.getHttpServer())
-    //   .get(`/connection/groups/${createFirstConnectionRO.id}`)
-    //   .set('Cookie', connectionAdminUserToken)
-    //   .set('Content-Type', 'application/json')
-    //   .set('Accept', 'application/json');
-    // const groupId = JSON.parse(getGroupsInFirstConnection.text)[0].group.id;
+    const getGroupsInFirstConnection = await request(app.getHttpServer())
+      .get(`/connection/groups/${createFirstConnectionRO.id}`)
+      .set('Cookie', connectionAdminUserToken)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+    const groupId = JSON.parse(getGroupsInFirstConnection.text)[0].group.id;
+
     const email = simpleUserRegisterInfo.email;
 
-    const createGroupResponse = await request(app.getHttpServer())
-      .post(`/connection/group/${connectionsId.firstId}`)
-      .set('Cookie', connectionAdminUserToken)
-      .send(newGroup1)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-    const groupId = JSON.parse(createGroupResponse.text).id;
-
-    const permissions = {
-      connection: {
-        connectionId: connectionsId.firstId,
-        accessLevel: AccessLevelEnum.readonly,
-      },
-      group: {
-        groupId: groupId,
-        accessLevel: AccessLevelEnum.readonly,
-      },
-      tables: [
-        {
-          tableName: 'users',
-          accessLevel: tablePermissions,
-        },
-      ],
-    };
-
-    const createOrUpdatePermissionResponse = await request(app.getHttpServer())
-      .put(`/permissions/${groupId}`)
-      .send({ permissions })
-      .set('Cookie', connectionAdminUserToken)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
     const findAllConnectionsResponse_2 = await request(app.getHttpServer())
       .get('/connections')
       .set('Cookie', simpleUserToken)
@@ -311,32 +256,26 @@ describe('User permissions (connection readonly, group readonly) (e2e)', () => {
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
     connectionsId.firstAdminGroupId = groupId;
-
-    const getUsers = await request(app.getHttpServer())
-      .get(`/group/users/${groupId}`)
-      .set('Cookie', connectionAdminUserToken)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
     return connectionsId;
   }
 
   //******************************************* TESTS BEGIN *************************************************************
 
-  //***************************************** USER NOT ADDED INTO ADMIN GROUP
-  describe('When new user not added in admin group', () => {
+  //***************************************** USER ADDED INTO ADMIN GROUP
+  describe('When new user added in admin group', () => {
     //****************************** CONNECTION CONTROLLER
 
     describe('Connection controller', () => {
       describe('GET /connections/', () => {
         it('should return connections, where second user have access', async () => {
           try {
-            await createConnectionsAndInviteNewUserInNewGroupInFirstConnection();
+            await createConnectionsAndInviteNewUserInAdminGroupOfFirstConnection();
             const findAll = await request(app.getHttpServer())
               .get('/connections')
               .set('Content-Type', 'application/json')
               .set('Cookie', simpleUserToken)
               .set('Accept', 'application/json');
-            const findAllRo = JSON.parse(findAll.text);
+
             expect(findAll.status).toBe(200);
 
             const result = findAll.body.connections;
@@ -366,7 +305,7 @@ describe('User permissions (connection readonly, group readonly) (e2e)', () => {
 
       describe('GET /connection/one/:slug', () => {
         it('should return a found connection', async () => {
-          const connectionIds = await createConnectionsAndInviteNewUserInNewGroupInFirstConnection();
+          const connectionIds = await createConnectionsAndInviteNewUserInAdminGroupOfFirstConnection();
           try {
             const searchedConnectionId = connectionIds.firstId;
             const findOneResponce = await request(app.getHttpServer())
@@ -397,7 +336,7 @@ describe('User permissions (connection readonly, group readonly) (e2e)', () => {
         });
 
         it('should throw an exception, when you do not have permission in this connection', async () => {
-          const connectionIds = await createConnectionsAndInviteNewUserInNewGroupInFirstConnection();
+          const connectionIds = await createConnectionsAndInviteNewUserInAdminGroupOfFirstConnection();
           try {
             const searchedConnectionId = connectionIds.secondId;
             const findOneResponce = await request(app.getHttpServer())
@@ -415,8 +354,8 @@ describe('User permissions (connection readonly, group readonly) (e2e)', () => {
       });
 
       describe('PUT /connection', () => {
-        it('should throw exception you do not have permission', async () => {
-          const connectionIds = await createConnectionsAndInviteNewUserInNewGroupInFirstConnection();
+        it('should return updated connection', async () => {
+          const connectionIds = await createConnectionsAndInviteNewUserInAdminGroupOfFirstConnection();
           try {
             const updateConnectionResponse = await request(app.getHttpServer())
               .put(`/connection/${connectionIds.firstId}`)
@@ -425,15 +364,28 @@ describe('User permissions (connection readonly, group readonly) (e2e)', () => {
               .set('Content-Type', 'application/json')
               .set('Accept', 'application/json');
 
-            expect(updateConnectionResponse.status).toBe(403);
-            expect(JSON.parse(updateConnectionResponse.text).message).toBe(Messages.DONT_HAVE_PERMISSIONS);
+            expect(updateConnectionResponse.status).toBe(200);
+            const result = updateConnectionResponse.body.connection;
+            expect(uuidRegex.test(result.id)).toBe(true);
+            expect(result.title).toBe('Updated Test Connection');
+            expect(result.type).toBe('postgres');
+            expect(result.host).toBe('testing_nestjs');
+            expect(typeof result.port).toBe('number');
+            expect(result.port).toBe(5432);
+            expect(result.username).toBe('admin');
+            expect(result.database).toBe('testing_nestjs');
+            expect(result.sid).toBe(null);
+            expect(result.hasOwnProperty('createdAt')).toBe(true);
+            expect(result.hasOwnProperty('updatedAt')).toBe(true);
+            expect(result.hasOwnProperty('password')).toBe(false);
+            expect(result.hasOwnProperty('groups')).toBe(false);
           } catch (err) {
             throw err;
           }
         });
 
         it('should return throw an exception, when you try update a connection without permissions in it', async () => {
-          const connectionIds = await createConnectionsAndInviteNewUserInNewGroupInFirstConnection();
+          const connectionIds = await createConnectionsAndInviteNewUserInAdminGroupOfFirstConnection();
           try {
             const updateConnectionResponse = await request(app.getHttpServer())
               .put(`/connection/${connectionIds.secondId}`)
@@ -451,26 +403,44 @@ describe('User permissions (connection readonly, group readonly) (e2e)', () => {
       });
 
       describe('DELETE /connection/:slug', () => {
-        it('should throw an exception do not have permissions', async () => {
+        it('should return delete result', async () => {
           try {
-            const connectionsIds = await createConnectionsAndInviteNewUserInNewGroupInFirstConnection();
+            const connectionsIds = await createConnectionsAndInviteNewUserInAdminGroupOfFirstConnection();
             const response = await request(app.getHttpServer())
               .put(`/connection/delete/${connectionsIds.firstId}`)
               .set('Cookie', simpleUserToken)
               .set('Content-Type', 'application/json')
               .set('Accept', 'application/json');
-            expect(response.status).toBe(403);
-            expect(JSON.parse(response.text).message).toBe(Messages.DONT_HAVE_PERMISSIONS);
 
-            //deleted connection found in database
+            const result = response.body;
+
+            //deleted connection not found in database
             const findOneResponce = await request(app.getHttpServer())
               .get(`/connection/one/${connectionsIds.firstId}`)
               .set('Cookie', simpleUserToken)
               .set('Content-Type', 'application/json')
               .set('Accept', 'application/json');
 
-            expect(findOneResponce.status).toBe(200);
-            expect(JSON.parse(findOneResponce.text).connection.id).toBe(connectionsIds.firstId);
+            expect(findOneResponce.status).toBe(403);
+            const { message } = JSON.parse(findOneResponce.text);
+            expect(message).toBe(Messages.DONT_HAVE_PERMISSIONS);
+
+            expect(response.status).toBe(200);
+
+            expect(result.hasOwnProperty('id')).toBe(false);
+            expect(result.title).toBe(newConnection.title);
+            expect(result.type).toBe('postgres');
+            expect(result.host).toBe(newConnection.host);
+            expect(typeof result.port).toBe('number');
+            expect(result.port).toBe(newConnection.port);
+            expect(result.username).toBe('postgres');
+            expect(result.database).toBe(newConnection.database);
+            expect(result.sid).toBe(null);
+            expect(result.hasOwnProperty('createdAt')).toBe(true);
+            expect(result.hasOwnProperty('updatedAt')).toBe(true);
+            expect(result.hasOwnProperty('password')).toBe(false);
+            expect(result.hasOwnProperty('groups')).toBe(false);
+            expect(result.hasOwnProperty('author')).toBe(false);
           } catch (err) {
             throw err;
           }
@@ -478,7 +448,7 @@ describe('User permissions (connection readonly, group readonly) (e2e)', () => {
 
         it('should throw an exception, when you try to delete connection without permission', async () => {
           try {
-            const connectionsIds = await createConnectionsAndInviteNewUserInNewGroupInFirstConnection();
+            const connectionsIds = await createConnectionsAndInviteNewUserInAdminGroupOfFirstConnection();
             const response = await request(app.getHttpServer())
               .put(`/connection/delete/${connectionsIds.secondId}`)
               .set('Cookie', simpleUserToken)
@@ -502,9 +472,9 @@ describe('User permissions (connection readonly, group readonly) (e2e)', () => {
       });
 
       describe('POST /connection/group/:slug', () => {
-        it('should throw an exception don not have permission', async () => {
+        it('should return a created group', async () => {
           try {
-            const connectionIDs = await createConnectionsAndInviteNewUserInNewGroupInFirstConnection();
+            const connectionIDs = await createConnectionsAndInviteNewUserInAdminGroupOfFirstConnection();
 
             const createGroupResponse = await request(app.getHttpServer())
               .post(`/connection/group/${connectionIDs.firstId}`)
@@ -513,8 +483,16 @@ describe('User permissions (connection readonly, group readonly) (e2e)', () => {
               .set('Content-Type', 'application/json')
               .set('Accept', 'application/json');
 
-            expect(createGroupResponse.status).toBe(403);
-            expect(JSON.parse(createGroupResponse.text).message).toBe(Messages.DONT_HAVE_PERMISSIONS);
+            expect(createGroupResponse.status).toBe(201);
+            const result = JSON.parse(createGroupResponse.text);
+            expect(uuidRegex.test(result.id)).toBe(true);
+            expect(result.title).toBe('Generated test group DTO 1');
+            expect(result.hasOwnProperty('users')).toBe(true);
+            expect(typeof result.users).toBe('object');
+            expect(result.users.length).toBe(1);
+            expect(result.users[0].email).toBe(simpleUserRegisterInfo.email);
+            expect(result.users[0].isActive).toBe(false);
+            expect(uuidRegex.test(result.users[0].id)).toBe(true);
           } catch (err) {
             throw err;
           }
@@ -522,7 +500,7 @@ describe('User permissions (connection readonly, group readonly) (e2e)', () => {
 
         it('should throw an exception when you try add group in connection without permission in it', async () => {
           try {
-            const connectionIDs = await createConnectionsAndInviteNewUserInNewGroupInFirstConnection();
+            const connectionIDs = await createConnectionsAndInviteNewUserInAdminGroupOfFirstConnection();
 
             const createGroupResponse = await request(app.getHttpServer())
               .post(`/connection/group/${connectionIDs.secondId}`)
@@ -542,25 +520,26 @@ describe('User permissions (connection readonly, group readonly) (e2e)', () => {
       describe('PUT /connection/group/delete/:slug', () => {
         it('should return connection without deleted group result', async () => {
           try {
-            const connectionIds = await createConnectionsAndInviteNewUserInNewGroupInFirstConnection();
-            const newGroup1 = MockFactory.generateCreateGroupDtoWithRandomTitle();
+            const connectionIds = await createConnectionsAndInviteNewUserInAdminGroupOfFirstConnection();
+
             const createGroupResponse = await request(app.getHttpServer())
               .post(`/connection/group/${connectionIds.firstId}`)
-              .set('Cookie', connectionAdminUserToken)
+              .set('Cookie', simpleUserToken)
               .send(newGroup1)
               .set('Content-Type', 'application/json')
               .set('Accept', 'application/json');
 
             // create group in connection
             let result = createGroupResponse.body;
+
             expect(createGroupResponse.status).toBe(201);
 
             expect(result.hasOwnProperty('id')).toBe(true);
-            expect(result.title).toBe(newGroup1.title);
+            expect(result.title).toBe('Generated test group DTO 1');
 
             const createGroupRO = JSON.parse(createGroupResponse.text);
 
-            const response = await request(app.getHttpServer())
+            let response = await request(app.getHttpServer())
               .put(`/connection/group/delete/${connectionIds.firstId}`)
               .set('Cookie', simpleUserToken)
               .send({ groupId: createGroupRO.id })
@@ -569,9 +548,34 @@ describe('User permissions (connection readonly, group readonly) (e2e)', () => {
 
             //after deleting group
             result = response.body;
+            expect(response.status).toBe(200);
+            expect(result.hasOwnProperty('title')).toBe(true);
+            expect(result.title).toBe(createGroupRO.title);
+            expect(result.isMain).toBeFalsy();
+            // check that group was deleted
 
-            expect(response.status).toBe(403);
-            expect(JSON.parse(response.text).message).toBe(Messages.DONT_HAVE_PERMISSIONS);
+            response = await request(app.getHttpServer())
+              .get(`/connection/groups/${connectionIds.firstId}`)
+              .set('Cookie', simpleUserToken)
+              .set('Content-Type', 'application/json')
+              .set('Accept', 'application/json');
+            console.log('-> response', response);
+
+            expect(response.status).toBe(200);
+            result = JSON.parse(response.text);
+            expect(result.length).toBe(1);
+            const groupId = result[0].group.id;
+            expect(uuidRegex.test(groupId)).toBe(true);
+            expect(result[0].group.hasOwnProperty('title')).toBeTruthy();
+            expect(result[0].accessLevel).toBe(AccessLevelEnum.edit);
+
+            const index = result
+              .map((e) => {
+                return e.group.title;
+              })
+              .indexOf('Admin');
+
+            expect(index >= 0).toBe(true);
           } catch (err) {
             throw err;
           }
@@ -579,7 +583,7 @@ describe('User permissions (connection readonly, group readonly) (e2e)', () => {
 
         it('should throw an exception, when you try delete group in connection without permissions', async () => {
           try {
-            const connectionIds = await createConnectionsAndInviteNewUserInNewGroupInFirstConnection();
+            const connectionIds = await createConnectionsAndInviteNewUserInAdminGroupOfFirstConnection();
 
             const createGroupResponse = await request(app.getHttpServer())
               .post(`/connection/group/${connectionIds.secondId}`)
@@ -616,12 +620,12 @@ describe('User permissions (connection readonly, group readonly) (e2e)', () => {
       describe('GET /connection/groups/:slug', () => {
         it('should groups in connection', async () => {
           try {
-            const connectionIds = await createConnectionsAndInviteNewUserInNewGroupInFirstConnection();
+            const connectionIds = await createConnectionsAndInviteNewUserInAdminGroupOfFirstConnection();
 
             const createGroupResponse = await request(app.getHttpServer())
               .post(`/connection/group/${connectionIds.firstId}`)
-              .set('Cookie', connectionAdminUserToken)
-              .send(newRandomGroup2)
+              .set('Cookie', simpleUserToken)
+              .send(newGroup1)
               .set('Content-Type', 'application/json')
               .set('Accept', 'application/json');
 
@@ -637,8 +641,8 @@ describe('User permissions (connection readonly, group readonly) (e2e)', () => {
             const result = JSON.parse(response.text);
             const groupId = result[0].group.id;
             expect(uuidRegex.test(groupId)).toBe(true);
-            expect(result[0].group.hasOwnProperty('title')).toBeTruthy();
-            expect(result[0].accessLevel).toBe(AccessLevelEnum.readonly);
+            expect(result[1].group.hasOwnProperty('title')).toBeTruthy();
+            expect(result[0].accessLevel).toBe(AccessLevelEnum.edit);
 
             const index = result
               .map((e) => {
@@ -646,7 +650,7 @@ describe('User permissions (connection readonly, group readonly) (e2e)', () => {
               })
               .indexOf('Admin');
 
-            expect(index >= 0).toBe(false);
+            expect(index >= 0).toBe(true);
           } catch (err) {
             throw err;
           }
@@ -654,7 +658,7 @@ describe('User permissions (connection readonly, group readonly) (e2e)', () => {
 
         it('it should throw an exception, when you try get groups in connection, where you do not have permission', async () => {
           try {
-            const connectionIds = await createConnectionsAndInviteNewUserInNewGroupInFirstConnection();
+            const connectionIds = await createConnectionsAndInviteNewUserInAdminGroupOfFirstConnection();
 
             const createGroupResponse = await request(app.getHttpServer())
               .post(`/connection/group/${connectionIds.secondId}`)
@@ -683,7 +687,7 @@ describe('User permissions (connection readonly, group readonly) (e2e)', () => {
       describe('GET /connection/permissions', () => {
         it('should return permissions object for current group in current connection', async () => {
           try {
-            const connectionIds = await createConnectionsAndInviteNewUserInNewGroupInFirstConnection();
+            const connectionIds = await createConnectionsAndInviteNewUserInAdminGroupOfFirstConnection();
             const getGroupsResponse = await request(app.getHttpServer())
               .get(`/connection/groups/${connectionIds.firstId}`)
               .set('Cookie', simpleUserToken)
@@ -708,19 +712,24 @@ describe('User permissions (connection readonly, group readonly) (e2e)', () => {
             expect(typeof result.group).toBe('object');
             expect(result.connection.connectionId).toBe(connectionIds.firstId);
             expect(result.group.groupId).toBe(groupId);
-            expect(result.connection.accessLevel).toBe(AccessLevelEnum.readonly);
-            expect(result.group.accessLevel).toBe(AccessLevelEnum.readonly);
+            expect(result.connection.accessLevel).toBe(AccessLevelEnum.edit);
+            expect(result.group.accessLevel).toBe(AccessLevelEnum.edit);
             expect(typeof result.tables).toBe('object');
 
             const { tables } = result;
             expect(tables.length).toBe(1);
             expect(typeof tables[0]).toBe('object');
             expect(tables[0].hasOwnProperty('accessLevel')).toBe(true);
-            expect(tables[0].accessLevel.visibility).toBe(tablePermissions.visibility);
-            expect(tables[0].accessLevel.readonly).toBe(tablePermissions.readonly);
-            expect(tables[0].accessLevel.add).toBe(tablePermissions.add);
-            expect(tables[0].accessLevel.delete).toBe(tablePermissions.delete);
-            expect(tables[0].accessLevel.edit).toBe(tablePermissions.edit);
+            expect(tables[0].accessLevel.visibility).toBe(false);
+            expect(tables[0].accessLevel.readonly).toBe(false);
+            expect(tables[0].accessLevel.add).toBe(false);
+            expect(tables[0].accessLevel.delete).toBe(false);
+            expect(tables[0].accessLevel.edit).toBe(false);
+            expect(tables[0].accessLevel.readonly).toBe(false);
+            expect(tables[0].accessLevel.add).toBe(false);
+            expect(tables[0].accessLevel.visibility).toBe(false);
+            expect(tables[0].accessLevel.readonly).toBe(false);
+            expect(tables[0].accessLevel.edit).toBe(false);
           } catch (err) {
             throw err;
           }
@@ -728,7 +737,7 @@ describe('User permissions (connection readonly, group readonly) (e2e)', () => {
 
         xit('should throw an exception, when you try get...', async () => {
           try {
-            const connectionIds = await createConnectionsAndInviteNewUserInNewGroupInFirstConnection();
+            const connectionIds = await createConnectionsAndInviteNewUserInAdminGroupOfFirstConnection();
             const getGroupsResponse = await request(app.getHttpServer())
               .get(`/connection/groups/${connectionIds.secondId}`)
               .set('Cookie', connectionAdminUserToken)
@@ -788,7 +797,7 @@ describe('User permissions (connection readonly, group readonly) (e2e)', () => {
       describe('GET /connection/user/permissions', () => {
         it('should return permissions object for current group in current connection', async () => {
           try {
-            const connectionIds = await createConnectionsAndInviteNewUserInNewGroupInFirstConnection();
+            const connectionIds = await createConnectionsAndInviteNewUserInAdminGroupOfFirstConnection();
             const getGroupsResponse = await request(app.getHttpServer())
               .get(`/connection/groups/${connectionIds.firstId}`)
               .set('Cookie', simpleUserToken)
@@ -803,6 +812,7 @@ describe('User permissions (connection readonly, group readonly) (e2e)', () => {
               .set('Cookie', simpleUserToken)
               .set('Content-Type', 'application/json')
               .set('Accept', 'application/json');
+
             expect(response.status).toBe(200);
             const result = JSON.parse(response.text);
 
@@ -813,19 +823,24 @@ describe('User permissions (connection readonly, group readonly) (e2e)', () => {
             expect(typeof result.group).toBe('object');
             expect(result.connection.connectionId).toBe(connectionIds.firstId);
             expect(result.group.groupId).toBe(groupId);
-            expect(result.connection.accessLevel).toBe(AccessLevelEnum.readonly);
-            expect(result.group.accessLevel).toBe(AccessLevelEnum.readonly);
+            expect(result.connection.accessLevel).toBe(AccessLevelEnum.edit);
+            expect(result.group.accessLevel).toBe(AccessLevelEnum.edit);
             expect(typeof result.tables).toBe('object');
 
             const { tables } = result;
             expect(tables.length).toBe(1);
             expect(typeof tables[0]).toBe('object');
             expect(tables[0].hasOwnProperty('accessLevel')).toBe(true);
-            expect(tables[0].accessLevel.visibility).toBe(tablePermissions.visibility);
-            expect(tables[0].accessLevel.readonly).toBe(tablePermissions.readonly);
-            expect(tables[0].accessLevel.add).toBe(tablePermissions.add);
-            expect(tables[0].accessLevel.delete).toBe(tablePermissions.delete);
-            expect(tables[0].accessLevel.edit).toBe(tablePermissions.edit);
+            expect(tables[0].accessLevel.visibility).toBe(true);
+            expect(tables[0].accessLevel.readonly).toBe(false);
+            expect(tables[0].accessLevel.add).toBe(true);
+            expect(tables[0].accessLevel.delete).toBe(true);
+            expect(tables[0].accessLevel.edit).toBe(true);
+            expect(tables[0].accessLevel.readonly).toBe(false);
+            expect(tables[0].accessLevel.add).toBe(true);
+            expect(tables[0].accessLevel.visibility).toBe(true);
+            expect(tables[0].accessLevel.readonly).toBe(false);
+            expect(tables[0].accessLevel.edit).toBe(true);
           } catch (err) {
             throw err;
           }
@@ -833,7 +848,7 @@ describe('User permissions (connection readonly, group readonly) (e2e)', () => {
 
         it('should return permissions object for current group in current connection for current user', async () => {
           try {
-            const connectionIds = await createConnectionsAndInviteNewUserInNewGroupInFirstConnection();
+            const connectionIds = await createConnectionsAndInviteNewUserInAdminGroupOfFirstConnection();
             const getGroupsResponse = await request(app.getHttpServer())
               .get(`/connection/groups/${connectionIds.secondId}`)
               .set('Cookie', connectionAdminUserToken)
@@ -886,7 +901,7 @@ describe('User permissions (connection readonly, group readonly) (e2e)', () => {
     describe('Group controller', () => {
       describe('GET /groups/', () => {
         it('should return found groups with current user', async () => {
-          await createConnectionsAndInviteNewUserInNewGroupInFirstConnection();
+          await createConnectionsAndInviteNewUserInAdminGroupOfFirstConnection();
           const getGroupsResponse = await request(app.getHttpServer())
             .get(`/groups/`)
             .set('Cookie', simpleUserToken)
@@ -907,7 +922,7 @@ describe('User permissions (connection readonly, group readonly) (e2e)', () => {
 
       describe('GET /group/users/:slug', () => {
         it('it should return users in group', async () => {
-          const connectionIds = await createConnectionsAndInviteNewUserInNewGroupInFirstConnection();
+          const connectionIds = await createConnectionsAndInviteNewUserInAdminGroupOfFirstConnection();
           const getGroupsResponse = await request(app.getHttpServer())
             .get(`/connection/groups/${connectionIds.firstId}`)
             .set('Cookie', connectionAdminUserToken)
@@ -915,10 +930,31 @@ describe('User permissions (connection readonly, group readonly) (e2e)', () => {
             .set('Accept', 'application/json');
           expect(getGroupsResponse.status).toBe(200);
           const getGroupsRO = JSON.parse(getGroupsResponse.text);
-          const nonAdminGroupIndex = getGroupsRO.findIndex((element) => {
-            return !element.group.isMain;
-          });
-          const groupId = getGroupsRO[nonAdminGroupIndex].group.id;
+
+          const groupId = getGroupsRO[0].group.id;
+
+          AWSMock.restore('CognitoIdentityServiceProvider');
+          AWSMock.setSDKInstance(AWS);
+          AWSMock.mock(
+            'CognitoIdentityServiceProvider',
+            'listUsers',
+            (newCognitoUserName, callback: (...args: any) => void) => {
+              callback(null, {
+                Users: [
+                  {
+                    Attributes: [
+                      {},
+                      {},
+                      {
+                        Name: 'email',
+                        Value: 'Example@gmail.com',
+                      },
+                    ],
+                  },
+                ],
+              });
+            },
+          );
 
           const response = await request(app.getHttpServer())
             .get(`/group/users/${groupId}`)
@@ -935,7 +971,7 @@ describe('User permissions (connection readonly, group readonly) (e2e)', () => {
         });
 
         it('it should throw an exception when you try to receive user in group where you dont have permission', async () => {
-          const connectionIds = await createConnectionsAndInviteNewUserInNewGroupInFirstConnection();
+          const connectionIds = await createConnectionsAndInviteNewUserInAdminGroupOfFirstConnection();
           const getGroupsResponse = await request(app.getHttpServer())
             .get(`/connection/groups/${connectionIds.secondId}`)
             .set('Cookie', connectionAdminUserToken)
@@ -958,7 +994,7 @@ describe('User permissions (connection readonly, group readonly) (e2e)', () => {
 
       describe('PUT /group/user', () => {
         it('should return group with added user', async () => {
-          const connectionIds = await createConnectionsAndInviteNewUserInNewGroupInFirstConnection();
+          const connectionIds = await createConnectionsAndInviteNewUserInAdminGroupOfFirstConnection();
           const getGroupsResponse = await request(app.getHttpServer())
             .get(`/connection/groups/${connectionIds.firstId}`)
             .set('Cookie', simpleUserToken)
@@ -969,20 +1005,53 @@ describe('User permissions (connection readonly, group readonly) (e2e)', () => {
           const getGroupsRO = JSON.parse(getGroupsResponse.text);
 
           const groupId = getGroupsRO[0].group.id;
-          const email = thirdUserRegisterInfo.email;
+          AWSMock.restore('CognitoIdentityServiceProvider');
+          AWSMock.setSDKInstance(AWS);
+          AWSMock.mock(
+            'CognitoIdentityServiceProvider',
+            'listUsers',
+            (newCognitoUserName, callback: (...args: any) => void) => {
+              callback(null, {
+                Users: [
+                  {
+                    Username: TestConstants.THIRD_TEST_USER.sub,
+                    Attributes: [
+                      {},
+                      {
+                        Name: 'sub',
+                        Value: TestConstants.THIRD_TEST_USER.sub,
+                      },
+                      {
+                        Name: 'email',
+                        Value: TestConstants.THIRD_TEST_USER.email,
+                      },
+                    ],
+                  },
+                ],
+              });
+            },
+          );
+          const email = TestConstants.THIRD_TEST_USER.email;
           const addUserInGroupResponse = await request(app.getHttpServer())
             .put('/group/user')
             .set('Cookie', simpleUserToken)
             .send({ groupId, email })
             .set('Content-Type', 'application/json')
             .set('Accept', 'application/json');
-          expect(addUserInGroupResponse.status).toBe(403);
-          const addUserInGroupRO = JSON.parse(addUserInGroupResponse.text);
-          expect(addUserInGroupRO.message).toBe(Messages.DONT_HAVE_PERMISSIONS);
+          const addUserInGroupRO = JSON.parse(addUserInGroupResponse.text).group;
+          expect(uuidRegex.test(addUserInGroupRO.id)).toBeTruthy();
+          expect(addUserInGroupRO.hasOwnProperty('title')).toBeTruthy();
+          expect(addUserInGroupRO.hasOwnProperty('isMain')).toBeTruthy();
+          expect(addUserInGroupRO.hasOwnProperty('users')).toBeTruthy();
+          const { users } = addUserInGroupRO;
+          expect(users.length).toBe(3);
+          expect(users[0].id === users[1].id).toBeFalsy();
+          expect(users[1].id === users[2].id).toBeFalsy();
+          expect(users[2].id === users[0].id).toBeFalsy();
         });
 
         it('should throw exception, when user email not passed in request', async () => {
-          const connectionIds = await createConnectionsAndInviteNewUserInNewGroupInFirstConnection();
+          const connectionIds = await createConnectionsAndInviteNewUserInAdminGroupOfFirstConnection();
           const getGroupsResponse = await request(app.getHttpServer())
             .get(`/connection/groups/${connectionIds.firstId}`)
             .set('Cookie', simpleUserToken)
@@ -993,8 +1062,33 @@ describe('User permissions (connection readonly, group readonly) (e2e)', () => {
           const getGroupsRO = JSON.parse(getGroupsResponse.text);
 
           const groupId = getGroupsRO[0].group.id;
-
-          const email = thirdUserRegisterInfo.email;
+          AWSMock.restore('CognitoIdentityServiceProvider');
+          AWSMock.setSDKInstance(AWS);
+          AWSMock.mock(
+            'CognitoIdentityServiceProvider',
+            'listUsers',
+            (newCognitoUserName, callback: (...args: any) => void) => {
+              callback(null, {
+                Users: [
+                  {
+                    Username: TestConstants.THIRD_TEST_USER.sub,
+                    Attributes: [
+                      {},
+                      {
+                        Name: 'sub',
+                        Value: TestConstants.THIRD_TEST_USER.sub,
+                      },
+                      {
+                        Name: 'email',
+                        Value: TestConstants.THIRD_TEST_USER.email,
+                      },
+                    ],
+                  },
+                ],
+              });
+            },
+          );
+          const email = TestConstants.THIRD_TEST_USER.email;
           const addUserInGroupResponse = await request(app.getHttpServer())
             .put('/group/user')
             .set('Cookie', simpleUserToken)
@@ -1002,12 +1096,12 @@ describe('User permissions (connection readonly, group readonly) (e2e)', () => {
             .set('Content-Type', 'application/json')
             .set('Accept', 'application/json');
           const addUserInGroupRO = JSON.parse(addUserInGroupResponse.text);
-          expect(addUserInGroupResponse.status).toBe(403);
-          expect(addUserInGroupRO.message).toBe(Messages.DONT_HAVE_PERMISSIONS);
+          expect(addUserInGroupResponse.status).toBe(400);
+          expect(addUserInGroupRO.message).toBe(Messages.USER_EMAIL_MISSING);
         });
 
         it('should throw exception, when group id not passed in request', async () => {
-          const connectionIds = await createConnectionsAndInviteNewUserInNewGroupInFirstConnection();
+          const connectionIds = await createConnectionsAndInviteNewUserInAdminGroupOfFirstConnection();
           const getGroupsResponse = await request(app.getHttpServer())
             .get(`/connection/groups/${connectionIds.firstId}`)
             .set('Cookie', simpleUserToken)
@@ -1018,7 +1112,33 @@ describe('User permissions (connection readonly, group readonly) (e2e)', () => {
           const getGroupsRO = JSON.parse(getGroupsResponse.text);
 
           const groupId = getGroupsRO[0].group.id;
-          const email = thirdUserRegisterInfo.email;
+          AWSMock.restore('CognitoIdentityServiceProvider');
+          AWSMock.setSDKInstance(AWS);
+          AWSMock.mock(
+            'CognitoIdentityServiceProvider',
+            'listUsers',
+            (newCognitoUserName, callback: (...args: any) => void) => {
+              callback(null, {
+                Users: [
+                  {
+                    Username: TestConstants.THIRD_TEST_USER.sub,
+                    Attributes: [
+                      {},
+                      {
+                        Name: 'sub',
+                        Value: TestConstants.THIRD_TEST_USER.sub,
+                      },
+                      {
+                        Name: 'email',
+                        Value: TestConstants.THIRD_TEST_USER.email,
+                      },
+                    ],
+                  },
+                ],
+              });
+            },
+          );
+          const email = TestConstants.THIRD_TEST_USER.email;
           const addUserInGroupResponse = await request(app.getHttpServer())
             .put('/group/user')
             .set('Cookie', simpleUserToken)
@@ -1031,7 +1151,7 @@ describe('User permissions (connection readonly, group readonly) (e2e)', () => {
         });
 
         it('should throw exception, when group id passed in request is incorrect', async () => {
-          const connectionIds = await createConnectionsAndInviteNewUserInNewGroupInFirstConnection();
+          const connectionIds = await createConnectionsAndInviteNewUserInAdminGroupOfFirstConnection();
           const getGroupsResponse = await request(app.getHttpServer())
             .get(`/connection/groups/${connectionIds.firstId}`)
             .set('Cookie', simpleUserToken)
@@ -1041,8 +1161,34 @@ describe('User permissions (connection readonly, group readonly) (e2e)', () => {
           expect(getGroupsResponse.status).toBe(200);
           const getGroupsRO = JSON.parse(getGroupsResponse.text);
 
-          const email = thirdUserRegisterInfo.email;
-          const groupId = faker.random.uuid();
+          AWSMock.restore('CognitoIdentityServiceProvider');
+          AWSMock.setSDKInstance(AWS);
+          AWSMock.mock(
+            'CognitoIdentityServiceProvider',
+            'listUsers',
+            (newCognitoUserName, callback: (...args: any) => void) => {
+              callback(null, {
+                Users: [
+                  {
+                    Username: TestConstants.THIRD_TEST_USER.sub,
+                    Attributes: [
+                      {},
+                      {
+                        Name: 'sub',
+                        Value: TestConstants.THIRD_TEST_USER.sub,
+                      },
+                      {
+                        Name: 'email',
+                        Value: TestConstants.THIRD_TEST_USER.email,
+                      },
+                    ],
+                  },
+                ],
+              });
+            },
+          );
+          const email = TestConstants.THIRD_TEST_USER.email;
+          const groupId = faker.datatype.uuid();
           const addUserInGroupResponse = await request(app.getHttpServer())
             .put('/group/user')
             .set('Cookie', simpleUserToken)
@@ -1057,28 +1203,35 @@ describe('User permissions (connection readonly, group readonly) (e2e)', () => {
 
       describe('DELETE /group/:slug', () => {
         it('should delete result after group deletion', async () => {
-          const connectionIds = await createConnectionsAndInviteNewUserInNewGroupInFirstConnection();
+          const connectionIds = await createConnectionsAndInviteNewUserInAdminGroupOfFirstConnection();
           const getGroupsResponse = await request(app.getHttpServer())
             .get(`/connection/groups/${connectionIds.firstId}`)
             .set('Cookie', simpleUserToken)
             .set('Content-Type', 'application/json')
             .set('Accept', 'application/json');
 
+          const createGroupResponse = await request(app.getHttpServer())
+            .post(`/connection/group/${connectionIds.firstId}`)
+            .set('Cookie', simpleUserToken)
+            .send(newGroup1)
+            .set('Content-Type', 'application/json')
+            .set('Accept', 'application/json');
+
           expect(getGroupsResponse.status).toBe(200);
 
-          const groupId = JSON.parse(getGroupsResponse.text)[0].group.id;
+          const groupId = JSON.parse(createGroupResponse.text).id;
           const deleteGroupResponse = await request(app.getHttpServer())
             .delete(`/group/${groupId}`)
             .set('Cookie', simpleUserToken)
             .set('Content-Type', 'application/json')
             .set('Accept', 'application/json');
-          expect(deleteGroupResponse.status).toBe(403);
           const deleteGroupRO = JSON.parse(deleteGroupResponse.text);
-          expect(deleteGroupRO.message).toBe(Messages.DONT_HAVE_PERMISSIONS);
+          expect(deleteGroupRO.title).toBe('Generated test group DTO 1');
+          expect(deleteGroupRO.isMain).toBeFalsy();
         });
 
-        xit('should throw an exception when you try delete admin group', async () => {
-          const connectionIds = await createConnectionsAndInviteNewUserInNewGroupInFirstConnection();
+        it('should throw an exception when you try delete admin group', async () => {
+          const connectionIds = await createConnectionsAndInviteNewUserInAdminGroupOfFirstConnection();
           const getGroupsResponse = await request(app.getHttpServer())
             .get(`/connection/groups/${connectionIds.firstId}`)
             .set('Cookie', simpleUserToken)
@@ -1087,7 +1240,7 @@ describe('User permissions (connection readonly, group readonly) (e2e)', () => {
 
           expect(getGroupsResponse.status).toBe(200);
           const getGroupsRO = JSON.parse(getGroupsResponse.text);
-          const adminGroupIndex = getGroupsRO.findIndex;
+
           const groupId = getGroupsRO[0].group.id;
           const deleteGroupResponse = await request(app.getHttpServer())
             .delete(`/group/${groupId}`)
@@ -1099,7 +1252,7 @@ describe('User permissions (connection readonly, group readonly) (e2e)', () => {
         });
 
         it('should throw an exception when group id not passed in request', async () => {
-          const connectionIds = await createConnectionsAndInviteNewUserInNewGroupInFirstConnection();
+          const connectionIds = await createConnectionsAndInviteNewUserInAdminGroupOfFirstConnection();
           const getGroupsResponse = await request(app.getHttpServer())
             .get(`/connection/groups/${connectionIds.firstId}`)
             .set('Cookie', simpleUserToken)
@@ -1119,7 +1272,7 @@ describe('User permissions (connection readonly, group readonly) (e2e)', () => {
         });
 
         it('should throw an exception when group id passed in request is incorrect', async () => {
-          const connectionIds = await createConnectionsAndInviteNewUserInNewGroupInFirstConnection();
+          const connectionIds = await createConnectionsAndInviteNewUserInAdminGroupOfFirstConnection();
           const getGroupsResponse = await request(app.getHttpServer())
             .get(`/connection/groups/${connectionIds.firstId}`)
             .set('Cookie', simpleUserToken)
@@ -1128,7 +1281,7 @@ describe('User permissions (connection readonly, group readonly) (e2e)', () => {
 
           expect(getGroupsResponse.status).toBe(200);
 
-          const groupId = faker.random.uuid();
+          const groupId = faker.datatype.uuid();
           const deleteGroupResponse = await request(app.getHttpServer())
             .delete(`/group/${groupId}`)
             .set('Cookie', simpleUserToken)
@@ -1141,7 +1294,7 @@ describe('User permissions (connection readonly, group readonly) (e2e)', () => {
 
       describe('PUT /group/user/delete', () => {
         it('should return group without deleted user', async () => {
-          const connectionIds = await createConnectionsAndInviteNewUserInNewGroupInFirstConnection();
+          const connectionIds = await createConnectionsAndInviteNewUserInAdminGroupOfFirstConnection();
           const getGroupsResponse = await request(app.getHttpServer())
             .get(`/connection/groups/${connectionIds.firstId}`)
             .set('Cookie', simpleUserToken)
@@ -1152,11 +1305,36 @@ describe('User permissions (connection readonly, group readonly) (e2e)', () => {
           const getGroupsRO = JSON.parse(getGroupsResponse.text);
 
           const groupId = getGroupsRO[0].group.id;
-
-          const email = thirdUserRegisterInfo.email;
+          AWSMock.restore('CognitoIdentityServiceProvider');
+          AWSMock.setSDKInstance(AWS);
+          AWSMock.mock(
+            'CognitoIdentityServiceProvider',
+            'listUsers',
+            (newCognitoUserName, callback: (...args: any) => void) => {
+              callback(null, {
+                Users: [
+                  {
+                    Username: TestConstants.THIRD_TEST_USER.sub,
+                    Attributes: [
+                      {},
+                      {
+                        Name: 'sub',
+                        Value: TestConstants.THIRD_TEST_USER.sub,
+                      },
+                      {
+                        Name: 'email',
+                        Value: TestConstants.THIRD_TEST_USER.email,
+                      },
+                    ],
+                  },
+                ],
+              });
+            },
+          );
+          const email = TestConstants.THIRD_TEST_USER.email;
           const addUserInGroupResponse = await request(app.getHttpServer())
             .put('/group/user')
-            .set('Cookie', connectionAdminUserToken)
+            .set('Cookie', simpleUserToken)
             .send({ groupId, email })
             .set('Content-Type', 'application/json')
             .set('Accept', 'application/json');
@@ -1168,13 +1346,18 @@ describe('User permissions (connection readonly, group readonly) (e2e)', () => {
             .send({ groupId, email })
             .set('Content-Type', 'application/json')
             .set('Accept', 'application/json');
-          expect(deleteUserInGroupResponse.status).toBe(403);
           const deleteUserInGroupRO = JSON.parse(deleteUserInGroupResponse.text);
-          expect(deleteUserInGroupRO.message).toBe(Messages.DONT_HAVE_PERMISSIONS);
+          expect(uuidRegex.test(deleteUserInGroupRO.id)).toBeTruthy();
+          expect(deleteUserInGroupRO.hasOwnProperty('title')).toBeTruthy();
+          expect(deleteUserInGroupRO.hasOwnProperty('isMain')).toBeTruthy();
+          expect(deleteUserInGroupRO.hasOwnProperty('users')).toBeTruthy();
+          const { users } = deleteUserInGroupRO;
+          expect(users.length).toBe(2);
+          expect(users[0].id === users[1].id).toBeFalsy();
         });
 
         it('should throw exception, when user email not passed in request', async () => {
-          const connectionIds = await createConnectionsAndInviteNewUserInNewGroupInFirstConnection();
+          const connectionIds = await createConnectionsAndInviteNewUserInAdminGroupOfFirstConnection();
           const getGroupsResponse = await request(app.getHttpServer())
             .get(`/connection/groups/${connectionIds.firstId}`)
             .set('Cookie', simpleUserToken)
@@ -1185,11 +1368,36 @@ describe('User permissions (connection readonly, group readonly) (e2e)', () => {
           const getGroupsRO = JSON.parse(getGroupsResponse.text);
 
           const groupId = getGroupsRO[0].group.id;
-
-          const email = thirdUserRegisterInfo.email;
+          AWSMock.restore('CognitoIdentityServiceProvider');
+          AWSMock.setSDKInstance(AWS);
+          AWSMock.mock(
+            'CognitoIdentityServiceProvider',
+            'listUsers',
+            (newCognitoUserName, callback: (...args: any) => void) => {
+              callback(null, {
+                Users: [
+                  {
+                    Username: TestConstants.THIRD_TEST_USER.sub,
+                    Attributes: [
+                      {},
+                      {
+                        Name: 'sub',
+                        Value: TestConstants.THIRD_TEST_USER.sub,
+                      },
+                      {
+                        Name: 'email',
+                        Value: TestConstants.THIRD_TEST_USER.email,
+                      },
+                    ],
+                  },
+                ],
+              });
+            },
+          );
+          const email = TestConstants.THIRD_TEST_USER.email;
           const addUserInGroupResponse = await request(app.getHttpServer())
             .put('/group/user')
-            .set('Cookie', connectionAdminUserToken)
+            .set('Cookie', simpleUserToken)
             .send({ groupId, email })
             .set('Content-Type', 'application/json')
             .set('Accept', 'application/json');
@@ -1202,11 +1410,11 @@ describe('User permissions (connection readonly, group readonly) (e2e)', () => {
             .set('Content-Type', 'application/json')
             .set('Accept', 'application/json');
           const deleteUserInGroupRO = JSON.parse(deleteUserInGroupResponse.text);
-          expect(deleteUserInGroupRO.message).toBe(Messages.DONT_HAVE_PERMISSIONS);
+          expect(deleteUserInGroupRO.message).toBe(Messages.USER_EMAIL_MISSING);
         });
 
         it('should throw exception, when group id not passed in request', async () => {
-          const connectionIds = await createConnectionsAndInviteNewUserInNewGroupInFirstConnection();
+          const connectionIds = await createConnectionsAndInviteNewUserInAdminGroupOfFirstConnection();
           const getGroupsResponse = await request(app.getHttpServer())
             .get(`/connection/groups/${connectionIds.firstId}`)
             .set('Cookie', simpleUserToken)
@@ -1217,11 +1425,36 @@ describe('User permissions (connection readonly, group readonly) (e2e)', () => {
           const getGroupsRO = JSON.parse(getGroupsResponse.text);
 
           const groupId = getGroupsRO[0].group.id;
-
-          const email = thirdUserRegisterInfo.email;
+          AWSMock.restore('CognitoIdentityServiceProvider');
+          AWSMock.setSDKInstance(AWS);
+          AWSMock.mock(
+            'CognitoIdentityServiceProvider',
+            'listUsers',
+            (newCognitoUserName, callback: (...args: any) => void) => {
+              callback(null, {
+                Users: [
+                  {
+                    Username: TestConstants.THIRD_TEST_USER.sub,
+                    Attributes: [
+                      {},
+                      {
+                        Name: 'sub',
+                        Value: TestConstants.THIRD_TEST_USER.sub,
+                      },
+                      {
+                        Name: 'email',
+                        Value: TestConstants.THIRD_TEST_USER.email,
+                      },
+                    ],
+                  },
+                ],
+              });
+            },
+          );
+          const email = TestConstants.THIRD_TEST_USER.email;
           const addUserInGroupResponse = await request(app.getHttpServer())
             .put('/group/user')
-            .set('Cookie', connectionAdminUserToken)
+            .set('Cookie', simpleUserToken)
             .send({ groupId, email })
             .set('Content-Type', 'application/json')
             .set('Accept', 'application/json');
@@ -1238,7 +1471,7 @@ describe('User permissions (connection readonly, group readonly) (e2e)', () => {
         });
 
         it('should throw exception, when group id passed in request is incorrect', async () => {
-          const connectionIds = await createConnectionsAndInviteNewUserInNewGroupInFirstConnection();
+          const connectionIds = await createConnectionsAndInviteNewUserInAdminGroupOfFirstConnection();
           const getGroupsResponse = await request(app.getHttpServer())
             .get(`/connection/groups/${connectionIds.firstId}`)
             .set('Cookie', simpleUserToken)
@@ -1249,17 +1482,42 @@ describe('User permissions (connection readonly, group readonly) (e2e)', () => {
           const getGroupsRO = JSON.parse(getGroupsResponse.text);
 
           let groupId = getGroupsRO[0].group.id;
-
-          const email = thirdUserRegisterInfo.email;
+          AWSMock.restore('CognitoIdentityServiceProvider');
+          AWSMock.setSDKInstance(AWS);
+          AWSMock.mock(
+            'CognitoIdentityServiceProvider',
+            'listUsers',
+            (newCognitoUserName, callback: (...args: any) => void) => {
+              callback(null, {
+                Users: [
+                  {
+                    Username: TestConstants.THIRD_TEST_USER.sub,
+                    Attributes: [
+                      {},
+                      {
+                        Name: 'sub',
+                        Value: TestConstants.THIRD_TEST_USER.sub,
+                      },
+                      {
+                        Name: 'email',
+                        Value: TestConstants.THIRD_TEST_USER.email,
+                      },
+                    ],
+                  },
+                ],
+              });
+            },
+          );
+          const email = TestConstants.THIRD_TEST_USER.email;
           const addUserInGroupResponse = await request(app.getHttpServer())
             .put('/group/user')
-            .set('Cookie', connectionAdminUserToken)
+            .set('Cookie', simpleUserToken)
             .send({ groupId, email })
             .set('Content-Type', 'application/json')
             .set('Accept', 'application/json');
           expect(addUserInGroupResponse.status).toBe(200);
 
-          groupId = faker.random.uuid();
+          groupId = faker.datatype.uuid();
           const deleteUserInGroupResponse = await request(app.getHttpServer())
             .put('/group/user/delete')
             .set('Cookie', simpleUserToken)
@@ -1276,38 +1534,37 @@ describe('User permissions (connection readonly, group readonly) (e2e)', () => {
 
     describe('Permission controller', () => {
       describe('PUT permissions/:slug', () => {
-        it('should throw an exception do not have permission', async () => {
-          const connectionIds = await createConnectionsAndInviteNewUserInNewGroupInFirstConnection();
-          const newGroup1 = MockFactory.generateCreateGroupDtoWithRandomTitle();
+        it('should return created complex permissions object when you create permissions', async () => {
+          const connectionIds = await createConnectionsAndInviteNewUserInAdminGroupOfFirstConnection();
+
           const createGroupResponse = await request(app.getHttpServer())
             .post(`/connection/group/${connectionIds.firstId}`)
-            .set('Cookie', connectionAdminUserToken)
+            .set('Cookie', simpleUserToken)
             .send(newGroup1)
             .set('Content-Type', 'application/json')
             .set('Accept', 'application/json');
           const createGroupRO = JSON.parse(createGroupResponse.text);
-          expect(createGroupResponse.status).toBe(201);
           const newGroupId = createGroupRO.id;
 
           const permissions = {
             connection: {
-              connectionId: connectionIds.firstId,
               accessLevel: AccessLevelEnum.readonly,
+              connectionId: connectionIds.firstId,
             },
             group: {
-              groupId: newGroupId,
               accessLevel: AccessLevelEnum.readonly,
+              groupId: newGroupId,
             },
             tables: [
               {
-                tableName: 'users',
                 accessLevel: {
-                  visibility: true,
-                  readonly: false,
                   add: true,
                   delete: true,
                   edit: false,
+                  readonly: false,
+                  visibility: true,
                 },
+                tableName: 'users',
               },
             ],
           };
@@ -1319,60 +1576,101 @@ describe('User permissions (connection readonly, group readonly) (e2e)', () => {
             .set('Content-Type', 'application/json')
             .set('Accept', 'application/json');
           const createOrUpdatePermissionRO = JSON.parse(createOrUpdatePermissionResponse.text);
-          expect(createOrUpdatePermissionResponse.status).toBe(403);
-          expect(createOrUpdatePermissionRO.message).toBe(Messages.DONT_HAVE_PERMISSIONS);
+          expect(createOrUpdatePermissionResponse.status).toBe(200);
+          expect(JSON.stringify(createOrUpdatePermissionRO.connection)).toBe(JSON.stringify(permissions.connection));
+          expect(JSON.stringify(createOrUpdatePermissionRO.group)).toBe(JSON.stringify(permissions.group));
+          expect(JSON.stringify(createOrUpdatePermissionRO.tables)).toBe(JSON.stringify(permissions.tables));
         });
 
-        it('should throw an exception, whe you try update permission and do not have permission ', async () => {
-          const connectionIds = await createConnectionsAndInviteNewUserInNewGroupInFirstConnection();
+        it('should return updated complex permissions object when you update permissions', async () => {
+          const connectionIds = await createConnectionsAndInviteNewUserInAdminGroupOfFirstConnection();
 
-          const getGroupsResponse = await request(app.getHttpServer())
-            .get(`/connection/groups/${connectionIds.firstId}`)
+          const createGroupResponse = await request(app.getHttpServer())
+            .post(`/connection/group/${connectionIds.firstId}`)
             .set('Cookie', simpleUserToken)
+            .send(newGroup1)
             .set('Content-Type', 'application/json')
             .set('Accept', 'application/json');
+          const createGroupRO = JSON.parse(createGroupResponse.text);
+          const newGroupId = createGroupRO.id;
 
-          expect(getGroupsResponse.status).toBe(200);
-          const getGroupsRO = JSON.parse(getGroupsResponse.text);
-
-          const groupId = getGroupsRO[0].group.id;
-
-          const permissions = {
+          let permissions = {
             connection: {
+              accessLevel: AccessLevelEnum.readonly,
               connectionId: connectionIds.firstId,
-              accessLevel: AccessLevelEnum.none,
             },
             group: {
-              groupId: groupId,
               accessLevel: AccessLevelEnum.readonly,
+              groupId: newGroupId,
             },
             tables: [
               {
-                tableName: 'users',
                 accessLevel: {
-                  visibility: true,
+                  add: true,
+                  delete: true,
+                  edit: false,
                   readonly: false,
-                  add: false,
-                  delete: false,
-                  edit: true,
+                  visibility: true,
                 },
+                tableName: 'users',
               },
             ],
           };
 
-          const createOrUpdatePermissionResponse = await request(app.getHttpServer())
-            .put(`/permissions/${groupId}`)
+          let createOrUpdatePermissionResponse = await request(app.getHttpServer())
+            .put(`/permissions/${newGroupId}`)
             .send({ permissions })
             .set('Cookie', simpleUserToken)
             .set('Content-Type', 'application/json')
             .set('Accept', 'application/json');
-          const createOrUpdatePermissionRO = JSON.parse(createOrUpdatePermissionResponse.text);
-          expect(createOrUpdatePermissionResponse.status).toBe(403);
-          expect(createOrUpdatePermissionRO.message).toBe(Messages.DONT_HAVE_PERMISSIONS);
+          let createOrUpdatePermissionRO = JSON.parse(createOrUpdatePermissionResponse.text);
+          JSON.stringify(createOrUpdatePermissionRO);
+          expect(createOrUpdatePermissionResponse.status).toBe(200);
+          expect(JSON.stringify(createOrUpdatePermissionRO.connection)).toBe(JSON.stringify(permissions.connection));
+          expect(JSON.stringify(createOrUpdatePermissionRO.group)).toBe(JSON.stringify(permissions.group));
+          expect(JSON.stringify(createOrUpdatePermissionRO.tables)).toBe(JSON.stringify(permissions.tables));
+
+          //************************ WHEN YOU UPDATE PERMISSIONS
+
+          permissions = {
+            connection: {
+              accessLevel: AccessLevelEnum.none,
+              connectionId: connectionIds.firstId,
+            },
+            group: {
+              accessLevel: AccessLevelEnum.readonly,
+              groupId: newGroupId,
+            },
+            tables: [
+              {
+                accessLevel: {
+                  add: false,
+                  delete: false,
+                  edit: true,
+                  readonly: false,
+                  visibility: true,
+                },
+                tableName: 'users',
+              },
+            ],
+          };
+
+          createOrUpdatePermissionResponse = await request(app.getHttpServer())
+            .put(`/permissions/${newGroupId}`)
+            .send({ permissions })
+            .set('Cookie', simpleUserToken)
+            .set('Content-Type', 'application/json')
+            .set('Accept', 'application/json');
+          createOrUpdatePermissionRO = JSON.parse(createOrUpdatePermissionResponse.text);
+          JSON.stringify(createOrUpdatePermissionRO);
+          expect(createOrUpdatePermissionResponse.status).toBe(200);
+          expect(JSON.stringify(createOrUpdatePermissionRO.connection)).toBe(JSON.stringify(permissions.connection));
+          expect(JSON.stringify(createOrUpdatePermissionRO.group)).toBe(JSON.stringify(permissions.group));
+          expect(JSON.stringify(createOrUpdatePermissionRO.tables)).toBe(JSON.stringify(permissions.tables));
         });
 
-        xit('should throw an exception, when you try change admin group', async () => {
-          const connectionIds = await createConnectionsAndInviteNewUserInNewGroupInFirstConnection();
+        it('should throw an exception, when you try change admin group', async () => {
+          const connectionIds = await createConnectionsAndInviteNewUserInAdminGroupOfFirstConnection();
           const permissions = {
             connection: {
               connectionId: connectionIds.firstId,
@@ -1414,7 +1712,48 @@ describe('User permissions (connection readonly, group readonly) (e2e)', () => {
     describe('Table controller', () => {
       describe('GET /connection/tables/:slug', () => {
         it('should return all tables in connection', async () => {
-          const connectionIds = await createConnectionsAndInviteNewUserInNewGroupInFirstConnection();
+          const connectionIds = await createConnectionsAndInviteNewUserInAdminGroupOfFirstConnection();
+
+          // create group without visibility table permission
+          const createGroupResponse = await request(app.getHttpServer())
+            .post(`/connection/group/${connectionIds.firstId}`)
+            .set('Cookie', simpleUserToken)
+            .send(newGroup1)
+            .set('Content-Type', 'application/json')
+            .set('Accept', 'application/json');
+          const createGroupRO = JSON.parse(createGroupResponse.text);
+          const newGroupId = createGroupRO.id;
+
+          const permissions = {
+            connection: {
+              connectionId: connectionIds.firstId,
+              accessLevel: AccessLevelEnum.readonly,
+            },
+            group: {
+              groupId: newGroupId,
+              accessLevel: AccessLevelEnum.readonly,
+            },
+            tables: [
+              {
+                tableName: 'users',
+                accessLevel: {
+                  visibility: false,
+                  readonly: true,
+                  add: false,
+                  delete: false,
+                  edit: false,
+                },
+              },
+            ],
+          };
+
+          const createOrUpdatePermissionResponse = await request(app.getHttpServer())
+            .put(`/permissions/${newGroupId}`)
+            .send({ permissions })
+            .set('Cookie', connectionAdminUserToken)
+            .set('Content-Type', 'application/json')
+            .set('Accept', 'application/json');
+          expect(createOrUpdatePermissionResponse.status).toBe(200);
 
           const getTablesInConnection = await request(app.getHttpServer())
             .get(`/connection/tables/${connectionIds.firstId}`)
@@ -1427,15 +1766,56 @@ describe('User permissions (connection readonly, group readonly) (e2e)', () => {
           expect(getTablesInConnectionRO[0].table).toBe('users');
           expect(typeof getTablesInConnectionRO[0].permissions).toBe('object');
           const { visibility, readonly, add, delete: del, edit } = getTablesInConnectionRO[0].permissions;
-          expect(visibility).toBe(tablePermissions.visibility);
-          expect(readonly).toBe(tablePermissions.readonly);
-          expect(del).toBe(tablePermissions.delete);
-          expect(edit).toBe(tablePermissions.edit);
-          expect(add).toBe(tablePermissions.add);
+          expect(visibility).toBeTruthy();
+          expect(readonly).toBeFalsy();
+          expect(del).toBeTruthy();
+          expect(edit).toBeTruthy();
+          expect(add).toBeTruthy();
         });
 
         it('should throw an exception, when connection id not passed in request', async () => {
-          const connectionIds = await createConnectionsAndInviteNewUserInNewGroupInFirstConnection();
+          const connectionIds = await createConnectionsAndInviteNewUserInAdminGroupOfFirstConnection();
+
+          // create group without visibility table permission
+          const createGroupResponse = await request(app.getHttpServer())
+            .post(`/connection/group/${connectionIds.firstId}`)
+            .set('Cookie', simpleUserToken)
+            .send(newGroup1)
+            .set('Content-Type', 'application/json')
+            .set('Accept', 'application/json');
+          const createGroupRO = JSON.parse(createGroupResponse.text);
+          const newGroupId = createGroupRO.id;
+
+          const permissions = {
+            connection: {
+              connectionId: connectionIds.firstId,
+              accessLevel: AccessLevelEnum.readonly,
+            },
+            group: {
+              groupId: newGroupId,
+              accessLevel: AccessLevelEnum.readonly,
+            },
+            tables: [
+              {
+                tableName: 'users',
+                accessLevel: {
+                  visibility: false,
+                  readonly: true,
+                  add: false,
+                  delete: false,
+                  edit: false,
+                },
+              },
+            ],
+          };
+
+          const createOrUpdatePermissionResponse = await request(app.getHttpServer())
+            .put(`/permissions/${newGroupId}`)
+            .send({ permissions })
+            .set('Cookie', connectionAdminUserToken)
+            .set('Content-Type', 'application/json')
+            .set('Accept', 'application/json');
+          expect(createOrUpdatePermissionResponse.status).toBe(200);
 
           const getTablesInConnection = await request(app.getHttpServer())
             .get(`/connection/tables/`)
@@ -1446,9 +1826,50 @@ describe('User permissions (connection readonly, group readonly) (e2e)', () => {
         });
 
         it('should throw an exception, when connection id passed in request is incorrect', async () => {
-          const connectionIds = await createConnectionsAndInviteNewUserInNewGroupInFirstConnection();
+          const connectionIds = await createConnectionsAndInviteNewUserInAdminGroupOfFirstConnection();
 
-          const fakeConnectionId = faker.random.uuid();
+          // create group without visibility table permission
+          const createGroupResponse = await request(app.getHttpServer())
+            .post(`/connection/group/${connectionIds.firstId}`)
+            .set('Cookie', simpleUserToken)
+            .send(newGroup1)
+            .set('Content-Type', 'application/json')
+            .set('Accept', 'application/json');
+          const createGroupRO = JSON.parse(createGroupResponse.text);
+          const newGroupId = createGroupRO.id;
+
+          const permissions = {
+            connection: {
+              connectionId: connectionIds.firstId,
+              accessLevel: AccessLevelEnum.readonly,
+            },
+            group: {
+              groupId: newGroupId,
+              accessLevel: AccessLevelEnum.readonly,
+            },
+            tables: [
+              {
+                tableName: 'users',
+                accessLevel: {
+                  visibility: false,
+                  readonly: true,
+                  add: false,
+                  delete: false,
+                  edit: false,
+                },
+              },
+            ],
+          };
+
+          const createOrUpdatePermissionResponse = await request(app.getHttpServer())
+            .put(`/permissions/${newGroupId}`)
+            .send({ permissions })
+            .set('Cookie', connectionAdminUserToken)
+            .set('Content-Type', 'application/json')
+            .set('Accept', 'application/json');
+          expect(createOrUpdatePermissionResponse.status).toBe(200);
+
+          const fakeConnectionId = faker.datatype.uuid();
           const getTablesInConnection = await request(app.getHttpServer())
             .get(`/connection/tables/${fakeConnectionId}`)
             .set('Cookie', simpleUserToken)
@@ -1462,16 +1883,57 @@ describe('User permissions (connection readonly, group readonly) (e2e)', () => {
 
       describe('GET /table/rows/:slug', () => {
         it('should return found rows from table', async () => {
-          const connectionIds = await createConnectionsAndInviteNewUserInNewGroupInFirstConnection();
+          const connectionIds = await createConnectionsAndInviteNewUserInAdminGroupOfFirstConnection();
 
-          const getTableRows = await request(app.getHttpServer())
+          // create group without visibility table permission
+          const createGroupResponse = await request(app.getHttpServer())
+            .post(`/connection/group/${connectionIds.firstId}`)
+            .set('Cookie', simpleUserToken)
+            .send(newGroup1)
+            .set('Content-Type', 'application/json')
+            .set('Accept', 'application/json');
+          const createGroupRO = JSON.parse(createGroupResponse.text);
+          const newGroupId = createGroupRO.id;
+
+          const permissions = {
+            connection: {
+              connectionId: connectionIds.firstId,
+              accessLevel: AccessLevelEnum.readonly,
+            },
+            group: {
+              groupId: newGroupId,
+              accessLevel: AccessLevelEnum.readonly,
+            },
+            tables: [
+              {
+                tableName: 'users',
+                accessLevel: {
+                  visibility: false,
+                  readonly: true,
+                  add: false,
+                  delete: false,
+                  edit: false,
+                },
+              },
+            ],
+          };
+
+          const createOrUpdatePermissionResponse = await request(app.getHttpServer())
+            .put(`/permissions/${newGroupId}`)
+            .send({ permissions })
+            .set('Cookie', connectionAdminUserToken)
+            .set('Content-Type', 'application/json')
+            .set('Accept', 'application/json');
+          expect(createOrUpdatePermissionResponse.status).toBe(200);
+
+          const getTablesInConnection = await request(app.getHttpServer())
             .get(`/table/rows/${connectionIds.firstId}?tableName=users`)
             .set('Cookie', simpleUserToken)
             .set('Content-Type', 'application/json')
             .set('Accept', 'application/json');
-          expect(getTableRows.status).toBe(200);
-          const getTableRowsRO = JSON.parse(getTableRows.text);
-          const { rows, primaryColumns, pagination, sortable_by, structure, foreignKeys } = getTableRowsRO;
+          expect(getTablesInConnection.status).toBe(200);
+          const getTablesInConnectionRO = JSON.parse(getTablesInConnection.text);
+          const { rows, primaryColumns, pagination, sortable_by, structure, foreignKeys } = getTablesInConnectionRO;
           expect(rows.length).toBe(Constants.DEFAULT_PAGINATION.perPage);
           expect(primaryColumns.length).toBe(1);
           expect(primaryColumns[0].column_name).toBe('id');
@@ -1482,44 +1944,212 @@ describe('User permissions (connection readonly, group readonly) (e2e)', () => {
         });
 
         it('should throw an exception when connection id not passed in request', async () => {
-          const getTablesRows = await request(app.getHttpServer())
+          const connectionIds = await createConnectionsAndInviteNewUserInAdminGroupOfFirstConnection();
+
+          // create group without visibility table permission
+          const createGroupResponse = await request(app.getHttpServer())
+            .post(`/connection/group/${connectionIds.firstId}`)
+            .set('Cookie', simpleUserToken)
+            .send(newGroup1)
+            .set('Content-Type', 'application/json')
+            .set('Accept', 'application/json');
+          const createGroupRO = JSON.parse(createGroupResponse.text);
+          const newGroupId = createGroupRO.id;
+
+          const permissions = {
+            connection: {
+              connectionId: connectionIds.firstId,
+              accessLevel: AccessLevelEnum.readonly,
+            },
+            group: {
+              groupId: newGroupId,
+              accessLevel: AccessLevelEnum.readonly,
+            },
+            tables: [
+              {
+                tableName: 'users',
+                accessLevel: {
+                  visibility: false,
+                  readonly: true,
+                  add: false,
+                  delete: false,
+                  edit: false,
+                },
+              },
+            ],
+          };
+
+          const createOrUpdatePermissionResponse = await request(app.getHttpServer())
+            .put(`/permissions/${newGroupId}`)
+            .send({ permissions })
+            .set('Cookie', connectionAdminUserToken)
+            .set('Content-Type', 'application/json')
+            .set('Accept', 'application/json');
+          expect(createOrUpdatePermissionResponse.status).toBe(200);
+
+          const getTablesInConnection = await request(app.getHttpServer())
             .get(`/table/rows/?tableName=users`)
             .set('Cookie', simpleUserToken)
             .set('Content-Type', 'application/json')
             .set('Accept', 'application/json');
-          expect(getTablesRows.status).toBe(404);
+          expect(getTablesInConnection.status).toBe(404);
         });
 
         it('should throw an exception when connection id passed in request is incorrect', async () => {
-          const fakeId = faker.random.uuid();
-          const getTableRows = await request(app.getHttpServer())
+          const connectionIds = await createConnectionsAndInviteNewUserInAdminGroupOfFirstConnection();
+
+          // create group without visibility table permission
+          const createGroupResponse = await request(app.getHttpServer())
+            .post(`/connection/group/${connectionIds.firstId}`)
+            .set('Cookie', simpleUserToken)
+            .send(newGroup1)
+            .set('Content-Type', 'application/json')
+            .set('Accept', 'application/json');
+          const createGroupRO = JSON.parse(createGroupResponse.text);
+          const newGroupId = createGroupRO.id;
+
+          const permissions = {
+            connection: {
+              connectionId: connectionIds.firstId,
+              accessLevel: AccessLevelEnum.readonly,
+            },
+            group: {
+              groupId: newGroupId,
+              accessLevel: AccessLevelEnum.readonly,
+            },
+            tables: [
+              {
+                tableName: 'users',
+                accessLevel: {
+                  visibility: false,
+                  readonly: true,
+                  add: false,
+                  delete: false,
+                  edit: false,
+                },
+              },
+            ],
+          };
+
+          const createOrUpdatePermissionResponse = await request(app.getHttpServer())
+            .put(`/permissions/${newGroupId}`)
+            .send({ permissions })
+            .set('Cookie', connectionAdminUserToken)
+            .set('Content-Type', 'application/json')
+            .set('Accept', 'application/json');
+          expect(createOrUpdatePermissionResponse.status).toBe(200);
+
+          const fakeId = faker.datatype.uuid();
+          const getTablesInConnection = await request(app.getHttpServer())
             .get(`/table/rows/${fakeId}?tableName=users`)
             .set('Cookie', simpleUserToken)
             .set('Content-Type', 'application/json')
             .set('Accept', 'application/json');
-          expect(getTableRows.status).toBe(400);
-          const getTablesInConnectionRO = JSON.parse(getTableRows.text);
+          expect(getTablesInConnection.status).toBe(400);
+          const getTablesInConnectionRO = JSON.parse(getTablesInConnection.text);
           expect(getTablesInConnectionRO.message).toBe(Messages.CONNECTION_NOT_FOUND);
         });
 
         it('should throw an exception when table name passed in request is incorrect', async () => {
-          const connectionIds = await createConnectionsAndInviteNewUserInNewGroupInFirstConnection();
+          const connectionIds = await createConnectionsAndInviteNewUserInAdminGroupOfFirstConnection();
 
-          const fakeTableName = faker.random.word(1);
-          const getTablesRows = await request(app.getHttpServer())
+          // create group without visibility table permission
+          const createGroupResponse = await request(app.getHttpServer())
+            .post(`/connection/group/${connectionIds.firstId}`)
+            .set('Cookie', simpleUserToken)
+            .send(newGroup1)
+            .set('Content-Type', 'application/json')
+            .set('Accept', 'application/json');
+          const createGroupRO = JSON.parse(createGroupResponse.text);
+          const newGroupId = createGroupRO.id;
+
+          const permissions = {
+            connection: {
+              connectionId: connectionIds.firstId,
+              accessLevel: AccessLevelEnum.readonly,
+            },
+            group: {
+              groupId: newGroupId,
+              accessLevel: AccessLevelEnum.readonly,
+            },
+            tables: [
+              {
+                tableName: 'users',
+                accessLevel: {
+                  visibility: false,
+                  readonly: true,
+                  add: false,
+                  delete: false,
+                  edit: false,
+                },
+              },
+            ],
+          };
+
+          const createOrUpdatePermissionResponse = await request(app.getHttpServer())
+            .put(`/permissions/${newGroupId}`)
+            .send({ permissions })
+            .set('Cookie', connectionAdminUserToken)
+            .set('Content-Type', 'application/json')
+            .set('Accept', 'application/json');
+          expect(createOrUpdatePermissionResponse.status).toBe(200);
+
+          const fakeTableName = faker.random.words(1);
+          const getTablesInConnection = await request(app.getHttpServer())
             .get(`/table/rows/${connectionIds.firstId}?tableName=${fakeTableName}`)
             .set('Cookie', simpleUserToken)
             .set('Content-Type', 'application/json')
             .set('Accept', 'application/json');
-          expect(getTablesRows.status).toBe(400);
-          const getTablesInConnectionRO = JSON.parse(getTablesRows.text);
+          expect(getTablesInConnection.status).toBe(400);
+          const getTablesInConnectionRO = JSON.parse(getTablesInConnection.text);
           expect(getTablesInConnectionRO.message).toBe(Messages.TABLE_NOT_FOUND);
         });
       });
 
       describe('GET /table/structure/:slug', () => {
         it('should return table structure', async () => {
-          const connectionIds = await createConnectionsAndInviteNewUserInNewGroupInFirstConnection();
+          const connectionIds = await createConnectionsAndInviteNewUserInAdminGroupOfFirstConnection();
+
+          // create group without visibility table permission
+          const createGroupResponse = await request(app.getHttpServer())
+            .post(`/connection/group/${connectionIds.firstId}`)
+            .set('Cookie', simpleUserToken)
+            .send(newGroup1)
+            .set('Content-Type', 'application/json')
+            .set('Accept', 'application/json');
+          const createGroupRO = JSON.parse(createGroupResponse.text);
+          const newGroupId = createGroupRO.id;
+
+          const permissions = {
+            connection: {
+              connectionId: connectionIds.firstId,
+              accessLevel: AccessLevelEnum.readonly,
+            },
+            group: {
+              groupId: newGroupId,
+              accessLevel: AccessLevelEnum.readonly,
+            },
+            tables: [
+              {
+                tableName: 'users',
+                accessLevel: {
+                  visibility: false,
+                  readonly: true,
+                  add: false,
+                  delete: false,
+                  edit: false,
+                },
+              },
+            ],
+          };
+
+          const createOrUpdatePermissionResponse = await request(app.getHttpServer())
+            .put(`/permissions/${newGroupId}`)
+            .send({ permissions })
+            .set('Cookie', connectionAdminUserToken)
+            .set('Content-Type', 'application/json')
+            .set('Accept', 'application/json');
+          expect(createOrUpdatePermissionResponse.status).toBe(200);
 
           const getTablesStructure = await request(app.getHttpServer())
             .get(`/table/structure/${connectionIds.firstId}?tableName=users`)
@@ -1539,7 +2169,48 @@ describe('User permissions (connection readonly, group readonly) (e2e)', () => {
         });
 
         it('should throw an exception when connection id not passed in request', async () => {
-          const connectionIds = await createConnectionsAndInviteNewUserInNewGroupInFirstConnection();
+          const connectionIds = await createConnectionsAndInviteNewUserInAdminGroupOfFirstConnection();
+
+          // create group without visibility table permission
+          const createGroupResponse = await request(app.getHttpServer())
+            .post(`/connection/group/${connectionIds.firstId}`)
+            .set('Cookie', simpleUserToken)
+            .send(newGroup1)
+            .set('Content-Type', 'application/json')
+            .set('Accept', 'application/json');
+          const createGroupRO = JSON.parse(createGroupResponse.text);
+          const newGroupId = createGroupRO.id;
+
+          const permissions = {
+            connection: {
+              connectionId: connectionIds.firstId,
+              accessLevel: AccessLevelEnum.readonly,
+            },
+            group: {
+              groupId: newGroupId,
+              accessLevel: AccessLevelEnum.readonly,
+            },
+            tables: [
+              {
+                tableName: 'users',
+                accessLevel: {
+                  visibility: false,
+                  readonly: true,
+                  add: false,
+                  delete: false,
+                  edit: false,
+                },
+              },
+            ],
+          };
+
+          const createOrUpdatePermissionResponse = await request(app.getHttpServer())
+            .put(`/permissions/${newGroupId}`)
+            .send({ permissions })
+            .set('Cookie', connectionAdminUserToken)
+            .set('Content-Type', 'application/json')
+            .set('Accept', 'application/json');
+          expect(createOrUpdatePermissionResponse.status).toBe(200);
 
           const getTablesStructure = await request(app.getHttpServer())
             .get(`/table/structure/?tableName=users`)
@@ -1550,9 +2221,50 @@ describe('User permissions (connection readonly, group readonly) (e2e)', () => {
         });
 
         it('should throw an exception when connection id passed in request is incorrect', async () => {
-          const connectionIds = await createConnectionsAndInviteNewUserInNewGroupInFirstConnection();
+          const connectionIds = await createConnectionsAndInviteNewUserInAdminGroupOfFirstConnection();
 
-          const fakeConnectionId = faker.random.uuid();
+          // create group without visibility table permission
+          const createGroupResponse = await request(app.getHttpServer())
+            .post(`/connection/group/${connectionIds.firstId}`)
+            .set('Cookie', simpleUserToken)
+            .send(newGroup1)
+            .set('Content-Type', 'application/json')
+            .set('Accept', 'application/json');
+          const createGroupRO = JSON.parse(createGroupResponse.text);
+          const newGroupId = createGroupRO.id;
+
+          const permissions = {
+            connection: {
+              connectionId: connectionIds.firstId,
+              accessLevel: AccessLevelEnum.readonly,
+            },
+            group: {
+              groupId: newGroupId,
+              accessLevel: AccessLevelEnum.readonly,
+            },
+            tables: [
+              {
+                tableName: 'users',
+                accessLevel: {
+                  visibility: false,
+                  readonly: true,
+                  add: false,
+                  delete: false,
+                  edit: false,
+                },
+              },
+            ],
+          };
+
+          const createOrUpdatePermissionResponse = await request(app.getHttpServer())
+            .put(`/permissions/${newGroupId}`)
+            .send({ permissions })
+            .set('Cookie', connectionAdminUserToken)
+            .set('Content-Type', 'application/json')
+            .set('Accept', 'application/json');
+          expect(createOrUpdatePermissionResponse.status).toBe(200);
+
+          const fakeConnectionId = faker.datatype.uuid();
           const getTablesStructure = await request(app.getHttpServer())
             .get(`/table/structure/${fakeConnectionId}?tableName=users`)
             .set('Cookie', simpleUserToken)
@@ -1564,7 +2276,48 @@ describe('User permissions (connection readonly, group readonly) (e2e)', () => {
         });
 
         it('should throw an exception when table name not passed in request', async () => {
-          const connectionIds = await createConnectionsAndInviteNewUserInNewGroupInFirstConnection();
+          const connectionIds = await createConnectionsAndInviteNewUserInAdminGroupOfFirstConnection();
+
+          // create group without visibility table permission
+          const createGroupResponse = await request(app.getHttpServer())
+            .post(`/connection/group/${connectionIds.firstId}`)
+            .set('Cookie', simpleUserToken)
+            .send(newGroup1)
+            .set('Content-Type', 'application/json')
+            .set('Accept', 'application/json');
+          const createGroupRO = JSON.parse(createGroupResponse.text);
+          const newGroupId = createGroupRO.id;
+
+          const permissions = {
+            connection: {
+              connectionId: connectionIds.firstId,
+              accessLevel: AccessLevelEnum.readonly,
+            },
+            group: {
+              groupId: newGroupId,
+              accessLevel: AccessLevelEnum.readonly,
+            },
+            tables: [
+              {
+                tableName: 'users',
+                accessLevel: {
+                  visibility: false,
+                  readonly: true,
+                  add: false,
+                  delete: false,
+                  edit: false,
+                },
+              },
+            ],
+          };
+
+          const createOrUpdatePermissionResponse = await request(app.getHttpServer())
+            .put(`/permissions/${newGroupId}`)
+            .send({ permissions })
+            .set('Cookie', connectionAdminUserToken)
+            .set('Content-Type', 'application/json')
+            .set('Accept', 'application/json');
+          expect(createOrUpdatePermissionResponse.status).toBe(200);
 
           const getTablesStructure = await request(app.getHttpServer())
             .get(`/table/structure/${connectionIds.firstId}?tableName=`)
@@ -1577,9 +2330,50 @@ describe('User permissions (connection readonly, group readonly) (e2e)', () => {
         });
 
         it('should throw an exception when table name passed in request is incorrect', async () => {
-          const connectionIds = await createConnectionsAndInviteNewUserInNewGroupInFirstConnection();
+          const connectionIds = await createConnectionsAndInviteNewUserInAdminGroupOfFirstConnection();
 
-          const fakeTableName = faker.random.word(1);
+          // create group without visibility table permission
+          const createGroupResponse = await request(app.getHttpServer())
+            .post(`/connection/group/${connectionIds.firstId}`)
+            .set('Cookie', simpleUserToken)
+            .send(newGroup1)
+            .set('Content-Type', 'application/json')
+            .set('Accept', 'application/json');
+          const createGroupRO = JSON.parse(createGroupResponse.text);
+          const newGroupId = createGroupRO.id;
+
+          const permissions = {
+            connection: {
+              connectionId: connectionIds.firstId,
+              accessLevel: AccessLevelEnum.readonly,
+            },
+            group: {
+              groupId: newGroupId,
+              accessLevel: AccessLevelEnum.readonly,
+            },
+            tables: [
+              {
+                tableName: 'users',
+                accessLevel: {
+                  visibility: false,
+                  readonly: true,
+                  add: false,
+                  delete: false,
+                  edit: false,
+                },
+              },
+            ],
+          };
+
+          const createOrUpdatePermissionResponse = await request(app.getHttpServer())
+            .put(`/permissions/${newGroupId}`)
+            .send({ permissions })
+            .set('Cookie', connectionAdminUserToken)
+            .set('Content-Type', 'application/json')
+            .set('Accept', 'application/json');
+          expect(createOrUpdatePermissionResponse.status).toBe(200);
+
+          const fakeTableName = faker.random.words(1);
           const getTablesStructure = await request(app.getHttpServer())
             .get(`/table/structure/${connectionIds.firstId}?tableName=${fakeTableName}`)
             .set('Cookie', simpleUserToken)
@@ -1593,7 +2387,48 @@ describe('User permissions (connection readonly, group readonly) (e2e)', () => {
 
       describe('POST /table/row/:slug', () => {
         it('should return added row', async () => {
-          const connectionIds = await createConnectionsAndInviteNewUserInNewGroupInFirstConnection();
+          const connectionIds = await createConnectionsAndInviteNewUserInAdminGroupOfFirstConnection();
+
+          // create group without visibility table permission
+          const createGroupResponse = await request(app.getHttpServer())
+            .post(`/connection/group/${connectionIds.firstId}`)
+            .set('Cookie', simpleUserToken)
+            .send(newGroup1)
+            .set('Content-Type', 'application/json')
+            .set('Accept', 'application/json');
+          const createGroupRO = JSON.parse(createGroupResponse.text);
+          const newGroupId = createGroupRO.id;
+
+          const permissions = {
+            connection: {
+              connectionId: connectionIds.firstId,
+              accessLevel: AccessLevelEnum.readonly,
+            },
+            group: {
+              groupId: newGroupId,
+              accessLevel: AccessLevelEnum.readonly,
+            },
+            tables: [
+              {
+                tableName: 'users',
+                accessLevel: {
+                  visibility: false,
+                  readonly: true,
+                  add: false,
+                  delete: false,
+                  edit: false,
+                },
+              },
+            ],
+          };
+
+          const createOrUpdatePermissionResponse = await request(app.getHttpServer())
+            .put(`/permissions/${newGroupId}`)
+            .send({ permissions })
+            .set('Cookie', connectionAdminUserToken)
+            .set('Content-Type', 'application/json')
+            .set('Accept', 'application/json');
+          expect(createOrUpdatePermissionResponse.status).toBe(200);
 
           const randomName = faker.name.findName();
           const randomEmail = faker.name.findName();
@@ -1626,14 +2461,55 @@ describe('User permissions (connection readonly, group readonly) (e2e)', () => {
         });
 
         it('should throw an exception when connection id passed in request is incorrect', async () => {
-          const connectionIds = await createConnectionsAndInviteNewUserInNewGroupInFirstConnection();
+          const connectionIds = await createConnectionsAndInviteNewUserInAdminGroupOfFirstConnection();
+
+          // create group without visibility table permission
+          const createGroupResponse = await request(app.getHttpServer())
+            .post(`/connection/group/${connectionIds.firstId}`)
+            .set('Cookie', simpleUserToken)
+            .send(newGroup1)
+            .set('Content-Type', 'application/json')
+            .set('Accept', 'application/json');
+          const createGroupRO = JSON.parse(createGroupResponse.text);
+          const newGroupId = createGroupRO.id;
+
+          const permissions = {
+            connection: {
+              connectionId: connectionIds.firstId,
+              accessLevel: AccessLevelEnum.readonly,
+            },
+            group: {
+              groupId: newGroupId,
+              accessLevel: AccessLevelEnum.readonly,
+            },
+            tables: [
+              {
+                tableName: 'users',
+                accessLevel: {
+                  visibility: false,
+                  readonly: true,
+                  add: false,
+                  delete: false,
+                  edit: false,
+                },
+              },
+            ],
+          };
+
+          const createOrUpdatePermissionResponse = await request(app.getHttpServer())
+            .put(`/permissions/${newGroupId}`)
+            .send({ permissions })
+            .set('Cookie', connectionAdminUserToken)
+            .set('Content-Type', 'application/json')
+            .set('Accept', 'application/json');
+          expect(createOrUpdatePermissionResponse.status).toBe(200);
 
           const randomName = faker.name.findName();
           const randomEmail = faker.name.findName();
           /* eslint-disable */
           const created_at = new Date();
           const updated_at = new Date();
-          const fakeConnectionId = faker.random.uuid();
+          const fakeConnectionId = faker.datatype.uuid();
           const addRowInTable = await request(app.getHttpServer())
             .post(`/table/row/${fakeConnectionId}?tableName=users`)
             .send({
@@ -1651,14 +2527,55 @@ describe('User permissions (connection readonly, group readonly) (e2e)', () => {
         });
 
         it('should throw an exception when table name passed in request is incorrect', async () => {
-          const connectionIds = await createConnectionsAndInviteNewUserInNewGroupInFirstConnection();
+          const connectionIds = await createConnectionsAndInviteNewUserInAdminGroupOfFirstConnection();
+
+          // create group without visibility table permission
+          const createGroupResponse = await request(app.getHttpServer())
+            .post(`/connection/group/${connectionIds.firstId}`)
+            .set('Cookie', simpleUserToken)
+            .send(newGroup1)
+            .set('Content-Type', 'application/json')
+            .set('Accept', 'application/json');
+          const createGroupRO = JSON.parse(createGroupResponse.text);
+          const newGroupId = createGroupRO.id;
+
+          const permissions = {
+            connection: {
+              connectionId: connectionIds.firstId,
+              accessLevel: AccessLevelEnum.readonly,
+            },
+            group: {
+              groupId: newGroupId,
+              accessLevel: AccessLevelEnum.readonly,
+            },
+            tables: [
+              {
+                tableName: 'users',
+                accessLevel: {
+                  visibility: false,
+                  readonly: true,
+                  add: false,
+                  delete: false,
+                  edit: false,
+                },
+              },
+            ],
+          };
+
+          const createOrUpdatePermissionResponse = await request(app.getHttpServer())
+            .put(`/permissions/${newGroupId}`)
+            .send({ permissions })
+            .set('Cookie', connectionAdminUserToken)
+            .set('Content-Type', 'application/json')
+            .set('Accept', 'application/json');
+          expect(createOrUpdatePermissionResponse.status).toBe(200);
 
           const randomName = faker.name.findName();
           const randomEmail = faker.name.findName();
           /* eslint-disable */
           const created_at = new Date();
           const updated_at = new Date();
-          const fakeTableName = faker.random.word(1);
+          const fakeTableName = faker.random.words(1);
           const addRowInTable = await request(app.getHttpServer())
             .post(`/table/row/${connectionIds.firstId}?tableName=${fakeTableName}`)
             .send({
@@ -1677,8 +2594,49 @@ describe('User permissions (connection readonly, group readonly) (e2e)', () => {
       });
 
       describe('PUT /table/row/:slug', () => {
-        it('should throw an exception do not have permission, when you do not have edit permission ', async () => {
-          const connectionIds = await createConnectionsAndInviteNewUserInNewGroupInFirstConnection();
+        it('should return updated row', async () => {
+          const connectionIds = await createConnectionsAndInviteNewUserInAdminGroupOfFirstConnection();
+
+          // create group without visibility table permission
+          const createGroupResponse = await request(app.getHttpServer())
+            .post(`/connection/group/${connectionIds.firstId}`)
+            .set('Cookie', simpleUserToken)
+            .send(newGroup1)
+            .set('Content-Type', 'application/json')
+            .set('Accept', 'application/json');
+          const createGroupRO = JSON.parse(createGroupResponse.text);
+          const newGroupId = createGroupRO.id;
+
+          const permissions = {
+            connection: {
+              connectionId: connectionIds.firstId,
+              accessLevel: AccessLevelEnum.readonly,
+            },
+            group: {
+              groupId: newGroupId,
+              accessLevel: AccessLevelEnum.readonly,
+            },
+            tables: [
+              {
+                tableName: 'users',
+                accessLevel: {
+                  visibility: false,
+                  readonly: true,
+                  add: false,
+                  delete: false,
+                  edit: false,
+                },
+              },
+            ],
+          };
+
+          const createOrUpdatePermissionResponse = await request(app.getHttpServer())
+            .put(`/permissions/${newGroupId}`)
+            .send({ permissions })
+            .set('Cookie', connectionAdminUserToken)
+            .set('Content-Type', 'application/json')
+            .set('Accept', 'application/json');
+          expect(createOrUpdatePermissionResponse.status).toBe(200);
 
           const randomName = faker.name.findName();
           const randomEmail = faker.name.findName();
@@ -1697,21 +2655,69 @@ describe('User permissions (connection readonly, group readonly) (e2e)', () => {
             .set('Content-Type', 'application/json')
             .set('Accept', 'application/json');
           const addRowInTableRO = JSON.parse(updateRowInTable.text);
-          expect(updateRowInTable.status).toBe(403);
-          expect(addRowInTableRO.message).toBe(Messages.DONT_HAVE_PERMISSIONS);
-
+          expect(updateRowInTable.status).toBe(200);
+          expect(addRowInTableRO.row.hasOwnProperty('id')).toBeTruthy();
+          expect(addRowInTableRO.row.name).toBe(randomName);
+          expect(addRowInTableRO.row.email).toBe(randomEmail);
+          expect(addRowInTableRO.row.hasOwnProperty('created_at')).toBeTruthy();
+          expect(addRowInTableRO.row.hasOwnProperty('updated_at')).toBeTruthy();
+          expect(addRowInTableRO.hasOwnProperty('structure')).toBeTruthy();
+          expect(addRowInTableRO.hasOwnProperty('foreignKeys')).toBeTruthy();
+          expect(addRowInTableRO.hasOwnProperty('primaryColumns')).toBeTruthy();
+          expect(addRowInTableRO.hasOwnProperty('readonly_fields')).toBeTruthy();
           /* eslint-enable */
         });
 
         it('should throw an exception when connection id passed in request is incorrect', async () => {
-          const connectionIds = await createConnectionsAndInviteNewUserInNewGroupInFirstConnection();
+          const connectionIds = await createConnectionsAndInviteNewUserInAdminGroupOfFirstConnection();
+
+          // create group without visibility table permission
+          const createGroupResponse = await request(app.getHttpServer())
+            .post(`/connection/group/${connectionIds.firstId}`)
+            .set('Cookie', simpleUserToken)
+            .send(newGroup1)
+            .set('Content-Type', 'application/json')
+            .set('Accept', 'application/json');
+          const createGroupRO = JSON.parse(createGroupResponse.text);
+          const newGroupId = createGroupRO.id;
+
+          const permissions = {
+            connection: {
+              connectionId: connectionIds.firstId,
+              accessLevel: AccessLevelEnum.readonly,
+            },
+            group: {
+              groupId: newGroupId,
+              accessLevel: AccessLevelEnum.readonly,
+            },
+            tables: [
+              {
+                tableName: 'users',
+                accessLevel: {
+                  visibility: false,
+                  readonly: true,
+                  add: false,
+                  delete: false,
+                  edit: false,
+                },
+              },
+            ],
+          };
+
+          const createOrUpdatePermissionResponse = await request(app.getHttpServer())
+            .put(`/permissions/${newGroupId}`)
+            .send({ permissions })
+            .set('Cookie', connectionAdminUserToken)
+            .set('Content-Type', 'application/json')
+            .set('Accept', 'application/json');
+          expect(createOrUpdatePermissionResponse.status).toBe(200);
 
           const randomName = faker.name.findName();
           const randomEmail = faker.name.findName();
           /* eslint-disable */
           const created_at = new Date();
           const updated_at = new Date();
-          const fakeConnectionId = faker.random.uuid();
+          const fakeConnectionId = faker.datatype.uuid();
           const addRowInTable = await request(app.getHttpServer())
             .put(`/table/row/${fakeConnectionId}?tableName=users&id=1`)
             .send({
@@ -1729,14 +2735,55 @@ describe('User permissions (connection readonly, group readonly) (e2e)', () => {
         });
 
         it('should throw an exception when table name passed in request is incorrect', async () => {
-          const connectionIds = await createConnectionsAndInviteNewUserInNewGroupInFirstConnection();
+          const connectionIds = await createConnectionsAndInviteNewUserInAdminGroupOfFirstConnection();
+
+          // create group without visibility table permission
+          const createGroupResponse = await request(app.getHttpServer())
+            .post(`/connection/group/${connectionIds.firstId}`)
+            .set('Cookie', simpleUserToken)
+            .send(newGroup1)
+            .set('Content-Type', 'application/json')
+            .set('Accept', 'application/json');
+          const createGroupRO = JSON.parse(createGroupResponse.text);
+          const newGroupId = createGroupRO.id;
+
+          const permissions = {
+            connection: {
+              connectionId: connectionIds.firstId,
+              accessLevel: AccessLevelEnum.readonly,
+            },
+            group: {
+              groupId: newGroupId,
+              accessLevel: AccessLevelEnum.readonly,
+            },
+            tables: [
+              {
+                tableName: 'users',
+                accessLevel: {
+                  visibility: false,
+                  readonly: true,
+                  add: false,
+                  delete: false,
+                  edit: false,
+                },
+              },
+            ],
+          };
+
+          const createOrUpdatePermissionResponse = await request(app.getHttpServer())
+            .put(`/permissions/${newGroupId}`)
+            .send({ permissions })
+            .set('Cookie', connectionAdminUserToken)
+            .set('Content-Type', 'application/json')
+            .set('Accept', 'application/json');
+          expect(createOrUpdatePermissionResponse.status).toBe(200);
 
           const randomName = faker.name.findName();
           const randomEmail = faker.name.findName();
           /* eslint-disable */
           const created_at = new Date();
           const updated_at = new Date();
-          const fakeTableName = faker.random.word(1);
+          const fakeTableName = faker.random.words(1);
           const addRowInTable = await request(app.getHttpServer())
             .put(`/table/row/${connectionIds.firstId}?tableName=${fakeTableName}&id=1`)
             .send({
@@ -1756,8 +2803,48 @@ describe('User permissions (connection readonly, group readonly) (e2e)', () => {
 
       describe('DELETE /table/row/:slug', () => {
         it('should return delete result', async () => {
-          const connectionIds = await createConnectionsAndInviteNewUserInNewGroupInFirstConnection();
+          const connectionIds = await createConnectionsAndInviteNewUserInAdminGroupOfFirstConnection();
 
+          // create group without visibility table permission
+          const createGroupResponse = await request(app.getHttpServer())
+            .post(`/connection/group/${connectionIds.firstId}`)
+            .set('Cookie', simpleUserToken)
+            .send(newGroup1)
+            .set('Content-Type', 'application/json')
+            .set('Accept', 'application/json');
+          const createGroupRO = JSON.parse(createGroupResponse.text);
+          const newGroupId = createGroupRO.id;
+
+          const permissions = {
+            connection: {
+              connectionId: connectionIds.firstId,
+              accessLevel: AccessLevelEnum.readonly,
+            },
+            group: {
+              groupId: newGroupId,
+              accessLevel: AccessLevelEnum.readonly,
+            },
+            tables: [
+              {
+                tableName: 'users',
+                accessLevel: {
+                  visibility: false,
+                  readonly: true,
+                  add: false,
+                  delete: false,
+                  edit: false,
+                },
+              },
+            ],
+          };
+
+          const createOrUpdatePermissionResponse = await request(app.getHttpServer())
+            .put(`/permissions/${newGroupId}`)
+            .send({ permissions })
+            .set('Cookie', connectionAdminUserToken)
+            .set('Content-Type', 'application/json')
+            .set('Accept', 'application/json');
+          expect(createOrUpdatePermissionResponse.status).toBe(200);
           /* eslint-disable */
           const deleteRowInTable = await request(app.getHttpServer())
             .delete(`/table/row/${connectionIds.firstId}?tableName=users&id=1`)
@@ -1769,9 +2856,50 @@ describe('User permissions (connection readonly, group readonly) (e2e)', () => {
         });
 
         it('should throw an exception when connection id passed in request is incorrect', async () => {
-          const connectionIds = await createConnectionsAndInviteNewUserInNewGroupInFirstConnection();
+          const connectionIds = await createConnectionsAndInviteNewUserInAdminGroupOfFirstConnection();
 
-          const fakeConnectionId = faker.random.uuid();
+          // create group without visibility table permission
+          const createGroupResponse = await request(app.getHttpServer())
+            .post(`/connection/group/${connectionIds.firstId}`)
+            .set('Cookie', simpleUserToken)
+            .send(newGroup1)
+            .set('Content-Type', 'application/json')
+            .set('Accept', 'application/json');
+          const createGroupRO = JSON.parse(createGroupResponse.text);
+          const newGroupId = createGroupRO.id;
+
+          const permissions = {
+            connection: {
+              connectionId: connectionIds.firstId,
+              accessLevel: AccessLevelEnum.readonly,
+            },
+            group: {
+              groupId: newGroupId,
+              accessLevel: AccessLevelEnum.readonly,
+            },
+            tables: [
+              {
+                tableName: 'users',
+                accessLevel: {
+                  visibility: false,
+                  readonly: true,
+                  add: false,
+                  delete: false,
+                  edit: false,
+                },
+              },
+            ],
+          };
+
+          const createOrUpdatePermissionResponse = await request(app.getHttpServer())
+            .put(`/permissions/${newGroupId}`)
+            .send({ permissions })
+            .set('Cookie', connectionAdminUserToken)
+            .set('Content-Type', 'application/json')
+            .set('Accept', 'application/json');
+          expect(createOrUpdatePermissionResponse.status).toBe(200);
+
+          const fakeConnectionId = faker.datatype.uuid();
           const deleteRowInTable = await request(app.getHttpServer())
             .delete(`/table/row/${fakeConnectionId}?tableName=users&id=1`)
             .set('Cookie', simpleUserToken)
@@ -1783,9 +2911,49 @@ describe('User permissions (connection readonly, group readonly) (e2e)', () => {
         });
 
         it('should throw an exception when table name passed in request is incorrect', async () => {
-          const connectionIds = await createConnectionsAndInviteNewUserInNewGroupInFirstConnection();
+          const connectionIds = await createConnectionsAndInviteNewUserInAdminGroupOfFirstConnection();
 
-          const fakeTableName = faker.random.word(1);
+          // create group without visibility table permission
+          const createGroupResponse = await request(app.getHttpServer())
+            .post(`/connection/group/${connectionIds.firstId}`)
+            .set('Cookie', simpleUserToken)
+            .send(newGroup1)
+            .set('Content-Type', 'application/json')
+            .set('Accept', 'application/json');
+          const createGroupRO = JSON.parse(createGroupResponse.text);
+          const newGroupId = createGroupRO.id;
+
+          const permissions = {
+            connection: {
+              connectionId: connectionIds.firstId,
+              accessLevel: AccessLevelEnum.readonly,
+            },
+            group: {
+              groupId: newGroupId,
+              accessLevel: AccessLevelEnum.readonly,
+            },
+            tables: [
+              {
+                tableName: 'users',
+                accessLevel: {
+                  visibility: false,
+                  readonly: true,
+                  add: false,
+                  delete: false,
+                  edit: false,
+                },
+              },
+            ],
+          };
+
+          const createOrUpdatePermissionResponse = await request(app.getHttpServer())
+            .put(`/permissions/${newGroupId}`)
+            .send({ permissions })
+            .set('Cookie', connectionAdminUserToken)
+            .set('Content-Type', 'application/json')
+            .set('Accept', 'application/json');
+          expect(createOrUpdatePermissionResponse.status).toBe(200);
+          const fakeTableName = faker.random.words(1);
           const deleteRowInTable = await request(app.getHttpServer())
             .delete(`/table/row/${connectionIds.firstId}?tableName=${fakeTableName}&id=1`)
             .set('Cookie', simpleUserToken)
@@ -1798,7 +2966,48 @@ describe('User permissions (connection readonly, group readonly) (e2e)', () => {
 
       describe('GET /table/row/:slug', () => {
         it('should return row', async () => {
-          const connectionIds = await createConnectionsAndInviteNewUserInNewGroupInFirstConnection();
+          const connectionIds = await createConnectionsAndInviteNewUserInAdminGroupOfFirstConnection();
+
+          // create group without visibility table permission
+          const createGroupResponse = await request(app.getHttpServer())
+            .post(`/connection/group/${connectionIds.firstId}`)
+            .set('Cookie', simpleUserToken)
+            .send(newGroup1)
+            .set('Content-Type', 'application/json')
+            .set('Accept', 'application/json');
+          const createGroupRO = JSON.parse(createGroupResponse.text);
+          const newGroupId = createGroupRO.id;
+
+          const permissions = {
+            connection: {
+              connectionId: connectionIds.firstId,
+              accessLevel: AccessLevelEnum.readonly,
+            },
+            group: {
+              groupId: newGroupId,
+              accessLevel: AccessLevelEnum.readonly,
+            },
+            tables: [
+              {
+                tableName: 'users',
+                accessLevel: {
+                  visibility: false,
+                  readonly: true,
+                  add: false,
+                  delete: false,
+                  edit: false,
+                },
+              },
+            ],
+          };
+
+          const createOrUpdatePermissionResponse = await request(app.getHttpServer())
+            .put(`/permissions/${newGroupId}`)
+            .send({ permissions })
+            .set('Cookie', connectionAdminUserToken)
+            .set('Content-Type', 'application/json')
+            .set('Accept', 'application/json');
+          expect(createOrUpdatePermissionResponse.status).toBe(200);
 
           const getRowInTable = await request(app.getHttpServer())
             .get(`/table/row/${connectionIds.firstId}?tableName=users&id=5`)
@@ -1817,9 +3026,50 @@ describe('User permissions (connection readonly, group readonly) (e2e)', () => {
         });
 
         it('should throw an exception when connection id passed in request is incorrect', async () => {
-          const connectionIds = await createConnectionsAndInviteNewUserInNewGroupInFirstConnection();
+          const connectionIds = await createConnectionsAndInviteNewUserInAdminGroupOfFirstConnection();
 
-          const fakeConnectionId = faker.random.uuid();
+          // create group without visibility table permission
+          const createGroupResponse = await request(app.getHttpServer())
+            .post(`/connection/group/${connectionIds.firstId}`)
+            .set('Cookie', simpleUserToken)
+            .send(newGroup1)
+            .set('Content-Type', 'application/json')
+            .set('Accept', 'application/json');
+          const createGroupRO = JSON.parse(createGroupResponse.text);
+          const newGroupId = createGroupRO.id;
+
+          const permissions = {
+            connection: {
+              connectionId: connectionIds.firstId,
+              accessLevel: AccessLevelEnum.readonly,
+            },
+            group: {
+              groupId: newGroupId,
+              accessLevel: AccessLevelEnum.readonly,
+            },
+            tables: [
+              {
+                tableName: 'users',
+                accessLevel: {
+                  visibility: false,
+                  readonly: true,
+                  add: false,
+                  delete: false,
+                  edit: false,
+                },
+              },
+            ],
+          };
+
+          const createOrUpdatePermissionResponse = await request(app.getHttpServer())
+            .put(`/permissions/${newGroupId}`)
+            .send({ permissions })
+            .set('Cookie', connectionAdminUserToken)
+            .set('Content-Type', 'application/json')
+            .set('Accept', 'application/json');
+          expect(createOrUpdatePermissionResponse.status).toBe(200);
+
+          const fakeConnectionId = faker.datatype.uuid();
           const addRowInTable = await request(app.getHttpServer())
             .get(`/table/row/${fakeConnectionId}?tableName=users&id=5`)
             .set('Cookie', simpleUserToken)
@@ -1830,9 +3080,50 @@ describe('User permissions (connection readonly, group readonly) (e2e)', () => {
         });
 
         it('should throw an exception when table name passed in request is incorrect', async () => {
-          const connectionIds = await createConnectionsAndInviteNewUserInNewGroupInFirstConnection();
+          const connectionIds = await createConnectionsAndInviteNewUserInAdminGroupOfFirstConnection();
 
-          const fakeTableName = faker.random.word(1);
+          // create group without visibility table permission
+          const createGroupResponse = await request(app.getHttpServer())
+            .post(`/connection/group/${connectionIds.firstId}`)
+            .set('Cookie', simpleUserToken)
+            .send(newGroup1)
+            .set('Content-Type', 'application/json')
+            .set('Accept', 'application/json');
+          const createGroupRO = JSON.parse(createGroupResponse.text);
+          const newGroupId = createGroupRO.id;
+
+          const permissions = {
+            connection: {
+              connectionId: connectionIds.firstId,
+              accessLevel: AccessLevelEnum.readonly,
+            },
+            group: {
+              groupId: newGroupId,
+              accessLevel: AccessLevelEnum.readonly,
+            },
+            tables: [
+              {
+                tableName: 'users',
+                accessLevel: {
+                  visibility: false,
+                  readonly: true,
+                  add: false,
+                  delete: false,
+                  edit: false,
+                },
+              },
+            ],
+          };
+
+          const createOrUpdatePermissionResponse = await request(app.getHttpServer())
+            .put(`/permissions/${newGroupId}`)
+            .send({ permissions })
+            .set('Cookie', connectionAdminUserToken)
+            .set('Content-Type', 'application/json')
+            .set('Accept', 'application/json');
+          expect(createOrUpdatePermissionResponse.status).toBe(200);
+
+          const fakeTableName = faker.random.words(1);
           const addRowInTable = await request(app.getHttpServer())
             .get(`/table/row/${connectionIds.firstId}?tableName=${fakeTableName}&id=5`)
             .set('Cookie', simpleUserToken)
@@ -1850,7 +3141,7 @@ describe('User permissions (connection readonly, group readonly) (e2e)', () => {
     describe('Table logs controller', () => {
       describe('GET /logs/:slug', () => {
         it('should return all found logs in connection', async () => {
-          const connectionIds = await createConnectionsAndInviteNewUserInNewGroupInFirstConnection();
+          const connectionIds = await createConnectionsAndInviteNewUserInAdminGroupOfFirstConnection();
 
           const randomName = faker.name.findName();
           const randomEmail = faker.name.findName();
@@ -1896,7 +3187,7 @@ describe('User permissions (connection readonly, group readonly) (e2e)', () => {
     describe('Table settings controller', () => {
       describe('GET /settings/', () => {
         it('should return empty table settings when it was not created ', async () => {
-          const connectionIds = await createConnectionsAndInviteNewUserInNewGroupInFirstConnection();
+          const connectionIds = await createConnectionsAndInviteNewUserInAdminGroupOfFirstConnection();
 
           const getTableSettings = await request(app.getHttpServer())
             .get(`/settings/?connectionId=${connectionIds.firstId}&tableName=users`)
@@ -1909,7 +3200,7 @@ describe('User permissions (connection readonly, group readonly) (e2e)', () => {
         });
 
         it('should return table settings when it was created ', async () => {
-          const connectionIds = await createConnectionsAndInviteNewUserInNewGroupInFirstConnection();
+          const connectionIds = await createConnectionsAndInviteNewUserInAdminGroupOfFirstConnection();
 
           const createTableSettingsDTO = mockFactory.generateTableSettings(
             connectionIds.firstId,
@@ -1969,7 +3260,7 @@ describe('User permissions (connection readonly, group readonly) (e2e)', () => {
         });
 
         it('should throw an exception when you try get settings in connection where you do not have permission ', async () => {
-          const connectionIds = await createConnectionsAndInviteNewUserInNewGroupInFirstConnection();
+          const connectionIds = await createConnectionsAndInviteNewUserInAdminGroupOfFirstConnection();
 
           const createTableSettingsDTO = mockFactory.generateTableSettings(
             connectionIds.secondId,
@@ -2007,8 +3298,8 @@ describe('User permissions (connection readonly, group readonly) (e2e)', () => {
       });
 
       describe('POST /settings/', () => {
-        it('should throw an exception do not have permission', async () => {
-          const connectionIds = await createConnectionsAndInviteNewUserInNewGroupInFirstConnection();
+        it('should return created table settings', async () => {
+          const connectionIds = await createConnectionsAndInviteNewUserInAdminGroupOfFirstConnection();
 
           const createTableSettingsDTO = mockFactory.generateTableSettings(
             connectionIds.firstId,
@@ -2032,12 +3323,37 @@ describe('User permissions (connection readonly, group readonly) (e2e)', () => {
             .set('Cookie', simpleUserToken)
             .set('Content-Type', 'application/json')
             .set('Accept', 'application/json');
-          expect(createTableSettingsResponse.status).toBe(403);
-          expect(JSON.parse(createTableSettingsResponse.text).message).toBe(Messages.DONT_HAVE_PERMISSIONS);
+          expect(createTableSettingsResponse.status).toBe(201);
+
+          const createTableSettingsRO = JSON.parse(createTableSettingsResponse.text);
+          expect(createTableSettingsRO.hasOwnProperty('id')).toBeTruthy();
+          expect(createTableSettingsRO.table_name).toBe(createTableSettingsDTO.table_name);
+          expect(createTableSettingsRO.display_name).toBe(createTableSettingsDTO.display_name);
+          expect(JSON.stringify(createTableSettingsRO.search_fields)).toBe(
+            JSON.stringify(createTableSettingsDTO.search_fields),
+          );
+          expect(JSON.stringify(createTableSettingsRO.excluded_fields)).toBe(
+            JSON.stringify(createTableSettingsDTO.excluded_fields),
+          );
+          expect(JSON.stringify(createTableSettingsRO.list_fields)).toBe(
+            JSON.stringify(createTableSettingsDTO.list_fields),
+          );
+          expect(JSON.stringify(createTableSettingsRO.identification_fields)).toBe(JSON.stringify([]));
+          expect(createTableSettingsRO.list_per_page).toBe(createTableSettingsDTO.list_per_page);
+          expect(createTableSettingsRO.ordering).toBe(createTableSettingsDTO.ordering);
+          expect(createTableSettingsRO.ordering_field).toBe(createTableSettingsDTO.ordering_field);
+          expect(JSON.stringify(createTableSettingsRO.readonly_fields)).toBe(
+            JSON.stringify(createTableSettingsDTO.readonly_fields),
+          );
+          expect(JSON.stringify(createTableSettingsRO.sortable_by)).toBe(
+            JSON.stringify(createTableSettingsDTO.sortable_by),
+          );
+          expect(JSON.stringify(createTableSettingsRO.autocomplete_columns)).toBe(JSON.stringify([]));
+          expect(createTableSettingsRO.connection_id).toBe(connectionIds.firstId);
         });
 
         it('should throw an exception when you try create settings in connection where you do not have permission', async () => {
-          const connectionIds = await createConnectionsAndInviteNewUserInNewGroupInFirstConnection();
+          const connectionIds = await createConnectionsAndInviteNewUserInAdminGroupOfFirstConnection();
 
           const createTableSettingsDTO = mockFactory.generateTableSettings(
             connectionIds.secondId,
@@ -2070,7 +3386,7 @@ describe('User permissions (connection readonly, group readonly) (e2e)', () => {
 
       describe('PUT /settings/', () => {
         it('should return updated table settings', async () => {
-          const connectionIds = await createConnectionsAndInviteNewUserInNewGroupInFirstConnection();
+          const connectionIds = await createConnectionsAndInviteNewUserInAdminGroupOfFirstConnection();
 
           const createTableSettingsDTO = mockFactory.generateTableSettings(
             connectionIds.firstId,
@@ -2118,12 +3434,37 @@ describe('User permissions (connection readonly, group readonly) (e2e)', () => {
             .set('Cookie', simpleUserToken)
             .set('Content-Type', 'application/json')
             .set('Accept', 'application/json');
-          expect(updateTableSettingsResponse.status).toBe(403);
-          expect(JSON.parse(updateTableSettingsResponse.text).message).toBe(Messages.DONT_HAVE_PERMISSIONS);
+          expect(updateTableSettingsResponse.status).toBe(200);
+
+          const updateTableSettingsRO = JSON.parse(updateTableSettingsResponse.text);
+          expect(updateTableSettingsRO.hasOwnProperty('id')).toBeTruthy();
+          expect(updateTableSettingsRO.table_name).toBe(updateTableSettingsDTO.table_name);
+          expect(updateTableSettingsRO.display_name).toBe(updateTableSettingsDTO.display_name);
+          expect(JSON.stringify(updateTableSettingsRO.search_fields)).toBe(
+            JSON.stringify(updateTableSettingsDTO.search_fields),
+          );
+          expect(JSON.stringify(updateTableSettingsRO.excluded_fields)).toBe(
+            JSON.stringify(updateTableSettingsDTO.excluded_fields),
+          );
+          expect(JSON.stringify(updateTableSettingsRO.list_fields)).toBe(
+            JSON.stringify(updateTableSettingsDTO.list_fields),
+          );
+          //   expect(JSON.stringify(updateTableSettingsRO.identification_fields)).toBe(JSON.stringify([]));
+          expect(updateTableSettingsRO.list_per_page).toBe(updateTableSettingsDTO.list_per_page);
+          expect(updateTableSettingsRO.ordering).toBe(updateTableSettingsDTO.ordering);
+          expect(updateTableSettingsRO.ordering_field).toBe(updateTableSettingsDTO.ordering_field);
+          expect(JSON.stringify(updateTableSettingsRO.readonly_fields)).toBe(
+            JSON.stringify(updateTableSettingsDTO.readonly_fields),
+          );
+          expect(JSON.stringify(updateTableSettingsRO.sortable_by)).toBe(
+            JSON.stringify(updateTableSettingsDTO.sortable_by),
+          );
+          // expect(JSON.stringify(updateTableSettingsRO.autocomplete_columns)).toBe(JSON.stringify([]));
+          expect(updateTableSettingsRO.connection_id).toBe(connectionIds.firstId);
         });
 
         it('should throw an exception when you try update settings in connection where you do not have permission', async () => {
-          const connectionIds = await createConnectionsAndInviteNewUserInNewGroupInFirstConnection();
+          const connectionIds = await createConnectionsAndInviteNewUserInAdminGroupOfFirstConnection();
 
           const createTableSettingsDTO = mockFactory.generateTableSettings(
             connectionIds.secondId,
@@ -2178,7 +3519,7 @@ describe('User permissions (connection readonly, group readonly) (e2e)', () => {
 
       describe('DELETE /settings/', () => {
         it('should return array without deleted table settings', async () => {
-          const connectionIds = await createConnectionsAndInviteNewUserInNewGroupInFirstConnection();
+          const connectionIds = await createConnectionsAndInviteNewUserInAdminGroupOfFirstConnection();
 
           const createTableSettingsDTO = mockFactory.generateTableSettings(
             connectionIds.firstId,
@@ -2210,12 +3551,20 @@ describe('User permissions (connection readonly, group readonly) (e2e)', () => {
             .set('Content-Type', 'application/json')
             .set('Accept', 'application/json');
 
-          expect(deleteTableSettingsResponse.status).toBe(403);
-          expect(JSON.parse(deleteTableSettingsResponse.text).message).toBe(Messages.DONT_HAVE_PERMISSIONS);
+          expect(deleteTableSettingsResponse.status).toBe(200);
+
+          const getTableSettings = await request(app.getHttpServer())
+            .get(`/settings/?connectionId=${connectionIds.firstId}&tableName=users`)
+            .set('Cookie', simpleUserToken)
+            .set('Content-Type', 'application/json')
+            .set('Accept', 'application/json');
+          const getTableSettingsRO = JSON.parse(getTableSettings.text);
+          expect(getTableSettings.status).toBe(200);
+          expect(JSON.stringify(getTableSettingsRO)).toBe(JSON.stringify({}));
         });
 
         it('should throw an exception when you try delete settings in connection where you do not have permission', async () => {
-          const connectionIds = await createConnectionsAndInviteNewUserInNewGroupInFirstConnection();
+          const connectionIds = await createConnectionsAndInviteNewUserInAdminGroupOfFirstConnection();
 
           const createTableSettingsDTO = mockFactory.generateTableSettings(
             connectionIds.secondId,
@@ -2258,7 +3607,7 @@ describe('User permissions (connection readonly, group readonly) (e2e)', () => {
     describe('Table widgets controller', () => {
       describe('GET /widgets/:slug', () => {
         it('should return empty widgets array when widgets not created', async () => {
-          const connectionIds = await createConnectionsAndInviteNewUserInNewGroupInFirstConnection();
+          const connectionIds = await createConnectionsAndInviteNewUserInAdminGroupOfFirstConnection();
 
           const getTableWidgets = await request(app.getHttpServer())
             .get(`/widgets/${connectionIds.firstId}?tableName=users`)
@@ -2273,12 +3622,12 @@ describe('User permissions (connection readonly, group readonly) (e2e)', () => {
 
         it('should return array of table widgets for table', async () => {
           try {
-            const connectionIds = await createConnectionsAndInviteNewUserInNewGroupInFirstConnection();
+            const connectionIds = await createConnectionsAndInviteNewUserInAdminGroupOfFirstConnection();
             const createTableWidgetResponse = await request(app.getHttpServer())
               .post(`/widget/${connectionIds.firstId}?tableName=users`)
               .send({ widgets: newTableWidgets })
               .set('Content-Type', 'application/json')
-              .set('Cookie', connectionAdminUserToken)
+              .set('Cookie', simpleUserToken)
               .set('Accept', 'application/json');
             const createTableWidgetRO = JSON.parse(createTableWidgetResponse.text);
             expect(createTableWidgetResponse.status).toBe(201);
@@ -2301,7 +3650,7 @@ describe('User permissions (connection readonly, group readonly) (e2e)', () => {
             expect(getTableWidgetsRO.length).toBe(2);
             expect(uuidRegex.test(getTableWidgetsRO[0].id)).toBeTruthy();
             expect(getTableWidgetsRO[0].field_name).toBe(newTableWidgets[0].field_name);
-            expect(getTableWidgetsRO[1].widget_type).toBe(newTableWidgets[1].widget_type);
+            expect(getTableWidgetsRO[0].widget_type).toBe(newTableWidgets[0].widget_type);
             expect(
               compareArrayElements(getTableWidgetsRO[1].widget_params, newTableWidgets[1].widget_params),
             ).toBeTruthy();
@@ -2318,10 +3667,7 @@ describe('User permissions (connection readonly, group readonly) (e2e)', () => {
             expect(getTableStructureRO.table_widgets[0].field_name).toBe(newTableWidgets[0].field_name);
             expect(getTableStructureRO.table_widgets[1].widget_type).toBe(newTableWidgets[1].widget_type);
             expect(
-              compareArrayElements(
-                getTableStructureRO.table_widgets[0].widget_params,
-                newTableWidgets[0].widget_params,
-              ),
+              compareArrayElements(getTableStructureRO.table_widgets[0].widget_params, newTableWidget.widget_params),
             ).toBeTruthy();
           } catch (err) {
             throw err;
@@ -2330,22 +3676,21 @@ describe('User permissions (connection readonly, group readonly) (e2e)', () => {
 
         it('should throw an exception, when you try to get widgets from connection, when you do not have permissions', async () => {
           try {
-            const connectionIds = await createConnectionsAndInviteNewUserInNewGroupInFirstConnection();
+            const connectionIds = await createConnectionsAndInviteNewUserInAdminGroupOfFirstConnection();
             const createTableWidgetResponse = await request(app.getHttpServer())
-              .post(`/widget/${connectionIds.firstId}?tableName=users`)
+              .post(`/widget/${connectionIds.secondId}?tableName=users`)
               .send({ widgets: newTableWidgets })
               .set('Content-Type', 'application/json')
               .set('Cookie', connectionAdminUserToken)
               .set('Accept', 'application/json');
             const createTableWidgetRO = JSON.parse(createTableWidgetResponse.text);
             expect(createTableWidgetResponse.status).toBe(201);
-
             expect(typeof createTableWidgetRO).toBe('object');
             expect(createTableWidgetRO.length).toBe(2);
             expect(createTableWidgetRO[0].widget_type).toBe(newTableWidgets[0].widget_type);
             expect(createTableWidgetRO[1].field_name).toBe(newTableWidgets[1].field_name);
             expect(createTableWidgetRO[0].name).toBe(newTableWidgets[0].name);
-            expect(uuidRegex.test(createTableWidgetRO[1].id)).toBeTruthy();
+            expect(uuidRegex.test(createTableWidgetRO[0].id)).toBeTruthy();
 
             const getTableWidgets = await request(app.getHttpServer())
               .get(`/widgets/${connectionIds.secondId}?tableName=users`)
@@ -2362,8 +3707,8 @@ describe('User permissions (connection readonly, group readonly) (e2e)', () => {
       });
 
       describe('POST /widget/:slug', () => {
-        it('should throw an exception do not have permissions', async () => {
-          const connectionIds = await createConnectionsAndInviteNewUserInNewGroupInFirstConnection();
+        it('should return table settings with created table widget field', async () => {
+          const connectionIds = await createConnectionsAndInviteNewUserInAdminGroupOfFirstConnection();
 
           const createTableWidgetResponse = await request(app.getHttpServer())
             .post(`/widget/${connectionIds.firstId}?tableName=users`)
@@ -2372,12 +3717,28 @@ describe('User permissions (connection readonly, group readonly) (e2e)', () => {
             .set('Cookie', simpleUserToken)
             .set('Accept', 'application/json');
           const createTableWidgetRO = JSON.parse(createTableWidgetResponse.text);
-          expect(createTableWidgetResponse.status).toBe(403);
-          expect(createTableWidgetRO.message).toBe(Messages.DONT_HAVE_PERMISSIONS);
+          expect(createTableWidgetResponse.status).toBe(201);
+          expect(typeof createTableWidgetRO).toBe('object');
+
+          const getTableWidgets = await request(app.getHttpServer())
+            .get(`/widgets/${connectionIds.firstId}?tableName=users`)
+            .set('Content-Type', 'application/json')
+            .set('Cookie', simpleUserToken)
+            .set('Accept', 'application/json');
+          expect(getTableWidgets.status).toBe(200);
+          const getTableWidgetsRO = JSON.parse(getTableWidgets.text);
+          expect(typeof getTableWidgetsRO).toBe('object');
+          expect(getTableWidgetsRO.length).toBe(2);
+          expect(uuidRegex.test(getTableWidgetsRO[0].id)).toBeTruthy();
+          expect(getTableWidgetsRO[0].widget_type).toBe(newTableWidgets[0].widget_type);
+          expect(
+            compareArrayElements(getTableWidgetsRO[1].widget_params, newTableWidgets[1].widget_params),
+          ).toBeTruthy();
+          expect(uuidRegex.test(getTableWidgetsRO[0].id)).toBeTruthy();
         });
 
         it('should throw an exception, when you try add widget in connection, when you do not have permissions', async () => {
-          const connectionIds = await createConnectionsAndInviteNewUserInNewGroupInFirstConnection();
+          const connectionIds = await createConnectionsAndInviteNewUserInAdminGroupOfFirstConnection();
 
           const createTableWidgetResponse = await request(app.getHttpServer())
             .post(`/widget/${connectionIds.secondId}?tableName=users`)

@@ -1,20 +1,20 @@
 import * as AWS from 'aws-sdk';
 import * as AWSMock from 'aws-sdk-mock';
-import * as faker from 'faker';
+import { faker } from '@faker-js/faker';
 import * as request from 'supertest';
 
-import { ApplicationModule } from '../src/app.module';
+import { ApplicationModule } from '../../src/app.module';
 import { Connection } from 'typeorm';
-import { DatabaseModule } from '../src/shared/database/database.module';
-import { DatabaseService } from '../src/shared/database/database.service';
-import { Encryptor } from '../src/helpers/encryption/encryptor';
+import { DatabaseModule } from '../../src/shared/database/database.module';
+import { DatabaseService } from '../../src/shared/database/database.service';
+import { Encryptor } from '../../src/helpers/encryption/encryptor';
 import { INestApplication } from '@nestjs/common';
-import { Messages } from '../src/exceptions/text/messages';
-import { MockFactory } from './mock.factory';
-import { replaceTextInCurlies } from '../src/helpers';
+import { Messages } from '../../src/exceptions/text/messages';
+import { MockFactory } from '../mock.factory';
+import { replaceTextInCurlies } from '../../src/helpers';
 import { Test } from '@nestjs/testing';
-import { TestUtils } from './utils/test.utils';
-import { Cacher } from '../src/helpers/cache/cacher';
+import { TestUtils } from '../utils/test.utils';
+import { Cacher } from '../../src/helpers/cache/cacher';
 
 describe('Custom fields(e2e)', () => {
   jest.setTimeout(20000);
@@ -234,7 +234,7 @@ describe('Custom fields(e2e)', () => {
         const createConnectionRO = JSON.parse(createConnectionResponse.text);
         expect(createConnectionResponse.status).toBe(201);
         const newCustomField = mockFactory.generateCustomFieldForConnectionTable('id', 'title');
-        createConnectionRO.id = faker.random.uuid();
+        createConnectionRO.id = faker.datatype.uuid();
         const createCustomFieldResponse = await request(app.getHttpServer())
           .post(`/field/${createConnectionRO.id}?tableName=connection`)
           .send(newCustomField)
@@ -261,7 +261,7 @@ describe('Custom fields(e2e)', () => {
         const createConnectionRO = JSON.parse(createConnectionResponse.text);
         expect(createConnectionResponse.status).toBe(201);
         const newCustomField = mockFactory.generateCustomFieldForConnectionTable('id', 'title');
-        const tableName = faker.random.word(2);
+        const tableName = faker.random.words(2);
         const createCustomFieldResponse = await request(app.getHttpServer())
           .post(`/field/${createConnectionRO.id}?tableName=${tableName}`)
           .send(newCustomField)
@@ -521,7 +521,7 @@ describe('Custom fields(e2e)', () => {
         const createConnectionRO = JSON.parse(createConnectionResponse.text);
         expect(createConnectionResponse.status).toBe(201);
         const newCustomField = mockFactory.generateCustomFieldForConnectionTable('id', 'title');
-        createConnectionRO.id = faker.random.uuid();
+        createConnectionRO.id = faker.datatype.uuid();
         const createCustomFieldResponse = await request(app.getHttpServer())
           .post(`/field/${createConnectionRO.id}?tableName=connection`)
           .send(newCustomField)
@@ -548,7 +548,7 @@ describe('Custom fields(e2e)', () => {
         const createConnectionRO = JSON.parse(createConnectionResponse.text);
         expect(createConnectionResponse.status).toBe(201);
         const newCustomField = mockFactory.generateCustomFieldForConnectionTable('id', 'title');
-        const tableName = faker.random.word(2);
+        const tableName = faker.random.words(2);
         const createCustomFieldResponse = await request(app.getHttpServer())
           .post(`/field/${createConnectionRO.id}?tableName=${tableName}`)
           .send(newCustomField)
@@ -751,7 +751,7 @@ describe('Custom fields(e2e)', () => {
           text: 'updated',
           template_string: 'https//?connectionId={{id}}&connectionType={{type}}',
         };
-        createConnectionRO.id = faker.random.uuid();
+        createConnectionRO.id = faker.datatype.uuid();
         const updateCustomFieldResponse = await request(app.getHttpServer())
           .put(`/field/${createConnectionRO.id}?tableName=connection`)
           .send(updateDTO)
@@ -810,7 +810,7 @@ describe('Custom fields(e2e)', () => {
           text: 'updated',
           template_string: 'https//?connectionId={{id}}&connectionType={{type}}',
         };
-        const tableName = faker.random.word();
+        const tableName = faker.random.words();
         const updateCustomFieldResponse = await request(app.getHttpServer())
           .put(`/field/${createConnectionRO.id}?tableName=${tableName}`)
           .send(updateDTO)
@@ -1040,7 +1040,7 @@ describe('Custom fields(e2e)', () => {
 
         const updateDTO = {
           id: getCustomFieldsRO[0].id,
-          type: faker.random.word(),
+          type: faker.random.words(),
           text: 'updated',
           template_string: 'https//?connectionId={{id}}&connectionType={{type}}',
         };
@@ -1212,8 +1212,8 @@ describe('Custom fields(e2e)', () => {
         expect(getCustomFieldsRO[0].text).toBe(newCustomField.text);
         expect(getCustomFieldsRO[0].template_string).toBe('https//?connectionId={{id}}&connectionTitle={{title}}');
 
-        const randomField1 = faker.random.word();
-        const randomField2 = faker.random.word();
+        const randomField1 = faker.random.words();
+        const randomField2 = faker.random.words();
         const updateDTO = {
           id: getCustomFieldsRO[0].id,
           type: getCustomFieldsRO[0].type,
@@ -1452,7 +1452,7 @@ describe('Custom fields(e2e)', () => {
         expect(getCustomFieldsRO[0].text).toBe(newCustomField.text);
         expect(getCustomFieldsRO[0].template_string).toBe('https//?connectionId={{id}}&connectionTitle={{title}}');
 
-        createConnectionRO.id = faker.random.uuid();
+        createConnectionRO.id = faker.datatype.uuid();
         const deleteCustomField = await request(app.getHttpServer())
           .delete(`/field/${createConnectionRO.id}?tableName=connection&id=${getCustomFieldsRO[0].id}`)
           .set('Content-Type', 'application/json')
@@ -1553,7 +1553,7 @@ describe('Custom fields(e2e)', () => {
         expect(getCustomFieldsRO[0].text).toBe(newCustomField.text);
         expect(getCustomFieldsRO[0].template_string).toBe('https//?connectionId={{id}}&connectionTitle={{title}}');
 
-        const tableName = faker.random.word();
+        const tableName = faker.random.words();
         const deleteCustomField = await request(app.getHttpServer())
           .delete(`/field/${createConnectionRO.id}?tableName=${tableName}&id=${getCustomFieldsRO[0].id}`)
           .set('Content-Type', 'application/json')
@@ -1655,7 +1655,7 @@ describe('Custom fields(e2e)', () => {
         expect(getCustomFieldsRO[0].text).toBe(newCustomField.text);
         expect(getCustomFieldsRO[0].template_string).toBe('https//?connectionId={{id}}&connectionTitle={{title}}');
 
-        getCustomFieldsRO[0].id = faker.random.uuid();
+        getCustomFieldsRO[0].id = faker.datatype.uuid();
         const deleteCustomField = await request(app.getHttpServer())
           .delete(`/field/${createConnectionRO.id}?tableName=connection&id=${getCustomFieldsRO[0].id}`)
           .set('Content-Type', 'application/json')

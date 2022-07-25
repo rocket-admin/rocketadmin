@@ -1,19 +1,19 @@
 import * as AWS from 'aws-sdk';
 import * as AWSMock from 'aws-sdk-mock';
-import * as faker from 'faker';
+import { faker } from '@faker-js/faker';
 import * as request from 'supertest';
 
-import { AccessLevelEnum } from '../src/enums';
-import { ApplicationModule } from '../src/app.module';
+import { AccessLevelEnum } from '../../src/enums';
+import { ApplicationModule } from '../../src/app.module';
 import { Connection } from 'typeorm';
-import { DatabaseModule } from '../src/shared/database/database.module';
-import { DatabaseService } from '../src/shared/database/database.service';
+import { DatabaseModule } from '../../src/shared/database/database.module';
+import { DatabaseService } from '../../src/shared/database/database.service';
 import { INestApplication } from '@nestjs/common';
-import { Messages } from '../src/exceptions/text/messages';
-import { MockFactory } from './mock.factory';
+import { Messages } from '../../src/exceptions/text/messages';
+import { MockFactory } from '../mock.factory';
 import { Test } from '@nestjs/testing';
-import { TestUtils } from './utils/test.utils';
-import { Cacher } from '../src/helpers/cache/cacher';
+import { TestUtils } from '../utils/test.utils';
+import { Cacher } from '../../src/helpers/cache/cacher';
 
 describe('Permissions (e2e)', () => {
   jest.setTimeout(10000);
@@ -217,8 +217,8 @@ describe('Permissions (e2e)', () => {
         const createGroupRO = JSON.parse(createGroupResponse.text);
         expect(createGroupResponse.status).toBe(201);
 
-        const firstTableName = faker.random.word(1);
-        const secondTableName = faker.random.word(3);
+        const firstTableName = faker.random.words(1);
+        const secondTableName = faker.random.words(3);
         const connectionAccessLevel = AccessLevelEnum.none;
         const groupAccesssLevel = AccessLevelEnum.edit;
         const permissionsDTO = mockFactory.generatePermissions(
@@ -282,8 +282,8 @@ describe('Permissions (e2e)', () => {
         const createGroupRO = JSON.parse(createGroupResponse.text);
         expect(createGroupResponse.status).toBe(201);
 
-        const firstTableName = faker.random.word(1);
-        const secondTableName = faker.random.word(3);
+        const firstTableName = faker.random.words(1);
+        const secondTableName = faker.random.words(3);
         const connectionAccessLevel = AccessLevelEnum.none;
         const groupAccesssLevel = AccessLevelEnum.edit;
         const permissionsDTO = mockFactory.generatePermissions(
@@ -295,7 +295,7 @@ describe('Permissions (e2e)', () => {
           groupAccesssLevel,
         );
 
-        createGroupRO.id = faker.random.uuid();
+        createGroupRO.id = faker.datatype.uuid();
 
         const createPermissionsResponse = await request(app.getHttpServer())
           .put(`/permissions/${createGroupRO.id}`)
@@ -350,8 +350,8 @@ describe('Permissions (e2e)', () => {
         const createGroupRO = JSON.parse(createGroupResponse.text);
         expect(createGroupResponse.status).toBe(201);
 
-        const firstTableName = faker.random.word(1);
-        const secondTableName = faker.random.word(3);
+        const firstTableName = faker.random.words(1);
+        const secondTableName = faker.random.words(3);
         const connectionAccessLevel = AccessLevelEnum.none;
         const groupAccesssLevel = AccessLevelEnum.edit;
         const permissionsDTO = mockFactory.generatePermissions(
@@ -363,7 +363,7 @@ describe('Permissions (e2e)', () => {
           groupAccesssLevel,
         );
 
-        permissionsDTO.permissions.connection.connectionId = faker.random.uuid();
+        permissionsDTO.permissions.connection.connectionId = faker.datatype.uuid();
 
         const createPermissionsResponse = await request(app.getHttpServer())
           .put(`/permissions/${createGroupRO.id}`)

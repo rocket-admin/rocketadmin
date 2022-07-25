@@ -1,23 +1,23 @@
 import * as AWS from 'aws-sdk';
 import * as AWSMock from 'aws-sdk-mock';
-import * as faker from 'faker';
+import { faker } from '@faker-js/faker';
 import { knex } from 'knex';
 import * as request from 'supertest';
 
-import { ApplicationModule } from '../src/app.module';
+import { ApplicationModule } from '../../src/app.module';
 import { Connection } from 'typeorm';
-import { Constants } from '../src/helpers/constants/constants';
-import { DatabaseModule } from '../src/shared/database/database.module';
-import { DatabaseService } from '../src/shared/database/database.service';
+import { Constants } from '../../src/helpers/constants/constants';
+import { DatabaseModule } from '../../src/shared/database/database.module';
+import { DatabaseService } from '../../src/shared/database/database.service';
 import { INestApplication } from '@nestjs/common';
-import { Messages } from '../src/exceptions/text/messages';
-import { MockFactory } from './mock.factory';
-import { QueryOrderingEnum } from '../src/enums';
+import { Messages } from '../../src/exceptions/text/messages';
+import { MockFactory } from '../mock.factory';
+import { QueryOrderingEnum } from '../../src/enums';
 import { Test } from '@nestjs/testing';
-import { TestUtils } from './utils/test.utils';
-import { Cacher } from '../src/helpers/cache/cacher';
+import { TestUtils } from '../utils/test.utils';
+import { Cacher } from '../../src/helpers/cache/cacher';
 
-describe('Tables Postgres (e2e)', () => {
+describe('Tables MySQL (e2e)', () => {
   jest.setTimeout(20000);
   let app: INestApplication;
   let testUtils: TestUtils;
@@ -29,16 +29,17 @@ describe('Tables Postgres (e2e)', () => {
   const testSearchedUserName = 'Vasia';
   const testEntitiesSeedsCount = 42;
 
-  async function resetPostgresTestDB() {
-    const { host, username, password, database, port, type, ssl, cert } = newConnection;
+  async function resetMySQLTestDB() {
+    const { host, username, password, database, port, ssl, cert } = newConnection;
     const Knex = knex({
-      client: type,
+      client: 'mysql2',
       connection: {
         host: host,
         user: username,
         password: password,
         database: database,
         port: port,
+        ssl: ssl ? { ca: cert } : { rejectUnauthorized: false },
       },
     });
     await Knex.schema.dropTableIfExists(testTableName);
@@ -80,9 +81,29 @@ describe('Tables Postgres (e2e)', () => {
     app = moduleFixture.createNestApplication();
     await app.init();
 
-    newConnection = mockFactory.generateConnectionToTestPostgresDBInDocker();
-
-    await resetPostgresTestDB();
+    newConnection = mockFactory.generateConnectionToTestMySQLDBInDocker();
+    AWSMock.setSDKInstance(AWS);
+    AWSMock.mock(
+      'CognitoIdentityServiceProvider',
+      'listUsers',
+      (newCognitoUserName, callback: (...args: any) => void) => {
+        callback(null, {
+          Users: [
+            {
+              Attributes: [
+                {},
+                {},
+                {
+                  Name: 'email',
+                  Value: 'Example@gmail.com',
+                },
+              ],
+            },
+          ],
+        });
+      },
+    );
+    await resetMySQLTestDB();
     const findAllConnectionsResponse = await request(app.getHttpServer())
       .get('/connections')
       .set('Content-Type', 'application/json')
@@ -97,9 +118,12 @@ describe('Tables Postgres (e2e)', () => {
     AWSMock.restore('CognitoIdentityServiceProvider');
   });
 
+  beforeAll(() => {
+    jest.setTimeout(60000);
+  });
+
   afterAll(async () => {
     try {
-      await Cacher.clearAllCache();
       jest.setTimeout(5000);
       await testUtils.shutdownServer(app.getHttpAdapter());
       const connect = await app.get(Connection);
@@ -108,7 +132,7 @@ describe('Tables Postgres (e2e)', () => {
       }
       await app.close();
     } catch (e) {
-      console.error('After all table-postgres field error: ' + e);
+      console.error('After all table-mysql error: ' + e);
     }
   });
 
@@ -178,7 +202,7 @@ describe('Tables Postgres (e2e)', () => {
         const createConnectionRO = JSON.parse(createConnectionResponse.text);
         expect(createConnectionResponse.status).toBe(201);
 
-        createConnectionRO.id = faker.random.uuid();
+        createConnectionRO.id = faker.datatype.uuid();
         const getTablesResponse = await request(app.getHttpServer())
           .get(`/connection/tables/${createConnectionRO.id}`)
           .set('Content-Type', 'application/json')
@@ -208,8 +232,10 @@ describe('Tables Postgres (e2e)', () => {
             .get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}`)
             .set('Content-Type', 'application/json')
             .set('Accept', 'application/json');
-          const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
           expect(getTableRowsResponse.status).toBe(200);
+
+          const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
+
           expect(typeof getTableRowsRO).toBe('object');
           expect(getTableRowsRO.hasOwnProperty('rows')).toBeTruthy();
           expect(getTableRowsRO.hasOwnProperty('primaryColumns')).toBeTruthy();
@@ -220,7 +246,7 @@ describe('Tables Postgres (e2e)', () => {
           expect(getTableRowsRO.rows[1].hasOwnProperty('name')).toBeTruthy();
           expect(getTableRowsRO.rows[10].hasOwnProperty('email')).toBeTruthy();
           expect(getTableRowsRO.rows[15].hasOwnProperty('created_at')).toBeTruthy();
-          expect(getTableRowsRO.rows[12].hasOwnProperty('updated_at')).toBeTruthy();
+          expect(getTableRowsRO.rows[19].hasOwnProperty('updated_at')).toBeTruthy();
 
           expect(typeof getTableRowsRO.primaryColumns).toBe('object');
           expect(getTableRowsRO.primaryColumns[0].hasOwnProperty('column_name')).toBeTruthy();
@@ -232,7 +258,7 @@ describe('Tables Postgres (e2e)', () => {
 
       it('should throw an exception when connection id not passed in request', async () => {
         try {
-          const connectionCount = faker.random.number({ min: 5, max: 15 });
+          const connectionCount = faker.datatype.number({ min: 5, max: 15, precision: 1 });
           for (let i = 0; i < connectionCount; i++) {
             const createConnectionResponse = await request(app.getHttpServer())
               .post('/connection')
@@ -263,7 +289,7 @@ describe('Tables Postgres (e2e)', () => {
 
       it('should throw an exception when connection id is incorrect', async () => {
         try {
-          const connectionCount = faker.random.number({ min: 5, max: 15 });
+          const connectionCount = faker.datatype.number({ min: 5, max: 15, precision: 1 });
           for (let i = 0; i < connectionCount; i++) {
             const createConnectionResponse = await request(app.getHttpServer())
               .post('/connection')
@@ -281,7 +307,7 @@ describe('Tables Postgres (e2e)', () => {
           const createConnectionRO = JSON.parse(createConnectionResponse.text);
           expect(createConnectionResponse.status).toBe(201);
 
-          createConnectionRO.id = faker.random.uuid();
+          createConnectionRO.id = faker.datatype.uuid();
           const getTableRowsResponse = await request(app.getHttpServer())
             .get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}`)
             .set('Content-Type', 'application/json')
@@ -358,7 +384,7 @@ describe('Tables Postgres (e2e)', () => {
 
       it('should return throw an error when connectionId is not passed in request', async () => {
         try {
-          const connectionCount = faker.random.number({ min: 5, max: 15 });
+          const connectionCount = faker.datatype.number({ min: 5, max: 15, precision: 1 });
           for (let i = 0; i < connectionCount; i++) {
             const createConnectionResponse = await request(app.getHttpServer())
               .post('/connection')
@@ -443,7 +469,7 @@ describe('Tables Postgres (e2e)', () => {
             .set('Accept', 'application/json');
           expect(createTableSettingsResponse.status).toBe(201);
           const searchedDescription = '5';
-          createConnectionRO.id = faker.random.uuid();
+          createConnectionRO.id = faker.datatype.uuid();
           const getTableRowsResponse = await request(app.getHttpServer())
             .get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&search=${searchedDescription}`)
             .set('Content-Type', 'application/json')
@@ -489,7 +515,7 @@ describe('Tables Postgres (e2e)', () => {
             .set('Accept', 'application/json');
           expect(createTableSettingsResponse.status).toBe(201);
 
-          const search = faker.random.word(1);
+          const search = faker.random.words(1);
           const getTableRowsResponse = await request(app.getHttpServer())
             .get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&search=${search}`)
             .set('Content-Type', 'application/json')
@@ -520,7 +546,7 @@ describe('Tables Postgres (e2e)', () => {
           const createConnectionRO = JSON.parse(createConnectionResponse.text);
           expect(createConnectionResponse.status).toBe(201);
 
-          const randomTableName = faker.random.word(1);
+          const randomTableName = faker.random.words(1);
           const searchedDescription = '5';
           const getTableRowsResponse = await request(app.getHttpServer())
             .get(`/table/rows/${createConnectionRO.id}?tableName=${randomTableName}&search=${searchedDescription}`)
@@ -590,7 +616,7 @@ describe('Tables Postgres (e2e)', () => {
           expect(getTableRowsRO.primaryColumns[0].hasOwnProperty('column_name')).toBeTruthy();
           expect(getTableRowsRO.primaryColumns[0].hasOwnProperty('data_type')).toBeTruthy();
           expect(getTableRowsRO.primaryColumns[0].column_name).toBe('id');
-          expect(getTableRowsRO.primaryColumns[0].data_type).toBe('integer');
+          expect(getTableRowsRO.primaryColumns[0].data_type).toBe('int');
 
           expect(getTableRowsRO.pagination.total).toBe(42);
           expect(getTableRowsRO.pagination.lastPage).toBe(21);
@@ -654,7 +680,7 @@ describe('Tables Postgres (e2e)', () => {
           expect(getTableRowsRO.primaryColumns[0].hasOwnProperty('column_name')).toBeTruthy();
           expect(getTableRowsRO.primaryColumns[0].hasOwnProperty('data_type')).toBeTruthy();
           expect(getTableRowsRO.primaryColumns[0].column_name).toBe('id');
-          expect(getTableRowsRO.primaryColumns[0].data_type).toBe('integer');
+          expect(getTableRowsRO.primaryColumns[0].data_type).toBe('int');
 
           expect(getTableRowsRO.pagination.total).toBe(42);
           expect(getTableRowsRO.pagination.lastPage).toBe(21);
@@ -715,7 +741,7 @@ describe('Tables Postgres (e2e)', () => {
           expect(getTableRowsRO.primaryColumns[0].hasOwnProperty('column_name')).toBeTruthy();
           expect(getTableRowsRO.primaryColumns[0].hasOwnProperty('data_type')).toBeTruthy();
           expect(getTableRowsRO.primaryColumns[0].column_name).toBe('id');
-          expect(getTableRowsRO.primaryColumns[0].data_type).toBe('integer');
+          expect(getTableRowsRO.primaryColumns[0].data_type).toBe('int');
 
           expect(getTableRowsRO.pagination.total).toBe(42);
           expect(getTableRowsRO.pagination.lastPage).toBe(21);
@@ -759,7 +785,7 @@ describe('Tables Postgres (e2e)', () => {
             .set('Accept', 'application/json');
           expect(createTableSettingsResponse.status).toBe(201);
 
-          const fakeTableName = faker.random.word(1);
+          const fakeTableName = faker.random.words(1);
           const getTableRowsResponse = await request(app.getHttpServer())
             .get(`/table/rows/${createConnectionRO.id}?tableName=${fakeTableName}&page=1&perPage=2`)
             .set('Content-Type', 'application/json')
@@ -837,7 +863,7 @@ describe('Tables Postgres (e2e)', () => {
           const createConnectionRO = JSON.parse(createConnectionResponse.text);
           expect(createConnectionResponse.status).toBe(201);
 
-          createConnectionRO.id = faker.random.uuid();
+          createConnectionRO.id = faker.datatype.uuid();
           const getTableRowsResponse = await request(app.getHttpServer())
             .get(`/table/rows/${createConnectionRO.id}?tableName=connection&page=1&perPage=2`)
             .set('Content-Type', 'application/json')
@@ -906,7 +932,7 @@ describe('Tables Postgres (e2e)', () => {
           expect(getTableRowsRO.primaryColumns[0].hasOwnProperty('column_name')).toBeTruthy();
           expect(getTableRowsRO.primaryColumns[0].hasOwnProperty('data_type')).toBeTruthy();
           expect(getTableRowsRO.primaryColumns[0].column_name).toBe('id');
-          expect(getTableRowsRO.primaryColumns[0].data_type).toBe('integer');
+          expect(getTableRowsRO.primaryColumns[0].data_type).toBe('int');
 
           expect(getTableRowsRO.pagination.total).toBe(3);
           expect(getTableRowsRO.pagination.lastPage).toBe(2);
@@ -970,7 +996,7 @@ describe('Tables Postgres (e2e)', () => {
           expect(getTableRowsRO.primaryColumns[0].hasOwnProperty('column_name')).toBeTruthy();
           expect(getTableRowsRO.primaryColumns[0].hasOwnProperty('data_type')).toBeTruthy();
           expect(getTableRowsRO.primaryColumns[0].column_name).toBe('id');
-          expect(getTableRowsRO.primaryColumns[0].data_type).toBe('integer');
+          expect(getTableRowsRO.primaryColumns[0].data_type).toBe('int');
 
           expect(getTableRowsRO.pagination.total).toBe(3);
           expect(getTableRowsRO.pagination.lastPage).toBe(1);
@@ -1059,7 +1085,7 @@ describe('Tables Postgres (e2e)', () => {
             .set('Content-Type', 'application/json')
             .set('Accept', 'application/json');
           expect(createTableSettingsResponse.status).toBe(201);
-          createConnectionRO.id = faker.random.uuid();
+          createConnectionRO.id = faker.datatype.uuid();
 
           const getTableRowsResponse = await request(app.getHttpServer())
             .get(
@@ -1109,7 +1135,7 @@ describe('Tables Postgres (e2e)', () => {
             .set('Accept', 'application/json');
           expect(createTableSettingsResponse.status).toBe(201);
 
-          const fakeTableName = faker.random.word(1);
+          const fakeTableName = faker.random.words(1);
           const getTableRowsResponse = await request(app.getHttpServer())
             .get(
               `/table/rows/${createConnectionRO.id}?tableName=${fakeTableName}&search=${testSearchedUserName}&page=1&perPage=3`,
@@ -1191,7 +1217,7 @@ describe('Tables Postgres (e2e)', () => {
             ['name'],
             undefined,
             undefined,
-            3,
+            42,
             QueryOrderingEnum.DESC,
             'id',
             undefined,
@@ -1219,11 +1245,11 @@ describe('Tables Postgres (e2e)', () => {
           expect(getTableRowsRO.hasOwnProperty('rows')).toBeTruthy();
           expect(getTableRowsRO.hasOwnProperty('primaryColumns')).toBeTruthy();
           expect(getTableRowsRO.hasOwnProperty('pagination')).toBeTruthy();
-          expect(getTableRowsRO.rows.length).toBe(3);
+          expect(getTableRowsRO.rows.length).toBe(42);
           expect(Object.keys(getTableRowsRO.rows[1]).length).toBe(5);
           expect(getTableRowsRO.rows[0].id).toBe(42);
           expect(getTableRowsRO.rows[1].id).toBe(41);
-          expect(getTableRowsRO.rows[2].id).toBe(40);
+          expect(getTableRowsRO.rows[41].id).toBe(1);
 
           expect(typeof getTableRowsRO.primaryColumns).toBe('object');
           expect(getTableRowsRO.primaryColumns[0].hasOwnProperty('column_name')).toBeTruthy();
@@ -1249,7 +1275,7 @@ describe('Tables Postgres (e2e)', () => {
             ['name'],
             undefined,
             undefined,
-            3,
+            42,
             QueryOrderingEnum.ASC,
             'id',
             undefined,
@@ -1277,11 +1303,11 @@ describe('Tables Postgres (e2e)', () => {
           expect(getTableRowsRO.hasOwnProperty('rows')).toBeTruthy();
           expect(getTableRowsRO.hasOwnProperty('primaryColumns')).toBeTruthy();
           expect(getTableRowsRO.hasOwnProperty('pagination')).toBeTruthy();
-          expect(getTableRowsRO.rows.length).toBe(3);
+          expect(getTableRowsRO.rows.length).toBe(42);
           expect(Object.keys(getTableRowsRO.rows[1]).length).toBe(5);
           expect(getTableRowsRO.rows[0].id).toBe(1);
           expect(getTableRowsRO.rows[1].id).toBe(2);
-          expect(getTableRowsRO.rows[2].id).toBe(3);
+          expect(getTableRowsRO.rows[41].id).toBe(42);
 
           expect(typeof getTableRowsRO.primaryColumns).toBe('object');
           expect(getTableRowsRO.primaryColumns[0].hasOwnProperty('column_name')).toBeTruthy();
@@ -1367,7 +1393,7 @@ describe('Tables Postgres (e2e)', () => {
             .set('Content-Type', 'application/json')
             .set('Accept', 'application/json');
           expect(createTableSettingsResponse.status).toBe(201);
-          createConnectionRO.id = faker.random.uuid();
+          createConnectionRO.id = faker.datatype.uuid();
           const getTableRowsResponse = await request(app.getHttpServer())
             .get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}`)
             .set('Content-Type', 'application/json')
@@ -1459,7 +1485,7 @@ describe('Tables Postgres (e2e)', () => {
             .set('Accept', 'application/json');
           expect(createTableSettingsResponse.status).toBe(201);
 
-          const fakeTableName = faker.random.word(1);
+          const fakeTableName = faker.random.words(1);
           const getTableRowsResponse = await request(app.getHttpServer())
             .get(`/table/rows/${createConnectionRO.id}?tableName=${fakeTableName}`)
             .set('Content-Type', 'application/json')
@@ -1725,7 +1751,7 @@ describe('Tables Postgres (e2e)', () => {
             .set('Accept', 'application/json');
           expect(createTableSettingsResponse.status).toBe(201);
 
-          createConnectionRO.id = faker.random.uuid();
+          createConnectionRO.id = faker.datatype.uuid();
           const getTableRowsResponse = await request(app.getHttpServer())
             .get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=2&perPage=3`)
             .set('Content-Type', 'application/json')
@@ -1773,7 +1799,7 @@ describe('Tables Postgres (e2e)', () => {
             .set('Accept', 'application/json');
           expect(createTableSettingsResponse.status).toBe(201);
 
-          const fakeTableName = faker.random.word(1);
+          const fakeTableName = faker.random.words(1);
           const getTableRowsResponse = await request(app.getHttpServer())
             .get(`/table/rows/${createConnectionRO.id}?tableName=${fakeTableName}&page=2&perPage=3`)
             .set('Content-Type', 'application/json')
@@ -2115,7 +2141,7 @@ describe('Tables Postgres (e2e)', () => {
             .set('Accept', 'application/json');
           expect(createTableSettingsResponse.status).toBe(201);
 
-          createConnectionRO.id = faker.random.uuid();
+          createConnectionRO.id = faker.datatype.uuid();
           const getTableRowsResponse = await request(app.getHttpServer())
             .get(
               `/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=2&perPage=2&search=${testSearchedUserName}`,
@@ -2211,7 +2237,7 @@ describe('Tables Postgres (e2e)', () => {
             .set('Accept', 'application/json');
           expect(createTableSettingsResponse.status).toBe(201);
 
-          const fakeTableName = faker.random.uuid();
+          const fakeTableName = faker.datatype.uuid();
           const getTableRowsResponse = await request(app.getHttpServer())
             .get(
               `/table/rows/${createConnectionRO.id}?tableName=${fakeTableName}&page=2&perPage=2&search=${testSearchedUserName}`,
@@ -2259,7 +2285,7 @@ describe('Tables Postgres (e2e)', () => {
             .set('Accept', 'application/json');
           expect(createTableSettingsResponse.status).toBe(201);
 
-          const searchedDescription = faker.random.word(1);
+          const searchedDescription = faker.random.words(1);
           const getTableRowsResponse = await request(app.getHttpServer())
             .get(
               `/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=1&perPage=2&search=${searchedDescription}`,
@@ -2317,7 +2343,7 @@ describe('Tables Postgres (e2e)', () => {
             .set('Accept', 'application/json');
           expect(createTableSettingsResponse.status).toBe(201);
 
-          const searchedDescription = faker.random.word(1);
+          const searchedDescription = faker.random.words(1);
           const getTableRowsResponse = await request(app.getHttpServer())
             .get(
               `/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=1&perPage=420&search=${searchedDescription}`,
@@ -2533,6 +2559,7 @@ describe('Tables Postgres (e2e)', () => {
 
           expect(getTableRowsRO.rows[0].name).toBe(testSearchedUserName);
           expect(getTableRowsRO.rows[0].id).toBe(1);
+
           expect(getTableRowsRO.pagination.currentPage).toBe(2);
           expect(getTableRowsRO.pagination.perPage).toBe(2);
 
@@ -2698,7 +2725,7 @@ describe('Tables Postgres (e2e)', () => {
           const fieldGtvalue = '25';
           const fieldLtvalue = '40';
 
-          createConnectionRO.id = faker.random.uuid();
+          createConnectionRO.id = faker.datatype.uuid();
           const getTableRowsResponse = await request(app.getHttpServer())
             .get(
               `/table/rows/${createConnectionRO.id}?tableName=${testTableName}&search=${testSearchedUserName}&page=1&perPage=2&f_${fieldname}__lt=${fieldLtvalue}&f_${fieldname}__gt=${fieldGtvalue}`,
@@ -2752,7 +2779,7 @@ describe('Tables Postgres (e2e)', () => {
           const fieldGtvalue = '25';
           const fieldLtvalue = '40';
 
-          const fakeTableName = faker.random.word(1);
+          const fakeTableName = faker.random.words(1);
           const getTableRowsResponse = await request(app.getHttpServer())
             .get(
               `/table/rows/${createConnectionRO.id}?tableName=${fakeTableName}&search=${testSearchedUserName}&page=1&perPage=2&f_${fieldname}__lt=${fieldLtvalue}&f_${fieldname}__gt=${fieldGtvalue}`,
@@ -2802,7 +2829,7 @@ describe('Tables Postgres (e2e)', () => {
             .set('Accept', 'application/json');
           expect(createTableSettingsResponse.status).toBe(201);
 
-          const fieldname = faker.random.word(1);
+          const fieldname = faker.random.words(1);
           const fieldGtvalue = '25';
           const fieldLtvalue = '40';
 
@@ -2859,8 +2886,6 @@ describe('Tables Postgres (e2e)', () => {
 
         expect(getTableStructureRO.hasOwnProperty('primaryColumns')).toBeTruthy();
         expect(getTableStructureRO.hasOwnProperty('foreignKeys')).toBeTruthy();
-        expect(getTableStructureRO.hasOwnProperty('readonly_fields')).toBeTruthy();
-        expect(getTableStructureRO.hasOwnProperty('table_widgets')).toBeTruthy();
 
         for (const element of getTableStructureRO.primaryColumns) {
           expect(element.hasOwnProperty('column_name')).toBeTruthy();
@@ -2909,7 +2934,7 @@ describe('Tables Postgres (e2e)', () => {
         const createConnectionRO = JSON.parse(createConnectionResponse.text);
         expect(createConnectionResponse.status).toBe(201);
 
-        createConnectionRO.id = faker.random.uuid();
+        createConnectionRO.id = faker.datatype.uuid();
         const getTableStructure = await request(app.getHttpServer())
           .get(`/table/structure/${createConnectionRO.id}?tableName=${testTableName}`)
           .set('Content-Type', 'application/json')
@@ -2955,7 +2980,7 @@ describe('Tables Postgres (e2e)', () => {
         const createConnectionRO = JSON.parse(createConnectionResponse.text);
         expect(createConnectionResponse.status).toBe(201);
 
-        const tableName = faker.random.word(1);
+        const tableName = faker.random.words(1);
         const getTableStructure = await request(app.getHttpServer())
           .get(`/table/structure/${createConnectionRO.id}?tableName=${tableName}`)
           .set('Content-Type', 'application/json')
@@ -2972,6 +2997,28 @@ describe('Tables Postgres (e2e)', () => {
   describe('POST /table/row/:slug', () => {
     it('should add row in table and return result', async () => {
       try {
+        AWSMock.setSDKInstance(AWS);
+        AWSMock.mock(
+          'CognitoIdentityServiceProvider',
+          'listUsers',
+          (newCognitoUserName, callback: (...args: any) => void) => {
+            callback(null, {
+              Users: [
+                {
+                  Attributes: [
+                    {},
+                    {},
+                    {
+                      Name: 'email',
+                      Value: 'Example@gmail.com',
+                    },
+                  ],
+                },
+              ],
+            });
+          },
+        );
+
         const createConnectionResponse = await request(app.getHttpServer())
           .post('/connection')
           .send(newConnection)
@@ -2984,6 +3031,7 @@ describe('Tables Postgres (e2e)', () => {
         const fakeMail = faker.internet.email();
 
         const row = {
+          id: 999,
           [testTableColumnName]: fakeName,
           [testTAbleSecondColumnName]: fakeMail,
         };
@@ -2993,6 +3041,7 @@ describe('Tables Postgres (e2e)', () => {
           .send(JSON.stringify(row))
           .set('Content-Type', 'application/json')
           .set('Accept', 'application/json');
+
         expect(addRowInTableResponse.status).toBe(201);
         const addRowInTableRO = JSON.parse(addRowInTableResponse.text);
 
@@ -3018,12 +3067,11 @@ describe('Tables Postgres (e2e)', () => {
         expect(getTableRowsRO.hasOwnProperty('pagination')).toBeTruthy();
 
         const { rows, primaryColumns, pagination } = getTableRowsRO;
-        console.log('=>(table-postgres.e2e.spec.ts:3020) rows', rows);
 
         expect(rows.length).toBe(43);
         expect(rows[42][testTableColumnName]).toBe(row[testTableColumnName]);
         expect(rows[42][testTAbleSecondColumnName]).toBe(row[testTAbleSecondColumnName]);
-        expect(rows[42].id).toBe(rows[41].id + 1);
+        expect(rows[42].id).toBe(row.id);
       } catch (err) {
         throw err;
       }
@@ -3036,7 +3084,7 @@ describe('Tables Postgres (e2e)', () => {
         AWSMock.mock(
           'CognitoIdentityServiceProvider',
           'listUsers',
-          (newCognitoUserName, callback: (...ars: any) => void) => {
+          (newCognitoUserName, callback: (...args: any) => void) => {
             callback(null, {
               Users: [
                 {
@@ -3106,7 +3154,7 @@ describe('Tables Postgres (e2e)', () => {
         AWSMock.mock(
           'CognitoIdentityServiceProvider',
           'listUsers',
-          (newCognitoUserName, callback: (...ars: any) => void) => {
+          (newCognitoUserName, callback: (...args: any) => void) => {
             callback(null, {
               Users: [
                 {
@@ -3179,7 +3227,7 @@ describe('Tables Postgres (e2e)', () => {
         AWSMock.mock(
           'CognitoIdentityServiceProvider',
           'listUsers',
-          (newCognitoUserName, callback: (...ars: any) => void) => {
+          (newCognitoUserName, callback: (...args: any) => void) => {
             callback(null, {
               Users: [
                 {
@@ -3242,7 +3290,7 @@ describe('Tables Postgres (e2e)', () => {
         AWSMock.mock(
           'CognitoIdentityServiceProvider',
           'listUsers',
-          (newCognitoUserName, callback: (...ars: any) => void) => {
+          (newCognitoUserName, callback: (...args: any) => void) => {
             callback(null, {
               Users: [
                 {
@@ -3277,7 +3325,7 @@ describe('Tables Postgres (e2e)', () => {
           [testTAbleSecondColumnName]: fakeMail,
         };
 
-        const fakeTableName = faker.random.word(1);
+        const fakeTableName = faker.random.words(1);
         const addRowInTableResponse = await request(app.getHttpServer())
           .post(`/table/row/${createConnectionRO.id}?tableName=${fakeTableName}`)
           .send(JSON.stringify(row))
@@ -3316,6 +3364,28 @@ describe('Tables Postgres (e2e)', () => {
   describe('PUT /table/row/:slug', () => {
     it('should update row in table and return result', async () => {
       try {
+        AWSMock.setSDKInstance(AWS);
+        AWSMock.mock(
+          'CognitoIdentityServiceProvider',
+          'listUsers',
+          (newCognitoUserName, callback: (...args: any) => void) => {
+            callback(null, {
+              Users: [
+                {
+                  Attributes: [
+                    {},
+                    {},
+                    {
+                      Name: 'email',
+                      Value: 'Example@gmail.com',
+                    },
+                  ],
+                },
+              ],
+            });
+          },
+        );
+
         const createConnectionResponse = await request(app.getHttpServer())
           .post('/connection')
           .send(newConnection)
@@ -3338,8 +3408,8 @@ describe('Tables Postgres (e2e)', () => {
           .set('Content-Type', 'application/json')
           .set('Accept', 'application/json');
 
-        const updateRowInTableRO = JSON.parse(updateRowInTableResponse.text);
         expect(updateRowInTableResponse.status).toBe(200);
+        const updateRowInTableRO = JSON.parse(updateRowInTableResponse.text);
 
         expect(updateRowInTableRO.hasOwnProperty('row')).toBeTruthy();
         expect(updateRowInTableRO.hasOwnProperty('structure')).toBeTruthy();
@@ -3364,10 +3434,9 @@ describe('Tables Postgres (e2e)', () => {
 
         const { rows, primaryColumns, pagination } = getTableRowsRO;
 
-        const updateRowIndex = rows.map((row) => row.id).indexOf(1);
         expect(rows.length).toBe(42);
-        expect(rows[updateRowIndex][testTableColumnName]).toBe(row[testTableColumnName]);
-        expect(rows[updateRowIndex][testTAbleSecondColumnName]).toBe(row[testTAbleSecondColumnName]);
+        expect(rows[0][testTableColumnName]).toBe(row[testTableColumnName]);
+        expect(rows[0][testTAbleSecondColumnName]).toBe(row[testTAbleSecondColumnName]);
       } catch (err) {
         throw err;
       }
@@ -3380,7 +3449,7 @@ describe('Tables Postgres (e2e)', () => {
         AWSMock.mock(
           'CognitoIdentityServiceProvider',
           'listUsers',
-          (newCognitoUserName, callback: (...ars: any) => void) => {
+          (newCognitoUserName, callback: (...args: any) => void) => {
             callback(null, {
               Users: [
                 {
@@ -3434,7 +3503,7 @@ describe('Tables Postgres (e2e)', () => {
         AWSMock.mock(
           'CognitoIdentityServiceProvider',
           'listUsers',
-          (newCognitoUserName, callback: (...ars: any) => void) => {
+          (newCognitoUserName, callback: (...args: any) => void) => {
             callback(null, {
               Users: [
                 {
@@ -3468,7 +3537,7 @@ describe('Tables Postgres (e2e)', () => {
           [testTAbleSecondColumnName]: fakeMail,
         };
 
-        createConnectionRO.id = faker.random.uuid();
+        createConnectionRO.id = faker.datatype.uuid();
         const updateRowInTableResponse = await request(app.getHttpServer())
           .put(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&id=1`)
           .send(JSON.stringify(row))
@@ -3490,7 +3559,7 @@ describe('Tables Postgres (e2e)', () => {
         AWSMock.mock(
           'CognitoIdentityServiceProvider',
           'listUsers',
-          (newCognitoUserName, callback: (...ars: any) => void) => {
+          (newCognitoUserName, callback: (...args: any) => void) => {
             callback(null, {
               Users: [
                 {
@@ -3524,7 +3593,7 @@ describe('Tables Postgres (e2e)', () => {
           [testTAbleSecondColumnName]: fakeMail,
         };
 
-        createConnectionRO.id = faker.random.uuid();
+        createConnectionRO.id = faker.datatype.uuid();
         const updateRowInTableResponse = await request(app.getHttpServer())
           .put(`/table/row/${createConnectionRO.id}?tableName=&id=1`)
           .send(JSON.stringify(row))
@@ -3546,7 +3615,7 @@ describe('Tables Postgres (e2e)', () => {
         AWSMock.mock(
           'CognitoIdentityServiceProvider',
           'listUsers',
-          (newCognitoUserName, callback: (...ars: any) => void) => {
+          (newCognitoUserName, callback: (...args: any) => void) => {
             callback(null, {
               Users: [
                 {
@@ -3580,7 +3649,7 @@ describe('Tables Postgres (e2e)', () => {
           [testTAbleSecondColumnName]: fakeMail,
         };
 
-        const fakeTableName = faker.random.uuid();
+        const fakeTableName = faker.datatype.uuid();
         const updateRowInTableResponse = await request(app.getHttpServer())
           .put(`/table/row/${createConnectionRO.id}?tableName=${fakeTableName}&id=1`)
           .send(JSON.stringify(row))
@@ -3602,7 +3671,7 @@ describe('Tables Postgres (e2e)', () => {
         AWSMock.mock(
           'CognitoIdentityServiceProvider',
           'listUsers',
-          (newCognitoUserName, callback: (...ars: any) => void) => {
+          (newCognitoUserName, callback: (...args: any) => void) => {
             callback(null, {
               Users: [
                 {
@@ -3657,7 +3726,7 @@ describe('Tables Postgres (e2e)', () => {
         AWSMock.mock(
           'CognitoIdentityServiceProvider',
           'listUsers',
-          (newCognitoUserName, callback: (...ars: any) => void) => {
+          (newCognitoUserName, callback: (...args: any) => void) => {
             callback(null, {
               Users: [
                 {
@@ -3712,7 +3781,7 @@ describe('Tables Postgres (e2e)', () => {
         AWSMock.mock(
           'CognitoIdentityServiceProvider',
           'listUsers',
-          (newCognitoUserName, callback: (...ars: any) => void) => {
+          (newCognitoUserName, callback: (...args: any) => void) => {
             callback(null, {
               Users: [
                 {
@@ -3769,7 +3838,7 @@ describe('Tables Postgres (e2e)', () => {
         AWSMock.mock(
           'CognitoIdentityServiceProvider',
           'listUsers',
-          (newCognitoUserName, callback: (...ars: any) => void) => {
+          (newCognitoUserName, callback: (...args: any) => void) => {
             callback(null, {
               Users: [
                 {
@@ -3837,7 +3906,7 @@ describe('Tables Postgres (e2e)', () => {
         AWSMock.mock(
           'CognitoIdentityServiceProvider',
           'listUsers',
-          (newCognitoUserName, callback: (...ars: any) => void) => {
+          (newCognitoUserName, callback: (...args: any) => void) => {
             callback(null, {
               Users: [
                 {
@@ -3902,7 +3971,7 @@ describe('Tables Postgres (e2e)', () => {
         AWSMock.mock(
           'CognitoIdentityServiceProvider',
           'listUsers',
-          (newCognitoUserName, callback: (...ars: any) => void) => {
+          (newCognitoUserName, callback: (...args: any) => void) => {
             callback(null, {
               Users: [
                 {
@@ -3929,7 +3998,7 @@ describe('Tables Postgres (e2e)', () => {
         expect(createConnectionResponse.status).toBe(201);
 
         const idForDeletion = 1;
-        const connectionId = faker.random.uuid();
+        const connectionId = faker.datatype.uuid();
         const deleteRowInTableResponse = await request(app.getHttpServer())
           .delete(`/table/row/${connectionId}?tableName=${testTableName}&id=${idForDeletion}`)
           .set('Content-Type', 'application/json')
@@ -3969,7 +4038,7 @@ describe('Tables Postgres (e2e)', () => {
         AWSMock.mock(
           'CognitoIdentityServiceProvider',
           'listUsers',
-          (newCognitoUserName, callback: (...ars: any) => void) => {
+          (newCognitoUserName, callback: (...args: any) => void) => {
             callback(null, {
               Users: [
                 {
@@ -4036,7 +4105,7 @@ describe('Tables Postgres (e2e)', () => {
         AWSMock.mock(
           'CognitoIdentityServiceProvider',
           'listUsers',
-          (newCognitoUserName, callback: (...ars: any) => void) => {
+          (newCognitoUserName, callback: (...args: any) => void) => {
             callback(null, {
               Users: [
                 {
@@ -4063,7 +4132,7 @@ describe('Tables Postgres (e2e)', () => {
         expect(createConnectionResponse.status).toBe(201);
 
         const idForDeletion = 1;
-        const fakeTableName = faker.random.word(1);
+        const fakeTableName = faker.random.words(1);
         const deleteRowInTableResponse = await request(app.getHttpServer())
           .delete(`/table/row/${createConnectionRO.id}?tableName=${fakeTableName}&id=${idForDeletion}`)
           .set('Content-Type', 'application/json')
@@ -4103,7 +4172,7 @@ describe('Tables Postgres (e2e)', () => {
         AWSMock.mock(
           'CognitoIdentityServiceProvider',
           'listUsers',
-          (newCognitoUserName, callback: (...ars: any) => void) => {
+          (newCognitoUserName, callback: (...args: any) => void) => {
             callback(null, {
               Users: [
                 {
@@ -4169,7 +4238,7 @@ describe('Tables Postgres (e2e)', () => {
         AWSMock.mock(
           'CognitoIdentityServiceProvider',
           'listUsers',
-          (newCognitoUserName, callback: (...ars: any) => void) => {
+          (newCognitoUserName, callback: (...args: any) => void) => {
             callback(null, {
               Users: [
                 {
@@ -4235,7 +4304,7 @@ describe('Tables Postgres (e2e)', () => {
         AWSMock.mock(
           'CognitoIdentityServiceProvider',
           'listUsers',
-          (newCognitoUserName, callback: (...ars: any) => void) => {
+          (newCognitoUserName, callback: (...args: any) => void) => {
             callback(null, {
               Users: [
                 {
@@ -4261,6 +4330,7 @@ describe('Tables Postgres (e2e)', () => {
         const createConnectionRO = JSON.parse(createConnectionResponse.text);
         expect(createConnectionResponse.status).toBe(201);
 
+        const idForDeletion = 1;
         const deleteRowInTableResponse = await request(app.getHttpServer())
           .delete(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&id=100000`)
           .set('Content-Type', 'application/json')
@@ -4268,7 +4338,7 @@ describe('Tables Postgres (e2e)', () => {
 
         expect(deleteRowInTableResponse.status).toBe(400);
         const deleteRowInTableRO = JSON.parse(deleteRowInTableResponse.text);
-        expect(deleteRowInTableRO.message).toBe(Messages.ROW_PRIMARY_KEY_NOT_FOUND);
+        //expect(deleteRowInTableRO.deleted).toBeTruthy();
       } catch (err) {
         throw err;
       }
@@ -4283,7 +4353,7 @@ describe('Tables Postgres (e2e)', () => {
         AWSMock.mock(
           'CognitoIdentityServiceProvider',
           'listUsers',
-          (newCognitoUserName, callback: (...ars: any) => void) => {
+          (newCognitoUserName, callback: (...args: any) => void) => {
             callback(null, {
               Users: [
                 {
@@ -4330,7 +4400,6 @@ describe('Tables Postgres (e2e)', () => {
         expect(foundRowInTableRO.row.id).toBe(1);
         expect(foundRowInTableRO.row.name).toBe(testSearchedUserName);
         expect(Object.keys(foundRowInTableRO.row).length).toBe(5);
-        expect(foundRowInTableRO.foreignKeys.hasOwnProperty('autocomplete_columns')).toBeFalsy();
       } catch (err) {
         throw err;
       }
@@ -4344,7 +4413,7 @@ describe('Tables Postgres (e2e)', () => {
         AWSMock.mock(
           'CognitoIdentityServiceProvider',
           'listUsers',
-          (newCognitoUserName, callback: (...ars: any) => void) => {
+          (newCognitoUserName, callback: (...args: any) => void) => {
             callback(null, {
               Users: [
                 {
@@ -4391,7 +4460,7 @@ describe('Tables Postgres (e2e)', () => {
         AWSMock.mock(
           'CognitoIdentityServiceProvider',
           'listUsers',
-          (newCognitoUserName, callback: (...ars: any) => void) => {
+          (newCognitoUserName, callback: (...args: any) => void) => {
             callback(null, {
               Users: [
                 {
@@ -4418,7 +4487,7 @@ describe('Tables Postgres (e2e)', () => {
         expect(createConnectionResponse.status).toBe(201);
 
         const idForSearch = 1;
-        createConnectionRO.id = faker.random.uuid();
+        createConnectionRO.id = faker.datatype.uuid();
         const foundRowInTableResponse = await request(app.getHttpServer())
           .get(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&id=${idForSearch}`)
           .set('Content-Type', 'application/json')
@@ -4440,7 +4509,7 @@ describe('Tables Postgres (e2e)', () => {
         AWSMock.mock(
           'CognitoIdentityServiceProvider',
           'listUsers',
-          (newCognitoUserName, callback: (...ars: any) => void) => {
+          (newCognitoUserName, callback: (...args: any) => void) => {
             callback(null, {
               Users: [
                 {
@@ -4489,7 +4558,7 @@ describe('Tables Postgres (e2e)', () => {
         AWSMock.mock(
           'CognitoIdentityServiceProvider',
           'listUsers',
-          (newCognitoUserName, callback: (...ars: any) => void) => {
+          (newCognitoUserName, callback: (...args: any) => void) => {
             callback(null, {
               Users: [
                 {
@@ -4516,7 +4585,7 @@ describe('Tables Postgres (e2e)', () => {
         expect(createConnectionResponse.status).toBe(201);
 
         const idForSearch = 1;
-        const fakeTableName = faker.random.word(1);
+        const fakeTableName = faker.random.words(1);
         const foundRowInTableResponse = await request(app.getHttpServer())
           .get(`/table/row/${createConnectionRO.id}?tableName=${fakeTableName}&id=${idForSearch}`)
           .set('Content-Type', 'application/json')
@@ -4538,7 +4607,7 @@ describe('Tables Postgres (e2e)', () => {
         AWSMock.mock(
           'CognitoIdentityServiceProvider',
           'listUsers',
-          (newCognitoUserName, callback: (...ars: any) => void) => {
+          (newCognitoUserName, callback: (...args: any) => void) => {
             callback(null, {
               Users: [
                 {
@@ -4585,7 +4654,7 @@ describe('Tables Postgres (e2e)', () => {
         AWSMock.mock(
           'CognitoIdentityServiceProvider',
           'listUsers',
-          (newCognitoUserName, callback: (...ars: any) => void) => {
+          (newCognitoUserName, callback: (...args: any) => void) => {
             callback(null, {
               Users: [
                 {
@@ -4633,7 +4702,7 @@ describe('Tables Postgres (e2e)', () => {
         AWSMock.mock(
           'CognitoIdentityServiceProvider',
           'listUsers',
-          (newCognitoUserName, callback: (...ars: any) => void) => {
+          (newCognitoUserName, callback: (...args: any) => void) => {
             callback(null, {
               Users: [
                 {

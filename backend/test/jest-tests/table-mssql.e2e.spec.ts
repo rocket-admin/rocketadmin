@@ -1,24 +1,24 @@
 import * as AWS from 'aws-sdk';
 import * as AWSMock from 'aws-sdk-mock';
-import * as faker from 'faker';
+import { faker } from '@faker-js/faker';
 import { knex } from 'knex';
 import * as request from 'supertest';
 
-import { ApplicationModule } from '../src/app.module';
+import { ApplicationModule } from '../../src/app.module';
 import { Connection } from 'typeorm';
-import { Constants } from '../src/helpers/constants/constants';
-import { DatabaseModule } from '../src/shared/database/database.module';
-import { DatabaseService } from '../src/shared/database/database.service';
+import { Constants } from '../../src/helpers/constants/constants';
+import { DatabaseModule } from '../../src/shared/database/database.module';
+import { DatabaseService } from '../../src/shared/database/database.service';
 import { INestApplication } from '@nestjs/common';
-import { Messages } from '../src/exceptions/text/messages';
-import { MockFactory } from './mock.factory';
-import { QueryOrderingEnum } from '../src/enums';
+import { Messages } from '../../src/exceptions/text/messages';
+import { MockFactory } from '../mock.factory';
+import { QueryOrderingEnum } from '../../src/enums';
 import { Test } from '@nestjs/testing';
-import { TestUtils } from './utils/test.utils';
-import { Cacher } from '../src/helpers/cache/cacher';
+import { TestUtils } from '../utils/test.utils';
+import { Cacher } from '../../src/helpers/cache/cacher';
 
-describe('Tables MySQL (e2e)', () => {
-  jest.setTimeout(20000);
+describe('Tables MsSQL (e2e)', () => {
+  jest.setTimeout(100000);
   let app: INestApplication;
   let testUtils: TestUtils;
   const mockFactory = new MockFactory();
@@ -29,17 +29,16 @@ describe('Tables MySQL (e2e)', () => {
   const testSearchedUserName = 'Vasia';
   const testEntitiesSeedsCount = 42;
 
-  async function resetMySQLTestDB() {
-    const { host, username, password, database, port, ssl, cert } = newConnection;
+  async function resetMsSQLTestDB() {
+    const { host, username, password, database, port, type, ssl, cert } = newConnection;
     const Knex = knex({
-      client: 'mysql2',
+      client: type,
       connection: {
         host: host,
         user: username,
         password: password,
         database: database,
         port: port,
-        ssl: ssl ? { ca: cert } : { rejectUnauthorized: false },
       },
     });
     await Knex.schema.dropTableIfExists(testTableName);
@@ -81,7 +80,7 @@ describe('Tables MySQL (e2e)', () => {
     app = moduleFixture.createNestApplication();
     await app.init();
 
-    newConnection = mockFactory.generateConnectionToTestMySQLDBInDocker();
+    newConnection = mockFactory.generateConnectionToTestMsSQlDBInDocker();
     AWSMock.setSDKInstance(AWS);
     AWSMock.mock(
       'CognitoIdentityServiceProvider',
@@ -103,7 +102,7 @@ describe('Tables MySQL (e2e)', () => {
         });
       },
     );
-    await resetMySQLTestDB();
+    await resetMsSQLTestDB();
     const findAllConnectionsResponse = await request(app.getHttpServer())
       .get('/connections')
       .set('Content-Type', 'application/json')
@@ -112,18 +111,15 @@ describe('Tables MySQL (e2e)', () => {
   });
 
   afterEach(async () => {
+    await Cacher.clearAllCache();
     await testUtils.resetDb();
     await testUtils.closeDbConnection();
-    await Cacher.clearAllCache();
     AWSMock.restore('CognitoIdentityServiceProvider');
-  });
-
-  beforeAll(() => {
-    jest.setTimeout(60000);
   });
 
   afterAll(async () => {
     try {
+      await Cacher.clearAllCache();
       jest.setTimeout(5000);
       await testUtils.shutdownServer(app.getHttpAdapter());
       const connect = await app.get(Connection);
@@ -132,7 +128,7 @@ describe('Tables MySQL (e2e)', () => {
       }
       await app.close();
     } catch (e) {
-      console.error('After all table-mysql error: ' + e);
+      console.error('After all custom field error: ' + e);
     }
   });
 
@@ -202,7 +198,7 @@ describe('Tables MySQL (e2e)', () => {
         const createConnectionRO = JSON.parse(createConnectionResponse.text);
         expect(createConnectionResponse.status).toBe(201);
 
-        createConnectionRO.id = faker.random.uuid();
+        createConnectionRO.id = faker.datatype.uuid();
         const getTablesResponse = await request(app.getHttpServer())
           .get(`/connection/tables/${createConnectionRO.id}`)
           .set('Content-Type', 'application/json')
@@ -258,7 +254,7 @@ describe('Tables MySQL (e2e)', () => {
 
       it('should throw an exception when connection id not passed in request', async () => {
         try {
-          const connectionCount = faker.random.number({ min: 5, max: 15 });
+          const connectionCount = faker.datatype.number({ min: 5, max: 15, precision: 1 });
           for (let i = 0; i < connectionCount; i++) {
             const createConnectionResponse = await request(app.getHttpServer())
               .post('/connection')
@@ -289,7 +285,7 @@ describe('Tables MySQL (e2e)', () => {
 
       it('should throw an exception when connection id is incorrect', async () => {
         try {
-          const connectionCount = faker.random.number({ min: 5, max: 15 });
+          const connectionCount = faker.datatype.number({ min: 5, max: 15, precision: 1 });
           for (let i = 0; i < connectionCount; i++) {
             const createConnectionResponse = await request(app.getHttpServer())
               .post('/connection')
@@ -307,7 +303,7 @@ describe('Tables MySQL (e2e)', () => {
           const createConnectionRO = JSON.parse(createConnectionResponse.text);
           expect(createConnectionResponse.status).toBe(201);
 
-          createConnectionRO.id = faker.random.uuid();
+          createConnectionRO.id = faker.datatype.uuid();
           const getTableRowsResponse = await request(app.getHttpServer())
             .get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}`)
             .set('Content-Type', 'application/json')
@@ -384,7 +380,7 @@ describe('Tables MySQL (e2e)', () => {
 
       it('should return throw an error when connectionId is not passed in request', async () => {
         try {
-          const connectionCount = faker.random.number({ min: 5, max: 15 });
+          const connectionCount = faker.datatype.number({ min: 5, max: 15, precision: 1 });
           for (let i = 0; i < connectionCount; i++) {
             const createConnectionResponse = await request(app.getHttpServer())
               .post('/connection')
@@ -469,7 +465,7 @@ describe('Tables MySQL (e2e)', () => {
             .set('Accept', 'application/json');
           expect(createTableSettingsResponse.status).toBe(201);
           const searchedDescription = '5';
-          createConnectionRO.id = faker.random.uuid();
+          createConnectionRO.id = faker.datatype.uuid();
           const getTableRowsResponse = await request(app.getHttpServer())
             .get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&search=${searchedDescription}`)
             .set('Content-Type', 'application/json')
@@ -515,7 +511,7 @@ describe('Tables MySQL (e2e)', () => {
             .set('Accept', 'application/json');
           expect(createTableSettingsResponse.status).toBe(201);
 
-          const search = faker.random.word(1);
+          const search = faker.random.words(1);
           const getTableRowsResponse = await request(app.getHttpServer())
             .get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&search=${search}`)
             .set('Content-Type', 'application/json')
@@ -546,7 +542,7 @@ describe('Tables MySQL (e2e)', () => {
           const createConnectionRO = JSON.parse(createConnectionResponse.text);
           expect(createConnectionResponse.status).toBe(201);
 
-          const randomTableName = faker.random.word(1);
+          const randomTableName = faker.random.words(1);
           const searchedDescription = '5';
           const getTableRowsResponse = await request(app.getHttpServer())
             .get(`/table/rows/${createConnectionRO.id}?tableName=${randomTableName}&search=${searchedDescription}`)
@@ -682,6 +678,7 @@ describe('Tables MySQL (e2e)', () => {
           expect(getTableRowsRO.primaryColumns[0].column_name).toBe('id');
           expect(getTableRowsRO.primaryColumns[0].data_type).toBe('int');
 
+          //todo say to Lyubov about strings in pagination and fix
           expect(getTableRowsRO.pagination.total).toBe(42);
           expect(getTableRowsRO.pagination.lastPage).toBe(21);
           expect(getTableRowsRO.pagination.perPage).toBe(2);
@@ -785,7 +782,7 @@ describe('Tables MySQL (e2e)', () => {
             .set('Accept', 'application/json');
           expect(createTableSettingsResponse.status).toBe(201);
 
-          const fakeTableName = faker.random.word(1);
+          const fakeTableName = faker.random.words(1);
           const getTableRowsResponse = await request(app.getHttpServer())
             .get(`/table/rows/${createConnectionRO.id}?tableName=${fakeTableName}&page=1&perPage=2`)
             .set('Content-Type', 'application/json')
@@ -863,7 +860,7 @@ describe('Tables MySQL (e2e)', () => {
           const createConnectionRO = JSON.parse(createConnectionResponse.text);
           expect(createConnectionResponse.status).toBe(201);
 
-          createConnectionRO.id = faker.random.uuid();
+          createConnectionRO.id = faker.datatype.uuid();
           const getTableRowsResponse = await request(app.getHttpServer())
             .get(`/table/rows/${createConnectionRO.id}?tableName=connection&page=1&perPage=2`)
             .set('Content-Type', 'application/json')
@@ -1085,7 +1082,7 @@ describe('Tables MySQL (e2e)', () => {
             .set('Content-Type', 'application/json')
             .set('Accept', 'application/json');
           expect(createTableSettingsResponse.status).toBe(201);
-          createConnectionRO.id = faker.random.uuid();
+          createConnectionRO.id = faker.datatype.uuid();
 
           const getTableRowsResponse = await request(app.getHttpServer())
             .get(
@@ -1135,7 +1132,7 @@ describe('Tables MySQL (e2e)', () => {
             .set('Accept', 'application/json');
           expect(createTableSettingsResponse.status).toBe(201);
 
-          const fakeTableName = faker.random.word(1);
+          const fakeTableName = faker.random.words(1);
           const getTableRowsResponse = await request(app.getHttpServer())
             .get(
               `/table/rows/${createConnectionRO.id}?tableName=${fakeTableName}&search=${testSearchedUserName}&page=1&perPage=3`,
@@ -1393,7 +1390,7 @@ describe('Tables MySQL (e2e)', () => {
             .set('Content-Type', 'application/json')
             .set('Accept', 'application/json');
           expect(createTableSettingsResponse.status).toBe(201);
-          createConnectionRO.id = faker.random.uuid();
+          createConnectionRO.id = faker.datatype.uuid();
           const getTableRowsResponse = await request(app.getHttpServer())
             .get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}`)
             .set('Content-Type', 'application/json')
@@ -1485,7 +1482,7 @@ describe('Tables MySQL (e2e)', () => {
             .set('Accept', 'application/json');
           expect(createTableSettingsResponse.status).toBe(201);
 
-          const fakeTableName = faker.random.word(1);
+          const fakeTableName = faker.random.words(1);
           const getTableRowsResponse = await request(app.getHttpServer())
             .get(`/table/rows/${createConnectionRO.id}?tableName=${fakeTableName}`)
             .set('Content-Type', 'application/json')
@@ -1751,7 +1748,7 @@ describe('Tables MySQL (e2e)', () => {
             .set('Accept', 'application/json');
           expect(createTableSettingsResponse.status).toBe(201);
 
-          createConnectionRO.id = faker.random.uuid();
+          createConnectionRO.id = faker.datatype.uuid();
           const getTableRowsResponse = await request(app.getHttpServer())
             .get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=2&perPage=3`)
             .set('Content-Type', 'application/json')
@@ -1799,7 +1796,7 @@ describe('Tables MySQL (e2e)', () => {
             .set('Accept', 'application/json');
           expect(createTableSettingsResponse.status).toBe(201);
 
-          const fakeTableName = faker.random.word(1);
+          const fakeTableName = faker.random.words(1);
           const getTableRowsResponse = await request(app.getHttpServer())
             .get(`/table/rows/${createConnectionRO.id}?tableName=${fakeTableName}&page=2&perPage=3`)
             .set('Content-Type', 'application/json')
@@ -2141,7 +2138,7 @@ describe('Tables MySQL (e2e)', () => {
             .set('Accept', 'application/json');
           expect(createTableSettingsResponse.status).toBe(201);
 
-          createConnectionRO.id = faker.random.uuid();
+          createConnectionRO.id = faker.datatype.uuid();
           const getTableRowsResponse = await request(app.getHttpServer())
             .get(
               `/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=2&perPage=2&search=${testSearchedUserName}`,
@@ -2237,7 +2234,7 @@ describe('Tables MySQL (e2e)', () => {
             .set('Accept', 'application/json');
           expect(createTableSettingsResponse.status).toBe(201);
 
-          const fakeTableName = faker.random.uuid();
+          const fakeTableName = faker.datatype.uuid();
           const getTableRowsResponse = await request(app.getHttpServer())
             .get(
               `/table/rows/${createConnectionRO.id}?tableName=${fakeTableName}&page=2&perPage=2&search=${testSearchedUserName}`,
@@ -2285,7 +2282,7 @@ describe('Tables MySQL (e2e)', () => {
             .set('Accept', 'application/json');
           expect(createTableSettingsResponse.status).toBe(201);
 
-          const searchedDescription = faker.random.word(1);
+          const searchedDescription = faker.random.words(1);
           const getTableRowsResponse = await request(app.getHttpServer())
             .get(
               `/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=1&perPage=2&search=${searchedDescription}`,
@@ -2343,7 +2340,7 @@ describe('Tables MySQL (e2e)', () => {
             .set('Accept', 'application/json');
           expect(createTableSettingsResponse.status).toBe(201);
 
-          const searchedDescription = faker.random.word(1);
+          const searchedDescription = faker.random.words(1);
           const getTableRowsResponse = await request(app.getHttpServer())
             .get(
               `/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=1&perPage=420&search=${searchedDescription}`,
@@ -2725,7 +2722,7 @@ describe('Tables MySQL (e2e)', () => {
           const fieldGtvalue = '25';
           const fieldLtvalue = '40';
 
-          createConnectionRO.id = faker.random.uuid();
+          createConnectionRO.id = faker.datatype.uuid();
           const getTableRowsResponse = await request(app.getHttpServer())
             .get(
               `/table/rows/${createConnectionRO.id}?tableName=${testTableName}&search=${testSearchedUserName}&page=1&perPage=2&f_${fieldname}__lt=${fieldLtvalue}&f_${fieldname}__gt=${fieldGtvalue}`,
@@ -2779,7 +2776,7 @@ describe('Tables MySQL (e2e)', () => {
           const fieldGtvalue = '25';
           const fieldLtvalue = '40';
 
-          const fakeTableName = faker.random.word(1);
+          const fakeTableName = faker.random.words(1);
           const getTableRowsResponse = await request(app.getHttpServer())
             .get(
               `/table/rows/${createConnectionRO.id}?tableName=${fakeTableName}&search=${testSearchedUserName}&page=1&perPage=2&f_${fieldname}__lt=${fieldLtvalue}&f_${fieldname}__gt=${fieldGtvalue}`,
@@ -2829,7 +2826,7 @@ describe('Tables MySQL (e2e)', () => {
             .set('Accept', 'application/json');
           expect(createTableSettingsResponse.status).toBe(201);
 
-          const fieldname = faker.random.word(1);
+          const fieldname = faker.random.words(1);
           const fieldGtvalue = '25';
           const fieldLtvalue = '40';
 
@@ -2934,7 +2931,7 @@ describe('Tables MySQL (e2e)', () => {
         const createConnectionRO = JSON.parse(createConnectionResponse.text);
         expect(createConnectionResponse.status).toBe(201);
 
-        createConnectionRO.id = faker.random.uuid();
+        createConnectionRO.id = faker.datatype.uuid();
         const getTableStructure = await request(app.getHttpServer())
           .get(`/table/structure/${createConnectionRO.id}?tableName=${testTableName}`)
           .set('Content-Type', 'application/json')
@@ -2980,7 +2977,7 @@ describe('Tables MySQL (e2e)', () => {
         const createConnectionRO = JSON.parse(createConnectionResponse.text);
         expect(createConnectionResponse.status).toBe(201);
 
-        const tableName = faker.random.word(1);
+        const tableName = faker.random.words(1);
         const getTableStructure = await request(app.getHttpServer())
           .get(`/table/structure/${createConnectionRO.id}?tableName=${tableName}`)
           .set('Content-Type', 'application/json')
@@ -2997,28 +2994,6 @@ describe('Tables MySQL (e2e)', () => {
   describe('POST /table/row/:slug', () => {
     it('should add row in table and return result', async () => {
       try {
-        AWSMock.setSDKInstance(AWS);
-        AWSMock.mock(
-          'CognitoIdentityServiceProvider',
-          'listUsers',
-          (newCognitoUserName, callback: (...args: any) => void) => {
-            callback(null, {
-              Users: [
-                {
-                  Attributes: [
-                    {},
-                    {},
-                    {
-                      Name: 'email',
-                      Value: 'Example@gmail.com',
-                    },
-                  ],
-                },
-              ],
-            });
-          },
-        );
-
         const createConnectionResponse = await request(app.getHttpServer())
           .post('/connection')
           .send(newConnection)
@@ -3031,7 +3006,6 @@ describe('Tables MySQL (e2e)', () => {
         const fakeMail = faker.internet.email();
 
         const row = {
-          id: 999,
           [testTableColumnName]: fakeName,
           [testTAbleSecondColumnName]: fakeMail,
         };
@@ -3042,8 +3016,9 @@ describe('Tables MySQL (e2e)', () => {
           .set('Content-Type', 'application/json')
           .set('Accept', 'application/json');
 
-        expect(addRowInTableResponse.status).toBe(201);
         const addRowInTableRO = JSON.parse(addRowInTableResponse.text);
+        console.log('=>(table-mssql.e2e.spec.ts:3020) addRowInTableRO', addRowInTableRO);
+        expect(addRowInTableResponse.status).toBe(201);
 
         expect(addRowInTableRO.hasOwnProperty('row')).toBeTruthy();
         expect(addRowInTableRO.hasOwnProperty('structure')).toBeTruthy();
@@ -3071,7 +3046,7 @@ describe('Tables MySQL (e2e)', () => {
         expect(rows.length).toBe(43);
         expect(rows[42][testTableColumnName]).toBe(row[testTableColumnName]);
         expect(rows[42][testTAbleSecondColumnName]).toBe(row[testTAbleSecondColumnName]);
-        expect(rows[42].id).toBe(row.id);
+        expect(rows[42].id).toBe(rows[41].id + 1);
       } catch (err) {
         throw err;
       }
@@ -3325,13 +3300,12 @@ describe('Tables MySQL (e2e)', () => {
           [testTAbleSecondColumnName]: fakeMail,
         };
 
-        const fakeTableName = faker.random.word(1);
+        const fakeTableName = faker.random.words(1);
         const addRowInTableResponse = await request(app.getHttpServer())
           .post(`/table/row/${createConnectionRO.id}?tableName=${fakeTableName}`)
           .send(JSON.stringify(row))
           .set('Content-Type', 'application/json')
           .set('Accept', 'application/json');
-
         expect(addRowInTableResponse.status).toBe(400);
         const { message } = JSON.parse(addRowInTableResponse.text);
 
@@ -3434,9 +3408,10 @@ describe('Tables MySQL (e2e)', () => {
 
         const { rows, primaryColumns, pagination } = getTableRowsRO;
 
+        const updateRowIndex = rows.map((row) => row.id).indexOf(1);
         expect(rows.length).toBe(42);
-        expect(rows[0][testTableColumnName]).toBe(row[testTableColumnName]);
-        expect(rows[0][testTAbleSecondColumnName]).toBe(row[testTAbleSecondColumnName]);
+        expect(rows[updateRowIndex][testTableColumnName]).toBe(row[testTableColumnName]);
+        expect(rows[updateRowIndex][testTAbleSecondColumnName]).toBe(row[testTAbleSecondColumnName]);
       } catch (err) {
         throw err;
       }
@@ -3537,7 +3512,7 @@ describe('Tables MySQL (e2e)', () => {
           [testTAbleSecondColumnName]: fakeMail,
         };
 
-        createConnectionRO.id = faker.random.uuid();
+        createConnectionRO.id = faker.datatype.uuid();
         const updateRowInTableResponse = await request(app.getHttpServer())
           .put(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&id=1`)
           .send(JSON.stringify(row))
@@ -3593,7 +3568,7 @@ describe('Tables MySQL (e2e)', () => {
           [testTAbleSecondColumnName]: fakeMail,
         };
 
-        createConnectionRO.id = faker.random.uuid();
+        createConnectionRO.id = faker.datatype.uuid();
         const updateRowInTableResponse = await request(app.getHttpServer())
           .put(`/table/row/${createConnectionRO.id}?tableName=&id=1`)
           .send(JSON.stringify(row))
@@ -3649,7 +3624,7 @@ describe('Tables MySQL (e2e)', () => {
           [testTAbleSecondColumnName]: fakeMail,
         };
 
-        const fakeTableName = faker.random.uuid();
+        const fakeTableName = faker.datatype.uuid();
         const updateRowInTableResponse = await request(app.getHttpServer())
           .put(`/table/row/${createConnectionRO.id}?tableName=${fakeTableName}&id=1`)
           .send(JSON.stringify(row))
@@ -3823,7 +3798,7 @@ describe('Tables MySQL (e2e)', () => {
 
         expect(updateRowInTableResponse.status).toBe(400);
         const { message } = JSON.parse(updateRowInTableResponse.text);
-        expect(message).toBe(`${Messages.ROW_PRIMARY_KEY_NOT_FOUND}`);
+        expect(message).toBe(Messages.ROW_PRIMARY_KEY_NOT_FOUND);
       } catch (err) {
         throw err;
       }
@@ -3998,7 +3973,7 @@ describe('Tables MySQL (e2e)', () => {
         expect(createConnectionResponse.status).toBe(201);
 
         const idForDeletion = 1;
-        const connectionId = faker.random.uuid();
+        const connectionId = faker.datatype.uuid();
         const deleteRowInTableResponse = await request(app.getHttpServer())
           .delete(`/table/row/${connectionId}?tableName=${testTableName}&id=${idForDeletion}`)
           .set('Content-Type', 'application/json')
@@ -4132,7 +4107,7 @@ describe('Tables MySQL (e2e)', () => {
         expect(createConnectionResponse.status).toBe(201);
 
         const idForDeletion = 1;
-        const fakeTableName = faker.random.word(1);
+        const fakeTableName = faker.random.words(1);
         const deleteRowInTableResponse = await request(app.getHttpServer())
           .delete(`/table/row/${createConnectionRO.id}?tableName=${fakeTableName}&id=${idForDeletion}`)
           .set('Content-Type', 'application/json')
@@ -4336,9 +4311,9 @@ describe('Tables MySQL (e2e)', () => {
           .set('Content-Type', 'application/json')
           .set('Accept', 'application/json');
 
-        expect(deleteRowInTableResponse.status).toBe(400);
         const deleteRowInTableRO = JSON.parse(deleteRowInTableResponse.text);
-        //expect(deleteRowInTableRO.deleted).toBeTruthy();
+        expect(deleteRowInTableResponse.status).toBe(400);
+        expect(deleteRowInTableRO.message).toBe(Messages.ROW_PRIMARY_KEY_NOT_FOUND);
       } catch (err) {
         throw err;
       }
@@ -4487,7 +4462,7 @@ describe('Tables MySQL (e2e)', () => {
         expect(createConnectionResponse.status).toBe(201);
 
         const idForSearch = 1;
-        createConnectionRO.id = faker.random.uuid();
+        createConnectionRO.id = faker.datatype.uuid();
         const foundRowInTableResponse = await request(app.getHttpServer())
           .get(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&id=${idForSearch}`)
           .set('Content-Type', 'application/json')
@@ -4585,7 +4560,7 @@ describe('Tables MySQL (e2e)', () => {
         expect(createConnectionResponse.status).toBe(201);
 
         const idForSearch = 1;
-        const fakeTableName = faker.random.word(1);
+        const fakeTableName = faker.random.words(1);
         const foundRowInTableResponse = await request(app.getHttpServer())
           .get(`/table/row/${createConnectionRO.id}?tableName=${fakeTableName}&id=${idForSearch}`)
           .set('Content-Type', 'application/json')
