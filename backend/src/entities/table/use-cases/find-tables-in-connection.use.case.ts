@@ -14,6 +14,7 @@ import { ITablePermissionData } from '../../permission/permission.interface';
 import { FoundTableDs } from '../application/data-structures/found-table.ds';
 import { TableSettingsEntity } from '../../table-settings/table-settings.entity';
 import AbstractUseCase from '../../../common/abstract-use.case';
+import { saveTablesInfoInDatabaseUtil } from '../utils/save-tables-info-in-database.util';
 
 @Injectable({ scope: Scope.REQUEST })
 export class FindTablesInConnectionUseCase
@@ -41,12 +42,14 @@ export class FindTablesInConnectionUseCase
     }
     const dao = createDataAccessObject(connection, userId);
     let userEmail;
+    let operationResult = false;
     if (isConnectionTypeAgent(connection.type)) {
       userEmail = await this._dbContext.userRepository.getUserEmailOrReturnNull(userId);
     }
     let tables;
     try {
       tables = await dao.getTablesFromDB(userEmail);
+      operationResult = true;
     } catch (e) {
       throw new HttpException(
         {
@@ -69,6 +72,9 @@ export class FindTablesInConnectionUseCase
         userId,
         { tablesCount: tables?.length ? tables.length : 0 },
       );
+      if (connection.saved_table_info === 0 && !connection.isTestConnection && operationResult) {
+        saveTablesInfoInDatabaseUtil(connection, userId, tables);
+      }
     }
     const tablesWithPermissions = await this.getUserPermissionsForAvailableTables(userId, connectionId, tables);
     const excludedTables = await this._dbContext.connectionPropertiesRepository.findConnectionProperties(connectionId);
