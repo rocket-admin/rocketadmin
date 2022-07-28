@@ -57,7 +57,7 @@ export class RegistrationComponent implements OnInit {
     google.accounts.id.prompt();
 
     //@ts-ignore
-    window.fbAsyncInit();
+    if (typeof FB !== 'undefined') window.fbAsyncInit();
 
     //@ts-ignore
     window.loginWithFacebook = () => {
