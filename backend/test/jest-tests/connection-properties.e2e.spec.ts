@@ -1,17 +1,17 @@
 import * as AWS from 'aws-sdk';
 import * as AWSMock from 'aws-sdk-mock';
-import * as faker from 'faker';
+import { faker } from '@faker-js/faker';
 import * as request from 'supertest';
-import { ApplicationModule } from '../src/app.module';
+import { ApplicationModule } from '../../src/app.module';
 import { Connection } from 'typeorm';
-import { DatabaseModule } from '../src/shared/database/database.module';
-import { DatabaseService } from '../src/shared/database/database.service';
+import { DatabaseModule } from '../../src/shared/database/database.module';
+import { DatabaseService } from '../../src/shared/database/database.service';
 import { INestApplication } from '@nestjs/common';
-import { MockFactory } from './mock.factory';
+import { MockFactory } from '../mock.factory';
 import { Test } from '@nestjs/testing';
-import { TestUtils } from './utils/test.utils';
+import { TestUtils } from '../utils/test.utils';
 import { knex } from 'knex';
-import { Cacher } from '../src/helpers/cache/cacher';
+import { Cacher } from '../../src/helpers/cache/cacher';
 
 describe('Connection properties', () => {
   jest.setTimeout(30000);
@@ -190,7 +190,7 @@ describe('Connection properties', () => {
       const createConnectionRO = JSON.parse(createConnectionResponse.text);
       expect(createConnectionResponse.status).toBe(201);
       const copyNewConnectionResponse = JSON.parse(JSON.stringify(newConnectionProperties));
-      copyNewConnectionResponse.hidden_tables[0] = faker.random.word(1);
+      copyNewConnectionResponse.hidden_tables[0] = faker.random.words(1);
       const createConnectionPropertiesResponse = await request(app.getHttpServer())
         .post(`/connection/properties/${createConnectionRO.id}`)
         .send(copyNewConnectionResponse)
@@ -248,7 +248,7 @@ describe('Connection properties', () => {
       expect(createConnectionPropertiesResponse.status).toBe(201);
 
       const getConnectionPropertiesResponse = await request(app.getHttpServer())
-        .get(`/connection/properties/${faker.random.uuid()}`)
+        .get(`/connection/properties/${faker.datatype.uuid()}`)
         .set('Content-Type', 'application/json')
         .set('Accept', 'application/json');
       expect(getConnectionPropertiesResponse.status).toBe(403);
@@ -320,7 +320,7 @@ describe('Connection properties', () => {
       expect(createConnectionPropertiesResponse.status).toBe(201);
 
       const getConnectionPropertiesResponse = await request(app.getHttpServer())
-        .get(`/connection/properties/${faker.random.uuid()}`)
+        .get(`/connection/properties/${faker.datatype.uuid()}`)
         .set('Content-Type', 'application/json')
         .set('Accept', 'application/json');
       expect(getConnectionPropertiesResponse.status).toBe(403);
@@ -358,7 +358,7 @@ describe('Connection properties', () => {
       const createConnectionRO = JSON.parse(createConnectionResponse.text);
       expect(createConnectionResponse.status).toBe(201);
       const copyNewConnectionResponse = JSON.parse(JSON.stringify(newConnectionProperties));
-      copyNewConnectionResponse.hidden_tables[0] = faker.random.word(1);
+      copyNewConnectionResponse.hidden_tables[0] = faker.random.words(1);
       const createConnectionPropertiesResponse = await request(app.getHttpServer())
         .post(`/connection/properties/${createConnectionRO.id}`)
         .send(copyNewConnectionResponse)

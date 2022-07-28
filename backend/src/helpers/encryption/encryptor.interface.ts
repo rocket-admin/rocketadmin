@@ -4,6 +4,7 @@ import { GroupEntity } from '../../entities/group/group.entity';
 import { TableSettingsEntity } from '../../entities/table-settings/table-settings.entity';
 import { AgentEntity } from '../../entities/agent/agent.entity';
 import { ConnectionPropertiesEntity } from '../../entities/connection-properties/connection-properties.entity';
+import { TableInfoEntity } from '../../entities/table-info/table-info.entity';
 
 export interface IEncryptorInterfaceDTO {
   id: string;
@@ -36,4 +37,6 @@ export interface IEncryptorInterfaceDTO {
   agent: AgentEntity;
   isTestConnection?: boolean;
   connection_properties: ConnectionPropertiesEntity;
+  tables_info: Array<TableInfoEntity>;
+  saved_table_info?: number;
 }

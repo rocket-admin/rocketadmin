@@ -16,13 +16,13 @@ API_ROOT - http root for backend container
 
 Environment variables for backend container:
 
-TYPEORM_HOST - hostname of the database, where autoadmin stores its metadata
-TYPEORM_USERNAME - username to database with metadata
-TYPEORM_PASSWORD - password to database with metadata
-TYPEORM_DATABASE - database with metadata name
-JWT_SECRET - any random 64-character string
-APP_DOMAIN_ADDRESS - http root for frontend container
-PRIVATE_KEY - optional key
+* TYPEORM_HOST - hostname of the database, where autoadmin stores its metadata
+* TYPEORM_USERNAME - username to database with metadata
+* TYPEORM_PASSWORD - password to database with metadata
+* TYPEORM_DATABASE - database with metadata name
+* JWT_SECRET - any random 64-character string
+* APP_DOMAIN_ADDRESS - http root for frontend container
+* PRIVATE_KEY - optional key
 
 ## Running development server
 

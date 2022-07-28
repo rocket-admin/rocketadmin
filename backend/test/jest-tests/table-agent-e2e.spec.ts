@@ -1,36 +1,37 @@
 import * as AWS from 'aws-sdk';
 import * as AWSMock from 'aws-sdk-mock';
-import * as faker from 'faker';
+import { faker } from '@faker-js/faker';
 import { knex } from 'knex';
 import * as request from 'supertest';
 
-import { ApplicationModule } from '../src/app.module';
+import { ApplicationModule } from '../../src/app.module';
 import { Connection } from 'typeorm';
-import { Constants } from '../src/helpers/constants/constants';
-import { DatabaseModule } from '../src/shared/database/database.module';
-import { DatabaseService } from '../src/shared/database/database.service';
+import { Constants } from '../../src/helpers/constants/constants';
+import { DatabaseModule } from '../../src/shared/database/database.module';
+import { DatabaseService } from '../../src/shared/database/database.service';
 import { INestApplication } from '@nestjs/common';
-import { Messages } from '../src/exceptions/text/messages';
-import { MockFactory } from './mock.factory';
-import { QueryOrderingEnum } from '../src/enums';
+import { Messages } from '../../src/exceptions/text/messages';
+import { MockFactory } from '../mock.factory';
+import { QueryOrderingEnum } from '../../src/enums';
 import { Test } from '@nestjs/testing';
-import { TestUtils } from './utils/test.utils';
-import { Cacher } from '../src/helpers/cache/cacher';
+import { TestUtils } from '../utils/test.utils';
+import { Cacher } from '../../src/helpers/cache/cacher';
 
-describe('Tables MsSQL (e2e)', () => {
-  jest.setTimeout(100000);
+xdescribe('Tables Agent (e2e)', () => {
   let app: INestApplication;
   let testUtils: TestUtils;
   const mockFactory = new MockFactory();
   let newConnection;
+  let newKnexConfig;
   const testTableName = 'users';
   const testTableColumnName = 'name';
   const testTAbleSecondColumnName = 'email';
   const testSearchedUserName = 'Vasia';
   const testEntitiesSeedsCount = 42;
+  const dbType = 'postgres';
 
-  async function resetMsSQLTestDB() {
-    const { host, username, password, database, port, type, ssl, cert } = newConnection;
+  async function resetPostgresTestDB() {
+    const { host, username, password, database, port, type, ssl, cert } = newKnexConfig;
     const Knex = knex({
       client: type,
       connection: {
@@ -80,7 +81,7 @@ describe('Tables MsSQL (e2e)', () => {
     app = moduleFixture.createNestApplication();
     await app.init();
 
-    newConnection = mockFactory.generateConnectionToTestMsSQlDBInDocker();
+    newConnection = mockFactory.generateConnectionToTestDbAgent();
     AWSMock.setSDKInstance(AWS);
     AWSMock.mock(
       'CognitoIdentityServiceProvider',
@@ -93,7 +94,6 @@ describe('Tables MsSQL (e2e)', () => {
                 {},
                 {},
                 {
-                  Name: 'email',
                   Value: 'Example@gmail.com',
                 },
               ],
@@ -102,7 +102,6 @@ describe('Tables MsSQL (e2e)', () => {
         });
       },
     );
-    await resetMsSQLTestDB();
     const findAllConnectionsResponse = await request(app.getHttpServer())
       .get('/connections')
       .set('Content-Type', 'application/json')
@@ -111,10 +110,15 @@ describe('Tables MsSQL (e2e)', () => {
   });
 
   afterEach(async () => {
-    await Cacher.clearAllCache();
     await testUtils.resetDb();
     await testUtils.closeDbConnection();
     AWSMock.restore('CognitoIdentityServiceProvider');
+  });
+
+  beforeAll(async () => {
+    newKnexConfig = mockFactory.generateKnexConfigAgentTests(dbType);
+    await resetPostgresTestDB();
+    jest.setTimeout(50000);
   });
 
   afterAll(async () => {
@@ -198,7 +202,7 @@ describe('Tables MsSQL (e2e)', () => {
         const createConnectionRO = JSON.parse(createConnectionResponse.text);
         expect(createConnectionResponse.status).toBe(201);
 
-        createConnectionRO.id = faker.random.uuid();
+        createConnectionRO.id = faker.datatype.uuid();
         const getTablesResponse = await request(app.getHttpServer())
           .get(`/connection/tables/${createConnectionRO.id}`)
           .set('Content-Type', 'application/json')
@@ -223,14 +227,13 @@ describe('Tables MsSQL (e2e)', () => {
             .set('Accept', 'application/json');
           const createConnectionRO = JSON.parse(createConnectionResponse.text);
           expect(createConnectionResponse.status).toBe(201);
-
           const getTableRowsResponse = await request(app.getHttpServer())
             .get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}`)
             .set('Content-Type', 'application/json')
             .set('Accept', 'application/json');
-          expect(getTableRowsResponse.status).toBe(200);
 
           const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
+          expect(getTableRowsResponse.status).toBe(200);
 
           expect(typeof getTableRowsRO).toBe('object');
           expect(getTableRowsRO.hasOwnProperty('rows')).toBeTruthy();
@@ -242,7 +245,7 @@ describe('Tables MsSQL (e2e)', () => {
           expect(getTableRowsRO.rows[1].hasOwnProperty('name')).toBeTruthy();
           expect(getTableRowsRO.rows[10].hasOwnProperty('email')).toBeTruthy();
           expect(getTableRowsRO.rows[15].hasOwnProperty('created_at')).toBeTruthy();
-          expect(getTableRowsRO.rows[19].hasOwnProperty('updated_at')).toBeTruthy();
+          expect(getTableRowsRO.rows[12].hasOwnProperty('updated_at')).toBeTruthy();
 
           expect(typeof getTableRowsRO.primaryColumns).toBe('object');
           expect(getTableRowsRO.primaryColumns[0].hasOwnProperty('column_name')).toBeTruthy();
@@ -254,7 +257,7 @@ describe('Tables MsSQL (e2e)', () => {
 
       it('should throw an exception when connection id not passed in request', async () => {
         try {
-          const connectionCount = faker.random.number({ min: 5, max: 15 });
+          const connectionCount = faker.datatype.number({ min: 5, max: 15, precision: 1 });
           for (let i = 0; i < connectionCount; i++) {
             const createConnectionResponse = await request(app.getHttpServer())
               .post('/connection')
@@ -285,7 +288,7 @@ describe('Tables MsSQL (e2e)', () => {
 
       it('should throw an exception when connection id is incorrect', async () => {
         try {
-          const connectionCount = faker.random.number({ min: 5, max: 15 });
+          const connectionCount = faker.datatype.number({ min: 5, max: 15, precision: 1 });
           for (let i = 0; i < connectionCount; i++) {
             const createConnectionResponse = await request(app.getHttpServer())
               .post('/connection')
@@ -303,7 +306,7 @@ describe('Tables MsSQL (e2e)', () => {
           const createConnectionRO = JSON.parse(createConnectionResponse.text);
           expect(createConnectionResponse.status).toBe(201);
 
-          createConnectionRO.id = faker.random.uuid();
+          createConnectionRO.id = faker.datatype.uuid();
           const getTableRowsResponse = await request(app.getHttpServer())
             .get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}`)
             .set('Content-Type', 'application/json')
@@ -380,7 +383,7 @@ describe('Tables MsSQL (e2e)', () => {
 
       it('should return throw an error when connectionId is not passed in request', async () => {
         try {
-          const connectionCount = faker.random.number({ min: 5, max: 15 });
+          const connectionCount = faker.datatype.number({ min: 5, max: 15, precision: 1 });
           for (let i = 0; i < connectionCount; i++) {
             const createConnectionResponse = await request(app.getHttpServer())
               .post('/connection')
@@ -465,7 +468,7 @@ describe('Tables MsSQL (e2e)', () => {
             .set('Accept', 'application/json');
           expect(createTableSettingsResponse.status).toBe(201);
           const searchedDescription = '5';
-          createConnectionRO.id = faker.random.uuid();
+          createConnectionRO.id = faker.datatype.uuid();
           const getTableRowsResponse = await request(app.getHttpServer())
             .get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&search=${searchedDescription}`)
             .set('Content-Type', 'application/json')
@@ -511,7 +514,7 @@ describe('Tables MsSQL (e2e)', () => {
             .set('Accept', 'application/json');
           expect(createTableSettingsResponse.status).toBe(201);
 
-          const search = faker.random.word(1);
+          const search = faker.random.words(1);
           const getTableRowsResponse = await request(app.getHttpServer())
             .get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&search=${search}`)
             .set('Content-Type', 'application/json')
@@ -542,7 +545,7 @@ describe('Tables MsSQL (e2e)', () => {
           const createConnectionRO = JSON.parse(createConnectionResponse.text);
           expect(createConnectionResponse.status).toBe(201);
 
-          const randomTableName = faker.random.word(1);
+          const randomTableName = faker.random.words(1);
           const searchedDescription = '5';
           const getTableRowsResponse = await request(app.getHttpServer())
             .get(`/table/rows/${createConnectionRO.id}?tableName=${randomTableName}&search=${searchedDescription}`)
@@ -612,7 +615,7 @@ describe('Tables MsSQL (e2e)', () => {
           expect(getTableRowsRO.primaryColumns[0].hasOwnProperty('column_name')).toBeTruthy();
           expect(getTableRowsRO.primaryColumns[0].hasOwnProperty('data_type')).toBeTruthy();
           expect(getTableRowsRO.primaryColumns[0].column_name).toBe('id');
-          expect(getTableRowsRO.primaryColumns[0].data_type).toBe('int');
+          expect(getTableRowsRO.primaryColumns[0].data_type).toBe('integer');
 
           expect(getTableRowsRO.pagination.total).toBe(42);
           expect(getTableRowsRO.pagination.lastPage).toBe(21);
@@ -676,9 +679,8 @@ describe('Tables MsSQL (e2e)', () => {
           expect(getTableRowsRO.primaryColumns[0].hasOwnProperty('column_name')).toBeTruthy();
           expect(getTableRowsRO.primaryColumns[0].hasOwnProperty('data_type')).toBeTruthy();
           expect(getTableRowsRO.primaryColumns[0].column_name).toBe('id');
-          expect(getTableRowsRO.primaryColumns[0].data_type).toBe('int');
+          expect(getTableRowsRO.primaryColumns[0].data_type).toBe('integer');
 
-          //todo say to Lyubov about strings in pagination and fix
           expect(getTableRowsRO.pagination.total).toBe(42);
           expect(getTableRowsRO.pagination.lastPage).toBe(21);
           expect(getTableRowsRO.pagination.perPage).toBe(2);
@@ -738,7 +740,7 @@ describe('Tables MsSQL (e2e)', () => {
           expect(getTableRowsRO.primaryColumns[0].hasOwnProperty('column_name')).toBeTruthy();
           expect(getTableRowsRO.primaryColumns[0].hasOwnProperty('data_type')).toBeTruthy();
           expect(getTableRowsRO.primaryColumns[0].column_name).toBe('id');
-          expect(getTableRowsRO.primaryColumns[0].data_type).toBe('int');
+          expect(getTableRowsRO.primaryColumns[0].data_type).toBe('integer');
 
           expect(getTableRowsRO.pagination.total).toBe(42);
           expect(getTableRowsRO.pagination.lastPage).toBe(21);
@@ -782,7 +784,7 @@ describe('Tables MsSQL (e2e)', () => {
             .set('Accept', 'application/json');
           expect(createTableSettingsResponse.status).toBe(201);
 
-          const fakeTableName = faker.random.word(1);
+          const fakeTableName = faker.random.words(1);
           const getTableRowsResponse = await request(app.getHttpServer())
             .get(`/table/rows/${createConnectionRO.id}?tableName=${fakeTableName}&page=1&perPage=2`)
             .set('Content-Type', 'application/json')
@@ -860,7 +862,7 @@ describe('Tables MsSQL (e2e)', () => {
           const createConnectionRO = JSON.parse(createConnectionResponse.text);
           expect(createConnectionResponse.status).toBe(201);
 
-          createConnectionRO.id = faker.random.uuid();
+          createConnectionRO.id = faker.datatype.uuid();
           const getTableRowsResponse = await request(app.getHttpServer())
             .get(`/table/rows/${createConnectionRO.id}?tableName=connection&page=1&perPage=2`)
             .set('Content-Type', 'application/json')
@@ -929,7 +931,7 @@ describe('Tables MsSQL (e2e)', () => {
           expect(getTableRowsRO.primaryColumns[0].hasOwnProperty('column_name')).toBeTruthy();
           expect(getTableRowsRO.primaryColumns[0].hasOwnProperty('data_type')).toBeTruthy();
           expect(getTableRowsRO.primaryColumns[0].column_name).toBe('id');
-          expect(getTableRowsRO.primaryColumns[0].data_type).toBe('int');
+          expect(getTableRowsRO.primaryColumns[0].data_type).toBe('integer');
 
           expect(getTableRowsRO.pagination.total).toBe(3);
           expect(getTableRowsRO.pagination.lastPage).toBe(2);
@@ -993,7 +995,7 @@ describe('Tables MsSQL (e2e)', () => {
           expect(getTableRowsRO.primaryColumns[0].hasOwnProperty('column_name')).toBeTruthy();
           expect(getTableRowsRO.primaryColumns[0].hasOwnProperty('data_type')).toBeTruthy();
           expect(getTableRowsRO.primaryColumns[0].column_name).toBe('id');
-          expect(getTableRowsRO.primaryColumns[0].data_type).toBe('int');
+          expect(getTableRowsRO.primaryColumns[0].data_type).toBe('integer');
 
           expect(getTableRowsRO.pagination.total).toBe(3);
           expect(getTableRowsRO.pagination.lastPage).toBe(1);
@@ -1082,7 +1084,7 @@ describe('Tables MsSQL (e2e)', () => {
             .set('Content-Type', 'application/json')
             .set('Accept', 'application/json');
           expect(createTableSettingsResponse.status).toBe(201);
-          createConnectionRO.id = faker.random.uuid();
+          createConnectionRO.id = faker.datatype.uuid();
 
           const getTableRowsResponse = await request(app.getHttpServer())
             .get(
@@ -1132,7 +1134,7 @@ describe('Tables MsSQL (e2e)', () => {
             .set('Accept', 'application/json');
           expect(createTableSettingsResponse.status).toBe(201);
 
-          const fakeTableName = faker.random.word(1);
+          const fakeTableName = faker.random.words(1);
           const getTableRowsResponse = await request(app.getHttpServer())
             .get(
               `/table/rows/${createConnectionRO.id}?tableName=${fakeTableName}&search=${testSearchedUserName}&page=1&perPage=3`,
@@ -1190,7 +1192,7 @@ describe('Tables MsSQL (e2e)', () => {
             .set('Accept', 'application/json');
           expect(getTableRowsResponse.status).toBe(400);
           const { message } = JSON.parse(getTableRowsResponse.text);
-          expect(message).toBe(Messages.TABLE_NAME_MISSING);
+          expect(message).toBe(Messages.TABLE_NOT_FOUND);
         } catch (err) {
           throw err;
         }
@@ -1214,7 +1216,7 @@ describe('Tables MsSQL (e2e)', () => {
             ['name'],
             undefined,
             undefined,
-            42,
+            3,
             QueryOrderingEnum.DESC,
             'id',
             undefined,
@@ -1242,11 +1244,11 @@ describe('Tables MsSQL (e2e)', () => {
           expect(getTableRowsRO.hasOwnProperty('rows')).toBeTruthy();
           expect(getTableRowsRO.hasOwnProperty('primaryColumns')).toBeTruthy();
           expect(getTableRowsRO.hasOwnProperty('pagination')).toBeTruthy();
-          expect(getTableRowsRO.rows.length).toBe(42);
+          expect(getTableRowsRO.rows.length).toBe(3);
           expect(Object.keys(getTableRowsRO.rows[1]).length).toBe(5);
           expect(getTableRowsRO.rows[0].id).toBe(42);
           expect(getTableRowsRO.rows[1].id).toBe(41);
-          expect(getTableRowsRO.rows[41].id).toBe(1);
+          expect(getTableRowsRO.rows[2].id).toBe(40);
 
           expect(typeof getTableRowsRO.primaryColumns).toBe('object');
           expect(getTableRowsRO.primaryColumns[0].hasOwnProperty('column_name')).toBeTruthy();
@@ -1272,7 +1274,7 @@ describe('Tables MsSQL (e2e)', () => {
             ['name'],
             undefined,
             undefined,
-            42,
+            3,
             QueryOrderingEnum.ASC,
             'id',
             undefined,
@@ -1300,11 +1302,11 @@ describe('Tables MsSQL (e2e)', () => {
           expect(getTableRowsRO.hasOwnProperty('rows')).toBeTruthy();
           expect(getTableRowsRO.hasOwnProperty('primaryColumns')).toBeTruthy();
           expect(getTableRowsRO.hasOwnProperty('pagination')).toBeTruthy();
-          expect(getTableRowsRO.rows.length).toBe(42);
+          expect(getTableRowsRO.rows.length).toBe(3);
           expect(Object.keys(getTableRowsRO.rows[1]).length).toBe(5);
           expect(getTableRowsRO.rows[0].id).toBe(1);
           expect(getTableRowsRO.rows[1].id).toBe(2);
-          expect(getTableRowsRO.rows[41].id).toBe(42);
+          expect(getTableRowsRO.rows[2].id).toBe(3);
 
           expect(typeof getTableRowsRO.primaryColumns).toBe('object');
           expect(getTableRowsRO.primaryColumns[0].hasOwnProperty('column_name')).toBeTruthy();
@@ -1390,7 +1392,7 @@ describe('Tables MsSQL (e2e)', () => {
             .set('Content-Type', 'application/json')
             .set('Accept', 'application/json');
           expect(createTableSettingsResponse.status).toBe(201);
-          createConnectionRO.id = faker.random.uuid();
+          createConnectionRO.id = faker.datatype.uuid();
           const getTableRowsResponse = await request(app.getHttpServer())
             .get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}`)
             .set('Content-Type', 'application/json')
@@ -1443,7 +1445,7 @@ describe('Tables MsSQL (e2e)', () => {
             .set('Accept', 'application/json');
           expect(getTableRowsResponse.status).toBe(400);
           const { message } = JSON.parse(getTableRowsResponse.text);
-          expect(message).toBe(Messages.TABLE_NAME_MISSING);
+          expect(message).toBe(Messages.TABLE_NOT_FOUND);
         } catch (err) {
           throw err;
         }
@@ -1482,7 +1484,7 @@ describe('Tables MsSQL (e2e)', () => {
             .set('Accept', 'application/json');
           expect(createTableSettingsResponse.status).toBe(201);
 
-          const fakeTableName = faker.random.word(1);
+          const fakeTableName = faker.random.words(1);
           const getTableRowsResponse = await request(app.getHttpServer())
             .get(`/table/rows/${createConnectionRO.id}?tableName=${fakeTableName}`)
             .set('Content-Type', 'application/json')
@@ -1748,7 +1750,7 @@ describe('Tables MsSQL (e2e)', () => {
             .set('Accept', 'application/json');
           expect(createTableSettingsResponse.status).toBe(201);
 
-          createConnectionRO.id = faker.random.uuid();
+          createConnectionRO.id = faker.datatype.uuid();
           const getTableRowsResponse = await request(app.getHttpServer())
             .get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=2&perPage=3`)
             .set('Content-Type', 'application/json')
@@ -1796,7 +1798,7 @@ describe('Tables MsSQL (e2e)', () => {
             .set('Accept', 'application/json');
           expect(createTableSettingsResponse.status).toBe(201);
 
-          const fakeTableName = faker.random.word(1);
+          const fakeTableName = faker.random.words(1);
           const getTableRowsResponse = await request(app.getHttpServer())
             .get(`/table/rows/${createConnectionRO.id}?tableName=${fakeTableName}&page=2&perPage=3`)
             .set('Content-Type', 'application/json')
@@ -2138,7 +2140,7 @@ describe('Tables MsSQL (e2e)', () => {
             .set('Accept', 'application/json');
           expect(createTableSettingsResponse.status).toBe(201);
 
-          createConnectionRO.id = faker.random.uuid();
+          createConnectionRO.id = faker.datatype.uuid();
           const getTableRowsResponse = await request(app.getHttpServer())
             .get(
               `/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=2&perPage=2&search=${testSearchedUserName}`,
@@ -2195,7 +2197,7 @@ describe('Tables MsSQL (e2e)', () => {
             .set('Accept', 'application/json');
           expect(getTableRowsResponse.status).toBe(400);
           const { message } = JSON.parse(getTableRowsResponse.text);
-          expect(message).toBe(Messages.TABLE_NAME_MISSING);
+          expect(message).toBe(Messages.TABLE_NOT_FOUND);
         } catch (err) {
           throw err;
         }
@@ -2234,7 +2236,7 @@ describe('Tables MsSQL (e2e)', () => {
             .set('Accept', 'application/json');
           expect(createTableSettingsResponse.status).toBe(201);
 
-          const fakeTableName = faker.random.uuid();
+          const fakeTableName = faker.datatype.uuid();
           const getTableRowsResponse = await request(app.getHttpServer())
             .get(
               `/table/rows/${createConnectionRO.id}?tableName=${fakeTableName}&page=2&perPage=2&search=${testSearchedUserName}`,
@@ -2282,7 +2284,7 @@ describe('Tables MsSQL (e2e)', () => {
             .set('Accept', 'application/json');
           expect(createTableSettingsResponse.status).toBe(201);
 
-          const searchedDescription = faker.random.word(1);
+          const searchedDescription = faker.random.words(1);
           const getTableRowsResponse = await request(app.getHttpServer())
             .get(
               `/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=1&perPage=2&search=${searchedDescription}`,
@@ -2340,7 +2342,7 @@ describe('Tables MsSQL (e2e)', () => {
             .set('Accept', 'application/json');
           expect(createTableSettingsResponse.status).toBe(201);
 
-          const searchedDescription = faker.random.word(1);
+          const searchedDescription = faker.random.words(1);
           const getTableRowsResponse = await request(app.getHttpServer())
             .get(
               `/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=1&perPage=420&search=${searchedDescription}`,
@@ -2556,7 +2558,6 @@ describe('Tables MsSQL (e2e)', () => {
 
           expect(getTableRowsRO.rows[0].name).toBe(testSearchedUserName);
           expect(getTableRowsRO.rows[0].id).toBe(1);
-
           expect(getTableRowsRO.pagination.currentPage).toBe(2);
           expect(getTableRowsRO.pagination.perPage).toBe(2);
 
@@ -2722,7 +2723,7 @@ describe('Tables MsSQL (e2e)', () => {
           const fieldGtvalue = '25';
           const fieldLtvalue = '40';
 
-          createConnectionRO.id = faker.random.uuid();
+          createConnectionRO.id = faker.datatype.uuid();
           const getTableRowsResponse = await request(app.getHttpServer())
             .get(
               `/table/rows/${createConnectionRO.id}?tableName=${testTableName}&search=${testSearchedUserName}&page=1&perPage=2&f_${fieldname}__lt=${fieldLtvalue}&f_${fieldname}__gt=${fieldGtvalue}`,
@@ -2776,7 +2777,7 @@ describe('Tables MsSQL (e2e)', () => {
           const fieldGtvalue = '25';
           const fieldLtvalue = '40';
 
-          const fakeTableName = faker.random.word(1);
+          const fakeTableName = faker.random.words(1);
           const getTableRowsResponse = await request(app.getHttpServer())
             .get(
               `/table/rows/${createConnectionRO.id}?tableName=${fakeTableName}&search=${testSearchedUserName}&page=1&perPage=2&f_${fieldname}__lt=${fieldLtvalue}&f_${fieldname}__gt=${fieldGtvalue}`,
@@ -2826,7 +2827,7 @@ describe('Tables MsSQL (e2e)', () => {
             .set('Accept', 'application/json');
           expect(createTableSettingsResponse.status).toBe(201);
 
-          const fieldname = faker.random.word(1);
+          const fieldname = faker.random.words(1);
           const fieldGtvalue = '25';
           const fieldLtvalue = '40';
 
@@ -2883,6 +2884,8 @@ describe('Tables MsSQL (e2e)', () => {
 
         expect(getTableStructureRO.hasOwnProperty('primaryColumns')).toBeTruthy();
         expect(getTableStructureRO.hasOwnProperty('foreignKeys')).toBeTruthy();
+        expect(getTableStructureRO.hasOwnProperty('readonly_fields')).toBeTruthy();
+        expect(getTableStructureRO.hasOwnProperty('table_widgets')).toBeTruthy();
 
         for (const element of getTableStructureRO.primaryColumns) {
           expect(element.hasOwnProperty('column_name')).toBeTruthy();
@@ -2931,7 +2934,7 @@ describe('Tables MsSQL (e2e)', () => {
         const createConnectionRO = JSON.parse(createConnectionResponse.text);
         expect(createConnectionResponse.status).toBe(201);
 
-        createConnectionRO.id = faker.random.uuid();
+        createConnectionRO.id = faker.datatype.uuid();
         const getTableStructure = await request(app.getHttpServer())
           .get(`/table/structure/${createConnectionRO.id}?tableName=${testTableName}`)
           .set('Content-Type', 'application/json')
@@ -2961,7 +2964,7 @@ describe('Tables MsSQL (e2e)', () => {
           .set('Accept', 'application/json');
         expect(getTableStructure.status).toBe(400);
         const { message } = JSON.parse(getTableStructure.text);
-        expect(message).toBe(Messages.TABLE_NAME_MISSING);
+        expect(message).toBe(Messages.TABLE_NOT_FOUND);
       } catch (err) {
         throw err;
       }
@@ -2977,7 +2980,7 @@ describe('Tables MsSQL (e2e)', () => {
         const createConnectionRO = JSON.parse(createConnectionResponse.text);
         expect(createConnectionResponse.status).toBe(201);
 
-        const tableName = faker.random.word(1);
+        const tableName = faker.random.words(1);
         const getTableStructure = await request(app.getHttpServer())
           .get(`/table/structure/${createConnectionRO.id}?tableName=${tableName}`)
           .set('Content-Type', 'application/json')
@@ -2994,6 +2997,27 @@ describe('Tables MsSQL (e2e)', () => {
   describe('POST /table/row/:slug', () => {
     it('should add row in table and return result', async () => {
       try {
+        AWSMock.setSDKInstance(AWS);
+        AWSMock.mock(
+          'CognitoIdentityServiceProvider',
+          'listUsers',
+          (newCognitoUserName, callback: (...args: any) => void) => {
+            callback(null, {
+              Users: [
+                {
+                  Attributes: [
+                    {},
+                    {},
+                    {
+                      Value: 'Example@gmail.com',
+                    },
+                  ],
+                },
+              ],
+            });
+          },
+        );
+
         const createConnectionResponse = await request(app.getHttpServer())
           .post('/connection')
           .send(newConnection)
@@ -3015,10 +3039,8 @@ describe('Tables MsSQL (e2e)', () => {
           .send(JSON.stringify(row))
           .set('Content-Type', 'application/json')
           .set('Accept', 'application/json');
-
-        const addRowInTableRO = JSON.parse(addRowInTableResponse.text);
-        console.log('=>(table-mssql.e2e.spec.ts:3020) addRowInTableRO', addRowInTableRO);
         expect(addRowInTableResponse.status).toBe(201);
+        const addRowInTableRO = JSON.parse(addRowInTableResponse.text);
 
         expect(addRowInTableRO.hasOwnProperty('row')).toBeTruthy();
         expect(addRowInTableRO.hasOwnProperty('structure')).toBeTruthy();
@@ -3067,7 +3089,6 @@ describe('Tables MsSQL (e2e)', () => {
                     {},
                     {},
                     {
-                      Name: 'email',
                       Value: 'Example@gmail.com',
                     },
                   ],
@@ -3117,7 +3138,7 @@ describe('Tables MsSQL (e2e)', () => {
 
         const { rows, primaryColumns, pagination } = getTableRowsRO;
 
-        expect(rows.length).toBe(42);
+        expect(rows.length).toBe(43);
       } catch (err) {
         throw err;
       }
@@ -3137,7 +3158,6 @@ describe('Tables MsSQL (e2e)', () => {
                     {},
                     {},
                     {
-                      Name: 'email',
                       Value: 'Example@gmail.com',
                     },
                   ],
@@ -3173,7 +3193,7 @@ describe('Tables MsSQL (e2e)', () => {
         expect(addRowInTableResponse.status).toBe(400);
         const { message } = JSON.parse(addRowInTableResponse.text);
 
-        expect(message).toBe(Messages.TABLE_NAME_MISSING);
+        expect(message).toBe(Messages.PARAMETER_MISSING);
 
         //checking that the line wasn't added
         const getTableRowsResponse = await request(app.getHttpServer())
@@ -3190,7 +3210,7 @@ describe('Tables MsSQL (e2e)', () => {
 
         const { rows, primaryColumns, pagination } = getTableRowsRO;
 
-        expect(rows.length).toBe(42);
+        expect(rows.length).toBe(43);
       } catch (err) {
         throw err;
       }
@@ -3210,7 +3230,6 @@ describe('Tables MsSQL (e2e)', () => {
                     {},
                     {},
                     {
-                      Name: 'email',
                       Value: 'Example@gmail.com',
                     },
                   ],
@@ -3253,7 +3272,7 @@ describe('Tables MsSQL (e2e)', () => {
 
         const { rows, primaryColumns, pagination } = getTableRowsRO;
 
-        expect(rows.length).toBe(42);
+        expect(rows.length).toBe(43);
       } catch (err) {
         throw err;
       }
@@ -3273,7 +3292,6 @@ describe('Tables MsSQL (e2e)', () => {
                     {},
                     {},
                     {
-                      Name: 'email',
                       Value: 'Example@gmail.com',
                     },
                   ],
@@ -3300,12 +3318,13 @@ describe('Tables MsSQL (e2e)', () => {
           [testTAbleSecondColumnName]: fakeMail,
         };
 
-        const fakeTableName = faker.random.word(1);
+        const fakeTableName = faker.random.words(1);
         const addRowInTableResponse = await request(app.getHttpServer())
           .post(`/table/row/${createConnectionRO.id}?tableName=${fakeTableName}`)
           .send(JSON.stringify(row))
           .set('Content-Type', 'application/json')
           .set('Accept', 'application/json');
+
         expect(addRowInTableResponse.status).toBe(400);
         const { message } = JSON.parse(addRowInTableResponse.text);
 
@@ -3326,7 +3345,7 @@ describe('Tables MsSQL (e2e)', () => {
 
         const { rows, primaryColumns, pagination } = getTableRowsRO;
 
-        expect(rows.length).toBe(42);
+        expect(rows.length).toBe(43);
       } catch (err) {
         throw err;
       }
@@ -3350,7 +3369,6 @@ describe('Tables MsSQL (e2e)', () => {
                     {},
                     {},
                     {
-                      Name: 'email',
                       Value: 'Example@gmail.com',
                     },
                   ],
@@ -3409,7 +3427,7 @@ describe('Tables MsSQL (e2e)', () => {
         const { rows, primaryColumns, pagination } = getTableRowsRO;
 
         const updateRowIndex = rows.map((row) => row.id).indexOf(1);
-        expect(rows.length).toBe(42);
+        expect(rows.length).toBe(43);
         expect(rows[updateRowIndex][testTableColumnName]).toBe(row[testTableColumnName]);
         expect(rows[updateRowIndex][testTAbleSecondColumnName]).toBe(row[testTAbleSecondColumnName]);
       } catch (err) {
@@ -3432,7 +3450,6 @@ describe('Tables MsSQL (e2e)', () => {
                     {},
                     {},
                     {
-                      Name: 'email',
                       Value: 'Example@gmail.com',
                     },
                   ],
@@ -3486,7 +3503,6 @@ describe('Tables MsSQL (e2e)', () => {
                     {},
                     {},
                     {
-                      Name: 'email',
                       Value: 'Example@gmail.com',
                     },
                   ],
@@ -3512,7 +3528,7 @@ describe('Tables MsSQL (e2e)', () => {
           [testTAbleSecondColumnName]: fakeMail,
         };
 
-        createConnectionRO.id = faker.random.uuid();
+        createConnectionRO.id = faker.datatype.uuid();
         const updateRowInTableResponse = await request(app.getHttpServer())
           .put(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&id=1`)
           .send(JSON.stringify(row))
@@ -3542,7 +3558,6 @@ describe('Tables MsSQL (e2e)', () => {
                     {},
                     {},
                     {
-                      Name: 'email',
                       Value: 'Example@gmail.com',
                     },
                   ],
@@ -3568,7 +3583,7 @@ describe('Tables MsSQL (e2e)', () => {
           [testTAbleSecondColumnName]: fakeMail,
         };
 
-        createConnectionRO.id = faker.random.uuid();
+        createConnectionRO.id = faker.datatype.uuid();
         const updateRowInTableResponse = await request(app.getHttpServer())
           .put(`/table/row/${createConnectionRO.id}?tableName=&id=1`)
           .send(JSON.stringify(row))
@@ -3577,7 +3592,7 @@ describe('Tables MsSQL (e2e)', () => {
 
         expect(updateRowInTableResponse.status).toBe(400);
         const { message } = JSON.parse(updateRowInTableResponse.text);
-        expect(message).toBe(Messages.TABLE_NAME_MISSING);
+        expect(message).toBe(Messages.PARAMETER_MISSING);
       } catch (err) {
         throw err;
       }
@@ -3598,7 +3613,6 @@ describe('Tables MsSQL (e2e)', () => {
                     {},
                     {},
                     {
-                      Name: 'email',
                       Value: 'Example@gmail.com',
                     },
                   ],
@@ -3624,7 +3638,7 @@ describe('Tables MsSQL (e2e)', () => {
           [testTAbleSecondColumnName]: fakeMail,
         };
 
-        const fakeTableName = faker.random.uuid();
+        const fakeTableName = faker.datatype.uuid();
         const updateRowInTableResponse = await request(app.getHttpServer())
           .put(`/table/row/${createConnectionRO.id}?tableName=${fakeTableName}&id=1`)
           .send(JSON.stringify(row))
@@ -3654,7 +3668,6 @@ describe('Tables MsSQL (e2e)', () => {
                     {},
                     {},
                     {
-                      Name: 'email',
                       Value: 'Example@gmail.com',
                     },
                   ],
@@ -3709,7 +3722,6 @@ describe('Tables MsSQL (e2e)', () => {
                     {},
                     {},
                     {
-                      Name: 'email',
                       Value: 'Example@gmail.com',
                     },
                   ],
@@ -3764,7 +3776,6 @@ describe('Tables MsSQL (e2e)', () => {
                     {},
                     {},
                     {
-                      Name: 'email',
                       Value: 'Example@gmail.com',
                     },
                   ],
@@ -3798,7 +3809,9 @@ describe('Tables MsSQL (e2e)', () => {
 
         expect(updateRowInTableResponse.status).toBe(400);
         const { message } = JSON.parse(updateRowInTableResponse.text);
-        expect(message).toBe(Messages.ROW_PRIMARY_KEY_NOT_FOUND);
+        expect(message)
+          .toBe(`${Messages.UPDATE_ROW_FAILED} ${Messages.ERROR_MESSAGE} "${Messages.ROW_PRIMARY_KEY_NOT_FOUND}"
+         ${Messages.TRY_AGAIN_LATER}`);
       } catch (err) {
         throw err;
       }
@@ -3821,7 +3834,6 @@ describe('Tables MsSQL (e2e)', () => {
                     {},
                     {},
                     {
-                      Name: 'email',
                       Value: 'Example@gmail.com',
                     },
                   ],
@@ -3848,7 +3860,7 @@ describe('Tables MsSQL (e2e)', () => {
         expect(deleteRowInTableResponse.status).toBe(200);
         const deleteRowInTableRO = JSON.parse(deleteRowInTableResponse.text);
 
-        expect(deleteRowInTableRO.hasOwnProperty('row')).toBeTruthy();
+        expect(JSON.stringify(deleteRowInTableRO.deletedRowPrimaryKey)).toBe(JSON.stringify({ id: idForDeletion }));
 
         //checking that the line was deleted
         const getTableRowsResponse = await request(app.getHttpServer())
@@ -3865,7 +3877,7 @@ describe('Tables MsSQL (e2e)', () => {
 
         const { rows, primaryColumns, pagination } = getTableRowsRO;
 
-        expect(rows.length).toBe(41);
+        expect(rows.length).toBe(42);
         const deletedRowIndex = rows.map((row) => row.id).indexOf(idForDeletion);
         expect(deletedRowIndex < 0).toBeTruthy();
       } catch (err) {
@@ -3889,7 +3901,6 @@ describe('Tables MsSQL (e2e)', () => {
                     {},
                     {},
                     {
-                      Name: 'email',
                       Value: 'Example@gmail.com',
                     },
                   ],
@@ -3954,7 +3965,6 @@ describe('Tables MsSQL (e2e)', () => {
                     {},
                     {},
                     {
-                      Name: 'email',
                       Value: 'Example@gmail.com',
                     },
                   ],
@@ -3973,7 +3983,7 @@ describe('Tables MsSQL (e2e)', () => {
         expect(createConnectionResponse.status).toBe(201);
 
         const idForDeletion = 1;
-        const connectionId = faker.random.uuid();
+        const connectionId = faker.datatype.uuid();
         const deleteRowInTableResponse = await request(app.getHttpServer())
           .delete(`/table/row/${connectionId}?tableName=${testTableName}&id=${idForDeletion}`)
           .set('Content-Type', 'application/json')
@@ -4021,7 +4031,6 @@ describe('Tables MsSQL (e2e)', () => {
                     {},
                     {},
                     {
-                      Name: 'email',
                       Value: 'Example@gmail.com',
                     },
                   ],
@@ -4048,7 +4057,7 @@ describe('Tables MsSQL (e2e)', () => {
 
         expect(deleteRowInTableResponse.status).toBe(400);
         const { message } = JSON.parse(deleteRowInTableResponse.text);
-        expect(message).toBe(Messages.TABLE_NAME_MISSING);
+        expect(message).toBe(Messages.TABLE_NOT_FOUND);
 
         //checking that the line wasn't deleted
         const getTableRowsResponse = await request(app.getHttpServer())
@@ -4088,7 +4097,6 @@ describe('Tables MsSQL (e2e)', () => {
                     {},
                     {},
                     {
-                      Name: 'email',
                       Value: 'Example@gmail.com',
                     },
                   ],
@@ -4107,7 +4115,7 @@ describe('Tables MsSQL (e2e)', () => {
         expect(createConnectionResponse.status).toBe(201);
 
         const idForDeletion = 1;
-        const fakeTableName = faker.random.word(1);
+        const fakeTableName = faker.random.words(1);
         const deleteRowInTableResponse = await request(app.getHttpServer())
           .delete(`/table/row/${createConnectionRO.id}?tableName=${fakeTableName}&id=${idForDeletion}`)
           .set('Content-Type', 'application/json')
@@ -4155,7 +4163,6 @@ describe('Tables MsSQL (e2e)', () => {
                     {},
                     {},
                     {
-                      Name: 'email',
                       Value: 'Example@gmail.com',
                     },
                   ],
@@ -4221,7 +4228,6 @@ describe('Tables MsSQL (e2e)', () => {
                     {},
                     {},
                     {
-                      Name: 'email',
                       Value: 'Example@gmail.com',
                     },
                   ],
@@ -4273,7 +4279,7 @@ describe('Tables MsSQL (e2e)', () => {
       AWSMock.restore('CognitoIdentityServiceProvider');
     });
 
-    it('should throw an exception when primary key passed in request has incorrect field value', async () => {
+    it('should return positive delete result when primary key passed in request has incorrect field value', async () => {
       try {
         AWSMock.setSDKInstance(AWS);
         AWSMock.mock(
@@ -4287,7 +4293,6 @@ describe('Tables MsSQL (e2e)', () => {
                     {},
                     {},
                     {
-                      Name: 'email',
                       Value: 'Example@gmail.com',
                     },
                   ],
@@ -4311,9 +4316,9 @@ describe('Tables MsSQL (e2e)', () => {
           .set('Content-Type', 'application/json')
           .set('Accept', 'application/json');
 
+        expect(deleteRowInTableResponse.status).toBe(200);
         const deleteRowInTableRO = JSON.parse(deleteRowInTableResponse.text);
-        expect(deleteRowInTableResponse.status).toBe(400);
-        expect(deleteRowInTableRO.message).toBe(Messages.ROW_PRIMARY_KEY_NOT_FOUND);
+        expect(deleteRowInTableRO.deleted).toBeTruthy();
       } catch (err) {
         throw err;
       }
@@ -4336,7 +4341,6 @@ describe('Tables MsSQL (e2e)', () => {
                     {},
                     {},
                     {
-                      Name: 'email',
                       Value: 'Example@gmail.com',
                     },
                   ],
@@ -4354,14 +4358,14 @@ describe('Tables MsSQL (e2e)', () => {
         const createConnectionRO = JSON.parse(createConnectionResponse.text);
         expect(createConnectionResponse.status).toBe(201);
 
-        const idForSearch = 1;
+        const idForSearch = 5;
         const foundRowInTableResponse = await request(app.getHttpServer())
           .get(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&id=${idForSearch}`)
           .set('Content-Type', 'application/json')
           .set('Accept', 'application/json');
 
-        expect(foundRowInTableResponse.status).toBe(200);
         const foundRowInTableRO = JSON.parse(foundRowInTableResponse.text);
+        expect(foundRowInTableResponse.status).toBe(200);
         expect(foundRowInTableRO.hasOwnProperty('row')).toBeTruthy();
         expect(foundRowInTableRO.hasOwnProperty('structure')).toBeTruthy();
         expect(foundRowInTableRO.hasOwnProperty('foreignKeys')).toBeTruthy();
@@ -4372,7 +4376,7 @@ describe('Tables MsSQL (e2e)', () => {
         expect(typeof foundRowInTableRO.primaryColumns).toBe('object');
         expect(typeof foundRowInTableRO.readonly_fields).toBe('object');
         expect(typeof foundRowInTableRO.foreignKeys).toBe('object');
-        expect(foundRowInTableRO.row.id).toBe(1);
+        expect(foundRowInTableRO.row.id).toBe(idForSearch);
         expect(foundRowInTableRO.row.name).toBe(testSearchedUserName);
         expect(Object.keys(foundRowInTableRO.row).length).toBe(5);
       } catch (err) {
@@ -4396,7 +4400,6 @@ describe('Tables MsSQL (e2e)', () => {
                     {},
                     {},
                     {
-                      Name: 'email',
                       Value: 'Example@gmail.com',
                     },
                   ],
@@ -4443,7 +4446,6 @@ describe('Tables MsSQL (e2e)', () => {
                     {},
                     {},
                     {
-                      Name: 'email',
                       Value: 'Example@gmail.com',
                     },
                   ],
@@ -4462,7 +4464,7 @@ describe('Tables MsSQL (e2e)', () => {
         expect(createConnectionResponse.status).toBe(201);
 
         const idForSearch = 1;
-        createConnectionRO.id = faker.random.uuid();
+        createConnectionRO.id = faker.datatype.uuid();
         const foundRowInTableResponse = await request(app.getHttpServer())
           .get(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&id=${idForSearch}`)
           .set('Content-Type', 'application/json')
@@ -4492,7 +4494,6 @@ describe('Tables MsSQL (e2e)', () => {
                     {},
                     {},
                     {
-                      Name: 'email',
                       Value: 'Example@gmail.com',
                     },
                   ],
@@ -4519,7 +4520,7 @@ describe('Tables MsSQL (e2e)', () => {
 
         expect(foundRowInTableResponse.status).toBe(400);
         const { message } = JSON.parse(foundRowInTableResponse.text);
-        expect(message).toBe(Messages.TABLE_NAME_MISSING);
+        expect(message).toBe(Messages.TABLE_NOT_FOUND);
       } catch (err) {
         throw err;
       }
@@ -4541,7 +4542,6 @@ describe('Tables MsSQL (e2e)', () => {
                     {},
                     {},
                     {
-                      Name: 'email',
                       Value: 'Example@gmail.com',
                     },
                   ],
@@ -4560,7 +4560,7 @@ describe('Tables MsSQL (e2e)', () => {
         expect(createConnectionResponse.status).toBe(201);
 
         const idForSearch = 1;
-        const fakeTableName = faker.random.word(1);
+        const fakeTableName = faker.random.words(1);
         const foundRowInTableResponse = await request(app.getHttpServer())
           .get(`/table/row/${createConnectionRO.id}?tableName=${fakeTableName}&id=${idForSearch}`)
           .set('Content-Type', 'application/json')
@@ -4590,7 +4590,6 @@ describe('Tables MsSQL (e2e)', () => {
                     {},
                     {},
                     {
-                      Name: 'email',
                       Value: 'Example@gmail.com',
                     },
                   ],
@@ -4637,7 +4636,6 @@ describe('Tables MsSQL (e2e)', () => {
                     {},
                     {},
                     {
-                      Name: 'email',
                       Value: 'Example@gmail.com',
                     },
                   ],
@@ -4685,7 +4683,6 @@ describe('Tables MsSQL (e2e)', () => {
                     {},
                     {},
                     {
-                      Name: 'email',
                       Value: 'Example@gmail.com',
                     },
                   ],

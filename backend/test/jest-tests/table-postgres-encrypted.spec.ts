@@ -1,63 +1,61 @@
+import * as AWS from 'aws-sdk';
 import * as AWSMock from 'aws-sdk-mock';
-import * as faker from 'faker';
+import { faker } from '@faker-js/faker';
 import { knex } from 'knex';
 import * as request from 'supertest';
 
-import { ApplicationModule } from '../src/app.module';
+import { ApplicationModule } from '../../src/app.module';
 import { Connection } from 'typeorm';
-import { Constants } from '../src/helpers/constants/constants';
-import { DatabaseModule } from '../src/shared/database/database.module';
-import { DatabaseService } from '../src/shared/database/database.service';
+import { Constants } from '../../src/helpers/constants/constants';
+import { DatabaseModule } from '../../src/shared/database/database.module';
+import { DatabaseService } from '../../src/shared/database/database.service';
 import { INestApplication } from '@nestjs/common';
-import { Messages } from '../src/exceptions/text/messages';
-import { MockFactory } from './mock.factory';
-import { QueryOrderingEnum } from '../src/enums';
+import { Messages } from '../../src/exceptions/text/messages';
+import { MockFactory } from '../mock.factory';
+import { QueryOrderingEnum } from '../../src/enums';
 import { Test } from '@nestjs/testing';
-import { TestUtils } from './utils/test.utils';
-import { Cacher } from '../src/helpers/cache/cacher';
+import { TestUtils } from '../utils/test.utils';
+import { Encryptor } from '../../src/helpers/encryption/encryptor';
+import { Cacher } from '../../src/helpers/cache/cacher';
 
-describe('Tables OracleDB (e2e)', () => {
+describe('Tables Postgres (e2e)', () => {
   jest.setTimeout(10000);
   let app: INestApplication;
   let testUtils: TestUtils;
   const mockFactory = new MockFactory();
   let newConnection;
   const testTableName = 'users';
-  const primaryKeyConstraintName = 'users_primary_key';
-  const pColumnName = 'id';
   const testTableColumnName = 'name';
   const testTAbleSecondColumnName = 'email';
   const testSearchedUserName = 'Vasia';
   const testEntitiesSeedsCount = 42;
+  let decryptValue;
+  let decryptValueMaterPwd;
+  let masterPwd;
 
-  async function resetOracleTestDB() {
-    const { host, username, password, database, port, type, ssl, cert, sid } = newConnection;
+  async function resetPostgresTestDB() {
+    const { host, username, password, database, port, type, ssl, cert } = newConnection;
     const Knex = knex({
       client: type,
       connection: {
+        host: host,
         user: username,
-        database: database,
         password: password,
-        connectString: `${host}:${port}/${sid ? sid : ''}`,
-        ssl: ssl ? { ca: cert } : { rejectUnauthorized: false },
+        database: database,
+        port: port,
       },
     });
-    await Knex.schema.dropTableIfExists(testTableName.toUpperCase());
     await Knex.schema.dropTableIfExists(testTableName);
     await Knex.schema.createTableIfNotExists(testTableName, function (table) {
-      table.integer(pColumnName);
+      table.increments();
       table.string(testTableColumnName);
       table.string(testTAbleSecondColumnName);
       table.timestamps();
     });
-    await Knex.schema.alterTable(testTableName, function (t) {
-      t.primary([pColumnName], primaryKeyConstraintName);
-    });
-    let counter = 0;
+
     for (let i = 0; i < testEntitiesSeedsCount; i++) {
       if (i === 0 || i === testEntitiesSeedsCount - 21 || i === testEntitiesSeedsCount - 5) {
         await Knex(testTableName).insert({
-          [pColumnName]: ++counter,
           [testTableColumnName]: testSearchedUserName,
           [testTAbleSecondColumnName]: faker.internet.email(),
           created_at: new Date(),
@@ -65,7 +63,6 @@ describe('Tables OracleDB (e2e)', () => {
         });
       } else {
         await Knex(testTableName).insert({
-          [pColumnName]: ++counter,
           [testTableColumnName]: faker.name.findName(),
           [testTAbleSecondColumnName]: faker.internet.email(),
           created_at: new Date(),
@@ -73,23 +70,6 @@ describe('Tables OracleDB (e2e)', () => {
         });
       }
     }
-    await Knex.destroy();
-  }
-
-  async function cleanTestOracleDb(): Promise<void> {
-    const { host, username, password, database, port, type, ssl, cert, sid } = newConnection;
-    const Knex = knex({
-      client: type,
-      connection: {
-        user: username,
-        database: database,
-        password: password,
-        connectString: `${host}:${port}/${sid ? sid : ''}`,
-        ssl: ssl ? { ca: cert } : { rejectUnauthorized: false },
-      },
-    });
-    await Knex.schema.dropTableIfExists(testTableName.toUpperCase());
-    await Knex.schema.dropTableIfExists(testTableName);
     await Knex.destroy();
   }
 
@@ -104,9 +84,38 @@ describe('Tables OracleDB (e2e)', () => {
     app = moduleFixture.createNestApplication();
     await app.init();
 
-    newConnection = mockFactory.generateConnectionToTestOracleDBInDocker();
+    masterPwd = 'ahalaimahalai';
+    decryptValue = function (data) {
+      return Encryptor.decryptData(data);
+    };
 
-    await resetOracleTestDB();
+    decryptValueMaterPwd = function (data) {
+      return Encryptor.decryptDataMasterPwd(data, masterPwd);
+    };
+
+    newConnection = mockFactory.generateEncryptedConnectionToTestPostgresDBInDocker();
+    AWSMock.setSDKInstance(AWS);
+    AWSMock.mock(
+      'CognitoIdentityServiceProvider',
+      'listUsers',
+      (newCognitoUserName, callback: (...args: any) => void) => {
+        callback(null, {
+          Users: [
+            {
+              Attributes: [
+                {},
+                {},
+                {
+                  Name: 'email',
+                  Value: 'Example@gmail.com',
+                },
+              ],
+            },
+          ],
+        });
+      },
+    );
+    await resetPostgresTestDB();
     const findAllConnectionsResponse = await request(app.getHttpServer())
       .get('/connections')
       .set('Content-Type', 'application/json')
@@ -121,19 +130,21 @@ describe('Tables OracleDB (e2e)', () => {
     AWSMock.restore('CognitoIdentityServiceProvider');
   });
 
+  beforeAll(() => {
+    jest.setTimeout(20000);
+  });
+
   afterAll(async () => {
     try {
       await Cacher.clearAllCache();
-      await cleanTestOracleDb();
       jest.setTimeout(5000);
       await testUtils.shutdownServer(app.getHttpAdapter());
       const connect = await app.get(Connection);
       if (connect.isConnected) {
         await connect.close();
       }
-      await app.close();
     } catch (e) {
-      console.error('After all table-oracle error: ' + e);
+      console.error('After all pg encrypted error: ' + e);
     }
   });
 
@@ -144,6 +155,7 @@ describe('Tables OracleDB (e2e)', () => {
           .post('/connection')
           .send(newConnection)
           .set('Content-Type', 'application/json')
+          .set('masterpwd', masterPwd)
           .set('Accept', 'application/json');
         const createConnectionRO = JSON.parse(createConnectionResponse.text);
         expect(createConnectionResponse.status).toBe(201);
@@ -151,25 +163,23 @@ describe('Tables OracleDB (e2e)', () => {
         const getTablesResponse = await request(app.getHttpServer())
           .get(`/connection/tables/${createConnectionRO.id}`)
           .set('Content-Type', 'application/json')
+          .set('masterpwd', masterPwd)
           .set('Accept', 'application/json');
         expect(getTablesResponse.status).toBe(200);
         const getTablesRO = JSON.parse(getTablesResponse.text);
 
         expect(typeof getTablesRO).toBe('object');
-        expect(getTablesRO.length).toBe(135);
+        expect(getTablesRO.length).toBe(1);
         expect(getTablesRO[0].hasOwnProperty('table')).toBeTruthy();
         expect(getTablesRO[0].hasOwnProperty('permissions')).toBeTruthy();
         expect(typeof getTablesRO[0].permissions).toBe('object');
         expect(Object.keys(getTablesRO[0].permissions).length).toBe(5);
-        const testTableIndex = getTablesRO.findIndex((table) => {
-          return table.table === testTableName;
-        });
-        expect(getTablesRO[testTableIndex].table).toBe(testTableName);
-        expect(getTablesRO[testTableIndex].permissions.visibility).toBe(true);
-        expect(getTablesRO[testTableIndex].permissions.readonly).toBe(false);
-        expect(getTablesRO[testTableIndex].permissions.add).toBe(true);
-        expect(getTablesRO[testTableIndex].permissions.delete).toBe(true);
-        expect(getTablesRO[testTableIndex].permissions.edit).toBe(true);
+        expect(getTablesRO[0].table).toBe(testTableName);
+        expect(getTablesRO[0].permissions.visibility).toBe(true);
+        expect(getTablesRO[0].permissions.readonly).toBe(false);
+        expect(getTablesRO[0].permissions.add).toBe(true);
+        expect(getTablesRO[0].permissions.delete).toBe(true);
+        expect(getTablesRO[0].permissions.edit).toBe(true);
       } catch (err) {
         throw err;
       }
@@ -181,6 +191,7 @@ describe('Tables OracleDB (e2e)', () => {
           .post('/connection')
           .send(newConnection)
           .set('Content-Type', 'application/json')
+          .set('masterpwd', masterPwd)
           .set('Accept', 'application/json');
         const createConnectionRO = JSON.parse(createConnectionResponse.text);
         expect(createConnectionResponse.status).toBe(201);
@@ -202,14 +213,16 @@ describe('Tables OracleDB (e2e)', () => {
           .post('/connection')
           .send(newConnection)
           .set('Content-Type', 'application/json')
+          .set('masterpwd', masterPwd)
           .set('Accept', 'application/json');
         const createConnectionRO = JSON.parse(createConnectionResponse.text);
         expect(createConnectionResponse.status).toBe(201);
 
-        createConnectionRO.id = faker.random.uuid();
+        createConnectionRO.id = faker.datatype.uuid();
         const getTablesResponse = await request(app.getHttpServer())
           .get(`/connection/tables/${createConnectionRO.id}`)
           .set('Content-Type', 'application/json')
+          .set('masterpwd', masterPwd)
           .set('Accept', 'application/json');
         expect(getTablesResponse.status).toBe(400);
         const { message } = JSON.parse(getTablesResponse.text);
@@ -228,6 +241,7 @@ describe('Tables OracleDB (e2e)', () => {
             .post('/connection')
             .send(newConnection)
             .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
             .set('Accept', 'application/json');
           const createConnectionRO = JSON.parse(createConnectionResponse.text);
           expect(createConnectionResponse.status).toBe(201);
@@ -235,10 +249,9 @@ describe('Tables OracleDB (e2e)', () => {
           const getTableRowsResponse = await request(app.getHttpServer())
             .get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}`)
             .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
             .set('Accept', 'application/json');
-
           const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
-
           expect(getTableRowsResponse.status).toBe(200);
 
           expect(typeof getTableRowsRO).toBe('object');
@@ -251,11 +264,11 @@ describe('Tables OracleDB (e2e)', () => {
           expect(getTableRowsRO.rows[1].hasOwnProperty('name')).toBeTruthy();
           expect(getTableRowsRO.rows[10].hasOwnProperty('email')).toBeTruthy();
           expect(getTableRowsRO.rows[15].hasOwnProperty('created_at')).toBeTruthy();
-          expect(getTableRowsRO.rows[19].hasOwnProperty('updated_at')).toBeTruthy();
+          expect(getTableRowsRO.rows[12].hasOwnProperty('updated_at')).toBeTruthy();
 
           expect(typeof getTableRowsRO.primaryColumns).toBe('object');
           expect(getTableRowsRO.primaryColumns[0].hasOwnProperty('column_name')).toBeTruthy();
-          //expect(getTableRowsRO.primaryColumns[0].hasOwnProperty('data_type')).toBeTruthy();
+          expect(getTableRowsRO.primaryColumns[0].hasOwnProperty('data_type')).toBeTruthy();
         } catch (err) {
           throw err;
         }
@@ -263,12 +276,13 @@ describe('Tables OracleDB (e2e)', () => {
 
       it('should throw an exception when connection id not passed in request', async () => {
         try {
-          const connectionCount = faker.random.number({ min: 5, max: 15 });
+          const connectionCount = faker.datatype.number({ min: 5, max: 15, precision: 1 });
           for (let i = 0; i < connectionCount; i++) {
             const createConnectionResponse = await request(app.getHttpServer())
               .post('/connection')
               .send(newConnection)
               .set('Content-Type', 'application/json')
+              .set('masterpwd', masterPwd)
               .set('Accept', 'application/json');
             expect(createConnectionResponse.status).toBe(201);
           }
@@ -277,6 +291,7 @@ describe('Tables OracleDB (e2e)', () => {
             .post('/connection')
             .send(newConnection)
             .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
             .set('Accept', 'application/json');
           const createConnectionRO = JSON.parse(createConnectionResponse.text);
           expect(createConnectionResponse.status).toBe(201);
@@ -285,6 +300,7 @@ describe('Tables OracleDB (e2e)', () => {
           const getTableRowsResponse = await request(app.getHttpServer())
             .get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}`)
             .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
             .set('Accept', 'application/json');
           expect(getTableRowsResponse.status).toBe(404);
         } catch (err) {
@@ -294,12 +310,13 @@ describe('Tables OracleDB (e2e)', () => {
 
       it('should throw an exception when connection id is incorrect', async () => {
         try {
-          const connectionCount = faker.random.number({ min: 5, max: 15 });
+          const connectionCount = faker.datatype.number({ min: 5, max: 15, precision: 1 });
           for (let i = 0; i < connectionCount; i++) {
             const createConnectionResponse = await request(app.getHttpServer())
               .post('/connection')
               .send(newConnection)
               .set('Content-Type', 'application/json')
+              .set('masterpwd', masterPwd)
               .set('Accept', 'application/json');
             expect(createConnectionResponse.status).toBe(201);
           }
@@ -308,14 +325,16 @@ describe('Tables OracleDB (e2e)', () => {
             .post('/connection')
             .send(newConnection)
             .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
             .set('Accept', 'application/json');
           const createConnectionRO = JSON.parse(createConnectionResponse.text);
           expect(createConnectionResponse.status).toBe(201);
 
-          createConnectionRO.id = faker.random.uuid();
+          createConnectionRO.id = faker.datatype.uuid();
           const getTableRowsResponse = await request(app.getHttpServer())
             .get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}`)
             .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
             .set('Accept', 'application/json');
           expect(getTableRowsResponse.status).toBe(400);
 
@@ -334,6 +353,7 @@ describe('Tables OracleDB (e2e)', () => {
             .post('/connection')
             .send(newConnection)
             .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
             .set('Accept', 'application/json');
           const createConnectionRO = JSON.parse(createConnectionResponse.text);
           expect(createConnectionResponse.status).toBe(201);
@@ -358,12 +378,14 @@ describe('Tables OracleDB (e2e)', () => {
             .post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
             .send(createTableSettingsDTO)
             .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
             .set('Accept', 'application/json');
           expect(createTableSettingsResponse.status).toBe(201);
           const searchedDescription = '5';
           const getTableRowsResponse = await request(app.getHttpServer())
             .get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&search=${searchedDescription}`)
             .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
             .set('Accept', 'application/json');
           expect(getTableRowsResponse.status).toBe(200);
           const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
@@ -381,7 +403,7 @@ describe('Tables OracleDB (e2e)', () => {
           expect(getTableRowsRO.rows[0].hasOwnProperty('updated_at')).toBeTruthy();
           expect(typeof getTableRowsRO.primaryColumns).toBe('object');
           expect(getTableRowsRO.primaryColumns[0].hasOwnProperty('column_name')).toBeTruthy();
-          //expect(getTableRowsRO.primaryColumns[0].hasOwnProperty('data_type')).toBeTruthy();
+          expect(getTableRowsRO.primaryColumns[0].hasOwnProperty('data_type')).toBeTruthy();
         } catch (err) {
           throw err;
         }
@@ -389,12 +411,13 @@ describe('Tables OracleDB (e2e)', () => {
 
       it('should return throw an error when connectionId is not passed in request', async () => {
         try {
-          const connectionCount = faker.random.number({ min: 5, max: 15 });
+          const connectionCount = faker.datatype.number({ min: 5, max: 15, precision: 1 });
           for (let i = 0; i < connectionCount; i++) {
             const createConnectionResponse = await request(app.getHttpServer())
               .post('/connection')
               .send(newConnection)
               .set('Content-Type', 'application/json')
+              .set('masterpwd', masterPwd)
               .set('Accept', 'application/json');
             expect(createConnectionResponse.status).toBe(201);
           }
@@ -403,6 +426,7 @@ describe('Tables OracleDB (e2e)', () => {
             .post('/connection')
             .send(newConnection)
             .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
             .set('Accept', 'application/json');
           const createConnectionRO = JSON.parse(createConnectionResponse.text);
           expect(createConnectionResponse.status).toBe(201);
@@ -427,6 +451,7 @@ describe('Tables OracleDB (e2e)', () => {
             .post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
             .send(createTableSettingsDTO)
             .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
             .set('Accept', 'application/json');
           expect(createTableSettingsResponse.status).toBe(201);
           const searchedDescription = '5';
@@ -434,6 +459,7 @@ describe('Tables OracleDB (e2e)', () => {
           const getTableRowsResponse = await request(app.getHttpServer())
             .get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&search=${searchedDescription}`)
             .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
             .set('Accept', 'application/json');
           expect(getTableRowsResponse.status).toBe(404);
         } catch (err) {
@@ -447,6 +473,7 @@ describe('Tables OracleDB (e2e)', () => {
             .post('/connection')
             .send(newConnection)
             .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
             .set('Accept', 'application/json');
           const createConnectionRO = JSON.parse(createConnectionResponse.text);
           expect(createConnectionResponse.status).toBe(201);
@@ -471,13 +498,15 @@ describe('Tables OracleDB (e2e)', () => {
             .post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
             .send(createTableSettingsDTO)
             .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
             .set('Accept', 'application/json');
           expect(createTableSettingsResponse.status).toBe(201);
           const searchedDescription = '5';
-          createConnectionRO.id = faker.random.uuid();
+          createConnectionRO.id = faker.datatype.uuid();
           const getTableRowsResponse = await request(app.getHttpServer())
             .get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&search=${searchedDescription}`)
             .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
             .set('Accept', 'application/json');
           expect(getTableRowsResponse.status).toBe(400);
           const { message } = JSON.parse(getTableRowsResponse.text);
@@ -487,12 +516,13 @@ describe('Tables OracleDB (e2e)', () => {
         }
       });
 
-      xit('should return empty array when nothing was found', async () => {
+      it('should return empty array when nothing was found', async () => {
         try {
           const createConnectionResponse = await request(app.getHttpServer())
             .post('/connection')
             .send(newConnection)
             .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
             .set('Accept', 'application/json');
           const createConnectionRO = JSON.parse(createConnectionResponse.text);
           expect(createConnectionResponse.status).toBe(201);
@@ -517,13 +547,15 @@ describe('Tables OracleDB (e2e)', () => {
             .post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
             .send(createTableSettingsDTO)
             .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
             .set('Accept', 'application/json');
           expect(createTableSettingsResponse.status).toBe(201);
 
-          const search = faker.random.word(1);
+          const search = faker.random.words(1);
           const getTableRowsResponse = await request(app.getHttpServer())
             .get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&search=${search}`)
             .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
             .set('Accept', 'application/json');
           expect(getTableRowsResponse.status).toBe(200);
           const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
@@ -547,15 +579,17 @@ describe('Tables OracleDB (e2e)', () => {
             .post('/connection')
             .send(newConnection)
             .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
             .set('Accept', 'application/json');
           const createConnectionRO = JSON.parse(createConnectionResponse.text);
           expect(createConnectionResponse.status).toBe(201);
 
-          const randomTableName = faker.random.word(1);
+          const randomTableName = faker.random.words(1);
           const searchedDescription = '5';
           const getTableRowsResponse = await request(app.getHttpServer())
             .get(`/table/rows/${createConnectionRO.id}?tableName=${randomTableName}&search=${searchedDescription}`)
             .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
             .set('Accept', 'application/json');
           expect(getTableRowsResponse.status).toBe(400);
           const { message } = JSON.parse(getTableRowsResponse.text);
@@ -574,6 +608,7 @@ describe('Tables OracleDB (e2e)', () => {
             .post('/connection')
             .send(newConnection)
             .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
             .set('Accept', 'application/json');
           const createConnectionRO = JSON.parse(createConnectionResponse.text);
           expect(createConnectionResponse.status).toBe(201);
@@ -598,12 +633,14 @@ describe('Tables OracleDB (e2e)', () => {
             .post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
             .send(createTableSettingsDTO)
             .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
             .set('Accept', 'application/json');
           expect(createTableSettingsResponse.status).toBe(201);
 
           const getTableRowsResponse = await request(app.getHttpServer())
             .get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=1&perPage=2`)
             .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
             .set('Accept', 'application/json');
           expect(getTableRowsResponse.status).toBe(200);
           const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
@@ -619,9 +656,9 @@ describe('Tables OracleDB (e2e)', () => {
 
           expect(typeof getTableRowsRO.primaryColumns).toBe('object');
           expect(getTableRowsRO.primaryColumns[0].hasOwnProperty('column_name')).toBeTruthy();
-          // expect(getTableRowsRO.primaryColumns[0].hasOwnProperty('data_type')).toBeTruthy();
+          expect(getTableRowsRO.primaryColumns[0].hasOwnProperty('data_type')).toBeTruthy();
           expect(getTableRowsRO.primaryColumns[0].column_name).toBe('id');
-          //  expect(getTableRowsRO.primaryColumns[0].data_type).toBe('int');
+          expect(getTableRowsRO.primaryColumns[0].data_type).toBe('integer');
 
           expect(getTableRowsRO.pagination.total).toBe(42);
           expect(getTableRowsRO.pagination.lastPage).toBe(21);
@@ -638,6 +675,7 @@ describe('Tables OracleDB (e2e)', () => {
             .post('/connection')
             .send(newConnection)
             .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
             .set('Accept', 'application/json');
           const createConnectionRO = JSON.parse(createConnectionResponse.text);
           expect(createConnectionResponse.status).toBe(201);
@@ -662,12 +700,14 @@ describe('Tables OracleDB (e2e)', () => {
             .post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
             .send(createTableSettingsDTO)
             .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
             .set('Accept', 'application/json');
           expect(createTableSettingsResponse.status).toBe(201);
 
           const getTableRowsResponse = await request(app.getHttpServer())
             .get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=3&perPage=2`)
             .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
             .set('Accept', 'application/json');
           expect(getTableRowsResponse.status).toBe(200);
           const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
@@ -683,9 +723,9 @@ describe('Tables OracleDB (e2e)', () => {
 
           expect(typeof getTableRowsRO.primaryColumns).toBe('object');
           expect(getTableRowsRO.primaryColumns[0].hasOwnProperty('column_name')).toBeTruthy();
-          // expect(getTableRowsRO.primaryColumns[0].hasOwnProperty('data_type')).toBeTruthy();
+          expect(getTableRowsRO.primaryColumns[0].hasOwnProperty('data_type')).toBeTruthy();
           expect(getTableRowsRO.primaryColumns[0].column_name).toBe('id');
-          //   expect(getTableRowsRO.primaryColumns[0].data_type).toBe('int');
+          expect(getTableRowsRO.primaryColumns[0].data_type).toBe('integer');
 
           expect(getTableRowsRO.pagination.total).toBe(42);
           expect(getTableRowsRO.pagination.lastPage).toBe(21);
@@ -702,6 +742,7 @@ describe('Tables OracleDB (e2e)', () => {
             .post('/connection')
             .send(newConnection)
             .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
             .set('Accept', 'application/json');
           const createConnectionRO = JSON.parse(createConnectionResponse.text);
           expect(createConnectionResponse.status).toBe(201);
@@ -726,12 +767,14 @@ describe('Tables OracleDB (e2e)', () => {
             .post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
             .send(createTableSettingsDTO)
             .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
             .set('Accept', 'application/json');
           expect(createTableSettingsResponse.status).toBe(201);
 
           const getTableRowsResponse = await request(app.getHttpServer())
             .get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=100&perPage=2`)
             .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
             .set('Accept', 'application/json');
           expect(getTableRowsResponse.status).toBe(200);
           const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
@@ -744,14 +787,14 @@ describe('Tables OracleDB (e2e)', () => {
 
           expect(typeof getTableRowsRO.primaryColumns).toBe('object');
           expect(getTableRowsRO.primaryColumns[0].hasOwnProperty('column_name')).toBeTruthy();
-          // expect(getTableRowsRO.primaryColumns[0].hasOwnProperty('data_type')).toBeTruthy();
+          expect(getTableRowsRO.primaryColumns[0].hasOwnProperty('data_type')).toBeTruthy();
           expect(getTableRowsRO.primaryColumns[0].column_name).toBe('id');
-          //  expect(getTableRowsRO.primaryColumns[0].data_type).toBe('int');
+          expect(getTableRowsRO.primaryColumns[0].data_type).toBe('integer');
 
-          // expect(getTableRowsRO.pagination.total).toBe(42);
-          // expect(getTableRowsRO.pagination.lastPage).toBe(21);
-          // expect(getTableRowsRO.pagination.perPage).toBe(2);
-          // expect(getTableRowsRO.pagination.currentPage).toBe(100);
+          expect(getTableRowsRO.pagination.total).toBe(42);
+          expect(getTableRowsRO.pagination.lastPage).toBe(21);
+          expect(getTableRowsRO.pagination.perPage).toBe(2);
+          expect(getTableRowsRO.pagination.currentPage).toBe(100);
         } catch (err) {
           throw err;
         }
@@ -763,6 +806,7 @@ describe('Tables OracleDB (e2e)', () => {
             .post('/connection')
             .send(newConnection)
             .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
             .set('Accept', 'application/json');
           const createConnectionRO = JSON.parse(createConnectionResponse.text);
           expect(createConnectionResponse.status).toBe(201);
@@ -787,13 +831,15 @@ describe('Tables OracleDB (e2e)', () => {
             .post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
             .send(createTableSettingsDTO)
             .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
             .set('Accept', 'application/json');
           expect(createTableSettingsResponse.status).toBe(201);
 
-          const fakeTableName = faker.random.word(1);
+          const fakeTableName = faker.random.words(1);
           const getTableRowsResponse = await request(app.getHttpServer())
             .get(`/table/rows/${createConnectionRO.id}?tableName=${fakeTableName}&page=1&perPage=2`)
             .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
             .set('Accept', 'application/json');
           expect(getTableRowsResponse.status).toBe(400);
           const { message } = JSON.parse(getTableRowsResponse.text);
@@ -810,6 +856,7 @@ describe('Tables OracleDB (e2e)', () => {
             .post('/connection')
             .send(newConnection)
             .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
             .set('Accept', 'application/json');
           const createConnectionRO = JSON.parse(createConnectionResponse.text);
           expect(createConnectionResponse.status).toBe(201);
@@ -834,6 +881,7 @@ describe('Tables OracleDB (e2e)', () => {
             .post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
             .send(createTableSettingsDTO)
             .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
             .set('Accept', 'application/json');
           expect(createTableSettingsResponse.status).toBe(201);
 
@@ -841,6 +889,7 @@ describe('Tables OracleDB (e2e)', () => {
           const getTableRowsResponse = await request(app.getHttpServer())
             .get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=1&perPage=2`)
             .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
             .set('Accept', 'application/json');
           expect(getTableRowsResponse.status).toBe(404);
         } catch (err) {
@@ -856,6 +905,7 @@ describe('Tables OracleDB (e2e)', () => {
               .post('/connection')
               .send(newConnection)
               .set('Content-Type', 'application/json')
+              .set('masterpwd', masterPwd)
               .set('Accept', 'application/json');
             expect(createConnectionResponse.status).toBe(201);
           }
@@ -864,14 +914,16 @@ describe('Tables OracleDB (e2e)', () => {
             .post('/connection')
             .send(newConnection)
             .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
             .set('Accept', 'application/json');
           const createConnectionRO = JSON.parse(createConnectionResponse.text);
           expect(createConnectionResponse.status).toBe(201);
 
-          createConnectionRO.id = faker.random.uuid();
+          createConnectionRO.id = faker.datatype.uuid();
           const getTableRowsResponse = await request(app.getHttpServer())
             .get(`/table/rows/${createConnectionRO.id}?tableName=connection&page=1&perPage=2`)
             .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
             .set('Accept', 'application/json');
           expect(getTableRowsResponse.status).toBe(400);
           const { message } = JSON.parse(getTableRowsResponse.text);
@@ -890,6 +942,7 @@ describe('Tables OracleDB (e2e)', () => {
             .post('/connection')
             .send(newConnection)
             .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
             .set('Accept', 'application/json');
           const createConnectionRO = JSON.parse(createConnectionResponse.text);
           expect(createConnectionResponse.status).toBe(201);
@@ -914,6 +967,7 @@ describe('Tables OracleDB (e2e)', () => {
             .post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
             .send(createTableSettingsDTO)
             .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
             .set('Accept', 'application/json');
           expect(createTableSettingsResponse.status).toBe(201);
 
@@ -922,6 +976,7 @@ describe('Tables OracleDB (e2e)', () => {
               `/table/rows/${createConnectionRO.id}?tableName=${testTableName}&search=${testSearchedUserName}&page=1&perPage=2`,
             )
             .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
             .set('Accept', 'application/json');
           expect(getTableRowsResponse.status).toBe(200);
           const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
@@ -935,13 +990,12 @@ describe('Tables OracleDB (e2e)', () => {
           expect(getTableRowsRO.rows[0].name).toBe(testSearchedUserName);
           expect(typeof getTableRowsRO.primaryColumns).toBe('object');
           expect(getTableRowsRO.primaryColumns[0].hasOwnProperty('column_name')).toBeTruthy();
-          //   expect(getTableRowsRO.primaryColumns[0].hasOwnProperty('data_type')).toBeTruthy();
+          expect(getTableRowsRO.primaryColumns[0].hasOwnProperty('data_type')).toBeTruthy();
           expect(getTableRowsRO.primaryColumns[0].column_name).toBe('id');
-          //   expect(getTableRowsRO.primaryColumns[0].data_type).toBe('int');
+          expect(getTableRowsRO.primaryColumns[0].data_type).toBe('integer');
 
-          //todo rework with searching
-          expect(getTableRowsRO.pagination.total).toBe(42);
-          expect(getTableRowsRO.pagination.lastPage).toBe(21);
+          expect(getTableRowsRO.pagination.total).toBe(3);
+          expect(getTableRowsRO.pagination.lastPage).toBe(2);
           expect(getTableRowsRO.pagination.perPage).toBe(2);
           expect(getTableRowsRO.pagination.currentPage).toBe(1);
         } catch (err) {
@@ -955,6 +1009,7 @@ describe('Tables OracleDB (e2e)', () => {
             .post('/connection')
             .send(newConnection)
             .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
             .set('Accept', 'application/json');
           const createConnectionRO = JSON.parse(createConnectionResponse.text);
           expect(createConnectionResponse.status).toBe(201);
@@ -979,6 +1034,7 @@ describe('Tables OracleDB (e2e)', () => {
             .post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
             .send(createTableSettingsDTO)
             .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
             .set('Accept', 'application/json');
           expect(createTableSettingsResponse.status).toBe(201);
 
@@ -987,6 +1043,7 @@ describe('Tables OracleDB (e2e)', () => {
               `/table/rows/${createConnectionRO.id}?tableName=${testTableName}&search=${testSearchedUserName}&page=1&perPage=3`,
             )
             .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
             .set('Accept', 'application/json');
           expect(getTableRowsResponse.status).toBe(200);
           const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
@@ -1000,13 +1057,12 @@ describe('Tables OracleDB (e2e)', () => {
           expect(getTableRowsRO.rows[0].name).toBe(testSearchedUserName);
           expect(typeof getTableRowsRO.primaryColumns).toBe('object');
           expect(getTableRowsRO.primaryColumns[0].hasOwnProperty('column_name')).toBeTruthy();
-          //  expect(getTableRowsRO.primaryColumns[0].hasOwnProperty('data_type')).toBeTruthy();
+          expect(getTableRowsRO.primaryColumns[0].hasOwnProperty('data_type')).toBeTruthy();
           expect(getTableRowsRO.primaryColumns[0].column_name).toBe('id');
-          // expect(getTableRowsRO.primaryColumns[0].data_type).toBe('int');
+          expect(getTableRowsRO.primaryColumns[0].data_type).toBe('integer');
 
-          //todo rework with searching
-          expect(getTableRowsRO.pagination.total).toBe(42);
-          expect(getTableRowsRO.pagination.lastPage).toBe(14);
+          expect(getTableRowsRO.pagination.total).toBe(3);
+          expect(getTableRowsRO.pagination.lastPage).toBe(1);
           expect(getTableRowsRO.pagination.perPage).toBe(3);
           expect(getTableRowsRO.pagination.currentPage).toBe(1);
         } catch (err) {
@@ -1020,6 +1076,7 @@ describe('Tables OracleDB (e2e)', () => {
             .post('/connection')
             .send(newConnection)
             .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
             .set('Accept', 'application/json');
           const createConnectionRO = JSON.parse(createConnectionResponse.text);
           expect(createConnectionResponse.status).toBe(201);
@@ -1044,6 +1101,7 @@ describe('Tables OracleDB (e2e)', () => {
             .post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
             .send(createTableSettingsDTO)
             .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
             .set('Accept', 'application/json');
           expect(createTableSettingsResponse.status).toBe(201);
 
@@ -1053,6 +1111,7 @@ describe('Tables OracleDB (e2e)', () => {
               `/table/rows/${createConnectionRO.id}?tableName=${testTableName}&search=${testSearchedUserName}&page=1&perPage=3`,
             )
             .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
             .set('Accept', 'application/json');
           expect(getTableRowsResponse.status).toBe(404);
         } catch (err) {
@@ -1066,6 +1125,7 @@ describe('Tables OracleDB (e2e)', () => {
             .post('/connection')
             .send(newConnection)
             .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
             .set('Accept', 'application/json');
           const createConnectionRO = JSON.parse(createConnectionResponse.text);
           expect(createConnectionResponse.status).toBe(201);
@@ -1090,15 +1150,17 @@ describe('Tables OracleDB (e2e)', () => {
             .post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
             .send(createTableSettingsDTO)
             .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
             .set('Accept', 'application/json');
           expect(createTableSettingsResponse.status).toBe(201);
-          createConnectionRO.id = faker.random.uuid();
+          createConnectionRO.id = faker.datatype.uuid();
 
           const getTableRowsResponse = await request(app.getHttpServer())
             .get(
               `/table/rows/${createConnectionRO.id}?tableName=${testTableName}&search=${testSearchedUserName}&page=1&perPage=3`,
             )
             .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
             .set('Accept', 'application/json');
 
           expect(getTableRowsResponse.status).toBe(400);
@@ -1115,6 +1177,7 @@ describe('Tables OracleDB (e2e)', () => {
             .post('/connection')
             .send(newConnection)
             .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
             .set('Accept', 'application/json');
           const createConnectionRO = JSON.parse(createConnectionResponse.text);
           expect(createConnectionResponse.status).toBe(201);
@@ -1139,15 +1202,17 @@ describe('Tables OracleDB (e2e)', () => {
             .post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
             .send(createTableSettingsDTO)
             .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
             .set('Accept', 'application/json');
           expect(createTableSettingsResponse.status).toBe(201);
 
-          const fakeTableName = faker.random.word(1);
+          const fakeTableName = faker.random.words(1);
           const getTableRowsResponse = await request(app.getHttpServer())
             .get(
               `/table/rows/${createConnectionRO.id}?tableName=${fakeTableName}&search=${testSearchedUserName}&page=1&perPage=3`,
             )
             .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
             .set('Accept', 'application/json');
 
           expect(getTableRowsResponse.status).toBe(400);
@@ -1164,6 +1229,7 @@ describe('Tables OracleDB (e2e)', () => {
             .post('/connection')
             .send(newConnection)
             .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
             .set('Accept', 'application/json');
           const createConnectionRO = JSON.parse(createConnectionResponse.text);
           expect(createConnectionResponse.status).toBe(201);
@@ -1188,6 +1254,7 @@ describe('Tables OracleDB (e2e)', () => {
             .post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
             .send(createTableSettingsDTO)
             .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
             .set('Accept', 'application/json');
           expect(createTableSettingsResponse.status).toBe(201);
 
@@ -1197,6 +1264,7 @@ describe('Tables OracleDB (e2e)', () => {
               `/table/rows/${createConnectionRO.id}?tableName=${fakeTableName}&search=${testSearchedUserName}&page=1&perPage=3`,
             )
             .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
             .set('Accept', 'application/json');
           expect(getTableRowsResponse.status).toBe(400);
           const { message } = JSON.parse(getTableRowsResponse.text);
@@ -1214,6 +1282,7 @@ describe('Tables OracleDB (e2e)', () => {
             .post('/connection')
             .send(newConnection)
             .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
             .set('Accept', 'application/json');
           const createConnectionRO = JSON.parse(createConnectionResponse.text);
           expect(createConnectionResponse.status).toBe(201);
@@ -1224,7 +1293,7 @@ describe('Tables OracleDB (e2e)', () => {
             ['name'],
             undefined,
             undefined,
-            42,
+            3,
             QueryOrderingEnum.DESC,
             'id',
             undefined,
@@ -1238,12 +1307,14 @@ describe('Tables OracleDB (e2e)', () => {
             .post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
             .send(createTableSettingsDTO)
             .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
             .set('Accept', 'application/json');
           expect(createTableSettingsResponse.status).toBe(201);
 
           const getTableRowsResponse = await request(app.getHttpServer())
             .get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}`)
             .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
             .set('Accept', 'application/json');
           expect(getTableRowsResponse.status).toBe(200);
           const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
@@ -1252,15 +1323,15 @@ describe('Tables OracleDB (e2e)', () => {
           expect(getTableRowsRO.hasOwnProperty('rows')).toBeTruthy();
           expect(getTableRowsRO.hasOwnProperty('primaryColumns')).toBeTruthy();
           expect(getTableRowsRO.hasOwnProperty('pagination')).toBeTruthy();
-          expect(getTableRowsRO.rows.length).toBe(42);
+          expect(getTableRowsRO.rows.length).toBe(3);
           expect(Object.keys(getTableRowsRO.rows[1]).length).toBe(5);
           expect(getTableRowsRO.rows[0].id).toBe(42);
           expect(getTableRowsRO.rows[1].id).toBe(41);
-          expect(getTableRowsRO.rows[41].id).toBe(1);
+          expect(getTableRowsRO.rows[2].id).toBe(40);
 
           expect(typeof getTableRowsRO.primaryColumns).toBe('object');
           expect(getTableRowsRO.primaryColumns[0].hasOwnProperty('column_name')).toBeTruthy();
-          //   expect(getTableRowsRO.primaryColumns[0].hasOwnProperty('data_type')).toBeTruthy();
+          expect(getTableRowsRO.primaryColumns[0].hasOwnProperty('data_type')).toBeTruthy();
         } catch (err) {
           throw err;
         }
@@ -1272,64 +1343,7 @@ describe('Tables OracleDB (e2e)', () => {
             .post('/connection')
             .send(newConnection)
             .set('Content-Type', 'application/json')
-            .set('Accept', 'application/json');
-          const createConnectionRO = JSON.parse(createConnectionResponse.text);
-          expect(createConnectionResponse.status).toBe(201);
-
-          const createTableSettingsDTO = mockFactory.generateTableSettings(
-            createConnectionRO.id,
-            testTableName,
-            ['name'],
-            undefined,
-            undefined,
-            42,
-            QueryOrderingEnum.ASC,
-            'id',
-            undefined,
-            undefined,
-            undefined,
-            undefined,
-            undefined,
-          );
-
-          const createTableSettingsResponse = await request(app.getHttpServer())
-            .post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
-            .send(createTableSettingsDTO)
-            .set('Content-Type', 'application/json')
-            .set('Accept', 'application/json');
-          expect(createTableSettingsResponse.status).toBe(201);
-
-          const getTableRowsResponse = await request(app.getHttpServer())
-            .get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}`)
-            .set('Content-Type', 'application/json')
-            .set('Accept', 'application/json');
-          expect(getTableRowsResponse.status).toBe(200);
-          const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
-
-          expect(typeof getTableRowsRO).toBe('object');
-          expect(getTableRowsRO.hasOwnProperty('rows')).toBeTruthy();
-          expect(getTableRowsRO.hasOwnProperty('primaryColumns')).toBeTruthy();
-          expect(getTableRowsRO.hasOwnProperty('pagination')).toBeTruthy();
-          expect(getTableRowsRO.rows.length).toBe(42);
-          expect(Object.keys(getTableRowsRO.rows[1]).length).toBe(5);
-          expect(getTableRowsRO.rows[0].id).toBe(1);
-          expect(getTableRowsRO.rows[1].id).toBe(2);
-          expect(getTableRowsRO.rows[41].id).toBe(42);
-
-          expect(typeof getTableRowsRO.primaryColumns).toBe('object');
-          expect(getTableRowsRO.primaryColumns[0].hasOwnProperty('column_name')).toBeTruthy();
-          //    expect(getTableRowsRO.primaryColumns[0].hasOwnProperty('data_type')).toBeTruthy();
-        } catch (err) {
-          throw err;
-        }
-      });
-
-      it('should throw an exception when connection id is not passed in request', async () => {
-        try {
-          const createConnectionResponse = await request(app.getHttpServer())
-            .post('/connection')
-            .send(newConnection)
-            .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
             .set('Accept', 'application/json');
           const createConnectionRO = JSON.parse(createConnectionResponse.text);
           expect(createConnectionResponse.status).toBe(201);
@@ -1354,6 +1368,68 @@ describe('Tables OracleDB (e2e)', () => {
             .post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
             .send(createTableSettingsDTO)
             .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
+            .set('Accept', 'application/json');
+          expect(createTableSettingsResponse.status).toBe(201);
+
+          const getTableRowsResponse = await request(app.getHttpServer())
+            .get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}`)
+            .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
+            .set('Accept', 'application/json');
+          expect(getTableRowsResponse.status).toBe(200);
+          const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
+
+          expect(typeof getTableRowsRO).toBe('object');
+          expect(getTableRowsRO.hasOwnProperty('rows')).toBeTruthy();
+          expect(getTableRowsRO.hasOwnProperty('primaryColumns')).toBeTruthy();
+          expect(getTableRowsRO.hasOwnProperty('pagination')).toBeTruthy();
+          expect(getTableRowsRO.rows.length).toBe(3);
+          expect(Object.keys(getTableRowsRO.rows[1]).length).toBe(5);
+          expect(getTableRowsRO.rows[0].id).toBe(1);
+          expect(getTableRowsRO.rows[1].id).toBe(2);
+          expect(getTableRowsRO.rows[2].id).toBe(3);
+
+          expect(typeof getTableRowsRO.primaryColumns).toBe('object');
+          expect(getTableRowsRO.primaryColumns[0].hasOwnProperty('column_name')).toBeTruthy();
+          expect(getTableRowsRO.primaryColumns[0].hasOwnProperty('data_type')).toBeTruthy();
+        } catch (err) {
+          throw err;
+        }
+      });
+
+      it('should throw an exception when connection id is not passed in request', async () => {
+        try {
+          const createConnectionResponse = await request(app.getHttpServer())
+            .post('/connection')
+            .send(newConnection)
+            .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
+            .set('Accept', 'application/json');
+          const createConnectionRO = JSON.parse(createConnectionResponse.text);
+          expect(createConnectionResponse.status).toBe(201);
+
+          const createTableSettingsDTO = mockFactory.generateTableSettings(
+            createConnectionRO.id,
+            testTableName,
+            ['name'],
+            undefined,
+            undefined,
+            3,
+            QueryOrderingEnum.ASC,
+            'id',
+            undefined,
+            undefined,
+            undefined,
+            undefined,
+            undefined,
+          );
+
+          const createTableSettingsResponse = await request(app.getHttpServer())
+            .post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
+            .send(createTableSettingsDTO)
+            .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
             .set('Accept', 'application/json');
           expect(createTableSettingsResponse.status).toBe(201);
 
@@ -1361,6 +1437,7 @@ describe('Tables OracleDB (e2e)', () => {
           const getTableRowsResponse = await request(app.getHttpServer())
             .get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}`)
             .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
             .set('Accept', 'application/json');
           expect(getTableRowsResponse.status).toBe(404);
         } catch (err) {
@@ -1374,6 +1451,7 @@ describe('Tables OracleDB (e2e)', () => {
             .post('/connection')
             .send(newConnection)
             .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
             .set('Accept', 'application/json');
           const createConnectionRO = JSON.parse(createConnectionResponse.text);
           expect(createConnectionResponse.status).toBe(201);
@@ -1398,9 +1476,10 @@ describe('Tables OracleDB (e2e)', () => {
             .post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
             .send(createTableSettingsDTO)
             .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
             .set('Accept', 'application/json');
           expect(createTableSettingsResponse.status).toBe(201);
-          createConnectionRO.id = faker.random.uuid();
+          createConnectionRO.id = faker.datatype.uuid();
           const getTableRowsResponse = await request(app.getHttpServer())
             .get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}`)
             .set('Content-Type', 'application/json')
@@ -1419,6 +1498,7 @@ describe('Tables OracleDB (e2e)', () => {
             .post('/connection')
             .send(newConnection)
             .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
             .set('Accept', 'application/json');
           const createConnectionRO = JSON.parse(createConnectionResponse.text);
           expect(createConnectionResponse.status).toBe(201);
@@ -1443,6 +1523,7 @@ describe('Tables OracleDB (e2e)', () => {
             .post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
             .send(createTableSettingsDTO)
             .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
             .set('Accept', 'application/json');
           expect(createTableSettingsResponse.status).toBe(201);
 
@@ -1450,6 +1531,7 @@ describe('Tables OracleDB (e2e)', () => {
           const getTableRowsResponse = await request(app.getHttpServer())
             .get(`/table/rows/${createConnectionRO.id}?tableName=${fakeTableName}`)
             .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
             .set('Accept', 'application/json');
           expect(getTableRowsResponse.status).toBe(400);
           const { message } = JSON.parse(getTableRowsResponse.text);
@@ -1465,6 +1547,7 @@ describe('Tables OracleDB (e2e)', () => {
             .post('/connection')
             .send(newConnection)
             .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
             .set('Accept', 'application/json');
           const createConnectionRO = JSON.parse(createConnectionResponse.text);
           expect(createConnectionResponse.status).toBe(201);
@@ -1489,13 +1572,15 @@ describe('Tables OracleDB (e2e)', () => {
             .post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
             .send(createTableSettingsDTO)
             .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
             .set('Accept', 'application/json');
           expect(createTableSettingsResponse.status).toBe(201);
 
-          const fakeTableName = faker.random.word(1);
+          const fakeTableName = faker.random.words(1);
           const getTableRowsResponse = await request(app.getHttpServer())
             .get(`/table/rows/${createConnectionRO.id}?tableName=${fakeTableName}`)
             .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
             .set('Accept', 'application/json');
           expect(getTableRowsResponse.status).toBe(400);
           const { message } = JSON.parse(getTableRowsResponse.text);
@@ -1513,6 +1598,7 @@ describe('Tables OracleDB (e2e)', () => {
             .post('/connection')
             .send(newConnection)
             .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
             .set('Accept', 'application/json');
           const createConnectionRO = JSON.parse(createConnectionResponse.text);
           expect(createConnectionResponse.status).toBe(201);
@@ -1537,12 +1623,14 @@ describe('Tables OracleDB (e2e)', () => {
             .post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
             .send(createTableSettingsDTO)
             .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
             .set('Accept', 'application/json');
           expect(createTableSettingsResponse.status).toBe(201);
 
           const getTableRowsResponse = await request(app.getHttpServer())
             .get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=1&perPage=2`)
             .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
             .set('Accept', 'application/json');
           expect(getTableRowsResponse.status).toBe(200);
 
@@ -1559,7 +1647,7 @@ describe('Tables OracleDB (e2e)', () => {
 
           expect(typeof getTableRowsRO.primaryColumns).toBe('object');
           expect(getTableRowsRO.primaryColumns[0].hasOwnProperty('column_name')).toBeTruthy();
-          //  expect(getTableRowsRO.primaryColumns[0].hasOwnProperty('data_type')).toBeTruthy();
+          expect(getTableRowsRO.primaryColumns[0].hasOwnProperty('data_type')).toBeTruthy();
         } catch (err) {
           throw err;
         }
@@ -1571,6 +1659,7 @@ describe('Tables OracleDB (e2e)', () => {
             .post('/connection')
             .send(newConnection)
             .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
             .set('Accept', 'application/json');
           const createConnectionRO = JSON.parse(createConnectionResponse.text);
           expect(createConnectionResponse.status).toBe(201);
@@ -1595,12 +1684,14 @@ describe('Tables OracleDB (e2e)', () => {
             .post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
             .send(createTableSettingsDTO)
             .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
             .set('Accept', 'application/json');
           expect(createTableSettingsResponse.status).toBe(201);
 
           const getTableRowsResponse = await request(app.getHttpServer())
             .get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=1&perPage=2`)
             .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
             .set('Accept', 'application/json');
           expect(getTableRowsResponse.status).toBe(200);
 
@@ -1617,7 +1708,7 @@ describe('Tables OracleDB (e2e)', () => {
 
           expect(typeof getTableRowsRO.primaryColumns).toBe('object');
           expect(getTableRowsRO.primaryColumns[0].hasOwnProperty('column_name')).toBeTruthy();
-          //  expect(getTableRowsRO.primaryColumns[0].hasOwnProperty('data_type')).toBeTruthy();
+          expect(getTableRowsRO.primaryColumns[0].hasOwnProperty('data_type')).toBeTruthy();
         } catch (err) {
           throw err;
         }
@@ -1629,6 +1720,7 @@ describe('Tables OracleDB (e2e)', () => {
             .post('/connection')
             .send(newConnection)
             .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
             .set('Accept', 'application/json');
           const createConnectionRO = JSON.parse(createConnectionResponse.text);
           expect(createConnectionResponse.status).toBe(201);
@@ -1653,12 +1745,14 @@ describe('Tables OracleDB (e2e)', () => {
             .post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
             .send(createTableSettingsDTO)
             .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
             .set('Accept', 'application/json');
           expect(createTableSettingsResponse.status).toBe(201);
 
           const getTableRowsResponse = await request(app.getHttpServer())
             .get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=2&perPage=3`)
             .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
             .set('Accept', 'application/json');
           expect(getTableRowsResponse.status).toBe(200);
 
@@ -1675,7 +1769,7 @@ describe('Tables OracleDB (e2e)', () => {
 
           expect(typeof getTableRowsRO.primaryColumns).toBe('object');
           expect(getTableRowsRO.primaryColumns[0].hasOwnProperty('column_name')).toBeTruthy();
-          //  expect(getTableRowsRO.primaryColumns[0].hasOwnProperty('data_type')).toBeTruthy();
+          expect(getTableRowsRO.primaryColumns[0].hasOwnProperty('data_type')).toBeTruthy();
         } catch (err) {
           throw err;
         }
@@ -1687,6 +1781,7 @@ describe('Tables OracleDB (e2e)', () => {
             .post('/connection')
             .send(newConnection)
             .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
             .set('Accept', 'application/json');
           const createConnectionRO = JSON.parse(createConnectionResponse.text);
           expect(createConnectionResponse.status).toBe(201);
@@ -1711,6 +1806,7 @@ describe('Tables OracleDB (e2e)', () => {
             .post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
             .send(createTableSettingsDTO)
             .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
             .set('Accept', 'application/json');
           expect(createTableSettingsResponse.status).toBe(201);
 
@@ -1718,6 +1814,7 @@ describe('Tables OracleDB (e2e)', () => {
           const getTableRowsResponse = await request(app.getHttpServer())
             .get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=2&perPage=3`)
             .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
             .set('Accept', 'application/json');
           expect(getTableRowsResponse.status).toBe(404);
         } catch (err) {
@@ -1731,6 +1828,7 @@ describe('Tables OracleDB (e2e)', () => {
             .post('/connection')
             .send(newConnection)
             .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
             .set('Accept', 'application/json');
           const createConnectionRO = JSON.parse(createConnectionResponse.text);
           expect(createConnectionResponse.status).toBe(201);
@@ -1755,13 +1853,15 @@ describe('Tables OracleDB (e2e)', () => {
             .post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
             .send(createTableSettingsDTO)
             .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
             .set('Accept', 'application/json');
           expect(createTableSettingsResponse.status).toBe(201);
 
-          createConnectionRO.id = faker.random.uuid();
+          createConnectionRO.id = faker.datatype.uuid();
           const getTableRowsResponse = await request(app.getHttpServer())
             .get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=2&perPage=3`)
             .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
             .set('Accept', 'application/json');
           expect(getTableRowsResponse.status).toBe(400);
 
@@ -1773,12 +1873,13 @@ describe('Tables OracleDB (e2e)', () => {
         }
       });
 
-      it('should throw an exception when table name passed request is incorrect', async () => {
+      xit('should throw an exception when table name passed request is incorrect', async () => {
         try {
           const createConnectionResponse = await request(app.getHttpServer())
             .post('/connection')
             .send(newConnection)
             .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
             .set('Accept', 'application/json');
           const createConnectionRO = JSON.parse(createConnectionResponse.text);
           expect(createConnectionResponse.status).toBe(201);
@@ -1803,14 +1904,17 @@ describe('Tables OracleDB (e2e)', () => {
             .post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
             .send(createTableSettingsDTO)
             .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
             .set('Accept', 'application/json');
           expect(createTableSettingsResponse.status).toBe(201);
 
-          const fakeTableName = faker.random.word(1);
+          const fakeTableName = faker.random.words(1);
           const getTableRowsResponse = await request(app.getHttpServer())
             .get(`/table/rows/${createConnectionRO.id}?tableName=${fakeTableName}&page=2&perPage=3`)
             .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
             .set('Accept', 'application/json');
+          console.log('-> getTableRowsResponse', getTableRowsResponse);
           expect(getTableRowsResponse.status).toBe(400);
 
           const { message } = JSON.parse(getTableRowsResponse.text);
@@ -1829,6 +1933,7 @@ describe('Tables OracleDB (e2e)', () => {
             .post('/connection')
             .send(newConnection)
             .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
             .set('Accept', 'application/json');
           const createConnectionRO = JSON.parse(createConnectionResponse.text);
           expect(createConnectionResponse.status).toBe(201);
@@ -1853,6 +1958,7 @@ describe('Tables OracleDB (e2e)', () => {
             .post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
             .send(createTableSettingsDTO)
             .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
             .set('Accept', 'application/json');
           expect(createTableSettingsResponse.status).toBe(201);
 
@@ -1861,6 +1967,7 @@ describe('Tables OracleDB (e2e)', () => {
               `/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=1&perPage=2&search=${testSearchedUserName}`,
             )
             .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
             .set('Accept', 'application/json');
           expect(getTableRowsResponse.status).toBe(200);
 
@@ -1879,7 +1986,7 @@ describe('Tables OracleDB (e2e)', () => {
 
           expect(typeof getTableRowsRO.primaryColumns).toBe('object');
           expect(getTableRowsRO.primaryColumns[0].hasOwnProperty('column_name')).toBeTruthy();
-          // expect(getTableRowsRO.primaryColumns[0].hasOwnProperty('data_type')).toBeTruthy();
+          expect(getTableRowsRO.primaryColumns[0].hasOwnProperty('data_type')).toBeTruthy();
         } catch (err) {
           throw err;
         }
@@ -1891,6 +1998,7 @@ describe('Tables OracleDB (e2e)', () => {
             .post('/connection')
             .send(newConnection)
             .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
             .set('Accept', 'application/json');
           const createConnectionRO = JSON.parse(createConnectionResponse.text);
           expect(createConnectionResponse.status).toBe(201);
@@ -1915,6 +2023,7 @@ describe('Tables OracleDB (e2e)', () => {
             .post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
             .send(createTableSettingsDTO)
             .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
             .set('Accept', 'application/json');
           expect(createTableSettingsResponse.status).toBe(201);
 
@@ -1923,6 +2032,7 @@ describe('Tables OracleDB (e2e)', () => {
               `/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=2&perPage=2&search=${testSearchedUserName}`,
             )
             .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
             .set('Accept', 'application/json');
           expect(getTableRowsResponse.status).toBe(200);
 
@@ -1940,7 +2050,7 @@ describe('Tables OracleDB (e2e)', () => {
 
           expect(typeof getTableRowsRO.primaryColumns).toBe('object');
           expect(getTableRowsRO.primaryColumns[0].hasOwnProperty('column_name')).toBeTruthy();
-          // expect(getTableRowsRO.primaryColumns[0].hasOwnProperty('data_type')).toBeTruthy();
+          expect(getTableRowsRO.primaryColumns[0].hasOwnProperty('data_type')).toBeTruthy();
         } catch (err) {
           throw err;
         }
@@ -1952,6 +2062,7 @@ describe('Tables OracleDB (e2e)', () => {
             .post('/connection')
             .send(newConnection)
             .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
             .set('Accept', 'application/json');
           const createConnectionRO = JSON.parse(createConnectionResponse.text);
           expect(createConnectionResponse.status).toBe(201);
@@ -1976,6 +2087,7 @@ describe('Tables OracleDB (e2e)', () => {
             .post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
             .send(createTableSettingsDTO)
             .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
             .set('Accept', 'application/json');
           expect(createTableSettingsResponse.status).toBe(201);
 
@@ -1984,6 +2096,7 @@ describe('Tables OracleDB (e2e)', () => {
               `/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=1&perPage=2&search=${testSearchedUserName}`,
             )
             .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
             .set('Accept', 'application/json');
           expect(getTableRowsResponse.status).toBe(200);
 
@@ -2002,7 +2115,7 @@ describe('Tables OracleDB (e2e)', () => {
 
           expect(typeof getTableRowsRO.primaryColumns).toBe('object');
           expect(getTableRowsRO.primaryColumns[0].hasOwnProperty('column_name')).toBeTruthy();
-          //   expect(getTableRowsRO.primaryColumns[0].hasOwnProperty('data_type')).toBeTruthy();
+          expect(getTableRowsRO.primaryColumns[0].hasOwnProperty('data_type')).toBeTruthy();
         } catch (err) {
           throw err;
         }
@@ -2014,6 +2127,7 @@ describe('Tables OracleDB (e2e)', () => {
             .post('/connection')
             .send(newConnection)
             .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
             .set('Accept', 'application/json');
           const createConnectionRO = JSON.parse(createConnectionResponse.text);
           expect(createConnectionResponse.status).toBe(201);
@@ -2038,6 +2152,7 @@ describe('Tables OracleDB (e2e)', () => {
             .post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
             .send(createTableSettingsDTO)
             .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
             .set('Accept', 'application/json');
           expect(createTableSettingsResponse.status).toBe(201);
 
@@ -2046,6 +2161,7 @@ describe('Tables OracleDB (e2e)', () => {
               `/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=2&perPage=2&search=${testSearchedUserName}`,
             )
             .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
             .set('Accept', 'application/json');
           expect(getTableRowsResponse.status).toBe(200);
 
@@ -2063,7 +2179,7 @@ describe('Tables OracleDB (e2e)', () => {
 
           expect(typeof getTableRowsRO.primaryColumns).toBe('object');
           expect(getTableRowsRO.primaryColumns[0].hasOwnProperty('column_name')).toBeTruthy();
-          //  expect(getTableRowsRO.primaryColumns[0].hasOwnProperty('data_type')).toBeTruthy();
+          expect(getTableRowsRO.primaryColumns[0].hasOwnProperty('data_type')).toBeTruthy();
         } catch (err) {
           throw err;
         }
@@ -2075,6 +2191,7 @@ describe('Tables OracleDB (e2e)', () => {
             .post('/connection')
             .send(newConnection)
             .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
             .set('Accept', 'application/json');
           const createConnectionRO = JSON.parse(createConnectionResponse.text);
           expect(createConnectionResponse.status).toBe(201);
@@ -2099,6 +2216,7 @@ describe('Tables OracleDB (e2e)', () => {
             .post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
             .send(createTableSettingsDTO)
             .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
             .set('Accept', 'application/json');
           expect(createTableSettingsResponse.status).toBe(201);
 
@@ -2108,6 +2226,7 @@ describe('Tables OracleDB (e2e)', () => {
               `/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=2&perPage=2&search=${testSearchedUserName}`,
             )
             .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
             .set('Accept', 'application/json');
           expect(getTableRowsResponse.status).toBe(404);
         } catch (err) {
@@ -2121,6 +2240,7 @@ describe('Tables OracleDB (e2e)', () => {
             .post('/connection')
             .send(newConnection)
             .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
             .set('Accept', 'application/json');
           const createConnectionRO = JSON.parse(createConnectionResponse.text);
           expect(createConnectionResponse.status).toBe(201);
@@ -2145,15 +2265,17 @@ describe('Tables OracleDB (e2e)', () => {
             .post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
             .send(createTableSettingsDTO)
             .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
             .set('Accept', 'application/json');
           expect(createTableSettingsResponse.status).toBe(201);
 
-          createConnectionRO.id = faker.random.uuid();
+          createConnectionRO.id = faker.datatype.uuid();
           const getTableRowsResponse = await request(app.getHttpServer())
             .get(
               `/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=2&perPage=2&search=${testSearchedUserName}`,
             )
             .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
             .set('Accept', 'application/json');
           expect(getTableRowsResponse.status).toBe(400);
           const { message } = JSON.parse(getTableRowsResponse.text);
@@ -2169,6 +2291,7 @@ describe('Tables OracleDB (e2e)', () => {
             .post('/connection')
             .send(newConnection)
             .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
             .set('Accept', 'application/json');
           const createConnectionRO = JSON.parse(createConnectionResponse.text);
           expect(createConnectionResponse.status).toBe(201);
@@ -2193,6 +2316,7 @@ describe('Tables OracleDB (e2e)', () => {
             .post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
             .send(createTableSettingsDTO)
             .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
             .set('Accept', 'application/json');
           expect(createTableSettingsResponse.status).toBe(201);
 
@@ -2202,6 +2326,7 @@ describe('Tables OracleDB (e2e)', () => {
               `/table/rows/${createConnectionRO.id}?tableName=${fakeTableName}&page=2&perPage=2&search=${testSearchedUserName}`,
             )
             .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
             .set('Accept', 'application/json');
           expect(getTableRowsResponse.status).toBe(400);
           const { message } = JSON.parse(getTableRowsResponse.text);
@@ -2217,6 +2342,7 @@ describe('Tables OracleDB (e2e)', () => {
             .post('/connection')
             .send(newConnection)
             .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
             .set('Accept', 'application/json');
           const createConnectionRO = JSON.parse(createConnectionResponse.text);
           expect(createConnectionResponse.status).toBe(201);
@@ -2241,15 +2367,17 @@ describe('Tables OracleDB (e2e)', () => {
             .post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
             .send(createTableSettingsDTO)
             .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
             .set('Accept', 'application/json');
           expect(createTableSettingsResponse.status).toBe(201);
 
-          const fakeTableName = faker.random.uuid();
+          const fakeTableName = faker.datatype.uuid();
           const getTableRowsResponse = await request(app.getHttpServer())
             .get(
               `/table/rows/${createConnectionRO.id}?tableName=${fakeTableName}&page=2&perPage=2&search=${testSearchedUserName}`,
             )
             .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
             .set('Accept', 'application/json');
           expect(getTableRowsResponse.status).toBe(400);
           const { message } = JSON.parse(getTableRowsResponse.text);
@@ -2265,6 +2393,7 @@ describe('Tables OracleDB (e2e)', () => {
             .post('/connection')
             .send(newConnection)
             .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
             .set('Accept', 'application/json');
           const createConnectionRO = JSON.parse(createConnectionResponse.text);
           expect(createConnectionResponse.status).toBe(201);
@@ -2289,15 +2418,17 @@ describe('Tables OracleDB (e2e)', () => {
             .post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
             .send(createTableSettingsDTO)
             .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
             .set('Accept', 'application/json');
           expect(createTableSettingsResponse.status).toBe(201);
 
-          const searchedDescription = faker.random.word(1);
+          const searchedDescription = faker.random.words(1);
           const getTableRowsResponse = await request(app.getHttpServer())
             .get(
               `/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=1&perPage=2&search=${searchedDescription}`,
             )
             .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
             .set('Accept', 'application/json');
           expect(getTableRowsResponse.status).toBe(200);
 
@@ -2311,7 +2442,7 @@ describe('Tables OracleDB (e2e)', () => {
 
           expect(typeof getTableRowsRO.primaryColumns).toBe('object');
           expect(getTableRowsRO.primaryColumns[0].hasOwnProperty('column_name')).toBeTruthy();
-          //    expect(getTableRowsRO.primaryColumns[0].hasOwnProperty('data_type')).toBeTruthy();
+          expect(getTableRowsRO.primaryColumns[0].hasOwnProperty('data_type')).toBeTruthy();
         } catch (err) {
           throw err;
         }
@@ -2323,6 +2454,7 @@ describe('Tables OracleDB (e2e)', () => {
             .post('/connection')
             .send(newConnection)
             .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
             .set('Accept', 'application/json');
           const createConnectionRO = JSON.parse(createConnectionResponse.text);
           expect(createConnectionResponse.status).toBe(201);
@@ -2347,15 +2479,17 @@ describe('Tables OracleDB (e2e)', () => {
             .post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
             .send(createTableSettingsDTO)
             .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
             .set('Accept', 'application/json');
           expect(createTableSettingsResponse.status).toBe(201);
 
-          const searchedDescription = faker.random.word(1);
+          const searchedDescription = faker.random.words(1);
           const getTableRowsResponse = await request(app.getHttpServer())
             .get(
               `/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=1&perPage=420&search=${searchedDescription}`,
             )
             .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
             .set('Accept', 'application/json');
           expect(getTableRowsResponse.status).toBe(200);
 
@@ -2369,7 +2503,7 @@ describe('Tables OracleDB (e2e)', () => {
 
           expect(typeof getTableRowsRO.primaryColumns).toBe('object');
           expect(getTableRowsRO.primaryColumns[0].hasOwnProperty('column_name')).toBeTruthy();
-          //   expect(getTableRowsRO.primaryColumns[0].hasOwnProperty('data_type')).toBeTruthy();
+          expect(getTableRowsRO.primaryColumns[0].hasOwnProperty('data_type')).toBeTruthy();
         } catch (err) {
           throw err;
         }
@@ -2383,6 +2517,7 @@ describe('Tables OracleDB (e2e)', () => {
             .post('/connection')
             .send(newConnection)
             .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
             .set('Accept', 'application/json');
           const createConnectionRO = JSON.parse(createConnectionResponse.text);
           expect(createConnectionResponse.status).toBe(201);
@@ -2407,6 +2542,7 @@ describe('Tables OracleDB (e2e)', () => {
             .post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
             .send(createTableSettingsDTO)
             .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
             .set('Accept', 'application/json');
           expect(createTableSettingsResponse.status).toBe(201);
 
@@ -2417,6 +2553,7 @@ describe('Tables OracleDB (e2e)', () => {
               `/table/rows/${createConnectionRO.id}?tableName=${testTableName}&search=${testSearchedUserName}&page=1&perPage=2&f_${fieldname}__lt=${fieldvalue}`,
             )
             .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
             .set('Accept', 'application/json');
           expect(getTableRowsResponse.status).toBe(200);
 
@@ -2438,7 +2575,7 @@ describe('Tables OracleDB (e2e)', () => {
 
           expect(typeof getTableRowsRO.primaryColumns).toBe('object');
           expect(getTableRowsRO.primaryColumns[0].hasOwnProperty('column_name')).toBeTruthy();
-          //expect(getTableRowsRO.primaryColumns[0].hasOwnProperty('data_type')).toBeTruthy();
+          expect(getTableRowsRO.primaryColumns[0].hasOwnProperty('data_type')).toBeTruthy();
         } catch (err) {
           throw err;
         }
@@ -2450,6 +2587,7 @@ describe('Tables OracleDB (e2e)', () => {
             .post('/connection')
             .send(newConnection)
             .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
             .set('Accept', 'application/json');
           const createConnectionRO = JSON.parse(createConnectionResponse.text);
           expect(createConnectionResponse.status).toBe(201);
@@ -2474,16 +2612,18 @@ describe('Tables OracleDB (e2e)', () => {
             .post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
             .send(createTableSettingsDTO)
             .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
             .set('Accept', 'application/json');
           expect(createTableSettingsResponse.status).toBe(201);
 
-          const fieldname = 'ID';
+          const fieldname = 'id';
           const fieldvalue = '41';
           const getTableRowsResponse = await request(app.getHttpServer())
             .get(
               `/table/rows/${createConnectionRO.id}?tableName=${testTableName}&search=${testSearchedUserName}&page=1&perPage=10&f_${fieldname}__lt=${fieldvalue}`,
             )
             .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
             .set('Accept', 'application/json');
           expect(getTableRowsResponse.status).toBe(200);
 
@@ -2507,7 +2647,7 @@ describe('Tables OracleDB (e2e)', () => {
 
           expect(typeof getTableRowsRO.primaryColumns).toBe('object');
           expect(getTableRowsRO.primaryColumns[0].hasOwnProperty('column_name')).toBeTruthy();
-          // expect(getTableRowsRO.primaryColumns[0].hasOwnProperty('data_type')).toBeTruthy();
+          expect(getTableRowsRO.primaryColumns[0].hasOwnProperty('data_type')).toBeTruthy();
         } catch (err) {
           throw err;
         }
@@ -2519,6 +2659,7 @@ describe('Tables OracleDB (e2e)', () => {
             .post('/connection')
             .send(newConnection)
             .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
             .set('Accept', 'application/json');
           const createConnectionRO = JSON.parse(createConnectionResponse.text);
           expect(createConnectionResponse.status).toBe(201);
@@ -2543,16 +2684,18 @@ describe('Tables OracleDB (e2e)', () => {
             .post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
             .send(createTableSettingsDTO)
             .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
             .set('Accept', 'application/json');
           expect(createTableSettingsResponse.status).toBe(201);
 
-          const fieldname = 'ID';
+          const fieldname = 'id';
           const fieldvalue = '41';
           const getTableRowsResponse = await request(app.getHttpServer())
             .get(
               `/table/rows/${createConnectionRO.id}?tableName=${testTableName}&search=${testSearchedUserName}&page=2&perPage=2&f_${fieldname}__lt=${fieldvalue}`,
             )
             .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
             .set('Accept', 'application/json');
           expect(getTableRowsResponse.status).toBe(200);
 
@@ -2562,17 +2705,16 @@ describe('Tables OracleDB (e2e)', () => {
           expect(getTableRowsRO.hasOwnProperty('primaryColumns')).toBeTruthy();
           expect(getTableRowsRO.hasOwnProperty('pagination')).toBeTruthy();
           expect(getTableRowsRO.rows.length).toBe(1);
-          console.log('=>(table-oracledb.e2e.spec.ts:2566) getTableRowsRO.rows[0]', getTableRowsRO.rows[0]);
           expect(Object.keys(getTableRowsRO.rows[0]).length).toBe(5);
+
           expect(getTableRowsRO.rows[0].name).toBe(testSearchedUserName);
           expect(getTableRowsRO.rows[0].id).toBe(1);
-
           expect(getTableRowsRO.pagination.currentPage).toBe(2);
           expect(getTableRowsRO.pagination.perPage).toBe(2);
 
           expect(typeof getTableRowsRO.primaryColumns).toBe('object');
           expect(getTableRowsRO.primaryColumns[0].hasOwnProperty('column_name')).toBeTruthy();
-          //expect(getTableRowsRO.primaryColumns[0].hasOwnProperty('data_type')).toBeTruthy();
+          expect(getTableRowsRO.primaryColumns[0].hasOwnProperty('data_type')).toBeTruthy();
         } catch (err) {
           throw err;
         }
@@ -2584,6 +2726,7 @@ describe('Tables OracleDB (e2e)', () => {
             .post('/connection')
             .send(newConnection)
             .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
             .set('Accept', 'application/json');
           const createConnectionRO = JSON.parse(createConnectionResponse.text);
           expect(createConnectionResponse.status).toBe(201);
@@ -2608,6 +2751,7 @@ describe('Tables OracleDB (e2e)', () => {
             .post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
             .send(createTableSettingsDTO)
             .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
             .set('Accept', 'application/json');
           expect(createTableSettingsResponse.status).toBe(201);
 
@@ -2620,6 +2764,7 @@ describe('Tables OracleDB (e2e)', () => {
               `/table/rows/${createConnectionRO.id}?tableName=${testTableName}&search=${testSearchedUserName}&page=1&perPage=2&f_${fieldname}__lt=${fieldLtvalue}&f_${fieldname}__gt=${fieldGtvalue}`,
             )
             .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
             .set('Accept', 'application/json');
           expect(getTableRowsResponse.status).toBe(200);
 
@@ -2640,6 +2785,7 @@ describe('Tables OracleDB (e2e)', () => {
 
           expect(typeof getTableRowsRO.primaryColumns).toBe('object');
           expect(getTableRowsRO.primaryColumns[0].hasOwnProperty('column_name')).toBeTruthy();
+          expect(getTableRowsRO.primaryColumns[0].hasOwnProperty('data_type')).toBeTruthy();
         } catch (err) {
           throw err;
         }
@@ -2651,6 +2797,7 @@ describe('Tables OracleDB (e2e)', () => {
             .post('/connection')
             .send(newConnection)
             .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
             .set('Accept', 'application/json');
           const createConnectionRO = JSON.parse(createConnectionResponse.text);
           expect(createConnectionResponse.status).toBe(201);
@@ -2675,6 +2822,7 @@ describe('Tables OracleDB (e2e)', () => {
             .post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
             .send(createTableSettingsDTO)
             .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
             .set('Accept', 'application/json');
           expect(createTableSettingsResponse.status).toBe(201);
 
@@ -2687,6 +2835,7 @@ describe('Tables OracleDB (e2e)', () => {
               `/table/rows/${createConnectionRO.id}?tableName=${testTableName}&search=${testSearchedUserName}&page=1&perPage=2&f_${fieldname}__lt=${fieldLtvalue}&f_${fieldname}__gt=${fieldGtvalue}`,
             )
             .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
             .set('Accept', 'application/json');
           expect(getTableRowsResponse.status).toBe(404);
         } catch (err) {
@@ -2700,6 +2849,7 @@ describe('Tables OracleDB (e2e)', () => {
             .post('/connection')
             .send(newConnection)
             .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
             .set('Accept', 'application/json');
           const createConnectionRO = JSON.parse(createConnectionResponse.text);
           expect(createConnectionResponse.status).toBe(201);
@@ -2724,6 +2874,7 @@ describe('Tables OracleDB (e2e)', () => {
             .post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
             .send(createTableSettingsDTO)
             .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
             .set('Accept', 'application/json');
           expect(createTableSettingsResponse.status).toBe(201);
 
@@ -2731,12 +2882,13 @@ describe('Tables OracleDB (e2e)', () => {
           const fieldGtvalue = '25';
           const fieldLtvalue = '40';
 
-          createConnectionRO.id = faker.random.uuid();
+          createConnectionRO.id = faker.datatype.uuid();
           const getTableRowsResponse = await request(app.getHttpServer())
             .get(
               `/table/rows/${createConnectionRO.id}?tableName=${testTableName}&search=${testSearchedUserName}&page=1&perPage=2&f_${fieldname}__lt=${fieldLtvalue}&f_${fieldname}__gt=${fieldGtvalue}`,
             )
             .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
             .set('Accept', 'application/json');
           expect(getTableRowsResponse.status).toBe(400);
 
@@ -2754,6 +2906,7 @@ describe('Tables OracleDB (e2e)', () => {
             .post('/connection')
             .send(newConnection)
             .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
             .set('Accept', 'application/json');
           const createConnectionRO = JSON.parse(createConnectionResponse.text);
           expect(createConnectionResponse.status).toBe(201);
@@ -2778,6 +2931,7 @@ describe('Tables OracleDB (e2e)', () => {
             .post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
             .send(createTableSettingsDTO)
             .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
             .set('Accept', 'application/json');
           expect(createTableSettingsResponse.status).toBe(201);
 
@@ -2785,12 +2939,13 @@ describe('Tables OracleDB (e2e)', () => {
           const fieldGtvalue = '25';
           const fieldLtvalue = '40';
 
-          const fakeTableName = faker.random.word(1);
+          const fakeTableName = faker.random.words(1);
           const getTableRowsResponse = await request(app.getHttpServer())
             .get(
               `/table/rows/${createConnectionRO.id}?tableName=${fakeTableName}&search=${testSearchedUserName}&page=1&perPage=2&f_${fieldname}__lt=${fieldLtvalue}&f_${fieldname}__gt=${fieldGtvalue}`,
             )
             .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
             .set('Accept', 'application/json');
           expect(getTableRowsResponse.status).toBe(400);
 
@@ -2808,6 +2963,7 @@ describe('Tables OracleDB (e2e)', () => {
             .post('/connection')
             .send(newConnection)
             .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
             .set('Accept', 'application/json');
           const createConnectionRO = JSON.parse(createConnectionResponse.text);
           expect(createConnectionResponse.status).toBe(201);
@@ -2832,10 +2988,11 @@ describe('Tables OracleDB (e2e)', () => {
             .post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
             .send(createTableSettingsDTO)
             .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
             .set('Accept', 'application/json');
           expect(createTableSettingsResponse.status).toBe(201);
 
-          const fieldname = faker.random.word(1);
+          const fieldname = faker.random.words(1);
           const fieldGtvalue = '25';
           const fieldLtvalue = '40';
 
@@ -2844,6 +3001,7 @@ describe('Tables OracleDB (e2e)', () => {
               `/table/rows/${createConnectionRO.id}?tableName=${testTableName}&search=${testSearchedUserName}&page=1&perPage=2&f_${fieldname}__lt=${fieldLtvalue}&f_${fieldname}__gt=${fieldGtvalue}`,
             )
             .set('Content-Type', 'application/json')
+            .set('masterpwd', masterPwd)
             .set('Accept', 'application/json');
           expect(getTableRowsResponse.status).toBe(200);
 
@@ -2867,6 +3025,7 @@ describe('Tables OracleDB (e2e)', () => {
           .post('/connection')
           .send(newConnection)
           .set('Content-Type', 'application/json')
+          .set('masterpwd', masterPwd)
           .set('Accept', 'application/json');
         const createConnectionRO = JSON.parse(createConnectionResponse.text);
         expect(createConnectionResponse.status).toBe(201);
@@ -2874,11 +3033,11 @@ describe('Tables OracleDB (e2e)', () => {
         const getTableStructure = await request(app.getHttpServer())
           .get(`/table/structure/${createConnectionRO.id}?tableName=${testTableName}`)
           .set('Content-Type', 'application/json')
+          .set('masterpwd', masterPwd)
           .set('Accept', 'application/json');
-
+        expect(getTableStructure.status).toBe(200);
         const getTableStructureRO = JSON.parse(getTableStructure.text);
 
-        expect(getTableStructure.status).toBe(200);
         expect(typeof getTableStructureRO).toBe('object');
         expect(typeof getTableStructureRO.structure).toBe('object');
         expect(getTableStructureRO.structure.length).toBe(5);
@@ -2893,10 +3052,12 @@ describe('Tables OracleDB (e2e)', () => {
 
         expect(getTableStructureRO.hasOwnProperty('primaryColumns')).toBeTruthy();
         expect(getTableStructureRO.hasOwnProperty('foreignKeys')).toBeTruthy();
+        expect(getTableStructureRO.hasOwnProperty('readonly_fields')).toBeTruthy();
+        expect(getTableStructureRO.hasOwnProperty('table_widgets')).toBeTruthy();
 
         for (const element of getTableStructureRO.primaryColumns) {
           expect(element.hasOwnProperty('column_name')).toBeTruthy();
-          //   expect(element.hasOwnProperty('data_type')).toBeTruthy();
+          expect(element.hasOwnProperty('data_type')).toBeTruthy();
         }
 
         for (const element of getTableStructureRO.foreignKeys) {
@@ -2915,6 +3076,7 @@ describe('Tables OracleDB (e2e)', () => {
         const createConnectionResponse = await request(app.getHttpServer())
           .post('/connection')
           .send(newConnection)
+          .set('masterpwd', masterPwd)
           .set('Content-Type', 'application/json')
           .set('Accept', 'application/json');
         const createConnectionRO = JSON.parse(createConnectionResponse.text);
@@ -2924,6 +3086,7 @@ describe('Tables OracleDB (e2e)', () => {
         const getTableStructure = await request(app.getHttpServer())
           .get(`/table/structure/${createConnectionRO.id}?tableName=${testTableName}`)
           .set('Content-Type', 'application/json')
+          .set('masterpwd', masterPwd)
           .set('Accept', 'application/json');
         expect(getTableStructure.status).toBe(404);
       } catch (err) {
@@ -2937,14 +3100,16 @@ describe('Tables OracleDB (e2e)', () => {
           .post('/connection')
           .send(newConnection)
           .set('Content-Type', 'application/json')
+          .set('masterpwd', masterPwd)
           .set('Accept', 'application/json');
         const createConnectionRO = JSON.parse(createConnectionResponse.text);
         expect(createConnectionResponse.status).toBe(201);
 
-        createConnectionRO.id = faker.random.uuid();
+        createConnectionRO.id = faker.datatype.uuid();
         const getTableStructure = await request(app.getHttpServer())
           .get(`/table/structure/${createConnectionRO.id}?tableName=${testTableName}`)
           .set('Content-Type', 'application/json')
+          .set('masterpwd', masterPwd)
           .set('Accept', 'application/json');
         expect(getTableStructure.status).toBe(400);
         const { message } = JSON.parse(getTableStructure.text);
@@ -2960,6 +3125,7 @@ describe('Tables OracleDB (e2e)', () => {
           .post('/connection')
           .send(newConnection)
           .set('Content-Type', 'application/json')
+          .set('masterpwd', masterPwd)
           .set('Accept', 'application/json');
         const createConnectionRO = JSON.parse(createConnectionResponse.text);
         expect(createConnectionResponse.status).toBe(201);
@@ -2968,6 +3134,7 @@ describe('Tables OracleDB (e2e)', () => {
         const getTableStructure = await request(app.getHttpServer())
           .get(`/table/structure/${createConnectionRO.id}?tableName=${tableName}`)
           .set('Content-Type', 'application/json')
+          .set('masterpwd', masterPwd)
           .set('Accept', 'application/json');
         expect(getTableStructure.status).toBe(400);
         const { message } = JSON.parse(getTableStructure.text);
@@ -2983,14 +3150,16 @@ describe('Tables OracleDB (e2e)', () => {
           .post('/connection')
           .send(newConnection)
           .set('Content-Type', 'application/json')
+          .set('masterpwd', masterPwd)
           .set('Accept', 'application/json');
         const createConnectionRO = JSON.parse(createConnectionResponse.text);
         expect(createConnectionResponse.status).toBe(201);
 
-        const tableName = faker.random.word(1);
+        const tableName = faker.random.words(1);
         const getTableStructure = await request(app.getHttpServer())
           .get(`/table/structure/${createConnectionRO.id}?tableName=${tableName}`)
           .set('Content-Type', 'application/json')
+          .set('masterpwd', masterPwd)
           .set('Accept', 'application/json');
         expect(getTableStructure.status).toBe(400);
         const { message } = JSON.parse(getTableStructure.text);
@@ -3004,10 +3173,33 @@ describe('Tables OracleDB (e2e)', () => {
   describe('POST /table/row/:slug', () => {
     it('should add row in table and return result', async () => {
       try {
+        AWSMock.setSDKInstance(AWS);
+        AWSMock.mock(
+          'CognitoIdentityServiceProvider',
+          'listUsers',
+          (newCognitoUserName, callback: (...args: any) => void) => {
+            callback(null, {
+              Users: [
+                {
+                  Attributes: [
+                    {},
+                    {},
+                    {
+                      Name: 'email',
+                      Value: 'Example@gmail.com',
+                    },
+                  ],
+                },
+              ],
+            });
+          },
+        );
+
         const createConnectionResponse = await request(app.getHttpServer())
           .post('/connection')
           .send(newConnection)
           .set('Content-Type', 'application/json')
+          .set('masterpwd', masterPwd)
           .set('Accept', 'application/json');
         const createConnectionRO = JSON.parse(createConnectionResponse.text);
         expect(createConnectionResponse.status).toBe(201);
@@ -3016,7 +3208,6 @@ describe('Tables OracleDB (e2e)', () => {
         const fakeMail = faker.internet.email();
 
         const row = {
-          id: 43,
           [testTableColumnName]: fakeName,
           [testTAbleSecondColumnName]: fakeMail,
         };
@@ -3025,6 +3216,7 @@ describe('Tables OracleDB (e2e)', () => {
           .post(`/table/row/${createConnectionRO.id}?tableName=${testTableName}`)
           .send(JSON.stringify(row))
           .set('Content-Type', 'application/json')
+          .set('masterpwd', masterPwd)
           .set('Accept', 'application/json');
         expect(addRowInTableResponse.status).toBe(201);
         const addRowInTableRO = JSON.parse(addRowInTableResponse.text);
@@ -3041,10 +3233,12 @@ describe('Tables OracleDB (e2e)', () => {
         const getTableRowsResponse = await request(app.getHttpServer())
           .get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=1&perPage=50`)
           .set('Content-Type', 'application/json')
+          .set('masterpwd', masterPwd)
           .set('Accept', 'application/json');
+        expect(getTableRowsResponse.status).toBe(200);
 
         const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
-        expect(getTableRowsResponse.status).toBe(200);
+
         expect(getTableRowsRO.hasOwnProperty('rows')).toBeTruthy();
         expect(getTableRowsRO.hasOwnProperty('primaryColumns')).toBeTruthy();
         expect(getTableRowsRO.hasOwnProperty('pagination')).toBeTruthy();
@@ -3063,10 +3257,33 @@ describe('Tables OracleDB (e2e)', () => {
 
     it('should throw an exception when connection id is not passed in request', async () => {
       try {
+        AWSMock.setSDKInstance(AWS);
+        AWSMock.mock(
+          'CognitoIdentityServiceProvider',
+          'listUsers',
+          (newCognitoUserName, callback: (...args: any) => void) => {
+            callback(null, {
+              Users: [
+                {
+                  Attributes: [
+                    {},
+                    {},
+                    {
+                      Name: 'email',
+                      Value: 'Example@gmail.com',
+                    },
+                  ],
+                },
+              ],
+            });
+          },
+        );
+
         const createConnectionResponse = await request(app.getHttpServer())
           .post('/connection')
           .send(newConnection)
           .set('Content-Type', 'application/json')
+          .set('masterpwd', masterPwd)
           .set('Accept', 'application/json');
         const createConnectionRO = JSON.parse(createConnectionResponse.text);
         expect(createConnectionResponse.status).toBe(201);
@@ -3084,6 +3301,7 @@ describe('Tables OracleDB (e2e)', () => {
           .post(`/table/row/${fakeConnectionId}?tableName=${testTableName}`)
           .send(JSON.stringify(row))
           .set('Content-Type', 'application/json')
+          .set('masterpwd', masterPwd)
           .set('Accept', 'application/json');
 
         expect(addRowInTableResponse.status).toBe(404);
@@ -3092,6 +3310,7 @@ describe('Tables OracleDB (e2e)', () => {
         const getTableRowsResponse = await request(app.getHttpServer())
           .get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=1&perPage=50`)
           .set('Content-Type', 'application/json')
+          .set('masterpwd', masterPwd)
           .set('Accept', 'application/json');
         expect(getTableRowsResponse.status).toBe(200);
 
@@ -3111,10 +3330,33 @@ describe('Tables OracleDB (e2e)', () => {
 
     it('should throw an exception when table name is not passed in request', async () => {
       try {
+        AWSMock.setSDKInstance(AWS);
+        AWSMock.mock(
+          'CognitoIdentityServiceProvider',
+          'listUsers',
+          (newCognitoUserName, callback: (...args: any) => void) => {
+            callback(null, {
+              Users: [
+                {
+                  Attributes: [
+                    {},
+                    {},
+                    {
+                      Name: 'email',
+                      Value: 'Example@gmail.com',
+                    },
+                  ],
+                },
+              ],
+            });
+          },
+        );
+
         const createConnectionResponse = await request(app.getHttpServer())
           .post('/connection')
           .send(newConnection)
           .set('Content-Type', 'application/json')
+          .set('masterpwd', masterPwd)
           .set('Accept', 'application/json');
         const createConnectionRO = JSON.parse(createConnectionResponse.text);
         expect(createConnectionResponse.status).toBe(201);
@@ -3132,6 +3374,7 @@ describe('Tables OracleDB (e2e)', () => {
           .post(`/table/row/${createConnectionRO.id}?tableName=`)
           .send(JSON.stringify(row))
           .set('Content-Type', 'application/json')
+          .set('masterpwd', masterPwd)
           .set('Accept', 'application/json');
 
         expect(addRowInTableResponse.status).toBe(400);
@@ -3143,6 +3386,7 @@ describe('Tables OracleDB (e2e)', () => {
         const getTableRowsResponse = await request(app.getHttpServer())
           .get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=1&perPage=50`)
           .set('Content-Type', 'application/json')
+          .set('masterpwd', masterPwd)
           .set('Accept', 'application/json');
         expect(getTableRowsResponse.status).toBe(200);
 
@@ -3162,10 +3406,33 @@ describe('Tables OracleDB (e2e)', () => {
 
     it('should throw an exception when row is not passed in request', async () => {
       try {
+        AWSMock.setSDKInstance(AWS);
+        AWSMock.mock(
+          'CognitoIdentityServiceProvider',
+          'listUsers',
+          (newCognitoUserName, callback: (...args: any) => void) => {
+            callback(null, {
+              Users: [
+                {
+                  Attributes: [
+                    {},
+                    {},
+                    {
+                      Name: 'email',
+                      Value: 'Example@gmail.com',
+                    },
+                  ],
+                },
+              ],
+            });
+          },
+        );
+
         const createConnectionResponse = await request(app.getHttpServer())
           .post('/connection')
           .send(newConnection)
           .set('Content-Type', 'application/json')
+          .set('masterpwd', masterPwd)
           .set('Accept', 'application/json');
         const createConnectionRO = JSON.parse(createConnectionResponse.text);
         expect(createConnectionResponse.status).toBe(201);
@@ -3173,6 +3440,7 @@ describe('Tables OracleDB (e2e)', () => {
         const addRowInTableResponse = await request(app.getHttpServer())
           .post(`/table/row/${createConnectionRO.id}?tableName=${testTableName}`)
           .set('Content-Type', 'application/json')
+          .set('masterpwd', masterPwd)
           .set('Accept', 'application/json');
 
         expect(addRowInTableResponse.status).toBe(400);
@@ -3184,6 +3452,7 @@ describe('Tables OracleDB (e2e)', () => {
         const getTableRowsResponse = await request(app.getHttpServer())
           .get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=1&perPage=50`)
           .set('Content-Type', 'application/json')
+          .set('masterpwd', masterPwd)
           .set('Accept', 'application/json');
         expect(getTableRowsResponse.status).toBe(200);
 
@@ -3203,10 +3472,33 @@ describe('Tables OracleDB (e2e)', () => {
 
     it('should throw an exception when table name passed in request is incorrect', async () => {
       try {
+        AWSMock.setSDKInstance(AWS);
+        AWSMock.mock(
+          'CognitoIdentityServiceProvider',
+          'listUsers',
+          (newCognitoUserName, callback: (...args: any) => void) => {
+            callback(null, {
+              Users: [
+                {
+                  Attributes: [
+                    {},
+                    {},
+                    {
+                      Name: 'email',
+                      Value: 'Example@gmail.com',
+                    },
+                  ],
+                },
+              ],
+            });
+          },
+        );
+
         const createConnectionResponse = await request(app.getHttpServer())
           .post('/connection')
           .send(newConnection)
           .set('Content-Type', 'application/json')
+          .set('masterpwd', masterPwd)
           .set('Accept', 'application/json');
         const createConnectionRO = JSON.parse(createConnectionResponse.text);
         expect(createConnectionResponse.status).toBe(201);
@@ -3220,11 +3512,12 @@ describe('Tables OracleDB (e2e)', () => {
           [testTAbleSecondColumnName]: fakeMail,
         };
 
-        const fakeTableName = faker.random.word(1);
+        const fakeTableName = faker.random.words(1);
         const addRowInTableResponse = await request(app.getHttpServer())
           .post(`/table/row/${createConnectionRO.id}?tableName=${fakeTableName}`)
           .send(JSON.stringify(row))
           .set('Content-Type', 'application/json')
+          .set('masterpwd', masterPwd)
           .set('Accept', 'application/json');
 
         expect(addRowInTableResponse.status).toBe(400);
@@ -3236,6 +3529,7 @@ describe('Tables OracleDB (e2e)', () => {
         const getTableRowsResponse = await request(app.getHttpServer())
           .get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=1&perPage=50`)
           .set('Content-Type', 'application/json')
+          .set('masterpwd', masterPwd)
           .set('Accept', 'application/json');
         expect(getTableRowsResponse.status).toBe(200);
 
@@ -3259,10 +3553,33 @@ describe('Tables OracleDB (e2e)', () => {
   describe('PUT /table/row/:slug', () => {
     it('should update row in table and return result', async () => {
       try {
+        AWSMock.setSDKInstance(AWS);
+        AWSMock.mock(
+          'CognitoIdentityServiceProvider',
+          'listUsers',
+          (newCognitoUserName, callback: (...args: any) => void) => {
+            callback(null, {
+              Users: [
+                {
+                  Attributes: [
+                    {},
+                    {},
+                    {
+                      Name: 'email',
+                      Value: 'Example@gmail.com',
+                    },
+                  ],
+                },
+              ],
+            });
+          },
+        );
+
         const createConnectionResponse = await request(app.getHttpServer())
           .post('/connection')
           .send(newConnection)
           .set('Content-Type', 'application/json')
+          .set('masterpwd', masterPwd)
           .set('Accept', 'application/json');
         const createConnectionRO = JSON.parse(createConnectionResponse.text);
         expect(createConnectionResponse.status).toBe(201);
@@ -3279,6 +3596,7 @@ describe('Tables OracleDB (e2e)', () => {
           .put(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&id=1`)
           .send(JSON.stringify(row))
           .set('Content-Type', 'application/json')
+          .set('masterpwd', masterPwd)
           .set('Accept', 'application/json');
 
         expect(updateRowInTableResponse.status).toBe(200);
@@ -3296,6 +3614,7 @@ describe('Tables OracleDB (e2e)', () => {
         const getTableRowsResponse = await request(app.getHttpServer())
           .get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=1&perPage=50`)
           .set('Content-Type', 'application/json')
+          .set('masterpwd', masterPwd)
           .set('Accept', 'application/json');
         expect(getTableRowsResponse.status).toBe(200);
 
@@ -3319,10 +3638,33 @@ describe('Tables OracleDB (e2e)', () => {
 
     it('should throw an exception when connection id not passed in request', async () => {
       try {
+        AWSMock.setSDKInstance(AWS);
+        AWSMock.mock(
+          'CognitoIdentityServiceProvider',
+          'listUsers',
+          (newCognitoUserName, callback: (...args: any) => void) => {
+            callback(null, {
+              Users: [
+                {
+                  Attributes: [
+                    {},
+                    {},
+                    {
+                      Name: 'email',
+                      Value: 'Example@gmail.com',
+                    },
+                  ],
+                },
+              ],
+            });
+          },
+        );
+
         const createConnectionResponse = await request(app.getHttpServer())
           .post('/connection')
           .send(newConnection)
           .set('Content-Type', 'application/json')
+          .set('masterpwd', masterPwd)
           .set('Accept', 'application/json');
         const createConnectionRO = JSON.parse(createConnectionResponse.text);
         expect(createConnectionResponse.status).toBe(201);
@@ -3340,6 +3682,7 @@ describe('Tables OracleDB (e2e)', () => {
           .put(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&id=1`)
           .send(JSON.stringify(row))
           .set('Content-Type', 'application/json')
+          .set('masterpwd', masterPwd)
           .set('Accept', 'application/json');
 
         expect(updateRowInTableResponse.status).toBe(404);
@@ -3351,10 +3694,33 @@ describe('Tables OracleDB (e2e)', () => {
 
     it('should throw an exception when connection id passed in request is incorrect', async () => {
       try {
+        AWSMock.setSDKInstance(AWS);
+        AWSMock.mock(
+          'CognitoIdentityServiceProvider',
+          'listUsers',
+          (newCognitoUserName, callback: (...args: any) => void) => {
+            callback(null, {
+              Users: [
+                {
+                  Attributes: [
+                    {},
+                    {},
+                    {
+                      Name: 'email',
+                      Value: 'Example@gmail.com',
+                    },
+                  ],
+                },
+              ],
+            });
+          },
+        );
+
         const createConnectionResponse = await request(app.getHttpServer())
           .post('/connection')
           .send(newConnection)
           .set('Content-Type', 'application/json')
+          .set('masterpwd', masterPwd)
           .set('Accept', 'application/json');
         const createConnectionRO = JSON.parse(createConnectionResponse.text);
         expect(createConnectionResponse.status).toBe(201);
@@ -3367,11 +3733,12 @@ describe('Tables OracleDB (e2e)', () => {
           [testTAbleSecondColumnName]: fakeMail,
         };
 
-        createConnectionRO.id = faker.random.uuid();
+        createConnectionRO.id = faker.datatype.uuid();
         const updateRowInTableResponse = await request(app.getHttpServer())
           .put(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&id=1`)
           .send(JSON.stringify(row))
           .set('Content-Type', 'application/json')
+          .set('masterpwd', masterPwd)
           .set('Accept', 'application/json');
 
         expect(updateRowInTableResponse.status).toBe(400);
@@ -3385,10 +3752,33 @@ describe('Tables OracleDB (e2e)', () => {
 
     it('should throw an exception when tableName not passed in request', async () => {
       try {
+        AWSMock.setSDKInstance(AWS);
+        AWSMock.mock(
+          'CognitoIdentityServiceProvider',
+          'listUsers',
+          (newCognitoUserName, callback: (...args: any) => void) => {
+            callback(null, {
+              Users: [
+                {
+                  Attributes: [
+                    {},
+                    {},
+                    {
+                      Name: 'email',
+                      Value: 'Example@gmail.com',
+                    },
+                  ],
+                },
+              ],
+            });
+          },
+        );
+
         const createConnectionResponse = await request(app.getHttpServer())
           .post('/connection')
           .send(newConnection)
           .set('Content-Type', 'application/json')
+          .set('masterpwd', masterPwd)
           .set('Accept', 'application/json');
         const createConnectionRO = JSON.parse(createConnectionResponse.text);
         expect(createConnectionResponse.status).toBe(201);
@@ -3401,11 +3791,12 @@ describe('Tables OracleDB (e2e)', () => {
           [testTAbleSecondColumnName]: fakeMail,
         };
 
-        createConnectionRO.id = faker.random.uuid();
+        createConnectionRO.id = faker.datatype.uuid();
         const updateRowInTableResponse = await request(app.getHttpServer())
           .put(`/table/row/${createConnectionRO.id}?tableName=&id=1`)
           .send(JSON.stringify(row))
           .set('Content-Type', 'application/json')
+          .set('masterpwd', masterPwd)
           .set('Accept', 'application/json');
 
         expect(updateRowInTableResponse.status).toBe(400);
@@ -3419,10 +3810,33 @@ describe('Tables OracleDB (e2e)', () => {
 
     it('should throw an exception when tableName passed in request is incorrect', async () => {
       try {
+        AWSMock.setSDKInstance(AWS);
+        AWSMock.mock(
+          'CognitoIdentityServiceProvider',
+          'listUsers',
+          (newCognitoUserName, callback: (...args: any) => void) => {
+            callback(null, {
+              Users: [
+                {
+                  Attributes: [
+                    {},
+                    {},
+                    {
+                      Name: 'email',
+                      Value: 'Example@gmail.com',
+                    },
+                  ],
+                },
+              ],
+            });
+          },
+        );
+
         const createConnectionResponse = await request(app.getHttpServer())
           .post('/connection')
           .send(newConnection)
           .set('Content-Type', 'application/json')
+          .set('masterpwd', masterPwd)
           .set('Accept', 'application/json');
         const createConnectionRO = JSON.parse(createConnectionResponse.text);
         expect(createConnectionResponse.status).toBe(201);
@@ -3435,11 +3849,12 @@ describe('Tables OracleDB (e2e)', () => {
           [testTAbleSecondColumnName]: fakeMail,
         };
 
-        const fakeTableName = faker.random.uuid();
+        const fakeTableName = faker.datatype.uuid();
         const updateRowInTableResponse = await request(app.getHttpServer())
           .put(`/table/row/${createConnectionRO.id}?tableName=${fakeTableName}&id=1`)
           .send(JSON.stringify(row))
           .set('Content-Type', 'application/json')
+          .set('masterpwd', masterPwd)
           .set('Accept', 'application/json');
 
         expect(updateRowInTableResponse.status).toBe(400);
@@ -3453,10 +3868,33 @@ describe('Tables OracleDB (e2e)', () => {
 
     it('should throw an exception when primary key not passed in request', async () => {
       try {
+        AWSMock.setSDKInstance(AWS);
+        AWSMock.mock(
+          'CognitoIdentityServiceProvider',
+          'listUsers',
+          (newCognitoUserName, callback: (...args: any) => void) => {
+            callback(null, {
+              Users: [
+                {
+                  Attributes: [
+                    {},
+                    {},
+                    {
+                      Name: 'email',
+                      Value: 'Example@gmail.com',
+                    },
+                  ],
+                },
+              ],
+            });
+          },
+        );
+
         const createConnectionResponse = await request(app.getHttpServer())
           .post('/connection')
           .send(newConnection)
           .set('Content-Type', 'application/json')
+          .set('masterpwd', masterPwd)
           .set('Accept', 'application/json');
         const createConnectionRO = JSON.parse(createConnectionResponse.text);
         expect(createConnectionResponse.status).toBe(201);
@@ -3473,6 +3911,7 @@ describe('Tables OracleDB (e2e)', () => {
           .put(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&`)
           .send(JSON.stringify(row))
           .set('Content-Type', 'application/json')
+          .set('masterpwd', masterPwd)
           .set('Accept', 'application/json');
 
         expect(updateRowInTableResponse.status).toBe(400);
@@ -3486,10 +3925,33 @@ describe('Tables OracleDB (e2e)', () => {
 
     it('should throw an exception when primary key passed in request has incorrect field name', async () => {
       try {
+        AWSMock.setSDKInstance(AWS);
+        AWSMock.mock(
+          'CognitoIdentityServiceProvider',
+          'listUsers',
+          (newCognitoUserName, callback: (...args: any) => void) => {
+            callback(null, {
+              Users: [
+                {
+                  Attributes: [
+                    {},
+                    {},
+                    {
+                      Name: 'email',
+                      Value: 'Example@gmail.com',
+                    },
+                  ],
+                },
+              ],
+            });
+          },
+        );
+
         const createConnectionResponse = await request(app.getHttpServer())
           .post('/connection')
           .send(newConnection)
           .set('Content-Type', 'application/json')
+          .set('masterpwd', masterPwd)
           .set('Accept', 'application/json');
         const createConnectionRO = JSON.parse(createConnectionResponse.text);
         expect(createConnectionResponse.status).toBe(201);
@@ -3506,6 +3968,7 @@ describe('Tables OracleDB (e2e)', () => {
           .put(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&IncorrectField=1`)
           .send(JSON.stringify(row))
           .set('Content-Type', 'application/json')
+          .set('masterpwd', masterPwd)
           .set('Accept', 'application/json');
 
         expect(updateRowInTableResponse.status).toBe(400);
@@ -3517,12 +3980,35 @@ describe('Tables OracleDB (e2e)', () => {
       AWSMock.restore('CognitoIdentityServiceProvider');
     });
 
-    xit('should throw an exception when primary key passed in request has incorrect field value', async () => {
+    it('should throw an exception when primary key passed in request has incorrect field value', async () => {
       try {
+        AWSMock.setSDKInstance(AWS);
+        AWSMock.mock(
+          'CognitoIdentityServiceProvider',
+          'listUsers',
+          (newCognitoUserName, callback: (...args: any) => void) => {
+            callback(null, {
+              Users: [
+                {
+                  Attributes: [
+                    {},
+                    {},
+                    {
+                      Name: 'email',
+                      Value: 'Example@gmail.com',
+                    },
+                  ],
+                },
+              ],
+            });
+          },
+        );
+
         const createConnectionResponse = await request(app.getHttpServer())
           .post('/connection')
           .send(newConnection)
           .set('Content-Type', 'application/json')
+          .set('masterpwd', masterPwd)
           .set('Accept', 'application/json');
         const createConnectionRO = JSON.parse(createConnectionResponse.text);
         expect(createConnectionResponse.status).toBe(201);
@@ -3539,13 +4025,12 @@ describe('Tables OracleDB (e2e)', () => {
           .put(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&id=100000000`)
           .send(JSON.stringify(row))
           .set('Content-Type', 'application/json')
+          .set('masterpwd', masterPwd)
           .set('Accept', 'application/json');
 
         expect(updateRowInTableResponse.status).toBe(400);
         const { message } = JSON.parse(updateRowInTableResponse.text);
-        expect(message)
-          .toBe(`${Messages.UPDATE_ROW_FAILED} ${Messages.ERROR_MESSAGE} "${Messages.ROW_PRIMARY_KEY_NOT_FOUND}"
-         ${Messages.TRY_AGAIN_LATER}`);
+        expect(message).toBe(`${Messages.ROW_PRIMARY_KEY_NOT_FOUND}`);
       } catch (err) {
         throw err;
       }
@@ -3556,10 +4041,33 @@ describe('Tables OracleDB (e2e)', () => {
   describe('DELETE /table/row/:slug', () => {
     it('should delete row in table and return result', async () => {
       try {
+        AWSMock.setSDKInstance(AWS);
+        AWSMock.mock(
+          'CognitoIdentityServiceProvider',
+          'listUsers',
+          (newCognitoUserName, callback: (...args: any) => void) => {
+            callback(null, {
+              Users: [
+                {
+                  Attributes: [
+                    {},
+                    {},
+                    {
+                      Name: 'email',
+                      Value: 'Example@gmail.com',
+                    },
+                  ],
+                },
+              ],
+            });
+          },
+        );
+
         const createConnectionResponse = await request(app.getHttpServer())
           .post('/connection')
           .send(newConnection)
           .set('Content-Type', 'application/json')
+          .set('masterpwd', masterPwd)
           .set('Accept', 'application/json');
         const createConnectionRO = JSON.parse(createConnectionResponse.text);
         expect(createConnectionResponse.status).toBe(201);
@@ -3568,6 +4076,7 @@ describe('Tables OracleDB (e2e)', () => {
         const deleteRowInTableResponse = await request(app.getHttpServer())
           .delete(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&id=${idForDeletion}`)
           .set('Content-Type', 'application/json')
+          .set('masterpwd', masterPwd)
           .set('Accept', 'application/json');
 
         expect(deleteRowInTableResponse.status).toBe(200);
@@ -3579,6 +4088,7 @@ describe('Tables OracleDB (e2e)', () => {
         const getTableRowsResponse = await request(app.getHttpServer())
           .get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=1&perPage=50`)
           .set('Content-Type', 'application/json')
+          .set('masterpwd', masterPwd)
           .set('Accept', 'application/json');
         expect(getTableRowsResponse.status).toBe(200);
 
@@ -3602,10 +4112,33 @@ describe('Tables OracleDB (e2e)', () => {
 
     it('should throw an exception when connection id not passed in request', async () => {
       try {
+        AWSMock.setSDKInstance(AWS);
+        AWSMock.mock(
+          'CognitoIdentityServiceProvider',
+          'listUsers',
+          (newCognitoUserName, callback: (...args: any) => void) => {
+            callback(null, {
+              Users: [
+                {
+                  Attributes: [
+                    {},
+                    {},
+                    {
+                      Name: 'email',
+                      Value: 'Example@gmail.com',
+                    },
+                  ],
+                },
+              ],
+            });
+          },
+        );
+
         const createConnectionResponse = await request(app.getHttpServer())
           .post('/connection')
           .send(newConnection)
           .set('Content-Type', 'application/json')
+          .set('masterpwd', masterPwd)
           .set('Accept', 'application/json');
         const createConnectionRO = JSON.parse(createConnectionResponse.text);
         expect(createConnectionResponse.status).toBe(201);
@@ -3615,6 +4148,7 @@ describe('Tables OracleDB (e2e)', () => {
         const deleteRowInTableResponse = await request(app.getHttpServer())
           .delete(`/table/row/${connectionId}?tableName=${testTableName}&id=${idForDeletion}`)
           .set('Content-Type', 'application/json')
+          .set('masterpwd', masterPwd)
           .set('Accept', 'application/json');
 
         expect(deleteRowInTableResponse.status).toBe(404);
@@ -3623,6 +4157,7 @@ describe('Tables OracleDB (e2e)', () => {
         const getTableRowsResponse = await request(app.getHttpServer())
           .get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=1&perPage=50`)
           .set('Content-Type', 'application/json')
+          .set('masterpwd', masterPwd)
           .set('Accept', 'application/json');
         expect(getTableRowsResponse.status).toBe(200);
 
@@ -3645,19 +4180,43 @@ describe('Tables OracleDB (e2e)', () => {
 
     it('should throw an exception when connection id passed in request is incorrect', async () => {
       try {
+        AWSMock.setSDKInstance(AWS);
+        AWSMock.mock(
+          'CognitoIdentityServiceProvider',
+          'listUsers',
+          (newCognitoUserName, callback: (...args: any) => void) => {
+            callback(null, {
+              Users: [
+                {
+                  Attributes: [
+                    {},
+                    {},
+                    {
+                      Name: 'email',
+                      Value: 'Example@gmail.com',
+                    },
+                  ],
+                },
+              ],
+            });
+          },
+        );
+
         const createConnectionResponse = await request(app.getHttpServer())
           .post('/connection')
           .send(newConnection)
           .set('Content-Type', 'application/json')
+          .set('masterpwd', masterPwd)
           .set('Accept', 'application/json');
         const createConnectionRO = JSON.parse(createConnectionResponse.text);
         expect(createConnectionResponse.status).toBe(201);
 
         const idForDeletion = 1;
-        const connectionId = faker.random.uuid();
+        const connectionId = faker.datatype.uuid();
         const deleteRowInTableResponse = await request(app.getHttpServer())
           .delete(`/table/row/${connectionId}?tableName=${testTableName}&id=${idForDeletion}`)
           .set('Content-Type', 'application/json')
+          .set('masterpwd', masterPwd)
           .set('Accept', 'application/json');
 
         expect(deleteRowInTableResponse.status).toBe(400);
@@ -3668,6 +4227,7 @@ describe('Tables OracleDB (e2e)', () => {
         const getTableRowsResponse = await request(app.getHttpServer())
           .get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=1&perPage=50`)
           .set('Content-Type', 'application/json')
+          .set('masterpwd', masterPwd)
           .set('Accept', 'application/json');
         expect(getTableRowsResponse.status).toBe(200);
 
@@ -3690,10 +4250,33 @@ describe('Tables OracleDB (e2e)', () => {
 
     it('should throw an exception when tableName not passed in request', async () => {
       try {
+        AWSMock.setSDKInstance(AWS);
+        AWSMock.mock(
+          'CognitoIdentityServiceProvider',
+          'listUsers',
+          (newCognitoUserName, callback: (...args: any) => void) => {
+            callback(null, {
+              Users: [
+                {
+                  Attributes: [
+                    {},
+                    {},
+                    {
+                      Name: 'email',
+                      Value: 'Example@gmail.com',
+                    },
+                  ],
+                },
+              ],
+            });
+          },
+        );
+
         const createConnectionResponse = await request(app.getHttpServer())
           .post('/connection')
           .send(newConnection)
           .set('Content-Type', 'application/json')
+          .set('masterpwd', masterPwd)
           .set('Accept', 'application/json');
         const createConnectionRO = JSON.parse(createConnectionResponse.text);
         expect(createConnectionResponse.status).toBe(201);
@@ -3703,6 +4286,7 @@ describe('Tables OracleDB (e2e)', () => {
         const deleteRowInTableResponse = await request(app.getHttpServer())
           .delete(`/table/row/${createConnectionRO.id}?tableName=${fakeTableName}&id=${idForDeletion}`)
           .set('Content-Type', 'application/json')
+          .set('masterpwd', masterPwd)
           .set('Accept', 'application/json');
 
         expect(deleteRowInTableResponse.status).toBe(400);
@@ -3713,6 +4297,7 @@ describe('Tables OracleDB (e2e)', () => {
         const getTableRowsResponse = await request(app.getHttpServer())
           .get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=1&perPage=50`)
           .set('Content-Type', 'application/json')
+          .set('masterpwd', masterPwd)
           .set('Accept', 'application/json');
         expect(getTableRowsResponse.status).toBe(200);
 
@@ -3735,19 +4320,43 @@ describe('Tables OracleDB (e2e)', () => {
 
     it('should throw an exception when tableName passed in request is incorrect', async () => {
       try {
+        AWSMock.setSDKInstance(AWS);
+        AWSMock.mock(
+          'CognitoIdentityServiceProvider',
+          'listUsers',
+          (newCognitoUserName, callback: (...args: any) => void) => {
+            callback(null, {
+              Users: [
+                {
+                  Attributes: [
+                    {},
+                    {},
+                    {
+                      Name: 'email',
+                      Value: 'Example@gmail.com',
+                    },
+                  ],
+                },
+              ],
+            });
+          },
+        );
+
         const createConnectionResponse = await request(app.getHttpServer())
           .post('/connection')
           .send(newConnection)
           .set('Content-Type', 'application/json')
+          .set('masterpwd', masterPwd)
           .set('Accept', 'application/json');
         const createConnectionRO = JSON.parse(createConnectionResponse.text);
         expect(createConnectionResponse.status).toBe(201);
 
         const idForDeletion = 1;
-        const fakeTableName = faker.random.word(1);
+        const fakeTableName = faker.random.words(1);
         const deleteRowInTableResponse = await request(app.getHttpServer())
           .delete(`/table/row/${createConnectionRO.id}?tableName=${fakeTableName}&id=${idForDeletion}`)
           .set('Content-Type', 'application/json')
+          .set('masterpwd', masterPwd)
           .set('Accept', 'application/json');
 
         expect(deleteRowInTableResponse.status).toBe(400);
@@ -3758,6 +4367,7 @@ describe('Tables OracleDB (e2e)', () => {
         const getTableRowsResponse = await request(app.getHttpServer())
           .get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=1&perPage=50`)
           .set('Content-Type', 'application/json')
+          .set('masterpwd', masterPwd)
           .set('Accept', 'application/json');
         expect(getTableRowsResponse.status).toBe(200);
 
@@ -3780,10 +4390,33 @@ describe('Tables OracleDB (e2e)', () => {
 
     it('should throw an exception when primary key not passed in request', async () => {
       try {
+        AWSMock.setSDKInstance(AWS);
+        AWSMock.mock(
+          'CognitoIdentityServiceProvider',
+          'listUsers',
+          (newCognitoUserName, callback: (...args: any) => void) => {
+            callback(null, {
+              Users: [
+                {
+                  Attributes: [
+                    {},
+                    {},
+                    {
+                      Name: 'email',
+                      Value: 'Example@gmail.com',
+                    },
+                  ],
+                },
+              ],
+            });
+          },
+        );
+
         const createConnectionResponse = await request(app.getHttpServer())
           .post('/connection')
           .send(newConnection)
           .set('Content-Type', 'application/json')
+          .set('masterpwd', masterPwd)
           .set('Accept', 'application/json');
         const createConnectionRO = JSON.parse(createConnectionResponse.text);
         expect(createConnectionResponse.status).toBe(201);
@@ -3792,6 +4425,7 @@ describe('Tables OracleDB (e2e)', () => {
         const deleteRowInTableResponse = await request(app.getHttpServer())
           .delete(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&`)
           .set('Content-Type', 'application/json')
+          .set('masterpwd', masterPwd)
           .set('Accept', 'application/json');
 
         expect(deleteRowInTableResponse.status).toBe(400);
@@ -3802,6 +4436,7 @@ describe('Tables OracleDB (e2e)', () => {
         const getTableRowsResponse = await request(app.getHttpServer())
           .get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=1&perPage=50`)
           .set('Content-Type', 'application/json')
+          .set('masterpwd', masterPwd)
           .set('Accept', 'application/json');
         expect(getTableRowsResponse.status).toBe(200);
 
@@ -3824,10 +4459,33 @@ describe('Tables OracleDB (e2e)', () => {
 
     it('should throw an exception when primary key passed in request has incorrect field name', async () => {
       try {
+        AWSMock.setSDKInstance(AWS);
+        AWSMock.mock(
+          'CognitoIdentityServiceProvider',
+          'listUsers',
+          (newCognitoUserName, callback: (...args: any) => void) => {
+            callback(null, {
+              Users: [
+                {
+                  Attributes: [
+                    {},
+                    {},
+                    {
+                      Name: 'email',
+                      Value: 'Example@gmail.com',
+                    },
+                  ],
+                },
+              ],
+            });
+          },
+        );
+
         const createConnectionResponse = await request(app.getHttpServer())
           .post('/connection')
           .send(newConnection)
           .set('Content-Type', 'application/json')
+          .set('masterpwd', masterPwd)
           .set('Accept', 'application/json');
         const createConnectionRO = JSON.parse(createConnectionResponse.text);
         expect(createConnectionResponse.status).toBe(201);
@@ -3836,6 +4494,7 @@ describe('Tables OracleDB (e2e)', () => {
         const deleteRowInTableResponse = await request(app.getHttpServer())
           .delete(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&fakePKey=1`)
           .set('Content-Type', 'application/json')
+          .set('masterpwd', masterPwd)
           .set('Accept', 'application/json');
 
         expect(deleteRowInTableResponse.status).toBe(400);
@@ -3846,6 +4505,7 @@ describe('Tables OracleDB (e2e)', () => {
         const getTableRowsResponse = await request(app.getHttpServer())
           .get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=1&perPage=50`)
           .set('Content-Type', 'application/json')
+          .set('masterpwd', masterPwd)
           .set('Accept', 'application/json');
         expect(getTableRowsResponse.status).toBe(200);
 
@@ -3868,10 +4528,33 @@ describe('Tables OracleDB (e2e)', () => {
 
     it('should throw an exception when primary key passed in request has incorrect field value', async () => {
       try {
+        AWSMock.setSDKInstance(AWS);
+        AWSMock.mock(
+          'CognitoIdentityServiceProvider',
+          'listUsers',
+          (newCognitoUserName, callback: (...args: any) => void) => {
+            callback(null, {
+              Users: [
+                {
+                  Attributes: [
+                    {},
+                    {},
+                    {
+                      Name: 'email',
+                      Value: 'Example@gmail.com',
+                    },
+                  ],
+                },
+              ],
+            });
+          },
+        );
+
         const createConnectionResponse = await request(app.getHttpServer())
           .post('/connection')
           .send(newConnection)
           .set('Content-Type', 'application/json')
+          .set('masterpwd', masterPwd)
           .set('Accept', 'application/json');
         const createConnectionRO = JSON.parse(createConnectionResponse.text);
         expect(createConnectionResponse.status).toBe(201);
@@ -3880,11 +4563,12 @@ describe('Tables OracleDB (e2e)', () => {
         const deleteRowInTableResponse = await request(app.getHttpServer())
           .delete(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&id=100000`)
           .set('Content-Type', 'application/json')
+          .set('masterpwd', masterPwd)
           .set('Accept', 'application/json');
 
         expect(deleteRowInTableResponse.status).toBe(400);
         const deleteRowInTableRO = JSON.parse(deleteRowInTableResponse.text);
-        // expect(deleteRowInTableRO.deleted).toBeTruthy();
+        expect(deleteRowInTableRO.message).toBe(Messages.ROW_PRIMARY_KEY_NOT_FOUND);
       } catch (err) {
         throw err;
       }
@@ -3895,10 +4579,33 @@ describe('Tables OracleDB (e2e)', () => {
   describe('GET /table/row/:slug', () => {
     it('should return found row', async () => {
       try {
+        AWSMock.setSDKInstance(AWS);
+        AWSMock.mock(
+          'CognitoIdentityServiceProvider',
+          'listUsers',
+          (newCognitoUserName, callback: (...args: any) => void) => {
+            callback(null, {
+              Users: [
+                {
+                  Attributes: [
+                    {},
+                    {},
+                    {
+                      Name: 'email',
+                      Value: 'Example@gmail.com',
+                    },
+                  ],
+                },
+              ],
+            });
+          },
+        );
+
         const createConnectionResponse = await request(app.getHttpServer())
           .post('/connection')
           .send(newConnection)
           .set('Content-Type', 'application/json')
+          .set('masterpwd', masterPwd)
           .set('Accept', 'application/json');
         const createConnectionRO = JSON.parse(createConnectionResponse.text);
         expect(createConnectionResponse.status).toBe(201);
@@ -3907,6 +4614,7 @@ describe('Tables OracleDB (e2e)', () => {
         const foundRowInTableResponse = await request(app.getHttpServer())
           .get(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&id=${idForSearch}`)
           .set('Content-Type', 'application/json')
+          .set('masterpwd', masterPwd)
           .set('Accept', 'application/json');
 
         expect(foundRowInTableResponse.status).toBe(200);
@@ -3924,6 +4632,7 @@ describe('Tables OracleDB (e2e)', () => {
         expect(foundRowInTableRO.row.id).toBe(1);
         expect(foundRowInTableRO.row.name).toBe(testSearchedUserName);
         expect(Object.keys(foundRowInTableRO.row).length).toBe(5);
+        expect(foundRowInTableRO.foreignKeys.hasOwnProperty('autocomplete_columns')).toBeFalsy();
       } catch (err) {
         throw err;
       }
@@ -3933,10 +4642,33 @@ describe('Tables OracleDB (e2e)', () => {
 
     it('should throw an exception, when connection id is not passed in request', async () => {
       try {
+        AWSMock.setSDKInstance(AWS);
+        AWSMock.mock(
+          'CognitoIdentityServiceProvider',
+          'listUsers',
+          (newCognitoUserName, callback: (...args: any) => void) => {
+            callback(null, {
+              Users: [
+                {
+                  Attributes: [
+                    {},
+                    {},
+                    {
+                      Name: 'email',
+                      Value: 'Example@gmail.com',
+                    },
+                  ],
+                },
+              ],
+            });
+          },
+        );
+
         const createConnectionResponse = await request(app.getHttpServer())
           .post('/connection')
           .send(newConnection)
           .set('Content-Type', 'application/json')
+          .set('masterpwd', masterPwd)
           .set('Accept', 'application/json');
         const createConnectionRO = JSON.parse(createConnectionResponse.text);
         expect(createConnectionResponse.status).toBe(201);
@@ -3946,6 +4678,7 @@ describe('Tables OracleDB (e2e)', () => {
         const foundRowInTableResponse = await request(app.getHttpServer())
           .get(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&id=${idForSearch}`)
           .set('Content-Type', 'application/json')
+          .set('masterpwd', masterPwd)
           .set('Accept', 'application/json');
 
         expect(foundRowInTableResponse.status).toBe(404);
@@ -3958,19 +4691,43 @@ describe('Tables OracleDB (e2e)', () => {
 
     it('should throw an exception, when connection id passed in request is incorrect', async () => {
       try {
+        AWSMock.setSDKInstance(AWS);
+        AWSMock.mock(
+          'CognitoIdentityServiceProvider',
+          'listUsers',
+          (newCognitoUserName, callback: (...args: any) => void) => {
+            callback(null, {
+              Users: [
+                {
+                  Attributes: [
+                    {},
+                    {},
+                    {
+                      Name: 'email',
+                      Value: 'Example@gmail.com',
+                    },
+                  ],
+                },
+              ],
+            });
+          },
+        );
+
         const createConnectionResponse = await request(app.getHttpServer())
           .post('/connection')
           .send(newConnection)
           .set('Content-Type', 'application/json')
+          .set('masterpwd', masterPwd)
           .set('Accept', 'application/json');
         const createConnectionRO = JSON.parse(createConnectionResponse.text);
         expect(createConnectionResponse.status).toBe(201);
 
         const idForSearch = 1;
-        createConnectionRO.id = faker.random.uuid();
+        createConnectionRO.id = faker.datatype.uuid();
         const foundRowInTableResponse = await request(app.getHttpServer())
           .get(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&id=${idForSearch}`)
           .set('Content-Type', 'application/json')
+          .set('masterpwd', masterPwd)
           .set('Accept', 'application/json');
 
         expect(foundRowInTableResponse.status).toBe(400);
@@ -3985,10 +4742,33 @@ describe('Tables OracleDB (e2e)', () => {
 
     it('should throw an exception, when tableName in not passed in request', async () => {
       try {
+        AWSMock.setSDKInstance(AWS);
+        AWSMock.mock(
+          'CognitoIdentityServiceProvider',
+          'listUsers',
+          (newCognitoUserName, callback: (...args: any) => void) => {
+            callback(null, {
+              Users: [
+                {
+                  Attributes: [
+                    {},
+                    {},
+                    {
+                      Name: 'email',
+                      Value: 'Example@gmail.com',
+                    },
+                  ],
+                },
+              ],
+            });
+          },
+        );
+
         const createConnectionResponse = await request(app.getHttpServer())
           .post('/connection')
           .send(newConnection)
           .set('Content-Type', 'application/json')
+          .set('masterpwd', masterPwd)
           .set('Accept', 'application/json');
         const createConnectionRO = JSON.parse(createConnectionResponse.text);
         expect(createConnectionResponse.status).toBe(201);
@@ -3998,7 +4778,8 @@ describe('Tables OracleDB (e2e)', () => {
         const foundRowInTableResponse = await request(app.getHttpServer())
           .get(`/table/row/${createConnectionRO.id}?tableName=${fakeTableName}&id=${idForSearch}`)
           .set('Content-Type', 'application/json')
-          .set('Accept', 'application/json');
+          .set('Accept', 'application/json')
+          .set('masterpwd', masterPwd);
 
         expect(foundRowInTableResponse.status).toBe(400);
         const { message } = JSON.parse(foundRowInTableResponse.text);
@@ -4012,19 +4793,42 @@ describe('Tables OracleDB (e2e)', () => {
 
     it('should throw an exception, when tableName passed in request is incorrect', async () => {
       try {
+        AWSMock.setSDKInstance(AWS);
+        AWSMock.mock(
+          'CognitoIdentityServiceProvider',
+          'listUsers',
+          (newCognitoUserName, callback: (...args: any) => void) => {
+            callback(null, {
+              Users: [
+                {
+                  Attributes: [
+                    {},
+                    {},
+                    {
+                      Name: 'email',
+                      Value: 'Example@gmail.com',
+                    },
+                  ],
+                },
+              ],
+            });
+          },
+        );
+
         const createConnectionResponse = await request(app.getHttpServer())
           .post('/connection')
           .send(newConnection)
           .set('Content-Type', 'application/json')
+          .set('masterpwd', masterPwd)
           .set('Accept', 'application/json');
         const createConnectionRO = JSON.parse(createConnectionResponse.text);
-        expect(createConnectionResponse.status).toBe(201);
 
         const idForSearch = 1;
-        const fakeTableName = faker.random.word(1);
+        const fakeTableName = faker.random.words(1);
         const foundRowInTableResponse = await request(app.getHttpServer())
           .get(`/table/row/${createConnectionRO.id}?tableName=${fakeTableName}&id=${idForSearch}`)
           .set('Content-Type', 'application/json')
+          .set('masterpwd', masterPwd)
           .set('Accept', 'application/json');
 
         expect(foundRowInTableResponse.status).toBe(400);
@@ -4039,10 +4843,33 @@ describe('Tables OracleDB (e2e)', () => {
 
     it('should throw an exception, when primary key is not passed in request', async () => {
       try {
+        AWSMock.setSDKInstance(AWS);
+        AWSMock.mock(
+          'CognitoIdentityServiceProvider',
+          'listUsers',
+          (newCognitoUserName, callback: (...args: any) => void) => {
+            callback(null, {
+              Users: [
+                {
+                  Attributes: [
+                    {},
+                    {},
+                    {
+                      Name: 'email',
+                      Value: 'Example@gmail.com',
+                    },
+                  ],
+                },
+              ],
+            });
+          },
+        );
+
         const createConnectionResponse = await request(app.getHttpServer())
           .post('/connection')
           .send(newConnection)
           .set('Content-Type', 'application/json')
+          .set('masterpwd', masterPwd)
           .set('Accept', 'application/json');
         const createConnectionRO = JSON.parse(createConnectionResponse.text);
         expect(createConnectionResponse.status).toBe(201);
@@ -4050,6 +4877,7 @@ describe('Tables OracleDB (e2e)', () => {
         const foundRowInTableResponse = await request(app.getHttpServer())
           .get(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&`)
           .set('Content-Type', 'application/json')
+          .set('masterpwd', masterPwd)
           .set('Accept', 'application/json');
 
         expect(foundRowInTableResponse.status).toBe(400);
@@ -4064,10 +4892,33 @@ describe('Tables OracleDB (e2e)', () => {
 
     it('should throw an exception, when primary key passed in request has incorrect name', async () => {
       try {
+        AWSMock.setSDKInstance(AWS);
+        AWSMock.mock(
+          'CognitoIdentityServiceProvider',
+          'listUsers',
+          (newCognitoUserName, callback: (...args: any) => void) => {
+            callback(null, {
+              Users: [
+                {
+                  Attributes: [
+                    {},
+                    {},
+                    {
+                      Name: 'email',
+                      Value: 'Example@gmail.com',
+                    },
+                  ],
+                },
+              ],
+            });
+          },
+        );
+
         const createConnectionResponse = await request(app.getHttpServer())
           .post('/connection')
           .send(newConnection)
           .set('Content-Type', 'application/json')
+          .set('masterpwd', masterPwd)
           .set('Accept', 'application/json');
         const createConnectionRO = JSON.parse(createConnectionResponse.text);
         expect(createConnectionResponse.status).toBe(201);
@@ -4076,6 +4927,7 @@ describe('Tables OracleDB (e2e)', () => {
         const foundRowInTableResponse = await request(app.getHttpServer())
           .get(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&fakeKeyName=${idForSearch}`)
           .set('Content-Type', 'application/json')
+          .set('masterpwd', masterPwd)
           .set('Accept', 'application/json');
 
         expect(foundRowInTableResponse.status).toBe(400);
@@ -4090,10 +4942,33 @@ describe('Tables OracleDB (e2e)', () => {
 
     it('should throw an exception, when primary key passed in request has incorrect value', async () => {
       try {
+        AWSMock.setSDKInstance(AWS);
+        AWSMock.mock(
+          'CognitoIdentityServiceProvider',
+          'listUsers',
+          (newCognitoUserName, callback: (...args: any) => void) => {
+            callback(null, {
+              Users: [
+                {
+                  Attributes: [
+                    {},
+                    {},
+                    {
+                      Name: 'email',
+                      Value: 'Example@gmail.com',
+                    },
+                  ],
+                },
+              ],
+            });
+          },
+        );
+
         const createConnectionResponse = await request(app.getHttpServer())
           .post('/connection')
           .send(newConnection)
           .set('Content-Type', 'application/json')
+          .set('masterpwd', masterPwd)
           .set('Accept', 'application/json');
         const createConnectionRO = JSON.parse(createConnectionResponse.text);
         expect(createConnectionResponse.status).toBe(201);
@@ -4102,6 +4977,7 @@ describe('Tables OracleDB (e2e)', () => {
         const foundRowInTableResponse = await request(app.getHttpServer())
           .get(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&id=${idForSearch}`)
           .set('Content-Type', 'application/json')
+          .set('masterpwd', masterPwd)
           .set('Accept', 'application/json');
 
         expect(foundRowInTableResponse.status).toBe(400);

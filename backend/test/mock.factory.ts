@@ -1,4 +1,4 @@
-import * as faker from 'faker';
+import { faker } from '@faker-js/faker';
 import * as jwt from 'jsonwebtoken';
 import {
   AccessLevelEnum,
@@ -687,7 +687,7 @@ export class MockFactory {
 
   public static generateCreateGroupDtoWithRandomTitle(words = 1) {
     const dto = new CreateGroupDto();
-    dto.title = faker.random.word(words);
+    dto.title = faker.random.words(words);
     return dto;
   }
 

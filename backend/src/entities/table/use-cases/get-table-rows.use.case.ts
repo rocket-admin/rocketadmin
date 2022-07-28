@@ -75,12 +75,7 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
       const filteringFields = findFilteringFieldsUtil(query, tableStructure);
       const orderingField = findOrderingFieldUtil(query, tableStructure, tableSettings);
 
-      const configured: boolean = !!tableSettings;
-
-      if (orderingField) {
-        tableSettings.ordering_field = orderingField.field;
-        tableSettings.ordering = orderingField.value;
-      }
+      const configured = !!tableSettings;
 
       let autocompleteFields = undefined;
       const autocomplete = query['autocomplete'];
@@ -91,6 +86,11 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
       }
       //todo rework in daos
       tableSettings = tableSettings ? tableSettings : ({} as TableSettingsEntity);
+
+      if (orderingField) {
+        tableSettings.ordering_field = orderingField.field;
+        tableSettings.ordering = orderingField.value;
+      }
 
       let rows = await dao.getRowsFromTable(
         tableName,
@@ -195,6 +195,7 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
           const newFKeyObj = {};
           if (foundIdentityForCurrentValue) {
             for (const key of Object.keys(foundIdentityForCurrentValue)) {
+              // eslint-disable-next-line security/detect-object-injection
               newFKeyObj[key] = foundIdentityForCurrentValue[key];
             }
           }

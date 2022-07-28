@@ -1,19 +1,19 @@
 import * as AWS from 'aws-sdk';
 import * as AWSMock from 'aws-sdk-mock';
-import * as faker from 'faker';
+import { faker } from '@faker-js/faker';
 import * as request from 'supertest';
 
-import { ApplicationModule } from '../src/app.module';
+import { ApplicationModule } from '../../src/app.module';
 import { Connection } from 'typeorm';
-import { DatabaseModule } from '../src/shared/database/database.module';
-import { DatabaseService } from '../src/shared/database/database.service';
+import { DatabaseModule } from '../../src/shared/database/database.module';
+import { DatabaseService } from '../../src/shared/database/database.service';
 import { INestApplication } from '@nestjs/common';
-import { Messages } from '../src/exceptions/text/messages';
-import { MockFactory } from './mock.factory';
-import { QueryOrderingEnum } from '../src/enums';
+import { Messages } from '../../src/exceptions/text/messages';
+import { MockFactory } from '../mock.factory';
+import { QueryOrderingEnum } from '../../src/enums';
 import { Test } from '@nestjs/testing';
-import { TestUtils } from './utils/test.utils';
-import { Cacher } from '../src/helpers/cache/cacher';
+import { TestUtils } from '../utils/test.utils';
+import { Cacher } from '../../src/helpers/cache/cacher';
 
 describe('Table settings (e2e)', () => {
   jest.setTimeout(10000);
@@ -120,7 +120,7 @@ describe('Table settings (e2e)', () => {
           .set('Content-Type', 'application/json')
           .set('Accept', 'application/json');
         const connectionId = '';
-        const tableName = faker.random.word();
+        const tableName = faker.random.words();
         const findSettingsResponce = await request(app.getHttpServer())
           .get(`/settings/?connectionId=${connectionId}&tableName=${tableName}`)
           .set('Content-Type', 'application/json')
@@ -142,7 +142,7 @@ describe('Table settings (e2e)', () => {
           .set('Content-Type', 'application/json')
           .set('Accept', 'application/json');
         const connectionId = JSON.parse(createdConnection.text).id;
-        const tableName = faker.random.word();
+        const tableName = faker.random.words();
         const findSettingsResponce = await request(app.getHttpServer())
           .get(`/settings/?connectionId=${connectionId}&tableName=${tableName}`)
           .set('Content-Type', 'application/json')
@@ -335,7 +335,7 @@ describe('Table settings (e2e)', () => {
           undefined,
         );
 
-        const tableName = faker.random.word(1);
+        const tableName = faker.random.words(1);
         const createTableSettingsResponse = await request(app.getHttpServer())
           .post(`/settings?connectionId=${connectionId}&tableName=${tableName}`)
           .send(createTableSettingsDTO)
