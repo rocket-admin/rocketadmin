@@ -27,8 +27,8 @@
     <app-banner *ngIf="errorMessage" type="error" class="audit-banner">
         <p class="mat-body-1 error-message">{{errorMessage}}</p>
         <div class="error-actions">
-            <a mat-button routerLink="/edit-db/{{connectionID}}">Connection settings</a>
-            <a mat-button routerLink="/connections-list">Connections list</a>
+            <a mat-stroked-button routerLink="/edit-db/{{connectionID}}">Connection settings</a>
+            <a mat-stroked-button routerLink="/connections-list">Connections list</a>
         </div>
     </app-banner>
 

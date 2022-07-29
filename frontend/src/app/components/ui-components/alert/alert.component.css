@@ -3,41 +3,32 @@
     top: 0;
     display: flex;
     align-items: center;
-    background-color: var(--bg-color);
-    color: var(--text-color);
+    background-color: #F5F5F5;
+    border-left: 4px solid var(--alert-theme-color);
     margin-bottom: 8px;
     padding: 12px 16px;
     z-index: 1;
 }
 
 .alert_error {
-    --bg-color: rgb(253, 237, 237);
-    --text-color: rgb(95, 33, 32);
-    --icon-color: #ef5350;
-
+    --alert-theme-color: #E53935;
     z-index: 2;
 }
 
 .alert_warning {
-    --bg-color: rgb(255, 244, 229);
-    --text-color: rgb(102, 60, 0);
-    --icon-color: #ff9800;
+    --alert-theme-color: #F9A825;
 }
 
 .alert_info {
-    --bg-color: rgb(229, 246, 253);
-    --text-color: rgb(1, 67, 97);
-    --icon-color: #03a9f4;
+    --alert-theme-color: #3258f0;
 }
 
 .alert_success {
-    --bg-color: rgb(237, 247, 237);
-    --text-color: rgb(30, 70, 32);
-    --icon-color: rgb(76, 175, 80);
+    --alert-theme-color: #43A047;
 }
 
 .alert__icon {
-    color: var(--icon-color);
+    color: var(--alert-theme-color);
     margin-right: 12px;
     font-size: 22px;
     opacity: 0.9;
