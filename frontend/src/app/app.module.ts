@@ -1,6 +1,6 @@
 import * as Sentry from "@sentry/angular";
 
-import { APP_INITIALIZER, ErrorHandler, NgModule } from '@angular/core';
+import { APP_INITIALIZER, ErrorHandler, NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { Router, RouterModule } from '@angular/router';
@@ -217,6 +217,9 @@ const saasExtraProviders = (environment as any).saas ? [
     // ...saasExtraModules,
     ConfigModule.buildForConfigUrl('/config.json')
   ],
-  bootstrap: [AppComponent]
+  bootstrap: [AppComponent],
+  schemas: [
+    CUSTOM_ELEMENTS_SCHEMA
+  ]
 })
 export class AppModule { }
