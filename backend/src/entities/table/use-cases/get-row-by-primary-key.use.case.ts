@@ -16,6 +16,7 @@ import {
 import { removePasswordsFromRowsUtil } from '../utils/remove-password-from-row.util';
 import { formFullTableStructure } from '../utils/form-full-table-structure';
 import { IGetRowByPrimaryKey } from './table-use-cases.interface';
+import { convertBinaryDataInRowUtil } from '../utils/convert-binary-data-in-row.util';
 
 @Injectable({ scope: Scope.REQUEST })
 export class GetRowByPrimaryKeyUseCase
@@ -57,6 +58,7 @@ export class GetRowByPrimaryKeyUseCase
       userEmail = await this._dbContext.userRepository.getUserEmailOrReturnNull(userId);
     }
 
+    // eslint-disable-next-line prefer-const
     let [tableStructure, tableWidgets, tableSettings, tableForeignKeys, tablePrimaryKeys] = await Promise.all([
       dao.getTableStructure(tableName, userEmail),
       this._dbContext.tableWidgetsRepository.findTableWidgets(connectionId, tableName),
@@ -112,6 +114,7 @@ export class GetRowByPrimaryKeyUseCase
       );
     }
     rowData = removePasswordsFromRowsUtil(rowData, tableWidgets);
+    rowData = convertBinaryDataInRowUtil(rowData, tableStructure);
     const formedTableStructure = formFullTableStructure(tableStructure, tableSettings);
     return {
       row: rowData,
