@@ -17,6 +17,7 @@ import { removePasswordsFromRowsUtil } from '../utils/remove-password-from-row.u
 import { formFullTableStructure } from '../utils/form-full-table-structure';
 import { IGetRowByPrimaryKey } from './table-use-cases.interface';
 import { convertBinaryDataInRowUtil } from '../utils/convert-binary-data-in-row.util';
+import { convertHexDataInPrimaryKeyUtil } from '../utils/convert-hex-data-in-primary-key.util';
 
 @Injectable({ scope: Scope.REQUEST })
 export class GetRowByPrimaryKeyUseCase
@@ -31,7 +32,8 @@ export class GetRowByPrimaryKeyUseCase
   }
 
   protected async implementation(inputData: GetRowByPrimaryKeyDs): Promise<ITableRowRO> {
-    const { connectionId, masterPwd, primaryKey, tableName, userId } = inputData;
+    // eslint-disable-next-line prefer-const
+    let { connectionId, masterPwd, primaryKey, tableName, userId } = inputData;
     if (!primaryKey) {
       throw new HttpException(
         {
@@ -66,7 +68,7 @@ export class GetRowByPrimaryKeyUseCase
       dao.getTableForeignKeys(tableName, userEmail),
       dao.getTablePrimaryColumns(tableName, userEmail),
     ]);
-
+    primaryKey = convertHexDataInPrimaryKeyUtil(primaryKey, tableStructure);
     const availablePrimaryColumns: Array<string> = tablePrimaryKeys.map((column) => column.column_name);
     for (const key in primaryKey) {
       // eslint-disable-next-line security/detect-object-injection
