@@ -164,8 +164,10 @@ export class DbTableRowEditComponent implements OnInit {
     //crutch
     if (this._connections.currentConnection.type === DBtype.MySQL) {
       const datetimeFields = Object.entries(this.tableTypes).filter(([key, value]) => value === 'datetime');
-      for (const datetimeField of datetimeFields) {
-        this.tableRowValues[datetimeField[0]] = this.tableRowValues[datetimeField[0]].split('.')[0];
+      if (datetimeFields.length) {
+        for (const datetimeField of datetimeFields) {
+          if (this.tableRowValues[datetimeField[0]]) this.tableRowValues[datetimeField[0]] = this.tableRowValues[datetimeField[0]].split('.')[0];
+        }
       }
     }
     //end crutch
@@ -198,8 +200,10 @@ export class DbTableRowEditComponent implements OnInit {
       if (this._connections.currentConnection.type === DBtype.MySQL) {
         const datetimeFields = Object.entries(this.tableTypes)
           .filter(([key, value]) => value === 'datetime');
-        for (const datetimeField of datetimeFields) {
-          this.tableRowValues[datetimeField[0]] = this.tableRowValues[datetimeField[0]].split('.')[0];
+        if (datetimeFields.length) {
+          for (const datetimeField of datetimeFields) {
+            if (this.tableRowValues[datetimeField[0]]) this.tableRowValues[datetimeField[0]] = this.tableRowValues[datetimeField[0]].split('.')[0];
+          }
         }
       }
     //end crutch
