@@ -121,9 +121,7 @@ describe('User (e2e)', () => {
           .set('Cookie', connectionAdminUserToken)
           .set('Content-Type', 'application/json')
           .set('Accept', 'application/json');
-        const getUserRO = JSON.parse(getUserResult.text);
-        expect(getUserResult.status).toBe(200);
-        expect(getUserRO.id !== registerAdminRO.id);
+        expect(getUserResult.status).toBe(401);
       } catch (err) {
         throw err;
       }
