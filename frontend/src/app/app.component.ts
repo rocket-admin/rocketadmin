@@ -12,6 +12,7 @@ import { UserService } from './services/user.service';
 import amplitude from 'amplitude-js';
 import { differenceInMilliseconds } from 'date-fns';
 import { normalizeTableName } from './lib/normalize';
+import { environment } from '../environments/environment';
 
 //@ts-ignore
 window.amplitude = amplitude;
@@ -39,6 +40,7 @@ export class AppComponent {
   navigationTabs: object;
   currentUser;
   normalizedTableName;
+  upgradeButtonShown: Boolean = true;
 
   // connectionID: string;
 
@@ -81,6 +83,7 @@ export class AppComponent {
   }
 
   ngOnInit() {
+    this.upgradeButtonShown = (environment as any).saas;
 
     this.navigationTabs = {
       'dashboard': {

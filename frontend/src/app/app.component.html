@@ -66,7 +66,7 @@
             </button>
 
             <div *ngIf="userLoggedIn === true" class="actions actions_auth">
-                <a routerLink="/upgrade" mat-flat-button
+                <a *ngIf="upgradeButtonShown" routerLink="/upgrade" mat-flat-button
                     routerLinkActive="mat-accent" class="nav-bar__upgrade-button">
                     Upgrade
                 </a>
