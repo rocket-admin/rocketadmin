@@ -7,11 +7,12 @@ import { ApplicationModule } from '../../src/app.module';
 import { DatabaseModule } from '../../src/shared/database/database.module';
 import { DatabaseService } from '../../src/shared/database/database.service';
 import * as cookieParser from 'cookie-parser';
-import { knex } from 'knex';
 import { faker } from '@faker-js/faker';
 import { Connection } from 'typeorm';
 import * as request from 'supertest';
 import { Constants } from '../../src/helpers/constants/constants';
+import { getTestKnex } from '../utils/get-test-knex';
+import { dropTestTables } from '../utils/drop-test-tables';
 
 const mockFactory = new MockFactory();
 let app: INestApplication;
@@ -23,12 +24,12 @@ const testTableColumnName = 'name';
 const testTAbleSecondColumnName = 'email';
 const testSearchedUserName = 'Vasia';
 const testEntitiesSeedsCount = 42;
+const testTables: Array<string> = [];
 let currentTest;
 
 const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 test.before(async () => {
-  newConnectionProperties = mockFactory.generateConnectionPropertiesUserExcluded();
   const moduleFixture = await Test.createTestingModule({
     imports: [ApplicationModule, DatabaseModule],
     providers: [DatabaseService, TestUtils],
@@ -42,19 +43,7 @@ test.before(async () => {
 });
 
 async function resetPostgresTestDB(testTableName) {
-  const { host, username, password, database, port, type, ssl, cert } =
-    mockFactory.generateConnectionToTestPostgresDBInDocker();
-  const Knex = knex({
-    client: type,
-    connection: {
-      host: host,
-      user: username,
-      password: password,
-      database: database,
-      port: port,
-    },
-  });
-  await Knex.schema.dropTableIfExists(testTableName);
+  const Knex = getTestKnex(mockFactory.generateConnectionToTestPostgresDBInDocker());
   await Knex.schema.createTableIfNotExists(testTableName, function (table) {
     table.increments();
     table.string(testTableColumnName);
@@ -79,26 +68,12 @@ async function resetPostgresTestDB(testTableName) {
       });
     }
   }
-  await Knex.destroy();
-}
-async function dropTableInDatabase(tableName: string): Promise<void> {
-  const { host, username, password, database, port, type, ssl, cert } =
-    mockFactory.generateConnectionToTestPostgresDBInDocker();
-  const Knex = knex({
-    client: type,
-    connection: {
-      host: host,
-      user: username,
-      password: password,
-      database: database,
-      port: port,
-    },
-  });
-  await Knex.schema.dropTableIfExists(tableName);
 }
 
 test.beforeEach(async (t) => {
   testTableName = faker.random.words(1);
+  testTables.push(testTableName);
+  newConnectionProperties = mockFactory.generateConnectionPropertiesUserExcluded(testTableName);
   await resetPostgresTestDB(testTableName);
 });
 
@@ -109,6 +84,10 @@ test.after.always('Close app connection', async () => {
     await connect.close();
   }
   await app.close();
+});
+
+test.after('cleanup', async (t) => {
+  await dropTestTables(testTables, mockFactory.generateConnectionToTestPostgresDBInDocker());
 });
 
 type RegisterUserData = {
@@ -241,7 +220,6 @@ test(`${currentTest} should throw an exception when excluded table name is incor
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
     const createConnectionPropertiesRO = JSON.parse(createConnectionPropertiesResponse.text);
-    console.log('-> createConnectionPropertiesRO', createConnectionPropertiesRO);
     t.is(createConnectionPropertiesResponse.status, 400);
   } catch (e) {
     throw e;
@@ -280,7 +258,7 @@ test(`${currentTest} should return connection properties`, async (t) => {
     const getConnectionPropertiesRO = JSON.parse(getConnectionPropertiesResponse.text);
     t.is(getConnectionPropertiesRO.hidden_tables[0], newConnectionProperties.hidden_tables[0]);
     t.is(getConnectionPropertiesRO.connectionId, createConnectionRO.id);
-    t.is(uuidRegex.test(getConnectionPropertiesRO.id), false);
+    t.is(uuidRegex.test(getConnectionPropertiesRO.id), true);
   } catch (e) {
     throw e;
   }
@@ -371,7 +349,6 @@ test(`${currentTest} should return deleted connection properties`, async (t) => 
       .set('Accept', 'application/json');
     t.is(createConnectionPropertiesResponse.status, 201);
     const getConnectionPropertiesAfterDeletionRO = getConnectionPropertiesResponseAfterDeletion.text;
-    console.log('-> getConnectionPropertiesAfterDeletionRO', getConnectionPropertiesAfterDeletionRO);
     //todo check
     // t.is(JSON.stringify(getConnectionPropertiesAfterDeletionRO)).toBe(null);
   } catch (e) {
