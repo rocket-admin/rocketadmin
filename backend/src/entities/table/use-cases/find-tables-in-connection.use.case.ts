@@ -60,7 +60,7 @@ export class FindTablesInConnectionUseCase
       );
     } finally {
       if (!connection.isTestConnection) {
-        Logger.log({
+        Logger.logInfo({
           tables: tables,
           connectionId: connectionId,
           connectionType: connection.type,
