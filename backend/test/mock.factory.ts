@@ -691,9 +691,10 @@ export class MockFactory {
     return dto;
   }
 
-  public generateConnectionPropertiesUserExcluded(): CreateConnectionPropertiesDto {
+  public generateConnectionPropertiesUserExcluded(tableName: string = null): CreateConnectionPropertiesDto {
+    tableName = tableName || 'users';
     return {
-      hidden_tables: ['users'],
+      hidden_tables: [tableName],
     };
   }
 }
