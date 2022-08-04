@@ -71,11 +71,12 @@ export class DataAccessObjectMysql extends BasicDao implements IDataAccessObject
     await knex.raw('SET SQL_SAFE_UPDATES = 1;');
     if (primaryColumns?.length > 0) {
       const primaryKeys = primaryColumns.map((column) => column.column_name);
-      if (!checkFieldAutoincrement(primaryKeyStructure.column_default)) {
+      if (!checkFieldAutoincrement(primaryKeyStructure.column_default, primaryKeyStructure.extra)) {
         try {
           await knex(tableName).insert(row);
           const resultsArray = [];
           for (let i = 0; i < primaryKeys.length; i++) {
+            // eslint-disable-next-line security/detect-object-injection
             resultsArray.push([primaryKeys[i], row[primaryKeys[i]]]);
           }
           return Object.fromEntries(resultsArray);
@@ -351,7 +352,15 @@ export class DataAccessObjectMysql extends BasicDao implements IDataAccessObject
     }
     const knex = await this.configureKnex();
     const structureColumns = await knex('information_schema.columns')
-      .select('column_name', 'column_default', 'data_type', 'column_type', 'is_nullable', 'character_maximum_length')
+      .select(
+        'column_name',
+        'column_default',
+        'data_type',
+        'column_type',
+        'is_nullable',
+        'character_maximum_length',
+        'extra',
+      )
       .orderBy('ordinal_position')
       .where({
         table_schema: this.connection.database,

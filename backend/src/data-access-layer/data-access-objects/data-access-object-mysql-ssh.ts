@@ -75,7 +75,7 @@ export class DataAccessObjectMysqlSsh implements IDataAccessObject {
     await knex.raw('SET SQL_SAFE_UPDATES = 1;').connection(mySqlDriver);
     if (primaryColumns?.length > 0) {
       const primaryKeys = primaryColumns.map((column) => column.column_name);
-      if (!checkFieldAutoincrement(primaryKeyStructure.column_default)) {
+      if (!checkFieldAutoincrement(primaryKeyStructure.column_default, primaryKeyStructure.extra)) {
         try {
           await knex(tableName).connection(mySqlDriver).insert(row);
           const resultsArray = [];

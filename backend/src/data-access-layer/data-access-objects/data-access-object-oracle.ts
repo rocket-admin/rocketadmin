@@ -56,7 +56,7 @@ export class DataAccessObjectOracle implements IDataAccessObject {
     let result;
     tableName = this.attachSchemaNameToTableName(tableName);
     if (primaryColumns?.length > 0) {
-      if (checkFieldAutoincrement(primaryKeyStructure.column_default)) {
+      if (checkFieldAutoincrement(primaryKeyStructure.column_default, primaryKeyStructure.extra)) {
         await knex
           .transaction((trx) => {
             knex
