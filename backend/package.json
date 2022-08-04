@@ -137,16 +137,5 @@
     },
     "coverageDirectory": "../coverage",
     "testEnvironment": "node"
-  },
-  "ava": {
-    "extensions": [
-      "ts"
-    ],
-    "files": [
-      "test/ava-tests/**"
-    ],
-    "require": [
-      "ts-node/register"
-    ]
   }
 }

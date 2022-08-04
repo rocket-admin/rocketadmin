@@ -66,7 +66,7 @@ export class DaoSshMysql implements IDaoInterface {
     const knex = await this.configureKnex(connectionConfig);
     await knex.raw('SET SQL_SAFE_UPDATES = 1;').connection(mySqlDriver);
     if (primaryColumns?.length > 0) {
-      if (!checkFieldAutoincrement(primaryKeyStructure.column_default)) {
+      if (!checkFieldAutoincrement(primaryKeyStructure.column_default, primaryKeyStructure.extra)) {
         try {
           await knex(tableName).connection(mySqlDriver).insert(row);
           return {

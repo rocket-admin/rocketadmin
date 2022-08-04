@@ -54,6 +54,7 @@ export interface IStructureInfo {
   column_default: string;
   column_name: string;
   allow_null: boolean;
+  extra?: string;
 }
 
 export interface IStructureRO {

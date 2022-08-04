@@ -10,7 +10,8 @@ export function formFullTableStructure(
   const fullStructure = [];
   const { search_fields, excluded_fields } = tableSettings || {};
   for (const element of structure) {
-    const { column_name, column_default, data_type, data_type_params, allow_null, character_maximum_length } = element;
+    const { column_name, column_default, data_type, data_type_params, allow_null, character_maximum_length, extra } =
+      element;
     const indexSearch = search_fields?.indexOf(column_name);
     const indexExclude = excluded_fields?.indexOf(column_name);
     fullStructure.push({
@@ -20,7 +21,7 @@ export function formFullTableStructure(
       data_type_params: data_type_params ? data_type_params : undefined,
       isExcluded: indexExclude >= 0,
       isSearched: indexSearch >= 0,
-      auto_increment: checkFieldAutoincrement(column_default),
+      auto_increment: checkFieldAutoincrement(column_default, extra),
       allow_null: allow_null,
       character_maximum_length: character_maximum_length,
     });
