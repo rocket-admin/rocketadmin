@@ -2,7 +2,9 @@
 
 <div class="upgrade-box">
     <h1 class='mat-h1 upgrade-box__title'>Manage plans</h1>
-    <stripe-pricing-table pricing-table-id="prctbl_1LQzmPFtHdda1TsBHcj3EIvg"
-    publishable-key="pk_live_51JM8FBFtHdda1TsBR7nieMFVFigZAUXbPhQTNvaSyLynIW1lbfzO6rfqqIUn0JAGJRq9mrwKwrVCsDDFOs84M7pE006xDqNgHk">
+    <stripe-pricing-table *ngIf="currentUser"
+        [attr.client-reference-id]="currentUser.id"
+        pricing-table-id="prctbl_1LQzmPFtHdda1TsBHcj3EIvg"
+        publishable-key="pk_live_51JM8FBFtHdda1TsBR7nieMFVFigZAUXbPhQTNvaSyLynIW1lbfzO6rfqqIUn0JAGJRq9mrwKwrVCsDDFOs84M7pE006xDqNgHk">
     </stripe-pricing-table>
 </div>
