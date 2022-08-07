@@ -1,7 +1,7 @@
 import { ActivatedRoute, Router } from '@angular/router';
 import { ChangeDetectorRef, Component, HostListener, NgZone } from '@angular/core';
 
-import { Angulartics2Amplitude } from 'angulartics2/amplitude';
+import { Angulartics2Amplitude } from 'angulartics2';
 import { AuthService } from './services/auth.service';
 import { ConnectionsService } from './services/connections.service';
 import { DomSanitizer } from '@angular/platform-browser';
