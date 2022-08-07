@@ -5,8 +5,12 @@
     <app-content-loader *ngIf="loading"></app-content-loader>
 
     <app-banner *ngIf="noTablesError" type="info" class="settings-banner">
-        <h3 class='mat-subheading-2'>We can not find any tables</h3>
-        <p class="mat-body-1">There are no tables to apply settings. You can add a table with SQL editor.</p>
+        <h3 class='mat-subheading-2'>Autoadmin can not find any tables</h3>
+        <p class="mat-body-1">
+            There are no tables to apply settings.
+            Please grant Autoadmin access to required tables or create new table.
+            You can create a table with SQL editor
+        </p>
     </app-banner>
 
     <app-banner *ngIf="errorMessage" type="error" class="settings-banner">
