@@ -9,8 +9,12 @@
 </app-banner>
 
 <app-banner *ngIf="noTablesError" type="info">
-    <h3 class='mat-subheading-2'>No tables in this connection.</h3>
-    <p class="mat-body-1">We do not provide adding and deleting database tables, only editing ones. You can add a table with SQL editor.</p>
+    <h3 class='mat-subheading-2'>We can not find any tables</h3>
+    <p class="mat-body-1">
+        We have no access to the connection or there are no tables.
+        We do not provide adding and deleting database tables, only editing ones.
+        You can add a table with SQL editor.
+    </p>
 </app-banner>
 
 <ng-container *ngIf="!loading && !dbFetchError && !noTablesError">

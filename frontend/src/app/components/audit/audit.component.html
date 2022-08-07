@@ -20,8 +20,8 @@
     </header>
 
     <app-banner *ngIf="noTablesError" type="info" class="audit-banner">
-        <h3 class='mat-subheading-2'>No tables in this connection.</h3>
-        <p class="mat-body-1">There are no tables to track actions on. You can add a table with SQL editor.</p>
+        <h3 class='mat-subheading-2'>We can not find any tables</h3>
+        <p class="mat-body-1">There are no tables we can track actions on. You can add a table with SQL editor.</p>
     </app-banner>
 
     <app-banner *ngIf="errorMessage" type="error" class="audit-banner">
