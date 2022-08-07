@@ -68,6 +68,20 @@ export class DbTableWidgetsComponent implements OnInit {
   onWidgetTypeChange(fieldName: string) {
     let currentWidget = this.widgets.find(widget => widget.field_name === fieldName);
     if (currentWidget.widget_type === 'Default') currentWidget.widget_type = '';
+
+    //default widget settings:
+    if (currentWidget.widget_type === 'Select') currentWidget.widget_params = {
+      options: [
+        {
+          value: 'AK',
+          label: 'Alaska'
+        },
+        {
+          value: 'CA',
+          label: 'California'
+        }
+      ]
+    }
   }
 
   onWidgetParamsChange(event, fieldName: string) {
