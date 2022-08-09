@@ -36,6 +36,18 @@
             </ng-template>
 
             <h2 class="mat-subheading-1 mat-subheading-1_tables"><strong>Tables</strong></h2>
+            <div class="tables-options">
+                <button mat-button type="button"
+                    (click)="onTablesAccessOptionsChange()">
+                        Full access
+                </button>
+
+                <button mat-button type="button"
+                    (click)="deselectAllTables()">
+                        Clear all
+                </button>
+            </div>
+
             <app-content-loader *ngIf="loading"></app-content-loader>
             <mat-list role="list" class="tables-list">
                 <div *ngIf="connectionAccess === 'edit'" class="tables-overlay">
