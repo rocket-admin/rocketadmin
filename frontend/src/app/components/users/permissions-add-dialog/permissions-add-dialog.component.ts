@@ -46,7 +46,7 @@ export class PermissionsAddDialogComponent implements OnInit {
     this.tablesAccess[tableIndex].accessLevel.edit = false;
   }
 
-  onTablesAccessOptionsChange() {
+  grantFullAccess() {
     this.tablesAccess.forEach(table => {
       table.accessLevel.add = true;
       table.accessLevel.delete = true;
