@@ -41,7 +41,6 @@ describe('Custom fields(e2e)', () => {
     await app.init();
 
     newConnection = mockFactory.generateCreateEncryptedInternalConnectionDto();
-    newConnection2 = mockFactory.generateCreateEncryptedConnectionDto();
 
     masterPwd = 'ahalaimahalai';
     decryptValue = function (data) {

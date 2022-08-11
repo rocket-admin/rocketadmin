@@ -215,6 +215,14 @@ export class ConnectionController {
         HttpStatus.BAD_REQUEST,
       );
     }
+    if (masterEncryption && !masterPwd) {
+      throw new HttpException(
+        {
+          message: Messages.MASTER_PASSWORD_REQUIRED,
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
     if (ssh && !privateSSHKey) {
       throw new HttpException(
         {

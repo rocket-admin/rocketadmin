@@ -533,6 +533,14 @@ export class MockFactory {
     };
   }
 
+  generateCustomFieldForUsersTable(fieldNameId: string, fieldNameTitle: string) {
+    return {
+      type: 'AA:Link',
+      template_string: `https//?id={{${fieldNameId}}}&email={{${fieldNameTitle}}}`,
+      text: 'Go To',
+    };
+  }
+
   generateCreateWidgetDTOForConnectionTable() {
     const newWidgetDTO = new CreateTableWidgetDto();
     /* eslint-disable */

@@ -3031,7 +3031,6 @@ describe('Tables MySQL (e2e)', () => {
         const fakeMail = faker.internet.email();
 
         const row = {
-          id: 999,
           [testTableColumnName]: fakeName,
           [testTAbleSecondColumnName]: fakeMail,
         };
@@ -3044,6 +3043,7 @@ describe('Tables MySQL (e2e)', () => {
 
         expect(addRowInTableResponse.status).toBe(201);
         const addRowInTableRO = JSON.parse(addRowInTableResponse.text);
+        console.log('-> addRowInTableRO', addRowInTableRO);
 
         expect(addRowInTableRO.hasOwnProperty('row')).toBeTruthy();
         expect(addRowInTableRO.hasOwnProperty('structure')).toBeTruthy();
@@ -3071,7 +3071,7 @@ describe('Tables MySQL (e2e)', () => {
         expect(rows.length).toBe(43);
         expect(rows[42][testTableColumnName]).toBe(row[testTableColumnName]);
         expect(rows[42][testTAbleSecondColumnName]).toBe(row[testTAbleSecondColumnName]);
-        expect(rows[42].id).toBe(row.id);
+        // expect(rows[42].id).toBe(row.id);
       } catch (err) {
         throw err;
       }
