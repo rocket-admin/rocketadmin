@@ -65,7 +65,7 @@ export class DbTableWidgetsComponent implements OnInit {
     this.fields.splice(this.fields.indexOf(column_name), 1)
   }
 
-  onWidgetTypeChange(currentWidget) {
+  onWidgetTypeChange(currentWidget: Widget) {
     // let currentWidget = this.widgets.find(widget => widget.field_name === fieldName);
     if (currentWidget.widget_type === 'Default') currentWidget.widget_type = '';
 

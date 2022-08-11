@@ -206,11 +206,12 @@ describe('ConnectDBComponent', () => {
 
   it('should create agent connection and set token', () => {
     const dbApp = {
+      id: null,
       title: "Agent connection",
-      type: 'agent_oracle',
-      port: 5432,
+      type: DBtype.Oracle,
+      port: '5432',
       connectionType: ConnectionType.Agent
-    };
+    } as any;
 
     const dbRes = {
       id: "9d5f6d0f-9516-4598-91c4-e4fe6330b4d4",
@@ -238,11 +239,12 @@ describe('ConnectDBComponent', () => {
 
   it('should update agent connection and set token', () => {
     const dbApp = {
+      id: null,
       title: "Agent connection",
-      type: 'agent_oracle',
-      port: 5432,
+      type: DBtype.Oracle,
+      port: '5432',
       connectionType: ConnectionType.Agent
-    };
+    } as any;
 
     const dbRes = {
       connection: {
