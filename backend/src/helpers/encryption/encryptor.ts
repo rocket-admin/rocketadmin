@@ -28,8 +28,7 @@ export class Encryptor {
       const bytes = CryptoJS.AES.decrypt(encryptedData, privateKey);
       return bytes.toString(CryptoJS.enc.Utf8);
     } catch (e) {
-      console.log('-> Decryption error', e);
-      return encryptedData;
+      throw new Error('Data decryption failed with error: ' + e);
     }
   }
 
@@ -38,8 +37,12 @@ export class Encryptor {
   }
 
   static decryptDataMasterPwd(encryptedData: string, masterPwd: string): string {
-    const bytes = CryptoJS.AES.decrypt(encryptedData, masterPwd);
-    return bytes.toString(CryptoJS.enc.Utf8);
+    try {
+      const bytes = CryptoJS.AES.decrypt(encryptedData, masterPwd);
+      return bytes.toString(CryptoJS.enc.Utf8);
+    } catch (e) {
+      throw new Error('Data decryption with master password failed with error: ' + e);
+    }
   }
 
   static encryptConnectionCredentials(connection: IEncryptorInterfaceDTO, masterPwd: string): IEncryptorInterfaceDTO {
