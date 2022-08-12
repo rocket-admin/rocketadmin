@@ -168,7 +168,7 @@ export class DataAccessObjectOracle implements IDataAccessObject {
         .raw(
           `SELECT ${columnsForSelect.map((_) => '??').join(', ')}
            FROM ${tableName}
-           WHERE ?? IN (${fieldValues.map((_) => '??').join(', ')})`,
+           WHERE ?? IN (${fieldValues.map((_) => '?').join(', ')})`,
           [...columnsForSelect, referencedFieldName, ...fieldValues],
         )
         .transacting(trx)
