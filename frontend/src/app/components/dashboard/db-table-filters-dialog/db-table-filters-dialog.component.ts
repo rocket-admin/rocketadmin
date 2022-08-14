@@ -14,13 +14,13 @@ import { getComparators, getFilters } from 'src/app/lib/parse-filter-params';
 })
 export class DbTableFiltersDialogComponent implements OnInit {
 
-  public tableFilters;
+  public tableFilters = [];
 
   public fields: string[];
   public tableRowFields: Object;
   public tableRowStructure: Object;
-  public tableRowFieldsShown: Object;
-  public tableRowFieldsComparator: Object;
+  public tableRowFieldsShown: Object = {};
+  public tableRowFieldsComparator: Object = {};
   public tableForeignKeys: TableForeignKey[];
   public tableTypes: Object;
 
@@ -28,7 +28,7 @@ export class DbTableFiltersDialogComponent implements OnInit {
     @Inject(MAT_DIALOG_DATA) public data: any,
     private _connections: ConnectionsService,
     private _tables: TablesService,
-    private route: ActivatedRoute
+    public route: ActivatedRoute
     ) { }
 
   ngOnInit(): void {
@@ -49,16 +49,23 @@ export class DbTableFiltersDialogComponent implements OnInit {
         this.tableRowStructure = Object.assign({}, ...res.structure.map((field: TableField) => {
           return {[field.column_name]: field}
         }))
+
+        const queryParams = this.route.snapshot.queryParams;
+        const filters = getFilters(queryParams);
+
+        if (Object.keys(filters).length) {
+          this.tableFilters = Object.keys(filters).map(key => key);
+          this.tableRowFieldsShown = filters;
+          this.tableRowFieldsComparator = getComparators(queryParams);
+        } else {
+          const fieldsToSearch = res.structure.filter((field: TableField) => field.isSearched);
+          if (fieldsToSearch.length) {
+            this.tableFilters = fieldsToSearch.map((field:TableField) => field.column_name);
+            this.tableRowFieldsShown = Object.assign({}, ...fieldsToSearch.map((field: TableField) => ({[field.column_name]: ''})));
+            this.tableRowFieldsComparator = Object.assign({}, ...fieldsToSearch.map((field: TableField) => ({[field.column_name]: 'eq'})));
+          }
+        }
       })
-
-    this.route.queryParams.subscribe((queryParams) => {
-      const filters = getFilters(queryParams);
-      const comparators = getComparators(queryParams);
-
-      this.tableFilters = Object.keys(filters).map(key => key);
-      this.tableRowFieldsShown = filters;
-      this.tableRowFieldsComparator = comparators;
-    })
   }
 
   get inputs() {
