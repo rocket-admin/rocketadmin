@@ -106,7 +106,6 @@ export class AddRowInTableUseCase extends AbstractUseCase<AddRowInTableDs, ITabl
       row = await hashPasswordsInRowUtil(row, tableWidgets);
       row = processUuidsInRowUtil(row, tableWidgets);
       const result = (await dao.addRowInTable(tableName, row, userEmail)) as Record<string, unknown>;
-      console.log('-> result', result);
       if (result && !isObjectEmpty(result)) {
         operationResult = OperationResultStatusEnum.successfully;
         let addedRow = await dao.getRowByPrimaryKey(tableName, result, tableSettings, userEmail);

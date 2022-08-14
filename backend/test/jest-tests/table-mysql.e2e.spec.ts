@@ -3043,7 +3043,6 @@ describe('Tables MySQL (e2e)', () => {
 
         expect(addRowInTableResponse.status).toBe(201);
         const addRowInTableRO = JSON.parse(addRowInTableResponse.text);
-        console.log('-> addRowInTableRO', addRowInTableRO);
 
         expect(addRowInTableRO.hasOwnProperty('row')).toBeTruthy();
         expect(addRowInTableRO.hasOwnProperty('structure')).toBeTruthy();
@@ -3080,28 +3079,6 @@ describe('Tables MySQL (e2e)', () => {
 
     it('should throw an exception when connection id is not passed in request', async () => {
       try {
-        AWSMock.setSDKInstance(AWS);
-        AWSMock.mock(
-          'CognitoIdentityServiceProvider',
-          'listUsers',
-          (newCognitoUserName, callback: (...args: any) => void) => {
-            callback(null, {
-              Users: [
-                {
-                  Attributes: [
-                    {},
-                    {},
-                    {
-                      Name: 'email',
-                      Value: 'Example@gmail.com',
-                    },
-                  ],
-                },
-              ],
-            });
-          },
-        );
-
         const createConnectionResponse = await request(app.getHttpServer())
           .post('/connection')
           .send(newConnection)
@@ -3150,28 +3127,6 @@ describe('Tables MySQL (e2e)', () => {
 
     it('should throw an exception when table name is not passed in request', async () => {
       try {
-        AWSMock.setSDKInstance(AWS);
-        AWSMock.mock(
-          'CognitoIdentityServiceProvider',
-          'listUsers',
-          (newCognitoUserName, callback: (...args: any) => void) => {
-            callback(null, {
-              Users: [
-                {
-                  Attributes: [
-                    {},
-                    {},
-                    {
-                      Name: 'email',
-                      Value: 'Example@gmail.com',
-                    },
-                  ],
-                },
-              ],
-            });
-          },
-        );
-
         const createConnectionResponse = await request(app.getHttpServer())
           .post('/connection')
           .send(newConnection)
@@ -3223,28 +3178,6 @@ describe('Tables MySQL (e2e)', () => {
 
     it('should throw an exception when row is not passed in request', async () => {
       try {
-        AWSMock.setSDKInstance(AWS);
-        AWSMock.mock(
-          'CognitoIdentityServiceProvider',
-          'listUsers',
-          (newCognitoUserName, callback: (...args: any) => void) => {
-            callback(null, {
-              Users: [
-                {
-                  Attributes: [
-                    {},
-                    {},
-                    {
-                      Name: 'email',
-                      Value: 'Example@gmail.com',
-                    },
-                  ],
-                },
-              ],
-            });
-          },
-        );
-
         const createConnectionResponse = await request(app.getHttpServer())
           .post('/connection')
           .send(newConnection)
