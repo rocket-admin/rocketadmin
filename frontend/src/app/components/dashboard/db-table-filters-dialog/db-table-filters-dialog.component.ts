@@ -6,6 +6,7 @@ import { ConnectionsService } from 'src/app/services/connections.service';
 import { fieldTypes } from 'src/app/consts/field-types';
 import { ActivatedRoute } from '@angular/router';
 import { getComparators, getFilters } from 'src/app/lib/parse-filter-params';
+import { getTableTypes } from 'src/app/lib/setup-table-row-structure';
 
 @Component({
   selector: 'app-db-table-filters-dialog',
@@ -39,13 +40,7 @@ export class DbTableFiltersDialogComponent implements OnInit {
         const foreignKeysList = this.tableForeignKeys.map((field: TableForeignKey) => {return field['column_name']})
         this.fields = res.structure.map((field: TableField) => field.column_name);
         this.tableRowFields = Object.assign({}, ...res.structure.map((field: TableField) => ({[field.column_name]: ''})));
-        this.tableTypes = Object.assign({}, ...res.structure.map((field: TableField) => {
-          if (field.data_type === 'tinyint' && field.character_maximum_length === 1 )
-          return {[field.column_name]: 'boolean'}
-          if (foreignKeysList.includes(field.column_name))
-          return {[field.column_name]: 'foreign key'}
-            return {[field.column_name]: field.data_type}
-        }));
+        this.tableTypes = getTableTypes(res.structure, foreignKeysList);
         this.tableRowStructure = Object.assign({}, ...res.structure.map((field: TableField) => {
           return {[field.column_name]: field}
         }))

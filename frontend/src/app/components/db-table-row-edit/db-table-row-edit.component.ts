@@ -9,6 +9,7 @@ import { TableRowService } from 'src/app/services/table-row.service';
 import { TablesService } from 'src/app/services/tables.service';
 import { normalizeTableName } from '../../lib/normalize';
 import { DBtype } from 'src/app/models/connection';
+import { getTableTypes } from 'src/app/lib/setup-table-row-structure';
 
 @Component({
   selector: 'app-db-table-row-edit',
@@ -84,7 +85,6 @@ export class DbTableRowEditComponent implements OnInit {
           (error) => {
             this.rowError = error.error.message;
             this.loading = false;
-            console.log('this.rowError');
             console.log(this.rowError);
           })
       }
@@ -102,13 +102,7 @@ export class DbTableRowEditComponent implements OnInit {
     }))
 
     const foreignKeysList = this.tableForeignKeys.map((field: TableForeignKey) => {return field['column_name']});
-    this.tableTypes = Object.assign({}, ...structure.map((field: TableField) => {
-      if (field.data_type === 'tinyint' && field.character_maximum_length === 1 )
-      return {[field.column_name]: 'boolean'}
-      if (foreignKeysList.includes(field.column_name))
-      return {[field.column_name]: 'foreign key'}
-        return {[field.column_name]: field.data_type}
-    }));
+    this.tableTypes = getTableTypes(structure, foreignKeysList);
 
     this.tableRowRequiredValues = Object.assign({}, ...structure.map((field: TableField) => {
       return {[field.column_name]: field.allow_null === false && field.column_default === null}

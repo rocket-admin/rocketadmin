@@ -114,11 +114,6 @@ describe('DbTableFiltersDialogComponent', () => {
 
     expect(component.tableForeignKeys).toEqual(mockTableStructure.foreignKeys);
     expect(component.fields).toEqual(['FirstName', 'Id', 'bool']);
-    expect(component.tableTypes).toEqual({
-      FirstName: 'varchar',
-      Id: 'foreign key',
-      bool: 'boolean'
-    });
     expect(component.tableRowStructure).toEqual({
       FirstName: fakeFirstName,
       Id: fakeId,
