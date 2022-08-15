@@ -12,6 +12,7 @@ import { createDataAccessObject } from '../../../data-access-layer/shared/create
 import { crateAndSaveNewLogUtil } from '../../table-logs/utils/crate-and-save-new-log-util';
 import { isTestConnectionUtil } from '../../connection/utils/is-test-connection-util';
 import AbstractUseCase from '../../../common/abstract-use.case';
+import { convertHexDataInPrimaryKeyUtil } from '../utils/convert-hex-data-in-primary-key.util';
 
 @Injectable({ scope: Scope.REQUEST })
 export class DeleteRowFromTableUseCase
@@ -27,7 +28,7 @@ export class DeleteRowFromTableUseCase
   }
 
   protected async implementation(inputData: DeleteRowFromTableDs): Promise<DeletedRowFromTableDs> {
-    const { connectionId, masterPwd, primaryKey, tableName, userId } = inputData;
+    let { connectionId, masterPwd, primaryKey, tableName, userId } = inputData;
     let operationResult = OperationResultStatusEnum.unknown;
     if (!primaryKey) {
       throw new HttpException(
@@ -49,11 +50,12 @@ export class DeleteRowFromTableUseCase
     }
 
     const dao = createDataAccessObject(connection, userId);
-
     let userEmail: string;
     if (isConnectionTypeAgent(connection.type)) {
       userEmail = await this._dbContext.userRepository.getUserEmailOrReturnNull(userId);
     }
+    const tableStructure = await dao.getTableStructure(tableName, userEmail);
+    primaryKey = convertHexDataInPrimaryKeyUtil(primaryKey, tableStructure);
     const primaryColumns = await dao.getTablePrimaryColumns(tableName, userEmail);
     const availablePrimaryColumns: Array<string> = primaryColumns.map((column) => column.column_name);
     for (const key in primaryKey) {
