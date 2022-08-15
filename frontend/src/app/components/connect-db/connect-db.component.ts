@@ -109,7 +109,7 @@ export class ConnectDBComponent implements OnInit {
             customerly?.open()
           };
         },
-        undefined,
+        () => {this.submitting = false},
         () => {this.submitting = false}
       );
   }
