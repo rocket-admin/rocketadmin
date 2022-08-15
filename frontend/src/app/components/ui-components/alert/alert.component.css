@@ -28,6 +28,7 @@
 }
 
 .alert__icon {
+    flex-shrink: 0;
     color: var(--alert-theme-color);
     margin-right: 12px;
     font-size: 22px;
