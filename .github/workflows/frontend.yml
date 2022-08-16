@@ -7,7 +7,7 @@ jobs:
       - uses: actions/checkout@v2
       - run: cd frontend && yarn install
       - name: run tests
-        run: cd frontend && yarn test
+        run: cd frontend && yarn test --browsers=ChromeHeadlessCustom
   license:
     runs-on: ubuntu-latest
     steps:
