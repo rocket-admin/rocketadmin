@@ -16,7 +16,7 @@ phases:
         commands:
         # Builds Angular application. You can also build using custom environment here like mock or staging
         - echo Build started on `date`
-        - node --max_old_space_size=4000 ~/.yarn/bin/ng build --configuration=saas
+        - node --max_old_space_size=4000 ng build --configuration=saas
         - aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws/o1a6p9d1
         - docker build -t frontend .
         - docker tag frontend:latest public.ecr.aws/o1a6p9d1/frontend:latest
