@@ -65,7 +65,7 @@ export class AppComponent {
     if (window.screen.width > 600) {
       this.userInactive.subscribe(() => {
         // @ts-ignore
-        customerly?.open();
+        Intercom('show');
         this.chatHasBeenShownOnce = true;
       });
     }
@@ -107,10 +107,6 @@ export class AppComponent {
         caption: 'Connection settings'
       }
     }
-
-    console.log(this.connectionID);
-
-    // this.setTimeout();
 
     document.cookie = "G_AUTH2_MIGRATION=informational";
     this._auth.cast.subscribe( res =>  {

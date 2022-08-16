@@ -69,7 +69,7 @@ export class DashboardComponent implements OnInit {
         this.errorMessage = error.error.message
       } else  { throw error };
       // @ts-ignore
-      customerly?.open();
+      Intercom('show');
     }
 
     if (tables && tables.length === 0) {
