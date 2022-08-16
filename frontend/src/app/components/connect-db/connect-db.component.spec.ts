@@ -105,7 +105,7 @@ describe('ConnectDBComponent', () => {
       // @ts-ignore
       global.window.fbq = jasmine.createSpy();
       // @ts-ignore
-      global.window.customerly = {open: jasmine.createSpy()};
+      global.window.Intercom = jasmine.createSpy();
 
     fakeConnectionsService.currentConnection.and.returnValue(connectionCredsApp);
     // fakeConnectionsService.currentConnectionAccessLevel.and.returnValue('edit');
