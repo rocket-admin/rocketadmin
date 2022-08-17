@@ -57,6 +57,6 @@
     margin-left: 20px;
 }
 
-.settings-banner >>> .banner-wrapper {
+.settings-banner ::ng-deep .banner-wrapper {
     margin-top: 60px;
 }

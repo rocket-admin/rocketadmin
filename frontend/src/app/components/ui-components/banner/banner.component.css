@@ -21,7 +21,7 @@
     width: clamp(300px, 50vw, 450px);
 }
 
-.banner-box >>> .error-actions {
+.banner-box ::ng-deep .error-actions {
     display: flex;
     gap: 20px;
     margin-top: 16px;
