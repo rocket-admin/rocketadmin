@@ -45,7 +45,6 @@ import { ForeignKeyComponent } from './components/ui-components/row-fields/forei
 import { GroupAddDialogComponent } from './components/users/group-add-dialog/group-add-dialog.component';
 import { GroupDeleteDialogComponent } from './components/users/group-delete-dialog/group-delete-dialog.component';
 import { GroupUserVerificationComponent } from './components/group-user-verification/group-user-verification.component';
-import { HomeComponent } from './components/home/home.component';
 import { HostnameValidationDirective } from "./directives/hostnameValidator.directive";
 import { IdComponent } from "./components/ui-components/row-fields/id/id.component";
 import { InfoDialogComponent } from './components/audit/info-dialog/info-dialog.component';
@@ -113,7 +112,6 @@ const saasExtraProviders = (environment as any).saas ? [
     PageNotFoundComponent,
     UsersComponent,
     DbTablesListComponent,
-    HomeComponent,
     PageLoaderComponent,
     DbConnectionDeleteDialogComponent,
     ConnectionsListComponent,

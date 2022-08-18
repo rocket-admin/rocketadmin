@@ -1,4 +1,4 @@
-import { ActivatedRouteSnapshot, CanActivate, RouterStateSnapshot, UrlTree } from '@angular/router';
+import { ActivatedRouteSnapshot, CanActivate, RouterStateSnapshot, UrlTree, Router } from '@angular/router';
 import { differenceInMilliseconds } from 'date-fns'
 
 import { Injectable } from '@angular/core';
@@ -8,7 +8,9 @@ import { Injectable } from '@angular/core';
 })
 export class AuthGuard implements CanActivate {
 
-  constructor() {}
+  constructor(
+    private router: Router
+  ) {}
 
   async canActivate(
     route: ActivatedRouteSnapshot,
@@ -20,11 +22,13 @@ export class AuthGuard implements CanActivate {
       if (expirationToken) expirationTime = new Date(expirationToken);
       const currantTime = new Date();
 
-    if (expirationTime && currantTime) {
-      const expirationInterval = differenceInMilliseconds(expirationTime, currantTime);
-      if (expirationInterval > 0) return true;
-    }
-    return false;
+      if (expirationTime && currantTime) {
+        const expirationInterval = differenceInMilliseconds(expirationTime, currantTime);
+        if (expirationInterval > 0) return true;
+      } else {
+        this.router.navigate(['/login']);
+      }
+      return false;
     } catch {
       return false;
     }
