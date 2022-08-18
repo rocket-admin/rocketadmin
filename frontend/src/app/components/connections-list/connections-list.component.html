@@ -1,4 +1,4 @@
-<app-alert></app-alert>
+<app-banner></app-banner>
 <div class="wrapper">
     <div class="connectionsBox connectionsBox_main">
         <header class="header">
@@ -33,12 +33,16 @@
         </a>
     </div>
 
-    <div *ngIf="testConnections && testConnections.length" class="connectionsBox connectionsBox_shadow">
+    <div class="connectionsBox connectionsBox_shadow">
         <header class="header">
             <h1 class="mat-display-1">Test connections</h1>
         </header>
 
-        <mat-nav-list class="connectionsBox__connectionsList">
+        <div *ngIf="!testConnections?.length && testConnections !== null" class="empty-state">
+            No test connections
+        </div>
+
+        <mat-nav-list *ngIf="testConnections" class="connectionsBox__connectionsList">
             <a mat-list-item *ngFor="let testConnectionItem of testConnections" class="connection"
                 routerLink="/dashboard/{{testConnectionItem.connection.id}}">
                 <mat-icon mat-list-icon [svgIcon]="testConnectionItem.connection.type" class="connection__icon"></mat-icon>

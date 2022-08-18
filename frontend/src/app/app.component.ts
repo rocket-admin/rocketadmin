@@ -1,18 +1,16 @@
 import { ActivatedRoute, Router } from '@angular/router';
 import { ChangeDetectorRef, Component, HostListener, NgZone } from '@angular/core';
+import { FacebookLoginProvider, SocialAuthService, SocialUser } from '@abacritt/angularx-social-login';
 
-import { Angulartics2Amplitude } from 'angulartics2';
+import { Angulartics2Amplitude } from 'angulartics2/amplitude';
 import { AuthService } from './services/auth.service';
 import { ConnectionsService } from './services/connections.service';
 import { DomSanitizer } from '@angular/platform-browser';
 import { MatIconRegistry } from '@angular/material/icon';
 import { Subject } from 'rxjs';
-import { TablesService } from './services/tables.service';
 import { UserService } from './services/user.service';
 import amplitude from 'amplitude-js';
-import { differenceInMilliseconds } from 'date-fns';
-import { normalizeTableName } from './lib/normalize';
-import { environment } from '../environments/environment';
+import { differenceInMilliseconds } from 'date-fns'
 
 //@ts-ignore
 window.amplitude = amplitude;
@@ -39,8 +37,6 @@ export class AppComponent {
   activeLink: string;
   navigationTabs: object;
   currentUser;
-  normalizedTableName;
-  upgradeButtonShown: Boolean = true;
 
   // connectionID: string;
 
@@ -52,10 +48,10 @@ export class AppComponent {
     public _connections: ConnectionsService,
     public _user: UserService,
     public _auth: AuthService,
-    private _tables: TablesService,
     angulartics2Amplitude: Angulartics2Amplitude,
     private domSanitizer: DomSanitizer,
-    private matIconRegistry: MatIconRegistry
+    private matIconRegistry: MatIconRegistry,
+    private socialAuthService: SocialAuthService
   ) {
     this.matIconRegistry.addSvgIcon("mysql", this.domSanitizer.bypassSecurityTrustResourceUrl("/assets/icons/mysql_logo.svg"));
     this.matIconRegistry.addSvgIcon("mssql", this.domSanitizer.bypassSecurityTrustResourceUrl("/assets/icons/mssql_logo.svg"));
@@ -65,7 +61,7 @@ export class AppComponent {
     if (window.screen.width > 600) {
       this.userInactive.subscribe(() => {
         // @ts-ignore
-        Intercom('show');
+        customerly?.open();
         this.chatHasBeenShownOnce = true;
       });
     }
@@ -83,7 +79,6 @@ export class AppComponent {
   }
 
   ngOnInit() {
-    this.upgradeButtonShown = (environment as any).saas;
 
     this.navigationTabs = {
       'dashboard': {
@@ -108,11 +103,15 @@ export class AppComponent {
       }
     }
 
+    console.log(this.connectionID);
+
+    // this.setTimeout();
+
     document.cookie = "G_AUTH2_MIGRATION=informational";
     this._auth.cast.subscribe( res =>  {
       if (res.expires) {
-        const expirationTime = new Date(res.expires);
-        if (expirationTime) localStorage.setItem('token_expiration', expirationTime.toString());
+        const expirationTime = new Date(res.expires).toString();
+        if (expirationTime) localStorage.setItem('token_expiration', expirationTime);
 
         this._user.fetchUser()
           .subscribe(res => {
@@ -121,13 +120,6 @@ export class AppComponent {
               this.router.navigate(['/connections-list'])
             }
         )
-
-        const expirationInterval = differenceInMilliseconds(expirationTime, new Date());
-        setTimeout(() => {
-          this.logOut(true);
-          this.router.navigate(['/login'])
-        }, expirationInterval);
-
       } else {
         const expirationTime = new Date(localStorage.getItem('token_expiration'));
         const currantTime = new Date();
@@ -140,16 +132,24 @@ export class AppComponent {
                   this.currentUser = res;
                   this.setUserLoggedIn(true);
                 }
-            );
-
-            setTimeout(() => {
-              this.logOut(true);
-              this.router.navigate(['/login'])
-            }, expirationInterval);
+            )
           }
         }
       }
     });
+
+    // this.socialAuthService.authState.subscribe((authUser) => {
+    //   // this.currentUser = authUser;
+    //   // this.isSignedin = (user != null);
+    //   this._user.fetchUser()
+    //     .subscribe(res => {
+    //         this.currentUser = res;
+    //         this.setUserLoggedIn(true);
+    //         console.log(res);
+    //       }
+    //   )
+    //   console.log(authUser);
+    // });
 
     this._user.cast.subscribe( arg => {
       if (arg === 'delete') {
@@ -174,19 +174,15 @@ export class AppComponent {
     return this._connections.currentTab;
   }
 
-  get tableName() {
-    this.normalizedTableName = normalizeTableName(this._tables.currentTableName);
-    return this._tables.currentTableName;
-  }
-
   setUserLoggedIn(state) {
     this.userLoggedIn = state;
     this.changeDetector.detectChanges();
   }
 
-  logOut(isTokenExpired?: boolean) {
+  logOut() {
     this._auth.logOutUser()
       .subscribe(() => {
+        this.socialAuthService.signOut();
         try {
           // @ts-ignore
           google.accounts.id.revoke(this.currentUser.email, done => {
@@ -195,23 +191,12 @@ export class AppComponent {
            console.log(this.currentUser.email);
           });
         } catch(error) {
-          console.log('google error');
-          console.log(error);
-        }
-
-        try {
-          // @ts-ignore
-          FB.logout(function(response) {
-            console.log(response);
-          });
-        } catch(error) {
-          console.log('fb error');
           console.log(error);
         }
 
         this.setUserLoggedIn(null);
         localStorage.removeItem('token_expiration');
-        if (!isTokenExpired) window.location.href="https://autoadmin.org/";
+        window.location.href="https://autoadmin.org/";
       })
   }
 }

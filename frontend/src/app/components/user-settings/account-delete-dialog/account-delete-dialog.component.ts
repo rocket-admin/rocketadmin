@@ -16,7 +16,7 @@ export class AccountDeleteDialogComponent implements OnInit {
     {
       id: 'missing-features',
       caption: 'Missing features I need',
-      message: 'Perhaps Autoadmin has updated the functions you need and they are in a different place. ' +
+      message: 'Perhaps we have updated the functions you need and they are in a different place. ' +
         'Our <strong>Support team</strong> will advise you.'
     },
     {

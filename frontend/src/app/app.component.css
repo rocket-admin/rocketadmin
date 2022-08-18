@@ -34,7 +34,7 @@
     font-weight: 300;
 }
 
-.nav-bar__button ::ng-deep .mat-badge-content {
+.nav-bar__button >>> .mat-badge-content {
     top: 6px;
     right: 6px !important;
     color: #ed4870;
@@ -134,25 +134,15 @@
     }
 }
 
-.breadcrumbs {
-    display: flex;
-    align-items: center;
-    justify-content: center;
+.connectionName {
+    /* color: #ff4081;
+    font-size: 0.875em;
+    margin-left: auto;
+    margin-right: 2%; */
     background-color: rgba(0, 103, 140, 0.24);
     padding: 8px 0;
     text-align: center;
     width: 100%;
-}
-
-.breadcrumbs__tableName {
-    display: flex;
-    align-items: center;
-}
-
-.breadcrumbs__arrowIcon {
-    font-size: 12px;
-    height: 12px;
-    width: 12px;
 }
 
 .tab-icon {

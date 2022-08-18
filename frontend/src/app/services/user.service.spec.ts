@@ -1,4 +1,4 @@
-import { AlertActionType, AlertType } from '../models/alert';
+import { BannerActionType, BannerType } from '../models/banner';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { TestBed, async } from '@angular/core/testing';
@@ -24,7 +24,7 @@ describe('UserService', () => {
   }
 
   beforeEach(() => {
-    fakeNotifications = jasmine.createSpyObj('NotificationsService', ['showErrorSnackbar', 'showSuccessSnackbar', 'showAlert']);
+    fakeNotifications = jasmine.createSpyObj('NotificationsService', ['showErrorSnackbar', 'showSuccessSnackbar', 'showBanner']);
 
     TestBed.configureTestingModule({
       imports: [HttpClientTestingModule, MatSnackBarModule],
@@ -103,7 +103,7 @@ describe('UserService', () => {
     expect(isSubscribeCalled).toBe(true);
   });
 
-  it('should fall upgradeUser and show Error alert', async () => {
+  it('should fall upgradeUser and show Error banner', async () => {
     const upgradeUser = service.upgradeUser('ANNUAL_ENTERPRISE_PLAN').toPromise();
 
     const req = httpMock.expectOne(`/user/subscription/upgrade`);
@@ -111,14 +111,14 @@ describe('UserService', () => {
     req.flush(fakeError, {status: 400, statusText: ''});
     await upgradeUser;
 
-    expect(fakeNotifications.showAlert).toHaveBeenCalledWith(AlertType.Error, fakeError.message, [
+    expect(fakeNotifications.showBanner).toHaveBeenCalledWith(BannerType.Error, fakeError.message, [
       jasmine.objectContaining({
-        type: AlertActionType.Link,
+        type: BannerActionType.Link,
         caption: 'Settings',
         to: '/user-settings'
       }),
       jasmine.objectContaining({
-        type: AlertActionType.Button,
+        type: BannerActionType.Button,
         caption: 'Dismiss',
       }),
     ]);
@@ -133,8 +133,8 @@ describe('UserService', () => {
 
     service.requestEmailChange().subscribe((res) => {
       expect(res).toEqual(requestResponse);
-      expect(fakeNotifications.showAlert).toHaveBeenCalledWith(AlertType.Info, 'Link has been sent to your email. Please check it.', [jasmine.objectContaining({
-        type: AlertActionType.Button,
+      expect(fakeNotifications.showBanner).toHaveBeenCalledWith(BannerType.Info, 'Link has been sent to your email. Please check it.', [jasmine.objectContaining({
+        type: BannerActionType.Button,
         caption: 'Dismiss',
       })]);
       isEmailChangeRequestedCalled = true;
@@ -147,7 +147,7 @@ describe('UserService', () => {
     expect(isEmailChangeRequestedCalled).toBeTrue();
   });
 
-  it('should fall for requestEmailChange and show Error alert', async () => {
+  it('should fall for requestEmailChange and show Error banner', async () => {
     const resMessage = service.requestEmailChange().toPromise();
 
     const req = httpMock.expectOne(`/user/email/change/request`);
@@ -155,8 +155,8 @@ describe('UserService', () => {
     req.flush(fakeError, {status: 400, statusText: ''});
     await resMessage;
 
-    expect(fakeNotifications.showAlert).toHaveBeenCalledWith(AlertType.Error, fakeError.message, [jasmine.objectContaining({
-      type: AlertActionType.Button,
+    expect(fakeNotifications.showBanner).toHaveBeenCalledWith(BannerType.Error, fakeError.message, [jasmine.objectContaining({
+      type: BannerActionType.Button,
       caption: 'Dismiss',
     })]);
   });
@@ -182,7 +182,7 @@ describe('UserService', () => {
     expect(isEmailChangedCalled).toBeTrue();
   });
 
-  it('should fall for changeEmail and show Error alert', async () => {
+  it('should fall for changeEmail and show Error banner', async () => {
     const resMessage = service.changeEmail('123456789', 'new-new@email.com').toPromise();
 
     const req = httpMock.expectOne(`/user/email/change/verify/123456789`);
@@ -190,13 +190,13 @@ describe('UserService', () => {
     req.flush(fakeError, {status: 400, statusText: ''});
     await resMessage;
 
-    expect(fakeNotifications.showAlert).toHaveBeenCalledWith(AlertType.Error, fakeError.message, [jasmine.objectContaining({
-      type: AlertActionType.Button,
+    expect(fakeNotifications.showBanner).toHaveBeenCalledWith(BannerType.Error, fakeError.message, [jasmine.objectContaining({
+      type: BannerActionType.Button,
       caption: 'Dismiss',
     })]);
   });
 
-  it('should call requestPasswordReset and show Success alert', () => {
+  it('should call requestPasswordReset and show Success banner', () => {
     let isPasswordChangeRequestedCalled = false;
 
     const requestResponse = {
@@ -205,8 +205,8 @@ describe('UserService', () => {
 
     service.requestPasswordReset('john@smith.com').subscribe((res) => {
       expect(res).toEqual(requestResponse);
-      expect(fakeNotifications.showAlert).toHaveBeenCalledWith(AlertType.Success, 'Check your email.', [jasmine.objectContaining({
-        type: AlertActionType.Button,
+      expect(fakeNotifications.showBanner).toHaveBeenCalledWith(BannerType.Success, 'Check your email.', [jasmine.objectContaining({
+        type: BannerActionType.Button,
         caption: 'Dismiss',
       })]);
       isPasswordChangeRequestedCalled = true;
@@ -219,7 +219,7 @@ describe('UserService', () => {
     expect(isPasswordChangeRequestedCalled).toBeTrue();
   });
 
-  it('should fall for requestPasswordReset and show Error alert', async () => {
+  it('should fall for requestPasswordReset and show Error banner', async () => {
     const resMessage = service.requestPasswordReset('john@smith.com').toPromise();
 
     const req = httpMock.expectOne(`/user/password/reset/request`);
@@ -227,8 +227,8 @@ describe('UserService', () => {
     req.flush(fakeError, {status: 400, statusText: ''});
     await resMessage;
 
-    expect(fakeNotifications.showAlert).toHaveBeenCalledWith(AlertType.Error, fakeError.message, [jasmine.objectContaining({
-      type: AlertActionType.Button,
+    expect(fakeNotifications.showBanner).toHaveBeenCalledWith(BannerType.Error, fakeError.message, [jasmine.objectContaining({
+      type: BannerActionType.Button,
       caption: 'Dismiss',
     })]);
   });
@@ -254,7 +254,7 @@ describe('UserService', () => {
     expect(isPasswordChangedCalled).toBeTrue();
   });
 
-  it('should fall for resetPassword and show Error alert', async () => {
+  it('should fall for resetPassword and show Error banner', async () => {
     const resMessage = service.resetPassword('123456789', 'newpassword123').toPromise();
 
     const req = httpMock.expectOne(`/user/password/reset/verify/123456789`);
@@ -262,8 +262,8 @@ describe('UserService', () => {
     req.flush(fakeError, {status: 400, statusText: ''});
     await resMessage;
 
-    expect(fakeNotifications.showAlert).toHaveBeenCalledWith(AlertType.Error, fakeError.message, [jasmine.objectContaining({
-      type: AlertActionType.Button,
+    expect(fakeNotifications.showBanner).toHaveBeenCalledWith(BannerType.Error, fakeError.message, [jasmine.objectContaining({
+      type: BannerActionType.Button,
       caption: 'Dismiss',
     })]);
   });
@@ -293,7 +293,7 @@ describe('UserService', () => {
     expect(isPasswordChangedCalled).toBeTrue();
   });
 
-  it('should fall for changePassword and show Error alert', async () => {
+  it('should fall for changePassword and show Error banner', async () => {
     const resMessage = service.changePassword('old-password', 'new-password', 'john@smith.com').toPromise();
 
     const req = httpMock.expectOne(`/user/password/change/`);
@@ -301,8 +301,8 @@ describe('UserService', () => {
     req.flush(fakeError, {status: 400, statusText: ''});
     await resMessage;
 
-    expect(fakeNotifications.showAlert).toHaveBeenCalledWith(AlertType.Error, fakeError.message, [jasmine.objectContaining({
-      type: AlertActionType.Button,
+    expect(fakeNotifications.showBanner).toHaveBeenCalledWith(BannerType.Error, fakeError.message, [jasmine.objectContaining({
+      type: BannerActionType.Button,
       caption: 'Dismiss',
     })]);
   });
@@ -327,7 +327,7 @@ describe('UserService', () => {
     expect(isDeleteuserCalled).toBeTrue();
   });
 
-  it('should fall for deleteAccount and show Error alert', async () => {
+  it('should fall for deleteAccount and show Error banner', async () => {
     const metadata = {
       reason: 'missing-features',
       message: 'i want to add tables'
@@ -340,8 +340,8 @@ describe('UserService', () => {
     req.flush(fakeError, {status: 400, statusText: ''});
     await resMessage;
 
-    expect(fakeNotifications.showAlert).toHaveBeenCalledWith(AlertType.Error, fakeError.message, [jasmine.objectContaining({
-      type: AlertActionType.Button,
+    expect(fakeNotifications.showBanner).toHaveBeenCalledWith(BannerType.Error, fakeError.message, [jasmine.objectContaining({
+      type: BannerActionType.Button,
       caption: 'Dismiss',
     })]);
   });

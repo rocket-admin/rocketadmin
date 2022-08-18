@@ -1,4 +1,4 @@
-import { Alert, AlertActionType, AlertType } from 'src/app/models/alert';
+import { Banner, BannerActionType, BannerType } from 'src/app/models/banner';
 import { BehaviorSubject, Observable, of } from 'rxjs';
 import { TableForeignKey, Widget } from 'src/app/models/table';
 import { catchError, finalize } from 'rxjs/operators';
@@ -55,9 +55,9 @@ export class TablesDataSource implements DataSource<Object> {
   public widgetsCount: number = 0;
   public selectWidgetsOptions: object;
 
-  public alert_primaryKeysInfo: Alert;
-  public alert_settingsInfo: Alert;
-  public alert_widgetsWarning: Alert;
+  public banner_primaryKeysInfo: Banner;
+  public banner_settingsInfo: Banner;
+  public banner_widgetsWarning: Banner;
 
   constructor(
     private _tables: TablesService,
@@ -124,9 +124,9 @@ export class TablesDataSource implements DataSource<Object> {
     isTablePageSwitched
   }: RowsParams) {
       this.loadingSubject.next(true);
-      this.alert_primaryKeysInfo = null;
-      this.alert_settingsInfo = null;
-      this.alert_widgetsWarning = null;
+      this.banner_primaryKeysInfo = null;
+      this.banner_settingsInfo = null;
+      this.banner_widgetsWarning = null;
       const fetchedTable = this._tables.fetchTable({
         connectionID,
         tableName,
@@ -189,13 +189,13 @@ export class TablesDataSource implements DataSource<Object> {
             this.displayedColumns = [...this.displayedDataColumns, 'actions'];
           } else {
             this.displayedColumns = [...this.displayedDataColumns];
-            this.alert_primaryKeysInfo = {
+            this.banner_primaryKeysInfo = {
               id: 10000,
-              type: AlertType.Info,
+              type: BannerType.Info,
               message: 'We can not provide editing for this table because it does not have primary keys. Please add primary key in your database.',
               actions: [
                 {
-                  type: AlertActionType.Anchor,
+                  type: BannerActionType.Anchor,
                   caption: 'Instruction',
                   to: 'https://help.autoadmin.org/'
                 }
@@ -220,13 +220,13 @@ export class TablesDataSource implements DataSource<Object> {
               if (widget.widget_params.options) {
                 return {[widget.field_name]: widget.widget_params.options}
               } else {
-                this.alert_widgetsWarning = {
+                this.banner_widgetsWarning = {
                   id: 10002,
-                  type: AlertType.Warning,
+                  type: BannerType.Warning,
                   message: `Select widget for ${widget.field_name} column is configured incorrectly.`,
                   actions: [
                     {
-                      type: AlertActionType.Anchor,
+                      type: BannerActionType.Anchor,
                       caption: 'Instruction',
                       to: 'https://help.autoadmin.org/'
                     }
@@ -241,18 +241,18 @@ export class TablesDataSource implements DataSource<Object> {
           if (!res.configured && !widgetsConfigured
             && this._connections.connectionAccessLevel !== AccessLevel.None
             && this._connections.connectionAccessLevel !== AccessLevel.Readonly)
-            this.alert_settingsInfo = {
+            this.banner_settingsInfo = {
               id: 10001,
-              type: AlertType.Info,
+              type: BannerType.Info,
               message: 'This table is not configured.',
               actions: [
                 {
-                  type: AlertActionType.Link,
+                  type: BannerActionType.Link,
                   caption: 'Settings',
                   to: 'settings'
                 },
                 {
-                  type: AlertActionType.Link,
+                  type: BannerActionType.Link,
                   caption: 'Widgets',
                   to: 'widgets'
                 }

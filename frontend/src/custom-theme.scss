@@ -69,45 +69,11 @@ $md-app-accented-color: (
     )
 );
 
-/* For use in src/lib/core/theming/_palette.scss */
-$md-app-warn-color: (
-    50 : #fce7e7,
-    100 : #f7c4c2,
-    200 : #f29c9a,
-    300 : #ed7472,
-    400 : #e95753,
-    500 : #e53935,
-    600 : #e23330,
-    700 : #de2c28,
-    800 : #da2422,
-    900 : #d31716,
-    A100 : #ffffff,
-    A200 : #ffd1d1,
-    A400 : #ff9f9e,
-    A700 : #ff8585,
-    contrast: (
-        50 : #000000,
-        100 : #000000,
-        200 : #000000,
-        300 : #000000,
-        400 : #000000,
-        500 : #ffffff,
-        600 : #ffffff,
-        700 : #ffffff,
-        800 : #ffffff,
-        900 : #ffffff,
-        A100 : #000000,
-        A200 : #000000,
-        A400 : #000000,
-        A700 : #000000,
-    )
-);
-
 
 
 $custom-theme-primary: mat-palette($md-app-primary-color);
 $custom-theme-accent: mat-palette($md-app-accented-color);
-$custom-theme-warn: mat-palette($md-app-warn-color);
+$custom-theme-warn: mat-palette($mat-red);
 
 $custom-theme: mat-light-theme($custom-theme-primary, $custom-theme-accent, $custom-theme-warn);
 

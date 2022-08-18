@@ -36,18 +36,6 @@
             </ng-template>
 
             <h2 class="mat-subheading-1 mat-subheading-1_tables"><strong>Tables</strong></h2>
-            <div class="tables-options">
-                <button mat-button type="button"
-                    (click)="grantFullAccess()">
-                        Full access
-                </button>
-
-                <button mat-button type="button"
-                    (click)="deselectAllTables()">
-                        Clear all
-                </button>
-            </div>
-
             <app-content-loader *ngIf="loading"></app-content-loader>
             <mat-list role="list" class="tables-list">
                 <div *ngIf="connectionAccess === 'edit'" class="tables-overlay">
@@ -64,7 +52,7 @@
                     <div class="tableVisibility">
                         <input type="checkbox" name="{{table.tableName}}-visibility" id="{{table.tableName}}-visibility"
                             class="visually-hidden"
-                            (change)="uncheckActions(table)"
+                            (change)="uncheckActions(table.tableName)"
                             [(ngModel)]="table.accessLevel.visibility">
                         <label for="{{table.tableName}}-visibility">
                             <mat-icon class="visibilityIcon" [ngClass]="{'visibilityIcon_visible' : table.accessLevel.visibility}"
@@ -76,7 +64,7 @@
 
                     <mat-slide-toggle name="{{table.tableName}}-readonly-toggle"
                         [disabled]="!table.accessLevel.visibility"
-                        (change)="uncheckActions(table)"
+                        (change)="uncheckActions(table.tableName)"
                         [(ngModel)]="table.accessLevel.readonly">
                         ReadOnly
                     </mat-slide-toggle>

@@ -7,11 +7,12 @@ jobs:
       - uses: actions/checkout@v2
       - run: cd frontend && yarn install
       - name: run tests
-        run: cd frontend && yarn test --browsers=ChromeHeadlessCustom --no-watch --no-progress
+        run: cd frontend && yarn test
   license:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+      - uses: earthly/actions/setup-earthly@v1
       - uses: actions/setup-node@v3
         with:
           node-version: '16'

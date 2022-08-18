@@ -14,7 +14,6 @@ import { TablesDataSource } from './db-tables-data-source';
 import { TablesService } from 'src/app/services/tables.service';
 import { User } from 'src/app/models/user';
 import { normalizeTableName } from '../../lib/normalize'
-import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'app-dashboard',
@@ -37,12 +36,13 @@ export class DashboardComponent implements OnInit {
   public dbFetchError: boolean = false;
   public errorMessage: string;
 
-  public noTablesError: boolean = false;
-
   public dataSource: TablesDataSource = null;
 
+  private onDeleteSubscription;
+  private onUrlChange;
+
   constructor(
-    public router: Router,
+    private router: Router,
     private route: ActivatedRoute,
     public dialog: MatDialog,
     private _connections: ConnectionsService,
@@ -65,17 +65,12 @@ export class DashboardComponent implements OnInit {
     } catch(error) {
       this.loading = false;
       this.dbFetchError = true;
-      if (error instanceof HttpErrorResponse) {
-        this.errorMessage = error.error.message
-      } else  { throw error };
+      this.errorMessage = error.error.message;
       // @ts-ignore
-      Intercom('show');
+      customerly?.open();
     }
 
-    if (tables && tables.length === 0) {
-      this.noTablesError = true;
-      this.loading = false;
-    } else if (tables) {
+    if (tables) {
       this.formatTableNames(tables);
       this.route.paramMap
         .pipe(

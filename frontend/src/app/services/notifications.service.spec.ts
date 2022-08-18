@@ -2,19 +2,19 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 
 import { NotificationsService } from './notifications.service';
 import { TestBed } from '@angular/core/testing';
-import { Alert, AlertActionType, AlertType } from '../models/alert';
+import { Banner, BannerActionType, BannerType } from '../models/banner';
 
 describe('NotificationsService', () => {
   let service: NotificationsService;
   let snackBar: MatSnackBar;
 
-  const alert: Alert = {
+  const banner: Banner = {
     id: 0,
-    type: AlertType.Error,
+    type: BannerType.Error,
     message: 'Error message',
     actions: [
       {
-        type: AlertActionType.Button,
+        type: BannerActionType.Button,
         caption: 'Dismiss'
       }
     ]
@@ -59,44 +59,44 @@ describe('NotificationsService', () => {
     );
   });
 
-  it('should get alert', () => {
-    service.alert = alert;
-    expect(service.currentAlert).toEqual(alert);
+  it('should get banner', () => {
+    service.banner = banner;
+    expect(service.currentBanner).toEqual(banner);
   })
 
-  it('should show new alert', () => {
-    service.alert = alert;
-    service.showAlert(AlertType.Error, 'Error message 2', [
+  it('should show new banner', () => {
+    service.banner = banner;
+    service.showBanner(BannerType.Error, 'Error message 2', [
       {
-        type: AlertActionType.Button,
+        type: BannerActionType.Button,
         caption: 'Dissmis'
       }
     ]);
 
-    expect(service.alert).toEqual({
+    expect(service.banner).toEqual({
       id: 1,
-      type: AlertType.Error,
+      type: BannerType.Error,
       message: 'Error message 2',
       actions: [
         {
-          type: AlertActionType.Button,
+          type: BannerActionType.Button,
           caption: 'Dissmis'
         }
       ]
     })
   });
 
-  it('should dissmis alert', () => {
-    service.alert = alert;
-    service.dismissAlert();
+  it('should dissmis banner', () => {
+    service.banner = banner;
+    service.dismissBanner();
 
-    expect(service.alert).toBeNull();
+    expect(service.banner).toBeNull();
   }),
 
-  it('should reset alert', () => {
-    service.alert = alert;
-    service.resetAlert();
+  it('should reset banner', () => {
+    service.banner = banner;
+    service.resetBanner();
 
-    expect(service.alert).toBeNull();
+    expect(service.banner).toBeNull();
   })
 });

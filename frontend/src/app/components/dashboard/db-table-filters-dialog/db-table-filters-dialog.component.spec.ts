@@ -42,7 +42,7 @@ describe('DbTableFiltersDialogComponent', () => {
     "column_default": null,
     "data_type": "tinyint",
     "isExcluded": false,
-    "isSearched": true,
+    "isSearched": false,
     "auto_increment": false,
     "allow_null": true,
     "character_maximum_length": 1
@@ -87,7 +87,11 @@ describe('DbTableFiltersDialogComponent', () => {
       providers: [
         { provide: MAT_DIALOG_DATA, useValue: {} },
         { provide: MatDialogRef, useValue: {} },
-        // { provide: ActivatedRoute, useValue: {} }
+        { provide: ActivatedRoute, useValue: {
+          queryParams: of({
+            f__FirstName__contain: 'nn'
+          }),
+        }}
       ],
     })
     .compileComponents();
@@ -105,54 +109,32 @@ describe('DbTableFiltersDialogComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should setup the initial state of fields list and types', async () => {
+  it('should setup the initial state', async () => {
     spyOn(tablesService, 'fetchTableStructure').and.returnValue(of(mockTableStructure));
 
     component.ngOnInit();
     fixture.detectChanges();
     await fixture.whenStable();
 
+
     expect(component.tableForeignKeys).toEqual(mockTableStructure.foreignKeys);
     expect(component.fields).toEqual(['FirstName', 'Id', 'bool']);
+    expect(component.tableTypes).toEqual({
+      FirstName: 'varchar',
+      Id: 'foreign key',
+      bool: 'boolean'
+    });
     expect(component.tableRowStructure).toEqual({
       FirstName: fakeFirstName,
       Id: fakeId,
       bool: fakeBool
     });
-  });
-
-  it('should setup the initial state from search params', async () => {
-    component.route.snapshot.queryParams = {
-      f__FirstName__contain: 'nn'
-    };
-    spyOn(tablesService, 'fetchTableStructure').and.returnValue(of(mockTableStructure));
-
-    component.ngOnInit();
-    fixture.detectChanges();
-    await fixture.whenStable();
-
-    expect(component.tableFilters).toEqual(['FirstName']);
+    expect(component.tableFilters).toEqual(['FirstName'])
     expect(component.tableRowFieldsShown).toEqual({
       FirstName: 'nn'
     });
     expect(component.tableRowFieldsComparator).toEqual({
       FirstName: 'contain'
-    })
-  });
-
-  it('should setup the initial state from isSearched table settings', async () => {
-    spyOn(tablesService, 'fetchTableStructure').and.returnValue(of(mockTableStructure));
-
-    component.ngOnInit();
-    fixture.detectChanges();
-    await fixture.whenStable();
-
-    expect(component.tableFilters).toEqual(['bool']);
-    expect(component.tableRowFieldsShown).toEqual({
-      bool: ''
-    });
-    expect(component.tableRowFieldsComparator).toEqual({
-      bool: 'eq'
     })
   });
 
@@ -169,7 +151,6 @@ describe('DbTableFiltersDialogComponent', () => {
   });
 
   it('should update a field in the model from ui component', () => {
-    component.tableRowFieldsShown = { name: 'John' };
     component.updateField('new user name', 'name');
 
     expect(component.tableRowFieldsShown['name']).toEqual('new user name');

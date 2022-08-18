@@ -56,7 +56,3 @@
 .settings-form__save-button {
     margin-left: 20px;
 }
-
-.settings-banner ::ng-deep .banner-wrapper {
-    margin-top: 60px;
-}

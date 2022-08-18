@@ -3,7 +3,7 @@ import { HttpClientTestingModule, HttpTestingController } from '@angular/common/
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { TableRowService } from './table-row.service';
 import { NotificationsService } from './notifications.service';
-import { AlertActionType, AlertType } from '../models/alert';
+import { BannerActionType, BannerType } from '../models/banner';
 
 describe('TableRowService', () => {
   let service: TableRowService;
@@ -58,7 +58,7 @@ describe('TableRowService', () => {
   }
 
   beforeEach(() => {
-    fakeNotifications = jasmine.createSpyObj('NotificationsService', ['showErrorSnackbar', 'showSuccessSnackbar', 'showAlert']);
+    fakeNotifications = jasmine.createSpyObj('NotificationsService', ['showErrorSnackbar', 'showSuccessSnackbar', 'showBanner']);
 
     TestBed.configureTestingModule({
       imports: [
@@ -100,6 +100,17 @@ describe('TableRowService', () => {
     expect(isSubscribeCalled).toBe(true);
   });
 
+  it('should fall fetchTableRow and show Error snackbar', async () => {
+    const fetchTableRow = service.fetchTableRow('12345678', 'users_table', {id: 1}).toPromise();
+
+    const req = httpMock.expectOne(`/table/row/12345678?id=1&tableName=users_table`);
+    expect(req.request.method).toBe("GET");
+    req.flush(fakeError, {status: 400, statusText: ''});
+    await fetchTableRow;
+
+    expect(fakeNotifications.showErrorSnackbar).toHaveBeenCalledOnceWith(fakeError.message);
+  });
+
   it('should call addTableRow and show Success snackbar', () => {
     let isSubscribeCalled = false;
 
@@ -117,7 +128,7 @@ describe('TableRowService', () => {
     expect(isSubscribeCalled).toBe(true);
   });
 
-  it('should fall addTableRow and show Error alert', async () => {
+  it('should fall addTableRow and show Error banner', async () => {
     const addTableRow = service.addTableRow('12345678', 'users_table', tableRowValues).toPromise();
 
     const req = httpMock.expectOne(`/table/row/12345678?tableName=users_table`);
@@ -125,8 +136,8 @@ describe('TableRowService', () => {
     req.flush(fakeError, {status: 400, statusText: ''});
     await addTableRow;
 
-    expect(fakeNotifications.showAlert).toHaveBeenCalledWith(AlertType.Error, fakeError.message, [jasmine.objectContaining({
-      type: AlertActionType.Button,
+    expect(fakeNotifications.showBanner).toHaveBeenCalledWith(BannerType.Error, fakeError.message, [jasmine.objectContaining({
+      type: BannerActionType.Button,
       caption: 'Dismiss',
     })]);
   });
@@ -147,7 +158,7 @@ describe('TableRowService', () => {
     expect(isSubscribeCalled).toBe(true);
   });
 
-  it('should fall updateTableRow and show Error alert', async () => {
+  it('should fall updateTableRow and show Error banner', async () => {
     const addTableRow = service.updateTableRow('12345678', 'users_table', {id: 1}, tableRowValues).toPromise();
 
     const req = httpMock.expectOne(`/table/row/12345678?id=1&tableName=users_table`);
@@ -155,8 +166,8 @@ describe('TableRowService', () => {
     req.flush(fakeError, {status: 400, statusText: ''});
     await addTableRow;
 
-    expect(fakeNotifications.showAlert).toHaveBeenCalledWith(AlertType.Error, fakeError.message, [jasmine.objectContaining({
-      type: AlertActionType.Button,
+    expect(fakeNotifications.showBanner).toHaveBeenCalledWith(BannerType.Error, fakeError.message, [jasmine.objectContaining({
+      type: BannerActionType.Button,
       caption: 'Dismiss',
     })]);
   });

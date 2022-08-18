@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { Alert, AlertAction, AlertType } from '../models/alert';
+import { Banner, BannerAction, BannerType } from '../models/banner';
 
 let idCounter = 0;
 
@@ -9,7 +9,7 @@ let idCounter = 0;
 })
 export class NotificationsService {
 
-  public alert: Alert;
+  public banner: Banner;
 
   constructor(
     private snackBar: MatSnackBar,
@@ -29,13 +29,13 @@ export class NotificationsService {
     });
   }
 
-  get currentAlert() {
-    return this.alert;
+  get currentBanner() {
+    return this.banner;
   }
 
-  showAlert(type: AlertType, message: string, actions: AlertAction[]) {
+  showBanner(type: BannerType, message: string, actions: BannerAction[]) {
     idCounter++;
-    this.alert = {
+    this.banner = {
       id: idCounter,
       type: type,
       message: message,
@@ -44,11 +44,11 @@ export class NotificationsService {
     // window.scrollTo(0, 0);
   }
 
-  dismissAlert() {
-    this.alert = null;
+  dismissBanner() {
+    this.banner = null;
   }
 
-  resetAlert() {
-    this.alert = null;
+  resetBanner() {
+    this.banner = null;
   }
 }

@@ -4,7 +4,7 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { NotificationsService } from './notifications.service';
 
 import { AuthService } from './auth.service';
-import { AlertActionType, AlertType } from '../models/alert';
+import { BannerActionType, BannerType } from '../models/banner';
 import { ConnectionsService } from './connections.service';
 
 describe('AuthService', () => {
@@ -19,7 +19,7 @@ describe('AuthService', () => {
   }
 
   beforeEach(() => {
-    fakeNotifications = jasmine.createSpyObj('NotificationsService', ['showErrorSnackbar', 'showSuccessSnackbar', 'showAlert']);
+    fakeNotifications = jasmine.createSpyObj('NotificationsService', ['showErrorSnackbar', 'showSuccessSnackbar', 'showBanner']);
 
     TestBed.configureTestingModule({
       imports: [
@@ -75,7 +75,7 @@ describe('AuthService', () => {
     expect(isSignUpUserCalled).toBeTrue();
   });
 
-  it('should fall for signUpUser and show Error alert', async () => {
+  it('should fall for signUpUser and show Error banner', async () => {
     const userData = {
       email: 'john@smith.com',
       password: 'mM87654321'
@@ -88,8 +88,8 @@ describe('AuthService', () => {
     req.flush(fakeError, {status: 400, statusText: ''});
     await tokenExpiration;
 
-    expect(fakeNotifications.showAlert).toHaveBeenCalledWith(AlertType.Error, fakeError.message, [jasmine.objectContaining({
-      type: AlertActionType.Button,
+    expect(fakeNotifications.showBanner).toHaveBeenCalledWith(BannerType.Error, fakeError.message, [jasmine.objectContaining({
+      type: BannerActionType.Button,
       caption: 'Dismiss',
     })]);
   });
@@ -119,7 +119,7 @@ describe('AuthService', () => {
     expect(isSignUpUserCalled).toBeTrue();
   });
 
-  it('should fall for loginUser and show Error alert', async () => {
+  it('should fall for loginUser and show Error banner', async () => {
     const userData = {
       email: 'john@smith.com',
       password: 'mM87654321'
@@ -132,8 +132,8 @@ describe('AuthService', () => {
     req.flush(fakeError, {status: 400, statusText: ''});
     await tokenExpiration;
 
-    expect(fakeNotifications.showAlert).toHaveBeenCalledWith(AlertType.Error, fakeError.message, [jasmine.objectContaining({
-      type: AlertActionType.Button,
+    expect(fakeNotifications.showBanner).toHaveBeenCalledWith(BannerType.Error, fakeError.message, [jasmine.objectContaining({
+      type: BannerActionType.Button,
       caption: 'Dismiss',
     })]);
   });
@@ -157,7 +157,7 @@ describe('AuthService', () => {
     expect(isSignUpUserCalled).toBeTrue();
   });
 
-  it('should fall for verifyEmail and show Error alert', async () => {
+  it('should fall for verifyEmail and show Error banner', async () => {
     const verifyResponse = service.verifyEmail('12345678').toPromise();
 
     const req = httpMock.expectOne(`/user/email/verify/12345678`);
@@ -165,8 +165,8 @@ describe('AuthService', () => {
     req.flush(fakeError, {status: 400, statusText: ''});
     await verifyResponse;
 
-    expect(fakeNotifications.showAlert).toHaveBeenCalledWith(AlertType.Error, fakeError.message, [jasmine.objectContaining({
-      type: AlertActionType.Button,
+    expect(fakeNotifications.showBanner).toHaveBeenCalledWith(BannerType.Error, fakeError.message, [jasmine.objectContaining({
+      type: BannerActionType.Button,
       caption: 'Dismiss',
     })]);
   });

@@ -1,5 +1,18 @@
-<div class="banner-wrapper">
-    <div class="banner-box banner_{{type}}">
-        <ng-content></ng-content>
+<div *ngIf="currentBanner" class="banner" [ngClass]="'banner_' + currentBanner.type">
+    <mat-icon class="banner__icon">{{icons[currentBanner.type]}}</mat-icon>
+    <p class="mat-body-1" [innerHtml]="currentBanner.message"></p>
+    <div *ngIf="currentBanner.actions" class="actions">
+        <ng-container *ngFor="let action of currentBanner.actions">
+            <button mat-button type="button" *ngIf="action.type === 'button'"
+                (click)="onButtonClick(currentBanner, action)">
+                {{action.caption}}
+            </button>
+            <a mat-button *ngIf="action.type === 'external link'"
+                [href]="action.to" target="_blank">
+                {{action.caption}}
+            </a>
+            <a mat-button *ngIf="action.type === 'internal link'"
+                [routerLink]="action.to">{{action.caption}}</a>
+        </ng-container>
     </div>
 </div>

@@ -1,4 +1,4 @@
-import { AlertActionType, AlertType } from 'src/app/models/alert';
+import { BannerActionType, BannerType } from 'src/app/models/banner';
 import { ComponentFixture, TestBed, async } from '@angular/core/testing';
 import { ConnectionType, DBtype } from 'src/app/models/connection';
 import { FormsModule, NG_VALUE_ACCESSOR }   from '@angular/forms';
@@ -26,7 +26,7 @@ describe('ConnectDBComponent', () => {
   let dialog: MatDialog;
   let mockLocalStorage;
 
-  let fakeNotifications = jasmine.createSpyObj('NotificationsService', ['showErrorSnackbar', 'showSuccessSnackbar', 'showAlert', 'dismissAlert']);
+  let fakeNotifications = jasmine.createSpyObj('NotificationsService', ['showErrorSnackbar', 'showSuccessSnackbar', 'showBanner', 'dismissBanner']);
   let fakeConnectionsService = jasmine.createSpyObj('ConnectionsService', [
     'currentConnection', 'currentConnectionAccessLevel', 'testConnection',
     'createConnection', 'updateConnection'
@@ -105,7 +105,7 @@ describe('ConnectDBComponent', () => {
       // @ts-ignore
       global.window.fbq = jasmine.createSpy();
       // @ts-ignore
-      global.window.Intercom = jasmine.createSpy();
+      global.window.customerly = {open: jasmine.createSpy()};
 
     fakeConnectionsService.currentConnection.and.returnValue(connectionCredsApp);
     // fakeConnectionsService.currentConnectionAccessLevel.and.returnValue('edit');
@@ -128,19 +128,19 @@ describe('ConnectDBComponent', () => {
     fakeNotifications.showSuccessSnackbar.calls.reset();
   });
 
-  it('should show Error alert if test passes unsuccessfully', () => {
+  it('should show Error banner if test passes unsuccessfully', () => {
     fakeConnectionsService.testConnection.and.returnValue(of({
       result: false,
       message: 'Error in hostname.'
     }));
 
     component.testConnection();
-    expect(fakeNotifications.showAlert).toHaveBeenCalledWith(AlertType.Error, 'Error in hostname.', [jasmine.objectContaining({
-      type: AlertActionType.Button,
+    expect(fakeNotifications.showBanner).toHaveBeenCalledWith(BannerType.Error, 'Error in hostname.', [jasmine.objectContaining({
+      type: BannerActionType.Button,
       caption: 'Dismiss',
     })]);
 
-    fakeNotifications.showAlert.calls.reset();
+    fakeNotifications.showBanner.calls.reset();
   });
 
   it('should set 1521 port for Oracle db type', () => {
@@ -206,12 +206,11 @@ describe('ConnectDBComponent', () => {
 
   it('should create agent connection and set token', () => {
     const dbApp = {
-      id: null,
       title: "Agent connection",
-      type: DBtype.Oracle,
-      port: '5432',
+      type: 'agent_oracle',
+      port: 5432,
       connectionType: ConnectionType.Agent
-    } as any;
+    };
 
     const dbRes = {
       id: "9d5f6d0f-9516-4598-91c4-e4fe6330b4d4",
@@ -239,12 +238,11 @@ describe('ConnectDBComponent', () => {
 
   it('should update agent connection and set token', () => {
     const dbApp = {
-      id: null,
       title: "Agent connection",
-      type: DBtype.Oracle,
-      port: '5432',
+      type: 'agent_oracle',
+      port: 5432,
       connectionType: ConnectionType.Agent
-    } as any;
+    };
 
     const dbRes = {
       connection: {

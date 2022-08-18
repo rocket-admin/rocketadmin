@@ -1,5 +1,5 @@
 import { ActivatedRoute, Router } from '@angular/router';
-import { Alert, AlertActionType, AlertType } from 'src/app/models/alert';
+import { Banner, BannerActionType, BannerType } from 'src/app/models/banner';
 import { Component, NgZone, OnInit } from '@angular/core';
 import { Connection, ConnectionType, DBtype, TestConnection } from 'src/app/models/connection';
 
@@ -27,12 +27,12 @@ export class ConnectDBComponent implements OnInit {
   public submitting: boolean = false;
   public userOS = null;
   public otherOS = [];
-  public warning: Alert = {
+  public warning: Banner = {
     id: 10000000,
-    type: AlertType.Warning,
+    type: BannerType.Warning,
     message: 'You need to allow access from <strong>18.221.81.73</strong> IP address to manage the database.',
   }
-  // public errorAlert: Alert;
+  // public errorBanner: Banner;
 
   public ports = {
     [DBtype.MySQL]: '3306',
@@ -95,21 +95,21 @@ export class ConnectDBComponent implements OnInit {
       .subscribe(
         (credsCorrect: TestConnection) => {
           if (credsCorrect.result) {
-            this._notifications.dismissAlert();
+            this._notifications.dismissBanner();
             this._notifications.showSuccessSnackbar('Connection exists. Your credentials are correct.')
           } else {
-            this._notifications.showAlert(AlertType.Error, credsCorrect.message, [
+            this._notifications.showBanner(BannerType.Error, credsCorrect.message, [
               {
-                type: AlertActionType.Button,
+                type: BannerActionType.Button,
                 caption: 'Dismiss',
-                action: (id: number) => this._notifications.dismissAlert()
+                action: (id: number) => this._notifications.dismissBanner()
               }
             ]);
             //@ts-ignore
-            Intercom('show');
+            customerly?.open()
           };
         },
-        () => {this.submitting = false},
+        undefined,
         () => {this.submitting = false}
       );
   }
@@ -173,7 +173,7 @@ export class ConnectDBComponent implements OnInit {
     });
     this.submitting = false;
     //@ts-ignore
-    Intercom('show');
+    customerly?.open()
   }
 
   amplitudeTrackAddConnection(isCorrectCreds: boolean) {

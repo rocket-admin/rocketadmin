@@ -16,25 +16,15 @@
   <link href="https://fonts.googleapis.com/css?family=Poppins:300,400,500&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
-  <!-- Intercom -->
+  <!-- Customerly Live Chat Snippet Code -->
   <script>
-      window.intercomSettings = {
-        api_base: "https://api-iam.intercom.io",
-        app_id: "q2bwv46v"
-      };
-      window.intercomSettings = {
-        app_id: "q2bwv46v",
-        alignment: 'right',
-        horizontal_padding: 20,
-        vertical_padding: 20
-      };
-  </script>
-  <script>
-    // We pre-filled your app ID in the widget URL: 'https://widget.intercom.io/widget/q2bwv46v'
-    (function(){var w=window;var ic=w.Intercom;if(typeof ic==="function"){ic('reattach_activator');ic('update',w.intercomSettings);}else{var d=document;var i=function(){i.c(arguments);};i.q=[];i.c=function(args){i.q.push(args);};w.Intercom=i;var l=function(){var s=d.createElement('script');s.type='text/javascript';s.async=true;s.src='https://widget.intercom.io/widget/q2bwv46v';var x=d.getElementsByTagName('script')[0];x.parentNode.insertBefore(s,x);};if(document.readyState==='complete'){l();}else if(w.attachEvent){w.attachEvent('onload',l);}else{w.addEventListener('load',l,false);}}})();
-  </script>
-  <!-- Intercom -->
+      !function(){var e=window,i=document,t="customerly",n="queue",o="load",r="settings",u=e[t]=e[t]||[];if(u.t){return void u.i("[customerly] SDK already initialized. Snippet included twice.")}u.t=!0;u.loaded=!1;u.o=["event","attribute","update","show","hide","open","close"];u[n]=[];u.i=function(t){e.console&&!u.debug&&console.error&&console.error(t)};u.u=function(e){return function(){var t=Array.prototype.slice.call(arguments);return t.unshift(e),u[n].push(t),u}};u[o]=function(t){u[r]=t||{};if(u.loaded){return void u.i("[customerly] SDK already loaded. Use customerly.update to change settings.")}u.loaded=!0;var e=i.createElement("script");e.type="text/javascript",e.async=!0,e.src="https://messenger.customerly.io/launcher.js";var n=i.getElementsByTagName("script")[0];n.parentNode.insertBefore(e,n)};u.o.forEach(function(t){u[t]=u.u(t)})}();
 
+      customerly.load({
+            "app_id": "4ce38f37"
+      });
+  </script>
+  <!-- End of Customerly Live Chat Snippet Code -->
 
   <!-- Global site tag (gtag.js) - Google Ads: 419937947 -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=AW-419937947"></script>
@@ -80,32 +70,6 @@
   <!-- End Facebook Pixel Code -->
 
   <script src="https://accounts.google.com/gsi/client"></script>
-  <script async defer crossorigin="anonymous" src="https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v14.0" nonce="Fb790BHM"></script>
-
-  <script>
-    window.fbAsyncInit = function() {
-      FB.init({
-        appId      : '2931389687130672',
-        cookie     : true,  // enable cookies to allow the server to access
-                            // the session
-        xfbml      : true,  // parse social plugins on this page
-        version    : 'v14.0' // Specify the Graph API version to use
-      });
-    }
-  </script>
-
-  <script async src="https://js.stripe.com/v3/pricing-table.js"></script>
-
-  <!-- <script>
-      (function(d, s, id) {
-        var js, fjs = d.getElementsByTagName(s)[0];
-        if (d.getElementById(id)) return;
-        js = d.createElement(s); js.id = id;
-        js.src = "https://connect.facebook.net/en_US/sdk.js";
-        fjs.parentNode.insertBefore(js, fjs);
-      }(document, 'script', 'facebook-jssdk'));
-
-  </script> -->
 
 </head>
 <body>

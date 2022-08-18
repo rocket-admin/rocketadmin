@@ -27,7 +27,6 @@ export class AuditComponent implements OnInit {
   public usersList: User[];
   public userEmail: string = 'showAll';
   public errorMessage: string;
-  public noTablesError: boolean = false;
 
   public dataSource: AuditDataSource = null;
 
@@ -63,7 +62,6 @@ export class AuditComponent implements OnInit {
       .subscribe(
         res => {
         this.tablesList = res;
-        this.noTablesError = (res.length === 0)
       },
       (err) => {
         this.errorMessage = err.error.message;

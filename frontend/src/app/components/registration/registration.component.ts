@@ -1,4 +1,5 @@
 import { Component, NgZone, OnInit } from '@angular/core';
+import { FacebookLoginProvider, GoogleLoginProvider, SocialAuthService } from '@abacritt/angularx-social-login';
 
 import { Angulartics2 } from 'angulartics2';
 import { AuthService } from 'src/app/services/auth.service';
@@ -23,9 +24,9 @@ export class RegistrationComponent implements OnInit {
     private ngZone: NgZone,
     private angulartics2: Angulartics2,
     public router: Router,
-    private _auth: AuthService
-  ) {
-   }
+    private _auth: AuthService,
+    private socialAuthService: SocialAuthService
+  ) { }
 
   ngOnInit(): void {
     this.angulartics2.eventTrack.next({
@@ -40,11 +41,7 @@ export class RegistrationComponent implements OnInit {
       client_id: "681163285738-e4l0lrv5vv7m616ucrfhnhso9r396lum.apps.googleusercontent.com",
       callback: (authUser) => {
         this.ngZone.run(() => {
-          this._auth.loginWithGoogle(authUser.credential).subscribe(() => {
-            this.angulartics2.eventTrack.next({
-              action: 'Reg: google login success'
-            });
-          });
+          this._auth.loginWithGoogle(authUser.credential).subscribe();
         })
       }
     });
@@ -56,22 +53,9 @@ export class RegistrationComponent implements OnInit {
     //@ts-ignore
     google.accounts.id.prompt();
 
-    //@ts-ignore
-    if (typeof FB !== 'undefined') window.fbAsyncInit();
-
-    //@ts-ignore
-    window.loginWithFacebook = () => {
-      //@ts-ignore
-      FB.getLoginStatus((response) => {
-        this.ngZone.run(() => {
-          this._auth.loginWithFacebook(response.authResponse.accessToken).subscribe(() => {
-            this.angulartics2.eventTrack.next({
-              action: 'Reg: fb login success'
-            });
-          });
-        })
-      });
-    }
+    this.socialAuthService.authState.subscribe((authUser) => {
+      if (authUser.provider === "FACEBOOK") this._auth.loginWithFacebook(authUser.authToken).subscribe();
+    });
   }
 
   registerUser() {
@@ -88,5 +72,9 @@ export class RegistrationComponent implements OnInit {
       });
       this.submitting = false;
     }, () => this.submitting = false)
+  }
+
+  loginWithFacebook() {
+    this.socialAuthService.signIn(FacebookLoginProvider.PROVIDER_ID);
   }
 }

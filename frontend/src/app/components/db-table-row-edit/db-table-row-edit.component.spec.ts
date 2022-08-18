@@ -154,6 +154,14 @@ describe('DbTableRowEditComponent', () => {
 
     component.setRowStructure(fakeStructure);
 
+    expect(component.tableTypes).toEqual({
+      product_categories: "enum",
+      customer_categories: "enum",
+      CustomerId: "foreign key",
+      ProductId: "foreign key",
+      bool: "boolean",
+      float: "float"
+    });
     expect(component.tableRowRequiredValues).toEqual({
       product_categories: false,
       customer_categories: false,

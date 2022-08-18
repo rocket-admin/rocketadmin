@@ -1,4 +1,4 @@
-import { AlertActionType, AlertType } from '../models/alert';
+import { BannerActionType, BannerType } from '../models/banner';
 import { BehaviorSubject, EMPTY, Observable, ReplaySubject, Subject } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 
@@ -51,11 +51,11 @@ export class TableRowService {
         }),
         catchError((err) => {
           console.log(err);
-          this._notifications.showAlert(AlertType.Error, err.error.message, [
+          this._notifications.showBanner(BannerType.Error, err.error.message, [
             {
-              type: AlertActionType.Button,
+              type: BannerActionType.Button,
               caption: 'Dismiss',
-              action: (id: number) => this._notifications.dismissAlert()
+              action: (id: number) => this._notifications.dismissBanner()
             }
           ]);
           return EMPTY;
@@ -77,11 +77,11 @@ export class TableRowService {
         }),
         catchError((err) => {
           console.log(err);
-          this._notifications.showAlert(AlertType.Error, err.error.message, [
+          this._notifications.showBanner(BannerType.Error, err.error.message, [
             {
-              type: AlertActionType.Button,
+              type: BannerActionType.Button,
               caption: 'Dismiss',
-              action: (id: number) => this._notifications.dismissAlert()
+              action: (id: number) => this._notifications.dismissBanner()
             }
           ]);
           return EMPTY;

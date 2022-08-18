@@ -1,8 +1,7 @@
 .permissions {
     display: grid;
     grid-template-columns: auto 1fr;
-    grid-gap: 12px 60px;
-    align-items: center;
+    grid-gap: 4px 60px;
     margin-bottom: 8px;
 }
 
@@ -14,25 +13,15 @@
     margin-right: 20px;
 }
 
-.mat-subheading-1 {
+.mat-subheading-1_tables {
+    margin-top: 4px;
     margin-bottom: 0;
-}
-
-.tables-options {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-}
-
-.mat-subheading-1_tables,
-.tables-options {
-    margin-top: 8px;
 }
 
 .tables-list {
     position: relative;
     grid-column: 1 / span 2;
-    margin-top: -12px;
+    margin-top: -4px;
 }
 
 .tables-overlay {

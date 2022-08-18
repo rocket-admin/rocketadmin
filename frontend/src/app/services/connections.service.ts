@@ -8,7 +8,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { MasterPasswordService } from './master-password.service';
 import { NotificationsService } from './notifications.service';
-import { AlertActionType, AlertType } from '../models/alert';
+import { BannerActionType, BannerType } from '../models/banner';
 
 interface LogParams {
   connectionID: string,
@@ -71,7 +71,7 @@ export class ConnectionsService {
           this.currentPage = this.router.routerState.snapshot.root.firstChild.url[0].path;
           this.setConnectionID(urlConnectionID);
           this.setConnectionInfo(urlConnectionID);
-          this._notifications.resetAlert();
+          this._notifications.resetBanner();
 				}
 			)
     ;
@@ -147,11 +147,11 @@ export class ConnectionsService {
         catchError((err) => {
           console.log(err);
           // this._notifications.showErrorSnackbar(err.error.message);
-          this._notifications.showAlert(AlertType.Error, err.error.message, [
+          this._notifications.showBanner(BannerType.Error, err.error.message, [
             {
-              type: AlertActionType.Button,
+              type: BannerActionType.Button,
               caption: 'Dismiss',
-              action: (id: number) => this._notifications.dismissAlert()
+              action: (id: number) => this._notifications.dismissBanner()
             }
           ]);
           return EMPTY;
@@ -198,7 +198,7 @@ export class ConnectionsService {
       map(res => res),
       catchError((err) => {
         console.log(err);
-        this._notifications.showAlert(AlertType.Error, err.error.message, []);
+        this._notifications.showBanner(BannerType.Error, err.error.message, []);
         return EMPTY;
       }
       )

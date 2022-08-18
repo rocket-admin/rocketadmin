@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { SocialAuthService, SocialLoginModule } from '@abacritt/angularx-social-login';
 
 import { Angulartics2Module } from 'angulartics2';
 import { AuthService } from 'src/app/services/auth.service';
@@ -13,6 +14,7 @@ describe('RegistrationComponent', () => {
   let component: RegistrationComponent;
   let fixture: ComponentFixture<RegistrationComponent>;
   let authService: AuthService;
+  let socialAuthService: SocialAuthService;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -21,7 +23,14 @@ describe('RegistrationComponent', () => {
         RouterTestingModule.withRoutes([]),
         FormsModule,
         MatSnackBarModule,
-        Angulartics2Module.forRoot()
+        Angulartics2Module.forRoot(),
+        SocialLoginModule
+      ],
+      providers: [
+        { provide: 'SocialAuthServiceConfig', useValue: {
+          autoLogin: false,
+          providers: []
+        } }
       ],
       declarations: [ RegistrationComponent ]
     })
@@ -42,6 +51,7 @@ describe('RegistrationComponent', () => {
     fixture = TestBed.createComponent(RegistrationComponent);
     component = fixture.componentInstance;
     authService = TestBed.inject(AuthService);
+    socialAuthService = TestBed.inject(SocialAuthService);
     fixture.detectChanges();
   });
 
@@ -63,5 +73,12 @@ describe('RegistrationComponent', () => {
       password: 'kK123456789'
     });
     expect(component.submitting).toBeFalse();
+  });
+
+  it('should login a user with FB', () => {
+    const fakeLoginFB = spyOn(socialAuthService, 'signIn');
+
+    component.loginWithFacebook();
+    expect(fakeLoginFB).toHaveBeenCalled();
   });
 });

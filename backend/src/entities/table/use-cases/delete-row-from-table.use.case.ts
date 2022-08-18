@@ -28,6 +28,7 @@ export class DeleteRowFromTableUseCase
   }
 
   protected async implementation(inputData: DeleteRowFromTableDs): Promise<DeletedRowFromTableDs> {
+    // eslint-disable-next-line prefer-const
     let { connectionId, masterPwd, primaryKey, tableName, userId } = inputData;
     let operationResult = OperationResultStatusEnum.unknown;
     if (!primaryKey) {

@@ -1,5 +1,6 @@
-import { Component, OnInit, ViewChild, Input } from '@angular/core';
-import { AlertType } from 'src/app/models/alert';
+import { Component, Input, OnInit } from '@angular/core';
+import { Banner } from 'src/app/models/banner';
+import { NotificationsService } from 'src/app/services/notifications.service';
 
 @Component({
   selector: 'app-banner',
@@ -7,14 +8,26 @@ import { AlertType } from 'src/app/models/alert';
   styleUrls: ['./banner.component.css']
 })
 export class BannerComponent implements OnInit {
-  @Input() type: AlertType;
+  @Input() banner: Banner;
 
+  public icons = {
+    error: 'error_outline',
+    warning: 'warning_amber',
+    info: 'info_outline',
+    succes: 'task_alt'
+  }
 
   constructor(
+    private _notifications: NotificationsService,
   ) { }
 
+  get currentBanner() {
+    return this.banner || this._notifications.currentBanner;
+  }
 
   ngOnInit(): void {}
 
-
+  onButtonClick(banner: Banner, action) {
+    action.action(banner.id);
+  }
 }
