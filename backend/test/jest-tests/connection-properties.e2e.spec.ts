@@ -168,6 +168,7 @@ describe('Connection properties', () => {
         .set('Content-Type', 'application/json')
         .set('Accept', 'application/json');
       const createConnectionPropertiesRO = JSON.parse(createConnectionPropertiesResponse.text);
+      console.log('-> createConnectionPropertiesRO', createConnectionPropertiesRO);
       expect(createConnectionPropertiesResponse.status).toBe(201);
       expect(createConnectionPropertiesRO.hidden_tables[0]).toBe(newConnectionProperties.hidden_tables[0]);
       expect(createConnectionPropertiesRO.connectionId).toBe(createConnectionRO.id);
@@ -217,6 +218,7 @@ describe('Connection properties', () => {
         .set('Content-Type', 'application/json')
         .set('Accept', 'application/json');
       const createConnectionPropertiesRO = JSON.parse(createConnectionPropertiesResponse.text);
+      console.log('-> createConnectionPropertiesRO', createConnectionPropertiesRO);
       expect(createConnectionPropertiesResponse.status).toBe(201);
 
       const getConnectionPropertiesResponse = await request(app.getHttpServer())
@@ -343,6 +345,7 @@ describe('Connection properties', () => {
         .set('Content-Type', 'application/json')
         .set('Accept', 'application/json');
       const createConnectionPropertiesRO = JSON.parse(createConnectionPropertiesResponse.text);
+      console.log('-> createConnectionPropertiesRO', createConnectionPropertiesRO);
       expect(createConnectionPropertiesResponse.status).toBe(201);
       expect(createConnectionPropertiesRO.hidden_tables[0]).toBe(newConnectionProperties.hidden_tables[0]);
       expect(createConnectionPropertiesRO.connectionId).toBe(createConnectionRO.id);
