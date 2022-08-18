@@ -6,5 +6,6 @@ export const PROCESSING_MESSAGES_REPLACE = {
   ALLOW_CONNECTIONS:
     'Client was not able to connect to address. Please allow external connections to your database ' +
     'or use agent connection.',
+  UPDATE_COMMAND_DENIED: `No permission to update record. Please ask your system administator to grant you access in the database`,
   NO_PGHBA_ENTRY: `Please add this line to pg_hba.conf: <database_name> all 18.221.81.73/32 md5`,
 };

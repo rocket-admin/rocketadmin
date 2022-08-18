@@ -1008,6 +1008,7 @@ describe('Groups (e2e)', () => {
           .set('Accept', 'application/json');
         expect(createGroupResponse.status).toBe(201);
         const createGroupRO = JSON.parse(createGroupResponse.text);
+
         const requestBody = {
           email: secondUserRegisterInfo.email,
           groupId: createGroupRO.id,

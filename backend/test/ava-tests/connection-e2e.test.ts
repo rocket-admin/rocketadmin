@@ -216,6 +216,7 @@ test(`${currentTest} should return all connection users from different groups`, 
       .set('Cookie', token)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
+    console.log('-> addUserInGroupResponse.text', addUserInGroupResponse.text);
 
     t.is(addUserInGroupResponse.status, 200);
 
@@ -278,6 +279,7 @@ test(`${currentTest} should throw an exception, when connection id is incorrect`
       .set('Content-Type', 'application/json')
       .set('Cookie', token)
       .set('Accept', 'application/json');
+    console.log('-> addUserInGroupResponse', addUserInGroupResponse.text);
     t.is(addUserInGroupResponse.status, 200);
 
     const fakeConnectionId = faker.datatype.uuid();
