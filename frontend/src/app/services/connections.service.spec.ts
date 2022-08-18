@@ -1,4 +1,4 @@
-import { BannerActionType, BannerType } from '../models/banner';
+import { AlertActionType, AlertType } from '../models/alert';
 import { ConnectionType, DBtype } from '../models/connection';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 
@@ -88,7 +88,7 @@ describe('ConnectionsService', () => {
   }
 
   beforeEach(() => {
-    fakeNotifications = jasmine.createSpyObj('NotificationsService', ['showErrorSnackbar', 'showSuccessSnackbar', 'showBanner']);
+    fakeNotifications = jasmine.createSpyObj('NotificationsService', ['showErrorSnackbar', 'showSuccessSnackbar', 'showAlert']);
     fakeMasterPassword = jasmine.createSpyObj('MasterPasswordService', ['showMasterPasswordDialog']);
 
     TestBed.configureTestingModule({
@@ -322,15 +322,15 @@ describe('ConnectionsService', () => {
     expect(isSubscribeCalled).toBe(true);
   });
 
-  it('should fall with error for fetchConnections and show Error banner', async () => {
+  it('should fall with error for fetchConnections and show Error alert', async () => {
     const connections = service.fetchConnections().toPromise();
     const req = httpMock.expectOne(`/connections`);
     expect(req.request.method).toBe("GET");
     req.flush(fakeError, {status: 400, statusText: ''});
     await connections;
 
-    expect(fakeNotifications.showBanner).toHaveBeenCalledWith(BannerType.Error, fakeError.message, [jasmine.objectContaining({
-      type: BannerActionType.Button,
+    expect(fakeNotifications.showAlert).toHaveBeenCalledWith(AlertType.Error, fakeError.message, [jasmine.objectContaining({
+      type: AlertActionType.Button,
       caption: 'Dismiss',
     })]);
   });
@@ -395,7 +395,7 @@ describe('ConnectionsService', () => {
     expect(isSubscribeCalled).toBe(true);
   });
 
-  it('should fall testConnection and show Error banner', async () => {
+  it('should fall testConnection and show Error alert', async () => {
     const isConnectionWorks = service.testConnection('12345678', connectionCredsApp).toPromise();
 
     const req = httpMock.expectOne(`/connection/test?connectionId=12345678`);
@@ -404,7 +404,7 @@ describe('ConnectionsService', () => {
     req.flush(fakeError, {status: 400, statusText: ''});
     await isConnectionWorks;
 
-    expect(fakeNotifications.showBanner).toHaveBeenCalledWith(BannerType.Error, fakeError.message, []);
+    expect(fakeNotifications.showAlert).toHaveBeenCalledWith(AlertType.Error, fakeError.message, []);
   });
 
   it('should call createConnection and show Success Snackbar', () => {
@@ -627,7 +627,7 @@ describe('ConnectionsService', () => {
     expect(isSubscribeCalled).toBe(true);
   });
 
-  it('should fall createConnectionSettings and show Error banner', async () => {
+  it('should fall createConnectionSettings and show Error alert', async () => {
     const createSettings = service.createConnectionSettings('12345678', ['users', 'orders']).toPromise();
 
     const req = httpMock.expectOne(`/connection/properties/12345678`);
@@ -674,7 +674,7 @@ describe('ConnectionsService', () => {
     expect(isSubscribeCalled).toBe(true);
   });
 
-  it('should fall createConnectionSettings and show Error banner', async () => {
+  it('should fall createConnectionSettings and show Error alert', async () => {
     const updateSettings = service.updateConnectionSettings('12345678', ['users', 'orders', 'products']).toPromise();
 
     const req = httpMock.expectOne(`/connection/properties/12345678`);
@@ -707,7 +707,7 @@ describe('ConnectionsService', () => {
     expect(isSubscribeCalled).toBe(true);
   });
 
-  it('should fall deleteConnectionSettings and show Error banner', async () => {
+  it('should fall deleteConnectionSettings and show Error alert', async () => {
     const deleteSettings = service.deleteConnectionSettings('12345678').toPromise();
 
     const req = httpMock.expectOne(`/connection/properties/12345678`);

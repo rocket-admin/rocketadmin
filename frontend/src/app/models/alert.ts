@@ -1,27 +1,27 @@
-export enum BannerType {
+export enum AlertType {
     Warning = 'warning',
     Error = 'error',
     Info = 'info',
     Success = 'success'
 }
 
-export enum BannerActionType {
+export enum AlertActionType {
     Anchor = 'external link',
     Link = 'internal link',
     Button = 'button',
 }
 
-export interface BannerAction {
-    type: BannerActionType,
+export interface AlertAction {
+    type: AlertActionType,
     caption: string,
     to?: string,
     action?: (id: number) => void;
 }
 
-export interface Banner {
+export interface Alert {
     id: number,
-    type: BannerType,
+    type: AlertType,
     message: string,
-    actions?: BannerAction[]
+    actions?: AlertAction[]
 }
 

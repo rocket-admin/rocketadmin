@@ -29,6 +29,7 @@
 
 .soc-buttons {
     display: flex;
+    gap: 16px;
     margin: 20px 0 40px;
 }
 
@@ -38,28 +39,6 @@
         align-items: center;
         gap: 20px;
     }
-}
-
-.fb-button {
-    margin-left: 16px;
-    width: 224px;
-}
-
-@media screen and (max-width: 600px) {
-    .fb-button {
-        margin-left: 0;
-    }
-}
-
-::ng-deep .soc-button .mat-button-wrapper {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.soc-button-icon {
-    height: 16px;
-    margin-right: 4px;
 }
 
 .sing-up {

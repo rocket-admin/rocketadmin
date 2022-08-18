@@ -1,15 +1,15 @@
-<app-banner></app-banner>
+<app-alert></app-alert>
 <app-content-loader *ngIf="loading"></app-content-loader>
-<div *ngIf="rowError" class="error-wrapper">
-    <div class="error-box">
-        <p class="mat-body-1 error-message">{{rowError}}</p>
-        <div class="error-actions">
-            <a mat-button routerLink="/dashboard/{{connectionID}}/{{tableName}}">
-                Dashboard
-            </a>
-        </div>
+
+<app-banner *ngIf="rowError" type="error" class="row-banner">
+    <p class="mat-body-1 error-message">{{rowError}}</p>
+    <div class="error-actions">
+        <a mat-stroked-button routerLink="/dashboard/{{connectionID}}/{{tableName}}">
+            Dashboard
+        </a>
     </div>
-</div>
+</app-banner>
+
 <div *ngIf="tableRowValues" class="wrapper">
     <form #editRowForm="ngForm" class="form"
         (ngSubmit)="keyAttributes ? updateRow() : addRow()">

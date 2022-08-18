@@ -1,4 +1,4 @@
-<app-banner></app-banner>
+<app-alert></app-alert>
 <app-content-loader *ngIf="!widgets"></app-content-loader>
 
 <div *ngIf="widgets" class="wrapper">
@@ -42,18 +42,25 @@
                 <mat-label>Widget type</mat-label>
                 <mat-select name="{{i}}-field-type"
                     [(ngModel)]="widget.widget_type"
-                    (ngModelChange)="onWidgetTypeChange(widget.field_name)">
+                    (ngModelChange)="onWidgetTypeChange(widget)">
                     <mat-option *ngFor="let widgetType of widgetTypes"
                         [value]="widgetType">{{ widgetType }}</mat-option>
                 </mat-select>
             </mat-form-field>
 
-            <div class="widget-params">
-                <json-editor
-                    [options]="makeOptions()"
-                    [data]="widget.widget_params"
-                    (change)="onWidgetParamsChange($event, widget.field_name)"></json-editor>
-            </div>
+            <mat-form-field *ngIf="widget.widget_type === 'Password'; else jsonComponent" appearance="outline">
+                <mat-label>Pattern</mat-label>
+                <input matInput [(ngModel)]="widget.widget_params" name="{{i}}-field-settings">
+                <!-- <mat-error *ngIf="sslCert.errors?.required && (sslCert.invalid && sslCert.touched)">SSL certificate should not be empty.</mat-error> -->
+            </mat-form-field>
+            <ng-template #jsonComponent>
+                <div class="widget-params">
+                    <json-editor
+                        [options]="makeOptions()"
+                        [data]="widget.widget_params"
+                        (change)="onWidgetParamsChange($event, widget.field_name)"></json-editor>
+                </div>
+            </ng-template>
 
             <mat-form-field appearance="outline">
                 <mat-label>Field name</mat-label>

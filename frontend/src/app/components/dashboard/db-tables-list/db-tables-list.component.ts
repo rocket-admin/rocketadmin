@@ -19,7 +19,7 @@ export class DbTablesListComponent {
   }
 
   serach() {
-    this.foundTables = this.tables.filter(tableItem => tableItem.table.toLowerCase().includes(this.searchString.toLowerCase()));
-    console.log(this.foundTables);
+    this.foundTables = this.tables
+      .filter(tableItem => tableItem.table.toLowerCase().includes(this.searchString.toLowerCase()) || (tableItem.display_name && tableItem.display_name.toLowerCase().includes(this.searchString.toLowerCase())));
   }
 }

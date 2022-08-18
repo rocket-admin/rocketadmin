@@ -15,13 +15,16 @@ export class AuthGuard implements CanActivate {
     state: RouterStateSnapshot
   ) {
     try {
-      const expirationTime = new Date(localStorage.getItem('token_expiration'));
+      const expirationToken = localStorage.getItem('token_expiration');
+      let expirationTime = null;
+      if (expirationToken) expirationTime = new Date(expirationToken);
       const currantTime = new Date();
 
     if (expirationTime && currantTime) {
       const expirationInterval = differenceInMilliseconds(expirationTime, currantTime);
       if (expirationInterval > 0) return true;
     }
+    return false;
     } catch {
       return false;
     }
