@@ -16,6 +16,7 @@ export class PermissionsAddDialogComponent implements OnInit {
   public loading: boolean = true;
   public connectionAccess: AccessLevel;
   public groupAccess: AccessLevel;
+  public tablesAccessOptions = 'select';
   public tablesAccess: TablePermission[];
   public connectionID: string;
 
@@ -37,12 +38,31 @@ export class PermissionsAddDialogComponent implements OnInit {
       });
   }
 
-  uncheckActions(tableName: string) {
-    const tableIndex = this.tablesAccess.findIndex( table => table.tableName === tableName );
-    if (!this.tablesAccess[tableIndex].accessLevel.visibility) this.tablesAccess[tableIndex].accessLevel.readonly = false;
-    this.tablesAccess[tableIndex].accessLevel.add = false;
-    this.tablesAccess[tableIndex].accessLevel.delete = false;
-    this.tablesAccess[tableIndex].accessLevel.edit = false;
+  uncheckActions(table: TablePermission) {
+    if (!table.accessLevel.visibility) table.accessLevel.readonly = false;
+    table.accessLevel.add = false;
+    table.accessLevel.delete = false;
+    table.accessLevel.edit = false;
+  }
+
+  grantFullAccess() {
+    this.tablesAccess.forEach(table => {
+      table.accessLevel.add = true;
+      table.accessLevel.delete = true;
+      table.accessLevel.edit = true;
+      table.accessLevel.readonly = false;
+      table.accessLevel.visibility = true;
+    })
+  }
+
+  deselectAllTables() {
+    this.tablesAccess.forEach(table => {
+      table.accessLevel.add = false;
+      table.accessLevel.delete = false;
+      table.accessLevel.edit = false;
+      table.accessLevel.readonly = false;
+      table.accessLevel.visibility = false;
+    });
   }
 
   addPermissions() {

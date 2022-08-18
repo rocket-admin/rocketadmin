@@ -10,6 +10,7 @@ export class PasswordRequestComponent implements OnInit {
 
   public userEmail: string;
   public submitting: boolean;
+
   constructor(
     private _userService: UserService
   ) { }
@@ -21,7 +22,10 @@ export class PasswordRequestComponent implements OnInit {
     this.submitting = true;
     this._userService.requestPasswordReset(this.userEmail).subscribe(() => {
       this.submitting = false;
-    });
+    },
+    () => this.submitting = false,
+    () => this.submitting = false
+    );
   }
 
 }

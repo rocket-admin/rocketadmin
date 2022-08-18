@@ -37,6 +37,7 @@ export class DateTimeComponent implements OnInit {
   }
 
   onDateChange() {
+    if (!this.time) this.time = '00:00';
     const datetime = `${this.date}T${this.time}Z`;
     this.onFieldChange.emit(datetime);
   }

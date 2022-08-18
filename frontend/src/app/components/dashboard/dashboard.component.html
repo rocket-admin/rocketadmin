@@ -1,16 +1,23 @@
 <app-content-loader *ngIf="loading"></app-content-loader>
 
-<div *ngIf="dbFetchError" class="error-wrapper">
-    <div class="error-box">
-        <p class="mat-body-1 error-message">{{errorMessage}}</p>
-        <div class="error-actions">
-            <a mat-button routerLink="/edit-db/{{connectionID}}">Connection settings</a>
-            <a mat-button routerLink="/connections-list">Connections list</a>
-        </div>
+<app-banner *ngIf="dbFetchError" type="error">
+    <p class="mat-body-1 error-message">{{errorMessage}}</p>
+    <div class="error-actions">
+        <a mat-stroked-button routerLink="/edit-db/{{connectionID}}">Connection settings</a>
+        <a mat-stroked-button routerLink="/connections-list">Connections list</a>
     </div>
-</div>
+</app-banner>
 
-<ng-container *ngIf="!loading && !dbFetchError">
+<app-banner *ngIf="noTablesError" type="info">
+    <h3 class='mat-subheading-2'>Autoadmin can not find any tables</h3>
+    <p class="mat-body-1">
+        Autoadmin don't have access to connection tables or there aren't any.
+        Please grant us access to required tables or create new table.
+        You can create a table with SQL editor
+    </p>
+</app-banner>
+
+<ng-container *ngIf="!loading && !dbFetchError && !noTablesError">
     <div class="toggle-button-position"
         [ngClass]="(shownTableTitles)?'toggle-button-position__opened':'toggle-button-position__closed'">
         <button mat-mini-fab class="toggle-button" (click)="sideList.toggle()">
@@ -25,10 +32,10 @@
             </app-db-tables-list>
         </mat-sidenav>
         <mat-sidenav-content>
-            <app-banner></app-banner>
-            <app-banner [banner]="dataSource.banner_settingsInfo"></app-banner>
-            <app-banner [banner]="dataSource.banner_primaryKeysInfo"></app-banner>
-            <app-banner [banner]="dataSource.banner_widgetsWarning"></app-banner>
+            <app-alert></app-alert>
+            <app-alert *ngIf="dataSource.alert_settingsInfo" [alert]="dataSource.alert_settingsInfo"></app-alert>
+            <app-alert *ngIf="dataSource.alert_primaryKeysInfo" [alert]="dataSource.alert_primaryKeysInfo"></app-alert>
+            <app-alert *ngIf="dataSource.alert_widgetsWarning" [alert]="dataSource.alert_widgetsWarning"></app-alert>
 
             <app-content-loader *ngIf="dataSource === null"></app-content-loader>
             <app-db-table *ngIf="dataSource && selectedTablePermissions"

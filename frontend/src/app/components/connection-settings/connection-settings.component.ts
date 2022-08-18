@@ -18,8 +18,8 @@ export class ConnectionSettingsComponent implements OnInit {
   public loading: boolean = false;
   public submitting: boolean = false;
   public isSettingsExist: boolean = false;
-
-
+  public noTablesError: boolean = false;
+  public errorMessage: string;
   constructor(
     private _connections: ConnectionsService,
     private _tables: TablesService,
@@ -39,12 +39,14 @@ export class ConnectionSettingsComponent implements OnInit {
               else return {...tableItem, normalizedTableName: normalizeTableName(tableItem.table)}
             });
           } else {
-            this.tablesList = res;
+            this.noTablesError = true;
+            // this.tablesList = res;
           }
           this.getSettings();
         },
         (error) => {
           this.loading = false;
+          this.errorMessage = error.error.message;
           // this.dbFetchError = true;
           // this.errorMessage = error.error.message;
         }

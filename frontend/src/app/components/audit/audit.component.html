@@ -2,7 +2,7 @@
     <header>
         <h1 class="mat-h1">Audit</h1>
         <div class="filters">
-            <mat-form-field *ngIf="tablesList && !errorMessage" appearance="outline">
+            <mat-form-field *ngIf="tablesList && !errorMessage && !noTablesError" appearance="outline">
                 <mat-label>Tables</mat-label>
                 <mat-select [(ngModel)]="tableName" (ngModelChange)="loadLogsPage()">
                     <mat-option value="showAll">Show all</mat-option>
@@ -19,57 +19,57 @@
         </div>
     </header>
 
-    <div *ngIf="errorMessage; else auditTable" class="error-wrapper">
-        <div class="error-box">
-            <p class="mat-body-1 error-message">{{errorMessage}}</p>
-            <div class="error-actions">
-                <a mat-button routerLink="/edit-db/{{connectionID}}">Connection settings</a>
-                <a mat-button routerLink="/connections-list">Connections list</a>
-            </div>
+    <app-banner *ngIf="noTablesError" type="info" class="audit-banner">
+        <h3 class='mat-subheading-2'>Autoadmin can not find any tables</h3>
+        <p class="mat-body-1">
+            There are no tables Autoadmin can track actions on.
+            Please grant Autoadmin access to required tables or create new table.
+            You can create a table with SQL editor.
+        </p>
+    </app-banner>
+
+    <app-banner *ngIf="errorMessage" type="error" class="audit-banner">
+        <p class="mat-body-1 error-message">{{errorMessage}}</p>
+        <div class="error-actions">
+            <a mat-stroked-button routerLink="/edit-db/{{connectionID}}">Connection settings</a>
+            <a mat-stroked-button routerLink="/connections-list">Connections list</a>
         </div>
+    </app-banner>
+
+    <div *ngIf="!noTablesError && !errorMessage" class="mat-elevation-z4 table-wrapper">
+        <div class="spinner-wrapper" *ngIf="dataSource.loading$ | async">
+            <mat-spinner diameter="36"></mat-spinner>
+        </div>
+
+        <table *ngIf="dataSource" mat-table [dataSource]="dataSource" NgMatTableQueryReflector>
+            <ng-container [matColumnDef]="column" *ngFor="let column of dataColumns">
+                <th mat-header-cell *matHeaderCellDef> {{ column }} </th>
+                <td mat-cell *matCellDef="let element">
+                    <div class="table-cell-content" >
+                        {{element[column] || '—'}}
+                    </div>
+                </td>
+            </ng-container>
+
+            <ng-container matColumnDef="Details">
+                <th mat-header-cell *matHeaderCellDef> Details </th>
+                <td mat-cell *matCellDef="let element">
+                    <button mat-button color="primary"
+                        (click)="openInfoLogDialog(element)">
+                        View changes
+                    </button>
+                </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="columns"></tr>
+            <tr mat-row *matRowDef="let row; columns: columns;"></tr>
+        </table>
+
+        <mat-paginator
+            [pageSize]="30"
+            [pageSizeOptions]="[10, 30, 100, 300]"
+            [showFirstLastButtons]="true">
+        </mat-paginator>
     </div>
-
-    <ng-template #auditTable>
-        <div class="mat-elevation-z4 table-wrapper">
-            <div class="spinner-wrapper" *ngIf="dataSource.loading$ | async">
-                <mat-spinner diameter="36"></mat-spinner>
-            </div>
-
-            <table *ngIf="dataSource" mat-table [dataSource]="dataSource" NgMatTableQueryReflector>
-                <ng-container [matColumnDef]="column" *ngFor="let column of dataColumns">
-                    <th mat-header-cell *matHeaderCellDef> {{ column }} </th>
-                    <td mat-cell *matCellDef="let element">
-                        <div class="table-cell-content" >
-                            {{element[column] || '—'}}
-                        </div>
-                    </td>
-                </ng-container>
-
-                <ng-container matColumnDef="Details">
-                    <th mat-header-cell *matHeaderCellDef> Details </th>
-                    <td mat-cell *matCellDef="let element">
-                        <button mat-button color="primary"
-                            (click)="openInfoLogDialog(element)">
-                            View changes
-                        </button>
-                    </td>
-                </ng-container>
-
-                <tr mat-header-row *matHeaderRowDef="columns"></tr>
-                <tr mat-row *matRowDef="let row; columns: columns;"></tr>
-            </table>
-
-            <mat-paginator
-                [pageSize]="30"
-                [pageSizeOptions]="[10, 30, 100, 300]"
-                [showFirstLastButtons]="true">
-            </mat-paginator>
-        </div>
-    </ng-template>
-
-
-    <!-- <ng-container #noLogs>
-        No logs for now
-    </ng-container> -->
 
 </div>

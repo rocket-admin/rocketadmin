@@ -1,4 +1,4 @@
-import { Banner, BannerActionType, BannerType } from 'src/app/models/banner';
+import { Alert, AlertActionType, AlertType } from 'src/app/models/alert';
 import { Component, Input, OnInit } from '@angular/core';
 
 import { AccountDeleteDialogComponent } from './account-delete-dialog/account-delete-dialog.component';
@@ -15,13 +15,13 @@ import { UserService } from 'src/app/services/user.service';
 export class UserSettingsComponent implements OnInit {
   public currentUser: User = null;
   public submittingDelete: boolean;
-  public emailVerificationWarning: Banner = {
+  public emailVerificationWarning: Alert = {
     id: 10000001,
-    type: BannerType.Warning,
+    type: AlertType.Warning,
     message: 'Your email address is not confirmed. Please check your email or resend confirmation.',
     actions: [
       {
-        type: BannerActionType.Button,
+        type: AlertActionType.Button,
         caption: 'Resend confirmation',
         action: () => this.requestEmailVerification()
       }
