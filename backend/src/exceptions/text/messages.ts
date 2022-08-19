@@ -144,6 +144,10 @@ export const Messages = {
   RECEIVING_USER_CONNECTIONS_FAILED: 'Receiving user connections failed.',
   RECEIVING_USER_PERMISSIONS_FAILED: 'Receiving user permissions failed.',
   REQUIRED_FIELD_CANT_BE_EMPTY: 'Required field can not be empty',
+  REQUIRED_PARAMETERS_MISSING: (paramsNames: Array<string>): string =>
+    `Required parameter${paramsNames.length > 1 ? 's' : ''} ${paramsNames.join(', ')} ${
+      paramsNames.length > 1 ? 'are' : 'is'
+    } missing`,
   ROW_PRIMARY_KEY_NOT_FOUND: 'Row with this primary key not found',
   SOMETHING_WENT_WRONG_ROW_ADD: 'Something went wrong on row insertion, check inserted parameters and try again',
   SSH_FORMAT_INCORRECT: 'Ssh value must be a boolean',
