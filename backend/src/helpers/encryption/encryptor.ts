@@ -88,6 +88,21 @@ export class Encryptor {
     return hmac.digest('hex');
   }
 
+  static getUserIntercomHash(userId: string): string | null {
+    const intercomKey = process.env.INTERCOM_KEY;
+    if (!intercomKey) {
+      return null;
+    }
+    try {
+      const hmac = createHmac('sha256', intercomKey);
+      hmac.update(userId);
+      return hmac.digest('hex');
+    } catch (e) {
+      console.error(e);
+      return null;
+    }
+  }
+
   static async processDataWithAlgorithm(data: string, alg: EncryptionAlgorithmEnum): Promise<string> {
     if (!alg) {
       return data;

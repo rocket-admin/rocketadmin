@@ -7,4 +7,5 @@ export class FoundUserDs {
   createdAt: Date;
   portal_link?: string;
   subscriptionLevel?: SubscriptionLevelEnum;
+  intercom_hash?: string;
 }

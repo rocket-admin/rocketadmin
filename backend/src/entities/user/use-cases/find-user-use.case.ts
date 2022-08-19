@@ -20,6 +20,7 @@ import { TableSettingsEntity } from '../../table-settings/table-settings.entity'
 import { UserEntity } from '../user.entity';
 import { AmplitudeService } from '../../amplitude/amplitude.service';
 import { getCurrentUserSubscription } from '../../../helpers/stripe/get-current-user-subscription';
+import { getUserIntercomHash } from '../utils/get-user-intercom-hash';
 
 @Injectable({ scope: Scope.REQUEST })
 export class FindUserUseCase
@@ -82,6 +83,7 @@ export class FindUserUseCase
   private static async buildFoundUserDs(user: UserEntity): Promise<FoundUserDs> {
     const portalLink = await StripeUtil.createPortalLink(user);
     const userSubscriptionLevel = await getCurrentUserSubscription(user.stripeId);
+    const intercomHash = getUserIntercomHash(user.id);
     return {
       id: user.id,
       createdAt: user.createdAt,
@@ -89,6 +91,7 @@ export class FindUserUseCase
       email: user.email,
       portal_link: portalLink,
       subscriptionLevel: userSubscriptionLevel,
+      intercom_hash: intercomHash,
     };
   }
 }
