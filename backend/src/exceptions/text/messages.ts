@@ -165,7 +165,7 @@ export const Messages = {
   TABLE_NOT_FOUND: 'Table not found',
   TABLE_SCHEMA_NOT_FOUND: (tableName: string) =>
     `Table schema for table ${tableName} not found or this table does not exists`,
-  TABLE_SETTINGS_NOT_FOUND: 'Table settings with this parameters not found. ',
+  TABLE_SETTINGS_NOT_FOUND: 'Table settings with this parameters not found',
   TABLE_WIDGET_NOT_FOUND: 'Table widget with this parameters not found',
   TRY_AGAIN_LATER: 'Please try again later. If the problem persists, please contact our support team',
   TYPE_MISSING: 'Type is missing',
@@ -199,7 +199,7 @@ export const Messages = {
   USER_EMAIL_NOT_FOUND: (email: string) =>
     `User ${email} is not found in our system, please ask the user to create an account first`,
   USER_EMAIL_NOT_FOUND_AND_INVITED: (email: string) =>
-    `User ${email} is not found in our system. We have sent an invitation to the user's email. Please ask the user log in.`,
+    `User ${email} is not found in our system. We have sent an invitation to the user's email. Please ask the user to log in.`,
   USER_INVITE_EXTERNAL_USER: (userAddEmail: string, userToAddEmail: string) =>
     `User ${userAddEmail} send invite to external user ${userToAddEmail}.`,
   USER_ADDED_IN_GROUP: (email: string) => `User ${email} was added in group successfully`,
