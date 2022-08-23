@@ -7,11 +7,9 @@ import {
   HttpStatus,
   Inject,
   Injectable,
-  Param,
   Post,
   Put,
   Query,
-  Req,
   Scope,
   UseGuards,
   UseInterceptors,
@@ -21,8 +19,7 @@ import { AddRowDto } from './dto/add-row-dto';
 import { AmplitudeEventTypeEnum } from '../../enums';
 import { DeleteRowDto } from './dto/delete-row-dto';
 import { FindTableDto } from './dto/find-table.dto';
-import { IRequestWithCognitoInfo } from '../../authorization';
-import { getMasterPwd, isConnectionTypeAgent, isObjectEmpty } from '../../helpers';
+import { isConnectionTypeAgent, isObjectEmpty } from '../../helpers';
 import { IStructureRO, ITableRowRO } from './table.interface';
 import { Messages } from '../../exceptions/text/messages';
 import { SentryInterceptor } from '../../interceptors';
@@ -116,7 +113,6 @@ export class TableController {
   @UseGuards(TableReadGuard)
   @Get('/table/rows/:slug')
   async findAllRows(
-    @Req() request: IRequestWithCognitoInfo,
     @Query('tableName') tableName: string,
     @Query('page') page: any,
     @Query('perPage') perPage: any,
@@ -124,6 +120,7 @@ export class TableController {
     @Query() query,
     @SlugUuid() connectionId: string,
     @UserId() userId: string,
+    @MasterPassword() masterPwd: string,
   ): Promise<FoundTableRowsDs> {
     if (!connectionId) {
       throw new HttpException(
@@ -145,7 +142,6 @@ export class TableController {
         );
       }
     }
-    const masterPwd = getMasterPwd(request);
     const inputData: GetTableRowsDs = {
       connectionId: connectionId,
       masterPwd: masterPwd,
@@ -227,7 +223,6 @@ export class TableController {
   @Put('/table/row/:slug')
   async updateRowInTable(
     @Body() body: string,
-    @Param() params,
     @Query() query: string,
     @UserId() userId: string,
     @MasterPassword() masterPwd: string,
