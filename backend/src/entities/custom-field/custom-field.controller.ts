@@ -34,7 +34,7 @@ import { UpdateCustomFieldsDs } from './application/data-structures/update-custo
 import { DeleteCustomFieldsDs } from './application/data-structures/delete-custom-fields.ds';
 import { FoundCustomFieldsDs } from './application/data-structures/found-custom-fields.ds';
 import { FoundTableSettingsDs } from '../table-settings/application/data-structures/found-table-settings.ds';
-import { ConnectionId, MasterPassword, UserId } from '../../decorators';
+import { MasterPassword, SlugUuid, UserId } from '../../decorators';
 
 @ApiBearerAuth()
 @ApiTags('custom_fields')
@@ -60,7 +60,7 @@ export class CustomFieldController {
   @UseInterceptors(ClassSerializerInterceptor)
   async findAll(
     @Query('tableName') tableName: string,
-    @ConnectionId() connectionId: string,
+    @SlugUuid() connectionId: string,
   ): Promise<Array<FoundCustomFieldsDs>> {
     const inputData: GetCustomFieldsDs = {
       connectionId: connectionId,
@@ -83,7 +83,7 @@ export class CustomFieldController {
     @Body('type') type: string,
     @Body('template_string') template_string: string,
     @Body('text') text: string,
-    @ConnectionId() connectionId: string,
+    @SlugUuid() connectionId: string,
     @MasterPassword() masterPwd: string,
     @UserId() userId: string,
   ): Promise<FoundTableSettingsDs> {
@@ -122,7 +122,7 @@ export class CustomFieldController {
     @Body('template_string') template_string: string,
     @Body('text') text: string,
     @Body('id') id: string,
-    @ConnectionId() connectionId: string,
+    @SlugUuid() connectionId: string,
     @MasterPassword() masterPwd: string,
     @UserId() userId: string,
   ): Promise<FoundCustomFieldsDs> {
@@ -169,7 +169,7 @@ export class CustomFieldController {
   async deleteCustomField(
     @Query('tableName') tableName: string,
     @Query('id') fieldId: string,
-    @ConnectionId() connectionId: string,
+    @SlugUuid() connectionId: string,
   ): Promise<FoundTableSettingsDs> {
     if (!fieldId) {
       throw new HttpException(

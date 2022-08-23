@@ -1,8 +1,6 @@
 import { AddUserIngroupDto } from './dto/add-user-ingroup-dto';
 import { AmplitudeEventTypeEnum } from '../../enums';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { getCognitoUserName } from '../../helpers';
-import { IRequestWithCognitoInfo } from '../../authorization';
 import { Messages } from '../../exceptions/text/messages';
 import { SentryInterceptor } from '../../interceptors';
 import {
@@ -14,9 +12,7 @@ import {
   HttpStatus,
   Inject,
   Injectable,
-  Param,
   Put,
-  Req,
   Res,
   Scope,
   UseGuards,
@@ -44,6 +40,8 @@ import { FoundUserInGroupDs } from '../user/application/data-structures/found-us
 import { AddUserInGroupDs } from './application/data-sctructures/add-user-in-group.ds';
 import { RemoveUserFromGroupResultDs } from './application/data-sctructures/remove-user-from-group-result.ds';
 import { DeletedGroupResultDs } from './application/data-sctructures/deleted-group-result.ds';
+import { SlugUuid, UserId, VerificationString } from '../../decorators';
+import validator from 'validator';
 
 @ApiBearerAuth()
 @ApiTags('groups')
@@ -73,14 +71,13 @@ export class GroupController {
     description: 'Return all groups for current user.',
   })
   @Get('groups')
-  async findAll(@Req() request: IRequestWithCognitoInfo): Promise<FoundUserGroupsDs> {
-    const cognitoUserName = getCognitoUserName(request);
+  async findAll(@UserId() userId: string): Promise<FoundUserGroupsDs> {
     try {
-      return await this.findAllUserGroupsUseCase.execute(cognitoUserName);
+      return await this.findAllUserGroupsUseCase.execute(userId);
     } catch (e) {
       throw e;
     } finally {
-      await this.amplitudeService.formAndSendLogRecord(AmplitudeEventTypeEnum.groupListReceived, cognitoUserName);
+      await this.amplitudeService.formAndSendLogRecord(AmplitudeEventTypeEnum.groupListReceived, userId);
     }
   }
 
@@ -88,18 +85,13 @@ export class GroupController {
   @ApiResponse({ status: 200, description: 'Return all users.' })
   @UseGuards(GroupReadGuard)
   @Get('group/users/:slug')
-  async findAllUsersInGroup(
-    @Param() params: any,
-    @Req() request: IRequestWithCognitoInfo,
-  ): Promise<Array<FoundUserInGroupDs>> {
-    const cognitoUserName = getCognitoUserName(request);
-    const id = params.slug;
+  async findAllUsersInGroup(@UserId() userId: string, @SlugUuid() groupId: string): Promise<Array<FoundUserInGroupDs>> {
     try {
-      return this.findAllUsersInGroupUseCase.execute(id);
+      return this.findAllUsersInGroupUseCase.execute(groupId);
     } catch (e) {
       throw e;
     } finally {
-      await this.amplitudeService.formAndSendLogRecord(AmplitudeEventTypeEnum.groupUserListReceived, cognitoUserName);
+      await this.amplitudeService.formAndSendLogRecord(AmplitudeEventTypeEnum.groupUserListReceived, userId);
     }
   }
 
@@ -108,11 +100,10 @@ export class GroupController {
   @UseGuards(GroupEditGuard)
   @Put('/group/user')
   async addUserInGroup(
-    @Req() request: IRequestWithCognitoInfo,
     @Body('email') email: string,
     @Body('groupId') groupId: string,
+    @UserId() userId: string,
   ): Promise<AddedUserInGroupDs> {
-    const cognitoUserName = getCognitoUserName(request);
     if (!email || email.length <= 0) {
       throw new HttpException(
         {
@@ -122,7 +113,7 @@ export class GroupController {
       );
     }
 
-    if (!Cacher.canInvite(cognitoUserName, groupId)) {
+    if (!Cacher.canInvite(userId, groupId)) {
       throw new HttpException(
         {
           message: Messages.MAXIMUM_INVITATIONS_COUNT_REACHED,
@@ -130,14 +121,14 @@ export class GroupController {
         HttpStatus.FORBIDDEN,
       );
     }
-    Cacher.increaseUserInvitationsCacheCount(cognitoUserName);
+    Cacher.increaseUserInvitationsCacheCount(userId);
     Cacher.increaseGroupInvitationsCacheCount(groupId);
     try {
       return await this.addUserInGroupUseCase.execute({ email, groupId });
     } catch (e) {
       throw e;
     } finally {
-      await this.amplitudeService.formAndSendLogRecord(AmplitudeEventTypeEnum.groupUserAdded, cognitoUserName);
+      await this.amplitudeService.formAndSendLogRecord(AmplitudeEventTypeEnum.groupUserAdded, groupId);
     }
   }
 
@@ -145,9 +136,9 @@ export class GroupController {
   @ApiBody({ type: VerifyAddUserInGroupDs })
   @Put('/group/user/verify/:slug')
   async verifyUserInvitation(
-    @Param() params,
     @Body('password') password: string,
     @Res({ passthrough: true }) response: Response,
+    @VerificationString() verificationString: string,
   ): Promise<ITokenExp> {
     if (!password) {
       throw new HttpException(
@@ -158,7 +149,7 @@ export class GroupController {
       );
     }
     const inputData: VerifyAddUserInGroupDs = {
-      verificationString: params.slug,
+      verificationString: verificationString,
       user_password: password,
     };
     const token: IToken = await this.verifyAddUserInGroupUseCase.execute(inputData);
@@ -174,15 +165,13 @@ export class GroupController {
   @ApiResponse({ status: 403, description: 'Forbidden.' })
   @UseGuards(GroupEditGuard)
   @Delete('/group/:slug')
-  async delete(@Param() params, @Req() request: IRequestWithCognitoInfo): Promise<DeletedGroupResultDs> {
-    const cognitoUserName = getCognitoUserName(request);
-    const groupId = params.slug;
+  async delete(@SlugUuid() groupId: string, @UserId() userId: string): Promise<DeletedGroupResultDs> {
     try {
       return this.deleteGroupUseCase.execute(groupId);
     } catch (e) {
       throw e;
     } finally {
-      await this.amplitudeService.formAndSendLogRecord(AmplitudeEventTypeEnum.groupDeleted, cognitoUserName);
+      await this.amplitudeService.formAndSendLogRecord(AmplitudeEventTypeEnum.groupDeleted, userId);
     }
   }
 
@@ -198,10 +187,9 @@ export class GroupController {
   async removeUserFromGroup(
     @Body('email') email: string,
     @Body('groupId') groupId: string,
-    @Req() request: IRequestWithCognitoInfo,
+    @UserId() userId: string,
   ): Promise<RemoveUserFromGroupResultDs> {
-    const cognitoUserName = getCognitoUserName(request);
-    if (!email || email.length <= 0) {
+    if (!email || email.length <= 0 || !validator.isEmail(email)) {
       throw new HttpException(
         {
           message: Messages.USER_EMAIL_MISSING,
@@ -218,7 +206,7 @@ export class GroupController {
     } catch (e) {
       throw e;
     } finally {
-      await this.amplitudeService.formAndSendLogRecord(AmplitudeEventTypeEnum.groupUserRemoved, cognitoUserName);
+      await this.amplitudeService.formAndSendLogRecord(AmplitudeEventTypeEnum.groupUserRemoved, userId);
     }
   }
 }

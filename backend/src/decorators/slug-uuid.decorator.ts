@@ -4,12 +4,12 @@ import { validate as uuidValidate } from 'uuid';
 import { buildBadRequestException } from '../guards/utils';
 import { Messages } from '../exceptions/text/messages';
 
-export const ConnectionId = createParamDecorator((data: any, ctx: ExecutionContext): string => {
+export const SlugUuid = createParamDecorator((data: any, ctx: ExecutionContext): string => {
   const request: IRequestWithCognitoInfo = ctx.switchToHttp().getRequest();
-  const connectionId: string = request.params?.slug;
-  const validationResult = uuidValidate(connectionId);
+  const uuId: string = request.params?.slug;
+  const validationResult = uuidValidate(uuId);
   if (validationResult) {
-    return connectionId;
+    return uuId;
   }
   throw buildBadRequestException(Messages.UUID_INVALID);
 });

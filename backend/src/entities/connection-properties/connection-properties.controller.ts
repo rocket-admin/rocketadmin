@@ -30,7 +30,7 @@ import {
 } from './use-cases/connection-properties-use.cases.interface';
 import { FoundConnectionPropertiesDs } from './application/data-structures/found-connection-properties.ds';
 import { CreateConnectionPropertiesDs } from './application/data-structures/create-connection-properties.ds';
-import { ConnectionId, MasterPassword, UserId } from '../../decorators';
+import { MasterPassword, SlugUuid, UserId } from '../../decorators';
 
 @ApiBearerAuth()
 @ApiTags('connection properties')
@@ -55,7 +55,7 @@ export class ConnectionPropertiesController {
   @Get('/connection/properties/:slug')
   async findConnectionProperties(
     @Req() request: IRequestWithCognitoInfo,
-    @ConnectionId() connectionId: string,
+    @SlugUuid() connectionId: string,
   ): Promise<FoundConnectionPropertiesDs | null> {
     if (!connectionId) {
       throw new HttpException(
@@ -77,7 +77,7 @@ export class ConnectionPropertiesController {
     @Body('hidden_tables') hidden_tables: Array<string>,
     @UserId() userId: string,
     @MasterPassword() masterPwd: string,
-    @ConnectionId() connectionId: string,
+    @SlugUuid() connectionId: string,
   ): Promise<FoundConnectionPropertiesDs> {
     if (!connectionId) {
       throw new HttpException(
@@ -106,7 +106,7 @@ export class ConnectionPropertiesController {
     @Body('hidden_tables') hidden_tables: Array<string>,
     @UserId() userId: string,
     @MasterPassword() masterPwd: string,
-    @ConnectionId() connectionId: string,
+    @SlugUuid() connectionId: string,
   ): Promise<IConnectionPropertiesRO> {
     if (!connectionId) {
       throw new HttpException(
@@ -131,7 +131,7 @@ export class ConnectionPropertiesController {
   @ApiResponse({ status: 201, description: 'Delete connection properties' })
   @UseGuards(ConnectionEditGuard)
   @Delete('/connection/properties/:slug')
-  async deleteConnectionProperties(@ConnectionId() connectionId: string): Promise<IConnectionPropertiesRO> {
+  async deleteConnectionProperties(@SlugUuid() connectionId: string): Promise<IConnectionPropertiesRO> {
     if (!connectionId) {
       throw new HttpException(
         {

@@ -61,7 +61,7 @@ import { AmplitudeService } from '../amplitude/amplitude.service';
 import { processExceptionMessage } from '../../exceptions/utils/process-exception-message';
 import { isTestConnectionById, isTestConnectionUtil } from './utils/is-test-connection-util';
 import { RestoredConnectionDs } from './application/data-structures/restored-connection.ds';
-import { ConnectionId, GCLlId, MasterPassword, UserId } from '../../decorators';
+import { GCLlId, MasterPassword, SlugUuid, UserId } from '../../decorators';
 
 @ApiBearerAuth()
 @ApiTags('connections')
@@ -121,7 +121,7 @@ export class ConnectionController {
   @ApiResponse({ status: 200, description: 'Return all connection users' })
   @UseGuards(ConnectionReadGuard)
   @Get('/connection/users/:slug')
-  async findAllUsers(@UserId() userId: string, @ConnectionId() connectionId: string): Promise<Array<FoundUserDs>> {
+  async findAllUsers(@UserId() userId: string, @SlugUuid() connectionId: string): Promise<Array<FoundUserDs>> {
     try {
       return await this.findAllUsersInConnectionUseCase.execute(connectionId);
     } catch (e) {
@@ -141,7 +141,7 @@ export class ConnectionController {
   @Get('/connection/one/:slug')
   @UseGuards(ConnectionReadGuard)
   async findOne(
-    @ConnectionId() connectionId: string,
+    @SlugUuid() connectionId: string,
     @MasterPassword() masterPwd: string,
     @UserId() userId: string,
   ): Promise<FoundOneConnectionDs> {
@@ -273,7 +273,7 @@ export class ConnectionController {
     @Body('ssl') ssl: boolean,
     @Body('cert') cert: string,
     @Body('azure_encryption') azure_encryption: boolean,
-    @ConnectionId() connectionId: string,
+    @SlugUuid() connectionId: string,
     @UserId() userId: string,
     @MasterPassword() masterPwd: string,
   ): Promise<{ connection: Omit<CreatedConnectionDs, 'groups'> }> {
@@ -333,7 +333,7 @@ export class ConnectionController {
     @Body('reason') reason: string,
     @Body('message') message: string,
     @UserId() userId: string,
-    @ConnectionId() connectionId: string,
+    @SlugUuid() connectionId: string,
     @MasterPassword() masterPwd: string,
   ): Promise<CreatedConnectionDs> {
     const inputData: DeleteConnectionDs = {
@@ -359,7 +359,7 @@ export class ConnectionController {
   @Put('/connection/group/delete/:slug')
   async deleteGroupFromConnection(
     @Body('groupId') groupId: string,
-    @ConnectionId() connectionId: string,
+    @SlugUuid() connectionId: string,
     @UserId() userId: string,
   ): Promise<Omit<GroupEntity, 'connection'>> {
     if (!groupId) {
@@ -386,7 +386,7 @@ export class ConnectionController {
     @Body('title') title: string,
     @Body('permissions') permissions: any,
     @Body('users') users: any,
-    @ConnectionId() connectionId: string,
+    @SlugUuid() connectionId: string,
     @UserId() userId: string,
   ): Promise<Omit<GroupEntity, 'connection'>> {
     if (!title) {
@@ -413,7 +413,7 @@ export class ConnectionController {
   @Get('/connection/groups/:slug')
   async getGroupsInConnection(
     @UserId() userId: string,
-    @ConnectionId() connectionId: string,
+    @SlugUuid() connectionId: string,
   ): Promise<Array<FoundUserGroupsInConnectionDs>> {
     if (!connectionId) {
       throw new HttpException(
@@ -554,7 +554,7 @@ export class ConnectionController {
   @UseGuards(ConnectionEditGuard)
   @Put('/connection/encryption/update/:slug')
   async updateConnectionMasterPwd(
-    @ConnectionId() connectionId: string,
+    @SlugUuid() connectionId: string,
     @Body('oldMasterPwd') oldMasterPwd: string,
     @Body('newMasterPwd') newMasterPwd: string,
   ): Promise<boolean> {
@@ -619,7 +619,7 @@ export class ConnectionController {
     @Body('ssl') ssl: boolean,
     @Body('cert') cert: string,
     @Body('azure_encryption') azure_encryption: boolean,
-    @ConnectionId() connectionId: string,
+    @SlugUuid() connectionId: string,
     @UserId() userId: string,
     @MasterPassword() masterPwd: string,
   ): Promise<RestoredConnectionDs> {
@@ -682,7 +682,7 @@ export class ConnectionController {
   @ApiOperation({ summary: 'Generate new connection token' })
   @UseGuards(ConnectionEditGuard)
   @Get('/connection/token/refresh/:slug')
-  async refreshConnectionAgentToken(@ConnectionId() connectionId: string): Promise<{ token: string }> {
+  async refreshConnectionAgentToken(@SlugUuid() connectionId: string): Promise<{ token: string }> {
     if (!connectionId) {
       throw new HttpException(
         {

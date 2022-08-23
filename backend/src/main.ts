@@ -8,12 +8,14 @@ import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { Constants } from './helpers/constants/constants';
 import { requiredEnvironmentVariablesValidator } from './helpers/validators/required-environment-variables.validator';
+import { Encryptor } from './helpers/encryption/encryptor';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 require('dotenv').config();
 
 async function bootstrap() {
   try {
+    console.error(Encryptor.generateRandomString());
     requiredEnvironmentVariablesValidator();
     const appOptions = {};
     const app = await NestFactory.create(ApplicationModule, appOptions);
