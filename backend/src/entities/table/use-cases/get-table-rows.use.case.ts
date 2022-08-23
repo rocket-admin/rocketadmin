@@ -62,6 +62,7 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
         userEmail = await this._dbContext.userRepository.getUserEmailOrReturnNull(userId);
       }
 
+      // eslint-disable-next-line prefer-const
       let [tableSettings, tablePrimaryColumns, tableForeignKeys, tableStructure, tableWidgets, tableCustomFields] =
         await Promise.all([
           this._dbContext.tableSettingsRepository.findTableSettings(connectionId, tableName),
