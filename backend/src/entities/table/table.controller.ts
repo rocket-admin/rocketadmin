@@ -22,7 +22,7 @@ import { AmplitudeEventTypeEnum } from '../../enums';
 import { DeleteRowDto } from './dto/delete-row-dto';
 import { FindTableDto } from './dto/find-table.dto';
 import { IRequestWithCognitoInfo } from '../../authorization';
-import { getCognitoUserName, getMasterPwd, isConnectionTypeAgent, isObjectEmpty } from '../../helpers';
+import { getMasterPwd, isConnectionTypeAgent, isObjectEmpty } from '../../helpers';
 import { IStructureRO, ITableRowRO } from './table.interface';
 import { Messages } from '../../exceptions/text/messages';
 import { SentryInterceptor } from '../../interceptors';
@@ -52,6 +52,7 @@ import { GetRowByPrimaryKeyDs } from './application/data-structures/get-row-by-p
 import { IGlobalDatabaseContext } from '../../common/application/global-database-context.intarface';
 import { createDataAccessObject } from '../../data-access-layer/shared/create-data-access-object';
 import { isTestConnectionById } from '../connection/utils/is-test-connection-util';
+import { MasterPassword, SlugUuid, UserId } from '../../decorators';
 
 @ApiBearerAuth()
 @ApiTags('tables')
@@ -86,13 +87,12 @@ export class TableController {
   })
   @Get('/connection/tables/:slug')
   async findTablesInConnection(
-    @Req() request: IRequestWithCognitoInfo,
-    @Param() params,
+    @SlugUuid() connectionId: string,
+    @UserId() userId: string,
+    @MasterPassword() masterPwd: string,
     @Query('hidden') hidden_tables: string,
   ): Promise<Array<FoundTableDs>> {
     const hiddenTablesOption = hidden_tables === 'true';
-    const connectionId = params.slug;
-    const cognitoUserName = getCognitoUserName(request);
     if (!connectionId) {
       throw new HttpException(
         {
@@ -101,12 +101,11 @@ export class TableController {
         HttpStatus.BAD_REQUEST,
       );
     }
-    const masterPwd = getMasterPwd(request);
     const inputData: FindTablesDs = {
       connectionId: connectionId,
       hiddenTablesOption: hiddenTablesOption,
       masterPwd: masterPwd,
-      userId: cognitoUserName,
+      userId: userId,
     };
     return await this.findTablesInConnectionUseCase.execute(inputData);
   }
@@ -123,11 +122,10 @@ export class TableController {
     @Query('perPage') perPage: any,
     @Query('search') searchingFieldValue: string,
     @Query() query,
-    @Param() params,
+    @SlugUuid() connectionId: string,
+    @UserId() userId: string,
   ): Promise<FoundTableRowsDs> {
-    const connectionID = params.slug;
-    const cognitoUserName = getCognitoUserName(request);
-    if (!connectionID) {
+    if (!connectionId) {
       throw new HttpException(
         {
           message: Messages.CONNECTION_ID_MISSING,
@@ -149,14 +147,14 @@ export class TableController {
     }
     const masterPwd = getMasterPwd(request);
     const inputData: GetTableRowsDs = {
-      connectionId: connectionID,
+      connectionId: connectionId,
       masterPwd: masterPwd,
       page: page,
       perPage: perPage,
       query: query,
       searchingFieldValue: searchingFieldValue,
       tableName: tableName,
-      userId: cognitoUserName,
+      userId: userId,
     };
     return await this.getTableRowsUseCase.execute(inputData);
   }
@@ -169,12 +167,11 @@ export class TableController {
   @UseGuards(TableReadGuard)
   @Get('/table/structure/:slug')
   async getTableStructure(
-    @Req() request: IRequestWithCognitoInfo,
     @Query('tableName') tableName: string,
-    @Param() params,
+    @UserId() userId: string,
+    @SlugUuid() connectionId: string,
+    @MasterPassword() masterPwd: string,
   ): Promise<IStructureRO> {
-    const connectionId = params.slug;
-    const cognitoUserName = getCognitoUserName(request);
     if (!connectionId) {
       throw new HttpException(
         {
@@ -183,12 +180,11 @@ export class TableController {
         HttpStatus.BAD_REQUEST,
       );
     }
-    const masterPwd = getMasterPwd(request);
     const inputData: GetTableStructureDs = {
       connectionId: connectionId,
       masterPwd: masterPwd,
       tableName: tableName,
-      userId: cognitoUserName,
+      userId: userId,
     };
     return await this.getTableStructureUseCase.execute(inputData);
   }
@@ -199,14 +195,13 @@ export class TableController {
   @UseGuards(TableAddGuard)
   @Post('/table/row/:slug')
   async addRowInTable(
-    @Req() request: IRequestWithCognitoInfo,
     @Body() body: string,
     @Query() query: string,
-    @Param() params,
+    @SlugUuid() connectionId: string,
+    @UserId() userId: string,
+    @MasterPassword() masterPwd: string,
   ): Promise<ITableRowRO | boolean> {
     const tableName = query['tableName'];
-    const cognitoUserName = getCognitoUserName(request);
-    const connectionId = params.slug;
     if (!connectionId || !tableName || isObjectEmpty(body)) {
       throw new HttpException(
         {
@@ -215,13 +210,12 @@ export class TableController {
         HttpStatus.BAD_REQUEST,
       );
     }
-    const masterPwd = getMasterPwd(request);
     const inputData: AddRowInTableDs = {
       connectionId: connectionId,
       masterPwd: masterPwd,
       row: body as unknown as Record<string, unknown>,
       tableName: tableName,
-      userId: cognitoUserName,
+      userId: userId,
     };
     return await this.addRowInTableUseCase.execute(inputData);
   }
@@ -232,14 +226,14 @@ export class TableController {
   @UseGuards(TableEditGuard)
   @Put('/table/row/:slug')
   async updateRowInTable(
-    @Req() request: IRequestWithCognitoInfo,
     @Body() body: string,
     @Param() params,
     @Query() query: string,
+    @UserId() userId: string,
+    @MasterPassword() masterPwd: string,
+    @SlugUuid() connectionId: string,
   ): Promise<ITableRowRO> {
     const tableName = query['tableName'];
-    const cognitoUserName = getCognitoUserName(request);
-    const connectionId = params.slug;
     if (!connectionId || !tableName || !body) {
       throw new HttpException(
         {
@@ -248,8 +242,7 @@ export class TableController {
         HttpStatus.BAD_REQUEST,
       );
     }
-    const masterPwd = getMasterPwd(request);
-    const primaryKeys = await this.getPrimaryKeys(cognitoUserName, connectionId, tableName, query, masterPwd);
+    const primaryKeys = await this.getPrimaryKeys(userId, connectionId, tableName, query, masterPwd);
     const propertiesArray = primaryKeys.map((el) => {
       return Object.entries(el)[0];
     });
@@ -261,7 +254,7 @@ export class TableController {
       primaryKey: primaryKey,
       row: body as unknown as Record<string, unknown>,
       tableName: tableName,
-      userId: cognitoUserName,
+      userId: userId,
     };
     return await this.updateRowInTableUseCase.execute(inputData);
   }
@@ -272,15 +265,13 @@ export class TableController {
   @UseGuards(TableDeleteGuard)
   @Delete('/table/row/:slug')
   async deleteRowInTable(
-    @Req() request: IRequestWithCognitoInfo,
-    @Param() params,
     @Query() query: string,
+    @MasterPassword() masterPwd: string,
+    @SlugUuid() connectionId: string,
+    @UserId() userId: string,
   ): Promise<DeletedRowFromTableDs> {
-    const masterPwd = getMasterPwd(request);
-    const connectionId = params.slug;
     const tableName = query['tableName'];
-    const cognitoUserName = getCognitoUserName(request);
-    const primaryKeys = await this.getPrimaryKeys(cognitoUserName, connectionId, tableName, query, masterPwd);
+    const primaryKeys = await this.getPrimaryKeys(userId, connectionId, tableName, query, masterPwd);
     const propertiesArray = primaryKeys.map((el) => {
       return Object.entries(el)[0];
     });
@@ -299,7 +290,7 @@ export class TableController {
       masterPwd: masterPwd,
       primaryKey: primaryKey,
       tableName: tableName,
-      userId: cognitoUserName,
+      userId: userId,
     };
     return await this.deleteRowFromTableUseCase.execute(inputData);
   }
@@ -309,15 +300,13 @@ export class TableController {
   @UseGuards(TableReadGuard)
   @Get('/table/row/:slug')
   async getRowByPrimaryKey(
-    @Req() request: IRequestWithCognitoInfo,
-    @Param() params,
     @Query() query: string,
+    @MasterPassword() masterPwd: string,
+    @SlugUuid() connectionId: string,
+    @UserId() userId: string,
   ): Promise<ITableRowRO> {
-    const masterPwd = getMasterPwd(request);
-    const connectionId = params.slug;
     const tableName = query['tableName'];
-    const cognitoUserName = getCognitoUserName(request);
-    const primaryKeys = await this.getPrimaryKeys(cognitoUserName, connectionId, tableName, query, masterPwd);
+    const primaryKeys = await this.getPrimaryKeys(userId, connectionId, tableName, query, masterPwd);
 
     const propertiesArray = primaryKeys.map((el) => {
       return Object.entries(el)[0];
@@ -337,7 +326,7 @@ export class TableController {
         masterPwd: masterPwd,
         primaryKey: primaryKey,
         tableName: tableName,
-        userId: cognitoUserName,
+        userId: userId,
       };
       return await this.getRowByPrimaryKeyUseCase.execute(inputData);
     } catch (e) {
@@ -346,7 +335,7 @@ export class TableController {
       const isTest = await isTestConnectionById(connectionId);
       await this.amplitudeService.formAndSendLogRecord(
         isTest ? AmplitudeEventTypeEnum.tableRowReceivedTest : AmplitudeEventTypeEnum.tableRowReceived,
-        cognitoUserName,
+        userId,
       );
     }
   }
