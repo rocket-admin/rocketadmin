@@ -186,6 +186,7 @@ export const Messages = {
   UUID_INVALID: `Invalid id syntax`,
   VERIFICATION_LINK_INCORRECT: 'Verification link is incorrect',
   VERIFICATION_LINK_EXPIRED: 'Verification link expired',
+  VERIFICATION_STRING_INCORRECT: 'Verification string format is incorrect',
   EMAIL_ALREADY_CONFIRMED: 'Email is already confirmed',
   EMAIL_MISSING: 'Email is missing',
   EMAIL_INVALID: 'Email is invalid',

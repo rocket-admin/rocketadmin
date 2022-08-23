@@ -5,24 +5,21 @@ import {
   HttpStatus,
   Inject,
   Injectable,
-  Param,
   Put,
-  Req,
   Scope,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CreatePermissionsDto } from './dto';
-import { getCognitoUserName, getMasterPwd } from '../../helpers';
 import { IComplexPermission } from './permission.interface';
-import { IRequestWithCognitoInfo } from '../../authorization';
 import { Messages } from '../../exceptions/text/messages';
 import { SentryInterceptor } from '../../interceptors';
 import { GroupEditGuard } from '../../guards';
 import { UseCaseType } from '../../common/data-injection.tokens';
 import { ICreateOrUpdatePermissions } from './use-cases/permissions-use-cases.interface';
 import { CreatePermissionsDs } from './application/data-structures/create-permissions.ds';
+import { MasterPassword, SlugUuid, UserId } from '../../decorators';
 
 @ApiBearerAuth()
 @ApiTags('permissions')
@@ -45,10 +42,10 @@ export class PermissionController {
   @Put('permissions/:slug')
   async createOrUpdatePermissions(
     @Body('permissions') permissions: IComplexPermission,
-    @Param() params,
-    @Req() request: IRequestWithCognitoInfo,
+    @SlugUuid() groupId: string,
+    @UserId() userId: string,
+    @MasterPassword() masterPwd: string,
   ): Promise<IComplexPermission> {
-    const groupId = params.slug;
     if (!groupId) {
       throw new HttpException(
         {
@@ -65,12 +62,10 @@ export class PermissionController {
         HttpStatus.BAD_REQUEST,
       );
     }
-    const cognitoUserName = getCognitoUserName(request);
-    const masterPwd = getMasterPwd(request);
     const inputData: CreatePermissionsDs = {
       groupId: groupId,
       masterPwd: masterPwd,
-      userId: cognitoUserName,
+      userId: userId,
       permissions: permissions,
     };
     return await this.createOrUpdatePermissionsUseCase.execute(inputData);

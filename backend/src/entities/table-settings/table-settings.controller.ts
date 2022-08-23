@@ -10,7 +10,6 @@ import {
   Post,
   Put,
   Query,
-  Req,
   Scope,
   UseGuards,
   UseInterceptors,
@@ -18,9 +17,8 @@ import {
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CreateTableSettingsDto } from './dto';
 import { CustomFieldsEntity } from '../custom-field/custom-fields.entity';
-import { getCognitoUserName, getMasterPwd, toPrettyErrorsMsg } from '../../helpers';
+import { toPrettyErrorsMsg } from '../../helpers';
 import { HttpException } from '@nestjs/common/exceptions/http.exception';
-import { IRequestWithCognitoInfo } from '../../authorization';
 import { Messages } from '../../exceptions/text/messages';
 import { QueryOrderingEnum } from '../../enums';
 import { SentryInterceptor } from '../../interceptors';
@@ -36,6 +34,7 @@ import { FindTableSettingsDs } from './application/data-structures/find-table-se
 import { FoundTableSettingsDs } from './application/data-structures/found-table-settings.ds';
 import { CreateTableSettingsDs } from './application/data-structures/create-table-settings.ds';
 import { DeleteTableSettingsDs } from './application/data-structures/delete-table-settings.ds';
+import { MasterPassword, UserId } from '../../decorators';
 
 @ApiBearerAuth()
 @ApiTags('settings')
@@ -60,7 +59,6 @@ export class TableSettingsController {
   @Get('/settings/')
   @UseInterceptors(ClassSerializerInterceptor)
   async findAll(
-    @Req() request: IRequestWithCognitoInfo,
     @Query('connectionId') connectionId: string,
     @Query('tableName') tableName: string,
   ): Promise<FoundTableSettingsDs> {
@@ -97,7 +95,6 @@ export class TableSettingsController {
     @Query('connectionId') connectionId: string,
     @Query('tableName') tableName: string,
     /* eslint-disable */
-    @Req() request: IRequestWithCognitoInfo,
     @Body('search_fields') search_fields: Array<string>,
     @Body('display_name') display_name: string,
     @Body('excluded_fields') excluded_fields: Array<string>,
@@ -112,9 +109,9 @@ export class TableSettingsController {
     @Body('customFields') customFields: Array<CustomFieldsEntity>,
     @Body('columns_view') columns_view: Array<string>,
     @Body('identity_column') identity_column: string,
+    @UserId() userId: string,
+    @MasterPassword() masterPwd: string,
   ): Promise<FoundTableSettingsDs> {
-    const userId = getCognitoUserName(request);
-    const masterPwd = getMasterPwd(request);
     const inputData: CreateTableSettingsDs = {
       table_name: tableName,
       display_name: display_name,
@@ -159,7 +156,6 @@ export class TableSettingsController {
     @Query('connectionId') connectionId: string,
     @Query('tableName') tableName: string,
     /* eslint-disable */
-    @Req() request: IRequestWithCognitoInfo,
     @Body('search_fields') search_fields: Array<string>,
     @Body('display_name') display_name: string,
     @Body('excluded_fields') excluded_fields: Array<string>,
@@ -174,9 +170,9 @@ export class TableSettingsController {
     @Body('customFields') customFields: Array<CustomFieldsEntity>,
     @Body('columns_view') columns_view: Array<string>,
     @Body('identity_column') identity_column: string,
+    @UserId() userId: string,
+    @MasterPassword() masterPwd: string,
   ): Promise<FoundTableSettingsDs> {
-    const userId = getCognitoUserName(request);
-    const masterPwd = getMasterPwd(request);
     const inputData: CreateTableSettingsDs = {
       autocomplete_columns: autocomplete_columns,
       columns_view: columns_view,

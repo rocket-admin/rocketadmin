@@ -12,6 +12,13 @@ export const Constants = {
   MORNING_CRON_KEY: `15ccb8d8-9b64-4d38-9f71-39b3a56c04d8`,
   CONNECTION_KEYS_NONE_PERMISSION: ['id', 'title', 'database', 'type'],
 
+  VERIFICATION_STRING_WHITELIST: () => {
+    const numbers = [...Array(10).keys()].map((num) => num.toString());
+    const alpha = Array.from(Array(26)).map((e, i) => i + 65);
+    const letters = alpha.map((x) => String.fromCharCode(x).toLowerCase());
+    return [...numbers, ...letters];
+  },
+
   PASSWORD_SALT_LENGTH: 64,
   BYTE_TO_STRING_ENCODING: 'hex' as BufferEncoding,
   PASSWORD_HASH_ITERATIONS: 10000,

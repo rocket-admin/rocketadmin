@@ -16,8 +16,6 @@ import {
   Scope,
   UseInterceptors,
 } from '@nestjs/common';
-import { findGclidCookieValue, getCognitoUserName } from '../../helpers';
-import { IRequestWithCognitoInfo } from '../../authorization';
 import { SentryInterceptor } from '../../interceptors';
 import { UseCaseType } from '../../common/data-injection.tokens';
 import {
@@ -56,6 +54,7 @@ import { Response } from 'express';
 import { Constants } from '../../helpers/constants/constants';
 import { OperationResultMessageDs } from './application/data-structures/operation-result-message.ds';
 import { AmplitudeService } from '../amplitude/amplitude.service';
+import { GCLlId, UserId, VerificationString } from '../../decorators';
 
 @ApiBearerAuth()
 @ApiTags('user')
@@ -100,12 +99,10 @@ export class UserController {
   @ApiOperation({ summary: 'Get user info' })
   @ApiResponse({ status: 200, description: 'Return current user info' })
   @Get('user')
-  async findMe(@Req() request: IRequestWithCognitoInfo): Promise<FoundUserDs> {
-    const cognitoUserName = getCognitoUserName(request);
-    const gclidValue = findGclidCookieValue(request);
+  async findMe(@UserId() userId: string, @GCLlId() glidCookieValue: string): Promise<FoundUserDs> {
     const findUserDs: FindUserDs = {
-      id: cognitoUserName,
-      gclidValue: gclidValue,
+      id: userId,
+      gclidValue: glidCookieValue,
     };
 
     return await this.findUserUseCase.execute(findUserDs);
@@ -116,10 +113,9 @@ export class UserController {
   @ApiBody({ type: UpgradeSubscriptionDto })
   @Post('user/subscription/upgrade')
   async upgradeSubscription(
-    @Req() request: IRequestWithCognitoInfo,
     @Body('subscriptionLevel') subscriptionLevel: SubscriptionLevelEnum,
+    @UserId() userId: string,
   ): Promise<any> {
-    const cognitoUserName = getCognitoUserName(request);
     if (!validateStringWithEnum(subscriptionLevel, SubscriptionLevelEnum)) {
       throw new HttpException(
         {
@@ -130,7 +126,7 @@ export class UserController {
     }
     const inputData: UpgradeUserSubscriptionDs = {
       subscriptionLevel: subscriptionLevel,
-      cognitoUserName: cognitoUserName,
+      cognitoUserName: userId,
     };
     return await this.upgradeUserSubscriptionUseCase.execute(inputData);
   }
@@ -185,7 +181,7 @@ export class UserController {
   @ApiBody({ type: LoginUserDto })
   @Post('user/register/')
   async usualRegister(
-    @Req() request,
+    @GCLlId() glidCookieValue: string,
     @Res({ passthrough: true }) response: Response,
     @Body('email') email: string,
     @Body('password') password: string,
@@ -215,11 +211,10 @@ export class UserController {
         HttpStatus.BAD_REQUEST,
       );
     }
-    const gclidValue = findGclidCookieValue(request);
     const inputData: UsualLoginDs = {
       email: email,
       password: password,
-      gclidValue: gclidValue,
+      gclidValue: glidCookieValue,
     };
     const tokenInfo = await this.usualRegisterUseCase.execute(inputData);
     response.cookie(Constants.JWT_COOKIE_KEY_NAME, tokenInfo.token);
@@ -248,7 +243,7 @@ export class UserController {
   @ApiBody({ type: SocialNetworkLoginDto })
   @Post('user/google/login/')
   async registerWithGoogle(
-    @Req() request,
+    @GCLlId() gclidCookieValue: string,
     @Res({ passthrough: true }) response: Response,
     @Body('token') token: string,
   ): Promise<ITokenExp> {
@@ -260,10 +255,9 @@ export class UserController {
         HttpStatus.BAD_REQUEST,
       );
     }
-    const glidCookieValue = findGclidCookieValue(request);
     const googleLoginDs: GoogleLoginDs = {
       token: token,
-      glidCookieValue: glidCookieValue,
+      glidCookieValue: gclidCookieValue,
     };
     const tokenInfo = await this.googleLoginUseCase.execute(googleLoginDs);
     response.cookie(Constants.JWT_COOKIE_KEY_NAME, tokenInfo.token);
@@ -336,16 +330,17 @@ export class UserController {
   @ApiOperation({ summary: 'Request user email confirmation' })
   @ApiResponse({ status: 201, description: 'Email verified' })
   @Get('user/email/verify/request')
-  async requestEmailVerification(@Req() request): Promise<OperationResultMessageDs> {
-    const cognitoUserName = getCognitoUserName(request);
-    return await this.requestEmailVerificationUseCase.execute(cognitoUserName);
+  async requestEmailVerification(@UserId() userId: string): Promise<OperationResultMessageDs> {
+    return await this.requestEmailVerificationUseCase.execute(userId);
   }
 
   @ApiOperation({ summary: 'Verify user email (requires verification string as slug)' })
   @ApiResponse({ status: 201, description: 'Email verified' })
   @Get('user/email/verify/:slug')
-  async verifyEmail(@Param() params): Promise<OperationResultMessageDs> {
-    const verificationString: string = params.slug;
+  async verifyEmail(
+    @Param() params,
+    @VerificationString() verificationString: string,
+  ): Promise<OperationResultMessageDs> {
     return await this.verifyEmailUseCase.execute(verificationString);
   }
 
@@ -353,8 +348,10 @@ export class UserController {
   @ApiResponse({ status: 201, description: 'User password reset verified' })
   @ApiBody({ type: PasswordDto })
   @Post('user/password/reset/verify/:slug')
-  async resetUserPassword(@Param() params, @Body('password') password: string): Promise<RegisteredUserDs> {
-    const verificationString: string = params.slug;
+  async resetUserPassword(
+    @Body('password') password: string,
+    @VerificationString() verificationString: string,
+  ): Promise<RegisteredUserDs> {
     const inputData: ResetUsualUserPasswordDs = {
       verificationString: verificationString,
       newUserPassword: password,
@@ -373,8 +370,7 @@ export class UserController {
   @ApiOperation({ summary: 'Request an email change' })
   @ApiResponse({ status: 201, description: 'User email change requested' })
   @Get('user/email/change/request/')
-  async askChangeUserEmail(@Req() request): Promise<OperationResultMessageDs> {
-    const userId = getCognitoUserName(request);
+  async askChangeUserEmail(@UserId() userId: string): Promise<OperationResultMessageDs> {
     return await this.requestChangeUserEmailUseCase.execute(userId);
   }
 
@@ -383,13 +379,12 @@ export class UserController {
   @ApiBody({ type: EmailDto })
   @Post('user/email/change/verify/:slug')
   async verifyChangeUserEmail(
-    @Req() request,
     @Body('email') email: string,
-    @Param() params,
+    @VerificationString() verificationString: string,
   ): Promise<OperationResultMessageDs> {
     const inputData: ChangeUserEmailDs = {
       newEmail: email,
-      verificationString: params.slug,
+      verificationString: verificationString,
     };
     if (!email || !isEmail(email)) {
       throw new HttpException(
@@ -406,13 +401,12 @@ export class UserController {
   @ApiResponse({ status: 200, description: 'Return delete user account result' })
   @Put('user/delete/')
   async deleteUser(
-    @Req() request: IRequestWithCognitoInfo,
+    @UserId() userId: string,
     @Body('reason') reason: string,
     @Body('message') message: string,
   ): Promise<Omit<RegisteredUserDs, 'token'>> {
-    const cognitoUserName = getCognitoUserName(request);
-    const deleteResult = await this.deleteUserAccountUseCase.execute(cognitoUserName);
-    await this.amplitudeService.formAndSendLogRecord(AmplitudeEventTypeEnum.userAccountDelete, cognitoUserName, {
+    const deleteResult = await this.deleteUserAccountUseCase.execute(userId);
+    await this.amplitudeService.formAndSendLogRecord(AmplitudeEventTypeEnum.userAccountDelete, userId, {
       reason: reason,
       message: message,
       user_email: deleteResult.email,
