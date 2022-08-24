@@ -107,6 +107,7 @@ export const Messages = {
   ID_MISSING: 'Id is missing',
   INCORRECT_DATE_FORMAT: `Date format is incorrect.`,
   INVALID_USERNAME_OR_PASSWORD: `Username or password is invalid`,
+  INVALID_JWT_TOKEN: `JWT token syntax is invalid`,
   LIST_PER_PAGE_INCORRECT: `You can't display less than one row per page`,
   MASTED_NEW_PASSWORD_MISSING: `New master password is missing.`,
   MASTED_OLD_PASSWORD_MISSING: `Old master password is missing.`,
