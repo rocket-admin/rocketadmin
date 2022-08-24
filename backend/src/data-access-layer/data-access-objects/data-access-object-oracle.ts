@@ -533,9 +533,9 @@ export class DataAccessObjectOracle implements IDataAccessObject {
     let whereString = `WHERE `;
     for (let i = 0; i < primaryKeyKeys.length; i++) {
       if (primaryKeyKeys[i + 1]) {
-        whereString += `"${primaryKeyKeys[i]}" = '${primaryKey[primaryKeyKeys[i]]}' AND `;
+        whereString += `"${primaryKeyKeys[i]}" = ${primaryKey[primaryKeyKeys[i]]} AND `;
       } else {
-        whereString += `"${primaryKeyKeys[i]}" = '${primaryKey[primaryKeyKeys[i]]}'`;
+        whereString += `"${primaryKeyKeys[i]}" = ${primaryKey[primaryKeyKeys[i]]}`;
       }
     }
     tableName = this.attachSchemaNameToTableName(tableName);
