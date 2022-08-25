@@ -15,5 +15,5 @@ export const BodyEmail = createParamDecorator((data: any, ctx: ExecutionContext)
     }
     throw buildBadRequestException(Messages.EMAIL_SYNTAX_INVALID);
   }
-  throw buildBadRequestException(Messages.EMAIL_INVALID);
+  throw buildBadRequestException(Messages.USER_EMAIL_MISSING);
 });
