@@ -185,7 +185,7 @@ export class GroupController {
   @UseGuards(GroupEditGuard)
   @Put('/group/user/delete')
   async removeUserFromGroup(
-    @BodyEmail('email') email: string,
+    @BodyEmail() email: string,
     @BodyUuid('groupId') groupId: string,
     @UserId() userId: string,
   ): Promise<RemoveUserFromGroupResultDs> {
