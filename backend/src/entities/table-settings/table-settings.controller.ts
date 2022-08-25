@@ -34,7 +34,7 @@ import { FindTableSettingsDs } from './application/data-structures/find-table-se
 import { FoundTableSettingsDs } from './application/data-structures/found-table-settings.ds';
 import { CreateTableSettingsDs } from './application/data-structures/create-table-settings.ds';
 import { DeleteTableSettingsDs } from './application/data-structures/delete-table-settings.ds';
-import { MasterPassword, UserId } from '../../decorators';
+import { MasterPassword, QueryUuid, UserId } from '../../decorators';
 
 @ApiBearerAuth()
 @ApiTags('settings')
@@ -59,7 +59,7 @@ export class TableSettingsController {
   @Get('/settings/')
   @UseInterceptors(ClassSerializerInterceptor)
   async findAll(
-    @Query('connectionId') connectionId: string,
+    @QueryUuid('connectionId') connectionId: string,
     @Query('tableName') tableName: string,
   ): Promise<FoundTableSettingsDs> {
     if (!connectionId) {
@@ -92,7 +92,7 @@ export class TableSettingsController {
   @UseGuards(ConnectionEditGuard)
   @Post('/settings/')
   async createSettings(
-    @Query('connectionId') connectionId: string,
+    @QueryUuid('connectionId') connectionId: string,
     @Query('tableName') tableName: string,
     /* eslint-disable */
     @Body('search_fields') search_fields: Array<string>,
@@ -153,7 +153,7 @@ export class TableSettingsController {
   @UseGuards(ConnectionEditGuard)
   @Put('/settings/')
   async updateSettings(
-    @Query('connectionId') connectionId: string,
+    @QueryUuid('connectionId') connectionId: string,
     @Query('tableName') tableName: string,
     /* eslint-disable */
     @Body('search_fields') search_fields: Array<string>,
@@ -212,7 +212,7 @@ export class TableSettingsController {
   @UseGuards(ConnectionEditGuard)
   @Delete('/settings/')
   async deleteSettings(
-    @Query('connectionId') connectionId: string,
+    @QueryUuid('connectionId') connectionId: string,
     @Query('tableName') tableName: string,
   ): Promise<FoundTableSettingsDs> {
     if (!connectionId || !tableName) {

@@ -9,13 +9,11 @@ import {
   Injectable,
   Post,
   Put,
-  Req,
   Scope,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { SentryInterceptor } from '../../interceptors';
-import { IRequestWithCognitoInfo } from '../../authorization';
 import { IConnectionPropertiesRO } from './connection-properties.interface';
 import { HttpException } from '@nestjs/common/exceptions/http.exception';
 import { Messages } from '../../exceptions/text/messages';
@@ -53,10 +51,7 @@ export class ConnectionPropertiesController {
   @ApiResponse({ status: 200, description: 'Return connection properties' })
   @UseGuards(ConnectionReadGuard)
   @Get('/connection/properties/:slug')
-  async findConnectionProperties(
-    @Req() request: IRequestWithCognitoInfo,
-    @SlugUuid() connectionId: string,
-  ): Promise<FoundConnectionPropertiesDs | null> {
+  async findConnectionProperties(@SlugUuid() connectionId: string): Promise<FoundConnectionPropertiesDs | null> {
     if (!connectionId) {
       throw new HttpException(
         {

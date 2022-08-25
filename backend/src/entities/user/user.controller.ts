@@ -8,7 +8,6 @@ import {
   HttpStatus,
   Inject,
   Injectable,
-  Param,
   Post,
   Put,
   Req,
@@ -54,7 +53,7 @@ import { Response } from 'express';
 import { Constants } from '../../helpers/constants/constants';
 import { OperationResultMessageDs } from './application/data-structures/operation-result-message.ds';
 import { AmplitudeService } from '../amplitude/amplitude.service';
-import { GCLlId, UserId, VerificationString } from '../../decorators';
+import { BodyEmail, GCLlId, UserId, VerificationString } from '../../decorators';
 
 @ApiBearerAuth()
 @ApiTags('user')
@@ -137,7 +136,7 @@ export class UserController {
   @Post('user/login/')
   async usualLogin(
     @Res({ passthrough: true }) response: Response,
-    @Body('email') email: string,
+    @BodyEmail('email') email: string,
     @Body('password') password: string,
   ): Promise<ITokenExp> {
     if (!email) {
@@ -183,7 +182,7 @@ export class UserController {
   async usualRegister(
     @GCLlId() glidCookieValue: string,
     @Res({ passthrough: true }) response: Response,
-    @Body('email') email: string,
+    @BodyEmail('email') email: string,
     @Body('password') password: string,
   ): Promise<ITokenExp> {
     if (!email) {
@@ -289,7 +288,7 @@ export class UserController {
   @Post('user/password/change/')
   async changeUsualPassword(
     @Res({ passthrough: true }) response: Response,
-    @Body('email') email: string,
+    @BodyEmail('email') email: string,
     @Body('oldPassword') oldPassword: string,
     @Body('newPassword') newPassword: string,
   ): Promise<ITokenExp> {
@@ -337,10 +336,7 @@ export class UserController {
   @ApiOperation({ summary: 'Verify user email (requires verification string as slug)' })
   @ApiResponse({ status: 201, description: 'Email verified' })
   @Get('user/email/verify/:slug')
-  async verifyEmail(
-    @Param() params,
-    @VerificationString() verificationString: string,
-  ): Promise<OperationResultMessageDs> {
+  async verifyEmail(@VerificationString() verificationString: string): Promise<OperationResultMessageDs> {
     return await this.verifyEmailUseCase.execute(verificationString);
   }
 
@@ -363,7 +359,7 @@ export class UserController {
   @ApiResponse({ status: 201, description: 'User password reset requested' })
   @ApiBody({ type: EmailDto })
   @Post('user/password/reset/request/')
-  async askResetUserPassword(@Body('email') email: string): Promise<OperationResultMessageDs> {
+  async askResetUserPassword(@BodyEmail('email') email: string): Promise<OperationResultMessageDs> {
     return await this.requestResetUserPasswordUseCase.execute(email);
   }
 
@@ -379,7 +375,7 @@ export class UserController {
   @ApiBody({ type: EmailDto })
   @Post('user/email/change/verify/:slug')
   async verifyChangeUserEmail(
-    @Body('email') email: string,
+    @BodyEmail('email') email: string,
     @VerificationString() verificationString: string,
   ): Promise<OperationResultMessageDs> {
     const inputData: ChangeUserEmailDs = {

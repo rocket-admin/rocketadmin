@@ -61,7 +61,7 @@ import { AmplitudeService } from '../amplitude/amplitude.service';
 import { processExceptionMessage } from '../../exceptions/utils/process-exception-message';
 import { isTestConnectionById, isTestConnectionUtil } from './utils/is-test-connection-util';
 import { RestoredConnectionDs } from './application/data-structures/restored-connection.ds';
-import { GCLlId, MasterPassword, SlugUuid, UserId } from '../../decorators';
+import { BodyUuid, GCLlId, MasterPassword, QueryUuid, SlugUuid, UserId } from '../../decorators';
 
 @ApiBearerAuth()
 @ApiTags('connections')
@@ -358,7 +358,7 @@ export class ConnectionController {
   @UseGuards(ConnectionEditGuard)
   @Put('/connection/group/delete/:slug')
   async deleteGroupFromConnection(
-    @Body('groupId') groupId: string,
+    @BodyUuid('groupId') groupId: string,
     @SlugUuid() connectionId: string,
     @UserId() userId: string,
   ): Promise<Omit<GroupEntity, 'connection'>> {
@@ -435,8 +435,8 @@ export class ConnectionController {
   })
   @Get('/connection/permissions')
   async getPermissionsForGroupInConnection(
-    @Query('connectionId') connectionId: string,
-    @Query('groupId') groupId: string,
+    @QueryUuid('connectionId') connectionId: string,
+    @QueryUuid('groupId') groupId: string,
     @UserId() userId: string,
     @MasterPassword() masterPwd: string,
   ): Promise<IComplexPermission> {
@@ -462,8 +462,8 @@ export class ConnectionController {
   })
   @Get('/connection/user/permissions')
   async getUserPermissionsForGroupInConnection(
-    @Query('connectionId') connectionId: string,
-    @Query('groupId') groupId: string,
+    @QueryUuid('connectionId') connectionId: string,
+    @QueryUuid('groupId') groupId: string,
     @UserId() userId: string,
     @MasterPassword() masterPwd: string,
   ): Promise<IComplexPermission> {
@@ -506,7 +506,7 @@ export class ConnectionController {
     @Body('ssl') ssl: boolean,
     @Body('cert') cert: string,
     @Body('azure_encryption') azure_encryption: boolean,
-    @Query('connectionId') connectionId: string,
+    @QueryUuid('connectionId') connectionId: string,
     @MasterPassword() masterPwd: string,
     @UserId() userId: string,
   ): Promise<ITestConnectResult> {
