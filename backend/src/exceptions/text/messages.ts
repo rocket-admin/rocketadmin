@@ -192,6 +192,7 @@ export const Messages = {
   EMAIL_ALREADY_CONFIRMED: 'Email is already confirmed',
   EMAIL_MISSING: 'Email is missing',
   EMAIL_INVALID: 'Email is invalid',
+  EMAIL_SYNTAX_INVALID: 'Email syntax is invalid',
   EMAIL_NOT_CONFIRMED: 'Email is not confirmed',
   EMAIL_VERIFICATION_FAILED: 'Email verification failed',
   EMAIL_VERIFIED_SUCCESSFULLY: 'Email verified successfully',

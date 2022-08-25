@@ -34,7 +34,7 @@ import { UpdateCustomFieldsDs } from './application/data-structures/update-custo
 import { DeleteCustomFieldsDs } from './application/data-structures/delete-custom-fields.ds';
 import { FoundCustomFieldsDs } from './application/data-structures/found-custom-fields.ds';
 import { FoundTableSettingsDs } from '../table-settings/application/data-structures/found-table-settings.ds';
-import { MasterPassword, SlugUuid, UserId } from '../../decorators';
+import { MasterPassword, QueryUuid, SlugUuid, UserId } from '../../decorators';
 
 @ApiBearerAuth()
 @ApiTags('custom_fields')
@@ -168,7 +168,7 @@ export class CustomFieldController {
   @UseInterceptors(ClassSerializerInterceptor)
   async deleteCustomField(
     @Query('tableName') tableName: string,
-    @Query('id') fieldId: string,
+    @QueryUuid('id') fieldId: string,
     @SlugUuid() connectionId: string,
   ): Promise<FoundTableSettingsDs> {
     if (!fieldId) {

@@ -5,3 +5,4 @@ export { MasterPassword } from './master-password.decorator';
 export { VerificationString } from './slug-verification.decorator';
 export { BodyUuid } from './body-uuid.decorator';
 export { QueryUuid } from './query-uuid.decorator';
+export { BodyEmail } from './body-email.decorator';

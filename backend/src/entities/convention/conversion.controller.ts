@@ -1,6 +1,6 @@
-import { Controller, Get, Inject, Injectable, Req, Res, Scope, UseInterceptors } from '@nestjs/common';
+import { Controller, Get, Inject, Injectable, Res, Scope, UseInterceptors } from '@nestjs/common';
 import { ApiBasicAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { Request, Response } from 'express';
+import { Response } from 'express';
 import { SentryInterceptor } from '../../interceptors';
 import { UseCaseType } from '../../common/data-injection.tokens';
 import { IGetConversions } from './use-cases/get-conversions-use-cases.interface';
@@ -19,7 +19,7 @@ export class ConversionController {
   @ApiOperation({ summary: 'Get conversions' })
   @ApiResponse({ status: 200, description: 'Return conversions in CSV format.' })
   @Get('/conversions')
-  async getConversions(@Req() request: Request, @Res() res: Response): Promise<any> {
+  async getConversions(@Res() res: Response): Promise<any> {
     const csvData = await this.getConversionsUseCase.execute();
     res.setHeader('Content-Type', 'text/csv');
     res.setHeader('Content-Disposition', 'attachment; filename=conversions.csv');

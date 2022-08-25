@@ -40,7 +40,7 @@ import { FoundUserInGroupDs } from '../user/application/data-structures/found-us
 import { AddUserInGroupDs } from './application/data-sctructures/add-user-in-group.ds';
 import { RemoveUserFromGroupResultDs } from './application/data-sctructures/remove-user-from-group-result.ds';
 import { DeletedGroupResultDs } from './application/data-sctructures/deleted-group-result.ds';
-import { SlugUuid, UserId, VerificationString } from '../../decorators';
+import { BodyEmail, BodyUuid, SlugUuid, UserId, VerificationString } from '../../decorators';
 import validator from 'validator';
 
 @ApiBearerAuth()
@@ -100,8 +100,8 @@ export class GroupController {
   @UseGuards(GroupEditGuard)
   @Put('/group/user')
   async addUserInGroup(
-    @Body('email') email: string,
-    @Body('groupId') groupId: string,
+    @BodyEmail() email: string,
+    @BodyUuid('groupId') groupId: string,
     @UserId() userId: string,
   ): Promise<AddedUserInGroupDs> {
     if (!email || email.length <= 0) {
@@ -185,8 +185,8 @@ export class GroupController {
   @UseGuards(GroupEditGuard)
   @Put('/group/user/delete')
   async removeUserFromGroup(
-    @Body('email') email: string,
-    @Body('groupId') groupId: string,
+    @BodyEmail('email') email: string,
+    @BodyUuid('groupId') groupId: string,
     @UserId() userId: string,
   ): Promise<RemoveUserFromGroupResultDs> {
     if (!email || email.length <= 0 || !validator.isEmail(email)) {
