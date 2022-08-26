@@ -6,6 +6,7 @@ export function getTestData(mockFactory) {
   const newConnectionToTestDB = mockFactory.generateCreateConnectionDtoToTEstDB();
   const updateConnection = mockFactory.generateUpdateConnectionDto();
   const newGroup1 = mockFactory.generateCreateGroupDto1();
+  const newConnectionInDocker = mockFactory.generateCreateInternalConnectionDto();
   return {
     newConnection,
     newEncryptedConnection,
@@ -14,5 +15,6 @@ export function getTestData(mockFactory) {
     newConnectionToTestDB,
     updateConnection,
     newGroup1,
+    newConnectionInDocker,
   };
 }
