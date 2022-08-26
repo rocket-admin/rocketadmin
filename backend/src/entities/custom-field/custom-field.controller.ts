@@ -9,7 +9,6 @@ import {
   Injectable,
   Post,
   Put,
-  Query,
   Scope,
   UseGuards,
   UseInterceptors,
@@ -34,7 +33,7 @@ import { UpdateCustomFieldsDs } from './application/data-structures/update-custo
 import { DeleteCustomFieldsDs } from './application/data-structures/delete-custom-fields.ds';
 import { FoundCustomFieldsDs } from './application/data-structures/found-custom-fields.ds';
 import { FoundTableSettingsDs } from '../table-settings/application/data-structures/found-table-settings.ds';
-import { MasterPassword, QueryUuid, SlugUuid, UserId } from '../../decorators';
+import { MasterPassword, QueryTableName, QueryUuid, SlugUuid, UserId } from '../../decorators';
 
 @ApiBearerAuth()
 @ApiTags('custom_fields')
@@ -59,7 +58,7 @@ export class CustomFieldController {
   @Get('/fields/:slug')
   @UseInterceptors(ClassSerializerInterceptor)
   async findAll(
-    @Query('tableName') tableName: string,
+    @QueryTableName() tableName: string,
     @SlugUuid() connectionId: string,
   ): Promise<Array<FoundCustomFieldsDs>> {
     const inputData: GetCustomFieldsDs = {
@@ -79,7 +78,7 @@ export class CustomFieldController {
   @Post('/field/:slug')
   @UseInterceptors(ClassSerializerInterceptor)
   async createCustomField(
-    @Query('tableName') tableName: string,
+    @QueryTableName() tableName: string,
     @Body('type') type: string,
     @Body('template_string') template_string: string,
     @Body('text') text: string,
@@ -87,14 +86,6 @@ export class CustomFieldController {
     @MasterPassword() masterPwd: string,
     @UserId() userId: string,
   ): Promise<FoundTableSettingsDs> {
-    if (!tableName || tableName.length === 0) {
-      throw new HttpException(
-        {
-          message: Messages.TABLE_NAME_MISSING,
-        },
-        HttpStatus.BAD_REQUEST,
-      );
-    }
     const createFieldDto = {
       type: type,
       text: text,
@@ -117,7 +108,7 @@ export class CustomFieldController {
   @Put('/field/:slug')
   @UseInterceptors(ClassSerializerInterceptor)
   async updateCustomField(
-    @Query('tableName') tableName: string,
+    @QueryTableName() tableName: string,
     @Body('type') type: string,
     @Body('template_string') template_string: string,
     @Body('text') text: string,
@@ -132,14 +123,6 @@ export class CustomFieldController {
       text: text,
       template_string: template_string,
     };
-    if (!tableName || tableName.length === 0) {
-      throw new HttpException(
-        {
-          message: Messages.TABLE_NAME_MISSING,
-        },
-        HttpStatus.BAD_REQUEST,
-      );
-    }
     if (!updateFieldDto.id) {
       throw new HttpException(
         {
@@ -167,7 +150,7 @@ export class CustomFieldController {
   @Delete('/field/:slug')
   @UseInterceptors(ClassSerializerInterceptor)
   async deleteCustomField(
-    @Query('tableName') tableName: string,
+    @QueryTableName() tableName: string,
     @QueryUuid('id') fieldId: string,
     @SlugUuid() connectionId: string,
   ): Promise<FoundTableSettingsDs> {
@@ -175,14 +158,6 @@ export class CustomFieldController {
       throw new HttpException(
         {
           message: Messages.PARAMETER_MISSING,
-        },
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-    if (!tableName || tableName.length === 0) {
-      throw new HttpException(
-        {
-          message: Messages.TABLE_NAME_MISSING,
         },
         HttpStatus.BAD_REQUEST,
       );

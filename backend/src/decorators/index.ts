@@ -6,3 +6,4 @@ export { VerificationString } from './slug-verification.decorator';
 export { BodyUuid } from './body-uuid.decorator';
 export { QueryUuid } from './query-uuid.decorator';
 export { BodyEmail } from './body-email.decorator';
+export { QueryTableName } from './query-table-name.decorator';
