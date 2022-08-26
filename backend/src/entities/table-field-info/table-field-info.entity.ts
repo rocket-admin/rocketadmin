@@ -10,7 +10,7 @@ export class TableFieldInfoEntity {
   allow_null: boolean;
 
   @Column({ default: null })
-  character_maximum_length: number;
+  character_maximum_length: string;
 
   @Column({ default: null })
   column_default: string;

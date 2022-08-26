@@ -1684,7 +1684,7 @@ test.serial(`${currentTest} should throw exception, when field id is not passed 
     .set('Accept', 'application/json');
   t.is(deleteCustomField.status, 400);
   const deleteCustomFieldsRO = JSON.parse(deleteCustomField.text);
-  t.is(deleteCustomFieldsRO.message, Messages.PARAMETER_MISSING);
+  t.is(deleteCustomFieldsRO.message, Messages.UUID_INVALID);
 });
 
 test.serial(`${currentTest} should throw exception, when field id passed in request is incorrect`, async (t) => {
