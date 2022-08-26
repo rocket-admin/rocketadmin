@@ -49,7 +49,7 @@ import { GetRowByPrimaryKeyDs } from './application/data-structures/get-row-by-p
 import { IGlobalDatabaseContext } from '../../common/application/global-database-context.intarface';
 import { createDataAccessObject } from '../../data-access-layer/shared/create-data-access-object';
 import { isTestConnectionById } from '../connection/utils/is-test-connection-util';
-import { MasterPassword, SlugUuid, UserId } from '../../decorators';
+import { MasterPassword, QueryTableName, SlugUuid, UserId } from '../../decorators';
 
 @ApiBearerAuth()
 @ApiTags('tables')
@@ -113,7 +113,7 @@ export class TableController {
   @UseGuards(TableReadGuard)
   @Get('/table/rows/:slug')
   async findAllRows(
-    @Query('tableName') tableName: string,
+    @QueryTableName() tableName: string,
     @Query('page') page: any,
     @Query('perPage') perPage: any,
     @Query('search') searchingFieldValue: string,
@@ -163,7 +163,7 @@ export class TableController {
   @UseGuards(TableReadGuard)
   @Get('/table/structure/:slug')
   async getTableStructure(
-    @Query('tableName') tableName: string,
+    @QueryTableName() tableName: string,
     @UserId() userId: string,
     @SlugUuid() connectionId: string,
     @MasterPassword() masterPwd: string,
@@ -196,9 +196,9 @@ export class TableController {
     @SlugUuid() connectionId: string,
     @UserId() userId: string,
     @MasterPassword() masterPwd: string,
+    @QueryTableName() tableName: string,
   ): Promise<ITableRowRO | boolean> {
-    const tableName = query['tableName'];
-    if (!connectionId || !tableName || isObjectEmpty(body)) {
+    if (!connectionId || isObjectEmpty(body)) {
       throw new HttpException(
         {
           message: Messages.PARAMETER_MISSING,
@@ -227,9 +227,9 @@ export class TableController {
     @UserId() userId: string,
     @MasterPassword() masterPwd: string,
     @SlugUuid() connectionId: string,
+    @QueryTableName() tableName: string,
   ): Promise<ITableRowRO> {
-    const tableName = query['tableName'];
-    if (!connectionId || !tableName || !body) {
+    if (!connectionId || !body) {
       throw new HttpException(
         {
           message: Messages.PARAMETER_MISSING,
@@ -264,8 +264,8 @@ export class TableController {
     @MasterPassword() masterPwd: string,
     @SlugUuid() connectionId: string,
     @UserId() userId: string,
+    @QueryTableName() tableName: string,
   ): Promise<DeletedRowFromTableDs> {
-    const tableName = query['tableName'];
     const primaryKeys = await this.getPrimaryKeys(userId, connectionId, tableName, query, masterPwd);
     const propertiesArray = primaryKeys.map((el) => {
       return Object.entries(el)[0];
@@ -299,15 +299,15 @@ export class TableController {
     @MasterPassword() masterPwd: string,
     @SlugUuid() connectionId: string,
     @UserId() userId: string,
+    @QueryTableName() tableName: string,
   ): Promise<ITableRowRO> {
-    const tableName = query['tableName'];
     const primaryKeys = await this.getPrimaryKeys(userId, connectionId, tableName, query, masterPwd);
 
     const propertiesArray = primaryKeys.map((el) => {
       return Object.entries(el)[0];
     });
     const primaryKey = Object.fromEntries(propertiesArray);
-    if (!connectionId || !tableName || !primaryKey) {
+    if (!connectionId || !primaryKey) {
       throw new HttpException(
         {
           message: Messages.PARAMETER_MISSING,

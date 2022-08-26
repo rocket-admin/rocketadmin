@@ -8,7 +8,6 @@ import {
   Injectable,
   Param,
   Post,
-  Query,
   Scope,
   UseGuards,
   UseInterceptors,
@@ -25,7 +24,7 @@ import { ICreateUpdateDeleteTableWidgets, IFindTableWidgets } from './use-cases/
 import { FindTableWidgetsDs } from './application/data-sctructures/find-table-widgets.ds';
 import { CreateTableWidgetsDs } from './application/data-sctructures/create-table-widgets.ds';
 import { FoundTableWidgetsDs } from './application/data-sctructures/found-table-widgets.ds';
-import { MasterPassword, SlugUuid, UserId } from '../../decorators';
+import { MasterPassword, QueryTableName, SlugUuid, UserId } from '../../decorators';
 
 @ApiBearerAuth()
 @ApiTags('table_widgets')
@@ -50,7 +49,7 @@ export class TableWidgetController {
     @UserId() userId: string,
     @MasterPassword() masterPwd: string,
     @Param() params,
-    @Query('tableName') tableName: string,
+    @QueryTableName() tableName: string,
   ): Promise<Array<ITableWidgetRO>> {
     if (!connectionId) {
       throw new HttpException(
@@ -60,14 +59,7 @@ export class TableWidgetController {
         HttpStatus.BAD_REQUEST,
       );
     }
-    if (!tableName || tableName.length === 0) {
-      throw new HttpException(
-        {
-          message: Messages.TABLE_NAME_MISSING,
-        },
-        HttpStatus.BAD_REQUEST,
-      );
-    }
+
     const inputData: FindTableWidgetsDs = {
       connectionId: connectionId,
       masterPwd: masterPwd,
@@ -84,7 +76,7 @@ export class TableWidgetController {
   @Post('/widget/:slug')
   @UseInterceptors(ClassSerializerInterceptor)
   async createOrUpdateTableWidgets(
-    @Query('tableName') tableName: string,
+    @QueryTableName() tableName: string,
     @Body('widgets') widgets: Array<CreateTableWidgetDto>,
     @SlugUuid() connectionId: string,
     @MasterPassword() masterPwd: string,
@@ -94,14 +86,6 @@ export class TableWidgetController {
       throw new HttpException(
         {
           message: Messages.CONNECTION_ID_MISSING,
-        },
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-    if (!tableName || tableName.length === 0) {
-      throw new HttpException(
-        {
-          message: Messages.TABLE_NAME_MISSING,
         },
         HttpStatus.BAD_REQUEST,
       );
