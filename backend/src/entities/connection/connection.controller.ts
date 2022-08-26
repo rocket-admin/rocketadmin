@@ -506,7 +506,7 @@ export class ConnectionController {
     @Body('ssl') ssl: boolean,
     @Body('cert') cert: string,
     @Body('azure_encryption') azure_encryption: boolean,
-    @QueryUuid('connectionId') connectionId: string,
+    @Query('connectionId') connectionId: string,
     @MasterPassword() masterPwd: string,
     @UserId() userId: string,
   ): Promise<ITestConnectResult> {
