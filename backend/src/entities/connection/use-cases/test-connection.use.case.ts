@@ -13,6 +13,7 @@ import { Encryptor } from '../../../helpers/encryption/encryptor';
 import { UpdateConnectionDs } from '../application/data-structures/update-connection.ds';
 import { processExceptionMessage } from '../../../exceptions/utils/process-exception-message';
 import { createDataAccessObject } from '../../../data-access-layer/shared/create-data-access-object';
+import { ValidationHelper } from '../../../helpers/validators/ValidationHelper';
 
 @Injectable({ scope: Scope.REQUEST })
 export class TestConnectionUseCase
@@ -39,6 +40,7 @@ export class TestConnectionUseCase
       connection_parameters: connectionData,
     } = inputData;
     if (connectionId) {
+      ValidationHelper.validateOrThrowHttpExceptionUUID(connectionId);
       let toUpdate;
       try {
         toUpdate = await this._dbContext.connectionRepository.findAndDecryptConnection(connectionId, masterPwd);
