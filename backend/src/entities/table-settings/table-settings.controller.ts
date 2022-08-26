@@ -9,7 +9,6 @@ import {
   Injectable,
   Post,
   Put,
-  Query,
   Scope,
   UseGuards,
   UseInterceptors,
@@ -34,7 +33,7 @@ import { FindTableSettingsDs } from './application/data-structures/find-table-se
 import { FoundTableSettingsDs } from './application/data-structures/found-table-settings.ds';
 import { CreateTableSettingsDs } from './application/data-structures/create-table-settings.ds';
 import { DeleteTableSettingsDs } from './application/data-structures/delete-table-settings.ds';
-import { MasterPassword, QueryUuid, UserId } from '../../decorators';
+import { MasterPassword, QueryTableName, QueryUuid, UserId } from '../../decorators';
 
 @ApiBearerAuth()
 @ApiTags('settings')
@@ -60,7 +59,7 @@ export class TableSettingsController {
   @UseInterceptors(ClassSerializerInterceptor)
   async findAll(
     @QueryUuid('connectionId') connectionId: string,
-    @Query('tableName') tableName: string,
+    @QueryTableName() tableName: string,
   ): Promise<FoundTableSettingsDs> {
     if (!connectionId) {
       throw new HttpException(
@@ -70,14 +69,7 @@ export class TableSettingsController {
         HttpStatus.BAD_REQUEST,
       );
     }
-    if (!tableName || tableName.length === 0) {
-      throw new HttpException(
-        {
-          message: Messages.TABLE_NAME_MISSING,
-        },
-        HttpStatus.BAD_REQUEST,
-      );
-    }
+
     const inputData: FindTableSettingsDs = {
       connectionId: connectionId,
       tableName: tableName,
@@ -93,7 +85,7 @@ export class TableSettingsController {
   @Post('/settings/')
   async createSettings(
     @QueryUuid('connectionId') connectionId: string,
-    @Query('tableName') tableName: string,
+    @QueryTableName() tableName: string,
     /* eslint-disable */
     @Body('search_fields') search_fields: Array<string>,
     @Body('display_name') display_name: string,
@@ -154,7 +146,7 @@ export class TableSettingsController {
   @Put('/settings/')
   async updateSettings(
     @QueryUuid('connectionId') connectionId: string,
-    @Query('tableName') tableName: string,
+    @QueryTableName() tableName: string,
     /* eslint-disable */
     @Body('search_fields') search_fields: Array<string>,
     @Body('display_name') display_name: string,
@@ -213,9 +205,9 @@ export class TableSettingsController {
   @Delete('/settings/')
   async deleteSettings(
     @QueryUuid('connectionId') connectionId: string,
-    @Query('tableName') tableName: string,
+    @QueryTableName() tableName: string,
   ): Promise<FoundTableSettingsDs> {
-    if (!connectionId || !tableName) {
+    if (!connectionId) {
       throw new HttpException(
         {
           message: Messages.PARAMETER_MISSING,
