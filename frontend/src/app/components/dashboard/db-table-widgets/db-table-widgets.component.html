@@ -59,6 +59,8 @@
                         [options]="makeOptions()"
                         [data]="widget.widget_params"
                         (change)="onWidgetParamsChange($event, widget.field_name)"></json-editor>
+                    <div class="widget-params__label">{{ widget.widget_type === 'Select' ? 'Settings' : 'No settings' }}</div>
+                    <div *ngIf="widget.widget_type !== 'Select'" class="widget-params__shutter"></div>
                 </div>
             </ng-template>
 

@@ -42,7 +42,26 @@
 }
 
 .widget-params {
+    position: relative;
     padding-top: 4px;
+}
+
+.widget-params__label {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.widget-params__shutter {
+    position: absolute;
+    top: 0;
+    left: 0;
+    background: rgba(255, 255, 255, 0.5);
+    cursor: not-allowed;
+    height: 100%;
+    width: 100%;
 }
 
 .widget-delete-button {
