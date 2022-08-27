@@ -7,20 +7,15 @@ import {
   HttpStatus,
   Inject,
   Injectable,
-  Param,
   Post,
   Put,
-  Query,
-  Req,
   Scope,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CreateCustomFieldDto } from './dto/create-custom-field.dto';
-import { getCognitoUserName, getMasterPwd } from '../../helpers';
 import { HttpException } from '@nestjs/common/exceptions/http.exception';
-import { IRequestWithCognitoInfo } from '../../authorization';
 import { Messages } from '../../exceptions/text/messages';
 import { SentryInterceptor } from '../../interceptors';
 import { UpdateCustomFieldDto } from './dto/update-custom-field-dto';
@@ -38,6 +33,7 @@ import { UpdateCustomFieldsDs } from './application/data-structures/update-custo
 import { DeleteCustomFieldsDs } from './application/data-structures/delete-custom-fields.ds';
 import { FoundCustomFieldsDs } from './application/data-structures/found-custom-fields.ds';
 import { FoundTableSettingsDs } from '../table-settings/application/data-structures/found-table-settings.ds';
+import { MasterPassword, QueryTableName, QueryUuid, SlugUuid, UserId } from '../../decorators';
 
 @ApiBearerAuth()
 @ApiTags('custom_fields')
@@ -62,12 +58,11 @@ export class CustomFieldController {
   @Get('/fields/:slug')
   @UseInterceptors(ClassSerializerInterceptor)
   async findAll(
-    @Req() request: IRequestWithCognitoInfo,
-    @Param() params,
-    @Query('tableName') tableName: string,
+    @QueryTableName() tableName: string,
+    @SlugUuid() connectionId: string,
   ): Promise<Array<FoundCustomFieldsDs>> {
     const inputData: GetCustomFieldsDs = {
-      connectionId: params.slug,
+      connectionId: connectionId,
       tableName: tableName,
     };
     return await this.getCustomFieldsUseCase.execute(inputData);
@@ -83,24 +78,14 @@ export class CustomFieldController {
   @Post('/field/:slug')
   @UseInterceptors(ClassSerializerInterceptor)
   async createCustomField(
-    @Req() request: IRequestWithCognitoInfo,
-    @Param() params,
-    @Query('tableName') tableName: string,
+    @QueryTableName() tableName: string,
     @Body('type') type: string,
     @Body('template_string') template_string: string,
     @Body('text') text: string,
+    @SlugUuid() connectionId: string,
+    @MasterPassword() masterPwd: string,
+    @UserId() userId: string,
   ): Promise<FoundTableSettingsDs> {
-    const connectionId = params.slug;
-    const masterPwd = getMasterPwd(request);
-    const cognitoUserName = getCognitoUserName(request);
-    if (!tableName || tableName.length === 0) {
-      throw new HttpException(
-        {
-          message: Messages.TABLE_NAME_MISSING,
-        },
-        HttpStatus.BAD_REQUEST,
-      );
-    }
     const createFieldDto = {
       type: type,
       text: text,
@@ -111,7 +96,7 @@ export class CustomFieldController {
       createFieldDto: createFieldDto,
       masterPwd: masterPwd,
       tableName: tableName,
-      userId: cognitoUserName,
+      userId: userId,
     };
     return await this.createCustomFieldsUseCase.execute(inputData);
   }
@@ -123,31 +108,21 @@ export class CustomFieldController {
   @Put('/field/:slug')
   @UseInterceptors(ClassSerializerInterceptor)
   async updateCustomField(
-    @Req() request: IRequestWithCognitoInfo,
-    @Param() params,
-    @Query('tableName') tableName: string,
+    @QueryTableName() tableName: string,
     @Body('type') type: string,
     @Body('template_string') template_string: string,
     @Body('text') text: string,
     @Body('id') id: string,
+    @SlugUuid() connectionId: string,
+    @MasterPassword() masterPwd: string,
+    @UserId() userId: string,
   ): Promise<FoundCustomFieldsDs> {
-    const connectionId = params.slug;
-    const masterPwd = getMasterPwd(request);
-    const cognitoUserName = getCognitoUserName(request);
     const updateFieldDto = {
       id: id,
       type: type,
       text: text,
       template_string: template_string,
     };
-    if (!tableName || tableName.length === 0) {
-      throw new HttpException(
-        {
-          message: Messages.TABLE_NAME_MISSING,
-        },
-        HttpStatus.BAD_REQUEST,
-      );
-    }
     if (!updateFieldDto.id) {
       throw new HttpException(
         {
@@ -161,7 +136,7 @@ export class CustomFieldController {
       masterPwd: masterPwd,
       tableName: tableName,
       updateFieldDto: updateFieldDto,
-      userId: cognitoUserName,
+      userId: userId,
     };
     return await this.updateCustomFieldsUseCase.execute(inputData);
   }
@@ -175,24 +150,14 @@ export class CustomFieldController {
   @Delete('/field/:slug')
   @UseInterceptors(ClassSerializerInterceptor)
   async deleteCustomField(
-    @Req() request: IRequestWithCognitoInfo,
-    @Param() params,
-    @Query('tableName') tableName: string,
-    @Query('id') fieldId: string,
+    @QueryTableName() tableName: string,
+    @QueryUuid('id') fieldId: string,
+    @SlugUuid() connectionId: string,
   ): Promise<FoundTableSettingsDs> {
-    const connectionId = params.slug;
     if (!fieldId) {
       throw new HttpException(
         {
           message: Messages.PARAMETER_MISSING,
-        },
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-    if (!tableName || tableName.length === 0) {
-      throw new HttpException(
-        {
-          message: Messages.TABLE_NAME_MISSING,
         },
         HttpStatus.BAD_REQUEST,
       );

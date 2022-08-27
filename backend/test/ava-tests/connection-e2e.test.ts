@@ -1369,7 +1369,7 @@ test(`${currentTest} should throw an exception when group id is not passed in th
 
     const { message } = JSON.parse(response.text);
     t.is(response.status, 400);
-    t.is(message, Messages.GROUP_ID_MISSING);
+    t.is(message, Messages.PARAMETER_NAME_MISSING('groupId'));
 
     t.pass();
   } catch (e) {

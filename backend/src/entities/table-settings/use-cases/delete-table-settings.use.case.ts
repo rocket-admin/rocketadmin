@@ -1,4 +1,4 @@
-import { Inject, Injectable, Scope } from '@nestjs/common';
+import { HttpException, HttpStatus, Inject, Injectable, Scope } from '@nestjs/common';
 import { IDeleteTableSettings } from './use-cases.interface';
 import { BaseType } from '../../../common/data-injection.tokens';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface';
@@ -6,6 +6,7 @@ import { DeleteTableSettingsDs } from '../application/data-structures/delete-tab
 import { FoundTableSettingsDs } from '../application/data-structures/found-table-settings.ds';
 import { buildFoundTableSettingsDs } from '../utils/build-found-table-settings-ds';
 import AbstractUseCase from '../../../common/abstract-use.case';
+import { Messages } from '../../../exceptions/text/messages';
 
 @Injectable({ scope: Scope.REQUEST })
 export class DeleteTableSettingsUseCase
@@ -25,6 +26,14 @@ export class DeleteTableSettingsUseCase
       connectionId,
       tableName,
     );
+    if (!tableSettingsToDelete) {
+      throw new HttpException(
+        {
+          message: Messages.TABLE_SETTINGS_NOT_FOUND,
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
     const deletedSettings = await this._dbContext.tableSettingsRepository.removeTableSettings(tableSettingsToDelete);
     return buildFoundTableSettingsDs(deletedSettings);
   }

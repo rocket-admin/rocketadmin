@@ -1505,7 +1505,7 @@ describe('Connections (e2e)', () => {
 
         const { message } = JSON.parse(response.text);
         expect(response.status).toBe(400);
-        expect(message).toBe(Messages.GROUP_ID_MISSING);
+        expect(message).toBe(Messages.PARAMETER_NAME_MISSING('groupId'));
       } catch (err) {
         throw err;
       }

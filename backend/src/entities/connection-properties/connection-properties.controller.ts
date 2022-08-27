@@ -7,18 +7,14 @@ import {
   HttpStatus,
   Inject,
   Injectable,
-  Param,
   Post,
   Put,
-  Req,
   Scope,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { SentryInterceptor } from '../../interceptors';
-import { IRequestWithCognitoInfo } from '../../authorization';
 import { IConnectionPropertiesRO } from './connection-properties.interface';
-import { getCognitoUserName, getMasterPwd } from '../../helpers';
 import { HttpException } from '@nestjs/common/exceptions/http.exception';
 import { Messages } from '../../exceptions/text/messages';
 import { CreateConnectionPropertiesDto } from './dto';
@@ -32,6 +28,7 @@ import {
 } from './use-cases/connection-properties-use.cases.interface';
 import { FoundConnectionPropertiesDs } from './application/data-structures/found-connection-properties.ds';
 import { CreateConnectionPropertiesDs } from './application/data-structures/create-connection-properties.ds';
+import { MasterPassword, SlugUuid, UserId } from '../../decorators';
 
 @ApiBearerAuth()
 @ApiTags('connection properties')
@@ -54,11 +51,7 @@ export class ConnectionPropertiesController {
   @ApiResponse({ status: 200, description: 'Return connection properties' })
   @UseGuards(ConnectionReadGuard)
   @Get('/connection/properties/:slug')
-  async findConnectionProperties(
-    @Req() request: IRequestWithCognitoInfo,
-    @Param() params,
-  ): Promise<FoundConnectionPropertiesDs | null> {
-    const connectionId = params.slug;
+  async findConnectionProperties(@SlugUuid() connectionId: string): Promise<FoundConnectionPropertiesDs | null> {
     if (!connectionId) {
       throw new HttpException(
         {
@@ -76,13 +69,11 @@ export class ConnectionPropertiesController {
   @UseGuards(ConnectionEditGuard)
   @Post('/connection/properties/:slug')
   async createConnectionProperties(
-    @Req() request: IRequestWithCognitoInfo,
-    @Param() params,
     @Body('hidden_tables') hidden_tables: Array<string>,
+    @UserId() userId: string,
+    @MasterPassword() masterPwd: string,
+    @SlugUuid() connectionId: string,
   ): Promise<FoundConnectionPropertiesDs> {
-    const cognitoUserName = getCognitoUserName(request);
-    const masterPwd = getMasterPwd(request);
-    const connectionId = params.slug;
     if (!connectionId) {
       throw new HttpException(
         {
@@ -95,7 +86,7 @@ export class ConnectionPropertiesController {
       connectionId: connectionId,
       master_password: masterPwd,
       hidden_tables: hidden_tables,
-      userId: cognitoUserName,
+      userId: userId,
     };
 
     return await this.createConnectionPropertiesUseCase.execute(createConnectionPropertiesDs);
@@ -107,14 +98,11 @@ export class ConnectionPropertiesController {
   @UseGuards(ConnectionEditGuard)
   @Put('/connection/properties/:slug')
   async updateConnectionProperties(
-    @Req() request: IRequestWithCognitoInfo,
-    @Param() params,
     @Body('hidden_tables') hidden_tables: Array<string>,
+    @UserId() userId: string,
+    @MasterPassword() masterPwd: string,
+    @SlugUuid() connectionId: string,
   ): Promise<IConnectionPropertiesRO> {
-    const cognitoUserName = getCognitoUserName(request);
-    const masterPwd = getMasterPwd(request);
-    const connectionId = params.slug;
-
     if (!connectionId) {
       throw new HttpException(
         {
@@ -128,7 +116,7 @@ export class ConnectionPropertiesController {
       connectionId: connectionId,
       master_password: masterPwd,
       hidden_tables: hidden_tables,
-      userId: cognitoUserName,
+      userId: userId,
     };
 
     return await this.updateConnectionPropertiesUseCase.execute(inputData);
@@ -138,11 +126,7 @@ export class ConnectionPropertiesController {
   @ApiResponse({ status: 201, description: 'Delete connection properties' })
   @UseGuards(ConnectionEditGuard)
   @Delete('/connection/properties/:slug')
-  async deleteConnectionProperties(
-    @Req() request: IRequestWithCognitoInfo,
-    @Param() params,
-  ): Promise<IConnectionPropertiesRO> {
-    const connectionId = params.slug;
+  async deleteConnectionProperties(@SlugUuid() connectionId: string): Promise<IConnectionPropertiesRO> {
     if (!connectionId) {
       throw new HttpException(
         {

@@ -1611,7 +1611,7 @@ describe('Custom fields(e2e)', () => {
           .set('Accept', 'application/json');
         expect(deleteCustomField.status).toBe(400);
         const deleteCustomFieldsRO = JSON.parse(deleteCustomField.text);
-        expect(deleteCustomFieldsRO.message).toBe(Messages.PARAMETER_MISSING);
+        expect(deleteCustomFieldsRO.message).toBe(Messages.UUID_INVALID);
       } catch (err) {
         throw err;
       }

@@ -42,6 +42,7 @@ export class UpdateRowInTableUseCase
   }
 
   protected async implementation(inputData: UpdateRowInTableDs): Promise<ITableRowRO> {
+    // eslint-disable-next-line prefer-const
     let { connectionId, masterPwd, primaryKey, row, tableName, userId } = inputData;
     let operationResult = OperationResultStatusEnum.unknown;
 
@@ -67,6 +68,7 @@ export class UpdateRowInTableUseCase
       userEmail = await this._dbContext.userRepository.getUserEmailOrReturnNull(userId);
     }
 
+    // eslint-disable-next-line prefer-const
     let [tableStructure, tableWidgets, tableSettings, tableForeignKeys, tablePrimaryKeys] = await Promise.all([
       dao.getTableStructure(tableName, userEmail),
       this._dbContext.tableWidgetsRepository.findTableWidgets(connectionId, tableName),

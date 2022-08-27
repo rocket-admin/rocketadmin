@@ -1,25 +1,13 @@
-import {
-  Controller,
-  Get,
-  HttpStatus,
-  Inject,
-  Injectable,
-  Param,
-  Query,
-  Req,
-  Scope,
-  UseInterceptors,
-} from '@nestjs/common';
+import { Controller, Get, HttpStatus, Inject, Injectable, Query, Scope, UseInterceptors } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { getCognitoUserName } from '../../helpers';
 import { HttpException } from '@nestjs/common/exceptions/http.exception';
-import { IRequestWithCognitoInfo } from '../../authorization';
 import { Messages } from '../../exceptions/text/messages';
 import { SentryInterceptor } from '../../interceptors';
 import { UseCaseType } from '../../common/data-injection.tokens';
 import { IFindLogs } from './use-cases/use-cases.interface';
 import { FoundLogsDs } from './application/data-structures/found-logs.ds';
 import { FindLogsDs } from './application/data-structures/find-logs.ds';
+import { SlugUuid, UserId } from '../../decorators';
 
 @ApiBearerAuth()
 @ApiTags('logs')
@@ -47,9 +35,7 @@ export class TableLogsController {
   })
   @ApiResponse({ status: 200, description: 'Return all table logs.' })
   @Get('/logs/:slug')
-  async findAll(@Req() request: IRequestWithCognitoInfo, @Param() params, @Query() query): Promise<FoundLogsDs> {
-    const cognitoUserName = getCognitoUserName(request);
-    const connectionId = params.slug;
+  async findAll(@Query() query, @SlugUuid() connectionId: string, @UserId() userId: string): Promise<FoundLogsDs> {
     if (!connectionId) {
       throw new HttpException(
         {
@@ -61,7 +47,7 @@ export class TableLogsController {
     const inputData: FindLogsDs = {
       connectionId: connectionId,
       query: query,
-      userId: cognitoUserName,
+      userId: userId,
     };
     return await this.findLogsUseCase.execute(inputData);
   }

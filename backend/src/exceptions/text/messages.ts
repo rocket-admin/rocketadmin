@@ -107,6 +107,7 @@ export const Messages = {
   ID_MISSING: 'Id is missing',
   INCORRECT_DATE_FORMAT: `Date format is incorrect.`,
   INVALID_USERNAME_OR_PASSWORD: `Username or password is invalid`,
+  INVALID_JWT_TOKEN: `JWT token syntax is invalid`,
   LIST_PER_PAGE_INCORRECT: `You can't display less than one row per page`,
   MASTED_NEW_PASSWORD_MISSING: `New master password is missing.`,
   MASTED_OLD_PASSWORD_MISSING: `Old master password is missing.`,
@@ -123,6 +124,7 @@ export const Messages = {
   )}`,
   PAGE_AND_PERPAGE_INVALID: `Parameters "page" and "perPage" must be more than zero`,
   PARAMETER_MISSING: 'Required parameter missing',
+  PARAMETER_NAME_MISSING: (parameterName: string) => `Required parameter "${parameterName}" missing`,
   PASSWORD_MISSING: 'Password is missing',
   PASSWORD_OLD_MISSING: 'Old password is missing',
   PASSWORD_NEW_MISSING: 'New password is missing',
@@ -144,6 +146,10 @@ export const Messages = {
   RECEIVING_USER_CONNECTIONS_FAILED: 'Receiving user connections failed.',
   RECEIVING_USER_PERMISSIONS_FAILED: 'Receiving user permissions failed.',
   REQUIRED_FIELD_CANT_BE_EMPTY: 'Required field can not be empty',
+  REQUIRED_PARAMETERS_MISSING: (paramsNames: Array<string>): string =>
+    `Required parameter${paramsNames.length > 1 ? 's' : ''} ${paramsNames.join(', ')} ${
+      paramsNames.length > 1 ? 'are' : 'is'
+    } missing`,
   ROW_PRIMARY_KEY_NOT_FOUND: 'Row with this primary key not found',
   SOMETHING_WENT_WRONG_ROW_ADD: 'Something went wrong on row insertion, check inserted parameters and try again',
   SSH_FORMAT_INCORRECT: 'Ssh value must be a boolean',
@@ -161,7 +167,7 @@ export const Messages = {
   TABLE_NOT_FOUND: 'Table not found',
   TABLE_SCHEMA_NOT_FOUND: (tableName: string) =>
     `Table schema for table ${tableName} not found or this table does not exists`,
-  TABLE_SETTINGS_NOT_FOUND: 'Table settings with this parameters not found. ',
+  TABLE_SETTINGS_NOT_FOUND: 'Table settings with this parameters not found',
   TABLE_WIDGET_NOT_FOUND: 'Table widget with this parameters not found',
   TRY_AGAIN_LATER: 'Please try again later. If the problem persists, please contact our support team',
   TYPE_MISSING: 'Type is missing',
@@ -179,11 +185,14 @@ export const Messages = {
   USER_EMAIL_MISSING: `User email is missing`,
   USER_MISSING_EMAIL_OR_SOCIAL_REGISTERED: `User with this email not found in our database. Please check your email.
   Hint: if you registered through google or facebook, you need to change your password in these providers`,
+  UUID_INVALID: `Invalid id syntax`,
   VERIFICATION_LINK_INCORRECT: 'Verification link is incorrect',
   VERIFICATION_LINK_EXPIRED: 'Verification link expired',
+  VERIFICATION_STRING_INCORRECT: 'Verification string format is incorrect',
   EMAIL_ALREADY_CONFIRMED: 'Email is already confirmed',
   EMAIL_MISSING: 'Email is missing',
   EMAIL_INVALID: 'Email is invalid',
+  EMAIL_SYNTAX_INVALID: 'Email syntax is invalid',
   EMAIL_NOT_CONFIRMED: 'Email is not confirmed',
   EMAIL_VERIFICATION_FAILED: 'Email verification failed',
   EMAIL_VERIFIED_SUCCESSFULLY: 'Email verified successfully',
@@ -195,7 +204,7 @@ export const Messages = {
   USER_EMAIL_NOT_FOUND: (email: string) =>
     `User ${email} is not found in our system, please ask the user to create an account first`,
   USER_EMAIL_NOT_FOUND_AND_INVITED: (email: string) =>
-    `User ${email} is not found in our system. We have sent an invitation to the user's email. Please ask the user log in.`,
+    `User ${email} is not found in our system. We have sent an invitation to the user's email. Please ask the user to log in.`,
   USER_INVITE_EXTERNAL_USER: (userAddEmail: string, userToAddEmail: string) =>
     `User ${userAddEmail} send invite to external user ${userToAddEmail}.`,
   USER_ADDED_IN_GROUP: (email: string) => `User ${email} was added in group successfully`,
