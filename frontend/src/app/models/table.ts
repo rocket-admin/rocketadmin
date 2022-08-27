@@ -18,6 +18,7 @@ export enum TableOrdering {
 }
 
 export interface TableSettings {
+    // id: string,
     connection_id: string,
     table_name: string,
     display_name: string,
