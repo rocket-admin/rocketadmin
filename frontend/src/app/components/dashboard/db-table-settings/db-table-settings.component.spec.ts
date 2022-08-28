@@ -15,7 +15,7 @@ import { of } from 'rxjs';
 import { TableSettings, TableOrdering } from 'src/app/models/table';
 import { ConnectionsService } from 'src/app/services/connections.service';
 
-fdescribe('DbTableSettingsComponent', () => {
+describe('DbTableSettingsComponent', () => {
   let component: DbTableSettingsComponent;
   let fixture: ComponentFixture<DbTableSettingsComponent>;
   let tablesService: TablesService;
