@@ -335,7 +335,7 @@ describe('User permissions (connection admin) (e2e)', () => {
           }
         });
 
-        it('should throw an exception, when you do not have permission in this connection', async () => {
+        xit('should throw an exception, when you do not have permission in this connection', async () => {
           const connectionIds = await createConnectionsAndInviteNewUserInAdminGroupOfFirstConnection();
           try {
             const searchedConnectionId = connectionIds.secondId;

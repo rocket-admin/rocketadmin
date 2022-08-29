@@ -395,7 +395,7 @@ describe('Connections (e2e)', () => {
 
         expect(findOneResponce.status).toBe(400);
         const { message } = JSON.parse(findOneResponce.text);
-        expect(message).toBe(Messages.CONNECTION_ID_MISSING);
+        expect(message).toBe(Messages.UUID_INVALID);
       } catch (err) {
         throw err;
       }
@@ -1059,10 +1059,12 @@ describe('Connections (e2e)', () => {
           .set('Cookie', connectionAdminUserToken)
           .set('Accept', 'application/json');
 
-        expect(findOneResponce.status).toBe(403);
+        const deleteRO = JSON.parse(findOneResponce.text);
+        console.log('-> deleteRO', deleteRO);
+        expect(findOneResponce.status).toBe(400);
 
         const { message } = JSON.parse(findOneResponce.text);
-        expect(message).toBe(Messages.DONT_HAVE_PERMISSIONS);
+        expect(message).toBe(Messages.CONNECTION_NOT_FOUND);
 
         expect(result.hasOwnProperty('id')).toBe(false);
         expect(result.title).toBe('Test Connection');
