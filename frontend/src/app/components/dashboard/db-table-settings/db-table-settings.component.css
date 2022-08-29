@@ -7,9 +7,18 @@
 }
 
 .settings-form {
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
+    display: grid;
+    grid-template-columns: auto 40px;
+    align-items: center;
+}
+
+.settings-form__full-line {
+    grid-column: 1 / span 2;
+}
+
+.settings-form__tooltip {
+    margin-bottom: 20px;
+    margin-left: auto;
 }
 
 .form-group-ordering {
