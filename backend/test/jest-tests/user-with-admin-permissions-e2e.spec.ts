@@ -421,9 +421,9 @@ describe('User permissions (connection admin) (e2e)', () => {
               .set('Content-Type', 'application/json')
               .set('Accept', 'application/json');
 
-            expect(findOneResponce.status).toBe(403);
+            expect(findOneResponce.status).toBe(400);
             const { message } = JSON.parse(findOneResponce.text);
-            expect(message).toBe(Messages.DONT_HAVE_PERMISSIONS);
+            expect(message).toBe(Messages.CONNECTION_NOT_FOUND);
 
             expect(response.status).toBe(200);
 
