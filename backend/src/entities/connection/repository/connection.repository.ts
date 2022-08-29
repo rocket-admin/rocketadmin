@@ -50,8 +50,11 @@ export class ConnectionRepository extends Repository<ConnectionEntity> implement
 
   public async findOneConnection(
     connectionId: string,
-  ): Promise<Omit<ConnectionEntity, 'password' | 'privateSSHKey' | 'groups'>> {
+  ): Promise<Omit<ConnectionEntity, 'password' | 'privateSSHKey' | 'groups'> | null> {
     const connection = await this.findOne({ id: connectionId });
+    if (!connection) {
+      return null;
+    }
     delete connection.password;
     delete connection.privateSSHKey;
     delete connection.groups;

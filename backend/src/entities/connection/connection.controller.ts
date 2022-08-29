@@ -139,27 +139,31 @@ export class ConnectionController {
 
   @ApiOperation({ summary: 'Get connection by id' })
   @Get('/connection/one/:slug')
-  @UseGuards(ConnectionReadGuard)
   async findOne(
     @SlugUuid() connectionId: string,
     @MasterPassword() masterPwd: string,
     @UserId() userId: string,
   ): Promise<FoundOneConnectionDs> {
+    let foundConnection: FoundOneConnectionDs = null;
     try {
       const findOneConnectionInput: FindOneConnectionDs = {
         connectionId: connectionId,
         masterPwd: masterPwd,
         cognitoUserName: userId,
       };
-      return await this.findOneConnectionUseCase.execute(findOneConnectionInput);
+      foundConnection = await this.findOneConnectionUseCase.execute(findOneConnectionInput);
+      console.log('-> foundConnection', foundConnection);
+      return foundConnection;
     } catch (e) {
       throw e;
     } finally {
-      const isTest = await isTestConnectionById(connectionId);
-      await this.amplitudeService.formAndSendLogRecord(
-        isTest ? AmplitudeEventTypeEnum.connectionReceivedTest : AmplitudeEventTypeEnum.connectionReceived,
-        userId,
-      );
+      if (foundConnection?.connection) {
+        const isTest = await isTestConnectionById(connectionId);
+        await this.amplitudeService.formAndSendLogRecord(
+          isTest ? AmplitudeEventTypeEnum.connectionReceivedTest : AmplitudeEventTypeEnum.connectionReceived,
+          userId,
+        );
+      }
     }
   }
 
