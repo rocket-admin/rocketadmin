@@ -58,7 +58,9 @@ function buildTableFieldInfoEntity(structure: ITableStructure, tableInfo: TableI
   const newTableFieldInfoEntity = new TableFieldInfoEntity();
   newTableFieldInfoEntity.column_name = structure.column_name;
   newTableFieldInfoEntity.data_type = structure.data_type;
-  newTableFieldInfoEntity.character_maximum_length = structure.character_maximum_length.toString();
+  if (structure.character_maximum_length) {
+    newTableFieldInfoEntity.character_maximum_length = structure.character_maximum_length.toString();
+  }
   newTableFieldInfoEntity.allow_null = structure.allow_null;
   newTableFieldInfoEntity.column_default = structure.column_default;
   newTableFieldInfoEntity.data_type_params = structure.data_type_params;

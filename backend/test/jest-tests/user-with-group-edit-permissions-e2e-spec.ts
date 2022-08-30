@@ -319,8 +319,9 @@ describe('User permissions (connection readonly, group edit) (e2e)', () => {
               .set('Cookie', simpleUserToken)
               .set('Accept', 'application/json');
             // todo add checking connection object properties
-            expect(findOneResponce.status).toBe(403);
-            expect(JSON.parse(findOneResponce.text).message).toBe(Messages.DONT_HAVE_PERMISSIONS);
+            expect(findOneResponce.status).toBe(200);
+            const findOneRO = JSON.parse(findOneResponce.text);
+            expect(findOneRO.hasOwnProperty('host')).toBeFalsy();
           } catch (err) {
             throw err;
           }
