@@ -112,7 +112,7 @@ $custom-theme-warn: mat-palette($md-app-warn-color);
 $custom-theme: mat-light-theme($custom-theme-primary, $custom-theme-accent, $custom-theme-warn);
 
 $custom-typography: mat-typography-config(
-  $font-family: 'Poppins'
+  $font-family: 'Poppins, sans-serif'
 );
 
 @include angular-material-theme($custom-theme);
