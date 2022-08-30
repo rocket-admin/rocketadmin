@@ -54,6 +54,7 @@ export class TablesDataSource implements DataSource<Object> {
   public widgets: Widget[];
   public widgetsCount: number = 0;
   public selectWidgetsOptions: object;
+  public permissions;
 
   public alert_primaryKeysInfo: Alert;
   public alert_settingsInfo: Alert;
@@ -185,7 +186,9 @@ export class TablesDataSource implements DataSource<Object> {
           this.dataNormalizedColumns = this.columns
             .reduce((normalizedColumns, column) => (normalizedColumns[column.title] = column.normalizedTitle, normalizedColumns), {})
           this.displayedDataColumns = (filter(this.columns, column => column.selected === true)).map(column => column.title);
-          if (this.keyAttributes.length) {
+          this.permissions = res.table_permissions.accessLevel;
+          console.log(this.permissions.edit);
+          if (this.keyAttributes.length && (this.permissions.edit || this.permissions.delete)) {
             this.displayedColumns = [...this.displayedDataColumns, 'actions'];
           } else {
             this.displayedColumns = [...this.displayedDataColumns];
