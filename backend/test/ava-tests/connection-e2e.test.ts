@@ -364,7 +364,7 @@ test(`${currentTest} should throw an exception "id is missing" when connection i
 
     t.is(findOneResponce.status, 400);
     const { message } = JSON.parse(findOneResponce.text);
-    t.is(message, Messages.CONNECTION_ID_MISSING);
+    t.is(message, Messages.UUID_INVALID);
 
     t.pass();
   } catch (e) {
@@ -951,10 +951,10 @@ test(`${currentTest} should return delete result`, async (t) => {
       .set('Cookie', token)
       .set('Accept', 'application/json');
 
-    t.is(findOneResponce.status, 403);
+    t.is(findOneResponce.status, 400);
 
     const { message } = JSON.parse(findOneResponce.text);
-    t.is(message, Messages.DONT_HAVE_PERMISSIONS);
+    t.is(message, Messages.CONNECTION_NOT_FOUND);
 
     t.is(result.hasOwnProperty('id'), false);
     t.is(result.title, 'Test Connection');
