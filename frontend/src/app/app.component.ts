@@ -123,7 +123,9 @@ export class AppComponent {
               window.Intercom("boot", {
                 // @ts-ignore
                 ...window.intercomSettings,
-                user_hash: res.intercom_hash // HMAC using SHA-256
+                user_hash: res.intercom_hash,
+                user_id: res.id,
+                email: res.email
               });
               this.router.navigate(['/connections-list'])
             }
@@ -150,7 +152,9 @@ export class AppComponent {
                   window.Intercom("boot", {
                     // @ts-ignore
                     ...window.intercomSettings,
-                    user_hash: res.intercom_hash // HMAC using SHA-256
+                    user_hash: res.intercom_hash,
+                    user_id: res.id,
+                    email: res.email
                   });
                 }
             );
