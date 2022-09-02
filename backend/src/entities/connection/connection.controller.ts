@@ -152,7 +152,6 @@ export class ConnectionController {
         cognitoUserName: userId,
       };
       foundConnection = await this.findOneConnectionUseCase.execute(findOneConnectionInput);
-      console.log('-> foundConnection', foundConnection);
       return foundConnection;
     } catch (e) {
       throw e;
