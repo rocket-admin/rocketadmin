@@ -118,6 +118,13 @@ export class AppComponent {
           .subscribe(res => {
               this.currentUser = res;
               this.setUserLoggedIn(true);
+
+              // @ts-ignore
+              window.Intercom("boot", {
+                // @ts-ignore
+                ...window.intercomSettings,
+                user_hash: res.intercom_hash // HMAC using SHA-256
+              });
               this.router.navigate(['/connections-list'])
             }
         )
@@ -139,6 +146,12 @@ export class AppComponent {
               .subscribe(res => {
                   this.currentUser = res;
                   this.setUserLoggedIn(true);
+                  // @ts-ignore
+                  window.Intercom("boot", {
+                    // @ts-ignore
+                    ...window.intercomSettings,
+                    user_hash: res.intercom_hash // HMAC using SHA-256
+                  });
                 }
             );
 
