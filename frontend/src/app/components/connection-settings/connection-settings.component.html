@@ -1,9 +1,27 @@
-<app-banner></app-banner>
+<app-alert></app-alert>
 <div class="settings-page">
     <h1 class="mat-h1">Settings for <strong>{{connectionName}}</strong> connection</h1>
 
     <app-content-loader *ngIf="loading"></app-content-loader>
-    <form action="" #connectionSettingsForm="ngForm" (ngSubmit)="isSettingsExist ? updateSettings() : createSettings()">
+
+    <app-banner *ngIf="noTablesError" type="info" class="settings-banner">
+        <h3 class='mat-subheading-2'>Autoadmin can not find any tables</h3>
+        <p class="mat-body-1">
+            There are no tables to apply settings.
+            Please grant Autoadmin access to required tables or create new table.
+            You can create a table with SQL editor
+        </p>
+    </app-banner>
+
+    <app-banner *ngIf="errorMessage" type="error" class="settings-banner">
+        <p class="mat-body-1 error-message">{{errorMessage}}</p>
+        <div class="error-actions">
+            <a mat-stroked-button routerLink="/edit-db/{{connectionID}}">Connection settings</a>
+            <a mat-stroked-button routerLink="/connections-list">Connections list</a>
+        </div>
+    </app-banner>
+
+    <form *ngIf="!errorMessage && !noTablesError && !loading" #connectionSettingsForm="ngForm" (ngSubmit)="isSettingsExist ? updateSettings() : createSettings()">
         <div class="settings-form">
             <mat-form-field appearance="outline">
                 <mat-label>Hidden tables</mat-label>

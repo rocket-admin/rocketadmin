@@ -56,7 +56,7 @@ export class DataAccessObjectOracle implements IDataAccessObject {
     let result;
     tableName = this.attachSchemaNameToTableName(tableName);
     if (primaryColumns?.length > 0) {
-      if (checkFieldAutoincrement(primaryKeyStructure.column_default)) {
+      if (checkFieldAutoincrement(primaryKeyStructure.column_default, primaryKeyStructure.extra)) {
         await knex
           .transaction((trx) => {
             knex
@@ -168,7 +168,7 @@ export class DataAccessObjectOracle implements IDataAccessObject {
         .raw(
           `SELECT ${columnsForSelect.map((_) => '??').join(', ')}
            FROM ${tableName}
-           WHERE ?? IN (${fieldValues.map((_) => '??').join(', ')})`,
+           WHERE ?? IN (${fieldValues.map((_) => '?').join(', ')})`,
           [...columnsForSelect, referencedFieldName, ...fieldValues],
         )
         .transacting(trx)
@@ -514,34 +514,17 @@ export class DataAccessObjectOracle implements IDataAccessObject {
     };
   }
 
-  //todo rework
   public async updateRowInTable(
     tableName: string,
     row: Record<string, unknown>,
     primaryKey: Record<string, unknown>,
   ): Promise<Record<string, unknown>> {
-    const primaryKeyKeys = Object.keys(primaryKey);
-    Object.values(primaryKey);
     const knex = await this.configureKnex();
-    const keys = Object.keys(row);
-    let setString = `SET `;
-    for (const key of keys) {
-      setString += `"${key}" = '${row[key]}', `;
-    }
-    setString = setString.replace(/,\s*$/, '');
-
-    let whereString = `WHERE `;
-    for (let i = 0; i < primaryKeyKeys.length; i++) {
-      if (primaryKeyKeys[i + 1]) {
-        whereString += `"${primaryKeyKeys[i]}" = ${primaryKey[primaryKeyKeys[i]]} AND `;
-      } else {
-        whereString += `"${primaryKeyKeys[i]}" = ${primaryKey[primaryKeyKeys[i]]}`;
-      }
-    }
-    tableName = this.attachSchemaNameToTableName(tableName);
-    return await knex.transaction((trx) => {
-      knex.raw(`UPDATE ${tableName} ${setString} ${whereString}`).transacting(trx).then(trx.commit).catch(trx.rollback);
-    });
+    return await knex(tableName)
+      .withSchema(this.connection.schema ? this.connection.schema : this.connection.username.toUpperCase())
+      .returning(Object.keys(primaryKey))
+      .where(primaryKey)
+      .update(row);
   }
 
   public async validateSettings(settings: CreateTableSettingsDto, tableName: string): Promise<Array<string>> {

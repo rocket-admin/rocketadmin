@@ -1,4 +1,4 @@
-import * as faker from 'faker';
+import { faker } from '@faker-js/faker';
 import * as jwt from 'jsonwebtoken';
 import {
   AccessLevelEnum,
@@ -533,6 +533,14 @@ export class MockFactory {
     };
   }
 
+  generateCustomFieldForUsersTable(fieldNameId: string, fieldNameTitle: string) {
+    return {
+      type: 'AA:Link',
+      template_string: `https//?id={{${fieldNameId}}}&email={{${fieldNameTitle}}}`,
+      text: 'Go To',
+    };
+  }
+
   generateCreateWidgetDTOForConnectionTable() {
     const newWidgetDTO = new CreateTableWidgetDto();
     /* eslint-disable */
@@ -687,13 +695,14 @@ export class MockFactory {
 
   public static generateCreateGroupDtoWithRandomTitle(words = 1) {
     const dto = new CreateGroupDto();
-    dto.title = faker.random.word(words);
+    dto.title = faker.random.words(words);
     return dto;
   }
 
-  public generateConnectionPropertiesUserExcluded(): CreateConnectionPropertiesDto {
+  public generateConnectionPropertiesUserExcluded(tableName: string = null): CreateConnectionPropertiesDto {
+    tableName = tableName || 'users';
     return {
-      hidden_tables: ['users'],
+      hidden_tables: [tableName],
     };
   }
 }

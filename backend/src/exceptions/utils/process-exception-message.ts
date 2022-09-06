@@ -18,6 +18,8 @@ export function processExceptionMessage(message: string): string {
       return PROCESSING_MESSAGES_REPLACE.ORA_02292;
     case msgInLowerCase.includes(PROCESSING_MESSAGES_FIND.NO_PGHBA_ENTRY):
       return PROCESSING_MESSAGES_REPLACE.NO_PGHBA_ENTRY;
+    case msgInLowerCase.includes(PROCESSING_MESSAGES_FIND.UPDATE_COMMAND_DENIED):
+      return PROCESSING_MESSAGES_REPLACE.UPDATE_COMMAND_DENIED;
     default:
       return message;
   }

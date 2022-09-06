@@ -5,11 +5,9 @@ import {
   HttpStatus,
   Inject,
   Injectable,
-  Param,
   Post,
   Put,
   Query,
-  Req,
   Scope,
   UseGuards,
   UseInterceptors,
@@ -19,18 +17,10 @@ import { CreateConnectionDto, CreateGroupInConnectionDto, UpdateMasterPasswordDt
 import { GroupEntity } from '../group/group.entity';
 import { HttpException } from '@nestjs/common/exceptions/http.exception';
 import { IComplexPermission } from '../permission/permission.interface';
-import { IRequestWithCognitoInfo } from '../../authorization';
 import { Messages } from '../../exceptions/text/messages';
 import { SentryInterceptor } from '../../interceptors';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import {
-  findGclidCookieValue,
-  getCognitoUserName,
-  getMasterPwd,
-  isConnectionEntityAgent,
-  isConnectionTypeAgent,
-  toPrettyErrorsMsg,
-} from '../../helpers';
+import { isConnectionEntityAgent, isConnectionTypeAgent, toPrettyErrorsMsg } from '../../helpers';
 import validator from 'validator';
 import { ITestConnectResult } from '../../dal/shared/dao-interface';
 import { ConnectionEditGuard, ConnectionReadGuard } from '../../guards';
@@ -71,6 +61,7 @@ import { AmplitudeService } from '../amplitude/amplitude.service';
 import { processExceptionMessage } from '../../exceptions/utils/process-exception-message';
 import { isTestConnectionById, isTestConnectionUtil } from './utils/is-test-connection-util';
 import { RestoredConnectionDs } from './application/data-structures/restored-connection.ds';
+import { BodyUuid, GCLlId, MasterPassword, QueryUuid, SlugUuid, UserId } from '../../decorators';
 
 @ApiBearerAuth()
 @ApiTags('connections')
@@ -117,13 +108,10 @@ export class ConnectionController {
   @ApiOperation({ summary: 'Get all connections' })
   @ApiResponse({ status: 200, description: 'Return all connections.' })
   @Get('/connections')
-  async findAll(@Req() request: IRequestWithCognitoInfo): Promise<FoundConnectionsDs> {
+  async findAll(@UserId() userId: string, @GCLlId() glidCookieValue: string): Promise<FoundConnectionsDs> {
     console.log(`findAll triggered in connection.controller ->: ${new Date().toISOString()}`);
-
-    const cognitoUserName = getCognitoUserName(request);
-    const glidCookieValue = findGclidCookieValue(request);
     const userData: FindUserDs = {
-      id: cognitoUserName,
+      id: userId,
       gclidValue: glidCookieValue,
     };
     return await this.findConnectionsUseCase.execute(userData);
@@ -133,9 +121,7 @@ export class ConnectionController {
   @ApiResponse({ status: 200, description: 'Return all connection users' })
   @UseGuards(ConnectionReadGuard)
   @Get('/connection/users/:slug')
-  async findAllUsers(@Req() request: IRequestWithCognitoInfo, @Param() params): Promise<Array<FoundUserDs>> {
-    const cognitoUserName = getCognitoUserName(request);
-    const connectionId = params.slug;
+  async findAllUsers(@UserId() userId: string, @SlugUuid() connectionId: string): Promise<Array<FoundUserDs>> {
     try {
       return await this.findAllUsersInConnectionUseCase.execute(connectionId);
     } catch (e) {
@@ -146,33 +132,37 @@ export class ConnectionController {
         isConnectionTest
           ? AmplitudeEventTypeEnum.connectionUsersReceivedTest
           : AmplitudeEventTypeEnum.connectionUsersReceived,
-        cognitoUserName,
+        userId,
       );
     }
   }
 
   @ApiOperation({ summary: 'Get connection by id' })
   @Get('/connection/one/:slug')
-  @UseGuards(ConnectionReadGuard)
-  async findOne(@Param() params, @Req() request: IRequestWithCognitoInfo): Promise<FoundOneConnectionDs> {
-    const cognitoUserName = getCognitoUserName(request);
-    const id = params.slug;
-    const masterPwd = getMasterPwd(request);
+  async findOne(
+    @SlugUuid() connectionId: string,
+    @MasterPassword() masterPwd: string,
+    @UserId() userId: string,
+  ): Promise<FoundOneConnectionDs> {
+    let foundConnection: FoundOneConnectionDs = null;
     try {
       const findOneConnectionInput: FindOneConnectionDs = {
-        connectionId: id,
+        connectionId: connectionId,
         masterPwd: masterPwd,
-        cognitoUserName: cognitoUserName,
+        cognitoUserName: userId,
       };
-      return await this.findOneConnectionUseCase.execute(findOneConnectionInput);
+      foundConnection = await this.findOneConnectionUseCase.execute(findOneConnectionInput);
+      return foundConnection;
     } catch (e) {
       throw e;
     } finally {
-      const isTest = await isTestConnectionById(id);
-      await this.amplitudeService.formAndSendLogRecord(
-        isTest ? AmplitudeEventTypeEnum.connectionReceivedTest : AmplitudeEventTypeEnum.connectionReceived,
-        cognitoUserName,
-      );
+      if (foundConnection?.connection) {
+        const isTest = await isTestConnectionById(connectionId);
+        await this.amplitudeService.formAndSendLogRecord(
+          isTest ? AmplitudeEventTypeEnum.connectionReceivedTest : AmplitudeEventTypeEnum.connectionReceived,
+          userId,
+        );
+      }
     }
   }
 
@@ -185,7 +175,6 @@ export class ConnectionController {
   @ApiResponse({ status: 403, description: 'Forbidden.' })
   @Post('/connection')
   async create(
-    @Req() request: IRequestWithCognitoInfo,
     @Body('title') title: string,
     @Body('masterEncryption') masterEncryption: boolean,
     @Body('type') type: ConnectionTypeEnum,
@@ -204,13 +193,21 @@ export class ConnectionController {
     @Body('ssl') ssl: boolean,
     @Body('cert') cert: string,
     @Body('azure_encryption') azure_encryption: boolean,
+    @UserId() userId: string,
+    @MasterPassword() masterPwd: string,
   ): Promise<CreatedConnectionDs> {
-    const cognitoUserName = getCognitoUserName(request);
-    const masterPwd = getMasterPwd(request);
     if (!password && !isConnectionTypeAgent(type)) {
       throw new HttpException(
         {
           message: Messages.PASSWORD_MISSING,
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+    if (masterEncryption && !masterPwd) {
+      throw new HttpException(
+        {
+          message: Messages.MASTER_PASSWORD_REQUIRED,
         },
         HttpStatus.BAD_REQUEST,
       );
@@ -245,7 +242,7 @@ export class ConnectionController {
         username: username,
       },
       creation_info: {
-        authorId: cognitoUserName,
+        authorId: userId,
         masterPwd: masterPwd,
       },
     };
@@ -261,7 +258,6 @@ export class ConnectionController {
   @UseGuards(ConnectionEditGuard)
   @Put('/connection/:slug')
   async update(
-    @Req() request: IRequestWithCognitoInfo,
     @Body('title') title: string,
     @Body('masterEncryption') masterEncryption: boolean,
     @Body('type') type: ConnectionTypeEnum,
@@ -280,13 +276,11 @@ export class ConnectionController {
     @Body('ssl') ssl: boolean,
     @Body('cert') cert: string,
     @Body('azure_encryption') azure_encryption: boolean,
-    @Param() params,
+    @SlugUuid() connectionId: string,
+    @UserId() userId: string,
+    @MasterPassword() masterPwd: string,
   ): Promise<{ connection: Omit<CreatedConnectionDs, 'groups'> }> {
-    const cognitoUserName = getCognitoUserName(request);
-    const connectionId = params.slug;
-    const masterPwd = getMasterPwd(request);
     const errors = [];
-
     if (masterEncryption && !masterPwd) {
       errors.push(Messages.MASTER_PASSWORD_REQUIRED);
     }
@@ -320,7 +314,7 @@ export class ConnectionController {
         username: username,
       },
       update_info: {
-        authorId: cognitoUserName,
+        authorId: userId,
         connectionId: connectionId,
         masterPwd: masterPwd,
       },
@@ -339,17 +333,15 @@ export class ConnectionController {
   @UseGuards(ConnectionEditGuard)
   @Put('/connection/delete/:slug')
   async delete(
-    @Param() params,
-    @Req() request: IRequestWithCognitoInfo,
     @Body('reason') reason: string,
     @Body('message') message: string,
+    @UserId() userId: string,
+    @SlugUuid() connectionId: string,
+    @MasterPassword() masterPwd: string,
   ): Promise<CreatedConnectionDs> {
-    const cognitoUserName = getCognitoUserName(request);
-    const id = params.slug;
-    const masterPwd = getMasterPwd(request);
     const inputData: DeleteConnectionDs = {
-      connectionId: id,
-      cognitoUserName: cognitoUserName,
+      connectionId: connectionId,
+      cognitoUserName: userId,
       masterPwd: masterPwd,
     };
     const deleteResult = await this.deleteConnectionUseCase.execute(inputData);
@@ -369,12 +361,10 @@ export class ConnectionController {
   @UseGuards(ConnectionEditGuard)
   @Put('/connection/group/delete/:slug')
   async deleteGroupFromConnection(
-    @Req() request: IRequestWithCognitoInfo,
-    @Param() params,
-    @Body('groupId') groupId: string,
+    @BodyUuid('groupId') groupId: string,
+    @SlugUuid() connectionId: string,
+    @UserId() userId: string,
   ): Promise<Omit<GroupEntity, 'connection'>> {
-    const cognitoUserName = getCognitoUserName(request);
-    const connectionId = params.slug;
     if (!groupId) {
       throw new HttpException(
         {
@@ -386,7 +376,7 @@ export class ConnectionController {
     const inputData: DeleteGroupInConnectionDs = {
       groupId: groupId,
       connectionId: connectionId,
-      cognitoUserName: cognitoUserName,
+      cognitoUserName: userId,
     };
     return await this.deleteGroupInConnectionUseCase.execute(inputData);
   }
@@ -396,14 +386,12 @@ export class ConnectionController {
   @UseGuards(ConnectionEditGuard)
   @Post('/connection/group/:slug')
   async createGroupInConnection(
-    @Param() params,
     @Body('title') title: string,
     @Body('permissions') permissions: any,
     @Body('users') users: any,
-    @Req() request: IRequestWithCognitoInfo,
+    @SlugUuid() connectionId: string,
+    @UserId() userId: string,
   ): Promise<Omit<GroupEntity, 'connection'>> {
-    const connectionId = params.slug;
-    const cognitoUserName = getCognitoUserName(request);
     if (!title) {
       throw new HttpException(
         {
@@ -418,7 +406,7 @@ export class ConnectionController {
         connectionId: connectionId,
       },
       creation_info: {
-        cognitoUserName: cognitoUserName,
+        cognitoUserName: userId,
       },
     };
     return await this.createGroupInConnectionUseCase.execute(inputData);
@@ -427,11 +415,9 @@ export class ConnectionController {
   @ApiOperation({ summary: 'Get all groups in this connection' })
   @Get('/connection/groups/:slug')
   async getGroupsInConnection(
-    @Param() params,
-    @Req() request: IRequestWithCognitoInfo,
+    @UserId() userId: string,
+    @SlugUuid() connectionId: string,
   ): Promise<Array<FoundUserGroupsInConnectionDs>> {
-    const cognitoUserName = getCognitoUserName(request);
-    const connectionId = params.slug;
     if (!connectionId) {
       throw new HttpException(
         {
@@ -442,7 +428,7 @@ export class ConnectionController {
     }
     const inputData: GetGroupsInConnectionDs = {
       connectionId: connectionId,
-      cognitoUserName: cognitoUserName,
+      cognitoUserName: userId,
     };
     return await this.getUserGroupsInConnectionUseCase.execute(inputData);
   }
@@ -452,11 +438,11 @@ export class ConnectionController {
   })
   @Get('/connection/permissions')
   async getPermissionsForGroupInConnection(
-    @Query('connectionId') connectionId: string,
-    @Query('groupId') groupId: string,
-    @Req() request: IRequestWithCognitoInfo,
+    @QueryUuid('connectionId') connectionId: string,
+    @QueryUuid('groupId') groupId: string,
+    @UserId() userId: string,
+    @MasterPassword() masterPwd: string,
   ): Promise<IComplexPermission> {
-    const cognitoUserName = getCognitoUserName(request);
     if (!connectionId || !groupId) {
       throw new HttpException(
         {
@@ -465,12 +451,11 @@ export class ConnectionController {
         HttpStatus.BAD_REQUEST,
       );
     }
-    const masterPwd = getMasterPwd(request);
     const inputData: GetPermissionsInConnectionDs = {
       groupId: groupId,
       connectionId: connectionId,
       masterPwd: masterPwd,
-      cognitoUserName: cognitoUserName,
+      cognitoUserName: userId,
     };
     return await this.getPermissionsForGroupInConnectionUseCase.execute(inputData);
   }
@@ -480,11 +465,11 @@ export class ConnectionController {
   })
   @Get('/connection/user/permissions')
   async getUserPermissionsForGroupInConnection(
-    @Query('connectionId') connectionId: string,
-    @Query('groupId') groupId: string,
-    @Req() request: IRequestWithCognitoInfo,
+    @QueryUuid('connectionId') connectionId: string,
+    @QueryUuid('groupId') groupId: string,
+    @UserId() userId: string,
+    @MasterPassword() masterPwd: string,
   ): Promise<IComplexPermission> {
-    const cognitoUserName = getCognitoUserName(request);
     if (!connectionId || !groupId) {
       throw new HttpException(
         {
@@ -493,12 +478,11 @@ export class ConnectionController {
         HttpStatus.BAD_REQUEST,
       );
     }
-    const masterPwd = getMasterPwd(request);
     const inputData: GetPermissionsInConnectionDs = {
       groupId: groupId,
       connectionId: connectionId,
       masterPwd: masterPwd,
-      cognitoUserName: cognitoUserName,
+      cognitoUserName: userId,
     };
     return await this.getUserPermissionsForGroupInConnectionUseCase.execute(inputData);
   }
@@ -507,7 +491,6 @@ export class ConnectionController {
   @ApiOperation({ summary: 'Test connection' })
   @Post('/connection/test/')
   async testConnection(
-    @Req() request: IRequestWithCognitoInfo,
     @Body('title') title: string,
     @Body('masterEncryption') masterEncryption: boolean,
     @Body('type') type: ConnectionTypeEnum,
@@ -526,11 +509,10 @@ export class ConnectionController {
     @Body('ssl') ssl: boolean,
     @Body('cert') cert: string,
     @Body('azure_encryption') azure_encryption: boolean,
-    @Param() params,
     @Query('connectionId') connectionId: string,
+    @MasterPassword() masterPwd: string,
+    @UserId() userId: string,
   ): Promise<ITestConnectResult> {
-    const masterPwd = getMasterPwd(request);
-    const cognitoUserName = getCognitoUserName(request);
     const inputData: UpdateConnectionDs = {
       connection_parameters: {
         azure_encryption: azure_encryption,
@@ -553,7 +535,7 @@ export class ConnectionController {
         username: username,
       },
       update_info: {
-        authorId: cognitoUserName,
+        authorId: userId,
         connectionId: connectionId,
         masterPwd: masterPwd,
       },
@@ -575,13 +557,10 @@ export class ConnectionController {
   @UseGuards(ConnectionEditGuard)
   @Put('/connection/encryption/update/:slug')
   async updateConnectionMasterPwd(
-    @Req() request: IRequestWithCognitoInfo,
-    @Param() params,
+    @SlugUuid() connectionId: string,
     @Body('oldMasterPwd') oldMasterPwd: string,
     @Body('newMasterPwd') newMasterPwd: string,
   ): Promise<boolean> {
-    const connectionId = params.slug;
-
     if (!connectionId) {
       throw new HttpException(
         {
@@ -625,7 +604,6 @@ export class ConnectionController {
   @UseGuards(ConnectionEditGuard)
   @Put('/connection/encryption/restore/:slug')
   async restore(
-    @Req() request: IRequestWithCognitoInfo,
     @Body('title') title: string,
     @Body('masterEncryption') masterEncryption: boolean,
     @Body('type') type: string,
@@ -644,12 +622,10 @@ export class ConnectionController {
     @Body('ssl') ssl: boolean,
     @Body('cert') cert: string,
     @Body('azure_encryption') azure_encryption: boolean,
-    @Param() params,
+    @SlugUuid() connectionId: string,
+    @UserId() userId: string,
+    @MasterPassword() masterPwd: string,
   ): Promise<RestoredConnectionDs> {
-    const cognitoUserName = getCognitoUserName(request);
-    const connectionId = params.slug;
-    const masterPwd = getMasterPwd(request);
-
     const connectionData: UpdateConnectionDs = {
       connection_parameters: {
         title: title,
@@ -674,7 +650,7 @@ export class ConnectionController {
       update_info: {
         connectionId: connectionId,
         masterPwd: masterPwd,
-        authorId: cognitoUserName,
+        authorId: userId,
       },
     };
 
@@ -699,7 +675,7 @@ export class ConnectionController {
 
   @ApiOperation({ summary: 'Check connection token existence' })
   @Get('/connection/token/')
-  async validateConnectionAgentToken(@Req() request, @Query('token') token: string): Promise<boolean> {
+  async validateConnectionAgentToken(@Query('token') token: string): Promise<boolean> {
     if (!token) {
       return false;
     }
@@ -709,11 +685,7 @@ export class ConnectionController {
   @ApiOperation({ summary: 'Generate new connection token' })
   @UseGuards(ConnectionEditGuard)
   @Get('/connection/token/refresh/:slug')
-  async refreshConnectionAgentToken(
-    @Req() request: IRequestWithCognitoInfo,
-    @Param() params,
-  ): Promise<{ token: string }> {
-    const connectionId = params.slug;
+  async refreshConnectionAgentToken(@SlugUuid() connectionId: string): Promise<{ token: string }> {
     if (!connectionId) {
       throw new HttpException(
         {

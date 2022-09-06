@@ -26,5 +26,5 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: '16'
-      - run: yarn install
+      - run: cd backend && yarn install
       - run: cd backend && yarn run lint

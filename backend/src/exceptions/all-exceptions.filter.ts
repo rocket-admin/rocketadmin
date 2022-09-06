@@ -2,6 +2,7 @@ import { ArgumentsHost, Catch, ExceptionFilter, HttpException, HttpStatus } from
 import { processExceptionMessage } from './utils/process-exception-message';
 import { slackPostMessage } from '../helpers';
 import { Constants } from '../helpers/constants/constants';
+import { Logger } from '../helpers/logging/Logger';
 
 @Catch()
 export class AllExceptionsFilter implements ExceptionFilter {
@@ -15,6 +16,9 @@ export class AllExceptionsFilter implements ExceptionFilter {
 
     const status = exception instanceof HttpException ? exception.getStatus() : HttpStatus.INTERNAL_SERVER_ERROR;
 
+    if (status === 500 || status === 408) {
+      Logger.logError(exception);
+    }
     if (status !== 404) {
       try {
         const exceptionToString = `Sent exception message: ${text}

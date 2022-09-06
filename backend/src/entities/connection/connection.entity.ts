@@ -18,6 +18,7 @@ import { TableLogsEntity } from '../table-logs/table-logs.entity';
 import { AgentEntity } from '../agent/agent.entity';
 import { isConnectionTypeAgent } from '../../helpers';
 import { ConnectionPropertiesEntity } from '../connection-properties/connection-properties.entity';
+import { TableInfoEntity } from '../table-info/table-info.entity';
 
 @Entity('connection')
 export class ConnectionEntity {
@@ -87,6 +88,9 @@ export class ConnectionEntity {
 
   @Column({ default: false })
   azure_encryption?: boolean;
+
+  @Column({ default: 0 })
+  saved_table_info?: number;
 
   @BeforeUpdate()
   updateTimestampEncryptCredentials(): void {
@@ -160,4 +164,7 @@ export class ConnectionEntity {
 
   @OneToOne((type) => ConnectionPropertiesEntity, (connection_properties) => connection_properties.connection)
   connection_properties: ConnectionPropertiesEntity;
+
+  @OneToMany((type) => TableInfoEntity, (table_info) => table_info.connection)
+  tables_info: TableInfoEntity[];
 }

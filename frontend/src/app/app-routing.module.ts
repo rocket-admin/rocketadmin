@@ -13,7 +13,6 @@ import { DbTableWidgetsComponent } from './components/dashboard/db-table-widgets
 import { EmailChangeComponent } from './components/email-change/email-change.component';
 import { EmailVerificationComponent } from './components/email-verification/email-verification.component';
 import { GroupUserVerificationComponent } from './components/group-user-verification/group-user-verification.component';
-import { HomeComponent } from './components/home/home.component';
 import { LoginComponent } from './components/login/login.component';
 import { NgModule } from '@angular/core';
 import { PageLoaderComponent } from './components/page-loader/page-loader.component';
@@ -25,10 +24,10 @@ import { RegistrationComponent } from './components/registration/registration.co
 import { UpgradeComponent } from './components/upgrade/upgrade.component';
 import { UserSettingsComponent } from './components/user-settings/user-settings.component';
 import { UsersComponent } from './components/users/users.component';
+import { NewVersionComponent } from './components/new-version/new-version.component';
 
 const routes: Routes = [
-  {path: '', redirectTo: '/home', pathMatch: 'full'},
-  {path: 'home', component: HomeComponent},
+  {path: '', redirectTo: '/connections-list', pathMatch: 'full'},
   {path: 'loader', component: PageLoaderComponent},
   {path: 'registration', component: RegistrationComponent},
   {path: 'login', component: LoginComponent},
@@ -36,6 +35,7 @@ const routes: Routes = [
   {path: 'api/user/password/reset/verify/:verification-token', component: PasswordResetComponent},
   {path: 'api/user/email/verify/:verification-token', component: EmailVerificationComponent},
   {path: 'api/user/email/change/verify/:change-token', component: EmailChangeComponent},
+  {path: 'new-version', component: NewVersionComponent},
   {path: 'connect-db', component: ConnectDBComponent, canActivate: [AuthGuard]},
   {path: 'connections-list', component: ConnectionsListComponent, canActivate: [AuthGuard]},
   {path: 'user-settings', component: UserSettingsComponent, canActivate: [AuthGuard]},

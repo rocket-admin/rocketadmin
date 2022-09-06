@@ -116,4 +116,5 @@ export interface ITableStructure {
   data_type: string;
   data_type_params: string;
   udt_name: string;
+  extra?: string;
 }

@@ -1,6 +1,6 @@
 import * as Sentry from "@sentry/angular";
 
-import { APP_INITIALIZER, ErrorHandler, NgModule } from '@angular/core';
+import { APP_INITIALIZER, ErrorHandler, NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { Router, RouterModule } from '@angular/router';
@@ -45,7 +45,6 @@ import { ForeignKeyComponent } from './components/ui-components/row-fields/forei
 import { GroupAddDialogComponent } from './components/users/group-add-dialog/group-add-dialog.component';
 import { GroupDeleteDialogComponent } from './components/users/group-delete-dialog/group-delete-dialog.component';
 import { GroupUserVerificationComponent } from './components/group-user-verification/group-user-verification.component';
-import { HomeComponent } from './components/home/home.component';
 import { HostnameValidationDirective } from "./directives/hostnameValidator.directive";
 import { IdComponent } from "./components/ui-components/row-fields/id/id.component";
 import { InfoDialogComponent } from './components/audit/info-dialog/info-dialog.component';
@@ -84,6 +83,8 @@ import { UsersComponent } from './components/users/users.component';
 import { UsersService } from './services/users.service';
 import { WidgetDeleteDialogComponent } from './components/dashboard/db-table-widgets/widget-delete-dialog/widget-delete-dialog.component';
 import { environment } from '../environments/environment';
+import { AlertComponent } from './components/ui-components/alert/alert.component';
+import { NewVersionComponent } from './components/new-version/new-version.component';
 
 const saasExtraProviders = (environment as any).saas ? [
   {
@@ -111,7 +112,6 @@ const saasExtraProviders = (environment as any).saas ? [
     PageNotFoundComponent,
     UsersComponent,
     DbTablesListComponent,
-    HomeComponent,
     PageLoaderComponent,
     DbConnectionDeleteDialogComponent,
     ConnectionsListComponent,
@@ -164,7 +164,9 @@ const saasExtraProviders = (environment as any).saas ? [
     PasswordChangeComponent,
     AccountDeleteConfirmationComponent,
     GroupUserVerificationComponent,
-    FileComponent
+    FileComponent,
+    AlertComponent,
+    NewVersionComponent
   ],
   entryComponents: [
     DbRowDeleteDialogComponent,
@@ -215,6 +217,9 @@ const saasExtraProviders = (environment as any).saas ? [
     // ...saasExtraModules,
     ConfigModule.buildForConfigUrl('/config.json')
   ],
-  bootstrap: [AppComponent]
+  bootstrap: [AppComponent],
+  schemas: [
+    CUSTOM_ELEMENTS_SCHEMA
+  ]
 })
 export class AppModule { }

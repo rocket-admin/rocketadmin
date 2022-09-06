@@ -62,25 +62,30 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
         userEmail = await this._dbContext.userRepository.getUserEmailOrReturnNull(userId);
       }
 
-      let [tableSettings, tablePrimaryColumns, tableForeignKeys, tableStructure, tableWidgets, tableCustomFields] =
-        await Promise.all([
-          this._dbContext.tableSettingsRepository.findTableSettings(connectionId, tableName),
-          dao.getTablePrimaryColumns(tableName, userEmail),
-          dao.getTableForeignKeys(tableName, userEmail),
-          dao.getTableStructure(tableName, userEmail),
-          this._dbContext.tableWidgetsRepository.findTableWidgets(connectionId, tableName),
-          this._dbContext.customFieldsRepository.getCustomFields(connectionId, tableName),
-        ]);
+      /* eslint-disable */
+      let [
+        tableSettings,
+        tablePrimaryColumns,
+        tableForeignKeys,
+        tableStructure,
+        tableWidgets,
+        tableCustomFields,
+        userTablePermissions,
+        /* eslint-enable */
+      ] = await Promise.all([
+        this._dbContext.tableSettingsRepository.findTableSettings(connectionId, tableName),
+        dao.getTablePrimaryColumns(tableName, userEmail),
+        dao.getTableForeignKeys(tableName, userEmail),
+        dao.getTableStructure(tableName, userEmail),
+        this._dbContext.tableWidgetsRepository.findTableWidgets(connectionId, tableName),
+        this._dbContext.customFieldsRepository.getCustomFields(connectionId, tableName),
+        this._dbContext.userAccessRepository.getUserTablePermissions(userId, connectionId, tableName, masterPwd),
+      ]);
 
       const filteringFields = findFilteringFieldsUtil(query, tableStructure);
       const orderingField = findOrderingFieldUtil(query, tableStructure, tableSettings);
 
-      const configured: boolean = !!tableSettings;
-
-      if (orderingField) {
-        tableSettings.ordering_field = orderingField.field;
-        tableSettings.ordering = orderingField.value;
-      }
+      const configured = !!tableSettings;
 
       let autocompleteFields = undefined;
       const autocomplete = query['autocomplete'];
@@ -91,6 +96,11 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
       }
       //todo rework in daos
       tableSettings = tableSettings ? tableSettings : ({} as TableSettingsEntity);
+
+      if (orderingField) {
+        tableSettings.ordering_field = orderingField.field;
+        tableSettings.ordering = orderingField.value;
+      }
 
       let rows = await dao.getRowsFromTable(
         tableName,
@@ -143,6 +153,7 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
         configured: configured,
         widgets: tableWidgets,
         identity_column: tableSettings.identity_column ? tableSettings.identity_column : null,
+        table_permissions: userTablePermissions,
       };
       let identities = [];
 
@@ -195,6 +206,7 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
           const newFKeyObj = {};
           if (foundIdentityForCurrentValue) {
             for (const key of Object.keys(foundIdentityForCurrentValue)) {
+              // eslint-disable-next-line security/detect-object-injection
               newFKeyObj[key] = foundIdentityForCurrentValue[key];
             }
           }

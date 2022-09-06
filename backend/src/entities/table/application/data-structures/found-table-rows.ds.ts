@@ -5,6 +5,8 @@ import {
   IPrimaryKey,
 } from '../../../../data-access-layer/shared/data-access-object-interface';
 import { FullTableStructureDs } from './found-table-structure.ds';
+import { ITablePermissionData } from '../../../permission/permission.interface';
+import { TableWidgetEntity } from '../../../widget/table-widget.entity';
 
 export class FoundTableRowsDs {
   rows: Array<Record<string, unknown>>;
@@ -16,6 +18,10 @@ export class FoundTableRowsDs {
   columns_view: Array<string>;
   structure: Array<FullTableStructureDs>;
   foreignKeys: Array<IForeignKey>;
+  configured: boolean;
+  widgets: Array<TableWidgetEntity>;
+  identity_column: string;
+  table_permissions: ITablePermissionData;
 }
 
 export class TableStructureDs {

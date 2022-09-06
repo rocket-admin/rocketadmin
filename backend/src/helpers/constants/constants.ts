@@ -12,6 +12,13 @@ export const Constants = {
   MORNING_CRON_KEY: `15ccb8d8-9b64-4d38-9f71-39b3a56c04d8`,
   CONNECTION_KEYS_NONE_PERMISSION: ['id', 'title', 'database', 'type'],
 
+  VERIFICATION_STRING_WHITELIST: () => {
+    const numbers = [...Array(10).keys()].map((num) => num.toString());
+    const alpha = Array.from(Array(26)).map((e, i) => i + 65);
+    const letters = alpha.map((x) => String.fromCharCode(x).toLowerCase());
+    return [...numbers, ...letters];
+  },
+
   PASSWORD_SALT_LENGTH: 64,
   BYTE_TO_STRING_ENCODING: 'hex' as BufferEncoding,
   PASSWORD_HASH_ITERATIONS: 10000,
@@ -58,8 +65,15 @@ export const Constants = {
   },
 
   DEFAULT_TUNNEL_CACHE_OPTIONS: {
-    max: 10000,
+    max: 100,
     ttl: 1000 * 60 * 60,
+    dispose: async (tnl: any) => {
+      try {
+        await tnl.close();
+      } catch (e) {
+        console.error('Tunnel closing error: ' + e);
+      }
+    },
   },
 
   DEFAULT_DRIVER_CACHE_OPTIONS: {
@@ -67,28 +81,13 @@ export const Constants = {
     ttl: 1000 * 60 * 60,
   },
 
-  DEFAULT_SETTINGS_CACHE_OPTIONS: {
-    max: 1000,
-    ttl: 1000 * 60 * 60,
-  },
-
-  DEFAULT_CONNECTIONS_CACHE_OPTIONS: {
-    max: 1000,
-    ttl: 1000 * 60 * 60,
-  },
-
-  DEFAULT_USER_EMAILS_CACHE_OPTIONS: {
-    max: 1000,
-    ttl: 3600000 * 3,
-  },
-
   DEFAULT_INVITATION_CACHE_OPTIONS: {
-    max: 10000,
+    max: 200,
     ttl: 1000 * 60 * 60,
   },
 
   DEFAULT_TABLE_STRUCTURE_ELEMENTS_CACHE_OPTIONS: {
-    max: 2000,
+    max: 150,
     ttl: 1000 * 60,
   },
 

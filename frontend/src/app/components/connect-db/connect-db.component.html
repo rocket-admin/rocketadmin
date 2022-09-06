@@ -1,4 +1,4 @@
-<app-banner></app-banner>
+<app-alert></app-alert>
 <div class="connectPage">
     <form action="" #connectForm="ngForm" class="form"
         (ngSubmit)="db.id ? editConnection(connectForm) : createConnection(connectForm)">
@@ -48,16 +48,16 @@
         </div>
 
         <div *ngIf="db && db.connectionType === 'direct'" class="connectForm__fullLine">
-            <div *ngIf="connectionID; else warningBanner" class="warningMessage">
+            <div *ngIf="connectionID; else warningAlert" class="warningMessage">
                 <mat-icon class="warningMessage__icon">warning_amber</mat-icon>
                 <p  class="mat-body-1">
                     Please make sure our servers are able to access your database.
-                    We use IP address <strong>18.221.81.73</strong> for all outbound requests.
+                    Autoadmin uses IP address <strong>18.221.81.73</strong> for all outbound requests.
                 </p>
             </div>
 
-            <ng-template #warningBanner>
-                <app-banner [banner]="warning"></app-banner>
+            <ng-template #warningAlert>
+                <app-alert [alert]="warning"></app-alert>
             </ng-template>
         </div>
 
@@ -164,7 +164,7 @@
                                 <mat-label>Master password</mat-label>
                                 <input matInput [(ngModel)]="masterKey" name="masterPassword" #masterPassword="ngModel" readonly>
                                 <mat-hint>
-                                    We do not store the key.
+                                    Autoadmin does not store the key.
                                     Please save this password on your computer in protected place,
                                     we recommend using password managers.
                                     Share this password with all users of the connection.

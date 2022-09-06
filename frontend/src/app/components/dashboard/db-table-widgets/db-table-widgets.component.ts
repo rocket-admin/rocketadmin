@@ -65,9 +65,25 @@ export class DbTableWidgetsComponent implements OnInit {
     this.fields.splice(this.fields.indexOf(column_name), 1)
   }
 
-  onWidgetTypeChange(fieldName: string) {
-    let currentWidget = this.widgets.find(widget => widget.field_name === fieldName);
+  onWidgetTypeChange(currentWidget: Widget) {
+    // let currentWidget = this.widgets.find(widget => widget.field_name === fieldName);
     if (currentWidget.widget_type === 'Default') currentWidget.widget_type = '';
+
+    if (currentWidget.widget_type === 'Password') currentWidget.widget_params = '******';
+
+    //default widget settings:
+    if (currentWidget.widget_type === 'Select') currentWidget.widget_params = {
+      options: [
+        {
+          value: 'AK',
+          label: 'Alaska'
+        },
+        {
+          value: 'CA',
+          label: 'California'
+        }
+      ]
+    }
   }
 
   onWidgetParamsChange(event, fieldName: string) {
@@ -89,6 +105,7 @@ export class DbTableWidgetsComponent implements OnInit {
       if (action === 'delete') {
         this.fields.push(widgetFieldName);
         this.widgets = this.widgets.filter((widget: Widget) => widget.field_name !== widgetFieldName);
+        this.updateWidgets();
       }
     })
   }

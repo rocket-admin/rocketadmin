@@ -7,14 +7,11 @@ import {
   Inject,
   Injectable,
   Post,
-  Req,
   Scope,
   UseInterceptors,
 } from '@nestjs/common';
 import { SentryInterceptor } from '../../interceptors';
-import { IRequestWithCognitoInfo } from '../../authorization';
 import { UserActionEntity } from './user-action.entity';
-import { getCognitoUserName } from '../../helpers';
 import { CreateUserActionDto } from './dto/create-user-action.dto';
 import { UserActionEnum } from '../../enums';
 import { Messages } from '../../exceptions/text/messages';
@@ -22,6 +19,7 @@ import { validateStringWithEnum } from '../../helpers/validators/validate-string
 import { UseCaseType } from '../../common/data-injection.tokens';
 import { ICreateUserAction } from './use-cases/use-cases-interfaces';
 import { CreateUserActionDs } from './application/data-sctructures/create-user-action.ds';
+import { UserId } from '../../decorators';
 
 @ApiBearerAuth()
 @ApiTags('user_action')
@@ -39,10 +37,9 @@ export class UserActionController {
   @ApiBody({ type: CreateUserActionDto })
   @Post('action')
   async createUserAction(
-    @Req() request: IRequestWithCognitoInfo,
     @Body('message') message: UserActionEnum,
+    @UserId() userId: string,
   ): Promise<Omit<UserActionEntity, 'user'>> {
-    const userId = getCognitoUserName(request);
     if (!userId || !message) {
       throw new HttpException(
         {

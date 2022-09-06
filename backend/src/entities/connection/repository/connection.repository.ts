@@ -15,17 +15,17 @@ export class ConnectionRepository extends Repository<ConnectionEntity> implement
   public async saveNewConnection(connection: ConnectionEntity): Promise<ConnectionEntity> {
     const savedConnection = await this.save(connection);
     if (!isConnectionTypeAgent(savedConnection.type)) {
-      savedConnection.host = Encryptor.decryptData(savedConnection.host);
-      savedConnection.database = Encryptor.decryptData(savedConnection.database);
-      savedConnection.password = Encryptor.decryptData(savedConnection.password);
-      savedConnection.username = Encryptor.decryptData(savedConnection.username);
+      savedConnection.host = this.decryptConnectionField(savedConnection.host);
+      savedConnection.database = this.decryptConnectionField(savedConnection.database);
+      savedConnection.password = this.decryptConnectionField(savedConnection.password);
+      savedConnection.username = this.decryptConnectionField(savedConnection.username);
       if (savedConnection.ssh) {
-        savedConnection.privateSSHKey = Encryptor.decryptData(savedConnection.privateSSHKey);
-        savedConnection.sshHost = Encryptor.decryptData(savedConnection.sshHost);
-        savedConnection.sshUsername = Encryptor.decryptData(savedConnection.sshUsername);
+        savedConnection.privateSSHKey = this.decryptConnectionField(savedConnection.privateSSHKey);
+        savedConnection.sshHost = this.decryptConnectionField(savedConnection.sshHost);
+        savedConnection.sshUsername = this.decryptConnectionField(savedConnection.sshUsername);
       }
       if (savedConnection.ssl && savedConnection.cert) {
-        savedConnection.cert = Encryptor.decryptData(savedConnection.cert);
+        savedConnection.cert = this.decryptConnectionField(savedConnection.cert);
       }
     }
     return savedConnection;
@@ -50,8 +50,11 @@ export class ConnectionRepository extends Repository<ConnectionEntity> implement
 
   public async findOneConnection(
     connectionId: string,
-  ): Promise<Omit<ConnectionEntity, 'password' | 'privateSSHKey' | 'groups'>> {
+  ): Promise<Omit<ConnectionEntity, 'password' | 'privateSSHKey' | 'groups'> | null> {
     const connection = await this.findOne({ id: connectionId });
+    if (!connection) {
+      return null;
+    }
     delete connection.password;
     delete connection.privateSSHKey;
     delete connection.groups;
@@ -150,5 +153,13 @@ export class ConnectionRepository extends Repository<ConnectionEntity> implement
       .leftJoinAndSelect('connection.agent', 'agent');
     qb.andWhere('agent.token = :agentToken', { agentToken: connectionToken });
     return await qb.getOne();
+  }
+
+  private decryptConnectionField(field: string): string {
+    try {
+      return Encryptor.decryptData(field);
+    } catch (e) {
+      return field;
+    }
   }
 }

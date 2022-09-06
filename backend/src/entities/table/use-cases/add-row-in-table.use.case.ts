@@ -39,6 +39,7 @@ export class AddRowInTableUseCase extends AbstractUseCase<AddRowInTableDs, ITabl
   }
 
   protected async implementation(inputData: AddRowInTableDs): Promise<ITableRowRO> {
+    // eslint-disable-next-line prefer-const
     let { connectionId, masterPwd, row, tableName, userId } = inputData;
     const connection = await this._dbContext.connectionRepository.findAndDecryptConnection(connectionId, masterPwd);
     if (!connection) {
@@ -58,6 +59,7 @@ export class AddRowInTableUseCase extends AbstractUseCase<AddRowInTableDs, ITabl
       userEmail = await this._dbContext.userRepository.getUserEmailOrReturnNull(userId);
     }
 
+    // eslint-disable-next-line prefer-const
     let [tableStructure, tableWidgets, tableSettings, tableForeignKeys, tablePrimaryKeys] = await Promise.all([
       dao.getTableStructure(tableName, userEmail),
       this._dbContext.tableWidgetsRepository.findTableWidgets(connectionId, tableName),

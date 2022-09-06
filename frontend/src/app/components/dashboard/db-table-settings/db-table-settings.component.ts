@@ -47,25 +47,27 @@ export class DbTableSettingsComponent implements OnInit {
     this.connectionID = this._connections.currentConnectionID;
     this.tableName = this._tables.currentTableName;
     this.displayTableName = normalizeTableName(this.tableName);
-
+    console.log('ngOnInit connectionID');
+    console.log(this.connectionID);
     this._tables.cast.subscribe();
     this._tables.fetchTableStructure(this.connectionID, this.tableName)
       .subscribe(res => {
+        console.log('fetchTableStructure subscribe fields');
+        console.log(res);
         const primaryKeys = res.primaryColumns.map(primaryColumn => primaryColumn.column_name);
-
         this.fields = res.structure.map((field: TableField) => field.column_name);
+        console.log(this.fields);
         this.fields_to_exclude = this.fields.filter((field) => !primaryKeys.includes(field))
-
-        this._tables.fetchTableSettings(this.connectionID, this.tableName)
-          .subscribe(res => {
-            this.loading = false;
-            if (Object.keys(res).length !== 0) {
-              this.isSettingsExist = true
-              this.tableSettings = res;
-            }
-          }
-        );
-      })
+      });
+    this._tables.fetchTableSettings(this.connectionID, this.tableName)
+      .subscribe(res => {
+        this.loading = false;
+        if (Object.keys(res).length !== 0) {
+          this.isSettingsExist = true
+          this.tableSettings = res;
+        }
+      }
+    );
   }
 
   updateSettings() {

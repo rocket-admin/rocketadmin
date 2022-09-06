@@ -5,7 +5,7 @@ import { TablesService } from './tables.service';
 import { TestBed } from '@angular/core/testing';
 import { NotificationsService } from './notifications.service';
 import { TableOrdering } from '../models/table';
-import { BannerActionType, BannerType } from '../models/banner';
+import { AlertActionType, AlertType } from '../models/alert';
 
 describe('TablesService', () => {
   let service: TablesService;
@@ -190,7 +190,7 @@ describe('TablesService', () => {
   }
 
   beforeEach(() => {
-    fakeNotifications = jasmine.createSpyObj('NotificationsService', ['showErrorSnackbar', 'showSuccessSnackbar', 'showBanner']);
+    fakeNotifications = jasmine.createSpyObj('NotificationsService', ['showErrorSnackbar', 'showSuccessSnackbar', 'showAlert']);
 
     TestBed.configureTestingModule({
       imports: [
@@ -362,7 +362,7 @@ describe('TablesService', () => {
     expect(isSubscribeCalled).toBe(true);
   });
 
-  it('should fall fetchTable and show Error banner', async () => {
+  it('should fall fetchTable and show Error alert', async () => {
     const fetchTableRow = service.fetchTable({
       connectionID: '12345678',
       tableName: 'users_table',
@@ -375,8 +375,8 @@ describe('TablesService', () => {
     req.flush(fakeError, {status: 400, statusText: ''});
     await fetchTableRow;
 
-    expect(fakeNotifications.showBanner).toHaveBeenCalledWith(BannerType.Error, fakeError.message, [jasmine.objectContaining({
-      type: BannerActionType.Button,
+    expect(fakeNotifications.showAlert).toHaveBeenCalledWith(AlertType.Error, fakeError.message, [jasmine.objectContaining({
+      type: AlertActionType.Button,
       caption: 'Dismiss',
     })]);
   });
@@ -437,8 +437,8 @@ describe('TablesService', () => {
     req.flush(fakeError, {status: 400, statusText: ''});
     await fetchTableSettings;
 
-    expect(fakeNotifications.showBanner).toHaveBeenCalledOnceWith(BannerType.Error, fakeError.message, [jasmine.objectContaining({
-      type: BannerActionType.Button,
+    expect(fakeNotifications.showAlert).toHaveBeenCalledOnceWith(AlertType.Error, fakeError.message, [jasmine.objectContaining({
+      type: AlertActionType.Button,
       caption: 'Dismiss',
     })]);
   });
@@ -475,7 +475,7 @@ describe('TablesService', () => {
     expect(isSubscribeCalled).toBe(true);
   });
 
-  it('should fall updateTableSettings and show Error banner', async () => {
+  it('should fall updateTableSettings and show Error alert', async () => {
     const fetchTableSettings = service.updateTableSettings(true, '12345678', 'users_table', tableSettingsApp).toPromise();
 
     const req = httpMock.expectOne(`/settings?connectionId=12345678&tableName=users_table`);
@@ -483,8 +483,8 @@ describe('TablesService', () => {
     req.flush(fakeError, {status: 400, statusText: ''});
     await fetchTableSettings;
 
-    expect(fakeNotifications.showBanner).toHaveBeenCalledOnceWith(BannerType.Error, fakeError.message, [jasmine.objectContaining({
-      type: BannerActionType.Button,
+    expect(fakeNotifications.showAlert).toHaveBeenCalledOnceWith(AlertType.Error, fakeError.message, [jasmine.objectContaining({
+      type: AlertActionType.Button,
       caption: 'Dismiss',
     })]);
   });
@@ -511,8 +511,8 @@ describe('TablesService', () => {
     req.flush(fakeError, {status: 400, statusText: ''});
     await fetchTableSettings;
 
-    expect(fakeNotifications.showBanner).toHaveBeenCalledOnceWith(BannerType.Error, fakeError.message, [jasmine.objectContaining({
-      type: BannerActionType.Button,
+    expect(fakeNotifications.showAlert).toHaveBeenCalledOnceWith(AlertType.Error, fakeError.message, [jasmine.objectContaining({
+      type: AlertActionType.Button,
       caption: 'Dismiss',
     })]);
   });
@@ -531,7 +531,7 @@ describe('TablesService', () => {
     expect(isSubscribeCalled).toBe(true);
   });
 
-  it('should fall fetchTableWidgets and show Error banner', async () => {
+  it('should fall fetchTableWidgets and show Error alert', async () => {
     const fetchTableSettings = service.fetchTableWidgets('12345678', 'users_table').toPromise();
 
     const req = httpMock.expectOne(`/widgets/12345678?tableName=users_table`);
@@ -539,8 +539,8 @@ describe('TablesService', () => {
     req.flush(fakeError, {status: 400, statusText: ''});
     await fetchTableSettings;
 
-    expect(fakeNotifications.showBanner).toHaveBeenCalledWith(BannerType.Error, fakeError.message, [jasmine.objectContaining({
-      type: BannerActionType.Button,
+    expect(fakeNotifications.showAlert).toHaveBeenCalledWith(AlertType.Error, fakeError.message, [jasmine.objectContaining({
+      type: AlertActionType.Button,
       caption: 'Dismiss',
     })]);
   });
@@ -568,8 +568,8 @@ describe('TablesService', () => {
     req.flush(fakeError, {status: 400, statusText: ''});
     await fetchTableSettings;
 
-    expect(fakeNotifications.showBanner).toHaveBeenCalledWith(BannerType.Error, fakeError.message, [jasmine.objectContaining({
-      type: BannerActionType.Button,
+    expect(fakeNotifications.showAlert).toHaveBeenCalledWith(AlertType.Error, fakeError.message, [jasmine.objectContaining({
+      type: AlertActionType.Button,
       caption: 'Dismiss',
     })]);
   });

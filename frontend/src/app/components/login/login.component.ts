@@ -48,6 +48,9 @@ export class LoginComponent implements OnInit {
     google.accounts.id.prompt();
 
     //@ts-ignore
+    if (typeof FB !== 'undefined') window.fbAsyncInit();
+
+    //@ts-ignore
     window.loginWithFacebook = () => {
       //@ts-ignore
       FB.getLoginStatus((response) => {

@@ -1,4 +1,4 @@
-import { BannerActionType, BannerType } from '../models/banner';
+import { AlertActionType, AlertType } from '../models/alert';
 import { BehaviorSubject, EMPTY } from 'rxjs';
 import { SubscriptionPlans, User } from '../models/user';
 import { catchError, map } from 'rxjs/operators';
@@ -67,16 +67,16 @@ export class UserService {
           return res;
         }),
         catchError((err) => {
-          this._notifications.showBanner(BannerType.Error, err.error.message, [
+          this._notifications.showAlert(AlertType.Error, err.error.message, [
             {
-              type: BannerActionType.Link,
+              type: AlertActionType.Link,
               caption: 'Settings',
               to: '/user-settings'
             },
             {
-              type: BannerActionType.Button,
+              type: AlertActionType.Button,
               caption: 'Dismiss',
-              action: (id: number) => this._notifications.dismissBanner()
+              action: (id: number) => this._notifications.dismissAlert()
             }
           ]);
           console.log(err);
@@ -89,22 +89,22 @@ export class UserService {
     return this._http.get<any>(`/user/email/change/request`)
     .pipe(
       map(res => {
-        this._notifications.showBanner(BannerType.Info, 'Link has been sent to your email. Please check it.', [
+        this._notifications.showAlert(AlertType.Info, 'Link has been sent to your email. Please check it.', [
           {
-            type: BannerActionType.Button,
+            type: AlertActionType.Button,
             caption: 'Dismiss',
-            action: (id: number) => this._notifications.dismissBanner()
+            action: (id: number) => this._notifications.dismissAlert()
           }
         ]);
         return res
       }),
       catchError((err) => {
         console.log(err);
-        this._notifications.showBanner(BannerType.Error, err.error.message, [
+        this._notifications.showAlert(AlertType.Error, err.error.message, [
           {
-            type: BannerActionType.Button,
+            type: AlertActionType.Button,
             caption: 'Dismiss',
-            action: (id: number) => this._notifications.dismissBanner()
+            action: (id: number) => this._notifications.dismissAlert()
           }
         ]);
         return EMPTY;
@@ -121,11 +121,11 @@ export class UserService {
       }),
       catchError((err) => {
         console.log(err);
-        this._notifications.showBanner(BannerType.Error, err.error.message, [
+        this._notifications.showAlert(AlertType.Error, err.error.message, [
           {
-            type: BannerActionType.Button,
+            type: AlertActionType.Button,
             caption: 'Dismiss',
-            action: (id: number) => this._notifications.dismissBanner()
+            action: (id: number) => this._notifications.dismissAlert()
           }
         ]);
         return EMPTY;
@@ -137,22 +137,22 @@ export class UserService {
     return this._http.post<any>(`/user/password/reset/request`, { email })
     .pipe(
       map(res => {
-        this._notifications.showBanner(BannerType.Success, 'Check your email.', [
+        this._notifications.showAlert(AlertType.Success, 'Check your email.', [
           {
-            type: BannerActionType.Button,
+            type: AlertActionType.Button,
             caption: 'Dismiss',
-            action: (id: number) => this._notifications.dismissBanner()
+            action: (id: number) => this._notifications.dismissAlert()
           }
         ]);
         return res
       }),
       catchError((err) => {
         console.log(err);
-        this._notifications.showBanner(BannerType.Error, err.error.message, [
+        this._notifications.showAlert(AlertType.Error, err.error.message, [
           {
-            type: BannerActionType.Button,
+            type: AlertActionType.Button,
             caption: 'Dismiss',
-            action: (id: number) => this._notifications.dismissBanner()
+            action: (id: number) => this._notifications.dismissAlert()
           }
         ]);
         return EMPTY;
@@ -169,11 +169,11 @@ export class UserService {
       }),
       catchError((err) => {
         console.log(err);
-        this._notifications.showBanner(BannerType.Error, err.error.message, [
+        this._notifications.showAlert(AlertType.Error, err.error.message, [
           {
-            type: BannerActionType.Button,
+            type: AlertActionType.Button,
             caption: 'Dismiss',
-            action: (id: number) => this._notifications.dismissBanner()
+            action: (id: number) => this._notifications.dismissAlert()
           }
         ]);
         return EMPTY;
@@ -190,11 +190,11 @@ export class UserService {
       }),
       catchError((err) => {
         console.log(err);
-        this._notifications.showBanner(BannerType.Error, err.error.message, [
+        this._notifications.showAlert(AlertType.Error, err.error.message, [
           {
-            type: BannerActionType.Button,
+            type: AlertActionType.Button,
             caption: 'Dismiss',
-            action: (id: number) => this._notifications.dismissBanner()
+            action: (id: number) => this._notifications.dismissAlert()
           }
         ]);
         return EMPTY;
@@ -211,11 +211,11 @@ export class UserService {
       }),
       catchError((err) => {
         console.log(err);
-        this._notifications.showBanner(BannerType.Error, err.error.message, [
+        this._notifications.showAlert(AlertType.Error, err.error.message, [
           {
-            type: BannerActionType.Button,
+            type: AlertActionType.Button,
             caption: 'Dismiss',
-            action: (id: number) => this._notifications.dismissBanner()
+            action: (id: number) => this._notifications.dismissAlert()
           }
         ]);
         return EMPTY;

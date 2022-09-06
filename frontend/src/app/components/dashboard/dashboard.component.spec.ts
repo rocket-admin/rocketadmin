@@ -107,7 +107,7 @@ describe('DashboardComponent', () => {
   });
 
   it('should get access level of current connection', () => {
-    spyOnProperty(fakeConnectionsSevice, 'currentConnectionAccessLevel', 'get').and.returnValue('readonly');
+    spyOnProperty(fakeConnectionsSevice, 'currentConnectionAccessLevel', 'get').and.returnValue(AccessLevel.Readonly);
     expect(component.currentConnectionAccessLevel).toEqual('readonly');
   });
 

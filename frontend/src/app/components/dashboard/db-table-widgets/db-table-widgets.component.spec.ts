@@ -171,6 +171,14 @@ describe('DbTableWidgetsComponent', () => {
   });
 
   it('should set empty string in widget_type if widget does not need another appearance', () => {
+    const defaultWidget = {
+      field_name: 'user_name',
+      widget_type: 'Default',
+      widget_params: {},
+      name: 'name',
+      description: ''
+    };
+
     component.widgets = [
       {
         field_name: 'user_id',
@@ -179,16 +187,10 @@ describe('DbTableWidgetsComponent', () => {
         name: '',
         description: ''
       },
-      {
-        field_name: 'user_name',
-        widget_type: 'Default',
-        widget_params: {},
-        name: 'name',
-        description: ''
-      }
+      defaultWidget
     ];
 
-    component.onWidgetTypeChange('user_name');
+    component.onWidgetTypeChange(defaultWidget);
 
     expect(component.widgets).toEqual([
       {

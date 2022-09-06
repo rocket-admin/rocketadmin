@@ -1,7 +1,7 @@
 import { ActivatedRoute, Router } from '@angular/router';
 import { ChangeDetectorRef, Component, HostListener, NgZone } from '@angular/core';
 
-import { Angulartics2Amplitude } from 'angulartics2/amplitude';
+import { Angulartics2Amplitude } from 'angulartics2';
 import { AuthService } from './services/auth.service';
 import { ConnectionsService } from './services/connections.service';
 import { DomSanitizer } from '@angular/platform-browser';
@@ -12,6 +12,7 @@ import { UserService } from './services/user.service';
 import amplitude from 'amplitude-js';
 import { differenceInMilliseconds } from 'date-fns';
 import { normalizeTableName } from './lib/normalize';
+import { environment } from '../environments/environment';
 
 //@ts-ignore
 window.amplitude = amplitude;
@@ -39,6 +40,7 @@ export class AppComponent {
   navigationTabs: object;
   currentUser;
   normalizedTableName;
+  upgradeButtonShown: Boolean = true;
 
   // connectionID: string;
 
@@ -63,7 +65,7 @@ export class AppComponent {
     if (window.screen.width > 600) {
       this.userInactive.subscribe(() => {
         // @ts-ignore
-        customerly?.open();
+        Intercom('show');
         this.chatHasBeenShownOnce = true;
       });
     }
@@ -81,6 +83,7 @@ export class AppComponent {
   }
 
   ngOnInit() {
+    this.upgradeButtonShown = (environment as any).saas;
 
     this.navigationTabs = {
       'dashboard': {
@@ -105,10 +108,6 @@ export class AppComponent {
       }
     }
 
-    console.log(this.connectionID);
-
-    // this.setTimeout();
-
     document.cookie = "G_AUTH2_MIGRATION=informational";
     this._auth.cast.subscribe( res =>  {
       if (res.expires) {
@@ -119,6 +118,15 @@ export class AppComponent {
           .subscribe(res => {
               this.currentUser = res;
               this.setUserLoggedIn(true);
+
+              // @ts-ignore
+              window.Intercom("boot", {
+                // @ts-ignore
+                ...window.intercomSettings,
+                user_hash: res.intercom_hash,
+                user_id: res.id,
+                email: res.email
+              });
               this.router.navigate(['/connections-list'])
             }
         )
@@ -140,6 +148,14 @@ export class AppComponent {
               .subscribe(res => {
                   this.currentUser = res;
                   this.setUserLoggedIn(true);
+                  // @ts-ignore
+                  window.Intercom("boot", {
+                    // @ts-ignore
+                    ...window.intercomSettings,
+                    user_hash: res.intercom_hash,
+                    user_id: res.id,
+                    email: res.email
+                  });
                 }
             );
 
