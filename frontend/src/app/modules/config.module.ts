@@ -11,8 +11,6 @@ import { HttpClientModule } from '@angular/common/http';
 })
 export class ConfigModule {
   static buildForConfigUrl(configUrl: string): ModuleWithProviders<ConfigModule> {
-    console.log('ConfigModule');
-    console.log(configUrl);
     return {
       ngModule: ConfigModule,
       providers: [

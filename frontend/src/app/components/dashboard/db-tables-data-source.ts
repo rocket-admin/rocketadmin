@@ -187,7 +187,6 @@ export class TablesDataSource implements DataSource<Object> {
             .reduce((normalizedColumns, column) => (normalizedColumns[column.title] = column.normalizedTitle, normalizedColumns), {})
           this.displayedDataColumns = (filter(this.columns, column => column.selected === true)).map(column => column.title);
           this.permissions = res.table_permissions.accessLevel;
-          console.log(this.permissions.edit);
           if (this.keyAttributes.length && (this.permissions.edit || this.permissions.delete)) {
             this.displayedColumns = [...this.displayedDataColumns, 'actions'];
           } else {

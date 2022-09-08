@@ -46,6 +46,8 @@ import { GroupAddDialogComponent } from './components/users/group-add-dialog/gro
 import { GroupDeleteDialogComponent } from './components/users/group-delete-dialog/group-delete-dialog.component';
 import { GroupUserVerificationComponent } from './components/group-user-verification/group-user-verification.component';
 import { HostnameValidationDirective } from "./directives/hostnameValidator.directive";
+import { Base64ValidationDirective } from "./directives/base64Validator.directive";
+import { HexValidationDirective } from "./directives/hexValidator.directive";
 import { IdComponent } from "./components/ui-components/row-fields/id/id.component";
 import { InfoDialogComponent } from './components/audit/info-dialog/info-dialog.component';
 import { JsonEditorComponent } from './components/ui-components/row-fields/json-editor/json-editor.component';
@@ -149,6 +151,8 @@ const saasExtraProviders = (environment as any).saas ? [
     LoginComponent,
     HostnameValidationDirective,
     PasswordValidationDirective,
+    Base64ValidationDirective,
+    HexValidationDirective,
     BannerComponent,
     DbTableSettingsComponent,
     ConnectionSettingsComponent,

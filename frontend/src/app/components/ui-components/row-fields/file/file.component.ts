@@ -1,9 +1,17 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { normalizeFieldName } from 'src/app/lib/normalize';
+import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
+import { hexValidation } from 'src/app/validators/hex.validator';
 
 interface Blob {
   type: string,
   data: []
+}
+
+enum FileType {
+  Hex = 'hex',
+  Base64 = 'base64',
+  File = 'file',
 }
 
 @Component({
@@ -21,51 +29,96 @@ export class FileComponent implements OnInit {
 
   @Output() onFieldChange = new EventEmitter();
 
+  public isNotSwitcherActive;
   public normalizedLabel: string;
-  public fileType;
+  public fileType: FileType = FileType.Hex;
   public hexData;
   public base64Data;
+  public fileData;
+  public fileURL: SafeUrl;
 
-  constructor() { }
+  constructor(
+    private sanitazer: DomSanitizer
+  ) { }
 
   ngOnInit(): void {
     this.normalizedLabel = normalizeFieldName(this.label);
-    if (this.value.data.length < 1024) {
-      this.fileType = 'hex'
-      this.hexData = Array.from(this.value.data, function(byte) {
-        return ('0' + (byte & 0xFF).toString(16)).slice(-2);
-      }).join('')
-    } else {
-      this.base64Data = btoa(String.fromCharCode.apply(null, new Uint8Array(this.value.data)));
-    };
-    console.log(this.value);
+
+    if (this.value) {
+      this.hexData = this.value;
+      console.log(this.value);
+    }
+  }
+
+  convertValue(type: FileType) {
+    if (this.hexData && type === FileType.Base64) {
+      this.fromHexToBase64();
+    }
+
+    if (this.hexData && type === FileType.File) {
+      this.fromHexToFile();
+    }
   }
 
   onHexChange() {
-    var hex = this.hexData.toString();
-    var str = '';
-    for (var i = 0; i < hex.length; i += 2)
-        str += String.fromCharCode(parseInt(hex.substr(i, 2), 16));
-    this.onFieldChange.emit(str);
+    //@ts-ignore
+    this.isNotSwitcherActive = hexValidation()({value: this.hexData});
+    this.onFieldChange.emit(this.hexData);
   }
 
   onBase64Change() {
-    const decodedData = atob(this.base64Data);
-    this.onFieldChange.emit(decodedData);
+    this.fromBase64ToHex();
+    this.onFieldChange.emit(this.hexData);
   }
 
   onFileSelected(event) {
     let reader = new FileReader();
-    let dataString;
     const file:File = event.target.files[0];
 
     reader.addEventListener("load", () => {
-      dataString = reader.result;
-      if (dataString) {
-        this.onFieldChange.emit(dataString);
-      }
+      this.fromFileToHex(reader);
+      this.onFieldChange.emit(this.hexData);
     }, false);
 
-    reader.readAsBinaryString(file);
+    reader.readAsArrayBuffer(file);
+  }
+
+  fromHexToBase64() {
+    this.base64Data = btoa(this.hexData.match(/\w{2}/g)
+    .map(a => String.fromCharCode(parseInt(a, 16)))
+    .join(""));
+  }
+
+  fromBase64ToHex() {
+    try {
+      const raw = atob(this.base64Data);
+      let result = '';
+      for (let i = 0; i < raw.length; i++) {
+        const hex = raw.charCodeAt(i).toString(16);
+        result += (hex.length === 2 ? hex : '0' + hex);
+      };
+      this.hexData = result;
+      this.isNotSwitcherActive = false;
+    } catch(e) {
+      this.isNotSwitcherActive = true;
+    }
+  }
+
+  fromHexToFile() {
+    const fileData = new Uint8Array(this.hexData.match(/[\da-f]{2}/gi).map(h => parseInt(h, 16)));
+    fileData.buffer;
+    const blob = new Blob([fileData]);
+    this.fileURL = this.sanitazer.bypassSecurityTrustUrl(URL.createObjectURL(blob));
+  }
+
+  fromFileToHex(reader: FileReader) {
+    let dataString = reader.result as ArrayBuffer;
+    // let dataStringArray = new Array(dataString.byteLength);
+
+    this.hexData = [...new Uint8Array(dataString)]
+      .map (b => b.toString(16).padStart (2, "0"))
+      .join ("");
+    console.log('fromFileToHex hexData');
+    console.log(this.hexData);
   }
 }

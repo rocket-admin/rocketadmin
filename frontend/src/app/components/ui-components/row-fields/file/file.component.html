@@ -1,48 +1,56 @@
 <div class="file">
     <div class="header">
-            <span class="file-label">{{ normalizedLabel }}</span>
+        <span class="file-label">{{ normalizedLabel }}</span>
 
-            <mat-radio-group
-                name="{{label}}-{{key}}-file-type"
-                class="file-types"
-                [(ngModel)]="fileType">
-                <mat-radio-button value='hex' class="file-type">
-                    HEX
-                </mat-radio-button>
-                <mat-radio-button value='base64' class="file-type">
-                    Base64
-                </mat-radio-button>
-                <mat-radio-button value='file' class="file-type">
-                    File
-                </mat-radio-button>
-            </mat-radio-group>
-        </div>
+        <mat-radio-group
+            name="{{label}}-{{key}}-file-type"
+            class="file-types"
+            [(ngModel)]="fileType"
+            (ngModelChange)="convertValue($event)">
+            <mat-radio-button value='hex' class="file-type" [disabled]="isNotSwitcherActive">
+                HEX
+            </mat-radio-button>
+            <mat-radio-button value='base64' class="file-type" [disabled]="isNotSwitcherActive">
+                Base64
+            </mat-radio-button>
+            <mat-radio-button value='file' class="file-type" [disabled]="isNotSwitcherActive">
+                File
+            </mat-radio-button>
+        </mat-radio-group>
+    </div>
+    <mat-form-field *ngIf="fileType === 'hex'" appearance="outline" class="file-raw-data">
+        <mat-label>Hex</mat-label>
+        <textarea matInput resizeToFitContent rows="8" hexValidator
+            name="{{label}}-{{key}}-hex-content"
+            #hexContent="ngModel"
+            [(ngModel)]="hexData" (ngModelChange)="onHexChange()"
+        ></textarea>
+        <mat-error *ngIf="hexContent.errors?.isInvalidHex">Invalid hex.</mat-error>
+    </mat-form-field>
 
-        <mat-form-field *ngIf="fileType === 'hex'" appearance="outline" class="file-raw-data">
-            <mat-label>Hex</mat-label>
-            <textarea matInput resizeToFitContent rows="8" name="{{label}}-{{key}}-hex-content" #hexContent="ngModel"
-                [(ngModel)]="hexData" (ngModelChange)="onHexChange()"
+    <mat-form-field *ngIf="fileType === 'base64'" appearance="outline" class="file-raw-data">
+        <mat-label>Base64</mat-label>
+        <textarea matInput resizeToFitContent rows="8" base64Validator
+            name="{{label}}-{{key}}-base64-content"
+            #base64Content="ngModel"
+            [(ngModel)]="base64Data" (ngModelChange)="onBase64Change()"
+        ></textarea>
+        <mat-error *ngIf="base64Content.errors?.isInvalidBase64 || isNotSwitcherActive">Invalid base64.</mat-error>
+    </mat-form-field>
 
-            ></textarea>
-        </mat-form-field>
+    <div *ngIf="fileType === 'file'" class="file-uploader-appearance">
+        <input type="file" class="file-input" name="{{label}}-{{key}}-file" [required]="required" [disabled]="readonly"
+            (change)="onFileSelected($event)" #fileUpload>
 
-        <mat-form-field *ngIf="fileType === 'base64'" appearance="outline" class="file-raw-data">
-                <mat-label>Base64</mat-label>
-                <textarea matInput resizeToFitContent rows="8" name="{{label}}-{{key}}-base64-content" #base64Content="ngModel"
-                    [(ngModel)]="base64Data" (ngModelChange)="onBase64Change()"
+        <span class="file-name mat-body-2">{{ value ? 'File is uploaded.' : 'No file uploaded yet.' }}</span>
 
-                ></textarea>
-        </mat-form-field>
-
-        <div *ngIf="fileType === 'file'" class="file-uploader-appearance">
-            <input type="file" class="file-input" name="{{label}}-{{key}}-file" [required]="required" [disabled]="readonly"
-                (change)="onFileSelected($event)" #fileUpload>
-
-            <span class="file-name mat-body-2">{{ value ? 'File is uploaded.' : 'No file uploaded yet.' }}</span>
-
-            <button type="button" mat-stroked-button class="upload-btn"
-                (click)="fileUpload.click()">
-                Upload file
+        <button type="button" mat-stroked-button class="upload-btn"
+            (click)="fileUpload.click()">
+            Upload file
         </button>
+
+        <a [href]="fileURL" *ngIf="hexData" type="button" mat-stroked-button class="upload-btn" download>
+            Download file
+        </a>
     </div>
 </div>
