@@ -154,6 +154,7 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
         widgets: tableWidgets,
         identity_column: tableSettings.identity_column ? tableSettings.identity_column : null,
         table_permissions: userTablePermissions,
+        list_fields: tableSettings.list_fields?.length > 0 ? tableSettings.list_fields : [],
       };
       let identities = [];
 

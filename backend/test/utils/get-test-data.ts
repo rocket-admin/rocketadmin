@@ -7,6 +7,7 @@ export function getTestData(mockFactory) {
   const updateConnection = mockFactory.generateUpdateConnectionDto();
   const newGroup1 = mockFactory.generateCreateGroupDto1();
   const newConnectionInDocker = mockFactory.generateCreateInternalConnectionDto();
+  const connectionToTestMSSQL = mockFactory.generateConnectionToTestMsSQlDBInDocker();
   return {
     newConnection,
     newEncryptedConnection,
@@ -16,5 +17,6 @@ export function getTestData(mockFactory) {
     updateConnection,
     newGroup1,
     newConnectionInDocker,
+    connectionToTestMSSQL,
   };
 }
