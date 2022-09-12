@@ -87,6 +87,8 @@ import { WidgetDeleteDialogComponent } from './components/dashboard/db-table-wid
 import { environment } from '../environments/environment';
 import { AlertComponent } from './components/ui-components/alert/alert.component';
 import { NewVersionComponent } from './components/new-version/new-version.component';
+import { ClipboardModule } from '@angular/cdk/clipboard';
+import { DragDropModule } from '@angular/cdk/drag-drop';
 
 const saasExtraProviders = (environment as any).saas ? [
   {
@@ -218,6 +220,8 @@ const saasExtraProviders = (environment as any).saas ? [
     NgmatTableQueryReflectorModule,
     NgJsonEditorModule,
     Angulartics2Module.forRoot(),
+    ClipboardModule,
+    DragDropModule,
     // ...saasExtraModules,
     ConfigModule.buildForConfigUrl('/config.json')
   ],
