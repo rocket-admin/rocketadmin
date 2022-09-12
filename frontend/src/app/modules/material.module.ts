@@ -1,4 +1,3 @@
-import { ClipboardModule } from '@angular/cdk/clipboard';
 import { CommonModule } from '@angular/common';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatBadgeModule } from '@angular/material/badge';
@@ -47,7 +46,6 @@ const MaterialComponents = [
   MatProgressSpinnerModule,
   MatAutocompleteModule,
   MatTooltipModule,
-  ClipboardModule,
   MatTabsModule,
   MatBadgeModule
 ]

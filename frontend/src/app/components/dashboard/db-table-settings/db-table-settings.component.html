@@ -25,6 +25,27 @@
                 info_outline
             </mat-icon>
 
+            <div class="order-settings settings-form__full-line">
+                <span class="order__title">
+                    Columns order
+                </span>
+                <mat-expansion-panel class="settings-form__expansion-panel">
+                    <mat-expansion-panel-header>
+                        <mat-panel-title>
+
+                            <div>
+                                <span *ngFor="let field of tableSettings.list_fields; let i = index">
+                                    {{field}}{{ i === tableSettings.list_fields.length - 1 ? '' : ',' }}
+                                </span>
+                            </div>
+                        </mat-panel-title>
+                    </mat-expansion-panel-header>
+
+                    <div cdkDropList class="order-list" (cdkDropListDropped)="drop($event)">
+                        <div class="order-item" *ngFor="let field of tableSettings.list_fields" cdkDrag>{{field}}</div>
+                    </div>
+                </mat-expansion-panel>
+            </div>
 
             <mat-form-field appearance="outline">
                 <mat-label>Autocomplete fields</mat-label>
@@ -136,7 +157,7 @@
             <button mat-raised-button color="primary"
                 type="submit"
                 class="settings-form__save-button"
-                [disabled]="submitting || tableSettingsForm.form.invalid || tableSettingsForm.form.pristine">
+                [disabled]="(submitting || tableSettingsForm.form.invalid || tableSettingsForm.form.pristine) && !orderChanged">
                 Save
             </button>
         </div>

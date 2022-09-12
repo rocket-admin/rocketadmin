@@ -179,15 +179,18 @@ export class TablesDataSource implements DataSource<Object> {
                   selected: false
                 }
               }
-
             });
 
           this.dataColumns = this.columns.map(column => column.title);
           this.dataNormalizedColumns = this.columns
-            .reduce((normalizedColumns, column) => (normalizedColumns[column.title] = column.normalizedTitle, normalizedColumns), {})
-          this.displayedDataColumns = (filter(this.columns, column => column.selected === true)).map(column => column.title);
+            .reduce((normalizedColumns, column) => (normalizedColumns[column.title] = column.normalizedTitle, normalizedColumns), {});
+          const selectedColumns = filter(this.columns, column => column.selected === true).map(column => column.title);
+          if (res.list_fields.length) {
+            this.displayedDataColumns = res.list_fields.filter(column => selectedColumns.includes(column));
+          } else {
+            this.displayedDataColumns = selectedColumns;
+          };
           this.permissions = res.table_permissions.accessLevel;
-          console.log(this.permissions.edit);
           if (this.keyAttributes.length && (this.permissions.edit || this.permissions.delete)) {
             this.displayedColumns = [...this.displayedDataColumns, 'actions'];
           } else {
