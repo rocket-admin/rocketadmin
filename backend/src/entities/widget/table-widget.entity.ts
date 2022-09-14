@@ -1,4 +1,5 @@
-import * as sjson from 'secure-json-parse';
+import * as JSON5 from 'json5';
+
 import {
   AfterLoad,
   BeforeInsert,
@@ -39,7 +40,7 @@ export class TableWidgetEntity {
   stringifyOptionsOnUpdate() {
     try {
       if (this.widget_options) {
-        this.widget_options = JSON.stringify(this.widget_options);
+        this.widget_options = JSON5.stringify(this.widget_options);
       }
     } catch (e) {
       console.log('-> Error widget options stringify ' + e.message);
@@ -50,7 +51,7 @@ export class TableWidgetEntity {
   stringifyOptions() {
     try {
       if (this.widget_options) {
-        this.widget_options = JSON.stringify(this.widget_options);
+        this.widget_options = JSON5.stringify(this.widget_options);
       }
     } catch (e) {
       console.log('-> Error widget options stringify ' + e.message);
@@ -61,10 +62,7 @@ export class TableWidgetEntity {
   parseOptions() {
     try {
       if (this.widget_options) {
-        this.widget_options = sjson.parse(this.widget_options, null, {
-          protoAction: 'remove',
-          constructorAction: 'remove',
-        });
+        this.widget_options = JSON5.parse(this.widget_options);
       }
     } catch (e) {
       console.log('-> Error widget options stringify ' + e.message);
