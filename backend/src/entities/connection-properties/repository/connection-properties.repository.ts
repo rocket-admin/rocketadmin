@@ -1,4 +1,4 @@
-import { EntityRepository, getRepository, Repository } from 'typeorm';
+import { EntityRepository, QueryRunner, Repository } from 'typeorm';
 import { ConnectionPropertiesEntity } from '../connection-properties.entity';
 import { IConnectionPropertiesRepository } from './connection-properties.repository.interface';
 
@@ -12,11 +12,11 @@ export class ConnectionPropertiesRepository
   }
 
   public async findConnectionProperties(connectionId: string): Promise<ConnectionPropertiesEntity> {
-    const qb = await getRepository(ConnectionPropertiesEntity)
-      .createQueryBuilder('connectionProperties')
+    const qb = this.createQueryBuilder(undefined, this.getCurrentQueryRunner())
+      .select('connectionProperties')
+      .from(ConnectionPropertiesEntity, 'connectionProperties')
       .leftJoinAndSelect('connectionProperties.connection', 'connection');
-    qb.where('1=1');
-    qb.andWhere('connectionProperties.connection.id = :connection_id', { connection_id: connectionId });
+    qb.where('connectionProperties.connection.id = :connection_id', { connection_id: connectionId });
     return await qb.getOne();
   }
 
@@ -30,5 +30,9 @@ export class ConnectionPropertiesRepository
     connectionProperties: ConnectionPropertiesEntity,
   ): Promise<ConnectionPropertiesEntity> {
     return await this.remove(connectionProperties);
+  }
+
+  private getCurrentQueryRunner(): QueryRunner {
+    return this.manager.queryRunner;
   }
 }

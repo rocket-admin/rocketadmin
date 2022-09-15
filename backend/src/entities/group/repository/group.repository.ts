@@ -1,5 +1,5 @@
 import { ConnectionEntity } from '../../connection/connection.entity';
-import { EntityRepository, getRepository, Repository } from 'typeorm';
+import { EntityRepository, QueryRunner, Repository } from 'typeorm';
 import { GroupEntity } from '../group.entity';
 import { IGroupRepository } from './group.repository.interface';
 import { UserEntity } from '../../user/user.entity';
@@ -16,8 +16,9 @@ export class GroupRepository extends Repository<GroupEntity> implements IGroupRe
   }
 
   public async findAllGroupsInConnection(connectionId: string): Promise<Array<Omit<GroupEntity, 'connection'>>> {
-    const qb = await getRepository(GroupEntity)
-      .createQueryBuilder('group')
+    const qb = this.createQueryBuilder(undefined, this.getCurrentQueryRunner())
+      .select('group')
+      .from(GroupEntity, 'group')
       .leftJoinAndSelect('group.connection', 'connection');
     qb.andWhere('connection.id = :id', { id: connectionId });
     const groups = await qb.getMany();
@@ -37,8 +38,9 @@ export class GroupRepository extends Repository<GroupEntity> implements IGroupRe
   }
 
   public async findGroupInConnection(groupId: string, connectionId: string): Promise<GroupEntity> {
-    const qb = await getRepository(GroupEntity)
-      .createQueryBuilder('group')
+    const qb = this.createQueryBuilder(undefined, this.getCurrentQueryRunner())
+      .select('group')
+      .from(GroupEntity, 'group')
       .leftJoinAndSelect('group.connection', 'connection')
       .andWhere('group.id = :groupId', { groupId: groupId })
       .andWhere('connection.id = :connectionId', { connectionId: connectionId });
@@ -53,8 +55,9 @@ export class GroupRepository extends Repository<GroupEntity> implements IGroupRe
     connectionId: string,
     cognitoUserName: string,
   ): Promise<Array<Omit<GroupEntity, 'connection' | 'users'>>> {
-    const qb = await getRepository(GroupEntity)
-      .createQueryBuilder('group')
+    const qb = this.createQueryBuilder(undefined, this.getCurrentQueryRunner())
+      .select('group')
+      .from(GroupEntity, 'group')
       .leftJoinAndSelect('group.connection', 'connection')
       .leftJoinAndSelect('group.users', 'user')
       .andWhere('connection.id = :connectionId', { connectionId: connectionId })
@@ -68,8 +71,9 @@ export class GroupRepository extends Repository<GroupEntity> implements IGroupRe
   }
 
   public async findGroupById(groupId: string): Promise<GroupEntity> {
-    const qb = await getRepository(GroupEntity)
-      .createQueryBuilder('group')
+    const qb = this.createQueryBuilder(undefined, this.getCurrentQueryRunner())
+      .select('group')
+      .from(GroupEntity, 'group')
       .leftJoinAndSelect('group.connection', 'connection')
       .leftJoinAndSelect('group.users', 'user')
       .andWhere('group.id = :groupId', { groupId: groupId });
@@ -77,31 +81,36 @@ export class GroupRepository extends Repository<GroupEntity> implements IGroupRe
   }
 
   public async findAllUserGroups(userId: string): Promise<Array<GroupEntity>> {
-    const qb = await getRepository(GroupEntity)
-      .createQueryBuilder('group')
+    const qb = this.createQueryBuilder(undefined, this.getCurrentQueryRunner())
+      .select('group')
+      .from(GroupEntity, 'group')
       .leftJoinAndSelect('group.users', 'user')
       .andWhere('user.id = :userId', { userId: userId });
     return await qb.getMany();
   }
 
   public async findAllUsersInGroup(groupId: string): Promise<Array<UserEntity>> {
-    const qb = await getRepository(UserEntity)
-      .createQueryBuilder('user')
+    const qb = this.createQueryBuilder(undefined, this.getCurrentQueryRunner())
+      .select('user')
+      .from(UserEntity, 'user')
       .leftJoinAndSelect('user.groups', 'group')
       .andWhere('group.id = :id', { id: groupId });
     return await qb.getMany();
   }
 
   public async findGroupWithPermissionsById(groupId: string): Promise<GroupEntity> {
-    return await this.findOne({
-      where: { id: groupId },
-      relations: ['permissions'],
-    });
+    const qb = this.createQueryBuilder(undefined, this.getCurrentQueryRunner())
+      .select('group')
+      .from(GroupEntity, 'group')
+      .leftJoinAndSelect('group.permissions', 'permission')
+      .andWhere('group.id = :id', { id: groupId });
+    return await qb.getOne();
   }
 
   public async findAllUsersInGroupsWhereUserIsAdmin(userId: string, connectionId: string): Promise<Array<UserEntity>> {
-    const userQb = await getRepository(UserEntity)
-      .createQueryBuilder('user')
+    const userQb = this.createQueryBuilder(undefined, this.getCurrentQueryRunner())
+      .select('user')
+      .from(UserEntity, 'user')
       .leftJoinAndSelect('user.groups', 'group')
       .leftJoinAndSelect('group.connection', 'connection')
       .leftJoinAndSelect('group.permissions', 'permission')
@@ -114,5 +123,9 @@ export class GroupRepository extends Repository<GroupEntity> implements IGroupRe
         permissionAccessLevel: AccessLevelEnum.edit,
       });
     return await userQb.getMany();
+  }
+
+  private getCurrentQueryRunner(): QueryRunner {
+    return this.manager.queryRunner;
   }
 }

@@ -1,4 +1,4 @@
-import { EntityRepository, getRepository, Repository } from 'typeorm';
+import { EntityRepository, QueryRunner, Repository } from 'typeorm';
 import { TableSettingsEntity } from '../table-settings.entity';
 import { ITableSettingsRepository } from './table-settings.repository.interface';
 import { HttpException } from '@nestjs/common/exceptions/http.exception';
@@ -19,9 +19,9 @@ export class TableSettingsRepository extends Repository<TableSettingsEntity> imp
   }
 
   public async createNewTableSettings(settings: CreateTableSettingsDs): Promise<TableSettingsEntity> {
-    const connectionQB = await getRepository(ConnectionEntity)
-      .createQueryBuilder('connection')
-      .where('1=1')
+    const connectionQB = this.createQueryBuilder(undefined, this.getCurrentQueryRunner())
+      .select('connection')
+      .from(ConnectionEntity, 'connection')
       .andWhere('connection.id = :connectionId', { connectionId: settings.connection_id });
     const foundConnection = await connectionQB.getOne();
     const newTableSettings = buildNewTableSettingsEntity(settings, foundConnection);
@@ -32,11 +32,11 @@ export class TableSettingsRepository extends Repository<TableSettingsEntity> imp
     connectionId: string,
     tableName: string,
   ): Promise<TableSettingsEntity> {
-    const qb = await getRepository(TableSettingsEntity)
-      .createQueryBuilder('tableSettings')
+    const qb = this.createQueryBuilder(undefined, this.getCurrentQueryRunner())
+      .select('tableSettings')
+      .from(TableSettingsEntity, 'tableSettings')
       .leftJoinAndSelect('tableSettings.custom_fields', 'custom_fields');
-    qb.where('1=1');
-    qb.andWhere('tableSettings.connection_id = :connection_id', {
+    qb.where('tableSettings.connection_id = :connection_id', {
       connection_id: connectionId,
     });
     qb.andWhere('tableSettings.table_name = :table_name', {
@@ -56,11 +56,11 @@ export class TableSettingsRepository extends Repository<TableSettingsEntity> imp
   }
 
   public async findTableSettings(connectionId: string, tableName: string): Promise<TableSettingsEntity> {
-    const qb = await getRepository(TableSettingsEntity)
-      .createQueryBuilder('tableSettings')
+    const qb = this.createQueryBuilder(undefined, this.getCurrentQueryRunner())
+      .select('tableSettings')
+      .from(TableSettingsEntity, 'tableSettings')
       .leftJoinAndSelect('tableSettings.connection_id', 'connection_id');
-    qb.where('1=1');
-    qb.andWhere('tableSettings.connection_id = :connection_id', { connection_id: connectionId });
+    qb.where('tableSettings.connection_id = :connection_id', { connection_id: connectionId });
     qb.andWhere('tableSettings.table_name = :table_name', { table_name: tableName });
     return await qb.getOne();
   }
@@ -76,11 +76,11 @@ export class TableSettingsRepository extends Repository<TableSettingsEntity> imp
   }
 
   public async findTableSettingsInConnection(connectionId: string): Promise<Array<TableSettingsEntity>> {
-    const qb = await getRepository(TableSettingsEntity)
-      .createQueryBuilder('tableSettings')
+    const qb = this.createQueryBuilder(undefined, this.getCurrentQueryRunner())
+      .select('tableSettings')
+      .from(TableSettingsEntity, 'tableSettings')
       .leftJoinAndSelect('tableSettings.connection_id', 'connection_id');
-    qb.where('1=1');
-    qb.andWhere('tableSettings.connection_id = :connection_id', { connection_id: connectionId });
+    qb.where('tableSettings.connection_id = :connection_id', { connection_id: connectionId });
     return await qb.getMany();
   }
 
@@ -88,12 +88,16 @@ export class TableSettingsRepository extends Repository<TableSettingsEntity> imp
     connectionId: string,
     tableName: string,
   ): Promise<TableSettingsEntity> {
-    const qb = await getRepository(TableSettingsEntity)
-      .createQueryBuilder('tableSettings')
+    const qb = this.createQueryBuilder(undefined, this.getCurrentQueryRunner())
+      .select('tableSettings')
+      .from(TableSettingsEntity, 'tableSettings')
       .leftJoinAndSelect('tableSettings.table_widgets', 'table_widgets');
-    qb.where('1=1');
-    qb.andWhere('tableSettings.connection_id = :connection_id', { connection_id: connectionId });
+    qb.where('tableSettings.connection_id = :connection_id', { connection_id: connectionId });
     qb.andWhere('tableSettings.table_name = :table_name', { table_name: tableName });
     return await qb.getOne();
+  }
+
+  private getCurrentQueryRunner(): QueryRunner {
+    return this.manager.queryRunner;
   }
 }
