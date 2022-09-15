@@ -1,6 +1,6 @@
 import { ConnectionEntity } from '../connection.entity';
 import { Encryptor } from '../../../helpers/encryption/encryptor';
-import { EntityRepository, getRepository, Repository } from 'typeorm';
+import { EntityRepository, QueryRunner, Repository } from 'typeorm';
 import { IConnectionRepository } from './connection.repository.interface';
 import { isConnectionTypeAgent } from '../../../helpers';
 import { Constants } from '../../../helpers/constants/constants';
@@ -34,8 +34,9 @@ export class ConnectionRepository extends Repository<ConnectionEntity> implement
   public async findAllUserConnections(
     userId: string,
   ): Promise<Array<Omit<ConnectionEntity, 'password' | 'privateSSHKey' | 'groups'>>> {
-    const connectionQb = await getRepository(ConnectionEntity)
-      .createQueryBuilder('connection')
+    const connectionQb = this.createQueryBuilder(undefined, this.getCurrentQueryRunner())
+      .select('connection')
+      .from(ConnectionEntity, 'connection')
       .leftJoinAndSelect('connection.groups', 'group')
       .leftJoinAndSelect('group.users', 'user')
       .andWhere('user.id = :userId', { userId: userId });
@@ -51,7 +52,11 @@ export class ConnectionRepository extends Repository<ConnectionEntity> implement
   public async findOneConnection(
     connectionId: string,
   ): Promise<Omit<ConnectionEntity, 'password' | 'privateSSHKey' | 'groups'> | null> {
-    const connection = await this.findOne({ id: connectionId });
+    const connectionQb = this.createQueryBuilder(undefined, this.getCurrentQueryRunner())
+      .select('connection')
+      .from(ConnectionEntity, 'connection')
+      .where('connection.id = :connectionId', { connectionId: connectionId });
+    const connection = await connectionQb.getOne();
     if (!connection) {
       return null;
     }
@@ -61,13 +66,10 @@ export class ConnectionRepository extends Repository<ConnectionEntity> implement
     return connection;
   }
 
-  public async findFullConnectionEntity(connectionId: string): Promise<ConnectionEntity> {
-    return await this.findOne({ id: connectionId });
-  }
-
   public async findAndDecryptConnection(connectionId: string, masterPwd: string): Promise<ConnectionEntity> {
-    const qb = await getRepository(ConnectionEntity)
-      .createQueryBuilder('connection')
+    const qb = this.createQueryBuilder(undefined, this.getCurrentQueryRunner())
+      .select('connection')
+      .from(ConnectionEntity, 'connection')
       .leftJoinAndSelect('connection.agent', 'agent')
       .andWhere('connection.id = :connectionId', { connectionId: connectionId });
     let connection = await qb.getOne();
@@ -87,8 +89,9 @@ export class ConnectionRepository extends Repository<ConnectionEntity> implement
   public async findConnectionWithGroups(
     connectionId: string,
   ): Promise<Omit<ConnectionEntity, 'password' | 'privateSSHKey' | 'cert'>> {
-    const qb = await getRepository(ConnectionEntity)
-      .createQueryBuilder('connection')
+    const qb = this.createQueryBuilder(undefined, this.getCurrentQueryRunner())
+      .select('connection')
+      .from(ConnectionEntity, 'connection')
       .leftJoinAndSelect('connection.groups', 'group')
       .andWhere('connection.id = :connectionId', { connectionId: connectionId });
     const connection = await qb.getOne();
@@ -100,8 +103,9 @@ export class ConnectionRepository extends Repository<ConnectionEntity> implement
 
   public async getConnectionsWithNonNullUsersGCLIDs(): Promise<Array<ConnectionEntity>> {
     const dateTwoWeeksAgo = Constants.TWO_WEEKS_AGO();
-    const connectionsQB = await getRepository(ConnectionEntity)
-      .createQueryBuilder('connection')
+    const connectionsQB = this.createQueryBuilder(undefined, this.getCurrentQueryRunner())
+      .select('connection')
+      .from(ConnectionEntity, 'connection')
       .where('connection.createdAt > :date', { date: dateTwoWeeksAgo })
       .leftJoinAndSelect('connection.author', 'user')
       .andWhere('user.gclid IS NOT NULL');
@@ -118,8 +122,9 @@ export class ConnectionRepository extends Repository<ConnectionEntity> implement
     const freshConnections = await this.getConnectionsWithNonNullUsersGCLIDs();
     const workedFreshConnections: Array<ConnectionEntity> = await Promise.all(
       freshConnections.map(async (connection: ConnectionEntity): Promise<ConnectionEntity | null> => {
-        const qb = await getRepository(TableLogsEntity)
-          .createQueryBuilder('tableLogs')
+        const qb = this.createQueryBuilder(undefined, this.getCurrentQueryRunner())
+          .select('tableLogs')
+          .from(TableLogsEntity, 'tableLogs')
           .leftJoinAndSelect('tableLogs.connection_id', 'connection_id');
         qb.andWhere('tableLogs.connection_id = :connection_id', { connection_id: connection.id });
         const logs = await qb.getMany();
@@ -136,8 +141,9 @@ export class ConnectionRepository extends Repository<ConnectionEntity> implement
   }
 
   public async getConnectionByGroupId(groupId: string): Promise<ConnectionEntity> {
-    const qb = await getRepository(ConnectionEntity)
-      .createQueryBuilder('connection')
+    const qb = this.createQueryBuilder(undefined, this.getCurrentQueryRunner())
+      .select('connection')
+      .from(ConnectionEntity, 'connection')
       .leftJoinAndSelect('connection.groups', 'group');
     qb.andWhere('group.id = :id', { id: groupId });
     return await qb.getOne();
@@ -148,8 +154,9 @@ export class ConnectionRepository extends Repository<ConnectionEntity> implement
   }
 
   public async findOneAgentConnectionByToken(connectionToken: string): Promise<ConnectionEntity> {
-    const qb = await getRepository(ConnectionEntity)
-      .createQueryBuilder('connection')
+    const qb = this.createQueryBuilder(undefined, this.getCurrentQueryRunner())
+      .select('connection')
+      .from(ConnectionEntity, 'connection')
       .leftJoinAndSelect('connection.agent', 'agent');
     qb.andWhere('agent.token = :agentToken', { agentToken: connectionToken });
     return await qb.getOne();
@@ -161,5 +168,9 @@ export class ConnectionRepository extends Repository<ConnectionEntity> implement
     } catch (e) {
       return field;
     }
+  }
+
+  private getCurrentQueryRunner(): QueryRunner {
+    return this.manager.queryRunner;
   }
 }

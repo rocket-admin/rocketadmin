@@ -1,4 +1,4 @@
-import { EntityRepository, getRepository, Repository } from 'typeorm';
+import { EntityRepository, QueryRunner, Repository } from 'typeorm';
 import { CustomFieldsEntity } from '../custom-fields.entity';
 import { ICustomFieldsRepository } from './custom-fields-repository.interface';
 import { TableSettingsEntity } from '../../table-settings/table-settings.entity';
@@ -10,11 +10,11 @@ export class CustomFieldsRepository extends Repository<CustomFieldsEntity> imple
   }
 
   public async getCustomFields(connectionId: string, tableName: string): Promise<Array<CustomFieldsEntity>> {
-    const qb = await getRepository(TableSettingsEntity)
-      .createQueryBuilder('tableSettings')
+    const qb = this.createQueryBuilder(undefined, this.getCurrentQueryRunner())
+      .select('tableSettings')
+      .from(TableSettingsEntity, 'tableSettings')
       .leftJoinAndSelect('tableSettings.custom_fields', 'custom_fields');
-    qb.where('1=1');
-    qb.andWhere('tableSettings.connection_id = :connection_id', {
+    qb.where('tableSettings.connection_id = :connection_id', {
       connection_id: connectionId,
     });
     qb.andWhere('tableSettings.table_name = :table_name', {
@@ -29,14 +29,18 @@ export class CustomFieldsRepository extends Repository<CustomFieldsEntity> imple
   }
 
   public async findCustomFieldById(customFieldId: string): Promise<CustomFieldsEntity> {
-    const qb = await getRepository(CustomFieldsEntity)
-      .createQueryBuilder('customFields')
-      .where('1=1')
-      .andWhere('customFields.id = :id', { id: customFieldId });
+    const qb = this.createQueryBuilder(undefined, this.getCurrentQueryRunner())
+      .select('customFields')
+      .from(CustomFieldsEntity, 'customFields')
+      .where('customFields.id = :id', { id: customFieldId });
     return await qb.getOne();
   }
 
   public async removeCustomFieldsEntity(customField: CustomFieldsEntity): Promise<CustomFieldsEntity> {
     return await this.remove(customField);
+  }
+
+  private getCurrentQueryRunner(): QueryRunner {
+    return this.manager.queryRunner;
   }
 }

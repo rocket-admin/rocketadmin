@@ -150,4 +150,8 @@ export class GlobalDatabaseContext implements IGlobalDatabaseContext {
 
     await this._queryRunner.release();
   }
+
+  public async releaseQueryRunner(): Promise<void> {
+    await this._queryRunner.release();
+  }
 }

@@ -9,8 +9,6 @@ export interface IConnectionRepository {
 
   findOneConnection(connectionId: string): Promise<Omit<ConnectionEntity, 'password' | 'privateSSHKey' | 'groups'>>;
 
-  findFullConnectionEntity(connectionId: string): Promise<ConnectionEntity>;
-
   findAndDecryptConnection(connectionId: string, masterPwd: string): Promise<ConnectionEntity>;
 
   removeConnection(connection: ConnectionEntity): Promise<ConnectionEntity>;

@@ -1,4 +1,4 @@
-import { EntityRepository, getRepository, Repository } from 'typeorm';
+import { EntityRepository, QueryRunner, Repository } from 'typeorm';
 import { IUserRepository } from './user.repository.interface';
 import { UserEntity } from '../user.entity';
 import { CreateUserDs } from '../application/data-structures/create-user.ds';
@@ -42,39 +42,43 @@ export class UserRepository extends Repository<UserEntity> implements IUserRepos
   }
 
   public async findOneUserById(userId: string): Promise<UserEntity | null> {
-    return await this.findOne({ id: userId });
+    const userQb = this.createQueryBuilder(undefined, this.getCurrentQueryRunner())
+      .select('user')
+      .from(UserEntity, 'user')
+      .andWhere('user.id = :userId', { userId: userId });
+    return await userQb.getOne();
   }
 
   public async findOneUserWithUserAction(userId: string): Promise<UserEntity> {
-    const userQb = await getRepository(UserEntity)
-      .createQueryBuilder('user')
+    const userQb = this.createQueryBuilder(undefined, this.getCurrentQueryRunner())
+      .select('user')
+      .from(UserEntity, 'user')
       .leftJoinAndSelect('user.user_action', 'user_action')
       .andWhere('user.id = :userId', { userId: userId });
     return await userQb.getOne();
   }
 
   public async findOneUserByEmail(email: string): Promise<UserEntity | null> {
-    return await this.findOne({ email: email });
-  }
-
-  public async findUserWithConnections(userId: string): Promise<UserEntity> {
-    return await this.findOne({
-      where: { id: userId },
-      relations: ['connections'],
-    });
+    const userQb = this.createQueryBuilder(undefined, this.getCurrentQueryRunner())
+      .select('user')
+      .from(UserEntity, 'user')
+      .where('user.email = :userEmail', { userEmail: email });
+    return userQb.getOne();
   }
 
   public async findOneUserWithEmailVerification(userId: string): Promise<UserEntity> {
-    const usersQb = await getRepository(UserEntity)
-      .createQueryBuilder('user')
+    const usersQb = this.createQueryBuilder(undefined, this.getCurrentQueryRunner())
+      .select('user')
+      .from(UserEntity, 'user')
       .leftJoinAndSelect('user.email_verification', 'email_verification')
       .where('user.id = :userId', { userId: userId });
     return await usersQb.getOne();
   }
 
   public async findUserByEmailWithEmailVerificationAndInvitation(email: string): Promise<UserEntity> {
-    const usersQb = await getRepository(UserEntity)
-      .createQueryBuilder('user')
+    const usersQb = this.createQueryBuilder(undefined, this.getCurrentQueryRunner())
+      .select('user')
+      .from(UserEntity, 'user')
       .leftJoinAndSelect('user.email_verification', 'email_verification')
       .leftJoinAndSelect('user.user_invitation', 'user_invitation')
       .where('user.email = :userEmail', { userEmail: email });
@@ -84,8 +88,9 @@ export class UserRepository extends Repository<UserEntity> implements IUserRepos
   public async findAllUsersInConnection(
     connectionId: string,
   ): Promise<Array<Omit<UserEntity, 'connections' | 'groups'>>> {
-    const usersQb = await getRepository(UserEntity)
-      .createQueryBuilder('user')
+    const usersQb = this.createQueryBuilder(undefined, this.getCurrentQueryRunner())
+      .select('user')
+      .from(UserEntity, 'user')
       .leftJoinAndSelect('user.groups', 'group')
       .leftJoinAndSelect('group.connection', 'connection')
       .andWhere('connection.id = :connectionId', {
@@ -109,19 +114,28 @@ export class UserRepository extends Repository<UserEntity> implements IUserRepos
 
   public async getUsersWithNotNullGCLIDsInTwoWeeks(): Promise<Array<UserEntity>> {
     const dateTwoWeeksAgo = Constants.TWO_WEEKS_AGO();
-    const usersQB = await getRepository(UserEntity)
-      .createQueryBuilder('user')
+    const usersQB = this.createQueryBuilder(undefined, this.getCurrentQueryRunner())
+      .select('user')
+      .from(UserEntity, 'user')
       .where('user.createdAt > :date', { date: dateTwoWeeksAgo })
       .andWhere('user.gclid IS NOT NULL');
     return await usersQB.getMany();
   }
 
   public async getUserEmailOrReturnNull(userId: string): Promise<string> {
-    const user = await this.findOne({ id: userId });
+    const userQB = this.createQueryBuilder(undefined, this.getCurrentQueryRunner())
+      .select('user')
+      .from(UserEntity, 'user')
+      .where('user.id > :userId', { id: userId });
+    const user = await userQB.getOne();
     return user?.email ? user.email : null;
   }
 
   public async getTrue(): Promise<boolean> {
     return !!(await this.manager.query(`SELECT (1);`));
+  }
+
+  private getCurrentQueryRunner(): QueryRunner {
+    return this.manager.queryRunner;
   }
 }

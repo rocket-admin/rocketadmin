@@ -1,4 +1,4 @@
-import { EntityRepository, getRepository, Repository } from 'typeorm';
+import { EntityRepository, QueryRunner, Repository } from 'typeorm';
 import { EmailChangeEntity } from '../email-change.entity';
 import { IEmailChangeRepository } from './email-change.repository.interface';
 import { Encryptor } from '../../../../helpers/encryption/encryptor';
@@ -11,8 +11,9 @@ export class EmailChangeRepository extends Repository<EmailChangeEntity> impleme
   }
 
   public async findEmailChangeWithVerificationString(verificationString: string): Promise<EmailChangeEntity> {
-    const qb = await getRepository(EmailChangeEntity)
-      .createQueryBuilder('email_change')
+    const qb = this.createQueryBuilder(undefined, this.getCurrentQueryRunner())
+      .select('email_change')
+      .from(EmailChangeEntity, 'email_change')
       .leftJoinAndSelect('email_change.user', 'user')
       .where('email_change.verification_string = :ver_string', { ver_string: verificationString });
     return await qb.getOne();
@@ -27,8 +28,9 @@ export class EmailChangeRepository extends Repository<EmailChangeEntity> impleme
   }
 
   public async createOrUpdateEmailChangeEntity(user: UserEntity): Promise<EmailChangeEntity> {
-    const qb = await getRepository(EmailChangeEntity)
-      .createQueryBuilder('email_change')
+    const qb = this.createQueryBuilder(undefined, this.getCurrentQueryRunner())
+      .select('email_change')
+      .from(EmailChangeEntity, 'email_change')
       .leftJoinAndSelect('email_change.user', 'user')
       .where('user.id = :userId', { userId: user.id });
     const foundChange = await qb.getOne();
@@ -40,5 +42,9 @@ export class EmailChangeRepository extends Repository<EmailChangeEntity> impleme
     newEmailChangeRequest.verification_string = verificationString;
     newEmailChangeRequest.user = user;
     return await this.save(newEmailChangeRequest);
+  }
+
+  private getCurrentQueryRunner(): QueryRunner {
+    return this.manager.queryRunner;
   }
 }

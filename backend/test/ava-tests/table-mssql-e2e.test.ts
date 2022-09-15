@@ -17,8 +17,6 @@ import { faker } from '@faker-js/faker';
 import { Messages } from '../../src/exceptions/text/messages';
 import { Constants } from '../../src/helpers/constants/constants';
 import { QueryOrderingEnum } from '../../src/enums';
-import { Connection } from 'typeorm';
-import { Cacher } from '../../src/helpers/cache/cacher';
 
 const mockFactory = new MockFactory();
 let app: INestApplication;
@@ -48,17 +46,17 @@ test.before(async () => {
 });
 
 test.after.always('Close app connection', async () => {
-  try {
-    await Cacher.clearAllCache();
-    const connect = await app.get(Connection);
-    await testUtils.shutdownServer(app.getHttpAdapter());
-    if (connect.isConnected) {
-      await connect.close();
-    }
-    await app.close();
-  } catch (e) {
-    console.error('After custom field error: ' + e);
-  }
+  // try {
+  //   await Cacher.clearAllCache();
+  //   const connect = await app.get(Connection);
+  //   await testUtils.shutdownServer(app.getHttpAdapter());
+  //   if (connect.isConnected) {
+  //     await connect.close();
+  //   }
+  //   await app.close();
+  // } catch (e) {
+  //   console.error('After custom field error: ' + e);
+  // }
 });
 
 test.after('Drop test tables', async () => {
@@ -1297,6 +1295,7 @@ should return all found rows with search, pagination: page=1, perPage=2 and DESC
       .get(
         `/table/rows/${createConnectionRO.id}?tableName=${testTableName}&search=${testSearchedUserName}&page=1&perPage=2&f_${fieldname}__lt=${fieldvalue}`,
       )
+      .set('Cookie', firstUserToken)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
     t.is(getTableRowsResponse.status, 200);
@@ -1309,9 +1308,9 @@ should return all found rows with search, pagination: page=1, perPage=2 and DESC
     t.is(getTableRowsRO.rows.length, 2);
     t.is(Object.keys(getTableRowsRO.rows[1]).length, 5);
 
-    t.is(getTableRowsRO.rows[0].name, testSearchedUserName);
+    t.is(getTableRowsRO.rows[0][testTableColumnName], testSearchedUserName);
     t.is(getTableRowsRO.rows[0].id, 38);
-    t.is(getTableRowsRO.rows[1].name, testSearchedUserName);
+    t.is(getTableRowsRO.rows[1][testTableColumnName], testSearchedUserName);
     t.is(getTableRowsRO.rows[1].id, 22);
 
     t.is(getTableRowsRO.pagination.currentPage, 1);
@@ -1388,11 +1387,11 @@ should return all found rows with search, pagination: page=1, perPage=10 and DES
     t.is(getTableRowsRO.rows.length, 3);
     t.is(Object.keys(getTableRowsRO.rows[1]).length, 5);
 
-    t.is(getTableRowsRO.rows[0].name, testSearchedUserName);
+    t.is(getTableRowsRO.rows[0][testTableColumnName], testSearchedUserName);
     t.is(getTableRowsRO.rows[0].id, 38);
-    t.is(getTableRowsRO.rows[1].name, testSearchedUserName);
+    t.is(getTableRowsRO.rows[1][testTableColumnName], testSearchedUserName);
     t.is(getTableRowsRO.rows[1].id, 22);
-    t.is(getTableRowsRO.rows[2].name, testSearchedUserName);
+    t.is(getTableRowsRO.rows[2][testTableColumnName], testSearchedUserName);
     t.is(getTableRowsRO.rows[2].id, 1);
 
     t.is(getTableRowsRO.pagination.currentPage, 1);
@@ -1469,7 +1468,7 @@ should return all found rows with search, pagination: page=2, perPage=2 and DESC
     t.is(getTableRowsRO.rows.length, 1);
     t.is(Object.keys(getTableRowsRO.rows[0]).length, 5);
 
-    t.is(getTableRowsRO.rows[0].name, testSearchedUserName);
+    t.is(getTableRowsRO.rows[0][testTableColumnName], testSearchedUserName);
     t.is(getTableRowsRO.rows[0].id, 1);
 
     t.is(getTableRowsRO.pagination.currentPage, 2);
@@ -1550,7 +1549,7 @@ should return all found rows with search, pagination: page=1, perPage=2 and DESC
     t.is(Object.keys(getTableRowsRO.rows[0]).length, 5);
 
     t.is(getTableRowsRO.rows[0].id, 38);
-    t.is(getTableRowsRO.rows[0].name, testSearchedUserName);
+    t.is(getTableRowsRO.rows[0][testTableColumnName], testSearchedUserName);
 
     t.is(getTableRowsRO.pagination.currentPage, 1);
     t.is(getTableRowsRO.pagination.perPage, 2);
@@ -1794,6 +1793,7 @@ test(`${currentTest} should return an array with searched fields when filtered n
       .set('Cookie', firstUserToken)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
+    console.log('-> createTableSettingsResponse', createTableSettingsResponse.text);
     t.is(createTableSettingsResponse.status, 201);
 
     const fieldname = faker.random.words(1);
@@ -1811,8 +1811,8 @@ test(`${currentTest} should return an array with searched fields when filtered n
 
     const getTablesRO = JSON.parse(getTableRowsResponse.text);
     t.is(getTablesRO.rows.length, 2);
-    t.is(getTablesRO.rows[0].name, testSearchedUserName);
-    t.is(getTablesRO.rows[1].name, testSearchedUserName);
+    t.is(getTablesRO.rows[0][testTableColumnName], testSearchedUserName);
+    t.is(getTablesRO.rows[1][testTableColumnName], testSearchedUserName);
     t.is(getTablesRO.hasOwnProperty('primaryColumns'), true);
     t.is(getTablesRO.hasOwnProperty('pagination'), true);
   } catch (e) {
