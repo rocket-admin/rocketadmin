@@ -54,7 +54,7 @@ export class ConnectionRepository extends Repository<ConnectionEntity> implement
   ): Promise<Omit<ConnectionEntity, 'password' | 'privateSSHKey' | 'groups'> | null> {
     const connectionQb = this.createQueryBuilder(undefined, this.getCurrentQueryRunner())
       .select('connection')
-      .from('connection')
+      .from(ConnectionEntity, 'connection')
       .where('connection.id = :connectionId', { connectionId: connectionId });
     const connection = await connectionQb.getOne();
     if (!connection) {
@@ -69,7 +69,7 @@ export class ConnectionRepository extends Repository<ConnectionEntity> implement
   public async findAndDecryptConnection(connectionId: string, masterPwd: string): Promise<ConnectionEntity> {
     const qb = this.createQueryBuilder(undefined, this.getCurrentQueryRunner())
       .select('connection')
-      .from('connection')
+      .from(ConnectionEntity, 'connection')
       .leftJoinAndSelect('connection.agent', 'agent')
       .andWhere('connection.id = :connectionId', { connectionId: connectionId });
     let connection = await qb.getOne();
