@@ -15,6 +15,7 @@ import {
   IForeignKeyWithForeignColumnName,
 } from '../../../data-access-layer/shared/data-access-object-interface';
 import { formFullTableStructure } from '../utils/form-full-table-structure';
+import { buildFoundTableWidgetDs } from '../../../entities/widget/utils/build-found-table-widget-ds';
 
 @Injectable({ scope: Scope.REQUEST })
 export class GetTableStructureUseCase
@@ -49,6 +50,7 @@ export class GetTableStructureUseCase
       if (isConnectionTypeAgent(foundConnection.type)) {
         userEmail = await this._dbContext.userRepository.getUserEmailOrReturnNull(userId);
       }
+      // eslint-disable-next-line prefer-const
       let [tableSettings, tablePrimaryColumns, tableForeignKeys, tableStructure, tableWidgets] = await Promise.all([
         this._dbContext.tableSettingsRepository.findTableSettings(connectionId, tableName),
         dao.getTablePrimaryColumns(tableName, userEmail),
@@ -84,7 +86,7 @@ export class GetTableStructureUseCase
         primaryColumns: tablePrimaryColumns,
         foreignKeys: transformedTableForeignKeys,
         readonly_fields: readonly_fields,
-        table_widgets: tableWidgets?.length > 0 ? tableWidgets : [],
+        table_widgets: tableWidgets?.length > 0 ? tableWidgets.map((widget)=> buildFoundTableWidgetDs(widget)) : [],
       };
     } catch (e) {
       throw new HttpException(

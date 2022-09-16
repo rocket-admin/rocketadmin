@@ -16,6 +16,7 @@ import { Test } from '@nestjs/testing';
 import { TestUtils } from '../utils/test.utils';
 import * as cookieParser from 'cookie-parser';
 import { Cacher } from '../../src/helpers/cache/cacher';
+import { compareTableWidgetsArrays } from '../utils/compare-table-widgets-arrays';
 
 describe('User permissions (connection readonly, group readonly) (e2e)', () => {
   jest.setTimeout(50000);
@@ -2304,8 +2305,10 @@ describe('User permissions (connection readonly, group readonly) (e2e)', () => {
             expect(getTableWidgetsRO[0].field_name).toBe(newTableWidgets[0].field_name);
             expect(getTableWidgetsRO[1].widget_type).toBe(newTableWidgets[1].widget_type);
             expect(
-              compareArrayElements(getTableWidgetsRO[1].widget_params, newTableWidgets[1].widget_params),
+              compareTableWidgetsArrays(getTableWidgetsRO, newTableWidgets),
             ).toBeTruthy();
+
+            
 
             const getTableStructureResponse = await request(app.getHttpServer())
               .get(`/table/structure/${connectionIds.firstId}?tableName=users`)
@@ -2319,9 +2322,9 @@ describe('User permissions (connection readonly, group readonly) (e2e)', () => {
             expect(getTableStructureRO.table_widgets[0].field_name).toBe(newTableWidgets[0].field_name);
             expect(getTableStructureRO.table_widgets[1].widget_type).toBe(newTableWidgets[1].widget_type);
             expect(
-              compareArrayElements(
-                getTableStructureRO.table_widgets[0].widget_params,
-                newTableWidgets[0].widget_params,
+              compareTableWidgetsArrays(
+                getTableStructureRO.table_widgets,
+                newTableWidgets,
               ),
             ).toBeTruthy();
           } catch (err) {

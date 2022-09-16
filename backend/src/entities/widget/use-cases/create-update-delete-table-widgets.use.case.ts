@@ -59,11 +59,13 @@ export class CreateUpdateDeleteTableWidgetsUseCase
         return widget.field_name === w.field_name;
       });
       if (availableWidgetIndex >= 0) {
+        // eslint-disable-next-line security/detect-object-injection
         const updatedWidget = Object.assign(foundTableWidgets[availableWidgetIndex], widget);
         await this._dbContext.tableWidgetsRepository.saveNewOrUpdatedTableWidget(updatedWidget);
         const widgetIndexInTableSettings = tableSettingToUpdate.table_widgets.findIndex((w) => {
           return w.field_name === updatedWidget.field_name;
         });
+        // eslint-disable-next-line security/detect-object-injection
         tableSettingToUpdate.table_widgets[widgetIndexInTableSettings] = updatedWidget;
       } else {
         const newTableWidget = buildNewTableWidgetEntity(widget);

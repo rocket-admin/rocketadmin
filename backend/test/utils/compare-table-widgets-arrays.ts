@@ -1,5 +1,6 @@
-import { TableWidgetEntity } from '../../src/entities/widget/table-widget.entity';
+import * as json5 from 'json5';
 import { CreateTableWidgetDto } from '../../src/entities/widget/dto';
+import { TableWidgetEntity } from '../../src/entities/widget/table-widget.entity';
 
 export const compareTableWidgetsArrays = (
   arr_1: Array<TableWidgetEntity | CreateTableWidgetDto>,
@@ -9,6 +10,9 @@ export const compareTableWidgetsArrays = (
     for (const elKey in el) {
       if (!el[elKey]) delete el[elKey];
       if (elKey === 'id') delete el[elKey];
+      if (elKey === 'widget_params') {
+        el[elKey] = JSON.stringify(json5.parse(el[elKey]))
+      }
     }
     return el;
   });
@@ -16,6 +20,9 @@ export const compareTableWidgetsArrays = (
     for (const elKey in el) {
       if (!el[elKey]) delete el[elKey];
       if (elKey === 'id') delete el[elKey];
+      if (elKey === 'widget_params') {
+        el[elKey] = JSON.stringify(json5.parse(el[elKey]))
+      }
     }
     return el;
   });

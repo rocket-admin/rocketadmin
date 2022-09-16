@@ -17,6 +17,7 @@ import { TestUtils } from '../utils/test.utils';
 import { Cacher } from '../../src/helpers/cache/cacher';
 
 describe('Tables MsSQL with schema (e2e)', () => {
+  jest.setTimeout(100000);
   let app: INestApplication;
   let testUtils: TestUtils;
   const mockFactory = new MockFactory();

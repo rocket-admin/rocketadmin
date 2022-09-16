@@ -1,24 +1,25 @@
+import { faker } from '@faker-js/faker';
 import * as AWS from 'aws-sdk';
 import * as AWSMock from 'aws-sdk-mock';
-import { faker } from '@faker-js/faker';
 import * as request from 'supertest';
 
-import { AccessLevelEnum, QueryOrderingEnum } from '../../src/enums';
-import { ApplicationModule } from '../../src/app.module';
+import { INestApplication } from '@nestjs/common';
+import { Test } from '@nestjs/testing';
+import * as cookieParser from 'cookie-parser';
+import { knex } from 'knex';
 import { Connection } from 'typeorm';
+import { ApplicationModule } from '../../src/app.module';
+import { AccessLevelEnum, QueryOrderingEnum } from '../../src/enums';
+import { Messages } from '../../src/exceptions/text/messages';
+import { compareArrayElements } from '../../src/helpers';
+import { Cacher } from '../../src/helpers/cache/cacher';
 import { Constants } from '../../src/helpers/constants/constants';
 import { DatabaseModule } from '../../src/shared/database/database.module';
 import { DatabaseService } from '../../src/shared/database/database.service';
-import { INestApplication } from '@nestjs/common';
-import { Messages } from '../../src/exceptions/text/messages';
 import { MockFactory } from '../mock.factory';
-import { Test } from '@nestjs/testing';
 import { TestConstants } from '../mocks/test-constants';
+import { compareTableWidgetsArrays } from '../utils/compare-table-widgets-arrays';
 import { TestUtils } from '../utils/test.utils';
-import { compareArrayElements } from '../../src/helpers';
-import { knex } from 'knex';
-import * as cookieParser from 'cookie-parser';
-import { Cacher } from '../../src/helpers/cache/cacher';
 
 describe('User permissions (connection admin) (e2e)', () => {
   jest.setTimeout(30000);
@@ -3652,7 +3653,7 @@ describe('User permissions (connection admin) (e2e)', () => {
             expect(getTableWidgetsRO[0].field_name).toBe(newTableWidgets[0].field_name);
             expect(getTableWidgetsRO[0].widget_type).toBe(newTableWidgets[0].widget_type);
             expect(
-              compareArrayElements(getTableWidgetsRO[1].widget_params, newTableWidgets[1].widget_params),
+              compareTableWidgetsArrays(getTableWidgetsRO, newTableWidgets),
             ).toBeTruthy();
 
             const getTableStructureResponse = await request(app.getHttpServer())
@@ -3667,7 +3668,7 @@ describe('User permissions (connection admin) (e2e)', () => {
             expect(getTableStructureRO.table_widgets[0].field_name).toBe(newTableWidgets[0].field_name);
             expect(getTableStructureRO.table_widgets[1].widget_type).toBe(newTableWidgets[1].widget_type);
             expect(
-              compareArrayElements(getTableStructureRO.table_widgets[0].widget_params, newTableWidget.widget_params),
+              compareTableWidgetsArrays(getTableStructureRO.table_widgets, newTableWidget),
             ).toBeTruthy();
           } catch (err) {
             throw err;
@@ -3732,9 +3733,8 @@ describe('User permissions (connection admin) (e2e)', () => {
           expect(uuidRegex.test(getTableWidgetsRO[0].id)).toBeTruthy();
           expect(getTableWidgetsRO[0].widget_type).toBe(newTableWidgets[0].widget_type);
           expect(
-            compareArrayElements(getTableWidgetsRO[1].widget_params, newTableWidgets[1].widget_params),
+            compareTableWidgetsArrays(getTableWidgetsRO, newTableWidgets),
           ).toBeTruthy();
-          expect(uuidRegex.test(getTableWidgetsRO[0].id)).toBeTruthy();
         });
 
         it('should throw an exception, when you try add widget in connection, when you do not have permissions', async () => {
