@@ -1,4 +1,4 @@
-import { EntityRepository, QueryRunner, Repository } from 'typeorm';
+import { EntityRepository, getRepository, Repository } from 'typeorm';
 import { PermissionEntity } from '../permission.entity';
 import { IPermissionRepository } from './permission.repository.interface';
 import { GroupEntity } from '../../group/group.entity';
@@ -32,9 +32,8 @@ export class PermissionRepository extends Repository<PermissionEntity> implement
   }
 
   public async getGroupPermissionForConnection(connectionId: string, groupId: string): Promise<AccessLevelEnum> {
-    const connectionQb = this.createQueryBuilder(undefined, this.getCurrentQueryRunner())
-      .select('permission')
-      .from(PermissionEntity, 'permission')
+    const connectionQb = await getRepository(PermissionEntity)
+      .createQueryBuilder('permission')
       .leftJoinAndSelect('permission.groups', 'group')
       .leftJoinAndSelect('group.connection', 'connection')
       .andWhere('connection.id = :connectionId', { connectionId: connectionId })
@@ -62,9 +61,8 @@ export class PermissionRepository extends Repository<PermissionEntity> implement
   }
 
   public async getGroupPermissionsForGroup(connectionId: string, groupId: string): Promise<AccessLevelEnum> {
-    const groupQb = this.createQueryBuilder(undefined, this.getCurrentQueryRunner())
-      .select('permission')
-      .from(PermissionEntity, 'permission')
+    const groupQb = await getRepository(PermissionEntity)
+      .createQueryBuilder('permission')
       .leftJoinAndSelect('permission.groups', 'group')
       .leftJoinAndSelect('group.connection', 'connection')
       .andWhere('connection.id = :connectionId', { connectionId: connectionId })
@@ -97,9 +95,8 @@ export class PermissionRepository extends Repository<PermissionEntity> implement
     groupId: string,
     tableName: string,
   ): Promise<TablePermissionDs> {
-    const tableQb = this.createQueryBuilder(undefined, this.getCurrentQueryRunner())
-      .select('permission')
-      .from(PermissionEntity, 'permission')
+    const tableQb = await getRepository(PermissionEntity)
+      .createQueryBuilder('permission')
       .leftJoinAndSelect('permission.groups', 'group')
       .leftJoinAndSelect('group.connection', 'connection')
       .andWhere('connection.id = :connectionId', { connectionId: connectionId })
@@ -126,9 +123,8 @@ export class PermissionRepository extends Repository<PermissionEntity> implement
     connectionId: string,
     groupId: string,
   ): Promise<Array<PermissionEntity>> {
-    const tableQb = this.createQueryBuilder(undefined, this.getCurrentQueryRunner())
-      .select('permission')
-      .from(PermissionEntity, 'permission')
+    const tableQb = await getRepository(PermissionEntity)
+      .createQueryBuilder('permission')
       .leftJoinAndSelect('permission.groups', 'group')
       .leftJoinAndSelect('group.connection', 'connection')
       .andWhere('connection.id = :connectionId', { connectionId: connectionId })
@@ -140,9 +136,8 @@ export class PermissionRepository extends Repository<PermissionEntity> implement
   }
 
   public async getPermissionEntityForConnection(connectionId: string, groupId: string): Promise<PermissionEntity> {
-    const connectionQb = this.createQueryBuilder(undefined, this.getCurrentQueryRunner())
-      .select('permission')
-      .from(PermissionEntity, 'permission')
+    const connectionQb = await getRepository(PermissionEntity)
+      .createQueryBuilder('permission')
       .leftJoinAndSelect('permission.groups', 'group')
       .leftJoinAndSelect('group.connection', 'connection')
       .andWhere('connection.id = :connectionId', { connectionId: connectionId })
@@ -154,9 +149,8 @@ export class PermissionRepository extends Repository<PermissionEntity> implement
   }
 
   public async getPermissionEntityForGroup(connectionId: string, groupId: string): Promise<PermissionEntity> {
-    const groupQb = this.createQueryBuilder(undefined, this.getCurrentQueryRunner())
-      .select('permission')
-      .from(PermissionEntity, 'permission')
+    const groupQb = await getRepository(PermissionEntity)
+      .createQueryBuilder('permission')
       .leftJoinAndSelect('permission.groups', 'group')
       .leftJoinAndSelect('group.connection', 'connection')
       .andWhere('connection.id = :connectionId', { connectionId: connectionId })
@@ -171,9 +165,8 @@ export class PermissionRepository extends Repository<PermissionEntity> implement
     userId: string,
     connectionId: string,
   ): Promise<Array<PermissionEntity>> {
-    const qb = this.createQueryBuilder(undefined, this.getCurrentQueryRunner())
-      .select('permission')
-      .from(PermissionEntity, 'permission')
+    const qb = await getRepository(PermissionEntity)
+      .createQueryBuilder('permission')
       .leftJoinAndSelect('permission.groups', 'group')
       .leftJoinAndSelect('group.users', 'user')
       .leftJoinAndSelect('group.connection', 'connection')
@@ -185,9 +178,5 @@ export class PermissionRepository extends Repository<PermissionEntity> implement
 
   public async removePermissionEntity(permission: PermissionEntity): Promise<PermissionEntity> {
     return await this.remove(permission);
-  }
-
-  private getCurrentQueryRunner(): QueryRunner {
-    return this.manager.queryRunner;
   }
 }

@@ -1,4 +1,4 @@
-import { EntityRepository, QueryRunner, Repository } from 'typeorm';
+import { EntityRepository, getRepository, Repository } from 'typeorm';
 import { TableWidgetEntity } from '../table-widget.entity';
 import { TableSettingsEntity } from '../../table-settings/table-settings.entity';
 import { ITableWidgetsRepository } from './table-widgets-repository.interface';
@@ -10,11 +10,11 @@ export class TableWidgetsRepository extends Repository<TableWidgetEntity> implem
   }
 
   public async findTableWidgets(connectionId: string, tableName: string): Promise<Array<TableWidgetEntity>> {
-    const qb = this.createQueryBuilder(undefined, this.getCurrentQueryRunner())
-      .select('tableSettings')
-      .from(TableSettingsEntity, 'tableSettings')
+    const qb = await getRepository(TableSettingsEntity)
+      .createQueryBuilder('tableSettings')
       .leftJoinAndSelect('tableSettings.table_widgets', 'table_widgets');
-    qb.where('tableSettings.connection_id = :connection_id', { connection_id: connectionId });
+    qb.where('1=1');
+    qb.andWhere('tableSettings.connection_id = :connection_id', { connection_id: connectionId });
     qb.andWhere('tableSettings.table_name = :table_name', { table_name: tableName });
     const result = await qb.getOne();
     return result?.table_widgets ? result?.table_widgets : [];
@@ -26,9 +26,5 @@ export class TableWidgetsRepository extends Repository<TableWidgetEntity> implem
 
   public async removeTableWidget(widget: TableWidgetEntity): Promise<TableWidgetEntity> {
     return await this.remove(widget);
-  }
-
-  private getCurrentQueryRunner(): QueryRunner {
-    return this.manager.queryRunner;
   }
 }

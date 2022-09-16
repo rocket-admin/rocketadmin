@@ -1,4 +1,4 @@
-import { EntityRepository, QueryRunner, Repository } from 'typeorm';
+import { EntityRepository, getRepository, Repository } from 'typeorm';
 import { TableLogsEntity } from '../table-logs.entity';
 import { IFindLogsOptions, ITableLogsRepository } from './table-logs-repository.interface';
 import { CreateLogRecordDs } from '../application/data-structures/create-log-record.ds';
@@ -16,10 +16,7 @@ export class TableLogsRepository extends Repository<TableLogsEntity> implements 
 
   public async createLogRecord(logData: CreateLogRecordDs): Promise<CreatedLogRecordDs> {
     const { userId } = logData;
-    const userQb = this.createQueryBuilder(undefined, this.getCurrentQueryRunner())
-      .select('user')
-      .from(UserEntity, 'user')
-      .where('user.id = id', { id: userId });
+    const userQb = await getRepository(UserEntity).createQueryBuilder('user').where('user.id = id', { id: userId });
     const { email } = await userQb.getOne();
     const newLogRecord = buildTableLogsEntity(logData, email);
     const savedLogRecord = await this.save(newLogRecord);
@@ -40,9 +37,8 @@ export class TableLogsRepository extends Repository<TableLogsEntity> implements 
       userConnectionEdit,
       userInGroupsIds,
     } = findOptions;
-    const qb = this.createQueryBuilder(undefined, this.getCurrentQueryRunner())
-      .select('tableLogs')
-      .from(TableLogsEntity, 'tableLogs')
+    const qb = await getRepository(TableLogsEntity)
+      .createQueryBuilder('tableLogs')
       .leftJoinAndSelect('tableLogs.connection_id', 'connection_id');
     qb.andWhere('tableLogs.connection_id = :connection_id', { connection_id: connectionId });
 
@@ -83,9 +79,5 @@ export class TableLogsRepository extends Repository<TableLogsEntity> implements 
         total: rowsCount,
       },
     };
-  }
-
-  private getCurrentQueryRunner(): QueryRunner {
-    return this.manager.queryRunner;
   }
 }

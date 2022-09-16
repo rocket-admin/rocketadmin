@@ -4,6 +4,4 @@ export interface IDatabaseContext {
   commitTransaction(): Promise<void>;
 
   rollbackTransaction(): Promise<void>;
-
-  releaseQueryRunner(): Promise<void>;
 }

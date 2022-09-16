@@ -1,4 +1,4 @@
-import { EntityRepository, Repository } from 'typeorm';
+import { EntityRepository, getRepository, Repository } from 'typeorm';
 import { AgentEntity } from '../agent.entity';
 import { IAgentRepository } from './agent.repository.interface';
 import { ConnectionEntity } from '../../connection/connection.entity';
@@ -34,16 +34,14 @@ export class AgentRepository extends Repository<AgentEntity> implements IAgentRe
   }
 
   async renewOrCreateConnectionToken(connectionId: string): Promise<string> {
-    const agentQb = this.createQueryBuilder()
-      .select('agent')
-      .from(AgentEntity, 'agent')
+    const agentQb = await getRepository(AgentEntity)
+      .createQueryBuilder('agent')
       .leftJoinAndSelect('agent.connection', 'connection')
       .andWhere('connection.id = :connectionId', { connectionId: connectionId });
     const foundAgent = await agentQb.getOne();
     if (!foundAgent) {
-      const connectionQb = this.createQueryBuilder()
-        .select('connection')
-        .from(ConnectionEntity, 'connection')
+      const connectionQb = await getRepository(ConnectionEntity)
+        .createQueryBuilder('connection')
         .andWhere('connection.id = :connectionId', { connectionId: connectionId });
       const foundConnection = await connectionQb.getOne();
       return await this.createNewAgentForConnectionAndReturnToken(foundConnection);

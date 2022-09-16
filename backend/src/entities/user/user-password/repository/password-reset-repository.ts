@@ -1,4 +1,4 @@
-import { EntityRepository, QueryRunner, Repository } from 'typeorm';
+import { EntityRepository, getRepository, Repository } from 'typeorm';
 import { PasswordResetEntity } from '../password-reset.entity';
 import { IPasswordResetRepository } from './password-reset-repository.interface';
 import { UserEntity } from '../../user.entity';
@@ -11,9 +11,8 @@ export class PasswordResetRepository extends Repository<PasswordResetEntity> imp
   }
 
   public async findPasswordResetWidthVerificationString(verificationString: string): Promise<PasswordResetEntity> {
-    const qb = this.createQueryBuilder(undefined, this.getCurrentQueryRunner())
-      .select('password_reset')
-      .from(PasswordResetEntity, 'password_reset')
+    const qb = await getRepository(PasswordResetEntity)
+      .createQueryBuilder('password_reset')
       .leftJoinAndSelect('password_reset.user', 'user')
       .where('password_reset.verification_string = :ver_string', {
         ver_string: verificationString,
@@ -30,9 +29,8 @@ export class PasswordResetRepository extends Repository<PasswordResetEntity> imp
   }
 
   public async createOrUpdatePasswordResetEntity(user: UserEntity): Promise<PasswordResetEntity> {
-    const qb = this.createQueryBuilder(undefined, this.getCurrentQueryRunner())
-      .select('password_reset')
-      .from(PasswordResetEntity, 'password_reset')
+    const qb = await getRepository(PasswordResetEntity)
+      .createQueryBuilder('password_reset')
       .leftJoinAndSelect('password_reset.user', 'user')
       .where('user.id = :userId', { userId: user.id });
     const foundReset = await qb.getOne();
@@ -44,9 +42,5 @@ export class PasswordResetRepository extends Repository<PasswordResetEntity> imp
     newResetPasswordRequest.verification_string = verificationString;
     newResetPasswordRequest.user = user;
     return await this.save(newResetPasswordRequest);
-  }
-
-  private getCurrentQueryRunner(): QueryRunner {
-    return this.manager.queryRunner;
   }
 }

@@ -11,8 +11,8 @@ import { faker } from '@faker-js/faker';
 import { Connection } from 'typeorm';
 import { Cacher } from '../../src/helpers/cache/cacher';
 
-describe('Tables Postgres (e2e)', () => {
-  jest.setTimeout(20000000);
+xdescribe('Tables Postgres (e2e)', () => {
+  jest.setTimeout(20000);
   let app: INestApplication;
   let testUtils: TestUtils;
   const mockFactory = new MockFactory();
@@ -100,7 +100,7 @@ describe('Tables Postgres (e2e)', () => {
     }
   });
 
-  xdescribe('GET /connection/tables/:slug', () => {
+  describe('GET /connection/tables/:slug', () => {
     it('should return list of tables in connection', async () => {
       const results = await Promise.allSettled([
         await callMe(),
@@ -151,7 +151,7 @@ describe('Tables Postgres (e2e)', () => {
             .set('Accept', 'application/json');
           const createConnectionRO = JSON.parse(createConnectionResponse.text);
           expect(createConnectionResponse.status).toBe(201);
-          responseLogs += `createConnectionResponse: ${createConnectionResponse.text} \n`;
+          responseLogs += `createConnectionResponse: ${createConnectionResponse.text} `;
 
           const getTablesResponse = await request(app.getHttpServer())
             .get(`/connection/tables/${createConnectionRO.id}`)
@@ -159,38 +159,30 @@ describe('Tables Postgres (e2e)', () => {
             .set('Accept', 'application/json');
           expect(getTablesResponse.status).toBe(200);
 
-          responseLogs += `getTablesResponse: ${getTablesResponse.text} \n`;
+          responseLogs += `getTablesResponse: ${getTablesResponse.text} `;
 
-          const getTableRowsResponse = await request(app.getHttpServer())
-            .get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}`)
+          const fakeName = faker.name.findName();
+          const fakeMail = faker.internet.email();
+
+          const row = {
+            [testTableColumnName]: fakeName,
+            [testTAbleSecondColumnName]: fakeMail,
+          };
+
+          const updateRowInTableResponse = await request(app.getHttpServer())
+            .put(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&id=1`)
+            .send(JSON.stringify(row))
             .set('Content-Type', 'application/json')
             .set('Accept', 'application/json');
-
-          responseLogs += `getTableRowsResponse: ${getTableRowsResponse.text} \n`;
-          console.log(responseLogs);
-          //
-          // const fakeName = faker.name.findName();
-          // const fakeMail = faker.internet.email();
-          //
-          // const row = {
-          //   [testTableColumnName]: fakeName,
-          //   [testTAbleSecondColumnName]: fakeMail,
-          // };
-          //
-          // const updateRowInTableResponse = await request(app.getHttpServer())
-          //   .put(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&id=1`)
-          //   .send(JSON.stringify(row))
-          //   .set('Content-Type', 'application/json')
-          //   .set('Accept', 'application/json');
-          // expect(updateRowInTableResponse.status).toBe(200);
-          // const updateRowInTableRO = JSON.parse(updateRowInTableResponse.text);
-          // responseLogs += `updateRowInTableResponse: ${updateRowInTableResponse.text} `;
-          // const getTableRowsResponse = await request(app.getHttpServer())
-          //   .get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=1&perPage=50`)
-          //   .set('Content-Type', 'application/json')
-          //   .set('Accept', 'application/json');
-          // expect(getTableRowsResponse.status).toBe(200);
-          // responseLogs += `getTableRowsResponse: ${getTableRowsResponse.text} `;
+          expect(updateRowInTableResponse.status).toBe(200);
+          const updateRowInTableRO = JSON.parse(updateRowInTableResponse.text);
+          responseLogs += `updateRowInTableResponse: ${updateRowInTableResponse.text} `;
+          const getTableRowsResponse = await request(app.getHttpServer())
+            .get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=1&perPage=50`)
+            .set('Content-Type', 'application/json')
+            .set('Accept', 'application/json');
+          expect(getTableRowsResponse.status).toBe(200);
+          responseLogs += `getTableRowsResponse: ${getTableRowsResponse.text} `;
           return true;
         } catch (err) {
           console.log('responseLogs => ', responseLogs);
