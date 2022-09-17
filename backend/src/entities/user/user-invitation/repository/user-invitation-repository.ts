@@ -1,4 +1,4 @@
-import { EntityRepository, QueryRunner, Repository } from 'typeorm';
+import { EntityRepository, getRepository, Repository } from 'typeorm';
 import { UserInvitationEntity } from '../user-invitation.entity';
 import { IUserInvitationRepository } from './user-invitation-repository.interface';
 import { Constants } from '../../../../helpers/constants/constants';
@@ -12,9 +12,8 @@ export class UserInvitationRepository extends Repository<UserInvitationEntity> i
   }
 
   public async findUserInvitationWithVerificationString(verificationString: string): Promise<UserInvitationEntity> {
-    const qb = this.createQueryBuilder(undefined, this.getCurrentQueryRunner())
-      .select('user_invitation')
-      .from(UserInvitationEntity, 'user_invitation')
+    const qb = await getRepository(UserInvitationEntity)
+      .createQueryBuilder('user_invitation')
       .leftJoinAndSelect('user_invitation.user', 'user')
       .where('user_invitation.verification_string = :ver_string', {
         ver_string: verificationString,
@@ -27,9 +26,8 @@ export class UserInvitationRepository extends Repository<UserInvitationEntity> i
   }
 
   public async removeOldInvitationEntities(): Promise<Array<UserInvitationEntity>> {
-    const qb = this.createQueryBuilder(undefined, this.getCurrentQueryRunner())
-      .select('user_invitation')
-      .from(UserInvitationEntity, 'user_invitation')
+    const qb = await getRepository(UserInvitationEntity)
+      .createQueryBuilder('user_invitation')
       .where('user_invitation.createdAt <= :date_ago', { date_ago: Constants.ONE_WEEK_AGO() });
     const foundEntities = await qb.getMany();
     return await Promise.all(
@@ -44,9 +42,8 @@ export class UserInvitationRepository extends Repository<UserInvitationEntity> i
   }
 
   public async createOrUpdateInvitationEntity(user: UserEntity): Promise<UserInvitationEntity> {
-    const qb = this.createQueryBuilder(undefined, this.getCurrentQueryRunner())
-      .select('user_invitation')
-      .from(UserInvitationEntity, 'user_invitation')
+    const qb = await getRepository(UserInvitationEntity)
+      .createQueryBuilder('user_invitation')
       .leftJoinAndSelect('user_invitation.user', 'user')
       .where('user.id = :userId', { userId: user.id });
     const foundInvitation = await qb.getOne();
@@ -57,9 +54,5 @@ export class UserInvitationRepository extends Repository<UserInvitationEntity> i
     newInvitation.verification_string = Encryptor.generateRandomString();
     newInvitation.user = user;
     return await this.save(newInvitation);
-  }
-
-  private getCurrentQueryRunner(): QueryRunner {
-    return this.manager.queryRunner;
   }
 }

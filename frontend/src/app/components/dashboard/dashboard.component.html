@@ -38,12 +38,11 @@
             <app-alert *ngIf="dataSource.alert_widgetsWarning" [alert]="dataSource.alert_widgetsWarning"></app-alert>
 
             <app-content-loader *ngIf="dataSource === null"></app-content-loader>
-            <app-db-table *ngIf="dataSource && selectedTablePermissions"
+            <app-db-table *ngIf="dataSource"
                 [displayName]="selectedTableDisplayName"
                 [filtersCount]="filtersCount"
                 [name]="selectedTableName"
                 [table]="dataSource"
-                [permissions]="selectedTablePermissions"
                 [connectionID]="connectionID"
                 [accessLevel]="currentConnectionAccessLevel"
                 (openFilters)="openTableFilters()"

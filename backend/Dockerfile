@@ -4,7 +4,7 @@ COPY package.json yarn.lock nest-cli.json /app/
 RUN yarn install --network-timeout 1000000
 COPY . /app
 RUN yarn run nest build
-CMD [ "./node_modules/.bin/nest", "start"]
+CMD [ "node", "--enable-source-maps", "dist/src/main.js"]
 
 RUN apt update && \
     apt install libaio1 libc6 curl -y && \

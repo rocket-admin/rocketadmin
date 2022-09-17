@@ -5,7 +5,7 @@
     <app-content-loader *ngIf="loading"></app-content-loader>
     <form action="" #tableSettingsForm="ngForm" (ngSubmit)="updateSettings()">
         <div class="settings-form">
-            <mat-form-field appearance="outline">
+            <mat-form-field appearance="outline" class="settings-form__full-line">
                 <mat-label>Table display name</mat-label>
                 <input matInput [(ngModel)]="tableSettings.display_name" name="display_name" #displayName="ngModel">
                 <!-- <mat-error *ngIf="title.errors?.required && (title.invalid && title.touched)">Title should not be empty.</mat-error> -->
@@ -19,6 +19,33 @@
                     <mat-option *ngFor="let field of fields" [value]="field">{{field}}</mat-option>
                 </mat-select>
             </mat-form-field>
+            <mat-icon class="settings-form__tooltip"
+                matTooltip="Choose columns you always want to see when you open this table."
+                matTooltipPosition="above">
+                info_outline
+            </mat-icon>
+
+            <div class="order-settings settings-form__full-line">
+                <span class="order__title">
+                    Columns order
+                </span>
+                <mat-expansion-panel class="settings-form__expansion-panel">
+                    <mat-expansion-panel-header>
+                        <mat-panel-title>
+
+                            <div>
+                                <span *ngFor="let field of tableSettings.list_fields; let i = index">
+                                    {{field}}{{ i === tableSettings.list_fields.length - 1 ? '' : ',' }}
+                                </span>
+                            </div>
+                        </mat-panel-title>
+                    </mat-expansion-panel-header>
+
+                    <div cdkDropList class="order-list" (cdkDropListDropped)="drop($event)">
+                        <div class="order-item" *ngFor="let field of tableSettings.list_fields" cdkDrag>{{field}}</div>
+                    </div>
+                </mat-expansion-panel>
+            </div>
 
             <mat-form-field appearance="outline">
                 <mat-label>Autocomplete fields</mat-label>
@@ -28,6 +55,11 @@
                     <mat-option *ngFor="let field of fields" [value]="field">{{field}}</mat-option>
                 </mat-select>
             </mat-form-field>
+            <mat-icon class="settings-form__tooltip"
+                matTooltip="Choose columns you want to search by when you edit the foreign key field."
+                matTooltipPosition="above">
+                info_outline
+            </mat-icon>
 
             <mat-form-field appearance="outline">
                 <mat-label>Identity field</mat-label>
@@ -37,6 +69,11 @@
                     <mat-option *ngFor="let field of fields" [value]="field">{{field}}</mat-option>
                 </mat-select>
             </mat-form-field>
+            <mat-icon class="settings-form__tooltip"
+                matTooltip="Choose a column you want to display in the foreign key field"
+                matTooltipPosition="above">
+                info_outline
+            </mat-icon>
 
             <mat-form-field appearance="outline">
                 <mat-label>Fields to search</mat-label>
@@ -46,6 +83,11 @@
                     <mat-option *ngFor="let field of fields" [value]="field">{{field}}</mat-option>
                 </mat-select>
             </mat-form-field>
+            <mat-icon class="settings-form__tooltip"
+                matTooltip="Choose columns you often use as filters."
+                matTooltipPosition="above">
+                info_outline
+            </mat-icon>
 
             <mat-form-field appearance="outline">
                 <mat-label>Fields to exclude</mat-label>
@@ -55,8 +97,13 @@
                     <mat-option *ngFor="let field of fields_to_exclude" [value]="field">{{field}}</mat-option>
                 </mat-select>
             </mat-form-field>
+            <mat-icon class="settings-form__tooltip"
+                matTooltip="Choose columns you want to hide and protect from editing."
+                matTooltipPosition="above">
+                info_outline
+            </mat-icon>
 
-            <div class="form-group-ordering">
+            <div class="form-group-ordering settings-form__full-line">
                 <mat-form-field appearance="outline" class="form-group-ordering__ordering-by">
                     <mat-label>Ordering by field</mat-label>
                     <mat-select name="ordering_field" [(ngModel)]="tableSettings.ordering_field">
@@ -82,8 +129,13 @@
                     <mat-option *ngFor="let field of fields" [value]="field">{{field}}</mat-option>
                 </mat-select>
             </mat-form-field>
+            <mat-icon class="settings-form__tooltip"
+                matTooltip="Choose columns you want to display and protect from editing."
+                matTooltipPosition="above">
+                info_outline
+            </mat-icon>
 
-            <mat-form-field appearance="outline">
+            <mat-form-field appearance="outline" class="settings-form__full-line">
                 <mat-label>Sort fields by</mat-label>
                 <mat-select multiple
                     name="sortable_by"
@@ -105,7 +157,7 @@
             <button mat-raised-button color="primary"
                 type="submit"
                 class="settings-form__save-button"
-                [disabled]="submitting || tableSettingsForm.form.invalid || tableSettingsForm.form.pristine">
+                [disabled]="(submitting || tableSettingsForm.form.invalid || tableSettingsForm.form.pristine) && !orderChanged">
                 Save
             </button>
         </div>

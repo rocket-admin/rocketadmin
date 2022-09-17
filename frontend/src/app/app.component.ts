@@ -118,6 +118,15 @@ export class AppComponent {
           .subscribe(res => {
               this.currentUser = res;
               this.setUserLoggedIn(true);
+
+              // @ts-ignore
+              window.Intercom("boot", {
+                // @ts-ignore
+                ...window.intercomSettings,
+                user_hash: res.intercom_hash,
+                user_id: res.id,
+                email: res.email
+              });
               this.router.navigate(['/connections-list'])
             }
         )
@@ -139,6 +148,14 @@ export class AppComponent {
               .subscribe(res => {
                   this.currentUser = res;
                   this.setUserLoggedIn(true);
+                  // @ts-ignore
+                  window.Intercom("boot", {
+                    // @ts-ignore
+                    ...window.intercomSettings,
+                    user_hash: res.intercom_hash,
+                    user_id: res.id,
+                    email: res.email
+                  });
                 }
             );
 

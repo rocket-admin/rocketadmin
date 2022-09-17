@@ -1,4 +1,4 @@
-import { EntityRepository, QueryRunner, Repository } from 'typeorm';
+import { EntityRepository, getRepository, Repository } from 'typeorm';
 import { PermissionEntity } from '../../permission/permission.entity';
 import { IUserAccessRepository } from './user-access.repository.interface';
 import { AccessLevelEnum, PermissionTypeEnum } from '../../../enums';
@@ -17,9 +17,8 @@ export class UserAccessRepository extends Repository<PermissionEntity> implement
   }
 
   async getUserConnectionAccessLevel(cognitoUserName: string, connectionId: string): Promise<AccessLevelEnum> {
-    const qb = this.createQueryBuilder(undefined, this.getCurrentQueryRunner())
-      .select('permission')
-      .from(PermissionEntity, 'permission')
+    const qb = await getRepository(PermissionEntity)
+      .createQueryBuilder('permission')
       .leftJoinAndSelect('permission.groups', 'group')
       .leftJoinAndSelect('group.users', 'user')
       .leftJoinAndSelect('group.connection', 'connection')
@@ -77,9 +76,8 @@ export class UserAccessRepository extends Repository<PermissionEntity> implement
       return AccessLevelEnum.edit;
     }
 
-    const qb = this.createQueryBuilder(undefined, this.getCurrentQueryRunner())
-      .select('permission')
-      .from(PermissionEntity, 'permission')
+    const qb = await getRepository(PermissionEntity)
+      .createQueryBuilder('permission')
       .leftJoinAndSelect('permission.groups', 'group')
       .leftJoinAndSelect('group.users', 'user')
       .leftJoinAndSelect('group.connection', 'connection')
@@ -137,13 +135,12 @@ export class UserAccessRepository extends Repository<PermissionEntity> implement
     tableName: string,
     masterPwd: string,
   ): Promise<ITablePermissionData> {
-    const connectionQB = this.createQueryBuilder(undefined, this.getCurrentQueryRunner())
-      .select('connection')
-      .from(ConnectionEntity, 'connection')
+    const connectionQB = await getRepository(ConnectionEntity)
+      .createQueryBuilder('connection')
       .leftJoinAndSelect('connection.agent', 'agent');
     connectionQB.andWhere('connection.id = :id', { id: connectionId });
 
-    let foundConnection: ConnectionEntity = await connectionQB.getOne();
+    let foundConnection = await connectionQB.getOne();
 
     if (!foundConnection) {
       throw new HttpException(
@@ -189,9 +186,8 @@ export class UserAccessRepository extends Repository<PermissionEntity> implement
       };
     }
 
-    const qb = this.createQueryBuilder(undefined, this.getCurrentQueryRunner())
-      .select('permission')
-      .from(PermissionEntity, 'permission')
+    const qb = await getRepository(PermissionEntity)
+      .createQueryBuilder('permission')
       .leftJoinAndSelect('permission.groups', 'group')
       .leftJoinAndSelect('group.users', 'user')
       .leftJoinAndSelect('group.connection', 'connection')
@@ -244,9 +240,8 @@ export class UserAccessRepository extends Repository<PermissionEntity> implement
       return tablesWithPermissionsArr;
     }
 
-    const qb = this.createQueryBuilder(undefined, this.getCurrentQueryRunner())
-      .select('permission')
-      .from(PermissionEntity, 'permission')
+    const qb = await getRepository(PermissionEntity)
+      .createQueryBuilder('permission')
       .leftJoinAndSelect('permission.groups', 'group')
       .leftJoinAndSelect('group.users', 'user')
       .leftJoinAndSelect('group.connection', 'connection')
@@ -350,9 +345,8 @@ export class UserAccessRepository extends Repository<PermissionEntity> implement
   }
 
   private async getConnectionId(groupId: string): Promise<string> {
-    const qb = this.createQueryBuilder(undefined, this.getCurrentQueryRunner())
-      .select('connection')
-      .from(ConnectionEntity, 'connection')
+    const qb = await getRepository(ConnectionEntity)
+      .createQueryBuilder('connection')
       .leftJoinAndSelect('connection.groups', 'group');
     qb.andWhere('group.id = :id', { id: groupId });
     const connection = await qb.getOne();
@@ -365,9 +359,5 @@ export class UserAccessRepository extends Repository<PermissionEntity> implement
       );
     }
     return connection.id;
-  }
-
-  private getCurrentQueryRunner(): QueryRunner {
-    return this.manager.queryRunner;
   }
 }

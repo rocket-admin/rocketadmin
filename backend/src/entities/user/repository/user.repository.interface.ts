@@ -11,6 +11,8 @@ export interface IUserRepository {
 
   findOneUserByEmail(email: string): Promise<UserEntity>;
 
+  findUserWithConnections(userId: string): Promise<UserEntity>;
+
   findAllUsersInConnection(connectionId: string): Promise<Array<Omit<UserEntity, 'connections' | 'groups'>>>;
 
   saveRegisteringUser(userData: RegisterUserDs): Promise<UserEntity>;

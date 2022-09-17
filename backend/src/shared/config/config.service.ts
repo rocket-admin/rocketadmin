@@ -49,7 +49,7 @@ class ConfigService {
       synchronize: false,
       migrationsRun: false,
       extra: {
-        max: 30,
+        max: 10,
       },
       // ssl: this.isProduction(),
     };
@@ -68,11 +68,7 @@ class ConfigService {
       synchronize: true,
       migrationsRun: false,
       // ssl: this.isProduction(),
-      // maxQueryExecutionTime: 1000,
       logging: false,
-      extra: {
-        max: 30,
-      },
     };
     return this.isTestEnvironment() ? testConfig : devProdConfig;
   }

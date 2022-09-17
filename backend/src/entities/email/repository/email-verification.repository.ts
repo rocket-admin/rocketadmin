@@ -1,4 +1,4 @@
-import { EntityRepository, QueryRunner, Repository } from 'typeorm';
+import { EntityRepository, getRepository, Repository } from 'typeorm';
 import { EmailVerificationEntity } from '../email-verification.entity';
 import { IEmailVerificationRepository } from './email-verification.repository.interface';
 import { UserEntity } from '../../user/user.entity';
@@ -14,9 +14,8 @@ export class EmailVerificationRepository
   }
 
   public async findVerificationWithVerificationString(verificationString: string): Promise<EmailVerificationEntity> {
-    const qb = this.createQueryBuilder(undefined, this.getCurrentQueryRunner())
-      .select('email_verification')
-      .from(EmailVerificationEntity, 'email_verification')
+    const qb = await getRepository(EmailVerificationEntity)
+      .createQueryBuilder('email_verification')
       .leftJoinAndSelect('email_verification.user', 'user')
       .where('email_verification.verification_string = :ver_string', {
         ver_string: verificationString,
@@ -41,9 +40,5 @@ export class EmailVerificationRepository
     newEmailVerification.verification_string = Encryptor.generateRandomString();
     newEmailVerification.user = user;
     return await this.save(newEmailVerification);
-  }
-
-  private getCurrentQueryRunner(): QueryRunner {
-    return this.manager.queryRunner;
   }
 }

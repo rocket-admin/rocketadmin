@@ -27,7 +27,7 @@ export class DashboardComponent implements OnInit {
   public tablesList: TableProperties[] = null;
   public selectedTableName: string;
   public selectedTableDisplayName: string;
-  public selectedTablePermissions: Object = null;
+  // public selectedTablePermissions: Object = null;
   public currentPage: number = 1;
   public shownTableTitles: boolean = true;
   public connectionID: string;
@@ -128,7 +128,7 @@ export class DashboardComponent implements OnInit {
     })
     const selectedTableProperties = this.tablesList.find( (table: any) => table.table == this.selectedTableName);
     this.selectedTableDisplayName = selectedTableProperties.display_name || normalizeTableName(selectedTableProperties.table);
-    this.selectedTablePermissions = selectedTableProperties.permissions;
+    // this.selectedTablePermissions = selectedTableProperties.permissions;
     this.loading = false;
   }
 

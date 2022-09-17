@@ -9,7 +9,8 @@ export interface TablePermissions {
 export interface TableProperties {
     table: string,
     display_name?: string,
-    permissions: TablePermissions
+    normalizedTableName?: string,
+    permissions: TablePermissions,
 }
 
 export enum TableOrdering {
@@ -18,6 +19,7 @@ export enum TableOrdering {
 }
 
 export interface TableSettings {
+    // id: string,
     connection_id: string,
     table_name: string,
     display_name: string,

@@ -5,6 +5,7 @@ import { TableSettings, TableOrdering, TableField } from 'src/app/models/table';
 import { ConnectionsService } from 'src/app/services/connections.service';
 import { normalizeTableName } from 'src/app/lib/normalize';
 import { Router } from '@angular/router';
+import {CdkDragDrop, moveItemInArray} from '@angular/cdk/drag-drop';
 
 @Component({
   selector: 'app-db-table-settings',
@@ -21,6 +22,7 @@ export class DbTableSettingsComponent implements OnInit {
   public loading: boolean = true;
   public fields: string[];
   public fields_to_exclude: string[];
+  public orderChanged: boolean;
   public tableSettings: TableSettings = {
     connection_id: '',
     table_name: '',
@@ -47,25 +49,37 @@ export class DbTableSettingsComponent implements OnInit {
     this.connectionID = this._connections.currentConnectionID;
     this.tableName = this._tables.currentTableName;
     this.displayTableName = normalizeTableName(this.tableName);
-
+    console.log('ngOnInit connectionID');
+    console.log(this.connectionID);
     this._tables.cast.subscribe();
     this._tables.fetchTableStructure(this.connectionID, this.tableName)
       .subscribe(res => {
         const primaryKeys = res.primaryColumns.map(primaryColumn => primaryColumn.column_name);
-
         this.fields = res.structure.map((field: TableField) => field.column_name);
-        this.fields_to_exclude = this.fields.filter((field) => !primaryKeys.includes(field))
+        this.fields_to_exclude = this.fields.filter((field) => !primaryKeys.includes(field));
+        this.getTableSettings();
+      });
+  }
 
-        this._tables.fetchTableSettings(this.connectionID, this.tableName)
-          .subscribe(res => {
-            this.loading = false;
-            if (Object.keys(res).length !== 0) {
-              this.isSettingsExist = true
-              this.tableSettings = res;
-            }
-          }
-        );
-      })
+  getTableSettings() {
+    console.log('getTableSettings');
+    this._tables.fetchTableSettings(this.connectionID, this.tableName)
+      .subscribe(res => {
+        this.loading = false;
+        if (Object.keys(res).length !== 0) {
+          this.isSettingsExist = true
+          this.tableSettings = res;
+        };
+        if (this.tableSettings && !this.tableSettings.list_fields.length) {
+          this.tableSettings.list_fields = [...this.fields]
+        };
+      }
+    );
+  }
+
+  drop(event: CdkDragDrop<string[]>) {
+    moveItemInArray(this.tableSettings.list_fields, event.previousIndex, event.currentIndex);
+    this.orderChanged = true;
   }
 
   updateSettings() {
@@ -94,5 +108,4 @@ export class DbTableSettingsComponent implements OnInit {
         () => { this.submitting = false; }
       )
   }
-
 }

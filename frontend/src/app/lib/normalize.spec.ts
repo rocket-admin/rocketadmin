@@ -12,7 +12,12 @@ describe('Normalize function', () => {
     });
 
     it('normalize camel case and capitalize', () => {
+        const normalizedName = normalizeFieldName('affiliateStripeNumber');
+        expect(normalizedName).toEqual('Affiliate stripe number');
+    });
+
+    it('normalize camel case, capitalize and uppercase acronyms', () => {
         const normalizedName = normalizeFieldName('affiliateStripeId');
-        expect(normalizedName).toEqual('Affiliate stripe id');
+        expect(normalizedName).toEqual('Affiliate stripe ID');
     });
 });
