@@ -3652,6 +3652,7 @@ describe('User permissions (connection admin) (e2e)', () => {
             expect(uuidRegex.test(getTableWidgetsRO[0].id)).toBeTruthy();
             expect(getTableWidgetsRO[0].field_name).toBe(newTableWidgets[0].field_name);
             expect(getTableWidgetsRO[0].widget_type).toBe(newTableWidgets[0].widget_type);
+            
             expect(
               compareTableWidgetsArrays(getTableWidgetsRO, newTableWidgets),
             ).toBeTruthy();

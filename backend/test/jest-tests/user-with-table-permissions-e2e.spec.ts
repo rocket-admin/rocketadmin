@@ -1914,7 +1914,7 @@ describe('User permissions (connection readonly, group readonly) (e2e)', () => {
           const connectionIds = await createConnectionsAndInviteNewUserInNewGroupInFirstConnection();
 
           const createTableSettingsDTO = mockFactory.generateTableSettings(
-            connectionIds.firstId,
+            connectionIds.firstId as any,
             'users',
             ['id'],
             ['email'],
@@ -1924,9 +1924,9 @@ describe('User permissions (connection readonly, group readonly) (e2e)', () => {
             'id',
             ['updated_at'],
             ['created_at'],
-            undefined,
-            undefined,
-            undefined,
+            undefined as any,
+            undefined as any,
+            undefined as any,
           );
 
           const createTableSettingsResponse = await request(app.getHttpServer())
@@ -1974,7 +1974,7 @@ describe('User permissions (connection readonly, group readonly) (e2e)', () => {
           const connectionIds = await createConnectionsAndInviteNewUserInNewGroupInFirstConnection();
 
           const createTableSettingsDTO = mockFactory.generateTableSettings(
-            connectionIds.secondId,
+            connectionIds.secondId as any,
             'users',
             ['id'],
             ['email'],
@@ -1984,9 +1984,9 @@ describe('User permissions (connection readonly, group readonly) (e2e)', () => {
             'id',
             ['updated_at'],
             ['created_at'],
-            undefined,
-            undefined,
-            undefined,
+            undefined as any,
+            undefined as any,
+            undefined as any,
           );
 
           const createTableSettingsResponse = await request(app.getHttpServer())
@@ -2013,7 +2013,7 @@ describe('User permissions (connection readonly, group readonly) (e2e)', () => {
           const connectionIds = await createConnectionsAndInviteNewUserInNewGroupInFirstConnection();
 
           const createTableSettingsDTO = mockFactory.generateTableSettings(
-            connectionIds.firstId,
+            connectionIds.firstId as any,
             'users',
             ['id'],
             ['email'],
@@ -2023,9 +2023,9 @@ describe('User permissions (connection readonly, group readonly) (e2e)', () => {
             'id',
             ['updated_at'],
             ['created_at'],
-            undefined,
-            undefined,
-            undefined,
+            undefined as any,
+            undefined as any,
+            undefined as any,
           );
 
           const createTableSettingsResponse = await request(app.getHttpServer())
@@ -2042,7 +2042,7 @@ describe('User permissions (connection readonly, group readonly) (e2e)', () => {
           const connectionIds = await createConnectionsAndInviteNewUserInNewGroupInFirstConnection();
 
           const createTableSettingsDTO = mockFactory.generateTableSettings(
-            connectionIds.secondId,
+            connectionIds.secondId as any,
             'users',
             ['id'],
             ['email'],
@@ -2052,9 +2052,9 @@ describe('User permissions (connection readonly, group readonly) (e2e)', () => {
             'id',
             ['updated_at'],
             ['created_at'],
-            undefined,
-            undefined,
-            undefined,
+            undefined as any,
+            undefined as any,
+            undefined as any,
           );
 
           const createTableSettingsResponse = await request(app.getHttpServer())
@@ -2075,7 +2075,7 @@ describe('User permissions (connection readonly, group readonly) (e2e)', () => {
           const connectionIds = await createConnectionsAndInviteNewUserInNewGroupInFirstConnection();
 
           const createTableSettingsDTO = mockFactory.generateTableSettings(
-            connectionIds.firstId,
+            connectionIds.firstId as any,
             'users',
             ['id'],
             ['email'],
@@ -2085,9 +2085,9 @@ describe('User permissions (connection readonly, group readonly) (e2e)', () => {
             'id',
             ['updated_at'],
             ['created_at'],
-            undefined,
-            undefined,
-            undefined,
+            undefined as any,
+            undefined as any,
+            undefined as any,
           );
 
           const createTableSettingsResponse = await request(app.getHttpServer())
@@ -2099,7 +2099,7 @@ describe('User permissions (connection readonly, group readonly) (e2e)', () => {
           expect(createTableSettingsResponse.status).toBe(201);
 
           const updateTableSettingsDTO = mockFactory.generateTableSettings(
-            connectionIds.firstId,
+            connectionIds.firstId as any,
             'users',
             ['email'],
             ['id'],
@@ -2109,9 +2109,9 @@ describe('User permissions (connection readonly, group readonly) (e2e)', () => {
             'created_at',
             ['updated_at'],
             ['created_at'],
-            undefined,
-            undefined,
-            undefined,
+            undefined as any,
+            undefined as any,
+            undefined as any,
           );
 
           const updateTableSettingsResponse = await request(app.getHttpServer())
@@ -2128,7 +2128,7 @@ describe('User permissions (connection readonly, group readonly) (e2e)', () => {
           const connectionIds = await createConnectionsAndInviteNewUserInNewGroupInFirstConnection();
 
           const createTableSettingsDTO = mockFactory.generateTableSettings(
-            connectionIds.secondId,
+            connectionIds.secondId as any,
             'users',
             ['id'],
             ['email'],
@@ -2138,9 +2138,9 @@ describe('User permissions (connection readonly, group readonly) (e2e)', () => {
             'id',
             ['updated_at'],
             ['created_at'],
-            undefined,
-            undefined,
-            undefined,
+            undefined as any,
+            undefined as any,
+            undefined as any,
           );
 
           const createTableSettingsResponse = await request(app.getHttpServer())

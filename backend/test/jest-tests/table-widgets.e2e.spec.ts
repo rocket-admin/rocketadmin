@@ -149,7 +149,6 @@ describe('Table widgets(e2e)', () => {
           .set('Accept', 'application/json');
         expect(getTableWidgets.status).toBe(200);
         const getTableWidgetsRO = JSON.parse(getTableWidgets.text);
-        console.log("🚀 ~ file: table-widgets.e2e.spec.ts ~ line 153 ~ it ~ getTableWidgetsRO", getTableWidgetsRO)
         expect(typeof getTableWidgetsRO).toBe('object');
         expect(getTableWidgetsRO.length).toBe(2);
         expect(uuidRegex.test(getTableWidgetsRO[0].id)).toBeTruthy();

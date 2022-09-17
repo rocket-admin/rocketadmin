@@ -30,7 +30,6 @@ export const compareTableWidgetsArrays = (
     const w_2 = arr_2[arr_2.findIndex((_) => _.field_name === w_1.field_name)];
     if (!w_2) return false;
     for (const key in w_1) {
-      console.log('=>(compare-table-widgets-arrays.ts:28) ', w_1[key], w_2[key]);
       if (w_1[key] !== w_2[key]) return false;
     }
   }

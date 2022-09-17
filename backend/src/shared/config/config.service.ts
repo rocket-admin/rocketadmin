@@ -49,7 +49,7 @@ class ConfigService {
       synchronize: false,
       migrationsRun: false,
       extra: {
-        max: 10,
+        max: 20,
       },
       // ssl: this.isProduction(),
     };
