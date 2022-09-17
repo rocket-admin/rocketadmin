@@ -1,26 +1,26 @@
 import { HttpException, HttpStatus, Inject, Injectable, Scope } from '@nestjs/common';
 import AbstractUseCase from '../../../common/abstract-use.case';
-import { IGetTableStructure } from './table-use-cases.interface';
-import { BaseType } from '../../../common/data-injection.tokens';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface';
-import { IForeignKeyInfo, IStructureRO } from '../table.interface';
-import { GetTableStructureDs } from '../application/data-structures/get-table-structure-ds';
-import { Messages } from '../../../exceptions/text/messages';
+import { BaseType } from '../../../common/data-injection.tokens';
 import { createDataAccessObject } from '../../../data-access-layer/shared/create-data-access-object';
-import { isConnectionTypeAgent } from '../../../helpers';
-import { WidgetTypeEnum } from '../../../enums';
 import {
   IDataAccessObject,
   IForeignKey,
-  IForeignKeyWithForeignColumnName,
+  IForeignKeyWithForeignColumnName
 } from '../../../data-access-layer/shared/data-access-object-interface';
+import { buildFoundTableWidgetDs } from '../../../entities/widget/utils/build-found-table-widget-ds';
+import { WidgetTypeEnum } from '../../../enums';
+import { Messages } from '../../../exceptions/text/messages';
+import { isConnectionTypeAgent } from '../../../helpers';
+import { GetTableStructureDs } from '../application/data-structures/get-table-structure-ds';
+import { IForeignKeyInfo, IStructureRO } from '../table.interface';
 import { formFullTableStructure } from '../utils/form-full-table-structure';
+import { IGetTableStructure } from './table-use-cases.interface';
 
 @Injectable({ scope: Scope.REQUEST })
 export class GetTableStructureUseCase
   extends AbstractUseCase<GetTableStructureDs, IStructureRO>
-  implements IGetTableStructure
-{
+  implements IGetTableStructure {
   constructor(
     @Inject(BaseType.GLOBAL_DB_CONTEXT)
     protected _dbContext: IGlobalDatabaseContext,
@@ -49,6 +49,7 @@ export class GetTableStructureUseCase
       if (isConnectionTypeAgent(foundConnection.type)) {
         userEmail = await this._dbContext.userRepository.getUserEmailOrReturnNull(userId);
       }
+      // eslint-disable-next-line prefer-const
       let [tableSettings, tablePrimaryColumns, tableForeignKeys, tableStructure, tableWidgets] = await Promise.all([
         this._dbContext.tableSettingsRepository.findTableSettings(connectionId, tableName),
         dao.getTablePrimaryColumns(tableName, userEmail),
@@ -84,7 +85,7 @@ export class GetTableStructureUseCase
         primaryColumns: tablePrimaryColumns,
         foreignKeys: transformedTableForeignKeys,
         readonly_fields: readonly_fields,
-        table_widgets: tableWidgets?.length > 0 ? tableWidgets : [],
+        table_widgets: tableWidgets?.length > 0 ? tableWidgets.map((widget) => buildFoundTableWidgetDs(widget)) : [],
       };
     } catch (e) {
       throw new HttpException(

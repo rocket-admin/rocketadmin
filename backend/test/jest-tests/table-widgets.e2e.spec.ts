@@ -1,19 +1,18 @@
 import { faker } from '@faker-js/faker';
 import * as request from 'supertest';
 
-import { ApplicationModule } from '../../src/app.module';
-import { compareArrayElements } from '../../src/helpers';
-import { Connection } from 'typeorm';
-import { DatabaseModule } from '../../src/shared/database/database.module';
-import { DatabaseService } from '../../src/shared/database/database.service';
-import { Encryptor } from '../../src/helpers/encryption/encryptor';
 import { INestApplication } from '@nestjs/common';
-import { Messages } from '../../src/exceptions/text/messages';
-import { MockFactory } from '../mock.factory';
 import { Test } from '@nestjs/testing';
-import { TestUtils } from '../utils/test.utils';
+import { Connection } from 'typeorm';
+import { ApplicationModule } from '../../src/app.module';
+import { Messages } from '../../src/exceptions/text/messages';
 import { compareTableWidgetsArrays } from '../utils/compare-table-widgets-arrays';
 import { Cacher } from '../../src/helpers/cache/cacher';
+import { Encryptor } from '../../src/helpers/encryption/encryptor';
+import { DatabaseModule } from '../../src/shared/database/database.module';
+import { DatabaseService } from '../../src/shared/database/database.service';
+import { MockFactory } from '../mock.factory';
+import { TestUtils } from '../utils/test.utils';
 
 describe('Table widgets(e2e)', () => {
   jest.setTimeout(20000);
@@ -155,7 +154,7 @@ describe('Table widgets(e2e)', () => {
         expect(uuidRegex.test(getTableWidgetsRO[0].id)).toBeTruthy();
         expect(getTableWidgetsRO[0].field_name).toBe(newTableWidgets[0].field_name);
         expect(getTableWidgetsRO[1].widget_type).toBe(newTableWidgets[1].widget_type);
-        expect(compareArrayElements(getTableWidgetsRO[0].widget_params, newTableWidgets[0].widget_params)).toBeTruthy();
+        
 
         const getTableStructureResponse = await request(app.getHttpServer())
           .get(`/table/structure/${createConnectionRO.id}?tableName=connection`)
@@ -169,7 +168,7 @@ describe('Table widgets(e2e)', () => {
         expect(getTableStructureRO.table_widgets[0].field_name).toBe(newTableWidgets[0].field_name);
         expect(getTableStructureRO.table_widgets[1].widget_type).toBe(newTableWidgets[1].widget_type);
         expect(
-          compareArrayElements(getTableStructureRO.table_widgets[0].widget_params, newTableWidgets[0].widget_params),
+          compareTableWidgetsArrays(getTableStructureRO.table_widgets, newTableWidgets),
         ).toBeTruthy();
       } catch (err) {
         throw err;
@@ -380,8 +379,7 @@ describe('Table widgets(e2e)', () => {
         expect(getTableWidgetsRO.length).toBe(2);
         expect(uuidRegex.test(getTableWidgetsRO[0].id)).toBeTruthy();
         expect(getTableWidgetsRO[0].widget_type).toBe(newTableWidget.widget_type);
-        expect(compareArrayElements(getTableWidgetsRO[0].widget_params, newTableWidgets[0].widget_params)).toBeTruthy();
-        expect(uuidRegex.test(getTableWidgetsRO[0].id)).toBeTruthy();
+        expect(compareTableWidgetsArrays(getTableWidgetsRO, newTableWidgets)).toBeTruthy();
       } catch (err) {
         throw err;
       }
@@ -429,9 +427,8 @@ describe('Table widgets(e2e)', () => {
         expect(uuidRegex.test(getTableWidgetsRO[0].id)).toBeTruthy();
         expect(getTableWidgetsRO[0].widget_type).toBe(updatedTableWidgets[0].widget_type);
         expect(
-          compareArrayElements(getTableWidgetsRO[1].widget_params, updatedTableWidgets[1].widget_params),
+          compareTableWidgetsArrays(getTableWidgetsRO, updatedTableWidgets),
         ).toBeTruthy();
-        expect(uuidRegex.test(getTableWidgetsRO[0].id)).toBeTruthy();
       } catch (err) {
         throw err;
       }

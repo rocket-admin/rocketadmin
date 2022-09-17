@@ -8,6 +8,7 @@ import { TestUtils } from '../utils/test.utils';
 import { Connection } from 'typeorm';
 
 describe('AppController (e2e)', () => {
+  jest.setTimeout(30000);
   let app: INestApplication;
   beforeAll(async () => {
     const moduleFixture = await Test.createTestingModule({
@@ -23,7 +24,6 @@ describe('AppController (e2e)', () => {
   });
 
   afterAll(async () => {
-    jest.setTimeout(5000);
     const connect = await app.get(Connection);
     await connect.close();
     await app.close();

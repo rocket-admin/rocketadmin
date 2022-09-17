@@ -13,4 +13,5 @@ export enum WidgetTypeEnum {
   UUID = 'UUID',
   Enum = 'Enum',
   Foreign_key = 'Foreign_key',
+  File = 'File'
 }

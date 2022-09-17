@@ -14,13 +14,13 @@ import { Cacher } from '../../src/helpers/cache/cacher';
 import { Messages } from '../../src/exceptions/text/messages';
 
 describe('User (e2e)', () => {
+  jest.setTimeout(30000);
   let app: INestApplication;
   let testUtils: TestUtils;
 
   const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
   beforeEach(async () => {
-    jest.setTimeout(30000);
     const moduleFixture = await Test.createTestingModule({
       imports: [ApplicationModule, DatabaseModule],
       providers: [DatabaseService, TestUtils],

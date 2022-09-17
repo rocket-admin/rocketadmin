@@ -1,24 +1,23 @@
+import { HttpStatus, Inject, Injectable, Scope } from '@nestjs/common';
+import { HttpException } from '@nestjs/common/exceptions/http.exception';
 import AbstractUseCase from '../../../common/abstract-use.case';
+import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface';
+import { BaseType } from '../../../common/data-injection.tokens';
+import { toPrettyErrorsMsg } from '../../../helpers';
+import { TableSettingsEntity } from '../../table-settings/table-settings.entity';
+import { buildEmptyTableSettingsWithEmptyWidgets } from '../../table-settings/utils/build-empty-table-settings';
+import { buildNewTableSettingsEntity } from '../../table-settings/utils/build-new-table-settings-entity';
 import { CreateTableWidgetsDs } from '../application/data-sctructures/create-table-widgets.ds';
 import { FoundTableWidgetsDs } from '../application/data-sctructures/found-table-widgets.ds';
-import { ICreateUpdateDeleteTableWidgets } from './table-widgets-use-cases.interface';
-import { HttpStatus, Inject, Injectable, Scope } from '@nestjs/common';
-import { BaseType } from '../../../common/data-injection.tokens';
-import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface';
-import { validateCreateWidgetsDs } from '../utils/validate-create-widgets-ds';
-import { HttpException } from '@nestjs/common/exceptions/http.exception';
-import { toPrettyErrorsMsg } from '../../../helpers';
-import { buildEmptyTableSettingsWithEmptyWidgets } from '../../table-settings/utils/build-empty-table-settings';
-import { buildNewTableWidgetEntity } from '../utils/build-new-table-widget-entity';
-import { TableSettingsEntity } from '../../table-settings/table-settings.entity';
 import { buildFoundTableWidgetDs } from '../utils/build-found-table-widget-ds';
-import { buildNewTableSettingsEntity } from '../../table-settings/utils/build-new-table-settings-entity';
+import { buildNewTableWidgetEntity } from '../utils/build-new-table-widget-entity';
+import { validateCreateWidgetsDs } from '../utils/validate-create-widgets-ds';
+import { ICreateUpdateDeleteTableWidgets } from './table-widgets-use-cases.interface';
 
 @Injectable({ scope: Scope.REQUEST })
 export class CreateUpdateDeleteTableWidgetsUseCase
   extends AbstractUseCase<CreateTableWidgetsDs, Array<FoundTableWidgetsDs>>
-  implements ICreateUpdateDeleteTableWidgets
-{
+  implements ICreateUpdateDeleteTableWidgets {
   constructor(
     @Inject(BaseType.GLOBAL_DB_CONTEXT)
     protected _dbContext: IGlobalDatabaseContext,
@@ -59,11 +58,13 @@ export class CreateUpdateDeleteTableWidgetsUseCase
         return widget.field_name === w.field_name;
       });
       if (availableWidgetIndex >= 0) {
+        // eslint-disable-next-line security/detect-object-injection
         const updatedWidget = Object.assign(foundTableWidgets[availableWidgetIndex], widget);
         await this._dbContext.tableWidgetsRepository.saveNewOrUpdatedTableWidget(updatedWidget);
         const widgetIndexInTableSettings = tableSettingToUpdate.table_widgets.findIndex((w) => {
           return w.field_name === updatedWidget.field_name;
         });
+        // eslint-disable-next-line security/detect-object-injection
         tableSettingToUpdate.table_widgets[widgetIndexInTableSettings] = updatedWidget;
       } else {
         const newTableWidget = buildNewTableWidgetEntity(widget);

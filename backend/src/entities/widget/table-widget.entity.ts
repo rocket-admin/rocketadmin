@@ -1,5 +1,5 @@
 import * as JSON5 from 'json5';
-
+import * as sjson from 'secure-json-parse';
 import {
   AfterLoad,
   BeforeInsert,
@@ -8,7 +8,7 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
-  PrimaryGeneratedColumn,
+  PrimaryGeneratedColumn
 } from 'typeorm';
 import { WidgetTypeEnum } from '../../enums';
 import { TableSettingsEntity } from '../table-settings/table-settings.entity';
@@ -40,7 +40,7 @@ export class TableWidgetEntity {
   stringifyOptionsOnUpdate() {
     try {
       if (this.widget_options) {
-        this.widget_options = JSON5.stringify(this.widget_options);
+        this.widget_options = JSON.stringify(this.widget_options);
       }
     } catch (e) {
       console.log('-> Error widget options stringify ' + e.message);
@@ -51,7 +51,7 @@ export class TableWidgetEntity {
   stringifyOptions() {
     try {
       if (this.widget_options) {
-        this.widget_options = JSON5.stringify(this.widget_options);
+        this.widget_options = JSON.stringify(this.widget_options);
       }
     } catch (e) {
       console.log('-> Error widget options stringify ' + e.message);
@@ -62,14 +62,20 @@ export class TableWidgetEntity {
   parseOptions() {
     try {
       if (this.widget_options) {
-        this.widget_options = JSON5.parse(this.widget_options);
+        this.widget_options = sjson.parse(this.widget_options, null, {
+          protoAction: 'remove',
+          constructorAction: 'remove',
+        });
+      }
+      if (this.widget_params) {
+        this.widget_params = JSON5.parse(this.widget_params);
       }
     } catch (e) {
-      console.log('-> Error widget options stringify ' + e.message);
+      console.log('-> Error widget options parse ' + e.message);
     }
   }
 
-  @ManyToOne((type) => TableSettingsEntity, (settings) => settings.table_widgets, { onDelete: 'CASCADE' })
+  @ManyToOne(() => TableSettingsEntity, (settings) => settings.table_widgets, { onDelete: 'CASCADE' })
   @JoinColumn()
   settings: TableSettingsEntity;
 }
