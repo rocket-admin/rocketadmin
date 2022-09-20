@@ -159,6 +159,7 @@ export class UpdateRowInTableUseCase
         structure: formedTableStructure,
         table_widgets: tableWidgets,
         readonly_fields: tableSettings?.readonly_fields ? tableSettings.readonly_fields : [],
+        list_fields: tableSettings?.list_fields?.length > 0 ? tableSettings.list_fields : [],
       };
     } catch (e) {
       operationResult = OperationResultStatusEnum.unsuccessfully;

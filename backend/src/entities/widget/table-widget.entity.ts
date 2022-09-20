@@ -1,4 +1,3 @@
-import * as JSON5 from 'json5';
 import * as sjson from 'secure-json-parse';
 import {
   AfterLoad,
@@ -8,7 +7,7 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
-  PrimaryGeneratedColumn
+  PrimaryGeneratedColumn,
 } from 'typeorm';
 import { WidgetTypeEnum } from '../../enums';
 import { TableSettingsEntity } from '../table-settings/table-settings.entity';
@@ -66,9 +65,6 @@ export class TableWidgetEntity {
           protoAction: 'remove',
           constructorAction: 'remove',
         });
-      }
-      if (this.widget_params) {
-        this.widget_params = JSON5.parse(this.widget_params);
       }
     } catch (e) {
       console.log('-> Error widget options parse ' + e.message);
