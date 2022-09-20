@@ -2,6 +2,7 @@ import { TableWidgetEntity } from '../../widget/table-widget.entity';
 import { WidgetTypeEnum } from '../../../enums';
 import { IPasswordWidgetParams } from '../../widget/table-widget.interface';
 import { Encryptor } from '../../../helpers/encryption/encryptor';
+import * as JSON5 from 'json5';
 
 export async function hashPasswordsInRowUtil(
   row: Record<string, unknown>,
@@ -18,7 +19,7 @@ export async function hashPasswordsInRowUtil(
   }
   for (const widget of passwordWidgets) {
     try {
-      const widgetParams = widget.widget_params as unknown as IPasswordWidgetParams;
+      const widgetParams = JSON5.parse(widget.widget_params) as unknown as IPasswordWidgetParams;
       if (row[widget.field_name] && widgetParams.encrypt) {
         row[widget.field_name] = await Encryptor.processDataWithAlgorithm(
           row[widget.field_name] as any,

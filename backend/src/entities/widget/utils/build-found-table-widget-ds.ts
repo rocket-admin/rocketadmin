@@ -1,4 +1,3 @@
-import * as JSON5 from 'json5';
 import { FoundTableWidgetsDs } from '../application/data-sctructures/found-table-widgets.ds';
 import { TableWidgetEntity } from '../table-widget.entity';
 
@@ -10,7 +9,7 @@ export function buildFoundTableWidgetDs(widget: TableWidgetEntity): FoundTableWi
     id: id,
     name: name,
     widget_options: widget_options ? JSON.stringify(widget_options) : null,
-    widget_params: widget_params ? JSON5.stringify(widget_params) : null,
+    widget_params: widget_params ? widget_params : null,
     widget_type: widget_type,
   };
 }

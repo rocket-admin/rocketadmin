@@ -1,6 +1,7 @@
 import { TableWidgetEntity } from '../../widget/table-widget.entity';
 import { WidgetTypeEnum } from '../../../enums';
 import { stringify as uuidStringify } from 'uuid';
+import * as JSON5 from 'json5';
 
 export function processUuidsInRowUtil(
   row: Record<string, unknown>,
@@ -15,8 +16,8 @@ export function processUuidsInRowUtil(
 
   for (const widget of uuidWidgets) {
     try {
-      if (row[widget.field_name] && Buffer.isBuffer(widget.widget_params)) {
-        row[widget.field_name] = uuidStringify(widget.widget_params);
+      if (row[widget.field_name] && Buffer.isBuffer(JSON5.parse(widget.widget_params))) {
+        row[widget.field_name] = uuidStringify(JSON5.parse(widget.widget_params));
       }
     } catch (e) {
       console.log('-> Error in password widget encryption processing', e);

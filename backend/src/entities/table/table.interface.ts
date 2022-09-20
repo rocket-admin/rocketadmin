@@ -87,6 +87,7 @@ export interface ITableRowRO {
   primaryColumns: Array<IPrimaryColumnName>;
   readonly_fields: Array<string>;
   table_widgets: Array<ITableWidgetRO>;
+  list_fields: Array<string>;
 }
 
 export interface ITableRowsRO {
