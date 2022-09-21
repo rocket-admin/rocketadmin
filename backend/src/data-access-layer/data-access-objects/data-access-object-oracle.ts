@@ -42,12 +42,13 @@ export class DataAccessObjectOracle implements IDataAccessObject {
     const tableStructure = promisesResults[0];
     const primaryColumns = promisesResults[1];
     const primaryKey = primaryColumns[0];
-    const primaryKeyIndexInStructure = tableStructure
-      .map((e) => {
-        return e.column_name;
-      })
-      .indexOf(primaryKey.column_name);
-    const primaryKeyStructure = tableStructure.at(primaryKeyIndexInStructure);
+    let primaryKeyStructure;
+    if (primaryColumns?.length > 0) {
+      const primaryKeyIndexInStructure = tableStructure.findIndex((e) => {
+        primaryKey.column_name;
+      });
+      primaryKeyStructure = tableStructure.at(primaryKeyIndexInStructure);
+    }
     const knex = await this.configureKnex();
     const keys = Object.keys(row);
     const values = Object.values(row).map((val) => {
@@ -101,6 +102,7 @@ export class DataAccessObjectOracle implements IDataAccessObject {
         const primaryKeys = primaryColumns.map((column) => column.column_name);
         const resultsArray = [];
         for (let i = 0; i < primaryKeys.length; i++) {
+          // eslint-disable-next-line security/detect-object-injection
           resultsArray.push([primaryKeys[i], row[primaryKeys[i]]]);
         }
         result = Object.fromEntries(resultsArray);
