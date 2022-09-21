@@ -6,7 +6,7 @@ import { Knex } from 'knex';
 export const Constants = {
   JWT_COOKIE_KEY_NAME: 'jwt',
   FORBIDDEN_HOSTS: ['10.0.0.0/8', '172.16.0.0/12', '192.168.0.0/16', '127.0.0.0/8', 'fd00::/8'],
-  BINARY_DATATYPES: ['binary', 'bytea', 'varbinary', 'varbinary(max)'],
+  BINARY_DATATYPES: ['binary', 'bytea', 'varbinary', 'varbinary(max)', 'tinyblob', 'blob', 'mediumblob', 'longblob'],
   DEFAULT_LOG_ROWS_LIMIT: 500,
   MIDNIGHT_CRON_KEY: `44aea3c3-68f9-4c19-926c-40d2d5b502a2`,
   MORNING_CRON_KEY: `15ccb8d8-9b64-4d38-9f71-39b3a56c04d8`,
