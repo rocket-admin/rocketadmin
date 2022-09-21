@@ -27,6 +27,7 @@ import {
 import { formFullTableStructure } from '../utils/form-full-table-structure';
 import { isTestConnectionUtil } from '../../connection/utils/is-test-connection-util';
 import { crateAndSaveNewLogUtil } from '../../table-logs/utils/crate-and-save-new-log-util';
+import { convertHexDataInRowUtil } from '../utils/convert-hex-data-in-row.util';
 
 @Injectable({ scope: Scope.REQUEST })
 export class AddRowInTableUseCase extends AbstractUseCase<AddRowInTableDs, ITableRowRO> implements IAddRowInTable {
@@ -105,6 +106,7 @@ export class AddRowInTableUseCase extends AbstractUseCase<AddRowInTableDs, ITabl
     try {
       row = await hashPasswordsInRowUtil(row, tableWidgets);
       row = processUuidsInRowUtil(row, tableWidgets);
+      row = convertHexDataInRowUtil(row, tableStructure);
       const result = (await dao.addRowInTable(tableName, row, userEmail)) as Record<string, unknown>;
       if (result && !isObjectEmpty(result)) {
         operationResult = OperationResultStatusEnum.successfully;
