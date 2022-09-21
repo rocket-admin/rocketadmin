@@ -14,6 +14,7 @@ import { TablesService } from 'src/app/services/tables.service';
 import { filter } from "lodash";
 import { format } from 'date-fns'
 import { normalizeFieldName } from 'src/app/lib/normalize';
+import * as JSON5 from 'json5';
 
 interface Column {
   title: string,
@@ -223,8 +224,9 @@ export class TablesDataSource implements DataSource<Object> {
             const selectWidgets = res.widgets.filter((widget: Widget) => widget.widget_type === 'Select');
             this.selectWidgetsOptions =
             Object.assign({}, ...selectWidgets.map((widget: Widget) => {
-              if (widget.widget_params.options) {
-                return {[widget.field_name]: widget.widget_params.options}
+              const params = JSON5.parse(widget.widget_params);
+              if (params.options) {
+                return {[widget.field_name]: params.options}
               } else {
                 this.alert_widgetsWarning = {
                   id: 10002,

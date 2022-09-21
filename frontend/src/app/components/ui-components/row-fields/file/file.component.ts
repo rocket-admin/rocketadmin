@@ -2,6 +2,8 @@ import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { normalizeFieldName } from 'src/app/lib/normalize';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 import { hexValidation } from 'src/app/validators/hex.validator';
+import { Widget } from 'src/app/models/table';
+import { base64Validation } from 'src/app/validators/base64.validator';
 
 interface Blob {
   type: string,
@@ -26,6 +28,7 @@ export class FileComponent implements OnInit {
   @Input() value: Blob;
   @Input() required: boolean;
   @Input() readonly: boolean;
+  @Input() widgetStructure: Widget;
 
   @Output() onFieldChange = new EventEmitter();
 
@@ -36,6 +39,7 @@ export class FileComponent implements OnInit {
   public base64Data;
   public fileData;
   public fileURL: SafeUrl;
+  public initError: string | null = null;
 
   constructor(
     private sanitazer: DomSanitizer
@@ -44,9 +48,32 @@ export class FileComponent implements OnInit {
   ngOnInit(): void {
     this.normalizedLabel = normalizeFieldName(this.label);
 
+    if (this.widgetStructure && this.value) {
+      this.fileType = this.widgetStructure.widget_params.type;
+
+      if (this.fileType === 'hex') {
+        this.hexData = this.value;
+        //@ts-ignore
+        this.initError = hexValidation()({value: this.hexData});
+        this.initError = 'Invalid hex format.';
+      };
+
+      if (this.fileType === 'base64') {
+        this.base64Data = this.value;
+        //@ts-ignore
+        this.initError = base64Validation()({value: this.hexData});
+        this.initError = 'Invalid base64 format.';
+      };
+
+      if (this.fileType === 'file') {
+        //@ts-ignore
+        const blob = new Blob([this.value]);
+        this.fileURL = this.sanitazer.bypassSecurityTrustUrl(URL.createObjectURL(blob));
+      };
+    };
+
     if (this.value) {
       this.hexData = this.value;
-      console.log(this.value);
     }
   }
 
@@ -118,7 +145,5 @@ export class FileComponent implements OnInit {
     this.hexData = [...new Uint8Array(dataString)]
       .map (b => b.toString(16).padStart (2, "0"))
       .join ("");
-    console.log('fromFileToHex hexData');
-    console.log(this.hexData);
   }
 }

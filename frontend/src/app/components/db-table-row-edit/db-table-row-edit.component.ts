@@ -4,12 +4,12 @@ import { TableField, TableForeignKey, Widget } from 'src/app/models/table';
 import { UIwidgets, fieldTypes } from 'src/app/consts/field-types';
 
 import { ConnectionsService } from 'src/app/services/connections.service';
-import { Location } from '@angular/common';
 import { TableRowService } from 'src/app/services/table-row.service';
 import { TablesService } from 'src/app/services/tables.service';
 import { normalizeTableName } from '../../lib/normalize';
 import { DBtype } from 'src/app/models/connection';
 import { getTableTypes } from 'src/app/lib/setup-table-row-structure';
+import * as JSON5 from 'json5';
 
 @Component({
   selector: 'app-db-table-row-edit',
@@ -46,7 +46,6 @@ export class DbTableRowEditComponent implements OnInit {
     private route: ActivatedRoute,
     private ngZone: NgZone,
     public router: Router,
-    private location: Location
   ) { }
 
   ngOnInit(): void {
@@ -113,8 +112,9 @@ export class DbTableRowEditComponent implements OnInit {
     this.tableWidgetsList = widgets.map((widget: Widget) => widget.field_name);
     this.tableWidgets = Object.assign({}, ...widgets
       .map((widget: Widget) => {
+        const params = JSON5.parse(widget.widget_params);
         return {
-          [widget.field_name]: widget
+          [widget.field_name]: {...widget, widget_params: params}
         }
       })
     );

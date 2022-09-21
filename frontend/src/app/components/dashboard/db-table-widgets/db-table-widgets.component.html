@@ -48,21 +48,17 @@
                 </mat-select>
             </mat-form-field>
 
-            <mat-form-field *ngIf="widget.widget_type === 'Password'; else jsonComponent" appearance="outline">
-                <mat-label>Pattern</mat-label>
-                <input matInput [(ngModel)]="widget.widget_params" name="{{i}}-field-settings">
-                <!-- <mat-error *ngIf="sslCert.errors?.required && (sslCert.invalid && sslCert.touched)">SSL certificate should not be empty.</mat-error> -->
-            </mat-form-field>
-            <ng-template #jsonComponent>
-                <div class="widget-params">
-                    <json-editor
-                        [options]="makeOptions()"
-                        [data]="widget.widget_params"
-                        (change)="onWidgetParamsChange($event, widget.field_name)"></json-editor>
-                    <div class="widget-params__label">{{ widget.widget_type === 'Select' ? 'Settings' : 'No settings' }}</div>
-                    <div *ngIf="widget.widget_type !== 'Select'" class="widget-params__shutter"></div>
-                </div>
-            </ng-template>
+            <ngx-codemirror
+                [(ngModel)]="widget.widget_params"
+                name="{{i}}-field-params"
+                [options]="{
+                    lineNumbers: true,
+                    lineWrapping: true,
+                    mode: 'javascript',
+                    theme: 'ttcn',
+                    readOnly: isReadOnly(widget.widget_type) ? 'nocursor' : false
+                }"
+            ></ngx-codemirror>
 
             <mat-form-field appearance="outline">
                 <mat-label>Field name</mat-label>

@@ -89,7 +89,7 @@ import { AlertComponent } from './components/ui-components/alert/alert.component
 import { NewVersionComponent } from './components/new-version/new-version.component';
 import { ClipboardModule } from '@angular/cdk/clipboard';
 import { DragDropModule } from '@angular/cdk/drag-drop';
-
+import { CodemirrorModule } from '@ctrl/ngx-codemirror';
 const saasExtraProviders = (environment as any).saas ? [
   {
     provide: Sentry.TraceService,
@@ -222,6 +222,7 @@ const saasExtraProviders = (environment as any).saas ? [
     Angulartics2Module.forRoot(),
     ClipboardModule,
     DragDropModule,
+    CodemirrorModule,
     // ...saasExtraModules,
     ConfigModule.buildForConfigUrl('/config.json')
   ],

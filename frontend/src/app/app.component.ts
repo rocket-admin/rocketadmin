@@ -40,7 +40,7 @@ export class AppComponent {
   navigationTabs: object;
   currentUser;
   normalizedTableName;
-  upgradeButtonShown: Boolean = true;
+  upgradeButtonShown: boolean = true;
 
   // connectionID: string;
 

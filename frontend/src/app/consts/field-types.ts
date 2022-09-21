@@ -28,7 +28,8 @@ export const UIwidgets = {
     Readonly: StaticTextComponent,
     Number: NumberComponent,
     Select: SelectComponent,
-    Password: PasswordComponent
+    Password: PasswordComponent,
+    File: FileComponent
 }
 
 export const fieldTypes = {
