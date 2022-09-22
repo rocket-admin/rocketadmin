@@ -69,7 +69,6 @@ export class TablesService {
   }
 
   fetchTables(connectionID: string, hidden?: boolean) {
-    console.log('fetchTables service');
     return this._http.get<any>(`/connection/tables/${connectionID}`, {
       params: {
         ...(hidden ? {hidden} : {}),
@@ -77,7 +76,6 @@ export class TablesService {
     })
       .pipe(
         map(res => {
-          console.log('fetchTables response');
           return res;
         }),
       );

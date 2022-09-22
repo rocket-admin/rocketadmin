@@ -6,6 +6,7 @@ import { AppModule } from './app/app.module';
 import { Integrations } from "@sentry/tracing";
 import { environment } from './environments/environment';
 import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
+import 'codemirror/mode/javascript/javascript';
 
 if (environment.production) {
   enableProdMode();

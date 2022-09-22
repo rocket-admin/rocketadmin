@@ -46,6 +46,8 @@ import { GroupAddDialogComponent } from './components/users/group-add-dialog/gro
 import { GroupDeleteDialogComponent } from './components/users/group-delete-dialog/group-delete-dialog.component';
 import { GroupUserVerificationComponent } from './components/group-user-verification/group-user-verification.component';
 import { HostnameValidationDirective } from "./directives/hostnameValidator.directive";
+import { Base64ValidationDirective } from "./directives/base64Validator.directive";
+import { HexValidationDirective } from "./directives/hexValidator.directive";
 import { IdComponent } from "./components/ui-components/row-fields/id/id.component";
 import { InfoDialogComponent } from './components/audit/info-dialog/info-dialog.component';
 import { JsonEditorComponent } from './components/ui-components/row-fields/json-editor/json-editor.component';
@@ -87,7 +89,7 @@ import { AlertComponent } from './components/ui-components/alert/alert.component
 import { NewVersionComponent } from './components/new-version/new-version.component';
 import { ClipboardModule } from '@angular/cdk/clipboard';
 import { DragDropModule } from '@angular/cdk/drag-drop';
-
+import { CodemirrorModule } from '@ctrl/ngx-codemirror';
 const saasExtraProviders = (environment as any).saas ? [
   {
     provide: Sentry.TraceService,
@@ -151,6 +153,8 @@ const saasExtraProviders = (environment as any).saas ? [
     LoginComponent,
     HostnameValidationDirective,
     PasswordValidationDirective,
+    Base64ValidationDirective,
+    HexValidationDirective,
     BannerComponent,
     DbTableSettingsComponent,
     ConnectionSettingsComponent,
@@ -218,6 +222,7 @@ const saasExtraProviders = (environment as any).saas ? [
     Angulartics2Module.forRoot(),
     ClipboardModule,
     DragDropModule,
+    CodemirrorModule,
     // ...saasExtraModules,
     ConfigModule.buildForConfigUrl('/config.json')
   ],

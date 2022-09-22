@@ -1,3 +1,21 @@
+.file {
+    margin-bottom: 24px;
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.file-type {
+    margin-right: 20px;
+}
+
+.file-raw-data {
+    width: 100%;
+}
+
 .file-input {
     display: none;
 }
@@ -14,4 +32,8 @@
     color: rgba(0, 0, 0, 0.5);
     font-style: italic;
     margin-right: 20px;
+}
+
+.upload-btn {
+    margin-right: 12px;
 }

@@ -41,9 +41,13 @@
     margin-top: 28px;
 }
 
-.widget-params {
-    position: relative;
-    padding-top: 4px;
+::ng-deep .CodeMirror {
+    border-radius: 4px;
+    border: 1px solid rgba(0,0,0,0.12);
+    height: auto;
+    margin-top: 4px;
+    margin-bottom: 20px;
+    min-height: 78px;
 }
 
 .widget-params__label {
@@ -81,4 +85,5 @@
     /* padding: 0 max(calc(50vw - 500px), 2%); */
     padding: 0 calc(5% + 70px) 0 5%;
     width: 100vw;
+    z-index: 10;
 }

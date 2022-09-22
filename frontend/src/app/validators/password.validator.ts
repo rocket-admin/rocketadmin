@@ -11,7 +11,7 @@ export function passwordValidation():ValidatorFn {
             errors.min8 = control.value.length >= 8;
 
             if (errors.oneUpperCaseLetter && errors.oneNumber && errors.oneLowerCaseLetter && errors.min8) {
-                return null
+                return null // return null if valid!
             } else {
                 return errors
             }
