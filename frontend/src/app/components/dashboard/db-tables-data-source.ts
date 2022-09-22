@@ -1,6 +1,6 @@
 import { Alert, AlertActionType, AlertType } from 'src/app/models/alert';
 import { BehaviorSubject, Observable, of } from 'rxjs';
-import { TableForeignKey, Widget } from 'src/app/models/table';
+import { TableForeignKey, Widget, TableField } from 'src/app/models/table';
 import { catchError, finalize } from 'rxjs/operators';
 
 import { AccessLevel } from 'src/app/models/user';
@@ -156,7 +156,14 @@ export class TablesDataSource implements DataSource<Object> {
           this.rowsSubject.next(formattedRows);
           this.keyAttributes = res.primaryColumns;
 
-          if (isTablePageSwitched === undefined) this.columns = res.structure
+          let orderedColumns: TableField[];
+          if (res.list_fields.length) {
+            orderedColumns = res.structure.sort((fieldA: TableField, fieldB: TableField) => res.list_fields.indexOf(fieldA.column_name) - res.list_fields.indexOf(fieldB.column_name));
+          } else {
+            orderedColumns = [...res.structure];
+          };
+
+          if (isTablePageSwitched === undefined) this.columns = orderedColumns
             .filter (item => item.isExcluded === false)
             .map((item, index) => {
               if (res.columns_view && res.columns_view.length !== 0) {
@@ -183,13 +190,8 @@ export class TablesDataSource implements DataSource<Object> {
 
           this.dataColumns = this.columns.map(column => column.title);
           this.dataNormalizedColumns = this.columns
-            .reduce((normalizedColumns, column) => (normalizedColumns[column.title] = column.normalizedTitle, normalizedColumns), {});
-          const selectedColumns = filter(this.columns, column => column.selected === true).map(column => column.title);
-          if (res.list_fields.length) {
-            this.displayedDataColumns = res.list_fields.filter(column => selectedColumns.includes(column));
-          } else {
-            this.displayedDataColumns = selectedColumns;
-          };
+            .reduce((normalizedColumns, column) => (normalizedColumns[column.title] = column.normalizedTitle, normalizedColumns), {})
+          this.displayedDataColumns = (filter(this.columns, column => column.selected === true)).map(column => column.title);
           this.permissions = res.table_permissions.accessLevel;
           if (this.keyAttributes.length && (this.permissions.edit || this.permissions.delete)) {
             this.displayedColumns = [...this.displayedDataColumns, 'actions'];

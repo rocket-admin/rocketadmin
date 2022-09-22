@@ -21,19 +21,20 @@ export class DbTableRowEditComponent implements OnInit {
   public connectionID: string | null = null;
   public tableName: string | null = null;
   public normalizedTableName: string | null = null;
-  public tableRowValues: Object;
-  public tableRowStructure: Object;
-  public tableRowRequiredValues: Object;
+  public tableRowValues: object;
+  public tableRowStructure: object;
+  public tableRowRequiredValues: object;
   public readonlyFields: string[];
   public keyAttributes: object;
   public isPrimaryKeyUpdated: boolean;
-  public tableTypes: Object;
-  public tableWidgets: Object;
+  public tableTypes: object;
+  public tableWidgets: object;
   public tableWidgetsList: string[] = [];
   public shownRows;
   public submitting = false;
   public UIwidgets = UIwidgets;
   public rowError: string = null;
+  public fieldsOrdered: string[];
 
   public tableForeignKeys: TableForeignKey[];
 
@@ -66,6 +67,11 @@ export class DbTableRowEditComponent implements OnInit {
               .filter((field: TableField) => field.allow_null)
               .map((field: TableField) => field.column_name);
             this.tableRowValues = Object.assign({}, ...this.shownRows.map((field: TableField) => ({[field.column_name]: allowNullFields.includes(field.column_name) ? null : ''})));
+            if (res.list_fields.length) {
+              this.fieldsOrdered = [...res.list_fields];
+            } else {
+              this.fieldsOrdered = Object.keys(this.tableRowValues).map(key => key);
+            }
             res.table_widgets && this.setWidgets(res.table_widgets);
             this.setRowStructure(res.structure);
             this.loading = false;
@@ -78,6 +84,11 @@ export class DbTableRowEditComponent implements OnInit {
             this.tableForeignKeys = res.foreignKeys;
             this.shownRows = res.structure.filter((field: TableField) => !(field.column_default?.startsWith('nextval') || field.auto_increment));
             this.tableRowValues = Object.assign({}, ...this.shownRows.map((field: TableField) => ({[field.column_name]: res.row[field.column_name]})));
+            if (res.list_fields.length) {
+              this.fieldsOrdered = [...res.list_fields];
+            } else {
+              this.fieldsOrdered = Object.keys(this.tableRowValues).map(key => key);
+            }
             res.table_widgets && this.setWidgets(res.table_widgets);
             this.setRowStructure(res.structure);
             this.loading = false;
@@ -118,10 +129,6 @@ export class DbTableRowEditComponent implements OnInit {
         }
       })
     );
-  }
-
-  trackByFn(index: number) {
-    return index; // or item.id
   }
 
   getRelations = (columnName: string) => {
