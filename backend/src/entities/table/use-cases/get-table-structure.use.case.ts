@@ -6,9 +6,9 @@ import { createDataAccessObject } from '../../../data-access-layer/shared/create
 import {
   IDataAccessObject,
   IForeignKey,
-  IForeignKeyWithForeignColumnName
+  IForeignKeyWithForeignColumnName,
 } from '../../../data-access-layer/shared/data-access-object-interface';
-import { buildFoundTableWidgetDs } from '../../../entities/widget/utils/build-found-table-widget-ds';
+import { buildFoundTableWidgetDs } from '../../widget/utils/build-found-table-widget-ds';
 import { WidgetTypeEnum } from '../../../enums';
 import { Messages } from '../../../exceptions/text/messages';
 import { isConnectionTypeAgent } from '../../../helpers';
@@ -20,7 +20,8 @@ import { IGetTableStructure } from './table-use-cases.interface';
 @Injectable({ scope: Scope.REQUEST })
 export class GetTableStructureUseCase
   extends AbstractUseCase<GetTableStructureDs, IStructureRO>
-  implements IGetTableStructure {
+  implements IGetTableStructure
+{
   constructor(
     @Inject(BaseType.GLOBAL_DB_CONTEXT)
     protected _dbContext: IGlobalDatabaseContext,
@@ -86,6 +87,7 @@ export class GetTableStructureUseCase
         foreignKeys: transformedTableForeignKeys,
         readonly_fields: readonly_fields,
         table_widgets: tableWidgets?.length > 0 ? tableWidgets.map((widget) => buildFoundTableWidgetDs(widget)) : [],
+        list_fields: tableSettings?.list_fields ? tableSettings.list_fields : [],
       };
     } catch (e) {
       throw new HttpException(
