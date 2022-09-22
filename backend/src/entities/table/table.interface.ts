@@ -63,6 +63,7 @@ export interface IStructureRO {
   foreignKeys: Array<IForeignKeyStructure>;
   readonly_fields: Array<string>;
   table_widgets: Array<ITableWidgetRO>;
+  list_fields?: Array<string>;
 }
 
 export interface IStructureRowInfo {
