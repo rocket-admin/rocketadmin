@@ -1,12 +1,13 @@
 import { Component, OnInit, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { TablesService } from 'src/app/services/tables.service';
-import { TableField, TableForeignKey } from 'src/app/models/table';
+import { TableField, TableForeignKey, Widget } from 'src/app/models/table';
 import { ConnectionsService } from 'src/app/services/connections.service';
-import { fieldTypes } from 'src/app/consts/field-types';
+import { fieldTypes, UIwidgets } from 'src/app/consts/field-types';
 import { ActivatedRoute } from '@angular/router';
 import { getComparators, getFilters } from 'src/app/lib/parse-filter-params';
 import { getTableTypes } from 'src/app/lib/setup-table-row-structure';
+import * as JSON5 from 'json5';
 
 @Component({
   selector: 'app-db-table-filters-dialog',
@@ -24,6 +25,9 @@ export class DbTableFiltersDialogComponent implements OnInit {
   public tableRowFieldsComparator: Object = {};
   public tableForeignKeys: TableForeignKey[];
   public tableTypes: Object;
+  public tableWidgets: object;
+  public tableWidgetsList: string[] = [];
+  public UIwidgets = UIwidgets;
 
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: any,
@@ -60,11 +64,32 @@ export class DbTableFiltersDialogComponent implements OnInit {
             this.tableRowFieldsComparator = Object.assign({}, ...fieldsToSearch.map((field: TableField) => ({[field.column_name]: 'eq'})));
           }
         }
+
+        res.table_widgets.length && this.setWidgets(res.table_widgets);
       })
   }
 
   get inputs() {
     return fieldTypes[this._connections.currentConnection.type]
+  }
+
+  setWidgets(widgets: Widget[]) {
+    this.tableWidgetsList = widgets.map((widget: Widget) => widget.field_name);
+    this.tableWidgets = Object.assign({}, ...widgets
+      .map((widget: Widget) => {
+        let params;
+        if (widget.widget_params !== '// No settings required') {
+          params = JSON5.parse(widget.widget_params);
+        } else {
+          params = '';
+        };
+        return {
+          [widget.field_name]: {...widget, widget_params: params}
+        }
+      })
+    );
+    console.log('setWidgets');
+    console.log(this.tableWidgets);
   }
 
   getRelations = (columnName: string) => {
@@ -74,6 +99,10 @@ export class DbTableFiltersDialogComponent implements OnInit {
 
   trackByFn(index: number) {
     return index; // or item.id
+  }
+
+  isWidget(columnName: string) {
+    return this.tableWidgetsList.includes(columnName);
   }
 
   updateField = (updatedValue: any, field: string) => {
@@ -103,6 +132,16 @@ export class DbTableFiltersDialogComponent implements OnInit {
   resetFilters() {
     this.tableFilters = [];
     this.tableRowFieldsShown = {};
+  }
+
+  getInputType(filed: string) {
+    let widgetType;
+    if (this.isWidget(filed)) {
+      widgetType = this.UIwidgets[this.tableWidgets[filed].widget_type].type;
+    } else {
+      widgetType = this.inputs[this.tableTypes[filed]].type
+    };
+    return widgetType;
   }
 
   getComparatorType(typeOfComponent) {
