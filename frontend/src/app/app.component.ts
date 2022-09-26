@@ -120,7 +120,7 @@ export class AppComponent {
               this.setUserLoggedIn(true);
 
               // @ts-ignore
-              window.Intercom("boot", {
+              if (typeof window.Intercom !== 'undefined') window.Intercom("boot", {
                 // @ts-ignore
                 ...window.intercomSettings,
                 user_hash: res.intercom_hash,
@@ -149,7 +149,7 @@ export class AppComponent {
                   this.currentUser = res;
                   this.setUserLoggedIn(true);
                   // @ts-ignore
-                  window.Intercom("boot", {
+                  if (typeof window.Intercom !== 'undefined') window.Intercom("boot", {
                     // @ts-ignore
                     ...window.intercomSettings,
                     user_hash: res.intercom_hash,
