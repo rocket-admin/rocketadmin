@@ -30,7 +30,7 @@ export class ConnectDBComponent implements OnInit {
   public warning: Alert = {
     id: 10000000,
     type: AlertType.Warning,
-    message: 'You need to allow access from <strong>18.221.81.73</strong> IP address to manage the database.',
+    message: null
   }
   // public errorAlert: Alert;
 
