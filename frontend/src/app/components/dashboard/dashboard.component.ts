@@ -15,6 +15,7 @@ import { TablesService } from 'src/app/services/tables.service';
 import { User } from 'src/app/models/user';
 import { normalizeTableName } from '../../lib/normalize'
 import { HttpErrorResponse } from '@angular/common/http';
+import { omitBy } from "lodash";
 
 @Component({
   selector: 'app-dashboard',
@@ -145,14 +146,16 @@ export class DashboardComponent implements OnInit {
     filterDialodRef.componentInstance.tableRowFieldsShown
 
     filterDialodRef.afterClosed().subscribe(action => {
-      const filters = filterDialodRef.componentInstance.tableRowFieldsShown;
+      console.log(filterDialodRef.componentInstance.tableRowFieldsShown);
+      const filters = omitBy(filterDialodRef.componentInstance.tableRowFieldsShown, (value) => value === undefined);
+      console.log(filters);
       const comparators = filterDialodRef.componentInstance.tableRowFieldsComparator;
 
       const filtersQueryParams = Object.keys(filters)
-      .reduce((paramsObj, key) => {
-        paramsObj[`f__${key}__${comparators[key]}`] = filters[key];
-        return paramsObj;
-      }, {});
+        .reduce((paramsObj, key) => {
+          paramsObj[`f__${key}__${comparators[key]}`] = filters[key];
+          return paramsObj;
+        }, {});
       if (action === 'filter' || action === 'reset') {
         this.filtersCount = Object.keys(filters).length;
         this.dataSource.fetchRows({

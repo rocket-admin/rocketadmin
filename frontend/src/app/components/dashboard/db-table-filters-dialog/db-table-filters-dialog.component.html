@@ -49,6 +49,9 @@
                             <mat-option value="contains">
                                 contains
                             </mat-option>
+                            <mat-option value="empty">
+                                is empty
+                            </mat-option>
                         </mat-select>
                     </mat-form-field>
 
@@ -80,6 +83,7 @@
                             key: key,
                             label: value.key,
                             value: tableRowFieldsShown[value.key],
+                            readonly: tableRowFieldsComparator[value.key] === 'empty',
                             structure: tableRowStructure[value.key],
                             relations: tableTypes[value.key] === 'foreign key' ? getRelations(value.key) : undefined
                         }"

@@ -42,8 +42,8 @@ export class DbTableFiltersDialogComponent implements OnInit {
         this.tableRowFields = Object.assign({}, ...res.structure.map((field: TableField) => ({[field.column_name]: ''})));
         this.tableTypes = getTableTypes(res.structure, foreignKeysList);
         this.tableRowStructure = Object.assign({}, ...res.structure.map((field: TableField) => {
-          return {[field.column_name]: field}
-        }))
+          return {[field.column_name]: field};
+        }));
 
         const queryParams = this.route.snapshot.queryParams;
         const filters = getFilters(queryParams);
@@ -56,7 +56,7 @@ export class DbTableFiltersDialogComponent implements OnInit {
           const fieldsToSearch = res.structure.filter((field: TableField) => field.isSearched);
           if (fieldsToSearch.length) {
             this.tableFilters = fieldsToSearch.map((field:TableField) => field.column_name);
-            this.tableRowFieldsShown = Object.assign({}, ...fieldsToSearch.map((field: TableField) => ({[field.column_name]: ''})));
+            this.tableRowFieldsShown = Object.assign({}, ...fieldsToSearch.map((field: TableField) => ({[field.column_name]: undefined})));
             this.tableRowFieldsComparator = Object.assign({}, ...fieldsToSearch.map((field: TableField) => ({[field.column_name]: 'eq'})));
           }
         }
@@ -97,7 +97,12 @@ export class DbTableFiltersDialogComponent implements OnInit {
   }
 
   updateComparator(event, fieldName: string) {
-    this.tableRowFieldsComparator[fieldName] = event;
+    if (event === 'empty') {
+      this.tableRowFieldsComparator[fieldName] = 'eq';
+      this.tableRowFieldsShown[fieldName] = ''
+    } else {
+      this.tableRowFieldsComparator[fieldName] = event;
+    };
   }
 
   resetFilters() {
