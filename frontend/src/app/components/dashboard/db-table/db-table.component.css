@@ -83,3 +83,15 @@ th.mat-header-cell, td.mat-cell {
 .foreign-key-link {
     color: #ED4870;
 }
+
+.empty-table {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+}
+
+.empty-table .mat-button {
+    border-radius: 0;
+    padding: 8px 0;
+    width: 100%;
+}
