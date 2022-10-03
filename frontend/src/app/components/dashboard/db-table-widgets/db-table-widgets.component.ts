@@ -43,12 +43,16 @@ export class DbTableWidgetsComponent implements OnInit {
 {
   options: [
     {
-      value: 'AK',
-      label: 'Alaska'
+      value: 'UA',
+      label: '🇺🇦 Ukraine'
     },
     {
-      value: 'CA',
-      label: 'California'
+      value: 'PL',
+      label: '🇵🇱 Poland'
+    },
+    {
+      value: 'US',
+      label: '🇺🇸 United States'
     }
   ]
 }`,
