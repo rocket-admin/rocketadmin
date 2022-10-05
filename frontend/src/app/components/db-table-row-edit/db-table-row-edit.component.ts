@@ -10,6 +10,7 @@ import { normalizeTableName } from '../../lib/normalize';
 import { DBtype } from 'src/app/models/connection';
 import { getTableTypes } from 'src/app/lib/setup-table-row-structure';
 import * as JSON5 from 'json5';
+import { NotificationsService } from 'src/app/services/notifications.service';
 
 @Component({
   selector: 'app-db-table-row-edit',
@@ -47,6 +48,7 @@ export class DbTableRowEditComponent implements OnInit {
     private route: ActivatedRoute,
     private ngZone: NgZone,
     public router: Router,
+    private _notifications: NotificationsService,
   ) { }
 
   ngOnInit(): void {
@@ -187,6 +189,7 @@ export class DbTableRowEditComponent implements OnInit {
             this.router.navigate([`/dashboard/${this.connectionID}/${this.tableName}`]);
           }
         });
+        this._notifications.dismissAlert();
         this.submitting = false;
       },
       () => {this.submitting = false},
@@ -223,8 +226,10 @@ export class DbTableRowEditComponent implements OnInit {
                   queryParams: params
                 });
               });
-            }
+            };
+            this._notifications.dismissAlert();
           } else {
+            this._notifications.dismissAlert();
             this.router.navigate([`/dashboard/${this.connectionID}/${this.tableName}`]);
           }
         });
