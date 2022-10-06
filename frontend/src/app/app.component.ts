@@ -137,7 +137,7 @@ export class AppComponent {
           this.router.navigate(['/login'])
         }, expirationInterval);
 
-      } else {
+      } else if (res !== 'delete') {
         const expirationTime = new Date(localStorage.getItem('token_expiration'));
         const currantTime = new Date();
 
@@ -202,33 +202,30 @@ export class AppComponent {
   }
 
   logOut(isTokenExpired?: boolean) {
-    this._auth.logOutUser()
-      .subscribe(() => {
-        try {
-          // @ts-ignore
-          google.accounts.id.revoke(this.currentUser.email, done => {
-           console.log('consent revoked');
-           console.log(done);
-           console.log(this.currentUser.email);
-          });
-        } catch(error) {
-          console.log('google error');
-          console.log(error);
-        }
+    try {
+      // @ts-ignore
+      google.accounts.id.revoke(this.currentUser.email, done => {
+       console.log('consent revoked');
+       console.log(done);
+       console.log(this.currentUser.email);
+      });
+    } catch(error) {
+      console.log('google error');
+      console.log(error);
+    }
 
-        try {
-          // @ts-ignore
-          FB.logout(function(response) {
-            console.log(response);
-          });
-        } catch(error) {
-          console.log('fb error');
-          console.log(error);
-        }
+    try {
+      // @ts-ignore
+      FB.logout(function(response) {
+        console.log(response);
+      });
+    } catch(error) {
+      console.log('fb error');
+      console.log(error);
+    }
 
-        this.setUserLoggedIn(null);
-        localStorage.removeItem('token_expiration');
-        if (!isTokenExpired) window.location.href="https://autoadmin.org/";
-      })
+    this.setUserLoggedIn(null);
+    localStorage.removeItem('token_expiration');
+    if (!isTokenExpired) window.location.href="https://autoadmin.org/";
   }
 }
