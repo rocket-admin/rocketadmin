@@ -8,7 +8,7 @@ import { HttpException } from '@nestjs/common/exceptions/http.exception';
 import { Messages } from '../../../exceptions/text/messages';
 import { buildFoundConnectionPropertiesDs } from '../utils/build-found-connection-properties-ds';
 
-@Injectable({ scope: Scope.REQUEST })
+@Injectable()
 export class DeleteConnectionPropertiesUseCase
   extends AbstractUseCase<string, FoundConnectionPropertiesDs>
   implements IDeleteConnectionProperties

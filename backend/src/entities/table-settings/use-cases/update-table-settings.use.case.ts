@@ -12,7 +12,7 @@ import { buildNewTableSettingsEntity } from '../utils/build-new-table-settings-e
 import { buildFoundTableSettingsDs } from '../utils/build-found-table-settings-ds';
 import { createDataAccessObject } from '../../../data-access-layer/shared/create-data-access-object';
 
-@Injectable({ scope: Scope.REQUEST })
+@Injectable()
 export class UpdateTableSettingsUseCase
   extends AbstractUseCase<CreateTableSettingsDs, FoundTableSettingsDs>
   implements IUpdateTableSettings

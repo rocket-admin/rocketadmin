@@ -1,10 +1,13 @@
 import { HttpException, HttpStatus, Inject, Injectable, Scope } from '@nestjs/common';
-import { IUpdateRowInTable } from './table-use-cases.interface';
-import { UpdateRowInTableDs } from '../application/data-structures/update-row-in-table.ds';
-import { IForeignKeyInfo, ITableRowRO } from '../table.interface';
-import { BaseType } from '../../../common/data-injection.tokens';
+import AbstractUseCase from '../../../common/abstract-use.case';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface';
-import { AmplitudeService } from '../../amplitude/amplitude.service';
+import { BaseType } from '../../../common/data-injection.tokens';
+import { createDataAccessObject } from '../../../data-access-layer/shared/create-data-access-object';
+import {
+  IDataAccessObject,
+  IForeignKey,
+  IForeignKeyWithForeignColumnName,
+} from '../../../data-access-layer/shared/data-access-object-interface';
 import {
   AmplitudeEventTypeEnum,
   LogOperationTypeEnum,
@@ -12,23 +15,20 @@ import {
   WidgetTypeEnum,
 } from '../../../enums';
 import { Messages } from '../../../exceptions/text/messages';
-import { createDataAccessObject } from '../../../data-access-layer/shared/create-data-access-object';
 import { compareArrayElements, isConnectionTypeAgent, toPrettyErrorsMsg } from '../../../helpers';
-import {
-  IDataAccessObject,
-  IForeignKey,
-  IForeignKeyWithForeignColumnName,
-} from '../../../data-access-layer/shared/data-access-object-interface';
-import { validateTableRowUtil } from '../utils/validate-table-row.util';
+import { AmplitudeService } from '../../amplitude/amplitude.service';
+import { isTestConnectionUtil } from '../../connection/utils/is-test-connection-util';
+import { TableLogsService } from '../../table-logs/table-logs.service';
+import { UpdateRowInTableDs } from '../application/data-structures/update-row-in-table.ds';
+import { IForeignKeyInfo, ITableRowRO } from '../table.interface';
+import { formFullTableStructure } from '../utils/form-full-table-structure';
 import { hashPasswordsInRowUtil } from '../utils/hash-passwords-in-row.util';
 import { processUuidsInRowUtil } from '../utils/process-uuids-in-row-util';
 import { removePasswordsFromRowsUtil } from '../utils/remove-password-from-row.util';
-import { formFullTableStructure } from '../utils/form-full-table-structure';
-import { crateAndSaveNewLogUtil } from '../../table-logs/utils/crate-and-save-new-log-util';
-import { isTestConnectionUtil } from '../../connection/utils/is-test-connection-util';
-import AbstractUseCase from '../../../common/abstract-use.case';
+import { validateTableRowUtil } from '../utils/validate-table-row.util';
+import { IUpdateRowInTable } from './table-use-cases.interface';
 
-@Injectable({ scope: Scope.REQUEST })
+@Injectable()
 export class UpdateRowInTableUseCase
   extends AbstractUseCase<UpdateRowInTableDs, ITableRowRO>
   implements IUpdateRowInTable
@@ -37,6 +37,7 @@ export class UpdateRowInTableUseCase
     @Inject(BaseType.GLOBAL_DB_CONTEXT)
     protected _dbContext: IGlobalDatabaseContext,
     private amplitudeService: AmplitudeService,
+    private tableLogsService: TableLogsService,
   ) {
     super();
   }
@@ -180,7 +181,7 @@ export class UpdateRowInTableUseCase
         row: row,
         old_data: oldRowData,
       };
-      await crateAndSaveNewLogUtil(logRecord);
+      await this.tableLogsService.crateAndSaveNewLogUtil(logRecord);
       const isTest = isTestConnectionUtil(connection);
       await this.amplitudeService.formAndSendLogRecord(
         isTest ? AmplitudeEventTypeEnum.tableRowAddedTest : AmplitudeEventTypeEnum.tableRowAdded,

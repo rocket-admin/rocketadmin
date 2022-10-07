@@ -19,7 +19,7 @@ import { IGetRowByPrimaryKey } from './table-use-cases.interface';
 import { convertBinaryDataInRowUtil } from '../utils/convert-binary-data-in-row.util';
 import { convertHexDataInPrimaryKeyUtil } from '../utils/convert-hex-data-in-primary-key.util';
 
-@Injectable({ scope: Scope.REQUEST })
+@Injectable()
 export class GetRowByPrimaryKeyUseCase
   extends AbstractUseCase<GetRowByPrimaryKeyDs, ITableRowRO>
   implements IGetRowByPrimaryKey

@@ -1,17 +1,17 @@
-import * as Sentry from '@sentry/minimal';
 import { Inject, Injectable } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
-import { sendRemindersToUsers } from '../email/utils/send-reminders-to-users';
+import { InjectRepository } from '@nestjs/typeorm';
+import * as Sentry from '@sentry/minimal';
+import { Repository } from 'typeorm';
 import { UseCaseType } from '../../common/data-injection.tokens';
+import { slackPostMessage } from '../../helpers';
+import { Constants } from '../../helpers/constants/constants';
+import { sendRemindersToUsers } from '../email/utils/send-reminders-to-users';
 import {
   ICheckUsersActionsAndMailingUsers,
   ICheckUsersLogsAndUpdateActionsUseCase,
 } from '../user-actions/use-cases/use-cases-interfaces';
-import { slackPostMessage } from '../../helpers';
-import { Constants } from '../../helpers/constants/constants';
-import { InjectRepository } from '@nestjs/typeorm';
 import { JobListEntity } from './job-list.entity';
-import { Repository } from 'typeorm';
 
 @Injectable()
 export class CronJobsService {
@@ -76,7 +76,7 @@ export class CronJobsService {
   }
 
   private async insertMidnightJob(): Promise<boolean> {
-    const foundJob = await this.jobListRepository.findOne(Constants.MIDNIGHT_CRON_KEY);
+    const foundJob = await this.jobListRepository.findOne({ where: { job_key: Constants.MIDNIGHT_CRON_KEY } });
     if (foundJob) {
       return false;
     }
@@ -90,7 +90,7 @@ export class CronJobsService {
   }
 
   private async removeMidnightJob(): Promise<boolean> {
-    const jobToRemove = await this.jobListRepository.findOne(Constants.MIDNIGHT_CRON_KEY);
+    const jobToRemove = await this.jobListRepository.findOne({ where: { job_key: Constants.MIDNIGHT_CRON_KEY } });
     if (jobToRemove) {
       return !!(await this.jobListRepository.remove(jobToRemove));
     }
@@ -98,7 +98,7 @@ export class CronJobsService {
   }
 
   private async insertMorningJob(): Promise<boolean> {
-    const foundJob = await this.jobListRepository.findOne(Constants.MORNING_CRON_KEY);
+    const foundJob = await this.jobListRepository.findOne({ where: { job_key: Constants.MORNING_CRON_KEY } });
     if (foundJob) {
       return false;
     }
@@ -112,7 +112,7 @@ export class CronJobsService {
   }
 
   private async removeMorningJob(): Promise<boolean> {
-    const jobToRemove = await this.jobListRepository.findOne(Constants.MORNING_CRON_KEY);
+    const jobToRemove = await this.jobListRepository.findOne({ where: { job_key: Constants.MORNING_CRON_KEY } });
     if (jobToRemove) {
       return !!(await this.jobListRepository.remove(jobToRemove));
     }

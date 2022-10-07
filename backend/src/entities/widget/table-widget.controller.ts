@@ -25,12 +25,13 @@ import { FindTableWidgetsDs } from './application/data-sctructures/find-table-wi
 import { CreateTableWidgetsDs } from './application/data-sctructures/create-table-widgets.ds';
 import { FoundTableWidgetsDs } from './application/data-sctructures/found-table-widgets.ds';
 import { MasterPassword, QueryTableName, SlugUuid, UserId } from '../../decorators';
+import { InTransactionEnum } from '../../enums';
 
 @ApiBearerAuth()
 @ApiTags('table_widgets')
 @UseInterceptors(SentryInterceptor)
 @Controller()
-@Injectable({ scope: Scope.REQUEST })
+@Injectable()
 export class TableWidgetController {
   constructor(
     @Inject(UseCaseType.FIND_TABLE_WIDGETS)
@@ -66,7 +67,7 @@ export class TableWidgetController {
       tableName: tableName,
       userId: userId,
     };
-    return await this.findTableWidgetsUseCase.execute(inputData);
+    return await this.findTableWidgetsUseCase.execute(inputData, InTransactionEnum.OFF);
   }
 
   @ApiOperation({ summary: 'Create new table widget' })
@@ -97,6 +98,6 @@ export class TableWidgetController {
       userId: userId,
       widgets: widgets,
     };
-    return await this.createUpdateDeleteTableWidgetsUseCase.execute(inputData);
+    return await this.createUpdateDeleteTableWidgetsUseCase.execute(inputData, InTransactionEnum.ON);
   }
 }

@@ -9,7 +9,7 @@ import { generateGwtToken } from '../utils/generate-gwt-token';
 import { Messages } from '../../../exceptions/text/messages';
 import { Encryptor } from '../../../helpers/encryption/encryptor';
 
-@Injectable({ scope: Scope.REQUEST })
+@Injectable()
 export class VerifyResetUserPasswordUseCase
   extends AbstractUseCase<ResetUsualUserPasswordDs, RegisteredUserDs>
   implements IVerifyPasswordReset

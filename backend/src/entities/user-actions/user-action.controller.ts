@@ -1,4 +1,3 @@
-import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import {
   Body,
   Controller,
@@ -10,21 +9,22 @@ import {
   Scope,
   UseInterceptors,
 } from '@nestjs/common';
-import { SentryInterceptor } from '../../interceptors';
-import { UserActionEntity } from './user-action.entity';
-import { CreateUserActionDto } from './dto/create-user-action.dto';
-import { UserActionEnum } from '../../enums';
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { UseCaseType } from '../../common/data-injection.tokens';
+import { UserId } from '../../decorators';
+import { InTransactionEnum, UserActionEnum } from '../../enums';
 import { Messages } from '../../exceptions/text/messages';
 import { validateStringWithEnum } from '../../helpers/validators/validate-string-with-enum';
-import { UseCaseType } from '../../common/data-injection.tokens';
-import { ICreateUserAction } from './use-cases/use-cases-interfaces';
+import { SentryInterceptor } from '../../interceptors';
 import { CreateUserActionDs } from './application/data-sctructures/create-user-action.ds';
-import { UserId } from '../../decorators';
+import { CreateUserActionDto } from './dto/create-user-action.dto';
+import { ICreateUserAction } from './use-cases/use-cases-interfaces';
+import { UserActionEntity } from './user-action.entity';
 
 @ApiBearerAuth()
 @ApiTags('user_action')
 @UseInterceptors(SentryInterceptor)
-@Injectable({ scope: Scope.REQUEST })
+@Injectable()
 @Controller()
 export class UserActionController {
   constructor(
@@ -60,6 +60,6 @@ export class UserActionController {
       message: message,
       userId: userId,
     };
-    return await this.createUserActionUseCase.execute(actionData);
+    return await this.createUserActionUseCase.execute(actionData, InTransactionEnum.ON);
   }
 }

@@ -1,17 +1,17 @@
-import * as AWSMock from 'aws-sdk-mock';
-import * as request from 'supertest';
-import { ApplicationModule } from '../../src/app.module';
-import { Connection } from 'typeorm';
-import { DatabaseModule } from '../../src/shared/database/database.module';
-import { DatabaseService } from '../../src/shared/database/database.service';
 import { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
-import { TestUtils } from '../utils/test.utils';
-import { IUserInfo } from '../../src/entities/user/user.interface';
-import { Constants } from '../../src/helpers/constants/constants';
+import * as AWSMock from 'aws-sdk-mock';
 import * as cookieParser from 'cookie-parser';
-import { Cacher } from '../../src/helpers/cache/cacher';
+import * as request from 'supertest';
+import { Connection } from 'typeorm';
+import { ApplicationModule } from '../../src/app.module';
+import { IUserInfo } from '../../src/entities/user/user.interface';
 import { Messages } from '../../src/exceptions/text/messages';
+import { Cacher } from '../../src/helpers/cache/cacher';
+import { Constants } from '../../src/helpers/constants/constants';
+import { DatabaseModule } from '../../src/shared/database/database.module';
+import { DatabaseService } from '../../src/shared/database/database.service';
+import { TestUtils } from '../utils/test.utils';
 
 describe('User (e2e)', () => {
   jest.setTimeout(30000);
@@ -69,7 +69,7 @@ describe('User (e2e)', () => {
         const connectionAdminUserToken = `${Constants.JWT_COOKIE_KEY_NAME}=${TestUtils.getJwtTokenFromResponse(
           registerAdminUserResponse,
         )}`;
-
+      
         const getUserResult = await request(app.getHttpServer())
           .get('/user')
           .set('Cookie', connectionAdminUserToken)
@@ -115,12 +115,14 @@ describe('User (e2e)', () => {
           .set('Content-Type', 'application/json')
           .set('Accept', 'application/json');
         const deleteUserRO = JSON.parse(deleteUserResult.text);
+        console.log("🚀 ~ file: user.e2e.spec.ts ~ line 118 ~ it ~ deleteUserRO", deleteUserRO)
         expect(deleteUserRO.email).toBe(adminUserRegisterInfo.email);
         getUserResult = await request(app.getHttpServer())
           .get('/user')
           .set('Cookie', connectionAdminUserToken)
           .set('Content-Type', 'application/json')
           .set('Accept', 'application/json');
+        console.log("🚀 ~ file: user.e2e.spec.ts ~ line 124 ~ it ~ getUserResult", getUserResult.text)
         expect(getUserResult.status).toBe(401);
       } catch (err) {
         throw err;

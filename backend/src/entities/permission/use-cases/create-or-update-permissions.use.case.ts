@@ -15,7 +15,7 @@ import { buildNewPermissionEntityConnection } from '../utils/build-new-permissio
 import { buildNewPermissionEntityGroup } from '../utils/build-new-permission-entity-group';
 import { buildFinalTablesPermissions } from '../utils/build-final-tables-permissions';
 
-@Injectable({ scope: Scope.REQUEST })
+@Injectable()
 export class CreateOrUpdatePermissionsUseCase
   extends AbstractUseCase<CreatePermissionsDs, PermissionsDs>
   implements ICreateOrUpdatePermissions

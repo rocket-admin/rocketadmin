@@ -20,12 +20,13 @@ import { UseCaseType } from '../../common/data-injection.tokens';
 import { ICreateOrUpdatePermissions } from './use-cases/permissions-use-cases.interface';
 import { CreatePermissionsDs } from './application/data-structures/create-permissions.ds';
 import { MasterPassword, SlugUuid, UserId } from '../../decorators';
+import { InTransactionEnum } from '../../enums';
 
 @ApiBearerAuth()
 @ApiTags('permissions')
 @UseInterceptors(SentryInterceptor)
 @Controller()
-@Injectable({ scope: Scope.REQUEST })
+@Injectable()
 export class PermissionController {
   constructor(
     @Inject(UseCaseType.CREATE_OR_UPDATE_PERMISSIONS)
@@ -68,6 +69,6 @@ export class PermissionController {
       userId: userId,
       permissions: permissions,
     };
-    return await this.createOrUpdatePermissionsUseCase.execute(inputData);
+    return await this.createOrUpdatePermissionsUseCase.execute(inputData, InTransactionEnum.ON);
   }
 }

@@ -1,5 +1,5 @@
-import { ConnectionOptions } from 'typeorm/connection/ConnectionOptions';
 import { join } from 'path';
+import { DataSourceOptions } from 'typeorm';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 require('dotenv').config();
 
@@ -33,8 +33,8 @@ class ConfigService {
     return process.env.NODE_ENV === 'test';
   }
 
-  public getTypeOrmConfig(): ConnectionOptions {
-    const devProdConfig: ConnectionOptions = {
+  public getTypeOrmConfig(): DataSourceOptions {
+    const newTypeOrmProdConfig: DataSourceOptions = {
       type: 'postgres',
       host: this.getValue('TYPEORM_HOST'),
       port: parseInt(this.getValue('TYPEORM_PORT', false)) || 5432,
@@ -43,17 +43,14 @@ class ConfigService {
       database: this.getValue('TYPEORM_DATABASE'),
       entities: [join(__dirname, '..', '..', '**', '*.entity.{ts,js}')],
       migrations: [join(__dirname, '..', '..', 'migrations', '*.{ts,js}')],
-      cli: {
-        migrationsDir: 'src/migrations',
-      },
       synchronize: false,
       migrationsRun: false,
       extra: {
         max: 20,
       },
-      // ssl: this.isProduction(),
     };
-    const testConfig: ConnectionOptions = {
+
+    const newTypeOrmTestConfig: DataSourceOptions = {
       type: 'postgres',
       host: 'postgres',
       port: 5432,
@@ -62,15 +59,20 @@ class ConfigService {
       database: 'postgres',
       entities: [join(__dirname, '..', '..', '**', '*.entity.{ts,js}')],
       migrations: [join(__dirname, '..', '..', 'migrations', '*.{ts,js}')],
-      cli: {
-        migrationsDir: 'src/migrations',
-      },
-      synchronize: true,
+      synchronize: false,
       migrationsRun: false,
+      // maxQueryExecutionTime: 50,
       // ssl: this.isProduction(),
       logging: false,
+      extra: {
+        max: 20,
+        // idle_in_transaction_session_timeout: 10*1000,
+        //  idle_in_transaction_session_timeout: 1000,
+      },
+      logger: 'advanced-console',
     };
-    return this.isTestEnvironment() ? testConfig : devProdConfig;
+
+    return this.isTestEnvironment() ? newTypeOrmTestConfig : newTypeOrmProdConfig;
   }
 }
 

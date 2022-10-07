@@ -16,7 +16,7 @@ import { UpdateConnectionDs } from '../application/data-structures/update-connec
 import { validateCreateConnectionData } from '../utils/validate-create-connection-data';
 import { AmplitudeService } from '../../amplitude/amplitude.service';
 
-@Injectable({ scope: Scope.REQUEST })
+@Injectable()
 export class UpdateConnectionUseCase
   extends AbstractUseCase<UpdateConnectionDs, Omit<CreatedConnectionDs, 'groups'>>
   implements IUpdateConnection

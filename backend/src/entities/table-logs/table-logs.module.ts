@@ -1,12 +1,18 @@
+import { Global, MiddlewareConsumer, Module, RequestMethod } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthMiddleware } from '../../authorization';
-import { MiddlewareConsumer, Module, RequestMethod } from '@nestjs/common';
-import { TableLogsController } from './table-logs.controller';
-import { BaseType, UseCaseType } from '../../common/data-injection.tokens';
 import { GlobalDatabaseContext } from '../../common/application/global-database-context';
+import { BaseType, UseCaseType } from '../../common/data-injection.tokens';
+import { LogOutEntity } from '../log-out/log-out.entity';
+import { UserEntity } from '../user/user.entity';
+import { TableLogsController } from './table-logs.controller';
+import { TableLogsEntity } from './table-logs.entity';
+import { TableLogsService } from './table-logs.service';
 import { FindLogsUseCase } from './use-cases/find-logs.use.case';
 
+@Global()
 @Module({
-  imports: [],
+  imports: [TypeOrmModule.forFeature([TableLogsEntity, UserEntity, LogOutEntity])],
   providers: [
     {
       provide: BaseType.GLOBAL_DB_CONTEXT,
@@ -16,9 +22,10 @@ import { FindLogsUseCase } from './use-cases/find-logs.use.case';
       provide: UseCaseType.FIND_LOGS,
       useClass: FindLogsUseCase,
     },
+    TableLogsService,
   ],
   controllers: [TableLogsController],
-  exports: [],
+  exports: [TableLogsService],
 })
 export class TableLogsModule {
   public configure(consumer: MiddlewareConsumer): any {

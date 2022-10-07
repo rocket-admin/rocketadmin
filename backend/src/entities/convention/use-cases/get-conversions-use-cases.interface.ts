@@ -1,3 +1,5 @@
+import { InTransactionEnum } from '../../../enums';
+
 export interface IGetConversions {
-  execute(): Promise<string>;
+  execute(inputData: void, inTransaction: InTransactionEnum): Promise<string>;
 }

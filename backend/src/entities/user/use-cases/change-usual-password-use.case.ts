@@ -8,7 +8,7 @@ import { Messages } from '../../../exceptions/text/messages';
 import { Encryptor } from '../../../helpers/encryption/encryptor';
 import { generateGwtToken, IToken } from '../utils/generate-gwt-token';
 
-@Injectable({ scope: Scope.REQUEST })
+@Injectable()
 export class ChangeUsualPasswordUseCase
   extends AbstractUseCase<ChangeUsualUserPasswordDs, IToken>
   implements IUsualPasswordChange

@@ -10,7 +10,7 @@ import { buildConnectionPropertiesEntity } from '../utils/build-connection-prope
 import { Encryptor } from '../../../helpers/encryption/encryptor';
 import { buildFoundConnectionPropertiesDs } from '../utils/build-found-connection-properties-ds';
 
-@Injectable({ scope: Scope.REQUEST })
+@Injectable()
 export class CreateConnectionPropertiesUseCase
   extends AbstractUseCase<CreateConnectionPropertiesDs, FoundConnectionPropertiesDs>
   implements ICreateConnectionProperties

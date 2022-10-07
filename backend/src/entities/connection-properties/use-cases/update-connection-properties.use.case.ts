@@ -14,7 +14,7 @@ import {
 } from '../utils/build-update-connection-properties-object';
 import { buildFoundConnectionPropertiesDs } from '../utils/build-found-connection-properties-ds';
 
-@Injectable({ scope: Scope.REQUEST })
+@Injectable()
 export class UpdateConnectionPropertiesUseCase
   extends AbstractUseCase<CreateConnectionPropertiesDs, FoundConnectionPropertiesDs>
   implements IUpdateConnectionProperties

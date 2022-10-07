@@ -9,7 +9,7 @@ import { Messages } from '../../../exceptions/text/messages';
 import { buildFoundTableSettingsDs } from '../../table-settings/utils/build-found-table-settings-ds';
 import { FoundTableSettingsDs } from '../../table-settings/application/data-structures/found-table-settings.ds';
 
-@Injectable({ scope: Scope.REQUEST })
+@Injectable()
 export class DeleteCustomFieldUseCase
   extends AbstractUseCase<DeleteCustomFieldsDs, FoundTableSettingsDs>
   implements IDeleteCustomField

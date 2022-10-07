@@ -1,5 +1,3 @@
-import isEmail from 'validator/lib/isEmail';
-import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import {
   Body,
   Controller,
@@ -15,8 +13,29 @@ import {
   Scope,
   UseInterceptors,
 } from '@nestjs/common';
-import { SentryInterceptor } from '../../interceptors';
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { Response } from 'express';
+import isEmail from 'validator/lib/isEmail';
 import { UseCaseType } from '../../common/data-injection.tokens';
+import { BodyEmail, GCLlId, UserId, VerificationString } from '../../decorators';
+import { AmplitudeEventTypeEnum, InTransactionEnum, SubscriptionLevelEnum } from '../../enums';
+import { Messages } from '../../exceptions/text/messages';
+import { Constants } from '../../helpers/constants/constants';
+import { validateStringWithEnum } from '../../helpers/validators/validate-string-with-enum';
+import { SentryInterceptor } from '../../interceptors';
+import { AmplitudeService } from '../amplitude/amplitude.service';
+import { ChangeUserEmailDs } from './application/data-structures/change-user-email.ds';
+import { ChangeUsualUserPasswordDs } from './application/data-structures/change-usual-user-password.ds';
+import { FindUserDs } from './application/data-structures/find-user.ds';
+import { FoundUserDs } from './application/data-structures/found-user.ds';
+import { GoogleLoginDs } from './application/data-structures/google-login.ds';
+import { OperationResultMessageDs } from './application/data-structures/operation-result-message.ds';
+import { RegisteredUserDs } from './application/data-structures/registered-user.ds';
+import { ResetUsualUserPasswordDs } from './application/data-structures/reset-usual-user-password.ds';
+import { UpgradeUserSubscriptionDs } from './application/data-structures/upgrade-user-subscription.ds';
+import { UsualLoginDs } from './application/data-structures/usual-login.ds';
+import { ChangeUsualUserPasswordDto, EmailDto, LoginUserDto, PasswordDto, SocialNetworkLoginDto } from './dto';
+import { UpgradeSubscriptionDto } from './dto/upgrade-subscription.dto';
 import {
   IDeleteUserAccount,
   IFacebookLogin,
@@ -34,32 +53,13 @@ import {
   IVerifyEmailChange,
   IVerifyPasswordReset,
 } from './use-cases/user-use-cases.interfaces';
-import { FindUserDs } from './application/data-structures/find-user.ds';
-import { FoundUserDs } from './application/data-structures/found-user.ds';
-import { AmplitudeEventTypeEnum, SubscriptionLevelEnum } from '../../enums';
-import { validateStringWithEnum } from '../../helpers/validators/validate-string-with-enum';
-import { Messages } from '../../exceptions/text/messages';
-import { UpgradeSubscriptionDto } from './dto/upgrade-subscription.dto';
-import { UpgradeUserSubscriptionDs } from './application/data-structures/upgrade-user-subscription.ds';
-import { ChangeUsualUserPasswordDto, EmailDto, LoginUserDto, PasswordDto, SocialNetworkLoginDto } from './dto';
-import { UsualLoginDs } from './application/data-structures/usual-login.ds';
-import { RegisteredUserDs } from './application/data-structures/registered-user.ds';
-import { GoogleLoginDs } from './application/data-structures/google-login.ds';
-import { ChangeUsualUserPasswordDs } from './application/data-structures/change-usual-user-password.ds';
-import { ResetUsualUserPasswordDs } from './application/data-structures/reset-usual-user-password.ds';
-import { ChangeUserEmailDs } from './application/data-structures/change-user-email.ds';
 import { ITokenExp } from './utils/generate-gwt-token';
-import { Response } from 'express';
-import { Constants } from '../../helpers/constants/constants';
-import { OperationResultMessageDs } from './application/data-structures/operation-result-message.ds';
-import { AmplitudeService } from '../amplitude/amplitude.service';
-import { BodyEmail, GCLlId, UserId, VerificationString } from '../../decorators';
 
 @ApiBearerAuth()
 @ApiTags('user')
 @UseInterceptors(SentryInterceptor)
 @Controller()
-@Injectable({ scope: Scope.REQUEST })
+@Injectable()
 export class UserController {
   constructor(
     @Inject(UseCaseType.FIND_USER)
@@ -104,7 +104,7 @@ export class UserController {
       gclidValue: glidCookieValue,
     };
 
-    return await this.findUserUseCase.execute(findUserDs);
+    return await this.findUserUseCase.execute(findUserDs, InTransactionEnum.OFF);
   }
 
   @ApiOperation({ summary: 'Upgrade subscription' })
@@ -127,7 +127,7 @@ export class UserController {
       subscriptionLevel: subscriptionLevel,
       cognitoUserName: userId,
     };
-    return await this.upgradeUserSubscriptionUseCase.execute(inputData);
+    return await this.upgradeUserSubscriptionUseCase.execute(inputData, InTransactionEnum.ON);
   }
 
   @ApiOperation({ summary: 'Login with email and password' })
@@ -170,7 +170,7 @@ export class UserController {
       gclidValue: null,
     };
 
-    const tokenInfo = await this.usualLoginUseCase.execute(userData);
+    const tokenInfo = await this.usualLoginUseCase.execute(userData, InTransactionEnum.OFF);
     response.cookie(Constants.JWT_COOKIE_KEY_NAME, tokenInfo.token);
     return { expires: tokenInfo.exp };
   }
@@ -215,7 +215,7 @@ export class UserController {
       password: password,
       gclidValue: glidCookieValue,
     };
-    const tokenInfo = await this.usualRegisterUseCase.execute(inputData);
+    const tokenInfo = await this.usualRegisterUseCase.execute(inputData, InTransactionEnum.ON);
     response.cookie(Constants.JWT_COOKIE_KEY_NAME, tokenInfo.token);
     return { expires: tokenInfo.exp };
   }
@@ -234,7 +234,7 @@ export class UserController {
       );
     }
     response.cookie(Constants.JWT_COOKIE_KEY_NAME, '');
-    return await this.logOutUseCase.execute(token);
+    return await this.logOutUseCase.execute(token, InTransactionEnum.ON);
   }
 
   @ApiOperation({ summary: 'Register/Login with google' })
@@ -258,7 +258,7 @@ export class UserController {
       token: token,
       glidCookieValue: gclidCookieValue,
     };
-    const tokenInfo = await this.googleLoginUseCase.execute(googleLoginDs);
+    const tokenInfo = await this.googleLoginUseCase.execute(googleLoginDs, InTransactionEnum.ON);
     response.cookie(Constants.JWT_COOKIE_KEY_NAME, tokenInfo.token);
     return { expires: tokenInfo.exp };
   }
@@ -277,7 +277,7 @@ export class UserController {
         HttpStatus.BAD_REQUEST,
       );
     }
-    const tokenInfo = await this.facebookLoginUseCase.execute(token);
+    const tokenInfo = await this.facebookLoginUseCase.execute(token, InTransactionEnum.ON);
     response.cookie(Constants.JWT_COOKIE_KEY_NAME, tokenInfo.token);
     return { expires: tokenInfo.exp };
   }
@@ -321,7 +321,7 @@ export class UserController {
       newPassword: newPassword,
       oldPassword: oldPassword,
     };
-    const tokenInfo = await this.changeUsualPasswordUseCase.execute(inputData);
+    const tokenInfo = await this.changeUsualPasswordUseCase.execute(inputData, InTransactionEnum.ON);
     response.cookie(Constants.JWT_COOKIE_KEY_NAME, tokenInfo.token);
     return { expires: tokenInfo.exp };
   }
@@ -330,14 +330,14 @@ export class UserController {
   @ApiResponse({ status: 201, description: 'Email verified' })
   @Get('user/email/verify/request')
   async requestEmailVerification(@UserId() userId: string): Promise<OperationResultMessageDs> {
-    return await this.requestEmailVerificationUseCase.execute(userId);
+    return await this.requestEmailVerificationUseCase.execute(userId, InTransactionEnum.ON);
   }
 
   @ApiOperation({ summary: 'Verify user email (requires verification string as slug)' })
   @ApiResponse({ status: 201, description: 'Email verified' })
   @Get('user/email/verify/:slug')
   async verifyEmail(@VerificationString() verificationString: string): Promise<OperationResultMessageDs> {
-    return await this.verifyEmailUseCase.execute(verificationString);
+    return await this.verifyEmailUseCase.execute(verificationString, InTransactionEnum.ON);
   }
 
   @ApiOperation({ summary: 'Verify user password reset (requires verification string as slug)' })
@@ -352,7 +352,7 @@ export class UserController {
       verificationString: verificationString,
       newUserPassword: password,
     };
-    return await this.verifyResetUserPasswordUseCase.execute(inputData);
+    return await this.verifyResetUserPasswordUseCase.execute(inputData, InTransactionEnum.ON);
   }
 
   @ApiOperation({ summary: 'Request a password reset' })
@@ -360,14 +360,14 @@ export class UserController {
   @ApiBody({ type: EmailDto })
   @Post('user/password/reset/request/')
   async askResetUserPassword(@BodyEmail('email') email: string): Promise<OperationResultMessageDs> {
-    return await this.requestResetUserPasswordUseCase.execute(email);
+    return await this.requestResetUserPasswordUseCase.execute(email, InTransactionEnum.ON);
   }
 
   @ApiOperation({ summary: 'Request an email change' })
   @ApiResponse({ status: 201, description: 'User email change requested' })
   @Get('user/email/change/request/')
   async askChangeUserEmail(@UserId() userId: string): Promise<OperationResultMessageDs> {
-    return await this.requestChangeUserEmailUseCase.execute(userId);
+    return await this.requestChangeUserEmailUseCase.execute(userId, InTransactionEnum.ON);
   }
 
   @ApiOperation({ summary: 'Change user email (requires verification string as slug)' })
@@ -390,7 +390,7 @@ export class UserController {
         HttpStatus.BAD_REQUEST,
       );
     }
-    return await this.verifyChangeUserEmailUseCase.execute(inputData);
+    return await this.verifyChangeUserEmailUseCase.execute(inputData, InTransactionEnum.ON);
   }
 
   @ApiOperation({ summary: 'Delete user account' })
@@ -401,7 +401,7 @@ export class UserController {
     @Body('reason') reason: string,
     @Body('message') message: string,
   ): Promise<Omit<RegisteredUserDs, 'token'>> {
-    const deleteResult = await this.deleteUserAccountUseCase.execute(userId);
+    const deleteResult = await this.deleteUserAccountUseCase.execute(userId, InTransactionEnum.ON);
     await this.amplitudeService.formAndSendLogRecord(AmplitudeEventTypeEnum.userAccountDelete, userId, {
       reason: reason,
       message: message,

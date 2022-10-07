@@ -1,35 +1,35 @@
-import { AgentModule } from '../agent/agent.module';
+import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthMiddleware } from '../../authorization';
+import { GlobalDatabaseContext } from '../../common/application/global-database-context';
+import { BaseType, UseCaseType } from '../../common/data-injection.tokens';
+import { AgentModule } from '../agent/agent.module';
+import { ConnectionPropertiesEntity } from '../connection-properties/connection-properties.entity';
 import { ConnectionEntity } from '../connection/connection.entity';
 import { CustomFieldsEntity } from '../custom-field/custom-fields.entity';
 import { GroupEntity } from '../group/group.entity';
-import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/common';
+import { LogOutEntity } from '../log-out/log-out.entity';
 import { PermissionEntity } from '../permission/permission.entity';
 import { TableLogsEntity } from '../table-logs/table-logs.entity';
 import { TableSettingsEntity } from '../table-settings/table-settings.entity';
 import { TableWidgetEntity } from '../widget/table-widget.entity';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { UserController } from './user.controller';
-import { UserEntity } from './user.entity';
-import { ConnectionPropertiesEntity } from '../connection-properties/connection-properties.entity';
-import { UserRepository } from './repository/user.repository';
-import { BaseType, UseCaseType } from '../../common/data-injection.tokens';
-import { GlobalDatabaseContext } from '../../common/application/global-database-context';
+import { ChangeUsualPasswordUseCase } from './use-cases/change-usual-password-use.case';
+import { DeleteUserAccountUseCase } from './use-cases/delete-user-account-use-case.service';
+import { FacebookLoginUseCase } from './use-cases/facebook-login.use.case';
 import { FindUserUseCase } from './use-cases/find-user-use.case';
+import { GoogleLoginUseCase } from './use-cases/google-login-use.case';
+import { LogOutUseCase } from './use-cases/log-out.use.case';
+import { RequestChangeUserEmailUseCase } from './use-cases/request-change-user-email.use.case';
+import { RequestEmailVerificationUseCase } from './use-cases/request-email-verification.use.case';
+import { RequestResetUserPasswordUseCase } from './use-cases/request-reset-user-password.use.case';
 import { UpgradeSubscriptionUseCase } from './use-cases/upgrade-subscription.use.case';
 import { UsualLoginUseCase } from './use-cases/usual-login-use.case';
 import { UsualRegisterUseCase } from './use-cases/usual-register-use.case';
-import { LogOutUseCase } from './use-cases/log-out.use.case';
-import { GoogleLoginUseCase } from './use-cases/google-login-use.case';
-import { FacebookLoginUseCase } from './use-cases/facebook-login.use.case';
-import { ChangeUsualPasswordUseCase } from './use-cases/change-usual-password-use.case';
-import { VerifyUserEmailUseCase } from './use-cases/verify-user-email.use.case';
-import { VerifyResetUserPasswordUseCase } from './use-cases/verify-reset-user-password.use.case';
-import { RequestResetUserPasswordUseCase } from './use-cases/request-reset-user-password.use.case';
-import { RequestChangeUserEmailUseCase } from './use-cases/request-change-user-email.use.case';
 import { VerifyChangeUserEmailUseCase } from './use-cases/verify-change-user-email.use.case';
-import { RequestEmailVerificationUseCase } from './use-cases/request-email-verification.use.case';
-import { DeleteUserAccountUseCase } from './use-cases/delete-user-account-use-case.service';
+import { VerifyResetUserPasswordUseCase } from './use-cases/verify-reset-user-password.use.case';
+import { VerifyUserEmailUseCase } from './use-cases/verify-user-email.use.case';
+import { UserController } from './user.controller';
+import { UserEntity } from './user.entity';
 
 @Module({
   imports: [
@@ -43,11 +43,11 @@ import { DeleteUserAccountUseCase } from './use-cases/delete-user-account-use-ca
       TableWidgetEntity,
       UserEntity,
       ConnectionPropertiesEntity,
+      LogOutEntity,
     ]),
     AgentModule,
   ],
   providers: [
-    UserRepository,
     {
       provide: BaseType.GLOBAL_DB_CONTEXT,
       useClass: GlobalDatabaseContext,

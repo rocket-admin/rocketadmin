@@ -1,7 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { DatabaseService } from '../../src/shared/database/database.service';
-import { MockEntity } from '../mocks/entities/mock.entity';
-import { faker } from '@faker-js/faker';
 
 @Injectable()
 // @ts-ignore
@@ -33,31 +31,17 @@ export class TestUtils {
 
   async closeDbConnection() {
     try {
-      const connection = await this.databaseService.connection;
-      if (connection.isConnected) {
-        await (await this.databaseService.connection).close();
-      }
+      this.databaseService.closeConnection();
     } catch (e) {
       console.log('close db connection error ->', e);
     }
   }
 
-  private async getEntities() {
-    try {
-      const entities = [];
-      (await this.databaseService.connection).entityMetadatas.forEach((x) =>
-        entities.push({ name: x.name, tableName: x.tableName }),
-      );
-      return entities;
-    } catch (e) {
-      console.log('get entities error ->', e);
-    }
-  }
-
   async resetDb() {
+    // return;
     try {
       // const entities = await this.getEntities();
-      await this.cleanAll();
+      await this.databaseService.dropDatabase();
       //await this.addMockEntities();
     } catch (e) {
       console.log('reset db error ->', e);
@@ -66,19 +50,18 @@ export class TestUtils {
 
   private async cleanAll() {
     try {
-      const connection = await this.databaseService.connection;
-      await connection.synchronize(true);
+      await this.databaseService.dropDatabase();
     } catch (error) {
       throw new Error(`ERROR: Cleaning test db: ${error}`);
     }
   }
 
-  private async addMockEntities() {
-    const newMockEntity = new MockEntity();
-    newMockEntity.textField = faker.random.words(1);
-    newMockEntity.booleanField = faker.datatype.boolean();
-    newMockEntity.integerField = faker.datatype.number({ min: 5, max: 10, precision: 1 });
-    const repository = await this.databaseService.getRepository('MockEntity');
-    await repository.save(newMockEntity);
-  }
+  // private async addMockEntities() {
+  //   const newMockEntity = new MockEntity();
+  //   newMockEntity.textField = faker.random.words(1);
+  //   newMockEntity.booleanField = faker.datatype.boolean();
+  //   newMockEntity.integerField = faker.datatype.number({ min: 5, max: 10, precision: 1 });
+  //   const repository = await this.databaseService.getRepository('MockEntity');
+  //   await repository.save(newMockEntity);
+  // }
 }

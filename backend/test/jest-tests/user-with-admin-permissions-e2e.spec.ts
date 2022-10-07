@@ -11,7 +11,6 @@ import { Connection } from 'typeorm';
 import { ApplicationModule } from '../../src/app.module';
 import { AccessLevelEnum, QueryOrderingEnum } from '../../src/enums';
 import { Messages } from '../../src/exceptions/text/messages';
-import { compareArrayElements } from '../../src/helpers';
 import { Cacher } from '../../src/helpers/cache/cacher';
 import { Constants } from '../../src/helpers/constants/constants';
 import { DatabaseModule } from '../../src/shared/database/database.module';
@@ -3652,7 +3651,9 @@ describe('User permissions (connection admin) (e2e)', () => {
             expect(uuidRegex.test(getTableWidgetsRO[0].id)).toBeTruthy();
             expect(getTableWidgetsRO[0].field_name).toBe(newTableWidgets[0].field_name);
             expect(getTableWidgetsRO[0].widget_type).toBe(newTableWidgets[0].widget_type);
-            
+            console.log("🚀 ~ file: user-with-admin-permissions-e2e.spec.ts ~ line 3650 ~ it ~ getTableWidgetsRO", getTableWidgetsRO)
+            console.log("🚀 ~ file: user-with-admin-permissions-e2e.spec.ts ~ line 3653 ~ it ~ newTableWidgets", newTableWidgets)
+
             expect(
               compareTableWidgetsArrays(getTableWidgetsRO, newTableWidgets),
             ).toBeTruthy();
@@ -3669,7 +3670,7 @@ describe('User permissions (connection admin) (e2e)', () => {
             expect(getTableStructureRO.table_widgets[0].field_name).toBe(newTableWidgets[0].field_name);
             expect(getTableStructureRO.table_widgets[1].widget_type).toBe(newTableWidgets[1].widget_type);
             expect(
-              compareTableWidgetsArrays(getTableStructureRO.table_widgets, newTableWidget),
+              compareTableWidgetsArrays(getTableStructureRO.table_widgets, newTableWidgets),
             ).toBeTruthy();
           } catch (err) {
             throw err;

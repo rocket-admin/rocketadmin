@@ -6,7 +6,7 @@ import { IGlobalDatabaseContext } from '../../../common/application/global-datab
 import { Messages } from '../../../exceptions/text/messages';
 import { DeletedGroupResultDs } from '../application/data-sctructures/deleted-group-result.ds';
 
-@Injectable({ scope: Scope.REQUEST })
+@Injectable()
 export class DeleteGroupUseCase extends AbstractUseCase<string, DeletedGroupResultDs> implements IDeleteGroup {
   constructor(
     @Inject(BaseType.GLOBAL_DB_CONTEXT)

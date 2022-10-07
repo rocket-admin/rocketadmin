@@ -50,11 +50,11 @@ test.before(async () => {
 test.after.always('Close app connection', async () => {
   try {
     await Cacher.clearAllCache();
-    const connect = await app.get(Connection);
-    await testUtils.shutdownServer(app.getHttpAdapter());
-    if (connect.isConnected) {
-      await connect.close();
-    }
+    // const connect = await app.get(Connection);
+    // await testUtils.shutdownServer(app.getHttpAdapter());
+    // if (connect.isConnected) {
+    //   await connect.close();
+    // }
     await app.close();
   } catch (e) {
     console.error('After custom field error: ' + e);

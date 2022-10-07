@@ -12,7 +12,7 @@ import {
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import { AmplitudeEventTypeEnum, ConnectionTypeEnum } from '../../enums';
+import { AmplitudeEventTypeEnum, ConnectionTypeEnum, InTransactionEnum } from '../../enums';
 import { CreateConnectionDto, CreateGroupInConnectionDto, UpdateMasterPasswordDto } from './dto';
 import { GroupEntity } from '../group/group.entity';
 import { HttpException } from '@nestjs/common/exceptions/http.exception';
@@ -67,7 +67,7 @@ import { BodyUuid, GCLlId, MasterPassword, QueryUuid, SlugUuid, UserId } from '.
 @ApiTags('connections')
 @UseInterceptors(SentryInterceptor)
 @Controller()
-@Injectable({ scope: Scope.REQUEST })
+// @Injectable({ scope: Scope.REQUEST })
 export class ConnectionController {
   constructor(
     @Inject(UseCaseType.FIND_CONNECTIONS)
@@ -114,7 +114,7 @@ export class ConnectionController {
       id: userId,
       gclidValue: glidCookieValue,
     };
-    return await this.findConnectionsUseCase.execute(userData);
+    return await this.findConnectionsUseCase.execute(userData, InTransactionEnum.OFF);
   }
 
   @ApiOperation({ summary: 'Get users in connection' })
@@ -123,7 +123,7 @@ export class ConnectionController {
   @Get('/connection/users/:slug')
   async findAllUsers(@UserId() userId: string, @SlugUuid() connectionId: string): Promise<Array<FoundUserDs>> {
     try {
-      return await this.findAllUsersInConnectionUseCase.execute(connectionId);
+      return await this.findAllUsersInConnectionUseCase.execute(connectionId, InTransactionEnum.OFF);
     } catch (e) {
       throw e;
     } finally {
@@ -151,7 +151,7 @@ export class ConnectionController {
         masterPwd: masterPwd,
         cognitoUserName: userId,
       };
-      foundConnection = await this.findOneConnectionUseCase.execute(findOneConnectionInput);
+      foundConnection = await this.findOneConnectionUseCase.execute(findOneConnectionInput, InTransactionEnum.OFF);
       return foundConnection;
     } catch (e) {
       throw e;
@@ -246,7 +246,7 @@ export class ConnectionController {
         masterPwd: masterPwd,
       },
     };
-    return await this.createConnectionUseCase.execute(createConnectionDs);
+    return await this.createConnectionUseCase.execute(createConnectionDs, InTransactionEnum.ON);
   }
 
   @ApiOperation({ summary: 'Update connection' })
@@ -320,7 +320,7 @@ export class ConnectionController {
       },
     };
 
-    const updatedConnection = await this.updateConnectionUseCase.execute(connectionData);
+    const updatedConnection = await this.updateConnectionUseCase.execute(connectionData, InTransactionEnum.ON);
     return { connection: updatedConnection };
   }
 
@@ -344,7 +344,7 @@ export class ConnectionController {
       cognitoUserName: userId,
       masterPwd: masterPwd,
     };
-    const deleteResult = await this.deleteConnectionUseCase.execute(inputData);
+    const deleteResult = await this.deleteConnectionUseCase.execute(inputData, InTransactionEnum.ON);
     const isTest = isTestConnectionUtil(deleteResult);
     await this.amplitudeService.formAndSendLogRecord(
       isTest ? AmplitudeEventTypeEnum.connectionDeletedTest : AmplitudeEventTypeEnum.connectionDeleted,
@@ -378,7 +378,7 @@ export class ConnectionController {
       connectionId: connectionId,
       cognitoUserName: userId,
     };
-    return await this.deleteGroupInConnectionUseCase.execute(inputData);
+    return await this.deleteGroupInConnectionUseCase.execute(inputData, InTransactionEnum.ON);
   }
 
   @ApiOperation({ summary: 'Create group in connection' })
@@ -409,7 +409,7 @@ export class ConnectionController {
         cognitoUserName: userId,
       },
     };
-    return await this.createGroupInConnectionUseCase.execute(inputData);
+    return await this.createGroupInConnectionUseCase.execute(inputData, InTransactionEnum.ON);
   }
 
   @ApiOperation({ summary: 'Get all groups in this connection' })
@@ -430,7 +430,7 @@ export class ConnectionController {
       connectionId: connectionId,
       cognitoUserName: userId,
     };
-    return await this.getUserGroupsInConnectionUseCase.execute(inputData);
+    return await this.getUserGroupsInConnectionUseCase.execute(inputData, InTransactionEnum.OFF);
   }
 
   @ApiOperation({
@@ -457,7 +457,7 @@ export class ConnectionController {
       masterPwd: masterPwd,
       cognitoUserName: userId,
     };
-    return await this.getPermissionsForGroupInConnectionUseCase.execute(inputData);
+    return await this.getPermissionsForGroupInConnectionUseCase.execute(inputData, InTransactionEnum.OFF);
   }
 
   @ApiOperation({
@@ -484,7 +484,7 @@ export class ConnectionController {
       masterPwd: masterPwd,
       cognitoUserName: userId,
     };
-    return await this.getUserPermissionsForGroupInConnectionUseCase.execute(inputData);
+    return await this.getUserPermissionsForGroupInConnectionUseCase.execute(inputData, InTransactionEnum.OFF);
   }
 
   @ApiBody({ type: CreateConnectionDto })
@@ -547,7 +547,7 @@ export class ConnectionController {
         message: toPrettyErrorsMsg(errors),
       };
     }
-    const result = await this.testConnectionUseCase.execute(inputData);
+    const result = await this.testConnectionUseCase.execute(inputData, InTransactionEnum.OFF);
     result.message = processExceptionMessage(result.message);
     return result;
   }
@@ -590,7 +590,7 @@ export class ConnectionController {
       newMasterPwd: newMasterPwd,
       oldMasterPwd: oldMasterPwd,
     };
-    return await this.updateConnectionMasterPasswordUseCase.execute(inputData);
+    return await this.updateConnectionMasterPasswordUseCase.execute(inputData, InTransactionEnum.ON);
   }
 
   @ApiOperation({
@@ -670,7 +670,7 @@ export class ConnectionController {
         HttpStatus.BAD_REQUEST,
       );
     }
-    return await this.restoreConnectionUseCase.execute(connectionData);
+    return await this.restoreConnectionUseCase.execute(connectionData, InTransactionEnum.ON);
   }
 
   @ApiOperation({ summary: 'Check connection token existence' })
@@ -679,7 +679,7 @@ export class ConnectionController {
     if (!token) {
       return false;
     }
-    return await this.validateConnectionTokenUseCase.execute(token);
+    return await this.validateConnectionTokenUseCase.execute(token, InTransactionEnum.OFF);
   }
 
   @ApiOperation({ summary: 'Generate new connection token' })
@@ -694,7 +694,7 @@ export class ConnectionController {
         HttpStatus.BAD_REQUEST,
       );
     }
-    return await this.refreshConnectionAgentTokenUseCase.execute(connectionId);
+    return await this.refreshConnectionAgentTokenUseCase.execute(connectionId, InTransactionEnum.ON);
   }
 
   private validateParameters = (connectionData: CreateConnectionDto): Array<string> => {

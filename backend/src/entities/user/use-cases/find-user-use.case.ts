@@ -22,7 +22,7 @@ import { AmplitudeService } from '../../amplitude/amplitude.service';
 import { getCurrentUserSubscription } from '../../../helpers/stripe/get-current-user-subscription';
 import { getUserIntercomHash } from '../utils/get-user-intercom-hash';
 
-@Injectable({ scope: Scope.REQUEST })
+@Injectable()
 export class FindUserUseCase
   extends AbstractUseCase<FindUserDs | CreateUserDs, FoundUserDs>
   implements IFindUserUseCase
