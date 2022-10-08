@@ -161,7 +161,7 @@ export class AppComponent {
 
             setTimeout(() => {
               this.logOut(true);
-              this.router.navigate(['/login'])
+              this.router.navigate(['/login']);
             }, expirationInterval);
           }
         }
@@ -170,7 +170,7 @@ export class AppComponent {
 
     this._user.cast.subscribe( arg => {
       if (arg === 'delete') {
-        this.logOut();
+        this.logOut(true);
       }
     })
   }

@@ -90,6 +90,7 @@ import { NewVersionComponent } from './components/new-version/new-version.compon
 import { ClipboardModule } from '@angular/cdk/clipboard';
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { CodemirrorModule } from '@ctrl/ngx-codemirror';
+import { UserDeletedSuccessComponent } from './components/user-deleted-success/user-deleted-success.component';
 const saasExtraProviders = (environment as any).saas ? [
   {
     provide: Sentry.TraceService,
@@ -172,7 +173,8 @@ const saasExtraProviders = (environment as any).saas ? [
     GroupUserVerificationComponent,
     FileComponent,
     AlertComponent,
-    NewVersionComponent
+    NewVersionComponent,
+    UserDeletedSuccessComponent
   ],
   entryComponents: [
     DbRowDeleteDialogComponent,
