@@ -47,6 +47,7 @@ class ConfigService {
       migrationsRun: false,
       extra: {
         max: 20,
+        idle_in_transaction_session_timeout: 20 * 1000,
       },
     };
 
