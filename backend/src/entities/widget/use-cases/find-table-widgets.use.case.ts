@@ -10,7 +10,7 @@ import { HttpException } from '@nestjs/common/exceptions/http.exception';
 import { Messages } from '../../../exceptions/text/messages';
 import { buildFoundTableWidgetDs } from '../utils/build-found-table-widget-ds';
 
-@Injectable({ scope: Scope.REQUEST })
+@Injectable()
 export class FindTableWidgetsUseCase
   extends AbstractUseCase<FindTableWidgetsDs, Array<FoundTableWidgetsDs>>
   implements IFindTableWidgets

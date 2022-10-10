@@ -9,7 +9,7 @@ export interface IConnectionRepository {
 
   findOneConnection(connectionId: string): Promise<Omit<ConnectionEntity, 'password' | 'privateSSHKey' | 'groups'>>;
 
-  findFullConnectionEntity(connectionId: string): Promise<ConnectionEntity>;
+  // findFullConnectionEntity(connectionId: string): Promise<ConnectionEntity>;
 
   findAndDecryptConnection(connectionId: string, masterPwd: string): Promise<ConnectionEntity>;
 
@@ -26,6 +26,8 @@ export interface IConnectionRepository {
   getConnectionByGroupId(groupId: string): Promise<ConnectionEntity>;
 
   findOneById(connectionId: string): Promise<ConnectionEntity>;
+
+ isTestConnectionById(connectionId: string): Promise<boolean>
 
   findOneAgentConnectionByToken(connectionToken: string): Promise<ConnectionEntity>;
 }

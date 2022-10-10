@@ -1,25 +1,25 @@
+import { Inject, Injectable, Scope } from '@nestjs/common';
 import AbstractUseCase from '../../../common/abstract-use.case';
-import { AccessLevelEnum, AmplitudeEventTypeEnum } from '../../../enums';
+import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface';
 import { BaseType } from '../../../common/data-injection.tokens';
+import { AccessLevelEnum, AmplitudeEventTypeEnum } from '../../../enums';
+import { Constants } from '../../../helpers/constants/constants';
+import { AmplitudeService } from '../../amplitude/amplitude.service';
+import { GroupEntity } from '../../group/group.entity';
+import { PermissionEntity } from '../../permission/permission.entity';
+import { TableSettingsEntity } from '../../table-settings/table-settings.entity';
+import { CreateUserDs } from '../../user/application/data-structures/create-user.ds';
+import { FindUserDs } from '../../user/application/data-structures/find-user.ds';
 import { buildConnectionEntitiesFromTestDtos } from '../../user/utils/build-connection-entities-from-test-dtos';
 import { buildDefaultAdminGroups } from '../../user/utils/build-default-admin-groups';
 import { buildDefaultAdminPermissions } from '../../user/utils/build-default-admin-permissions';
-import { buildFoundConnectionDs } from '../utils/build-found-connection.ds';
 import { buildTestTableSettings } from '../../user/utils/build-test-table-settings';
-import { ConnectionEntity } from '../connection.entity';
-import { Constants } from '../../../helpers/constants/constants';
-import { CreateUserDs } from '../../user/application/data-structures/create-user.ds';
-import { FindUserDs } from '../../user/application/data-structures/find-user.ds';
 import { FoundConnectionsDs } from '../application/data-structures/found-connections.ds';
-import { GroupEntity } from '../../group/group.entity';
+import { ConnectionEntity } from '../connection.entity';
+import { buildFoundConnectionDs } from '../utils/build-found-connection.ds';
 import { IFindConnections } from './use-cases.interfaces';
-import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface';
-import { Inject, Injectable, Scope } from '@nestjs/common';
-import { PermissionEntity } from '../../permission/permission.entity';
-import { TableSettingsEntity } from '../../table-settings/table-settings.entity';
-import { AmplitudeService } from '../../amplitude/amplitude.service';
 
-@Injectable({ scope: Scope.REQUEST })
+@Injectable()
 export class FindAllConnectionsUseCase
   extends AbstractUseCase<CreateUserDs | FindUserDs, FoundConnectionsDs>
   implements IFindConnections
@@ -85,15 +85,13 @@ export class FindAllConnectionsUseCase
         }),
       );
       const testTableSettingsArrays: Array<Array<TableSettingsEntity>> = buildTestTableSettings(createdTestConnections);
-      await Promise.all(
-        testTableSettingsArrays.map(async (array: Array<TableSettingsEntity>) => {
-          await Promise.all(
-            array.map(async (tableSettings: TableSettingsEntity) => {
-              await this._dbContext.tableSettingsRepository.saveNewOrUpdatedSettings(tableSettings);
-            }),
-          );
-        }),
-      );
+      for (const tableSettingsArray of testTableSettingsArrays) {
+        await Promise.all(
+          tableSettingsArray.map(async (tableSettings: TableSettingsEntity) => {
+            await this._dbContext.tableSettingsRepository.saveNewOrUpdatedSettings(tableSettings);
+          }),
+        );
+      }
       await this.amplitudeService.formAndSendLogRecord(AmplitudeEventTypeEnum.userRegistered, savedUser.id);
       const connectionsRO = createdTestConnections.map((connection: ConnectionEntity) => {
         return {

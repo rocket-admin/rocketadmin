@@ -13,33 +13,34 @@ import {
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { CreateCustomFieldDto } from './dto/create-custom-field.dto';
 import { HttpException } from '@nestjs/common/exceptions/http.exception';
-import { Messages } from '../../exceptions/text/messages';
-import { SentryInterceptor } from '../../interceptors';
-import { UpdateCustomFieldDto } from './dto/update-custom-field-dto';
-import { ConnectionEditGuard, ConnectionReadGuard } from '../../guards';
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UseCaseType } from '../../common/data-injection.tokens';
+import { MasterPassword, QueryTableName, QueryUuid, SlugUuid, UserId } from '../../decorators';
+import { InTransactionEnum } from '../../enums';
+import { Messages } from '../../exceptions/text/messages';
+import { ConnectionEditGuard, ConnectionReadGuard } from '../../guards';
+import { SentryInterceptor } from '../../interceptors';
+import { FoundTableSettingsDs } from '../table-settings/application/data-structures/found-table-settings.ds';
+import { CreateCustomFieldsDs } from './application/data-structures/create-custom-fields.ds';
+import { DeleteCustomFieldsDs } from './application/data-structures/delete-custom-fields.ds';
+import { FoundCustomFieldsDs } from './application/data-structures/found-custom-fields.ds';
+import { GetCustomFieldsDs } from './application/data-structures/get-custom-fields.ds';
+import { UpdateCustomFieldsDs } from './application/data-structures/update-custom-fields.ds';
+import { CreateCustomFieldDto } from './dto/create-custom-field.dto';
+import { UpdateCustomFieldDto } from './dto/update-custom-field-dto';
 import {
   ICreateCustomFields,
   IDeleteCustomField,
   IGetCustomFields,
   IUpdateCustomFields,
 } from './use-cases/custom-field-use-cases.interface';
-import { GetCustomFieldsDs } from './application/data-structures/get-custom-fields.ds';
-import { CreateCustomFieldsDs } from './application/data-structures/create-custom-fields.ds';
-import { UpdateCustomFieldsDs } from './application/data-structures/update-custom-fields.ds';
-import { DeleteCustomFieldsDs } from './application/data-structures/delete-custom-fields.ds';
-import { FoundCustomFieldsDs } from './application/data-structures/found-custom-fields.ds';
-import { FoundTableSettingsDs } from '../table-settings/application/data-structures/found-table-settings.ds';
-import { MasterPassword, QueryTableName, QueryUuid, SlugUuid, UserId } from '../../decorators';
 
 @ApiBearerAuth()
 @ApiTags('custom_fields')
 @UseInterceptors(SentryInterceptor)
 @Controller()
-@Injectable({ scope: Scope.REQUEST })
+@Injectable()
 export class CustomFieldController {
   constructor(
     @Inject(UseCaseType.GET_CUSTOM_FIELDS)
@@ -65,7 +66,7 @@ export class CustomFieldController {
       connectionId: connectionId,
       tableName: tableName,
     };
-    return await this.getCustomFieldsUseCase.execute(inputData);
+    return await this.getCustomFieldsUseCase.execute(inputData, InTransactionEnum.OFF);
   }
 
   @ApiOperation({ summary: 'Create new custom field' })
@@ -98,7 +99,7 @@ export class CustomFieldController {
       tableName: tableName,
       userId: userId,
     };
-    return await this.createCustomFieldsUseCase.execute(inputData);
+    return await this.createCustomFieldsUseCase.execute(inputData, InTransactionEnum.ON);
   }
 
   @ApiOperation({ summary: 'Update custom field' })
@@ -138,7 +139,7 @@ export class CustomFieldController {
       updateFieldDto: updateFieldDto,
       userId: userId,
     };
-    return await this.updateCustomFieldsUseCase.execute(inputData);
+    return await this.updateCustomFieldsUseCase.execute(inputData, InTransactionEnum.ON);
   }
 
   @ApiOperation({ summary: 'Delete custom field' })
@@ -167,6 +168,6 @@ export class CustomFieldController {
       fieldId: fieldId,
       tableName: tableName,
     };
-    return await this.deleteCustomFieldUseCase.execute(inputData);
+    return await this.deleteCustomFieldUseCase.execute(inputData, InTransactionEnum.ON);
   }
 }

@@ -5,7 +5,7 @@ import { IRefreshConnectionAgentToken } from './use-cases.interfaces';
 import { BaseType } from '../../../common/data-injection.tokens';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface';
 
-@Injectable({ scope: Scope.REQUEST })
+@Injectable()
 export class RefreshConnectionAgentTokenUseCase
   extends AbstractUseCase<string, TokenDs>
   implements IRefreshConnectionAgentToken

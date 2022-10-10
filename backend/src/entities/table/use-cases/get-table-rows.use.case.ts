@@ -1,43 +1,43 @@
-import { HttpException, HttpStatus, Inject, Injectable, Scope } from '@nestjs/common';
+import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import AbstractUseCase from '../../../common/abstract-use.case';
-import { IGetTableRows } from './table-use-cases.interface';
-import { BaseType } from '../../../common/data-injection.tokens';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface';
-import { AmplitudeService } from '../../amplitude/amplitude.service';
-import { GetTableRowsDs } from '../application/data-structures/get-table-rows.ds';
-import { Messages } from '../../../exceptions/text/messages';
+import { BaseType } from '../../../common/data-injection.tokens';
 import { createDataAccessObject } from '../../../data-access-layer/shared/create-data-access-object';
-import { isConnectionTypeAgent } from '../../../helpers';
-import { findFilteringFieldsUtil } from '../utils/find-filtering-fields.util';
-import { findOrderingFieldUtil } from '../utils/find-ordering-field.util';
-import { findAutocompleteFieldsUtil } from '../utils/find-autocomplete-fields.util';
-import { addCustomFieldsInRowsUtil } from '../utils/add-custom-fields-in-rows.util';
-import { convertBinaryDataInRowsUtil } from '../utils/convert-binary-data-in-rows.util';
-import { removePasswordsFromRowsUtil } from '../utils/remove-passwords-from-rows.util';
 import {
   IDataAccessObject,
   IForeignKey,
   IForeignKeyWithForeignColumnName,
 } from '../../../data-access-layer/shared/data-access-object-interface';
-import { IForeignKeyInfo } from '../table.interface';
 import {
   AmplitudeEventTypeEnum,
   LogOperationTypeEnum,
   OperationResultStatusEnum,
   WidgetTypeEnum,
 } from '../../../enums';
-import { formFullTableStructure } from '../utils/form-full-table-structure';
+import { Messages } from '../../../exceptions/text/messages';
+import { isConnectionTypeAgent } from '../../../helpers';
+import { AmplitudeService } from '../../amplitude/amplitude.service';
+import { TableLogsService } from '../../table-logs/table-logs.service';
 import { TableSettingsEntity } from '../../table-settings/table-settings.entity';
 import { FoundTableRowsDs } from '../application/data-structures/found-table-rows.ds';
-import { isTestConnectionById } from '../../connection/utils/is-test-connection-util';
-import { crateAndSaveNewLogUtil } from '../../table-logs/utils/crate-and-save-new-log-util';
+import { GetTableRowsDs } from '../application/data-structures/get-table-rows.ds';
+import { IForeignKeyInfo } from '../table.interface';
+import { addCustomFieldsInRowsUtil } from '../utils/add-custom-fields-in-rows.util';
+import { convertBinaryDataInRowsUtil } from '../utils/convert-binary-data-in-rows.util';
+import { findAutocompleteFieldsUtil } from '../utils/find-autocomplete-fields.util';
+import { findFilteringFieldsUtil } from '../utils/find-filtering-fields.util';
+import { findOrderingFieldUtil } from '../utils/find-ordering-field.util';
+import { formFullTableStructure } from '../utils/form-full-table-structure';
+import { removePasswordsFromRowsUtil } from '../utils/remove-passwords-from-rows.util';
+import { IGetTableRows } from './table-use-cases.interface';
 
-@Injectable({ scope: Scope.REQUEST })
+@Injectable()
 export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTableRowsDs> implements IGetTableRows {
   constructor(
     @Inject(BaseType.GLOBAL_DB_CONTEXT)
     protected _dbContext: IGlobalDatabaseContext,
     private amplitudeService: AmplitudeService,
+    private tableLogsService: TableLogsService,
   ) {
     super();
   }
@@ -233,8 +233,8 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
         operationType: LogOperationTypeEnum.rowsReceived,
         operationStatusResult: operationResult,
       };
-      await crateAndSaveNewLogUtil(logRecord);
-      const isTest = await isTestConnectionById(connectionId);
+      await this.tableLogsService.crateAndSaveNewLogUtil(logRecord);
+      const isTest = await this._dbContext.connectionRepository.isTestConnectionById(connectionId);
       await this.amplitudeService.formAndSendLogRecord(
         isTest ? AmplitudeEventTypeEnum.tableRowsReceivedTest : AmplitudeEventTypeEnum.tableRowsReceived,
         userId,

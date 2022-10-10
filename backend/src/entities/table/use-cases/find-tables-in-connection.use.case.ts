@@ -16,7 +16,7 @@ import { TableSettingsEntity } from '../../table-settings/table-settings.entity'
 import AbstractUseCase from '../../../common/abstract-use.case';
 import { saveTablesInfoInDatabaseUtil } from '../utils/save-tables-info-in-database.util';
 
-@Injectable({ scope: Scope.REQUEST })
+@Injectable()
 export class FindTablesInConnectionUseCase
   extends AbstractUseCase<FindTablesDs, Array<FoundTableDs>>
   implements IFindTablesInConnection
@@ -72,7 +72,7 @@ export class FindTablesInConnectionUseCase
         userId,
         { tablesCount: tables?.length ? tables.length : 0 },
       );
-      if (connection.saved_table_info === 0 && !connection.isTestConnection && operationResult) {
+      if (connection.saved_table_info === 0 && !connection.isTestConnection && operationResult && process.env.NODE_ENV !== 'test') {
         saveTablesInfoInDatabaseUtil(connection, userId, tables);
       }
     }

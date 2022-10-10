@@ -1,5 +1,7 @@
 export enum BaseType {
   GLOBAL_DB_CONTEXT = 'GLOBAL_DB_CONTEXT',
+  DATA_SOURCE = 'DATA_SOURCE',
+  REPO_ACCESSOR = 'REPO_ACCESSOR',
 }
 
 export enum UseCaseType {

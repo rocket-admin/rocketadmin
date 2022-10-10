@@ -18,63 +18,64 @@ import { TestConnectionResultDs } from '../application/data-structures/test-conn
 import { UpdateMasterPasswordDs } from '../application/data-structures/update-master-password.ds';
 import { RestoredConnectionDs } from '../application/data-structures/restored-connection.ds';
 import { TokenDs } from '../application/data-structures/token.ds';
+import { InTransactionEnum } from '../../../enums';
 
 export interface IFindConnections {
-  execute(user: CreateUserDs): Promise<FoundConnectionsDs>;
+  execute(user: CreateUserDs, inTransaction: InTransactionEnum): Promise<FoundConnectionsDs>;
 }
 
 export interface IFindUsersInConnection {
-  execute(connectionId: string): Promise<Array<FoundUserDs>>;
+  execute(connectionId: string, inTransaction: InTransactionEnum): Promise<Array<FoundUserDs>>;
 }
 
 export interface IFindOneConnection {
-  execute(inputData: FindOneConnectionDs): Promise<FoundOneConnectionDs>;
+  execute(inputData: FindOneConnectionDs, inTransaction: InTransactionEnum): Promise<FoundOneConnectionDs>;
 }
 
 export interface ICreateConnection {
-  execute(inputData: CreateConnectionDs): Promise<CreatedConnectionDs>;
+  execute(inputData: CreateConnectionDs, inTransaction: InTransactionEnum): Promise<CreatedConnectionDs>;
 }
 
 export interface IUpdateConnection {
-  execute(inputData: UpdateConnectionDs): Promise<Omit<CreatedConnectionDs, 'groups'>>;
+  execute(inputData: UpdateConnectionDs, inTransaction: InTransactionEnum): Promise<Omit<CreatedConnectionDs, 'groups'>>;
 }
 
 export interface IDeleteConnection {
-  execute(inputData: DeleteConnectionDs): Promise<CreatedConnectionDs>;
+  execute(inputData: DeleteConnectionDs, inTransaction: InTransactionEnum): Promise<CreatedConnectionDs>;
 }
 
 export interface IDeleteGroupInConnection {
-  execute(inputData: DeleteGroupInConnectionDs): Promise<Omit<GroupEntity, 'connection'>>;
+  execute(inputData: DeleteGroupInConnectionDs, inTransaction: InTransactionEnum): Promise<Omit<GroupEntity, 'connection'>>;
 }
 
 export interface ICreateGroupInConnection {
-  execute(inputData: CreateGroupInConnectionDs): Promise<Omit<GroupEntity, 'connection'>>;
+  execute(inputData: CreateGroupInConnectionDs, inTransaction: InTransactionEnum): Promise<Omit<GroupEntity, 'connection'>>;
 }
 
 export interface IGetUserGroupsInConnection {
-  execute(inputData: GetGroupsInConnectionDs): Promise<Array<FoundUserGroupsInConnectionDs>>;
+  execute(inputData: GetGroupsInConnectionDs, inTransaction: InTransactionEnum): Promise<Array<FoundUserGroupsInConnectionDs>>;
 }
 
 export interface IGetPermissionsForGroupInConnection {
-  execute(inputData: GetPermissionsInConnectionDs): Promise<FoundPermissionsInConnectionDs>;
+  execute(inputData: GetPermissionsInConnectionDs, inTransaction: InTransactionEnum): Promise<FoundPermissionsInConnectionDs>;
 }
 
 export interface ITestConnection {
-  execute(inputData: UpdateConnectionDs): Promise<TestConnectionResultDs>;
+  execute(inputData: UpdateConnectionDs, inTransaction: InTransactionEnum): Promise<TestConnectionResultDs>;
 }
 
 export interface IUpdateMasterPassword {
-  execute(inputData: UpdateMasterPasswordDs): Promise<boolean>;
+  execute(inputData: UpdateMasterPasswordDs, inTransaction: InTransactionEnum): Promise<boolean>;
 }
 
 export interface IRestoreConnection {
-  execute(inputData: UpdateConnectionDs): Promise<RestoredConnectionDs>;
+  execute(inputData: UpdateConnectionDs, inTransaction: InTransactionEnum): Promise<RestoredConnectionDs>;
 }
 
 export interface IValidateConnectionToken {
-  execute(token: string): Promise<boolean>;
+  execute(token: string, inTransaction: InTransactionEnum): Promise<boolean>;
 }
 
 export interface IRefreshConnectionAgentToken {
-  execute(connectionId: string): Promise<TokenDs>;
+  execute(connectionId: string, inTransaction: InTransactionEnum): Promise<TokenDs>;
 }

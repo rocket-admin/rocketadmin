@@ -1,13 +1,13 @@
 import { Injectable } from '@nestjs/common';
-import { ICheckUsersActionsAndMailingUsers } from './use-cases-interfaces';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { UserActionEnum } from '../../../enums';
+import { getUniqArrayStrings } from '../../../helpers';
+import { Constants } from '../../../helpers/constants/constants';
 import { UserEntity } from '../../user/user.entity';
 import { UserActionEntity } from '../user-action.entity';
 import { buildNewConnectionNotFinishedEmailSentAction } from '../utils/build-new-user-action-entity';
-import { getUniqArrayStrings } from '../../../helpers';
-import { getRepository, Repository } from 'typeorm';
-import { Constants } from '../../../helpers/constants/constants';
-import { UserActionEnum } from '../../../enums';
-import { InjectRepository } from '@nestjs/typeorm';
+import { ICheckUsersActionsAndMailingUsers } from './use-cases-interfaces';
 
 @Injectable()
 export class CheckUsersActionsAndMailingUsersUseCase implements ICheckUsersActionsAndMailingUsers {
@@ -50,13 +50,13 @@ export class CheckUsersActionsAndMailingUsersUseCase implements ICheckUsersActio
         return;
       }
     }
-    const foundUser = await this.userRepository.findOne(u.id);
+    const foundUser = await this.userRepository.findOne({ where: { id: u.id } });
     const newUserActionEntity = buildNewConnectionNotFinishedEmailSentAction(foundUser);
     await this.userActionRepository.save(newUserActionEntity);
   }
 
   private async findAllNonFinishedActionsTwoWeeksOld(): Promise<Array<UserActionEntity>> {
-    const notFinishedActionsQb = await getRepository(UserActionEntity)
+    const notFinishedActionsQb = this.userActionRepository
       .createQueryBuilder('user_action')
       .leftJoinAndSelect('user_action.user', 'user')
       .andWhere('user_action.createdAt <= :date_to', { date_to: Constants.ONE_WEEK_AGO() })
@@ -66,7 +66,7 @@ export class CheckUsersActionsAndMailingUsersUseCase implements ICheckUsersActio
   }
 
   private async findUsersWithoutLogs(): Promise<Array<UserEntity>> {
-    const usersQb = await getRepository(UserEntity)
+    const usersQb = this.userRepository
       .createQueryBuilder('user')
       .leftJoinAndSelect('user.groups', 'group')
       .leftJoinAndSelect('group.connection', 'connection')
@@ -79,7 +79,7 @@ export class CheckUsersActionsAndMailingUsersUseCase implements ICheckUsersActio
   }
 
   private async findUserActionWithoutSentMail(userId: string): Promise<UserActionEntity> {
-    const actionQb = await getRepository(UserActionEntity)
+    const actionQb = this.userActionRepository
       .createQueryBuilder('user_action')
       .leftJoinAndSelect('user_action.user', 'user')
       .andWhere('user.id = :user_id', { user_id: userId })

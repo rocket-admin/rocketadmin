@@ -6,7 +6,7 @@ import { IFindConnectionProperties } from './connection-properties-use.cases.int
 import { FoundConnectionPropertiesDs } from '../application/data-structures/found-connection-properties.ds';
 import { buildFoundConnectionPropertiesDs } from '../utils/build-found-connection-properties-ds';
 
-@Injectable({ scope: Scope.REQUEST })
+@Injectable()
 export class FindConnectionPropertiesUseCase extends AbstractUseCase<string, FoundConnectionPropertiesDs | null>
   implements IFindConnectionProperties {
   constructor(

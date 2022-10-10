@@ -1,18 +1,18 @@
+import { faker } from '@faker-js/faker';
 import { INestApplication } from '@nestjs/common';
-import { TestUtils } from '../utils/test.utils';
-import { MockFactory } from '../mock.factory';
-import test from 'ava';
 import { Test } from '@nestjs/testing';
+import test from 'ava';
+import * as cookieParser from 'cookie-parser';
+import * as request from 'supertest';
+import { Connection } from 'typeorm';
 import { ApplicationModule } from '../../src/app.module';
+import { Constants } from '../../src/helpers/constants/constants';
 import { DatabaseModule } from '../../src/shared/database/database.module';
 import { DatabaseService } from '../../src/shared/database/database.service';
-import * as cookieParser from 'cookie-parser';
-import { faker } from '@faker-js/faker';
-import { Connection } from 'typeorm';
-import * as request from 'supertest';
-import { Constants } from '../../src/helpers/constants/constants';
-import { getTestKnex } from '../utils/get-test-knex';
+import { MockFactory } from '../mock.factory';
 import { dropTestTables } from '../utils/drop-test-tables';
+import { getTestKnex } from '../utils/get-test-knex';
+import { TestUtils } from '../utils/test.utils';
 
 const mockFactory = new MockFactory();
 let app: INestApplication;
@@ -111,6 +111,9 @@ async function registerUserAndReturnUserInfo(): Promise<{
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
 
+  if (registerAdminUserResponse.status > 300) {
+    console.log('registerAdminUserResponse.text -> ', registerAdminUserResponse.text);
+  }
   const token = `${Constants.JWT_COOKIE_KEY_NAME}=${TestUtils.getJwtTokenFromResponse(registerAdminUserResponse)}`;
   return { token: token, ...adminUserRegisterInfo };
 }

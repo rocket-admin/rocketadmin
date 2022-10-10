@@ -10,23 +10,40 @@ import {
   Post,
   Put,
   Query,
-  Scope,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { IGlobalDatabaseContext } from '../../common/application/global-database-context.intarface';
+import { BaseType, UseCaseType } from '../../common/data-injection.tokens';
+import { createDataAccessObject } from '../../data-access-layer/shared/create-data-access-object';
+import { MasterPassword, QueryTableName, SlugUuid, UserId } from '../../decorators';
+import { AmplitudeEventTypeEnum, InTransactionEnum } from '../../enums';
+import { Messages } from '../../exceptions/text/messages';
+import { TableAddGuard, TableDeleteGuard, TableEditGuard, TableReadGuard } from '../../guards';
+import { isConnectionTypeAgent, isObjectEmpty } from '../../helpers';
+import { Encryptor } from '../../helpers/encryption/encryptor';
+import { SentryInterceptor } from '../../interceptors';
+import { AmplitudeService } from '../amplitude/amplitude.service';
+import { ConnectionEntity } from '../connection/connection.entity';
+import { UserEntity } from '../user/user.entity';
+import { AddRowInTableDs } from './application/data-structures/add-row-in-table.ds';
+import { DeleteRowFromTableDs } from './application/data-structures/delete-row-from-table.ds';
+import { DeletedRowFromTableDs } from './application/data-structures/deleted-row-from-table.ds';
+import { FindTablesDs } from './application/data-structures/find-tables.ds';
+import { FoundTableRowsDs } from './application/data-structures/found-table-rows.ds';
+import { FoundTableDs } from './application/data-structures/found-table.ds';
+import { GetRowByPrimaryKeyDs } from './application/data-structures/get-row-by-primary-key.ds';
+import { GetTableRowsDs } from './application/data-structures/get-table-rows.ds';
+import { GetTableStructureDs } from './application/data-structures/get-table-structure-ds';
+import { UpdateRowInTableDs } from './application/data-structures/update-row-in-table.ds';
 import { AddRowDto } from './dto/add-row-dto';
-import { AmplitudeEventTypeEnum } from '../../enums';
 import { DeleteRowDto } from './dto/delete-row-dto';
 import { FindTableDto } from './dto/find-table.dto';
-import { isConnectionTypeAgent, isObjectEmpty } from '../../helpers';
-import { IStructureRO, ITableRowRO } from './table.interface';
-import { Messages } from '../../exceptions/text/messages';
-import { SentryInterceptor } from '../../interceptors';
 import { UpdateRowDto } from './dto/update-row-dto';
-import { TableAddGuard, TableDeleteGuard, TableEditGuard, TableReadGuard } from '../../guards';
-import { AmplitudeService } from '../amplitude/amplitude.service';
-import { BaseType, UseCaseType } from '../../common/data-injection.tokens';
+import { IStructureRO, ITableRowRO } from './table.interface';
 import {
   IAddRowInTable,
   IDeleteRowFromTable,
@@ -36,26 +53,12 @@ import {
   IGetTableStructure,
   IUpdateRowInTable,
 } from './use-cases/table-use-cases.interface';
-import { FindTablesDs } from './application/data-structures/find-tables.ds';
-import { FoundTableDs } from './application/data-structures/found-table.ds';
-import { GetTableRowsDs } from './application/data-structures/get-table-rows.ds';
-import { FoundTableRowsDs } from './application/data-structures/found-table-rows.ds';
-import { GetTableStructureDs } from './application/data-structures/get-table-structure-ds';
-import { AddRowInTableDs } from './application/data-structures/add-row-in-table.ds';
-import { UpdateRowInTableDs } from './application/data-structures/update-row-in-table.ds';
-import { DeleteRowFromTableDs } from './application/data-structures/delete-row-from-table.ds';
-import { DeletedRowFromTableDs } from './application/data-structures/deleted-row-from-table.ds';
-import { GetRowByPrimaryKeyDs } from './application/data-structures/get-row-by-primary-key.ds';
-import { IGlobalDatabaseContext } from '../../common/application/global-database-context.intarface';
-import { createDataAccessObject } from '../../data-access-layer/shared/create-data-access-object';
-import { isTestConnectionById } from '../connection/utils/is-test-connection-util';
-import { MasterPassword, QueryTableName, SlugUuid, UserId } from '../../decorators';
 
 @ApiBearerAuth()
 @ApiTags('tables')
 @UseInterceptors(SentryInterceptor)
 @Controller()
-@Injectable({ scope: Scope.REQUEST })
+@Injectable()
 export class TableController {
   constructor(
     private readonly amplitudeService: AmplitudeService,
@@ -73,8 +76,12 @@ export class TableController {
     private readonly deleteRowFromTableUseCase: IDeleteRowFromTable,
     @Inject(UseCaseType.GET_ROW_BY_PRIMARY_KEY)
     private readonly getRowByPrimaryKeyUseCase: IGetRowByPrimaryKey,
+    @InjectRepository(ConnectionEntity)
+    private readonly connectionRepository: Repository<ConnectionEntity>,
+    @InjectRepository(UserEntity)
+    private readonly userRepository: Repository<UserEntity>,
     @Inject(BaseType.GLOBAL_DB_CONTEXT)
-    private readonly dbContext: IGlobalDatabaseContext,
+    protected _dbContext: IGlobalDatabaseContext,
   ) {}
 
   @ApiOperation({ summary: 'Get tables in connection' })
@@ -104,7 +111,7 @@ export class TableController {
       masterPwd: masterPwd,
       userId: userId,
     };
-    return await this.findTablesInConnectionUseCase.execute(inputData);
+    return await this.findTablesInConnectionUseCase.execute(inputData, InTransactionEnum.OFF);
   }
 
   @ApiOperation({ summary: 'Get all rows in table in this connection' })
@@ -152,7 +159,7 @@ export class TableController {
       tableName: tableName,
       userId: userId,
     };
-    return await this.getTableRowsUseCase.execute(inputData);
+    return await this.getTableRowsUseCase.execute(inputData, InTransactionEnum.OFF);
   }
 
   @ApiOperation({ summary: 'Get structure of this table in this connection' })
@@ -182,7 +189,7 @@ export class TableController {
       tableName: tableName,
       userId: userId,
     };
-    return await this.getTableStructureUseCase.execute(inputData);
+    return await this.getTableStructureUseCase.execute(inputData, InTransactionEnum.OFF);
   }
 
   @ApiOperation({ summary: 'Insert values into table' })
@@ -213,7 +220,7 @@ export class TableController {
       tableName: tableName,
       userId: userId,
     };
-    return await this.addRowInTableUseCase.execute(inputData);
+    return await this.addRowInTableUseCase.execute(inputData, InTransactionEnum.OFF);
   }
 
   @ApiOperation({ summary: 'Update values into table (by "id" in row)' })
@@ -251,7 +258,7 @@ export class TableController {
       tableName: tableName,
       userId: userId,
     };
-    return await this.updateRowInTableUseCase.execute(inputData);
+    return await this.updateRowInTableUseCase.execute(inputData, InTransactionEnum.OFF);
   }
 
   @ApiOperation({ summary: 'Delete row in table' })
@@ -287,7 +294,7 @@ export class TableController {
       tableName: tableName,
       userId: userId,
     };
-    return await this.deleteRowFromTableUseCase.execute(inputData);
+    return await this.deleteRowFromTableUseCase.execute(inputData, InTransactionEnum.OFF);
   }
 
   @ApiOperation({ summary: 'Get row by primary key' })
@@ -323,11 +330,11 @@ export class TableController {
         tableName: tableName,
         userId: userId,
       };
-      return await this.getRowByPrimaryKeyUseCase.execute(inputData);
+      return await this.getRowByPrimaryKeyUseCase.execute(inputData, InTransactionEnum.OFF);
     } catch (e) {
       throw e;
     } finally {
-      const isTest = await isTestConnectionById(connectionId);
+      const isTest = await this._dbContext.connectionRepository.isTestConnectionById(connectionId);
       await this.amplitudeService.formAndSendLogRecord(
         isTest ? AmplitudeEventTypeEnum.tableRowReceivedTest : AmplitudeEventTypeEnum.tableRowReceived,
         userId,
@@ -343,10 +350,13 @@ export class TableController {
     masterPwd: string,
   ): Promise<Array<any>> {
     const primaryKeys = [];
-    const connection = await this.dbContext.connectionRepository.findAndDecryptConnection(connectionId, masterPwd);
+    let connection = await this.connectionRepository.findOne({ where: { id: connectionId } });
+    if (connection.masterEncryption && masterPwd) {
+      connection = Encryptor.decryptConnectionCredentials(connection, masterPwd);
+    }
     let userEmail: string;
     if (isConnectionTypeAgent(connection.type)) {
-      userEmail = await this.dbContext.userRepository.getUserEmailOrReturnNull(userId);
+      userEmail = (await this.userRepository.findOne({ where: { id: userId } })).email;
     }
     const dao = createDataAccessObject(connection, userEmail);
     const primaryColumns = await dao.getTablePrimaryColumns(tableName, userEmail);

@@ -22,7 +22,7 @@ import { RegisteredUserDs } from '../application/data-structures/registered-user
 import { GoogleLoginDs } from '../application/data-structures/google-login.ds';
 import AbstractUseCase from '../../../common/abstract-use.case';
 
-@Injectable({ scope: Scope.REQUEST })
+@Injectable()
 export class GoogleLoginUseCase extends AbstractUseCase<GoogleLoginDs, IToken> implements IGoogleLogin {
   constructor(
     @Inject(BaseType.GLOBAL_DB_CONTEXT)
@@ -92,15 +92,15 @@ export class GoogleLoginUseCase extends AbstractUseCase<GoogleLoginDs, IToken> i
       }),
     );
     const testTableSettingsArrays: Array<Array<TableSettingsEntity>> = buildTestTableSettings(createdTestConnections);
-    await Promise.all(
-      testTableSettingsArrays.map(async (array: Array<TableSettingsEntity>) => {
-        await Promise.all(
-          array.map(async (tableSettings: TableSettingsEntity) => {
-            await this._dbContext.tableSettingsRepository.saveNewOrUpdatedSettings(tableSettings);
-          }),
-        );
-      }),
-    );
+
+    for (const tableSettingsArray of testTableSettingsArrays) {
+      await Promise.all(
+        tableSettingsArray.map(async (tableSettings: TableSettingsEntity) => {
+          await this._dbContext.tableSettingsRepository.saveNewOrUpdatedSettings(tableSettings);
+        }),
+      );
+    }
+
     const registeredUser: RegisteredUserDs = buildRegisteredUserDS(savedUser);
     return registeredUser.token;
   }

@@ -1,11 +1,11 @@
 import { CanActivate, ExecutionContext, Inject, Injectable } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { IRequestWithCognitoInfo } from '../authorization';
+import { IGlobalDatabaseContext } from '../common/application/global-database-context.intarface';
+import { BaseType } from '../common/data-injection.tokens';
 import { Messages } from '../exceptions/text/messages';
 import { buildBadRequestException, buildForbiddenException } from './utils';
 import { validateUuidByRegex } from './utils/validate-uuid-by-regex';
-import { BaseType } from '../common/data-injection.tokens';
-import { IGlobalDatabaseContext } from '../common/application/global-database-context.intarface';
 
 @Injectable()
 export class GroupEditGuard implements CanActivate {

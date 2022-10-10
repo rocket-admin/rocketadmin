@@ -8,7 +8,7 @@ import { IGlobalDatabaseContext } from '../../../common/application/global-datab
 import { TablePermissionDs } from '../../permission/application/data-structures/create-permissions.ds';
 import { createDataAccessObject } from '../../../data-access-layer/shared/create-data-access-object';
 
-@Injectable({ scope: Scope.REQUEST })
+@Injectable()
 export class GetUserPermissionsForGroupInConnectionUseCase
   extends AbstractUseCase<GetPermissionsInConnectionDs, FoundPermissionsInConnectionDs>
   implements IGetPermissionsForGroupInConnection

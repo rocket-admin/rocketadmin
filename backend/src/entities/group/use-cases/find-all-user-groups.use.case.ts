@@ -7,7 +7,7 @@ import { IGlobalDatabaseContext } from '../../../common/application/global-datab
 import { GroupEntity } from '../group.entity';
 import { AccessLevelEnum } from '../../../enums';
 
-@Injectable({ scope: Scope.REQUEST })
+@Injectable()
 export class FindAllUserGroupsUseCase extends AbstractUseCase<string, FoundUserGroupsDs> implements IFindUserGroups {
   constructor(
     @Inject(BaseType.GLOBAL_DB_CONTEXT)

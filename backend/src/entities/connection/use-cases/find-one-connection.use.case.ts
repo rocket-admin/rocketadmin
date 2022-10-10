@@ -11,7 +11,7 @@ import { AccessLevelEnum } from '../../../enums';
 import { Constants } from '../../../helpers/constants/constants';
 import { Encryptor } from '../../../helpers/encryption/encryptor';
 
-@Injectable({ scope: Scope.REQUEST })
+@Injectable()
 export class FindOneConnectionUseCase
   extends AbstractUseCase<FindOneConnectionDs, FoundOneConnectionDs>
   implements IFindOneConnection

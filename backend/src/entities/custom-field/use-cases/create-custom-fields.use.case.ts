@@ -12,7 +12,7 @@ import { buildFoundTableSettingsDs } from '../../table-settings/utils/build-foun
 import { validateCreateCustomFieldDto } from '../utils/validate-create-custom-field-dto';
 import { FoundTableSettingsDs } from '../../table-settings/application/data-structures/found-table-settings.ds';
 
-@Injectable({ scope: Scope.REQUEST })
+@Injectable()
 export class CreateCustomFieldsUseCase
   extends AbstractUseCase<CreateCustomFieldsDs, FoundTableSettingsDs>
   implements ICreateCustomFields

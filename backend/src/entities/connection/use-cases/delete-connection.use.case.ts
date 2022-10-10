@@ -9,7 +9,7 @@ import { IDeleteConnection } from './use-cases.interfaces';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface';
 import { Messages } from '../../../exceptions/text/messages';
 
-@Injectable({ scope: Scope.REQUEST })
+@Injectable()
 export class DeleteConnectionUseCase
   extends AbstractUseCase<DeleteConnectionDs, CreatedConnectionDs>
   implements IDeleteConnection

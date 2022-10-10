@@ -1,24 +1,15 @@
-import { EntityRepository, getRepository, Repository } from 'typeorm';
-import { PermissionEntity } from '../../permission/permission.entity';
-import { IUserAccessRepository } from './user-access.repository.interface';
-import { AccessLevelEnum, PermissionTypeEnum } from '../../../enums';
-import { ITablePermissionData } from '../../permission/permission.interface';
-import { ConnectionEntity } from '../../connection/connection.entity';
-import { HttpException } from '@nestjs/common/exceptions/http.exception';
-import { Messages } from '../../../exceptions/text/messages';
-import { HttpStatus } from '@nestjs/common';
-import { Encryptor } from '../../../helpers/encryption/encryptor';
+import { HttpException, HttpStatus } from '@nestjs/common';
 import { createDataAccessObject } from '../../../data-access-layer/shared/create-data-access-object';
+import { AccessLevelEnum, PermissionTypeEnum } from '../../../enums';
+import { Messages } from '../../../exceptions/text/messages';
+import { Encryptor } from '../../../helpers/encryption/encryptor';
+import { ConnectionEntity } from '../../connection/connection.entity';
+import { PermissionEntity } from '../../permission/permission.entity';
+import { ITablePermissionData } from '../../permission/permission.interface';
 
-@EntityRepository(PermissionEntity)
-export class UserAccessRepository extends Repository<PermissionEntity> implements IUserAccessRepository {
-  constructor() {
-    super();
-  }
-
+export const userAccessCustomReposiotoryExtension = {
   async getUserConnectionAccessLevel(cognitoUserName: string, connectionId: string): Promise<AccessLevelEnum> {
-    const qb = await getRepository(PermissionEntity)
-      .createQueryBuilder('permission')
+    const qb = this.createQueryBuilder('permission')
       .leftJoinAndSelect('permission.groups', 'group')
       .leftJoinAndSelect('group.users', 'user')
       .leftJoinAndSelect('group.connection', 'connection')
@@ -42,7 +33,7 @@ export class UserAccessRepository extends Repository<PermissionEntity> implement
       return AccessLevelEnum.readonly;
     }
     return AccessLevelEnum.none;
-  }
+  },
 
   async checkUserConnectionRead(cognitoUserName: string, connectionId: string): Promise<boolean> {
     const connectionAccessLevel = await this.getUserConnectionAccessLevel(cognitoUserName, connectionId);
@@ -54,7 +45,7 @@ export class UserAccessRepository extends Repository<PermissionEntity> implement
       default:
         return false;
     }
-  }
+  },
 
   async checkUserConnectionEdit(cognitoUserName: string, connectionId: string): Promise<boolean> {
     const connectionAccessLevel = await this.getUserConnectionAccessLevel(cognitoUserName, connectionId);
@@ -67,7 +58,7 @@ export class UserAccessRepository extends Repository<PermissionEntity> implement
       default:
         return false;
     }
-  }
+  },
 
   async getGroupAccessLevel(cognitoUserName: string, groupId: string): Promise<AccessLevelEnum> {
     const connectionId = await this.getConnectionId(groupId);
@@ -75,9 +66,7 @@ export class UserAccessRepository extends Repository<PermissionEntity> implement
     if (userConnectionAccessLevel) {
       return AccessLevelEnum.edit;
     }
-
-    const qb = await getRepository(PermissionEntity)
-      .createQueryBuilder('permission')
+    const qb = this.createQueryBuilder('permission')
       .leftJoinAndSelect('permission.groups', 'group')
       .leftJoinAndSelect('group.users', 'user')
       .leftJoinAndSelect('group.connection', 'connection')
@@ -102,7 +91,7 @@ export class UserAccessRepository extends Repository<PermissionEntity> implement
       return AccessLevelEnum.readonly;
     }
     return AccessLevelEnum.none;
-  }
+  },
 
   async checkUserGroupRead(cognitoUserName: string, groupId: string): Promise<boolean> {
     const userGroupAccessLevel = await this.getGroupAccessLevel(cognitoUserName, groupId);
@@ -114,7 +103,7 @@ export class UserAccessRepository extends Repository<PermissionEntity> implement
       default:
         return false;
     }
-  }
+  },
 
   async checkUserGroupEdit(cognitoUserName: string, groupId: string): Promise<boolean> {
     const userGroupAccessLevel = await this.getGroupAccessLevel(cognitoUserName, groupId);
@@ -127,7 +116,7 @@ export class UserAccessRepository extends Repository<PermissionEntity> implement
       default:
         return false;
     }
-  }
+  },
 
   async getUserTablePermissions(
     cognitoUserName: string,
@@ -135,13 +124,13 @@ export class UserAccessRepository extends Repository<PermissionEntity> implement
     tableName: string,
     masterPwd: string,
   ): Promise<ITablePermissionData> {
-    const connectionQB = await getRepository(ConnectionEntity)
+    const connectionQB = this.manager
+      .getRepository(ConnectionEntity)
       .createQueryBuilder('connection')
       .leftJoinAndSelect('connection.agent', 'agent');
     connectionQB.andWhere('connection.id = :id', { id: connectionId });
 
-    let foundConnection = await connectionQB.getOne();
-
+    let foundConnection: ConnectionEntity = await connectionQB.getOne();
     if (!foundConnection) {
       throw new HttpException(
         {
@@ -171,7 +160,6 @@ export class UserAccessRepository extends Repository<PermissionEntity> implement
         HttpStatus.BAD_REQUEST,
       );
     }
-
     const connectionEdit = await this.checkUserConnectionEdit(cognitoUserName, connectionId);
     if (connectionEdit) {
       return {
@@ -186,8 +174,7 @@ export class UserAccessRepository extends Repository<PermissionEntity> implement
       };
     }
 
-    const qb = await getRepository(PermissionEntity)
-      .createQueryBuilder('permission')
+    const qb = this.createQueryBuilder('permission')
       .leftJoinAndSelect('permission.groups', 'group')
       .leftJoinAndSelect('group.users', 'user')
       .leftJoinAndSelect('group.connection', 'connection')
@@ -202,7 +189,6 @@ export class UserAccessRepository extends Repository<PermissionEntity> implement
     const addPermission = tableAccessLevels.includes(AccessLevelEnum.add);
     const deletePermission = tableAccessLevels.includes(AccessLevelEnum.delete);
     const editPermission = tableAccessLevels.includes(AccessLevelEnum.edit);
-
     const readOnly = !(addPermission || deletePermission || editPermission);
     return {
       tableName: tableName,
@@ -214,7 +200,7 @@ export class UserAccessRepository extends Repository<PermissionEntity> implement
         edit: editPermission,
       },
     };
-  }
+  },
 
   async getUserPermissionsForAvailableTables(
     cognitoUserName: string,
@@ -223,7 +209,6 @@ export class UserAccessRepository extends Repository<PermissionEntity> implement
   ): Promise<Array<ITablePermissionData>> {
     const connectionEdit = await this.checkUserConnectionEdit(cognitoUserName, connectionId);
     const tablesWithPermissionsArr = [];
-
     if (connectionEdit) {
       for (const tableName of tableNames) {
         tablesWithPermissionsArr.push({
@@ -240,8 +225,7 @@ export class UserAccessRepository extends Repository<PermissionEntity> implement
       return tablesWithPermissionsArr;
     }
 
-    const qb = await getRepository(PermissionEntity)
-      .createQueryBuilder('permission')
+    const qb = this.createQueryBuilder('permission')
       .leftJoinAndSelect('permission.groups', 'group')
       .leftJoinAndSelect('group.users', 'user')
       .leftJoinAndSelect('group.connection', 'connection')
@@ -249,7 +233,6 @@ export class UserAccessRepository extends Repository<PermissionEntity> implement
       .andWhere('user.id = :cognitoUserName', { cognitoUserName: cognitoUserName })
       .andWhere('permission.type = :permissionType', { permissionType: PermissionTypeEnum.Table });
     const allTablePermissions = await qb.getMany();
-
     const tablesAndAccessLevels = {};
     for (const tableName of tableNames) {
       if (tableName !== '__proto__') {
@@ -257,7 +240,6 @@ export class UserAccessRepository extends Repository<PermissionEntity> implement
         tablesAndAccessLevels[tableName] = [];
       }
     }
-
     for (const tableName of tableNames) {
       for (const permission of allTablePermissions) {
         if (permission.tableName === tableName && tablesAndAccessLevels.hasOwnProperty(tableName)) {
@@ -266,7 +248,6 @@ export class UserAccessRepository extends Repository<PermissionEntity> implement
         }
       }
     }
-
     for (const key in tablesAndAccessLevels) {
       if (tablesAndAccessLevels.hasOwnProperty(key)) {
         // eslint-disable-next-line security/detect-object-injection
@@ -275,7 +256,6 @@ export class UserAccessRepository extends Repository<PermissionEntity> implement
         const deletePermission = tablesAndAccessLevels[key].includes(AccessLevelEnum.delete);
         // eslint-disable-next-line security/detect-object-injection
         const editPermission = tablesAndAccessLevels[key].includes(AccessLevelEnum.edit);
-
         const readOnly = !(addPermission || deletePermission || editPermission);
         tablesWithPermissionsArr.push({
           tableName: key,
@@ -294,7 +274,7 @@ export class UserAccessRepository extends Repository<PermissionEntity> implement
     return tablesWithPermissionsArr.filter((tableWithPermission: ITablePermissionData) => {
       return !!tableWithPermission.accessLevel.visibility;
     });
-  }
+  },
 
   async checkTableRead(
     cognitoUserName: string,
@@ -312,7 +292,7 @@ export class UserAccessRepository extends Repository<PermissionEntity> implement
       default:
         return false;
     }
-  }
+  },
 
   async checkTableAdd(
     cognitoUserName: string,
@@ -322,7 +302,7 @@ export class UserAccessRepository extends Repository<PermissionEntity> implement
   ): Promise<boolean> {
     const { accessLevel } = await this.getUserTablePermissions(cognitoUserName, connectionId, tableName, masterPwd);
     return accessLevel.visibility && accessLevel.add;
-  }
+  },
 
   async checkTableDelete(
     cognitoUserName: string,
@@ -332,7 +312,7 @@ export class UserAccessRepository extends Repository<PermissionEntity> implement
   ): Promise<boolean> {
     const { accessLevel } = await this.getUserTablePermissions(cognitoUserName, connectionId, tableName, masterPwd);
     return accessLevel.visibility && accessLevel.delete;
-  }
+  },
 
   async checkTableEdit(
     cognitoUserName: string,
@@ -342,13 +322,13 @@ export class UserAccessRepository extends Repository<PermissionEntity> implement
   ): Promise<boolean> {
     const { accessLevel } = await this.getUserTablePermissions(cognitoUserName, connectionId, tableName, masterPwd);
     return accessLevel.visibility && accessLevel.edit;
-  }
+  },
 
-  private async getConnectionId(groupId: string): Promise<string> {
-    const qb = await getRepository(ConnectionEntity)
-      .createQueryBuilder('connection')
-      .leftJoinAndSelect('connection.groups', 'group');
+  async getConnectionId(groupId: string): Promise<string> {
+    const connectionRepository = this.manager.getRepository(ConnectionEntity);
+    const qb = connectionRepository.createQueryBuilder('connection').leftJoinAndSelect('connection.groups', 'group');
     qb.andWhere('group.id = :id', { id: groupId });
+    const sql = qb.getSql();
     const connection = await qb.getOne();
     if (!connection) {
       throw new HttpException(
@@ -359,5 +339,5 @@ export class UserAccessRepository extends Repository<PermissionEntity> implement
       );
     }
     return connection.id;
-  }
-}
+  },
+};

@@ -1,24 +1,25 @@
-import { AgentModule } from '../agent/agent.module';
-import { AuthMiddleware } from '../../authorization';
-import { ConnectionEntity } from '../connection/connection.entity';
-import { CustomFieldController } from './custom-field.controller';
-import { CustomFieldsEntity } from './custom-fields.entity';
-import { GroupEntity } from '../group/group.entity';
 import { MiddlewareConsumer, Module, RequestMethod } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { AuthMiddleware } from '../../authorization';
+import { GlobalDatabaseContext } from '../../common/application/global-database-context';
+import { BaseType, UseCaseType } from '../../common/data-injection.tokens';
+import { AgentModule } from '../agent/agent.module';
+import { ConnectionPropertiesEntity } from '../connection-properties/connection-properties.entity';
+import { ConnectionEntity } from '../connection/connection.entity';
+import { GroupEntity } from '../group/group.entity';
+import { LogOutEntity } from '../log-out/log-out.entity';
 import { PermissionEntity } from '../permission/permission.entity';
 import { TableLogsEntity } from '../table-logs/table-logs.entity';
 import { TableSettingsEntity } from '../table-settings/table-settings.entity';
-import { TableWidgetEntity } from '../widget/table-widget.entity';
-import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserEntity } from '../user/user.entity';
 import { UserModule } from '../user/user.module';
-import { ConnectionPropertiesEntity } from '../connection-properties/connection-properties.entity';
-import { BaseType, UseCaseType } from '../../common/data-injection.tokens';
-import { GlobalDatabaseContext } from '../../common/application/global-database-context';
-import { GetCustomFieldsUseCase } from './use-cases/get-custom-fields.use.case';
+import { TableWidgetEntity } from '../widget/table-widget.entity';
+import { CustomFieldController } from './custom-field.controller';
+import { CustomFieldsEntity } from './custom-fields.entity';
 import { CreateCustomFieldsUseCase } from './use-cases/create-custom-fields.use.case';
-import { UpdateCustomFieldUseCase } from './use-cases/update-custom-field.use.case';
 import { DeleteCustomFieldUseCase } from './use-cases/delete-custom-field.use.case';
+import { GetCustomFieldsUseCase } from './use-cases/get-custom-fields.use.case';
+import { UpdateCustomFieldUseCase } from './use-cases/update-custom-field.use.case';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { DeleteCustomFieldUseCase } from './use-cases/delete-custom-field.use.ca
       TableWidgetEntity,
       UserEntity,
       ConnectionPropertiesEntity,
+      LogOutEntity,
     ]),
     AgentModule,
     UserModule,

@@ -8,7 +8,7 @@ import { Encryptor } from '../../../helpers/encryption/encryptor';
 import { generateGwtToken, IToken } from '../utils/generate-gwt-token';
 import { Messages } from '../../../exceptions/text/messages';
 
-@Injectable({ scope: Scope.REQUEST })
+@Injectable()
 export class UsualLoginUseCase extends AbstractUseCase<UsualLoginDs, IToken> implements IUsualLogin {
   constructor(
     @Inject(BaseType.GLOBAL_DB_CONTEXT)

@@ -20,7 +20,7 @@ import { RegisteredUserDs } from '../application/data-structures/registered-user
 import { buildRegisteredUserDS } from '../utils/build-registered-user.ds';
 import { Messages } from '../../../exceptions/text/messages';
 
-@Injectable({ scope: Scope.REQUEST })
+@Injectable()
 export class FacebookLoginUseCase extends AbstractUseCase<string, IToken> implements IFacebookLogin {
   constructor(
     @Inject(BaseType.GLOBAL_DB_CONTEXT)
@@ -69,15 +69,15 @@ export class FacebookLoginUseCase extends AbstractUseCase<string, IToken> implem
         }),
       );
       const testTableSettingsArrays: Array<Array<TableSettingsEntity>> = buildTestTableSettings(createdTestConnections);
-      await Promise.all(
-        testTableSettingsArrays.map(async (array: Array<TableSettingsEntity>) => {
-          await Promise.all(
-            array.map(async (tableSettings: TableSettingsEntity) => {
-              await this._dbContext.tableSettingsRepository.saveNewOrUpdatedSettings(tableSettings);
-            }),
-          );
-        }),
-      );
+
+      for (const tableSettingsArray of testTableSettingsArrays) {
+        await Promise.all(
+          tableSettingsArray.map(async (tableSettings: TableSettingsEntity) => {
+            await this._dbContext.tableSettingsRepository.saveNewOrUpdatedSettings(tableSettings);
+          }),
+        );
+      }
+
       const registeredUser: RegisteredUserDs = buildRegisteredUserDS(savedUser);
       return registeredUser.token;
     } catch (e) {

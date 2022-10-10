@@ -1,11 +1,11 @@
-import * as cookieParser from 'cookie-parser';
-import * as helmet from 'helmet';
-import * as rateLimit from 'express-rate-limit';
-import * as Sentry from '@sentry/node';
-import { AllExceptionsFilter } from './exceptions/all-exceptions.filter';
-import { ApplicationModule } from './app.module';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import * as Sentry from '@sentry/node';
+import * as cookieParser from 'cookie-parser';
+import rateLimit from 'express-rate-limit';
+import helmet from 'helmet';
+import { ApplicationModule } from './app.module';
+import { AllExceptionsFilter } from './exceptions/all-exceptions.filter';
 import { Constants } from './helpers/constants/constants';
 import { requiredEnvironmentVariablesValidator } from './helpers/validators/required-environment-variables.validator';
 
