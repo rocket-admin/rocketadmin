@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Inject, Injectable, Scope } from '@nestjs/common';
+import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import AbstractUseCase from '../../../common/abstract-use.case';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface';
 import { BaseType } from '../../../common/data-injection.tokens';
@@ -17,7 +17,6 @@ import {
 import { Messages } from '../../../exceptions/text/messages';
 import { isConnectionTypeAgent } from '../../../helpers';
 import { AmplitudeService } from '../../amplitude/amplitude.service';
-import { isTestConnectionById } from '../../connection/utils/is-test-connection-util';
 import { TableLogsService } from '../../table-logs/table-logs.service';
 import { TableSettingsEntity } from '../../table-settings/table-settings.entity';
 import { FoundTableRowsDs } from '../application/data-structures/found-table-rows.ds';
@@ -235,7 +234,7 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
         operationStatusResult: operationResult,
       };
       await this.tableLogsService.crateAndSaveNewLogUtil(logRecord);
-      const isTest = await isTestConnectionById(connectionId);
+      const isTest = await this._dbContext.connectionRepository.isTestConnectionById(connectionId);
       await this.amplitudeService.formAndSendLogRecord(
         isTest ? AmplitudeEventTypeEnum.tableRowsReceivedTest : AmplitudeEventTypeEnum.tableRowsReceived,
         userId,

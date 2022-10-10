@@ -10,14 +10,14 @@ import {
   Post,
   Put,
   Query,
-  Scope,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { UseCaseType } from '../../common/data-injection.tokens';
+import { IGlobalDatabaseContext } from '../../common/application/global-database-context.intarface';
+import { BaseType, UseCaseType } from '../../common/data-injection.tokens';
 import { createDataAccessObject } from '../../data-access-layer/shared/create-data-access-object';
 import { MasterPassword, QueryTableName, SlugUuid, UserId } from '../../decorators';
 import { AmplitudeEventTypeEnum, InTransactionEnum } from '../../enums';
@@ -28,7 +28,6 @@ import { Encryptor } from '../../helpers/encryption/encryptor';
 import { SentryInterceptor } from '../../interceptors';
 import { AmplitudeService } from '../amplitude/amplitude.service';
 import { ConnectionEntity } from '../connection/connection.entity';
-import { isTestConnectionById } from '../connection/utils/is-test-connection-util';
 import { UserEntity } from '../user/user.entity';
 import { AddRowInTableDs } from './application/data-structures/add-row-in-table.ds';
 import { DeleteRowFromTableDs } from './application/data-structures/delete-row-from-table.ds';
@@ -81,6 +80,8 @@ export class TableController {
     private readonly connectionRepository: Repository<ConnectionEntity>,
     @InjectRepository(UserEntity)
     private readonly userRepository: Repository<UserEntity>,
+    @Inject(BaseType.GLOBAL_DB_CONTEXT)
+    protected _dbContext: IGlobalDatabaseContext,
   ) {}
 
   @ApiOperation({ summary: 'Get tables in connection' })
@@ -333,7 +334,7 @@ export class TableController {
     } catch (e) {
       throw e;
     } finally {
-      const isTest = await isTestConnectionById(connectionId);
+      const isTest = await this._dbContext.connectionRepository.isTestConnectionById(connectionId);
       await this.amplitudeService.formAndSendLogRecord(
         isTest ? AmplitudeEventTypeEnum.tableRowReceivedTest : AmplitudeEventTypeEnum.tableRowReceived,
         userId,

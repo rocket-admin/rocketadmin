@@ -3,6 +3,7 @@ import { Constants } from '../../../helpers/constants/constants';
 import { Encryptor } from '../../../helpers/encryption/encryptor';
 import { TableLogsEntity } from '../../table-logs/table-logs.entity';
 import { ConnectionEntity } from '../connection.entity';
+import { isTestConnectionUtil } from '../utils/is-test-connection-util';
 
 export const customConnectionRepositoryExtension = {
   async saveNewConnection(connection: ConnectionEntity): Promise<ConnectionEntity> {
@@ -138,6 +139,14 @@ export const customConnectionRepositoryExtension = {
     const qb = this.createQueryBuilder('connection').leftJoinAndSelect('connection.agent', 'agent');
     qb.andWhere('agent.token = :agentToken', { agentToken: connectionToken });
     return await qb.getOne();
+  },
+
+  async isTestConnectionById(connectionId: string): Promise<boolean> {
+    const qb = this.createQueryBuilder('connection').where('connection.id = :connectionId', {
+      connectionId: connectionId,
+    });
+    const foundConnection = await qb.getOne();
+    return isTestConnectionUtil(foundConnection);
   },
 
   decryptConnectionField(field: string): string {

@@ -1,7 +1,5 @@
-import { Injectable, Scope } from '@nestjs/common';
 import { InTransactionEnum } from '../enums';
 import { IDatabaseContext } from './database-context.interface';
-
 
 abstract class AbstractUseCase<TInputData = void, TOutputData = void> {
   protected _inputData: TInputData;
@@ -13,7 +11,7 @@ abstract class AbstractUseCase<TInputData = void, TOutputData = void> {
     inTransaction: InTransactionEnum = InTransactionEnum.OFF,
   ): Promise<TOutputData> {
     this._inputData = inputData;
-    this._inTransaction = false;
+    this._inTransaction = inTransaction === InTransactionEnum.DEBUG;
 
     let result: TOutputData;
 
