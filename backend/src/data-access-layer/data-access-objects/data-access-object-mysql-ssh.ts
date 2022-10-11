@@ -17,7 +17,7 @@ import {
   isObjectEmpty,
   objectKeysToLowercase,
   renameObjectKeyName,
-  tableSettingsFieldValidator
+  tableSettingsFieldValidator,
 } from '../../helpers';
 import { Cacher } from '../../helpers/cache/cacher';
 import { Constants } from '../../helpers/constants/constants';
@@ -29,7 +29,7 @@ import {
   IPrimaryKey,
   IRows,
   ITableStructure,
-  ITestConnectResult
+  ITestConnectResult,
 } from '../shared/data-access-object-interface';
 
 @Injectable({ scope: Scope.REQUEST })
@@ -40,10 +40,7 @@ export class DataAccessObjectMysqlSsh implements IDataAccessObject {
     this.connection = connection;
   }
 
-  public async addRowInTable(
-    tableName: string,
-    row: Record<string, unknown>,
-  ): Promise<Record<string, unknown>> {
+  public async addRowInTable(tableName: string, row: Record<string, unknown>): Promise<Record<string, unknown>> {
     const promisesResults = await Promise.all([
       this.getTableStructure(tableName),
       this.getTablePrimaryColumns(tableName),
@@ -277,6 +274,10 @@ export class DataAccessObjectMysqlSsh implements IDataAccessObject {
                 break;
               case FilterCriteriaEnum.icontains:
                 builder.andWhereNot(field, 'like', `%${value}%`);
+                break;
+              case FilterCriteriaEnum.empty:
+                builder.orWhereNull(field);
+                builder.orWhere(field, '=', `''`);
                 break;
             }
           }
