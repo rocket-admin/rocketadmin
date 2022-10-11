@@ -1,4 +1,20 @@
 import { Injectable, Scope } from '@nestjs/common';
+import { Knex } from 'knex';
+import { TunnelCreator } from '../../dal/shared/tunnel-creator';
+import { ConnectionEntity } from '../../entities/connection/connection.entity';
+import { CreateTableSettingsDto } from '../../entities/table-settings/dto';
+import { TableSettingsEntity } from '../../entities/table-settings/table-settings.entity';
+import { FilterCriteriaEnum, QueryOrderingEnum } from '../../enums';
+import {
+  checkFieldAutoincrement,
+  isObjectEmpty,
+  listTables,
+  objectKeysToLowercase,
+  renameObjectKeyName,
+  tableSettingsFieldValidator,
+} from '../../helpers';
+import { Cacher } from '../../helpers/cache/cacher';
+import { Constants } from '../../helpers/constants/constants';
 import {
   IAutocompleteFieldsData,
   IDataAccessObject,
@@ -9,23 +25,7 @@ import {
   ITableStructure,
   ITestConnectResult,
 } from '../shared/data-access-object-interface';
-import { ConnectionEntity } from '../../entities/connection/connection.entity';
-import { Knex } from 'knex';
-import { TableSettingsEntity } from '../../entities/table-settings/table-settings.entity';
-import { CreateTableSettingsDto } from '../../entities/table-settings/dto';
-import { Cacher } from '../../helpers/cache/cacher';
-import { TunnelCreator } from '../../dal/shared/tunnel-creator';
 import { getOracleKnex } from '../shared/utils/get-oracle-knex';
-import {
-  checkFieldAutoincrement,
-  isObjectEmpty,
-  listTables,
-  objectKeysToLowercase,
-  renameObjectKeyName,
-  tableSettingsFieldValidator,
-} from '../../helpers';
-import { Constants } from '../../helpers/constants/constants';
-import { FilterCriteriaEnum, QueryOrderingEnum } from '../../enums';
 
 @Injectable({ scope: Scope.REQUEST })
 export class DataAccessObjectOracle implements IDataAccessObject {
@@ -92,10 +92,10 @@ export class DataAccessObjectOracle implements IDataAccessObject {
             throw new Error(e);
           });
 
-          const resultObj = {};
-          for (const [index, el] of primaryColumns.entries()) {
-            resultObj[el.column_name] = queryResult[index]['CURRVAL'].toString();
-          }
+        const resultObj = {};
+        for (const [index, el] of primaryColumns.entries()) {
+          resultObj[el.column_name] = queryResult[index]['CURRVAL'].toString();
+        }
         result = resultObj;
       } else {
         await knex
@@ -352,6 +352,10 @@ export class DataAccessObjectOracle implements IDataAccessObject {
                   break;
                 case FilterCriteriaEnum.icontains:
                   builder.andWhereNot(field, 'like', `%${value}%`);
+                  break;
+                case FilterCriteriaEnum.empty:
+                  builder.orWhereNull(field);
+                  builder.orWhere(field, '=', `''`);
                   break;
               }
             }

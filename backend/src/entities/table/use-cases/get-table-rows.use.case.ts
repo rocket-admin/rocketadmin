@@ -92,7 +92,7 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
       const referencedColumn = query['referencedColumn'];
 
       if (autocomplete && referencedColumn) {
-        autocompleteFields = await findAutocompleteFieldsUtil(query, tableStructure, tableSettings, referencedColumn);
+        autocompleteFields = findAutocompleteFieldsUtil(query, tableStructure, tableSettings, referencedColumn);
       }
       //todo rework in daos
       tableSettings = tableSettings ? tableSettings : ({} as TableSettingsEntity);
