@@ -1,19 +1,9 @@
 import { Injectable, Scope } from '@nestjs/common';
-import { BasicDao } from '../shared/basic-dao';
-import {
-  IAutocompleteFieldsData,
-  IDataAccessObject,
-  IFilteringFieldsData,
-  IForeignKey,
-  IPrimaryKey,
-  IRows,
-  ITableStructure,
-  ITestConnectResult,
-} from '../shared/data-access-object-interface';
-import { ConnectionEntity } from '../../entities/connection/connection.entity';
 import { knex, Knex } from 'knex';
-import { TableSettingsEntity } from '../../entities/table-settings/table-settings.entity';
+import { ConnectionEntity } from '../../entities/connection/connection.entity';
 import { CreateTableSettingsDto } from '../../entities/table-settings/dto';
+import { TableSettingsEntity } from '../../entities/table-settings/table-settings.entity';
+import { FilterCriteriaEnum } from '../../enums';
 import {
   changeObjPropValByPropName,
   checkFieldAutoincrement,
@@ -27,7 +17,17 @@ import {
 } from '../../helpers';
 import { Cacher } from '../../helpers/cache/cacher';
 import { Constants } from '../../helpers/constants/constants';
-import { FilterCriteriaEnum } from '../../enums';
+import { BasicDao } from '../shared/basic-dao';
+import {
+  IAutocompleteFieldsData,
+  IDataAccessObject,
+  IFilteringFieldsData,
+  IForeignKey,
+  IPrimaryKey,
+  IRows,
+  ITableStructure,
+  ITestConnectResult,
+} from '../shared/data-access-object-interface';
 
 @Injectable({ scope: Scope.REQUEST })
 export class DataAccessObjectMysql extends BasicDao implements IDataAccessObject {
@@ -40,7 +40,6 @@ export class DataAccessObjectMysql extends BasicDao implements IDataAccessObject
   public async addRowInTable(
     tableName: string,
     row: Record<string, unknown>,
-    userEmail: string,
   ): Promise<Record<string, unknown> | number> {
     const promisesResults = await Promise.all([
       this.getTableStructure(tableName),
@@ -60,18 +59,20 @@ export class DataAccessObjectMysql extends BasicDao implements IDataAccessObject
         row = changeObjPropValByPropName(row, key, JSON.stringify(getPropertyValueByDescriptor(row, key)));
       }
     }
-    const primaryKey = primaryColumns[0];
-    const primaryKeyIndexInStructure: number = tableStructure
-      .map((e) => {
-        return e.column_name;
-      })
-      .indexOf(primaryKey.column_name);
-    const primaryKeyStructure = tableStructure.at(primaryKeyIndexInStructure);
+
+    const primaryKeysInStructure = tableStructure.map((el) => {
+      return tableStructure.find((structureEl) => structureEl.column_name === el.column_name);
+    });
+
+    const autoIncrementPrimaryKey = primaryKeysInStructure.find((key) =>
+      checkFieldAutoincrement(key.column_default, key.extra),
+    );
+
     const knex = await this.configureKnex();
     await knex.raw('SET SQL_SAFE_UPDATES = 1;');
     if (primaryColumns?.length > 0) {
       const primaryKeys = primaryColumns.map((column) => column.column_name);
-      if (!checkFieldAutoincrement(primaryKeyStructure.column_default, primaryKeyStructure.extra)) {
+      if (!autoIncrementPrimaryKey) {
         try {
           await knex(tableName).insert(row);
           const resultsArray = [];
@@ -87,9 +88,11 @@ export class DataAccessObjectMysql extends BasicDao implements IDataAccessObject
         try {
           await knex(tableName).insert(row);
           const lastInsertId = await knex(tableName).select(knex.raw(`LAST_INSERT_ID()`));
-          return {
-            [primaryKey.column_name]: lastInsertId[0]['LAST_INSERT_ID()'],
-          };
+          const resultObj = {};
+          for (const [index, el] of primaryColumns.entries()) {
+            resultObj[el.column_name] = lastInsertId[index]['LAST_INSERT_ID()'];
+          }
+          return resultObj;
         } catch (e) {
           throw new Error(e);
         }
