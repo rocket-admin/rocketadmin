@@ -1,15 +1,16 @@
 import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { UserActionEntity } from './user-action.entity';
-import { UserEntity } from '../user/user.entity';
-import { UserActionController } from './user-action.controller';
 import { AuthMiddleware } from '../../authorization';
-import { BaseType, UseCaseType } from '../../common/data-injection.tokens';
 import { GlobalDatabaseContext } from '../../common/application/global-database-context';
+import { BaseType, UseCaseType } from '../../common/data-injection.tokens';
+import { LogOutEntity } from '../log-out/log-out.entity';
+import { UserEntity } from '../user/user.entity';
 import { CreateUserActionUseCase } from './use-cases/create-user-action.use.case';
+import { UserActionController } from './user-action.controller';
+import { UserActionEntity } from './user-action.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([UserActionEntity, UserEntity])],
+  imports: [TypeOrmModule.forFeature([UserActionEntity, UserEntity, LogOutEntity])],
   providers: [
     {
       provide: BaseType.GLOBAL_DB_CONTEXT,

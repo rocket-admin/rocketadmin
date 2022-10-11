@@ -1,4 +1,3 @@
-import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import {
   Body,
   Controller,
@@ -13,28 +12,30 @@ import {
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import { SentryInterceptor } from '../../interceptors';
-import { IConnectionPropertiesRO } from './connection-properties.interface';
 import { HttpException } from '@nestjs/common/exceptions/http.exception';
-import { Messages } from '../../exceptions/text/messages';
-import { CreateConnectionPropertiesDto } from './dto';
-import { ConnectionEditGuard, ConnectionReadGuard } from '../../guards';
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UseCaseType } from '../../common/data-injection.tokens';
+import { MasterPassword, SlugUuid, UserId } from '../../decorators';
+import { InTransactionEnum } from '../../enums';
+import { Messages } from '../../exceptions/text/messages';
+import { ConnectionEditGuard, ConnectionReadGuard } from '../../guards';
+import { SentryInterceptor } from '../../interceptors';
+import { CreateConnectionPropertiesDs } from './application/data-structures/create-connection-properties.ds';
+import { FoundConnectionPropertiesDs } from './application/data-structures/found-connection-properties.ds';
+import { IConnectionPropertiesRO } from './connection-properties.interface';
+import { CreateConnectionPropertiesDto } from './dto';
 import {
   ICreateConnectionProperties,
   IDeleteConnectionProperties,
   IFindConnectionProperties,
   IUpdateConnectionProperties,
 } from './use-cases/connection-properties-use.cases.interface';
-import { FoundConnectionPropertiesDs } from './application/data-structures/found-connection-properties.ds';
-import { CreateConnectionPropertiesDs } from './application/data-structures/create-connection-properties.ds';
-import { MasterPassword, SlugUuid, UserId } from '../../decorators';
 
 @ApiBearerAuth()
 @ApiTags('connection properties')
 @UseInterceptors(SentryInterceptor)
 @Controller()
-@Injectable({ scope: Scope.REQUEST })
+@Injectable()
 export class ConnectionPropertiesController {
   constructor(
     @Inject(UseCaseType.FIND_CONNECTION_PROPERTIES)
@@ -60,7 +61,7 @@ export class ConnectionPropertiesController {
         HttpStatus.BAD_REQUEST,
       );
     }
-    return await this.findConnectionPropertiesUseCase.execute(connectionId);
+    return await this.findConnectionPropertiesUseCase.execute(connectionId, InTransactionEnum.OFF);
   }
 
   @ApiOperation({ summary: 'Create properties' })
@@ -89,7 +90,7 @@ export class ConnectionPropertiesController {
       userId: userId,
     };
 
-    return await this.createConnectionPropertiesUseCase.execute(createConnectionPropertiesDs);
+    return await this.createConnectionPropertiesUseCase.execute(createConnectionPropertiesDs, InTransactionEnum.ON);
   }
 
   @ApiOperation({ summary: 'Update properties' })
@@ -119,7 +120,7 @@ export class ConnectionPropertiesController {
       userId: userId,
     };
 
-    return await this.updateConnectionPropertiesUseCase.execute(inputData);
+    return await this.updateConnectionPropertiesUseCase.execute(inputData, InTransactionEnum.ON);
   }
 
   @ApiOperation({ summary: 'Delete properties' })
@@ -135,6 +136,6 @@ export class ConnectionPropertiesController {
         HttpStatus.BAD_REQUEST,
       );
     }
-    return await this.deleteConnectionPropertiesUseCase.execute(connectionId);
+    return await this.deleteConnectionPropertiesUseCase.execute(connectionId, InTransactionEnum.ON);
   }
 }

@@ -5,7 +5,7 @@ import { BaseType } from '../../../common/data-injection.tokens';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface';
 import { Messages } from '../../../exceptions/text/messages';
 
-@Injectable({ scope: Scope.REQUEST })
+@Injectable()
 export class LogOutUseCase extends AbstractUseCase<string, boolean> implements ILogOut {
   constructor(
     @Inject(BaseType.GLOBAL_DB_CONTEXT)

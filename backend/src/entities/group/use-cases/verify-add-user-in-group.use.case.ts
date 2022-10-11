@@ -9,7 +9,7 @@ import { Encryptor } from '../../../helpers/encryption/encryptor';
 import { generateGwtToken, IToken } from '../../user/utils/generate-gwt-token';
 import { Constants } from '../../../helpers/constants/constants';
 
-@Injectable({ scope: Scope.REQUEST })
+@Injectable()
 export class VerifyAddUserInGroupUseCase
   extends AbstractUseCase<VerifyAddUserInGroupDs, IToken>
   implements IVerifyAddUserInGroup

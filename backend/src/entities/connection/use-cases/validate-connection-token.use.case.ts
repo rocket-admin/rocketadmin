@@ -5,7 +5,7 @@ import { BaseType } from '../../../common/data-injection.tokens';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface';
 import { Encryptor } from '../../../helpers/encryption/encryptor';
 
-@Injectable({ scope: Scope.REQUEST })
+@Injectable()
 export class ValidateConnectionTokenUseCase
   extends AbstractUseCase<string, boolean>
   implements IValidateConnectionToken

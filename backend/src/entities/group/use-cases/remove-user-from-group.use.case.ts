@@ -8,7 +8,7 @@ import { IGlobalDatabaseContext } from '../../../common/application/global-datab
 import { Messages } from '../../../exceptions/text/messages';
 import { buildRemoveUserFromGroupResultDs } from '../utils/build-remove-user-from-group-result.ds';
 
-@Injectable({ scope: Scope.REQUEST })
+@Injectable()
 export class RemoveUserFromGroupUseCase
   extends AbstractUseCase<AddUserInGroupDs, RemoveUserFromGroupResultDs>
   implements IRemoveUserFromGroup

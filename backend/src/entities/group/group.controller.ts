@@ -1,8 +1,3 @@
-import { AddUserIngroupDto } from './dto/add-user-ingroup-dto';
-import { AmplitudeEventTypeEnum } from '../../enums';
-import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { Messages } from '../../exceptions/text/messages';
-import { SentryInterceptor } from '../../interceptors';
 import {
   Body,
   Controller,
@@ -18,8 +13,27 @@ import {
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import { GroupEditGuard, GroupReadGuard } from '../../guards';
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { Response } from 'express';
+import validator from 'validator';
 import { UseCaseType } from '../../common/data-injection.tokens';
+import { BodyEmail, BodyUuid, SlugUuid, UserId, VerificationString } from '../../decorators';
+import { AmplitudeEventTypeEnum, InTransactionEnum } from '../../enums';
+import { Messages } from '../../exceptions/text/messages';
+import { GroupEditGuard, GroupReadGuard } from '../../guards';
+import { Cacher } from '../../helpers/cache/cacher';
+import { Constants } from '../../helpers/constants/constants';
+import { SentryInterceptor } from '../../interceptors';
+import { AmplitudeService } from '../amplitude/amplitude.service';
+import { FoundUserInGroupDs } from '../user/application/data-structures/found-user-in-group.ds';
+import { IToken, ITokenExp } from '../user/utils/generate-gwt-token';
+import { AddUserInGroupDs } from './application/data-sctructures/add-user-in-group.ds';
+import { AddedUserInGroupDs } from './application/data-sctructures/added-user-in-group.ds';
+import { DeletedGroupResultDs } from './application/data-sctructures/deleted-group-result.ds';
+import { FoundUserGroupsDs } from './application/data-sctructures/found-user-groups.ds';
+import { RemoveUserFromGroupResultDs } from './application/data-sctructures/remove-user-from-group-result.ds';
+import { VerifyAddUserInGroupDs } from './application/data-sctructures/verify-add-user-in-group.ds';
+import { AddUserIngroupDto } from './dto/add-user-ingroup-dto';
 import {
   IAddUserInGroup,
   IDeleteGroup,
@@ -28,26 +42,12 @@ import {
   IRemoveUserFromGroup,
   IVerifyAddUserInGroup,
 } from './use-cases/use-cases.interfaces';
-import { VerifyAddUserInGroupDs } from './application/data-sctructures/verify-add-user-in-group.ds';
-import { AmplitudeService } from '../amplitude/amplitude.service';
-import { Cacher } from '../../helpers/cache/cacher';
-import { AddedUserInGroupDs } from './application/data-sctructures/added-user-in-group.ds';
-import { FoundUserGroupsDs } from './application/data-sctructures/found-user-groups.ds';
-import { IToken, ITokenExp } from '../user/utils/generate-gwt-token';
-import { Response } from 'express';
-import { Constants } from '../../helpers/constants/constants';
-import { FoundUserInGroupDs } from '../user/application/data-structures/found-user-in-group.ds';
-import { AddUserInGroupDs } from './application/data-sctructures/add-user-in-group.ds';
-import { RemoveUserFromGroupResultDs } from './application/data-sctructures/remove-user-from-group-result.ds';
-import { DeletedGroupResultDs } from './application/data-sctructures/deleted-group-result.ds';
-import { BodyEmail, BodyUuid, SlugUuid, UserId, VerificationString } from '../../decorators';
-import validator from 'validator';
 
 @ApiBearerAuth()
 @ApiTags('groups')
 @UseInterceptors(SentryInterceptor)
 @Controller()
-@Injectable({ scope: Scope.REQUEST })
+@Injectable()
 export class GroupController {
   constructor(
     @Inject(UseCaseType.INVITE_USER_IN_GROUP)
@@ -73,7 +73,7 @@ export class GroupController {
   @Get('groups')
   async findAll(@UserId() userId: string): Promise<FoundUserGroupsDs> {
     try {
-      return await this.findAllUserGroupsUseCase.execute(userId);
+      return await this.findAllUserGroupsUseCase.execute(userId, InTransactionEnum.OFF);
     } catch (e) {
       throw e;
     } finally {
@@ -87,7 +87,7 @@ export class GroupController {
   @Get('group/users/:slug')
   async findAllUsersInGroup(@UserId() userId: string, @SlugUuid() groupId: string): Promise<Array<FoundUserInGroupDs>> {
     try {
-      return this.findAllUsersInGroupUseCase.execute(groupId);
+      return this.findAllUsersInGroupUseCase.execute(groupId, InTransactionEnum.OFF);
     } catch (e) {
       throw e;
     } finally {
@@ -124,7 +124,7 @@ export class GroupController {
     Cacher.increaseUserInvitationsCacheCount(userId);
     Cacher.increaseGroupInvitationsCacheCount(groupId);
     try {
-      return await this.addUserInGroupUseCase.execute({ email, groupId });
+      return await this.addUserInGroupUseCase.execute({ email, groupId }, InTransactionEnum.ON);
     } catch (e) {
       throw e;
     } finally {
@@ -152,7 +152,7 @@ export class GroupController {
       verificationString: verificationString,
       user_password: password,
     };
-    const token: IToken = await this.verifyAddUserInGroupUseCase.execute(inputData);
+    const token: IToken = await this.verifyAddUserInGroupUseCase.execute(inputData, InTransactionEnum.ON);
     response.cookie(Constants.JWT_COOKIE_KEY_NAME, token.token);
     return { expires: token.exp };
   }
@@ -167,7 +167,7 @@ export class GroupController {
   @Delete('/group/:slug')
   async delete(@SlugUuid() groupId: string, @UserId() userId: string): Promise<DeletedGroupResultDs> {
     try {
-      return this.deleteGroupUseCase.execute(groupId);
+      return this.deleteGroupUseCase.execute(groupId, InTransactionEnum.ON);
     } catch (e) {
       throw e;
     } finally {
@@ -202,7 +202,7 @@ export class GroupController {
       groupId: groupId,
     };
     try {
-      return await this.removeUserFromGroupUseCase.execute(inputData);
+      return await this.removeUserFromGroupUseCase.execute(inputData, InTransactionEnum.ON);
     } catch (e) {
       throw e;
     } finally {

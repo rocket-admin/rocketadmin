@@ -75,6 +75,14 @@ export function findFilteringFieldsUtil(
         value: query[`f_${fieldname}__icontains`],
       });
     }
+
+    if (query.hasOwnProperty(`f_${fieldname}__empty`)) {
+      filteringItems.push({
+        field: fieldname,
+        criteria: FilterCriteriaEnum.empty,
+        value: query[`f_${fieldname}__empty`],
+      });
+    }
   }
   return filteringItems;
 }

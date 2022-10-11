@@ -1,8 +1,8 @@
 import * as Amplitude from '@amplitude/node';
-import { AmplitudeEventTypeEnum } from '../../enums';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { AmplitudeEventTypeEnum } from '../../enums';
 import { UserEntity } from '../user/user.entity';
 
 @Injectable()
@@ -15,7 +15,7 @@ export class AmplitudeService {
   public async formAndSendLogRecord(event_type: AmplitudeEventTypeEnum, user_id: string, options = null) {
     try {
       if (process.env.NODE_ENV === 'test') return;
-      let user_email = (await this.userRepository.findOne({ id: user_id })).email;
+      let user_email = (await this.userRepository.findOne({ where: { id: user_id } })).email;
       if (!user_email) {
         user_email = options?.user_email;
       }

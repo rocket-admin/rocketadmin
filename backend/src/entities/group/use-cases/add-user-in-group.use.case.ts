@@ -19,7 +19,7 @@ import { PermissionEntity } from '../../permission/permission.entity';
 import { TableSettingsEntity } from '../../table-settings/table-settings.entity';
 import { buildTestTableSettings } from '../../user/utils/build-test-table-settings';
 
-@Injectable({ scope: Scope.REQUEST })
+@Injectable()
 export class AddUserInGroupUseCase
   extends AbstractUseCase<AddUserInGroupDs, AddedUserInGroupDs>
   implements IAddUserInGroup

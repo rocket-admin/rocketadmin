@@ -8,7 +8,7 @@ import { buildFoundTableSettingsDs } from '../utils/build-found-table-settings-d
 import AbstractUseCase from '../../../common/abstract-use.case';
 import { Messages } from '../../../exceptions/text/messages';
 
-@Injectable({ scope: Scope.REQUEST })
+@Injectable()
 export class DeleteTableSettingsUseCase
   extends AbstractUseCase<DeleteTableSettingsDs, FoundTableSettingsDs>
   implements IDeleteTableSettings

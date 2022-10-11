@@ -7,7 +7,7 @@ import { BaseType } from '../../../common/data-injection.tokens';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface';
 import { buildFoundTableSettingsDs } from '../utils/build-found-table-settings-ds';
 
-@Injectable({ scope: Scope.REQUEST })
+@Injectable()
 export class FindTableSettingsUseCase
   extends AbstractUseCase<FindTableSettingsDs, FoundTableSettingsDs>
   implements IFindTableSettings

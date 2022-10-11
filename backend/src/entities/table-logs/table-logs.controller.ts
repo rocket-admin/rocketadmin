@@ -1,19 +1,20 @@
-import { Controller, Get, HttpStatus, Inject, Injectable, Query, Scope, UseInterceptors } from '@nestjs/common';
-import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { Controller, Get, HttpStatus, Inject, Injectable, Query, UseInterceptors } from '@nestjs/common';
 import { HttpException } from '@nestjs/common/exceptions/http.exception';
+import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { UseCaseType } from '../../common/data-injection.tokens';
+import { SlugUuid, UserId } from '../../decorators';
+import { InTransactionEnum } from '../../enums';
 import { Messages } from '../../exceptions/text/messages';
 import { SentryInterceptor } from '../../interceptors';
-import { UseCaseType } from '../../common/data-injection.tokens';
-import { IFindLogs } from './use-cases/use-cases.interface';
-import { FoundLogsDs } from './application/data-structures/found-logs.ds';
 import { FindLogsDs } from './application/data-structures/find-logs.ds';
-import { SlugUuid, UserId } from '../../decorators';
+import { FoundLogsDs } from './application/data-structures/found-logs.ds';
+import { IFindLogs } from './use-cases/use-cases.interface';
 
 @ApiBearerAuth()
 @ApiTags('logs')
 @UseInterceptors(SentryInterceptor)
 @Controller()
-@Injectable({ scope: Scope.REQUEST })
+@Injectable()
 export class TableLogsController {
   constructor(
     @Inject(UseCaseType.FIND_LOGS)
@@ -49,6 +50,6 @@ export class TableLogsController {
       query: query,
       userId: userId,
     };
-    return await this.findLogsUseCase.execute(inputData);
+    return await this.findLogsUseCase.execute(inputData, InTransactionEnum.OFF);
   }
 }

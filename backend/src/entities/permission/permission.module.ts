@@ -1,20 +1,21 @@
-import { AgentModule } from '../agent/agent.module';
+import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthMiddleware } from '../../authorization';
+import { GlobalDatabaseContext } from '../../common/application/global-database-context';
+import { BaseType, UseCaseType } from '../../common/data-injection.tokens';
+import { AgentModule } from '../agent/agent.module';
+import { ConnectionPropertiesEntity } from '../connection-properties/connection-properties.entity';
 import { ConnectionEntity } from '../connection/connection.entity';
 import { CustomFieldsEntity } from '../custom-field/custom-fields.entity';
 import { GroupEntity } from '../group/group.entity';
 import { GroupModule } from '../group/group.module';
-import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/common';
-import { PermissionController } from './permission.controller';
-import { PermissionEntity } from './permission.entity';
+import { LogOutEntity } from '../log-out/log-out.entity';
 import { TableLogsEntity } from '../table-logs/table-logs.entity';
 import { TableSettingsEntity } from '../table-settings/table-settings.entity';
-import { TableWidgetEntity } from '../widget/table-widget.entity';
-import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserEntity } from '../user/user.entity';
-import { ConnectionPropertiesEntity } from '../connection-properties/connection-properties.entity';
-import { BaseType, UseCaseType } from '../../common/data-injection.tokens';
-import { GlobalDatabaseContext } from '../../common/application/global-database-context';
+import { TableWidgetEntity } from '../widget/table-widget.entity';
+import { PermissionController } from './permission.controller';
+import { PermissionEntity } from './permission.entity';
 import { CreateOrUpdatePermissionsUseCase } from './use-cases/create-or-update-permissions.use.case';
 
 @Module({
@@ -29,6 +30,7 @@ import { CreateOrUpdatePermissionsUseCase } from './use-cases/create-or-update-p
       TableWidgetEntity,
       UserEntity,
       ConnectionPropertiesEntity,
+      LogOutEntity,
     ]),
     AgentModule,
     GroupModule,

@@ -7,7 +7,7 @@ import { Messages } from '../../../exceptions/text/messages';
 import { sendEmailChangeRequest } from '../../email/send-email';
 import { OperationResultMessageDs } from '../application/data-structures/operation-result-message.ds';
 
-@Injectable({ scope: Scope.REQUEST })
+@Injectable()
 export class RequestChangeUserEmailUseCase
   extends AbstractUseCase<string, OperationResultMessageDs>
   implements IRequestEmailChange

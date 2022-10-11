@@ -9,7 +9,7 @@ import { Messages } from '../../../exceptions/text/messages';
 import { buildCreatedUserActionDs } from '../utils/build-created-user-action-ds';
 import { buildNewUserActionEntity } from '../utils/build-new-user-action-entity';
 
-@Injectable({ scope: Scope.REQUEST })
+@Injectable()
 export class CreateUserActionUseCase
   extends AbstractUseCase<CreateUserActionDs, CreatedUserActionDs>
   implements ICreateUserAction

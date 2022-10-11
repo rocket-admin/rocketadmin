@@ -1,39 +1,35 @@
-import { AppController } from './app.controller';
-import { Connection } from 'typeorm';
-import { ConnectionModule } from './entities/connection/connection.module';
-import { ConversionModule } from './entities/convention/conversion.module';
-import { CustomFieldModule } from './entities/custom-field/custom-field.module';
-import { DatabaseModule } from './shared/database/database.module';
-import { DatabaseService } from './shared/database/database.service';
-import { GroupModule } from './entities/group/group.module';
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
-import { PermissionModule } from './entities/permission/permission.module';
-import { TableLogsModule } from './entities/table-logs/table-logs.module';
-import { TableModule } from './entities/table/table.module';
-import { TableSettingsModule } from './entities/table-settings/table-settings.module';
-import { TableWidgetModule } from './entities/widget/table-widget.module';
-import { ScheduleModule } from '@nestjs/schedule';
-// import { TracingModule } from '@narando/nest-xray';
-import { UserModule } from './entities/user/user.module';
-import { ConnectionPropertiesModule } from './entities/connection-properties/connection-properties.module';
-import { UserActionModule } from './entities/user-actions/user-action.module';
-import { CronJobsModule } from './entities/cron-jobs/cron-jobs.module';
 import { APP_INTERCEPTOR } from '@nestjs/core';
-import { TimeoutInterceptor } from './interceptors';
+import { ScheduleModule } from '@nestjs/schedule';
+import { DataSource } from 'typeorm';
+import { AppController } from './app.controller';
 import { GlobalDatabaseContext } from './common/application/global-database-context';
 import { BaseType, UseCaseType } from './common/data-injection.tokens';
-import { GetHelloUseCase } from './use-cases-app/get-hello.use.case';
+import { ConnectionPropertiesModule } from './entities/connection-properties/connection-properties.module';
+import { ConnectionModule } from './entities/connection/connection.module';
+import { ConversionModule } from './entities/convention/conversion.module';
+import { CronJobsModule } from './entities/cron-jobs/cron-jobs.module';
+import { CustomFieldModule } from './entities/custom-field/custom-field.module';
+import { GroupModule } from './entities/group/group.module';
+import { PermissionModule } from './entities/permission/permission.module';
+import { TableLogsModule } from './entities/table-logs/table-logs.module';
+import { TableSettingsModule } from './entities/table-settings/table-settings.module';
+import { TableModule } from './entities/table/table.module';
+import { UserActionModule } from './entities/user-actions/user-action.module';
+import { UserModule } from './entities/user/user.module';
+import { TableWidgetModule } from './entities/widget/table-widget.module';
+import { TimeoutInterceptor } from './interceptors';
 import { AppLoggerMiddleware } from './middlewares/logging-middleware/app-logger-middlewate';
+import { DatabaseModule } from './shared/database/database.module';
+import { GetHelloUseCase } from './use-cases-app/get-hello.use.case';
 
 @Module({
   imports: [
-    // TracingModule.forRoot({ serviceName: 'autoadmin' }),
     ScheduleModule.forRoot(),
     ConnectionModule,
     ConnectionPropertiesModule,
     ConversionModule,
     CustomFieldModule,
-    DatabaseModule,
     GroupModule,
     PermissionModule,
     TableLogsModule,
@@ -43,10 +39,10 @@ import { AppLoggerMiddleware } from './middlewares/logging-middleware/app-logger
     UserModule,
     UserActionModule,
     CronJobsModule,
+    DatabaseModule,
   ],
   controllers: [AppController],
   providers: [
-    DatabaseService,
     {
       provide: APP_INTERCEPTOR,
       useClass: TimeoutInterceptor,
@@ -62,7 +58,7 @@ import { AppLoggerMiddleware } from './middlewares/logging-middleware/app-logger
   ],
 })
 export class ApplicationModule implements NestModule {
-  constructor(private readonly connection: Connection) {}
+  constructor(private dataSource: DataSource) {}
   configure(consumer: MiddlewareConsumer): void {
     consumer.apply(AppLoggerMiddleware).forRoutes('*');
   }

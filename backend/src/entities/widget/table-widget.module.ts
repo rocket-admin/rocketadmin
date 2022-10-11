@@ -1,15 +1,17 @@
-import { AuthMiddleware } from '../../authorization';
 import { MiddlewareConsumer, Module, RequestMethod } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { AuthMiddleware } from '../../authorization';
+import { GlobalDatabaseContext } from '../../common/application/global-database-context';
+import { BaseType, UseCaseType } from '../../common/data-injection.tokens';
+import { LogOutEntity } from '../log-out/log-out.entity';
+import { UserEntity } from '../user/user.entity';
 import { TableWidgetController } from './table-widget.controller';
 import { TableWidgetEntity } from './table-widget.entity';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { BaseType, UseCaseType } from '../../common/data-injection.tokens';
-import { GlobalDatabaseContext } from '../../common/application/global-database-context';
-import { FindTableWidgetsUseCase } from './use-cases/find-table-widgets.use.case';
 import { CreateUpdateDeleteTableWidgetsUseCase } from './use-cases/create-update-delete-table-widgets.use.case';
+import { FindTableWidgetsUseCase } from './use-cases/find-table-widgets.use.case';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([TableWidgetEntity])],
+  imports: [TypeOrmModule.forFeature([TableWidgetEntity, UserEntity, LogOutEntity])],
   providers: [
     {
       provide: BaseType.GLOBAL_DB_CONTEXT,

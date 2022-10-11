@@ -1,3 +1,20 @@
+import { Injectable, Scope } from '@nestjs/common';
+import { Knex } from 'knex';
+import { TunnelCreator } from '../../dal/shared/tunnel-creator';
+import { ConnectionEntity } from '../../entities/connection/connection.entity';
+import { CreateTableSettingsDto } from '../../entities/table-settings/dto';
+import { TableSettingsEntity } from '../../entities/table-settings/table-settings.entity';
+import { FilterCriteriaEnum } from '../../enums';
+import {
+  changeObjPropValByPropName,
+  getPropertyValueByDescriptor,
+  isObjectEmpty,
+  listTables,
+  renameObjectKeyName,
+  tableSettingsFieldValidator,
+} from '../../helpers';
+import { Cacher } from '../../helpers/cache/cacher';
+import { Constants } from '../../helpers/constants/constants';
 import { BasicDao } from '../shared/basic-dao';
 import {
   IAutocompleteFieldsData,
@@ -9,24 +26,7 @@ import {
   ITableStructure,
   ITestConnectResult,
 } from '../shared/data-access-object-interface';
-import { ConnectionEntity } from '../../entities/connection/connection.entity';
-import { Injectable, Scope } from '@nestjs/common';
-import { Knex } from 'knex';
-import { TableSettingsEntity } from '../../entities/table-settings/table-settings.entity';
-import { CreateTableSettingsDto } from '../../entities/table-settings/dto';
-import { Cacher } from '../../helpers/cache/cacher';
-import { TunnelCreator } from '../../dal/shared/tunnel-creator';
 import { getPostgresKnex } from '../shared/utils/get-postgres-knex';
-import {
-  changeObjPropValByPropName,
-  getPropertyValueByDescriptor,
-  isObjectEmpty,
-  listTables,
-  renameObjectKeyName,
-  tableSettingsFieldValidator,
-} from '../../helpers';
-import { Constants } from '../../helpers/constants/constants';
-import { FilterCriteriaEnum } from '../../enums';
 
 @Injectable({ scope: Scope.REQUEST })
 export class DataAccessObjectPostgres extends BasicDao implements IDataAccessObject {
@@ -250,6 +250,10 @@ export class DataAccessObjectPostgres extends BasicDao implements IDataAccessObj
                 break;
               case FilterCriteriaEnum.icontains:
                 builder.andWhereNot(field, 'like', `%${value}%`);
+                break;
+              case FilterCriteriaEnum.empty:
+                builder.orWhereNull(field);
+                builder.orWhere(field, '=', `''`);
                 break;
             }
           }

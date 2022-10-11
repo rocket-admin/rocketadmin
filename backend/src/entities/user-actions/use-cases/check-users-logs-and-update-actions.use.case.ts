@@ -1,18 +1,20 @@
 import { Injectable } from '@nestjs/common';
-import { ICheckUsersLogsAndUpdateActionsUseCase } from './use-cases-interfaces';
-import { UserActionEntity } from '../user-action.entity';
-import { getUniqArrayStrings } from '../../../helpers';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { LogOperationTypeEnum, OperationResultStatusEnum, UserActionEnum } from '../../../enums';
-import { getRepository, Repository } from 'typeorm';
+import { getUniqArrayStrings } from '../../../helpers';
 import { Constants } from '../../../helpers/constants/constants';
 import { TableLogsEntity } from '../../table-logs/table-logs.entity';
-import { InjectRepository } from '@nestjs/typeorm';
+import { UserActionEntity } from '../user-action.entity';
+import { ICheckUsersLogsAndUpdateActionsUseCase } from './use-cases-interfaces';
 
 @Injectable()
 export class CheckUsersLogsAndUpdateActionsUseCase implements ICheckUsersLogsAndUpdateActionsUseCase {
   constructor(
     @InjectRepository(UserActionEntity)
     private readonly userActionRepository: Repository<UserActionEntity>,
+    @InjectRepository(TableLogsEntity)
+    private readonly tableLogsRepository: Repository<TableLogsEntity>,
   ) {}
   public async execute(): Promise<void> {
     console.info('Updating actions started');
@@ -40,7 +42,7 @@ export class CheckUsersLogsAndUpdateActionsUseCase implements ICheckUsersLogsAnd
   }
 
   private async findAllNonFinishedActionsTwoWeeksOld(): Promise<Array<UserActionEntity>> {
-    const notFinishedActionsQb = await getRepository(UserActionEntity)
+    const notFinishedActionsQb = this.userActionRepository
       .createQueryBuilder('user_action')
       .leftJoinAndSelect('user_action.user', 'user')
       .andWhere('user_action.createdAt <= :date_to', { date_to: Constants.ONE_WEEK_AGO() })
@@ -50,7 +52,7 @@ export class CheckUsersLogsAndUpdateActionsUseCase implements ICheckUsersLogsAnd
   }
 
   private async findSuccessfulTableReceivingUserLogs(userId: string): Promise<Array<TableLogsEntity>> {
-    const userLogsQB = await getRepository(TableLogsEntity)
+    const userLogsQB = this.tableLogsRepository
       .createQueryBuilder('tableLogs')
       .leftJoinAndSelect('tableLogs.connection_id', 'connection')
       .leftJoinAndSelect('connection.groups', 'group')
@@ -64,7 +66,7 @@ export class CheckUsersLogsAndUpdateActionsUseCase implements ICheckUsersLogsAnd
   }
 
   private async findNonFinishedConnectionCreationUserAction(userId: string): Promise<UserActionEntity> {
-    const actionQb = await getRepository(UserActionEntity)
+    const actionQb = this.userActionRepository
       .createQueryBuilder('user_action')
       .leftJoinAndSelect('user_action.user', 'user')
       .andWhere('user.id = :user_id', { user_id: userId })

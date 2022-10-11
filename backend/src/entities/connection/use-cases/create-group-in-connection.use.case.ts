@@ -9,7 +9,7 @@ import { ICreateGroupInConnection } from './use-cases.interfaces';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface';
 import { Messages } from '../../../exceptions/text/messages';
 
-@Injectable({ scope: Scope.REQUEST })
+@Injectable()
 export class CreateGroupInConnectionUseCase
   extends AbstractUseCase<CreateGroupInConnectionDs, Omit<GroupEntity, 'connection' | 'users' | 'permissions'>>
   implements ICreateGroupInConnection
