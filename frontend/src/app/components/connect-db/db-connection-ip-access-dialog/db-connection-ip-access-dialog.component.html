@@ -1,96 +1,136 @@
 <h1 mat-dialog-title>Give access to our IP address</h1>
 <div mat-dialog-content>
     <p class="mat-body">
-        Please make sure our servers are able to access your database. Autoadmin uses IP address <strong>18.221.81.73</strong> for all outbound requests.
+        Please make sure our servers are able to access your database. Autoadmin uses <app-ip-address-button ip="18.221.81.73"></app-ip-address-button> IP address for all outbound requests.
     </p>
     <br>
-    <div *ngIf="db.type === 'postgres'" class="mat-body">
-        Give privileges to a user:
-        <div class="codeSnippet">
-            <code class="code">
-                <pre>GRANT CONNECT ON DATABASE &quot;{{db.database}}&quot; TO &quot;{{db.username}}&quot;;</pre>
-                <pre>ALTER DEFAULT PRIVILEGES IN SCHEMA &quot;{{db.schema || 'public'}}&quot;;</pre>
-                <pre>GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO &quot;{{db.username}}&quot;;</pre>
-            </code>
-            <button type="button" mat-icon-button
-                matTooltip="Copy the command."
-                cdkCopyToClipboard="GRANT CONNECT ON DATABASE &quot;{{db.database}}&quot; TO &quot;{{db.username}}&quot;;
-ALTER DEFAULT PRIVILEGES IN SCHEMA &quot;{{db.schema || 'public'}}&quot;;
-GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO &quot;{{db.username}}&quot;;"
-                (cdkCopyToClipboardCopied)="showCopyNotification('Command was copied to clipboard.')">
-                <mat-icon>content_copy</mat-icon>
-            </button>
-        </div>
-
-        Add the followinf line in file pg_hba.conf (/var/lib/pgsql/data/pg_hba.conf for Linux).
-
-        <div class="codeSnippet">
-            <code class="code">
-                <pre>host    all    all    18.221.81.73/port    trust</pre>
-            </code>
-            <button type="button" mat-icon-button
-                matTooltip="Copy the command."
-                cdkCopyToClipboard="host    all         all         18.221.81.73/port    trust"
-                (cdkCopyToClipboardCopied)="showCopyNotification('Command was copied to clipboard.')">
-                <mat-icon>content_copy</mat-icon>
-            </button>
-        </div>
+    <div *ngIf="provider === 'amazon'" class="mat-body">
+        <strong>Setup VPC security groups.</strong>
+        <ol class="rules">
+            <li>Open the Amazon RDS <strong>console</strong>.</li>
+            <li>
+                In the navigation pane, choose <strong>Databases</strong> and open your database overview.
+                On the tab <strong>Connectivity & security</strong> find the section <strong>Security&nbsp;/&nbsp;VPC security groups</strong>.
+            </li>
+            <li>Open your VPC security group overview and then click <strong>Edit inbound rules</strong>.</li>
+            <li>
+                Click <strong>Add Rule</strong>, and enter the following information: <br/>
+                <strong>Type</strong> — your db type; <br/>
+                <strong>Source</strong> — select <strong>Custom</strong> and enter
+                <app-ip-address-button ip="18.221.81.73/32"></app-ip-address-button>.
+            </li>
+            <li>Click <strong>Save</strong>.</li>
+        </ol>
     </div>
-
-    <div *ngIf="db.type === 'mysql'" class="mat-body">
-        Give privileges to user and allow to connect: <br/>
-
-        <div class="codeSnippet">
-            <code class="code">
-                <pre>GRANT ALL PRIVILEGES ON {{db.database}} TO `{{db.username}}`@`18.221.81.73` IDENTIFIED BY `&lt;password&gt;` WITH GRANT OPTION;</pre>
-            </code>
-            <button type="button" mat-icon-button
-                matTooltip="Copy the command."
-                cdkCopyToClipboard="GRANT ALL PRIVILEGES ON {{db.database}} TO `{{db.username}}`@`18.221.81.73` IDENTIFIED BY `&lt;password&gt;` WITH GRANT OPTION;"
-                (cdkCopyToClipboardCopied)="showCopyNotification('Command was copied to clipboard.')">
-                <mat-icon>content_copy</mat-icon>
-            </button>
-        </div>
-
-        and then
-
-        <div class="codeSnippet">
-            <code class="code">
-                <pre>FLUSH PRIVILEGES;</pre>
-            </code>
-            <button type="button" mat-icon-button
-                matTooltip="Copy the command."
-                cdkCopyToClipboard="FLUSH PRIVILEGES;"
-                (cdkCopyToClipboardCopied)="showCopyNotification('Command was copied to clipboard.')">
-                <mat-icon>content_copy</mat-icon>
-            </button>
-        </div>
+    <div *ngIf="provider === 'azure'" class="mat-body">
+        <strong>Setup firewall rules.</strong>
+        <ol class="rules">
+            <li>Open your database overview and select <strong>Networking</strong> from the navigation pane.</li>
+            <li>In the <strong>Connectivity method</strong> you have to have <strong>Public access (allowed IP addresses)</strong>.</li>
+            <li>
+                Add a rule to the Firewall rules table. Enter any Firewall rule name,
+                Start IP address: <app-ip-address-button ip="18.221.81.73"></app-ip-address-button>,
+                End IP address: <app-ip-address-button ip="18.221.81.73"></app-ip-address-button>.
+            </li>
+            <li>Click <strong>Save</strong>.</li>
+        </ol>
     </div>
+    <ng-container *ngIf="provider === null">
+        <div *ngIf="db.type === 'postgres'" class="mat-body">
+            Give privileges to a user:
+            <div class="codeSnippet">
+                <code class="code">
+                    <pre>GRANT CONNECT ON DATABASE &quot;{{db.database}}&quot; TO &quot;{{db.username}}&quot;;</pre>
+                    <pre>ALTER DEFAULT PRIVILEGES IN SCHEMA &quot;{{db.schema || 'public'}}&quot;;</pre>
+                    <pre>GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO &quot;{{db.username}}&quot;;</pre>
+                </code>
+                <button type="button" mat-icon-button
+                    matTooltip="Copy the command."
+                    cdkCopyToClipboard="GRANT CONNECT ON DATABASE &quot;{{db.database}}&quot; TO &quot;{{db.username}}&quot;;
+    ALTER DEFAULT PRIVILEGES IN SCHEMA &quot;{{db.schema || 'public'}}&quot;;
+    GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO &quot;{{db.username}}&quot;;"
+                    (cdkCopyToClipboardCopied)="showCopyNotification('Command was copied to clipboard.')">
+                    <mat-icon>content_copy</mat-icon>
+                </button>
+            </div>
 
-    <div *ngIf="db.type === 'oracledb'" class="mat-body">
-        <p>
-            Start the SQL PLUS Command Line and connect to the database as user SYSTEM.
-            Provide the SYSTEM password that you assigned upon installation (Windows) or
-            configuration (Linux) of Oracle Database XE. Run the following command:
-        </p>
+            Add the followinf line in file pg_hba.conf (/var/lib/pgsql/data/pg_hba.conf for Linux).
 
-        <div class="codeSnippet">
-            <code class="code">
-                <pre>EXEC DBMS_XDB.SETLISTENERLOCALACCESS(FALSE);</pre>
-            </code>
-            <button type="button" mat-icon-button
-                matTooltip="Copy the command."
-                cdkCopyToClipboard="EXEC DBMS_XDB.SETLISTENERLOCALACCESS(FALSE);"
-                (cdkCopyToClipboardCopied)="showCopyNotification('Command was copied to clipboard.')">
-                <mat-icon>content_copy</mat-icon>
-            </button>
+            <div class="codeSnippet">
+                <code class="code">
+                    <pre>host    all    all    18.221.81.73/port    trust</pre>
+                </code>
+                <button type="button" mat-icon-button
+                    matTooltip="Copy the command."
+                    cdkCopyToClipboard="host    all         all         18.221.81.73/port    trust"
+                    (cdkCopyToClipboardCopied)="showCopyNotification('Command was copied to clipboard.')">
+                    <mat-icon>content_copy</mat-icon>
+                </button>
+            </div>
         </div>
-    </div>
+
+        <div *ngIf="db.type === 'mysql'" class="mat-body">
+            Give privileges to user and allow to connect: <br/>
+
+            <div class="codeSnippet">
+                <code class="code">
+                    <pre>GRANT ALL PRIVILEGES ON {{db.database}} TO `{{db.username}}`@`18.221.81.73` IDENTIFIED BY `&lt;password&gt;` WITH GRANT OPTION;</pre>
+                </code>
+                <button type="button" mat-icon-button
+                    matTooltip="Copy the command."
+                    cdkCopyToClipboard="GRANT ALL PRIVILEGES ON {{db.database}} TO `{{db.username}}`@`18.221.81.73` IDENTIFIED BY `&lt;password&gt;` WITH GRANT OPTION;"
+                    (cdkCopyToClipboardCopied)="showCopyNotification('Command was copied to clipboard.')">
+                    <mat-icon>content_copy</mat-icon>
+                </button>
+            </div>
+
+            and then
+
+            <div class="codeSnippet">
+                <code class="code">
+                    <pre>FLUSH PRIVILEGES;</pre>
+                </code>
+                <button type="button" mat-icon-button
+                    matTooltip="Copy the command."
+                    cdkCopyToClipboard="FLUSH PRIVILEGES;"
+                    (cdkCopyToClipboardCopied)="showCopyNotification('Command was copied to clipboard.')">
+                    <mat-icon>content_copy</mat-icon>
+                </button>
+            </div>
+        </div>
+
+        <div *ngIf="db.type === 'oracledb'" class="mat-body">
+            <p>
+                Start the SQL PLUS Command Line and connect to the database as user SYSTEM.
+                Provide the SYSTEM password that you assigned upon installation (Windows) or
+                configuration (Linux) of Oracle Database XE. Run the following command:
+            </p>
+
+            <div class="codeSnippet">
+                <code class="code">
+                    <pre>EXEC DBMS_XDB.SETLISTENERLOCALACCESS(FALSE);</pre>
+                </code>
+                <button type="button" mat-icon-button
+                    matTooltip="Copy the command."
+                    cdkCopyToClipboard="EXEC DBMS_XDB.SETLISTENERLOCALACCESS(FALSE);"
+                    (cdkCopyToClipboardCopied)="showCopyNotification('Command was copied to clipboard.')">
+                    <mat-icon>content_copy</mat-icon>
+                </button>
+            </div>
+        </div>
+    </ng-container>
 </div>
 <div mat-dialog-actions>
-  <button mat-raised-button mat-dialog-close mat-dialog-close>Cancel</button>
-  <button mat-raised-button color="primary"
-    mat-dialog-close="confirmed">
-    I gave access
-  </button>
+    <button *ngIf="provider === null" mat-button mat-dialog-close mat-dialog-close>Cancel</button>
+    <a *ngIf="provider === 'amazon'" mat-button href="https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/DAX.create-cluster.console.configure-inbound-rules.html">
+        Learn more
+    </a>
+    <a *ngIf="provider === 'azure'" mat-button href="https://learn.microsoft.com/en-us/azure/mysql/flexible-server/how-to-manage-firewall-portal">
+        Learn more
+    </a>
+    <button mat-raised-button color="primary"
+        mat-dialog-close="confirmed">
+        I gave access
+    </button>
 </div>
+

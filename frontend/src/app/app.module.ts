@@ -91,6 +91,7 @@ import { ClipboardModule } from '@angular/cdk/clipboard';
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { CodemirrorModule } from '@ctrl/ngx-codemirror';
 import { UserDeletedSuccessComponent } from './components/user-deleted-success/user-deleted-success.component';
+import { IpAddressButtonComponent } from './components/ui-components/ip-address-button/ip-address-button.component';
 const saasExtraProviders = (environment as any).saas ? [
   {
     provide: Sentry.TraceService,
@@ -174,7 +175,8 @@ const saasExtraProviders = (environment as any).saas ? [
     FileComponent,
     AlertComponent,
     NewVersionComponent,
-    UserDeletedSuccessComponent
+    UserDeletedSuccessComponent,
+    IpAddressButtonComponent
   ],
   entryComponents: [
     DbRowDeleteDialogComponent,

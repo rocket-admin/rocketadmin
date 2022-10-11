@@ -1,0 +1,7 @@
+<button type="button"
+    class="ip-copy-button"
+    matTooltip="Copy IP address"
+    cdkCopyToClipboard="18.221.81.73/32"
+    (cdkCopyToClipboardCopied)="showCopyNotification(ip + ' IP address was copied to clipboard.')">
+    <strong>{{ ip }}</strong>
+</button>

@@ -52,13 +52,7 @@
                 <mat-icon class="warningMessage__icon">warning_amber</mat-icon>
                 <div class="mat-body-1">
                     Please make sure our servers are able to access your database. <br/> Autoadmin uses
-                    <button type="button"
-                        class="ip-copy-button"
-                        matTooltip="Copy IP address"
-                        cdkCopyToClipboard="18.221.81.73"
-                        (cdkCopyToClipboardCopied)="showCopyNotification('18.221.81.73 IP address was copied to clipboard.')">
-                        <strong>18.221.81.73</strong>
-                    </button>
+                    <app-ip-address-button ip="18.221.81.73"></app-ip-address-button>
                     IP address for all outbound requests.
                 </div>
             </div>
@@ -67,13 +61,7 @@
                 <app-alert [alert]="warning">
                     <div class="mat-body-1">
                         Please make sure our servers are able to access your database. <br/> Autoadmin uses
-                        <button type="button"
-                            class="ip-copy-button"
-                            matTooltip="Copy IP address"
-                            cdkCopyToClipboard="18.221.81.73"
-                            (cdkCopyToClipboardCopied)="showCopyNotification('18.221.81.73 IP address was copied to clipboard.')">
-                            <strong>18.221.81.73</strong>
-                        </button>
+                        <app-ip-address-button ip="18.221.81.73"></app-ip-address-button>
                         IP address for all outbound requests.
                     </div>
                 </app-alert>
