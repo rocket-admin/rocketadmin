@@ -32,7 +32,6 @@ export class DataAccessObjectMssql extends BasicDao implements IDataAccessObject
     this.connection = connection;
   }
 
-  //todo complex keys
   public async addRowInTable(
     tableName: string,
     row: Record<string, unknown>,
