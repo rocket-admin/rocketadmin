@@ -1,5 +1,6 @@
 import { QueryOrderingEnum } from '../../../../enums';
 import { CustomFieldsEntity } from '../../../custom-field/custom-fields.entity';
+import { TableActionEntity } from '../../../table-actions/table-action.entity';
 import { TableWidgetEntity } from '../../../widget/table-widget.entity';
 
 export class CreateTableSettingsDs {
@@ -22,4 +23,5 @@ export class CreateTableSettingsDs {
   table_name: string;
   table_widgets?: Array<TableWidgetEntity>;
   userId: string;
+  table_actions?: Array<TableActionEntity>;
 }
