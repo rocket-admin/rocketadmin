@@ -108,7 +108,11 @@
         </table>
     </div>
 
-    <div *ngIf="tableData.isEmptyTable" class="empty-table">
+    <div *ngIf="tableData.isEmptyTable && filtersCount" class="empty-table">
+        <span class="mat-body">No matching was found for the given filter</span>
+    </div>
+
+    <div *ngIf="tableData.isEmptyTable && !filtersCount" class="empty-table">
         <a mat-button color="accent"
             routerLink="/dashboard/{{connectionID}}/{{name}}/entry"
             angulartics2On="click"

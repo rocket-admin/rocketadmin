@@ -95,3 +95,7 @@ th.mat-header-cell, td.mat-cell {
     padding: 8px 0;
     width: 100%;
 }
+
+.empty-table .mat-body {
+    padding: 16px 0;
+}
