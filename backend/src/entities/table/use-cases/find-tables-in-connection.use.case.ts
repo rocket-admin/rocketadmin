@@ -1,20 +1,24 @@
-import { HttpException, HttpStatus, Inject, Injectable, Scope } from '@nestjs/common';
-import { IFindTablesInConnection } from './table-use-cases.interface';
-import { FindTablesDs } from '../application/data-structures/find-tables.ds';
-import { BaseType } from '../../../common/data-injection.tokens';
+import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
+import * as Sentry from '@sentry/node';
+import PQueue from 'p-queue';
+import AbstractUseCase from '../../../common/abstract-use.case';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface';
-import { Messages } from '../../../exceptions/text/messages';
+import { BaseType } from '../../../common/data-injection.tokens';
 import { createDataAccessObject } from '../../../data-access-layer/shared/create-data-access-object';
-import { isConnectionTypeAgent } from '../../../helpers';
+import { ITableStructure } from '../../../data-access-layer/shared/data-access-object-interface';
 import { AccessLevelEnum, AmplitudeEventTypeEnum } from '../../../enums';
-import { isTestConnectionUtil } from '../../connection/utils/is-test-connection-util';
+import { Messages } from '../../../exceptions/text/messages';
+import { isConnectionTypeAgent } from '../../../helpers';
 import { Logger } from '../../../helpers/logging/Logger';
 import { AmplitudeService } from '../../amplitude/amplitude.service';
+import { ConnectionEntity } from '../../connection/connection.entity';
+import { isTestConnectionUtil } from '../../connection/utils/is-test-connection-util';
 import { ITablePermissionData } from '../../permission/permission.interface';
-import { FoundTableDs } from '../application/data-structures/found-table.ds';
 import { TableSettingsEntity } from '../../table-settings/table-settings.entity';
-import AbstractUseCase from '../../../common/abstract-use.case';
-import { saveTablesInfoInDatabaseUtil } from '../utils/save-tables-info-in-database.util';
+import { FindTablesDs } from '../application/data-structures/find-tables.ds';
+import { FoundTableDs } from '../application/data-structures/found-table.ds';
+import { buildTableFieldInfoEntity, buildTableInfoEntity } from '../utils/save-tables-info-in-database.util';
+import { IFindTablesInConnection } from './table-use-cases.interface';
 
 @Injectable()
 export class FindTablesInConnectionUseCase
@@ -72,8 +76,13 @@ export class FindTablesInConnectionUseCase
         userId,
         { tablesCount: tables?.length ? tables.length : 0 },
       );
-      if (connection.saved_table_info === 0 && !connection.isTestConnection && operationResult && process.env.NODE_ENV !== 'test') {
-        saveTablesInfoInDatabaseUtil(connection, userId, tables);
+      if (
+        connection.saved_table_info === 0 &&
+        !connection.isTestConnection &&
+        operationResult &&
+        process.env.NODE_ENV !== 'test'
+      ) {
+        this.saveTableInfoInDatabase(connection, userId, tables);
       }
     }
     const tablesWithPermissions = await this.getUserPermissionsForAvailableTables(userId, connectionId, tables);
@@ -204,5 +213,49 @@ export class FindTablesInConnectionUseCase
     return tablesWithPermissions.filter((tableWithPermission: ITablePermissionData) => {
       return !!tableWithPermission.accessLevel.visibility;
     });
+  }
+
+  private async saveTableInfoInDatabase(
+    connection: ConnectionEntity,
+    userId: string,
+    tables: Array<string>,
+  ): Promise<void> {
+    try {
+      const queue = new PQueue({ concurrency: 2 });
+      const dao = createDataAccessObject(connection, userId);
+      const tablesStructures: Array<{
+        tableName: string;
+        structure: Array<ITableStructure>;
+      }> = await Promise.all(
+        tables.map(async (tableName) => {
+          return await queue.add(async () => {
+            const structure = await dao.getTableStructure(tableName, undefined);
+            return {
+              tableName: tableName,
+              structure: structure,
+            };
+          });
+        }),
+      );
+      connection.tables_info = await Promise.all(
+        tablesStructures.map(async (tableStructure) => {
+          return await queue.add(async () => {
+            const newTableInfo = buildTableInfoEntity(tableStructure.tableName, connection);
+            const savedTableInfo = await this._dbContext.tableInfoRepository.save(newTableInfo);
+            const newTableFieldsInfos = tableStructure.structure.map((el) =>
+              buildTableFieldInfoEntity(el, savedTableInfo),
+            );
+            newTableInfo.table_fields_info = await this._dbContext.tableFieldInfoRepository.save(newTableFieldsInfos);
+            await this._dbContext.tableInfoRepository.save(newTableInfo);
+            return newTableInfo;
+          });
+        }),
+      );
+      connection.saved_table_info = ++connection.saved_table_info;
+      await this._dbContext.connectionRepository.saveUpdatedConnection(connection);
+    } catch (e) {
+      Sentry.captureException(e);
+      console.error(e);
+    }
   }
 }
