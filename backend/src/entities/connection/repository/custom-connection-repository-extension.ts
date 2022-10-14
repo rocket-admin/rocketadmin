@@ -149,6 +149,10 @@ export const customConnectionRepositoryExtension = {
     return isTestConnectionUtil(foundConnection);
   },
 
+  async saveUpdatedConnection(connection: ConnectionEntity): Promise<ConnectionEntity> {
+    return this.save(connection);
+  },
+
   decryptConnectionField(field: string): string {
     try {
       return Encryptor.decryptData(field);

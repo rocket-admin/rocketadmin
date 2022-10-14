@@ -27,7 +27,9 @@ export interface IConnectionRepository {
 
   findOneById(connectionId: string): Promise<ConnectionEntity>;
 
- isTestConnectionById(connectionId: string): Promise<boolean>
+  isTestConnectionById(connectionId: string): Promise<boolean>;
+
+  saveUpdatedConnection(connection: ConnectionEntity): Promise<ConnectionEntity>;
 
   findOneAgentConnectionByToken(connectionToken: string): Promise<ConnectionEntity>;
 }
