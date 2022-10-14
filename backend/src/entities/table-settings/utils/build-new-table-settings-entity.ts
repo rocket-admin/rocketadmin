@@ -1,5 +1,5 @@
-import { CreateTableSettingsDs } from '../application/data-structures/create-table-settings.ds';
 import { ConnectionEntity } from '../../connection/connection.entity';
+import { CreateTableSettingsDs } from '../application/data-structures/create-table-settings.ds';
 import { TableSettingsEntity } from '../table-settings.entity';
 
 export function buildNewTableSettingsEntity(
@@ -24,6 +24,7 @@ export function buildNewTableSettingsEntity(
     sortable_by,
     table_name,
     table_widgets,
+    table_actions,
   } = settings;
   newSettings.connection_id = connection;
   newSettings.display_name = display_name;
@@ -42,5 +43,6 @@ export function buildNewTableSettingsEntity(
   newSettings.identification_fields = identification_fields;
   newSettings.columns_view = columns_view;
   newSettings.identity_column = identity_column;
+  newSettings.table_actions = table_actions;
   return newSettings;
 }
