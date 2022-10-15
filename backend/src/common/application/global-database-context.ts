@@ -1,5 +1,5 @@
-import { Inject, Injectable, Scope } from '@nestjs/common';
-import { DataSource, QueryRunner } from 'typeorm';
+import { Inject, Injectable } from '@nestjs/common';
+import { DataSource, QueryRunner, Repository } from 'typeorm';
 import { AgentEntity } from '../../entities/agent/agent.entity';
 import { IAgentRepository } from '../../entities/agent/repository/agent.repository.interface';
 import { customAgentRepositoryExtension } from '../../entities/agent/repository/custom-agent-repository-extension';
@@ -24,6 +24,8 @@ import { ILogOutRepository } from '../../entities/log-out/repository/log-out-rep
 import { PermissionEntity } from '../../entities/permission/permission.entity';
 import { permissionCustomRepositoryExtension } from '../../entities/permission/repository/permission-custom-repository-extension';
 import { IPermissionRepository } from '../../entities/permission/repository/permission.repository.interface';
+import { TableFieldInfoEntity } from '../../entities/table-field-info/table-field-info.entity';
+import { TableInfoEntity } from '../../entities/table-info/table-info.entity';
 import { tableLogsCustomRepositoryExtension } from '../../entities/table-logs/repository/table-logs-custom-repository-extension';
 import { ITableLogsRepository } from '../../entities/table-logs/repository/table-logs-repository.interface';
 import { TableLogsEntity } from '../../entities/table-logs/table-logs.entity';
@@ -74,6 +76,8 @@ export class GlobalDatabaseContext implements IGlobalDatabaseContext {
   private _userActionRepository: IUserActionRepository;
   private _logOutRepository: ILogOutRepository;
   private _tableWidgetsRepository: ITableWidgetsRepository;
+  private _tableFieldInfoRepository: Repository<TableFieldInfoEntity>;
+  private _tableInfoReposioty: Repository<TableInfoEntity>;
 
   public constructor(
     @Inject(BaseType.DATA_SOURCE)
@@ -126,6 +130,8 @@ export class GlobalDatabaseContext implements IGlobalDatabaseContext {
     this._tableWidgetsRepository = this.appDataSource
       .getRepository(TableWidgetEntity)
       .extend(tableWidgetsCustomRepositoryExtension);
+    this._tableInfoReposioty = this.appDataSource.getRepository(TableInfoEntity);
+    this._tableFieldInfoRepository = this.appDataSource.getRepository(TableFieldInfoEntity);
   }
 
   public get userRepository(): IUserRepository {
@@ -194,6 +200,14 @@ export class GlobalDatabaseContext implements IGlobalDatabaseContext {
 
   public get tableWidgetsRepository(): ITableWidgetsRepository {
     return this._tableWidgetsRepository;
+  }
+
+  public get tableInfoRepository(): Repository<TableInfoEntity> {
+    return this._tableInfoReposioty;
+  }
+
+  public get tableFieldInfoRepository(): Repository<TableFieldInfoEntity> {
+    return this._tableFieldInfoRepository;
   }
 
   public startTransaction(): Promise<void> {

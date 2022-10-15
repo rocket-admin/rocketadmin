@@ -11,5 +11,6 @@ export { PermissionTypeEnum } from './permission-type.enum';
 export { ProviderTypeEnum } from './provider-type-enum';
 export { QueryOrderingEnum } from './query-ordering.enum';
 export { SubscriptionLevelEnum } from './subscription-level.enum';
+export { TableActionTypeEnum } from './table-action-type.enum';
 export { UserActionEnum } from './user-action.enum';
 export { WidgetTypeEnum } from './widget-type.enum';
