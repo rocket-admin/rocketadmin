@@ -111,7 +111,6 @@ export class DbTableRowEditComponent implements OnInit {
   }
 
   setRowStructure(structure: TableField[]){
-
     this.tableRowStructure = Object.assign({}, ...structure.map((field: TableField) => {
       return {[field.column_name]: field}
     }))
@@ -128,7 +127,14 @@ export class DbTableRowEditComponent implements OnInit {
     this.tableWidgetsList = widgets.map((widget: Widget) => widget.field_name);
     this.tableWidgets = Object.assign({}, ...widgets
       .map((widget: Widget) => {
-        const params = JSON5.parse(widget.widget_params);
+        let params = null;
+        if (widget.widget_params) {
+          try {
+            params = JSON5.parse(widget.widget_params);
+          } catch {
+            params = null;
+          }
+        }
         return {
           [widget.field_name]: {...widget, widget_params: params}
         }
