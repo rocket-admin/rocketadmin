@@ -3,8 +3,8 @@
 <app-banner *ngIf="dbFetchError" type="error">
     <p class="mat-body-1 error-message">{{errorMessage}}</p>
     <div class="error-actions">
-        <a mat-stroked-button routerLink="/edit-db/{{connectionID}}">Connection settings</a>
-        <a mat-stroked-button routerLink="/connections-list">Connections list</a>
+            <a mat-stroked-button routerLink="/edit-db/{{connectionID}}">Connection settings</a>
+            <button mat-flat-button color="warn" (click)="openIntercome()">Contact support</button>
     </div>
 </app-banner>
 

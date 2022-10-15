@@ -90,4 +90,8 @@ export class AuditComponent implements OnInit {
     })
   }
 
+  openIntercome() {
+    // @ts-ignore
+    Intercom('show');
+  }
 }

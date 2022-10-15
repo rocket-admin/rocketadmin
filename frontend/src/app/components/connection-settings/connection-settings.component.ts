@@ -110,4 +110,9 @@ export class ConnectionSettingsComponent implements OnInit {
       () => this.submitting = false,
       () => this.submitting = false);
   }
+
+  openIntercome() {
+    // @ts-ignore
+    Intercom('show');
+  }
 }
