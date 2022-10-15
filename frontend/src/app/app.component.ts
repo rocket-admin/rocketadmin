@@ -227,6 +227,11 @@ export class AppComponent {
 
     this.setUserLoggedIn(null);
     localStorage.removeItem('token_expiration');
-    if (!isTokenExpired) window.location.href="https://autoadmin.org/";
+    if ((environment as any).saas) {
+      if (!isTokenExpired) window.location.href="https://autoadmin.org/";
+    } else {
+      this.router.navigate(['/login'])
+    }
+
   }
 }
