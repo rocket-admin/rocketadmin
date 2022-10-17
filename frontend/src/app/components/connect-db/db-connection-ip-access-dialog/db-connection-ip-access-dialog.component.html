@@ -35,6 +35,17 @@
             <li>Click <strong>Save</strong>.</li>
         </ol>
     </div>
+    <div *ngIf="provider === 'google'" class="mat-body">
+        <strong>Setup authorized networks</strong>
+        <ol class="rules">
+            <li>Open your instance overview and select <strong>Connections</strong> from the navigation pane.</li>
+            <li>
+                Tick the <strong>Public IP</strong> checkbox and click <strong>Add network</strong> in <strong>Authorized networks</strong> section.
+            </li>
+            <li>Enter any name and  <app-ip-address-button ip="18.221.81.73"></app-ip-address-button> IP address for a <strong>New network</strong>.</li>
+            <li>Click <strong>Done</strong> and then <strong>Save</strong> to update the instance.</li>
+        </ol>
+    </div>
     <ng-container *ngIf="provider === null">
         <div *ngIf="db.type === 'postgres'" class="mat-body">
             Give privileges to a user:
@@ -126,6 +137,9 @@
         Learn more
     </a>
     <a *ngIf="provider === 'azure'" mat-button href="https://learn.microsoft.com/en-us/azure/mysql/flexible-server/how-to-manage-firewall-portal">
+        Learn more
+    </a>
+    <a *ngIf="provider === 'google'" mat-button href="https://cloud.google.com/sql/docs/mysql/authorize-networks#console">
         Learn more
     </a>
     <button mat-raised-button color="primary"
