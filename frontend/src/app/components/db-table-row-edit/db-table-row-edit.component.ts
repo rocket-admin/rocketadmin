@@ -152,6 +152,8 @@ export class DbTableRowEditComponent implements OnInit {
   }
 
   isWidget(columnName: string) {
+    console.log('isWidget');
+    console.log(columnName);
     return this.tableWidgetsList.includes(columnName);
   }
 

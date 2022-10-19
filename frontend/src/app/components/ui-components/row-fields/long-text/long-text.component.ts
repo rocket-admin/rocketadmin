@@ -26,7 +26,7 @@ export class LongTextComponent implements OnInit {
 
   ngOnInit(): void {
     this.normalizedLabel = normalizeFieldName(this.label);
-    if (this.widgetStructure.widget_params) {
+    if (this.widgetStructure && this.widgetStructure.widget_params) {
       this.rowsCount = this.widgetStructure.widget_params.rows
     } else {
       this.rowsCount = '4'

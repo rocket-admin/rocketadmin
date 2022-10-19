@@ -25,19 +25,18 @@ export class DbTableWidgetsComponent implements OnInit {
   public submitting: boolean = false;
   public widgetsWithSettings: string[];
   public defaultParams = {
-    Boolean: 'No settings required',
-    Date: 'No settings required',
-    Time: 'No settings required',
-    DateTime: 'No settings required',
-    JSON: 'No settings required',
-    Textarea:
-`// provide number of strings to show.
+    Boolean: `// No settings required`,
+    Date: `// No settings required`,
+    Time: `// No settings required`,
+    DateTime: `// No settings required`,
+    JSON: `// No settings required`,
+    Textarea: `// provide number of strings to show.
 {
   rows: 5
 }`,
-    String: 'No settings required',
-    Readonly: 'No settings required',
-    Number: 'No settings required',
+    String: `// No settings required`,
+    Readonly: `// No settings required`,
+    Number: `// No settings required`,
     Select:
 `// provide array of options to map database value (key 'value') in human readable value (key 'label');
 // for example:
@@ -91,7 +90,7 @@ export class DbTableWidgetsComponent implements OnInit {
     this.normalizedTableName = normalizeTableName(this.tableName);
     this.widgetsWithSettings = Object
       .entries(this.defaultParams)
-      .filter(([key, value]) => value !== 'No settings required')
+      .filter(([key, value]) => value !== '// No settings required')
       .map(widgetDefault => widgetDefault[0]);
     // console.log(settings);
     // this.widgetsWithSettings = Object.keys(settings);
