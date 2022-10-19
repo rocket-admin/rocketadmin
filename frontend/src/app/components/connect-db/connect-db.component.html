@@ -50,14 +50,21 @@
         <div *ngIf="db && db.connectionType === 'direct'" class="connectForm__fullLine">
             <div *ngIf="connectionID; else warningAlert" class="warningMessage">
                 <mat-icon class="warningMessage__icon">warning_amber</mat-icon>
-                <p  class="mat-body-1">
-                    Please make sure our servers are able to access your database.
-                    Autoadmin uses IP address <strong>18.221.81.73</strong> for all outbound requests.
-                </p>
+                <div class="mat-body-1">
+                    Please make sure our servers are able to access your database. <br/> Autoadmin uses
+                    <app-ip-address-button ip="18.221.81.73"></app-ip-address-button>
+                    IP address for all outbound requests.
+                </div>
             </div>
 
             <ng-template #warningAlert>
-                <app-alert [alert]="warning"></app-alert>
+                <app-alert [alert]="warning">
+                    <div class="mat-body-1">
+                        Please make sure our servers are able to access your database. <br/> Autoadmin uses
+                        <app-ip-address-button ip="18.221.81.73"></app-ip-address-button>
+                        IP address for all outbound requests.
+                    </div>
+                </app-alert>
             </ng-template>
         </div>
 

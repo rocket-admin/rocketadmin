@@ -1,18 +1,14 @@
 import { HttpStatus, Injectable, Scope } from '@nestjs/common';
-import {
-  IAutocompleteFieldsData,
-  IDataAccessObject,
-  IFilteringFieldsData,
-  IForeignKey,
-  IPrimaryKey,
-  IRows,
-  ITableStructure,
-  ITestConnectResult,
-} from '../shared/data-access-object-interface';
-import { ConnectionEntity } from '../../entities/connection/connection.entity';
+import { HttpException } from '@nestjs/common/exceptions/http.exception';
+import * as getPort from 'get-port';
 import { knex, Knex } from 'knex';
-import { TableSettingsEntity } from '../../entities/table-settings/table-settings.entity';
+import { Client } from 'ssh2';
+import { getSshMySqlClient } from '../../dal/dao-ssh/database/ssh-mysql-client';
+import { ConnectionEntity } from '../../entities/connection/connection.entity';
 import { CreateTableSettingsDto } from '../../entities/table-settings/dto';
+import { TableSettingsEntity } from '../../entities/table-settings/table-settings.entity';
+import { FilterCriteriaEnum } from '../../enums';
+import { Messages } from '../../exceptions/text/messages';
 import {
   changeObjPropValByPropName,
   checkFieldAutoincrement,
@@ -24,13 +20,17 @@ import {
   tableSettingsFieldValidator,
 } from '../../helpers';
 import { Cacher } from '../../helpers/cache/cacher';
-import * as getPort from 'get-port';
-import { getSshMySqlClient } from '../../dal/dao-ssh/database/ssh-mysql-client';
-import { HttpException } from '@nestjs/common/exceptions/http.exception';
-import { Messages } from '../../exceptions/text/messages';
 import { Constants } from '../../helpers/constants/constants';
-import { FilterCriteriaEnum } from '../../enums';
-import { Client } from 'ssh2';
+import {
+  IAutocompleteFieldsData,
+  IDataAccessObject,
+  IFilteringFieldsData,
+  IForeignKey,
+  IPrimaryKey,
+  IRows,
+  ITableStructure,
+  ITestConnectResult,
+} from '../shared/data-access-object-interface';
 
 @Injectable({ scope: Scope.REQUEST })
 export class DataAccessObjectMysqlSsh implements IDataAccessObject {
@@ -40,11 +40,7 @@ export class DataAccessObjectMysqlSsh implements IDataAccessObject {
     this.connection = connection;
   }
 
-  public async addRowInTable(
-    tableName: string,
-    row: Record<string, unknown>,
-    userEmail: string,
-  ): Promise<Record<string, unknown>> {
+  public async addRowInTable(tableName: string, row: Record<string, unknown>): Promise<Record<string, unknown>> {
     const promisesResults = await Promise.all([
       this.getTableStructure(tableName),
       this.getTablePrimaryColumns(tableName),
@@ -63,19 +59,20 @@ export class DataAccessObjectMysqlSsh implements IDataAccessObject {
         row = changeObjPropValByPropName(row, key, JSON.stringify(getPropertyValueByDescriptor(row, key)));
       }
     }
-    const primaryKey = primaryColumns[0];
-    const primaryKeyIndexInStructure = tableStructure
-      .map((e) => {
-        return e.column_name;
-      })
-      .indexOf(primaryKey.column_name);
-    const primaryKeyStructure = tableStructure.at(primaryKeyIndexInStructure);
+    const primaryKeysInStructure = tableStructure.map((el) => {
+      return tableStructure.find((structureEl) => structureEl.column_name === el.column_name);
+    });
+
+    const autoIncrementPrimaryKey = primaryKeysInStructure.find((key) =>
+      checkFieldAutoincrement(key.column_default, key.extra),
+    );
+
     const mySqlDriver = await this.getMySqlDriver();
     const knex = await this.configureKnex();
     await knex.raw('SET SQL_SAFE_UPDATES = 1;').connection(mySqlDriver);
     if (primaryColumns?.length > 0) {
       const primaryKeys = primaryColumns.map((column) => column.column_name);
-      if (!checkFieldAutoincrement(primaryKeyStructure.column_default, primaryKeyStructure.extra)) {
+      if (!autoIncrementPrimaryKey) {
         try {
           await knex(tableName).connection(mySqlDriver).insert(row);
           const resultsArray = [];
@@ -91,9 +88,11 @@ export class DataAccessObjectMysqlSsh implements IDataAccessObject {
         try {
           await knex(tableName).connection(mySqlDriver).insert(row);
           const lastInsertId = await knex(tableName).connection(mySqlDriver).select(knex.raw(`LAST_INSERT_ID()`));
-          return {
-            [primaryKey.column_name]: lastInsertId[0]['LAST_INSERT_ID()'],
-          };
+          const resultObj = {};
+          for (const [index, el] of primaryColumns.entries()) {
+            resultObj[el.column_name] = lastInsertId[index]['LAST_INSERT_ID()'];
+          }
+          return resultObj;
         } catch (e) {
           throw new Error(e);
         }
@@ -275,6 +274,10 @@ export class DataAccessObjectMysqlSsh implements IDataAccessObject {
                 break;
               case FilterCriteriaEnum.icontains:
                 builder.andWhereNot(field, 'like', `%${value}%`);
+                break;
+              case FilterCriteriaEnum.empty:
+                builder.orWhereNull(field);
+                builder.orWhere(field, '=', `''`);
                 break;
             }
           }
@@ -552,6 +555,10 @@ export class DataAccessObjectMysqlSsh implements IDataAccessObject {
                   break;
                 case FilterCriteriaEnum.icontains:
                   builder.andWhereNot(field, 'like', `%${value}%`);
+                  break;
+                case FilterCriteriaEnum.empty:
+                  builder.orWhereNull(field);
+                  builder.orWhere(field, '=', `''`);
                   break;
               }
             }

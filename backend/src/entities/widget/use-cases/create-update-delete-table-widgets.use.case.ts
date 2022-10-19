@@ -14,7 +14,7 @@ import { buildNewTableWidgetEntity } from '../utils/build-new-table-widget-entit
 import { validateCreateWidgetsDs } from '../utils/validate-create-widgets-ds';
 import { ICreateUpdateDeleteTableWidgets } from './table-widgets-use-cases.interface';
 
-@Injectable({ scope: Scope.REQUEST })
+@Injectable()
 export class CreateUpdateDeleteTableWidgetsUseCase
   extends AbstractUseCase<CreateTableWidgetsDs, Array<FoundTableWidgetsDs>>
   implements ICreateUpdateDeleteTableWidgets {

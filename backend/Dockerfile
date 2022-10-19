@@ -1,4 +1,4 @@
-FROM public.ecr.aws/docker/library/node:16
+FROM public.ecr.aws/docker/library/node:18
 WORKDIR /app
 COPY package.json yarn.lock nest-cli.json /app/
 RUN yarn install --network-timeout 1000000

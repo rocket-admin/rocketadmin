@@ -62,25 +62,26 @@ export class AppComponent {
     this.matIconRegistry.addSvgIcon("oracledb", this.domSanitizer.bypassSecurityTrustResourceUrl("/assets/icons/oracle_logo.svg"));
     this.matIconRegistry.addSvgIcon("postgres", this.domSanitizer.bypassSecurityTrustResourceUrl("/assets/icons/postgres_logo.svg"));
     angulartics2Amplitude.startTracking();
-    if (window.screen.width > 600) {
-      this.userInactive.subscribe(() => {
-        // @ts-ignore
-        Intercom('show');
-        this.chatHasBeenShownOnce = true;
-      });
-    }
+
+    // if (window.screen.width > 600) {
+    //   this.userInactive.subscribe(() => {
+    //     // @ts-ignore
+    //     Intercom('show');
+    //     this.chatHasBeenShownOnce = true;
+    //   });
+    // }
   }
 
-  setTimeout() {
-    this.userActivity = setTimeout(() => this.userInactive.next(undefined), 15000);
-  }
+  // setTimeout() {
+  //   this.userActivity = setTimeout(() => this.userInactive.next(undefined), 15000);
+  // }
 
-  @HostListener('window:click')
-  @HostListener('window:keypress')
-  refreshUserState() {
-    clearTimeout(this.userActivity);
-    if (!this.chatHasBeenShownOnce) this.setTimeout();
-  }
+  // @HostListener('window:click')
+  // @HostListener('window:keypress')
+  // refreshUserState() {
+  //   clearTimeout(this.userActivity);
+  //   if (!this.chatHasBeenShownOnce) this.setTimeout();
+  // }
 
   ngOnInit() {
     this.upgradeButtonShown = (environment as any).saas;
@@ -137,7 +138,7 @@ export class AppComponent {
           this.router.navigate(['/login'])
         }, expirationInterval);
 
-      } else {
+      } else if (res !== 'delete') {
         const expirationTime = new Date(localStorage.getItem('token_expiration'));
         const currantTime = new Date();
 
@@ -161,7 +162,7 @@ export class AppComponent {
 
             setTimeout(() => {
               this.logOut(true);
-              this.router.navigate(['/login'])
+              this.router.navigate(['/login']);
             }, expirationInterval);
           }
         }
@@ -170,7 +171,7 @@ export class AppComponent {
 
     this._user.cast.subscribe( arg => {
       if (arg === 'delete') {
-        this.logOut();
+        this.logOut(true);
       }
     })
   }
@@ -202,33 +203,35 @@ export class AppComponent {
   }
 
   logOut(isTokenExpired?: boolean) {
-    this._auth.logOutUser()
-      .subscribe(() => {
-        try {
-          // @ts-ignore
-          google.accounts.id.revoke(this.currentUser.email, done => {
-           console.log('consent revoked');
-           console.log(done);
-           console.log(this.currentUser.email);
-          });
-        } catch(error) {
-          console.log('google error');
-          console.log(error);
-        }
+    try {
+      // @ts-ignore
+      google.accounts.id.revoke(this.currentUser.email, done => {
+       console.log('consent revoked');
+       console.log(done);
+       console.log(this.currentUser.email);
+      });
+    } catch(error) {
+      console.log('google error');
+      console.log(error);
+    }
 
-        try {
-          // @ts-ignore
-          FB.logout(function(response) {
-            console.log(response);
-          });
-        } catch(error) {
-          console.log('fb error');
-          console.log(error);
-        }
+    try {
+      // @ts-ignore
+      FB.logout(function(response) {
+        console.log(response);
+      });
+    } catch(error) {
+      console.log('fb error');
+      console.log(error);
+    }
 
-        this.setUserLoggedIn(null);
-        localStorage.removeItem('token_expiration');
-        if (!isTokenExpired) window.location.href="https://autoadmin.org/";
-      })
+    this.setUserLoggedIn(null);
+    localStorage.removeItem('token_expiration');
+    if ((environment as any).saas) {
+      if (!isTokenExpired) window.location.href="https://autoadmin.org/";
+    } else {
+      this.router.navigate(['/login'])
+    }
+
   }
 }

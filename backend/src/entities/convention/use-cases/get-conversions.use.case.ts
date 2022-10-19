@@ -5,7 +5,7 @@ import { BaseType } from '../../../common/data-injection.tokens';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface';
 import { Parser as CsvParser } from 'json2csv';
 
-@Injectable({ scope: Scope.REQUEST })
+@Injectable()
 export class GetConversionsUseCase extends AbstractUseCase<void, string> implements IGetConversions {
   constructor(
     @Inject(BaseType.GLOBAL_DB_CONTEXT)

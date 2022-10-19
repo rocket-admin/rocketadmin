@@ -19,7 +19,7 @@ import { CustomFieldsEntity } from '../custom-field/custom-fields.entity';
 import { toPrettyErrorsMsg } from '../../helpers';
 import { HttpException } from '@nestjs/common/exceptions/http.exception';
 import { Messages } from '../../exceptions/text/messages';
-import { QueryOrderingEnum } from '../../enums';
+import { InTransactionEnum, QueryOrderingEnum } from '../../enums';
 import { SentryInterceptor } from '../../interceptors';
 import { ConnectionEditGuard, ConnectionReadGuard } from '../../guards';
 import { UseCaseType } from '../../common/data-injection.tokens';
@@ -39,7 +39,7 @@ import { MasterPassword, QueryTableName, QueryUuid, UserId } from '../../decorat
 @ApiTags('settings')
 @UseInterceptors(SentryInterceptor)
 @Controller()
-@Injectable({ scope: Scope.REQUEST })
+@Injectable()
 export class TableSettingsController {
   constructor(
     @Inject(UseCaseType.FIND_TABLE_SETTINGS)
@@ -74,7 +74,7 @@ export class TableSettingsController {
       connectionId: connectionId,
       tableName: tableName,
     };
-    return await this.findTableSettingsUseCase.execute(inputData);
+    return await this.findTableSettingsUseCase.execute(inputData, InTransactionEnum.OFF);
   }
 
   @ApiOperation({ summary: 'Create table settings' })
@@ -135,7 +135,7 @@ export class TableSettingsController {
         HttpStatus.BAD_REQUEST,
       );
     }
-    return await this.createTableSettingsUseCase.execute(inputData);
+    return await this.createTableSettingsUseCase.execute(inputData, InTransactionEnum.ON);
   }
 
   @ApiOperation({ summary: 'Update table settings' })
@@ -195,7 +195,7 @@ export class TableSettingsController {
         HttpStatus.BAD_REQUEST,
       );
     }
-    return await this.updateTableSettingsUseCase.execute(inputData);
+    return await this.updateTableSettingsUseCase.execute(inputData, InTransactionEnum.ON);
   }
 
   @ApiOperation({ summary: 'Delete table settings' })
@@ -219,7 +219,7 @@ export class TableSettingsController {
       connectionId: connectionId,
       tableName: tableName,
     };
-    return await this.deleteTableSettingsUseCase.execute(inputData);
+    return await this.deleteTableSettingsUseCase.execute(inputData, InTransactionEnum.ON);
   }
 
   private validateParameters(tableSettingsDTO: CreateTableSettingsDto): Array<string> {

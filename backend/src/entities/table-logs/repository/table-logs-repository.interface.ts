@@ -2,11 +2,14 @@ import { CreateLogRecordDs } from '../application/data-structures/create-log-rec
 import { CreatedLogRecordDs } from '../application/data-structures/created-log-record.ds';
 import { FoundLogsEntities } from '../application/data-structures/found-logs.ds';
 import { QueryOrderingEnum } from '../../../enums';
+import { TableLogsEntity } from '../table-logs.entity';
 
 export interface ITableLogsRepository {
   createLogRecord(logsData: CreateLogRecordDs): Promise<CreatedLogRecordDs>;
 
   findLogs(findOptions: IFindLogsOptions): Promise<FoundLogsEntities>;
+
+  saveNewOrUpdatedLogRecord(logRecord: TableLogsEntity): Promise<TableLogsEntity>
 }
 
 export interface IFindLogsOptions {

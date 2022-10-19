@@ -44,4 +44,8 @@ export class DbConnectionConfirmDialogComponent implements OnInit {
       )
   }
 
+  openIntercome() {
+    // @ts-ignore
+    Intercom('show');
+  }
 }

@@ -56,6 +56,7 @@ export class TablesDataSource implements DataSource<Object> {
   public widgetsCount: number = 0;
   public selectWidgetsOptions: object;
   public permissions;
+  public isEmptyTable: boolean;
 
   public alert_primaryKeysInfo: Alert;
   public alert_settingsInfo: Alert;
@@ -153,6 +154,7 @@ export class TablesDataSource implements DataSource<Object> {
               return items;
             }, new Map());
 
+          this.isEmptyTable = res.rows.length === 0;
           const formattedRows = res.rows.map(row => this.formatRow(row, columns));
           this.rowsSubject.next(formattedRows);
           this.keyAttributes = res.primaryColumns;

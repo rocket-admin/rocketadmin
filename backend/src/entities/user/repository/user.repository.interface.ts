@@ -30,4 +30,6 @@ export interface IUserRepository {
   getUserEmailOrReturnNull(userId: string): Promise<string>;
 
   getTrue(): Promise<boolean>;
+
+  findUsersWithoutLogs(): Promise<Array<UserEntity>>
 }

@@ -6,7 +6,7 @@ import { IGlobalDatabaseContext } from '../../../common/application/global-datab
 import { Messages } from '../../../exceptions/text/messages';
 import { OperationResultMessageDs } from '../application/data-structures/operation-result-message.ds';
 
-@Injectable({ scope: Scope.REQUEST })
+@Injectable()
 export class VerifyUserEmailUseCase extends AbstractUseCase<string, OperationResultMessageDs> implements IVerifyEmail {
   constructor(
     @Inject(BaseType.GLOBAL_DB_CONTEXT)

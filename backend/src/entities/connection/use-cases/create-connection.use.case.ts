@@ -13,7 +13,7 @@ import { Messages } from '../../../exceptions/text/messages';
 import { UserEntity } from '../../user/user.entity';
 import { validateCreateConnectionData } from '../utils/validate-create-connection-data';
 
-@Injectable({ scope: Scope.REQUEST })
+@Injectable()
 export class CreateConnectionUseCase
   extends AbstractUseCase<CreateConnectionDs, CreatedConnectionDs>
   implements ICreateConnection

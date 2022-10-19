@@ -8,7 +8,7 @@ import { CustomFieldsEntity } from '../custom-fields.entity';
 import { FoundCustomFieldsDs } from '../application/data-structures/found-custom-fields.ds';
 import { buildFoundCustomFieldsDs } from '../utils/build-found-custom-fields-ds';
 
-@Injectable({ scope: Scope.REQUEST })
+@Injectable()
 export class GetCustomFieldsUseCase
   extends AbstractUseCase<GetCustomFieldsDs, Array<FoundCustomFieldsDs>>
   implements IGetCustomFields

@@ -6,6 +6,7 @@ import { catchError, map } from 'rxjs/operators';
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { NotificationsService } from './notifications.service';
+import { Router } from '@angular/router';
 
 @Injectable({
   providedIn: 'root'
@@ -25,7 +26,8 @@ export class UserService {
 
   constructor(
     private _http: HttpClient,
-    private _notifications: NotificationsService
+    private _notifications: NotificationsService,
+    public router: Router
   ) { }
 
   get user$(){
@@ -207,7 +209,7 @@ export class UserService {
     .pipe(
       map(() => {
         this.user.next('delete');
-        this._notifications.showSuccessSnackbar('You account has been deleted.');
+        this.router.navigate(['/deleted']);
       }),
       catchError((err) => {
         console.log(err);

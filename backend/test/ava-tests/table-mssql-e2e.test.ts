@@ -50,11 +50,11 @@ test.before(async () => {
 test.after.always('Close app connection', async () => {
   try {
     await Cacher.clearAllCache();
-    const connect = await app.get(Connection);
-    await testUtils.shutdownServer(app.getHttpAdapter());
-    if (connect.isConnected) {
-      await connect.close();
-    }
+    // const connect = await app.get(Connection);
+    // await testUtils.shutdownServer(app.getHttpAdapter());
+    // if (connect.isConnected) {
+    //   await connect.close();
+    // }
     await app.close();
   } catch (e) {
     console.error('After custom field error: ' + e);
@@ -1297,6 +1297,7 @@ should return all found rows with search, pagination: page=1, perPage=2 and DESC
       .get(
         `/table/rows/${createConnectionRO.id}?tableName=${testTableName}&search=${testSearchedUserName}&page=1&perPage=2&f_${fieldname}__lt=${fieldvalue}`,
       )
+      .set('Cookie', firstUserToken)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
     t.is(getTableRowsResponse.status, 200);

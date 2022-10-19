@@ -8,7 +8,7 @@ import { IGlobalDatabaseContext } from '../../../common/application/global-datab
 import { Messages } from '../../../exceptions/text/messages';
 import { GroupEntity } from '../../group/group.entity';
 
-@Injectable({ scope: Scope.REQUEST })
+@Injectable()
 export class DeleteGroupFromConnectionUseCase
   extends AbstractUseCase<DeleteGroupInConnectionDs, Omit<GroupEntity, 'connection'>>
   implements IDeleteGroupInConnection

@@ -101,7 +101,7 @@ describe('Tables with encryption (e2e)', () => {
         const getTablesRO = JSON.parse(getTablesResponse.text);
 
         expect(typeof getTablesRO).toBe('object');
-        expect(getTablesRO.length).toBe(22);
+        expect(getTablesRO.length).toBe(23);
         // expect(getTablesRO[6].hasOwnProperty('agent')).toBeTruthy();
         expect(getTablesRO[5].hasOwnProperty('permissions')).toBeTruthy();
         expect(typeof getTablesRO[7].permissions).toBe('object');

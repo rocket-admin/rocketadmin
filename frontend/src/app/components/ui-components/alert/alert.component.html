@@ -1,6 +1,7 @@
 <div *ngIf="currentAlert" class="alert" [ngClass]="'alert_' + currentAlert.type">
     <mat-icon class="alert__icon">{{icons[currentAlert.type]}}</mat-icon>
-    <p class="mat-body-1" [innerHtml]="currentAlert.message"></p>
+    <p *ngIf="currentAlert.message" class="alert__message mat-body-1" [innerHtml]="currentAlert.message"></p>
+    <ng-content></ng-content>
     <div *ngIf="currentAlert.actions" class="actions">
         <ng-container *ngFor="let action of currentAlert.actions">
             <button mat-button type="button" *ngIf="action.type === 'button'"

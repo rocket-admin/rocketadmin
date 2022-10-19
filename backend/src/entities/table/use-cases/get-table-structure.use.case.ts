@@ -17,7 +17,7 @@ import { IForeignKeyInfo, IStructureRO } from '../table.interface';
 import { formFullTableStructure } from '../utils/form-full-table-structure';
 import { IGetTableStructure } from './table-use-cases.interface';
 
-@Injectable({ scope: Scope.REQUEST })
+@Injectable()
 export class GetTableStructureUseCase
   extends AbstractUseCase<GetTableStructureDs, IStructureRO>
   implements IGetTableStructure

@@ -3,7 +3,7 @@
         <h2 class="mat-h2">{{ displayName }}</h2>
     </div>
     <div>
-        <a mat-button *ngIf="tableData && tableData.permissions && tableData.permissions.add"
+        <a mat-button *ngIf="tableData && tableData.permissions && tableData.permissions.add && !tableData.isEmptyTable"
             routerLink="/dashboard/{{connectionID}}/{{name}}/entry"
             angulartics2On="click"
             angularticsAction="Tables: add row page is opened">
@@ -54,7 +54,6 @@
     <div class="spinner-wrapper" *ngIf="tableData && tableData.loading$ | async">
         <mat-spinner diameter="48"></mat-spinner>
     </div>
-
 
     <div class="table-box">
         <table *ngIf="tableData" mat-table matSort [dataSource]="tableData" NgMatTableQueryReflector class="table">
@@ -109,6 +108,19 @@
         </table>
     </div>
 
+    <div *ngIf="tableData.isEmptyTable && filtersCount" class="empty-table">
+        <span class="mat-body">No matching was found for the given filter</span>
+    </div>
+
+    <div *ngIf="tableData.isEmptyTable && !filtersCount" class="empty-table">
+        <a mat-button color="accent"
+            routerLink="/dashboard/{{connectionID}}/{{name}}/entry"
+            angulartics2On="click"
+            angularticsAction="Tables: add row page is opened">
+            <mat-icon>add</mat-icon>
+            Add row
+        </a>
+    </div>
 
     <mat-paginator
         [pageSize]="30"
@@ -117,7 +129,3 @@
     </mat-paginator>
 
 </div>
-
-<ng-template #emptyTableMessage>
-    <span class="empty-table-message">No data in the table.</span>
-</ng-template>

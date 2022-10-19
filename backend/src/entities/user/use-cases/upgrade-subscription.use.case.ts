@@ -9,7 +9,7 @@ import { HttpException } from '@nestjs/common/exceptions/http.exception';
 import { Messages } from '../../../exceptions/text/messages';
 import { upgradeUserSubscription } from '../../../helpers/stripe/upgrade-user-subscription';
 
-@Injectable({ scope: Scope.REQUEST })
+@Injectable()
 export class UpgradeSubscriptionUseCase
   extends AbstractUseCase<UpgradeUserSubscriptionDs, UpgradedUserSubscriptionDs>
   implements IUpgradeSubscription

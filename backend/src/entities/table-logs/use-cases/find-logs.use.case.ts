@@ -10,7 +10,7 @@ import { Constants } from '../../../helpers/constants/constants';
 import { IFindLogsOptions } from '../repository/table-logs-repository.interface';
 import { buildFoundLogRecordDs } from '../utils/build-found-log-record-ds';
 
-@Injectable({ scope: Scope.REQUEST })
+@Injectable()
 export class FindLogsUseCase extends AbstractUseCase<FindLogsDs, FoundLogsDs> implements IFindLogs {
   constructor(
     @Inject(BaseType.GLOBAL_DB_CONTEXT)

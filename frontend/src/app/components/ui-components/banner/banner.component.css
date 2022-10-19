@@ -14,6 +14,10 @@
     --alert-theme-color: #3258f0;
 }
 
+.banner_success {
+    --alert-theme-color: #43A047;
+}
+
 .banner-box {
     background-color: #F5F5F5;
     border-left: 4px solid var(--alert-theme-color);

@@ -1,6 +1,6 @@
-import { TableSettingsEntity } from '../table-settings.entity';
-import { FoundTableSettingsDs } from '../application/data-structures/found-table-settings.ds';
 import { ConnectionEntity } from '../../connection/connection.entity';
+import { FoundTableSettingsDs } from '../application/data-structures/found-table-settings.ds';
+import { TableSettingsEntity } from '../table-settings.entity';
 
 export function buildFoundTableSettingsDs(tableSettings: TableSettingsEntity): FoundTableSettingsDs {
   const {
@@ -21,6 +21,7 @@ export function buildFoundTableSettingsDs(tableSettings: TableSettingsEntity): F
     columns_view,
     custom_fields,
     table_widgets,
+    table_actions,
   } = tableSettings;
   let connection_id = tableSettings.connection_id as unknown;
   if (connection_id instanceof ConnectionEntity) {
@@ -45,5 +46,6 @@ export function buildFoundTableSettingsDs(tableSettings: TableSettingsEntity): F
     connection_id: connection_id as unknown as string,
     custom_fields: custom_fields,
     table_widgets: table_widgets,
+    table_actions: table_actions,
   };
 }

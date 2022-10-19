@@ -20,6 +20,7 @@ export function buildEmptyTableSettings(connectionId: string, tableName: string)
     sortable_by: undefined,
     table_name: tableName,
     table_widgets: undefined,
+    table_actions: undefined,
     userId: undefined,
   };
 }

@@ -25,6 +25,7 @@ import { UpgradeComponent } from './components/upgrade/upgrade.component';
 import { UserSettingsComponent } from './components/user-settings/user-settings.component';
 import { UsersComponent } from './components/users/users.component';
 import { NewVersionComponent } from './components/new-version/new-version.component';
+import { UserDeletedSuccessComponent } from './components/user-deleted-success/user-deleted-success.component';
 
 const routes: Routes = [
   {path: '', redirectTo: '/connections-list', pathMatch: 'full'},
@@ -35,6 +36,7 @@ const routes: Routes = [
   {path: 'api/user/password/reset/verify/:verification-token', component: PasswordResetComponent},
   {path: 'api/user/email/verify/:verification-token', component: EmailVerificationComponent},
   {path: 'api/user/email/change/verify/:change-token', component: EmailChangeComponent},
+  {path: 'deleted', component: UserDeletedSuccessComponent},
   {path: 'new-version', component: NewVersionComponent},
   {path: 'connect-db', component: ConnectDBComponent, canActivate: [AuthGuard]},
   {path: 'connections-list', component: ConnectionsListComponent, canActivate: [AuthGuard]},

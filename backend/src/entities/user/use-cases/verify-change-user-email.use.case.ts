@@ -8,7 +8,7 @@ import { Messages } from '../../../exceptions/text/messages';
 import { sendEmailChanged } from '../../email/send-email';
 import { OperationResultMessageDs } from '../application/data-structures/operation-result-message.ds';
 
-@Injectable({ scope: Scope.REQUEST })
+@Injectable()
 export class VerifyChangeUserEmailUseCase
   extends AbstractUseCase<ChangeUserEmailDs, OperationResultMessageDs>
   implements IVerifyEmailChange

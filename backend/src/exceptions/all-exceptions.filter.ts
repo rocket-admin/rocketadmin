@@ -19,15 +19,6 @@ export class AllExceptionsFilter implements ExceptionFilter {
     if (status === 500 || status === 408) {
       Logger.logError(exception);
     }
-    if (status !== 404) {
-      try {
-        const exceptionToString = `Sent exception message: ${text}
-      Sent response status code: ${status}`;
-        await slackPostMessage(exceptionToString, Constants.EXCEPTIONS_CHANNELS);
-      } catch (e) {
-        console.error(e);
-      }
-    }
 
     response.status(status).json({
       message: text ? text : 'Something went wrong',

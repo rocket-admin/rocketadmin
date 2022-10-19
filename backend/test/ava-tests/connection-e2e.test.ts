@@ -1,18 +1,18 @@
-import test from 'ava';
 import { faker } from '@faker-js/faker';
-import { ApplicationModule } from '../../src/app.module';
-import { DatabaseModule } from '../../src/shared/database/database.module';
-import { DatabaseService } from '../../src/shared/database/database.service';
 import { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
-import { TestUtils } from '../utils/test.utils';
-import { MockFactory } from '../mock.factory';
+import test from 'ava';
 import * as cookieParser from 'cookie-parser';
 import * as request from 'supertest';
-import { Constants } from '../../src/helpers/constants/constants';
 import { Connection } from 'typeorm';
+import { ApplicationModule } from '../../src/app.module';
 import { AccessLevelEnum } from '../../src/enums';
 import { Messages } from '../../src/exceptions/text/messages';
+import { Constants } from '../../src/helpers/constants/constants';
+import { DatabaseModule } from '../../src/shared/database/database.module';
+import { DatabaseService } from '../../src/shared/database/database.service';
+import { MockFactory } from '../mock.factory';
+import { TestUtils } from '../utils/test.utils';
 
 const mockFactory = new MockFactory();
 let app: INestApplication;
@@ -68,6 +68,11 @@ async function registerUserAndReturnUserInfo(): Promise<{
     .send(adminUserRegisterInfo)
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
+
+  console.log(
+    '🚀 ~ file: connection-e2e.test.ts ~ line 67 ~ registerUserAndReturnUserInfo ~ registerAdminUserResponse',
+    registerAdminUserResponse.text,
+  );
 
   const token = `${Constants.JWT_COOKIE_KEY_NAME}=${TestUtils.getJwtTokenFromResponse(registerAdminUserResponse)}`;
   return { token: token, ...adminUserRegisterInfo };
@@ -426,7 +431,7 @@ test(`${currentTest} should throw error when create connection without type`, as
 
     delete newConnection.type;
     const response = await request(app.getHttpServer())
-      .post('/connection')
+      .post('/connection`')
       .send(newConnection)
       .set('Cookie', token)
       .set('Content-Type', 'application/json')

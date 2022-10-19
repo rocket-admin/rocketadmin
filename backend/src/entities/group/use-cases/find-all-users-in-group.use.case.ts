@@ -7,7 +7,7 @@ import { UserEntity } from 'src/entities/user/user.entity';
 import { FoundUserInGroupDs } from '../../user/application/data-structures/found-user-in-group.ds';
 import { buildFoundUserInGroupDs } from '../../user/utils/build-found-user.ds';
 
-@Injectable({ scope: Scope.REQUEST })
+@Injectable()
 export class FindAllUsersInGroupUseCase
   extends AbstractUseCase<string, Array<FoundUserInGroupDs>>
   implements IFindAllUsersInGroup

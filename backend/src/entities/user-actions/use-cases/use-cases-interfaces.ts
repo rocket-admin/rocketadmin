@@ -1,8 +1,9 @@
+import { InTransactionEnum } from '../../../enums';
 import { CreateUserActionDs } from '../application/data-sctructures/create-user-action.ds';
 import { CreatedUserActionDs } from '../application/data-sctructures/created-user-action.ds';
 
 export interface ICreateUserAction {
-  execute(actionData: CreateUserActionDs): Promise<CreatedUserActionDs>;
+  execute(actionData: CreateUserActionDs, inTransaction: InTransactionEnum): Promise<CreatedUserActionDs>;
 }
 
 export interface ICheckUsersLogsAndUpdateActionsUseCase {

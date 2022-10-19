@@ -10,7 +10,7 @@ import { Messages } from '../../../exceptions/text/messages';
 import { buildFoundCustomFieldsDs } from '../utils/build-found-custom-fields-ds';
 import { validateCreateCustomFieldDto } from '../utils/validate-create-custom-field-dto';
 
-@Injectable({ scope: Scope.REQUEST })
+@Injectable()
 export class UpdateCustomFieldUseCase
   extends AbstractUseCase<UpdateCustomFieldsDs, FoundCustomFieldsDs>
   implements IUpdateCustomFields

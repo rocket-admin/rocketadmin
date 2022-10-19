@@ -69,8 +69,6 @@ export class DashboardComponent implements OnInit {
       if (error instanceof HttpErrorResponse) {
         this.errorMessage = error.error.message
       } else  { throw error };
-      // @ts-ignore
-      Intercom('show');
     }
 
     if (tables && tables.length === 0) {
@@ -177,5 +175,10 @@ export class DashboardComponent implements OnInit {
       width: '25em',
       data: rowKeyAttributes
     });
+  }
+
+  openIntercome() {
+    // @ts-ignore
+    Intercom('show');
   }
 }

@@ -7,7 +7,7 @@ import { IGetUserGroupsInConnection } from './use-cases.interfaces';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface';
 import { Inject, Injectable, Scope } from '@nestjs/common';
 
-@Injectable({ scope: Scope.REQUEST })
+@Injectable()
 export class GetUserGroupsInConnectionUseCase
   extends AbstractUseCase<GetGroupsInConnectionDs, Array<FoundUserGroupsInConnectionDs>>
   implements IGetUserGroupsInConnection

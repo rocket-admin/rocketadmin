@@ -1,12 +1,12 @@
 import { HttpException, HttpStatus, Inject, Injectable, Scope } from '@nestjs/common';
 import AbstractUseCase from '../../../common/abstract-use.case';
+import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface';
+import { BaseType } from '../../../common/data-injection.tokens';
+import { Messages } from '../../../exceptions/text/messages';
 import { RegisteredUserDs } from '../application/data-structures/registered-user.ds';
 import { IDeleteUserAccount } from './user-use-cases.interfaces';
-import { BaseType } from '../../../common/data-injection.tokens';
-import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface';
-import { Messages } from '../../../exceptions/text/messages';
 
-@Injectable({ scope: Scope.REQUEST })
+@Injectable()
 export class DeleteUserAccountUseCase
   extends AbstractUseCase<string, Omit<RegisteredUserDs, 'token'>>
   implements IDeleteUserAccount

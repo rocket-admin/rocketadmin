@@ -2,7 +2,6 @@
     position: sticky;
     top: 0;
     display: flex;
-    align-items: center;
     background-color: #F5F5F5;
     border-left: 4px solid var(--alert-theme-color);
     margin-bottom: 8px;
@@ -30,9 +29,14 @@
 .alert__icon {
     flex-shrink: 0;
     color: var(--alert-theme-color);
+    margin-top: 8px;
     margin-right: 12px;
     font-size: 22px;
     opacity: 0.9;
+}
+
+.alert__message {
+    margin-top: 8px;
 }
 
 .actions {

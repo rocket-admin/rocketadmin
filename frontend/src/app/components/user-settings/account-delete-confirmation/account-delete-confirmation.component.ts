@@ -29,7 +29,6 @@ export class AccountDeleteConfirmationComponent implements OnInit {
       .subscribe(() => {
         this.submitting = false;
         this.dialogRef.close();
-        this.router.navigate(['/registration']);
         },
         undefined,
         () => this.submitting = false

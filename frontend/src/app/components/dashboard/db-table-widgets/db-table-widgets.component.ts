@@ -30,7 +30,11 @@ export class DbTableWidgetsComponent implements OnInit {
     Time: 'No settings required',
     DateTime: 'No settings required',
     JSON: 'No settings required',
-    Textarea: 'No settings required',
+    Textarea:
+`// provide number of strings to show.
+{
+  rows: 5
+}`,
     String: 'No settings required',
     Readonly: 'No settings required',
     Number: 'No settings required',
@@ -43,12 +47,16 @@ export class DbTableWidgetsComponent implements OnInit {
 {
   options: [
     {
-      value: 'AK',
-      label: 'Alaska'
+      value: 'UA',
+      label: '🇺🇦 Ukraine'
     },
     {
-      value: 'CA',
-      label: 'California'
+      value: 'PL',
+      label: '🇵🇱 Poland'
+    },
+    {
+      value: 'US',
+      label: '🇺🇸 United States'
     }
   ]
 }`,

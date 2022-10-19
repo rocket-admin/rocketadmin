@@ -13,7 +13,7 @@ import { isConnectionEntityAgent } from '../../../helpers';
 import { RestoredConnectionDs } from '../application/data-structures/restored-connection.ds';
 import { buildCreatedConnectionDs } from '../utils/build-created-connection.ds';
 
-@Injectable({ scope: Scope.REQUEST })
+@Injectable()
 export class RestoreConnectionUseCase
   extends AbstractUseCase<UpdateConnectionDs, RestoredConnectionDs>
   implements IRestoreConnection

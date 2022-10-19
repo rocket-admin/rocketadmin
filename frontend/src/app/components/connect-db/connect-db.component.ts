@@ -30,7 +30,7 @@ export class ConnectDBComponent implements OnInit {
   public warning: Alert = {
     id: 10000000,
     type: AlertType.Warning,
-    message: 'You need to allow access from <strong>18.221.81.73</strong> IP address to manage the database.',
+    message: null
   }
   // public errorAlert: Alert;
 
@@ -106,7 +106,7 @@ export class ConnectDBComponent implements OnInit {
               }
             ]);
             //@ts-ignore
-            Intercom('show');
+            // Intercom('show');
           };
         },
         () => {this.submitting = false},
@@ -173,7 +173,7 @@ export class ConnectDBComponent implements OnInit {
     });
     this.submitting = false;
     //@ts-ignore
-    Intercom('show');
+    // Intercom('show');
   }
 
   amplitudeTrackAddConnection(isCorrectCreds: boolean) {

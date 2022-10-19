@@ -15,7 +15,7 @@ import { processExceptionMessage } from '../../../exceptions/utils/process-excep
 import { createDataAccessObject } from '../../../data-access-layer/shared/create-data-access-object';
 import { ValidationHelper } from '../../../helpers/validators/ValidationHelper';
 
-@Injectable({ scope: Scope.REQUEST })
+@Injectable()
 export class TestConnectionUseCase
   extends AbstractUseCase<UpdateConnectionDs, TestConnectionResultDs>
   implements ITestConnection

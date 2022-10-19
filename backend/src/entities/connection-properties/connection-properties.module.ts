@@ -1,18 +1,20 @@
 import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/common';
-import { ConnectionPropertiesController } from './connection-properties.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { ConnectionEntity } from '../connection/connection.entity';
-import { ConnectionPropertiesEntity } from './connection-properties.entity';
 import { AuthMiddleware } from '../../authorization';
-import { BaseType, UseCaseType } from '../../common/data-injection.tokens';
-import { FindConnectionPropertiesUseCase } from './use-cases/find-connection-properties-use.case';
 import { GlobalDatabaseContext } from '../../common/application/global-database-context';
+import { BaseType, UseCaseType } from '../../common/data-injection.tokens';
+import { ConnectionEntity } from '../connection/connection.entity';
+import { LogOutEntity } from '../log-out/log-out.entity';
+import { UserEntity } from '../user/user.entity';
+import { ConnectionPropertiesController } from './connection-properties.controller';
+import { ConnectionPropertiesEntity } from './connection-properties.entity';
 import { CreateConnectionPropertiesUseCase } from './use-cases/create-connection-properties.use.case';
-import { UpdateConnectionPropertiesUseCase } from './use-cases/update-connection-properties.use.case';
 import { DeleteConnectionPropertiesUseCase } from './use-cases/delete-connection-properties.use.case';
+import { FindConnectionPropertiesUseCase } from './use-cases/find-connection-properties-use.case';
+import { UpdateConnectionPropertiesUseCase } from './use-cases/update-connection-properties.use.case';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([ConnectionEntity, ConnectionPropertiesEntity])],
+  imports: [TypeOrmModule.forFeature([ConnectionEntity, ConnectionPropertiesEntity, UserEntity, LogOutEntity])],
   providers: [
     {
       provide: BaseType.GLOBAL_DB_CONTEXT,
