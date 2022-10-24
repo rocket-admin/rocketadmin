@@ -30,6 +30,7 @@ export class FoundDirectConnectionsDs {
   author?: UserEntity | string;
   token?: string;
   azure_encryption?: boolean;
+  signing_key: string;
 }
 
 export class FoundDirectConnectionsNonePermissionDs {
@@ -45,4 +46,5 @@ export class FoundAgentConnectionsDs {
   type?: ConnectionTypeEnum | string;
   author: UserEntity | string;
   token: string;
+  signing_key: string;
 }

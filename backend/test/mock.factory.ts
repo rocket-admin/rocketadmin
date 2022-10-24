@@ -1,18 +1,20 @@
 import { faker } from '@faker-js/faker';
 import * as jwt from 'jsonwebtoken';
+import { IRequestWithCognitoInfo } from '../src/authorization';
+import { CreateConnectionPropertiesDto } from '../src/entities/connection-properties/dto';
+import { CreateConnectionDto } from '../src/entities/connection/dto';
+import { CreateGroupDto } from '../src/entities/group/dto';
+import { TableActionEntity } from '../src/entities/table-actions/table-action.entity';
+import { CreateTableWidgetDto } from '../src/entities/widget/dto';
 import {
   AccessLevelEnum,
   ConnectionTypeEnum,
   PermissionTypeEnum,
   QueryOrderingEnum,
+  TableActionTypeEnum,
   WidgetTypeEnum,
 } from '../src/enums';
-import { CreateConnectionDto } from '../src/entities/connection/dto';
-import { CreateGroupDto } from '../src/entities/group/dto';
-import { CreateTableWidgetDto } from '../src/entities/widget/dto';
-import { IRequestWithCognitoInfo } from '../src/authorization';
 import { TestConstants } from './mocks/test-constants';
-import { CreateConnectionPropertiesDto } from '../src/entities/connection-properties/dto';
 import json5 = require('json5');
 
 export class MockFactory {
@@ -705,5 +707,13 @@ export class MockFactory {
     return {
       hidden_tables: [tableName],
     };
+  }
+
+  public generateNewTableAction(): TableActionEntity {
+    const newTableAction = new TableActionEntity();
+    newTableAction.url = faker.internet.url();
+    newTableAction.title = faker.random.words(2);
+    newTableAction.type = TableActionTypeEnum.single;
+    return newTableAction;
   }
 }

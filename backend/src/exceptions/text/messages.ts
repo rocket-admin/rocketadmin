@@ -4,6 +4,7 @@ import {
   ProviderTypeEnum,
   QueryOrderingEnum,
   SubscriptionLevelEnum,
+  TableActionTypeEnum,
   UserActionEnum,
   WidgetTypeEnum,
 } from '../../enums';
@@ -158,6 +159,7 @@ export const Messages = {
   SSH_PORT_FORMAT_INCORRECT: 'Ssh port value must be a number',
   SSH_USERNAME_MISSING: 'Ssh username is missing',
   SSH_PASSWORD_MISSING: 'Ssh private key is missing',
+  TABLE_ACTION_TYPE_INCORRECT: `Incrorrect table action. Now we supports types: ${enumToString(TableActionTypeEnum)}`,
   TABLE_ID_MISSING: 'Table id is missing',
   TABLE_LOGS_NOT_FOUND: `Unable to find logs for this table`,
   TABLE_NAME_MISSING: 'Table name missing.',
@@ -169,6 +171,7 @@ export const Messages = {
     `Table schema for table ${tableName} not found or this table does not exists`,
   TABLE_SETTINGS_NOT_FOUND: 'Table settings with this parameters not found',
   TABLE_WIDGET_NOT_FOUND: 'Table widget with this parameters not found',
+  TABLE_ACTION_NOT_FOUND: 'Table action not found',
   TRY_AGAIN_LATER: 'Please try again later. If the problem persists, please contact our support team',
   TYPE_MISSING: 'Type is missing',
   TOKEN_MISSING: 'Token is missing',
@@ -230,4 +233,5 @@ export const Messages = {
   SUBSCRIPTION_TYPE_INCORRECT: (type: any) =>
     `Subscription type is incorrect. Now we support subscriptions: ${enumToString(SubscriptionLevelEnum)}`,
   MAXIMUM_INVITATIONS_COUNT_REACHED: 'Sorry, the maximum number of invitations has been reached. Try again later.',
+  URL_INVALID: `Url is invalid`,
 };

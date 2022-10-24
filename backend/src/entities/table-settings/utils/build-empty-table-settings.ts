@@ -49,6 +49,7 @@ export function buildEmptyTableSettingsWithEmptyWidgets(
     sortable_by: undefined,
     table_name: tableName,
     table_widgets: [],
+    table_actions: [],
     userId: userId,
   };
 }
