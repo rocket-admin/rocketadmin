@@ -7,6 +7,7 @@ import { IEmailVerificationRepository } from '../../entities/email/repository/em
 import { IGroupRepository } from '../../entities/group/repository/group.repository.interface';
 import { ILogOutRepository } from '../../entities/log-out/repository/log-out-repository.interface';
 import { IPermissionRepository } from '../../entities/permission/repository/permission.repository.interface';
+import { ITableActionRepository } from '../../entities/table-actions/repository/table-action-custom-reposiotory.interface';
 import { TableFieldInfoEntity } from '../../entities/table-field-info/table-field-info.entity';
 import { TableInfoEntity } from '../../entities/table-info/table-info.entity';
 import { ITableLogsRepository } from '../../entities/table-logs/repository/table-logs-repository.interface';
@@ -40,4 +41,5 @@ export interface IGlobalDatabaseContext extends IDatabaseContext {
   tableWidgetsRepository: ITableWidgetsRepository;
   tableInfoRepository: Repository<TableInfoEntity>;
   tableFieldInfoRepository: Repository<TableFieldInfoEntity>;
+  tableActionRepository: ITableActionRepository;
 }

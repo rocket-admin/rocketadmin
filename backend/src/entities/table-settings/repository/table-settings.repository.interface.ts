@@ -1,5 +1,5 @@
-import { TableSettingsEntity } from '../table-settings.entity';
 import { CreateTableSettingsDs } from '../application/data-structures/create-table-settings.ds';
+import { TableSettingsEntity } from '../table-settings.entity';
 
 export interface ITableSettingsRepository {
   saveNewOrUpdatedSettings(settings: TableSettingsEntity): Promise<TableSettingsEntity>;
@@ -17,4 +17,6 @@ export interface ITableSettingsRepository {
   findTableSettingsInConnection(connectionId: string): Promise<Array<TableSettingsEntity>>;
 
   findTableSettingsWithTableWidgets(connectionId: string, tableName: string): Promise<TableSettingsEntity>;
+
+  findTableSettingsWithTableActions(connectionId: string, tableName: string): Promise<TableSettingsEntity>;
 }

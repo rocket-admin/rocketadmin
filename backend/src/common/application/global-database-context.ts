@@ -24,6 +24,9 @@ import { ILogOutRepository } from '../../entities/log-out/repository/log-out-rep
 import { PermissionEntity } from '../../entities/permission/permission.entity';
 import { permissionCustomRepositoryExtension } from '../../entities/permission/repository/permission-custom-repository-extension';
 import { IPermissionRepository } from '../../entities/permission/repository/permission.repository.interface';
+import { ITableActionRepository } from '../../entities/table-actions/repository/table-action-custom-reposiotory.interface';
+import { tableActionsCustomRepositoryExtension } from '../../entities/table-actions/repository/table-actions-custom-repository.extension';
+import { TableActionEntity } from '../../entities/table-actions/table-action.entity';
 import { TableFieldInfoEntity } from '../../entities/table-field-info/table-field-info.entity';
 import { TableInfoEntity } from '../../entities/table-info/table-info.entity';
 import { tableLogsCustomRepositoryExtension } from '../../entities/table-logs/repository/table-logs-custom-repository-extension';
@@ -78,6 +81,7 @@ export class GlobalDatabaseContext implements IGlobalDatabaseContext {
   private _tableWidgetsRepository: ITableWidgetsRepository;
   private _tableFieldInfoRepository: Repository<TableFieldInfoEntity>;
   private _tableInfoReposioty: Repository<TableInfoEntity>;
+  private _tableActionRepository: ITableActionRepository;
 
   public constructor(
     @Inject(BaseType.DATA_SOURCE)
@@ -132,6 +136,7 @@ export class GlobalDatabaseContext implements IGlobalDatabaseContext {
       .extend(tableWidgetsCustomRepositoryExtension);
     this._tableInfoReposioty = this.appDataSource.getRepository(TableInfoEntity);
     this._tableFieldInfoRepository = this.appDataSource.getRepository(TableFieldInfoEntity);
+    this._tableActionRepository = this.appDataSource.getRepository(TableActionEntity).extend(tableActionsCustomRepositoryExtension);
   }
 
   public get userRepository(): IUserRepository {
@@ -208,6 +213,10 @@ export class GlobalDatabaseContext implements IGlobalDatabaseContext {
 
   public get tableFieldInfoRepository(): Repository<TableFieldInfoEntity> {
     return this._tableFieldInfoRepository;
+  }
+
+  public get tableActionRepository(): ITableActionRepository {
+    return this._tableActionRepository;
   }
 
   public startTransaction(): Promise<void> {

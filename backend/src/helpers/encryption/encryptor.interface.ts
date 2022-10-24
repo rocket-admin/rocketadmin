@@ -39,4 +39,5 @@ export interface IEncryptorInterfaceDTO {
   connection_properties: ConnectionPropertiesEntity;
   tables_info: Array<TableInfoEntity>;
   saved_table_info?: number;
+  signing_key: string;
 }

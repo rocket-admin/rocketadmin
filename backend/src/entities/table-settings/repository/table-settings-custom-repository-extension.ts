@@ -81,6 +81,16 @@ export const tableSettingsCustomRepositoryExtension = {
     return await qb.getOne();
   },
 
+  async findTableSettingsWithTableActions(connectionId: string, tableName: string): Promise<TableSettingsEntity> {
+    const qb = this.createQueryBuilder('tableSettings').leftJoinAndSelect(
+      'tableSettings.table_actions',
+      'table_actions',
+    );
+    qb.where('tableSettings.connection_id = :connection_id', { connection_id: connectionId });
+    qb.andWhere('tableSettings.table_name = :table_name', { table_name: tableName });
+    return await qb.getOne();
+  },
+
   async removeTableSettings(tableSettings: TableSettingsEntity): Promise<TableSettingsEntity> {
     return await this.remove(tableSettings);
   },
