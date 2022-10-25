@@ -61,6 +61,7 @@ export const Messages = {
   DELETE_ROW_FAILED: 'Row deletion failed',
   DESCRIPTION_MISSING: 'Description is missing',
   DONT_HAVE_PERMISSIONS: 'You do not have permission to perform this operation',
+  DONT_HAVE_NON_TEST_CONNECTIONS:'You only have test connections. To remove test connections please add your connection first',
   ENCRYPTION_ALGORITHM_INCORRECT: (alg: string) =>
     `Unsupported algorithm type${alg ? ` ${alg}.` : '.'} We supports only ${enumToString(
       EncryptionAlgorithmEnum,

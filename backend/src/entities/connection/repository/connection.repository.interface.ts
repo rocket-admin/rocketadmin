@@ -7,6 +7,10 @@ export interface IConnectionRepository {
     userId: string,
   ): Promise<Array<Omit<ConnectionEntity, 'password' | 'privateSSHKey' | 'groups'>>>;
 
+  findAllUserNonTestsConnections(
+    userId: string,
+  ): Promise<Array<Omit<ConnectionEntity, 'password' | 'privateSSHKey' | 'groups'>>>;
+
   findOneConnection(connectionId: string): Promise<Omit<ConnectionEntity, 'password' | 'privateSSHKey' | 'groups'>>;
 
   // findFullConnectionEntity(connectionId: string): Promise<ConnectionEntity>;

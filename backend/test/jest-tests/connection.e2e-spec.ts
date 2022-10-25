@@ -241,7 +241,6 @@ describe('Connections (e2e)', () => {
           .set('Accept', 'application/json');
 
         const result = JSON.parse(addUserInGroupResponse.text);
-        console.log('🚀 ~ file: connection.e2e-spec.ts ~ line 244 ~ it ~ result', result);
         expect(addUserInGroupResponse.status).toBe(200);
 
         const findAllUsersResponce = await request(app.getHttpServer())
@@ -1062,7 +1061,6 @@ describe('Connections (e2e)', () => {
           .set('Accept', 'application/json');
 
         const deleteRO = JSON.parse(findOneResponce.text);
-        console.log('-> deleteRO', deleteRO);
         expect(findOneResponce.status).toBe(400);
 
         const { message } = JSON.parse(findOneResponce.text);
@@ -1082,6 +1080,35 @@ describe('Connections (e2e)', () => {
         expect(result.hasOwnProperty('password')).toBe(false);
         expect(result.hasOwnProperty('groups')).toBe(false);
         expect(result.hasOwnProperty('author')).toBe(false);
+      } catch (err) {
+        throw err;
+      }
+    });
+
+
+    it('should throw an exception when try to delete test connection without non test connections', async () => {
+      try {
+        const findAllConnectionsResponse = await request(app.getHttpServer())
+          .get('/connections')
+          .set('Content-Type', 'application/json')
+          .set('Cookie', connectionAdminUserToken)
+          .set('Accept', 'application/json');
+        expect(findAllConnectionsResponse.status).toBe(200);
+        expect(findAllConnectionsResponse.body.connections.length).toBe(4);
+        const findConnectionsRO = JSON.parse(findAllConnectionsResponse.text);
+        const randomConnection = findConnectionsRO.connections[Math.floor(Math.random() * findConnectionsRO.connections.length)];
+        const deleteConnectionResponse = await request(app.getHttpServer())
+          .put(`/connection/delete/${randomConnection.connection.id}`)
+          .set('Content-Type', 'application/json')
+          .set('Cookie', connectionAdminUserToken)
+          .set('Accept', 'application/json');
+
+        expect(deleteConnectionResponse.status).toBe(400);
+
+        const deleteRO = JSON.parse(deleteConnectionResponse.text);
+        const { message } =deleteRO;
+        expect(message).toBe(Messages.DONT_HAVE_NON_TEST_CONNECTIONS);
+
       } catch (err) {
         throw err;
       }

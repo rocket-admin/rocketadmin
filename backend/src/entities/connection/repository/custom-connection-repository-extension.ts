@@ -41,6 +41,23 @@ export const customConnectionRepositoryExtension = {
     });
   },
 
+  async findAllUserNonTestsConnections(
+    userId: string,
+  ): Promise<Array<Omit<ConnectionEntity, 'password' | 'privateSSHKey' | 'groups'>>> {
+    const connectionQb = this.createQueryBuilder('connection')
+      .leftJoinAndSelect('connection.groups', 'group')
+      .leftJoinAndSelect('group.users', 'user')
+      .andWhere('user.id = :userId', { userId: userId })
+      .andWhere('connection.isTestConnection = :isTest', { isTest: false });
+    const allConnections = await connectionQb.getMany();
+    return allConnections.map((connection) => {
+      delete connection.password;
+      delete connection.privateSSHKey;
+      delete connection.groups;
+      return connection;
+    });
+  },
+
   async findOneConnection(
     connectionId: string,
   ): Promise<Omit<ConnectionEntity, 'password' | 'privateSSHKey' | 'groups'> | null> {
