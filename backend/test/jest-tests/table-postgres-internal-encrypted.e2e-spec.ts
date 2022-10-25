@@ -204,7 +204,7 @@ describe('Tables with encryption (e2e)', () => {
           expect(getTableRowsRO.hasOwnProperty('pagination')).toBeTruthy();
           expect(getTableRowsRO.rows.length).toBe(connectionCount + 5);
           expect(uuidRegex.test(getTableRowsRO.rows[0].id)).toBeTruthy();
-          expect(Object.keys(getTableRowsRO.rows[1]).length).toBe(24);
+          expect(Object.keys(getTableRowsRO.rows[1]).length).toBe(25);
           expect(getTableRowsRO.rows[2].hasOwnProperty('title')).toBeTruthy();
           expect(getTableRowsRO.rows[3].hasOwnProperty('type')).toBeTruthy();
           expect(getTableRowsRO.rows[0].hasOwnProperty('port')).toBeTruthy();
@@ -364,7 +364,7 @@ describe('Tables with encryption (e2e)', () => {
           expect(getTableRowsRO.hasOwnProperty('pagination')).toBeTruthy();
           expect(getTableRowsRO.rows.length).toBe(1);
           expect(uuidRegex.test(getTableRowsRO.rows[0].id)).toBeTruthy();
-          expect(Object.keys(getTableRowsRO.rows[0]).length).toBe(24);
+          expect(Object.keys(getTableRowsRO.rows[0]).length).toBe(25);
           expect(getTableRowsRO.rows[0].title).toBe(newConnection2.title);
           expect(getTableRowsRO.rows[0].type).toBe(newConnection2.type);
           expect(decryptValue(getTableRowsRO.rows[0].host)).toBe(newConnection2.host);
@@ -681,7 +681,7 @@ describe('Tables with encryption (e2e)', () => {
           expect(getTableRowsRO.hasOwnProperty('pagination')).toBeTruthy();
           expect(getTableRowsRO.rows.length).toBe(2);
           expect(uuidRegex.test(getTableRowsRO.rows[0].id)).toBeTruthy();
-          expect(Object.keys(getTableRowsRO.rows[1]).length).toBe(24);
+          expect(Object.keys(getTableRowsRO.rows[1]).length).toBe(25);
           expect(getTableRowsRO.rows[0].hasOwnProperty('title')).toBeTruthy();
           expect(getTableRowsRO.rows[1].hasOwnProperty('type')).toBeTruthy();
           expect(getTableRowsRO.rows[0].hasOwnProperty('host')).toBeTruthy();
@@ -743,7 +743,7 @@ describe('Tables with encryption (e2e)', () => {
           expect(getTableRowsRO.hasOwnProperty('pagination')).toBeTruthy();
           expect(getTableRowsRO.rows.length).toBe(2);
           expect(uuidRegex.test(getTableRowsRO.rows[0].id)).toBeTruthy();
-          expect(Object.keys(getTableRowsRO.rows[1]).length).toBe(24);
+          expect(Object.keys(getTableRowsRO.rows[1]).length).toBe(25);
           expect(getTableRowsRO.rows[0].hasOwnProperty('title')).toBeTruthy();
           expect(getTableRowsRO.rows[1].hasOwnProperty('type')).toBeTruthy();
           expect(getTableRowsRO.rows[0].hasOwnProperty('host')).toBeTruthy();
@@ -1021,7 +1021,7 @@ describe('Tables with encryption (e2e)', () => {
           expect(getTableRowsRO.hasOwnProperty('pagination')).toBeTruthy();
           expect(getTableRowsRO.rows.length).toBe(2);
           expect(uuidRegex.test(getTableRowsRO.rows[0].id)).toBeTruthy();
-          expect(Object.keys(getTableRowsRO.rows[1]).length).toBe(24);
+          expect(Object.keys(getTableRowsRO.rows[1]).length).toBe(25);
           expect(getTableRowsRO.rows[0].title).toBe(newConnection2.title);
           expect(getTableRowsRO.rows[1].type).toBe(newConnection2.type);
           expect(decryptValue(getTableRowsRO.rows[0].host)).toBe(newConnection2.host);
@@ -1137,7 +1137,7 @@ describe('Tables with encryption (e2e)', () => {
           expect(getTableRowsRO.hasOwnProperty('pagination')).toBeTruthy();
           expect(getTableRowsRO.rows.length).toBe(3);
           expect(uuidRegex.test(getTableRowsRO.rows[0].id)).toBeTruthy();
-          expect(Object.keys(getTableRowsRO.rows[1]).length).toBe(24);
+          expect(Object.keys(getTableRowsRO.rows[1]).length).toBe(25);
           expect(getTableRowsRO.rows[0].title).toBe(newConnection2.title);
           expect(getTableRowsRO.rows[1].type).toBe(newConnection2.type);
           expect(decryptValue(getTableRowsRO.rows[0].host)).toBe(newConnection2.host);
@@ -1588,7 +1588,7 @@ describe('Tables with encryption (e2e)', () => {
           expect(getTableRowsRO.hasOwnProperty('pagination')).toBeTruthy();
           expect(getTableRowsRO.rows.length).toBe(connectionCount + 5);
           expect(uuidRegex.test(getTableRowsRO.rows[0].id)).toBeTruthy();
-          expect(Object.keys(getTableRowsRO.rows[1]).length).toBe(24);
+          expect(Object.keys(getTableRowsRO.rows[1]).length).toBe(25);
 
           expect(getTableRowsRO.rows[0].port).toBe(5432);
 
@@ -1662,7 +1662,7 @@ describe('Tables with encryption (e2e)', () => {
           expect(getTableRowsRO.hasOwnProperty('pagination')).toBeTruthy();
           expect(getTableRowsRO.rows.length).toBe(connectionCount + 5);
           expect(uuidRegex.test(getTableRowsRO.rows[0].id)).toBeTruthy();
-          expect(Object.keys(getTableRowsRO.rows[1]).length).toBe(24);
+          expect(Object.keys(getTableRowsRO.rows[1]).length).toBe(25);
 
           for (let i = 0; i < 10; i++) {
             expect(getTableRowsRO.rows[i].port).toBe(10 + i);
@@ -1987,7 +1987,7 @@ describe('Tables with encryption (e2e)', () => {
           expect(getTableRowsRO.hasOwnProperty('pagination')).toBeTruthy();
           expect(getTableRowsRO.rows.length).toBe(2);
           expect(uuidRegex.test(getTableRowsRO.rows[0].id)).toBeTruthy();
-          expect(Object.keys(getTableRowsRO.rows[1]).length).toBe(24);
+          expect(Object.keys(getTableRowsRO.rows[1]).length).toBe(25);
 
           expect(getTableRowsRO.rows[0].port).toBe(5432);
           expect(getTableRowsRO.rows[1].port).toBe(5432);
@@ -2063,7 +2063,7 @@ describe('Tables with encryption (e2e)', () => {
           expect(getTableRowsRO.hasOwnProperty('pagination')).toBeTruthy();
           expect(getTableRowsRO.rows.length).toBe(2);
           expect(uuidRegex.test(getTableRowsRO.rows[0].id)).toBeTruthy();
-          expect(Object.keys(getTableRowsRO.rows[1]).length).toBe(24);
+          expect(Object.keys(getTableRowsRO.rows[1]).length).toBe(25);
 
           expect(getTableRowsRO.rows[0].port).toBe(10);
           expect(getTableRowsRO.rows[1].port).toBe(11);
@@ -2139,7 +2139,7 @@ describe('Tables with encryption (e2e)', () => {
           expect(getTableRowsRO.hasOwnProperty('pagination')).toBeTruthy();
           expect(getTableRowsRO.rows.length).toBe(3);
           expect(uuidRegex.test(getTableRowsRO.rows[0].id)).toBeTruthy();
-          expect(Object.keys(getTableRowsRO.rows[1]).length).toBe(24);
+          expect(Object.keys(getTableRowsRO.rows[1]).length).toBe(25);
 
           expect(getTableRowsRO.rows[0].port).toBe(5432);
           expect(getTableRowsRO.rows[1].port).toBe(5432);
@@ -2422,7 +2422,7 @@ describe('Tables with encryption (e2e)', () => {
           expect(getTableRowsRO.hasOwnProperty('pagination')).toBeTruthy();
           expect(getTableRowsRO.rows.length).toBe(2);
           expect(uuidRegex.test(getTableRowsRO.rows[0].id)).toBeTruthy();
-          expect(Object.keys(getTableRowsRO.rows[1]).length).toBe(24);
+          expect(Object.keys(getTableRowsRO.rows[1]).length).toBe(25);
 
           expect(getTableRowsRO.rows[0].port).toBe(8080);
           expect(getTableRowsRO.rows[1].port).toBe(8079);
@@ -2518,7 +2518,7 @@ describe('Tables with encryption (e2e)', () => {
           expect(getTableRowsRO.hasOwnProperty('pagination')).toBeTruthy();
           expect(getTableRowsRO.rows.length).toBe(1);
           expect(uuidRegex.test(getTableRowsRO.rows[0].id)).toBeTruthy();
-          expect(Object.keys(getTableRowsRO.rows[0]).length).toBe(24);
+          expect(Object.keys(getTableRowsRO.rows[0]).length).toBe(25);
 
           expect(getTableRowsRO.rows[0].port).toBe(8078);
 
@@ -2613,7 +2613,7 @@ describe('Tables with encryption (e2e)', () => {
           expect(getTableRowsRO.hasOwnProperty('pagination')).toBeTruthy();
           expect(getTableRowsRO.rows.length).toBe(2);
           expect(uuidRegex.test(getTableRowsRO.rows[0].id)).toBeTruthy();
-          expect(Object.keys(getTableRowsRO.rows[0]).length).toBe(24);
+          expect(Object.keys(getTableRowsRO.rows[0]).length).toBe(25);
 
           expect(getTableRowsRO.rows[0].port).toBe(8078);
           expect(getTableRowsRO.rows[1].port).toBe(8079);
@@ -2709,7 +2709,7 @@ describe('Tables with encryption (e2e)', () => {
           expect(getTableRowsRO.hasOwnProperty('pagination')).toBeTruthy();
           expect(getTableRowsRO.rows.length).toBe(1);
           expect(uuidRegex.test(getTableRowsRO.rows[0].id)).toBeTruthy();
-          expect(Object.keys(getTableRowsRO.rows[0]).length).toBe(24);
+          expect(Object.keys(getTableRowsRO.rows[0]).length).toBe(25);
 
           expect(getTableRowsRO.rows[0].port).toBe(8080);
 
@@ -3295,7 +3295,7 @@ describe('Tables with encryption (e2e)', () => {
           expect(getTableRowsRO.hasOwnProperty('pagination')).toBeTruthy();
           expect(getTableRowsRO.rows.length).toBe(2);
           expect(uuidRegex.test(getTableRowsRO.rows[0].id)).toBeTruthy();
-          expect(Object.keys(getTableRowsRO.rows[1]).length).toBe(24);
+          expect(Object.keys(getTableRowsRO.rows[1]).length).toBe(25);
 
           expect(getTableRowsRO.rows[0].port).toBe(14);
           expect(getTableRowsRO.rows[1].port).toBe(13);
@@ -3393,7 +3393,7 @@ describe('Tables with encryption (e2e)', () => {
           expect(getTableRowsRO.hasOwnProperty('pagination')).toBeTruthy();
           expect(getTableRowsRO.rows.length).toBe(5);
           expect(uuidRegex.test(getTableRowsRO.rows[0].id)).toBeTruthy();
-          expect(Object.keys(getTableRowsRO.rows[1]).length).toBe(24);
+          expect(Object.keys(getTableRowsRO.rows[1]).length).toBe(25);
 
           expect(getTableRowsRO.rows[0].port).toBe(14);
           expect(getTableRowsRO.rows[1].port).toBe(13);
@@ -3494,7 +3494,7 @@ describe('Tables with encryption (e2e)', () => {
           expect(getTableRowsRO.hasOwnProperty('pagination')).toBeTruthy();
           expect(getTableRowsRO.rows.length).toBe(2);
           expect(uuidRegex.test(getTableRowsRO.rows[0].id)).toBeTruthy();
-          expect(Object.keys(getTableRowsRO.rows[1]).length).toBe(24);
+          expect(Object.keys(getTableRowsRO.rows[1]).length).toBe(25);
 
           expect(getTableRowsRO.rows[0].port).toBe(12);
           expect(getTableRowsRO.rows[1].port).toBe(11);
@@ -3592,7 +3592,7 @@ describe('Tables with encryption (e2e)', () => {
           expect(getTableRowsRO.hasOwnProperty('pagination')).toBeTruthy();
           expect(getTableRowsRO.rows.length).toBe(2);
           expect(uuidRegex.test(getTableRowsRO.rows[0].id)).toBeTruthy();
-          expect(Object.keys(getTableRowsRO.rows[1]).length).toBe(24);
+          expect(Object.keys(getTableRowsRO.rows[1]).length).toBe(25);
 
           expect(getTableRowsRO.rows[0].port).toBe(12);
           expect(getTableRowsRO.rows[1].port).toBe(11);
@@ -3969,7 +3969,7 @@ describe('Tables with encryption (e2e)', () => {
 
         expect(typeof getTableStructureRO).toBe('object');
         expect(typeof getTableStructureRO.structure).toBe('object');
-        expect(getTableStructureRO.structure.length).toBe(24);
+        expect(getTableStructureRO.structure.length).toBe(25);
 
         for (const element of getTableStructureRO.structure) {
           expect(element.hasOwnProperty('column_name')).toBeTruthy();
