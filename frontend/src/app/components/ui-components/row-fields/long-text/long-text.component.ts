@@ -32,5 +32,4 @@ export class LongTextComponent implements OnInit {
       this.rowsCount = '4'
     };
   }
-
 }

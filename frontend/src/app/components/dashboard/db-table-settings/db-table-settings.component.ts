@@ -60,7 +60,6 @@ export class DbTableSettingsComponent implements OnInit {
   }
 
   getTableSettings() {
-    console.log('getTableSettings');
     this._tables.fetchTableSettings(this.connectionID, this.tableName)
       .subscribe(res => {
         this.loading = false;

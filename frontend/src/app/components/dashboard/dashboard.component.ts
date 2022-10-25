@@ -144,9 +144,7 @@ export class DashboardComponent implements OnInit {
     filterDialodRef.componentInstance.tableRowFieldsShown
 
     filterDialodRef.afterClosed().subscribe(action => {
-      console.log(filterDialodRef.componentInstance.tableRowFieldsShown);
       const filters = omitBy(filterDialodRef.componentInstance.tableRowFieldsShown, (value) => value === undefined);
-      console.log(filters);
       const comparators = filterDialodRef.componentInstance.tableRowFieldsComparator;
 
       const filtersQueryParams = Object.keys(filters)

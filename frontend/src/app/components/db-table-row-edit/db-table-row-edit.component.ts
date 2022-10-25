@@ -36,6 +36,7 @@ export class DbTableRowEditComponent implements OnInit {
   public UIwidgets = UIwidgets;
   public rowError: string = null;
   public fieldsOrdered: string[];
+  public allowNullFields: string[];
 
   public tableForeignKeys: TableForeignKey[];
 
@@ -64,10 +65,11 @@ export class DbTableRowEditComponent implements OnInit {
             this.readonlyFields = res.readonly_fields;
             this.tableForeignKeys = res.foreignKeys;
             this.shownRows = res.structure.filter((field: TableField) => !field.auto_increment);
-            const allowNullFields = res.structure
+            this.allowNullFields = res.structure
               .filter((field: TableField) => field.allow_null)
               .map((field: TableField) => field.column_name);
-            this.tableRowValues = Object.assign({}, ...this.shownRows.map((field: TableField) => ({[field.column_name]: allowNullFields.includes(field.column_name) ? null : ''})));
+            this.tableRowValues = Object.assign({}, ...this.shownRows
+              .map((field: TableField) => ({[field.column_name]: this.setInitialValue(field.column_name)})));
             if (res.list_fields.length) {
               const shownFieldsList = this.shownRows.map((field: TableField) => field.column_name);
               this.fieldsOrdered = [...res.list_fields].filter(field => shownFieldsList.includes(field));
@@ -108,6 +110,12 @@ export class DbTableRowEditComponent implements OnInit {
 
   get inputs() {
     return fieldTypes[this._connections.currentConnection.type]
+  }
+
+  setInitialValue(column_name: string) {
+    if (this.allowNullFields.includes(column_name)) return null;
+    if (this.inputs[this.tableTypes[column_name]] === 'json') return {};
+    return '';
   }
 
   setRowStructure(structure: TableField[]){
@@ -152,20 +160,19 @@ export class DbTableRowEditComponent implements OnInit {
   }
 
   isWidget(columnName: string) {
-    console.log('isWidget');
-    console.log(columnName);
     return this.tableWidgetsList.includes(columnName);
   }
 
   updateField = (updatedValue: any, field: string) => {
-    if (typeof(updatedValue) === 'object' && updatedValue !== null) {
-      for (const prop of Object.getOwnPropertyNames(this.tableRowValues[field])) {
-        delete this.tableRowValues[field][prop];
-      }
-      Object.assign(this.tableRowValues[field], updatedValue);
-    } else {
+    console.log(updatedValue);
+    this.tableRowValues[field] = updatedValue;
+    
+    try {
+      this.tableRowValues[field] = JSON.parse(updatedValue);
+      
+    } catch {
       this.tableRowValues[field] = updatedValue;
-    };
+    }
 
     if (this.keyAttributes && Object.keys(this.keyAttributes).includes(field)) {
       this.isPrimaryKeyUpdated = true
@@ -185,6 +192,8 @@ export class DbTableRowEditComponent implements OnInit {
       }
     }
     //end crutch
+
+    // Object.entries(this.tableRowValues).forEach(field => if(this.inputs[this.tableTypes[field]] === 'json'))
 
     this._tableRow.addTableRow(this.connectionID, this.tableName, this.tableRowValues)
       .subscribe((res) => {

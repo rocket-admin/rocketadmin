@@ -1,5 +1,12 @@
-.jsoneditor-wrapper {
-    display: block;
-    padding-bottom: 1.34375em;
-    margin-top: 8px;
+::ng-deep .CodeMirror {
+    border-radius: 4px;
+    border: 1px solid rgba(0,0,0,0.12);
+    height: auto;
+    margin-top: 4px;
+    margin-bottom: 20px;
+    min-height: 120px;
+}
+
+::ng-deep .CodeMirror-scroll {
+    min-height: 120px;
 }

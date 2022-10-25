@@ -1,6 +1,14 @@
 <span>{{ normalizedLabel }} {{ required ? '*' : '' }}</span>
-<json-editor [options]="editorOptions"
-    [data]="value"
-    (change)="onJSONchange($event)"
-    class="jsoneditor-wrapper">
-</json-editor>
+
+<ngx-codemirror
+    name="{{label}}-{{key}}"
+    [options]="{
+        lineNumbers: true,
+        lineWrapping: true,
+        mode: 'javascript',
+        theme: 'ttcn',
+        readOnly: readonly
+    }"
+    [(ngModel)]="value"
+    (ngModelChange)="onFieldChange.emit($event)"
+></ngx-codemirror>

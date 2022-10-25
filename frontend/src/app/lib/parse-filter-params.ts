@@ -24,7 +24,6 @@ export function getFilters(queryParams) {
 }
 
 export function getComparators(queryParams) {
-    console.log(queryParams);
     const comparators = Object.keys(queryParams)
       .filter(key => key.startsWith('f__'))
       .reduce((paramsObj, key) => {

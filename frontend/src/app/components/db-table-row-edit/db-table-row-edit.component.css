@@ -42,6 +42,7 @@
     height: 64px;
     padding: 0 max(calc(50vw - 260px), 2%);
     width: 100vw;
+    z-index: 3;
 }
 
 .actions__continue {

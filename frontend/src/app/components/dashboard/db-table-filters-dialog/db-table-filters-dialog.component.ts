@@ -88,8 +88,6 @@ export class DbTableFiltersDialogComponent implements OnInit {
         }
       })
     );
-    console.log('setWidgets');
-    console.log(this.tableWidgets);
   }
 
   getRelations = (columnName: string) => {

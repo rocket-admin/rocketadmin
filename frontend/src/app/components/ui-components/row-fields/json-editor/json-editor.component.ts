@@ -1,6 +1,6 @@
-import { Input, Output, OnInit, EventEmitter, Component, ViewChild } from '@angular/core';
-import { JsonEditorComponent as JsonEditor, JsonEditorOptions } from 'ang-jsoneditor';
+import { Input, Output, OnInit, EventEmitter, Component } from '@angular/core';
 import { normalizeFieldName } from '../../../../lib/normalize';
+import * as JSON5 from 'json5';
 
 @Component({
   selector: 'app-json-editor',
@@ -17,21 +17,11 @@ export class JsonEditorComponent implements OnInit {
 
   @Output() onFieldChange = new EventEmitter();
 
-  @ViewChild(JsonEditor, { static: false }) editor: JsonEditor;
-
   public normalizedLabel: string;
-  public editorOptions: JsonEditorOptions;
-
-  constructor() {
-    this.editorOptions = new JsonEditorOptions();
-  }
 
   ngOnInit(): void {
     this.normalizedLabel = normalizeFieldName(this.label);
+    console.log(this.value);
+    this.value = JSON.stringify(this.value);
   }
-
-  onJSONchange(event) {
-    this.onFieldChange.emit(event);
-  }
-
 }
