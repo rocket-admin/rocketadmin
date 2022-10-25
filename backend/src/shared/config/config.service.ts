@@ -66,7 +66,7 @@ class ConfigService {
       // ssl: this.isProduction(),
       logging: false,
       extra: {
-        max: 20,
+        max: 40,
         // idle_in_transaction_session_timeout: 10*1000,
         //  idle_in_transaction_session_timeout: 1000,
       },
