@@ -98,7 +98,7 @@ export const userCustomRepositoryExtension = {
   },
 
   async getUserEmailOrReturnNull(userId: string): Promise<string> {
-    const userQB = this.createQueryBuilder('user').where('user.id > :userId', { id: userId });
+    const userQB = this.createQueryBuilder('user').where('user.id = :userId', { userId: userId });
     const user = await userQB.getOne();
     return user?.email ? user.email : null;
   },

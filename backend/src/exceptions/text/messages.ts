@@ -27,6 +27,7 @@ export const Messages = {
   CANT_DELETE_ADMIN_GROUP: 'You can not delete Admin group from connection',
   CANT_DELETE_LAST_USER: 'You can not delete the last user from the Admin group',
   CANT_DELETE_PERMISSION_ADMIN_GROUP: `You can not delete editing permission for Connection from Admin group`,
+  CANT_CONNECT_AUTOADMIN_WS: `Connection to autoadmin websocket server failed.`,
   CANT_INSERT_DUPLICATE_KEY: 'You can not insert duplicate Key values into database',
   CANT_LIST_AND_EXCLUDE: (fieldName: string) =>
     `You cannot select the same field ${fieldName ? fieldName : 'names'} to list and exclude`,
@@ -61,7 +62,8 @@ export const Messages = {
   DELETE_ROW_FAILED: 'Row deletion failed',
   DESCRIPTION_MISSING: 'Description is missing',
   DONT_HAVE_PERMISSIONS: 'You do not have permission to perform this operation',
-  DONT_HAVE_NON_TEST_CONNECTIONS:'You only have test connections. To remove test connections please add your connection first',
+  DONT_HAVE_NON_TEST_CONNECTIONS:
+    'You only have test connections. To remove test connections please add your connection first',
   ENCRYPTION_ALGORITHM_INCORRECT: (alg: string) =>
     `Unsupported algorithm type${alg ? ` ${alg}.` : '.'} We supports only ${enumToString(
       EncryptionAlgorithmEnum,
