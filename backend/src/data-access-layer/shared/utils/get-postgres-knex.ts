@@ -30,6 +30,7 @@ export function getPostgresKnex(connection: ConnectionEntity): Knex {
         password: password,
         database: database,
         port: port,
+        application_name: 'autoadmin',
         ssl: ssl ? { ca: cert ?? undefined, rejectUnauthorized: !cert } : false,
       },
     });
