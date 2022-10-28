@@ -42,4 +42,20 @@ export const PROCESSING_MESSAGES_REPLACE = {
     `;
     return message;
   },
+  VIOLATES_FOREIGN_CONSTRAINT_MSSQL: (originalMessage: string) => {
+    const words = originalMessage.split(' ');
+    const fromWordIndex = words.findIndex((word) => {
+      return word === 'from';
+    });
+    const firstTableName = words.at(fromWordIndex + 1);
+    const tableWordIndex = words.findIndex((word) => {
+      return word === 'table';
+    });
+    const secondTableName = words.at(tableWordIndex + 1);
+    const message = `
+    You are trying to perform a delete or update operation on the ${firstTableName} table, but this table is related to the ${secondTableName} table.
+    Before the operation, you need to update/delete the associated record in table ${secondTableName} or set up in that table an option with operation for the associated entry ("Cascade option").
+    `;
+    return message;
+  },
 };
