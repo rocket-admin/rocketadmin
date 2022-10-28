@@ -8,4 +8,38 @@ export const PROCESSING_MESSAGES_REPLACE = {
     'or use agent connection.',
   UPDATE_COMMAND_DENIED: `No permission to update record. Please ask your system administator to grant you access in the database`,
   NO_PGHBA_ENTRY: `Please add this line to pg_hba.conf: <database_name> all 18.221.81.73/32 md5`,
+  VIOLATES_FOREIGN_CONSTRAINT_PG: (originalMessage: string): string => {
+    try {
+      const words = originalMessage.split(' ');
+      const updateWordIndex = words.findIndex((word) => {
+        return word === 'update';
+      });
+      const firstTableName = words.at(updateWordIndex + 5);
+      const violatesWordIndex = words.findIndex((word) => {
+        return word === 'violates';
+      });
+      const secondTableName = words.at(violatesWordIndex + 7);
+      const message = `
+      You are trying to perform a delete or update operation on the ${firstTableName} table, but this table is related to the ${secondTableName} table.
+      Before the operation, you need to update/delete the associated record in table ${secondTableName} or set up in that table an option with operation for the associated entry ("Cascade option").
+      `;
+      return message;
+    } catch (e) {
+      return originalMessage;
+    }
+  },
+  VIOLATES_FOREIGN_CONSTRAINT_MYSQL: (originalMessage: string) => {
+    const words = originalMessage.split(' ');
+    const regex = /(?<=\()[^)]+(?=\))/g;
+    const referencesWordIndex = words.findIndex((word) => {
+      return word === 'references';
+    });
+    const tableName = words.at(referencesWordIndex + 1);
+    const relatedColumnName = words.at(referencesWordIndex + 2).match(regex);
+    const message = `
+    You are trying to perform a delete or update operation on the ${tableName} table, but another table references on ${relatedColumnName} field in this table.
+    Before the operation, you need to update/delete the associated record in that table or set up in that table an option with operation for the associated entry ("Cascade option").
+    `;
+    return message;
+  },
 };

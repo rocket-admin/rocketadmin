@@ -1,15 +1,15 @@
+import { HttpStatus } from '@nestjs/common';
+import { HttpException } from '@nestjs/common/exceptions/http.exception';
 import * as dns from 'dns';
 import * as ipRangeCheck from 'ip-range-check';
 import validator from 'validator';
 import { ConnectionTypeEnum } from '../../../enums';
+import { Messages } from '../../../exceptions/text/messages';
+import { isConnectionTypeAgent, toPrettyErrorsMsg } from '../../../helpers';
+import { isSaaS } from '../../../helpers/app/is-saas';
 import { Constants } from '../../../helpers/constants/constants';
 import { CreateConnectionDs } from '../application/data-structures/create-connection.ds';
-import { HttpException } from '@nestjs/common/exceptions/http.exception';
-import { HttpStatus } from '@nestjs/common';
-import { isConnectionTypeAgent, toPrettyErrorsMsg } from '../../../helpers';
-import { Messages } from '../../../exceptions/text/messages';
 import { UpdateConnectionDs } from '../application/data-structures/update-connection.ds';
-import { isSaaS } from '../../../helpers/app/is-saas';
 
 export async function validateCreateConnectionData(
   createConnectionData: CreateConnectionDs | UpdateConnectionDs,

@@ -9,4 +9,6 @@ export const PROCESSING_MESSAGES_FIND = {
   SERVER_CLOSED: 'server closed',
   NO_PGHBA_ENTRY: 'no pg_hba.conf entry for host',
   UPDATE_COMMAND_DENIED: 'update command denied to user',
+  VIOLATES_FOREIGN_CONSTRAINT_PG: 'violates foreign key constraint',
+  VIOLATES_FOREIGN_CONSTRAINT_MYSQL: 'cannot delete or update a parent row: a foreign key constraint fails',
 };
