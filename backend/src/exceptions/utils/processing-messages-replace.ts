@@ -20,7 +20,7 @@ export const PROCESSING_MESSAGES_REPLACE = {
       });
       const secondTableName = words.at(violatesWordIndex + 7);
       const message = `
-      You are trying to perform a delete or update operation on the ${firstTableName} table, but this table is related to the ${secondTableName} table.
+      You tried to change a record in a table ${firstTableName}, but this table is referenced by the ${secondTableName} table.
       Before the operation, you need to update/delete the associated record in table ${secondTableName} or set up in that table an option with operation for the associated entry ("Cascade option").
       `;
       return message;
@@ -37,7 +37,7 @@ export const PROCESSING_MESSAGES_REPLACE = {
     const tableName = words.at(referencesWordIndex + 1);
     const relatedColumnName = words.at(referencesWordIndex + 2).match(regex);
     const message = `
-    You are trying to perform a delete or update operation on the ${tableName} table, but another table references on ${relatedColumnName} field in this table.
+    You tried to change a record in a table ${tableName}, but another table references on ${relatedColumnName} field in this table.
     Before the operation, you need to update/delete the associated record in that table or set up in that table an option with operation for the associated entry ("Cascade option").
     `;
     return message;
@@ -53,7 +53,7 @@ export const PROCESSING_MESSAGES_REPLACE = {
     });
     const secondTableName = words.at(tableWordIndex + 1);
     const message = `
-    You are trying to perform a delete or update operation on the ${firstTableName} table, but this table is related to the ${secondTableName} table.
+    You tried to change a record in a table ${firstTableName}, but this table is referenced by the ${secondTableName} table.
     Before the operation, you need to update/delete the associated record in table ${secondTableName} or set up in that table an option with operation for the associated entry ("Cascade option").
     `;
     return message;

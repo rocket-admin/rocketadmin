@@ -1,17 +1,17 @@
+import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import AbstractUseCase from '../../../common/abstract-use.case';
+import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface';
 import { BaseType } from '../../../common/data-injection.tokens';
-import { buildConnectionEntity } from '../utils/build-connection-entity';
-import { buildCreatedConnectionDs } from '../utils/build-created-connection.ds';
-import { ConnectionEntity } from '../connection.entity';
+import { Messages } from '../../../exceptions/text/messages';
+import { isConnectionTypeAgent, slackPostMessage } from '../../../helpers';
+import { UserEntity } from '../../user/user.entity';
 import { CreateConnectionDs } from '../application/data-structures/create-connection.ds';
 import { CreatedConnectionDs } from '../application/data-structures/created-connection.ds';
-import { isConnectionTypeAgent, slackPostMessage } from '../../../helpers';
-import { HttpException, HttpStatus, Inject, Injectable, Scope } from '@nestjs/common';
-import { ICreateConnection } from './use-cases.interfaces';
-import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface';
-import { Messages } from '../../../exceptions/text/messages';
-import { UserEntity } from '../../user/user.entity';
+import { ConnectionEntity } from '../connection.entity';
+import { buildConnectionEntity } from '../utils/build-connection-entity';
+import { buildCreatedConnectionDs } from '../utils/build-created-connection.ds';
 import { validateCreateConnectionData } from '../utils/validate-create-connection-data';
+import { ICreateConnection } from './use-cases.interfaces';
 
 @Injectable()
 export class CreateConnectionUseCase
