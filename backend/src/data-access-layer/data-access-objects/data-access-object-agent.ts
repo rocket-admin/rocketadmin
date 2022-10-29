@@ -1,4 +1,12 @@
 import { Injectable, Scope } from '@nestjs/common';
+import axios from 'axios';
+import * as jwt from 'jsonwebtoken';
+import { ConnectionEntity } from '../../entities/connection/connection.entity';
+import { CreateTableSettingsDto } from '../../entities/table-settings/dto';
+import { TableSettingsEntity } from '../../entities/table-settings/table-settings.entity';
+import { DaoCommandsEnum } from '../../enums/dao-commands.enum';
+import { Messages } from '../../exceptions/text/messages';
+import { Cacher } from '../../helpers/cache/cacher';
 import {
   IAutocompleteFieldsData,
   IDataAccessObject,
@@ -9,13 +17,6 @@ import {
   ITableStructure,
   ITestConnectResult,
 } from '../shared/data-access-object-interface';
-import { ConnectionEntity } from '../../entities/connection/connection.entity';
-import { TableSettingsEntity } from '../../entities/table-settings/table-settings.entity';
-import { CreateTableSettingsDto } from '../../entities/table-settings/dto';
-import * as jwt from 'jsonwebtoken';
-import axios from 'axios';
-import { DaoCommandsEnum } from '../../enums/dao-commands.enum';
-import { Cacher } from '../../helpers/cache/cacher';
 
 @Injectable({ scope: Scope.REQUEST })
 export class DataAccessObjectAgent implements IDataAccessObject {
@@ -51,6 +52,7 @@ export class DataAccessObjectAgent implements IDataAccessObject {
       }
       return res.data.commandResult;
     } catch (e) {
+      this.checkIsErrorLocalAndThrowException(e);
       throw new Error(e.response.data);
     }
   }
@@ -77,6 +79,7 @@ export class DataAccessObjectAgent implements IDataAccessObject {
       }
       return res.data.commandResult;
     } catch (e) {
+      this.checkIsErrorLocalAndThrowException(e);
       throw new Error(e.response.data);
     }
   }
@@ -107,6 +110,7 @@ export class DataAccessObjectAgent implements IDataAccessObject {
       }
       return res.data.commandResult;
     } catch (e) {
+      this.checkIsErrorLocalAndThrowException(e);
       throw new Error(e.response.data);
     }
   }
@@ -135,6 +139,7 @@ export class DataAccessObjectAgent implements IDataAccessObject {
       }
       return res.data.commandResult[0];
     } catch (e) {
+      this.checkIsErrorLocalAndThrowException(e);
       throw new Error(e.response.data);
     }
   }
@@ -171,6 +176,7 @@ export class DataAccessObjectAgent implements IDataAccessObject {
       }
       return res.data.commandResult;
     } catch (e) {
+      this.checkIsErrorLocalAndThrowException(e);
       throw new Error(e.response.data);
     }
   }
@@ -198,6 +204,7 @@ export class DataAccessObjectAgent implements IDataAccessObject {
       Cacher.setTableForeignKeysCache(this.connection, tableName, result);
       return result;
     } catch (e) {
+      this.checkIsErrorLocalAndThrowException(e);
       throw new Error(e.response.data);
     }
   }
@@ -225,6 +232,7 @@ export class DataAccessObjectAgent implements IDataAccessObject {
       Cacher.setTablePrimaryKeysCache(this.connection, tableName, result);
       return result;
     } catch (e) {
+      this.checkIsErrorLocalAndThrowException(e);
       throw new Error(e.response.data);
     }
   }
@@ -252,11 +260,13 @@ export class DataAccessObjectAgent implements IDataAccessObject {
       Cacher.setTableStructureCache(this.connection, tableName, result);
       return result;
     } catch (e) {
+      this.checkIsErrorLocalAndThrowException(e);
       throw new Error(e.response.data);
     }
   }
 
   public async getTablesFromDB(email?: string): Promise<Array<string>> {
+    console.log('CALLED HERE');
     const jwtAuthToken = this.generateJWT(this.connection.agent.token);
     try {
       const res = await axios.post(
@@ -267,11 +277,13 @@ export class DataAccessObjectAgent implements IDataAccessObject {
         },
         { headers: { authorization: `Bearer ${jwtAuthToken}` } },
       );
+      console.log('STATUS ', res.status);
       if (res.data.commandResult instanceof Error) {
         throw new Error(res.data.commandResult.message);
       }
       return res.data.commandResult;
     } catch (e) {
+      this.checkIsErrorLocalAndThrowException(e);
       throw new Error(e.response.data);
     }
   }
@@ -292,6 +304,7 @@ export class DataAccessObjectAgent implements IDataAccessObject {
       }
       return res.data.commandResult;
     } catch (e) {
+      this.checkIsErrorLocalAndThrowException(e);
       throw new Error(e.response.data);
     }
   }
@@ -320,6 +333,7 @@ export class DataAccessObjectAgent implements IDataAccessObject {
       }
       return res.data.commandResult;
     } catch (e) {
+      this.checkIsErrorLocalAndThrowException(e);
       throw new Error(e.response.data);
     }
   }
@@ -346,7 +360,14 @@ export class DataAccessObjectAgent implements IDataAccessObject {
       }
       return res.data.commandResult;
     } catch (e) {
+      this.checkIsErrorLocalAndThrowException(e);
       throw new Error(e.response.data);
+    }
+  }
+
+  private checkIsErrorLocalAndThrowException(e: any): void {
+    if (e.code.toLowerCase() === 'enotfound' && e.hostname === 'autoadmin-ws.local') {
+      throw new Error(Messages.CANT_CONNECT_AUTOADMIN_WS);
     }
   }
 

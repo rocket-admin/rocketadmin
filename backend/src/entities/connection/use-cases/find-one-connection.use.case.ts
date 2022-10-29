@@ -1,15 +1,15 @@
-import AbstractUseCase from '../../../common/abstract-use.case';
-import { IFindOneConnection } from './use-cases.interfaces';
-import { HttpStatus, Inject, Injectable, Scope } from '@nestjs/common';
-import { BaseType } from '../../../common/data-injection.tokens';
-import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface';
-import { FindOneConnectionDs } from '../application/data-structures/find-one-connection.ds';
-import { FoundOneConnectionDs } from '../application/data-structures/found-one-connection.ds';
+import { HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { HttpException } from '@nestjs/common/exceptions/http.exception';
-import { Messages } from '../../../exceptions/text/messages';
+import AbstractUseCase from '../../../common/abstract-use.case';
+import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface';
+import { BaseType } from '../../../common/data-injection.tokens';
 import { AccessLevelEnum } from '../../../enums';
+import { Messages } from '../../../exceptions/text/messages';
 import { Constants } from '../../../helpers/constants/constants';
 import { Encryptor } from '../../../helpers/encryption/encryptor';
+import { FindOneConnectionDs } from '../application/data-structures/find-one-connection.ds';
+import { FoundOneConnectionDs } from '../application/data-structures/found-one-connection.ds';
+import { IFindOneConnection } from './use-cases.interfaces';
 
 @Injectable()
 export class FindOneConnectionUseCase
@@ -55,6 +55,9 @@ export class FindOneConnectionUseCase
           delete connection[key];
         }
       }
+    }
+    if (accessLevel !== AccessLevelEnum.edit) {
+      delete connection.signing_key;
     }
 
     if (connection.masterEncryption && inputData.masterPwd && accessLevel !== AccessLevelEnum.none) {

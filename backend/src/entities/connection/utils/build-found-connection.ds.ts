@@ -1,9 +1,9 @@
-import { ConnectionEntity } from '../connection.entity';
 import {
   FoundAgentConnectionsDs,
   FoundDirectConnectionsDs,
   FoundDirectConnectionsNonePermissionDs,
 } from '../application/data-structures/found-connections.ds';
+import { ConnectionEntity } from '../connection.entity';
 
 export function buildFoundConnectionDs(
   connection: ConnectionEntity,
@@ -29,5 +29,6 @@ export function buildFoundConnectionDs(
     type: connection.type,
     updatedAt: connection.updatedAt,
     username: connection.username,
+    signing_key: connection.signing_key,
   };
 }

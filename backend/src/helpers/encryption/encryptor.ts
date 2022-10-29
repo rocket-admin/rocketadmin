@@ -1,11 +1,11 @@
-import * as CryptoJS from 'crypto-js';
-import * as bcrypt from 'bcrypt';
 import * as argon2 from 'argon2';
+import * as bcrypt from 'bcrypt';
 import * as crypto from 'crypto';
 import { createHmac, randomBytes, scrypt } from 'crypto';
-import { IEncryptorInterfaceDTO } from './encryptor.interface';
+import * as CryptoJS from 'crypto-js';
 import { EncryptionAlgorithmEnum } from '../../enums';
 import { Constants } from '../constants/constants';
+import { IEncryptorInterfaceDTO } from './encryptor.interface';
 
 export class Encryptor {
   static getPrivateKey(): string {
@@ -84,6 +84,12 @@ export class Encryptor {
   static hashDataHMAC(dataToHash: string): string {
     const privateKey = this.getPrivateKey();
     const hmac = createHmac('sha256', privateKey);
+    hmac.update(dataToHash);
+    return hmac.digest('hex');
+  }
+
+  static hashDataHMACexternalKey(key: string, dataToHash: string): string {
+    const hmac = createHmac('sha256', key);
     hmac.update(dataToHash);
     return hmac.digest('hex');
   }

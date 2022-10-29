@@ -1,3 +1,4 @@
+import { Expose } from 'class-transformer';
 import {
   AfterLoad,
   BeforeInsert,
@@ -9,16 +10,15 @@ import {
   OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { Expose } from 'class-transformer';
+import { isConnectionTypeAgent } from '../../helpers';
+import { Encryptor } from '../../helpers/encryption/encryptor';
+import { AgentEntity } from '../agent/agent.entity';
+import { ConnectionPropertiesEntity } from '../connection-properties/connection-properties.entity';
 import { GroupEntity } from '../group/group.entity';
+import { TableInfoEntity } from '../table-info/table-info.entity';
+import { TableLogsEntity } from '../table-logs/table-logs.entity';
 import { TableSettingsEntity } from '../table-settings/table-settings.entity';
 import { UserEntity } from '../user/user.entity';
-import { Encryptor } from '../../helpers/encryption/encryptor';
-import { TableLogsEntity } from '../table-logs/table-logs.entity';
-import { AgentEntity } from '../agent/agent.entity';
-import { isConnectionTypeAgent } from '../../helpers';
-import { ConnectionPropertiesEntity } from '../connection-properties/connection-properties.entity';
-import { TableInfoEntity } from '../table-info/table-info.entity';
 
 @Entity('connection')
 export class ConnectionEntity {
@@ -92,6 +92,9 @@ export class ConnectionEntity {
   @Column({ default: 0 })
   saved_table_info?: number;
 
+  @Column({ default: null })
+  signing_key: string;
+
   @BeforeUpdate()
   updateTimestampEncryptCredentials(): void {
     this.updatedAt = new Date();
@@ -113,6 +116,7 @@ export class ConnectionEntity {
 
   @BeforeInsert()
   encryptCredentials(): void {
+    this.signing_key = Encryptor.generateRandomString(40);
     if (!isConnectionTypeAgent(this.type)) {
       this.host = Encryptor.encryptData(this.host);
       this.database = Encryptor.encryptData(this.database);

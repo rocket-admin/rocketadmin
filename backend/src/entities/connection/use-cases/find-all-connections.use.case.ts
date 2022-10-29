@@ -1,4 +1,4 @@
-import { Inject, Injectable, Scope } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import AbstractUseCase from '../../../common/abstract-use.case';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface';
 import { BaseType } from '../../../common/data-injection.tokens';
@@ -49,6 +49,9 @@ export class FindAllConnectionsUseCase
                 delete connection[key];
               }
             }
+          }
+          if(userConnectionAccessLevel !== AccessLevelEnum.edit){
+            delete connection.signing_key;
           }
           return {
             connection: connection,
