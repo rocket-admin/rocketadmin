@@ -62,6 +62,14 @@ th.mat-header-cell, td.mat-cell {
     padding-right: 20px;
 }
 
+tr.mat-row {
+    height: 40px;
+}
+
+tr.mat-row:hover {
+    background: rgba(0, 0, 0, 0.04);
+  }
+
 .mat-table-sticky {
     background: #e0e0e0;
     padding-left: 16px;
