@@ -23,4 +23,7 @@ export class FoundTableSettingsDs {
   custom_fields: Array<CustomFieldsEntity>;
   table_widgets: Array<TableWidgetEntity>;
   table_actions: Array<TableActionEntity>;
+  can_add: boolean;
+  can_delete: boolean;
+  can_update: boolean;
 }

@@ -9,31 +9,30 @@ import {
   Injectable,
   Post,
   Put,
-  Scope,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { CreateTableSettingsDto } from './dto';
-import { CustomFieldsEntity } from '../custom-field/custom-fields.entity';
-import { toPrettyErrorsMsg } from '../../helpers';
 import { HttpException } from '@nestjs/common/exceptions/http.exception';
-import { Messages } from '../../exceptions/text/messages';
-import { InTransactionEnum, QueryOrderingEnum } from '../../enums';
-import { SentryInterceptor } from '../../interceptors';
-import { ConnectionEditGuard, ConnectionReadGuard } from '../../guards';
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UseCaseType } from '../../common/data-injection.tokens';
+import { MasterPassword, QueryTableName, QueryUuid, UserId } from '../../decorators';
+import { InTransactionEnum, QueryOrderingEnum } from '../../enums';
+import { Messages } from '../../exceptions/text/messages';
+import { ConnectionEditGuard, ConnectionReadGuard } from '../../guards';
+import { toPrettyErrorsMsg } from '../../helpers';
+import { SentryInterceptor } from '../../interceptors';
+import { CustomFieldsEntity } from '../custom-field/custom-fields.entity';
+import { CreateTableSettingsDs } from './application/data-structures/create-table-settings.ds';
+import { DeleteTableSettingsDs } from './application/data-structures/delete-table-settings.ds';
+import { FindTableSettingsDs } from './application/data-structures/find-table-settings.ds';
+import { FoundTableSettingsDs } from './application/data-structures/found-table-settings.ds';
+import { CreateTableSettingsDto } from './dto';
 import {
   ICreateTableSettings,
   IDeleteTableSettings,
   IFindTableSettings,
   IUpdateTableSettings,
 } from './use-cases/use-cases.interface';
-import { FindTableSettingsDs } from './application/data-structures/find-table-settings.ds';
-import { FoundTableSettingsDs } from './application/data-structures/found-table-settings.ds';
-import { CreateTableSettingsDs } from './application/data-structures/create-table-settings.ds';
-import { DeleteTableSettingsDs } from './application/data-structures/delete-table-settings.ds';
-import { MasterPassword, QueryTableName, QueryUuid, UserId } from '../../decorators';
 
 @ApiBearerAuth()
 @ApiTags('settings')
@@ -101,6 +100,9 @@ export class TableSettingsController {
     @Body('customFields') customFields: Array<CustomFieldsEntity>,
     @Body('columns_view') columns_view: Array<string>,
     @Body('identity_column') identity_column: string,
+    @Body('can_delete') can_delete: boolean,
+    @Body('can_update') can_update: boolean,
+    @Body('can_add') can_add: boolean,
     @UserId() userId: string,
     @MasterPassword() masterPwd: string,
   ): Promise<FoundTableSettingsDs> {
@@ -124,6 +126,9 @@ export class TableSettingsController {
       masterPwd: masterPwd,
       userId: userId,
       table_widgets: undefined,
+      can_delete: can_delete,
+      can_update: can_update,
+      can_add: can_add,
     };
     /* eslint-enable */
     const errors = this.validateParameters(inputData);
@@ -162,6 +167,9 @@ export class TableSettingsController {
     @Body('customFields') customFields: Array<CustomFieldsEntity>,
     @Body('columns_view') columns_view: Array<string>,
     @Body('identity_column') identity_column: string,
+    @Body('can_delete') can_delete: boolean,
+    @Body('can_update') can_update: boolean,
+    @Body('can_add') can_add: boolean,
     @UserId() userId: string,
     @MasterPassword() masterPwd: string,
   ): Promise<FoundTableSettingsDs> {
@@ -184,6 +192,9 @@ export class TableSettingsController {
       sortable_by: sortable_by,
       table_name: tableName,
       userId: userId,
+      can_delete: can_delete,
+      can_update: can_update,
+      can_add: can_add,
     };
     /* eslint-enable */
     const errors = this.validateParameters(inputData);
