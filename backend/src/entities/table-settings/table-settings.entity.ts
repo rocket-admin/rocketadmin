@@ -58,6 +58,15 @@ export class TableSettingsEntity {
   @Column('varchar', { array: true, default: null })
   columns_view: string[];
 
+  @Column({ default: true })
+  can_delete: boolean;
+
+  @Column({ default: true })
+  can_update: boolean;
+
+  @Column({ default: true })
+  can_add: boolean;
+
   @Transform(({ value: connection }) => connection.id)
   @ManyToOne((type) => ConnectionEntity, (connection) => connection.settings, {
     onDelete: 'CASCADE',

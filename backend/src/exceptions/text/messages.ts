@@ -37,6 +37,7 @@ export const Messages = {
   CANT_READONLY_AND_EXCLUDE: (fieldName: string) =>
     `You cannot select the same field ${fieldName ? fieldName : 'names'} to be readonly and exclude`,
   CANT_EXCLUDE_PRIMARY_KEY: (key: string) => `You cannot exclude primary key ${key}`,
+  CANT_DO_TABLE_OPERATION: `This type of operations is prohibited in the table settings`,
   COGNITO_USERNAME_MISSING: 'Cognito username missing',
   CONNECTION_ID_MISSING: 'Connection id is missing',
   CONNECTION_NOT_CREATED: 'Connection was not successfully created.',

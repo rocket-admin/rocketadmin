@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Inject, Injectable, Scope } from '@nestjs/common';
+import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import AbstractUseCase from '../../../common/abstract-use.case';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface';
 import { BaseType } from '../../../common/data-injection.tokens';
@@ -69,6 +69,15 @@ export class AddRowInTableUseCase extends AbstractUseCase<AddRowInTableDs, ITabl
       dao.getTableForeignKeys(tableName, userEmail),
       dao.getTablePrimaryColumns(tableName, userEmail),
     ]);
+
+    if (tableSettings && !tableSettings?.can_add) {
+      throw new HttpException(
+        {
+          message: Messages.CANT_DO_TABLE_OPERATION,
+        },
+        HttpStatus.FORBIDDEN,
+      );
+    }
 
     const foreignKeysFromWidgets: Array<IForeignKeyInfo> = tableWidgets
       .filter((el) => {

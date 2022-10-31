@@ -1,21 +1,21 @@
+import { faker } from '@faker-js/faker';
 import * as AWS from 'aws-sdk';
 import * as AWSMock from 'aws-sdk-mock';
-import { faker } from '@faker-js/faker';
 import { knex } from 'knex';
 import * as request from 'supertest';
 
-import { ApplicationModule } from '../../src/app.module';
+import { INestApplication } from '@nestjs/common';
+import { Test } from '@nestjs/testing';
 import { Connection } from 'typeorm';
+import { ApplicationModule } from '../../src/app.module';
+import { QueryOrderingEnum } from '../../src/enums';
+import { Messages } from '../../src/exceptions/text/messages';
+import { Cacher } from '../../src/helpers/cache/cacher';
 import { Constants } from '../../src/helpers/constants/constants';
 import { DatabaseModule } from '../../src/shared/database/database.module';
 import { DatabaseService } from '../../src/shared/database/database.service';
-import { INestApplication } from '@nestjs/common';
-import { Messages } from '../../src/exceptions/text/messages';
 import { MockFactory } from '../mock.factory';
-import { QueryOrderingEnum } from '../../src/enums';
-import { Test } from '@nestjs/testing';
 import { TestUtils } from '../utils/test.utils';
-import { Cacher } from '../../src/helpers/cache/cacher';
 
 describe('Tables Postgres (e2e)', () => {
   jest.setTimeout(20000);
@@ -3801,8 +3801,10 @@ describe('Tables Postgres (e2e)', () => {
           .set('Content-Type', 'application/json')
           .set('Accept', 'application/json');
 
+          const deleteRowInTableRO = JSON.parse(deleteRowInTableResponse.text);
+         
         expect(deleteRowInTableResponse.status).toBe(200);
-        const deleteRowInTableRO = JSON.parse(deleteRowInTableResponse.text);
+        
 
         expect(deleteRowInTableRO.hasOwnProperty('row')).toBeTruthy();
 
