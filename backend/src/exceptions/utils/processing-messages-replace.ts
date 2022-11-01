@@ -58,4 +58,16 @@ export const PROCESSING_MESSAGES_REPLACE = {
     `;
     return message;
   },
+  SELECT_COMMAND_DENIED_MYSQL: (originalMessage: string): string => {
+    const words = originalMessage.split(' ');
+    const userWordIndex = words.findIndex((word) => {
+      return word === 'user';
+    });
+    const dbUser = words.at(userWordIndex + 1);
+    const message = `
+    User ${dbUser} don't have permission to perform select command for this table.
+    Please gran select permissions to user in your database.
+    `;
+    return message;
+  },
 };

@@ -12,4 +12,5 @@ export const PROCESSING_MESSAGES_FIND = {
   VIOLATES_FOREIGN_CONSTRAINT_PG: 'violates foreign key constraint',
   VIOLATES_FOREIGN_CONSTRAINT_MYSQL: 'cannot delete or update a parent row: a foreign key constraint fails',
   VIOLATES_FOREIGN_CONSTRAINT_MSSQL: 'statement conflicted with the reference constraint',
+  SELECT_COMMAND_DENIED_MYSQL: 'select command denied to user',
 };
