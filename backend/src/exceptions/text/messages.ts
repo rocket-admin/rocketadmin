@@ -6,7 +6,7 @@ import {
   SubscriptionLevelEnum,
   TableActionTypeEnum,
   UserActionEnum,
-  WidgetTypeEnum,
+  WidgetTypeEnum
 } from '../../enums';
 import { enumToString } from '../../helpers/enum-to-string';
 
@@ -95,6 +95,8 @@ export const Messages = {
   FAILED_REMOVE_USER_FROM_GROUP: 'Failed to remove user from group.',
   FAILED_TABLE_SETTINGS_DELETE: 'Failed to delete table settings. ',
   FAILED_TO_GET_TABLE_SCHEMA: (tableName: string) => `Table schema of table ${tableName} not found.`,
+  FAILED_TO_SEND_INVITATION_EMAIL: (email: string) => `Failed to send invitation email on adress ${email}`,
+  FAILED_TO_SEND_CONFIRMATION_EMAIL: (email: string) => `Failed to send confirmation email on adress ${email}`,
   FAILED_LOGOUT: `Failed to log out`,
   FAILED_UPDATE_MASTER_PASSWORD: `Failed update master password`,
   FAILED_UPDATE_TABLE_SETTINGS: 'Failed to update table settings. ',
