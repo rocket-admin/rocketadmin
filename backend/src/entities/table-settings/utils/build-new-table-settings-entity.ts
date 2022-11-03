@@ -25,6 +25,9 @@ export function buildNewTableSettingsEntity(
     table_name,
     table_widgets,
     table_actions,
+    can_add,
+    can_delete,
+    can_update,
   } = settings;
   newSettings.connection_id = connection;
   newSettings.display_name = display_name;
@@ -44,5 +47,8 @@ export function buildNewTableSettingsEntity(
   newSettings.columns_view = columns_view;
   newSettings.identity_column = identity_column;
   newSettings.table_actions = table_actions;
+  newSettings.can_add = can_add;
+  newSettings.can_delete = can_delete;
+  newSettings.can_update = can_update;
   return newSettings;
 }

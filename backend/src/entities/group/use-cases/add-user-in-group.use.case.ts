@@ -1,23 +1,23 @@
+import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import AbstractUseCase from '../../../common/abstract-use.case';
-import { AddUserInGroupDs } from '../application/data-sctructures/add-user-in-group.ds';
-import { IAddUserInGroup } from './use-cases.interfaces';
-import { HttpException, HttpStatus, Inject, Injectable, Scope } from '@nestjs/common';
-import { BaseType } from '../../../common/data-injection.tokens';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface';
+import { BaseType } from '../../../common/data-injection.tokens';
 import { Messages } from '../../../exceptions/text/messages';
-import { UserEntity } from '../../user/user.entity';
-import { sendEmailConfirmation, sendInvitationToGroup } from '../../email/send-email';
-import { AddedUserInGroupDs } from '../application/data-sctructures/added-user-in-group.ds';
-import { StripeUtil } from '../../user/utils/stripe-util';
 import { Constants } from '../../../helpers/constants/constants';
-import { buildConnectionEntitiesFromTestDtos } from '../../user/utils/build-connection-entities-from-test-dtos';
 import { ConnectionEntity } from '../../connection/connection.entity';
-import { buildDefaultAdminGroups } from '../../user/utils/build-default-admin-groups';
-import { GroupEntity } from '../group.entity';
-import { buildDefaultAdminPermissions } from '../../user/utils/build-default-admin-permissions';
+import { sendEmailConfirmation, sendInvitationToGroup } from '../../email/send-email';
 import { PermissionEntity } from '../../permission/permission.entity';
 import { TableSettingsEntity } from '../../table-settings/table-settings.entity';
+import { UserEntity } from '../../user/user.entity';
+import { buildConnectionEntitiesFromTestDtos } from '../../user/utils/build-connection-entities-from-test-dtos';
+import { buildDefaultAdminGroups } from '../../user/utils/build-default-admin-groups';
+import { buildDefaultAdminPermissions } from '../../user/utils/build-default-admin-permissions';
 import { buildTestTableSettings } from '../../user/utils/build-test-table-settings';
+import { StripeUtil } from '../../user/utils/stripe-util';
+import { AddUserInGroupDs } from '../application/data-sctructures/add-user-in-group.ds';
+import { AddedUserInGroupDs } from '../application/data-sctructures/added-user-in-group.ds';
+import { GroupEntity } from '../group.entity';
+import { IAddUserInGroup } from './use-cases.interfaces';
 
 @Injectable()
 export class AddUserInGroupUseCase
@@ -67,8 +67,32 @@ export class AddUserInGroupUseCase
       const newEmailVerification = await this._dbContext.emailVerificationRepository.createOrUpdateEmailVerification(
         foundUser,
       );
-      await sendEmailConfirmation(foundUser.email, newEmailVerification.verification_string);
-      await sendInvitationToGroup(foundUser.email, savedInvitation.verification_string);
+
+      const confiramtionMailResult = await sendEmailConfirmation(
+        foundUser.email,
+        newEmailVerification.verification_string,
+      );
+
+      if (confiramtionMailResult?.rejected.includes(foundUser.email)) {
+        throw new HttpException(
+          {
+            message: Messages.FAILED_TO_SEND_CONFIRMATION_EMAIL(foundUser.email),
+          },
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+
+      const invitationMailResult = await sendInvitationToGroup(foundUser.email, savedInvitation.verification_string);
+
+      if (invitationMailResult?.rejected.includes(foundUser.email)) {
+        throw new HttpException(
+          {
+            message: Messages.FAILED_TO_SEND_INVITATION_EMAIL(foundUser.email),
+          },
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+
       if (userAlreadyAdded) {
         throw new HttpException(
           {
@@ -126,7 +150,15 @@ export class AddUserInGroupUseCase
     foundGroup.users.push(newUser);
     const savedGroup = await this._dbContext.groupRepository.saveNewOrUpdatedGroup(foundGroup);
     delete savedGroup.connection;
-    await sendInvitationToGroup(savedUser.email, savedInvitation.verification_string);
+    const mailResult = await sendInvitationToGroup(savedUser.email, savedInvitation.verification_string);
+    if (mailResult?.rejected.includes(savedUser.email)) {
+      throw new HttpException(
+        {
+          message: Messages.FAILED_TO_SEND_INVITATION_EMAIL(savedUser.email),
+        },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
     return {
       group: savedGroup,
       message: Messages.USER_EMAIL_NOT_FOUND_AND_INVITED(newUser.email),

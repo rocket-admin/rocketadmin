@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Inject, Injectable, Scope } from '@nestjs/common';
+import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import AbstractUseCase from '../../../common/abstract-use.case';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface';
 import { BaseType } from '../../../common/data-injection.tokens';
@@ -74,6 +74,16 @@ export class DeleteRowFromTableUseCase
       );
     }
     const tableSettings = await this._dbContext.tableSettingsRepository.findTableSettings(connectionId, tableName);
+
+    if (tableSettings && !tableSettings?.can_delete) {
+      throw new HttpException(
+        {
+          message: Messages.CANT_DO_TABLE_OPERATION,
+        },
+        HttpStatus.FORBIDDEN,
+      );
+    }
+
     const oldRowData = await dao.getRowByPrimaryKey(tableName, primaryKey, tableSettings, userEmail);
     if (!oldRowData) {
       throw new HttpException(

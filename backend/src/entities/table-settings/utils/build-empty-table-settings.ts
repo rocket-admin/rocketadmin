@@ -22,6 +22,9 @@ export function buildEmptyTableSettings(connectionId: string, tableName: string)
     table_widgets: undefined,
     table_actions: undefined,
     userId: undefined,
+    can_add: undefined,
+    can_delete: undefined,
+    can_update: undefined,
   };
 }
 
@@ -51,5 +54,8 @@ export function buildEmptyTableSettingsWithEmptyWidgets(
     table_widgets: [],
     table_actions: [],
     userId: userId,
+    can_add: undefined,
+    can_delete: undefined,
+    can_update: undefined,
   };
 }

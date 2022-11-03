@@ -24,4 +24,7 @@ export class CreateTableSettingsDs {
   table_widgets?: Array<TableWidgetEntity>;
   userId: string;
   table_actions?: Array<TableActionEntity>;
+  can_delete: boolean;
+  can_update: boolean;
+  can_add: boolean;
 }

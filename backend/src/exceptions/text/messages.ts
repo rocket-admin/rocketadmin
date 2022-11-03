@@ -6,7 +6,7 @@ import {
   SubscriptionLevelEnum,
   TableActionTypeEnum,
   UserActionEnum,
-  WidgetTypeEnum,
+  WidgetTypeEnum
 } from '../../enums';
 import { enumToString } from '../../helpers/enum-to-string';
 
@@ -37,6 +37,7 @@ export const Messages = {
   CANT_READONLY_AND_EXCLUDE: (fieldName: string) =>
     `You cannot select the same field ${fieldName ? fieldName : 'names'} to be readonly and exclude`,
   CANT_EXCLUDE_PRIMARY_KEY: (key: string) => `You cannot exclude primary key ${key}`,
+  CANT_DO_TABLE_OPERATION: `This type of operations is prohibited in the table settings`,
   COGNITO_USERNAME_MISSING: 'Cognito username missing',
   CONNECTION_ID_MISSING: 'Connection id is missing',
   CONNECTION_NOT_CREATED: 'Connection was not successfully created.',
@@ -94,6 +95,8 @@ export const Messages = {
   FAILED_REMOVE_USER_FROM_GROUP: 'Failed to remove user from group.',
   FAILED_TABLE_SETTINGS_DELETE: 'Failed to delete table settings. ',
   FAILED_TO_GET_TABLE_SCHEMA: (tableName: string) => `Table schema of table ${tableName} not found.`,
+  FAILED_TO_SEND_INVITATION_EMAIL: (email: string) => `Failed to send invitation email on adress ${email}`,
+  FAILED_TO_SEND_CONFIRMATION_EMAIL: (email: string) => `Failed to send confirmation email on adress ${email}`,
   FAILED_LOGOUT: `Failed to log out`,
   FAILED_UPDATE_MASTER_PASSWORD: `Failed update master password`,
   FAILED_UPDATE_TABLE_SETTINGS: 'Failed to update table settings. ',

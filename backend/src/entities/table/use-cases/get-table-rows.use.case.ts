@@ -86,6 +86,8 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
       const orderingField = findOrderingFieldUtil(query, tableStructure, tableSettings);
 
       const configured = !!tableSettings;
+      //todo rework in daos
+      tableSettings = tableSettings ? tableSettings : ({} as TableSettingsEntity);
 
       let autocompleteFields = undefined;
       const autocomplete = query['autocomplete'];
@@ -94,8 +96,6 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
       if (autocomplete && referencedColumn) {
         autocompleteFields = findAutocompleteFieldsUtil(query, tableStructure, tableSettings, referencedColumn);
       }
-      //todo rework in daos
-      tableSettings = tableSettings ? tableSettings : ({} as TableSettingsEntity);
 
       if (orderingField) {
         tableSettings.ordering_field = orderingField.field;

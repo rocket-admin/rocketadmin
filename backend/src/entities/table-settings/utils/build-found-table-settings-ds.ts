@@ -22,6 +22,9 @@ export function buildFoundTableSettingsDs(tableSettings: TableSettingsEntity): F
     custom_fields,
     table_widgets,
     table_actions,
+    can_add,
+    can_delete,
+    can_update,
   } = tableSettings;
   let connection_id = tableSettings.connection_id as unknown;
   if (connection_id instanceof ConnectionEntity) {
@@ -47,5 +50,8 @@ export function buildFoundTableSettingsDs(tableSettings: TableSettingsEntity): F
     custom_fields: custom_fields,
     table_widgets: table_widgets,
     table_actions: table_actions,
+    can_add: can_add,
+    can_delete: can_delete,
+    can_update: can_update,
   };
 }
