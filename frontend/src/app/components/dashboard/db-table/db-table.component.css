@@ -4,6 +4,10 @@
     background-color: red;
 } */
 
+.search-input {
+    min-width: 220px;
+}
+
 .hidden {
     display: none;
 }

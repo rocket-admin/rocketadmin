@@ -19,7 +19,7 @@
 }
 
 .banner-box {
-    background-color: rgba(0, 0, 0, 0.04);
+    background-color: #F5F5F5;
     border-left: 4px solid var(--alert-theme-color);
     padding: 24px 20px 24px 28px;
     width: clamp(300px, 50vw, 450px);

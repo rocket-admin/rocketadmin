@@ -1,13 +1,15 @@
 import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
+import { TableForeignKey, TablePermissions } from 'src/app/models/table';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import { getComparators, getFilters } from 'src/app/lib/parse-filter-params';
 
+import { AccessLevel } from 'src/app/models/user';
 import { ActivatedRoute } from '@angular/router';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
-import { TableForeignKey, TablePermissions } from 'src/app/models/table';
+import { Subject } from 'rxjs';
 import { merge } from 'rxjs';
 import { tap } from 'rxjs/operators';
-import { AccessLevel } from 'src/app/models/user';
-import { getComparators, getFilters } from 'src/app/lib/parse-filter-params';
 
 interface Column {
   title: string,
@@ -27,15 +29,17 @@ export class DbTableComponent implements OnInit {
   @Input() permissions: TablePermissions;
   @Input() accessLevel: AccessLevel;
   @Input() connectionID: string;
-  @Input() filtersCount: number;
+  @Input() activeFilters: object;
   @Output() openFilters = new EventEmitter();
   @Output() openPage = new EventEmitter();
   @Output() deleteRow = new EventEmitter();
+  @Output() search = new EventEmitter();
 
   public tableData: any;
   public columns: Column[];
   public displayedColumns: string[] = [];
   public columnsToDisplay: string[] = [];
+  public searchString: string;
 
   @Input() set table(value){
     if (value) this.tableData = value;
@@ -46,7 +50,7 @@ export class DbTableComponent implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
-  ) { }
+  ) {}
 
   ngAfterViewInit() {
     this.tableData.paginator = this.paginator;
@@ -116,6 +120,25 @@ export class DbTableComponent implements OnInit {
     }
   }
 
+  getFiltersCount(activeFilters: object) {
+    return Object.keys(activeFilters).length;
+  }
+
+  handleOpenFilters() {
+    this.openFilters.emit();
+    this.searchString = '';
+  }
+
+  handleSearch () {
+    this.search.emit(this.searchString);
+  }
+
+  clearSearch () {
+    this.searchString = null;
+    this.search.emit(this.searchString);
+  }
+
   ngOnInit() {
+    this.searchString = this.route.snapshot.queryParams.search;
   }
 }

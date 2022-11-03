@@ -3,7 +3,19 @@
         <h2 class="mat-h2">{{ displayName }}</h2>
     </div>
     <div>
-        <a mat-button *ngIf="tableData && tableData.permissions && tableData.permissions.add && !tableData.isEmptyTable"
+        <mat-form-field appearance="standard" class="search-input">
+            <mat-label>Search</mat-label>
+            <input matInput name="search"
+                [(ngModel)]="searchString"
+                (keyup.enter)="handleSearch()">
+            <mat-hint>Setup "Field for search" in Settings.</mat-hint>
+            <!--<mat-error *ngIf="foundTables.length === 0">Nothing found.</mat-error>-->
+            <button mat-icon-button matSuffix *ngIf="searchString"
+                (click)="clearSearch()">
+                <mat-icon>close</mat-icon>
+            </button>
+        </mat-form-field>
+        <a mat-button *ngIf="tableData && tableData.permissions && tableData.permissions.add && (!tableData.isEmptyTable || searchString || getFiltersCount(activeFilters))"
             routerLink="/dashboard/{{connectionID}}/{{name}}/entry"
             angulartics2On="click"
             angularticsAction="Tables: add row page is opened">
@@ -24,8 +36,8 @@
         <button mat-button
             angulartics2On="click"
             angularticsAction="Tables: settings dialog is opened"
-            (click)="openFilters.emit()">
-            Filter ({{ filtersCount }})
+            (click)="handleOpenFilters()">
+            Filter ({{ getFiltersCount(activeFilters) }})
         </button>
         <div *ngIf="tableData" class="db-table-manage-columns-button">
             <button *ngIf="tableData.displayedColumns && tableData.columns" mat-button [matMenuTriggerFor]="menu">
@@ -108,11 +120,11 @@
         </table>
     </div>
 
-    <div *ngIf="tableData.isEmptyTable && filtersCount" class="empty-table">
+    <div *ngIf="tableData.isEmptyTable && (getFiltersCount(activeFilters) || searchString)" class="empty-table">
         <span class="mat-body">No matching was found for the given filter</span>
     </div>
 
-    <div *ngIf="tableData.isEmptyTable && !filtersCount" class="empty-table">
+    <div *ngIf="tableData.isEmptyTable && !(getFiltersCount(activeFilters) || searchString)" class="empty-table">
         <a mat-button color="accent"
             routerLink="/dashboard/{{connectionID}}/{{name}}/entry"
             angulartics2On="click"

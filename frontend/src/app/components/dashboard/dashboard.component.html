@@ -40,12 +40,13 @@
             <app-content-loader *ngIf="dataSource === null"></app-content-loader>
             <app-db-table *ngIf="dataSource"
                 [displayName]="selectedTableDisplayName"
-                [filtersCount]="filtersCount"
+                [activeFilters]="filters"
                 [name]="selectedTableName"
                 [table]="dataSource"
                 [connectionID]="connectionID"
                 [accessLevel]="currentConnectionAccessLevel"
                 (openFilters)="openTableFilters()"
+                (search)="search($event)"
                 (deleteRow)="confirmDeleteRow($event)"></app-db-table>
         </mat-sidenav-content>
     </mat-sidenav-container>
