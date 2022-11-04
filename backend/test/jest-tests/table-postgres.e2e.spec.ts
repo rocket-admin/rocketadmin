@@ -863,28 +863,28 @@ describe('Tables Postgres (e2e)', () => {
           const createConnectionRO = JSON.parse(createConnectionResponse.text);
           expect(createConnectionResponse.status).toBe(201);
 
-          const createTableSettingsDTO = mockFactory.generateTableSettings(
-            createConnectionRO.id,
-            testTableName,
-            ['name'],
-            undefined,
-            undefined,
-            3,
-            undefined,
-            undefined,
-            undefined,
-            undefined,
-            undefined,
-            undefined,
-            undefined,
-          );
+          // const createTableSettingsDTO = mockFactory.generateTableSettings(
+          //   createConnectionRO.id,
+          //   testTableName,
+          //   ['name'],
+          //   undefined,
+          //   undefined,
+          //   3,
+          //   undefined,
+          //   undefined,
+          //   undefined,
+          //   undefined,
+          //   undefined,
+          //   undefined,
+          //   undefined,
+          // );
 
-          const createTableSettingsResponse = await request(app.getHttpServer())
-            .post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
-            .send(createTableSettingsDTO)
-            .set('Content-Type', 'application/json')
-            .set('Accept', 'application/json');
-          expect(createTableSettingsResponse.status).toBe(201);
+          // const createTableSettingsResponse = await request(app.getHttpServer())
+          //   .post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
+          //   .send(createTableSettingsDTO)
+          //   .set('Content-Type', 'application/json')
+          //   .set('Accept', 'application/json');
+          // expect(createTableSettingsResponse.status).toBe(201);
 
           const getTableRowsResponse = await request(app.getHttpServer())
             .get(

@@ -77,3 +77,18 @@ services:
       - 1521:1521
     environment:
       ORACLE_PASSWORD: 12345
+
+  migration:
+    build: .
+    env_file: .development.env
+    volumes:
+      - ./dist:/app/dist
+      - ./src:/app/src
+      - ./src/migrations:/app/src/migrations
+    links:
+      - postgres
+      - app
+    depends_on:
+      - postgres
+      - app
+    command: [ "yarn", "migration:run" ]

@@ -1310,9 +1310,9 @@ should return all found rows with search, pagination: page=1, perPage=2 and DESC
     t.is(getTableRowsRO.rows.length, 2);
     t.is(Object.keys(getTableRowsRO.rows[1]).length, 5);
 
-    t.is(getTableRowsRO.rows[0].name, testSearchedUserName);
+    t.is(getTableRowsRO.rows[0][testTableColumnName], testSearchedUserName);
     t.is(getTableRowsRO.rows[0].id, 38);
-    t.is(getTableRowsRO.rows[1].name, testSearchedUserName);
+    t.is(getTableRowsRO.rows[1][testTableColumnName], testSearchedUserName);
     t.is(getTableRowsRO.rows[1].id, 22);
 
     t.is(getTableRowsRO.pagination.currentPage, 1);
@@ -1389,11 +1389,11 @@ should return all found rows with search, pagination: page=1, perPage=10 and DES
     t.is(getTableRowsRO.rows.length, 3);
     t.is(Object.keys(getTableRowsRO.rows[1]).length, 5);
 
-    t.is(getTableRowsRO.rows[0].name, testSearchedUserName);
+    t.is(getTableRowsRO.rows[0][testTableColumnName], testSearchedUserName);
     t.is(getTableRowsRO.rows[0].id, 38);
-    t.is(getTableRowsRO.rows[1].name, testSearchedUserName);
+    t.is(getTableRowsRO.rows[1][testTableColumnName], testSearchedUserName);
     t.is(getTableRowsRO.rows[1].id, 22);
-    t.is(getTableRowsRO.rows[2].name, testSearchedUserName);
+    t.is(getTableRowsRO.rows[2][testTableColumnName], testSearchedUserName);
     t.is(getTableRowsRO.rows[2].id, 1);
 
     t.is(getTableRowsRO.pagination.currentPage, 1);
@@ -1463,6 +1463,7 @@ should return all found rows with search, pagination: page=2, perPage=2 and DESC
     t.is(getTableRowsResponse.status, 200);
 
     const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
+    console.log("🚀 ~ file: table-mssql-e2e.test.ts ~ line 1466 ~ shouldreturnallfoundrowswithsearch,pagination:page=2,perPage=2andDESCsortingandfiltering`, ~ getTableRowsRO", getTableRowsRO)
     t.is(typeof getTableRowsRO, 'object');
     t.is(getTableRowsRO.hasOwnProperty('rows'), true);
     t.is(getTableRowsRO.hasOwnProperty('primaryColumns'), true);
@@ -1470,7 +1471,7 @@ should return all found rows with search, pagination: page=2, perPage=2 and DESC
     t.is(getTableRowsRO.rows.length, 1);
     t.is(Object.keys(getTableRowsRO.rows[0]).length, 5);
 
-    t.is(getTableRowsRO.rows[0].name, testSearchedUserName);
+    t.is(getTableRowsRO.rows[0][testTableColumnName], testSearchedUserName);
     t.is(getTableRowsRO.rows[0].id, 1);
 
     t.is(getTableRowsRO.pagination.currentPage, 2);
@@ -1551,7 +1552,7 @@ should return all found rows with search, pagination: page=1, perPage=2 and DESC
     t.is(Object.keys(getTableRowsRO.rows[0]).length, 5);
 
     t.is(getTableRowsRO.rows[0].id, 38);
-    t.is(getTableRowsRO.rows[0].name, testSearchedUserName);
+    t.is(getTableRowsRO.rows[0][testTableColumnName], testSearchedUserName);
 
     t.is(getTableRowsRO.pagination.currentPage, 1);
     t.is(getTableRowsRO.pagination.perPage, 2);
@@ -1812,8 +1813,8 @@ test(`${currentTest} should return an array with searched fields when filtered n
 
     const getTablesRO = JSON.parse(getTableRowsResponse.text);
     t.is(getTablesRO.rows.length, 2);
-    t.is(getTablesRO.rows[0].name, testSearchedUserName);
-    t.is(getTablesRO.rows[1].name, testSearchedUserName);
+    t.is(getTablesRO.rows[0][testTableColumnName], testSearchedUserName);
+    t.is(getTablesRO.rows[1][testTableColumnName], testSearchedUserName);
     t.is(getTablesRO.hasOwnProperty('primaryColumns'), true);
     t.is(getTablesRO.hasOwnProperty('pagination'), true);
   } catch (e) {

@@ -272,6 +272,9 @@ export class DataAccessObjectOracle implements IDataAccessObject {
     if (settings.search_fields && settings.search_fields.length > 0) {
       searchedFields = settings.search_fields;
     }
+    if ((!searchedFields || searchedFields?.length === 0) && searchedFieldValue) {
+      searchedFields = availableFields;
+    }
     if (settings && settings.ordering_field) {
       orderingField = settings.ordering_field;
     } else {
@@ -314,7 +317,7 @@ export class DataAccessObjectOracle implements IDataAccessObject {
         .withSchema(tableSchema)
         .select(availableFields)
         .modify((builder) => {
-          const { search_fields } = settings;
+          const  search_fields  = searchedFields;
           if (searchedFieldValue && search_fields.length > 0) {
             for (const field of search_fields) {
               builder.orWhereRaw(` CAST (?? AS VARCHAR (255))=?`, [field, searchedFieldValue]);

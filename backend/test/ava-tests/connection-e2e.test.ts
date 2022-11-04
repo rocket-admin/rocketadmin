@@ -431,14 +431,15 @@ test(`${currentTest} should throw error when create connection without type`, as
 
     delete newConnection.type;
     const response = await request(app.getHttpServer())
-      .post('/connection`')
+      .post('/connection')
       .send(newConnection)
       .set('Cookie', token)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
 
-    t.is(response.status, 400);
     const { message } = JSON.parse(response.text);
+    t.is(response.status, 400);
+ //   console.log("🚀 ~ file: connection-e2e.test.ts ~ line 442 ~ test ~ message", message)
     t.is(message, `${Messages.TYPE_MISSING}, ${Messages.CONNECTION_TYPE_INVALID}`);
 
     t.pass();
