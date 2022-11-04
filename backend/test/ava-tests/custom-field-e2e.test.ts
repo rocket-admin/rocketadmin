@@ -140,7 +140,7 @@ test.serial(`${currentTest} should return custom fields array, when custom field
     .set('Accept', 'application/json');
   t.is(getTableRowsResponse.status, 200);
   const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
-  t.is(getTableRowsRO.rows.length, 10);
+  t.is(getTableRowsRO.rows.length >= 10, true);
   for (const row of getTableRowsRO.rows) {
     t.is(row.hasOwnProperty('#autoadmin:customFields'), true);
     t.is(typeof row['#autoadmin:customFields'], 'object');

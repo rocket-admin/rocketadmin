@@ -1,20 +1,20 @@
-import * as AWSMock from 'aws-sdk-mock';
 import { faker } from '@faker-js/faker';
+import * as AWSMock from 'aws-sdk-mock';
 import { knex } from 'knex';
 import * as request from 'supertest';
 
-import { ApplicationModule } from '../../src/app.module';
+import { INestApplication } from '@nestjs/common';
+import { Test } from '@nestjs/testing';
 import { Connection } from 'typeorm';
+import { ApplicationModule } from '../../src/app.module';
+import { QueryOrderingEnum } from '../../src/enums';
+import { Messages } from '../../src/exceptions/text/messages';
+import { Cacher } from '../../src/helpers/cache/cacher';
 import { Constants } from '../../src/helpers/constants/constants';
 import { DatabaseModule } from '../../src/shared/database/database.module';
 import { DatabaseService } from '../../src/shared/database/database.service';
-import { INestApplication } from '@nestjs/common';
-import { Messages } from '../../src/exceptions/text/messages';
 import { MockFactory } from '../mock.factory';
-import { QueryOrderingEnum } from '../../src/enums';
-import { Test } from '@nestjs/testing';
 import { TestUtils } from '../utils/test.utils';
-import { Cacher } from '../../src/helpers/cache/cacher';
 
 describe('Tables OracleDB (e2e)', () => {
   jest.setTimeout(10000);
@@ -338,35 +338,38 @@ describe('Tables OracleDB (e2e)', () => {
           const createConnectionRO = JSON.parse(createConnectionResponse.text);
           expect(createConnectionResponse.status).toBe(201);
 
-          const createTableSettingsDTO = mockFactory.generateTableSettings(
-            createConnectionRO.id,
-            testTableName,
-            ['id'],
-            undefined,
-            undefined,
-            3,
-            undefined,
-            undefined,
-            undefined,
-            undefined,
-            undefined,
-            undefined,
-            undefined,
-          );
+          // const createTableSettingsDTO = mockFactory.generateTableSettings(
+          //   createConnectionRO.id,
+          //   testTableName,
+          //   ['id'],
+          //   undefined,
+          //   undefined,
+          //   3,
+          //   undefined,
+          //   undefined,
+          //   undefined,
+          //   undefined,
+          //   undefined,
+          //   undefined,
+          //   undefined,
+          // );
 
-          const createTableSettingsResponse = await request(app.getHttpServer())
-            .post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
-            .send(createTableSettingsDTO)
-            .set('Content-Type', 'application/json')
-            .set('Accept', 'application/json');
-          expect(createTableSettingsResponse.status).toBe(201);
+          // const createTableSettingsResponse = await request(app.getHttpServer())
+          //   .post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
+          //   .send(createTableSettingsDTO)
+          //   .set('Content-Type', 'application/json')
+          //   .set('Accept', 'application/json');
+          // expect(createTableSettingsResponse.status).toBe(201);
           const searchedDescription = '5';
           const getTableRowsResponse = await request(app.getHttpServer())
             .get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&search=${searchedDescription}`)
             .set('Content-Type', 'application/json')
             .set('Accept', 'application/json');
-          expect(getTableRowsResponse.status).toBe(200);
+
           const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
+          console.log('🚀 ~ file: table-oracledb.e2e.spec.ts ~ line 370 ~ it ~ getTableRowsRO', getTableRowsRO);
+
+          expect(getTableRowsResponse.status).toBe(200);
 
           expect(typeof getTableRowsRO).toBe('object');
           expect(getTableRowsRO.hasOwnProperty('rows')).toBeTruthy();
