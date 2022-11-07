@@ -18,7 +18,6 @@ export class FindTableActionUseCase extends AbstractUseCase<string, CreatedTable
 
   protected async implementation(actionId: string): Promise<CreatedTableActionDS> {
     const foundTableAction = await this._dbContext.tableActionRepository.findTableActionById(actionId);
-    console.log("🚀 ~ file: find-table-action.use.case.ts ~ line 21 ~ FindTableActionUseCase ~ implementation ~ foundTableAction", foundTableAction)
     if (!foundTableAction) {
       throw new HttpException(
         {
