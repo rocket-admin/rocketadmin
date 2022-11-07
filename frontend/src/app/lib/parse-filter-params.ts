@@ -24,12 +24,17 @@ export function getFilters(queryParams) {
 }
 
 export function getComparators(queryParams) {
+    console.log(queryParams);
     const comparators = Object.keys(queryParams)
       .filter(key => key.startsWith('f__'))
       .reduce((paramsObj, key) => {
         const comparator = getComparatorFormKey(key);
         const clearedKey = getClearedKey(key);
-        paramsObj[clearedKey] = comparator;
+        if (comparator === 'eq' && queryParams[key] === '') {
+          paramsObj[clearedKey] = 'empty'
+        } else {
+          paramsObj[clearedKey] = comparator;
+        };
         return paramsObj;
       }, {});
     return comparators;

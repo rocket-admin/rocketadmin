@@ -106,7 +106,7 @@ export class ConnectDBComponent implements OnInit {
               }
             ]);
             //@ts-ignore
-            Intercom('show');
+            // Intercom('show');
           };
         },
         () => {this.submitting = false},
@@ -173,7 +173,7 @@ export class ConnectDBComponent implements OnInit {
     });
     this.submitting = false;
     //@ts-ignore
-    Intercom('show');
+    // Intercom('show');
   }
 
   amplitudeTrackAddConnection(isCorrectCreds: boolean) {

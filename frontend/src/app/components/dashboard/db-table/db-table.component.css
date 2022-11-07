@@ -4,6 +4,10 @@
     background-color: red;
 } */
 
+.search-input {
+    min-width: 220px;
+}
+
 .hidden {
     display: none;
 }
@@ -62,6 +66,14 @@ th.mat-header-cell, td.mat-cell {
     padding-right: 20px;
 }
 
+tr.mat-row {
+    height: 40px;
+}
+
+tr.mat-row:hover {
+    background: rgba(0, 0, 0, 0.04);
+  }
+
 .mat-table-sticky {
     background: #e0e0e0;
     padding-left: 16px;
@@ -94,4 +106,8 @@ th.mat-header-cell, td.mat-cell {
     border-radius: 0;
     padding: 8px 0;
     width: 100%;
+}
+
+.empty-table .mat-body {
+    padding: 16px 0;
 }

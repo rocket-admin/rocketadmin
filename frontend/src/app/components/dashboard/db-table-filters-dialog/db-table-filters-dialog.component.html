@@ -14,25 +14,43 @@
             </mat-form-field>
 
             <ng-container *ngFor="let value of tableRowFieldsShown | keyvalue; let key = index; trackBy:trackByFn">
-                <div *ngIf="getComparatorType(inputs[tableTypes[value.key]]?.type) === 'nonComparable'; else comparableFilter"
-                    [ngClass]="{'filter-line': getComparatorType(inputs[tableTypes[value.key]]?.type) === 'nonComparable'}">
-                    <ndc-dynamic [ndcDynamicComponent]="inputs[tableTypes[value.key]]"
-                        [ndcDynamicInputs]="{
-                            key: key,
-                            label: value.key,
-                            value: tableRowFieldsShown[value.key],
-                            structure: tableRowStructure[value.key],
-                            relations: tableTypes[value.key] === 'foreign key' ? getRelations(value.key) : undefined
-                        }"
-                        [ndcDynamicOutputs]="{
-                            onFieldChange: { handler: updateField, args: ['$event', value.key] }
-                        }"
-                    ></ndc-dynamic>
+                <div *ngIf="getComparatorType(getInputType(value.key)) === 'nonComparable'; else comparableFilter" class="filter-line">
+
+                    <div *ngIf="isWidget(value.key); else defaultTableField">
+                        <ndc-dynamic [ndcDynamicComponent]="tableWidgets[value.key].widget_type ? UIwidgets[tableWidgets[value.key].widget_type] : inputs[tableTypes[value.key]]"
+                            [ndcDynamicInputs]="{
+                                key: key,
+                                label: tableWidgets[value.key].name || value.key,
+                                value: tableRowFieldsShown[value.key],
+                                widgetStructure: tableWidgets[value.key],
+                                relations: tableTypes[value.key] === 'foreign key' ? getRelations(value.key) : undefined
+                            }"
+                            [ndcDynamicOutputs]="{
+                                onFieldChange: { handler: updateField, args: ['$event', value.key] }
+                            }"
+                        ></ndc-dynamic>
+                    </div>
+
+                    <ng-template #defaultTableField>
+                        <ndc-dynamic [ndcDynamicComponent]="inputs[tableTypes[value.key]]"
+                            [ndcDynamicInputs]="{
+                                key: key,
+                                label: value.key,
+                                value: tableRowFieldsShown[value.key],
+                                structure: tableRowStructure[value.key],
+                                relations: tableTypes[value.key] === 'foreign key' ? getRelations(value.key) : undefined
+                            }"
+                            [ndcDynamicOutputs]="{
+                                onFieldChange: { handler: updateField, args: ['$event', value.key] }
+                            }"
+                        ></ndc-dynamic>
+                    </ng-template>
                 </div>
+
                 <ng-template #comparableFilter>
                     <span class='mat-body-1'>{{value.key}}</span>
 
-                    <mat-form-field *ngIf="getComparatorType(inputs[tableTypes[value.key]]?.type) === 'text'"
+                    <mat-form-field *ngIf="getComparatorType(getInputType(value.key)) === 'text'"
                         appearance="outline">
                         <mat-select name="textComparator-{{value.key}}"
                             [(ngModel)]="tableRowFieldsComparator[value.key]"
@@ -49,10 +67,13 @@
                             <mat-option value="contains">
                                 contains
                             </mat-option>
+                            <mat-option value="empty">
+                                is empty
+                            </mat-option>
                         </mat-select>
                     </mat-form-field>
 
-                    <mat-form-field *ngIf="getComparatorType(inputs[tableTypes[value.key]]?.type) === 'number'"
+                    <mat-form-field *ngIf="getComparatorType(getInputType(value.key)) === 'number'"
                         appearance="outline">
                         <mat-select name="numberComparator-{{value.key}}"
                             [(ngModel)]="tableRowFieldsComparator[value.key]"
@@ -80,6 +101,7 @@
                             key: key,
                             label: value.key,
                             value: tableRowFieldsShown[value.key],
+                            readonly: tableRowFieldsComparator[value.key] === 'empty',
                             structure: tableRowStructure[value.key],
                             relations: tableTypes[value.key] === 'foreign key' ? getRelations(value.key) : undefined
                         }"

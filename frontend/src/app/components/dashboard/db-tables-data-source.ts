@@ -30,7 +30,8 @@ interface RowsParams {
   sortOrder?: 'ASC' | 'DESC',
   filters?: object,
   comparators?: object,
-  isTablePageSwitched?: boolean
+  isTablePageSwitched?: boolean,
+  search?: string
 }
 
 export class TablesDataSource implements DataSource<Object> {
@@ -124,7 +125,8 @@ export class TablesDataSource implements DataSource<Object> {
     sortColumn,
     sortOrder,
     filters, comparators,
-    isTablePageSwitched
+    isTablePageSwitched,
+    search
   }: RowsParams) {
       this.loadingSubject.next(true);
       this.alert_primaryKeysInfo = null;
@@ -138,7 +140,8 @@ export class TablesDataSource implements DataSource<Object> {
         sortColumn,
         sortOrder,
         filters,
-        comparators
+        comparators,
+        search
       });
 
       if (fetchedTable) {

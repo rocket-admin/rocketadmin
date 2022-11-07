@@ -6,6 +6,7 @@ import { getComparators, getFilters } from 'src/app/lib/parse-filter-params';
 import { ConnectionsService } from 'src/app/services/connections.service';
 import { DbRowDeleteDialogComponent } from './db-row-delete-dialog/db-row-delete-dialog.component';
 import { DbTableFiltersDialogComponent } from './db-table-filters-dialog/db-table-filters-dialog.component';
+import { HttpErrorResponse } from '@angular/common/http';
 import { MatDialog } from '@angular/material/dialog';
 import { NotificationsService } from 'src/app/services/notifications.service';
 import { TableProperties } from 'src/app/models/table';
@@ -14,7 +15,7 @@ import { TablesDataSource } from './db-tables-data-source';
 import { TablesService } from 'src/app/services/tables.service';
 import { User } from 'src/app/models/user';
 import { normalizeTableName } from '../../lib/normalize'
-import { HttpErrorResponse } from '@angular/common/http';
+import { omitBy } from "lodash";
 
 @Component({
   selector: 'app-dashboard',
@@ -31,7 +32,7 @@ export class DashboardComponent implements OnInit {
   public currentPage: number = 1;
   public shownTableTitles: boolean = true;
   public connectionID: string;
-  public filtersCount: number;
+  public filters: object;
 
   public loading: boolean = true;
   public dbFetchError: boolean = false;
@@ -68,8 +69,6 @@ export class DashboardComponent implements OnInit {
       if (error instanceof HttpErrorResponse) {
         this.errorMessage = error.error.message
       } else  { throw error };
-      // @ts-ignore
-      Intercom('show');
     }
 
     if (tables && tables.length === 0) {
@@ -112,18 +111,19 @@ export class DashboardComponent implements OnInit {
   setTable(tableName: string) {
     this.selectedTableName = tableName;
     this.route.queryParams.pipe(first()).subscribe((queryParams) => {
-      const filters = getFilters(queryParams);
+      this.filters = getFilters(queryParams);
       const comparators = getComparators(queryParams);
+      const search = queryParams.search;
 
-      this.filtersCount = Object.keys(filters).length;
       this.dataSource.fetchRows({
         connectionID: this.connectionID,
         tableName: tableName,
         requstedPage: parseInt(queryParams.page_index, 10),
         sortColumn: undefined,
         sortOrder: undefined,
-        filters: filters,
+        filters: this.filters,
         comparators: comparators,
+        search
       });
     })
     const selectedTableProperties = this.tablesList.find( (table: any) => table.table == this.selectedTableName);
@@ -145,23 +145,22 @@ export class DashboardComponent implements OnInit {
     filterDialodRef.componentInstance.tableRowFieldsShown
 
     filterDialodRef.afterClosed().subscribe(action => {
-      const filters = filterDialodRef.componentInstance.tableRowFieldsShown;
+      this.filters = omitBy(filterDialodRef.componentInstance.tableRowFieldsShown, (value) => value === undefined);
       const comparators = filterDialodRef.componentInstance.tableRowFieldsComparator;
 
-      const filtersQueryParams = Object.keys(filters)
-      .reduce((paramsObj, key) => {
-        paramsObj[`f__${key}__${comparators[key]}`] = filters[key];
-        return paramsObj;
-      }, {});
+      const filtersQueryParams = Object.keys(this.filters)
+        .reduce((paramsObj, key) => {
+          paramsObj[`f__${key}__${comparators[key]}`] = this.filters[key];
+          return paramsObj;
+        }, {});
       if (action === 'filter' || action === 'reset') {
-        this.filtersCount = Object.keys(filters).length;
         this.dataSource.fetchRows({
           connectionID: this.connectionID,
           tableName: this.selectedTableName,
           requstedPage: 0,
           sortColumn: undefined,
           sortOrder: undefined,
-          filters: filters,
+          filters: this.filters,
           comparators: comparators
         });
         this.router.navigate([`/dashboard/${this.connectionID}/${this.selectedTableName}`], { queryParams: {...filtersQueryParams, page_index: 0} });
@@ -169,10 +168,28 @@ export class DashboardComponent implements OnInit {
     })
   }
 
+  search(value: string) {
+    this.dataSource.fetchRows({
+      connectionID: this.connectionID,
+      tableName: this.selectedTableName,
+      requstedPage: 0,
+      sortColumn: undefined,
+      sortOrder: undefined,
+      search: value
+    });
+    this.filters = {};
+    this.router.navigate([`/dashboard/${this.connectionID}/${this.selectedTableName}`], { queryParams: {page_index: 0, search: value} });
+  }
+
   confirmDeleteRow(rowKeyAttributes: Object) {
     this.dialog.open(DbRowDeleteDialogComponent, {
       width: '25em',
       data: rowKeyAttributes
     });
+  }
+
+  openIntercome() {
+    // @ts-ignore
+    Intercom('show');
   }
 }

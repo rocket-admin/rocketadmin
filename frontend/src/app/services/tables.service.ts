@@ -24,7 +24,8 @@ interface TableParams {
   foreignKeyRowValue?: string,
   referencedColumn?:string,
   filters?: object,
-  comparators?: object
+  comparators?: object,
+  search?: string
 }
 
 @Injectable({
@@ -91,9 +92,10 @@ export class TablesService {
     foreignKeyRowName,
     foreignKeyRowValue,
     referencedColumn,
-    filters, comparators
+    filters, comparators,
+    search
   }: TableParams) {
-    const foreignKeyRowParamName = foreignKeyRowName === 'autocomplete' ? foreignKeyRowName : `f_${foreignKeyRowName}__eq`;
+    let foreignKeyRowParamName = foreignKeyRowName === 'autocomplete' ? foreignKeyRowName : `f_${foreignKeyRowName}__eq`;
     let filterParams = {}
     if (filters && comparators) {
       Object.keys(filters).forEach(
@@ -108,6 +110,7 @@ export class TablesService {
           tableName,
           perPage: chunkSize.toString(),
           page: requstedPage.toString(),
+          ...(search ? {search} : {}),
           ...(foreignKeyRowValue ? {[foreignKeyRowParamName]: foreignKeyRowValue} : {}),
           ...(referencedColumn ? {referencedColumn} : {}),
           ...(sortColumn ? {sort_by: sortColumn} : {}),

@@ -1,5 +1,5 @@
 <h1 mat-dialog-title>Connection error</h1>
-<div mat-dialog-content>
+<div mat-dialog-content class="mat-body">
     <p>Connection does not exist or credentials are incorrect.</p>
     <strong>Error: {{data.errorMessage}}</strong>
 </div>
@@ -18,4 +18,5 @@
             Add anyway
         </button>
     </ng-template>
+    <button mat-flat-button color="accent" (click)="openIntercome()">Chat with support</button>
 </div>

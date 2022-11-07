@@ -37,13 +37,6 @@
     margin-right: 12px;
 }
 
-.ip-copy-button {
-    background: transparent;
-    border: none;
-    font-family: monospace;
-    padding: 2px 4px;
-}
-
 .encription-setting {
     display: flex;
     justify-content: space-between;

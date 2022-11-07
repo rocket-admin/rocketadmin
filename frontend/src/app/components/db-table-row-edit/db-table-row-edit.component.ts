@@ -63,13 +63,14 @@ export class DbTableRowEditComponent implements OnInit {
           .subscribe(res => {
             this.readonlyFields = res.readonly_fields;
             this.tableForeignKeys = res.foreignKeys;
-            this.shownRows = res.structure.filter((field: TableField) => !(field.column_default?.startsWith('nextval') || field.auto_increment));
+            this.shownRows = res.structure.filter((field: TableField) => !field.auto_increment);
             const allowNullFields = res.structure
               .filter((field: TableField) => field.allow_null)
               .map((field: TableField) => field.column_name);
             this.tableRowValues = Object.assign({}, ...this.shownRows.map((field: TableField) => ({[field.column_name]: allowNullFields.includes(field.column_name) ? null : ''})));
             if (res.list_fields.length) {
-              this.fieldsOrdered = [...res.list_fields];
+              const shownFieldsList = this.shownRows.map((field: TableField) => field.column_name);
+              this.fieldsOrdered = [...res.list_fields].filter(field => shownFieldsList.includes(field));
             } else {
               this.fieldsOrdered = Object.keys(this.tableRowValues).map(key => key);
             }
@@ -81,11 +82,13 @@ export class DbTableRowEditComponent implements OnInit {
         this.keyAttributes = params;
         this._tableRow.fetchTableRow(this.connectionID, this.tableName, params)
           .subscribe(res => {
-            this.readonlyFields = res.readonly_fields;
+            const autoincrementFields = res.structure.filter((field: TableField) => field.auto_increment).map((field: TableField) => field.column_name);
+            this.readonlyFields = [...res.readonly_fields, ...autoincrementFields];
             this.tableForeignKeys = res.foreignKeys;
-            this.shownRows = res.structure.filter((field: TableField) => !(field.column_default?.startsWith('nextval') || field.auto_increment));
-            this.tableRowValues = Object.assign({}, ...this.shownRows.map((field: TableField) => ({[field.column_name]: res.row[field.column_name]})));
+            // this.shownRows = res.structure.filter((field: TableField) => !field.column_default?.startsWith('nextval'));
+            this.tableRowValues = {...res.row};
             if (res.list_fields.length) {
+              // const shownFieldsList = this.shownRows.map((field: TableField) => field.column_name);
               this.fieldsOrdered = [...res.list_fields];
             } else {
               this.fieldsOrdered = Object.keys(this.tableRowValues).map(key => key);
@@ -108,7 +111,6 @@ export class DbTableRowEditComponent implements OnInit {
   }
 
   setRowStructure(structure: TableField[]){
-
     this.tableRowStructure = Object.assign({}, ...structure.map((field: TableField) => {
       return {[field.column_name]: field}
     }))
@@ -125,7 +127,14 @@ export class DbTableRowEditComponent implements OnInit {
     this.tableWidgetsList = widgets.map((widget: Widget) => widget.field_name);
     this.tableWidgets = Object.assign({}, ...widgets
       .map((widget: Widget) => {
-        const params = JSON5.parse(widget.widget_params);
+        let params = null;
+        if (widget.widget_params) {
+          try {
+            params = JSON5.parse(widget.widget_params);
+          } catch {
+            params = null;
+          }
+        }
         return {
           [widget.field_name]: {...widget, widget_params: params}
         }
@@ -143,6 +152,8 @@ export class DbTableRowEditComponent implements OnInit {
   }
 
   isWidget(columnName: string) {
+    console.log('isWidget');
+    console.log(columnName);
     return this.tableWidgetsList.includes(columnName);
   }
 

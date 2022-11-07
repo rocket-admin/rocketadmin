@@ -193,6 +193,7 @@ export const fieldTypes = {
         ntext: LongTextComponent,
 
         //datetime (datepicker)
+        date: DateComponent,
         datetime: DateTimeComponent,
         smalldatetime: DateTimeComponent,
         timestamp: DateTimeComponent,
