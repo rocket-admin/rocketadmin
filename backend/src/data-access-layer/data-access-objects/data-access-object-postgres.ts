@@ -211,7 +211,10 @@ export class DataAccessObjectPostgres extends BasicDao implements IDataAccessObj
       .select(availableFields)
       .modify((builder) => {
         /*eslint-disable*/
-        const { search_fields } = settings;
+        let { search_fields } = settings;
+        if ((!search_fields || search_fields?.length === 0) && searchedFieldValue) {
+          search_fields = availableFields;
+        }
         if (searchedFieldValue && search_fields.length > 0) {
           for (const field of search_fields) {
             builder.orWhereRaw(` CAST (?? AS VARCHAR (255))=?`, [field, searchedFieldValue]);

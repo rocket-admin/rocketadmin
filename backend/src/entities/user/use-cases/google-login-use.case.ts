@@ -1,26 +1,26 @@
+import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import * as Sentry from '@sentry/node';
-import { HttpException, HttpStatus, Inject, Injectable, Scope } from '@nestjs/common';
-import { IGoogleLogin } from './user-use-cases.interfaces';
-import { BaseType } from '../../../common/data-injection.tokens';
-import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface';
 import { LoginTicket, OAuth2Client, TokenPayload } from 'google-auth-library';
+import AbstractUseCase from '../../../common/abstract-use.case';
+import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface';
+import { BaseType } from '../../../common/data-injection.tokens';
 import { Messages } from '../../../exceptions/text/messages';
-import { generateGwtToken, IToken } from '../utils/generate-gwt-token';
-import { UserEntity } from '../user.entity';
-import { RegisterUserDs } from '../application/data-structures/register-user-ds';
 import { Constants } from '../../../helpers/constants/constants';
-import { buildConnectionEntitiesFromTestDtos } from '../utils/build-connection-entities-from-test-dtos';
 import { ConnectionEntity } from '../../connection/connection.entity';
-import { buildDefaultAdminGroups } from '../utils/build-default-admin-groups';
 import { GroupEntity } from '../../group/group.entity';
-import { buildDefaultAdminPermissions } from '../utils/build-default-admin-permissions';
 import { PermissionEntity } from '../../permission/permission.entity';
 import { TableSettingsEntity } from '../../table-settings/table-settings.entity';
-import { buildTestTableSettings } from '../utils/build-test-table-settings';
-import { buildRegisteredUserDS } from '../utils/build-registered-user.ds';
-import { RegisteredUserDs } from '../application/data-structures/registered-user.ds';
 import { GoogleLoginDs } from '../application/data-structures/google-login.ds';
-import AbstractUseCase from '../../../common/abstract-use.case';
+import { RegisterUserDs } from '../application/data-structures/register-user-ds';
+import { RegisteredUserDs } from '../application/data-structures/registered-user.ds';
+import { UserEntity } from '../user.entity';
+import { buildConnectionEntitiesFromTestDtos } from '../utils/build-connection-entities-from-test-dtos';
+import { buildDefaultAdminGroups } from '../utils/build-default-admin-groups';
+import { buildDefaultAdminPermissions } from '../utils/build-default-admin-permissions';
+import { buildRegisteredUserDS } from '../utils/build-registered-user.ds';
+import { buildTestTableSettings } from '../utils/build-test-table-settings';
+import { generateGwtToken, IToken } from '../utils/generate-gwt-token';
+import { IGoogleLogin } from './user-use-cases.interfaces';
 
 @Injectable()
 export class GoogleLoginUseCase extends AbstractUseCase<GoogleLoginDs, IToken> implements IGoogleLogin {
@@ -51,7 +51,7 @@ export class GoogleLoginUseCase extends AbstractUseCase<GoogleLoginDs, IToken> i
       );
     }
     const payload: TokenPayload = ticket.getPayload();
-    const { email, email_verified } = payload;
+    const { email, email_verified, name } = payload;
     if (!email_verified || !email) {
       throw new HttpException(
         {
@@ -62,6 +62,10 @@ export class GoogleLoginUseCase extends AbstractUseCase<GoogleLoginDs, IToken> i
     }
     const foundUser: UserEntity = await this._dbContext.userRepository.findOneUserByEmail(email);
     if (foundUser) {
+      if (foundUser.name !== name && name) {
+        foundUser.name = name;
+        await this._dbContext.userRepository.saveUserEntity(foundUser);
+      }
       return generateGwtToken(foundUser);
     }
     const userData: RegisterUserDs = {
@@ -69,6 +73,7 @@ export class GoogleLoginUseCase extends AbstractUseCase<GoogleLoginDs, IToken> i
       gclidValue: glidCookieValue,
       password: null,
       isActive: true,
+      name: name ? name : null,
     };
     const savedUser = await this._dbContext.userRepository.saveRegisteringUser(userData);
     const testConnections = Constants.getTestConnectionsArr();

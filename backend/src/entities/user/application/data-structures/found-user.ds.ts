@@ -8,4 +8,5 @@ export class FoundUserDs {
   portal_link?: string;
   subscriptionLevel?: SubscriptionLevelEnum;
   intercom_hash?: string;
+  name: string;
 }

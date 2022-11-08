@@ -1,35 +1,28 @@
-import { MockFactory } from '../mock.factory';
+import { faker } from '@faker-js/faker';
 import { INestApplication } from '@nestjs/common';
-import { TestUtils } from '../utils/test.utils';
-import test from 'ava';
 import { Test } from '@nestjs/testing';
+import test from 'ava';
+import * as cookieParser from 'cookie-parser';
+import * as request from 'supertest';
 import { ApplicationModule } from '../../src/app.module';
+import { QueryOrderingEnum } from '../../src/enums';
+import { AllExceptionsFilter } from '../../src/exceptions/all-exceptions.filter';
+import { Messages } from '../../src/exceptions/text/messages';
+import { Cacher } from '../../src/helpers/cache/cacher';
+import { Constants } from '../../src/helpers/constants/constants';
 import { DatabaseModule } from '../../src/shared/database/database.module';
 import { DatabaseService } from '../../src/shared/database/database.service';
-import * as cookieParser from 'cookie-parser';
-import { AllExceptionsFilter } from '../../src/exceptions/all-exceptions.filter';
-import { registerUserAndReturnUserInfo } from '../utils/register-user-and-return-user-info';
+import { MockFactory } from '../mock.factory';
 import { createTestTable } from '../utils/create-test-table';
-import { getTestData } from '../utils/get-test-data';
-import * as request from 'supertest';
 import { dropTestTables } from '../utils/drop-test-tables';
-import { faker } from '@faker-js/faker';
-import { Messages } from '../../src/exceptions/text/messages';
-import { Constants } from '../../src/helpers/constants/constants';
-import { QueryOrderingEnum } from '../../src/enums';
-import { Connection } from 'typeorm';
-import { Cacher } from '../../src/helpers/cache/cacher';
+import { getTestData } from '../utils/get-test-data';
+import { registerUserAndReturnUserInfo } from '../utils/register-user-and-return-user-info';
+import { TestUtils } from '../utils/test.utils';
 
 const mockFactory = new MockFactory();
 let app: INestApplication;
 let testUtils: TestUtils;
-let connectionToTestMSSQL;
-let connectionToTestMSSQLProperties;
-let testTableName: string;
-const testTableColumnName = 'name';
-const testTAbleSecondColumnName = 'email';
 const testSearchedUserName = 'Vasia';
-const testEntitiesSeedsCount = 42;
 const testTables: Array<string> = [];
 let currentTest;
 
@@ -74,7 +67,7 @@ test(`${currentTest} should return list of tables in connection`, async (t) => {
   try {
     const { connectionToTestMSSQL } = getTestData(mockFactory);
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-    const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
+    const { testTableName } =
       await createTestTable(connectionToTestMSSQL);
 
     testTables.push(testTableName);
@@ -121,7 +114,7 @@ test(`${currentTest} should throw an error when connectionId not passed in reque
   try {
     const { connectionToTestMSSQL } = getTestData(mockFactory);
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-    const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
+    const { testTableName } =
       await createTestTable(connectionToTestMSSQL);
 
     testTables.push(testTableName);
@@ -152,7 +145,7 @@ test(`${currentTest} should throw an error when connection id is incorrect`, asy
   try {
     const { connectionToTestMSSQL } = getTestData(mockFactory);
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-    const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
+    const { testTableName } =
       await createTestTable(connectionToTestMSSQL);
 
     testTables.push(testTableName);
@@ -187,7 +180,7 @@ test(`${currentTest} should return rows of selected table without search and wit
   try {
     const { connectionToTestMSSQL } = getTestData(mockFactory);
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-    const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
+    const { testTableName, testTableColumnName, testTableSecondColumnName } =
       await createTestTable(connectionToTestMSSQL);
 
     testTables.push(testTableName);
@@ -234,7 +227,7 @@ test(`${currentTest} should return rows of selected table with search and withou
   try {
     const { connectionToTestMSSQL } = getTestData(mockFactory);
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-    const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
+    const { testTableName, testTableColumnName, testTableSecondColumnName } =
       await createTestTable(connectionToTestMSSQL);
 
     testTables.push(testTableName);
@@ -307,7 +300,7 @@ test(`${currentTest} should return page of all rows with pagination page=1, perP
   try {
     const { connectionToTestMSSQL } = getTestData(mockFactory);
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-    const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
+    const { testTableName, testTableColumnName } =
       await createTestTable(connectionToTestMSSQL);
 
     testTables.push(testTableName);
@@ -382,7 +375,7 @@ test(`${currentTest} should return page of all rows with pagination page=3, perP
   try {
     const { connectionToTestMSSQL } = getTestData(mockFactory);
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-    const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
+    const { testTableName, testTableColumnName } =
       await createTestTable(connectionToTestMSSQL);
 
     testTables.push(testTableName);
@@ -458,7 +451,7 @@ should return all found rows with pagination page=1 perPage=2`, async (t) => {
   try {
     const { connectionToTestMSSQL } = getTestData(mockFactory);
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-    const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
+    const { testTableName, testTableColumnName } =
       await createTestTable(connectionToTestMSSQL);
 
     testTables.push(testTableName);
@@ -534,7 +527,7 @@ should return all found rows with pagination page=1 perPage=3`, async (t) => {
   try {
     const { connectionToTestMSSQL } = getTestData(mockFactory);
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-    const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
+    const { testTableName, testTableColumnName } =
       await createTestTable(connectionToTestMSSQL);
 
     testTables.push(testTableName);
@@ -610,7 +603,7 @@ should return all found rows with sorting ids by DESC`, async (t) => {
   try {
     const { connectionToTestMSSQL } = getTestData(mockFactory);
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-    const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
+    const { testTableName, testTableColumnName } =
       await createTestTable(connectionToTestMSSQL);
 
     testTables.push(testTableName);
@@ -680,7 +673,7 @@ should return all found rows with sorting ids by ASC`, async (t) => {
   try {
     const { connectionToTestMSSQL } = getTestData(mockFactory);
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-    const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
+    const { testTableName, testTableColumnName } =
       await createTestTable(connectionToTestMSSQL);
 
     testTables.push(testTableName);
@@ -750,7 +743,7 @@ should return all found rows with sorting ports by DESC and with pagination page
   try {
     const { connectionToTestMSSQL } = getTestData(mockFactory);
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-    const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
+    const { testTableName, testTableColumnName } =
       await createTestTable(connectionToTestMSSQL);
 
     testTables.push(testTableName);
@@ -819,7 +812,7 @@ test(`${currentTest} should return all found rows with sorting ports by ASC and 
   try {
     const { connectionToTestMSSQL } = getTestData(mockFactory);
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-    const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
+    const { testTableName, testTableColumnName } =
       await createTestTable(connectionToTestMSSQL);
 
     testTables.push(testTableName);
@@ -888,7 +881,7 @@ test(`${currentTest} should return all found rows with sorting ports by DESC and
   try {
     const { connectionToTestMSSQL } = getTestData(mockFactory);
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-    const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
+    const { testTableName, testTableColumnName } =
       await createTestTable(connectionToTestMSSQL);
 
     testTables.push(testTableName);
@@ -958,7 +951,7 @@ should return all found rows with search, pagination: page=1, perPage=2 and DESC
   try {
     const { connectionToTestMSSQL } = getTestData(mockFactory);
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-    const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
+    const { testTableName, testTableColumnName } =
       await createTestTable(connectionToTestMSSQL);
 
     testTables.push(testTableName);
@@ -1032,7 +1025,7 @@ should return all found rows with search, pagination: page=2, perPage=2 and DESC
   try {
     const { connectionToTestMSSQL } = getTestData(mockFactory);
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-    const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
+    const { testTableName, testTableColumnName } =
       await createTestTable(connectionToTestMSSQL);
 
     testTables.push(testTableName);
@@ -1105,7 +1098,7 @@ should return all found rows with search, pagination: page=1, perPage=2 and ASC 
   try {
     const { connectionToTestMSSQL } = getTestData(mockFactory);
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-    const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
+    const { testTableName, testTableColumnName } =
       await createTestTable(connectionToTestMSSQL);
 
     testTables.push(testTableName);
@@ -1179,7 +1172,7 @@ should return all found rows with search, pagination: page=2, perPage=2 and ASC 
   try {
     const { connectionToTestMSSQL } = getTestData(mockFactory);
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-    const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
+    const { testTableName, testTableColumnName } =
       await createTestTable(connectionToTestMSSQL);
 
     testTables.push(testTableName);
@@ -1252,7 +1245,7 @@ should return all found rows with search, pagination: page=1, perPage=2 and DESC
   try {
     const { connectionToTestMSSQL } = getTestData(mockFactory);
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-    const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
+    const { testTableName, testTableColumnName } =
       await createTestTable(connectionToTestMSSQL);
 
     testTables.push(testTableName);
@@ -1310,9 +1303,9 @@ should return all found rows with search, pagination: page=1, perPage=2 and DESC
     t.is(getTableRowsRO.rows.length, 2);
     t.is(Object.keys(getTableRowsRO.rows[1]).length, 5);
 
-    t.is(getTableRowsRO.rows[0].name, testSearchedUserName);
+    t.is(getTableRowsRO.rows[0][testTableColumnName], testSearchedUserName);
     t.is(getTableRowsRO.rows[0].id, 38);
-    t.is(getTableRowsRO.rows[1].name, testSearchedUserName);
+    t.is(getTableRowsRO.rows[1][testTableColumnName], testSearchedUserName);
     t.is(getTableRowsRO.rows[1].id, 22);
 
     t.is(getTableRowsRO.pagination.currentPage, 1);
@@ -1332,7 +1325,7 @@ should return all found rows with search, pagination: page=1, perPage=10 and DES
   try {
     const { connectionToTestMSSQL } = getTestData(mockFactory);
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-    const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
+    const { testTableName, testTableColumnName } =
       await createTestTable(connectionToTestMSSQL);
 
     testTables.push(testTableName);
@@ -1389,11 +1382,11 @@ should return all found rows with search, pagination: page=1, perPage=10 and DES
     t.is(getTableRowsRO.rows.length, 3);
     t.is(Object.keys(getTableRowsRO.rows[1]).length, 5);
 
-    t.is(getTableRowsRO.rows[0].name, testSearchedUserName);
+    t.is(getTableRowsRO.rows[0][testTableColumnName], testSearchedUserName);
     t.is(getTableRowsRO.rows[0].id, 38);
-    t.is(getTableRowsRO.rows[1].name, testSearchedUserName);
+    t.is(getTableRowsRO.rows[1][testTableColumnName], testSearchedUserName);
     t.is(getTableRowsRO.rows[1].id, 22);
-    t.is(getTableRowsRO.rows[2].name, testSearchedUserName);
+    t.is(getTableRowsRO.rows[2][testTableColumnName], testSearchedUserName);
     t.is(getTableRowsRO.rows[2].id, 1);
 
     t.is(getTableRowsRO.pagination.currentPage, 1);
@@ -1413,7 +1406,7 @@ should return all found rows with search, pagination: page=2, perPage=2 and DESC
   try {
     const { connectionToTestMSSQL } = getTestData(mockFactory);
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-    const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
+    const { testTableName, testTableColumnName } =
       await createTestTable(connectionToTestMSSQL);
 
     testTables.push(testTableName);
@@ -1463,6 +1456,7 @@ should return all found rows with search, pagination: page=2, perPage=2 and DESC
     t.is(getTableRowsResponse.status, 200);
 
     const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
+    console.log("🚀 ~ file: table-mssql-e2e.test.ts ~ line 1466 ~ shouldreturnallfoundrowswithsearch,pagination:page=2,perPage=2andDESCsortingandfiltering`, ~ getTableRowsRO", getTableRowsRO)
     t.is(typeof getTableRowsRO, 'object');
     t.is(getTableRowsRO.hasOwnProperty('rows'), true);
     t.is(getTableRowsRO.hasOwnProperty('primaryColumns'), true);
@@ -1470,7 +1464,7 @@ should return all found rows with search, pagination: page=2, perPage=2 and DESC
     t.is(getTableRowsRO.rows.length, 1);
     t.is(Object.keys(getTableRowsRO.rows[0]).length, 5);
 
-    t.is(getTableRowsRO.rows[0].name, testSearchedUserName);
+    t.is(getTableRowsRO.rows[0][testTableColumnName], testSearchedUserName);
     t.is(getTableRowsRO.rows[0].id, 1);
 
     t.is(getTableRowsRO.pagination.currentPage, 2);
@@ -1490,7 +1484,7 @@ should return all found rows with search, pagination: page=1, perPage=2 and DESC
   try {
     const { connectionToTestMSSQL } = getTestData(mockFactory);
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-    const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
+    const { testTableName, testTableColumnName } =
       await createTestTable(connectionToTestMSSQL);
 
     testTables.push(testTableName);
@@ -1551,7 +1545,7 @@ should return all found rows with search, pagination: page=1, perPage=2 and DESC
     t.is(Object.keys(getTableRowsRO.rows[0]).length, 5);
 
     t.is(getTableRowsRO.rows[0].id, 38);
-    t.is(getTableRowsRO.rows[0].name, testSearchedUserName);
+    t.is(getTableRowsRO.rows[0][testTableColumnName], testSearchedUserName);
 
     t.is(getTableRowsRO.pagination.currentPage, 1);
     t.is(getTableRowsRO.pagination.perPage, 2);
@@ -1569,7 +1563,7 @@ test(`${currentTest} should throw an exception when connection id is not passed 
   try {
     const { connectionToTestMSSQL } = getTestData(mockFactory);
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-    const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
+    const { testTableName, testTableColumnName } =
       await createTestTable(connectionToTestMSSQL);
 
     testTables.push(testTableName);
@@ -1629,7 +1623,7 @@ test(`${currentTest} should throw an exception when connection id passed in requ
   try {
     const { connectionToTestMSSQL } = getTestData(mockFactory);
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-    const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
+    const { testTableName, testTableColumnName } =
       await createTestTable(connectionToTestMSSQL);
 
     testTables.push(testTableName);
@@ -1694,7 +1688,7 @@ test(`${currentTest} should throw an exception when table name passed in request
   try {
     const { connectionToTestMSSQL } = getTestData(mockFactory);
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-    const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
+    const { testTableName, testTableColumnName } =
       await createTestTable(connectionToTestMSSQL);
 
     testTables.push(testTableName);
@@ -1759,7 +1753,7 @@ test(`${currentTest} should return an array with searched fields when filtered n
   try {
     const { connectionToTestMSSQL } = getTestData(mockFactory);
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-    const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
+    const { testTableName, testTableColumnName } =
       await createTestTable(connectionToTestMSSQL);
 
     testTables.push(testTableName);
@@ -1812,8 +1806,8 @@ test(`${currentTest} should return an array with searched fields when filtered n
 
     const getTablesRO = JSON.parse(getTableRowsResponse.text);
     t.is(getTablesRO.rows.length, 2);
-    t.is(getTablesRO.rows[0].name, testSearchedUserName);
-    t.is(getTablesRO.rows[1].name, testSearchedUserName);
+    t.is(getTablesRO.rows[0][testTableColumnName], testSearchedUserName);
+    t.is(getTablesRO.rows[1][testTableColumnName], testSearchedUserName);
     t.is(getTablesRO.hasOwnProperty('primaryColumns'), true);
     t.is(getTablesRO.hasOwnProperty('pagination'), true);
   } catch (e) {

@@ -1,26 +1,26 @@
+import { Inject, Injectable } from '@nestjs/common';
 import AbstractUseCase from '../../../common/abstract-use.case';
-import { IFindUserUseCase } from './user-use-cases.interfaces';
-import { FindUserDs } from '../application/data-structures/find-user.ds';
-import { CreateUserDs } from '../application/data-structures/create-user.ds';
-import { FoundUserDs } from '../application/data-structures/found-user.ds';
-import { Inject, Injectable, Scope } from '@nestjs/common';
-import { AmplitudeEventTypeEnum } from '../../../enums';
+import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface';
 import { BaseType } from '../../../common/data-injection.tokens';
+import { AmplitudeEventTypeEnum } from '../../../enums';
+import { Constants } from '../../../helpers/constants/constants';
+import { getCurrentUserSubscription } from '../../../helpers/stripe/get-current-user-subscription';
+import { AmplitudeService } from '../../amplitude/amplitude.service';
+import { ConnectionEntity } from '../../connection/connection.entity';
+import { GroupEntity } from '../../group/group.entity';
+import { PermissionEntity } from '../../permission/permission.entity';
+import { TableSettingsEntity } from '../../table-settings/table-settings.entity';
+import { CreateUserDs } from '../application/data-structures/create-user.ds';
+import { FindUserDs } from '../application/data-structures/find-user.ds';
+import { FoundUserDs } from '../application/data-structures/found-user.ds';
+import { UserEntity } from '../user.entity';
 import { buildConnectionEntitiesFromTestDtos } from '../utils/build-connection-entities-from-test-dtos';
 import { buildDefaultAdminGroups } from '../utils/build-default-admin-groups';
 import { buildDefaultAdminPermissions } from '../utils/build-default-admin-permissions';
 import { buildTestTableSettings } from '../utils/build-test-table-settings';
-import { ConnectionEntity } from '../../connection/connection.entity';
-import { Constants } from '../../../helpers/constants/constants';
-import { GroupEntity } from '../../group/group.entity';
-import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface';
-import { PermissionEntity } from '../../permission/permission.entity';
-import { StripeUtil } from '../utils/stripe-util';
-import { TableSettingsEntity } from '../../table-settings/table-settings.entity';
-import { UserEntity } from '../user.entity';
-import { AmplitudeService } from '../../amplitude/amplitude.service';
-import { getCurrentUserSubscription } from '../../../helpers/stripe/get-current-user-subscription';
 import { getUserIntercomHash } from '../utils/get-user-intercom-hash';
+import { StripeUtil } from '../utils/stripe-util';
+import { IFindUserUseCase } from './user-use-cases.interfaces';
 
 @Injectable()
 export class FindUserUseCase
@@ -92,6 +92,7 @@ export class FindUserUseCase
       portal_link: portalLink,
       subscriptionLevel: userSubscriptionLevel,
       intercom_hash: intercomHash,
+      name: user.name,
     };
   }
 }
