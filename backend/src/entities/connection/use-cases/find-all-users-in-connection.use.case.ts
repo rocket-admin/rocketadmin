@@ -1,9 +1,9 @@
-import { Inject, Injectable, Scope } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import AbstractUseCase from '../../../common/abstract-use.case';
+import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface';
+import { BaseType } from '../../../common/data-injection.tokens';
 import { FoundUserDs } from '../../user/application/data-structures/found-user.ds';
 import { IFindUsersInConnection } from './use-cases.interfaces';
-import { BaseType } from '../../../common/data-injection.tokens';
-import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface';
 
 @Injectable()
 export class FindAllUsersInConnectionUseCase
@@ -26,6 +26,7 @@ export class FindAllUsersInConnectionUseCase
           isActive: user.isActive,
           email: user.email,
           createdAt: user.createdAt,
+          name: user.name,
         };
       }),
     );

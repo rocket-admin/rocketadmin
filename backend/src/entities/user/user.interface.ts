@@ -11,6 +11,7 @@ export interface IUserInfo {
   createdAt: Date;
   portal_link?: string;
   subscriptionLevel: SubscriptionLevelEnum;
+  name: string;
 }
 
 export interface IUserRO {

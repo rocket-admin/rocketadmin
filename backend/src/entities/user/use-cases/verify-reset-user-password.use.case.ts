@@ -1,13 +1,13 @@
-import { ResetUsualUserPasswordDs } from '../application/data-structures/reset-usual-user-password.ds';
+import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import AbstractUseCase from '../../../common/abstract-use.case';
-import { RegisteredUserDs } from '../application/data-structures/registered-user.ds';
-import { IVerifyPasswordReset } from './user-use-cases.interfaces';
-import { HttpException, HttpStatus, Inject, Injectable, Scope } from '@nestjs/common';
-import { BaseType } from '../../../common/data-injection.tokens';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface';
-import { generateGwtToken } from '../utils/generate-gwt-token';
+import { BaseType } from '../../../common/data-injection.tokens';
 import { Messages } from '../../../exceptions/text/messages';
 import { Encryptor } from '../../../helpers/encryption/encryptor';
+import { RegisteredUserDs } from '../application/data-structures/registered-user.ds';
+import { ResetUsualUserPasswordDs } from '../application/data-structures/reset-usual-user-password.ds';
+import { generateGwtToken } from '../utils/generate-gwt-token';
+import { IVerifyPasswordReset } from './user-use-cases.interfaces';
 
 @Injectable()
 export class VerifyResetUserPasswordUseCase
@@ -50,6 +50,7 @@ export class VerifyResetUserPasswordUseCase
       id: foundUser.id,
       email: foundUser.email,
       token: generateGwtToken(foundUser),
+      name: foundUser.name,
     };
   }
 }

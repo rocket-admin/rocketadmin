@@ -14,7 +14,7 @@ import { TableLogsEntity } from '../table-logs/table-logs.entity';
 import { TableSettingsEntity } from '../table-settings/table-settings.entity';
 import { TableWidgetEntity } from '../widget/table-widget.entity';
 import { ChangeUsualPasswordUseCase } from './use-cases/change-usual-password-use.case';
-import { DeleteUserAccountUseCase } from './use-cases/delete-user-account-use-case.service';
+import { DeleteUserAccountUseCase } from './use-cases/delete-user-account-use-case';
 import { FacebookLoginUseCase } from './use-cases/facebook-login.use.case';
 import { FindUserUseCase } from './use-cases/find-user-use.case';
 import { GoogleLoginUseCase } from './use-cases/google-login-use.case';
