@@ -4,18 +4,18 @@
     background-color: red;
 } */
 
-.search-input {
-    min-width: 220px;
-}
-
 .hidden {
     display: none;
+}
+
+.search-input {
+    margin-top: -12px;
+    min-width: 220px;
 }
 
 .db-table-header {
     display: flex;
     justify-content: space-between;
-    margin-bottom: 8px;
     width: 100%;
 }
 
@@ -28,8 +28,20 @@
     margin-bottom: 0;
 }
 
+.db-table-actions {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
 .db-table-manage-columns-button {
     display: inline-block;
+}
+
+.active-filters {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
 }
 
 .empty-table-message {

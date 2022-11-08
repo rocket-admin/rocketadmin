@@ -7,8 +7,8 @@
 <ng-template #tablesList>
     <div *ngIf="tables && tables.length; else noTables">
         <mat-form-field appearance="standard" class="search-input">
-            <mat-label>Search</mat-label>
             <input matInput name="search" #search="ngModel"
+                placeholder="Search"
                 [(ngModel)]="searchString"
                 (keyup)="serach()">
             <mat-error *ngIf="foundTables.length === 0">Nothing found.</mat-error>

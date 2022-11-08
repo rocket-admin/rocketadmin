@@ -2,7 +2,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0 1rem;
+    padding: 20px 16px 0;
 }
 
 .mat-h1 {
@@ -33,6 +33,8 @@
 }
 
 .search-input {
+    margin-top: -12px;
     margin-left: 16px;
+    margin-bottom: -12px;
     width: calc(100% - 32px);
 }
