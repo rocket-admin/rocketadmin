@@ -25,6 +25,7 @@ export const userCustomRepositoryExtension = {
     newUser.email = userData.email;
     newUser.password = userData.password;
     newUser.isActive = userData.isActive;
+    newUser.name = userData.name;
     newUser.connections = [];
     let savedUser = await this.save(newUser);
     if (savedUser && process.env.NODE_ENV !== 'test') {

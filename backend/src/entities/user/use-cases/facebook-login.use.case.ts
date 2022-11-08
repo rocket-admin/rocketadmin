@@ -1,24 +1,24 @@
+import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import axios from 'axios';
 import AbstractUseCase from '../../../common/abstract-use.case';
-import { BaseType } from '../../../common/data-injection.tokens';
-import { IFacebookLogin } from './user-use-cases.interfaces';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface';
-import { HttpException, HttpStatus, Inject, Injectable, Scope } from '@nestjs/common';
-import { UserEntity } from '../user.entity';
-import { generateGwtToken, IToken } from '../utils/generate-gwt-token';
-import { RegisterUserDs } from '../application/data-structures/register-user-ds';
+import { BaseType } from '../../../common/data-injection.tokens';
+import { Messages } from '../../../exceptions/text/messages';
 import { Constants } from '../../../helpers/constants/constants';
-import { buildConnectionEntitiesFromTestDtos } from '../utils/build-connection-entities-from-test-dtos';
 import { ConnectionEntity } from '../../connection/connection.entity';
-import { buildDefaultAdminGroups } from '../utils/build-default-admin-groups';
 import { GroupEntity } from '../../group/group.entity';
-import { buildDefaultAdminPermissions } from '../utils/build-default-admin-permissions';
 import { PermissionEntity } from '../../permission/permission.entity';
 import { TableSettingsEntity } from '../../table-settings/table-settings.entity';
-import { buildTestTableSettings } from '../utils/build-test-table-settings';
+import { RegisterUserDs } from '../application/data-structures/register-user-ds';
 import { RegisteredUserDs } from '../application/data-structures/registered-user.ds';
+import { UserEntity } from '../user.entity';
+import { buildConnectionEntitiesFromTestDtos } from '../utils/build-connection-entities-from-test-dtos';
+import { buildDefaultAdminGroups } from '../utils/build-default-admin-groups';
+import { buildDefaultAdminPermissions } from '../utils/build-default-admin-permissions';
 import { buildRegisteredUserDS } from '../utils/build-registered-user.ds';
-import { Messages } from '../../../exceptions/text/messages';
+import { buildTestTableSettings } from '../utils/build-test-table-settings';
+import { generateGwtToken, IToken } from '../utils/generate-gwt-token';
+import { IFacebookLogin } from './user-use-cases.interfaces';
 
 @Injectable()
 export class FacebookLoginUseCase extends AbstractUseCase<string, IToken> implements IFacebookLogin {
@@ -30,15 +30,20 @@ export class FacebookLoginUseCase extends AbstractUseCase<string, IToken> implem
   }
 
   protected async implementation(facebookAccessToken: string): Promise<IToken> {
-    const faceBookGraphApiUrl = `https://graph.facebook.com/me?access_token=${facebookAccessToken}&fields=email`;
+    const faceBookGraphApiUrl = `https://graph.facebook.com/me?access_token=${facebookAccessToken}&fields=email,name`;
     try {
       const response = await axios.get(faceBookGraphApiUrl);
       const email = response.data.email;
+      const userName = response.data.name ? response.data.name : null;
       if (!email) {
         throw Error('There no email address in user info from facebook');
       }
       const foundUser: UserEntity = await this._dbContext.userRepository.findOneUserByEmail(email);
       if (foundUser) {
+        if (foundUser.name !== userName && userName) {
+          foundUser.name = userName;
+          await this._dbContext.userRepository.saveUserEntity(foundUser);
+        }
         return generateGwtToken(foundUser);
       }
       const userData: RegisterUserDs = {
@@ -46,6 +51,7 @@ export class FacebookLoginUseCase extends AbstractUseCase<string, IToken> implem
         gclidValue: null,
         password: null,
         isActive: true,
+        name: userName,
       };
       const savedUser = await this._dbContext.userRepository.saveRegisteringUser(userData);
       const testConnections = Constants.getTestConnectionsArr();

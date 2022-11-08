@@ -3,4 +3,5 @@ export class RegisterUserDs {
   email: string;
   password: string;
   isActive: boolean;
+  name: string;
 }

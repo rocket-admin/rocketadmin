@@ -10,7 +10,6 @@ import {
   Put,
   Req,
   Res,
-  Scope,
   UseInterceptors,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
@@ -34,8 +33,10 @@ import { RegisteredUserDs } from './application/data-structures/registered-user.
 import { ResetUsualUserPasswordDs } from './application/data-structures/reset-usual-user-password.ds';
 import { UpgradeUserSubscriptionDs } from './application/data-structures/upgrade-user-subscription.ds';
 import { UsualLoginDs } from './application/data-structures/usual-login.ds';
+import { UsualRegisterUserDs } from './application/data-structures/usual-register-user.ds';
 import { ChangeUsualUserPasswordDto, EmailDto, LoginUserDto, PasswordDto, SocialNetworkLoginDto } from './dto';
 import { UpgradeSubscriptionDto } from './dto/upgrade-subscription.dto';
+import { UsualRegisterUserDto } from './dto/usual-register-user.dto';
 import {
   IDeleteUserAccount,
   IFacebookLogin,
@@ -177,13 +178,14 @@ export class UserController {
 
   @ApiOperation({ summary: 'Register with email and password' })
   @ApiResponse({ status: 201, description: 'Registration successfull' })
-  @ApiBody({ type: LoginUserDto })
+  @ApiBody({ type: UsualRegisterUserDto })
   @Post('user/register/')
   async usualRegister(
     @GCLlId() glidCookieValue: string,
     @Res({ passthrough: true }) response: Response,
     @BodyEmail('email') email: string,
     @Body('password') password: string,
+    @Body('name') name: string,
   ): Promise<ITokenExp> {
     if (!email) {
       throw new HttpException(
@@ -210,10 +212,11 @@ export class UserController {
         HttpStatus.BAD_REQUEST,
       );
     }
-    const inputData: UsualLoginDs = {
+    const inputData: UsualRegisterUserDs = {
       email: email,
       password: password,
       gclidValue: glidCookieValue,
+      name: name,
     };
     const tokenInfo = await this.usualRegisterUseCase.execute(inputData, InTransactionEnum.ON);
     response.cookie(Constants.JWT_COOKIE_KEY_NAME, tokenInfo.token);

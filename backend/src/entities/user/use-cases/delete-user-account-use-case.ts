@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Inject, Injectable, Scope } from '@nestjs/common';
+import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import AbstractUseCase from '../../../common/abstract-use.case';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface';
 import { BaseType } from '../../../common/data-injection.tokens';
@@ -32,6 +32,7 @@ export class DeleteUserAccountUseCase
     return {
       id: foundUser.id,
       email: foundUser.email,
+      name: foundUser.name,
     };
   }
 }

@@ -8,5 +8,6 @@ export function buildRegisteredUserDS(user: UserEntity): RegisteredUserDs {
     id: user.id,
     email: user.email,
     token: jwtToken,
+    name: user.name,
   };
 }

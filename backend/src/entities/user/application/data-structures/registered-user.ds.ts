@@ -4,4 +4,5 @@ export class RegisteredUserDs {
   id: string;
   email: string;
   token: IToken;
+  name: string;
 }
