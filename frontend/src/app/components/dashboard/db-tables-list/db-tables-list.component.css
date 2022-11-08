@@ -23,6 +23,10 @@
     text-overflow: ellipsis;
 }
 
+::ng-deep .mat-list-base .mat-list-item {
+    height: 40px !important;
+}
+
 .list-item_active {
     color: #ED4870;
 }

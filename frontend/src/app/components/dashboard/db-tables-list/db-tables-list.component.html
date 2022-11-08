@@ -16,10 +16,13 @@
         <mat-nav-list>
             <a mat-list-item *ngFor="let tableItem of foundTables"
                 routerLink="/dashboard/{{connectionID}}/{{tableItem.table}}"
+                [matTooltip]="getTableName(tableItem)"
+                [matTooltipDisabled]="getTableNameLength(getTableName(tableItem)) < 20"
+                matTooltipPosition="right"
                 [queryParams]="{page_index: 0, page_size: 30}"
                 routerLinkActive="list-item_active"
                 class="table-list-item">
-                {{ tableItem.display_name || tableItem.normalizedTableName || tableItem.table }}
+                {{ getTableName(tableItem) }}
             </a>
         </mat-nav-list>
     </div>
