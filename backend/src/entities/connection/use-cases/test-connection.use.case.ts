@@ -1,19 +1,19 @@
-import AbstractUseCase from '../../../common/abstract-use.case';
-import { ITestConnection } from './use-cases.interfaces';
-import { Inject, Injectable, Scope } from '@nestjs/common';
-import { BaseType } from '../../../common/data-injection.tokens';
-import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface';
-import { TestConnectionResultDs } from '../application/data-structures/test-connection-result.ds';
-import { Messages } from '../../../exceptions/text/messages';
-import { isHostAllowed } from '../utils/is-host-allowed';
-import { isConnectionTypeAgent } from '../../../helpers';
+import { Inject, Injectable } from '@nestjs/common';
 import { getRepository } from 'typeorm';
-import { ConnectionEntity } from '../connection.entity';
-import { Encryptor } from '../../../helpers/encryption/encryptor';
-import { UpdateConnectionDs } from '../application/data-structures/update-connection.ds';
-import { processExceptionMessage } from '../../../exceptions/utils/process-exception-message';
+import AbstractUseCase from '../../../common/abstract-use.case';
+import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface';
+import { BaseType } from '../../../common/data-injection.tokens';
 import { createDataAccessObject } from '../../../data-access-layer/shared/create-data-access-object';
-import { ValidationHelper } from '../../../helpers/validators/ValidationHelper';
+import { Messages } from '../../../exceptions/text/messages';
+import { processExceptionMessage } from '../../../exceptions/utils/process-exception-message';
+import { isConnectionTypeAgent } from '../../../helpers';
+import { Encryptor } from '../../../helpers/encryption/encryptor';
+import { ValidationHelper } from '../../../helpers/validators/validation-helper';
+import { TestConnectionResultDs } from '../application/data-structures/test-connection-result.ds';
+import { UpdateConnectionDs } from '../application/data-structures/update-connection.ds';
+import { ConnectionEntity } from '../connection.entity';
+import { isHostAllowed } from '../utils/is-host-allowed';
+import { ITestConnection } from './use-cases.interfaces';
 
 @Injectable()
 export class TestConnectionUseCase

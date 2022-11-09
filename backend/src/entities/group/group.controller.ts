@@ -9,7 +9,6 @@ import {
   Injectable,
   Put,
   Res,
-  Scope,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
@@ -139,6 +138,7 @@ export class GroupController {
     @Body('password') password: string,
     @Res({ passthrough: true }) response: Response,
     @VerificationString() verificationString: string,
+    @Body('name') name: string,
   ): Promise<ITokenExp> {
     if (!password) {
       throw new HttpException(
@@ -151,6 +151,7 @@ export class GroupController {
     const inputData: VerifyAddUserInGroupDs = {
       verificationString: verificationString,
       user_password: password,
+      user_name: name,
     };
     const token: IToken = await this.verifyAddUserInGroupUseCase.execute(inputData, InTransactionEnum.ON);
     response.cookie(Constants.JWT_COOKIE_KEY_NAME, token.token);

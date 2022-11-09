@@ -59,7 +59,7 @@ describe('User (e2e)', () => {
       try {
         const adminUserRegisterInfo = {
           email: 'firstUser@example.com',
-          password: 'ahalai-mahalai',
+          password: 'ahalai-Mahala1',
           name: 'Test User',
         };
         const registerAdminUserResponse = await request(app.getHttpServer())
@@ -94,7 +94,7 @@ describe('User (e2e)', () => {
       try {
         const adminUserRegisterInfo = {
           email: 'firstUser@example.com',
-          password: 'ahalai-mahalai',
+          password: 'ahalai-Mahala1',
         };
         const registerAdminUserResponse = await request(app.getHttpServer())
           .post('/user/register/')
