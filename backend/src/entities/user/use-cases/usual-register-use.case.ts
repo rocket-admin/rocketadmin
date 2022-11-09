@@ -4,6 +4,7 @@ import { IGlobalDatabaseContext } from '../../../common/application/global-datab
 import { BaseType } from '../../../common/data-injection.tokens';
 import { Messages } from '../../../exceptions/text/messages';
 import { Constants } from '../../../helpers/constants/constants';
+import { ValidationHelper } from '../../../helpers/validators/validation-helper';
 import { ConnectionEntity } from '../../connection/connection.entity';
 import { sendEmailConfirmation } from '../../email/send-email';
 import { GroupEntity } from '../../group/group.entity';
@@ -30,6 +31,7 @@ export class UsualRegisterUseCase extends AbstractUseCase<UsualLoginDs, IToken> 
 
   protected async implementation(userData: UsualRegisterUserDs): Promise<IToken> {
     const { email, password, gclidValue, name } = userData;
+    ValidationHelper.isPasswordStrongOrThrowError(password);
     const foundUser = await this._dbContext.userRepository.findOneUserByEmail(email);
     if (foundUser) {
       throw new HttpException(
