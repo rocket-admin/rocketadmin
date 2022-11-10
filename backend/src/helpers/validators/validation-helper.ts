@@ -1,7 +1,8 @@
+import { HttpException, HttpStatus } from '@nestjs/common';
 import validator from 'validator';
-import { Constants } from '../constants/constants';
 import { Messages } from '../../exceptions/text/messages';
 import { buildBadRequestException } from '../../guards/utils';
+import { Constants } from '../constants/constants';
 
 export class ValidationHelper {
   public static isValidEmail(email: string): boolean {
@@ -50,5 +51,34 @@ export class ValidationHelper {
       return true;
     }
     throw buildBadRequestException(Messages.INVALID_JWT_TOKEN);
+  }
+
+  public static isPasswordStrongOrThrowError(password: string): boolean {
+    if (process.env.NODE_ENV === 'test') {
+      return true;
+    }
+    const result = validator.isStrongPassword(password, {
+      minLength: 8,
+      minLowercase: undefined,
+      minUppercase: 1,
+      minNumbers: 1,
+      minSymbols: undefined,
+      returnScore: false,
+      pointsPerUnique: undefined,
+      pointsPerRepeat: undefined,
+      pointsForContainingLower: undefined,
+      pointsForContainingUpper: undefined,
+      pointsForContainingNumber: undefined,
+      pointsForContainingSymbol: undefined,
+    });
+    if (!result) {
+      throw new HttpException(
+        {
+          message: Messages.PASSWORD_WEAK,
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+    return result;
   }
 }

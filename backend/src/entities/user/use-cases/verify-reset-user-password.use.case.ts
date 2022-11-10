@@ -4,6 +4,7 @@ import { IGlobalDatabaseContext } from '../../../common/application/global-datab
 import { BaseType } from '../../../common/data-injection.tokens';
 import { Messages } from '../../../exceptions/text/messages';
 import { Encryptor } from '../../../helpers/encryption/encryptor';
+import { ValidationHelper } from '../../../helpers/validators/validation-helper';
 import { RegisteredUserDs } from '../application/data-structures/registered-user.ds';
 import { ResetUsualUserPasswordDs } from '../application/data-structures/reset-usual-user-password.ds';
 import { generateGwtToken } from '../utils/generate-gwt-token';
@@ -23,6 +24,7 @@ export class VerifyResetUserPasswordUseCase
 
   protected async implementation(inputData: ResetUsualUserPasswordDs): Promise<RegisteredUserDs> {
     const { verificationString, newUserPassword } = inputData;
+    ValidationHelper.isPasswordStrongOrThrowError(newUserPassword);
     const verificationEntity = await this._dbContext.passwordResetRepository.findPasswordResetWidthVerificationString(
       verificationString,
     );

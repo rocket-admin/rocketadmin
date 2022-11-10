@@ -133,6 +133,7 @@ export const Messages = {
   PARAMETER_MISSING: 'Required parameter missing',
   PARAMETER_NAME_MISSING: (parameterName: string) => `Required parameter "${parameterName}" missing`,
   PASSWORD_MISSING: 'Password is missing',
+  PASSWORD_WEAK: 'Password is too weak',
   PASSWORD_OLD_MISSING: 'Old password is missing',
   PASSWORD_NEW_MISSING: 'New password is missing',
   PASSWORD_OLD_INVALID: 'Old password is invalid',

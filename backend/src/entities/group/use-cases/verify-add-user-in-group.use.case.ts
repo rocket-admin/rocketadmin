@@ -1,13 +1,14 @@
-import { HttpException, HttpStatus, Inject, Injectable, Scope } from '@nestjs/common';
+import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import AbstractUseCase from '../../../common/abstract-use.case';
-import { IVerifyAddUserInGroup } from './use-cases.interfaces';
-import { BaseType } from '../../../common/data-injection.tokens';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface';
+import { BaseType } from '../../../common/data-injection.tokens';
 import { Messages } from '../../../exceptions/text/messages';
-import { VerifyAddUserInGroupDs } from '../application/data-sctructures/verify-add-user-in-group.ds';
-import { Encryptor } from '../../../helpers/encryption/encryptor';
-import { generateGwtToken, IToken } from '../../user/utils/generate-gwt-token';
 import { Constants } from '../../../helpers/constants/constants';
+import { Encryptor } from '../../../helpers/encryption/encryptor';
+import { ValidationHelper } from '../../../helpers/validators/validation-helper';
+import { generateGwtToken, IToken } from '../../user/utils/generate-gwt-token';
+import { VerifyAddUserInGroupDs } from '../application/data-sctructures/verify-add-user-in-group.ds';
+import { IVerifyAddUserInGroup } from './use-cases.interfaces';
 
 @Injectable()
 export class VerifyAddUserInGroupUseCase
@@ -22,7 +23,8 @@ export class VerifyAddUserInGroupUseCase
   }
 
   protected async implementation(inputData: VerifyAddUserInGroupDs): Promise<IToken> {
-    const { verificationString, user_password } = inputData;
+    const { verificationString, user_password, user_name } = inputData;
+    ValidationHelper.isPasswordStrongOrThrowError(user_password);
     const invitationEntity = await this._dbContext.userInvitationRepository.findUserInvitationWithVerificationString(
       verificationString,
     );
@@ -49,6 +51,7 @@ export class VerifyAddUserInGroupUseCase
     const foundUser = await this._dbContext.userRepository.findOneUserById(invitationEntity.user.id);
     foundUser.isActive = true;
     foundUser.password = await Encryptor.hashUserPassword(user_password);
+    foundUser.name = user_name;
     const savedUser = await this._dbContext.userRepository.saveUserEntity(foundUser);
     await this._dbContext.userInvitationRepository.removeInvitationEntity(invitationEntity);
     return generateGwtToken(savedUser);
