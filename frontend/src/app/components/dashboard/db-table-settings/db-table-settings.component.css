@@ -1,9 +1,10 @@
 .settings-page {
-    padding: 0 max(calc(50vw - 325px), 10%) 60px;
+    padding: 56px max(calc(50vw - 325px), 10%) 60px;
 }
 
-.mat-h1 {
-    margin-top: 2em;
+.row-breadcrumbs {
+    display: block;
+    margin-bottom: 24px;
 }
 
 .settings-form {

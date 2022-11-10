@@ -3,7 +3,8 @@
 
 <div *ngIf="widgets" class="wrapper">
     <header class="header">
-        <h1 class="mat-h1">Widgets for <strong>{{normalizedTableName}}</strong> table</h1>
+        <app-breadcrumbs [crumbs]="getCrumbs(currentConnection.title)" class="row-breadcrumbs"></app-breadcrumbs>
+
         <div *ngIf="widgets.length" class="header-actions">
             <button  mat-stroked-button
                 type="button"

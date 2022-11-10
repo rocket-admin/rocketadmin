@@ -134,7 +134,7 @@
     }
 }
 
-.breadcrumbs {
+/* .breadcrumbs {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -153,6 +153,16 @@
     font-size: 12px;
     height: 12px;
     width: 12px;
+} */
+
+.connection-name {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    max-width: calc((100vw - 980px) / 2);
+    min-width: 180px;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .tab-icon {

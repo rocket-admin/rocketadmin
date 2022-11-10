@@ -102,6 +102,27 @@ export class DbTableWidgetsComponent implements OnInit {
       })
   }
 
+  get currentConnection() {
+    return this._connections.currentConnection;
+  }
+
+  getCrumbs(name: string) {
+    return [
+      {
+        label: name,
+        link: `/dashboard/${this.connectionID}`
+      },
+      {
+        label: this.normalizedTableName,
+        link: `/dashboard/${this.connectionID}/${this.tableName}`
+      },
+      {
+        label: 'Widgets',
+        link: null
+      }
+    ]
+  }
+
   addNewWidget() {
     this.widgets.push({
       field_name: '',

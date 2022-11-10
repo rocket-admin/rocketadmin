@@ -13,10 +13,7 @@
 <div *ngIf="tableRowValues" class="wrapper">
     <form #editRowForm="ngForm" class="form"
         (ngSubmit)="keyAttributes ? updateRow() : addRow()">
-        <h1 class="mat-h1">
-            {{ keyAttributes ? 'Edit row' : 'Add row' }} in <strong>{{ normalizedTableName }}</strong> table
-        </h1>
-
+        <app-breadcrumbs [crumbs]="getCrumbs(currentConnection.title)" class="row-breadcrumbs"></app-breadcrumbs>
         <div *ngFor="let value of fieldsOrdered; let index = index">
                 <!-- <mat-form-field class="example-form-field" appearance="outline">
                     <mat-label>test label</mat-label>

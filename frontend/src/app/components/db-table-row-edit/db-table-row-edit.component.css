@@ -2,17 +2,17 @@
     padding: 16px;
 }
 
-.mat-h1 {
-    margin-bottom: 1em;
-}
-
 .form {
     display: flex;
     flex-direction: column;
-    margin: 40px auto;
+    margin: 40px auto 40px;
     max-width: 520px;
     min-width: 300px;
     width: 96%;
+}
+
+.row-breadcrumbs {
+    margin-bottom: 24px;
 }
 
 .widget {

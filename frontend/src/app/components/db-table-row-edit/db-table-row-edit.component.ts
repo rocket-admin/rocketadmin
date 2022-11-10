@@ -1,16 +1,17 @@
+import * as JSON5 from 'json5';
+
 import { ActivatedRoute, Router } from '@angular/router';
 import { Component, NgZone, OnInit } from '@angular/core';
 import { TableField, TableForeignKey, Widget } from 'src/app/models/table';
 import { UIwidgets, fieldTypes } from 'src/app/consts/field-types';
 
 import { ConnectionsService } from 'src/app/services/connections.service';
+import { DBtype } from 'src/app/models/connection';
+import { NotificationsService } from 'src/app/services/notifications.service';
 import { TableRowService } from 'src/app/services/table-row.service';
 import { TablesService } from 'src/app/services/tables.service';
-import { normalizeTableName } from '../../lib/normalize';
-import { DBtype } from 'src/app/models/connection';
 import { getTableTypes } from 'src/app/lib/setup-table-row-structure';
-import * as JSON5 from 'json5';
-import { NotificationsService } from 'src/app/services/notifications.service';
+import { normalizeTableName } from '../../lib/normalize';
 
 @Component({
   selector: 'app-db-table-row-edit',
@@ -20,6 +21,7 @@ import { NotificationsService } from 'src/app/services/notifications.service';
 export class DbTableRowEditComponent implements OnInit {
   public loading: boolean = true;
   public connectionID: string | null = null;
+  public connectionName: string | null = null;
   public tableName: string | null = null;
   public normalizedTableName: string | null = null;
   public tableRowValues: object;
@@ -36,6 +38,7 @@ export class DbTableRowEditComponent implements OnInit {
   public UIwidgets = UIwidgets;
   public rowError: string = null;
   public fieldsOrdered: string[];
+  public crumbs;
 
   public tableForeignKeys: TableForeignKey[];
 
@@ -56,6 +59,10 @@ export class DbTableRowEditComponent implements OnInit {
     this.connectionID = this._connections.currentConnectionID;
     this.tableName = this._tables.currentTableName;
     this.normalizedTableName = normalizeTableName(this.tableName);
+
+    this.crumbs = [
+      
+    ]
 
     this.route.queryParams.subscribe((params) => {
       if (Object.keys(params).length === 0) {
@@ -108,6 +115,27 @@ export class DbTableRowEditComponent implements OnInit {
 
   get inputs() {
     return fieldTypes[this._connections.currentConnection.type]
+  }
+
+  get currentConnection() {
+    return this._connections.currentConnection;
+  }
+
+  getCrumbs(name: string) {
+    return [
+      {
+        label: name,
+        link: `/dashboard/${this.connectionID}`
+      },
+      {
+        label: this.normalizedTableName,
+        link: `/dashboard/${this.connectionID}/${this.tableName}`
+      },
+      {
+        label: this.keyAttributes ? 'Edit row' : 'Add row',
+        link: null
+      }
+    ]
   }
 
   setRowStructure(structure: TableField[]){
