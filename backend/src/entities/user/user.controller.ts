@@ -24,6 +24,7 @@ import { validateStringWithEnum } from '../../helpers/validators/validate-string
 import { SentryInterceptor } from '../../interceptors';
 import { AmplitudeService } from '../amplitude/amplitude.service';
 import { ChangeUserEmailDs } from './application/data-structures/change-user-email.ds';
+import { ChangeUserNameDS } from './application/data-structures/change-user-name.ds';
 import { ChangeUsualUserPasswordDs } from './application/data-structures/change-usual-user-password.ds';
 import { FindUserDs } from './application/data-structures/find-user.ds';
 import { FoundUserDs } from './application/data-structures/found-user.ds';
@@ -35,9 +36,11 @@ import { UpgradeUserSubscriptionDs } from './application/data-structures/upgrade
 import { UsualLoginDs } from './application/data-structures/usual-login.ds';
 import { UsualRegisterUserDs } from './application/data-structures/usual-register-user.ds';
 import { ChangeUsualUserPasswordDto, EmailDto, LoginUserDto, PasswordDto, SocialNetworkLoginDto } from './dto';
+import { ChangeUserNameDTO } from './dto/change-user-name.dto';
 import { UpgradeSubscriptionDto } from './dto/upgrade-subscription.dto';
 import { UsualRegisterUserDto } from './dto/usual-register-user.dto';
 import {
+  IChangeUserName,
   IDeleteUserAccount,
   IFacebookLogin,
   IFindUserUseCase,
@@ -93,6 +96,8 @@ export class UserController {
     private readonly requestEmailVerificationUseCase: IRequestEmailVerification,
     @Inject(UseCaseType.DELETE_USER_ACCOUNT)
     private readonly deleteUserAccountUseCase: IDeleteUserAccount,
+    @Inject(UseCaseType.CHANGE_USER_NAME)
+    private readonly changeUserNameUseCase: IChangeUserName,
     private readonly amplitudeService: AmplitudeService,
   ) {}
 
@@ -394,6 +399,23 @@ export class UserController {
       );
     }
     return await this.verifyChangeUserEmailUseCase.execute(inputData, InTransactionEnum.ON);
+  }
+
+  @ApiOperation({ summary: 'Change user name' })
+  @ApiResponse({ status: 200, description: 'Username changed' })
+  @ApiBody({ type: ChangeUserNameDTO })
+  @Put('user/name/')
+  async changeUserName(
+    @UserId() userId: string,
+    @Body('name') name: string,
+    @Body('password') password: string,
+  ): Promise<FoundUserDs> {
+    const inputData: ChangeUserNameDS = {
+      id: userId,
+      name: name,
+      password: password,
+    };
+    return await this.changeUserNameUseCase.execute(inputData, InTransactionEnum.OFF);
   }
 
   @ApiOperation({ summary: 'Delete user account' })
