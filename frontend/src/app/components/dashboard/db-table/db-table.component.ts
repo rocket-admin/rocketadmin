@@ -1,5 +1,5 @@
 import {CdkDragDrop, moveItemInArray} from '@angular/cdk/drag-drop';
-import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
+import { Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { TableForeignKey, TablePermissions } from 'src/app/models/table';
 import { getComparators, getFilters } from 'src/app/lib/parse-filter-params';
 
@@ -76,6 +76,11 @@ export class DbTableComponent implements OnInit {
       .subscribe();
   }
 
+  // @ViewChild('focus', { read: ElementRef }) tableHeader: ElementRef;
+  // scrollUp(): void {
+  //   this.tableHeader.nativeElement.scrollIntoView({ behavior: 'smooth', block: "start" });
+  // }
+
   loadRowsPage() {
     const queryParams = this.route.snapshot.queryParams;
     const filters = getFilters(queryParams);
@@ -92,6 +97,11 @@ export class DbTableComponent implements OnInit {
       isTablePageSwitched: true
     });
   }
+
+  // scrollToTop() {
+  //   console.log('scrollToTop');
+  //   window.scrollTo(0, 0);
+  // }
 
   isSortable(column: string) {
     return this.tableData.sortByColumns.includes(column) || !this.tableData.sortByColumns.length;

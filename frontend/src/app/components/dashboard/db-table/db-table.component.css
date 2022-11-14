@@ -96,12 +96,18 @@ tr.mat-row:hover {
     position: absolute;
     top: 56px; left: 0;
     display: flex;
-    align-items: center;
+    /* align-items: center; */
     justify-content: center;
     background: rgba(255, 255, 255, 0.9);
     height: calc(100% - 112px);
+    /* padding-top: 2%; */
     width: 100%;
     z-index: 2;
+}
+
+.spinner-wrapper ::ng-deep.mat-spinner {
+    position: relative;
+    top: 40px;
 }
 
 .foreign-key-link {

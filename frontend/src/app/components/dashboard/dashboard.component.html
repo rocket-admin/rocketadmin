@@ -28,7 +28,8 @@
         <mat-sidenav #sideList mode="side" [(opened)]="shownTableTitles">
             <app-db-tables-list
                 [tables]="tablesList"
-                [connectionID]="connectionID">
+                [connectionID]="connectionID"
+                [selectedTable]="selectedTableName">
             </app-db-tables-list>
         </mat-sidenav>
         <mat-sidenav-content>

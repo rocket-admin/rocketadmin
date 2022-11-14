@@ -5,7 +5,7 @@
 <app-content-loader *ngIf="tables === null; else tablesList"></app-content-loader>
 
 <ng-template #tablesList>
-    <div *ngIf="tables && tables.length; else noTables">
+    <div *ngIf="tables && tables.length; else noTables" class="tables-list">
         <mat-form-field appearance="standard" class="search-input">
             <input matInput name="search" #search="ngModel"
                 placeholder="Search"
@@ -21,7 +21,8 @@
                 matTooltipPosition="right"
                 [queryParams]="{page_index: 0, page_size: 30}"
                 routerLinkActive="list-item_active"
-                class="table-list-item">
+                class="table-list-item"
+                [ngClass]="{'list-item_active': selectedTable === tableItem.table}">
                 {{ getTableName(tableItem) }}
             </a>
         </mat-nav-list>

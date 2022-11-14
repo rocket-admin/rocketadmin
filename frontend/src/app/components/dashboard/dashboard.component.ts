@@ -85,8 +85,8 @@ export class DashboardComponent implements OnInit {
               this.selectedTableName = tableName;
               this.setTable(tableName);
             } else {
-              this.router.navigate([`/dashboard/${this.connectionID}/${this.tablesList[0].table}`], {replaceUrl: true})
-                .then(() => this.selectedTableName = this.tablesList[0].table);
+              this.router.navigate([`/dashboard/${this.connectionID}/${this.tablesList[0].table}`], {replaceUrl: true});
+              this.selectedTableName = this.tablesList[0].table;
             };
           })
         ).subscribe();

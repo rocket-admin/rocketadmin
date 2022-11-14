@@ -10,6 +10,7 @@ import { TableProperties } from 'src/app/models/table';
 export class DbTablesListComponent {
   @Input() connectionID: string;
   @Input() tables: TableProperties[];
+  @Input() selectedTable: string;
 
   public searchString: string;
   public foundTables: TableProperties[];

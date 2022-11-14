@@ -17,13 +17,13 @@
     line-height: 48px;
 }
 
-::ng-deep .table-list-item .mat-list-item-content {
+.tables-list ::ng-deep .table-list-item .mat-list-item-content {
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
 }
 
-::ng-deep .mat-list-base .mat-list-item {
+.tables-list ::ng-deep .mat-list-base .mat-list-item {
     height: 40px !important;
 }
 
