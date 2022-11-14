@@ -13,6 +13,7 @@ import { PermissionEntity } from '../permission/permission.entity';
 import { TableLogsEntity } from '../table-logs/table-logs.entity';
 import { TableSettingsEntity } from '../table-settings/table-settings.entity';
 import { TableWidgetEntity } from '../widget/table-widget.entity';
+import { ChangeUserNameUseCase } from './use-cases/change-user-name-use.case';
 import { ChangeUsualPasswordUseCase } from './use-cases/change-usual-password-use.case';
 import { DeleteUserAccountUseCase } from './use-cases/delete-user-account-use-case';
 import { FacebookLoginUseCase } from './use-cases/facebook-login.use.case';
@@ -112,6 +113,10 @@ import { UserEntity } from './user.entity';
       provide: UseCaseType.DELETE_USER_ACCOUNT,
       useClass: DeleteUserAccountUseCase,
     },
+    {
+      provide: UseCaseType.CHANGE_USER_NAME,
+      useClass: ChangeUserNameUseCase,
+    },
   ],
   controllers: [UserController],
   exports: [],
@@ -123,6 +128,7 @@ export class UserModule implements NestModule {
       .forRoutes(
         { path: 'user', method: RequestMethod.GET },
         { path: 'user', method: RequestMethod.PUT },
+        { path: 'user/name/', method: RequestMethod.PUT },
         { path: 'user/permissions/:slug', method: RequestMethod.GET },
         { path: 'user/subscription/upgrade', method: RequestMethod.POST },
         { path: 'user/logout/', method: RequestMethod.POST },

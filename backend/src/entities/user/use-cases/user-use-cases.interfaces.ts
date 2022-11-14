@@ -1,5 +1,6 @@
 import { InTransactionEnum } from '../../../enums';
 import { ChangeUserEmailDs } from '../application/data-structures/change-user-email.ds';
+import { ChangeUserNameDS } from '../application/data-structures/change-user-name.ds';
 import { ChangeUsualUserPasswordDs } from '../application/data-structures/change-usual-user-password.ds';
 import { CreateUserDs } from '../application/data-structures/create-user.ds';
 import { CreatedUserDs } from '../application/data-structures/created-user.ds';
@@ -76,4 +77,8 @@ export interface IRequestEmailVerification {
 
 export interface IDeleteUserAccount {
   execute(userId: string, inTransaction: InTransactionEnum): Promise<Omit<RegisteredUserDs, 'token'>>;
+}
+
+export interface IChangeUserName {
+  execute(inputData: ChangeUserNameDS, inTransaction: InTransactionEnum): Promise<FoundUserDs>;
 }
