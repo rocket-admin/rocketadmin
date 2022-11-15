@@ -56,7 +56,7 @@ test.after.always('Close app connection', async () => {
 
 test.after('Drop test tables', async () => {
   try {
-    const { connectionToTestMSSQL } = getTestData(mockFactory);
+    const { connectionToTestMSSQLSchemaInDocker: connectionToTestMSSQL } = getTestData(mockFactory);
     await dropTestTables(testTables, connectionToTestMSSQL);
   } catch (e) {}
 });
