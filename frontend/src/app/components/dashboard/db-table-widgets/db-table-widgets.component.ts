@@ -25,7 +25,16 @@ export class DbTableWidgetsComponent implements OnInit {
   public submitting: boolean = false;
   public widgetsWithSettings: string[];
   public defaultParams = {
-    Boolean: `// No settings required`,
+    Boolean:
+`// Specify allow_null in field structure
+// use false to display checkbox
+// use true to display yes/no/unknown radiogroup
+
+{
+	structure: {
+		"allow_null": false
+	}
+}`,
     Date: `// No settings required`,
     Time: `// No settings required`,
     DateTime: `// No settings required`,

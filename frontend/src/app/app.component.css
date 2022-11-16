@@ -160,7 +160,6 @@
     top: 8px;
     left: 8px;
     max-width: calc((100vw - 980px) / 2);
-    min-width: 180px;
     overflow: hidden;
     text-overflow: ellipsis;
 }
