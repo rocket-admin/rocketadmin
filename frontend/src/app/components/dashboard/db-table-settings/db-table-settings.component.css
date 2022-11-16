@@ -1,16 +1,15 @@
 .settings-page {
-    padding: 56px max(calc(50vw - 325px), 10%) 60px;
-}
-
-.row-breadcrumbs {
-    display: block;
-    margin-bottom: 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 56px 0 0;
 }
 
 .settings-form {
     display: grid;
     grid-template-columns: auto 40px;
     align-items: center;
+    padding: 24px max(calc(50vw - 325px), 10%) 60px;
 }
 
 .settings-form__full-line {

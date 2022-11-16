@@ -1,18 +1,17 @@
 .wrapper {
-    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 56px 0 16px;
 }
 
 .form {
     display: flex;
     flex-direction: column;
-    margin: 40px auto 40px;
+    margin: 24px auto 40px;
     max-width: 520px;
     min-width: 300px;
     width: 96%;
-}
-
-.row-breadcrumbs {
-    margin-bottom: 24px;
 }
 
 .widget {
