@@ -20,6 +20,12 @@
     position: relative;
 }
 
+.order-settings ::ng-deep .mat-expansion-panel-header {
+    height: auto;
+    min-height: 60px;
+    padding: 0.75em;
+}
+
 .settings-form__expansion-panel {
     position: relative;
     margin-bottom: 28px;
