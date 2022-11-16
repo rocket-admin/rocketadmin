@@ -12,7 +12,7 @@ export async function createTestTable(
   const testTableSecondColumnName = `${faker.random.words(1)}_${faker.random.words(1)}`;
   const Knex = getTestKnex(connectionParams);
   await Knex.schema.dropTableIfExists(testTableName);
-  await Knex.schema.createTableIfNotExists(testTableName, function (table) {
+  await Knex.schema.createTable(testTableName, function (table) {
     table.increments();
     table.string(testTableColumnName);
     table.string(testTableSecondColumnName);
@@ -29,7 +29,7 @@ export async function createTestTable(
       });
     } else {
       await Knex(testTableName).insert({
-        [testTableColumnName]: faker.name.findName(),
+        [testTableColumnName]: faker.name.firstName(),
         [testTableSecondColumnName]: faker.internet.email(),
         created_at: new Date(),
         updated_at: new Date(),

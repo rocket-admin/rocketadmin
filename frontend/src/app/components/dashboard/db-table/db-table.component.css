@@ -54,8 +54,14 @@
 .table-wrapper {
     position: relative;
     min-height: 100px;
-    width: calc(85vw - 4rem);
+    width: calc(86vw - 4rem);
     transition: width 400ms;
+}
+
+@media screen and (min-width: 1900px) {
+    .table-wrapper {
+        width: calc(98vw - 280px);
+    }
 }
 
 .table-box {

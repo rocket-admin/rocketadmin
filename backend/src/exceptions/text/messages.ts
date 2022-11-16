@@ -219,7 +219,7 @@ export const Messages = {
   USER_INVITE_EXTERNAL_USER: (userAddEmail: string, userToAddEmail: string) =>
     `User ${userAddEmail} send invite to external user ${userToAddEmail}.`,
   USER_ADDED_IN_GROUP: (email: string) => `User ${email} was added in group successfully`,
-  USER_ALREADY_REGISTERED: (email: string) => `User with email ${email} already registered`,
+  USER_ALREADY_REGISTERED: (email: string) => `User with email ${email} is already registered`,
   USER_NOT_FOUND: 'User with specified parameters not found',
   USER_ID_MISSING: 'User id is missing',
   USER_TRY_CREATE_CONNECTION: (email: string) => `User "${email}" tried to create connection.`,
