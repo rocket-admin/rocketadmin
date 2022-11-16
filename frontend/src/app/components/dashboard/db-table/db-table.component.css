@@ -55,6 +55,7 @@
     position: relative;
     min-height: 100px;
     width: calc(85vw - 4rem);
+    transition: width 400ms;
 }
 
 .table-box {

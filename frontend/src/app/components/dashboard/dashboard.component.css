@@ -33,6 +33,11 @@
     transition: left 500ms;
 }
 
+.toggle-button-position__closed + ::ng-deep .mat-drawer-container .table-wrapper {
+    max-width: calc(100vw - 48px);
+    width: 100%;
+}
+
 .toggle-button {
     background-color: #fff;
     color: inherit;
