@@ -59,10 +59,10 @@ export class ValidationHelper {
     }
     const result = validator.isStrongPassword(password, {
       minLength: 8,
-      minLowercase: undefined,
+      minLowercase: 1,
       minUppercase: 1,
       minNumbers: 1,
-      minSymbols: undefined,
+      minSymbols: 0,
       returnScore: false,
       pointsPerUnique: undefined,
       pointsPerRepeat: undefined,
