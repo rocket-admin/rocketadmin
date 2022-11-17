@@ -1,15 +1,14 @@
 .wrapper {
-    padding: 16px;
-}
-
-.mat-h1 {
-    margin-bottom: 1em;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 56px 0 16px;
 }
 
 .form {
     display: flex;
     flex-direction: column;
-    margin: 40px auto;
+    margin: 24px auto 40px;
     max-width: 520px;
     min-width: 300px;
     width: 96%;

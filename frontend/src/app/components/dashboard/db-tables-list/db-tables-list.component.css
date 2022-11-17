@@ -2,7 +2,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0 1rem;
+    padding: 20px 16px 0;
 }
 
 .mat-h1 {
@@ -17,10 +17,14 @@
     line-height: 48px;
 }
 
-::ng-deep .table-list-item .mat-list-item-content {
+.tables-list ::ng-deep .table-list-item .mat-list-item-content {
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
+}
+
+.tables-list ::ng-deep .mat-list-base .mat-list-item {
+    height: 40px !important;
 }
 
 .list-item_active {
@@ -33,6 +37,8 @@
 }
 
 .search-input {
+    margin-top: -12px;
     margin-left: 16px;
+    margin-bottom: -12px;
     width: calc(100% - 32px);
 }

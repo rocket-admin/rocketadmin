@@ -1,4 +1,5 @@
-import { Component, OnInit, ViewChild, Input } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
+
 import { AlertType } from 'src/app/models/alert';
 
 @Component({

@@ -1,15 +1,15 @@
 .settings-page {
-    padding: 0 max(calc(50vw - 325px), 10%) 60px;
-}
-
-.mat-h1 {
-    margin-top: 2em;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 56px 0 0;
 }
 
 .settings-form {
     display: grid;
     grid-template-columns: auto 40px;
     align-items: center;
+    padding: 24px max(calc(50vw - 325px), 10%) 60px;
 }
 
 .settings-form__full-line {
@@ -18,6 +18,12 @@
 
 .order-settings {
     position: relative;
+}
+
+.order-settings ::ng-deep .mat-expansion-panel-header {
+    height: auto;
+    min-height: 60px;
+    padding: 0.75em;
 }
 
 .settings-form__expansion-panel {

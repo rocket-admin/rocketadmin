@@ -4,18 +4,18 @@
     background-color: red;
 } */
 
-.search-input {
-    min-width: 220px;
-}
-
 .hidden {
     display: none;
+}
+
+.search-input {
+    margin-top: -12px;
+    min-width: 220px;
 }
 
 .db-table-header {
     display: flex;
     justify-content: space-between;
-    margin-bottom: 8px;
     width: 100%;
 }
 
@@ -28,8 +28,20 @@
     margin-bottom: 0;
 }
 
+.db-table-actions {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
 .db-table-manage-columns-button {
     display: inline-block;
+}
+
+.active-filters {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
 }
 
 .empty-table-message {
@@ -42,7 +54,14 @@
 .table-wrapper {
     position: relative;
     min-height: 100px;
-    width: calc(85vw - 4rem);
+    width: calc(86vw - 4rem);
+    transition: width 400ms;
+}
+
+@media screen and (min-width: 1900px) {
+    .table-wrapper {
+        width: calc(98vw - 280px);
+    }
 }
 
 .table-box {
@@ -84,12 +103,18 @@ tr.mat-row:hover {
     position: absolute;
     top: 56px; left: 0;
     display: flex;
-    align-items: center;
+    /* align-items: center; */
     justify-content: center;
     background: rgba(255, 255, 255, 0.9);
     height: calc(100% - 112px);
+    /* padding-top: 2%; */
     width: 100%;
     z-index: 2;
+}
+
+.spinner-wrapper ::ng-deep.mat-spinner {
+    position: relative;
+    top: 40px;
 }
 
 .foreign-key-link {

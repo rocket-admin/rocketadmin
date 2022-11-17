@@ -1,14 +1,14 @@
-import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
+import {CdkDragDrop, moveItemInArray} from '@angular/cdk/drag-drop';
+import { Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { TableForeignKey, TablePermissions } from 'src/app/models/table';
-import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { getComparators, getFilters } from 'src/app/lib/parse-filter-params';
 
 import { AccessLevel } from 'src/app/models/user';
 import { ActivatedRoute } from '@angular/router';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
-import { Subject } from 'rxjs';
 import { merge } from 'rxjs';
+import { normalizeTableName } from '../../../lib/normalize'
 import { tap } from 'rxjs/operators';
 
 interface Column {
@@ -30,16 +30,27 @@ export class DbTableComponent implements OnInit {
   @Input() accessLevel: AccessLevel;
   @Input() connectionID: string;
   @Input() activeFilters: object;
+  @Input() filterComparators: object;
+
   @Output() openFilters = new EventEmitter();
   @Output() openPage = new EventEmitter();
   @Output() deleteRow = new EventEmitter();
   @Output() search = new EventEmitter();
+  @Output() removeFilter = new EventEmitter();
+  @Output() resetAllFilters = new EventEmitter();
 
   public tableData: any;
   public columns: Column[];
   public displayedColumns: string[] = [];
   public columnsToDisplay: string[] = [];
   public searchString: string;
+  public displayedComparators = {
+    eq: "=",
+    gt: ">",
+    lt: "<",
+    gte: ">=",
+    lte: "<="
+  }
 
   @Input() set table(value){
     if (value) this.tableData = value;
@@ -65,6 +76,11 @@ export class DbTableComponent implements OnInit {
       .subscribe();
   }
 
+  // @ViewChild('focus', { read: ElementRef }) tableHeader: ElementRef;
+  // scrollUp(): void {
+  //   this.tableHeader.nativeElement.scrollIntoView({ behavior: 'smooth', block: "start" });
+  // }
+
   loadRowsPage() {
     const queryParams = this.route.snapshot.queryParams;
     const filters = getFilters(queryParams);
@@ -81,6 +97,11 @@ export class DbTableComponent implements OnInit {
       isTablePageSwitched: true
     });
   }
+
+  // scrollToTop() {
+  //   console.log('scrollToTop');
+  //   window.scrollTo(0, 0);
+  // }
 
   isSortable(column: string) {
     return this.tableData.sortByColumns.includes(column) || !this.tableData.sortByColumns.length;
@@ -140,5 +161,18 @@ export class DbTableComponent implements OnInit {
 
   ngOnInit() {
     this.searchString = this.route.snapshot.queryParams.search;
+  }
+
+  getFilter(filterKey: string, filterValue: string) {
+    const displayedName = normalizeTableName(filterKey);
+    if (this.filterComparators[filterKey] == 'startswith') {
+      return `${displayedName} = ${filterValue}...`
+    } else if (this.filterComparators[filterKey] == 'endswith') {
+      return `${displayedName} = ...${filterValue}`
+    } else if (this.filterComparators[filterKey] == 'contains') {
+      return `${displayedName} = ...${filterValue}...`
+    } else {
+      return `${displayedName} ${this.displayedComparators[this.filterComparators[filterKey]]} ${filterValue}`
+    }
   }
 }

@@ -1,11 +1,12 @@
-import { Component, OnInit, Inject } from '@angular/core';
-import { NgForm } from '@angular/forms';
-import { TablesService } from 'src/app/services/tables.service';
-import { TableSettings, TableOrdering, TableField } from 'src/app/models/table';
-import { ConnectionsService } from 'src/app/services/connections.service';
-import { normalizeTableName } from 'src/app/lib/normalize';
-import { Router } from '@angular/router';
 import {CdkDragDrop, moveItemInArray} from '@angular/cdk/drag-drop';
+import { Component, Inject, OnInit } from '@angular/core';
+import { TableField, TableOrdering, TableSettings } from 'src/app/models/table';
+
+import { ConnectionsService } from 'src/app/services/connections.service';
+import { NgForm } from '@angular/forms';
+import { Router } from '@angular/router';
+import { TablesService } from 'src/app/services/tables.service';
+import { normalizeTableName } from 'src/app/lib/normalize';
 
 @Component({
   selector: 'app-db-table-settings',
@@ -57,6 +58,27 @@ export class DbTableSettingsComponent implements OnInit {
         this.fields_to_exclude = this.fields.filter((field) => !primaryKeys.includes(field));
         this.getTableSettings();
       });
+  }
+
+  get currentConnection() {
+    return this._connections.currentConnection;
+  }
+
+  getCrumbs(name: string) {
+    return [
+      {
+        label: name,
+        link: `/dashboard/${this.connectionID}`
+      },
+      {
+        label: this.displayTableName,
+        link: `/dashboard/${this.connectionID}/${this.tableName}`
+      },
+      {
+        label: 'Settings',
+        link: null
+      }
+    ]
   }
 
   getTableSettings() {

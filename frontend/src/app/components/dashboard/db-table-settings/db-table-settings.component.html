@@ -1,6 +1,6 @@
 <app-alert></app-alert>
 <div class="settings-page">
-    <h1 class="mat-h1">Settings for <strong>{{displayTableName}}</strong> ({{ tableName }}) table</h1>
+    <app-breadcrumbs [crumbs]="getCrumbs(currentConnection.title)" class="row-breadcrumbs"></app-breadcrumbs>
 
     <app-content-loader *ngIf="loading"></app-content-loader>
     <form action="" #tableSettingsForm="ngForm" (ngSubmit)="updateSettings()">

@@ -20,10 +20,10 @@
 <ng-template #checkboxElement>
     <mat-checkbox [required]="required"
         name="{{label}}-{{key}}"
-        labelPosition="after"
+        labelPosition="before"
         class="checkbox-line"
         [disabled]="readonly"
         [(ngModel)]="value" (ngModelChange)="onFieldChange.emit($event)">
-        {{normalizedLabel}}
+        {{normalizedLabel}} {{ required ? '*' : '' }}
     </mat-checkbox>
 </ng-template>

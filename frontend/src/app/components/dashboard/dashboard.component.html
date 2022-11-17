@@ -28,24 +28,30 @@
         <mat-sidenav #sideList mode="side" [(opened)]="shownTableTitles">
             <app-db-tables-list
                 [tables]="tablesList"
-                [connectionID]="connectionID">
+                [connectionID]="connectionID"
+                [selectedTable]="selectedTableName">
             </app-db-tables-list>
         </mat-sidenav>
         <mat-sidenav-content>
-            <app-alert></app-alert>
-            <app-alert *ngIf="dataSource.alert_settingsInfo" [alert]="dataSource.alert_settingsInfo"></app-alert>
-            <app-alert *ngIf="dataSource.alert_primaryKeysInfo" [alert]="dataSource.alert_primaryKeysInfo"></app-alert>
-            <app-alert *ngIf="dataSource.alert_widgetsWarning" [alert]="dataSource.alert_widgetsWarning"></app-alert>
+            <app-alert class="server-alert"></app-alert>
+            <div class="alerts">
+                <app-alert *ngIf="dataSource.alert_settingsInfo" [alert]="dataSource.alert_settingsInfo"></app-alert>
+                <app-alert *ngIf="dataSource.alert_primaryKeysInfo" [alert]="dataSource.alert_primaryKeysInfo"></app-alert>
+                <app-alert *ngIf="dataSource.alert_widgetsWarning" [alert]="dataSource.alert_widgetsWarning"></app-alert>
+            </div>
 
             <app-content-loader *ngIf="dataSource === null"></app-content-loader>
             <app-db-table *ngIf="dataSource"
                 [displayName]="selectedTableDisplayName"
                 [activeFilters]="filters"
+                [filterComparators]="comparators"
                 [name]="selectedTableName"
                 [table]="dataSource"
                 [connectionID]="connectionID"
                 [accessLevel]="currentConnectionAccessLevel"
                 (openFilters)="openTableFilters()"
+                (removeFilter)="removeFilter($event)"
+                (resetAllFilters)="clearAllFilters()"
                 (search)="search($event)"
                 (deleteRow)="confirmDeleteRow($event)"></app-db-table>
         </mat-sidenav-content>

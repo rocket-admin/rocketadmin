@@ -92,7 +92,7 @@
             </ng-template> -->
         </mat-toolbar>
 
-        <div *ngIf="connectionID" class="mat-body-2 breadcrumbs">
+        <!--<div *ngIf="connectionID" class="mat-body-2 breadcrumbs">
             <a mat-button
                 routerLink="/dashboard/{{connectionID}}">
                 {{currantConnection.title || currantConnection.database}}
@@ -103,10 +103,15 @@
                     {{normalizedTableName}}
                 </a>
             </div>
-
-        </div>
+        </div>-->
 
         <nav mat-tab-nav-bar mat-align-tabs="center" *ngIf="connectionID">
+            <a mat-button class="connection-name"
+                [matTooltip]="currantConnection.title || currantConnection.database"
+                [matTooltipDisabled]="currantConnection.title.length < 25"
+                routerLink="/dashboard/{{connectionID}}">
+                {{currantConnection.title || currantConnection.database}}
+            </a>
             <a mat-tab-link *ngFor="let tab of visibleTabs"
                 routerLink="{{tab}}/{{connectionID}}"
                 [active]="currentTab == tab">

@@ -1,4 +1,5 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
+
 import { TableProperties } from 'src/app/models/table';
 
 @Component({
@@ -9,6 +10,7 @@ import { TableProperties } from 'src/app/models/table';
 export class DbTablesListComponent {
   @Input() connectionID: string;
   @Input() tables: TableProperties[];
+  @Input() selectedTable: string;
 
   public searchString: string;
   public foundTables: TableProperties[];
@@ -21,5 +23,13 @@ export class DbTablesListComponent {
   serach() {
     this.foundTables = this.tables
       .filter(tableItem => tableItem.table.toLowerCase().includes(this.searchString.toLowerCase()) || (tableItem.display_name && tableItem.display_name.toLowerCase().includes(this.searchString.toLowerCase())));
+  }
+
+  getTableName(table: TableProperties) {
+    return table.display_name || table.normalizedTableName || table.table
+  }
+
+  getTableNameLength(tableName: string) {
+    return tableName.length;
   }
 }

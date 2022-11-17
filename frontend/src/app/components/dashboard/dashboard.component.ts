@@ -33,6 +33,7 @@ export class DashboardComponent implements OnInit {
   public shownTableTitles: boolean = true;
   public connectionID: string;
   public filters: object;
+  public comparators: object;
 
   public loading: boolean = true;
   public dbFetchError: boolean = false;
@@ -84,8 +85,8 @@ export class DashboardComponent implements OnInit {
               this.selectedTableName = tableName;
               this.setTable(tableName);
             } else {
-              this.router.navigate([`/dashboard/${this.connectionID}/${this.tablesList[0].table}`], {replaceUrl: true})
-                .then(() => this.selectedTableName = this.tablesList[0].table);
+              this.router.navigate([`/dashboard/${this.connectionID}/${this.tablesList[0].table}`], {replaceUrl: true});
+              this.selectedTableName = this.tablesList[0].table;
             };
           })
         ).subscribe();
@@ -112,23 +113,12 @@ export class DashboardComponent implements OnInit {
     this.selectedTableName = tableName;
     this.route.queryParams.pipe(first()).subscribe((queryParams) => {
       this.filters = getFilters(queryParams);
-      const comparators = getComparators(queryParams);
+      this.comparators = getComparators(queryParams);
       const search = queryParams.search;
-
-      this.dataSource.fetchRows({
-        connectionID: this.connectionID,
-        tableName: tableName,
-        requstedPage: parseInt(queryParams.page_index, 10),
-        sortColumn: undefined,
-        sortOrder: undefined,
-        filters: this.filters,
-        comparators: comparators,
-        search
-      });
+      this.getRows(search);
     })
     const selectedTableProperties = this.tablesList.find( (table: any) => table.table == this.selectedTableName);
     this.selectedTableDisplayName = selectedTableProperties.display_name || normalizeTableName(selectedTableProperties.table);
-    // this.selectedTablePermissions = selectedTableProperties.permissions;
     this.loading = false;
   }
 
@@ -146,39 +136,59 @@ export class DashboardComponent implements OnInit {
 
     filterDialodRef.afterClosed().subscribe(action => {
       this.filters = omitBy(filterDialodRef.componentInstance.tableRowFieldsShown, (value) => value === undefined);
-      const comparators = filterDialodRef.componentInstance.tableRowFieldsComparator;
+      this.comparators = filterDialodRef.componentInstance.tableRowFieldsComparator;
 
       const filtersQueryParams = Object.keys(this.filters)
         .reduce((paramsObj, key) => {
-          paramsObj[`f__${key}__${comparators[key]}`] = this.filters[key];
+          paramsObj[`f__${key}__${this.comparators[key]}`] = this.filters[key];
           return paramsObj;
         }, {});
+
       if (action === 'filter' || action === 'reset') {
-        this.dataSource.fetchRows({
-          connectionID: this.connectionID,
-          tableName: this.selectedTableName,
-          requstedPage: 0,
-          sortColumn: undefined,
-          sortOrder: undefined,
-          filters: this.filters,
-          comparators: comparators
-        });
+        this.getRows();
         this.router.navigate([`/dashboard/${this.connectionID}/${this.selectedTableName}`], { queryParams: {...filtersQueryParams, page_index: 0} });
       }
     })
   }
 
+  removeFilter(columnName: string) {
+    this.filters[columnName] = undefined;
+    this.filters = omitBy(this.filters, (value) => value === undefined);
+
+    const filtersQueryParams = Object.keys(this.filters)
+      .reduce((paramsObj, key) => {
+        paramsObj[`f__${key}__${this.comparators[key]}`] = this.filters[key];
+        return paramsObj;
+      }, {});
+
+      this.getRows();
+      this.router.navigate([`/dashboard/${this.connectionID}/${this.selectedTableName}`], { queryParams: {...filtersQueryParams, page_index: 0} });
+  }
+
+  clearAllFilters() {
+    this.filters = {};
+    this.comparators = {};
+    this.getRows();
+    this.router.navigate([`/dashboard/${this.connectionID}/${this.selectedTableName}`], { queryParams: {page_index: 0} });
+  }
+
   search(value: string) {
+    this.getRows(value);
+    this.filters = {};
+    this.router.navigate([`/dashboard/${this.connectionID}/${this.selectedTableName}`], { queryParams: {page_index: 0, search: value} });
+  }
+
+  getRows(search?: string) {
     this.dataSource.fetchRows({
       connectionID: this.connectionID,
       tableName: this.selectedTableName,
       requstedPage: 0,
       sortColumn: undefined,
       sortOrder: undefined,
-      search: value
+      filters: this.filters,
+      comparators: this.comparators,
+      search
     });
-    this.filters = {};
-    this.router.navigate([`/dashboard/${this.connectionID}/${this.selectedTableName}`], { queryParams: {page_index: 0, search: value} });
   }
 
   confirmDeleteRow(rowKeyAttributes: Object) {

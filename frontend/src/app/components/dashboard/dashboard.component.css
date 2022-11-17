@@ -4,7 +4,7 @@
 }
 
 .mat-sidenav {
-    padding: 2rem 0;
+    padding-bottom: 16px;
     width: clamp(200px, 15%, 280px);
 }
 
@@ -13,7 +13,7 @@
 }
 
 .mat-sidenav-content {
-    padding: 2rem;
+    padding: 0 24px 24px;
 }
 
 .toggle-button-position {
@@ -31,6 +31,11 @@
 .toggle-button-position__closed {
     left: -4px;
     transition: left 500ms;
+}
+
+.toggle-button-position__closed + ::ng-deep .mat-drawer-container .table-wrapper {
+    max-width: calc(100vw - 48px);
+    width: 100%;
 }
 
 .toggle-button {
@@ -68,4 +73,18 @@
 
 .title {
     align-self: center;
+}
+
+.alerts {
+    margin-top: 24px;
+}
+
+.server-alert {
+    display: block;
+    margin-top: 24px;
+}
+
+.alerts:empty,
+.server-alert:empty {
+    margin-top: 0;
 }

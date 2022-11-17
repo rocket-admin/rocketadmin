@@ -25,7 +25,16 @@ export class DbTableWidgetsComponent implements OnInit {
   public submitting: boolean = false;
   public widgetsWithSettings: string[];
   public defaultParams = {
-    Boolean: `// No settings required`,
+    Boolean:
+`// Specify allow_null in field structure
+// use false to display checkbox
+// use true to display yes/no/unknown radiogroup
+
+{
+	structure: {
+		"allow_null": false
+	}
+}`,
     Date: `// No settings required`,
     Time: `// No settings required`,
     DateTime: `// No settings required`,
@@ -100,6 +109,27 @@ export class DbTableWidgetsComponent implements OnInit {
         this.fields = res.structure.map((field: TableField) => field.column_name);
         this.getWidgets();
       })
+  }
+
+  get currentConnection() {
+    return this._connections.currentConnection;
+  }
+
+  getCrumbs(name: string) {
+    return [
+      {
+        label: name,
+        link: `/dashboard/${this.connectionID}`
+      },
+      {
+        label: this.normalizedTableName,
+        link: `/dashboard/${this.connectionID}/${this.tableName}`
+      },
+      {
+        label: 'Widgets',
+        link: null
+      }
+    ]
   }
 
   addNewWidget() {

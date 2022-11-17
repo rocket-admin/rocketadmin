@@ -1,0 +1,13 @@
+<div class="breadcrumbs">
+    <ng-container *ngFor="let crumb of crumbs; let i = index">
+        <a mat-button *ngIf="crumb.link; else staticCrumb"
+            [routerLink]="crumb.link"
+            class="breadcrumb">
+            {{crumb.label}}
+        </a>
+        <ng-template #staticCrumb>
+            <strong class="mat-body-1 static-crumb">{{crumb.label}}</strong>
+        </ng-template>
+        <mat-icon *ngIf="crumbs.length !== i + 1" class="breadcrumbDivider">chevron_right</mat-icon>
+    </ng-container>
+</div>

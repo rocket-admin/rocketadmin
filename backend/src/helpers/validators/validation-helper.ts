@@ -62,7 +62,7 @@ export class ValidationHelper {
       minLowercase: 1,
       minUppercase: 1,
       minNumbers: 1,
-      minSymbols: undefined,
+      minSymbols: 0,
       returnScore: false,
       pointsPerUnique: undefined,
       pointsPerRepeat: undefined,
