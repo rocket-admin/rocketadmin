@@ -1,5 +1,5 @@
 import { faker } from '@faker-js/faker';
-import { getRandomTestTableName } from './get-random-test-table-name';
+import { getRandomConstraintName, getRandomTestTableName } from './get-random-test-table-name';
 import { getTestKnex } from './get-test-knex';
 
 export async function createTestTable(
@@ -100,6 +100,58 @@ export async function createTestTableForMSSQLWithChema(
         });
     }
   }
+  return {
+    testTableName: testTableName,
+    testTableColumnName: testTableColumnName,
+    testTableSecondColumnName: testTableSecondColumnName,
+    testEntitiesSeedsCount: testEntitiesSeedsCount,
+  };
+}
+
+export async function createTestOracleTable(
+  connectionParams,
+  testEntitiesSeedsCount = 42,
+  testSearchedUserName = 'Vasia',
+) {
+  const primaryKeyConstraintName = getRandomConstraintName();
+  const pColumnName = 'id';
+  const testTableColumnName = 'name';
+  const testTableSecondColumnName = 'email';
+
+  const testTableName = getRandomTestTableName().toUpperCase();
+  const Knex = getTestKnex(connectionParams);
+  await Knex.schema.dropTableIfExists(testTableName);
+  await Knex.schema.dropTableIfExists(testTableName);
+  await Knex.schema.createTable(testTableName, function (table) {
+    table.integer(pColumnName);
+    table.string(testTableColumnName);
+    table.string(testTableSecondColumnName);
+    table.timestamps();
+  });
+  await Knex.schema.alterTable(testTableName, function (t) {
+    t.primary([pColumnName], primaryKeyConstraintName);
+  });
+  let counter = 0;
+  for (let i = 0; i < testEntitiesSeedsCount; i++) {
+    if (i === 0 || i === testEntitiesSeedsCount - 21 || i === testEntitiesSeedsCount - 5) {
+      await Knex(testTableName).insert({
+        [pColumnName]: ++counter,
+        [testTableColumnName]: testSearchedUserName,
+        [testTableSecondColumnName]: faker.internet.email(),
+        created_at: new Date(),
+        updated_at: new Date(),
+      });
+    } else {
+      await Knex(testTableName).insert({
+        [pColumnName]: ++counter,
+        [testTableColumnName]: faker.name.firstName(),
+        [testTableSecondColumnName]: faker.internet.email(),
+        created_at: new Date(),
+        updated_at: new Date(),
+      });
+    }
+  }
+
   return {
     testTableName: testTableName,
     testTableColumnName: testTableColumnName,
