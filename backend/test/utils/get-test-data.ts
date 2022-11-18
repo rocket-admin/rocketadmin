@@ -13,6 +13,7 @@ export function getTestData(mockFactory: MockFactory) {
   const connectionToTestMSSQLSchemaInDocker = mockFactory.generateConnectionToTestSchemaMsSQlDBInDocker();
   const connectionToMySQL = mockFactory.generateConnectionToTestMySQLDBInDocker();
   const connectionToOracleDB = mockFactory.generateConnectionToTestOracleDBInDocker();
+  const connectionToOracleDBSchema = mockFactory.generateConnectionToSchemaOracleDBInDocker();
   return {
     newConnection,
     newEncryptedConnection,
@@ -26,5 +27,6 @@ export function getTestData(mockFactory: MockFactory) {
     connectionToTestMSSQLSchemaInDocker,
     connectionToMySQL,
     connectionToOracleDB,
+    connectionToOracleDBSchema,
   };
 }
