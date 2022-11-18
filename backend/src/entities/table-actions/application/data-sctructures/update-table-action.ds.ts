@@ -5,4 +5,5 @@ export class UpdateTableActionDS {
   title: string;
   type: TableActionTypeEnum;
   url: string;
+  icon: string;
 }

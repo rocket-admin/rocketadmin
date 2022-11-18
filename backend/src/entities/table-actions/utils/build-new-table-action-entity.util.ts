@@ -7,5 +7,6 @@ export function buildNewTableActionEntity(actionData: CreateTableActionDTO | Upd
   newTableAction.title = actionData.title;
   newTableAction.type = actionData.type;
   newTableAction.url = actionData.url;
+  newTableAction.icon = actionData.icon;
   return newTableAction;
 }
