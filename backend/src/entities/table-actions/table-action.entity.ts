@@ -20,6 +20,9 @@ export class TableActionEntity {
   @Column({ default: null })
   url: string;
 
+  @Column({ default: null })
+  icon: string;
+
   @ManyToOne(() => TableSettingsEntity, (settings) => settings.table_actions, { onDelete: 'CASCADE' })
   @JoinColumn()
   settings: TableSettingsEntity;
