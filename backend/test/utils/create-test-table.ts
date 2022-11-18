@@ -117,7 +117,7 @@ export async function createTestOracleTable(
   const pColumnName = 'id';
   const testTableColumnName = 'name';
   const testTableSecondColumnName = 'email';
-
+  const { shema, username } = connectionParams;
   const testTableName = getRandomTestTableName().toUpperCase();
   const Knex = getTestKnex(connectionParams);
   await Knex.schema.dropTableIfExists(testTableName);
@@ -132,26 +132,52 @@ export async function createTestOracleTable(
     t.primary([pColumnName], primaryKeyConstraintName);
   });
   let counter = 0;
-  for (let i = 0; i < testEntitiesSeedsCount; i++) {
-    if (i === 0 || i === testEntitiesSeedsCount - 21 || i === testEntitiesSeedsCount - 5) {
-      await Knex(testTableName).insert({
-        [pColumnName]: ++counter,
-        [testTableColumnName]: testSearchedUserName,
-        [testTableSecondColumnName]: faker.internet.email(),
-        created_at: new Date(),
-        updated_at: new Date(),
-      });
-    } else {
-      await Knex(testTableName).insert({
-        [pColumnName]: ++counter,
-        [testTableColumnName]: faker.name.firstName(),
-        [testTableSecondColumnName]: faker.internet.email(),
-        created_at: new Date(),
-        updated_at: new Date(),
-      });
+
+  if (shema) {
+    for (let i = 0; i < testEntitiesSeedsCount; i++) {
+      if (i === 0 || i === testEntitiesSeedsCount - 21 || i === testEntitiesSeedsCount - 5) {
+        await Knex(testTableName)
+          .withSchema(username.toUpperCase())
+          .insert({
+            [pColumnName]: ++counter,
+            [testTableColumnName]: testSearchedUserName,
+            [testTableSecondColumnName]: faker.internet.email(),
+            created_at: new Date(),
+            updated_at: new Date(),
+          });
+      } else {
+        await Knex(testTableName)
+          .withSchema(username.toUpperCase())
+          .insert({
+            [pColumnName]: ++counter,
+            [testTableColumnName]: faker.name.firstName(),
+            [testTableSecondColumnName]: faker.internet.email(),
+            created_at: new Date(),
+            updated_at: new Date(),
+          });
+      }
+    }
+  } else {
+    for (let i = 0; i < testEntitiesSeedsCount; i++) {
+      if (i === 0 || i === testEntitiesSeedsCount - 21 || i === testEntitiesSeedsCount - 5) {
+        await Knex(testTableName).insert({
+          [pColumnName]: ++counter,
+          [testTableColumnName]: testSearchedUserName,
+          [testTableSecondColumnName]: faker.internet.email(),
+          created_at: new Date(),
+          updated_at: new Date(),
+        });
+      } else {
+        await Knex(testTableName).insert({
+          [pColumnName]: ++counter,
+          [testTableColumnName]: faker.name.firstName(),
+          [testTableSecondColumnName]: faker.internet.email(),
+          created_at: new Date(),
+          updated_at: new Date(),
+        });
+      }
     }
   }
-
   return {
     testTableName: testTableName,
     testTableColumnName: testTableColumnName,
