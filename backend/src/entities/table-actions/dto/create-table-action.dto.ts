@@ -13,4 +13,7 @@ export class CreateTableActionDTO {
 
   @ApiProperty()
   tableName: string;
+
+  @ApiProperty()
+  icon: string;
 }

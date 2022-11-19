@@ -1,4 +1,6 @@
-export function getTestData(mockFactory) {
+import { MockFactory } from '../mock.factory';
+
+export function getTestData(mockFactory: MockFactory) {
   const newConnection = mockFactory.generateConnectionToTestPostgresDBInDocker();
   const newEncryptedConnection = mockFactory.generateCreateEncryptedInternalConnectionDto();
   const newConnection2 = mockFactory.generateCreateConnectionDto2();
@@ -9,6 +11,9 @@ export function getTestData(mockFactory) {
   const newConnectionInDocker = mockFactory.generateCreateInternalConnectionDto();
   const connectionToTestMSSQL = mockFactory.generateConnectionToTestMsSQlDBInDocker();
   const connectionToTestMSSQLSchemaInDocker = mockFactory.generateConnectionToTestSchemaMsSQlDBInDocker();
+  const connectionToMySQL = mockFactory.generateConnectionToTestMySQLDBInDocker();
+  const connectionToOracleDB = mockFactory.generateConnectionToTestOracleDBInDocker();
+  const connectionToOracleDBSchema = mockFactory.generateConnectionToSchemaOracleDBInDocker();
   return {
     newConnection,
     newEncryptedConnection,
@@ -20,5 +25,8 @@ export function getTestData(mockFactory) {
     newConnectionInDocker,
     connectionToTestMSSQL,
     connectionToTestMSSQLSchemaInDocker,
+    connectionToMySQL,
+    connectionToOracleDB,
+    connectionToOracleDBSchema,
   };
 }

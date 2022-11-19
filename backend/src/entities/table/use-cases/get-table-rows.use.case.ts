@@ -71,6 +71,7 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
         tableWidgets,
         tableCustomFields,
         userTablePermissions,
+        tableActions,
         /* eslint-enable */
       ] = await Promise.all([
         this._dbContext.tableSettingsRepository.findTableSettings(connectionId, tableName),
@@ -80,6 +81,7 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
         this._dbContext.tableWidgetsRepository.findTableWidgets(connectionId, tableName),
         this._dbContext.customFieldsRepository.getCustomFields(connectionId, tableName),
         this._dbContext.userAccessRepository.getUserTablePermissions(userId, connectionId, tableName, masterPwd),
+        this._dbContext.tableActionRepository.findTableActions(connectionId, tableName),
       ]);
 
       const filteringFields = findFilteringFieldsUtil(query, tableStructure);
@@ -155,6 +157,7 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
         identity_column: tableSettings.identity_column ? tableSettings.identity_column : null,
         table_permissions: userTablePermissions,
         list_fields: tableSettings.list_fields?.length > 0 ? tableSettings.list_fields : [],
+        table_actions: tableActions,
       };
       let identities = [];
 
