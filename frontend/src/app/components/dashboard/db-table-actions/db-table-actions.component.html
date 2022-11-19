@@ -1,0 +1,81 @@
+<app-alert></app-alert>
+<app-content-loader *ngIf="!actions"></app-content-loader>
+
+<div *ngIf="actions" class="wrapper">
+    <header class="header">
+        <app-breadcrumbs [crumbs]="getCrumbs(currentConnection.title)" class="row-breadcrumbs"></app-breadcrumbs>
+
+        <div *ngIf="actions.length" class="header-actions">
+            <button  mat-stroked-button
+                type="button"
+                (click)="openClearAllActions()">
+                Clear All
+            </button>
+            <button mat-stroked-button color="accent"
+                type="button"
+                (click)="addNewAction()">
+                <mat-icon>add</mat-icon>
+                Add action
+            </button>
+        </div>
+
+    </header>
+
+    <form *ngIf="actions.length; else emptyState" (ngSubmit)="updateActions()" class="widget-settings">
+        <ng-container *ngFor="let action of actions; let i = index">
+
+            <mat-form-field appearance="outline">
+                <mat-label>Action name</mat-label>
+                <input matInput [(ngModel)]="action.title" name="{{i}}-field-new-name">
+                <!-- <mat-error *ngIf="username.errors?.required && (username.invalid && username.touched)">Username should not be empty.</mat-error> -->
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+                <mat-label>Action URL</mat-label>
+                <textarea matInput [(ngModel)]="action.url" name="{{i}}-field-description"></textarea>
+                <!-- <mat-error *ngIf="sslCert.errors?.required && (sslCert.invalid && sslCert.touched)">SSL certificate should not be empty.</mat-error> -->
+            </mat-form-field>
+
+            <button mat-icon-button type="button" class="widget-delete-button"
+                matTooltip="Delete widget"
+                (click)="openDeleteActionDialog(i)">
+                <mat-icon>delete_outline</mat-icon>
+            </button>
+        </ng-container>
+
+
+        <div class="actions">
+            <a mat-stroked-button routerLink="/dashboard/{{connectionID}}/{{tableName}}">
+                Back
+            </a>
+
+            <button mat-raised-button color="primary"
+                type="submit" [disabled]="submitting">
+                Save
+            </button>
+        </div>
+    </form>
+
+    <ng-template #emptyState>
+        <div class="empty-state">
+            <p class="empty-state__text">No actions added</p>
+            <button mat-flat-button
+                color="accent"
+                (click)="addNewAction()">
+                <mat-icon>add</mat-icon>
+                Add action
+            </button>
+
+            <div class="actions">
+                <a mat-stroked-button routerLink="/dashboard/{{connectionID}}/{{tableName}}">
+                    Back
+                </a>
+
+                <button mat-raised-button color="primary"
+                    type="submit" disabled>
+                    Save
+                </button>
+            </div>
+        </div>
+    </ng-template>
+</div>

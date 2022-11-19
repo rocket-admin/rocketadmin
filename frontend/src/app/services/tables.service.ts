@@ -280,4 +280,26 @@ export class TablesService {
         })
       );
   }
+
+  fetchActions(connectionID: string, tableName: string) {
+    return this._http.get<any>(`/table/actions/${connectionID}`, {
+      params: {
+        tableName
+      }
+    })
+      .pipe(
+        map(res => res),
+        catchError((err) => {
+          console.log(err);
+          this._notifications.showAlert(AlertType.Error, err.error.message, [
+            {
+              type: AlertActionType.Button,
+              caption: 'Dismiss',
+              action: (id: number) => this._notifications.dismissAlert()
+            }
+          ]);
+          return EMPTY;
+        })
+      );
+  }
 }

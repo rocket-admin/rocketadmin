@@ -26,6 +26,7 @@ import { UserSettingsComponent } from './components/user-settings/user-settings.
 import { UsersComponent } from './components/users/users.component';
 import { NewVersionComponent } from './components/new-version/new-version.component';
 import { UserDeletedSuccessComponent } from './components/user-deleted-success/user-deleted-success.component';
+import { DbTableActionsComponent } from './components/dashboard/db-table-actions/db-table-actions.component';
 
 const routes: Routes = [
   {path: '', redirectTo: '/connections-list', pathMatch: 'full'},
@@ -56,6 +57,7 @@ const routes: Routes = [
   {path: 'dashboard/:connection-id/:table-name/entry', pathMatch: 'full', component: DbTableRowEditComponent, canActivate: [AuthGuard]},
   {path: 'dashboard/:connection-id/:table-name/widgets', pathMatch: 'full', component: DbTableWidgetsComponent, canActivate: [AuthGuard]},
   {path: 'dashboard/:connection-id/:table-name/settings', pathMatch: 'full', component: DbTableSettingsComponent, canActivate: [AuthGuard]},
+  {path: 'dashboard/:connection-id/:table-name/actions', pathMatch: 'full', component: DbTableActionsComponent, canActivate: [AuthGuard]},
   {path: 'users/:connection-id', component: UsersComponent, canActivate: [AuthGuard]},
   {path: 'api/group/user/verify/:verification-token', component: GroupUserVerificationComponent},
   {path: '**', component: PageNotFoundComponent},
