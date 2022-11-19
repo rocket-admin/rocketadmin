@@ -8,30 +8,60 @@
     display: none;
 }
 
-.search-input {
-    margin-top: -12px;
-    min-width: 220px;
-}
-
 .db-table-header {
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    margin-top: 16px;
     width: 100%;
 }
 
 .db-table-title {
+    flex-grow: 50;
     display: flex;
     align-items: center;
+    margin-right: auto;
+    z-index: 1;
 }
 
 .db-table-title .mat-h2 {
     margin-bottom: 0;
 }
 
+.search-input {
+    margin-top: -24px;
+    min-width: 220px;
+}
+
 .db-table-actions {
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 4px;
+}
+
+.actions {
     display: flex;
     align-items: center;
     gap: 4px;
+    margin-top: -16px;
+}
+
+.action_active {
+    position: relative;
+}
+
+.action_active::after {
+    content: '';
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    display: block;
+    background: rgba(0, 0, 0, 0.87);
+    border-radius: 50%;
+    height: 6px;
+    width: 6px;
 }
 
 .db-table-manage-columns-button {
