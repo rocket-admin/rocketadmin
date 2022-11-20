@@ -87,8 +87,8 @@ export class UpdateRowInTableUseCase
       );
     }
 
-    const validationErrors = validateTableRowUtil(row, tableStructure);
-    errors = errors.concat(validationErrors);
+    // const validationErrors = validateTableRowUtil(row, tableStructure);
+    // errors = errors.concat(validationErrors);
     if (errors.length > 0) {
       throw new HttpException(
         {
@@ -149,6 +149,9 @@ export class UpdateRowInTableUseCase
         HttpStatus.BAD_REQUEST,
       );
     }
+    const oldRowDataLog = {
+      ...oldRowData,
+    }
     const futureRowData = Object.assign(oldRowData, row);
     const futurePrimaryKey = {};
     for (const primaryColumn of tablePrimaryKeys) {
@@ -188,7 +191,7 @@ export class UpdateRowInTableUseCase
         operationType: LogOperationTypeEnum.updateRow,
         operationStatusResult: operationResult,
         row: row,
-        old_data: oldRowData,
+        old_data: oldRowDataLog,
       };
       await this.tableLogsService.crateAndSaveNewLogUtil(logRecord);
       const isTest = isTestConnectionUtil(connection);
