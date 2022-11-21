@@ -55,6 +55,7 @@ services:
       - 9002:5432
     environment:
       POSTGRES_PASSWORD: 123
+    command: postgres -c 'max_connections=300'  
 
   postgres:
     image: postgres
