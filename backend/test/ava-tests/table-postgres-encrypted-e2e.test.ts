@@ -44,7 +44,7 @@ test.before(async () => {
 
 test.after.always('Close app connection', async () => {
   try {
-    // await Cacher.clearAllCache();
+    await Cacher.clearAllCache();
     await app.close();
   } catch (e) {
     console.error('After custom field error: ' + e);
