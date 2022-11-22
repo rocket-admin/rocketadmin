@@ -8,6 +8,9 @@ export class StripeUtil {
     if (process.env.NODE_ENV === 'test' || !isSaaS()) {
       return Messages.NO_STRIPE;
     }
+    if(!user.stripeId){
+      return null;
+    }
     const stripe = this.getStripe();
     const session: Stripe.BillingPortal.Session = await stripe.billingPortal.sessions.create({
       customer: user.stripeId,
