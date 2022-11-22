@@ -13,7 +13,6 @@ import { buildConnectionEntitiesFromTestDtos } from '../../user/utils/build-conn
 import { buildDefaultAdminGroups } from '../../user/utils/build-default-admin-groups';
 import { buildDefaultAdminPermissions } from '../../user/utils/build-default-admin-permissions';
 import { buildTestTableSettings } from '../../user/utils/build-test-table-settings';
-import { StripeUtil } from '../../user/utils/stripe-util';
 import { AddUserInGroupDs } from '../application/data-sctructures/add-user-in-group.ds';
 import { AddedUserInGroupDs } from '../application/data-sctructures/added-user-in-group.ds';
 import { GroupEntity } from '../group.entity';
@@ -112,10 +111,6 @@ export class AddUserInGroupUseCase
     newUser.email = email;
     newUser.isActive = false;
     let savedUser = await this._dbContext.userRepository.saveUserEntity(newUser);
-    if (savedUser && process.env.NODE_ENV !== 'test') {
-      savedUser.stripeId = await StripeUtil.createUserStripeCustomerAndReturnStripeId(savedUser.id);
-      savedUser = await this._dbContext.userRepository.saveUserEntity(newUser);
-    }
     const testConnections = Constants.getTestConnectionsArr();
     const testConnectionsEntities = buildConnectionEntitiesFromTestDtos(testConnections);
     const createdTestConnections = await Promise.all(

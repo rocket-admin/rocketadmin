@@ -2,7 +2,6 @@ import { Constants } from '../../../helpers/constants/constants';
 import { CreateUserDs } from '../application/data-structures/create-user.ds';
 import { RegisterUserDs } from '../application/data-structures/register-user-ds';
 import { UserEntity } from '../user.entity';
-import { StripeUtil } from '../utils/stripe-util';
 
 export const userCustomRepositoryExtension = {
   async createUser(userData: CreateUserDs): Promise<UserEntity> {
@@ -12,9 +11,6 @@ export const userCustomRepositoryExtension = {
     newUser.gclid = userData.gclidValue;
     newUser.connections = [];
     let savedUser = await this.save(newUser);
-    if (savedUser && process.env.NODE_ENV !== 'test') {
-      savedUser.stripeId = await StripeUtil.createUserStripeCustomerAndReturnStripeId(savedUser.id);
-    }
     savedUser = await this.save(newUser);
     return savedUser;
   },
@@ -28,9 +24,6 @@ export const userCustomRepositoryExtension = {
     newUser.name = userData.name;
     newUser.connections = [];
     let savedUser = await this.save(newUser);
-    if (savedUser && process.env.NODE_ENV !== 'test') {
-      savedUser.stripeId = await StripeUtil.createStripeCustomerAndGetIdByEmailAndId(savedUser.email, savedUser.id);
-    }
     savedUser = await this.save(newUser);
     return savedUser;
   },
