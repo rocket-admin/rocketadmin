@@ -2,10 +2,12 @@ import { isConnectionTypeAgent } from '../../../helpers';
 import { Constants } from '../../../helpers/constants/constants';
 import { Encryptor } from '../../../helpers/encryption/encryptor';
 import { TableLogsEntity } from '../../table-logs/table-logs.entity';
+import { UserEntity } from '../../user/user.entity';
 import { ConnectionEntity } from '../connection.entity';
 import { isTestConnectionUtil } from '../utils/is-test-connection-util';
+import { IConnectionRepository } from './connection.repository.interface';
 
-export const customConnectionRepositoryExtension = {
+export const customConnectionRepositoryExtension: IConnectionRepository = {
   async saveNewConnection(connection: ConnectionEntity): Promise<ConnectionEntity> {
     const savedConnection = await this.save(connection);
     if (!isConnectionTypeAgent(savedConnection.type)) {
@@ -58,6 +60,25 @@ export const customConnectionRepositoryExtension = {
     });
   },
 
+  async findAllNonTestsConnectionsWhereUserIsOwner(userId: string): Promise<Array<ConnectionEntity>> {
+    const connectionQb = this.createQueryBuilder('connection')
+      .leftJoinAndSelect('connection.author', 'author')
+      .andWhere('connection.authorId = :id', { id: userId });
+    return await connectionQb.getMany();
+  },
+
+  async findAllUsersInConnection(connectionId: string): Promise<Array<UserEntity>> {
+    const usersQb = this.manager
+      .getRepository(UserEntity)
+      .createQueryBuilder('user')
+      .leftJoinAndSelect('user.groups', 'group')
+      .leftJoinAndSelect('group.connection', 'connection')
+      .andWhere('connection.id = :connectionId', {
+        connectionId: connectionId,
+      });
+    return await usersQb.getMany();
+  },
+
   async findOneConnection(
     connectionId: string,
   ): Promise<Omit<ConnectionEntity, 'password' | 'privateSSHKey' | 'groups'> | null> {
@@ -68,7 +89,7 @@ export const customConnectionRepositoryExtension = {
     if (!connection) {
       return null;
     }
-    if(!connection.signing_key){
+    if (!connection.signing_key) {
       connection.signing_key = Encryptor.generateRandomString(40);
       await this.save(connection);
     }
@@ -86,7 +107,7 @@ export const customConnectionRepositoryExtension = {
     if (!connection) {
       return null;
     }
-    if(!connection.signing_key){
+    if (!connection.signing_key) {
       connection.signing_key = Encryptor.generateRandomString(40);
       await this.save(connection);
     }
@@ -154,6 +175,15 @@ export const customConnectionRepositoryExtension = {
     const qb = this.createQueryBuilder('connection').leftJoinAndSelect('connection.groups', 'group');
     qb.andWhere('group.id = :id', { id: groupId });
     return await qb.getOne();
+  },
+
+  async getConnectionAuthorIdByGroupInConnectionId(groupId: string): Promise<string> {
+    const connectionQb = this.createQueryBuilder('connection')
+      .leftJoinAndSelect('connection.groups', 'group')
+      .leftJoinAndSelect('connection.author', 'author')
+      .andWhere('group.id = :id', { id: groupId });
+    const connection: ConnectionEntity = await connectionQb.getOne();
+    return connection.author.id;
   },
 
   async findOneById(connectionId: string): Promise<ConnectionEntity> {

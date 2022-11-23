@@ -241,5 +241,7 @@ export const Messages = {
   SUBSCRIPTION_TYPE_INCORRECT: (type: any) =>
     `Subscription type is incorrect. Now we support subscriptions: ${enumToString(SubscriptionLevelEnum)}`,
   MAXIMUM_INVITATIONS_COUNT_REACHED: 'Sorry, the maximum number of invitations has been reached. Try again later.',
+  MAXIMUM_FREE_INVITATION_REACHED: 'Sorry, reached maximum number of users for free plan',
+  FAILED_CREATE_SUBSCRIPTION_LOG: 'Failed to create subscription log. Please contact our support team.',
   URL_INVALID: `Url is invalid`,
 };

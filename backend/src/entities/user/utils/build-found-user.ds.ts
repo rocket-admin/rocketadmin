@@ -1,4 +1,4 @@
-import { getCurrentUserSubscription } from '../../../helpers/stripe/get-current-user-subscription';
+import { getCurrentUserSubscription } from '../../stripe/stripe-helpers/get-current-user-subscription';
 import { FoundUserInGroupDs } from '../application/data-structures/found-user-in-group.ds';
 import { FoundUserDs } from '../application/data-structures/found-user.ds';
 import { UserEntity } from '../user.entity';

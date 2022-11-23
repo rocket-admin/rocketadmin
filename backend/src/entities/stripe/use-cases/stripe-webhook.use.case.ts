@@ -4,8 +4,8 @@ import AbstractUseCase from '../../../common/abstract-use.case';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface';
 import { BaseType } from '../../../common/data-injection.tokens';
 import { Messages } from '../../../exceptions/text/messages';
-import { getStripe } from '../../../helpers/stripe/get-stripe';
 import { StripeWebhookDS } from '../application/data-structures/stripe-webhook.ds';
+import { getStripe } from '../stripe-helpers/get-stripe';
 import { IStripeWebhook } from './stripe-use-cases.interface';
 
 @Injectable()
