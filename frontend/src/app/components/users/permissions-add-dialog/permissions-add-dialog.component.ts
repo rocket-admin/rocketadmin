@@ -4,6 +4,7 @@ import { UsersService } from 'src/app/services/users.service';
 import { GroupDeleteDialogComponent } from '../group-delete-dialog/group-delete-dialog.component';
 import { UserGroup, TablePermission, AccessLevel } from 'src/app/models/user';
 import { ConnectionsService } from 'src/app/services/connections.service';
+import { AlertActionType, AlertType } from 'src/app/models/alert';
 
 @Component({
   selector: 'app-permissions-add-dialog',
@@ -19,6 +20,23 @@ export class PermissionsAddDialogComponent implements OnInit {
   public tablesAccessOptions = 'select';
   public tablesAccess: TablePermission[];
   public connectionID: string;
+  public adminGroupAlert = {
+    id: 10000,
+    type: AlertType.Info,
+    message: 'Admin group permissions can\'t be changed, create a new group to configure.',
+    actions: [
+      {
+        type: AlertActionType.Button,
+        caption: 'New group',
+        action: () => this.dialogRef.close('add_group')
+      }
+    ]
+  };
+  public connectionFullAccessAlert = {
+    id: 10000,
+    type: AlertType.Info,
+    message: 'Connection full access automatically means full access to group management, view, add, edit and delete all tables\' rows.'
+  };
 
   constructor(
     @Inject(MAT_DIALOG_DATA) public group: UserGroup,
@@ -35,6 +53,8 @@ export class PermissionsAddDialogComponent implements OnInit {
         this.groupAccess = res.group.accessLevel;
         this.tablesAccess = res.tables;
         this.loading = false;
+
+        if (this.group.title === 'Admin') this.grantFullTableAccess()
       });
   }
 
@@ -45,7 +65,7 @@ export class PermissionsAddDialogComponent implements OnInit {
     table.accessLevel.edit = false;
   }
 
-  grantFullAccess() {
+  grantFullTableAccess() {
     this.tablesAccess.forEach(table => {
       table.accessLevel.add = true;
       table.accessLevel.delete = true;
@@ -63,6 +83,15 @@ export class PermissionsAddDialogComponent implements OnInit {
       table.accessLevel.readonly = false;
       table.accessLevel.visibility = false;
     });
+  }
+
+  handleConnectionAccessChange() {
+    if (this.connectionAccess === 'edit') {
+      this.groupAccess = AccessLevel.Edit;
+      this.grantFullTableAccess();
+    } else {
+      this.deselectAllTables();
+    }
   }
 
   addPermissions() {

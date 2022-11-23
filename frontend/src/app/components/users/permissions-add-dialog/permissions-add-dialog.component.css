@@ -1,8 +1,13 @@
+.mat-dialog-title {
+    margin-bottom: 12px;
+}
+
 .permissions {
     display: grid;
     grid-template-columns: auto 1fr;
     grid-gap: 12px 60px;
     align-items: center;
+    margin-top: 16px;
     margin-bottom: 8px;
 }
 
@@ -32,16 +37,27 @@
 .tables-list {
     position: relative;
     grid-column: 1 / span 2;
-    margin-top: -12px;
+    margin-top: -20px;
 }
 
 .tables-overlay {
     position: absolute;
-    background: rgba(255, 255, 255, 0.9);
+    background: rgba(255, 255, 255, 0.75);
+    box-sizing: border-box;
+    padding-top: 12px;
     width: 100%;
     height: 100%;
     z-index: 2;
     text-align: center;
+}
+
+.tables-overlay__message {
+    background: rgba(255, 255, 255, 0.9);
+    box-shadow: 0 0 8px 8px rgba(255, 255, 255, 0.9);
+    padding: 8px;
+    display: block;
+    max-width: 32%;
+    margin: 0 auto;
 }
 
 .permission-checkbox {
@@ -54,7 +70,6 @@
 
 .mat-dialog-content {
     padding-bottom: 1em;
-    padding-top: 1em;
 }
 
 .mat-dialog-actions {
