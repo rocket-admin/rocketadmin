@@ -68,6 +68,10 @@ export const customConnectionRepositoryExtension = {
     if (!connection) {
       return null;
     }
+    if(!connection.signing_key){
+      connection.signing_key = Encryptor.generateRandomString(40);
+      await this.save(connection);
+    }
     delete connection.password;
     delete connection.privateSSHKey;
     delete connection.groups;
@@ -81,6 +85,10 @@ export const customConnectionRepositoryExtension = {
     let connection = await qb.getOne();
     if (!connection) {
       return null;
+    }
+    if(!connection.signing_key){
+      connection.signing_key = Encryptor.generateRandomString(40);
+      await this.save(connection);
     }
     if (connection.masterEncryption && masterPwd) {
       connection = Encryptor.decryptConnectionCredentials(connection, masterPwd);

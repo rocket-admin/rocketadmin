@@ -1,11 +1,16 @@
-<h1 mat-dialog-title>Create permissions for <strong>{{ group.title }}</strong> group</h1>
+<h1 mat-dialog-title>Permissions for <strong>{{ group.title }}</strong> group</h1>
 <form action="" #addPermissionsForm="ngForm" (ngSubmit)="addPermissions()">
     <div mat-dialog-content>
+        <app-alert *ngIf="connectionAccess === 'edit' && group.title === 'Admin'" [alert]="adminGroupAlert"></app-alert>
+        <app-alert *ngIf="connectionAccess === 'edit' && group.title !== 'Admin'" [alert]="connectionFullAccessAlert"></app-alert>
+
         <div class="permissions">
             <h2 class="mat-subheading-1"><strong>Connection credentials</strong></h2>
             <mat-radio-group [(ngModel)]="connectionAccess" name="connection-permissions"
+                (ngModelChange)="handleConnectionAccessChange()"
                 aria-labelledby="example-radio-group-label"
-                class="permission-radio-group">
+                class="permission-radio-group"
+                [disabled]="connectionAccess === 'edit' && group.title === 'Admin'">
                 <mat-radio-button class="permission-radio-button" name="connection-none" value="none">
                     None
                 </mat-radio-button>
@@ -18,31 +23,30 @@
             </mat-radio-group>
 
             <h2 class="mat-subheading-1"><strong>User management</strong></h2>
-            <span *ngIf="connectionAccess === 'edit'; else groupAccessLevel" class="mat-body">Manage the list</span>
-            <ng-template #groupAccessLevel>
-                <mat-radio-group [(ngModel)]="groupAccess" name="users-permissions"
-                    aria-labelledby="permission-radio-group-label"
-                    class="example-radio-group">
-                    <mat-radio-button class="permission-radio-button" name="users-none" value="none">
-                        None
-                    </mat-radio-button>
-                    <mat-radio-button class="permission-radio-button" name="users-readonly" value="readonly">
-                        ReadOnly
-                    </mat-radio-button>
-                    <mat-radio-button class="permission-radio-button" name="users-full-access" value="edit">
-                        Manage the list
-                    </mat-radio-button>
-                </mat-radio-group>
-            </ng-template>
+            <mat-radio-group [(ngModel)]="groupAccess" name="users-permissions"
+                aria-labelledby="permission-radio-group-label"
+                class="example-radio-group"
+                [disabled]="connectionAccess === 'edit' || group.title === 'Admin'">
+                <mat-radio-button class="permission-radio-button" name="users-none" value="none">
+                    None
+                </mat-radio-button>
+                <mat-radio-button class="permission-radio-button" name="users-readonly" value="readonly">
+                    ReadOnly
+                </mat-radio-button>
+                <mat-radio-button class="permission-radio-button" name="users-full-access" value="edit">
+                    Manage the list
+                </mat-radio-button>
+            </mat-radio-group>
 
             <h2 class="mat-subheading-1 mat-subheading-1_tables"><strong>Tables</strong></h2>
+            <span *ngIf="connectionAccess === 'edit' || group.title === 'Admin'">Full access</span>
             <div class="tables-options">
-                <button mat-button type="button"
-                    (click)="grantFullAccess()">
+                <button mat-button type="button" *ngIf="!(connectionAccess === 'edit' || group.title === 'Admin')"
+                    (click)="grantFullTableAccess()">
                         Full access
                 </button>
 
-                <button mat-button type="button"
+                <button mat-button type="button" *ngIf="!(connectionAccess === 'edit' || group.title === 'Admin')"
                     (click)="deselectAllTables()">
                         Clear all
                 </button>
@@ -50,14 +54,7 @@
 
             <app-content-loader *ngIf="loading"></app-content-loader>
             <mat-list role="list" class="tables-list">
-                <div *ngIf="connectionAccess === 'edit'" class="tables-overlay">
-                    <span  class="mat-body-strong mat-boby-1">
-                        <strong>
-                            View all tables of database.<br/>
-                            Add, delete and edit rows.
-                        </strong>
-                    </span>
-                </div>
+                <div *ngIf="connectionAccess === 'edit'" class="tables-overlay"></div>
                 <mat-list-item role="listitem" class="table-permission-item" *ngFor="let table of tablesAccess">
                     <span mat-line>{{table.tableName}}</span>
 
@@ -102,11 +99,17 @@
             </mat-list>
         </div>
     </div>
-    <div mat-dialog-actions>
+    <div mat-dialog-actions *ngIf="group.title !== 'Admin'; else adminActions">
         <button mat-raised-button mat-dialog-close>Cancel</button>
         <button mat-raised-button color="primary"
             [disabled]="submitting || addPermissionsForm.form.invalid">
                 Update
         </button>
     </div>
+    <ng-template #adminActions>
+        <div mat-dialog-actions>
+            <button mat-raised-button mat-dialog-close>Close</button>
+        </div>
+    </ng-template>
+
 </form>

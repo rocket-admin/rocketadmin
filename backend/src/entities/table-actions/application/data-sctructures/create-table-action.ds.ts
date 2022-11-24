@@ -8,4 +8,5 @@ export class CreateTableActionDS {
   tableName: string;
   masterPwd: string;
   userId: string;
+  icon: string;
 }

@@ -66,9 +66,15 @@ export class UsersComponent implements OnInit {
   }
 
   openPermissionsDialog(group: UserGroup) {
-    this.dialog.open(PermissionsAddDialogComponent, {
+    const dialogRef = this.dialog.open(PermissionsAddDialogComponent, {
       width: '50em',
       data: group
+    })
+
+    dialogRef.afterClosed().subscribe(action => {
+      if (action === 'add_group') {
+        this.openCreateUsersGroupDialog();
+      }
     })
   }
 

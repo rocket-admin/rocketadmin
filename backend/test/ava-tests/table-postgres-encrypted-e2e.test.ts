@@ -13,7 +13,7 @@ import { Constants } from '../../src/helpers/constants/constants';
 import { DatabaseModule } from '../../src/shared/database/database.module';
 import { DatabaseService } from '../../src/shared/database/database.service';
 import { MockFactory } from '../mock.factory';
-import { createTestTableForMSSQLWithChema } from '../utils/create-test-table';
+import { createTestTable } from '../utils/create-test-table';
 import { dropTestTables } from '../utils/drop-test-tables';
 import { getTestData } from '../utils/get-test-data';
 import { registerUserAndReturnUserInfo } from '../utils/register-user-and-return-user-info';
@@ -25,6 +25,7 @@ let testUtils: TestUtils;
 const testSearchedUserName = 'Vasia';
 const testTables: Array<string> = [];
 let currentTest;
+let masterPwd = faker.internet.password();
 
 test.before(async () => {
   const moduleFixture = await Test.createTestingModule({
@@ -37,17 +38,13 @@ test.before(async () => {
   await app.init();
   app.getHttpServer().listen(0);
   testUtils = moduleFixture.get<TestUtils>(TestUtils);
+
   await testUtils.resetDb();
 });
 
 test.after.always('Close app connection', async () => {
   try {
     await Cacher.clearAllCache();
-    // const connect = await app.get(Connection);
-    // await testUtils.shutdownServer(app.getHttpAdapter());
-    // if (connect.isConnected) {
-    //   await connect.close();
-    // }
     await app.close();
   } catch (e) {
     console.error('After custom field error: ' + e);
@@ -56,8 +53,8 @@ test.after.always('Close app connection', async () => {
 
 test.after('Drop test tables', async () => {
   try {
-    const connectionToTestMSSQL = getTestData(mockFactory).connectionToTestMSSQLSchemaInDocker;
-    await dropTestTables(testTables, connectionToTestMSSQL);
+    const connectionToTestDB = getTestData(mockFactory).encryptedPostgresConnection;
+    await dropTestTables(testTables, connectionToTestDB);
   } catch (e) {}
 });
 
@@ -65,17 +62,17 @@ currentTest = 'GET /connection/tables/:slug';
 
 test(`${currentTest} should return list of tables in connection`, async (t) => {
   try {
-    const connectionToTestMSSQL = getTestData(mockFactory).connectionToTestMSSQLSchemaInDocker;
-    
+    const connectionToTestDB = getTestData(mockFactory).encryptedPostgresConnection;
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-    const { testTableName } = await createTestTableForMSSQLWithChema(connectionToTestMSSQL);
+    const { testTableName } = await createTestTable(connectionToTestDB);
 
     testTables.push(testTableName);
 
     const createConnectionResponse = await request(app.getHttpServer())
       .post('/connection')
-      .send(connectionToTestMSSQL)
+      .send(connectionToTestDB)
       .set('Cookie', firstUserToken)
+      .set('masterpwd', masterPwd)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
     const createConnectionRO = JSON.parse(createConnectionResponse.text);
@@ -84,6 +81,7 @@ test(`${currentTest} should return list of tables in connection`, async (t) => {
     const getTablesResponse = await request(app.getHttpServer())
       .get(`/connection/tables/${createConnectionRO.id}`)
       .set('Cookie', firstUserToken)
+      .set('masterpwd', masterPwd)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
     t.is(getTablesResponse.status, 200);
@@ -112,16 +110,17 @@ test(`${currentTest} should return list of tables in connection`, async (t) => {
 
 test(`${currentTest} should throw an error when connectionId not passed in request`, async (t) => {
   try {
-    const connectionToTestMSSQL = getTestData(mockFactory).connectionToTestMSSQLSchemaInDocker;
+    const connectionToTestDB = getTestData(mockFactory).encryptedPostgresConnection;
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-    const { testTableName } = await createTestTableForMSSQLWithChema(connectionToTestMSSQL);
+    const { testTableName } = await createTestTable(connectionToTestDB);
 
     testTables.push(testTableName);
 
     const createConnectionResponse = await request(app.getHttpServer())
       .post('/connection')
-      .send(connectionToTestMSSQL)
+      .send(connectionToTestDB)
       .set('Cookie', firstUserToken)
+      .set('masterpwd', masterPwd)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
     const createConnectionRO = JSON.parse(createConnectionResponse.text);
@@ -131,6 +130,7 @@ test(`${currentTest} should throw an error when connectionId not passed in reque
     const getTablesResponse = await request(app.getHttpServer())
       .get(`/connection/tables/${createConnectionRO.id}`)
       .set('Cookie', firstUserToken)
+      .set('masterpwd', masterPwd)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
     t.is(getTablesResponse.status, 404);
@@ -142,16 +142,17 @@ test(`${currentTest} should throw an error when connectionId not passed in reque
 
 test(`${currentTest} should throw an error when connection id is incorrect`, async (t) => {
   try {
-    const connectionToTestMSSQL = getTestData(mockFactory).connectionToTestMSSQLSchemaInDocker;
+    const connectionToTestDB = getTestData(mockFactory).encryptedPostgresConnection;
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-    const { testTableName } = await createTestTableForMSSQLWithChema(connectionToTestMSSQL);
+    const { testTableName } = await createTestTable(connectionToTestDB);
 
     testTables.push(testTableName);
 
     const createConnectionResponse = await request(app.getHttpServer())
       .post('/connection')
-      .send(connectionToTestMSSQL)
+      .send(connectionToTestDB)
       .set('Cookie', firstUserToken)
+      .set('masterpwd', masterPwd)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
     const createConnectionRO = JSON.parse(createConnectionResponse.text);
@@ -161,6 +162,7 @@ test(`${currentTest} should throw an error when connection id is incorrect`, asy
     const getTablesResponse = await request(app.getHttpServer())
       .get(`/connection/tables/${createConnectionRO.id}`)
       .set('Cookie', firstUserToken)
+      .set('masterpwd', masterPwd)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
     t.is(getTablesResponse.status, 400);
@@ -176,18 +178,17 @@ currentTest = 'GET /table/rows/:slug';
 
 test(`${currentTest} should return rows of selected table without search and without pagination`, async (t) => {
   try {
-    const connectionToTestMSSQL = getTestData(mockFactory).connectionToTestMSSQLSchemaInDocker;
+    const connectionToTestDB = getTestData(mockFactory).encryptedPostgresConnection;
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-    const { testTableName, testTableColumnName, testTableSecondColumnName } = await createTestTableForMSSQLWithChema(
-      connectionToTestMSSQL,
-    );
+    const { testTableName, testTableColumnName, testTableSecondColumnName } = await createTestTable(connectionToTestDB);
 
     testTables.push(testTableName);
 
     const createConnectionResponse = await request(app.getHttpServer())
       .post('/connection')
-      .send(connectionToTestMSSQL)
+      .send(connectionToTestDB)
       .set('Cookie', firstUserToken)
+      .set('masterpwd', masterPwd)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
     const createConnectionRO = JSON.parse(createConnectionResponse.text);
@@ -196,6 +197,7 @@ test(`${currentTest} should return rows of selected table without search and wit
     const getTableRowsResponse = await request(app.getHttpServer())
       .get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}`)
       .set('Cookie', firstUserToken)
+      .set('masterpwd', masterPwd)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
     t.is(getTableRowsResponse.status, 200);
@@ -224,18 +226,17 @@ test(`${currentTest} should return rows of selected table without search and wit
 
 test(`${currentTest} should return rows of selected table with search and without pagination`, async (t) => {
   try {
-    const connectionToTestMSSQL = getTestData(mockFactory).connectionToTestMSSQLSchemaInDocker;
+    const connectionToTestDB = getTestData(mockFactory).encryptedPostgresConnection;
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-    const { testTableName, testTableColumnName, testTableSecondColumnName } = await createTestTableForMSSQLWithChema(
-      connectionToTestMSSQL,
-    );
+    const { testTableName, testTableColumnName, testTableSecondColumnName } = await createTestTable(connectionToTestDB);
 
     testTables.push(testTableName);
 
     const createConnectionResponse = await request(app.getHttpServer())
       .post('/connection')
-      .send(connectionToTestMSSQL)
+      .send(connectionToTestDB)
       .set('Cookie', firstUserToken)
+      .set('masterpwd', masterPwd)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
     const createConnectionRO = JSON.parse(createConnectionResponse.text);
@@ -261,6 +262,7 @@ test(`${currentTest} should return rows of selected table with search and withou
       .post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
       .send(createTableSettingsDTO)
       .set('Cookie', firstUserToken)
+      .set('masterpwd', masterPwd)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
 
@@ -271,6 +273,7 @@ test(`${currentTest} should return rows of selected table with search and withou
     const getTableRowsResponse = await request(app.getHttpServer())
       .get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&search=${searchedDescription}`)
       .set('Cookie', firstUserToken)
+      .set('masterpwd', masterPwd)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
     t.is(getTableRowsResponse.status, 200);
@@ -298,16 +301,17 @@ test(`${currentTest} should return rows of selected table with search and withou
 
 test(`${currentTest} should return page of all rows with pagination page=1, perPage=2`, async (t) => {
   try {
-    const connectionToTestMSSQL = getTestData(mockFactory).connectionToTestMSSQLSchemaInDocker;
+    const connectionToTestDB = getTestData(mockFactory).encryptedPostgresConnection;
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-    const { testTableName, testTableColumnName } = await createTestTableForMSSQLWithChema(connectionToTestMSSQL);
+    const { testTableName, testTableColumnName } = await createTestTable(connectionToTestDB);
 
     testTables.push(testTableName);
 
     const createConnectionResponse = await request(app.getHttpServer())
       .post('/connection')
-      .send(connectionToTestMSSQL)
+      .send(connectionToTestDB)
       .set('Cookie', firstUserToken)
+      .set('masterpwd', masterPwd)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
     const createConnectionRO = JSON.parse(createConnectionResponse.text);
@@ -333,12 +337,14 @@ test(`${currentTest} should return page of all rows with pagination page=1, perP
       .post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
       .send(createTableSettingsDTO)
       .set('Cookie', firstUserToken)
+      .set('masterpwd', masterPwd)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
     t.is(createTableSettingsResponse.status, 201);
 
     const getTableRowsResponse = await request(app.getHttpServer())
       .get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=1&perPage=2`)
+      .set('masterpwd', masterPwd)
       .set('Content-Type', 'application/json')
       .set('Cookie', firstUserToken)
       .set('Accept', 'application/json');
@@ -358,7 +364,7 @@ test(`${currentTest} should return page of all rows with pagination page=1, perP
     t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('column_name'), true);
     t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('data_type'), true);
     t.is(getTableRowsRO.primaryColumns[0].column_name, 'id');
-    t.is(getTableRowsRO.primaryColumns[0].data_type, 'int');
+    t.is(getTableRowsRO.primaryColumns[0].data_type, 'integer');
 
     t.is(getTableRowsRO.pagination.total, 42);
     t.is(getTableRowsRO.pagination.lastPage, 21);
@@ -372,16 +378,17 @@ test(`${currentTest} should return page of all rows with pagination page=1, perP
 
 test(`${currentTest} should return page of all rows with pagination page=3, perPage=2`, async (t) => {
   try {
-    const connectionToTestMSSQL = getTestData(mockFactory).connectionToTestMSSQLSchemaInDocker;
+    const connectionToTestDB = getTestData(mockFactory).encryptedPostgresConnection;
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-    const { testTableName, testTableColumnName } = await createTestTableForMSSQLWithChema(connectionToTestMSSQL);
+    const { testTableName, testTableColumnName } = await createTestTable(connectionToTestDB);
 
     testTables.push(testTableName);
 
     const createConnectionResponse = await request(app.getHttpServer())
       .post('/connection')
-      .send(connectionToTestMSSQL)
+      .send(connectionToTestDB)
       .set('Cookie', firstUserToken)
+      .set('masterpwd', masterPwd)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
     const createConnectionRO = JSON.parse(createConnectionResponse.text);
@@ -407,6 +414,7 @@ test(`${currentTest} should return page of all rows with pagination page=3, perP
       .post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
       .send(createTableSettingsDTO)
       .set('Cookie', firstUserToken)
+      .set('masterpwd', masterPwd)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
     t.is(createTableSettingsResponse.status, 201);
@@ -414,6 +422,7 @@ test(`${currentTest} should return page of all rows with pagination page=3, perP
     const getTableRowsResponse = await request(app.getHttpServer())
       .get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=3&perPage=2`)
       .set('Cookie', firstUserToken)
+      .set('masterpwd', masterPwd)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
     t.is(getTableRowsResponse.status, 200);
@@ -432,7 +441,7 @@ test(`${currentTest} should return page of all rows with pagination page=3, perP
     t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('column_name'), true);
     t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('data_type'), true);
     t.is(getTableRowsRO.primaryColumns[0].column_name, 'id');
-    t.is(getTableRowsRO.primaryColumns[0].data_type, 'int');
+    t.is(getTableRowsRO.primaryColumns[0].data_type, 'integer');
 
     t.is(getTableRowsRO.pagination.total, 42);
     t.is(getTableRowsRO.pagination.lastPage, 21);
@@ -447,16 +456,17 @@ test(`${currentTest} should return page of all rows with pagination page=3, perP
 test(`${currentTest} with search, with pagination, without sorting
 should return all found rows with pagination page=1 perPage=2`, async (t) => {
   try {
-    const connectionToTestMSSQL = getTestData(mockFactory).connectionToTestMSSQLSchemaInDocker;
+    const connectionToTestDB = getTestData(mockFactory).encryptedPostgresConnection;
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-    const { testTableName, testTableColumnName } = await createTestTableForMSSQLWithChema(connectionToTestMSSQL);
+    const { testTableName, testTableColumnName } = await createTestTable(connectionToTestDB);
 
     testTables.push(testTableName);
 
     const createConnectionResponse = await request(app.getHttpServer())
       .post('/connection')
-      .send(connectionToTestMSSQL)
+      .send(connectionToTestDB)
       .set('Cookie', firstUserToken)
+      .set('masterpwd', masterPwd)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
     const createConnectionRO = JSON.parse(createConnectionResponse.text);
@@ -482,6 +492,7 @@ should return all found rows with pagination page=1 perPage=2`, async (t) => {
       .post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
       .send(createTableSettingsDTO)
       .set('Cookie', firstUserToken)
+      .set('masterpwd', masterPwd)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
     t.is(createTableSettingsResponse.status, 201);
@@ -491,6 +502,7 @@ should return all found rows with pagination page=1 perPage=2`, async (t) => {
         `/table/rows/${createConnectionRO.id}?tableName=${testTableName}&search=${testSearchedUserName}&page=1&perPage=2`,
       )
       .set('Cookie', firstUserToken)
+      .set('masterpwd', masterPwd)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
     t.is(getTableRowsResponse.status, 200);
@@ -507,7 +519,7 @@ should return all found rows with pagination page=1 perPage=2`, async (t) => {
     t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('column_name'), true);
     t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('data_type'), true);
     t.is(getTableRowsRO.primaryColumns[0].column_name, 'id');
-    t.is(getTableRowsRO.primaryColumns[0].data_type, 'int');
+    t.is(getTableRowsRO.primaryColumns[0].data_type, 'integer');
 
     t.is(getTableRowsRO.pagination.total, 3);
     t.is(getTableRowsRO.pagination.lastPage, 2);
@@ -522,16 +534,17 @@ should return all found rows with pagination page=1 perPage=2`, async (t) => {
 test(`${currentTest} with search, with pagination, without sorting
 should return all found rows with pagination page=1 perPage=3`, async (t) => {
   try {
-    const connectionToTestMSSQL = getTestData(mockFactory).connectionToTestMSSQLSchemaInDocker;
+    const connectionToTestDB = getTestData(mockFactory).encryptedPostgresConnection;
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-    const { testTableName, testTableColumnName } = await createTestTableForMSSQLWithChema(connectionToTestMSSQL);
+    const { testTableName, testTableColumnName } = await createTestTable(connectionToTestDB);
 
     testTables.push(testTableName);
 
     const createConnectionResponse = await request(app.getHttpServer())
       .post('/connection')
-      .send(connectionToTestMSSQL)
+      .send(connectionToTestDB)
       .set('Cookie', firstUserToken)
+      .set('masterpwd', masterPwd)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
     const createConnectionRO = JSON.parse(createConnectionResponse.text);
@@ -557,6 +570,7 @@ should return all found rows with pagination page=1 perPage=3`, async (t) => {
       .post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
       .send(createTableSettingsDTO)
       .set('Cookie', firstUserToken)
+      .set('masterpwd', masterPwd)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
     t.is(createTableSettingsResponse.status, 201);
@@ -566,6 +580,7 @@ should return all found rows with pagination page=1 perPage=3`, async (t) => {
         `/table/rows/${createConnectionRO.id}?tableName=${testTableName}&search=${testSearchedUserName}&page=1&perPage=2`,
       )
       .set('Cookie', firstUserToken)
+      .set('masterpwd', masterPwd)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
     t.is(getTableRowsResponse.status, 200);
@@ -582,7 +597,7 @@ should return all found rows with pagination page=1 perPage=3`, async (t) => {
     t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('column_name'), true);
     t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('data_type'), true);
     t.is(getTableRowsRO.primaryColumns[0].column_name, 'id');
-    t.is(getTableRowsRO.primaryColumns[0].data_type, 'int');
+    t.is(getTableRowsRO.primaryColumns[0].data_type, 'integer');
 
     t.is(getTableRowsRO.pagination.total, 3);
     t.is(getTableRowsRO.pagination.lastPage, 2);
@@ -597,16 +612,17 @@ should return all found rows with pagination page=1 perPage=3`, async (t) => {
 test(`${currentTest} without search and without pagination and with sorting
 should return all found rows with sorting ids by DESC`, async (t) => {
   try {
-    const connectionToTestMSSQL = getTestData(mockFactory).connectionToTestMSSQLSchemaInDocker;
+    const connectionToTestDB = getTestData(mockFactory).encryptedPostgresConnection;
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-    const { testTableName, testTableColumnName } = await createTestTableForMSSQLWithChema(connectionToTestMSSQL);
+    const { testTableName, testTableColumnName } = await createTestTable(connectionToTestDB);
 
     testTables.push(testTableName);
 
     const createConnectionResponse = await request(app.getHttpServer())
       .post('/connection')
-      .send(connectionToTestMSSQL)
+      .send(connectionToTestDB)
       .set('Cookie', firstUserToken)
+      .set('masterpwd', masterPwd)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
     const createConnectionRO = JSON.parse(createConnectionResponse.text);
@@ -632,6 +648,7 @@ should return all found rows with sorting ids by DESC`, async (t) => {
       .post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
       .send(createTableSettingsDTO)
       .set('Cookie', firstUserToken)
+      .set('masterpwd', masterPwd)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
     t.is(createTableSettingsResponse.status, 201);
@@ -639,6 +656,7 @@ should return all found rows with sorting ids by DESC`, async (t) => {
     const getTableRowsResponse = await request(app.getHttpServer())
       .get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}`)
       .set('Cookie', firstUserToken)
+      .set('masterpwd', masterPwd)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
     t.is(getTableRowsResponse.status, 200);
@@ -666,16 +684,17 @@ should return all found rows with sorting ids by DESC`, async (t) => {
 test(`${currentTest} without search and without pagination and with sorting
 should return all found rows with sorting ids by ASC`, async (t) => {
   try {
-    const connectionToTestMSSQL = getTestData(mockFactory).connectionToTestMSSQLSchemaInDocker;
+    const connectionToTestDB = getTestData(mockFactory).encryptedPostgresConnection;
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-    const { testTableName, testTableColumnName } = await createTestTableForMSSQLWithChema(connectionToTestMSSQL);
+    const { testTableName, testTableColumnName } = await createTestTable(connectionToTestDB);
 
     testTables.push(testTableName);
 
     const createConnectionResponse = await request(app.getHttpServer())
       .post('/connection')
-      .send(connectionToTestMSSQL)
+      .send(connectionToTestDB)
       .set('Cookie', firstUserToken)
+      .set('masterpwd', masterPwd)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
     const createConnectionRO = JSON.parse(createConnectionResponse.text);
@@ -701,6 +720,7 @@ should return all found rows with sorting ids by ASC`, async (t) => {
       .post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
       .send(createTableSettingsDTO)
       .set('Cookie', firstUserToken)
+      .set('masterpwd', masterPwd)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
     t.is(createTableSettingsResponse.status, 201);
@@ -708,6 +728,7 @@ should return all found rows with sorting ids by ASC`, async (t) => {
     const getTableRowsResponse = await request(app.getHttpServer())
       .get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}`)
       .set('Cookie', firstUserToken)
+      .set('masterpwd', masterPwd)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
     t.is(getTableRowsResponse.status, 200);
@@ -735,16 +756,17 @@ should return all found rows with sorting ids by ASC`, async (t) => {
 test(`${currentTest} without search and with pagination and with sorting
 should return all found rows with sorting ports by DESC and with pagination page=1, perPage=2`, async (t) => {
   try {
-    const connectionToTestMSSQL = getTestData(mockFactory).connectionToTestMSSQLSchemaInDocker;
+    const connectionToTestDB = getTestData(mockFactory).encryptedPostgresConnection;
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-    const { testTableName, testTableColumnName } = await createTestTableForMSSQLWithChema(connectionToTestMSSQL);
+    const { testTableName, testTableColumnName } = await createTestTable(connectionToTestDB);
 
     testTables.push(testTableName);
 
     const createConnectionResponse = await request(app.getHttpServer())
       .post('/connection')
-      .send(connectionToTestMSSQL)
+      .send(connectionToTestDB)
       .set('Cookie', firstUserToken)
+      .set('masterpwd', masterPwd)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
     const createConnectionRO = JSON.parse(createConnectionResponse.text);
@@ -770,6 +792,7 @@ should return all found rows with sorting ports by DESC and with pagination page
       .post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
       .send(createTableSettingsDTO)
       .set('Cookie', firstUserToken)
+      .set('masterpwd', masterPwd)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
     t.is(createTableSettingsResponse.status, 201);
@@ -777,6 +800,7 @@ should return all found rows with sorting ports by DESC and with pagination page
     const getTableRowsResponse = await request(app.getHttpServer())
       .get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=1&perPage=2`)
       .set('Cookie', firstUserToken)
+      .set('masterpwd', masterPwd)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
     t.is(getTableRowsResponse.status, 200);
@@ -803,16 +827,17 @@ should return all found rows with sorting ports by DESC and with pagination page
 
 test(`${currentTest} should return all found rows with sorting ports by ASC and with pagination page=1, perPage=2`, async (t) => {
   try {
-    const connectionToTestMSSQL = getTestData(mockFactory).connectionToTestMSSQLSchemaInDocker;
+    const connectionToTestDB = getTestData(mockFactory).encryptedPostgresConnection;
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-    const { testTableName, testTableColumnName } = await createTestTableForMSSQLWithChema(connectionToTestMSSQL);
+    const { testTableName, testTableColumnName } = await createTestTable(connectionToTestDB);
 
     testTables.push(testTableName);
 
     const createConnectionResponse = await request(app.getHttpServer())
       .post('/connection')
-      .send(connectionToTestMSSQL)
+      .send(connectionToTestDB)
       .set('Cookie', firstUserToken)
+      .set('masterpwd', masterPwd)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
     const createConnectionRO = JSON.parse(createConnectionResponse.text);
@@ -838,6 +863,7 @@ test(`${currentTest} should return all found rows with sorting ports by ASC and 
       .post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
       .send(createTableSettingsDTO)
       .set('Cookie', firstUserToken)
+      .set('masterpwd', masterPwd)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
     t.is(createTableSettingsResponse.status, 201);
@@ -845,6 +871,7 @@ test(`${currentTest} should return all found rows with sorting ports by ASC and 
     const getTableRowsResponse = await request(app.getHttpServer())
       .get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=1&perPage=2`)
       .set('Cookie', firstUserToken)
+      .set('masterpwd', masterPwd)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
     t.is(getTableRowsResponse.status, 200);
@@ -871,16 +898,17 @@ test(`${currentTest} should return all found rows with sorting ports by ASC and 
 
 test(`${currentTest} should return all found rows with sorting ports by DESC and with pagination page=2, perPage=3`, async (t) => {
   try {
-    const connectionToTestMSSQL = getTestData(mockFactory).connectionToTestMSSQLSchemaInDocker;
+    const connectionToTestDB = getTestData(mockFactory).encryptedPostgresConnection;
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-    const { testTableName, testTableColumnName } = await createTestTableForMSSQLWithChema(connectionToTestMSSQL);
+    const { testTableName, testTableColumnName } = await createTestTable(connectionToTestDB);
 
     testTables.push(testTableName);
 
     const createConnectionResponse = await request(app.getHttpServer())
       .post('/connection')
-      .send(connectionToTestMSSQL)
+      .send(connectionToTestDB)
       .set('Cookie', firstUserToken)
+      .set('masterpwd', masterPwd)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
     const createConnectionRO = JSON.parse(createConnectionResponse.text);
@@ -906,6 +934,7 @@ test(`${currentTest} should return all found rows with sorting ports by DESC and
       .post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
       .send(createTableSettingsDTO)
       .set('Cookie', firstUserToken)
+      .set('masterpwd', masterPwd)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
     t.is(createTableSettingsResponse.status, 201);
@@ -913,6 +942,7 @@ test(`${currentTest} should return all found rows with sorting ports by DESC and
     const getTableRowsResponse = await request(app.getHttpServer())
       .get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=2&perPage=3`)
       .set('Cookie', firstUserToken)
+      .set('masterpwd', masterPwd)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
     t.is(getTableRowsResponse.status, 200);
@@ -940,16 +970,17 @@ test(`${currentTest} should return all found rows with sorting ports by DESC and
 test(`${currentTest} with search, with pagination and with sorting
 should return all found rows with search, pagination: page=1, perPage=2 and DESC sorting`, async (t) => {
   try {
-    const connectionToTestMSSQL = getTestData(mockFactory).connectionToTestMSSQLSchemaInDocker;
+    const connectionToTestDB = getTestData(mockFactory).encryptedPostgresConnection;
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-    const { testTableName, testTableColumnName } = await createTestTableForMSSQLWithChema(connectionToTestMSSQL);
+    const { testTableName, testTableColumnName } = await createTestTable(connectionToTestDB);
 
     testTables.push(testTableName);
 
     const createConnectionResponse = await request(app.getHttpServer())
       .post('/connection')
-      .send(connectionToTestMSSQL)
+      .send(connectionToTestDB)
       .set('Cookie', firstUserToken)
+      .set('masterpwd', masterPwd)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
     const createConnectionRO = JSON.parse(createConnectionResponse.text);
@@ -975,6 +1006,7 @@ should return all found rows with search, pagination: page=1, perPage=2 and DESC
       .post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
       .send(createTableSettingsDTO)
       .set('Cookie', firstUserToken)
+      .set('masterpwd', masterPwd)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
     t.is(createTableSettingsResponse.status, 201);
@@ -984,6 +1016,7 @@ should return all found rows with search, pagination: page=1, perPage=2 and DESC
         `/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=1&perPage=2&search=${testSearchedUserName}`,
       )
       .set('Cookie', firstUserToken)
+      .set('masterpwd', masterPwd)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
     t.is(getTableRowsResponse.status, 200);
@@ -1013,16 +1046,17 @@ should return all found rows with search, pagination: page=1, perPage=2 and DESC
 test(`${currentTest} with search, with pagination and with sorting
 should return all found rows with search, pagination: page=2, perPage=2 and DESC sorting`, async (t) => {
   try {
-    const connectionToTestMSSQL = getTestData(mockFactory).connectionToTestMSSQLSchemaInDocker;
+    const connectionToTestDB = getTestData(mockFactory).encryptedPostgresConnection;
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-    const { testTableName, testTableColumnName } = await createTestTableForMSSQLWithChema(connectionToTestMSSQL);
+    const { testTableName, testTableColumnName } = await createTestTable(connectionToTestDB);
 
     testTables.push(testTableName);
 
     const createConnectionResponse = await request(app.getHttpServer())
       .post('/connection')
-      .send(connectionToTestMSSQL)
+      .send(connectionToTestDB)
       .set('Cookie', firstUserToken)
+      .set('masterpwd', masterPwd)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
     const createConnectionRO = JSON.parse(createConnectionResponse.text);
@@ -1048,6 +1082,7 @@ should return all found rows with search, pagination: page=2, perPage=2 and DESC
       .post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
       .send(createTableSettingsDTO)
       .set('Cookie', firstUserToken)
+      .set('masterpwd', masterPwd)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
     t.is(createTableSettingsResponse.status, 201);
@@ -1057,6 +1092,7 @@ should return all found rows with search, pagination: page=2, perPage=2 and DESC
         `/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=2&perPage=2&search=${testSearchedUserName}`,
       )
       .set('Cookie', firstUserToken)
+      .set('masterpwd', masterPwd)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
     t.is(getTableRowsResponse.status, 200);
@@ -1085,16 +1121,17 @@ should return all found rows with search, pagination: page=2, perPage=2 and DESC
 test(`${currentTest} with search, with pagination and with sorting
 should return all found rows with search, pagination: page=1, perPage=2 and ASC sorting`, async (t) => {
   try {
-    const connectionToTestMSSQL = getTestData(mockFactory).connectionToTestMSSQLSchemaInDocker;
+    const connectionToTestDB = getTestData(mockFactory).encryptedPostgresConnection;
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-    const { testTableName, testTableColumnName } = await createTestTableForMSSQLWithChema(connectionToTestMSSQL);
+    const { testTableName, testTableColumnName } = await createTestTable(connectionToTestDB);
 
     testTables.push(testTableName);
 
     const createConnectionResponse = await request(app.getHttpServer())
       .post('/connection')
-      .send(connectionToTestMSSQL)
+      .send(connectionToTestDB)
       .set('Cookie', firstUserToken)
+      .set('masterpwd', masterPwd)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
     const createConnectionRO = JSON.parse(createConnectionResponse.text);
@@ -1119,6 +1156,7 @@ should return all found rows with search, pagination: page=1, perPage=2 and ASC 
       .post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
       .send(createTableSettingsDTO)
       .set('Cookie', firstUserToken)
+      .set('masterpwd', masterPwd)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
     t.is(createTableSettingsResponse.status, 201);
@@ -1128,6 +1166,7 @@ should return all found rows with search, pagination: page=1, perPage=2 and ASC 
         `/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=1&perPage=2&search=${testSearchedUserName}`,
       )
       .set('Cookie', firstUserToken)
+      .set('masterpwd', masterPwd)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
 
@@ -1158,16 +1197,17 @@ should return all found rows with search, pagination: page=1, perPage=2 and ASC 
 test(`${currentTest} with search, with pagination and with sorting
 should return all found rows with search, pagination: page=2, perPage=2 and ASC sorting`, async (t) => {
   try {
-    const connectionToTestMSSQL = getTestData(mockFactory).connectionToTestMSSQLSchemaInDocker;
+    const connectionToTestDB = getTestData(mockFactory).encryptedPostgresConnection;
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-    const { testTableName, testTableColumnName } = await createTestTableForMSSQLWithChema(connectionToTestMSSQL);
+    const { testTableName, testTableColumnName } = await createTestTable(connectionToTestDB);
 
     testTables.push(testTableName);
 
     const createConnectionResponse = await request(app.getHttpServer())
       .post('/connection')
-      .send(connectionToTestMSSQL)
+      .send(connectionToTestDB)
       .set('Cookie', firstUserToken)
+      .set('masterpwd', masterPwd)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
     const createConnectionRO = JSON.parse(createConnectionResponse.text);
@@ -1193,6 +1233,7 @@ should return all found rows with search, pagination: page=2, perPage=2 and ASC 
       .post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
       .send(createTableSettingsDTO)
       .set('Cookie', firstUserToken)
+      .set('masterpwd', masterPwd)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
     t.is(createTableSettingsResponse.status, 201);
@@ -1202,6 +1243,7 @@ should return all found rows with search, pagination: page=2, perPage=2 and ASC 
         `/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=2&perPage=2&search=${testSearchedUserName}`,
       )
       .set('Cookie', firstUserToken)
+      .set('masterpwd', masterPwd)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
     t.is(getTableRowsResponse.status, 200);
@@ -1230,16 +1272,17 @@ should return all found rows with search, pagination: page=2, perPage=2 and ASC 
 test(`${currentTest} with search, with pagination, with sorting and with filtering
 should return all found rows with search, pagination: page=1, perPage=2 and DESC sorting and filtering`, async (t) => {
   try {
-    const connectionToTestMSSQL = getTestData(mockFactory).connectionToTestMSSQLSchemaInDocker;
+    const connectionToTestDB = getTestData(mockFactory).encryptedPostgresConnection;
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-    const { testTableName, testTableColumnName } = await createTestTableForMSSQLWithChema(connectionToTestMSSQL);
+    const { testTableName, testTableColumnName } = await createTestTable(connectionToTestDB);
 
     testTables.push(testTableName);
 
     const createConnectionResponse = await request(app.getHttpServer())
       .post('/connection')
-      .send(connectionToTestMSSQL)
+      .send(connectionToTestDB)
       .set('Cookie', firstUserToken)
+      .set('masterpwd', masterPwd)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
     const createConnectionRO = JSON.parse(createConnectionResponse.text);
@@ -1265,6 +1308,7 @@ should return all found rows with search, pagination: page=1, perPage=2 and DESC
       .post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
       .send(createTableSettingsDTO)
       .set('Cookie', firstUserToken)
+      .set('masterpwd', masterPwd)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
     t.is(createTableSettingsResponse.status, 201);
@@ -1277,6 +1321,7 @@ should return all found rows with search, pagination: page=1, perPage=2 and DESC
         `/table/rows/${createConnectionRO.id}?tableName=${testTableName}&search=${testSearchedUserName}&page=1&perPage=2&f_${fieldname}__lt=${fieldvalue}`,
       )
       .set('Cookie', firstUserToken)
+      .set('masterpwd', masterPwd)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
     t.is(getTableRowsResponse.status, 200);
@@ -1309,16 +1354,17 @@ should return all found rows with search, pagination: page=1, perPage=2 and DESC
 test(`${currentTest} with search, with pagination, with sorting and with filtering
 should return all found rows with search, pagination: page=1, perPage=10 and DESC sorting and filtering'`, async (t) => {
   try {
-    const connectionToTestMSSQL = getTestData(mockFactory).connectionToTestMSSQLSchemaInDocker;
+    const connectionToTestDB = getTestData(mockFactory).encryptedPostgresConnection;
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-    const { testTableName, testTableColumnName } = await createTestTableForMSSQLWithChema(connectionToTestMSSQL);
+    const { testTableName, testTableColumnName } = await createTestTable(connectionToTestDB);
 
     testTables.push(testTableName);
 
     const createConnectionResponse = await request(app.getHttpServer())
       .post('/connection')
-      .send(connectionToTestMSSQL)
+      .send(connectionToTestDB)
       .set('Cookie', firstUserToken)
+      .set('masterpwd', masterPwd)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
     const createConnectionRO = JSON.parse(createConnectionResponse.text);
@@ -1344,6 +1390,7 @@ should return all found rows with search, pagination: page=1, perPage=10 and DES
       .post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
       .send(createTableSettingsDTO)
       .set('Cookie', firstUserToken)
+      .set('masterpwd', masterPwd)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
     t.is(createTableSettingsResponse.status, 201);
@@ -1355,6 +1402,7 @@ should return all found rows with search, pagination: page=1, perPage=10 and DES
         `/table/rows/${createConnectionRO.id}?tableName=${testTableName}&search=${testSearchedUserName}&page=1&perPage=10&f_${fieldname}__lt=${fieldvalue}`,
       )
       .set('Cookie', firstUserToken)
+      .set('masterpwd', masterPwd)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
     t.is(getTableRowsResponse.status, 200);
@@ -1389,16 +1437,17 @@ should return all found rows with search, pagination: page=1, perPage=10 and DES
 test(`${currentTest} with search, with pagination, with sorting and with filtering
 should return all found rows with search, pagination: page=2, perPage=2 and DESC sorting and filtering`, async (t) => {
   try {
-    const connectionToTestMSSQL = getTestData(mockFactory).connectionToTestMSSQLSchemaInDocker;
+    const connectionToTestDB = getTestData(mockFactory).encryptedPostgresConnection;
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-    const { testTableName, testTableColumnName } = await createTestTableForMSSQLWithChema(connectionToTestMSSQL);
+    const { testTableName, testTableColumnName } = await createTestTable(connectionToTestDB);
 
     testTables.push(testTableName);
 
     const createConnectionResponse = await request(app.getHttpServer())
       .post('/connection')
-      .send(connectionToTestMSSQL)
+      .send(connectionToTestDB)
       .set('Cookie', firstUserToken)
+      .set('masterpwd', masterPwd)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
     const createConnectionRO = JSON.parse(createConnectionResponse.text);
@@ -1424,6 +1473,7 @@ should return all found rows with search, pagination: page=2, perPage=2 and DESC
       .post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
       .send(createTableSettingsDTO)
       .set('Cookie', firstUserToken)
+      .set('masterpwd', masterPwd)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
     t.is(createTableSettingsResponse.status, 201);
@@ -1435,6 +1485,7 @@ should return all found rows with search, pagination: page=2, perPage=2 and DESC
         `/table/rows/${createConnectionRO.id}?tableName=${testTableName}&search=${testSearchedUserName}&page=2&perPage=2&f_${fieldname}__lt=${fieldvalue}`,
       )
       .set('Cookie', firstUserToken)
+      .set('masterpwd', masterPwd)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
     t.is(getTableRowsResponse.status, 200);
@@ -1465,16 +1516,17 @@ should return all found rows with search, pagination: page=2, perPage=2 and DESC
 test(`${currentTest} with search, with pagination, with sorting and with filtering
 should return all found rows with search, pagination: page=1, perPage=2 and DESC sorting and with multi filtering`, async (t) => {
   try {
-    const connectionToTestMSSQL = getTestData(mockFactory).connectionToTestMSSQLSchemaInDocker;
+    const connectionToTestDB = getTestData(mockFactory).encryptedPostgresConnection;
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-    const { testTableName, testTableColumnName } = await createTestTableForMSSQLWithChema(connectionToTestMSSQL);
+    const { testTableName, testTableColumnName } = await createTestTable(connectionToTestDB);
 
     testTables.push(testTableName);
 
     const createConnectionResponse = await request(app.getHttpServer())
       .post('/connection')
-      .send(connectionToTestMSSQL)
+      .send(connectionToTestDB)
       .set('Cookie', firstUserToken)
+      .set('masterpwd', masterPwd)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
     const createConnectionRO = JSON.parse(createConnectionResponse.text);
@@ -1500,6 +1552,7 @@ should return all found rows with search, pagination: page=1, perPage=2 and DESC
       .post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
       .send(createTableSettingsDTO)
       .set('Cookie', firstUserToken)
+      .set('masterpwd', masterPwd)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
     t.is(createTableSettingsResponse.status, 201);
@@ -1513,6 +1566,7 @@ should return all found rows with search, pagination: page=1, perPage=2 and DESC
         `/table/rows/${createConnectionRO.id}?tableName=${testTableName}&search=${testSearchedUserName}&page=1&perPage=2&f_${fieldname}__lt=${fieldLtvalue}&f_${fieldname}__gt=${fieldGtvalue}`,
       )
       .set('Cookie', firstUserToken)
+      .set('masterpwd', masterPwd)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
     t.is(getTableRowsResponse.status, 200);
@@ -1543,16 +1597,17 @@ should return all found rows with search, pagination: page=1, perPage=2 and DESC
 
 test(`${currentTest} should throw an exception when connection id is not passed in request`, async (t) => {
   try {
-    const connectionToTestMSSQL = getTestData(mockFactory).connectionToTestMSSQLSchemaInDocker;
+    const connectionToTestDB = getTestData(mockFactory).encryptedPostgresConnection;
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-    const { testTableName, testTableColumnName } = await createTestTableForMSSQLWithChema(connectionToTestMSSQL);
+    const { testTableName, testTableColumnName } = await createTestTable(connectionToTestDB);
 
     testTables.push(testTableName);
 
     const createConnectionResponse = await request(app.getHttpServer())
       .post('/connection')
-      .send(connectionToTestMSSQL)
+      .send(connectionToTestDB)
       .set('Cookie', firstUserToken)
+      .set('masterpwd', masterPwd)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
     const createConnectionRO = JSON.parse(createConnectionResponse.text);
@@ -1578,8 +1633,10 @@ test(`${currentTest} should throw an exception when connection id is not passed 
       .post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
       .send(createTableSettingsDTO)
       .set('Cookie', firstUserToken)
+      .set('masterpwd', masterPwd)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
+      
     t.is(createTableSettingsResponse.status, 201);
 
     const fieldname = 'id';
@@ -1591,6 +1648,7 @@ test(`${currentTest} should throw an exception when connection id is not passed 
         `/table/rows/${createConnectionRO.id}?tableName=${testTableName}&search=${testSearchedUserName}&page=1&perPage=2&f_${fieldname}__lt=${fieldLtvalue}&f_${fieldname}__gt=${fieldGtvalue}`,
       )
       .set('Cookie', firstUserToken)
+      .set('masterpwd', masterPwd)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
     t.is(getTableRowsResponse.status, 404);
@@ -1602,16 +1660,17 @@ test(`${currentTest} should throw an exception when connection id is not passed 
 
 test(`${currentTest} should throw an exception when connection id passed in request is incorrect`, async (t) => {
   try {
-    const connectionToTestMSSQL = getTestData(mockFactory).connectionToTestMSSQLSchemaInDocker;
+    const connectionToTestDB = getTestData(mockFactory).encryptedPostgresConnection;
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-    const { testTableName, testTableColumnName } = await createTestTableForMSSQLWithChema(connectionToTestMSSQL);
+    const { testTableName, testTableColumnName } = await createTestTable(connectionToTestDB);
 
     testTables.push(testTableName);
 
     const createConnectionResponse = await request(app.getHttpServer())
       .post('/connection')
-      .send(connectionToTestMSSQL)
+      .send(connectionToTestDB)
       .set('Cookie', firstUserToken)
+      .set('masterpwd', masterPwd)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
     const createConnectionRO = JSON.parse(createConnectionResponse.text);
@@ -1637,6 +1696,7 @@ test(`${currentTest} should throw an exception when connection id passed in requ
       .post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
       .send(createTableSettingsDTO)
       .set('Cookie', firstUserToken)
+      .set('masterpwd', masterPwd)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
     t.is(createTableSettingsResponse.status, 201);
@@ -1651,6 +1711,7 @@ test(`${currentTest} should throw an exception when connection id passed in requ
         `/table/rows/${createConnectionRO.id}?tableName=${testTableName}&search=${testSearchedUserName}&page=1&perPage=2&f_${fieldname}__lt=${fieldLtvalue}&f_${fieldname}__gt=${fieldGtvalue}`,
       )
       .set('Cookie', firstUserToken)
+      .set('masterpwd', masterPwd)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
     t.is(getTableRowsResponse.status, 400);
@@ -1666,16 +1727,17 @@ test(`${currentTest} should throw an exception when connection id passed in requ
 
 test(`${currentTest} should throw an exception when table name passed in request is incorrect`, async (t) => {
   try {
-    const connectionToTestMSSQL = getTestData(mockFactory).connectionToTestMSSQLSchemaInDocker;
+    const connectionToTestDB = getTestData(mockFactory).encryptedPostgresConnection;
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-    const { testTableName, testTableColumnName } = await createTestTableForMSSQLWithChema(connectionToTestMSSQL);
+    const { testTableName, testTableColumnName } = await createTestTable(connectionToTestDB);
 
     testTables.push(testTableName);
 
     const createConnectionResponse = await request(app.getHttpServer())
       .post('/connection')
-      .send(connectionToTestMSSQL)
+      .send(connectionToTestDB)
       .set('Cookie', firstUserToken)
+      .set('masterpwd', masterPwd)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
     const createConnectionRO = JSON.parse(createConnectionResponse.text);
@@ -1701,6 +1763,7 @@ test(`${currentTest} should throw an exception when table name passed in request
       .post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
       .send(createTableSettingsDTO)
       .set('Cookie', firstUserToken)
+      .set('masterpwd', masterPwd)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
     t.is(createTableSettingsResponse.status, 201);
@@ -1715,6 +1778,7 @@ test(`${currentTest} should throw an exception when table name passed in request
         `/table/rows/${createConnectionRO.id}?tableName=${fakeTableName}&search=${testSearchedUserName}&page=1&perPage=2&f_${fieldname}__lt=${fieldLtvalue}&f_${fieldname}__gt=${fieldGtvalue}`,
       )
       .set('Cookie', firstUserToken)
+      .set('masterpwd', masterPwd)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
     t.is(getTableRowsResponse.status, 400);
@@ -1730,16 +1794,17 @@ test(`${currentTest} should throw an exception when table name passed in request
 
 test(`${currentTest} should return an array with searched fields when filtered name passed in request is incorrect`, async (t) => {
   try {
-    const connectionToTestMSSQL = getTestData(mockFactory).connectionToTestMSSQLSchemaInDocker;
+    const connectionToTestDB = getTestData(mockFactory).encryptedPostgresConnection;
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-    const { testTableName, testTableColumnName } = await createTestTableForMSSQLWithChema(connectionToTestMSSQL);
+    const { testTableName, testTableColumnName } = await createTestTable(connectionToTestDB);
 
     testTables.push(testTableName);
 
     const createConnectionResponse = await request(app.getHttpServer())
       .post('/connection')
-      .send(connectionToTestMSSQL)
+      .send(connectionToTestDB)
       .set('Cookie', firstUserToken)
+      .set('masterpwd', masterPwd)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
     const createConnectionRO = JSON.parse(createConnectionResponse.text);
@@ -1765,6 +1830,7 @@ test(`${currentTest} should return an array with searched fields when filtered n
       .post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
       .send(createTableSettingsDTO)
       .set('Cookie', firstUserToken)
+      .set('masterpwd', masterPwd)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
     t.is(createTableSettingsResponse.status, 201);
@@ -1778,6 +1844,7 @@ test(`${currentTest} should return an array with searched fields when filtered n
         `/table/rows/${createConnectionRO.id}?tableName=${testTableName}&search=${testSearchedUserName}&page=1&perPage=2&f_${fieldname}__lt=${fieldLtvalue}&f_${fieldname}__gt=${fieldGtvalue}`,
       )
       .set('Cookie', firstUserToken)
+      .set('masterpwd', masterPwd)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
     t.is(getTableRowsResponse.status, 200);
@@ -1796,17 +1863,18 @@ test(`${currentTest} should return an array with searched fields when filtered n
 
 currentTest = 'GET /table/structure/:slug';
 test(`${currentTest} should return table structure`, async (t) => {
-  const connectionToTestMSSQL = getTestData(mockFactory).connectionToTestMSSQLSchemaInDocker;
+  const connectionToTestDB = getTestData(mockFactory).encryptedPostgresConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
   const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
-    await createTestTableForMSSQLWithChema(connectionToTestMSSQL);
+    await createTestTable(connectionToTestDB);
 
   testTables.push(testTableName);
 
   const createConnectionResponse = await request(app.getHttpServer())
     .post('/connection')
-    .send(connectionToTestMSSQL)
+    .send(connectionToTestDB)
     .set('Cookie', firstUserToken)
+    .set('masterpwd', masterPwd)
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
   const createConnectionRO = JSON.parse(createConnectionResponse.text);
@@ -1815,6 +1883,7 @@ test(`${currentTest} should return table structure`, async (t) => {
   const getTableStructure = await request(app.getHttpServer())
     .get(`/table/structure/${createConnectionRO.id}?tableName=${testTableName}`)
     .set('Cookie', firstUserToken)
+    .set('masterpwd', masterPwd)
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
   t.is(getTableStructure.status, 200);
@@ -1849,17 +1918,18 @@ test(`${currentTest} should return table structure`, async (t) => {
 });
 
 test(`${currentTest} should throw an exception whe connection id not passed in request`, async (t) => {
-  const connectionToTestMSSQL = getTestData(mockFactory).connectionToTestMSSQLSchemaInDocker;
+  const connectionToTestDB = getTestData(mockFactory).encryptedPostgresConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
   const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
-    await createTestTableForMSSQLWithChema(connectionToTestMSSQL);
+    await createTestTable(connectionToTestDB);
 
   testTables.push(testTableName);
 
   const createConnectionResponse = await request(app.getHttpServer())
     .post('/connection')
-    .send(connectionToTestMSSQL)
+    .send(connectionToTestDB)
     .set('Cookie', firstUserToken)
+    .set('masterpwd', masterPwd)
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
   const createConnectionRO = JSON.parse(createConnectionResponse.text);
@@ -1868,23 +1938,25 @@ test(`${currentTest} should throw an exception whe connection id not passed in r
   const getTableStructure = await request(app.getHttpServer())
     .get(`/table/structure/${createConnectionRO.id}?tableName=${testTableName}`)
     .set('Cookie', firstUserToken)
+    .set('masterpwd', masterPwd)
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
   t.is(getTableStructure.status, 404);
 });
 
 test(`${currentTest} should throw an exception whe connection id passed in request id incorrect`, async (t) => {
-  const connectionToTestMSSQL = getTestData(mockFactory).connectionToTestMSSQLSchemaInDocker;
+  const connectionToTestDB = getTestData(mockFactory).encryptedPostgresConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
   const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
-    await createTestTableForMSSQLWithChema(connectionToTestMSSQL);
+    await createTestTable(connectionToTestDB);
 
   testTables.push(testTableName);
 
   const createConnectionResponse = await request(app.getHttpServer())
     .post('/connection')
-    .send(connectionToTestMSSQL)
+    .send(connectionToTestDB)
     .set('Cookie', firstUserToken)
+    .set('masterpwd', masterPwd)
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
   const createConnectionRO = JSON.parse(createConnectionResponse.text);
@@ -1894,6 +1966,7 @@ test(`${currentTest} should throw an exception whe connection id passed in reque
   const getTableStructure = await request(app.getHttpServer())
     .get(`/table/structure/${createConnectionRO.id}?tableName=${testTableName}`)
     .set('Cookie', firstUserToken)
+    .set('masterpwd', masterPwd)
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
   t.is(getTableStructure.status, 400);
@@ -1902,17 +1975,18 @@ test(`${currentTest} should throw an exception whe connection id passed in reque
 });
 
 test(`${currentTest}should throw an exception when tableName not passed in request`, async (t) => {
-  const connectionToTestMSSQL = getTestData(mockFactory).connectionToTestMSSQLSchemaInDocker;
+  const connectionToTestDB = getTestData(mockFactory).encryptedPostgresConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
   const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
-    await createTestTableForMSSQLWithChema(connectionToTestMSSQL);
+    await createTestTable(connectionToTestDB);
 
   testTables.push(testTableName);
 
   const createConnectionResponse = await request(app.getHttpServer())
     .post('/connection')
-    .send(connectionToTestMSSQL)
+    .send(connectionToTestDB)
     .set('Cookie', firstUserToken)
+    .set('masterpwd', masterPwd)
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
   const createConnectionRO = JSON.parse(createConnectionResponse.text);
@@ -1921,6 +1995,7 @@ test(`${currentTest}should throw an exception when tableName not passed in reque
   const getTableStructure = await request(app.getHttpServer())
     .get(`/table/structure/${createConnectionRO.id}?tableName=${tableName}`)
     .set('Cookie', firstUserToken)
+    .set('masterpwd', masterPwd)
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
   t.is(getTableStructure.status, 400);
@@ -1929,17 +2004,18 @@ test(`${currentTest}should throw an exception when tableName not passed in reque
 });
 
 test(`${currentTest} should throw an exception when tableName passed in request is incorrect`, async (t) => {
-  const connectionToTestMSSQL = getTestData(mockFactory).connectionToTestMSSQLSchemaInDocker;
+  const connectionToTestDB = getTestData(mockFactory).encryptedPostgresConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
   const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
-    await createTestTableForMSSQLWithChema(connectionToTestMSSQL);
+    await createTestTable(connectionToTestDB);
 
   testTables.push(testTableName);
 
   const createConnectionResponse = await request(app.getHttpServer())
     .post('/connection')
-    .send(connectionToTestMSSQL)
+    .send(connectionToTestDB)
     .set('Cookie', firstUserToken)
+    .set('masterpwd', masterPwd)
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
   const createConnectionRO = JSON.parse(createConnectionResponse.text);
@@ -1948,6 +2024,7 @@ test(`${currentTest} should throw an exception when tableName passed in request 
   const getTableStructure = await request(app.getHttpServer())
     .get(`/table/structure/${createConnectionRO.id}?tableName=${tableName}`)
     .set('Cookie', firstUserToken)
+    .set('masterpwd', masterPwd)
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
   t.is(getTableStructure.status, 400);
@@ -1958,17 +2035,18 @@ test(`${currentTest} should throw an exception when tableName passed in request 
 currentTest = 'POST /table/row/:slug';
 
 test(`${currentTest} should add row in table and return result`, async (t) => {
-  const connectionToTestMSSQL = getTestData(mockFactory).connectionToTestMSSQLSchemaInDocker;
+  const connectionToTestDB = getTestData(mockFactory).encryptedPostgresConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
   const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
-    await createTestTableForMSSQLWithChema(connectionToTestMSSQL);
+    await createTestTable(connectionToTestDB);
 
   testTables.push(testTableName);
 
   const createConnectionResponse = await request(app.getHttpServer())
     .post('/connection')
-    .send(connectionToTestMSSQL)
+    .send(connectionToTestDB)
     .set('Cookie', firstUserToken)
+    .set('masterpwd', masterPwd)
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
   const createConnectionRO = JSON.parse(createConnectionResponse.text);
@@ -1986,6 +2064,7 @@ test(`${currentTest} should add row in table and return result`, async (t) => {
     .post(`/table/row/${createConnectionRO.id}?tableName=${testTableName}`)
     .send(JSON.stringify(row))
     .set('Cookie', firstUserToken)
+    .set('masterpwd', masterPwd)
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
 
@@ -2004,6 +2083,7 @@ test(`${currentTest} should add row in table and return result`, async (t) => {
   const getTableRowsResponse = await request(app.getHttpServer())
     .get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=1&perPage=50`)
     .set('Cookie', firstUserToken)
+    .set('masterpwd', masterPwd)
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
   t.is(getTableRowsResponse.status, 200);
@@ -2019,21 +2099,22 @@ test(`${currentTest} should add row in table and return result`, async (t) => {
   t.is(rows.length, 43);
   t.is(rows[42][testTableColumnName], row[testTableColumnName]);
   t.is(rows[42][testTableSecondColumnName], row[testTableSecondColumnName]);
-  t.is(rows[42].id, (rows[41].id + 1));
+  t.is(rows[42].id, rows[41].id + 1);
 });
 
 test(`${currentTest} should throw an exception when connection id is not passed in request`, async (t) => {
-  const connectionToTestMSSQL = getTestData(mockFactory).connectionToTestMSSQLSchemaInDocker;
+  const connectionToTestDB = getTestData(mockFactory).encryptedPostgresConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
   const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
-    await createTestTableForMSSQLWithChema(connectionToTestMSSQL);
+    await createTestTable(connectionToTestDB);
 
   testTables.push(testTableName);
 
   const createConnectionResponse = await request(app.getHttpServer())
     .post('/connection')
-    .send(connectionToTestMSSQL)
+    .send(connectionToTestDB)
     .set('Cookie', firstUserToken)
+    .set('masterpwd', masterPwd)
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
   const createConnectionRO = JSON.parse(createConnectionResponse.text);
@@ -2052,6 +2133,7 @@ test(`${currentTest} should throw an exception when connection id is not passed 
     .post(`/table/row/${fakeConnectionId}?tableName=${testTableName}`)
     .send(JSON.stringify(row))
     .set('Cookie', firstUserToken)
+    .set('masterpwd', masterPwd)
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
 
@@ -2061,6 +2143,7 @@ test(`${currentTest} should throw an exception when connection id is not passed 
   const getTableRowsResponse = await request(app.getHttpServer())
     .get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=1&perPage=50`)
     .set('Cookie', firstUserToken)
+    .set('masterpwd', masterPwd)
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
   t.is(getTableRowsResponse.status, 200);
@@ -2077,17 +2160,18 @@ test(`${currentTest} should throw an exception when connection id is not passed 
 });
 
 test(`${currentTest} should throw an exception when table name is not passed in request`, async (t) => {
-  const connectionToTestMSSQL = getTestData(mockFactory).connectionToTestMSSQLSchemaInDocker;
+  const connectionToTestDB = getTestData(mockFactory).encryptedPostgresConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
   const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
-    await createTestTableForMSSQLWithChema(connectionToTestMSSQL);
+    await createTestTable(connectionToTestDB);
 
   testTables.push(testTableName);
 
   const createConnectionResponse = await request(app.getHttpServer())
     .post('/connection')
-    .send(connectionToTestMSSQL)
+    .send(connectionToTestDB)
     .set('Cookie', firstUserToken)
+    .set('masterpwd', masterPwd)
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
   const createConnectionRO = JSON.parse(createConnectionResponse.text);
@@ -2106,6 +2190,7 @@ test(`${currentTest} should throw an exception when table name is not passed in 
     .post(`/table/row/${createConnectionRO.id}?tableName=`)
     .send(JSON.stringify(row))
     .set('Cookie', firstUserToken)
+    .set('masterpwd', masterPwd)
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
 
@@ -2118,6 +2203,7 @@ test(`${currentTest} should throw an exception when table name is not passed in 
   const getTableRowsResponse = await request(app.getHttpServer())
     .get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=1&perPage=50`)
     .set('Cookie', firstUserToken)
+    .set('masterpwd', masterPwd)
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
   t.is(getTableRowsResponse.status, 200);
@@ -2134,17 +2220,18 @@ test(`${currentTest} should throw an exception when table name is not passed in 
 });
 
 test(`${currentTest} should throw an exception when row is not passed in request`, async (t) => {
-  const connectionToTestMSSQL = getTestData(mockFactory).connectionToTestMSSQLSchemaInDocker;
+  const connectionToTestDB = getTestData(mockFactory).encryptedPostgresConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
   const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
-    await createTestTableForMSSQLWithChema(connectionToTestMSSQL);
+    await createTestTable(connectionToTestDB);
 
   testTables.push(testTableName);
 
   const createConnectionResponse = await request(app.getHttpServer())
     .post('/connection')
-    .send(connectionToTestMSSQL)
+    .send(connectionToTestDB)
     .set('Cookie', firstUserToken)
+    .set('masterpwd', masterPwd)
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
   const createConnectionRO = JSON.parse(createConnectionResponse.text);
@@ -2153,6 +2240,7 @@ test(`${currentTest} should throw an exception when row is not passed in request
   const addRowInTableResponse = await request(app.getHttpServer())
     .post(`/table/row/${createConnectionRO.id}?tableName=${testTableName}`)
     .set('Cookie', firstUserToken)
+    .set('masterpwd', masterPwd)
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
 
@@ -2165,6 +2253,7 @@ test(`${currentTest} should throw an exception when row is not passed in request
   const getTableRowsResponse = await request(app.getHttpServer())
     .get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=1&perPage=50`)
     .set('Cookie', firstUserToken)
+    .set('masterpwd', masterPwd)
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
   t.is(getTableRowsResponse.status, 200);
@@ -2181,17 +2270,18 @@ test(`${currentTest} should throw an exception when row is not passed in request
 });
 
 test(`${currentTest} should throw an exception when table name passed in request is incorrect`, async (t) => {
-  const connectionToTestMSSQL = getTestData(mockFactory).connectionToTestMSSQLSchemaInDocker;
+  const connectionToTestDB = getTestData(mockFactory).encryptedPostgresConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
   const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
-    await createTestTableForMSSQLWithChema(connectionToTestMSSQL);
+    await createTestTable(connectionToTestDB);
 
   testTables.push(testTableName);
 
   const createConnectionResponse = await request(app.getHttpServer())
     .post('/connection')
-    .send(connectionToTestMSSQL)
+    .send(connectionToTestDB)
     .set('Cookie', firstUserToken)
+    .set('masterpwd', masterPwd)
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
   const createConnectionRO = JSON.parse(createConnectionResponse.text);
@@ -2211,6 +2301,7 @@ test(`${currentTest} should throw an exception when table name passed in request
     .post(`/table/row/${createConnectionRO.id}?tableName=${fakeTableName}`)
     .send(JSON.stringify(row))
     .set('Cookie', firstUserToken)
+    .set('masterpwd', masterPwd)
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
   t.is(addRowInTableResponse.status, 400);
@@ -2222,8 +2313,11 @@ test(`${currentTest} should throw an exception when table name passed in request
   const getTableRowsResponse = await request(app.getHttpServer())
     .get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=1&perPage=50`)
     .set('Cookie', firstUserToken)
+    .set('masterpwd', masterPwd)
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
+  console.log("🚀 ~ file: table-postgres-encrypted-e2e.test.ts ~ line 2879 ~ test ~ getTableRowsResponse.text", getTableRowsResponse.text)
+
   t.is(getTableRowsResponse.status, 200);
 
   const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
@@ -2240,17 +2334,18 @@ test(`${currentTest} should throw an exception when table name passed in request
 currentTest = 'PUT /table/row/:slug';
 
 test(`${currentTest} should update row in table and return result`, async (t) => {
-  const connectionToTestMSSQL = getTestData(mockFactory).connectionToTestMSSQLSchemaInDocker;
+  const connectionToTestDB = getTestData(mockFactory).encryptedPostgresConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
   const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
-    await createTestTableForMSSQLWithChema(connectionToTestMSSQL);
+    await createTestTable(connectionToTestDB);
 
   testTables.push(testTableName);
 
   const createConnectionResponse = await request(app.getHttpServer())
     .post('/connection')
-    .send(connectionToTestMSSQL)
+    .send(connectionToTestDB)
     .set('Cookie', firstUserToken)
+    .set('masterpwd', masterPwd)
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
   const createConnectionRO = JSON.parse(createConnectionResponse.text);
@@ -2268,6 +2363,7 @@ test(`${currentTest} should update row in table and return result`, async (t) =>
     .put(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&id=1`)
     .send(JSON.stringify(row))
     .set('Cookie', firstUserToken)
+    .set('masterpwd', masterPwd)
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
 
@@ -2286,6 +2382,7 @@ test(`${currentTest} should update row in table and return result`, async (t) =>
   const getTableRowsResponse = await request(app.getHttpServer())
     .get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=1&perPage=50`)
     .set('Cookie', firstUserToken)
+    .set('masterpwd', masterPwd)
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
   t.is(getTableRowsResponse.status, 200);
@@ -2305,17 +2402,18 @@ test(`${currentTest} should update row in table and return result`, async (t) =>
 });
 
 test(`${currentTest} should throw an exception when connection id not passed in request`, async (t) => {
-  const connectionToTestMSSQL = getTestData(mockFactory).connectionToTestMSSQLSchemaInDocker;
+  const connectionToTestDB = getTestData(mockFactory).encryptedPostgresConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
   const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
-    await createTestTableForMSSQLWithChema(connectionToTestMSSQL);
+    await createTestTable(connectionToTestDB);
 
   testTables.push(testTableName);
 
   const createConnectionResponse = await request(app.getHttpServer())
     .post('/connection')
-    .send(connectionToTestMSSQL)
+    .send(connectionToTestDB)
     .set('Cookie', firstUserToken)
+    .set('masterpwd', masterPwd)
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
   const createConnectionRO = JSON.parse(createConnectionResponse.text);
@@ -2334,6 +2432,7 @@ test(`${currentTest} should throw an exception when connection id not passed in 
     .put(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&id=1`)
     .send(JSON.stringify(row))
     .set('Cookie', firstUserToken)
+    .set('masterpwd', masterPwd)
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
 
@@ -2341,17 +2440,18 @@ test(`${currentTest} should throw an exception when connection id not passed in 
 });
 
 test(`${currentTest} should throw an exception when connection id passed in request is incorrect`, async (t) => {
-  const connectionToTestMSSQL = getTestData(mockFactory).connectionToTestMSSQLSchemaInDocker;
+  const connectionToTestDB = getTestData(mockFactory).encryptedPostgresConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
   const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
-    await createTestTableForMSSQLWithChema(connectionToTestMSSQL);
+    await createTestTable(connectionToTestDB);
 
   testTables.push(testTableName);
 
   const createConnectionResponse = await request(app.getHttpServer())
     .post('/connection')
-    .send(connectionToTestMSSQL)
+    .send(connectionToTestDB)
     .set('Cookie', firstUserToken)
+    .set('masterpwd', masterPwd)
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
   const createConnectionRO = JSON.parse(createConnectionResponse.text);
@@ -2371,6 +2471,7 @@ test(`${currentTest} should throw an exception when connection id passed in requ
     .put(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&id=1`)
     .send(JSON.stringify(row))
     .set('Cookie', firstUserToken)
+    .set('masterpwd', masterPwd)
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
 
@@ -2380,17 +2481,18 @@ test(`${currentTest} should throw an exception when connection id passed in requ
 });
 
 test(`${currentTest} should throw an exception when tableName not passed in request`, async (t) => {
-  const connectionToTestMSSQL = getTestData(mockFactory).connectionToTestMSSQLSchemaInDocker;
+  const connectionToTestDB = getTestData(mockFactory).encryptedPostgresConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
   const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
-    await createTestTableForMSSQLWithChema(connectionToTestMSSQL);
+    await createTestTable(connectionToTestDB);
 
   testTables.push(testTableName);
 
   const createConnectionResponse = await request(app.getHttpServer())
     .post('/connection')
-    .send(connectionToTestMSSQL)
+    .send(connectionToTestDB)
     .set('Cookie', firstUserToken)
+    .set('masterpwd', masterPwd)
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
   const createConnectionRO = JSON.parse(createConnectionResponse.text);
@@ -2409,6 +2511,7 @@ test(`${currentTest} should throw an exception when tableName not passed in requ
     .put(`/table/row/${createConnectionRO.id}?tableName=&id=1`)
     .send(JSON.stringify(row))
     .set('Cookie', firstUserToken)
+    .set('masterpwd', masterPwd)
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
 
@@ -2418,17 +2521,18 @@ test(`${currentTest} should throw an exception when tableName not passed in requ
 });
 
 test(`${currentTest} should throw an exception when tableName passed in request is incorrect`, async (t) => {
-  const connectionToTestMSSQL = getTestData(mockFactory).connectionToTestMSSQLSchemaInDocker;
+  const connectionToTestDB = getTestData(mockFactory).encryptedPostgresConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
   const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
-    await createTestTableForMSSQLWithChema(connectionToTestMSSQL);
+    await createTestTable(connectionToTestDB);
 
   testTables.push(testTableName);
 
   const createConnectionResponse = await request(app.getHttpServer())
     .post('/connection')
-    .send(connectionToTestMSSQL)
+    .send(connectionToTestDB)
     .set('Cookie', firstUserToken)
+    .set('masterpwd', masterPwd)
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
   const createConnectionRO = JSON.parse(createConnectionResponse.text);
@@ -2447,6 +2551,7 @@ test(`${currentTest} should throw an exception when tableName passed in request 
     .put(`/table/row/${createConnectionRO.id}?tableName=${fakeTableName}&id=1`)
     .send(JSON.stringify(row))
     .set('Cookie', firstUserToken)
+    .set('masterpwd', masterPwd)
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
 
@@ -2456,17 +2561,18 @@ test(`${currentTest} should throw an exception when tableName passed in request 
 });
 
 test(`${currentTest} should throw an exception when primary key not passed in request`, async (t) => {
-  const connectionToTestMSSQL = getTestData(mockFactory).connectionToTestMSSQLSchemaInDocker;
+  const connectionToTestDB = getTestData(mockFactory).encryptedPostgresConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
   const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
-    await createTestTableForMSSQLWithChema(connectionToTestMSSQL);
+    await createTestTable(connectionToTestDB);
 
   testTables.push(testTableName);
 
   const createConnectionResponse = await request(app.getHttpServer())
     .post('/connection')
-    .send(connectionToTestMSSQL)
+    .send(connectionToTestDB)
     .set('Cookie', firstUserToken)
+    .set('masterpwd', masterPwd)
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
 
@@ -2484,6 +2590,7 @@ test(`${currentTest} should throw an exception when primary key not passed in re
     .put(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&`)
     .send(JSON.stringify(row))
     .set('Cookie', firstUserToken)
+    .set('masterpwd', masterPwd)
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
 
@@ -2493,17 +2600,18 @@ test(`${currentTest} should throw an exception when primary key not passed in re
 });
 
 test(`${currentTest} should throw an exception when primary key passed in request has incorrect field name`, async (t) => {
-  const connectionToTestMSSQL = getTestData(mockFactory).connectionToTestMSSQLSchemaInDocker;
+  const connectionToTestDB = getTestData(mockFactory).encryptedPostgresConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
   const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
-    await createTestTableForMSSQLWithChema(connectionToTestMSSQL);
+    await createTestTable(connectionToTestDB);
 
   testTables.push(testTableName);
 
   const createConnectionResponse = await request(app.getHttpServer())
     .post('/connection')
-    .send(connectionToTestMSSQL)
+    .send(connectionToTestDB)
     .set('Cookie', firstUserToken)
+    .set('masterpwd', masterPwd)
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
   const createConnectionRO = JSON.parse(createConnectionResponse.text);
@@ -2521,6 +2629,7 @@ test(`${currentTest} should throw an exception when primary key passed in reques
     .put(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&IncorrectField=1`)
     .send(JSON.stringify(row))
     .set('Cookie', firstUserToken)
+    .set('masterpwd', masterPwd)
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
 
@@ -2530,17 +2639,18 @@ test(`${currentTest} should throw an exception when primary key passed in reques
 });
 
 test(`${currentTest} should throw an exception when primary key passed in request has incorrect field value`, async (t) => {
-  const connectionToTestMSSQL = getTestData(mockFactory).connectionToTestMSSQLSchemaInDocker;
+  const connectionToTestDB = getTestData(mockFactory).encryptedPostgresConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
   const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
-    await createTestTableForMSSQLWithChema(connectionToTestMSSQL);
+    await createTestTable(connectionToTestDB);
 
   testTables.push(testTableName);
 
   const createConnectionResponse = await request(app.getHttpServer())
     .post('/connection')
-    .send(connectionToTestMSSQL)
+    .send(connectionToTestDB)
     .set('Cookie', firstUserToken)
+    .set('masterpwd', masterPwd)
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
   const createConnectionRO = JSON.parse(createConnectionResponse.text);
@@ -2558,6 +2668,7 @@ test(`${currentTest} should throw an exception when primary key passed in reques
     .put(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&id=100000000`)
     .send(JSON.stringify(row))
     .set('Cookie', firstUserToken)
+    .set('masterpwd', masterPwd)
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
 
@@ -2569,17 +2680,18 @@ test(`${currentTest} should throw an exception when primary key passed in reques
 currentTest = 'DELETE /table/row/:slug';
 
 test(`${currentTest} should delete row in table and return result`, async (t) => {
-  const connectionToTestMSSQL = getTestData(mockFactory).connectionToTestMSSQLSchemaInDocker;
+  const connectionToTestDB = getTestData(mockFactory).encryptedPostgresConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
   const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
-    await createTestTableForMSSQLWithChema(connectionToTestMSSQL);
+    await createTestTable(connectionToTestDB);
 
   testTables.push(testTableName);
 
   const createConnectionResponse = await request(app.getHttpServer())
     .post('/connection')
-    .send(connectionToTestMSSQL)
+    .send(connectionToTestDB)
     .set('Cookie', firstUserToken)
+    .set('masterpwd', masterPwd)
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
   const createConnectionRO = JSON.parse(createConnectionResponse.text);
@@ -2589,6 +2701,7 @@ test(`${currentTest} should delete row in table and return result`, async (t) =>
   const deleteRowInTableResponse = await request(app.getHttpServer())
     .delete(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&id=${idForDeletion}`)
     .set('Cookie', firstUserToken)
+    .set('masterpwd', masterPwd)
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
 
@@ -2601,6 +2714,7 @@ test(`${currentTest} should delete row in table and return result`, async (t) =>
   const getTableRowsResponse = await request(app.getHttpServer())
     .get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=1&perPage=50`)
     .set('Cookie', firstUserToken)
+    .set('masterpwd', masterPwd)
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
   t.is(getTableRowsResponse.status, 200);
@@ -2619,17 +2733,18 @@ test(`${currentTest} should delete row in table and return result`, async (t) =>
 });
 
 test(`${currentTest} should throw an exception when connection id not passed in request`, async (t) => {
-  const connectionToTestMSSQL = getTestData(mockFactory).connectionToTestMSSQLSchemaInDocker;
+  const connectionToTestDB = getTestData(mockFactory).encryptedPostgresConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
   const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
-    await createTestTableForMSSQLWithChema(connectionToTestMSSQL);
+    await createTestTable(connectionToTestDB);
 
   testTables.push(testTableName);
 
   const createConnectionResponse = await request(app.getHttpServer())
     .post('/connection')
-    .send(connectionToTestMSSQL)
+    .send(connectionToTestDB)
     .set('Cookie', firstUserToken)
+    .set('masterpwd', masterPwd)
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
   const createConnectionRO = JSON.parse(createConnectionResponse.text);
@@ -2640,6 +2755,7 @@ test(`${currentTest} should throw an exception when connection id not passed in 
   const deleteRowInTableResponse = await request(app.getHttpServer())
     .delete(`/table/row/${connectionId}?tableName=${testTableName}&id=${idForDeletion}`)
     .set('Cookie', firstUserToken)
+    .set('masterpwd', masterPwd)
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
 
@@ -2649,6 +2765,7 @@ test(`${currentTest} should throw an exception when connection id not passed in 
   const getTableRowsResponse = await request(app.getHttpServer())
     .get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=1&perPage=50`)
     .set('Cookie', firstUserToken)
+    .set('masterpwd', masterPwd)
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
   t.is(getTableRowsResponse.status, 200);
@@ -2667,17 +2784,18 @@ test(`${currentTest} should throw an exception when connection id not passed in 
 });
 
 test(`${currentTest} should throw an exception when connection id passed in request is incorrect`, async (t) => {
-  const connectionToTestMSSQL = getTestData(mockFactory).connectionToTestMSSQLSchemaInDocker;
+  const connectionToTestDB = getTestData(mockFactory).encryptedPostgresConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
   const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
-    await createTestTableForMSSQLWithChema(connectionToTestMSSQL);
+    await createTestTable(connectionToTestDB);
 
   testTables.push(testTableName);
 
   const createConnectionResponse = await request(app.getHttpServer())
     .post('/connection')
-    .send(connectionToTestMSSQL)
+    .send(connectionToTestDB)
     .set('Cookie', firstUserToken)
+    .set('masterpwd', masterPwd)
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
   const createConnectionRO = JSON.parse(createConnectionResponse.text);
@@ -2688,6 +2806,7 @@ test(`${currentTest} should throw an exception when connection id passed in requ
   const deleteRowInTableResponse = await request(app.getHttpServer())
     .delete(`/table/row/${connectionId}?tableName=${testTableName}&id=${idForDeletion}`)
     .set('Cookie', firstUserToken)
+    .set('masterpwd', masterPwd)
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
 
@@ -2699,6 +2818,7 @@ test(`${currentTest} should throw an exception when connection id passed in requ
   const getTableRowsResponse = await request(app.getHttpServer())
     .get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=1&perPage=50`)
     .set('Cookie', firstUserToken)
+    .set('masterpwd', masterPwd)
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
   t.is(getTableRowsResponse.status, 200);
@@ -2717,17 +2837,18 @@ test(`${currentTest} should throw an exception when connection id passed in requ
 });
 
 test(`${currentTest} should throw an exception when tableName not passed in request`, async (t) => {
-  const connectionToTestMSSQL = getTestData(mockFactory).connectionToTestMSSQLSchemaInDocker;
+  const connectionToTestDB = getTestData(mockFactory).encryptedPostgresConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
   const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
-    await createTestTableForMSSQLWithChema(connectionToTestMSSQL);
+    await createTestTable(connectionToTestDB);
 
   testTables.push(testTableName);
 
   const createConnectionResponse = await request(app.getHttpServer())
     .post('/connection')
-    .send(connectionToTestMSSQL)
+    .send(connectionToTestDB)
     .set('Cookie', firstUserToken)
+    .set('masterpwd', masterPwd)
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
   const createConnectionRO = JSON.parse(createConnectionResponse.text);
@@ -2738,6 +2859,7 @@ test(`${currentTest} should throw an exception when tableName not passed in requ
   const deleteRowInTableResponse = await request(app.getHttpServer())
     .delete(`/table/row/${createConnectionRO.id}?tableName=${fakeTableName}&id=${idForDeletion}`)
     .set('Cookie', firstUserToken)
+    .set('masterpwd', masterPwd)
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
 
@@ -2749,8 +2871,11 @@ test(`${currentTest} should throw an exception when tableName not passed in requ
   const getTableRowsResponse = await request(app.getHttpServer())
     .get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=1&perPage=50`)
     .set('Cookie', firstUserToken)
+    .set('masterpwd', masterPwd)
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
+  console.log("🚀 ~ file: table-postgres-encrypted-e2e.test.ts ~ line 2879 ~ test ~ getTableRowsResponse.text", getTableRowsResponse.text)
+    
   t.is(getTableRowsResponse.status, 200);
 
   const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
@@ -2767,20 +2892,23 @@ test(`${currentTest} should throw an exception when tableName not passed in requ
 });
 
 test(`${currentTest} should throw an exception when tableName passed in request is incorrect`, async (t) => {
-  const connectionToTestMSSQL = getTestData(mockFactory).connectionToTestMSSQLSchemaInDocker;
+  const connectionToTestDB = getTestData(mockFactory).encryptedPostgresConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
   const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
-    await createTestTableForMSSQLWithChema(connectionToTestMSSQL);
+    await createTestTable(connectionToTestDB);
 
   testTables.push(testTableName);
 
   const createConnectionResponse = await request(app.getHttpServer())
     .post('/connection')
-    .send(connectionToTestMSSQL)
+    .send(connectionToTestDB)
     .set('Cookie', firstUserToken)
+    .set('masterpwd', masterPwd)
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
   const createConnectionRO = JSON.parse(createConnectionResponse.text);
+  console.log("🚀 ~ file: table-postgres-encrypted-e2e.test.ts ~ line 2932 ~ test ~ createConnectionRO.text", createConnectionRO.text)
+
   t.is(createConnectionResponse.status, 201);
 
   const idForDeletion = 1;
@@ -2788,6 +2916,7 @@ test(`${currentTest} should throw an exception when tableName passed in request 
   const deleteRowInTableResponse = await request(app.getHttpServer())
     .delete(`/table/row/${createConnectionRO.id}?tableName=${fakeTableName}&id=${idForDeletion}`)
     .set('Cookie', firstUserToken)
+    .set('masterpwd', masterPwd)
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
 
@@ -2799,8 +2928,12 @@ test(`${currentTest} should throw an exception when tableName passed in request 
   const getTableRowsResponse = await request(app.getHttpServer())
     .get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=1&perPage=50`)
     .set('Cookie', firstUserToken)
+    .set('masterpwd', masterPwd)
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
+
+    console.log("🚀 ~ file: table-postgres-encrypted-e2e.test.ts ~ line 2932 ~ test ~ getTableRowsResponse.text", getTableRowsResponse.text)
+  
   t.is(getTableRowsResponse.status, 200);
 
   const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
@@ -2817,17 +2950,18 @@ test(`${currentTest} should throw an exception when tableName passed in request 
 });
 
 test(`${currentTest} should throw an exception when primary key not passed in request`, async (t) => {
-  const connectionToTestMSSQL = getTestData(mockFactory).connectionToTestMSSQLSchemaInDocker;
+  const connectionToTestDB = getTestData(mockFactory).encryptedPostgresConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
   const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
-    await createTestTableForMSSQLWithChema(connectionToTestMSSQL);
+    await createTestTable(connectionToTestDB);
 
   testTables.push(testTableName);
 
   const createConnectionResponse = await request(app.getHttpServer())
     .post('/connection')
-    .send(connectionToTestMSSQL)
+    .send(connectionToTestDB)
     .set('Cookie', firstUserToken)
+    .set('masterpwd', masterPwd)
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
   const createConnectionRO = JSON.parse(createConnectionResponse.text);
@@ -2837,6 +2971,7 @@ test(`${currentTest} should throw an exception when primary key not passed in re
   const deleteRowInTableResponse = await request(app.getHttpServer())
     .delete(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&`)
     .set('Cookie', firstUserToken)
+    .set('masterpwd', masterPwd)
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
 
@@ -2848,6 +2983,7 @@ test(`${currentTest} should throw an exception when primary key not passed in re
   const getTableRowsResponse = await request(app.getHttpServer())
     .get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=1&perPage=50`)
     .set('Cookie', firstUserToken)
+    .set('masterpwd', masterPwd)
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
   t.is(getTableRowsResponse.status, 200);
@@ -2866,17 +3002,18 @@ test(`${currentTest} should throw an exception when primary key not passed in re
 });
 
 test(`${currentTest} should throw an exception when primary key passed in request has incorrect field name`, async (t) => {
-  const connectionToTestMSSQL = getTestData(mockFactory).connectionToTestMSSQLSchemaInDocker;
+  const connectionToTestDB = getTestData(mockFactory).encryptedPostgresConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
   const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
-    await createTestTableForMSSQLWithChema(connectionToTestMSSQL);
+    await createTestTable(connectionToTestDB);
 
   testTables.push(testTableName);
 
   const createConnectionResponse = await request(app.getHttpServer())
     .post('/connection')
-    .send(connectionToTestMSSQL)
+    .send(connectionToTestDB)
     .set('Cookie', firstUserToken)
+    .set('masterpwd', masterPwd)
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
   const createConnectionRO = JSON.parse(createConnectionResponse.text);
@@ -2886,6 +3023,7 @@ test(`${currentTest} should throw an exception when primary key passed in reques
   const deleteRowInTableResponse = await request(app.getHttpServer())
     .delete(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&fakePKey=1`)
     .set('Cookie', firstUserToken)
+    .set('masterpwd', masterPwd)
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
 
@@ -2897,6 +3035,7 @@ test(`${currentTest} should throw an exception when primary key passed in reques
   const getTableRowsResponse = await request(app.getHttpServer())
     .get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=1&perPage=50`)
     .set('Cookie', firstUserToken)
+    .set('masterpwd', masterPwd)
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
   t.is(getTableRowsResponse.status, 200);
@@ -2915,17 +3054,18 @@ test(`${currentTest} should throw an exception when primary key passed in reques
 });
 
 test(`${currentTest} should throw an exception when primary key passed in request has incorrect field value`, async (t) => {
-  const connectionToTestMSSQL = getTestData(mockFactory).connectionToTestMSSQLSchemaInDocker;
+  const connectionToTestDB = getTestData(mockFactory).encryptedPostgresConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
   const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
-    await createTestTableForMSSQLWithChema(connectionToTestMSSQL);
+    await createTestTable(connectionToTestDB);
 
   testTables.push(testTableName);
 
   const createConnectionResponse = await request(app.getHttpServer())
     .post('/connection')
-    .send(connectionToTestMSSQL)
+    .send(connectionToTestDB)
     .set('Cookie', firstUserToken)
+    .set('masterpwd', masterPwd)
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
   const createConnectionRO = JSON.parse(createConnectionResponse.text);
@@ -2934,6 +3074,7 @@ test(`${currentTest} should throw an exception when primary key passed in reques
   const deleteRowInTableResponse = await request(app.getHttpServer())
     .delete(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&id=100000`)
     .set('Cookie', firstUserToken)
+    .set('masterpwd', masterPwd)
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
 
@@ -2944,18 +3085,19 @@ test(`${currentTest} should throw an exception when primary key passed in reques
 
 currentTest = 'GET /table/row/:slug';
 
-test(`${currentTest} should return list of tables in connection`, async (t) => {
-  const connectionToTestMSSQL = getTestData(mockFactory).connectionToTestMSSQLSchemaInDocker;
+test(`${currentTest} found row`, async (t) => {
+  const connectionToTestDB = getTestData(mockFactory).encryptedPostgresConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
   const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
-    await createTestTableForMSSQLWithChema(connectionToTestMSSQL);
+    await createTestTable(connectionToTestDB);
 
   testTables.push(testTableName);
 
   const createConnectionResponse = await request(app.getHttpServer())
     .post('/connection')
-    .send(connectionToTestMSSQL)
+    .send(connectionToTestDB)
     .set('Cookie', firstUserToken)
+    .set('masterpwd', masterPwd)
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
   const createConnectionRO = JSON.parse(createConnectionResponse.text);
@@ -2965,6 +3107,7 @@ test(`${currentTest} should return list of tables in connection`, async (t) => {
   const foundRowInTableResponse = await request(app.getHttpServer())
     .get(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&id=${idForSearch}`)
     .set('Cookie', firstUserToken)
+    .set('masterpwd', masterPwd)
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
 
@@ -2986,17 +3129,18 @@ test(`${currentTest} should return list of tables in connection`, async (t) => {
 });
 
 test(`${currentTest} should throw an exception, when connection id is not passed in request`, async (t) => {
-  const connectionToTestMSSQL = getTestData(mockFactory).connectionToTestMSSQLSchemaInDocker;
+  const connectionToTestDB = getTestData(mockFactory).encryptedPostgresConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
   const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
-    await createTestTableForMSSQLWithChema(connectionToTestMSSQL);
+    await createTestTable(connectionToTestDB);
 
   testTables.push(testTableName);
 
   const createConnectionResponse = await request(app.getHttpServer())
     .post('/connection')
-    .send(connectionToTestMSSQL)
+    .send(connectionToTestDB)
     .set('Cookie', firstUserToken)
+    .set('masterpwd', masterPwd)
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
   const createConnectionRO = JSON.parse(createConnectionResponse.text);
@@ -3006,6 +3150,7 @@ test(`${currentTest} should throw an exception, when connection id is not passed
   const foundRowInTableResponse = await request(app.getHttpServer())
     .get(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&id=${idForSearch}`)
     .set('Cookie', firstUserToken)
+    .set('masterpwd', masterPwd)
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
 
@@ -3013,17 +3158,18 @@ test(`${currentTest} should throw an exception, when connection id is not passed
 });
 
 test(`${currentTest} should throw an exception, when connection id passed in request is incorrect`, async (t) => {
-  const connectionToTestMSSQL = getTestData(mockFactory).connectionToTestMSSQLSchemaInDocker;
+  const connectionToTestDB = getTestData(mockFactory).encryptedPostgresConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
   const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
-    await createTestTableForMSSQLWithChema(connectionToTestMSSQL);
+    await createTestTable(connectionToTestDB);
 
   testTables.push(testTableName);
 
   const createConnectionResponse = await request(app.getHttpServer())
     .post('/connection')
-    .send(connectionToTestMSSQL)
+    .send(connectionToTestDB)
     .set('Cookie', firstUserToken)
+    .set('masterpwd', masterPwd)
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
   const createConnectionRO = JSON.parse(createConnectionResponse.text);
@@ -3034,6 +3180,7 @@ test(`${currentTest} should throw an exception, when connection id passed in req
   const foundRowInTableResponse = await request(app.getHttpServer())
     .get(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&id=${idForSearch}`)
     .set('Cookie', firstUserToken)
+    .set('masterpwd', masterPwd)
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
 
@@ -3043,17 +3190,18 @@ test(`${currentTest} should throw an exception, when connection id passed in req
 });
 
 test(`${currentTest} should throw an exception, when tableName in not passed in request`, async (t) => {
-  const connectionToTestMSSQL = getTestData(mockFactory).connectionToTestMSSQLSchemaInDocker;
+  const connectionToTestDB = getTestData(mockFactory).encryptedPostgresConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
   const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
-    await createTestTableForMSSQLWithChema(connectionToTestMSSQL);
+    await createTestTable(connectionToTestDB);
 
   testTables.push(testTableName);
 
   const createConnectionResponse = await request(app.getHttpServer())
     .post('/connection')
-    .send(connectionToTestMSSQL)
+    .send(connectionToTestDB)
     .set('Cookie', firstUserToken)
+    .set('masterpwd', masterPwd)
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
   const createConnectionRO = JSON.parse(createConnectionResponse.text);
@@ -3064,6 +3212,7 @@ test(`${currentTest} should throw an exception, when tableName in not passed in 
   const foundRowInTableResponse = await request(app.getHttpServer())
     .get(`/table/row/${createConnectionRO.id}?tableName=${fakeTableName}&id=${idForSearch}`)
     .set('Cookie', firstUserToken)
+    .set('masterpwd', masterPwd)
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
 
@@ -3073,17 +3222,18 @@ test(`${currentTest} should throw an exception, when tableName in not passed in 
 });
 
 test(`${currentTest} should throw an exception, when tableName passed in request is incorrect`, async (t) => {
-  const connectionToTestMSSQL = getTestData(mockFactory).connectionToTestMSSQLSchemaInDocker;
+  const connectionToTestDB = getTestData(mockFactory).encryptedPostgresConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
   const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
-    await createTestTableForMSSQLWithChema(connectionToTestMSSQL);
+    await createTestTable(connectionToTestDB);
 
   testTables.push(testTableName);
 
   const createConnectionResponse = await request(app.getHttpServer())
     .post('/connection')
-    .send(connectionToTestMSSQL)
+    .send(connectionToTestDB)
     .set('Cookie', firstUserToken)
+    .set('masterpwd', masterPwd)
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
   const createConnectionRO = JSON.parse(createConnectionResponse.text);
@@ -3094,6 +3244,7 @@ test(`${currentTest} should throw an exception, when tableName passed in request
   const foundRowInTableResponse = await request(app.getHttpServer())
     .get(`/table/row/${createConnectionRO.id}?tableName=${fakeTableName}&id=${idForSearch}`)
     .set('Cookie', firstUserToken)
+    .set('masterpwd', masterPwd)
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
 
@@ -3103,17 +3254,18 @@ test(`${currentTest} should throw an exception, when tableName passed in request
 });
 
 test(`${currentTest} should throw an exception, when primary key is not passed in request`, async (t) => {
-  const connectionToTestMSSQL = getTestData(mockFactory).connectionToTestMSSQLSchemaInDocker;
+  const connectionToTestDB = getTestData(mockFactory).encryptedPostgresConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
   const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
-    await createTestTableForMSSQLWithChema(connectionToTestMSSQL);
+    await createTestTable(connectionToTestDB);
 
   testTables.push(testTableName);
 
   const createConnectionResponse = await request(app.getHttpServer())
     .post('/connection')
-    .send(connectionToTestMSSQL)
+    .send(connectionToTestDB)
     .set('Cookie', firstUserToken)
+    .set('masterpwd', masterPwd)
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
   const createConnectionRO = JSON.parse(createConnectionResponse.text);
@@ -3122,26 +3274,29 @@ test(`${currentTest} should throw an exception, when primary key is not passed i
   const foundRowInTableResponse = await request(app.getHttpServer())
     .get(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&`)
     .set('Cookie', firstUserToken)
+    .set('masterpwd', masterPwd)
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
 
-  t.is(foundRowInTableResponse.status, 400);
   const { message } = JSON.parse(foundRowInTableResponse.text);
+  console.log("🚀 ~ file: table-postgres-encrypted-e2e.test.ts ~ line 3273 ~ test ~ message", message)
+  t.is(foundRowInTableResponse.status, 400);
   t.is(message, Messages.PRIMARY_KEY_INVALID);
 });
 
 test(`${currentTest} should throw an exception, when primary key passed in request has incorrect name`, async (t) => {
-  const connectionToTestMSSQL = getTestData(mockFactory).connectionToTestMSSQLSchemaInDocker;
+  const connectionToTestDB = getTestData(mockFactory).encryptedPostgresConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
   const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
-    await createTestTableForMSSQLWithChema(connectionToTestMSSQL);
+    await createTestTable(connectionToTestDB);
 
   testTables.push(testTableName);
 
   const createConnectionResponse = await request(app.getHttpServer())
     .post('/connection')
-    .send(connectionToTestMSSQL)
+    .send(connectionToTestDB)
     .set('Cookie', firstUserToken)
+    .set('masterpwd', masterPwd)
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
   const createConnectionRO = JSON.parse(createConnectionResponse.text);
@@ -3151,26 +3306,31 @@ test(`${currentTest} should throw an exception, when primary key passed in reque
   const foundRowInTableResponse = await request(app.getHttpServer())
     .get(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&fakeKeyName=${idForSearch}`)
     .set('Cookie', firstUserToken)
+    .set('masterpwd', masterPwd)
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
 
+  console.log("🚀 ~ file: table-postgres-encrypted-e2e.test.ts ~ line 2932 ~ test ~ foundRowInTableResponse.text", foundRowInTableResponse.text)
+
   t.is(foundRowInTableResponse.status, 400);
+
   const { message } = JSON.parse(foundRowInTableResponse.text);
   t.is(message, Messages.PRIMARY_KEY_INVALID);
 });
 
 test(`${currentTest} should throw an exception, when primary key passed in request has incorrect value`, async (t) => {
-  const connectionToTestMSSQL = getTestData(mockFactory).connectionToTestMSSQLSchemaInDocker;
+  const connectionToTestDB = getTestData(mockFactory).encryptedPostgresConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
   const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
-    await createTestTableForMSSQLWithChema(connectionToTestMSSQL);
+    await createTestTable(connectionToTestDB);
 
   testTables.push(testTableName);
 
   const createConnectionResponse = await request(app.getHttpServer())
     .post('/connection')
-    .send(connectionToTestMSSQL)
+    .send(connectionToTestDB)
     .set('Cookie', firstUserToken)
+    .set('masterpwd', masterPwd)
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
   const createConnectionRO = JSON.parse(createConnectionResponse.text);
@@ -3180,10 +3340,11 @@ test(`${currentTest} should throw an exception, when primary key passed in reque
   const foundRowInTableResponse = await request(app.getHttpServer())
     .get(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&id=${idForSearch}`)
     .set('Cookie', firstUserToken)
+    .set('masterpwd', masterPwd)
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
 
-    t.is(foundRowInTableResponse.status, 400);
+  t.is(foundRowInTableResponse.status, 400);
   const { message } = JSON.parse(foundRowInTableResponse.text);
   t.is(message, Messages.ROW_PRIMARY_KEY_NOT_FOUND);
 });

@@ -27,5 +27,6 @@ th {
 }
 
 .changed {
-    background: #ff4081;
+    /* background: #ff4081; */
+    background-color: #f27f9b;
 }

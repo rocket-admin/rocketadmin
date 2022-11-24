@@ -60,7 +60,7 @@ export class TableActionsController {
   ) {}
 
   @ApiOperation({ summary: 'Receive table actions' })
-  @ApiResponse({ status: 200, description: 'Table action received' })
+  @ApiResponse({ status: 200, description: 'Table actions received' })
   @ApiBody({ type: CreateTableActionDTO })
   @UseGuards(ConnectionReadGuard)
   @Get('/table/actions/:slug')
@@ -79,7 +79,7 @@ export class TableActionsController {
     return await this.findTableActionsUseCase.execute(inputData, InTransactionEnum.OFF);
   }
 
-  @ApiOperation({ summary: 'Receive table actions' })
+  @ApiOperation({ summary: 'Receive table action' })
   @ApiResponse({ status: 200, description: 'Table action received' })
   @ApiBody({ type: CreateTableActionDTO })
   @UseGuards(ConnectionReadGuard)
@@ -110,6 +110,7 @@ export class TableActionsController {
     @QueryTableName() tableName: string,
     @Body('title') title: string,
     @Body('url') url: string,
+    @Body('icon') icon: string,
     @Body('type') type: TableActionTypeEnum,
   ): Promise<CreatedTableActionDS> {
     const inputData: CreateTableActionDS = {
@@ -120,6 +121,7 @@ export class TableActionsController {
       title: title,
       url: url,
       type: type,
+      icon: icon,
     };
     this.validateTableAction(inputData);
     return await this.createTableActionUseCase.execute(inputData, InTransactionEnum.OFF);
@@ -134,6 +136,7 @@ export class TableActionsController {
     @Query('actionId') actionId: string,
     @Body('title') title: string,
     @Body('url') url: string,
+    @Body('icon') icon: string,
     @Body('type') type: TableActionTypeEnum,
   ): Promise<CreatedTableActionDS> {
     const inputData: UpdateTableActionDS = {
@@ -141,6 +144,7 @@ export class TableActionsController {
       title: title,
       url: url,
       type: type,
+      icon: icon,
     };
     this.validateTableAction(inputData);
     return await this.updateTableActionUseCase.execute(inputData, InTransactionEnum.OFF);
@@ -154,8 +158,8 @@ export class TableActionsController {
     return await this.deleteTableActionUseCase.execute(actionId, InTransactionEnum.OFF);
   }
 
-  @ApiOperation({ summary: 'Create table action' })
-  @ApiResponse({ status: 201, description: 'Table action successfully created' })
+  @ApiOperation({ summary: 'Activate table action' })
+  @ApiResponse({ status: 201, description: 'Table action successfully activated' })
   @ApiBody({ type: CreateTableActionDTO })
   @UseGuards(ConnectionReadGuard)
   @Post('/table/action/activate/:slug')

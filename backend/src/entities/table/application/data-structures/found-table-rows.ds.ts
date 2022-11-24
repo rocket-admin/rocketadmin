@@ -7,6 +7,7 @@ import {
 import { FullTableStructureDs } from './found-table-structure.ds';
 import { ITablePermissionData } from '../../../permission/permission.interface';
 import { TableWidgetEntity } from '../../../widget/table-widget.entity';
+import { TableActionEntity } from '../../../table-actions/table-action.entity';
 
 export class FoundTableRowsDs {
   rows: Array<Record<string, unknown>>;
@@ -22,6 +23,7 @@ export class FoundTableRowsDs {
   widgets: Array<TableWidgetEntity>;
   identity_column: string;
   table_permissions: ITablePermissionData;
+  table_actions: Array<TableActionEntity>;
 }
 
 export class TableStructureDs {

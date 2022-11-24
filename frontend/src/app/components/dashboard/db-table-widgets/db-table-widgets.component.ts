@@ -8,6 +8,7 @@ import { UIwidgets } from "src/app/consts/field-types";
 import { WidgetDeleteDialogComponent } from './widget-delete-dialog/widget-delete-dialog.component';
 import { difference } from "lodash";
 import { normalizeTableName } from 'src/app/lib/normalize';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-db-table-widgets',
@@ -20,6 +21,7 @@ export class DbTableWidgetsComponent implements OnInit {
   public tableName: string | null = null;
   public normalizedTableName: string;
   public fields: string[] = [];
+  public fieldsCount: number;
   public widgets: Widget[] = null;
   public widgetTypes = Object.keys(UIwidgets);
   public submitting: boolean = false;
@@ -91,6 +93,7 @@ export class DbTableWidgetsComponent implements OnInit {
     private _connections: ConnectionsService,
     private _tables: TablesService,
     public dialog: MatDialog,
+    public router: Router,
   ) {}
 
   ngOnInit(): void {
@@ -106,6 +109,7 @@ export class DbTableWidgetsComponent implements OnInit {
 
     this._tables.fetchTableStructure(this.connectionID, this.tableName)
       .subscribe(res => {
+        this.fieldsCount = res.structure.length;
         this.fields = res.structure.map((field: TableField) => field.column_name);
         this.getWidgets();
       })
@@ -177,7 +181,7 @@ export class DbTableWidgetsComponent implements OnInit {
       if (action === 'delete') {
         this.fields.push(widgetFieldName);
         this.widgets = this.widgets.filter((widget: Widget) => widget.field_name !== widgetFieldName);
-        this.updateWidgets();
+        this.updateWidgets(true);
       }
     })
   }
@@ -192,7 +196,7 @@ export class DbTableWidgetsComponent implements OnInit {
         const widgetsToDelete = this.widgets.map(widget => widget.field_name);
         this.fields = [...this.fields, ...widgetsToDelete];
         this.widgets = [];
-        this.updateWidgets();
+        this.updateWidgets(true);
       }
     })
   }
@@ -206,12 +210,12 @@ export class DbTableWidgetsComponent implements OnInit {
     });
   }
 
-  updateWidgets() {
+  updateWidgets(afterDeleteAll?: boolean) {
     this.submitting = true;
     this._tables.updateTableWidgets(this.connectionID, this.tableName, this.widgets)
-      .subscribe(res => {
+      .subscribe(() => {
         this.submitting = false;
-        this.getWidgets();
+        if (!afterDeleteAll) this.router.navigate([`/dashboard/${this.connectionID}/${this.tableName}`]);
       },
       undefined,
       () => {this.submitting = false});

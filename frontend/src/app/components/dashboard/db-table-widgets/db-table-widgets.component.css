@@ -1,7 +1,7 @@
 .wrapper {
     min-width: 300px;
     /* max-width: 1000px; */
-    margin: 16px auto;
+    margin: 0 auto 16px;
     width: 90%;
 }
 
@@ -9,7 +9,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin: 56px 70px 24px 0;
+    margin: 36px 70px 24px 0;
 }
 
 .header-actions {
