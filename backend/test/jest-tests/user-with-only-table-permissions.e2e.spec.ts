@@ -19,7 +19,7 @@ import { Cacher } from '../../src/helpers/cache/cacher';
 import { compareTableWidgetsArrays } from '../utils/compare-table-widgets-arrays';
 
 describe('User permissions (connection none, group none) (e2e)', () => {
-  jest.setTimeout(50000);
+  jest.setTimeout(100000);
   let app: INestApplication;
   let testUtils: TestUtils;
   const mockFactory = new MockFactory();
@@ -109,9 +109,6 @@ describe('User permissions (connection none, group none) (e2e)', () => {
 
   const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
-  beforeAll(() => {
-    jest.setTimeout(30000);
-  });
   beforeEach(async () => {
     const moduleFixture = await Test.createTestingModule({
       imports: [ApplicationModule, DatabaseModule],

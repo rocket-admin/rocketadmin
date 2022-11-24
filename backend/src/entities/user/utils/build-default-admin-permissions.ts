@@ -16,8 +16,8 @@ export function buildDefaultAdminPermissions(groups: Array<GroupEntity>): Array<
     const groupAdminPermission = new PermissionEntity();
     groupAdminPermission.type = PermissionTypeEnum.Group;
     groupAdminPermission.accessLevel = AccessLevelEnum.edit;
-    connectionAdminPermission.groups = [];
-    connectionAdminPermission.groups.push(group);
+    groupAdminPermission.groups = [];
+    groupAdminPermission.groups.push(group);
 
     permissions.push(groupAdminPermission);
   }
