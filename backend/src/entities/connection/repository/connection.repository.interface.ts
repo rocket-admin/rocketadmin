@@ -43,5 +43,9 @@ export interface IConnectionRepository {
 
   findOneAgentConnectionByToken(connectionToken: string): Promise<ConnectionEntity>;
 
+  calculateUsersInAllConnectionsOfThisOwner(connectionOwnerId: string): Promise<{
+    usersInConnections: Array<UserEntity>;
+    usersInConnectionsCount: number;
+  }>;
   decryptConnectionField(field: string): string;
 }

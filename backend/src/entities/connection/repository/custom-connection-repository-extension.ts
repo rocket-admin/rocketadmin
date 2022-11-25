@@ -208,6 +208,29 @@ export const customConnectionRepositoryExtension: IConnectionRepository = {
     return this.save(connection);
   },
 
+  async calculateUsersInAllConnectionsOfThisOwner(connectionOwnerId: string): Promise<{
+    usersInConnections: Array<UserEntity>;
+    usersInConnectionsCount: number;
+  }> {
+    const allUserConnections = await this.findAllNonTestsConnectionsWhereUserIsOwner(connectionOwnerId);
+    const testConnectionsHosts = Constants.getTestConnectionsHostNamesArr();
+    const filteredNonTestConnections = allUserConnections.filter((connection: ConnectionEntity) => {
+      return !testConnectionsHosts.includes(connection.host);
+    });
+    const allUserInAllGroupsInThisConnections: Array<Array<UserEntity>> = await Promise.all(
+      filteredNonTestConnections.map(async (connection: ConnectionEntity) => {
+        return await this.findAllUsersInConnection(connection.id);
+      }),
+    );
+
+    const allUserArray = allUserInAllGroupsInThisConnections.flat();
+    const filteredUsers = [...new Map(allUserArray.map((user) => [user['id'], user])).values()];
+    return {
+      usersInConnections: filteredUsers,
+      usersInConnectionsCount: filteredUsers.length,
+    };
+  },
+
   decryptConnectionField(field: string): string {
     try {
       return Encryptor.decryptData(field);

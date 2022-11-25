@@ -18,12 +18,15 @@ export class StripeWebhookUseCase extends AbstractUseCase<StripeWebhookDS, void>
   }
 
   protected async implementation(inputData: StripeWebhookDS): Promise<void> {
-    const endpointSecret = process.env.STRIPE_ENDPOINT_SECRET;
     const { request, stripeSigranture } = inputData;
     let event: Stripe.Event;
     try {
+      const endpointSecret = process.env.STRIPE_ENDPOINT_SECRET;
+      if (!endpointSecret) {
+        throw new Error('Stripe enpoint secret missiong');
+      }
       const stripe = getStripe();
-      event = stripe.webhooks.constructEvent(request.body, stripeSigranture, endpointSecret);
+      event = stripe.webhooks.constructEvent(request.rawBody, stripeSigranture, endpointSecret);
     } catch (error) {
       throw new HttpException(
         {

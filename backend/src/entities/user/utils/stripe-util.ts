@@ -5,7 +5,7 @@ import { Messages } from '../../../exceptions/text/messages';
 
 export class StripeUtil {
   public static async createPortalLink(user: UserEntity): Promise<string> {
-    if (process.env.NODE_ENV === 'test' || !isSaaS()) {
+    if (!isSaaS()) {
       return Messages.NO_STRIPE;
     }
     if(!user.stripeId){

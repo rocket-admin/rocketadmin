@@ -1,9 +1,12 @@
+import { SubscriptionLevelEnum } from '../../../enums';
 import { Constants } from '../../../helpers/constants/constants';
+import { getCurrentUserSubscription } from '../../stripe/stripe-helpers/get-current-user-subscription';
 import { CreateUserDs } from '../application/data-structures/create-user.ds';
 import { RegisterUserDs } from '../application/data-structures/register-user-ds';
 import { UserEntity } from '../user.entity';
+import { IUserRepository } from './user.repository.interface';
 
-export const userCustomRepositoryExtension = {
+export const userCustomRepositoryExtension: IUserRepository = {
   async createUser(userData: CreateUserDs): Promise<UserEntity> {
     const newUser: UserEntity = new UserEntity();
     newUser.id = userData.id;
@@ -119,4 +122,21 @@ export const userCustomRepositoryExtension = {
       .andWhere('tableLogs.id is null');
     return await usersQb.getMany();
   },
+
+  async checkOwnerInviteAbility(ownerId: string, usersCount: number): Promise<boolean> {
+    if (usersCount < Constants.FREE_PLAN_USERS_COUNT) {
+      return true;
+    }
+    const foundOwner = await this.findOneUserById(ownerId);
+    if (!foundOwner.stripeId) {
+      return false;
+    }
+
+    const ownerSubscription = await getCurrentUserSubscription(foundOwner.stripeId);
+    if (ownerSubscription === SubscriptionLevelEnum.FREE_PLAN) {
+      return false;
+    }
+    return true;
+  }
+  
 };

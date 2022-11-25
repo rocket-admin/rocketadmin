@@ -39,10 +39,21 @@ export class AddUserInGroupUseCase
     const foundGroup = await this._dbContext.groupRepository.findGroupById(groupId);
     const foundUser = await this._dbContext.userRepository.findUserByEmailWithEmailVerificationAndInvitation(email);
     const foundOwner = await this._dbContext.userRepository.findOneUserById(ownerId);
-    let usersInConnectionsCount = await this.calculateUsersInAllConnectionsOfThisOwner(ownerId);
+    let { usersInConnections, usersInConnectionsCount } =
+      await this._dbContext.connectionRepository.calculateUsersInAllConnectionsOfThisOwner(ownerId);
     const ownerSubscriptionLevel: SubscriptionLevelEnum = await getCurrentUserSubscription(foundOwner.stripeId);
-    const canInviteMoreUsers = await this.checkInvateAbylity(ownerId, usersInConnectionsCount);
-    ++usersInConnectionsCount;
+    const canInviteMoreUsers = await this._dbContext.userRepository.checkOwnerInviteAbility(
+      ownerId,
+      usersInConnectionsCount,
+    );
+
+    const newUserAlreadyInConnection: boolean = !!usersInConnections.find((userInConnection) => {
+      if (!foundUser) {
+        return false;
+      }
+      return userInConnection.id === foundUser.id;
+    });
+
     if (!canInviteMoreUsers) {
       throw new HttpException(
         {
@@ -65,7 +76,10 @@ export class AddUserInGroupUseCase
       foundGroup.users.push(foundUser);
       const savedGroup = await this._dbContext.groupRepository.saveNewOrUpdatedGroup(foundGroup);
       delete savedGroup.connection;
-      await createStripeUsageRecord(ownerSubscriptionLevel, usersInConnectionsCount);
+      if (!newUserAlreadyInConnection) {
+        ++usersInConnectionsCount;
+        await createStripeUsageRecord(ownerSubscriptionLevel, usersInConnectionsCount);
+      }
       return {
         group: savedGroup,
         message: Messages.USER_ADDED_IN_GROUP(foundUser.email),
@@ -74,7 +88,10 @@ export class AddUserInGroupUseCase
     }
 
     if (foundUser && !foundUser.isActive) {
-      const savedInvitation = await this._dbContext.userInvitationRepository.createOrUpdateInvitationEntity(foundUser);
+      const savedInvitation = await this._dbContext.userInvitationRepository.createOrUpdateInvitationEntity(
+        foundUser,
+        null,
+      );
       const userAlreadyAdded = !!foundGroup.users.find((u) => u.id === foundUser.id);
       if (!userAlreadyAdded) {
         foundGroup.users.push(foundUser);
@@ -118,7 +135,10 @@ export class AddUserInGroupUseCase
           HttpStatus.BAD_REQUEST,
         );
       }
-      await createStripeUsageRecord(ownerSubscriptionLevel, usersInConnectionsCount);
+      if (!newUserAlreadyInConnection) {
+        ++usersInConnectionsCount;
+        await createStripeUsageRecord(ownerSubscriptionLevel, usersInConnectionsCount);
+      }
       return {
         group: savedGroup,
         message: Messages.USER_ADDED_IN_GROUP(foundUser.email),
@@ -160,7 +180,10 @@ export class AddUserInGroupUseCase
         );
       }),
     );
-    const savedInvitation = await this._dbContext.userInvitationRepository.createOrUpdateInvitationEntity(savedUser);
+    const savedInvitation = await this._dbContext.userInvitationRepository.createOrUpdateInvitationEntity(
+      savedUser,
+      ownerId,
+    );
     foundGroup.users.push(newUser);
     const savedGroup = await this._dbContext.groupRepository.saveNewOrUpdatedGroup(foundGroup);
     delete savedGroup.connection;
@@ -173,46 +196,10 @@ export class AddUserInGroupUseCase
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
-    await createStripeUsageRecord(ownerSubscriptionLevel, usersInConnectionsCount);
     return {
       group: savedGroup,
       message: Messages.USER_EMAIL_NOT_FOUND_AND_INVITED(newUser.email),
       external_invite: true,
     };
-  }
-
-  private async calculateUsersInAllConnectionsOfThisOwner(connectionOwnerId: string): Promise<number> {
-    const allUserConnections = await this._dbContext.connectionRepository.findAllNonTestsConnectionsWhereUserIsOwner(
-      connectionOwnerId,
-    );
-    const testConnectionsHosts = Constants.getTestConnectionsHostNamesArr();
-    const filteredNonTestConnections = allUserConnections.filter((connection: ConnectionEntity) => {
-      return !testConnectionsHosts.includes(connection.host);
-    });
-    const allUserInAllGroupsInThisConnections: Array<Array<UserEntity>> = await Promise.all(
-      filteredNonTestConnections.map(async (connection: ConnectionEntity) => {
-        return await this._dbContext.connectionRepository.findAllUsersInConnection(connection.id);
-      }),
-    );
-
-    const allUserArray = allUserInAllGroupsInThisConnections.flat();
-    const filteredUsers = [...new Map(allUserArray.map((user) => [user['id'], user])).values()];
-    return filteredUsers.length;
-  }
-
-  private async checkInvateAbylity(ownerId: string, usersCount: number): Promise<boolean> {
-    if (usersCount < 3) {
-      return true;
-    }
-    const foundOwner = await this._dbContext.userRepository.findOneUserById(ownerId);
-    if (!foundOwner.stripeId) {
-      return false;
-    }
-
-    const ownerSubscription = await getCurrentUserSubscription(foundOwner.stripeId);
-    if (ownerSubscription === SubscriptionLevelEnum.FREE_PLAN) {
-      return false;
-    }
-    return true;
   }
 }
