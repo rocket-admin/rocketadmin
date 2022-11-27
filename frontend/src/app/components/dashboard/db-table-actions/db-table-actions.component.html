@@ -1,9 +1,138 @@
-<app-alert></app-alert>
-<app-content-loader *ngIf="!actions"></app-content-loader>
+<mat-drawer-container class="drawer">
+    <mat-drawer mode="side" opened>
+        <div class="drawer-header">
+            <h1 class="mat-h1">Actions</h1>
+            <button mat-icon-button color="primary" *ngIf="actions && actions.length !== 0"
+                type="button"
+                (click)="addNewAction()">
+                <mat-icon>add</mat-icon>
+            </button>
+        </div>
+        <div class="no-actions" *ngIf="actions && actions.length === 0 && !newAction">
+            <span class="mat-body-1">No actions added</span>
+            <button mat-stroked-button color="primary"
+                type="button"
+                (click)="addNewAction()">
+                <mat-icon>add</mat-icon>
+                Add action
+            </button>
+        </div>
+        <mat-action-list *ngIf="actions && actions.length">
+            <button mat-list-item *ngFor="let action of actions; let i = index"
+            (click)="switchActionView(action)">{{ action.title }}</button>
+        </mat-action-list>
+        <mat-form-field appearance="standard" *ngIf="newAction"
+            class="new-action-input">
+            <input matInput autofocus="true" name="new-action-title" #actionTitle="matInput"
+                required
+                placeholder="Enter action name"
+                [(ngModel)]="newAction.title"
+                (keyup.enter)="handleAddNewAction()">
+            <mat-error *ngIf="emptyActionNameError">Action name can not be empty.</mat-error>
+            <button mat-icon-button matSuffix
+                (click)="removeAction()">
+                <mat-icon>close</mat-icon>
+            </button>
+        </mat-form-field>
+    </mat-drawer>
 
-<div *ngIf="actions" class="wrapper">
+    <mat-drawer-content>
+        <app-alert></app-alert>
+        <app-breadcrumbs [crumbs]="getCrumbs(currentConnection.title)" class="actions-breadcrumbs"></app-breadcrumbs>
+        <app-content-loader *ngIf="!actions"></app-content-loader>
+
+        <div class="action" *ngIf="selectedAction">
+            <form (ngSubmit)="addAction()" class="action-settings">
+                <mat-form-field appearance="outline">
+                    <mat-label>Action name</mat-label>
+                    <input matInput [(ngModel)]="selectedAction.title" name="{{selectedAction.title}}-field-new-name">
+                </mat-form-field>
+
+                <button mat-icon-button [matMenuTriggerFor]="menu">
+                    <mat-icon fontSet="material-icons-outlined" *ngIf="selectedAction.icon; else defaultIcon">
+                        {{ selectedAction.icon }}
+                    </mat-icon>
+                    <ng-template #defaultIcon>
+                        <mat-icon fontSet="material-icons-outlined">add_reaction</mat-icon>
+                    </ng-template>
+                </button>
+
+                <mat-menu #menu="matMenu">
+                    <div>
+                        <strong>Select icon</strong>
+                        <ul class="icons-list">
+                            <li *ngFor="let icon of defaultIcons; let i = index">
+                                <label for="icon-{{i}}">
+                                    <input type="radio" name="action-icon-{{i}}"
+                                        [value]="icon" id="icon-{{i}}"
+                                        [(ngModel)]="selectedAction.icon"
+                                        class="icon-button visually-hidden">
+                                    <button mat-icon-button>
+                                        <mat-icon>{{icon}}</mat-icon>
+                                    </button>
+                                </label>
+                            </li>
+                        </ul>
+                        <mat-form-field appearance="outline" class="icon-input">
+                            <mat-label>Another icon</mat-label>
+                            <input matInput [(ngModel)]="selectedAction.url" name="{{selectedAction.url}}-field-description">
+                            <mat-hint>
+                                More icons <a href="https://fonts.google.com/icons" class="google-icons-link">here</a>
+                            </mat-hint>
+                        </mat-form-field>
+                    </div>
+                </mat-menu>
+
+                <mat-form-field appearance="outline">
+                    <mat-label>Action URL</mat-label>
+                    <input matInput [(ngModel)]="selectedAction.url" name="{{selectedAction.url}}-field-description">
+                    <!-- <mat-error *ngIf="sslCert.errors?.required && (sslCert.invalid && sslCert.touched)">SSL certificate should not be empty.</mat-error> -->
+                </mat-form-field>
+
+                <mat-radio-group
+                    name="action-type"
+                    [(ngModel)]="selectedAction.type">
+                    <mat-label>Affects</mat-label>
+                    <mat-radio-button value='single' class="radio-button_first">
+                        Single row
+                    </mat-radio-button>
+                    <mat-radio-button value='bulk' class="radio-button_second">
+                        Multiple rows
+                    </mat-radio-button>
+                </mat-radio-group>
+
+                <div class="action__actions">
+                    <button mat-stroked-button color="warn"
+                        (click)="selectedAction.actionId ? openDeleteActionDialog(selectedAction.title) : removeAction()">
+                        Delete
+                    </button>
+
+                    <button mat-raised-button color="primary"
+                        type="submit" [disabled]="submitting">
+                        Save
+                    </button>
+                </div>
+            </form>
+
+            <ngx-codemirror class="action-codeSnippet"
+                [(ngModel)]="codeSnippet"
+                name="code-snippet"
+                [options]="{
+                    lineNumbers: true,
+                    lineWrapping: true,
+                    mode: 'javascript',
+                    theme: 'ttcn',
+                    readOnly: 'nocursor'
+                }"
+            ></ngx-codemirror>
+        </div>
+
+    </mat-drawer-content>
+  </mat-drawer-container>
+
+
+<!--<div *ngIf="actions" class="wrapper">
     <header class="header">
-        <app-breadcrumbs [crumbs]="getCrumbs(currentConnection.title)" class="row-breadcrumbs"></app-breadcrumbs>
 
         <div *ngIf="actions.length" class="header-actions">
             <button  mat-stroked-button
@@ -11,12 +140,7 @@
                 (click)="openClearAllActions()">
                 Clear All
             </button>
-            <button mat-stroked-button color="accent"
-                type="button"
-                (click)="addNewAction()">
-                <mat-icon>add</mat-icon>
-                Add action
-            </button>
+
         </div>
 
     </header>
@@ -27,13 +151,13 @@
             <mat-form-field appearance="outline">
                 <mat-label>Action name</mat-label>
                 <input matInput [(ngModel)]="action.title" name="{{i}}-field-new-name">
-                <!-- <mat-error *ngIf="username.errors?.required && (username.invalid && username.touched)">Username should not be empty.</mat-error> -->
+                <mat-error *ngIf="username.errors?.required && (username.invalid && username.touched)">Username should not be empty.</mat-error>
             </mat-form-field>
 
             <mat-form-field appearance="outline">
                 <mat-label>Action URL</mat-label>
                 <textarea matInput [(ngModel)]="action.url" name="{{i}}-field-description"></textarea>
-                <!-- <mat-error *ngIf="sslCert.errors?.required && (sslCert.invalid && sslCert.touched)">SSL certificate should not be empty.</mat-error> -->
+                <mat-error *ngIf="sslCert.errors?.required && (sslCert.invalid && sslCert.touched)">SSL certificate should not be empty.</mat-error>
             </mat-form-field>
 
             <button mat-icon-button type="button" class="widget-delete-button"
@@ -78,4 +202,4 @@
             </div>
         </div>
     </ng-template>
-</div>
+</div>-->

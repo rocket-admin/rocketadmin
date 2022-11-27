@@ -1,7 +1,7 @@
 import { AlertActionType, AlertType } from '../models/alert';
 import { BehaviorSubject, EMPTY } from 'rxjs';
 import { NavigationEnd, Router, RouterEvent } from '@angular/router';
-import { TableSettings, Widget } from '../models/table';
+import { CustomAction, TableSettings, Widget } from '../models/table';
 import { catchError, filter, map } from 'rxjs/operators';
 
 import { HttpClient } from '@angular/common/http';
@@ -283,6 +283,28 @@ export class TablesService {
 
   fetchActions(connectionID: string, tableName: string) {
     return this._http.get<any>(`/table/actions/${connectionID}`, {
+      params: {
+        tableName
+      }
+    })
+      .pipe(
+        map(res => res),
+        catchError((err) => {
+          console.log(err);
+          this._notifications.showAlert(AlertType.Error, err.error.message, [
+            {
+              type: AlertActionType.Button,
+              caption: 'Dismiss',
+              action: (id: number) => this._notifications.dismissAlert()
+            }
+          ]);
+          return EMPTY;
+        })
+      );
+  }
+
+  saveAction(connectionID: string, tableName: string, action: CustomAction) {
+    return this._http.put<any>(`/table/action/${connectionID}`, action, {
       params: {
         tableName
       }

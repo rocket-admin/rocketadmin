@@ -33,12 +33,12 @@
                 angularticsAction="Tables: widgets page is opened">
                 Widgets
             </a>
-            <!--<a mat-button *ngIf="accessLevel === 'edit' && tableData"
+            <a mat-button *ngIf="accessLevel === 'edit' && tableData"
                 routerLink="/dashboard/{{connectionID}}/{{name}}/actions"
                 angulartics2On="click"
                 angularticsAction="Tables: actions page is opened">
                 Actions
-            </a>-->
+            </a>
             <button mat-button [ngClass]="{'action_active': getFiltersCount(activeFilters)}"
                 angulartics2On="click"
                 angularticsAction="Tables: settings dialog is opened"
