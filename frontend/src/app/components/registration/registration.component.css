@@ -127,21 +127,3 @@
     color: #66BCFF;
     text-decoration: none;
 }
-
-.password-requirements {
-    list-style: none;
-    columns: 2;
-    gap: 60px;
-}
-
-.password-requirements li::before {
-    content: '—';
-}
-
-.error {
-    color: salmon;
-}
-
-.success {
-    color: #50a14f;
-}
