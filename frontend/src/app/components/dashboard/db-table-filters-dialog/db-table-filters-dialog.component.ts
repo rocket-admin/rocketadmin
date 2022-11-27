@@ -42,9 +42,11 @@ export class DbTableFiltersDialogComponent implements OnInit {
       .subscribe(res => {
         this.tableForeignKeys = res.foreignKeys;
         const foreignKeysList = this.tableForeignKeys.map((field: TableForeignKey) => {return field['column_name']})
-        this.fields = res.structure.map((field: TableField) => field.column_name);
         this.tableRowFields = Object.assign({}, ...res.structure.map((field: TableField) => ({[field.column_name]: ''})));
         this.tableTypes = getTableTypes(res.structure, foreignKeysList);
+        this.fields = res.structure
+          .filter((field: TableField) => this.getInputType(field.column_name) !== 'file')
+          .map((field: TableField) => field.column_name);
         this.tableRowStructure = Object.assign({}, ...res.structure.map((field: TableField) => {
           return {[field.column_name]: field};
         }));
