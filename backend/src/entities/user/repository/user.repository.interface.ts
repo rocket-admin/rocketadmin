@@ -1,6 +1,6 @@
-import { UserEntity } from '../user.entity';
 import { CreateUserDs } from '../application/data-structures/create-user.ds';
 import { RegisterUserDs } from '../application/data-structures/register-user-ds';
+import { UserEntity } from '../user.entity';
 
 export interface IUserRepository {
   createUser(userData: CreateUserDs): Promise<UserEntity>;
@@ -31,5 +31,7 @@ export interface IUserRepository {
 
   getTrue(): Promise<boolean>;
 
-  findUsersWithoutLogs(): Promise<Array<UserEntity>>
+  findUsersWithoutLogs(): Promise<Array<UserEntity>>;
+
+  checkOwnerInviteAbility(ownerId: string, usersCount: number): Promise<boolean>;
 }

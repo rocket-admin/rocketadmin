@@ -1,3 +1,4 @@
+import { UserEntity } from '../../user/user.entity';
 import { ConnectionEntity } from '../connection.entity';
 
 export interface IConnectionRepository {
@@ -11,8 +12,13 @@ export interface IConnectionRepository {
     userId: string,
   ): Promise<Array<Omit<ConnectionEntity, 'password' | 'privateSSHKey' | 'groups'>>>;
 
+  findAllNonTestsConnectionsWhereUserIsOwner(userId: string): Promise<Array<ConnectionEntity>>;
+
+  findAllUsersInConnection(connectionId): Promise<Array<UserEntity>>;
+
   findOneConnection(connectionId: string): Promise<Omit<ConnectionEntity, 'password' | 'privateSSHKey' | 'groups'>>;
 
+  getConnectionAuthorIdByGroupInConnectionId(groupId: string): Promise<string>;
   // findFullConnectionEntity(connectionId: string): Promise<ConnectionEntity>;
 
   findAndDecryptConnection(connectionId: string, masterPwd: string): Promise<ConnectionEntity>;
@@ -36,4 +42,10 @@ export interface IConnectionRepository {
   saveUpdatedConnection(connection: ConnectionEntity): Promise<ConnectionEntity>;
 
   findOneAgentConnectionByToken(connectionToken: string): Promise<ConnectionEntity>;
+
+  calculateUsersInAllConnectionsOfThisOwner(connectionOwnerId: string): Promise<{
+    usersInConnections: Array<UserEntity>;
+    usersInConnectionsCount: number;
+  }>;
+  decryptConnectionField(field: string): string;
 }

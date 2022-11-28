@@ -1,12 +1,15 @@
-import { HttpException, HttpStatus, Inject, Injectable, Scope } from '@nestjs/common';
+import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import AbstractUseCase from '../../../common/abstract-use.case';
+import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface';
+import { BaseType } from '../../../common/data-injection.tokens';
+import { SubscriptionLevelEnum } from '../../../enums';
+import { Messages } from '../../../exceptions/text/messages';
+import { createStripeUsageRecord } from '../../stripe/stripe-helpers/create-stripe-usage-record';
+import { getCurrentUserSubscription } from '../../stripe/stripe-helpers/get-current-user-subscription';
 import { AddUserInGroupDs } from '../application/data-sctructures/add-user-in-group.ds';
 import { RemoveUserFromGroupResultDs } from '../application/data-sctructures/remove-user-from-group-result.ds';
-import { IRemoveUserFromGroup } from './use-cases.interfaces';
-import { BaseType } from '../../../common/data-injection.tokens';
-import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface';
-import { Messages } from '../../../exceptions/text/messages';
 import { buildRemoveUserFromGroupResultDs } from '../utils/build-remove-user-from-group-result.ds';
+import { IRemoveUserFromGroup } from './use-cases.interfaces';
 
 @Injectable()
 export class RemoveUserFromGroupUseCase
@@ -47,7 +50,23 @@ export class RemoveUserFromGroupUseCase
       })
       .indexOf(foundUser.id);
     groupToUpdate.users.splice(delIndex, 1);
+    const ownerId = await this._dbContext.connectionRepository.getConnectionAuthorIdByGroupInConnectionId(groupId);
     const updatedGroup = await this._dbContext.groupRepository.saveNewOrUpdatedGroup(groupToUpdate);
+    const foundOwner = await this._dbContext.userRepository.findOneUserById(ownerId);
+    const ownerSubscriptionLevel: SubscriptionLevelEnum = await getCurrentUserSubscription(foundOwner.stripeId);
+
+    let { usersInConnections, usersInConnectionsCount } =
+      await this._dbContext.connectionRepository.calculateUsersInAllConnectionsOfThisOwner(ownerId);
+
+    const userStayInConnection: boolean = !!usersInConnections.find((userInConnection) => {
+      return userInConnection.id === foundUser.id;
+    });
+
+    if (!userStayInConnection) {
+      --usersInConnectionsCount;
+      await createStripeUsageRecord(ownerSubscriptionLevel, usersInConnectionsCount);
+    }
+
     return buildRemoveUserFromGroupResultDs(updatedGroup);
   }
 }

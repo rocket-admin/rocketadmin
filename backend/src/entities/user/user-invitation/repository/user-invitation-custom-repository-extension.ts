@@ -2,8 +2,9 @@ import { Constants } from '../../../../helpers/constants/constants';
 import { Encryptor } from '../../../../helpers/encryption/encryptor';
 import { UserEntity } from '../../user.entity';
 import { UserInvitationEntity } from '../user-invitation.entity';
+import { IUserInvitationRepository } from './user-invitation-repository.interface';
 
-export const userInvitationCustomRepositoryExtension = {
+export const userInvitationCustomRepositoryExtension: IUserInvitationRepository = {
   async findUserInvitationWithVerificationString(verificationString: string): Promise<UserInvitationEntity> {
     const qb = this.createQueryBuilder('user_invitation')
       .leftJoinAndSelect('user_invitation.user', 'user')
@@ -18,8 +19,9 @@ export const userInvitationCustomRepositoryExtension = {
   },
 
   async removeOldInvitationEntities(): Promise<Array<UserInvitationEntity>> {
-    const qb = this.createQueryBuilder('user_invitation')
-      .where('user_invitation.createdAt <= :date_ago', { date_ago: Constants.ONE_WEEK_AGO() });
+    const qb = this.createQueryBuilder('user_invitation').where('user_invitation.createdAt <= :date_ago', {
+      date_ago: Constants.ONE_WEEK_AGO(),
+    });
     const foundEntities = await qb.getMany();
     return await Promise.all(
       foundEntities.map(async (invitation: UserInvitationEntity): Promise<UserInvitationEntity> => {
@@ -32,7 +34,7 @@ export const userInvitationCustomRepositoryExtension = {
     return await this.save(entity);
   },
 
-  async createOrUpdateInvitationEntity(user: UserEntity): Promise<UserInvitationEntity> {
+  async createOrUpdateInvitationEntity(user: UserEntity, connectionOwnerId: string): Promise<UserInvitationEntity> {
     const qb = this.createQueryBuilder('user_invitation')
       .leftJoinAndSelect('user_invitation.user', 'user')
       .where('user.id = :userId', { userId: user.id });
@@ -43,6 +45,7 @@ export const userInvitationCustomRepositoryExtension = {
     const newInvitation = new UserInvitationEntity();
     newInvitation.verification_string = Encryptor.generateRandomString();
     newInvitation.user = user;
+    newInvitation.ownerId = connectionOwnerId ? connectionOwnerId : null;
     return await this.save(newInvitation);
   },
 };

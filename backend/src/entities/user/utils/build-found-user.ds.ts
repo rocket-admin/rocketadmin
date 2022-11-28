@@ -1,7 +1,7 @@
-import { UserEntity } from '../user.entity';
+import { getCurrentUserSubscription } from '../../stripe/stripe-helpers/get-current-user-subscription';
 import { FoundUserInGroupDs } from '../application/data-structures/found-user-in-group.ds';
-import { getCurrentUserSubscription } from '../../../helpers/stripe/get-current-user-subscription';
 import { FoundUserDs } from '../application/data-structures/found-user.ds';
+import { UserEntity } from '../user.entity';
 import { getUserIntercomHash } from './get-user-intercom-hash';
 import { StripeUtil } from './stripe-util';
 
