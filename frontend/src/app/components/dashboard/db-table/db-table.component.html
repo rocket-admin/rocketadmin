@@ -13,48 +13,58 @@
                 <mat-icon>close</mat-icon>
             </button>
         </mat-form-field>
-        <a mat-button *ngIf="tableData && tableData.permissions && tableData.permissions.add && (!tableData.isEmptyTable || searchString || getFiltersCount(activeFilters))"
-            routerLink="/dashboard/{{connectionID}}/{{name}}/entry"
-            angulartics2On="click"
-            angularticsAction="Tables: add row page is opened">
-            Add row
-        </a>
-        <a mat-button *ngIf="accessLevel === 'edit'"
-            routerLink="/dashboard/{{connectionID}}/{{name}}/settings"
-            angulartics2On="click"
-            angularticsAction="Tables: settings dialog is opened">
-            Settings
-        </a>
-        <a mat-button *ngIf="accessLevel === 'edit' && tableData"
-            routerLink="/dashboard/{{connectionID}}/{{name}}/widgets"
-            angulartics2On="click"
-            angularticsAction="Tables: widgets page is opened">
-            Widgets ({{ tableData.widgetsCount }})
-        </a>
-        <button mat-button
-            angulartics2On="click"
-            angularticsAction="Tables: settings dialog is opened"
-            (click)="handleOpenFilters()">
-            Filter ({{ getFiltersCount(activeFilters) }})
-        </button>
-        <div *ngIf="tableData" class="db-table-manage-columns-button">
-            <button *ngIf="tableData.displayedColumns && tableData.columns" mat-button [matMenuTriggerFor]="menu">
-                Manage columns ({{ tableData.displayedColumns.length - 1 }} / {{ tableData.columns.length }})
+        <div class="actions">
+            <a mat-button *ngIf="tableData && tableData.permissions && tableData.permissions.add && (!tableData.isEmptyTable || searchString || getFiltersCount(activeFilters))"
+                routerLink="/dashboard/{{connectionID}}/{{name}}/entry"
+                angulartics2On="click"
+                angularticsAction="Tables: add row page is opened">
+                Add row
+            </a>
+            <a mat-button *ngIf="accessLevel === 'edit'"
+                routerLink="/dashboard/{{connectionID}}/{{name}}/settings"
+                angulartics2On="click"
+                angularticsAction="Tables: settings dialog is opened">
+                Settings
+            </a>
+            <a mat-button *ngIf="accessLevel === 'edit' && tableData"
+                routerLink="/dashboard/{{connectionID}}/{{name}}/widgets"
+                [ngClass]="{'action_active': tableData.widgetsCount}"
+                angulartics2On="click"
+                angularticsAction="Tables: widgets page is opened">
+                Widgets
+            </a>
+            <!--<a mat-button *ngIf="accessLevel === 'edit' && tableData"
+                routerLink="/dashboard/{{connectionID}}/{{name}}/actions"
+                angulartics2On="click"
+                angularticsAction="Tables: actions page is opened">
+                Actions
+            </a>-->
+            <button mat-button [ngClass]="{'action_active': getFiltersCount(activeFilters)}"
+                angulartics2On="click"
+                angularticsAction="Tables: settings dialog is opened"
+                (click)="handleOpenFilters()">
+                Filter
             </button>
-            <mat-menu #menu="matMenu">
-                <button mat-menu-item
-                    role="menuitemcheckbox"
-                    *ngFor="let column of tableData.columns"
-                    (click)="$event.stopPropagation();">
-                    <mat-checkbox color="primary"
-                        class="db-table-header__columnsCheckbox"
-                        (change)="tableData.changleColumnList()"
-                        [(ngModel)]="column.selected">
-                        {{column.normalizedTitle}}
-                    </mat-checkbox>
+            <div *ngIf="tableData" class="db-table-manage-columns-button">
+                <button *ngIf="tableData.displayedColumns && tableData.columns" mat-button [matMenuTriggerFor]="menu">
+                    Columns ({{ tableData.displayedColumns.length - 1 }} / {{ tableData.columns.length }})
                 </button>
-            </mat-menu>
+                <mat-menu #menu="matMenu">
+                    <button mat-menu-item
+                        role="menuitemcheckbox"
+                        *ngFor="let column of tableData.columns"
+                        (click)="$event.stopPropagation();">
+                        <mat-checkbox color="primary"
+                            class="db-table-header__columnsCheckbox"
+                            (change)="tableData.changleColumnList()"
+                            [(ngModel)]="column.selected">
+                            {{column.normalizedTitle}}
+                        </mat-checkbox>
+                    </button>
+                </mat-menu>
+            </div>
         </div>
+
 
     </div>
 </div>

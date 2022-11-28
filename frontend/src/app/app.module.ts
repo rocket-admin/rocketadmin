@@ -93,6 +93,7 @@ import { CodemirrorModule } from '@ctrl/ngx-codemirror';
 import { UserDeletedSuccessComponent } from './components/user-deleted-success/user-deleted-success.component';
 import { IpAddressButtonComponent } from './components/ui-components/ip-address-button/ip-address-button.component';
 import { BreadcrumbsComponent } from './components/ui-components/breadcrumbs/breadcrumbs.component';
+import { UserPasswordComponent } from './components/ui-components/user-password/user-password.component';
 const saasExtraProviders = (environment as any).saas ? [
   {
     provide: Sentry.TraceService,
@@ -178,7 +179,8 @@ const saasExtraProviders = (environment as any).saas ? [
     NewVersionComponent,
     UserDeletedSuccessComponent,
     IpAddressButtonComponent,
-    BreadcrumbsComponent
+    BreadcrumbsComponent,
+    UserPasswordComponent
   ],
   entryComponents: [
     DbRowDeleteDialogComponent,

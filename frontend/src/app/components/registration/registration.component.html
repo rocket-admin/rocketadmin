@@ -22,47 +22,7 @@
                 <!-- <mat-error *ngIf="hostname.errors?.required && (hostname.invalid && hostname.touched)">Hostname should not be empty.</mat-error> -->
             </mat-form-field>
 
-            <mat-form-field appearance="outline">
-                <mat-label>Password</mat-label>
-                <input matInput [type]="passwordHidden ? 'text' : 'password'" name="password" #password="ngModel"
-                    required minlength="8" passwordValidator
-                    angulartics2On="change"
-                    angularticsAction="Reg: password is changed"
-                    [(ngModel)]="user.password">
-                <mat-icon matSuffix (click)="passwordHidden = !passwordHidden" class="password-visibility-button">
-                    {{passwordHidden ? 'visibility_off' : 'visibility'}}
-                </mat-icon>
-                <mat-hint>
-                    Password must contain:
-                    <ul class="password-requirements">
-                        <li [ngClass]="{
-                            'error': !password.errors?.oneLowerCaseLetter && password.touched,
-                            'success': (!password.errors || password.errors?.oneLowerCaseLetter) && password.dirty
-                        }">
-                            a lower case letter,
-                        </li>
-                        <li [ngClass]="{
-                            'error': !password.errors?.oneUpperCaseLetter && password.touched,
-                            'success': (!password.errors || password.errors?.oneUpperCaseLetter) && password.dirty
-                        }">
-                            an upper case letter,
-                        </li>
-                        <li [ngClass]="{
-                            'error': !password.errors?.oneNumber && password.touched,
-                            'success': (!password.errors || password.errors?.oneNumber) && password.dirty
-                        }">
-                            a number,
-                        </li>
-                        <li [ngClass]="{
-                            'error': !password.errors?.min8 && password.touched,
-                            'success': (!password.errors || password.errors?.min8) && password.dirty
-                        }">
-                            at least 8 characters
-                        </li>
-                    </ul>
-                </mat-hint>
-                <!-- <mat-error *ngIf="port.errors?.required && (port.invalid && port.touched)">Port should not be empty.</mat-error> -->
-            </mat-form-field>
+            <app-user-password label="Password" [value]="user.password" (onFieldChange)="updatePasswordField($event)"></app-user-password>
 
             <button type="submit" mat-raised-button color="accent" class="submit-button"
                 angulartics2On="click"

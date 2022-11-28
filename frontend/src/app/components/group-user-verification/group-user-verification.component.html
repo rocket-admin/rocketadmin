@@ -1,13 +1,10 @@
 <app-alert></app-alert>
 
 <div class="wrapper">
-    <h1 class="mat-h1">Enter password to create account on Autoadmin</h1>
     <form #passwordForm="ngForm" class="password-form" (ngSubmit)="verifyGroupUser()">
-        <mat-form-field appearance="outline" class="password-input">
-            <mat-label>Enter password</mat-label>
-            <input type="password" matInput [(ngModel)]="password" name="userPassword" #userPassword="ngModel" required>
-            <mat-error *ngIf="userPassword.errors?.required && (userPassword.invalid && userPassword.touched)">Cannot be not empty.</mat-error>
-        </mat-form-field>
+        <h1 class="mat-h1">Enter password to create account on Autoadmin</h1>
+        <app-user-password label="Enter password" [value]="password" (onFieldChange)="updatePasswordField($event)"></app-user-password>
+
         <button mat-raised-button color="primary" class="new-password-button"
             [disabled]="submitting || passwordForm.form.invalid">
             Create

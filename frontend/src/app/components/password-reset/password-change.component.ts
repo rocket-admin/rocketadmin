@@ -1,7 +1,8 @@
+import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { Component, OnInit } from '@angular/core';
+
 import { UserService } from 'src/app/services/user.service';
 import { map } from 'rxjs/operators';
-import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 
 @Component({
   selector: 'app-password-change',
@@ -11,7 +12,7 @@ import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 export class PasswordResetComponent implements OnInit {
 
   public token: string;
-  public newPassword: string;
+  public newPassword: string = '';
   public submitting: boolean;
 
   constructor(
@@ -27,6 +28,10 @@ export class PasswordResetComponent implements OnInit {
         this.token = params.get('verification-token');
       })
     ).subscribe();
+  }
+
+  updatePasswordField(updatedValue: string) {
+    this.newPassword = updatedValue;
   }
 
   updatePassword() {

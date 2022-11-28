@@ -9,13 +9,13 @@
             <button  mat-stroked-button
                 type="button"
                 (click)="openClearAllConfirmation()"
-                [disabled]="fields.length === 0">
+                [disabled]="fields.length === 0 && widgets.length === 0">
                 Clear All
             </button>
             <button mat-stroked-button color="accent"
                 type="button"
                 (click)="addNewWidget()"
-                [disabled]="fields.length === 0">
+                [disabled]="fields.length === 0 || widgets.length === fieldsCount">
                 <mat-icon>add</mat-icon>
                 Add widget
             </button>

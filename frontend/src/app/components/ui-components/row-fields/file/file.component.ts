@@ -1,9 +1,10 @@
-import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
-import { normalizeFieldName } from 'src/app/lib/normalize';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
-import { hexValidation } from 'src/app/validators/hex.validator';
+
 import { Widget } from 'src/app/models/table';
 import { base64Validation } from 'src/app/validators/base64.validator';
+import { hexValidation } from 'src/app/validators/hex.validator';
+import { normalizeFieldName } from 'src/app/lib/normalize';
 
 interface Blob {
   type: string,
@@ -32,6 +33,7 @@ export class FileComponent implements OnInit {
 
   @Output() onFieldChange = new EventEmitter();
 
+  static type = 'file';
   public isNotSwitcherActive;
   public normalizedLabel: string;
   public fileType: FileType = FileType.Hex;
