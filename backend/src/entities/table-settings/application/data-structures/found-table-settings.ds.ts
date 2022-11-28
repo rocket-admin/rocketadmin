@@ -16,6 +16,7 @@ export class FoundTableSettingsDs {
   ordering_field: string;
   identity_column: string;
   readonly_fields: Array<string>;
+  sensitive_fields: Array<string>;
   sortable_by: Array<string>;
   autocomplete_columns: Array<string>;
   columns_view: Array<string>;
