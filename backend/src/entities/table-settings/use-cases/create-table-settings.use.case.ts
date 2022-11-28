@@ -1,15 +1,15 @@
-import { HttpStatus, Inject, Injectable, Scope } from '@nestjs/common';
+import { HttpStatus, Inject, Injectable } from '@nestjs/common';
+import { HttpException } from '@nestjs/common/exceptions/http.exception';
 import AbstractUseCase from '../../../common/abstract-use.case';
-import { ICreateTableSettings } from './use-cases.interface';
+import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface';
+import { BaseType } from '../../../common/data-injection.tokens';
+import { createDataAccessObject } from '../../../data-access-layer/shared/create-data-access-object';
+import { toPrettyErrorsMsg } from '../../../helpers';
 import { CreateTableSettingsDs } from '../application/data-structures/create-table-settings.ds';
 import { FoundTableSettingsDs } from '../application/data-structures/found-table-settings.ds';
-import { BaseType } from '../../../common/data-injection.tokens';
-import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface';
-import { HttpException } from '@nestjs/common/exceptions/http.exception';
-import { toPrettyErrorsMsg } from '../../../helpers';
-import { buildNewTableSettingsEntity } from '../utils/build-new-table-settings-entity';
 import { buildFoundTableSettingsDs } from '../utils/build-found-table-settings-ds';
-import { createDataAccessObject } from '../../../data-access-layer/shared/create-data-access-object';
+import { buildNewTableSettingsEntity } from '../utils/build-new-table-settings-entity';
+import { ICreateTableSettings } from './use-cases.interface';
 
 @Injectable()
 export class CreateTableSettingsUseCase

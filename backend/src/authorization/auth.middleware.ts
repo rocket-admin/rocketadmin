@@ -43,7 +43,7 @@ export class AuthMiddleware implements NestMiddleware {
       throw new HttpException('Token is missing', HttpStatus.UNAUTHORIZED);
     }
 
-    const isLoggedOut = !!(await this.logOutRepository.findOne({where: {jwtToken: token}}));
+    const isLoggedOut = !!(await this.logOutRepository.findOne({ where: { jwtToken: token } }));
     if (isLoggedOut) {
       throw new HttpException(
         {
@@ -60,7 +60,7 @@ export class AuthMiddleware implements NestMiddleware {
       if (!userId) {
         throw new Error('JWT verification failed');
       }
-      const foundUser = await this.userRepository.findOne({where: {id: userId}});
+      const foundUser = await this.userRepository.findOne({ where: { id: userId } });
       if (!foundUser) {
         throw new HttpException(
           {

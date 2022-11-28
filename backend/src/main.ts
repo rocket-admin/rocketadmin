@@ -15,7 +15,9 @@ require('dotenv').config();
 async function bootstrap() {
   try {
     requiredEnvironmentVariablesValidator();
-    const appOptions = {};
+    const appOptions = {
+      rawBody: true,
+    };
     const app = await NestFactory.create(ApplicationModule, appOptions);
 
     Sentry.init({

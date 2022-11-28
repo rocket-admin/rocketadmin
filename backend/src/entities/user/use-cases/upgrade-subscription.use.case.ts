@@ -1,13 +1,13 @@
-import { HttpStatus, Inject, Injectable, Scope } from '@nestjs/common';
+import { HttpStatus, Inject, Injectable } from '@nestjs/common';
+import { HttpException } from '@nestjs/common/exceptions/http.exception';
 import AbstractUseCase from '../../../common/abstract-use.case';
+import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface';
+import { BaseType } from '../../../common/data-injection.tokens';
+import { Messages } from '../../../exceptions/text/messages';
+import { upgradeUserSubscription } from '../../stripe/stripe-helpers/upgrade-user-subscription';
 import { UpgradeUserSubscriptionDs } from '../application/data-structures/upgrade-user-subscription.ds';
 import { UpgradedUserSubscriptionDs } from '../application/data-structures/upgraded-user-subscription.ds';
 import { IUpgradeSubscription } from './user-use-cases.interfaces';
-import { BaseType } from '../../../common/data-injection.tokens';
-import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface';
-import { HttpException } from '@nestjs/common/exceptions/http.exception';
-import { Messages } from '../../../exceptions/text/messages';
-import { upgradeUserSubscription } from '../../../helpers/stripe/upgrade-user-subscription';
 
 @Injectable()
 export class UpgradeSubscriptionUseCase

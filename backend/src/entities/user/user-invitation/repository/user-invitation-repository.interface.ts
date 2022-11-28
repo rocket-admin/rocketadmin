@@ -2,7 +2,7 @@ import { UserInvitationEntity } from '../user-invitation.entity';
 import { UserEntity } from '../../user.entity';
 
 export interface IUserInvitationRepository {
-  createOrUpdateInvitationEntity(user: UserEntity): Promise<UserInvitationEntity>;
+  createOrUpdateInvitationEntity(user: UserEntity, connectionOwnerId: string): Promise<UserInvitationEntity>;
 
   findUserInvitationWithVerificationString(verificationString: string): Promise<UserInvitationEntity>;
 

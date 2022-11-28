@@ -2,18 +2,20 @@ import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import AbstractUseCase from '../../../common/abstract-use.case';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface';
 import { BaseType } from '../../../common/data-injection.tokens';
+import { SubscriptionLevelEnum } from '../../../enums';
 import { Messages } from '../../../exceptions/text/messages';
 import { Constants } from '../../../helpers/constants/constants';
 import { ConnectionEntity } from '../../connection/connection.entity';
 import { sendEmailConfirmation, sendInvitationToGroup } from '../../email/send-email';
 import { PermissionEntity } from '../../permission/permission.entity';
+import { createStripeUsageRecord } from '../../stripe/stripe-helpers/create-stripe-usage-record';
+import { getCurrentUserSubscription } from '../../stripe/stripe-helpers/get-current-user-subscription';
 import { TableSettingsEntity } from '../../table-settings/table-settings.entity';
 import { UserEntity } from '../../user/user.entity';
 import { buildConnectionEntitiesFromTestDtos } from '../../user/utils/build-connection-entities-from-test-dtos';
 import { buildDefaultAdminGroups } from '../../user/utils/build-default-admin-groups';
 import { buildDefaultAdminPermissions } from '../../user/utils/build-default-admin-permissions';
 import { buildTestTableSettings } from '../../user/utils/build-test-table-settings';
-import { StripeUtil } from '../../user/utils/stripe-util';
 import { AddUserInGroupDs } from '../application/data-sctructures/add-user-in-group.ds';
 import { AddedUserInGroupDs } from '../application/data-sctructures/added-user-in-group.ds';
 import { GroupEntity } from '../group.entity';
@@ -33,8 +35,33 @@ export class AddUserInGroupUseCase
 
   protected async implementation(inputData: AddUserInGroupDs): Promise<AddedUserInGroupDs> {
     const { email, groupId } = inputData;
+    const ownerId = await this._dbContext.connectionRepository.getConnectionAuthorIdByGroupInConnectionId(groupId);
     const foundGroup = await this._dbContext.groupRepository.findGroupById(groupId);
     const foundUser = await this._dbContext.userRepository.findUserByEmailWithEmailVerificationAndInvitation(email);
+    const foundOwner = await this._dbContext.userRepository.findOneUserById(ownerId);
+    let { usersInConnections, usersInConnectionsCount } =
+      await this._dbContext.connectionRepository.calculateUsersInAllConnectionsOfThisOwner(ownerId);
+    const ownerSubscriptionLevel: SubscriptionLevelEnum = await getCurrentUserSubscription(foundOwner.stripeId);
+    const canInviteMoreUsers = await this._dbContext.userRepository.checkOwnerInviteAbility(
+      ownerId,
+      usersInConnectionsCount,
+    );
+
+    const newUserAlreadyInConnection: boolean = !!usersInConnections.find((userInConnection) => {
+      if (!foundUser) {
+        return false;
+      }
+      return userInConnection.id === foundUser.id;
+    });
+
+    if (!canInviteMoreUsers) {
+      throw new HttpException(
+        {
+          message: Messages.MAXIMUM_FREE_INVITATION_REACHED,
+        },
+        HttpStatus.PAYMENT_REQUIRED,
+      );
+    }
 
     if (foundUser && foundUser.isActive) {
       const userAlreadyAdded = !!foundGroup.users.find((u) => u.id === foundUser.id);
@@ -49,6 +76,10 @@ export class AddUserInGroupUseCase
       foundGroup.users.push(foundUser);
       const savedGroup = await this._dbContext.groupRepository.saveNewOrUpdatedGroup(foundGroup);
       delete savedGroup.connection;
+      if (!newUserAlreadyInConnection) {
+        ++usersInConnectionsCount;
+        await createStripeUsageRecord(ownerSubscriptionLevel, usersInConnectionsCount);
+      }
       return {
         group: savedGroup,
         message: Messages.USER_ADDED_IN_GROUP(foundUser.email),
@@ -57,7 +88,10 @@ export class AddUserInGroupUseCase
     }
 
     if (foundUser && !foundUser.isActive) {
-      const savedInvitation = await this._dbContext.userInvitationRepository.createOrUpdateInvitationEntity(foundUser);
+      const savedInvitation = await this._dbContext.userInvitationRepository.createOrUpdateInvitationEntity(
+        foundUser,
+        null,
+      );
       const userAlreadyAdded = !!foundGroup.users.find((u) => u.id === foundUser.id);
       if (!userAlreadyAdded) {
         foundGroup.users.push(foundUser);
@@ -101,6 +135,10 @@ export class AddUserInGroupUseCase
           HttpStatus.BAD_REQUEST,
         );
       }
+      if (!newUserAlreadyInConnection) {
+        ++usersInConnectionsCount;
+        await createStripeUsageRecord(ownerSubscriptionLevel, usersInConnectionsCount);
+      }
       return {
         group: savedGroup,
         message: Messages.USER_ADDED_IN_GROUP(foundUser.email),
@@ -112,10 +150,6 @@ export class AddUserInGroupUseCase
     newUser.email = email;
     newUser.isActive = false;
     let savedUser = await this._dbContext.userRepository.saveUserEntity(newUser);
-    if (savedUser && process.env.NODE_ENV !== 'test') {
-      savedUser.stripeId = await StripeUtil.createUserStripeCustomerAndReturnStripeId(savedUser.id);
-      savedUser = await this._dbContext.userRepository.saveUserEntity(newUser);
-    }
     const testConnections = Constants.getTestConnectionsArr();
     const testConnectionsEntities = buildConnectionEntitiesFromTestDtos(testConnections);
     const createdTestConnections = await Promise.all(
@@ -146,7 +180,10 @@ export class AddUserInGroupUseCase
         );
       }),
     );
-    const savedInvitation = await this._dbContext.userInvitationRepository.createOrUpdateInvitationEntity(savedUser);
+    const savedInvitation = await this._dbContext.userInvitationRepository.createOrUpdateInvitationEntity(
+      savedUser,
+      ownerId,
+    );
     foundGroup.users.push(newUser);
     const savedGroup = await this._dbContext.groupRepository.saveNewOrUpdatedGroup(foundGroup);
     delete savedGroup.connection;

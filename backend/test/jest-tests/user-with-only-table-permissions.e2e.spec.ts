@@ -2,21 +2,20 @@ import { faker } from '@faker-js/faker';
 import { knex } from 'knex';
 import * as request from 'supertest';
 
-import { AccessLevelEnum, QueryOrderingEnum } from '../../src/enums';
-import { ApplicationModule } from '../../src/app.module';
-import { compareArrayElements } from '../../src/helpers';
+import { INestApplication } from '@nestjs/common';
+import { Test } from '@nestjs/testing';
+import * as cookieParser from 'cookie-parser';
 import { Connection } from 'typeorm';
+import { ApplicationModule } from '../../src/app.module';
+import { AccessLevelEnum, QueryOrderingEnum } from '../../src/enums';
+import { Messages } from '../../src/exceptions/text/messages';
+import { Cacher } from '../../src/helpers/cache/cacher';
 import { Constants } from '../../src/helpers/constants/constants';
 import { DatabaseModule } from '../../src/shared/database/database.module';
 import { DatabaseService } from '../../src/shared/database/database.service';
-import { INestApplication } from '@nestjs/common';
-import { Messages } from '../../src/exceptions/text/messages';
 import { MockFactory } from '../mock.factory';
-import { Test } from '@nestjs/testing';
-import { TestUtils } from '../utils/test.utils';
-import * as cookieParser from 'cookie-parser';
-import { Cacher } from '../../src/helpers/cache/cacher';
 import { compareTableWidgetsArrays } from '../utils/compare-table-widgets-arrays';
+import { TestUtils } from '../utils/test.utils';
 
 describe('User permissions (connection none, group none) (e2e)', () => {
   jest.setTimeout(100000);
@@ -67,16 +66,17 @@ describe('User permissions (connection none, group none) (e2e)', () => {
     password: 'hamalai-lahalai',
   };
 
-  async function resetPostgresTestDB() {
-    const { host, username, password, database, port, type, ssl, cert } = newConnection;
+  async function resetMySQLTestDB() {
+    const { host, username, password, database, port, ssl, cert } = newConnection2;
     const Knex = knex({
-      client: type,
+      client: 'mysql2',
       connection: {
         host: host,
         user: username,
         password: password,
         database: database,
         port: port,
+        ssl: ssl ? { ca: cert } : { rejectUnauthorized: false },
       },
     });
     await Knex.schema.dropTableIfExists(testTableName);
@@ -98,6 +98,46 @@ describe('User permissions (connection none, group none) (e2e)', () => {
       } else {
         await Knex(testTableName).insert({
           [testTableColumnName]: faker.name.findName(),
+          [testTAbleSecondColumnName]: faker.internet.email(),
+          created_at: new Date(),
+          updated_at: new Date(),
+        });
+      }
+    }
+    await Knex.destroy();
+  }
+
+  async function resetPostgresTestDB() {
+    const { host, username, password, database, port, type, ssl, cert } = newConnection;
+    const Knex = knex({
+      client: type,
+      connection: {
+        host: host,
+        user: username,
+        password: password,
+        database: database,
+        port: port,
+      },
+    });
+    await Knex.schema.dropTableIfExists(testTableName);
+    await Knex.schema.createTable(testTableName, function (table) {
+      table.increments();
+      table.string(testTableColumnName);
+      table.string(testTAbleSecondColumnName);
+      table.timestamps();
+    });
+
+    for (let i = 0; i < testEntitiesSeedsCount; i++) {
+      if (i === 0 || i === testEntitiesSeedsCount - 21 || i === testEntitiesSeedsCount - 5) {
+        await Knex(testTableName).insert({
+          [testTableColumnName]: testSearchedUserName,
+          [testTAbleSecondColumnName]: faker.internet.email(),
+          created_at: new Date(),
+          updated_at: new Date(),
+        });
+      } else {
+        await Knex(testTableName).insert({
+          [testTableColumnName]: faker.name.firstName(),
           [testTAbleSecondColumnName]: faker.internet.email(),
           created_at: new Date(),
           updated_at: new Date(),
@@ -130,6 +170,7 @@ describe('User permissions (connection none, group none) (e2e)', () => {
     newTableWidgets = mockFactory.generateCreateWidgetDTOsArrayForUsersTable();
     updatedTableWidgets = mockFactory.generateUpdateWidgetDTOsArrayForUsersTable();
     await resetPostgresTestDB();
+    await resetMySQLTestDB();
 
     const registerAdminUserResponse = await request(app.getHttpServer())
       .post('/user/register/')
@@ -1529,8 +1570,8 @@ describe('User permissions (connection none, group none) (e2e)', () => {
         it('should return added row', async () => {
           const connectionIds = await createConnectionsAndInviteNewUserInNewGroupInFirstConnection();
 
-          const randomName = faker.name.findName();
-          const randomEmail = faker.name.findName();
+          const randomName = faker.name.firstName();
+          const randomEmail = faker.name.firstName();
           /* eslint-disable */
           const created_at = new Date();
           const updated_at = new Date();
@@ -1562,8 +1603,8 @@ describe('User permissions (connection none, group none) (e2e)', () => {
         it('should throw an exception when connection id passed in request is incorrect', async () => {
           const connectionIds = await createConnectionsAndInviteNewUserInNewGroupInFirstConnection();
 
-          const randomName = faker.name.findName();
-          const randomEmail = faker.name.findName();
+          const randomName = faker.name.firstName();
+          const randomEmail = faker.name.firstName();
           /* eslint-disable */
           const created_at = new Date();
           const updated_at = new Date();
@@ -1587,8 +1628,8 @@ describe('User permissions (connection none, group none) (e2e)', () => {
         it('should throw an exception when table name passed in request is incorrect', async () => {
           const connectionIds = await createConnectionsAndInviteNewUserInNewGroupInFirstConnection();
 
-          const randomName = faker.name.findName();
-          const randomEmail = faker.name.findName();
+          const randomName = faker.name.firstName();
+          const randomEmail = faker.name.firstName();
           /* eslint-disable */
           const created_at = new Date();
           const updated_at = new Date();
@@ -1614,8 +1655,8 @@ describe('User permissions (connection none, group none) (e2e)', () => {
         it('should throw an exception do not have permission, when you do not have edit permission ', async () => {
           const connectionIds = await createConnectionsAndInviteNewUserInNewGroupInFirstConnection();
 
-          const randomName = faker.name.findName();
-          const randomEmail = faker.name.findName();
+          const randomName = faker.name.firstName();
+          const randomEmail = faker.name.firstName();
           /* eslint-disable */
           const created_at = new Date();
           const updated_at = new Date();
@@ -1640,8 +1681,8 @@ describe('User permissions (connection none, group none) (e2e)', () => {
         it('should throw an exception when connection id passed in request is incorrect', async () => {
           const connectionIds = await createConnectionsAndInviteNewUserInNewGroupInFirstConnection();
 
-          const randomName = faker.name.findName();
-          const randomEmail = faker.name.findName();
+          const randomName = faker.name.firstName();
+          const randomEmail = faker.name.firstName();
           /* eslint-disable */
           const created_at = new Date();
           const updated_at = new Date();
@@ -1665,8 +1706,8 @@ describe('User permissions (connection none, group none) (e2e)', () => {
         it('should throw an exception when table name passed in request is incorrect', async () => {
           const connectionIds = await createConnectionsAndInviteNewUserInNewGroupInFirstConnection();
 
-          const randomName = faker.name.findName();
-          const randomEmail = faker.name.findName();
+          const randomName = faker.name.firstName();
+          const randomEmail = faker.name.firstName();
           /* eslint-disable */
           const created_at = new Date();
           const updated_at = new Date();
@@ -1786,8 +1827,8 @@ describe('User permissions (connection none, group none) (e2e)', () => {
         it('should return all found logs in connection', async () => {
           const connectionIds = await createConnectionsAndInviteNewUserInNewGroupInFirstConnection();
 
-          const randomName = faker.name.findName();
-          const randomEmail = faker.name.findName();
+          const randomName = faker.name.firstName();
+          const randomEmail = faker.name.firstName();
           /* eslint-disable */
           const created_at = new Date();
           const updated_at = new Date();
@@ -2058,6 +2099,12 @@ describe('User permissions (connection none, group none) (e2e)', () => {
             .set('Cookie', connectionAdminUserToken)
             .set('Content-Type', 'application/json')
             .set('Accept', 'application/json');
+
+          console.log(
+            '🚀 ~ file: user-with-only-table-permissions.e2e.spec.ts ~ line 2060 ~ it ~ createTableSettingsResponse',
+            createTableSettingsResponse.text,
+          );
+
           expect(createTableSettingsResponse.status).toBe(201);
 
           const updateTableSettingsDTO = mockFactory.generateTableSettings(
@@ -2220,12 +2267,7 @@ describe('User permissions (connection none, group none) (e2e)', () => {
             expect(getTableStructureRO.table_widgets.length).toBe(2);
             expect(getTableStructureRO.table_widgets[0].field_name).toBe(newTableWidgets[0].field_name);
             expect(getTableStructureRO.table_widgets[1].widget_type).toBe(newTableWidgets[1].widget_type);
-            expect(
-              compareTableWidgetsArrays(
-                getTableStructureRO.table_widgets,
-                newTableWidgets,
-              ),
-            ).toBeTruthy();
+            expect(compareTableWidgetsArrays(getTableStructureRO.table_widgets, newTableWidgets)).toBeTruthy();
           } catch (err) {
             throw err;
           }

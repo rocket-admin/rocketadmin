@@ -71,10 +71,6 @@ export class FindUserUseCase
       }),
     );
     await this.amplitudeService.formAndSendLogRecord(AmplitudeEventTypeEnum.userRegistered, savedUser.id);
-    if (!savedUser.stripeId && process.env.NODE_ENV !== 'test') {
-      savedUser.stripeId = await StripeUtil.createUserStripeCustomerAndReturnStripeId(savedUser.id);
-      savedUser = await this._dbContext.userRepository.saveUserEntity(savedUser);
-    }
     return await buildFoundUserDs(savedUser);
   }
 }

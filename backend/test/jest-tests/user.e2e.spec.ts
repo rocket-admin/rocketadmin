@@ -81,7 +81,7 @@ describe('User (e2e)', () => {
         expect(getUserRO.isActive).toBeFalsy();
         expect(getUserRO.email).toBe('firstUser@example.com');
         expect(getUserRO.hasOwnProperty('createdAt')).toBeTruthy();
-        expect(getUserRO.portal_link).toBe(Messages.NO_STRIPE);
+        expect(getUserRO.portal_link).toBe(null);
         expect(getUserRO.name).toBe(adminUserRegisterInfo.name);
       } catch (err) {
         throw err;
