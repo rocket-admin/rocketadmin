@@ -1,9 +1,9 @@
+import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import AbstractUseCase from '../../../common/abstract-use.case';
-import { ILogOut } from './user-use-cases.interfaces';
-import { HttpException, HttpStatus, Inject, Injectable, Scope } from '@nestjs/common';
-import { BaseType } from '../../../common/data-injection.tokens';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface';
+import { BaseType } from '../../../common/data-injection.tokens';
 import { Messages } from '../../../exceptions/text/messages';
+import { ILogOut } from './user-use-cases.interfaces';
 
 @Injectable()
 export class LogOutUseCase extends AbstractUseCase<string, boolean> implements ILogOut {

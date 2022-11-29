@@ -1,14 +1,14 @@
-import { Inject, Injectable, Scope } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import AbstractUseCase from '../../../common/abstract-use.case';
-import { FoundLogsDs, FoundLogsEntities } from '../application/data-structures/found-logs.ds';
-import { FindLogsDs } from '../application/data-structures/find-logs.ds';
-import { IFindLogs } from './use-cases.interface';
-import { BaseType } from '../../../common/data-injection.tokens';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface';
+import { BaseType } from '../../../common/data-injection.tokens';
 import { QueryOrderingEnum } from '../../../enums';
 import { Constants } from '../../../helpers/constants/constants';
+import { FindLogsDs } from '../application/data-structures/find-logs.ds';
+import { FoundLogsDs, FoundLogsEntities } from '../application/data-structures/found-logs.ds';
 import { IFindLogsOptions } from '../repository/table-logs-repository.interface';
 import { buildFoundLogRecordDs } from '../utils/build-found-log-record-ds';
+import { IFindLogs } from './use-cases.interface';
 
 @Injectable()
 export class FindLogsUseCase extends AbstractUseCase<FindLogsDs, FoundLogsDs> implements IFindLogs {
