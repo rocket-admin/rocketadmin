@@ -25,7 +25,6 @@ import { formFullTableStructure } from '../utils/form-full-table-structure';
 import { hashPasswordsInRowUtil } from '../utils/hash-passwords-in-row.util';
 import { processUuidsInRowUtil } from '../utils/process-uuids-in-row-util';
 import { removePasswordsFromRowsUtil } from '../utils/remove-password-from-row.util';
-import { validateTableRowUtil } from '../utils/validate-table-row.util';
 import { IUpdateRowInTable } from './table-use-cases.interface';
 
 @Injectable()
@@ -151,7 +150,7 @@ export class UpdateRowInTableUseCase
     }
     const oldRowDataLog = {
       ...oldRowData,
-    }
+    };
     const futureRowData = Object.assign(oldRowData, row);
     const futurePrimaryKey = {};
     for (const primaryColumn of tablePrimaryKeys) {

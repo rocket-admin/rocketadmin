@@ -4,7 +4,7 @@ const safe = require('safe-regex');
 export function getValuesBetweenCurlies(str: string): Array<any> {
   const valuesArr = [];
   const regExp = /{{([^}}]+)}}/g;
-  let tmpText;
+  let tmpText: RegExpExecArray;
   while ((tmpText = regExp.exec(str))) {
     valuesArr.push(tmpText[1]);
   }

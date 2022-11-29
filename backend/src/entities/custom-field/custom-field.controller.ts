@@ -9,7 +9,6 @@ import {
   Injectable,
   Post,
   Put,
-  Scope,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';

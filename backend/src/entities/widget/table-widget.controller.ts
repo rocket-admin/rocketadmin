@@ -8,24 +8,23 @@ import {
   Injectable,
   Param,
   Post,
-  Scope,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { CreateOrUpdateTableWidgetsDto, CreateTableWidgetDto } from './dto';
 import { HttpException } from '@nestjs/common/exceptions/http.exception';
-import { ITableWidgetRO } from './table-widget.interface';
-import { Messages } from '../../exceptions/text/messages';
-import { SentryInterceptor } from '../../interceptors';
-import { ConnectionEditGuard, ConnectionReadGuard } from '../../guards';
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UseCaseType } from '../../common/data-injection.tokens';
-import { ICreateUpdateDeleteTableWidgets, IFindTableWidgets } from './use-cases/table-widgets-use-cases.interface';
-import { FindTableWidgetsDs } from './application/data-sctructures/find-table-widgets.ds';
-import { CreateTableWidgetsDs } from './application/data-sctructures/create-table-widgets.ds';
-import { FoundTableWidgetsDs } from './application/data-sctructures/found-table-widgets.ds';
 import { MasterPassword, QueryTableName, SlugUuid, UserId } from '../../decorators';
 import { InTransactionEnum } from '../../enums';
+import { Messages } from '../../exceptions/text/messages';
+import { ConnectionEditGuard, ConnectionReadGuard } from '../../guards';
+import { SentryInterceptor } from '../../interceptors';
+import { CreateTableWidgetsDs } from './application/data-sctructures/create-table-widgets.ds';
+import { FindTableWidgetsDs } from './application/data-sctructures/find-table-widgets.ds';
+import { FoundTableWidgetsDs } from './application/data-sctructures/found-table-widgets.ds';
+import { CreateOrUpdateTableWidgetsDto, CreateTableWidgetDto } from './dto';
+import { ITableWidgetRO } from './table-widget.interface';
+import { ICreateUpdateDeleteTableWidgets, IFindTableWidgets } from './use-cases/table-widgets-use-cases.interface';
 
 @ApiBearerAuth()
 @ApiTags('table_widgets')
