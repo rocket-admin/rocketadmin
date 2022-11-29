@@ -6,7 +6,7 @@ import { createDataAccessObject } from '../../../data-access-layer/shared/create
 import {
   IDataAccessObject,
   IForeignKey,
-  IForeignKeyWithForeignColumnName
+  IForeignKeyWithForeignColumnName,
 } from '../../../data-access-layer/shared/data-access-object-interface';
 import { WidgetTypeEnum } from '../../../enums';
 import { Messages } from '../../../exceptions/text/messages';

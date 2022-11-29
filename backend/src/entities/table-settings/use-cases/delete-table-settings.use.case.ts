@@ -1,12 +1,12 @@
-import { HttpException, HttpStatus, Inject, Injectable, Scope } from '@nestjs/common';
-import { IDeleteTableSettings } from './use-cases.interface';
-import { BaseType } from '../../../common/data-injection.tokens';
+import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
+import AbstractUseCase from '../../../common/abstract-use.case';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface';
+import { BaseType } from '../../../common/data-injection.tokens';
+import { Messages } from '../../../exceptions/text/messages';
 import { DeleteTableSettingsDs } from '../application/data-structures/delete-table-settings.ds';
 import { FoundTableSettingsDs } from '../application/data-structures/found-table-settings.ds';
 import { buildFoundTableSettingsDs } from '../utils/build-found-table-settings-ds';
-import AbstractUseCase from '../../../common/abstract-use.case';
-import { Messages } from '../../../exceptions/text/messages';
+import { IDeleteTableSettings } from './use-cases.interface';
 
 @Injectable()
 export class DeleteTableSettingsUseCase

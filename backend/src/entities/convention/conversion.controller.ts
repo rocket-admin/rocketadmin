@@ -1,4 +1,4 @@
-import { Controller, Get, Inject, Injectable, Res, Scope, UseInterceptors } from '@nestjs/common';
+import { Controller, Get, Inject, Injectable, Res, UseInterceptors } from '@nestjs/common';
 import { ApiBasicAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Response } from 'express';
 import { UseCaseType } from '../../common/data-injection.tokens';
