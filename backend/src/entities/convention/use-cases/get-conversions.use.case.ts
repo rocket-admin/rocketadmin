@@ -1,9 +1,9 @@
-import { Inject, Injectable, Scope } from '@nestjs/common';
-import AbstractUseCase from '../../../common/abstract-use.case';
-import { IGetConversions } from './get-conversions-use-cases.interface';
-import { BaseType } from '../../../common/data-injection.tokens';
-import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface';
+import { Inject, Injectable } from '@nestjs/common';
 import { Parser as CsvParser } from 'json2csv';
+import AbstractUseCase from '../../../common/abstract-use.case';
+import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface';
+import { BaseType } from '../../../common/data-injection.tokens';
+import { IGetConversions } from './get-conversions-use-cases.interface';
 
 @Injectable()
 export class GetConversionsUseCase extends AbstractUseCase<void, string> implements IGetConversions {

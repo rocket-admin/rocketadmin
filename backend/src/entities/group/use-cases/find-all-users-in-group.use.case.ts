@@ -1,11 +1,11 @@
-import { Inject, Injectable, Scope } from '@nestjs/common';
-import AbstractUseCase from '../../../common/abstract-use.case';
-import { IFindAllUsersInGroup } from './use-cases.interfaces';
-import { BaseType } from '../../../common/data-injection.tokens';
-import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface';
+import { Inject, Injectable } from '@nestjs/common';
 import { UserEntity } from 'src/entities/user/user.entity';
+import AbstractUseCase from '../../../common/abstract-use.case';
+import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface';
+import { BaseType } from '../../../common/data-injection.tokens';
 import { FoundUserInGroupDs } from '../../user/application/data-structures/found-user-in-group.ds';
 import { buildFoundUserInGroupDs } from '../../user/utils/build-found-user.ds';
+import { IFindAllUsersInGroup } from './use-cases.interfaces';
 
 @Injectable()
 export class FindAllUsersInGroupUseCase

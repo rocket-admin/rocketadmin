@@ -15,26 +15,7 @@ export async function validateCreateConnectionData(
   createConnectionData: CreateConnectionDs | UpdateConnectionDs,
 ): Promise<boolean> {
   const {
-    connection_parameters: {
-      azure_encryption,
-      cert,
-      masterEncryption,
-      port,
-      schema,
-      sid,
-      ssh,
-      sshHost,
-      sshPort,
-      ssl,
-      title,
-      host,
-      sshUsername,
-      username,
-      privateSSHKey,
-      database,
-      type,
-      password,
-    },
+    connection_parameters: { port, ssh, sshHost, sshPort, title, host, sshUsername, username, database, type },
   } = createConnectionData;
   const errors: Array<string> = [];
   if (!type) errors.push(Messages.TYPE_MISSING);
@@ -104,7 +85,7 @@ async function checkIsHostAllowed(createConnectionData: CreateConnectionDs | Upd
   return new Promise<boolean>((resolve, reject) => {
     const testHosts = Constants.getTestConnectionsHostNamesArr();
     if (!createConnectionData.connection_parameters.ssh) {
-      dns.lookup(createConnectionData.connection_parameters.host, (err, address, family) => {
+      dns.lookup(createConnectionData.connection_parameters.host, (err, address) => {
         if (
           ipRangeCheck(address, Constants.FORBIDDEN_HOSTS) &&
           !testHosts.includes(createConnectionData.connection_parameters.host)
@@ -118,7 +99,7 @@ async function checkIsHostAllowed(createConnectionData: CreateConnectionDs | Upd
         }
       });
     } else if (createConnectionData.connection_parameters.ssh && createConnectionData.connection_parameters.sshHost) {
-      dns.lookup(createConnectionData.connection_parameters.sshHost, (err, address, family) => {
+      dns.lookup(createConnectionData.connection_parameters.sshHost, (err, address) => {
         if (
           ipRangeCheck(address, Constants.FORBIDDEN_HOSTS) &&
           !testHosts.includes(createConnectionData.connection_parameters.host)

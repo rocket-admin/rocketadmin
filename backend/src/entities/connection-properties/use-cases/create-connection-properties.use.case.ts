@@ -1,14 +1,14 @@
+import { Inject, Injectable } from '@nestjs/common';
 import AbstractUseCase from '../../../common/abstract-use.case';
+import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface';
 import { BaseType } from '../../../common/data-injection.tokens';
+import { Encryptor } from '../../../helpers/encryption/encryptor';
 import { CreateConnectionPropertiesDs } from '../application/data-structures/create-connection-properties.ds';
 import { FoundConnectionPropertiesDs } from '../application/data-structures/found-connection-properties.ds';
-import { ICreateConnectionProperties } from './connection-properties-use.cases.interface';
-import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface';
-import { Inject, Injectable, Scope } from '@nestjs/common';
-import { validateCreateConnectionPropertiesDs } from '../utils/validate-create-connection-properties-ds';
 import { buildConnectionPropertiesEntity } from '../utils/build-connection-properties-entity';
-import { Encryptor } from '../../../helpers/encryption/encryptor';
 import { buildFoundConnectionPropertiesDs } from '../utils/build-found-connection-properties-ds';
+import { validateCreateConnectionPropertiesDs } from '../utils/validate-create-connection-properties-ds';
+import { ICreateConnectionProperties } from './connection-properties-use.cases.interface';
 
 @Injectable()
 export class CreateConnectionPropertiesUseCase
