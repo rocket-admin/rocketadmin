@@ -1,23 +1,23 @@
-import { HttpException, HttpStatus, Inject, Injectable, Scope } from '@nestjs/common';
+import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import AbstractUseCase from '../../../common/abstract-use.case';
-import { GetRowByPrimaryKeyDs } from '../application/data-structures/get-row-by-primary-key.ds';
-import { IForeignKeyInfo, ITableRowRO } from '../table.interface';
-import { BaseType } from '../../../common/data-injection.tokens';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface';
-import { Messages } from '../../../exceptions/text/messages';
+import { BaseType } from '../../../common/data-injection.tokens';
 import { createDataAccessObject } from '../../../data-access-layer/shared/create-data-access-object';
-import { compareArrayElements, isConnectionTypeAgent } from '../../../helpers';
-import { WidgetTypeEnum } from '../../../enums';
 import {
   IDataAccessObject,
   IForeignKey,
-  IForeignKeyWithForeignColumnName,
+  IForeignKeyWithForeignColumnName
 } from '../../../data-access-layer/shared/data-access-object-interface';
-import { removePasswordsFromRowsUtil } from '../utils/remove-password-from-row.util';
-import { formFullTableStructure } from '../utils/form-full-table-structure';
-import { IGetRowByPrimaryKey } from './table-use-cases.interface';
+import { WidgetTypeEnum } from '../../../enums';
+import { Messages } from '../../../exceptions/text/messages';
+import { compareArrayElements, isConnectionTypeAgent } from '../../../helpers';
+import { GetRowByPrimaryKeyDs } from '../application/data-structures/get-row-by-primary-key.ds';
+import { IForeignKeyInfo, ITableRowRO } from '../table.interface';
 import { convertBinaryDataInRowUtil } from '../utils/convert-binary-data-in-row.util';
 import { convertHexDataInPrimaryKeyUtil } from '../utils/convert-hex-data-in-primary-key.util';
+import { formFullTableStructure } from '../utils/form-full-table-structure';
+import { removePasswordsFromRowsUtil } from '../utils/remove-password-from-row.util';
+import { IGetRowByPrimaryKey } from './table-use-cases.interface';
 
 @Injectable()
 export class GetRowByPrimaryKeyUseCase

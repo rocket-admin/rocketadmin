@@ -7,10 +7,8 @@ import {
   Inject,
   Injectable,
   Post,
-  Put,
-  Scope,
-  UseGuards,
-  UseInterceptors,
+  Put, UseGuards,
+  UseInterceptors
 } from '@nestjs/common';
 import { HttpException } from '@nestjs/common/exceptions/http.exception';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
@@ -28,7 +26,7 @@ import {
   ICreateConnectionProperties,
   IDeleteConnectionProperties,
   IFindConnectionProperties,
-  IUpdateConnectionProperties,
+  IUpdateConnectionProperties
 } from './use-cases/connection-properties-use.cases.interface';
 
 @ApiBearerAuth()
