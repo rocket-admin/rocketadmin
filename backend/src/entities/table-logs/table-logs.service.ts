@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { findSensitiveValues, scrub } from '@zapier/secret-scrubber';
 import { Repository } from 'typeorm';
 import { TableSettingsEntity } from '../table-settings/table-settings.entity';
 import { UserEntity } from '../user/user.entity';
@@ -44,6 +45,21 @@ export class TableLogsService {
       }
     }
 
+    if (old_data && typeof old_data === 'object') {
+      const sensitiveValues = findSensitiveValues(old_data);
+      console.log("🚀 ~ file: table-logs.service.ts ~ line 50 ~ TableLogsService ~ crateAndSaveNewLogUtil ~ sensitiveValues", sensitiveValues)
+      if (sensitiveValues && sensitiveValues.length > 0) {
+        scrub(old_data, sensitiveValues);
+      }
+    }
+
+    if (row && typeof row === 'object') {
+      const sensitiveValues = findSensitiveValues(row);
+      if (sensitiveValues && sensitiveValues.length > 0) {
+        console.log("🚀 ~ file: table-logs.service.ts ~ line 59 ~ TableLogsService ~ crateAndSaveNewLogUtil ~ sensitiveValues", sensitiveValues)
+        scrub(row, findSensitiveValues(sensitiveValues));
+      }
+    }
     const newLogRecord = buildTableLogsEntity(logData, email);
     const savedLogRecord = await this.tableLogsRepository.save(newLogRecord);
     return buildCreatedLogRecord(savedLogRecord);
