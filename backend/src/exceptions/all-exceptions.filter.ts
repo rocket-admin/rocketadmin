@@ -1,8 +1,6 @@
 import { ArgumentsHost, Catch, ExceptionFilter, HttpException, HttpStatus } from '@nestjs/common';
-import { processExceptionMessage } from './utils/process-exception-message';
-import { slackPostMessage } from '../helpers';
-import { Constants } from '../helpers/constants/constants';
 import { Logger } from '../helpers/logging/Logger';
+import { processExceptionMessage } from './utils/process-exception-message';
 
 @Catch()
 export class AllExceptionsFilter implements ExceptionFilter {

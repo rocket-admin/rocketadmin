@@ -1,18 +1,18 @@
-import { HttpStatus, Inject, Injectable, Scope } from '@nestjs/common';
-import AbstractUseCase from '../../../common/abstract-use.case';
-import { FoundConnectionPropertiesDs } from '../application/data-structures/found-connection-properties.ds';
-import { CreateConnectionPropertiesDs } from '../application/data-structures/create-connection-properties.ds';
-import { IUpdateConnectionProperties } from './connection-properties-use.cases.interface';
-import { BaseType } from '../../../common/data-injection.tokens';
-import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface';
-import { validateCreateConnectionPropertiesDs } from '../utils/validate-create-connection-properties-ds';
+import { HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { HttpException } from '@nestjs/common/exceptions/http.exception';
+import AbstractUseCase from '../../../common/abstract-use.case';
+import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface';
+import { BaseType } from '../../../common/data-injection.tokens';
 import { Messages } from '../../../exceptions/text/messages';
+import { CreateConnectionPropertiesDs } from '../application/data-structures/create-connection-properties.ds';
+import { FoundConnectionPropertiesDs } from '../application/data-structures/found-connection-properties.ds';
+import { buildFoundConnectionPropertiesDs } from '../utils/build-found-connection-properties-ds';
 import {
   buildUpdateConnectionPropertiesObject,
   IUpdateConnectionPropertiesObject,
 } from '../utils/build-update-connection-properties-object';
-import { buildFoundConnectionPropertiesDs } from '../utils/build-found-connection-properties-ds';
+import { validateCreateConnectionPropertiesDs } from '../utils/validate-create-connection-properties-ds';
+import { IUpdateConnectionProperties } from './connection-properties-use.cases.interface';
 
 @Injectable()
 export class UpdateConnectionPropertiesUseCase

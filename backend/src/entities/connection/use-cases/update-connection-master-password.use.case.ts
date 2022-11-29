@@ -1,10 +1,10 @@
-import { Inject, Injectable, Scope } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import AbstractUseCase from '../../../common/abstract-use.case';
+import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface';
+import { BaseType } from '../../../common/data-injection.tokens';
+import { Encryptor } from '../../../helpers/encryption/encryptor';
 import { UpdateMasterPasswordDs } from '../application/data-structures/update-master-password.ds';
 import { IUpdateMasterPassword } from './use-cases.interfaces';
-import { BaseType } from '../../../common/data-injection.tokens';
-import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface';
-import { Encryptor } from '../../../helpers/encryption/encryptor';
 
 @Injectable()
 export class UpdateConnectionMasterPasswordUseCase

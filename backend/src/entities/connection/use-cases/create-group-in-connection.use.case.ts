@@ -1,13 +1,13 @@
-import AbstractUseCase from '../../../common/abstract-use.case';
-import { BaseType } from '../../../common/data-injection.tokens';
-import { buildNewGroupEntityForConnectionWithUser } from '../utils/build-new-group-entity-for-connection-with-user';
-import { CreateGroupInConnectionDs } from '../application/data-structures/create-group-in-connection.ds';
-import { GroupEntity } from '../../group/group.entity';
+import { HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { HttpException } from '@nestjs/common/exceptions/http.exception';
-import { HttpStatus, Inject, Injectable, Scope } from '@nestjs/common';
-import { ICreateGroupInConnection } from './use-cases.interfaces';
+import AbstractUseCase from '../../../common/abstract-use.case';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface';
+import { BaseType } from '../../../common/data-injection.tokens';
 import { Messages } from '../../../exceptions/text/messages';
+import { GroupEntity } from '../../group/group.entity';
+import { CreateGroupInConnectionDs } from '../application/data-structures/create-group-in-connection.ds';
+import { buildNewGroupEntityForConnectionWithUser } from '../utils/build-new-group-entity-for-connection-with-user';
+import { ICreateGroupInConnection } from './use-cases.interfaces';
 
 @Injectable()
 export class CreateGroupInConnectionUseCase

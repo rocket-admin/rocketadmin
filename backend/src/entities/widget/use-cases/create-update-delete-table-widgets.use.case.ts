@@ -1,4 +1,4 @@
-import { HttpStatus, Inject, Injectable, Scope } from '@nestjs/common';
+import { HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { HttpException } from '@nestjs/common/exceptions/http.exception';
 import AbstractUseCase from '../../../common/abstract-use.case';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface';
@@ -17,7 +17,8 @@ import { ICreateUpdateDeleteTableWidgets } from './table-widgets-use-cases.inter
 @Injectable()
 export class CreateUpdateDeleteTableWidgetsUseCase
   extends AbstractUseCase<CreateTableWidgetsDs, Array<FoundTableWidgetsDs>>
-  implements ICreateUpdateDeleteTableWidgets {
+  implements ICreateUpdateDeleteTableWidgets
+{
   constructor(
     @Inject(BaseType.GLOBAL_DB_CONTEXT)
     protected _dbContext: IGlobalDatabaseContext,
