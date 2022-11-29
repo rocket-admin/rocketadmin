@@ -36,18 +36,29 @@ export class TableLogsService {
 
     if (sensitive_fields && sensitive_fields.length > 0) {
       for (const fieldName of sensitive_fields) {
-        if (old_data && old_data.hasOwnProperty(fieldName)) {
+        if (old_data && typeof old_data === 'object' && old_data.hasOwnProperty(fieldName)) {
           delete old_data[fieldName];
         }
-        if (row.hasOwnProperty(fieldName)) {
+        if (row && typeof row === 'object' && row.hasOwnProperty(fieldName)) {
           delete row[fieldName];
         }
       }
     }
 
+    if (typeof old_data === 'string') {
+      const sensitiveValues = findSensitiveValues([old_data]);
+      if (sensitiveValues && sensitiveValues.length > 0) {
+        scrub(old_data, sensitiveValues);
+      }
+    }
+
+    if (typeof row === 'string') {
+      const sensitiveValues = findSensitiveValues([row]);
+      scrub(row, sensitiveValues);
+    }
+
     if (old_data && typeof old_data === 'object') {
       const sensitiveValues = findSensitiveValues(old_data);
-      console.log("🚀 ~ file: table-logs.service.ts ~ line 50 ~ TableLogsService ~ crateAndSaveNewLogUtil ~ sensitiveValues", sensitiveValues)
       if (sensitiveValues && sensitiveValues.length > 0) {
         scrub(old_data, sensitiveValues);
       }
@@ -56,8 +67,7 @@ export class TableLogsService {
     if (row && typeof row === 'object') {
       const sensitiveValues = findSensitiveValues(row);
       if (sensitiveValues && sensitiveValues.length > 0) {
-        console.log("🚀 ~ file: table-logs.service.ts ~ line 59 ~ TableLogsService ~ crateAndSaveNewLogUtil ~ sensitiveValues", sensitiveValues)
-        scrub(row, findSensitiveValues(sensitiveValues));
+        scrub(row, sensitiveValues);
       }
     }
     const newLogRecord = buildTableLogsEntity(logData, email);
