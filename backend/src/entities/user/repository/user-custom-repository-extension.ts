@@ -24,9 +24,7 @@ export const userCustomRepositoryExtension: IUserRepository = {
     newUser.isActive = userData.isActive;
     newUser.name = userData.name;
     newUser.connections = [];
-    let savedUser = await this.save(newUser);
-    savedUser = await this.save(newUser);
-    return savedUser;
+    return await this.save(newUser);
   },
 
   async findOneUserById(userId: string): Promise<UserEntity | null> {
