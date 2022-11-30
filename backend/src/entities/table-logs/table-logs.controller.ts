@@ -32,6 +32,7 @@ export class TableLogsController {
   dateTo=value (to get logs between two dates) |
   email=value |
   limit=value (if you do not want use pagination. default limit is 500)
+  operationType=value filter by logged operation type
   `,
   })
   @ApiResponse({ status: 200, description: 'Return all table logs.' })
