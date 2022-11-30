@@ -1,7 +1,7 @@
-import { CreateConnectionDto } from '../../entities/connection/dto';
-import { getProcessVariable } from '../get-process-variable';
-import { ConnectionTypeEnum } from '../../enums';
 import { Knex } from 'knex';
+import { CreateConnectionDto } from '../../entities/connection/dto';
+import { ConnectionTypeEnum } from '../../enums';
+import { getProcessVariable } from '../get-process-variable';
 
 export const Constants = {
   JWT_COOKIE_KEY_NAME: 'jwt',
@@ -152,6 +152,7 @@ export const Constants = {
   },
 
   REMOVED_PASSWORD_VALUE: '***',
+  REMOVED_SENSITIVE_FIELD: '* * * sensitive data, no logs stored * * *',
 
   getTestConnectionsArr: function (): Array<CreateConnectionDto> {
     const isSaaS = process.env.IS_SAAS;
