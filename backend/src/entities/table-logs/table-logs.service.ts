@@ -22,7 +22,7 @@ export class TableLogsService {
     private readonly tableSettingsRepository: Repository<TableSettingsEntity>,
   ) {}
 
-    //todo remove after reworking logs to storind only changed fields
+  //todo remove after reworking logs to storind only changed fields
   public async crateAndSaveNewLogUtilDeprecated(logData: CreateLogRecordDs): Promise<CreatedLogRecordDs> {
     const { userId, connection, table_name, old_data, row } = logData;
     const foundUser = await this.userRepository.findOne({ where: { id: userId } });
@@ -101,9 +101,9 @@ export class TableLogsService {
           typeof row === 'object' &&
           row.hasOwnProperty(fieldName)
         ) {
-          if (old_data[fieldName] === row[fieldName]) {
-            old_data[fieldName] = Constants.REMOVED_SENSITIVE_FIELD_IF_NOT_CHANGED;
-            row[fieldName] = Constants.REMOVED_SENSITIVE_FIELD_IF_NOT_CHANGED;
+          if (this.compareValues(old_data[fieldName], row[fieldName])) {
+            old_data[fieldName] = Constants.REMOVED_SENSITIVE_FIELD_IF_CHANGED;
+            row[fieldName] = Constants.REMOVED_SENSITIVE_FIELD_IF_CHANGED;
           } else {
             old_data[fieldName] = Constants.REMOVED_SENSITIVE_FIELD_IF_NOT_CHANGED;
             row[fieldName] = Constants.REMOVED_SENSITIVE_FIELD_IF_CHANGED;
@@ -148,5 +148,16 @@ export class TableLogsService {
     const newLogRecord = buildTableLogsEntity(logData, email);
     const savedLogRecord = await this.tableLogsRepository.save(newLogRecord);
     return buildCreatedLogRecord(savedLogRecord);
+  }
+
+  private compareValues(val1: any, val2: any): boolean {
+    if (val1 instanceof Date === true && val2 instanceof Date) {
+      const date1 = new Date(val1);
+      const date2 = new Date(val2);
+      const date1Parsed = date1.getTime();
+      const date2Parsed = date2.getTime();
+      return date1Parsed === date2Parsed;
+    }
+    return val1 === val2;
   }
 }
