@@ -22,7 +22,8 @@ export class TableLogsService {
     private readonly tableSettingsRepository: Repository<TableSettingsEntity>,
   ) {}
 
-  public async crateAndSaveNewLogUtil(logData: CreateLogRecordDs): Promise<CreatedLogRecordDs> {
+    //todo remove after reworking logs to storind only changed fields
+  public async crateAndSaveNewLogUtilDeprecated(logData: CreateLogRecordDs): Promise<CreatedLogRecordDs> {
     const { userId, connection, table_name, old_data, row } = logData;
     const foundUser = await this.userRepository.findOne({ where: { id: userId } });
     const { email } = foundUser;
@@ -77,8 +78,7 @@ export class TableLogsService {
     return buildCreatedLogRecord(savedLogRecord);
   }
 
-  //todo remove after reworking logs to storind only changed fields
-  public async crateAndSaveNewLogUtilDeprecated(logData: CreateLogRecordDs): Promise<CreatedLogRecordDs> {
+  public async crateAndSaveNewLogUtil(logData: CreateLogRecordDs): Promise<CreatedLogRecordDs> {
     const { userId, connection, table_name, old_data, row } = logData;
     const foundUser = await this.userRepository.findOne({ where: { id: userId } });
     const { email } = foundUser;
