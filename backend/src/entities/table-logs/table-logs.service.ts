@@ -102,8 +102,8 @@ export class TableLogsService {
           row.hasOwnProperty(fieldName)
         ) {
           if (this.compareValues(old_data[fieldName], row[fieldName])) {
-            old_data[fieldName] = Constants.REMOVED_SENSITIVE_FIELD_IF_NOT_CHANGED;
-            row[fieldName] = Constants.REMOVED_SENSITIVE_FIELD_IF_NOT_CHANGED;
+            old_data[fieldName] = Constants.REMOVED_SENSITIVE_FIELD_IF_CHANGED;
+            row[fieldName] = Constants.REMOVED_SENSITIVE_FIELD_IF_CHANGED;
           } else {
             old_data[fieldName] = Constants.REMOVED_SENSITIVE_FIELD_IF_NOT_CHANGED;
             row[fieldName] = Constants.REMOVED_SENSITIVE_FIELD_IF_CHANGED;
