@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { findSensitiveValues, scrub } from '@zapier/secret-scrubber';
 import { Repository } from 'typeorm';
+import { Constants } from '../../helpers/constants/constants';
 import { TableSettingsEntity } from '../table-settings/table-settings.entity';
 import { UserEntity } from '../user/user.entity';
 import { CreateLogRecordDs } from './application/data-structures/create-log-record.ds';
@@ -37,10 +38,10 @@ export class TableLogsService {
     if (sensitive_fields && sensitive_fields.length > 0) {
       for (const fieldName of sensitive_fields) {
         if (old_data && typeof old_data === 'object' && old_data.hasOwnProperty(fieldName)) {
-          delete old_data[fieldName];
+          old_data[fieldName] = Constants.REMOVED_SENSITIVE_FIELD;
         }
         if (row && typeof row === 'object' && row.hasOwnProperty(fieldName)) {
-          delete row[fieldName];
+          row[fieldName] = Constants.REMOVED_SENSITIVE_FIELD;
         }
       }
     }
@@ -70,6 +71,7 @@ export class TableLogsService {
         scrub(row, sensitiveValues);
       }
     }
+
     const newLogRecord = buildTableLogsEntity(logData, email);
     const savedLogRecord = await this.tableLogsRepository.save(newLogRecord);
     return buildCreatedLogRecord(savedLogRecord);
