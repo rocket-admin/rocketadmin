@@ -38,10 +38,83 @@ export class TableLogsService {
     if (sensitive_fields && sensitive_fields.length > 0) {
       for (const fieldName of sensitive_fields) {
         if (old_data && typeof old_data === 'object' && old_data.hasOwnProperty(fieldName)) {
-          old_data[fieldName] = Constants.REMOVED_SENSITIVE_FIELD;
+          old_data[fieldName] = Constants.REMOVED_SENSITIVE_FIELD_IF_CHANGED;
         }
         if (row && typeof row === 'object' && row.hasOwnProperty(fieldName)) {
-          row[fieldName] = Constants.REMOVED_SENSITIVE_FIELD;
+          row[fieldName] = Constants.REMOVED_SENSITIVE_FIELD_IF_CHANGED;
+        }
+      }
+    }
+
+    if (typeof old_data === 'string') {
+      const sensitiveValues = findSensitiveValues([old_data]);
+      if (sensitiveValues && sensitiveValues.length > 0) {
+        scrub(old_data, sensitiveValues);
+      }
+    }
+
+    if (typeof row === 'string') {
+      const sensitiveValues = findSensitiveValues([row]);
+      scrub(row, sensitiveValues);
+    }
+
+    if (old_data && typeof old_data === 'object') {
+      const sensitiveValues = findSensitiveValues(old_data);
+      if (sensitiveValues && sensitiveValues.length > 0) {
+        scrub(old_data, sensitiveValues);
+      }
+    }
+
+    if (row && typeof row === 'object') {
+      const sensitiveValues = findSensitiveValues(row);
+      if (sensitiveValues && sensitiveValues.length > 0) {
+        scrub(row, sensitiveValues);
+      }
+    }
+
+    const newLogRecord = buildTableLogsEntity(logData, email);
+    const savedLogRecord = await this.tableLogsRepository.save(newLogRecord);
+    return buildCreatedLogRecord(savedLogRecord);
+  }
+
+  //todo remove after reworking logs to storind only changed fields
+  public async crateAndSaveNewLogUtilDeprecated(logData: CreateLogRecordDs): Promise<CreatedLogRecordDs> {
+    const { userId, connection, table_name, old_data, row } = logData;
+    const foundUser = await this.userRepository.findOne({ where: { id: userId } });
+    const { email } = foundUser;
+    const tableSettingsQb = this.tableSettingsRepository
+      .createQueryBuilder('tableLogs')
+      .leftJoinAndSelect('tableLogs.connection_id', 'connection_id')
+      .andWhere('tableLogs.connection_id = :connection_id', { connection_id: connection.id })
+      .andWhere('tableLogs.table_name = :table_name', { table_name: table_name });
+
+    const tableSettings = await tableSettingsQb.getOne();
+    const sensitive_fields = tableSettings?.sensitive_fields;
+
+    if (sensitive_fields && sensitive_fields.length > 0) {
+      for (const fieldName of sensitive_fields) {
+        if (
+          old_data &&
+          typeof old_data === 'object' &&
+          old_data.hasOwnProperty(fieldName) &&
+          row &&
+          typeof row === 'object' &&
+          row.hasOwnProperty(fieldName)
+        ) {
+          if (old_data[fieldName] === row[fieldName]) {
+            old_data[fieldName] = Constants.REMOVED_SENSITIVE_FIELD_IF_NOT_CHANGED;
+            row[fieldName] = Constants.REMOVED_SENSITIVE_FIELD_IF_NOT_CHANGED;
+          } else {
+            old_data[fieldName] = Constants.REMOVED_SENSITIVE_FIELD_IF_NOT_CHANGED;
+            row[fieldName] = Constants.REMOVED_SENSITIVE_FIELD_IF_CHANGED;
+          }
+        } else {
+          if (old_data && typeof old_data === 'object' && old_data.hasOwnProperty(fieldName)) {
+            old_data[fieldName] = Constants.REMOVED_SENSITIVE_FIELD_IF_NOT_CHANGED;
+          }
+          if (row && typeof row === 'object' && row.hasOwnProperty(fieldName)) {
+            row[fieldName] = Constants.REMOVED_SENSITIVE_FIELD_IF_CHANGED;
+          }
         }
       }
     }

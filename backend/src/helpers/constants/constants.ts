@@ -152,7 +152,9 @@ export const Constants = {
   },
 
   REMOVED_PASSWORD_VALUE: '***',
-  REMOVED_SENSITIVE_FIELD: '* * * sensitive data, no logs stored * * *',
+  REMOVED_SENSITIVE_FIELD_IF_CHANGED: '* * * sensitive data, no logs stored * * *',
+  REMOVED_SENSITIVE_FIELD_IF_NOT_CHANGED: '',
+
 
   getTestConnectionsArr: function (): Array<CreateConnectionDto> {
     const isSaaS = process.env.IS_SAAS;
