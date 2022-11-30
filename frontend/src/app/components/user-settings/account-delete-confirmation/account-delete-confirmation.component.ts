@@ -30,7 +30,7 @@ export class AccountDeleteConfirmationComponent implements OnInit {
     this._userService.deleteAccount(this.data)
       .subscribe(() => {
         this.angulartics2.eventTrack.next({
-          action: 'Delete connection',
+          action: 'Delete account',
           properties: {
             email: this.data.email,
             reason: this.data.reason,
