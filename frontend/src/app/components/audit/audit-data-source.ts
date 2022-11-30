@@ -2,10 +2,10 @@ import { BehaviorSubject, Observable, of } from 'rxjs';
 import { catchError, finalize } from 'rxjs/operators';
 
 import { CollectionViewer } from '@angular/cdk/collections';
+import { ConnectionsService } from 'src/app/services/connections.service';
 import { DataSource } from '@angular/cdk/table';
 import { MatPaginator } from '@angular/material/paginator';
 import { format } from 'date-fns'
-import { ConnectionsService } from 'src/app/services/connections.service';
 
 interface Column {
   title: string,
@@ -64,7 +64,7 @@ export class AuditDataSource implements DataSource<Object> {
           const actions = {
             addRow: 'added row',
             deleteRow: 'deleted row',
-            updateRow: 'updated row',
+            updateRow: 'edit row',
             rowReceived: 'received row',
             rowsReceived: 'received rows'
           }
