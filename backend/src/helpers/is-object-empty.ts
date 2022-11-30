@@ -1,5 +1,5 @@
 export function isObjectEmpty(obj: any): boolean {
-  for (const key in obj) {
+  for (const _ in obj) {
     return false;
   }
   return true;
