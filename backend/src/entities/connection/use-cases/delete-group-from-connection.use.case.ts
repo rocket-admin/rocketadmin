@@ -1,12 +1,12 @@
-import AbstractUseCase from '../../../common/abstract-use.case';
-import { BaseType } from '../../../common/data-injection.tokens';
-import { DeleteGroupInConnectionDs } from '../application/data-structures/delete-group-in-connection.ds';
+import { HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { HttpException } from '@nestjs/common/exceptions/http.exception';
-import { HttpStatus, Inject, Injectable, Scope } from '@nestjs/common';
-import { IDeleteGroupInConnection } from './use-cases.interfaces';
+import AbstractUseCase from '../../../common/abstract-use.case';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface';
+import { BaseType } from '../../../common/data-injection.tokens';
 import { Messages } from '../../../exceptions/text/messages';
 import { GroupEntity } from '../../group/group.entity';
+import { DeleteGroupInConnectionDs } from '../application/data-structures/delete-group-in-connection.ds';
+import { IDeleteGroupInConnection } from './use-cases.interfaces';
 
 @Injectable()
 export class DeleteGroupFromConnectionUseCase

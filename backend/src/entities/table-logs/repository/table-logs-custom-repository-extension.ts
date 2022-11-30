@@ -37,6 +37,7 @@ export const tableLogsCustomRepositoryExtension = {
       tableName,
       userConnectionEdit,
       userInGroupsIds,
+      logOperationType,
     } = findOptions;
     const qb = this.createQueryBuilder('tableLogs').leftJoinAndSelect('tableLogs.connection_id', 'connection_id');
     qb.andWhere('tableLogs.connection_id = :connection_id', { connection_id: connectionId });
@@ -60,6 +61,9 @@ export const tableLogsCustomRepositoryExtension = {
     }
     if (searchedEmail) {
       qb.andWhere('tableLogs.email = :searchMail', { searchMail: searchedEmail });
+    }
+    if (logOperationType) {
+      qb.andWhere('tableLogs.operationType = :logOperationType', { logOperationType: logOperationType });
     }
     const rowsCount = await qb.getCount();
     const lastPage = Math.ceil(rowsCount / perPage);

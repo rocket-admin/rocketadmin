@@ -1,14 +1,14 @@
-import { HttpStatus, Inject, Injectable, Scope } from '@nestjs/common';
-import { IFindTableWidgets } from './table-widgets-use-cases.interface';
+import { HttpStatus, Inject, Injectable } from '@nestjs/common';
+import { HttpException } from '@nestjs/common/exceptions/http.exception';
 import AbstractUseCase from '../../../common/abstract-use.case';
+import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface';
+import { BaseType } from '../../../common/data-injection.tokens';
+import { Messages } from '../../../exceptions/text/messages';
+import { findTablesInConnectionUtil } from '../../table/utils/find-tables-in-connection.util';
 import { FindTableWidgetsDs } from '../application/data-sctructures/find-table-widgets.ds';
 import { FoundTableWidgetsDs } from '../application/data-sctructures/found-table-widgets.ds';
-import { BaseType } from '../../../common/data-injection.tokens';
-import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface';
-import { findTablesInConnectionUtil } from '../../table/utils/find-tables-in-connection.util';
-import { HttpException } from '@nestjs/common/exceptions/http.exception';
-import { Messages } from '../../../exceptions/text/messages';
 import { buildFoundTableWidgetDs } from '../utils/build-found-table-widget-ds';
+import { IFindTableWidgets } from './table-widgets-use-cases.interface';
 
 @Injectable()
 export class FindTableWidgetsUseCase

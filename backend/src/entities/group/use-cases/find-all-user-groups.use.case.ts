@@ -1,11 +1,11 @@
-import { Inject, Injectable, Scope } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import AbstractUseCase from '../../../common/abstract-use.case';
-import { FoundUserGroupsDs } from '../application/data-sctructures/found-user-groups.ds';
-import { IFindUserGroups } from './use-cases.interfaces';
-import { BaseType } from '../../../common/data-injection.tokens';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface';
-import { GroupEntity } from '../group.entity';
+import { BaseType } from '../../../common/data-injection.tokens';
 import { AccessLevelEnum } from '../../../enums';
+import { FoundUserGroupsDs } from '../application/data-sctructures/found-user-groups.ds';
+import { GroupEntity } from '../group.entity';
+import { IFindUserGroups } from './use-cases.interfaces';
 
 @Injectable()
 export class FindAllUserGroupsUseCase extends AbstractUseCase<string, FoundUserGroupsDs> implements IFindUserGroups {

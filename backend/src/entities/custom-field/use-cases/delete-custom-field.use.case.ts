@@ -1,13 +1,13 @@
-import { HttpStatus, Inject, Injectable, Scope } from '@nestjs/common';
-import AbstractUseCase from '../../../common/abstract-use.case';
-import { IDeleteCustomField } from './custom-field-use-cases.interface';
-import { DeleteCustomFieldsDs } from '../application/data-structures/delete-custom-fields.ds';
-import { BaseType } from '../../../common/data-injection.tokens';
-import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface';
+import { HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { HttpException } from '@nestjs/common/exceptions/http.exception';
+import AbstractUseCase from '../../../common/abstract-use.case';
+import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface';
+import { BaseType } from '../../../common/data-injection.tokens';
 import { Messages } from '../../../exceptions/text/messages';
-import { buildFoundTableSettingsDs } from '../../table-settings/utils/build-found-table-settings-ds';
 import { FoundTableSettingsDs } from '../../table-settings/application/data-structures/found-table-settings.ds';
+import { buildFoundTableSettingsDs } from '../../table-settings/utils/build-found-table-settings-ds';
+import { DeleteCustomFieldsDs } from '../application/data-structures/delete-custom-fields.ds';
+import { IDeleteCustomField } from './custom-field-use-cases.interface';
 
 @Injectable()
 export class DeleteCustomFieldUseCase

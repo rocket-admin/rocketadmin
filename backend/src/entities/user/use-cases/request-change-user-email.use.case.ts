@@ -1,11 +1,11 @@
+import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import AbstractUseCase from '../../../common/abstract-use.case';
-import { IRequestEmailChange } from './user-use-cases.interfaces';
-import { HttpException, HttpStatus, Inject, Injectable, Scope } from '@nestjs/common';
-import { BaseType } from '../../../common/data-injection.tokens';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface';
+import { BaseType } from '../../../common/data-injection.tokens';
 import { Messages } from '../../../exceptions/text/messages';
 import { sendEmailChangeRequest } from '../../email/send-email';
 import { OperationResultMessageDs } from '../application/data-structures/operation-result-message.ds';
+import { IRequestEmailChange } from './user-use-cases.interfaces';
 
 @Injectable()
 export class RequestChangeUserEmailUseCase

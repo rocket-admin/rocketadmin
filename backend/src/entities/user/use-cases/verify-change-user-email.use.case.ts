@@ -1,12 +1,12 @@
+import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import AbstractUseCase from '../../../common/abstract-use.case';
-import { ChangeUserEmailDs } from '../application/data-structures/change-user-email.ds';
-import { IVerifyEmailChange } from './user-use-cases.interfaces';
-import { HttpException, HttpStatus, Inject, Injectable, Scope } from '@nestjs/common';
-import { BaseType } from '../../../common/data-injection.tokens';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface';
+import { BaseType } from '../../../common/data-injection.tokens';
 import { Messages } from '../../../exceptions/text/messages';
 import { sendEmailChanged } from '../../email/send-email';
+import { ChangeUserEmailDs } from '../application/data-structures/change-user-email.ds';
 import { OperationResultMessageDs } from '../application/data-structures/operation-result-message.ds';
+import { IVerifyEmailChange } from './user-use-cases.interfaces';
 
 @Injectable()
 export class VerifyChangeUserEmailUseCase
