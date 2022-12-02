@@ -197,6 +197,14 @@ export const Messages = {
   USER_CREATED: (email: string, provider: ProviderTypeEnum = null) =>
     `User "${email}" was registered. ${provider ? `Provider: "${provider}".` : ''}`,
   USER_CREATION_FAILED: 'Creating a new user failed.',
+  USER_DELETED_ACCOUNT: (email: string, reason: string, message: string) =>
+    `User ${email ? email : 'unknowm'} deleted his account. Reason is: ${
+      reason ? reason : 'unknown'
+    }. And message is: ${message ? message : 'no message'}.`,
+  USER_DELETED_CONNECTION: (email: string, reason: string, message: string) =>
+    `User ${email ? email : 'unknowm'} deleted his own connection. Reason is: ${
+      reason ? reason : 'unknown'
+    }. And message is: ${message ? message : 'no message'}.`,
   USER_EMAIL_MISSING: `User email is missing`,
   USER_MISSING_EMAIL_OR_SOCIAL_REGISTERED: `User with this email not found in our database. Please check your email.
   Hint: if you registered through google or facebook, you need to change your password in these providers`,
