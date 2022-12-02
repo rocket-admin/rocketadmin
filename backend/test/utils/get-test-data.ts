@@ -16,6 +16,7 @@ export function getTestData(mockFactory: MockFactory) {
   const connectionToOracleDBSchema = mockFactory.generateConnectionToSchemaOracleDBInDocker();
   const encryptedPostgresConnection = mockFactory.generateEncryptedConnectionToTestPostgresDBInDocker();
   const connectionToPostgresSchema = mockFactory.generateConnectionToTestPostgresDBWithSchemaInDocker();
+  const connectionToPostgres = mockFactory.generateConnectionToTestPostgresDBInDocker();
   return {
     newConnection,
     newEncryptedConnection,
@@ -32,5 +33,6 @@ export function getTestData(mockFactory: MockFactory) {
     connectionToOracleDBSchema,
     encryptedPostgresConnection,
     connectionToPostgresSchema,
+    connectionToPostgres,
   };
 }
