@@ -150,7 +150,7 @@ export class MockFactory {
     dto.port = 5432;
     dto.username = 'postgres';
     dto.password = '123';
-    dto.database = 'testDB';
+    dto.database = 'postgres';
     dto.schema = 'test_schema';
     dto.ssh = false;
     return dto;
