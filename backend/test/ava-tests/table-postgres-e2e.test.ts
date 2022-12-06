@@ -13,7 +13,7 @@ import { Constants } from '../../src/helpers/constants/constants';
 import { DatabaseModule } from '../../src/shared/database/database.module';
 import { DatabaseService } from '../../src/shared/database/database.service';
 import { MockFactory } from '../mock.factory';
-import { createTestPostgresTableWithSchema, createTestTable } from '../utils/create-test-table';
+import { createTestTable } from '../utils/create-test-table';
 import { dropTestTables } from '../utils/drop-test-tables';
 import { getTestData } from '../utils/get-test-data';
 import { registerUserAndReturnUserInfo } from '../utils/register-user-and-return-user-info';

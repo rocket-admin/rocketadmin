@@ -1,8 +1,8 @@
-import * as LRU from 'lru-cache';
-import { Constants } from '../constants/constants';
 import { Knex } from 'knex';
-import { ConnectionEntity } from '../../entities/connection/connection.entity';
+import * as LRU from 'lru-cache';
 import { IForeignKey, IPrimaryKey, ITableStructure } from '../../data-access-layer/shared/data-access-object-interface';
+import { ConnectionEntity } from '../../entities/connection/connection.entity';
+import { Constants } from '../constants/constants';
 
 const knexCache = new LRU(Constants.DEFAULT_CONNECTION_CACHE_OPTIONS);
 const tunnelCache = new LRU(Constants.DEFAULT_TUNNEL_CACHE_OPTIONS);
@@ -81,12 +81,18 @@ export class Cacher {
     tableName: string,
     structure: Array<ITableStructure>,
   ): void {
-    const cacheObj = JSON.stringify({ connection, tableName });
+    const connectionCopy = {
+      ...connection,
+    }
+    const cacheObj = JSON.stringify({ connectionCopy, tableName });
     tableStructureCache.set(cacheObj, structure);
   }
 
   public static getTableStructureCache(connection: ConnectionEntity, tableName: string): Array<ITableStructure> {
-    const cacheObj = JSON.stringify({ connection, tableName });
+    const connectionCopy = {
+      ...connection,
+    }
+    const cacheObj = JSON.stringify({ connectionCopy, tableName });
     const foundStructure = tableStructureCache.get(cacheObj) as Array<ITableStructure>;
     return foundStructure ? foundStructure : null;
   }
@@ -96,12 +102,18 @@ export class Cacher {
     tableName: string,
     primaryKeys: Array<IPrimaryKey>,
   ): void {
-    const cacheObj = JSON.stringify({ connection, tableName });
+    const connectionCopy = {
+      ...connection,
+    }
+    const cacheObj = JSON.stringify({ connectionCopy, tableName });
     tablePrimaryKeysCache.set(cacheObj, primaryKeys);
   }
 
   public static getTablePrimaryKeysCache(connection: ConnectionEntity, tableName: string): Array<IPrimaryKey> {
-    const cacheObj = JSON.stringify({ connection, tableName });
+    const connectionCopy = {
+      ...connection,
+    }
+    const cacheObj = JSON.stringify({ connectionCopy, tableName });
     const foundKeys = tablePrimaryKeysCache.get(cacheObj) as Array<IPrimaryKey>;
     return foundKeys ? foundKeys : null;
   }
@@ -111,12 +123,18 @@ export class Cacher {
     tableName: string,
     foreignKeys: Array<IForeignKey>,
   ): void {
-    const cacheObj = JSON.stringify({ connection, tableName });
+    const connectionCopy = {
+      ...connection,
+    }
+    const cacheObj = JSON.stringify({ connectionCopy, tableName });
     tableForeignKeysCache.set(cacheObj, foreignKeys);
   }
 
   public static getTableForeignKeysCache(connection: ConnectionEntity, tableName: string): Array<IForeignKey> {
-    const cacheObj = JSON.stringify({ connection, tableName });
+    const connectionCopy = {
+      ...connection,
+    }
+    const cacheObj = JSON.stringify({ connectionCopy, tableName });
     const foundKeys = tableForeignKeysCache.get(cacheObj) as Array<IForeignKey>;
     return foundKeys ? foundKeys : null;
   }
