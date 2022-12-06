@@ -48,7 +48,7 @@
                     <input matInput [(ngModel)]="selectedAction.title" name="{{selectedAction.title}}-field-new-name">
                 </mat-form-field>
 
-                <button mat-icon-button [matMenuTriggerFor]="menu">
+                <button mat-icon-button type="button" [matMenuTriggerFor]="menu">
                     <mat-icon fontSet="material-icons-outlined" *ngIf="selectedAction.icon; else defaultIcon">
                         {{ selectedAction.icon }}
                     </mat-icon>
@@ -62,11 +62,12 @@
                         <strong>Select icon</strong>
                         <ul class="icons-list">
                             <li *ngFor="let icon of defaultIcons; let i = index">
-                                <label for="icon-{{i}}">
+                                <label for="icon-{{i}}" (click)="$event.stopPropagation();">
                                     <input type="radio" name="action-icon-{{i}}"
                                         [value]="icon" id="icon-{{i}}"
                                         [(ngModel)]="selectedAction.icon"
-                                        class="icon-button visually-hidden">
+                                        class="icon-button visually-hidden"
+                                        >
                                     <button mat-icon-button>
                                         <mat-icon>{{icon}}</mat-icon>
                                     </button>
@@ -75,9 +76,12 @@
                         </ul>
                         <mat-form-field appearance="outline" class="icon-input">
                             <mat-label>Another icon</mat-label>
-                            <input matInput [(ngModel)]="selectedAction.url" name="{{selectedAction.url}}-field-description">
+                            <input matInput
+                            [(ngModel)]="selectedAction.url"
+                             name="{{selectedAction.url}}-field-description"
+                             (click)="$event.stopPropagation();">
                             <mat-hint>
-                                More icons <a href="https://fonts.google.com/icons" class="google-icons-link">here</a>
+                                More icons <a href="https://fonts.google.com/icons" target="_blank" (click)="$event.stopPropagation();" class="google-icons-link">here</a>
                             </mat-hint>
                         </mat-form-field>
                     </div>
