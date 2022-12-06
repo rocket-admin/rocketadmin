@@ -198,11 +198,11 @@ export const Messages = {
     `User "${email}" was registered. ${provider ? `Provider: "${provider}".` : ''}`,
   USER_CREATION_FAILED: 'Creating a new user failed.',
   USER_DELETED_ACCOUNT: (email: string, reason: string, message: string) =>
-    `User ${email ? email : 'unknowm'} deleted his account. Reason is: ${
+    `User ${email ? email : 'unknowm'} deleted their account. Reason is: ${
       reason ? reason : 'unknown'
     }. And message is: ${message ? message : 'no message'}.`,
   USER_DELETED_CONNECTION: (email: string, reason: string, message: string) =>
-    `User ${email ? email : 'unknowm'} deleted his own connection. Reason is: ${
+    `User ${email ? email : 'unknowm'} deleted their own connection. Reason is: ${
       reason ? reason : 'unknown'
     }. And message is: ${message ? message : 'no message'}.`,
   USER_EMAIL_MISSING: `User email is missing`,
