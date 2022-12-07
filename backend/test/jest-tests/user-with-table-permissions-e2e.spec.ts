@@ -19,7 +19,7 @@ import { Cacher } from '../../src/helpers/cache/cacher';
 import { compareTableWidgetsArrays } from '../utils/compare-table-widgets-arrays';
 
 describe('User permissions (connection readonly, group readonly) (e2e)', () => {
-  jest.setTimeout(50000);
+  jest.setTimeout(80000);
   let app: INestApplication;
   let testUtils: TestUtils;
   const mockFactory = new MockFactory();
