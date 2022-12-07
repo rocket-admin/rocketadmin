@@ -1,9 +1,18 @@
-import { Controller, Get, HttpStatus, Inject, Injectable, Query, UseInterceptors } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  HttpStatus,
+  Inject,
+  Injectable,
+  ParseArrayPipe,
+  Query,
+  UseInterceptors,
+} from '@nestjs/common';
 import { HttpException } from '@nestjs/common/exceptions/http.exception';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UseCaseType } from '../../common/data-injection.tokens';
 import { SlugUuid, UserId } from '../../decorators';
-import { InTransactionEnum } from '../../enums';
+import { InTransactionEnum, LogOperationTypeEnum } from '../../enums';
 import { Messages } from '../../exceptions/text/messages';
 import { SentryInterceptor } from '../../interceptors';
 import { FindLogsDs } from './application/data-structures/find-logs.ds';
@@ -33,11 +42,18 @@ export class TableLogsController {
   email=value |
   limit=value (if you do not want use pagination. default limit is 500)
   operationType=value filter by logged operation type
+  operationTypes=value,value,value - filter by several operation types
   `,
   })
   @ApiResponse({ status: 200, description: 'Return all table logs.' })
   @Get('/logs/:slug')
-  async findAll(@Query() query, @SlugUuid() connectionId: string, @UserId() userId: string): Promise<FoundLogsDs> {
+  async findAll(
+    @Query() query,
+    @SlugUuid() connectionId: string,
+    @UserId() userId: string,
+    @Query('operationTypes', new ParseArrayPipe({ separator: ',', optional: true }))
+    operationTypes: Array<LogOperationTypeEnum>,
+  ): Promise<FoundLogsDs> {
     if (!connectionId) {
       throw new HttpException(
         {
@@ -50,6 +66,7 @@ export class TableLogsController {
       connectionId: connectionId,
       query: query,
       userId: userId,
+      operationTypes: operationTypes ? operationTypes : [],
     };
     return await this.findLogsUseCase.execute(inputData, InTransactionEnum.OFF);
   }

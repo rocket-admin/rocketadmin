@@ -22,7 +22,7 @@ export class FindLogsUseCase extends AbstractUseCase<FindLogsDs, FoundLogsDs> im
   }
 
   protected async implementation(inputData: FindLogsDs): Promise<FoundLogsDs> {
-    const { connectionId, query, userId } = inputData;
+    const { connectionId, query, userId, operationTypes } = inputData;
     const userConnectionEdit = await this._dbContext.userAccessRepository.checkUserConnectionEdit(userId, connectionId);
     const tableName = query['tableName'];
     let order = query['order'];
@@ -32,7 +32,7 @@ export class FindLogsUseCase extends AbstractUseCase<FindLogsDs, FoundLogsDs> im
     const dateFrom = query['dateFrom'];
     const dateTo = query['dateTo'];
     const searchedEmail = query['email'];
-    const operationType = query['operationType'];
+    const operationType: LogOperationTypeEnum = query['operationType'];
     if (operationType) {
       const actionValidationResult = validateStringWithEnum(operationType, LogOperationTypeEnum);
       if (!actionValidationResult) {
@@ -42,6 +42,20 @@ export class FindLogsUseCase extends AbstractUseCase<FindLogsDs, FoundLogsDs> im
           },
           HttpStatus.BAD_REQUEST,
         );
+      }
+    }
+
+    if (operationTypes.length > 0) {
+      for (const operationTypeElement of operationTypes) {
+        const actionValidationResult = validateStringWithEnum(operationTypeElement, LogOperationTypeEnum);
+        if (!actionValidationResult) {
+          throw new HttpException(
+            {
+              message: Messages.INCORRECT_TABLE_LOG_ACTION_TYPE,
+            },
+            HttpStatus.BAD_REQUEST,
+          );
+        }
       }
     }
 
@@ -95,6 +109,7 @@ export class FindLogsUseCase extends AbstractUseCase<FindLogsDs, FoundLogsDs> im
       userConnectionEdit: userConnectionEdit,
       userInGroupsIds: userIdsInGroupsWhereUserIsAdmin,
       logOperationType: operationType,
+      logOperationTypes: operationTypes,
     };
     const { logs, pagination }: FoundLogsEntities = await this._dbContext.tableLogsRepository.findLogs(findOptions);
     return {
