@@ -63,17 +63,37 @@
     padding: 16px !important;
 }
 
+.icons-menu {
+    display: flex;
+    flex-direction: column;
+}
+
 .icons-list {
     list-style: none;
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(5, 40px);
     grid-gap: 4px;
+    justify-content: space-between;
     margin-top: 12px;
     margin-bottom: 12px;
 }
 
-.icon-button:checked + ::ng-deep .mat-icon-button {
+.icon-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    height: 40px;
+    width: 40px;
+}
+
+.icon-radio-button:checked + ::ng-deep.icon-button {
     background-color: rgba(0,0,0,0.16);
+}
+
+.apply-icon-button {
+    align-self: flex-end;
+    margin-top: 4px;
 }
 
 .google-icons-link {

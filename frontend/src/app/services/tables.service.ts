@@ -304,7 +304,7 @@ export class TablesService {
   }
 
   saveAction(connectionID: string, tableName: string, action: CustomAction) {
-    return this._http.put<any>(`/table/action/${connectionID}`, action, {
+    return this._http.post<any>(`/table/action/${connectionID}`, action, {
       params: {
         tableName
       }
