@@ -182,11 +182,11 @@ export class DataAccessObjectAgent implements IDataAccessObject {
   }
 
   public async getTableForeignKeys(tableName: string, userEmail: string): Promise<Array<IForeignKey>> {
+    const jwtAuthToken = this.generateJWT(this.connection.agent.token);
     const cachedForeignKeys = Cacher.getTableForeignKeysCache(this.connection, tableName);
     if (cachedForeignKeys) {
       return cachedForeignKeys;
     }
-    const jwtAuthToken = this.generateJWT(this.connection.agent.token);
     try {
       const res = await axios.post(
         this.serverAddress,
@@ -210,11 +210,11 @@ export class DataAccessObjectAgent implements IDataAccessObject {
   }
 
   public async getTablePrimaryColumns(tableName: string, userEmail: string): Promise<Array<IPrimaryKey>> {
+    const jwtAuthToken = this.generateJWT(this.connection.agent.token);
     const cachedPrimaryColumns = Cacher.getTablePrimaryKeysCache(this.connection, tableName);
     if (cachedPrimaryColumns) {
       return cachedPrimaryColumns;
     }
-    const jwtAuthToken = this.generateJWT(this.connection.agent.token);
     try {
       const res = await axios.post(
         this.serverAddress,
@@ -238,11 +238,11 @@ export class DataAccessObjectAgent implements IDataAccessObject {
   }
 
   public async getTableStructure(tableName: string, userEmail: string): Promise<Array<ITableStructure>> {
+    const jwtAuthToken = this.generateJWT(this.connection.agent.token);
     const cachedTableStructure = Cacher.getTableStructureCache(this.connection, tableName);
     if (cachedTableStructure) {
       return cachedTableStructure;
     }
-    const jwtAuthToken = this.generateJWT(this.connection.agent.token);
     try {
       const res = await axios.post(
         this.serverAddress,
@@ -266,7 +266,6 @@ export class DataAccessObjectAgent implements IDataAccessObject {
   }
 
   public async getTablesFromDB(email?: string): Promise<Array<string>> {
-    console.log('CALLED HERE');
     const jwtAuthToken = this.generateJWT(this.connection.agent.token);
     try {
       const res = await axios.post(

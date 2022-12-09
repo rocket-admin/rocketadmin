@@ -50,8 +50,8 @@ export const Constants = {
 
   DEFAULT_PAGINATION: { page: 1, perPage: 20 },
 
-  DEFAULT_SLACK_CHANNEL: '#autoadmin-errors',//'#autoadmin',
-  EXCEPTIONS_CHANNELS: '#autoadmin-errors',
+  DEFAULT_SLACK_CHANNEL: '#rocketadmin-errors',
+  EXCEPTIONS_CHANNELS: '#rocketadmin-errors',
   KEEP_ALIVE_INTERVAL: 30000,
   KEEP_ALIVE_COUNT_MAX: 120,
 

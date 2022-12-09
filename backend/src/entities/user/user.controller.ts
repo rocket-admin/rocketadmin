@@ -17,12 +17,12 @@ import { Response } from 'express';
 import isEmail from 'validator/lib/isEmail';
 import { UseCaseType } from '../../common/data-injection.tokens';
 import { BodyEmail, GCLlId, UserId, VerificationString } from '../../decorators';
-import { AmplitudeEventTypeEnum, InTransactionEnum, SubscriptionLevelEnum } from '../../enums';
+import { InTransactionEnum, SubscriptionLevelEnum } from '../../enums';
 import { Messages } from '../../exceptions/text/messages';
+import { slackPostMessage } from '../../helpers';
 import { Constants } from '../../helpers/constants/constants';
 import { validateStringWithEnum } from '../../helpers/validators/validate-string-with-enum';
 import { SentryInterceptor } from '../../interceptors';
-import { AmplitudeService } from '../amplitude/amplitude.service';
 import { ChangeUserEmailDs } from './application/data-structures/change-user-email.ds';
 import { ChangeUserNameDS } from './application/data-structures/change-user-name.ds';
 import { ChangeUsualUserPasswordDs } from './application/data-structures/change-usual-user-password.ds';
@@ -98,7 +98,6 @@ export class UserController {
     private readonly deleteUserAccountUseCase: IDeleteUserAccount,
     @Inject(UseCaseType.CHANGE_USER_NAME)
     private readonly changeUserNameUseCase: IChangeUserName,
-    private readonly amplitudeService: AmplitudeService,
   ) {}
 
   @ApiOperation({ summary: 'Get user info' })
@@ -427,11 +426,8 @@ export class UserController {
     @Body('message') message: string,
   ): Promise<Omit<RegisteredUserDs, 'token'>> {
     const deleteResult = await this.deleteUserAccountUseCase.execute(userId, InTransactionEnum.ON);
-    await this.amplitudeService.formAndSendLogRecord(AmplitudeEventTypeEnum.userAccountDelete, userId, {
-      reason: reason,
-      message: message,
-      user_email: deleteResult.email,
-    });
+    const slackMessage = Messages.USER_DELETED_ACCOUNT(deleteResult.email, reason, message);
+    await slackPostMessage(slackMessage);
     return deleteResult;
   }
 }

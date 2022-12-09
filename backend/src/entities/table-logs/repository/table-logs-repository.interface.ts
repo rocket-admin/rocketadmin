@@ -25,4 +25,5 @@ export interface IFindLogsOptions {
   userConnectionEdit: boolean;
   userInGroupsIds: Array<string>;
   logOperationType: LogOperationTypeEnum;
+  logOperationTypes: Array<LogOperationTypeEnum>;
 }

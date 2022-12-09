@@ -121,7 +121,6 @@ export async function createTestOracleTable(
   const testTableName = getRandomTestTableName().toUpperCase();
   const Knex = getTestKnex(connectionParams);
   await Knex.schema.dropTableIfExists(testTableName);
-  await Knex.schema.dropTableIfExists(testTableName);
   await Knex.schema.createTable(testTableName, function (table) {
     table.integer(pColumnName);
     table.string(testTableColumnName);
@@ -176,6 +175,57 @@ export async function createTestOracleTable(
           updated_at: new Date(),
         });
       }
+    }
+  }
+  return {
+    testTableName: testTableName,
+    testTableColumnName: testTableColumnName,
+    testTableSecondColumnName: testTableSecondColumnName,
+    testEntitiesSeedsCount: testEntitiesSeedsCount,
+  };
+}
+
+export async function createTestPostgresTableWithSchema(
+  connectionParams: any,
+  testEntitiesSeedsCount = 42,
+  testSearchedUserName = 'Vasia',
+) {
+  const Knex = getTestKnex(connectionParams);
+  const testTableName = getRandomTestTableName();
+  const testSchema = 'test_schema';
+  await Knex.schema.dropTableIfExists(testTableName);
+
+  const testTableColumnName = 'name';
+  const testTableSecondColumnName = 'email';
+
+  await Knex.schema.createSchemaIfNotExists(testSchema);
+  await Knex.schema.withSchema(testSchema).dropTableIfExists(testSchema);
+  await Knex.schema.withSchema(testSchema).createTable(testTableName, function (table) {
+    table.increments();
+    table.string(testTableColumnName);
+    table.string(testTableSecondColumnName);
+    table.timestamps();
+  });
+
+  for (let i = 0; i < testEntitiesSeedsCount; i++) {
+    if (i === 0 || i === testEntitiesSeedsCount - 21 || i === testEntitiesSeedsCount - 5) {
+      await Knex(testTableName)
+        .withSchema(testSchema)
+        .insert({
+          [testTableColumnName]: testSearchedUserName,
+          [testTableSecondColumnName]: faker.internet.email(),
+          created_at: new Date(),
+          updated_at: new Date(),
+        });
+    } else {
+      await Knex(testTableName)
+        .withSchema(testSchema)
+        .insert({
+          [testTableColumnName]: faker.name.firstName(),
+          [testTableSecondColumnName]: faker.internet.email(),
+          created_at: new Date(),
+          updated_at: new Date(),
+        });
     }
   }
   return {
