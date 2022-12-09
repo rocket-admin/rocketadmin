@@ -19,8 +19,6 @@ import { TestUtils } from '../utils/test.utils';
 const mockFactory = new MockFactory();
 let app: INestApplication;
 let testUtils: TestUtils;
-const testSearchedUserName = 'Vasia';
-const testTables: Array<string> = [];
 let currentTest;
 
 test.before(async () => {
@@ -240,6 +238,7 @@ test(`${currentTest} should return created table settings`, async (t) => {
 
     const findSettingsResponce = await request(app.getHttpServer())
       .get(`/settings/?connectionId=${connectionId}&tableName=connection`)
+      .set('Cookie', token)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
 
