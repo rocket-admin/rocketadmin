@@ -19,8 +19,6 @@ import { TestUtils } from '../utils/test.utils';
 const mockFactory = new MockFactory();
 let app: INestApplication;
 let testUtils: TestUtils;
-const testSearchedUserName = 'Vasia';
-const testTables: Array<string> = [];
 let currentTest;
 
 test.before(async () => {
