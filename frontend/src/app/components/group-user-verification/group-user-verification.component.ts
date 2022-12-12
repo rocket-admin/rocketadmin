@@ -13,7 +13,7 @@ export class GroupUserVerificationComponent implements OnInit {
 
   public submitting: boolean = false;
   public token: string;
-  public password: string;
+  public password: string = '';
 
   constructor(
     private _usersService: UsersService,
@@ -29,6 +29,10 @@ export class GroupUserVerificationComponent implements OnInit {
         this.token = params.get('verification-token');
       })
     ).subscribe();
+  }
+
+  updatePasswordField(updatedValue: string) {
+    this.password = updatedValue;
   }
 
   verifyGroupUser() {

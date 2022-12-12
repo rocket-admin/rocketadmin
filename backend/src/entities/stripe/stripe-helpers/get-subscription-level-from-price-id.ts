@@ -1,4 +1,4 @@
-import { SubscriptionLevelEnum } from '../../enums';
+import { SubscriptionLevelEnum } from '../../../enums';
 
 export function getSubscriptionLevelFromPriceId(priceId: string): SubscriptionLevelEnum {
   const teamPlanPriceId = process.env.TEAM_PLAN_PRICE_ID;

@@ -11,6 +11,7 @@ table {
     border-top-width: 1px;
     border-top-style: solid;
     border-top-color: rgba(0,0,0,.12);
+    margin-top: 12px;
     width: 100%;
 }
 
@@ -26,7 +27,22 @@ th {
     text-align: left;
 }
 
+.updated-cell {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.updated-icon {
+    margin-right: -24px;
+}
+
 .changed {
-    /* background: #ff4081; */
-    background-color: #f27f9b;
+    background-color: #e0e3ff;
+}
+
+.sensitive {
+    font-style: italic;
+    font-family: monospace;
+    font-size: 0.85em;
 }

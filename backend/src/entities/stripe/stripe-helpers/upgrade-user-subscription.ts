@@ -1,8 +1,8 @@
-import { SubscriptionLevelEnum } from '../../enums';
-import { getStripe } from './get-stripe';
-import { getPriceId } from './get-price-id';
-import { Messages } from '../../exceptions/text/messages';
 import { HttpException, HttpStatus } from '@nestjs/common';
+import { SubscriptionLevelEnum } from '../../../enums';
+import { Messages } from '../../../exceptions/text/messages';
+import { getPriceId } from './get-price-id';
+import { getStripe } from './get-stripe';
 
 export async function upgradeUserSubscription(
   subscriptionLevel: SubscriptionLevelEnum,
@@ -16,7 +16,7 @@ export async function upgradeUserSubscription(
     const userSubscriptionId = userSubscriptions?.data[0]?.id;
 
     if (subscriptionLevel === SubscriptionLevelEnum.FREE_PLAN) {
-      const deleted = await stripe.subscriptions.del(userSubscriptionId);
+      await stripe.subscriptions.del(userSubscriptionId);
       return {
         success: true,
         message: Messages.SUBSCRIPTION_CANCELLED,
@@ -34,8 +34,8 @@ export async function upgradeUserSubscription(
         );
       }
 
-      const deleted = await stripe.subscriptions.del(userSubscriptionId);
-      const subscription = await stripe.subscriptions.create({
+      await stripe.subscriptions.del(userSubscriptionId);
+      await stripe.subscriptions.create({
         customer: userStripeId,
         items: [{ price: priceIdForNewSubscription }],
         trial_period_days: 30,
@@ -45,7 +45,7 @@ export async function upgradeUserSubscription(
         message: Messages.SUBSCRIPTION_SUCCESSFULLY_CREATED,
       };
     }
-    const subscription = await stripe.subscriptions.create({
+    await stripe.subscriptions.create({
       customer: userStripeId,
       items: [{ price: priceIdForNewSubscription }],
       trial_period_days: 30,

@@ -5,9 +5,9 @@ import { FoundLogsEntities } from '../application/data-structures/found-logs.ds'
 import { TableLogsEntity } from '../table-logs.entity';
 import { buildCreatedLogRecord } from '../utils/build-created-log-record';
 import { buildTableLogsEntity } from '../utils/build-table-logs-entity';
-import { IFindLogsOptions } from './table-logs-repository.interface';
+import { IFindLogsOptions, ITableLogsRepository } from './table-logs-repository.interface';
 
-export const tableLogsCustomRepositoryExtension = {
+export const tableLogsCustomRepositoryExtension: ITableLogsRepository = {
   async createLogRecord(logData: CreateLogRecordDs): Promise<CreatedLogRecordDs> {
     const { userId } = logData;
     const userQb = this.manager
@@ -37,6 +37,8 @@ export const tableLogsCustomRepositoryExtension = {
       tableName,
       userConnectionEdit,
       userInGroupsIds,
+      logOperationType,
+      logOperationTypes,
     } = findOptions;
     const qb = this.createQueryBuilder('tableLogs').leftJoinAndSelect('tableLogs.connection_id', 'connection_id');
     qb.andWhere('tableLogs.connection_id = :connection_id', { connection_id: connectionId });
@@ -60,6 +62,14 @@ export const tableLogsCustomRepositoryExtension = {
     }
     if (searchedEmail) {
       qb.andWhere('tableLogs.email = :searchMail', { searchMail: searchedEmail });
+    }
+    if (logOperationType) {
+      qb.andWhere('tableLogs.operationType = :logOperationType', { logOperationType: logOperationType });
+    }
+    if (logOperationTypes.length > 0) {
+      for (const type of logOperationTypes) {
+        qb.orWhere('tableLogs.operationType = :type', { type: type });
+      }
     }
     const rowsCount = await qb.getCount();
     const lastPage = Math.ceil(rowsCount / perPage);

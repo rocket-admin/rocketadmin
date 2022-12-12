@@ -1,4 +1,4 @@
-## Autoadmin
+## Rocket Admin
 
 [![Total alerts](https://img.shields.io/lgtm/alerts/g/Autoadmin-org/auto-admin.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/Autoadmin-org/auto-admin/alerts/)
 

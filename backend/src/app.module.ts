@@ -12,6 +12,7 @@ import { CronJobsModule } from './entities/cron-jobs/cron-jobs.module';
 import { CustomFieldModule } from './entities/custom-field/custom-field.module';
 import { GroupModule } from './entities/group/group.module';
 import { PermissionModule } from './entities/permission/permission.module';
+import { StripeModule } from './entities/stripe/stripe.module';
 import { TableActionModule } from './entities/table-actions/table-action.module';
 import { TableLogsModule } from './entities/table-logs/table-logs.module';
 import { TableSettingsModule } from './entities/table-settings/table-settings.module';
@@ -42,6 +43,7 @@ import { GetHelloUseCase } from './use-cases-app/get-hello.use.case';
     CronJobsModule,
     DatabaseModule,
     TableActionModule,
+    StripeModule,
   ],
   controllers: [AppController],
   providers: [

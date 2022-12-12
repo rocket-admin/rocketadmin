@@ -1,16 +1,16 @@
-import { Inject, Injectable, Scope } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import AbstractUseCase from '../../../common/abstract-use.case';
-import { ICreateCustomFields } from './custom-field-use-cases.interface';
-import { CreateCustomFieldsDs } from '../application/data-structures/create-custom-fields.ds';
-import { BaseType } from '../../../common/data-injection.tokens';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface';
-import { TableSettingsEntity } from '../../table-settings/table-settings.entity';
+import { BaseType } from '../../../common/data-injection.tokens';
 import { CreateTableSettingsDs } from '../../table-settings/application/data-structures/create-table-settings.ds';
-import { buildEmptyTableSettings } from '../../table-settings/utils/build-empty-table-settings';
-import { buildNewCustomFieldsEntity } from '../utils/build-new-custom-fields-entity';
-import { buildFoundTableSettingsDs } from '../../table-settings/utils/build-found-table-settings-ds';
-import { validateCreateCustomFieldDto } from '../utils/validate-create-custom-field-dto';
 import { FoundTableSettingsDs } from '../../table-settings/application/data-structures/found-table-settings.ds';
+import { TableSettingsEntity } from '../../table-settings/table-settings.entity';
+import { buildEmptyTableSettings } from '../../table-settings/utils/build-empty-table-settings';
+import { buildFoundTableSettingsDs } from '../../table-settings/utils/build-found-table-settings-ds';
+import { CreateCustomFieldsDs } from '../application/data-structures/create-custom-fields.ds';
+import { buildNewCustomFieldsEntity } from '../utils/build-new-custom-fields-entity';
+import { validateCreateCustomFieldDto } from '../utils/validate-create-custom-field-dto';
+import { ICreateCustomFields } from './custom-field-use-cases.interface';
 
 @Injectable()
 export class CreateCustomFieldsUseCase

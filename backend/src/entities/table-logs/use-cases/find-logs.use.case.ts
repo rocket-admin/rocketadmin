@@ -1,14 +1,16 @@
-import { Inject, Injectable, Scope } from '@nestjs/common';
+import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import AbstractUseCase from '../../../common/abstract-use.case';
-import { FoundLogsDs, FoundLogsEntities } from '../application/data-structures/found-logs.ds';
-import { FindLogsDs } from '../application/data-structures/find-logs.ds';
-import { IFindLogs } from './use-cases.interface';
-import { BaseType } from '../../../common/data-injection.tokens';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface';
-import { QueryOrderingEnum } from '../../../enums';
+import { BaseType } from '../../../common/data-injection.tokens';
+import { LogOperationTypeEnum, QueryOrderingEnum } from '../../../enums';
+import { Messages } from '../../../exceptions/text/messages';
 import { Constants } from '../../../helpers/constants/constants';
+import { validateStringWithEnum } from '../../../helpers/validators/validate-string-with-enum';
+import { FindLogsDs } from '../application/data-structures/find-logs.ds';
+import { FoundLogsDs, FoundLogsEntities } from '../application/data-structures/found-logs.ds';
 import { IFindLogsOptions } from '../repository/table-logs-repository.interface';
 import { buildFoundLogRecordDs } from '../utils/build-found-log-record-ds';
+import { IFindLogs } from './use-cases.interface';
 
 @Injectable()
 export class FindLogsUseCase extends AbstractUseCase<FindLogsDs, FoundLogsDs> implements IFindLogs {
@@ -20,7 +22,7 @@ export class FindLogsUseCase extends AbstractUseCase<FindLogsDs, FoundLogsDs> im
   }
 
   protected async implementation(inputData: FindLogsDs): Promise<FoundLogsDs> {
-    const { connectionId, query, userId } = inputData;
+    const { connectionId, query, userId, operationTypes } = inputData;
     const userConnectionEdit = await this._dbContext.userAccessRepository.checkUserConnectionEdit(userId, connectionId);
     const tableName = query['tableName'];
     let order = query['order'];
@@ -30,6 +32,32 @@ export class FindLogsUseCase extends AbstractUseCase<FindLogsDs, FoundLogsDs> im
     const dateFrom = query['dateFrom'];
     const dateTo = query['dateTo'];
     const searchedEmail = query['email'];
+    const operationType: LogOperationTypeEnum = query['operationType'];
+    if (operationType) {
+      const actionValidationResult = validateStringWithEnum(operationType, LogOperationTypeEnum);
+      if (!actionValidationResult) {
+        throw new HttpException(
+          {
+            message: Messages.INCORRECT_TABLE_LOG_ACTION_TYPE,
+          },
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+    }
+
+    if (operationTypes.length > 0) {
+      for (const operationTypeElement of operationTypes) {
+        const actionValidationResult = validateStringWithEnum(operationTypeElement, LogOperationTypeEnum);
+        if (!actionValidationResult) {
+          throw new HttpException(
+            {
+              message: Messages.INCORRECT_TABLE_LOG_ACTION_TYPE,
+            },
+            HttpStatus.BAD_REQUEST,
+          );
+        }
+      }
+    }
 
     if (!order || order !== QueryOrderingEnum.ASC) {
       order = QueryOrderingEnum.DESC;
@@ -80,6 +108,8 @@ export class FindLogsUseCase extends AbstractUseCase<FindLogsDs, FoundLogsDs> im
       tableName: tableName ? tableName : null,
       userConnectionEdit: userConnectionEdit,
       userInGroupsIds: userIdsInGroupsWhereUserIsAdmin,
+      logOperationType: operationType,
+      logOperationTypes: operationTypes,
     };
     const { logs, pagination }: FoundLogsEntities = await this._dbContext.tableLogsRepository.findLogs(findOptions);
     return {

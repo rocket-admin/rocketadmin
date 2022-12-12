@@ -3,6 +3,7 @@ import { Component, Inject, OnInit } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { UserService } from 'src/app/services/user.service';
 import { Router } from '@angular/router';
+import { Angulartics2 } from 'angulartics2';
 
 @Component({
   selector: 'app-account-delete-confirmation',
@@ -18,6 +19,7 @@ export class AccountDeleteConfirmationComponent implements OnInit {
     private _userService: UserService,
     public dialogRef: MatDialogRef<AccountDeleteConfirmationComponent>,
     public router: Router,
+    private angulartics2: Angulartics2
   ) { }
 
   ngOnInit(): void {
@@ -27,6 +29,14 @@ export class AccountDeleteConfirmationComponent implements OnInit {
     this.submitting = true;
     this._userService.deleteAccount(this.data)
       .subscribe(() => {
+        this.angulartics2.eventTrack.next({
+          action: 'Delete account',
+          properties: {
+            email: this.data.email,
+            reason: this.data.reason,
+            message: this.data.message
+          }
+        });
         this.submitting = false;
         this.dialogRef.close();
         },

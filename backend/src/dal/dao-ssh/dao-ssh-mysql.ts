@@ -1,16 +1,12 @@
+import { HttpStatus } from '@nestjs/common';
+import { HttpException } from '@nestjs/common/exceptions/http.exception';
 import * as getPort from 'get-port';
 import { knex, Knex } from 'knex';
-import { Cacher } from '../../helpers/cache/cacher';
-import { Constants } from '../../helpers/constants/constants';
 import { CreateTableSettingsDto } from '../../entities/table-settings/dto';
-import { FilterCriteriaEnum } from '../../enums';
-import { getSshMySqlClient } from './database/ssh-mysql-client';
-import { HttpException } from '@nestjs/common/exceptions/http.exception';
-import { HttpStatus } from '@nestjs/common';
-import { IDaoInterface, IDaoRowsRO, ITestConnectResult } from '../shared/dao-interface';
-import { IForeignKeyInfo, IStructureInfo, ITablePrimaryColumnInfo } from '../../entities/table/table.interface';
-import { Messages } from '../../exceptions/text/messages';
 import { TableSettingsEntity } from '../../entities/table-settings/table-settings.entity';
+import { IForeignKeyInfo, IStructureInfo, ITablePrimaryColumnInfo } from '../../entities/table/table.interface';
+import { FilterCriteriaEnum } from '../../enums';
+import { Messages } from '../../exceptions/text/messages';
 import {
   changeObjPropValByPropName,
   checkFieldAutoincrement,
@@ -21,6 +17,10 @@ import {
   renameObjectKeyName,
   tableSettingsFieldValidator,
 } from '../../helpers';
+import { Cacher } from '../../helpers/cache/cacher';
+import { Constants } from '../../helpers/constants/constants';
+import { IDaoInterface, IDaoRowsRO, ITestConnectResult } from '../shared/dao-interface';
+import { getSshMySqlClient } from './database/ssh-mysql-client';
 
 export class DaoSshMysql implements IDaoInterface {
   private readonly connection: any;
@@ -92,7 +92,7 @@ export class DaoSshMysql implements IDaoInterface {
   }
 
   async configureKnex(connectionConfig): Promise<Knex> {
-    const { host, username, password, database, port, type, ssl, cert } = connectionConfig;
+    const { host, username, password, database, port, ssl, cert } = connectionConfig;
     const cachedKnex = Cacher.getCachedKnex(connectionConfig);
     if (cachedKnex) {
       return cachedKnex;

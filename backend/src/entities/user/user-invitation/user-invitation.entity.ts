@@ -9,6 +9,9 @@ export class UserInvitationEntity {
   @Column({ default: null })
   verification_string: string;
 
+  @Column({default: null})
+  ownerId: string;
+
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;
 

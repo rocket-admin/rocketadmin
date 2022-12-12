@@ -17,7 +17,7 @@ export class RegistrationComponent implements OnInit {
     password: ''
   };
   public submitting: boolean;
-  public passwordHidden: boolean;
+  // public passwordHidden: boolean;
 
   constructor(
     private ngZone: NgZone,
@@ -72,6 +72,10 @@ export class RegistrationComponent implements OnInit {
         })
       });
     }
+  }
+
+  updatePasswordField(updatedValue: string) {
+    this.user.password = updatedValue;
   }
 
   registerUser() {

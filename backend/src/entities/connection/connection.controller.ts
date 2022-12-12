@@ -22,7 +22,7 @@ import { AmplitudeEventTypeEnum, ConnectionTypeEnum, InTransactionEnum } from '.
 import { Messages } from '../../exceptions/text/messages';
 import { processExceptionMessage } from '../../exceptions/utils/process-exception-message';
 import { ConnectionEditGuard, ConnectionReadGuard } from '../../guards';
-import { isConnectionEntityAgent, isConnectionTypeAgent, toPrettyErrorsMsg } from '../../helpers';
+import { isConnectionEntityAgent, isConnectionTypeAgent, slackPostMessage, toPrettyErrorsMsg } from '../../helpers';
 import { SentryInterceptor } from '../../interceptors';
 import { AmplitudeService } from '../amplitude/amplitude.service';
 import { GroupEntity } from '../group/group.entity';
@@ -348,6 +348,11 @@ export class ConnectionController {
     };
     const deleteResult = await this.deleteConnectionUseCase.execute(inputData, InTransactionEnum.ON);
     const isTest = isTestConnectionUtil(deleteResult);
+    if(!isTest){
+      const userEmail = await this._dbContext.userRepository.getUserEmailOrReturnNull(userId);
+      const slackMessage = Messages.USER_DELETED_CONNECTION(userEmail, reason, message);
+      await slackPostMessage(slackMessage);
+    }
     await this.amplitudeService.formAndSendLogRecord(
       isTest ? AmplitudeEventTypeEnum.connectionDeletedTest : AmplitudeEventTypeEnum.connectionDeleted,
       inputData.cognitoUserName,

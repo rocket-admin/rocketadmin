@@ -20,6 +20,7 @@ export class CreateTableSettingsDs {
   readonly_fields: Array<string>;
   search_fields: Array<string>;
   sortable_by: Array<string>;
+  sensitive_fields: Array<string>;
   table_name: string;
   table_widgets?: Array<TableWidgetEntity>;
   userId: string;

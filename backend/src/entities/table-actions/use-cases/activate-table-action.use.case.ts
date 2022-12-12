@@ -5,8 +5,10 @@ import { IGlobalDatabaseContext } from '../../../common/application/global-datab
 import { BaseType } from '../../../common/data-injection.tokens';
 import { createDataAccessObject } from '../../../data-access-layer/shared/create-data-access-object';
 import { IPrimaryKey } from '../../../data-access-layer/shared/data-access-object-interface';
+import { LogOperationTypeEnum, OperationResultStatusEnum } from '../../../enums';
 import { Messages } from '../../../exceptions/text/messages';
 import { Encryptor } from '../../../helpers/encryption/encryptor';
+import { TableLogsService } from '../../table-logs/table-logs.service';
 import { ActivateTableActionDS } from '../application/data-sctructures/activate-table-action.ds';
 import { IActivateTableAction } from './table-actions-use-cases.interface';
 
@@ -18,11 +20,13 @@ export class ActivateTableActionUseCase
   constructor(
     @Inject(BaseType.GLOBAL_DB_CONTEXT)
     protected _dbContext: IGlobalDatabaseContext,
+    private tableLogsService: TableLogsService,
   ) {
     super();
   }
 
   protected async implementation(inputData: ActivateTableActionDS): Promise<void> {
+    let operationResult = OperationResultStatusEnum.unknown;
     const { actionId, request_body, connectionId, masterPwd, tableName, userId } = inputData;
     const foundTableAction = await this._dbContext.tableActionRepository.findTableActionById(actionId);
     if (!foundTableAction) {
@@ -47,14 +51,33 @@ export class ActivateTableActionUseCase
       actionId,
       dateString,
     );
-    await axios.post(
-      foundTableAction.url,
-      { ...primaryKeysObj, $$_date: dateString },
-      {
-        headers: { 'Autoadmin-Signature': autoadminSignatureHeader },
-      },
-    );
-    return;
+    try {
+      const result = await axios.post(
+        foundTableAction.url,
+        { ...primaryKeysObj, $$_date: dateString },
+        {
+          headers: { 'Autoadmin-Signature': autoadminSignatureHeader },
+        },
+      );
+      operationResult =
+        result.status >= 200 && result.status < 300
+          ? OperationResultStatusEnum.successfully
+          : OperationResultStatusEnum.unsuccessfully;
+      return;
+    } catch (e) {
+      operationResult = OperationResultStatusEnum.unsuccessfully;
+    } finally {
+      const logRecord = {
+        table_name: tableName,
+        userId: userId,
+        connection: foundConnection,
+        operationType: LogOperationTypeEnum.actionActivated,
+        operationStatusResult: operationResult,
+        row: primaryKeysObj,
+        old_data: null,
+      };
+      await this.tableLogsService.crateAndSaveNewLogUtil(logRecord);
+    }
   }
 
   private getPrimaryKeysFromBody(

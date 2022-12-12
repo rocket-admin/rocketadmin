@@ -32,7 +32,8 @@ export interface TableSettings {
     ordering_field: string,
     readonly_fields: string[],
     sortable_by: string[],
-    columns_view: string[]
+    columns_view: string[],
+    sensitive_fields: string[]
 }
 
 export interface TableField {

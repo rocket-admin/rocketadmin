@@ -12,8 +12,8 @@ import { UserService } from 'src/app/services/user.service';
 export class PasswordChangeComponent implements OnInit {
 
   public currentUser: User = null;
-  public oldPassword: string;
-  public newPassword: string;
+  public oldPassword: string = '';
+  public newPassword: string = '';
   public submitting: boolean = false;
 
   constructor(
@@ -23,6 +23,10 @@ export class PasswordChangeComponent implements OnInit {
 
   ngOnInit(): void {
     this._userService.cast.subscribe(user => this.currentUser = user);
+  }
+
+  updatePasswordField(updatedValue: string) {
+    this.newPassword = updatedValue;
   }
 
   updatePassword() {

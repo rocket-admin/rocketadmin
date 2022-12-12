@@ -1,12 +1,12 @@
-import { HttpException, HttpStatus, Inject, Injectable, Scope } from '@nestjs/common';
+import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import AbstractUseCase from '../../../common/abstract-use.case';
-import { ChangeUsualUserPasswordDs } from '../application/data-structures/change-usual-user-password.ds';
-import { IUsualPasswordChange } from './user-use-cases.interfaces';
-import { BaseType } from '../../../common/data-injection.tokens';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface';
+import { BaseType } from '../../../common/data-injection.tokens';
 import { Messages } from '../../../exceptions/text/messages';
 import { Encryptor } from '../../../helpers/encryption/encryptor';
+import { ChangeUsualUserPasswordDs } from '../application/data-structures/change-usual-user-password.ds';
 import { generateGwtToken, IToken } from '../utils/generate-gwt-token';
+import { IUsualPasswordChange } from './user-use-cases.interfaces';
 
 @Injectable()
 export class ChangeUsualPasswordUseCase

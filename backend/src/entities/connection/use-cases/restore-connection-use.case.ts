@@ -1,17 +1,17 @@
-import { HttpStatus, Inject, Injectable, Scope } from '@nestjs/common';
-import AbstractUseCase from '../../../common/abstract-use.case';
-import { IRestoreConnection } from './use-cases.interfaces';
-import { BaseType } from '../../../common/data-injection.tokens';
-import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface';
-import { UpdateConnectionDs } from '../application/data-structures/update-connection.ds';
+import { HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { HttpException } from '@nestjs/common/exceptions/http.exception';
+import AbstractUseCase from '../../../common/abstract-use.case';
+import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface';
+import { BaseType } from '../../../common/data-injection.tokens';
 import { Messages } from '../../../exceptions/text/messages';
-import { isHostAllowed } from '../utils/is-host-allowed';
-import { updateConnectionEntityForRestoration } from '../utils/update-connection-entity-for-restoration';
-import { isHostTest } from '../utils/is-test-connection-util';
 import { isConnectionEntityAgent } from '../../../helpers';
 import { RestoredConnectionDs } from '../application/data-structures/restored-connection.ds';
+import { UpdateConnectionDs } from '../application/data-structures/update-connection.ds';
 import { buildCreatedConnectionDs } from '../utils/build-created-connection.ds';
+import { isHostAllowed } from '../utils/is-host-allowed';
+import { isHostTest } from '../utils/is-test-connection-util';
+import { updateConnectionEntityForRestoration } from '../utils/update-connection-entity-for-restoration';
+import { IRestoreConnection } from './use-cases.interfaces';
 
 @Injectable()
 export class RestoreConnectionUseCase

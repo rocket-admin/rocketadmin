@@ -1,11 +1,11 @@
+import { Inject, Injectable } from '@nestjs/common';
 import AbstractUseCase from '../../../common/abstract-use.case';
-import { IFindTableSettings } from './use-cases.interface';
-import { Inject, Injectable, Scope } from '@nestjs/common';
+import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface';
+import { BaseType } from '../../../common/data-injection.tokens';
 import { FindTableSettingsDs } from '../application/data-structures/find-table-settings.ds';
 import { FoundTableSettingsDs } from '../application/data-structures/found-table-settings.ds';
-import { BaseType } from '../../../common/data-injection.tokens';
-import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface';
 import { buildFoundTableSettingsDs } from '../utils/build-found-table-settings-ds';
+import { IFindTableSettings } from './use-cases.interface';
 
 @Injectable()
 export class FindTableSettingsUseCase

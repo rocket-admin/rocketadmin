@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Inject, Injectable, Scope } from '@nestjs/common';
+import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import AbstractUseCase from '../../../common/abstract-use.case';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface';
 import { BaseType } from '../../../common/data-injection.tokens';
@@ -8,10 +8,10 @@ import {
   IForeignKey,
   IForeignKeyWithForeignColumnName,
 } from '../../../data-access-layer/shared/data-access-object-interface';
-import { buildFoundTableWidgetDs } from '../../widget/utils/build-found-table-widget-ds';
 import { WidgetTypeEnum } from '../../../enums';
 import { Messages } from '../../../exceptions/text/messages';
 import { isConnectionTypeAgent } from '../../../helpers';
+import { buildFoundTableWidgetDs } from '../../widget/utils/build-found-table-widget-ds';
 import { GetTableStructureDs } from '../application/data-structures/get-table-structure-ds';
 import { IForeignKeyInfo, IStructureRO } from '../table.interface';
 import { formFullTableStructure } from '../utils/form-full-table-structure';

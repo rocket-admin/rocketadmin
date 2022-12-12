@@ -37,7 +37,8 @@ export class DbTableSettingsComponent implements OnInit {
     ordering_field: '',
     readonly_fields: [],
     sortable_by: [],
-    columns_view: []
+    columns_view: [],
+    sensitive_fields: []
   }
 
   constructor(

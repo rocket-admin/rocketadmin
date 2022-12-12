@@ -1,14 +1,14 @@
-import { HttpStatus, Inject, Injectable, Scope } from '@nestjs/common';
-import AbstractUseCase from '../../../common/abstract-use.case';
-import { UpdateCustomFieldsDs } from '../application/data-structures/update-custom-fields.ds';
-import { FoundCustomFieldsDs } from '../application/data-structures/found-custom-fields.ds';
-import { IUpdateCustomFields } from './custom-field-use-cases.interface';
-import { BaseType } from '../../../common/data-injection.tokens';
-import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface';
+import { HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { HttpException } from '@nestjs/common/exceptions/http.exception';
+import AbstractUseCase from '../../../common/abstract-use.case';
+import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface';
+import { BaseType } from '../../../common/data-injection.tokens';
 import { Messages } from '../../../exceptions/text/messages';
+import { FoundCustomFieldsDs } from '../application/data-structures/found-custom-fields.ds';
+import { UpdateCustomFieldsDs } from '../application/data-structures/update-custom-fields.ds';
 import { buildFoundCustomFieldsDs } from '../utils/build-found-custom-fields-ds';
 import { validateCreateCustomFieldDto } from '../utils/validate-create-custom-field-dto';
+import { IUpdateCustomFields } from './custom-field-use-cases.interface';
 
 @Injectable()
 export class UpdateCustomFieldUseCase

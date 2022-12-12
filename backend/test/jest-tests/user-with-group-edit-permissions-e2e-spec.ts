@@ -1,14 +1,13 @@
 import { faker } from '@faker-js/faker';
-import * as request from 'supertest';
-
 import { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import * as cookieParser from 'cookie-parser';
+import { knex } from 'knex';
+import * as request from 'supertest';
 import { Connection } from 'typeorm';
 import { ApplicationModule } from '../../src/app.module';
 import { AccessLevelEnum, QueryOrderingEnum } from '../../src/enums';
 import { Messages } from '../../src/exceptions/text/messages';
-import { compareArrayElements } from '../../src/helpers';
 import { Cacher } from '../../src/helpers/cache/cacher';
 import { Constants } from '../../src/helpers/constants/constants';
 import { DatabaseModule } from '../../src/shared/database/database.module';
@@ -33,6 +32,13 @@ describe('User permissions (connection readonly, group edit) (e2e)', () => {
   let newTableWidgets;
   let updatedTableWidgets;
   let newRandomGroup2;
+
+  const testTableName = 'users';
+  const testTableColumnName = 'name';
+  const testTAbleSecondColumnName = 'email';
+  const testSearchedUserName = 'Vasia';
+  const testEntitiesSeedsCount = 42;
+
   const tablePermissions = {
     visibility: true,
     readonly: false,
@@ -86,6 +92,9 @@ describe('User permissions (connection readonly, group edit) (e2e)', () => {
     newTableWidgets = mockFactory.generateCreateWidgetDTOsArrayForUsersTable();
     updatedTableWidgets = mockFactory.generateUpdateWidgetDTOsArrayForUsersTable();
 
+    await resetPostgresTestDB();
+    await resetMySQLTestDB();
+
     const registerAdminUserResponse = await request(app.getHttpServer())
       .post('/user/register/')
       .send(adminUserRegisterInfo)
@@ -128,6 +137,86 @@ describe('User permissions (connection readonly, group edit) (e2e)', () => {
   });
 
   //****************************************** SUPPORT FUNCTIONS *********************************************************
+  async function resetPostgresTestDB() {
+    const { host, username, password, database, port, type, ssl, cert } = newConnection;
+    const Knex = knex({
+      client: type,
+      connection: {
+        host: host,
+        user: username,
+        password: password,
+        database: database,
+        port: port,
+      },
+    });
+    await Knex.schema.dropTableIfExists(testTableName);
+    await Knex.schema.createTableIfNotExists(testTableName, function (table) {
+      table.increments();
+      table.string(testTableColumnName);
+      table.string(testTAbleSecondColumnName);
+      table.timestamps();
+    });
+
+    for (let i = 0; i < testEntitiesSeedsCount; i++) {
+      if (i === 0 || i === testEntitiesSeedsCount - 21 || i === testEntitiesSeedsCount - 5) {
+        await Knex(testTableName).insert({
+          [testTableColumnName]: testSearchedUserName,
+          [testTAbleSecondColumnName]: faker.internet.email(),
+          created_at: new Date(),
+          updated_at: new Date(),
+        });
+      } else {
+        await Knex(testTableName).insert({
+          [testTableColumnName]: faker.name.findName(),
+          [testTAbleSecondColumnName]: faker.internet.email(),
+          created_at: new Date(),
+          updated_at: new Date(),
+        });
+      }
+    }
+    await Knex.destroy();
+  }
+
+  async function resetMySQLTestDB() {
+    const { host, username, password, database, port, type, ssl, cert } = newConnection2;
+    const Knex = knex({
+      client: 'mysql2',
+      connection: {
+        host: host,
+        user: username,
+        password: password,
+        database: database,
+        port: port,
+      },
+    });
+    await Knex.schema.dropTableIfExists(testTableName);
+    await Knex.schema.createTableIfNotExists(testTableName, function (table) {
+      table.increments();
+      table.string(testTableColumnName);
+      table.string(testTAbleSecondColumnName);
+      table.timestamps();
+    });
+
+    for (let i = 0; i < testEntitiesSeedsCount; i++) {
+      if (i === 0 || i === testEntitiesSeedsCount - 21 || i === testEntitiesSeedsCount - 5) {
+        await Knex(testTableName).insert({
+          [testTableColumnName]: testSearchedUserName,
+          [testTAbleSecondColumnName]: faker.internet.email(),
+          created_at: new Date(),
+          updated_at: new Date(),
+        });
+      } else {
+        await Knex(testTableName).insert({
+          [testTableColumnName]: faker.name.findName(),
+          [testTAbleSecondColumnName]: faker.internet.email(),
+          created_at: new Date(),
+          updated_at: new Date(),
+        });
+      }
+    }
+    await Knex.destroy();
+  }
+ 
   async function createAdminConnections() {
     await request(app.getHttpServer())
       .post('/connection')

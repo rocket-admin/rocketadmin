@@ -1,12 +1,13 @@
 import {
   ConnectionTypeEnum,
   EncryptionAlgorithmEnum,
+  LogOperationTypeEnum,
   ProviderTypeEnum,
   QueryOrderingEnum,
   SubscriptionLevelEnum,
   TableActionTypeEnum,
   UserActionEnum,
-  WidgetTypeEnum
+  WidgetTypeEnum,
 } from '../../enums';
 import { enumToString } from '../../helpers/enum-to-string';
 
@@ -114,6 +115,9 @@ export const Messages = {
   HOST_NAME_INVALID: 'Hostname is invalid',
   ID_MISSING: 'Id is missing',
   INCORRECT_DATE_FORMAT: `Date format is incorrect.`,
+  INCORRECT_TABLE_LOG_ACTION_TYPE: `Incorrect log operation type, supported types are ${enumToString(
+    LogOperationTypeEnum,
+  )}`,
   INVALID_USERNAME_OR_PASSWORD: `Username or password is invalid`,
   INVALID_JWT_TOKEN: `JWT token syntax is invalid`,
   LIST_PER_PAGE_INCORRECT: `You can't display less than one row per page`,
@@ -193,6 +197,14 @@ export const Messages = {
   USER_CREATED: (email: string, provider: ProviderTypeEnum = null) =>
     `User "${email}" was registered. ${provider ? `Provider: "${provider}".` : ''}`,
   USER_CREATION_FAILED: 'Creating a new user failed.',
+  USER_DELETED_ACCOUNT: (email: string, reason: string, message: string) =>
+    `User ${email ? email : 'unknowm'} deleted their account. Reason is: ${
+      reason ? reason : 'unknown'
+    }. And message is: ${message ? message : 'no message'}.`,
+  USER_DELETED_CONNECTION: (email: string, reason: string, message: string) =>
+    `User ${email ? email : 'unknowm'} deleted their own connection. Reason is: ${
+      reason ? reason : 'unknown'
+    }. And message is: ${message ? message : 'no message'}.`,
   USER_EMAIL_MISSING: `User email is missing`,
   USER_MISSING_EMAIL_OR_SOCIAL_REGISTERED: `User with this email not found in our database. Please check your email.
   Hint: if you registered through google or facebook, you need to change your password in these providers`,
@@ -241,5 +253,9 @@ export const Messages = {
   SUBSCRIPTION_TYPE_INCORRECT: (type: any) =>
     `Subscription type is incorrect. Now we support subscriptions: ${enumToString(SubscriptionLevelEnum)}`,
   MAXIMUM_INVITATIONS_COUNT_REACHED: 'Sorry, the maximum number of invitations has been reached. Try again later.',
+  MAXIMUM_FREE_INVITATION_REACHED: 'Sorry, reached maximum number of users for free plan',
+  MAXIMUM_FREE_INVITATION_REACHED_CANNOT_BE_INVITED:
+    'Sorry you can not join this group because reached maximum number of users for free plan. Please ask you connection owner to upgrade plan or delete unnessesary user from group',
+  FAILED_CREATE_SUBSCRIPTION_LOG: 'Failed to create subscription log. Please contact our support team.',
   URL_INVALID: `Url is invalid`,
 };

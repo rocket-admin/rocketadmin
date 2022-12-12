@@ -25,6 +25,7 @@ export function buildNewTableSettingsEntity(
     table_name,
     table_widgets,
     table_actions,
+    sensitive_fields,
     can_add,
     can_delete,
     can_update,
@@ -44,6 +45,7 @@ export function buildNewTableSettingsEntity(
   newSettings.custom_fields = custom_fields;
   newSettings.table_widgets = table_widgets;
   newSettings.identification_fields = identification_fields;
+  newSettings.sensitive_fields = sensitive_fields;
   newSettings.columns_view = columns_view;
   newSettings.identity_column = identity_column;
   newSettings.table_actions = table_actions;

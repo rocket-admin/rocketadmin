@@ -1,7 +1,7 @@
 <h1 mat-dialog-title>Log details</h1>
 <div mat-dialog-content>
-    <p class="mat-body" data-block="preamble" data-hj-suppress>
-      {{ log.User }} {{ action }} in {{ log.Table }} table on {{formattedCrreatedAt}} {{ log.Status }}.
+    <p class="mat-body-1" data-block="preamble" data-hj-suppress>
+      {{ log.User }} {{ action }} in "{{ normalizedTableName }}" table on {{formattedCrreatedAt}} {{ log.Status }}.
     </p>
 
     <div *ngIf="diffFields.length > 0; else oneRowDetails" class="details" data-block="comparison-details">
@@ -9,19 +9,37 @@
           <tr *ngFor="let field of fields" attr.data-line="{{field}}-field"
             class="mat-body"
             [ngClass]="{changed: isChangedFiled(field)}">
-            <th>{{field}}</th>
-            <td data-hj-suppress>{{log.prevValue[field]}}</td>
-            <td data-hj-suppress>{{log.currentValue[field]}}</td>
+            <th>{{filedsNames[field]}}</th>
+            <td data-hj-suppress *ngIf="log.currentValue[field] !== '* * * sensitive data, no logs stored * * *'">
+              {{log.prevValue[field]}}
+            </td>
+            <td data-hj-suppress
+              [attr.colspan]="log.currentValue[field] === '* * * sensitive data, no logs stored * * *' ? '2' : '' "
+              [ngClass]="{sensitive: log.currentValue[field] === '* * * sensitive data, no logs stored * * *'}">
+              <div class="updated-cell">
+                <span>{{log.currentValue[field]}}</span>
+                <!--<mat-icon *ngIf="isChangedFiled(field)"
+                  class="updated-icon"
+                  matTooltip="This value has been changed.">
+                  published_with_changes
+                </mat-icon>-->
+              </div>
+            </td>
           </tr>
         </table>
     </div>
 
     <ng-template #oneRowDetails>
-      <div *ngIf="log.currentValue" class="details" data-block="one-row-details" data-hj-suppress>
-        <div *ngFor="let field of log.currentValue | keyvalue">
-          <b>{{field.key}}: </b> <span>{{field.value}}</span>
-        </div>
-      </div>
+      <table *ngIf="log.currentValue">
+        <tr *ngFor="let field of log.currentValue | keyvalue" data-block="one-row-details"
+          class="mat-body"
+          [ngClass]="{changed: isChangedFiled(field)}">
+          <th>{{filedsNames[field.key]}}</th>
+          <td data-hj-suppress *ngIf="log.currentValue[field] !== '* * * sensitive data, no logs stored * * *'">
+            {{field.value}}
+          </td>
+        </tr>
+      </table>
     </ng-template>
 
 

@@ -11,7 +11,7 @@ import {
   listTables,
   objectKeysToLowercase,
   renameObjectKeyName,
-  tableSettingsFieldValidator,
+  tableSettingsFieldValidator
 } from '../../helpers';
 import { Cacher } from '../../helpers/cache/cacher';
 import { Constants } from '../../helpers/constants/constants';
@@ -23,7 +23,7 @@ import {
   IPrimaryKey,
   IRows,
   ITableStructure,
-  ITestConnectResult,
+  ITestConnectResult
 } from '../shared/data-access-object-interface';
 import { getOracleKnex } from '../shared/utils/get-oracle-knex';
 
@@ -46,7 +46,7 @@ export class DataAccessObjectOracle implements IDataAccessObject {
 
     if (primaryColumns?.length > 0) {
       const primaryKeyIndexInStructure = tableStructure.findIndex((e) => {
-        primaryKey.column_name;
+        return primaryKey.column_name;
       });
       primaryKeyStructure = tableStructure.at(primaryKeyIndexInStructure);
     }
@@ -524,12 +524,10 @@ export class DataAccessObjectOracle implements IDataAccessObject {
         };
       }
     } catch (e) {
-      if (result) {
         return {
           result: false,
           message: e.message,
         };
-      }
     }
     return {
       result: false,

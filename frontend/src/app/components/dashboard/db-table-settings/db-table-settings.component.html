@@ -12,6 +12,20 @@
             </mat-form-field>
 
             <mat-form-field appearance="outline">
+                <mat-label>Sensitive fields</mat-label>
+                <mat-select multiple
+                    name="columns_sensitive"
+                    [(ngModel)]="tableSettings.sensitive_fields">
+                    <mat-option *ngFor="let field of fields" [value]="field">{{field}}</mat-option>
+                </mat-select>
+            </mat-form-field>
+            <mat-icon class="settings-form__tooltip"
+                matTooltip="Define sensitive fields to hide them from Audit logs."
+                matTooltipPosition="above">
+                info_outline
+            </mat-icon>
+
+            <mat-form-field appearance="outline">
                 <mat-label>Columns visible by default</mat-label>
                 <mat-select multiple
                     name="columns_view"

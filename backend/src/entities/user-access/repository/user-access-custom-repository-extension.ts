@@ -328,7 +328,6 @@ export const userAccessCustomReposiotoryExtension = {
     const connectionRepository = this.manager.getRepository(ConnectionEntity);
     const qb = connectionRepository.createQueryBuilder('connection').leftJoinAndSelect('connection.groups', 'group');
     qb.andWhere('group.id = :id', { id: groupId });
-    const sql = qb.getSql();
     const connection = await qb.getOne();
     if (!connection) {
       throw new HttpException(

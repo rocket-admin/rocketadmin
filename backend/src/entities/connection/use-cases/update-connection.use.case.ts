@@ -1,20 +1,20 @@
-import AbstractUseCase from '../../../common/abstract-use.case';
-import { AmplitudeEventTypeEnum } from '../../../enums';
-import { BaseType } from '../../../common/data-injection.tokens';
-import { buildCreatedConnectionDs } from '../utils/build-created-connection.ds';
-import { ConnectionEntity } from '../connection.entity';
-import { CreatedConnectionDs } from '../application/data-structures/created-connection.ds';
-import { Encryptor } from '../../../helpers/encryption/encryptor';
+import { HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { HttpException } from '@nestjs/common/exceptions/http.exception';
-import { HttpStatus, Inject, Injectable, Scope } from '@nestjs/common';
+import AbstractUseCase from '../../../common/abstract-use.case';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface';
-import { isConnectionTypeAgent } from '../../../helpers';
-import { isTestConnectionUtil } from '../utils/is-test-connection-util';
-import { IUpdateConnection } from './use-cases.interfaces';
+import { BaseType } from '../../../common/data-injection.tokens';
+import { AmplitudeEventTypeEnum } from '../../../enums';
 import { Messages } from '../../../exceptions/text/messages';
-import { UpdateConnectionDs } from '../application/data-structures/update-connection.ds';
-import { validateCreateConnectionData } from '../utils/validate-create-connection-data';
+import { isConnectionTypeAgent } from '../../../helpers';
+import { Encryptor } from '../../../helpers/encryption/encryptor';
 import { AmplitudeService } from '../../amplitude/amplitude.service';
+import { CreatedConnectionDs } from '../application/data-structures/created-connection.ds';
+import { UpdateConnectionDs } from '../application/data-structures/update-connection.ds';
+import { ConnectionEntity } from '../connection.entity';
+import { buildCreatedConnectionDs } from '../utils/build-created-connection.ds';
+import { isTestConnectionUtil } from '../utils/is-test-connection-util';
+import { validateCreateConnectionData } from '../utils/validate-create-connection-data';
+import { IUpdateConnection } from './use-cases.interfaces';
 
 @Injectable()
 export class UpdateConnectionUseCase

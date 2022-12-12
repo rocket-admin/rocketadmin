@@ -67,6 +67,9 @@ export class TableSettingsEntity {
   @Column({ default: true })
   can_add: boolean;
 
+  @Column('varchar', { array: true, default: null })
+  sensitive_fields: string[];
+
   @Transform(({ value: connection }) => connection.id)
   @ManyToOne((type) => ConnectionEntity, (connection) => connection.settings, {
     onDelete: 'CASCADE',

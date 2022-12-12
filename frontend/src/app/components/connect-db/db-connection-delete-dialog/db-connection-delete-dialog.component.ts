@@ -1,6 +1,7 @@
 import { Component, OnInit, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { Router } from '@angular/router';
+import { Angulartics2 } from 'angulartics2';
 import { ConnectionsService } from 'src/app/services/connections.service';
 
 @Component({
@@ -19,7 +20,8 @@ export class DbConnectionDeleteDialogComponent implements OnInit {
     @Inject(MAT_DIALOG_DATA) public data: any,
     private _connectionsService: ConnectionsService,
     public dialogRef: MatDialogRef<DbConnectionDeleteDialogComponent>,
-    public router: Router
+    public router: Router,
+    private angulartics2: Angulartics2
   ) { }
 
   ngOnInit() {
@@ -34,10 +36,19 @@ export class DbConnectionDeleteDialogComponent implements OnInit {
     }
     this._connectionsService.deleteConnection(this.data.id, metadata)
       .subscribe(() => {
-          this.submitting = false;
-          this.router.navigate([`/connections-list`]);
-          this.dialogRef.close();
-        },
+        this.angulartics2.eventTrack.next({
+          action: 'Delete connection',
+          properties: {
+            id: this.data.id,
+            title: this.data.title || null,
+            reason: this.reason,
+            message: this.message
+          }
+        });
+        this.submitting = false;
+        this.router.navigate([`/connections-list`]);
+        this.dialogRef.close();
+      },
         undefined,
         () => { this.submitting = false; }
       );
