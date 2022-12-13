@@ -5,4 +5,5 @@ export class CreatedTableActionDS {
   title: string;
   type: TableActionTypeEnum;
   url: string;
+  icon: string;
 }

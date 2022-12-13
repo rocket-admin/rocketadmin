@@ -194,12 +194,6 @@ describe('User permissions (connection none, group none) (e2e)', () => {
       secondId: null,
       firstAdminGroupId: null,
     };
-    // const findAllConnectionsResponse = await request(app.getHttpServer())
-    //   .get('/connections')
-    //   .set('Cookie', connectionAdminUserToken)
-    //   .set('Content-Type', 'application/json')
-    //   .set('Accept', 'application/json');
-    // expect(findAllConnectionsResponse.status).toBe(200);
 
     const createFirstConnectionResponse = await request(app.getHttpServer())
       .post('/connection')
@@ -458,8 +452,8 @@ describe('User permissions (connection none, group none) (e2e)', () => {
       it('should return added row', async () => {
         const connectionIds = await createConnectionsAndInviteNewUserInNewGroupInFirstConnection();
 
-        const randomName = faker.name.findName();
-        const randomEmail = faker.name.findName();
+        const randomName = faker.name.firstName();
+        const randomEmail = faker.name.firstName();
         /* eslint-disable */
         const created_at = new Date();
         const updated_at = new Date();
