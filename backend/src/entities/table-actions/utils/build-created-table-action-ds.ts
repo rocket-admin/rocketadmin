@@ -7,5 +7,6 @@ export function buildCreatedTableActionDS(tableAction: TableActionEntity): Creat
     title: tableAction.title,
     type: tableAction.type,
     url: tableAction.url,
+    icon: tableAction.icon,
   };
 }
