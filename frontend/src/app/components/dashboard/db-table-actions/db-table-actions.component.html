@@ -60,7 +60,7 @@
                 <div class="actions-icon-selector">
                     <span>Icon</span>
                     <button mat-icon-button type="button" [matMenuTriggerFor]="menu">
-                        <mat-icon *ngIf="selectedAction.icon; else defaultIcon">
+                        <mat-icon *ngIf="selectedAction.icon; else defaultIcon" fontSet="material-icons-outlined">
                             {{ selectedAction.icon }}
                         </mat-icon>
                         <ng-template #defaultIcon>
@@ -78,7 +78,7 @@
                                             [(ngModel)]="selectedAction.icon"
                                             class="icon-radio-button visually-hidden">
                                         <div class="icon-button">
-                                            <mat-icon>{{icon}}</mat-icon>
+                                            <mat-icon fontSet="material-icons-outlined">{{icon}}</mat-icon>
                                         </div>
                                     </label>
                                 </li>

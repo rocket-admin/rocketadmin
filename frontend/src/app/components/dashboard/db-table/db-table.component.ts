@@ -1,6 +1,6 @@
 import {CdkDragDrop, moveItemInArray} from '@angular/cdk/drag-drop';
 import { Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
-import { TableForeignKey, TablePermissions } from 'src/app/models/table';
+import { CustomAction, TableForeignKey, TablePermissions } from 'src/app/models/table';
 import { getComparators, getFilters } from 'src/app/lib/parse-filter-params';
 
 import { AccessLevel } from 'src/app/models/user';
@@ -38,12 +38,14 @@ export class DbTableComponent implements OnInit {
   @Output() search = new EventEmitter();
   @Output() removeFilter = new EventEmitter();
   @Output() resetAllFilters = new EventEmitter();
+  @Output() activateAction = new EventEmitter();
 
   public tableData: any;
   public columns: Column[];
   public displayedColumns: string[] = [];
   public columnsToDisplay: string[] = [];
   public searchString: string;
+  public actionsColumnWidth: string;
   public displayedComparators = {
     eq: "=",
     gt: ">",
@@ -174,5 +176,14 @@ export class DbTableComponent implements OnInit {
     } else {
       return `${displayedName} ${this.displayedComparators[this.filterComparators[filterKey]]} ${filterValue}`
     }
+  }
+
+  handleActivateAction(action: CustomAction, primaryKeys: object) {
+    this.activateAction.emit({action, primaryKeys});
+  }
+
+  getActionsColumnWidth(actions, permissions) {
+    const defaultActionsCount = permissions.edit + permissions.delete;
+    return (((actions.length + defaultActionsCount) * 40) + 32);
   }
 }

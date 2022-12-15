@@ -9,7 +9,7 @@ import { DbTableFiltersDialogComponent } from './db-table-filters-dialog/db-tabl
 import { HttpErrorResponse } from '@angular/common/http';
 import { MatDialog } from '@angular/material/dialog';
 import { NotificationsService } from 'src/app/services/notifications.service';
-import { TableProperties } from 'src/app/models/table';
+import { CustomAction, TableProperties } from 'src/app/models/table';
 import { TableRowService } from 'src/app/services/table-row.service';
 import { TablesDataSource } from './db-tables-data-source';
 import { TablesService } from 'src/app/services/tables.service';
@@ -201,5 +201,11 @@ export class DashboardComponent implements OnInit {
   openIntercome() {
     // @ts-ignore
     Intercom('show');
+  }
+
+
+  activateAction({action, primaryKeys}) {
+    this._tables.activateAction(this.connectionID, this.selectedTableName, action, primaryKeys)
+      .subscribe(() => {console.log('activated')})
   }
 }

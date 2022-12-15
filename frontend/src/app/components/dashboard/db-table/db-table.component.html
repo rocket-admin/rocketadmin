@@ -122,9 +122,18 @@
             </ng-container>
 
             <ng-container matColumnDef="actions" [stickyEnd]="true">
-                <th mat-header-cell *matHeaderCellDef>Actions</th>
+                <th mat-header-cell *matHeaderCellDef [style.width.px]="getActionsColumnWidth(tableData.tableActions, tableData.permissions)">Actions</th>
 
                 <td mat-cell *matCellDef="let element">
+                    <ng-container *ngIf="tableData.tableActions && tableData.tableActions.length">
+                        <button type="button" mat-icon-button *ngFor="let action of tableData.tableActions"
+                            [matTooltip]="action.title"
+                            (click)="handleActivateAction(action, tableData.getQueryParams(element))">
+                            <mat-icon fontSet="material-icons-outlined">
+                                {{action.icon}}
+                            </mat-icon>
+                        </button>
+                    </ng-container>
                     <a mat-icon-button *ngIf="tableData.permissions.edit"
                         routerLink="/dashboard/{{connectionID}}/{{name}}/entry"
                         angulartics2On="click"

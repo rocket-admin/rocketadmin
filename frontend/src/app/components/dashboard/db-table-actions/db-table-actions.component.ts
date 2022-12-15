@@ -23,7 +23,7 @@ export class DbTableActionsComponent implements OnInit {
   public codeSnippet = `// No settings required`;
   public emptyActionNameError: boolean;
 
-  public defaultIcons = ['favorite', 'star', 'done', 'arrow_forward', 'key', 'lock', 'visibility', 'language'];
+  public defaultIcons = ['favorite_outline', 'star_outline', 'done', 'arrow_forward', 'key_outline', 'lock', 'visibility', 'language', 'notifications', 'schedule'];
 
   constructor(
     private _connections: ConnectionsService,
@@ -107,6 +107,7 @@ export class DbTableActionsComponent implements OnInit {
 
   addAction() {
     this.submitting = true;
+    if (!this.selectedAction.icon) this.selectedAction.icon = 'add_reaction';
     this._tables.saveAction(this.connectionID, this.tableName, this.selectedAction)
       .subscribe(res => {
         this.submitting = false;
