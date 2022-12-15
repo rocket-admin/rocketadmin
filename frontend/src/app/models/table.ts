@@ -71,7 +71,7 @@ export enum CustomActionType {
 }
 
 export interface CustomAction {
-    actionId?: string,
+    id?: string,
     title: string,
     type: CustomActionType,
     url: string,

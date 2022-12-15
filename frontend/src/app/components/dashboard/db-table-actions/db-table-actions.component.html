@@ -2,6 +2,7 @@
     <mat-drawer mode="side" opened>
         <div class="drawer-header">
             <h1 class="mat-h1">Actions</h1>
+
             <button mat-icon-button color="primary" *ngIf="actions && actions.length !== 0"
                 type="button"
                 (click)="addNewAction()">
@@ -19,7 +20,15 @@
         </div>
         <mat-action-list *ngIf="actions && actions.length">
             <button mat-list-item *ngFor="let action of actions; let i = index"
-            (click)="switchActionView(action)">{{ action.title }}</button>
+            class="list-action-list-item"
+            [ngClass]="action.id === selectedAction.id ? 'list-action-list-item_active' : ''"
+            (click)="switchActionView(action)">
+                {{ action.title }}
+                <mat-icon *ngIf="!action.id" fontSet="material-icons-outlined"
+                    class="list-action-list-item__savingIcon">
+                    save
+                </mat-icon>
+            </button>
         </mat-action-list>
         <mat-form-field appearance="standard" *ngIf="newAction"
             class="new-action-input">
@@ -42,60 +51,60 @@
         <app-content-loader *ngIf="!actions"></app-content-loader>
 
         <div class="action" *ngIf="selectedAction">
-            <form (ngSubmit)="addAction()" class="action-settings">
+            <form (ngSubmit)="selectedAction.id ? updateAction() : addAction()" class="action-settings">
                 <mat-form-field appearance="outline">
-                    <mat-label>Action name</mat-label>
-                    <input matInput [(ngModel)]="selectedAction.title" name="{{selectedAction.title}}-field-new-name">
+                    <mat-label>Name</mat-label>
+                    <input matInput [(ngModel)]="selectedAction.title" name="action-title" required>
                 </mat-form-field>
 
-                <button mat-icon-button type="button" [matMenuTriggerFor]="menu">
-                    <mat-icon *ngIf="selectedAction.icon; else defaultIcon">
-                        {{ selectedAction.icon }}
-                    </mat-icon>
-                    <ng-template #defaultIcon>
-                        <mat-icon fontSet="material-icons-outlined">add_reaction</mat-icon>
-                    </ng-template>
-                </button>
-
-                {{selectedAction | json}}
-
-                <mat-menu #menu="matMenu">
-                    <div class="icons-menu">
-                        <strong>Select an icon</strong>
-                        <ul class="icons-list">
-                            <li *ngFor="let icon of defaultIcons; let i = index">
-                                <label for="icon-{{i}}" class="icon-radio-label" (click)="$event.stopPropagation();">
-                                    <input type="radio" name="action-icon"
-                                        [value]="icon" id="icon-{{i}}"
-                                        [(ngModel)]="selectedAction.icon"
-                                        class="icon-radio-button visually-hidden">
-                                    <div class="icon-button">
-                                        <mat-icon>{{icon}}</mat-icon>
-                                    </div>
-                                </label>
-                            </li>
-                        </ul>
-                        <mat-form-field appearance="outline" class="icon-input">
-                            <mat-label>Another icon</mat-label>
-                            <input matInput
-                                [(ngModel)]="selectedAction.icon"
-                                name="{{selectedAction.icon}}"
-                                (click)="$event.stopPropagation();">
-                            <mat-hint>
-                                More icons <a href="https://fonts.google.com/icons" target="_blank" (click)="$event.stopPropagation();" class="google-icons-link">here</a>
-                            </mat-hint>
-                        </mat-form-field>
-                        <!--<button mat-button color="primary"
-                            class="apply-icon-button"
-                            type="button">
-                            Apply
-                        </button>-->
-                    </div>
-                </mat-menu>
+                <div class="actions-icon-selector">
+                    <span>Icon</span>
+                    <button mat-icon-button type="button" [matMenuTriggerFor]="menu">
+                        <mat-icon *ngIf="selectedAction.icon; else defaultIcon">
+                            {{ selectedAction.icon }}
+                        </mat-icon>
+                        <ng-template #defaultIcon>
+                            <mat-icon fontSet="material-icons-outlined">add_reaction</mat-icon>
+                        </ng-template>
+                    </button>
+                    <mat-menu #menu="matMenu">
+                        <div class="icons-menu">
+                            <strong>Select an icon</strong>
+                            <ul class="icons-list">
+                                <li *ngFor="let icon of defaultIcons; let i = index">
+                                    <label for="icon-{{i}}" class="icon-radio-label" (click)="$event.stopPropagation();">
+                                        <input type="radio" name="action-icon"
+                                            [value]="icon" id="icon-{{i}}"
+                                            [(ngModel)]="selectedAction.icon"
+                                            class="icon-radio-button visually-hidden">
+                                        <div class="icon-button">
+                                            <mat-icon>{{icon}}</mat-icon>
+                                        </div>
+                                    </label>
+                                </li>
+                            </ul>
+                            <mat-form-field appearance="outline" class="icon-input">
+                                <mat-label>Another icon</mat-label>
+                                <input matInput
+                                    [(ngModel)]="selectedAction.icon"
+                                    name="action-icon"
+                                    (click)="$event.stopPropagation();">
+                                <mat-hint>
+                                    More icons <a href="https://fonts.google.com/icons" target="_blank" (click)="$event.stopPropagation();" class="google-icons-link">here</a>
+                                </mat-hint>
+                            </mat-form-field>
+                            <!--<button mat-button color="primary"
+                                class="apply-icon-button"
+                                type="button">
+                                Apply
+                            </button>-->
+                        </div>
+                    </mat-menu>
+                </div>
 
                 <mat-form-field appearance="outline">
                     <mat-label>Action URL</mat-label>
-                    <input matInput [(ngModel)]="selectedAction.url" name="{{selectedAction.url}}">
+                    <input matInput [(ngModel)]="selectedAction.url" name="action-url" required>
                     <!-- <mat-error *ngIf="sslCert.errors?.required && (sslCert.invalid && sslCert.touched)">SSL certificate should not be empty.</mat-error> -->
                 </mat-form-field>
 
@@ -106,14 +115,14 @@
                     <mat-radio-button value='single' class="radio-button_first">
                         Single row
                     </mat-radio-button>
-                    <mat-radio-button value='bulk' class="radio-button_second">
+                    <mat-radio-button value='multiple' class="radio-button_second">
                         Multiple rows
                     </mat-radio-button>
                 </mat-radio-group>
 
                 <div class="action__actions">
                     <button mat-stroked-button color="warn" type="button"
-                        (click)="selectedAction.actionId ? openDeleteActionDialog(selectedAction.title) : removeAction()">
+                        (click)="selectedAction.id ? openDeleteActionDialog() : removeAction()">
                         Delete
                     </button>
 

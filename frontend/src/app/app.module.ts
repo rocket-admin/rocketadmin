@@ -95,6 +95,7 @@ import { UsersComponent } from './components/users/users.component';
 import { UsersService } from './services/users.service';
 import { WidgetDeleteDialogComponent } from './components/dashboard/db-table-widgets/widget-delete-dialog/widget-delete-dialog.component';
 import { environment } from '../environments/environment';
+import { ActionDeleteDialogComponent } from './components/dashboard/db-table-actions/action-delete-dialog/action-delete-dialog.component';
 
 const saasExtraProviders = (environment as any).saas ? [
   {
@@ -183,7 +184,8 @@ const saasExtraProviders = (environment as any).saas ? [
     IpAddressButtonComponent,
     BreadcrumbsComponent,
     DbTableActionsComponent,
-    UserPasswordComponent
+    UserPasswordComponent,
+    ActionDeleteDialogComponent
   ],
   entryComponents: [
     DbRowDeleteDialogComponent,

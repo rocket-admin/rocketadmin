@@ -1,9 +1,11 @@
 import { Component, OnInit } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
-import { normalizeTableName } from 'src/app/lib/normalize';
 import { CustomAction, CustomActionType } from 'src/app/models/table';
+
+import { ActionDeleteDialogComponent } from './action-delete-dialog/action-delete-dialog.component';
 import { ConnectionsService } from 'src/app/services/connections.service';
+import { MatDialog } from '@angular/material/dialog';
 import { TablesService } from 'src/app/services/tables.service';
+import { normalizeTableName } from 'src/app/lib/normalize';
 
 @Component({
   selector: 'app-db-table-actions',
@@ -34,10 +36,7 @@ export class DbTableActionsComponent implements OnInit {
     this.tableName = this._tables.currentTableName;
     this.normalizedTableName = normalizeTableName(this.tableName);
 
-    this._tables.fetchActions(this.connectionID, this.tableName)
-      .subscribe(res => {
-        this.actions = res;
-      })
+    this.getActions();
   }
 
   get currentConnection() {
@@ -62,7 +61,7 @@ export class DbTableActionsComponent implements OnInit {
   }
 
   switchActionView(action: CustomAction) {
-    this.selectedAction = action;
+    this.selectedAction = {...action};
   }
 
   openClearAllActions() {
@@ -93,18 +92,57 @@ export class DbTableActionsComponent implements OnInit {
     this.newAction = null;
   }
 
+  getActions(currentActionId?: string) {
+    this._tables.fetchActions(this.connectionID, this.tableName)
+      .subscribe(res => {
+        this.actions = [...res];
+        const currentAction = res.find((action: CustomAction) => action.id === currentActionId)
+        if (currentActionId) {
+          this.selectedAction = {...currentAction};
+        } else {
+          this.selectedAction = {...res[0]};
+        };
+      })
+  }
+
   addAction() {
     this.submitting = true;
     this._tables.saveAction(this.connectionID, this.tableName, this.selectedAction)
       .subscribe(res => {
         this.submitting = false;
+        this.getActions(res.id);
       },
         () => this.submitting = false,
         () => this.submitting = false
       )
   }
 
-  openDeleteActionDialog(index) {
+  updateAction() {
+    this.submitting = true;
+    this._tables.updateAction(this.connectionID, this.tableName, this.selectedAction)
+      .subscribe(res => {
+        this.submitting = false;
+        this.getActions(res.id);
+      },
+        () => this.submitting = false,
+        () => this.submitting = false
+      )
+  }
 
+  openDeleteActionDialog() {
+    const dialogRef = this.dialog.open(ActionDeleteDialogComponent, {
+      width: '25em',
+      data: {
+        connectionID: this.connectionID,
+        tableName: this.tableName,
+        action: this.selectedAction
+      }
+    })
+
+    dialogRef.afterClosed().subscribe(action => {
+      if (action === 'delete') {
+        this.getActions();
+      }
+    })
   }
 }

@@ -1,7 +1,7 @@
 import { AlertActionType, AlertType } from '../models/alert';
 import { BehaviorSubject, EMPTY } from 'rxjs';
-import { NavigationEnd, Router, RouterEvent } from '@angular/router';
 import { CustomAction, TableSettings, Widget } from '../models/table';
+import { NavigationEnd, Router, RouterEvent } from '@angular/router';
 import { catchError, filter, map } from 'rxjs/operators';
 
 import { HttpClient } from '@angular/common/http';
@@ -310,7 +310,61 @@ export class TablesService {
       }
     })
       .pipe(
-        map(res => res),
+        map(res => {
+          this._notifications.showSuccessSnackbar(`${res.title} action has been created.`);
+          return res
+        }),
+        catchError((err) => {
+          console.log(err);
+          this._notifications.showAlert(AlertType.Error, err.error.message, [
+            {
+              type: AlertActionType.Button,
+              caption: 'Dismiss',
+              action: (id: number) => this._notifications.dismissAlert()
+            }
+          ]);
+          return EMPTY;
+        })
+      );
+  }
+
+  updateAction(connectionID: string, tableName: string, action: CustomAction) {
+    return this._http.put<any>(`/table/action/${connectionID}`, action, {
+      params: {
+        tableName,
+        actionId: action.id
+      }
+    })
+      .pipe(
+        map(res => {
+          this._notifications.showSuccessSnackbar(`${res.title} action has been updated.`);
+          return res
+        }),
+        catchError((err) => {
+          console.log(err);
+          this._notifications.showAlert(AlertType.Error, err.error.message, [
+            {
+              type: AlertActionType.Button,
+              caption: 'Dismiss',
+              action: (id: number) => this._notifications.dismissAlert()
+            }
+          ]);
+          return EMPTY;
+        })
+      );
+  }
+
+  deleteAction(connectionID: string, tableName: string, actionId: string) {
+    return this._http.delete<any>(`/table/action/${connectionID}`, {
+      params: {
+        actionId
+      }
+    })
+      .pipe(
+        map(res => {
+          this._notifications.showSuccessSnackbar(`${res.title} action has been deleted.`);
+          return res
+        }),
         catchError((err) => {
           console.log(err);
           this._notifications.showAlert(AlertType.Error, err.error.message, [
