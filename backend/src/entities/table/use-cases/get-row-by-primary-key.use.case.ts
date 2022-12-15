@@ -61,12 +61,13 @@ export class GetRowByPrimaryKeyUseCase
     }
 
     // eslint-disable-next-line prefer-const
-    let [tableStructure, tableWidgets, tableSettings, tableForeignKeys, tablePrimaryKeys] = await Promise.all([
+    let [tableStructure, tableWidgets, tableSettings, tableForeignKeys, tablePrimaryKeys, tableActions] = await Promise.all([
       dao.getTableStructure(tableName, userEmail),
       this._dbContext.tableWidgetsRepository.findTableWidgets(connectionId, tableName),
       this._dbContext.tableSettingsRepository.findTableSettings(connectionId, tableName),
       dao.getTableForeignKeys(tableName, userEmail),
       dao.getTablePrimaryColumns(tableName, userEmail),
+      this._dbContext.tableActionRepository.findTableActions(connectionId, tableName),
     ]);
     primaryKey = convertHexDataInPrimaryKeyUtil(primaryKey, tableStructure);
     const availablePrimaryColumns: Array<string> = tablePrimaryKeys.map((column) => column.column_name);
@@ -126,6 +127,7 @@ export class GetRowByPrimaryKeyUseCase
       table_widgets: tableWidgets,
       readonly_fields: tableSettings?.readonly_fields ? tableSettings.readonly_fields : [],
       list_fields: tableSettings?.list_fields?.length > 0 ? tableSettings.list_fields : [],
+      table_actions: tableActions?.length > 0 ? tableActions : [],
     };
   }
 
