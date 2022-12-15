@@ -8,7 +8,6 @@ import { ApplicationModule } from '../../src/app.module';
 import { AllExceptionsFilter } from '../../src/exceptions/all-exceptions.filter';
 import { Messages } from '../../src/exceptions/text/messages';
 import { Cacher } from '../../src/helpers/cache/cacher';
-import { Encryptor } from '../../src/helpers/encryption/encryptor';
 import { DatabaseModule } from '../../src/shared/database/database.module';
 import { DatabaseService } from '../../src/shared/database/database.service';
 import { MockFactory } from '../mock.factory';

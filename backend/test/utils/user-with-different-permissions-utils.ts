@@ -47,8 +47,8 @@ export async function createConnectionsAndInviteNewUserInNewGroupInFirstConnecti
     .send(newConnection2)
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
-  const firstConnectionRO = JSON.parse(createSecondConnectionResponse.text);
-  connectionsId.secondId = firstConnectionRO.id;
+  const createSecondConnectionRO = JSON.parse(createSecondConnectionResponse.text);
+  connectionsId.secondId = createSecondConnectionRO.id;
   const email = simpleUserRegisterInfo.email;
 
   const createGroupResponse = await request(app.getHttpServer())

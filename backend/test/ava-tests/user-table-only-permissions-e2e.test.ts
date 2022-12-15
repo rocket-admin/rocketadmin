@@ -310,22 +310,26 @@ test(`${currentTest} should return added row`, async (t) => {
     /* eslint-disable */
     const created_at = new Date();
     const updated_at = new Date();
+    const {
+      firstTableInfo: { testTableColumnName, testTableSecondColumnName },
+    } = testData;
     const addRowInTable = await request(app.getHttpServer())
       .post(`/table/row/${testData.connections.firstId}?tableName=${testData.firstTableInfo.testTableName}`)
       .send({
-        name: randomName,
-        email: randomEmail,
+        [testTableColumnName]: randomName,
+        [testTableSecondColumnName]: randomEmail,
         created_at: created_at,
         updated_at: updated_at,
       })
       .set('Cookie', testData.users.simpleUserToken)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
+
     const addRowInTableRO = JSON.parse(addRowInTable.text);
     t.is(addRowInTable.status, 201);
     t.is(addRowInTableRO.row.hasOwnProperty('id'), true);
-    t.is(addRowInTableRO.row.name, randomName);
-    t.is(addRowInTableRO.row.email, randomEmail);
+    t.is(addRowInTableRO.row[testTableColumnName], randomName);
+    t.is(addRowInTableRO.row[testTableSecondColumnName], randomEmail);
     t.is(addRowInTableRO.row.hasOwnProperty('created_at'), true);
     t.is(addRowInTableRO.row.hasOwnProperty('updated_at'), true);
     t.is(addRowInTableRO.hasOwnProperty('structure'), true);
@@ -438,11 +442,14 @@ test(`${currentTest} should return updated row`, async (t) => {
     /* eslint-disable */
     const created_at = new Date();
     const updated_at = new Date();
+    const {
+      firstTableInfo: { testTableColumnName, testTableSecondColumnName },
+    } = testData;
     const updateRowInTable = await request(app.getHttpServer())
       .put(`/table/row/${testData.connections.firstId}?tableName=${testData.firstTableInfo.testTableName}&id=1`)
       .send({
-        name: randomName,
-        email: randomEmail,
+        [testTableColumnName]: randomName,
+        [testTableSecondColumnName]: randomEmail,
         created_at: created_at,
         updated_at: updated_at,
       })
@@ -452,8 +459,8 @@ test(`${currentTest} should return updated row`, async (t) => {
     const updateRowInTableRO = JSON.parse(updateRowInTable.text);
     t.is(updateRowInTable.status, 200);
     t.is(updateRowInTableRO.row.hasOwnProperty('id'), true);
-    t.is(updateRowInTableRO.row.name, randomName);
-    t.is(updateRowInTableRO.row.email, randomEmail);
+    t.is(updateRowInTableRO.row[testTableColumnName], randomName);
+    t.is(updateRowInTableRO.row[testTableSecondColumnName], randomEmail);
     t.is(updateRowInTableRO.row.hasOwnProperty('created_at'), true);
     t.is(updateRowInTableRO.row.hasOwnProperty('updated_at'), true);
     t.is(updateRowInTableRO.hasOwnProperty('structure'), true);
@@ -469,7 +476,9 @@ test(`${currentTest} should return updated row`, async (t) => {
 test(`${currentTest} should throw an exception do not have permission, when you do not have edit permission`, async (t) => {
   try {
     const testData = await createConnectionsAndInviteNewUserInNewGroupInFirstConnection(app);
-
+    const {
+      firstTableInfo: { testTableColumnName, testTableSecondColumnName },
+    } = testData;
     const randomName = faker.name.firstName();
     const randomEmail = faker.internet.email();
     /* eslint-disable */
