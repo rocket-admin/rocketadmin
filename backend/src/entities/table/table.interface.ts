@@ -1,5 +1,6 @@
 import { FilterCriteriaEnum, QueryOrderingEnum } from '../../enums';
 import { ITableAccessLevel, ITablePermissionData } from '../permission/permission.interface';
+import { TableActionEntity } from '../table-actions/table-action.entity';
 import { ITableWidgetRO } from '../widget/table-widget.interface';
 
 export interface IAllTablesWithPermissions {
@@ -89,6 +90,7 @@ export interface ITableRowRO {
   readonly_fields: Array<string>;
   table_widgets: Array<ITableWidgetRO>;
   list_fields: Array<string>;
+  table_actions?: Array<TableActionEntity>;
 }
 
 export interface ITableRowsRO {
