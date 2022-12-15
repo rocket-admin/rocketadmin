@@ -56,6 +56,7 @@ export class TableActionModule implements NestModule {
         { path: '/table/actions/:slug', method: RequestMethod.GET },
         { path: '/table/action/:slug', method: RequestMethod.GET },
         { path: '/table/action/:slug', method: RequestMethod.POST },
+        { path: '/table/action/activate/:slug', method: RequestMethod.POST },
         { path: '/table/action/:slug', method: RequestMethod.PUT },
         { path: '/table/action/:slug', method: RequestMethod.DELETE },
       );
