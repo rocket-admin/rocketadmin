@@ -12,6 +12,7 @@ import { TableRowService } from 'src/app/services/table-row.service';
 import { TablesService } from 'src/app/services/tables.service';
 import { getTableTypes } from 'src/app/lib/setup-table-row-structure';
 import { normalizeTableName } from '../../lib/normalize';
+import { Location } from '@angular/common';
 
 @Component({
   selector: 'app-db-table-row-edit',
@@ -38,7 +39,6 @@ export class DbTableRowEditComponent implements OnInit {
   public UIwidgets = UIwidgets;
   public rowError: string = null;
   public fieldsOrdered: string[];
-  public crumbs;
 
   public tableForeignKeys: TableForeignKey[];
 
@@ -52,6 +52,7 @@ export class DbTableRowEditComponent implements OnInit {
     private ngZone: NgZone,
     public router: Router,
     private _notifications: NotificationsService,
+    private _location: Location
   ) { }
 
   ngOnInit(): void {
@@ -59,10 +60,6 @@ export class DbTableRowEditComponent implements OnInit {
     this.connectionID = this._connections.currentConnectionID;
     this.tableName = this._tables.currentTableName;
     this.normalizedTableName = normalizeTableName(this.tableName);
-
-    this.crumbs = [
-      
-    ]
 
     this.route.queryParams.subscribe((params) => {
       if (Object.keys(params).length === 0) {
@@ -136,6 +133,10 @@ export class DbTableRowEditComponent implements OnInit {
         link: null
       }
     ]
+  }
+
+  goBack() {
+    this._location.back();
   }
 
   setRowStructure(structure: TableField[]){
@@ -269,7 +270,8 @@ export class DbTableRowEditComponent implements OnInit {
             this._notifications.dismissAlert();
           } else {
             this._notifications.dismissAlert();
-            this.router.navigate([`/dashboard/${this.connectionID}/${this.tableName}`]);
+            this.goBack();
+            // this.router.navigate([`/dashboard/${this.connectionID}/${this.tableName}`]);
           }
         });
       },

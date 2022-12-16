@@ -7,6 +7,7 @@ import { NgForm } from '@angular/forms';
 import { Router } from '@angular/router';
 import { TablesService } from 'src/app/services/tables.service';
 import { normalizeTableName } from 'src/app/lib/normalize';
+import { Location } from '@angular/common';
 
 @Component({
   selector: 'app-db-table-settings',
@@ -45,6 +46,7 @@ export class DbTableSettingsComponent implements OnInit {
     private _tables: TablesService,
     private _connections: ConnectionsService,
     public router: Router,
+    private _location: Location
   ) { }
 
   ngOnInit(): void {
@@ -80,6 +82,10 @@ export class DbTableSettingsComponent implements OnInit {
         link: null
       }
     ]
+  }
+
+  goBack() {
+    this._location.back();
   }
 
   getTableSettings() {

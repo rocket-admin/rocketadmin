@@ -159,8 +159,7 @@
             </mat-form-field>
         </div>
         <div class="actions">
-            <a mat-stroked-button class="settings-form__back-button"
-                routerLink="/dashboard/{{connectionID}}/{{tableName}}">Back</a>
+            <button mat-stroked-button type="button" class="settings-form__back-button" (click)="goBack()">Back</button>
 
             <button mat-raised-button color="warn"
                 type="button"

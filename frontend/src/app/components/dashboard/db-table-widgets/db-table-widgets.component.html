@@ -104,9 +104,9 @@
             </button>
 
             <div class="actions">
-                <a mat-stroked-button routerLink="/dashboard/{{connectionID}}/{{tableName}}">
+                <button mat-stroked-button type="button" (click)="goBack()">
                     Back
-                </a>
+                </button>
 
                 <button mat-raised-button color="primary"
                     type="submit" disabled>
