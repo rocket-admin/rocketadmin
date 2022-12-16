@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { TableField, Widget } from 'src/app/models/table';
 
 import { ConnectionsService } from 'src/app/services/connections.service';
@@ -9,6 +9,7 @@ import { WidgetDeleteDialogComponent } from './widget-delete-dialog/widget-delet
 import { difference } from "lodash";
 import { normalizeTableName } from 'src/app/lib/normalize';
 import { Router } from '@angular/router';
+import { Location } from '@angular/common';
 
 @Component({
   selector: 'app-db-table-widgets',
@@ -38,6 +39,7 @@ export class DbTableWidgetsComponent implements OnInit {
 	}
 }`,
     Date: `// No settings required`,
+    Default: `// No settings required`,
     Time: `// No settings required`,
     DateTime: `// No settings required`,
     JSON: `// No settings required`,
@@ -94,6 +96,7 @@ export class DbTableWidgetsComponent implements OnInit {
     private _tables: TablesService,
     public dialog: MatDialog,
     public router: Router,
+    private _location: Location
   ) {}
 
   ngOnInit(): void {
@@ -136,6 +139,10 @@ export class DbTableWidgetsComponent implements OnInit {
     ]
   }
 
+  goBack() {
+    this._location.back();
+  }
+
   addNewWidget() {
     this.widgets.push({
       field_name: '',
@@ -155,20 +162,11 @@ export class DbTableWidgetsComponent implements OnInit {
     if (currentWidget.widget_type === 'Default') currentWidget.widget_type = '';
 
     //default widget settings:
-    currentWidget.widget_params = this.defaultParams[currentWidget.widget_type];
+    currentWidget.widget_params = this.defaultParams[currentWidget.widget_type || 'Default'];
   }
 
   isReadOnly(type: string) {
     return !this.widgetsWithSettings.includes(type);
-  }
-
-  onWidgetParamsChange(event, fieldName: string) {
-    let currentWidget = this.widgets.find(widget => widget.field_name === fieldName);
-    if (!currentWidget.widget_params) currentWidget.widget_params = {};
-    for (const prop of Object.getOwnPropertyNames(currentWidget.widget_params)) {
-      delete currentWidget.widget_params[prop];
-    }
-    Object.assign(currentWidget.widget_params, event);
   }
 
   openDeleteWidgetDialog(widgetFieldName: string) {

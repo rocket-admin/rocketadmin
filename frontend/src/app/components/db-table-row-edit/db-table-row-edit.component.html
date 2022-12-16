@@ -63,9 +63,9 @@
         </div>
 
         <div class="actions">
-            <a mat-stroked-button routerLink="/dashboard/{{connectionID}}/{{tableName}}">
+            <button mat-stroked-button type="button" (click)="goBack()">
                 Back
-            </a>
+            </button>
             <button type="button" mat-button color="primary"
                 class="actions__continue"
                 [disabled]="submitting || editRowForm.form.invalid"
