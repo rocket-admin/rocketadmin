@@ -31,7 +31,7 @@ export class BooleanComponent implements OnInit {
       this.value = null;
     }
 
-    this.isRadiogroup = (this.structure?.allow_null) || (this.widgetStructure?.widget_params?.structure?.allow_null);
+    this.isRadiogroup = (this.structure?.allow_null) || !!(this.widgetStructure?.widget_params?.structure?.allow_null);
 
     this.normalizedLabel = normalizeFieldName(this.label);
   }

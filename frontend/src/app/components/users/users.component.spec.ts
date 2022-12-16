@@ -18,6 +18,8 @@ describe('UsersComponent', () => {
   let fixture: ComponentFixture<UsersComponent>;
   let usersService: UsersService;
   let dialog: MatDialog;
+  let dialogRefSpyObj = jasmine.createSpyObj({ afterClosed : of('delete'), close: null });
+  dialogRefSpyObj.componentInstance = { deleteWidget: of('user_name') };
 
   const fakeGroup = {
     "id": "a9a97cf1-cb2f-454b-a74e-0075dd07ad92",
@@ -34,10 +36,10 @@ describe('UsersComponent', () => {
         MatDialogModule
       ],
       declarations: [ UsersComponent ],
-      // providers: [
-      //   { provide: MAT_DIALOG_DATA, useValue: {} },
-      //   { provide: MatDialogRef, useValue: {} },
-      // ],
+      providers: [
+        // { provide: MAT_DIALOG_DATA, useValue: {} },
+        { provide: MatDialogRef, useValue: {} },
+      ],
     })
     .compileComponents();
   }));
@@ -107,7 +109,8 @@ describe('UsersComponent', () => {
   });
 
   it('should open permissions dialog', () => {
-    const fakePermissionsDialogOpen = spyOn(dialog, 'open');
+    // const fakePermissionsDialogOpen = spyOn(dialog, 'open');
+    const fakePermissionsDialogOpen = spyOn(dialog, 'open').and.returnValue(dialogRefSpyObj);
 
     component.openPermissionsDialog(fakeGroup);
     expect(fakePermissionsDialogOpen).toHaveBeenCalledOnceWith(PermissionsAddDialogComponent, {

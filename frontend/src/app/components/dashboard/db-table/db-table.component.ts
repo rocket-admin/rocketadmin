@@ -144,7 +144,8 @@ export class DbTableComponent implements OnInit {
   }
 
   getFiltersCount(activeFilters: object) {
-    return Object.keys(activeFilters).length;
+    if (activeFilters) return Object.keys(activeFilters).length;
+    return 0;
   }
 
   handleOpenFilters() {

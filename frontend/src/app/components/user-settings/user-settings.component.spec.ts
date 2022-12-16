@@ -8,6 +8,7 @@ import { of } from 'rxjs';
 import { UserService } from 'src/app/services/user.service';
 import { AccountDeleteDialogComponent } from './account-delete-dialog/account-delete-dialog.component';
 import { SubscriptionPlans } from 'src/app/models/user';
+import { RouterTestingModule } from '@angular/router/testing';
 
 describe('UserSettingsComponent', () => {
   let component: UserSettingsComponent;
@@ -19,6 +20,7 @@ describe('UserSettingsComponent', () => {
     await TestBed.configureTestingModule({
       imports: [
         HttpClientTestingModule,
+        RouterTestingModule,
         MatDialogModule,
         MatSnackBarModule
       ],

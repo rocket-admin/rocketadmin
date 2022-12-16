@@ -30,8 +30,8 @@
     </div>
 
     <ng-template #oneRowDetails>
-      <table *ngIf="log.currentValue">
-        <tr *ngFor="let field of log.currentValue | keyvalue" data-block="one-row-details"
+      <table *ngIf="log.currentValue" data-block="one-row-details">
+        <tr *ngFor="let field of log.currentValue | keyvalue"
           class="mat-body"
           [ngClass]="{changed: isChangedFiled(field)}">
           <th>{{filedsNames[field.key]}}</th>

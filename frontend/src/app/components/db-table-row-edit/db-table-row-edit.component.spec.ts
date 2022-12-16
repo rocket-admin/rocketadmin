@@ -178,7 +178,7 @@ describe('DbTableRowEditComponent', () => {
         "id": "36141f10-feb6-4c42-acdb-261523729625",
         "field_name": "CustomerId",
         "widget_type": "Textarea",
-        "widget_params": {},
+        "widget_params": '',
         "name": "Customer",
         "description": ""
       },
@@ -186,7 +186,7 @@ describe('DbTableRowEditComponent', () => {
         "id": "d6a4caa5-68f6-455f-90ff-2ad81856253b",
         "field_name": "Price",
         "widget_type": "Number",
-        "widget_params": {},
+        "widget_params": '',
         "name": "",
         "description": "Prices are pointed in USD"
       }
@@ -200,7 +200,7 @@ describe('DbTableRowEditComponent', () => {
         id: "36141f10-feb6-4c42-acdb-261523729625",
         field_name: "CustomerId",
         widget_type: "Textarea",
-        widget_params: {},
+        widget_params: null,
         name: "Customer",
         description: ""
       },
@@ -208,7 +208,7 @@ describe('DbTableRowEditComponent', () => {
         "id": "d6a4caa5-68f6-455f-90ff-2ad81856253b",
         "field_name": "Price",
         "widget_type": "Number",
-        "widget_params": {},
+        "widget_params": null,
         "name": "",
         "description": "Prices are pointed in USD"
       }

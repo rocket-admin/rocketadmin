@@ -57,7 +57,6 @@ export class AccountDeleteDialogComponent implements OnInit {
 
   openDeleteConfirmation() {
     const metadata = {
-      email: this.userEmail,
       reason: this.reason,
       message: this.message
     };

@@ -10,6 +10,7 @@ import { TablesService } from 'src/app/services/tables.service';
 import { WidgetDeleteDialogComponent } from './widget-delete-dialog/widget-delete-dialog.component';
 import { of } from 'rxjs';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { DashboardComponent } from '../dashboard.component';
 
 describe('DbTableWidgetsComponent', () => {
   let component: DbTableWidgetsComponent;
@@ -80,7 +81,7 @@ describe('DbTableWidgetsComponent', () => {
       "id": "a57e0c7f-a348-4aae-9ec4-fdbec0c0d0b6",
       "field_name": "email",
       "widget_type": "Textarea",
-      "widget_params": {},
+      "widget_params": '',
       "name": "user email",
       "description": ""
     }
@@ -90,13 +91,14 @@ describe('DbTableWidgetsComponent', () => {
     await TestBed.configureTestingModule({
       imports: [
         HttpClientTestingModule,
-        RouterTestingModule.withRoutes([]),
+        RouterTestingModule.withRoutes([
+          { path: 'dashboard/:connection-id/:table-name', component: DashboardComponent}
+        ]),
         MatSnackBarModule,
         MatDialogModule,
         BrowserAnimationsModule
       ],
       providers: [
-        // { provide: MAT_DIALOG_DATA, useValue: {} },
         { provide: MatDialogRef, useValue: {} },
       ],
       declarations: [ DbTableWidgetsComponent ]
@@ -137,7 +139,7 @@ describe('DbTableWidgetsComponent', () => {
       {
         field_name: 'user_id',
         widget_type: 'textarea',
-        widget_params: {},
+        widget_params: '',
         name: '',
         description: ''
       }
@@ -149,14 +151,14 @@ describe('DbTableWidgetsComponent', () => {
       {
         field_name: 'user_id',
         widget_type: 'textarea',
-        widget_params: {},
+        widget_params: '',
         name: '',
         description: ''
       },
       {
         field_name: '',
         widget_type: '',
-        widget_params: {},
+        widget_params: '',
         name: '',
         description: ''
       }
@@ -174,7 +176,7 @@ describe('DbTableWidgetsComponent', () => {
     const defaultWidget = {
       field_name: 'user_name',
       widget_type: 'Default',
-      widget_params: {},
+      widget_params: '',
       name: 'name',
       description: ''
     };
@@ -183,7 +185,7 @@ describe('DbTableWidgetsComponent', () => {
       {
         field_name: 'user_id',
         widget_type: 'textarea',
-        widget_params: {},
+        widget_params: '',
         name: '',
         description: ''
       },
@@ -196,52 +198,14 @@ describe('DbTableWidgetsComponent', () => {
       {
         field_name: 'user_id',
         widget_type: 'textarea',
-        widget_params: {},
+        widget_params: '',
         name: '',
         description: ''
       },
       {
         field_name: 'user_name',
         widget_type: '',
-        widget_params: {},
-        name: 'name',
-        description: ''
-      }
-    ])
-  });
-
-  it('should update widget params on json editor change', () => {
-    component.widgets = [
-      {
-        field_name: 'user_id',
-        widget_type: 'textarea',
-        widget_params: {},
-        name: '',
-        description: ''
-      },
-      {
-        field_name: 'user_name',
-        widget_type: 'string',
-        widget_params: {},
-        name: 'name',
-        description: ''
-      }
-    ];
-
-    component.onWidgetParamsChange({encription: true}, 'user_name');
-
-    expect(component.widgets).toEqual([
-      {
-        field_name: 'user_id',
-        widget_type: 'textarea',
-        widget_params: {},
-        name: '',
-        description: ''
-      },
-      {
-        field_name: 'user_name',
-        widget_type: 'string',
-        widget_params: {encription: true},
+        widget_params: '// No settings required',
         name: 'name',
         description: ''
       }
@@ -254,14 +218,14 @@ describe('DbTableWidgetsComponent', () => {
       {
         field_name: 'user_id',
         widget_type: 'textarea',
-        widget_params: {},
+        widget_params: '',
         name: '',
         description: ''
       },
       {
         field_name: 'user_name',
         widget_type: 'Default',
-        widget_params: {},
+        widget_params: '',
         name: 'name',
         description: ''
       }
@@ -280,7 +244,7 @@ describe('DbTableWidgetsComponent', () => {
       {
         field_name: 'user_id',
         widget_type: 'textarea',
-        widget_params: {},
+        widget_params: '',
         name: '',
         description: ''
       }
@@ -294,17 +258,17 @@ describe('DbTableWidgetsComponent', () => {
       {
         field_name: "email",
         widget_type: "Textarea",
-        widget_params: {},
+        widget_params: '',
         name: "user email",
         description: ""
       }
     ];
     spyOn(tablesService, 'updateTableWidgets').and.returnValue(of(tableWidgetsNetwork));
-    const fakeFatchWidgets = spyOn(tablesService, 'fetchTableWidgets').and.returnValue(of(tableWidgetsNetwork));
+    // const fakeFatchWidgets = spyOn(tablesService, 'fetchTableWidgets').and.returnValue(of(tableWidgetsNetwork));
 
     component.updateWidgets();
 
-    expect(fakeFatchWidgets).toHaveBeenCalledOnceWith('12345678', 'users');
+    // expect(fakeFatchWidgets).toHaveBeenCalledOnceWith('12345678', 'users');
     expect(component.submitting).toBeFalse();
   });
 });

@@ -5,6 +5,7 @@ import { UpgradeComponent } from './upgrade.component';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { UserService } from 'src/app/services/user.service';
 import { of } from 'rxjs';
+import { RouterTestingModule } from '@angular/router/testing';
 
 describe('UpgradeComponent', () => {
   let component: UpgradeComponent;
@@ -15,6 +16,7 @@ describe('UpgradeComponent', () => {
     await TestBed.configureTestingModule({
       imports: [
         HttpClientTestingModule,
+        RouterTestingModule,
         MatSnackBarModule
       ],
       declarations: [ UpgradeComponent ],
