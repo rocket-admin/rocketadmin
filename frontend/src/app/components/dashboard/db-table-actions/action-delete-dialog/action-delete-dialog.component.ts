@@ -20,6 +20,7 @@ export class ActionDeleteDialogComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
+    this._tables.cast.subscribe();
   }
 
   deleteAction() {

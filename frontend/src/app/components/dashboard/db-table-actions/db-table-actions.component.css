@@ -34,7 +34,19 @@
     gap: 4px;
     margin-top: -20px;
     margin-left: 16px;
-    width: calc(100% - 32px);
+}
+
+.new-action-input ::ng-deep.mat-form-field-wrapper {
+    width: calc(100% - 16px);
+}
+
+.action-error {
+    position: absolute;
+    top: 44px;
+    left: 0;
+    color: #e53935;
+    font-size: 0.75em;
+    width: 100%;
 }
 
 .mat-drawer-content {
@@ -68,9 +80,14 @@
     color: #ED4870;
 }
 
+.list-action-list-item_notSaved {
+    color: #F9A825;
+}
+
 .list-action-list-item__savingIcon {
     position: relative;
     margin-left: auto;
+    margin-right: 8px !important;
 }
 
 .list-action-list-item__savingIcon::after {
@@ -87,6 +104,10 @@
 
 .list-action-list-item_active .list-action-list-item__savingIcon::after {
     background: #ED4870;
+}
+
+.list-action-list-item_notSaved .list-action-list-item__savingIcon::after {
+    background: #F9A825;
 }
 
 .actions-icon-selector {

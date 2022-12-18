@@ -4,7 +4,7 @@
             <h1 class="mat-h1">Actions</h1>
 
             <button mat-icon-button color="primary" *ngIf="actions && actions.length !== 0"
-                type="button"
+                type="button" class="add-icon-button"
                 (click)="addNewAction()">
                 <mat-icon>add</mat-icon>
             </button>
@@ -21,7 +21,10 @@
         <mat-action-list *ngIf="actions && actions.length">
             <button mat-list-item *ngFor="let action of actions; let i = index"
             class="list-action-list-item"
-            [ngClass]="action.id === selectedAction.id ? 'list-action-list-item_active' : ''"
+            [ngClass]="{
+                'list-action-list-item_active': action.id !== '' && action.id === selectedAction.id,
+                'list-action-list-item_notSaved': action.id === ''
+            }"
             (click)="switchActionView(action)">
                 {{ action.title }}
                 <mat-icon *ngIf="!action.id" fontSet="material-icons-outlined"
@@ -32,12 +35,12 @@
         </mat-action-list>
         <mat-form-field appearance="standard" *ngIf="newAction"
             class="new-action-input">
-            <input matInput autofocus="true" name="new-action-title" #actionTitle="matInput"
+            <input matInput autofocus="true" name="newActionTitle" #newActionTitle="matInput"
                 required
                 placeholder="Enter action name"
                 [(ngModel)]="newAction.title"
                 (keyup.enter)="handleAddNewAction()">
-            <mat-error *ngIf="emptyActionNameError">Action name can not be empty.</mat-error>
+            <span *ngIf="actionNameError" class="action-error">{{actionNameError}}</span>
             <button mat-icon-button matSuffix
                 (click)="removeAction()">
                 <mat-icon>close</mat-icon>
@@ -50,7 +53,7 @@
         <app-breadcrumbs [crumbs]="getCrumbs(currentConnection.title)" class="actions-breadcrumbs"></app-breadcrumbs>
         <app-content-loader *ngIf="!actions"></app-content-loader>
 
-        <div class="action" *ngIf="selectedAction">
+        <div class="action" *ngIf="selectedAction && actions.length">
             <form (ngSubmit)="selectedAction.id ? updateAction() : addAction()" class="action-settings">
                 <mat-form-field appearance="outline">
                     <mat-label>Name</mat-label>
@@ -112,7 +115,7 @@
                     name="action-type"
                     [(ngModel)]="selectedAction.type">
                     <mat-label>Affects</mat-label>
-                    <mat-radio-button value='single' class="radio-button_first">
+                    <mat-radio-button value='single' class="radio-button_first" checked>
                         Single row
                     </mat-radio-button>
                     <mat-radio-button value='multiple' class="radio-button_second">
@@ -122,7 +125,7 @@
 
                 <div class="action__actions">
                     <button mat-stroked-button color="warn" type="button"
-                        (click)="selectedAction.id ? openDeleteActionDialog() : removeAction()">
+                        (click)="selectedAction.id ? openDeleteActionDialog() : removeAction(selectedAction.title)">
                         Delete
                     </button>
 
@@ -140,8 +143,7 @@
                     lineNumbers: true,
                     lineWrapping: true,
                     mode: 'javascript',
-                    theme: 'ttcn',
-                    readOnly: 'nocursor'
+                    theme: 'ttcn'
                 }"
             ></ngx-codemirror>
         </div>

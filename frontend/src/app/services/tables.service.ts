@@ -362,6 +362,7 @@ export class TablesService {
     })
       .pipe(
         map(res => {
+          this.tables.next('delete-action');
           this._notifications.showSuccessSnackbar(`${res.title} action has been deleted.`);
           return res
         }),
