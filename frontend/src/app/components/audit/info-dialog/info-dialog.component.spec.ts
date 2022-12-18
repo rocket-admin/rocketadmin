@@ -51,7 +51,7 @@ describe('InfoDialogComponent', () => {
     component.ngOnInit();
     fixture.detectChanges();
 
-    const oneRowDetails = fixture.debugElement.query(By.css('div[data-block="one-row-details"]'));
+    const oneRowDetails = fixture.debugElement.query(By.css('table[data-block="one-row-details"]'));
     expect(oneRowDetails).toBeTruthy();
   });
 
@@ -74,7 +74,7 @@ describe('InfoDialogComponent', () => {
     component.ngOnInit();
     fixture.detectChanges();
 
-    const oneRowDetails = fixture.debugElement.query(By.css('div[data-block="one-row-details"]'));
+    const oneRowDetails = fixture.debugElement.query(By.css('table[data-block="one-row-details"]'));
     expect(oneRowDetails).toBeTruthy();
   });
 
@@ -97,8 +97,8 @@ describe('InfoDialogComponent', () => {
     component.ngOnInit();
     fixture.detectChanges();
 
-    const oneRowDetails = fixture.debugElement.query(By.css('div[data-block="one-row-details"]'));
-    expect(oneRowDetails).toBeTruthy();
+    const oneRowDetailsNode = fixture.debugElement.query(By.css('table[data-block="one-row-details"]'));
+    expect(oneRowDetailsNode).toBeTruthy();
   });
 
   it('should show block for comparison details of updated row', () => {
@@ -147,7 +147,7 @@ describe('InfoDialogComponent', () => {
     component.ngOnInit();
     fixture.detectChanges();
 
-    const comparisonDetails = fixture.debugElement.query(By.css('div[data-block="one-row-details"]'));
+    const comparisonDetails = fixture.debugElement.query(By.css('table[data-block="one-row-details"]'));
     expect(comparisonDetails).toBeTruthy();
   });
 

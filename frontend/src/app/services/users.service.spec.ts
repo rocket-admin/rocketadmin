@@ -5,6 +5,7 @@ import { TestBed } from '@angular/core/testing';
 import { UsersService } from './users.service';
 import { NotificationsService } from './notifications.service';
 import { AccessLevel } from '../models/user';
+import { RouterTestingModule } from '@angular/router/testing';
 
 describe('UsersService', () => {
   let service: UsersService;
@@ -102,7 +103,11 @@ describe('UsersService', () => {
     fakeNotifications = jasmine.createSpyObj('NotificationsService', ['showErrorSnackbar', 'showSuccessSnackbar']);
 
     TestBed.configureTestingModule({
-      imports: [HttpClientTestingModule, MatSnackBarModule],
+      imports: [
+        HttpClientTestingModule,
+        MatSnackBarModule,
+        RouterTestingModule.withRoutes([]),
+      ],
       providers: [
         {
           provide: NotificationsService,

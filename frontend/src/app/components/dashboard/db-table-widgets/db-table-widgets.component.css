@@ -38,7 +38,8 @@
 
 .widget-field-name {
     align-self: baseline;
-    margin-top: 28px;
+    margin-top: 8px;
+    word-break: break-all;
 }
 
 ::ng-deep .CodeMirror {

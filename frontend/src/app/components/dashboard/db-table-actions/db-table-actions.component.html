@@ -1,0 +1,226 @@
+<mat-drawer-container class="drawer">
+    <mat-drawer mode="side" opened>
+        <div class="drawer-header">
+            <h1 class="mat-h1">Actions</h1>
+
+            <button mat-icon-button color="primary" *ngIf="actions && actions.length !== 0"
+                type="button" class="add-icon-button"
+                (click)="addNewAction()">
+                <mat-icon>add</mat-icon>
+            </button>
+        </div>
+        <div class="no-actions" *ngIf="actions && actions.length === 0 && !newAction">
+            <span class="mat-body-1">No actions added</span>
+            <button mat-stroked-button color="primary"
+                type="button"
+                (click)="addNewAction()">
+                <mat-icon>add</mat-icon>
+                Add action
+            </button>
+        </div>
+        <mat-action-list *ngIf="actions && actions.length">
+            <button mat-list-item *ngFor="let action of actions; let i = index"
+            class="list-action-list-item"
+            [ngClass]="{
+                'list-action-list-item_active': action.id !== '' && action.id === selectedAction.id,
+                'list-action-list-item_notSaved': action.id === ''
+            }"
+            (click)="switchActionView(action)">
+                {{ action.title }}
+                <mat-icon *ngIf="!action.id" fontSet="material-icons-outlined"
+                    class="list-action-list-item__savingIcon">
+                    save
+                </mat-icon>
+            </button>
+        </mat-action-list>
+        <mat-form-field appearance="standard" *ngIf="newAction"
+            class="new-action-input">
+            <input matInput autofocus="true" name="newActionTitle" #newActionTitle="matInput"
+                required
+                placeholder="Enter action name"
+                [(ngModel)]="newAction.title"
+                (keyup.enter)="handleAddNewAction()">
+            <span *ngIf="actionNameError" class="action-error">{{actionNameError}}</span>
+            <button mat-icon-button matSuffix
+                (click)="removeAction()">
+                <mat-icon>close</mat-icon>
+            </button>
+        </mat-form-field>
+    </mat-drawer>
+
+    <mat-drawer-content>
+        <app-alert></app-alert>
+        <app-breadcrumbs [crumbs]="getCrumbs(currentConnection.title)" class="actions-breadcrumbs"></app-breadcrumbs>
+        <app-content-loader *ngIf="!actions"></app-content-loader>
+
+        <div class="action" *ngIf="selectedAction && actions.length">
+            <form (ngSubmit)="selectedAction.id ? updateAction() : addAction()" class="action-settings">
+                <mat-form-field appearance="outline">
+                    <mat-label>Name</mat-label>
+                    <input matInput [(ngModel)]="selectedAction.title" name="action-title" required>
+                </mat-form-field>
+
+                <div class="actions-icon-selector">
+                    <span>Icon</span>
+                    <button mat-icon-button type="button" [matMenuTriggerFor]="menu">
+                        <mat-icon *ngIf="selectedAction.icon; else defaultIcon" fontSet="material-icons-outlined">
+                            {{ selectedAction.icon }}
+                        </mat-icon>
+                        <ng-template #defaultIcon>
+                            <mat-icon fontSet="material-icons-outlined">add_reaction</mat-icon>
+                        </ng-template>
+                    </button>
+                    <mat-menu #menu="matMenu">
+                        <div class="icons-menu">
+                            <strong>Select an icon</strong>
+                            <ul class="icons-list">
+                                <li *ngFor="let icon of defaultIcons; let i = index">
+                                    <label for="icon-{{i}}" class="icon-radio-label" (click)="$event.stopPropagation();">
+                                        <input type="radio" name="action-icon"
+                                            [value]="icon" id="icon-{{i}}"
+                                            [(ngModel)]="selectedAction.icon"
+                                            class="icon-radio-button visually-hidden">
+                                        <div class="icon-button">
+                                            <mat-icon fontSet="material-icons-outlined">{{icon}}</mat-icon>
+                                        </div>
+                                    </label>
+                                </li>
+                            </ul>
+                            <mat-form-field appearance="outline" class="icon-input">
+                                <mat-label>Another icon</mat-label>
+                                <input matInput
+                                    [(ngModel)]="selectedAction.icon"
+                                    name="action-icon"
+                                    (click)="$event.stopPropagation();">
+                                <mat-hint>
+                                    More icons <a href="https://fonts.google.com/icons" target="_blank" (click)="$event.stopPropagation();" class="google-icons-link">here</a>
+                                </mat-hint>
+                            </mat-form-field>
+                            <!--<button mat-button color="primary"
+                                class="apply-icon-button"
+                                type="button">
+                                Apply
+                            </button>-->
+                        </div>
+                    </mat-menu>
+                </div>
+
+                <mat-form-field appearance="outline">
+                    <mat-label>Action URL</mat-label>
+                    <input matInput [(ngModel)]="selectedAction.url" name="action-url" required>
+                    <!-- <mat-error *ngIf="sslCert.errors?.required && (sslCert.invalid && sslCert.touched)">SSL certificate should not be empty.</mat-error> -->
+                </mat-form-field>
+
+                <mat-radio-group
+                    name="action-type"
+                    [(ngModel)]="selectedAction.type">
+                    <mat-label>Affects</mat-label>
+                    <mat-radio-button value='single' class="radio-button_first" checked>
+                        Single row
+                    </mat-radio-button>
+                    <mat-radio-button value='multiple' class="radio-button_second">
+                        Multiple rows
+                    </mat-radio-button>
+                </mat-radio-group>
+
+                <div class="action__actions">
+                    <button mat-stroked-button color="warn" type="button"
+                        (click)="selectedAction.id ? openDeleteActionDialog() : removeAction(selectedAction.title)">
+                        Delete
+                    </button>
+
+                    <button mat-raised-button color="primary" type="submit"
+                        [disabled]="submitting">
+                        Save
+                    </button>
+                </div>
+            </form>
+
+            <ngx-codemirror class="action-codeSnippet"
+                [(ngModel)]="codeSnippet"
+                name="code-snippet"
+                [options]="{
+                    lineNumbers: true,
+                    lineWrapping: true,
+                    mode: 'javascript',
+                    theme: 'ttcn'
+                }"
+            ></ngx-codemirror>
+        </div>
+
+    </mat-drawer-content>
+  </mat-drawer-container>
+
+
+<!--<div *ngIf="actions" class="wrapper">
+    <header class="header">
+
+        <div *ngIf="actions.length" class="header-actions">
+            <button  mat-stroked-button
+                type="button"
+                (click)="openClearAllActions()">
+                Clear All
+            </button>
+
+        </div>
+
+    </header>
+
+    <form *ngIf="actions.length; else emptyState" (ngSubmit)="updateActions()" class="widget-settings">
+        <ng-container *ngFor="let action of actions; let i = index">
+
+            <mat-form-field appearance="outline">
+                <mat-label>Action name</mat-label>
+                <input matInput [(ngModel)]="action.title" name="{{i}}-field-new-name">
+                <mat-error *ngIf="username.errors?.required && (username.invalid && username.touched)">Username should not be empty.</mat-error>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+                <mat-label>Action URL</mat-label>
+                <textarea matInput [(ngModel)]="action.url" name="{{i}}-field-description"></textarea>
+                <mat-error *ngIf="sslCert.errors?.required && (sslCert.invalid && sslCert.touched)">SSL certificate should not be empty.</mat-error>
+            </mat-form-field>
+
+            <button mat-icon-button type="button" class="widget-delete-button"
+                matTooltip="Delete widget"
+                (click)="openDeleteActionDialog(i)">
+                <mat-icon>delete_outline</mat-icon>
+            </button>
+        </ng-container>
+
+
+        <div class="actions">
+            <a mat-stroked-button routerLink="/dashboard/{{connectionID}}/{{tableName}}">
+                Back
+            </a>
+
+            <button mat-raised-button color="primary"
+                type="submit" [disabled]="submitting">
+                Save
+            </button>
+        </div>
+    </form>
+
+    <ng-template #emptyState>
+        <div class="empty-state">
+            <p class="empty-state__text">No actions added</p>
+            <button mat-flat-button
+                color="accent"
+                (click)="addNewAction()">
+                <mat-icon>add</mat-icon>
+                Add action
+            </button>
+
+            <div class="actions">
+                <a mat-stroked-button routerLink="/dashboard/{{connectionID}}/{{tableName}}">
+                    Back
+                </a>
+
+                <button mat-raised-button color="primary"
+                    type="submit" disabled>
+                    Save
+                </button>
+            </div>
+        </div>
+    </ng-template>
+</div>-->

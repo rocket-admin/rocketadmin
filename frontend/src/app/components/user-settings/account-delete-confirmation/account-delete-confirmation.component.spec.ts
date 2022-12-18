@@ -5,6 +5,7 @@ import { AccountDeleteConfirmationComponent } from './account-delete-confirmatio
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { RouterTestingModule } from "@angular/router/testing";
 import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { Angulartics2Module } from 'angulartics2';
 
 describe('AccountDeleteConfirmationComponent', () => {
   let component: AccountDeleteConfirmationComponent;
@@ -20,7 +21,8 @@ describe('AccountDeleteConfirmationComponent', () => {
         HttpClientTestingModule,
         RouterTestingModule.withRoutes([]),
         MatDialogModule,
-        MatSnackBarModule
+        MatSnackBarModule,
+        Angulartics2Module.forRoot()
       ],
       providers: [
         { provide: MAT_DIALOG_DATA, useValue: {} },

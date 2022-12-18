@@ -159,7 +159,8 @@ describe('TablesService', () => {
     "readonly_fields": [],
     "search_fields": [],
     "sortable_by": [],
-    "table_name": "contacts_with_uuid"
+    "table_name": "contacts_with_uuid",
+    "sensitive_fields": []
   };
 
   const tableWidgetsNetwork = [

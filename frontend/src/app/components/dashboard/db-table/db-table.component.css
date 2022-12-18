@@ -126,7 +126,8 @@ tr.mat-row:hover {
 .mat-table-sticky {
     background: #e0e0e0;
     padding-left: 16px;
-    width: 124px;
+    padding-right: 16px !important;
+    /* width: 124px; */
 }
 
 .spinner-wrapper {

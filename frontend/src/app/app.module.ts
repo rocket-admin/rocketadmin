@@ -1,21 +1,26 @@
 import * as Sentry from "@sentry/angular";
 
-import { APP_INITIALIZER, ErrorHandler, NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { APP_INITIALIZER, CUSTOM_ELEMENTS_SCHEMA, ErrorHandler, NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { Router, RouterModule } from '@angular/router';
 
 import { AccountDeleteConfirmationComponent } from './components/user-settings/account-delete-confirmation/account-delete-confirmation.component';
 import { AccountDeleteDialogComponent } from './components/user-settings/account-delete-dialog/account-delete-dialog.component';
+import { AlertComponent } from './components/ui-components/alert/alert.component';
 import { Angulartics2Module } from 'angulartics2';
 import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app-routing.module';
 import { AuditComponent } from './components/audit/audit.component';
 import { BannerComponent } from './components/ui-components/banner/banner.component';
+import { Base64ValidationDirective } from "./directives/base64Validator.directive";
 import { BinaryDataCaptionComponent } from './components/ui-components/row-fields/binary-data-caption/binary-data-caption.component';
 import { BooleanComponent } from './components/ui-components/row-fields/boolean/boolean.component';
+import { BreadcrumbsComponent } from './components/ui-components/breadcrumbs/breadcrumbs.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { BrowserModule } from '@angular/platform-browser';
+import { ClipboardModule } from '@angular/cdk/clipboard';
+import { CodemirrorModule } from '@ctrl/ngx-codemirror';
 import { ConfigModule } from './modules/config.module';
 import { ConnectDBComponent } from './components/connect-db/connect-db.component';
 import { ConnectionSettingsComponent } from "./components/connection-settings/connection-settings.component";
@@ -30,12 +35,14 @@ import { DbConnectionConfirmDialogComponent } from './components/connect-db/db-c
 import { DbConnectionDeleteDialogComponent } from './components/connect-db/db-connection-delete-dialog/db-connection-delete-dialog.component';
 import { DbConnectionIpAccessDialogComponent } from './components/connect-db/db-connection-ip-access-dialog/db-connection-ip-access-dialog.component';
 import { DbRowDeleteDialogComponent } from './components/dashboard/db-row-delete-dialog/db-row-delete-dialog.component';
+import { DbTableActionsComponent } from './components/dashboard/db-table-actions/db-table-actions.component';
 import { DbTableComponent } from './components/dashboard/db-table/db-table.component';
 import { DbTableFiltersDialogComponent } from './components/dashboard/db-table-filters-dialog/db-table-filters-dialog.component';
 import { DbTableRowEditComponent } from './components/db-table-row-edit/db-table-row-edit.component';
 import { DbTableSettingsComponent } from './components/dashboard/db-table-settings/db-table-settings.component';
 import { DbTableWidgetsComponent } from './components/dashboard/db-table-widgets/db-table-widgets.component';
 import { DbTablesListComponent } from './components/dashboard/db-tables-list/db-tables-list.component';
+import { DragDropModule } from '@angular/cdk/drag-drop';
 import { DynamicModule } from 'ng-dynamic-component';
 import { EmailChangeComponent } from './components/email-change/email-change.component';
 import { EmailVerificationComponent } from './components/email-verification/email-verification.component';
@@ -45,17 +52,18 @@ import { ForeignKeyComponent } from './components/ui-components/row-fields/forei
 import { GroupAddDialogComponent } from './components/users/group-add-dialog/group-add-dialog.component';
 import { GroupDeleteDialogComponent } from './components/users/group-delete-dialog/group-delete-dialog.component';
 import { GroupUserVerificationComponent } from './components/group-user-verification/group-user-verification.component';
-import { HostnameValidationDirective } from "./directives/hostnameValidator.directive";
-import { Base64ValidationDirective } from "./directives/base64Validator.directive";
 import { HexValidationDirective } from "./directives/hexValidator.directive";
+import { HostnameValidationDirective } from "./directives/hostnameValidator.directive";
 import { IdComponent } from "./components/ui-components/row-fields/id/id.component";
 import { InfoDialogComponent } from './components/audit/info-dialog/info-dialog.component';
+import { IpAddressButtonComponent } from './components/ui-components/ip-address-button/ip-address-button.component';
 import { JsonEditorComponent } from './components/ui-components/row-fields/json-editor/json-editor.component';
 import { LoginComponent } from './components/login/login.component';
 import { LongTextComponent } from './components/ui-components/row-fields/long-text/long-text.component';
 import { MasterPasswordDialogComponent } from './components/master-password-dialog/master-password-dialog.component';
 import { MatMenuModule } from '@angular/material/menu';
 import { MaterialModule } from './modules/material.module';
+import { NewVersionComponent } from './components/new-version/new-version.component';
 import { NgJsonEditorModule } from 'ang-jsoneditor'
 import { NgmatTableQueryReflectorModule } from '@nghacks/ngmat-table-query-reflector';
 import { NotificationsService } from './services/notifications.service';
@@ -80,20 +88,15 @@ import { TokenInterceptor } from './services/token.interceptor';
 import { UpgradeComponent } from './components/upgrade/upgrade.component';
 import { UserAddDialogComponent } from './components/users/user-add-dialog/user-add-dialog.component';
 import { UserDeleteDialogComponent } from './components/users/user-delete-dialog/user-delete-dialog.component';
+import { UserDeletedSuccessComponent } from './components/user-deleted-success/user-deleted-success.component';
+import { UserPasswordComponent } from './components/ui-components/user-password/user-password.component';
 import { UserSettingsComponent } from './components/user-settings/user-settings.component';
 import { UsersComponent } from './components/users/users.component';
 import { UsersService } from './services/users.service';
 import { WidgetDeleteDialogComponent } from './components/dashboard/db-table-widgets/widget-delete-dialog/widget-delete-dialog.component';
 import { environment } from '../environments/environment';
-import { AlertComponent } from './components/ui-components/alert/alert.component';
-import { NewVersionComponent } from './components/new-version/new-version.component';
-import { ClipboardModule } from '@angular/cdk/clipboard';
-import { DragDropModule } from '@angular/cdk/drag-drop';
-import { CodemirrorModule } from '@ctrl/ngx-codemirror';
-import { UserDeletedSuccessComponent } from './components/user-deleted-success/user-deleted-success.component';
-import { IpAddressButtonComponent } from './components/ui-components/ip-address-button/ip-address-button.component';
-import { BreadcrumbsComponent } from './components/ui-components/breadcrumbs/breadcrumbs.component';
-import { UserPasswordComponent } from './components/ui-components/user-password/user-password.component';
+import { ActionDeleteDialogComponent } from './components/dashboard/db-table-actions/action-delete-dialog/action-delete-dialog.component';
+
 const saasExtraProviders = (environment as any).saas ? [
   {
     provide: Sentry.TraceService,
@@ -180,7 +183,9 @@ const saasExtraProviders = (environment as any).saas ? [
     UserDeletedSuccessComponent,
     IpAddressButtonComponent,
     BreadcrumbsComponent,
-    UserPasswordComponent
+    DbTableActionsComponent,
+    UserPasswordComponent,
+    ActionDeleteDialogComponent
   ],
   entryComponents: [
     DbRowDeleteDialogComponent,

@@ -135,7 +135,7 @@ describe('PermissionsAddDialogComponent', () => {
   it('should select all tables', () => {
     component.tablesAccess = fakeTablePermissions;
 
-    component.grantFullAccess();
+    component.grantFullTableAccess();
 
     expect(component.tablesAccess).toEqual([
       {

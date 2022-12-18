@@ -1,6 +1,8 @@
+import * as JSON5 from 'json5';
+
 import { Alert, AlertActionType, AlertType } from 'src/app/models/alert';
 import { BehaviorSubject, Observable, of } from 'rxjs';
-import { TableForeignKey, Widget, TableField } from 'src/app/models/table';
+import { TableField, TableForeignKey, Widget } from 'src/app/models/table';
 import { catchError, finalize } from 'rxjs/operators';
 
 import { AccessLevel } from 'src/app/models/user';
@@ -14,7 +16,6 @@ import { TablesService } from 'src/app/services/tables.service';
 import { filter } from "lodash";
 import { format } from 'date-fns'
 import { normalizeFieldName } from 'src/app/lib/normalize';
-import * as JSON5 from 'json5';
 
 interface Column {
   title: string,
@@ -58,6 +59,7 @@ export class TablesDataSource implements DataSource<Object> {
   public selectWidgetsOptions: object;
   public permissions;
   public isEmptyTable: boolean;
+  public tableActions: object[];
 
   public alert_primaryKeysInfo: Alert;
   public alert_settingsInfo: Alert;
@@ -161,6 +163,7 @@ export class TablesDataSource implements DataSource<Object> {
           const formattedRows = res.rows.map(row => this.formatRow(row, columns));
           this.rowsSubject.next(formattedRows);
           this.keyAttributes = res.primaryColumns;
+          this.tableActions = res.table_actions;
 
           let orderedColumns: TableField[];
           if (res.list_fields.length) {
@@ -282,17 +285,12 @@ export class TablesDataSource implements DataSource<Object> {
 
   changleColumnList() {
     this.displayedDataColumns = (filter(this.columns, column => column.selected === true)).map(column => column.title);
-
-    if (this.keyAttributes.length) {
-      this.displayedColumns = [...this.displayedDataColumns, 'actions']
-    } else {
-      this.displayedColumns = [...this.displayedDataColumns]
-    };
+    this.displayedColumns = [...this.displayedDataColumns];
+    if (this.keyAttributes.length) this.displayedColumns.push('actions');
   }
 
   getQueryParams(row) {
     const params = Object.fromEntries(this.keyAttributes.map((column) => {
-      console.log(row[column.column_name]);
       if (this.foreignKeysList.includes(column.column_name)) {
       const referencedColumnNameOfForeignKey = this.foreignKeys[column.column_name].referenced_column_name;
         return [column.column_name, row[column.column_name][referencedColumnNameOfForeignKey]];

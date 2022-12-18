@@ -151,8 +151,6 @@ export class DbTableWidgetsComponent implements OnInit {
       name: '',
       description: ''
     });
-
-    console.log(this.widgets);
   }
 
   selectWidgetField(column_name: string) {

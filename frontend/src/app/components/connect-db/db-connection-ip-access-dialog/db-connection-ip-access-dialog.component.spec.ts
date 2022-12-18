@@ -16,7 +16,7 @@ describe('DbConnectionIpAccessDialogComponent', () => {
         MatSnackBarModule
       ],
       providers: [
-        { provide: MAT_DIALOG_DATA, useValue: {} },
+        { provide: MAT_DIALOG_DATA, useValue: {host: "database-2.cvfuxe8nltiq.us-east-2.rds.amazonaws.com"} },
         { provide: MatDialogRef, useValue: {} },
       ]
     })

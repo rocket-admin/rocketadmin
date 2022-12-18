@@ -58,7 +58,7 @@ export class InfoDialogComponent implements OnInit {
   }
 
   isChangedFiled(field: string) {
-    return this.diffFields.includes(field);
+    if (this.diffFields.length) return this.diffFields.includes(field);
   }
 
   getFieldsDiff(prevLog, currentLog) {

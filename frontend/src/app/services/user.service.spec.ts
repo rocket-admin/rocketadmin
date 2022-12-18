@@ -6,11 +6,14 @@ import { TestBed, async } from '@angular/core/testing';
 import { NotificationsService } from './notifications.service';
 import { UserService } from './user.service';
 import { of } from 'rxjs';
+import { RouterTestingModule } from '@angular/router/testing';
+import { Router } from '@angular/router';
 
 describe('UserService', () => {
   let service: UserService;
   let httpMock: HttpTestingController;
   let fakeNotifications;
+  let routerSpy;
 
   const authUser = {
     email: 'eric.cartman@south.park',
@@ -25,15 +28,21 @@ describe('UserService', () => {
 
   beforeEach(() => {
     fakeNotifications = jasmine.createSpyObj('NotificationsService', ['showErrorSnackbar', 'showSuccessSnackbar', 'showAlert']);
+    routerSpy = {navigate: jasmine.createSpy('navigate')};
 
     TestBed.configureTestingModule({
-      imports: [HttpClientTestingModule, MatSnackBarModule],
+      imports: [
+        HttpClientTestingModule,
+        RouterTestingModule,
+        MatSnackBarModule
+      ],
       providers: [
         UserService,
         {
           provide: NotificationsService,
           useValue: fakeNotifications
-        }
+        },
+        { provide: Router, useValue: routerSpy },
       ]
     });
 
@@ -316,7 +325,7 @@ describe('UserService', () => {
     const requestResponse = true;
 
     service.deleteAccount(metadata).subscribe((res) => {
-      expect(fakeNotifications.showSuccessSnackbar).toHaveBeenCalledOnceWith('You account has been deleted.');
+      // expect(fakeNotifications.showSuccessSnackbar).toHaveBeenCalledOnceWith('You account has been deleted.');
       isDeleteuserCalled = true;
     });
 
@@ -325,6 +334,7 @@ describe('UserService', () => {
     req.flush(requestResponse);
 
     expect(isDeleteuserCalled).toBeTrue();
+    expect(routerSpy.navigate).toHaveBeenCalledOnceWith(['/deleted']);
   });
 
   it('should fall for deleteAccount and show Error alert', async () => {

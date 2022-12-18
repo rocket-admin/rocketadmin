@@ -94,6 +94,7 @@ describe('DbTableSettingsComponent', () => {
       "FirstName"
     ],
     columns_view: [],
+    sensitive_fields: [],
     connection_id: "63f804e4-8588-4957-8d7f-655e2309fef7"
   }
 

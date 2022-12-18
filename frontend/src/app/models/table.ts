@@ -64,3 +64,17 @@ export interface Widget {
     name: string,
     description: string
 }
+
+export enum CustomActionType {
+    Single = "single",
+    Bulk = "bulk"
+}
+
+export interface CustomAction {
+    id?: string,
+    title: string,
+    type: CustomActionType,
+    url: string,
+    tableName: string,
+    icon: string
+}
