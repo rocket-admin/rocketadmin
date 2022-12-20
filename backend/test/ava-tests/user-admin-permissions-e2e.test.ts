@@ -131,10 +131,14 @@ test(`${currentTest} should throw an exception, when you do not have permission 
     const findOneResponce = await request(app.getHttpServer())
       .get(`/connection/one/${searchedConnectionId}`)
       .set('Content-Type', 'application/json')
-      .set('Cookie', testData.users.adminUserToken)
+      .set('Cookie', testData.users.simpleUserToken)
       .set('Accept', 'application/json');
-    t.is(findOneResponce.status, 403);
-    t.is(JSON.parse(findOneResponce.text).message, Messages.DONT_HAVE_PERMISSIONS);
+    t.is(findOneResponce.status, 200);
+    const findOneRO = JSON.parse(findOneResponce.text);
+    const connectionKeys: Array<string> = Object.keys(findOneRO.connection);
+    for (const keyName of connectionKeys) {
+      t.is(Constants.CONNECTION_KEYS_NONE_PERMISSION.includes(keyName), true);
+    }
   } catch (error) {
     console.error(error);
     throw error;
@@ -362,6 +366,7 @@ test(`${currentTest} should return connection without deleted group result`, asy
 
     t.is(response.status, 200);
     result = JSON.parse(response.text);
+    console.log("🚀 ~ file: user-admin-permissions-e2e.test.ts:369 ~ test ~ result", result)
     t.is(result.length, 1);
     const groupId = result[0].group.id;
     t.is(uuidRegex.test(groupId), true);
@@ -415,7 +420,7 @@ test(`${currentTest} should throw an exception, when you try delete group in con
 
 currentTest = 'GET /connection/groups/:slug';
 
-test(`${currentTest} should groups in connection`, async (t) => {
+test(`${currentTest} return should groups in connection`, async (t) => {
   try {
     const testData = await createConnectionsAndInviteNewUserInAdminGroupOfFirstConnection(app);
     const newGroup1 = mockFactory.generateCreateGroupDto1();
@@ -437,6 +442,7 @@ test(`${currentTest} should groups in connection`, async (t) => {
 
     t.is(response.status, 200);
     const result = JSON.parse(response.text);
+    console.log('🚀 ~ file: user-admin-permissions-e2e.test.ts:440 ~ test ~ result', result);
     const groupId = result[0].group.id;
     t.is(uuidRegex.test(groupId), true);
     t.is(result[1].group.hasOwnProperty('title'), true);
@@ -515,19 +521,20 @@ test(`${currentTest} should return permissions object for current group in curre
     t.is(typeof result.tables, 'object');
 
     const { tables } = result;
-    t.is(tables.length, 1);
+    const tableIndex = tables.findIndex((table) => table.tableName === testData.firstTableInfo.testTableName);
+    t.is(tables.length > 0, true);
     t.is(typeof tables[0], 'object');
-    t.is(tables[0].hasOwnProperty('accessLevel'), true);
-    t.is(tables[0].accessLevel.visibility, false);
-    t.is(tables[0].accessLevel.readonly, false);
-    t.is(tables[0].accessLevel.add, false);
-    t.is(tables[0].accessLevel.delete, false);
-    t.is(tables[0].accessLevel.edit, false);
-    t.is(tables[0].accessLevel.readonly, false);
-    t.is(tables[0].accessLevel.add, false);
-    t.is(tables[0].accessLevel.visibility, false);
-    t.is(tables[0].accessLevel.readonly, false);
-    t.is(tables[0].accessLevel.edit, false);
+    t.is(tables[tableIndex].hasOwnProperty('accessLevel'), true);
+    t.is(tables[tableIndex].accessLevel.visibility, false);
+    t.is(tables[tableIndex].accessLevel.readonly, false);
+    t.is(tables[tableIndex].accessLevel.add, false);
+    t.is(tables[tableIndex].accessLevel.delete, false);
+    t.is(tables[tableIndex].accessLevel.edit, false);
+    t.is(tables[tableIndex].accessLevel.readonly, false);
+    t.is(tables[tableIndex].accessLevel.add, false);
+    t.is(tables[tableIndex].accessLevel.visibility, false);
+    t.is(tables[tableIndex].accessLevel.readonly, false);
+    t.is(tables[tableIndex].accessLevel.edit, false);
   } catch (error) {
     console.error(error);
     throw error;
@@ -570,19 +577,20 @@ test(`${currentTest} should return permissions object for current group in curre
     t.is(typeof result.tables, 'object');
 
     const { tables } = result;
-    t.is(tables.length, 1);
+    const tableIndex = tables.findIndex((table) => table.tableName === testData.firstTableInfo.testTableName);
+    t.is(tables.length > 0, true);
     t.is(typeof tables[0], 'object');
-    t.is(tables[0].hasOwnProperty('accessLevel'), true);
-    t.is(tables[0].accessLevel.visibility, true);
-    t.is(tables[0].accessLevel.readonly, false);
-    t.is(tables[0].accessLevel.add, true);
-    t.is(tables[0].accessLevel.delete, true);
-    t.is(tables[0].accessLevel.edit, true);
-    t.is(tables[0].accessLevel.readonly, false);
-    t.is(tables[0].accessLevel.add, true);
-    t.is(tables[0].accessLevel.visibility, true);
-    t.is(tables[0].accessLevel.readonly, false);
-    t.is(tables[0].accessLevel.edit, true);
+    t.is(tables[tableIndex].hasOwnProperty('accessLevel'), true);
+    t.is(tables[tableIndex].accessLevel.visibility, true);
+    t.is(tables[tableIndex].accessLevel.readonly, false);
+    t.is(tables[tableIndex].accessLevel.add, true);
+    t.is(tables[tableIndex].accessLevel.delete, true);
+    t.is(tables[tableIndex].accessLevel.edit, true);
+    t.is(tables[tableIndex].accessLevel.readonly, false);
+    t.is(tables[tableIndex].accessLevel.add, true);
+    t.is(tables[tableIndex].accessLevel.visibility, true);
+    t.is(tables[tableIndex].accessLevel.readonly, false);
+    t.is(tables[tableIndex].accessLevel.edit, true);
   } catch (error) {
     console.error(error);
     throw error;
@@ -594,7 +602,7 @@ test(`${currentTest} should return permissions object for current group in curre
     const testData = await createConnectionsAndInviteNewUserInAdminGroupOfFirstConnection(app);
 
     const getGroupsResponse = await request(app.getHttpServer())
-      .get(`/connection/groups/${testData.connections.secondId}`)
+      .get(`/connection/groups/${testData.connections.firstId}`)
       .set('Cookie', testData.users.adminUserEmail)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
@@ -604,7 +612,7 @@ test(`${currentTest} should return permissions object for current group in curre
     const groupId = getGroupsRO[0].group.id;
 
     const response = await request(app.getHttpServer())
-      .get(`/connection/user/permissions?connectionId=${testData.connections.secondId}&groupId=${groupId}`)
+      .get(`/connection/user/permissions?connectionId=${testData.connections.firstId}&groupId=${groupId}`)
       .set('Cookie', testData.users.simpleUserToken)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
@@ -624,16 +632,16 @@ test(`${currentTest} should return permissions object for current group in curre
     t.is(typeof result.tables, 'object');
 
     const { tables } = result;
-    t.is(tables.length, 1);
+    const tableIndex = tables.findIndex((table) => table.tableName === testData.firstTableInfo.testTableName);
+    t.is(tables.length > 0, true);
     t.is(typeof tables[0], 'object');
-    0;
-    t.is(tables[0].hasOwnProperty('accessLevel'), true);
-    t.is(tables[0].accessLevel.visibility, false);
-    t.is(tables[0].accessLevel.readonly, false);
-    t.is(tables[0].accessLevel.add, false);
-    t.is(tables[0].accessLevel.delete, false);
-    t.is(tables[0].accessLevel.edit, false);
-    t.is(tables[0].accessLevel.edit, false);
+    t.is(tables[tableIndex].hasOwnProperty('accessLevel'), true);
+    t.is(tables[tableIndex].accessLevel.visibility, false);
+    t.is(tables[tableIndex].accessLevel.readonly, false);
+    t.is(tables[tableIndex].accessLevel.add, false);
+    t.is(tables[tableIndex].accessLevel.delete, false);
+    t.is(tables[tableIndex].accessLevel.edit, false);
+    t.is(tables[tableIndex].accessLevel.edit, false);
   } catch (error) {
     console.error(error);
     throw error;
@@ -731,7 +739,7 @@ test(`${currentTest} it should throw an exception when you try to receive user i
 
 currentTest = 'PUT /group/user';
 
-test.only(`${currentTest} should return group with added user`, async (t) => {
+test(`${currentTest} should return group with added user`, async (t) => {
   try {
     const testData = await createConnectionsAndInviteNewUserInAdminGroupOfFirstConnection(app);
     const getGroupsResponse = await request(app.getHttpServer())
@@ -751,7 +759,6 @@ test.only(`${currentTest} should return group with added user`, async (t) => {
       .send({ groupId, email })
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
-    console.log("🚀 ~ file: user-admin-permissions-e2e.test.ts:754 ~ test ~ addUserInGroupResponse", addUserInGroupResponse.text)
 
     const addUserInGroupRO = JSON.parse(addUserInGroupResponse.text).group;
     t.is(uuidRegex.test(addUserInGroupRO.id), true);
@@ -994,6 +1001,7 @@ test(`${currentTest} should return group without deleted user`, async (t) => {
       .send({ groupId, email })
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
+    console.log("🚀 ~ file: user-admin-permissions-e2e.test.ts:1004 ~ test ~ addUserInGroupResponse", addUserInGroupResponse.text)
     t.is(addUserInGroupResponse.status, 200);
 
     const deleteUserInGroupResponse = await request(app.getHttpServer())
@@ -1073,8 +1081,7 @@ test(`${currentTest} should throw exception, when group id not passed in request
       .send({ groupId, email })
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
-      console.log("🚀 ~ file: user-admin-permissions-e2e.test.ts:1075 ~ test ~ addUserInGroupResponse", addUserInGroupResponse.text)
-      
+
     t.is(addUserInGroupResponse.status, 200);
 
     const deleteUserInGroupResponse = await request(app.getHttpServer())
@@ -1111,7 +1118,7 @@ test(`${currentTest} should throw exception, when group id passed in request is 
       .send({ groupId, email })
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
-    console.log("🚀 ~ file: user-admin-permissions-e2e.test.ts:1113 ~ test ~ addUserInGroupResponse", addUserInGroupResponse.text)
+
     t.is(addUserInGroupResponse.status, 200);
 
     groupId = faker.datatype.uuid();
@@ -1306,7 +1313,7 @@ test(`${currentTest} should throw an exception, when you try change admin group`
     };
 
     const createOrUpdatePermissionResponse = await request(app.getHttpServer())
-      .put(`/permissions/${testData.connections.firstId}`)
+      .put(`/permissions/${testData.groups.firstAdminGroupId}`)
       .send({ permissions })
       .set('Cookie', testData.users.simpleUserToken)
       .set('Content-Type', 'application/json')
@@ -1378,9 +1385,12 @@ test(`${currentTest} should return all tables in connection`, async (t) => {
     t.is(getTablesInConnection.status, 200);
     const getTablesInConnectionRO = JSON.parse(getTablesInConnection.text);
     t.is(getTablesInConnectionRO.length > 0, true);
-    t.is(getTablesInConnectionRO[0].table, testData.firstTableInfo.testTableName);
-    t.is(typeof getTablesInConnectionRO[0].permissions, 'object');
-    const { visibility, readonly, add, delete: del, edit } = getTablesInConnectionRO[0].permissions;
+    const tableIndex = getTablesInConnectionRO.findIndex(
+      (tableItem) => tableItem.table === testData.firstTableInfo.testTableName,
+    );
+    t.is(getTablesInConnectionRO[tableIndex].table, testData.firstTableInfo.testTableName);
+    t.is(typeof getTablesInConnectionRO[tableIndex].permissions, 'object');
+    const { visibility, readonly, add, delete: del, edit } = getTablesInConnectionRO[tableIndex].permissions;
     t.is(visibility, true);
     t.is(readonly, false);
     t.is(del, true);
@@ -2132,7 +2142,6 @@ test(`${currentTest} should return added row`, async (t) => {
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
     const addRowInTableRO = JSON.parse(addRowInTable.text);
-    console.log('🚀 ~ file: user-admin-permissions-e2e.test.ts:2131 ~ test ~ addRowInTableRO', addRowInTableRO);
     t.is(addRowInTable.status, 201);
     t.is(addRowInTableRO.row.hasOwnProperty('id'), true);
     t.is(addRowInTableRO.row[testData.firstTableInfo.testTableColumnName], randomName);
@@ -2508,7 +2517,6 @@ test(`${currentTest} should throw an exception when table name passed in request
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
     const addRowInTableRO = JSON.parse(addRowInTable.text);
-    console.log('🚀 ~ file: user-admin-permissions-e2e.test.ts:2507 ~ test ~ addRowInTableRO', addRowInTableRO);
     t.is(addRowInTableRO.message, Messages.TABLE_NOT_FOUND);
   } catch (error) {
     console.error(error);
@@ -2818,7 +2826,6 @@ test(`${currentTest} should throw an exception when connection id passed in requ
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
     const addRowInTableRO = JSON.parse(addRowInTable.text);
-    console.log('🚀 ~ file: user-admin-permissions-e2e.test.ts:2816 ~ test ~ addRowInTableRO', addRowInTableRO);
     t.is(addRowInTableRO.message, Messages.CONNECTION_NOT_FOUND);
   } catch (error) {
     console.error(error);
@@ -2984,10 +2991,7 @@ test(`${currentTest} should return table settings when it was created`, async (t
       .set('Cookie', testData.users.adminUserToken)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
-    console.log(
-      '🚀 ~ file: user-admin-permissions-e2e.test.ts:2979 ~ test ~ createTableSettingsResponse',
-      createTableSettingsResponse.text,
-    );
+
     t.is(createTableSettingsResponse.status, 201);
 
     const getTableSettings = await request(app.getHttpServer())
@@ -3202,7 +3206,7 @@ test(`${currentTest} should return updated table settings`, async (t) => {
       .set('Cookie', testData.users.simpleUserToken)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
-    console.log("🚀 ~ file: user-admin-permissions-e2e.test.ts:3202 ~ test ~ updateTableSettingsResponse", updateTableSettingsResponse.text)
+
     t.is(updateTableSettingsResponse.status, 200);
 
     const updateTableSettingsRO = JSON.parse(updateTableSettingsResponse.text);
@@ -3254,10 +3258,6 @@ test(`${currentTest} should throw an exception when you try update settings in c
       .set('Cookie', testData.users.adminUserToken)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
-    console.log(
-      '🚀 ~ file: user-admin-permissions-e2e.test.ts:2979 ~ test ~ createTableSettingsResponse',
-      createTableSettingsResponse.text,
-    );
 
     t.is(createTableSettingsResponse.status, 201);
 

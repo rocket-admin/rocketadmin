@@ -165,6 +165,9 @@ export async function createConnectionsAndInviteNewUserInAdminGroupOfFirstConnec
     .send(newConnection)
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
+  if (createFirstConnectionResponse.status >= 300) {
+    console.error('first connection creation error: '+createFirstConnectionResponse.text);
+  }
   const createFirstConnectionRO = JSON.parse(createFirstConnectionResponse.text);
   connectionsId.firstId = createFirstConnectionRO.id;
   const createSecondConnectionResponse = await request(app.getHttpServer())
@@ -173,6 +176,10 @@ export async function createConnectionsAndInviteNewUserInAdminGroupOfFirstConnec
     .send(newConnection2)
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
+
+  if (createSecondConnectionResponse.status >= 300) {
+    console.error('second connection creation error: '+createSecondConnectionResponse.text);
+  }
   const createSecondConnectionRO = JSON.parse(createSecondConnectionResponse.text);
   connectionsId.secondId = createSecondConnectionRO.id;
   const email = simpleUserRegisterInfo.email;
@@ -184,13 +191,17 @@ export async function createConnectionsAndInviteNewUserInAdminGroupOfFirstConnec
     .set('Accept', 'application/json');
   const groupId = JSON.parse(getGroupsInFirstConnection.text)[0].group.id;
 
-  await request(app.getHttpServer())
+  const addUserInGroupResponce = await request(app.getHttpServer())
     .put('/group/user')
     .set('Cookie', connectionAdminUserToken)
     .send({ groupId, email })
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
   connectionsId.firstAdminGroupId = groupId;
+
+  if (addUserInGroupResponce.status >= 300) {
+    console.error('user invitation error: '+addUserInGroupResponce.text);
+  }
 
   return {
     firstTableInfo: firstTable,
