@@ -63,6 +63,7 @@ services:
       - 5432:5432
     environment:
       POSTGRES_PASSWORD: abc123
+    command: postgres -c 'max_connections=300'   
 
   mssql-e2e-testing:
     image: mcr.microsoft.com/mssql/server:2019-latest

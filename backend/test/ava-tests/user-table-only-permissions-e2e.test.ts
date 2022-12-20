@@ -18,24 +18,6 @@ import { createConnectionsAndInviteNewUserInNewGroupInFirstConnection } from '..
 let app: INestApplication;
 let testUtils: TestUtils;
 let currentTest: string;
-const testSearchedUserName = 'Vasia';
-const testEntitiesSeedsCount = 42;
-
-type RegisterUserData = {
-  email: string;
-  password: string;
-};
-
-const adminUserRegisterInfo: RegisterUserData = {
-  email: 'firstUser@example.com',
-  password: 'ahalai-mahalai',
-};
-const simpleUserRegisterInfo: RegisterUserData = {
-  email: 'secondUser@example.com',
-  password: 'mahalai-ahalai',
-};
-
-const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 test.before(async () => {
   const moduleFixture = await Test.createTestingModule({
