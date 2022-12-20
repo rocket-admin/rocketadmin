@@ -53,6 +53,7 @@ export class CreateConnectionUseCase
     );
     await this._dbContext.permissionRepository.createdDefaultAdminPermissionsInGroup(createdAdminGroup);
     delete createdAdminGroup.connection;
+    await this._dbContext.userRepository.saveUserEntity(connectionAuthor);
     createdConnection.groups = [createdAdminGroup];
     return buildCreatedConnectionDs(savedConnection, token, masterPwd);
   }

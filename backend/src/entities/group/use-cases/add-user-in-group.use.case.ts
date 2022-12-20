@@ -90,7 +90,7 @@ export class AddUserInGroupUseCase
     if (foundUser && !foundUser.isActive) {
       const savedInvitation = await this._dbContext.userInvitationRepository.createOrUpdateInvitationEntity(
         foundUser,
-        null,
+        ownerId,
       );
       const userAlreadyAdded = !!foundGroup.users.find((u) => u.id === foundUser.id);
       if (!userAlreadyAdded) {
