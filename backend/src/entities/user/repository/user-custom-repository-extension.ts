@@ -12,7 +12,6 @@ export const userCustomRepositoryExtension: IUserRepository = {
     newUser.id = userData.id;
     newUser.isActive = true;
     newUser.gclid = userData.gclidValue;
-    newUser.connections = [];
     return await this.save(newUser);
   },
 
@@ -23,7 +22,6 @@ export const userCustomRepositoryExtension: IUserRepository = {
     newUser.password = userData.password;
     newUser.isActive = userData.isActive;
     newUser.name = userData.name;
-    newUser.connections = [];
     return await this.save(newUser);
   },
 
