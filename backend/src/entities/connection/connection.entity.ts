@@ -151,7 +151,7 @@ export class ConnectionEntity {
     }
   }
 
-  @ManyToOne((type) => UserEntity, (user) => user.connections, { cascade: true, onDelete: 'SET NULL' })
+  @ManyToOne((type) => UserEntity, (user) => user.connections, { cascade: true, onDelete: 'NO ACTION' })
   author: UserEntity;
 
   @OneToMany((type) => GroupEntity, (group) => group.connection)

@@ -249,7 +249,7 @@ export class MockFactory {
 
   generateCreateGroupDto1() {
     const dto = new CreateGroupDto();
-    dto.title = 'Generated test group DTO 1';
+    dto.title = `${faker.random.words(1)}_${faker.random.words(1)}`;
 
     return dto;
   }
@@ -577,17 +577,17 @@ export class MockFactory {
     return widgets;
   }
 
-  generateCreateWidgetDTOsArrayForUsersTable() {
+  generateCreateWidgetDTOsArrayForUsersTable(firstFieldName = 'id', secondFieldName = 'email') {
     const widgets = [];
     const newWidgetDTO = new CreateTableWidgetDto();
     /* eslint-disable */
-    newWidgetDTO.field_name = 'email';
+    newWidgetDTO.field_name = secondFieldName;
     newWidgetDTO.widget_type = WidgetTypeEnum.Password;
     newWidgetDTO.widget_params = JSON.stringify({ a: '*', b: '+', c: '#' });
     newWidgetDTO.name = 'new widget';
     newWidgetDTO.description = 'test widget';
     const newWidgetDTO2 = new CreateTableWidgetDto();
-    newWidgetDTO2.field_name = 'id';
+    newWidgetDTO2.field_name = firstFieldName;
     newWidgetDTO2.widget_type = WidgetTypeEnum.Password;
     newWidgetDTO2.widget_params = JSON.stringify({ a: '&', b: '!!', c: '||' });
     newWidgetDTO2.name = 'new widget';
