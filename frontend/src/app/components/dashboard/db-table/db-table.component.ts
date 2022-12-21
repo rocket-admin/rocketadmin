@@ -143,6 +143,10 @@ export class DbTableComponent implements OnInit {
     }
   }
 
+  isCropped(value: string) {
+    if (value) return value.length > 20;
+  }
+
   getFiltersCount(activeFilters: object) {
     if (activeFilters) return Object.keys(activeFilters).length;
     return 0;
@@ -184,7 +188,12 @@ export class DbTableComponent implements OnInit {
   }
 
   getActionsColumnWidth(actions, permissions) {
-    const defaultActionsCount = permissions.edit + permissions.delete;
-    return (((actions.length + defaultActionsCount) * 40) + 32);
+    if (permissions) {
+      const defaultActionsCount = permissions.edit + permissions.delete;
+      const lendthValue = (((actions.length + defaultActionsCount) * 40) + 32);
+      console.log({lendthValue});
+      return `${lendthValue}px`;
+    };
+    return '0';
   }
 }

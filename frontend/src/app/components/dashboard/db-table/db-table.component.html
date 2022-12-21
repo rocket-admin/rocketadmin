@@ -96,11 +96,15 @@
     </div>
 
     <div class="table-box">
-        <table *ngIf="tableData" mat-table matSort [dataSource]="tableData" NgMatTableQueryReflector class="table">
+        <mat-table *ngIf="tableData" matSort [dataSource]="tableData" NgMatTableQueryReflector
+            class="db-table"
+            [ngClass]="{'db-table_withOutActions': tableData.displayedDataColumns?.length === tableData.displayedColumns?.length}"
+            [style.--colCount]="tableData.displayedDataColumns?.length"
+            [style.--lastColumnWidth]="getActionsColumnWidth(tableData.tableActions, tableData.permissions)">
 
             <ng-container [matColumnDef]="column" *ngFor="let column of tableData.displayedDataColumns">
-                <th mat-header-cell *matHeaderCellDef mat-sort-header [disabled]="!isSortable(column)"> {{ tableData.dataNormalizedColumns[column] }} </th>
-                <td mat-cell *matCellDef="let element">
+                <mat-header-cell *matHeaderCellDef mat-sort-header [disabled]="!isSortable(column)"> {{ tableData.dataNormalizedColumns[column] }} </mat-header-cell>
+                <mat-cell *matCellDef="let element">
                     <div *ngIf="isForeignKey(column); else contentCell" data-hj-suppress>
                         <a routerLink="/dashboard/{{connectionID}}/{{tableData.foreignKeys[column].referenced_table_name}}/entry"
                             class="foreign-key-link"
@@ -109,22 +113,22 @@
                         </a>
                     </div>
                     <ng-template #contentCell>
-                        <div *ngIf="isWidget(column); else simpleValue" data-hj-suppress>
+                        <div *ngIf="isWidget(column); else simpleValue" [ngClass]="{'table-cell-content_cropped': isCropped(getWidgetValue(column, element[column]))}" data-hj-suppress>
                             {{ getWidgetValue(column, element[column]) }}
                         </div>
                         <ng-template #simpleValue>
-                            <div data-hj-suppress class="table-cell-content">
+                            <div data-hj-suppress class="table-cell-content" [ngClass]="{'table-cell-content_cropped': isCropped(element[column])}">
                                 {{element[column] || '—'}}
                             </div>
                         </ng-template>
                     </ng-template>
-                </td>
+                </mat-cell>
             </ng-container>
 
             <ng-container matColumnDef="actions" [stickyEnd]="true">
-                <th mat-header-cell *matHeaderCellDef [style.width.px]="getActionsColumnWidth(tableData.tableActions, tableData.permissions)">Actions</th>
+                <mat-header-cell *matHeaderCellDef>Actions</mat-header-cell>
 
-                <td mat-cell *matCellDef="let element">
+                <mat-cell *matCellDef="let element">
                     <ng-container *ngIf="tableData.tableActions && tableData.tableActions.length">
                         <button type="button" mat-icon-button *ngFor="let action of tableData.tableActions"
                             [matTooltip]="action.title"
@@ -149,12 +153,12 @@
                         (click)="deleteRow.emit(tableData.getQueryParams(element))">
                         <mat-icon>delete</mat-icon>
                     </button>
-                </td>
+                </mat-cell>
             </ng-container>
 
-            <tr mat-header-row *matHeaderRowDef="tableData.displayedColumns"></tr>
-            <tr mat-row *matRowDef="let row; columns: tableData.displayedColumns;"></tr>
-        </table>
+            <mat-header-row *matHeaderRowDef="tableData.displayedColumns"></mat-header-row>
+            <mat-row *matRowDef="let row; columns: tableData.displayedColumns;"></mat-row>
+        </mat-table>
     </div>
 
     <div *ngIf="tableData.isEmptyTable && (getFiltersCount(activeFilters) || searchString)" class="empty-table">

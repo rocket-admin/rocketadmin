@@ -99,17 +99,40 @@
     width: 100%;
 }
 
-table {
+.db-table {
+    display: grid;
+    grid-template-columns: repeat(var(--colCount), auto) var(--lastColumnWidth);
     width: 100%;
 }
 
-.table-cell-content {
+.db-table_withOutActions {
+    grid-template-columns: repeat(var(--colCount), auto) !important;
+}
+
+.db-table ::ng-deep .mat-row,
+.db-table ::ng-deep .mat-header-row {
+    display: contents;
+}
+
+.db-table ::ng-deep .mat-cell,
+.db-table ::ng-deep .mat-header-cell {
+    border-bottom-width: 1px;
+    border-bottom-style: solid;
+    border-bottom-color: rgba(0, 0, 0, 0.12);
+    min-width: min-content;
+}
+
+.db-table ::ng-deep .mat-cell:not(:first-of-type),
+.db-table ::ng-deep .mat-header-cell:not(:first-of-type) {
+    padding-left: 12px;
+}
+
+/* .table-cell-content_cropped {
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
-    width: 100%;
-    max-width: 200px;
-}
+    max-width: 250px;
+} */
 
 th.mat-header-cell, td.mat-cell {
     padding-right: 20px;
