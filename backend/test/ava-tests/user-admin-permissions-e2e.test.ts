@@ -602,7 +602,7 @@ test(`${currentTest} should return permissions object for current group in curre
 
     const getGroupsResponse = await request(app.getHttpServer())
       .get(`/connection/groups/${testData.connections.firstId}`)
-      .set('Cookie', testData.users.adminUserEmail)
+      .set('Cookie', testData.users.adminUserToken)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
     t.is(getGroupsResponse.status, 200);
@@ -624,7 +624,7 @@ test(`${currentTest} should return permissions object for current group in curre
     t.is(result.hasOwnProperty('tables'), true);
     t.is(typeof result.connection, 'object');
     t.is(typeof result.group, 'object');
-    t.is(result.connection.connectionId, testData.connections.secondId);
+    t.is(result.connection.connectionId, testData.connections.firstId);
     t.is(result.group.groupId, groupId);
     t.is(result.connection.accessLevel, AccessLevelEnum.none);
     t.is(result.group.accessLevel, AccessLevelEnum.none);
@@ -3236,11 +3236,11 @@ test(`${currentTest} should throw an exception when you try update settings in c
     const testData = await createConnectionsAndInviteNewUserInAdminGroupOfFirstConnection(app);
 
     const createTableSettingsDTO = mockFactory.generateTableSettings(
-      testData.connections.firstId,
-      testData.firstTableInfo.testTableName,
+      testData.connections.secondId,
+      testData.secondTableInfo.testTableName,
       ['id'],
-      [testData.firstTableInfo.testTableSecondColumnName],
-      [testData.firstTableInfo.testTableColumnName],
+      [testData.secondTableInfo.testTableSecondColumnName],
+      [testData.secondTableInfo.testTableColumnName],
       3,
       QueryOrderingEnum.DESC,
       'id',
@@ -3253,7 +3253,7 @@ test(`${currentTest} should throw an exception when you try update settings in c
 
     const createTableSettingsResponse = await request(app.getHttpServer())
       .post(
-        `/settings?connectionId=${testData.connections.secondId}&tableName=${testData.firstTableInfo.testTableName}`,
+        `/settings?connectionId=${testData.connections.secondId}&tableName=${testData.secondTableInfo.testTableName}`,
       )
       .send(createTableSettingsDTO)
       .set('Cookie', testData.users.adminUserToken)
@@ -3264,10 +3264,10 @@ test(`${currentTest} should throw an exception when you try update settings in c
 
     const updateTableSettingsDTO = mockFactory.generateTableSettings(
       testData.connections.firstId,
-      testData.firstTableInfo.testTableName,
+      testData.secondTableInfo.testTableName,
       ['id'],
-      [testData.firstTableInfo.testTableSecondColumnName],
-      [testData.firstTableInfo.testTableColumnName],
+      [testData.secondTableInfo.testTableSecondColumnName],
+      [testData.secondTableInfo.testTableColumnName],
       3,
       QueryOrderingEnum.ASC,
       'id',
@@ -3279,7 +3279,7 @@ test(`${currentTest} should throw an exception when you try update settings in c
     );
 
     const updateTableSettingsResponse = await request(app.getHttpServer())
-      .put(`/settings?connectionId=${testData.connections.secondId}&tableName=${testData.firstTableInfo.testTableName}`)
+      .put(`/settings?connectionId=${testData.connections.secondId}&tableName=${testData.secondTableInfo.testTableName}`)
       .send(updateTableSettingsDTO)
       .set('Cookie', testData.users.simpleUserToken)
       .set('Content-Type', 'application/json')
@@ -3352,10 +3352,10 @@ test(`${currentTest} should throw an exception when you try delete settings in c
 
     const createTableSettingsDTO = mockFactory.generateTableSettings(
       testData.connections.secondId,
-      testData.firstTableInfo.testTableName,
+      testData.secondTableInfo.testTableName,
       ['id'],
-      [testData.firstTableInfo.testTableSecondColumnName],
-      [testData.firstTableInfo.testTableColumnName],
+      [testData.secondTableInfo.testTableSecondColumnName],
+      [testData.secondTableInfo.testTableColumnName],
       3,
       QueryOrderingEnum.DESC,
       'id',
@@ -3374,10 +3374,6 @@ test(`${currentTest} should throw an exception when you try delete settings in c
       .set('Cookie', testData.users.adminUserToken)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
-    console.log(
-      '🚀 ~ file: user-admin-permissions-e2e.test.ts:2979 ~ test ~ createTableSettingsResponse',
-      createTableSettingsResponse.text,
-    );
 
     t.is(createTableSettingsResponse.status, 201);
 
