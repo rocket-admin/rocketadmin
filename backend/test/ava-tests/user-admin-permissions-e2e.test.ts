@@ -1081,6 +1081,7 @@ test(`${currentTest} should throw exception, when group id not passed in request
       .send({ groupId, email })
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
+    console.log("🚀 ~ file: user-admin-permissions-e2e.test.ts:1084 ~ test ~ addUserInGroupResponse", addUserInGroupResponse.text)
 
     t.is(addUserInGroupResponse.status, 200);
 
@@ -1118,6 +1119,7 @@ test(`${currentTest} should throw exception, when group id passed in request is 
       .send({ groupId, email })
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
+    console.log("🚀 ~ file: user-admin-permissions-e2e.test.ts:1122 ~ test ~ addUserInGroupResponse", addUserInGroupResponse.text)
 
     t.is(addUserInGroupResponse.status, 200);
 

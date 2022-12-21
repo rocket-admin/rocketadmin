@@ -2,6 +2,7 @@ import { HttpException, HttpStatus } from '@nestjs/common';
 import * as Sentry from '@sentry/node';
 import { SubscriptionLevelEnum } from '../../../enums';
 import { Messages } from '../../../exceptions/text/messages';
+import { isSaaS } from '../../../helpers/app/is-saas';
 import { getPriceId } from './get-price-id';
 import { getStripe } from './get-stripe';
 
@@ -9,6 +10,9 @@ export async function createStripeUsageRecord(
   ownerSubscriptionLevel: SubscriptionLevelEnum,
   numberOfUsers: number,
 ): Promise<void> {
+  if(!isSaaS()){
+    return;
+  }
   const stripe = getStripe();
   const subscriptionId = getPriceId(ownerSubscriptionLevel);
   if (!subscriptionId) {
