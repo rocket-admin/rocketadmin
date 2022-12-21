@@ -1,4 +1,5 @@
 import { SubscriptionLevelEnum } from '../../../enums';
+import { isSaaS } from '../../../helpers/app/is-saas';
 import { Constants } from '../../../helpers/constants/constants';
 import { getCurrentUserSubscription } from '../../stripe/stripe-helpers/get-current-user-subscription';
 import { CreateUserDs } from '../application/data-structures/create-user.ds';
@@ -12,7 +13,6 @@ export const userCustomRepositoryExtension: IUserRepository = {
     newUser.id = userData.id;
     newUser.isActive = true;
     newUser.gclid = userData.gclidValue;
-    newUser.connections = [];
     return await this.save(newUser);
   },
 
@@ -23,7 +23,6 @@ export const userCustomRepositoryExtension: IUserRepository = {
     newUser.password = userData.password;
     newUser.isActive = userData.isActive;
     newUser.name = userData.name;
-    newUser.connections = [];
     return await this.save(newUser);
   },
 
@@ -120,7 +119,7 @@ export const userCustomRepositoryExtension: IUserRepository = {
   },
 
   async checkOwnerInviteAbility(ownerId: string, usersCount: number): Promise<boolean> {
-    if (usersCount < Constants.FREE_PLAN_USERS_COUNT) {
+    if (usersCount < Constants.FREE_PLAN_USERS_COUNT || !isSaaS()) {
       return true;
     }
     const foundOwner = await this.findOneUserById(ownerId);
@@ -133,6 +132,5 @@ export const userCustomRepositoryExtension: IUserRepository = {
       return false;
     }
     return true;
-  }
-  
+  },
 };
