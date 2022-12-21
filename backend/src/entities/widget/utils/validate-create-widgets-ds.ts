@@ -1,9 +1,9 @@
-import { Messages } from '../../../exceptions/text/messages';
 import { EncryptionAlgorithmEnum, WidgetTypeEnum } from '../../../enums';
-import { IForeignKeyInfo } from '../../table/table.interface';
-import { Constants } from '../../../helpers/constants/constants';
+import { Messages } from '../../../exceptions/text/messages';
 import { getPropertyValueByDescriptor } from '../../../helpers';
+import { Constants } from '../../../helpers/constants/constants';
 import { ConnectionEntity } from '../../connection/connection.entity';
+import { IForeignKeyInfo } from '../../table/table.interface';
 import { findTableFieldsUtil } from '../../table/utils/find-table-fields.util';
 import { findTablesInConnectionUtil } from '../../table/utils/find-tables-in-connection.util';
 import { CreateTableWidgetDs } from '../application/data-sctructures/create-table-widgets.ds';

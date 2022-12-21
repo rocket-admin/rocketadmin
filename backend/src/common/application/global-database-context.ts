@@ -136,7 +136,9 @@ export class GlobalDatabaseContext implements IGlobalDatabaseContext {
       .extend(tableWidgetsCustomRepositoryExtension);
     this._tableInfoReposioty = this.appDataSource.getRepository(TableInfoEntity);
     this._tableFieldInfoRepository = this.appDataSource.getRepository(TableFieldInfoEntity);
-    this._tableActionRepository = this.appDataSource.getRepository(TableActionEntity).extend(tableActionsCustomRepositoryExtension);
+    this._tableActionRepository = this.appDataSource
+      .getRepository(TableActionEntity)
+      .extend(tableActionsCustomRepositoryExtension);
   }
 
   public get userRepository(): IUserRepository {
@@ -221,7 +223,8 @@ export class GlobalDatabaseContext implements IGlobalDatabaseContext {
 
   public startTransaction(): Promise<void> {
     this._queryRunner = this.appDataSource.createQueryRunner();
-    return this._queryRunner.startTransaction();
+    this._queryRunner.startTransaction();
+    return;
   }
 
   public async commitTransaction(): Promise<void> {

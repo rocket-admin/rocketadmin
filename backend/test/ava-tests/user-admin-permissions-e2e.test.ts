@@ -23,8 +23,7 @@ let testUtils: TestUtils;
 let currentTest: string;
 
 const mockFactory = new MockFactory();
-const newConnection = mockFactory.generateConnectionToTestPostgresDBInDocker();
-const newConnection2 = mockFactory.generateConnectionToTestMySQLDBInDocker();
+const newConnectionToPostgres = mockFactory.generateConnectionToTestPostgresDBInDocker();
 
 const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
@@ -105,13 +104,13 @@ test(`${currentTest} should return a found connection`, async (t) => {
 
     const result = findOneResponce.body.connection;
     t.is(uuidRegex.test(result.id), true);
-    t.is(result.title, newConnection.title);
+    t.is(result.title, newConnectionToPostgres.title);
     t.is(result.type, 'postgres');
-    t.is(result.host, newConnection.host);
+    t.is(result.host, newConnectionToPostgres.host);
     t.is(typeof result.port, 'number');
-    t.is(result.port, newConnection.port);
+    t.is(result.port, newConnectionToPostgres.port);
     t.is(result.username, 'postgres');
-    t.is(result.database, newConnection.database);
+    t.is(result.database, newConnectionToPostgres.database);
     t.is(result.sid, null);
     t.is(result.hasOwnProperty('createdAt'), true);
     t.is(result.hasOwnProperty('updatedAt'), true);
@@ -226,13 +225,13 @@ test(`${currentTest} should return delete result`, async (t) => {
     t.is(response.status, 200);
 
     t.is(result.hasOwnProperty('id'), false);
-    t.is(result.title, newConnection.title);
+    t.is(result.title, newConnectionToPostgres.title);
     t.is(result.type, 'postgres');
-    t.is(result.host, newConnection.host);
+    t.is(result.host, newConnectionToPostgres.host);
     t.is(typeof result.port, 'number');
-    t.is(result.port, newConnection.port);
+    t.is(result.port, newConnectionToPostgres.port);
     t.is(result.username, 'postgres');
-    t.is(result.database, newConnection.database);
+    t.is(result.database, newConnectionToPostgres.database);
     t.is(result.sid, null);
     t.is(result.hasOwnProperty('createdAt'), true);
     t.is(result.hasOwnProperty('updatedAt'), true);
@@ -3484,10 +3483,10 @@ test(`${currentTest} should throw an exception, when you try to get widgets from
     const testData = await createConnectionsAndInviteNewUserInAdminGroupOfFirstConnection(app);
     const newTableWidgets = mockFactory.generateCreateWidgetDTOsArrayForUsersTable(
       undefined,
-      testData.firstTableInfo.testTableSecondColumnName,
+      testData.secondTableInfo.testTableSecondColumnName,
     );
     const createTableWidgetResponse = await request(app.getHttpServer())
-      .post(`/widget/${testData.connections.secondId}?tableName=${testData.firstTableInfo.testTableName}`)
+      .post(`/widget/${testData.connections.secondId}?tableName=${testData.secondTableInfo.testTableName}`)
       .send({ widgets: newTableWidgets })
       .set('Content-Type', 'application/json')
       .set('Cookie', testData.users.adminUserToken)
@@ -3502,7 +3501,7 @@ test(`${currentTest} should throw an exception, when you try to get widgets from
     t.is(uuidRegex.test(createTableWidgetRO[0].id), true);
 
     const getTableWidgets = await request(app.getHttpServer())
-      .get(`/widgets/${testData.connections.secondId}?tableName=${testData.firstTableInfo.testTableName}`)
+      .get(`/widgets/${testData.connections.secondId}?tableName=${testData.secondTableInfo.testTableName}`)
       .set('Content-Type', 'application/json')
       .set('Cookie', testData.users.simpleUserToken)
       .set('Accept', 'application/json');
