@@ -9,7 +9,7 @@ export class EmailVerificationEntity {
   @Column({ default: null })
   verification_string: string;
 
-  @OneToOne(() => UserEntity, (user) => user.email_verification, { cascade: true, onDelete: 'CASCADE' })
+  @OneToOne(() => UserEntity, (user) => user.email_verification, { onDelete: 'CASCADE' })
   @JoinColumn()
   user: UserEntity;
 }

@@ -9,7 +9,7 @@ export class PasswordResetEntity {
   @Column({ default: null })
   verification_string: string;
 
-  @OneToOne(() => UserEntity, (user) => user.password_reset, { cascade: true, onDelete: 'CASCADE' })
+  @OneToOne(() => UserEntity, (user) => user.password_reset, { onDelete: 'CASCADE' })
   @JoinColumn()
   user: UserEntity;
 }

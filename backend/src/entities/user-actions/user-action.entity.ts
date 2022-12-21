@@ -15,7 +15,7 @@ export class UserActionEntity {
   @Column({ default: false })
   mail_sent: boolean;
 
-  @OneToOne(() => UserEntity, (user) => user.user_action, { cascade: true, onDelete: 'CASCADE' })
+  @OneToOne(() => UserEntity, (user) => user.user_action, { onDelete: 'CASCADE' })
   @JoinColumn()
   user: UserEntity;
 }

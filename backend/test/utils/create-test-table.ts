@@ -17,7 +17,7 @@ export async function createTestTable(
     connectionParamsCopy.type = 'mysql2';
   }
   const Knex = getTestKnex(connectionParamsCopy);
-  await Knex.schema.dropTableIfExists(testTableName);
+  // await Knex.schema.dropTableIfExists(testTableName);
   await Knex.schema.createTable(testTableName, function (table) {
     table.increments();
     table.string(testTableColumnName);
