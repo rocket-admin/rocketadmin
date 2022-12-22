@@ -125,7 +125,6 @@ export class DashboardComponent implements OnInit {
   openTableFilters() {
     let filterDialodRef = this.dialog.open(DbTableFiltersDialogComponent, {
       width: '50em',
-      height: '40em',
       data: {
         connectionID: this.connectionID,
         tableName: this.selectedTableName,

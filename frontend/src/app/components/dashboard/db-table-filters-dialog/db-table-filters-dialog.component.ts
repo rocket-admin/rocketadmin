@@ -8,6 +8,7 @@ import { ActivatedRoute } from '@angular/router';
 import { getComparators, getFilters } from 'src/app/lib/parse-filter-params';
 import { getTableTypes } from 'src/app/lib/setup-table-row-structure';
 import * as JSON5 from 'json5';
+import { omit } from "lodash";
 
 @Component({
   selector: 'app-db-table-filters-dialog',
@@ -90,8 +91,8 @@ export class DbTableFiltersDialogComponent implements OnInit {
         }
       })
     );
-    console.log('setWidgets');
     console.log(this.tableWidgets);
+
   }
 
   getRelations = (columnName: string) => {
@@ -111,20 +112,10 @@ export class DbTableFiltersDialogComponent implements OnInit {
     this.tableRowFieldsShown[field] = updatedValue;
   }
 
-  updateFilterFields() {
-    this.tableRowFieldsShown = Object.keys(this.tableRowFields)
-      .filter(key => this.tableFilters.includes(key))
-      .reduce((value, key) => {
-        value[key] = this.tableRowFieldsShown[key];
-        return value;
-      }, {});
-
-    this.tableRowFieldsComparator = Object.keys(this.tableRowFields)
-      .filter(key => this.tableFilters.includes(key))
-      .reduce((value, key) => {
-        value[key] = this.tableRowFieldsComparator[key] || 'eq';
-        return value;
-      }, {});
+  addFilter(e) {
+    const key = e.value;
+    this.tableRowFieldsShown = {...this.tableRowFieldsShown, [key]: this.tableRowFields[key]};
+    this.tableRowFieldsComparator = {...this.tableRowFieldsComparator, [key]: this.tableRowFieldsComparator[key] || 'eq'};
   }
 
   updateComparator(event, fieldName: string) {
@@ -136,12 +127,12 @@ export class DbTableFiltersDialogComponent implements OnInit {
     this.tableRowFieldsShown = {};
   }
 
-  getInputType(filed: string) {
+  getInputType(field: string) {
     let widgetType;
-    if (this.isWidget(filed)) {
-      widgetType = this.UIwidgets[this.tableWidgets[filed].widget_type].type;
+    if (this.isWidget(field)) {
+      widgetType = this.UIwidgets[this.tableWidgets[field].widget_type]?.type;
     } else {
-      widgetType = this.inputs[this.tableTypes[filed]].type
+      widgetType = this.inputs[this.tableTypes[field]]?.type;
     };
     return widgetType;
   }
@@ -154,5 +145,10 @@ export class DbTableFiltersDialogComponent implements OnInit {
     } else {
       return 'nonComparable'
     }
+  }
+
+  removeFilter(field) {
+    this.tableRowFieldsShown = omit(this.tableRowFieldsShown, [field]);
+    this.tableRowFieldsComparator = omit(this.tableRowFieldsComparator, [field]);
   }
 }

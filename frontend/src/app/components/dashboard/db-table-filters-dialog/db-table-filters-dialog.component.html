@@ -1,14 +1,21 @@
 <form #tableFiltersForm="ngForm" class="filters-form">
-    <h1 mat-dialog-title>Filters for <strong>{{ data.displayTableName }}</strong> table</h1>
+    <h1 mat-dialog-title class="filters-header">
+        <span>Filters for <strong>{{ data.displayTableName }}</strong> table</span>
+        <a mat-icon-button mat-dialog-close
+            routerLink="/dashboard/{{data.connectionID}}/{{data.tableName}}/settings"
+            matTooltip="Advanced settings">
+            <mat-icon>settings</mat-icon>
+        </a>
+    </h1>
     <app-content-loader *ngIf="!tableFilters || !tableTypes; else filterControls"></app-content-loader>
     <ng-template #filterControls>
         <div mat-dialog-content class="filters-content">
             <mat-form-field appearance="outline" class="filters-select">
-                <mat-label>Filter by fields</mat-label>
-                <mat-select multiple
+                <mat-label>Add filter by...</mat-label>
+                <mat-select
                     name="filter_columns"
-                    [(ngModel)]="tableFilters"
-                    (ngModelChange)="updateFilterFields()">
+                    (selectionChange)="addFilter($event)"
+                    >
                     <mat-option *ngFor="let field of fields" [value]="field">{{field}}</mat-option>
                 </mat-select>
             </mat-form-field>
@@ -48,7 +55,7 @@
                 </div>
 
                 <ng-template #comparableFilter>
-                    <span class='mat-body-1'>{{value.key}}</span>
+                    <span class='mat-body-1 column-name'>{{value.key}}</span>
 
                     <mat-form-field *ngIf="getComparatorType(getInputType(value.key)) === 'text'"
                         appearance="outline">
@@ -110,6 +117,11 @@
                         }"
                     ></ndc-dynamic>
                 </ng-template>
+                <button mat-icon-button type="button" class="filter-delete-button"
+                    matTooltip="Remove"
+                    (click)="removeFilter(value.key)">
+                    <mat-icon>close</mat-icon>
+                </button>
             </ng-container>
         </div>
     </ng-template>
@@ -125,8 +137,7 @@
         </button>
         <button mat-raised-button mat-dialog-close>Cancel</button>
         <button mat-raised-button mat-dialog-close="filter" color="primary"
-            type="submit"
-            [disabled]="tableFiltersForm.form.invalid || (tableFilters && tableFilters.length === 0)">
+            type="submit">
             Filter
         </button>
     </div>
