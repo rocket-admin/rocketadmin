@@ -15,6 +15,8 @@ import { UserService } from 'src/app/services/user.service';
 export class UserSettingsComponent implements OnInit {
   public currentUser: User = null;
   public submittingDelete: boolean;
+  public currentPlan: string;
+  public isAnnually: boolean;
   public emailVerificationWarning: Alert = {
     id: 10000001,
     type: AlertType.Warning,
@@ -36,7 +38,24 @@ export class UserSettingsComponent implements OnInit {
 
   ngOnInit(): void {
     this.currentUser = null;
-    this._userService.cast.subscribe(user => this.currentUser = user);
+    this._userService.cast
+      .subscribe(user => {
+        this.currentUser = user;
+
+        if (user.subscriptionLevel) {
+          this.currentPlan = user.subscriptionLevel;
+
+          if (this.currentPlan.startsWith('ANNUAL_')) {
+            this.isAnnually = true;
+            this.currentPlan = this.currentPlan.substring(7);
+          }
+
+          this.currentPlan = this.currentPlan.slice(0, -5).toLowerCase();
+        } else {
+          this.currentPlan = "Free"
+        }
+
+      });
   }
 
   requestEmailVerification() {

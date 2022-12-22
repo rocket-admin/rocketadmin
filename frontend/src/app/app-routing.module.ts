@@ -27,6 +27,7 @@ import { UsersComponent } from './components/users/users.component';
 import { NewVersionComponent } from './components/new-version/new-version.component';
 import { UserDeletedSuccessComponent } from './components/user-deleted-success/user-deleted-success.component';
 import { DbTableActionsComponent } from './components/dashboard/db-table-actions/db-table-actions.component';
+import { UpgradeSuccessComponent } from './components/upgrade-success/upgrade-success.component';
 
 const routes: Routes = [
   {path: '', redirectTo: '/connections-list', pathMatch: 'full'},
@@ -44,6 +45,7 @@ const routes: Routes = [
   {path: 'user-settings', component: UserSettingsComponent, canActivate: [AuthGuard]},
   {path: 'change-password', component: PasswordChangeComponent, canActivate: [AuthGuard]},
   {path: 'upgrade', component: UpgradeComponent, canActivate: [AuthGuard]},
+  {path: 'subscription/success', component: UpgradeSuccessComponent, canActivate: [AuthGuard]},
   {path: 'edit-db/:connection-id', component: ConnectDBComponent, canActivate: [AuthGuard]},
   {path: 'connection-settings/:connection-id', component: ConnectionSettingsComponent, canActivate: [AuthGuard]},
   {path: 'dashboard/:connection-id', component: DashboardComponent, canActivate: [AuthGuard]},

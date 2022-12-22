@@ -66,10 +66,20 @@
             </button>
 
             <div *ngIf="userLoggedIn === true" class="actions actions_auth">
-                <a *ngIf="upgradeButtonShown" routerLink="/upgrade" mat-flat-button
-                    routerLinkActive="mat-accent" class="nav-bar__upgrade-button">
-                    Upgrade
-                </a>
+                <ng-container *ngIf="upgradeButtonShown">
+                    <a *ngIf="currentUser.portal_link; else subscriptionLink" [href]="currentUser.portal_link " mat-flat-button
+                        class="nav-bar__upgrade-button" target="_blank">
+                        Upgrade
+                    </a>
+                    <ng-template #subscriptionLink>
+                        <a routerLink="/upgrade" mat-flat-button
+                            routerLinkActive="mat-accent" class="nav-bar__upgrade-button">
+                            Upgrade
+                        </a>
+                    </ng-template>
+
+                </ng-container>
+
                 <button mat-button (click)="logOut()" class="nav-bar__button"
                     matTooltip="Logout {{currentUser.email}}">
                     Log out

@@ -96,6 +96,7 @@ import { UsersService } from './services/users.service';
 import { WidgetDeleteDialogComponent } from './components/dashboard/db-table-widgets/widget-delete-dialog/widget-delete-dialog.component';
 import { environment } from '../environments/environment';
 import { ActionDeleteDialogComponent } from './components/dashboard/db-table-actions/action-delete-dialog/action-delete-dialog.component';
+import { UpgradeSuccessComponent } from './components/upgrade-success/upgrade-success.component';
 
 const saasExtraProviders = (environment as any).saas ? [
   {
@@ -185,7 +186,8 @@ const saasExtraProviders = (environment as any).saas ? [
     BreadcrumbsComponent,
     DbTableActionsComponent,
     UserPasswordComponent,
-    ActionDeleteDialogComponent
+    ActionDeleteDialogComponent,
+    UpgradeSuccessComponent
   ],
   entryComponents: [
     DbRowDeleteDialogComponent,

@@ -7,21 +7,22 @@
     width: 96%;
 }
 
-.userInfo {
-    margin-bottom: 16px;
-}
-
 .mat-h1 {
     margin-bottom: 1em;
 }
 
-.user-settings__button {
-    margin-left: 20px;
+.user-settings {
+    display: grid;
+    grid-template-columns: repeat(3, auto);
+    justify-items: start;
+    gap: 24px;
+    margin-top: 32px;
 }
 
-.upgrade-button {
+.stripe-button {
+    grid-column: 1 / span 3;
+    justify-self: center;
     margin-top: 32px;
-    align-self: center;
 }
 
 .delete-button {

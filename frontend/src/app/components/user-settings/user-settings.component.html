@@ -6,26 +6,51 @@
         Account settings
     </h1>
 
-    <div class="userInfo">
-        <strong>Email:</strong> {{currentUser.email}}
+    <div class="user-settings mat-body-1">
+        <strong>Email:</strong>
+        <span>{{currentUser.email}}</span>
         <button mat-button color="primary" class="user-settings__button"
             [disabled]="!currentUser.isActive"
             (click)="changeEmail()">
             Change email
         </button>
-    </div>
 
-    <div class="userInfo">
-        <strong>Password</strong>
+        <strong>Password:</strong>
+        <span>********</span>
         <a mat-button routerLink="/change-password" color="primary" class="user-settings__button">
             Change password
         </a>
-    </div>
 
-    <a mat-raised-button color="accent" class="upgrade-button"
-        [href]="currentUser.portal_link" target="_blank">
-        Manage payment settings
-    </a>
+        <!--<strong>Current plan:</strong>
+        <span>{{currentPlan}}</span>
+        <a *ngIf="currentUser.portal_link; else updgadePageLink" mat-stroked-button color="accent"
+            class="upgrade-button"
+            [href]="currentUser.portal_link" target="_blank">
+            Manage payment settings
+        </a>
+        <ng-template #updgadePageLink>
+            <a mat-stroked-button color="accent" class="upgrade-button"
+                routerLink="/upgrade">
+                Manage payment settings
+            </a>
+        </ng-template>-->
+
+        <div class="stripe-button">
+            <a *ngIf="currentUser.portal_link; else updgadePageLink" mat-stroked-button color="accent"
+                class="upgrade-button"
+                [href]="currentUser.portal_link" target="_blank">
+                Manage payment settings
+            </a>
+            <ng-template #updgadePageLink>
+                <a mat-stroked-button color="accent" class="upgrade-button"
+                    routerLink="/upgrade">
+                    Manage payment settings
+                </a>
+            </ng-template>
+        </div>
+
+
+    </div>
 
     <button mat-button class="delete-button"
         type="button"
