@@ -50,13 +50,14 @@ export class ActivateTableActionUseCase
       primaryKeysObj,
       actionId,
       dateString,
+      tableName,
     );
     try {
       const result = await axios.post(
         foundTableAction.url,
-        { ...primaryKeysObj, $$_date: dateString },
+        { ...primaryKeysObj, $$_date: dateString, $$_actionId: actionId, $$_tableName: tableName },
         {
-          headers: { 'Autoadmin-Signature': autoadminSignatureHeader },
+          headers: { 'Rocketadmin-Signature': autoadminSignatureHeader },
         },
       );
       operationResult =
@@ -98,9 +99,10 @@ export class ActivateTableActionUseCase
     primaryKeys: Record<string, unknown>,
     actionId: string,
     dateString: string,
+    tableName: string,
   ): string {
     const stringifyedPKeys = this.objToString(primaryKeys);
-    const strTohash = dateString + '$$' + stringifyedPKeys + '$$' + actionId;
+    const strTohash = dateString + '$$' + stringifyedPKeys + '$$' + actionId + '$$' + tableName;
     const hash = Encryptor.hashDataHMACexternalKey(signingKey, JSON.stringify(strTohash));
     return hash;
   }
