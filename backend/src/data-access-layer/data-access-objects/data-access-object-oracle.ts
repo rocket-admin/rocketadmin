@@ -11,7 +11,7 @@ import {
   listTables,
   objectKeysToLowercase,
   renameObjectKeyName,
-  tableSettingsFieldValidator
+  tableSettingsFieldValidator,
 } from '../../helpers';
 import { Cacher } from '../../helpers/cache/cacher';
 import { Constants } from '../../helpers/constants/constants';
@@ -23,7 +23,7 @@ import {
   IPrimaryKey,
   IRows,
   ITableStructure,
-  ITestConnectResult
+  ITestConnectResult,
 } from '../shared/data-access-object-interface';
 import { getOracleKnex } from '../shared/utils/get-oracle-knex';
 
@@ -317,7 +317,7 @@ export class DataAccessObjectOracle implements IDataAccessObject {
         .withSchema(tableSchema)
         .select(availableFields)
         .modify((builder) => {
-          const  search_fields  = searchedFields;
+          const search_fields = searchedFields;
           if (searchedFieldValue && search_fields.length > 0) {
             for (const field of search_fields) {
               builder.orWhereRaw(` CAST (?? AS VARCHAR (255))=?`, [field, searchedFieldValue]);
@@ -524,10 +524,10 @@ export class DataAccessObjectOracle implements IDataAccessObject {
         };
       }
     } catch (e) {
-        return {
-          result: false,
-          message: e.message,
-        };
+      return {
+        result: false,
+        message: e.message,
+      };
     }
     return {
       result: false,
@@ -576,7 +576,12 @@ export class DataAccessObjectOracle implements IDataAccessObject {
     }
     const excludedFields = settings.excluded_fields;
     if (settings.list_fields && settings.list_fields.length > 0) {
-      availableFields = settings.list_fields;
+      if (availableFields.length > settings.list_fields.length) {
+        availableFields = [...settings.list_fields, ...availableFields];
+        availableFields = [...new Set(availableFields)];
+      } else {
+        availableFields = settings.list_fields;
+      }
     } else {
       const tableStructure = await this.getTableStructure(tableName);
       availableFields = tableStructure.map((el) => {

@@ -77,20 +77,19 @@ export class VerifyAddUserInGroupUseCase
       );
     }
 
+    const foundUser = await this._dbContext.userRepository.findOneUserById(invitationEntity.user.id);
     const newUserAlreadyInConnection: boolean = !!usersInConnections.find((userInConnection) => {
       return userInConnection.id === foundUser.id;
     });
-
-    const foundUser = await this._dbContext.userRepository.findOneUserById(invitationEntity.user.id);
+    if (!newUserAlreadyInConnection) {
+      ++usersInConnectionsCount;
+      await createStripeUsageRecord(ownerSubscriptionLevel, usersInConnectionsCount);
+    }
     foundUser.isActive = true;
     foundUser.password = await Encryptor.hashUserPassword(user_password);
     foundUser.name = user_name;
     const savedUser = await this._dbContext.userRepository.saveUserEntity(foundUser);
     await this._dbContext.userInvitationRepository.removeInvitationEntity(invitationEntity);
-    if (!newUserAlreadyInConnection) {
-      ++usersInConnectionsCount;
-      await createStripeUsageRecord(ownerSubscriptionLevel, usersInConnectionsCount);
-    }
     return generateGwtToken(savedUser);
   }
 }

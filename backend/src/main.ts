@@ -41,7 +41,7 @@ async function bootstrap() {
     app.use(cookieParser());
 
     app.enableCors({
-      origin: ['https://app.autoadmin.org', 'http://localhost:4200', Constants.APP_DOMAIN_ADDRESS],
+      origin: ['https://app.autoadmin.org', 'http://localhost:4200', 'https://app.rocketadmin.org', Constants.APP_DOMAIN_ADDRESS],
       methods: 'GET,PUT,PATCH,POST,DELETE',
       credentials: true,
       preflightContinue: false,

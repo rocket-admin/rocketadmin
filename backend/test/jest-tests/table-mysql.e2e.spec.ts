@@ -18,7 +18,7 @@ import { TestUtils } from '../utils/test.utils';
 import { Cacher } from '../../src/helpers/cache/cacher';
 
 describe('Tables MySQL (e2e)', () => {
-  jest.setTimeout(20000);
+  jest.setTimeout(60000);
   let app: INestApplication;
   let testUtils: TestUtils;
   const mockFactory = new MockFactory();
