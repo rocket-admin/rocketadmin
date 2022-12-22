@@ -17,7 +17,7 @@ import { MockFactory } from '../mock.factory';
 import { TestUtils } from '../utils/test.utils';
 
 describe('Tables OracleDB (e2e)', () => {
-  jest.setTimeout(10000);
+  jest.setTimeout(60000);
   let app: INestApplication;
   let testUtils: TestUtils;
   const mockFactory = new MockFactory();

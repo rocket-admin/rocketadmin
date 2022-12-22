@@ -617,7 +617,12 @@ export class DataAccessObjectMysqlSsh implements IDataAccessObject {
     }
     const excludedFields = settings.excluded_fields;
     if (settings.list_fields && settings.list_fields.length > 0) {
-      availableFields = settings.list_fields;
+      if (availableFields.length > settings.list_fields.length) {
+        availableFields = [...settings.list_fields, ...availableFields];
+        availableFields = [...new Set(availableFields)];
+      } else {
+        availableFields = settings.list_fields;
+      }
     } else {
       const tableStructure = await this.getTableStructure(tableName);
       availableFields = tableStructure.map((el) => {
