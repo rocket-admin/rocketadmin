@@ -60,6 +60,7 @@ export class TablesDataSource implements DataSource<Object> {
   public permissions;
   public isEmptyTable: boolean;
   public tableActions: object[];
+  public actionsColumnWidth: string;
 
   public alert_primaryKeysInfo: Alert;
   public alert_settingsInfo: Alert;
@@ -203,8 +204,10 @@ export class TablesDataSource implements DataSource<Object> {
           this.displayedDataColumns = (filter(this.columns, column => column.selected === true)).map(column => column.title);
           this.permissions = res.table_permissions.accessLevel;
           if (this.keyAttributes.length && (this.permissions.edit || this.permissions.delete)) {
+            this.actionsColumnWidth = this.getActionsColumnWidth(this.tableActions, this.permissions);
             this.displayedColumns = [...this.displayedDataColumns, 'actions'];
           } else {
+            this.actionsColumnWidth = '0';
             this.displayedColumns = [...this.displayedDataColumns];
             this.alert_primaryKeysInfo = {
               id: 10000,
@@ -281,6 +284,15 @@ export class TablesDataSource implements DataSource<Object> {
           if (this.paginator) this.paginator.length = res.pagination.total;
       });
     }
+  }
+
+  getActionsColumnWidth(actions, permissions) {
+    const defaultActionsCount = permissions.edit + permissions.delete;
+    if (actions.length || defaultActionsCount) {
+      const lendthValue = (((actions.length + defaultActionsCount) * 40) + 32);
+      return `${lendthValue}px`
+    };
+    return '0';
   }
 
   changleColumnList() {

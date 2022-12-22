@@ -78,11 +78,6 @@ export class DbTableComponent implements OnInit {
       .subscribe();
   }
 
-  // @ViewChild('focus', { read: ElementRef }) tableHeader: ElementRef;
-  // scrollUp(): void {
-  //   this.tableHeader.nativeElement.scrollIntoView({ behavior: 'smooth', block: "start" });
-  // }
-
   loadRowsPage() {
     const queryParams = this.route.snapshot.queryParams;
     const filters = getFilters(queryParams);
@@ -99,11 +94,6 @@ export class DbTableComponent implements OnInit {
       isTablePageSwitched: true
     });
   }
-
-  // scrollToTop() {
-  //   console.log('scrollToTop');
-  //   window.scrollTo(0, 0);
-  // }
 
   isSortable(column: string) {
     return this.tableData.sortByColumns.includes(column) || !this.tableData.sortByColumns.length;
@@ -141,10 +131,6 @@ export class DbTableComponent implements OnInit {
     } else {
       return cell[foreignKey.referenced_column_name]
     }
-  }
-
-  isCropped(value: string) {
-    if (value) return value.length > 20;
   }
 
   getFiltersCount(activeFilters: object) {
@@ -185,15 +171,5 @@ export class DbTableComponent implements OnInit {
 
   handleActivateAction(action: CustomAction, primaryKeys: object) {
     this.activateAction.emit({action, primaryKeys});
-  }
-
-  getActionsColumnWidth(actions, permissions) {
-    if (permissions) {
-      const defaultActionsCount = permissions.edit + permissions.delete;
-      const lendthValue = (((actions.length + defaultActionsCount) * 40) + 32);
-      console.log({lendthValue});
-      return `${lendthValue}px`;
-    };
-    return '0';
   }
 }

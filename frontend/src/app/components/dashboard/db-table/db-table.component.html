@@ -47,7 +47,9 @@
             </button>
             <div *ngIf="tableData" class="db-table-manage-columns-button">
                 <button *ngIf="tableData.displayedColumns && tableData.columns" mat-button [matMenuTriggerFor]="menu">
-                    Columns ({{ tableData.displayedColumns.length - 1 }} / {{ tableData.columns.length }})
+                    Columns ({{ tableData.actionsColumnWidth === '0' ? tableData.displayedColumns.length : tableData.displayedColumns.length - 1 }}
+                        /
+                        {{ tableData.columns.length }})
                 </button>
                 <mat-menu #menu="matMenu">
                     <button mat-menu-item
@@ -89,7 +91,7 @@
 </div>
 
 
-<div class="mat-elevation-z4 table-wrapper">
+<div class="mat-elevation-z4">
 
     <div class="spinner-wrapper" *ngIf="tableData && tableData.loading$ | async">
         <mat-spinner diameter="48"></mat-spinner>
@@ -98,30 +100,32 @@
     <div class="table-box">
         <mat-table *ngIf="tableData" matSort [dataSource]="tableData" NgMatTableQueryReflector
             class="db-table"
-            [ngClass]="{'db-table_withOutActions': tableData.displayedDataColumns?.length === tableData.displayedColumns?.length}"
+            [ngClass]="{'db-table_withOutActions':  tableData.actionsColumnWidth === '0'}"
             [style.--colCount]="tableData.displayedDataColumns?.length"
-            [style.--lastColumnWidth]="getActionsColumnWidth(tableData.tableActions, tableData.permissions)">
+            [style.--lastColumnWidth]="tableData.actionsColumnWidth">
 
             <ng-container [matColumnDef]="column" *ngFor="let column of tableData.displayedDataColumns">
                 <mat-header-cell *matHeaderCellDef mat-sort-header [disabled]="!isSortable(column)"> {{ tableData.dataNormalizedColumns[column] }} </mat-header-cell>
-                <mat-cell *matCellDef="let element">
-                    <div *ngIf="isForeignKey(column); else contentCell" data-hj-suppress>
-                        <a routerLink="/dashboard/{{connectionID}}/{{tableData.foreignKeys[column].referenced_table_name}}/entry"
-                            class="foreign-key-link"
-                            [queryParams]="getForeignKeyQueryParams(tableData.foreignKeys[column], element[column])">
-                            {{ getCellValue(tableData.foreignKeys[column], element[column]) }}
-                        </a>
-                    </div>
-                    <ng-template #contentCell>
-                        <div *ngIf="isWidget(column); else simpleValue" [ngClass]="{'table-cell-content_cropped': isCropped(getWidgetValue(column, element[column]))}" data-hj-suppress>
-                            {{ getWidgetValue(column, element[column]) }}
-                        </div>
-                        <ng-template #simpleValue>
-                            <div data-hj-suppress class="table-cell-content" [ngClass]="{'table-cell-content_cropped': isCropped(element[column])}">
-                                {{element[column] || '—'}}
-                            </div>
+                <mat-cell *matCellDef="let element" data-hj-suppress>
+                    <div class="table-cell-content">
+                        <ng-container *ngIf="isForeignKey(column); else contentCell">
+                            <a routerLink="/dashboard/{{connectionID}}/{{tableData.foreignKeys[column].referenced_table_name}}/entry"
+                                class="foreign-key-link"
+                                [queryParams]="getForeignKeyQueryParams(tableData.foreignKeys[column], element[column])">
+                                {{ getCellValue(tableData.foreignKeys[column], element[column]) }}
+                            </a>
+                        </ng-container>
+                        <ng-template #contentCell>
+                            <ng-container *ngIf="isWidget(column); else simpleValue">
+                                {{ getWidgetValue(column, element[column]) }}
+                            </ng-container>
+                            <ng-template #simpleValue>
+                                <ng-container>
+                                    {{element[column] || '—'}}
+                                </ng-container>
+                            </ng-template>
                         </ng-template>
-                    </ng-template>
+                    </div>
                 </mat-cell>
             </ng-container>
 
