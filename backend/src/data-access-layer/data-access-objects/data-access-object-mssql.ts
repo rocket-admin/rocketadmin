@@ -7,7 +7,13 @@ import { CreateTableSettingsDto } from '../../entities/table-settings/dto';
 import { TableSettingsEntity } from '../../entities/table-settings/table-settings.entity';
 import { FilterCriteriaEnum, QueryOrderingEnum } from '../../enums';
 import { Messages } from '../../exceptions/text/messages';
-import { isObjectEmpty, objectKeysToLowercase, renameObjectKeyName, tableSettingsFieldValidator } from '../../helpers';
+import {
+  compareArrayElements,
+  isObjectEmpty,
+  objectKeysToLowercase,
+  renameObjectKeyName,
+  tableSettingsFieldValidator,
+} from '../../helpers';
 import { Cacher } from '../../helpers/cache/cacher';
 import { Constants } from '../../helpers/constants/constants';
 import { BasicDao } from '../shared/basic-dao';
@@ -437,24 +443,32 @@ export class DataAccessObjectMssql extends BasicDao implements IDataAccessObject
   }
 
   private async findAvaliableFields(settings: TableSettingsEntity, tableName: string): Promise<Array<string>> {
-    let availableFields = [];
+    const tableStructure = await this.getTableStructure(tableName);
+    let availableFields: Array<string> = [];
     if (isObjectEmpty(settings)) {
-      const tableStructure = await this.getTableStructure(tableName);
       availableFields = tableStructure.map((el) => {
         return el.column_name;
       });
       return availableFields;
     }
+
+    const fieldsFromStructure = tableStructure.map((el) => {
+      return el.column_name;
+    });
+
     const excludedFields = settings.excluded_fields;
+
     if (settings.list_fields && settings.list_fields.length > 0) {
-      if (availableFields.length > settings.list_fields.length) {
-        availableFields = [...settings.list_fields, ...availableFields];
+      if (!compareArrayElements(settings.list_fields, fieldsFromStructure)) {
+        availableFields = [...settings.list_fields, ...fieldsFromStructure];
         availableFields = [...new Set(availableFields)];
+        availableFields = availableFields.filter((fieldName) => {
+          return fieldsFromStructure.includes(fieldName);
+        });
       } else {
         availableFields = settings.list_fields;
       }
     } else {
-      const tableStructure = await this.getTableStructure(tableName);
       availableFields = tableStructure.map((el) => {
         return el.column_name;
       });
