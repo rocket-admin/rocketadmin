@@ -170,7 +170,7 @@ export class TableActionsController {
     @QueryTableName() tableName: string,
     @Query('actionId') actionId: string,
     @Body() body: Record<string, unknown>,
-  ): Promise<void> {
+  ): Promise<void | { location: string } > {
     const inputData: ActivateTableActionDS = {
       connectionId: connectionId,
       masterPwd: masterPwd,
