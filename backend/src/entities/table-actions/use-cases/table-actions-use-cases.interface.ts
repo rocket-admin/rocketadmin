@@ -14,7 +14,7 @@ export interface IFindAllTableActions {
 }
 
 export interface IActivateTableAction {
-  execute(inputData: ActivateTableActionDS, inTransaction: InTransactionEnum): Promise<void>;
+  execute(inputData: ActivateTableActionDS, inTransaction: InTransactionEnum): Promise<void | { location: string }>;
 }
 
 export interface IUpdateTableAction {

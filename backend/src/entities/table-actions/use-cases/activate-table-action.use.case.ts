@@ -14,7 +14,7 @@ import { IActivateTableAction } from './table-actions-use-cases.interface';
 
 @Injectable()
 export class ActivateTableActionUseCase
-  extends AbstractUseCase<ActivateTableActionDS, void>
+  extends AbstractUseCase<ActivateTableActionDS, any>
   implements IActivateTableAction
 {
   constructor(
@@ -25,7 +25,7 @@ export class ActivateTableActionUseCase
     super();
   }
 
-  protected async implementation(inputData: ActivateTableActionDS): Promise<void> {
+  protected async implementation(inputData: ActivateTableActionDS): Promise<void | { location: string }> {
     let operationResult = OperationResultStatusEnum.unknown;
     const { actionId, request_body, connectionId, masterPwd, tableName, userId } = inputData;
     const foundTableAction = await this._dbContext.tableActionRepository.findTableActionById(actionId);
@@ -60,13 +60,33 @@ export class ActivateTableActionUseCase
           headers: { 'Rocketadmin-Signature': autoadminSignatureHeader },
         },
       );
-      operationResult =
-        result.status >= 200 && result.status < 300
-          ? OperationResultStatusEnum.successfully
-          : OperationResultStatusEnum.unsuccessfully;
+      const operationStatusCode = result.status;
+      if (operationStatusCode >= 200 && operationStatusCode < 300) {
+        operationResult = OperationResultStatusEnum.successfully;
+        return;
+      }
+      if (operationStatusCode >= 300 && operationStatusCode < 400) {
+        operationResult = OperationResultStatusEnum.successfully;
+        return { location: result?.headers?.location };
+      }
+      if (operationStatusCode >= 400 && operationStatusCode <= 599) {
+        operationResult = OperationResultStatusEnum.unsuccessfully;
+        throw new HttpException(
+          {
+            message: result.data,
+          },
+          operationStatusCode,
+        );
+      }
       return;
     } catch (e) {
       operationResult = OperationResultStatusEnum.unsuccessfully;
+      throw new HttpException(
+        {
+          message: e.message,
+        },
+        e.response?.status || HttpStatus.BAD_REQUEST,
+      );
     } finally {
       const logRecord = {
         table_name: tableName,
