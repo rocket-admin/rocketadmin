@@ -7,6 +7,11 @@ import { Integrations } from "@sentry/tracing";
 import { environment } from './environments/environment';
 import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
 import 'codemirror/mode/javascript/javascript';
+import 'codemirror/mode/clike/clike';
+import 'codemirror/mode/php/php';
+import 'codemirror/mode/ruby/ruby';
+import 'codemirror/mode/go/go';
+import 'codemirror/mode/python/python';
 
 if (environment.production) {
   enableProdMode();

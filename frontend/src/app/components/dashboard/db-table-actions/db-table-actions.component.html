@@ -136,16 +136,35 @@
                 </div>
             </form>
 
-            <ngx-codemirror class="action-codeSnippet"
-                [(ngModel)]="codeSnippet"
-                name="code-snippet"
-                [options]="{
-                    lineNumbers: true,
-                    lineWrapping: true,
-                    mode: 'javascript',
-                    theme: 'ttcn'
-                }"
-            ></ngx-codemirror>
+            <div class="code-snippet-box">
+                <mat-form-field appearance="outline" class="lang-select">
+                    <mat-label>Code snippet example</mat-label>
+                    <mat-select [(ngModel)]="codeLangSelected">
+                        <mat-option *ngFor="let lang of codeSnippets | keyvalue; let key = index; trackBy:trackByFn" [value]="lang.key">{{lang.value.langName}}</mat-option>
+                    </mat-select>
+                </mat-form-field>
+
+                <button type="button"
+                    mat-icon-button
+                    class="copy-button"
+                    matTooltip="Copy mater password"
+                    [cdkCopyToClipboard]="codeSnippets[codeLangSelected].snippet"
+                    (cdkCopyToClipboardCopied)="showCopyNotification(codeSnippets[codeLangSelected].langName + 'code snippet was copied to clipboard.')">
+                    <mat-icon>content_copy</mat-icon>
+                </button>
+
+                <ngx-codemirror class="action-codeSnippet"
+                    [(ngModel)]="codeSnippets[codeLangSelected].snippet"
+                    name="code-snippet"
+                    [options]="{
+                        lineNumbers: true,
+                        lineWrapping: true,
+                        matchBrackets: true,
+                        mode: codeSnippets[codeLangSelected].mode,
+                        theme: 'ttcn'
+                    }"
+                ></ngx-codemirror>
+            </div>
         </div>
 
     </mat-drawer-content>
