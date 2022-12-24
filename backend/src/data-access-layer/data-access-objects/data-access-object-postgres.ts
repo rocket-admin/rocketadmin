@@ -7,6 +7,7 @@ import { TableSettingsEntity } from '../../entities/table-settings/table-setting
 import { FilterCriteriaEnum } from '../../enums';
 import {
   changeObjPropValByPropName,
+  compareArrayElements,
   getPropertyValueByDescriptor,
   isObjectEmpty,
   listTables,
@@ -555,23 +556,32 @@ WHERE  oid = '??.??'::regclass;`,
 
   private async findAvaliableFields(settings: TableSettingsEntity, tableName: string): Promise<Array<string>> {
     let availableFields = [];
+
+    const tableStructure = await this.getTableStructure(tableName);
+
+    const fieldsFromStructure = tableStructure.map((el) => {
+      return el.column_name;
+    });
+
     if (isObjectEmpty(settings)) {
-      const tableStructure = await this.getTableStructure(tableName);
       availableFields = tableStructure.map((el) => {
         return el.column_name;
       });
       return availableFields;
     }
+
     const excludedFields = settings.excluded_fields;
     if (settings.list_fields && settings.list_fields.length > 0) {
-      if (availableFields.length > settings.list_fields.length) {
-        availableFields = [...settings.list_fields, ...availableFields];
+      if (!compareArrayElements(settings.list_fields, fieldsFromStructure)) {
+        availableFields = [...settings.list_fields, ...fieldsFromStructure];
         availableFields = [...new Set(availableFields)];
+        availableFields = availableFields.filter((fieldName) => {
+          return fieldsFromStructure.includes(fieldName);
+        });
       } else {
         availableFields = settings.list_fields;
       }
     } else {
-      const tableStructure = await this.getTableStructure(tableName);
       availableFields = tableStructure.map((el) => {
         return el.column_name;
       });
