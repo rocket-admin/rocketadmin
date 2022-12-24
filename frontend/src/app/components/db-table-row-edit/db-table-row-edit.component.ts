@@ -2,7 +2,7 @@ import * as JSON5 from 'json5';
 
 import { ActivatedRoute, Router } from '@angular/router';
 import { Component, NgZone, OnInit } from '@angular/core';
-import { TableField, TableForeignKey, Widget } from 'src/app/models/table';
+import { CustomAction, TableField, TableForeignKey, Widget } from 'src/app/models/table';
 import { UIwidgets, fieldTypes } from 'src/app/consts/field-types';
 
 import { ConnectionsService } from 'src/app/services/connections.service';
@@ -39,6 +39,7 @@ export class DbTableRowEditComponent implements OnInit {
   public UIwidgets = UIwidgets;
   public rowError: string = null;
   public fieldsOrdered: string[];
+  public rowActions: CustomAction[];
 
   public tableForeignKeys: TableForeignKey[];
 
@@ -97,6 +98,7 @@ export class DbTableRowEditComponent implements OnInit {
             } else {
               this.fieldsOrdered = Object.keys(this.tableRowValues).map(key => key);
             }
+            if (res.table_actions) this.rowActions = res.table_actions;
             res.table_widgets && this.setWidgets(res.table_widgets);
             this.setRowStructure(res.structure);
             this.loading = false;
@@ -278,5 +280,10 @@ export class DbTableRowEditComponent implements OnInit {
       undefined,
       () => {this.submitting = false}
     )
+  }
+
+  activateAction(action: CustomAction) {
+    this._tables.activateAction(this.connectionID, this.tableName, action, this.keyAttributes)
+      .subscribe(() => {console.log('activated')})
   }
 }

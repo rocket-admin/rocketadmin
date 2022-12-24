@@ -11,7 +11,19 @@
 </app-banner>
 
 <div *ngIf="tableRowValues" class="wrapper">
-    <app-breadcrumbs [crumbs]="getCrumbs(currentConnection.title)"></app-breadcrumbs>
+    <div class="row-edit-header">
+        <app-breadcrumbs [crumbs]="getCrumbs(currentConnection.title)"></app-breadcrumbs>
+        <div *ngIf="rowActions.length">
+            <button type="button" mat-icon-button *ngFor="let action of rowActions"
+                [matTooltip]="action.title"
+                (click)="activateAction(action)">
+                <mat-icon fontSet="material-icons-outlined">
+                    {{action.icon}}
+                </mat-icon>
+            </button>
+        </div>
+
+    </div>
     <form #editRowForm="ngForm" class="form"
         (ngSubmit)="keyAttributes ? updateRow() : addRow()">
         <div *ngFor="let value of fieldsOrdered; let index = index">
