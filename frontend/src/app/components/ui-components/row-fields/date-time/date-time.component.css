@@ -1,5 +1,5 @@
 .field-couple {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    grid-column-gap: 5%;
+    grid-column-gap: 16px;
 }

@@ -44,6 +44,7 @@ export class TablesDataSource implements DataSource<Object> {
   public paginator: MatPaginator;
   // public sort: MatSort;
 
+  public structure;
   public keyAttributes;
   public columns: Column[];
   public dataColumns: string[];
@@ -154,6 +155,7 @@ export class TablesDataSource implements DataSource<Object> {
             finalize(() => this.loadingSubject.next(false))
         )
         .subscribe((res: any) => {
+          this.structure = [...res.structure];
           const columns = res.structure
             .reduce((items, item) => {
               items.set(item.column_name, item)

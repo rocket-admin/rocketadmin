@@ -6,7 +6,7 @@
 
 .filters-content {
     display: grid;
-    grid-template-columns: 1fr 1fr 0 1fr 48px;
+    grid-template-columns: auto 228px 0 1fr 48px;
     grid-column-gap: 8px;
     align-content: flex-start;
     align-items: flex-start;
@@ -17,7 +17,7 @@
 }
 
 .filter-line {
-    grid-column: 1 / span 5;
+    grid-column: 1 / span 4;
 }
 
 ::ng-deep .mat-dialog-container > .ng-star-inserted {

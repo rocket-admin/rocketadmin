@@ -138,8 +138,8 @@ export class DbTableComponent implements OnInit {
     return 0;
   }
 
-  handleOpenFilters() {
-    this.openFilters.emit();
+  handleOpenFilters(structure) {
+    this.openFilters.emit(structure);
     this.searchString = '';
   }
 

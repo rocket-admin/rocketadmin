@@ -136,8 +136,9 @@
             Reset
         </button>
         <button mat-raised-button mat-dialog-close>Cancel</button>
-        <button mat-raised-button mat-dialog-close="filter" color="primary"
-            type="submit">
+        <button mat-raised-button mat-dialog-close="filter"
+            color="primary" type="submit"
+            [disabled]="tableFiltersCount === 0">
             Filter
         </button>
     </div>

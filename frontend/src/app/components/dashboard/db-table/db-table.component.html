@@ -42,7 +42,12 @@
             <button mat-button [ngClass]="{'action_active': getFiltersCount(activeFilters)}"
                 angulartics2On="click"
                 angularticsAction="Tables: settings dialog is opened"
-                (click)="handleOpenFilters()">
+                (click)="handleOpenFilters({
+                    structure: tableData.structure,
+                    foreignKeysList: tableData.foreignKeysList,
+                    foreignKeys: tableData.foreignKeys,
+                    widgets: tableData.widgets
+                })">
                 Filter
             </button>
             <div *ngIf="tableData" class="db-table-manage-columns-button">
