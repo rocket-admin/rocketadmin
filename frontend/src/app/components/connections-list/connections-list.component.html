@@ -2,14 +2,14 @@
 <div class="wrapper">
     <div class="connectionsBox connectionsBox_main">
         <header class="header">
-            <h1 class="mat-display-1">Connections</h1>
+            <h1 class="mat-display-1">Your admin panels</h1>
         </header>
 
         <app-content-loader *ngIf="connections === null"></app-content-loader>
 
         <div *ngIf="!connections?.length && connections !== null" class="empty-state">
             <img src="../../../assets/no-files.svg" alt="">
-            <p class="mat-body-2 empty-state__text">No connections</p>
+            <p class="mat-body-2 empty-state__text">No dabase connections</p>
         </div>
 
         <mat-nav-list *ngIf="connections" class="connectionsBox__connectionsList">
@@ -35,7 +35,7 @@
 
     <div *ngIf="testConnections && testConnections.length" class="connectionsBox connectionsBox_shadow">
         <header class="header">
-            <h1 class="mat-display-1">Test connections</h1>
+            <h1 class="mat-display-1">Demo admin panels</h1>
         </header>
 
         <mat-nav-list class="connectionsBox__connectionsList">
