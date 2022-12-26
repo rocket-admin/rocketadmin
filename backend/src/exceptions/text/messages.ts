@@ -184,6 +184,7 @@ export const Messages = {
   TABLE_SETTINGS_NOT_FOUND: 'Table settings with this parameters not found',
   TABLE_WIDGET_NOT_FOUND: 'Table widget with this parameters not found',
   TABLE_ACTION_NOT_FOUND: 'Table action not found',
+  TEST_CONNECTIONS_UPDATE_NOT_ALLOWED: `You can't update test connection`,
   TRY_AGAIN_LATER: 'Please try again later. If the problem persists, please contact our support team',
   TYPE_MISSING: 'Type is missing',
   TOKEN_MISSING: 'Token is missing',
