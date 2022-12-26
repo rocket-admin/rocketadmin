@@ -119,7 +119,7 @@ export const userCustomRepositoryExtension: IUserRepository = {
   },
 
   async checkOwnerInviteAbility(ownerId: string, usersCount: number): Promise<boolean> {
-    if (usersCount <= Constants.FREE_PLAN_USERS_COUNT) {
+    if (usersCount <= Constants.FREE_PLAN_USERS_COUNT || !isSaaS()) {
       return true;
     }
     const foundOwner = await this.findOneUserById(ownerId);
