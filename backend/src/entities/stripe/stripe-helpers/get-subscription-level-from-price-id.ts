@@ -5,9 +5,6 @@ export function getSubscriptionLevelFromPriceId(priceId: string): SubscriptionLe
   const annulTemPlanPriceId = process.env.ANNUAL_TEAM_PLAN_PRICE_ID;
   const enterprisePlanPriceId = process.env.ENTERPRISE_PLAN_PRICE_ID;
   const annualEnterprisePlanId = process.env.ANNUAL_ENTERPRISE_PLAN_PRICE_ID;
-  console.log(
-    `available prices: ${teamPlanPriceId}, ${annulTemPlanPriceId}, ${enterprisePlanPriceId}, ${annualEnterprisePlanId}`,
-  );
   switch (priceId) {
     case teamPlanPriceId:
       return SubscriptionLevelEnum.TEAM_PLAN;
