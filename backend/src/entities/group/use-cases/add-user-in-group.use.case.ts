@@ -88,14 +88,18 @@ export class AddUserInGroupUseCase
     }
 
     if (foundUser && !foundUser.isActive) {
-      const savedInvitation = await this._dbContext.userInvitationRepository.createOrUpdateInvitationEntity(
-        foundUser,
-        null,
-      );
       const userAlreadyAdded = !!foundGroup.users.find((u) => u.id === foundUser.id);
       if (!userAlreadyAdded) {
+        const savedInvitation = await this._dbContext.userInvitationRepository.createOrUpdateInvitationEntity(
+          foundUser,
+          null,
+        );
         foundGroup.users.push(foundUser);
       }
+      const savedInvitation = await this._dbContext.userInvitationRepository.createOrUpdateInvitationEntity(
+        foundUser,
+        ownerId,
+      );
       const savedGroup = await this._dbContext.groupRepository.saveNewOrUpdatedGroup(foundGroup);
       delete savedGroup.connection;
       const newEmailVerification = await this._dbContext.emailVerificationRepository.createOrUpdateEmailVerification(
