@@ -7,6 +7,8 @@ export async function getCurrentUserSubscription(userStripeId: string): Promise<
   if (process.env.NODE_ENV === 'test' || !isSaaS() || !userStripeId) return;
   const stripe = getStripe();
   const userSubscriptions = await stripe.subscriptions.list({ customer: userStripeId });
+  console.log("🚀 ~ file: get-current-user-subscription.ts:10 ~ getCurrentUserSubscription ~ userSubscriptions", userSubscriptions)
   const userSubscriptionPriceId = userSubscriptions?.data[0]?.items?.data[0]?.price?.id;
+  console.log("🚀 ~ file: get-current-user-subscription.ts:12 ~ getCurrentUserSubscription ~ userSubscriptionPriceId", userSubscriptionPriceId)
   return getSubscriptionLevelFromPriceId(userSubscriptionPriceId);
 }
