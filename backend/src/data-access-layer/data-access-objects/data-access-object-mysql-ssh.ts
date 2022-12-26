@@ -33,7 +33,6 @@ import {
   ITestConnectResult,
 } from '../shared/data-access-object-interface';
 
-@Injectable({ scope: Scope.REQUEST })
 export class DataAccessObjectMysqlSsh implements IDataAccessObject {
   private readonly connection: ConnectionEntity;
 

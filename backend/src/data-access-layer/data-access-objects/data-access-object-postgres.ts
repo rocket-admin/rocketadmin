@@ -29,7 +29,6 @@ import {
 } from '../shared/data-access-object-interface';
 import { getPostgresKnex } from '../shared/utils/get-postgres-knex';
 
-@Injectable({ scope: Scope.REQUEST })
 export class DataAccessObjectPostgres extends BasicDao implements IDataAccessObject {
   private readonly connection: ConnectionEntity;
   constructor(connection: ConnectionEntity) {

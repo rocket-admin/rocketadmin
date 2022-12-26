@@ -29,7 +29,6 @@ import {
 } from '../shared/data-access-object-interface';
 import { getMssqlKnex } from '../shared/utils/get-mssql-knex';
 
-@Injectable({ scope: Scope.REQUEST })
 export class DataAccessObjectMssql extends BasicDao implements IDataAccessObject {
   private readonly connection: ConnectionEntity;
 
