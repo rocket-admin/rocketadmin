@@ -54,7 +54,7 @@ export class AddUserInGroupUseCase
       return userInConnection.id === foundUser.id;
     });
 
-    if (!canInviteMoreUsers && !newUserAlreadyInConnection) {
+    if (!canInviteMoreUsers) {
       throw new HttpException(
         {
           message: Messages.MAXIMUM_FREE_INVITATION_REACHED,
