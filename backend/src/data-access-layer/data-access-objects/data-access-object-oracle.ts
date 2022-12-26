@@ -28,7 +28,6 @@ import {
 } from '../shared/data-access-object-interface';
 import { getOracleKnex } from '../shared/utils/get-oracle-knex';
 
-@Injectable({ scope: Scope.REQUEST })
 export class DataAccessObjectOracle implements IDataAccessObject {
   private readonly connection: ConnectionEntity;
   constructor(connection: ConnectionEntity) {

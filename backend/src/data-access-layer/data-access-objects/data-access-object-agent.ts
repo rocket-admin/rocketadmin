@@ -18,7 +18,6 @@ import {
   ITestConnectResult,
 } from '../shared/data-access-object-interface';
 
-@Injectable({ scope: Scope.REQUEST })
 export class DataAccessObjectAgent implements IDataAccessObject {
   private readonly connection: ConnectionEntity;
   private readonly serverAddress: string;
