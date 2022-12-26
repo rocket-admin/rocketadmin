@@ -6,6 +6,7 @@ import { AuthService } from 'src/app/services/auth.service';
 import { MatDialog } from '@angular/material/dialog';
 import { User } from 'src/app/models/user';
 import { UserService } from 'src/app/services/user.service';
+import { AccountPasswordConfirmationComponent } from './account-password-confirmation/account-password-confirmation.component';
 
 @Component({
   selector: 'app-user-settings',
@@ -17,6 +18,7 @@ export class UserSettingsComponent implements OnInit {
   public submittingDelete: boolean;
   public currentPlan: string;
   public isAnnually: boolean;
+  public userName: string;
   public emailVerificationWarning: Alert = {
     id: 10000001,
     type: AlertType.Warning,
@@ -28,7 +30,7 @@ export class UserSettingsComponent implements OnInit {
         action: () => this.requestEmailVerification()
       }
     ]
-  };
+  }
 
   constructor(
     private _userService: UserService,
@@ -41,6 +43,7 @@ export class UserSettingsComponent implements OnInit {
     this._userService.cast
       .subscribe(user => {
         this.currentUser = user;
+        this.userName = user.name;
 
         if (user.subscriptionLevel) {
           this.currentPlan = user.subscriptionLevel;
@@ -74,5 +77,12 @@ export class UserSettingsComponent implements OnInit {
       width: '32em',
       data: this.currentUser
     });
+  }
+
+  openConfirmationDialog() {
+    this.dialog.open(AccountPasswordConfirmationComponent, {
+      width: '25em',
+      data: this.userName
+    })
   }
 }

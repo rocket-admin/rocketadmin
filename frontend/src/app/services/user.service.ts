@@ -204,6 +204,22 @@ export class UserService {
     );
   }
 
+  changeUserName(name: string, password: string) {
+    return this._http.put<any>(`/user/name`, {name, password})
+      .pipe(
+        map((res) => {
+          this._notifications.showSuccessSnackbar('Your name has been changed successfully.');
+          return res
+        }),
+        catchError((err) => {
+          console.log(err);
+          this._notifications.showErrorSnackbar(err.error.message);
+          return EMPTY;
+        })
+      );
+  }
+
+
   deleteAccount(metadata) {
     return this._http.put<any>(`/user/delete`, metadata)
     .pipe(

@@ -7,48 +7,54 @@
     </h1>
 
     <div class="user-settings mat-body-1">
-        <strong>Email:</strong>
-        <span>{{currentUser.email}}</span>
-        <button mat-button color="primary" class="user-settings__button"
-            [disabled]="!currentUser.isActive"
-            (click)="changeEmail()">
-            Change email
-        </button>
+        <form class="user-settings__section-heading">
+            <mat-form-field appearance="outline" style="width: 100%">
+                <mat-label>Name</mat-label>
+                <input matInput [(ngModel)]="userName" name="user-name" #nameField="ngModel">
+            </mat-form-field>
+            <button type="button" mat-button color="primary"
+                class="user-settings__save-button"
+                (click)="openConfirmationDialog()"
+                [disabled]="!nameField.dirty">
+                Save
+            </button>
+        </form>
 
-        <strong>Password:</strong>
-        <span>********</span>
-        <a mat-button routerLink="/change-password" color="primary" class="user-settings__button">
-            Change password
-        </a>
 
-        <!--<strong>Current plan:</strong>
-        <span>{{currentPlan}}</span>
-        <a *ngIf="currentUser.portal_link; else updgadePageLink" mat-stroked-button color="accent"
-            class="upgrade-button"
-            [href]="currentUser.portal_link" target="_blank">
-            Manage payment settings
-        </a>
-        <ng-template #updgadePageLink>
-            <a mat-stroked-button color="accent" class="upgrade-button"
-                routerLink="/upgrade">
-                Manage payment settings
+        <div class="user-settings__section-heading">
+            <strong>Email:</strong>
+            <button mat-button color="primary" class="user-settings__button"
+                [disabled]="!currentUser.isActive"
+                (click)="changeEmail()">
+                Change email
+            </button>
+        </div>
+        <span class="user-settings__value">{{currentUser.email}}</span>
+
+        <div class="user-settings__section-heading">
+            <strong>Password:</strong>
+            <a mat-button routerLink="/change-password" color="primary" class="user-settings__button">
+                Change password
             </a>
-        </ng-template>-->
+        </div>
+        <span class="user-settings__value">********</span>
 
-        <div class="stripe-button">
-            <a *ngIf="currentUser.portal_link; else updgadePageLink" mat-stroked-button color="accent"
+
+        <div class="user-settings__section-heading">
+            <strong>Current plan:</strong>
+            <a *ngIf="currentUser.portal_link; else updgadePageLink" mat-button color="accent"
                 class="upgrade-button"
                 [href]="currentUser.portal_link" target="_blank">
                 Manage payment settings
             </a>
             <ng-template #updgadePageLink>
-                <a mat-stroked-button color="accent" class="upgrade-button"
+                <a mat-button color="accent" class="upgrade-button"
                     routerLink="/upgrade">
                     Manage payment settings
                 </a>
             </ng-template>
         </div>
-
+        <span class="user-settings__value"><span class="user-settings__value_capitalized">{{currentPlan}}</span> ({{ isAnnually ? 'annually' : 'monthly' }})</span>
 
     </div>
 

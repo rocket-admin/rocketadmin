@@ -97,6 +97,7 @@ import { WidgetDeleteDialogComponent } from './components/dashboard/db-table-wid
 import { environment } from '../environments/environment';
 import { ActionDeleteDialogComponent } from './components/dashboard/db-table-actions/action-delete-dialog/action-delete-dialog.component';
 import { UpgradeSuccessComponent } from './components/upgrade-success/upgrade-success.component';
+import { AccountPasswordConfirmationComponent } from './components/user-settings/account-password-confirmation/account-password-confirmation.component';
 
 const saasExtraProviders = (environment as any).saas ? [
   {
@@ -187,7 +188,8 @@ const saasExtraProviders = (environment as any).saas ? [
     DbTableActionsComponent,
     UserPasswordComponent,
     ActionDeleteDialogComponent,
-    UpgradeSuccessComponent
+    UpgradeSuccessComponent,
+    AccountPasswordConfirmationComponent
   ],
   entryComponents: [
     DbRowDeleteDialogComponent,
