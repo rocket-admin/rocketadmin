@@ -5,7 +5,7 @@ import { getSubscriptionLevelFromPriceId } from './get-subscription-level-from-p
 
 export async function getCurrentUserSubscription(userStripeId: string): Promise<SubscriptionLevelEnum> {
   if (process.env.NODE_ENV === 'test' || !isSaaS()) return;
-  if(!userStripeId){
+  if (!userStripeId) {
     return SubscriptionLevelEnum.FREE_PLAN;
   }
   const stripe = getStripe();
