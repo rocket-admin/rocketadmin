@@ -30,7 +30,6 @@ import {
   ITestConnectResult,
 } from '../shared/data-access-object-interface';
 
-@Injectable({ scope: Scope.REQUEST })
 export class DataAccessObjectMysql extends BasicDao implements IDataAccessObject {
   private readonly connection: ConnectionEntity;
   constructor(connection: ConnectionEntity) {
@@ -511,7 +510,7 @@ export class DataAccessObjectMysql extends BasicDao implements IDataAccessObject
       return availableFields;
     }
     const excludedFields = settings.excluded_fields;
-    
+
     if (settings.list_fields && settings.list_fields.length > 0) {
       if (!compareArrayElements(settings.list_fields, fieldsFromStructure)) {
         availableFields = [...settings.list_fields, ...fieldsFromStructure];

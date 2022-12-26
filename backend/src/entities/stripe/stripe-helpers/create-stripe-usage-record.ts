@@ -10,7 +10,7 @@ export async function createStripeUsageRecord(
   ownerSubscriptionLevel: SubscriptionLevelEnum,
   numberOfUsers: number,
 ): Promise<void> {
-  if(!isSaaS()){
+  if(!isSaaS() || ownerSubscriptionLevel === SubscriptionLevelEnum.FREE_PLAN){
     return;
   }
   const stripe = getStripe();

@@ -75,8 +75,7 @@ export const customConnectionRepositoryExtension: IConnectionRepository = {
       .leftJoinAndSelect('group.connection', 'connection')
       .andWhere('connection.id = :connectionId', {
         connectionId: connectionId,
-      })
-      .andWhere('connection.author is not null');
+      });
     return await usersQb.getMany();
   },
 
