@@ -54,7 +54,7 @@ export class AddUserInGroupUseCase
       return userInConnection.id === foundUser.id;
     });
 
-    if (!canInviteMoreUsers) {
+    if (!canInviteMoreUsers && !newUserAlreadyInConnection) {
       throw new HttpException(
         {
           message: Messages.MAXIMUM_FREE_INVITATION_REACHED,
@@ -90,7 +90,7 @@ export class AddUserInGroupUseCase
     if (foundUser && !foundUser.isActive) {
       const savedInvitation = await this._dbContext.userInvitationRepository.createOrUpdateInvitationEntity(
         foundUser,
-        ownerId,
+        null,
       );
       const userAlreadyAdded = !!foundGroup.users.find((u) => u.id === foundUser.id);
       if (!userAlreadyAdded) {
