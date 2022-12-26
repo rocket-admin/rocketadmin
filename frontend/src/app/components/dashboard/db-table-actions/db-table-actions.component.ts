@@ -22,6 +22,7 @@ export class DbTableActionsComponent implements OnInit {
   public actions: CustomAction[];
   public submitting: boolean;
   public selectedAction: CustomAction = null;
+  public updatedActionTitle: string;
   public newAction: CustomAction =null;
   public codeSnippet = '';
   public actionNameError: string;
@@ -323,6 +324,7 @@ app.listen(3000, () => console.log("Running on port 8000"));
     try {
       this.actions = await this.getActions();
       this.selectedAction = this.actions[0];
+      this.updatedActionTitle = this.selectedAction.title;
     } catch(error) {
       if (error instanceof HttpErrorResponse) {
         console.log(error.error.message);
@@ -335,7 +337,7 @@ app.listen(3000, () => console.log("Running on port 8000"));
         try {
           const undatedActions: CustomAction[] = await this.getActions();
           this.actions = unionBy(undatedActions, this.actions, "title");
-          this.selectedAction = this.actions[0];
+          this.setSelectedAction(this.actions[0]);
         } catch(error) {
           if (error instanceof HttpErrorResponse) {
             console.log(error.error.message);
@@ -370,8 +372,13 @@ app.listen(3000, () => console.log("Running on port 8000"));
     return index; // or item.id
   }
 
-  switchActionView(action: CustomAction) {
+  setSelectedAction(action: CustomAction) {
     this.selectedAction = action;
+    this.updatedActionTitle = action.title;
+  }
+
+  switchActionView(action: CustomAction) {
+    this.setSelectedAction(action);
   }
 
   openClearAllActions() {
@@ -397,6 +404,7 @@ app.listen(3000, () => console.log("Running on port 8000"));
       const conisidingName = this.actions.find((action: CustomAction) => action.title === this.newAction.title);
       if (!conisidingName) {
         this.selectedAction = {... this.newAction};
+        this.updatedActionTitle = this.selectedAction.title;
         this.actions.push(this.selectedAction);
         this.newAction = null;
       } else {
@@ -409,9 +417,10 @@ app.listen(3000, () => console.log("Running on port 8000"));
     console.log(actionTitle);
     if (actionTitle) {
       this.actions = this.actions.filter((action: CustomAction)  => action.title != actionTitle);
+      this.setSelectedAction(this.actions[0]);
     } else {
       this.newAction = null;
-      this.selectedAction = this.actions[0];
+      this.setSelectedAction(this.actions[0]);
     };
   }
 
@@ -429,7 +438,7 @@ app.listen(3000, () => console.log("Running on port 8000"));
           const undatedActions: CustomAction[] = await this.getActions();
           this.actions = unionBy(undatedActions, this.actions, "title");
           const currentAction = this.actions.find((action: CustomAction) => action.id === res.id);
-          this.selectedAction = currentAction;
+          this.setSelectedAction(currentAction);
         } catch(error) {
           if (error instanceof HttpErrorResponse) {
             console.log(error.error.message);
@@ -443,11 +452,13 @@ app.listen(3000, () => console.log("Running on port 8000"));
 
   updateAction() {
     this.submitting = true;
+    if (this.updatedActionTitle) this.selectedAction.title = this.updatedActionTitle;
     this._tables.updateAction(this.connectionID, this.tableName, this.selectedAction)
       .subscribe(async (res) => {
         this.submitting = false;
         try {
           const undatedActions: CustomAction[] = await this.getActions();
+          this.actions = this.actions.filter((action: CustomAction)  => action.title != this.selectedAction.id);
           this.actions = unionBy(undatedActions, this.actions, "title");
           const currentAction = this.actions.find((action: CustomAction) => action.id === res.id);
           this.selectedAction = {...currentAction};

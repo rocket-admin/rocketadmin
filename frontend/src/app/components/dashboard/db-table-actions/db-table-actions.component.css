@@ -80,7 +80,7 @@
     color: #ED4870;
 }
 
-.list-action-list-item_notSaved {
+.list-action-list-item_notSaved .mat-icon {
     color: #F9A825;
 }
 
