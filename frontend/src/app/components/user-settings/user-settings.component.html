@@ -8,7 +8,7 @@
 
     <div class="user-settings mat-body-1">
         <form class="user-settings__section-heading">
-            <mat-form-field appearance="outline" style="width: 100%">
+            <mat-form-field appearance="outline" class="user-settings__name">
                 <mat-label>Name</mat-label>
                 <input matInput [(ngModel)]="userName" name="user-name" #nameField="ngModel">
             </mat-form-field>
@@ -54,7 +54,13 @@
                 </a>
             </ng-template>
         </div>
-        <span class="user-settings__value"><span class="user-settings__value_capitalized">{{currentPlan}}</span> ({{ isAnnually ? 'annually' : 'monthly' }})</span>
+        <span class="user-settings__value">
+            <span class="user-settings__value_capitalized">{{currentPlan}}</span>
+            <span *ngIf="currentPlan !== 'free'">
+                ({{ isAnnually ? 'annually' : 'monthly' }})
+            </span>
+
+        </span>
 
     </div>
 

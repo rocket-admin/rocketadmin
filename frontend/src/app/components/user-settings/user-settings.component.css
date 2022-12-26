@@ -21,9 +21,13 @@
     gap: 12px;
 }
 
+.user-settings__name {
+    width: 100%
+}
+
 .user-settings__save-button {
-    margin-top: -24px;
-    margin-left: -88px;
+    margin-top: -16px;
+    margin-left: -84px;
 }
 
 .user-settings__value {
