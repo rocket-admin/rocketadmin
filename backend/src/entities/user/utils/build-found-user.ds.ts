@@ -11,6 +11,7 @@ export function buildFoundUserInGroupDs(user: UserEntity): FoundUserInGroupDs {
     email: user.email,
     createdAt: user.createdAt,
     isActive: user.isActive,
+    name: user.name,
   };
 }
 
