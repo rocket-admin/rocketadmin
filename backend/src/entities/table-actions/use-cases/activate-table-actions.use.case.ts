@@ -4,19 +4,18 @@ import AbstractUseCase from '../../../common/abstract-use.case';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface';
 import { BaseType } from '../../../common/data-injection.tokens';
 import { createDataAccessObject } from '../../../data-access-layer/shared/create-data-access-object';
-import { IPrimaryKey } from '../../../data-access-layer/shared/data-access-object-interface';
 import { LogOperationTypeEnum, OperationResultStatusEnum } from '../../../enums';
 import { Messages } from '../../../exceptions/text/messages';
 import { Encryptor } from '../../../helpers/encryption/encryptor';
 import { TableLogsService } from '../../table-logs/table-logs.service';
-import { ActivateTableActionDS } from '../application/data-sctructures/activate-table-action.ds';
-import { ActivatedTableActionDS } from '../application/data-sctructures/activated-table-action.ds';
-import { IActivateTableAction } from './table-actions-use-cases.interface';
+import { ActivateTableActionsDS } from '../application/data-sctructures/activate-table-actions.ds';
+import { ActivatedTableActionsDS } from '../application/data-sctructures/activated-table-action.ds';
+import { IActivateTableActions } from './table-actions-use-cases.interface';
 
 @Injectable()
-export class ActivateTableActionUseCase
-  extends AbstractUseCase<ActivateTableActionDS, ActivatedTableActionDS>
-  implements IActivateTableAction
+export class ActivateTableActionsUseCase
+  extends AbstractUseCase<ActivateTableActionsDS, ActivatedTableActionsDS>
+  implements IActivateTableActions
 {
   constructor(
     @Inject(BaseType.GLOBAL_DB_CONTEXT)
@@ -26,7 +25,7 @@ export class ActivateTableActionUseCase
     super();
   }
 
-  protected async implementation(inputData: ActivateTableActionDS): Promise<ActivatedTableActionDS> {
+  protected async implementation(inputData: ActivateTableActionsDS): Promise<ActivatedTableActionsDS> {
     let operationResult = OperationResultStatusEnum.unknown;
     const { actionId, request_body, connectionId, masterPwd, tableName, userId } = inputData;
     const foundTableAction = await this._dbContext.tableActionRepository.findTableActionById(actionId);
@@ -44,19 +43,30 @@ export class ActivateTableActionUseCase
     );
     const dataAccessObject = createDataAccessObject(foundConnection, userId);
     const tablePrimaryKeys = await dataAccessObject.getTablePrimaryColumns(tableName, null);
-    const primaryKeysObj = this.getPrimaryKeysFromBody(request_body, tablePrimaryKeys);
+    const primaryKeyValuesArray: Array<Record<string, unknown>> = [];
+    for (const primaryKeyInBody of request_body) {
+      for (const primaryKey of tablePrimaryKeys) {
+        const pKeysObj: Record<string, unknown> = {};
+        if (primaryKeyInBody.hasOwnProperty(primaryKey.column_name) && primaryKeyInBody[primaryKey.column_name]) {
+          pKeysObj[primaryKey.column_name] = primaryKeyInBody[primaryKey.column_name];
+          primaryKeyValuesArray.push(pKeysObj);
+        }
+      }
+    }
+
     const dateString = new Date().toISOString();
     const autoadminSignatureHeader = this.generateAutoadminSignature(
       foundConnection.signing_key,
-      primaryKeysObj,
+      primaryKeyValuesArray,
       actionId,
       dateString,
       tableName,
     );
+
     try {
       const result = await axios.post(
         foundTableAction.url,
-        { ...primaryKeysObj, $$_date: dateString, $$_actionId: actionId, $$_tableName: tableName },
+        { ...primaryKeyValuesArray, $$_date: dateString, $$_actionId: actionId, $$_tableName: tableName },
         {
           headers: { 'Rocketadmin-Signature': autoadminSignatureHeader },
         },
@@ -64,11 +74,11 @@ export class ActivateTableActionUseCase
       const operationStatusCode = result.status;
       if (operationStatusCode >= 200 && operationStatusCode < 300) {
         operationResult = OperationResultStatusEnum.successfully;
-        return;
+        return operationResult;
       }
       if (operationStatusCode >= 300 && operationStatusCode < 400) {
         operationResult = OperationResultStatusEnum.successfully;
-        return { location: result?.headers?.location };
+        return operationResult;
       }
       if (operationStatusCode >= 400 && operationStatusCode <= 599) {
         operationResult = OperationResultStatusEnum.unsuccessfully;
@@ -95,34 +105,23 @@ export class ActivateTableActionUseCase
         connection: foundConnection,
         operationType: LogOperationTypeEnum.actionActivated,
         operationStatusResult: operationResult,
-        row: primaryKeysObj,
+        row: { keys: primaryKeyValuesArray },
         old_data: null,
       };
       await this.tableLogsService.crateAndSaveNewLogUtil(logRecord);
     }
   }
-
-  private getPrimaryKeysFromBody(
-    body: Record<string, unknown>,
-    primaryKeys: Array<IPrimaryKey>,
-  ): Record<string, unknown> {
-    const pKeysObj: Record<string, unknown> = {};
-    for (const keyItem of primaryKeys) {
-      if (body.hasOwnProperty(keyItem.column_name) && body[keyItem.column_name]) {
-        pKeysObj[keyItem.column_name] = body[keyItem.column_name];
-      }
-    }
-    return pKeysObj;
-  }
-
   private generateAutoadminSignature(
     signingKey: string,
-    primaryKeys: Record<string, unknown>,
+    primaryKeys: Array<Record<string, unknown>>,
     actionId: string,
     dateString: string,
     tableName: string,
   ): string {
-    const stringifyedPKeys = this.objToString(primaryKeys);
+    let stringifyedPKeys: string;
+    for (const pKeys of primaryKeys) {
+      stringifyedPKeys = this.objToString(pKeys);
+    }
     const strTohash = dateString + '$$' + stringifyedPKeys + '$$' + actionId + '$$' + tableName;
     const hash = Encryptor.hashDataHMACexternalKey(signingKey, JSON.stringify(strTohash));
     return hash;

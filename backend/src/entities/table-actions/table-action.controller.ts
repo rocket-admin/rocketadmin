@@ -23,14 +23,17 @@ import { ConnectionEditGuard, ConnectionReadGuard } from '../../guards';
 import { validateStringWithEnum } from '../../helpers/validators/validate-string-with-enum';
 import { SentryInterceptor } from '../../interceptors';
 import { ActivateTableActionDS } from './application/data-sctructures/activate-table-action.ds';
+import { ActivateTableActionsDS } from './application/data-sctructures/activate-table-actions.ds';
+import { ActivatedTableActionsDS } from './application/data-sctructures/activated-table-action.ds';
 import { CreateTableActionDS } from './application/data-sctructures/create-table-action.ds';
 import { CreatedTableActionDS } from './application/data-sctructures/created-table-action.ds';
 import { FindTableActionsDS } from './application/data-sctructures/find-table-actions.ds';
 import { UpdateTableActionDS } from './application/data-sctructures/update-table-action.ds';
-import { CreateTableActionDTO } from './dto/create-table-action.dto';
+import { ActivateTableActionDTO, CreateTableActionDTO } from './dto/create-table-action.dto';
 import { UpdateTableActionDTO } from './dto/update-table-action.dto';
 import {
   IActivateTableAction,
+  IActivateTableActions,
   ICreateTableAction,
   IDeleteTableAction,
   IFindAllTableActions,
@@ -51,6 +54,8 @@ export class TableActionsController {
     private readonly findTableActionsUseCase: IFindAllTableActions,
     @Inject(UseCaseType.ACTIVATE_TABLE_ACTION)
     private readonly activateTableActionUseCase: IActivateTableAction,
+    @Inject(UseCaseType.ACTIVATE_TABLE_ACTIONS)
+    private readonly activateTableActionsUseCase: IActivateTableActions,
     @Inject(UseCaseType.UPDATE_TABLE_ACTION)
     private readonly updateTableActionUseCase: IUpdateTableAction,
     @Inject(UseCaseType.DELETE_TABLE_ACTION)
@@ -84,9 +89,7 @@ export class TableActionsController {
   @ApiBody({ type: CreateTableActionDTO })
   @UseGuards(ConnectionReadGuard)
   @Get('/table/action/:slug')
-  async findTableAction(
-    @Query('actionId') actionId: string,
-  ): Promise<CreatedTableActionDS> {
+  async findTableAction(@Query('actionId') actionId: string): Promise<CreatedTableActionDS> {
     if (!validator.isUUID) {
       throw new HttpException(
         {
@@ -160,7 +163,7 @@ export class TableActionsController {
 
   @ApiOperation({ summary: 'Activate table action' })
   @ApiResponse({ status: 201, description: 'Table action successfully activated' })
-  @ApiBody({ type: CreateTableActionDTO })
+  @ApiBody({ type: ActivateTableActionDTO })
   @UseGuards(ConnectionReadGuard)
   @Post('/table/action/activate/:slug')
   async activateAction(
@@ -170,7 +173,7 @@ export class TableActionsController {
     @QueryTableName() tableName: string,
     @Query('actionId') actionId: string,
     @Body() body: Record<string, unknown>,
-  ): Promise<void | { location: string } > {
+  ): Promise<void | { location: string }> {
     const inputData: ActivateTableActionDS = {
       connectionId: connectionId,
       masterPwd: masterPwd,
@@ -181,6 +184,31 @@ export class TableActionsController {
     };
 
     return await this.activateTableActionUseCase.execute(inputData, InTransactionEnum.OFF);
+  }
+
+  @ApiOperation({ summary: 'Activate table actions' })
+  @ApiResponse({ status: 201, description: 'Table actions successfully activated' })
+  @ApiBody({ type: ActivateTableActionDTO })
+  @UseGuards(ConnectionReadGuard)
+  @Post('/table/actions/activate/:slug')
+  async activateActions(
+    @SlugUuid() connectionId: string,
+    @UserId() userId: string,
+    @MasterPassword() masterPwd: string,
+    @QueryTableName() tableName: string,
+    @Query('actionId') actionId: string,
+    @Body() body: Array<Record<string, unknown>>,
+  ): Promise<ActivatedTableActionsDS> {
+    const inputData: ActivateTableActionsDS = {
+      connectionId: connectionId,
+      masterPwd: masterPwd,
+      userId: userId,
+      tableName: tableName,
+      actionId: actionId,
+      request_body: body,
+    };
+
+    return await this.activateTableActionsUseCase.execute(inputData, InTransactionEnum.OFF);
   }
 
   private validateTableAction(tableAction: CreateTableActionDS | UpdateTableActionDS): void {
