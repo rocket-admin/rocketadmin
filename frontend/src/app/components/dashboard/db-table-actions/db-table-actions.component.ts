@@ -336,7 +336,7 @@ app.listen(3000, () => console.log("Running on port 8000"));
         try {
           const undatedActions: CustomAction[] = await this.getActions();
           this.actions = unionBy(undatedActions, this.actions, "title");
-          this.setSelectedAction(this.actions[0]);
+          if (this.actions.length) this.setSelectedAction(this.actions[0]);
         } catch(error) {
           if (error instanceof HttpErrorResponse) {
             console.log(error.error.message);
@@ -413,10 +413,9 @@ app.listen(3000, () => console.log("Running on port 8000"));
   }
 
   removeAction(actionTitle?: string) {
-    console.log(actionTitle);
     if (actionTitle) {
       this.actions = this.actions.filter((action: CustomAction)  => action.title != actionTitle);
-      this.setSelectedAction(this.actions[0]);
+      if (this.actions.length) this.setSelectedAction(this.actions[0]);
     } else {
       this.newAction = null;
       this.setSelectedAction(this.actions[0]);
