@@ -8,6 +8,7 @@ import { UserEntity } from '../user/user.entity';
 import { TableActionsController } from './table-action.controller';
 import { TableActionEntity } from './table-action.entity';
 import { ActivateTableActionUseCase } from './use-cases/activate-table-action.use.case';
+import { ActivateTableActionsUseCase } from './use-cases/activate-table-actions.use.case';
 import { CreateTableActionUseCase } from './use-cases/create-table-action.use.case';
 import { DeleteTableActionUseCase } from './use-cases/delete-table-action.use.case';
 import { FindTableActionsUseCase } from './use-cases/find-all-table-actions.use.case';
@@ -34,6 +35,10 @@ import { UpdateTableActionUseCase } from './use-cases/update-table-action.use.ca
       useClass: ActivateTableActionUseCase,
     },
     {
+      provide: UseCaseType.ACTIVATE_TABLE_ACTIONS,
+      useClass: ActivateTableActionsUseCase,
+    },
+    {
       provide: UseCaseType.UPDATE_TABLE_ACTION,
       useClass: UpdateTableActionUseCase,
     },
@@ -57,6 +62,7 @@ export class TableActionModule implements NestModule {
         { path: '/table/action/:slug', method: RequestMethod.GET },
         { path: '/table/action/:slug', method: RequestMethod.POST },
         { path: '/table/action/activate/:slug', method: RequestMethod.POST },
+        { path: '/table/actions/activate/:slug', method: RequestMethod.POST },
         { path: '/table/action/:slug', method: RequestMethod.PUT },
         { path: '/table/action/:slug', method: RequestMethod.DELETE },
       );

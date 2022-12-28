@@ -17,3 +17,7 @@ export class CreateTableActionDTO {
   @ApiProperty()
   icon: string;
 }
+
+export class ActivateTableActionDTO {
+
+}
