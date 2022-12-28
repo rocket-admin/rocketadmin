@@ -365,14 +365,15 @@ test(`${currentTest} should return connection without deleted group result`, asy
 
     t.is(response.status, 200);
     result = JSON.parse(response.text);
-    console.log("🚀 ~ file: user-admin-permissions-e2e.test.ts:369 ~ test ~ result", result)
     t.is(result.length, 1);
     const groupId = result[0].group.id;
     t.is(uuidRegex.test(groupId), true);
     t.is(result[0].group.hasOwnProperty('title'), true);
     t.is(result[0].accessLevel, AccessLevelEnum.edit);
 
-    const index = result.indexOf((el: any) => el.group.title === 'Admin');
+    const index = result.findIndex((el: any) => {
+      return el.group.title === 'Admin';
+    });
 
     t.is(index >= 0, true);
   } catch (error) {
@@ -441,13 +442,12 @@ test(`${currentTest} return should groups in connection`, async (t) => {
 
     t.is(response.status, 200);
     const result = JSON.parse(response.text);
-    console.log('🚀 ~ file: user-admin-permissions-e2e.test.ts:440 ~ test ~ result', result);
     const groupId = result[0].group.id;
     t.is(uuidRegex.test(groupId), true);
     t.is(result[1].group.hasOwnProperty('title'), true);
     t.is(result[0].accessLevel, AccessLevelEnum.edit);
 
-    const index = result.indexOf((el: any) => el.group.title === 'Admin');
+    const index = result.findIndex((el: any) => el.group.title === 'Admin');
 
     t.is(index >= 0, true);
   } catch (error) {
@@ -601,7 +601,7 @@ test(`${currentTest} should return permissions object for current group in curre
     const testData = await createConnectionsAndInviteNewUserInAdminGroupOfFirstConnection(app);
 
     const getGroupsResponse = await request(app.getHttpServer())
-      .get(`/connection/groups/${testData.connections.firstId}`)
+      .get(`/connection/groups/${testData.connections.secondId}`)
       .set('Cookie', testData.users.adminUserToken)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
@@ -611,7 +611,7 @@ test(`${currentTest} should return permissions object for current group in curre
     const groupId = getGroupsRO[0].group.id;
 
     const response = await request(app.getHttpServer())
-      .get(`/connection/user/permissions?connectionId=${testData.connections.firstId}&groupId=${groupId}`)
+      .get(`/connection/user/permissions?connectionId=${testData.connections.secondId}&groupId=${groupId}`)
       .set('Cookie', testData.users.simpleUserToken)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
@@ -624,14 +624,14 @@ test(`${currentTest} should return permissions object for current group in curre
     t.is(result.hasOwnProperty('tables'), true);
     t.is(typeof result.connection, 'object');
     t.is(typeof result.group, 'object');
-    t.is(result.connection.connectionId, testData.connections.firstId);
+    t.is(result.connection.connectionId, testData.connections.secondId);
     t.is(result.group.groupId, groupId);
     t.is(result.connection.accessLevel, AccessLevelEnum.none);
     t.is(result.group.accessLevel, AccessLevelEnum.none);
     t.is(typeof result.tables, 'object');
 
     const { tables } = result;
-    const tableIndex = tables.findIndex((table) => table.tableName === testData.firstTableInfo.testTableName);
+    const tableIndex = tables.findIndex((table) => table.tableName === testData.secondTableInfo.testTableName);
     t.is(tables.length > 0, true);
     t.is(typeof tables[0], 'object');
     t.is(tables[tableIndex].hasOwnProperty('accessLevel'), true);
@@ -1000,7 +1000,6 @@ test(`${currentTest} should return group without deleted user`, async (t) => {
       .send({ groupId, email })
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
-    console.log("🚀 ~ file: user-admin-permissions-e2e.test.ts:1004 ~ test ~ addUserInGroupResponse", addUserInGroupResponse.text)
     t.is(addUserInGroupResponse.status, 200);
 
     const deleteUserInGroupResponse = await request(app.getHttpServer())
@@ -1080,7 +1079,6 @@ test(`${currentTest} should throw exception, when group id not passed in request
       .send({ groupId, email })
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
-    console.log("🚀 ~ file: user-admin-permissions-e2e.test.ts:1084 ~ test ~ addUserInGroupResponse", addUserInGroupResponse.text)
 
     t.is(addUserInGroupResponse.status, 200);
 
@@ -1118,7 +1116,6 @@ test(`${currentTest} should throw exception, when group id passed in request is 
       .send({ groupId, email })
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
-    console.log("🚀 ~ file: user-admin-permissions-e2e.test.ts:1122 ~ test ~ addUserInGroupResponse", addUserInGroupResponse.text)
 
     t.is(addUserInGroupResponse.status, 200);
 
@@ -3279,7 +3276,9 @@ test(`${currentTest} should throw an exception when you try update settings in c
     );
 
     const updateTableSettingsResponse = await request(app.getHttpServer())
-      .put(`/settings?connectionId=${testData.connections.secondId}&tableName=${testData.secondTableInfo.testTableName}`)
+      .put(
+        `/settings?connectionId=${testData.connections.secondId}&tableName=${testData.secondTableInfo.testTableName}`,
+      )
       .send(updateTableSettingsDTO)
       .set('Cookie', testData.users.simpleUserToken)
       .set('Content-Type', 'application/json')
