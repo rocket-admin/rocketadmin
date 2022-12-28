@@ -323,8 +323,7 @@ app.listen(3000, () => console.log("Running on port 8000"));
 
     try {
       this.actions = await this.getActions();
-      this.selectedAction = this.actions[0];
-      this.updatedActionTitle = this.selectedAction.title;
+      if (this.actions.length) this.setSelectedAction(this.actions[0]);
     } catch(error) {
       if (error instanceof HttpErrorResponse) {
         console.log(error.error.message);

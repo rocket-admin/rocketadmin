@@ -22,7 +22,7 @@
             <button mat-list-item *ngFor="let action of actions; let i = index"
             class="list-action-list-item"
             [ngClass]="{
-                'list-action-list-item_active': action.title === selectedAction.title,
+                'list-action-list-item_active': selectedAction && action.title === selectedAction.title,
                 'list-action-list-item_notSaved': action.id === ''
             }"
             (click)="switchActionView(action)">
