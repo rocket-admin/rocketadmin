@@ -13,6 +13,7 @@ import amplitude from 'amplitude-js';
 import { differenceInMilliseconds } from 'date-fns';
 import { normalizeTableName } from './lib/normalize';
 import { environment } from '../environments/environment';
+import 'rxjs/add/observable/interval';
 
 //@ts-ignore
 window.amplitude = amplitude;
@@ -119,15 +120,6 @@ export class AppComponent {
           .subscribe(res => {
               this.currentUser = res;
               this.setUserLoggedIn(true);
-
-              // @ts-ignore
-              if (typeof window.Intercom !== 'undefined') window.Intercom("boot", {
-                // @ts-ignore
-                ...window.intercomSettings,
-                user_hash: res.intercom_hash,
-                user_id: res.id,
-                email: res.email
-              });
               this.router.navigate(['/connections-list'])
             }
         )
@@ -146,17 +138,11 @@ export class AppComponent {
           const expirationInterval = differenceInMilliseconds(expirationTime, currantTime);
           if (expirationInterval > 0) {
             this._user.fetchUser()
+              .interval(2*60*1000)
+              .timeInterval()
               .subscribe(res => {
                   this.currentUser = res;
                   this.setUserLoggedIn(true);
-                  // @ts-ignore
-                  if (typeof window.Intercom !== 'undefined') window.Intercom("boot", {
-                    // @ts-ignore
-                    ...window.intercomSettings,
-                    user_hash: res.intercom_hash,
-                    user_id: res.id,
-                    email: res.email
-                  });
                 }
             );
 
@@ -200,6 +186,15 @@ export class AppComponent {
   setUserLoggedIn(state) {
     this.userLoggedIn = state;
     this.changeDetector.detectChanges();
+
+    // @ts-ignore
+    if (typeof window.Intercom !== 'undefined') window.Intercom("boot", {
+      // @ts-ignore
+      ...window.intercomSettings,
+      user_hash: this.currentUser.intercom_hash,
+      user_id: this.currentUser.id,
+      email: this.currentUser.email
+    });
   }
 
   logOut(isTokenExpired?: boolean) {

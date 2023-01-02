@@ -7,6 +7,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { User } from 'src/app/models/user';
 import { UserService } from 'src/app/services/user.service';
 import { AccountPasswordConfirmationComponent } from './account-password-confirmation/account-password-confirmation.component';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-user-settings',
@@ -36,6 +37,7 @@ export class UserSettingsComponent implements OnInit {
     private _userService: UserService,
     private _authService: AuthService,
     public dialog: MatDialog,
+    public router: Router
   ) {}
 
   ngOnInit(): void {
@@ -84,5 +86,19 @@ export class UserSettingsComponent implements OnInit {
       width: '25em',
       data: this.userName
     })
+  }
+
+  requestPortalLink(e) {
+    this._userService.fetchUser()
+      .subscribe(user => {
+        this.currentUser = user;
+        if (user.portal_link) {
+          e.preventDefault();
+          // window.location.href = user.portal_link;
+          window.open(user.portal_link, '_blank');
+        } else {
+          this.router.navigate(['/upgrade']);
+        }
+      })
   }
 }

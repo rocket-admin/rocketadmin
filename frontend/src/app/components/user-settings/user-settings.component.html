@@ -42,17 +42,12 @@
 
         <div class="user-settings__section-heading">
             <strong>Current plan:</strong>
-            <a *ngIf="currentUser.portal_link; else updgadePageLink" mat-button color="accent"
+            <a *ngIf="currentUser" mat-button color="accent"
                 class="upgrade-button"
-                [href]="currentUser.portal_link" target="_blank">
+                [target]="currentUser.portal_link ? '_blank' : '_self'"
+                (click)="requestPortalLink($event)">
                 Manage payment settings
             </a>
-            <ng-template #updgadePageLink>
-                <a mat-button color="accent" class="upgrade-button"
-                    routerLink="/upgrade">
-                    Manage payment settings
-                </a>
-            </ng-template>
         </div>
         <span class="user-settings__value">
             <span class="user-settings__value_capitalized">{{currentPlan}}</span>
@@ -63,6 +58,8 @@
         </span>
 
     </div>
+
+    {{currentUser|json}}
 
     <button mat-button class="delete-button"
         type="button"
