@@ -25,7 +25,7 @@ export class BooleanComponent implements OnInit {
   ngOnInit(): void {
     if (this.value) {
       this.value = true;
-    } else if (this.value === 0) {
+    } else if (this.value === 0 || this.value === '') {
       this.value = false;
     } else {
       this.value = null;

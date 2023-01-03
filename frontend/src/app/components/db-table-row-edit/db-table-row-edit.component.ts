@@ -68,19 +68,27 @@ export class DbTableRowEditComponent implements OnInit {
           .subscribe(res => {
             this.readonlyFields = res.readonly_fields;
             this.tableForeignKeys = res.foreignKeys;
+            this.setRowStructure(res.structure);
+            res.table_widgets && this.setWidgets(res.table_widgets);
             this.shownRows = res.structure.filter((field: TableField) => !field.auto_increment);
             const allowNullFields = res.structure
               .filter((field: TableField) => field.allow_null)
               .map((field: TableField) => field.column_name);
-            this.tableRowValues = Object.assign({}, ...this.shownRows.map((field: TableField) => ({[field.column_name]: allowNullFields.includes(field.column_name) ? null : ''})));
+            this.tableRowValues = Object.assign({}, ...this.shownRows
+              .map((field: TableField) => {
+                if (allowNullFields.includes(field.column_name)) {
+                  return { [field.column_name]: null }
+                } else if (this.tableTypes[field.column_name] === 'boolean') {
+                  return { [field.column_name]: false }
+                };
+                return {[field.column_name]: ''};
+              }));
             if (res.list_fields.length) {
               const shownFieldsList = this.shownRows.map((field: TableField) => field.column_name);
               this.fieldsOrdered = [...res.list_fields].filter(field => shownFieldsList.includes(field));
             } else {
               this.fieldsOrdered = Object.keys(this.tableRowValues).map(key => key);
             }
-            res.table_widgets && this.setWidgets(res.table_widgets);
-            this.setRowStructure(res.structure);
             this.loading = false;
           })
       } else {
@@ -183,8 +191,6 @@ export class DbTableRowEditComponent implements OnInit {
   }
 
   isWidget(columnName: string) {
-    console.log('isWidget');
-    console.log(columnName);
     return this.tableWidgetsList.includes(columnName);
   }
 
