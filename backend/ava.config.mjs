@@ -8,5 +8,6 @@ export default  {
   ],
   require: [
     "ts-node/register"
-  ]
+  ],
+  workerThreads: false,
 }

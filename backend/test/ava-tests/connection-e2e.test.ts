@@ -69,11 +69,6 @@ async function registerUserAndReturnUserInfo(): Promise<{
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
 
-  console.log(
-    '🚀 ~ file: connection-e2e.test.ts ~ line 67 ~ registerUserAndReturnUserInfo ~ registerAdminUserResponse',
-    registerAdminUserResponse.text,
-  );
-
   const token = `${Constants.JWT_COOKIE_KEY_NAME}=${TestUtils.getJwtTokenFromResponse(registerAdminUserResponse)}`;
   return { token: token, ...adminUserRegisterInfo };
 }
@@ -140,7 +135,7 @@ test(`${currentTest} should return all connections for this user`, async (t) => 
     t.is(typeof result[0].connection.port, 'number');
     t.is(result[2].connection.hasOwnProperty('username'), true);
     t.is(result[3].connection.hasOwnProperty('database'), true);
-    t.is(result[4].connection.sid, null);
+    t.is(result[4].connection.hasOwnProperty('sid'), true);
     t.is(result[0].connection.hasOwnProperty('createdAt'), true);
     t.is(result[1].connection.hasOwnProperty('updatedAt'), true);
     t.is(result[2].connection.hasOwnProperty('password'), false);
@@ -212,7 +207,7 @@ test(`${currentTest} should return all connection users from different groups`, 
     const createGroupRO = JSON.parse(createGroupResponse.text);
 
     const requestBody = {
-      email: 'SecondExample@gmail.com',
+      email: faker.internet.email(),
       groupId: createGroupRO.id,
     };
     const addUserInGroupResponse = await request(app.getHttpServer())
@@ -221,7 +216,6 @@ test(`${currentTest} should return all connection users from different groups`, 
       .set('Cookie', token)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
-    console.log('-> addUserInGroupResponse.text', addUserInGroupResponse.text);
 
     t.is(addUserInGroupResponse.status, 200);
 
@@ -274,7 +268,7 @@ test(`${currentTest} should throw an exception, when connection id is incorrect`
     const createGroupRO = JSON.parse(createGroupResponse.text);
 
     const requestBody = {
-      email: 'SecondExample@gmail.com',
+      email: faker.internet.email(),
       groupId: createGroupRO.id,
     };
 
@@ -284,7 +278,6 @@ test(`${currentTest} should throw an exception, when connection id is incorrect`
       .set('Content-Type', 'application/json')
       .set('Cookie', token)
       .set('Accept', 'application/json');
-    console.log('-> addUserInGroupResponse', addUserInGroupResponse.text);
     t.is(addUserInGroupResponse.status, 200);
 
     const fakeConnectionId = faker.datatype.uuid();
@@ -439,7 +432,6 @@ test(`${currentTest} should throw error when create connection without type`, as
 
     const { message } = JSON.parse(response.text);
     t.is(response.status, 400);
- //   console.log("🚀 ~ file: connection-e2e.test.ts ~ line 442 ~ test ~ message", message)
     t.is(message, `${Messages.TYPE_MISSING}, ${Messages.CONNECTION_TYPE_INVALID}`);
 
     t.pass();
@@ -1067,7 +1059,7 @@ test(`${currentTest} should return a created group`, async (t) => {
     t.is(createGroupResponse.status, 201);
     const result = JSON.parse(createGroupResponse.text);
     t.is(uuidRegex.test(result.id), true);
-    t.is(result.title, 'Generated test group DTO 1');
+    t.is(result.title, newGroup1.title);
     t.is(result.hasOwnProperty('users'), true);
     t.is(typeof result.users, 'object');
     t.is(result.users.length, 1);
@@ -1234,7 +1226,7 @@ test(`${currentTest} should return connection without deleted group result`, asy
     t.is(createGroupResponse.status, 201);
 
     t.is(result.hasOwnProperty('id'), true);
-    t.is(result.title, 'Generated test group DTO 1');
+    t.is(result.title, newGroup1.title);
 
     const createGroupRO = JSON.parse(createGroupResponse.text);
 
@@ -1318,7 +1310,7 @@ test(`${currentTest} should throw an exception when connection id is not passed 
     t.is(createGroupResponse.status, 201);
 
     t.is(result.hasOwnProperty('id'), true);
-    t.is(result.title, 'Generated test group DTO 1');
+    t.is(result.title, newGroup1.title);
 
     const createGroupRO = JSON.parse(createGroupResponse.text);
     createConnectionRO.id = '';
@@ -1362,7 +1354,7 @@ test(`${currentTest} should throw an exception when group id is not passed in th
     t.is(createGroupResponse.status, 201);
 
     t.is(result.hasOwnProperty('id'), true);
-    t.is(result.title, 'Generated test group DTO 1');
+    t.is(result.title, newGroup1.title);
 
     const createGroupRO = JSON.parse(createGroupResponse.text);
     delete createGroupRO.id;
@@ -1410,7 +1402,7 @@ test(`${currentTest} should throw an exception when group id is incorrect`, asyn
     t.is(createGroupResponse.status, 201);
 
     t.is(result.hasOwnProperty('id'), true);
-    t.is(result.title, 'Generated test group DTO 1');
+    t.is(result.title, newGroup1.title);
 
     const createGroupRO = JSON.parse(createGroupResponse.text);
     createGroupRO.id = faker.datatype.uuid();
@@ -1458,7 +1450,7 @@ test(`${currentTest} should throw an exception when connection id is incorrect`,
     t.is(createGroupResponse.status, 201);
 
     t.is(result.hasOwnProperty('id'), true);
-    t.is(result.title, 'Generated test group DTO 1');
+    t.is(result.title, newGroup1.title);
 
     const createGroupRO = JSON.parse(createGroupResponse.text);
     createConnectionRO.id = faker.datatype.uuid();

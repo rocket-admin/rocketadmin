@@ -10,7 +10,7 @@ export async function registerUserAndReturnUserInfo(app: INestApplication): Prom
   password: string;
 }> {
   const userRegisterInfo: RegisterUserData = {
-    email: faker.internet.email(),
+    email: `${faker.random.words(1)}_${faker.random.words(1)}_${faker.internet.email()}`,
     password: 'ahalai-mahalai',
   };
 
