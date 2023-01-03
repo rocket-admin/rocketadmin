@@ -751,7 +751,7 @@ test(`${currentTest} should return group with added user`, async (t) => {
     const getGroupsRO = JSON.parse(getGroupsResponse.text);
 
     const groupId = getGroupsRO[0].group.id;
-    const email = TestConstants.THIRD_TEST_USER.email;
+    const email = faker.internet.email();
     const addUserInGroupResponse = await request(app.getHttpServer())
       .put('/group/user')
       .set('Cookie', testData.users.simpleUserToken)
@@ -816,7 +816,7 @@ test(`${currentTest} should throw exception, when group id not passed in request
     const getGroupsRO = JSON.parse(getGroupsResponse.text);
 
     const groupId = getGroupsRO[0].group.id;
-    const email = TestConstants.THIRD_TEST_USER.email;
+    const email = faker.internet.email();
     const addUserInGroupResponse = await request(app.getHttpServer())
       .put('/group/user')
       .set('Cookie', testData.users.simpleUserToken)
@@ -845,7 +845,7 @@ test(`${currentTest} should throw exception, when group id passed in request is 
     t.is(getGroupsResponse.status, 200);
     const getGroupsRO = JSON.parse(getGroupsResponse.text);
 
-    const email = TestConstants.THIRD_TEST_USER.email;
+    const email = faker.internet.email();
     const groupId = faker.datatype.uuid();
     const addUserInGroupResponse = await request(app.getHttpServer())
       .put('/group/user')
@@ -993,7 +993,7 @@ test(`${currentTest} should return group without deleted user`, async (t) => {
     const getGroupsRO = JSON.parse(getGroupsResponse.text);
 
     const groupId = getGroupsRO[0].group.id;
-    const email = TestConstants.THIRD_TEST_USER.email;
+    const email = faker.internet.email();
     const addUserInGroupResponse = await request(app.getHttpServer())
       .put('/group/user')
       .set('Cookie', testData.users.simpleUserToken)
@@ -1035,7 +1035,7 @@ test(`${currentTest} should throw exception, when user email not passed in reque
     const getGroupsRO = JSON.parse(getGroupsResponse.text);
 
     const groupId = getGroupsRO[0].group.id;
-    const email = TestConstants.THIRD_TEST_USER.email;
+    const email = faker.internet.email();
     const addUserInGroupResponse = await request(app.getHttpServer())
       .put('/group/user')
       .set('Cookie', testData.users.simpleUserToken)
@@ -1072,7 +1072,7 @@ test(`${currentTest} should throw exception, when group id not passed in request
 
     const groupId = getGroupsRO[0].group.id;
 
-    const email = TestConstants.THIRD_TEST_USER.email;
+    const email = faker.internet.email();
     const addUserInGroupResponse = await request(app.getHttpServer())
       .put('/group/user')
       .set('Cookie', testData.users.simpleUserToken)
@@ -1109,7 +1109,7 @@ test(`${currentTest} should throw exception, when group id passed in request is 
     const getGroupsRO = JSON.parse(getGroupsResponse.text);
 
     let groupId = getGroupsRO[0].group.id;
-    const email = TestConstants.THIRD_TEST_USER.email;
+    const email = faker.internet.email();
     const addUserInGroupResponse = await request(app.getHttpServer())
       .put('/group/user')
       .set('Cookie', testData.users.simpleUserToken)

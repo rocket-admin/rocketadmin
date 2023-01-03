@@ -1,5 +1,5 @@
-import { UserInvitationEntity } from '../user-invitation.entity';
 import { UserEntity } from '../../user.entity';
+import { UserInvitationEntity } from '../user-invitation.entity';
 
 export interface IUserInvitationRepository {
   createOrUpdateInvitationEntity(user: UserEntity, connectionOwnerId: string): Promise<UserInvitationEntity>;

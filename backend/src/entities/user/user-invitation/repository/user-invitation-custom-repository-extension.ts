@@ -1,3 +1,4 @@
+import { Repository } from 'typeorm';
 import { Constants } from '../../../../helpers/constants/constants';
 import { Encryptor } from '../../../../helpers/encryption/encryptor';
 import { UserEntity } from '../../user.entity';

@@ -297,7 +297,7 @@ test(`${currentTest} should return a group with new added user`, async (t) => {
     t.is(findAllUsersInGroup.status, 200);
 
     t.is(uuidRegex.test(result.id), true);
-    t.is(result.title, 'Generated test group DTO 1');
+    t.is(result.title, newGroup1.title);
     t.is(result.users.length, 2);
     t.is(typeof result.users[1], 'object');
     t.is(uuidRegex.test(result.users[0].id), true);
@@ -752,7 +752,7 @@ test(`${currentTest} should return a group without deleted user`, async (t) => {
     t.is(addUserInGroup.status, 200);
     let result = JSON.parse(addUserInGroup.text).group;
     t.is(uuidRegex.test(result.id), true);
-    t.is(result.title, 'Generated test group DTO 1');
+    t.is(result.title, newGroup1.title);
     t.is(result.users.length, 2);
     t.is(typeof result.users[1], 'object');
     t.is(uuidRegex.test(result.users[0].id), true);
@@ -769,7 +769,7 @@ test(`${currentTest} should return a group without deleted user`, async (t) => {
     result = JSON.parse(removeUserFromGroup.text);
 
     t.is(typeof result, 'object');
-    t.is(result.title, 'Generated test group DTO 1');
+    t.is(result.title, newGroup1.title);
     t.is(uuidRegex.test(result.id), true);
     t.is(result.hasOwnProperty('users'), true);
     t.is(typeof result.users, 'object');
@@ -831,7 +831,7 @@ test(`${currentTest} should throw an error, when group id not passed in request`
     t.is(addUserInGroup.status, 200);
     const result = JSON.parse(addUserInGroup.text).group;
     t.is(uuidRegex.test(result.id), true);
-    t.is(result.title, 'Generated test group DTO 1');
+    t.is(result.title, newGroup1.title);
     t.is(result.users.length, 2);
     t.is(typeof result.users[1], 'object');
     t.is(uuidRegex.test(result.users[0].id), true);
@@ -903,7 +903,7 @@ test(`${currentTest} should throw an error, when email is not passed in request`
     t.is(addUserInGroup.status, 200);
     const result = JSON.parse(addUserInGroup.text).group;
     t.is(uuidRegex.test(result.id), true);
-    t.is(result.title, 'Generated test group DTO 1');
+    t.is(result.title, newGroup1.title);
     t.is(result.users.length, 2);
     t.is(typeof result.users[1], 'object');
     t.is(uuidRegex.test(result.users[0].id), true);
@@ -1042,7 +1042,7 @@ test(`${currentTest} should throw an error, when group id is incorrect`, async (
     t.is(addUserInGroup.status, 200);
     const result = JSON.parse(addUserInGroup.text).group;
     t.is(uuidRegex.test(result.id), true);
-    t.is(result.title, 'Generated test group DTO 1');
+    t.is(result.title, newGroup1.title);
     t.is(result.users.length, 2);
     t.is(typeof result.users[1], 'object');
     t.is(uuidRegex.test(result.users[0].id), true);
