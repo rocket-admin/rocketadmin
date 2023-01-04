@@ -67,10 +67,15 @@ export async function createTestTableForMSSQLWithChema(
   const testTableColumnName = `${faker.random.words(1)}_${faker.random.words(1)}`;
   const testTableSecondColumnName = `${faker.random.words(1)}_${faker.random.words(1)}`;
   const Knex = getTestKnex(connectionParams);
-  await Knex.raw(`IF NOT EXISTS ( SELECT  *
-                FROM    sys.schemas
-                WHERE   name = N'test_schema' )
-    EXEC('CREATE SCHEMA [test_schema]');`);
+  try {
+    await Knex.raw(`IF NOT EXISTS ( SELECT  *
+      FROM    sys.schemas
+      WHERE   name = N'test_schema' )
+EXEC('CREATE SCHEMA [test_schema]');`);
+  } catch (e) {
+    console.error(`MSSQL: Error while creating schema: ${e}`);
+  }
+
   await Knex.schema.dropTableIfExists(`test_schema.${testTableName}`);
   await Knex.schema.createTable(`test_schema.${testTableName}`, function (table) {
     table.increments();
