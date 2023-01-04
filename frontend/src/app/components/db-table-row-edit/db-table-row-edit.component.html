@@ -25,7 +25,7 @@
 
     </div>
     <form #editRowForm="ngForm" class="form"
-        (ngSubmit)="keyAttributes ? updateRow() : addRow()">
+        (ngSubmit)="hasKeyAttributesFromURL ? updateRow() : addRow()">
         <div *ngFor="let value of fieldsOrdered; let index = index">
                 <!-- <mat-form-field class="example-form-field" appearance="outline">
                     <mat-label>test label</mat-label>
@@ -78,14 +78,14 @@
             <button mat-stroked-button type="button" (click)="goBack()">
                 Back
             </button>
-            <button type="button" mat-button color="primary"
+            <button type="button" mat-button color="primary" *ngIf="keyAttributesFromStructure.length || hasKeyAttributesFromURL"
                 class="actions__continue"
                 [disabled]="submitting || editRowForm.form.invalid"
-                (click)="keyAttributes ? updateRow(true) : addRow(true)">
+                (click)="hasKeyAttributesFromURL ? updateRow(true) : addRow(true)">
                 Save and continue editing
             </button>
 
-            <button *ngIf="keyAttributes; else addButton"
+            <button *ngIf="hasKeyAttributesFromURL; else addButton"
                 type="submit" mat-raised-button color="primary"
                 [disabled]="submitting || editRowForm.form.invalid">
                 Edit

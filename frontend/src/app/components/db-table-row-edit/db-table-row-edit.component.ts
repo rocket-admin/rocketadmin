@@ -29,7 +29,9 @@ export class DbTableRowEditComponent implements OnInit {
   public tableRowStructure: object;
   public tableRowRequiredValues: object;
   public readonlyFields: string[];
-  public keyAttributes: object;
+  public keyAttributesFromURL: object = {};
+  public hasKeyAttributesFromURL: boolean;
+  public keyAttributesFromStructure: [] = [];
   public isPrimaryKeyUpdated: boolean;
   public tableTypes: object;
   public tableWidgets: object;
@@ -66,6 +68,7 @@ export class DbTableRowEditComponent implements OnInit {
       if (Object.keys(params).length === 0) {
         this._tables.fetchTableStructure(this.connectionID, this.tableName)
           .subscribe(res => {
+            this.keyAttributesFromStructure = res.primaryColumns;
             this.readonlyFields = res.readonly_fields;
             this.tableForeignKeys = res.foreignKeys;
             this.setRowStructure(res.structure);
@@ -92,7 +95,8 @@ export class DbTableRowEditComponent implements OnInit {
             this.loading = false;
           })
       } else {
-        this.keyAttributes = params;
+        this.keyAttributesFromURL = params;
+        this.hasKeyAttributesFromURL = !!Object.keys(this.keyAttributesFromURL).length;
         this._tableRow.fetchTableRow(this.connectionID, this.tableName, params)
           .subscribe(res => {
             const autoincrementFields = res.structure.filter((field: TableField) => field.auto_increment).map((field: TableField) => field.column_name);
@@ -139,7 +143,7 @@ export class DbTableRowEditComponent implements OnInit {
         link: `/dashboard/${this.connectionID}/${this.tableName}`
       },
       {
-        label: this.keyAttributes ? 'Edit row' : 'Add row',
+        label: this.hasKeyAttributesFromURL ? 'Edit row' : 'Add row',
         link: null
       }
     ]
@@ -204,7 +208,7 @@ export class DbTableRowEditComponent implements OnInit {
       this.tableRowValues[field] = updatedValue;
     };
 
-    if (this.keyAttributes && Object.keys(this.keyAttributes).includes(field)) {
+    if (this.keyAttributesFromURL && Object.keys(this.keyAttributesFromURL).includes(field)) {
       this.isPrimaryKeyUpdated = true
     };
   }
@@ -226,13 +230,13 @@ export class DbTableRowEditComponent implements OnInit {
     this._tableRow.addTableRow(this.connectionID, this.tableName, this.tableRowValues)
       .subscribe((res) => {
 
-        this.keyAttributes = {};
+        this.keyAttributesFromURL = {};
         for (var i = 0; i < res.primaryColumns.length; i++) {
-          this.keyAttributes[res.primaryColumns[i].column_name] = res.row[res.primaryColumns[i].column_name];
+          this.keyAttributesFromURL[res.primaryColumns[i].column_name] = res.row[res.primaryColumns[i].column_name];
         }
         this.ngZone.run(() => {
           if (continueEditing) {
-            this.router.navigate([`/dashboard/${this.connectionID}/${this.tableName}/entry`], { queryParams: this.keyAttributes });
+            this.router.navigate([`/dashboard/${this.connectionID}/${this.tableName}/entry`], { queryParams: this.keyAttributesFromURL });
           } else {
             this.router.navigate([`/dashboard/${this.connectionID}/${this.tableName}`]);
           }
@@ -260,14 +264,14 @@ export class DbTableRowEditComponent implements OnInit {
       }
     //end crutch
 
-    this._tableRow.updateTableRow(this.connectionID, this.tableName, this.keyAttributes, this.tableRowValues)
+    this._tableRow.updateTableRow(this.connectionID, this.tableName, this.keyAttributesFromURL, this.tableRowValues)
       .subscribe((res) => {
         this.ngZone.run(() => {
           if (continueEditing) {
             if (this.isPrimaryKeyUpdated) {
               this.ngZone.run(() => {
                 let params = {};
-                Object.keys(this.keyAttributes).forEach((key) => {
+                Object.keys(this.keyAttributesFromURL).forEach((key) => {
                   params[key] = res.row[key];
                 });
                 this.router.navigate([`/dashboard/${this.connectionID}/${this.tableName}/entry`], {
@@ -289,7 +293,7 @@ export class DbTableRowEditComponent implements OnInit {
   }
 
   activateAction(action: CustomAction) {
-    this._tables.activateAction(this.connectionID, this.tableName, action, this.keyAttributes)
+    this._tables.activateAction(this.connectionID, this.tableName, action, this.keyAttributesFromURL)
       .subscribe(() => {console.log('activated')})
   }
 }
