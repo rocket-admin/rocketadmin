@@ -17,5 +17,4 @@ export class UpgradeSuccessComponent implements OnInit {
   ngOnInit(): void {
     this.newPlan = this.route.snapshot.queryParams.plan;
   }
-
 }
