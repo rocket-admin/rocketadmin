@@ -12,6 +12,7 @@ import { Messages } from '../../exceptions/text/messages';
 import {
   changeObjPropValByPropName,
   checkFieldAutoincrement,
+  compareArrayElements,
   getNumbersFromString,
   getPropertyValueByDescriptor,
   isObjectEmpty,
@@ -32,7 +33,6 @@ import {
   ITestConnectResult,
 } from '../shared/data-access-object-interface';
 
-@Injectable({ scope: Scope.REQUEST })
 export class DataAccessObjectMysqlSsh implements IDataAccessObject {
   private readonly connection: ConnectionEntity;
 
@@ -608,8 +608,11 @@ export class DataAccessObjectMysqlSsh implements IDataAccessObject {
 
   private async findAvaliableFields(settings: TableSettingsEntity, tableName: string): Promise<Array<string>> {
     let availableFields = [];
+    const tableStructure = await this.getTableStructure(tableName);
+    const fieldsFromStructure = tableStructure.map((el) => {
+      return el.column_name;
+    });
     if (isObjectEmpty(settings)) {
-      const tableStructure = await this.getTableStructure(tableName);
       availableFields = tableStructure.map((el) => {
         return el.column_name;
       });
@@ -617,9 +620,16 @@ export class DataAccessObjectMysqlSsh implements IDataAccessObject {
     }
     const excludedFields = settings.excluded_fields;
     if (settings.list_fields && settings.list_fields.length > 0) {
-      availableFields = settings.list_fields;
+      if (!compareArrayElements(settings.list_fields, fieldsFromStructure)) {
+        availableFields = [...settings.list_fields, ...fieldsFromStructure];
+        availableFields = [...new Set(availableFields)];
+        availableFields = availableFields.filter((fieldName) => {
+          return fieldsFromStructure.includes(fieldName);
+        });
+      } else {
+        availableFields = settings.list_fields;
+      }
     } else {
-      const tableStructure = await this.getTableStructure(tableName);
       availableFields = tableStructure.map((el) => {
         return el.column_name;
       });

@@ -98,7 +98,7 @@ export const Constants = {
   FOREIGN_KEY_FIELDS: ['referenced_column_name', 'referenced_table_name', 'constraint_name', 'column_name'],
 
   TEST_CONNECTION_TO_POSTGRES: {
-    title: 'Test connection to Postgres.',
+    title: 'Postgres',
     masterEncryption: false,
     type: ConnectionTypeEnum.postgres,
     username: getProcessVariable('POSTGRES_CONNECTION_USERNAME') || null,
@@ -110,7 +110,7 @@ export const Constants = {
   },
 
   TEST_CONNECTION_TO_MSSQL: {
-    title: 'Test connection to MSSQL',
+    title: 'MSSQL',
     masterEncryption: false,
     type: ConnectionTypeEnum.mssql,
     host: getProcessVariable('MSSQL_CONNECTION_HOST') || null,
@@ -124,7 +124,7 @@ export const Constants = {
   },
 
   TEST_CONNECTION_TO_ORACLE: {
-    title: 'Test connection to OracleDB',
+    title: 'Oracle',
     type: ConnectionTypeEnum.oracledb,
     host: getProcessVariable('ORACLE_CONNECTION_HOST') || null,
     port: parseInt(getProcessVariable('ORACLE_CONNECTION_PORT')) || null,
@@ -136,7 +136,7 @@ export const Constants = {
   },
 
   TEST_SSH_CONNECTION_TO_MYSQL: {
-    title: 'Test connection via SSH tunnel to mySQL',
+    title: 'MySQL',
     type: ConnectionTypeEnum.mysql,
     host: getProcessVariable('MYSQL_CONNECTION_HOST') || null,
     port: parseInt(getProcessVariable('MYSQL_CONNECTION_PORT')) || null,

@@ -5,6 +5,11 @@
     padding: 36px 0 16px;
 }
 
+.row-edit-header {
+    display: flex;
+    align-items: center;
+}
+
 .form {
     display: flex;
     flex-direction: column;

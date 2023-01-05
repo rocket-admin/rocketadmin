@@ -6,6 +6,7 @@ import { BaseType } from '../../../common/data-injection.tokens';
 import { AmplitudeEventTypeEnum } from '../../../enums';
 import { Messages } from '../../../exceptions/text/messages';
 import { isConnectionTypeAgent } from '../../../helpers';
+import { Constants } from '../../../helpers/constants/constants';
 import { Encryptor } from '../../../helpers/encryption/encryptor';
 import { AmplitudeService } from '../../amplitude/amplitude.service';
 import { CreatedConnectionDs } from '../application/data-structures/created-connection.ds';
@@ -41,6 +42,17 @@ export class UpdateConnectionUseCase
       connectionId,
       masterPwd,
     );
+    const testConnectionsHosts = Constants.getTestConnectionsHostNamesArr();
+
+    if (testConnectionsHosts.includes(foundConnectionToUpdate.host)) {
+      throw new HttpException(
+        {
+          message: Messages.TEST_CONNECTIONS_UPDATE_NOT_ALLOWED,
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+    
     this.checkPasswordRequired(foundConnectionToUpdate, updateConnectionData.connection_parameters);
     const booleanKeys = Object.keys(connection_parameters).map((key: string) => {
       // eslint-disable-next-line security/detect-object-injection

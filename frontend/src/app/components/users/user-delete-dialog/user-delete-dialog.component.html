@@ -1,7 +1,14 @@
 <h1 mat-dialog-title>Confirm users delete</h1>
 <div mat-dialog-content>
     <p class="mat-body">
-        You are going to delete <strong>{{ data.user.email }}</strong> user
+        You are going to delete
+        <span *ngIf="data.user.name; else userEmail">
+          <strong>{{ data.user.name }} </strong>
+          <span *ngIf="data.user.name">(</span>{{ data.user.email }}<span *ngIf="data.user.name">)</span>
+        </span>
+        <ng-template #userEmail>
+          <strong>{{ data.user.email }}</strong>
+        </ng-template>
         from <strong>{{ data.group.title }}</strong> group.
     </p>
     <br>

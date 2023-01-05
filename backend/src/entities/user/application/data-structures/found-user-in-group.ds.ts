@@ -3,4 +3,5 @@ export class FoundUserInGroupDs {
   isActive: boolean;
   email: string;
   createdAt: Date;
+  name: string;
 }

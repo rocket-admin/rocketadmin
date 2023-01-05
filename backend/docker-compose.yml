@@ -48,6 +48,7 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: 123
       MYSQL_DATABASE: testDB
+    command: "--max_connections=1000"
 
   testPg-e2e-testing:
     image: postgres

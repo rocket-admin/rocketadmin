@@ -177,6 +177,7 @@ export const fieldTypes = {
         int: NumberComponent,
         smallint: NumberComponent,
         tinyint: NumberComponent,
+        decimal: NumberComponent,
         bitdecimal: NumberComponent,
         numeric: NumberComponent,
         real: NumberComponent,

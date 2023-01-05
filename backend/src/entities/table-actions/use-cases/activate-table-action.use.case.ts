@@ -10,11 +10,12 @@ import { Messages } from '../../../exceptions/text/messages';
 import { Encryptor } from '../../../helpers/encryption/encryptor';
 import { TableLogsService } from '../../table-logs/table-logs.service';
 import { ActivateTableActionDS } from '../application/data-sctructures/activate-table-action.ds';
+import { ActivatedTableActionDS } from '../application/data-sctructures/activated-table-action.ds';
 import { IActivateTableAction } from './table-actions-use-cases.interface';
 
 @Injectable()
 export class ActivateTableActionUseCase
-  extends AbstractUseCase<ActivateTableActionDS, void>
+  extends AbstractUseCase<ActivateTableActionDS, ActivatedTableActionDS>
   implements IActivateTableAction
 {
   constructor(
@@ -25,7 +26,7 @@ export class ActivateTableActionUseCase
     super();
   }
 
-  protected async implementation(inputData: ActivateTableActionDS): Promise<void> {
+  protected async implementation(inputData: ActivateTableActionDS): Promise<ActivatedTableActionDS> {
     let operationResult = OperationResultStatusEnum.unknown;
     const { actionId, request_body, connectionId, masterPwd, tableName, userId } = inputData;
     const foundTableAction = await this._dbContext.tableActionRepository.findTableActionById(actionId);
@@ -50,22 +51,43 @@ export class ActivateTableActionUseCase
       primaryKeysObj,
       actionId,
       dateString,
+      tableName,
     );
     try {
       const result = await axios.post(
         foundTableAction.url,
-        { ...primaryKeysObj, $$_date: dateString },
+        { ...primaryKeysObj, $$_date: dateString, $$_actionId: actionId, $$_tableName: tableName },
         {
-          headers: { 'Autoadmin-Signature': autoadminSignatureHeader },
+          headers: { 'Rocketadmin-Signature': autoadminSignatureHeader },
         },
       );
-      operationResult =
-        result.status >= 200 && result.status < 300
-          ? OperationResultStatusEnum.successfully
-          : OperationResultStatusEnum.unsuccessfully;
+      const operationStatusCode = result.status;
+      if (operationStatusCode >= 200 && operationStatusCode < 300) {
+        operationResult = OperationResultStatusEnum.successfully;
+        return;
+      }
+      if (operationStatusCode >= 300 && operationStatusCode < 400) {
+        operationResult = OperationResultStatusEnum.successfully;
+        return { location: result?.headers?.location };
+      }
+      if (operationStatusCode >= 400 && operationStatusCode <= 599) {
+        operationResult = OperationResultStatusEnum.unsuccessfully;
+        throw new HttpException(
+          {
+            message: result.data,
+          },
+          operationStatusCode,
+        );
+      }
       return;
     } catch (e) {
       operationResult = OperationResultStatusEnum.unsuccessfully;
+      throw new HttpException(
+        {
+          message: e.message,
+        },
+        e.response?.status || HttpStatus.BAD_REQUEST,
+      );
     } finally {
       const logRecord = {
         table_name: tableName,
@@ -98,9 +120,10 @@ export class ActivateTableActionUseCase
     primaryKeys: Record<string, unknown>,
     actionId: string,
     dateString: string,
+    tableName: string,
   ): string {
     const stringifyedPKeys = this.objToString(primaryKeys);
-    const strTohash = dateString + '$$' + stringifyedPKeys + '$$' + actionId;
+    const strTohash = dateString + '$$' + stringifyedPKeys + '$$' + actionId + '$$' + tableName;
     const hash = Encryptor.hashDataHMACexternalKey(signingKey, JSON.stringify(strTohash));
     return hash;
   }

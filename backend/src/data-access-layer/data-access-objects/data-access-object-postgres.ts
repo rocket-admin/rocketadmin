@@ -7,6 +7,7 @@ import { TableSettingsEntity } from '../../entities/table-settings/table-setting
 import { FilterCriteriaEnum } from '../../enums';
 import {
   changeObjPropValByPropName,
+  compareArrayElements,
   getPropertyValueByDescriptor,
   isObjectEmpty,
   listTables,
@@ -28,7 +29,6 @@ import {
 } from '../shared/data-access-object-interface';
 import { getPostgresKnex } from '../shared/utils/get-postgres-knex';
 
-@Injectable({ scope: Scope.REQUEST })
 export class DataAccessObjectPostgres extends BasicDao implements IDataAccessObject {
   private readonly connection: ConnectionEntity;
   constructor(connection: ConnectionEntity) {
@@ -555,18 +555,32 @@ WHERE  oid = '??.??'::regclass;`,
 
   private async findAvaliableFields(settings: TableSettingsEntity, tableName: string): Promise<Array<string>> {
     let availableFields = [];
+
+    const tableStructure = await this.getTableStructure(tableName);
+
+    const fieldsFromStructure = tableStructure.map((el) => {
+      return el.column_name;
+    });
+
     if (isObjectEmpty(settings)) {
-      const tableStructure = await this.getTableStructure(tableName);
       availableFields = tableStructure.map((el) => {
         return el.column_name;
       });
       return availableFields;
     }
+
     const excludedFields = settings.excluded_fields;
     if (settings.list_fields && settings.list_fields.length > 0) {
-      availableFields = settings.list_fields;
+      if (!compareArrayElements(settings.list_fields, fieldsFromStructure)) {
+        availableFields = [...settings.list_fields, ...fieldsFromStructure];
+        availableFields = [...new Set(availableFields)];
+        availableFields = availableFields.filter((fieldName) => {
+          return fieldsFromStructure.includes(fieldName);
+        });
+      } else {
+        availableFields = settings.list_fields;
+      }
     } else {
-      const tableStructure = await this.getTableStructure(tableName);
       availableFields = tableStructure.map((el) => {
         return el.column_name;
       });

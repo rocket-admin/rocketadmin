@@ -1,13 +1,19 @@
+.filters-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
 .filters-content {
     display: grid;
-    grid-template-columns: 1fr 1fr 0 1fr;
+    grid-template-columns: auto 228px 0 1fr 48px;
     grid-column-gap: 8px;
     align-content: flex-start;
-    align-items: center;
+    align-items: flex-start;
 }
 
 .filters-select {
-    grid-column: 1 / span 4;
+    grid-column: 1 / span 5;
 }
 
 .filter-line {
@@ -20,20 +26,28 @@
     width: 100%;
     }
 
-    .filters-form {
+.filters-form {
     flex: 1 0 auto;
     display: flex;
     flex-direction: column;
-    }
+}
 
-    ::ng-deep .mat-dialog-container {
+::ng-deep .mat-dialog-container {
     display: flex;
-    }
+}
 
 
-    .filters-content {
+.filters-content {
     flex: 1 0 auto;
-    }
+}
+
+.column-name {
+    margin-top: 28px;
+}
+
+.filter-delete-button {
+    margin-top: 16px;
+}
 
 .mat-dialog-actions {
     justify-content: flex-end;

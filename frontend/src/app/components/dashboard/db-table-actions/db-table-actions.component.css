@@ -80,7 +80,7 @@
     color: #ED4870;
 }
 
-.list-action-list-item_notSaved {
+.list-action-list-item_notSaved .mat-icon {
     color: #F9A825;
 }
 
@@ -174,4 +174,38 @@
 .action-codeSnippet ::ng-deep .CodeMirror {
     height: 100%;
     width: 100%;
+}
+
+.code-snippet-box {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    height: calc(100vh - 200px);
+    overflow-y: auto;
+}
+
+.lang-select {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    z-index: 5;
+}
+
+.lang-select ::ng-deep .mat-form-field-outline {
+    background-color: #fff;
+}
+
+::ng-deep .CodeMirror-wrap pre.CodeMirror-line,
+::ng-deep .CodeMirror-wrap pre.CodeMirror-line-like {
+    word-wrap: break-word;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+.copy-button {
+    position: absolute;
+    right: 20px;
+    top: 100px;
+    z-index: 5;
 }

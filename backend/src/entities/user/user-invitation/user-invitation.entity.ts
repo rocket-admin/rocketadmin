@@ -15,7 +15,7 @@ export class UserInvitationEntity {
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;
 
-  @OneToOne(() => UserEntity, (user) => user.user_invitation, { cascade: true, onDelete: 'CASCADE' })
+  @OneToOne(() => UserEntity, (user) => user.user_invitation, { onDelete: 'CASCADE' })
   @JoinColumn()
   user: UserEntity;
 }

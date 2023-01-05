@@ -83,6 +83,11 @@
     margin-left: auto;
 }
 
+.settings-form__resetButton {
+    align-self: flex-start;
+    margin-top: 12px;
+}
+
 .form-group-ordering {
     display: flex;
 }

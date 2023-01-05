@@ -1,4 +1,4 @@
-import { Component, OnInit, Inject } from '@angular/core';
+import { Component, OnInit, Inject, KeyValueDiffers, KeyValueDiffer } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { TablesService } from 'src/app/services/tables.service';
 import { TableField, TableForeignKey, Widget } from 'src/app/models/table';
@@ -8,6 +8,7 @@ import { ActivatedRoute } from '@angular/router';
 import { getComparators, getFilters } from 'src/app/lib/parse-filter-params';
 import { getTableTypes } from 'src/app/lib/setup-table-row-structure';
 import * as JSON5 from 'json5';
+import { omit } from "lodash";
 
 @Component({
   selector: 'app-db-table-filters-dialog',
@@ -24,6 +25,8 @@ export class DbTableFiltersDialogComponent implements OnInit {
   public tableRowFieldsShown: Object = {};
   public tableRowFieldsComparator: Object = {};
   public tableForeignKeys: TableForeignKey[];
+  public tableFiltersCount: number;
+  public differ: KeyValueDiffer<string, any>;
   public tableTypes: Object;
   public tableWidgets: object;
   public tableWidgetsList: string[] = [];
@@ -33,42 +36,49 @@ export class DbTableFiltersDialogComponent implements OnInit {
     @Inject(MAT_DIALOG_DATA) public data: any,
     private _connections: ConnectionsService,
     private _tables: TablesService,
-    public route: ActivatedRoute
-    ) { }
+    public route: ActivatedRoute,
+    private differs:  KeyValueDiffers
+    ) {
+      this.differ = this.differs.find({}).create();
+    }
 
   ngOnInit(): void {
     this._tables.cast.subscribe();
-    this._tables.fetchTableStructure(this.data.connectionID, this.data.tableName)
-      .subscribe(res => {
-        this.tableForeignKeys = res.foreignKeys;
-        const foreignKeysList = this.tableForeignKeys.map((field: TableForeignKey) => {return field['column_name']})
-        this.tableRowFields = Object.assign({}, ...res.structure.map((field: TableField) => ({[field.column_name]: ''})));
-        this.tableTypes = getTableTypes(res.structure, foreignKeysList);
-        this.fields = res.structure
-          .filter((field: TableField) => this.getInputType(field.column_name) !== 'file')
-          .map((field: TableField) => field.column_name);
-        this.tableRowStructure = Object.assign({}, ...res.structure.map((field: TableField) => {
-          return {[field.column_name]: field};
-        }));
+    this.tableForeignKeys = this.data.structure.foreignKeys;
+    this.tableRowFields = Object.assign({}, ...this.data.structure.structure.map((field: TableField) => ({[field.column_name]: ''})));
+    this.tableTypes = getTableTypes(this.data.structure.structure, this.data.structure.foreignKeysList);
+    this.fields = this.data.structure.structure
+      .filter((field: TableField) => this.getInputType(field.column_name) !== 'file')
+      .map((field: TableField) => field.column_name);
+    this.tableRowStructure = Object.assign({}, ...this.data.structure.structure.map((field: TableField) => {
+      return {[field.column_name]: field};
+    }));
 
-        const queryParams = this.route.snapshot.queryParams;
-        const filters = getFilters(queryParams);
+    const queryParams = this.route.snapshot.queryParams;
+    const filters = getFilters(queryParams);
 
-        if (Object.keys(filters).length) {
-          this.tableFilters = Object.keys(filters).map(key => key);
-          this.tableRowFieldsShown = filters;
-          this.tableRowFieldsComparator = getComparators(queryParams);
-        } else {
-          const fieldsToSearch = res.structure.filter((field: TableField) => field.isSearched);
-          if (fieldsToSearch.length) {
-            this.tableFilters = fieldsToSearch.map((field:TableField) => field.column_name);
-            this.tableRowFieldsShown = Object.assign({}, ...fieldsToSearch.map((field: TableField) => ({[field.column_name]: undefined})));
-            this.tableRowFieldsComparator = Object.assign({}, ...fieldsToSearch.map((field: TableField) => ({[field.column_name]: 'eq'})));
-          }
-        }
+    if (Object.keys(filters).length) {
+      this.tableFilters = Object.keys(filters).map(key => key);
+      this.tableRowFieldsShown = filters;
+      this.tableRowFieldsComparator = getComparators(queryParams);
+    } else {
+      const fieldsToSearch = this.data.structure.structure.filter((field: TableField) => field.isSearched);
+      if (fieldsToSearch.length) {
+        this.tableFilters = fieldsToSearch.map((field:TableField) => field.column_name);
+        this.tableRowFieldsShown = Object.assign({}, ...fieldsToSearch.map((field: TableField) => ({[field.column_name]: undefined})));
+        this.tableRowFieldsComparator = Object.assign({}, ...fieldsToSearch.map((field: TableField) => ({[field.column_name]: 'eq'})));
+      }
+    }
 
-        res.table_widgets.length && this.setWidgets(res.table_widgets);
-      })
+    this.data.structure.widgets.length && this.setWidgets(this.data.structure.widgets);
+  }
+
+  ngDoCheck() {
+    const change = this.differ.diff(this);
+    if (change) {
+      this.tableFiltersCount = Object.keys(this.tableRowFieldsShown).length;
+    }
+
   }
 
   get inputs() {
@@ -90,12 +100,10 @@ export class DbTableFiltersDialogComponent implements OnInit {
         }
       })
     );
-    console.log('setWidgets');
-    console.log(this.tableWidgets);
   }
 
   getRelations = (columnName: string) => {
-    const relation = this.tableForeignKeys.find(relation => relation.column_name === columnName);
+    const relation = this.tableForeignKeys[columnName];
     return relation;
   }
 
@@ -111,20 +119,10 @@ export class DbTableFiltersDialogComponent implements OnInit {
     this.tableRowFieldsShown[field] = updatedValue;
   }
 
-  updateFilterFields() {
-    this.tableRowFieldsShown = Object.keys(this.tableRowFields)
-      .filter(key => this.tableFilters.includes(key))
-      .reduce((value, key) => {
-        value[key] = this.tableRowFieldsShown[key];
-        return value;
-      }, {});
-
-    this.tableRowFieldsComparator = Object.keys(this.tableRowFields)
-      .filter(key => this.tableFilters.includes(key))
-      .reduce((value, key) => {
-        value[key] = this.tableRowFieldsComparator[key] || 'eq';
-        return value;
-      }, {});
+  addFilter(e) {
+    const key = e.value;
+    this.tableRowFieldsShown = {...this.tableRowFieldsShown, [key]: this.tableRowFields[key]};
+    this.tableRowFieldsComparator = {...this.tableRowFieldsComparator, [key]: this.tableRowFieldsComparator[key] || 'eq'};
   }
 
   updateComparator(event, fieldName: string) {
@@ -136,12 +134,12 @@ export class DbTableFiltersDialogComponent implements OnInit {
     this.tableRowFieldsShown = {};
   }
 
-  getInputType(filed: string) {
+  getInputType(field: string) {
     let widgetType;
-    if (this.isWidget(filed)) {
-      widgetType = this.UIwidgets[this.tableWidgets[filed].widget_type].type;
+    if (this.isWidget(field)) {
+      widgetType = this.UIwidgets[this.tableWidgets[field].widget_type]?.type;
     } else {
-      widgetType = this.inputs[this.tableTypes[filed]].type
+      widgetType = this.inputs[this.tableTypes[field]]?.type;
     };
     return widgetType;
   }
@@ -154,5 +152,10 @@ export class DbTableFiltersDialogComponent implements OnInit {
     } else {
       return 'nonComparable'
     }
+  }
+
+  removeFilter(field) {
+    this.tableRowFieldsShown = omit(this.tableRowFieldsShown, [field]);
+    this.tableRowFieldsComparator = omit(this.tableRowFieldsComparator, [field]);
   }
 }

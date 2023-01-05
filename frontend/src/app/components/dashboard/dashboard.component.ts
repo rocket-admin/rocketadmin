@@ -122,29 +122,29 @@ export class DashboardComponent implements OnInit {
     this.loading = false;
   }
 
-  openTableFilters() {
+  openTableFilters(structure) {
     let filterDialodRef = this.dialog.open(DbTableFiltersDialogComponent, {
-      width: '50em',
-      height: '40em',
+      width: '56em',
       data: {
         connectionID: this.connectionID,
         tableName: this.selectedTableName,
-        displayTableName: this.selectedTableDisplayName
+        displayTableName: this.selectedTableDisplayName,
+        structure
       }
     });
     filterDialodRef.componentInstance.tableRowFieldsShown
 
     filterDialodRef.afterClosed().subscribe(action => {
-      this.filters = omitBy(filterDialodRef.componentInstance.tableRowFieldsShown, (value) => value === undefined);
-      this.comparators = filterDialodRef.componentInstance.tableRowFieldsComparator;
-
-      const filtersQueryParams = Object.keys(this.filters)
-        .reduce((paramsObj, key) => {
-          paramsObj[`f__${key}__${this.comparators[key]}`] = this.filters[key];
-          return paramsObj;
-        }, {});
-
       if (action === 'filter' || action === 'reset') {
+        this.filters = omitBy(filterDialodRef.componentInstance.tableRowFieldsShown, (value) => value === undefined);
+        this.comparators = filterDialodRef.componentInstance.tableRowFieldsComparator;
+
+        const filtersQueryParams = Object.keys(this.filters)
+          .reduce((paramsObj, key) => {
+            paramsObj[`f__${key}__${this.comparators[key]}`] = this.filters[key];
+            return paramsObj;
+          }, {});
+
         this.getRows();
         this.router.navigate([`/dashboard/${this.connectionID}/${this.selectedTableName}`], { queryParams: {...filtersQueryParams, page_index: 0} });
       }

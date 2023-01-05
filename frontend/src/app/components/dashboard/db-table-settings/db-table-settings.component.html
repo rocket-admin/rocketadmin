@@ -39,27 +39,36 @@
                 info_outline
             </mat-icon>
 
-            <div class="order-settings settings-form__full-line">
+            <div class="order-settings">
                 <span class="order__title">
                     Columns order
                 </span>
                 <mat-expansion-panel class="settings-form__expansion-panel">
                     <mat-expansion-panel-header>
                         <mat-panel-title>
-
                             <div>
-                                <span *ngFor="let field of tableSettings.list_fields; let i = index">
-                                    {{field}}{{ i === tableSettings.list_fields.length - 1 ? '' : ',' }}
-                                </span>
+                                <span *ngIf="tableSettings.list_fields.length === 0; else orderedList">Standard order</span>
+                                <ng-template #orderedList>
+                                    <span *ngFor="let field of tableSettings.list_fields; let i = index">
+                                        {{field}}{{ i === tableSettings.list_fields.length - 1 ? '' : ',' }}
+                                    </span>
+                                </ng-template>
                             </div>
                         </mat-panel-title>
                     </mat-expansion-panel-header>
 
                     <div cdkDropList class="order-list" (cdkDropListDropped)="drop($event)">
-                        <div class="order-item" *ngFor="let field of tableSettings.list_fields" cdkDrag>{{field}}</div>
+                        <div class="order-item" *ngFor="let field of listFieldsOrder" cdkDrag>{{field}}</div>
                     </div>
                 </mat-expansion-panel>
             </div>
+            <button mat-button type="button"
+                class="settings-form__resetButton"
+                matTooltip="Reset"
+                [disabled]="tableSettings.list_fields.length === 0"
+                (click)="resetColumnsOrder()">
+                <mat-icon>restart_alt</mat-icon>
+            </button>
 
             <mat-form-field appearance="outline">
                 <mat-label>Autocomplete fields</mat-label>

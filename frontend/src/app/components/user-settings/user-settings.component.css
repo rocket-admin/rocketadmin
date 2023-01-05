@@ -7,21 +7,37 @@
     width: 96%;
 }
 
-.userInfo {
-    margin-bottom: 16px;
-}
-
 .mat-h1 {
     margin-bottom: 1em;
 }
 
-.user-settings__button {
-    margin-left: 20px;
+.user-settings {
+    margin-top: 32px;
 }
 
-.upgrade-button {
-    margin-top: 32px;
-    align-self: center;
+.user-settings__section-heading {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.user-settings__name {
+    width: 100%
+}
+
+.user-settings__save-button {
+    margin-top: -16px;
+    margin-left: -84px;
+}
+
+.user-settings__value {
+    display: inline-block;
+    margin-top: 4px;
+    margin-bottom: 28px;
+}
+
+.user-settings__value_capitalized {
+    text-transform: capitalize;
 }
 
 .delete-button {

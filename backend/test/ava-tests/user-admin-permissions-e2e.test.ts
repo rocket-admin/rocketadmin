@@ -23,8 +23,7 @@ let testUtils: TestUtils;
 let currentTest: string;
 
 const mockFactory = new MockFactory();
-const newConnection = mockFactory.generateConnectionToTestPostgresDBInDocker();
-const newConnection2 = mockFactory.generateConnectionToTestMySQLDBInDocker();
+const newConnectionToPostgres = mockFactory.generateConnectionToTestPostgresDBInDocker();
 
 const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
@@ -105,13 +104,13 @@ test(`${currentTest} should return a found connection`, async (t) => {
 
     const result = findOneResponce.body.connection;
     t.is(uuidRegex.test(result.id), true);
-    t.is(result.title, newConnection.title);
+    t.is(result.title, newConnectionToPostgres.title);
     t.is(result.type, 'postgres');
-    t.is(result.host, newConnection.host);
+    t.is(result.host, newConnectionToPostgres.host);
     t.is(typeof result.port, 'number');
-    t.is(result.port, newConnection.port);
+    t.is(result.port, newConnectionToPostgres.port);
     t.is(result.username, 'postgres');
-    t.is(result.database, newConnection.database);
+    t.is(result.database, newConnectionToPostgres.database);
     t.is(result.sid, null);
     t.is(result.hasOwnProperty('createdAt'), true);
     t.is(result.hasOwnProperty('updatedAt'), true);
@@ -226,13 +225,13 @@ test(`${currentTest} should return delete result`, async (t) => {
     t.is(response.status, 200);
 
     t.is(result.hasOwnProperty('id'), false);
-    t.is(result.title, newConnection.title);
+    t.is(result.title, newConnectionToPostgres.title);
     t.is(result.type, 'postgres');
-    t.is(result.host, newConnection.host);
+    t.is(result.host, newConnectionToPostgres.host);
     t.is(typeof result.port, 'number');
-    t.is(result.port, newConnection.port);
+    t.is(result.port, newConnectionToPostgres.port);
     t.is(result.username, 'postgres');
-    t.is(result.database, newConnection.database);
+    t.is(result.database, newConnectionToPostgres.database);
     t.is(result.sid, null);
     t.is(result.hasOwnProperty('createdAt'), true);
     t.is(result.hasOwnProperty('updatedAt'), true);
@@ -366,14 +365,15 @@ test(`${currentTest} should return connection without deleted group result`, asy
 
     t.is(response.status, 200);
     result = JSON.parse(response.text);
-    console.log("🚀 ~ file: user-admin-permissions-e2e.test.ts:369 ~ test ~ result", result)
     t.is(result.length, 1);
     const groupId = result[0].group.id;
     t.is(uuidRegex.test(groupId), true);
     t.is(result[0].group.hasOwnProperty('title'), true);
     t.is(result[0].accessLevel, AccessLevelEnum.edit);
 
-    const index = result.indexOf((el: any) => el.group.title === 'Admin');
+    const index = result.findIndex((el: any) => {
+      return el.group.title === 'Admin';
+    });
 
     t.is(index >= 0, true);
   } catch (error) {
@@ -442,13 +442,12 @@ test(`${currentTest} return should groups in connection`, async (t) => {
 
     t.is(response.status, 200);
     const result = JSON.parse(response.text);
-    console.log('🚀 ~ file: user-admin-permissions-e2e.test.ts:440 ~ test ~ result', result);
     const groupId = result[0].group.id;
     t.is(uuidRegex.test(groupId), true);
     t.is(result[1].group.hasOwnProperty('title'), true);
     t.is(result[0].accessLevel, AccessLevelEnum.edit);
 
-    const index = result.indexOf((el: any) => el.group.title === 'Admin');
+    const index = result.findIndex((el: any) => el.group.title === 'Admin');
 
     t.is(index >= 0, true);
   } catch (error) {
@@ -602,8 +601,8 @@ test(`${currentTest} should return permissions object for current group in curre
     const testData = await createConnectionsAndInviteNewUserInAdminGroupOfFirstConnection(app);
 
     const getGroupsResponse = await request(app.getHttpServer())
-      .get(`/connection/groups/${testData.connections.firstId}`)
-      .set('Cookie', testData.users.adminUserEmail)
+      .get(`/connection/groups/${testData.connections.secondId}`)
+      .set('Cookie', testData.users.adminUserToken)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
     t.is(getGroupsResponse.status, 200);
@@ -612,7 +611,7 @@ test(`${currentTest} should return permissions object for current group in curre
     const groupId = getGroupsRO[0].group.id;
 
     const response = await request(app.getHttpServer())
-      .get(`/connection/user/permissions?connectionId=${testData.connections.firstId}&groupId=${groupId}`)
+      .get(`/connection/user/permissions?connectionId=${testData.connections.secondId}&groupId=${groupId}`)
       .set('Cookie', testData.users.simpleUserToken)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
@@ -632,7 +631,7 @@ test(`${currentTest} should return permissions object for current group in curre
     t.is(typeof result.tables, 'object');
 
     const { tables } = result;
-    const tableIndex = tables.findIndex((table) => table.tableName === testData.firstTableInfo.testTableName);
+    const tableIndex = tables.findIndex((table) => table.tableName === testData.secondTableInfo.testTableName);
     t.is(tables.length > 0, true);
     t.is(typeof tables[0], 'object');
     t.is(tables[tableIndex].hasOwnProperty('accessLevel'), true);
@@ -752,7 +751,7 @@ test(`${currentTest} should return group with added user`, async (t) => {
     const getGroupsRO = JSON.parse(getGroupsResponse.text);
 
     const groupId = getGroupsRO[0].group.id;
-    const email = TestConstants.THIRD_TEST_USER.email;
+    const email = faker.internet.email();
     const addUserInGroupResponse = await request(app.getHttpServer())
       .put('/group/user')
       .set('Cookie', testData.users.simpleUserToken)
@@ -817,7 +816,7 @@ test(`${currentTest} should throw exception, when group id not passed in request
     const getGroupsRO = JSON.parse(getGroupsResponse.text);
 
     const groupId = getGroupsRO[0].group.id;
-    const email = TestConstants.THIRD_TEST_USER.email;
+    const email = faker.internet.email();
     const addUserInGroupResponse = await request(app.getHttpServer())
       .put('/group/user')
       .set('Cookie', testData.users.simpleUserToken)
@@ -846,7 +845,7 @@ test(`${currentTest} should throw exception, when group id passed in request is 
     t.is(getGroupsResponse.status, 200);
     const getGroupsRO = JSON.parse(getGroupsResponse.text);
 
-    const email = TestConstants.THIRD_TEST_USER.email;
+    const email = faker.internet.email();
     const groupId = faker.datatype.uuid();
     const addUserInGroupResponse = await request(app.getHttpServer())
       .put('/group/user')
@@ -994,14 +993,13 @@ test(`${currentTest} should return group without deleted user`, async (t) => {
     const getGroupsRO = JSON.parse(getGroupsResponse.text);
 
     const groupId = getGroupsRO[0].group.id;
-    const email = TestConstants.THIRD_TEST_USER.email;
+    const email = faker.internet.email();
     const addUserInGroupResponse = await request(app.getHttpServer())
       .put('/group/user')
       .set('Cookie', testData.users.simpleUserToken)
       .send({ groupId, email })
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
-    console.log("🚀 ~ file: user-admin-permissions-e2e.test.ts:1004 ~ test ~ addUserInGroupResponse", addUserInGroupResponse.text)
     t.is(addUserInGroupResponse.status, 200);
 
     const deleteUserInGroupResponse = await request(app.getHttpServer())
@@ -1037,7 +1035,7 @@ test(`${currentTest} should throw exception, when user email not passed in reque
     const getGroupsRO = JSON.parse(getGroupsResponse.text);
 
     const groupId = getGroupsRO[0].group.id;
-    const email = TestConstants.THIRD_TEST_USER.email;
+    const email = faker.internet.email();
     const addUserInGroupResponse = await request(app.getHttpServer())
       .put('/group/user')
       .set('Cookie', testData.users.simpleUserToken)
@@ -1074,7 +1072,7 @@ test(`${currentTest} should throw exception, when group id not passed in request
 
     const groupId = getGroupsRO[0].group.id;
 
-    const email = TestConstants.THIRD_TEST_USER.email;
+    const email = faker.internet.email();
     const addUserInGroupResponse = await request(app.getHttpServer())
       .put('/group/user')
       .set('Cookie', testData.users.simpleUserToken)
@@ -1111,7 +1109,7 @@ test(`${currentTest} should throw exception, when group id passed in request is 
     const getGroupsRO = JSON.parse(getGroupsResponse.text);
 
     let groupId = getGroupsRO[0].group.id;
-    const email = TestConstants.THIRD_TEST_USER.email;
+    const email = faker.internet.email();
     const addUserInGroupResponse = await request(app.getHttpServer())
       .put('/group/user')
       .set('Cookie', testData.users.simpleUserToken)
@@ -3235,11 +3233,11 @@ test(`${currentTest} should throw an exception when you try update settings in c
     const testData = await createConnectionsAndInviteNewUserInAdminGroupOfFirstConnection(app);
 
     const createTableSettingsDTO = mockFactory.generateTableSettings(
-      testData.connections.firstId,
-      testData.firstTableInfo.testTableName,
+      testData.connections.secondId,
+      testData.secondTableInfo.testTableName,
       ['id'],
-      [testData.firstTableInfo.testTableSecondColumnName],
-      [testData.firstTableInfo.testTableColumnName],
+      [testData.secondTableInfo.testTableSecondColumnName],
+      [testData.secondTableInfo.testTableColumnName],
       3,
       QueryOrderingEnum.DESC,
       'id',
@@ -3252,7 +3250,7 @@ test(`${currentTest} should throw an exception when you try update settings in c
 
     const createTableSettingsResponse = await request(app.getHttpServer())
       .post(
-        `/settings?connectionId=${testData.connections.secondId}&tableName=${testData.firstTableInfo.testTableName}`,
+        `/settings?connectionId=${testData.connections.secondId}&tableName=${testData.secondTableInfo.testTableName}`,
       )
       .send(createTableSettingsDTO)
       .set('Cookie', testData.users.adminUserToken)
@@ -3263,10 +3261,10 @@ test(`${currentTest} should throw an exception when you try update settings in c
 
     const updateTableSettingsDTO = mockFactory.generateTableSettings(
       testData.connections.firstId,
-      testData.firstTableInfo.testTableName,
+      testData.secondTableInfo.testTableName,
       ['id'],
-      [testData.firstTableInfo.testTableSecondColumnName],
-      [testData.firstTableInfo.testTableColumnName],
+      [testData.secondTableInfo.testTableSecondColumnName],
+      [testData.secondTableInfo.testTableColumnName],
       3,
       QueryOrderingEnum.ASC,
       'id',
@@ -3278,7 +3276,9 @@ test(`${currentTest} should throw an exception when you try update settings in c
     );
 
     const updateTableSettingsResponse = await request(app.getHttpServer())
-      .put(`/settings?connectionId=${testData.connections.secondId}&tableName=${testData.firstTableInfo.testTableName}`)
+      .put(
+        `/settings?connectionId=${testData.connections.secondId}&tableName=${testData.secondTableInfo.testTableName}`,
+      )
       .send(updateTableSettingsDTO)
       .set('Cookie', testData.users.simpleUserToken)
       .set('Content-Type', 'application/json')
@@ -3351,10 +3351,10 @@ test(`${currentTest} should throw an exception when you try delete settings in c
 
     const createTableSettingsDTO = mockFactory.generateTableSettings(
       testData.connections.secondId,
-      testData.firstTableInfo.testTableName,
+      testData.secondTableInfo.testTableName,
       ['id'],
-      [testData.firstTableInfo.testTableSecondColumnName],
-      [testData.firstTableInfo.testTableColumnName],
+      [testData.secondTableInfo.testTableSecondColumnName],
+      [testData.secondTableInfo.testTableColumnName],
       3,
       QueryOrderingEnum.DESC,
       'id',
@@ -3373,10 +3373,6 @@ test(`${currentTest} should throw an exception when you try delete settings in c
       .set('Cookie', testData.users.adminUserToken)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
-    console.log(
-      '🚀 ~ file: user-admin-permissions-e2e.test.ts:2979 ~ test ~ createTableSettingsResponse',
-      createTableSettingsResponse.text,
-    );
 
     t.is(createTableSettingsResponse.status, 201);
 
@@ -3482,10 +3478,10 @@ test(`${currentTest} should throw an exception, when you try to get widgets from
     const testData = await createConnectionsAndInviteNewUserInAdminGroupOfFirstConnection(app);
     const newTableWidgets = mockFactory.generateCreateWidgetDTOsArrayForUsersTable(
       undefined,
-      testData.firstTableInfo.testTableSecondColumnName,
+      testData.secondTableInfo.testTableSecondColumnName,
     );
     const createTableWidgetResponse = await request(app.getHttpServer())
-      .post(`/widget/${testData.connections.secondId}?tableName=${testData.firstTableInfo.testTableName}`)
+      .post(`/widget/${testData.connections.secondId}?tableName=${testData.secondTableInfo.testTableName}`)
       .send({ widgets: newTableWidgets })
       .set('Content-Type', 'application/json')
       .set('Cookie', testData.users.adminUserToken)
@@ -3500,7 +3496,7 @@ test(`${currentTest} should throw an exception, when you try to get widgets from
     t.is(uuidRegex.test(createTableWidgetRO[0].id), true);
 
     const getTableWidgets = await request(app.getHttpServer())
-      .get(`/widgets/${testData.connections.secondId}?tableName=${testData.firstTableInfo.testTableName}`)
+      .get(`/widgets/${testData.connections.secondId}?tableName=${testData.secondTableInfo.testTableName}`)
       .set('Content-Type', 'application/json')
       .set('Cookie', testData.users.simpleUserToken)
       .set('Accept', 'application/json');

@@ -48,7 +48,7 @@
             <mat-list role="list">
                 <mat-list-item role="listitem" *ngFor="let user of users[groupItem.group.id]">
                     <div class="user">
-                        <span>{{user.email}}</span>
+                        <span>{{user.name || user.email}}</span>
                         <button mat-icon-button *ngIf="(currentUser?.email !== user.email) && isPermitted(groupItem.accessLevel)"
                             angulartics2On="click"
                             angularticsAction="Users: delete user dialog is opened"

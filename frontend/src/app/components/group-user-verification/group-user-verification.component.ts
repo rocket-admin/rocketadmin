@@ -42,7 +42,9 @@ export class GroupUserVerificationComponent implements OnInit {
     .subscribe(() => {
       this.router.navigate(['/login']);
       this.submitting = false;
-    });
+    },
+    () => this.submitting = false,
+    () => this.submitting = false);
   }
 }
 

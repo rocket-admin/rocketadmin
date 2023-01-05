@@ -25,6 +25,7 @@ export class DbTableSettingsComponent implements OnInit {
   public fields: string[];
   public fields_to_exclude: string[];
   public orderChanged: boolean;
+  public listFieldsOrder: string[];
   public tableSettings: TableSettings = {
     connection_id: '',
     table_name: '',
@@ -98,14 +99,20 @@ export class DbTableSettingsComponent implements OnInit {
           this.tableSettings = res;
         };
         if (this.tableSettings && !this.tableSettings.list_fields.length) {
-          this.tableSettings.list_fields = [...this.fields]
+          this.listFieldsOrder = [...this.fields];
         };
       }
     );
   }
 
   drop(event: CdkDragDrop<string[]>) {
-    moveItemInArray(this.tableSettings.list_fields, event.previousIndex, event.currentIndex);
+    moveItemInArray(this.listFieldsOrder, event.previousIndex, event.currentIndex);
+    this.tableSettings.list_fields = [...this.listFieldsOrder];
+    this.orderChanged = true;
+  }
+
+  resetColumnsOrder() {
+    this.tableSettings.list_fields = [];
     this.orderChanged = true;
   }
 

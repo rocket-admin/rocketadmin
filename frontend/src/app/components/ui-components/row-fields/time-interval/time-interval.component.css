@@ -1,7 +1,7 @@
 .feild-set-6 {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    grid-column-gap: 5%;
+    grid-column-gap: 16px;
 }
 
 ::ng-deep .interval-form-field .mat-form-field-infix {

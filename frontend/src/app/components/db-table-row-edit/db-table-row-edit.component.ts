@@ -2,7 +2,7 @@ import * as JSON5 from 'json5';
 
 import { ActivatedRoute, Router } from '@angular/router';
 import { Component, NgZone, OnInit } from '@angular/core';
-import { TableField, TableForeignKey, Widget } from 'src/app/models/table';
+import { CustomAction, TableField, TableForeignKey, Widget } from 'src/app/models/table';
 import { UIwidgets, fieldTypes } from 'src/app/consts/field-types';
 
 import { ConnectionsService } from 'src/app/services/connections.service';
@@ -29,7 +29,9 @@ export class DbTableRowEditComponent implements OnInit {
   public tableRowStructure: object;
   public tableRowRequiredValues: object;
   public readonlyFields: string[];
-  public keyAttributes: object;
+  public keyAttributesFromURL: object = {};
+  public hasKeyAttributesFromURL: boolean;
+  public keyAttributesFromStructure: [] = [];
   public isPrimaryKeyUpdated: boolean;
   public tableTypes: object;
   public tableWidgets: object;
@@ -39,6 +41,7 @@ export class DbTableRowEditComponent implements OnInit {
   public UIwidgets = UIwidgets;
   public rowError: string = null;
   public fieldsOrdered: string[];
+  public rowActions: CustomAction[];
 
   public tableForeignKeys: TableForeignKey[];
 
@@ -65,25 +68,35 @@ export class DbTableRowEditComponent implements OnInit {
       if (Object.keys(params).length === 0) {
         this._tables.fetchTableStructure(this.connectionID, this.tableName)
           .subscribe(res => {
+            this.keyAttributesFromStructure = res.primaryColumns;
             this.readonlyFields = res.readonly_fields;
             this.tableForeignKeys = res.foreignKeys;
+            this.setRowStructure(res.structure);
+            res.table_widgets && this.setWidgets(res.table_widgets);
             this.shownRows = res.structure.filter((field: TableField) => !field.auto_increment);
             const allowNullFields = res.structure
               .filter((field: TableField) => field.allow_null)
               .map((field: TableField) => field.column_name);
-            this.tableRowValues = Object.assign({}, ...this.shownRows.map((field: TableField) => ({[field.column_name]: allowNullFields.includes(field.column_name) ? null : ''})));
+            this.tableRowValues = Object.assign({}, ...this.shownRows
+              .map((field: TableField) => {
+                if (allowNullFields.includes(field.column_name)) {
+                  return { [field.column_name]: null }
+                } else if (this.tableTypes[field.column_name] === 'boolean') {
+                  return { [field.column_name]: false }
+                };
+                return {[field.column_name]: ''};
+              }));
             if (res.list_fields.length) {
               const shownFieldsList = this.shownRows.map((field: TableField) => field.column_name);
               this.fieldsOrdered = [...res.list_fields].filter(field => shownFieldsList.includes(field));
             } else {
               this.fieldsOrdered = Object.keys(this.tableRowValues).map(key => key);
             }
-            res.table_widgets && this.setWidgets(res.table_widgets);
-            this.setRowStructure(res.structure);
             this.loading = false;
           })
       } else {
-        this.keyAttributes = params;
+        this.keyAttributesFromURL = params;
+        this.hasKeyAttributesFromURL = !!Object.keys(this.keyAttributesFromURL).length;
         this._tableRow.fetchTableRow(this.connectionID, this.tableName, params)
           .subscribe(res => {
             const autoincrementFields = res.structure.filter((field: TableField) => field.auto_increment).map((field: TableField) => field.column_name);
@@ -97,6 +110,7 @@ export class DbTableRowEditComponent implements OnInit {
             } else {
               this.fieldsOrdered = Object.keys(this.tableRowValues).map(key => key);
             }
+            if (res.table_actions) this.rowActions = res.table_actions;
             res.table_widgets && this.setWidgets(res.table_widgets);
             this.setRowStructure(res.structure);
             this.loading = false;
@@ -129,7 +143,7 @@ export class DbTableRowEditComponent implements OnInit {
         link: `/dashboard/${this.connectionID}/${this.tableName}`
       },
       {
-        label: this.keyAttributes ? 'Edit row' : 'Add row',
+        label: this.hasKeyAttributesFromURL ? 'Edit row' : 'Add row',
         link: null
       }
     ]
@@ -181,8 +195,6 @@ export class DbTableRowEditComponent implements OnInit {
   }
 
   isWidget(columnName: string) {
-    console.log('isWidget');
-    console.log(columnName);
     return this.tableWidgetsList.includes(columnName);
   }
 
@@ -196,7 +208,7 @@ export class DbTableRowEditComponent implements OnInit {
       this.tableRowValues[field] = updatedValue;
     };
 
-    if (this.keyAttributes && Object.keys(this.keyAttributes).includes(field)) {
+    if (this.keyAttributesFromURL && Object.keys(this.keyAttributesFromURL).includes(field)) {
       this.isPrimaryKeyUpdated = true
     };
   }
@@ -218,13 +230,13 @@ export class DbTableRowEditComponent implements OnInit {
     this._tableRow.addTableRow(this.connectionID, this.tableName, this.tableRowValues)
       .subscribe((res) => {
 
-        this.keyAttributes = {};
+        this.keyAttributesFromURL = {};
         for (var i = 0; i < res.primaryColumns.length; i++) {
-          this.keyAttributes[res.primaryColumns[i].column_name] = res.row[res.primaryColumns[i].column_name];
+          this.keyAttributesFromURL[res.primaryColumns[i].column_name] = res.row[res.primaryColumns[i].column_name];
         }
         this.ngZone.run(() => {
           if (continueEditing) {
-            this.router.navigate([`/dashboard/${this.connectionID}/${this.tableName}/entry`], { queryParams: this.keyAttributes });
+            this.router.navigate([`/dashboard/${this.connectionID}/${this.tableName}/entry`], { queryParams: this.keyAttributesFromURL });
           } else {
             this.router.navigate([`/dashboard/${this.connectionID}/${this.tableName}`]);
           }
@@ -252,14 +264,14 @@ export class DbTableRowEditComponent implements OnInit {
       }
     //end crutch
 
-    this._tableRow.updateTableRow(this.connectionID, this.tableName, this.keyAttributes, this.tableRowValues)
+    this._tableRow.updateTableRow(this.connectionID, this.tableName, this.keyAttributesFromURL, this.tableRowValues)
       .subscribe((res) => {
         this.ngZone.run(() => {
           if (continueEditing) {
             if (this.isPrimaryKeyUpdated) {
               this.ngZone.run(() => {
                 let params = {};
-                Object.keys(this.keyAttributes).forEach((key) => {
+                Object.keys(this.keyAttributesFromURL).forEach((key) => {
                   params[key] = res.row[key];
                 });
                 this.router.navigate([`/dashboard/${this.connectionID}/${this.tableName}/entry`], {
@@ -278,5 +290,10 @@ export class DbTableRowEditComponent implements OnInit {
       undefined,
       () => {this.submitting = false}
     )
+  }
+
+  activateAction(action: CustomAction) {
+    this._tables.activateAction(this.connectionID, this.tableName, action, this.keyAttributesFromURL)
+      .subscribe(() => {console.log('activated')})
   }
 }
