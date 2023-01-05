@@ -124,7 +124,7 @@ export class ActivateTableActionUseCase
   ): string {
     const stringifyedPKeys = this.objToString(primaryKeys);
     const strTohash = dateString + '$$' + stringifyedPKeys + '$$' + actionId + '$$' + tableName;
-    const hash = Encryptor.hashDataHMACexternalKey(signingKey, JSON.stringify(strTohash));
+    const hash = Encryptor.hashDataHMACexternalKey(signingKey, strTohash);
     return hash;
   }
 
