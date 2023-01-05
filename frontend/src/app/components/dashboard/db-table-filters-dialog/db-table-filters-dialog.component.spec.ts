@@ -1,7 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 
-import { ActivatedRoute } from '@angular/router';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { DbTableFiltersDialogComponent } from './db-table-filters-dialog.component';
 import { FormsModule }   from '@angular/forms';
@@ -10,12 +9,10 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { RouterTestingModule } from "@angular/router/testing";
 import { TablesService } from 'src/app/services/tables.service';
-import { of } from 'rxjs';
 
 describe('DbTableFiltersDialogComponent', () => {
   let component: DbTableFiltersDialogComponent;
   let fixture: ComponentFixture<DbTableFiltersDialogComponent>;
-  let tablesService: TablesService;
 
   const fakeFirstName = {
     "column_name": "FirstName",
@@ -48,28 +45,24 @@ describe('DbTableFiltersDialogComponent', () => {
     "character_maximum_length": 1
   };
 
-  const mockTableStructure = {
-    "structure": [
-      fakeFirstName,
-      fakeId,
-      fakeBool
-    ],
-    "primaryColumns": [
-      {
-        "data_type": "int",
-        "column_name": "Id"
-      }
-    ],
-    "foreignKeys": [
-      {
-        "referenced_column_name": "CustomerId",
-        "referenced_table_name": "Customers",
-        "constraint_name": "Orders_ibfk_2",
-        "column_name": "Id"
-      }
-    ],
-    "readonly_fields": [],
-    "table_widgets": []
+  const mockTableDataSource_Structure = [fakeFirstName, fakeId, fakeBool];
+
+  const mockTableDataSource_ForeignKeysList = ["Id"];
+
+  const mockTableDataSource_ForeignKeys = {
+    Id: {
+      "referenced_column_name": "CustomerId",
+      "referenced_table_name": "Customers",
+      "constraint_name": "Orders_ibfk_2",
+      "column_name": "Id"
+    }
+  };
+
+  const mockStructureForFilterDialog = {
+    structure: mockTableDataSource_Structure,
+    foreignKeysList: mockTableDataSource_ForeignKeysList,
+    foreignKeys: mockTableDataSource_ForeignKeys,
+    widgets: []
   }
 
   beforeEach(async () => {
@@ -85,7 +78,12 @@ describe('DbTableFiltersDialogComponent', () => {
         BrowserAnimationsModule
       ],
       providers: [
-        { provide: MAT_DIALOG_DATA, useValue: {} },
+        { provide: MAT_DIALOG_DATA, useValue: {
+          connectionID: '12345678',
+          tableName: 'users',
+          displayTableName: 'Users',
+          structure: mockStructureForFilterDialog
+        }},
         { provide: MatDialogRef, useValue: {} },
         // { provide: ActivatedRoute, useValue: {} }
       ],
@@ -96,7 +94,6 @@ describe('DbTableFiltersDialogComponent', () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(DbTableFiltersDialogComponent);
     component = fixture.componentInstance;
-    tablesService = TestBed.inject(TablesService);
 
     fixture.detectChanges();
   });
@@ -106,13 +103,12 @@ describe('DbTableFiltersDialogComponent', () => {
   });
 
   it('should setup the initial state of fields list and types', async () => {
-    spyOn(tablesService, 'fetchTableStructure').and.returnValue(of(mockTableStructure));
 
     component.ngOnInit();
     fixture.detectChanges();
     await fixture.whenStable();
 
-    expect(component.tableForeignKeys).toEqual(mockTableStructure.foreignKeys);
+    expect(component.tableForeignKeys).toEqual(mockStructureForFilterDialog.foreignKeys);
     expect(component.fields).toEqual(['FirstName', 'Id', 'bool']);
     expect(component.tableRowStructure).toEqual({
       FirstName: fakeFirstName,
@@ -125,7 +121,6 @@ describe('DbTableFiltersDialogComponent', () => {
     component.route.snapshot.queryParams = {
       f__FirstName__contain: 'nn'
     };
-    spyOn(tablesService, 'fetchTableStructure').and.returnValue(of(mockTableStructure));
 
     component.ngOnInit();
     fixture.detectChanges();
@@ -141,8 +136,6 @@ describe('DbTableFiltersDialogComponent', () => {
   });
 
   it('should setup the initial state from isSearched table settings', async () => {
-    spyOn(tablesService, 'fetchTableStructure').and.returnValue(of(mockTableStructure));
-
     component.ngOnInit();
     fixture.detectChanges();
     await fixture.whenStable();
@@ -156,63 +149,12 @@ describe('DbTableFiltersDialogComponent', () => {
     })
   });
 
-  it('should get foreign key info by column name', () => {
-    component.tableForeignKeys = mockTableStructure.foreignKeys;
-    const relations = component.getRelations('Id');
-
-    expect(relations).toEqual({
-      "referenced_column_name": "CustomerId",
-      "referenced_table_name": "Customers",
-      "constraint_name": "Orders_ibfk_2",
-      "column_name": "Id"
-    })
-  });
-
   it('should update a field in the model from ui component', () => {
     component.tableRowFieldsShown = { name: 'John' };
     component.updateField('new user name', 'name');
 
     expect(component.tableRowFieldsShown['name']).toEqual('new user name');
   })
-
-  it('should update filters and comparators objects with changing of filters list', () => {
-    component.tableFilters = ['FirstName', 'Id'];
-    component.tableRowFields = {
-      FirstName: '',
-      Id: '',
-      bool: ''
-    };
-    component.tableRowFieldsShown = {
-      FirstName: 'John'
-    };
-    component.tableRowFieldsComparator = {
-      FirstName: 'startswith'
-    };
-    component. updateFilterFields();
-
-    expect(component.tableRowFieldsShown).toEqual({
-      FirstName: 'John',
-      Id: undefined
-    })
-
-    expect(component.tableRowFieldsComparator).toEqual({
-      FirstName: 'startswith',
-      Id: 'eq'
-    })
-  })
-
-  // it('should update comparators object when field comparator is changed', () => {
-  //   component.tableRowFieldsComparator = {
-  //     FirstName: 'startswith',
-  //     Id: 'eq'
-  //   }
-  //   component.updateComparator('lte', 'Id');
-
-  //   expect(component.tableRowFieldsComparator).toEqual({
-  //     FirstName: 'startswith',
-  //     Id: 'lte'
-  //   })
-  // })
 
   it('should reset filters', () => {
     component.tableFilters = ['FirstName', 'Id'];
