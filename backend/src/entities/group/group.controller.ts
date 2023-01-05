@@ -8,12 +8,13 @@ import {
   Inject,
   Injectable,
   Put,
+  Req,
   Res,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { Response } from 'express';
+import { Response, Request } from 'express';
 import validator from 'validator';
 import { UseCaseType } from '../../common/data-injection.tokens';
 import { BodyEmail, BodyUuid, SlugUuid, UserId, VerificationString } from '../../decorators';
@@ -139,15 +140,29 @@ export class GroupController {
     @Res({ passthrough: true }) response: Response,
     @VerificationString() verificationString: string,
     @Body('name') name: string,
+    @Req() req: Request,
   ): Promise<ITokenExp> {
     if (!password) {
       throw new HttpException(
         {
-          message: 'Password is missing',
+          message: Messages.PASSWORD_MISSING,
         },
         HttpStatus.BAD_REQUEST,
       );
     }
+    try {
+      const tokenInReq = req.cookies[Constants.JWT_COOKIE_KEY_NAME];
+      if (tokenInReq) {
+        response.clearCookie(Constants.JWT_COOKIE_KEY_NAME);
+      }
+      throw new HttpException(
+        {
+          message: Messages.TRY_VERIFY_ADD_USER_WHEN_LOGGED_IN,
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    } catch (e) {}
+
     const inputData: VerifyAddUserInGroupDs = {
       verificationString: verificationString,
       user_password: password,
