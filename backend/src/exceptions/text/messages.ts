@@ -186,6 +186,7 @@ export const Messages = {
   TABLE_ACTION_NOT_FOUND: 'Table action not found',
   TEST_CONNECTIONS_UPDATE_NOT_ALLOWED: `You can't update test connection`,
   TRY_AGAIN_LATER: 'Please try again later. If the problem persists, please contact our support team',
+  TRY_VERIFY_ADD_USER_WHEN_LOGGED_IN: `You can't join a group when you are logged in as another user. Please log out and try again.`,
   TYPE_MISSING: 'Type is missing',
   TOKEN_MISSING: 'Token is missing',
   UNABLE_FIND_PORT: `Unable to find a free port. Please try again later. If the problem persists, please contact our support team`,
