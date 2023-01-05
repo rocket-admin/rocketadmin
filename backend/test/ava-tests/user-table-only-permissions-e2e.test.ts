@@ -38,7 +38,7 @@ test.after.always('Close app connection', async () => {
     await Cacher.clearAllCache();
     await app.close();
   } catch (e) {
-    console.error('After custom field error: ' + e);
+    console.error('user table only permissions e2e tests ' + e);
   }
 });
 
