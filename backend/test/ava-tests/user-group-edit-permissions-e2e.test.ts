@@ -1798,8 +1798,8 @@ test(`${currentTest} should return added row`, async (t) => {
     const addRowInTableRO = JSON.parse(addRowInTable.text);
     t.is(addRowInTable.status, 201);
     t.is(addRowInTableRO.row.hasOwnProperty('id'), true);
-    t.is(addRowInTableRO.row.name, randomName);
-    t.is(addRowInTableRO.row.email, randomEmail);
+    t.is(addRowInTableRO.row[firstTableInfo.testTableColumnName], randomName);
+    t.is(addRowInTableRO.row[firstTableInfo.testTableSecondColumnName], randomEmail);
     t.is(addRowInTableRO.row.hasOwnProperty('created_at'), true);
     t.is(addRowInTableRO.row.hasOwnProperty('updated_at'), true);
     t.is(addRowInTableRO.hasOwnProperty('structure'), true);
@@ -1864,8 +1864,8 @@ test(`${currentTest} should throw an exception when table name passed in request
     const addRowInTable = await request(app.getHttpServer())
       .post(`/table/row/${connections.firstId}?tableName=${fakeTableName}`)
       .send({
-        name: randomName,
-        email: randomEmail,
+        [firstTableInfo.testTableColumnName]: randomName,
+        [firstTableInfo.testTableSecondColumnName]: randomEmail,
         created_at: created_at,
         updated_at: updated_at,
       })
@@ -2160,8 +2160,8 @@ test(`${currentTest} should return all found logs in connection'`, async (t) => 
     const addRowInTable = await request(app.getHttpServer())
       .post(`/table/row/${connections.firstId}?tableName=${firstTableInfo.testTableName}`)
       .send({
-        name: randomName,
-        email: randomEmail,
+        [firstTableInfo.testTableColumnName]: randomName,
+        [firstTableInfo.testTableSecondColumnName]: randomEmail,
         created_at: created_at,
         updated_at: updated_at,
       })
@@ -2298,8 +2298,8 @@ test(`${currentTest} should throw an exception when you try get settings in conn
       connections.secondId,
       secondTableInfo.testTableName,
       ['id'],
-      [firstTableInfo.testTableSecondColumnName],
-      [firstTableInfo.testTableColumnName],
+      [secondTableInfo.testTableSecondColumnName],
+      [secondTableInfo.testTableColumnName],
       3,
       QueryOrderingEnum.DESC,
       'id',
@@ -2688,7 +2688,7 @@ test(`${currentTest} should return array of table widgets for table`, async (t) 
     } = testData;
 
     const newTableWidgets = mockFactory.generateCreateWidgetDTOsArrayForUsersTable(
-      null,
+      'id',
       firstTableInfo.testTableColumnName,
     );
     const createTableWidgetResponse = await request(app.getHttpServer())
@@ -2749,7 +2749,7 @@ test(`${currentTest} should throw an exception, when you try to get widgets from
       users: { adminUserToken, simpleUserToken },
     } = testData;
     const newTableWidgets = mockFactory.generateCreateWidgetDTOsArrayForUsersTable(
-      null,
+      'id',
       firstTableInfo.testTableColumnName,
     );
     const createTableWidgetResponse = await request(app.getHttpServer())
@@ -2793,7 +2793,7 @@ test(`${currentTest} should throw an exception do not have permissions`, async (
     } = testData;
 
     const newTableWidgets = mockFactory.generateCreateWidgetDTOsArrayForUsersTable(
-      null,
+      'id',
       firstTableInfo.testTableColumnName,
     );
 
@@ -2823,7 +2823,7 @@ test(`${currentTest} should throw an exception, when you try add widget in conne
       users: { adminUserToken, simpleUserToken },
     } = testData;
     const newTableWidgets = mockFactory.generateCreateWidgetDTOsArrayForUsersTable(
-      null,
+      'id',
       firstTableInfo.testTableColumnName,
     );
 
