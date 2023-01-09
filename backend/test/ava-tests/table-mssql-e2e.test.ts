@@ -2018,7 +2018,7 @@ test(`${currentTest} should add row in table and return result`, async (t) => {
   t.is(rows.length, 43);
   t.is(rows[42][testTableColumnName], row[testTableColumnName]);
   t.is(rows[42][testTableSecondColumnName], row[testTableSecondColumnName]);
-  t.is(rows[42].id, (rows[41].id + 1));
+  t.is(rows[42].id, rows[41].id + 1);
 });
 
 test(`${currentTest} should throw an exception when connection id is not passed in request`, async (t) => {
@@ -3182,7 +3182,7 @@ test(`${currentTest} should throw an exception, when primary key passed in reque
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
 
-    t.is(foundRowInTableResponse.status, 400);
+  t.is(foundRowInTableResponse.status, 400);
   const { message } = JSON.parse(foundRowInTableResponse.text);
   t.is(message, Messages.ROW_PRIMARY_KEY_NOT_FOUND);
 });
