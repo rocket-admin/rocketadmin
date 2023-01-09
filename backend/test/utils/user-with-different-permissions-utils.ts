@@ -156,6 +156,16 @@ export async function createConnectionsAndInviteNewUserInNewGroupWithGroupPermis
     .set('Accept', 'application/json');
   const createFirstConnectionRO = JSON.parse(createFirstConnectionResponse.text);
   connectionsId.firstId = createFirstConnectionRO.id;
+
+  const getGroupsResponse = await request(app.getHttpServer())
+    .get(`/connection/groups/${connectionsId.firstId}`)
+    .set('Cookie', connectionAdminUserToken)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+  const getGroupsRO = JSON.parse(getGroupsResponse.text);
+
+  const firstAdminGroupId = getGroupsRO[0].group.id;
+
   const createSecondConnectionResponse = await request(app.getHttpServer())
     .post('/connection')
     .set('Cookie', connectionAdminUserToken)
@@ -204,7 +214,6 @@ export async function createConnectionsAndInviteNewUserInNewGroupWithGroupPermis
     .send({ groupId, email })
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
-  connectionsId.firstAdminGroupId = groupId;
 
   return {
     firstTableInfo: firstTable,
@@ -223,8 +232,9 @@ export async function createConnectionsAndInviteNewUserInNewGroupWithGroupPermis
       secondId: connectionsId.secondId,
     },
     groups: {
-      firstAdminGroupId: groupId,
+      firstAdminGroupId: firstAdminGroupId,
       secondAdminGroupId: null,
+      createdGroupId: groupId,
     },
     users: {
       adminUserToken: connectionAdminUserToken,
@@ -270,7 +280,7 @@ export async function createConnectionsAndInviteNewUserInAdminGroupOfFirstConnec
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
   if (createFirstConnectionResponse.status >= 300) {
-    console.error('first connection creation error: '+createFirstConnectionResponse.text);
+    console.error('first connection creation error: ' + createFirstConnectionResponse.text);
   }
   const createFirstConnectionRO = JSON.parse(createFirstConnectionResponse.text);
   connectionsId.firstId = createFirstConnectionRO.id;
@@ -282,7 +292,7 @@ export async function createConnectionsAndInviteNewUserInAdminGroupOfFirstConnec
     .set('Accept', 'application/json');
 
   if (createSecondConnectionResponse.status >= 300) {
-    console.error('second connection creation error: '+createSecondConnectionResponse.text);
+    console.error('second connection creation error: ' + createSecondConnectionResponse.text);
   }
   const createSecondConnectionRO = JSON.parse(createSecondConnectionResponse.text);
   connectionsId.secondId = createSecondConnectionRO.id;
@@ -304,7 +314,7 @@ export async function createConnectionsAndInviteNewUserInAdminGroupOfFirstConnec
   connectionsId.firstAdminGroupId = groupId;
 
   if (addUserInGroupResponce.status >= 300) {
-    console.error('user invitation error: '+addUserInGroupResponce.text);
+    console.error('user invitation error: ' + addUserInGroupResponce.text);
   }
 
   return {
@@ -355,6 +365,7 @@ interface IUserDifferentTableOnlyPermissionsFooData {
   groups: {
     firstAdminGroupId: string;
     secondAdminGroupId: string;
+    createdGroupId?: string;
   };
   users: {
     adminUserToken: string;
