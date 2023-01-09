@@ -10,6 +10,7 @@ import { MatSort } from '@angular/material/sort';
 import { merge } from 'rxjs';
 import { normalizeTableName } from '../../../lib/normalize'
 import { tap } from 'rxjs/operators';
+import { SelectionModel } from '@angular/cdk/collections';
 
 interface Column {
   title: string,
@@ -46,6 +47,8 @@ export class DbTableComponent implements OnInit {
   public columnsToDisplay: string[] = [];
   public searchString: string;
   public actionsColumnWidth: string;
+  public bulkRows: string[];
+  selection = new SelectionModel<any>(true, []);
   public displayedComparators = {
     eq: "=",
     gt: ">",
@@ -176,5 +179,31 @@ export class DbTableComponent implements OnInit {
 
   handleActivateAction(action: CustomAction, primaryKeys: object) {
     this.activateAction.emit({action, primaryKeys});
+  }
+
+
+  /** Whether the number of selected elements matches the total number of rows. */
+  isAllSelected() {
+    const numSelected = this.selection.selected.length;
+    const numRows = this.tableData.length;
+    return numSelected === numRows;
+  }
+
+  /** Selects all rows if they are not all selected; otherwise clear selection. */
+  toggleAllRows() {
+    if (this.isAllSelected()) {
+      this.selection.clear();
+      return;
+    }
+
+    this.selection.select(...this.tableData);
+  }
+
+  /** The label for the checkbox on the passed row */
+  checkboxLabel(row?: any): string {
+    if (!row) {
+      return `${this.isAllSelected() ? 'deselect' : 'select'} all`;
+    }
+    return `${this.selection.isSelected(row) ? 'deselect' : 'select'} row ${row.position + 1}`;
   }
 }

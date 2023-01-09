@@ -101,12 +101,12 @@
 
 .db-table {
     display: grid;
-    grid-template-columns: repeat(var(--colCount), auto) var(--lastColumnWidth);
+    grid-template-columns: 40px repeat(var(--colCount), auto) var(--lastColumnWidth);
     width: 100%;
 }
 
 .db-table_withOutActions {
-    grid-template-columns: repeat(var(--colCount), auto) !important;
+    grid-template-columns: 40px repeat(var(--colCount), auto) !important;
 }
 
 .db-table ::ng-deep .mat-row,
