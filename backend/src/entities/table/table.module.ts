@@ -19,6 +19,7 @@ import { TableWidgetEntity } from '../widget/table-widget.entity';
 import { TableController } from './table.controller';
 import { AddRowInTableUseCase } from './use-cases/add-row-in-table.use.case';
 import { DeleteRowFromTableUseCase } from './use-cases/delete-row-from-table.use.case';
+import { DeleteRowsFromTableUseCase } from './use-cases/delete-rows-from-table.use.case';
 import { FindTablesInConnectionUseCase } from './use-cases/find-tables-in-connection.use.case';
 import { GetRowByPrimaryKeyUseCase } from './use-cases/get-row-by-primary-key.use.case';
 import { GetTableRowsUseCase } from './use-cases/get-table-rows.use.case';
@@ -73,6 +74,10 @@ import { UpdateRowInTableUseCase } from './use-cases/update-row-in-table.use.cas
       useClass: DeleteRowFromTableUseCase,
     },
     {
+      provide: UseCaseType.DELETE_ROWS_FROM_TABLE,
+      useClass: DeleteRowsFromTableUseCase,
+    },
+    {
       provide: UseCaseType.GET_ROW_BY_PRIMARY_KEY,
       useClass: GetRowByPrimaryKeyUseCase,
     },
@@ -93,6 +98,7 @@ export class TableModule {
         { path: '/table/row/:slug', method: RequestMethod.POST },
         { path: '/table/row/:slug', method: RequestMethod.PUT },
         { path: '/table/row/:slug', method: RequestMethod.DELETE },
+        { path: '/table/rows/delete/:slug', method: RequestMethod.PUT },
         { path: '/table/row/:slug', method: RequestMethod.GET },
       );
   }
