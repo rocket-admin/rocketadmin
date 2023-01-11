@@ -159,30 +159,21 @@ fdescribe('DbTableActionsComponent', () => {
     expect(component.newAction).toBeNull();
   });
 
-  xit('should remove action before it was pushed to the list', () => {
-    const mockNewAction = {
-      id: '',
-      title: 'action 2',
-      type: CustomActionType.Single,
-      url: '',
-      tableName: '',
-      icon: ''
-    }
+  it('should remove action before it was saved if it is only one actions in the list', () => {
+    component.actions = [
+        {
+        id: 'action_12345678',
+        title: 'action 1',
+        type: CustomActionType.Single,
+        url: 'https://google.com',
+        tableName: 'user',
+        icon: 'heart'
+      }
+    ]
 
-    component.actions = [{
-      id: 'action_12345678',
-      title: 'action 1',
-      type: CustomActionType.Single,
-      url: 'https://google.com',
-      tableName: 'user',
-      icon: 'heart'
-    }]
+    component.removeAction('action 1')
 
-    component.newAction = mockNewAction;
-
-    component.handleAddNewAction()
-
-    expect(component.selectedAction).toEqual(mockNewAction);
+    expect(component.selectedAction).toBeNull();
     expect(component.updatedActionTitle).toEqual('action 2');
     expect(component.actions).toEqual([
       {

@@ -414,7 +414,7 @@ app.listen(3000, () => console.log("Running on port 8000"));
       if (this.actions.length) this.setSelectedAction(this.actions[0]);
     } else {
       this.newAction = null;
-      this.setSelectedAction(this.actions[0]);
+      if (this.actions.length) this.setSelectedAction(this.actions[0]);
     };
   }
 
