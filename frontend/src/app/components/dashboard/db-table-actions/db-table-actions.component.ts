@@ -380,10 +380,6 @@ app.listen(3000, () => console.log("Running on port 8000"));
     this.setSelectedAction(action);
   }
 
-  openClearAllActions() {
-
-  }
-
   addNewAction() {
     this.newAction = {
       id: '',
@@ -400,14 +396,14 @@ app.listen(3000, () => console.log("Running on port 8000"));
     if (this.newAction.title === '') {
       this.actionNameError = 'The name cannot be empty.';
     } else {
-      const conisidingName = this.actions.find((action: CustomAction) => action.title === this.newAction.title);
-      if (!conisidingName) {
+      const coinsidingName = this.actions.find((action: CustomAction) => action.title === this.newAction.title);
+      if (!coinsidingName) {
         this.selectedAction = {... this.newAction};
         this.updatedActionTitle = this.selectedAction.title;
         this.actions.push(this.selectedAction);
         this.newAction = null;
       } else {
-        this.actionNameError = 'You already hane an action with this name.'
+        this.actionNameError = 'You already have an action with this name.'
       }
     }
   }

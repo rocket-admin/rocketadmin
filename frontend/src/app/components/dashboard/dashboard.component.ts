@@ -102,7 +102,7 @@ export class DashboardComponent implements OnInit {
     return this._tables.fetchTables(this.connectionID).toPromise();
   }
 
-  formatTableNames(tables) {
+  formatTableNames(tables: TableProperties[]) {
     this.tablesList = tables.map((tableItem: TableProperties) => {
       if (tableItem.display_name) return {...tableItem}
       else return {...tableItem, normalizedTableName: normalizeTableName(tableItem.table)}

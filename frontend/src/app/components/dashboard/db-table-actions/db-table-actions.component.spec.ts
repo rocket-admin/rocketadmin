@@ -3,10 +3,11 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { RouterTestingModule } from '@angular/router/testing';
+import { CustomActionType } from 'src/app/models/table';
 
 import { DbTableActionsComponent } from './db-table-actions.component';
 
-describe('DbTableActionsComponent', () => {
+fdescribe('DbTableActionsComponent', () => {
   let component: DbTableActionsComponent;
   let fixture: ComponentFixture<DbTableActionsComponent>;
 
@@ -30,5 +31,177 @@ describe('DbTableActionsComponent', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  it('should set selected action', () => {
+    const action = {
+      id: 'action_12345678',
+      title: 'action 1',
+      type: CustomActionType.Single,
+      url: 'https://google.com',
+      tableName: 'user',
+      icon: 'heart'
+    }
+    component.setSelectedAction(action)
+    expect(component.selectedAction).toEqual(action);
+    expect(component.updatedActionTitle).toEqual('action 1');
+  });
+
+  it('should switch between actions on actions list click', () => {
+    const action = {
+      id: 'action_12345678',
+      title: 'action 1',
+      type: CustomActionType.Single,
+      url: 'https://google.com',
+      tableName: 'user',
+      icon: 'heart'
+    }
+    const mockSetSelectedAction = spyOn(component, 'setSelectedAction');
+
+    component.switchActionView(action)
+
+    expect(mockSetSelectedAction).toHaveBeenCalledOnceWith(action)
+  });
+
+  it('should set the new action', () => {
+    component.addNewAction()
+
+    expect(component.newAction).toEqual({
+      id: '',
+      title: '',
+      type: CustomActionType.Single,
+      url: '',
+      tableName: '',
+      icon: ''
+    })
+  });
+
+  it('should set an error if user try to add action with empty name to the list', () => {
+    component.newAction = {
+      id: '',
+      title: '',
+      type: CustomActionType.Single,
+      url: '',
+      tableName: '',
+      icon: ''
+    }
+    component.handleAddNewAction()
+
+    expect(component.actionNameError).toEqual('The name cannot be empty.');
+  });
+
+  it('should set an error if user try to add action with the same name to the list', () => {
+    component.actions = [{
+      id: 'action_12345678',
+      title: 'action 1',
+      type: CustomActionType.Single,
+      url: 'https://google.com',
+      tableName: 'user',
+      icon: 'heart'
+    }]
+    component.newAction = {
+      id: '',
+      title: 'action 1',
+      type: CustomActionType.Single,
+      url: '',
+      tableName: '',
+      icon: ''
+    }
+
+    component.handleAddNewAction()
+
+    expect(component.actionNameError).toEqual('You already have an action with this name.');
+  });
+
+  it('should add new action to the list and switch to selected action', () => {
+    const mockNewAction = {
+      id: '',
+      title: 'action 2',
+      type: CustomActionType.Single,
+      url: '',
+      tableName: '',
+      icon: ''
+    }
+
+    component.actions = [{
+      id: 'action_12345678',
+      title: 'action 1',
+      type: CustomActionType.Single,
+      url: 'https://google.com',
+      tableName: 'user',
+      icon: 'heart'
+    }]
+
+    component.newAction = mockNewAction;
+
+    component.handleAddNewAction()
+
+    expect(component.selectedAction).toEqual(mockNewAction);
+    expect(component.updatedActionTitle).toEqual('action 2');
+    expect(component.actions).toEqual([
+      {
+        id: 'action_12345678',
+        title: 'action 1',
+        type: CustomActionType.Single,
+        url: 'https://google.com',
+        tableName: 'user',
+        icon: 'heart'
+      },
+      {
+        id: '',
+        title: 'action 2',
+        type: CustomActionType.Single,
+        url: '',
+        tableName: '',
+        icon: ''
+      }
+    ]);
+    expect(component.newAction).toBeNull();
+  });
+
+  xit('should remove action before it was pushed to the list', () => {
+    const mockNewAction = {
+      id: '',
+      title: 'action 2',
+      type: CustomActionType.Single,
+      url: '',
+      tableName: '',
+      icon: ''
+    }
+
+    component.actions = [{
+      id: 'action_12345678',
+      title: 'action 1',
+      type: CustomActionType.Single,
+      url: 'https://google.com',
+      tableName: 'user',
+      icon: 'heart'
+    }]
+
+    component.newAction = mockNewAction;
+
+    component.handleAddNewAction()
+
+    expect(component.selectedAction).toEqual(mockNewAction);
+    expect(component.updatedActionTitle).toEqual('action 2');
+    expect(component.actions).toEqual([
+      {
+        id: 'action_12345678',
+        title: 'action 1',
+        type: CustomActionType.Single,
+        url: 'https://google.com',
+        tableName: 'user',
+        icon: 'heart'
+      },
+      {
+        id: '',
+        title: 'action 2',
+        type: CustomActionType.Single,
+        url: '',
+        tableName: '',
+        icon: ''
+      }
+    ]);
+    expect(component.newAction).toBeNull();
   });
 });
