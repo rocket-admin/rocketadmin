@@ -42,7 +42,7 @@
                 (keyup.enter)="handleAddNewAction()">
             <span *ngIf="actionNameError" class="action-error">{{actionNameError}}</span>
             <button mat-icon-button matSuffix
-                (click)="removeAction()">
+                (click)="undoAction()">
                 <mat-icon>close</mat-icon>
             </button>
         </mat-form-field>
@@ -125,7 +125,7 @@
 
                 <div class="action__actions">
                     <button mat-stroked-button color="warn" type="button"
-                        (click)="selectedAction.id ? openDeleteActionDialog() : removeAction(selectedAction.title)">
+                        (click)="handleRemoveAction()">
                         Delete
                     </button>
 

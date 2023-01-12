@@ -159,40 +159,138 @@ fdescribe('DbTableActionsComponent', () => {
     expect(component.newAction).toBeNull();
   });
 
-  it('should remove action before it was saved if it is only one actions in the list', () => {
+  it('should remove action if it is not saved and if it is not in the list yet and the list is empty', () => {
+    component.newAction = {
+      id: '',
+      title: 'action 1',
+      type: CustomActionType.Single,
+      url: '',
+      tableName: '',
+      icon: ''
+    }
+    component.actions = [];
+
+    component.undoAction();
+
+    expect(component.selectedAction).toBeNull();
+    expect(component.newAction).toBeNull();
+  });
+
+  it('should remove action if it is not saved and if it is not in the list yet and switch to the first action in the list', () => {
+    const mockAction = {
+      id: '',
+      title: 'action 1',
+      type: CustomActionType.Single,
+      url: 'https://google.com',
+      tableName: 'user',
+      icon: 'heart'
+    };
+    component.newAction = {
+      id: '',
+      title: 'action 2',
+      type: CustomActionType.Single,
+      url: '',
+      tableName: '',
+      icon: ''
+    }
+    component.actions = [ mockAction ];
+
+    component.undoAction();
+
+    expect(component.selectedAction).toEqual(mockAction);
+    expect(component.newAction).toBeNull();
+  });
+
+  it('should call remove action from the list when it is not saved', () => {
+    component.selectedAction = {
+      id: '',
+      title: 'action 1',
+      type: CustomActionType.Single,
+      url: 'https://google.com',
+      tableName: 'user',
+      icon: 'heart'
+    };
+    const mockRemoveActionFromLocalList = spyOn(component, 'removeActionFromLocalList');
+
+    component.handleRemoveAction();
+
+    expect(mockRemoveActionFromLocalList).toHaveBeenCalledOnceWith('action 1');
+  });
+
+  it('should call open delete confirm dialog when action is saved', () => {
+    component.selectedAction = {
+      id: 'action_12345678',
+      title: 'action 1',
+      type: CustomActionType.Single,
+      url: 'https://google.com',
+      tableName: 'user',
+      icon: 'heart'
+    };
+    const mockOpenDeleteActionDialog = spyOn(component, 'openDeleteActionDialog');
+
+    component.handleRemoveAction();
+
+    expect(mockOpenDeleteActionDialog).toHaveBeenCalledOnceWith();
+  });
+
+  it('should remove action from the list if it is not saved and if it is only one actions in the list', () => {
     component.actions = [
         {
-        id: 'action_12345678',
+        id: '',
         title: 'action 1',
         type: CustomActionType.Single,
         url: 'https://google.com',
         tableName: 'user',
         icon: 'heart'
       }
-    ]
+    ];
 
-    component.removeAction('action 1')
+    component.removeActionFromLocalList('action 1');
 
     expect(component.selectedAction).toBeNull();
-    expect(component.updatedActionTitle).toEqual('action 2');
-    expect(component.actions).toEqual([
-      {
-        id: 'action_12345678',
+    expect(component.actions).toEqual([]);
+  });
+
+  it('should remove action from the list if it is not saved and make active the first action in the list', () => {
+    const mockAction =  {
+      id: '',
+      title: 'action 2',
+      type: CustomActionType.Single,
+      url: 'https://google.com',
+      tableName: 'user',
+      icon: 'star'
+    };
+    component.actions = [
+        {
+        id: '',
         title: 'action 1',
         type: CustomActionType.Single,
         url: 'https://google.com',
         tableName: 'user',
         icon: 'heart'
       },
-      {
-        id: '',
-        title: 'action 2',
-        type: CustomActionType.Single,
-        url: '',
-        tableName: '',
-        icon: ''
-      }
-    ]);
-    expect(component.newAction).toBeNull();
+      mockAction
+    ];
+
+    component.removeActionFromLocalList('action 1')
+
+    expect(component.selectedAction).toEqual(mockAction);
+    expect(component.actions).toEqual([mockAction]);
+  });
+
+  it('should add action', () => {
+    component.selectedAction =  {
+      id: '',
+      title: 'action 2',
+      type: CustomActionType.Single,
+      url: 'https://google.com',
+      tableName: 'user',
+      icon: 'star'
+    };
+
+    component.addAction();
+
+    expect(component.selectedAction).toEqual(mockAction);
+    expect(component.actions).toEqual([mockAction]);
   });
 });

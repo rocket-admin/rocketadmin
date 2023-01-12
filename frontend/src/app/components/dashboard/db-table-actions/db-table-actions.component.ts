@@ -408,14 +408,22 @@ app.listen(3000, () => console.log("Running on port 8000"));
     }
   }
 
-  removeAction(actionTitle?: string) {
-    if (actionTitle) {
-      this.actions = this.actions.filter((action: CustomAction)  => action.title != actionTitle);
-      if (this.actions.length) this.setSelectedAction(this.actions[0]);
+  undoAction() {
+    this.newAction = null;
+    if (this.actions.length) this.setSelectedAction(this.actions[0]);
+  }
+
+  handleRemoveAction() {
+    if (this.selectedAction.id) {
+      this.openDeleteActionDialog();
     } else {
-      this.newAction = null;
-      if (this.actions.length) this.setSelectedAction(this.actions[0]);
-    };
+      this.removeActionFromLocalList(this.selectedAction.title)
+    }
+  }
+
+  removeActionFromLocalList(actionTitle: string) {
+    this.actions = this.actions.filter((action: CustomAction)  => action.title != actionTitle);
+    if (this.actions.length) this.setSelectedAction(this.actions[0]);
   }
 
   getActions() {
