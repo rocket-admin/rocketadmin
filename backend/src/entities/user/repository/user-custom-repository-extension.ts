@@ -17,7 +17,6 @@ export const userCustomRepositoryExtension: IUserRepository = {
   },
 
   async saveRegisteringUser(userData: RegisterUserDs): Promise<UserEntity> {
-    console.log("🚀 ~ file: user-custom-repository-extension.ts:20 ~ saveRegisteringUser ~ userData", userData)
     const newUser: UserEntity = new UserEntity();
     newUser.gclid = userData.gclidValue;
     newUser.email = userData.email;

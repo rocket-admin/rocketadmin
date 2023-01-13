@@ -191,6 +191,7 @@ test(`${currentTest} should throw an error when group id is not real`, async (t)
     createGroupRO.id = faker.datatype.uuid();
     const findAllUsersInGroup = await request(app.getHttpServer())
       .get(`/group/users/${createGroupRO.id}`)
+      .set('Cookie', firstUserToken)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
 

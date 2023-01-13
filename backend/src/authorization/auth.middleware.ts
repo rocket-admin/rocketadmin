@@ -33,11 +33,6 @@ export class AuthMiddleware implements NestMiddleware {
         );
       }
     }
-    if (process.env.NODE_ENV === 'test' && !token) {
-      req = MockFactory.getDecodedInfo(req);
-      next();
-      return;
-    }
 
     if (!token) {
       throw new HttpException('Token is missing', HttpStatus.UNAUTHORIZED);
