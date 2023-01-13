@@ -61,7 +61,7 @@ async function resetPostgresTestDB(testTableName) {
       });
     } else {
       await Knex(testTableName).insert({
-        [testTableColumnName]: faker.name.findName(),
+        [testTableColumnName]: faker.name.firstName(),
         [testTAbleSecondColumnName]: faker.internet.email(),
         created_at: new Date(),
         updated_at: new Date(),
@@ -192,10 +192,13 @@ test(`${currentTest} should return connection without excluded tables`, async (t
 
     const getConnectionTablesResponse = await request(app.getHttpServer())
       .get(`/connection/tables/${createConnectionRO.id}`)
+      .set('Cookie', token)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
     const getConnectionTablesRO = JSON.parse(getConnectionTablesResponse.text);
-    t.is(getConnectionTablesRO.length, 0);
+    t.is(getConnectionTablesRO.length > 0, true);
+    const hiddenTable = getConnectionTablesRO.find((table) => table.name === newConnectionProperties.hidden_tables[0]);
+    t.is(hiddenTable, undefined);
   } catch (e) {
     throw e;
   }

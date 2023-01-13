@@ -97,7 +97,7 @@ describe('User permissions (connection none, group none) (e2e)', () => {
         });
       } else {
         await Knex(testTableName).insert({
-          [testTableColumnName]: faker.name.findName(),
+          [testTableColumnName]: faker.name.firstName(),
           [testTAbleSecondColumnName]: faker.internet.email(),
           created_at: new Date(),
           updated_at: new Date(),

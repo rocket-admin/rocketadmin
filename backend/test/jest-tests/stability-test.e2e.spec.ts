@@ -53,7 +53,7 @@ xdescribe('Tables Postgres (e2e)', () => {
         });
       } else {
         await Knex(testTableName).insert({
-          [testTableColumnName]: faker.name.findName(),
+          [testTableColumnName]: faker.name.firstName(),
           [testTAbleSecondColumnName]: faker.internet.email(),
           created_at: new Date(),
           updated_at: new Date(),
@@ -161,7 +161,7 @@ xdescribe('Tables Postgres (e2e)', () => {
 
           responseLogs += `getTablesResponse: ${getTablesResponse.text} `;
 
-          const fakeName = faker.name.findName();
+          const fakeName = faker.name.firstName();
           const fakeMail = faker.internet.email();
 
           const row = {
