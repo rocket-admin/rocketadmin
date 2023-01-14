@@ -167,7 +167,7 @@ describe('User permissions (connection readonly, group edit) (e2e)', () => {
         });
       } else {
         await Knex(testTableName).insert({
-          [testTableColumnName]: faker.name.findName(),
+          [testTableColumnName]: faker.name.firstName(),
           [testTAbleSecondColumnName]: faker.internet.email(),
           created_at: new Date(),
           updated_at: new Date(),
@@ -207,7 +207,7 @@ describe('User permissions (connection readonly, group edit) (e2e)', () => {
         });
       } else {
         await Knex(testTableName).insert({
-          [testTableColumnName]: faker.name.findName(),
+          [testTableColumnName]: faker.name.firstName(),
           [testTAbleSecondColumnName]: faker.internet.email(),
           created_at: new Date(),
           updated_at: new Date(),
@@ -1611,8 +1611,8 @@ describe('User permissions (connection readonly, group edit) (e2e)', () => {
         it('should return added row', async () => {
           const connectionIds = await createConnectionsAndInviteNewUserInNewGroupInFirstConnection();
 
-          const randomName = faker.name.findName();
-          const randomEmail = faker.name.findName();
+          const randomName = faker.name.firstName();
+          const randomEmail = faker.name.firstName();
           /* eslint-disable */
           const created_at = new Date();
           const updated_at = new Date();
@@ -1644,8 +1644,8 @@ describe('User permissions (connection readonly, group edit) (e2e)', () => {
         it('should throw an exception when connection id passed in request is incorrect', async () => {
           const connectionIds = await createConnectionsAndInviteNewUserInNewGroupInFirstConnection();
 
-          const randomName = faker.name.findName();
-          const randomEmail = faker.name.findName();
+          const randomName = faker.name.firstName();
+          const randomEmail = faker.name.firstName();
           /* eslint-disable */
           const created_at = new Date();
           const updated_at = new Date();
@@ -1669,8 +1669,8 @@ describe('User permissions (connection readonly, group edit) (e2e)', () => {
         it('should throw an exception when table name passed in request is incorrect', async () => {
           const connectionIds = await createConnectionsAndInviteNewUserInNewGroupInFirstConnection();
 
-          const randomName = faker.name.findName();
-          const randomEmail = faker.name.findName();
+          const randomName = faker.name.firstName();
+          const randomEmail = faker.name.firstName();
           /* eslint-disable */
           const created_at = new Date();
           const updated_at = new Date();
@@ -1696,8 +1696,8 @@ describe('User permissions (connection readonly, group edit) (e2e)', () => {
         it('should throw an exception do not have permission, when you do not have edit permission ', async () => {
           const connectionIds = await createConnectionsAndInviteNewUserInNewGroupInFirstConnection();
 
-          const randomName = faker.name.findName();
-          const randomEmail = faker.name.findName();
+          const randomName = faker.name.firstName();
+          const randomEmail = faker.name.firstName();
           /* eslint-disable */
           const created_at = new Date();
           const updated_at = new Date();
@@ -1722,8 +1722,8 @@ describe('User permissions (connection readonly, group edit) (e2e)', () => {
         it('should throw an exception when connection id passed in request is incorrect', async () => {
           const connectionIds = await createConnectionsAndInviteNewUserInNewGroupInFirstConnection();
 
-          const randomName = faker.name.findName();
-          const randomEmail = faker.name.findName();
+          const randomName = faker.name.firstName();
+          const randomEmail = faker.name.firstName();
           /* eslint-disable */
           const created_at = new Date();
           const updated_at = new Date();
@@ -1747,8 +1747,8 @@ describe('User permissions (connection readonly, group edit) (e2e)', () => {
         it('should throw an exception when table name passed in request is incorrect', async () => {
           const connectionIds = await createConnectionsAndInviteNewUserInNewGroupInFirstConnection();
 
-          const randomName = faker.name.findName();
-          const randomEmail = faker.name.findName();
+          const randomName = faker.name.firstName();
+          const randomEmail = faker.name.firstName();
           /* eslint-disable */
           const created_at = new Date();
           const updated_at = new Date();
@@ -1869,8 +1869,8 @@ describe('User permissions (connection readonly, group edit) (e2e)', () => {
         it('should return all found logs in connection', async () => {
           const connectionIds = await createConnectionsAndInviteNewUserInNewGroupInFirstConnection();
 
-          const randomName = faker.name.findName();
-          const randomEmail = faker.name.findName();
+          const randomName = faker.name.firstName();
+          const randomEmail = faker.name.firstName();
           /* eslint-disable */
           const created_at = new Date();
           const updated_at = new Date();
