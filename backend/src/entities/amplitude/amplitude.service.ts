@@ -30,8 +30,14 @@ export class AmplitudeService {
           },
         };
       }
+      if (options?.operationCount && options?.operationCount > 0) {
+        const promisesArr = Array.from(Array(options.operationCount), () =>
+          this.sendLog(event_type, user_id, event_properties),
+        );
+        await Promise.allSettled(promisesArr);
+        return;
+      }
       await this.sendLog(event_type, user_id, event_properties);
-      /* eslint-enable */
     } catch (e) {
       console.error('Failed to send log: ' + e);
     }
@@ -42,11 +48,9 @@ export class AmplitudeService {
     try {
       client
         .logEvent({
-          /* eslint-disable */
           event_type: eventType,
           user_id: cognitoUserName,
           event_properties: eventProperties ? eventProperties : undefined,
-          /* eslint-enable */
         })
         .catch((e) => {
           throw new Error(e);

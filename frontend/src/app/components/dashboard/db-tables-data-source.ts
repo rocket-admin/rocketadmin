@@ -162,9 +162,13 @@ export class TablesDataSource implements DataSource<Object> {
               return items;
             }, new Map());
 
-          this.isEmptyTable = res.rows.length === 0;
-          const formattedRows = res.rows.map(row => this.formatRow(row, columns));
-          this.rowsSubject.next(formattedRows);
+          if (res.rows) {
+            this.isEmptyTable = res.rows.length === 0;
+            const formattedRows = res.rows.map(row => this.formatRow(row, columns));
+            this.rowsSubject.next(formattedRows);
+          } else {
+            this.isEmptyTable = true;
+          }
           this.keyAttributes = res.primaryColumns;
           this.tableActions = res.table_actions;
 

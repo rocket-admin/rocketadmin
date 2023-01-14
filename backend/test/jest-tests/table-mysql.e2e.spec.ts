@@ -60,7 +60,7 @@ describe('Tables MySQL (e2e)', () => {
         });
       } else {
         await Knex(testTableName).insert({
-          [testTableColumnName]: faker.name.findName(),
+          [testTableColumnName]: faker.name.firstName(),
           [testTAbleSecondColumnName]: faker.internet.email(),
           created_at: new Date(),
           updated_at: new Date(),
@@ -3027,7 +3027,7 @@ describe('Tables MySQL (e2e)', () => {
         const createConnectionRO = JSON.parse(createConnectionResponse.text);
         expect(createConnectionResponse.status).toBe(201);
 
-        const fakeName = faker.name.findName();
+        const fakeName = faker.name.firstName();
         const fakeMail = faker.internet.email();
 
         const row = {
@@ -3087,7 +3087,7 @@ describe('Tables MySQL (e2e)', () => {
         const createConnectionRO = JSON.parse(createConnectionResponse.text);
         expect(createConnectionResponse.status).toBe(201);
 
-        const fakeName = faker.name.findName();
+        const fakeName = faker.name.firstName();
         const fakeMail = faker.internet.email();
 
         const row = {
@@ -3135,7 +3135,7 @@ describe('Tables MySQL (e2e)', () => {
         const createConnectionRO = JSON.parse(createConnectionResponse.text);
         expect(createConnectionResponse.status).toBe(201);
 
-        const fakeName = faker.name.findName();
+        const fakeName = faker.name.firstName();
         const fakeMail = faker.internet.email();
 
         const row = {
@@ -3249,7 +3249,7 @@ describe('Tables MySQL (e2e)', () => {
         const createConnectionRO = JSON.parse(createConnectionResponse.text);
         expect(createConnectionResponse.status).toBe(201);
 
-        const fakeName = faker.name.findName();
+        const fakeName = faker.name.firstName();
         const fakeMail = faker.internet.email();
 
         const row = {
@@ -3327,7 +3327,7 @@ describe('Tables MySQL (e2e)', () => {
         const createConnectionRO = JSON.parse(createConnectionResponse.text);
         expect(createConnectionResponse.status).toBe(201);
 
-        const fakeName = faker.name.findName();
+        const fakeName = faker.name.firstName();
         const fakeMail = faker.internet.email();
 
         const row = {
@@ -3408,7 +3408,7 @@ describe('Tables MySQL (e2e)', () => {
         const createConnectionRO = JSON.parse(createConnectionResponse.text);
         expect(createConnectionResponse.status).toBe(201);
 
-        const fakeName = faker.name.findName();
+        const fakeName = faker.name.firstName();
         const fakeMail = faker.internet.email();
 
         const row = {
@@ -3462,7 +3462,7 @@ describe('Tables MySQL (e2e)', () => {
         const createConnectionRO = JSON.parse(createConnectionResponse.text);
         expect(createConnectionResponse.status).toBe(201);
 
-        const fakeName = faker.name.findName();
+        const fakeName = faker.name.firstName();
         const fakeMail = faker.internet.email();
 
         const row = {
@@ -3518,7 +3518,7 @@ describe('Tables MySQL (e2e)', () => {
         const createConnectionRO = JSON.parse(createConnectionResponse.text);
         expect(createConnectionResponse.status).toBe(201);
 
-        const fakeName = faker.name.findName();
+        const fakeName = faker.name.firstName();
         const fakeMail = faker.internet.email();
 
         const row = {
@@ -3574,7 +3574,7 @@ describe('Tables MySQL (e2e)', () => {
         const createConnectionRO = JSON.parse(createConnectionResponse.text);
         expect(createConnectionResponse.status).toBe(201);
 
-        const fakeName = faker.name.findName();
+        const fakeName = faker.name.firstName();
         const fakeMail = faker.internet.email();
 
         const row = {
@@ -3630,7 +3630,7 @@ describe('Tables MySQL (e2e)', () => {
         const createConnectionRO = JSON.parse(createConnectionResponse.text);
         expect(createConnectionResponse.status).toBe(201);
 
-        const fakeName = faker.name.findName();
+        const fakeName = faker.name.firstName();
         const fakeMail = faker.internet.email();
 
         const row = {
@@ -3685,7 +3685,7 @@ describe('Tables MySQL (e2e)', () => {
         const createConnectionRO = JSON.parse(createConnectionResponse.text);
         expect(createConnectionResponse.status).toBe(201);
 
-        const fakeName = faker.name.findName();
+        const fakeName = faker.name.firstName();
         const fakeMail = faker.internet.email();
 
         const row = {
@@ -3740,7 +3740,7 @@ describe('Tables MySQL (e2e)', () => {
         const createConnectionRO = JSON.parse(createConnectionResponse.text);
         expect(createConnectionResponse.status).toBe(201);
 
-        const fakeName = faker.name.findName();
+        const fakeName = faker.name.firstName();
         const fakeMail = faker.internet.email();
 
         const row = {

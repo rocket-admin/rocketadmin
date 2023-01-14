@@ -1,6 +1,6 @@
 import { InTransactionEnum } from '../../../enums';
 import { AddRowInTableDs } from '../application/data-structures/add-row-in-table.ds';
-import { DeleteRowFromTableDs } from '../application/data-structures/delete-row-from-table.ds';
+import { DeleteRowFromTableDs, DeleteRowsFromTableDs } from '../application/data-structures/delete-row-from-table.ds';
 import { DeletedRowFromTableDs } from '../application/data-structures/deleted-row-from-table.ds';
 import { FindTablesDs } from '../application/data-structures/find-tables.ds';
 import { FoundTableRowsDs } from '../application/data-structures/found-table-rows.ds';
@@ -33,6 +33,10 @@ export interface IUpdateRowInTable {
 
 export interface IDeleteRowFromTable {
   execute(inputData: DeleteRowFromTableDs, inTransaction: InTransactionEnum): Promise<DeletedRowFromTableDs>;
+}
+
+export interface IDeleteRowsFromTable {
+  execute(inputData: DeleteRowsFromTableDs, inTransaction: InTransactionEnum): Promise<boolean>;
 }
 
 export interface IGetRowByPrimaryKey {

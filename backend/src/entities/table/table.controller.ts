@@ -30,7 +30,7 @@ import { AmplitudeService } from '../amplitude/amplitude.service';
 import { ConnectionEntity } from '../connection/connection.entity';
 import { UserEntity } from '../user/user.entity';
 import { AddRowInTableDs } from './application/data-structures/add-row-in-table.ds';
-import { DeleteRowFromTableDs } from './application/data-structures/delete-row-from-table.ds';
+import { DeleteRowFromTableDs, DeleteRowsFromTableDs } from './application/data-structures/delete-row-from-table.ds';
 import { DeletedRowFromTableDs } from './application/data-structures/deleted-row-from-table.ds';
 import { FindTablesDs } from './application/data-structures/find-tables.ds';
 import { FoundTableRowsDs } from './application/data-structures/found-table-rows.ds';
@@ -47,6 +47,7 @@ import { IStructureRO, ITableRowRO } from './table.interface';
 import {
   IAddRowInTable,
   IDeleteRowFromTable,
+  IDeleteRowsFromTable,
   IFindTablesInConnection,
   IGetRowByPrimaryKey,
   IGetTableRows,
@@ -76,6 +77,8 @@ export class TableController {
     private readonly deleteRowFromTableUseCase: IDeleteRowFromTable,
     @Inject(UseCaseType.GET_ROW_BY_PRIMARY_KEY)
     private readonly getRowByPrimaryKeyUseCase: IGetRowByPrimaryKey,
+    @Inject(UseCaseType.DELETE_ROWS_FROM_TABLE)
+    private readonly deleteRowsFromTableUseCase: IDeleteRowsFromTable,
     @InjectRepository(ConnectionEntity)
     private readonly connectionRepository: Repository<ConnectionEntity>,
     @InjectRepository(UserEntity)
@@ -295,6 +298,43 @@ export class TableController {
       userId: userId,
     };
     return await this.deleteRowFromTableUseCase.execute(inputData, InTransactionEnum.OFF);
+  }
+
+  @ApiOperation({ summary: 'Delete rows in table' })
+  @ApiResponse({ status: 200, description: 'Rows deleted' })
+  @UseGuards(TableDeleteGuard)
+  @Put('/table/rows/delete/:slug')
+  async deleteRowsInTable(
+    @MasterPassword() masterPwd: string,
+    @SlugUuid() connectionId: string,
+    @UserId() userId: string,
+    @QueryTableName() tableName: string,
+    @Body() body: Array<Record<string, unknown>>,
+  ): Promise<boolean> {
+    if (!connectionId || !tableName) {
+      throw new HttpException(
+        {
+          message: Messages.PARAMETER_MISSING,
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+    if (!Array.isArray(body)) {
+      throw new HttpException(
+        {
+          message: Messages.MUST_CONTAIN_ARRAY_OF_PRIMARY_KEYS,
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+    const inputData: DeleteRowsFromTableDs = {
+      connectionId: connectionId,
+      masterPwd: masterPwd,
+      primaryKeys: body,
+      tableName: tableName,
+      userId: userId,
+    };
+    return await this.deleteRowsFromTableUseCase.execute(inputData, InTransactionEnum.OFF);
   }
 
   @ApiOperation({ summary: 'Get row by primary key' })

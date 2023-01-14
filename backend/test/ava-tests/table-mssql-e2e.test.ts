@@ -5,7 +5,7 @@ import test from 'ava';
 import * as cookieParser from 'cookie-parser';
 import * as request from 'supertest';
 import { ApplicationModule } from '../../src/app.module';
-import { QueryOrderingEnum } from '../../src/enums';
+import { LogOperationTypeEnum, QueryOrderingEnum } from '../../src/enums';
 import { AllExceptionsFilter } from '../../src/exceptions/all-exceptions.filter';
 import { Messages } from '../../src/exceptions/text/messages';
 import { Cacher } from '../../src/helpers/cache/cacher';
@@ -2018,7 +2018,7 @@ test(`${currentTest} should add row in table and return result`, async (t) => {
   t.is(rows.length, 43);
   t.is(rows[42][testTableColumnName], row[testTableColumnName]);
   t.is(rows[42][testTableSecondColumnName], row[testTableSecondColumnName]);
-  t.is(rows[42].id, (rows[41].id + 1));
+  t.is(rows[42].id, rows[41].id + 1);
 });
 
 test(`${currentTest} should throw an exception when connection id is not passed in request`, async (t) => {
@@ -3182,7 +3182,90 @@ test(`${currentTest} should throw an exception, when primary key passed in reque
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
 
-    t.is(foundRowInTableResponse.status, 400);
+  t.is(foundRowInTableResponse.status, 400);
   const { message } = JSON.parse(foundRowInTableResponse.text);
   t.is(message, Messages.ROW_PRIMARY_KEY_NOT_FOUND);
+});
+
+currentTest = 'PUT /table/rows/delete/:slug';
+
+test(`${currentTest} should delete row in table and return result`, async (t) => {
+  const { connectionToTestMSSQL } = getTestData(mockFactory);
+  const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
+  const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
+    await createTestTable(connectionToTestMSSQL);
+
+  testTables.push(testTableName);
+
+  const createConnectionResponse = await request(app.getHttpServer())
+    .post('/connection')
+    .send(connectionToTestMSSQL)
+    .set('Cookie', firstUserToken)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+  const createConnectionRO = JSON.parse(createConnectionResponse.text);
+  t.is(createConnectionResponse.status, 201);
+  const primaryKeysForDeletion: Array<Record<string, unknown>> = [
+    {
+      id: 1,
+    },
+    {
+      id: 10,
+    },
+    {
+      id: 32,
+    },
+  ];
+  const deleteRowsInTableResponse = await request(app.getHttpServer())
+    .put(`/table/rows/delete/${createConnectionRO.id}?tableName=${testTableName}`)
+    .send(primaryKeysForDeletion)
+    .set('Cookie', firstUserToken)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+
+  t.is(deleteRowsInTableResponse.status, 200);
+  const deleteRowInTableRO = JSON.parse(deleteRowsInTableResponse.text);
+
+  //checking that the line was deleted
+  const getTableRowsResponse = await request(app.getHttpServer())
+    .get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=1&perPage=50`)
+    .set('Cookie', firstUserToken)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+  t.is(getTableRowsResponse.status, 200);
+
+  const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
+
+
+  t.is(getTableRowsRO.hasOwnProperty('rows'), true);
+  t.is(getTableRowsRO.hasOwnProperty('primaryColumns'), true);
+  t.is(getTableRowsRO.hasOwnProperty('pagination'), true);
+  // check that lines was deleted
+
+  const { rows, primaryColumns, pagination } = getTableRowsRO;
+
+  t.is(rows.length, testEntitiesSeedsCount - primaryKeysForDeletion.length);
+
+  for (const key of primaryKeysForDeletion) {
+    t.is(
+      rows.findIndex((row) => row.id === key.id),
+      -1,
+    );
+  }
+
+  // check that table deletaion was logged
+  const tableLogsResponse = await request(app.getHttpServer())
+    .get(`/logs/${createConnectionRO.id}?tableName=${testTableName}`)
+    .set('Cookie', firstUserToken)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+
+  t.is(tableLogsResponse.status, 200);
+
+  const tableLogsRO = JSON.parse(tableLogsResponse.text);
+  t.is(tableLogsRO.logs.length, primaryKeysForDeletion.length + 1);
+  const onlyDeleteLogs = tableLogsRO.logs.filter((log) => log.operationType === LogOperationTypeEnum.deleteRow);
+  for (const key of primaryKeysForDeletion) {
+    t.is(onlyDeleteLogs.findIndex((log) => log.received_data.id === key.id) >= 0, true);
+  }
 });

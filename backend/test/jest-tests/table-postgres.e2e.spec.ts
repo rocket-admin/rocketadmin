@@ -59,7 +59,7 @@ describe('Tables Postgres (e2e)', () => {
         });
       } else {
         await Knex(testTableName).insert({
-          [testTableColumnName]: faker.name.findName(),
+          [testTableColumnName]: faker.name.firstName(),
           [testTAbleSecondColumnName]: faker.internet.email(),
           created_at: new Date(),
           updated_at: new Date(),
@@ -2980,7 +2980,7 @@ describe('Tables Postgres (e2e)', () => {
         const createConnectionRO = JSON.parse(createConnectionResponse.text);
         expect(createConnectionResponse.status).toBe(201);
 
-        const fakeName = faker.name.findName();
+        const fakeName = faker.name.firstName();
         const fakeMail = faker.internet.email();
 
         const row = {
@@ -3062,7 +3062,7 @@ describe('Tables Postgres (e2e)', () => {
         const createConnectionRO = JSON.parse(createConnectionResponse.text);
         expect(createConnectionResponse.status).toBe(201);
 
-        const fakeName = faker.name.findName();
+        const fakeName = faker.name.firstName();
         const fakeMail = faker.internet.email();
 
         const row = {
@@ -3132,7 +3132,7 @@ describe('Tables Postgres (e2e)', () => {
         const createConnectionRO = JSON.parse(createConnectionResponse.text);
         expect(createConnectionResponse.status).toBe(201);
 
-        const fakeName = faker.name.findName();
+        const fakeName = faker.name.firstName();
         const fakeMail = faker.internet.email();
 
         const row = {
@@ -3268,7 +3268,7 @@ describe('Tables Postgres (e2e)', () => {
         const createConnectionRO = JSON.parse(createConnectionResponse.text);
         expect(createConnectionResponse.status).toBe(201);
 
-        const fakeName = faker.name.findName();
+        const fakeName = faker.name.firstName();
         const fakeMail = faker.internet.email();
 
         const row = {
@@ -3324,7 +3324,7 @@ describe('Tables Postgres (e2e)', () => {
         const createConnectionRO = JSON.parse(createConnectionResponse.text);
         expect(createConnectionResponse.status).toBe(201);
 
-        const fakeName = faker.name.findName();
+        const fakeName = faker.name.firstName();
         const fakeMail = faker.internet.email();
 
         const row = {
@@ -3406,7 +3406,7 @@ describe('Tables Postgres (e2e)', () => {
         const createConnectionRO = JSON.parse(createConnectionResponse.text);
         expect(createConnectionResponse.status).toBe(201);
 
-        const fakeName = faker.name.findName();
+        const fakeName = faker.name.firstName();
         const fakeMail = faker.internet.email();
 
         const row = {
@@ -3460,7 +3460,7 @@ describe('Tables Postgres (e2e)', () => {
         const createConnectionRO = JSON.parse(createConnectionResponse.text);
         expect(createConnectionResponse.status).toBe(201);
 
-        const fakeName = faker.name.findName();
+        const fakeName = faker.name.firstName();
         const fakeMail = faker.internet.email();
 
         const row = {
@@ -3516,7 +3516,7 @@ describe('Tables Postgres (e2e)', () => {
         const createConnectionRO = JSON.parse(createConnectionResponse.text);
         expect(createConnectionResponse.status).toBe(201);
 
-        const fakeName = faker.name.findName();
+        const fakeName = faker.name.firstName();
         const fakeMail = faker.internet.email();
 
         const row = {
@@ -3572,7 +3572,7 @@ describe('Tables Postgres (e2e)', () => {
         const createConnectionRO = JSON.parse(createConnectionResponse.text);
         expect(createConnectionResponse.status).toBe(201);
 
-        const fakeName = faker.name.findName();
+        const fakeName = faker.name.firstName();
         const fakeMail = faker.internet.email();
 
         const row = {
@@ -3628,7 +3628,7 @@ describe('Tables Postgres (e2e)', () => {
         const createConnectionRO = JSON.parse(createConnectionResponse.text);
         expect(createConnectionResponse.status).toBe(201);
 
-        const fakeName = faker.name.findName();
+        const fakeName = faker.name.firstName();
         const fakeMail = faker.internet.email();
 
         const row = {
@@ -3683,7 +3683,7 @@ describe('Tables Postgres (e2e)', () => {
         const createConnectionRO = JSON.parse(createConnectionResponse.text);
         expect(createConnectionResponse.status).toBe(201);
 
-        const fakeName = faker.name.findName();
+        const fakeName = faker.name.firstName();
         const fakeMail = faker.internet.email();
 
         const row = {
@@ -3738,7 +3738,7 @@ describe('Tables Postgres (e2e)', () => {
         const createConnectionRO = JSON.parse(createConnectionResponse.text);
         expect(createConnectionResponse.status).toBe(201);
 
-        const fakeName = faker.name.findName();
+        const fakeName = faker.name.firstName();
         const fakeMail = faker.internet.email();
 
         const row = {
@@ -3801,10 +3801,9 @@ describe('Tables Postgres (e2e)', () => {
           .set('Content-Type', 'application/json')
           .set('Accept', 'application/json');
 
-          const deleteRowInTableRO = JSON.parse(deleteRowInTableResponse.text);
-         
+        const deleteRowInTableRO = JSON.parse(deleteRowInTableResponse.text);
+
         expect(deleteRowInTableResponse.status).toBe(200);
-        
 
         expect(deleteRowInTableRO.hasOwnProperty('row')).toBeTruthy();
 

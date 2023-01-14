@@ -17,7 +17,7 @@ import { TestUtils } from '../utils/test.utils';
 const mockFactory = new MockFactory();
 let app: INestApplication;
 let testUtils: TestUtils;
-let currentTest;
+let currentTest: string;
 
 type RegisterUserData = {
   email: string;
@@ -34,8 +34,6 @@ test.before(async () => {
   app.use(cookieParser());
   await app.init();
   app.getHttpServer().listen(0);
-  testUtils = moduleFixture.get<TestUtils>(TestUtils);
-  await testUtils.resetDb();
 });
 
 function getTestData() {
@@ -72,15 +70,6 @@ async function registerUserAndReturnUserInfo(): Promise<{
   const token = `${Constants.JWT_COOKIE_KEY_NAME}=${TestUtils.getJwtTokenFromResponse(registerAdminUserResponse)}`;
   return { token: token, ...adminUserRegisterInfo };
 }
-
-test.after.always('Close app connection', async () => {
-  // await testUtils.resetDb();
-  const connect = await app.get(Connection);
-  if (connect.isConnected) {
-    await connect.close();
-  }
-  await app.close();
-});
 
 currentTest = '> GET /connections >';
 test(`${currentTest} should return all connections for this user`, async (t) => {

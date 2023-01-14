@@ -4,6 +4,7 @@ import { Test } from '@nestjs/testing';
 import test from 'ava';
 import * as cookieParser from 'cookie-parser';
 import * as request from 'supertest';
+import { resourceLimits } from 'worker_threads';
 import { ApplicationModule } from '../../src/app.module';
 import { AccessLevelEnum, QueryOrderingEnum } from '../../src/enums';
 import { AllExceptionsFilter } from '../../src/exceptions/all-exceptions.filter';
@@ -15,7 +16,7 @@ import { DatabaseService } from '../../src/shared/database/database.service';
 import { MockFactory } from '../mock.factory';
 import { compareTableWidgetsArrays } from '../utils/compare-table-widgets-arrays';
 import { TestUtils } from '../utils/test.utils';
-import { createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions } from '../utils/user-with-different-permissions-utils';
+import { createConnectionsAndInviteNewUserInNewGroupWithOnlyTablePermissions } from '../utils/user-with-different-permissions-utils';
 
 let app: INestApplication;
 let testUtils: TestUtils;
@@ -64,7 +65,7 @@ currentTest = 'GET /connections/';
 
 test(`${currentTest} should return connections, where second user have access`, async (t) => {
   try {
-    const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
+    const testData = await createConnectionsAndInviteNewUserInNewGroupWithOnlyTablePermissions(app);
     const {
       connections,
       firstTableInfo,
@@ -83,24 +84,13 @@ test(`${currentTest} should return connections, where second user have access`, 
 
     const result = findAll.body.connections;
     t.is(result.length, 5);
-    t.is(result[0].hasOwnProperty('connection'), true);
-    t.is(result[1].hasOwnProperty('accessLevel'), true);
-    t.is(uuidRegex.test(result[0].connection.id), true);
-    t.is(result[3].hasOwnProperty('accessLevel'), true);
-    t.is(result[4].connection.hasOwnProperty('host'), true);
-    t.is(result[3].connection.hasOwnProperty('host'), true);
-    t.is(typeof result[0].connection.port, 'number');
-    t.is(result[1].connection.hasOwnProperty('port'), true);
-    t.is(result[2].connection.hasOwnProperty('username'), true);
-    t.is(result[3].connection.hasOwnProperty('database'), true);
-    t.is(result[4].connection.hasOwnProperty('sid'), true);
-    t.is(result[0].connection.hasOwnProperty('createdAt'), true);
-    t.is(result[1].connection.hasOwnProperty('updatedAt'), true);
-    t.is(result[2].connection.hasOwnProperty('password'), false);
-    t.is(result[3].connection.hasOwnProperty('groups'), false);
-    t.is(result[4].connection.hasOwnProperty('author'), false);
+    const nonTestConnection = result.find(({ connection }) => connection.id === connections.firstId);
+    for (const key in nonTestConnection.connection) {
+      t.is(Constants.CONNECTION_KEYS_NONE_PERMISSION.includes(key), true);
+    }
   } catch (e) {
     console.error(e);
+    throw e;
   }
 });
 
@@ -108,7 +98,7 @@ currentTest = 'GET /connection/one/:slug';
 
 test(`${currentTest} should return a found connection`, async (t) => {
   try {
-    const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
+    const testData = await createConnectionsAndInviteNewUserInNewGroupWithOnlyTablePermissions(app);
     const {
       connections,
       firstTableInfo,
@@ -127,28 +117,18 @@ test(`${currentTest} should return a found connection`, async (t) => {
     t.is(findOneResponce.status, 200);
 
     const result = findOneResponce.body.connection;
-    t.is(uuidRegex.test(result.id), true);
-    t.is(result.title, newConnectionToPostgres.title);
-    t.is(result.type, 'postgres');
-    t.is(result.host, newConnectionToPostgres.host);
-    t.is(typeof result.port, 'number');
-    t.is(result.port, newConnectionToPostgres.port);
-    t.is(result.username, 'postgres');
-    t.is(result.database, newConnectionToPostgres.database);
-    t.is(result.sid, null);
-    t.is(result.hasOwnProperty('createdAt'), true);
-    t.is(result.hasOwnProperty('updatedAt'), true);
-    t.is(result.hasOwnProperty('password'), false);
-    t.is(result.hasOwnProperty('groups'), false);
-    t.is(result.hasOwnProperty('author'), false);
+    for (const key in result) {
+      t.is(Constants.CONNECTION_KEYS_NONE_PERMISSION.includes(key), true);
+    }
   } catch (e) {
     console.error(e);
+    throw e;
   }
 });
 
 test(`${currentTest} should throw an exception, when you do not have permission in this connection`, async (t) => {
   try {
-    const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
+    const testData = await createConnectionsAndInviteNewUserInNewGroupWithOnlyTablePermissions(app);
     const {
       connections,
       firstTableInfo,
@@ -172,6 +152,7 @@ test(`${currentTest} should throw an exception, when you do not have permission 
     t.is(findOneRO.hasOwnProperty('host'), false);
   } catch (e) {
     console.error(e);
+    throw e;
   }
 });
 
@@ -179,7 +160,7 @@ currentTest = 'PUT /connection';
 
 test(`${currentTest} should throw exception you do not have permission`, async (t) => {
   try {
-    const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
+    const testData = await createConnectionsAndInviteNewUserInNewGroupWithOnlyTablePermissions(app);
     const {
       connections,
       firstTableInfo,
@@ -200,12 +181,13 @@ test(`${currentTest} should throw exception you do not have permission`, async (
     t.is(JSON.parse(updateConnectionResponse.text).message, Messages.DONT_HAVE_PERMISSIONS);
   } catch (e) {
     console.error(e);
+    throw e;
   }
 });
 
 test(`${currentTest} should return throw an exception, when you try update a connection without permissions in it`, async (t) => {
   try {
-    const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
+    const testData = await createConnectionsAndInviteNewUserInNewGroupWithOnlyTablePermissions(app);
     const {
       connections,
       firstTableInfo,
@@ -225,6 +207,7 @@ test(`${currentTest} should return throw an exception, when you try update a con
     t.is(JSON.parse(updateConnectionResponse.text).message, Messages.DONT_HAVE_PERMISSIONS);
   } catch (e) {
     console.error(e);
+    throw e;
   }
 });
 
@@ -232,7 +215,7 @@ currentTest = 'DELETE /connection/:slug';
 
 test(`${currentTest} should throw an exception do not have permissions`, async (t) => {
   try {
-    const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
+    const testData = await createConnectionsAndInviteNewUserInNewGroupWithOnlyTablePermissions(app);
     const {
       connections,
       firstTableInfo,
@@ -261,12 +244,13 @@ test(`${currentTest} should throw an exception do not have permissions`, async (
     t.is(JSON.parse(findOneResponce.text).connection.id, connections.firstId);
   } catch (e) {
     console.error(e);
+    throw e;
   }
 });
 
 test(`${currentTest} should throw an exception, when you try to delete connection without permission`, async (t) => {
   try {
-    const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
+    const testData = await createConnectionsAndInviteNewUserInNewGroupWithOnlyTablePermissions(app);
     const {
       connections,
       firstTableInfo,
@@ -294,6 +278,7 @@ test(`${currentTest} should throw an exception, when you try to delete connectio
     t.is(findOneResponce.status, 200);
   } catch (e) {
     console.error(e);
+    throw e;
   }
 });
 
@@ -301,7 +286,7 @@ currentTest = 'POST /connection/group/:slug';
 
 test(`${currentTest} should throw an exception don not have permission`, async (t) => {
   try {
-    const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
+    const testData = await createConnectionsAndInviteNewUserInNewGroupWithOnlyTablePermissions(app);
     const {
       connections,
       firstTableInfo,
@@ -322,12 +307,13 @@ test(`${currentTest} should throw an exception don not have permission`, async (
     t.is(JSON.parse(createGroupResponse.text).message, Messages.DONT_HAVE_PERMISSIONS);
   } catch (e) {
     console.error(e);
+    throw e;
   }
 });
 
 test(`${currentTest} should throw an exception when you try add group in connection without permission in it`, async (t) => {
   try {
-    const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
+    const testData = await createConnectionsAndInviteNewUserInNewGroupWithOnlyTablePermissions(app);
     const {
       connections,
       firstTableInfo,
@@ -347,6 +333,7 @@ test(`${currentTest} should throw an exception when you try add group in connect
     t.is(JSON.parse(createGroupResponse.text).message, Messages.DONT_HAVE_PERMISSIONS);
   } catch (e) {
     console.error(e);
+    throw e;
   }
 });
 
@@ -354,7 +341,7 @@ currentTest = 'PUT /connection/group/:slug';
 
 test(`${currentTest} should return connection without deleted group result`, async (t) => {
   try {
-    const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
+    const testData = await createConnectionsAndInviteNewUserInNewGroupWithOnlyTablePermissions(app);
     const {
       connections,
       firstTableInfo,
@@ -395,12 +382,13 @@ test(`${currentTest} should return connection without deleted group result`, asy
     t.is(JSON.parse(response.text).message, Messages.DONT_HAVE_PERMISSIONS);
   } catch (e) {
     console.error(e);
+    throw e;
   }
 });
 
 test(`${currentTest} should throw an exception, when you try delete group in connection without permissions`, async (t) => {
   try {
-    const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
+    const testData = await createConnectionsAndInviteNewUserInNewGroupWithOnlyTablePermissions(app);
     const {
       connections,
       firstTableInfo,
@@ -437,6 +425,7 @@ test(`${currentTest} should throw an exception, when you try delete group in con
     t.is(JSON.parse(response.text).message, Messages.DONT_HAVE_PERMISSIONS);
   } catch (e) {
     console.error(e);
+    throw e;
   }
 });
 
@@ -444,7 +433,7 @@ currentTest = 'GET /connection/groups/:slug';
 
 test(`${currentTest} should groups in connection`, async (t) => {
   try {
-    const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
+    const testData = await createConnectionsAndInviteNewUserInNewGroupWithOnlyTablePermissions(app);
     const {
       connections,
       firstTableInfo,
@@ -476,7 +465,7 @@ test(`${currentTest} should groups in connection`, async (t) => {
     const groupId = result[0].group.id;
     t.is(uuidRegex.test(groupId), true);
     t.is(result[0].group.hasOwnProperty('title'), true);
-    t.is(result[0].accessLevel, AccessLevelEnum.edit);
+    t.is(result[0].accessLevel, AccessLevelEnum.none);
 
     const index = result.findIndex((el: any) => {
       return el.group.title === 'Admin';
@@ -485,12 +474,13 @@ test(`${currentTest} should groups in connection`, async (t) => {
     t.is(index >= 0, false);
   } catch (e) {
     console.error(e);
+    throw e;
   }
 });
 
 test(`${currentTest} it should throw an exception, when you try get groups in connection, where you do not have permission`, async (t) => {
   try {
-    const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
+    const testData = await createConnectionsAndInviteNewUserInNewGroupWithOnlyTablePermissions(app);
     const {
       connections,
       firstTableInfo,
@@ -519,6 +509,7 @@ test(`${currentTest} it should throw an exception, when you try get groups in co
     t.is(result.length, 0);
   } catch (e) {
     console.error(e);
+    throw e;
   }
 });
 
@@ -526,7 +517,7 @@ currentTest = 'GET /connection/permissions';
 
 test(`${currentTest} should return permissions object for current group in current connection`, async (t) => {
   try {
-    const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
+    const testData = await createConnectionsAndInviteNewUserInNewGroupWithOnlyTablePermissions(app);
     const {
       connections,
       firstTableInfo,
@@ -559,8 +550,8 @@ test(`${currentTest} should return permissions object for current group in curre
     t.is(typeof result.group, 'object');
     t.is(result.connection.connectionId, connections.firstId);
     t.is(result.group.groupId, groupId);
-    t.is(result.connection.accessLevel, AccessLevelEnum.readonly);
-    t.is(result.group.accessLevel, AccessLevelEnum.edit);
+    t.is(result.connection.accessLevel, AccessLevelEnum.none);
+    t.is(result.group.accessLevel, AccessLevelEnum.none);
     t.is(typeof result.tables, 'object');
 
     const { tables } = result;
@@ -575,6 +566,7 @@ test(`${currentTest} should return permissions object for current group in curre
     t.is(tables[tableIndex].accessLevel.edit, tablePermissions.edit);
   } catch (e) {
     console.error(e);
+    throw e;
   }
 });
 
@@ -582,7 +574,7 @@ currentTest = 'GET /connection/user/permissions';
 
 test(`${currentTest} should return permissions object for current group in current connection`, async (t) => {
   try {
-    const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
+    const testData = await createConnectionsAndInviteNewUserInNewGroupWithOnlyTablePermissions(app);
     const {
       connections,
       firstTableInfo,
@@ -616,8 +608,8 @@ test(`${currentTest} should return permissions object for current group in curre
     t.is(typeof result.group, 'object');
     t.is(result.connection.connectionId, connections.firstId);
     t.is(result.group.groupId, groupId);
-    t.is(result.connection.accessLevel, AccessLevelEnum.readonly);
-    t.is(result.group.accessLevel, AccessLevelEnum.edit);
+    t.is(result.connection.accessLevel, AccessLevelEnum.none);
+    t.is(result.group.accessLevel, AccessLevelEnum.none);
     t.is(typeof result.tables, 'object');
 
     const { tables } = result;
@@ -632,12 +624,13 @@ test(`${currentTest} should return permissions object for current group in curre
     t.is(tables[foundTableIndex].accessLevel.edit, tablePermissions.edit);
   } catch (e) {
     console.error(e);
+    throw e;
   }
 });
 
 test(`${currentTest} should return permissions object for current group in current connection for current user`, async (t) => {
   try {
-    const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
+    const testData = await createConnectionsAndInviteNewUserInNewGroupWithOnlyTablePermissions(app);
     const {
       connections,
       firstTableInfo,
@@ -665,6 +658,7 @@ test(`${currentTest} should return permissions object for current group in curre
 
     t.is(response.status, 200);
     const result = JSON.parse(response.text);
+    console.log("🚀 ~ file: user-with-table-only-permissions-e2e.test.ts:661 ~ test ~ result", result)
 
     t.is(result.hasOwnProperty('connection'), true);
     t.is(result.hasOwnProperty('group'), true);
@@ -676,20 +670,10 @@ test(`${currentTest} should return permissions object for current group in curre
     t.is(result.connection.accessLevel, AccessLevelEnum.none);
     t.is(result.group.accessLevel, AccessLevelEnum.none);
     t.is(typeof result.tables, 'object');
-
-    const { tables } = result;
-    const foundTableIndex = tables.findIndex((table) => table.tableName === firstTableInfo.testTableName);
-    t.is(tables.length > 0, true);
-    t.is(typeof tables[0], 'object');
-    t.is(tables[foundTableIndex].hasOwnProperty('accessLevel'), true);
-    t.is(tables[foundTableIndex].accessLevel.visibility, false);
-    t.is(tables[foundTableIndex].accessLevel.readonly, false);
-    t.is(tables[foundTableIndex].accessLevel.add, false);
-    t.is(tables[foundTableIndex].accessLevel.delete, false);
-    t.is(tables[foundTableIndex].accessLevel.edit, false);
-    t.is(tables[foundTableIndex].accessLevel.edit, false);
+    
   } catch (e) {
     console.error(e);
+    throw e;
   }
 });
 
@@ -699,7 +683,7 @@ currentTest = 'GET /groups/';
 
 test(`${currentTest} should return found groups with current user`, async (t) => {
   try {
-    const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
+    const testData = await createConnectionsAndInviteNewUserInNewGroupWithOnlyTablePermissions(app);
     const {
       users: { simpleUserToken },
     } = testData;
@@ -721,13 +705,14 @@ test(`${currentTest} should return found groups with current user`, async (t) =>
     t.is(groups[3].group.hasOwnProperty('isMain'), true);
   } catch (e) {
     console.error(e);
+    throw e;
   }
 });
 
 currentTest = 'GET /group/users/:slug';
-test(`${currentTest} it should return users in group`, async (t) => {
+test(`${currentTest} it should throw exception ${Messages.DONT_HAVE_PERMISSIONS}`, async (t) => {
   try {
-    const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
+    const testData = await createConnectionsAndInviteNewUserInNewGroupWithOnlyTablePermissions(app);
     const {
       connections,
       firstTableInfo,
@@ -752,21 +737,19 @@ test(`${currentTest} it should return users in group`, async (t) => {
       .set('Cookie', simpleUserToken)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
+    t.is(response.status, 403);  
     const getUsersRO = JSON.parse(response.text);
-    t.is(getUsersRO.length, 2);
-    t.is(getUsersRO[0].id === getUsersRO[1].id, false);
-    t.is(getUsersRO[0].hasOwnProperty('createdAt'), true);
-    t.is(getUsersRO[0].hasOwnProperty('password'), false);
-    t.is(getUsersRO[0].hasOwnProperty('isActive'), true);
-    t.is(getUsersRO[0].hasOwnProperty('email'), true);
+    t.is(getUsersRO.hasOwnProperty('message'), true);
+    t.is(getUsersRO.message, Messages.DONT_HAVE_PERMISSIONS);
   } catch (e) {
     console.error(e);
+    throw e;
   }
 });
 
 test(`${currentTest} it should throw an exception when you try to receive user in group where you dont have permission`, async (t) => {
   try {
-    const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
+    const testData = await createConnectionsAndInviteNewUserInNewGroupWithOnlyTablePermissions(app);
     const {
       connections,
       firstTableInfo,
@@ -794,14 +777,15 @@ test(`${currentTest} it should throw an exception when you try to receive user i
     t.is(getUsersRO.message, Messages.DONT_HAVE_PERMISSIONS);
   } catch (e) {
     console.error(e);
+    throw e;
   }
 });
 
 currentTest = 'PUT /group/user';
 
-test(`${currentTest} should return group with added user`, async (t) => {
+test(`${currentTest} should throw exception ${Messages.DONT_HAVE_PERMISSIONS}`, async (t) => {
   try {
-    const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
+    const testData = await createConnectionsAndInviteNewUserInNewGroupWithOnlyTablePermissions(app);
     const {
       connections,
       firstTableInfo,
@@ -829,59 +813,19 @@ test(`${currentTest} should return group with added user`, async (t) => {
       .send({ groupId, email })
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
-    const addUserInGroupRO = JSON.parse(addUserInGroupResponse.text).group;
-    t.is(uuidRegex.test(addUserInGroupRO.id), true);
-    t.is(addUserInGroupRO.hasOwnProperty('title'), true);
-    t.is(addUserInGroupRO.hasOwnProperty('isMain'), true);
-    t.is(addUserInGroupRO.hasOwnProperty('users'), true);
-    const { users } = addUserInGroupRO;
-    t.is(users.length, 3);
-    t.is(users[0].id === users[1].id, false);
-    t.is(users[1].id === users[2].id, false);
-    t.is(users[2].id === users[0].id, false);
-  } catch (e) {
-    console.error(e);
-  }
-});
-
-test(`${currentTest} should throw exception, when user email not passed in request`, async (t) => {
-  try {
-    const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
-    const {
-      connections,
-      firstTableInfo,
-      groups,
-      permissions,
-      secondTableInfo,
-      users: { adminUserToken, simpleUserToken },
-    } = testData;
-    const getGroupsResponse = await request(app.getHttpServer())
-      .get(`/connection/groups/${connections.firstId}`)
-      .set('Cookie', simpleUserToken)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-
-    t.is(getGroupsResponse.status, 200);
-    const getGroupsRO = JSON.parse(getGroupsResponse.text);
-
-    const groupId = getGroupsRO[0].group.id;
-    const addUserInGroupResponse = await request(app.getHttpServer())
-      .put('/group/user')
-      .set('Cookie', simpleUserToken)
-      .send({ groupId })
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
     const addUserInGroupRO = JSON.parse(addUserInGroupResponse.text);
-    t.is(addUserInGroupResponse.status, 400);
-    t.is(addUserInGroupRO.message, Messages.USER_EMAIL_MISSING);
+    t.is(addUserInGroupResponse.status, 403);
+    t.is(addUserInGroupRO.hasOwnProperty('message'), true);
+    t.is(addUserInGroupRO.message, Messages.DONT_HAVE_PERMISSIONS);
   } catch (e) {
     console.error(e);
+    throw e;
   }
 });
 
 test(`${currentTest} should throw exception, when group id not passed in request`, async (t) => {
   try {
-    const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
+    const testData = await createConnectionsAndInviteNewUserInNewGroupWithOnlyTablePermissions(app);
     const {
       connections,
       firstTableInfo,
@@ -912,12 +856,13 @@ test(`${currentTest} should throw exception, when group id not passed in request
     t.is(addUserInGroupRO.message, Messages.GROUP_ID_MISSING);
   } catch (e) {
     console.error(e);
+    throw e;
   }
 });
 
 test(`${currentTest} should throw exception, when group id passed in request is incorrect`, async (t) => {
   try {
-    const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
+    const testData = await createConnectionsAndInviteNewUserInNewGroupWithOnlyTablePermissions(app);
     const {
       connections,
       firstTableInfo,
@@ -948,14 +893,15 @@ test(`${currentTest} should throw exception, when group id passed in request is 
     t.is(addUserInGroupRO.message, Messages.CONNECTION_NOT_FOUND);
   } catch (e) {
     console.error(e);
+    throw e;
   }
 });
 
 currentTest = 'DELETE /group/:slug';
 
-test(`${currentTest} should delete result after group deletion`, async (t) => {
+test(`${currentTest} should throw ${Messages.DONT_HAVE_PERMISSIONS} exception`, async (t) => {
   try {
-    const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
+    const testData = await createConnectionsAndInviteNewUserInNewGroupWithOnlyTablePermissions(app);
     const {
       connections,
       firstTableInfo,
@@ -966,12 +912,11 @@ test(`${currentTest} should delete result after group deletion`, async (t) => {
     } = testData;
     const getGroupsResponse = await request(app.getHttpServer())
       .get(`/connection/groups/${connections.firstId}`)
-      .set('Cookie', simpleUserToken)
+      .set('Cookie', adminUserToken)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
 
     t.is(getGroupsResponse.status, 200);
-
     const groupId = JSON.parse(getGroupsResponse.text)[0].group.id;
     const deleteGroupResponse = await request(app.getHttpServer())
       .delete(`/group/${groupId}`)
@@ -979,15 +924,17 @@ test(`${currentTest} should delete result after group deletion`, async (t) => {
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
     const deleteGroupRO = JSON.parse(deleteGroupResponse.text);
-    t.is(deleteGroupRO.isMain, false);
+    t.is(deleteGroupResponse.status, 403);
+    t.is(deleteGroupRO.message, Messages.DONT_HAVE_PERMISSIONS);
   } catch (e) {
     console.error(e);
+    throw e;
   }
 });
 
 test(`${currentTest} should throw an exception when you try delete admin group`, async (t) => {
   try {
-    const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
+    const testData = await createConnectionsAndInviteNewUserInNewGroupWithOnlyTablePermissions(app);
     const {
       connections,
       firstTableInfo,
@@ -998,7 +945,7 @@ test(`${currentTest} should throw an exception when you try delete admin group`,
     } = testData;
     const getGroupsResponse = await request(app.getHttpServer())
       .get(`/connection/groups/${connections.firstId}`)
-      .set('Cookie', simpleUserToken)
+      .set('Cookie', adminUserToken)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
 
@@ -1014,15 +961,16 @@ test(`${currentTest} should throw an exception when you try delete admin group`,
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
     const deleteGroupRO = JSON.parse(deleteGroupResponse.text);
-    t.is(deleteGroupRO.message, Messages.CANT_DELETE_ADMIN_GROUP);
+    t.is(deleteGroupRO.message, Messages.DONT_HAVE_PERMISSIONS);
   } catch (e) {
     console.error(e);
+    throw e;
   }
 });
 
 test(`${currentTest} should throw an exception when group id not passed in request`, async (t) => {
   try {
-    const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
+    const testData = await createConnectionsAndInviteNewUserInNewGroupWithOnlyTablePermissions(app);
     const {
       connections,
       firstTableInfo,
@@ -1049,12 +997,13 @@ test(`${currentTest} should throw an exception when group id not passed in reque
     t.is(deleteGroupResponse.status, 404);
   } catch (e) {
     console.error(e);
+    throw e;
   }
 });
 
 test(`${currentTest} should throw an exception when group id passed in request is incorrect`, async (t) => {
   try {
-    const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
+    const testData = await createConnectionsAndInviteNewUserInNewGroupWithOnlyTablePermissions(app);
     const {
       connections,
       firstTableInfo,
@@ -1081,14 +1030,15 @@ test(`${currentTest} should throw an exception when group id passed in request i
     t.is(deleteGroupRO.message, Messages.CONNECTION_NOT_FOUND);
   } catch (e) {
     console.error(e);
+    throw e;
   }
 });
 
 currentTest = 'PUT /group/user/delete';
 
-test(`${currentTest} should return group without deleted user`, async (t) => {
+test(`${currentTest} should throw an exception ${Messages.DONT_HAVE_PERMISSIONS}`, async (t) => {
   try {
-    const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
+    const testData = await createConnectionsAndInviteNewUserInNewGroupWithOnlyTablePermissions(app);
     const {
       connections,
       firstTableInfo,
@@ -1111,7 +1061,7 @@ test(`${currentTest} should return group without deleted user`, async (t) => {
     const email = faker.internet.email();
     const addUserInGroupResponse = await request(app.getHttpServer())
       .put('/group/user')
-      .set('Cookie', simpleUserToken)
+      .set('Cookie', adminUserToken)
       .send({ groupId, email })
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
@@ -1123,66 +1073,18 @@ test(`${currentTest} should return group without deleted user`, async (t) => {
       .send({ groupId, email })
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
+    t.is(deleteUserInGroupResponse.status, 403);
     const deleteUserInGroupRO = JSON.parse(deleteUserInGroupResponse.text);
-    t.is(uuidRegex.test(deleteUserInGroupRO.id), true);
-    t.is(deleteUserInGroupRO.hasOwnProperty('title'), true);
-    t.is(deleteUserInGroupRO.hasOwnProperty('isMain'), true);
-    t.is(deleteUserInGroupRO.hasOwnProperty('users'), true);
-    const { users } = deleteUserInGroupRO;
-    t.is(users.length, 2);
-    t.is(users[0].id === users[1].id, false);
+    t.is(deleteUserInGroupRO.message, Messages.DONT_HAVE_PERMISSIONS);
   } catch (e) {
     console.error(e);
-  }
-});
-
-test(`${currentTest} should throw exception, when user email not passed in request`, async (t) => {
-  try {
-    const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
-    const {
-      connections,
-      firstTableInfo,
-      groups,
-      permissions,
-      secondTableInfo,
-      users: { adminUserToken, simpleUserToken },
-    } = testData;
-    const getGroupsResponse = await request(app.getHttpServer())
-      .get(`/connection/groups/${connections.firstId}`)
-      .set('Cookie', simpleUserToken)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-
-    t.is(getGroupsResponse.status, 200);
-    const getGroupsRO = JSON.parse(getGroupsResponse.text);
-
-    const groupId = getGroupsRO[0].group.id;
-
-    const email = faker.internet.email();
-    const addUserInGroupResponse = await request(app.getHttpServer())
-      .put('/group/user')
-      .set('Cookie', simpleUserToken)
-      .send({ groupId, email })
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-    t.is(addUserInGroupResponse.status, 200);
-
-    const deleteUserInGroupResponse = await request(app.getHttpServer())
-      .put('/group/user/delete')
-      .set('Cookie', simpleUserToken)
-      .send({ groupId })
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-    const deleteUserInGroupRO = JSON.parse(deleteUserInGroupResponse.text);
-    t.is(deleteUserInGroupRO.message, Messages.USER_EMAIL_MISSING);
-  } catch (e) {
-    console.error(e);
+    throw e;
   }
 });
 
 test(`${currentTest} should throw exception, when group id not passed in request`, async (t) => {
   try {
-    const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
+    const testData = await createConnectionsAndInviteNewUserInNewGroupWithOnlyTablePermissions(app);
     const {
       connections,
       firstTableInfo,
@@ -1205,7 +1107,7 @@ test(`${currentTest} should throw exception, when group id not passed in request
     const email = faker.internet.email();
     const addUserInGroupResponse = await request(app.getHttpServer())
       .put('/group/user')
-      .set('Cookie', simpleUserToken)
+      .set('Cookie', adminUserToken)
       .send({ groupId, email })
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
@@ -1217,55 +1119,12 @@ test(`${currentTest} should throw exception, when group id not passed in request
       .send({ email })
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
+    t.is(deleteUserInGroupResponse.status, 400);
     const deleteUserInGroupRO = JSON.parse(deleteUserInGroupResponse.text);
     t.is(deleteUserInGroupRO.message, Messages.GROUP_ID_MISSING);
   } catch (e) {
     console.error(e);
-  }
-});
-
-test(`${currentTest} should throw exception, when group id passed in request is incorrect`, async (t) => {
-  try {
-    const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
-    const {
-      connections,
-      firstTableInfo,
-      groups,
-      permissions,
-      secondTableInfo,
-      users: { adminUserToken, simpleUserToken },
-    } = testData;
-    const getGroupsResponse = await request(app.getHttpServer())
-      .get(`/connection/groups/${connections.firstId}`)
-      .set('Cookie', simpleUserToken)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-
-    t.is(getGroupsResponse.status, 200);
-    const getGroupsRO = JSON.parse(getGroupsResponse.text);
-
-    let groupId = getGroupsRO[0].group.id;
-
-    const email = faker.internet.email();
-    const addUserInGroupResponse = await request(app.getHttpServer())
-      .put('/group/user')
-      .set('Cookie', simpleUserToken)
-      .send({ groupId, email })
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-    t.is(addUserInGroupResponse.status, 200);
-
-    groupId = faker.datatype.uuid();
-    const deleteUserInGroupResponse = await request(app.getHttpServer())
-      .put('/group/user/delete')
-      .set('Cookie', simpleUserToken)
-      .send({ groupId, email })
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-    const deleteUserInGroupRO = JSON.parse(deleteUserInGroupResponse.text);
-    t.is(deleteUserInGroupRO.message, Messages.CONNECTION_NOT_FOUND);
-  } catch (e) {
-    console.error(e);
+    throw e;
   }
 });
 
@@ -1275,7 +1134,7 @@ currentTest = 'PUT permissions/:slug';
 
 test(`${currentTest} should throw an exception do not have permission`, async (t) => {
   try {
-    const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
+    const testData = await createConnectionsAndInviteNewUserInNewGroupWithOnlyTablePermissions(app);
     const {
       connections,
       firstTableInfo,
@@ -1328,12 +1187,13 @@ test(`${currentTest} should throw an exception do not have permission`, async (t
     t.is(createOrUpdatePermissionRO.message, Messages.DONT_HAVE_PERMISSIONS);
   } catch (e) {
     console.error(e);
+    throw e;
   }
 });
 
-test(`${currentTest} should return updated complex permissions object when you update permissions`, async (t) => {
+test(`${currentTest} should throw ${Messages.DONT_HAVE_PERMISSIONS} exception object when you update permissions`, async (t) => {
   try {
-    const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
+    const testData = await createConnectionsAndInviteNewUserInNewGroupWithOnlyTablePermissions(app);
     const {
       connections,
       firstTableInfo,
@@ -1383,18 +1243,17 @@ test(`${currentTest} should return updated complex permissions object when you u
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
     const createOrUpdatePermissionRO = JSON.parse(createOrUpdatePermissionResponse.text);
-    t.is(createOrUpdatePermissionResponse.status, 200);
-    t.is(JSON.stringify(createOrUpdatePermissionRO.connection), JSON.stringify(permissions.connection));
-    t.is(JSON.stringify(createOrUpdatePermissionRO.group), JSON.stringify(permissions.group));
-    t.is(JSON.stringify(createOrUpdatePermissionRO.tables), JSON.stringify(permissions.tables));
+    t.is(createOrUpdatePermissionResponse.status, 403);
+    t.is(createOrUpdatePermissionRO.message, Messages.DONT_HAVE_PERMISSIONS);
   } catch (e) {
     console.error(e);
+    throw e;
   }
 });
 
 test(`${currentTest} should throw an exception, when you try change admin group`, async (t) => {
   try {
-    const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
+    const testData = await createConnectionsAndInviteNewUserInNewGroupWithOnlyTablePermissions(app);
     const {
       connections,
       firstTableInfo,
@@ -1437,6 +1296,7 @@ test(`${currentTest} should throw an exception, when you try change admin group`
     t.is(createOrUpdatePermissionRO.message, Messages.DONT_HAVE_PERMISSIONS);
   } catch (e) {
     console.error(e);
+    throw e;
   }
 });
 
@@ -1446,7 +1306,7 @@ currentTest = 'GET /connection/tables/:slug';
 
 test(`${currentTest} should return all tables in connection`, async (t) => {
   try {
-    const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
+    const testData = await createConnectionsAndInviteNewUserInNewGroupWithOnlyTablePermissions(app);
     const {
       connections,
       firstTableInfo,
@@ -1464,7 +1324,7 @@ test(`${currentTest} should return all tables in connection`, async (t) => {
     const getTablesInConnectionRO = JSON.parse(getTablesInConnection.text);
     t.is(getTablesInConnectionRO.length > 0, true);
     const tableIndex = getTablesInConnectionRO.findIndex(
-      (table: any) => table.tableName === testData.firstTableInfo.testTableName,
+      (table: any) => table.table === testData.firstTableInfo.testTableName,
     );
     t.is(getTablesInConnectionRO[tableIndex].table, testData.firstTableInfo.testTableName);
     t.is(typeof getTablesInConnectionRO[tableIndex].permissions, 'object');
@@ -1476,12 +1336,13 @@ test(`${currentTest} should return all tables in connection`, async (t) => {
     t.is(add, tablePermissions.add);
   } catch (e) {
     console.error(e);
+    throw e;
   }
 });
 
 test(`${currentTest} should throw an exception, when connection id not passed in request`, async (t) => {
   try {
-    const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
+    const testData = await createConnectionsAndInviteNewUserInNewGroupWithOnlyTablePermissions(app);
     const {
       connections,
       firstTableInfo,
@@ -1498,12 +1359,13 @@ test(`${currentTest} should throw an exception, when connection id not passed in
     t.is(getTablesInConnection.status, 404);
   } catch (e) {
     console.error(e);
+    throw e;
   }
 });
 
 test(`${currentTest} should throw an exception, when connection id passed in request is incorrect`, async (t) => {
   try {
-    const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
+    const testData = await createConnectionsAndInviteNewUserInNewGroupWithOnlyTablePermissions(app);
     const {
       connections,
       firstTableInfo,
@@ -1523,6 +1385,7 @@ test(`${currentTest} should throw an exception, when connection id passed in req
     t.is(getTablesInConnectionRO.message, Messages.CONNECTION_NOT_FOUND);
   } catch (e) {
     console.error(e);
+    throw e;
   }
 });
 
@@ -1530,7 +1393,7 @@ currentTest = 'GET /table/rows/:slug';
 
 test(`${currentTest} should return found rows from table`, async (t) => {
   try {
-    const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
+    const testData = await createConnectionsAndInviteNewUserInNewGroupWithOnlyTablePermissions(app);
     const {
       connections,
       firstTableInfo,
@@ -1556,12 +1419,13 @@ test(`${currentTest} should return found rows from table`, async (t) => {
     t.is(foreignKeys.length, 0);
   } catch (e) {
     console.error(e);
+    throw e;
   }
 });
 
 test(`${currentTest} should throw an exception when connection id not passed in request`, async (t) => {
   try {
-    const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
+    const testData = await createConnectionsAndInviteNewUserInNewGroupWithOnlyTablePermissions(app);
     const {
       connections,
       firstTableInfo,
@@ -1578,12 +1442,13 @@ test(`${currentTest} should throw an exception when connection id not passed in 
     t.is(getTablesRows.status, 404);
   } catch (e) {
     console.error(e);
+    throw e;
   }
 });
 
 test(`${currentTest} should throw an exception when connection id passed in request is incorrec`, async (t) => {
   try {
-    const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
+    const testData = await createConnectionsAndInviteNewUserInNewGroupWithOnlyTablePermissions(app);
     const {
       connections,
       firstTableInfo,
@@ -1603,12 +1468,13 @@ test(`${currentTest} should throw an exception when connection id passed in requ
     t.is(getTablesInConnectionRO.message, Messages.CONNECTION_NOT_FOUND);
   } catch (e) {
     console.error(e);
+    throw e;
   }
 });
 
 test(`${currentTest} should throw an exception when table name passed in request is incorrect`, async (t) => {
   try {
-    const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
+    const testData = await createConnectionsAndInviteNewUserInNewGroupWithOnlyTablePermissions(app);
     const {
       connections,
       firstTableInfo,
@@ -1628,6 +1494,7 @@ test(`${currentTest} should throw an exception when table name passed in request
     t.is(getTablesInConnectionRO.message, Messages.TABLE_NOT_FOUND);
   } catch (e) {
     console.error(e);
+    throw e;
   }
 });
 
@@ -1635,7 +1502,7 @@ currentTest = 'GET /table/structure/:slug';
 
 test(`${currentTest} should return table structure`, async (t) => {
   try {
-    const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
+    const testData = await createConnectionsAndInviteNewUserInNewGroupWithOnlyTablePermissions(app);
     const {
       connections,
       firstTableInfo,
@@ -1663,12 +1530,13 @@ test(`${currentTest} should return table structure`, async (t) => {
     t.is(foreignKeys.length, 0);
   } catch (e) {
     console.error(e);
+    throw e;
   }
 });
 
 test(`${currentTest} should throw an exception when connection id not passed in request`, async (t) => {
   try {
-    const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
+    const testData = await createConnectionsAndInviteNewUserInNewGroupWithOnlyTablePermissions(app);
     const {
       connections,
       firstTableInfo,
@@ -1686,12 +1554,13 @@ test(`${currentTest} should throw an exception when connection id not passed in 
     t.is(getTablesStructure.status, 404);
   } catch (e) {
     console.error(e);
+    throw e;
   }
 });
 
 test(`${currentTest} should throw an exception when connection id passed in request is incorrect`, async (t) => {
   try {
-    const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
+    const testData = await createConnectionsAndInviteNewUserInNewGroupWithOnlyTablePermissions(app);
     const {
       connections,
       firstTableInfo,
@@ -1712,12 +1581,13 @@ test(`${currentTest} should throw an exception when connection id passed in requ
     t.is(getTablesStructureRO.message, Messages.CONNECTION_NOT_FOUND);
   } catch (e) {
     console.error(e);
+    throw e;
   }
 });
 
 test(`${currentTest} should throw an exception when table name not passed in request`, async (t) => {
   try {
-    const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
+    const testData = await createConnectionsAndInviteNewUserInNewGroupWithOnlyTablePermissions(app);
     const {
       connections,
       firstTableInfo,
@@ -1736,12 +1606,13 @@ test(`${currentTest} should throw an exception when table name not passed in req
     t.is(getTablesStructureRO.message, Messages.TABLE_NAME_MISSING);
   } catch (e) {
     console.error(e);
+    throw e;
   }
 });
 
 test(`${currentTest} should throw an exception when table name passed in request is incorrect`, async (t) => {
   try {
-    const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
+    const testData = await createConnectionsAndInviteNewUserInNewGroupWithOnlyTablePermissions(app);
     const {
       connections,
       firstTableInfo,
@@ -1761,6 +1632,7 @@ test(`${currentTest} should throw an exception when table name passed in request
     t.is(getTablesStructureRO.message, Messages.TABLE_NOT_FOUND);
   } catch (e) {
     console.error(e);
+    throw e;
   }
 });
 
@@ -1768,7 +1640,7 @@ currentTest = 'POST /table/row/:slug';
 
 test(`${currentTest} should return added row`, async (t) => {
   try {
-    const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
+    const testData = await createConnectionsAndInviteNewUserInNewGroupWithOnlyTablePermissions(app);
     const {
       connections,
       firstTableInfo,
@@ -1807,12 +1679,13 @@ test(`${currentTest} should return added row`, async (t) => {
     t.is(addRowInTableRO.hasOwnProperty('readonly_fields'), true);
   } catch (e) {
     console.error(e);
+    throw e;
   }
 });
 
 test(`${currentTest} should throw an exception when connection id passed in request is incorrect`, async (t) => {
   try {
-    const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
+    const testData = await createConnectionsAndInviteNewUserInNewGroupWithOnlyTablePermissions(app);
     const {
       connections,
       firstTableInfo,
@@ -1841,12 +1714,13 @@ test(`${currentTest} should throw an exception when connection id passed in requ
     t.is(addRowInTableRO.message, Messages.CONNECTION_NOT_FOUND);
   } catch (e) {
     console.error(e);
+    throw e;
   }
 });
 
 test(`${currentTest} should throw an exception when table name passed in request is incorrect`, async (t) => {
   try {
-    const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
+    const testData = await createConnectionsAndInviteNewUserInNewGroupWithOnlyTablePermissions(app);
     const {
       connections,
       firstTableInfo,
@@ -1875,6 +1749,7 @@ test(`${currentTest} should throw an exception when table name passed in request
     t.is(addRowInTableRO.message, Messages.TABLE_NOT_FOUND);
   } catch (e) {
     console.error(e);
+    throw e;
   }
 });
 
@@ -1882,7 +1757,7 @@ currentTest = 'PUT /table/row/:slug';
 
 test(`${currentTest} should throw an exception do not have permission, when you do not have edit permission`, async (t) => {
   try {
-    const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
+    const testData = await createConnectionsAndInviteNewUserInNewGroupWithOnlyTablePermissions(app);
     const {
       connections,
       firstTableInfo,
@@ -1912,12 +1787,13 @@ test(`${currentTest} should throw an exception do not have permission, when you 
     t.is(addRowInTableRO.message, Messages.DONT_HAVE_PERMISSIONS);
   } catch (e) {
     console.error(e);
+    throw e;
   }
 });
 
 test(`${currentTest} should throw an exception when connection id passed in request is incorrect`, async (t) => {
   try {
-    const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
+    const testData = await createConnectionsAndInviteNewUserInNewGroupWithOnlyTablePermissions(app);
     const {
       connections,
       firstTableInfo,
@@ -1946,12 +1822,13 @@ test(`${currentTest} should throw an exception when connection id passed in requ
     t.is(addRowInTableRO.message, Messages.CONNECTION_NOT_FOUND);
   } catch (e) {
     console.error(e);
+    throw e;
   }
 });
 
 test(`${currentTest} should throw an exception when table name passed in request is incorrect`, async (t) => {
   try {
-    const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
+    const testData = await createConnectionsAndInviteNewUserInNewGroupWithOnlyTablePermissions(app);
     const {
       connections,
       firstTableInfo,
@@ -1980,6 +1857,7 @@ test(`${currentTest} should throw an exception when table name passed in request
     t.is(addRowInTableRO.message, Messages.TABLE_NOT_FOUND);
   } catch (e) {
     console.error(e);
+    throw e;
   }
 });
 
@@ -1987,7 +1865,7 @@ currentTest = 'DELETE /table/row/:slug';
 
 test(`${currentTest} should return delete result`, async (t) => {
   try {
-    const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
+    const testData = await createConnectionsAndInviteNewUserInNewGroupWithOnlyTablePermissions(app);
     const {
       connections,
       firstTableInfo,
@@ -2005,12 +1883,13 @@ test(`${currentTest} should return delete result`, async (t) => {
     t.is(deleteRowInTable.status, 200);
   } catch (e) {
     console.error(e);
+    throw e;
   }
 });
 
 test(`${currentTest} should throw an exception when connection id passed in request is incorrect`, async (t) => {
   try {
-    const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
+    const testData = await createConnectionsAndInviteNewUserInNewGroupWithOnlyTablePermissions(app);
     const {
       connections,
       firstTableInfo,
@@ -2030,12 +1909,13 @@ test(`${currentTest} should throw an exception when connection id passed in requ
     t.is(deleteRowInTable.status, 400);
   } catch (e) {
     console.error(e);
+    throw e;
   }
 });
 
 test(`${currentTest} should throw an exception when table name passed in request is incorrect`, async (t) => {
   try {
-    const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
+    const testData = await createConnectionsAndInviteNewUserInNewGroupWithOnlyTablePermissions(app);
     const {
       connections,
       firstTableInfo,
@@ -2054,6 +1934,7 @@ test(`${currentTest} should throw an exception when table name passed in request
     t.is(deleteRowInTabbleRO.message, Messages.TABLE_NOT_FOUND);
   } catch (e) {
     console.error(e);
+    throw e;
   }
 });
 
@@ -2061,7 +1942,7 @@ currentTest = 'GET /table/row/:slug';
 
 test(`${currentTest} should return row`, async (t) => {
   try {
-    const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
+    const testData = await createConnectionsAndInviteNewUserInNewGroupWithOnlyTablePermissions(app);
     const {
       connections,
       firstTableInfo,
@@ -2086,12 +1967,13 @@ test(`${currentTest} should return row`, async (t) => {
     t.is(getRowInTableRO.hasOwnProperty('readonly_fields'), true);
   } catch (e) {
     console.error(e);
+    throw e;
   }
 });
 
 test(`${currentTest} should throw an exception when connection id passed in request is incorrect`, async (t) => {
   try {
-    const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
+    const testData = await createConnectionsAndInviteNewUserInNewGroupWithOnlyTablePermissions(app);
     const {
       connections,
       firstTableInfo,
@@ -2110,12 +1992,13 @@ test(`${currentTest} should throw an exception when connection id passed in requ
     t.is(addRowInTableRO.message, Messages.CONNECTION_NOT_FOUND);
   } catch (e) {
     console.error(e);
+    throw e;
   }
 });
 
 test(`${currentTest} should throw an exception when table name passed in request is incorrect`, async (t) => {
   try {
-    const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
+    const testData = await createConnectionsAndInviteNewUserInNewGroupWithOnlyTablePermissions(app);
     const {
       connections,
       firstTableInfo,
@@ -2134,6 +2017,7 @@ test(`${currentTest} should throw an exception when table name passed in request
     t.is(addRowInTableRO.message, Messages.TABLE_NOT_FOUND);
   } catch (e) {
     console.error(e);
+    throw e;
   }
 });
 
@@ -2143,7 +2027,7 @@ currentTest = 'GET /logs/:slug';
 
 test(`${currentTest} should return all found logs in connection'`, async (t) => {
   try {
-    const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
+    const testData = await createConnectionsAndInviteNewUserInNewGroupWithOnlyTablePermissions(app);
     const {
       connections,
       firstTableInfo,
@@ -2188,6 +2072,7 @@ test(`${currentTest} should return all found logs in connection'`, async (t) => 
     t.is(getRowInTableRO.logs[0].hasOwnProperty('connection_id'), true);
   } catch (e) {
     console.error(e);
+    throw e;
   }
 });
 
@@ -2195,9 +2080,9 @@ test(`${currentTest} should return all found logs in connection'`, async (t) => 
 
 currentTest = 'GET /settings/';
 
-test(`${currentTest} should return empty table settings when it was not created`, async (t) => {
+test(`${currentTest} should exception ${Messages.DONT_HAVE_PERMISSIONS} when table settings was not created`, async (t) => {
   try {
-    const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
+    const testData = await createConnectionsAndInviteNewUserInNewGroupWithOnlyTablePermissions(app);
     const {
       connections,
       firstTableInfo,
@@ -2212,16 +2097,17 @@ test(`${currentTest} should return empty table settings when it was not created`
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
     const getTableSettingsRO = JSON.parse(getTableSettings.text);
-    t.is(getTableSettings.status, 200);
-    t.is(JSON.stringify(getTableSettingsRO), JSON.stringify({}));
+    t.is(getTableSettings.status, 403);
+    t.is(getTableSettingsRO.message, Messages.DONT_HAVE_PERMISSIONS);
   } catch (e) {
     console.error(e);
+    throw e;
   }
 });
 
-test(`${currentTest} 'should return table settings when it was created`, async (t) => {
+test(`${currentTest} 'should should throw exception ${Messages.DONT_HAVE_PERMISSIONS}`, async (t) => {
   try {
-    const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
+    const testData = await createConnectionsAndInviteNewUserInNewGroupWithOnlyTablePermissions(app);
     const {
       connections,
       firstTableInfo,
@@ -2261,29 +2147,17 @@ test(`${currentTest} 'should return table settings when it was created`, async (
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
     const getTableSettingsRO = JSON.parse(getTableSettings.text);
-    t.is(getTableSettings.status, 200);
-    t.is(getTableSettingsRO.hasOwnProperty('id'), true);
-    t.is(getTableSettingsRO.table_name, createTableSettingsDTO.table_name);
-    t.is(getTableSettingsRO.display_name, createTableSettingsDTO.display_name);
-    t.is(JSON.stringify(getTableSettingsRO.search_fields), JSON.stringify(createTableSettingsDTO.search_fields));
-    t.is(JSON.stringify(getTableSettingsRO.excluded_fields), JSON.stringify(createTableSettingsDTO.excluded_fields));
-    t.is(JSON.stringify(getTableSettingsRO.list_fields), JSON.stringify(createTableSettingsDTO.list_fields));
-    t.is(JSON.stringify(getTableSettingsRO.identification_fields), JSON.stringify([]));
-    t.is(getTableSettingsRO.list_per_page, createTableSettingsDTO.list_per_page);
-    t.is(getTableSettingsRO.ordering, createTableSettingsDTO.ordering);
-    t.is(getTableSettingsRO.ordering_field, createTableSettingsDTO.ordering_field);
-    t.is(JSON.stringify(getTableSettingsRO.readonly_fields), JSON.stringify(createTableSettingsDTO.readonly_fields));
-    t.is(JSON.stringify(getTableSettingsRO.sortable_by), JSON.stringify(createTableSettingsDTO.sortable_by));
-    t.is(JSON.stringify(getTableSettingsRO.autocomplete_columns), JSON.stringify([]));
-    t.is(getTableSettingsRO.connection_id, connections.firstId);
+    t.is(getTableSettings.status, 403);
+    t.is(getTableSettingsRO.message, Messages.DONT_HAVE_PERMISSIONS);
   } catch (e) {
     console.error(e);
+    throw e;
   }
 });
 
 test(`${currentTest} should throw an exception when you try get settings in connection where you do not have permission`, async (t) => {
   try {
-    const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
+    const testData = await createConnectionsAndInviteNewUserInNewGroupWithOnlyTablePermissions(app);
     const {
       connections,
       firstTableInfo,
@@ -2328,6 +2202,7 @@ test(`${currentTest} should throw an exception when you try get settings in conn
     t.is(getTableSettingsRO.message, Messages.DONT_HAVE_PERMISSIONS);
   } catch (e) {
     console.error(e);
+    throw e;
   }
 });
 
@@ -2335,7 +2210,7 @@ currentTest = 'POST /settings/';
 
 test(`${currentTest} should throw an exception do not have permission`, async (t) => {
   try {
-    const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
+    const testData = await createConnectionsAndInviteNewUserInNewGroupWithOnlyTablePermissions(app);
     const {
       connections,
       firstTableInfo,
@@ -2371,12 +2246,13 @@ test(`${currentTest} should throw an exception do not have permission`, async (t
     t.is(JSON.parse(createTableSettingsResponse.text).message, Messages.DONT_HAVE_PERMISSIONS);
   } catch (e) {
     console.error(e);
+    throw e;
   }
 });
 
 test(`${currentTest} should throw an exception when you try create settings in connection where you do not have permission`, async (t) => {
   try {
-    const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
+    const testData = await createConnectionsAndInviteNewUserInNewGroupWithOnlyTablePermissions(app);
     const {
       connections,
       firstTableInfo,
@@ -2414,6 +2290,7 @@ test(`${currentTest} should throw an exception when you try create settings in c
     t.is(createTableSettingsRO.message, Messages.DONT_HAVE_PERMISSIONS);
   } catch (e) {
     console.error(e);
+    throw e;
   }
 });
 
@@ -2421,7 +2298,7 @@ currentTest = 'PUT /settings/';
 
 test(`${currentTest} should throw an exception do not have permission`, async (t) => {
   try {
-    const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
+    const testData = await createConnectionsAndInviteNewUserInNewGroupWithOnlyTablePermissions(app);
     const {
       connections,
       firstTableInfo,
@@ -2480,12 +2357,13 @@ test(`${currentTest} should throw an exception do not have permission`, async (t
     t.is(JSON.parse(updateTableSettingsResponse.text).message, Messages.DONT_HAVE_PERMISSIONS);
   } catch (e) {
     console.error(e);
+    throw e;
   }
 });
 
 test(`${currentTest} should throw an exception when you try update settings in connection where you do not have permission`, async (t) => {
   try {
-    const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
+    const testData = await createConnectionsAndInviteNewUserInNewGroupWithOnlyTablePermissions(app);
     const {
       connections,
       firstTableInfo,
@@ -2544,6 +2422,7 @@ test(`${currentTest} should throw an exception when you try update settings in c
     t.is(JSON.parse(updateTableSettingsResponse.text).message, Messages.DONT_HAVE_PERMISSIONS);
   } catch (e) {
     console.error(e);
+    throw e;
   }
 });
 
@@ -2551,7 +2430,7 @@ currentTest = 'DELETE /settings/';
 
 test(`${currentTest} should return array without deleted table settings`, async (t) => {
   try {
-    const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
+    const testData = await createConnectionsAndInviteNewUserInNewGroupWithOnlyTablePermissions(app);
     const {
       connections,
       firstTableInfo,
@@ -2594,12 +2473,13 @@ test(`${currentTest} should return array without deleted table settings`, async 
     t.is(JSON.parse(deleteTableSettingsResponse.text).message, Messages.DONT_HAVE_PERMISSIONS);
   } catch (e) {
     console.error(e);
+    throw e;
   }
 });
 
 test(`${currentTest} should throw an exception when you try delete settings in connection where you do not have permission`, async (t) => {
   try {
-    const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
+    const testData = await createConnectionsAndInviteNewUserInNewGroupWithOnlyTablePermissions(app);
     const {
       connections,
       firstTableInfo,
@@ -2642,6 +2522,7 @@ test(`${currentTest} should throw an exception when you try delete settings in c
     t.is(deleteTableSettingsRO.message, Messages.DONT_HAVE_PERMISSIONS);
   } catch (e) {
     console.error(e);
+    throw e;
   }
 });
 
@@ -2651,7 +2532,7 @@ currentTest = 'GET /widgets/:slug';
 
 test(`${currentTest} should return empty widgets array when widgets not created`, async (t) => {
   try {
-    const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
+    const testData = await createConnectionsAndInviteNewUserInNewGroupWithOnlyTablePermissions(app);
     const {
       connections,
       firstTableInfo,
@@ -2666,17 +2547,17 @@ test(`${currentTest} should return empty widgets array when widgets not created`
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
     const getTableWidgetsRO = JSON.parse(getTableWidgets.text);
-    t.is(getTableWidgets.status, 200);
-    t.is(typeof getTableWidgetsRO, 'object');
-    t.is(getTableWidgetsRO.length, 0);
+    t.is(getTableWidgets.status, 403);
+    t.is(getTableWidgetsRO.message, Messages.DONT_HAVE_PERMISSIONS);
   } catch (e) {
     console.error(e);
+    throw e;
   }
 });
 
 test(`${currentTest} should return array of table widgets for table`, async (t) => {
   try {
-    const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
+    const testData = await createConnectionsAndInviteNewUserInNewGroupWithOnlyTablePermissions(app);
     const {
       connections,
       firstTableInfo,
@@ -2710,14 +2591,9 @@ test(`${currentTest} should return array of table widgets for table`, async (t) 
       .set('Content-Type', 'application/json')
       .set('Cookie', simpleUserToken)
       .set('Accept', 'application/json');
-    t.is(getTableWidgets.status, 200);
+    t.is(getTableWidgets.status, 403);
     const getTableWidgetsRO = JSON.parse(getTableWidgets.text);
-    t.is(typeof getTableWidgetsRO, 'object');
-    t.is(getTableWidgetsRO.length, 2);
-    t.is(uuidRegex.test(getTableWidgetsRO[0].id), true);
-    t.is(getTableWidgetsRO[0].field_name, newTableWidgets[0].field_name);
-    t.is(getTableWidgetsRO[1].widget_type, newTableWidgets[1].widget_type);
-    t.is(compareTableWidgetsArrays(getTableWidgetsRO, newTableWidgets), true);
+    t.is(getTableWidgetsRO.message, Messages.DONT_HAVE_PERMISSIONS);
 
     const getTableStructureResponse = await request(app.getHttpServer())
       .get(`/table/structure/${connections.firstId}?tableName=${firstTableInfo.testTableName}`)
@@ -2733,12 +2609,13 @@ test(`${currentTest} should return array of table widgets for table`, async (t) 
     t.is(compareTableWidgetsArrays(getTableStructureRO.table_widgets, newTableWidgets), true);
   } catch (e) {
     console.error(e);
+    throw e;
   }
 });
 
 test(`${currentTest} should throw an exception, when you try to get widgets from connection, when you do not have permissions`, async (t) => {
   try {
-    const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
+    const testData = await createConnectionsAndInviteNewUserInNewGroupWithOnlyTablePermissions(app);
     const {
       connections,
       firstTableInfo,
@@ -2774,6 +2651,7 @@ test(`${currentTest} should throw an exception, when you try to get widgets from
     t.is(getTableWidgetsRO.message, Messages.DONT_HAVE_PERMISSIONS);
   } catch (e) {
     console.error(e);
+    throw e;
   }
 });
 
@@ -2781,7 +2659,7 @@ currentTest = 'POST /widget/:slug';
 
 test(`${currentTest} should throw an exception do not have permissions`, async (t) => {
   try {
-    const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
+    const testData = await createConnectionsAndInviteNewUserInNewGroupWithOnlyTablePermissions(app);
     const {
       connections,
       firstTableInfo,
@@ -2807,12 +2685,13 @@ test(`${currentTest} should throw an exception do not have permissions`, async (
     t.is(createTableWidgetRO.message, Messages.DONT_HAVE_PERMISSIONS);
   } catch (e) {
     console.error(e);
+    throw e;
   }
 });
 
 test(`${currentTest} should throw an exception, when you try add widget in connection, when you do not have permissions`, async (t) => {
   try {
-    const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
+    const testData = await createConnectionsAndInviteNewUserInNewGroupWithOnlyTablePermissions(app);
     const {
       connections,
       firstTableInfo,
@@ -2837,5 +2716,6 @@ test(`${currentTest} should throw an exception, when you try add widget in conne
     t.is(createTableWidgetRO.message, Messages.DONT_HAVE_PERMISSIONS);
   } catch (e) {
     console.error(e);
+    throw e;
   }
 });

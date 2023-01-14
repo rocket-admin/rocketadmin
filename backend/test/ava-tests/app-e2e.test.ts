@@ -6,7 +6,6 @@ import { DatabaseService } from '../../src/shared/database/database.service';
 import { TestUtils } from '../utils/test.utils';
 import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
-import { Connection } from 'typeorm';
 
 let app: INestApplication;
 
@@ -24,10 +23,4 @@ test(' > get hello', async (t) => {
   const responseText = result.text;
   t.assert('Hello World!', responseText);
   t.pass();
-});
-
-test.after.always('Close app connection', async () => {
-  const connect = await app.get(Connection);
-  await connect.close();
-  await app.close();
 });
