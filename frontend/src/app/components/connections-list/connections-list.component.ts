@@ -19,16 +19,20 @@ export class ConnectionsListComponent implements OnInit {
   constructor(
     private _connectionsServise: ConnectionsService,
     public deleteDialog: MatDialog,
-    private _userService: UserService,
+    // private _userService: UserService,
   ) { }
 
   ngOnInit(): void {
-    this._userService.cast.subscribe(user => {
-      user.id && this._connectionsServise.fetchConnections()
+    // this._userService.cast.subscribe(user => {
+    //   user.id && this._connectionsServise.fetchConnections()
+    //   .subscribe((res: any) => {
+    //     this.setConnections(res);
+    //   })
+    // });
+    this._connectionsServise.fetchConnections()
       .subscribe((res: any) => {
         this.setConnections(res);
       })
-    });
   }
 
   setConnections(res) {
