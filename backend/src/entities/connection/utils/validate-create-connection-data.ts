@@ -1,7 +1,7 @@
 import { HttpStatus } from '@nestjs/common';
 import { HttpException } from '@nestjs/common/exceptions/http.exception';
 import * as dns from 'dns';
-import * as ipRangeCheck from 'ip-range-check';
+import ipRangeCheck from 'ip-range-check';
 import validator from 'validator';
 import { ConnectionTypeEnum } from '../../../enums';
 import { Messages } from '../../../exceptions/text/messages';

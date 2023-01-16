@@ -1,5 +1,5 @@
 import * as dns from 'dns';
-import * as ipRangeCheck from 'ip-range-check';
+import ipRangeCheck from 'ip-range-check';
 import { Constants } from '../../../helpers/constants/constants';
 import { CreateConnectionDto } from '../dto';
 import { isConnectionEntityAgent } from '../../../helpers';

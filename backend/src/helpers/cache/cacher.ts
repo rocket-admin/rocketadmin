@@ -1,5 +1,5 @@
 import { Knex } from 'knex';
-import * as LRU from 'lru-cache';
+import LRU from 'lru-cache';
 import { IForeignKey, IPrimaryKey, ITableStructure } from '../../data-access-layer/shared/data-access-object-interface';
 import { ConnectionEntity } from '../../entities/connection/connection.entity';
 import { Constants } from '../constants/constants';

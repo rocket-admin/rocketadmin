@@ -1,6 +1,6 @@
 import { HttpStatus } from '@nestjs/common';
 import { HttpException } from '@nestjs/common/exceptions/http.exception';
-import * as getPort from 'get-port';
+import getPort from 'get-port';
 import { knex, Knex } from 'knex';
 import { CreateTableSettingsDto } from '../../entities/table-settings/dto';
 import { TableSettingsEntity } from '../../entities/table-settings/table-settings.entity';

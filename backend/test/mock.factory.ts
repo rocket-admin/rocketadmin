@@ -15,7 +15,7 @@ import {
   WidgetTypeEnum,
 } from '../src/enums';
 import { TestConstants } from './mocks/test-constants';
-import json5 = require('json5');
+import * as json5 from 'json5';
 
 export class MockFactory {
   generateCognitoUserName() {

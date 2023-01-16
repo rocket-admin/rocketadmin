@@ -1,5 +1,5 @@
 import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
-import assert = require('assert');
+import assert from 'assert';
 import AbstractUseCase from '../../../common/abstract-use.case';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface';
 import { BaseType } from '../../../common/data-injection.tokens';
@@ -54,7 +54,7 @@ export class UsualRegisterUseCase extends AbstractUseCase<UsualLoginDs, IToken> 
     const testConnectionsEntities = buildConnectionEntitiesFromTestDtos(testConnections);
     const createdTestConnections = await Promise.all(
       testConnectionsEntities.map(async (connection): Promise<ConnectionEntity> => {
-        assert(savedUser.id, 'User should be saved before creating connections')
+        assert(savedUser.id, 'User should be saved before creating connections');
         connection.author = savedUser;
         return await this._dbContext.connectionRepository.saveNewConnection(connection);
       }),

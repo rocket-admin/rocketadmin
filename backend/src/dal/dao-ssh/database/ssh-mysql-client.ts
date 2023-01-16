@@ -30,7 +30,6 @@ export function getSshMySqlClient(connectionConfig: ConnectionEntity, freeForwar
                 port: freeForwardInPort,
                 password: password,
                 database: database,
-                stream: stream,
               });
 
               // send connection back in variable depending on success or not

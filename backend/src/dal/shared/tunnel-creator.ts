@@ -1,4 +1,4 @@
-import * as getPort from 'get-port';
+import getPort from 'get-port';
 import { Cacher } from '../../helpers/cache/cacher';
 import { ConnectionEntity } from '../../entities/connection/connection.entity';
 import { ConnectionTypeEnum } from '../../enums';
@@ -7,7 +7,7 @@ import { isObjectEmpty } from '../../helpers';
 import { getMssqlKnex } from '../../data-access-layer/shared/utils/get-mssql-knex';
 import { getOracleKnex } from '../../data-access-layer/shared/utils/get-oracle-knex';
 import { getPostgresKnex } from '../../data-access-layer/shared/utils/get-postgres-knex';
-import tunnel = require('tunnel-ssh');
+import * as tunnel from 'tunnel-ssh';
 
 export class TunnelCreator {
   static async createTunneledKnex(connection: ConnectionEntity) {
