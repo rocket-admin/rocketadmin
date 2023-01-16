@@ -4,17 +4,17 @@ import { Test } from '@nestjs/testing';
 import test from 'ava';
 import * as cookieParser from 'cookie-parser';
 import * as request from 'supertest';
-import { ApplicationModule } from '../../src/app.module';
-import { QueryOrderingEnum } from '../../src/enums';
-import { AllExceptionsFilter } from '../../src/exceptions/all-exceptions.filter';
-import { Messages } from '../../src/exceptions/text/messages';
-import { Cacher } from '../../src/helpers/cache/cacher';
-import { DatabaseModule } from '../../src/shared/database/database.module';
-import { DatabaseService } from '../../src/shared/database/database.service';
-import { MockFactory } from '../mock.factory';
-import { getTestData } from '../utils/get-test-data';
-import { registerUserAndReturnUserInfo } from '../utils/register-user-and-return-user-info';
-import { TestUtils } from '../utils/test.utils';
+import { ApplicationModule } from '../../src/app.module.js';
+import { QueryOrderingEnum } from '../../src/enums.js';
+import { AllExceptionsFilter } from '../../src/exceptions/all-exceptions.filter.js';
+import { Messages } from '../../src/exceptions/text/messages.js';
+import { Cacher } from '../../src/helpers/cache/cacher.js';
+import { DatabaseModule } from '../../src/shared/database/database.module.js';
+import { DatabaseService } from '../../src/shared/database/database.service.js';
+import { MockFactory } from '../mock.factory.js';
+import { getTestData } from '../utils/get-test-data.js';
+import { registerUserAndReturnUserInfo } from '../utils/register-user-and-return-user-info.js';
+import { TestUtils } from '../utils/test.utils.js';
 
 const mockFactory = new MockFactory();
 let app: INestApplication;
@@ -49,7 +49,7 @@ currentTest = 'GET /settings/';
 test(`${currentTest} should throw an exception when tableName is missing`, async (t) => {
   try {
     const { token } = await registerUserAndReturnUserInfo(app);
-     const newConnection = getTestData(mockFactory).newConnectionToTestDB;
+    const newConnection = getTestData(mockFactory).newConnectionToTestDB;
     const createdConnection = await request(app.getHttpServer())
       .post('/connection')
       .send(newConnection)
@@ -76,7 +76,7 @@ test(`${currentTest} should throw an exception when tableName is missing`, async
 
 test(`${currentTest} should throw an exception when connectionId is missing`, async (t) => {
   try {
-     const newConnection = getTestData(mockFactory).newConnectionToTestDB;
+    const newConnection = getTestData(mockFactory).newConnectionToTestDB;
     const { token } = await registerUserAndReturnUserInfo(app);
 
     const createdConnection = await request(app.getHttpServer())
@@ -104,7 +104,7 @@ test(`${currentTest} should throw an exception when connectionId is missing`, as
 
 test(`${currentTest} should return an empty connection settings object, when setting does not exists for this table in connection`, async (t) => {
   try {
-     const newConnection = getTestData(mockFactory).newConnectionToTestDB;
+    const newConnection = getTestData(mockFactory).newConnectionToTestDB;
     const { token } = await registerUserAndReturnUserInfo(app);
 
     const createdConnection = await request(app.getHttpServer())
@@ -133,7 +133,7 @@ test(`${currentTest} should return an empty connection settings object, when set
 
 test(`${currentTest} should return connection settings object`, async (t) => {
   try {
-     const newConnection = getTestData(mockFactory).newConnectionToTestDB;
+    const newConnection = getTestData(mockFactory).newConnectionToTestDB;
     const { token } = await registerUserAndReturnUserInfo(app);
 
     const createdConnection = await request(app.getHttpServer())
@@ -200,7 +200,7 @@ currentTest = 'POST /settings/';
 
 test(`${currentTest} should return created table settings`, async (t) => {
   try {
-     const newConnection = getTestData(mockFactory).newConnectionToTestDB;
+    const newConnection = getTestData(mockFactory).newConnectionToTestDB;
     const { token } = await registerUserAndReturnUserInfo(app);
 
     const createdConnection = await request(app.getHttpServer())
@@ -263,7 +263,7 @@ test(`${currentTest} should return created table settings`, async (t) => {
 
 test(`${currentTest} should throw exception when tableName is missing`, async (t) => {
   try {
-     const newConnection = getTestData(mockFactory).newConnectionToTestDB;
+    const newConnection = getTestData(mockFactory).newConnectionToTestDB;
     const { token } = await registerUserAndReturnUserInfo(app);
 
     const createdConnection = await request(app.getHttpServer())
@@ -308,7 +308,7 @@ test(`${currentTest} should throw exception when tableName is missing`, async (t
 
 test(`${currentTest} should throw exception when connectionId is missing`, async (t) => {
   try {
-     const newConnection = getTestData(mockFactory).newConnectionToTestDB;
+    const newConnection = getTestData(mockFactory).newConnectionToTestDB;
     const { token } = await registerUserAndReturnUserInfo(app);
 
     const createdConnection = await request(app.getHttpServer())
@@ -353,7 +353,7 @@ test(`${currentTest} should throw exception when connectionId is missing`, async
 
 test(`${currentTest} should throw exception when search_fields is not an array`, async (t) => {
   try {
-     const newConnection = getTestData(mockFactory).newConnectionToTestDB;
+    const newConnection = getTestData(mockFactory).newConnectionToTestDB;
     const { token } = await registerUserAndReturnUserInfo(app);
 
     const createdConnection = await request(app.getHttpServer())
@@ -396,7 +396,7 @@ test(`${currentTest} should throw exception when search_fields is not an array`,
 
 test(`${currentTest} should throw exception when excluded_fields is not an array`, async (t) => {
   try {
-     const newConnection = getTestData(mockFactory).newConnectionToTestDB;
+    const newConnection = getTestData(mockFactory).newConnectionToTestDB;
     const { token } = await registerUserAndReturnUserInfo(app);
 
     const createdConnection = await request(app.getHttpServer())
@@ -439,7 +439,7 @@ test(`${currentTest} should throw exception when excluded_fields is not an array
 
 test(`${currentTest} should throw exception when list_fields is not an array`, async (t) => {
   try {
-     const newConnection = getTestData(mockFactory).newConnectionToTestDB;
+    const newConnection = getTestData(mockFactory).newConnectionToTestDB;
     const { token } = await registerUserAndReturnUserInfo(app);
 
     const createdConnection = await request(app.getHttpServer())
@@ -482,7 +482,7 @@ test(`${currentTest} should throw exception when list_fields is not an array`, a
 
 test(`${currentTest} should throw exception when readonly_fields is not an array`, async (t) => {
   try {
-     const newConnection = getTestData(mockFactory).newConnectionToTestDB;
+    const newConnection = getTestData(mockFactory).newConnectionToTestDB;
     const { token } = await registerUserAndReturnUserInfo(app);
 
     const createdConnection = await request(app.getHttpServer())
@@ -525,7 +525,7 @@ test(`${currentTest} should throw exception when readonly_fields is not an array
 
 test(`${currentTest} should throw exception when sortable_by is not an array`, async (t) => {
   try {
-     const newConnection = getTestData(mockFactory).newConnectionToTestDB;
+    const newConnection = getTestData(mockFactory).newConnectionToTestDB;
     const { token } = await registerUserAndReturnUserInfo(app);
 
     const createdConnection = await request(app.getHttpServer())
@@ -568,7 +568,7 @@ test(`${currentTest} should throw exception when sortable_by is not an array`, a
 
 test(`${currentTest} should throw exception when there are no such field in the table for searching`, async (t) => {
   try {
-     const newConnection = getTestData(mockFactory).newConnectionToTestDB;
+    const newConnection = getTestData(mockFactory).newConnectionToTestDB;
     const { token } = await registerUserAndReturnUserInfo(app);
 
     const createdConnection = await request(app.getHttpServer())
@@ -611,7 +611,7 @@ test(`${currentTest} should throw exception when there are no such field in the 
 
 test(`${currentTest} should throw exception when there are no such field in the table for excluding`, async (t) => {
   try {
-     const newConnection = getTestData(mockFactory).newConnectionToTestDB;
+    const newConnection = getTestData(mockFactory).newConnectionToTestDB;
     const { token } = await registerUserAndReturnUserInfo(app);
 
     const createdConnection = await request(app.getHttpServer())
@@ -654,7 +654,7 @@ test(`${currentTest} should throw exception when there are no such field in the 
 
 test(`${currentTest} should throw exception when there are no such field in the table for list`, async (t) => {
   try {
-     const newConnection = getTestData(mockFactory).newConnectionToTestDB;
+    const newConnection = getTestData(mockFactory).newConnectionToTestDB;
     const { token } = await registerUserAndReturnUserInfo(app);
 
     const createdConnection = await request(app.getHttpServer())
@@ -697,7 +697,7 @@ test(`${currentTest} should throw exception when there are no such field in the 
 
 test(`${currentTest} should throw exception when there are no such field in the table for read only`, async (t) => {
   try {
-     const newConnection = getTestData(mockFactory).newConnectionToTestDB;
+    const newConnection = getTestData(mockFactory).newConnectionToTestDB;
     const { token } = await registerUserAndReturnUserInfo(app);
 
     const createdConnection = await request(app.getHttpServer())
@@ -730,7 +730,10 @@ test(`${currentTest} should throw exception when there are no such field in the 
       .set('Cookie', token)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
-    console.log("🚀 ~ file: table-settings-e2e.test.ts:736 ~ test ~ createTableSettingsResponse.text", createTableSettingsResponse.text)
+    console.log(
+      '🚀 ~ file: table-settings-e2e.test.ts:736 ~ test ~ createTableSettingsResponse.text',
+      createTableSettingsResponse.text,
+    );
 
     t.is(createTableSettingsResponse.status, 400);
     const createTableSettingsRO = JSON.parse(createTableSettingsResponse.text);
@@ -742,7 +745,7 @@ test(`${currentTest} should throw exception when there are no such field in the 
 
 test(`${currentTest} should throw exception when there are no such field in the table for sorting`, async (t) => {
   try {
-     const newConnection = getTestData(mockFactory).newConnectionToTestDB;
+    const newConnection = getTestData(mockFactory).newConnectionToTestDB;
     const { token } = await registerUserAndReturnUserInfo(app);
 
     const createdConnection = await request(app.getHttpServer())

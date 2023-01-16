@@ -1,5 +1,5 @@
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
-import { TableInfoEntity } from '../table-info/table-info.entity';
+import { TableInfoEntity } from '../table-info/table-info.entity.js';
 
 @Entity('table_field_info')
 export class TableFieldInfoEntity {

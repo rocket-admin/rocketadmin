@@ -3,13 +3,13 @@ import { HttpException } from '@nestjs/common/exceptions/http.exception';
 import * as dns from 'dns';
 import ipRangeCheck from 'ip-range-check';
 import validator from 'validator';
-import { ConnectionTypeEnum } from '../../../enums';
-import { Messages } from '../../../exceptions/text/messages';
-import { isConnectionTypeAgent, toPrettyErrorsMsg } from '../../../helpers';
-import { isSaaS } from '../../../helpers/app/is-saas';
-import { Constants } from '../../../helpers/constants/constants';
-import { CreateConnectionDs } from '../application/data-structures/create-connection.ds';
-import { UpdateConnectionDs } from '../application/data-structures/update-connection.ds';
+import { ConnectionTypeEnum } from '../../../enums/index.js';
+import { Messages } from '../../../exceptions/text/messages.js';
+import { isConnectionTypeAgent, toPrettyErrorsMsg } from '../../../helpers/index.js';
+import { isSaaS } from '../../../helpers/app/is-saas.js';
+import { Constants } from '../../../helpers/constants/constants.js';
+import { CreateConnectionDs } from '../application/data-structures/create-connection.ds.js';
+import { UpdateConnectionDs } from '../application/data-structures/update-connection.ds.js';
 
 export async function validateCreateConnectionData(
   createConnectionData: CreateConnectionDs | UpdateConnectionDs,

@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { WidgetTypeEnum } from '../../../enums';
+import { WidgetTypeEnum } from '../../../enums/index.js';
 
 export class CreateTableWidgetDto {
   @ApiProperty()

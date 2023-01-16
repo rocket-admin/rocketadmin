@@ -1,19 +1,19 @@
 import { faker } from '@faker-js/faker';
 import { knex } from 'knex';
 import * as request from 'supertest';
-import { AccessLevelEnum } from '../../src/enums';
-import { ApplicationModule } from '../../src/app.module';
+import { AccessLevelEnum } from '../../src/enums.js';
+import { ApplicationModule } from '../../src/app.module.js';
 import { Connection } from 'typeorm';
-import { Constants } from '../../src/helpers/constants/constants';
-import { DatabaseModule } from '../../src/shared/database/database.module';
-import { DatabaseService } from '../../src/shared/database/database.service';
+import { Constants } from '../../src/helpers/constants/constants.js';
+import { DatabaseModule } from '../../src/shared/database/database.module.js';
+import { DatabaseService } from '../../src/shared/database/database.service.js';
 import { INestApplication } from '@nestjs/common';
-import { Messages } from '../../src/exceptions/text/messages';
-import { MockFactory } from '../mock.factory';
+import { Messages } from '../../src/exceptions/text/messages.js';
+import { MockFactory } from '../mock.factory.js';
 import { Test } from '@nestjs/testing';
-import { TestUtils } from '../utils/test.utils';
+import { TestUtils } from '../utils/test.utils.js';
 import * as cookieParser from 'cookie-parser';
-import { Cacher } from '../../src/helpers/cache/cacher';
+import { Cacher } from '../../src/helpers/cache/cacher.js';
 // yarn jest user-different-table-only-permissions.e2e.spec.ts
 describe('User permissions (connection none, group none) (e2e)', () => {
   jest.setTimeout(60000);

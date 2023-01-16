@@ -1,11 +1,11 @@
-import { isConnectionTypeAgent } from '../../../helpers';
-import { Constants } from '../../../helpers/constants/constants';
-import { Encryptor } from '../../../helpers/encryption/encryptor';
-import { TableLogsEntity } from '../../table-logs/table-logs.entity';
-import { UserEntity } from '../../user/user.entity';
-import { ConnectionEntity } from '../connection.entity';
-import { isTestConnectionUtil } from '../utils/is-test-connection-util';
-import { IConnectionRepository } from './connection.repository.interface';
+import { isConnectionTypeAgent } from '../../../helpers/index.js';
+import { Constants } from '../../../helpers/constants/constants.js';
+import { Encryptor } from '../../../helpers/encryption/encryptor.js';
+import { TableLogsEntity } from '../../table-logs/table-logs.entity.js';
+import { UserEntity } from '../../user/user.entity.js';
+import { ConnectionEntity } from '../connection.entity.js';
+import { isTestConnectionUtil } from '../utils/is-test-connection-util.js';
+import { IConnectionRepository } from './connection.repository.interface.js';
 
 export const customConnectionRepositoryExtension: IConnectionRepository = {
   async saveNewConnection(connection: ConnectionEntity): Promise<ConnectionEntity> {

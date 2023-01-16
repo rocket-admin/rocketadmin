@@ -1,5 +1,5 @@
-import { TableWidgetEntity } from '../../widget/table-widget.entity';
-import { WidgetTypeEnum } from '../../../enums';
+import { TableWidgetEntity } from '../../widget/table-widget.entity.js';
+import { WidgetTypeEnum } from '../../../enums/index.js';
 import { stringify as uuidStringify } from 'uuid';
 import * as JSON5 from 'json5';
 

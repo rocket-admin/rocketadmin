@@ -1,4 +1,4 @@
-import { ConnectionEntity } from '../connection/connection.entity';
+import { ConnectionEntity } from '../connection/connection.entity.js';
 import {
   Entity,
   Column,
@@ -9,14 +9,14 @@ import {
   PrimaryGeneratedColumn,
   BeforeInsert,
 } from 'typeorm';
-import { GroupEntity } from '../group/group.entity';
-import { UserActionEntity } from '../user-actions/user-action.entity';
+import { GroupEntity } from '../group/group.entity.js';
+import { UserActionEntity } from '../user-actions/user-action.entity.js';
 import { IsEmail } from 'class-validator';
-import { Encryptor } from '../../helpers/encryption/encryptor';
-import { EmailVerificationEntity } from '../email/email-verification.entity';
-import { PasswordResetEntity } from './user-password/password-reset.entity';
-import { EmailChangeEntity } from './user-email/email-change.entity';
-import { UserInvitationEntity } from './user-invitation/user-invitation.entity';
+import { Encryptor } from '../../helpers/encryption/encryptor.js';
+import { EmailVerificationEntity } from '../email/email-verification.entity.js';
+import { PasswordResetEntity } from './user-password/password-reset.entity.js';
+import { EmailChangeEntity } from './user-email/email-change.entity.js';
+import { UserInvitationEntity } from './user-invitation/user-invitation.entity.js';
 
 @Entity('user')
 export class UserEntity {

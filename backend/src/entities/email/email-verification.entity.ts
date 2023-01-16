@@ -1,5 +1,5 @@
 import { Column, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
-import { UserEntity } from '../user/user.entity';
+import { UserEntity } from '../user/user.entity.js';
 
 @Entity('email_verification')
 export class EmailVerificationEntity {

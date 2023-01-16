@@ -1,10 +1,10 @@
-import { UserEntity } from '../../entities/user/user.entity';
-import { TableLogsEntity } from '../../entities/table-logs/table-logs.entity';
-import { GroupEntity } from '../../entities/group/group.entity';
-import { TableSettingsEntity } from '../../entities/table-settings/table-settings.entity';
-import { AgentEntity } from '../../entities/agent/agent.entity';
-import { ConnectionPropertiesEntity } from '../../entities/connection-properties/connection-properties.entity';
-import { TableInfoEntity } from '../../entities/table-info/table-info.entity';
+import { UserEntity } from '../../entities/user/user.entity.js';
+import { TableLogsEntity } from '../../entities/table-logs/table-logs.entity.js';
+import { GroupEntity } from '../../entities/group/group.entity.js';
+import { TableSettingsEntity } from '../../entities/table-settings/table-settings.entity.js';
+import { AgentEntity } from '../../entities/agent/agent.entity.js';
+import { ConnectionPropertiesEntity } from '../../entities/connection-properties/connection-properties.entity.js';
+import { TableInfoEntity } from '../../entities/table-info/table-info.entity.js';
 
 export interface IEncryptorInterfaceDTO {
   id: string;

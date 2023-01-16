@@ -1,10 +1,10 @@
 import { Test } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
-import { ApplicationModule } from '../../src/app.module';
-import { DatabaseModule } from '../../src/shared/database/database.module';
-import { DatabaseService } from '../../src/shared/database/database.service';
-import { TestUtils } from '../utils/test.utils';
+import { ApplicationModule } from '../../src/app.module.js';
+import { DatabaseModule } from '../../src/shared/database/database.module.js';
+import { DatabaseService } from '../../src/shared/database/database.service.js';
+import { TestUtils } from '../utils/test.utils.js';
 import { Connection } from 'typeorm';
 
 describe('AppController (e2e)', () => {

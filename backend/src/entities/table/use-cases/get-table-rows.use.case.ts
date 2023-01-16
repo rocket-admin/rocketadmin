@@ -1,35 +1,35 @@
 import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
-import AbstractUseCase from '../../../common/abstract-use.case';
-import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface';
-import { BaseType } from '../../../common/data-injection.tokens';
-import { createDataAccessObject } from '../../../data-access-layer/shared/create-data-access-object';
+import AbstractUseCase from '../../../common/abstract-use.case.js';
+import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface.js';
+import { BaseType } from '../../../common/data-injection.tokens.js';
+import { createDataAccessObject } from '../../../data-access-layer/shared/create-data-access-object.js';
 import {
   IDataAccessObject,
   IForeignKey,
   IForeignKeyWithForeignColumnName,
-} from '../../../data-access-layer/shared/data-access-object-interface';
+} from '../../../data-access-layer/shared/data-access-object-interface.js';
 import {
   AmplitudeEventTypeEnum,
   LogOperationTypeEnum,
   OperationResultStatusEnum,
   WidgetTypeEnum,
-} from '../../../enums';
-import { Messages } from '../../../exceptions/text/messages';
-import { isConnectionTypeAgent } from '../../../helpers';
-import { AmplitudeService } from '../../amplitude/amplitude.service';
-import { TableLogsService } from '../../table-logs/table-logs.service';
-import { TableSettingsEntity } from '../../table-settings/table-settings.entity';
-import { FoundTableRowsDs } from '../application/data-structures/found-table-rows.ds';
-import { GetTableRowsDs } from '../application/data-structures/get-table-rows.ds';
-import { IForeignKeyInfo } from '../table.interface';
-import { addCustomFieldsInRowsUtil } from '../utils/add-custom-fields-in-rows.util';
-import { convertBinaryDataInRowsUtil } from '../utils/convert-binary-data-in-rows.util';
-import { findAutocompleteFieldsUtil } from '../utils/find-autocomplete-fields.util';
-import { findFilteringFieldsUtil } from '../utils/find-filtering-fields.util';
-import { findOrderingFieldUtil } from '../utils/find-ordering-field.util';
-import { formFullTableStructure } from '../utils/form-full-table-structure';
-import { removePasswordsFromRowsUtil } from '../utils/remove-passwords-from-rows.util';
-import { IGetTableRows } from './table-use-cases.interface';
+} from '../../../enums/index.js';
+import { Messages } from '../../../exceptions/text/messages.js';
+import { isConnectionTypeAgent } from '../../../helpers/index.js';
+import { AmplitudeService } from '../../amplitude/amplitude.service.js';
+import { TableLogsService } from '../../table-logs/table-logs.service.js';
+import { TableSettingsEntity } from '../../table-settings/table-settings.entity.js';
+import { FoundTableRowsDs } from '../application/data-structures/found-table-rows.ds.js';
+import { GetTableRowsDs } from '../application/data-structures/get-table-rows.ds.js';
+import { IForeignKeyInfo } from '../table.interface.js';
+import { addCustomFieldsInRowsUtil } from '../utils/add-custom-fields-in-rows.util.js';
+import { convertBinaryDataInRowsUtil } from '../utils/convert-binary-data-in-rows.util.js';
+import { findAutocompleteFieldsUtil } from '../utils/find-autocomplete-fields.util.js';
+import { findFilteringFieldsUtil } from '../utils/find-filtering-fields.util.js';
+import { findOrderingFieldUtil } from '../utils/find-ordering-field.util.js';
+import { formFullTableStructure } from '../utils/form-full-table-structure.js';
+import { removePasswordsFromRowsUtil } from '../utils/remove-passwords-from-rows.util.js';
+import { IGetTableRows } from './table-use-cases.interface.js';
 
 @Injectable()
 export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTableRowsDs> implements IGetTableRows {

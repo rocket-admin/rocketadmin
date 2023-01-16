@@ -1,5 +1,5 @@
 import { DataSource } from 'typeorm';
-import { configService } from '../config/config.service';
+import { configService } from '../config/config.service.js';
 let appDataSourceCache: DataSource = null;
 
 export const databaseProviders = [

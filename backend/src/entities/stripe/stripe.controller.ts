@@ -1,10 +1,10 @@
 import { Controller, Inject, Injectable, Post, Req, UseInterceptors } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
-import { UseCaseType } from '../../common/data-injection.tokens';
-import { SentryInterceptor } from '../../interceptors';
-import { StripeWebhookDS } from './application/data-structures/stripe-webhook.ds';
-import { IStripeWebhook } from './use-cases/stripe-use-cases.interface';
+import { UseCaseType } from '../../common/data-injection.tokens.js';
+import { SentryInterceptor } from '../../interceptors/index.js';
+import { StripeWebhookDS } from './application/data-structures/stripe-webhook.ds.js';
+import { IStripeWebhook } from './use-cases/stripe-use-cases.interface.js';
 
 @ApiTags('stripe')
 @UseInterceptors(SentryInterceptor)

@@ -1,15 +1,15 @@
 import { INestApplication } from '@nestjs/common';
-import { TestUtils } from '../utils/test.utils';
-import { MockFactory } from '../mock.factory';
+import { TestUtils } from '../utils/test.utils.js';
+import { MockFactory } from '../mock.factory.js';
 import { knex } from 'knex';
 import { Test } from '@nestjs/testing';
-import { ApplicationModule } from '../../src/app.module';
-import { DatabaseModule } from '../../src/shared/database/database.module';
-import { DatabaseService } from '../../src/shared/database/database.service';
+import { ApplicationModule } from '../../src/app.module.js';
+import { DatabaseModule } from '../../src/shared/database/database.module.js';
+import { DatabaseService } from '../../src/shared/database/database.service.js';
 import * as request from 'supertest';
 import { faker } from '@faker-js/faker';
 import { Connection } from 'typeorm';
-import { Cacher } from '../../src/helpers/cache/cacher';
+import { Cacher } from '../../src/helpers/cache/cacher.js';
 
 xdescribe('Tables Postgres (e2e)', () => {
   jest.setTimeout(20000);

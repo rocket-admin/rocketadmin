@@ -1,11 +1,11 @@
 import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
-import AbstractUseCase from '../../../common/abstract-use.case';
-import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface';
-import { BaseType } from '../../../common/data-injection.tokens';
-import { Messages } from '../../../exceptions/text/messages';
-import { sendEmailConfirmation } from '../../email/send-email';
-import { OperationResultMessageDs } from '../application/data-structures/operation-result-message.ds';
-import { IRequestEmailVerification } from './user-use-cases.interfaces';
+import AbstractUseCase from '../../../common/abstract-use.case.js';
+import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface.js';
+import { BaseType } from '../../../common/data-injection.tokens.js';
+import { Messages } from '../../../exceptions/text/messages.js';
+import { sendEmailConfirmation } from '../../email/send-email.js';
+import { OperationResultMessageDs } from '../application/data-structures/operation-result-message.ds.js';
+import { IRequestEmailVerification } from './user-use-cases.interfaces.js';
 
 @Injectable()
 export class RequestEmailVerificationUseCase

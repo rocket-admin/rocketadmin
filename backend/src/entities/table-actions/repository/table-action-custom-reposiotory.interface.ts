@@ -1,4 +1,4 @@
-import { TableActionEntity } from '../table-action.entity';
+import { TableActionEntity } from '../table-action.entity.js';
 
 export interface ITableActionRepository {
   findTableActions(connectionId: string, tableName: string): Promise<Array<TableActionEntity>>;

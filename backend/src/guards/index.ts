@@ -1,8 +1,8 @@
-export { ConnectionEditGuard } from './connection-edit.guard';
-export { ConnectionReadGuard } from './connection-read.guard';
-export { GroupEditGuard } from './group-edit.guard';
-export { GroupReadGuard } from './group-read.guard';
-export { TableAddGuard } from './table-add.guard';
-export { TableDeleteGuard } from './table-delete.guard';
-export { TableEditGuard } from './table-edit.guard';
-export { TableReadGuard } from './table-read.guard';
+export { ConnectionEditGuard } from './connection-edit.guard.js';
+export { ConnectionReadGuard } from './connection-read.guard.js';
+export { GroupEditGuard } from './group-edit.guard.js';
+export { GroupReadGuard } from './group-read.guard.js';
+export { TableAddGuard } from './table-add.guard.js';
+export { TableDeleteGuard } from './table-delete.guard.js';
+export { TableEditGuard } from './table-edit.guard.js';
+export { TableReadGuard } from './table-read.guard.js';

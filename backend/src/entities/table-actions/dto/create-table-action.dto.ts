@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { TableActionTypeEnum } from '../../../enums';
+import { TableActionTypeEnum } from '../../../enums/index.js';
 
 export class CreateTableActionDTO {
   @ApiProperty()
@@ -18,6 +18,4 @@ export class CreateTableActionDTO {
   icon: string;
 }
 
-export class ActivateTableActionDTO {
-
-}
+export class ActivateTableActionDTO {}

@@ -1,5 +1,5 @@
 import { Column, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
-import { ConnectionEntity } from '../connection/connection.entity';
+import { ConnectionEntity } from '../connection/connection.entity.js';
 
 @Entity('connectionProperties')
 export class ConnectionPropertiesEntity {

@@ -1,6 +1,6 @@
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
-import { ConnectionEntity } from '../connection/connection.entity';
-import { TableFieldInfoEntity } from '../table-field-info/table-field-info.entity';
+import { ConnectionEntity } from '../connection/connection.entity.js';
+import { TableFieldInfoEntity } from '../table-field-info/table-field-info.entity.js';
 
 @Entity('table_info')
 export class TableInfoEntity {

@@ -1,5 +1,5 @@
 import * as jwt from 'jsonwebtoken';
-import { UserEntity } from '../user.entity';
+import { UserEntity } from '../user.entity.js';
 
 export function generateGwtToken(user: UserEntity): IToken {
   const today = new Date();

@@ -1,9 +1,9 @@
 import test from 'ava';
 import { Test } from '@nestjs/testing';
-import { ApplicationModule } from '../../src/app.module';
-import { DatabaseModule } from '../../src/shared/database/database.module';
-import { DatabaseService } from '../../src/shared/database/database.service';
-import { TestUtils } from '../utils/test.utils';
+import { ApplicationModule } from '../../src/app.module.js';
+import { DatabaseModule } from '../../src/shared/database/database.module.js';
+import { DatabaseService } from '../../src/shared/database/database.service.js';
+import { TestUtils } from '../utils/test.utils.js';
 import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
 

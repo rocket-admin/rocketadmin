@@ -15,30 +15,30 @@ import {
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Response } from 'express';
 import isEmail from 'validator/lib/isEmail';
-import { UseCaseType } from '../../common/data-injection.tokens';
-import { BodyEmail, GCLlId, UserId, VerificationString } from '../../decorators';
-import { InTransactionEnum, SubscriptionLevelEnum } from '../../enums';
-import { Messages } from '../../exceptions/text/messages';
-import { slackPostMessage } from '../../helpers';
-import { Constants } from '../../helpers/constants/constants';
-import { validateStringWithEnum } from '../../helpers/validators/validate-string-with-enum';
-import { SentryInterceptor } from '../../interceptors';
-import { ChangeUserEmailDs } from './application/data-structures/change-user-email.ds';
-import { ChangeUserNameDS } from './application/data-structures/change-user-name.ds';
-import { ChangeUsualUserPasswordDs } from './application/data-structures/change-usual-user-password.ds';
-import { FindUserDs } from './application/data-structures/find-user.ds';
-import { FoundUserDs } from './application/data-structures/found-user.ds';
-import { GoogleLoginDs } from './application/data-structures/google-login.ds';
-import { OperationResultMessageDs } from './application/data-structures/operation-result-message.ds';
-import { RegisteredUserDs } from './application/data-structures/registered-user.ds';
-import { ResetUsualUserPasswordDs } from './application/data-structures/reset-usual-user-password.ds';
-import { UpgradeUserSubscriptionDs } from './application/data-structures/upgrade-user-subscription.ds';
-import { UsualLoginDs } from './application/data-structures/usual-login.ds';
-import { UsualRegisterUserDs } from './application/data-structures/usual-register-user.ds';
-import { ChangeUsualUserPasswordDto, EmailDto, LoginUserDto, PasswordDto, SocialNetworkLoginDto } from './dto';
-import { ChangeUserNameDTO } from './dto/change-user-name.dto';
-import { UpgradeSubscriptionDto } from './dto/upgrade-subscription.dto';
-import { UsualRegisterUserDto } from './dto/usual-register-user.dto';
+import { UseCaseType } from '../../common/data-injection.tokens.js';
+import { BodyEmail, GCLlId, UserId, VerificationString } from '../../decorators/index.js';
+import { InTransactionEnum, SubscriptionLevelEnum } from '../../enums/index.js';
+import { Messages } from '../../exceptions/text/messages.js';
+import { slackPostMessage } from '../../helpers/index.js';
+import { Constants } from '../../helpers/constants/constants.js';
+import { validateStringWithEnum } from '../../helpers/validators/validate-string-with-enum.js';
+import { SentryInterceptor } from '../../interceptors/index.js';
+import { ChangeUserEmailDs } from './application/data-structures/change-user-email.ds.js';
+import { ChangeUserNameDS } from './application/data-structures/change-user-name.ds.js';
+import { ChangeUsualUserPasswordDs } from './application/data-structures/change-usual-user-password.ds.js';
+import { FindUserDs } from './application/data-structures/find-user.ds.js';
+import { FoundUserDs } from './application/data-structures/found-user.ds.js';
+import { GoogleLoginDs } from './application/data-structures/google-login.ds.js';
+import { OperationResultMessageDs } from './application/data-structures/operation-result-message.ds.js';
+import { RegisteredUserDs } from './application/data-structures/registered-user.ds.js';
+import { ResetUsualUserPasswordDs } from './application/data-structures/reset-usual-user-password.ds.js';
+import { UpgradeUserSubscriptionDs } from './application/data-structures/upgrade-user-subscription.ds.js';
+import { UsualLoginDs } from './application/data-structures/usual-login.ds.js';
+import { UsualRegisterUserDs } from './application/data-structures/usual-register-user.ds.js';
+import { ChangeUsualUserPasswordDto, EmailDto, LoginUserDto, PasswordDto, SocialNetworkLoginDto } from './dto/index.js';
+import { ChangeUserNameDTO } from './dto/change-user-name.dto.js';
+import { UpgradeSubscriptionDto } from './dto/upgrade-subscription.dto.js';
+import { UsualRegisterUserDto } from './dto/usual-register-user.dto.js';
 import {
   IChangeUserName,
   IDeleteUserAccount,
@@ -56,8 +56,8 @@ import {
   IVerifyEmail,
   IVerifyEmailChange,
   IVerifyPasswordReset,
-} from './use-cases/user-use-cases.interfaces';
-import { ITokenExp } from './utils/generate-gwt-token';
+} from './use-cases/user-use-cases.interfaces.js';
+import { ITokenExp } from './utils/generate-gwt-token.js';
 
 @ApiBearerAuth()
 @ApiTags('user')

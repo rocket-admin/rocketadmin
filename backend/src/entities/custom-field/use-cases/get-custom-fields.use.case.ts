@@ -1,12 +1,12 @@
 import { Inject, Injectable } from '@nestjs/common';
-import AbstractUseCase from '../../../common/abstract-use.case';
-import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface';
-import { BaseType } from '../../../common/data-injection.tokens';
-import { FoundCustomFieldsDs } from '../application/data-structures/found-custom-fields.ds';
-import { GetCustomFieldsDs } from '../application/data-structures/get-custom-fields.ds';
-import { CustomFieldsEntity } from '../custom-fields.entity';
-import { buildFoundCustomFieldsDs } from '../utils/build-found-custom-fields-ds';
-import { IGetCustomFields } from './custom-field-use-cases.interface';
+import AbstractUseCase from '../../../common/abstract-use.case.js';
+import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface.js';
+import { BaseType } from '../../../common/data-injection.tokens.js';
+import { FoundCustomFieldsDs } from '../application/data-structures/found-custom-fields.ds.js';
+import { GetCustomFieldsDs } from '../application/data-structures/get-custom-fields.ds.js';
+import { CustomFieldsEntity } from '../custom-fields.entity.js';
+import { buildFoundCustomFieldsDs } from '../utils/build-found-custom-fields-ds.js';
+import { IGetCustomFields } from './custom-field-use-cases.interface.js';
 
 @Injectable()
 export class GetCustomFieldsUseCase

@@ -1,11 +1,11 @@
 import { faker } from '@faker-js/faker';
 import * as jwt from 'jsonwebtoken';
-import { IRequestWithCognitoInfo } from '../src/authorization';
-import { CreateConnectionPropertiesDto } from '../src/entities/connection-properties/dto';
-import { CreateConnectionDto } from '../src/entities/connection/dto';
-import { CreateGroupDto } from '../src/entities/group/dto';
-import { TableActionEntity } from '../src/entities/table-actions/table-action.entity';
-import { CreateTableWidgetDto } from '../src/entities/widget/dto';
+import { IRequestWithCognitoInfo } from '../src/authorization/index.js';
+import { CreateConnectionPropertiesDto } from '../src/entities/connection-properties/dto/index.js';
+import { CreateConnectionDto } from '../src/entities/connection/dto/index.js';
+import { CreateGroupDto } from '../src/entities/group/dto/index.js';
+import { TableActionEntity } from '../src/entities/table-actions/table-action.entity.js';
+import { CreateTableWidgetDto } from '../src/entities/widget/dto/index.js';
 import {
   AccessLevelEnum,
   ConnectionTypeEnum,
@@ -13,8 +13,8 @@ import {
   QueryOrderingEnum,
   TableActionTypeEnum,
   WidgetTypeEnum,
-} from '../src/enums';
-import { TestConstants } from './mocks/test-constants';
+} from '../src/enums/index.js';
+import { TestConstants } from './mocks/test-constants.js';
 import * as json5 from 'json5';
 
 export class MockFactory {

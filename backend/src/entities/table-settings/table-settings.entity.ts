@@ -1,10 +1,10 @@
 import { Transform } from 'class-transformer';
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn, Unique } from 'typeorm';
-import { QueryOrderingEnum } from '../../enums';
-import { ConnectionEntity } from '../connection/connection.entity';
-import { CustomFieldsEntity } from '../custom-field/custom-fields.entity';
-import { TableActionEntity } from '../table-actions/table-action.entity';
-import { TableWidgetEntity } from '../widget/table-widget.entity';
+import { QueryOrderingEnum } from '../../enums/index.js';
+import { ConnectionEntity } from '../connection/connection.entity.js';
+import { CustomFieldsEntity } from '../custom-field/custom-fields.entity.js';
+import { TableActionEntity } from '../table-actions/table-action.entity.js';
+import { TableWidgetEntity } from '../widget/table-widget.entity.js';
 
 @Entity('tableSettings')
 @Unique(['connection_id', 'table_name'])

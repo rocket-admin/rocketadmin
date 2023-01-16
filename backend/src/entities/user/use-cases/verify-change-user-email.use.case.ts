@@ -1,12 +1,12 @@
 import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
-import AbstractUseCase from '../../../common/abstract-use.case';
-import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface';
-import { BaseType } from '../../../common/data-injection.tokens';
-import { Messages } from '../../../exceptions/text/messages';
-import { sendEmailChanged } from '../../email/send-email';
-import { ChangeUserEmailDs } from '../application/data-structures/change-user-email.ds';
-import { OperationResultMessageDs } from '../application/data-structures/operation-result-message.ds';
-import { IVerifyEmailChange } from './user-use-cases.interfaces';
+import AbstractUseCase from '../../../common/abstract-use.case.js';
+import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface.js';
+import { BaseType } from '../../../common/data-injection.tokens.js';
+import { Messages } from '../../../exceptions/text/messages.js';
+import { sendEmailChanged } from '../../email/send-email.js';
+import { ChangeUserEmailDs } from '../application/data-structures/change-user-email.ds.js';
+import { OperationResultMessageDs } from '../application/data-structures/operation-result-message.ds.js';
+import { IVerifyEmailChange } from './user-use-cases.interfaces.js';
 
 @Injectable()
 export class VerifyChangeUserEmailUseCase

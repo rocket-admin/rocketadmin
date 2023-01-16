@@ -6,15 +6,15 @@ import * as request from 'supertest';
 import { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import { Connection } from 'typeorm';
-import { ApplicationModule } from '../../src/app.module';
-import { QueryOrderingEnum } from '../../src/enums';
-import { Messages } from '../../src/exceptions/text/messages';
-import { Cacher } from '../../src/helpers/cache/cacher';
-import { Constants } from '../../src/helpers/constants/constants';
-import { DatabaseModule } from '../../src/shared/database/database.module';
-import { DatabaseService } from '../../src/shared/database/database.service';
-import { MockFactory } from '../mock.factory';
-import { TestUtils } from '../utils/test.utils';
+import { ApplicationModule } from '../../src/app.module.js';
+import { QueryOrderingEnum } from '../../src/enums.js';
+import { Messages } from '../../src/exceptions/text/messages.js';
+import { Cacher } from '../../src/helpers/cache/cacher.js';
+import { Constants } from '../../src/helpers/constants/constants.js';
+import { DatabaseModule } from '../../src/shared/database/database.module.js';
+import { DatabaseService } from '../../src/shared/database/database.service.js';
+import { MockFactory } from '../mock.factory.js';
+import { TestUtils } from '../utils/test.utils.js';
 
 describe('Tables OracleDB (e2e)', () => {
   jest.setTimeout(60000);

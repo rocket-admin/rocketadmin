@@ -1,10 +1,10 @@
 import axios from 'axios';
 import * as jwt from 'jsonwebtoken';
-import { CreateTableSettingsDto } from '../../entities/table-settings/dto';
-import { DaoCommandsEnum } from '../../enums/dao-commands.enum';
-import { IDaoInterface, ITestConnectResult } from '../shared/dao-interface';
-import { TableSettingsEntity } from '../../entities/table-settings/table-settings.entity';
-import { ConnectionEntity } from '../../entities/connection/connection.entity';
+import { CreateTableSettingsDto } from '../../entities/table-settings/dto/index.js';
+import { DaoCommandsEnum } from '../../enums/dao-commands.enum.js';
+import { IDaoInterface, ITestConnectResult } from '../shared/dao-interface.js';
+import { TableSettingsEntity } from '../../entities/table-settings/table-settings.entity.js';
+import { ConnectionEntity } from '../../entities/connection/connection.entity.js';
 
 export class DaoAgent implements IDaoInterface {
   private readonly connection: ConnectionEntity;

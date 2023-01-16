@@ -1,7 +1,7 @@
-import { ConnectionEntity } from '../connection.entity';
-import { CreatedConnectionDs } from '../application/data-structures/created-connection.ds';
-import { Encryptor } from '../../../helpers/encryption/encryptor';
-import { GroupEntity } from '../../group/group.entity';
+import { ConnectionEntity } from '../connection.entity.js';
+import { CreatedConnectionDs } from '../application/data-structures/created-connection.ds.js';
+import { Encryptor } from '../../../helpers/encryption/encryptor.js';
+import { GroupEntity } from '../../group/group.entity.js';
 
 export function buildCreatedConnectionDs(
   connection: ConnectionEntity,

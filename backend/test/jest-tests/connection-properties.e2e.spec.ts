@@ -2,16 +2,16 @@ import * as AWS from 'aws-sdk';
 import * as AWSMock from 'aws-sdk-mock';
 import { faker } from '@faker-js/faker';
 import * as request from 'supertest';
-import { ApplicationModule } from '../../src/app.module';
+import { ApplicationModule } from '../../src/app.module.js';
 import { Connection } from 'typeorm';
-import { DatabaseModule } from '../../src/shared/database/database.module';
-import { DatabaseService } from '../../src/shared/database/database.service';
+import { DatabaseModule } from '../../src/shared/database/database.module.js';
+import { DatabaseService } from '../../src/shared/database/database.service.js';
 import { INestApplication } from '@nestjs/common';
-import { MockFactory } from '../mock.factory';
+import { MockFactory } from '../mock.factory.js';
 import { Test } from '@nestjs/testing';
-import { TestUtils } from '../utils/test.utils';
+import { TestUtils } from '../utils/test.utils.js';
 import { knex } from 'knex';
-import { Cacher } from '../../src/helpers/cache/cacher';
+import { Cacher } from '../../src/helpers/cache/cacher.js';
 
 describe('Connection properties', () => {
   jest.setTimeout(30000);

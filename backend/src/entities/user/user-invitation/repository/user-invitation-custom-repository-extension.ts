@@ -1,9 +1,8 @@
-import { Repository } from 'typeorm';
-import { Constants } from '../../../../helpers/constants/constants';
-import { Encryptor } from '../../../../helpers/encryption/encryptor';
-import { UserEntity } from '../../user.entity';
-import { UserInvitationEntity } from '../user-invitation.entity';
-import { IUserInvitationRepository } from './user-invitation-repository.interface';
+import { Constants } from '../../../../helpers/constants/constants.js';
+import { Encryptor } from '../../../../helpers/encryption/encryptor.js';
+import { UserEntity } from '../../user.entity.js';
+import { UserInvitationEntity } from '../user-invitation.entity.js';
+import { IUserInvitationRepository } from './user-invitation-repository.interface.js';
 
 export const userInvitationCustomRepositoryExtension: IUserInvitationRepository = {
   async findUserInvitationWithVerificationString(verificationString: string): Promise<UserInvitationEntity> {

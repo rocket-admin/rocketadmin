@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty } from 'class-validator';
-import { PermissionEntity } from '../../permission/permission.entity';
-import { UserEntity } from '../../user/user.entity';
+import { PermissionEntity } from '../../permission/permission.entity.js';
+import { UserEntity } from '../../user/user.entity.js';
 
 export class CreateGroupDto {
   @ApiProperty()

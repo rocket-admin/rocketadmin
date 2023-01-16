@@ -4,15 +4,15 @@ import { Test } from '@nestjs/testing';
 import * as cookieParser from 'cookie-parser';
 import * as request from 'supertest';
 import { Connection } from 'typeorm';
-import { ApplicationModule } from '../../src/app.module';
-import { AccessLevelEnum } from '../../src/enums';
-import { Messages } from '../../src/exceptions/text/messages';
-import { Cacher } from '../../src/helpers/cache/cacher';
-import { Constants } from '../../src/helpers/constants/constants';
-import { DatabaseModule } from '../../src/shared/database/database.module';
-import { DatabaseService } from '../../src/shared/database/database.service';
-import { MockFactory } from '../mock.factory';
-import { TestUtils } from '../utils/test.utils';
+import { ApplicationModule } from '../../src/app.module.js';
+import { AccessLevelEnum } from '../../src/enums.js';
+import { Messages } from '../../src/exceptions/text/messages.js';
+import { Cacher } from '../../src/helpers/cache/cacher.js';
+import { Constants } from '../../src/helpers/constants/constants.js';
+import { DatabaseModule } from '../../src/shared/database/database.module.js';
+import { DatabaseService } from '../../src/shared/database/database.service.js';
+import { MockFactory } from '../mock.factory.js';
+import { TestUtils } from '../utils/test.utils.js';
 
 describe('Connections (e2e)', () => {
   jest.setTimeout(60000);
@@ -1085,7 +1085,6 @@ describe('Connections (e2e)', () => {
       }
     });
 
-
     it('should throw an exception when try to delete test connection without non test connections', async () => {
       try {
         const findAllConnectionsResponse = await request(app.getHttpServer())
@@ -1096,7 +1095,8 @@ describe('Connections (e2e)', () => {
         expect(findAllConnectionsResponse.status).toBe(200);
         expect(findAllConnectionsResponse.body.connections.length).toBe(4);
         const findConnectionsRO = JSON.parse(findAllConnectionsResponse.text);
-        const randomConnection = findConnectionsRO.connections[Math.floor(Math.random() * findConnectionsRO.connections.length)];
+        const randomConnection =
+          findConnectionsRO.connections[Math.floor(Math.random() * findConnectionsRO.connections.length)];
         const deleteConnectionResponse = await request(app.getHttpServer())
           .put(`/connection/delete/${randomConnection.connection.id}`)
           .set('Content-Type', 'application/json')
@@ -1106,9 +1106,8 @@ describe('Connections (e2e)', () => {
         expect(deleteConnectionResponse.status).toBe(400);
 
         const deleteRO = JSON.parse(deleteConnectionResponse.text);
-        const { message } =deleteRO;
+        const { message } = deleteRO;
         expect(message).toBe(Messages.DONT_HAVE_NON_TEST_CONNECTIONS);
-
       } catch (err) {
         throw err;
       }

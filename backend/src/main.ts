@@ -4,10 +4,10 @@ import * as Sentry from '@sentry/node';
 import cookieParser from 'cookie-parser';
 import rateLimit from 'express-rate-limit';
 import helmet from 'helmet';
-import { ApplicationModule } from './app.module';
-import { AllExceptionsFilter } from './exceptions/all-exceptions.filter';
-import { Constants } from './helpers/constants/constants';
-import { requiredEnvironmentVariablesValidator } from './helpers/validators/required-environment-variables.validator';
+import { ApplicationModule } from './app.module.js';
+import { AllExceptionsFilter } from './exceptions/all-exceptions.filter.js';
+import { Constants } from './helpers/constants/constants.js';
+import { requiredEnvironmentVariablesValidator } from './helpers/validators/required-environment-variables.validator.js';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 require('dotenv').config();
@@ -41,7 +41,12 @@ async function bootstrap() {
     app.use(cookieParser());
 
     app.enableCors({
-      origin: ['https://app.autoadmin.org', 'http://localhost:4200', 'https://app.rocketadmin.org', Constants.APP_DOMAIN_ADDRESS],
+      origin: [
+        'https://app.autoadmin.org',
+        'http://localhost:4200',
+        'https://app.rocketadmin.org',
+        Constants.APP_DOMAIN_ADDRESS,
+      ],
       methods: 'GET,PUT,PATCH,POST,DELETE',
       credentials: true,
       preflightContinue: false,

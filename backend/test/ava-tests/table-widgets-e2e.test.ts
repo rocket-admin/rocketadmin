@@ -4,17 +4,17 @@ import { Test } from '@nestjs/testing';
 import test from 'ava';
 import * as cookieParser from 'cookie-parser';
 import * as request from 'supertest';
-import { ApplicationModule } from '../../src/app.module';
-import { AllExceptionsFilter } from '../../src/exceptions/all-exceptions.filter';
-import { Messages } from '../../src/exceptions/text/messages';
-import { Cacher } from '../../src/helpers/cache/cacher';
-import { DatabaseModule } from '../../src/shared/database/database.module';
-import { DatabaseService } from '../../src/shared/database/database.service';
-import { MockFactory } from '../mock.factory';
-import { compareTableWidgetsArrays } from '../utils/compare-table-widgets-arrays';
-import { getTestData } from '../utils/get-test-data';
-import { registerUserAndReturnUserInfo } from '../utils/register-user-and-return-user-info';
-import { TestUtils } from '../utils/test.utils';
+import { ApplicationModule } from '../../src/app.module.js';
+import { AllExceptionsFilter } from '../../src/exceptions/all-exceptions.filter.js';
+import { Messages } from '../../src/exceptions/text/messages.js';
+import { Cacher } from '../../src/helpers/cache/cacher.js';
+import { DatabaseModule } from '../../src/shared/database/database.module.js';
+import { DatabaseService } from '../../src/shared/database/database.service.js';
+import { MockFactory } from '../mock.factory.js';
+import { compareTableWidgetsArrays } from '../utils/compare-table-widgets-arrays.js';
+import { getTestData } from '../utils/get-test-data.js';
+import { registerUserAndReturnUserInfo } from '../utils/register-user-and-return-user-info.js';
+import { TestUtils } from '../utils/test.utils.js';
 
 const mockFactory = new MockFactory();
 let app: INestApplication;
@@ -322,7 +322,7 @@ test(`${currentTest} should return created table widgets`, async (t) => {
     .set('masterpwd', 'ahalaimahalai')
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
-    const newTableWidgets = mockFactory.generateCreateWidgetDTOsArrayForConnectionTable();
+  const newTableWidgets = mockFactory.generateCreateWidgetDTOsArrayForConnectionTable();
   const connectionId = JSON.parse(createdConnection.text).id;
   const newTableWidget = mockFactory.generateCreateWidgetDTOForConnectionTable();
   const createTableWidgetResponse = await request(app.getHttpServer())
@@ -409,7 +409,7 @@ test(`${currentTest} should return updated table widgets when old widget updated
     .set('masterpwd', 'ahalaimahalai')
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
-    const newTableWidgets = mockFactory.generateCreateWidgetDTOsArrayForConnectionTable();
+  const newTableWidgets = mockFactory.generateCreateWidgetDTOsArrayForConnectionTable();
   const connectionId = JSON.parse(createdConnection.text).id;
   newTableWidgets.shift();
   const createTableWidgetResponse = await request(app.getHttpServer())
@@ -588,7 +588,7 @@ test(`${currentTest} should throw exception when connection id passed in request
     .set('masterpwd', 'ahalaimahalai')
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
-    const newTableWidgets = mockFactory.generateCreateWidgetDTOsArrayForConnectionTable();
+  const newTableWidgets = mockFactory.generateCreateWidgetDTOsArrayForConnectionTable();
   const connectionId = JSON.parse(createdConnection.text).id;
   const fakeConnectionId = faker.datatype.uuid();
   const createTableWidgetResponse = await request(app.getHttpServer())

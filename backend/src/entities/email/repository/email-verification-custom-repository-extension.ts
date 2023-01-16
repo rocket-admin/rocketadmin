@@ -1,6 +1,6 @@
-import { Encryptor } from '../../../helpers/encryption/encryptor';
-import { UserEntity } from '../../user/user.entity';
-import { EmailVerificationEntity } from '../email-verification.entity';
+import { Encryptor } from '../../../helpers/encryption/encryptor.js';
+import { UserEntity } from '../../user/user.entity.js';
+import { EmailVerificationEntity } from '../email-verification.entity.js';
 
 export const emailVerificationRepositoryExtension = {
   async findVerificationWithVerificationString(verificationString: string): Promise<EmailVerificationEntity> {

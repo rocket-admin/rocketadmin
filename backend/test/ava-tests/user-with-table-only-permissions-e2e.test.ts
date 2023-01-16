@@ -5,18 +5,18 @@ import test from 'ava';
 import * as cookieParser from 'cookie-parser';
 import * as request from 'supertest';
 import { resourceLimits } from 'worker_threads';
-import { ApplicationModule } from '../../src/app.module';
-import { AccessLevelEnum, QueryOrderingEnum } from '../../src/enums';
-import { AllExceptionsFilter } from '../../src/exceptions/all-exceptions.filter';
-import { Messages } from '../../src/exceptions/text/messages';
-import { Cacher } from '../../src/helpers/cache/cacher';
-import { Constants } from '../../src/helpers/constants/constants';
-import { DatabaseModule } from '../../src/shared/database/database.module';
-import { DatabaseService } from '../../src/shared/database/database.service';
-import { MockFactory } from '../mock.factory';
-import { compareTableWidgetsArrays } from '../utils/compare-table-widgets-arrays';
-import { TestUtils } from '../utils/test.utils';
-import { createConnectionsAndInviteNewUserInNewGroupWithOnlyTablePermissions } from '../utils/user-with-different-permissions-utils';
+import { ApplicationModule } from '../../src/app.module.js';
+import { AccessLevelEnum, QueryOrderingEnum } from '../../src/enums.js';
+import { AllExceptionsFilter } from '../../src/exceptions/all-exceptions.filter.js';
+import { Messages } from '../../src/exceptions/text/messages.js';
+import { Cacher } from '../../src/helpers/cache/cacher.js';
+import { Constants } from '../../src/helpers/constants/constants.js';
+import { DatabaseModule } from '../../src/shared/database/database.module.js';
+import { DatabaseService } from '../../src/shared/database/database.service.js';
+import { MockFactory } from '../mock.factory.js';
+import { compareTableWidgetsArrays } from '../utils/compare-table-widgets-arrays.js';
+import { TestUtils } from '../utils/test.utils.js';
+import { createConnectionsAndInviteNewUserInNewGroupWithOnlyTablePermissions } from '../utils/user-with-different-permissions-utils.js';
 
 let app: INestApplication;
 let testUtils: TestUtils;
@@ -658,7 +658,7 @@ test(`${currentTest} should return permissions object for current group in curre
 
     t.is(response.status, 200);
     const result = JSON.parse(response.text);
-    console.log("🚀 ~ file: user-with-table-only-permissions-e2e.test.ts:661 ~ test ~ result", result)
+    console.log('🚀 ~ file: user-with-table-only-permissions-e2e.test.ts:661 ~ test ~ result', result);
 
     t.is(result.hasOwnProperty('connection'), true);
     t.is(result.hasOwnProperty('group'), true);
@@ -670,7 +670,6 @@ test(`${currentTest} should return permissions object for current group in curre
     t.is(result.connection.accessLevel, AccessLevelEnum.none);
     t.is(result.group.accessLevel, AccessLevelEnum.none);
     t.is(typeof result.tables, 'object');
-    
   } catch (e) {
     console.error(e);
     throw e;
@@ -737,7 +736,7 @@ test(`${currentTest} it should throw exception ${Messages.DONT_HAVE_PERMISSIONS}
       .set('Cookie', simpleUserToken)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
-    t.is(response.status, 403);  
+    t.is(response.status, 403);
     const getUsersRO = JSON.parse(response.text);
     t.is(getUsersRO.hasOwnProperty('message'), true);
     t.is(getUsersRO.message, Messages.DONT_HAVE_PERMISSIONS);

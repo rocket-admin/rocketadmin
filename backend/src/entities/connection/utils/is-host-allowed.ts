@@ -1,9 +1,9 @@
 import * as dns from 'dns';
 import ipRangeCheck from 'ip-range-check';
-import { Constants } from '../../../helpers/constants/constants';
-import { CreateConnectionDto } from '../dto';
-import { isConnectionEntityAgent } from '../../../helpers';
-import { isSaaS } from '../../../helpers/app/is-saas';
+import { Constants } from '../../../helpers/constants/constants.js';
+import { CreateConnectionDto } from '../dto/index.js';
+import { isConnectionEntityAgent } from '../../../helpers/index.js';
+import { isSaaS } from '../../../helpers/app/is-saas.js';
 
 export async function isHostAllowed(connectionData: CreateConnectionDto): Promise<boolean> {
   if (isConnectionEntityAgent(connectionData) || process.env.NODE_ENV === 'test') {

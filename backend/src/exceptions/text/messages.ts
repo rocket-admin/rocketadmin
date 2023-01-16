@@ -8,9 +8,9 @@ import {
   TableActionTypeEnum,
   UserActionEnum,
   WidgetTypeEnum,
-} from '../../enums';
-import { toPrettyErrorsMsg } from '../../helpers';
-import { enumToString } from '../../helpers/enum-to-string';
+} from '../../enums/index.js';
+import { toPrettyErrorsMsg } from '../../helpers/index.js';
+import { enumToString } from '../../helpers/enum-to-string.js';
 
 export const Messages = {
   ACCESS_LEVEL_INVALID: 'Access level is invalid',

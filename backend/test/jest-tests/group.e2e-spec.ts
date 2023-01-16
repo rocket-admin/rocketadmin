@@ -4,18 +4,18 @@ import { faker } from '@faker-js/faker';
 import * as request from 'supertest';
 import * as cookieParser from 'cookie-parser';
 
-import { AccessLevelEnum } from '../../src/enums';
-import { ApplicationModule } from '../../src/app.module';
+import { AccessLevelEnum } from '../../src/enums.js';
+import { ApplicationModule } from '../../src/app.module.js';
 import { Connection } from 'typeorm';
-import { DatabaseModule } from '../../src/shared/database/database.module';
-import { DatabaseService } from '../../src/shared/database/database.service';
+import { DatabaseModule } from '../../src/shared/database/database.module.js';
+import { DatabaseService } from '../../src/shared/database/database.service.js';
 import { INestApplication } from '@nestjs/common';
-import { Messages } from '../../src/exceptions/text/messages';
-import { MockFactory } from '../mock.factory';
+import { Messages } from '../../src/exceptions/text/messages.js';
+import { MockFactory } from '../mock.factory.js';
 import { Test } from '@nestjs/testing';
-import { TestUtils } from '../utils/test.utils';
-import { Constants } from '../../src/helpers/constants/constants';
-import { Cacher } from '../../src/helpers/cache/cacher';
+import { TestUtils } from '../utils/test.utils.js';
+import { Constants } from '../../src/helpers/constants/constants.js';
+import { Cacher } from '../../src/helpers/cache/cacher.js';
 
 describe('Groups (e2e)', () => {
   type RegisterUserData = {

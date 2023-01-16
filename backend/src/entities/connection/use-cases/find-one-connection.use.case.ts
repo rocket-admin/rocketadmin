@@ -1,15 +1,15 @@
 import { HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { HttpException } from '@nestjs/common/exceptions/http.exception';
-import AbstractUseCase from '../../../common/abstract-use.case';
-import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface';
-import { BaseType } from '../../../common/data-injection.tokens';
-import { AccessLevelEnum } from '../../../enums';
-import { Messages } from '../../../exceptions/text/messages';
-import { Constants } from '../../../helpers/constants/constants';
-import { Encryptor } from '../../../helpers/encryption/encryptor';
-import { FindOneConnectionDs } from '../application/data-structures/find-one-connection.ds';
-import { FoundOneConnectionDs } from '../application/data-structures/found-one-connection.ds';
-import { IFindOneConnection } from './use-cases.interfaces';
+import AbstractUseCase from '../../../common/abstract-use.case.js';
+import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface.js';
+import { BaseType } from '../../../common/data-injection.tokens.js';
+import { AccessLevelEnum } from '../../../enums/index.js';
+import { Messages } from '../../../exceptions/text/messages.js';
+import { Constants } from '../../../helpers/constants/constants.js';
+import { Encryptor } from '../../../helpers/encryption/encryptor.js';
+import { FindOneConnectionDs } from '../application/data-structures/find-one-connection.ds.js';
+import { FoundOneConnectionDs } from '../application/data-structures/found-one-connection.ds.js';
+import { IFindOneConnection } from './use-cases.interfaces.js';
 
 @Injectable()
 export class FindOneConnectionUseCase

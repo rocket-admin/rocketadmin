@@ -1,5 +1,5 @@
-import { CreateCustomFieldsDs } from '../application/data-structures/create-custom-fields.ds';
-import { CustomFieldsEntity } from '../custom-fields.entity';
+import { CreateCustomFieldsDs } from '../application/data-structures/create-custom-fields.ds.js';
+import { CustomFieldsEntity } from '../custom-fields.entity.js';
 
 export function buildNewCustomFieldsEntity(inputData: CreateCustomFieldsDs): CustomFieldsEntity {
   const {

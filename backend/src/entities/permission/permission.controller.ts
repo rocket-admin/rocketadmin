@@ -10,16 +10,16 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { UseCaseType } from '../../common/data-injection.tokens';
-import { MasterPassword, SlugUuid, UserId } from '../../decorators';
-import { InTransactionEnum } from '../../enums';
-import { Messages } from '../../exceptions/text/messages';
-import { GroupEditGuard } from '../../guards';
-import { SentryInterceptor } from '../../interceptors';
-import { CreatePermissionsDs } from './application/data-structures/create-permissions.ds';
-import { CreatePermissionsDto } from './dto';
-import { IComplexPermission } from './permission.interface';
-import { ICreateOrUpdatePermissions } from './use-cases/permissions-use-cases.interface';
+import { UseCaseType } from '../../common/data-injection.tokens.js';
+import { MasterPassword, SlugUuid, UserId } from '../../decorators/index.js';
+import { InTransactionEnum } from '../../enums/index.js';
+import { Messages } from '../../exceptions/text/messages.js';
+import { GroupEditGuard } from '../../guards/index.js';
+import { SentryInterceptor } from '../../interceptors/index.js';
+import { CreatePermissionsDs } from './application/data-structures/create-permissions.ds.js';
+import { CreatePermissionsDto } from './dto/index.js';
+import { IComplexPermission } from './permission.interface.js';
+import { ICreateOrUpdatePermissions } from './use-cases/permissions-use-cases.interface.js';
 
 @ApiBearerAuth()
 @ApiTags('permissions')

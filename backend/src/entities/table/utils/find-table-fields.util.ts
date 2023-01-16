@@ -1,5 +1,5 @@
-import { ConnectionEntity } from '../../connection/connection.entity';
-import { createDataAccessObject } from '../../../data-access-layer/shared/create-data-access-object';
+import { ConnectionEntity } from '../../connection/connection.entity.js';
+import { createDataAccessObject } from '../../../data-access-layer/shared/create-data-access-object.js';
 
 export async function findTableFieldsUtil(
   connection: ConnectionEntity,

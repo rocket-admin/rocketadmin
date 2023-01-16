@@ -1,24 +1,24 @@
 import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import * as Sentry from '@sentry/node';
 import PQueue from 'p-queue';
-import AbstractUseCase from '../../../common/abstract-use.case';
-import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface';
-import { BaseType } from '../../../common/data-injection.tokens';
-import { createDataAccessObject } from '../../../data-access-layer/shared/create-data-access-object';
-import { ITableStructure } from '../../../data-access-layer/shared/data-access-object-interface';
-import { AccessLevelEnum, AmplitudeEventTypeEnum } from '../../../enums';
-import { Messages } from '../../../exceptions/text/messages';
-import { isConnectionTypeAgent } from '../../../helpers';
-import { Logger } from '../../../helpers/logging/Logger';
-import { AmplitudeService } from '../../amplitude/amplitude.service';
-import { ConnectionEntity } from '../../connection/connection.entity';
-import { isTestConnectionUtil } from '../../connection/utils/is-test-connection-util';
-import { ITablePermissionData } from '../../permission/permission.interface';
-import { TableSettingsEntity } from '../../table-settings/table-settings.entity';
-import { FindTablesDs } from '../application/data-structures/find-tables.ds';
-import { FoundTableDs } from '../application/data-structures/found-table.ds';
-import { buildTableFieldInfoEntity, buildTableInfoEntity } from '../utils/save-tables-info-in-database.util';
-import { IFindTablesInConnection } from './table-use-cases.interface';
+import AbstractUseCase from '../../../common/abstract-use.case.js';
+import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface.js';
+import { BaseType } from '../../../common/data-injection.tokens.js';
+import { createDataAccessObject } from '../../../data-access-layer/shared/create-data-access-object.js';
+import { ITableStructure } from '../../../data-access-layer/shared/data-access-object-interface.js';
+import { AccessLevelEnum, AmplitudeEventTypeEnum } from '../../../enums/index.js';
+import { Messages } from '../../../exceptions/text/messages.js';
+import { isConnectionTypeAgent } from '../../../helpers/index.js';
+import { Logger } from '../../../helpers/logging/Logger.js';
+import { AmplitudeService } from '../../amplitude/amplitude.service.js';
+import { ConnectionEntity } from '../../connection/connection.entity.js';
+import { isTestConnectionUtil } from '../../connection/utils/is-test-connection-util.js';
+import { ITablePermissionData } from '../../permission/permission.interface.js';
+import { TableSettingsEntity } from '../../table-settings/table-settings.entity.js';
+import { FindTablesDs } from '../application/data-structures/find-tables.ds.js';
+import { FoundTableDs } from '../application/data-structures/found-table.ds.js';
+import { buildTableFieldInfoEntity, buildTableInfoEntity } from '../utils/save-tables-info-in-database.util.js';
+import { IFindTablesInConnection } from './table-use-cases.interface.js';
 
 @Injectable()
 export class FindTablesInConnectionUseCase

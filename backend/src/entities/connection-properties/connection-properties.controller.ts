@@ -11,24 +11,25 @@ import {
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
+
 import { HttpException } from '@nestjs/common/exceptions/http.exception';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { UseCaseType } from '../../common/data-injection.tokens';
-import { MasterPassword, SlugUuid, UserId } from '../../decorators';
-import { InTransactionEnum } from '../../enums';
-import { Messages } from '../../exceptions/text/messages';
-import { ConnectionEditGuard, ConnectionReadGuard } from '../../guards';
-import { SentryInterceptor } from '../../interceptors';
-import { CreateConnectionPropertiesDs } from './application/data-structures/create-connection-properties.ds';
-import { FoundConnectionPropertiesDs } from './application/data-structures/found-connection-properties.ds';
-import { IConnectionPropertiesRO } from './connection-properties.interface';
-import { CreateConnectionPropertiesDto } from './dto';
+import { UseCaseType } from '../../common/data-injection.tokens.js';
+import { MasterPassword, SlugUuid, UserId } from '../../decorators/index.js';
+import { InTransactionEnum } from '../../enums/index.js';
+import { Messages } from '../../exceptions/text/messages.js';
+import { ConnectionEditGuard, ConnectionReadGuard } from '../../guards/index.js';
+import { SentryInterceptor } from '../../interceptors/index.js';
+import { CreateConnectionPropertiesDs } from './application/data-structures/create-connection-properties.ds.js';
+import { FoundConnectionPropertiesDs } from './application/data-structures/found-connection-properties.ds.js';
+import { IConnectionPropertiesRO } from './connection-properties.interface.js';
+import { CreateConnectionPropertiesDto } from './dto/index.js';
 import {
   ICreateConnectionProperties,
   IDeleteConnectionProperties,
   IFindConnectionProperties,
   IUpdateConnectionProperties,
-} from './use-cases/connection-properties-use.cases.interface';
+} from './use-cases/connection-properties-use.cases.interface.js';
 
 @ApiBearerAuth()
 @ApiTags('connection properties')

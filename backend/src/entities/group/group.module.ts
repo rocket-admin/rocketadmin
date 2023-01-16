@@ -1,22 +1,22 @@
 import { MiddlewareConsumer, Module, RequestMethod } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { AuthMiddleware } from '../../authorization';
-import { GlobalDatabaseContext } from '../../common/application/global-database-context';
-import { BaseType, UseCaseType } from '../../common/data-injection.tokens';
-import { AgentModule } from '../agent/agent.module';
-import { ConnectionEntity } from '../connection/connection.entity';
-import { LogOutEntity } from '../log-out/log-out.entity';
-import { PermissionEntity } from '../permission/permission.entity';
-import { TableSettingsEntity } from '../table-settings/table-settings.entity';
-import { UserEntity } from '../user/user.entity';
-import { GroupController } from './group.controller';
-import { GroupEntity } from './group.entity';
-import { AddUserInGroupUseCase } from './use-cases/add-user-in-group.use.case';
-import { DeleteGroupUseCase } from './use-cases/delete-group.use.case';
-import { FindAllUserGroupsUseCase } from './use-cases/find-all-user-groups.use.case';
-import { FindAllUsersInGroupUseCase } from './use-cases/find-all-users-in-group.use.case';
-import { RemoveUserFromGroupUseCase } from './use-cases/remove-user-from-group.use.case';
-import { VerifyAddUserInGroupUseCase } from './use-cases/verify-add-user-in-group.use.case';
+import { AuthMiddleware } from '../../authorization/index.js';
+import { GlobalDatabaseContext } from '../../common/application/global-database-context.js';
+import { BaseType, UseCaseType } from '../../common/data-injection.tokens.js';
+import { AgentModule } from '../agent/agent.module.js';
+import { ConnectionEntity } from '../connection/connection.entity.js';
+import { LogOutEntity } from '../log-out/log-out.entity.js';
+import { PermissionEntity } from '../permission/permission.entity.js';
+import { TableSettingsEntity } from '../table-settings/table-settings.entity.js';
+import { UserEntity } from '../user/user.entity.js';
+import { GroupController } from './group.controller.js';
+import { GroupEntity } from './group.entity.js';
+import { AddUserInGroupUseCase } from './use-cases/add-user-in-group.use.case.js';
+import { DeleteGroupUseCase } from './use-cases/delete-group.use.case.js';
+import { FindAllUserGroupsUseCase } from './use-cases/find-all-user-groups.use.case.js';
+import { FindAllUsersInGroupUseCase } from './use-cases/find-all-users-in-group.use.case.js';
+import { RemoveUserFromGroupUseCase } from './use-cases/remove-user-from-group.use.case.js';
+import { VerifyAddUserInGroupUseCase } from './use-cases/verify-add-user-in-group.use.case.js';
 
 @Module({
   imports: [

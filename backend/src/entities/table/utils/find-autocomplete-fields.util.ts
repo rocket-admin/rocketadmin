@@ -1,8 +1,8 @@
-import { TableSettingsEntity } from '../../table-settings/table-settings.entity';
-import { AutocompleteFieldsDs } from '../application/data-structures/found-table-rows.ds';
+import { TableSettingsEntity } from '../../table-settings/table-settings.entity.js';
+import { AutocompleteFieldsDs } from '../application/data-structures/found-table-rows.ds.js';
 import { HttpException, HttpStatus } from '@nestjs/common';
-import { Messages } from '../../../exceptions/text/messages';
-import { ITableStructure } from '../../../data-access-layer/shared/data-access-object-interface';
+import { Messages } from '../../../exceptions/text/messages.js';
+import { ITableStructure } from '../../../data-access-layer/shared/data-access-object-interface.js';
 
 export function findAutocompleteFieldsUtil(
   query: string,

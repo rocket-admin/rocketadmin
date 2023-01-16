@@ -16,24 +16,24 @@ import {
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Response, Request } from 'express';
 import validator from 'validator';
-import { UseCaseType } from '../../common/data-injection.tokens';
-import { BodyEmail, BodyUuid, SlugUuid, UserId, VerificationString } from '../../decorators';
-import { AmplitudeEventTypeEnum, InTransactionEnum } from '../../enums';
-import { Messages } from '../../exceptions/text/messages';
-import { GroupEditGuard, GroupReadGuard } from '../../guards';
-import { Cacher } from '../../helpers/cache/cacher';
-import { Constants } from '../../helpers/constants/constants';
-import { SentryInterceptor } from '../../interceptors';
-import { AmplitudeService } from '../amplitude/amplitude.service';
-import { FoundUserInGroupDs } from '../user/application/data-structures/found-user-in-group.ds';
-import { IToken, ITokenExp } from '../user/utils/generate-gwt-token';
-import { AddUserInGroupDs } from './application/data-sctructures/add-user-in-group.ds';
-import { AddedUserInGroupDs } from './application/data-sctructures/added-user-in-group.ds';
-import { DeletedGroupResultDs } from './application/data-sctructures/deleted-group-result.ds';
-import { FoundUserGroupsDs } from './application/data-sctructures/found-user-groups.ds';
-import { RemoveUserFromGroupResultDs } from './application/data-sctructures/remove-user-from-group-result.ds';
-import { VerifyAddUserInGroupDs } from './application/data-sctructures/verify-add-user-in-group.ds';
-import { AddUserIngroupDto } from './dto/add-user-ingroup-dto';
+import { UseCaseType } from '../../common/data-injection.tokens.js';
+import { BodyEmail, BodyUuid, SlugUuid, UserId, VerificationString } from '../../decorators/index.js';
+import { AmplitudeEventTypeEnum, InTransactionEnum } from '../../enums/index.js';
+import { Messages } from '../../exceptions/text/messages.js';
+import { GroupEditGuard, GroupReadGuard } from '../../guards/index.js';
+import { Cacher } from '../../helpers/cache/cacher.js';
+import { Constants } from '../../helpers/constants/constants.js';
+import { SentryInterceptor } from '../../interceptors/index.js';
+import { AmplitudeService } from '../amplitude/amplitude.service.js';
+import { FoundUserInGroupDs } from '../user/application/data-structures/found-user-in-group.ds.js';
+import { IToken, ITokenExp } from '../user/utils/generate-gwt-token.js';
+import { AddUserInGroupDs } from './application/data-sctructures/add-user-in-group.ds.js';
+import { AddedUserInGroupDs } from './application/data-sctructures/added-user-in-group.ds.js';
+import { DeletedGroupResultDs } from './application/data-sctructures/deleted-group-result.ds.js';
+import { FoundUserGroupsDs } from './application/data-sctructures/found-user-groups.ds.js';
+import { RemoveUserFromGroupResultDs } from './application/data-sctructures/remove-user-from-group-result.ds.js';
+import { VerifyAddUserInGroupDs } from './application/data-sctructures/verify-add-user-in-group.ds.js';
+import { AddUserIngroupDto } from './dto/add-user-ingroup-dto.js';
 import {
   IAddUserInGroup,
   IDeleteGroup,
@@ -41,7 +41,7 @@ import {
   IFindUserGroups,
   IRemoveUserFromGroup,
   IVerifyAddUserInGroup,
-} from './use-cases/use-cases.interfaces';
+} from './use-cases/use-cases.interfaces.js';
 
 @ApiBearerAuth()
 @ApiTags('groups')

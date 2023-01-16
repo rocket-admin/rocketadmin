@@ -1,7 +1,7 @@
-import { ITableStructure } from '../../../data-access-layer/shared/data-access-object-interface';
-import { ConnectionEntity } from '../../connection/connection.entity';
-import { TableFieldInfoEntity } from '../../table-field-info/table-field-info.entity';
-import { TableInfoEntity } from '../../table-info/table-info.entity';
+import { ITableStructure } from '../../../data-access-layer/shared/data-access-object-interface.js';
+import { ConnectionEntity } from '../../connection/connection.entity.js';
+import { TableFieldInfoEntity } from '../../table-field-info/table-field-info.entity.js';
+import { TableInfoEntity } from '../../table-info/table-info.entity.js';
 
 export function buildTableFieldInfoEntity(
   structure: ITableStructure,

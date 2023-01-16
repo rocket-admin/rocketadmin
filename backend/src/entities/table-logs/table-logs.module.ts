@@ -1,15 +1,15 @@
 import { Global, MiddlewareConsumer, Module, RequestMethod } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { AuthMiddleware } from '../../authorization';
-import { GlobalDatabaseContext } from '../../common/application/global-database-context';
-import { BaseType, UseCaseType } from '../../common/data-injection.tokens';
-import { LogOutEntity } from '../log-out/log-out.entity';
-import { TableSettingsEntity } from '../table-settings/table-settings.entity';
-import { UserEntity } from '../user/user.entity';
-import { TableLogsController } from './table-logs.controller';
-import { TableLogsEntity } from './table-logs.entity';
-import { TableLogsService } from './table-logs.service';
-import { FindLogsUseCase } from './use-cases/find-logs.use.case';
+import { AuthMiddleware } from '../../authorization/index.js';
+import { GlobalDatabaseContext } from '../../common/application/global-database-context.js';
+import { BaseType, UseCaseType } from '../../common/data-injection.tokens.js';
+import { LogOutEntity } from '../log-out/log-out.entity.js';
+import { TableSettingsEntity } from '../table-settings/table-settings.entity.js';
+import { UserEntity } from '../user/user.entity.js';
+import { TableLogsController } from './table-logs.controller.js';
+import { TableLogsEntity } from './table-logs.entity.js';
+import { TableLogsService } from './table-logs.service.js';
+import { FindLogsUseCase } from './use-cases/find-logs.use.case.js';
 
 @Global()
 @Module({

@@ -4,14 +4,14 @@ import * as AWSMock from 'aws-sdk-mock';
 import * as cookieParser from 'cookie-parser';
 import * as request from 'supertest';
 import { Connection } from 'typeorm';
-import { ApplicationModule } from '../../src/app.module';
-import { IUserInfo } from '../../src/entities/user/user.interface';
-import { Messages } from '../../src/exceptions/text/messages';
-import { Cacher } from '../../src/helpers/cache/cacher';
-import { Constants } from '../../src/helpers/constants/constants';
-import { DatabaseModule } from '../../src/shared/database/database.module';
-import { DatabaseService } from '../../src/shared/database/database.service';
-import { TestUtils } from '../utils/test.utils';
+import { ApplicationModule } from '../../src/app.module.js';
+import { IUserInfo } from '../../src/entities/user/user.interface.js';
+import { Messages } from '../../src/exceptions/text/messages.js';
+import { Cacher } from '../../src/helpers/cache/cacher.js';
+import { Constants } from '../../src/helpers/constants/constants.js';
+import { DatabaseModule } from '../../src/shared/database/database.module.js';
+import { DatabaseService } from '../../src/shared/database/database.service.js';
+import { TestUtils } from '../utils/test.utils.js';
 
 describe('User (e2e)', () => {
   jest.setTimeout(30000);

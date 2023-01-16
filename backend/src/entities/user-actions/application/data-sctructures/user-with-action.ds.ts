@@ -1,4 +1,4 @@
-import { UserActionEntity } from '../../user-action.entity';
+import { UserActionEntity } from '../../user-action.entity.js';
 
 export class UserWithActionDs {
   email: string;

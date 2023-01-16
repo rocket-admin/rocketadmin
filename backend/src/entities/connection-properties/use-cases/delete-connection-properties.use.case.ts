@@ -1,12 +1,12 @@
 import { HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { HttpException } from '@nestjs/common/exceptions/http.exception';
-import AbstractUseCase from '../../../common/abstract-use.case';
-import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface';
-import { BaseType } from '../../../common/data-injection.tokens';
-import { Messages } from '../../../exceptions/text/messages';
-import { FoundConnectionPropertiesDs } from '../application/data-structures/found-connection-properties.ds';
-import { buildFoundConnectionPropertiesDs } from '../utils/build-found-connection-properties-ds';
-import { IDeleteConnectionProperties } from './connection-properties-use.cases.interface';
+import AbstractUseCase from '../../../common/abstract-use.case.js';
+import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface.js';
+import { BaseType } from '../../../common/data-injection.tokens.js';
+import { Messages } from '../../../exceptions/text/messages.js';
+import { FoundConnectionPropertiesDs } from '../application/data-structures/found-connection-properties.ds.js';
+import { buildFoundConnectionPropertiesDs } from '../utils/build-found-connection-properties-ds.js';
+import { IDeleteConnectionProperties } from './connection-properties-use.cases.interface.js';
 
 @Injectable()
 export class DeleteConnectionPropertiesUseCase

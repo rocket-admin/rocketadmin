@@ -1,4 +1,4 @@
-import { MockFactory } from '../mock.factory';
+import { MockFactory } from '../mock.factory.js';
 
 export function getTestData(mockFactory: MockFactory) {
   const newConnection = mockFactory.generateConnectionToTestPostgresDBInDocker();

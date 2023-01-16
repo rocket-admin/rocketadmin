@@ -1,5 +1,5 @@
-import { ConnectionTypeEnum } from '../../../../enums';
-import { GroupEntity } from '../../../group/group.entity';
+import { ConnectionTypeEnum } from '../../../../enums/index.js';
+import { GroupEntity } from '../../../group/group.entity.js';
 
 export class CreatedConnectionDs {
   id: string;

@@ -1,6 +1,6 @@
 import { ArgumentsHost, Catch, ExceptionFilter, HttpException, HttpStatus } from '@nestjs/common';
-import { Logger } from '../helpers/logging/Logger';
-import { processExceptionMessage } from './utils/process-exception-message';
+import { Logger } from '../helpers/logging/Logger.js';
+import { processExceptionMessage } from './utils/process-exception-message.js';
 
 @Catch()
 export class AllExceptionsFilter implements ExceptionFilter {

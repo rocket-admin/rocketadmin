@@ -14,36 +14,41 @@ import {
 import { HttpException } from '@nestjs/common/exceptions/http.exception';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import validator from 'validator';
-import { IGlobalDatabaseContext } from '../../common/application/global-database-context.intarface';
-import { BaseType, UseCaseType } from '../../common/data-injection.tokens';
-import { ITestConnectResult } from '../../dal/shared/dao-interface';
-import { BodyUuid, GCLlId, MasterPassword, QueryUuid, SlugUuid, UserId } from '../../decorators';
-import { AmplitudeEventTypeEnum, ConnectionTypeEnum, InTransactionEnum } from '../../enums';
-import { Messages } from '../../exceptions/text/messages';
-import { processExceptionMessage } from '../../exceptions/utils/process-exception-message';
-import { ConnectionEditGuard, ConnectionReadGuard } from '../../guards';
-import { isConnectionEntityAgent, isConnectionTypeAgent, slackPostMessage, toPrettyErrorsMsg } from '../../helpers';
-import { SentryInterceptor } from '../../interceptors';
-import { AmplitudeService } from '../amplitude/amplitude.service';
-import { GroupEntity } from '../group/group.entity';
-import { IComplexPermission } from '../permission/permission.interface';
-import { FindUserDs } from '../user/application/data-structures/find-user.ds';
-import { FoundUserDs } from '../user/application/data-structures/found-user.ds';
-import { CreateConnectionDs } from './application/data-structures/create-connection.ds';
-import { CreateGroupInConnectionDs } from './application/data-structures/create-group-in-connection.ds';
-import { CreatedConnectionDs } from './application/data-structures/created-connection.ds';
-import { DeleteConnectionDs } from './application/data-structures/delete-connection.ds';
-import { DeleteGroupInConnectionDs } from './application/data-structures/delete-group-in-connection.ds';
-import { FindOneConnectionDs } from './application/data-structures/find-one-connection.ds';
-import { FoundConnectionsDs } from './application/data-structures/found-connections.ds';
-import { FoundOneConnectionDs } from './application/data-structures/found-one-connection.ds';
-import { FoundUserGroupsInConnectionDs } from './application/data-structures/found-user-groups-in-connection.ds';
-import { GetGroupsInConnectionDs } from './application/data-structures/get-groups-in-connection.ds';
-import { GetPermissionsInConnectionDs } from './application/data-structures/get-permissions-in-connection.ds';
-import { RestoredConnectionDs } from './application/data-structures/restored-connection.ds';
-import { UpdateConnectionDs } from './application/data-structures/update-connection.ds';
-import { UpdateMasterPasswordDs } from './application/data-structures/update-master-password.ds';
-import { CreateConnectionDto, CreateGroupInConnectionDto, UpdateMasterPasswordDto } from './dto';
+import { IGlobalDatabaseContext } from '../../common/application/global-database-context.intarface.js';
+import { BaseType, UseCaseType } from '../../common/data-injection.tokens.js';
+import { ITestConnectResult } from '../../dal/shared/dao-interface.js';
+import { BodyUuid, GCLlId, MasterPassword, QueryUuid, SlugUuid, UserId } from '../../decorators/index.js';
+import { AmplitudeEventTypeEnum, ConnectionTypeEnum, InTransactionEnum } from '../../enums/index.js';
+import { Messages } from '../../exceptions/text/messages.js';
+import { processExceptionMessage } from '../../exceptions/utils/process-exception-message.js';
+import { ConnectionEditGuard, ConnectionReadGuard } from '../../guards/index.js';
+import {
+  isConnectionEntityAgent,
+  isConnectionTypeAgent,
+  slackPostMessage,
+  toPrettyErrorsMsg,
+} from '../../helpers/index.js';
+import { SentryInterceptor } from '../../interceptors/index.js';
+import { AmplitudeService } from '../amplitude/amplitude.service.js';
+import { GroupEntity } from '../group/group.entity.js';
+import { IComplexPermission } from '../permission/permission.interface.js';
+import { FindUserDs } from '../user/application/data-structures/find-user.ds.js';
+import { FoundUserDs } from '../user/application/data-structures/found-user.ds.js';
+import { CreateConnectionDs } from './application/data-structures/create-connection.ds.js';
+import { CreateGroupInConnectionDs } from './application/data-structures/create-group-in-connection.ds.js';
+import { CreatedConnectionDs } from './application/data-structures/created-connection.ds.js';
+import { DeleteConnectionDs } from './application/data-structures/delete-connection.ds.js';
+import { DeleteGroupInConnectionDs } from './application/data-structures/delete-group-in-connection.ds.js';
+import { FindOneConnectionDs } from './application/data-structures/find-one-connection.ds.js';
+import { FoundConnectionsDs } from './application/data-structures/found-connections.ds.js';
+import { FoundOneConnectionDs } from './application/data-structures/found-one-connection.ds.js';
+import { FoundUserGroupsInConnectionDs } from './application/data-structures/found-user-groups-in-connection.ds.js';
+import { GetGroupsInConnectionDs } from './application/data-structures/get-groups-in-connection.ds.js';
+import { GetPermissionsInConnectionDs } from './application/data-structures/get-permissions-in-connection.ds.js';
+import { RestoredConnectionDs } from './application/data-structures/restored-connection.ds.js';
+import { UpdateConnectionDs } from './application/data-structures/update-connection.ds.js';
+import { UpdateMasterPasswordDs } from './application/data-structures/update-master-password.ds.js';
+import { CreateConnectionDto, CreateGroupInConnectionDto, UpdateMasterPasswordDto } from './dto/index.js';
 import {
   ICreateConnection,
   ICreateGroupInConnection,
@@ -60,8 +65,8 @@ import {
   IUpdateConnection,
   IUpdateMasterPassword,
   IValidateConnectionToken,
-} from './use-cases/use-cases.interfaces';
-import { isTestConnectionUtil } from './utils/is-test-connection-util';
+} from './use-cases/use-cases.interfaces.js';
+import { isTestConnectionUtil } from './utils/is-test-connection-util.js';
 
 @ApiBearerAuth()
 @ApiTags('connections')
@@ -348,7 +353,7 @@ export class ConnectionController {
     };
     const deleteResult = await this.deleteConnectionUseCase.execute(inputData, InTransactionEnum.ON);
     const isTest = isTestConnectionUtil(deleteResult);
-    if(!isTest){
+    if (!isTest) {
       const userEmail = await this._dbContext.userRepository.getUserEmailOrReturnNull(userId);
       const slackMessage = Messages.USER_DELETED_CONNECTION(userEmail, reason, message);
       await slackPostMessage(slackMessage);

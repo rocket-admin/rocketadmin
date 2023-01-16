@@ -1,10 +1,10 @@
-import { CreateFieldDto } from '../application/data-structures/create-custom-fields.ds';
-import { ConnectionEntity } from '../../connection/connection.entity';
-import { Messages } from '../../../exceptions/text/messages';
-import { getValuesBetweenCurlies, toPrettyErrorsMsg } from '../../../helpers';
+import { CreateFieldDto } from '../application/data-structures/create-custom-fields.ds.js';
+import { ConnectionEntity } from '../../connection/connection.entity.js';
+import { Messages } from '../../../exceptions/text/messages.js';
+import { getValuesBetweenCurlies, toPrettyErrorsMsg } from '../../../helpers/index.js';
 import { HttpException } from '@nestjs/common/exceptions/http.exception';
 import { HttpStatus } from '@nestjs/common';
-import { createDataAccessObject } from '../../../data-access-layer/shared/create-data-access-object';
+import { createDataAccessObject } from '../../../data-access-layer/shared/create-data-access-object.js';
 
 export async function validateCreateCustomFieldDto(
   createFieldDto: CreateFieldDto,

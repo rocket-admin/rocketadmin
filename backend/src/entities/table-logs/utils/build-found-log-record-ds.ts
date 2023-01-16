@@ -1,5 +1,5 @@
-import { FoundLogRecordDs } from '../application/data-structures/found-logs.ds';
-import { TableLogsEntity } from '../table-logs.entity';
+import { FoundLogRecordDs } from '../application/data-structures/found-logs.ds.js';
+import { TableLogsEntity } from '../table-logs.entity.js';
 
 export function buildFoundLogRecordDs(log: TableLogsEntity): FoundLogRecordDs {
   const {

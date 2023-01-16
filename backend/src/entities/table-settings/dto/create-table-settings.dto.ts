@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { CustomFieldsEntity } from '../../custom-field/custom-fields.entity';
-import { QueryOrderingEnum } from '../../../enums';
-import { TableWidgetEntity } from '../../widget/table-widget.entity';
+import { CustomFieldsEntity } from '../../custom-field/custom-fields.entity.js';
+import { QueryOrderingEnum } from '../../../enums/index.js';
+import { TableWidgetEntity } from '../../widget/table-widget.entity.js';
 
 export class CreateTableSettingsDto {
   @ApiProperty()

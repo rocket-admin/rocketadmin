@@ -1,6 +1,6 @@
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
-import { TableActionTypeEnum } from '../../enums';
-import { TableSettingsEntity } from '../table-settings/table-settings.entity';
+import { TableActionTypeEnum } from '../../enums/index.js';
+import { TableSettingsEntity } from '../table-settings/table-settings.entity.js';
 
 @Entity('table_actions')
 export class TableActionEntity {

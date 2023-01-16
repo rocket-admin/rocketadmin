@@ -1,18 +1,18 @@
 import { faker } from '@faker-js/faker';
 import * as request from 'supertest';
 
-import { ApplicationModule } from '../../src/app.module';
+import { ApplicationModule } from '../../src/app.module.js';
 import { Connection } from 'typeorm';
-import { DatabaseModule } from '../../src/shared/database/database.module';
-import { DatabaseService } from '../../src/shared/database/database.service';
-import { Encryptor } from '../../src/helpers/encryption/encryptor';
+import { DatabaseModule } from '../../src/shared/database/database.module.js';
+import { DatabaseService } from '../../src/shared/database/database.service.js';
+import { Encryptor } from '../../src/helpers/encryption/encryptor.js';
 import { INestApplication } from '@nestjs/common';
-import { Messages } from '../../src/exceptions/text/messages';
-import { MockFactory } from '../mock.factory';
-import { QueryOrderingEnum } from '../../src/enums';
+import { Messages } from '../../src/exceptions/text/messages.js';
+import { MockFactory } from '../mock.factory.js';
+import { QueryOrderingEnum } from '../../src/enums.js';
 import { Test } from '@nestjs/testing';
-import { TestUtils } from '../utils/test.utils';
-import { Cacher } from '../../src/helpers/cache/cacher';
+import { TestUtils } from '../utils/test.utils.js';
+import { Cacher } from '../../src/helpers/cache/cacher.js';
 
 describe('Tables with encryption (e2e)', () => {
   jest.setTimeout(10000);

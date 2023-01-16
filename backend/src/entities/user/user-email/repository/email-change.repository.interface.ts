@@ -1,5 +1,5 @@
-import { EmailChangeEntity } from '../email-change.entity';
-import { UserEntity } from '../../user.entity';
+import { EmailChangeEntity } from '../email-change.entity.js';
+import { UserEntity } from '../../user.entity.js';
 
 export interface IEmailChangeRepository {
   findEmailChangeWithVerificationString(verificationString: string): Promise<EmailChangeEntity>;

@@ -3,9 +3,9 @@ import * as bcrypt from 'bcrypt';
 import * as crypto from 'crypto';
 import { createHmac, randomBytes, scrypt } from 'crypto';
 import * as CryptoJS from 'crypto-js';
-import { EncryptionAlgorithmEnum } from '../../enums';
-import { Constants } from '../constants/constants';
-import { IEncryptorInterfaceDTO } from './encryptor.interface';
+import { EncryptionAlgorithmEnum } from '../../enums/index.js';
+import { Constants } from '../constants/constants.js';
+import { IEncryptorInterfaceDTO } from './encryptor.interface.js';
 
 export class Encryptor {
   static getPrivateKey(): string {

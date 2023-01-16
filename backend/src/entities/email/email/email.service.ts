@@ -1,8 +1,8 @@
-import { IEmailService, IMessage } from './email.interface';
-import { EmailTransporterService } from '../transporter/email-transporter-service';
-import { EmailGenerator } from './email.generator';
+import { IEmailService, IMessage } from './email.interface.js';
+import { EmailTransporterService } from '../transporter/email-transporter-service.js';
+import { EmailGenerator } from './email.generator.js';
 import * as SMTPTransport from 'nodemailer/lib/smtp-transport';
-import { EmailLetter } from '../email-messages/email-message';
+import { EmailLetter } from '../email-messages/email-message.js';
 
 export class EmailService implements IEmailService {
   constructor(private emailGenerator: EmailGenerator, private emailTransporterService: EmailTransporterService) {}

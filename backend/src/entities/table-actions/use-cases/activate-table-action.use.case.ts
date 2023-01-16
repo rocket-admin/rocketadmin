@@ -1,17 +1,17 @@
 import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import axios from 'axios';
-import AbstractUseCase from '../../../common/abstract-use.case';
-import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface';
-import { BaseType } from '../../../common/data-injection.tokens';
-import { createDataAccessObject } from '../../../data-access-layer/shared/create-data-access-object';
-import { IPrimaryKey } from '../../../data-access-layer/shared/data-access-object-interface';
-import { LogOperationTypeEnum, OperationResultStatusEnum } from '../../../enums';
-import { Messages } from '../../../exceptions/text/messages';
-import { Encryptor } from '../../../helpers/encryption/encryptor';
-import { TableLogsService } from '../../table-logs/table-logs.service';
-import { ActivateTableActionDS } from '../application/data-sctructures/activate-table-action.ds';
-import { ActivatedTableActionDS } from '../application/data-sctructures/activated-table-action.ds';
-import { IActivateTableAction } from './table-actions-use-cases.interface';
+import AbstractUseCase from '../../../common/abstract-use.case.js';
+import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface.js';
+import { BaseType } from '../../../common/data-injection.tokens.js';
+import { createDataAccessObject } from '../../../data-access-layer/shared/create-data-access-object.js';
+import { IPrimaryKey } from '../../../data-access-layer/shared/data-access-object-interface.js';
+import { LogOperationTypeEnum, OperationResultStatusEnum } from '../../../enums/index.js';
+import { Messages } from '../../../exceptions/text/messages.js';
+import { Encryptor } from '../../../helpers/encryption/encryptor.js';
+import { TableLogsService } from '../../table-logs/table-logs.service.js';
+import { ActivateTableActionDS } from '../application/data-sctructures/activate-table-action.ds.js';
+import { ActivatedTableActionDS } from '../application/data-sctructures/activated-table-action.ds.js';
+import { IActivateTableAction } from './table-actions-use-cases.interface.js';
 
 @Injectable()
 export class ActivateTableActionUseCase

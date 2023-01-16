@@ -1,9 +1,9 @@
-import { TableSettingsEntity } from '../../table-settings/table-settings.entity';
-import { OrderingFiledDs } from '../application/data-structures/found-table-rows.ds';
+import { TableSettingsEntity } from '../../table-settings/table-settings.entity.js';
+import { OrderingFiledDs } from '../application/data-structures/found-table-rows.ds.js';
 import { HttpException, HttpStatus } from '@nestjs/common';
-import { Messages } from '../../../exceptions/text/messages';
-import { QueryOrderingEnum } from '../../../enums';
-import { ITableStructure } from '../../../data-access-layer/shared/data-access-object-interface';
+import { Messages } from '../../../exceptions/text/messages.js';
+import { QueryOrderingEnum } from '../../../enums/index.js';
+import { ITableStructure } from '../../../data-access-layer/shared/data-access-object-interface.js';
 
 export function findOrderingFieldUtil(
   query: string,

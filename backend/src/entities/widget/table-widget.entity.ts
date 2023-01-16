@@ -9,8 +9,8 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { WidgetTypeEnum } from '../../enums';
-import { TableSettingsEntity } from '../table-settings/table-settings.entity';
+import { WidgetTypeEnum } from '../../enums/index.js';
+import { TableSettingsEntity } from '../table-settings/table-settings.entity.js';
 
 @Entity('table_widget')
 export class TableWidgetEntity {

@@ -1,7 +1,7 @@
-import { PermissionEntity } from '../permission.entity';
-import { TablePermissionDs } from '../application/data-structures/create-permissions.ds';
-import { AccessLevelEnum } from '../../../enums';
-import { getUniqArrayStrings } from '../../../helpers';
+import { PermissionEntity } from '../permission.entity.js';
+import { TablePermissionDs } from '../application/data-structures/create-permissions.ds.js';
+import { AccessLevelEnum } from '../../../enums/index.js';
+import { getUniqArrayStrings } from '../../../helpers/index.js';
 
 export function buildFinalTablesPermissions(
   permissionsOnStart: Array<PermissionEntity>,

@@ -10,15 +10,15 @@ import {
   OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { isConnectionTypeAgent } from '../../helpers';
-import { Encryptor } from '../../helpers/encryption/encryptor';
-import { AgentEntity } from '../agent/agent.entity';
-import { ConnectionPropertiesEntity } from '../connection-properties/connection-properties.entity';
-import { GroupEntity } from '../group/group.entity';
-import { TableInfoEntity } from '../table-info/table-info.entity';
-import { TableLogsEntity } from '../table-logs/table-logs.entity';
-import { TableSettingsEntity } from '../table-settings/table-settings.entity';
-import { UserEntity } from '../user/user.entity';
+import { isConnectionTypeAgent } from '../../helpers/index.js';
+import { Encryptor } from '../../helpers/encryption/encryptor.js';
+import { AgentEntity } from '../agent/agent.entity.js';
+import { ConnectionPropertiesEntity } from '../connection-properties/connection-properties.entity.js';
+import { GroupEntity } from '../group/group.entity.js';
+import { TableInfoEntity } from '../table-info/table-info.entity.js';
+import { TableLogsEntity } from '../table-logs/table-logs.entity.js';
+import { TableSettingsEntity } from '../table-settings/table-settings.entity.js';
+import { UserEntity } from '../user/user.entity.js';
 
 @Entity('connection')
 export class ConnectionEntity {

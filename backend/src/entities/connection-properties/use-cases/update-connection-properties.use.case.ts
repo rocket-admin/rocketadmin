@@ -1,18 +1,18 @@
 import { HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { HttpException } from '@nestjs/common/exceptions/http.exception';
-import AbstractUseCase from '../../../common/abstract-use.case';
-import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface';
-import { BaseType } from '../../../common/data-injection.tokens';
-import { Messages } from '../../../exceptions/text/messages';
-import { CreateConnectionPropertiesDs } from '../application/data-structures/create-connection-properties.ds';
-import { FoundConnectionPropertiesDs } from '../application/data-structures/found-connection-properties.ds';
-import { buildFoundConnectionPropertiesDs } from '../utils/build-found-connection-properties-ds';
+import AbstractUseCase from '../../../common/abstract-use.case.js';
+import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface.js';
+import { BaseType } from '../../../common/data-injection.tokens.js';
+import { Messages } from '../../../exceptions/text/messages.js';
+import { CreateConnectionPropertiesDs } from '../application/data-structures/create-connection-properties.ds.js';
+import { FoundConnectionPropertiesDs } from '../application/data-structures/found-connection-properties.ds.js';
+import { buildFoundConnectionPropertiesDs } from '../utils/build-found-connection-properties-ds.js';
 import {
   buildUpdateConnectionPropertiesObject,
   IUpdateConnectionPropertiesObject,
-} from '../utils/build-update-connection-properties-object';
-import { validateCreateConnectionPropertiesDs } from '../utils/validate-create-connection-properties-ds';
-import { IUpdateConnectionProperties } from './connection-properties-use.cases.interface';
+} from '../utils/build-update-connection-properties-object.js';
+import { validateCreateConnectionPropertiesDs } from '../utils/validate-create-connection-properties-ds.js';
+import { IUpdateConnectionProperties } from './connection-properties-use.cases.interface.js';
 
 @Injectable()
 export class UpdateConnectionPropertiesUseCase

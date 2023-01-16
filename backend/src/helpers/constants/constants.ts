@@ -1,7 +1,7 @@
 import { Knex } from 'knex';
-import { CreateConnectionDto } from '../../entities/connection/dto';
-import { ConnectionTypeEnum } from '../../enums';
-import { getProcessVariable } from '../get-process-variable';
+import { CreateConnectionDto } from '../../entities/connection/dto/index.js';
+import { ConnectionTypeEnum } from '../../enums/index.js';
+import { getProcessVariable } from '../get-process-variable.js';
 
 export const Constants = {
   JWT_COOKIE_KEY_NAME: 'jwt',
@@ -11,7 +11,7 @@ export const Constants = {
   MIDNIGHT_CRON_KEY: `44aea3c3-68f9-4c19-926c-40d2d5b502a2`,
   MORNING_CRON_KEY: `15ccb8d8-9b64-4d38-9f71-39b3a56c04d8`,
   CONNECTION_KEYS_NONE_PERMISSION: ['id', 'title', 'database', 'type'],
-  FREE_PLAN_USERS_COUNT:  3,
+  FREE_PLAN_USERS_COUNT: 3,
 
   VERIFICATION_STRING_WHITELIST: () => {
     const numbers = [...Array(10).keys()].map((num) => num.toString());
@@ -154,7 +154,6 @@ export const Constants = {
   REMOVED_PASSWORD_VALUE: '***',
   REMOVED_SENSITIVE_FIELD_IF_CHANGED: '* * * sensitive data, no logs stored * * *',
   REMOVED_SENSITIVE_FIELD_IF_NOT_CHANGED: '',
-
 
   getTestConnectionsArr: function (): Array<CreateConnectionDto> {
     const isSaaS = process.env.IS_SAAS;

@@ -1,11 +1,11 @@
 import { HttpException, HttpStatus } from '@nestjs/common';
-import { createDataAccessObject } from '../../../data-access-layer/shared/create-data-access-object';
-import { AccessLevelEnum, PermissionTypeEnum } from '../../../enums';
-import { Messages } from '../../../exceptions/text/messages';
-import { Encryptor } from '../../../helpers/encryption/encryptor';
-import { ConnectionEntity } from '../../connection/connection.entity';
-import { PermissionEntity } from '../../permission/permission.entity';
-import { ITablePermissionData } from '../../permission/permission.interface';
+import { createDataAccessObject } from '../../../data-access-layer/shared/create-data-access-object.js';
+import { AccessLevelEnum, PermissionTypeEnum } from '../../../enums/index.js';
+import { Messages } from '../../../exceptions/text/messages.js';
+import { Encryptor } from '../../../helpers/encryption/encryptor.js';
+import { ConnectionEntity } from '../../connection/connection.entity.js';
+import { PermissionEntity } from '../../permission/permission.entity.js';
+import { ITablePermissionData } from '../../permission/permission.interface.js';
 
 export const userAccessCustomReposiotoryExtension = {
   async getUserConnectionAccessLevel(cognitoUserName: string, connectionId: string): Promise<AccessLevelEnum> {

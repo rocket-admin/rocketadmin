@@ -4,20 +4,20 @@ import { Test } from '@nestjs/testing';
 import test from 'ava';
 import * as cookieParser from 'cookie-parser';
 import * as request from 'supertest';
-import { ApplicationModule } from '../../src/app.module';
-import { QueryOrderingEnum } from '../../src/enums';
-import { AllExceptionsFilter } from '../../src/exceptions/all-exceptions.filter';
-import { Messages } from '../../src/exceptions/text/messages';
-import { Cacher } from '../../src/helpers/cache/cacher';
-import { Constants } from '../../src/helpers/constants/constants';
-import { DatabaseModule } from '../../src/shared/database/database.module';
-import { DatabaseService } from '../../src/shared/database/database.service';
-import { MockFactory } from '../mock.factory';
-import { createTestTable } from '../utils/create-test-table';
-import { dropTestTables } from '../utils/drop-test-tables';
-import { getTestData } from '../utils/get-test-data';
-import { registerUserAndReturnUserInfo } from '../utils/register-user-and-return-user-info';
-import { TestUtils } from '../utils/test.utils';
+import { ApplicationModule } from '../../src/app.module.js';
+import { QueryOrderingEnum } from '../../src/enums.js';
+import { AllExceptionsFilter } from '../../src/exceptions/all-exceptions.filter.js';
+import { Messages } from '../../src/exceptions/text/messages.js';
+import { Cacher } from '../../src/helpers/cache/cacher.js';
+import { Constants } from '../../src/helpers/constants/constants.js';
+import { DatabaseModule } from '../../src/shared/database/database.module.js';
+import { DatabaseService } from '../../src/shared/database/database.service.js';
+import { MockFactory } from '../mock.factory.js';
+import { createTestTable } from '../utils/create-test-table.js';
+import { dropTestTables } from '../utils/drop-test-tables.js';
+import { getTestData } from '../utils/get-test-data.js';
+import { registerUserAndReturnUserInfo } from '../utils/register-user-and-return-user-info.js';
+import { TestUtils } from '../utils/test.utils.js';
 
 const mockFactory = new MockFactory();
 let app: INestApplication;
@@ -1636,7 +1636,7 @@ test(`${currentTest} should throw an exception when connection id is not passed 
       .set('masterpwd', masterPwd)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
-      
+
     t.is(createTableSettingsResponse.status, 201);
 
     const fieldname = 'id';
@@ -2316,7 +2316,10 @@ test(`${currentTest} should throw an exception when table name passed in request
     .set('masterpwd', masterPwd)
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
-  console.log("🚀 ~ file: table-postgres-encrypted-e2e.test.ts ~ line 2879 ~ test ~ getTableRowsResponse.text", getTableRowsResponse.text)
+  console.log(
+    '🚀 ~ file: table-postgres-encrypted-e2e.test.ts ~ line 2879 ~ test ~ getTableRowsResponse.text',
+    getTableRowsResponse.text,
+  );
 
   t.is(getTableRowsResponse.status, 200);
 
@@ -2874,8 +2877,11 @@ test(`${currentTest} should throw an exception when tableName not passed in requ
     .set('masterpwd', masterPwd)
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
-  console.log("🚀 ~ file: table-postgres-encrypted-e2e.test.ts ~ line 2879 ~ test ~ getTableRowsResponse.text", getTableRowsResponse.text)
-    
+  console.log(
+    '🚀 ~ file: table-postgres-encrypted-e2e.test.ts ~ line 2879 ~ test ~ getTableRowsResponse.text',
+    getTableRowsResponse.text,
+  );
+
   t.is(getTableRowsResponse.status, 200);
 
   const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
@@ -2907,7 +2913,10 @@ test(`${currentTest} should throw an exception when tableName passed in request 
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
   const createConnectionRO = JSON.parse(createConnectionResponse.text);
-  console.log("🚀 ~ file: table-postgres-encrypted-e2e.test.ts ~ line 2932 ~ test ~ createConnectionRO.text", createConnectionRO.text)
+  console.log(
+    '🚀 ~ file: table-postgres-encrypted-e2e.test.ts ~ line 2932 ~ test ~ createConnectionRO.text',
+    createConnectionRO.text,
+  );
 
   t.is(createConnectionResponse.status, 201);
 
@@ -2932,8 +2941,11 @@ test(`${currentTest} should throw an exception when tableName passed in request 
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
 
-    console.log("🚀 ~ file: table-postgres-encrypted-e2e.test.ts ~ line 2932 ~ test ~ getTableRowsResponse.text", getTableRowsResponse.text)
-  
+  console.log(
+    '🚀 ~ file: table-postgres-encrypted-e2e.test.ts ~ line 2932 ~ test ~ getTableRowsResponse.text',
+    getTableRowsResponse.text,
+  );
+
   t.is(getTableRowsResponse.status, 200);
 
   const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
@@ -3279,7 +3291,7 @@ test(`${currentTest} should throw an exception, when primary key is not passed i
     .set('Accept', 'application/json');
 
   const { message } = JSON.parse(foundRowInTableResponse.text);
-  console.log("🚀 ~ file: table-postgres-encrypted-e2e.test.ts ~ line 3273 ~ test ~ message", message)
+  console.log('🚀 ~ file: table-postgres-encrypted-e2e.test.ts ~ line 3273 ~ test ~ message', message);
   t.is(foundRowInTableResponse.status, 400);
   t.is(message, Messages.PRIMARY_KEY_INVALID);
 });
@@ -3310,7 +3322,10 @@ test(`${currentTest} should throw an exception, when primary key passed in reque
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
 
-  console.log("🚀 ~ file: table-postgres-encrypted-e2e.test.ts ~ line 2932 ~ test ~ foundRowInTableResponse.text", foundRowInTableResponse.text)
+  console.log(
+    '🚀 ~ file: table-postgres-encrypted-e2e.test.ts ~ line 2932 ~ test ~ foundRowInTableResponse.text',
+    foundRowInTableResponse.text,
+  );
 
   t.is(foundRowInTableResponse.status, 400);
 

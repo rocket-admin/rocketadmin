@@ -1,10 +1,10 @@
 import { Controller, Get, Inject, Injectable, Res, UseInterceptors } from '@nestjs/common';
 import { ApiBasicAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Response } from 'express';
-import { UseCaseType } from '../../common/data-injection.tokens';
-import { InTransactionEnum } from '../../enums';
-import { SentryInterceptor } from '../../interceptors';
-import { IGetConversions } from './use-cases/get-conversions-use-cases.interface';
+import { UseCaseType } from '../../common/data-injection.tokens.js';
+import { InTransactionEnum } from '../../enums/index.js';
+import { SentryInterceptor } from '../../interceptors/index.js';
+import { IGetConversions } from './use-cases/get-conversions-use-cases.interface.js';
 
 @ApiBasicAuth()
 @ApiTags('conversions')

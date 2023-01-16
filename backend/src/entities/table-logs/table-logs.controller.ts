@@ -10,14 +10,14 @@ import {
 } from '@nestjs/common';
 import { HttpException } from '@nestjs/common/exceptions/http.exception';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { UseCaseType } from '../../common/data-injection.tokens';
-import { SlugUuid, UserId } from '../../decorators';
-import { InTransactionEnum, LogOperationTypeEnum } from '../../enums';
-import { Messages } from '../../exceptions/text/messages';
-import { SentryInterceptor } from '../../interceptors';
-import { FindLogsDs } from './application/data-structures/find-logs.ds';
-import { FoundLogsDs } from './application/data-structures/found-logs.ds';
-import { IFindLogs } from './use-cases/use-cases.interface';
+import { UseCaseType } from '../../common/data-injection.tokens.js';
+import { SlugUuid, UserId } from '../../decorators/index.js';
+import { InTransactionEnum, LogOperationTypeEnum } from '../../enums/index.js';
+import { Messages } from '../../exceptions/text/messages.js';
+import { SentryInterceptor } from '../../interceptors/index.js';
+import { FindLogsDs } from './application/data-structures/find-logs.ds.js';
+import { FoundLogsDs } from './application/data-structures/found-logs.ds.js';
+import { IFindLogs } from './use-cases/use-cases.interface.js';
 
 @ApiBearerAuth()
 @ApiTags('logs')

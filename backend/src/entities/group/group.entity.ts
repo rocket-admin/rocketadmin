@@ -1,15 +1,7 @@
-import {
-  Column,
-  Entity,
-  JoinColumn,
-  ManyToMany,
-  ManyToOne,
-  PrimaryGeneratedColumn,
-  Unique,
-} from 'typeorm';
-import { UserEntity } from '../user/user.entity';
-import { PermissionEntity } from '../permission/permission.entity';
-import { ConnectionEntity } from '../connection/connection.entity';
+import { Column, Entity, JoinColumn, ManyToMany, ManyToOne, PrimaryGeneratedColumn, Unique } from 'typeorm';
+import { UserEntity } from '../user/user.entity.js';
+import { PermissionEntity } from '../permission/permission.entity.js';
+import { ConnectionEntity } from '../connection/connection.entity.js';
 
 @Entity('group')
 @Unique(['connection', 'title'])

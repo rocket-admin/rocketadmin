@@ -1,4 +1,4 @@
-import { SubscriptionLevelEnum } from '../../../enums';
+import { SubscriptionLevelEnum } from '../../../enums/index.js';
 
 export function getPriceId(subscription: SubscriptionLevelEnum): string {
   switch (subscription) {

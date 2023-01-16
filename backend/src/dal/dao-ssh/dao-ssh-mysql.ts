@@ -2,11 +2,11 @@ import { HttpStatus } from '@nestjs/common';
 import { HttpException } from '@nestjs/common/exceptions/http.exception';
 import getPort from 'get-port';
 import { knex, Knex } from 'knex';
-import { CreateTableSettingsDto } from '../../entities/table-settings/dto';
-import { TableSettingsEntity } from '../../entities/table-settings/table-settings.entity';
-import { IForeignKeyInfo, IStructureInfo, ITablePrimaryColumnInfo } from '../../entities/table/table.interface';
-import { FilterCriteriaEnum } from '../../enums';
-import { Messages } from '../../exceptions/text/messages';
+import { CreateTableSettingsDto } from '../../entities/table-settings/dto/index.js';
+import { TableSettingsEntity } from '../../entities/table-settings/table-settings.entity.js';
+import { IForeignKeyInfo, IStructureInfo, ITablePrimaryColumnInfo } from '../../entities/table/table.interface.js';
+import { FilterCriteriaEnum } from '../../enums/index.js';
+import { Messages } from '../../exceptions/text/messages.js';
 import {
   changeObjPropValByPropName,
   checkFieldAutoincrement,
@@ -16,11 +16,11 @@ import {
   objectKeysToLowercase,
   renameObjectKeyName,
   tableSettingsFieldValidator,
-} from '../../helpers';
-import { Cacher } from '../../helpers/cache/cacher';
-import { Constants } from '../../helpers/constants/constants';
-import { IDaoInterface, IDaoRowsRO, ITestConnectResult } from '../shared/dao-interface';
-import { getSshMySqlClient } from './database/ssh-mysql-client';
+} from '../../helpers/index.js';
+import { Cacher } from '../../helpers/cache/cacher.js';
+import { Constants } from '../../helpers/constants/constants.js';
+import { IDaoInterface, IDaoRowsRO, ITestConnectResult } from '../shared/dao-interface.js';
+import { getSshMySqlClient } from './database/ssh-mysql-client.js';
 
 export class DaoSshMysql implements IDaoInterface {
   private readonly connection: any;

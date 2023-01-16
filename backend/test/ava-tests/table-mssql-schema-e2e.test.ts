@@ -4,20 +4,20 @@ import { Test } from '@nestjs/testing';
 import test from 'ava';
 import * as cookieParser from 'cookie-parser';
 import * as request from 'supertest';
-import { ApplicationModule } from '../../src/app.module';
-import { LogOperationTypeEnum, QueryOrderingEnum } from '../../src/enums';
-import { AllExceptionsFilter } from '../../src/exceptions/all-exceptions.filter';
-import { Messages } from '../../src/exceptions/text/messages';
-import { Cacher } from '../../src/helpers/cache/cacher';
-import { Constants } from '../../src/helpers/constants/constants';
-import { DatabaseModule } from '../../src/shared/database/database.module';
-import { DatabaseService } from '../../src/shared/database/database.service';
-import { MockFactory } from '../mock.factory';
-import { createTestTableForMSSQLWithChema } from '../utils/create-test-table';
-import { dropTestTables } from '../utils/drop-test-tables';
-import { getTestData } from '../utils/get-test-data';
-import { registerUserAndReturnUserInfo } from '../utils/register-user-and-return-user-info';
-import { TestUtils } from '../utils/test.utils';
+import { ApplicationModule } from '../../src/app.module.js';
+import { LogOperationTypeEnum, QueryOrderingEnum } from '../../src/enums.js';
+import { AllExceptionsFilter } from '../../src/exceptions/all-exceptions.filter.js';
+import { Messages } from '../../src/exceptions/text/messages.js';
+import { Cacher } from '../../src/helpers/cache/cacher.js';
+import { Constants } from '../../src/helpers/constants/constants.js';
+import { DatabaseModule } from '../../src/shared/database/database.module.js';
+import { DatabaseService } from '../../src/shared/database/database.service.js';
+import { MockFactory } from '../mock.factory.js';
+import { createTestTableForMSSQLWithChema } from '../utils/create-test-table.js';
+import { dropTestTables } from '../utils/drop-test-tables.js';
+import { getTestData } from '../utils/get-test-data.js';
+import { registerUserAndReturnUserInfo } from '../utils/register-user-and-return-user-info.js';
+import { TestUtils } from '../utils/test.utils.js';
 
 const mockFactory = new MockFactory();
 let app: INestApplication;
@@ -66,7 +66,7 @@ currentTest = 'GET /connection/tables/:slug';
 test(`${currentTest} should return list of tables in connection`, async (t) => {
   try {
     const connectionToTestMSSQL = getTestData(mockFactory).connectionToTestMSSQLSchemaInDocker;
-    
+
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
     const { testTableName } = await createTestTableForMSSQLWithChema(connectionToTestMSSQL);
 
@@ -2019,7 +2019,7 @@ test(`${currentTest} should add row in table and return result`, async (t) => {
   t.is(rows.length, 43);
   t.is(rows[42][testTableColumnName], row[testTableColumnName]);
   t.is(rows[42][testTableSecondColumnName], row[testTableSecondColumnName]);
-  t.is(rows[42].id, (rows[41].id + 1));
+  t.is(rows[42].id, rows[41].id + 1);
 });
 
 test(`${currentTest} should throw an exception when connection id is not passed in request`, async (t) => {
@@ -3183,7 +3183,7 @@ test(`${currentTest} should throw an exception, when primary key passed in reque
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
 
-    t.is(foundRowInTableResponse.status, 400);
+  t.is(foundRowInTableResponse.status, 400);
   const { message } = JSON.parse(foundRowInTableResponse.text);
   t.is(message, Messages.ROW_PRIMARY_KEY_NOT_FOUND);
 });
@@ -3236,7 +3236,6 @@ test(`${currentTest} should delete row in table and return result`, async (t) =>
   t.is(getTableRowsResponse.status, 200);
 
   const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
-
 
   t.is(getTableRowsRO.hasOwnProperty('rows'), true);
   t.is(getTableRowsRO.hasOwnProperty('primaryColumns'), true);

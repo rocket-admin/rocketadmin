@@ -1,6 +1,6 @@
 import { knex, Knex } from 'knex';
-import { Cacher } from '../../../helpers/cache/cacher';
-import { ConnectionEntity } from '../../../entities/connection/connection.entity';
+import { Cacher } from '../../../helpers/cache/cacher.js';
+import { ConnectionEntity } from '../../../entities/connection/connection.entity.js';
 
 export function getMssqlKnex(connection: ConnectionEntity): Knex {
   const { host, username, password, database, port, type, ssl, cert, azure_encryption } = connection;

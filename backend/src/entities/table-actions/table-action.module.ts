@@ -1,19 +1,19 @@
 import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { AuthMiddleware } from '../../authorization';
-import { GlobalDatabaseContext } from '../../common/application/global-database-context';
-import { BaseType, UseCaseType } from '../../common/data-injection.tokens';
-import { LogOutEntity } from '../log-out/log-out.entity';
-import { UserEntity } from '../user/user.entity';
-import { TableActionsController } from './table-action.controller';
-import { TableActionEntity } from './table-action.entity';
-import { ActivateTableActionUseCase } from './use-cases/activate-table-action.use.case';
-import { ActivateTableActionsUseCase } from './use-cases/activate-table-actions.use.case';
-import { CreateTableActionUseCase } from './use-cases/create-table-action.use.case';
-import { DeleteTableActionUseCase } from './use-cases/delete-table-action.use.case';
-import { FindTableActionsUseCase } from './use-cases/find-all-table-actions.use.case';
-import { FindTableActionUseCase } from './use-cases/find-table-action.use.case';
-import { UpdateTableActionUseCase } from './use-cases/update-table-action.use.case';
+import { AuthMiddleware } from '../../authorization/index.js';
+import { GlobalDatabaseContext } from '../../common/application/global-database-context.js';
+import { BaseType, UseCaseType } from '../../common/data-injection.tokens.js';
+import { LogOutEntity } from '../log-out/log-out.entity.js';
+import { UserEntity } from '../user/user.entity.js';
+import { TableActionsController } from './table-action.controller.js';
+import { TableActionEntity } from './table-action.entity.js';
+import { ActivateTableActionUseCase } from './use-cases/activate-table-action.use.case.js';
+import { ActivateTableActionsUseCase } from './use-cases/activate-table-actions.use.case.js';
+import { CreateTableActionUseCase } from './use-cases/create-table-action.use.case.js';
+import { DeleteTableActionUseCase } from './use-cases/delete-table-action.use.case.js';
+import { FindTableActionsUseCase } from './use-cases/find-all-table-actions.use.case.js';
+import { FindTableActionUseCase } from './use-cases/find-table-action.use.case.js';
+import { UpdateTableActionUseCase } from './use-cases/update-table-action.use.case.js';
 
 @Module({
   imports: [TypeOrmModule.forFeature([TableActionEntity, UserEntity, LogOutEntity])],

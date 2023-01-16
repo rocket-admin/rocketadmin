@@ -3,16 +3,16 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { findSensitiveValues, scrub } from '@zapier/secret-scrubber';
 import PQueue from 'p-queue';
 import { Repository } from 'typeorm';
-import { LogOperationTypeEnum, OperationResultStatusEnum } from '../../enums';
-import { Constants } from '../../helpers/constants/constants';
-import { ConnectionEntity } from '../connection/connection.entity';
-import { TableSettingsEntity } from '../table-settings/table-settings.entity';
-import { UserEntity } from '../user/user.entity';
-import { CreateLogRecordDs } from './application/data-structures/create-log-record.ds';
-import { CreatedLogRecordDs } from './application/data-structures/created-log-record.ds';
-import { TableLogsEntity } from './table-logs.entity';
-import { buildCreatedLogRecord } from './utils/build-created-log-record';
-import { buildTableLogsEntity } from './utils/build-table-logs-entity';
+import { LogOperationTypeEnum, OperationResultStatusEnum } from '../../enums/index.js';
+import { Constants } from '../../helpers/constants/constants.js';
+import { ConnectionEntity } from '../connection/connection.entity.js';
+import { TableSettingsEntity } from '../table-settings/table-settings.entity.js';
+import { UserEntity } from '../user/user.entity.js';
+import { CreateLogRecordDs } from './application/data-structures/create-log-record.ds.js';
+import { CreatedLogRecordDs } from './application/data-structures/created-log-record.ds.js';
+import { TableLogsEntity } from './table-logs.entity.js';
+import { buildCreatedLogRecord } from './utils/build-created-log-record.js';
+import { buildTableLogsEntity } from './utils/build-table-logs-entity.js';
 
 @Injectable()
 export class TableLogsService {

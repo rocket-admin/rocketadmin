@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { PermissionEntity } from '../../permission/permission.entity';
-import { UserEntity } from '../../user/user.entity';
+import { PermissionEntity } from '../../permission/permission.entity.js';
+import { UserEntity } from '../../user/user.entity.js';
 
 export class CreateGroupInConnectionDto {
   @ApiProperty()
