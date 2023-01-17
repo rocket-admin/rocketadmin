@@ -11,9 +11,7 @@ import {
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-
 import { HttpException } from '@nestjs/common/exceptions/http.exception.js';
-import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UseCaseType } from '../../common/data-injection.tokens.js';
 import { MasterPassword, SlugUuid, UserId } from '../../decorators/index.js';
 import { InTransactionEnum } from '../../enums/index.js';
@@ -23,7 +21,6 @@ import { SentryInterceptor } from '../../interceptors/index.js';
 import { CreateConnectionPropertiesDs } from './application/data-structures/create-connection-properties.ds.js';
 import { FoundConnectionPropertiesDs } from './application/data-structures/found-connection-properties.ds.js';
 import { IConnectionPropertiesRO } from './connection-properties.interface.js';
-import { CreateConnectionPropertiesDto } from './dto/index.js';
 import {
   ICreateConnectionProperties,
   IDeleteConnectionProperties,
@@ -31,8 +28,6 @@ import {
   IUpdateConnectionProperties,
 } from './use-cases/connection-properties-use.cases.interface.js';
 
-@ApiBearerAuth()
-@ApiTags('connection properties')
 @UseInterceptors(SentryInterceptor)
 @Controller()
 @Injectable()
@@ -48,8 +43,6 @@ export class ConnectionPropertiesController {
     private readonly deleteConnectionPropertiesUseCase: IDeleteConnectionProperties,
   ) {}
 
-  @ApiOperation({ summary: 'Get properties' })
-  @ApiResponse({ status: 200, description: 'Return connection properties' })
   @UseGuards(ConnectionReadGuard)
   @Get('/connection/properties/:slug')
   async findConnectionProperties(@SlugUuid() connectionId: string): Promise<FoundConnectionPropertiesDs | null> {
@@ -64,9 +57,6 @@ export class ConnectionPropertiesController {
     return await this.findConnectionPropertiesUseCase.execute(connectionId, InTransactionEnum.OFF);
   }
 
-  @ApiOperation({ summary: 'Create properties' })
-  @ApiResponse({ status: 201, description: 'Return created connection properties' })
-  @ApiBody({ type: CreateConnectionPropertiesDto })
   @UseGuards(ConnectionEditGuard)
   @Post('/connection/properties/:slug')
   async createConnectionProperties(
@@ -93,9 +83,6 @@ export class ConnectionPropertiesController {
     return await this.createConnectionPropertiesUseCase.execute(createConnectionPropertiesDs, InTransactionEnum.ON);
   }
 
-  @ApiOperation({ summary: 'Update properties' })
-  @ApiResponse({ status: 201, description: 'Return updated connection properties' })
-  @ApiBody({ type: CreateConnectionPropertiesDto })
   @UseGuards(ConnectionEditGuard)
   @Put('/connection/properties/:slug')
   async updateConnectionProperties(
@@ -123,8 +110,6 @@ export class ConnectionPropertiesController {
     return await this.updateConnectionPropertiesUseCase.execute(inputData, InTransactionEnum.ON);
   }
 
-  @ApiOperation({ summary: 'Delete properties' })
-  @ApiResponse({ status: 201, description: 'Delete connection properties' })
   @UseGuards(ConnectionEditGuard)
   @Delete('/connection/properties/:slug')
   async deleteConnectionProperties(@SlugUuid() connectionId: string): Promise<IConnectionPropertiesRO> {
