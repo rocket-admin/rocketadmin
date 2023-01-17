@@ -13,7 +13,6 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { HttpException } from '@nestjs/common/exceptions/http.exception.js';
-import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UseCaseType } from '../../common/data-injection.tokens.js';
 import { MasterPassword, QueryTableName, QueryUuid, SlugUuid, UserId } from '../../decorators/index.js';
 import { InTransactionEnum } from '../../enums/index.js';
@@ -26,8 +25,6 @@ import { DeleteCustomFieldsDs } from './application/data-structures/delete-custo
 import { FoundCustomFieldsDs } from './application/data-structures/found-custom-fields.ds.js';
 import { GetCustomFieldsDs } from './application/data-structures/get-custom-fields.ds.js';
 import { UpdateCustomFieldsDs } from './application/data-structures/update-custom-fields.ds.js';
-import { CreateCustomFieldDto } from './dto/create-custom-field.dto.js';
-import { UpdateCustomFieldDto } from './dto/update-custom-field-dto.js';
 import {
   ICreateCustomFields,
   IDeleteCustomField,
@@ -35,8 +32,6 @@ import {
   IUpdateCustomFields,
 } from './use-cases/custom-field-use-cases.interface.js';
 
-@ApiBearerAuth()
-@ApiTags('custom_fields')
 @UseInterceptors(SentryInterceptor)
 @Controller()
 @Injectable()
@@ -52,8 +47,6 @@ export class CustomFieldController {
     private readonly deleteCustomFieldUseCase: IDeleteCustomField,
   ) {}
 
-  @ApiOperation({ summary: 'Get all table custom fields' })
-  @ApiResponse({ status: 200, description: 'Return all table settings.' })
   @UseGuards(ConnectionReadGuard)
   @Get('/fields/:slug')
   @UseInterceptors(ClassSerializerInterceptor)
@@ -68,12 +61,6 @@ export class CustomFieldController {
     return await this.getCustomFieldsUseCase.execute(inputData, InTransactionEnum.OFF);
   }
 
-  @ApiOperation({ summary: 'Create new custom field' })
-  @ApiResponse({
-    status: 201,
-    description: 'Return table settings with created custom field.',
-  })
-  @ApiBody({ type: CreateCustomFieldDto })
   @UseGuards(ConnectionEditGuard)
   @Post('/field/:slug')
   @UseInterceptors(ClassSerializerInterceptor)
@@ -101,9 +88,6 @@ export class CustomFieldController {
     return await this.createCustomFieldsUseCase.execute(inputData, InTransactionEnum.ON);
   }
 
-  @ApiOperation({ summary: 'Update custom field' })
-  @ApiResponse({ status: 201, description: 'Return updated custom field.' })
-  @ApiBody({ type: UpdateCustomFieldDto })
   @UseGuards(ConnectionEditGuard)
   @Put('/field/:slug')
   @UseInterceptors(ClassSerializerInterceptor)
@@ -141,11 +125,6 @@ export class CustomFieldController {
     return await this.updateCustomFieldsUseCase.execute(inputData, InTransactionEnum.ON);
   }
 
-  @ApiOperation({ summary: 'Delete custom field' })
-  @ApiResponse({
-    status: 200,
-    description: 'Return table settings without deleted custom field.',
-  })
   @UseGuards(ConnectionEditGuard)
   @Delete('/field/:slug')
   @UseInterceptors(ClassSerializerInterceptor)
