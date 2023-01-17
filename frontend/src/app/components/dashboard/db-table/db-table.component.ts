@@ -36,6 +36,7 @@ export class DbTableComponent implements OnInit {
   @Output() openFilters = new EventEmitter();
   @Output() openPage = new EventEmitter();
   @Output() deleteRow = new EventEmitter();
+  @Output() deleteRows = new EventEmitter();
   @Output() search = new EventEmitter();
   @Output() removeFilter = new EventEmitter();
   @Output() resetAllFilters = new EventEmitter();
@@ -48,7 +49,7 @@ export class DbTableComponent implements OnInit {
   public searchString: string;
   public actionsColumnWidth: string;
   public bulkRows: string[];
-  selection = new SelectionModel<any>(true, []);
+  public selection = new SelectionModel<any>(true, []);
   public displayedComparators = {
     eq: "=",
     gt: ">",
@@ -151,10 +152,6 @@ export class DbTableComponent implements OnInit {
     this.searchString = '';
   }
 
-  handleSearch () {
-    this.search.emit(this.searchString);
-  }
-
   clearSearch () {
     this.searchString = null;
     this.search.emit(this.searchString);
@@ -177,10 +174,9 @@ export class DbTableComponent implements OnInit {
     }
   }
 
-  handleActivateAction(action: CustomAction, primaryKeys: object) {
-    this.activateAction.emit({action, primaryKeys});
+  getPrimaryKey(row) {
+    return Object.assign({}, ...this.tableData.keyAttributes.map((primatyKey) => ({[primatyKey.column_name]: row[primatyKey.column_name]})));
   }
-
 
   /** Whether the number of selected elements matches the total number of rows. */
   isAllSelected() {

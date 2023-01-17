@@ -35,6 +35,7 @@ import { DbConnectionConfirmDialogComponent } from './components/connect-db/db-c
 import { DbConnectionDeleteDialogComponent } from './components/connect-db/db-connection-delete-dialog/db-connection-delete-dialog.component';
 import { DbConnectionIpAccessDialogComponent } from './components/connect-db/db-connection-ip-access-dialog/db-connection-ip-access-dialog.component';
 import { DbRowDeleteDialogComponent } from './components/dashboard/db-row-delete-dialog/db-row-delete-dialog.component';
+import { DbRowsDeleteDialogComponent } from './components/dashboard/db-rows-delete-dialog/db-rows-delete-dialog.component';
 import { DbTableActionsComponent } from './components/dashboard/db-table-actions/db-table-actions.component';
 import { DbTableComponent } from './components/dashboard/db-table/db-table.component';
 import { DbTableFiltersDialogComponent } from './components/dashboard/db-table-filters-dialog/db-table-filters-dialog.component';
@@ -139,6 +140,7 @@ const saasExtraProviders = (environment as any).saas ? [
     TextComponent,
     PointComponent,
     DbRowDeleteDialogComponent,
+    DbRowsDeleteDialogComponent,
     BooleanComponent,
     LongTextComponent,
     DateComponent,
@@ -193,6 +195,7 @@ const saasExtraProviders = (environment as any).saas ? [
   ],
   entryComponents: [
     DbRowDeleteDialogComponent,
+    DbRowsDeleteDialogComponent,
     DbConnectionDeleteDialogComponent,
     GroupAddDialogComponent,
     UserAddDialogComponent,

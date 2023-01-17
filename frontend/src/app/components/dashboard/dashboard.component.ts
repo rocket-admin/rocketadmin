@@ -16,6 +16,7 @@ import { TablesService } from 'src/app/services/tables.service';
 import { User } from 'src/app/models/user';
 import { normalizeTableName } from '../../lib/normalize'
 import { omitBy } from "lodash";
+import { DbRowsDeleteDialogComponent } from './db-rows-delete-dialog/db-rows-delete-dialog.component';
 
 @Component({
   selector: 'app-dashboard',
@@ -195,6 +196,13 @@ export class DashboardComponent implements OnInit {
     this.dialog.open(DbRowDeleteDialogComponent, {
       width: '25em',
       data: rowKeyAttributes
+    });
+  }
+
+  confirmDeleteRows(rowsKeyAttributes: Object) {
+    this.dialog.open(DbRowsDeleteDialogComponent, {
+      width: '25em',
+      data: rowsKeyAttributes
     });
   }
 

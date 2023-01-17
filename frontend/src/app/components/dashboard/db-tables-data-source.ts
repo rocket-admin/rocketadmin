@@ -214,7 +214,7 @@ export class TablesDataSource implements DataSource<Object> {
             this.displayedColumns = ['select', ...this.displayedDataColumns, 'actions'];
           } else {
             this.actionsColumnWidth = '0';
-            this.displayedColumns = ['select', ...this.displayedDataColumns];
+            this.displayedColumns = [...this.displayedDataColumns];
             this.alert_primaryKeysInfo = {
               id: 10000,
               type: AlertType.Info,
@@ -303,8 +303,11 @@ export class TablesDataSource implements DataSource<Object> {
 
   changleColumnList() {
     this.displayedDataColumns = (filter(this.columns, column => column.selected === true)).map(column => column.title);
-    this.displayedColumns = [...this.displayedDataColumns];
-    if (this.keyAttributes.length) this.displayedColumns.push('actions');
+    if (this.keyAttributes.length) {
+      this.displayedColumns = ['select', ...this.displayedDataColumns, 'actions' ]
+    } else {
+      this.displayedColumns = [...this.displayedDataColumns];
+    };
   }
 
   getQueryParams(row) {
