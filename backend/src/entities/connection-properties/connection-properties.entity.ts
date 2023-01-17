@@ -1,4 +1,4 @@
-import { Column, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn, Relation } from 'typeorm';
 import { ConnectionEntity } from '../connection/connection.entity.js';
 
 @Entity('connectionProperties')
@@ -13,5 +13,5 @@ export class ConnectionPropertiesEntity {
     onDelete: 'CASCADE',
   })
   @JoinColumn()
-  connection: ConnectionEntity;
+  connection: Relation<ConnectionEntity>;
 }

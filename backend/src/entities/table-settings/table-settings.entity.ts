@@ -1,5 +1,5 @@
 import { Transform } from 'class-transformer';
-import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn, Unique } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn, Relation, Unique } from 'typeorm';
 import { QueryOrderingEnum } from '../../enums/index.js';
 import { ConnectionEntity } from '../connection/connection.entity.js';
 import { CustomFieldsEntity } from '../custom-field/custom-fields.entity.js';
@@ -75,14 +75,14 @@ export class TableSettingsEntity {
     onDelete: 'CASCADE',
   })
   @JoinColumn()
-  connection_id: ConnectionEntity;
+  connection_id: Relation<ConnectionEntity>;
 
   @OneToMany((type) => CustomFieldsEntity, (fields) => fields.settings)
-  custom_fields: CustomFieldsEntity[];
+  custom_fields: Relation<CustomFieldsEntity>[];
 
   @OneToMany((type) => TableWidgetEntity, (table_widgets) => table_widgets.settings)
-  table_widgets: TableWidgetEntity[];
+  table_widgets: Relation<TableWidgetEntity>[];
 
   @OneToMany((type) => TableActionEntity, (table_actions) => table_actions.settings)
-  table_actions: TableActionEntity[];
+  table_actions: Relation<TableActionEntity>[];
 }

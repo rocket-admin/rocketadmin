@@ -14,7 +14,7 @@ import {
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Response } from 'express';
-import isEmail from 'validator/lib/isEmail';
+import isEmail from 'validator/lib/isEmail.js';
 import { UseCaseType } from '../../common/data-injection.tokens.js';
 import { BodyEmail, GCLlId, UserId, VerificationString } from '../../decorators/index.js';
 import { InTransactionEnum, SubscriptionLevelEnum } from '../../enums/index.js';

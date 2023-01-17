@@ -1,4 +1,4 @@
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, Relation } from 'typeorm';
 import { TableSettingsEntity } from '../table-settings/table-settings.entity.js';
 
 @Entity('customFields')
@@ -17,5 +17,5 @@ export class CustomFieldsEntity {
 
   @ManyToOne((type) => TableSettingsEntity, (settings) => settings.custom_fields, { onDelete: 'CASCADE' })
   @JoinColumn()
-  settings: TableSettingsEntity;
+  settings: Relation<TableSettingsEntity>;
 }

@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToMany, JoinTable } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToMany, JoinTable, Relation } from 'typeorm';
 import { GroupEntity } from '../group/group.entity.js';
 
 @Entity('permission')
@@ -17,5 +17,5 @@ export class PermissionEntity {
 
   @ManyToMany(() => GroupEntity, (group) => group.permissions)
   @JoinTable()
-  groups: GroupEntity[];
+  groups: Relation<GroupEntity>[];
 }

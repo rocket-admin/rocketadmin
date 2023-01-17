@@ -1,4 +1,5 @@
-import { knex, Knex } from 'knex';
+import knex from 'knex';
+import { Knex } from 'knex';
 import * as LRU from 'lru-cache';
 import { ConnectionTypeEnum } from '../../src/enums.js';
 import { Constants } from '../../src/helpers/constants/constants.js';

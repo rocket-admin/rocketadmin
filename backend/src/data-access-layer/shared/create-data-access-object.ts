@@ -6,7 +6,7 @@ import { DataAccessObjectMysql } from '../data-access-objects/data-access-object
 import { DataAccessObjectOracle } from '../data-access-objects/data-access-object-oracle.js';
 import { DataAccessObjectMssql } from '../data-access-objects/data-access-object-mssql.js';
 import { DataAccessObjectAgent } from '../data-access-objects/data-access-object-agent.js';
-import { HttpException } from '@nestjs/common/exceptions/http.exception';
+import { HttpException } from '@nestjs/common/exceptions/http.exception.js';
 import { HttpStatus } from '@nestjs/common';
 import { Messages } from '../../exceptions/text/messages.js';
 import { DataAccessObjectMysqlSsh } from '../data-access-objects/data-access-object-mysql-ssh.js';

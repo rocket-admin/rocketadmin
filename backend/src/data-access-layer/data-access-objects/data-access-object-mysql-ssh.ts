@@ -1,7 +1,8 @@
 import { HttpStatus, Injectable, Scope } from '@nestjs/common';
-import { HttpException } from '@nestjs/common/exceptions/http.exception';
+import { HttpException } from '@nestjs/common/exceptions/http.exception.js';
 import getPort from 'get-port';
-import { knex, Knex } from 'knex';
+import knex from 'knex';
+import { Knex } from 'knex';
 import { Client } from 'ssh2';
 import { getSshMySqlClient } from '../../dal/dao-ssh/database/ssh-mysql-client.js';
 import { ConnectionEntity } from '../../entities/connection/connection.entity.js';

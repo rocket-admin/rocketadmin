@@ -1,7 +1,8 @@
 import { HttpStatus } from '@nestjs/common';
-import { HttpException } from '@nestjs/common/exceptions/http.exception';
+import { HttpException } from '@nestjs/common/exceptions/http.exception.js';
 import getPort from 'get-port';
-import { knex, Knex } from 'knex';
+import knex from 'knex';
+import { Knex } from 'knex';
 import { CreateTableSettingsDto } from '../../entities/table-settings/dto/index.js';
 import { TableSettingsEntity } from '../../entities/table-settings/table-settings.entity.js';
 import { IForeignKeyInfo, IStructureInfo, ITablePrimaryColumnInfo } from '../../entities/table/table.interface.js';

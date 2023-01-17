@@ -1,4 +1,4 @@
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, Relation } from 'typeorm';
 import { TableInfoEntity } from '../table-info/table-info.entity.js';
 
 @Entity('table_field_info')
@@ -29,5 +29,5 @@ export class TableFieldInfoEntity {
 
   @ManyToOne((type) => TableInfoEntity, (table_info) => table_info.table_fields_info, { onDelete: 'CASCADE' })
   @JoinColumn()
-  table_info: TableInfoEntity;
+  table_info: Relation<TableInfoEntity>;
 }

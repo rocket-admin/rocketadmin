@@ -8,6 +8,7 @@ import {
   OneToOne,
   PrimaryGeneratedColumn,
   BeforeInsert,
+  Relation,
 } from 'typeorm';
 import { GroupEntity } from '../group/group.entity.js';
 import { UserActionEntity } from '../user-actions/user-action.entity.js';
@@ -48,26 +49,26 @@ export class UserEntity {
 
   @OneToMany(() => ConnectionEntity, (connection) => connection.author)
   @JoinTable()
-  connections: ConnectionEntity[];
+  connections: Relation<ConnectionEntity>[];
 
   @ManyToMany((type) => GroupEntity, (group) => group.users)
   @JoinTable()
-  groups: GroupEntity[];
+  groups: Relation<GroupEntity>[];
 
   @OneToOne(() => UserActionEntity, (user_action) => user_action.user)
-  user_action: UserActionEntity;
+  user_action: Relation<UserActionEntity>;
 
   @OneToOne(() => EmailVerificationEntity, (email_verification) => email_verification.user)
-  email_verification: EmailVerificationEntity;
+  email_verification: Relation<EmailVerificationEntity>;
 
   @OneToOne(() => PasswordResetEntity, (password_reset) => password_reset.user)
-  password_reset: PasswordResetEntity;
+  password_reset: Relation<PasswordResetEntity>;
 
   @OneToOne(() => EmailChangeEntity, (email_change) => email_change.user)
-  email_change: EmailChangeEntity;
+  email_change: Relation<EmailChangeEntity>;
 
   @OneToOne(() => UserInvitationEntity, (user_invitation) => user_invitation.user)
-  user_invitation: UserInvitationEntity;
+  user_invitation: Relation<UserInvitationEntity>;
 
   @Column({ default: false })
   isActive: boolean;

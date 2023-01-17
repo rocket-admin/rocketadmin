@@ -1,5 +1,5 @@
 import * as sjson from 'secure-json-parse';
-import { AfterLoad, BeforeInsert, Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { AfterLoad, BeforeInsert, Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, Relation } from 'typeorm';
 import { ConnectionEntity } from '../connection/connection.entity.js';
 import { LogOperationTypeEnum, OperationResultStatusEnum } from '../../enums/index.js';
 import { Transform } from 'class-transformer';
@@ -74,5 +74,5 @@ export class TableLogsEntity {
     onDelete: 'CASCADE',
   })
   @JoinColumn()
-  connection_id: ConnectionEntity;
+  connection_id: Relation<ConnectionEntity>;
 }

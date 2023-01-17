@@ -2,7 +2,7 @@ import { CreateFieldDto } from '../application/data-structures/create-custom-fie
 import { ConnectionEntity } from '../../connection/connection.entity.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { getValuesBetweenCurlies, toPrettyErrorsMsg } from '../../../helpers/index.js';
-import { HttpException } from '@nestjs/common/exceptions/http.exception';
+import { HttpException } from '@nestjs/common/exceptions/http.exception.js';
 import { HttpStatus } from '@nestjs/common';
 import { createDataAccessObject } from '../../../data-access-layer/shared/create-data-access-object.js';
 

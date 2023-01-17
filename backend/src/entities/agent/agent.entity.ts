@@ -1,4 +1,4 @@
-import { BeforeInsert, BeforeUpdate, Column, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { BeforeInsert, BeforeUpdate, Column, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn, Relation } from 'typeorm';
 
 import { ConnectionEntity } from '../connection/connection.entity.js';
 import { Encryptor } from '../../helpers/encryption/encryptor.js';
@@ -32,5 +32,5 @@ export class AgentEntity {
     onDelete: 'CASCADE',
   })
   @JoinColumn()
-  connection: ConnectionEntity;
+  connection: Relation<ConnectionEntity>;
 }

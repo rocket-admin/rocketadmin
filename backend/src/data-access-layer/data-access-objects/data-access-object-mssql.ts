@@ -1,5 +1,5 @@
 import { HttpStatus, Injectable, Scope } from '@nestjs/common';
-import { HttpException } from '@nestjs/common/exceptions/http.exception';
+import { HttpException } from '@nestjs/common/exceptions/http.exception.js';
 import { Knex } from 'knex';
 import { TunnelCreator } from '../../dal/shared/tunnel-creator.js';
 import { ConnectionEntity } from '../../entities/connection/connection.entity.js';

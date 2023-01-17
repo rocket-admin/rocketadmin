@@ -1,5 +1,5 @@
 import { IRequestWithCognitoInfo } from '../authorization/index.js';
-import { HttpException } from '@nestjs/common/exceptions/http.exception';
+import { HttpException } from '@nestjs/common/exceptions/http.exception.js';
 import { Messages } from '../exceptions/text/messages.js';
 import { HttpStatus } from '@nestjs/common';
 

@@ -1,6 +1,6 @@
 import { CreateConnectionPropertiesDs } from '../application/data-structures/create-connection-properties.ds.js';
 import { toPrettyErrorsMsg } from '../../../helpers/index.js';
-import { HttpException } from '@nestjs/common/exceptions/http.exception';
+import { HttpException } from '@nestjs/common/exceptions/http.exception.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { HttpStatus } from '@nestjs/common';
 import { ConnectionEntity } from '../../connection/connection.entity.js';

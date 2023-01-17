@@ -1,5 +1,5 @@
 import { HttpStatus } from '@nestjs/common';
-import { HttpException } from '@nestjs/common/exceptions/http.exception';
+import { HttpException } from '@nestjs/common/exceptions/http.exception.js';
 import * as dns from 'dns';
 import ipRangeCheck from 'ip-range-check';
 import validator from 'validator';

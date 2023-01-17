@@ -8,6 +8,7 @@ import {
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
+  Relation,
 } from 'typeorm';
 import { WidgetTypeEnum } from '../../enums/index.js';
 import { TableSettingsEntity } from '../table-settings/table-settings.entity.js';
@@ -73,5 +74,5 @@ export class TableWidgetEntity {
 
   @ManyToOne(() => TableSettingsEntity, (settings) => settings.table_widgets, { onDelete: 'CASCADE' })
   @JoinColumn()
-  settings: TableSettingsEntity;
+  settings: Relation<TableSettingsEntity>;
 }
