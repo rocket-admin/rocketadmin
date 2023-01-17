@@ -12,7 +12,6 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { HttpException } from '@nestjs/common/exceptions/http.exception.js';
-import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import validator from 'validator';
 import { IGlobalDatabaseContext } from '../../common/application/global-database-context.intarface.js';
 import { BaseType, UseCaseType } from '../../common/data-injection.tokens.js';
@@ -68,8 +67,6 @@ import {
 } from './use-cases/use-cases.interfaces.js';
 import { isTestConnectionUtil } from './utils/is-test-connection-util.js';
 
-@ApiBearerAuth()
-@ApiTags('connections')
 @UseInterceptors(SentryInterceptor)
 @Controller()
 @Injectable()
@@ -112,8 +109,6 @@ export class ConnectionController {
     private readonly amplitudeService: AmplitudeService,
   ) {}
 
-  @ApiOperation({ summary: 'Get all connections' })
-  @ApiResponse({ status: 200, description: 'Return all connections.' })
   @Get('/connections')
   async findAll(@UserId() userId: string, @GCLlId() glidCookieValue: string): Promise<FoundConnectionsDs> {
     console.log(`findAll triggered in connection.controller ->: ${new Date().toISOString()}`);
@@ -124,8 +119,6 @@ export class ConnectionController {
     return await this.findConnectionsUseCase.execute(userData, InTransactionEnum.OFF);
   }
 
-  @ApiOperation({ summary: 'Get users in connection' })
-  @ApiResponse({ status: 200, description: 'Return all connection users' })
   @UseGuards(ConnectionReadGuard)
   @Get('/connection/users/:slug')
   async findAllUsers(@UserId() userId: string, @SlugUuid() connectionId: string): Promise<Array<FoundUserDs>> {
@@ -144,7 +137,6 @@ export class ConnectionController {
     }
   }
 
-  @ApiOperation({ summary: 'Get connection by id' })
   @Get('/connection/one/:slug')
   async findOne(
     @SlugUuid() connectionId: string,
@@ -173,13 +165,6 @@ export class ConnectionController {
     }
   }
 
-  @ApiOperation({ summary: 'Create connection' })
-  @ApiBody({ type: CreateConnectionDto })
-  @ApiResponse({
-    status: 201,
-    description: 'The connection has been successfully created.',
-  })
-  @ApiResponse({ status: 403, description: 'Forbidden.' })
   @Post('/connection')
   async create(
     @Body('title') title: string,
@@ -256,12 +241,6 @@ export class ConnectionController {
     return await this.createConnectionUseCase.execute(createConnectionDs, InTransactionEnum.ON);
   }
 
-  @ApiOperation({ summary: 'Update connection' })
-  @ApiResponse({
-    status: 201,
-    description: 'The connection has been successfully updated.',
-  })
-  @ApiResponse({ status: 403, description: 'Forbidden.' })
   @UseGuards(ConnectionEditGuard)
   @Put('/connection/:slug')
   async update(
@@ -331,12 +310,6 @@ export class ConnectionController {
     return { connection: updatedConnection };
   }
 
-  @ApiOperation({ summary: 'Delete connection' })
-  @ApiResponse({
-    status: 201,
-    description: 'The connection has been successfully deleted.',
-  })
-  @ApiResponse({ status: 403, description: 'Forbidden.' })
   @UseGuards(ConnectionEditGuard)
   @Put('/connection/delete/:slug')
   async delete(
@@ -369,7 +342,6 @@ export class ConnectionController {
     return deleteResult;
   }
 
-  @ApiOperation({ summary: 'Delete group from connection by id' })
   @UseGuards(ConnectionEditGuard)
   @Put('/connection/group/delete/:slug')
   async deleteGroupFromConnection(
@@ -393,8 +365,6 @@ export class ConnectionController {
     return await this.deleteGroupInConnectionUseCase.execute(inputData, InTransactionEnum.ON);
   }
 
-  @ApiOperation({ summary: 'Create group in connection' })
-  @ApiBody({ type: CreateGroupInConnectionDto })
   @UseGuards(ConnectionEditGuard)
   @Post('/connection/group/:slug')
   async createGroupInConnection(
@@ -424,7 +394,6 @@ export class ConnectionController {
     return await this.createGroupInConnectionUseCase.execute(inputData, InTransactionEnum.ON);
   }
 
-  @ApiOperation({ summary: 'Get all groups in this connection' })
   @Get('/connection/groups/:slug')
   async getGroupsInConnection(
     @UserId() userId: string,
@@ -445,9 +414,6 @@ export class ConnectionController {
     return await this.getUserGroupsInConnectionUseCase.execute(inputData, InTransactionEnum.OFF);
   }
 
-  @ApiOperation({
-    summary: 'Get all permissions for current connection, group and tables',
-  })
   @Get('/connection/permissions')
   async getPermissionsForGroupInConnection(
     @QueryUuid('connectionId') connectionId: string,
@@ -472,9 +438,6 @@ export class ConnectionController {
     return await this.getPermissionsForGroupInConnectionUseCase.execute(inputData, InTransactionEnum.OFF);
   }
 
-  @ApiOperation({
-    summary: 'Get all user permissions for current connection, group and tables',
-  })
   @Get('/connection/user/permissions')
   async getUserPermissionsForGroupInConnection(
     @QueryUuid('connectionId') connectionId: string,
@@ -499,8 +462,6 @@ export class ConnectionController {
     return await this.getUserPermissionsForGroupInConnectionUseCase.execute(inputData, InTransactionEnum.OFF);
   }
 
-  @ApiBody({ type: CreateConnectionDto })
-  @ApiOperation({ summary: 'Test connection' })
   @Post('/connection/test/')
   async testConnection(
     @Body('title') title: string,
@@ -564,8 +525,6 @@ export class ConnectionController {
     return result;
   }
 
-  @ApiBody({ type: UpdateMasterPasswordDto })
-  @ApiOperation({ summary: 'Update connection master pwd' })
   @UseGuards(ConnectionEditGuard)
   @Put('/connection/encryption/update/:slug')
   async updateConnectionMasterPwd(
@@ -605,14 +564,6 @@ export class ConnectionController {
     return await this.updateConnectionMasterPasswordUseCase.execute(inputData, InTransactionEnum.ON);
   }
 
-  @ApiOperation({
-    summary: 'Renew connection in case of lost master password ',
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'The connection has been successfully restored.',
-  })
-  @ApiResponse({ status: 403, description: 'Forbidden.' })
   @UseGuards(ConnectionEditGuard)
   @Put('/connection/encryption/restore/:slug')
   async restore(
@@ -685,7 +636,6 @@ export class ConnectionController {
     return await this.restoreConnectionUseCase.execute(connectionData, InTransactionEnum.ON);
   }
 
-  @ApiOperation({ summary: 'Check connection token existence' })
   @Get('/connection/token/')
   async validateConnectionAgentToken(@Query('token') token: string): Promise<boolean> {
     if (!token) {
@@ -694,7 +644,6 @@ export class ConnectionController {
     return await this.validateConnectionTokenUseCase.execute(token, InTransactionEnum.OFF);
   }
 
-  @ApiOperation({ summary: 'Generate new connection token' })
   @UseGuards(ConnectionEditGuard)
   @Get('/connection/token/refresh/:slug')
   async refreshConnectionAgentToken(@SlugUuid() connectionId: string): Promise<{ token: string }> {
