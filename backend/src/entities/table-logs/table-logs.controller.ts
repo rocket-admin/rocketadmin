@@ -9,7 +9,6 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { HttpException } from '@nestjs/common/exceptions/http.exception.js';
-import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UseCaseType } from '../../common/data-injection.tokens.js';
 import { SlugUuid, UserId } from '../../decorators/index.js';
 import { InTransactionEnum, LogOperationTypeEnum } from '../../enums/index.js';
@@ -19,8 +18,6 @@ import { FindLogsDs } from './application/data-structures/find-logs.ds.js';
 import { FoundLogsDs } from './application/data-structures/found-logs.ds.js';
 import { IFindLogs } from './use-cases/use-cases.interface.js';
 
-@ApiBearerAuth()
-@ApiTags('logs')
 @UseInterceptors(SentryInterceptor)
 @Controller()
 @Injectable()
@@ -30,22 +27,6 @@ export class TableLogsController {
     private readonly findLogsUseCase: IFindLogs,
   ) {}
 
-  @ApiOperation({
-    summary: `Get all connection logs.
-  In query you can pass:
-  tableName=value |
-  order=ASC (sorting by time when  record was created at) |
-  page=value &
-  perPage=value |
-  dateFrom=value &
-  dateTo=value (to get logs between two dates) |
-  email=value |
-  limit=value (if you do not want use pagination. default limit is 500)
-  operationType=value filter by logged operation type
-  operationTypes=value,value,value - filter by several operation types
-  `,
-  })
-  @ApiResponse({ status: 200, description: 'Return all table logs.' })
   @Get('/logs/:slug')
   async findAll(
     @Query() query,
