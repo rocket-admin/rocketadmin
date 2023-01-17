@@ -1,5 +1,4 @@
 import { NestFactory } from '@nestjs/core';
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as Sentry from '@sentry/node';
 import cookieParser from 'cookie-parser';
 import rateLimit from 'express-rate-limit';
@@ -25,16 +24,6 @@ async function bootstrap() {
     });
 
     app.useGlobalFilters(new AllExceptionsFilter());
-
-    const options = new DocumentBuilder()
-      .setTitle('auto-admin')
-      .setDescription('The autoadmin API description')
-      .setVersion('0.0.1')
-      .addTag('auto-admin')
-      .addBearerAuth()
-      .build();
-    const document = SwaggerModule.createDocument(app, options);
-    SwaggerModule.setup('api', app, document);
 
     app.use(helmet());
 
