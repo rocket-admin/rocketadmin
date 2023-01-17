@@ -12,7 +12,6 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { HttpException } from '@nestjs/common/exceptions/http.exception.js';
-import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UseCaseType } from '../../common/data-injection.tokens.js';
 import { MasterPassword, QueryTableName, SlugUuid, UserId } from '../../decorators/index.js';
 import { InTransactionEnum } from '../../enums/index.js';
@@ -26,8 +25,6 @@ import { CreateOrUpdateTableWidgetsDto, CreateTableWidgetDto } from './dto/index
 import { ITableWidgetRO } from './table-widget.interface.js';
 import { ICreateUpdateDeleteTableWidgets, IFindTableWidgets } from './use-cases/table-widgets-use-cases.interface.js';
 
-@ApiBearerAuth()
-@ApiTags('table_widgets')
 @UseInterceptors(SentryInterceptor)
 @Controller()
 @Injectable()
@@ -39,8 +36,6 @@ export class TableWidgetController {
     private readonly createUpdateDeleteTableWidgetsUseCase: ICreateUpdateDeleteTableWidgets,
   ) {}
 
-  @ApiOperation({ summary: 'Get all table widgets' })
-  @ApiResponse({ status: 200, description: 'Return all table widgets' })
   @UseGuards(ConnectionReadGuard)
   @Get('/widgets/:slug')
   @UseInterceptors(ClassSerializerInterceptor)
@@ -69,9 +64,6 @@ export class TableWidgetController {
     return await this.findTableWidgetsUseCase.execute(inputData, InTransactionEnum.OFF);
   }
 
-  @ApiOperation({ summary: 'Create new table widget' })
-  @ApiResponse({ status: 201, description: 'Return table settings with created table widget' })
-  @ApiBody({ type: CreateOrUpdateTableWidgetsDto })
   @UseGuards(ConnectionEditGuard)
   @Post('/widget/:slug')
   @UseInterceptors(ClassSerializerInterceptor)
