@@ -12,7 +12,6 @@ import {
   Res,
   UseInterceptors,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Response } from 'express';
 import isEmail from 'validator/lib/isEmail.js';
 import { UseCaseType } from '../../common/data-injection.tokens.js';
@@ -59,8 +58,6 @@ import {
 } from './use-cases/user-use-cases.interfaces.js';
 import { ITokenExp } from './utils/generate-gwt-token.js';
 
-@ApiBearerAuth()
-@ApiTags('user')
 @UseInterceptors(SentryInterceptor)
 @Controller()
 @Injectable()
@@ -100,8 +97,6 @@ export class UserController {
     private readonly changeUserNameUseCase: IChangeUserName,
   ) {}
 
-  @ApiOperation({ summary: 'Get user info' })
-  @ApiResponse({ status: 200, description: 'Return current user info' })
   @Get('user')
   async findMe(@UserId() userId: string, @GCLlId() glidCookieValue: string): Promise<FoundUserDs> {
     const findUserDs: FindUserDs = {
@@ -112,9 +107,6 @@ export class UserController {
     return await this.findUserUseCase.execute(findUserDs, InTransactionEnum.OFF);
   }
 
-  @ApiOperation({ summary: 'Upgrade subscription' })
-  @ApiResponse({ status: 201, description: 'Subscription updated successfully' })
-  @ApiBody({ type: UpgradeSubscriptionDto })
   @Post('user/subscription/upgrade')
   async upgradeSubscription(
     @Body('subscriptionLevel') subscriptionLevel: SubscriptionLevelEnum,
@@ -135,9 +127,6 @@ export class UserController {
     return await this.upgradeUserSubscriptionUseCase.execute(inputData, InTransactionEnum.ON);
   }
 
-  @ApiOperation({ summary: 'Login with email and password' })
-  @ApiResponse({ status: 201, description: 'Login successfull' })
-  @ApiBody({ type: LoginUserDto })
   @Post('user/login/')
   async usualLogin(
     @Res({ passthrough: true }) response: Response,
@@ -180,9 +169,6 @@ export class UserController {
     return { expires: tokenInfo.exp };
   }
 
-  @ApiOperation({ summary: 'Register with email and password' })
-  @ApiResponse({ status: 201, description: 'Registration successfull' })
-  @ApiBody({ type: UsualRegisterUserDto })
   @Post('user/register/')
   async usualRegister(
     @GCLlId() glidCookieValue: string,
@@ -227,8 +213,6 @@ export class UserController {
     return { expires: tokenInfo.exp };
   }
 
-  @ApiOperation({ summary: 'Log out' })
-  @ApiResponse({ status: 201, description: 'Log out successfull' })
   @Post('user/logout/')
   async logOut(@Req() request, @Res({ passthrough: true }) response: Response): Promise<any> {
     const token = request.cookies[Constants.JWT_COOKIE_KEY_NAME];
@@ -244,9 +228,6 @@ export class UserController {
     return await this.logOutUseCase.execute(token, InTransactionEnum.ON);
   }
 
-  @ApiOperation({ summary: 'Register/Login with google' })
-  @ApiResponse({ status: 201, description: 'Registration successfull' })
-  @ApiBody({ type: SocialNetworkLoginDto })
   @Post('user/google/login/')
   async registerWithGoogle(
     @GCLlId() gclidCookieValue: string,
@@ -270,9 +251,6 @@ export class UserController {
     return { expires: tokenInfo.exp };
   }
 
-  @ApiOperation({ summary: 'Register with facebook' })
-  @ApiResponse({ status: 201, description: 'Registration successfull' })
-  @ApiBody({ type: SocialNetworkLoginDto })
   @Post('user/facebook/login/')
   async registerWithFacebook(@Req() request, @Res({ passthrough: true }) response: Response): Promise<ITokenExp> {
     const token = request.body.token;
@@ -289,9 +267,6 @@ export class UserController {
     return { expires: tokenInfo.exp };
   }
 
-  @ApiOperation({ summary: 'Change user usual password' })
-  @ApiResponse({ status: 201, description: 'Password changed successfully' })
-  @ApiBody({ type: ChangeUsualUserPasswordDto })
   @Post('user/password/change/')
   async changeUsualPassword(
     @Res({ passthrough: true }) response: Response,
@@ -333,23 +308,16 @@ export class UserController {
     return { expires: tokenInfo.exp };
   }
 
-  @ApiOperation({ summary: 'Request user email confirmation' })
-  @ApiResponse({ status: 201, description: 'Email verified' })
   @Get('user/email/verify/request')
   async requestEmailVerification(@UserId() userId: string): Promise<OperationResultMessageDs> {
     return await this.requestEmailVerificationUseCase.execute(userId, InTransactionEnum.ON);
   }
 
-  @ApiOperation({ summary: 'Verify user email (requires verification string as slug)' })
-  @ApiResponse({ status: 201, description: 'Email verified' })
   @Get('user/email/verify/:slug')
   async verifyEmail(@VerificationString() verificationString: string): Promise<OperationResultMessageDs> {
     return await this.verifyEmailUseCase.execute(verificationString, InTransactionEnum.ON);
   }
 
-  @ApiOperation({ summary: 'Verify user password reset (requires verification string as slug)' })
-  @ApiResponse({ status: 201, description: 'User password reset verified' })
-  @ApiBody({ type: PasswordDto })
   @Post('user/password/reset/verify/:slug')
   async resetUserPassword(
     @Body('password') password: string,
@@ -362,24 +330,16 @@ export class UserController {
     return await this.verifyResetUserPasswordUseCase.execute(inputData, InTransactionEnum.ON);
   }
 
-  @ApiOperation({ summary: 'Request a password reset' })
-  @ApiResponse({ status: 201, description: 'User password reset requested' })
-  @ApiBody({ type: EmailDto })
   @Post('user/password/reset/request/')
   async askResetUserPassword(@BodyEmail('email') email: string): Promise<OperationResultMessageDs> {
     return await this.requestResetUserPasswordUseCase.execute(email, InTransactionEnum.ON);
   }
 
-  @ApiOperation({ summary: 'Request an email change' })
-  @ApiResponse({ status: 201, description: 'User email change requested' })
   @Get('user/email/change/request/')
   async askChangeUserEmail(@UserId() userId: string): Promise<OperationResultMessageDs> {
     return await this.requestChangeUserEmailUseCase.execute(userId, InTransactionEnum.ON);
   }
 
-  @ApiOperation({ summary: 'Change user email (requires verification string as slug)' })
-  @ApiResponse({ status: 201, description: 'User email changed' })
-  @ApiBody({ type: EmailDto })
   @Post('user/email/change/verify/:slug')
   async verifyChangeUserEmail(
     @BodyEmail('email') email: string,
@@ -400,9 +360,6 @@ export class UserController {
     return await this.verifyChangeUserEmailUseCase.execute(inputData, InTransactionEnum.ON);
   }
 
-  @ApiOperation({ summary: 'Change user name' })
-  @ApiResponse({ status: 200, description: 'Username changed' })
-  @ApiBody({ type: ChangeUserNameDTO })
   @Put('user/name/')
   async changeUserName(
     @UserId() userId: string,
@@ -417,8 +374,6 @@ export class UserController {
     return await this.changeUserNameUseCase.execute(inputData, InTransactionEnum.OFF);
   }
 
-  @ApiOperation({ summary: 'Delete user account' })
-  @ApiResponse({ status: 200, description: 'Return delete user account result' })
   @Put('user/delete/')
   async deleteUser(
     @UserId() userId: string,
