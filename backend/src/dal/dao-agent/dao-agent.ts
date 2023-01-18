@@ -1,5 +1,5 @@
 import axios from 'axios';
-import * as jwt from 'jsonwebtoken';
+import jwt from 'jsonwebtoken';
 import { CreateTableSettingsDto } from '../../entities/table-settings/dto/index.js';
 import { DaoCommandsEnum } from '../../enums/dao-commands.enum.js';
 import { IDaoInterface, ITestConnectResult } from '../shared/dao-interface.js';

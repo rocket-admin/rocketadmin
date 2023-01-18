@@ -1,4 +1,4 @@
-import * as Amplitude from '@amplitude/node';
+import Amplitude from '@amplitude/node';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';

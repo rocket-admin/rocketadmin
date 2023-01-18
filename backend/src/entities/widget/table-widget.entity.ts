@@ -1,4 +1,4 @@
-import * as sjson from 'secure-json-parse';
+import sjson from 'secure-json-parse';
 import {
   AfterLoad,
   BeforeInsert,

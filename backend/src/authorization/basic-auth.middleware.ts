@@ -1,6 +1,6 @@
 import { Injectable, NestMiddleware, HttpException, HttpStatus } from '@nestjs/common';
 import { Request, Response } from 'express';
-import * as auth from 'basic-auth';
+import auth from 'basic-auth';
 import { Messages } from '../exceptions/text/messages.js';
 
 @Injectable()

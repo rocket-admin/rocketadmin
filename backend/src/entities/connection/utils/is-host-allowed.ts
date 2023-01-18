@@ -1,4 +1,4 @@
-import * as dns from 'dns';
+import dns from 'dns';
 import ipRangeCheck from 'ip-range-check';
 import { Constants } from '../../../helpers/constants/constants.js';
 import { CreateConnectionDto } from '../dto/index.js';

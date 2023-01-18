@@ -7,7 +7,7 @@ import { isObjectEmpty } from '../../helpers/index.js';
 import { getMssqlKnex } from '../../data-access-layer/shared/utils/get-mssql-knex.js';
 import { getOracleKnex } from '../../data-access-layer/shared/utils/get-oracle-knex.js';
 import { getPostgresKnex } from '../../data-access-layer/shared/utils/get-postgres-knex.js';
-import * as tunnel from 'tunnel-ssh';
+import tunnel from 'tunnel-ssh';
 
 export class TunnelCreator {
   static async createTunneledKnex(connection: ConnectionEntity) {

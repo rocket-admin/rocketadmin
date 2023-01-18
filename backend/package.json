@@ -103,6 +103,7 @@
     "winston": "3.8.2"
   },
   "devDependencies": {
+    "@ava/typescript": "^3.0.1",
     "@nestjs/cli": "^9.1.8",
     "@nestjs/schematics": "9.0.4",
     "@nestjs/testing": "^9.2.1",

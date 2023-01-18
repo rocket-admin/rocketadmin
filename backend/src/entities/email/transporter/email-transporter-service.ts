@@ -1,5 +1,5 @@
-import * as nodemailer from 'nodemailer';
-import * as SMTPTransport from 'nodemailer/lib/smtp-transport';
+import nodemailer from 'nodemailer';
+import SMTPTransport from 'nodemailer/lib/smtp-transport';
 import { IMessage } from '../email/email.interface.js';
 import { EmailConfigService } from '../email-config/email-config.service.js';
 import { IEmailTransporterInterface } from './email-transporter.interface.js';

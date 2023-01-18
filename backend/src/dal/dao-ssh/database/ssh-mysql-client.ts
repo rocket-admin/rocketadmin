@@ -1,6 +1,6 @@
 import { Constants } from '../../../helpers/constants/constants.js';
 import { Client } from 'ssh2';
-import * as mysql from 'mysql2';
+import mysql from 'mysql2';
 import { ConnectionEntity } from '../../../entities/connection/connection.entity.js';
 import { Cacher } from '../../../helpers/cache/cacher.js';
 

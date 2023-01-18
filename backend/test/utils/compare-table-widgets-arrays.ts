@@ -1,4 +1,4 @@
-import * as json5 from 'json5';
+import json5 from 'json5';
 import { CreateTableWidgetDto } from '../../src/entities/widget/dto/index.js';
 import { TableWidgetEntity } from '../../src/entities/widget/table-widget.entity.js';
 

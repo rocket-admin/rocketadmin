@@ -1,17 +1,17 @@
-import * as Sentry from "@sentry/angular";
+import Sentry from "@sentry/angular";
 
-import { enableProdMode, isDevMode } from '@angular/core';
+import { enableProdMode, isDevMode } from "@angular/core";
 
-import { AppModule } from './app/app.module';
+import { AppModule } from "./app/app.module";
 import { Integrations } from "@sentry/tracing";
-import { environment } from './environments/environment';
-import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
-import 'codemirror/mode/javascript/javascript';
-import 'codemirror/mode/clike/clike';
-import 'codemirror/mode/php/php';
-import 'codemirror/mode/ruby/ruby';
-import 'codemirror/mode/go/go';
-import 'codemirror/mode/python/python';
+import { environment } from "./environments/environment";
+import { platformBrowserDynamic } from "@angular/platform-browser-dynamic";
+import "codemirror/mode/javascript/javascript";
+import "codemirror/mode/clike/clike";
+import "codemirror/mode/php/php";
+import "codemirror/mode/ruby/ruby";
+import "codemirror/mode/go/go";
+import "codemirror/mode/python/python";
 
 if (environment.production) {
   enableProdMode();
@@ -33,5 +33,6 @@ if ((environment as any).saas) {
   });
 }
 
-platformBrowserDynamic().bootstrapModule(AppModule)
-  .catch(err => console.error(err));
+platformBrowserDynamic()
+  .bootstrapModule(AppModule)
+  .catch((err) => console.error(err));

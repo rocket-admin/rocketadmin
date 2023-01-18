@@ -1,6 +1,6 @@
 import { Injectable, Scope } from '@nestjs/common';
 import axios from 'axios';
-import * as jwt from 'jsonwebtoken';
+import jwt from 'jsonwebtoken';
 import { ConnectionEntity } from '../../entities/connection/connection.entity.js';
 import { CreateTableSettingsDto } from '../../entities/table-settings/dto/index.js';
 import { TableSettingsEntity } from '../../entities/table-settings/table-settings.entity.js';

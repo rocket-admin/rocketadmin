@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { InjectRepository } from '@nestjs/typeorm';
-import * as Sentry from '@sentry/minimal';
+import Sentry from '@sentry/minimal';
 import { Repository } from 'typeorm';
 import { UseCaseType } from '../../common/data-injection.tokens.js';
 import { slackPostMessage } from '../../helpers/index.js';

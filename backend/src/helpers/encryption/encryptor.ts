@@ -1,8 +1,8 @@
-import * as argon2 from 'argon2';
-import * as bcrypt from 'bcrypt';
-import * as crypto from 'crypto';
+import argon2 from 'argon2';
+import bcrypt from 'bcrypt';
+import crypto from 'crypto';
 import { createHmac, randomBytes, scrypt } from 'crypto';
-import * as CryptoJS from 'crypto-js';
+import CryptoJS from 'crypto-js';
 import { EncryptionAlgorithmEnum } from '../../enums/index.js';
 import { Constants } from '../constants/constants.js';
 import { IEncryptorInterfaceDTO } from './encryptor.interface.js';

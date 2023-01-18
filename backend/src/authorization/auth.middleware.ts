@@ -1,9 +1,8 @@
 import { HttpException, HttpStatus, Injectable, NestMiddleware } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Request, Response } from 'express';
-import * as jwt from 'jsonwebtoken';
+import jwt from 'jsonwebtoken';
 import { Repository } from 'typeorm';
-import { MockFactory } from '../../test/mock.factory.js';
 import { LogOutEntity } from '../entities/log-out/log-out.entity.js';
 import { UserEntity } from '../entities/user/user.entity.js';
 import { Messages } from '../exceptions/text/messages.js';

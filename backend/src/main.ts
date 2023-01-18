@@ -1,5 +1,5 @@
 import { NestFactory } from '@nestjs/core';
-import * as Sentry from '@sentry/node';
+import Sentry from '@sentry/node';
 import cookieParser from 'cookie-parser';
 import rateLimit from 'express-rate-limit';
 import helmet from 'helmet';

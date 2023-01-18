@@ -1,5 +1,5 @@
 import { faker } from '@faker-js/faker';
-import * as jwt from 'jsonwebtoken';
+import jwt from 'jsonwebtoken';
 import { IRequestWithCognitoInfo } from '../src/authorization/index.js';
 import { CreateConnectionPropertiesDto } from '../src/entities/connection-properties/dto/index.js';
 import { CreateConnectionDto } from '../src/entities/connection/dto/index.js';
@@ -15,7 +15,7 @@ import {
   WidgetTypeEnum,
 } from '../src/enums/index.js';
 import { TestConstants } from './mocks/test-constants.js';
-import * as json5 from 'json5';
+import json5 from 'json5';
 
 export class MockFactory {
   generateCognitoUserName() {

@@ -1,5 +1,5 @@
 import { HttpException, HttpStatus } from '@nestjs/common';
-import * as Sentry from '@sentry/node';
+import Sentry from '@sentry/node';
 import { SubscriptionLevelEnum } from '../../../enums/index.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { isSaaS } from '../../../helpers/app/is-saas.js';

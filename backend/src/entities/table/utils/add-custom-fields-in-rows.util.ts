@@ -1,5 +1,5 @@
 import { CustomFieldsEntity } from '../../custom-field/custom-fields.entity.js';
-import * as sjson from 'secure-json-parse';
+import sjson from 'secure-json-parse';
 import { getPropertyValueByDescriptor, getValuesBetweenCurlies, replaceTextInCurlies } from '../../../helpers/index.js';
 import { IRows } from '../../../data-access-layer/shared/data-access-object-interface.js';
 

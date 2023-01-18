@@ -1,5 +1,14 @@
-import * as sjson from 'secure-json-parse';
-import { AfterLoad, BeforeInsert, Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, Relation } from 'typeorm';
+import sjson from 'secure-json-parse';
+import {
+  AfterLoad,
+  BeforeInsert,
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+  Relation,
+} from 'typeorm';
 import { ConnectionEntity } from '../connection/connection.entity.js';
 import { LogOperationTypeEnum, OperationResultStatusEnum } from '../../enums/index.js';
 import { Transform } from 'class-transformer';

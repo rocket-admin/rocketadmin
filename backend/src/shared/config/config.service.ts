@@ -2,7 +2,7 @@ import { join } from 'path';
 import { DataSourceOptions } from 'typeorm';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import * as dotenv from 'dotenv';
+import dotenv from 'dotenv';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -66,7 +66,7 @@ class ConfigService {
       entities: [join(__dirname, '..', '..', '**', '*.entity.{ts,js}')],
       migrations: [join(__dirname, '..', '..', 'migrations', '*.{ts,js}')],
       synchronize: false,
-      migrationsRun: false,
+      migrationsRun: true,
       // maxQueryExecutionTime: 50,
       // ssl: this.isProduction(),
       logging: false,
