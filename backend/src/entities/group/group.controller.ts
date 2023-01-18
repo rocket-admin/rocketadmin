@@ -13,7 +13,6 @@ import {
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Response, Request } from 'express';
 import validator from 'validator';
 import { UseCaseType } from '../../common/data-injection.tokens.js';
@@ -33,7 +32,6 @@ import { DeletedGroupResultDs } from './application/data-sctructures/deleted-gro
 import { FoundUserGroupsDs } from './application/data-sctructures/found-user-groups.ds.js';
 import { RemoveUserFromGroupResultDs } from './application/data-sctructures/remove-user-from-group-result.ds.js';
 import { VerifyAddUserInGroupDs } from './application/data-sctructures/verify-add-user-in-group.ds.js';
-import { AddUserIngroupDto } from './dto/add-user-ingroup-dto.js';
 import {
   IAddUserInGroup,
   IDeleteGroup,
@@ -43,8 +41,6 @@ import {
   IVerifyAddUserInGroup,
 } from './use-cases/use-cases.interfaces.js';
 
-@ApiBearerAuth()
-@ApiTags('groups')
 @UseInterceptors(SentryInterceptor)
 @Controller()
 @Injectable()
@@ -65,11 +61,6 @@ export class GroupController {
     private readonly amplitudeService: AmplitudeService,
   ) {}
 
-  @ApiOperation({ summary: 'Get all groups for current user' })
-  @ApiResponse({
-    status: 200,
-    description: 'Return all groups for current user.',
-  })
   @Get('groups')
   async findAll(@UserId() userId: string): Promise<FoundUserGroupsDs> {
     try {
@@ -81,8 +72,6 @@ export class GroupController {
     }
   }
 
-  @ApiOperation({ summary: 'Get all users for current group' })
-  @ApiResponse({ status: 200, description: 'Return all users.' })
   @UseGuards(GroupReadGuard)
   @Get('group/users/:slug')
   async findAllUsersInGroup(@UserId() userId: string, @SlugUuid() groupId: string): Promise<Array<FoundUserInGroupDs>> {
@@ -95,8 +84,6 @@ export class GroupController {
     }
   }
 
-  @ApiOperation({ summary: 'Add an existing user in group by user email' })
-  @ApiBody({ type: AddUserIngroupDto })
   @UseGuards(GroupEditGuard)
   @Put('/group/user')
   async addUserInGroup(
@@ -132,8 +119,6 @@ export class GroupController {
     }
   }
 
-  @ApiOperation({ summary: 'Add an existing user in group by user email' })
-  @ApiBody({ type: VerifyAddUserInGroupDs })
   @Put('/group/user/verify/:slug')
   async verifyUserInvitation(
     @Body('password') password: string,
@@ -173,12 +158,6 @@ export class GroupController {
     return { expires: token.exp };
   }
 
-  @ApiOperation({ summary: 'Delete group' })
-  @ApiResponse({
-    status: 201,
-    description: 'The group has been successfully deleted.',
-  })
-  @ApiResponse({ status: 403, description: 'Forbidden.' })
   @UseGuards(GroupEditGuard)
   @Delete('/group/:slug')
   async delete(@SlugUuid() groupId: string, @UserId() userId: string): Promise<DeletedGroupResultDs> {
@@ -191,13 +170,6 @@ export class GroupController {
     }
   }
 
-  @ApiOperation({ summary: 'Remove user from group' })
-  @ApiResponse({
-    status: 201,
-    description: 'User has been successfully deleted.',
-  })
-  @ApiBody({ type: AddUserIngroupDto })
-  @ApiResponse({ status: 403, description: 'Forbidden.' })
   @UseGuards(GroupEditGuard)
   @Put('/group/user/delete')
   async removeUserFromGroup(

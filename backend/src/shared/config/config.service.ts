@@ -1,7 +1,12 @@
 import { join } from 'path';
 import { DataSourceOptions } from 'typeorm';
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-require('dotenv').config();
+import path from 'path';
+import { fileURLToPath } from 'url';
+import * as dotenv from 'dotenv';
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+dotenv.config();
 
 class ConfigService {
   constructor(private env: { [k: string]: string | undefined }) {}

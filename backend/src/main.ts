@@ -8,9 +8,6 @@ import { AllExceptionsFilter } from './exceptions/all-exceptions.filter.js';
 import { Constants } from './helpers/constants/constants.js';
 import { requiredEnvironmentVariablesValidator } from './helpers/validators/required-environment-variables.validator.js';
 
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-require('dotenv').config();
-
 async function bootstrap() {
   try {
     requiredEnvironmentVariablesValidator();
