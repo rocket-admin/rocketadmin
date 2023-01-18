@@ -1,7 +1,7 @@
 import knex from 'knex';
 import { Knex } from 'knex';
-import * as LRU from 'lru-cache';
-import { ConnectionTypeEnum } from '../../src/enums.js';
+import LRU from 'lru-cache';
+import { ConnectionTypeEnum } from '../../src/enums/index.js';
 import { Constants } from '../../src/helpers/constants/constants.js';
 
 const knexCache = new LRU(Constants.DEFAULT_CONNECTION_CACHE_OPTIONS);

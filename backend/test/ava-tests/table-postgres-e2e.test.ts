@@ -2,10 +2,10 @@ import { faker } from '@faker-js/faker';
 import { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import test from 'ava';
-import * as cookieParser from 'cookie-parser';
-import * as request from 'supertest';
+import cookieParser from 'cookie-parser';
+import request from 'supertest';
 import { ApplicationModule } from '../../src/app.module.js';
-import { LogOperationTypeEnum, QueryOrderingEnum } from '../../src/enums.js';
+import { LogOperationTypeEnum, QueryOrderingEnum } from '../../src/enums/index.js';
 import { AllExceptionsFilter } from '../../src/exceptions/all-exceptions.filter.js';
 import { Messages } from '../../src/exceptions/text/messages.js';
 import { Cacher } from '../../src/helpers/cache/cacher.js';
@@ -26,8 +26,6 @@ const testSearchedUserName = 'Vasia';
 const testTables: Array<string> = [];
 let currentTest;
 
-// yarn test-ava test/ava-tests/table-postgres-schema-e2e.test.ts
-
 test.before(async () => {
   const moduleFixture = await Test.createTestingModule({
     imports: [ApplicationModule, DatabaseModule],
@@ -40,22 +38,6 @@ test.before(async () => {
   app.getHttpServer().listen(0);
   testUtils = moduleFixture.get<TestUtils>(TestUtils);
   await testUtils.resetDb();
-});
-
-test.after.always('Close app connection', async () => {
-  try {
-    await Cacher.clearAllCache();
-    await app.close();
-  } catch (e) {
-    console.error('After custom field error: ' + e);
-  }
-});
-
-test.after('Drop test tables', async () => {
-  try {
-    const connectionToTestDB = getTestData(mockFactory).connectionToPostgres;
-    await dropTestTables(testTables, connectionToTestDB);
-  } catch (e) {}
 });
 
 currentTest = 'GET /connection/tables/:slug';

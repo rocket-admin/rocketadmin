@@ -1,6 +1,6 @@
 import { INestApplication } from '@nestjs/common';
-import * as request from 'supertest';
-import { AccessLevelEnum } from '../../src/enums.js';
+import request from 'supertest';
+import { AccessLevelEnum } from '../../src/enums/index.js';
 import { MockFactory } from '../mock.factory.js';
 import { CreatedTableInfo, createTestTable } from './create-test-table.js';
 import { registerUserAndReturnUserInfo } from './register-user-and-return-user-info.js';

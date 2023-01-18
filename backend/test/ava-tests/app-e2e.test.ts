@@ -5,7 +5,7 @@ import { DatabaseModule } from '../../src/shared/database/database.module.js';
 import { DatabaseService } from '../../src/shared/database/database.service.js';
 import { TestUtils } from '../utils/test.utils.js';
 import { INestApplication } from '@nestjs/common';
-import * as request from 'supertest';
+import request from 'supertest';
 
 let app: INestApplication;
 

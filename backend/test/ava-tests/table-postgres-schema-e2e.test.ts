@@ -2,10 +2,10 @@ import { faker } from '@faker-js/faker';
 import { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import test from 'ava';
-import * as cookieParser from 'cookie-parser';
-import * as request from 'supertest';
+import cookieParser from 'cookie-parser';
+import request from 'supertest';
 import { ApplicationModule } from '../../src/app.module.js';
-import { LogOperationTypeEnum, QueryOrderingEnum } from '../../src/enums.js';
+import { LogOperationTypeEnum, QueryOrderingEnum } from '../../src/enums/index.js';
 import { AllExceptionsFilter } from '../../src/exceptions/all-exceptions.filter.js';
 import { Messages } from '../../src/exceptions/text/messages.js';
 import { Cacher } from '../../src/helpers/cache/cacher.js';
@@ -13,7 +13,7 @@ import { Constants } from '../../src/helpers/constants/constants.js';
 import { DatabaseModule } from '../../src/shared/database/database.module.js';
 import { DatabaseService } from '../../src/shared/database/database.service.js';
 import { MockFactory } from '../mock.factory.js';
-import { createTestPostgresTableWithSchema, createTestTable } from '../utils/create-test-table.js';
+import { createTestPostgresTableWithSchema } from '../utils/create-test-table.js';
 import { dropTestTables } from '../utils/drop-test-tables.js';
 import { getTestData } from '../utils/get-test-data.js';
 import { registerUserAndReturnUserInfo } from '../utils/register-user-and-return-user-info.js';
@@ -25,8 +25,6 @@ let testUtils: TestUtils;
 const testSearchedUserName = 'Vasia';
 const testTables: Array<string> = [];
 let currentTest;
-
-// yarn test-ava test/ava-tests/table-postgres-schema-e2e.test.ts
 
 test.before(async () => {
   const moduleFixture = await Test.createTestingModule({

@@ -6,13 +6,12 @@ import { Test } from '@nestjs/testing';
 import { ApplicationModule } from '../../src/app.module.js';
 import { DatabaseModule } from '../../src/shared/database/database.module.js';
 import { DatabaseService } from '../../src/shared/database/database.service.js';
-import * as cookieParser from 'cookie-parser';
+import cookieParser from 'cookie-parser';
 import { AllExceptionsFilter } from '../../src/exceptions/all-exceptions.filter.js';
-import { Connection } from 'typeorm';
 import { registerUserAndReturnUserInfo } from '../utils/register-user-and-return-user-info.js';
 import { getTestData } from '../utils/get-test-data.js';
-import * as request from 'supertest';
-import { AccessLevelEnum } from '../../src/enums.js';
+import request from 'supertest';
+import { AccessLevelEnum } from '../../src/enums/index.js';
 import { faker } from '@faker-js/faker';
 import { Messages } from '../../src/exceptions/text/messages.js';
 
@@ -34,19 +33,6 @@ test.before(async () => {
   app.getHttpServer().listen(0);
   testUtils = moduleFixture.get<TestUtils>(TestUtils);
   await testUtils.resetDb();
-});
-
-test.after.always('Close app connection', async () => {
-  try {
-    const connect = await app.get(Connection);
-    await testUtils.shutdownServer(app.getHttpAdapter());
-    if (connect.isConnected) {
-      await connect.close();
-    }
-    await app.close();
-  } catch (e) {
-    console.error('After group e2e error: ' + e);
-  }
 });
 
 let currentTest = 'GET /groups';

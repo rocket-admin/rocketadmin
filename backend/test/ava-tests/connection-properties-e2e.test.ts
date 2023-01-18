@@ -2,9 +2,8 @@ import { faker } from '@faker-js/faker';
 import { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import test from 'ava';
-import * as cookieParser from 'cookie-parser';
-import * as request from 'supertest';
-import { Connection } from 'typeorm';
+import cookieParser from 'cookie-parser';
+import request from 'supertest';
 import { ApplicationModule } from '../../src/app.module.js';
 import { Constants } from '../../src/helpers/constants/constants.js';
 import { DatabaseModule } from '../../src/shared/database/database.module.js';
@@ -77,18 +76,9 @@ test.beforeEach(async (t) => {
   await resetPostgresTestDB(testTableName);
 });
 
-test.after.always('Close app connection', async () => {
-  // await testUtils.resetDb();
-  const connect = await app.get(Connection);
-  if (connect.isConnected) {
-    await connect.close();
-  }
-  await app.close();
-});
-
-test.after('cleanup', async (t) => {
-  await dropTestTables(testTables, mockFactory.generateConnectionToTestPostgresDBInDocker());
-});
+// test.after('cleanup', async (t) => {
+//   await dropTestTables(testTables, mockFactory.generateConnectionToTestPostgresDBInDocker());
+// });
 
 type RegisterUserData = {
   email: string;

@@ -3,16 +3,15 @@ import { ApplicationModule } from '../../src/app.module.js';
 import { DatabaseModule } from '../../src/shared/database/database.module.js';
 import { DatabaseService } from '../../src/shared/database/database.service.js';
 import { TestUtils } from '../utils/test.utils.js';
-import * as cookieParser from 'cookie-parser';
+import cookieParser from 'cookie-parser';
 import { INestApplication } from '@nestjs/common';
 import { MockFactory } from '../mock.factory.js';
 import { Encryptor } from '../../src/helpers/encryption/encryptor.js';
-import { Connection } from 'typeorm';
 import test from 'ava';
 import { registerUserAndReturnUserInfo } from '../utils/register-user-and-return-user-info.js';
 import { getTestData } from '../utils/get-test-data.js';
-import * as request from 'supertest';
-import { replaceTextInCurlies } from '../../src/helpers.js';
+import request from 'supertest';
+import { replaceTextInCurlies } from '../../src/helpers/index.js';
 import { faker } from '@faker-js/faker';
 import { Messages } from '../../src/exceptions/text/messages.js';
 import { AllExceptionsFilter } from '../../src/exceptions/all-exceptions.filter.js';
@@ -45,19 +44,6 @@ test.before(async () => {
   app.getHttpServer().listen(0);
   testUtils = moduleFixture.get<TestUtils>(TestUtils);
   await testUtils.resetDb();
-});
-
-test.after.always('Close app connection', async () => {
-  try {
-    const connect = await app.get(Connection);
-    await testUtils.shutdownServer(app.getHttpAdapter());
-    if (connect.isConnected) {
-      await connect.close();
-    }
-    await app.close();
-  } catch (e) {
-    console.error('After custom field error: ' + e);
-  }
 });
 
 let currentTest = 'GET /fields/:slug';

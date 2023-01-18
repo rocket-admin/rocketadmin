@@ -2,10 +2,10 @@ import { faker } from '@faker-js/faker';
 import { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import test from 'ava';
-import * as cookieParser from 'cookie-parser';
-import * as request from 'supertest';
+import cookieParser from 'cookie-parser';
+import request from 'supertest';
 import { ApplicationModule } from '../../src/app.module.js';
-import { LogOperationTypeEnum, QueryOrderingEnum } from '../../src/enums.js';
+import { LogOperationTypeEnum, QueryOrderingEnum } from '../../src/enums/index.js';
 import { AllExceptionsFilter } from '../../src/exceptions/all-exceptions.filter.js';
 import { Messages } from '../../src/exceptions/text/messages.js';
 import { Cacher } from '../../src/helpers/cache/cacher.js';
@@ -38,20 +38,6 @@ test.before(async () => {
   app.getHttpServer().listen(0);
   testUtils = moduleFixture.get<TestUtils>(TestUtils);
   await testUtils.resetDb();
-});
-
-test.after.always('Close app connection', async () => {
-  try {
-    await Cacher.clearAllCache();
-    // const connect = await app.get(Connection);
-    // await testUtils.shutdownServer(app.getHttpAdapter());
-    // if (connect.isConnected) {
-    //   await connect.close();
-    // }
-    await app.close();
-  } catch (e) {
-    console.error('After custom field error: ' + e);
-  }
 });
 
 test.after('Drop test tables', async () => {
