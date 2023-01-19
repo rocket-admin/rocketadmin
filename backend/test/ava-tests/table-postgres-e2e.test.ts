@@ -8,13 +8,11 @@ import { ApplicationModule } from '../../src/app.module.js';
 import { LogOperationTypeEnum, QueryOrderingEnum } from '../../src/enums/index.js';
 import { AllExceptionsFilter } from '../../src/exceptions/all-exceptions.filter.js';
 import { Messages } from '../../src/exceptions/text/messages.js';
-import { Cacher } from '../../src/helpers/cache/cacher.js';
 import { Constants } from '../../src/helpers/constants/constants.js';
 import { DatabaseModule } from '../../src/shared/database/database.module.js';
 import { DatabaseService } from '../../src/shared/database/database.service.js';
 import { MockFactory } from '../mock.factory.js';
 import { createTestTable } from '../utils/create-test-table.js';
-import { dropTestTables } from '../utils/drop-test-tables.js';
 import { getTestData } from '../utils/get-test-data.js';
 import { registerUserAndReturnUserInfo } from '../utils/register-user-and-return-user-info.js';
 import { TestUtils } from '../utils/test.utils.js';
@@ -32,12 +30,12 @@ test.before(async () => {
     providers: [DatabaseService, TestUtils],
   }).compile();
   app = moduleFixture.createNestApplication();
+  testUtils = moduleFixture.get<TestUtils>(TestUtils);
+  await testUtils.resetDb();
   app.use(cookieParser());
   app.useGlobalFilters(new AllExceptionsFilter());
   await app.init();
   app.getHttpServer().listen(0);
-  testUtils = moduleFixture.get<TestUtils>(TestUtils);
-  await testUtils.resetDb();
 });
 
 currentTest = 'GET /connection/tables/:slug';
@@ -1683,7 +1681,7 @@ test(`${currentTest} should throw an exception when table name passed in request
     const fieldGtvalue = '25';
     const fieldLtvalue = '40';
 
-    const fakeTableName = faker.random.words(1);
+    const fakeTableName = `${faker.random.words(1)}_${faker.datatype.uuid()}`;
     const getTableRowsResponse = await request(app.getHttpServer())
       .get(
         `/table/rows/${createConnectionRO.id}?tableName=${fakeTableName}&search=${testSearchedUserName}&page=1&perPage=2&f_${fieldname}__lt=${fieldLtvalue}&f_${fieldname}__gt=${fieldGtvalue}`,
@@ -2180,7 +2178,7 @@ test(`${currentTest} should throw an exception when table name passed in request
     [testTableSecondColumnName]: fakeMail,
   };
 
-  const fakeTableName = faker.random.words(1);
+  const fakeTableName = `${faker.random.words(1)}_${faker.datatype.number({ min: 1, max: 10000 })}`;
   const addRowInTableResponse = await request(app.getHttpServer())
     .post(`/table/row/${createConnectionRO.id}?tableName=${fakeTableName}`)
     .send(JSON.stringify(row))
@@ -2758,7 +2756,7 @@ test(`${currentTest} should throw an exception when tableName passed in request 
   t.is(createConnectionResponse.status, 201);
 
   const idForDeletion = 1;
-  const fakeTableName = faker.random.words(1);
+  const fakeTableName = `${faker.random.words(1)}_${faker.datatype.uuid()}`;
   const deleteRowInTableResponse = await request(app.getHttpServer())
     .delete(`/table/row/${createConnectionRO.id}?tableName=${fakeTableName}&id=${idForDeletion}`)
     .set('Cookie', firstUserToken)
@@ -3064,7 +3062,7 @@ test(`${currentTest} should throw an exception, when tableName passed in request
   t.is(createConnectionResponse.status, 201);
 
   const idForSearch = 1;
-  const fakeTableName = faker.random.words(1);
+  const fakeTableName = `${faker.random.words(1)}_${faker.datatype.uuid()}`;
   const foundRowInTableResponse = await request(app.getHttpServer())
     .get(`/table/row/${createConnectionRO.id}?tableName=${fakeTableName}&id=${idForSearch}`)
     .set('Cookie', firstUserToken)

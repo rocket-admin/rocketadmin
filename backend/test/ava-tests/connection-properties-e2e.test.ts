@@ -33,12 +33,12 @@ test.before(async () => {
     imports: [ApplicationModule, DatabaseModule],
     providers: [DatabaseService, TestUtils],
   }).compile();
+  testUtils = moduleFixture.get<TestUtils>(TestUtils);
+  await testUtils.resetDb();
   app = moduleFixture.createNestApplication();
   app.use(cookieParser());
   await app.init();
   app.getHttpServer().listen(0);
-  testUtils = moduleFixture.get<TestUtils>(TestUtils);
-  await testUtils.resetDb();
 });
 
 async function resetPostgresTestDB(testTableName) {
@@ -208,7 +208,7 @@ test(`${currentTest} should throw an exception when excluded table name is incor
     const createConnectionRO = JSON.parse(createConnectionResponse.text);
     t.is(createConnectionResponse.status, 201);
     const copyNewConnectionResponse = JSON.parse(JSON.stringify(newConnectionProperties));
-    copyNewConnectionResponse.hidden_tables[0] = faker.random.words(1);
+    copyNewConnectionResponse.hidden_tables[0] = `${faker.random.words(1)}_${faker.datatype.number({min: 1, max: 10000})}`;;
     const createConnectionPropertiesResponse = await request(app.getHttpServer())
       .post(`/connection/properties/${createConnectionRO.id}`)
       .send(copyNewConnectionResponse)

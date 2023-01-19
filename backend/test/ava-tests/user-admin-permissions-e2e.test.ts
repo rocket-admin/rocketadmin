@@ -32,12 +32,12 @@ test.before(async () => {
     providers: [DatabaseService, TestUtils],
   }).compile();
   app = moduleFixture.createNestApplication();
+  testUtils = moduleFixture.get<TestUtils>(TestUtils);
+  await testUtils.resetDb();
   app.use(cookieParser());
   app.useGlobalFilters(new AllExceptionsFilter());
   await app.init();
   app.getHttpServer().listen(0);
-  testUtils = moduleFixture.get<TestUtils>(TestUtils);
-  await testUtils.resetDb();
 });
 
 test.after.always('Close app connection', async () => {
@@ -1750,7 +1750,7 @@ test(`${currentTest} should throw an exception when table name passed in request
       .set('Accept', 'application/json');
     t.is(createOrUpdatePermissionResponse.status, 200);
 
-    const fakeTableName = faker.random.words(1);
+    const fakeTableName = `${faker.random.words(1)}_${faker.datatype.uuid()}`;
     const getTablesInConnection = await request(app.getHttpServer())
       .get(`/table/rows/${testData.connections.firstId}?tableName=${fakeTableName}`)
       .set('Cookie', testData.users.simpleUserToken)
@@ -2059,7 +2059,7 @@ test(`${currentTest} should throw an exception when table name passed in request
       .set('Accept', 'application/json');
     t.is(createOrUpdatePermissionResponse.status, 200);
 
-    const fakeTableName = faker.random.words(1);
+    const fakeTableName = `${faker.random.words(1)}_${faker.datatype.uuid()}`;
     const getTablesStructure = await request(app.getHttpServer())
       .get(`/table/structure/${testData.connections.firstId}?tableName=${fakeTableName}`)
       .set('Cookie', testData.users.simpleUserToken)
@@ -2277,7 +2277,7 @@ test(`${currentTest} should throw an exception when table name passed in request
 
     const created_at = new Date();
     const updated_at = new Date();
-    const fakeTableName = faker.random.words(1);
+    const fakeTableName = `${faker.random.words(1)}_${faker.datatype.uuid()}`;
     const addRowInTable = await request(app.getHttpServer())
       .post(`/table/row/${testData.connections.firstId}?tableName=${fakeTableName}`)
       .send({
@@ -2501,7 +2501,7 @@ test(`${currentTest} should throw an exception when table name passed in request
 
     const created_at = new Date();
     const updated_at = new Date();
-    const fakeTableName = faker.random.words(1);
+    const fakeTableName = `${faker.random.words(1)}_${faker.datatype.uuid()}`;
     const addRowInTable = await request(app.getHttpServer())
       .put(`/table/row/${testData.connections.firstId}?tableName=${fakeTableName}&id=1`)
       .send({
@@ -2687,7 +2687,7 @@ test(`${currentTest} should throw an exception when table name passed in request
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
     t.is(createOrUpdatePermissionResponse.status, 200);
-    const fakeTableName = faker.random.words(1);
+    const fakeTableName = `${faker.random.words(1)}_${faker.datatype.uuid()}`;
     const deleteRowInTable = await request(app.getHttpServer())
       .delete(`/table/row/${testData.connections.firstId}?tableName=${fakeTableName}&id=1`)
       .set('Cookie', testData.users.simpleUserToken)
@@ -2877,7 +2877,7 @@ test(`${currentTest} should throw an exception when table name passed in request
       .set('Accept', 'application/json');
     t.is(createOrUpdatePermissionResponse.status, 200);
 
-    const fakeTableName = faker.random.words(1);
+    const fakeTableName = `${faker.random.words(1)}_${faker.datatype.uuid()}`;
     const addRowInTable = await request(app.getHttpServer())
       .get(`/table/row/${testData.connections.firstId}?tableName=${fakeTableName}&id=5`)
       .set('Cookie', testData.users.simpleUserToken)
@@ -3203,10 +3203,9 @@ test(`${currentTest} should return updated table settings`, async (t) => {
       .set('Cookie', testData.users.simpleUserToken)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
-
+    const updateTableSettingsRO = JSON.parse(updateTableSettingsResponse.text);
     t.is(updateTableSettingsResponse.status, 200);
 
-    const updateTableSettingsRO = JSON.parse(updateTableSettingsResponse.text);
     t.is(updateTableSettingsRO.hasOwnProperty('id'), true);
     t.is(updateTableSettingsRO.table_name, updateTableSettingsDTO.table_name);
     t.is(updateTableSettingsRO.display_name, updateTableSettingsDTO.display_name);

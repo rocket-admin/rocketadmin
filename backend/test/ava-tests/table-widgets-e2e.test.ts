@@ -31,12 +31,12 @@ test.before(async () => {
     providers: [DatabaseService, TestUtils],
   }).compile();
   app = moduleFixture.createNestApplication();
+  testUtils = moduleFixture.get<TestUtils>(TestUtils);
+  await testUtils.resetDb();
   app.use(cookieParser());
   app.useGlobalFilters(new AllExceptionsFilter());
   await app.init();
   app.getHttpServer().listen(0);
-  testUtils = moduleFixture.get<TestUtils>(TestUtils);
-  await testUtils.resetDb();
 });
 
 test.after.always('Close app connection', async () => {
@@ -252,7 +252,7 @@ test(`${currentTest} should throw exception when tableName passed in request is 
   t.is(uuidRegex.test(createTableWidgetRO[1].id), true);
   t.is(createTableWidgetRO[0].description, newTableWidgets[0].description);
 
-  const fakeTableName = faker.random.words(1);
+  const fakeTableName = `${faker.random.words(1)}_${faker.datatype.uuid()}`;
   const getTableWidgets = await request(app.getHttpServer())
     .get(`/widgets/${connectionId}?tableName=${fakeTableName}`)
     .set('Content-Type', 'application/json')
@@ -616,7 +616,7 @@ test(`${currentTest} should throw exception when tableName passed in request is 
 
   const connectionId = JSON.parse(createdConnection.text).id;
   const newTableWidgets = mockFactory.generateCreateWidgetDTOsArrayForConnectionTable();
-  const fakeTableName = faker.random.words(1);
+  const fakeTableName = `${faker.random.words(1)}_${faker.datatype.uuid()}`;
 
   const createTableWidgetResponse = await request(app.getHttpServer())
     .post(`/widget/${connectionId}?tableName=${fakeTableName}`)

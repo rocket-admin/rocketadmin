@@ -50,6 +50,11 @@ export class UpdateTableSettingsUseCase
       );
     }
     const updateTableSettings = buildNewTableSettingsEntity(inputData, foundConnection);
+    for (const key in updateTableSettings) {
+      if (updateTableSettings[key] === undefined) {
+        delete updateTableSettings[key];
+      }
+    }
     const updated = Object.assign(settingsToUpdate, updateTableSettings);
     const savedTableSettings = await this._dbContext.tableSettingsRepository.saveNewOrUpdatedSettings(updated);
     return buildFoundTableSettingsDs(savedTableSettings);
