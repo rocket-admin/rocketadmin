@@ -3,11 +3,11 @@
     <div class="mat-body">You are going to delete table rows with primary key(s)
         <br>
         <ul class="listOfPrimaryKeys">
-            <li *ngFor="let rowKeyAttributes of rowsKeyAttributes; let i = index">
-                <strong *ngFor="let attribute of rowKeyAttributes | keyvalue; let last = last">
+            <li *ngFor="let selectedRow of selectedRows; let i = index">
+                <strong *ngFor="let attribute of selectedRow | keyvalue; let last = last">
                     {{attribute.key}} = {{attribute.value}}<span *ngIf="!last">,</span>
                 </strong>
-                <span *ngIf="i !== rowsKeyAttributes.length - 1; else dot">;</span>
+                <span *ngIf="i !== selectedRows.length - 1; else dot">;</span>
                 <ng-template #dot>
                     <span>.</span>
                 </ng-template>

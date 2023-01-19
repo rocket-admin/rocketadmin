@@ -96,6 +96,11 @@ export class DashboardComponent implements OnInit {
             this.setTable(this.selectedTableName);
           };
         });
+        this._tables.cast.subscribe((arg) => {
+          if (arg === 'delete rows' && this.selectedTableName) {
+            this.setTable(this.selectedTableName);
+          };
+        });
     }
   }
 
@@ -199,10 +204,10 @@ export class DashboardComponent implements OnInit {
     });
   }
 
-  confirmDeleteRows(rowsKeyAttributes: Object) {
+  confirmDeleteRows(data: Object) {
     this.dialog.open(DbRowsDeleteDialogComponent, {
       width: '25em',
-      data: rowsKeyAttributes
+      data
     });
   }
 

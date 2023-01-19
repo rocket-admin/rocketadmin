@@ -11,6 +11,7 @@ import { merge } from 'rxjs';
 import { normalizeTableName } from '../../../lib/normalize'
 import { tap } from 'rxjs/operators';
 import { SelectionModel } from '@angular/cdk/collections';
+import { TablesService } from 'src/app/services/tables.service';
 
 interface Column {
   title: string,
@@ -67,6 +68,7 @@ export class DbTableComponent implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
+    private _tables: TablesService,
   ) {}
 
   ngAfterViewInit() {
@@ -159,6 +161,16 @@ export class DbTableComponent implements OnInit {
 
   ngOnInit() {
     this.searchString = this.route.snapshot.queryParams.search;
+    this._tables.cast.subscribe((arg) => {
+      if (arg === 'delete rows') {
+        this.selection.clear();
+      };
+    });
+    this._tables.cast.subscribe((arg) => {
+      if (arg === 'delete rows') {
+        this.selection.clear();
+      };
+    });
   }
 
   getFilter(filterKey: string, filterValue: string) {
@@ -174,25 +186,22 @@ export class DbTableComponent implements OnInit {
     }
   }
 
-  getPrimaryKey(row) {
-    return Object.assign({}, ...this.tableData.keyAttributes.map((primatyKey) => ({[primatyKey.column_name]: row[primatyKey.column_name]})));
-  }
+
 
   /** Whether the number of selected elements matches the total number of rows. */
   isAllSelected() {
-    const numSelected = this.selection.selected.length;
-    const numRows = this.tableData.length;
-    return numSelected === numRows;
+    return this.paginator.pageSize === this.selection.selected.length;
   }
 
   /** Selects all rows if they are not all selected; otherwise clear selection. */
   toggleAllRows() {
+    console.log(this.paginator.pageSize);
+    console.log(this.selection.selected.length);
     if (this.isAllSelected()) {
       this.selection.clear();
-      return;
+    } else {
+      this.selection.select(...this.tableData.rowsSubject.value);
     }
-
-    this.selection.select(...this.tableData);
   }
 
   /** The label for the checkbox on the passed row */

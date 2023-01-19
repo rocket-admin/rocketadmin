@@ -14,12 +14,12 @@ export class DbRowsDeleteDialogComponent implements OnInit {
   public selectedTableName;
   public submitting: boolean = false;
   public connectionID: string;
+  public selectedRows: [];
 
   constructor(
-    @Inject(MAT_DIALOG_DATA) public rowsKeyAttributes: any,
+    @Inject(MAT_DIALOG_DATA) public data: any,
     private _connections: ConnectionsService,
     private _tables: TablesService,
-    private _tableRow: TableRowService,
     public dialogRef: MatDialogRef<DbRowsDeleteDialogComponent>
   ) { }
 
@@ -27,20 +27,26 @@ export class DbRowsDeleteDialogComponent implements OnInit {
     this.connectionID = this._connections.currentConnectionID;
     this.selectedTableName = this._tables.currentTableName;
 
-    this._tableRow.cast.subscribe();
-    // this._tables.cast.subscribe();
+    // this._tableRow.cast.subscribe();
+    this._tables.cast.subscribe();
+
+    this.selectedRows = this.data.selectedRows.map(row => this.getPrimaryKey(row))
+  }
+
+  getPrimaryKey(row) {
+    return Object.assign({}, ...this.data.primaryKeys.map((primaryKey) => ({[primaryKey.column_name]: row[primaryKey.column_name]})));
   }
 
   deleteRow() {
     this.submitting = true;
-    // this._tableRow.deleteTableRow(this.connectionID, this.selectedTableName, this.rowKeyAttributes)
-    //   .subscribe(() => {
-    //     this.dialogRef.close();
-    //     this.submitting = false;
-    //   },
-    //   () => { },
-    //   () => { this.submitting = false; }
-    // )
+    this._tables.bulkDelete(this.connectionID, this.selectedTableName, this.selectedRows)
+      .subscribe(() => {
+        this.dialogRef.close();
+        this.submitting = false;
+      },
+      () => { },
+      () => { this.submitting = false; }
+    )
   }
 
 }

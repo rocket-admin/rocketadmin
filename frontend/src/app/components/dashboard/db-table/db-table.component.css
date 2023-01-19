@@ -28,6 +28,12 @@
     margin-bottom: 0;
 }
 
+.db-table-bulk-actions {
+    display: flex;
+    align-items: center;
+    height: 62.6px;
+}
+
 .search-input {
     margin-top: -24px;
     min-width: 220px;
@@ -142,8 +148,6 @@
 .db-table_withActions ::ng-deep .mat-header-row .mat-column-select {
     padding-top: 18px;
 }
-
-
 
 th.mat-header-cell, td.mat-cell {
     padding-right: 20px;

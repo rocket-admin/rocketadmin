@@ -281,6 +281,33 @@ export class TablesService {
       );
   }
 
+  bulkDelete(connectionID: string, tableName: string, primaryKeys) {
+    return this._http.put<any>(`/table/rows/delete/${connectionID}`, primaryKeys, {
+      params: {
+        tableName
+      }
+    })
+      .pipe(
+        map(res => {
+          this.tables.next('delete rows');
+          this._notifications.showSuccessSnackbar('Rows have been deleted successfully.')
+          return res
+        }),
+        catchError((err) => {
+          console.log(err);
+          // this._notifications.showErrorSnackbar(err.error.message);
+          this._notifications.showAlert(AlertType.Error, err.error.message, [
+            {
+              type: AlertActionType.Button,
+              caption: 'Dismiss',
+              action: (id: number) => this._notifications.dismissAlert()
+            }
+          ]);
+          return EMPTY;
+        })
+      );
+  }
+
   fetchActions(connectionID: string, tableName: string) {
     return this._http.get<any>(`/table/actions/${connectionID}`, {
       params: {
