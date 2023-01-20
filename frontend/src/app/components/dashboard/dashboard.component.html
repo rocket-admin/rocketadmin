@@ -47,6 +47,7 @@
                 [filterComparators]="comparators"
                 [name]="selectedTableName"
                 [table]="dataSource"
+                [rowSelection]="selection"
                 [connectionID]="connectionID"
                 [accessLevel]="currentConnectionAccessLevel"
                 (openFilters)="openTableFilters($event)"
@@ -55,7 +56,8 @@
                 (search)="search($event)"
                 (deleteRow)="confirmDeleteRow($event)"
                 (deleteRows)="confirmDeleteRows($event)"
-                (activateAction)="activateAction($event)"></app-db-table>
+                (activateAction)="activateAction($event)">
+            </app-db-table>
         </mat-sidenav-content>
     </mat-sidenav-container>
 </ng-container>

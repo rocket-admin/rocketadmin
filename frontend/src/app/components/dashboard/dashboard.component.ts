@@ -17,6 +17,7 @@ import { User } from 'src/app/models/user';
 import { normalizeTableName } from '../../lib/normalize'
 import { omitBy } from "lodash";
 import { DbRowsDeleteDialogComponent } from './db-rows-delete-dialog/db-rows-delete-dialog.component';
+import { SelectionModel } from '@angular/cdk/collections';
 
 @Component({
   selector: 'app-dashboard',
@@ -43,6 +44,8 @@ export class DashboardComponent implements OnInit {
   public noTablesError: boolean = false;
 
   public dataSource: TablesDataSource = null;
+
+  public selection = new SelectionModel<any>(true, []);
 
   constructor(
     public router: Router,
@@ -85,6 +88,7 @@ export class DashboardComponent implements OnInit {
             if (tableName) {
               this.selectedTableName = tableName;
               this.setTable(tableName);
+              this.selection.clear();
             } else {
               this.router.navigate([`/dashboard/${this.connectionID}/${this.tablesList[0].table}`], {replaceUrl: true});
               this.selectedTableName = this.tablesList[0].table;
@@ -94,11 +98,14 @@ export class DashboardComponent implements OnInit {
         this._tableRow.cast.subscribe((arg) => {
           if (arg === 'delete row' && this.selectedTableName) {
             this.setTable(this.selectedTableName);
+            this.selection.clear();
           };
         });
         this._tables.cast.subscribe((arg) => {
           if (arg === 'delete rows' && this.selectedTableName) {
             this.setTable(this.selectedTableName);
+            this.selection.clear();
+            console.log('after delete rows');
           };
         });
     }

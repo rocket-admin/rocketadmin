@@ -10,7 +10,6 @@ import { MatSort } from '@angular/material/sort';
 import { merge } from 'rxjs';
 import { normalizeTableName } from '../../../lib/normalize'
 import { tap } from 'rxjs/operators';
-import { SelectionModel } from '@angular/cdk/collections';
 import { TablesService } from 'src/app/services/tables.service';
 
 interface Column {
@@ -44,13 +43,13 @@ export class DbTableComponent implements OnInit {
   @Output() activateAction = new EventEmitter();
 
   public tableData: any;
+  public selection: any;
   public columns: Column[];
   public displayedColumns: string[] = [];
   public columnsToDisplay: string[] = [];
   public searchString: string;
   public actionsColumnWidth: string;
   public bulkRows: string[];
-  public selection = new SelectionModel<any>(true, []);
   public displayedComparators = {
     eq: "=",
     gt: ">",
@@ -61,6 +60,10 @@ export class DbTableComponent implements OnInit {
 
   @Input() set table(value){
     if (value) this.tableData = value;
+  }
+
+  @Input() set rowSelection(value){
+    if (value) this.selection = value;
   }
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
@@ -161,16 +164,6 @@ export class DbTableComponent implements OnInit {
 
   ngOnInit() {
     this.searchString = this.route.snapshot.queryParams.search;
-    this._tables.cast.subscribe((arg) => {
-      if (arg === 'delete rows') {
-        this.selection.clear();
-      };
-    });
-    this._tables.cast.subscribe((arg) => {
-      if (arg === 'delete rows') {
-        this.selection.clear();
-      };
-    });
   }
 
   getFilter(filterKey: string, filterValue: string) {
@@ -185,8 +178,6 @@ export class DbTableComponent implements OnInit {
       return `${displayedName} ${this.displayedComparators[this.filterComparators[filterKey]]} ${filterValue}`
     }
   }
-
-
 
   /** Whether the number of selected elements matches the total number of rows. */
   isAllSelected() {
