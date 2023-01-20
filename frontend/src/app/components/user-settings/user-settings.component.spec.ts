@@ -9,6 +9,7 @@ import { UserService } from 'src/app/services/user.service';
 import { AccountDeleteDialogComponent } from './account-delete-dialog/account-delete-dialog.component';
 import { SubscriptionPlans } from 'src/app/models/user';
 import { RouterTestingModule } from '@angular/router/testing';
+import { FormsModule } from '@angular/forms';
 
 describe('UserSettingsComponent', () => {
   let component: UserSettingsComponent;
@@ -21,6 +22,7 @@ describe('UserSettingsComponent', () => {
       imports: [
         HttpClientTestingModule,
         RouterTestingModule,
+        FormsModule,
         MatDialogModule,
         MatSnackBarModule
       ],

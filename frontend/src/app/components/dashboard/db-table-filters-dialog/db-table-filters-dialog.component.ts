@@ -29,7 +29,7 @@ export class DbTableFiltersDialogComponent implements OnInit {
   public tableRowStructure: Object;
   public tableRowFieldsShown: Object = {};
   public tableRowFieldsComparator: Object = {};
-  public tableForeignKeys: TableForeignKey[];
+  public tableForeignKeys: {[key: string]: TableForeignKey};
   public tableFiltersCount: number;
   public differ: KeyValueDiffer<string, any>;
   public tableTypes: Object;
@@ -49,17 +49,9 @@ export class DbTableFiltersDialogComponent implements OnInit {
 
   ngOnInit(): void {
     this._tables.cast.subscribe();
-    this.tableForeignKeys = this.data.structure.foreignKeys;
-    this.tableRowFields = Object.assign(
-      {},
-      ...this.data.structure.structure.map((field: TableField) => ({
-        [field.column_name]: "",
-      }))
-    );
-    this.tableTypes = getTableTypes(
-      this.data.structure.structure,
-      this.data.structure.foreignKeysList
-    );
+    this.tableForeignKeys = {...this.data.structure.foreignKeys};
+    this.tableRowFields = Object.assign({}, ...this.data.structure.structure.map((field: TableField) => ({[field.column_name]: ''})));
+    this.tableTypes = getTableTypes(this.data.structure.structure, this.data.structure.foreignKeysList);
     this.fields = this.data.structure.structure
       .filter(
         (field: TableField) => this.getInputType(field.column_name) !== "file"
@@ -135,10 +127,10 @@ export class DbTableFiltersDialogComponent implements OnInit {
     );
   }
 
-  getRelations = (columnName: string) => {
-    const relation = this.tableForeignKeys[columnName];
-    return relation;
-  };
+  // getRelations = (columnName: string) => {
+  //   const relation = this.tableForeignKeys[columnName];
+  //   return relation;
+  // }
 
   trackByFn(index: number) {
     return index; // or item.id

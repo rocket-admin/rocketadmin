@@ -114,7 +114,7 @@ export class DbTableComponent implements OnInit {
   }
 
   getWidgetValue(column: string, value: string) {
-    if (this.tableData.selectWidgetsOptions && this.tableData.widgets[column].widget_type === 'Select') {
+    if (this.tableData.widgets[column].widget_type === 'Select' && this.tableData.selectWidgetsOptions) {
         const fieldOptions = this.tableData.selectWidgetsOptions[column];
         if (fieldOptions) {
           const cellValue = fieldOptions.find(option => option.value === value);
@@ -138,8 +138,13 @@ export class DbTableComponent implements OnInit {
     return 0;
   }
 
-  handleOpenFilters(structure) {
-    this.openFilters.emit(structure);
+  handleOpenFilters() {
+    this.openFilters.emit({
+      structure: this.tableData.structure,
+      foreignKeysList: this.tableData.foreignKeysList,
+      foreignKeys: this.tableData.foreignKeys,
+      widgets: this.tableData.widgets
+    });
     this.searchString = '';
   }
 

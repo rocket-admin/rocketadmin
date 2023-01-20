@@ -1,6 +1,7 @@
 import { TableField } from '../models/table';
 
 export function getTableTypes(structure: TableField[], foreignKeysList: string[]) {
+  console.log(foreignKeysList);
   const tableTypes = Object.assign({}, ...structure.map((field: TableField) => {
     if (field.data_type === 'tinyint' && field.character_maximum_length === 1 )
     return {[field.column_name]: 'boolean'}
