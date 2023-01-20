@@ -1,12 +1,12 @@
 import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import Stripe from 'stripe';
-import AbstractUseCase from '../../../common/abstract-use.case';
-import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface';
-import { BaseType } from '../../../common/data-injection.tokens';
-import { Messages } from '../../../exceptions/text/messages';
-import { StripeWebhookDS } from '../application/data-structures/stripe-webhook.ds';
-import { getStripe } from '../stripe-helpers/get-stripe';
-import { IStripeWebhook } from './stripe-use-cases.interface';
+import AbstractUseCase from '../../../common/abstract-use.case.js';
+import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface.js';
+import { BaseType } from '../../../common/data-injection.tokens.js';
+import { Messages } from '../../../exceptions/text/messages.js';
+import { StripeWebhookDS } from '../application/data-structures/stripe-webhook.ds.js';
+import { getStripe } from '../stripe-helpers/get-stripe.js';
+import { IStripeWebhook } from './stripe-use-cases.interface.js';
 
 @Injectable()
 export class StripeWebhookUseCase extends AbstractUseCase<StripeWebhookDS, void> implements IStripeWebhook {

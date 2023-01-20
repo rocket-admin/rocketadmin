@@ -1,4 +1,4 @@
-import { Constants } from './constants/constants';
+import { Constants } from './constants/constants.js';
 
 export function binaryToHex(binaryData: string): string {
   return Buffer.from(binaryData, 'ascii').toString('hex');

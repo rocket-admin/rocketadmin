@@ -1,4 +1,4 @@
-import { GroupEntity } from '../../group.entity';
+import { GroupEntity } from '../../group.entity.js';
 
 export class AddedUserInGroupDs {
   group: Omit<GroupEntity, 'connection'>;

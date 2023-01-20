@@ -1,6 +1,6 @@
-import { TableWidgetEntity } from '../../widget/table-widget.entity';
-import { WidgetTypeEnum } from '../../../enums';
-import { Constants } from '../../../helpers/constants/constants';
+import { TableWidgetEntity } from '../../widget/table-widget.entity.js';
+import { WidgetTypeEnum } from '../../../enums/index.js';
+import { Constants } from '../../../helpers/constants/constants.js';
 
 export function removePasswordsFromRowsUtil(
   row: Record<string, unknown>,

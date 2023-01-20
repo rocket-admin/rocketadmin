@@ -1,5 +1,5 @@
-import { EmailVerificationEntity } from '../email-verification.entity';
-import { UserEntity } from '../../user/user.entity';
+import { EmailVerificationEntity } from '../email-verification.entity.js';
+import { UserEntity } from '../../user/user.entity.js';
 
 export interface IEmailVerificationRepository {
   findVerificationWithVerificationString(verificationString: string): Promise<EmailVerificationEntity>;

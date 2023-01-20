@@ -1,13 +1,13 @@
 import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
-import AbstractUseCase from '../../../common/abstract-use.case';
-import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface';
-import { BaseType } from '../../../common/data-injection.tokens';
-import { Messages } from '../../../exceptions/text/messages';
-import { CreateUserActionDs } from '../application/data-sctructures/create-user-action.ds';
-import { CreatedUserActionDs } from '../application/data-sctructures/created-user-action.ds';
-import { buildCreatedUserActionDs } from '../utils/build-created-user-action-ds';
-import { buildNewUserActionEntity } from '../utils/build-new-user-action-entity';
-import { ICreateUserAction } from './use-cases-interfaces';
+import AbstractUseCase from '../../../common/abstract-use.case.js';
+import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface.js';
+import { BaseType } from '../../../common/data-injection.tokens.js';
+import { Messages } from '../../../exceptions/text/messages.js';
+import { CreateUserActionDs } from '../application/data-sctructures/create-user-action.ds.js';
+import { CreatedUserActionDs } from '../application/data-sctructures/created-user-action.ds.js';
+import { buildCreatedUserActionDs } from '../utils/build-created-user-action-ds.js';
+import { buildNewUserActionEntity } from '../utils/build-new-user-action-entity.js';
+import { ICreateUserAction } from './use-cases-interfaces.js';
 
 @Injectable()
 export class CreateUserActionUseCase

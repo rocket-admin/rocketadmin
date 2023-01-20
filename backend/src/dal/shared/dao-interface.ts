@@ -1,7 +1,7 @@
-import { CreateTableSettingsDto } from '../../entities/table-settings/dto';
-import { IForeignKeyInfo, IPaginationRO } from '../../entities/table/table.interface';
+import { CreateTableSettingsDto } from '../../entities/table-settings/dto/index.js';
+import { IForeignKeyInfo, IPaginationRO } from '../../entities/table/table.interface.js';
 import { Knex } from 'knex';
-import { TableSettingsEntity } from '../../entities/table-settings/table-settings.entity';
+import { TableSettingsEntity } from '../../entities/table-settings/table-settings.entity.js';
 
 export interface IDaoInterface {
   addRowInTable(tableName: string, row, userEmail: string);

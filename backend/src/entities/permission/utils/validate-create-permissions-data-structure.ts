@@ -1,5 +1,5 @@
-import { AccessLevelEnum, PermissionTypeEnum } from '../../../enums';
-import { Messages } from '../../../exceptions/text/messages';
+import { AccessLevelEnum, PermissionTypeEnum } from '../../../enums/index.js';
+import { Messages } from '../../../exceptions/text/messages.js';
 
 export function validateCreatePermissionsDataStructure(inputData: any): Array<string> {
   const { type, accessLevel, tableName } = inputData;

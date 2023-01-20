@@ -1,6 +1,7 @@
-import { ConnectionEntity } from '../../../entities/connection/connection.entity';
-import { knex, Knex } from 'knex';
-import { Cacher } from '../../../helpers/cache/cacher';
+import { ConnectionEntity } from '../../../entities/connection/connection.entity.js';
+import knex from 'knex';
+import { Knex } from 'knex';
+import { Cacher } from '../../../helpers/cache/cacher.js';
 
 export function getPostgresKnex(connection: ConnectionEntity): Knex {
   const { host, username, password, database, port, type, cert, ssl } = connection;

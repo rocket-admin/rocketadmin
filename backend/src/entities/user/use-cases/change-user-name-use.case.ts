@@ -1,13 +1,13 @@
 import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
-import AbstractUseCase from '../../../common/abstract-use.case';
-import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface';
-import { BaseType } from '../../../common/data-injection.tokens';
-import { Messages } from '../../../exceptions/text/messages';
-import { Encryptor } from '../../../helpers/encryption/encryptor';
-import { ChangeUserNameDS } from '../application/data-structures/change-user-name.ds';
-import { FoundUserDs } from '../application/data-structures/found-user.ds';
-import { buildFoundUserDs } from '../utils/build-found-user.ds';
-import { IChangeUserName } from './user-use-cases.interfaces';
+import AbstractUseCase from '../../../common/abstract-use.case.js';
+import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface.js';
+import { BaseType } from '../../../common/data-injection.tokens.js';
+import { Messages } from '../../../exceptions/text/messages.js';
+import { Encryptor } from '../../../helpers/encryption/encryptor.js';
+import { ChangeUserNameDS } from '../application/data-structures/change-user-name.ds.js';
+import { FoundUserDs } from '../application/data-structures/found-user.ds.js';
+import { buildFoundUserDs } from '../utils/build-found-user.ds.js';
+import { IChangeUserName } from './user-use-cases.interfaces.js';
 
 @Injectable()
 export class ChangeUserNameUseCase extends AbstractUseCase<ChangeUserNameDS, FoundUserDs> implements IChangeUserName {

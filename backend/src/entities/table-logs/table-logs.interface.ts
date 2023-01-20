@@ -1,6 +1,6 @@
-import { IPaginationRO } from '../table/table.interface';
-import { LogOperationTypeEnum } from '../../enums';
-import { OperationResultStatusEnum } from '../../enums';
+import { IPaginationRO } from '../table/table.interface.js';
+import { LogOperationTypeEnum } from '../../enums/index.js';
+import { OperationResultStatusEnum } from '../../enums/index.js';
 
 export interface ITableLogRO {
   table_name: string;

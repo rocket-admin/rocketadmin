@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { DatabaseService } from '../../src/shared/database/database.service';
+import { DatabaseService } from '../../src/shared/database/database.service.js';
 
 @Injectable()
 // @ts-ignore
@@ -38,7 +38,7 @@ export class TestUtils {
   }
 
   async resetDb() {
-    return;
+    // return;
     try {
       // const entities = await this.getEntities();
       await this.databaseService.dropDatabase();

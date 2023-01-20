@@ -1,7 +1,7 @@
 import { CallHandler, ExecutionContext, Injectable, NestInterceptor } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
-import * as Sentry from '@sentry/minimal';
+import Sentry from '@sentry/minimal';
 
 @Injectable()
 export class SentryInterceptor implements NestInterceptor {

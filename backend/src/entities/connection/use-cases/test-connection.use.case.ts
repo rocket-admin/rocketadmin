@@ -1,19 +1,19 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { getRepository } from 'typeorm';
-import AbstractUseCase from '../../../common/abstract-use.case';
-import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface';
-import { BaseType } from '../../../common/data-injection.tokens';
-import { createDataAccessObject } from '../../../data-access-layer/shared/create-data-access-object';
-import { Messages } from '../../../exceptions/text/messages';
-import { processExceptionMessage } from '../../../exceptions/utils/process-exception-message';
-import { isConnectionTypeAgent } from '../../../helpers';
-import { Encryptor } from '../../../helpers/encryption/encryptor';
-import { ValidationHelper } from '../../../helpers/validators/validation-helper';
-import { TestConnectionResultDs } from '../application/data-structures/test-connection-result.ds';
-import { UpdateConnectionDs } from '../application/data-structures/update-connection.ds';
-import { ConnectionEntity } from '../connection.entity';
-import { isHostAllowed } from '../utils/is-host-allowed';
-import { ITestConnection } from './use-cases.interfaces';
+import AbstractUseCase from '../../../common/abstract-use.case.js';
+import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface.js';
+import { BaseType } from '../../../common/data-injection.tokens.js';
+import { createDataAccessObject } from '../../../data-access-layer/shared/create-data-access-object.js';
+import { Messages } from '../../../exceptions/text/messages.js';
+import { processExceptionMessage } from '../../../exceptions/utils/process-exception-message.js';
+import { isConnectionTypeAgent } from '../../../helpers/index.js';
+import { Encryptor } from '../../../helpers/encryption/encryptor.js';
+import { ValidationHelper } from '../../../helpers/validators/validation-helper.js';
+import { TestConnectionResultDs } from '../application/data-structures/test-connection-result.ds.js';
+import { UpdateConnectionDs } from '../application/data-structures/update-connection.ds.js';
+import { ConnectionEntity } from '../connection.entity.js';
+import { isHostAllowed } from '../utils/is-host-allowed.js';
+import { ITestConnection } from './use-cases.interfaces.js';
 
 @Injectable()
 export class TestConnectionUseCase

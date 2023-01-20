@@ -1,5 +1,5 @@
-import { AccessLevelEnum } from '../../../enums';
-import { ITablePermissionData } from '../../permission/permission.interface';
+import { AccessLevelEnum } from '../../../enums/index.js';
+import { ITablePermissionData } from '../../permission/permission.interface.js';
 
 export interface IUserAccessRepository {
   getUserConnectionAccessLevel(cognitoUserName: string, connectionId: string): Promise<AccessLevelEnum>;

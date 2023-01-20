@@ -1,6 +1,6 @@
-import { ConnectionEntity } from '../entities/connection/connection.entity';
-import { ConnectionTypeEnum } from '../enums';
-import { CreateConnectionDto } from '../entities/connection/dto';
+import { ConnectionEntity } from '../entities/connection/connection.entity.js';
+import { ConnectionTypeEnum } from '../enums/index.js';
+import { CreateConnectionDto } from '../entities/connection/dto/index.js';
 
 export function isConnectionEntityAgent(connection: ConnectionEntity | CreateConnectionDto): boolean {
   switch (connection.type) {

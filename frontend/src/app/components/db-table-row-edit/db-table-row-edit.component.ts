@@ -1,23 +1,28 @@
-import * as JSON5 from 'json5';
+import JSON5 from "json5";
 
-import { ActivatedRoute, Router } from '@angular/router';
-import { Component, NgZone, OnInit } from '@angular/core';
-import { CustomAction, TableField, TableForeignKey, Widget } from 'src/app/models/table';
-import { UIwidgets, fieldTypes } from 'src/app/consts/field-types';
+import { ActivatedRoute, Router } from "@angular/router";
+import { Component, NgZone, OnInit } from "@angular/core";
+import {
+  CustomAction,
+  TableField,
+  TableForeignKey,
+  Widget,
+} from "src/app/models/table";
+import { UIwidgets, fieldTypes } from "src/app/consts/field-types";
 
-import { ConnectionsService } from 'src/app/services/connections.service';
-import { DBtype } from 'src/app/models/connection';
-import { NotificationsService } from 'src/app/services/notifications.service';
-import { TableRowService } from 'src/app/services/table-row.service';
-import { TablesService } from 'src/app/services/tables.service';
-import { getTableTypes } from 'src/app/lib/setup-table-row-structure';
-import { normalizeTableName } from '../../lib/normalize';
-import { Location } from '@angular/common';
+import { ConnectionsService } from "src/app/services/connections.service";
+import { DBtype } from "src/app/models/connection";
+import { NotificationsService } from "src/app/services/notifications.service";
+import { TableRowService } from "src/app/services/table-row.service";
+import { TablesService } from "src/app/services/tables.service";
+import { getTableTypes } from "src/app/lib/setup-table-row-structure";
+import { normalizeTableName } from "../../lib/normalize";
+import { Location } from "@angular/common";
 
 @Component({
-  selector: 'app-db-table-row-edit',
-  templateUrl: './db-table-row-edit.component.html',
-  styleUrls: ['./db-table-row-edit.component.css']
+  selector: "app-db-table-row-edit",
+  templateUrl: "./db-table-row-edit.component.html",
+  styleUrls: ["./db-table-row-edit.component.css"],
 })
 export class DbTableRowEditComponent implements OnInit {
   public loading: boolean = true;
@@ -45,7 +50,9 @@ export class DbTableRowEditComponent implements OnInit {
 
   public tableForeignKeys: TableForeignKey[];
 
-  originalOrder = () => { return 0; }
+  originalOrder = () => {
+    return 0;
+  };
 
   constructor(
     private _connections: ConnectionsService,
@@ -56,7 +63,7 @@ export class DbTableRowEditComponent implements OnInit {
     public router: Router,
     private _notifications: NotificationsService,
     private _location: Location
-  ) { }
+  ) {}
 
   ngOnInit(): void {
     this.loading = true;
@@ -66,66 +73,88 @@ export class DbTableRowEditComponent implements OnInit {
 
     this.route.queryParams.subscribe((params) => {
       if (Object.keys(params).length === 0) {
-        this._tables.fetchTableStructure(this.connectionID, this.tableName)
-          .subscribe(res => {
+        this._tables
+          .fetchTableStructure(this.connectionID, this.tableName)
+          .subscribe((res) => {
             this.keyAttributesFromStructure = res.primaryColumns;
             this.readonlyFields = res.readonly_fields;
             this.tableForeignKeys = res.foreignKeys;
             this.setRowStructure(res.structure);
             res.table_widgets && this.setWidgets(res.table_widgets);
-            this.shownRows = res.structure.filter((field: TableField) => !field.auto_increment);
+            this.shownRows = res.structure.filter(
+              (field: TableField) => !field.auto_increment
+            );
             const allowNullFields = res.structure
               .filter((field: TableField) => field.allow_null)
               .map((field: TableField) => field.column_name);
-            this.tableRowValues = Object.assign({}, ...this.shownRows
-              .map((field: TableField) => {
+            this.tableRowValues = Object.assign(
+              {},
+              ...this.shownRows.map((field: TableField) => {
                 if (allowNullFields.includes(field.column_name)) {
-                  return { [field.column_name]: null }
-                } else if (this.tableTypes[field.column_name] === 'boolean') {
-                  return { [field.column_name]: false }
-                };
-                return {[field.column_name]: ''};
-              }));
+                  return { [field.column_name]: null };
+                } else if (this.tableTypes[field.column_name] === "boolean") {
+                  return { [field.column_name]: false };
+                }
+                return { [field.column_name]: "" };
+              })
+            );
             if (res.list_fields.length) {
-              const shownFieldsList = this.shownRows.map((field: TableField) => field.column_name);
-              this.fieldsOrdered = [...res.list_fields].filter(field => shownFieldsList.includes(field));
+              const shownFieldsList = this.shownRows.map(
+                (field: TableField) => field.column_name
+              );
+              this.fieldsOrdered = [...res.list_fields].filter((field) =>
+                shownFieldsList.includes(field)
+              );
             } else {
-              this.fieldsOrdered = Object.keys(this.tableRowValues).map(key => key);
+              this.fieldsOrdered = Object.keys(this.tableRowValues).map(
+                (key) => key
+              );
             }
             this.loading = false;
-          })
+          });
       } else {
         this.keyAttributesFromURL = params;
-        this.hasKeyAttributesFromURL = !!Object.keys(this.keyAttributesFromURL).length;
-        this._tableRow.fetchTableRow(this.connectionID, this.tableName, params)
-          .subscribe(res => {
-            const autoincrementFields = res.structure.filter((field: TableField) => field.auto_increment).map((field: TableField) => field.column_name);
-            this.readonlyFields = [...res.readonly_fields, ...autoincrementFields];
-            this.tableForeignKeys = res.foreignKeys;
-            // this.shownRows = res.structure.filter((field: TableField) => !field.column_default?.startsWith('nextval'));
-            this.tableRowValues = {...res.row};
-            if (res.list_fields.length) {
-              // const shownFieldsList = this.shownRows.map((field: TableField) => field.column_name);
-              this.fieldsOrdered = [...res.list_fields];
-            } else {
-              this.fieldsOrdered = Object.keys(this.tableRowValues).map(key => key);
+        this.hasKeyAttributesFromURL = !!Object.keys(this.keyAttributesFromURL)
+          .length;
+        this._tableRow
+          .fetchTableRow(this.connectionID, this.tableName, params)
+          .subscribe(
+            (res) => {
+              const autoincrementFields = res.structure
+                .filter((field: TableField) => field.auto_increment)
+                .map((field: TableField) => field.column_name);
+              this.readonlyFields = [
+                ...res.readonly_fields,
+                ...autoincrementFields,
+              ];
+              this.tableForeignKeys = res.foreignKeys;
+              // this.shownRows = res.structure.filter((field: TableField) => !field.column_default?.startsWith('nextval'));
+              this.tableRowValues = { ...res.row };
+              if (res.list_fields.length) {
+                // const shownFieldsList = this.shownRows.map((field: TableField) => field.column_name);
+                this.fieldsOrdered = [...res.list_fields];
+              } else {
+                this.fieldsOrdered = Object.keys(this.tableRowValues).map(
+                  (key) => key
+                );
+              }
+              if (res.table_actions) this.rowActions = res.table_actions;
+              res.table_widgets && this.setWidgets(res.table_widgets);
+              this.setRowStructure(res.structure);
+              this.loading = false;
+            },
+            (error) => {
+              this.rowError = error.error.message;
+              this.loading = false;
+              console.log(this.rowError);
             }
-            if (res.table_actions) this.rowActions = res.table_actions;
-            res.table_widgets && this.setWidgets(res.table_widgets);
-            this.setRowStructure(res.structure);
-            this.loading = false;
-          },
-          (error) => {
-            this.rowError = error.error.message;
-            this.loading = false;
-            console.log(this.rowError);
-          })
+          );
       }
-    })
+    });
   }
 
   get inputs() {
-    return fieldTypes[this._connections.currentConnection.type]
+    return fieldTypes[this._connections.currentConnection.type];
   }
 
   get currentConnection() {
@@ -136,40 +165,54 @@ export class DbTableRowEditComponent implements OnInit {
     return [
       {
         label: name,
-        link: `/dashboard/${this.connectionID}`
+        link: `/dashboard/${this.connectionID}`,
       },
       {
         label: this.normalizedTableName,
-        link: `/dashboard/${this.connectionID}/${this.tableName}`
+        link: `/dashboard/${this.connectionID}/${this.tableName}`,
       },
       {
-        label: this.hasKeyAttributesFromURL ? 'Edit row' : 'Add row',
-        link: null
-      }
-    ]
+        label: this.hasKeyAttributesFromURL ? "Edit row" : "Add row",
+        link: null,
+      },
+    ];
   }
 
   goBack() {
     this._location.back();
   }
 
-  setRowStructure(structure: TableField[]){
-    this.tableRowStructure = Object.assign({}, ...structure.map((field: TableField) => {
-      return {[field.column_name]: field}
-    }))
+  setRowStructure(structure: TableField[]) {
+    this.tableRowStructure = Object.assign(
+      {},
+      ...structure.map((field: TableField) => {
+        return { [field.column_name]: field };
+      })
+    );
 
-    const foreignKeysList = this.tableForeignKeys.map((field: TableForeignKey) => {return field['column_name']});
+    const foreignKeysList = this.tableForeignKeys.map(
+      (field: TableForeignKey) => {
+        return field["column_name"];
+      }
+    );
     this.tableTypes = getTableTypes(structure, foreignKeysList);
 
-    this.tableRowRequiredValues = Object.assign({}, ...structure.map((field: TableField) => {
-      return {[field.column_name]: field.allow_null === false && field.column_default === null}
-    }));
+    this.tableRowRequiredValues = Object.assign(
+      {},
+      ...structure.map((field: TableField) => {
+        return {
+          [field.column_name]:
+            field.allow_null === false && field.column_default === null,
+        };
+      })
+    );
   }
 
   setWidgets(widgets: Widget[]) {
     this.tableWidgetsList = widgets.map((widget: Widget) => widget.field_name);
-    this.tableWidgets = Object.assign({}, ...widgets
-      .map((widget: Widget) => {
+    this.tableWidgets = Object.assign(
+      {},
+      ...widgets.map((widget: Widget) => {
         let params = null;
         if (widget.widget_params) {
           try {
@@ -179,16 +222,18 @@ export class DbTableRowEditComponent implements OnInit {
           }
         }
         return {
-          [widget.field_name]: {...widget, widget_params: params}
-        }
+          [widget.field_name]: { ...widget, widget_params: params },
+        };
       })
     );
   }
 
   getRelations = (columnName: string) => {
-    const relation = this.tableForeignKeys.find(relation => relation.column_name === columnName);
+    const relation = this.tableForeignKeys.find(
+      (relation) => relation.column_name === columnName
+    );
     return relation;
-  }
+  };
 
   isReadonly(columnName: string) {
     return this.readonlyFields.includes(columnName);
@@ -199,101 +244,144 @@ export class DbTableRowEditComponent implements OnInit {
   }
 
   updateField = (updatedValue: any, field: string) => {
-    if (typeof(updatedValue) === 'object' && updatedValue !== null) {
-      for (const prop of Object.getOwnPropertyNames(this.tableRowValues[field])) {
+    if (typeof updatedValue === "object" && updatedValue !== null) {
+      for (const prop of Object.getOwnPropertyNames(
+        this.tableRowValues[field]
+      )) {
         delete this.tableRowValues[field][prop];
       }
       Object.assign(this.tableRowValues[field], updatedValue);
     } else {
       this.tableRowValues[field] = updatedValue;
-    };
+    }
 
-    if (this.keyAttributesFromURL && Object.keys(this.keyAttributesFromURL).includes(field)) {
-      this.isPrimaryKeyUpdated = true
-    };
-  }
+    if (
+      this.keyAttributesFromURL &&
+      Object.keys(this.keyAttributesFromURL).includes(field)
+    ) {
+      this.isPrimaryKeyUpdated = true;
+    }
+  };
 
   addRow(continueEditing?: boolean) {
     this.submitting = true;
 
     //crutch
     if (this._connections.currentConnection.type === DBtype.MySQL) {
-      const datetimeFields = Object.entries(this.tableTypes).filter(([key, value]) => value === 'datetime');
+      const datetimeFields = Object.entries(this.tableTypes).filter(
+        ([key, value]) => value === "datetime"
+      );
       if (datetimeFields.length) {
         for (const datetimeField of datetimeFields) {
-          if (this.tableRowValues[datetimeField[0]]) this.tableRowValues[datetimeField[0]] = this.tableRowValues[datetimeField[0]].split('.')[0];
+          if (this.tableRowValues[datetimeField[0]])
+            this.tableRowValues[datetimeField[0]] =
+              this.tableRowValues[datetimeField[0]].split(".")[0];
         }
       }
     }
     //end crutch
 
-    this._tableRow.addTableRow(this.connectionID, this.tableName, this.tableRowValues)
-      .subscribe((res) => {
-
-        this.keyAttributesFromURL = {};
-        for (var i = 0; i < res.primaryColumns.length; i++) {
-          this.keyAttributesFromURL[res.primaryColumns[i].column_name] = res.row[res.primaryColumns[i].column_name];
-        }
-        this.ngZone.run(() => {
-          if (continueEditing) {
-            this.router.navigate([`/dashboard/${this.connectionID}/${this.tableName}/entry`], { queryParams: this.keyAttributesFromURL });
-          } else {
-            this.router.navigate([`/dashboard/${this.connectionID}/${this.tableName}`]);
+    this._tableRow
+      .addTableRow(this.connectionID, this.tableName, this.tableRowValues)
+      .subscribe(
+        (res) => {
+          this.keyAttributesFromURL = {};
+          for (var i = 0; i < res.primaryColumns.length; i++) {
+            this.keyAttributesFromURL[res.primaryColumns[i].column_name] =
+              res.row[res.primaryColumns[i].column_name];
           }
-        });
-        this._notifications.dismissAlert();
-        this.submitting = false;
-      },
-      () => {this.submitting = false},
-      () => {this.submitting = false}
-    )
+          this.ngZone.run(() => {
+            if (continueEditing) {
+              this.router.navigate(
+                [`/dashboard/${this.connectionID}/${this.tableName}/entry`],
+                { queryParams: this.keyAttributesFromURL }
+              );
+            } else {
+              this.router.navigate([
+                `/dashboard/${this.connectionID}/${this.tableName}`,
+              ]);
+            }
+          });
+          this._notifications.dismissAlert();
+          this.submitting = false;
+        },
+        () => {
+          this.submitting = false;
+        },
+        () => {
+          this.submitting = false;
+        }
+      );
   }
 
   updateRow(continueEditing?: boolean) {
     this.submitting = true;
 
     //crutch
-      if (this._connections.currentConnection.type === DBtype.MySQL) {
-        const datetimeFields = Object.entries(this.tableTypes)
-          .filter(([key, value]) => value === 'datetime');
-        if (datetimeFields.length) {
-          for (const datetimeField of datetimeFields) {
-            if (this.tableRowValues[datetimeField[0]]) this.tableRowValues[datetimeField[0]] = this.tableRowValues[datetimeField[0]].split('.')[0];
-          }
+    if (this._connections.currentConnection.type === DBtype.MySQL) {
+      const datetimeFields = Object.entries(this.tableTypes).filter(
+        ([key, value]) => value === "datetime"
+      );
+      if (datetimeFields.length) {
+        for (const datetimeField of datetimeFields) {
+          if (this.tableRowValues[datetimeField[0]])
+            this.tableRowValues[datetimeField[0]] =
+              this.tableRowValues[datetimeField[0]].split(".")[0];
         }
       }
+    }
     //end crutch
 
-    this._tableRow.updateTableRow(this.connectionID, this.tableName, this.keyAttributesFromURL, this.tableRowValues)
-      .subscribe((res) => {
-        this.ngZone.run(() => {
-          if (continueEditing) {
-            if (this.isPrimaryKeyUpdated) {
-              this.ngZone.run(() => {
-                let params = {};
-                Object.keys(this.keyAttributesFromURL).forEach((key) => {
-                  params[key] = res.row[key];
+    this._tableRow
+      .updateTableRow(
+        this.connectionID,
+        this.tableName,
+        this.keyAttributesFromURL,
+        this.tableRowValues
+      )
+      .subscribe(
+        (res) => {
+          this.ngZone.run(() => {
+            if (continueEditing) {
+              if (this.isPrimaryKeyUpdated) {
+                this.ngZone.run(() => {
+                  let params = {};
+                  Object.keys(this.keyAttributesFromURL).forEach((key) => {
+                    params[key] = res.row[key];
+                  });
+                  this.router.navigate(
+                    [`/dashboard/${this.connectionID}/${this.tableName}/entry`],
+                    {
+                      queryParams: params,
+                    }
+                  );
                 });
-                this.router.navigate([`/dashboard/${this.connectionID}/${this.tableName}/entry`], {
-                  queryParams: params
-                });
-              });
-            };
-            this._notifications.dismissAlert();
-          } else {
-            this._notifications.dismissAlert();
-            this.goBack();
-            // this.router.navigate([`/dashboard/${this.connectionID}/${this.tableName}`]);
-          }
-        });
-      },
-      undefined,
-      () => {this.submitting = false}
-    )
+              }
+              this._notifications.dismissAlert();
+            } else {
+              this._notifications.dismissAlert();
+              this.goBack();
+              // this.router.navigate([`/dashboard/${this.connectionID}/${this.tableName}`]);
+            }
+          });
+        },
+        undefined,
+        () => {
+          this.submitting = false;
+        }
+      );
   }
 
   activateAction(action: CustomAction) {
-    this._tables.activateAction(this.connectionID, this.tableName, action, this.keyAttributesFromURL)
-      .subscribe(() => {console.log('activated')})
+    this._tables
+      .activateAction(
+        this.connectionID,
+        this.tableName,
+        action,
+        this.keyAttributesFromURL
+      )
+      .subscribe(() => {
+        console.log("activated");
+      });
   }
 }

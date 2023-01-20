@@ -1,4 +1,4 @@
-import { SubscriptionLevelEnum } from '../../../../enums';
+import { SubscriptionLevelEnum } from '../../../../enums/index.js';
 
 export class UpgradeUserSubscriptionDs {
   cognitoUserName: string;

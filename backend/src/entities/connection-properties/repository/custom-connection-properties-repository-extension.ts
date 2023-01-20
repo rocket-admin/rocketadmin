@@ -1,4 +1,4 @@
-import { ConnectionPropertiesEntity } from '../connection-properties.entity';
+import { ConnectionPropertiesEntity } from '../connection-properties.entity.js';
 
 export const customConnectionPropertiesRepositoryExtension = {
   async findConnectionProperties(connectionId: string): Promise<ConnectionPropertiesEntity> {

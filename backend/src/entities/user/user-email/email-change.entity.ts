@@ -1,5 +1,5 @@
-import { Column, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
-import { UserEntity } from '../user.entity';
+import { Column, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn, Relation } from 'typeorm';
+import { UserEntity } from '../user.entity.js';
 
 @Entity('email_change')
 export class EmailChangeEntity {
@@ -11,5 +11,5 @@ export class EmailChangeEntity {
 
   @OneToOne(() => UserEntity, (user) => user.email_change, { onDelete: 'CASCADE' })
   @JoinColumn()
-  user: UserEntity;
+  user: Relation<UserEntity>;
 }

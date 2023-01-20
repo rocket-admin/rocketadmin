@@ -1,4 +1,4 @@
-import { CustomFieldsEntity } from '../custom-fields.entity';
+import { CustomFieldsEntity } from '../custom-fields.entity.js';
 
 export interface ICustomFieldsRepository {
   getCustomFields(connectionId: string, tableName: string): Promise<Array<CustomFieldsEntity>>;

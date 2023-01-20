@@ -1,5 +1,5 @@
-import { AbstractEmailLetter } from './abstract-email-letter';
-import * as SMTPTransport from 'nodemailer/lib/smtp-transport';
+import { AbstractEmailLetter } from './abstract-email-letter.js';
+import SMTPTransport from 'nodemailer/lib/smtp-transport';
 
 export interface IMessage {
   from: string;

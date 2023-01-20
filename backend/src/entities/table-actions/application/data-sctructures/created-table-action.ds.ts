@@ -1,4 +1,4 @@
-import { TableActionTypeEnum } from '../../../../enums';
+import { TableActionTypeEnum } from '../../../../enums/index.js';
 
 export class CreatedTableActionDS {
   id: string;

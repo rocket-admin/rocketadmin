@@ -1,6 +1,6 @@
-import { UserActionEnum } from '../../../enums';
-import { Constants } from '../../../helpers/constants/constants';
-import { UserActionEntity } from '../user-action.entity';
+import { UserActionEnum } from '../../../enums/index.js';
+import { Constants } from '../../../helpers/constants/constants.js';
+import { UserActionEntity } from '../user-action.entity.js';
 
 export const userActionCustomRepositoryExtension = {
   async saveNewOrUpdatedUserAction(userAction: UserActionEntity): Promise<UserActionEntity> {

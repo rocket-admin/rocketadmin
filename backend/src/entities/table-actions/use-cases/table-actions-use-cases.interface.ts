@@ -1,11 +1,14 @@
-import { InTransactionEnum } from '../../../enums';
-import { ActivateTableActionDS } from '../application/data-sctructures/activate-table-action.ds';
-import { ActivateTableActionsDS } from '../application/data-sctructures/activate-table-actions.ds';
-import { ActivatedTableActionDS, ActivatedTableActionsDS } from '../application/data-sctructures/activated-table-action.ds';
-import { CreateTableActionDS } from '../application/data-sctructures/create-table-action.ds';
-import { CreatedTableActionDS } from '../application/data-sctructures/created-table-action.ds';
-import { FindTableActionsDS } from '../application/data-sctructures/find-table-actions.ds';
-import { UpdateTableActionDS } from '../application/data-sctructures/update-table-action.ds';
+import { InTransactionEnum } from '../../../enums/index.js';
+import { ActivateTableActionDS } from '../application/data-sctructures/activate-table-action.ds.js';
+import { ActivateTableActionsDS } from '../application/data-sctructures/activate-table-actions.ds.js';
+import {
+  ActivatedTableActionDS,
+  ActivatedTableActionsDS,
+} from '../application/data-sctructures/activated-table-action.ds.js';
+import { CreateTableActionDS } from '../application/data-sctructures/create-table-action.ds.js';
+import { CreatedTableActionDS } from '../application/data-sctructures/created-table-action.ds.js';
+import { FindTableActionsDS } from '../application/data-sctructures/find-table-actions.ds.js';
+import { UpdateTableActionDS } from '../application/data-sctructures/update-table-action.ds.js';
 
 export interface ICreateTableAction {
   execute(inputData: CreateTableActionDS, inTransaction: InTransactionEnum): Promise<CreatedTableActionDS>;

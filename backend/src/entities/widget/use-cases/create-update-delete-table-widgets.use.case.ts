@@ -1,18 +1,18 @@
 import { HttpStatus, Inject, Injectable } from '@nestjs/common';
-import { HttpException } from '@nestjs/common/exceptions/http.exception';
-import AbstractUseCase from '../../../common/abstract-use.case';
-import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface';
-import { BaseType } from '../../../common/data-injection.tokens';
-import { toPrettyErrorsMsg } from '../../../helpers';
-import { TableSettingsEntity } from '../../table-settings/table-settings.entity';
-import { buildEmptyTableSettingsWithEmptyWidgets } from '../../table-settings/utils/build-empty-table-settings';
-import { buildNewTableSettingsEntity } from '../../table-settings/utils/build-new-table-settings-entity';
-import { CreateTableWidgetsDs } from '../application/data-sctructures/create-table-widgets.ds';
-import { FoundTableWidgetsDs } from '../application/data-sctructures/found-table-widgets.ds';
-import { buildFoundTableWidgetDs } from '../utils/build-found-table-widget-ds';
-import { buildNewTableWidgetEntity } from '../utils/build-new-table-widget-entity';
-import { validateCreateWidgetsDs } from '../utils/validate-create-widgets-ds';
-import { ICreateUpdateDeleteTableWidgets } from './table-widgets-use-cases.interface';
+import { HttpException } from '@nestjs/common/exceptions/http.exception.js';
+import AbstractUseCase from '../../../common/abstract-use.case.js';
+import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface.js';
+import { BaseType } from '../../../common/data-injection.tokens.js';
+import { toPrettyErrorsMsg } from '../../../helpers/index.js';
+import { TableSettingsEntity } from '../../table-settings/table-settings.entity.js';
+import { buildEmptyTableSettingsWithEmptyWidgets } from '../../table-settings/utils/build-empty-table-settings.js';
+import { buildNewTableSettingsEntity } from '../../table-settings/utils/build-new-table-settings-entity.js';
+import { CreateTableWidgetsDs } from '../application/data-sctructures/create-table-widgets.ds.js';
+import { FoundTableWidgetsDs } from '../application/data-sctructures/found-table-widgets.ds.js';
+import { buildFoundTableWidgetDs } from '../utils/build-found-table-widget-ds.js';
+import { buildNewTableWidgetEntity } from '../utils/build-new-table-widget-entity.js';
+import { validateCreateWidgetsDs } from '../utils/validate-create-widgets-ds.js';
+import { ICreateUpdateDeleteTableWidgets } from './table-widgets-use-cases.interface.js';
 
 @Injectable()
 export class CreateUpdateDeleteTableWidgetsUseCase

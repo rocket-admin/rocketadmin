@@ -1,5 +1,5 @@
-import { Constants } from '../../../helpers/constants/constants';
-import { LogOutEntity } from '../log-out.entity';
+import { Constants } from '../../../helpers/constants/constants.js';
+import { LogOutEntity } from '../log-out.entity.js';
 
 export const logOutCustomRepositoryExtension = {
   async saveLogOutUserToken(token: string): Promise<void> {

@@ -1,11 +1,11 @@
-import { UserEntity } from '../../user/user.entity';
-import { CreateLogRecordDs } from '../application/data-structures/create-log-record.ds';
-import { CreatedLogRecordDs } from '../application/data-structures/created-log-record.ds';
-import { FoundLogsEntities } from '../application/data-structures/found-logs.ds';
-import { TableLogsEntity } from '../table-logs.entity';
-import { buildCreatedLogRecord } from '../utils/build-created-log-record';
-import { buildTableLogsEntity } from '../utils/build-table-logs-entity';
-import { IFindLogsOptions, ITableLogsRepository } from './table-logs-repository.interface';
+import { UserEntity } from '../../user/user.entity.js';
+import { CreateLogRecordDs } from '../application/data-structures/create-log-record.ds.js';
+import { CreatedLogRecordDs } from '../application/data-structures/created-log-record.ds.js';
+import { FoundLogsEntities } from '../application/data-structures/found-logs.ds.js';
+import { TableLogsEntity } from '../table-logs.entity.js';
+import { buildCreatedLogRecord } from '../utils/build-created-log-record.js';
+import { buildTableLogsEntity } from '../utils/build-table-logs-entity.js';
+import { IFindLogsOptions, ITableLogsRepository } from './table-logs-repository.interface.js';
 
 export const tableLogsCustomRepositoryExtension: ITableLogsRepository = {
   async createLogRecord(logData: CreateLogRecordDs): Promise<CreatedLogRecordDs> {

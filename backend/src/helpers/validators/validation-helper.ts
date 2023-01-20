@@ -1,8 +1,8 @@
 import { HttpException, HttpStatus } from '@nestjs/common';
 import validator from 'validator';
-import { Messages } from '../../exceptions/text/messages';
-import { buildBadRequestException } from '../../guards/utils';
-import { Constants } from '../constants/constants';
+import { Messages } from '../../exceptions/text/messages.js';
+import { buildBadRequestException } from '../../guards/utils/index.js';
+import { Constants } from '../constants/constants.js';
 
 export class ValidationHelper {
   public static isValidEmail(email: string): boolean {

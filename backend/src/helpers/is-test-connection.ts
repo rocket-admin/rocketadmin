@@ -1,6 +1,6 @@
-import { ConnectionEntity } from '../entities/connection/connection.entity';
-import { CreateConnectionDto } from '../entities/connection/dto';
-import { Constants } from './constants/constants';
+import { ConnectionEntity } from '../entities/connection/connection.entity.js';
+import { CreateConnectionDto } from '../entities/connection/dto/index.js';
+import { Constants } from './constants/constants.js';
 
 export function isTestConnection(connection: ConnectionEntity | CreateConnectionDto): boolean {
   if (connection.isTestConnection) {

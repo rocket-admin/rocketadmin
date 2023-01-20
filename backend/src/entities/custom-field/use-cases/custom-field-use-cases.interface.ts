@@ -1,10 +1,10 @@
-import { InTransactionEnum } from '../../../enums';
-import { FoundTableSettingsDs } from '../../table-settings/application/data-structures/found-table-settings.ds';
-import { CreateCustomFieldsDs } from '../application/data-structures/create-custom-fields.ds';
-import { DeleteCustomFieldsDs } from '../application/data-structures/delete-custom-fields.ds';
-import { FoundCustomFieldsDs } from '../application/data-structures/found-custom-fields.ds';
-import { GetCustomFieldsDs } from '../application/data-structures/get-custom-fields.ds';
-import { UpdateCustomFieldsDs } from '../application/data-structures/update-custom-fields.ds';
+import { InTransactionEnum } from '../../../enums/index.js';
+import { FoundTableSettingsDs } from '../../table-settings/application/data-structures/found-table-settings.ds.js';
+import { CreateCustomFieldsDs } from '../application/data-structures/create-custom-fields.ds.js';
+import { DeleteCustomFieldsDs } from '../application/data-structures/delete-custom-fields.ds.js';
+import { FoundCustomFieldsDs } from '../application/data-structures/found-custom-fields.ds.js';
+import { GetCustomFieldsDs } from '../application/data-structures/get-custom-fields.ds.js';
+import { UpdateCustomFieldsDs } from '../application/data-structures/update-custom-fields.ds.js';
 
 export interface IGetCustomFields {
   execute(inputData: GetCustomFieldsDs, inTransaction: InTransactionEnum): Promise<Array<FoundCustomFieldsDs>>;

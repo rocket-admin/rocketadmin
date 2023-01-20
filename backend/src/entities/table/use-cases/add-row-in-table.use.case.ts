@@ -1,33 +1,33 @@
 import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
-import AbstractUseCase from '../../../common/abstract-use.case';
-import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface';
-import { BaseType } from '../../../common/data-injection.tokens';
-import { createDataAccessObject } from '../../../data-access-layer/shared/create-data-access-object';
+import AbstractUseCase from '../../../common/abstract-use.case.js';
+import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface.js';
+import { BaseType } from '../../../common/data-injection.tokens.js';
+import { createDataAccessObject } from '../../../data-access-layer/shared/create-data-access-object.js';
 import {
   IDataAccessObject,
   IForeignKey,
   IForeignKeyWithForeignColumnName,
-} from '../../../data-access-layer/shared/data-access-object-interface';
+} from '../../../data-access-layer/shared/data-access-object-interface.js';
 import {
   AmplitudeEventTypeEnum,
   LogOperationTypeEnum,
   OperationResultStatusEnum,
   WidgetTypeEnum,
-} from '../../../enums';
-import { Messages } from '../../../exceptions/text/messages';
-import { isConnectionTypeAgent, isObjectEmpty, toPrettyErrorsMsg } from '../../../helpers';
-import { AmplitudeService } from '../../amplitude/amplitude.service';
-import { isTestConnectionUtil } from '../../connection/utils/is-test-connection-util';
-import { TableLogsService } from '../../table-logs/table-logs.service';
-import { AddRowInTableDs } from '../application/data-structures/add-row-in-table.ds';
-import { IForeignKeyInfo, ITableRowRO } from '../table.interface';
-import { convertHexDataInRowUtil } from '../utils/convert-hex-data-in-row.util';
-import { formFullTableStructure } from '../utils/form-full-table-structure';
-import { hashPasswordsInRowUtil } from '../utils/hash-passwords-in-row.util';
-import { processUuidsInRowUtil } from '../utils/process-uuids-in-row-util';
-import { removePasswordsFromRowsUtil } from '../utils/remove-password-from-row.util';
-import { validateTableRowUtil } from '../utils/validate-table-row.util';
-import { IAddRowInTable } from './table-use-cases.interface';
+} from '../../../enums/index.js';
+import { Messages } from '../../../exceptions/text/messages.js';
+import { isConnectionTypeAgent, isObjectEmpty, toPrettyErrorsMsg } from '../../../helpers/index.js';
+import { AmplitudeService } from '../../amplitude/amplitude.service.js';
+import { isTestConnectionUtil } from '../../connection/utils/is-test-connection-util.js';
+import { TableLogsService } from '../../table-logs/table-logs.service.js';
+import { AddRowInTableDs } from '../application/data-structures/add-row-in-table.ds.js';
+import { IForeignKeyInfo, ITableRowRO } from '../table.interface.js';
+import { convertHexDataInRowUtil } from '../utils/convert-hex-data-in-row.util.js';
+import { formFullTableStructure } from '../utils/form-full-table-structure.js';
+import { hashPasswordsInRowUtil } from '../utils/hash-passwords-in-row.util.js';
+import { processUuidsInRowUtil } from '../utils/process-uuids-in-row-util.js';
+import { removePasswordsFromRowsUtil } from '../utils/remove-password-from-row.util.js';
+import { validateTableRowUtil } from '../utils/validate-table-row.util.js';
+import { IAddRowInTable } from './table-use-cases.interface.js';
 
 @Injectable()
 export class AddRowInTableUseCase extends AbstractUseCase<AddRowInTableDs, ITableRowRO> implements IAddRowInTable {

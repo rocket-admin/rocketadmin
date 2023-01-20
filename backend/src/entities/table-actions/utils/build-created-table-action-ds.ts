@@ -1,5 +1,5 @@
-import { CreatedTableActionDS } from '../application/data-sctructures/created-table-action.ds';
-import { TableActionEntity } from '../table-action.entity';
+import { CreatedTableActionDS } from '../application/data-sctructures/created-table-action.ds.js';
+import { TableActionEntity } from '../table-action.entity.js';
 
 export function buildCreatedTableActionDS(tableAction: TableActionEntity): CreatedTableActionDS {
   return {

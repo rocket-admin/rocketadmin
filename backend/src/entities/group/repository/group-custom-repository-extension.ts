@@ -1,7 +1,7 @@
-import { AccessLevelEnum, PermissionTypeEnum } from '../../../enums';
-import { ConnectionEntity } from '../../connection/connection.entity';
-import { UserEntity } from '../../user/user.entity';
-import { GroupEntity } from '../group.entity';
+import { AccessLevelEnum, PermissionTypeEnum } from '../../../enums/index.js';
+import { ConnectionEntity } from '../../connection/connection.entity.js';
+import { UserEntity } from '../../user/user.entity.js';
+import { GroupEntity } from '../group.entity.js';
 
 export const groupCustomRepositoryExtension = {
   async saveNewOrUpdatedGroup(groupData: GroupEntity): Promise<GroupEntity> {

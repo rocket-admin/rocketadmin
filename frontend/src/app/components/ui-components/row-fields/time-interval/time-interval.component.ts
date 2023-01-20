@@ -1,15 +1,14 @@
-import * as pgInterval from 'postgres-interval'
+import pgInterval from "postgres-interval";
 
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { normalizeFieldName } from '../../../../lib/normalize';
+import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
+import { normalizeFieldName } from "../../../../lib/normalize";
 
 @Component({
-  selector: 'app-time-interval',
-  templateUrl: './time-interval.component.html',
-  styleUrls: ['./time-interval.component.css']
+  selector: "app-time-interval",
+  templateUrl: "./time-interval.component.html",
+  styleUrls: ["./time-interval.component.css"],
 })
 export class TimeIntervalComponent implements OnInit {
-
   @Input() key: string;
   @Input() label: string;
   @Input() value;
@@ -19,22 +18,22 @@ export class TimeIntervalComponent implements OnInit {
   @Output() onFieldChange = new EventEmitter();
 
   public interval = {
-    years: '',
-    months: '',
-    days: '',
-    hours: '',
-    minutes: '',
-    seconds: '',
-    milliseconds: ''
+    years: "",
+    months: "",
+    days: "",
+    hours: "",
+    minutes: "",
+    seconds: "",
+    milliseconds: "",
   };
 
   public normalizedLabel: string;
 
-  constructor() { }
+  constructor() {}
 
   ngOnInit(): void {
     // @ts-ignore
-    if (this.value) this.interval = {...pgInterval.parse(this.value)};
+    if (this.value) this.interval = { ...pgInterval.parse(this.value) };
     this.normalizedLabel = normalizeFieldName(this.label);
   }
 

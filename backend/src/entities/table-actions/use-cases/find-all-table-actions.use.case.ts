@@ -1,13 +1,13 @@
 import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
-import AbstractUseCase from '../../../common/abstract-use.case';
-import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface';
-import { BaseType } from '../../../common/data-injection.tokens';
-import { Messages } from '../../../exceptions/text/messages';
-import { findTablesInConnectionUtil } from '../../table/utils/find-tables-in-connection.util';
-import { CreatedTableActionDS } from '../application/data-sctructures/created-table-action.ds';
-import { FindTableActionsDS } from '../application/data-sctructures/find-table-actions.ds';
-import { buildCreatedTableActionDS } from '../utils/build-created-table-action-ds';
-import { IFindAllTableActions } from './table-actions-use-cases.interface';
+import AbstractUseCase from '../../../common/abstract-use.case.js';
+import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface.js';
+import { BaseType } from '../../../common/data-injection.tokens.js';
+import { Messages } from '../../../exceptions/text/messages.js';
+import { findTablesInConnectionUtil } from '../../table/utils/find-tables-in-connection.util.js';
+import { CreatedTableActionDS } from '../application/data-sctructures/created-table-action.ds.js';
+import { FindTableActionsDS } from '../application/data-sctructures/find-table-actions.ds.js';
+import { buildCreatedTableActionDS } from '../utils/build-created-table-action-ds.js';
+import { IFindAllTableActions } from './table-actions-use-cases.interface.js';
 
 @Injectable()
 export class FindTableActionsUseCase

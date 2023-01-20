@@ -1,17 +1,17 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { InjectRepository } from '@nestjs/typeorm';
-import * as Sentry from '@sentry/minimal';
+import Sentry from '@sentry/minimal';
 import { Repository } from 'typeorm';
-import { UseCaseType } from '../../common/data-injection.tokens';
-import { slackPostMessage } from '../../helpers';
-import { Constants } from '../../helpers/constants/constants';
-import { sendRemindersToUsers } from '../email/utils/send-reminders-to-users';
+import { UseCaseType } from '../../common/data-injection.tokens.js';
+import { slackPostMessage } from '../../helpers/index.js';
+import { Constants } from '../../helpers/constants/constants.js';
+import { sendRemindersToUsers } from '../email/utils/send-reminders-to-users.js';
 import {
   ICheckUsersActionsAndMailingUsers,
   ICheckUsersLogsAndUpdateActionsUseCase,
-} from '../user-actions/use-cases/use-cases-interfaces';
-import { JobListEntity } from './job-list.entity';
+} from '../user-actions/use-cases/use-cases-interfaces.js';
+import { JobListEntity } from './job-list.entity.js';
 
 @Injectable()
 export class CronJobsService {

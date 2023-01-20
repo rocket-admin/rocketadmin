@@ -1,8 +1,8 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
-import { GlobalDatabaseContext } from '../../common/application/global-database-context';
-import { BaseType, UseCaseType } from '../../common/data-injection.tokens';
-import { StripeWebhookController } from './stripe.controller';
-import { StripeWebhookUseCase } from './use-cases/stripe-webhook.use.case';
+import { GlobalDatabaseContext } from '../../common/application/global-database-context.js';
+import { BaseType, UseCaseType } from '../../common/data-injection.tokens.js';
+import { StripeWebhookController } from './stripe.controller.js';
+import { StripeWebhookUseCase } from './use-cases/stripe-webhook.use.case.js';
 
 @Module({
   imports: [],

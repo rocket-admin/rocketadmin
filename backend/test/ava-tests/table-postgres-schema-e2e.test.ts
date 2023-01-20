@@ -2,22 +2,22 @@ import { faker } from '@faker-js/faker';
 import { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import test from 'ava';
-import * as cookieParser from 'cookie-parser';
-import * as request from 'supertest';
-import { ApplicationModule } from '../../src/app.module';
-import { LogOperationTypeEnum, QueryOrderingEnum } from '../../src/enums';
-import { AllExceptionsFilter } from '../../src/exceptions/all-exceptions.filter';
-import { Messages } from '../../src/exceptions/text/messages';
-import { Cacher } from '../../src/helpers/cache/cacher';
-import { Constants } from '../../src/helpers/constants/constants';
-import { DatabaseModule } from '../../src/shared/database/database.module';
-import { DatabaseService } from '../../src/shared/database/database.service';
-import { MockFactory } from '../mock.factory';
-import { createTestPostgresTableWithSchema, createTestTable } from '../utils/create-test-table';
-import { dropTestTables } from '../utils/drop-test-tables';
-import { getTestData } from '../utils/get-test-data';
-import { registerUserAndReturnUserInfo } from '../utils/register-user-and-return-user-info';
-import { TestUtils } from '../utils/test.utils';
+import cookieParser from 'cookie-parser';
+import request from 'supertest';
+import { ApplicationModule } from '../../src/app.module.js';
+import { LogOperationTypeEnum, QueryOrderingEnum } from '../../src/enums/index.js';
+import { AllExceptionsFilter } from '../../src/exceptions/all-exceptions.filter.js';
+import { Messages } from '../../src/exceptions/text/messages.js';
+import { Cacher } from '../../src/helpers/cache/cacher.js';
+import { Constants } from '../../src/helpers/constants/constants.js';
+import { DatabaseModule } from '../../src/shared/database/database.module.js';
+import { DatabaseService } from '../../src/shared/database/database.service.js';
+import { MockFactory } from '../mock.factory.js';
+import { createTestPostgresTableWithSchema } from '../utils/create-test-table.js';
+import { dropTestTables } from '../utils/drop-test-tables.js';
+import { getTestData } from '../utils/get-test-data.js';
+import { registerUserAndReturnUserInfo } from '../utils/register-user-and-return-user-info.js';
+import { TestUtils } from '../utils/test.utils.js';
 
 const mockFactory = new MockFactory();
 let app: INestApplication;
@@ -26,20 +26,18 @@ const testSearchedUserName = 'Vasia';
 const testTables: Array<string> = [];
 let currentTest;
 
-// yarn test-ava test/ava-tests/table-postgres-schema-e2e.test.ts
-
 test.before(async () => {
   const moduleFixture = await Test.createTestingModule({
     imports: [ApplicationModule, DatabaseModule],
     providers: [DatabaseService, TestUtils],
   }).compile();
   app = moduleFixture.createNestApplication();
+  testUtils = moduleFixture.get<TestUtils>(TestUtils);
+  await testUtils.resetDb();
   app.use(cookieParser());
   app.useGlobalFilters(new AllExceptionsFilter());
   await app.init();
   app.getHttpServer().listen(0);
-  testUtils = moduleFixture.get<TestUtils>(TestUtils);
-  await testUtils.resetDb();
 });
 
 test.after.always('Close app connection', async () => {
@@ -174,7 +172,9 @@ test(`${currentTest} should return rows of selected table without search and wit
   try {
     const connectionToTestDB = getTestData(mockFactory).connectionToPostgresSchema;
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-    const { testTableName, testTableColumnName, testTableSecondColumnName } = await createTestPostgresTableWithSchema(connectionToTestDB);
+    const { testTableName, testTableColumnName, testTableSecondColumnName } = await createTestPostgresTableWithSchema(
+      connectionToTestDB,
+    );
 
     testTables.push(testTableName);
 
@@ -220,7 +220,9 @@ test(`${currentTest} should return rows of selected table with search and withou
   try {
     const connectionToTestDB = getTestData(mockFactory).connectionToPostgresSchema;
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-    const { testTableName, testTableColumnName, testTableSecondColumnName } = await createTestPostgresTableWithSchema(connectionToTestDB);
+    const { testTableName, testTableColumnName, testTableSecondColumnName } = await createTestPostgresTableWithSchema(
+      connectionToTestDB,
+    );
 
     testTables.push(testTableName);
 
@@ -1701,7 +1703,7 @@ test(`${currentTest} should throw an exception when table name passed in request
     const fieldGtvalue = '25';
     const fieldLtvalue = '40';
 
-    const fakeTableName = faker.random.words(1);
+    const fakeTableName = `${faker.random.words(1)}_${faker.datatype.uuid()}`;
     const getTableRowsResponse = await request(app.getHttpServer())
       .get(
         `/table/rows/${createConnectionRO.id}?tableName=${fakeTableName}&search=${testSearchedUserName}&page=1&perPage=2&f_${fieldname}__lt=${fieldLtvalue}&f_${fieldname}__gt=${fieldGtvalue}`,
@@ -2198,7 +2200,7 @@ test(`${currentTest} should throw an exception when table name passed in request
     [testTableSecondColumnName]: fakeMail,
   };
 
-  const fakeTableName = faker.random.words(1);
+  const fakeTableName = `${faker.random.words(1)}_${faker.datatype.uuid()}`;
   const addRowInTableResponse = await request(app.getHttpServer())
     .post(`/table/row/${createConnectionRO.id}?tableName=${fakeTableName}`)
     .send(JSON.stringify(row))
@@ -2776,7 +2778,7 @@ test(`${currentTest} should throw an exception when tableName passed in request 
   t.is(createConnectionResponse.status, 201);
 
   const idForDeletion = 1;
-  const fakeTableName = faker.random.words(1);
+  const fakeTableName = `${faker.random.words(1)}_${faker.datatype.uuid()}`;
   const deleteRowInTableResponse = await request(app.getHttpServer())
     .delete(`/table/row/${createConnectionRO.id}?tableName=${fakeTableName}&id=${idForDeletion}`)
     .set('Cookie', firstUserToken)
@@ -3082,7 +3084,7 @@ test(`${currentTest} should throw an exception, when tableName passed in request
   t.is(createConnectionResponse.status, 201);
 
   const idForSearch = 1;
-  const fakeTableName = faker.random.words(1);
+  const fakeTableName = `${faker.random.words(1)}_${faker.datatype.uuid()}`;
   const foundRowInTableResponse = await request(app.getHttpServer())
     .get(`/table/row/${createConnectionRO.id}?tableName=${fakeTableName}&id=${idForSearch}`)
     .set('Cookie', firstUserToken)
@@ -3228,7 +3230,6 @@ test(`${currentTest} should delete row in table and return result`, async (t) =>
   t.is(getTableRowsResponse.status, 200);
 
   const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
-
 
   t.is(getTableRowsRO.hasOwnProperty('rows'), true);
   t.is(getTableRowsRO.hasOwnProperty('primaryColumns'), true);

@@ -1,4 +1,4 @@
-import * as sjson from 'secure-json-parse';
+import sjson from 'secure-json-parse';
 import {
   AfterLoad,
   BeforeInsert,
@@ -8,9 +8,10 @@ import {
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
+  Relation,
 } from 'typeorm';
-import { WidgetTypeEnum } from '../../enums';
-import { TableSettingsEntity } from '../table-settings/table-settings.entity';
+import { WidgetTypeEnum } from '../../enums/index.js';
+import { TableSettingsEntity } from '../table-settings/table-settings.entity.js';
 
 @Entity('table_widget')
 export class TableWidgetEntity {
@@ -73,5 +74,5 @@ export class TableWidgetEntity {
 
   @ManyToOne(() => TableSettingsEntity, (settings) => settings.table_widgets, { onDelete: 'CASCADE' })
   @JoinColumn()
-  settings: TableSettingsEntity;
+  settings: Relation<TableSettingsEntity>;
 }

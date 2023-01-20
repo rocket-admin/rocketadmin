@@ -1,4 +1,4 @@
-import { AccessLevelEnum } from '../../../../enums';
+import { AccessLevelEnum } from '../../../../enums/index.js';
 
 export class FoundUserGroupsDs {
   groups: Array<{

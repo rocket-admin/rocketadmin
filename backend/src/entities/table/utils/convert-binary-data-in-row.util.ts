@@ -1,5 +1,5 @@
-import { ITableStructure } from '../../../data-access-layer/shared/data-access-object-interface';
-import { binaryToHex, isBinary } from '../../../helpers';
+import { ITableStructure } from '../../../data-access-layer/shared/data-access-object-interface.js';
+import { binaryToHex, isBinary } from '../../../helpers/index.js';
 
 export function convertBinaryDataInRowUtil(
   row: Record<string, unknown>,

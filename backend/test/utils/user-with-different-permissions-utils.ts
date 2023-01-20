@@ -1,9 +1,9 @@
 import { INestApplication } from '@nestjs/common';
-import * as request from 'supertest';
-import { AccessLevelEnum } from '../../src/enums';
-import { MockFactory } from '../mock.factory';
-import { CreatedTableInfo, createTestTable } from './create-test-table';
-import { registerUserAndReturnUserInfo } from './register-user-and-return-user-info';
+import request from 'supertest';
+import { AccessLevelEnum } from '../../src/enums/index.js';
+import { MockFactory } from '../mock.factory.js';
+import { CreatedTableInfo, createTestTable } from './create-test-table.js';
+import { registerUserAndReturnUserInfo } from './register-user-and-return-user-info.js';
 
 export async function createConnectionsAndInviteNewUserInNewGroupInFirstConnection(
   app: INestApplication,
