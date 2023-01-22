@@ -431,4 +431,29 @@ export class TablesService {
         })
       );
   }
+
+  activateActions(connectionID: string, tableName: string, action: CustomAction, primaryKeys) {
+    return this._http.post<any>(`/table/actions/activate/${connectionID}`, primaryKeys, {
+      params: {
+        tableName,
+        actionId: action.id
+      }
+    })
+      .pipe(
+        map(() => {
+          this._notifications.showSuccessSnackbar(`${action.title} is done for ${primaryKeys.length} rows.`);
+        }),
+        catchError((err) => {
+          console.log(err);
+          this._notifications.showAlert(AlertType.Error, err.error.message, [
+            {
+              type: AlertActionType.Button,
+              caption: 'Dismiss',
+              action: (id: number) => this._notifications.dismissAlert()
+            }
+          ]);
+          return EMPTY;
+        })
+      );
+  }
 }

@@ -1,6 +1,6 @@
 import {CdkDragDrop, moveItemInArray} from '@angular/cdk/drag-drop';
 import { Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
-import { CustomAction, TableForeignKey, TablePermissions } from 'src/app/models/table';
+import { CustomAction, CustomActionType, TableForeignKey, TablePermissions } from 'src/app/models/table';
 import { getComparators, getFilters } from 'src/app/lib/parse-filter-params';
 
 import { AccessLevel } from 'src/app/models/user';
@@ -41,6 +41,7 @@ export class DbTableComponent implements OnInit {
   @Output() removeFilter = new EventEmitter();
   @Output() resetAllFilters = new EventEmitter();
   @Output() activateAction = new EventEmitter();
+  @Output() activateActions = new EventEmitter();
 
   public tableData: any;
   public selection: any;
@@ -49,6 +50,7 @@ export class DbTableComponent implements OnInit {
   public columnsToDisplay: string[] = [];
   public searchString: string;
   public actionsColumnWidth: string;
+  public bulkActions: CustomAction[];
   public bulkRows: string[];
   public displayedComparators = {
     eq: "=",
@@ -186,8 +188,6 @@ export class DbTableComponent implements OnInit {
 
   /** Selects all rows if they are not all selected; otherwise clear selection. */
   toggleAllRows() {
-    console.log(this.paginator.pageSize);
-    console.log(this.selection.selected.length);
     if (this.isAllSelected()) {
       this.selection.clear();
     } else {
@@ -202,4 +202,10 @@ export class DbTableComponent implements OnInit {
     }
     return `${this.selection.isSelected(row) ? 'deselect' : 'select'} row ${row.position + 1}`;
   }
+
+  // getBulkActions(actions) {
+  //   console.log('get bulk actions')
+  //   console.log(actions)
+  //   return actions.filter((action: CustomAction) => actions.type === CustomActionType.Multiple)
+  // }
 }

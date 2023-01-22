@@ -4,6 +4,12 @@
     </div>
     <div *ngIf="selection.selected.length; else generalActions" class="db-table-bulk-actions">
         <div class="actions">
+            <ng-container *ngIf="tableData.tableBulkActions && tableData.tableBulkActions.length">
+                <button type="button" mat-button *ngFor="let action of tableData.tableBulkActions"
+                (click)="activateActions.emit({action, selectedRows: selection.selected})">
+                    {{action.title}}
+                </button>
+            </ng-container>
             <button mat-button
                 (click)="deleteRows.emit({selectedRows: selection.selected, primaryKeys: tableData.keyAttributes})">
                 Delete

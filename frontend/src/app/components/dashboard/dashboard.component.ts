@@ -225,7 +225,20 @@ export class DashboardComponent implements OnInit {
 
 
   activateAction({action, primaryKeys}) {
+    console.log('activateAction');
     this._tables.activateAction(this.connectionID, this.selectedTableName, action, primaryKeys)
+      .subscribe(() => {console.log('activated')})
+  }
+
+  // getPrimaryKey(row) {
+  //   return Object.assign({}, ...this.data.primaryKeys.map((primaryKey) => ({[primaryKey.column_name]: row[primaryKey.column_name]})));
+  // }
+
+  activateActions({action, selectedRows}) {
+    console.log('activateActions');
+    const primaryKeys = selectedRows
+      .map(row => Object.assign({}, ...this.dataSource.keyAttributes.map((primaryKey) => ({[primaryKey.column_name]: row[primaryKey.column_name]}))));
+    this._tables.activateActions(this.connectionID, this.selectedTableName, action, primaryKeys)
       .subscribe(() => {console.log('activated')})
   }
 }

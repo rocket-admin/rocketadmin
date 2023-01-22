@@ -67,7 +67,7 @@ export interface Widget {
 
 export enum CustomActionType {
     Single = "single",
-    Bulk = "bulk"
+    Multiple = "multiple"
 }
 
 export interface CustomAction {
