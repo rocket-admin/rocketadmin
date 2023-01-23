@@ -66,7 +66,7 @@ export class ActivateTableActionsUseCase
     try {
       const result = await axios.post(
         foundTableAction.url,
-        { ...primaryKeyValuesArray, $$_date: dateString, $$_actionId: actionId, $$_tableName: tableName },
+        { primaryKeys: primaryKeyValuesArray, $$_date: dateString, $$_actionId: actionId, $$_tableName: tableName },
         {
           headers: { 'Rocketadmin-Signature': autoadminSignatureHeader },
         },
@@ -74,11 +74,11 @@ export class ActivateTableActionsUseCase
       const operationStatusCode = result.status;
       if (operationStatusCode >= 200 && operationStatusCode < 300) {
         operationResult = OperationResultStatusEnum.successfully;
-        return operationResult;
+        return result.data;
       }
       if (operationStatusCode >= 300 && operationStatusCode < 400) {
         operationResult = OperationResultStatusEnum.successfully;
-        return operationResult;
+        return { location: result.data } as unknown as ActivatedTableActionsDS;
       }
       if (operationStatusCode >= 400 && operationStatusCode <= 599) {
         operationResult = OperationResultStatusEnum.unsuccessfully;

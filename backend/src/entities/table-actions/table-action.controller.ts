@@ -28,8 +28,6 @@ import { CreateTableActionDS } from './application/data-sctructures/create-table
 import { CreatedTableActionDS } from './application/data-sctructures/created-table-action.ds.js';
 import { FindTableActionsDS } from './application/data-sctructures/find-table-actions.ds.js';
 import { UpdateTableActionDS } from './application/data-sctructures/update-table-action.ds.js';
-import { ActivateTableActionDTO, CreateTableActionDTO } from './dto/create-table-action.dto.js';
-import { UpdateTableActionDTO } from './dto/update-table-action.dto.js';
 import {
   IActivateTableAction,
   IActivateTableActions,
