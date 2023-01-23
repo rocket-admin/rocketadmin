@@ -48,13 +48,19 @@
                     angularticsAction="Tables: widgets page is opened">
                     Widgets
                 </a>
-                <a mat-button *ngIf="accessLevel === 'edit' && tableData"
-                    routerLink="/dashboard/{{connectionID}}/{{name}}/actions"
-                    [disabled]="!tableData.keyAttributes?.length"
-                    angulartics2On="click"
-                    angularticsAction="Tables: actions page is opened">
-                    Actions
-                </a>
+                <div [matTooltip]="!tableData.keyAttributes?.length ? 'Add primary keys to create custom actions for rows.' : null">
+                    <a mat-button *ngIf="accessLevel === 'edit' && tableData" [ngClass]="{ 'action-button_disabled': !tableData.keyAttributes?.length }"
+                        routerLink="/dashboard/{{connectionID}}/{{name}}/actions"
+                        [disabled]="!tableData.keyAttributes?.length"
+                        angulartics2On="click"
+                        angularticsAction="Tables: actions page is opened">
+                        Actions
+                        <mat-icon *ngIf="!tableData.keyAttributes?.length">
+                            info_outline
+                        </mat-icon>
+                    </a>
+                </div>
+
                 <button mat-button [ngClass]="{'action_active': getFiltersCount(activeFilters)}"
                     angulartics2On="click"
                     angularticsAction="Tables: settings dialog is opened"

@@ -220,7 +220,7 @@ export class TablesDataSource implements DataSource<Object> {
             this.alert_primaryKeysInfo = {
               id: 10000,
               type: AlertType.Info,
-              message: 'We can not provide editing for this table because it does not have primary keys. Please add primary key in your database.',
+              message: 'Add primary keys through your database to be able to work with the table rows.',
               actions: [
                 {
                   type: AlertActionType.Anchor,

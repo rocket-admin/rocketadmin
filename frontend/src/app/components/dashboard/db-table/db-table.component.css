@@ -70,6 +70,10 @@
     width: 6px;
 }
 
+.action-button_disabled {
+    pointer-events: none;
+}
+
 .db-table-manage-columns-button {
     display: inline-block;
 }
