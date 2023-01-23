@@ -19,5 +19,6 @@ import { StripeWebhookUseCase } from './use-cases/stripe-webhook.use.case.js';
   ],
 })
 export class StripeModule implements NestModule {
+  // eslint-disable-next-line
   public configure(consumer: MiddlewareConsumer): any {}
 }

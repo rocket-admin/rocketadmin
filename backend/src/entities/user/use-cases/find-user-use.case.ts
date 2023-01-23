@@ -38,7 +38,7 @@ export class FindUserUseCase
       return await buildFoundUserDs(user);
     }
 
-    let savedUser = await this._dbContext.userRepository.createUser(userData);
+    const savedUser = await this._dbContext.userRepository.createUser(userData);
     const testConnections = Constants.getTestConnectionsArr();
     const testConnectionsEntities = buildConnectionEntitiesFromTestDtos(testConnections);
     const createdTestConnections = await Promise.all(

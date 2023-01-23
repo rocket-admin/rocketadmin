@@ -39,6 +39,7 @@ export class AddUserInGroupUseCase
     const foundGroup = await this._dbContext.groupRepository.findGroupById(groupId);
     const foundUser = await this._dbContext.userRepository.findUserByEmailWithEmailVerificationAndInvitation(email);
     const foundOwner = await this._dbContext.userRepository.findOneUserById(ownerId);
+    // eslint-disable-next-line prefer-const
     let { usersInConnections, usersInConnectionsCount } =
       await this._dbContext.connectionRepository.calculateUsersInAllConnectionsOfThisOwner(ownerId);
     const ownerSubscriptionLevel: SubscriptionLevelEnum = await getCurrentUserSubscription(foundOwner.stripeId);
@@ -47,7 +48,7 @@ export class AddUserInGroupUseCase
       usersInConnectionsCount,
     );
 
-    const newUserAlreadyInConnection: boolean = !!usersInConnections.find((userInConnection) => {
+    const newUserAlreadyInConnection = !!usersInConnections.find((userInConnection) => {
       if (!foundUser) {
         return false;
       }
@@ -161,7 +162,7 @@ export class AddUserInGroupUseCase
     const newUser = new UserEntity();
     newUser.email = email;
     newUser.isActive = false;
-    let savedUser = await this._dbContext.userRepository.saveUserEntity(newUser);
+    const savedUser = await this._dbContext.userRepository.saveUserEntity(newUser);
     const testConnections = Constants.getTestConnectionsArr();
     const testConnectionsEntities = buildConnectionEntitiesFromTestDtos(testConnections);
     const createdTestConnections = await Promise.all(

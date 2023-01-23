@@ -141,7 +141,7 @@ export class DataAccessObjectMssql extends BasicDao implements IDataAccessObject
     const rowsCount = await this.getRowsCount(tableName);
     const availableFields = await this.findAvaliableFields(settings, tableName);
 
-    let tableSchema = await this.getSchemaName(tableName);
+    const tableSchema = await this.getSchemaName(tableName);
     if (tableSchema) {
       tableName = `${tableSchema}.[${tableName}]`;
     }
@@ -339,7 +339,7 @@ export class DataAccessObjectMssql extends BasicDao implements IDataAccessObject
 
     generatedColumns = generatedColumns.map((column) => column.COLUMN_NAME);
 
-    let structureColumnsInLowercase = structureColumns.map((column) => {
+    const structureColumnsInLowercase = structureColumns.map((column) => {
       return objectKeysToLowercase(column);
     });
 

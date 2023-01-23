@@ -29,6 +29,7 @@ export class DeleteRowsFromTableUseCase
   }
 
   protected async implementation(inputData: DeleteRowsFromTableDs): Promise<boolean> {
+    // eslint-disable-next-line prefer-const
     let { connectionId, masterPwd, primaryKeys, tableName, userId } = inputData;
     if (!primaryKeys) {
       throw new HttpException(

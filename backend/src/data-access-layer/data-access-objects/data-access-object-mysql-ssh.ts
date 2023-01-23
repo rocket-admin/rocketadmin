@@ -1,4 +1,4 @@
-import { HttpStatus, Injectable, Scope } from '@nestjs/common';
+import { HttpStatus } from '@nestjs/common';
 import { HttpException } from '@nestjs/common/exceptions/http.exception.js';
 import getPort from 'get-port';
 import knex from 'knex';
@@ -91,6 +91,7 @@ export class DataAccessObjectMysqlSsh implements IDataAccessObject {
           const lastInsertId = await knex(tableName).connection(mySqlDriver).select(knex.raw(`LAST_INSERT_ID()`));
           const resultObj = {};
           for (const [index, el] of primaryColumns.entries()) {
+            // eslint-disable-next-line security/detect-object-injection
             resultObj[el.column_name] = lastInsertId[index]['LAST_INSERT_ID()'];
           }
           return resultObj;

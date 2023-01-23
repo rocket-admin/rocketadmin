@@ -2,10 +2,10 @@ import { IsNotEmpty } from 'class-validator';
 
 export class CreatePermissionsDto {
   @IsNotEmpty()
-  connection: {};
+  connection: Record<string, unknown>;
 
   @IsNotEmpty()
-  group: {};
+  group: Record<string, unknown>;
 
-  tables: {};
+  tables: Record<string, unknown>;
 }

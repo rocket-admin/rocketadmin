@@ -46,7 +46,7 @@ export class UpdateRowInTableUseCase
     let { connectionId, masterPwd, primaryKey, row, tableName, userId } = inputData;
     let operationResult = OperationResultStatusEnum.unknown;
 
-    let errors = [];
+    const errors = [];
     if (!primaryKey) {
       errors.push(Messages.PRIMARY_KEY_MISSING);
     }
