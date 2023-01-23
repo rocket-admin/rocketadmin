@@ -90,6 +90,7 @@ export class DataAccessObjectMysql extends BasicDao implements IDataAccessObject
           const lastInsertId = await knex(tableName).select(knex.raw(`LAST_INSERT_ID()`));
           const resultObj = {};
           for (const [index, el] of primaryColumns.entries()) {
+            // eslint-disable-next-line security/detect-object-injection
             resultObj[el.column_name] = lastInsertId[index]['LAST_INSERT_ID()'];
           }
           return resultObj;

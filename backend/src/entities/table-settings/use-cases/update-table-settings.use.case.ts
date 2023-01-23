@@ -51,7 +51,9 @@ export class UpdateTableSettingsUseCase
     }
     const updateTableSettings = buildNewTableSettingsEntity(inputData, foundConnection);
     for (const key in updateTableSettings) {
+      // eslint-disable-next-line security/detect-object-injection
       if (updateTableSettings[key] === undefined) {
+        // eslint-disable-next-line security/detect-object-injection
         delete updateTableSettings[key];
       }
     }

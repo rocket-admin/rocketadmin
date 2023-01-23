@@ -54,11 +54,11 @@ export class RemoveUserFromGroupUseCase
     const updatedGroup = await this._dbContext.groupRepository.saveNewOrUpdatedGroup(groupToUpdate);
     const foundOwner = await this._dbContext.userRepository.findOneUserById(ownerId);
     const ownerSubscriptionLevel: SubscriptionLevelEnum = await getCurrentUserSubscription(foundOwner.stripeId);
-
+    // eslint-disable-next-line prefer-const
     let { usersInConnections, usersInConnectionsCount } =
       await this._dbContext.connectionRepository.calculateUsersInAllConnectionsOfThisOwner(ownerId);
 
-    const userStayInConnection: boolean = !!usersInConnections.find((userInConnection) => {
+    const userStayInConnection = !!usersInConnections.find((userInConnection) => {
       return userInConnection.id === foundUser.id;
     });
 

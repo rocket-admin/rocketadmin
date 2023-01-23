@@ -57,7 +57,7 @@ export class RestoreConnectionUseCase
     if (isConnectionEntityAgent(updatedConnection)) {
       updatedConnection.agent = await this._dbContext.agentRepository.createNewAgentForConnection(updatedConnection);
     }
-    let savedConnection = await this._dbContext.connectionRepository.saveNewConnection(updatedConnection);
+    const savedConnection = await this._dbContext.connectionRepository.saveNewConnection(updatedConnection);
     const token = updatedConnection.agent?.token || null;
     return {
       connection: buildCreatedConnectionDs(savedConnection, token, connectionData.update_info.masterPwd),

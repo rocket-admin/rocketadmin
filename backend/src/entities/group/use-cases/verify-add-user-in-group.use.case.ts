@@ -61,6 +61,7 @@ export class VerifyAddUserInGroupUseCase
     }
 
     const foundOwner = await this._dbContext.userRepository.findOneUserById(invitationEntity.ownerId);
+    // eslint-disable-next-line prefer-const
     let { usersInConnectionsCount, usersInConnections } =
       await this._dbContext.connectionRepository.calculateUsersInAllConnectionsOfThisOwner(invitationEntity.ownerId);
     const ownerSubscriptionLevel: SubscriptionLevelEnum = await getCurrentUserSubscription(foundOwner.stripeId);
@@ -78,7 +79,7 @@ export class VerifyAddUserInGroupUseCase
     }
 
     const foundUser = await this._dbContext.userRepository.findOneUserById(invitationEntity.user.id);
-    const newUserAlreadyInConnection: boolean = !!usersInConnections.find((userInConnection) => {
+    const newUserAlreadyInConnection = !!usersInConnections.find((userInConnection) => {
       return userInConnection.id === foundUser.id;
     });
     if (!newUserAlreadyInConnection) {

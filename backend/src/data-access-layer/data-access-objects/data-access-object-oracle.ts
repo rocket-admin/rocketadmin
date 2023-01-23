@@ -93,6 +93,7 @@ export class DataAccessObjectOracle implements IDataAccessObject {
 
         const resultObj = {};
         for (const [index, el] of primaryColumns.entries()) {
+          // eslint-disable-next-line security/detect-object-injection
           resultObj[el.column_name] = queryResult[index]['CURRVAL'].toString();
         }
         result = resultObj;
