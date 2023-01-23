@@ -66,7 +66,7 @@ export class ActivateTableActionsUseCase
     try {
       const result = await axios.post(
         foundTableAction.url,
-        { ...primaryKeyValuesArray, $$_date: dateString, $$_actionId: actionId, $$_tableName: tableName },
+        { primaryKeys: primaryKeyValuesArray, $$_date: dateString, $$_actionId: actionId, $$_tableName: tableName },
         {
           headers: { 'Rocketadmin-Signature': autoadminSignatureHeader },
         },
