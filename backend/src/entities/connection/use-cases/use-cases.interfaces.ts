@@ -1,24 +1,24 @@
-import { CreateConnectionDs } from '../application/data-structures/create-connection.ds';
-import { CreatedConnectionDs } from '../application/data-structures/created-connection.ds';
-import { CreateUserDs } from '../../user/application/data-structures/create-user.ds';
-import { FindOneConnectionDs } from '../application/data-structures/find-one-connection.ds';
-import { FoundConnectionsDs } from '../application/data-structures/found-connections.ds';
-import { FoundOneConnectionDs } from '../application/data-structures/found-one-connection.ds';
-import { FoundUserDs } from '../../user/application/data-structures/found-user.ds';
-import { UpdateConnectionDs } from '../application/data-structures/update-connection.ds';
-import { DeleteConnectionDs } from '../application/data-structures/delete-connection.ds';
-import { DeleteGroupInConnectionDs } from '../application/data-structures/delete-group-in-connection.ds';
-import { GroupEntity } from '../../group/group.entity';
-import { CreateGroupInConnectionDs } from '../application/data-structures/create-group-in-connection.ds';
-import { GetGroupsInConnectionDs } from '../application/data-structures/get-groups-in-connection.ds';
-import { FoundUserGroupsInConnectionDs } from '../application/data-structures/found-user-groups-in-connection.ds';
-import { GetPermissionsInConnectionDs } from '../application/data-structures/get-permissions-in-connection.ds';
-import { FoundPermissionsInConnectionDs } from '../application/data-structures/found-permissions-in-connection.ds';
-import { TestConnectionResultDs } from '../application/data-structures/test-connection-result.ds';
-import { UpdateMasterPasswordDs } from '../application/data-structures/update-master-password.ds';
-import { RestoredConnectionDs } from '../application/data-structures/restored-connection.ds';
-import { TokenDs } from '../application/data-structures/token.ds';
-import { InTransactionEnum } from '../../../enums';
+import { CreateConnectionDs } from '../application/data-structures/create-connection.ds.js';
+import { CreatedConnectionDs } from '../application/data-structures/created-connection.ds.js';
+import { CreateUserDs } from '../../user/application/data-structures/create-user.ds.js';
+import { FindOneConnectionDs } from '../application/data-structures/find-one-connection.ds.js';
+import { FoundConnectionsDs } from '../application/data-structures/found-connections.ds.js';
+import { FoundOneConnectionDs } from '../application/data-structures/found-one-connection.ds.js';
+import { FoundUserDs } from '../../user/application/data-structures/found-user.ds.js';
+import { UpdateConnectionDs } from '../application/data-structures/update-connection.ds.js';
+import { DeleteConnectionDs } from '../application/data-structures/delete-connection.ds.js';
+import { DeleteGroupInConnectionDs } from '../application/data-structures/delete-group-in-connection.ds.js';
+import { GroupEntity } from '../../group/group.entity.js';
+import { CreateGroupInConnectionDs } from '../application/data-structures/create-group-in-connection.ds.js';
+import { GetGroupsInConnectionDs } from '../application/data-structures/get-groups-in-connection.ds.js';
+import { FoundUserGroupsInConnectionDs } from '../application/data-structures/found-user-groups-in-connection.ds.js';
+import { GetPermissionsInConnectionDs } from '../application/data-structures/get-permissions-in-connection.ds.js';
+import { FoundPermissionsInConnectionDs } from '../application/data-structures/found-permissions-in-connection.ds.js';
+import { TestConnectionResultDs } from '../application/data-structures/test-connection-result.ds.js';
+import { UpdateMasterPasswordDs } from '../application/data-structures/update-master-password.ds.js';
+import { RestoredConnectionDs } from '../application/data-structures/restored-connection.ds.js';
+import { TokenDs } from '../application/data-structures/token.ds.js';
+import { InTransactionEnum } from '../../../enums/index.js';
 
 export interface IFindConnections {
   execute(user: CreateUserDs, inTransaction: InTransactionEnum): Promise<FoundConnectionsDs>;
@@ -37,7 +37,10 @@ export interface ICreateConnection {
 }
 
 export interface IUpdateConnection {
-  execute(inputData: UpdateConnectionDs, inTransaction: InTransactionEnum): Promise<Omit<CreatedConnectionDs, 'groups'>>;
+  execute(
+    inputData: UpdateConnectionDs,
+    inTransaction: InTransactionEnum,
+  ): Promise<Omit<CreatedConnectionDs, 'groups'>>;
 }
 
 export interface IDeleteConnection {
@@ -45,19 +48,31 @@ export interface IDeleteConnection {
 }
 
 export interface IDeleteGroupInConnection {
-  execute(inputData: DeleteGroupInConnectionDs, inTransaction: InTransactionEnum): Promise<Omit<GroupEntity, 'connection'>>;
+  execute(
+    inputData: DeleteGroupInConnectionDs,
+    inTransaction: InTransactionEnum,
+  ): Promise<Omit<GroupEntity, 'connection'>>;
 }
 
 export interface ICreateGroupInConnection {
-  execute(inputData: CreateGroupInConnectionDs, inTransaction: InTransactionEnum): Promise<Omit<GroupEntity, 'connection'>>;
+  execute(
+    inputData: CreateGroupInConnectionDs,
+    inTransaction: InTransactionEnum,
+  ): Promise<Omit<GroupEntity, 'connection'>>;
 }
 
 export interface IGetUserGroupsInConnection {
-  execute(inputData: GetGroupsInConnectionDs, inTransaction: InTransactionEnum): Promise<Array<FoundUserGroupsInConnectionDs>>;
+  execute(
+    inputData: GetGroupsInConnectionDs,
+    inTransaction: InTransactionEnum,
+  ): Promise<Array<FoundUserGroupsInConnectionDs>>;
 }
 
 export interface IGetPermissionsForGroupInConnection {
-  execute(inputData: GetPermissionsInConnectionDs, inTransaction: InTransactionEnum): Promise<FoundPermissionsInConnectionDs>;
+  execute(
+    inputData: GetPermissionsInConnectionDs,
+    inTransaction: InTransactionEnum,
+  ): Promise<FoundPermissionsInConnectionDs>;
 }
 
 export interface ITestConnection {

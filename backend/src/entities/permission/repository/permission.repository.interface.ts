@@ -1,7 +1,7 @@
-import { PermissionEntity } from '../permission.entity';
-import { GroupEntity } from '../../group/group.entity';
-import { AccessLevelEnum } from '../../../enums';
-import { TablePermissionDs } from '../application/data-structures/create-permissions.ds';
+import { PermissionEntity } from '../permission.entity.js';
+import { GroupEntity } from '../../group/group.entity.js';
+import { AccessLevelEnum } from '../../../enums/index.js';
+import { TablePermissionDs } from '../application/data-structures/create-permissions.ds.js';
 
 export interface IPermissionRepository {
   saveNewOrUpdatedPermission(permissionData: PermissionEntity): Promise<PermissionEntity>;

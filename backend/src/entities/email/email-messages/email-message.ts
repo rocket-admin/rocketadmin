@@ -1,6 +1,6 @@
-import { AbstractEmailLetter } from '../email/abstract-email-letter';
-import { IEmailMessage } from './email-message.interface';
-import { IMessage } from '../email/email.interface';
+import { AbstractEmailLetter } from '../email/abstract-email-letter.js';
+import { IEmailMessage } from './email-message.interface.js';
+import { IMessage } from '../email/email.interface.js';
 
 export class EmailLetter extends AbstractEmailLetter<IEmailMessage> {
   constructor(params: IEmailMessage) {

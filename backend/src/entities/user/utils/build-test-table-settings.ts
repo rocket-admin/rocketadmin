@@ -1,8 +1,8 @@
-import { ConnectionEntity } from '../../connection/connection.entity';
-import { TableSettingForTestConnections } from '../../../helpers/constants/table-setting-for-test-connections';
-import { Constants } from '../../../helpers/constants/constants';
-import { CreateTableSettingsDto } from '../../table-settings/dto';
-import { TableSettingsEntity } from '../../table-settings/table-settings.entity';
+import { ConnectionEntity } from '../../connection/connection.entity.js';
+import { TableSettingForTestConnections } from '../../../helpers/constants/table-setting-for-test-connections.js';
+import { Constants } from '../../../helpers/constants/constants.js';
+import { CreateTableSettingsDto } from '../../table-settings/dto/index.js';
+import { TableSettingsEntity } from '../../table-settings/table-settings.entity.js';
 
 export function buildTestTableSettings(connections: Array<ConnectionEntity>): Array<Array<TableSettingsEntity>> {
   const testTablesSettingsEntities: Array<Array<TableSettingsEntity>> = [];

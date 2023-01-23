@@ -1,9 +1,9 @@
-import * as Amplitude from '@amplitude/node';
+import Amplitude from '@amplitude/node';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { AmplitudeEventTypeEnum } from '../../enums';
-import { UserEntity } from '../user/user.entity';
+import { AmplitudeEventTypeEnum } from '../../enums/index.js';
+import { UserEntity } from '../user/user.entity.js';
 
 @Injectable()
 export class AmplitudeService {

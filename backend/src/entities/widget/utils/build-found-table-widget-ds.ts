@@ -1,5 +1,5 @@
-import { FoundTableWidgetsDs } from '../application/data-sctructures/found-table-widgets.ds';
-import { TableWidgetEntity } from '../table-widget.entity';
+import { FoundTableWidgetsDs } from '../application/data-sctructures/found-table-widgets.ds.js';
+import { TableWidgetEntity } from '../table-widget.entity.js';
 
 export function buildFoundTableWidgetDs(widget: TableWidgetEntity): FoundTableWidgetsDs {
   const { description, field_name, id, name, widget_options, widget_params, widget_type } = widget;

@@ -1,8 +1,8 @@
 import { HttpException, HttpStatus } from '@nestjs/common';
-import { SubscriptionLevelEnum } from '../../../enums';
-import { Messages } from '../../../exceptions/text/messages';
-import { getPriceId } from './get-price-id';
-import { getStripe } from './get-stripe';
+import { SubscriptionLevelEnum } from '../../../enums/index.js';
+import { Messages } from '../../../exceptions/text/messages.js';
+import { getPriceId } from './get-price-id.js';
+import { getStripe } from './get-stripe.js';
 
 export async function upgradeUserSubscription(
   subscriptionLevel: SubscriptionLevelEnum,

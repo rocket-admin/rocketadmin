@@ -1,5 +1,5 @@
-import { CreateTableSettingsDs } from '../application/data-structures/create-table-settings.ds';
-import { TableSettingsEntity } from '../table-settings.entity';
+import { CreateTableSettingsDs } from '../application/data-structures/create-table-settings.ds.js';
+import { TableSettingsEntity } from '../table-settings.entity.js';
 
 export interface ITableSettingsRepository {
   saveNewOrUpdatedSettings(settings: TableSettingsEntity): Promise<TableSettingsEntity>;

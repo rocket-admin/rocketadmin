@@ -1,4 +1,4 @@
-import { EncryptionAlgorithmEnum, WidgetTypeEnum } from '../../enums';
+import { EncryptionAlgorithmEnum, WidgetTypeEnum } from '../../enums/index.js';
 
 export interface ITableWidgetRO {
   id: string;

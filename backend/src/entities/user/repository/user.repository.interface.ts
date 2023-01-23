@@ -1,6 +1,6 @@
-import { CreateUserDs } from '../application/data-structures/create-user.ds';
-import { RegisterUserDs } from '../application/data-structures/register-user-ds';
-import { UserEntity } from '../user.entity';
+import { CreateUserDs } from '../application/data-structures/create-user.ds.js';
+import { RegisterUserDs } from '../application/data-structures/register-user-ds.js';
+import { UserEntity } from '../user.entity.js';
 
 export interface IUserRepository {
   createUser(userData: CreateUserDs): Promise<UserEntity>;

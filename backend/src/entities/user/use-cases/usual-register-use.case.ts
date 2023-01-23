@@ -1,25 +1,25 @@
 import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
-import assert = require('assert');
-import AbstractUseCase from '../../../common/abstract-use.case';
-import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface';
-import { BaseType } from '../../../common/data-injection.tokens';
-import { Messages } from '../../../exceptions/text/messages';
-import { Constants } from '../../../helpers/constants/constants';
-import { ValidationHelper } from '../../../helpers/validators/validation-helper';
-import { ConnectionEntity } from '../../connection/connection.entity';
-import { sendEmailConfirmation } from '../../email/send-email';
-import { GroupEntity } from '../../group/group.entity';
-import { PermissionEntity } from '../../permission/permission.entity';
-import { TableSettingsEntity } from '../../table-settings/table-settings.entity';
-import { RegisterUserDs } from '../application/data-structures/register-user-ds';
-import { UsualLoginDs } from '../application/data-structures/usual-login.ds';
-import { UsualRegisterUserDs } from '../application/data-structures/usual-register-user.ds';
-import { buildConnectionEntitiesFromTestDtos } from '../utils/build-connection-entities-from-test-dtos';
-import { buildDefaultAdminGroups } from '../utils/build-default-admin-groups';
-import { buildDefaultAdminPermissions } from '../utils/build-default-admin-permissions';
-import { buildTestTableSettings } from '../utils/build-test-table-settings';
-import { generateGwtToken, IToken } from '../utils/generate-gwt-token';
-import { IUsualRegister } from './user-use-cases.interfaces';
+import assert from 'assert';
+import AbstractUseCase from '../../../common/abstract-use.case.js';
+import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface.js';
+import { BaseType } from '../../../common/data-injection.tokens.js';
+import { Messages } from '../../../exceptions/text/messages.js';
+import { Constants } from '../../../helpers/constants/constants.js';
+import { ValidationHelper } from '../../../helpers/validators/validation-helper.js';
+import { ConnectionEntity } from '../../connection/connection.entity.js';
+import { sendEmailConfirmation } from '../../email/send-email.js';
+import { GroupEntity } from '../../group/group.entity.js';
+import { PermissionEntity } from '../../permission/permission.entity.js';
+import { TableSettingsEntity } from '../../table-settings/table-settings.entity.js';
+import { RegisterUserDs } from '../application/data-structures/register-user-ds.js';
+import { UsualLoginDs } from '../application/data-structures/usual-login.ds.js';
+import { UsualRegisterUserDs } from '../application/data-structures/usual-register-user.ds.js';
+import { buildConnectionEntitiesFromTestDtos } from '../utils/build-connection-entities-from-test-dtos.js';
+import { buildDefaultAdminGroups } from '../utils/build-default-admin-groups.js';
+import { buildDefaultAdminPermissions } from '../utils/build-default-admin-permissions.js';
+import { buildTestTableSettings } from '../utils/build-test-table-settings.js';
+import { generateGwtToken, IToken } from '../utils/generate-gwt-token.js';
+import { IUsualRegister } from './user-use-cases.interfaces.js';
 
 @Injectable()
 export class UsualRegisterUseCase extends AbstractUseCase<UsualLoginDs, IToken> implements IUsualRegister {
@@ -54,7 +54,7 @@ export class UsualRegisterUseCase extends AbstractUseCase<UsualLoginDs, IToken> 
     const testConnectionsEntities = buildConnectionEntitiesFromTestDtos(testConnections);
     const createdTestConnections = await Promise.all(
       testConnectionsEntities.map(async (connection): Promise<ConnectionEntity> => {
-        assert(savedUser.id, 'User should be saved before creating connections')
+        assert(savedUser.id, 'User should be saved before creating connections');
         connection.author = savedUser;
         return await this._dbContext.connectionRepository.saveNewConnection(connection);
       }),

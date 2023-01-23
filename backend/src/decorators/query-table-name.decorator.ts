@@ -1,7 +1,7 @@
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
-import { IRequestWithCognitoInfo } from '../authorization';
-import { Messages } from '../exceptions/text/messages';
-import { buildBadRequestException } from '../guards/utils';
+import { IRequestWithCognitoInfo } from '../authorization/index.js';
+import { Messages } from '../exceptions/text/messages.js';
+import { buildBadRequestException } from '../guards/utils/index.js';
 
 export const QueryTableName = createParamDecorator((data: unknown, ctx: ExecutionContext): string => {
   const request: IRequestWithCognitoInfo = ctx.switchToHttp().getRequest();

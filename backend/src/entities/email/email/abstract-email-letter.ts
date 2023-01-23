@@ -1,4 +1,4 @@
-import { IMessage } from './email.interface';
+import { IMessage } from './email.interface.js';
 
 // eslint-disable-next-line @typescript-eslint/ban-types
 export abstract class AbstractEmailLetter<TParams extends {}> {

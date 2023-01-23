@@ -1,7 +1,7 @@
-import { SubscriptionLevelEnum } from '../../../enums';
-import { isSaaS } from '../../../helpers/app/is-saas';
-import { getStripe } from './get-stripe';
-import { getSubscriptionLevelFromPriceId } from './get-subscription-level-from-price-id';
+import { SubscriptionLevelEnum } from '../../../enums/index.js';
+import { isSaaS } from '../../../helpers/app/is-saas.js';
+import { getStripe } from './get-stripe.js';
+import { getSubscriptionLevelFromPriceId } from './get-subscription-level-from-price-id.js';
 
 export async function getCurrentUserSubscription(userStripeId: string): Promise<SubscriptionLevelEnum> {
   if (process.env.NODE_ENV === 'test' || !isSaaS()) return;

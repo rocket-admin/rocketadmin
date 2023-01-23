@@ -1,5 +1,5 @@
-import { TableSettingsEntity } from '../../table-settings/table-settings.entity';
-import { TableWidgetEntity } from '../table-widget.entity';
+import { TableSettingsEntity } from '../../table-settings/table-settings.entity.js';
+import { TableWidgetEntity } from '../table-widget.entity.js';
 
 export const tableWidgetsCustomRepositoryExtension = {
   async findTableWidgets(connectionId: string, tableName: string): Promise<Array<TableWidgetEntity>> {

@@ -1,21 +1,20 @@
 import { Test } from '@nestjs/testing';
-import { ApplicationModule } from '../../src/app.module';
-import { DatabaseModule } from '../../src/shared/database/database.module';
-import { DatabaseService } from '../../src/shared/database/database.service';
-import { TestUtils } from '../utils/test.utils';
-import * as cookieParser from 'cookie-parser';
+import { ApplicationModule } from '../../src/app.module.js';
+import { DatabaseModule } from '../../src/shared/database/database.module.js';
+import { DatabaseService } from '../../src/shared/database/database.service.js';
+import { TestUtils } from '../utils/test.utils.js';
+import cookieParser from 'cookie-parser';
 import { INestApplication } from '@nestjs/common';
-import { MockFactory } from '../mock.factory';
-import { Encryptor } from '../../src/helpers/encryption/encryptor';
-import { Connection } from 'typeorm';
+import { MockFactory } from '../mock.factory.js';
+import { Encryptor } from '../../src/helpers/encryption/encryptor.js';
 import test from 'ava';
-import { registerUserAndReturnUserInfo } from '../utils/register-user-and-return-user-info';
-import { getTestData } from '../utils/get-test-data';
-import * as request from 'supertest';
-import { replaceTextInCurlies } from '../../src/helpers';
+import { registerUserAndReturnUserInfo } from '../utils/register-user-and-return-user-info.js';
+import { getTestData } from '../utils/get-test-data.js';
+import request from 'supertest';
+import { replaceTextInCurlies } from '../../src/helpers/index.js';
 import { faker } from '@faker-js/faker';
-import { Messages } from '../../src/exceptions/text/messages';
-import { AllExceptionsFilter } from '../../src/exceptions/all-exceptions.filter';
+import { Messages } from '../../src/exceptions/text/messages.js';
+import { AllExceptionsFilter } from '../../src/exceptions/all-exceptions.filter.js';
 
 let app: INestApplication;
 let testUtils: TestUtils;
@@ -39,25 +38,12 @@ test.before(async () => {
     providers: [DatabaseService, TestUtils],
   }).compile();
   app = moduleFixture.createNestApplication();
+  testUtils = moduleFixture.get<TestUtils>(TestUtils);
+  await testUtils.resetDb();
   app.use(cookieParser());
   app.useGlobalFilters(new AllExceptionsFilter());
   await app.init();
   app.getHttpServer().listen(0);
-  testUtils = moduleFixture.get<TestUtils>(TestUtils);
-  await testUtils.resetDb();
-});
-
-test.after.always('Close app connection', async () => {
-  try {
-    const connect = await app.get(Connection);
-    await testUtils.shutdownServer(app.getHttpAdapter());
-    if (connect.isConnected) {
-      await connect.close();
-    }
-    await app.close();
-  } catch (e) {
-    console.error('After custom field error: ' + e);
-  }
 });
 
 let currentTest = 'GET /fields/:slug';

@@ -1,15 +1,7 @@
-import {
-  Column,
-  Entity,
-  JoinColumn,
-  ManyToMany,
-  ManyToOne,
-  PrimaryGeneratedColumn,
-  Unique,
-} from 'typeorm';
-import { UserEntity } from '../user/user.entity';
-import { PermissionEntity } from '../permission/permission.entity';
-import { ConnectionEntity } from '../connection/connection.entity';
+import { Column, Entity, JoinColumn, ManyToMany, ManyToOne, PrimaryGeneratedColumn, Relation, Unique } from 'typeorm';
+import { UserEntity } from '../user/user.entity.js';
+import { PermissionEntity } from '../permission/permission.entity.js';
+import { ConnectionEntity } from '../connection/connection.entity.js';
 
 @Entity('group')
 @Unique(['connection', 'title'])
@@ -26,16 +18,16 @@ export class GroupEntity {
   @ManyToMany(() => PermissionEntity, (permission) => permission.groups, {
     onDelete: 'CASCADE',
   })
-  permissions?: PermissionEntity[];
+  permissions?: Relation<PermissionEntity>[];
 
   @ManyToMany((type) => UserEntity, (user) => user.groups, {
     onDelete: 'CASCADE',
   })
-  users?: UserEntity[];
+  users?: Relation<UserEntity>[];
 
   @ManyToOne((type) => ConnectionEntity, (connection) => connection.groups, {
     onDelete: 'CASCADE',
   })
   @JoinColumn()
-  connection: ConnectionEntity;
+  connection: Relation<ConnectionEntity>;
 }

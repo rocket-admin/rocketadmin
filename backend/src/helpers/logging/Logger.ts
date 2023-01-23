@@ -1,4 +1,4 @@
-import * as winston from 'winston';
+import winston from 'winston';
 
 export class Logger {
   private static readonly infoLogger = winston.createLogger({

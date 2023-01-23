@@ -1,6 +1,6 @@
-import * as json5 from 'json5';
-import { CreateTableWidgetDto } from '../../src/entities/widget/dto';
-import { TableWidgetEntity } from '../../src/entities/widget/table-widget.entity';
+import json5 from 'json5';
+import { CreateTableWidgetDto } from '../../src/entities/widget/dto/index.js';
+import { TableWidgetEntity } from '../../src/entities/widget/table-widget.entity.js';
 
 export const compareTableWidgetsArrays = (
   arr_1: Array<TableWidgetEntity | CreateTableWidgetDto>,
@@ -11,7 +11,7 @@ export const compareTableWidgetsArrays = (
       if (!el[elKey]) delete el[elKey];
       if (elKey === 'id') delete el[elKey];
       if (elKey === 'widget_params') {
-        el[elKey] = JSON.stringify(json5.parse(el[elKey]))
+        el[elKey] = JSON.stringify(json5.parse(el[elKey]));
       }
     }
     return el;
@@ -21,7 +21,7 @@ export const compareTableWidgetsArrays = (
       if (!el[elKey]) delete el[elKey];
       if (elKey === 'id') delete el[elKey];
       if (elKey === 'widget_params') {
-        el[elKey] = JSON.stringify(json5.parse(el[elKey]))
+        el[elKey] = JSON.stringify(json5.parse(el[elKey]));
       }
     }
     return el;

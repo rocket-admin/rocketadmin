@@ -1,8 +1,8 @@
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
-import { IRequestWithCognitoInfo } from '../authorization';
-import { Messages } from '../exceptions/text/messages';
-import { buildBadRequestException } from '../guards/utils';
-import { ValidationHelper } from '../helpers/validators/validation-helper';
+import { IRequestWithCognitoInfo } from '../authorization/index.js';
+import { Messages } from '../exceptions/text/messages.js';
+import { buildBadRequestException } from '../guards/utils/index.js';
+import { ValidationHelper } from '../helpers/validators/validation-helper.js';
 
 export const VerificationString = createParamDecorator((data: any, ctx: ExecutionContext): string => {
   const request: IRequestWithCognitoInfo = ctx.switchToHttp().getRequest();

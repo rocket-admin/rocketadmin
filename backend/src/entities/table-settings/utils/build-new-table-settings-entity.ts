@@ -1,6 +1,6 @@
-import { ConnectionEntity } from '../../connection/connection.entity';
-import { CreateTableSettingsDs } from '../application/data-structures/create-table-settings.ds';
-import { TableSettingsEntity } from '../table-settings.entity';
+import { ConnectionEntity } from '../../connection/connection.entity.js';
+import { CreateTableSettingsDs } from '../application/data-structures/create-table-settings.ds.js';
+import { TableSettingsEntity } from '../table-settings.entity.js';
 
 export function buildNewTableSettingsEntity(
   settings: CreateTableSettingsDs,

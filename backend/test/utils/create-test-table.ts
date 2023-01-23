@@ -1,6 +1,6 @@
 import { faker } from '@faker-js/faker';
-import { getRandomConstraintName, getRandomTestTableName } from './get-random-test-table-name';
-import { getTestKnex } from './get-test-knex';
+import { getRandomConstraintName, getRandomTestTableName } from './get-random-test-table-name.js';
+import { getTestKnex } from './get-test-knex.js';
 
 export async function createTestTable(
   connectionParams,

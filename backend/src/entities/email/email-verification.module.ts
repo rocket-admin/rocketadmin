@@ -1,6 +1,6 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { EmailVerificationEntity } from './email-verification.entity';
+import { EmailVerificationEntity } from './email-verification.entity.js';
 
 @Module({
   imports: [TypeOrmModule.forFeature([EmailVerificationEntity])],

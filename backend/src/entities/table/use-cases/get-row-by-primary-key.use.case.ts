@@ -1,23 +1,23 @@
 import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
-import AbstractUseCase from '../../../common/abstract-use.case';
-import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface';
-import { BaseType } from '../../../common/data-injection.tokens';
-import { createDataAccessObject } from '../../../data-access-layer/shared/create-data-access-object';
+import AbstractUseCase from '../../../common/abstract-use.case.js';
+import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface.js';
+import { BaseType } from '../../../common/data-injection.tokens.js';
+import { createDataAccessObject } from '../../../data-access-layer/shared/create-data-access-object.js';
 import {
   IDataAccessObject,
   IForeignKey,
   IForeignKeyWithForeignColumnName,
-} from '../../../data-access-layer/shared/data-access-object-interface';
-import { WidgetTypeEnum } from '../../../enums';
-import { Messages } from '../../../exceptions/text/messages';
-import { compareArrayElements, isConnectionTypeAgent } from '../../../helpers';
-import { GetRowByPrimaryKeyDs } from '../application/data-structures/get-row-by-primary-key.ds';
-import { IForeignKeyInfo, ITableRowRO } from '../table.interface';
-import { convertBinaryDataInRowUtil } from '../utils/convert-binary-data-in-row.util';
-import { convertHexDataInPrimaryKeyUtil } from '../utils/convert-hex-data-in-primary-key.util';
-import { formFullTableStructure } from '../utils/form-full-table-structure';
-import { removePasswordsFromRowsUtil } from '../utils/remove-password-from-row.util';
-import { IGetRowByPrimaryKey } from './table-use-cases.interface';
+} from '../../../data-access-layer/shared/data-access-object-interface.js';
+import { WidgetTypeEnum } from '../../../enums/index.js';
+import { Messages } from '../../../exceptions/text/messages.js';
+import { compareArrayElements, isConnectionTypeAgent } from '../../../helpers/index.js';
+import { GetRowByPrimaryKeyDs } from '../application/data-structures/get-row-by-primary-key.ds.js';
+import { IForeignKeyInfo, ITableRowRO } from '../table.interface.js';
+import { convertBinaryDataInRowUtil } from '../utils/convert-binary-data-in-row.util.js';
+import { convertHexDataInPrimaryKeyUtil } from '../utils/convert-hex-data-in-primary-key.util.js';
+import { formFullTableStructure } from '../utils/form-full-table-structure.js';
+import { removePasswordsFromRowsUtil } from '../utils/remove-password-from-row.util.js';
+import { IGetRowByPrimaryKey } from './table-use-cases.interface.js';
 
 @Injectable()
 export class GetRowByPrimaryKeyUseCase

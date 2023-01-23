@@ -1,6 +1,6 @@
-import { IRequestWithCognitoInfo } from '../authorization';
-import { HttpException } from '@nestjs/common/exceptions/http.exception';
-import { Messages } from '../exceptions/text/messages';
+import { IRequestWithCognitoInfo } from '../authorization/index.js';
+import { HttpException } from '@nestjs/common/exceptions/http.exception.js';
+import { Messages } from '../exceptions/text/messages.js';
 import { HttpStatus } from '@nestjs/common';
 
 export function getCognitoUserName(request: IRequestWithCognitoInfo): string {

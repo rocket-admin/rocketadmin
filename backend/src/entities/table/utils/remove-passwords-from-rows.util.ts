@@ -1,7 +1,7 @@
-import { TableWidgetEntity } from '../../widget/table-widget.entity';
-import { IRows } from '../../../data-access-layer/shared/data-access-object-interface';
-import { WidgetTypeEnum } from '../../../enums';
-import { Constants } from '../../../helpers/constants/constants';
+import { TableWidgetEntity } from '../../widget/table-widget.entity.js';
+import { IRows } from '../../../data-access-layer/shared/data-access-object-interface.js';
+import { WidgetTypeEnum } from '../../../enums/index.js';
+import { Constants } from '../../../helpers/constants/constants.js';
 
 export function removePasswordsFromRowsUtil(rows: IRows, tableWidgets: Array<TableWidgetEntity>): IRows {
   if (!tableWidgets || tableWidgets.length <= 0) {

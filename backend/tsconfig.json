@@ -1,17 +1,18 @@
 {
   "compilerOptions": {
-    "module": "commonjs",
+    "module": "ESNext",
     "declaration": true,
     "removeComments": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "allowJs": true,
-//    "esModuleInterop": true,
-    "target": "es2020",
+    "esModuleInterop": true,
+    "target": "ESNext",
     "sourceMap": true,
     "outDir": "./dist",
     "baseUrl": "./",
-    "incremental": true
+    "incremental": true,
+    "moduleResolution": "node"
   },
   "include": ["src", "test"],
   "exclude": ["node_modules", "dist"]

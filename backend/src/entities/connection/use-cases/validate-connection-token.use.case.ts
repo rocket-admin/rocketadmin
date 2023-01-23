@@ -1,9 +1,9 @@
 import { Inject, Injectable } from '@nestjs/common';
-import AbstractUseCase from '../../../common/abstract-use.case';
-import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface';
-import { BaseType } from '../../../common/data-injection.tokens';
-import { Encryptor } from '../../../helpers/encryption/encryptor';
-import { IValidateConnectionToken } from './use-cases.interfaces';
+import AbstractUseCase from '../../../common/abstract-use.case.js';
+import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface.js';
+import { BaseType } from '../../../common/data-injection.tokens.js';
+import { Encryptor } from '../../../helpers/encryption/encryptor.js';
+import { IValidateConnectionToken } from './use-cases.interfaces.js';
 
 @Injectable()
 export class ValidateConnectionTokenUseCase

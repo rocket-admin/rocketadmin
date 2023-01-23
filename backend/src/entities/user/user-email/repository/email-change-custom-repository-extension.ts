@@ -1,6 +1,6 @@
-import { Encryptor } from '../../../../helpers/encryption/encryptor';
-import { UserEntity } from '../../user.entity';
-import { EmailChangeEntity } from '../email-change.entity';
+import { Encryptor } from '../../../../helpers/encryption/encryptor.js';
+import { UserEntity } from '../../user.entity.js';
+import { EmailChangeEntity } from '../email-change.entity.js';
 
 export const emailChangeCustomRepositoryExtension = {
   async findEmailChangeWithVerificationString(verificationString: string): Promise<EmailChangeEntity> {

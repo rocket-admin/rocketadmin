@@ -1,12 +1,12 @@
 import { CanActivate, ExecutionContext, Inject, Injectable } from '@nestjs/common';
 import { Observable } from 'rxjs';
-import { IRequestWithCognitoInfo } from '../authorization';
-import { IGlobalDatabaseContext } from '../common/application/global-database-context.intarface';
-import { BaseType } from '../common/data-injection.tokens';
-import { Messages } from '../exceptions/text/messages';
-import { getMasterPwd } from '../helpers';
-import { buildBadRequestException, buildForbiddenException } from './utils';
-import { validateUuidByRegex } from './utils/validate-uuid-by-regex';
+import { IRequestWithCognitoInfo } from '../authorization/index.js';
+import { IGlobalDatabaseContext } from '../common/application/global-database-context.intarface.js';
+import { BaseType } from '../common/data-injection.tokens.js';
+import { Messages } from '../exceptions/text/messages.js';
+import { getMasterPwd } from '../helpers/index.js';
+import { buildBadRequestException, buildForbiddenException } from './utils/index.js';
+import { validateUuidByRegex } from './utils/validate-uuid-by-regex.js';
 
 @Injectable()
 export class TableAddGuard implements CanActivate {

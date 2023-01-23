@@ -1,8 +1,8 @@
-import { LogOperationTypeEnum, QueryOrderingEnum } from '../../../enums';
-import { CreateLogRecordDs } from '../application/data-structures/create-log-record.ds';
-import { CreatedLogRecordDs } from '../application/data-structures/created-log-record.ds';
-import { FoundLogsEntities } from '../application/data-structures/found-logs.ds';
-import { TableLogsEntity } from '../table-logs.entity';
+import { LogOperationTypeEnum, QueryOrderingEnum } from '../../../enums/index.js';
+import { CreateLogRecordDs } from '../application/data-structures/create-log-record.ds.js';
+import { CreatedLogRecordDs } from '../application/data-structures/created-log-record.ds.js';
+import { FoundLogsEntities } from '../application/data-structures/found-logs.ds.js';
+import { TableLogsEntity } from '../table-logs.entity.js';
 
 export interface ITableLogsRepository {
   createLogRecord(logsData: CreateLogRecordDs): Promise<CreatedLogRecordDs>;

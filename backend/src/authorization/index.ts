@@ -1,3 +1,3 @@
-export { AuthMiddleware } from './auth.middleware';
-export { BasicAuthMiddleware } from './basic-auth.middleware';
-export { IRequestWithCognitoInfo, ICognitoDecodedData } from './cognito-decoded.interface';
+export { AuthMiddleware } from './auth.middleware.js';
+export { BasicAuthMiddleware } from './basic-auth.middleware.js';
+export { IRequestWithCognitoInfo, ICognitoDecodedData } from './cognito-decoded.interface.js';

@@ -1,11 +1,11 @@
-import { SubscriptionLevelEnum } from '../../../enums';
-import { isSaaS } from '../../../helpers/app/is-saas';
-import { Constants } from '../../../helpers/constants/constants';
-import { getCurrentUserSubscription } from '../../stripe/stripe-helpers/get-current-user-subscription';
-import { CreateUserDs } from '../application/data-structures/create-user.ds';
-import { RegisterUserDs } from '../application/data-structures/register-user-ds';
-import { UserEntity } from '../user.entity';
-import { IUserRepository } from './user.repository.interface';
+import { SubscriptionLevelEnum } from '../../../enums/index.js';
+import { isSaaS } from '../../../helpers/app/is-saas.js';
+import { Constants } from '../../../helpers/constants/constants.js';
+import { getCurrentUserSubscription } from '../../stripe/stripe-helpers/get-current-user-subscription.js';
+import { CreateUserDs } from '../application/data-structures/create-user.ds.js';
+import { RegisterUserDs } from '../application/data-structures/register-user-ds.js';
+import { UserEntity } from '../user.entity.js';
+import { IUserRepository } from './user.repository.interface.js';
 
 export const userCustomRepositoryExtension: IUserRepository = {
   async createUser(userData: CreateUserDs): Promise<UserEntity> {

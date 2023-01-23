@@ -1,4 +1,4 @@
-import { QueryOrderingEnum } from '../../enums';
+import { QueryOrderingEnum } from '../../enums/index.js';
 
 export interface ITableSettings {
   id: string;

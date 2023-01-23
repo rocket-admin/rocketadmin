@@ -1,1 +1,1 @@
-export { CreateLogRecordDto } from './create-log-record.dto';
+export { CreateLogRecordDto } from './create-log-record.dto.js';

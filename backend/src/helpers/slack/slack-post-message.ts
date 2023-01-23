@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { Constants } from '../constants/constants';
+import { Constants } from '../constants/constants.js';
 
 export async function slackPostMessage(message: string, channel = Constants.DEFAULT_SLACK_CHANNEL): Promise<any> {
   try {

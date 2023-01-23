@@ -1,6 +1,6 @@
-import { UserEntity } from '../user.entity';
-import { RegisteredUserDs } from '../application/data-structures/registered-user.ds';
-import { generateGwtToken } from './generate-gwt-token';
+import { UserEntity } from '../user.entity.js';
+import { RegisteredUserDs } from '../application/data-structures/registered-user.ds.js';
+import { generateGwtToken } from './generate-gwt-token.js';
 
 export function buildRegisteredUserDS(user: UserEntity): RegisteredUserDs {
   const jwtToken = generateGwtToken(user);

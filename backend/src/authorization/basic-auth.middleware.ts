@@ -1,13 +1,7 @@
-import {
-  Injectable,
-  NestMiddleware,
-  HttpException,
-  HttpStatus,
-} from '@nestjs/common';
-
+import { Injectable, NestMiddleware, HttpException, HttpStatus } from '@nestjs/common';
 import { Request, Response } from 'express';
-import * as auth from 'basic-auth';
-import { Messages } from '../exceptions/text/messages';
+import auth from 'basic-auth';
+import { Messages } from '../exceptions/text/messages.js';
 
 @Injectable()
 export class BasicAuthMiddleware implements NestMiddleware {
@@ -24,10 +18,7 @@ export class BasicAuthMiddleware implements NestMiddleware {
       );
     }
     const { name: loginUserName, pass: loginUserPassword } = userCredentials;
-    if (
-      basicAuthLogin !== loginUserName ||
-      basicAuthPassword !== loginUserPassword
-    ) {
+    if (basicAuthLogin !== loginUserName || basicAuthPassword !== loginUserPassword) {
       throw new HttpException(
         {
           message: Messages.INVALID_USERNAME_OR_PASSWORD,

@@ -1,7 +1,7 @@
-import { FilterCriteriaEnum, QueryOrderingEnum } from '../../enums';
-import { ITableAccessLevel, ITablePermissionData } from '../permission/permission.interface';
-import { TableActionEntity } from '../table-actions/table-action.entity';
-import { ITableWidgetRO } from '../widget/table-widget.interface';
+import { FilterCriteriaEnum, QueryOrderingEnum } from '../../enums/index.js';
+import { ITableAccessLevel, ITablePermissionData } from '../permission/permission.interface.js';
+import { TableActionEntity } from '../table-actions/table-action.entity.js';
+import { ITableWidgetRO } from '../widget/table-widget.interface.js';
 
 export interface IAllTablesWithPermissions {
   tables: Array<ITablePermissionData>;

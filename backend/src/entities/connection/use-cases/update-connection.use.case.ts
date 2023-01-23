@@ -1,21 +1,21 @@
 import { HttpStatus, Inject, Injectable } from '@nestjs/common';
-import { HttpException } from '@nestjs/common/exceptions/http.exception';
-import AbstractUseCase from '../../../common/abstract-use.case';
-import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface';
-import { BaseType } from '../../../common/data-injection.tokens';
-import { AmplitudeEventTypeEnum } from '../../../enums';
-import { Messages } from '../../../exceptions/text/messages';
-import { isConnectionTypeAgent } from '../../../helpers';
-import { Constants } from '../../../helpers/constants/constants';
-import { Encryptor } from '../../../helpers/encryption/encryptor';
-import { AmplitudeService } from '../../amplitude/amplitude.service';
-import { CreatedConnectionDs } from '../application/data-structures/created-connection.ds';
-import { UpdateConnectionDs } from '../application/data-structures/update-connection.ds';
-import { ConnectionEntity } from '../connection.entity';
-import { buildCreatedConnectionDs } from '../utils/build-created-connection.ds';
-import { isTestConnectionUtil } from '../utils/is-test-connection-util';
-import { validateCreateConnectionData } from '../utils/validate-create-connection-data';
-import { IUpdateConnection } from './use-cases.interfaces';
+import { HttpException } from '@nestjs/common/exceptions/http.exception.js';
+import AbstractUseCase from '../../../common/abstract-use.case.js';
+import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface.js';
+import { BaseType } from '../../../common/data-injection.tokens.js';
+import { AmplitudeEventTypeEnum } from '../../../enums/index.js';
+import { Messages } from '../../../exceptions/text/messages.js';
+import { isConnectionTypeAgent } from '../../../helpers/index.js';
+import { Constants } from '../../../helpers/constants/constants.js';
+import { Encryptor } from '../../../helpers/encryption/encryptor.js';
+import { AmplitudeService } from '../../amplitude/amplitude.service.js';
+import { CreatedConnectionDs } from '../application/data-structures/created-connection.ds.js';
+import { UpdateConnectionDs } from '../application/data-structures/update-connection.ds.js';
+import { ConnectionEntity } from '../connection.entity.js';
+import { buildCreatedConnectionDs } from '../utils/build-created-connection.ds.js';
+import { isTestConnectionUtil } from '../utils/is-test-connection-util.js';
+import { validateCreateConnectionData } from '../utils/validate-create-connection-data.js';
+import { IUpdateConnection } from './use-cases.interfaces.js';
 
 @Injectable()
 export class UpdateConnectionUseCase
@@ -52,7 +52,7 @@ export class UpdateConnectionUseCase
         HttpStatus.BAD_REQUEST,
       );
     }
-    
+
     this.checkPasswordRequired(foundConnectionToUpdate, updateConnectionData.connection_parameters);
     const booleanKeys = Object.keys(connection_parameters).map((key: string) => {
       // eslint-disable-next-line security/detect-object-injection

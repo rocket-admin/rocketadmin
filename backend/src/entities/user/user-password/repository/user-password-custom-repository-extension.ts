@@ -1,6 +1,6 @@
-import { Encryptor } from '../../../../helpers/encryption/encryptor';
-import { UserEntity } from '../../user.entity';
-import { PasswordResetEntity } from '../password-reset.entity';
+import { Encryptor } from '../../../../helpers/encryption/encryptor.js';
+import { UserEntity } from '../../user.entity.js';
+import { PasswordResetEntity } from '../password-reset.entity.js';
 
 export const userPasswordResetCustomRepositoryExtension = {
   async findPasswordResetWidthVerificationString(verificationString: string): Promise<PasswordResetEntity> {

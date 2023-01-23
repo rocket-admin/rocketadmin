@@ -1,6 +1,6 @@
-import { IPrimaryKeyInfo } from '../../../../dal/shared/dao-interface';
-import { IForeignKeyInfo } from '../../table.interface';
-import { TableWidgetEntity } from '../../../widget/table-widget.entity';
+import { IPrimaryKeyInfo } from '../../../../dal/shared/dao-interface.js';
+import { IForeignKeyInfo } from '../../table.interface.js';
+import { TableWidgetEntity } from '../../../widget/table-widget.entity.js';
 
 export class FoundTableStructureDs {
   structure: Array<FullTableStructureDs>;

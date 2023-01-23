@@ -1,14 +1,15 @@
 import { HttpStatus, Injectable, Scope } from '@nestjs/common';
-import { HttpException } from '@nestjs/common/exceptions/http.exception';
-import * as getPort from 'get-port';
-import { knex, Knex } from 'knex';
+import { HttpException } from '@nestjs/common/exceptions/http.exception.js';
+import getPort from 'get-port';
+import knex from 'knex';
+import { Knex } from 'knex';
 import { Client } from 'ssh2';
-import { getSshMySqlClient } from '../../dal/dao-ssh/database/ssh-mysql-client';
-import { ConnectionEntity } from '../../entities/connection/connection.entity';
-import { CreateTableSettingsDto } from '../../entities/table-settings/dto';
-import { TableSettingsEntity } from '../../entities/table-settings/table-settings.entity';
-import { FilterCriteriaEnum } from '../../enums';
-import { Messages } from '../../exceptions/text/messages';
+import { getSshMySqlClient } from '../../dal/dao-ssh/database/ssh-mysql-client.js';
+import { ConnectionEntity } from '../../entities/connection/connection.entity.js';
+import { CreateTableSettingsDto } from '../../entities/table-settings/dto/index.js';
+import { TableSettingsEntity } from '../../entities/table-settings/table-settings.entity.js';
+import { FilterCriteriaEnum } from '../../enums/index.js';
+import { Messages } from '../../exceptions/text/messages.js';
 import {
   changeObjPropValByPropName,
   checkFieldAutoincrement,
@@ -19,9 +20,9 @@ import {
   objectKeysToLowercase,
   renameObjectKeyName,
   tableSettingsFieldValidator,
-} from '../../helpers';
-import { Cacher } from '../../helpers/cache/cacher';
-import { Constants } from '../../helpers/constants/constants';
+} from '../../helpers/index.js';
+import { Cacher } from '../../helpers/cache/cacher.js';
+import { Constants } from '../../helpers/constants/constants.js';
 import {
   IAutocompleteFieldsData,
   IDataAccessObject,
@@ -31,7 +32,7 @@ import {
   IRows,
   ITableStructure,
   ITestConnectResult,
-} from '../shared/data-access-object-interface';
+} from '../shared/data-access-object-interface.js';
 
 export class DataAccessObjectMysqlSsh implements IDataAccessObject {
   private readonly connection: ConnectionEntity;

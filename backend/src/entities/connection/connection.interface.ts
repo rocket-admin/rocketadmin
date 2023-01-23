@@ -1,5 +1,5 @@
-import { AccessLevelEnum } from '../../enums';
-import { IUserData } from '../user/user.interface';
+import { AccessLevelEnum } from '../../enums/index.js';
+import { IUserData } from '../user/user.interface.js';
 
 export interface IConnectionData {
   id: string;

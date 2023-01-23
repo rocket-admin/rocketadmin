@@ -1,12 +1,12 @@
-import { IMessage } from './email/email.interface';
-import * as SMTPTransport from 'nodemailer/lib/smtp-transport';
-import { EmailGenerator } from './email/email.generator';
-import { EmailConfigService } from './email-config/email-config.service';
-import { EmailTransporterService } from './transporter/email-transporter-service';
-import { EmailService } from './email/email.service';
-import { Constants } from '../../helpers/constants/constants';
-import * as Sentry from '@sentry/node';
-import { getProcessVariable } from '../../helpers/get-process-variable';
+import { IMessage } from './email/email.interface.js';
+import SMTPTransport from 'nodemailer/lib/smtp-transport';
+import { EmailGenerator } from './email/email.generator.js';
+import { EmailConfigService } from './email-config/email-config.service.js';
+import { EmailTransporterService } from './transporter/email-transporter-service.js';
+import { EmailService } from './email/email.service.js';
+import { Constants } from '../../helpers/constants/constants.js';
+import Sentry from '@sentry/node';
+import { getProcessVariable } from '../../helpers/get-process-variable.js';
 
 export async function sendEmailToUser(letterContent: IMessage): Promise<SMTPTransport.SentMessageInfo | null> {
   if (process.env.NODE_ENV === 'test') return;

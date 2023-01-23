@@ -1,13 +1,13 @@
-import { FilterCriteriaEnum, QueryOrderingEnum } from '../../../../enums';
+import { FilterCriteriaEnum, QueryOrderingEnum } from '../../../../enums/index.js';
 import {
   IForeignKey,
   IPagination,
   IPrimaryKey,
-} from '../../../../data-access-layer/shared/data-access-object-interface';
-import { FullTableStructureDs } from './found-table-structure.ds';
-import { ITablePermissionData } from '../../../permission/permission.interface';
-import { TableWidgetEntity } from '../../../widget/table-widget.entity';
-import { TableActionEntity } from '../../../table-actions/table-action.entity';
+} from '../../../../data-access-layer/shared/data-access-object-interface.js';
+import { FullTableStructureDs } from './found-table-structure.ds.js';
+import { ITablePermissionData } from '../../../permission/permission.interface.js';
+import { TableWidgetEntity } from '../../../widget/table-widget.entity.js';
+import { TableActionEntity } from '../../../table-actions/table-action.entity.js';
 
 export class FoundTableRowsDs {
   rows: Array<Record<string, unknown>>;

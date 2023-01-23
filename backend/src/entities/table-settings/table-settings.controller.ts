@@ -12,30 +12,27 @@ import {
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import { HttpException } from '@nestjs/common/exceptions/http.exception';
-import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { UseCaseType } from '../../common/data-injection.tokens';
-import { MasterPassword, QueryTableName, QueryUuid, UserId } from '../../decorators';
-import { InTransactionEnum, QueryOrderingEnum } from '../../enums';
-import { Messages } from '../../exceptions/text/messages';
-import { ConnectionEditGuard, ConnectionReadGuard } from '../../guards';
-import { toPrettyErrorsMsg } from '../../helpers';
-import { SentryInterceptor } from '../../interceptors';
-import { CustomFieldsEntity } from '../custom-field/custom-fields.entity';
-import { CreateTableSettingsDs } from './application/data-structures/create-table-settings.ds';
-import { DeleteTableSettingsDs } from './application/data-structures/delete-table-settings.ds';
-import { FindTableSettingsDs } from './application/data-structures/find-table-settings.ds';
-import { FoundTableSettingsDs } from './application/data-structures/found-table-settings.ds';
-import { CreateTableSettingsDto } from './dto';
+import { HttpException } from '@nestjs/common/exceptions/http.exception.js';
+import { UseCaseType } from '../../common/data-injection.tokens.js';
+import { MasterPassword, QueryTableName, QueryUuid, UserId } from '../../decorators/index.js';
+import { InTransactionEnum, QueryOrderingEnum } from '../../enums/index.js';
+import { Messages } from '../../exceptions/text/messages.js';
+import { ConnectionEditGuard, ConnectionReadGuard } from '../../guards/index.js';
+import { toPrettyErrorsMsg } from '../../helpers/index.js';
+import { SentryInterceptor } from '../../interceptors/index.js';
+import { CustomFieldsEntity } from '../custom-field/custom-fields.entity.js';
+import { CreateTableSettingsDs } from './application/data-structures/create-table-settings.ds.js';
+import { DeleteTableSettingsDs } from './application/data-structures/delete-table-settings.ds.js';
+import { FindTableSettingsDs } from './application/data-structures/find-table-settings.ds.js';
+import { FoundTableSettingsDs } from './application/data-structures/found-table-settings.ds.js';
+import { CreateTableSettingsDto } from './dto/index.js';
 import {
   ICreateTableSettings,
   IDeleteTableSettings,
   IFindTableSettings,
   IUpdateTableSettings,
-} from './use-cases/use-cases.interface';
+} from './use-cases/use-cases.interface.js';
 
-@ApiBearerAuth()
-@ApiTags('settings')
 @UseInterceptors(SentryInterceptor)
 @Controller()
 @Injectable()
@@ -51,8 +48,6 @@ export class TableSettingsController {
     private readonly deleteTableSettingsUseCase: IDeleteTableSettings,
   ) {}
 
-  @ApiOperation({ summary: 'Get all table settings in this connection' })
-  @ApiResponse({ status: 200, description: 'Return all table settings.' })
   @UseGuards(ConnectionReadGuard)
   @Get('/settings/')
   @UseInterceptors(ClassSerializerInterceptor)
@@ -76,10 +71,6 @@ export class TableSettingsController {
     return await this.findTableSettingsUseCase.execute(inputData, InTransactionEnum.OFF);
   }
 
-  @ApiOperation({ summary: 'Create table settings' })
-  @ApiBody({ type: CreateTableSettingsDto })
-  @ApiResponse({ status: 201, description: 'The settings was successfully created.' })
-  @ApiResponse({ status: 403, description: 'Forbidden.' })
   @UseGuards(ConnectionEditGuard)
   @Post('/settings/')
   async createSettings(
@@ -145,10 +136,6 @@ export class TableSettingsController {
     return await this.createTableSettingsUseCase.execute(inputData, InTransactionEnum.ON);
   }
 
-  @ApiOperation({ summary: 'Update table settings' })
-  @ApiBody({ type: CreateTableSettingsDto })
-  @ApiResponse({ status: 201, description: 'The settings was successfully updated.' })
-  @ApiResponse({ status: 403, description: 'Forbidden.' })
   @UseGuards(ConnectionEditGuard)
   @Put('/settings/')
   async updateSettings(
@@ -213,9 +200,6 @@ export class TableSettingsController {
     return await this.updateTableSettingsUseCase.execute(inputData, InTransactionEnum.ON);
   }
 
-  @ApiOperation({ summary: 'Delete table settings' })
-  @ApiResponse({ status: 201, description: 'The settings was successfully deleted.' })
-  @ApiResponse({ status: 403, description: 'Forbidden.' })
   @UseGuards(ConnectionEditGuard)
   @Delete('/settings/')
   async deleteSettings(

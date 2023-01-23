@@ -1,19 +1,19 @@
-import { InTransactionEnum } from '../../../enums';
-import { ChangeUserEmailDs } from '../application/data-structures/change-user-email.ds';
-import { ChangeUserNameDS } from '../application/data-structures/change-user-name.ds';
-import { ChangeUsualUserPasswordDs } from '../application/data-structures/change-usual-user-password.ds';
-import { CreateUserDs } from '../application/data-structures/create-user.ds';
-import { CreatedUserDs } from '../application/data-structures/created-user.ds';
-import { FindUserDs } from '../application/data-structures/find-user.ds';
-import { FoundUserDs } from '../application/data-structures/found-user.ds';
-import { GoogleLoginDs } from '../application/data-structures/google-login.ds';
-import { OperationResultMessageDs } from '../application/data-structures/operation-result-message.ds';
-import { RegisteredUserDs } from '../application/data-structures/registered-user.ds';
-import { ResetUsualUserPasswordDs } from '../application/data-structures/reset-usual-user-password.ds';
-import { UpgradeUserSubscriptionDs } from '../application/data-structures/upgrade-user-subscription.ds';
-import { UpgradedUserSubscriptionDs } from '../application/data-structures/upgraded-user-subscription.ds';
-import { UsualLoginDs } from '../application/data-structures/usual-login.ds';
-import { IToken } from '../utils/generate-gwt-token';
+import { InTransactionEnum } from '../../../enums/index.js';
+import { ChangeUserEmailDs } from '../application/data-structures/change-user-email.ds.js';
+import { ChangeUserNameDS } from '../application/data-structures/change-user-name.ds.js';
+import { ChangeUsualUserPasswordDs } from '../application/data-structures/change-usual-user-password.ds.js';
+import { CreateUserDs } from '../application/data-structures/create-user.ds.js';
+import { CreatedUserDs } from '../application/data-structures/created-user.ds.js';
+import { FindUserDs } from '../application/data-structures/find-user.ds.js';
+import { FoundUserDs } from '../application/data-structures/found-user.ds.js';
+import { GoogleLoginDs } from '../application/data-structures/google-login.ds.js';
+import { OperationResultMessageDs } from '../application/data-structures/operation-result-message.ds.js';
+import { RegisteredUserDs } from '../application/data-structures/registered-user.ds.js';
+import { ResetUsualUserPasswordDs } from '../application/data-structures/reset-usual-user-password.ds.js';
+import { UpgradeUserSubscriptionDs } from '../application/data-structures/upgrade-user-subscription.ds.js';
+import { UpgradedUserSubscriptionDs } from '../application/data-structures/upgraded-user-subscription.ds.js';
+import { UsualLoginDs } from '../application/data-structures/usual-login.ds.js';
+import { IToken } from '../utils/generate-gwt-token.js';
 
 export interface ICreateUserUseCase {
   execute(userData: CreateUserDs): Promise<CreatedUserDs>;
