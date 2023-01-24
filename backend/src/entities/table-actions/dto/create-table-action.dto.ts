@@ -10,6 +10,8 @@ export class CreateTableActionDTO {
   tableName: string;
 
   icon: string;
+
+  requireConfirmation: boolean;
 }
 
 export class ActivateTableActionDTO {}
