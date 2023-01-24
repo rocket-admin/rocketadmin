@@ -1,17 +1,17 @@
 import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
-import AbstractUseCase from '../../../common/abstract-use.case';
-import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface';
-import { BaseType } from '../../../common/data-injection.tokens';
-import { SubscriptionLevelEnum } from '../../../enums';
-import { Messages } from '../../../exceptions/text/messages';
-import { Constants } from '../../../helpers/constants/constants';
-import { Encryptor } from '../../../helpers/encryption/encryptor';
-import { ValidationHelper } from '../../../helpers/validators/validation-helper';
-import { createStripeUsageRecord } from '../../stripe/stripe-helpers/create-stripe-usage-record';
-import { getCurrentUserSubscription } from '../../stripe/stripe-helpers/get-current-user-subscription';
-import { generateGwtToken, IToken } from '../../user/utils/generate-gwt-token';
-import { VerifyAddUserInGroupDs } from '../application/data-sctructures/verify-add-user-in-group.ds';
-import { IVerifyAddUserInGroup } from './use-cases.interfaces';
+import AbstractUseCase from '../../../common/abstract-use.case.js';
+import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface.js';
+import { BaseType } from '../../../common/data-injection.tokens.js';
+import { SubscriptionLevelEnum } from '../../../enums/index.js';
+import { Messages } from '../../../exceptions/text/messages.js';
+import { Constants } from '../../../helpers/constants/constants.js';
+import { Encryptor } from '../../../helpers/encryption/encryptor.js';
+import { ValidationHelper } from '../../../helpers/validators/validation-helper.js';
+import { createStripeUsageRecord } from '../../stripe/stripe-helpers/create-stripe-usage-record.js';
+import { getCurrentUserSubscription } from '../../stripe/stripe-helpers/get-current-user-subscription.js';
+import { generateGwtToken, IToken } from '../../user/utils/generate-gwt-token.js';
+import { VerifyAddUserInGroupDs } from '../application/data-sctructures/verify-add-user-in-group.ds.js';
+import { IVerifyAddUserInGroup } from './use-cases.interfaces.js';
 
 @Injectable()
 export class VerifyAddUserInGroupUseCase
@@ -61,6 +61,7 @@ export class VerifyAddUserInGroupUseCase
     }
 
     const foundOwner = await this._dbContext.userRepository.findOneUserById(invitationEntity.ownerId);
+    // eslint-disable-next-line prefer-const
     let { usersInConnectionsCount, usersInConnections } =
       await this._dbContext.connectionRepository.calculateUsersInAllConnectionsOfThisOwner(invitationEntity.ownerId);
     const ownerSubscriptionLevel: SubscriptionLevelEnum = await getCurrentUserSubscription(foundOwner.stripeId);
@@ -78,7 +79,7 @@ export class VerifyAddUserInGroupUseCase
     }
 
     const foundUser = await this._dbContext.userRepository.findOneUserById(invitationEntity.user.id);
-    const newUserAlreadyInConnection: boolean = !!usersInConnections.find((userInConnection) => {
+    const newUserAlreadyInConnection = !!usersInConnections.find((userInConnection) => {
       return userInConnection.id === foundUser.id;
     });
     if (!newUserAlreadyInConnection) {

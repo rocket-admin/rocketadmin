@@ -1,8 +1,8 @@
-import { ConnectionEntity } from '../connection.entity';
-import { CreateConnectionDs } from '../application/data-structures/create-connection.ds';
-import { isConnectionTypeAgent } from '../../../helpers';
-import { UserEntity } from '../../user/user.entity';
-import { Encryptor } from '../../../helpers/encryption/encryptor';
+import { ConnectionEntity } from '../connection.entity.js';
+import { CreateConnectionDs } from '../application/data-structures/create-connection.ds.js';
+import { isConnectionTypeAgent } from '../../../helpers/index.js';
+import { UserEntity } from '../../user/user.entity.js';
+import { Encryptor } from '../../../helpers/encryption/encryptor.js';
 
 export function buildConnectionEntity(
   createConnectionData: CreateConnectionDs,

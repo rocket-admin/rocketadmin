@@ -13,6 +13,8 @@ import amplitude from 'amplitude-js';
 import { differenceInMilliseconds } from 'date-fns';
 import { normalizeTableName } from './lib/normalize';
 import { environment } from '../environments/environment';
+import { interval } from 'rxjs';
+import { User } from '@sentry/angular';
 
 //@ts-ignore
 window.amplitude = amplitude;
@@ -38,7 +40,7 @@ export class AppComponent {
   authBarTheme;
   activeLink: string;
   navigationTabs: object;
-  currentUser;
+  currentUser: User;
   normalizedTableName;
   upgradeButtonShown: boolean = true;
 
@@ -116,7 +118,7 @@ export class AppComponent {
         if (expirationTime) localStorage.setItem('token_expiration', expirationTime.toString());
 
         this._user.fetchUser()
-          .subscribe(res => {
+          .subscribe((res: User) => {
               this.currentUser = res;
               this.setUserLoggedIn(true);
 
@@ -132,6 +134,10 @@ export class AppComponent {
             }
         )
 
+        interval(5*60*1000).subscribe(() => {
+          this._user.fetchUser().subscribe((res: User) => this.currentUser = res);
+        });
+
         const expirationInterval = differenceInMilliseconds(expirationTime, new Date());
         setTimeout(() => {
           this.logOut(true);
@@ -146,7 +152,7 @@ export class AppComponent {
           const expirationInterval = differenceInMilliseconds(expirationTime, currantTime);
           if (expirationInterval > 0) {
             this._user.fetchUser()
-              .subscribe(res => {
+              .subscribe((res: User) => {
                   this.currentUser = res;
                   this.setUserLoggedIn(true);
                   // @ts-ignore
@@ -159,6 +165,10 @@ export class AppComponent {
                   });
                 }
             );
+
+            interval(5*60*1000).subscribe(() => {
+              this._user.fetchUser().subscribe((res: User) => this.currentUser = res);
+            });
 
             setTimeout(() => {
               this.logOut(true);

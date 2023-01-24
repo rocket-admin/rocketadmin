@@ -1,13 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { UserActionEnum } from '../../../enums';
-import { getUniqArrayStrings } from '../../../helpers';
-import { Constants } from '../../../helpers/constants/constants';
-import { UserEntity } from '../../user/user.entity';
-import { UserActionEntity } from '../user-action.entity';
-import { buildNewConnectionNotFinishedEmailSentAction } from '../utils/build-new-user-action-entity';
-import { ICheckUsersActionsAndMailingUsers } from './use-cases-interfaces';
+import { UserActionEnum } from '../../../enums/index.js';
+import { getUniqArrayStrings } from '../../../helpers/index.js';
+import { Constants } from '../../../helpers/constants/constants.js';
+import { UserEntity } from '../../user/user.entity.js';
+import { UserActionEntity } from '../user-action.entity.js';
+import { buildNewConnectionNotFinishedEmailSentAction } from '../utils/build-new-user-action-entity.js';
+import { ICheckUsersActionsAndMailingUsers } from './use-cases-interfaces.js';
 
 @Injectable()
 export class CheckUsersActionsAndMailingUsersUseCase implements ICheckUsersActionsAndMailingUsers {

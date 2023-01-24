@@ -2,22 +2,21 @@ import { faker } from '@faker-js/faker';
 import { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import test from 'ava';
-import * as cookieParser from 'cookie-parser';
-import * as request from 'supertest';
-import { Connection } from 'typeorm';
-import { ApplicationModule } from '../../src/app.module';
-import { AccessLevelEnum } from '../../src/enums';
-import { Messages } from '../../src/exceptions/text/messages';
-import { Constants } from '../../src/helpers/constants/constants';
-import { DatabaseModule } from '../../src/shared/database/database.module';
-import { DatabaseService } from '../../src/shared/database/database.service';
-import { MockFactory } from '../mock.factory';
-import { TestUtils } from '../utils/test.utils';
+import cookieParser from 'cookie-parser';
+import request from 'supertest';
+import { ApplicationModule } from '../../src/app.module.js';
+import { AccessLevelEnum } from '../../src/enums/index.js';
+import { Messages } from '../../src/exceptions/text/messages.js';
+import { Constants } from '../../src/helpers/constants/constants.js';
+import { DatabaseModule } from '../../src/shared/database/database.module.js';
+import { DatabaseService } from '../../src/shared/database/database.service.js';
+import { MockFactory } from '../mock.factory.js';
+import { TestUtils } from '../utils/test.utils.js';
 
 const mockFactory = new MockFactory();
 let app: INestApplication;
 let testUtils: TestUtils;
-let currentTest;
+let currentTest: string;
 
 type RegisterUserData = {
   email: string;
@@ -30,12 +29,12 @@ test.before(async () => {
     imports: [ApplicationModule, DatabaseModule],
     providers: [DatabaseService, TestUtils],
   }).compile();
+  testUtils = moduleFixture.get<TestUtils>(TestUtils);
+  await testUtils.resetDb();
   app = moduleFixture.createNestApplication();
   app.use(cookieParser());
   await app.init();
   app.getHttpServer().listen(0);
-  testUtils = moduleFixture.get<TestUtils>(TestUtils);
-  await testUtils.resetDb();
 });
 
 function getTestData() {
@@ -72,15 +71,6 @@ async function registerUserAndReturnUserInfo(): Promise<{
   const token = `${Constants.JWT_COOKIE_KEY_NAME}=${TestUtils.getJwtTokenFromResponse(registerAdminUserResponse)}`;
   return { token: token, ...adminUserRegisterInfo };
 }
-
-test.after.always('Close app connection', async () => {
-  // await testUtils.resetDb();
-  const connect = await app.get(Connection);
-  if (connect.isConnected) {
-    await connect.close();
-  }
-  await app.close();
-});
 
 currentTest = '> GET /connections >';
 test(`${currentTest} should return all connections for this user`, async (t) => {

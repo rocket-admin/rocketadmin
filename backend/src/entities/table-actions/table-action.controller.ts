@@ -13,24 +13,21 @@ import {
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import validator from 'validator';
-import { UseCaseType } from '../../common/data-injection.tokens';
-import { MasterPassword, QueryTableName, SlugUuid, UserId } from '../../decorators';
-import { InTransactionEnum, TableActionTypeEnum } from '../../enums';
-import { Messages } from '../../exceptions/text/messages';
-import { ConnectionEditGuard, ConnectionReadGuard } from '../../guards';
-import { validateStringWithEnum } from '../../helpers/validators/validate-string-with-enum';
-import { SentryInterceptor } from '../../interceptors';
-import { ActivateTableActionDS } from './application/data-sctructures/activate-table-action.ds';
-import { ActivateTableActionsDS } from './application/data-sctructures/activate-table-actions.ds';
-import { ActivatedTableActionsDS } from './application/data-sctructures/activated-table-action.ds';
-import { CreateTableActionDS } from './application/data-sctructures/create-table-action.ds';
-import { CreatedTableActionDS } from './application/data-sctructures/created-table-action.ds';
-import { FindTableActionsDS } from './application/data-sctructures/find-table-actions.ds';
-import { UpdateTableActionDS } from './application/data-sctructures/update-table-action.ds';
-import { ActivateTableActionDTO, CreateTableActionDTO } from './dto/create-table-action.dto';
-import { UpdateTableActionDTO } from './dto/update-table-action.dto';
+import { UseCaseType } from '../../common/data-injection.tokens.js';
+import { MasterPassword, QueryTableName, SlugUuid, UserId } from '../../decorators/index.js';
+import { InTransactionEnum, TableActionTypeEnum } from '../../enums/index.js';
+import { Messages } from '../../exceptions/text/messages.js';
+import { ConnectionEditGuard, ConnectionReadGuard } from '../../guards/index.js';
+import { validateStringWithEnum } from '../../helpers/validators/validate-string-with-enum.js';
+import { SentryInterceptor } from '../../interceptors/index.js';
+import { ActivateTableActionDS } from './application/data-sctructures/activate-table-action.ds.js';
+import { ActivateTableActionsDS } from './application/data-sctructures/activate-table-actions.ds.js';
+import { ActivatedTableActionsDS } from './application/data-sctructures/activated-table-action.ds.js';
+import { CreateTableActionDS } from './application/data-sctructures/create-table-action.ds.js';
+import { CreatedTableActionDS } from './application/data-sctructures/created-table-action.ds.js';
+import { FindTableActionsDS } from './application/data-sctructures/find-table-actions.ds.js';
+import { UpdateTableActionDS } from './application/data-sctructures/update-table-action.ds.js';
 import {
   IActivateTableAction,
   IActivateTableActions,
@@ -39,10 +36,8 @@ import {
   IFindAllTableActions,
   IFindTableAction,
   IUpdateTableAction,
-} from './use-cases/table-actions-use-cases.interface';
+} from './use-cases/table-actions-use-cases.interface.js';
 
-@ApiBearerAuth()
-@ApiTags('table_actions')
 @UseInterceptors(SentryInterceptor)
 @Controller()
 @Injectable()
@@ -64,9 +59,6 @@ export class TableActionsController {
     private readonly findTableActionUseCase: IFindTableAction,
   ) {}
 
-  @ApiOperation({ summary: 'Receive table actions' })
-  @ApiResponse({ status: 200, description: 'Table actions received' })
-  @ApiBody({ type: CreateTableActionDTO })
   @UseGuards(ConnectionReadGuard)
   @Get('/table/actions/:slug')
   async findTableActions(
@@ -84,9 +76,6 @@ export class TableActionsController {
     return await this.findTableActionsUseCase.execute(inputData, InTransactionEnum.OFF);
   }
 
-  @ApiOperation({ summary: 'Receive table action' })
-  @ApiResponse({ status: 200, description: 'Table action received' })
-  @ApiBody({ type: CreateTableActionDTO })
   @UseGuards(ConnectionReadGuard)
   @Get('/table/action/:slug')
   async findTableAction(@Query('actionId') actionId: string): Promise<CreatedTableActionDS> {
@@ -101,9 +90,6 @@ export class TableActionsController {
     return await this.findTableActionUseCase.execute(actionId, InTransactionEnum.OFF);
   }
 
-  @ApiOperation({ summary: 'Create table action' })
-  @ApiResponse({ status: 201, description: 'Table action successfully created' })
-  @ApiBody({ type: CreateTableActionDTO })
   @UseGuards(ConnectionEditGuard)
   @Post('/table/action/:slug')
   async createAction(
@@ -130,9 +116,6 @@ export class TableActionsController {
     return await this.createTableActionUseCase.execute(inputData, InTransactionEnum.OFF);
   }
 
-  @ApiOperation({ summary: 'Update table action' })
-  @ApiResponse({ status: 200, description: 'Table action successfully updated' })
-  @ApiBody({ type: UpdateTableActionDTO })
   @UseGuards(ConnectionEditGuard)
   @Put('/table/action/:slug')
   async updateAction(
@@ -153,17 +136,12 @@ export class TableActionsController {
     return await this.updateTableActionUseCase.execute(inputData, InTransactionEnum.OFF);
   }
 
-  @ApiOperation({ summary: 'Delete table action' })
-  @ApiResponse({ status: 201, description: 'Table action successfully deleted' })
   @UseGuards(ConnectionEditGuard)
   @Delete('/table/action/:slug')
   async deleteAction(@Query('actionId') actionId: string): Promise<CreatedTableActionDS> {
     return await this.deleteTableActionUseCase.execute(actionId, InTransactionEnum.OFF);
   }
 
-  @ApiOperation({ summary: 'Activate table action' })
-  @ApiResponse({ status: 201, description: 'Table action successfully activated' })
-  @ApiBody({ type: ActivateTableActionDTO })
   @UseGuards(ConnectionReadGuard)
   @Post('/table/action/activate/:slug')
   async activateAction(
@@ -186,9 +164,6 @@ export class TableActionsController {
     return await this.activateTableActionUseCase.execute(inputData, InTransactionEnum.OFF);
   }
 
-  @ApiOperation({ summary: 'Activate table actions' })
-  @ApiResponse({ status: 201, description: 'Table actions successfully activated' })
-  @ApiBody({ type: ActivateTableActionDTO })
   @UseGuards(ConnectionReadGuard)
   @Post('/table/actions/activate/:slug')
   async activateActions(

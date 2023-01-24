@@ -16,6 +16,8 @@ import { TablesService } from 'src/app/services/tables.service';
 import { User } from 'src/app/models/user';
 import { normalizeTableName } from '../../lib/normalize'
 import { omitBy } from "lodash";
+import { DbRowsDeleteDialogComponent } from './db-rows-delete-dialog/db-rows-delete-dialog.component';
+import { SelectionModel } from '@angular/cdk/collections';
 
 @Component({
   selector: 'app-dashboard',
@@ -42,6 +44,8 @@ export class DashboardComponent implements OnInit {
   public noTablesError: boolean = false;
 
   public dataSource: TablesDataSource = null;
+
+  public selection = new SelectionModel<any>(true, []);
 
   constructor(
     public router: Router,
@@ -84,6 +88,7 @@ export class DashboardComponent implements OnInit {
             if (tableName) {
               this.selectedTableName = tableName;
               this.setTable(tableName);
+              this.selection.clear();
             } else {
               this.router.navigate([`/dashboard/${this.connectionID}/${this.tablesList[0].table}`], {replaceUrl: true});
               this.selectedTableName = this.tablesList[0].table;
@@ -93,6 +98,14 @@ export class DashboardComponent implements OnInit {
         this._tableRow.cast.subscribe((arg) => {
           if (arg === 'delete row' && this.selectedTableName) {
             this.setTable(this.selectedTableName);
+            this.selection.clear();
+          };
+        });
+        this._tables.cast.subscribe((arg) => {
+          if (arg === 'delete rows' && this.selectedTableName) {
+            this.setTable(this.selectedTableName);
+            this.selection.clear();
+            console.log('after delete rows');
           };
         });
     }
@@ -132,21 +145,30 @@ export class DashboardComponent implements OnInit {
         structure
       }
     });
-    filterDialodRef.componentInstance.tableRowFieldsShown
 
     filterDialodRef.afterClosed().subscribe(action => {
       if (action === 'filter' || action === 'reset') {
-        this.filters = omitBy(filterDialodRef.componentInstance.tableRowFieldsShown, (value) => value === undefined);
+        const filtersFromDialog = {...filterDialodRef.componentInstance.tableRowFieldsShown};
+
+        const nonEmptyFilters = omitBy(filtersFromDialog, (value) => value === undefined);
         this.comparators = filterDialodRef.componentInstance.tableRowFieldsComparator;
 
-        const filtersQueryParams = Object.keys(this.filters)
-          .reduce((paramsObj, key) => {
-            paramsObj[`f__${key}__${this.comparators[key]}`] = this.filters[key];
-            return paramsObj;
-          }, {});
+        if (Object.keys(nonEmptyFilters).length) {
+          this.filters = Object.keys(nonEmptyFilters)
+            .reduce((filtersObj, key) => {
+              filtersObj[key] = filtersFromDialog[key].toString().trim();
+              return filtersObj;
+            }, {});
 
-        this.getRows();
-        this.router.navigate([`/dashboard/${this.connectionID}/${this.selectedTableName}`], { queryParams: {...filtersQueryParams, page_index: 0} });
+          const filtersQueryParams = Object.keys(this.filters)
+            .reduce((paramsObj, key) => {
+              paramsObj[`f__${key}__${this.comparators[key]}`] = this.filters[key];
+              return paramsObj;
+            }, {});
+
+          this.getRows();
+          this.router.navigate([`/dashboard/${this.connectionID}/${this.selectedTableName}`], { queryParams: {...filtersQueryParams, page_index: 0} });
+        }
       }
     })
   }
@@ -198,6 +220,13 @@ export class DashboardComponent implements OnInit {
     });
   }
 
+  confirmDeleteRows(data: Object) {
+    this.dialog.open(DbRowsDeleteDialogComponent, {
+      width: '25em',
+      data
+    });
+  }
+
   openIntercome() {
     // @ts-ignore
     Intercom('show');
@@ -205,7 +234,20 @@ export class DashboardComponent implements OnInit {
 
 
   activateAction({action, primaryKeys}) {
+    console.log('activateAction');
     this._tables.activateAction(this.connectionID, this.selectedTableName, action, primaryKeys)
+      .subscribe(() => {console.log('activated')})
+  }
+
+  // getPrimaryKey(row) {
+  //   return Object.assign({}, ...this.data.primaryKeys.map((primaryKey) => ({[primaryKey.column_name]: row[primaryKey.column_name]})));
+  // }
+
+  activateActions({action, selectedRows}) {
+    console.log('activateActions');
+    const primaryKeys = selectedRows
+      .map(row => Object.assign({}, ...this.dataSource.keyAttributes.map((primaryKey) => ({[primaryKey.column_name]: row[primaryKey.column_name]}))));
+    this._tables.activateActions(this.connectionID, this.selectedTableName, action, primaryKeys)
       .subscribe(() => {console.log('activated')})
   }
 }

@@ -1,6 +1,6 @@
 import {CdkDragDrop, moveItemInArray} from '@angular/cdk/drag-drop';
 import { Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
-import { CustomAction, TableForeignKey, TablePermissions } from 'src/app/models/table';
+import { CustomAction, CustomActionType, TableForeignKey, TablePermissions } from 'src/app/models/table';
 import { getComparators, getFilters } from 'src/app/lib/parse-filter-params';
 
 import { AccessLevel } from 'src/app/models/user';
@@ -10,6 +10,7 @@ import { MatSort } from '@angular/material/sort';
 import { merge } from 'rxjs';
 import { normalizeTableName } from '../../../lib/normalize'
 import { tap } from 'rxjs/operators';
+import { TablesService } from 'src/app/services/tables.service';
 
 interface Column {
   title: string,
@@ -35,17 +36,22 @@ export class DbTableComponent implements OnInit {
   @Output() openFilters = new EventEmitter();
   @Output() openPage = new EventEmitter();
   @Output() deleteRow = new EventEmitter();
+  @Output() deleteRows = new EventEmitter();
   @Output() search = new EventEmitter();
   @Output() removeFilter = new EventEmitter();
   @Output() resetAllFilters = new EventEmitter();
   @Output() activateAction = new EventEmitter();
+  @Output() activateActions = new EventEmitter();
 
   public tableData: any;
+  public selection: any;
   public columns: Column[];
   public displayedColumns: string[] = [];
   public columnsToDisplay: string[] = [];
   public searchString: string;
   public actionsColumnWidth: string;
+  public bulkActions: CustomAction[];
+  public bulkRows: string[];
   public displayedComparators = {
     eq: "=",
     gt: ">",
@@ -58,11 +64,16 @@ export class DbTableComponent implements OnInit {
     if (value) this.tableData = value;
   }
 
+  @Input() set rowSelection(value){
+    if (value) this.selection = value;
+  }
+
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
 
   constructor(
     private route: ActivatedRoute,
+    private _tables: TablesService,
   ) {}
 
   ngAfterViewInit() {
@@ -148,10 +159,6 @@ export class DbTableComponent implements OnInit {
     this.searchString = '';
   }
 
-  handleSearch () {
-    this.search.emit(this.searchString);
-  }
-
   clearSearch () {
     this.searchString = null;
     this.search.emit(this.searchString);
@@ -169,12 +176,38 @@ export class DbTableComponent implements OnInit {
       return `${displayedName} = ...${filterValue}`
     } else if (this.filterComparators[filterKey] == 'contains') {
       return `${displayedName} = ...${filterValue}...`
+    } else if (this.filterComparators[filterKey] == 'empty') {
+      return `${displayedName} = ' '`
     } else {
       return `${displayedName} ${this.displayedComparators[this.filterComparators[filterKey]]} ${filterValue}`
     }
   }
 
-  handleActivateAction(action: CustomAction, primaryKeys: object) {
-    this.activateAction.emit({action, primaryKeys});
+  /** Whether the number of selected elements matches the total number of rows. */
+  isAllSelected() {
+    return this.paginator.pageSize === this.selection.selected.length;
   }
+
+  /** Selects all rows if they are not all selected; otherwise clear selection. */
+  toggleAllRows() {
+    if (this.isAllSelected()) {
+      this.selection.clear();
+    } else {
+      this.selection.select(...this.tableData.rowsSubject.value);
+    }
+  }
+
+  /** The label for the checkbox on the passed row */
+  checkboxLabel(row?: any): string {
+    if (!row) {
+      return `${this.isAllSelected() ? 'deselect' : 'select'} all`;
+    }
+    return `${this.selection.isSelected(row) ? 'deselect' : 'select'} row ${row.position + 1}`;
+  }
+
+  // getBulkActions(actions) {
+  //   console.log('get bulk actions')
+  //   console.log(actions)
+  //   return actions.filter((action: CustomAction) => actions.type === CustomActionType.Multiple)
+  // }
 }

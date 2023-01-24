@@ -1,6 +1,6 @@
-import { Constants } from '../../../helpers/constants/constants';
-import { CreatedConnectionDs } from '../application/data-structures/created-connection.ds';
-import { ConnectionEntity } from '../connection.entity';
+import { Constants } from '../../../helpers/constants/constants.js';
+import { CreatedConnectionDs } from '../application/data-structures/created-connection.ds.js';
+import { ConnectionEntity } from '../connection.entity.js';
 
 export function isTestConnectionUtil(connection: ConnectionEntity | CreatedConnectionDs): boolean {
   if (connection.isTestConnection) {

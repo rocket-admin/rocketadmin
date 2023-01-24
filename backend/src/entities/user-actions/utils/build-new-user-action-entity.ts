@@ -1,7 +1,7 @@
-import { CreateUserActionDs } from '../application/data-sctructures/create-user-action.ds';
-import { UserEntity } from '../../user/user.entity';
-import { UserActionEntity } from '../user-action.entity';
-import { UserActionEnum } from '../../../enums';
+import { CreateUserActionDs } from '../application/data-sctructures/create-user-action.ds.js';
+import { UserEntity } from '../../user/user.entity.js';
+import { UserActionEntity } from '../user-action.entity.js';
+import { UserActionEnum } from '../../../enums/index.js';
 
 export function buildNewUserActionEntity(actionData: CreateUserActionDs, user: UserEntity): UserActionEntity {
   const { message } = actionData;

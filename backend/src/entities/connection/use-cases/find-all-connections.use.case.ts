@@ -1,23 +1,23 @@
 import { Inject, Injectable } from '@nestjs/common';
-import AbstractUseCase from '../../../common/abstract-use.case';
-import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface';
-import { BaseType } from '../../../common/data-injection.tokens';
-import { AccessLevelEnum, AmplitudeEventTypeEnum } from '../../../enums';
-import { Constants } from '../../../helpers/constants/constants';
-import { AmplitudeService } from '../../amplitude/amplitude.service';
-import { GroupEntity } from '../../group/group.entity';
-import { PermissionEntity } from '../../permission/permission.entity';
-import { TableSettingsEntity } from '../../table-settings/table-settings.entity';
-import { CreateUserDs } from '../../user/application/data-structures/create-user.ds';
-import { FindUserDs } from '../../user/application/data-structures/find-user.ds';
-import { buildConnectionEntitiesFromTestDtos } from '../../user/utils/build-connection-entities-from-test-dtos';
-import { buildDefaultAdminGroups } from '../../user/utils/build-default-admin-groups';
-import { buildDefaultAdminPermissions } from '../../user/utils/build-default-admin-permissions';
-import { buildTestTableSettings } from '../../user/utils/build-test-table-settings';
-import { FoundConnectionsDs } from '../application/data-structures/found-connections.ds';
-import { ConnectionEntity } from '../connection.entity';
-import { buildFoundConnectionDs } from '../utils/build-found-connection.ds';
-import { IFindConnections } from './use-cases.interfaces';
+import AbstractUseCase from '../../../common/abstract-use.case.js';
+import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface.js';
+import { BaseType } from '../../../common/data-injection.tokens.js';
+import { AccessLevelEnum, AmplitudeEventTypeEnum } from '../../../enums/index.js';
+import { Constants } from '../../../helpers/constants/constants.js';
+import { AmplitudeService } from '../../amplitude/amplitude.service.js';
+import { GroupEntity } from '../../group/group.entity.js';
+import { PermissionEntity } from '../../permission/permission.entity.js';
+import { TableSettingsEntity } from '../../table-settings/table-settings.entity.js';
+import { CreateUserDs } from '../../user/application/data-structures/create-user.ds.js';
+import { FindUserDs } from '../../user/application/data-structures/find-user.ds.js';
+import { buildConnectionEntitiesFromTestDtos } from '../../user/utils/build-connection-entities-from-test-dtos.js';
+import { buildDefaultAdminGroups } from '../../user/utils/build-default-admin-groups.js';
+import { buildDefaultAdminPermissions } from '../../user/utils/build-default-admin-permissions.js';
+import { buildTestTableSettings } from '../../user/utils/build-test-table-settings.js';
+import { FoundConnectionsDs } from '../application/data-structures/found-connections.ds.js';
+import { ConnectionEntity } from '../connection.entity.js';
+import { buildFoundConnectionDs } from '../utils/build-found-connection.ds.js';
+import { IFindConnections } from './use-cases.interfaces.js';
 
 @Injectable()
 export class FindAllConnectionsUseCase
@@ -50,7 +50,7 @@ export class FindAllConnectionsUseCase
               }
             }
           }
-          if(userConnectionAccessLevel !== AccessLevelEnum.edit){
+          if (userConnectionAccessLevel !== AccessLevelEnum.edit) {
             delete connection.signing_key;
           }
           return {

@@ -1,12 +1,12 @@
 import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
-import AbstractUseCase from '../../../common/abstract-use.case';
-import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface';
-import { BaseType } from '../../../common/data-injection.tokens';
-import { Messages } from '../../../exceptions/text/messages';
-import { Encryptor } from '../../../helpers/encryption/encryptor';
-import { UsualLoginDs } from '../application/data-structures/usual-login.ds';
-import { generateGwtToken, IToken } from '../utils/generate-gwt-token';
-import { IUsualLogin } from './user-use-cases.interfaces';
+import AbstractUseCase from '../../../common/abstract-use.case.js';
+import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface.js';
+import { BaseType } from '../../../common/data-injection.tokens.js';
+import { Messages } from '../../../exceptions/text/messages.js';
+import { Encryptor } from '../../../helpers/encryption/encryptor.js';
+import { UsualLoginDs } from '../application/data-structures/usual-login.ds.js';
+import { generateGwtToken, IToken } from '../utils/generate-gwt-token.js';
+import { IUsualLogin } from './user-use-cases.interfaces.js';
 
 @Injectable()
 export class UsualLoginUseCase extends AbstractUseCase<UsualLoginDs, IToken> implements IUsualLogin {

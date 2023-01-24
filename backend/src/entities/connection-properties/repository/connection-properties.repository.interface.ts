@@ -1,4 +1,4 @@
-import { ConnectionPropertiesEntity } from '../connection-properties.entity';
+import { ConnectionPropertiesEntity } from '../connection-properties.entity.js';
 
 export interface IConnectionPropertiesRepository {
   findConnectionProperties(connectionId: string): Promise<ConnectionPropertiesEntity>;

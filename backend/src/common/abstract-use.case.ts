@@ -1,5 +1,5 @@
-import { InTransactionEnum } from '../enums';
-import { IDatabaseContext } from './database-context.interface';
+import { InTransactionEnum } from '../enums/index.js';
+import { IDatabaseContext } from './database-context.interface.js';
 
 abstract class AbstractUseCase<TInputData = void, TOutputData = void> {
   protected _inputData: TInputData;

@@ -1,4 +1,4 @@
-import { Messages } from '../../exceptions/text/messages';
+import { Messages } from '../../exceptions/text/messages.js';
 
 export function requiredEnvironmentVariablesValidator(): void {
   const requiredParameterNames: Array<string> = [

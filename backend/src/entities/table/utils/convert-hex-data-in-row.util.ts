@@ -1,6 +1,6 @@
-import { ITableStructure } from '../../../data-access-layer/shared/data-access-object-interface';
-import { isBinary } from '../../../helpers';
-import { hexToBinary } from '../../../helpers/binary-to-hex';
+import { ITableStructure } from '../../../data-access-layer/shared/data-access-object-interface.js';
+import { isBinary } from '../../../helpers/index.js';
+import { hexToBinary } from '../../../helpers/binary-to-hex.js';
 
 export function convertHexDataInRowUtil(
   row: Record<string, unknown>,

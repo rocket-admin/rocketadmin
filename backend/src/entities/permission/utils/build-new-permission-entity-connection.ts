@@ -1,5 +1,5 @@
-import { AccessLevelEnum, PermissionTypeEnum } from '../../../enums';
-import { PermissionEntity } from '../permission.entity';
+import { AccessLevelEnum, PermissionTypeEnum } from '../../../enums/index.js';
+import { PermissionEntity } from '../permission.entity.js';
 
 export function buildNewPermissionEntityConnection(accessLevel: AccessLevelEnum): PermissionEntity {
   const newPermission = new PermissionEntity();

@@ -1,12 +1,12 @@
-import { EncryptionAlgorithmEnum, WidgetTypeEnum } from '../../../enums';
-import { Messages } from '../../../exceptions/text/messages';
-import { getPropertyValueByDescriptor } from '../../../helpers';
-import { Constants } from '../../../helpers/constants/constants';
-import { ConnectionEntity } from '../../connection/connection.entity';
-import { IForeignKeyInfo } from '../../table/table.interface';
-import { findTableFieldsUtil } from '../../table/utils/find-table-fields.util';
-import { findTablesInConnectionUtil } from '../../table/utils/find-tables-in-connection.util';
-import { CreateTableWidgetDs } from '../application/data-sctructures/create-table-widgets.ds';
+import { EncryptionAlgorithmEnum, WidgetTypeEnum } from '../../../enums/index.js';
+import { Messages } from '../../../exceptions/text/messages.js';
+import { getPropertyValueByDescriptor } from '../../../helpers/index.js';
+import { Constants } from '../../../helpers/constants/constants.js';
+import { ConnectionEntity } from '../../connection/connection.entity.js';
+import { IForeignKeyInfo } from '../../table/table.interface.js';
+import { findTableFieldsUtil } from '../../table/utils/find-table-fields.util.js';
+import { findTablesInConnectionUtil } from '../../table/utils/find-tables-in-connection.util.js';
+import { CreateTableWidgetDs } from '../application/data-sctructures/create-table-widgets.ds.js';
 
 export async function validateCreateWidgetsDs(
   widgetsDS: Array<CreateTableWidgetDs>,

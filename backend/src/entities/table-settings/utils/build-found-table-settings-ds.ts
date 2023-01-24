@@ -1,6 +1,6 @@
-import { ConnectionEntity } from '../../connection/connection.entity';
-import { FoundTableSettingsDs } from '../application/data-structures/found-table-settings.ds';
-import { TableSettingsEntity } from '../table-settings.entity';
+import { ConnectionEntity } from '../../connection/connection.entity.js';
+import { FoundTableSettingsDs } from '../application/data-structures/found-table-settings.ds.js';
+import { TableSettingsEntity } from '../table-settings.entity.js';
 
 export function buildFoundTableSettingsDs(tableSettings: TableSettingsEntity): FoundTableSettingsDs {
   const {

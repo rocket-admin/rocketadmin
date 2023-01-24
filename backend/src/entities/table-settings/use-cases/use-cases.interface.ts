@@ -1,8 +1,8 @@
-import { InTransactionEnum } from '../../../enums';
-import { CreateTableSettingsDs } from '../application/data-structures/create-table-settings.ds';
-import { DeleteTableSettingsDs } from '../application/data-structures/delete-table-settings.ds';
-import { FindTableSettingsDs } from '../application/data-structures/find-table-settings.ds';
-import { FoundTableSettingsDs } from '../application/data-structures/found-table-settings.ds';
+import { InTransactionEnum } from '../../../enums/index.js';
+import { CreateTableSettingsDs } from '../application/data-structures/create-table-settings.ds.js';
+import { DeleteTableSettingsDs } from '../application/data-structures/delete-table-settings.ds.js';
+import { FindTableSettingsDs } from '../application/data-structures/find-table-settings.ds.js';
+import { FoundTableSettingsDs } from '../application/data-structures/found-table-settings.ds.js';
 
 export interface IFindTableSettings {
   execute(inputData: FindTableSettingsDs, inTransaction: InTransactionEnum): Promise<FoundTableSettingsDs>;

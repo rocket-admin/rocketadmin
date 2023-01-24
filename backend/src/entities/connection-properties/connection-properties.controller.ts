@@ -11,27 +11,23 @@ import {
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import { HttpException } from '@nestjs/common/exceptions/http.exception';
-import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { UseCaseType } from '../../common/data-injection.tokens';
-import { MasterPassword, SlugUuid, UserId } from '../../decorators';
-import { InTransactionEnum } from '../../enums';
-import { Messages } from '../../exceptions/text/messages';
-import { ConnectionEditGuard, ConnectionReadGuard } from '../../guards';
-import { SentryInterceptor } from '../../interceptors';
-import { CreateConnectionPropertiesDs } from './application/data-structures/create-connection-properties.ds';
-import { FoundConnectionPropertiesDs } from './application/data-structures/found-connection-properties.ds';
-import { IConnectionPropertiesRO } from './connection-properties.interface';
-import { CreateConnectionPropertiesDto } from './dto';
+import { HttpException } from '@nestjs/common/exceptions/http.exception.js';
+import { UseCaseType } from '../../common/data-injection.tokens.js';
+import { MasterPassword, SlugUuid, UserId } from '../../decorators/index.js';
+import { InTransactionEnum } from '../../enums/index.js';
+import { Messages } from '../../exceptions/text/messages.js';
+import { ConnectionEditGuard, ConnectionReadGuard } from '../../guards/index.js';
+import { SentryInterceptor } from '../../interceptors/index.js';
+import { CreateConnectionPropertiesDs } from './application/data-structures/create-connection-properties.ds.js';
+import { FoundConnectionPropertiesDs } from './application/data-structures/found-connection-properties.ds.js';
+import { IConnectionPropertiesRO } from './connection-properties.interface.js';
 import {
   ICreateConnectionProperties,
   IDeleteConnectionProperties,
   IFindConnectionProperties,
   IUpdateConnectionProperties,
-} from './use-cases/connection-properties-use.cases.interface';
+} from './use-cases/connection-properties-use.cases.interface.js';
 
-@ApiBearerAuth()
-@ApiTags('connection properties')
 @UseInterceptors(SentryInterceptor)
 @Controller()
 @Injectable()
@@ -47,8 +43,6 @@ export class ConnectionPropertiesController {
     private readonly deleteConnectionPropertiesUseCase: IDeleteConnectionProperties,
   ) {}
 
-  @ApiOperation({ summary: 'Get properties' })
-  @ApiResponse({ status: 200, description: 'Return connection properties' })
   @UseGuards(ConnectionReadGuard)
   @Get('/connection/properties/:slug')
   async findConnectionProperties(@SlugUuid() connectionId: string): Promise<FoundConnectionPropertiesDs | null> {
@@ -63,9 +57,6 @@ export class ConnectionPropertiesController {
     return await this.findConnectionPropertiesUseCase.execute(connectionId, InTransactionEnum.OFF);
   }
 
-  @ApiOperation({ summary: 'Create properties' })
-  @ApiResponse({ status: 201, description: 'Return created connection properties' })
-  @ApiBody({ type: CreateConnectionPropertiesDto })
   @UseGuards(ConnectionEditGuard)
   @Post('/connection/properties/:slug')
   async createConnectionProperties(
@@ -92,9 +83,6 @@ export class ConnectionPropertiesController {
     return await this.createConnectionPropertiesUseCase.execute(createConnectionPropertiesDs, InTransactionEnum.ON);
   }
 
-  @ApiOperation({ summary: 'Update properties' })
-  @ApiResponse({ status: 201, description: 'Return updated connection properties' })
-  @ApiBody({ type: CreateConnectionPropertiesDto })
   @UseGuards(ConnectionEditGuard)
   @Put('/connection/properties/:slug')
   async updateConnectionProperties(
@@ -122,8 +110,6 @@ export class ConnectionPropertiesController {
     return await this.updateConnectionPropertiesUseCase.execute(inputData, InTransactionEnum.ON);
   }
 
-  @ApiOperation({ summary: 'Delete properties' })
-  @ApiResponse({ status: 201, description: 'Delete connection properties' })
   @UseGuards(ConnectionEditGuard)
   @Delete('/connection/properties/:slug')
   async deleteConnectionProperties(@SlugUuid() connectionId: string): Promise<IConnectionPropertiesRO> {

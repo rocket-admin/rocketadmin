@@ -1,4 +1,4 @@
-import { LogOperationTypeEnum, OperationResultStatusEnum } from '../../../../enums';
+import { LogOperationTypeEnum, OperationResultStatusEnum } from '../../../../enums/index.js';
 
 export class CreatedLogRecordDs {
   connection_id: string;

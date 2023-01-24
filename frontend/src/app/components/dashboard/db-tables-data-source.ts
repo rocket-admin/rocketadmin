@@ -2,7 +2,7 @@ import * as JSON5 from 'json5';
 
 import { Alert, AlertActionType, AlertType } from 'src/app/models/alert';
 import { BehaviorSubject, Observable, of } from 'rxjs';
-import { TableField, TableForeignKey, Widget } from 'src/app/models/table';
+import { CustomAction, CustomActionType, TableField, TableForeignKey, Widget } from 'src/app/models/table';
 import { catchError, finalize } from 'rxjs/operators';
 
 import { AccessLevel } from 'src/app/models/user';
@@ -60,7 +60,8 @@ export class TablesDataSource implements DataSource<Object> {
   public selectWidgetsOptions: object;
   public permissions;
   public isEmptyTable: boolean;
-  public tableActions: object[];
+  public tableActions: CustomAction[];
+  public tableBulkActions: CustomAction[];
   public actionsColumnWidth: string;
 
   public alert_primaryKeysInfo: Alert;
@@ -171,6 +172,7 @@ export class TablesDataSource implements DataSource<Object> {
           }
           this.keyAttributes = res.primaryColumns;
           this.tableActions = res.table_actions;
+          this.tableBulkActions = res.table_actions.filter((action: CustomAction) => action.type === CustomActionType.Multiple);
 
           let orderedColumns: TableField[];
           if (res.list_fields.length) {
@@ -211,14 +213,14 @@ export class TablesDataSource implements DataSource<Object> {
           this.permissions = res.table_permissions.accessLevel;
           if (this.keyAttributes.length && (this.permissions.edit || this.permissions.delete)) {
             this.actionsColumnWidth = this.getActionsColumnWidth(this.tableActions, this.permissions);
-            this.displayedColumns = [...this.displayedDataColumns, 'actions'];
+            this.displayedColumns = ['select', ...this.displayedDataColumns, 'actions'];
           } else {
             this.actionsColumnWidth = '0';
             this.displayedColumns = [...this.displayedDataColumns];
             this.alert_primaryKeysInfo = {
               id: 10000,
               type: AlertType.Info,
-              message: 'We can not provide editing for this table because it does not have primary keys. Please add primary key in your database.',
+              message: 'Add primary keys through your database to be able to work with the table rows.',
               actions: [
                 {
                   type: AlertActionType.Anchor,
@@ -303,8 +305,11 @@ export class TablesDataSource implements DataSource<Object> {
 
   changleColumnList() {
     this.displayedDataColumns = (filter(this.columns, column => column.selected === true)).map(column => column.title);
-    this.displayedColumns = [...this.displayedDataColumns];
-    if (this.keyAttributes.length) this.displayedColumns.push('actions');
+    if (this.keyAttributes.length) {
+      this.displayedColumns = ['select', ...this.displayedDataColumns, 'actions' ]
+    } else {
+      this.displayedColumns = [...this.displayedDataColumns];
+    };
   }
 
   getQueryParams(row) {

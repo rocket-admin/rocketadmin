@@ -1,5 +1,5 @@
-import { CreateTableWidgetDs } from '../application/data-sctructures/create-table-widgets.ds';
-import { TableWidgetEntity } from '../table-widget.entity';
+import { CreateTableWidgetDs } from '../application/data-sctructures/create-table-widgets.ds.js';
+import { TableWidgetEntity } from '../table-widget.entity.js';
 
 export function buildNewTableWidgetEntity(widget: CreateTableWidgetDs): TableWidgetEntity {
   const { description, field_name, name, widget_options, widget_params, widget_type } = widget;

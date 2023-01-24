@@ -1,25 +1,25 @@
 import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
-import AbstractUseCase from '../../../common/abstract-use.case';
-import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface';
-import { BaseType } from '../../../common/data-injection.tokens';
-import { SubscriptionLevelEnum } from '../../../enums';
-import { Messages } from '../../../exceptions/text/messages';
-import { Constants } from '../../../helpers/constants/constants';
-import { ConnectionEntity } from '../../connection/connection.entity';
-import { sendEmailConfirmation, sendInvitationToGroup } from '../../email/send-email';
-import { PermissionEntity } from '../../permission/permission.entity';
-import { createStripeUsageRecord } from '../../stripe/stripe-helpers/create-stripe-usage-record';
-import { getCurrentUserSubscription } from '../../stripe/stripe-helpers/get-current-user-subscription';
-import { TableSettingsEntity } from '../../table-settings/table-settings.entity';
-import { UserEntity } from '../../user/user.entity';
-import { buildConnectionEntitiesFromTestDtos } from '../../user/utils/build-connection-entities-from-test-dtos';
-import { buildDefaultAdminGroups } from '../../user/utils/build-default-admin-groups';
-import { buildDefaultAdminPermissions } from '../../user/utils/build-default-admin-permissions';
-import { buildTestTableSettings } from '../../user/utils/build-test-table-settings';
-import { AddUserInGroupDs } from '../application/data-sctructures/add-user-in-group.ds';
-import { AddedUserInGroupDs } from '../application/data-sctructures/added-user-in-group.ds';
-import { GroupEntity } from '../group.entity';
-import { IAddUserInGroup } from './use-cases.interfaces';
+import AbstractUseCase from '../../../common/abstract-use.case.js';
+import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface.js';
+import { BaseType } from '../../../common/data-injection.tokens.js';
+import { SubscriptionLevelEnum } from '../../../enums/index.js';
+import { Messages } from '../../../exceptions/text/messages.js';
+import { Constants } from '../../../helpers/constants/constants.js';
+import { ConnectionEntity } from '../../connection/connection.entity.js';
+import { sendEmailConfirmation, sendInvitationToGroup } from '../../email/send-email.js';
+import { PermissionEntity } from '../../permission/permission.entity.js';
+import { createStripeUsageRecord } from '../../stripe/stripe-helpers/create-stripe-usage-record.js';
+import { getCurrentUserSubscription } from '../../stripe/stripe-helpers/get-current-user-subscription.js';
+import { TableSettingsEntity } from '../../table-settings/table-settings.entity.js';
+import { UserEntity } from '../../user/user.entity.js';
+import { buildConnectionEntitiesFromTestDtos } from '../../user/utils/build-connection-entities-from-test-dtos.js';
+import { buildDefaultAdminGroups } from '../../user/utils/build-default-admin-groups.js';
+import { buildDefaultAdminPermissions } from '../../user/utils/build-default-admin-permissions.js';
+import { buildTestTableSettings } from '../../user/utils/build-test-table-settings.js';
+import { AddUserInGroupDs } from '../application/data-sctructures/add-user-in-group.ds.js';
+import { AddedUserInGroupDs } from '../application/data-sctructures/added-user-in-group.ds.js';
+import { GroupEntity } from '../group.entity.js';
+import { IAddUserInGroup } from './use-cases.interfaces.js';
 
 @Injectable()
 export class AddUserInGroupUseCase
@@ -39,6 +39,7 @@ export class AddUserInGroupUseCase
     const foundGroup = await this._dbContext.groupRepository.findGroupById(groupId);
     const foundUser = await this._dbContext.userRepository.findUserByEmailWithEmailVerificationAndInvitation(email);
     const foundOwner = await this._dbContext.userRepository.findOneUserById(ownerId);
+    // eslint-disable-next-line prefer-const
     let { usersInConnections, usersInConnectionsCount } =
       await this._dbContext.connectionRepository.calculateUsersInAllConnectionsOfThisOwner(ownerId);
     const ownerSubscriptionLevel: SubscriptionLevelEnum = await getCurrentUserSubscription(foundOwner.stripeId);
@@ -47,7 +48,7 @@ export class AddUserInGroupUseCase
       usersInConnectionsCount,
     );
 
-    const newUserAlreadyInConnection: boolean = !!usersInConnections.find((userInConnection) => {
+    const newUserAlreadyInConnection = !!usersInConnections.find((userInConnection) => {
       if (!foundUser) {
         return false;
       }
@@ -161,7 +162,7 @@ export class AddUserInGroupUseCase
     const newUser = new UserEntity();
     newUser.email = email;
     newUser.isActive = false;
-    let savedUser = await this._dbContext.userRepository.saveUserEntity(newUser);
+    const savedUser = await this._dbContext.userRepository.saveUserEntity(newUser);
     const testConnections = Constants.getTestConnectionsArr();
     const testConnectionsEntities = buildConnectionEntitiesFromTestDtos(testConnections);
     const createdTestConnections = await Promise.all(

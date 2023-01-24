@@ -1,6 +1,6 @@
-import { CreateTableSettingsDs } from '../application/data-structures/create-table-settings.ds';
-import { ConnectionEntity } from '../../connection/connection.entity';
-import { createDataAccessObject } from '../../../data-access-layer/shared/create-data-access-object';
+import { CreateTableSettingsDs } from '../application/data-structures/create-table-settings.ds.js';
+import { ConnectionEntity } from '../../connection/connection.entity.js';
+import { createDataAccessObject } from '../../../data-access-layer/shared/create-data-access-object.js';
 
 export async function validateCreateTableSettingsDs(
   inputData: CreateTableSettingsDs,

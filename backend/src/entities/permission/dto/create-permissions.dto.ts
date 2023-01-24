@@ -1,16 +1,11 @@
 import { IsNotEmpty } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
 
 export class CreatePermissionsDto {
-  @ApiProperty()
   @IsNotEmpty()
-  connection: {};
+  connection: Record<string, unknown>;
 
-  @ApiProperty()
   @IsNotEmpty()
-  group: {};
+  group: Record<string, unknown>;
 
-  @ApiProperty()
-  tables: {};
-
+  tables: Record<string, unknown>;
 }

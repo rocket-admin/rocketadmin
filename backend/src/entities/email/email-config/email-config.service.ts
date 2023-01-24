@@ -1,4 +1,4 @@
-import { IEmailConfig, IEmailConfigService } from './email-config.interface';
+import { IEmailConfig, IEmailConfigService } from './email-config.interface.js';
 
 export class EmailConfigService implements IEmailConfigService {
   public getEmailServiceConfig(): IEmailConfig | string {

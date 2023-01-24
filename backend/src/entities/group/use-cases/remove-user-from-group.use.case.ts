@@ -1,15 +1,15 @@
 import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
-import AbstractUseCase from '../../../common/abstract-use.case';
-import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface';
-import { BaseType } from '../../../common/data-injection.tokens';
-import { SubscriptionLevelEnum } from '../../../enums';
-import { Messages } from '../../../exceptions/text/messages';
-import { createStripeUsageRecord } from '../../stripe/stripe-helpers/create-stripe-usage-record';
-import { getCurrentUserSubscription } from '../../stripe/stripe-helpers/get-current-user-subscription';
-import { AddUserInGroupDs } from '../application/data-sctructures/add-user-in-group.ds';
-import { RemoveUserFromGroupResultDs } from '../application/data-sctructures/remove-user-from-group-result.ds';
-import { buildRemoveUserFromGroupResultDs } from '../utils/build-remove-user-from-group-result.ds';
-import { IRemoveUserFromGroup } from './use-cases.interfaces';
+import AbstractUseCase from '../../../common/abstract-use.case.js';
+import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface.js';
+import { BaseType } from '../../../common/data-injection.tokens.js';
+import { SubscriptionLevelEnum } from '../../../enums/index.js';
+import { Messages } from '../../../exceptions/text/messages.js';
+import { createStripeUsageRecord } from '../../stripe/stripe-helpers/create-stripe-usage-record.js';
+import { getCurrentUserSubscription } from '../../stripe/stripe-helpers/get-current-user-subscription.js';
+import { AddUserInGroupDs } from '../application/data-sctructures/add-user-in-group.ds.js';
+import { RemoveUserFromGroupResultDs } from '../application/data-sctructures/remove-user-from-group-result.ds.js';
+import { buildRemoveUserFromGroupResultDs } from '../utils/build-remove-user-from-group-result.ds.js';
+import { IRemoveUserFromGroup } from './use-cases.interfaces.js';
 
 @Injectable()
 export class RemoveUserFromGroupUseCase
@@ -54,11 +54,11 @@ export class RemoveUserFromGroupUseCase
     const updatedGroup = await this._dbContext.groupRepository.saveNewOrUpdatedGroup(groupToUpdate);
     const foundOwner = await this._dbContext.userRepository.findOneUserById(ownerId);
     const ownerSubscriptionLevel: SubscriptionLevelEnum = await getCurrentUserSubscription(foundOwner.stripeId);
-
+    // eslint-disable-next-line prefer-const
     let { usersInConnections, usersInConnectionsCount } =
       await this._dbContext.connectionRepository.calculateUsersInAllConnectionsOfThisOwner(ownerId);
 
-    const userStayInConnection: boolean = !!usersInConnections.find((userInConnection) => {
+    const userStayInConnection = !!usersInConnections.find((userInConnection) => {
       return userInConnection.id === foundUser.id;
     });
 

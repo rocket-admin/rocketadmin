@@ -1,15 +1,15 @@
 import { Inject, Injectable } from '@nestjs/common';
-import AbstractUseCase from '../../../common/abstract-use.case';
-import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface';
-import { BaseType } from '../../../common/data-injection.tokens';
-import { Encryptor } from '../../../helpers/encryption/encryptor';
-import { buildEmptyTableSettingsWithEmptyWidgets } from '../../table-settings/utils/build-empty-table-settings';
-import { buildNewTableSettingsEntity } from '../../table-settings/utils/build-new-table-settings-entity';
-import { CreateTableActionDS } from '../application/data-sctructures/create-table-action.ds';
-import { CreatedTableActionDS } from '../application/data-sctructures/created-table-action.ds';
-import { buildCreatedTableActionDS } from '../utils/build-created-table-action-ds';
-import { buildNewTableActionEntity } from '../utils/build-new-table-action-entity.util';
-import { ICreateTableAction } from './table-actions-use-cases.interface';
+import AbstractUseCase from '../../../common/abstract-use.case.js';
+import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface.js';
+import { BaseType } from '../../../common/data-injection.tokens.js';
+import { Encryptor } from '../../../helpers/encryption/encryptor.js';
+import { buildEmptyTableSettingsWithEmptyWidgets } from '../../table-settings/utils/build-empty-table-settings.js';
+import { buildNewTableSettingsEntity } from '../../table-settings/utils/build-new-table-settings-entity.js';
+import { CreateTableActionDS } from '../application/data-sctructures/create-table-action.ds.js';
+import { CreatedTableActionDS } from '../application/data-sctructures/created-table-action.ds.js';
+import { buildCreatedTableActionDS } from '../utils/build-created-table-action-ds.js';
+import { buildNewTableActionEntity } from '../utils/build-new-table-action-entity.util.js';
+import { ICreateTableAction } from './table-actions-use-cases.interface.js';
 
 @Injectable()
 export class CreateTableActionUseCase

@@ -1,4 +1,4 @@
-import { IRequestWithCognitoInfo } from '../authorization';
+import { IRequestWithCognitoInfo } from '../authorization/index.js';
 
 export function findGclidCookieValue(request: IRequestWithCognitoInfo): string | null {
   if (request.headers) {

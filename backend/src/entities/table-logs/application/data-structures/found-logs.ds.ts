@@ -1,6 +1,6 @@
-import { PaginationDs } from '../../../table/application/data-structures/pagination.ds';
-import { LogOperationTypeEnum, OperationResultStatusEnum } from '../../../../enums';
-import { TableLogsEntity } from '../../table-logs.entity';
+import { PaginationDs } from '../../../table/application/data-structures/pagination.ds.js';
+import { LogOperationTypeEnum, OperationResultStatusEnum } from '../../../../enums/index.js';
+import { TableLogsEntity } from '../../table-logs.entity.js';
 
 export class FoundLogsDs {
   logs: Array<FoundLogRecordDs>;

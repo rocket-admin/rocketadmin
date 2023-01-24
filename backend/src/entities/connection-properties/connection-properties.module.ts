@@ -1,17 +1,17 @@
 import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { AuthMiddleware } from '../../authorization';
-import { GlobalDatabaseContext } from '../../common/application/global-database-context';
-import { BaseType, UseCaseType } from '../../common/data-injection.tokens';
-import { ConnectionEntity } from '../connection/connection.entity';
-import { LogOutEntity } from '../log-out/log-out.entity';
-import { UserEntity } from '../user/user.entity';
-import { ConnectionPropertiesController } from './connection-properties.controller';
-import { ConnectionPropertiesEntity } from './connection-properties.entity';
-import { CreateConnectionPropertiesUseCase } from './use-cases/create-connection-properties.use.case';
-import { DeleteConnectionPropertiesUseCase } from './use-cases/delete-connection-properties.use.case';
-import { FindConnectionPropertiesUseCase } from './use-cases/find-connection-properties-use.case';
-import { UpdateConnectionPropertiesUseCase } from './use-cases/update-connection-properties.use.case';
+import { AuthMiddleware } from '../../authorization/index.js';
+import { GlobalDatabaseContext } from '../../common/application/global-database-context.js';
+import { BaseType, UseCaseType } from '../../common/data-injection.tokens.js';
+import { ConnectionEntity } from '../connection/connection.entity.js';
+import { LogOutEntity } from '../log-out/log-out.entity.js';
+import { UserEntity } from '../user/user.entity.js';
+import { ConnectionPropertiesController } from './connection-properties.controller.js';
+import { ConnectionPropertiesEntity } from './connection-properties.entity.js';
+import { CreateConnectionPropertiesUseCase } from './use-cases/create-connection-properties.use.case.js';
+import { DeleteConnectionPropertiesUseCase } from './use-cases/delete-connection-properties.use.case.js';
+import { FindConnectionPropertiesUseCase } from './use-cases/find-connection-properties-use.case.js';
+import { UpdateConnectionPropertiesUseCase } from './use-cases/update-connection-properties.use.case.js';
 
 @Module({
   imports: [TypeOrmModule.forFeature([ConnectionEntity, ConnectionPropertiesEntity, UserEntity, LogOutEntity])],

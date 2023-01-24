@@ -28,6 +28,12 @@
     margin-bottom: 0;
 }
 
+.db-table-bulk-actions {
+    display: flex;
+    align-items: center;
+    height: 62.6px;
+}
+
 .search-input {
     margin-top: -24px;
     min-width: 220px;
@@ -62,6 +68,10 @@
     border-radius: 50%;
     height: 6px;
     width: 6px;
+}
+
+.action-button_disabled {
+    pointer-events: none;
 }
 
 .db-table-manage-columns-button {
@@ -101,11 +111,14 @@
 
 .db-table {
     display: grid;
-    grid-template-columns: repeat(var(--colCount), auto) var(--lastColumnWidth);
     width: 100%;
 }
 
-.db-table_withOutActions {
+.db-table_withActions {
+    grid-template-columns: 40px repeat(var(--colCount), auto) var(--lastColumnWidth);
+}
+
+.db-table_withoutActions {
     grid-template-columns: repeat(var(--colCount), auto) !important;
 }
 
@@ -128,6 +141,16 @@
 .db-table ::ng-deep .mat-footer-cell:first-of-type {
     padding-left: 24px;
     padding-right: 24px;
+}
+
+.db-table_withActions ::ng-deep .mat-column-select {
+    padding-top: 12px;
+    padding-left: 20px !important;
+    padding-right: 0 !important;
+}
+
+.db-table_withActions ::ng-deep .mat-header-row .mat-column-select {
+    padding-top: 18px;
 }
 
 th.mat-header-cell, td.mat-cell {

@@ -1,13 +1,13 @@
 import { HttpStatus, Inject, Injectable } from '@nestjs/common';
-import { HttpException } from '@nestjs/common/exceptions/http.exception';
-import AbstractUseCase from '../../../common/abstract-use.case';
-import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface';
-import { BaseType } from '../../../common/data-injection.tokens';
-import { Messages } from '../../../exceptions/text/messages';
-import { CreatedConnectionDs } from '../application/data-structures/created-connection.ds';
-import { DeleteConnectionDs } from '../application/data-structures/delete-connection.ds';
-import { buildCreatedConnectionDs } from '../utils/build-created-connection.ds';
-import { IDeleteConnection } from './use-cases.interfaces';
+import { HttpException } from '@nestjs/common/exceptions/http.exception.js';
+import AbstractUseCase from '../../../common/abstract-use.case.js';
+import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface.js';
+import { BaseType } from '../../../common/data-injection.tokens.js';
+import { Messages } from '../../../exceptions/text/messages.js';
+import { CreatedConnectionDs } from '../application/data-structures/created-connection.ds.js';
+import { DeleteConnectionDs } from '../application/data-structures/delete-connection.ds.js';
+import { buildCreatedConnectionDs } from '../utils/build-created-connection.ds.js';
+import { IDeleteConnection } from './use-cases.interfaces.js';
 
 @Injectable()
 export class DeleteConnectionUseCase

@@ -1,4 +1,4 @@
-import { ConnectionEntity } from '../connection/connection.entity';
+import { ConnectionEntity } from '../connection/connection.entity.js';
 import {
   Entity,
   Column,
@@ -8,15 +8,16 @@ import {
   OneToOne,
   PrimaryGeneratedColumn,
   BeforeInsert,
+  Relation,
 } from 'typeorm';
-import { GroupEntity } from '../group/group.entity';
-import { UserActionEntity } from '../user-actions/user-action.entity';
+import { GroupEntity } from '../group/group.entity.js';
+import { UserActionEntity } from '../user-actions/user-action.entity.js';
 import { IsEmail } from 'class-validator';
-import { Encryptor } from '../../helpers/encryption/encryptor';
-import { EmailVerificationEntity } from '../email/email-verification.entity';
-import { PasswordResetEntity } from './user-password/password-reset.entity';
-import { EmailChangeEntity } from './user-email/email-change.entity';
-import { UserInvitationEntity } from './user-invitation/user-invitation.entity';
+import { Encryptor } from '../../helpers/encryption/encryptor.js';
+import { EmailVerificationEntity } from '../email/email-verification.entity.js';
+import { PasswordResetEntity } from './user-password/password-reset.entity.js';
+import { EmailChangeEntity } from './user-email/email-change.entity.js';
+import { UserInvitationEntity } from './user-invitation/user-invitation.entity.js';
 
 @Entity('user')
 export class UserEntity {
@@ -48,26 +49,26 @@ export class UserEntity {
 
   @OneToMany(() => ConnectionEntity, (connection) => connection.author)
   @JoinTable()
-  connections: ConnectionEntity[];
+  connections: Relation<ConnectionEntity>[];
 
   @ManyToMany((type) => GroupEntity, (group) => group.users)
   @JoinTable()
-  groups: GroupEntity[];
+  groups: Relation<GroupEntity>[];
 
   @OneToOne(() => UserActionEntity, (user_action) => user_action.user)
-  user_action: UserActionEntity;
+  user_action: Relation<UserActionEntity>;
 
   @OneToOne(() => EmailVerificationEntity, (email_verification) => email_verification.user)
-  email_verification: EmailVerificationEntity;
+  email_verification: Relation<EmailVerificationEntity>;
 
   @OneToOne(() => PasswordResetEntity, (password_reset) => password_reset.user)
-  password_reset: PasswordResetEntity;
+  password_reset: Relation<PasswordResetEntity>;
 
   @OneToOne(() => EmailChangeEntity, (email_change) => email_change.user)
-  email_change: EmailChangeEntity;
+  email_change: Relation<EmailChangeEntity>;
 
   @OneToOne(() => UserInvitationEntity, (user_invitation) => user_invitation.user)
-  user_invitation: UserInvitationEntity;
+  user_invitation: Relation<UserInvitationEntity>;
 
   @Column({ default: false })
   isActive: boolean;

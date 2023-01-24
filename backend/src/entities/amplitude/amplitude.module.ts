@@ -1,7 +1,7 @@
 import { Global, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { UserEntity } from '../user/user.entity';
-import { AmplitudeService } from './amplitude.service';
+import { UserEntity } from '../user/user.entity.js';
+import { AmplitudeService } from './amplitude.service.js';
 
 @Global()
 @Module({

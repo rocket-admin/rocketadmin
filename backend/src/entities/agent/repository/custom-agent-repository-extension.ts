@@ -1,6 +1,6 @@
 import { nanoid } from 'nanoid';
-import { ConnectionEntity } from '../../connection/connection.entity';
-import { AgentEntity } from '../agent.entity';
+import { ConnectionEntity } from '../../connection/connection.entity.js';
+import { AgentEntity } from '../agent.entity.js';
 
 export const customAgentRepositoryExtension = {
   async saveNewAgent(agent: AgentEntity): Promise<AgentEntity> {

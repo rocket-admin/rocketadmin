@@ -1,6 +1,6 @@
-import { FilteringFieldsDs } from '../application/data-structures/found-table-rows.ds';
-import { FilterCriteriaEnum } from '../../../enums';
-import { ITableStructure } from '../../../data-access-layer/shared/data-access-object-interface';
+import { FilteringFieldsDs } from '../application/data-structures/found-table-rows.ds.js';
+import { FilterCriteriaEnum } from '../../../enums/index.js';
+import { ITableStructure } from '../../../data-access-layer/shared/data-access-object-interface.js';
 
 export function findFilteringFieldsUtil(
   query: string,

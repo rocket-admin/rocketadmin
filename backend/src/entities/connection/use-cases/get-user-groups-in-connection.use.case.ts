@@ -1,11 +1,11 @@
 import { Inject, Injectable } from '@nestjs/common';
-import AbstractUseCase from '../../../common/abstract-use.case';
-import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface';
-import { BaseType } from '../../../common/data-injection.tokens';
-import { GroupEntity } from '../../group/group.entity';
-import { FoundUserGroupsInConnectionDs } from '../application/data-structures/found-user-groups-in-connection.ds';
-import { GetGroupsInConnectionDs } from '../application/data-structures/get-groups-in-connection.ds';
-import { IGetUserGroupsInConnection } from './use-cases.interfaces';
+import AbstractUseCase from '../../../common/abstract-use.case.js';
+import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface.js';
+import { BaseType } from '../../../common/data-injection.tokens.js';
+import { GroupEntity } from '../../group/group.entity.js';
+import { FoundUserGroupsInConnectionDs } from '../application/data-structures/found-user-groups-in-connection.ds.js';
+import { GetGroupsInConnectionDs } from '../application/data-structures/get-groups-in-connection.ds.js';
+import { IGetUserGroupsInConnection } from './use-cases.interfaces.js';
 
 @Injectable()
 export class GetUserGroupsInConnectionUseCase

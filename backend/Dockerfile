@@ -7,7 +7,7 @@ COPY package.json yarn.lock nest-cli.json /app/
 RUN yarn install --network-timeout 1000000
 COPY . /app
 RUN yarn run nest build
-CMD [ "tini", "node", "--", "--enable-source-maps", "dist/src/main.js"]
+CMD [ "tini", "node", "--", "--enable-source-maps", "dist/main.js"]
 ENTRYPOINT ["/app/entrypoint.sh"]
 
 RUN apt update && \

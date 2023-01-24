@@ -2,17 +2,16 @@ import { faker } from '@faker-js/faker';
 import { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import test from 'ava';
-import * as cookieParser from 'cookie-parser';
-import * as request from 'supertest';
-import { Connection } from 'typeorm';
-import { ApplicationModule } from '../../src/app.module';
-import { Constants } from '../../src/helpers/constants/constants';
-import { DatabaseModule } from '../../src/shared/database/database.module';
-import { DatabaseService } from '../../src/shared/database/database.service';
-import { MockFactory } from '../mock.factory';
-import { dropTestTables } from '../utils/drop-test-tables';
-import { getTestKnex } from '../utils/get-test-knex';
-import { TestUtils } from '../utils/test.utils';
+import cookieParser from 'cookie-parser';
+import request from 'supertest';
+import { ApplicationModule } from '../../src/app.module.js';
+import { Constants } from '../../src/helpers/constants/constants.js';
+import { DatabaseModule } from '../../src/shared/database/database.module.js';
+import { DatabaseService } from '../../src/shared/database/database.service.js';
+import { MockFactory } from '../mock.factory.js';
+import { dropTestTables } from '../utils/drop-test-tables.js';
+import { getTestKnex } from '../utils/get-test-knex.js';
+import { TestUtils } from '../utils/test.utils.js';
 
 const mockFactory = new MockFactory();
 let app: INestApplication;
@@ -34,12 +33,12 @@ test.before(async () => {
     imports: [ApplicationModule, DatabaseModule],
     providers: [DatabaseService, TestUtils],
   }).compile();
+  testUtils = moduleFixture.get<TestUtils>(TestUtils);
+  await testUtils.resetDb();
   app = moduleFixture.createNestApplication();
   app.use(cookieParser());
   await app.init();
   app.getHttpServer().listen(0);
-  testUtils = moduleFixture.get<TestUtils>(TestUtils);
-  await testUtils.resetDb();
 });
 
 async function resetPostgresTestDB(testTableName) {
@@ -61,7 +60,7 @@ async function resetPostgresTestDB(testTableName) {
       });
     } else {
       await Knex(testTableName).insert({
-        [testTableColumnName]: faker.name.findName(),
+        [testTableColumnName]: faker.name.firstName(),
         [testTAbleSecondColumnName]: faker.internet.email(),
         created_at: new Date(),
         updated_at: new Date(),
@@ -77,18 +76,9 @@ test.beforeEach(async (t) => {
   await resetPostgresTestDB(testTableName);
 });
 
-test.after.always('Close app connection', async () => {
-  // await testUtils.resetDb();
-  const connect = await app.get(Connection);
-  if (connect.isConnected) {
-    await connect.close();
-  }
-  await app.close();
-});
-
-test.after('cleanup', async (t) => {
-  await dropTestTables(testTables, mockFactory.generateConnectionToTestPostgresDBInDocker());
-});
+// test.after('cleanup', async (t) => {
+//   await dropTestTables(testTables, mockFactory.generateConnectionToTestPostgresDBInDocker());
+// });
 
 type RegisterUserData = {
   email: string;
@@ -192,10 +182,13 @@ test(`${currentTest} should return connection without excluded tables`, async (t
 
     const getConnectionTablesResponse = await request(app.getHttpServer())
       .get(`/connection/tables/${createConnectionRO.id}`)
+      .set('Cookie', token)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
     const getConnectionTablesRO = JSON.parse(getConnectionTablesResponse.text);
-    t.is(getConnectionTablesRO.length, 0);
+    t.is(getConnectionTablesRO.length > 0, true);
+    const hiddenTable = getConnectionTablesRO.find((table) => table.name === newConnectionProperties.hidden_tables[0]);
+    t.is(hiddenTable, undefined);
   } catch (e) {
     throw e;
   }
@@ -215,7 +208,7 @@ test(`${currentTest} should throw an exception when excluded table name is incor
     const createConnectionRO = JSON.parse(createConnectionResponse.text);
     t.is(createConnectionResponse.status, 201);
     const copyNewConnectionResponse = JSON.parse(JSON.stringify(newConnectionProperties));
-    copyNewConnectionResponse.hidden_tables[0] = faker.random.words(1);
+    copyNewConnectionResponse.hidden_tables[0] = `${faker.random.words(1)}_${faker.datatype.number({min: 1, max: 10000})}`;;
     const createConnectionPropertiesResponse = await request(app.getHttpServer())
       .post(`/connection/properties/${createConnectionRO.id}`)
       .send(copyNewConnectionResponse)
