@@ -4,5 +4,6 @@ export class ActivateTableActionDS {
   masterPwd: string;
   tableName: string;
   actionId: string;
+  confirmed: boolean;
   request_body: Record<string, unknown>;
 }

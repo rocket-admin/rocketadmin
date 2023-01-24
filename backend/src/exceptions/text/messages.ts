@@ -188,6 +188,7 @@ export const Messages = {
   TABLE_SETTINGS_NOT_FOUND: 'Table settings with this parameters not found',
   TABLE_WIDGET_NOT_FOUND: 'Table widget with this parameters not found',
   TABLE_ACTION_NOT_FOUND: 'Table action not found',
+  TABLE_ACTION_CONFIRMATION_REQUIRED: 'Table action confirmation required',
   TEST_CONNECTIONS_UPDATE_NOT_ALLOWED: `You can't update test connection`,
   TRY_AGAIN_LATER: 'Please try again later. If the problem persists, please contact our support team',
   TRY_VERIFY_ADD_USER_WHEN_LOGGED_IN: `You can't join a group when you are logged in as another user. Please log out and try again.`,

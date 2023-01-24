@@ -8,5 +8,6 @@ export function buildNewTableActionEntity(actionData: CreateTableActionDTO | Upd
   newTableAction.type = actionData.type;
   newTableAction.url = actionData.url;
   newTableAction.icon = actionData.icon;
+  newTableAction.require_confirmation = actionData.requireConfirmation;
   return newTableAction;
 }

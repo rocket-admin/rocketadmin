@@ -101,6 +101,7 @@ export class TableActionsController {
     @Body('url') url: string,
     @Body('icon') icon: string,
     @Body('type') type: TableActionTypeEnum,
+    @Body('requireConfirmation') requireConfirmation: boolean,
   ): Promise<CreatedTableActionDS> {
     const inputData: CreateTableActionDS = {
       connectionId: connectionId,
@@ -111,6 +112,7 @@ export class TableActionsController {
       url: url,
       type: type,
       icon: icon,
+      requireConfirmation: requireConfirmation,
     };
     this.validateTableAction(inputData);
     return await this.createTableActionUseCase.execute(inputData, InTransactionEnum.OFF);
@@ -124,6 +126,7 @@ export class TableActionsController {
     @Body('url') url: string,
     @Body('icon') icon: string,
     @Body('type') type: TableActionTypeEnum,
+    @Body('requireConfirmation') requireConfirmation: boolean,
   ): Promise<CreatedTableActionDS> {
     const inputData: UpdateTableActionDS = {
       actionId: actionId,
@@ -131,6 +134,7 @@ export class TableActionsController {
       url: url,
       type: type,
       icon: icon,
+      requireConfirmation: requireConfirmation,
     };
     this.validateTableAction(inputData);
     return await this.updateTableActionUseCase.execute(inputData, InTransactionEnum.OFF);
@@ -150,6 +154,7 @@ export class TableActionsController {
     @MasterPassword() masterPwd: string,
     @QueryTableName() tableName: string,
     @Query('actionId') actionId: string,
+    @Query('confirmed') confirmed: string,
     @Body() body: Record<string, unknown>,
   ): Promise<void | { location: string }> {
     const inputData: ActivateTableActionDS = {
@@ -158,6 +163,7 @@ export class TableActionsController {
       userId: userId,
       tableName: tableName,
       actionId: actionId,
+      confirmed: confirmed && confirmed === 'true' ? true : false,
       request_body: body,
     };
 
@@ -172,6 +178,7 @@ export class TableActionsController {
     @MasterPassword() masterPwd: string,
     @QueryTableName() tableName: string,
     @Query('actionId') actionId: string,
+    @Query('confirmed') confirmed: string,
     @Body() body: Array<Record<string, unknown>>,
   ): Promise<ActivatedTableActionsDS> {
     const inputData: ActivateTableActionsDS = {
@@ -180,6 +187,7 @@ export class TableActionsController {
       userId: userId,
       tableName: tableName,
       actionId: actionId,
+      confirmed: confirmed && confirmed === 'true' ? true : false,
       request_body: body,
     };
 

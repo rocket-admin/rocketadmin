@@ -28,12 +28,20 @@ export class ActivateTableActionUseCase
 
   protected async implementation(inputData: ActivateTableActionDS): Promise<ActivatedTableActionDS> {
     let operationResult = OperationResultStatusEnum.unknown;
-    const { actionId, request_body, connectionId, masterPwd, tableName, userId } = inputData;
+    const { actionId, request_body, connectionId, masterPwd, tableName, userId, confirmed } = inputData;
     const foundTableAction = await this._dbContext.tableActionRepository.findTableActionById(actionId);
     if (!foundTableAction) {
       throw new HttpException(
         {
           message: Messages.TABLE_ACTION_NOT_FOUND,
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+    if (foundTableAction.require_confirmation && !confirmed) {
+      throw new HttpException(
+        {
+          message: Messages.TABLE_ACTION_CONFIRMATION_REQUIRED,
         },
         HttpStatus.BAD_REQUEST,
       );
