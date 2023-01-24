@@ -19,7 +19,7 @@ export class ChangeUserNameUseCase extends AbstractUseCase<ChangeUserNameDS, Fou
   }
 
   protected async implementation(inputData: ChangeUserNameDS): Promise<FoundUserDs> {
-    const { id, name, password } = inputData;
+    const { id, name } = inputData;
     const foundUser = await this._dbContext.userRepository.findOneUserById(id);
     if (!foundUser) {
       throw new HttpException(
@@ -29,17 +29,7 @@ export class ChangeUserNameUseCase extends AbstractUseCase<ChangeUserNameDS, Fou
         HttpStatus.BAD_REQUEST,
       );
     }
-
-    const passwordValidationResult = await Encryptor.verifyUserPassword(password, foundUser.password);
-    if (!passwordValidationResult) {
-      throw new HttpException(
-        {
-          message: Messages.LOGIN_DENIED,
-        },
-        HttpStatus.UNAUTHORIZED,
-      );
-    }
-
+    
     foundUser.name = name;
     const savedUser = await this._dbContext.userRepository.saveUserEntity(foundUser);
     return await buildFoundUserDs(savedUser);

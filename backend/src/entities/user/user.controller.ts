@@ -34,10 +34,6 @@ import { ResetUsualUserPasswordDs } from './application/data-structures/reset-us
 import { UpgradeUserSubscriptionDs } from './application/data-structures/upgrade-user-subscription.ds.js';
 import { UsualLoginDs } from './application/data-structures/usual-login.ds.js';
 import { UsualRegisterUserDs } from './application/data-structures/usual-register-user.ds.js';
-import { ChangeUsualUserPasswordDto, EmailDto, LoginUserDto, PasswordDto, SocialNetworkLoginDto } from './dto/index.js';
-import { ChangeUserNameDTO } from './dto/change-user-name.dto.js';
-import { UpgradeSubscriptionDto } from './dto/upgrade-subscription.dto.js';
-import { UsualRegisterUserDto } from './dto/usual-register-user.dto.js';
 import {
   IChangeUserName,
   IDeleteUserAccount,
@@ -364,12 +360,10 @@ export class UserController {
   async changeUserName(
     @UserId() userId: string,
     @Body('name') name: string,
-    @Body('password') password: string,
   ): Promise<FoundUserDs> {
     const inputData: ChangeUserNameDS = {
       id: userId,
       name: name,
-      password: password,
     };
     return await this.changeUserNameUseCase.execute(inputData, InTransactionEnum.OFF);
   }
