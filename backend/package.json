@@ -21,10 +21,10 @@
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "typeorm": "ts-node -r tsconfig-paths/register ./node_modules/.bin/typeorm",
-    "migration:generate": "yarn run typeorm migration:generate -d src/shared/config/datasource.config.ts",
-    "migration:create": "yarn run typeorm migration:create -d src/shared/config/datasource.config.ts",
-    "migration:run": "yarn run typeorm migration:run -d src/shared/config/datasource.config.ts",
-    "migration:revert": "npm run typeorm -- migration:revert -d src/shared/config/datasource.config.ts"
+    "migration:generate": "yarn run typeorm migration:generate -d dist/shared/config/datasource.config.js",
+    "migration:create": "yarn run typeorm migration:create -d dist/shared/config/datasource.config.js",
+    "migration:run": "yarn run typeorm migration:run -d dist/shared/config/datasource.config.js",
+    "migration:revert": "npm run typeorm -- migration:revert -d dist/shared/config/datasource.config.js"
   },
   "dependencies": {
     "@amplitude/node": "1.10.2",
