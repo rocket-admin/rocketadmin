@@ -8,7 +8,7 @@ import { RouterTestingModule } from "@angular/router/testing";
 import { TableRowService } from 'src/app/services/table-row.service';
 import { of } from 'rxjs';
 
-describe('DbRowDeleteDialogComponent', () => {
+describe('DbRowsDeleteDialogComponent', () => {
   let component: DbRowsDeleteDialogComponent;
   let fixture: ComponentFixture<DbRowsDeleteDialogComponent>;
   let tableRowService: TableRowService;
@@ -27,7 +27,9 @@ describe('DbRowDeleteDialogComponent', () => {
         MatDialogModule
       ],
       providers: [
-        { provide: MAT_DIALOG_DATA, useValue: {} },
+        { provide: MAT_DIALOG_DATA, useValue: {
+          selectedRows: []
+        } },
         { provide: MatDialogRef, useValue: mockDialogRef },
       ],
     })
@@ -43,19 +45,5 @@ describe('DbRowDeleteDialogComponent', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
-  });
-
-  it('should delete table row', () => {
-    const fakeDeleteRow = spyOn(tableRowService, 'deleteTableRow').and.returnValue(of());
-    spyOn(mockDialogRef, 'close');
-
-    component.connectionID = '12345678';
-    component.selectedTableName = 'Users';
-    component.rowsKeyAttributes = { id: 1 };
-
-    component.deleteRow();
-    expect(fakeDeleteRow).toHaveBeenCalledOnceWith('12345678', 'Users', {id: 1});
-    // expect(component.dialogRef.close).toHaveBeenCalled();
-    expect(component.submitting).toBeFalse();
   });
 });

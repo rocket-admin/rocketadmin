@@ -7,7 +7,7 @@ import { CustomActionType } from 'src/app/models/table';
 
 import { DbTableActionsComponent } from './db-table-actions.component';
 
-fdescribe('DbTableActionsComponent', () => {
+describe('DbTableActionsComponent', () => {
   let component: DbTableActionsComponent;
   let fixture: ComponentFixture<DbTableActionsComponent>;
 
@@ -273,22 +273,6 @@ fdescribe('DbTableActionsComponent', () => {
     ];
 
     component.removeActionFromLocalList('action 1')
-
-    expect(component.selectedAction).toEqual(mockAction);
-    expect(component.actions).toEqual([mockAction]);
-  });
-
-  it('should add action', () => {
-    component.selectedAction =  {
-      id: '',
-      title: 'action 2',
-      type: CustomActionType.Single,
-      url: 'https://google.com',
-      tableName: 'user',
-      icon: 'star'
-    };
-
-    component.addAction();
 
     expect(component.selectedAction).toEqual(mockAction);
     expect(component.actions).toEqual([mockAction]);

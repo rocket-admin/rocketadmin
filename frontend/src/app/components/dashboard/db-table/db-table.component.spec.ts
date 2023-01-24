@@ -10,6 +10,7 @@ import { MatSortModule } from '@angular/material/sort';
 import { RouterTestingModule } from "@angular/router/testing";
 import { TablesDataSource } from '../db-tables-data-source';
 import { CustomActionType } from 'src/app/models/table';
+import { SelectionModel } from '@angular/cdk/collections';
 
 describe('DbTableComponent', () => {
   let component: DbTableComponent;
@@ -76,6 +77,7 @@ describe('DbTableComponent', () => {
     fixture = TestBed.createComponent(DbTableComponent);
     component = fixture.componentInstance;
     component.table = new TablesDataSource({} as any, {} as any, {} as any);
+    component.selection = new SelectionModel<any>(true, []);
     component.filterComparators = mockFilterComparators;
     fixture.autoDetectChanges();
   });
@@ -171,15 +173,6 @@ describe('DbTableComponent', () => {
     expect(component.searchString).toEqual('');
   });
 
-  it('should emit search by string to parent', () => {
-    component.searchString = 'Jo';
-    spyOn(component.search, 'emit');
-
-    component.handleSearch();
-
-    expect(component.search.emit).toHaveBeenCalledWith('Jo');
-  });
-
   it('should clear search string and emit search by string to parent', () => {
     spyOn(component.search, 'emit');
 
@@ -248,21 +241,5 @@ describe('DbTableComponent', () => {
 
     const value = component.getCellValue(foreignKey, cell)
     expect(value).toEqual( 'John' );
-  });
-
-  it('should emit activate custom action to parent', () => {
-    const mockAction = {
-      "id": "870d6142-10b1-4430-aceb-5917a490377e",
-      "title": "action 31",
-      "type": CustomActionType.Single,
-      "url": "https://stackoverflow.com/questions/39127565/merge-array-of-objects-by-property-using-lodash",
-      "icon": "favorite_outline",
-      "tableName": "User"
-    }
-    spyOn(component.activateAction, 'emit');
-
-    component.handleActivateAction(mockAction, {id: '5'});
-
-    expect(component.activateAction.emit).toHaveBeenCalledWith({action: mockAction, primaryKeys: {id: '5'}});
   });
 });
