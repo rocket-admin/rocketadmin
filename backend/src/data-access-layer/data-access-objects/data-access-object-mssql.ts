@@ -1,22 +1,22 @@
 import { HttpStatus, Injectable, Scope } from '@nestjs/common';
-import { HttpException } from '@nestjs/common/exceptions/http.exception';
+import { HttpException } from '@nestjs/common/exceptions/http.exception.js';
 import { Knex } from 'knex';
-import { TunnelCreator } from '../../dal/shared/tunnel-creator';
-import { ConnectionEntity } from '../../entities/connection/connection.entity';
-import { CreateTableSettingsDto } from '../../entities/table-settings/dto';
-import { TableSettingsEntity } from '../../entities/table-settings/table-settings.entity';
-import { FilterCriteriaEnum, QueryOrderingEnum } from '../../enums';
-import { Messages } from '../../exceptions/text/messages';
+import { TunnelCreator } from '../../dal/shared/tunnel-creator.js';
+import { ConnectionEntity } from '../../entities/connection/connection.entity.js';
+import { CreateTableSettingsDto } from '../../entities/table-settings/dto/index.js';
+import { TableSettingsEntity } from '../../entities/table-settings/table-settings.entity.js';
+import { FilterCriteriaEnum, QueryOrderingEnum } from '../../enums/index.js';
+import { Messages } from '../../exceptions/text/messages.js';
 import {
   compareArrayElements,
   isObjectEmpty,
   objectKeysToLowercase,
   renameObjectKeyName,
   tableSettingsFieldValidator,
-} from '../../helpers';
-import { Cacher } from '../../helpers/cache/cacher';
-import { Constants } from '../../helpers/constants/constants';
-import { BasicDao } from '../shared/basic-dao';
+} from '../../helpers/index.js';
+import { Cacher } from '../../helpers/cache/cacher.js';
+import { Constants } from '../../helpers/constants/constants.js';
+import { BasicDao } from '../shared/basic-dao.js';
 import {
   IAutocompleteFieldsData,
   IDataAccessObject,
@@ -26,8 +26,8 @@ import {
   IRows,
   ITableStructure,
   ITestConnectResult,
-} from '../shared/data-access-object-interface';
-import { getMssqlKnex } from '../shared/utils/get-mssql-knex';
+} from '../shared/data-access-object-interface.js';
+import { getMssqlKnex } from '../shared/utils/get-mssql-knex.js';
 
 export class DataAccessObjectMssql extends BasicDao implements IDataAccessObject {
   private readonly connection: ConnectionEntity;
@@ -141,7 +141,7 @@ export class DataAccessObjectMssql extends BasicDao implements IDataAccessObject
     const rowsCount = await this.getRowsCount(tableName);
     const availableFields = await this.findAvaliableFields(settings, tableName);
 
-    let tableSchema = await this.getSchemaName(tableName);
+    const tableSchema = await this.getSchemaName(tableName);
     if (tableSchema) {
       tableName = `${tableSchema}.[${tableName}]`;
     }
@@ -339,7 +339,7 @@ export class DataAccessObjectMssql extends BasicDao implements IDataAccessObject
 
     generatedColumns = generatedColumns.map((column) => column.COLUMN_NAME);
 
-    let structureColumnsInLowercase = structureColumns.map((column) => {
+    const structureColumnsInLowercase = structureColumns.map((column) => {
       return objectKeysToLowercase(column);
     });
 

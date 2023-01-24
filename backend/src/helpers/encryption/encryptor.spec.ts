@@ -1,5 +1,5 @@
-import { EncryptionAlgorithmEnum } from '../../enums';
-import { Encryptor } from './encryptor';
+import { EncryptionAlgorithmEnum } from '../../enums/index.js';
+import { Encryptor } from './encryptor.js';
 
 describe('Encryptor', () => {
   const testString = 'NeverViewAMainland';

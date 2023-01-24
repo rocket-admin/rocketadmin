@@ -1,5 +1,5 @@
-import { UserEntity } from '../../user/user.entity';
-import { ConnectionEntity } from '../connection.entity';
+import { UserEntity } from '../../user/user.entity.js';
+import { ConnectionEntity } from '../connection.entity.js';
 
 export interface IConnectionRepository {
   saveNewConnection(connection: ConnectionEntity): Promise<ConnectionEntity>;

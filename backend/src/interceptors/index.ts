@@ -1,2 +1,2 @@
-export { SentryInterceptor } from './sentry.interceptor';
-export { TimeoutInterceptor } from './timeout.interceptor';
+export { SentryInterceptor } from './sentry.interceptor.js';
+export { TimeoutInterceptor } from './timeout.interceptor.js';

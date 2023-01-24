@@ -1,12 +1,12 @@
 import { Inject, Injectable } from '@nestjs/common';
-import AbstractUseCase from '../../../common/abstract-use.case';
-import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface';
-import { BaseType } from '../../../common/data-injection.tokens';
-import { createDataAccessObject } from '../../../data-access-layer/shared/create-data-access-object';
-import { TablePermissionDs } from '../../permission/application/data-structures/create-permissions.ds';
-import { FoundPermissionsInConnectionDs } from '../application/data-structures/found-permissions-in-connection.ds';
-import { GetPermissionsInConnectionDs } from '../application/data-structures/get-permissions-in-connection.ds';
-import { IGetPermissionsForGroupInConnection } from './use-cases.interfaces';
+import AbstractUseCase from '../../../common/abstract-use.case.js';
+import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface.js';
+import { BaseType } from '../../../common/data-injection.tokens.js';
+import { createDataAccessObject } from '../../../data-access-layer/shared/create-data-access-object.js';
+import { TablePermissionDs } from '../../permission/application/data-structures/create-permissions.ds.js';
+import { FoundPermissionsInConnectionDs } from '../application/data-structures/found-permissions-in-connection.ds.js';
+import { GetPermissionsInConnectionDs } from '../application/data-structures/get-permissions-in-connection.ds.js';
+import { IGetPermissionsForGroupInConnection } from './use-cases.interfaces.js';
 
 @Injectable()
 export class GetUserPermissionsForGroupInConnectionUseCase

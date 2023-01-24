@@ -1,11 +1,11 @@
 import { CanActivate, ExecutionContext, Inject, Injectable } from '@nestjs/common';
 import { Observable } from 'rxjs';
-import { IRequestWithCognitoInfo } from '../authorization';
-import { Messages } from '../exceptions/text/messages';
-import { buildBadRequestException, buildForbiddenException } from './utils';
-import { validateUuidByRegex } from './utils/validate-uuid-by-regex';
-import { BaseType } from '../common/data-injection.tokens';
-import { IGlobalDatabaseContext } from '../common/application/global-database-context.intarface';
+import { IRequestWithCognitoInfo } from '../authorization/index.js';
+import { Messages } from '../exceptions/text/messages.js';
+import { buildBadRequestException, buildForbiddenException } from './utils/index.js';
+import { validateUuidByRegex } from './utils/validate-uuid-by-regex.js';
+import { BaseType } from '../common/data-injection.tokens.js';
+import { IGlobalDatabaseContext } from '../common/application/global-database-context.intarface.js';
 
 @Injectable()
 export class ConnectionEditGuard implements CanActivate {

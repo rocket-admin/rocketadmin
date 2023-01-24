@@ -1,26 +1,26 @@
 import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
-import * as Sentry from '@sentry/node';
+import Sentry from '@sentry/node';
 import { LoginTicket, OAuth2Client, TokenPayload } from 'google-auth-library';
-import AbstractUseCase from '../../../common/abstract-use.case';
-import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface';
-import { BaseType } from '../../../common/data-injection.tokens';
-import { Messages } from '../../../exceptions/text/messages';
-import { Constants } from '../../../helpers/constants/constants';
-import { ConnectionEntity } from '../../connection/connection.entity';
-import { GroupEntity } from '../../group/group.entity';
-import { PermissionEntity } from '../../permission/permission.entity';
-import { TableSettingsEntity } from '../../table-settings/table-settings.entity';
-import { GoogleLoginDs } from '../application/data-structures/google-login.ds';
-import { RegisterUserDs } from '../application/data-structures/register-user-ds';
-import { RegisteredUserDs } from '../application/data-structures/registered-user.ds';
-import { UserEntity } from '../user.entity';
-import { buildConnectionEntitiesFromTestDtos } from '../utils/build-connection-entities-from-test-dtos';
-import { buildDefaultAdminGroups } from '../utils/build-default-admin-groups';
-import { buildDefaultAdminPermissions } from '../utils/build-default-admin-permissions';
-import { buildRegisteredUserDS } from '../utils/build-registered-user.ds';
-import { buildTestTableSettings } from '../utils/build-test-table-settings';
-import { generateGwtToken, IToken } from '../utils/generate-gwt-token';
-import { IGoogleLogin } from './user-use-cases.interfaces';
+import AbstractUseCase from '../../../common/abstract-use.case.js';
+import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface.js';
+import { BaseType } from '../../../common/data-injection.tokens.js';
+import { Messages } from '../../../exceptions/text/messages.js';
+import { Constants } from '../../../helpers/constants/constants.js';
+import { ConnectionEntity } from '../../connection/connection.entity.js';
+import { GroupEntity } from '../../group/group.entity.js';
+import { PermissionEntity } from '../../permission/permission.entity.js';
+import { TableSettingsEntity } from '../../table-settings/table-settings.entity.js';
+import { GoogleLoginDs } from '../application/data-structures/google-login.ds.js';
+import { RegisterUserDs } from '../application/data-structures/register-user-ds.js';
+import { RegisteredUserDs } from '../application/data-structures/registered-user.ds.js';
+import { UserEntity } from '../user.entity.js';
+import { buildConnectionEntitiesFromTestDtos } from '../utils/build-connection-entities-from-test-dtos.js';
+import { buildDefaultAdminGroups } from '../utils/build-default-admin-groups.js';
+import { buildDefaultAdminPermissions } from '../utils/build-default-admin-permissions.js';
+import { buildRegisteredUserDS } from '../utils/build-registered-user.ds.js';
+import { buildTestTableSettings } from '../utils/build-test-table-settings.js';
+import { generateGwtToken, IToken } from '../utils/generate-gwt-token.js';
+import { IGoogleLogin } from './user-use-cases.interfaces.js';
 
 @Injectable()
 export class GoogleLoginUseCase extends AbstractUseCase<GoogleLoginDs, IToken> implements IGoogleLogin {

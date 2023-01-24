@@ -1,12 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { LogOperationTypeEnum, OperationResultStatusEnum, UserActionEnum } from '../../../enums';
-import { getUniqArrayStrings } from '../../../helpers';
-import { Constants } from '../../../helpers/constants/constants';
-import { TableLogsEntity } from '../../table-logs/table-logs.entity';
-import { UserActionEntity } from '../user-action.entity';
-import { ICheckUsersLogsAndUpdateActionsUseCase } from './use-cases-interfaces';
+import { LogOperationTypeEnum, OperationResultStatusEnum, UserActionEnum } from '../../../enums/index.js';
+import { getUniqArrayStrings } from '../../../helpers/index.js';
+import { Constants } from '../../../helpers/constants/constants.js';
+import { TableLogsEntity } from '../../table-logs/table-logs.entity.js';
+import { UserActionEntity } from '../user-action.entity.js';
+import { ICheckUsersLogsAndUpdateActionsUseCase } from './use-cases-interfaces.js';
 
 @Injectable()
 export class CheckUsersLogsAndUpdateActionsUseCase implements ICheckUsersLogsAndUpdateActionsUseCase {

@@ -1,4 +1,4 @@
-import { WidgetTypeEnum } from '../../../../enums';
+import { WidgetTypeEnum } from '../../../../enums/index.js';
 
 export class FoundTableWidgetsDs {
   description?: string;

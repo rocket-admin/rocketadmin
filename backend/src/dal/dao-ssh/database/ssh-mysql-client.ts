@@ -1,8 +1,8 @@
-import { Constants } from '../../../helpers/constants/constants';
+import { Constants } from '../../../helpers/constants/constants.js';
 import { Client } from 'ssh2';
-import * as mysql from 'mysql2';
-import { ConnectionEntity } from '../../../entities/connection/connection.entity';
-import { Cacher } from '../../../helpers/cache/cacher';
+import mysql from 'mysql2';
+import { ConnectionEntity } from '../../../entities/connection/connection.entity.js';
+import { Cacher } from '../../../helpers/cache/cacher.js';
 
 export function getSshMySqlClient(connectionConfig: ConnectionEntity, freeForwardInPort: number): Promise<Client> {
   const { host, username, password, database, port, privateSSHKey, sshHost, sshPort, sshUsername } = connectionConfig;

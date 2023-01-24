@@ -1,2 +1,2 @@
-export { CreateConnectionPropertiesDto } from './create-connection-properties.dto';
-export { UpdateConnectionPropertiesDto } from './update-connection-properties.dto';
+export { CreateConnectionPropertiesDto } from './create-connection-properties.dto.js';
+export { UpdateConnectionPropertiesDto } from './update-connection-properties.dto.js';

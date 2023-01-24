@@ -1,5 +1,5 @@
-import { CreateConnectionDto } from '../../connection/dto';
-import { ConnectionEntity } from '../../connection/connection.entity';
+import { CreateConnectionDto } from '../../connection/dto/index.js';
+import { ConnectionEntity } from '../../connection/connection.entity.js';
 
 export function buildConnectionEntitiesFromTestDtos(dtos: Array<CreateConnectionDto>): Array<ConnectionEntity> {
   const entities: Array<ConnectionEntity> = [];

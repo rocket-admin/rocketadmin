@@ -1,19 +1,19 @@
 import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
-import AbstractUseCase from '../../../common/abstract-use.case';
-import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface';
-import { BaseType } from '../../../common/data-injection.tokens';
-import { AccessLevelEnum, PermissionTypeEnum } from '../../../enums';
-import { Messages } from '../../../exceptions/text/messages';
+import AbstractUseCase from '../../../common/abstract-use.case.js';
+import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface.js';
+import { BaseType } from '../../../common/data-injection.tokens.js';
+import { AccessLevelEnum, PermissionTypeEnum } from '../../../enums/index.js';
+import { Messages } from '../../../exceptions/text/messages.js';
 import {
   CreatePermissionsDs,
   PermissionsDs,
   TablePermissionDs,
-} from '../application/data-structures/create-permissions.ds';
-import { PermissionEntity } from '../permission.entity';
-import { buildFinalTablesPermissions } from '../utils/build-final-tables-permissions';
-import { buildNewPermissionEntityConnection } from '../utils/build-new-permission-entity-connection';
-import { buildNewPermissionEntityGroup } from '../utils/build-new-permission-entity-group';
-import { ICreateOrUpdatePermissions } from './permissions-use-cases.interface';
+} from '../application/data-structures/create-permissions.ds.js';
+import { PermissionEntity } from '../permission.entity.js';
+import { buildFinalTablesPermissions } from '../utils/build-final-tables-permissions.js';
+import { buildNewPermissionEntityConnection } from '../utils/build-new-permission-entity-connection.js';
+import { buildNewPermissionEntityGroup } from '../utils/build-new-permission-entity-group.js';
+import { ICreateOrUpdatePermissions } from './permissions-use-cases.interface.js';
 
 @Injectable()
 export class CreateOrUpdatePermissionsUseCase

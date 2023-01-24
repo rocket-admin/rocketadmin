@@ -1,4 +1,4 @@
-import { CreateConnectionPropertiesDs } from '../application/data-structures/create-connection-properties.ds';
+import { CreateConnectionPropertiesDs } from '../application/data-structures/create-connection-properties.ds.js';
 
 export function buildUpdateConnectionPropertiesObject(
   inputData: CreateConnectionPropertiesDs,

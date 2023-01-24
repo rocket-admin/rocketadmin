@@ -1,11 +1,11 @@
-import AbstractUseCase from '../../../common/abstract-use.case';
-import { IRequestPasswordReset } from './user-use-cases.interfaces';
+import AbstractUseCase from '../../../common/abstract-use.case.js';
+import { IRequestPasswordReset } from './user-use-cases.interfaces.js';
 import { HttpException, HttpStatus, Inject } from '@nestjs/common';
-import { BaseType } from '../../../common/data-injection.tokens';
-import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface';
-import { sendPasswordResetRequest } from '../../email/send-email';
-import { Messages } from '../../../exceptions/text/messages';
-import { OperationResultMessageDs } from '../application/data-structures/operation-result-message.ds';
+import { BaseType } from '../../../common/data-injection.tokens.js';
+import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface.js';
+import { sendPasswordResetRequest } from '../../email/send-email.js';
+import { Messages } from '../../../exceptions/text/messages.js';
+import { OperationResultMessageDs } from '../application/data-structures/operation-result-message.ds.js';
 
 export class RequestResetUserPasswordUseCase
   extends AbstractUseCase<string, OperationResultMessageDs>

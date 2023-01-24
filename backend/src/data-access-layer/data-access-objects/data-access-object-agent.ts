@@ -1,12 +1,12 @@
 import { Injectable, Scope } from '@nestjs/common';
 import axios from 'axios';
-import * as jwt from 'jsonwebtoken';
-import { ConnectionEntity } from '../../entities/connection/connection.entity';
-import { CreateTableSettingsDto } from '../../entities/table-settings/dto';
-import { TableSettingsEntity } from '../../entities/table-settings/table-settings.entity';
-import { DaoCommandsEnum } from '../../enums/dao-commands.enum';
-import { Messages } from '../../exceptions/text/messages';
-import { Cacher } from '../../helpers/cache/cacher';
+import jwt from 'jsonwebtoken';
+import { ConnectionEntity } from '../../entities/connection/connection.entity.js';
+import { CreateTableSettingsDto } from '../../entities/table-settings/dto/index.js';
+import { TableSettingsEntity } from '../../entities/table-settings/table-settings.entity.js';
+import { DaoCommandsEnum } from '../../enums/dao-commands.enum.js';
+import { Messages } from '../../exceptions/text/messages.js';
+import { Cacher } from '../../helpers/cache/cacher.js';
 import {
   IAutocompleteFieldsData,
   IDataAccessObject,
@@ -16,7 +16,7 @@ import {
   IRows,
   ITableStructure,
   ITestConnectResult,
-} from '../shared/data-access-object-interface';
+} from '../shared/data-access-object-interface.js';
 
 export class DataAccessObjectAgent implements IDataAccessObject {
   private readonly connection: ConnectionEntity;

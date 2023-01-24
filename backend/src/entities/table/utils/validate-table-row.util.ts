@@ -1,5 +1,5 @@
-import { ITableStructure } from '../../../data-access-layer/shared/data-access-object-interface';
-import { Messages } from '../../../exceptions/text/messages';
+import { ITableStructure } from '../../../data-access-layer/shared/data-access-object-interface.js';
+import { Messages } from '../../../exceptions/text/messages.js';
 
 export function validateTableRowUtil(row: Record<string, unknown>, structure: Array<ITableStructure>): Array<string> {
   const errors = [];

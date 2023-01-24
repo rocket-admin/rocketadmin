@@ -1,5 +1,5 @@
-import { CreateTableSettingsDto } from '../../entities/table-settings/dto';
-import { QueryOrderingEnum } from '../../enums';
+import { CreateTableSettingsDto } from '../../entities/table-settings/dto/index.js';
+import { QueryOrderingEnum } from '../../enums/index.js';
 
 export const TableSettingForTestConnections = {
   // create table settings dtos for mysql database

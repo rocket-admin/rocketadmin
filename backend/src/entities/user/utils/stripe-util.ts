@@ -1,14 +1,14 @@
 import Stripe from 'stripe';
-import { UserEntity } from '../user.entity';
-import { isSaaS } from '../../../helpers/app/is-saas';
-import { Messages } from '../../../exceptions/text/messages';
+import { UserEntity } from '../user.entity.js';
+import { isSaaS } from '../../../helpers/app/is-saas.js';
+import { Messages } from '../../../exceptions/text/messages.js';
 
 export class StripeUtil {
   public static async createPortalLink(user: UserEntity): Promise<string> {
     if (!isSaaS()) {
       return Messages.NO_STRIPE;
     }
-    if(!user.stripeId){
+    if (!user.stripeId) {
       return null;
     }
     const stripe = this.getStripe();
@@ -22,8 +22,7 @@ export class StripeUtil {
   private static getStripe(): Stripe {
     const stripeKey = process.env.STRIPE_SECRET_KEY;
     return new Stripe(stripeKey, {
-      apiVersion: '2020-08-27',
+      apiVersion: '2022-11-15',
     });
   }
-
 }

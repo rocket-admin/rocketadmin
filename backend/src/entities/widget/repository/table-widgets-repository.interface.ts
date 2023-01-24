@@ -1,4 +1,4 @@
-import { TableWidgetEntity } from '../table-widget.entity';
+import { TableWidgetEntity } from '../table-widget.entity.js';
 
 export interface ITableWidgetsRepository {
   findTableWidgets(connectionId: string, tableName: string): Promise<Array<TableWidgetEntity>>;

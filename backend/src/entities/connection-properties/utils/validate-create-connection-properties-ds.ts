@@ -1,10 +1,10 @@
-import { CreateConnectionPropertiesDs } from '../application/data-structures/create-connection-properties.ds';
-import { toPrettyErrorsMsg } from '../../../helpers';
-import { HttpException } from '@nestjs/common/exceptions/http.exception';
-import { Messages } from '../../../exceptions/text/messages';
+import { CreateConnectionPropertiesDs } from '../application/data-structures/create-connection-properties.ds.js';
+import { toPrettyErrorsMsg } from '../../../helpers/index.js';
+import { HttpException } from '@nestjs/common/exceptions/http.exception.js';
+import { Messages } from '../../../exceptions/text/messages.js';
 import { HttpStatus } from '@nestjs/common';
-import { ConnectionEntity } from '../../connection/connection.entity';
-import { createDataAccessObject } from '../../../data-access-layer/shared/create-data-access-object';
+import { ConnectionEntity } from '../../connection/connection.entity.js';
+import { createDataAccessObject } from '../../../data-access-layer/shared/create-data-access-object.js';
 
 export async function validateCreateConnectionPropertiesDs(
   createConnectionProperties: CreateConnectionPropertiesDs,

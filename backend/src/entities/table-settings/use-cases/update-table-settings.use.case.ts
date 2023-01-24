@@ -1,16 +1,16 @@
 import { HttpStatus, Inject, Injectable } from '@nestjs/common';
-import { HttpException } from '@nestjs/common/exceptions/http.exception';
-import AbstractUseCase from '../../../common/abstract-use.case';
-import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface';
-import { BaseType } from '../../../common/data-injection.tokens';
-import { createDataAccessObject } from '../../../data-access-layer/shared/create-data-access-object';
-import { Messages } from '../../../exceptions/text/messages';
-import { toPrettyErrorsMsg } from '../../../helpers';
-import { CreateTableSettingsDs } from '../application/data-structures/create-table-settings.ds';
-import { FoundTableSettingsDs } from '../application/data-structures/found-table-settings.ds';
-import { buildFoundTableSettingsDs } from '../utils/build-found-table-settings-ds';
-import { buildNewTableSettingsEntity } from '../utils/build-new-table-settings-entity';
-import { IUpdateTableSettings } from './use-cases.interface';
+import { HttpException } from '@nestjs/common/exceptions/http.exception.js';
+import AbstractUseCase from '../../../common/abstract-use.case.js';
+import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface.js';
+import { BaseType } from '../../../common/data-injection.tokens.js';
+import { createDataAccessObject } from '../../../data-access-layer/shared/create-data-access-object.js';
+import { Messages } from '../../../exceptions/text/messages.js';
+import { toPrettyErrorsMsg } from '../../../helpers/index.js';
+import { CreateTableSettingsDs } from '../application/data-structures/create-table-settings.ds.js';
+import { FoundTableSettingsDs } from '../application/data-structures/found-table-settings.ds.js';
+import { buildFoundTableSettingsDs } from '../utils/build-found-table-settings-ds.js';
+import { buildNewTableSettingsEntity } from '../utils/build-new-table-settings-entity.js';
+import { IUpdateTableSettings } from './use-cases.interface.js';
 
 @Injectable()
 export class UpdateTableSettingsUseCase
@@ -50,6 +50,13 @@ export class UpdateTableSettingsUseCase
       );
     }
     const updateTableSettings = buildNewTableSettingsEntity(inputData, foundConnection);
+    for (const key in updateTableSettings) {
+      // eslint-disable-next-line security/detect-object-injection
+      if (updateTableSettings[key] === undefined) {
+        // eslint-disable-next-line security/detect-object-injection
+        delete updateTableSettings[key];
+      }
+    }
     const updated = Object.assign(settingsToUpdate, updateTableSettings);
     const savedTableSettings = await this._dbContext.tableSettingsRepository.saveNewOrUpdatedSettings(updated);
     return buildFoundTableSettingsDs(savedTableSettings);

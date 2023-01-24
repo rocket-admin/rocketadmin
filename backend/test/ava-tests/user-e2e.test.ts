@@ -1,19 +1,20 @@
 import test from 'ava';
 import { Test } from '@nestjs/testing';
-import { ApplicationModule } from '../../src/app.module';
-import { DatabaseModule } from '../../src/shared/database/database.module';
-import { DatabaseService } from '../../src/shared/database/database.service';
-import { TestUtils } from '../utils/test.utils';
+import { ApplicationModule } from '../../src/app.module.js';
+import { DatabaseModule } from '../../src/shared/database/database.module.js';
+import { DatabaseService } from '../../src/shared/database/database.service.js';
+import { TestUtils } from '../utils/test.utils.js';
 import { INestApplication } from '@nestjs/common';
-import * as request from 'supertest';
-import { Constants } from '../../src/helpers/constants/constants';
-import { IUserInfo } from '../../src/entities/user/user.interface';
+import request from 'supertest';
+import { Constants } from '../../src/helpers/constants/constants.js';
+import { IUserInfo } from '../../src/entities/user/user.interface.js';
 import { faker } from '@faker-js/faker';
-import cookieParser = require('cookie-parser');
-import { AllExceptionsFilter } from '../../src/exceptions/all-exceptions.filter';
+import { AllExceptionsFilter } from '../../src/exceptions/all-exceptions.filter.js';
+import cookieParser from 'cookie-parser';
 
 let app: INestApplication;
 let currentTest: string;
+let testUtils: TestUtils;
 
 const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
@@ -23,6 +24,8 @@ test.before(async () => {
     providers: [DatabaseService, TestUtils],
   }).compile();
   app = moduleFixture.createNestApplication();
+  testUtils = moduleFixture.get<TestUtils>(TestUtils);
+  await testUtils.resetDb();
   app.use(cookieParser());
   app.useGlobalFilters(new AllExceptionsFilter());
   await app.init();
@@ -44,7 +47,6 @@ test(`${currentTest} should user info for this user`, async (t) => {
       .send(adminUserRegisterInfo)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
-    console.log("🚀 ~ file: user-e2e.test.ts:42 ~ test.only ~ registerAdminUserResponse", registerAdminUserResponse.text)
     const connectionAdminUserToken = `${Constants.JWT_COOKIE_KEY_NAME}=${TestUtils.getJwtTokenFromResponse(
       registerAdminUserResponse,
     )}`;

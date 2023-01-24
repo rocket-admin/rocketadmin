@@ -145,21 +145,30 @@ export class DashboardComponent implements OnInit {
         structure
       }
     });
-    filterDialodRef.componentInstance.tableRowFieldsShown
 
     filterDialodRef.afterClosed().subscribe(action => {
       if (action === 'filter' || action === 'reset') {
-        this.filters = omitBy(filterDialodRef.componentInstance.tableRowFieldsShown, (value) => value === undefined);
+        const filtersFromDialog = {...filterDialodRef.componentInstance.tableRowFieldsShown};
+
+        const nonEmptyFilters = omitBy(filtersFromDialog, (value) => value === undefined);
         this.comparators = filterDialodRef.componentInstance.tableRowFieldsComparator;
 
-        const filtersQueryParams = Object.keys(this.filters)
-          .reduce((paramsObj, key) => {
-            paramsObj[`f__${key}__${this.comparators[key]}`] = this.filters[key];
-            return paramsObj;
-          }, {});
+        if (Object.keys(nonEmptyFilters).length) {
+          this.filters = Object.keys(nonEmptyFilters)
+            .reduce((filtersObj, key) => {
+              filtersObj[key] = filtersFromDialog[key].toString().trim();
+              return filtersObj;
+            }, {});
 
-        this.getRows();
-        this.router.navigate([`/dashboard/${this.connectionID}/${this.selectedTableName}`], { queryParams: {...filtersQueryParams, page_index: 0} });
+          const filtersQueryParams = Object.keys(this.filters)
+            .reduce((paramsObj, key) => {
+              paramsObj[`f__${key}__${this.comparators[key]}`] = this.filters[key];
+              return paramsObj;
+            }, {});
+
+          this.getRows();
+          this.router.navigate([`/dashboard/${this.connectionID}/${this.selectedTableName}`], { queryParams: {...filtersQueryParams, page_index: 0} });
+        }
       }
     })
   }

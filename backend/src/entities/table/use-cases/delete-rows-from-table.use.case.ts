@@ -1,18 +1,18 @@
 import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
-import AbstractUseCase from '../../../common/abstract-use.case';
-import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface';
-import { BaseType } from '../../../common/data-injection.tokens';
-import { createDataAccessObject } from '../../../data-access-layer/shared/create-data-access-object';
-import { AmplitudeEventTypeEnum, LogOperationTypeEnum, OperationResultStatusEnum } from '../../../enums';
-import { Messages } from '../../../exceptions/text/messages';
-import { compareArrayElements, isConnectionTypeAgent } from '../../../helpers';
-import { AmplitudeService } from '../../amplitude/amplitude.service';
-import { isTestConnectionUtil } from '../../connection/utils/is-test-connection-util';
-import { TableLogsService } from '../../table-logs/table-logs.service';
-import { DeleteRowsFromTableDs } from '../application/data-structures/delete-row-from-table.ds';
-import { convertHexDataInPrimaryKeyUtil } from '../utils/convert-hex-data-in-primary-key.util';
-import { findObjectsWithProperties } from '../utils/find-objects-with-properties';
-import { IDeleteRowsFromTable } from './table-use-cases.interface';
+import AbstractUseCase from '../../../common/abstract-use.case.js';
+import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface.js';
+import { BaseType } from '../../../common/data-injection.tokens.js';
+import { createDataAccessObject } from '../../../data-access-layer/shared/create-data-access-object.js';
+import { AmplitudeEventTypeEnum, LogOperationTypeEnum, OperationResultStatusEnum } from '../../../enums/index.js';
+import { Messages } from '../../../exceptions/text/messages.js';
+import { compareArrayElements, isConnectionTypeAgent } from '../../../helpers/index.js';
+import { AmplitudeService } from '../../amplitude/amplitude.service.js';
+import { isTestConnectionUtil } from '../../connection/utils/is-test-connection-util.js';
+import { TableLogsService } from '../../table-logs/table-logs.service.js';
+import { DeleteRowsFromTableDs } from '../application/data-structures/delete-row-from-table.ds.js';
+import { convertHexDataInPrimaryKeyUtil } from '../utils/convert-hex-data-in-primary-key.util.js';
+import { findObjectsWithProperties } from '../utils/find-objects-with-properties.js';
+import { IDeleteRowsFromTable } from './table-use-cases.interface.js';
 
 @Injectable()
 export class DeleteRowsFromTableUseCase
@@ -29,6 +29,7 @@ export class DeleteRowsFromTableUseCase
   }
 
   protected async implementation(inputData: DeleteRowsFromTableDs): Promise<boolean> {
+    // eslint-disable-next-line prefer-const
     let { connectionId, masterPwd, primaryKeys, tableName, userId } = inputData;
     if (!primaryKeys) {
       throw new HttpException(

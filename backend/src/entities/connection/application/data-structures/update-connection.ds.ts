@@ -1,4 +1,4 @@
-import { ConnectionTypeEnum } from '../../../../enums';
+import { ConnectionTypeEnum } from '../../../../enums/index.js';
 
 export class UpdateConnectionDs {
   connection_parameters: {

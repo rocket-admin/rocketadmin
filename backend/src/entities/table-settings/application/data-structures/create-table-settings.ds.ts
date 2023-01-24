@@ -1,7 +1,7 @@
-import { QueryOrderingEnum } from '../../../../enums';
-import { CustomFieldsEntity } from '../../../custom-field/custom-fields.entity';
-import { TableActionEntity } from '../../../table-actions/table-action.entity';
-import { TableWidgetEntity } from '../../../widget/table-widget.entity';
+import { QueryOrderingEnum } from '../../../../enums/index.js';
+import { CustomFieldsEntity } from '../../../custom-field/custom-fields.entity.js';
+import { TableActionEntity } from '../../../table-actions/table-action.entity.js';
+import { TableWidgetEntity } from '../../../widget/table-widget.entity.js';
 
 export class CreateTableSettingsDs {
   autocomplete_columns: Array<string>;

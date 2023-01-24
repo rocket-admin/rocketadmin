@@ -1,16 +1,16 @@
 import { Inject, Injectable } from '@nestjs/common';
-import AbstractUseCase from '../../../common/abstract-use.case';
-import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface';
-import { BaseType } from '../../../common/data-injection.tokens';
-import { CreateTableSettingsDs } from '../../table-settings/application/data-structures/create-table-settings.ds';
-import { FoundTableSettingsDs } from '../../table-settings/application/data-structures/found-table-settings.ds';
-import { TableSettingsEntity } from '../../table-settings/table-settings.entity';
-import { buildEmptyTableSettings } from '../../table-settings/utils/build-empty-table-settings';
-import { buildFoundTableSettingsDs } from '../../table-settings/utils/build-found-table-settings-ds';
-import { CreateCustomFieldsDs } from '../application/data-structures/create-custom-fields.ds';
-import { buildNewCustomFieldsEntity } from '../utils/build-new-custom-fields-entity';
-import { validateCreateCustomFieldDto } from '../utils/validate-create-custom-field-dto';
-import { ICreateCustomFields } from './custom-field-use-cases.interface';
+import AbstractUseCase from '../../../common/abstract-use.case.js';
+import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface.js';
+import { BaseType } from '../../../common/data-injection.tokens.js';
+import { CreateTableSettingsDs } from '../../table-settings/application/data-structures/create-table-settings.ds.js';
+import { FoundTableSettingsDs } from '../../table-settings/application/data-structures/found-table-settings.ds.js';
+import { TableSettingsEntity } from '../../table-settings/table-settings.entity.js';
+import { buildEmptyTableSettings } from '../../table-settings/utils/build-empty-table-settings.js';
+import { buildFoundTableSettingsDs } from '../../table-settings/utils/build-found-table-settings-ds.js';
+import { CreateCustomFieldsDs } from '../application/data-structures/create-custom-fields.ds.js';
+import { buildNewCustomFieldsEntity } from '../utils/build-new-custom-fields-entity.js';
+import { validateCreateCustomFieldDto } from '../utils/validate-create-custom-field-dto.js';
+import { ICreateCustomFields } from './custom-field-use-cases.interface.js';
 
 @Injectable()
 export class CreateCustomFieldsUseCase

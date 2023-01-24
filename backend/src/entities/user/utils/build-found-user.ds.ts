@@ -1,9 +1,9 @@
-import { getCurrentUserSubscription } from '../../stripe/stripe-helpers/get-current-user-subscription';
-import { FoundUserInGroupDs } from '../application/data-structures/found-user-in-group.ds';
-import { FoundUserDs } from '../application/data-structures/found-user.ds';
-import { UserEntity } from '../user.entity';
-import { getUserIntercomHash } from './get-user-intercom-hash';
-import { StripeUtil } from './stripe-util';
+import { getCurrentUserSubscription } from '../../stripe/stripe-helpers/get-current-user-subscription.js';
+import { FoundUserInGroupDs } from '../application/data-structures/found-user-in-group.ds.js';
+import { FoundUserDs } from '../application/data-structures/found-user.ds.js';
+import { UserEntity } from '../user.entity.js';
+import { getUserIntercomHash } from './get-user-intercom-hash.js';
+import { StripeUtil } from './stripe-util.js';
 
 export function buildFoundUserInGroupDs(user: UserEntity): FoundUserInGroupDs {
   return {

@@ -1,16 +1,16 @@
 import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
-import AbstractUseCase from '../../../common/abstract-use.case';
-import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface';
-import { BaseType } from '../../../common/data-injection.tokens';
-import { LogOperationTypeEnum, QueryOrderingEnum } from '../../../enums';
-import { Messages } from '../../../exceptions/text/messages';
-import { Constants } from '../../../helpers/constants/constants';
-import { validateStringWithEnum } from '../../../helpers/validators/validate-string-with-enum';
-import { FindLogsDs } from '../application/data-structures/find-logs.ds';
-import { FoundLogsDs, FoundLogsEntities } from '../application/data-structures/found-logs.ds';
-import { IFindLogsOptions } from '../repository/table-logs-repository.interface';
-import { buildFoundLogRecordDs } from '../utils/build-found-log-record-ds';
-import { IFindLogs } from './use-cases.interface';
+import AbstractUseCase from '../../../common/abstract-use.case.js';
+import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface.js';
+import { BaseType } from '../../../common/data-injection.tokens.js';
+import { LogOperationTypeEnum, QueryOrderingEnum } from '../../../enums/index.js';
+import { Messages } from '../../../exceptions/text/messages.js';
+import { Constants } from '../../../helpers/constants/constants.js';
+import { validateStringWithEnum } from '../../../helpers/validators/validate-string-with-enum.js';
+import { FindLogsDs } from '../application/data-structures/find-logs.ds.js';
+import { FoundLogsDs, FoundLogsEntities } from '../application/data-structures/found-logs.ds.js';
+import { IFindLogsOptions } from '../repository/table-logs-repository.interface.js';
+import { buildFoundLogRecordDs } from '../utils/build-found-log-record-ds.js';
+import { IFindLogs } from './use-cases.interface.js';
 
 @Injectable()
 export class FindLogsUseCase extends AbstractUseCase<FindLogsDs, FoundLogsDs> implements IFindLogs {

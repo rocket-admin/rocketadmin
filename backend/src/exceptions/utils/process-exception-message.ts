@@ -1,5 +1,5 @@
-import { PROCESSING_MESSAGES_FIND } from './processing-messages-find';
-import { PROCESSING_MESSAGES_REPLACE } from './processing-messages-replace';
+import { PROCESSING_MESSAGES_FIND } from './processing-messages-find.js';
+import { PROCESSING_MESSAGES_REPLACE } from './processing-messages-replace.js';
 
 export function processExceptionMessage(message: string): string {
   const msgInLowerCase = message.toLowerCase();

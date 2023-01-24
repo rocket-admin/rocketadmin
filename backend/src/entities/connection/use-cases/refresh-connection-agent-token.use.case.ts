@@ -1,9 +1,9 @@
 import { Inject, Injectable } from '@nestjs/common';
-import AbstractUseCase from '../../../common/abstract-use.case';
-import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface';
-import { BaseType } from '../../../common/data-injection.tokens';
-import { TokenDs } from '../application/data-structures/token.ds';
-import { IRefreshConnectionAgentToken } from './use-cases.interfaces';
+import AbstractUseCase from '../../../common/abstract-use.case.js';
+import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface.js';
+import { BaseType } from '../../../common/data-injection.tokens.js';
+import { TokenDs } from '../application/data-structures/token.ds.js';
+import { IRefreshConnectionAgentToken } from './use-cases.interfaces.js';
 
 @Injectable()
 export class RefreshConnectionAgentTokenUseCase

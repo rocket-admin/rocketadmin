@@ -12,31 +12,26 @@ import {
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import { HttpException } from '@nestjs/common/exceptions/http.exception';
-import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { UseCaseType } from '../../common/data-injection.tokens';
-import { MasterPassword, QueryTableName, QueryUuid, SlugUuid, UserId } from '../../decorators';
-import { InTransactionEnum } from '../../enums';
-import { Messages } from '../../exceptions/text/messages';
-import { ConnectionEditGuard, ConnectionReadGuard } from '../../guards';
-import { SentryInterceptor } from '../../interceptors';
-import { FoundTableSettingsDs } from '../table-settings/application/data-structures/found-table-settings.ds';
-import { CreateCustomFieldsDs } from './application/data-structures/create-custom-fields.ds';
-import { DeleteCustomFieldsDs } from './application/data-structures/delete-custom-fields.ds';
-import { FoundCustomFieldsDs } from './application/data-structures/found-custom-fields.ds';
-import { GetCustomFieldsDs } from './application/data-structures/get-custom-fields.ds';
-import { UpdateCustomFieldsDs } from './application/data-structures/update-custom-fields.ds';
-import { CreateCustomFieldDto } from './dto/create-custom-field.dto';
-import { UpdateCustomFieldDto } from './dto/update-custom-field-dto';
+import { HttpException } from '@nestjs/common/exceptions/http.exception.js';
+import { UseCaseType } from '../../common/data-injection.tokens.js';
+import { MasterPassword, QueryTableName, QueryUuid, SlugUuid, UserId } from '../../decorators/index.js';
+import { InTransactionEnum } from '../../enums/index.js';
+import { Messages } from '../../exceptions/text/messages.js';
+import { ConnectionEditGuard, ConnectionReadGuard } from '../../guards/index.js';
+import { SentryInterceptor } from '../../interceptors/index.js';
+import { FoundTableSettingsDs } from '../table-settings/application/data-structures/found-table-settings.ds.js';
+import { CreateCustomFieldsDs } from './application/data-structures/create-custom-fields.ds.js';
+import { DeleteCustomFieldsDs } from './application/data-structures/delete-custom-fields.ds.js';
+import { FoundCustomFieldsDs } from './application/data-structures/found-custom-fields.ds.js';
+import { GetCustomFieldsDs } from './application/data-structures/get-custom-fields.ds.js';
+import { UpdateCustomFieldsDs } from './application/data-structures/update-custom-fields.ds.js';
 import {
   ICreateCustomFields,
   IDeleteCustomField,
   IGetCustomFields,
   IUpdateCustomFields,
-} from './use-cases/custom-field-use-cases.interface';
+} from './use-cases/custom-field-use-cases.interface.js';
 
-@ApiBearerAuth()
-@ApiTags('custom_fields')
 @UseInterceptors(SentryInterceptor)
 @Controller()
 @Injectable()
@@ -52,8 +47,6 @@ export class CustomFieldController {
     private readonly deleteCustomFieldUseCase: IDeleteCustomField,
   ) {}
 
-  @ApiOperation({ summary: 'Get all table custom fields' })
-  @ApiResponse({ status: 200, description: 'Return all table settings.' })
   @UseGuards(ConnectionReadGuard)
   @Get('/fields/:slug')
   @UseInterceptors(ClassSerializerInterceptor)
@@ -68,12 +61,6 @@ export class CustomFieldController {
     return await this.getCustomFieldsUseCase.execute(inputData, InTransactionEnum.OFF);
   }
 
-  @ApiOperation({ summary: 'Create new custom field' })
-  @ApiResponse({
-    status: 201,
-    description: 'Return table settings with created custom field.',
-  })
-  @ApiBody({ type: CreateCustomFieldDto })
   @UseGuards(ConnectionEditGuard)
   @Post('/field/:slug')
   @UseInterceptors(ClassSerializerInterceptor)
@@ -101,9 +88,6 @@ export class CustomFieldController {
     return await this.createCustomFieldsUseCase.execute(inputData, InTransactionEnum.ON);
   }
 
-  @ApiOperation({ summary: 'Update custom field' })
-  @ApiResponse({ status: 201, description: 'Return updated custom field.' })
-  @ApiBody({ type: UpdateCustomFieldDto })
   @UseGuards(ConnectionEditGuard)
   @Put('/field/:slug')
   @UseInterceptors(ClassSerializerInterceptor)
@@ -141,11 +125,6 @@ export class CustomFieldController {
     return await this.updateCustomFieldsUseCase.execute(inputData, InTransactionEnum.ON);
   }
 
-  @ApiOperation({ summary: 'Delete custom field' })
-  @ApiResponse({
-    status: 200,
-    description: 'Return table settings without deleted custom field.',
-  })
   @UseGuards(ConnectionEditGuard)
   @Delete('/field/:slug')
   @UseInterceptors(ClassSerializerInterceptor)

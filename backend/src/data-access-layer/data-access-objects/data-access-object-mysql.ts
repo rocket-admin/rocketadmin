@@ -1,9 +1,9 @@
-import { Injectable, Scope } from '@nestjs/common';
-import { knex, Knex } from 'knex';
-import { ConnectionEntity } from '../../entities/connection/connection.entity';
-import { CreateTableSettingsDto } from '../../entities/table-settings/dto';
-import { TableSettingsEntity } from '../../entities/table-settings/table-settings.entity';
-import { FilterCriteriaEnum } from '../../enums';
+import knex from 'knex';
+import { Knex } from 'knex';
+import { ConnectionEntity } from '../../entities/connection/connection.entity.js';
+import { CreateTableSettingsDto } from '../../entities/table-settings/dto/index.js';
+import { TableSettingsEntity } from '../../entities/table-settings/table-settings.entity.js';
+import { FilterCriteriaEnum } from '../../enums/index.js';
 import {
   changeObjPropValByPropName,
   checkFieldAutoincrement,
@@ -15,10 +15,10 @@ import {
   objectKeysToLowercase,
   renameObjectKeyName,
   tableSettingsFieldValidator,
-} from '../../helpers';
-import { Cacher } from '../../helpers/cache/cacher';
-import { Constants } from '../../helpers/constants/constants';
-import { BasicDao } from '../shared/basic-dao';
+} from '../../helpers/index.js';
+import { Cacher } from '../../helpers/cache/cacher.js';
+import { Constants } from '../../helpers/constants/constants.js';
+import { BasicDao } from '../shared/basic-dao.js';
 import {
   IAutocompleteFieldsData,
   IDataAccessObject,
@@ -28,7 +28,7 @@ import {
   IRows,
   ITableStructure,
   ITestConnectResult,
-} from '../shared/data-access-object-interface';
+} from '../shared/data-access-object-interface.js';
 
 export class DataAccessObjectMysql extends BasicDao implements IDataAccessObject {
   private readonly connection: ConnectionEntity;
@@ -90,6 +90,7 @@ export class DataAccessObjectMysql extends BasicDao implements IDataAccessObject
           const lastInsertId = await knex(tableName).select(knex.raw(`LAST_INSERT_ID()`));
           const resultObj = {};
           for (const [index, el] of primaryColumns.entries()) {
+            // eslint-disable-next-line security/detect-object-injection
             resultObj[el.column_name] = lastInsertId[index]['LAST_INSERT_ID()'];
           }
           return resultObj;

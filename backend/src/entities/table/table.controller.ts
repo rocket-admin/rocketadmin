@@ -13,37 +13,32 @@ import {
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { IGlobalDatabaseContext } from '../../common/application/global-database-context.intarface';
-import { BaseType, UseCaseType } from '../../common/data-injection.tokens';
-import { createDataAccessObject } from '../../data-access-layer/shared/create-data-access-object';
-import { MasterPassword, QueryTableName, SlugUuid, UserId } from '../../decorators';
-import { AmplitudeEventTypeEnum, InTransactionEnum } from '../../enums';
-import { Messages } from '../../exceptions/text/messages';
-import { TableAddGuard, TableDeleteGuard, TableEditGuard, TableReadGuard } from '../../guards';
-import { isConnectionTypeAgent, isObjectEmpty } from '../../helpers';
-import { Encryptor } from '../../helpers/encryption/encryptor';
-import { SentryInterceptor } from '../../interceptors';
-import { AmplitudeService } from '../amplitude/amplitude.service';
-import { ConnectionEntity } from '../connection/connection.entity';
-import { UserEntity } from '../user/user.entity';
-import { AddRowInTableDs } from './application/data-structures/add-row-in-table.ds';
-import { DeleteRowFromTableDs, DeleteRowsFromTableDs } from './application/data-structures/delete-row-from-table.ds';
-import { DeletedRowFromTableDs } from './application/data-structures/deleted-row-from-table.ds';
-import { FindTablesDs } from './application/data-structures/find-tables.ds';
-import { FoundTableRowsDs } from './application/data-structures/found-table-rows.ds';
-import { FoundTableDs } from './application/data-structures/found-table.ds';
-import { GetRowByPrimaryKeyDs } from './application/data-structures/get-row-by-primary-key.ds';
-import { GetTableRowsDs } from './application/data-structures/get-table-rows.ds';
-import { GetTableStructureDs } from './application/data-structures/get-table-structure-ds';
-import { UpdateRowInTableDs } from './application/data-structures/update-row-in-table.ds';
-import { AddRowDto } from './dto/add-row-dto';
-import { DeleteRowDto } from './dto/delete-row-dto';
-import { FindTableDto } from './dto/find-table.dto';
-import { UpdateRowDto } from './dto/update-row-dto';
-import { IStructureRO, ITableRowRO } from './table.interface';
+import { IGlobalDatabaseContext } from '../../common/application/global-database-context.intarface.js';
+import { BaseType, UseCaseType } from '../../common/data-injection.tokens.js';
+import { createDataAccessObject } from '../../data-access-layer/shared/create-data-access-object.js';
+import { MasterPassword, QueryTableName, SlugUuid, UserId } from '../../decorators/index.js';
+import { AmplitudeEventTypeEnum, InTransactionEnum } from '../../enums/index.js';
+import { Messages } from '../../exceptions/text/messages.js';
+import { TableAddGuard, TableDeleteGuard, TableEditGuard, TableReadGuard } from '../../guards/index.js';
+import { isConnectionTypeAgent, isObjectEmpty } from '../../helpers/index.js';
+import { Encryptor } from '../../helpers/encryption/encryptor.js';
+import { SentryInterceptor } from '../../interceptors/index.js';
+import { AmplitudeService } from '../amplitude/amplitude.service.js';
+import { ConnectionEntity } from '../connection/connection.entity.js';
+import { UserEntity } from '../user/user.entity.js';
+import { AddRowInTableDs } from './application/data-structures/add-row-in-table.ds.js';
+import { DeleteRowFromTableDs, DeleteRowsFromTableDs } from './application/data-structures/delete-row-from-table.ds.js';
+import { DeletedRowFromTableDs } from './application/data-structures/deleted-row-from-table.ds.js';
+import { FindTablesDs } from './application/data-structures/find-tables.ds.js';
+import { FoundTableRowsDs } from './application/data-structures/found-table-rows.ds.js';
+import { FoundTableDs } from './application/data-structures/found-table.ds.js';
+import { GetRowByPrimaryKeyDs } from './application/data-structures/get-row-by-primary-key.ds.js';
+import { GetTableRowsDs } from './application/data-structures/get-table-rows.ds.js';
+import { GetTableStructureDs } from './application/data-structures/get-table-structure-ds.js';
+import { UpdateRowInTableDs } from './application/data-structures/update-row-in-table.ds.js';
+import { IStructureRO, ITableRowRO } from './table.interface.js';
 import {
   IAddRowInTable,
   IDeleteRowFromTable,
@@ -53,10 +48,8 @@ import {
   IGetTableRows,
   IGetTableStructure,
   IUpdateRowInTable,
-} from './use-cases/table-use-cases.interface';
+} from './use-cases/table-use-cases.interface.js';
 
-@ApiBearerAuth()
-@ApiTags('tables')
 @UseInterceptors(SentryInterceptor)
 @Controller()
 @Injectable()
@@ -87,11 +80,6 @@ export class TableController {
     protected _dbContext: IGlobalDatabaseContext,
   ) {}
 
-  @ApiOperation({ summary: 'Get tables in connection' })
-  @ApiResponse({
-    status: 200,
-    description: 'Return tables in current connection',
-  })
   @Get('/connection/tables/:slug')
   async findTablesInConnection(
     @SlugUuid() connectionId: string,
@@ -117,9 +105,6 @@ export class TableController {
     return await this.findTablesInConnectionUseCase.execute(inputData, InTransactionEnum.OFF);
   }
 
-  @ApiOperation({ summary: 'Get all rows in table in this connection' })
-  @ApiResponse({ status: 200, description: 'Return all rows in this table' })
-  @ApiBody({ type: FindTableDto })
   @UseGuards(TableReadGuard)
   @Get('/table/rows/:slug')
   async findAllRows(
@@ -165,11 +150,6 @@ export class TableController {
     return await this.getTableRowsUseCase.execute(inputData, InTransactionEnum.OFF);
   }
 
-  @ApiOperation({ summary: 'Get structure of this table in this connection' })
-  @ApiResponse({
-    status: 200,
-    description: 'Return structure of this table in this connection',
-  })
   @UseGuards(TableReadGuard)
   @Get('/table/structure/:slug')
   async getTableStructure(
@@ -195,9 +175,6 @@ export class TableController {
     return await this.getTableStructureUseCase.execute(inputData, InTransactionEnum.OFF);
   }
 
-  @ApiOperation({ summary: 'Insert values into table' })
-  @ApiResponse({ status: 200, description: 'Values successfully inserted' })
-  @ApiBody({ type: AddRowDto })
   @UseGuards(TableAddGuard)
   @Post('/table/row/:slug')
   async addRowInTable(
@@ -226,9 +203,6 @@ export class TableController {
     return await this.addRowInTableUseCase.execute(inputData, InTransactionEnum.OFF);
   }
 
-  @ApiOperation({ summary: 'Update values into table (by "id" in row)' })
-  @ApiResponse({ status: 200, description: 'Values successfully updated' })
-  @ApiBody({ type: UpdateRowDto })
   @UseGuards(TableEditGuard)
   @Put('/table/row/:slug')
   async updateRowInTable(
@@ -264,9 +238,6 @@ export class TableController {
     return await this.updateRowInTableUseCase.execute(inputData, InTransactionEnum.OFF);
   }
 
-  @ApiOperation({ summary: 'Delete row in table' })
-  @ApiResponse({ status: 200, description: 'Row deleted' })
-  @ApiBody({ type: DeleteRowDto })
   @UseGuards(TableDeleteGuard)
   @Delete('/table/row/:slug')
   async deleteRowInTable(
@@ -300,8 +271,6 @@ export class TableController {
     return await this.deleteRowFromTableUseCase.execute(inputData, InTransactionEnum.OFF);
   }
 
-  @ApiOperation({ summary: 'Delete rows in table' })
-  @ApiResponse({ status: 200, description: 'Rows deleted' })
   @UseGuards(TableDeleteGuard)
   @Put('/table/rows/delete/:slug')
   async deleteRowsInTable(
@@ -337,8 +306,6 @@ export class TableController {
     return await this.deleteRowsFromTableUseCase.execute(inputData, InTransactionEnum.OFF);
   }
 
-  @ApiOperation({ summary: 'Get row by primary key' })
-  @ApiResponse({ status: 200, description: 'Return a row' })
   @UseGuards(TableReadGuard)
   @Get('/table/row/:slug')
   async getRowByPrimaryKey(

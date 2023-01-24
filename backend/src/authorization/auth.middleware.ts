@@ -1,14 +1,13 @@
 import { HttpException, HttpStatus, Injectable, NestMiddleware } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Request, Response } from 'express';
-import * as jwt from 'jsonwebtoken';
+import jwt from 'jsonwebtoken';
 import { Repository } from 'typeorm';
-import { MockFactory } from '../../test/mock.factory';
-import { LogOutEntity } from '../entities/log-out/log-out.entity';
-import { UserEntity } from '../entities/user/user.entity';
-import { Messages } from '../exceptions/text/messages';
-import { isObjectEmpty } from '../helpers';
-import { Constants } from '../helpers/constants/constants';
+import { LogOutEntity } from '../entities/log-out/log-out.entity.js';
+import { UserEntity } from '../entities/user/user.entity.js';
+import { Messages } from '../exceptions/text/messages.js';
+import { isObjectEmpty } from '../helpers/index.js';
+import { Constants } from '../helpers/constants/constants.js';
 
 @Injectable()
 export class AuthMiddleware implements NestMiddleware {

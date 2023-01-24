@@ -11,39 +11,43 @@ import {
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import { HttpException } from '@nestjs/common/exceptions/http.exception';
-import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { HttpException } from '@nestjs/common/exceptions/http.exception.js';
 import validator from 'validator';
-import { IGlobalDatabaseContext } from '../../common/application/global-database-context.intarface';
-import { BaseType, UseCaseType } from '../../common/data-injection.tokens';
-import { ITestConnectResult } from '../../dal/shared/dao-interface';
-import { BodyUuid, GCLlId, MasterPassword, QueryUuid, SlugUuid, UserId } from '../../decorators';
-import { AmplitudeEventTypeEnum, ConnectionTypeEnum, InTransactionEnum } from '../../enums';
-import { Messages } from '../../exceptions/text/messages';
-import { processExceptionMessage } from '../../exceptions/utils/process-exception-message';
-import { ConnectionEditGuard, ConnectionReadGuard } from '../../guards';
-import { isConnectionEntityAgent, isConnectionTypeAgent, slackPostMessage, toPrettyErrorsMsg } from '../../helpers';
-import { SentryInterceptor } from '../../interceptors';
-import { AmplitudeService } from '../amplitude/amplitude.service';
-import { GroupEntity } from '../group/group.entity';
-import { IComplexPermission } from '../permission/permission.interface';
-import { FindUserDs } from '../user/application/data-structures/find-user.ds';
-import { FoundUserDs } from '../user/application/data-structures/found-user.ds';
-import { CreateConnectionDs } from './application/data-structures/create-connection.ds';
-import { CreateGroupInConnectionDs } from './application/data-structures/create-group-in-connection.ds';
-import { CreatedConnectionDs } from './application/data-structures/created-connection.ds';
-import { DeleteConnectionDs } from './application/data-structures/delete-connection.ds';
-import { DeleteGroupInConnectionDs } from './application/data-structures/delete-group-in-connection.ds';
-import { FindOneConnectionDs } from './application/data-structures/find-one-connection.ds';
-import { FoundConnectionsDs } from './application/data-structures/found-connections.ds';
-import { FoundOneConnectionDs } from './application/data-structures/found-one-connection.ds';
-import { FoundUserGroupsInConnectionDs } from './application/data-structures/found-user-groups-in-connection.ds';
-import { GetGroupsInConnectionDs } from './application/data-structures/get-groups-in-connection.ds';
-import { GetPermissionsInConnectionDs } from './application/data-structures/get-permissions-in-connection.ds';
-import { RestoredConnectionDs } from './application/data-structures/restored-connection.ds';
-import { UpdateConnectionDs } from './application/data-structures/update-connection.ds';
-import { UpdateMasterPasswordDs } from './application/data-structures/update-master-password.ds';
-import { CreateConnectionDto, CreateGroupInConnectionDto, UpdateMasterPasswordDto } from './dto';
+import { IGlobalDatabaseContext } from '../../common/application/global-database-context.intarface.js';
+import { BaseType, UseCaseType } from '../../common/data-injection.tokens.js';
+import { ITestConnectResult } from '../../dal/shared/dao-interface.js';
+import { BodyUuid, GCLlId, MasterPassword, QueryUuid, SlugUuid, UserId } from '../../decorators/index.js';
+import { AmplitudeEventTypeEnum, ConnectionTypeEnum, InTransactionEnum } from '../../enums/index.js';
+import { Messages } from '../../exceptions/text/messages.js';
+import { processExceptionMessage } from '../../exceptions/utils/process-exception-message.js';
+import { ConnectionEditGuard, ConnectionReadGuard } from '../../guards/index.js';
+import {
+  isConnectionEntityAgent,
+  isConnectionTypeAgent,
+  slackPostMessage,
+  toPrettyErrorsMsg,
+} from '../../helpers/index.js';
+import { SentryInterceptor } from '../../interceptors/index.js';
+import { AmplitudeService } from '../amplitude/amplitude.service.js';
+import { GroupEntity } from '../group/group.entity.js';
+import { IComplexPermission } from '../permission/permission.interface.js';
+import { FindUserDs } from '../user/application/data-structures/find-user.ds.js';
+import { FoundUserDs } from '../user/application/data-structures/found-user.ds.js';
+import { CreateConnectionDs } from './application/data-structures/create-connection.ds.js';
+import { CreateGroupInConnectionDs } from './application/data-structures/create-group-in-connection.ds.js';
+import { CreatedConnectionDs } from './application/data-structures/created-connection.ds.js';
+import { DeleteConnectionDs } from './application/data-structures/delete-connection.ds.js';
+import { DeleteGroupInConnectionDs } from './application/data-structures/delete-group-in-connection.ds.js';
+import { FindOneConnectionDs } from './application/data-structures/find-one-connection.ds.js';
+import { FoundConnectionsDs } from './application/data-structures/found-connections.ds.js';
+import { FoundOneConnectionDs } from './application/data-structures/found-one-connection.ds.js';
+import { FoundUserGroupsInConnectionDs } from './application/data-structures/found-user-groups-in-connection.ds.js';
+import { GetGroupsInConnectionDs } from './application/data-structures/get-groups-in-connection.ds.js';
+import { GetPermissionsInConnectionDs } from './application/data-structures/get-permissions-in-connection.ds.js';
+import { RestoredConnectionDs } from './application/data-structures/restored-connection.ds.js';
+import { UpdateConnectionDs } from './application/data-structures/update-connection.ds.js';
+import { UpdateMasterPasswordDs } from './application/data-structures/update-master-password.ds.js';
+import { CreateConnectionDto, CreateGroupInConnectionDto, UpdateMasterPasswordDto } from './dto/index.js';
 import {
   ICreateConnection,
   ICreateGroupInConnection,
@@ -60,11 +64,9 @@ import {
   IUpdateConnection,
   IUpdateMasterPassword,
   IValidateConnectionToken,
-} from './use-cases/use-cases.interfaces';
-import { isTestConnectionUtil } from './utils/is-test-connection-util';
+} from './use-cases/use-cases.interfaces.js';
+import { isTestConnectionUtil } from './utils/is-test-connection-util.js';
 
-@ApiBearerAuth()
-@ApiTags('connections')
 @UseInterceptors(SentryInterceptor)
 @Controller()
 @Injectable()
@@ -107,8 +109,6 @@ export class ConnectionController {
     private readonly amplitudeService: AmplitudeService,
   ) {}
 
-  @ApiOperation({ summary: 'Get all connections' })
-  @ApiResponse({ status: 200, description: 'Return all connections.' })
   @Get('/connections')
   async findAll(@UserId() userId: string, @GCLlId() glidCookieValue: string): Promise<FoundConnectionsDs> {
     console.log(`findAll triggered in connection.controller ->: ${new Date().toISOString()}`);
@@ -119,8 +119,6 @@ export class ConnectionController {
     return await this.findConnectionsUseCase.execute(userData, InTransactionEnum.OFF);
   }
 
-  @ApiOperation({ summary: 'Get users in connection' })
-  @ApiResponse({ status: 200, description: 'Return all connection users' })
   @UseGuards(ConnectionReadGuard)
   @Get('/connection/users/:slug')
   async findAllUsers(@UserId() userId: string, @SlugUuid() connectionId: string): Promise<Array<FoundUserDs>> {
@@ -139,7 +137,6 @@ export class ConnectionController {
     }
   }
 
-  @ApiOperation({ summary: 'Get connection by id' })
   @Get('/connection/one/:slug')
   async findOne(
     @SlugUuid() connectionId: string,
@@ -168,13 +165,6 @@ export class ConnectionController {
     }
   }
 
-  @ApiOperation({ summary: 'Create connection' })
-  @ApiBody({ type: CreateConnectionDto })
-  @ApiResponse({
-    status: 201,
-    description: 'The connection has been successfully created.',
-  })
-  @ApiResponse({ status: 403, description: 'Forbidden.' })
   @Post('/connection')
   async create(
     @Body('title') title: string,
@@ -251,12 +241,6 @@ export class ConnectionController {
     return await this.createConnectionUseCase.execute(createConnectionDs, InTransactionEnum.ON);
   }
 
-  @ApiOperation({ summary: 'Update connection' })
-  @ApiResponse({
-    status: 201,
-    description: 'The connection has been successfully updated.',
-  })
-  @ApiResponse({ status: 403, description: 'Forbidden.' })
   @UseGuards(ConnectionEditGuard)
   @Put('/connection/:slug')
   async update(
@@ -326,12 +310,6 @@ export class ConnectionController {
     return { connection: updatedConnection };
   }
 
-  @ApiOperation({ summary: 'Delete connection' })
-  @ApiResponse({
-    status: 201,
-    description: 'The connection has been successfully deleted.',
-  })
-  @ApiResponse({ status: 403, description: 'Forbidden.' })
   @UseGuards(ConnectionEditGuard)
   @Put('/connection/delete/:slug')
   async delete(
@@ -348,7 +326,7 @@ export class ConnectionController {
     };
     const deleteResult = await this.deleteConnectionUseCase.execute(inputData, InTransactionEnum.ON);
     const isTest = isTestConnectionUtil(deleteResult);
-    if(!isTest){
+    if (!isTest) {
       const userEmail = await this._dbContext.userRepository.getUserEmailOrReturnNull(userId);
       const slackMessage = Messages.USER_DELETED_CONNECTION(userEmail, reason, message);
       await slackPostMessage(slackMessage);
@@ -364,7 +342,6 @@ export class ConnectionController {
     return deleteResult;
   }
 
-  @ApiOperation({ summary: 'Delete group from connection by id' })
   @UseGuards(ConnectionEditGuard)
   @Put('/connection/group/delete/:slug')
   async deleteGroupFromConnection(
@@ -388,8 +365,6 @@ export class ConnectionController {
     return await this.deleteGroupInConnectionUseCase.execute(inputData, InTransactionEnum.ON);
   }
 
-  @ApiOperation({ summary: 'Create group in connection' })
-  @ApiBody({ type: CreateGroupInConnectionDto })
   @UseGuards(ConnectionEditGuard)
   @Post('/connection/group/:slug')
   async createGroupInConnection(
@@ -419,7 +394,6 @@ export class ConnectionController {
     return await this.createGroupInConnectionUseCase.execute(inputData, InTransactionEnum.ON);
   }
 
-  @ApiOperation({ summary: 'Get all groups in this connection' })
   @Get('/connection/groups/:slug')
   async getGroupsInConnection(
     @UserId() userId: string,
@@ -440,9 +414,6 @@ export class ConnectionController {
     return await this.getUserGroupsInConnectionUseCase.execute(inputData, InTransactionEnum.OFF);
   }
 
-  @ApiOperation({
-    summary: 'Get all permissions for current connection, group and tables',
-  })
   @Get('/connection/permissions')
   async getPermissionsForGroupInConnection(
     @QueryUuid('connectionId') connectionId: string,
@@ -467,9 +438,6 @@ export class ConnectionController {
     return await this.getPermissionsForGroupInConnectionUseCase.execute(inputData, InTransactionEnum.OFF);
   }
 
-  @ApiOperation({
-    summary: 'Get all user permissions for current connection, group and tables',
-  })
   @Get('/connection/user/permissions')
   async getUserPermissionsForGroupInConnection(
     @QueryUuid('connectionId') connectionId: string,
@@ -494,8 +462,6 @@ export class ConnectionController {
     return await this.getUserPermissionsForGroupInConnectionUseCase.execute(inputData, InTransactionEnum.OFF);
   }
 
-  @ApiBody({ type: CreateConnectionDto })
-  @ApiOperation({ summary: 'Test connection' })
   @Post('/connection/test/')
   async testConnection(
     @Body('title') title: string,
@@ -559,8 +525,6 @@ export class ConnectionController {
     return result;
   }
 
-  @ApiBody({ type: UpdateMasterPasswordDto })
-  @ApiOperation({ summary: 'Update connection master pwd' })
   @UseGuards(ConnectionEditGuard)
   @Put('/connection/encryption/update/:slug')
   async updateConnectionMasterPwd(
@@ -600,14 +564,6 @@ export class ConnectionController {
     return await this.updateConnectionMasterPasswordUseCase.execute(inputData, InTransactionEnum.ON);
   }
 
-  @ApiOperation({
-    summary: 'Renew connection in case of lost master password ',
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'The connection has been successfully restored.',
-  })
-  @ApiResponse({ status: 403, description: 'Forbidden.' })
   @UseGuards(ConnectionEditGuard)
   @Put('/connection/encryption/restore/:slug')
   async restore(
@@ -680,7 +636,6 @@ export class ConnectionController {
     return await this.restoreConnectionUseCase.execute(connectionData, InTransactionEnum.ON);
   }
 
-  @ApiOperation({ summary: 'Check connection token existence' })
   @Get('/connection/token/')
   async validateConnectionAgentToken(@Query('token') token: string): Promise<boolean> {
     if (!token) {
@@ -689,7 +644,6 @@ export class ConnectionController {
     return await this.validateConnectionTokenUseCase.execute(token, InTransactionEnum.OFF);
   }
 
-  @ApiOperation({ summary: 'Generate new connection token' })
   @UseGuards(ConnectionEditGuard)
   @Get('/connection/token/refresh/:slug')
   async refreshConnectionAgentToken(@SlugUuid() connectionId: string): Promise<{ token: string }> {

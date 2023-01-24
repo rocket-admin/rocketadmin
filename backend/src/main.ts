@@ -1,16 +1,12 @@
 import { NestFactory } from '@nestjs/core';
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import * as Sentry from '@sentry/node';
-import * as cookieParser from 'cookie-parser';
+import Sentry from '@sentry/node';
+import cookieParser from 'cookie-parser';
 import rateLimit from 'express-rate-limit';
 import helmet from 'helmet';
-import { ApplicationModule } from './app.module';
-import { AllExceptionsFilter } from './exceptions/all-exceptions.filter';
-import { Constants } from './helpers/constants/constants';
-import { requiredEnvironmentVariablesValidator } from './helpers/validators/required-environment-variables.validator';
-
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-require('dotenv').config();
+import { ApplicationModule } from './app.module.js';
+import { AllExceptionsFilter } from './exceptions/all-exceptions.filter.js';
+import { Constants } from './helpers/constants/constants.js';
+import { requiredEnvironmentVariablesValidator } from './helpers/validators/required-environment-variables.validator.js';
 
 async function bootstrap() {
   try {
@@ -26,22 +22,17 @@ async function bootstrap() {
 
     app.useGlobalFilters(new AllExceptionsFilter());
 
-    const options = new DocumentBuilder()
-      .setTitle('auto-admin')
-      .setDescription('The autoadmin API description')
-      .setVersion('0.0.1')
-      .addTag('auto-admin')
-      .addBearerAuth()
-      .build();
-    const document = SwaggerModule.createDocument(app, options);
-    SwaggerModule.setup('api', app, document);
-
     app.use(helmet());
 
     app.use(cookieParser());
 
     app.enableCors({
-      origin: ['https://app.autoadmin.org', 'http://localhost:4200', 'https://app.rocketadmin.org', Constants.APP_DOMAIN_ADDRESS],
+      origin: [
+        'https://app.autoadmin.org',
+        'http://localhost:4200',
+        'https://app.rocketadmin.org',
+        Constants.APP_DOMAIN_ADDRESS,
+      ],
       methods: 'GET,PUT,PATCH,POST,DELETE',
       credentials: true,
       preflightContinue: false,

@@ -1,17 +1,17 @@
 import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
-import AbstractUseCase from '../../../common/abstract-use.case';
-import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface';
-import { BaseType } from '../../../common/data-injection.tokens';
-import { Messages } from '../../../exceptions/text/messages';
-import { isConnectionTypeAgent, slackPostMessage } from '../../../helpers';
-import { UserEntity } from '../../user/user.entity';
-import { CreateConnectionDs } from '../application/data-structures/create-connection.ds';
-import { CreatedConnectionDs } from '../application/data-structures/created-connection.ds';
-import { ConnectionEntity } from '../connection.entity';
-import { buildConnectionEntity } from '../utils/build-connection-entity';
-import { buildCreatedConnectionDs } from '../utils/build-created-connection.ds';
-import { validateCreateConnectionData } from '../utils/validate-create-connection-data';
-import { ICreateConnection } from './use-cases.interfaces';
+import AbstractUseCase from '../../../common/abstract-use.case.js';
+import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface.js';
+import { BaseType } from '../../../common/data-injection.tokens.js';
+import { Messages } from '../../../exceptions/text/messages.js';
+import { isConnectionTypeAgent, slackPostMessage } from '../../../helpers/index.js';
+import { UserEntity } from '../../user/user.entity.js';
+import { CreateConnectionDs } from '../application/data-structures/create-connection.ds.js';
+import { CreatedConnectionDs } from '../application/data-structures/created-connection.ds.js';
+import { ConnectionEntity } from '../connection.entity.js';
+import { buildConnectionEntity } from '../utils/build-connection-entity.js';
+import { buildCreatedConnectionDs } from '../utils/build-created-connection.ds.js';
+import { validateCreateConnectionData } from '../utils/validate-create-connection-data.js';
+import { ICreateConnection } from './use-cases.interfaces.js';
 
 @Injectable()
 export class CreateConnectionUseCase

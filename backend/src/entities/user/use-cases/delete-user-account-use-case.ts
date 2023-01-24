@@ -1,10 +1,10 @@
 import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
-import AbstractUseCase from '../../../common/abstract-use.case';
-import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface';
-import { BaseType } from '../../../common/data-injection.tokens';
-import { Messages } from '../../../exceptions/text/messages';
-import { RegisteredUserDs } from '../application/data-structures/registered-user.ds';
-import { IDeleteUserAccount } from './user-use-cases.interfaces';
+import AbstractUseCase from '../../../common/abstract-use.case.js';
+import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface.js';
+import { BaseType } from '../../../common/data-injection.tokens.js';
+import { Messages } from '../../../exceptions/text/messages.js';
+import { RegisteredUserDs } from '../application/data-structures/registered-user.ds.js';
+import { IDeleteUserAccount } from './user-use-cases.interfaces.js';
 
 @Injectable()
 export class DeleteUserAccountUseCase

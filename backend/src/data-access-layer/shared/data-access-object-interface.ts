@@ -1,7 +1,7 @@
 import { Knex } from 'knex';
-import { TableSettingsEntity } from '../../entities/table-settings/table-settings.entity';
-import { CreateTableSettingsDto } from '../../entities/table-settings/dto';
-import { FilterCriteriaEnum } from '../../enums';
+import { TableSettingsEntity } from '../../entities/table-settings/table-settings.entity.js';
+import { CreateTableSettingsDto } from '../../entities/table-settings/dto/index.js';
+import { FilterCriteriaEnum } from '../../enums/index.js';
 
 export interface IDataAccessObject {
   addRowInTable(

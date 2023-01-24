@@ -1,7 +1,7 @@
-import * as SMTPTransport from 'nodemailer/lib/smtp-transport';
+import SMTPTransport from 'nodemailer/lib/smtp-transport';
 import PQueue from 'p-queue';
-import { sendReminderToUser } from '../send-email';
-import * as Mail from 'nodemailer/lib/mailer';
+import { sendReminderToUser } from '../send-email.js';
+import Mail from 'nodemailer/lib/mailer';
 
 export async function sendRemindersToUsers(userEmails: Array<string>): Promise<Array<ICronMessagingResults>> {
   const queue = new PQueue({ concurrency: 8 });

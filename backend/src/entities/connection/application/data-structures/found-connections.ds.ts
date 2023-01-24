@@ -1,5 +1,5 @@
-import { AccessLevelEnum, ConnectionTypeEnum } from '../../../../enums';
-import { UserEntity } from '../../../user/user.entity';
+import { AccessLevelEnum, ConnectionTypeEnum } from '../../../../enums/index.js';
+import { UserEntity } from '../../../user/user.entity.js';
 
 export class FoundConnectionsDs {
   connections: Array<{

@@ -45,7 +45,7 @@ export class DbTableFiltersDialogComponent implements OnInit {
   ngOnInit(): void {
     this._tables.cast.subscribe();
     this.tableForeignKeys = {...this.data.structure.foreignKeys};
-    this.tableRowFields = Object.assign({}, ...this.data.structure.structure.map((field: TableField) => ({[field.column_name]: ''})));
+    this.tableRowFields = Object.assign({}, ...this.data.structure.structure.map((field: TableField) => ({[field.column_name]: undefined})));
     this.tableTypes = getTableTypes(this.data.structure.structure, this.data.structure.foreignKeysList);
     this.fields = this.data.structure.structure
       .filter((field: TableField) => this.getInputType(field.column_name) !== 'file')

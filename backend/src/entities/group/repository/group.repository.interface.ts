@@ -1,6 +1,6 @@
-import { GroupEntity } from '../group.entity';
-import { ConnectionEntity } from '../../connection/connection.entity';
-import { UserEntity } from '../../user/user.entity';
+import { GroupEntity } from '../group.entity.js';
+import { ConnectionEntity } from '../../connection/connection.entity.js';
+import { UserEntity } from '../../user/user.entity.js';
 
 export interface IGroupRepository {
   saveNewOrUpdatedGroup(groupData: GroupEntity): Promise<GroupEntity>;

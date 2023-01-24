@@ -1,9 +1,9 @@
 import { HttpException, HttpStatus } from '@nestjs/common';
-import { Messages } from '../../../exceptions/text/messages';
-import { ConnectionEntity } from '../../connection/connection.entity';
-import { CreateTableSettingsDs } from '../application/data-structures/create-table-settings.ds';
-import { TableSettingsEntity } from '../table-settings.entity';
-import { buildNewTableSettingsEntity } from '../utils/build-new-table-settings-entity';
+import { Messages } from '../../../exceptions/text/messages.js';
+import { ConnectionEntity } from '../../connection/connection.entity.js';
+import { CreateTableSettingsDs } from '../application/data-structures/create-table-settings.ds.js';
+import { TableSettingsEntity } from '../table-settings.entity.js';
+import { buildNewTableSettingsEntity } from '../utils/build-new-table-settings-entity.js';
 
 export const tableSettingsCustomRepositoryExtension = {
   async saveNewOrUpdatedSettings(settings: TableSettingsEntity): Promise<TableSettingsEntity> {

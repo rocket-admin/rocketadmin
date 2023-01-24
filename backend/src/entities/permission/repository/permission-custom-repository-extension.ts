@@ -1,7 +1,9 @@
-import { AccessLevelEnum, PermissionTypeEnum } from '../../../enums';
-import { GroupEntity } from '../../group/group.entity';
-import { TablePermissionDs } from '../application/data-structures/create-permissions.ds';
-import { PermissionEntity } from '../permission.entity';
+
+import { AccessLevelEnum } from '../../../enums/access-level.enum.js';
+import { PermissionTypeEnum } from '../../../enums/permission-type.enum.js';
+import { GroupEntity } from '../../group/group.entity.js';
+import { TablePermissionDs } from '../application/data-structures/create-permissions.ds.js';
+import { PermissionEntity } from '../permission.entity.js';
 
 export const permissionCustomRepositoryExtension = {
   async saveNewOrUpdatedPermission(permissionData: PermissionEntity): Promise<PermissionEntity> {

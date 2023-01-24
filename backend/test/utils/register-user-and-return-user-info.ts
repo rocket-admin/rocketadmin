@@ -1,8 +1,8 @@
 import { faker } from '@faker-js/faker';
 import { INestApplication } from '@nestjs/common';
-import * as request from 'supertest';
-import { Constants } from '../../src/helpers/constants/constants';
-import { TestUtils } from './test.utils';
+import request from 'supertest';
+import { Constants } from '../../src/helpers/constants/constants.js';
+import { TestUtils } from './test.utils.js';
 
 export async function registerUserAndReturnUserInfo(app: INestApplication): Promise<{
   token: string;

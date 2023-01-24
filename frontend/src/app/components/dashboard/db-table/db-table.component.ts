@@ -176,6 +176,8 @@ export class DbTableComponent implements OnInit {
       return `${displayedName} = ...${filterValue}`
     } else if (this.filterComparators[filterKey] == 'contains') {
       return `${displayedName} = ...${filterValue}...`
+    } else if (this.filterComparators[filterKey] == 'empty') {
+      return `${displayedName} = ' '`
     } else {
       return `${displayedName} ${this.displayedComparators[this.filterComparators[filterKey]]} ${filterValue}`
     }
