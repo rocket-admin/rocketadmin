@@ -14,7 +14,7 @@ export class DbRowsDeleteDialogComponent implements OnInit {
   public selectedTableName;
   public submitting: boolean = false;
   public connectionID: string;
-  public selectedRows: [];
+  public selectedRows: object[];
 
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: any,
@@ -37,7 +37,7 @@ export class DbRowsDeleteDialogComponent implements OnInit {
     return Object.assign({}, ...this.data.primaryKeys.map((primaryKey) => ({[primaryKey.column_name]: row[primaryKey.column_name]})));
   }
 
-  deleteRow() {
+  deleteRows() {
     this.submitting = true;
     this._tables.bulkDelete(this.connectionID, this.selectedTableName, this.selectedRows)
       .subscribe(() => {
