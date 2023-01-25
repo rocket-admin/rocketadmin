@@ -1,7 +1,7 @@
 <app-alert></app-alert>
 <div class="connectPage">
     <form action="" #connectForm="ngForm" class="form"
-        (ngSubmit)="db.id ? editConnection(connectForm) : createConnection(connectForm)">
+        (ngSubmit)="handleCredentialsSubmitting(connectForm)">
         <h1 class="mat-h1 connectForm__fullLine">
             {{ connectionID ? 'Edit credentials' : 'Connect a database' }}
         </h1>

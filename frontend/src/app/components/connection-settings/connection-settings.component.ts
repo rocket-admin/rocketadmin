@@ -77,6 +77,14 @@ export class ConnectionSettingsComponent implements OnInit {
       );
   }
 
+  handleSettingsSubmitting() {
+    if (this.isSettingsExist) {
+      this.updateSettings();
+    } else {
+      this.createSettings();
+    }
+  }
+
   createSettings() {
     this.submitting = true;
     this._connections.createConnectionSettings(this.connectionID, this.hiddenTables)

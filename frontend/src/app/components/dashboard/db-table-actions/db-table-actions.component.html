@@ -54,7 +54,7 @@
         <app-content-loader *ngIf="!actions"></app-content-loader>
 
         <div class="action" *ngIf="selectedAction && actions.length">
-            <form (ngSubmit)="selectedAction.id ? updateAction() : addAction()" class="action-settings">
+            <form (ngSubmit)="handleActionSubmetting()" class="action-settings">
                 <mat-form-field appearance="outline">
                     <mat-label>Name</mat-label>
                     <input matInput [(ngModel)]="updatedActionTitle" name="action-title" required>

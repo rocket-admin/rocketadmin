@@ -430,6 +430,14 @@ app.listen(3000, () => console.log("Running on port 8000"));
     return this._tables.fetchActions(this.connectionID, this.tableName).toPromise();
   }
 
+  handleActionSubmetting() {
+    if (this.selectedAction.id) {
+      this.updateAction();
+    } else {
+      this.addAction();
+    }
+  }
+
   addAction() {
     this.submitting = true;
     if (!this.selectedAction.icon) this.selectedAction.icon = 'add_reaction';

@@ -21,7 +21,7 @@
         </div>
     </app-banner>
 
-    <form *ngIf="!errorMessage && !noTablesError && !loading" #connectionSettingsForm="ngForm" (ngSubmit)="isSettingsExist ? updateSettings() : createSettings()">
+    <form *ngIf="!errorMessage && !noTablesError && !loading" #connectionSettingsForm="ngForm" (ngSubmit)="handleSettingsSubmitting()">
         <div class="settings-form">
             <mat-form-field appearance="outline">
                 <mat-label>Hidden tables</mat-label>

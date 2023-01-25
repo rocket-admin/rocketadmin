@@ -153,7 +153,7 @@ export class DbTableRowEditComponent implements OnInit {
     this._location.back();
   }
 
-  setRowStructure(structure: TableField[]){
+  setRowStructure(structure: TableField[]) {
     this.tableRowStructure = Object.assign({}, ...structure.map((field: TableField) => {
       return {[field.column_name]: field}
     }))
@@ -211,6 +211,14 @@ export class DbTableRowEditComponent implements OnInit {
     if (this.keyAttributesFromURL && Object.keys(this.keyAttributesFromURL).includes(field)) {
       this.isPrimaryKeyUpdated = true
     };
+  }
+
+  handleRowSubmitting() {
+    if (this.hasKeyAttributesFromURL) {
+      this.updateRow();
+    } else {
+      this.addRow();
+    }
   }
 
   addRow(continueEditing?: boolean) {

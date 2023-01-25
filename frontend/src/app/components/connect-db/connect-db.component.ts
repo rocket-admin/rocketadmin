@@ -188,7 +188,15 @@ export class ConnectDBComponent implements OnInit {
     }
   }
 
-  async editConnection(connectForm: NgForm) {
+  handleCredentialsSubmitting(connectForm: NgForm) {
+    if (this.db.id) {
+      this.editConnection();
+    } else {
+      this.createConnection(connectForm);
+    }
+  }
+
+  async editConnection() {
     this.submitting = true;
     let credsCorrect: TestConnection;
 

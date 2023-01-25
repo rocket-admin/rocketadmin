@@ -25,7 +25,7 @@
 
     </div>
     <form #editRowForm="ngForm" class="form"
-        (ngSubmit)="hasKeyAttributesFromURL ? updateRow() : addRow()">
+        (ngSubmit)="handleRowSubmitting()">
         <div *ngFor="let value of fieldsOrdered; let index = index">
                 <!-- <mat-form-field class="example-form-field" appearance="outline">
                     <mat-label>test label</mat-label>
