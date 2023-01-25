@@ -189,6 +189,7 @@
     position: absolute;
     top: 20px;
     right: 20px;
+    width: 156px;
     z-index: 5;
 }
 
@@ -205,7 +206,15 @@
 
 .copy-button {
     position: absolute;
-    right: 20px;
-    top: 100px;
+    right: 184px;
+    top: 36px;
+    background-color: #fff;
     z-index: 5;
+}
+
+@media screen and (max-width: 1400px) {
+    .copy-button {
+        right: 20px;
+        top: 100px;
+    }
 }

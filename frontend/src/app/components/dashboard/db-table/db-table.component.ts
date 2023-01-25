@@ -159,6 +159,11 @@ export class DbTableComponent implements OnInit {
     this.searchString = '';
   }
 
+  handleSearch() {
+    this.searchString = this.searchString.trim();
+    this.search.emit(this.searchString);
+  }
+
   clearSearch () {
     this.searchString = null;
     this.search.emit(this.searchString);

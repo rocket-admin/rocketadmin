@@ -22,7 +22,7 @@
                 <input matInput name="search"
                     placeholder="Search"
                     [(ngModel)]="searchString"
-                    (keyup.enter)="search.emit(searchString)">
+                    (keyup.enter)="handleSearch()">
                 <button mat-icon-button matSuffix *ngIf="searchString"
                     (click)="clearSearch()">
                     <mat-icon>close</mat-icon>
