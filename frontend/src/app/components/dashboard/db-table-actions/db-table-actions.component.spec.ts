@@ -4,12 +4,15 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { RouterTestingModule } from '@angular/router/testing';
 import { CustomActionType } from 'src/app/models/table';
+import { TablesService } from 'src/app/services/tables.service';
+import { of } from 'rxjs';
 
 import { DbTableActionsComponent } from './db-table-actions.component';
 
-describe('DbTableActionsComponent', () => {
+fdescribe('DbTableActionsComponent', () => {
   let component: DbTableActionsComponent;
   let fixture: ComponentFixture<DbTableActionsComponent>;
+  let tablesService: TablesService;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -25,6 +28,7 @@ describe('DbTableActionsComponent', () => {
     .compileComponents();
 
     fixture = TestBed.createComponent(DbTableActionsComponent);
+    tablesService = TestBed.inject(TablesService);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
@@ -276,5 +280,25 @@ describe('DbTableActionsComponent', () => {
 
     expect(component.selectedAction).toEqual(mockAction);
     expect(component.actions).toEqual([mockAction]);
+  });
+
+  it('should save action', () => {
+    const mockAction = {
+      id: '',
+      title: 'action 1',
+      type: CustomActionType.Single,
+      url: 'https://google.com',
+      tableName: 'user',
+      icon: 'heart'
+    };
+    component.connectionID = '12345678';
+    component.tableName = 'users'
+    component.selectedAction = mockAction;
+    const fakeSavwAction = spyOn(tablesService, 'saveAction').and.returnValue(of());
+
+
+    component.addAction();
+
+    expect(fakeSavwAction).toHaveBeenCalledOnceWith('12345678', 'users', mockAction);
   });
 });
