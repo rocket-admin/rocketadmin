@@ -23,6 +23,9 @@ export class TableActionEntity {
   @Column({ default: null })
   icon: string;
 
+  @Column({ default: false })
+  require_confirmation: boolean;
+
   @ManyToOne(() => TableSettingsEntity, (settings) => settings.table_actions, { onDelete: 'CASCADE' })
   @JoinColumn()
   settings: Relation<TableSettingsEntity>;

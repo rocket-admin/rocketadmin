@@ -15,6 +15,7 @@ import {
   WidgetTypeEnum,
 } from '../../../enums/index.js';
 import { Messages } from '../../../exceptions/text/messages.js';
+import { hexToBinary } from '../../../helpers/binary-to-hex.js';
 import { isConnectionTypeAgent } from '../../../helpers/index.js';
 import { AmplitudeService } from '../../amplitude/amplitude.service.js';
 import { TableLogsService } from '../../table-logs/table-logs.service.js';
@@ -28,6 +29,7 @@ import { findAutocompleteFieldsUtil } from '../utils/find-autocomplete-fields.ut
 import { findFilteringFieldsUtil } from '../utils/find-filtering-fields.util.js';
 import { findOrderingFieldUtil } from '../utils/find-ordering-field.util.js';
 import { formFullTableStructure } from '../utils/form-full-table-structure.js';
+import { isHexString } from '../utils/is-hex-string.js';
 import { removePasswordsFromRowsUtil } from '../utils/remove-passwords-from-rows.util.js';
 import { IGetTableRows } from './table-use-cases.interface.js';
 
@@ -44,7 +46,8 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
 
   protected async implementation(inputData: GetTableRowsDs): Promise<FoundTableRowsDs> {
     let operationResult = OperationResultStatusEnum.unknown;
-    const { connectionId, masterPwd, page, perPage, query, searchingFieldValue, tableName, userId } = inputData;
+    // eslint-disable-next-line prefer-const
+    let { connectionId, masterPwd, page, perPage, query, searchingFieldValue, tableName, userId } = inputData;
     const connection = await this._dbContext.connectionRepository.findAndDecryptConnection(connectionId, masterPwd);
     if (!connection) {
       throw new HttpException(
@@ -102,6 +105,10 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
       if (orderingField) {
         tableSettings.ordering_field = orderingField.field;
         tableSettings.ordering = orderingField.value;
+      }
+
+      if (isHexString(searchingFieldValue)) {
+        searchingFieldValue = hexToBinary(searchingFieldValue) as any;
       }
 
       let rows = await dao.getRowsFromTable(

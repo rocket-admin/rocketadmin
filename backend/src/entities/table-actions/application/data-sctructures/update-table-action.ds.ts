@@ -6,4 +6,5 @@ export class UpdateTableActionDS {
   type: TableActionTypeEnum;
   url: string;
   icon: string;
+  requireConfirmation: boolean;
 }

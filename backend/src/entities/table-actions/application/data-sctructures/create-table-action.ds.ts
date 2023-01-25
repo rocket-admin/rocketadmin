@@ -9,4 +9,5 @@ export class CreateTableActionDS {
   masterPwd: string;
   userId: string;
   icon: string;
+  requireConfirmation: boolean;
 }
