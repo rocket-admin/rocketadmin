@@ -320,7 +320,11 @@ export class DataAccessObjectOracle implements IDataAccessObject {
           const search_fields = searchedFields;
           if (searchedFieldValue && search_fields.length > 0) {
             for (const field of search_fields) {
-              builder.orWhereRaw(` CAST (?? AS VARCHAR (255))=?`, [field, searchedFieldValue]);
+              if (Buffer.isBuffer(searchedFieldValue)) {
+                builder.orWhere(field, '=', searchedFieldValue);
+              } else {
+                builder.orWhereRaw(` CAST (?? AS VARCHAR (255))=?`, [field, searchedFieldValue]);
+              }
             }
           }
         })

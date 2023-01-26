@@ -15,7 +15,7 @@ import {
   WidgetTypeEnum,
 } from '../../../enums/index.js';
 import { Messages } from '../../../exceptions/text/messages.js';
-import { hexToBinary } from '../../../helpers/binary-to-hex.js';
+import { hexToBinary, isBinary } from '../../../helpers/binary-to-hex.js';
 import { isConnectionTypeAgent } from '../../../helpers/index.js';
 import { AmplitudeService } from '../../amplitude/amplitude.service.js';
 import { TableLogsService } from '../../table-logs/table-logs.service.js';
@@ -109,6 +109,13 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
 
       if (isHexString(searchingFieldValue)) {
         searchingFieldValue = hexToBinary(searchingFieldValue) as any;
+        const binaryFields = [];
+        for (const field of tableStructure) {
+          if (isBinary(field.data_type)) {
+            binaryFields.push(field.column_name);
+          }
+        }
+        tableSettings.search_fields = binaryFields;
       }
 
       let rows = await dao.getRowsFromTable(
