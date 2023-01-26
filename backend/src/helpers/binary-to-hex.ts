@@ -1,7 +1,7 @@
 import { Constants } from './constants/constants.js';
 
 export function binaryToHex(binaryData: string): string {
-  return Buffer.from(binaryData, 'ascii').toString('hex');
+  return Buffer.from(binaryData, 'binary').toString('hex');
 }
 
 export function hexToBinary(hexSource: string): Buffer {
