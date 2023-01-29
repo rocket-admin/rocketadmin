@@ -8,5 +8,6 @@ export function buildCreatedTableActionDS(tableAction: TableActionEntity): Creat
     type: tableAction.type,
     url: tableAction.url,
     icon: tableAction.icon,
+    requireConfirmation: tableAction.require_confirmation,
   };
 }
