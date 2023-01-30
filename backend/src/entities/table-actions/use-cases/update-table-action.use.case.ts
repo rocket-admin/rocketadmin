@@ -29,6 +29,11 @@ export class UpdateTableActionUseCase
     }
 
     const updatingTableAction = buildNewTableActionEntity(inputData);
+    for (const key in updatingTableAction) {
+      if (updatingTableAction[key] === undefined) {
+        delete updatingTableAction[key];
+      }
+    }
     const updated = Object.assign(foundTableActionEntity, updatingTableAction);
     const savedAction = await this._dbContext.tableActionRepository.saveNewOrOupdatedTableAction(updated);
     return buildCreatedTableActionDS(savedAction);

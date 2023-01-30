@@ -47,7 +47,7 @@ import { GetPermissionsInConnectionDs } from './application/data-structures/get-
 import { RestoredConnectionDs } from './application/data-structures/restored-connection.ds.js';
 import { UpdateConnectionDs } from './application/data-structures/update-connection.ds.js';
 import { UpdateMasterPasswordDs } from './application/data-structures/update-master-password.ds.js';
-import { CreateConnectionDto, CreateGroupInConnectionDto, UpdateMasterPasswordDto } from './dto/index.js';
+import { CreateConnectionDto } from './dto/index.js';
 import {
   ICreateConnection,
   ICreateGroupInConnection,

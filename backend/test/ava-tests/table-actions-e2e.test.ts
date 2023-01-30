@@ -249,7 +249,7 @@ test(`${currentTest} should throw exception when connection id incorrect`, async
 
 currentTest = 'PUT /table/action/:slug';
 
-test.only(`${currentTest} should return updated table action`, async (t) => {
+test(`${currentTest} should return updated table action`, async (t) => {
   const { token } = await registerUserAndReturnUserInfo(app);
   const createConnectionResult = await request(app.getHttpServer())
     .post('/connection')
@@ -286,11 +286,10 @@ test.only(`${currentTest} should return updated table action`, async (t) => {
     .set('Accept', 'application/json');
 
   const updateTableActionRO = JSON.parse(updateTableActionResult.text);
-  console.log("🚀 ~ file: table-actions-e2e.test.ts:289 ~ test ~ updateTableActionRO", updateTableActionRO)
 
   t.is(updateTableActionResult.status, 200);
 
-  // t.is(updateTableActionRO.id, createTableActionRO.id);
+  t.is(updateTableActionRO.id, createTableActionRO.id);
   t.is(updateTableActionRO.title, updatedTableAction.title);
   t.is(updateTableActionRO.url, updatedTableAction.url);
   t.is(updateTableActionRO.type, newTableAction.type);
