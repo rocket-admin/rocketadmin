@@ -58,31 +58,14 @@ describe('BbBulkActionConfirmationDialogComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should process rows and get primary keys array', () => {
-    component.ngOnInit();
-    fixture.detectChanges();
-
-    expect(component.selectedRows).toEqual([ { id: '1234' }, { id: '5678' } ]);
-  });
-
-  it('should return only primary keys of the row', () => {
-    const mockRow = {
-      id: '1357',
-      name: 'Anna',
-      age: 15
-    }
-
-    const primaryKey = component.getPrimaryKey(mockRow);
-
-    expect(primaryKey).toEqual({ id: '1357' });
-  });
-
-  it('should should call delete rows', () => {
+  it('should call delete rows if no action id', () => {
     component.connectionID = '12345678';
     component.selectedTableName = 'users';
+    component.data.title = 'delete rows';
+    component.data.primaryKeys = [{id: 1}, {id: 2}, {id: 3}];
     const fakeDeleteRows = spyOn(tablesService, 'bulkDelete').and.returnValue(of());
 
-    component.deleteRows();
+    component.handleConfirmedActions();
 
     expect(fakeDeleteRows).toHaveBeenCalledOnceWith('12345678', 'users', [ { id: '1234' }, { id: '5678' } ]);
     expect(component.submitting).toBeFalse();

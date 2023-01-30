@@ -1,6 +1,6 @@
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { MatDialogModule } from '@angular/material/dialog';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { RouterTestingModule } from '@angular/router/testing';
 import { CustomActionType } from 'src/app/models/table';
@@ -8,27 +8,43 @@ import { TablesService } from 'src/app/services/tables.service';
 import { of } from 'rxjs';
 
 import { DbTableActionsComponent } from './db-table-actions.component';
+import { ActionDeleteDialogComponent } from './action-delete-dialog/action-delete-dialog.component';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { NotificationsService } from 'src/app/services/notifications.service';
 
 fdescribe('DbTableActionsComponent', () => {
   let component: DbTableActionsComponent;
   let fixture: ComponentFixture<DbTableActionsComponent>;
   let tablesService: TablesService;
+  let dialog: MatDialog;
+  let fakeNotifications;
+
 
   beforeEach(async () => {
+    fakeNotifications = jasmine.createSpyObj('NotificationsService', ['showSuccessSnackbar']);
+
     await TestBed.configureTestingModule({
       declarations: [ DbTableActionsComponent ],
-      providers: [ HttpClientTestingModule ],
+      providers: [
+        HttpClientTestingModule,
+        {
+          provide: NotificationsService,
+          useValue: fakeNotifications
+        }
+      ],
       imports: [
         HttpClientTestingModule,
         RouterTestingModule,
         MatDialogModule,
-        MatSnackBarModule
+        MatSnackBarModule,
+        BrowserAnimationsModule
       ]
     })
     .compileComponents();
 
     fixture = TestBed.createComponent(DbTableActionsComponent);
     tablesService = TestBed.inject(TablesService);
+    dialog = TestBed.get(MatDialog);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
@@ -44,7 +60,8 @@ fdescribe('DbTableActionsComponent', () => {
       type: CustomActionType.Single,
       url: 'https://google.com',
       tableName: 'user',
-      icon: 'heart'
+      icon: 'heart',
+      requireConfirmation: false
     }
     component.setSelectedAction(action)
     expect(component.selectedAction).toEqual(action);
@@ -58,7 +75,8 @@ fdescribe('DbTableActionsComponent', () => {
       type: CustomActionType.Single,
       url: 'https://google.com',
       tableName: 'user',
-      icon: 'heart'
+      icon: 'heart',
+      requireConfirmation: false
     }
     const mockSetSelectedAction = spyOn(component, 'setSelectedAction');
 
@@ -76,7 +94,8 @@ fdescribe('DbTableActionsComponent', () => {
       type: CustomActionType.Single,
       url: '',
       tableName: '',
-      icon: ''
+      icon: '',
+      requireConfirmation: false
     })
   });
 
@@ -87,7 +106,8 @@ fdescribe('DbTableActionsComponent', () => {
       type: CustomActionType.Single,
       url: '',
       tableName: '',
-      icon: ''
+      icon: '',
+      requireConfirmation: false
     }
     component.handleAddNewAction()
 
@@ -101,7 +121,8 @@ fdescribe('DbTableActionsComponent', () => {
       type: CustomActionType.Single,
       url: 'https://google.com',
       tableName: 'user',
-      icon: 'heart'
+      icon: 'heart',
+      requireConfirmation: false
     }]
     component.newAction = {
       id: '',
@@ -109,7 +130,8 @@ fdescribe('DbTableActionsComponent', () => {
       type: CustomActionType.Single,
       url: '',
       tableName: '',
-      icon: ''
+      icon: '',
+      requireConfirmation: false
     }
 
     component.handleAddNewAction()
@@ -124,7 +146,8 @@ fdescribe('DbTableActionsComponent', () => {
       type: CustomActionType.Single,
       url: '',
       tableName: '',
-      icon: ''
+      icon: '',
+      requireConfirmation: false
     }
 
     component.actions = [{
@@ -133,7 +156,8 @@ fdescribe('DbTableActionsComponent', () => {
       type: CustomActionType.Single,
       url: 'https://google.com',
       tableName: 'user',
-      icon: 'heart'
+      icon: 'heart',
+      requireConfirmation: false
     }]
 
     component.newAction = mockNewAction;
@@ -149,7 +173,8 @@ fdescribe('DbTableActionsComponent', () => {
         type: CustomActionType.Single,
         url: 'https://google.com',
         tableName: 'user',
-        icon: 'heart'
+        icon: 'heart',
+        requireConfirmation: false
       },
       {
         id: '',
@@ -157,7 +182,8 @@ fdescribe('DbTableActionsComponent', () => {
         type: CustomActionType.Single,
         url: '',
         tableName: '',
-        icon: ''
+        icon: '',
+        requireConfirmation: false
       }
     ]);
     expect(component.newAction).toBeNull();
@@ -170,7 +196,8 @@ fdescribe('DbTableActionsComponent', () => {
       type: CustomActionType.Single,
       url: '',
       tableName: '',
-      icon: ''
+      icon: '',
+      requireConfirmation: false
     }
     component.actions = [];
 
@@ -187,7 +214,8 @@ fdescribe('DbTableActionsComponent', () => {
       type: CustomActionType.Single,
       url: 'https://google.com',
       tableName: 'user',
-      icon: 'heart'
+      icon: 'heart',
+      requireConfirmation: false
     };
     component.newAction = {
       id: '',
@@ -195,7 +223,8 @@ fdescribe('DbTableActionsComponent', () => {
       type: CustomActionType.Single,
       url: '',
       tableName: '',
-      icon: ''
+      icon: '',
+      requireConfirmation: false
     }
     component.actions = [ mockAction ];
 
@@ -212,7 +241,8 @@ fdescribe('DbTableActionsComponent', () => {
       type: CustomActionType.Single,
       url: 'https://google.com',
       tableName: 'user',
-      icon: 'heart'
+      icon: 'heart',
+      requireConfirmation: false
     };
     const mockRemoveActionFromLocalList = spyOn(component, 'removeActionFromLocalList');
 
@@ -228,7 +258,8 @@ fdescribe('DbTableActionsComponent', () => {
       type: CustomActionType.Single,
       url: 'https://google.com',
       tableName: 'user',
-      icon: 'heart'
+      icon: 'heart',
+      requireConfirmation: false
     };
     const mockOpenDeleteActionDialog = spyOn(component, 'openDeleteActionDialog');
 
@@ -245,7 +276,8 @@ fdescribe('DbTableActionsComponent', () => {
         type: CustomActionType.Single,
         url: 'https://google.com',
         tableName: 'user',
-        icon: 'heart'
+        icon: 'heart',
+        requireConfirmation: false
       }
     ];
 
@@ -262,7 +294,8 @@ fdescribe('DbTableActionsComponent', () => {
       type: CustomActionType.Single,
       url: 'https://google.com',
       tableName: 'user',
-      icon: 'star'
+      icon: 'star',
+      requireConfirmation: false
     };
     component.actions = [
         {
@@ -271,7 +304,8 @@ fdescribe('DbTableActionsComponent', () => {
         type: CustomActionType.Single,
         url: 'https://google.com',
         tableName: 'user',
-        icon: 'heart'
+        icon: 'heart',
+        requireConfirmation: false
       },
       mockAction
     ];
@@ -289,7 +323,8 @@ fdescribe('DbTableActionsComponent', () => {
       type: CustomActionType.Single,
       url: 'https://google.com',
       tableName: 'user',
-      icon: 'heart'
+      icon: 'heart',
+      requireConfirmation: false
     };
     component.connectionID = '12345678';
     component.tableName = 'users'
@@ -300,5 +335,40 @@ fdescribe('DbTableActionsComponent', () => {
     component.addAction();
 
     expect(fakeSavwAction).toHaveBeenCalledOnceWith('12345678', 'users', mockAction);
+  });
+
+  it('should open dialog for delete action confirmation', () => {
+    const fakeConfirmationDialog = spyOn(dialog, 'open');
+
+    const mockAction = {
+      id: '',
+      title: 'action 1',
+      type: CustomActionType.Single,
+      url: 'https://google.com',
+      tableName: 'user',
+      icon: 'heart',
+      requireConfirmation: false
+    };
+    component.connectionID = '12345678';
+    component.tableName = 'users'
+    component.selectedAction = mockAction;
+
+    component.openDeleteActionDialog();
+
+    expect(fakeConfirmationDialog).toHaveBeenCalledOnceWith(ActionDeleteDialogComponent, {
+      width: '25em',
+      data: {
+        connectionID: '12345678',
+        tableName: 'users',
+        action: mockAction
+      }
+    });
+  });
+
+  it('should show Copy message', () => {
+    component.showCopyNotification('PHP code snippet was copied to clipboard.');
+    expect(fakeNotifications.showSuccessSnackbar).toHaveBeenCalledOnceWith('PHP code snippet was copied to clipboard.')
+
+    fakeNotifications.showSuccessSnackbar.calls.reset();
   });
 });

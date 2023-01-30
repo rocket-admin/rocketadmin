@@ -45,15 +45,16 @@ describe('DbActionConfirmationDialogComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should delete table row', () => {
+  it('should delete table row if no action id', () => {
     const fakeDeleteRow = spyOn(tableRowService, 'deleteTableRow').and.returnValue(of());
     spyOn(mockDialogRef, 'close');
 
     component.connectionID = '12345678';
     component.selectedTableName = 'Users';
-    component.rowKeyAttributes = { id: 1 };
+    component.data.title = 'delete row'
+    component.data.primaryKeys = { id: 1 };
 
-    component.deleteRow();
+    component.handleConfirmedAction();
     expect(fakeDeleteRow).toHaveBeenCalledOnceWith('12345678', 'Users', {id: 1});
     // expect(component.dialogRef.close).toHaveBeenCalled();
     expect(component.submitting).toBeFalse();
