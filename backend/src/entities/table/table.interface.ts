@@ -1,6 +1,6 @@
 import { FilterCriteriaEnum, QueryOrderingEnum } from '../../enums/index.js';
 import { ITableAccessLevel, ITablePermissionData } from '../permission/permission.interface.js';
-import { TableActionEntity } from '../table-actions/table-action.entity.js';
+import { CreatedTableActionDS } from '../table-actions/application/data-sctructures/created-table-action.ds.js';
 import { ITableWidgetRO } from '../widget/table-widget.interface.js';
 
 export interface IAllTablesWithPermissions {
@@ -90,7 +90,7 @@ export interface ITableRowRO {
   readonly_fields: Array<string>;
   table_widgets: Array<ITableWidgetRO>;
   list_fields: Array<string>;
-  table_actions?: Array<TableActionEntity>;
+  table_actions?: Array<CreatedTableActionDS>;
 }
 
 export interface ITableRowsRO {
