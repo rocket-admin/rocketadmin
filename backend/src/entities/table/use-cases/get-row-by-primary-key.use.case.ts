@@ -11,6 +11,7 @@ import {
 import { WidgetTypeEnum } from '../../../enums/index.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { compareArrayElements, isConnectionTypeAgent } from '../../../helpers/index.js';
+import { buildCreatedTableActionDS } from '../../table-actions/utils/build-created-table-action-ds.js';
 import { GetRowByPrimaryKeyDs } from '../application/data-structures/get-row-by-primary-key.ds.js';
 import { IForeignKeyInfo, ITableRowRO } from '../table.interface.js';
 import { convertBinaryDataInRowUtil } from '../utils/convert-binary-data-in-row.util.js';
@@ -128,7 +129,7 @@ export class GetRowByPrimaryKeyUseCase
       table_widgets: tableWidgets,
       readonly_fields: tableSettings?.readonly_fields ? tableSettings.readonly_fields : [],
       list_fields: tableSettings?.list_fields?.length > 0 ? tableSettings.list_fields : [],
-      table_actions: tableActions?.length > 0 ? tableActions : [],
+      table_actions: tableActions?.length > 0 ? tableActions.map((el) => buildCreatedTableActionDS(el)) : [],
     };
   }
 
