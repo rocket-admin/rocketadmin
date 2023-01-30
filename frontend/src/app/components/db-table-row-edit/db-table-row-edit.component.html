@@ -16,13 +16,12 @@
         <div *ngIf="rowActions && rowActions.length">
             <button type="button" mat-icon-button *ngFor="let action of rowActions"
                 [matTooltip]="action.title"
-                (click)="activateAction(action)">
+                (click)="handleActivateAction(action)">
                 <mat-icon fontSet="material-icons-outlined">
                     {{action.icon}}
                 </mat-icon>
             </button>
         </div>
-
     </div>
     <form #editRowForm="ngForm" class="form"
         (ngSubmit)="handleRowSubmitting()">

@@ -11,7 +11,7 @@
                 </button>
             </ng-container>
             <button mat-button
-                (click)="deleteRows.emit({selectedRows: selection.selected, primaryKeys: tableData.keyAttributes})">
+                (click)="deleteRows.emit(selection.selected)">
                 Delete
             </button>
         </div>
@@ -193,7 +193,7 @@
                         angulartics2On="click"
                         angularticsAction="Tables: delete row is opened"
                         matTooltip="Delete row"
-                        (click)="deleteRow.emit(tableData.getQueryParams(element))">
+                        (click)="activateAction.emit({action: {title: 'delete row', requireConfirmation: true}, primaryKeys: tableData.getQueryParams(element)})">
                         <mat-icon>delete</mat-icon>
                     </button>
                 </mat-cell>

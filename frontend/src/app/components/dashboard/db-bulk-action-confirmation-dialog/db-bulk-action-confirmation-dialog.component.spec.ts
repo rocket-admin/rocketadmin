@@ -1,16 +1,16 @@
 import { ComponentFixture, TestBed, async } from '@angular/core/testing';
 import { MAT_DIALOG_DATA, MatDialogRef, MatDialogModule } from '@angular/material/dialog';
 
-import { DbRowsDeleteDialogComponent } from './db-rows-delete-dialog.component';
+import { BbBulkActionConfirmationDialogComponent } from './db-bulk-action-confirmation-dialog.component';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { RouterTestingModule } from "@angular/router/testing";
 import { of } from 'rxjs';
 import { TablesService } from 'src/app/services/tables.service';
 
-describe('DbRowsDeleteDialogComponent', () => {
-  let component: DbRowsDeleteDialogComponent;
-  let fixture: ComponentFixture<DbRowsDeleteDialogComponent>;
+describe('BbBulkActionConfirmationDialogComponent', () => {
+  let component: BbBulkActionConfirmationDialogComponent;
+  let fixture: ComponentFixture<BbBulkActionConfirmationDialogComponent>;
   let tablesService: TablesService;
 
   const mockDialogRef = {
@@ -19,7 +19,7 @@ describe('DbRowsDeleteDialogComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ DbRowsDeleteDialogComponent ],
+      declarations: [ BbBulkActionConfirmationDialogComponent ],
       imports: [
         HttpClientTestingModule,
         RouterTestingModule.withRoutes([]),
@@ -48,7 +48,7 @@ describe('DbRowsDeleteDialogComponent', () => {
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(DbRowsDeleteDialogComponent);
+    fixture = TestBed.createComponent(BbBulkActionConfirmationDialogComponent);
     component = fixture.componentInstance;
     tablesService = TestBed.inject(TablesService);
     fixture.detectChanges();

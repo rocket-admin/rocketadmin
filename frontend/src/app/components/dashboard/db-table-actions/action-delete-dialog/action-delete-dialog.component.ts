@@ -2,7 +2,7 @@ import { Component, Inject, OnInit } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 import { TablesService } from 'src/app/services/tables.service';
-import { DbRowDeleteDialogComponent } from '../../db-row-delete-dialog/db-row-delete-dialog.component';
+import { DbActionConfirmationDialogComponent } from '../../db-action-confirmation-dialog/db-action-confirmation-dialog.component';
 
 @Component({
   selector: 'app-action-delete-dialog',
@@ -16,7 +16,7 @@ export class ActionDeleteDialogComponent implements OnInit {
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: any,
     private _tables: TablesService,
-    public dialogRef: MatDialogRef<DbRowDeleteDialogComponent>
+    public dialogRef: MatDialogRef<DbActionConfirmationDialogComponent>
   ) { }
 
   ngOnInit(): void {

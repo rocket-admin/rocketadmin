@@ -13,6 +13,8 @@ import { TablesService } from 'src/app/services/tables.service';
 import { getTableTypes } from 'src/app/lib/setup-table-row-structure';
 import { normalizeTableName } from '../../lib/normalize';
 import { Location } from '@angular/common';
+import { MatDialog } from '@angular/material/dialog';
+import { DbActionConfirmationDialogComponent } from '../dashboard/db-action-confirmation-dialog/db-action-confirmation-dialog.component';
 
 @Component({
   selector: 'app-db-table-row-edit',
@@ -55,7 +57,8 @@ export class DbTableRowEditComponent implements OnInit {
     private ngZone: NgZone,
     public router: Router,
     private _notifications: NotificationsService,
-    private _location: Location
+    private _location: Location,
+    public dialog: MatDialog,
   ) { }
 
   ngOnInit(): void {
@@ -300,8 +303,15 @@ export class DbTableRowEditComponent implements OnInit {
     )
   }
 
-  activateAction(action: CustomAction) {
-    this._tables.activateAction(this.connectionID, this.tableName, action, this.keyAttributesFromURL)
-      .subscribe(() => {console.log('activated')})
+  handleActivateAction(action: CustomAction) {
+    if (action.requireConfirmation) {
+      this.dialog.open(DbActionConfirmationDialogComponent, {
+        width: '25em',
+        data: {id: action.id, title: action.title, primaryKeys: this.keyAttributesFromURL}
+      });
+    } else {
+      this._tables.activateAction(this.connectionID, this.tableName, action.id, action.title, this.keyAttributesFromURL)
+        .subscribe(() => {console.log('activated')})
+    }
   }
 }

@@ -123,6 +123,12 @@
                     </mat-radio-button>
                 </mat-radio-group>
 
+                <mat-checkbox name="action-confirmation" #confirmation="ngModel"
+                    labelPosition="after"
+                    [(ngModel)]="selectedAction.requireConfirmation">
+                    Request confirmation
+                </mat-checkbox>
+
                 <div class="action__actions">
                     <button mat-stroked-button color="warn" type="button"
                         (click)="handleRemoveAction()">

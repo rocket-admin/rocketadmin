@@ -4,7 +4,7 @@ import { first, map } from 'rxjs/operators';
 import { getComparators, getFilters } from 'src/app/lib/parse-filter-params';
 
 import { ConnectionsService } from 'src/app/services/connections.service';
-import { DbRowDeleteDialogComponent } from './db-row-delete-dialog/db-row-delete-dialog.component';
+import { DbActionConfirmationDialogComponent } from './db-action-confirmation-dialog/db-action-confirmation-dialog.component';
 import { DbTableFiltersDialogComponent } from './db-table-filters-dialog/db-table-filters-dialog.component';
 import { HttpErrorResponse } from '@angular/common/http';
 import { MatDialog } from '@angular/material/dialog';
@@ -16,8 +16,18 @@ import { TablesService } from 'src/app/services/tables.service';
 import { User } from 'src/app/models/user';
 import { normalizeTableName } from '../../lib/normalize'
 import { omitBy } from "lodash";
-import { DbRowsDeleteDialogComponent } from './db-rows-delete-dialog/db-rows-delete-dialog.component';
+import { BbBulkActionConfirmationDialogComponent } from './db-bulk-action-confirmation-dialog/db-bulk-action-confirmation-dialog.component';
 import { SelectionModel } from '@angular/cdk/collections';
+
+interface DataToActivateActions {
+  action: CustomAction,
+  selectedRows: object[]
+}
+
+interface DataToActivateAction {
+  action: CustomAction,
+  primaryKeys: object
+}
 
 @Component({
   selector: 'app-dashboard',
@@ -213,17 +223,12 @@ export class DashboardComponent implements OnInit {
     });
   }
 
-  confirmDeleteRow(rowKeyAttributes: Object) {
-    this.dialog.open(DbRowDeleteDialogComponent, {
-      width: '25em',
-      data: rowKeyAttributes
-    });
-  }
+  confirmDeleteRows(selectedRows) {
+    const primaryKeys = this.getPrimaryKeys(selectedRows);
 
-  confirmDeleteRows(data: Object) {
-    this.dialog.open(DbRowsDeleteDialogComponent, {
+    this.dialog.open(BbBulkActionConfirmationDialogComponent, {
       width: '25em',
-      data
+      data: {title: 'delete', primaryKeys}
     });
   }
 
@@ -233,21 +238,34 @@ export class DashboardComponent implements OnInit {
   }
 
 
-  activateAction({action, primaryKeys}) {
+  activateAction({action, primaryKeys}: DataToActivateAction) {
     console.log('activateAction');
-    this._tables.activateAction(this.connectionID, this.selectedTableName, action, primaryKeys)
-      .subscribe(() => {console.log('activated')})
+    if (action.requireConfirmation) {
+      this.dialog.open(DbActionConfirmationDialogComponent, {
+        width: '25em',
+        data: {id: action.id, title: action.title, primaryKeys}
+      });
+    } else {
+      this._tables.activateAction(this.connectionID, this.selectedTableName, action.id, action.title, primaryKeys)
+        .subscribe(() => {console.log('activated')})
+    }
   }
 
-  // getPrimaryKey(row) {
-  //   return Object.assign({}, ...this.data.primaryKeys.map((primaryKey) => ({[primaryKey.column_name]: row[primaryKey.column_name]})));
-  // }
+  getPrimaryKeys(selectedRows) {
+    return selectedRows.map(row => Object.assign({}, ...this.dataSource.keyAttributes.map((primaryKey) => ({[primaryKey.column_name]: row[primaryKey.column_name]}))));
+  }
 
-  activateActions({action, selectedRows}) {
-    console.log('activateActions');
-    const primaryKeys = selectedRows
-      .map(row => Object.assign({}, ...this.dataSource.keyAttributes.map((primaryKey) => ({[primaryKey.column_name]: row[primaryKey.column_name]}))));
-    this._tables.activateActions(this.connectionID, this.selectedTableName, action, primaryKeys)
-      .subscribe(() => {console.log('activated')})
+  activateActions({action, selectedRows}: DataToActivateActions) {
+    const primaryKeys = this.getPrimaryKeys(selectedRows);
+
+    if (action.requireConfirmation) {
+      this.dialog.open(BbBulkActionConfirmationDialogComponent, {
+        width: '25em',
+        data: {id: action.id, title: action.title, primaryKeys}
+      });
+    } else {
+      this._tables.activateActions(this.connectionID, this.selectedTableName, action.id, action.title, primaryKeys)
+        .subscribe(() => {console.log('activated')})
+    }
   }
 }

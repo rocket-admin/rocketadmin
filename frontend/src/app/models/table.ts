@@ -76,5 +76,6 @@ export interface CustomAction {
     type: CustomActionType,
     url: string,
     tableName: string,
-    icon: string
+    icon: string,
+    requireConfirmation: boolean
 }

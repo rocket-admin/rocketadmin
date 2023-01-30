@@ -387,7 +387,8 @@ app.listen(3000, () => console.log("Running on port 8000"));
       type: CustomActionType.Single,
       url: '',
       tableName: '',
-      icon: ''
+      icon: '',
+      requireConfirmation: false
     };
   }
 

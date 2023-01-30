@@ -1,0 +1,23 @@
+<h1 mat-dialog-title>Confirm {{data.title}} for {{ selectedTableName }} table</h1>
+<div mat-dialog-content>
+    <div class="mat-body">You are going to {{data.title}} with following primary key(s)
+        <br>
+        <ul class="listOfPrimaryKeys">
+            <li *ngFor="let primaryKey of data.primaryKeys; let i = index">
+                <strong *ngFor="let attribute of primaryKey | keyvalue; let last = last">
+                    {{attribute.key}} = {{attribute.value}}<span *ngIf="!last">,</span>
+                </strong>
+                <span *ngIf="i !== data.primaryKeys.length - 1; else dot">;</span>
+                <ng-template #dot>
+                    <span>.</span>
+                </ng-template>
+            </li>
+        </ul>
+    </div>
+    <p class="mat-body">Please confirm.</p>
+
+</div>
+<div mat-dialog-actions>
+  <button mat-raised-button mat-dialog-close>Cancel</button>
+  <button mat-raised-button color="warn" (click)="handleConfirmedActions()" [disabled]="submitting">{{data.title}}</button>
+</div>

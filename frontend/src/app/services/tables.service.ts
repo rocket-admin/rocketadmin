@@ -407,16 +407,16 @@ export class TablesService {
       );
   }
 
-  activateAction(connectionID: string, tableName: string, action: CustomAction, primaryKeys) {
+  activateAction(connectionID: string, tableName: string, actionId: string, actionTitle: string, primaryKeys: object) {
     return this._http.post<any>(`/table/action/activate/${connectionID}`, primaryKeys, {
       params: {
         tableName,
-        actionId: action.id
+        actionId
       }
     })
       .pipe(
         map(() => {
-          this._notifications.showSuccessSnackbar(`${action.title} is done.`);
+          this._notifications.showSuccessSnackbar(`${actionTitle} is done.`);
         }),
         catchError((err) => {
           console.log(err);
@@ -432,16 +432,16 @@ export class TablesService {
       );
   }
 
-  activateActions(connectionID: string, tableName: string, action: CustomAction, primaryKeys) {
+  activateActions(connectionID: string, tableName: string, actionId: string, actionTitle: string, primaryKeys) {
     return this._http.post<any>(`/table/actions/activate/${connectionID}`, primaryKeys, {
       params: {
         tableName,
-        actionId: action.id
+        actionId
       }
     })
       .pipe(
         map(() => {
-          this._notifications.showSuccessSnackbar(`${action.title} is done for ${primaryKeys.length} rows.`);
+          this._notifications.showSuccessSnackbar(`${actionTitle} is done for ${primaryKeys.length} rows.`);
         }),
         catchError((err) => {
           console.log(err);
