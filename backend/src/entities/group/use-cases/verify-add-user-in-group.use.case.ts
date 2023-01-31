@@ -84,7 +84,7 @@ export class VerifyAddUserInGroupUseCase
     });
     if (!newUserAlreadyInConnection) {
       ++usersInConnectionsCount;
-      await createStripeUsageRecord(ownerSubscriptionLevel, usersInConnectionsCount);
+      await createStripeUsageRecord(ownerSubscriptionLevel, usersInConnectionsCount, foundOwner.stripeId);
     }
     foundUser.isActive = true;
     foundUser.password = await Encryptor.hashUserPassword(user_password);
