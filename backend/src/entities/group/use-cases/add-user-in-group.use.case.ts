@@ -79,7 +79,7 @@ export class AddUserInGroupUseCase
       delete savedGroup.connection;
       if (!newUserAlreadyInConnection) {
         ++usersInConnectionsCount;
-        await createStripeUsageRecord(ownerSubscriptionLevel, usersInConnectionsCount);
+        await createStripeUsageRecord(ownerSubscriptionLevel, usersInConnectionsCount, foundOwner.stripeId);
       }
       return {
         group: savedGroup,
@@ -150,7 +150,7 @@ export class AddUserInGroupUseCase
       }
       if (!newUserAlreadyInConnection) {
         ++usersInConnectionsCount;
-        await createStripeUsageRecord(ownerSubscriptionLevel, usersInConnectionsCount);
+        await createStripeUsageRecord(ownerSubscriptionLevel, usersInConnectionsCount, foundOwner.stripeId);
       }
       return {
         group: savedGroup,
