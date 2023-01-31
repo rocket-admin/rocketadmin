@@ -293,6 +293,20 @@ test(`${currentTest} should return updated table action`, async (t) => {
   t.is(updateTableActionRO.title, updatedTableAction.title);
   t.is(updateTableActionRO.url, updatedTableAction.url);
   t.is(updateTableActionRO.type, newTableAction.type);
+
+  //check if table action was updated in db
+  const findTableActiponResult = await request(app.getHttpServer())
+    .get(`/table/actions/${createConnectionRO.id}?tableName=${testTableName}`)
+    .set('Cookie', token)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+  const findTableActionRO = JSON.parse(findTableActiponResult.text);
+
+  t.is(findTableActiponResult.status, 200);
+  t.is(findTableActionRO[0].id, createTableActionRO.id);
+  t.is(findTableActionRO[0].title, updatedTableAction.title);
+  t.is(findTableActionRO[0].url, updatedTableAction.url);
+  t.is(findTableActionRO[0].type, newTableAction.type);
 });
 
 test(`${currentTest} should throw exception when type is incorrect`, async (t) => {

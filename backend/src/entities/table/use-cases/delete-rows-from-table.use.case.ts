@@ -121,12 +121,14 @@ export class DeleteRowsFromTableUseCase
       old_data: Record<string, unknown>;
     }> = [];
 
+    const deletionErrors: Array<string> = [];
     for (const primaryKey of primaryKeys) {
       let operationResult = OperationResultStatusEnum.unknown;
       try {
         await dao.deleteRowInTable(tableName, primaryKey, userEmail);
         operationResult = OperationResultStatusEnum.successfully;
       } catch (error) {
+        deletionErrors.push(error.message);
         operationResult = OperationResultStatusEnum.unsuccessfully;
       } finally {
         deleteOperationsResults.push({
@@ -137,8 +139,17 @@ export class DeleteRowsFromTableUseCase
       }
     }
     try {
+      if (deletionErrors.length > 0) {
+        throw new HttpException(
+          {
+            message: Messages.BULK_DELETE_FAILED_DELETE_ROWS(deletionErrors),
+          },
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
       return true;
     } catch (error) {
+      throw error;
     } finally {
       const createdLogs = await this.tableLogsService.createAndSaveNewLogsUtil(
         deleteOperationsResults,

@@ -3241,3 +3241,68 @@ test(`${currentTest} should delete row in table and return result`, async (t) =>
     t.is(onlyDeleteLogs.findIndex((log) => log.received_data.id === key.id) >= 0, true);
   }
 });
+
+currentTest = 'DELETE /table/rows/:slug';
+
+test(`${currentTest} should delete row in table and return result`, async (t) => {
+  const connectionToTestDB = getTestData(mockFactory).connectionToPostgres;
+  const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
+  const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
+    await createTestTable(connectionToTestDB);
+
+  testTables.push(testTableName);
+
+  const createConnectionResponse = await request(app.getHttpServer())
+    .post('/connection')
+    .send(connectionToTestDB)
+    .set('Cookie', firstUserToken)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+  const createConnectionRO = JSON.parse(createConnectionResponse.text);
+  t.is(createConnectionResponse.status, 201);
+
+  const primaryKeysForDeletion = [
+    {
+      id: 1,
+    },
+    {
+      id: 10,
+    },
+    {
+      id: 32,
+    },
+  ];
+  const deleteRowInTableResponse = await request(app.getHttpServer())
+    .put(`/table/rows/delete/${createConnectionRO.id}?tableName=${testTableName}`)
+    .send(primaryKeysForDeletion)
+    .set('Cookie', firstUserToken)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+
+  t.is(deleteRowInTableResponse.status, 200);
+  const deleteRowInTableRO = JSON.parse(deleteRowInTableResponse.text);
+
+  //checking that the line was deleted
+  const getTableRowsResponse = await request(app.getHttpServer())
+    .get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=1&perPage=50`)
+    .set('Cookie', firstUserToken)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+
+  const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
+  t.is(getTableRowsResponse.status, 200);
+
+  t.is(getTableRowsRO.hasOwnProperty('rows'), true);
+  t.is(getTableRowsRO.hasOwnProperty('primaryColumns'), true);
+  t.is(getTableRowsRO.hasOwnProperty('pagination'), true);
+
+  const { rows, primaryColumns, pagination } = getTableRowsRO;
+
+  t.is(rows.length, 39);
+  for (const primaryKey of primaryKeysForDeletion) {
+    t.is(
+      rows.findIndex((row) => row.id === primaryKey.id),
+      -1,
+    );
+  }
+});
