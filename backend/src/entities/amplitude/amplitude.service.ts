@@ -16,7 +16,7 @@ export class AmplitudeService {
     try {
       if (process.env.NODE_ENV === 'test') return;
       let user_email = (await this.userRepository.findOne({ where: { id: user_id } })).email;
-      if (!user_email) {
+      if (!user_email && options) {
         user_email = options?.user_email;
       }
       let event_properties = undefined;

@@ -24,7 +24,7 @@ export async function createStripeUsageRecord(
     });
   } catch (error) {
     Sentry.captureException(error);
-    console.error(`Error in creation stripe record: ${error.message}`);
+    console.error(`Error in creation stripe record: ${error}`);
     throw new HttpException(
       {
         message: Messages.FAILED_CREATE_SUBSCRIPTION_LOG,
