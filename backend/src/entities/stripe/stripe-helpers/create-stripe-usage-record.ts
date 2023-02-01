@@ -29,14 +29,19 @@ export async function createStripeUsageRecord(
       HttpStatus.INTERNAL_SERVER_ERROR,
     );
   }
-  const subscriptionItem = dataOfCurrentCustomer.subscriptions.data[0].items.data[0];
-  if (!subscriptionItem) {
+  const subscriptionItem = dataOfCurrentCustomer?.subscriptions?.data[0]?.items?.data[0];
+
+  if (!subscriptionItem && numberOfUsers > 3) {
     throw new HttpException(
       {
-        message: 'No customer subscription item found',
+        message: 'No customer subscription item found. Please upgrade your subscription.',
       },
       HttpStatus.INTERNAL_SERVER_ERROR,
     );
+  }
+
+  if (!subscriptionItem) {
+    return;
   }
 
   try {

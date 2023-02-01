@@ -15,7 +15,7 @@ export class AmplitudeService {
   public async formAndSendLogRecord(event_type: AmplitudeEventTypeEnum, user_id: string, options = null) {
     try {
       if (process.env.NODE_ENV === 'test') return;
-      let user_email = (await this.userRepository.findOne({ where: { id: user_id } })).email;
+      let user_email = (await this.userRepository.findOne({ where: { id: user_id } }))?.email;
       if (!user_email && options) {
         user_email = options?.user_email;
       }
