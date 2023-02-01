@@ -140,6 +140,7 @@ export class DashboardComponent implements OnInit {
       const search = queryParams.search;
       this.getRows(search);
     })
+
     const selectedTableProperties = this.tablesList.find( (table: any) => table.table == this.selectedTableName);
     this.selectedTableDisplayName = selectedTableProperties.display_name || normalizeTableName(selectedTableProperties.table);
     this.loading = false;

@@ -1,5 +1,5 @@
 import {CdkDragDrop, moveItemInArray} from '@angular/cdk/drag-drop';
-import { Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
+import { Component, ElementRef, EventEmitter, Input, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core';
 import { CustomAction, CustomActionType, TableForeignKey, TablePermissions } from 'src/app/models/table';
 import { getComparators, getFilters } from 'src/app/lib/parse-filter-params';
 
@@ -73,7 +73,6 @@ export class DbTableComponent implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
-    private _tables: TablesService,
   ) {}
 
   ngAfterViewInit() {
@@ -104,6 +103,10 @@ export class DbTableComponent implements OnInit {
       comparators,
       isTablePageSwitched: true
     });
+  }
+
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes.name.currentValue && this.paginator) this.paginator.pageIndex = 0
   }
 
   isSortable(column: string) {
