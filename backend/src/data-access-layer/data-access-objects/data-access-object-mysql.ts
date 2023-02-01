@@ -193,10 +193,10 @@ export class DataAccessObjectMysql extends BasicDao implements IDataAccessObject
       this.getRowsCount(knex, tableName, this.connection.database),
     ]);
     const availableFields = promisesResults[0];
-    const rowsCount = promisesResults[1];
+    const { rowsCount, large_dataset } = promisesResults[1];
     const lastPage = Math.ceil(rowsCount / perPage);
 
-    let rowsRO;
+    let rowsRO: IRows;
 
     if (autocompleteFields && autocompleteFields.value && autocompleteFields.fields.length > 0) {
       const rows = await knex(tableName)
@@ -216,7 +216,8 @@ export class DataAccessObjectMysql extends BasicDao implements IDataAccessObject
         .limit(Constants.AUTOCOMPLETE_ROW_LIMIT);
       rowsRO = {
         data: rows,
-        pagination: {},
+        pagination: {} as any,
+        large_dataset: large_dataset,
       };
 
       return rowsRO;
@@ -302,6 +303,7 @@ export class DataAccessObjectMysql extends BasicDao implements IDataAccessObject
     rowsRO = {
       data,
       pagination,
+      large_dataset,
     };
 
     return rowsRO;
@@ -474,7 +476,11 @@ export class DataAccessObjectMysql extends BasicDao implements IDataAccessObject
     return tableSettingsFieldValidator(tableStructure, primaryColumns, settings);
   }
 
-  private async getRowsCount(knex: Knex, tableName: string, database: string): Promise<number> {
+  private async getRowsCount(
+    knex: Knex,
+    tableName: string,
+    database: string,
+  ): Promise<{ rowsCount: number; large_dataset: boolean }> {
     async function countWithTimeout() {
       return new Promise(async function (resolve, reject) {
         setTimeout(() => {
@@ -492,12 +498,12 @@ export class DataAccessObjectMysql extends BasicDao implements IDataAccessObject
 
     const firstCount = (await countWithTimeout()) as number;
     if (firstCount) {
-      return firstCount;
+      return { rowsCount: firstCount, large_dataset: false };
     } else {
       const secondCount = parseInt(
         (await knex.raw(`SHOW TABLE STATUS IN ?? LIKE ?;`, [database, tableName]))[0][0].Rows,
       );
-      return secondCount;
+      return { rowsCount: secondCount, large_dataset: true };
     }
   }
 
