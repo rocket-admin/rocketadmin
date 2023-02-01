@@ -312,7 +312,7 @@ export class DataAccessObjectOracle implements IDataAccessObject {
       searchedFields: Array<string>,
       searchedFieldValue: any,
       filteringFields: any,
-    ): Promise<any> {
+    ): Promise<IRows> {
       const offset = (page - 1) * perPage;
       const rows = await knex(tableName)
         .withSchema(tableSchema)

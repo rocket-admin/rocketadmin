@@ -198,14 +198,14 @@ export class DataAccessObjectMysqlSsh implements IDataAccessObject {
       this.getRowsCount(tableName, filteringFields, settings, searchedFieldValue),
       this.findAvaliableFields(settings, tableName),
     ]);
-    const rowsCount = promisesResults[0];
+    const { rowsCount, large_dataset } = promisesResults[0];
     const availableFields = promisesResults[1];
     const lastPage = Math.ceil(rowsCount / perPage);
     const offset = (page - 1) * perPage;
     const mySqlDriver = await this.getMySqlDriver();
     const knex = await this.configureKnex();
 
-    let rowsRO;
+    let rowsRO: IRows;
 
     if (autocompleteFields && autocompleteFields.value && autocompleteFields.fields.length > 0) {
       const rows = await knex(tableName)
@@ -227,7 +227,8 @@ export class DataAccessObjectMysqlSsh implements IDataAccessObject {
 
       rowsRO = {
         data: rows,
-        pagination: {},
+        pagination: {} as any,
+        large_dataset: large_dataset,
       };
 
       return rowsRO;
@@ -308,6 +309,7 @@ export class DataAccessObjectMysqlSsh implements IDataAccessObject {
     rowsRO = {
       data: rows,
       pagination,
+      large_dataset: large_dataset,
     };
 
     return rowsRO;
@@ -522,7 +524,12 @@ export class DataAccessObjectMysqlSsh implements IDataAccessObject {
     }
   }
 
-  private async getRowsCount(tableName, filteringFields, settings, searchedFieldValue): Promise<number> {
+  private async getRowsCount(
+    tableName,
+    filteringFields,
+    settings,
+    searchedFieldValue,
+  ): Promise<{ rowsCount: number; large_dataset: boolean }> {
     const mySqlDriver = await this.getMySqlDriver();
     const { database } = this.connection;
     const { search_fields } = settings;
@@ -583,7 +590,7 @@ export class DataAccessObjectMysqlSsh implements IDataAccessObject {
           /*eslint-enable*/
         })
         .count('*');
-      return count[0]['count(*)'] as number;
+      return { rowsCount: count[0]['count(*)'] as number, large_dataset: false };
     } else {
       async function countWithTimeout() {
         return new Promise(async function (resolve, reject) {
@@ -602,12 +609,12 @@ export class DataAccessObjectMysqlSsh implements IDataAccessObject {
 
       const firstCount = (await countWithTimeout()) as number;
       if (firstCount) {
-        return firstCount;
+        return { rowsCount: firstCount, large_dataset: false };
       } else {
         const secondCount = parseInt(
           (await knex.raw(`SHOW TABLE STATUS IN ?? LIKE ?;`, [database, tableName]).connection(mySqlDriver))[0][0].Rows,
         );
-        return secondCount;
+        return { rowsCount: secondCount, large_dataset: true };
       }
     }
   }
