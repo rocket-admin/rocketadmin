@@ -67,6 +67,7 @@ export interface IDataAccessObject {
 export interface IRows {
   data: Array<Record<string, unknown>>;
   pagination: IPagination;
+  large_dataset: boolean;
 }
 
 export interface IPagination {

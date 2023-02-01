@@ -251,6 +251,7 @@ export class DataAccessObjectOracle implements IDataAccessObject {
       return {
         data: rows as unknown as unknown as Array<Record<string, unknown>>,
         pagination: {} as any,
+        large_dataset: false,
       };
     }
 
@@ -375,7 +376,7 @@ export class DataAccessObjectOracle implements IDataAccessObject {
         })
         .limit(perPage)
         .offset(offset);
-      const rowsCount = await getRowsCount(knex, tableName, tableSchema);
+      const { rowsCount, large_dataset } = await getRowsCount(knex, tableName, tableSchema);
       const lastPage = Math.ceil(rowsCount / perPage);
       return {
         data: rows.map((row) => {
@@ -388,10 +389,15 @@ export class DataAccessObjectOracle implements IDataAccessObject {
           perPage: perPage,
           currentPage: page,
         },
+        large_dataset: large_dataset,
       };
     }
 
-    async function getRowsCount(knex: Knex, tableName: string, tableSchema: string): Promise<number> {
+    async function getRowsCount(
+      knex: Knex,
+      tableName: string,
+      tableSchema: string,
+    ): Promise<{ rowsCount: number; large_dataset: boolean }> {
       async function countWithTimeout() {
         return new Promise(async function (resolve, reject) {
           setTimeout(() => {
@@ -409,13 +415,19 @@ export class DataAccessObjectOracle implements IDataAccessObject {
 
       const firstCount = (await countWithTimeout()) as number;
       if (firstCount) {
-        return firstCount;
+        return {
+          rowsCount: firstCount,
+          large_dataset: false,
+        };
       } else {
         const secondCount = await knex('ALL_TABLES')
           .select('NUM_ROWS')
           .where('TABLE_NAME', '=', tableName)
           .andWhere('OWNER', '=', tableSchema);
-        return secondCount[0]['NUM_ROWS'];
+        return {
+          rowsCount: secondCount[0]['NUM_ROWS'],
+          large_dataset: true,
+        };
       }
     }
   }
