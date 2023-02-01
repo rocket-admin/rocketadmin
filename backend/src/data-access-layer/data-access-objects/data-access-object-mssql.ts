@@ -147,7 +147,7 @@ export class DataAccessObjectMssql extends BasicDao implements IDataAccessObject
     }
     const lastPage = Math.ceil(rowsCount / perPage);
     /* eslint-enable */
-    let rowsRO;
+    let rowsRO: IRows;
     if (autocompleteFields && autocompleteFields.value && autocompleteFields.fields.length > 0) {
       const rows = await knex(tableName)
         .select(autocompleteFields.fields)
@@ -166,7 +166,8 @@ export class DataAccessObjectMssql extends BasicDao implements IDataAccessObject
         .limit(Constants.AUTOCOMPLETE_ROW_LIMIT);
       rowsRO = {
         data: rows,
-        pagination: {},
+        pagination: {} as any,
+        large_dataset: false,
       };
 
       return rowsRO;
@@ -252,6 +253,7 @@ export class DataAccessObjectMssql extends BasicDao implements IDataAccessObject
     rowsRO = {
       data,
       pagination,
+      large_dataset: rowsCount >= Constants.LARGE_DATASET_ROW_LIMIT,
     };
     return rowsRO;
   }

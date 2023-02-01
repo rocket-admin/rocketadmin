@@ -173,6 +173,7 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
         table_permissions: userTablePermissions,
         list_fields: tableSettings.list_fields?.length > 0 ? tableSettings.list_fields : [],
         table_actions: tableActions.map((el) => buildCreatedTableActionDS(el)),
+        large_dataset: rows.large_dataset,
       };
       let identities = [];
 
