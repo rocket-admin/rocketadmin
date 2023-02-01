@@ -64,7 +64,7 @@ export class RemoveUserFromGroupUseCase
 
     if (!userStayInConnection) {
       --usersInConnectionsCount;
-      await createStripeUsageRecord(ownerSubscriptionLevel, usersInConnectionsCount);
+      await createStripeUsageRecord(ownerSubscriptionLevel, usersInConnectionsCount, foundOwner.stripeId);
     }
 
     return buildRemoveUserFromGroupResultDs(updatedGroup);

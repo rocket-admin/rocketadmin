@@ -30,7 +30,9 @@ export class UpdateTableActionUseCase
 
     const updatingTableAction = buildNewTableActionEntity(inputData);
     for (const key in updatingTableAction) {
+      // eslint-disable-next-line security/detect-object-injection
       if (updatingTableAction[key] === undefined) {
+        // eslint-disable-next-line security/detect-object-injection
         delete updatingTableAction[key];
       }
     }
