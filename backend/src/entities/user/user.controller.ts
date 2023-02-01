@@ -161,7 +161,8 @@ export class UserController {
     };
 
     const tokenInfo = await this.usualLoginUseCase.execute(userData, InTransactionEnum.OFF);
-    response.cookie(Constants.JWT_COOKIE_KEY_NAME, tokenInfo.token);
+
+    response.cookie(Constants.JWT_COOKIE_KEY_NAME, tokenInfo.token, this.getCookieDomainOtions());
     return { expires: tokenInfo.exp };
   }
 
@@ -205,7 +206,7 @@ export class UserController {
       name: name,
     };
     const tokenInfo = await this.usualRegisterUseCase.execute(inputData, InTransactionEnum.ON);
-    response.cookie(Constants.JWT_COOKIE_KEY_NAME, tokenInfo.token);
+    response.cookie(Constants.JWT_COOKIE_KEY_NAME, tokenInfo.token, this.getCookieDomainOtions());
     return { expires: tokenInfo.exp };
   }
 
@@ -220,7 +221,7 @@ export class UserController {
         HttpStatus.BAD_REQUEST,
       );
     }
-    response.cookie(Constants.JWT_COOKIE_KEY_NAME, '');
+    response.cookie(Constants.JWT_COOKIE_KEY_NAME, '', this.getCookieDomainOtions());
     return await this.logOutUseCase.execute(token, InTransactionEnum.ON);
   }
 
@@ -243,7 +244,7 @@ export class UserController {
       glidCookieValue: gclidCookieValue,
     };
     const tokenInfo = await this.googleLoginUseCase.execute(googleLoginDs, InTransactionEnum.ON);
-    response.cookie(Constants.JWT_COOKIE_KEY_NAME, tokenInfo.token);
+    response.cookie(Constants.JWT_COOKIE_KEY_NAME, tokenInfo.token, this.getCookieDomainOtions());
     return { expires: tokenInfo.exp };
   }
 
@@ -259,7 +260,7 @@ export class UserController {
       );
     }
     const tokenInfo = await this.facebookLoginUseCase.execute(token, InTransactionEnum.ON);
-    response.cookie(Constants.JWT_COOKIE_KEY_NAME, tokenInfo.token);
+    response.cookie(Constants.JWT_COOKIE_KEY_NAME, tokenInfo.token, this.getCookieDomainOtions());
     return { expires: tokenInfo.exp };
   }
 
@@ -300,7 +301,7 @@ export class UserController {
       oldPassword: oldPassword,
     };
     const tokenInfo = await this.changeUsualPasswordUseCase.execute(inputData, InTransactionEnum.ON);
-    response.cookie(Constants.JWT_COOKIE_KEY_NAME, tokenInfo.token);
+    response.cookie(Constants.JWT_COOKIE_KEY_NAME, tokenInfo.token, this.getCookieDomainOtions());
     return { expires: tokenInfo.exp };
   }
 
@@ -378,5 +379,13 @@ export class UserController {
     const slackMessage = Messages.USER_DELETED_ACCOUNT(deleteResult.email, reason, message);
     await slackPostMessage(slackMessage);
     return deleteResult;
+  }
+
+  private getCookieDomainOtions(): { domain: string } | undefined {
+    const cookieDomain = process.env.ROCKETADMIN_COOKIE_DOMAIN;
+    if (cookieDomain) {
+      return { domain: cookieDomain };
+    }
+    return undefined;
   }
 }
