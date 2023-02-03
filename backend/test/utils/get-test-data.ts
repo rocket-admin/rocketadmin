@@ -18,6 +18,7 @@ export function getTestData(mockFactory: MockFactory) {
   const connectionToPostgresSchema = mockFactory.generateConnectionToTestPostgresDBWithSchemaInDocker();
   const connectionToPostgres = mockFactory.generateConnectionToTestPostgresDBInDocker();
   const internalConnection = mockFactory.generateCreateConnectionDto();
+  const postgresAgentConnection = mockFactory.generateConnectionToTestDbAgent();
   return {
     newConnection,
     newEncryptedConnection,
@@ -36,5 +37,6 @@ export function getTestData(mockFactory: MockFactory) {
     connectionToPostgresSchema,
     connectionToPostgres,
     internalConnection,
+    postgresAgentConnection,
   };
 }
