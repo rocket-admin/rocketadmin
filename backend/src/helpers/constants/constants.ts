@@ -4,6 +4,7 @@ import { ConnectionTypeEnum } from '../../enums/index.js';
 import { getProcessVariable } from '../get-process-variable.js';
 
 export const Constants = {
+  ROCKETADMIN_AUTHENTICATED_COOKIE: 'rocketadmin_authenticated',
   JWT_COOKIE_KEY_NAME: 'rocketadmin_jwt',
   FORBIDDEN_HOSTS: ['10.0.0.0/8', '172.16.0.0/12', '192.168.0.0/16', '127.0.0.0/8', 'fd00::/8'],
   BINARY_DATATYPES: ['binary', 'bytea', 'varbinary', 'varbinary(max)', 'tinyblob', 'blob', 'mediumblob', 'longblob'],

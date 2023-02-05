@@ -162,7 +162,11 @@ export class UserController {
 
     const tokenInfo = await this.usualLoginUseCase.execute(userData, InTransactionEnum.OFF);
 
-    response.cookie(Constants.JWT_COOKIE_KEY_NAME, tokenInfo.token, this.getCookieDomainOtions());
+    response.cookie(Constants.JWT_COOKIE_KEY_NAME, tokenInfo.token);
+    response.cookie(Constants.ROCKETADMIN_AUTHENTICATED_COOKIE, 1, {
+      httpOnly: false,
+      ...this.getCookieDomainOtions(),
+    });
     return { expires: tokenInfo.exp };
   }
 
@@ -206,7 +210,11 @@ export class UserController {
       name: name,
     };
     const tokenInfo = await this.usualRegisterUseCase.execute(inputData, InTransactionEnum.ON);
-    response.cookie(Constants.JWT_COOKIE_KEY_NAME, tokenInfo.token, this.getCookieDomainOtions());
+    response.cookie(Constants.JWT_COOKIE_KEY_NAME, tokenInfo.token);
+    response.cookie(Constants.ROCKETADMIN_AUTHENTICATED_COOKIE, 1, {
+      httpOnly: false,
+      ...this.getCookieDomainOtions(),
+    });
     return { expires: tokenInfo.exp };
   }
 
@@ -221,7 +229,11 @@ export class UserController {
         HttpStatus.BAD_REQUEST,
       );
     }
-    response.cookie(Constants.JWT_COOKIE_KEY_NAME, '', this.getCookieDomainOtions());
+    response.cookie(Constants.JWT_COOKIE_KEY_NAME, '');
+    response.cookie(Constants.ROCKETADMIN_AUTHENTICATED_COOKIE, 1, {
+      httpOnly: false,
+      ...this.getCookieDomainOtions(),
+    });
     return await this.logOutUseCase.execute(token, InTransactionEnum.ON);
   }
 
@@ -244,7 +256,11 @@ export class UserController {
       glidCookieValue: gclidCookieValue,
     };
     const tokenInfo = await this.googleLoginUseCase.execute(googleLoginDs, InTransactionEnum.ON);
-    response.cookie(Constants.JWT_COOKIE_KEY_NAME, tokenInfo.token, this.getCookieDomainOtions());
+    response.cookie(Constants.JWT_COOKIE_KEY_NAME, tokenInfo.token);
+    response.cookie(Constants.ROCKETADMIN_AUTHENTICATED_COOKIE, 1, {
+      httpOnly: false,
+      ...this.getCookieDomainOtions(),
+    });
     return { expires: tokenInfo.exp };
   }
 
@@ -260,7 +276,11 @@ export class UserController {
       );
     }
     const tokenInfo = await this.facebookLoginUseCase.execute(token, InTransactionEnum.ON);
-    response.cookie(Constants.JWT_COOKIE_KEY_NAME, tokenInfo.token, this.getCookieDomainOtions());
+    response.cookie(Constants.JWT_COOKIE_KEY_NAME, tokenInfo.token);
+    response.cookie(Constants.ROCKETADMIN_AUTHENTICATED_COOKIE, 1, {
+      httpOnly: false,
+      ...this.getCookieDomainOtions(),
+    });
     return { expires: tokenInfo.exp };
   }
 
@@ -301,7 +321,11 @@ export class UserController {
       oldPassword: oldPassword,
     };
     const tokenInfo = await this.changeUsualPasswordUseCase.execute(inputData, InTransactionEnum.ON);
-    response.cookie(Constants.JWT_COOKIE_KEY_NAME, tokenInfo.token, this.getCookieDomainOtions());
+    response.cookie(Constants.JWT_COOKIE_KEY_NAME, tokenInfo.token);
+    response.cookie(Constants.ROCKETADMIN_AUTHENTICATED_COOKIE, 1, {
+      httpOnly: false,
+      ...this.getCookieDomainOtions(),
+    });
     return { expires: tokenInfo.exp };
   }
 
@@ -358,10 +382,7 @@ export class UserController {
   }
 
   @Put('user/name/')
-  async changeUserName(
-    @UserId() userId: string,
-    @Body('name') name: string,
-  ): Promise<FoundUserDs> {
+  async changeUserName(@UserId() userId: string, @Body('name') name: string): Promise<FoundUserDs> {
     const inputData: ChangeUserNameDS = {
       id: userId,
       name: name,
