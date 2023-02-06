@@ -199,16 +199,15 @@ tr.mat-row:hover {
 
 .empty-table {
     display: flex;
-    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px 0;
     width: 100%;
 }
 
 .empty-table .mat-button {
     border-radius: 0;
+    margin: -20px 0;
     padding: 8px 0;
     width: 100%;
-}
-
-.empty-table .mat-body {
-    padding: 16px 0;
 }

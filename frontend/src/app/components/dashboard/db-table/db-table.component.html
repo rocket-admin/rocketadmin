@@ -205,7 +205,8 @@
     </div>
 
     <div *ngIf="tableData.isEmptyTable && (getFiltersCount(activeFilters) || searchString)" class="empty-table">
-        <span class="mat-body">No matching was found for the given filter</span>
+        <p class="mat-body-1">No field matches <span style="font-family: monospace;">"{{searchString}}"</span>.</p>
+        <p class="mat-body-1">If you want to find substring, please, use <strong>Filter</strong>.</p>
     </div>
 
     <div *ngIf="tableData.isEmptyTable && !(getFiltersCount(activeFilters) || searchString)" class="empty-table">
