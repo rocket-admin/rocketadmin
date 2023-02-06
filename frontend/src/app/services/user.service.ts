@@ -204,8 +204,8 @@ export class UserService {
     );
   }
 
-  changeUserName(name: string, password: string) {
-    return this._http.put<any>(`/user/name`, {name, password})
+  changeUserName(userName: string) {
+    return this._http.put<any>(`/user/name`, {name: userName})
       .pipe(
         map((res) => {
           this._notifications.showSuccessSnackbar('Your name has been changed successfully.');

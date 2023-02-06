@@ -291,7 +291,7 @@ app.post("/rocketadmin", (req, res) => {
   };
   const stringifyedPKeys = Object.entries(primaryKeysValues)
     .map(([key, value]) => \`\${key}::\${value}\`)
-    .join("\n");
+    .join("");
   const strTohash = \`$\{bodyData["$$_date"]}\$\$\${stringifyedPKeys}$$\${bodyData["$$_actionId"]}$$\${bodyData["$$_tableName"]}\`;
   const hmac = createHmac("sha256", "Your_Connection_Signing_Key")\;
   hmac.update(strTohash);

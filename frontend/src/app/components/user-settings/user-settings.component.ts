@@ -6,7 +6,6 @@ import { AuthService } from 'src/app/services/auth.service';
 import { MatDialog } from '@angular/material/dialog';
 import { User } from 'src/app/models/user';
 import { UserService } from 'src/app/services/user.service';
-import { AccountPasswordConfirmationComponent } from './account-password-confirmation/account-password-confirmation.component';
 
 @Component({
   selector: 'app-user-settings',
@@ -15,7 +14,7 @@ import { AccountPasswordConfirmationComponent } from './account-password-confirm
 })
 export class UserSettingsComponent implements OnInit {
   public currentUser: User = null;
-  public submittingDelete: boolean;
+  public submittingChangedName: boolean;
   public currentPlan: string;
   public isAnnually: boolean;
   public userName: string;
@@ -79,10 +78,16 @@ export class UserSettingsComponent implements OnInit {
     });
   }
 
-  openConfirmationDialog() {
-    this.dialog.open(AccountPasswordConfirmationComponent, {
-      width: '25em',
-      data: this.userName
-    })
+  changeUserName() {
+    this.submittingChangedName = true;
+    this._userService.changeUserName(this.userName)
+      .subscribe((res) => {
+        this.submittingChangedName = false;
+      },
+      () => { this.submittingChangedName = false; },
+      () => { this.submittingChangedName = false; }
+    )
   }
+
+
 }

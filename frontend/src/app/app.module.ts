@@ -36,7 +36,6 @@ import { DbConnectionDeleteDialogComponent } from './components/connect-db/db-co
 import { DbConnectionIpAccessDialogComponent } from './components/connect-db/db-connection-ip-access-dialog/db-connection-ip-access-dialog.component';
 import { DbActionConfirmationDialogComponent } from './components/dashboard/db-action-confirmation-dialog/db-action-confirmation-dialog.component';
 import { BbBulkActionConfirmationDialogComponent } from './components/dashboard/db-bulk-action-confirmation-dialog/db-bulk-action-confirmation-dialog.component';
-import { DbTableActionsComponent } from './components/dashboard/db-table-actions/db-table-actions.component';
 import { DbTableComponent } from './components/dashboard/db-table/db-table.component';
 import { DbTableFiltersDialogComponent } from './components/dashboard/db-table-filters-dialog/db-table-filters-dialog.component';
 import { DbTableRowEditComponent } from './components/db-table-row-edit/db-table-row-edit.component';
@@ -96,9 +95,9 @@ import { UsersComponent } from './components/users/users.component';
 import { UsersService } from './services/users.service';
 import { WidgetDeleteDialogComponent } from './components/dashboard/db-table-widgets/widget-delete-dialog/widget-delete-dialog.component';
 import { environment } from '../environments/environment';
-import { ActionDeleteDialogComponent } from './components/dashboard/db-table-actions/action-delete-dialog/action-delete-dialog.component';
 import { UpgradeSuccessComponent } from './components/upgrade-success/upgrade-success.component';
-import { AccountPasswordConfirmationComponent } from './components/user-settings/account-password-confirmation/account-password-confirmation.component';
+import { DbTableActionsComponent } from "./components/dashboard/db-table-actions/db-table-actions.component";
+import { ActionDeleteDialogComponent } from "./components/dashboard/db-table-actions/action-delete-dialog/action-delete-dialog.component";
 
 const saasExtraProviders = (environment as any).saas ? [
   {
@@ -191,7 +190,6 @@ const saasExtraProviders = (environment as any).saas ? [
     UserPasswordComponent,
     ActionDeleteDialogComponent,
     UpgradeSuccessComponent,
-    AccountPasswordConfirmationComponent
   ],
   entryComponents: [
     DbActionConfirmationDialogComponent,

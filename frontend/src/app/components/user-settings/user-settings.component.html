@@ -14,8 +14,8 @@
             </mat-form-field>
             <button type="button" mat-button color="primary"
                 class="user-settings__save-button"
-                (click)="openConfirmationDialog()"
-                [disabled]="!nameField.dirty">
+                (click)="changeUserName()"
+                [disabled]="!nameField.dirty || submittingChangedName">
                 Save
             </button>
         </form>
@@ -66,7 +66,6 @@
 
     <button mat-button class="delete-button"
         type="button"
-        [disabled]="submittingDelete"
         (click)="confirmDeleteAccount()">
         Delete account
     </button>
