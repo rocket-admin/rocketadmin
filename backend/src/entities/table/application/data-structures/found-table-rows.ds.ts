@@ -24,6 +24,7 @@ export class FoundTableRowsDs {
   identity_column: string;
   table_permissions: ITablePermissionData;
   table_actions: Array<CreatedTableActionDS>;
+  large_dataset: boolean;
 }
 
 export class TableStructureDs {

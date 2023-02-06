@@ -4,7 +4,8 @@ import { ConnectionTypeEnum } from '../../enums/index.js';
 import { getProcessVariable } from '../get-process-variable.js';
 
 export const Constants = {
-  JWT_COOKIE_KEY_NAME: 'jwt',
+  ROCKETADMIN_AUTHENTICATED_COOKIE: 'rocketadmin_authenticated',
+  JWT_COOKIE_KEY_NAME: 'rocketadmin_jwt',
   FORBIDDEN_HOSTS: ['10.0.0.0/8', '172.16.0.0/12', '192.168.0.0/16', '127.0.0.0/8', 'fd00::/8'],
   BINARY_DATATYPES: ['binary', 'bytea', 'varbinary', 'varbinary(max)', 'tinyblob', 'blob', 'mediumblob', 'longblob'],
   DEFAULT_LOG_ROWS_LIMIT: 500,
@@ -49,6 +50,8 @@ export const Constants = {
   EMAIL_VALIDATION_TIMEOUT: 1000,
 
   DEFAULT_PAGINATION: { page: 1, perPage: 20 },
+
+  LARGE_DATASET_ROW_LIMIT: 1000000,
 
   DEFAULT_SLACK_CHANNEL: '#rocketadmin-errors',
   EXCEPTIONS_CHANNELS: '#rocketadmin-errors',

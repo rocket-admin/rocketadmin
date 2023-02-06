@@ -179,6 +179,7 @@ test(`${currentTest} should return rows of selected table without search and wit
     t.is(getTableRowsRO.hasOwnProperty('rows'), true);
     t.is(getTableRowsRO.hasOwnProperty('primaryColumns'), true);
     t.is(getTableRowsRO.hasOwnProperty('pagination'), true);
+    t.is(getTableRowsRO.hasOwnProperty('large_dataset'), true);
     t.is(getTableRowsRO.rows.length, Constants.DEFAULT_PAGINATION.perPage);
     t.is(Object.keys(getTableRowsRO.rows[1]).length, 5);
     t.is(getTableRowsRO.rows[0].hasOwnProperty('id'), true);

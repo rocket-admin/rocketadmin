@@ -175,10 +175,10 @@ export class DataAccessObjectPostgres extends BasicDao implements IDataAccessObj
       this.getRowsCount(knex, tableName, tableSchema),
       this.findAvaliableFields(settings, tableName),
     ]);
-    const rowsCount = promisesResults[0];
+    const { rowsCount, large_dataset } = promisesResults[0];
     const availableFields = promisesResults[1];
     const lastPage = Math.ceil(rowsCount / perPage);
-    let rowsRO;
+    let rowsRO: IRows;
 
     if (autocompleteFields && autocompleteFields.value && autocompleteFields.fields.length > 0) {
       const rows = await knex(tableName)
@@ -200,7 +200,8 @@ export class DataAccessObjectPostgres extends BasicDao implements IDataAccessObj
 
       rowsRO = {
         data: rows,
-        pagination: {},
+        pagination: {} as any,
+        large_dataset: large_dataset,
       };
       return rowsRO;
     }
@@ -286,6 +287,7 @@ export class DataAccessObjectPostgres extends BasicDao implements IDataAccessObj
     rowsRO = {
       data,
       pagination,
+      large_dataset: large_dataset,
     };
     return rowsRO;
   }
@@ -517,7 +519,11 @@ export class DataAccessObjectPostgres extends BasicDao implements IDataAccessObj
     return tableName;
   }
 
-  private async getRowsCount(knex: Knex, tableName: string, tableSchema: string): Promise<number> {
+  private async getRowsCount(
+    knex: Knex,
+    tableName: string,
+    tableSchema: string,
+  ): Promise<{ rowsCount: number; large_dataset: boolean }> {
     async function countWithTimeout() {
       return new Promise(async function (resolve, reject) {
         setTimeout(() => {
@@ -535,13 +541,13 @@ export class DataAccessObjectPostgres extends BasicDao implements IDataAccessObj
 
     const firstCount = (await countWithTimeout()) as number;
     if (firstCount === 0) {
-      return firstCount;
+      return { rowsCount: 0, large_dataset: false };
     }
     if (firstCount) {
-      return firstCount;
+      return { rowsCount: firstCount, large_dataset: false };
     } else {
       try {
-        return await knex.raw(
+        const result = await knex.raw(
           `
     SELECT ((reltuples / relpages)
     * (pg_relation_size('??.??') / current_setting('block_size')::int)
@@ -550,8 +556,12 @@ FROM   pg_class
 WHERE  oid = '??.??'::regclass;`,
           [tableSchema, tableName, tableSchema, tableName],
         );
+        return {
+          rowsCount: result,
+          large_dataset: true,
+        };
       } catch (e) {
-        return 0;
+        return { rowsCount: 0, large_dataset: false };
       }
     }
   }

@@ -29,8 +29,8 @@ export async function createStripeUsageRecord(
       HttpStatus.INTERNAL_SERVER_ERROR,
     );
   }
-  const subscriptionItem = dataOfCurrentCustomer?.subscriptions?.data[0]?.items?.data[0];
-
+  const userSubscriptions = await stripe.subscriptions.list({ customer: ownerStripeCustomerId });
+  const subscriptionItem = userSubscriptions?.data[0];
   if (!subscriptionItem && numberOfUsers > 3) {
     throw new HttpException(
       {

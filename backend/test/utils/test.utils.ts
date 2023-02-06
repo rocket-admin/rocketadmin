@@ -24,7 +24,7 @@ export class TestUtils {
 
   static getJwtTokenFromResponse(res: any): string {
     let jwt: string = res.headers['set-cookie'][0];
-    jwt = jwt.replace('jwt=', '');
+    jwt = jwt.replace('rocketadmin_jwt=', '');
     jwt = jwt.replace('; Path=/', '');
     return jwt;
   }
