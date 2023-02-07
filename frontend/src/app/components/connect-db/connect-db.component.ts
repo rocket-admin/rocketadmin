@@ -42,9 +42,9 @@ export class ConnectDBComponent implements OnInit {
   }
 
   public osAgents = {
-    Mac: 'https://github.com/Autoadmin-org/autoadmin-cli/releases/download/latest/autoadmin-cli-macos',
-    Windows: 'https://github.com/Autoadmin-org/autoadmin-cli/releases/download/latest/autoadmin-cli-windows.exe',
-    Linux: 'https://github.com/Autoadmin-org/autoadmin-cli/releases/download/latest/autoadmin-cli-linux'
+    Mac: 'https://github.com/rocket-admin/rocketadmin-cli/releases/download/latest/rocketadmin-cli-macos',
+    Windows: 'https://github.com/rocket-admin/rocketadmin-cli/releases/download/latest/rocketadmin-cli-windows.exe',
+    Linux: 'https://github.com/rocket-admin/rocketadmin-cli/releases/download/latest/rocketadmin-cli-linux'
   }
 
   constructor(
