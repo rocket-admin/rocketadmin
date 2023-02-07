@@ -24,7 +24,7 @@ export async function createStripeUsageRecord(
   if (!isStripeCustomer(dataOfCurrentCustomer)) {
     throw new HttpException(
       {
-        message: Messages.FAILED_CREATE_SUBSCRIPTION_LOG,
+        message: Messages.FAILED_CREATE_SUBSCRIPTION_LOG_YOUR_CUSTOMER_IS_DELETED,
       },
       HttpStatus.INTERNAL_SERVER_ERROR,
     );
