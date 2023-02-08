@@ -30,7 +30,7 @@ export async function createStripeUsageRecord(
     );
   }
   const userSubscriptions = await stripe.subscriptions.list({ customer: ownerStripeCustomerId });
-  const subscriptionItem = userSubscriptions?.data[0];
+  const subscriptionItem = userSubscriptions?.data[0].items?.data[0];
   if (!subscriptionItem && numberOfUsers > 3) {
     throw new HttpException(
       {
