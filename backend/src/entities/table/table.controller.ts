@@ -360,7 +360,7 @@ export class TableController {
     const connection = await this._dbContext.connectionRepository.findAndDecryptConnection(connectionId, masterPwd);
     let userEmail: string;
     if (isConnectionTypeAgent(connection.type)) {
-      userEmail = (await this.userRepository.findOne({ where: { id: userId } })).email;
+      userEmail = await this._dbContext.userRepository.getUserEmailOrReturnNull(userId);
     }
     const dao = createDataAccessObject(connection, userEmail);
     const primaryColumns = await dao.getTablePrimaryColumns(tableName, userEmail);
