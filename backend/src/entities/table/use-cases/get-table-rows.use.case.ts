@@ -16,6 +16,7 @@ import {
 } from '../../../enums/index.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { hexToBinary, isBinary } from '../../../helpers/binary-to-hex.js';
+import { Constants } from '../../../helpers/constants/constants.js';
 import { isConnectionTypeAgent } from '../../../helpers/index.js';
 import { AmplitudeService } from '../../amplitude/amplitude.service.js';
 import { buildCreatedTableActionDS } from '../../table-actions/utils/build-created-table-action-ds.js';
@@ -156,7 +157,11 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
       }
 
       const formedTableStructure = formFullTableStructure(tableStructure, tableSettings);
-
+      const largeDataset = rows.large_dataset
+        ? true
+        : rows.pagination.total > Constants.LARGE_DATASET_ROW_LIMIT
+        ? true
+        : false;
       const rowsRO = {
         rows: rows.data,
         primaryColumns: tablePrimaryColumns,
@@ -173,7 +178,7 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
         table_permissions: userTablePermissions,
         list_fields: tableSettings.list_fields?.length > 0 ? tableSettings.list_fields : [],
         table_actions: tableActions.map((el) => buildCreatedTableActionDS(el)),
-        large_dataset: rows.large_dataset,
+        large_dataset: largeDataset,
       };
       let identities = [];
 
