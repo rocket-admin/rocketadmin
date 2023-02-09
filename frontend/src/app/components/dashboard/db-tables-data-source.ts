@@ -63,6 +63,7 @@ export class TablesDataSource implements DataSource<Object> {
   public tableActions: CustomAction[];
   public tableBulkActions: CustomAction[];
   public actionsColumnWidth: string;
+  public largeDataset: boolean;
 
   public alert_primaryKeysInfo: Alert;
   public alert_settingsInfo: Alert;
@@ -265,7 +266,6 @@ export class TablesDataSource implements DataSource<Object> {
             }))
           }
 
-
           const widgetsConfigured = res.widgets && res.widgets.length;
           if (!res.configured && !widgetsConfigured
             && this._connections.connectionAccessLevel !== AccessLevel.None
@@ -288,6 +288,7 @@ export class TablesDataSource implements DataSource<Object> {
               ]
             };
 
+          this.largeDataset = res.large_dataset;
           if (this.paginator) this.paginator.pageSize = res.pagination.perPage;
           if (this.paginator) this.paginator.length = res.pagination.total;
       });
