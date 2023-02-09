@@ -223,8 +223,13 @@ export class Encryptor {
             if (error) {
               reject(error);
             } else {
-              const result = passwordHash === hash.toString(Constants.BYTE_TO_STRING_ENCODING);
-              resolve(result);
+              try {
+                const hashToString = hash.toString(Constants.BYTE_TO_STRING_ENCODING);
+                const result = crypto.timingSafeEqual(Buffer.from(passwordHash), Buffer.from(hashToString));
+                resolve(result);
+              } catch (e) {
+                resolve(false);
+              }
             }
           },
         );

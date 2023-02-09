@@ -24,13 +24,13 @@ export async function createStripeUsageRecord(
   if (!isStripeCustomer(dataOfCurrentCustomer)) {
     throw new HttpException(
       {
-        message: Messages.FAILED_CREATE_SUBSCRIPTION_LOG,
+        message: Messages.FAILED_CREATE_SUBSCRIPTION_LOG_YOUR_CUSTOMER_IS_DELETED,
       },
       HttpStatus.INTERNAL_SERVER_ERROR,
     );
   }
   const userSubscriptions = await stripe.subscriptions.list({ customer: ownerStripeCustomerId });
-  const subscriptionItem = userSubscriptions?.data[0];
+  const subscriptionItem = userSubscriptions?.data[0].items?.data[0];
   if (!subscriptionItem && numberOfUsers > 3) {
     throw new HttpException(
       {

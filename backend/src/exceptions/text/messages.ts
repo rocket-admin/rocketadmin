@@ -266,5 +266,6 @@ export const Messages = {
   MAXIMUM_FREE_INVITATION_REACHED_CANNOT_BE_INVITED:
     'Sorry you can not join this group because reached maximum number of users for free plan. Please ask you connection owner to upgrade plan or delete unnessesary user from group',
   FAILED_CREATE_SUBSCRIPTION_LOG: 'Failed to create subscription log. Please contact our support team.',
+  FAILED_CREATE_SUBSCRIPTION_LOG_YOUR_CUSTOMER_IS_DELETED: `Failed to create subscription log. Your customer is deleted. Please contact our support team.`,
   URL_INVALID: `Url is invalid`,
 };
