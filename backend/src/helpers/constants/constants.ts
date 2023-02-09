@@ -51,7 +51,7 @@ export const Constants = {
 
   DEFAULT_PAGINATION: { page: 1, perPage: 20 },
 
-  LARGE_DATASET_ROW_LIMIT: 1000000,
+  LARGE_DATASET_ROW_LIMIT: 100000,
 
   DEFAULT_SLACK_CHANNEL: '#rocketadmin-errors',
   EXCEPTIONS_CHANNELS: '#rocketadmin-errors',
