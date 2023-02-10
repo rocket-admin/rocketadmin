@@ -8,6 +8,7 @@ import { UserEntity } from '../entities/user/user.entity.js';
 import { Messages } from '../exceptions/text/messages.js';
 import { isObjectEmpty } from '../helpers/index.js';
 import { Constants } from '../helpers/constants/constants.js';
+import Sentry from '@sentry/minimal';
 
 @Injectable()
 export class AuthMiddleware implements NestMiddleware {
@@ -75,6 +76,7 @@ export class AuthMiddleware implements NestMiddleware {
       req['decoded'] = payload;
       next();
     } catch (e) {
+      Sentry.captureException(e);
       throw new HttpException(
         {
           message: Messages.AUTHORIZATION_REJECTED,
