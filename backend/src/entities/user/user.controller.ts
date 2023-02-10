@@ -162,7 +162,11 @@ export class UserController {
 
     const tokenInfo = await this.usualLoginUseCase.execute(userData, InTransactionEnum.OFF);
 
-    response.cookie(Constants.JWT_COOKIE_KEY_NAME, tokenInfo.token, { httpOnly: true, secure: true });
+    response.cookie(Constants.JWT_COOKIE_KEY_NAME, tokenInfo.token, {
+      httpOnly: true,
+      secure: true,
+      expires: tokenInfo.exp,
+    });
     response.cookie(Constants.ROCKETADMIN_AUTHENTICATED_COOKIE, 1, {
       httpOnly: false,
       ...this.getCookieDomainOtions(),
@@ -210,7 +214,11 @@ export class UserController {
       name: name,
     };
     const tokenInfo = await this.usualRegisterUseCase.execute(inputData, InTransactionEnum.ON);
-    response.cookie(Constants.JWT_COOKIE_KEY_NAME, tokenInfo.token, { httpOnly: true, secure: true });
+    response.cookie(Constants.JWT_COOKIE_KEY_NAME, tokenInfo.token, {
+      httpOnly: true,
+      secure: true,
+      expires: tokenInfo.exp,
+    });
     response.cookie(Constants.ROCKETADMIN_AUTHENTICATED_COOKIE, 1, {
       httpOnly: false,
       ...this.getCookieDomainOtions(),
@@ -256,7 +264,11 @@ export class UserController {
       glidCookieValue: gclidCookieValue,
     };
     const tokenInfo = await this.googleLoginUseCase.execute(googleLoginDs, InTransactionEnum.ON);
-    response.cookie(Constants.JWT_COOKIE_KEY_NAME, tokenInfo.token, { httpOnly: true, secure: true });
+    response.cookie(Constants.JWT_COOKIE_KEY_NAME, tokenInfo.token, {
+      httpOnly: true,
+      secure: true,
+      expires: tokenInfo.exp,
+    });
     response.cookie(Constants.ROCKETADMIN_AUTHENTICATED_COOKIE, 1, {
       httpOnly: false,
       ...this.getCookieDomainOtions(),
@@ -276,7 +288,11 @@ export class UserController {
       );
     }
     const tokenInfo = await this.facebookLoginUseCase.execute(token, InTransactionEnum.ON);
-    response.cookie(Constants.JWT_COOKIE_KEY_NAME, tokenInfo.token, { httpOnly: true, secure: true });
+    response.cookie(Constants.JWT_COOKIE_KEY_NAME, tokenInfo.token, {
+      httpOnly: true,
+      secure: true,
+      expires: tokenInfo.exp,
+    });
     response.cookie(Constants.ROCKETADMIN_AUTHENTICATED_COOKIE, 1, {
       httpOnly: false,
       ...this.getCookieDomainOtions(),
@@ -321,7 +337,11 @@ export class UserController {
       oldPassword: oldPassword,
     };
     const tokenInfo = await this.changeUsualPasswordUseCase.execute(inputData, InTransactionEnum.ON);
-    response.cookie(Constants.JWT_COOKIE_KEY_NAME, tokenInfo.token, { httpOnly: true, secure: true });
+    response.cookie(Constants.JWT_COOKIE_KEY_NAME, tokenInfo.token, {
+      httpOnly: true,
+      secure: true,
+      expires: tokenInfo.exp,
+    });
     response.cookie(Constants.ROCKETADMIN_AUTHENTICATED_COOKIE, 1, {
       httpOnly: false,
       ...this.getCookieDomainOtions(),
