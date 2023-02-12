@@ -25,6 +25,12 @@ const testSearchedUserName = 'Vasia';
 const testTables: Array<string> = [];
 let currentTest;
 const testEntitiesSeedsCount = 42;
+let firstUserToken: string;
+let connectionToTestDB: any;
+let testTableName = getRandomTestTableName();
+let testTableColumnName = `${faker.random.words(1)}_${faker.random.words(1)}`;
+let testTableSecondColumnName = `${faker.random.words(1)}_${faker.random.words(1)}`;
+const pColumnName = 'id';
 
 test.before(async () => {
   const moduleFixture = await Test.createTestingModule({
@@ -37,6 +43,8 @@ test.before(async () => {
   app.useGlobalFilters(new AllExceptionsFilter());
   await app.init();
   app.getHttpServer().listen(0);
+  firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
+  connectionToTestDB = getTestData(mockFactory).postgresAgentConnection;
 });
 
 currentTest = 'GET /connection/tables/:slug';
@@ -47,15 +55,7 @@ test('should run', (t) => {
 
 /*
 
-let firstUserToken: string;
-let connectionToTestDB;
-let testTableName = getRandomTestTableName();
-let testTableColumnName = `${faker.random.words(1)}_${faker.random.words(1)}`;
-let testTableSecondColumnName = `${faker.random.words(1)}_${faker.random.words(1)}`;
-const pColumnName = 'id';
-test.before('register user, create agent connection, create and fill test table', async (t) => {
-  firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-  connectionToTestDB = getTestData(mockFactory).postgresAgentConnection;
+test.beforeEach('restDatabase', async (t) => {
   const host = 'test-oracle-e2e-testing';
   const port = 1521;
   const sid = 'XE';
@@ -100,6 +100,8 @@ test.before('register user, create agent connection, create and fill test table'
       });
     }
   }
+
+  await Knex.destroy();
 });
 
 test(`${currentTest} should return list of tables in connection`, async (t) => {
@@ -552,7 +554,6 @@ should return all found rows with pagination page=1 perPage=3`, async (t) => {
       .set('Accept', 'application/json');
     t.is(getTableRowsResponse.status, 200);
     const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
-    console.log('getTableRowsRO.primaryColumns[0] ->', getTableRowsRO.primaryColumns[0]);
     t.is(typeof getTableRowsRO, 'object');
     t.is(getTableRowsRO.hasOwnProperty('rows'), true);
     t.is(getTableRowsRO.hasOwnProperty('primaryColumns'), true);
@@ -2894,14 +2895,15 @@ test(`${currentTest} should throw an exception, when primary key passed in reque
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
 
-  t.is(foundRowInTableResponse.status, 400);
   const { message } = JSON.parse(foundRowInTableResponse.text);
+  t.is(foundRowInTableResponse.status, 400);
+  // const {message} = JSON.parse(foundRowInTableResponse.text);
   t.is(message, Messages.ROW_PRIMARY_KEY_NOT_FOUND);
 });
 
 currentTest = 'PUT /table/rows/delete/:slug';
 
-test(`${currentTest} should delete row in table and return result`, async (t) => {
+test(`${currentTest} should delete rows in table and return result`, async (t) => {
   testTables.push(testTableName);
 
   const createConnectionResponse = await request(app.getHttpServer())
@@ -2975,5 +2977,4 @@ test(`${currentTest} should delete row in table and return result`, async (t) =>
     t.is(onlyDeleteLogs.findIndex((log) => log.received_data.id === key.id) >= 0, true);
   }
 });
-
 */
