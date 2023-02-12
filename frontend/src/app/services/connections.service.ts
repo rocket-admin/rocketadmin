@@ -42,7 +42,8 @@ export class ConnectionsService {
     cert: '',
     masterEncryption: false,
     azure_encryption: false,
-    connectionType: ConnectionType.Direct
+    connectionType: ConnectionType.Direct,
+    signing_key: null
   });
   public connection: Connection;
   public connectionAccessLevel: AccessLevel;
