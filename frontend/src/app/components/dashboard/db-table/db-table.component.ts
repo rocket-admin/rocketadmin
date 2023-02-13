@@ -49,6 +49,7 @@ export class DbTableComponent implements OnInit {
   public displayedColumns: string[] = [];
   public columnsToDisplay: string[] = [];
   public searchString: string;
+  public staticSearchString: string;
   public actionsColumnWidth: string;
   public bulkActions: CustomAction[];
   public bulkRows: string[];
@@ -164,6 +165,7 @@ export class DbTableComponent implements OnInit {
 
   handleSearch() {
     this.searchString = this.searchString.trim();
+    this.staticSearchString = this.searchString;
     this.search.emit(this.searchString);
   }
 

@@ -1,5 +1,4 @@
-export function codeSnippen(signingKey: string) {
-
+export function codeSnippets(signingKey: string) {
     return {
         cs: {
             langName: 'C#',

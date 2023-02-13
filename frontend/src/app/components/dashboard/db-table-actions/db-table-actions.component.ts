@@ -9,7 +9,7 @@ import { normalizeTableName } from 'src/app/lib/normalize';
 import { unionBy } from "lodash";
 import { HttpErrorResponse } from '@angular/common/http';
 import { NotificationsService } from 'src/app/services/notifications.service';
-import { codeSnippen } from 'src/app/consts/code-snippets';
+import { codeSnippets } from 'src/app/consts/code-snippets';
 
 @Component({
   selector: 'app-db-table-actions',
@@ -45,7 +45,7 @@ export class DbTableActionsComponent implements OnInit {
     this.signingKey = this._connections.currentConnection.signing_key;
     this.tableName = this._tables.currentTableName;
     this.normalizedTableName = normalizeTableName(this.tableName);
-    this.codeSnippets = codeSnippen(this._connections.currentConnection.signing_key);
+    this.codeSnippets = codeSnippets(this._connections.currentConnection.signing_key);
 
     try {
       this.actions = await this.getActions();
