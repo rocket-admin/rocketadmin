@@ -481,30 +481,12 @@ export class DataAccessObjectMysql extends BasicDao implements IDataAccessObject
     tableName: string,
     database: string,
   ): Promise<{ rowsCount: number; large_dataset: boolean }> {
-    async function countWithTimeout() {
-      return new Promise(async function (resolve, reject) {
-        setTimeout(() => {
-          resolve(null);
-        }, Constants.COUNT_QUERY_TIMEOUT_MS);
-        const count = await knex(tableName).count('*');
-        const rowsCount = count[0]['count(*)'] as number;
-        if (rowsCount) {
-          resolve(rowsCount);
-        } else {
-          resolve(false);
-        }
-      });
+    const fastCount = parseInt((await knex.raw(`SHOW TABLE STATUS IN ?? LIKE ?;`, [database, tableName]))[0][0].Rows);
+    if (fastCount >= Constants.LARGE_DATASET_ROW_LIMIT) {
+      return { rowsCount: fastCount, large_dataset: true };
     }
-
-    const firstCount = (await countWithTimeout()) as number;
-    if (firstCount) {
-      return { rowsCount: firstCount, large_dataset: false };
-    } else {
-      const secondCount = parseInt(
-        (await knex.raw(`SHOW TABLE STATUS IN ?? LIKE ?;`, [database, tableName]))[0][0].Rows,
-      );
-      return { rowsCount: secondCount, large_dataset: true };
-    }
+    const slowCount = (await knex(tableName).count('*'))[0]['count(*)'] as number;
+    return { rowsCount: slowCount, large_dataset: false };
   }
 
   private async findAvaliableFields(settings: TableSettingsEntity, tableName: string): Promise<Array<string>> {
