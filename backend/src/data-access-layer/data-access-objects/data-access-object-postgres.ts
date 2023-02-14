@@ -524,46 +524,32 @@ export class DataAccessObjectPostgres extends BasicDao implements IDataAccessObj
     tableName: string,
     tableSchema: string,
   ): Promise<{ rowsCount: number; large_dataset: boolean }> {
-    async function countWithTimeout() {
-      return new Promise(async function (resolve, reject) {
-        setTimeout(() => {
-          resolve(null);
-        }, Constants.COUNT_QUERY_TIMEOUT_MS);
-        const count = (await knex(tableName).withSchema(tableSchema).count('*')) as any;
-        const rowsCount = parseInt(count[0].count);
-        if (rowsCount) {
-          resolve(rowsCount);
-        } else {
-          resolve(false);
-        }
-      });
-    }
-
-    const firstCount = (await countWithTimeout()) as number;
-    if (firstCount === 0) {
-      return { rowsCount: 0, large_dataset: false };
-    }
-    if (firstCount) {
-      return { rowsCount: firstCount, large_dataset: false };
-    } else {
-      try {
-        const result = await knex.raw(
-          `
-    SELECT ((reltuples / relpages)
-    * (pg_relation_size('??.??') / current_setting('block_size')::int)
-           )::bigint as count
+    try {
+      const fastCount = await knex.raw(
+        `
+  SELECT ((reltuples / relpages)
+  * (pg_relation_size('??.??') / current_setting('block_size')::int)
+         )::bigint as count
 FROM   pg_class
 WHERE  oid = '??.??'::regclass;`,
-          [tableSchema, tableName, tableSchema, tableName],
-        );
+        [tableSchema, tableName, tableSchema, tableName],
+      );
+
+      if (fastCount >= Constants.LARGE_DATASET_ROW_LIMIT) {
         return {
-          rowsCount: result,
+          rowsCount: fastCount,
           large_dataset: true,
         };
-      } catch (e) {
-        return { rowsCount: 0, large_dataset: false };
       }
+    } catch (e) {
+      return { rowsCount: 0, large_dataset: false };
     }
+    const count = (await knex(tableName).withSchema(tableSchema).count('*')) as any;
+    const slowCount = parseInt(count[0].count);
+    return {
+      rowsCount: slowCount,
+      large_dataset: false,
+    };
   }
 
   private async findAvaliableFields(settings: TableSettingsEntity, tableName: string): Promise<Array<string>> {
