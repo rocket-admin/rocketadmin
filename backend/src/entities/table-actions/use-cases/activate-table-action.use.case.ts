@@ -73,6 +73,7 @@ export class ActivateTableActionUseCase
         },
         {
           headers: { 'Rocketadmin-Signature': autoadminSignatureHeader },
+	  maxRedirects: 0,
         },
       );
       const operationStatusCode = result.status;
