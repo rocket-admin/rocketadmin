@@ -1,8 +1,9 @@
 import { Component, OnInit, Inject } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogRef, MatDialog } from '@angular/material/dialog';
 import { TablesService } from 'src/app/services/tables.service';
 import { TableRowService } from 'src/app/services/table-row.service';
 import { ConnectionsService } from 'src/app/services/connections.service';
+import { DbActionLinkDialogComponent } from '../db-action-link-dialog/db-action-link-dialog.component';
 
 @Component({
   selector: 'app-db-action-confirmation-dialog',
@@ -20,7 +21,8 @@ export class DbActionConfirmationDialogComponent implements OnInit {
     private _connections: ConnectionsService,
     private _tables: TablesService,
     private _tableRow: TableRowService,
-    public dialogRef: MatDialogRef<DbActionConfirmationDialogComponent>
+    public dialogRef: MatDialogRef<DbActionConfirmationDialogComponent>,
+    public dialog: MatDialog
   ) { }
 
   ngOnInit(): void {
@@ -42,7 +44,13 @@ export class DbActionConfirmationDialogComponent implements OnInit {
     if (this.data.id) {
       this._tables.activateAction(this.connectionID, this.selectedTableName, this.data.id, this.data.title, this.data.primaryKeys)
         .subscribe(
-          () => { this.onActionComplete() },
+          (res) => { 
+            this.onActionComplete();
+            if (res.location) this.dialog.open(DbActionLinkDialogComponent, {
+              width: '25em',
+              data: res.location
+            })
+          },
           () => { this.onActionComplete() },
           () => { this.onActionComplete() }
         );

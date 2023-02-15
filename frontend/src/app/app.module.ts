@@ -98,6 +98,7 @@ import { environment } from '../environments/environment';
 import { UpgradeSuccessComponent } from './components/upgrade-success/upgrade-success.component';
 import { DbTableActionsComponent } from "./components/dashboard/db-table-actions/db-table-actions.component";
 import { ActionDeleteDialogComponent } from "./components/dashboard/db-table-actions/action-delete-dialog/action-delete-dialog.component";
+import { DbActionLinkDialogComponent } from './components/dashboard/db-action-link-dialog/db-action-link-dialog.component';
 
 const saasExtraProviders = (environment as any).saas ? [
   {
@@ -190,6 +191,7 @@ const saasExtraProviders = (environment as any).saas ? [
     UserPasswordComponent,
     ActionDeleteDialogComponent,
     UpgradeSuccessComponent,
+    DbActionLinkDialogComponent,
   ],
   entryComponents: [
     DbActionConfirmationDialogComponent,

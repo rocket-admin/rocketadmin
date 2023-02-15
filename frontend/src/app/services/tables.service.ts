@@ -415,8 +415,12 @@ export class TablesService {
       }
     })
       .pipe(
-        map(() => {
-          this._notifications.showSuccessSnackbar(`${actionTitle} is done.`);
+        map((res) => {
+          if (res) {
+            return res;
+          } else {
+            this._notifications.showSuccessSnackbar(`${actionTitle} is done.`);
+          }
         }),
         catchError((err) => {
           console.log(err);

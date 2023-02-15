@@ -18,6 +18,7 @@ import { normalizeTableName } from '../../lib/normalize'
 import { omitBy } from "lodash";
 import { BbBulkActionConfirmationDialogComponent } from './db-bulk-action-confirmation-dialog/db-bulk-action-confirmation-dialog.component';
 import { SelectionModel } from '@angular/cdk/collections';
+import { DbActionLinkDialogComponent } from './db-action-link-dialog/db-action-link-dialog.component';
 
 interface DataToActivateActions {
   action: CustomAction,
@@ -240,7 +241,6 @@ export class DashboardComponent implements OnInit {
 
 
   activateAction({action, primaryKeys}: DataToActivateAction) {
-    console.log('activateAction');
     if (action.requireConfirmation) {
       this.dialog.open(DbActionConfirmationDialogComponent, {
         width: '25em',
@@ -248,7 +248,12 @@ export class DashboardComponent implements OnInit {
       });
     } else {
       this._tables.activateAction(this.connectionID, this.selectedTableName, action.id, action.title, primaryKeys)
-        .subscribe(() => {console.log('activated')})
+        .subscribe((res) => {
+          if (res.location) this.dialog.open(DbActionLinkDialogComponent, {
+            width: '25em',
+            data: res.location
+          })
+        })
     }
   }
 
