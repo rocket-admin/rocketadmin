@@ -44,9 +44,9 @@ export class DbActionConfirmationDialogComponent implements OnInit {
     if (this.data.id) {
       this._tables.activateAction(this.connectionID, this.selectedTableName, this.data.id, this.data.title, this.data.primaryKeys)
         .subscribe(
-          (res) => { 
+          (res) => {
             this.onActionComplete();
-            if (res.location) this.dialog.open(DbActionLinkDialogComponent, {
+            if (res && res.location) this.dialog.open(DbActionLinkDialogComponent, {
               width: '25em',
               data: res.location
             })

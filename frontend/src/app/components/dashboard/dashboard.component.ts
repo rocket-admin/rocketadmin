@@ -249,7 +249,7 @@ export class DashboardComponent implements OnInit {
     } else {
       this._tables.activateAction(this.connectionID, this.selectedTableName, action.id, action.title, primaryKeys)
         .subscribe((res) => {
-          if (res.location) this.dialog.open(DbActionLinkDialogComponent, {
+          if (res && res.location) this.dialog.open(DbActionLinkDialogComponent, {
             width: '25em',
             data: res.location
           })
