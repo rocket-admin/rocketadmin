@@ -15,6 +15,7 @@ import { normalizeTableName } from '../../lib/normalize';
 import { Location } from '@angular/common';
 import { MatDialog } from '@angular/material/dialog';
 import { DbActionConfirmationDialogComponent } from '../dashboard/db-action-confirmation-dialog/db-action-confirmation-dialog.component';
+import { DbActionLinkDialogComponent } from '../dashboard/db-action-link-dialog/db-action-link-dialog.component';
 
 @Component({
   selector: 'app-db-table-row-edit',
@@ -311,7 +312,12 @@ export class DbTableRowEditComponent implements OnInit {
       });
     } else {
       this._tables.activateAction(this.connectionID, this.tableName, action.id, action.title, this.keyAttributesFromURL)
-        .subscribe(() => {console.log('activated')})
+        .subscribe((res) => {
+          if (res && res.location) this.dialog.open(DbActionLinkDialogComponent, {
+            width: '25em',
+            data: res.location
+          })
+        })
     }
   }
 }
