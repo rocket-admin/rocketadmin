@@ -144,7 +144,7 @@ export class AppComponent {
           this.router.navigate(['/login'])
         }, expirationInterval);
 
-      } else if (res && res !== 'delete') {
+      } else if (res !== 'delete') {
         const expirationTime = new Date(localStorage.getItem('token_expiration'));
         const currantTime = new Date();
 
