@@ -42,7 +42,7 @@ export class DbActionConfirmationDialogComponent implements OnInit {
     this.submitting = true;
 
     if (this.data.id) {
-      this._tables.activateAction(this.connectionID, this.selectedTableName, this.data.id, this.data.title, this.data.primaryKeys)
+      this._tables.activateAction(this.connectionID, this.selectedTableName, this.data.id, this.data.title, this.data.primaryKeys, true)
         .subscribe(
           (res) => {
             this.onActionComplete();

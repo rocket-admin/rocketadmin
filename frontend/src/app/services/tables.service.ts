@@ -407,11 +407,12 @@ export class TablesService {
       );
   }
 
-  activateAction(connectionID: string, tableName: string, actionId: string, actionTitle: string, primaryKeys: object) {
+  activateAction(connectionID: string, tableName: string, actionId: string, actionTitle: string, primaryKeys: object, confirmed?: boolean) {
     return this._http.post<any>(`/table/action/activate/${connectionID}`, primaryKeys, {
       params: {
         tableName,
-        actionId
+        actionId,
+        ...(confirmed ? {confirmed} : {}),
       }
     })
       .pipe(
