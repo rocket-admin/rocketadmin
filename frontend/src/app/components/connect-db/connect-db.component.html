@@ -1,4 +1,6 @@
 <app-alert></app-alert>
+<app-alert *ngIf="db.isTestConnection" [alert]="testConnetionInfo"></app-alert>
+
 <div class="connectPage">
     <form action="" #connectForm="ngForm" class="form"
         (ngSubmit)="handleCredentialsSubmitting(connectForm)">

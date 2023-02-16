@@ -35,7 +35,8 @@ export interface Connection {
     azure_encryption: boolean,
     connectionType: ConnectionType,
     schema?: string,
-    signing_key: string
+    signing_key: string,
+    isTestConnection?: boolean
 }
 
 export interface ConnectionItem {

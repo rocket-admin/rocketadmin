@@ -253,7 +253,14 @@ export class ConnectionsService {
       }),
       catchError((err) => {
         console.log(err);
-        this._notifications.showErrorSnackbar(`${err.error.message}. Connection has not been updated.`);
+        this._notifications.showAlert(AlertType.Error, err.error.message, [
+          {
+            type: AlertActionType.Button,
+            caption: 'Dismiss',
+            action: (id: number) => this._notifications.dismissAlert()
+          }
+        ]);
+        // this._notifications.showErrorSnackbar(`${err.error.message}. Connection has not been updated.`);
         return EMPTY;
       }
       )

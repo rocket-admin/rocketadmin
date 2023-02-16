@@ -32,6 +32,12 @@ export class ConnectDBComponent implements OnInit {
     type: AlertType.Warning,
     message: null
   }
+
+  public testConnetionInfo: Alert = {
+    id: 10000000,
+    type: AlertType.Info,
+    message: 'You cannot edit test connection.'
+  }
   // public errorAlert: Alert;
 
   public ports = {
