@@ -14,5 +14,4 @@ export class DbActionLinkDialogComponent implements OnInit {
 
   ngOnInit(): void {
   }
-
 }

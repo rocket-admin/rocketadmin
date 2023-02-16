@@ -134,6 +134,8 @@ export class TablesDataSource implements DataSource<Object> {
     isTablePageSwitched,
     search
   }: RowsParams) {
+      console.log({search});
+
       this.loadingSubject.next(true);
       this.alert_primaryKeysInfo = null;
       this.alert_settingsInfo = null;

@@ -179,7 +179,7 @@ tr.mat-row:hover {
 
 .spinner-wrapper {
     position: absolute;
-    top: 56px; left: 0;
+    top: 76px; left: 0;
     display: flex;
     justify-content: center;
     background: rgba(255, 255, 255, 0.9);

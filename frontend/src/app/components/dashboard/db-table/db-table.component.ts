@@ -102,6 +102,7 @@ export class DbTableComponent implements OnInit {
       sortOrder: this.sort.direction.toLocaleUpperCase(),
       filters,
       comparators,
+      search: this.searchString,
       isTablePageSwitched: true
     });
   }

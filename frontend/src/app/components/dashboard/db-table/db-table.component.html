@@ -1,6 +1,11 @@
 <div class="db-table-header" #focus>
     <div class="db-table-title">
         <h2 class="mat-h2">{{ displayName }}</h2>
+
+        <button mat-icon-button (click)="loadRowsPage()">
+            <mat-icon>refresh</mat-icon>
+        </button>
+
     </div>
     <div *ngIf="selection.selected.length; else generalActions" class="db-table-bulk-actions">
         <div class="actions">
