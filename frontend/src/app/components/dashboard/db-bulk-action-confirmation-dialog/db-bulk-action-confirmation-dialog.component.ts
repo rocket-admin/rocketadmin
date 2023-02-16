@@ -41,7 +41,7 @@ export class BbBulkActionConfirmationDialogComponent implements OnInit {
     this.submitting = true;
 
     if (this.data.id) {
-      this._tables.activateActions(this.connectionID, this.selectedTableName, this.data.id, this.data.title, this.data.primaryKeys)
+      this._tables.activateActions(this.connectionID, this.selectedTableName, this.data.id, this.data.title, this.data.primaryKeys, true)
         .subscribe(
           () => { this.onActionsComplete() },
           () => { this.onActionsComplete() },

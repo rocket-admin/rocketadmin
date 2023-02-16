@@ -437,15 +437,17 @@ export class TablesService {
       );
   }
 
-  activateActions(connectionID: string, tableName: string, actionId: string, actionTitle: string, primaryKeys) {
+  activateActions(connectionID: string, tableName: string, actionId: string, actionTitle: string, primaryKeys, confirmed?: boolean) {
     return this._http.post<any>(`/table/actions/activate/${connectionID}`, primaryKeys, {
       params: {
         tableName,
-        actionId
+        actionId,
+        ...(confirmed ? {confirmed} : {}),
       }
     })
       .pipe(
         map(() => {
+          this.tables.next('activate actions');
           this._notifications.showSuccessSnackbar(`${actionTitle} is done for ${primaryKeys.length} rows.`);
         }),
         catchError((err) => {

@@ -116,8 +116,10 @@ export class DashboardComponent implements OnInit {
           if (arg === 'delete rows' && this.selectedTableName) {
             this.setTable(this.selectedTableName);
             this.selection.clear();
-            console.log('after delete rows');
           };
+          if (arg === 'activate actions') {
+            this.selection.clear();
+          }
         });
     }
   }
