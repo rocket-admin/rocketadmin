@@ -512,7 +512,13 @@ export class DataAccessObjectOracle implements IDataAccessObject {
     const knex = await this.configureKnex();
     let result;
     try {
-      result = await knex('DUAL').select(1);
+      result = await knex
+        .transaction((trx) => {
+          knex.raw(`SELECT 1 FROM DUAL`).transacting(trx).then(trx.commit).catch(trx.rollback);
+        })
+        .catch((e) => {
+          throw new Error(e);
+        });
       if (result) {
         return {
           result: true,
