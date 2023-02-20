@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable security/detect-object-injection */
 import { faker } from '@faker-js/faker';
 import { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
@@ -3265,4 +3267,22 @@ test(`${currentTest} should delete row in table and return result`, async (t) =>
   for (const key of primaryKeysForDeletion) {
     t.is(onlyDeleteLogs.findIndex((log) => log.received_data.id === key.id) >= 0, true);
   }
+});
+
+currentTest = 'POST /connection/test/';
+
+test(`${currentTest} should test connection and return result`, async (t) => {
+  const connectionToTestDB = getTestData(mockFactory).connectionToOracleDB;
+  const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
+
+  const testConnectionResponse = await request(app.getHttpServer())
+    .post('/connection/test/')
+    .send(connectionToTestDB)
+    .set('Cookie', firstUserToken)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+
+  t.is(testConnectionResponse.status, 201);
+  const { message } = JSON.parse(testConnectionResponse.text);
+  t.is(message, 'Successfully connected');
 });
