@@ -121,7 +121,6 @@
                 [matTooltipDisabled]="currantConnection.title.length < 25"
                 routerLink="/dashboard/{{connectionID}}">
                 {{currantConnection.title || currantConnection.database}}
-                <span>{{userLoggedIn}}</span>
             </a>
 
             <a mat-tab-link *ngFor="let tab of visibleTabs"
