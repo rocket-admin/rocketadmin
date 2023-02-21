@@ -9,6 +9,7 @@ const knexCache = new LRU(Constants.DEFAULT_CONNECTION_CACHE_OPTIONS);
 export function getTestKnex(connectionParams): Knex {
   const cachedKnex = knexCache.get(JSON.stringify(connectionParams)) as Knex;
   if (cachedKnex) {
+    console.log('returnned cached knex');
     return cachedKnex;
   }
   const { host, username, password, database, port, type, sid, cert, ssl } = connectionParams;
