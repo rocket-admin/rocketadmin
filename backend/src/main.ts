@@ -20,6 +20,9 @@ async function bootstrap() {
       dsn: process.env.SENTRY_DSN,
     });
 
+    const globalPrefix = process.env.GLOBAL_PREFIX || '/';
+    app.setGlobalPrefix(globalPrefix);
+
     app.useGlobalFilters(new AllExceptionsFilter());
 
     app.use(helmet());

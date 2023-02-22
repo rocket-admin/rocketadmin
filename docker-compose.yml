@@ -94,3 +94,13 @@ services:
       - 1521:1521
     environment:
       ORACLE_PASSWORD: 12345
+
+  # rocketadmin-agent:
+  #   build:
+  #     context: rocketadmin-agent
+  #   ports:
+  #     - 8088:8088
+  #   volumes:
+  #     - ./rocketadmin-agent/dist:/app/dist
+  #     - ./rocketadmin-agent/src:/app/src
+  #   command: ["yarn", "start:dev"]  
