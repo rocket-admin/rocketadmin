@@ -24,6 +24,12 @@ import { TimeoutInterceptor } from './interceptors/index.js';
 import { AppLoggerMiddleware } from './middlewares/logging-middleware/app-logger-middlewate.js';
 import { DatabaseModule } from './shared/database/database.module.js';
 import { GetHelloUseCase } from './use-cases-app/get-hello.use.case.js';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
+import path from 'path';
+import { fileURLToPath } from 'url';
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 @Module({
   imports: [
@@ -44,6 +50,9 @@ import { GetHelloUseCase } from './use-cases-app/get-hello.use.case.js';
     DatabaseModule,
     TableActionModule,
     StripeModule,
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'client'),
+    }),
   ],
   controllers: [AppController],
   providers: [
