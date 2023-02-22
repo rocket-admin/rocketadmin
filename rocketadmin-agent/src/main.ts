@@ -34,7 +34,7 @@ async function bootstrap() {
       ws.send(JSON.stringify(data));
     });
 
-    ws.on('message', async function incoming(data) {
+    ws.on('message', async function incoming(data: any) {
       const messageData = JSON.parse(data);
       const {
         data: { resId },
