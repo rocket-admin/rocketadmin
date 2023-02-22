@@ -46,6 +46,7 @@ services:
       - 8000:8000
     environment:
       POSTGRES_PASSWORD: 123
+    command: postgres -c 'max_connections=300'  
 
   nestjsTesting:
     image: postgres
@@ -53,6 +54,7 @@ services:
       - 8001:5432
     environment:
       POSTGRES_PASSWORD: postgres
+    command: postgres -c 'max_connections=300'  
 
   testMySQL-e2e-testing:
     image: mysql:8.0.23
@@ -68,6 +70,7 @@ services:
       - 9002:5432
     environment:
       POSTGRES_PASSWORD: 123
+    command: postgres -c 'max_connections=300'  
 
   postgres:
     image: postgres
@@ -75,6 +78,7 @@ services:
       - 5432:5432
     environment:
       POSTGRES_PASSWORD: abc123
+    command: postgres -c 'max_connections=300'  
 
   mssql-e2e-testing:
     image: mcr.microsoft.com/mssql/server:2019-latest
@@ -90,3 +94,13 @@ services:
       - 1521:1521
     environment:
       ORACLE_PASSWORD: 12345
+
+  # rocketadmin-agent:
+  #   build:
+  #     context: rocketadmin-agent
+  #   ports:
+  #     - 8088:8088
+  #   volumes:
+  #     - ./rocketadmin-agent/dist:/app/dist
+  #     - ./rocketadmin-agent/src:/app/src
+  #   command: ["yarn", "start:dev"]  

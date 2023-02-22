@@ -1,0 +1,11 @@
+version: '2'
+services:
+  autoadmin-agent:
+    build: .
+    ports:
+      - 7007:7007
+    env_file: .config.env
+    volumes:
+      - ./dist:/app/dist
+      - ./src:/app/src
+    command: [ "yarn", "start:dev" ]

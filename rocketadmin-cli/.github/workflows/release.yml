@@ -1,0 +1,47 @@
+name: Release
+on:
+  push:
+    branches:
+      - master
+jobs:
+  build:
+    name: Build & Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Setup Node
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16'
+
+      - name: Install dependencies
+        run: yarn install
+
+      - name: Install vercel/pkg
+        run: npm install -g pkg
+
+      - name: Build project
+        run: yarn build
+
+      - name: Build binaries
+        run: pkg ./dist/main.js
+
+      - name: Rename linux binary
+        run: mv main-linux rocketadmin-cli-linux
+
+      - name: Rename macos binary
+        run: mv main-macos rocketadmin-cli-macos
+
+      - name: Rename windows binary
+        run: mv main-win.exe rocketadmin-cli-windows.exe
+
+      - name: Publish release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: latest
+          files: |
+            rocketadmin-cli-linux
+            rocketadmin-cli-macos
+            rocketadmin-cli-windows.exe

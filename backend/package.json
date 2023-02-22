@@ -36,6 +36,7 @@
     "@nestjs/passport": "9.0.0",
     "@nestjs/platform-express": "9.2.1",
     "@nestjs/schedule": "^2.1.0",
+    "@nestjs/serve-static": "^3.0.1",
     "@nestjs/typeorm": "^9.0.1",
     "@nestjsx/crud": "4.6.2",
     "@ntegral/nestjs-sentry": "4.0.0",
