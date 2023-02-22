@@ -29,7 +29,6 @@ export class BbBulkActionConfirmationDialogComponent implements OnInit {
 
     // this._tableRow.cast.subscribe();
     this._tables.cast.subscribe();
-
   }
 
   onActionsComplete() {

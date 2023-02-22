@@ -22,12 +22,13 @@ import { DbActionLinkDialogComponent } from './db-action-link-dialog/db-action-l
 
 interface DataToActivateActions {
   action: CustomAction,
-  selectedRows: object[]
+  selectedRows: object[],
 }
 
 interface DataToActivateAction {
   action: CustomAction,
   primaryKeys: object
+  identityField: string
 }
 
 @Component({
@@ -242,11 +243,11 @@ export class DashboardComponent implements OnInit {
   }
 
 
-  activateAction({action, primaryKeys}: DataToActivateAction) {
+  activateAction({action, primaryKeys, identityField}: DataToActivateAction) {
     if (action.requireConfirmation) {
       this.dialog.open(DbActionConfirmationDialogComponent, {
         width: '25em',
-        data: {id: action.id, title: action.title, primaryKeys}
+        data: {id: action.id, title: action.title, primaryKeys, identityField}
       });
     } else {
       this._tables.activateAction(this.connectionID, this.selectedTableName, action.id, action.title, primaryKeys)
@@ -266,10 +267,13 @@ export class DashboardComponent implements OnInit {
   activateActions({action, selectedRows}: DataToActivateActions) {
     const primaryKeys = this.getPrimaryKeys(selectedRows);
 
+    let identityFields = null;
+    if (this.dataSource.identityColumn) identityFields = selectedRows.map(row => row[this.dataSource.identityColumn]);
+
     if (action.requireConfirmation) {
       this.dialog.open(BbBulkActionConfirmationDialogComponent, {
         width: '25em',
-        data: {id: action.id, title: action.title, primaryKeys}
+        data: {id: action.id, title: action.title, primaryKeys, identityFields}
       });
     } else {
       this._tables.activateActions(this.connectionID, this.selectedTableName, action.id, action.title, primaryKeys)

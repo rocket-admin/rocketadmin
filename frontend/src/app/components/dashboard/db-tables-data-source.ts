@@ -64,6 +64,7 @@ export class TablesDataSource implements DataSource<Object> {
   public tableBulkActions: CustomAction[];
   public actionsColumnWidth: string;
   public largeDataset: boolean;
+  public identityColumn: string;
 
   public alert_primaryKeysInfo: Alert;
   public alert_settingsInfo: Alert;
@@ -174,6 +175,7 @@ export class TablesDataSource implements DataSource<Object> {
             this.isEmptyTable = true;
           }
           this.keyAttributes = res.primaryColumns;
+          this.identityColumn = res.identity_column;
           this.tableActions = res.table_actions;
           this.tableBulkActions = res.table_actions.filter((action: CustomAction) => action.type === CustomActionType.Multiple);
 

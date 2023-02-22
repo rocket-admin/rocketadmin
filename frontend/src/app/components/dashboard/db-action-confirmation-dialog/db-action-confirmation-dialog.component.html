@@ -1,10 +1,12 @@
 <h1 mat-dialog-title>Confirm {{data.title}} for {{ selectedTableName }} table</h1>
 <div mat-dialog-content>
     <p class="mat-body">You are going to {{data.title}} with following primary key(s)
-        <br>
-        <strong *ngFor="let primaryKey of data.primaryKeys | keyvalue; let last = last">
-            {{primaryKey.key}} = {{primaryKey.value}}<span *ngIf="!last">,</span>
-        </strong>.
+        <strong *ngIf="data.identityField; else primaryKeysList">{{data.identityField}}</strong>
+        <ng-template #primaryKeysList>
+            <strong *ngFor="let primaryKey of data.primaryKeys | keyvalue; let last = last">
+                {{primaryKey.key}} = {{primaryKey.value}}<span *ngIf="!last">,</span>
+            </strong>.
+        </ng-template>
     </p>
     <p class="mat-body">Please confirm.</p>
 

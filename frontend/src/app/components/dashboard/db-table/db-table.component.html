@@ -5,7 +5,6 @@
         <button mat-icon-button (click)="loadRowsPage()">
             <mat-icon>refresh</mat-icon>
         </button>
-
     </div>
     <div *ngIf="selection.selected.length; else generalActions" class="db-table-bulk-actions">
         <div class="actions">
@@ -180,7 +179,7 @@
                     <ng-container *ngIf="tableData.tableActions && tableData.tableActions.length">
                         <button type="button" mat-icon-button *ngFor="let action of tableData.tableActions"
                             [matTooltip]="action.title"
-                            (click)="activateAction.emit({action, primaryKeys: tableData.getQueryParams(element)})">
+                            (click)="activateAction.emit({action, primaryKeys: tableData.getQueryParams(element), identityField: element[tableData.identityColumn]})">
                             <mat-icon fontSet="material-icons-outlined">
                                 {{action.icon}}
                             </mat-icon>
