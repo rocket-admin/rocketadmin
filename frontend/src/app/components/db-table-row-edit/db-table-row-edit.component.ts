@@ -315,7 +315,7 @@ export class DbTableRowEditComponent implements OnInit {
         .subscribe((res) => {
           if (res && res.location) this.dialog.open(DbActionLinkDialogComponent, {
             width: '25em',
-            data: res.location
+            data: {href: res.location, actionName: action.title, primaryKeys: this.keyAttributesFromURL}
           })
         })
     }
