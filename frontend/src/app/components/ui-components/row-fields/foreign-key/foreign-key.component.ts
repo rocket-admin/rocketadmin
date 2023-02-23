@@ -66,8 +66,8 @@ export class ForeignKeyComponent implements OnInit {
           const modifiedRow = this.getModifiedRow(res.rows[0]);
           this.currentDisplayedString =
             this.identityColumn ?
-              `${res.rows[0][this.identityColumn]} (${Object.values(modifiedRow).join(' | ')})` :
-              Object.values(modifiedRow).join(' | ');
+              `${res.rows[0][this.identityColumn]} (${Object.values(modifiedRow).filter(value => value).join(' | ')})` :
+              Object.values(modifiedRow).filter(value => value).join(' | ');
           this.currentFieldValue = res.rows[0][this.relations.referenced_column_name];
           this.onFieldChange.emit(this.currentFieldValue);
         }
@@ -85,7 +85,7 @@ export class ForeignKeyComponent implements OnInit {
             this.suggestions = res.rows.map(row => {
               const modifiedRow = this.getModifiedRow(row);
               return {
-                displayString: this.identityColumn ? `${row[this.identityColumn]} (${Object.values(modifiedRow).join(' | ')})` : Object.values(modifiedRow).join(' | '),
+                displayString: this.identityColumn ? `${row[this.identityColumn]} (${Object.values(modifiedRow).filter(value => value).join(' | ')})` : Object.values(modifiedRow).filter(value => value).join(' | '),
                 fieldValue: row[this.relations.referenced_column_name]
               }
             });
@@ -120,7 +120,7 @@ export class ForeignKeyComponent implements OnInit {
           this.suggestions = res.rows.map(row => {
             const modifiedRow = this.getModifiedRow(row);
             return {
-              displayString: this.identityColumn ? `${row[this.identityColumn]} (${Object.values(modifiedRow).join(' | ')})` : Object.values(modifiedRow).join(' | '),
+              displayString: this.identityColumn ? `${row[this.identityColumn]} (${Object.values(modifiedRow).filter(value => value).join(' | ')})` : Object.values(modifiedRow).filter(value => value).join(' | '),
               fieldValue: row[this.relations.referenced_column_name]
             }
           });
