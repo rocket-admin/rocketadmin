@@ -179,7 +179,7 @@
                     <ng-container *ngIf="tableData.tableActions && tableData.tableActions.length">
                         <button type="button" mat-icon-button *ngFor="let action of tableData.tableActions"
                             [matTooltip]="action.title"
-                            (click)="activateAction.emit({action, primaryKeys: tableData.getQueryParams(element), identityField: element[tableData.identityColumn]})">
+                            (click)="activateAction.emit({action, primaryKeys: tableData.getQueryParams(element), identityFieldValue: element[tableData.identityColumn]})">
                             <mat-icon fontSet="material-icons-outlined">
                                 {{action.icon}}
                             </mat-icon>

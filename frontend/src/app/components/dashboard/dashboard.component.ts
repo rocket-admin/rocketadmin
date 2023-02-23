@@ -28,7 +28,7 @@ interface DataToActivateActions {
 interface DataToActivateAction {
   action: CustomAction,
   primaryKeys: object
-  identityField: string
+  identityFieldValue: string
 }
 
 @Component({
@@ -243,18 +243,18 @@ export class DashboardComponent implements OnInit {
   }
 
 
-  activateAction({action, primaryKeys, identityField}: DataToActivateAction) {
+  activateAction({action, primaryKeys, identityFieldValue}: DataToActivateAction) {
     if (action.requireConfirmation) {
       this.dialog.open(DbActionConfirmationDialogComponent, {
         width: '25em',
-        data: {id: action.id, title: action.title, primaryKeys, identityField}
+        data: {id: action.id, title: action.title, primaryKeys, identityFieldValue}
       });
     } else {
       this._tables.activateAction(this.connectionID, this.selectedTableName, action.id, action.title, primaryKeys)
         .subscribe((res) => {
           if (res && res.location) this.dialog.open(DbActionLinkDialogComponent, {
             width: '25em',
-            data: {href: res.location, actionName: action.title, primaryKeys}
+            data: {href: res.location, actionName: action.title, primaryKeys, identityFieldValue}
           })
         })
     }
@@ -267,13 +267,13 @@ export class DashboardComponent implements OnInit {
   activateActions({action, selectedRows}: DataToActivateActions) {
     const primaryKeys = this.getPrimaryKeys(selectedRows);
 
-    let identityFields = null;
-    if (this.dataSource.identityColumn) identityFields = selectedRows.map(row => row[this.dataSource.identityColumn]);
+    let identityFieldValues = null;
+    if (this.dataSource.identityColumn) identityFieldValues = selectedRows.map(row => row[this.dataSource.identityColumn]);
 
     if (action.requireConfirmation) {
       this.dialog.open(BbBulkActionConfirmationDialogComponent, {
         width: '25em',
-        data: {id: action.id, title: action.title, primaryKeys, identityFields}
+        data: {id: action.id, title: action.title, primaryKeys, identityFieldValues}
       });
     } else {
       this._tables.activateActions(this.connectionID, this.selectedTableName, action.id, action.title, primaryKeys)

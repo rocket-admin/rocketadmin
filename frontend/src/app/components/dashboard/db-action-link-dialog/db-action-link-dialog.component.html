@@ -2,9 +2,12 @@
 <div mat-dialog-content>
     <a [href]="data.href" target="_blank" (click)="closeDialog()">
         Take action {{data.actionName}} for
-        <strong *ngFor="let primaryKey of data.primaryKeys | keyvalue; let last = last">
-            {{primaryKey.key}} = {{primaryKey.value}}<span *ngIf="!last">,</span>
-        </strong>.
+        <strong *ngIf="data.identityFieldValue; else primaryKeysList">{{data.identityFieldValue}}</strong>
+        <ng-template #primaryKeysList>
+            <strong *ngFor="let primaryKey of data.primaryKeys | keyvalue; let last = last">
+                {{primaryKey.key}} = {{primaryKey.value}}<span *ngIf="!last">,</span>
+            </strong>
+        </ng-template>.
     </a>
 </div>
 <div mat-dialog-actions>
