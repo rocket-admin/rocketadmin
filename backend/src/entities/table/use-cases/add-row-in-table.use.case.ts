@@ -131,6 +131,7 @@ export class AddRowInTableUseCase extends AbstractUseCase<AddRowInTableDs, ITabl
           table_widgets: tableWidgets,
           readonly_fields: tableSettings?.readonly_fields ? tableSettings.readonly_fields : [],
           list_fields: tableSettings?.list_fields?.length > 0 ? tableSettings.list_fields : [],
+          identity_column: tableSettings?.identity_column ? tableSettings.identity_column : null,
         };
       }
     } catch (e) {
