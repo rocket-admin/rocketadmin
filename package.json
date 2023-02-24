@@ -3,7 +3,6 @@
   "private": true,
   "workspaces": [
     "backend",
-    "frontend",
     "rocketadmin-agent",
     "rocketadmin-cli"
   ],
