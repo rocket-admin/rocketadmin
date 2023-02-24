@@ -91,6 +91,7 @@ export interface ITableRowRO {
   table_widgets: Array<ITableWidgetRO>;
   list_fields: Array<string>;
   table_actions?: Array<CreatedTableActionDS>;
+  identity_column: string;
 }
 
 export interface ITableRowsRO {

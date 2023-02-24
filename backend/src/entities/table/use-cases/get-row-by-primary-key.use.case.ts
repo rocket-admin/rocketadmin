@@ -130,6 +130,7 @@ export class GetRowByPrimaryKeyUseCase
       readonly_fields: tableSettings?.readonly_fields ? tableSettings.readonly_fields : [],
       list_fields: tableSettings?.list_fields?.length > 0 ? tableSettings.list_fields : [],
       table_actions: tableActions?.length > 0 ? tableActions.map((el) => buildCreatedTableActionDS(el)) : [],
+      identity_column: tableSettings?.identity_column ? tableSettings.identity_column : null,
     };
   }
 
