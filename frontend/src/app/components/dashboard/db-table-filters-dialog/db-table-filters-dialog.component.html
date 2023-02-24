@@ -10,14 +10,18 @@
     <app-content-loader *ngIf="!tableFilters || !tableTypes; else filterControls"></app-content-loader>
     <ng-template #filterControls>
         <div mat-dialog-content class="filters-content">
-            <mat-form-field appearance="outline" class="filters-select">
+            <mat-form-field class="filters-select" appearance="outline">
                 <mat-label>Add filter by...</mat-label>
-                <mat-select
-                    name="filter_columns"
-                    (selectionChange)="addFilter($event)"
-                    >
-                    <mat-option *ngFor="let field of fields" [value]="field">{{field}}</mat-option>
-                </mat-select>
+                <input type="text" matInput name="filter_columns"
+                    [matAutocomplete]="auto"
+                    [formControl]="myControl">
+                <mat-autocomplete autoActiveFirstOption #auto="matAutocomplete" (optionSelected)="addFilter($event)">
+                    <mat-option *ngFor="let field of foundFields | async"
+                        [ngClass]="{'disabled': field === 'No matches'}"
+                        [value]="field">
+                        {{field}}
+                    </mat-option>
+                </mat-autocomplete>
             </mat-form-field>
 
             <ng-container *ngFor="let value of tableRowFieldsShown | keyvalue; let key = index; trackBy:trackByFn">

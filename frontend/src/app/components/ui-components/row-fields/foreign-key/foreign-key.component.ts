@@ -1,8 +1,9 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
-import { TableForeignKey } from 'src/app/models/table';
+
 import { ConnectionsService } from 'src/app/services/connections.service';
 import { Subject } from 'rxjs';
+import { TableForeignKey } from 'src/app/models/table';
 import { TablesService } from 'src/app/services/tables.service';
 import { normalizeFieldName } from '../../../../lib/normalize';
 

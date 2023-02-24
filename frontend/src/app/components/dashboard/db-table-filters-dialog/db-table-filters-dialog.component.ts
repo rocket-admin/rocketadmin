@@ -9,6 +9,9 @@ import { getComparators, getFilters } from 'src/app/lib/parse-filter-params';
 import { getTableTypes } from 'src/app/lib/setup-table-row-structure';
 import * as JSON5 from 'json5';
 import { omit } from "lodash";
+import { map, startWith } from 'rxjs/operators';
+import { Observable, Subject } from 'rxjs';
+import { FormControl } from '@angular/forms';
 
 @Component({
   selector: 'app-db-table-filters-dialog',
@@ -18,8 +21,11 @@ import { omit } from "lodash";
 export class DbTableFiltersDialogComponent implements OnInit {
 
   public tableFilters = [];
+  public myControl = new FormControl('');
 
   public fields: string[];
+  public foundFields: Observable<string[]>;
+
   public tableRowFields: Object;
   public tableRowStructure: Object;
   public tableRowFieldsShown: Object = {};
@@ -38,9 +44,9 @@ export class DbTableFiltersDialogComponent implements OnInit {
     private _tables: TablesService,
     public route: ActivatedRoute,
     private differs:  KeyValueDiffers
-    ) {
-      this.differ = this.differs.find({}).create();
-    }
+  ) {
+    this.differ = this.differs.find({}).create();
+  }
 
   ngOnInit(): void {
     this._tables.cast.subscribe();
@@ -50,6 +56,7 @@ export class DbTableFiltersDialogComponent implements OnInit {
     this.fields = this.data.structure.structure
       .filter((field: TableField) => this.getInputType(field.column_name) !== 'file')
       .map((field: TableField) => field.column_name);
+    // this.foundFields = [...this.fields];
     this.tableRowStructure = Object.assign({}, ...this.data.structure.structure.map((field: TableField) => {
       return {[field.column_name]: field};
     }));
@@ -71,6 +78,15 @@ export class DbTableFiltersDialogComponent implements OnInit {
     }
 
     this.data.structure.widgets.length && this.setWidgets(this.data.structure.widgets);
+
+    this.foundFields = this.myControl.valueChanges.pipe(
+      startWith(''),
+      map(value => this._filter(value || '')),
+    );
+  }
+
+  private _filter(value: string): string[] {
+    return this.fields.filter((field: string) => field.toLowerCase().includes(value.toLowerCase()));
   }
 
   ngDoCheck() {
@@ -120,7 +136,7 @@ export class DbTableFiltersDialogComponent implements OnInit {
   }
 
   addFilter(e) {
-    const key = e.value;
+    const key = e.option.value;
     this.tableRowFieldsShown = {...this.tableRowFieldsShown, [key]: this.tableRowFields[key]};
     this.tableRowFieldsComparator = {...this.tableRowFieldsComparator, [key]: this.tableRowFieldsComparator[key] || 'eq'};
   }
