@@ -9,58 +9,39 @@ export const Constants = {
   KEEP_ALIVE_COUNT_MAX: 120,
   DEFAULT_CONNECTION_CACHE_OPTIONS: {
     max: 50,
-    length: function (n, key) {
-      return n * 2 + key.length;
+    ttl: 1000 * 60 * 60,
+    updateAgeOnGet: false,
+    updateAgeOnHas: false,
+    dispose: async (knex, key) => {
+      await knex.destroy();
     },
-    dispose: async function (key, n) {
-      await n.destroy();
-    },
-    maxAge: 1000 * 60 * 60,
   },
 
   DEFAULT_TUNNEL_CACHE_OPTIONS: {
-    max: 10000,
-    length: function (n, key) {
-      return n * 2 + key.length;
+    max: 100,
+    ttl: 1000 * 60 * 60,
+    dispose: async (tnl: any) => {
+      try {
+        await tnl.close();
+      } catch (e) {
+        console.error('Tunnel closing error: ' + e);
+      }
     },
-    dispose: async function (key, n) {
-      await n.knex.destroy();
-      await n.tnl.close();
-    },
-    maxAge: 1000 * 60 * 60,
   },
 
   DEFAULT_DRIVER_CACHE_OPTIONS: {
     max: 50,
-    length: function (n, key) {
-      return n * 2 + key.length;
-    },
-    dispose: function (key, n) {
-      return 1;
-    },
-    maxAge: 1000 * 60 * 60,
+    ttl: 1000 * 60 * 60,
   },
 
   DEFAULT_SETTINGS_CACHE_OPTIONS: {
     max: 1000,
-    length: function (n, key) {
-      return n * 2 + key.length;
-    },
-    dispose: function (key, n) {
-      return 1;
-    },
-    maxAge: 1000 * 60 * 60,
+    ttl: 1000 * 60 * 60,
   },
 
   DEFAULT_CONNECTIONS_CACHE_OPTIONS: {
     max: 1000,
-    length: function (n, key) {
-      return n * 2 + key.length;
-    },
-    dispose: function (key, n) {
-      return 1;
-    },
-    maxAge: 1000 * 60 * 60,
+    ttl: 1000 * 60 * 60,
   },
 
   DEFAULT_FORWARD_IN_HOST: '127.0.0.1',

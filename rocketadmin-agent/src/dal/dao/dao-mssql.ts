@@ -2,7 +2,7 @@ import { BasicDao } from '../shared/basic-dao';
 import { Cacher } from '../../helpers/cache/cacher';
 import { Constants } from '../../helpers/constants/constants';
 import { FilterCriteriaEnum, QueryOrderingEnum } from '../../enums';
-import { Knex, knex } from 'knex';
+import { knex } from 'knex';
 import {
   IAutocompleteFields,
   ICLIConnectionCredentials,
@@ -51,11 +51,11 @@ export class DaoMssql extends BasicDao implements IDaoInterface {
     }
   }
 
-  configureKnex(connectionConfig: ICLIConnectionCredentials): Knex {
+  configureKnex(connectionConfig: ICLIConnectionCredentials): any {
     return DaoMssql.configureKnex(connectionConfig);
   }
 
-  public static configureKnex(connectionConfig: ICLIConnectionCredentials): Knex {
+  public static configureKnex(connectionConfig: ICLIConnectionCredentials): any {
     const { host, username, password, database, port, type, ssl, cert } = connectionConfig;
     const cachedKnex = Cacher.getCachedKnex(connectionConfig);
     if (cachedKnex) {
