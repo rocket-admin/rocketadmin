@@ -230,7 +230,7 @@ export class MockFactory {
   generateConnectionToTestDbAgent() {
     const dto = new CreateConnectionDto();
     dto.title = 'Test connection to agent db';
-    dto.type = ConnectionTypeEnum.agent_postgres;
+    dto.type = ConnectionTypeEnum.agent_oracledb;
     return dto;
   }
 

@@ -24,8 +24,8 @@ export class Cacher {
     tunnelCache.set(JSON.stringify(connection), tnlObj);
   }
 
-  public static delTunnelCache(connection, tnlObj): void {
-    tunnelCache.del(JSON.stringify(connection), tnlObj);
+  public static delTunnelCache(connection): void {
+    tunnelCache.del(JSON.stringify(connection));
   }
 
   public static getDriverCache(connection): any {
