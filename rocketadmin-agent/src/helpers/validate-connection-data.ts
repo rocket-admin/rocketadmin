@@ -1,6 +1,6 @@
-import { Messages } from '../text/messages';
-import { ICLIConnectionCredentials } from '../interfaces/interfaces';
-import { ConnectionTypeEnum } from '../enums';
+import { Messages } from '../text/messages.js';
+import { ICLIConnectionCredentials } from '../interfaces/interfaces.js';
+import { ConnectionTypeEnum } from '../enums/connection-type.enum.js';
 
 export function validateConnectionData(connectionData: ICLIConnectionCredentials): Array<string> {
   const errors = [];

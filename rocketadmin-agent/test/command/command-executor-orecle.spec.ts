@@ -1,14 +1,14 @@
 import * as faker from 'faker';
-import { AppModule } from '../../src/app.module';
+import { AppModule } from '../../src/app.module.js';
 import { INestApplication } from '@nestjs/common';
 import { Knex, knex } from 'knex';
 import { Test } from '@nestjs/testing';
-import { ICLIConnectionCredentials } from '../../src/interfaces/interfaces';
-import { CommandExecutor } from '../../src/command/command-executor';
-import { OperationTypeEnum } from '../../src/enums/operation-type.enum';
-import { Constants } from '../../src/helpers/constants/constants';
-import { QueryOrderingEnum } from '../../src/enums';
-import { DaoPostgres } from '../../src/dal/dao/dao-postgres';
+import { ICLIConnectionCredentials } from '../../src/interfaces/interfaces.js';
+import { CommandExecutor } from '../../src/command/command-executor.js';
+import { OperationTypeEnum } from '../../src/enums/operation-type.enum.js';
+import { Constants } from '../../src/helpers/constants/constants.js';
+import { QueryOrderingEnum } from '../../src/enums/query-ordering.enum.js';
+import { DaoPostgres } from '../../src/dal/dao/dao-postgres.js';
 
 describe('Command executor tests', () => {
   let app: INestApplication;
@@ -84,7 +84,7 @@ describe('Command executor tests', () => {
       imports: [AppModule],
     }).compile();
 
-    app = moduleFixture.createNestApplication();
+    app = moduleFixture.createNestApplication() as any;
     await app.init();
     await resetOracleTestDB();
   });

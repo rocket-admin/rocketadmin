@@ -1,7 +1,5 @@
-import {
-  LogOperationTypeEnum,
-  OperationResultStatusEnum,
-} from '../../../enums';
+import { OperationResultStatusEnum } from '../../../enums/operation-result-status.enum.js';
+import { LogOperationTypeEnum } from '../../../enums/log-operation-type.enum';
 
 export class CreateLogRecordDto {
   table_name: string;

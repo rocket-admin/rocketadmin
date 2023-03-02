@@ -1,5 +1,5 @@
-import * as LRU from 'lru-cache';
-import { Constants } from '../constants/constants';
+import LRU from 'lru-cache';
+import { Constants } from '../constants/constants.js';
 
 const knexCache = new LRU(Constants.DEFAULT_CONNECTION_CACHE_OPTIONS);
 const tunnelCache = new LRU(Constants.DEFAULT_TUNNEL_CACHE_OPTIONS);

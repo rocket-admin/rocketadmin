@@ -1,18 +1,16 @@
-import { knex } from 'knex';
-import { BasicDao } from '../shared/basic-dao';
-import { Cacher } from '../../helpers/cache/cacher';
-import { Constants } from '../../helpers/constants/constants';
-import { FilterCriteriaEnum } from '../../enums';
-import { IDaoInterface, IDaoRowsRO, ITestConnectResult } from '../shared/dao-interface';
-import {
-  checkFieldAutoincrement,
-  getNumbersFromString,
-  isObjectEmpty,
-  listTables,
-  objectKeysToLowercase,
-  renameObjectKeyName,
-  tableSettingsFieldValidator,
-} from '../../helpers';
+import knex from 'knex';
+import { BasicDao } from '../shared/basic-dao.js';
+import { Cacher } from '../../helpers/cache/cacher.js';
+import { Constants } from '../../helpers/constants/constants.js';
+import { FilterCriteriaEnum } from '../../enums/filter-criteria.enum.js';
+import { IDaoInterface, IDaoRowsRO, ITestConnectResult } from '../shared/dao-interface.js';
+import { checkFieldAutoincrement } from '../../helpers/check-field-autoincrement.js';
+import { listTables } from '../../helpers/get-tables-helper.js';
+import { getNumbersFromString } from '../../helpers/get-numbers-from-string.js';
+import { renameObjectKeyName } from '../../helpers/rename-object-key-name.js';
+import { tableSettingsFieldValidator } from '../../helpers/validators/table-settings-field-validator.js';
+import { objectKeysToLowercase } from '../../helpers/object-keys-to-lowercase.js';
+import { isObjectEmpty } from '../../helpers/is-object-empty.js';
 import {
   IAutocompleteFields,
   ICLIConnectionCredentials,
@@ -21,7 +19,7 @@ import {
   IStructureInfo,
   ITablePrimaryColumnInfo,
   ITableSettings,
-} from '../../interfaces/interfaces';
+} from '../../interfaces/interfaces.js';
 
 export class DaoMysql extends BasicDao implements IDaoInterface {
   private readonly connection: ICLIConnectionCredentials;

@@ -1,7 +1,7 @@
 import * as readlineSync from 'readline-sync';
-import { Messages } from '../../text/messages';
-import { Constants } from '../constants/constants';
-import { ConnectionTypeEnum } from '../../enums';
+import { Messages } from '../../text/messages.js';
+import { Constants } from '../constants/constants.js';
+import { ConnectionTypeEnum } from '../../enums/connection-type.enum.js';
 
 export class CLIQuestionUtility {
   public static askConnectionToken(): string {

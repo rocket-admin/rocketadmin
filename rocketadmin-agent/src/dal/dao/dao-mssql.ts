@@ -1,16 +1,20 @@
-import { BasicDao } from '../shared/basic-dao';
-import { Cacher } from '../../helpers/cache/cacher';
-import { Constants } from '../../helpers/constants/constants';
-import { FilterCriteriaEnum, QueryOrderingEnum } from '../../enums';
-import { knex } from 'knex';
+import knex from 'knex';
+import { BasicDao } from '../shared/basic-dao.js';
+import { Cacher } from '../../helpers/cache/cacher.js';
+import { Constants } from '../../helpers/constants/constants.js';
+import { QueryOrderingEnum } from '../../enums/query-ordering.enum.js';
+import { FilterCriteriaEnum } from '../../enums/filter-criteria.enum.js';
 import {
   IAutocompleteFields,
   ICLIConnectionCredentials,
   IFilteringFields,
   ITableSettings,
-} from '../../interfaces/interfaces';
-import { IDaoInterface, IDaoRowsRO, ITestConnectResult } from '../shared/dao-interface';
-import { objectKeysToLowercase, tableSettingsFieldValidator, isObjectEmpty, renameObjectKeyName } from '../../helpers';
+} from '../../interfaces/interfaces.js';
+import { IDaoInterface, IDaoRowsRO, ITestConnectResult } from '../shared/dao-interface.js';
+import { renameObjectKeyName } from '../../helpers/rename-object-key-name.js';
+import { tableSettingsFieldValidator } from '../../helpers/validators/table-settings-field-validator.js';
+import { objectKeysToLowercase } from '../../helpers/object-keys-to-lowercase.js';
+import { isObjectEmpty } from '../../helpers/is-object-empty.js';
 
 export class DaoMssql extends BasicDao implements IDaoInterface {
   private readonly connection: ICLIConnectionCredentials;

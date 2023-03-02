@@ -1,17 +1,16 @@
-import { Cacher } from '../../helpers/cache/cacher';
-import { Constants } from '../../helpers/constants/constants';
-import { FilterCriteriaEnum, QueryOrderingEnum } from '../../enums';
-import { ICLIConnectionCredentials, ITableSettings } from '../../interfaces/interfaces';
-import { IDaoInterface, ITestConnectResult } from '../shared/dao-interface';
-import { knex } from 'knex';
-import {
-  checkFieldAutoincrement,
-  isObjectEmpty,
-  listTables,
-  objectKeysToLowercase,
-  renameObjectKeyName,
-  tableSettingsFieldValidator,
-} from '../../helpers';
+import { Cacher } from '../../helpers/cache/cacher.js';
+import { Constants } from '../../helpers/constants/constants.js';
+import { QueryOrderingEnum } from '../../enums/query-ordering.enum.js';
+import { FilterCriteriaEnum } from '../../enums/filter-criteria.enum.js';
+import { ICLIConnectionCredentials, ITableSettings } from '../../interfaces/interfaces.js';
+import { IDaoInterface, ITestConnectResult } from '../shared/dao-interface.js';
+import knex from 'knex';
+import { checkFieldAutoincrement } from '../../helpers/check-field-autoincrement.js';
+import { listTables } from '../../helpers/get-tables-helper.js';
+import { renameObjectKeyName } from '../../helpers/rename-object-key-name.js';
+import { tableSettingsFieldValidator } from '../../helpers/validators/table-settings-field-validator.js';
+import { objectKeysToLowercase } from '../../helpers/object-keys-to-lowercase.js';
+import { isObjectEmpty } from '../../helpers/is-object-empty.js';
 
 export class DaoOracledb implements IDaoInterface {
   private readonly connection: ICLIConnectionCredentials;
@@ -192,93 +191,93 @@ export class DaoOracledb implements IDaoInterface {
     }
     const tableSchema = this.connection.schema ? this.connection.schema : this.connection.username.toUpperCase();
     return await newGetAvailableFieldsWithPagination(
-        tableName,
-        tableSchema,
-        page,
-        perPage,
-        availableFields,
-        orderingField,
-        order,
-        searchedFields,
-        searchedFieldValue,
-        filteringFields,
+      tableName,
+      tableSchema,
+      page,
+      perPage,
+      availableFields,
+      orderingField,
+      order,
+      searchedFields,
+      searchedFieldValue,
+      filteringFields,
     );
 
     async function newGetAvailableFieldsWithPagination(
-        tableName: string,
-        tableSchema: string,
-        page: number,
-        perPage: number,
-        availableFields: Array<string>,
-        orderingField: string,
-        order = QueryOrderingEnum.ASC,
-        searchedFields: Array<string>,
-        searchedFieldValue: any,
-        filteringFields: any,
+      tableName: string,
+      tableSchema: string,
+      page: number,
+      perPage: number,
+      availableFields: Array<string>,
+      orderingField: string,
+      order = QueryOrderingEnum.ASC,
+      searchedFields: Array<string>,
+      searchedFieldValue: any,
+      filteringFields: any,
     ): Promise<any> {
       const offset = (page - 1) * perPage;
       const rows = await knex(tableName)
-          .withSchema(tableSchema)
-          .select(availableFields)
-          .modify((builder) => {
-            const search_fields = searchedFields;
-            if (searchedFieldValue && search_fields.length > 0) {
-              for (const field of search_fields) {
-                if (Buffer.isBuffer(searchedFieldValue)) {
-                  builder.orWhere(field, '=', searchedFieldValue);
-                } else {
-                  builder.orWhereRaw(` CAST (?? AS VARCHAR (255))=?`, [field, searchedFieldValue]);
-                }
+        .withSchema(tableSchema)
+        .select(availableFields)
+        .modify((builder) => {
+          const search_fields = searchedFields;
+          if (searchedFieldValue && search_fields.length > 0) {
+            for (const field of search_fields) {
+              if (Buffer.isBuffer(searchedFieldValue)) {
+                builder.orWhere(field, '=', searchedFieldValue);
+              } else {
+                builder.orWhereRaw(` CAST (?? AS VARCHAR (255))=?`, [field, searchedFieldValue]);
               }
             }
-          })
-          .modify((builder) => {
-            if (filteringFields && filteringFields.length > 0) {
-              for (const filterObject of filteringFields) {
-                const { field, criteria, value } = filterObject;
-                switch (criteria) {
-                  case FilterCriteriaEnum.eq:
-                    builder.andWhere(field, '=', `${value}`);
-                    break;
-                  case FilterCriteriaEnum.startswith:
-                    builder.andWhere(field, 'like', `${value}%`);
-                    break;
-                  case FilterCriteriaEnum.endswith:
-                    builder.andWhere(field, 'like', `%${value}`);
-                    break;
-                  case FilterCriteriaEnum.gt:
-                    builder.andWhere(field, '>', value);
-                    break;
-                  case FilterCriteriaEnum.lt:
-                    builder.andWhere(field, '<', value);
-                    break;
-                  case FilterCriteriaEnum.lte:
-                    builder.andWhere(field, '<=', value);
-                    break;
-                  case FilterCriteriaEnum.gte:
-                    builder.andWhere(field, '>=', value);
-                    break;
-                  case FilterCriteriaEnum.contains:
-                    builder.andWhere(field, 'like', `%${value}%`);
-                    break;
-                  case FilterCriteriaEnum.icontains:
-                    builder.andWhereNot(field, 'like', `%${value}%`);
-                    break;
-                  case FilterCriteriaEnum.empty:
-                    builder.orWhereNull(field);
-                    builder.orWhere(field, '=', `''`);
-                    break;
-                }
+          }
+        })
+        .modify((builder) => {
+          if (filteringFields && filteringFields.length > 0) {
+            for (const filterObject of filteringFields) {
+              const { field, criteria, value } = filterObject;
+              switch (criteria) {
+                case FilterCriteriaEnum.eq:
+                  builder.andWhere(field, '=', `${value}`);
+                  break;
+                case FilterCriteriaEnum.startswith:
+                  builder.andWhere(field, 'like', `${value}%`);
+                  break;
+                case FilterCriteriaEnum.endswith:
+                  builder.andWhere(field, 'like', `%${value}`);
+                  break;
+                case FilterCriteriaEnum.gt:
+                  builder.andWhere(field, '>', value);
+                  break;
+                case FilterCriteriaEnum.lt:
+                  builder.andWhere(field, '<', value);
+                  break;
+                case FilterCriteriaEnum.lte:
+                  builder.andWhere(field, '<=', value);
+                  break;
+                case FilterCriteriaEnum.gte:
+                  builder.andWhere(field, '>=', value);
+                  break;
+                case FilterCriteriaEnum.contains:
+                  builder.andWhere(field, 'like', `%${value}%`);
+                  break;
+                case FilterCriteriaEnum.icontains:
+                  builder.andWhereNot(field, 'like', `%${value}%`);
+                  break;
+                case FilterCriteriaEnum.empty:
+                  builder.orWhereNull(field);
+                  builder.orWhere(field, '=', `''`);
+                  break;
               }
             }
-          })
-          .modify((builder) => {
-            if (settings.ordering_field && settings.ordering) {
-              builder.orderBy(settings.ordering_field, settings.ordering);
-            }
-          })
-          .limit(perPage)
-          .offset(offset);
+          }
+        })
+        .modify((builder) => {
+          if (settings.ordering_field && settings.ordering) {
+            builder.orderBy(settings.ordering_field, settings.ordering);
+          }
+        })
+        .limit(perPage)
+        .offset(offset);
       const { rowsCount, large_dataset } = await getRowsCount(knex, tableName, tableSchema);
       const lastPage = Math.ceil(rowsCount / perPage);
       return {
@@ -297,14 +296,14 @@ export class DaoOracledb implements IDaoInterface {
     }
 
     async function getRowsCount(
-        knex,
-        tableName: string,
-        tableSchema: string,
+      knex,
+      tableName: string,
+      tableSchema: string,
     ): Promise<{ rowsCount: number; large_dataset: boolean }> {
       const fastCountQueryResult = await knex('ALL_TABLES')
-          .select('NUM_ROWS')
-          .where('TABLE_NAME', '=', tableName)
-          .andWhere('OWNER', '=', tableSchema);
+        .select('NUM_ROWS')
+        .where('TABLE_NAME', '=', tableName)
+        .andWhere('OWNER', '=', tableSchema);
       const fastCount = fastCountQueryResult[0]['NUM_ROWS'];
       if (fastCount >= Constants.LARGE_DATASET_SIZE) {
         return { rowsCount: fastCount, large_dataset: true };
@@ -313,7 +312,6 @@ export class DaoOracledb implements IDaoInterface {
       const rowsCount = parseInt(count[0]['COUNT(*)']);
       return { rowsCount: rowsCount, large_dataset: false };
     }
-
   }
 
   async getTablesFromDB() {
@@ -590,12 +588,12 @@ export class DaoOracledb implements IDaoInterface {
     let result;
     try {
       result = await knex
-      .transaction((trx) => {
-        knex.raw(`SELECT 1 FROM DUAL`).transacting(trx).then(trx.commit).catch(trx.rollback);
-      })
-      .catch((e) => {
-        throw new Error(e);
-      });
+        .transaction((trx) => {
+          knex.raw(`SELECT 1 FROM DUAL`).transacting(trx).then(trx.commit).catch(trx.rollback);
+        })
+        .catch((e) => {
+          throw new Error(e);
+        });
       if (result) {
         return {
           result: true,

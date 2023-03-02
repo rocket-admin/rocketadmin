@@ -1,6 +1,7 @@
-import { FilterCriteriaEnum, QueryOrderingEnum } from '../enums';
-import { WidgetTypeEnum } from '../enums/widget-type.enum';
-import { OperationTypeEnum } from '../enums/operation-type.enum';
+import { FilterCriteriaEnum } from '../enums/filter-criteria.enum.js';
+import { QueryOrderingEnum } from '../enums/query-ordering.enum.js';
+import { WidgetTypeEnum } from '../enums/widget-type.enum.js';
+import { OperationTypeEnum } from '../enums/operation-type.enum.js';
 
 export interface IAutocompleteFields {
   fields: Array<string>;
