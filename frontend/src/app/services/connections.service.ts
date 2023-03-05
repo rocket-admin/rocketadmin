@@ -53,6 +53,7 @@ export class ConnectionsService {
   public connectionAccessLevel: AccessLevel;
   public groupsAccessLevel: boolean;
   public currentPage: string;
+  public connectionLogo: string
 
   constructor(
     private _http: HttpClient,
@@ -89,6 +90,10 @@ export class ConnectionsService {
 
   get currentConnectionID() {
     return this.connectionID;
+  }
+
+  get logo() {
+    return this.connectionLogo;
   }
 
   setConnectionInfo(id: string) {
@@ -313,6 +318,7 @@ export class ConnectionsService {
     return this._http.get(`/connection/properties/${connectionID}`)
     .pipe(
       map((res: any) => {
+        this.connectionLogo = 'https://www.freepnglogos.com/uploads/netflix-logo-circle-png-5.png';
         this._themeService.updateColors({ palettes: { primaryPalette: '#9418ed', accentedPalette: '#ede218', warnPalette: '#ed1818' }});
         return res;
       }),

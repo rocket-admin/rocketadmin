@@ -189,6 +189,10 @@ export class AppComponent {
     })
   }
 
+  get logo() {
+    return this._connections.connectionLogo;
+  }
+
   get connectionID() {
     return this._connections.connectionID;
   }
