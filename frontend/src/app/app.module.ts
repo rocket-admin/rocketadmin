@@ -3,10 +3,12 @@ import * as Sentry from "@sentry/angular";
 import { APP_INITIALIZER, CUSTOM_ELEMENTS_SCHEMA, ErrorHandler, NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
+import { IColorConfig, NgxThemeModule } from "@brumeilde/ngx-theme";
 import { Router, RouterModule } from '@angular/router';
 
 import { AccountDeleteConfirmationComponent } from './components/user-settings/account-delete-confirmation/account-delete-confirmation.component';
 import { AccountDeleteDialogComponent } from './components/user-settings/account-delete-dialog/account-delete-dialog.component';
+import { ActionDeleteDialogComponent } from "./components/dashboard/db-table-actions/action-delete-dialog/action-delete-dialog.component";
 import { AlertComponent } from './components/ui-components/alert/alert.component';
 import { Angulartics2Module } from 'angulartics2';
 import { AppComponent } from './app.component';
@@ -14,6 +16,7 @@ import { AppRoutingModule } from './app-routing.module';
 import { AuditComponent } from './components/audit/audit.component';
 import { BannerComponent } from './components/ui-components/banner/banner.component';
 import { Base64ValidationDirective } from "./directives/base64Validator.directive";
+import { BbBulkActionConfirmationDialogComponent } from './components/dashboard/db-bulk-action-confirmation-dialog/db-bulk-action-confirmation-dialog.component';
 import { BinaryDataCaptionComponent } from './components/ui-components/row-fields/binary-data-caption/binary-data-caption.component';
 import { BooleanComponent } from './components/ui-components/row-fields/boolean/boolean.component';
 import { BreadcrumbsComponent } from './components/ui-components/breadcrumbs/breadcrumbs.component';
@@ -31,11 +34,12 @@ import { CookieService } from 'ngx-cookie-service';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { DateComponent } from './components/ui-components/row-fields/date/date.component';
 import { DateTimeComponent } from './components/ui-components/row-fields/date-time/date-time.component';
+import { DbActionConfirmationDialogComponent } from './components/dashboard/db-action-confirmation-dialog/db-action-confirmation-dialog.component';
+import { DbActionLinkDialogComponent } from './components/dashboard/db-action-link-dialog/db-action-link-dialog.component';
 import { DbConnectionConfirmDialogComponent } from './components/connect-db/db-connection-confirm-dialog/db-connection-confirm-dialog.component';
 import { DbConnectionDeleteDialogComponent } from './components/connect-db/db-connection-delete-dialog/db-connection-delete-dialog.component';
 import { DbConnectionIpAccessDialogComponent } from './components/connect-db/db-connection-ip-access-dialog/db-connection-ip-access-dialog.component';
-import { DbActionConfirmationDialogComponent } from './components/dashboard/db-action-confirmation-dialog/db-action-confirmation-dialog.component';
-import { BbBulkActionConfirmationDialogComponent } from './components/dashboard/db-bulk-action-confirmation-dialog/db-bulk-action-confirmation-dialog.component';
+import { DbTableActionsComponent } from "./components/dashboard/db-table-actions/db-table-actions.component";
 import { DbTableComponent } from './components/dashboard/db-table/db-table.component';
 import { DbTableFiltersDialogComponent } from './components/dashboard/db-table-filters-dialog/db-table-filters-dialog.component';
 import { DbTableRowEditComponent } from './components/db-table-row-edit/db-table-row-edit.component';
@@ -86,6 +90,7 @@ import { TimeComponent } from './components/ui-components/row-fields/time/time.c
 import { TimeIntervalComponent } from './components/ui-components/row-fields/time-interval/time-interval.component';
 import { TokenInterceptor } from './services/token.interceptor';
 import { UpgradeComponent } from './components/upgrade/upgrade.component';
+import { UpgradeSuccessComponent } from './components/upgrade-success/upgrade-success.component';
 import { UserAddDialogComponent } from './components/users/user-add-dialog/user-add-dialog.component';
 import { UserDeleteDialogComponent } from './components/users/user-delete-dialog/user-delete-dialog.component';
 import { UserDeletedSuccessComponent } from './components/user-deleted-success/user-deleted-success.component';
@@ -95,10 +100,14 @@ import { UsersComponent } from './components/users/users.component';
 import { UsersService } from './services/users.service';
 import { WidgetDeleteDialogComponent } from './components/dashboard/db-table-widgets/widget-delete-dialog/widget-delete-dialog.component';
 import { environment } from '../environments/environment';
-import { UpgradeSuccessComponent } from './components/upgrade-success/upgrade-success.component';
-import { DbTableActionsComponent } from "./components/dashboard/db-table-actions/db-table-actions.component";
-import { ActionDeleteDialogComponent } from "./components/dashboard/db-table-actions/action-delete-dialog/action-delete-dialog.component";
-import { DbActionLinkDialogComponent } from './components/dashboard/db-action-link-dialog/db-action-link-dialog.component';
+
+type Palettes = { primaryPalette: string, accentedPalette: string, warnPalette: string };
+type Colors = { myColorName: string };
+
+const colorConfig: IColorConfig<Palettes, Colors> = {
+  palettes: { primaryPalette: '#00FF00', accentedPalette: '#0000FF', warnPalette: '#FF0000' },
+  simpleColors: { myColorName: '#2e959a' },
+};
 
 const saasExtraProviders = (environment as any).saas ? [
   {
@@ -224,6 +233,14 @@ const saasExtraProviders = (environment as any).saas ? [
       deps: (environment as any).saas ? [Sentry.TraceService] : [],
       multi: true,
     },
+    {
+      provide: 'COLOR_CONFIG',
+      useValue: colorConfig
+    },
+    {
+      provide: 'THEME_OPTIONS',
+      useValue: { frameworks: ['material'] }
+    },
     ... saasExtraProviders
   ],
   imports: [
@@ -244,6 +261,9 @@ const saasExtraProviders = (environment as any).saas ? [
     DragDropModule,
     CodemirrorModule,
     // ...saasExtraModules,
+    NgxThemeModule.forRoot(colorConfig, {
+        frameworks: ['material'], // optional, default : ['tailwind', 'material']
+    }),
     ConfigModule.buildForConfigUrl('/config.json')
   ],
   bootstrap: [AppComponent],

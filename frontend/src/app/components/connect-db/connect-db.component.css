@@ -132,7 +132,7 @@
 }
 
 .instruction-step__link {
-    color: #ED4870;
+    color: var(--color-accentedPalette-500);
     text-decoration: none;
 }
 

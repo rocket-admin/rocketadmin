@@ -1,5 +1,7 @@
+import { AlertActionType, AlertType } from '../models/alert';
 import { BehaviorSubject, EMPTY } from 'rxjs';
 import { Connection, ConnectionType, DBtype } from '../models/connection';
+import { IColorConfig, NgxThemeService } from '@brumeilde/ngx-theme';
 import { NavigationEnd, ResolveEnd, Router, RouterEvent } from '@angular/router';
 import { catchError, filter, map } from 'rxjs/operators';
 
@@ -8,7 +10,6 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { MasterPasswordService } from './master-password.service';
 import { NotificationsService } from './notifications.service';
-import { AlertActionType, AlertType } from '../models/alert';
 
 interface LogParams {
   connectionID: string,
@@ -17,6 +18,9 @@ interface LogParams {
   requstedPage?: number,
   chunkSize?: number,
 }
+
+type Palettes = { primaryPalette: string, accentedPalette: string, warnPalette: string };
+type Colors = { myColorName: string };
 
 @Injectable({
   providedIn: 'root'
@@ -54,7 +58,8 @@ export class ConnectionsService {
     private _http: HttpClient,
     private router: Router,
     private _notifications: NotificationsService,
-    private _masterPasswordRequest: MasterPasswordService
+    private _masterPasswordRequest: MasterPasswordService,
+    private _themeService: NgxThemeService<IColorConfig<Palettes, Colors>>
   ) {
     this.connection = {...this.connectionInitialState};
     this.router = router;
@@ -307,7 +312,8 @@ export class ConnectionsService {
   getConnectionSettings(connectionID: string) {
     return this._http.get(`/connection/properties/${connectionID}`)
     .pipe(
-      map(res => {
+      map((res: any) => {
+        this._themeService.updateColors({ palettes: { primaryPalette: '#9418ed', accentedPalette: '#ede218', warnPalette: '#ed1818' }});
         return res;
       }),
       catchError((err) => {

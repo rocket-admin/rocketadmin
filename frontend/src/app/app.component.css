@@ -37,7 +37,7 @@
 .nav-bar__button ::ng-deep .mat-badge-content {
     top: 6px;
     right: 6px !important;
-    color: #ed4870;
+    color: var(--color-accentedPalette-500);
     height: 6px;
     width: 6px;
 }
