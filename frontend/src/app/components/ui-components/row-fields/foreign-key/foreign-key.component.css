@@ -12,3 +12,20 @@
 .disabled {
     pointer-events: none;
 }
+
+.foreign-key {
+    display: grid;
+    grid-template-columns: 1fr 36px;
+}
+
+.foreign-key__link {
+    display: flex;
+    /* align-items: center; */
+    justify-content: flex-end;
+    color: inherit;
+}
+
+.foreign-key__link-icon {
+    margin-left: auto;
+    margin-top: 24px;
+}

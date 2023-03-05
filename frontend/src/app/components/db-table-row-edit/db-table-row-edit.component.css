@@ -21,7 +21,7 @@
 
 .widget {
     display: grid;
-    grid-template-columns: 0 1fr 50px;
+    grid-template-columns: 0 1fr 36px;
 }
 
 .widget-info {

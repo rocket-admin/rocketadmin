@@ -32,7 +32,7 @@
                     <mat-error>!!!</mat-error>
                 </mat-form-field> -->
             <div *ngIf="isWidget(value); else defaultTableField" [ngClass]="{ widget: tableWidgets[value].description }">
-                <ndc-dynamic [ndcDynamicComponent]="tableWidgets[value].widget_type ? UIwidgets[tableWidgets[value].widget_type] : inputs[tableTypes[value.key]]"
+                <ndc-dynamic [ndcDynamicComponent]="tableWidgets[value].widget_type ? UIwidgets[tableWidgets[value].widget_type] : inputs[tableTypes[value]]"
                     [ndcDynamicInputs]="{
                         key: index,
                         label: tableWidgets[value].name || value,

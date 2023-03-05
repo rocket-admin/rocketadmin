@@ -2,6 +2,7 @@ import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 
 import { ConnectionsService } from 'src/app/services/connections.service';
+import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { Subject } from 'rxjs';
 import { TableForeignKey } from 'src/app/models/table';
 import { TablesService } from 'src/app/services/tables.service';
@@ -9,6 +10,7 @@ import { normalizeFieldName } from '../../../../lib/normalize';
 
 interface Suggestion {
   displayString: string;
+  primaryKeys?: any;
   fieldValue?: any
 }
 
@@ -31,10 +33,12 @@ export class ForeignKeyComponent implements OnInit {
   public connectionID: string;
   public currentDisplayedString: string;
   public currentFieldValue: any;
+  public currentFieldQueryParams: any;
   public suggestions: Suggestion[];
   public fetching: boolean = true;
   public normalizedLabel: string;
   public identityColumn: string;
+  public primaeyKeys: {data_type: string, column_name: string}[];
 
   autocmpleteUpdate =new Subject<string>();
 
@@ -64,12 +68,14 @@ export class ForeignKeyComponent implements OnInit {
       }).subscribe((res: any) => {
         if (res.rows.length) {
           this.identityColumn = res.identity_column;
+          // this.primaeyKeys = res.primaryColumns;
           const modifiedRow = this.getModifiedRow(res.rows[0]);
           this.currentDisplayedString =
             this.identityColumn ?
               `${res.rows[0][this.identityColumn]} (${Object.values(modifiedRow).filter(value => value).join(' | ')})` :
               Object.values(modifiedRow).filter(value => value).join(' | ');
           this.currentFieldValue = res.rows[0][this.relations.referenced_column_name];
+          this.currentFieldQueryParams = Object.assign({}, ...res.primaryColumns.map((primaeyKey) => ({[primaeyKey.column_name]: res.rows[0][primaeyKey.column_name]})));
           this.onFieldChange.emit(this.currentFieldValue);
         }
 
@@ -87,6 +93,7 @@ export class ForeignKeyComponent implements OnInit {
               const modifiedRow = this.getModifiedRow(row);
               return {
                 displayString: this.identityColumn ? `${row[this.identityColumn]} (${Object.values(modifiedRow).filter(value => value).join(' | ')})` : Object.values(modifiedRow).filter(value => value).join(' | '),
+                primaryKeys: Object.assign({}, ...res.primaryColumns.map((primaeyKey) => ({[primaeyKey.column_name]: row[primaeyKey.column_name]}))),
                 fieldValue: row[this.relations.referenced_column_name]
               }
             });
@@ -100,6 +107,7 @@ export class ForeignKeyComponent implements OnInit {
 
     if (currentRow !== undefined) {
       this.currentFieldValue = currentRow.fieldValue;
+      // this.currentFieldQueryParams = Object.assign({}, ...this.primaeyKeys.map((primaeyKey) => ({[primaeyKey.column_name]: currentRow[primaeyKey.column_name]})));
       this.onFieldChange.emit(this.currentFieldValue);
     } else {
       this.fetching = true;
@@ -122,6 +130,7 @@ export class ForeignKeyComponent implements OnInit {
             const modifiedRow = this.getModifiedRow(row);
             return {
               displayString: this.identityColumn ? `${row[this.identityColumn]} (${Object.values(modifiedRow).filter(value => value).join(' | ')})` : Object.values(modifiedRow).filter(value => value).join(' | '),
+              primaryKeys: Object.assign({}, ...res.primaeyKeys.map((primaeyKey) => ({[primaeyKey.column_name]: row[primaeyKey.column_name]}))),
               fieldValue: row[this.relations.referenced_column_name]
             }
           });
@@ -149,12 +158,7 @@ export class ForeignKeyComponent implements OnInit {
     return modifiedRow;
   }
 
-  // {
-  //   "referenced_column_name": "Id",
-  //   "referenced_table_name": "Customers",
-  //   "constraint_name": "Orders_ibfk_2",
-  //   "column_name": "CustomerId",
-  //    autocomplete_columns
-  // }
-
+  updateRelatedLink(e: MatAutocompleteSelectedEvent) {
+    this.currentFieldQueryParams = this.suggestions.find(suggestion => suggestion.displayString === e.option.value).primaryKeys;
+  }
 }

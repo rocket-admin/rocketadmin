@@ -320,9 +320,9 @@ export class TablesDataSource implements DataSource<Object> {
   getQueryParams(row) {
     const params = Object.fromEntries(this.keyAttributes.map((column) => {
       if (this.foreignKeysList.includes(column.column_name)) {
-      const referencedColumnNameOfForeignKey = this.foreignKeys[column.column_name].referenced_column_name;
-        return [column.column_name, row[column.column_name][referencedColumnNameOfForeignKey]];
-      };
+        const referencedColumnNameOfForeignKey = this.foreignKeys[column.column_name].referenced_column_name;
+          return [column.column_name, row[column.column_name][referencedColumnNameOfForeignKey]];
+        };
       return [column.column_name, row[column.column_name]];
     }));
     return params;
