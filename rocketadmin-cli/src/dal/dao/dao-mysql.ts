@@ -1,18 +1,17 @@
-import { knex } from 'knex';
-import { BasicDao } from '../shared/basic-dao';
-import { Cacher } from '../../helpers/cache/cacher';
-import { Constants } from '../../helpers/constants/constants';
-import { FilterCriteriaEnum } from '../../enums';
-import { IDaoInterface, IDaoRowsRO, ITestConnectResult } from '../shared/dao-interface';
-import {
-  checkFieldAutoincrement,
-  getNumbersFromString,
-  isObjectEmpty,
-  listTables,
-  objectKeysToLowercase,
-  renameObjectKeyName,
-  tableSettingsFieldValidator,
-} from '../../helpers';
+import knex from 'knex';
+import { BasicDao } from '../shared/basic-dao.js';
+import { Cacher } from '../../helpers/cache/cacher.js';
+import { Constants } from '../../helpers/constants/constants.js';
+import { FilterCriteriaEnum } from '../../enums/filter-criteria.enum.js';
+import { IDaoInterface, IDaoRowsRO, ITestConnectResult } from '../shared/dao-interface.js';
+import { checkFieldAutoincrement } from '../../helpers/check-field-autoincrement.js';
+import { getNumbersFromString } from '../../helpers/get-numbers-from-string.js';
+import { isObjectEmpty } from '../../helpers/is-object-empty.js';
+import { listTables } from '../../helpers/get-tables-helper.js';
+import { objectKeysToLowercase } from '../../helpers/object-keys-to-lowercase.js';
+import { renameObjectKeyName } from '../../helpers/rename-object-key-name.js';
+import { tableSettingsFieldValidator } from '../../helpers/validators/table-settings-field-validator.js';
+
 import {
   IAutocompleteFields,
   ICLIConnectionCredentials,
@@ -21,7 +20,7 @@ import {
   IStructureInfo,
   ITablePrimaryColumnInfo,
   ITableSettings,
-} from '../../interfaces/interfaces';
+} from '../../interfaces/interfaces.js';
 
 export class DaoMysql extends BasicDao implements IDaoInterface {
   private readonly connection: ICLIConnectionCredentials;
@@ -113,7 +112,7 @@ export class DaoMysql extends BasicDao implements IDaoInterface {
     if (!page || page <= 0) {
       page = Constants.DEFAULT_PAGINATION.page;
       const { list_per_page } = settings;
-      if ((list_per_page && list_per_page > 0) && (!perPage || perPage <= 0)) {
+      if (list_per_page && list_per_page > 0 && (!perPage || perPage <= 0)) {
         perPage = list_per_page;
       } else {
         perPage = Constants.DEFAULT_PAGINATION.perPage;
@@ -122,7 +121,7 @@ export class DaoMysql extends BasicDao implements IDaoInterface {
     const knex = await this.configureKnex(this.connection);
     const count = await knex(tableName).count('*');
     const rowsCount = count[0]['count(*)'] as number;
-    const lastPage = Math.ceil((rowsCount) / perPage);
+    const lastPage = Math.ceil(rowsCount / perPage);
     /* eslint-enable */
 
     const availableFields = await this.findAvaliableFields(settings, tableName);

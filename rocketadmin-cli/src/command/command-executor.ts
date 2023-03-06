@@ -1,9 +1,10 @@
-import { createDao } from '../dal/shared/create-dao';
-import { ICLIConnectionCredentials, IMessageData } from '../interfaces/interfaces';
-import { Messages } from '../text/messages';
-import { OperationTypeEnum } from '../enums/operation-type.enum';
-import { LogOperationTypeEnum, OperationResultStatusEnum } from '../enums';
-import { Logger } from '../helpers/app-logs/logger';
+import { createDao } from '../dal/shared/create-dao.js';
+import { ICLIConnectionCredentials, IMessageData } from '../interfaces/interfaces.js';
+import { Messages } from '../text/messages.js';
+import { OperationTypeEnum } from '../enums/operation-type.enum.js';
+import { LogOperationTypeEnum } from '../enums/log-operation-type.enum.js';
+import { OperationResultStatusEnum } from '../enums/operation-result-status.enum.js';
+import { Logger } from '../helpers/app-logs/logger.js';
 
 export class CommandExecutor {
   private readonly connectionConfig: ICLIConnectionCredentials;

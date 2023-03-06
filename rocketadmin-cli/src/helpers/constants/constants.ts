@@ -4,13 +4,12 @@ export const Constants = {
   DEFAULT_LOGS_FILENAME: 'autoadmin-logs.txt',
   DEFAULT_CONNECTION_CACHE_OPTIONS: {
     max: 50,
-    length: function (n, key) {
-      return n * 2 + key.length;
+    ttl: 1000 * 60 * 60,
+    updateAgeOnGet: false,
+    updateAgeOnHas: false,
+    dispose: async (knex, key) => {
+      await knex.destroy();
     },
-    dispose: async function (key, n) {
-      await n.destroy();
-    },
-    maxAge: 1000 * 60 * 60,
   },
   AUTOCOMPLETE_ROW_LIMIT: 20,
   CLI_ATTEMPTS_COUNT: 3,

@@ -1,5 +1,5 @@
-import * as CryptoJS from 'crypto-js';
-import * as crypto from 'crypto';
+import CryptoJS from 'crypto-js';
+import crypto from 'crypto';
 
 export class Encryptor {
   public static encryptDataMasterPwd(data: string, masterPwd: string): string {

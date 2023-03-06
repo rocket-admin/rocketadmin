@@ -1,25 +1,14 @@
-import { BasicDao } from '../shared/basic-dao';
-import { Cacher } from '../../helpers/cache/cacher';
-import { Constants } from '../../helpers/constants/constants';
-import { FilterCriteriaEnum } from '../../enums';
-import { ICLIConnectionCredentials, ITableSettings } from '../../interfaces/interfaces';
-
-import { IDaoInterface, ITestConnectResult } from '../shared/dao-interface';
-import { isObjectEmpty, listTables, renameObjectKeyName, tableSettingsFieldValidator } from '../../helpers';
-import { knex } from 'knex';
-import { types } from 'pg';
-
-const timestampOID = 1114;
-/*
-types.setTypeParser(1114, function(stringValue) {
-  return stringValue;
-});
-
-types.setTypeParser(1184, function(stringValue) {
-  return stringValue;
-});
-*/
-types.setTypeParser(1186, (stringValue) => stringValue);
+import { BasicDao } from '../shared/basic-dao.js';
+import { Cacher } from '../../helpers/cache/cacher.js';
+import { Constants } from '../../helpers/constants/constants.js';
+import { FilterCriteriaEnum } from '../../enums/filter-criteria.enum.js';
+import { ICLIConnectionCredentials, ITableSettings } from '../../interfaces/interfaces.js';
+import { IDaoInterface, ITestConnectResult } from '../shared/dao-interface.js';
+import { isObjectEmpty } from '../../helpers/is-object-empty.js';
+import { listTables } from '../../helpers/get-tables-helper.js';
+import { renameObjectKeyName } from '../../helpers/rename-object-key-name.js';
+import { tableSettingsFieldValidator } from '../../helpers/validators/table-settings-field-validator.js';
+import knex from 'knex';
 
 export class DaoPostgres extends BasicDao implements IDaoInterface {
   private readonly connection: ICLIConnectionCredentials;

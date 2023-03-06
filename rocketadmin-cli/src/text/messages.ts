@@ -1,6 +1,7 @@
-import { enumToString } from '../helpers/enum-to-string';
-import { ConnectionTypeEnum, QueryOrderingEnum } from '../enums';
-import { Constants } from '../helpers/constants/constants';
+import { enumToString } from '../helpers/enum-to-string.js';
+import { QueryOrderingEnum } from '../enums/query-ordering.enum.js';
+import { ConnectionTypeEnum } from '../enums/connection-type.enum.js';
+import { Constants } from '../helpers/constants/constants.js';
 
 export const Messages = {
   APPLICATION_ENCRYPTION_PASSWORD_INVALID: `Invalid encryption password`,

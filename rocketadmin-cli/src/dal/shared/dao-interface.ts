@@ -1,4 +1,4 @@
-import { IPaginationRO, ITableSettings } from '../../interfaces/interfaces';
+import { IPaginationRO, ITableSettings } from '../../interfaces/interfaces.js';
 import { Knex } from 'knex';
 
 export interface IDaoInterface {
