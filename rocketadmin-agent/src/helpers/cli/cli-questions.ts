@@ -1,4 +1,4 @@
-import * as readlineSync from 'readline-sync';
+import readlineSync from 'readline-sync';
 import { Messages } from '../../text/messages.js';
 import { Constants } from '../constants/constants.js';
 import { ConnectionTypeEnum } from '../../enums/connection-type.enum.js';

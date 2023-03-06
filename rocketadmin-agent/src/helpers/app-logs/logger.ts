@@ -1,6 +1,6 @@
-import * as fs from 'fs';
-import * as path from 'path';
-import * as winston from 'winston';
+import fs from 'fs';
+import path from 'path';
+import winston from 'winston';
 import { CreateLogRecordDto } from './dto/create-log-record.dto.js';
 import { OperationResultStatusEnum } from '../../enums/operation-result-status.enum.js';
 import { LogOperationTypeEnum } from '../../enums/log-operation-type.enum';

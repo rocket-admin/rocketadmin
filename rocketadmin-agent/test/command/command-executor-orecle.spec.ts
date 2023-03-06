@@ -1,4 +1,4 @@
-import * as faker from 'faker';
+import { faker } from '@faker-js/faker';
 import { AppModule } from '../../src/app.module.js';
 import { INestApplication } from '@nestjs/common';
 import { Knex, knex } from 'knex';

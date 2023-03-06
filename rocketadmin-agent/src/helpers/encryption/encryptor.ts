@@ -1,5 +1,5 @@
 import CryptoJS from 'crypto-js';
-import * as argon2 from 'argon2';
+import argon2 from 'argon2';
 import { Messages } from '../../text/messages.js';
 
 export class Encryptor {
