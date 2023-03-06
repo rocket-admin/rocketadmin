@@ -1,10 +1,11 @@
-import * as fs from 'fs';
-import * as path from 'path';
-import * as winston from 'winston';
-import { CreateLogRecordDto } from './dto/create-log-record.dto';
-import { LogOperationTypeEnum, OperationResultStatusEnum } from '../../enums';
-import { Config } from '../../shared/config/config';
-import { Constants } from '../constants/constants';
+import fs from 'fs';
+import path from 'path';
+import winston from 'winston';
+import { CreateLogRecordDto } from './dto/create-log-record.dto.js';
+import { OperationResultStatusEnum } from '../../enums/operation-result-status.enum.js';
+import { LogOperationTypeEnum } from '../../enums/log-operation-type.enum';
+import { Config } from '../../shared/config/config.js';
+import { Constants } from '../constants/constants.js';
 
 export class Logger {
   private static readonly logger = winston.createLogger({

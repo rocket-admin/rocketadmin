@@ -31,7 +31,7 @@ test.before(async () => {
     imports: [ApplicationModule, DatabaseModule],
     providers: [DatabaseService, TestUtils],
   }).compile();
-  app = moduleFixture.createNestApplication();
+  app = moduleFixture.createNestApplication() as any;
   testUtils = moduleFixture.get<TestUtils>(TestUtils);
   await testUtils.resetDb();
   app.use(cookieParser());

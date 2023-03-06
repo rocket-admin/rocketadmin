@@ -1,6 +1,6 @@
-import { ICLIConnectionCredentials } from '../interfaces/interfaces';
-import { createDao } from '../dal/shared/create-dao';
-import { ITestConnectResult } from '../dal/shared/dao-interface';
+import { ICLIConnectionCredentials } from '../interfaces/interfaces.js';
+import { createDao } from '../dal/shared/create-dao.js';
+import { ITestConnectResult } from '../dal/shared/dao-interface.js';
 
 export async function checkConnection(connection: ICLIConnectionCredentials): Promise<ITestConnectResult> {
   console.log('-> Test connection to database');

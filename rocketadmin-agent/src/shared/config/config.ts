@@ -1,11 +1,13 @@
-import { ICLIConnectionCredentials, ISavedCLIConnectionCredentials } from '../../interfaces/interfaces';
-import { readFileUtil, writeFileIfNotExistsUtil, writeFileUtil } from '../../helpers';
-import { validateConnectionData } from '../../helpers/validate-connection-data';
-import { toPrettyErrorsMsg } from '../../helpers/to-pretty-errors-msg';
-import { Encryptor } from '../../helpers/encryption/encryptor';
-import { CLIQuestionUtility } from '../../helpers/cli/cli-questions';
-import { Constants } from '../../helpers/constants/constants';
-import { Messages } from '../../text/messages';
+import { ICLIConnectionCredentials, ISavedCLIConnectionCredentials } from '../../interfaces/interfaces.js';
+import { writeFileUtil } from '../../helpers/write-file-util.js';
+import { readFileUtil } from '../../helpers/read-file-util.js';
+import { writeFileIfNotExistsUtil } from '../../helpers/write-file-util.js';
+import { validateConnectionData } from '../../helpers/validate-connection-data.js';
+import { toPrettyErrorsMsg } from '../../helpers/to-pretty-errors-msg.js';
+import { Encryptor } from '../../helpers/encryption/encryptor.js';
+import { CLIQuestionUtility } from '../../helpers/cli/cli-questions.js';
+import { Constants } from '../../helpers/constants/constants.js';
+import { Messages } from '../../text/messages.js';
 
 const applicationConfigFileName = '.autoadmin-config.txt';
 const connectionConfig: ICLIConnectionCredentials = {

@@ -31,7 +31,7 @@ test.before(async () => {
   }).compile();
   testUtils = moduleFixture.get<TestUtils>(TestUtils);
   await testUtils.resetDb();
-  app = moduleFixture.createNestApplication();
+  app = moduleFixture.createNestApplication() as any;
   app.use(cookieParser());
   await app.init();
   app.getHttpServer().listen(0);

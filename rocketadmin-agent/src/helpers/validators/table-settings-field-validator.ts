@@ -1,8 +1,8 @@
-import { QueryOrderingEnum } from '../../enums';
-import { Messages } from '../../text/messages';
-import { isObjectEmpty } from '../is-object-empty';
-import { ITableSettings } from '../../interfaces/interfaces';
-import { IPrimaryKeyInfo } from '../../dal/shared/dao-interface';
+import { QueryOrderingEnum } from '../../enums/query-ordering.enum.js';
+import { Messages } from '../../text/messages.js';
+import { isObjectEmpty } from '../is-object-empty.js';
+import { ITableSettings } from '../../interfaces/interfaces.js';
+import { IPrimaryKeyInfo } from '../../dal/shared/dao-interface.js';
 
 export function tableSettingsFieldValidator(
   tableStructure: any,

@@ -275,7 +275,6 @@ export class DataAccessObjectAgent implements IDataAccessObject {
         },
         { headers: { authorization: `Bearer ${jwtAuthToken}` } },
       );
-      console.log('STATUS ', res.status);
       if (res.data.commandResult instanceof Error) {
         throw new Error(res.data.commandResult.message);
       }

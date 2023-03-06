@@ -1,5 +1,5 @@
-import * as fs from 'fs';
-import * as path from 'path';
+import fs from 'fs';
+import path from 'path';
 
 export async function readFileUtil(fileName): Promise<string> {
   return new Promise((resolve, reject) => {

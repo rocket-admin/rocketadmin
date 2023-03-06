@@ -1,16 +1,20 @@
-import { BasicDao } from '../shared/basic-dao';
-import { Cacher } from '../../helpers/cache/cacher';
-import { Constants } from '../../helpers/constants/constants';
-import { FilterCriteriaEnum, QueryOrderingEnum } from '../../enums';
-import { Knex, knex } from 'knex';
+import { BasicDao } from '../shared/basic-dao.js';
+import { Cacher } from '../../helpers/cache/cacher.js';
+import { Constants } from '../../helpers/constants/constants.js';
+import { FilterCriteriaEnum } from '../../enums/filter-criteria.enum.js';
+import { QueryOrderingEnum } from '../../enums/query-ordering.enum.js';
+import knex from 'knex';
 import {
   IAutocompleteFields,
   ICLIConnectionCredentials,
   IFilteringFields,
   ITableSettings,
-} from '../../interfaces/interfaces';
-import { IDaoInterface, IDaoRowsRO, ITestConnectResult } from '../shared/dao-interface';
-import { objectKeysToLowercase, tableSettingsFieldValidator, isObjectEmpty, renameObjectKeyName } from '../../helpers';
+} from '../../interfaces/interfaces.js';
+import { IDaoInterface, IDaoRowsRO, ITestConnectResult } from '../shared/dao-interface.js';
+import { renameObjectKeyName } from '../../helpers/rename-object-key-name.js';
+import { objectKeysToLowercase } from '../../helpers/object-keys-to-lowercase.js';
+import { tableSettingsFieldValidator } from '../../helpers/validators/table-settings-field-validator.js';
+import { isObjectEmpty } from '../../helpers/is-object-empty.js';
 
 export class DaoMssql extends BasicDao implements IDaoInterface {
   private readonly connection: ICLIConnectionCredentials;
@@ -51,11 +55,11 @@ export class DaoMssql extends BasicDao implements IDaoInterface {
     }
   }
 
-  configureKnex(connectionConfig: ICLIConnectionCredentials): Knex {
+  configureKnex(connectionConfig: ICLIConnectionCredentials): any {
     return DaoMssql.configureKnex(connectionConfig);
   }
 
-  public static configureKnex(connectionConfig: ICLIConnectionCredentials): Knex {
+  public static configureKnex(connectionConfig: ICLIConnectionCredentials): any {
     const { host, username, password, database, port, type, ssl, cert } = connectionConfig;
     const cachedKnex = Cacher.getCachedKnex(connectionConfig);
     if (cachedKnex) {
@@ -110,7 +114,7 @@ export class DaoMssql extends BasicDao implements IDaoInterface {
     if (!page || page <= 0) {
       page = Constants.DEFAULT_PAGINATION.page;
       const { list_per_page } = settings;
-      if ((list_per_page && list_per_page > 0) && (!perPage || perPage <= 0)) {
+      if (list_per_page && list_per_page > 0 && (!perPage || perPage <= 0)) {
         perPage = list_per_page;
       } else {
         perPage = Constants.DEFAULT_PAGINATION.perPage;
@@ -148,7 +152,7 @@ export class DaoMssql extends BasicDao implements IDaoInterface {
       }
     }
 
-    const lastPage = Math.ceil((rowsCount) / perPage);
+    const lastPage = Math.ceil(rowsCount / perPage);
     /* eslint-enable */
     let rowsRO;
     if (
