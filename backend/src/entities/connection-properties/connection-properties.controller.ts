@@ -65,6 +65,7 @@ export class ConnectionPropertiesController {
     @Body('primary_color') primary_color: string,
     @Body('secondary_color') secondary_color: string,
     @Body('hostname') hostname: string,
+    @Body('company_name') company_name: string,
     @UserId() userId: string,
     @MasterPassword() masterPwd: string,
     @SlugUuid() connectionId: string,
@@ -86,6 +87,7 @@ export class ConnectionPropertiesController {
       primary_color: primary_color,
       secondary_color: secondary_color,
       hostname: hostname,
+      company_name: company_name,
     };
 
     return await this.createConnectionPropertiesUseCase.execute(createConnectionPropertiesDs, InTransactionEnum.ON);
@@ -99,6 +101,7 @@ export class ConnectionPropertiesController {
     @Body('primary_color') primary_color: string,
     @Body('secondary_color') secondary_color: string,
     @Body('hostname') hostname: string,
+    @Body('company_name') company_name: string,
     @UserId() userId: string,
     @MasterPassword() masterPwd: string,
     @SlugUuid() connectionId: string,
@@ -120,6 +123,7 @@ export class ConnectionPropertiesController {
       logo_url: logo_url,
       primary_color: primary_color,
       secondary_color: secondary_color,
+      company_name: company_name,
       hostname: hostname,
     };
 
