@@ -61,6 +61,10 @@ export class ConnectionPropertiesController {
   @Post('/connection/properties/:slug')
   async createConnectionProperties(
     @Body('hidden_tables') hidden_tables: Array<string>,
+    @Body('logo_url') logo_url: string,
+    @Body('primary_color') primary_color: string,
+    @Body('secondary_color') secondary_color: string,
+    @Body('hostname') hostname: string,
     @UserId() userId: string,
     @MasterPassword() masterPwd: string,
     @SlugUuid() connectionId: string,
@@ -78,6 +82,10 @@ export class ConnectionPropertiesController {
       master_password: masterPwd,
       hidden_tables: hidden_tables,
       userId: userId,
+      logo_url: logo_url,
+      primary_color: primary_color,
+      secondary_color: secondary_color,
+      hostname: hostname,
     };
 
     return await this.createConnectionPropertiesUseCase.execute(createConnectionPropertiesDs, InTransactionEnum.ON);
@@ -87,6 +95,10 @@ export class ConnectionPropertiesController {
   @Put('/connection/properties/:slug')
   async updateConnectionProperties(
     @Body('hidden_tables') hidden_tables: Array<string>,
+    @Body('logo_url') logo_url: string,
+    @Body('primary_color') primary_color: string,
+    @Body('secondary_color') secondary_color: string,
+    @Body('hostname') hostname: string,
     @UserId() userId: string,
     @MasterPassword() masterPwd: string,
     @SlugUuid() connectionId: string,
@@ -105,6 +117,10 @@ export class ConnectionPropertiesController {
       master_password: masterPwd,
       hidden_tables: hidden_tables,
       userId: userId,
+      logo_url: logo_url,
+      primary_color: primary_color,
+      secondary_color: secondary_color,
+      hostname: hostname,
     };
 
     return await this.updateConnectionPropertiesUseCase.execute(inputData, InTransactionEnum.ON);

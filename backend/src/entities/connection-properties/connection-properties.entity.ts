@@ -9,7 +9,19 @@ export class ConnectionPropertiesEntity {
   @Column('varchar', { array: true, default: null })
   hidden_tables: string[];
 
-  @OneToOne((type) => ConnectionEntity, (connection) => connection.connection_properties, {
+  @Column({ default: null })
+  logo_url: string;
+
+  @Column({ default: null })
+  primary_color: string;
+
+  @Column({ default: null })
+  secondary_color: string;
+
+  @Column({ default: null })
+  hostname: string;
+
+  @OneToOne(() => ConnectionEntity, (connection) => connection.connection_properties, {
     onDelete: 'CASCADE',
   })
   @JoinColumn()

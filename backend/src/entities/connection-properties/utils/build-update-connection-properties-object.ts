@@ -3,12 +3,20 @@ import { CreateConnectionPropertiesDs } from '../application/data-structures/cre
 export function buildUpdateConnectionPropertiesObject(
   inputData: CreateConnectionPropertiesDs,
 ): IUpdateConnectionPropertiesObject {
-  const { hidden_tables } = inputData;
+  const { hidden_tables, logo_url, primary_color, secondary_color, hostname } = inputData;
   return {
     hidden_tables: hidden_tables,
+    logo_url: logo_url,
+    primary_color: primary_color,
+    secondary_color: secondary_color,
+    hostname: hostname,
   };
 }
 
 export interface IUpdateConnectionPropertiesObject {
   hidden_tables: Array<string>;
+  logo_url: string;
+  primary_color: string;
+  secondary_color: string;
+  hostname: string;
 }

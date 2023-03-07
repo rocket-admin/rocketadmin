@@ -7,6 +7,8 @@ import { AccessLevelEnum } from '../../../enums/index.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { Constants } from '../../../helpers/constants/constants.js';
 import { Encryptor } from '../../../helpers/encryption/encryptor.js';
+import { FoundConnectionPropertiesDs } from '../../connection-properties/application/data-structures/found-connection-properties.ds.js';
+import { buildFoundConnectionPropertiesDs } from '../../connection-properties/utils/build-found-connection-properties-ds.js';
 import { FindOneConnectionDs } from '../application/data-structures/find-one-connection.ds.js';
 import { FoundOneConnectionDs } from '../application/data-structures/found-one-connection.ds.js';
 import { IFindOneConnection } from './use-cases.interfaces.js';
@@ -79,10 +81,14 @@ export class FindOneConnectionUseCase
       inputData.connectionId,
       accessLevel,
     );
+    const connectionProperties: FoundConnectionPropertiesDs = connection.connection_properties
+      ? buildFoundConnectionPropertiesDs(connection.connection_properties)
+      : null;
     return {
       connection: connection,
       accessLevel: accessLevel,
       groupManagement: groupManagement,
+      connectionProperties: connectionProperties,
     };
   }
 
