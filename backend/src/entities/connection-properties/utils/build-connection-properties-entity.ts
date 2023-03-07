@@ -14,5 +14,6 @@ export function buildConnectionPropertiesEntity(
   newConnectionProperties.primary_color = propertiesInfo.primary_color;
   newConnectionProperties.secondary_color = propertiesInfo.secondary_color;
   newConnectionProperties.hostname = propertiesInfo.hostname;
+  newConnectionProperties.company_name = propertiesInfo.company_name;
   return newConnectionProperties;
 }

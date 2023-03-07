@@ -12,5 +12,6 @@ export function buildFoundConnectionPropertiesDs(
     primary_color: connectionProperties.primary_color,
     secondary_color: connectionProperties.secondary_color,
     hostname: connectionProperties.hostname,
+    company_name: connectionProperties.company_name,
   };
 }

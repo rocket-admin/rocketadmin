@@ -6,4 +6,5 @@ export class FoundConnectionPropertiesDs {
   primary_color: string;
   secondary_color: string;
   hostname: string;
+  company_name: string;
 }
