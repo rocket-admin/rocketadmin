@@ -7,7 +7,7 @@ export function buildFoundConnectionPropertiesDs(
   return {
     id: connectionProperties.id,
     hidden_tables: connectionProperties.hidden_tables,
-    connectionId: connectionProperties.connection.id,
+    connectionId: connectionProperties.connection?.id,
     logo_url: connectionProperties.logo_url,
     primary_color: connectionProperties.primary_color,
     secondary_color: connectionProperties.secondary_color,
