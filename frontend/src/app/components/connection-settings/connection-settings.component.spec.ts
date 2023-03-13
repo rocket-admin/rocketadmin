@@ -1,17 +1,17 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { FormsModule, NG_VALUE_ACCESSOR } from '@angular/forms';
+
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { ConnectionSettingsComponent } from './connection-settings.component';
+import { ConnectionsService } from 'src/app/services/connections.service';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
-import { RouterTestingModule } from "@angular/router/testing";
-import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatDialogModule } from '@angular/material/dialog';
+import { MatSelectModule } from '@angular/material/select';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { RouterTestingModule } from "@angular/router/testing";
+import { TablesService } from 'src/app/services/tables.service';
 import { forwardRef } from '@angular/core';
 import { of } from 'rxjs';
-
-import { ConnectionSettingsComponent } from './connection-settings.component';
-import { FormsModule, NG_VALUE_ACCESSOR } from '@angular/forms';
-import { MatSelectModule } from '@angular/material/select';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { TablesService } from 'src/app/services/tables.service';
-import { ConnectionsService } from 'src/app/services/connections.service';
 
 describe('ConnectionSettingsComponent', () => {
   let component: ConnectionSettingsComponent;
@@ -157,7 +157,7 @@ describe('ConnectionSettingsComponent', () => {
     component.getSettings();
 
     expect(fakeGetSettings).toHaveBeenCalledOnceWith('12345678');
-    expect(component.hiddenTables).toEqual(["actor_info", "address"]);
+    expect(component.connectionSettings.hidden_tables).toEqual(["actor_info", "address"]);
     expect(component.isSettingsExist).toBeTrue();
   });
 
@@ -167,27 +167,27 @@ describe('ConnectionSettingsComponent', () => {
     component.getSettings();
 
     expect(fakeGetSettings).toHaveBeenCalledOnceWith('12345678');
-    expect(component.hiddenTables).toEqual([]);
+    expect(component.connectionSettings.hidden_tables).toEqual([]);
     expect(component.isSettingsExist).toBeFalse();
   });
 
   it('should create settings', () => {
-    component.hiddenTables = ['customers', 'film'];
+    component.connectionSettings.hidden_tables = ['customers', 'film'];
     const fakeCreateSettings = spyOn(connectionsService, 'createConnectionSettings').and.returnValue(of());
 
     component.createSettings();
 
-    expect(fakeCreateSettings).toHaveBeenCalledOnceWith('12345678', ['customers', 'film']);
+    expect(fakeCreateSettings).toHaveBeenCalledOnceWith('12345678', { hidden_tables: ['customers', 'film'] });
     expect(component.submitting).toBeFalse();
   });
 
   it('should update settings', () => {
-    component.hiddenTables = ['customers'];
+    component.connectionSettings.hidden_tables = ['customers'];
     const fakeUpdateSettings = spyOn(connectionsService, 'updateConnectionSettings').and.returnValue(of());
 
     component.updateSettings();
 
-    expect(fakeUpdateSettings).toHaveBeenCalledOnceWith('12345678', ['customers']);
+    expect(fakeUpdateSettings).toHaveBeenCalledOnceWith('12345678', { hidden_tables: ['customers'] });
     expect(component.submitting).toBeFalse();
   });
 

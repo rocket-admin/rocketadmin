@@ -35,7 +35,7 @@ export interface Connection {
     azure_encryption: boolean,
     connectionType: ConnectionType,
     schema?: string,
-    signing_key: string,
+    signing_key?: string,
     isTestConnection?: boolean
 }
 
@@ -50,9 +50,9 @@ export interface TestConnection {
 }
 
 export interface ConnectionSettings {
-    hidden_tables: string[],
-    primary_color: string,
-    secondary_color: string,
-    logo_url: string,
-    company_name: string,
+    hidden_tables?: string[],
+    primary_color?: string,
+    secondary_color?: string,
+    logo_url?: string,
+    company_name?: string,
 }

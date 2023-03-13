@@ -8,6 +8,7 @@ import { Angulartics2Module } from 'angulartics2';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ConnectDBComponent } from './connect-db.component';
 import { ConnectionsService } from 'src/app/services/connections.service';
+import { DbConnectionConfirmDialogComponent } from './db-connection-confirm-dialog/db-connection-confirm-dialog.component';
 import { DbConnectionDeleteDialogComponent } from './db-connection-delete-dialog/db-connection-delete-dialog.component';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MatInputModule } from '@angular/material/input';
@@ -18,7 +19,6 @@ import { NotificationsService } from 'src/app/services/notifications.service';
 import { RouterTestingModule } from "@angular/router/testing";
 import { forwardRef } from '@angular/core';
 import { of } from 'rxjs';
-import { DbConnectionConfirmDialogComponent } from './db-connection-confirm-dialog/db-connection-confirm-dialog.component';
 
 describe('ConnectDBComponent', () => {
   let component: ConnectDBComponent;
@@ -50,7 +50,8 @@ describe('ConnectDBComponent', () => {
     "ssl": false,
     "cert": null,
     "connectionType": ConnectionType.Direct,
-    "azure_encryption": false
+    "azure_encryption": false,
+    "signing_key": ''
   }
 
   beforeEach(async() => {

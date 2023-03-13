@@ -58,7 +58,8 @@ describe('ConnectionsService', () => {
     "ssl": false,
     "cert": null,
     "connectionType": ConnectionType.Direct,
-    "azure_encryption": false
+    "azure_encryption": false,
+    "signing_key": ''
   }
 
   const connectionCredsNetwork = {
@@ -78,7 +79,8 @@ describe('ConnectionsService', () => {
     "sshUsername": "ubuntu",
     "ssl": false,
     "cert": null,
-    "azure_encryption": false
+    "azure_encryption": false,
+    "signing_key": ''
   }
 
   const fakeError = {
@@ -602,7 +604,7 @@ describe('ConnectionsService', () => {
   it('should call createConnectionSettings and show success snackbar', () => {
     let isSubscribeCalled = false;
 
-    service.createConnectionSettings('12345678', ['users', 'orders']).subscribe(res => {
+    service.createConnectionSettings('12345678', {hidden_tables: ['users', 'orders']}).subscribe(res => {
       expect(fakeNotifications.showSuccessSnackbar).toHaveBeenCalledOnceWith('Connection settings has been created successfully.');
       isSubscribeCalled = true;
     });
@@ -628,7 +630,7 @@ describe('ConnectionsService', () => {
   });
 
   it('should fall createConnectionSettings and show Error alert', async () => {
-    const createSettings = service.createConnectionSettings('12345678', ['users', 'orders']).toPromise();
+    const createSettings = service.createConnectionSettings('12345678', {hidden_tables: ['users', 'orders']}).toPromise();
 
     const req = httpMock.expectOne(`/connection/properties/12345678`);
     expect(req.request.method).toBe("POST");
@@ -647,7 +649,7 @@ describe('ConnectionsService', () => {
   it('should call updateConnectionSettings and show success snackbar', () => {
     let isSubscribeCalled = false;
 
-    service.updateConnectionSettings('12345678', ['users', 'orders', 'products']).subscribe(res => {
+    service.updateConnectionSettings('12345678', {hidden_tables: ['users', 'orders', 'products']}).subscribe(res => {
       expect(fakeNotifications.showSuccessSnackbar).toHaveBeenCalledOnceWith('Connection settings has been updated successfully.');
       isSubscribeCalled = true;
     });
@@ -675,7 +677,7 @@ describe('ConnectionsService', () => {
   });
 
   it('should fall createConnectionSettings and show Error alert', async () => {
-    const updateSettings = service.updateConnectionSettings('12345678', ['users', 'orders', 'products']).toPromise();
+    const updateSettings = service.updateConnectionSettings('12345678', {hidden_tables: ['users', 'orders', 'products']}).toPromise();
 
     const req = httpMock.expectOne(`/connection/properties/12345678`);
     expect(req.request.method).toBe("PUT");
