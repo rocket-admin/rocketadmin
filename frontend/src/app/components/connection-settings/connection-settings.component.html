@@ -23,11 +23,79 @@
 
     <form *ngIf="!errorMessage && !noTablesError && !loading" #connectionSettingsForm="ngForm" (ngSubmit)="handleSettingsSubmitting()">
         <div class="settings-form">
+            <div class="logo-uploader">
+                <img *ngIf="connectionSettings.logo_url; else logoStub"
+                    [src]="connectionSettings.logo_url"
+                    class="logo-img"
+                    alt="project-logo">
+                <ng-template #logoStub>
+                    <mat-icon class="logo-stub">image</mat-icon>
+                </ng-template>
+                <mat-form-field appearance="outline" class="logo-input">
+                    <mat-label>Logo URL</mat-label>
+                    <input matInput name="logo-url" #username="ngModel"
+                        [disabled]="submitting"
+                        [(ngModel)]="connectionSettings.logo_url">
+                    <mat-error *ngIf="username.errors?.required && (username.invalid && username.touched)">Username should not be empty.</mat-error>
+                </mat-form-field>
+            </div>
+
+            <!--<div class="logo-uploader">
+                <img *ngIf="connectionSettings.logo; else logoStub" [src]="connectionSettings.logo" alt="">
+                <ng-template #logoStub>
+                    <mat-icon>image</mat-icon>
+                </ng-template>
+
+                <div>
+                    <input type="file" class="file-input" name="logo"
+                        (change)="onFileSelected($event)" #fileUpload>
+
+                    <span class="file-name mat-body-2">{{ connectionSettings.logo ? 'Upload another logo.' : 'No logo uploaded yet.' }}</span>
+
+                    <button type="button" mat-stroked-button class="upload-btn"
+                        (click)="fileUpload.click()">
+                        Upload file
+                    </button>
+                </div>
+            </div>-->
+            <mat-form-field appearance="outline">
+                <mat-label>Company name</mat-label>
+                <input matInput name="company-name" #username="ngModel"
+                    [disabled]="submitting"
+                    [(ngModel)]="connectionSettings.company_name">
+                <mat-error *ngIf="username.errors?.required && (username.invalid && username.touched)">Username should not be empty.</mat-error>
+            </mat-form-field>
+
+            <div class="color-theme">
+                <div class="color-item">
+                    <div class="color-sample" [style.--color]="connectionSettings.primary_color"></div>
+                    <mat-form-field appearance="outline" class="color-input">
+                        <mat-label>Primary color (HEX)</mat-label>
+                        <input matInput name="primary-color" #username="ngModel"
+                            [disabled]="submitting"
+                            [(ngModel)]="connectionSettings.primary_color">
+                        <mat-error *ngIf="username.errors?.required && (username.invalid && username.touched)">Username should not be empty.</mat-error>
+                    </mat-form-field>
+                </div>
+
+                <div class="color-item">
+                    <div class="color-sample" [style.--color]="connectionSettings.secondary_color"></div>
+                    <mat-form-field appearance="outline" class="color-input">
+                        <mat-label>Accented color (HEX)</mat-label>
+                        <input matInput name="accented-color" #username="ngModel"
+                            [disabled]="submitting"
+                            [(ngModel)]="connectionSettings.secondary_color">
+                        <mat-error *ngIf="username.errors?.required && (username.invalid && username.touched)">Username should not be empty.</mat-error>
+                    </mat-form-field>
+                </div>
+
+            </div>
+
             <mat-form-field appearance="outline">
                 <mat-label>Hidden tables</mat-label>
                 <mat-select multiple
                     name="columns_view"
-                    [(ngModel)]="hiddenTables">
+                    [(ngModel)]="connectionSettings.hidden_tables">
                     <mat-option *ngFor="let table of tablesList" [value]="table.table">{{table.display_name || table.normalizedTableName}}</mat-option>
                 </mat-select>
             </mat-form-field>

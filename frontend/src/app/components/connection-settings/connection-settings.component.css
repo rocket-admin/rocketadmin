@@ -4,6 +4,7 @@
 
 .mat-h1 {
     margin-top: 2em;
+    margin-bottom: 1.5em;
 }
 
 .settings-form {
@@ -29,6 +30,80 @@
 .form-group-ordering__order-options * {
     margin-right: 16px;
 }
+
+.logo-uploader {
+    display: flex;
+    align-items: flex-start;
+    gap: 24px;
+    width: 100%;
+}
+
+.logo-img {
+    height: 64px;
+    object-fit: contain;
+    max-width: 160px;
+}
+
+.logo-input {
+    flex-grow: 1;
+}
+
+.logo-stub {
+    margin-top: 24px;
+}
+
+.color-theme {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-gap: 24px;
+    align-items: center;
+}
+
+.color-item {
+    position: relative;
+}
+
+.color-input {
+    width: 100%;
+}
+
+.color-input ::ng-deep input.mat-input-element {
+    box-sizing: border-box;
+    padding-left: 3em;
+}
+
+.color-sample {
+    position: absolute;
+    top: 20px;
+    left: 12px;
+    background-color: var(--color);
+    border-radius: 4px;
+    height: 32px;
+    margin-top: 4px;
+    width: 32px;
+}
+
+/* .file-input {
+    display: none;
+}
+
+.file-uploader-appearance {
+
+}
+
+.file-label {
+    margin-right: 20px;
+}
+
+.file-name {
+    color: rgba(0, 0, 0, 0.5);
+    font-style: italic;
+    margin-right: 20px;
+}
+
+.upload-btn {
+    margin-right: 12px;
+} */
 
 .actions {
     position: fixed;

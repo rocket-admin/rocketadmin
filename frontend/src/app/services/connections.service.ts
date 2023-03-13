@@ -1,6 +1,6 @@
 import { AlertActionType, AlertType } from '../models/alert';
 import { BehaviorSubject, EMPTY } from 'rxjs';
-import { Connection, ConnectionType, DBtype } from '../models/connection';
+import { Connection, ConnectionSettings, ConnectionType, DBtype } from '../models/connection';
 import { IColorConfig, NgxThemeService } from '@brumeilde/ngx-theme';
 import { NavigationEnd, ResolveEnd, Router, RouterEvent } from '@angular/router';
 import { catchError, filter, map } from 'rxjs/operators';
@@ -19,7 +19,7 @@ interface LogParams {
   chunkSize?: number,
 }
 
-type Palettes = { primaryPalette: string, accentedPalette: string, warnPalette: string };
+type Palettes = { primaryPalette: string, accentedPalette: string };
 type Colors = { myColorName: string };
 
 @Injectable({
@@ -53,7 +53,8 @@ export class ConnectionsService {
   public connectionAccessLevel: AccessLevel;
   public groupsAccessLevel: boolean;
   public currentPage: string;
-  public connectionLogo: string
+  public connectionLogo: string;
+  public companyName: string;
 
   constructor(
     private _http: HttpClient,
@@ -94,6 +95,10 @@ export class ConnectionsService {
 
   get logo() {
     return this.connectionLogo;
+  }
+
+  get name() {
+    return this.companyName;
   }
 
   setConnectionInfo(id: string) {
@@ -175,6 +180,9 @@ export class ConnectionsService {
       .pipe(
         map(res => {
           const connection = this.defineConnecrionType(res.connection);
+          this.connectionLogo = res.connectionProperties.logo_url;
+          this.companyName = res.connectionProperties.company_name;
+          this._themeService.updateColors({ palettes: { primaryPalette: res.connectionProperties.primary_color, accentedPalette: res.connectionProperties.secondary_color }});
           return {...res, connection};
         }),
         catchError((err) => {
@@ -318,8 +326,9 @@ export class ConnectionsService {
     return this._http.get(`/connection/properties/${connectionID}`)
     .pipe(
       map((res: any) => {
-        this.connectionLogo = 'https://www.freepnglogos.com/uploads/netflix-logo-circle-png-5.png';
-        this._themeService.updateColors({ palettes: { primaryPalette: '#9418ed', accentedPalette: '#ede218', warnPalette: '#ed1818' }});
+        this.connectionLogo = res.logo_url;
+        this.companyName = res.company_name;
+        this._themeService.updateColors({ palettes: { primaryPalette: res.primary_color, accentedPalette: res.secondary_color }});
         return res;
       }),
       catchError((err) => {
@@ -331,8 +340,8 @@ export class ConnectionsService {
     );
   }
 
-  createConnectionSettings(connectionID: string, hiddenTables: string[]) {
-    return this._http.post(`/connection/properties/${connectionID}`, {hidden_tables: hiddenTables})
+  createConnectionSettings(connectionID: string, settings: ConnectionSettings) {
+    return this._http.post(`/connection/properties/${connectionID}`, settings)
     .pipe(
       map(res => {
         this._notifications.showSuccessSnackbar('Connection settings has been created successfully.');
@@ -347,8 +356,8 @@ export class ConnectionsService {
     );
   }
 
-  updateConnectionSettings(connectionID: string, hiddenTables: string[]) {
-    return this._http.put(`/connection/properties/${connectionID}`, {hidden_tables: hiddenTables})
+  updateConnectionSettings(connectionID: string, settings: ConnectionSettings) {
+    return this._http.put(`/connection/properties/${connectionID}`, settings)
     .pipe(
       map(res => {
         this._notifications.showSuccessSnackbar('Connection settings has been updated successfully.');

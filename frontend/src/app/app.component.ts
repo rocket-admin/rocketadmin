@@ -8,13 +8,13 @@ import { DomSanitizer } from '@angular/platform-browser';
 import { MatIconRegistry } from '@angular/material/icon';
 import { Subject } from 'rxjs';
 import { TablesService } from './services/tables.service';
+import { User } from '@sentry/angular';
 import { UserService } from './services/user.service';
 import amplitude from 'amplitude-js';
 import { differenceInMilliseconds } from 'date-fns';
-import { normalizeTableName } from './lib/normalize';
 import { environment } from '../environments/environment';
 import { interval } from 'rxjs';
-import { User } from '@sentry/angular';
+import { normalizeTableName } from './lib/normalize';
 
 //@ts-ignore
 window.amplitude = amplitude;
@@ -191,6 +191,10 @@ export class AppComponent {
 
   get logo() {
     return this._connections.connectionLogo;
+  }
+
+  get name() {
+    return this._connections.name;
   }
 
   get connectionID() {

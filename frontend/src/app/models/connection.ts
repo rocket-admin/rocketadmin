@@ -48,3 +48,11 @@ export interface TestConnection {
     result: boolean,
     message: string
 }
+
+export interface ConnectionSettings {
+    hidden_tables: string[],
+    primary_color: string,
+    secondary_color: string,
+    logo_url: string,
+    company_name: string,
+}

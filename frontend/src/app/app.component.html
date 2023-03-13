@@ -35,6 +35,7 @@
         <mat-toolbar color="primary" class="nav-bar" [ngClass]="{'nav-bar_white': !userLoggedIn}">
             <a routerLink="/connections-list" *ngIf="userLoggedIn; else externalLink" class="logo">
                 <img [src]="logo || '../assets/logo.png'" alt="Autoadmin logo">
+                <span>{{name}}</span>
             </a>
 
             <ng-template #externalLink>
