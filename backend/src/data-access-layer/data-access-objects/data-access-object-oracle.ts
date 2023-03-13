@@ -5,7 +5,6 @@ import { CreateTableSettingsDto } from '../../entities/table-settings/dto/index.
 import { TableSettingsEntity } from '../../entities/table-settings/table-settings.entity.js';
 import { FilterCriteriaEnum, QueryOrderingEnum } from '../../enums/index.js';
 import {
-  checkFieldAutoincrement,
   compareArrayElements,
   isObjectEmpty,
   listTables,
@@ -26,6 +25,7 @@ import {
   ITestConnectResult,
 } from '../shared/data-access-object-interface.js';
 import { getOracleKnex } from '../shared/utils/get-oracle-knex.js';
+import { checkFieldAutoincrement } from '@rocketadmin/shared-code/src/helpers/check-field-autoincrement.js';
 
 export class DataAccessObjectOracle implements IDataAccessObject {
   private readonly connection: ConnectionEntity;

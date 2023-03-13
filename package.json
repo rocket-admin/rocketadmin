@@ -4,9 +4,11 @@
   "workspaces": [
     "backend",
     "rocketadmin-agent",
-    "rocketadmin-cli"
+    "rocketadmin-cli",
+    "shared-code"
   ],
   "devDependencies": {
     "lerna": "^6.5.1"
-  }
+  },
+  "packageManager": "yarn@3.4.1"
 }
