@@ -26,6 +26,7 @@ COPY rocketadmin-agent /app/rocketadmin-agent
 COPY .yarn /app/.yarn
 RUN yarn set version berry
 RUN yarn install --network-timeout 1000000 --frozen-lockfile
+RUN cd shared-code && ../node_modules/.bin/tsc
 RUN cd backend && yarn run nest build
 WORKDIR /app/backend
 CMD [ "tini", "node", "--", "--enable-source-maps", "dist/main.js"]
