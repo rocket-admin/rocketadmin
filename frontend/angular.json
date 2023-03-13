@@ -27,6 +27,9 @@
               "src/custom-theme.scss",
               "src/styles.scss"
             ],
+            "stylePreprocessorOptions": {
+              "includePaths": ["node_modules/@brumeilde/ngx-theme/presets/material"]
+            },
             "scripts": [],
             "vendorChunk": true,
             "extractLicenses": false,
@@ -146,6 +149,9 @@
               "src/custom-theme.scss",
               "src/styles.scss"
             ],
+            "stylePreprocessorOptions": {
+              "includePaths": ["node_modules/@brumeilde/ngx-theme/presets/material"]
+            },
             "scripts": []
           }
         },

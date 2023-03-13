@@ -77,7 +77,7 @@
 
 
 .list-action-list-item_active {
-    color: #ED4870;
+    color: var(--color-accentedPalette-500);
 }
 
 .list-action-list-item_notSaved .mat-icon {
@@ -103,7 +103,7 @@
 }
 
 .list-action-list-item_active .list-action-list-item__savingIcon::after {
-    background: #ED4870;
+    background: var(--color-accentedPalette-500);
 }
 
 .list-action-list-item_notSaved .list-action-list-item__savingIcon::after {

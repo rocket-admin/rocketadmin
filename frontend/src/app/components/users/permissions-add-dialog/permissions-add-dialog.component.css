@@ -83,5 +83,5 @@
 }
 
 .visibilityIcon_visible {
-    color: #ED4870;
+    color: var(--color-accentedPalette-500);
 }

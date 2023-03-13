@@ -1,7 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import { TableProperties } from 'src/app/models/table';
+
 import { AccessLevel } from 'src/app/models/user';
+import { ConnectionSettings } from 'src/app/models/connection';
 import { ConnectionsService } from 'src/app/services/connections.service';
+import { TableProperties } from 'src/app/models/table';
 import { TablesService } from 'src/app/services/tables.service';
 import { normalizeTableName } from '../../lib/normalize'
 
@@ -14,12 +16,20 @@ export class ConnectionSettingsComponent implements OnInit {
 
   public connectionID: string | null = null;
   public tablesList: TableProperties[] = null;
-  public hiddenTables: string[];
+  public connectionSettings: ConnectionSettings = {
+    hidden_tables: [],
+    primary_color: '',
+    secondary_color: '',
+    logo_url: '',
+    company_name: '',
+  };
+  // public hiddenTables: string[];
   public loading: boolean = false;
   public submitting: boolean = false;
   public isSettingsExist: boolean = false;
   public noTablesError: boolean = false;
   public errorMessage: string;
+
   constructor(
     private _connections: ConnectionsService,
     private _tables: TablesService,
@@ -66,10 +76,10 @@ export class ConnectionSettingsComponent implements OnInit {
       .subscribe(
         (res: any) => {
           if (res) {
-            this.hiddenTables = res.hidden_tables;
+            this.connectionSettings = {...res};
             this.isSettingsExist = true;
           } else {
-            this.hiddenTables = [];
+            this.connectionSettings = null;
             this.isSettingsExist = false;
           }
           this.loading = false;
@@ -87,25 +97,26 @@ export class ConnectionSettingsComponent implements OnInit {
 
   createSettings() {
     this.submitting = true;
-    this._connections.createConnectionSettings(this.connectionID, this.hiddenTables)
+    this._connections.createConnectionSettings(this.connectionID, this.connectionSettings)
       .subscribe(() => {
         this.getSettings();
         this.submitting = false;
       },
       () => this.submitting = false,
       () => this.submitting = false
-      );
+    );
   }
 
   updateSettings() {
     this.submitting = true;
-    this._connections.updateConnectionSettings(this.connectionID, this.hiddenTables)
+    this._connections.updateConnectionSettings(this.connectionID, this.connectionSettings)
       .subscribe(() => {
         this.getSettings();
         this.submitting = false;
       },
       () => this.submitting = false,
-      () => this.submitting = false);
+      () => this.submitting = false
+    );
   }
 
   resetSettings() {
@@ -116,7 +127,20 @@ export class ConnectionSettingsComponent implements OnInit {
         this.submitting = false;
       },
       () => this.submitting = false,
-      () => this.submitting = false);
+      () => this.submitting = false
+    );
+  }
+
+
+  onFileSelected(event) {
+    let reader = new FileReader();
+    const file:File = event.target.files[0];
+
+    reader.addEventListener("load", () => {
+
+    }, false);
+
+    reader.readAsArrayBuffer(file);
   }
 
   openIntercome() {
