@@ -2,6 +2,7 @@
   "name": "@rocketadmin/shared-code",
   "version": "1.0.0",
   "description": "shared code for rocketadmin backend and client applications (agent version, cli version)",
+  "type": "module",
   "dependencies": {
     "knex": "^2.4.2",
     "mysql2": "^3.2.0",

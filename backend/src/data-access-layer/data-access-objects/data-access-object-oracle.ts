@@ -25,7 +25,7 @@ import {
   ITestConnectResult,
 } from '../shared/data-access-object-interface.js';
 import { getOracleKnex } from '../shared/utils/get-oracle-knex.js';
-import { checkFieldAutoincrement } from '@rocketadmin/shared-code/src/helpers/check-field-autoincrement.js';
+import { checkFieldAutoincrement } from '@rocketadmin/shared-code/dist/check-field-autoincrement.js';
 
 export class DataAccessObjectOracle implements IDataAccessObject {
   private readonly connection: ConnectionEntity;
