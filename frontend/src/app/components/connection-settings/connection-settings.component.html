@@ -24,10 +24,11 @@
     <form *ngIf="!errorMessage && !noTablesError && !loading" #connectionSettingsForm="ngForm" (ngSubmit)="handleSettingsSubmitting()">
         <div class="settings-form">
             <div class="logo-uploader">
-                <img *ngIf="connectionSettings.logo_url; else logoStub"
-                    [src]="connectionSettings.logo_url"
+                <div class="logo-box" *ngIf="connectionSettings.logo_url; else logoStub">
+                    <img [src]="connectionSettings.logo_url"
                     class="logo-img"
                     alt="project-logo">
+                </div>
                 <ng-template #logoStub>
                     <mat-icon class="logo-stub">image</mat-icon>
                 </ng-template>

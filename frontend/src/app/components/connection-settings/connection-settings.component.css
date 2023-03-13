@@ -34,14 +34,27 @@
 .logo-uploader {
     display: flex;
     align-items: flex-start;
-    gap: 24px;
+    gap: 16px;
     width: 100%;
 }
 
-.logo-img {
+.logo-box {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #171d39;
+    border-radius: 4px;
+    margin-top: 4px;
+    max-width: 160px;
     height: 64px;
     object-fit: contain;
-    max-width: 160px;
+    padding: 0 8px;
+}
+
+.logo-img {
+    height: 48px;
+    max-width: 136px;
+    object-fit: contain;
 }
 
 .logo-input {
