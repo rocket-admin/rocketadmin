@@ -25,7 +25,7 @@
     "@azure/core-tracing": "^1.0.1",
     "@nestjs/common": "^9.3.9",
     "@nestjs/config": "^2.3.1",
-    "@nestjs/core": "^9.3.9",
+    "@nestjs/core": "^9.0.5",
     "@nestjs/platform-express": "^9.3.9",
     "@nestjs/platform-ws": "^9.3.9",
     "@nestjs/testing": "^9.3.9",
