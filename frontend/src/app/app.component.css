@@ -93,13 +93,16 @@
 }
 
 .logo {
+    display: flex;
+    align-items: center;
     color: #fff;
     text-decoration: none;
 }
 
 .logo img {
     height: 32px;
-    margin-top: 8px;
+    /* margin-top: 8px; */
+    margin-right: 12px;
 }
 
 .menu {

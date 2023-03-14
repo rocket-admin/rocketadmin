@@ -328,9 +328,11 @@ export class ConnectionsService {
     return this._http.get(`/connection/properties/${connectionID}`)
     .pipe(
       map((res: any) => {
-        this.connectionLogo = res.logo_url;
-        this.companyName = res.company_name;
-        this._themeService.updateColors({ palettes: { primaryPalette: res.primary_color, accentedPalette: res.secondary_color }});
+        if (res) {
+          this.connectionLogo = res.logo_url;
+          this.companyName = res.company_name;
+          this._themeService.updateColors({ palettes: { primaryPalette: res.primary_color, accentedPalette: res.secondary_color }});
+        }
         return res;
       }),
       catchError((err) => {

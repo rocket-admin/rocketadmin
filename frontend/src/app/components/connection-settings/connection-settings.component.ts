@@ -79,7 +79,6 @@ export class ConnectionSettingsComponent implements OnInit {
             this.connectionSettings = {...res};
             this.isSettingsExist = true;
           } else {
-            this.connectionSettings = null;
             this.isSettingsExist = false;
           }
           this.loading = false;
