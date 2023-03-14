@@ -180,9 +180,11 @@ export class ConnectionsService {
       .pipe(
         map(res => {
           const connection = this.defineConnecrionType(res.connection);
-          this.connectionLogo = res.connectionProperties.logo_url;
-          this.companyName = res.connectionProperties.company_name;
-          this._themeService.updateColors({ palettes: { primaryPalette: res.connectionProperties.primary_color, accentedPalette: res.connectionProperties.secondary_color }});
+          if (res.connectionProperties) {
+            this.connectionLogo = res.connectionProperties.logo_url;
+            this.companyName = res.connectionProperties.company_name;
+            this._themeService.updateColors({ palettes: { primaryPalette: res.connectionProperties.primary_color, accentedPalette: res.connectionProperties.secondary_color }});
+          }
           return {...res, connection};
         }),
         catchError((err) => {
