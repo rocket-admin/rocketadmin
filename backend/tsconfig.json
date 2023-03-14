@@ -13,6 +13,7 @@
     "baseUrl": "./",
     "incremental": true,
     "moduleResolution": "node",
+    "skipLibCheck": true
     // "paths": {
     //   "@shared-code/*": ["../shared-code/src/*"]
     // },
