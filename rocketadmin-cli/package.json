@@ -30,7 +30,7 @@
     "crypto-js": "^4.1.1",
     "faker": "^6.6.6",
     "get-port": "^6.1.2",
-    "knex": "^2.4.2",
+    "knex": "^2.4.0",
     "knex-paginate": "^3.0.2",
     "mysql2": "^3.1.2",
     "nest-winston": "^1.9.0",
