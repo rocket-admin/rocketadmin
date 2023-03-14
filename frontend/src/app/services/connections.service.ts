@@ -85,10 +85,6 @@ export class ConnectionsService {
     ;
   }
 
-  setConnectionID(id: string) {
-    this.connectionID = id;
-  }
-
   get currentConnectionID() {
     return this.connectionID;
   }
@@ -99,18 +95,6 @@ export class ConnectionsService {
 
   get name() {
     return this.companyName;
-  }
-
-  setConnectionInfo(id: string) {
-    if (id) {
-      this.fetchConnection(id).subscribe(res => {
-        this.connection = res.connection;
-        this.connectionAccessLevel = res.accessLevel;
-        this.groupsAccessLevel = res.groupManagement;
-      });
-    } else {
-      this.connection = {...this.connectionInitialState};
-    }
   }
 
   get currentConnection() {
@@ -134,6 +118,37 @@ export class ConnectionsService {
     if (this.groupsAccessLevel) tabs.push('users');
     if (this.isPermitted(this.connectionAccessLevel)) tabs.push('edit-db', 'connection-settings');
     return tabs;
+  }
+
+  setConnectionID(id: string) {
+    this.connectionID = id;
+  }
+
+  setConnectionInfo(id: string) {
+    console.log('setConnectionInfo');
+    console.log(id);
+    if (id) {
+      this.fetchConnection(id).subscribe(res => {
+        this.connection = res.connection;
+        this.connectionAccessLevel = res.accessLevel;
+        this.groupsAccessLevel = res.groupManagement;
+        if (res.connectionProperties) {
+          console.log('setConnectionInfo ui');
+          this.connectionLogo = res.connectionProperties.logo_url;
+          this.companyName = res.connectionProperties.company_name;
+          this._themeService.updateColors({ palettes: { primaryPalette: res.primary_color, accentedPalette: res.secondary_color }});
+        } else {
+          this.connectionLogo = null;
+          this.companyName = null;
+          this._themeService.updateColors({ palettes: { primaryPalette: '#3258f0', accentedPalette: '#ed4870' }});
+        }
+      });
+    } else {
+      this.connection = {...this.connectionInitialState};
+      this.connectionLogo = null;
+      this.companyName = null;
+      this._themeService.updateColors({ palettes: { primaryPalette: '#3258f0', accentedPalette: '#ed4870' }});
+    }
   }
 
   isPermitted(accessLevel: AccessLevel) {

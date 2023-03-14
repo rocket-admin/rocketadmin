@@ -34,8 +34,9 @@
     <mat-sidenav-content class="main-menu-content">
         <mat-toolbar color="primary" class="nav-bar" [ngClass]="{'nav-bar_white': !userLoggedIn}">
             <a routerLink="/connections-list" *ngIf="userLoggedIn; else externalLink" class="logo">
-                <img [src]="logo || '../assets/logo.png'" alt="Autoadmin logo">
-                <span>{{name}}</span>
+                <img *ngIf="!logo && !name" src="../assets/logo.png" alt="Autoadmin logo">
+                <img *ngIf="logo" [src]="logo || '../assets/logo.png'" alt="Logo">
+                <span *ngIf="name">{{name}}</span>
             </a>
 
             <ng-template #externalLink>
