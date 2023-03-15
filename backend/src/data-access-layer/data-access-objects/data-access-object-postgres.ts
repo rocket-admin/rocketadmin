@@ -22,6 +22,7 @@ import {
   IFilteringFieldsData,
   IForeignKey,
   IPrimaryKey,
+  IReferecedTableNamesAndColumns,
   IRows,
   ITableStructure,
   ITestConnectResult,
@@ -494,6 +495,41 @@ export class DataAccessObjectPostgres extends BasicDao implements IDataAccessObj
       .returning(Object.keys(primaryKey))
       .where(primaryKey)
       .update(row);
+  }
+
+  public async getReferencedTableNamesAndColumns(tableName: string): Promise<Array<IReferecedTableNamesAndColumns>> {
+    const primaryColumns = await this.getTablePrimaryColumns(tableName);
+    const schema = this.connection.schema ? this.connection.schema : 'public';
+    const knex = await this.configureKnex();
+    const results: Array<IReferecedTableNamesAndColumns> = [];
+    for (const primaryColumn of primaryColumns) {
+      const result = await knex.raw(
+        `
+      SELECT
+          r.table_name, r.column_name
+      FROM information_schema.constraint_column_usage       u
+      INNER JOIN information_schema.referential_constraints fk
+                 ON u.constraint_catalog = fk.unique_constraint_catalog
+                     AND u.constraint_schema = fk.unique_constraint_schema
+                     AND u.constraint_name = fk.unique_constraint_name
+      INNER JOIN information_schema.key_column_usage        r
+                 ON r.constraint_catalog = fk.constraint_catalog
+                     AND r.constraint_schema = fk.constraint_schema
+                     AND r.constraint_name = fk.constraint_name
+      WHERE
+          u.column_name = ? AND
+          u.table_catalog = ? AND
+          u.table_schema = ? AND
+          u.table_name = ?
+      `,
+        [primaryColumn.column_name, this.connection.database, schema, tableName],
+      );
+      results.push({
+        referenced_on_column_name: primaryColumn.column_name,
+        referenced_by: result.rows,
+      });
+    }
+    return results;
   }
 
   public async validateSettings(

@@ -62,6 +62,13 @@ export interface IDataAccessObject {
   ): Promise<Record<string, unknown>>;
 
   validateSettings(settings: CreateTableSettingsDto, tableName: string, userEmail: string): Promise<Array<string>>;
+
+  getReferencedTableNamesAndColumns?(tableName: string): Promise<Array<IReferecedTableNamesAndColumns>>;
+}
+
+export interface IReferecedTableNamesAndColumns {
+  referenced_by: Array<{ table_name: string; column_name: string }>;
+  referenced_on_column_name: string;
 }
 
 export interface IRows {
