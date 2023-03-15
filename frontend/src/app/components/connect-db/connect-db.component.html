@@ -165,7 +165,8 @@
                         <mat-slide-toggle name="encryption"
                             angulartics2On="click"
                             angularticsAction="Connection creds: encryption is {{ db.masterEncryption ? 'on' : 'off' }}"
-                            [disabled]="accessLevel === 'readonly'"
+                            [disabled]="accessLevel === 'readonly' || submitting"
+                            [(ngModel)]="db.masterEncryption"
                             [(ngModel)]="db.masterEncryption"
                             (ngModelChange)="generatePassword()">
                             Use clientside encryption
@@ -198,6 +199,7 @@
                             angulartics2On="change"
                             angularticsAction="Connection creds: SID is edited"
                             [readonly]="accessLevel === 'readonly' && db.id"
+                            [disabled]="submitting"
                             [(ngModel)]="db.sid" name="sid" #sid="ngModel">
                         <!-- <mat-error *ngIf="sid.invalid && sid.touched">Email should not be empty.</mat-error> -->
                     </mat-form-field>
@@ -206,6 +208,7 @@
                         labelPosition="after"
                         angulartics2On="click"
                         angularticsAction="Connection creds: SSH is {{ db.ssh ? 'on' : 'off' }}"
+                        [disabled]="submitting"
                         [(ngModel)]="db.ssh">
                         Use SSH tunnel
                     </mat-checkbox>
@@ -216,6 +219,7 @@
                             angulartics2On="change"
                             angularticsAction="Connection creds: SSH key is edited"
                             [required]="db.ssh && !db.id" [readonly]="accessLevel === 'readonly' && db.id"
+                            [disabled]="submitting"
                             [(ngModel)]="db.privateSSHKey"
                         ></textarea>
                         <mat-error *ngIf="privateSSHKey.errors?.required && (privateSSHKey.invalid && privateSSHKey.touched)">Private SSH key should not be empty.</mat-error>
@@ -227,6 +231,7 @@
                             angulartics2On="change"
                             angularticsAction="Connection creds: SSH host is edited"
                             [required]="db.ssh" [readonly]="accessLevel === 'readonly' && db.id"
+                            [disabled]="submitting"
                             [(ngModel)]="db.sshHost">
                         <mat-error *ngIf="sshHost.errors?.required && (sshHost.invalid && sshHost.touched)">SSH host should not be empty.</mat-error>
                     </mat-form-field>
@@ -237,6 +242,7 @@
                             angulartics2On="change"
                             angularticsAction="Connection creds: SSH port is edited"
                             [required]="db.ssh" [readonly]="accessLevel === 'readonly' && db.id"
+                            [disabled]="submitting"
                             [(ngModel)]="db.sshPort">
                         <mat-error *ngIf="sshPort.errors?.required && (sshPort.invalid && sshPort.touched)">SSH port should not be empty.</mat-error>
                     </mat-form-field>
@@ -247,6 +253,7 @@
                             angulartics2On="change"
                             angularticsAction="Connection creds: SSH username is edited"
                             [required]="db.ssh" [readonly]="accessLevel === 'readonly' && db.id"
+                            [disabled]="submitting"
                             [(ngModel)]="db.sshUsername">
                         <mat-error *ngIf="sshUsername.errors?.required && (sshUsername.invalid && sshUsername.touched)">SSH username should not be empty.</mat-error>
                     </mat-form-field>
@@ -255,6 +262,7 @@
                         labelPosition="after"
                         angulartics2On="click"
                         angularticsAction="Connection creds: SSL is {{ db.ssl ? 'on' : 'off' }}"
+                        [disabled]="submitting"
                         [(ngModel)]="db.ssl">
                         Check SSL certificate
                     </mat-checkbox>
@@ -265,6 +273,7 @@
                             angulartics2On="change"
                             angularticsAction="Connection creds: SSL certificate is edited"
                             [required]="db.ssl" [readonly]="accessLevel === 'readonly' && db.id"
+                            [disabled]="submitting"
                             [(ngModel)]="db.cert"
                         ></textarea>
                         <mat-error *ngIf="sslCert.errors?.required && (sslCert.invalid && sslCert.touched)">SSL certificate should not be empty.</mat-error>
@@ -274,6 +283,7 @@
                         labelPosition="after"
                         angulartics2On="click"
                         angularticsAction="Connection creds: azure encryption is {{ db.azure_encryption ? 'on' : 'off' }}"
+                        [disabled]="submitting"
                         [(ngModel)]="db.azure_encryption">
                         Encryption
                     </mat-checkbox>
