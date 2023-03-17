@@ -1,12 +1,12 @@
 import { ComponentFixture, TestBed, async } from '@angular/core/testing';
-import { MAT_DIALOG_DATA, MatDialogRef, MatDialogModule } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 
 import { BbBulkActionConfirmationDialogComponent } from './db-bulk-action-confirmation-dialog.component';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { RouterTestingModule } from "@angular/router/testing";
-import { of } from 'rxjs';
 import { TablesService } from 'src/app/services/tables.service';
+import { of } from 'rxjs';
 
 describe('BbBulkActionConfirmationDialogComponent', () => {
   let component: BbBulkActionConfirmationDialogComponent;
@@ -67,7 +67,7 @@ describe('BbBulkActionConfirmationDialogComponent', () => {
 
     component.handleConfirmedActions();
 
-    expect(fakeDeleteRows).toHaveBeenCalledOnceWith('12345678', 'users', [ { id: '1234' }, { id: '5678' } ]);
+    expect(fakeDeleteRows).toHaveBeenCalledOnceWith('12345678', 'users', [{id: 1}, {id: 2}, {id: 3}]);
     expect(component.submitting).toBeFalse();
   });
 });

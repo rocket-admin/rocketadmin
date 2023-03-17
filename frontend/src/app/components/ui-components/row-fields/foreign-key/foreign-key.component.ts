@@ -104,7 +104,6 @@ export class ForeignKeyComponent implements OnInit {
 
   fetchSuggestions() {
     const currentRow = this.suggestions.find(suggestion => suggestion.displayString === this.currentDisplayedString);
-
     if (currentRow !== undefined) {
       this.currentFieldValue = currentRow.fieldValue;
       // this.currentFieldQueryParams = Object.assign({}, ...this.primaeyKeys.map((primaeyKey) => ({[primaeyKey.column_name]: currentRow[primaeyKey.column_name]})));
@@ -130,7 +129,7 @@ export class ForeignKeyComponent implements OnInit {
             const modifiedRow = this.getModifiedRow(row);
             return {
               displayString: this.identityColumn ? `${row[this.identityColumn]} (${Object.values(modifiedRow).filter(value => value).join(' | ')})` : Object.values(modifiedRow).filter(value => value).join(' | '),
-              primaryKeys: Object.assign({}, ...res.primaeyKeys.map((primaeyKey) => ({[primaeyKey.column_name]: row[primaeyKey.column_name]}))),
+              primaryKeys: Object.assign({}, ...res.primaryColumns.map((primaeyKey) => ({[primaeyKey.column_name]: row[primaeyKey.column_name]}))),
               fieldValue: row[this.relations.referenced_column_name]
             }
           });

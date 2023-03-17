@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 
 import { DbActionLinkDialogComponent } from './db-action-link-dialog.component';
 
@@ -6,9 +7,20 @@ describe('DbActionLinkDialogComponent', () => {
   let component: DbActionLinkDialogComponent;
   let fixture: ComponentFixture<DbActionLinkDialogComponent>;
 
+  const mockDialogRef = {
+    close: () => { }
+  };
+
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ DbActionLinkDialogComponent ]
+      declarations: [ DbActionLinkDialogComponent ],
+      imports: [
+        MatDialogModule
+      ],
+      providers: [
+        { provide: MAT_DIALOG_DATA, useValue: {} },
+        { provide: MatDialogRef, useValue: mockDialogRef }
+      ]
     })
     .compileComponents();
 

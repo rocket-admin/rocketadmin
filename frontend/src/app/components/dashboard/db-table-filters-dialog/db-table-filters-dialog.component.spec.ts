@@ -1,10 +1,11 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { FormsModule, ReactiveFormsModule }   from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { DbTableFiltersDialogComponent } from './db-table-filters-dialog.component';
-import { FormsModule }   from '@angular/forms';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { RouterTestingModule } from "@angular/router/testing";
@@ -74,7 +75,8 @@ describe('DbTableFiltersDialogComponent', () => {
         MatSnackBarModule,
         MatDialogModule,
         FormsModule,
-        MatSelectModule,
+        ReactiveFormsModule,
+        MatAutocompleteModule,
         BrowserAnimationsModule
       ],
       providers: [

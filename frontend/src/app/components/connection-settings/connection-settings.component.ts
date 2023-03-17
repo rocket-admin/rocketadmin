@@ -77,6 +77,8 @@ export class ConnectionSettingsComponent implements OnInit {
         (res: any) => {
           if (res) {
             this.connectionSettings = {...res};
+            console.log('connectionSettings from getSettings');
+            console.log(this.connectionSettings);
             this.isSettingsExist = true;
           } else {
             this.isSettingsExist = false;

@@ -37,7 +37,8 @@ describe('ConnectionsService', () => {
     "ssl": false,
     "cert": null,
     "connectionType": ConnectionType.Direct,
-    "azure_encryption": false
+    "azure_encryption": false,
+    "signing_key": ''
   }
 
   const connectionCredsRequested = {
@@ -190,7 +191,8 @@ describe('ConnectionsService', () => {
       "ssl": false,
       "cert": null,
       "azure_encryption": false,
-      "connectionType": ConnectionType.Direct
+      "connectionType": ConnectionType.Direct,
+      "signing_key": ''
     })
   })
 
@@ -463,7 +465,10 @@ describe('ConnectionsService', () => {
     req.flush(fakeError, {status: 400, statusText: ''});
     await updatedConnection;
 
-    expect(fakeNotifications.showErrorSnackbar).toHaveBeenCalledOnceWith(`${fakeError.message}. Connection has not been updated.`);
+    expect(fakeNotifications.showAlert).toHaveBeenCalledOnceWith(AlertType.Error, fakeError.message, [jasmine.objectContaining({
+      type: AlertActionType.Button,
+      caption: 'Dismiss',
+    })]);
   });
 
   it('should call deleteConnection and show Success Snackbar', () => {

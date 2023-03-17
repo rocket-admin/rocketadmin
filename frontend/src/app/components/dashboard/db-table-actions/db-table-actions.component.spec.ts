@@ -1,18 +1,18 @@
-import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { MatSnackBarModule } from '@angular/material/snack-bar';
-import { RouterTestingModule } from '@angular/router/testing';
+
+import { ActionDeleteDialogComponent } from './action-delete-dialog/action-delete-dialog.component';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { CustomActionType } from 'src/app/models/table';
+import { DbTableActionsComponent } from './db-table-actions.component';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { NotificationsService } from 'src/app/services/notifications.service';
+import { RouterTestingModule } from '@angular/router/testing';
 import { TablesService } from 'src/app/services/tables.service';
 import { of } from 'rxjs';
 
-import { DbTableActionsComponent } from './db-table-actions.component';
-import { ActionDeleteDialogComponent } from './action-delete-dialog/action-delete-dialog.component';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { NotificationsService } from 'src/app/services/notifications.service';
-
-fdescribe('DbTableActionsComponent', () => {
+describe('DbTableActionsComponent', () => {
   let component: DbTableActionsComponent;
   let fixture: ComponentFixture<DbTableActionsComponent>;
   let tablesService: TablesService;

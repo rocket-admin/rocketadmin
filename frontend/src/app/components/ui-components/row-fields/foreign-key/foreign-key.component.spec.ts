@@ -3,9 +3,9 @@ import { ComponentFixture, TestBed, async } from '@angular/core/testing';
 import { ForeignKeyComponent } from './foreign-key.component';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { RouterTestingModule } from "@angular/router/testing";
-import { MatDialogModule } from '@angular/material/dialog';
 import { TablesService } from 'src/app/services/tables.service';
 import { of } from 'rxjs';
 
@@ -135,6 +135,7 @@ describe('ForeignKeyComponent', () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(ForeignKeyComponent);
     component = fixture.componentInstance;
+    component.relations = fakeRelations;
     tablesService = TestBed.inject(TablesService);
     fixture.detectChanges();
   });
@@ -149,7 +150,6 @@ describe('ForeignKeyComponent', () => {
     spyOn(tablesService, 'fetchTable').and.returnValue(of(usersTableNetworkWithIdentityColumn));
 
     component.connectionID = '12345678';
-    component.relations = fakeRelations;
     component.value = '';
 
     component.ngOnInit();
@@ -162,14 +162,17 @@ describe('ForeignKeyComponent', () => {
     expect(component.suggestions).toEqual([
       {
         displayString: 'Taylor (Alex | new-user-5@email.com)',
+        primaryKeys: {id: 33},
         fieldValue: 33
       },
       {
         displayString: 'Johnson (Alex | new-user-4@email.com)',
+        primaryKeys: {id: 34},
         fieldValue: 34
       },
       {
         displayString: 'Smith (Alex | some-new@email.com)',
+        primaryKeys: {id: 35},
         fieldValue: 35
       }
     ])
@@ -179,7 +182,7 @@ describe('ForeignKeyComponent', () => {
     spyOn(tablesService, 'fetchTable').and.returnValue(of(usersTableNetwork));
 
     component.connectionID = '12345678';
-    component.relations = fakeRelations;
+
     component.value = '';
 
     component.ngOnInit();
@@ -192,14 +195,17 @@ describe('ForeignKeyComponent', () => {
     expect(component.suggestions).toEqual([
       {
         displayString: 'Alex | Taylor | new-user-5@email.com',
+        primaryKeys: {id: 33},
         fieldValue: 33
       },
       {
         displayString: 'Alex | Johnson | new-user-4@email.com',
+        primaryKeys: {id: 34},
         fieldValue: 34
       },
       {
         displayString: 'Alex | Smith | some-new@email.com',
+        primaryKeys: {id: 35},
         fieldValue: 35
       }
     ])
@@ -216,7 +222,7 @@ describe('ForeignKeyComponent', () => {
       referenced_column_name: 'id',
       referenced_table_name: 'users',
       column_default: '',
-  };
+    };
     component.value = '';
 
     component.ngOnInit();
@@ -229,14 +235,17 @@ describe('ForeignKeyComponent', () => {
     expect(component.suggestions).toEqual([
       {
         displayString: '33 | Alex | Taylor | new-user-5@email.com | 24',
+        primaryKeys: {id: 33},
         fieldValue: 33
       },
       {
         displayString: '34 | Alex | Johnson | new-user-4@email.com | 24',
+        primaryKeys: {id: 34},
         fieldValue: 34
       },
       {
         displayString: '35 | Alex | Smith | some-new@email.com | 24',
+        primaryKeys: {id: 35},
         fieldValue: 35
       }
     ])
@@ -246,14 +255,17 @@ describe('ForeignKeyComponent', () => {
     component.suggestions = [
       {
         displayString: 'Alex | Taylor | new-user-5@email.com',
+        primaryKeys: {id: 33},
         fieldValue: 33
       },
       {
         displayString: 'Alex | Johnson | new-user-4@email.com',
+        primaryKeys: {id: 34},
         fieldValue: 34
       },
       {
         displayString: 'Alex | Smith | some-new@email.com',
+        primaryKeys: {id: 35},
         fieldValue: 35
       }
     ];
@@ -282,6 +294,7 @@ describe('ForeignKeyComponent', () => {
           "age": 24
         }
       ],
+      primaryColumns: [{ column_name: "id", data_type: "integer" }],
       identity_column: 'lastname'
     }
 
@@ -310,10 +323,12 @@ describe('ForeignKeyComponent', () => {
     expect(component.suggestions).toEqual([
       {
         displayString: 'Taylor (John | new-user-0@email.com)',
+        primaryKeys: {id: 23},
         fieldValue: 23
       },
       {
         displayString: 'Johnson (John | new-user-1@email.com)',
+        primaryKeys: {id: 24},
         fieldValue: 24
       }
     ])
@@ -326,19 +341,20 @@ describe('ForeignKeyComponent', () => {
 
     spyOn(tablesService, 'fetchTable').and.returnValue(of(searchSuggestionsNetwork));
 
-    component.relations = fakeRelations;
-
     component.suggestions = [
       {
         displayString: 'Alex | Taylor | new-user-5@email.com',
+        primaryKeys : {id: 33},
         fieldValue: 33
       },
       {
         displayString: 'Alex | Johnson | new-user-4@email.com',
+        primaryKeys : {id: 34},
         fieldValue: 34
       },
       {
         displayString: 'Alex | Smith | some-new@email.com',
+        primaryKeys : {id: 35},
         fieldValue: 35
       }
     ];
@@ -370,11 +386,12 @@ describe('ForeignKeyComponent', () => {
           "email": "new-user-1@email.com",
           "age": 24
         }
-      ]
+      ],
+      primaryColumns: [{ column_name: "id", data_type: "integer" }]
     }
 
-    spyOn(tablesService, 'fetchTable').and.returnValue(of(searchSuggestionsNetwork));
-
+    const fakeFetchTable = spyOn(tablesService, 'fetchTable').and.returnValue(of(searchSuggestionsNetwork));
+    component.connectionID = '12345678';
     component.relations = fakeRelations;
 
     component.suggestions = [
@@ -392,16 +409,29 @@ describe('ForeignKeyComponent', () => {
       }
     ];
 
-    component.currentDisplayedString = 'John';
+    component.currentDisplayedString = 'Alex';
+    console.log('my test');
     component.fetchSuggestions();
+
+    fixture.detectChanges();
+
+    expect(fakeFetchTable).toHaveBeenCalledWith({connectionID: '12345678',
+      tableName: component.relations.referenced_table_name,
+      requstedPage: 1,
+      chunkSize: 20,
+      foreignKeyRowName: 'autocomplete',
+      foreignKeyRowValue: component.currentDisplayedString,
+      referencedColumn: component.relations.referenced_column_name});
 
     expect(component.suggestions).toEqual([
       {
         displayString: 'John | Taylor | new-user-0@email.com',
+        primaryKeys : {id: 23},
         fieldValue: 23
       },
       {
         displayString: 'John | Johnson | new-user-1@email.com',
+        primaryKeys : {id: 24},
         fieldValue: 24
       }
     ])
