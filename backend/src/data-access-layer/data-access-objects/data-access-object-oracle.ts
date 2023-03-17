@@ -20,12 +20,20 @@ import {
   IFilteringFieldsData,
   IForeignKey,
   IPrimaryKey,
+  IReferecedTableNamesAndColumns,
   IRows,
   ITableStructure,
   ITestConnectResult,
 } from '../shared/data-access-object-interface.js';
 import { getOracleKnex } from '../shared/utils/get-oracle-knex.js';
 import { checkFieldAutoincrement } from '@rocketadmin/shared-code/dist/check-field-autoincrement.js';
+
+type RefererencedConstraint = {
+  TABLE_NAME: string;
+  CONSTRAINT_NAME: string;
+  TABLE_NAME_ON: string;
+  COLUMN_NAME_ON: string;
+};
 
 export class DataAccessObjectOracle implements IDataAccessObject {
   private readonly connection: ConnectionEntity;
@@ -558,6 +566,80 @@ export class DataAccessObjectOracle implements IDataAccessObject {
     const tableStructure = promisesResults[0];
     const primaryColumns = promisesResults[1];
     return tableSettingsFieldValidator(tableStructure, primaryColumns, settings);
+  }
+
+  public async getReferencedTableNamesAndColumns(tableName: string): Promise<IReferecedTableNamesAndColumns[]> {
+    const primaryColumns = await this.getTablePrimaryColumns(tableName);
+    const knex = await this.configureKnex();
+    const result: Array<IReferecedTableNamesAndColumns> = [];
+    for (const primaryColumn of primaryColumns) {
+      const referencedConstraints: Array<RefererencedConstraint> = (await knex
+        .transaction((trx) => {
+          knex
+            .raw(
+              `
+              SELECT
+              UC.TABLE_NAME as TABLE_NAME,
+              UC.CONSTRAINT_NAME as CONSTRAINT_NAME,
+              UCC.TABLE_NAME as TABLE_NAME_ON,
+              UCC.COLUMN_NAME as COLUMN_NAME_ON
+          FROM
+              USER_CONSTRAINTS UC,
+              USER_CONS_COLUMNS UCC
+          WHERE
+              UC.R_CONSTRAINT_NAME = UCC.CONSTRAINT_NAME
+              AND uc.constraint_type = 'R'
+              AND UCC.TABLE_NAME = ?
+              AND UCC.COLUMN_NAME = ?
+          ORDER BY
+              UC.TABLE_NAME,
+              UC.R_CONSTRAINT_NAME,
+              UCC.TABLE_NAME,
+              UCC.COLUMN_NAME
+      `,
+              [tableName, primaryColumn.column_name],
+            )
+            .transacting(trx)
+            .then(trx.commit)
+            .catch(trx.rollback);
+        })
+        .catch((e) => {
+          throw new Error(e);
+        })) as Array<RefererencedConstraint>;
+
+      for (const referencedConstraint of referencedConstraints) {
+        const columnName = await knex
+          .transaction((trx) => {
+            knex
+              .raw(
+                `
+            SELECT column_name
+            FROM all_cons_columns
+            WHERE constraint_name = ?
+            `,
+                referencedConstraint.CONSTRAINT_NAME,
+              )
+              .transacting(trx)
+              .then(trx.commit)
+              .catch(trx.rollback);
+          })
+          .catch((e) => {
+            throw new Error(e);
+          });
+        referencedConstraint.CONSTRAINT_NAME = columnName[0].COLUMN_NAME;
+      }
+      result.push({
+        referenced_on_column_name: primaryColumn.column_name,
+        referenced_by: referencedConstraints.map((constraint) => {
+          return {
+            table_name: constraint.TABLE_NAME,
+            column_name: constraint.CONSTRAINT_NAME,
+          };
+        }),
+      });
+    }
+
+    return result;
   }
 
   private attachSchemaNameToTableName(tableName: string): string {
