@@ -26,7 +26,7 @@ import {
   ITestConnectResult,
 } from '../shared/data-access-object-interface.js';
 import { getOracleKnex } from '../shared/utils/get-oracle-knex.js';
-import { checkFieldAutoincrement } from '@rocketadmin/shared-code/dist/check-field-autoincrement.js';
+import { checkFieldAutoincrement } from '@rocketadmin/shared-code/dist/src/helpers/check-field-autoincrement.js';
 
 type RefererencedConstraint = {
   TABLE_NAME: string;

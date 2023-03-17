@@ -18,6 +18,9 @@
     //   "@shared-code/*": ["../shared-code/src/*"]
     // },
   },
+  "references": [
+    { "path": "../shared-code" }
+],
   "include": ["src", "test"],
   "exclude": ["node_modules", "dist", "../node_modules"]
 }
