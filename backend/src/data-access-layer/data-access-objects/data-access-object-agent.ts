@@ -1,4 +1,3 @@
-import { Injectable, Scope } from '@nestjs/common';
 import axios from 'axios';
 import jwt from 'jsonwebtoken';
 import { ConnectionEntity } from '../../entities/connection/connection.entity.js';
@@ -13,6 +12,7 @@ import {
   IFilteringFieldsData,
   IForeignKey,
   IPrimaryKey,
+  IReferecedTableNamesAndColumns,
   IRows,
   ITableStructure,
   ITestConnectResult,
@@ -360,6 +360,10 @@ export class DataAccessObjectAgent implements IDataAccessObject {
       this.checkIsErrorLocalAndThrowException(e);
       throw new Error(e.response.data);
     }
+  }
+
+  public async getReferencedTableNamesAndColumns(tableName: string): Promise<Array<IReferecedTableNamesAndColumns>> {
+    return [];
   }
 
   private checkIsErrorLocalAndThrowException(e: any): void {
