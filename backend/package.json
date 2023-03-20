@@ -93,7 +93,7 @@
     "safe-regex2": "^3.1.0",
     "secure-json-parse": "2.7.0",
     "sinon": "15.0.1",
-    "sqlite3": "5.1.4",
+    "sqlite3": "5.1.5",
     "ssh2": "1.11.0",
     "stripe": "11.6.0",
     "swagger-ui-express": "4.6.0",
