@@ -25,6 +25,7 @@ import {
   IFilteringFieldsData,
   IForeignKey,
   IPrimaryKey,
+  IReferecedTableNamesAndColumns,
   IRows,
   ITableStructure,
   ITestConnectResult,
@@ -474,6 +475,37 @@ export class DataAccessObjectMysql extends BasicDao implements IDataAccessObject
     const tableStructure = promisesResults[0];
     const primaryColumns = promisesResults[1];
     return tableSettingsFieldValidator(tableStructure, primaryColumns, settings);
+  }
+
+  public async getReferencedTableNamesAndColumns(tableName: string): Promise<Array<IReferecedTableNamesAndColumns>> {
+    const primaryColumns = await this.getTablePrimaryColumns(tableName);
+    const knex = await this.configureKnex();
+    const results: Array<IReferecedTableNamesAndColumns> = [];
+    for (const primaryColumn of primaryColumns) {
+      const result = await knex.raw(
+        `
+    SELECT
+    TABLE_NAME as 'table_name',
+    COLUMN_NAME as 'column_name'
+    FROM
+    information_schema.KEY_COLUMN_USAGE
+    WHERE
+    REFERENCED_TABLE_NAME = ?
+    AND REFERENCED_COLUMN_NAME = ?
+    AND TABLE_SCHEMA = ?;
+      `,
+        [tableName, primaryColumn.column_name, this.connection.database],
+      );
+      console.log(
+        '🚀 ~ file: data-access-object-mysql.ts:499 ~ DataAccessObjectMysql ~ getReferencedTableNamesAndColumns ~ result:',
+        result,
+      );
+      results.push({
+        referenced_on_column_name: primaryColumn.column_name,
+        referenced_by: result[0],
+      });
+    }
+    return results;
   }
 
   private async getRowsCount(

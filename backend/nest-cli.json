@@ -1,4 +1,5 @@
 {
+  "monorepo": true,
   "collection": "@nestjs/schematics",
   "compilerOptions": {
     "plugins": []

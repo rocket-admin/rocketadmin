@@ -1,3 +1,4 @@
+import { IReferecedTableNamesAndColumns } from '../../data-access-layer/shared/data-access-object-interface.js';
 import { FilterCriteriaEnum, QueryOrderingEnum } from '../../enums/index.js';
 import { ITableAccessLevel, ITablePermissionData } from '../permission/permission.interface.js';
 import { CreatedTableActionDS } from '../table-actions/application/data-sctructures/created-table-action.ds.js';
@@ -92,6 +93,7 @@ export interface ITableRowRO {
   list_fields: Array<string>;
   table_actions?: Array<CreatedTableActionDS>;
   identity_column: string;
+  referenced_table_names_and_columns?: Array<IReferecedTableNamesAndColumns>;
 }
 
 export interface ITableRowsRO {
