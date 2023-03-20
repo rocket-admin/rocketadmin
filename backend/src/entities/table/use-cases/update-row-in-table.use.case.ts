@@ -69,12 +69,13 @@ export class UpdateRowInTableUseCase
     }
 
     // eslint-disable-next-line prefer-const
-    let [tableStructure, tableWidgets, tableSettings, tableForeignKeys, tablePrimaryKeys] = await Promise.all([
+    let [tableStructure, tableWidgets, tableSettings, tableForeignKeys, tablePrimaryKeys, referencedTableNamesAndColumns] = await Promise.all([
       dao.getTableStructure(tableName, userEmail),
       this._dbContext.tableWidgetsRepository.findTableWidgets(connectionId, tableName),
       this._dbContext.tableSettingsRepository.findTableSettings(connectionId, tableName),
       dao.getTableForeignKeys(tableName, userEmail),
       dao.getTablePrimaryColumns(tableName, userEmail),
+      dao.getReferencedTableNamesAndColumns(tableName),
     ]);
 
     if (tableSettings && !tableSettings?.can_update) {
@@ -173,6 +174,7 @@ export class UpdateRowInTableUseCase
         readonly_fields: tableSettings?.readonly_fields ? tableSettings.readonly_fields : [],
         list_fields: tableSettings?.list_fields?.length > 0 ? tableSettings.list_fields : [],
         identity_column: tableSettings?.identity_column ? tableSettings.identity_column : null,
+        referenced_table_names_and_columns: referencedTableNamesAndColumns,
       };
     } catch (e) {
       operationResult = OperationResultStatusEnum.unsuccessfully;

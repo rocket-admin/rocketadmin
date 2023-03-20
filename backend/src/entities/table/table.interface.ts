@@ -93,7 +93,7 @@ export interface ITableRowRO {
   list_fields: Array<string>;
   table_actions?: Array<CreatedTableActionDS>;
   identity_column: string;
-  referenced_table_names_and_columns?: Array<IReferecedTableNamesAndColumns>;
+  referenced_table_names_and_columns: Array<IReferecedTableNamesAndColumns>;
 }
 
 export interface ITableRowsRO {

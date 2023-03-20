@@ -1,3 +1,4 @@
+/* eslint-disable prefer-const */
 import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface.js';
@@ -61,7 +62,6 @@ export class GetRowByPrimaryKeyUseCase
       userEmail = await this._dbContext.userRepository.getUserEmailOrReturnNull(userId);
     }
 
-    // eslint-disable-next-line prefer-const
     let [
       tableStructure,
       tableWidgets,
