@@ -175,6 +175,17 @@ export class CommandExecutor {
           console.log(Messages.FAIL_MESSAGE(e.message));
           return new Error(Messages.FAILED_TO_GET_IDENTITY_COLUMNS);
         }
+
+      case OperationTypeEnum.getReferencedTableNamesAndColumns:
+        try {
+          operationStatusResult = OperationResultStatusEnum.successfully;
+          return await dao.getReferencedTableNamesAndColumns(tableName);
+        } catch (e) {
+          operationStatusResult = OperationResultStatusEnum.unsuccessfully;
+          console.log(Messages.FAIL_MESSAGE(e.message));
+          return new Error(Messages.FAILED_TO_GET_IDENTITY_COLUMNS);
+        }
+
       default:
         return new Error(Messages.UNKNOWN_OPERATION(operationType));
     }

@@ -11,4 +11,5 @@ export enum DaoCommandsEnum {
   updateRowInTable = 'updateRowInTable',
   validateSettings = 'validateSettings',
   getIdentityColumns = 'getIdentityColumns',
+  getReferencedTableNamesAndColumns = 'getReferencedTableNamesAndColumns',
 }
