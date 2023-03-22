@@ -1,0 +1,3 @@
+[submodule "private_modules"]
+	path = private_modules
+	url = git@github.com:rocket-admin/private_modules.git
