@@ -362,8 +362,25 @@ export class DataAccessObjectAgent implements IDataAccessObject {
     }
   }
 
-  public async getReferencedTableNamesAndColumns(tableName: string): Promise<Array<IReferecedTableNamesAndColumns>> {
-    return [];
+  public async getReferencedTableNamesAndColumns(tableName: string, email: string): Promise<Array<IReferecedTableNamesAndColumns>> {
+    const jwtAuthToken = this.generateJWT(this.connection.agent.token);
+    try {
+      const res = await axios.post(
+        this.serverAddress,
+        {
+          operationType: DaoCommandsEnum.getReferencedTableNamesAndColumns,
+          email: email,
+        },
+        { headers: { authorization: `Bearer ${jwtAuthToken}` } },
+      );
+      if (res.data.commandResult instanceof Error) {
+        throw new Error(res.data.commandResult.message);
+      }
+      return res.data.commandResult;
+    } catch (e) {
+      this.checkIsErrorLocalAndThrowException(e);
+      throw new Error(e.response.data);
+    }
   }
 
   private checkIsErrorLocalAndThrowException(e: any): void {

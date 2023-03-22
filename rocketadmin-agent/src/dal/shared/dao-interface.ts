@@ -40,6 +40,13 @@ export interface IDaoInterface {
     identityColumnName: string,
     fieldValues: Array<string | number>,
   );
+
+  getReferencedTableNamesAndColumns(tableName: string): Promise<Array<IReferecedTableNamesAndColumns>>;
+}
+
+export interface IReferecedTableNamesAndColumns {
+  referenced_by: Array<{ table_name: string; column_name: string }>;
+  referenced_on_column_name: string;
 }
 
 export interface IDaoRowsRO {

@@ -496,10 +496,6 @@ export class DataAccessObjectMysql extends BasicDao implements IDataAccessObject
       `,
         [tableName, primaryColumn.column_name, this.connection.database],
       );
-      console.log(
-        '🚀 ~ file: data-access-object-mysql.ts:499 ~ DataAccessObjectMysql ~ getReferencedTableNamesAndColumns ~ result:',
-        result,
-      );
       results.push({
         referenced_on_column_name: primaryColumn.column_name,
         referenced_by: result[0],
