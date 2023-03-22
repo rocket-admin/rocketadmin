@@ -3,7 +3,7 @@ import { BasicDao } from '../shared/basic-dao.js';
 import { Cacher } from '../../helpers/cache/cacher.js';
 import { Constants } from '../../helpers/constants/constants.js';
 import { FilterCriteriaEnum } from '../../enums/filter-criteria.enum.js';
-import { IDaoInterface, IDaoRowsRO, ITestConnectResult } from '../shared/dao-interface.js';
+import { IDaoInterface, IDaoRowsRO, IReferecedTableNamesAndColumns, ITestConnectResult } from '../shared/dao-interface.js';
 import { checkFieldAutoincrement } from '../../helpers/check-field-autoincrement.js';
 import { getNumbersFromString } from '../../helpers/get-numbers-from-string.js';
 import { isObjectEmpty } from '../../helpers/is-object-empty.js';
@@ -412,6 +412,33 @@ export class DaoMysql extends BasicDao implements IDaoInterface {
         }
       })
       .whereIn(referencedFieldName, fieldValues);
+  }
+
+  public async getReferencedTableNamesAndColumns(tableName: string): Promise<Array<IReferecedTableNamesAndColumns>> {
+    const primaryColumns = await this.getTablePrimaryColumns(tableName);
+    const knex = await this.configureKnex(this.connection);
+    const results: Array<IReferecedTableNamesAndColumns> = [];
+    for (const primaryColumn of primaryColumns) {
+      const result = await knex.raw(
+        `
+    SELECT
+    TABLE_NAME as 'table_name',
+    COLUMN_NAME as 'column_name'
+    FROM
+    information_schema.KEY_COLUMN_USAGE
+    WHERE
+    REFERENCED_TABLE_NAME = ?
+    AND REFERENCED_COLUMN_NAME = ?
+    AND TABLE_SCHEMA = ?;
+      `,
+        [tableName, primaryColumn.column_name, this.connection.database],
+      );
+      results.push({
+        referenced_on_column_name: primaryColumn.column_name,
+        referenced_by: result[0],
+      });
+    }
+    return results;
   }
 
   private async findAvaliableFields(settings: ITableSettings, tableName: string): Promise<Array<string>> {

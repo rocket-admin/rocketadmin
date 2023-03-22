@@ -13,4 +13,5 @@ export enum OperationTypeEnum {
   initialConnection = 'initialConnection',
   dataFromAgent = 'dataFromAgent',
   getIdentityColumns = 'getIdentityColumns',
+  getReferencedTableNamesAndColumns = 'getReferencedTableNamesAndColumns',
 }

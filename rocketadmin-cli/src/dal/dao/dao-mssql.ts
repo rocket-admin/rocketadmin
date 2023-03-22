@@ -10,7 +10,12 @@ import {
   IFilteringFields,
   ITableSettings,
 } from '../../interfaces/interfaces.js';
-import { IDaoInterface, IDaoRowsRO, ITestConnectResult } from '../shared/dao-interface.js';
+import {
+  IDaoInterface,
+  IDaoRowsRO,
+  IReferecedTableNamesAndColumns,
+  ITestConnectResult,
+} from '../shared/dao-interface.js';
 import { renameObjectKeyName } from '../../helpers/rename-object-key-name.js';
 import { objectKeysToLowercase } from '../../helpers/object-keys-to-lowercase.js';
 import { tableSettingsFieldValidator } from '../../helpers/validators/table-settings-field-validator.js';
@@ -425,6 +430,37 @@ export class DaoMssql extends BasicDao implements IDaoInterface {
         }
       })
       .whereIn(referencedFieldName, fieldValues);
+  }
+
+  public async getReferencedTableNamesAndColumns(tableName: string): Promise<Array<IReferecedTableNamesAndColumns>> {
+    const primaryColumns = await this.getTablePrimaryColumns(tableName);
+    const knex = await this.configureKnex(this.connection);
+    const results: Array<IReferecedTableNamesAndColumns> = [];
+    for (const primaryColumn of primaryColumns) {
+      const result = await knex.raw(
+        `
+        SELECT 
+   OBJECT_NAME(f.parent_object_id) "table_name",
+   COL_NAME(fc.parent_object_id,fc.parent_column_id) "column_name"
+FROM 
+   sys.foreign_keys AS f
+INNER JOIN 
+   sys.foreign_key_columns AS fc 
+      ON f.OBJECT_ID = fc.constraint_object_id
+INNER JOIN 
+   sys.tables t 
+      ON t.OBJECT_ID = fc.referenced_object_id
+WHERE 
+   OBJECT_NAME (f.referenced_object_id) = ?
+      `,
+        tableName,
+      );
+      results.push({
+        referenced_on_column_name: primaryColumn.column_name,
+        referenced_by: result[0],
+      });
+    }
+    return results;
   }
 
   private async findAvaliableFields(settings: ITableSettings, tableName: string): Promise<Array<string>> {
