@@ -19,7 +19,8 @@
     // },
   },
   "references": [
-    { "path": "../shared-code" }
+    { "path": "../shared-code" },
+    { "path": "../private_modules/libs/private_stripe" }
 ],
   "include": ["src", "test"],
   "exclude": ["node_modules", "dist", "../node_modules"]

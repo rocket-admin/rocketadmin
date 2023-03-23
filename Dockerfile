@@ -23,6 +23,7 @@ COPY backend /app/backend
 COPY shared-code /app/shared-code
 COPY rocketadmin-cli /app/rocketadmin-cli
 COPY rocketadmin-agent /app/rocketadmin-agent
+COPY private_modules /app/private_modules
 COPY .yarn /app/.yarn
 RUN yarn set version berry
 RUN yarn install --network-timeout 1000000 --frozen-lockfile
