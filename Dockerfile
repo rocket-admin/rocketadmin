@@ -23,10 +23,13 @@ COPY backend /app/backend
 COPY shared-code /app/shared-code
 COPY rocketadmin-cli /app/rocketadmin-cli
 COPY rocketadmin-agent /app/rocketadmin-agent
+COPY private-modules /app/private-modules
 COPY .yarn /app/.yarn
 RUN yarn set version berry
 RUN yarn install --network-timeout 1000000 --frozen-lockfile
 RUN cd shared-code && ../node_modules/.bin/tsc
+RUN cd private-modules && yarn install --network-timeout 1000000
+RUN cd private-modules && yarn run nest build
 RUN cd backend && yarn run nest build
 WORKDIR /app/backend
 CMD [ "tini", "node", "--", "--enable-source-maps", "dist/main.js"]

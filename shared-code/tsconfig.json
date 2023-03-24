@@ -15,9 +15,6 @@
     "moduleResolution": "node",
     "skipLibCheck": true,
     "composite": true,
-    // "paths": {
-    //   "@shared-code/*": ["../shared-code/src/*"]
-    // },
   },
   "include": ["src", "test"],
   "exclude": ["node_modules", "dist", "../node_modules"]
