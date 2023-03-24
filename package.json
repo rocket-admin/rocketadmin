@@ -5,7 +5,8 @@
     "backend",
     "rocketadmin-agent",
     "rocketadmin-cli",
-    "shared-code"
+    "shared-code",
+    "private_modules"
   ],
   "devDependencies": {
     "lerna": "^6.5.1"
