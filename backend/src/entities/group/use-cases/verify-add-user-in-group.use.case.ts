@@ -8,6 +8,7 @@ import { Constants } from '../../../helpers/constants/constants.js';
 import { Encryptor } from '../../../helpers/encryption/encryptor.js';
 import { ValidationHelper } from '../../../helpers/validators/validation-helper.js';
 import { IStripeSerice } from '../../stripe/application/interfaces/stripe-service.interface.js';
+import { UserHelperService } from '../../user/user-helper.service.js';
 import { generateGwtToken, IToken } from '../../user/utils/generate-gwt-token.js';
 import { VerifyAddUserInGroupDs } from '../application/data-sctructures/verify-add-user-in-group.ds.js';
 import { IVerifyAddUserInGroup } from './use-cases.interfaces.js';
@@ -22,6 +23,7 @@ export class VerifyAddUserInGroupUseCase
     protected _dbContext: IGlobalDatabaseContext,
     @Inject(DynamicModuleEnum.STRIPE_SERVICE)
     private readonly stripeService: IStripeSerice,
+    private readonly userHelperService: UserHelperService,
   ) {
     super();
   }
@@ -68,7 +70,7 @@ export class VerifyAddUserInGroupUseCase
     const ownerSubscriptionLevel: SubscriptionLevelEnum = await this.stripeService.getCurrentUserSubscription(
       foundOwner.stripeId,
     );
-    const canInviteMoreUsers = await this._dbContext.userRepository.checkOwnerInviteAbility(
+    const canInviteMoreUsers = await this.userHelperService.checkOwnerInviteAbility(
       foundOwner.id,
       usersInConnectionsCount,
     );

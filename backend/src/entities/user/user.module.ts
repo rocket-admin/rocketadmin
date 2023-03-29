@@ -29,6 +29,7 @@ import { UsualRegisterUseCase } from './use-cases/usual-register-use.case.js';
 import { VerifyChangeUserEmailUseCase } from './use-cases/verify-change-user-email.use.case.js';
 import { VerifyResetUserPasswordUseCase } from './use-cases/verify-reset-user-password.use.case.js';
 import { VerifyUserEmailUseCase } from './use-cases/verify-user-email.use.case.js';
+import { UserHelperService } from './user-helper.service.js';
 import { UserController } from './user.controller.js';
 import { UserEntity } from './user.entity.js';
 
@@ -117,9 +118,10 @@ import { UserEntity } from './user.entity.js';
       provide: UseCaseType.CHANGE_USER_NAME,
       useClass: ChangeUserNameUseCase,
     },
+    UserHelperService,
   ],
   controllers: [UserController],
-  exports: [],
+  exports: [UserHelperService],
 })
 export class UserModule implements NestModule {
   public configure(consumer: MiddlewareConsumer): void {

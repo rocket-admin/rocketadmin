@@ -26,7 +26,6 @@ import { StripeWebhookUseCase } from './use-cases/stripe-webhook.use.case.js';
           ).PrivateStripeService;
           return new stripeService();
         } catch (error) {
-          console.log('🚀 ~ file: stripe.module.ts:29 ~ useFactory: ~ error:', error);
           throw error;
         }
       },

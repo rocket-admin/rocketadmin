@@ -1,4 +1,5 @@
 import { SubscriptionLevelEnum } from '../../../../enums/subscription-level.enum.js';
+import { UserEntity } from '../../../user/user.entity.js';
 import { ProcessedStripeWebhook } from '../data-structures/processed-stripe-webhook.ds.js';
 import { StripeWebhookDS } from '../data-structures/stripe-webhook.ds.js';
 
@@ -22,4 +23,6 @@ export interface IStripeSerice {
     subscriptionLevel: SubscriptionLevelEnum,
     userStripeId: string,
   ): Promise<ISubscriptionUpgradeResult>;
+
+  createPortalLink(user: UserEntity): Promise<string>;
 }
