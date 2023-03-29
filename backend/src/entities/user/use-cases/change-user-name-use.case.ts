@@ -3,7 +3,6 @@ import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
 import { Messages } from '../../../exceptions/text/messages.js';
-import { Encryptor } from '../../../helpers/encryption/encryptor.js';
 import { ChangeUserNameDS } from '../application/data-structures/change-user-name.ds.js';
 import { FoundUserDs } from '../application/data-structures/found-user.ds.js';
 import { buildFoundUserDs } from '../utils/build-found-user.ds.js';

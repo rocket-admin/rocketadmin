@@ -1,14 +1,13 @@
 import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface.js';
-import { BaseType } from '../../../common/data-injection.tokens.js';
+import { BaseType, DynamicModuleEnum } from '../../../common/data-injection.tokens.js';
 import { SubscriptionLevelEnum } from '../../../enums/index.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { Constants } from '../../../helpers/constants/constants.js';
 import { Encryptor } from '../../../helpers/encryption/encryptor.js';
 import { ValidationHelper } from '../../../helpers/validators/validation-helper.js';
-import { createStripeUsageRecord } from '../../stripe/stripe-helpers/create-stripe-usage-record.js';
-import { getCurrentUserSubscription } from '../../stripe/stripe-helpers/get-current-user-subscription.js';
+import { IStripeSerice } from '../../stripe/application/interfaces/stripe-service.interface.js';
 import { generateGwtToken, IToken } from '../../user/utils/generate-gwt-token.js';
 import { VerifyAddUserInGroupDs } from '../application/data-sctructures/verify-add-user-in-group.ds.js';
 import { IVerifyAddUserInGroup } from './use-cases.interfaces.js';
@@ -21,6 +20,8 @@ export class VerifyAddUserInGroupUseCase
   constructor(
     @Inject(BaseType.GLOBAL_DB_CONTEXT)
     protected _dbContext: IGlobalDatabaseContext,
+    @Inject(DynamicModuleEnum.STRIPE_SERVICE)
+    private readonly stripeService: IStripeSerice,
   ) {
     super();
   }
@@ -64,7 +65,9 @@ export class VerifyAddUserInGroupUseCase
     // eslint-disable-next-line prefer-const
     let { usersInConnectionsCount, usersInConnections } =
       await this._dbContext.connectionRepository.calculateUsersInAllConnectionsOfThisOwner(invitationEntity.ownerId);
-    const ownerSubscriptionLevel: SubscriptionLevelEnum = await getCurrentUserSubscription(foundOwner.stripeId);
+    const ownerSubscriptionLevel: SubscriptionLevelEnum = await this.stripeService.getCurrentUserSubscription(
+      foundOwner.stripeId,
+    );
     const canInviteMoreUsers = await this._dbContext.userRepository.checkOwnerInviteAbility(
       foundOwner.id,
       usersInConnectionsCount,
@@ -84,7 +87,11 @@ export class VerifyAddUserInGroupUseCase
     });
     if (!newUserAlreadyInConnection) {
       ++usersInConnectionsCount;
-      await createStripeUsageRecord(ownerSubscriptionLevel, usersInConnectionsCount, foundOwner.stripeId);
+      await this.stripeService.createStripeUsageRecord(
+        ownerSubscriptionLevel,
+        usersInConnectionsCount,
+        foundOwner.stripeId,
+      );
     }
     foundUser.isActive = true;
     foundUser.password = await Encryptor.hashUserPassword(user_password);
