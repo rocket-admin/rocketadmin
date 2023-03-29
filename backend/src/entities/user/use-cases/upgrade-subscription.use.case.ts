@@ -2,9 +2,9 @@ import { HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { HttpException } from '@nestjs/common/exceptions/http.exception.js';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface.js';
-import { BaseType } from '../../../common/data-injection.tokens.js';
+import { BaseType, DynamicModuleEnum } from '../../../common/data-injection.tokens.js';
 import { Messages } from '../../../exceptions/text/messages.js';
-import { upgradeUserSubscription } from '../../stripe/stripe-helpers/upgrade-user-subscription.js';
+import { IStripeSerice } from '../../stripe/application/interfaces/stripe-service.interface.js';
 import { UpgradeUserSubscriptionDs } from '../application/data-structures/upgrade-user-subscription.ds.js';
 import { UpgradedUserSubscriptionDs } from '../application/data-structures/upgraded-user-subscription.ds.js';
 import { IUpgradeSubscription } from './user-use-cases.interfaces.js';
@@ -17,6 +17,8 @@ export class UpgradeSubscriptionUseCase
   constructor(
     @Inject(BaseType.GLOBAL_DB_CONTEXT)
     protected _dbContext: IGlobalDatabaseContext,
+    @Inject(DynamicModuleEnum.STRIPE_SERVICE)
+    private readonly stripeService: IStripeSerice,
   ) {
     super();
   }
@@ -31,6 +33,6 @@ export class UpgradeSubscriptionUseCase
         HttpStatus.BAD_REQUEST,
       );
     }
-    return await upgradeUserSubscription(inputData.subscriptionLevel, user.stripeId);
+    return await this.stripeService.upgradeUserSubscription(inputData.subscriptionLevel, user.stripeId);
   }
 }

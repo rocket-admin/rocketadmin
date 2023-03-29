@@ -9,6 +9,7 @@ import { LogOutEntity } from '../log-out/log-out.entity.js';
 import { PermissionEntity } from '../permission/permission.entity.js';
 import { TableSettingsEntity } from '../table-settings/table-settings.entity.js';
 import { UserEntity } from '../user/user.entity.js';
+import { UserModule } from '../user/user.module.js';
 import { GroupController } from './group.controller.js';
 import { GroupEntity } from './group.entity.js';
 import { AddUserInGroupUseCase } from './use-cases/add-user-in-group.use.case.js';
@@ -28,6 +29,7 @@ import { VerifyAddUserInGroupUseCase } from './use-cases/verify-add-user-in-grou
       TableSettingsEntity,
       LogOutEntity,
     ]),
+    UserModule,
     AgentModule,
   ],
   providers: [

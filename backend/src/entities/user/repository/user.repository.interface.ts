@@ -33,5 +33,4 @@ export interface IUserRepository {
 
   findUsersWithoutLogs(): Promise<Array<UserEntity>>;
 
-  checkOwnerInviteAbility(ownerId: string, usersCount: number): Promise<boolean>;
 }

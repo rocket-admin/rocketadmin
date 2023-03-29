@@ -1,11 +1,10 @@
 import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface.js';
-import { BaseType } from '../../../common/data-injection.tokens.js';
+import { BaseType, DynamicModuleEnum } from '../../../common/data-injection.tokens.js';
 import { SubscriptionLevelEnum } from '../../../enums/index.js';
 import { Messages } from '../../../exceptions/text/messages.js';
-import { createStripeUsageRecord } from '../../stripe/stripe-helpers/create-stripe-usage-record.js';
-import { getCurrentUserSubscription } from '../../stripe/stripe-helpers/get-current-user-subscription.js';
+import { IStripeSerice } from '../../stripe/application/interfaces/stripe-service.interface.js';
 import { AddUserInGroupDs } from '../application/data-sctructures/add-user-in-group.ds.js';
 import { RemoveUserFromGroupResultDs } from '../application/data-sctructures/remove-user-from-group-result.ds.js';
 import { buildRemoveUserFromGroupResultDs } from '../utils/build-remove-user-from-group-result.ds.js';
@@ -19,6 +18,8 @@ export class RemoveUserFromGroupUseCase
   constructor(
     @Inject(BaseType.GLOBAL_DB_CONTEXT)
     protected _dbContext: IGlobalDatabaseContext,
+    @Inject(DynamicModuleEnum.STRIPE_SERVICE)
+    private readonly stripeService: IStripeSerice,
   ) {
     super();
   }
@@ -53,7 +54,7 @@ export class RemoveUserFromGroupUseCase
     const ownerId = await this._dbContext.connectionRepository.getConnectionAuthorIdByGroupInConnectionId(groupId);
     const updatedGroup = await this._dbContext.groupRepository.saveNewOrUpdatedGroup(groupToUpdate);
     const foundOwner = await this._dbContext.userRepository.findOneUserById(ownerId);
-    const ownerSubscriptionLevel: SubscriptionLevelEnum = await getCurrentUserSubscription(foundOwner.stripeId);
+    const ownerSubscriptionLevel: SubscriptionLevelEnum = await this.stripeService.getCurrentUserSubscription(foundOwner.stripeId);
     // eslint-disable-next-line prefer-const
     let { usersInConnections, usersInConnectionsCount } =
       await this._dbContext.connectionRepository.calculateUsersInAllConnectionsOfThisOwner(ownerId);
@@ -64,7 +65,11 @@ export class RemoveUserFromGroupUseCase
 
     if (!userStayInConnection) {
       --usersInConnectionsCount;
-      await createStripeUsageRecord(ownerSubscriptionLevel, usersInConnectionsCount, foundOwner.stripeId);
+      await this.stripeService.createStripeUsageRecord(
+        ownerSubscriptionLevel,
+        usersInConnectionsCount,
+        foundOwner.stripeId,
+      );
     }
 
     return buildRemoveUserFromGroupResultDs(updatedGroup);

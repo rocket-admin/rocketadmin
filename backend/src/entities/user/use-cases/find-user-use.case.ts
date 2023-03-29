@@ -12,10 +12,10 @@ import { TableSettingsEntity } from '../../table-settings/table-settings.entity.
 import { CreateUserDs } from '../application/data-structures/create-user.ds.js';
 import { FindUserDs } from '../application/data-structures/find-user.ds.js';
 import { FoundUserDs } from '../application/data-structures/found-user.ds.js';
+import { UserHelperService } from '../user-helper.service.js';
 import { buildConnectionEntitiesFromTestDtos } from '../utils/build-connection-entities-from-test-dtos.js';
 import { buildDefaultAdminGroups } from '../utils/build-default-admin-groups.js';
 import { buildDefaultAdminPermissions } from '../utils/build-default-admin-permissions.js';
-import { buildFoundUserDs } from '../utils/build-found-user.ds.js';
 import { buildTestTableSettings } from '../utils/build-test-table-settings.js';
 import { IFindUserUseCase } from './user-use-cases.interfaces.js';
 
@@ -28,6 +28,7 @@ export class FindUserUseCase
     @Inject(BaseType.GLOBAL_DB_CONTEXT)
     protected _dbContext: IGlobalDatabaseContext,
     private readonly amplitudeService: AmplitudeService,
+    private readonly userHelperService: UserHelperService,
   ) {
     super();
   }
@@ -35,7 +36,7 @@ export class FindUserUseCase
   protected async implementation(userData: FindUserDs | CreateUserDs): Promise<FoundUserDs> {
     const user = await this._dbContext.userRepository.findOneUserById(userData.id);
     if (user) {
-      return await buildFoundUserDs(user);
+      return await this.userHelperService.buildFoundUserDs(user);
     }
 
     const savedUser = await this._dbContext.userRepository.createUser(userData);
@@ -70,6 +71,6 @@ export class FindUserUseCase
       }),
     );
     await this.amplitudeService.formAndSendLogRecord(AmplitudeEventTypeEnum.userRegistered, savedUser.id);
-    return await buildFoundUserDs(savedUser);
+    return await this.userHelperService.buildFoundUserDs(savedUser);
   }
 }
