@@ -1,11 +1,12 @@
 export function listTables(knex: any, schema = null): Array<string> {
   let query: string;
   let bindings: string[];
-
+  let bindingSchema: string;
   switch (knex.client.constructor.name) {
     case 'Client_MSSQL':
-      (query = "SELECT table_name FROM information_schema.tables WHERE table_schema = 'public' AND table_catalog = ?"),
-        (bindings = [knex.client.database()]);
+      bindingSchema = schema ? schema : 'public';
+      (query = 'SELECT table_name FROM information_schema.tables WHERE table_schema = ? AND table_catalog = ?'),
+        (bindings = [bindingSchema, knex.client.database()]);
       break;
     case 'Client_MySQL':
     case 'Client_MySQL2':
@@ -27,7 +28,7 @@ export function listTables(knex: any, schema = null): Array<string> {
       });
     case 'Client_PG':
       query = `SELECT table_name FROM information_schema.tables WHERE table_schema = ? AND table_catalog = ?`;
-      const bindingSchema = schema ? schema : 'public';
+      bindingSchema = schema ? schema : 'public';
       bindings = [bindingSchema, knex.client.database()];
       return knex.raw(query, bindings).then(function (results) {
         return results.rows.map((row) => row.table_name);
