@@ -1,4 +1,4 @@
-export function listTables(knex: any, schema = null): Array<string> {
+export async function listTables(knex: any, schema = null): Promise<Array<string>> {
   let query: string;
   let bindings: string[];
   let bindingSchema: string;
@@ -30,9 +30,12 @@ export function listTables(knex: any, schema = null): Array<string> {
       query = `SELECT table_name FROM information_schema.tables WHERE table_schema = ? AND table_catalog = ?`;
       bindingSchema = schema ? schema : 'public';
       bindings = [bindingSchema, knex.client.database()];
-      return knex.raw(query, bindings).then(function (results) {
-        return results.rows.map((row) => row.table_name);
-      });
+      const tables: Array<string> = (await knex.raw(query, bindings)).rows.map((row) => row.table_name);
+      query = `SELECT table_name FROM information_schema.views WHERE table_schema = ? AND table_catalog = ?`;
+      bindingSchema = schema ? schema : 'public';
+      bindings = [bindingSchema, knex.client.database()];
+      const views: Array<string> = (await knex.raw(query, bindings)).rows.map((row) => row.table_name);
+      return [...tables, ...views];
     case 'Client_SQLite3':
       query = "SELECT name AS table_name FROM sqlite_master WHERE type='table'";
       break;
