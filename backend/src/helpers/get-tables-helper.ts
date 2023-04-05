@@ -1,4 +1,4 @@
-export function listTables(knex: any, schema = null): Array<string> {
+export async function listTables(knex: any, schema = null): Promise<Array<string>> {
   let query: string;
   let bindings: string[];
   let bindingSchema: string;
@@ -12,27 +12,37 @@ export function listTables(knex: any, schema = null): Array<string> {
     case 'Client_MySQL2':
       query = 'SELECT table_name FROM information_schema.tables WHERE table_schema = ?';
       bindings = [knex.client.database()];
-
-      return knex.raw(query, bindings).then(function (results) {
-        return results[0].map((row) => {
-          if (row.hasOwnProperty('TABLE_NAME')) return row.TABLE_NAME;
-          if (row.hasOwnProperty('table_name')) return row.table_name;
-        });
+      const tablesMySQL: Array<string> = (await knex.raw(query, bindings))[0].map((row) => {
+        if (row.hasOwnProperty('TABLE_NAME')) return row.TABLE_NAME;
+        if (row.hasOwnProperty('table_name')) return row.table_name;
       });
 
+      query = 'SELECT table_name FROM information_schema.views WHERE table_schema = ?';
+      const viewsMySQL: Array<string> = (await knex.raw(query, bindings))[0].map((row) => {
+        if (row.hasOwnProperty('TABLE_NAME')) return row.TABLE_NAME;
+        if (row.hasOwnProperty('table_name')) return row.table_name;
+      });
+
+      return [...tablesMySQL, ...viewsMySQL];
     case 'Client_Oracle':
     case 'Client_Oracledb':
-      query = `SELECT owner, table_name FROM all_tables WHERE owner = '${schema.toUpperCase()}'`;
-      return knex.raw(query).then(function (results) {
-        return results.map((row) => row['TABLE_NAME']);
-      });
+      query = `SELECT owner, table_name FROM all_tables WHERE owner = ?`;
+      bindings = [schema.toUpperCase()];
+      const tablesOracle = (await knex.raw(query, bindings)).map((row) => row['TABLE_NAME']);
+      query = `SELECT owner, view_name FROM all_views WHERE owner = ?`;
+      const viewsOracle = (await knex.raw(query, bindings)).map((row) => row['VIEW_NAME']);
+      return [...tablesOracle, ...viewsOracle];
     case 'Client_PG':
       query = `SELECT table_name FROM information_schema.tables WHERE table_schema = ? AND table_catalog = ?`;
       bindingSchema = schema ? schema : 'public';
       bindings = [bindingSchema, knex.client.database()];
-      return knex.raw(query, bindings).then(function (results) {
-        return results.rows.map((row) => row.table_name);
-      });
+      const tablesPg: Array<string> = (await knex.raw(query, bindings)).rows.map((row) => row.table_name);
+      query = `SELECT table_name FROM information_schema.views WHERE table_schema = ? AND table_catalog = ?`;
+      bindingSchema = schema ? schema : 'public';
+      bindings = [bindingSchema, knex.client.database()];
+      const viewsPg: Array<string> = (await knex.raw(query, bindings)).rows.map((row) => row.table_name);
+
+      return [...tablesPg, ...viewsPg];
     case 'Client_SQLite3':
       query = "SELECT name AS table_name FROM sqlite_master WHERE type='table'";
       break;
