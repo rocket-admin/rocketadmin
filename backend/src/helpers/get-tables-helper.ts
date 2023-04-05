@@ -16,14 +16,12 @@ export async function listTables(knex: any, schema = null): Promise<Array<string
         if (row.hasOwnProperty('TABLE_NAME')) return row.TABLE_NAME;
         if (row.hasOwnProperty('table_name')) return row.table_name;
       });
-      console.log('🚀 ~ file: get-tables-helper.ts:19 ~ consttablesMySQL:Array<string>= ~ tablesMySQL:', tablesMySQL)
 
       query = 'SELECT table_name FROM information_schema.views WHERE table_schema = ?';
       const viewsMySQL: Array<string> = (await knex.raw(query, bindings))[0].map((row) => {
         if (row.hasOwnProperty('TABLE_NAME')) return row.TABLE_NAME;
         if (row.hasOwnProperty('table_name')) return row.table_name;
       });
-      console.log('🚀 ~ file: get-tables-helper.ts:26 ~ constviewsMySQL:Array<string>= ~ viewsMySQL:', viewsMySQL)
       
       return [...tablesMySQL, ...viewsMySQL];
     case 'Client_Oracle':
