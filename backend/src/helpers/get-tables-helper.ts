@@ -12,14 +12,20 @@ export async function listTables(knex: any, schema = null): Promise<Array<string
     case 'Client_MySQL2':
       query = 'SELECT table_name FROM information_schema.tables WHERE table_schema = ?';
       bindings = [knex.client.database()];
-
-      return knex.raw(query, bindings).then(function (results) {
-        return results[0].map((row) => {
-          if (row.hasOwnProperty('TABLE_NAME')) return row.TABLE_NAME;
-          if (row.hasOwnProperty('table_name')) return row.table_name;
-        });
+      const tablesMySQL: Array<string> = (await knex.raw(query, bindings))[0].map((row) => {
+        if (row.hasOwnProperty('TABLE_NAME')) return row.TABLE_NAME;
+        if (row.hasOwnProperty('table_name')) return row.table_name;
       });
+      console.log('🚀 ~ file: get-tables-helper.ts:19 ~ consttablesMySQL:Array<string>= ~ tablesMySQL:', tablesMySQL)
 
+      query = 'SELECT table_name FROM information_schema.views WHERE table_schema = ?';
+      const viewsMySQL: Array<string> = (await knex.raw(query, bindings))[0].map((row) => {
+        if (row.hasOwnProperty('TABLE_NAME')) return row.TABLE_NAME;
+        if (row.hasOwnProperty('table_name')) return row.table_name;
+      });
+      console.log('🚀 ~ file: get-tables-helper.ts:26 ~ constviewsMySQL:Array<string>= ~ viewsMySQL:', viewsMySQL)
+      
+      return [...tablesMySQL, ...viewsMySQL];
     case 'Client_Oracle':
     case 'Client_Oracledb':
       query = `SELECT owner, table_name FROM all_tables WHERE owner = '${schema.toUpperCase()}'`;
@@ -30,12 +36,13 @@ export async function listTables(knex: any, schema = null): Promise<Array<string
       query = `SELECT table_name FROM information_schema.tables WHERE table_schema = ? AND table_catalog = ?`;
       bindingSchema = schema ? schema : 'public';
       bindings = [bindingSchema, knex.client.database()];
-      const tables: Array<string> = (await knex.raw(query, bindings)).rows.map((row) => row.table_name);
+      const tablesPg: Array<string> = (await knex.raw(query, bindings)).rows.map((row) => row.table_name);
       query = `SELECT table_name FROM information_schema.views WHERE table_schema = ? AND table_catalog = ?`;
       bindingSchema = schema ? schema : 'public';
       bindings = [bindingSchema, knex.client.database()];
-      const views: Array<string> = (await knex.raw(query, bindings)).rows.map((row) => row.table_name);
-      return [...tables, ...views];
+      const viewsPg: Array<string> = (await knex.raw(query, bindings)).rows.map((row) => row.table_name);
+
+      return [...tablesPg, ...viewsPg];
     case 'Client_SQLite3':
       query = "SELECT name AS table_name FROM sqlite_master WHERE type='table'";
       break;
