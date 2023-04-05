@@ -22,14 +22,16 @@ export async function listTables(knex: any, schema = null): Promise<Array<string
         if (row.hasOwnProperty('TABLE_NAME')) return row.TABLE_NAME;
         if (row.hasOwnProperty('table_name')) return row.table_name;
       });
-      
+
       return [...tablesMySQL, ...viewsMySQL];
     case 'Client_Oracle':
     case 'Client_Oracledb':
-      query = `SELECT owner, table_name FROM all_tables WHERE owner = '${schema.toUpperCase()}'`;
-      return knex.raw(query).then(function (results) {
-        return results.map((row) => row['TABLE_NAME']);
-      });
+      query = `SELECT owner, table_name FROM all_tables WHERE owner = ?`;
+      bindings = [schema.toUpperCase()];
+      const tablesOracle = (await knex.raw(query, bindings)).map((row) => row['TABLE_NAME']);
+      query = `SELECT owner, view_name FROM all_views WHERE owner = ?`;
+      const viewsOracle = (await knex.raw(query, bindings)).map((row) => row['VIEW_NAME']);
+      return [...tablesOracle, ...viewsOracle];
     case 'Client_PG':
       query = `SELECT table_name FROM information_schema.tables WHERE table_schema = ? AND table_catalog = ?`;
       bindingSchema = schema ? schema : 'public';
