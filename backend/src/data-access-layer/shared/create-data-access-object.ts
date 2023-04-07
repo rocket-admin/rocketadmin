@@ -1,7 +1,7 @@
 import { ConnectionEntity } from '../../entities/connection/connection.entity.js';
 import { IDataAccessObject } from './data-access-object-interface.js';
 import { ConnectionTypeEnum } from '../../enums/index.js';
-import { DataAccessObjectPostgres } from '../data-access-objects/data-access-object-postgres.js';
+import { DataAccessObjectPostgres } from '@rocketadmin/shared-code/dist/src/data-access-layer/data-access-objects/data-access-object-postgres.js';
 import { DataAccessObjectMysql } from '../data-access-objects/data-access-object-mysql.js';
 import { DataAccessObjectOracle } from '../data-access-objects/data-access-object-oracle.js';
 import { DataAccessObjectMssql } from '../data-access-objects/data-access-object-mssql.js';
@@ -14,7 +14,7 @@ import { DataAccessObjectMysqlSsh } from '../data-access-objects/data-access-obj
 export function createDataAccessObject(connection: ConnectionEntity, userId: string): IDataAccessObject {
   switch (connection.type) {
     case ConnectionTypeEnum.postgres:
-      return new DataAccessObjectPostgres(connection);
+      return new DataAccessObjectPostgres(connection as any) as any;
     case ConnectionTypeEnum.mysql:
       if (connection.ssh) {
         return new DataAccessObjectMysqlSsh(connection);

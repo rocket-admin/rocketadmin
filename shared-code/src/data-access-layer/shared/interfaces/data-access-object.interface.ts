@@ -4,7 +4,7 @@ import { FilteringFieldsDS } from '../data-structures/filtering-fields.ds.js';
 import { ForeignKeyDS } from '../data-structures/foreign-key.ds.js';
 import { FoundRowsDS } from '../data-structures/found-rows.ds.js';
 import { PrimaryKeyDS } from '../data-structures/primary-key.ds.js';
-import { ReferencedTableNamesAndColumns } from '../data-structures/referenced-table-names-columns.ds.js';
+import { ReferencedTableNamesAndColumnsDS } from '../data-structures/referenced-table-names-columns.ds.js';
 import { TableSettingsDS } from '../data-structures/table-settings.ds.js';
 import { TableStructureDS } from '../data-structures/table-structure.ds.js';
 import { TestConnectionResultDS } from '../data-structures/test-result-connection.ds.js';
@@ -58,5 +58,5 @@ export interface IDataAccessObject {
 
   validateSettings(settings: ValidateTableSettingsDS, tableName: string): Promise<Array<string>>;
 
-  getReferencedTableNamesAndColumns(tableName: string): Promise<Array<ReferencedTableNamesAndColumns>>;
+  getReferencedTableNamesAndColumns(tableName: string): Promise<Array<ReferencedTableNamesAndColumnsDS>>;
 }
