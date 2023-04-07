@@ -1,53 +1,43 @@
 import { Knex } from 'knex';
-import { TunnelCreator } from '../../dal/shared/tunnel-creator.js';
-import { ConnectionEntity } from '../../entities/connection/connection.entity.js';
-import { CreateTableSettingsDto } from '../../entities/table-settings/dto/index.js';
-import { TableSettingsEntity } from '../../entities/table-settings/table-settings.entity.js';
-import { FilterCriteriaEnum } from '../../enums/index.js';
-import {
-  changeObjPropValByPropName,
-  compareArrayElements,
-  getPropertyValueByDescriptor,
-  isObjectEmpty,
-  listTables,
-  renameObjectKeyName,
-  tableSettingsFieldValidator,
-} from '../../helpers/index.js';
-import { Cacher } from '../../helpers/cache/cacher.js';
-import { Constants } from '../../helpers/constants/constants.js';
-import { BasicDao } from '../shared/basic-dao.js';
-import {
-  IAutocompleteFieldsData,
-  IDataAccessObject,
-  IFilteringFieldsData,
-  IForeignKey,
-  IPrimaryKey,
-  IReferecedTableNamesAndColumns,
-  IRows,
-  ITableStructure,
-  ITestConnectResult,
-} from '../shared/data-access-object-interface.js';
-import { getPostgresKnex } from '../shared/utils/get-postgres-knex.js';
+import { AutocompleteFieldsDS } from '../shared/data-structures/autocomplete-fields.ds.js';
+import { FilteringFieldsDS } from '../shared/data-structures/filtering-fields.ds.js';
+import { ForeignKeyDS } from '../shared/data-structures/foreign-key.ds.js';
+import { FoundRowsDS } from '../shared/data-structures/found-rows.ds.js';
+import { PrimaryKeyDS } from '../shared/data-structures/primary-key.ds.js';
+import { ReferencedTableNamesAndColumnsDS } from '../shared/data-structures/referenced-table-names-columns.ds.js';
+import { TableSettingsDS } from '../shared/data-structures/table-settings.ds.js';
+import { TableStructureDS } from '../shared/data-structures/table-structure.ds.js';
+import { TestConnectionResultDS } from '../shared/data-structures/test-result-connection.ds.js';
+import { ValidateTableSettingsDS } from '../shared/data-structures/validate-table-settings.ds.js';
+import { IDataAccessObject } from '../shared/interfaces/data-access-object.interface.js';
+import { BasicDataAccessObject } from './basic-data-access-object.js';
+import { ConnectionParams } from '../shared/data-structures/connections-params.ds.js';
+import { isObjectEmpty } from '../../helpers/is-object-empty.js';
+import { comparePrimitiveArrayElements } from '../../helpers/compate-primitive-array-elements.js';
+import { FilterCriteriaEnum } from '../shared/enums/filter-criteria.enum.js';
+import { LRUStorage } from '../../caching/lru-storage.js';
+import { DAO_CONSTANTS } from '../../helpers/data-access-objects-constants.js';
+import { getPropertyValueByDescriptor } from '../../helpers/get-property-value-by-descriptor.js';
+import { changeObjPropValByName } from '../../helpers/change-object-property-by-name.js';
+import { getPropertyValue } from '../../helpers/get-property-value.js';
+import { renameObjectKeyName } from '../../helpers/rename-object-keyname.js';
+import { setPropertyValue } from '../../helpers/set-property-value.js';
+import { tableSettingsFieldValidator } from '../../helpers/validation/table-settings-validator.js';
 
-export class DataAccessObjectPostgres extends BasicDao implements IDataAccessObject {
-  private readonly connection: ConnectionEntity;
-  constructor(connection: ConnectionEntity) {
-    super();
-    this.connection = connection;
+export class DataAccessObjectPostgres extends BasicDataAccessObject implements IDataAccessObject {
+  constructor(connection: ConnectionParams) {
+    super(connection);
   }
 
   public async addRowInTable(
     tableName: string,
     row: Record<string, unknown>,
-    userEmail: string,
-  ): Promise<Record<string, unknown>> {
-    const knex = await this.configureKnex();
-    const promisesResults = await Promise.all([
+  ): Promise<number | Record<string, unknown>> {
+    const knex: Knex<any, any[]> = await this.configureKnex();
+    const [tableStructure, primaryColumns] = await Promise.all([
       this.getTableStructure(tableName),
       this.getTablePrimaryColumns(tableName),
     ]);
-    const tableStructure = promisesResults[0];
-    const primaryColumns = promisesResults[1];
     const jsonColumnNames = tableStructure
       .filter((structEl) => {
         return structEl.data_type.toLowerCase() === 'json';
@@ -58,49 +48,33 @@ export class DataAccessObjectPostgres extends BasicDao implements IDataAccessObj
 
     for (const key in row) {
       if (jsonColumnNames.includes(key)) {
-        row = changeObjPropValByPropName(row, key, JSON.stringify(getPropertyValueByDescriptor(row, key)));
+        setPropertyValue(row, key, JSON.stringify(getPropertyValue(row, key)));
       }
     }
 
     if (primaryColumns?.length > 0) {
       const primaryKey = primaryColumns.map((column) => column.column_name);
       const result = await knex(tableName)
-        .withSchema(this.connection.schema ? this.connection.schema : 'public')
+        .withSchema(this.connection.schema ?? 'public')
         .returning(primaryKey)
         .insert(row);
       return result[0] as unknown as Record<string, unknown>;
-    } else {
-      const rowFields = Object.keys(row);
-      const result = await knex(tableName)
-        .withSchema(this.connection.schema ? this.connection.schema : 'public')
-        .returning(rowFields)
-        .insert(row);
-      return result[0] as any;
     }
-  }
-
-  public async configureKnex(): Promise<Knex> {
-    const cachedKnex = Cacher.getCachedKnex(this.connection);
-    if (cachedKnex) {
-      return cachedKnex;
-    }
-    if (this.connection.ssh) {
-      const newKnex = await TunnelCreator.createTunneledKnex(this.connection);
-      Cacher.setKnexCache(this.connection, newKnex);
-      return newKnex;
-    } else {
-      return getPostgresKnex(this.connection);
-    }
+    const rowFields = Object.keys(row);
+    const result = await knex(tableName)
+      .withSchema(this.connection.schema ?? 'public')
+      .returning(rowFields)
+      .insert(row);
+    return result[0] as unknown as Record<string, unknown>;
   }
 
   public async deleteRowInTable(
     tableName: string,
     primaryKey: Record<string, unknown>,
-    userEmail: string,
   ): Promise<Record<string, unknown>> {
     const knex = await this.configureKnex();
     return await knex(tableName)
-      .withSchema(this.connection.schema ? this.connection.schema : 'public')
+      .withSchema(this.connection.schema ?? 'public')
       .returning(Object.keys(primaryKey))
       .where(primaryKey)
       .del();
@@ -110,12 +84,11 @@ export class DataAccessObjectPostgres extends BasicDao implements IDataAccessObj
     tableName: string,
     referencedFieldName: string,
     identityColumnName: string,
-    fieldValues: Array<string | number>,
-    email: string,
-  ): Promise<Array<string>> {
-    const knex = await this.configureKnex();
-    return await knex(tableName)
-      .withSchema(this.connection.schema ? this.connection.schema : 'public')
+    fieldValues: (string | number)[],
+  ): Promise<string[]> {
+    const knex: Knex<any, any[]> = await this.configureKnex();
+    return knex(tableName)
+      .withSchema(this.connection.schema ?? 'public')
       .modify((builder) => {
         if (identityColumnName) {
           builder.select(referencedFieldName, identityColumnName);
@@ -129,20 +102,19 @@ export class DataAccessObjectPostgres extends BasicDao implements IDataAccessObj
   public async getRowByPrimaryKey(
     tableName: string,
     primaryKey: Record<string, unknown>,
-    settings: TableSettingsEntity,
-    userEmail: string,
+    settings: TableSettingsDS,
   ): Promise<Record<string, unknown>> {
     if (!settings) {
-      const knex = await this.configureKnex();
+      const knex: Knex<any, any[]> = await this.configureKnex();
       const result = await knex(tableName)
-        .withSchema(this.connection.schema ? this.connection.schema : 'public')
+        .withSchema(this.connection.schema ?? 'public')
         .where(primaryKey);
       return result[0] as unknown as Record<string, unknown>;
     }
     const availableFields = await this.findAvaliableFields(settings, tableName);
-    const knex = await this.configureKnex();
+    const knex: Knex<any, any[]> = await this.configureKnex();
     const result = await knex(tableName)
-      .withSchema(this.connection.schema ? this.connection.schema : 'public')
+      .withSchema(this.connection.schema ?? 'public')
       .select(availableFields)
       .where(primaryKey);
     return result[0] as unknown as Record<string, unknown>;
@@ -150,26 +122,25 @@ export class DataAccessObjectPostgres extends BasicDao implements IDataAccessObj
 
   public async getRowsFromTable(
     tableName: string,
-    settings: TableSettingsEntity,
+    settings: TableSettingsDS,
     page: number,
     perPage: number,
     searchedFieldValue: string,
-    filteringFields: Array<IFilteringFieldsData>,
-    autocompleteFields: IAutocompleteFieldsData,
-    userEmail: string,
-  ): Promise<IRows> {
+    filteringFields: FilteringFieldsDS[],
+    autocompleteFields: AutocompleteFieldsDS,
+  ): Promise<FoundRowsDS> {
     if (!page || page <= 0) {
-      page = Constants.DEFAULT_PAGINATION.page;
+      page = DAO_CONSTANTS.DEFAULT_PAGINATION.page;
       const { list_per_page } = settings;
       if (list_per_page && list_per_page > 0 && (!perPage || perPage <= 0)) {
         perPage = list_per_page;
       } else {
-        perPage = Constants.DEFAULT_PAGINATION.perPage;
+        perPage = DAO_CONSTANTS.DEFAULT_PAGINATION.perPage;
       }
     }
 
     const knex = await this.configureKnex();
-    const tableSchema = this.connection.schema ? this.connection.schema : 'public';
+    const tableSchema = this.connection.schema ?? 'public';
 
     const promisesResults = await Promise.all([
       this.getRowsCount(knex, tableName, tableSchema),
@@ -178,11 +149,11 @@ export class DataAccessObjectPostgres extends BasicDao implements IDataAccessObj
     const { rowsCount, large_dataset } = promisesResults[0];
     const availableFields = promisesResults[1];
     const lastPage = Math.ceil(rowsCount / perPage);
-    let rowsRO: IRows;
+    let rowsRO: FoundRowsDS;
 
     if (autocompleteFields && autocompleteFields.value && autocompleteFields.fields.length > 0) {
       const rows = await knex(tableName)
-        .withSchema(this.connection.schema ? this.connection.schema : 'public')
+        .withSchema(this.connection.schema ?? 'public')
         .select(autocompleteFields.fields)
         .modify((builder) => {
           /*eslint-disable*/
@@ -196,7 +167,7 @@ export class DataAccessObjectPostgres extends BasicDao implements IDataAccessObj
           }
           /*eslint-enable*/
         })
-        .limit(Constants.AUTOCOMPLETE_ROW_LIMIT);
+        .limit(DAO_CONSTANTS.AUTOCOMPLETE_ROW_LIMIT);
 
       rowsRO = {
         data: rows,
@@ -207,7 +178,7 @@ export class DataAccessObjectPostgres extends BasicDao implements IDataAccessObj
     }
 
     const rows = await knex(tableName)
-      .withSchema(this.connection.schema ? this.connection.schema : 'public')
+      .withSchema(this.connection.schema ?? 'public')
       .select(availableFields)
       .modify((builder) => {
         /*eslint-disable*/
@@ -292,13 +263,13 @@ export class DataAccessObjectPostgres extends BasicDao implements IDataAccessObj
     return rowsRO;
   }
 
-  public async getTableForeignKeys(tableName: string, userEmail: string): Promise<Array<IForeignKey>> {
-    const cachedForeignKeys = Cacher.getTableForeignKeysCache(this.connection, tableName);
+  public async getTableForeignKeys(tableName: string): Promise<ForeignKeyDS[]> {
+    const cachedForeignKeys = LRUStorage.getTableForeignKeysCache(this.connection, tableName);
     if (cachedForeignKeys) {
       return cachedForeignKeys;
     }
     const knex = await this.configureKnex();
-    const tableSchema = this.connection.schema ? this.connection.schema : 'public';
+    const tableSchema = this.connection.schema ?? 'public';
     const foreignKeys: Array<{
       foreign_column_name: string;
       foreign_table_name: string;
@@ -332,12 +303,12 @@ export class DataAccessObjectPostgres extends BasicDao implements IDataAccessObj
         column_name: key.column_name,
       };
     });
-    Cacher.setTableForeignKeysCache(this.connection, tableName, resultKeys);
+    LRUStorage.setTableForeignKeysCache(this.connection, tableName, resultKeys);
     return resultKeys;
   }
 
-  public async getTablePrimaryColumns(tableName: string): Promise<Array<IPrimaryKey>> {
-    const cachedPrimaryColumns = Cacher.getTablePrimaryKeysCache(this.connection, tableName);
+  public async getTablePrimaryColumns(tableName: string): Promise<PrimaryKeyDS[]> {
+    const cachedPrimaryColumns = LRUStorage.getTablePrimaryKeysCache(this.connection, tableName);
     if (cachedPrimaryColumns) {
       return cachedPrimaryColumns;
     }
@@ -354,12 +325,36 @@ export class DataAccessObjectPostgres extends BasicDao implements IDataAccessObj
         data_type: column.data_type,
       };
     });
-    Cacher.setTablePrimaryKeysCache(this.connection, tableName, resultKeys);
+    LRUStorage.setTablePrimaryKeysCache(this.connection, tableName, resultKeys);
     return resultKeys;
   }
 
-  public async getTableStructure(tableName: string): Promise<Array<ITableStructure>> {
-    const cachedTableStructure = Cacher.getTableStructureCache(this.connection, tableName);
+  public async getTablesFromDB(): Promise<string[]> {
+    const knex = await this.configureKnex();
+    const schema = this.connection.schema ?? 'public';
+    const database = this.connection.database;
+    const query = `
+        SELECT table_name 
+        FROM information_schema.tables 
+        WHERE table_schema = ? 
+            AND table_catalog = ?
+        UNION
+        SELECT table_name 
+        FROM information_schema.views 
+        WHERE table_schema = ? 
+            AND table_catalog = ?
+    `;
+    const bindings = [schema, database, schema, database];
+    try {
+      const results = await knex.raw(query, bindings);
+      return results.rows.map((row) => row.table_name);
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  public async getTableStructure(tableName: string): Promise<TableStructureDS[]> {
+    const cachedTableStructure = LRUStorage.getTableStructureCache(this.connection, tableName);
     if (cachedTableStructure) {
       return cachedTableStructure;
     }
@@ -437,18 +432,13 @@ export class DataAccessObjectPostgres extends BasicDao implements IDataAccessObj
         }
       }
     }
-    Cacher.setTableStructureCache(this.connection, tableName, result);
+    LRUStorage.setTableStructureCache(this.connection, tableName, result);
     return result;
   }
 
-  public async getTablesFromDB(email?: string): Promise<Array<string>> {
+  public async testConnect(): Promise<TestConnectionResultDS> {
     const knex = await this.configureKnex();
-    return await listTables(knex, this.connection.schema);
-  }
-
-  public async testConnect(): Promise<ITestConnectResult> {
-    const knex = await this.configureKnex();
-    let result;
+    let result: { result: boolean; message: string };
     try {
       result = await knex().select(1);
       if (result) {
@@ -473,7 +463,6 @@ export class DataAccessObjectPostgres extends BasicDao implements IDataAccessObj
     tableName: string,
     row: Record<string, unknown>,
     primaryKey: Record<string, unknown>,
-    userEmail: string,
   ): Promise<Record<string, unknown>> {
     const tableStructure = await this.getTableStructure(tableName);
     const jsonColumnNames = tableStructure
@@ -485,7 +474,7 @@ export class DataAccessObjectPostgres extends BasicDao implements IDataAccessObj
       });
     for (const key in row) {
       if (jsonColumnNames.includes(key)) {
-        row = changeObjPropValByPropName(row, key, JSON.stringify(getPropertyValueByDescriptor(row, key)));
+        row = changeObjPropValByName(row, key, JSON.stringify(getPropertyValueByDescriptor(row, key)));
       }
     }
     const knex = await this.configureKnex();
@@ -496,11 +485,19 @@ export class DataAccessObjectPostgres extends BasicDao implements IDataAccessObj
       .update(row);
   }
 
-  public async getReferencedTableNamesAndColumns(tableName: string): Promise<Array<IReferecedTableNamesAndColumns>> {
+  public async validateSettings(settings: ValidateTableSettingsDS, tableName: string): Promise<string[]> {
+    const [tableStructure, primaryColumns] = await Promise.all([
+      this.getTableStructure(tableName),
+      this.getTablePrimaryColumns(tableName),
+    ]);
+    return tableSettingsFieldValidator(tableStructure, primaryColumns, settings);
+  }
+
+  public async getReferencedTableNamesAndColumns(tableName: string): Promise<ReferencedTableNamesAndColumnsDS[]> {
     const primaryColumns = await this.getTablePrimaryColumns(tableName);
     const schema = this.connection.schema ? this.connection.schema : 'public';
     const knex = await this.configureKnex();
-    const results: Array<IReferecedTableNamesAndColumns> = [];
+    const results: Array<ReferencedTableNamesAndColumnsDS> = [];
     for (const primaryColumn of primaryColumns) {
       const result = await knex.raw(
         `
@@ -531,63 +528,7 @@ export class DataAccessObjectPostgres extends BasicDao implements IDataAccessObj
     return results;
   }
 
-  public async validateSettings(
-    settings: CreateTableSettingsDto,
-    tableName: string,
-    userEmail: string,
-  ): Promise<Array<string>> {
-    const promisesResults = await Promise.all([
-      this.getTableStructure(tableName),
-      this.getTablePrimaryColumns(tableName),
-    ]);
-    const tableStructure = promisesResults[0];
-    const primaryColumns = promisesResults[1];
-    return tableSettingsFieldValidator(tableStructure, primaryColumns, settings);
-  }
-
-  private attachSchemaNameToTableName(tableName: string): string {
-    if (this.connection.schema) {
-      tableName = `"${this.connection.schema}"."${tableName}"`;
-    } else {
-      tableName = `"public"."${tableName}"`;
-    }
-    return tableName;
-  }
-
-  private async getRowsCount(
-    knex: Knex,
-    tableName: string,
-    tableSchema: string,
-  ): Promise<{ rowsCount: number; large_dataset: boolean }> {
-    try {
-      const fastCount = await knex.raw(
-        `
-  SELECT ((reltuples / relpages)
-  * (pg_relation_size('??.??') / current_setting('block_size')::int)
-         )::bigint as count
-FROM   pg_class
-WHERE  oid = '??.??'::regclass;`,
-        [tableSchema, tableName, tableSchema, tableName],
-      );
-
-      if (fastCount >= Constants.LARGE_DATASET_ROW_LIMIT) {
-        return {
-          rowsCount: fastCount,
-          large_dataset: true,
-        };
-      }
-    } catch (e) {
-      return { rowsCount: 0, large_dataset: false };
-    }
-    const count = (await knex(tableName).withSchema(tableSchema).count('*')) as any;
-    const slowCount = parseInt(count[0].count);
-    return {
-      rowsCount: slowCount,
-      large_dataset: false,
-    };
-  }
-
-  private async findAvaliableFields(settings: TableSettingsEntity, tableName: string): Promise<Array<string>> {
+  private async findAvaliableFields(settings: TableSettingsDS, tableName: string): Promise<Array<string>> {
     let availableFields = [];
 
     const tableStructure = await this.getTableStructure(tableName);
@@ -605,7 +546,7 @@ WHERE  oid = '??.??'::regclass;`,
 
     const excludedFields = settings.excluded_fields;
     if (settings.list_fields && settings.list_fields.length > 0) {
-      if (!compareArrayElements(settings.list_fields, fieldsFromStructure)) {
+      if (!comparePrimitiveArrayElements(settings.list_fields, fieldsFromStructure)) {
         availableFields = [...settings.list_fields, ...fieldsFromStructure];
         availableFields = [...new Set(availableFields)];
         availableFields = availableFields.filter((fieldName) => {
@@ -628,5 +569,47 @@ WHERE  oid = '??.??'::regclass;`,
       }
     }
     return availableFields;
+  }
+
+  private async getRowsCount(
+    knex: Knex<any, any[]>,
+    tableName: string,
+    tableSchema: string,
+  ): Promise<{ rowsCount: number; large_dataset: boolean }> {
+    try {
+      const fastCount = await knex.raw(
+        `
+  SELECT ((reltuples / relpages)
+  * (pg_relation_size('??.??') / current_setting('block_size')::int)
+         )::bigint as count
+FROM   pg_class
+WHERE  oid = '??.??'::regclass;`,
+        [tableSchema, tableName, tableSchema, tableName],
+      );
+
+      if (fastCount >= DAO_CONSTANTS.LARGE_DATASET_ROW_LIMIT) {
+        return {
+          rowsCount: fastCount,
+          large_dataset: true,
+        };
+      }
+    } catch (e) {
+      return { rowsCount: 0, large_dataset: false };
+    }
+    const count = (await knex(tableName).withSchema(tableSchema).count('*')) as any;
+    const slowCount = parseInt(count[0].count);
+    return {
+      rowsCount: slowCount,
+      large_dataset: false,
+    };
+  }
+
+  private attachSchemaNameToTableName(tableName: string): string {
+    if (this.connection.schema) {
+      tableName = `"${this.connection.schema}"."${tableName}"`;
+    } else {
+      tableName = `"public"."${tableName}"`;
+    }
+    return tableName;
   }
 }

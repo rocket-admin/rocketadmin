@@ -1,49 +1,45 @@
 export class ConnectionParams {
   id: string;
 
-  title?: string;
+  title: string | null;
 
   masterEncryption: boolean;
 
-  type?: string;
+  type: 'postgres' | 'oracledb' | 'mysql2' | 'mssql';
 
-  host?: string;
+  host: string;
 
-  port?: number;
+  port: number;
 
-  username?: string;
+  username: string;
 
-  password?: string;
+  password: string;
 
-  database?: string;
+  database: string;
 
-  schema?: string;
+  schema?: string | null;
 
-  sid?: string;
+  sid?: string | null;
 
-  createdAt: Date;
+  ssh: boolean;
 
-  updatedAt: Date;
+  privateSSHKey?: string | null;
 
-  ssh?: boolean;
+  sshHost: string | null;
 
-  privateSSHKey?: string;
+  sshPort: number | null;
 
-  sshHost?: string;
+  sshUsername: string | null;
 
-  sshPort?: number;
+  ssl: boolean | null;
 
-  sshUsername?: string;
+  cert: string | null;
 
-  ssl?: boolean;
+  isTestConnection: boolean | null;
 
-  cert?: string;
+  azure_encryption: boolean | null;
 
-  isTestConnection?: boolean;
-
-  azure_encryption?: boolean;
-
-  saved_table_info?: number;
+  saved_table_info: number | null;
 
   signing_key: string;
 }
