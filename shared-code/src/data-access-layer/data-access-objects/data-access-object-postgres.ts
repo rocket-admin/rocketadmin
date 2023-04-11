@@ -12,8 +12,6 @@ import { ValidateTableSettingsDS } from '../shared/data-structures/validate-tabl
 import { IDataAccessObject } from '../shared/interfaces/data-access-object.interface.js';
 import { BasicDataAccessObject } from './basic-data-access-object.js';
 import { ConnectionParams } from '../shared/data-structures/connections-params.ds.js';
-import { isObjectEmpty } from '../../helpers/is-object-empty.js';
-import { comparePrimitiveArrayElements } from '../../helpers/compate-primitive-array-elements.js';
 import { FilterCriteriaEnum } from '../shared/enums/filter-criteria.enum.js';
 import { LRUStorage } from '../../caching/lru-storage.js';
 import { DAO_CONSTANTS } from '../../helpers/data-access-objects-constants.js';
@@ -111,7 +109,8 @@ export class DataAccessObjectPostgres extends BasicDataAccessObject implements I
         .where(primaryKey);
       return result[0] as unknown as Record<string, unknown>;
     }
-    const availableFields = await this.findAvaliableFields(settings, tableName);
+    const tableStructure = await this.getTableStructure(tableName);
+    const availableFields = this.findAvaliableFields(settings, tableStructure);
     const knex: Knex<any, any[]> = await this.configureKnex();
     const result = await knex(tableName)
       .withSchema(this.connection.schema ?? 'public')
@@ -141,13 +140,11 @@ export class DataAccessObjectPostgres extends BasicDataAccessObject implements I
 
     const knex = await this.configureKnex();
     const tableSchema = this.connection.schema ?? 'public';
-
-    const promisesResults = await Promise.all([
+    const [{ rowsCount, large_dataset }, tableStructure] = await Promise.all([
       this.getRowsCount(knex, tableName, tableSchema),
-      this.findAvaliableFields(settings, tableName),
+      this.getTableStructure(tableName),
     ]);
-    const { rowsCount, large_dataset } = promisesResults[0];
-    const availableFields = promisesResults[1];
+    const availableFields = this.findAvaliableFields(settings, tableStructure);
     const lastPage = Math.ceil(rowsCount / perPage);
     let rowsRO: FoundRowsDS;
 
@@ -526,49 +523,6 @@ export class DataAccessObjectPostgres extends BasicDataAccessObject implements I
       });
     }
     return results;
-  }
-
-  private async findAvaliableFields(settings: TableSettingsDS, tableName: string): Promise<Array<string>> {
-    let availableFields = [];
-
-    const tableStructure = await this.getTableStructure(tableName);
-
-    const fieldsFromStructure = tableStructure.map((el) => {
-      return el.column_name;
-    });
-
-    if (isObjectEmpty(settings)) {
-      availableFields = tableStructure.map((el) => {
-        return el.column_name;
-      });
-      return availableFields;
-    }
-
-    const excludedFields = settings.excluded_fields;
-    if (settings.list_fields && settings.list_fields.length > 0) {
-      if (!comparePrimitiveArrayElements(settings.list_fields, fieldsFromStructure)) {
-        availableFields = [...settings.list_fields, ...fieldsFromStructure];
-        availableFields = [...new Set(availableFields)];
-        availableFields = availableFields.filter((fieldName) => {
-          return fieldsFromStructure.includes(fieldName);
-        });
-      } else {
-        availableFields = settings.list_fields;
-      }
-    } else {
-      availableFields = tableStructure.map((el) => {
-        return el.column_name;
-      });
-    }
-    if (excludedFields && excludedFields.length > 0) {
-      for (const field of excludedFields) {
-        const delIndex = availableFields.indexOf(field);
-        if (delIndex >= 0) {
-          availableFields.splice(availableFields.indexOf(field), 1);
-        }
-      }
-    }
-    return availableFields;
   }
 
   private async getRowsCount(
