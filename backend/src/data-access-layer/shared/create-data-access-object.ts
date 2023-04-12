@@ -4,7 +4,7 @@ import { ConnectionTypeEnum } from '../../enums/index.js';
 import { DataAccessObjectPostgres } from '@rocketadmin/shared-code/dist/src/data-access-layer/data-access-objects/data-access-object-postgres.js';
 import { DataAccessObjectMysql } from '@rocketadmin/shared-code/dist/src/data-access-layer/data-access-objects/data-access-object-mysql.js';
 import { DataAccessObjectOracle } from '../data-access-objects/data-access-object-oracle.js';
-import { DataAccessObjectMssql } from '../data-access-objects/data-access-object-mssql.js';
+import { DataAccessObjectMssql } from '@rocketadmin/shared-code/dist/src/data-access-layer/data-access-objects/data-access-object-mssql.js';
 import { DataAccessObjectAgent } from '../data-access-objects/data-access-object-agent.js';
 import { HttpException } from '@nestjs/common/exceptions/http.exception.js';
 import { HttpStatus } from '@nestjs/common';
@@ -26,7 +26,7 @@ export function createDataAccessObject(connection: ConnectionEntity, userId: str
     case ConnectionTypeEnum.oracledb:
       return new DataAccessObjectOracle(connection);
     case ConnectionTypeEnum.mssql:
-      return new DataAccessObjectMssql(connection);
+      return new DataAccessObjectMssql(connection as any) as any;
     case ConnectionTypeEnum.agent_mssql:
     case ConnectionTypeEnum.agent_mysql:
     case ConnectionTypeEnum.agent_postgres:
