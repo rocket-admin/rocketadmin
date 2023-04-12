@@ -41,7 +41,6 @@ export class CreateUpdateDeleteTableWidgetsUseCase
         HttpStatus.BAD_REQUEST,
       );
     }
-
     let tableSettingToUpdate = await this._dbContext.tableSettingsRepository.findTableSettingsWithTableWidgets(
       connectionId,
       tableName,
@@ -53,7 +52,6 @@ export class CreateUpdateDeleteTableWidgetsUseCase
       tableSettingToUpdate = await this._dbContext.tableSettingsRepository.saveNewOrUpdatedSettings(newTableSettings);
     }
     const foundTableWidgets = await this._dbContext.tableWidgetsRepository.findTableWidgets(connectionId, tableName);
-
     for (const widget of widgets) {
       const availableWidgetIndex = foundTableWidgets.findIndex((w) => {
         return widget.field_name === w.field_name;
@@ -75,7 +73,6 @@ export class CreateUpdateDeleteTableWidgetsUseCase
         tableSettingToUpdate.table_widgets.push(createdTableWidget);
       }
     }
-
     for (const foundTableWidget of foundTableWidgets) {
       const findWidgetIndex = widgets.findIndex((widget) => {
         return widget.field_name === foundTableWidget.field_name;

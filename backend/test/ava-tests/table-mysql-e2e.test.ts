@@ -1,3 +1,4 @@
+/* eslint-disable security/detect-object-injection */
 import { faker } from '@faker-js/faker';
 import { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';

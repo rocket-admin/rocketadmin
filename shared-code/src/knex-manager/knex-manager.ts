@@ -91,7 +91,7 @@ export class KnexManager {
         connection.host = '127.0.0.1';
         connection.port = freePort;
 
-        const knex = KnexManager.getPostgresKnex(connection);
+        const knex = KnexManager.getKnex(connection);
         const tnlCachedObj = {
           tnl: tnl,
           knex: knex,
@@ -205,5 +205,20 @@ export class KnexManager {
       },
     });
     return newKnex;
+  }
+
+  private static getKnex(connection: ConnectionParams): Knex<any, any[]> {
+    const { type } = connection;
+    switch (type) {
+      case 'mysql' as any:
+      case 'mysql2':
+        return KnexManager.getMysqlKnex(connection);
+      case 'postgres':
+        return KnexManager.getPostgresKnex(connection);
+      case 'oracledb':
+        return KnexManager.getOracleKnex(connection);
+      case 'mssql':
+        return KnexManager.getMssqlKnex(connection);
+    }
   }
 }
