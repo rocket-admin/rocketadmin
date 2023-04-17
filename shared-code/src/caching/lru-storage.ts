@@ -1,7 +1,10 @@
 import LRU from 'lru-cache';
 import { Knex } from 'knex';
 import { CACHING_CONSTANTS } from './caching-constants.js';
-import { ConnectionParams } from '../data-access-layer/shared/data-structures/connections-params.ds.js';
+import {
+  ConnectionAgentParams,
+  ConnectionParams,
+} from '../data-access-layer/shared/data-structures/connections-params.ds.js';
 import { ForeignKeyDS } from '../data-access-layer/shared/data-structures/foreign-key.ds.js';
 import { PrimaryKeyDS } from '../data-access-layer/shared/data-structures/primary-key.ds.js';
 import { TableStructureDS } from '../data-access-layer/shared/data-structures/table-structure.ds.js';
@@ -35,7 +38,7 @@ export class LRUStorage {
   }
 
   public static setTableForeignKeysCache(
-    connection: ConnectionParams,
+    connection: ConnectionParams | ConnectionAgentParams,
     tableName: string,
     foreignKeys: Array<ForeignKeyDS>,
   ): void {
@@ -46,7 +49,10 @@ export class LRUStorage {
     tableForeignKeysCache.set(cacheObj, foreignKeys);
   }
 
-  public static getTableForeignKeysCache(connection: ConnectionParams, tableName: string): Array<ForeignKeyDS> {
+  public static getTableForeignKeysCache(
+    connection: ConnectionParams | ConnectionAgentParams,
+    tableName: string,
+  ): Array<ForeignKeyDS> {
     const connectionCopy = {
       ...connection,
     };
@@ -56,7 +62,7 @@ export class LRUStorage {
   }
 
   public static setTablePrimaryKeysCache(
-    connection: ConnectionParams,
+    connection: ConnectionParams | ConnectionAgentParams,
     tableName: string,
     primaryKeys: Array<PrimaryKeyDS>,
   ): void {
@@ -67,7 +73,10 @@ export class LRUStorage {
     tablePrimaryKeysCache.set(cacheObj, primaryKeys);
   }
 
-  public static getTablePrimaryKeysCache(connection: ConnectionParams, tableName: string): Array<PrimaryKeyDS> {
+  public static getTablePrimaryKeysCache(
+    connection: ConnectionParams | ConnectionAgentParams,
+    tableName: string,
+  ): Array<PrimaryKeyDS> {
     const connectionCopy = {
       ...connection,
     };
@@ -76,7 +85,10 @@ export class LRUStorage {
     return foundKeys ? foundKeys : null;
   }
 
-  public static getTableStructureCache(connection: ConnectionParams, tableName: string): Array<TableStructureDS> {
+  public static getTableStructureCache(
+    connection: ConnectionParams | ConnectionAgentParams,
+    tableName: string,
+  ): Array<TableStructureDS> {
     const connectionCopy = {
       ...connection,
     };
@@ -86,7 +98,7 @@ export class LRUStorage {
   }
 
   public static setTableStructureCache(
-    connection: ConnectionParams,
+    connection: ConnectionParams | ConnectionAgentParams,
     tableName: string,
     structure: Array<TableStructureDS>,
   ): void {

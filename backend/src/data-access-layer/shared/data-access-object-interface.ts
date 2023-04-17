@@ -10,7 +10,7 @@ export interface IDataAccessObject {
     userEmail: string,
   ): Promise<Record<string, unknown> | number>;
 
-  configureKnex?(): Promise<Knex> | Knex;
+  configureKnex?(): Promise<Knex<any, any[]>>;
 
   deleteRowInTable(
     tableName: string,
