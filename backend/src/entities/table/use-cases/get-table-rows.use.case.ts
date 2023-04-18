@@ -4,7 +4,6 @@ import { IGlobalDatabaseContext } from '../../../common/application/global-datab
 import { BaseType } from '../../../common/data-injection.tokens.js';
 import { createDataAccessObject } from '../../../data-access-layer/shared/create-data-access-object.js';
 import {
-  IDataAccessObject,
   IForeignKey,
   IForeignKeyWithForeignColumnName,
 } from '../../../data-access-layer/shared/data-access-object-interface.js';
@@ -34,6 +33,8 @@ import { formFullTableStructure } from '../utils/form-full-table-structure.js';
 import { isHexString } from '../utils/is-hex-string.js';
 import { removePasswordsFromRowsUtil } from '../utils/remove-passwords-from-rows.util.js';
 import { IGetTableRows } from './table-use-cases.interface.js';
+import { IDataAccessObjectAgent } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/interfaces/data-access-object-agent.interface.js';
+import { IDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/interfaces/data-access-object.interface.js';
 
 @Injectable()
 export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTableRowsDs> implements IGetTableRows {
@@ -270,7 +271,7 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
     foreignKey: IForeignKey,
     userId: string,
     connectionId: string,
-    dao: IDataAccessObject,
+    dao: IDataAccessObject | IDataAccessObjectAgent,
   ): Promise<IForeignKeyWithForeignColumnName> {
     try {
       const [foreignTableSettings, foreignTableStructure] = await Promise.all([

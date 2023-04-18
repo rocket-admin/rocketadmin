@@ -4,7 +4,6 @@ import { IGlobalDatabaseContext } from '../../../common/application/global-datab
 import { BaseType } from '../../../common/data-injection.tokens.js';
 import { createDataAccessObject } from '../../../data-access-layer/shared/create-data-access-object.js';
 import {
-  IDataAccessObject,
   IForeignKey,
   IForeignKeyWithForeignColumnName,
 } from '../../../data-access-layer/shared/data-access-object-interface.js';
@@ -16,6 +15,8 @@ import { GetTableStructureDs } from '../application/data-structures/get-table-st
 import { IForeignKeyInfo, IStructureRO } from '../table.interface.js';
 import { formFullTableStructure } from '../utils/form-full-table-structure.js';
 import { IGetTableStructure } from './table-use-cases.interface.js';
+import { IDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/interfaces/data-access-object.interface.js';
+import { IDataAccessObjectAgent } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/interfaces/data-access-object-agent.interface.js';
 
 @Injectable()
 export class GetTableStructureUseCase
@@ -104,7 +105,7 @@ export class GetTableStructureUseCase
     foreignKey: IForeignKey,
     userId: string,
     connectionId: string,
-    dao: IDataAccessObject,
+    dao: IDataAccessObject | IDataAccessObjectAgent,
   ): Promise<IForeignKeyWithForeignColumnName> {
     try {
       const [foreignTableSettings, foreignTableStructure] = await Promise.all([

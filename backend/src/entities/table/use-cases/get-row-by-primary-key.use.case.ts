@@ -5,7 +5,6 @@ import { IGlobalDatabaseContext } from '../../../common/application/global-datab
 import { BaseType } from '../../../common/data-injection.tokens.js';
 import { createDataAccessObject } from '../../../data-access-layer/shared/create-data-access-object.js';
 import {
-  IDataAccessObject,
   IForeignKey,
   IForeignKeyWithForeignColumnName,
 } from '../../../data-access-layer/shared/data-access-object-interface.js';
@@ -20,6 +19,8 @@ import { convertHexDataInPrimaryKeyUtil } from '../utils/convert-hex-data-in-pri
 import { formFullTableStructure } from '../utils/form-full-table-structure.js';
 import { removePasswordsFromRowsUtil } from '../utils/remove-password-from-row.util.js';
 import { IGetRowByPrimaryKey } from './table-use-cases.interface.js';
+import { IDataAccessObjectAgent } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/interfaces/data-access-object-agent.interface.js';
+import { IDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/interfaces/data-access-object.interface.js';
 
 @Injectable()
 export class GetRowByPrimaryKeyUseCase
@@ -77,7 +78,7 @@ export class GetRowByPrimaryKeyUseCase
       dao.getTableForeignKeys(tableName, userEmail),
       dao.getTablePrimaryColumns(tableName, userEmail),
       this._dbContext.tableActionRepository.findTableActions(connectionId, tableName),
-      dao.getReferencedTableNamesAndColumns(tableName),
+      dao.getReferencedTableNamesAndColumns(tableName, userEmail),
     ]);
     primaryKey = convertHexDataInPrimaryKeyUtil(primaryKey, tableStructure);
     const availablePrimaryColumns: Array<string> = tablePrimaryKeys.map((column) => column.column_name);
@@ -147,7 +148,7 @@ export class GetRowByPrimaryKeyUseCase
     foreignKey: IForeignKey,
     userId: string,
     connectionId: string,
-    dao: IDataAccessObject,
+    dao: IDataAccessObject | IDataAccessObjectAgent,
   ): Promise<IForeignKeyWithForeignColumnName> {
     try {
       const [foreignTableSettings, foreignTableStructure] = await Promise.all([

@@ -1,10 +1,10 @@
+/* eslint-disable prefer-const */
 import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
 import { createDataAccessObject } from '../../../data-access-layer/shared/create-data-access-object.js';
 import {
-  IDataAccessObject,
   IForeignKey,
   IForeignKeyWithForeignColumnName,
 } from '../../../data-access-layer/shared/data-access-object-interface.js';
@@ -26,6 +26,8 @@ import { hashPasswordsInRowUtil } from '../utils/hash-passwords-in-row.util.js';
 import { processUuidsInRowUtil } from '../utils/process-uuids-in-row-util.js';
 import { removePasswordsFromRowsUtil } from '../utils/remove-password-from-row.util.js';
 import { IUpdateRowInTable } from './table-use-cases.interface.js';
+import { IDataAccessObjectAgent } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/interfaces/data-access-object-agent.interface.js';
+import { IDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/interfaces/data-access-object.interface.js';
 
 @Injectable()
 export class UpdateRowInTableUseCase
@@ -68,14 +70,20 @@ export class UpdateRowInTableUseCase
       userEmail = await this._dbContext.userRepository.getUserEmailOrReturnNull(userId);
     }
 
-    // eslint-disable-next-line prefer-const
-    let [tableStructure, tableWidgets, tableSettings, tableForeignKeys, tablePrimaryKeys, referencedTableNamesAndColumns] = await Promise.all([
+    let [
+      tableStructure,
+      tableWidgets,
+      tableSettings,
+      tableForeignKeys,
+      tablePrimaryKeys,
+      referencedTableNamesAndColumns,
+    ] = await Promise.all([
       dao.getTableStructure(tableName, userEmail),
       this._dbContext.tableWidgetsRepository.findTableWidgets(connectionId, tableName),
       this._dbContext.tableSettingsRepository.findTableSettings(connectionId, tableName),
       dao.getTableForeignKeys(tableName, userEmail),
       dao.getTablePrimaryColumns(tableName, userEmail),
-      dao.getReferencedTableNamesAndColumns(tableName),
+      dao.getReferencedTableNamesAndColumns(tableName, userEmail),
     ]);
 
     if (tableSettings && !tableSettings?.can_update) {
@@ -208,7 +216,7 @@ export class UpdateRowInTableUseCase
     foreignKey: IForeignKey,
     userId: string,
     connectionId: string,
-    dao: IDataAccessObject,
+    dao: IDataAccessObject | IDataAccessObjectAgent,
   ): Promise<IForeignKeyWithForeignColumnName> {
     try {
       const [foreignTableSettings, foreignTableStructure] = await Promise.all([

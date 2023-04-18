@@ -45,7 +45,7 @@ export function getDataAccessObject(
         throw new Error(ERROR_MESSAGES.CONNECTION_TYPE_INVALID);
       }
       const connectionParamsAgent = buildAgentConnectionParams(connectionParams);
-      return new DataAccessObjectAgent(connectionParamsAgent)
+      return new DataAccessObjectAgent(connectionParamsAgent);
   }
 }
 

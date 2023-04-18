@@ -52,7 +52,7 @@ export interface IDataAccessObjectAgent {
 
   getTablePrimaryColumns(tableName: string, userEmail: string): Promise<Array<PrimaryKeyDS>>;
 
-  getTablesFromDB(userEmail: string): Promise<Array<string>>;
+  getTablesFromDB(userEmail?: string): Promise<Array<string>>;
 
   getTableStructure(tableName: string, userEmail: string): Promise<Array<TableStructureDS>>;
 

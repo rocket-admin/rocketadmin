@@ -5,7 +5,6 @@ import { IGlobalDatabaseContext } from '../../../common/application/global-datab
 import { BaseType } from '../../../common/data-injection.tokens.js';
 import { createDataAccessObject } from '../../../data-access-layer/shared/create-data-access-object.js';
 import {
-  IDataAccessObject,
   IForeignKey,
   IForeignKeyWithForeignColumnName,
 } from '../../../data-access-layer/shared/data-access-object-interface.js';
@@ -29,6 +28,8 @@ import { processUuidsInRowUtil } from '../utils/process-uuids-in-row-util.js';
 import { removePasswordsFromRowsUtil } from '../utils/remove-password-from-row.util.js';
 import { validateTableRowUtil } from '../utils/validate-table-row.util.js';
 import { IAddRowInTable } from './table-use-cases.interface.js';
+import { IDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/interfaces/data-access-object.interface.js';
+import { IDataAccessObjectAgent } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/interfaces/data-access-object-agent.interface.js';
 
 @Injectable()
 export class AddRowInTableUseCase extends AbstractUseCase<AddRowInTableDs, ITableRowRO> implements IAddRowInTable {
@@ -75,7 +76,7 @@ export class AddRowInTableUseCase extends AbstractUseCase<AddRowInTableDs, ITabl
       this._dbContext.tableSettingsRepository.findTableSettings(connectionId, tableName),
       dao.getTableForeignKeys(tableName, userEmail),
       dao.getTablePrimaryColumns(tableName, userEmail),
-      dao.getReferencedTableNamesAndColumns(tableName),
+      dao.getReferencedTableNamesAndColumns(tableName, userEmail),
     ]);
 
     if (tableSettings && !tableSettings?.can_add) {
@@ -176,7 +177,7 @@ export class AddRowInTableUseCase extends AbstractUseCase<AddRowInTableDs, ITabl
     foreignKey: IForeignKey,
     userId: string,
     connectionId: string,
-    dao: IDataAccessObject,
+    dao: IDataAccessObject | IDataAccessObjectAgent,
   ): Promise<IForeignKeyWithForeignColumnName> {
     try {
       const [foreignTableSettings, foreignTableStructure] = await Promise.all([

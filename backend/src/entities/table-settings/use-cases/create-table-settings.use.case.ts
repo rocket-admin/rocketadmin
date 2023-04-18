@@ -10,6 +10,8 @@ import { FoundTableSettingsDs } from '../application/data-structures/found-table
 import { buildFoundTableSettingsDs } from '../utils/build-found-table-settings-ds.js';
 import { buildNewTableSettingsEntity } from '../utils/build-new-table-settings-entity.js';
 import { ICreateTableSettings } from './use-cases.interface.js';
+import { ValidateTableSettingsDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/validate-table-settings.ds.js';
+import { buildValidateTableSettingsDS } from '@rocketadmin/shared-code/dist/src/helpers/datascturcute-builders/validate-table-settings-ds.builder.js';
 
 @Injectable()
 export class CreateTableSettingsUseCase
@@ -30,7 +32,8 @@ export class CreateTableSettingsUseCase
       masterPwd,
     );
     const dao = createDataAccessObject(foundConnection, userId);
-    const errors: Array<string> = await dao.validateSettings(inputData, table_name, undefined);
+    const tableSettingsDs: ValidateTableSettingsDS = buildValidateTableSettingsDS(inputData);
+    const errors: Array<string> = await dao.validateSettings(tableSettingsDs, table_name, undefined);
     if (errors.length > 0) {
       throw new HttpException(
         {
