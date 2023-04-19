@@ -3,8 +3,7 @@ import axios from 'axios';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
-import { createDataAccessObject } from '../../../data-access-layer/shared/create-data-access-object.js';
-import { IPrimaryKey } from '../../../data-access-layer/shared/data-access-object-interface.js';
+import { getDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/create-data-access-object.js';
 import { LogOperationTypeEnum, OperationResultStatusEnum } from '../../../enums/index.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { Encryptor } from '../../../helpers/encryption/encryptor.js';
@@ -12,6 +11,7 @@ import { TableLogsService } from '../../table-logs/table-logs.service.js';
 import { ActivateTableActionDS } from '../application/data-sctructures/activate-table-action.ds.js';
 import { ActivatedTableActionDS } from '../application/data-sctructures/activated-table-action.ds.js';
 import { IActivateTableAction } from './table-actions-use-cases.interface.js';
+import { PrimaryKeyDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/primary-key.ds.js';
 
 @Injectable()
 export class ActivateTableActionUseCase
@@ -50,7 +50,7 @@ export class ActivateTableActionUseCase
       connectionId,
       masterPwd,
     );
-    const dataAccessObject = createDataAccessObject(foundConnection, userId);
+    const dataAccessObject = getDataAccessObject(foundConnection);
     const tablePrimaryKeys = await dataAccessObject.getTablePrimaryColumns(tableName, null);
     const primaryKeysObj = this.getPrimaryKeysFromBody(request_body, tablePrimaryKeys);
     const dateString = new Date().toISOString();
@@ -73,10 +73,10 @@ export class ActivateTableActionUseCase
         },
         {
           headers: { 'Rocketadmin-Signature': autoadminSignatureHeader },
-	  maxRedirects: 0,
-	  validateStatus: function (status) {
-            return status >= 200 && status <= 302
-          }
+          maxRedirects: 0,
+          validateStatus: function (status) {
+            return status >= 200 && status <= 302;
+          },
         },
       );
       const operationStatusCode = result.status;
@@ -122,7 +122,7 @@ export class ActivateTableActionUseCase
 
   private getPrimaryKeysFromBody(
     body: Record<string, unknown>,
-    primaryKeys: Array<IPrimaryKey>,
+    primaryKeys: Array<PrimaryKeyDS>,
   ): Record<string, unknown> {
     const pKeysObj: Record<string, unknown> = {};
     for (const keyItem of primaryKeys) {

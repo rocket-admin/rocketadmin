@@ -3,7 +3,12 @@ import { BasicDao } from '../shared/basic-dao.js';
 import { Cacher } from '../../helpers/cache/cacher.js';
 import { Constants } from '../../helpers/constants/constants.js';
 import { FilterCriteriaEnum } from '../../enums/filter-criteria.enum.js';
-import { IDaoInterface, IDaoRowsRO, IReferecedTableNamesAndColumns, ITestConnectResult } from '../shared/dao-interface.js';
+import {
+  IDaoInterface,
+  IDaoRowsRO,
+  IReferecedTableNamesAndColumns,
+  ITestConnectResult,
+} from '../shared/dao-interface.js';
 import { checkFieldAutoincrement } from '../../helpers/check-field-autoincrement.js';
 import { getNumbersFromString } from '../../helpers/get-numbers-from-string.js';
 import { isObjectEmpty } from '../../helpers/is-object-empty.js';
@@ -16,7 +21,7 @@ import {
   IAutocompleteFields,
   ICLIConnectionCredentials,
   IFilteringFields,
-  IForeignKeyInfo,
+  ForeignKeyDSInfo,
   IStructureInfo,
   ITablePrimaryColumnInfo,
   ITableSettings,
@@ -342,7 +347,7 @@ export class DaoMysql extends BasicDao implements IDaoInterface {
     return await knex(tableName).returning(Object.keys(primaryKey)).where(primaryKey).update(row);
   }
 
-  async getTableForeignKeys(tableName: string): Promise<Array<IForeignKeyInfo>> {
+  async getTableForeignKeys(tableName: string): Promise<Array<ForeignKeyDSInfo>> {
     const knex = await this.configureKnex(this.connection);
     const connection = this.connection;
 

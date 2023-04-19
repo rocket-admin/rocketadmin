@@ -1,9 +1,9 @@
-import { ITableStructure } from '../../../data-access-layer/shared/data-access-object-interface.js';
+import { TableStructureDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/table-structure.ds.js';
 import { binaryToHex, isBinary } from '../../../helpers/index.js';
 
 export function convertBinaryDataInRowUtil(
   row: Record<string, unknown>,
-  structure: Array<ITableStructure>,
+  structure: Array<TableStructureDS>,
 ): Record<string, unknown> {
   const binaryColumns = structure
     .map((el) => {

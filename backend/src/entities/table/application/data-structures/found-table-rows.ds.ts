@@ -1,24 +1,22 @@
 import { FilterCriteriaEnum, QueryOrderingEnum } from '../../../../enums/index.js';
-import {
-  IForeignKey,
-  IPagination,
-  IPrimaryKey,
-} from '../../../../data-access-layer/shared/data-access-object-interface.js';
 import { FullTableStructureDs } from './found-table-structure.ds.js';
 import { ITablePermissionData } from '../../../permission/permission.interface.js';
 import { TableWidgetEntity } from '../../../widget/table-widget.entity.js';
 import { CreatedTableActionDS } from '../../../table-actions/application/data-sctructures/created-table-action.ds.js';
+import { ForeignKeyDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/foreign-key.ds.js';
+import { PrimaryKeyDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/primary-key.ds.js';
+import { RowsPaginationDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/rows-pagination.ds.js';
 
 export class FoundTableRowsDs {
   rows: Array<Record<string, unknown>>;
-  primaryColumns: Array<IPrimaryKey>;
-  pagination: IPagination;
+  primaryColumns: Array<PrimaryKeyDS>;
+  pagination: RowsPaginationDS;
   sortable_by: Array<string>;
   ordering_field: string;
   ordering: QueryOrderingEnum;
   columns_view: Array<string>;
   structure: Array<FullTableStructureDs>;
-  foreignKeys: Array<IForeignKey>;
+  foreignKeys: Array<ForeignKeyDS>;
   configured: boolean;
   widgets: Array<TableWidgetEntity>;
   identity_column: string;

@@ -1,12 +1,10 @@
 import { Knex } from 'knex';
 import LRU from 'lru-cache';
-import {
-  IForeignKey,
-  IPrimaryKey,
-  ITableStructure,
-} from '../../data-access-layer/shared/data-access-object-interface.js';
 import { ConnectionEntity } from '../../entities/connection/connection.entity.js';
 import { Constants } from '../constants/constants.js';
+import { TableStructureDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/table-structure.ds.js';
+import { PrimaryKeyDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/primary-key.ds.js';
+import { ForeignKeyDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/foreign-key.ds.js';
 
 const knexCache = new LRU(Constants.DEFAULT_CONNECTION_CACHE_OPTIONS);
 const tunnelCache = new LRU(Constants.DEFAULT_TUNNEL_CACHE_OPTIONS);
@@ -83,7 +81,7 @@ export class Cacher {
   public static setTableStructureCache(
     connection: ConnectionEntity,
     tableName: string,
-    structure: Array<ITableStructure>,
+    structure: Array<TableStructureDS>,
   ): void {
     const connectionCopy = {
       ...connection,
@@ -92,19 +90,19 @@ export class Cacher {
     tableStructureCache.set(cacheObj, structure);
   }
 
-  public static getTableStructureCache(connection: ConnectionEntity, tableName: string): Array<ITableStructure> {
+  public static getTableStructureCache(connection: ConnectionEntity, tableName: string): Array<TableStructureDS> {
     const connectionCopy = {
       ...connection,
     };
     const cacheObj = JSON.stringify({ connectionCopy, tableName });
-    const foundStructure = tableStructureCache.get(cacheObj) as Array<ITableStructure>;
+    const foundStructure = tableStructureCache.get(cacheObj) as Array<TableStructureDS>;
     return foundStructure ? foundStructure : null;
   }
 
   public static setTablePrimaryKeysCache(
     connection: ConnectionEntity,
     tableName: string,
-    primaryKeys: Array<IPrimaryKey>,
+    primaryKeys: Array<PrimaryKeyDS>,
   ): void {
     const connectionCopy = {
       ...connection,
@@ -113,19 +111,19 @@ export class Cacher {
     tablePrimaryKeysCache.set(cacheObj, primaryKeys);
   }
 
-  public static getTablePrimaryKeysCache(connection: ConnectionEntity, tableName: string): Array<IPrimaryKey> {
+  public static getTablePrimaryKeysCache(connection: ConnectionEntity, tableName: string): Array<PrimaryKeyDS> {
     const connectionCopy = {
       ...connection,
     };
     const cacheObj = JSON.stringify({ connectionCopy, tableName });
-    const foundKeys = tablePrimaryKeysCache.get(cacheObj) as Array<IPrimaryKey>;
+    const foundKeys = tablePrimaryKeysCache.get(cacheObj) as Array<PrimaryKeyDS>;
     return foundKeys ? foundKeys : null;
   }
 
   public static setTableForeignKeysCache(
     connection: ConnectionEntity,
     tableName: string,
-    foreignKeys: Array<IForeignKey>,
+    foreignKeys: Array<ForeignKeyDS>,
   ): void {
     const connectionCopy = {
       ...connection,
@@ -134,12 +132,12 @@ export class Cacher {
     tableForeignKeysCache.set(cacheObj, foreignKeys);
   }
 
-  public static getTableForeignKeysCache(connection: ConnectionEntity, tableName: string): Array<IForeignKey> {
+  public static getTableForeignKeysCache(connection: ConnectionEntity, tableName: string): Array<ForeignKeyDS> {
     const connectionCopy = {
       ...connection,
     };
     const cacheObj = JSON.stringify({ connectionCopy, tableName });
-    const foundKeys = tableForeignKeysCache.get(cacheObj) as Array<IForeignKey>;
+    const foundKeys = tableForeignKeysCache.get(cacheObj) as Array<ForeignKeyDS>;
     return foundKeys ? foundKeys : null;
   }
 

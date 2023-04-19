@@ -4,15 +4,15 @@ import { HttpException } from '@nestjs/common/exceptions/http.exception.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { HttpStatus } from '@nestjs/common';
 import { ConnectionEntity } from '../../connection/connection.entity.js';
-import { createDataAccessObject } from '../../../data-access-layer/shared/create-data-access-object.js';
+import { getDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/create-data-access-object.js';
 
 export async function validateCreateConnectionPropertiesDs(
   createConnectionProperties: CreateConnectionPropertiesDs,
   connection: ConnectionEntity,
 ): Promise<boolean> {
-  const { userId, hidden_tables } = createConnectionProperties;
+  const { hidden_tables } = createConnectionProperties;
   const errors = [];
-  const dao = createDataAccessObject(connection, userId);
+  const dao = getDataAccessObject(connection);
   const tablesInConnection = await dao.getTablesFromDB();
   if (!Array.isArray(hidden_tables)) {
     errors.push(Messages.HIDDEN_TABLES_MUST_BE_ARRAY);

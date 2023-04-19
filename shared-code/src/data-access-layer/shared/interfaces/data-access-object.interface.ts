@@ -13,7 +13,7 @@ import { ValidateTableSettingsDS } from '../data-structures/validate-table-setti
 export interface IDataAccessObject {
   addRowInTable(tableName: string, row: Record<string, unknown>): Promise<Record<string, unknown> | number>;
 
-  configureKnex(): Promise<Knex> | Knex;
+  configureKnex(): Promise<Knex<any, any[]>>;
 
   deleteRowInTable(tableName: string, primaryKey: Record<string, unknown>): Promise<Record<string, unknown>>;
 

@@ -17,13 +17,12 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { IGlobalDatabaseContext } from '../../common/application/global-database-context.intarface.js';
 import { BaseType, UseCaseType } from '../../common/data-injection.tokens.js';
-import { createDataAccessObject } from '../../data-access-layer/shared/create-data-access-object.js';
+import { getDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/create-data-access-object.js';
 import { MasterPassword, QueryTableName, SlugUuid, UserId } from '../../decorators/index.js';
 import { AmplitudeEventTypeEnum, InTransactionEnum } from '../../enums/index.js';
 import { Messages } from '../../exceptions/text/messages.js';
 import { TableAddGuard, TableDeleteGuard, TableEditGuard, TableReadGuard } from '../../guards/index.js';
 import { isConnectionTypeAgent, isObjectEmpty } from '../../helpers/index.js';
-import { Encryptor } from '../../helpers/encryption/encryptor.js';
 import { SentryInterceptor } from '../../interceptors/index.js';
 import { AmplitudeService } from '../amplitude/amplitude.service.js';
 import { ConnectionEntity } from '../connection/connection.entity.js';
@@ -362,7 +361,7 @@ export class TableController {
     if (isConnectionTypeAgent(connection.type)) {
       userEmail = await this._dbContext.userRepository.getUserEmailOrReturnNull(userId);
     }
-    const dao = createDataAccessObject(connection, userEmail);
+    const dao = getDataAccessObject(connection);
     const primaryColumns = await dao.getTablePrimaryColumns(tableName, userEmail);
 
     for (const primaryColumn of primaryColumns) {

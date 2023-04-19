@@ -59,7 +59,7 @@ export interface ITestConnectResult {
   message: string;
 }
 
-export interface IPrimaryKeyInfo {
+export interface PrimaryKeyDSInfo {
   column_name: string;
   data_type: string;
 }

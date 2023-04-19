@@ -1,5 +1,5 @@
 import { HttpException, HttpStatus } from '@nestjs/common';
-import { createDataAccessObject } from '../../../data-access-layer/shared/create-data-access-object.js';
+import { getDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/create-data-access-object.js';
 import { AccessLevelEnum, PermissionTypeEnum } from '../../../enums/index.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { Encryptor } from '../../../helpers/encryption/encryptor.js';
@@ -150,7 +150,7 @@ export const userAccessCustomReposiotoryExtension = {
     if (foundConnection.masterEncryption) {
       foundConnection = Encryptor.decryptConnectionCredentials(foundConnection, masterPwd);
     }
-    const dao = createDataAccessObject(foundConnection, cognitoUserName);
+    const dao = getDataAccessObject(foundConnection);
     const availableTables = await dao.getTablesFromDB();
     if (availableTables.indexOf(tableName) < 0) {
       throw new HttpException(

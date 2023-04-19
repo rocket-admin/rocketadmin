@@ -3,7 +3,7 @@ import { getRepository } from 'typeorm';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
-import { createDataAccessObject } from '../../../data-access-layer/shared/create-data-access-object.js';
+import { getDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/create-data-access-object.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { processExceptionMessage } from '../../../exceptions/utils/process-exception-message.js';
 import { isConnectionTypeAgent } from '../../../helpers/index.js';
@@ -36,7 +36,7 @@ export class TestConnectionUseCase
       };
     }
     const {
-      update_info: { connectionId, masterPwd, authorId },
+      update_info: { connectionId, masterPwd },
       connection_parameters: connectionData,
     } = inputData;
     if (connectionId) {
@@ -96,7 +96,7 @@ export class TestConnectionUseCase
         };
       }
       const updated = Object.assign(toUpdate, connectionData);
-      const dao = createDataAccessObject(updated, authorId);
+      const dao = getDataAccessObject(updated);
 
       try {
         return await dao.testConnect();
@@ -115,7 +115,7 @@ export class TestConnectionUseCase
           message: Messages.PASSWORD_MISSING,
         };
       }
-      const dao = createDataAccessObject(connectionData as ConnectionEntity, authorId);
+      const dao = getDataAccessObject(connectionData as ConnectionEntity);
       try {
         return await dao.testConnect();
       } catch (e) {

@@ -1,45 +1,40 @@
 import axios from 'axios';
 import jwt from 'jsonwebtoken';
-import { ConnectionEntity } from '../../entities/connection/connection.entity.js';
-import { CreateTableSettingsDto } from '../../entities/table-settings/dto/index.js';
-import { TableSettingsEntity } from '../../entities/table-settings/table-settings.entity.js';
-import { DaoCommandsEnum } from '../../enums/dao-commands.enum.js';
-import { Messages } from '../../exceptions/text/messages.js';
-import { Cacher } from '../../helpers/cache/cacher.js';
-import {
-  IAutocompleteFieldsData,
-  IDataAccessObject,
-  IFilteringFieldsData,
-  IForeignKey,
-  IPrimaryKey,
-  IReferecedTableNamesAndColumns,
-  IRows,
-  ITableStructure,
-  ITestConnectResult,
-} from '../shared/data-access-object-interface.js';
+import { ERROR_MESSAGES } from '../../helpers/errors/error-messages.js';
+import { AutocompleteFieldsDS } from '../shared/data-structures/autocomplete-fields.ds.js';
+import { ConnectionAgentParams } from '../shared/data-structures/connections-params.ds.js';
+import { FilteringFieldsDS } from '../shared/data-structures/filtering-fields.ds.js';
+import { ForeignKeyDS } from '../shared/data-structures/foreign-key.ds.js';
+import { FoundRowsDS } from '../shared/data-structures/found-rows.ds.js';
+import { PrimaryKeyDS } from '../shared/data-structures/primary-key.ds.js';
+import { ReferencedTableNamesAndColumnsDS } from '../shared/data-structures/referenced-table-names-columns.ds.js';
+import { TableSettingsDS } from '../shared/data-structures/table-settings.ds.js';
+import { TableStructureDS } from '../shared/data-structures/table-structure.ds.js';
+import { TestConnectionResultDS } from '../shared/data-structures/test-result-connection.ds.js';
+import { ValidateTableSettingsDS } from '../shared/data-structures/validate-table-settings.ds.js';
+import { IDataAccessObjectAgent } from '../shared/interfaces/data-access-object-agent.interface.js';
+import { DataAccessObjectCommandsEnum } from '../shared/enums/data-access-object-commands.enum.js';
+import { LRUStorage } from '../../caching/lru-storage.js';
 
-export class DataAccessObjectAgent implements IDataAccessObject {
-  private readonly connection: ConnectionEntity;
-  private readonly serverAddress: string;
-  private readonly cognitoUserName: string;
+export class DataAccessObjectAgent implements IDataAccessObjectAgent {
+  private readonly connection: ConnectionAgentParams;
+  private readonly serverAddress: string = process.env.LOCAL_SERVER_ADDRESS || `http://autoadmin-ws.local:8008/`;
 
-  constructor(connection: ConnectionEntity, cognitoUserName: string) {
+  constructor(connection: ConnectionAgentParams) {
     this.connection = connection;
-    this.serverAddress = `http://autoadmin-ws.local:8008/`;
-    this.cognitoUserName = cognitoUserName;
   }
 
   public async addRowInTable(
     tableName: string,
     row: Record<string, unknown>,
     userEmail: string,
-  ): Promise<Record<string, unknown> | number> {
-    const jwtAuthToken = this.generateJWT(this.connection.agent.token);
+  ): Promise<number | Record<string, unknown>> {
+    const jwtAuthToken = this.generateJWT(this.connection.token);
     try {
       const res = await axios.post(
         this.serverAddress,
         {
-          operationType: DaoCommandsEnum.addRowInTable,
+          operationType: DataAccessObjectCommandsEnum.addRowInTable,
           tableName: tableName,
           row: row,
           email: userEmail,
@@ -61,12 +56,12 @@ export class DataAccessObjectAgent implements IDataAccessObject {
     primaryKey: Record<string, unknown>,
     userEmail: string,
   ): Promise<Record<string, unknown>> {
-    const jwtAuthToken = this.generateJWT(this.connection.agent.token);
+    const jwtAuthToken = this.generateJWT(this.connection.token);
     try {
       const res = await axios.post(
         this.serverAddress,
         {
-          operationType: DaoCommandsEnum.deleteRowInTable,
+          operationType: DataAccessObjectCommandsEnum.deleteRowInTable,
           tableName: tableName,
           primaryKey: primaryKey,
           email: userEmail,
@@ -87,20 +82,20 @@ export class DataAccessObjectAgent implements IDataAccessObject {
     tableName: string,
     referencedFieldName: string,
     identityColumnName: string,
-    fieldValues: Array<string | number>,
-    email: string,
-  ): Promise<Array<string>> {
-    const jwtAuthToken = this.generateJWT(this.connection.agent.token);
+    fieldValues: (string | number)[],
+    userEmail: string,
+  ): Promise<string[]> {
+    const jwtAuthToken = this.generateJWT(this.connection.token);
     try {
       const res = await axios.post(
         this.serverAddress,
         {
-          operationType: DaoCommandsEnum.getIdentityColumns,
+          operationType: DataAccessObjectCommandsEnum.getIdentityColumns,
           tableName: tableName,
           referencedFieldName: referencedFieldName,
           identityColumnName: identityColumnName,
           fieldValues: fieldValues,
-          email: email,
+          email: userEmail,
         },
         { headers: { authorization: `Bearer ${jwtAuthToken}` } },
       );
@@ -117,15 +112,15 @@ export class DataAccessObjectAgent implements IDataAccessObject {
   public async getRowByPrimaryKey(
     tableName: string,
     primaryKey: Record<string, unknown>,
-    settings: TableSettingsEntity,
+    settings: TableSettingsDS,
     userEmail: string,
   ): Promise<Record<string, unknown>> {
-    const jwtAuthToken = this.generateJWT(this.connection.agent.token);
+    const jwtAuthToken = this.generateJWT(this.connection.token);
     try {
       const res = await axios.post(
         this.serverAddress,
         {
-          operationType: DaoCommandsEnum.getRowByPrimaryKey,
+          operationType: DataAccessObjectCommandsEnum.getRowByPrimaryKey,
           tableName: tableName,
           primaryKey: primaryKey,
           tableSettings: settings,
@@ -145,20 +140,20 @@ export class DataAccessObjectAgent implements IDataAccessObject {
 
   public async getRowsFromTable(
     tableName: string,
-    settings: TableSettingsEntity,
+    settings: TableSettingsDS,
     page: number,
     perPage: number,
     searchedFieldValue: string,
-    filteringFields: Array<IFilteringFieldsData>,
-    autocompleteFields: IAutocompleteFieldsData,
+    filteringFields: FilteringFieldsDS[],
+    autocompleteFields: AutocompleteFieldsDS,
     userEmail: string,
-  ): Promise<IRows> {
-    const jwtAuthToken = this.generateJWT(this.connection.agent.token);
+  ): Promise<FoundRowsDS> {
+    const jwtAuthToken = this.generateJWT(this.connection.token);
     try {
       const res = await axios.post(
         this.serverAddress,
         {
-          operationType: DaoCommandsEnum.getRowsFromTable,
+          operationType: DataAccessObjectCommandsEnum.getRowsFromTable,
           tableName: tableName,
           tableSettings: settings,
           page: page,
@@ -180,9 +175,9 @@ export class DataAccessObjectAgent implements IDataAccessObject {
     }
   }
 
-  public async getTableForeignKeys(tableName: string, userEmail: string): Promise<Array<IForeignKey>> {
-    const jwtAuthToken = this.generateJWT(this.connection.agent.token);
-    const cachedForeignKeys = Cacher.getTableForeignKeysCache(this.connection, tableName);
+  public async getTableForeignKeys(tableName: string, userEmail: string): Promise<ForeignKeyDS[]> {
+    const jwtAuthToken = this.generateJWT(this.connection.token);
+    const cachedForeignKeys = LRUStorage.getTableForeignKeysCache(this.connection, tableName);
     if (cachedForeignKeys) {
       return cachedForeignKeys;
     }
@@ -190,7 +185,7 @@ export class DataAccessObjectAgent implements IDataAccessObject {
       const res = await axios.post(
         this.serverAddress,
         {
-          operationType: DaoCommandsEnum.getTableForeignKeys,
+          operationType: DataAccessObjectCommandsEnum.getTableForeignKeys,
           tableName: tableName,
           email: userEmail,
         },
@@ -200,7 +195,7 @@ export class DataAccessObjectAgent implements IDataAccessObject {
         throw new Error(res.data.commandResult.message);
       }
       const result = res.data.commandResult;
-      Cacher.setTableForeignKeysCache(this.connection, tableName, result);
+      LRUStorage.setTableForeignKeysCache(this.connection, tableName, result);
       return result;
     } catch (e) {
       this.checkIsErrorLocalAndThrowException(e);
@@ -208,9 +203,9 @@ export class DataAccessObjectAgent implements IDataAccessObject {
     }
   }
 
-  public async getTablePrimaryColumns(tableName: string, userEmail: string): Promise<Array<IPrimaryKey>> {
-    const jwtAuthToken = this.generateJWT(this.connection.agent.token);
-    const cachedPrimaryColumns = Cacher.getTablePrimaryKeysCache(this.connection, tableName);
+  public async getTablePrimaryColumns(tableName: string, userEmail: string): Promise<PrimaryKeyDS[]> {
+    const jwtAuthToken = this.generateJWT(this.connection.token);
+    const cachedPrimaryColumns = LRUStorage.getTablePrimaryKeysCache(this.connection, tableName);
     if (cachedPrimaryColumns) {
       return cachedPrimaryColumns;
     }
@@ -218,7 +213,7 @@ export class DataAccessObjectAgent implements IDataAccessObject {
       const res = await axios.post(
         this.serverAddress,
         {
-          operationType: DaoCommandsEnum.getTablePrimaryColumns,
+          operationType: DataAccessObjectCommandsEnum.getTablePrimaryColumns,
           tableName: tableName,
           email: userEmail,
         },
@@ -228,7 +223,7 @@ export class DataAccessObjectAgent implements IDataAccessObject {
         throw new Error(res.data.commandResult.message);
       }
       const result = res.data.commandResult;
-      Cacher.setTablePrimaryKeysCache(this.connection, tableName, result);
+      LRUStorage.setTablePrimaryKeysCache(this.connection, tableName, result);
       return result;
     } catch (e) {
       this.checkIsErrorLocalAndThrowException(e);
@@ -236,42 +231,14 @@ export class DataAccessObjectAgent implements IDataAccessObject {
     }
   }
 
-  public async getTableStructure(tableName: string, userEmail: string): Promise<Array<ITableStructure>> {
-    const jwtAuthToken = this.generateJWT(this.connection.agent.token);
-    const cachedTableStructure = Cacher.getTableStructureCache(this.connection, tableName);
-    if (cachedTableStructure) {
-      return cachedTableStructure;
-    }
+  public async getTablesFromDB(userEmail: string): Promise<string[]> {
+    const jwtAuthToken = this.generateJWT(this.connection.token);
     try {
       const res = await axios.post(
         this.serverAddress,
         {
-          operationType: DaoCommandsEnum.getTableStructure,
-          tableName: tableName,
+          operationType: DataAccessObjectCommandsEnum.getTablesFromDB,
           email: userEmail,
-        },
-        { headers: { authorization: `Bearer ${jwtAuthToken}` } },
-      );
-      if (res.data.commandResult instanceof Error) {
-        throw new Error(res.data.commandResult.message);
-      }
-      const result = res.data.commandResult;
-      Cacher.setTableStructureCache(this.connection, tableName, result);
-      return result;
-    } catch (e) {
-      this.checkIsErrorLocalAndThrowException(e);
-      throw new Error(e.response.data);
-    }
-  }
-
-  public async getTablesFromDB(email?: string): Promise<Array<string>> {
-    const jwtAuthToken = this.generateJWT(this.connection.agent.token);
-    try {
-      const res = await axios.post(
-        this.serverAddress,
-        {
-          operationType: DaoCommandsEnum.getTablesFromDB,
-          email: email,
         },
         { headers: { authorization: `Bearer ${jwtAuthToken}` } },
       );
@@ -285,14 +252,42 @@ export class DataAccessObjectAgent implements IDataAccessObject {
     }
   }
 
-  public async testConnect(): Promise<ITestConnectResult> {
-    const jwtAuthToken = this.generateJWT(this.connection.agent.token);
+  public async getTableStructure(tableName: string, userEmail: string): Promise<TableStructureDS[]> {
+    const jwtAuthToken = this.generateJWT(this.connection.token);
+    const cachedTableStructure = LRUStorage.getTableStructureCache(this.connection, tableName);
+    if (cachedTableStructure) {
+      return cachedTableStructure;
+    }
     try {
       const res = await axios.post(
         this.serverAddress,
         {
-          operationType: DaoCommandsEnum.testConnect,
-          email: 'unknown',
+          operationType: DataAccessObjectCommandsEnum.getTableStructure,
+          tableName: tableName,
+          email: userEmail,
+        },
+        { headers: { authorization: `Bearer ${jwtAuthToken}` } },
+      );
+      if (res.data.commandResult instanceof Error) {
+        throw new Error(res.data.commandResult.message);
+      }
+      const result = res.data.commandResult;
+      LRUStorage.setTableStructureCache(this.connection, tableName, result);
+      return result;
+    } catch (e) {
+      this.checkIsErrorLocalAndThrowException(e);
+      throw new Error(e.response.data);
+    }
+  }
+
+  public async testConnect(userEmail: string = 'unknown'): Promise<TestConnectionResultDS> {
+    const jwtAuthToken = this.generateJWT(this.connection.token);
+    try {
+      const res = await axios.post(
+        this.serverAddress,
+        {
+          operationType: DataAccessObjectCommandsEnum.testConnect,
+          email: userEmail,
         },
         { headers: { authorization: `Bearer ${jwtAuthToken}` } },
       );
@@ -312,12 +307,12 @@ export class DataAccessObjectAgent implements IDataAccessObject {
     primaryKey: Record<string, unknown>,
     userEmail: string,
   ): Promise<Record<string, unknown>> {
-    const jwtAuthToken = this.generateJWT(this.connection.agent.token);
+    const jwtAuthToken = this.generateJWT(this.connection.token);
     try {
       const res = await axios.post(
         this.serverAddress,
         {
-          operationType: DaoCommandsEnum.updateRowInTable,
+          operationType: DataAccessObjectCommandsEnum.updateRowInTable,
           tableName: tableName,
           row: row,
           primaryKey: primaryKey,
@@ -336,16 +331,16 @@ export class DataAccessObjectAgent implements IDataAccessObject {
   }
 
   public async validateSettings(
-    settings: CreateTableSettingsDto,
+    settings: ValidateTableSettingsDS,
     tableName: string,
     userEmail: string,
-  ): Promise<Array<string>> {
-    const jwtAuthToken = this.generateJWT(this.connection.agent.token);
+  ): Promise<string[]> {
+    const jwtAuthToken = this.generateJWT(this.connection.token);
     try {
       const res = await axios.post(
         this.serverAddress,
         {
-          operationType: DaoCommandsEnum.validateSettings,
+          operationType: DataAccessObjectCommandsEnum.validateSettings,
           tableName: tableName,
           tableSettings: settings,
           email: userEmail,
@@ -362,14 +357,17 @@ export class DataAccessObjectAgent implements IDataAccessObject {
     }
   }
 
-  public async getReferencedTableNamesAndColumns(tableName: string, email: string): Promise<Array<IReferecedTableNamesAndColumns>> {
-    const jwtAuthToken = this.generateJWT(this.connection.agent.token);
+  public async getReferencedTableNamesAndColumns(
+    tableName: string,
+    userEmail: string,
+  ): Promise<ReferencedTableNamesAndColumnsDS[]> {
+    const jwtAuthToken = this.generateJWT(this.connection.token);
     try {
       const res = await axios.post(
         this.serverAddress,
         {
-          operationType: DaoCommandsEnum.getReferencedTableNamesAndColumns,
-          email: email,
+          operationType: DataAccessObjectCommandsEnum.getReferencedTableNamesAndColumns,
+          email: userEmail,
         },
         { headers: { authorization: `Bearer ${jwtAuthToken}` } },
       );
@@ -380,12 +378,6 @@ export class DataAccessObjectAgent implements IDataAccessObject {
     } catch (e) {
       this.checkIsErrorLocalAndThrowException(e);
       throw new Error(e.response.data);
-    }
-  }
-
-  private checkIsErrorLocalAndThrowException(e: any): void {
-    if (e.code.toLowerCase() === 'enotfound' && e.hostname === 'autoadmin-ws.local') {
-      throw new Error(Messages.CANT_CONNECT_AUTOADMIN_WS);
     }
   }
 
@@ -400,5 +392,11 @@ export class DataAccessObjectAgent implements IDataAccessObject {
       },
       secret,
     );
+  }
+
+  private checkIsErrorLocalAndThrowException(e: any): void {
+    if (e.code.toLowerCase() === 'enotfound' && e.hostname === 'autoadmin-ws.local') {
+      throw new Error(ERROR_MESSAGES.CANT_CONNECT_AUTOADMIN_WS);
+    }
   }
 }

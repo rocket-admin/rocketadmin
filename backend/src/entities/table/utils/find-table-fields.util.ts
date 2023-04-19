@@ -1,5 +1,5 @@
 import { ConnectionEntity } from '../../connection/connection.entity.js';
-import { createDataAccessObject } from '../../../data-access-layer/shared/create-data-access-object.js';
+import { getDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/create-data-access-object.js';
 
 export async function findTableFieldsUtil(
   connection: ConnectionEntity,
@@ -7,7 +7,7 @@ export async function findTableFieldsUtil(
   userId: string,
   userEmail = 'unknown',
 ): Promise<Array<string>> {
-  const dao = createDataAccessObject(connection, userId);
+  const dao = getDataAccessObject(connection);
   const tableStructure = await dao.getTableStructure(tableName, userEmail);
   return tableStructure.map((el) => el.column_name);
 }

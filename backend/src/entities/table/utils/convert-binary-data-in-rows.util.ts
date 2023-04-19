@@ -1,7 +1,8 @@
-import { IRows, ITableStructure } from '../../../data-access-layer/shared/data-access-object-interface.js';
+import { FoundRowsDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/found-rows.ds.js';
 import { binaryToHex, isBinary } from '../../../helpers/index.js';
+import { TableStructureDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/table-structure.ds.js';
 
-export function convertBinaryDataInRowsUtil(rows: IRows, structure: Array<ITableStructure>): IRows {
+export function convertBinaryDataInRowsUtil(rows: FoundRowsDS, structure: Array<TableStructureDS>): FoundRowsDS {
   let { data } = rows;
   const binaryColumns = structure
     .map((el) => {

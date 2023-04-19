@@ -3,8 +3,6 @@ export class ConnectionParams {
 
   title: string | null;
 
-  masterEncryption: boolean;
-
   type: 'postgres' | 'oracledb' | 'mysql2' | 'mssql';
 
   host: string;
@@ -35,11 +33,7 @@ export class ConnectionParams {
 
   cert: string | null;
 
-  isTestConnection: boolean | null;
-
   azure_encryption: boolean | null;
-
-  saved_table_info: number | null;
 
   signing_key: string;
 }
@@ -47,8 +41,6 @@ export class ConnectionParams {
 export class ConnectionAgentParams {
   id: string;
   title?: string | null;
-  createdAt: Date;
-  updatedAt: Date;
-  isTestConnection?: boolean | null;
   signing_key: string;
+  token: string;
 }

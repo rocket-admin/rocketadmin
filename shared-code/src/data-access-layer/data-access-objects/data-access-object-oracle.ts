@@ -1,32 +1,25 @@
 import { Knex } from 'knex';
-import { TunnelCreator } from '../../dal/shared/tunnel-creator.js';
-import { ConnectionEntity } from '../../entities/connection/connection.entity.js';
-import { CreateTableSettingsDto } from '../../entities/table-settings/dto/index.js';
-import { TableSettingsEntity } from '../../entities/table-settings/table-settings.entity.js';
-import { FilterCriteriaEnum, QueryOrderingEnum } from '../../enums/index.js';
-import {
-  compareArrayElements,
-  isObjectEmpty,
-  listTables,
-  objectKeysToLowercase,
-  renameObjectKeyName,
-  tableSettingsFieldValidator,
-} from '../../helpers/index.js';
-import { Cacher } from '../../helpers/cache/cacher.js';
-import { Constants } from '../../helpers/constants/constants.js';
-import {
-  IAutocompleteFieldsData,
-  IDataAccessObject,
-  IFilteringFieldsData,
-  IForeignKey,
-  IPrimaryKey,
-  IReferecedTableNamesAndColumns,
-  IRows,
-  ITableStructure,
-  ITestConnectResult,
-} from '../shared/data-access-object-interface.js';
-import { getOracleKnex } from '../shared/utils/get-oracle-knex.js';
-import { checkFieldAutoincrement } from '@rocketadmin/shared-code/dist/src/helpers/check-field-autoincrement.js';
+import { checkFieldAutoincrement } from '../../helpers/check-field-autoincrement.js';
+import { DAO_CONSTANTS } from '../../helpers/data-access-objects-constants.js';
+import { AutocompleteFieldsDS } from '../shared/data-structures/autocomplete-fields.ds.js';
+import { ConnectionParams } from '../shared/data-structures/connections-params.ds.js';
+import { FilteringFieldsDS } from '../shared/data-structures/filtering-fields.ds.js';
+import { ForeignKeyDS } from '../shared/data-structures/foreign-key.ds.js';
+import { FoundRowsDS } from '../shared/data-structures/found-rows.ds.js';
+import { PrimaryKeyDS } from '../shared/data-structures/primary-key.ds.js';
+import { ReferencedTableNamesAndColumnsDS } from '../shared/data-structures/referenced-table-names-columns.ds.js';
+import { TableSettingsDS } from '../shared/data-structures/table-settings.ds.js';
+import { TableStructureDS } from '../shared/data-structures/table-structure.ds.js';
+import { TestConnectionResultDS } from '../shared/data-structures/test-result-connection.ds.js';
+import { ValidateTableSettingsDS } from '../shared/data-structures/validate-table-settings.ds.js';
+import { FilterCriteriaEnum } from '../shared/enums/filter-criteria.enum.js';
+import { QueryOrderingEnum } from '../shared/enums/query-ordering.enum.js';
+import { IDataAccessObject } from '../shared/interfaces/data-access-object.interface.js';
+import { BasicDataAccessObject } from './basic-data-access-object.js';
+import { LRUStorage } from '../../caching/lru-storage.js';
+import { objectKeysToLowercase } from '../../helpers/object-kyes-to-lowercase.js';
+import { renameObjectKeyName } from '../../helpers/rename-object-keyname.js';
+import { tableSettingsFieldValidator } from '../../helpers/validation/table-settings-validator.js';
 
 type RefererencedConstraint = {
   TABLE_NAME: string;
@@ -35,21 +28,22 @@ type RefererencedConstraint = {
   COLUMN_NAME_ON: string;
 };
 
-export class DataAccessObjectOracle implements IDataAccessObject {
-  private readonly connection: ConnectionEntity;
-  constructor(connection: ConnectionEntity) {
-    this.connection = connection;
+export class DataAccessObjectOracle extends BasicDataAccessObject implements IDataAccessObject {
+  constructor(connection: ConnectionParams) {
+    super(connection);
   }
 
-  public async addRowInTable(tableName: string, row: Record<string, unknown>): Promise<Record<string, unknown>> {
-    const promisesResults = await Promise.all([
+  public async addRowInTable(
+    tableName: string,
+    row: Record<string, unknown>,
+  ): Promise<number | Record<string, unknown>> {
+    const [tableStructure, primaryColumns] = await Promise.all([
       this.getTableStructure(tableName),
       this.getTablePrimaryColumns(tableName),
     ]);
-    const tableStructure = promisesResults[0];
-    const primaryColumns = promisesResults[1];
+
     const primaryKey = primaryColumns[0];
-    let primaryKeyStructure;
+    let primaryKeyStructure: any;
 
     if (primaryColumns?.length > 0) {
       const primaryKeyIndexInStructure = tableStructure.findIndex((e) => {
@@ -72,7 +66,7 @@ export class DataAccessObjectOracle implements IDataAccessObject {
       checkFieldAutoincrement(key.column_default, key.extra),
     );
 
-    let result;
+    let result: any;
     tableName = this.attachSchemaNameToTableName(tableName);
     if (primaryColumns?.length > 0) {
       if (autoIncrementPrimaryKey) {
@@ -94,7 +88,6 @@ export class DataAccessObjectOracle implements IDataAccessObject {
         const queryResult = await knex()
           .select(knex.raw(`${primaryKeyStructure.column_default.replace(/nextval/gi, 'currval')}`))
           .from(knex.raw(`${tableName}`))
-          //const queryResult = await knex(tableName).select(knex.raw(`${primaryKeyStructure.column_default.replace(/nextval/gi, 'currval')}`))
           .catch((e) => {
             throw new Error(e);
           });
@@ -146,21 +139,7 @@ export class DataAccessObjectOracle implements IDataAccessObject {
           throw new Error(e);
         });
     }
-    return result;
-  }
-
-  public async configureKnex(): Promise<Knex> {
-    const cachedKnex = Cacher.getCachedKnex(this.connection);
-    if (cachedKnex) {
-      return cachedKnex;
-    }
-    if (this.connection.ssh) {
-      const newKnex = await TunnelCreator.createTunneledKnex(this.connection);
-      Cacher.setKnexCache(this.connection, newKnex);
-      return newKnex;
-    } else {
-      return getOracleKnex(this.connection);
-    }
+    return result as number | Record<string, unknown>;
   }
 
   public async deleteRowInTable(
@@ -169,7 +148,7 @@ export class DataAccessObjectOracle implements IDataAccessObject {
   ): Promise<Record<string, unknown>> {
     const knex = await this.configureKnex();
     return await knex(tableName)
-      .withSchema(this.connection.schema ? this.connection.schema : this.connection.username.toUpperCase())
+      .withSchema(this.connection.schema ?? this.connection.username.toUpperCase())
       .where(primaryKey)
       .del();
   }
@@ -178,9 +157,8 @@ export class DataAccessObjectOracle implements IDataAccessObject {
     tableName: string,
     referencedFieldName: string,
     identityColumnName: string,
-    fieldValues: Array<string | number>,
-    email: string,
-  ): Promise<Array<string>> {
+    fieldValues: (string | number)[],
+  ): Promise<string[]> {
     const knex = await this.configureKnex();
     tableName = this.attachSchemaNameToTableName(tableName);
     const columnsForSelect = [referencedFieldName];
@@ -204,20 +182,21 @@ export class DataAccessObjectOracle implements IDataAccessObject {
   public async getRowByPrimaryKey(
     tableName: string,
     primaryKey: Record<string, unknown>,
-    settings: TableSettingsEntity,
+    tableSettings: TableSettingsDS,
   ): Promise<Record<string, unknown>> {
     const knex = await this.configureKnex();
-    if (!settings) {
+    if (!tableSettings) {
       return (
         await knex(tableName)
-          .withSchema(this.connection.schema ? this.connection.schema : this.connection.username.toUpperCase())
+          .withSchema(this.connection.schema ?? this.connection.username.toUpperCase())
           .where(primaryKey)
       )[0] as unknown as Record<string, unknown>;
     } else {
-      const availableFields = await this.findAvaliableFields(settings, tableName);
+      const tableStructure = await this.getTableStructure(tableName);
+      const availableFields = this.findAvaliableFields(tableSettings, tableStructure);
       return (
         await knex(tableName)
-          .withSchema(this.connection.schema ? this.connection.schema : this.connection.username.toUpperCase())
+          .withSchema(this.connection.schema ?? this.connection.username.toUpperCase())
           .select(availableFields)
           .where(primaryKey)
       )[0] as unknown as Record<string, unknown>;
@@ -226,13 +205,13 @@ export class DataAccessObjectOracle implements IDataAccessObject {
 
   public async getRowsFromTable(
     tableName: string,
-    settings: TableSettingsEntity,
+    settings: TableSettingsDS,
     page: number,
     perPage: number,
     searchedFieldValue: string,
-    filteringFields: Array<IFilteringFieldsData>,
-    autocompleteFields: IAutocompleteFieldsData,
-  ): Promise<IRows> {
+    filteringFields: FilteringFieldsDS[],
+    autocompleteFields: AutocompleteFieldsDS,
+  ): Promise<FoundRowsDS> {
     const knex = await this.configureKnex();
 
     if (autocompleteFields && autocompleteFields.value && autocompleteFields.fields.length > 0) {
@@ -249,7 +228,9 @@ export class DataAccessObjectOracle implements IDataAccessObject {
         knex
           .raw(
             `SELECT ${autocompleteFields.fields.map((_) => '??').join(', ')}
-             FROM ${tableName} ${andWhere ? andWhere : ''} FETCH FIRST ${Constants.AUTOCOMPLETE_ROW_LIMIT} ROWS ONLY `,
+             FROM ${tableName} ${andWhere ? andWhere : ''} FETCH FIRST ${
+              DAO_CONSTANTS.AUTOCOMPLETE_ROW_LIMIT
+            } ROWS ONLY `,
             [...autocompleteFields.fields, ...autocompleteFields.fields],
           )
           .transacting(trx)
@@ -265,15 +246,16 @@ export class DataAccessObjectOracle implements IDataAccessObject {
 
     /* eslint-disable */
     if (!page || page <= 0) {
-      page = Constants.DEFAULT_PAGINATION.page;
+      page = DAO_CONSTANTS.DEFAULT_PAGINATION.page;
       const { list_per_page } = settings;
       if (list_per_page && list_per_page > 0 && (!perPage || perPage <= 0)) {
         perPage = list_per_page;
       } else {
-        perPage = Constants.DEFAULT_PAGINATION.perPage;
+        perPage = DAO_CONSTANTS.DEFAULT_PAGINATION.perPage;
       }
     }
-    const availableFields = await this.findAvaliableFields(settings, tableName);
+    const tableStructure = await this.getTableStructure(tableName);
+    const availableFields = this.findAvaliableFields(settings, tableStructure);
     //********** with pagination ************
     let orderingField = undefined;
     let order = undefined;
@@ -302,8 +284,6 @@ export class DataAccessObjectOracle implements IDataAccessObject {
       page,
       perPage,
       availableFields,
-      orderingField,
-      order,
       searchedFields,
       searchedFieldValue,
       filteringFields,
@@ -315,12 +295,10 @@ export class DataAccessObjectOracle implements IDataAccessObject {
       page: number,
       perPage: number,
       availableFields: Array<string>,
-      orderingField: string,
-      order = QueryOrderingEnum.ASC,
       searchedFields: Array<string>,
       searchedFieldValue: any,
       filteringFields: any,
-    ): Promise<IRows> {
+    ): Promise<FoundRowsDS> {
       const offset = (page - 1) * perPage;
       const rows = await knex(tableName)
         .withSchema(tableSchema)
@@ -387,7 +365,7 @@ export class DataAccessObjectOracle implements IDataAccessObject {
       const { rowsCount, large_dataset } = await getRowsCount(knex, tableName, tableSchema);
       const lastPage = Math.ceil(rowsCount / perPage);
       return {
-        data: rows.map((row) => {
+        data: rows.map((row: any) => {
           delete row['ROWNUM_'];
           return row;
         }),
@@ -402,7 +380,7 @@ export class DataAccessObjectOracle implements IDataAccessObject {
     }
 
     async function getRowsCount(
-      knex: Knex,
+      knex: Knex<any, any[]>,
       tableName: string,
       tableSchema: string,
     ): Promise<{ rowsCount: number; large_dataset: boolean }> {
@@ -411,7 +389,7 @@ export class DataAccessObjectOracle implements IDataAccessObject {
         .where('TABLE_NAME', '=', tableName)
         .andWhere('OWNER', '=', tableSchema);
       const fastCount = fastCountQueryResult[0]['NUM_ROWS'];
-      if (fastCount >= Constants.LARGE_DATASET_ROW_LIMIT) {
+      if (fastCount >= DAO_CONSTANTS.LARGE_DATASET_ROW_LIMIT) {
         return { rowsCount: fastCount, large_dataset: true };
       }
       const count = (await knex(tableName).withSchema(tableSchema).count('*')) as any;
@@ -420,13 +398,13 @@ export class DataAccessObjectOracle implements IDataAccessObject {
     }
   }
 
-  public async getTableForeignKeys(tableName: string): Promise<Array<IForeignKey>> {
-    const cachedForeignKeys = Cacher.getTableForeignKeysCache(this.connection, tableName);
+  public async getTableForeignKeys(tableName: string): Promise<ForeignKeyDS[]> {
+    const cachedForeignKeys = LRUStorage.getTableForeignKeysCache(this.connection, tableName);
     if (cachedForeignKeys) {
       return cachedForeignKeys;
     }
     const knex = await this.configureKnex();
-    const schema = this.connection.schema ? this.connection.schema : this.connection.username.toUpperCase();
+    const schema = this.connection.schema ?? this.connection.username.toUpperCase();
     const foreignKeys = await knex.raw(
       `SELECT a.constraint_name,
               a.table_name,
@@ -446,7 +424,7 @@ export class DataAccessObjectOracle implements IDataAccessObject {
          AND a.OWNER = ?`,
       [tableName, schema],
     );
-    const resultKeys = foreignKeys.map((key) => {
+    const resultKeys = foreignKeys.map((key: any) => {
       return {
         referenced_column_name: key.R_COLUMN_NAME,
         referenced_table_name: key.R_TABLE_NAME,
@@ -454,12 +432,12 @@ export class DataAccessObjectOracle implements IDataAccessObject {
         column_name: key.COLUMN_NAME,
       };
     });
-    Cacher.setTableForeignKeysCache(this.connection, tableName, resultKeys);
-    return resultKeys;
+    LRUStorage.setTableForeignKeysCache(this.connection, tableName, resultKeys);
+    return resultKeys as ForeignKeyDS[];
   }
 
-  public async getTablePrimaryColumns(tableName: string): Promise<Array<IPrimaryKey>> {
-    const cachedPrimaryColumns = Cacher.getTablePrimaryKeysCache(this.connection, tableName);
+  public async getTablePrimaryColumns(tableName: string): Promise<PrimaryKeyDS[]> {
+    const cachedPrimaryColumns = LRUStorage.getTablePrimaryKeysCache(this.connection, tableName);
     if (cachedPrimaryColumns) {
       return cachedPrimaryColumns;
     }
@@ -482,17 +460,32 @@ export class DataAccessObjectOracle implements IDataAccessObject {
     const primaryColumnsInLowercase = primaryColumns.map((column) => {
       return objectKeysToLowercase(column);
     });
-    Cacher.setTablePrimaryKeysCache(this.connection, tableName, primaryColumnsInLowercase);
-    return primaryColumnsInLowercase;
+    LRUStorage.setTablePrimaryKeysCache(this.connection, tableName, primaryColumnsInLowercase as PrimaryKeyDS[]);
+    return primaryColumnsInLowercase as PrimaryKeyDS[];
   }
 
-  public async getTableStructure(tableName: string): Promise<Array<ITableStructure>> {
-    const cachedTableStructure = Cacher.getTableStructureCache(this.connection, tableName);
+  public async getTablesFromDB(): Promise<string[]> {
+    const schema = this.connection.schema ?? this.connection.username.toUpperCase();
+    const knex = await this.configureKnex();
+    const query = `
+      SELECT object_name, object_type
+      FROM all_objects
+      WHERE owner = ?
+      AND object_type IN ('TABLE', 'VIEW')
+    `;
+    const result = await knex.raw<{ OBJECT_NAME: string; OBJECT_TYPE: string }[]>(query, [schema]);
+    const tablesOracle = result.filter((row) => row.OBJECT_TYPE === 'TABLE').map((row) => row.OBJECT_NAME);
+    const viewsOracle = result.filter((row) => row.OBJECT_TYPE === 'VIEW').map((row) => row.OBJECT_NAME);
+    return [...tablesOracle, ...viewsOracle];
+  }
+
+  public async getTableStructure(tableName: string): Promise<TableStructureDS[]> {
+    const cachedTableStructure = LRUStorage.getTableStructureCache(this.connection, tableName);
     if (cachedTableStructure) {
       return cachedTableStructure;
     }
     const knex = await this.configureKnex();
-    const schema = this.connection.schema ? this.connection.schema : this.connection.username.toUpperCase();
+    const schema = this.connection.schema ?? this.connection.username.toUpperCase();
     const structureColumns = await knex()
       .select('COLUMN_NAME', 'DATA_DEFAULT', 'DATA_TYPE', 'NULLABLE', 'DATA_LENGTH')
       .from('ALL_TAB_COLUMNS')
@@ -505,20 +498,14 @@ export class DataAccessObjectOracle implements IDataAccessObject {
       renameObjectKeyName(column, 'NULLABLE', 'allow_null');
       renameObjectKeyName(column, 'DATA_LENGTH', 'character_maximum_length');
       return objectKeysToLowercase(column);
-    });
-    Cacher.setTableStructureCache(this.connection, tableName, resultColumns);
+    }) as TableStructureDS[];
+    LRUStorage.setTableStructureCache(this.connection, tableName, resultColumns);
     return resultColumns;
   }
 
-  public async getTablesFromDB(): Promise<Array<string>> {
-    const schema = this.connection.schema ? this.connection.schema : this.connection.username.toUpperCase();
+  public async testConnect(): Promise<TestConnectionResultDS> {
     const knex = await this.configureKnex();
-    return await listTables(knex, schema);
-  }
-
-  public async testConnect(): Promise<ITestConnectResult> {
-    const knex = await this.configureKnex();
-    let result;
+    let result: unknown;
     try {
       result = await knex
         .transaction((trx) => {
@@ -552,26 +539,24 @@ export class DataAccessObjectOracle implements IDataAccessObject {
   ): Promise<Record<string, unknown>> {
     const knex = await this.configureKnex();
     return await knex(tableName)
-      .withSchema(this.connection.schema ? this.connection.schema : this.connection.username.toUpperCase())
+      .withSchema(this.connection.schema ?? this.connection.username.toUpperCase())
       .returning(Object.keys(primaryKey))
       .where(primaryKey)
       .update(row);
   }
 
-  public async validateSettings(settings: CreateTableSettingsDto, tableName: string): Promise<Array<string>> {
-    const promisesResults = await Promise.all([
+  public async validateSettings(settings: ValidateTableSettingsDS, tableName: string): Promise<string[]> {
+    const [tableStructure, primaryColumns] = await Promise.all([
       this.getTableStructure(tableName),
       this.getTablePrimaryColumns(tableName),
     ]);
-    const tableStructure = promisesResults[0];
-    const primaryColumns = promisesResults[1];
     return tableSettingsFieldValidator(tableStructure, primaryColumns, settings);
   }
 
-  public async getReferencedTableNamesAndColumns(tableName: string): Promise<IReferecedTableNamesAndColumns[]> {
+  public async getReferencedTableNamesAndColumns(tableName: string): Promise<ReferencedTableNamesAndColumnsDS[]> {
     const primaryColumns = await this.getTablePrimaryColumns(tableName);
     const knex = await this.configureKnex();
-    const result: Array<IReferecedTableNamesAndColumns> = [];
+    const result: Array<ReferencedTableNamesAndColumnsDS> = [];
     for (const primaryColumn of primaryColumns) {
       const referencedConstraints: Array<RefererencedConstraint> = (await knex
         .transaction((trx) => {
@@ -647,46 +632,5 @@ export class DataAccessObjectOracle implements IDataAccessObject {
       ? `"${this.connection.schema}"."${tableName}"`
       : `"${this.connection.username.toUpperCase()}"."${tableName}"`;
     return tableName;
-  }
-
-  private async findAvaliableFields(settings: TableSettingsEntity, tableName: string): Promise<Array<string>> {
-    let availableFields = [];
-    const tableStructure = await this.getTableStructure(tableName);
-
-    const fieldsFromStructure = tableStructure.map((el) => {
-      return el.column_name;
-    });
-
-    if (isObjectEmpty(settings)) {
-      availableFields = tableStructure.map((el) => {
-        return el.column_name;
-      });
-      return availableFields;
-    }
-    const excludedFields = settings.excluded_fields;
-    if (settings.list_fields && settings.list_fields.length > 0) {
-      if (!compareArrayElements(settings.list_fields, fieldsFromStructure)) {
-        availableFields = [...settings.list_fields, ...fieldsFromStructure];
-        availableFields = [...new Set(availableFields)];
-        availableFields = availableFields.filter((fieldName) => {
-          return fieldsFromStructure.includes(fieldName);
-        });
-      } else {
-        availableFields = settings.list_fields;
-      }
-    } else {
-      availableFields = tableStructure.map((el) => {
-        return el.column_name;
-      });
-    }
-    if (excludedFields && excludedFields.length > 0) {
-      for (const field of excludedFields) {
-        const delIndex = availableFields.indexOf(field);
-        if (delIndex >= 0) {
-          availableFields.splice(availableFields.indexOf(field), 1);
-        }
-      }
-    }
-    return availableFields;
   }
 }

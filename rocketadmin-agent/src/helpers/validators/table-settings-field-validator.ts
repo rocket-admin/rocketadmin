@@ -2,11 +2,11 @@ import { QueryOrderingEnum } from '../../enums/query-ordering.enum.js';
 import { Messages } from '../../text/messages.js';
 import { isObjectEmpty } from '../is-object-empty.js';
 import { ITableSettings } from '../../interfaces/interfaces.js';
-import { IPrimaryKeyInfo } from '../../dal/shared/dao-interface.js';
+import { PrimaryKeyDSInfo } from '../../dal/shared/dao-interface.js';
 
 export function tableSettingsFieldValidator(
   tableStructure: any,
-  primaryColumns: Array<IPrimaryKeyInfo>,
+  primaryColumns: Array<PrimaryKeyDSInfo>,
   settings: ITableSettings,
 ): Array<string> {
   /* eslint-disable */
@@ -29,7 +29,7 @@ export function tableSettingsFieldValidator(
   const columnNames = tableStructure.map((column) => {
     return column.column_name;
   });
-//*******************************************
+  //*******************************************
   if (search_fields && !Array.isArray(search_fields)) {
     errorMessages.push(Messages.MUST_BE_ARRAY(`search_fields`));
   }
@@ -58,7 +58,7 @@ export function tableSettingsFieldValidator(
     return errorMessages;
   }
 
-//*********************************************
+  //*********************************************
   function excludedFields(checkedFields: Array<string>, existingFields: Array<string>): Array<string> {
     const excludedFields = [];
     if (!checkedFields) {
@@ -74,7 +74,6 @@ export function tableSettingsFieldValidator(
     }
     return excludedFields;
   }
-
 
   const errors = Array.prototype.concat(
     excludedFields(search_fields, columnNames),
@@ -96,7 +95,7 @@ export function tableSettingsFieldValidator(
     }
   }
 
-  if ((list_per_page && list_per_page < 0) || (list_per_page === 0)) {
+  if ((list_per_page && list_per_page < 0) || list_per_page === 0) {
     errorMessages.push(Messages.LIST_PER_PAGE_INCORRECT);
   }
 
@@ -108,10 +107,9 @@ export function tableSettingsFieldValidator(
       }
     }
 
-
     const orderingFieldIndex = excluded_fields.indexOf(ordering_field);
     if (orderingFieldIndex >= 0) {
-      errorMessages.push((Messages.CANT_ORDER_AND_EXCLUDE));
+      errorMessages.push(Messages.CANT_ORDER_AND_EXCLUDE);
     }
 
     if (readonly_fields && readonly_fields.length > 0) {

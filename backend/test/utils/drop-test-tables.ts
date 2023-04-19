@@ -1,4 +1,4 @@
-import { createDataAccessObject } from '../../src/data-access-layer/shared/create-data-access-object.js';
+import { getDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/create-data-access-object.js';
 import { getTestKnex } from './get-test-knex.js';
 
 export async function dropTestTables(tableNames: Array<string>, connectionParams): Promise<void> {
@@ -27,7 +27,7 @@ export async function dropAllTestTables(connectionParams): Promise<void> {
     connectionParamsCopy.type = 'mysql2';
   }
   const foundKnex = getTestKnex(connectionParamsCopy);
-  const dao = createDataAccessObject(connectionParamsCopy, null);
+  const dao = getDataAccessObject(connectionParamsCopy);
   const tables = await dao.getTablesFromDB();
   await Promise.all(
     tables.map(async (tableName) => {
