@@ -4,7 +4,7 @@ import { Messages } from '../../../exceptions/text/messages.js';
 import { getValuesBetweenCurlies, toPrettyErrorsMsg } from '../../../helpers/index.js';
 import { HttpException } from '@nestjs/common/exceptions/http.exception.js';
 import { HttpStatus } from '@nestjs/common';
-import { createDataAccessObject } from '../../../data-access-layer/shared/create-data-access-object.js';
+import { getDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/create-data-access-object.js';
 
 export async function validateCreateCustomFieldDto(
   createFieldDto: CreateFieldDto,
@@ -19,7 +19,7 @@ export async function validateCreateCustomFieldDto(
   if (!template_string) errors.push(Messages.CUSTOM_FIELD_TEMPLATE_MISSING);
   if (type && type !== 'AA:Link') errors.push(Messages.CUSTOM_FIELD_TYPE_INCORRECT);
   const tableFieldsFromTemplate = getValuesBetweenCurlies(template_string);
-  const dao = createDataAccessObject(connection, userId);
+  const dao = getDataAccessObject(connection);
   const tablesInConnection: Array<string> = await dao.getTablesFromDB();
   const tableIndexInTables = tablesInConnection.findIndex((table_name) => table_name === tableName);
   if (tableIndexInTables < 0) {

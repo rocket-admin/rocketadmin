@@ -2,11 +2,7 @@ import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
-import { createDataAccessObject } from '../../../data-access-layer/shared/create-data-access-object.js';
-import {
-  IForeignKey,
-  IForeignKeyWithForeignColumnName,
-} from '../../../data-access-layer/shared/data-access-object-interface.js';
+import { getDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/create-data-access-object.js';
 import {
   AmplitudeEventTypeEnum,
   LogOperationTypeEnum,
@@ -23,7 +19,7 @@ import { TableLogsService } from '../../table-logs/table-logs.service.js';
 import { TableSettingsEntity } from '../../table-settings/table-settings.entity.js';
 import { FoundTableRowsDs } from '../application/data-structures/found-table-rows.ds.js';
 import { GetTableRowsDs } from '../application/data-structures/get-table-rows.ds.js';
-import { IForeignKeyInfo } from '../table.interface.js';
+import { ForeignKeyDSInfo } from '../table.interface.js';
 import { addCustomFieldsInRowsUtil } from '../utils/add-custom-fields-in-rows.util.js';
 import { convertBinaryDataInRowsUtil } from '../utils/convert-binary-data-in-rows.util.js';
 import { findAutocompleteFieldsUtil } from '../utils/find-autocomplete-fields.util.js';
@@ -35,6 +31,8 @@ import { removePasswordsFromRowsUtil } from '../utils/remove-passwords-from-rows
 import { IGetTableRows } from './table-use-cases.interface.js';
 import { IDataAccessObjectAgent } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/interfaces/data-access-object-agent.interface.js';
 import { IDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/interfaces/data-access-object.interface.js';
+import { ForeignKeyWithAutocompleteColumnsDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/foreign-key-with-autocomplete-columns.ds.js';
+import { ForeignKeyDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/foreign-key.ds.js';
 
 @Injectable()
 export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTableRowsDs> implements IGetTableRows {
@@ -61,7 +59,7 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
       );
     }
     try {
-      const dao = createDataAccessObject(connection, userId);
+      const dao = getDataAccessObject(connection);
 
       let userEmail: string;
       if (isConnectionTypeAgent(connection.type)) {
@@ -135,12 +133,12 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
       rows = convertBinaryDataInRowsUtil(rows, tableStructure);
       rows = removePasswordsFromRowsUtil(rows, tableWidgets);
 
-      const foreignKeysFromWidgets: Array<IForeignKeyInfo> = tableWidgets
+      const foreignKeysFromWidgets: Array<ForeignKeyDSInfo> = tableWidgets
         .filter((el) => {
           return el.widget_type === WidgetTypeEnum.Foreign_key;
         })
         .map((widget) => {
-          return widget.widget_params as unknown as IForeignKeyInfo;
+          return widget.widget_params as unknown as ForeignKeyDSInfo;
         });
 
       tableForeignKeys = tableForeignKeys.concat(foreignKeysFromWidgets);
@@ -268,11 +266,11 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
   }
 
   private async attachForeignColumnNames(
-    foreignKey: IForeignKey,
+    foreignKey: ForeignKeyDS,
     userId: string,
     connectionId: string,
     dao: IDataAccessObject | IDataAccessObjectAgent,
-  ): Promise<IForeignKeyWithForeignColumnName> {
+  ): Promise<ForeignKeyWithAutocompleteColumnsDS> {
     try {
       const [foreignTableSettings, foreignTableStructure] = await Promise.all([
         this._dbContext.tableSettingsRepository.findTableSettings(connectionId, foreignKey.referenced_table_name),

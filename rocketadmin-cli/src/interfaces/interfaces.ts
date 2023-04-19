@@ -48,7 +48,7 @@ export interface IFilteringFields {
   value: string;
 }
 
-export interface IForeignKeyInfo {
+export interface ForeignKeyDSInfo {
   referenced_column_name: string;
   referenced_table_name: string;
   constraint_name: string;

@@ -20,7 +20,7 @@ import {
   IAutocompleteFields,
   ICLIConnectionCredentials,
   IFilteringFields,
-  IForeignKeyInfo,
+  ForeignKeyDSInfo,
   IStructureInfo,
   ITablePrimaryColumnInfo,
   ITableSettings,
@@ -347,7 +347,7 @@ export class DaoMysql extends BasicDao implements IDaoInterface {
     return await knex(tableName).returning(Object.keys(primaryKey)).where(primaryKey).update(row);
   }
 
-  async getTableForeignKeys(tableName: string): Promise<Array<IForeignKeyInfo>> {
+  async getTableForeignKeys(tableName: string): Promise<Array<ForeignKeyDSInfo>> {
     const knex = await this.configureKnex(this.connection);
     const connection = this.connection;
 

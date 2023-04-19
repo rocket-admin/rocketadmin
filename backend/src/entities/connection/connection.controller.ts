@@ -15,7 +15,6 @@ import { HttpException } from '@nestjs/common/exceptions/http.exception.js';
 import validator from 'validator';
 import { IGlobalDatabaseContext } from '../../common/application/global-database-context.intarface.js';
 import { BaseType, UseCaseType } from '../../common/data-injection.tokens.js';
-import { ITestConnectResult } from '../../dal/shared/dao-interface.js';
 import { BodyUuid, GCLlId, MasterPassword, QueryUuid, SlugUuid, UserId } from '../../decorators/index.js';
 import { AmplitudeEventTypeEnum, ConnectionTypeEnum, InTransactionEnum } from '../../enums/index.js';
 import { Messages } from '../../exceptions/text/messages.js';
@@ -66,6 +65,7 @@ import {
   IValidateConnectionToken,
 } from './use-cases/use-cases.interfaces.js';
 import { isTestConnectionUtil } from './utils/is-test-connection-util.js';
+import { TestConnectionResultDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/test-result-connection.ds.js';
 
 @UseInterceptors(SentryInterceptor)
 @Controller()
@@ -485,7 +485,7 @@ export class ConnectionController {
     @Query('connectionId') connectionId: string,
     @MasterPassword() masterPwd: string,
     @UserId() userId: string,
-  ): Promise<ITestConnectResult> {
+  ): Promise<TestConnectionResultDS> {
     const inputData: UpdateConnectionDs = {
       connection_parameters: {
         azure_encryption: azure_encryption,

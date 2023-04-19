@@ -1,9 +1,9 @@
 import { TableWidgetEntity } from '../../widget/table-widget.entity.js';
-import { IRows } from '../../../data-access-layer/shared/data-access-object-interface.js';
 import { WidgetTypeEnum } from '../../../enums/index.js';
 import { Constants } from '../../../helpers/constants/constants.js';
+import { FoundRowsDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/found-rows.ds.js';
 
-export function removePasswordsFromRowsUtil(rows: IRows, tableWidgets: Array<TableWidgetEntity>): IRows {
+export function removePasswordsFromRowsUtil(rows: FoundRowsDS, tableWidgets: Array<TableWidgetEntity>): FoundRowsDS {
   if (!tableWidgets || tableWidgets.length <= 0) {
     return rows;
   }

@@ -3,11 +3,7 @@ import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
-import { createDataAccessObject } from '../../../data-access-layer/shared/create-data-access-object.js';
-import {
-  IForeignKey,
-  IForeignKeyWithForeignColumnName,
-} from '../../../data-access-layer/shared/data-access-object-interface.js';
+import { getDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/create-data-access-object.js';
 import {
   AmplitudeEventTypeEnum,
   LogOperationTypeEnum,
@@ -20,7 +16,7 @@ import { AmplitudeService } from '../../amplitude/amplitude.service.js';
 import { isTestConnectionUtil } from '../../connection/utils/is-test-connection-util.js';
 import { TableLogsService } from '../../table-logs/table-logs.service.js';
 import { AddRowInTableDs } from '../application/data-structures/add-row-in-table.ds.js';
-import { IForeignKeyInfo, ITableRowRO } from '../table.interface.js';
+import { ForeignKeyDSInfo, ITableRowRO } from '../table.interface.js';
 import { convertHexDataInRowUtil } from '../utils/convert-hex-data-in-row.util.js';
 import { formFullTableStructure } from '../utils/form-full-table-structure.js';
 import { hashPasswordsInRowUtil } from '../utils/hash-passwords-in-row.util.js';
@@ -30,6 +26,8 @@ import { validateTableRowUtil } from '../utils/validate-table-row.util.js';
 import { IAddRowInTable } from './table-use-cases.interface.js';
 import { IDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/interfaces/data-access-object.interface.js';
 import { IDataAccessObjectAgent } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/interfaces/data-access-object-agent.interface.js';
+import { ForeignKeyWithAutocompleteColumnsDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/foreign-key-with-autocomplete-columns.ds.js';
+import { ForeignKeyDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/foreign-key.ds.js';
 
 @Injectable()
 export class AddRowInTableUseCase extends AbstractUseCase<AddRowInTableDs, ITableRowRO> implements IAddRowInTable {
@@ -56,7 +54,7 @@ export class AddRowInTableUseCase extends AbstractUseCase<AddRowInTableDs, ITabl
     }
     let operationResult = OperationResultStatusEnum.unknown;
 
-    const dao = createDataAccessObject(connection, userId);
+    const dao = getDataAccessObject(connection);
 
     let userEmail: string;
     if (isConnectionTypeAgent(connection.type)) {
@@ -88,17 +86,17 @@ export class AddRowInTableUseCase extends AbstractUseCase<AddRowInTableDs, ITabl
       );
     }
 
-    const foreignKeysFromWidgets: Array<IForeignKeyInfo> = tableWidgets
+    const foreignKeysFromWidgets: Array<ForeignKeyDSInfo> = tableWidgets
       .filter((el) => {
         return el.widget_type === WidgetTypeEnum.Foreign_key;
       })
       .map((widget) => {
-        return widget.widget_params as unknown as IForeignKeyInfo;
+        return widget.widget_params as unknown as ForeignKeyDSInfo;
       });
 
     tableForeignKeys = tableForeignKeys.concat(foreignKeysFromWidgets);
 
-    let foreignKeysWithAutocompleteColumns: Array<IForeignKeyWithForeignColumnName> = [];
+    let foreignKeysWithAutocompleteColumns: Array<ForeignKeyWithAutocompleteColumnsDS> = [];
 
     if (tableForeignKeys && tableForeignKeys.length > 0) {
       foreignKeysWithAutocompleteColumns = await Promise.all(
@@ -106,7 +104,7 @@ export class AddRowInTableUseCase extends AbstractUseCase<AddRowInTableDs, ITabl
           try {
             return this.attachForeignColumnNames(el, userId, connectionId, dao);
           } catch (e) {
-            return el as IForeignKeyWithForeignColumnName;
+            return el as ForeignKeyWithAutocompleteColumnsDS;
           }
         }),
       );
@@ -174,11 +172,11 @@ export class AddRowInTableUseCase extends AbstractUseCase<AddRowInTableDs, ITabl
   }
 
   private async attachForeignColumnNames(
-    foreignKey: IForeignKey,
+    foreignKey: ForeignKeyDS,
     userId: string,
     connectionId: string,
     dao: IDataAccessObject | IDataAccessObjectAgent,
-  ): Promise<IForeignKeyWithForeignColumnName> {
+  ): Promise<ForeignKeyWithAutocompleteColumnsDS> {
     try {
       const [foreignTableSettings, foreignTableStructure] = await Promise.all([
         this._dbContext.tableSettingsRepository.findTableSettings(connectionId, foreignKey.referenced_table_name),

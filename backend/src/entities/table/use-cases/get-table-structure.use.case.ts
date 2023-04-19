@@ -2,21 +2,19 @@ import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
-import { createDataAccessObject } from '../../../data-access-layer/shared/create-data-access-object.js';
-import {
-  IForeignKey,
-  IForeignKeyWithForeignColumnName,
-} from '../../../data-access-layer/shared/data-access-object-interface.js';
+import { getDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/create-data-access-object.js';
 import { WidgetTypeEnum } from '../../../enums/index.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { isConnectionTypeAgent } from '../../../helpers/index.js';
 import { buildFoundTableWidgetDs } from '../../widget/utils/build-found-table-widget-ds.js';
 import { GetTableStructureDs } from '../application/data-structures/get-table-structure-ds.js';
-import { IForeignKeyInfo, IStructureRO } from '../table.interface.js';
+import { ForeignKeyDSInfo, IStructureRO } from '../table.interface.js';
 import { formFullTableStructure } from '../utils/form-full-table-structure.js';
 import { IGetTableStructure } from './table-use-cases.interface.js';
 import { IDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/interfaces/data-access-object.interface.js';
 import { IDataAccessObjectAgent } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/interfaces/data-access-object-agent.interface.js';
+import { ForeignKeyWithAutocompleteColumnsDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/foreign-key-with-autocomplete-columns.ds.js';
+import { ForeignKeyDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/foreign-key.ds.js';
 
 @Injectable()
 export class GetTableStructureUseCase
@@ -45,7 +43,7 @@ export class GetTableStructureUseCase
       );
     }
     try {
-      const dao = createDataAccessObject(foundConnection, userId);
+      const dao = getDataAccessObject(foundConnection);
 
       let userEmail: string;
       if (isConnectionTypeAgent(foundConnection.type)) {
@@ -59,23 +57,23 @@ export class GetTableStructureUseCase
         dao.getTableStructure(tableName, userEmail),
         this._dbContext.tableWidgetsRepository.findTableWidgets(connectionId, tableName),
       ]);
-      const foreignKeysFromWidgets: Array<IForeignKeyInfo> = tableWidgets
+      const foreignKeysFromWidgets: Array<ForeignKeyDSInfo> = tableWidgets
         .filter((el) => {
           return el.widget_type === WidgetTypeEnum.Foreign_key;
         })
         .map((widget) => {
-          return widget.widget_params as unknown as IForeignKeyInfo;
+          return widget.widget_params as unknown as ForeignKeyDSInfo;
         });
 
       tableForeignKeys = tableForeignKeys.concat(foreignKeysFromWidgets);
-      let transformedTableForeignKeys: Array<IForeignKeyWithForeignColumnName> = [];
+      let transformedTableForeignKeys: Array<ForeignKeyWithAutocompleteColumnsDS> = [];
       if (tableForeignKeys && tableForeignKeys.length > 0) {
         transformedTableForeignKeys = await Promise.all(
           tableForeignKeys.map((el) => {
             try {
               return this.attachForeignColumnNames(el, userId, connectionId, dao);
             } catch (e) {
-              return el as IForeignKeyWithForeignColumnName;
+              return el as ForeignKeyWithAutocompleteColumnsDS;
             }
           }),
         );
@@ -102,11 +100,11 @@ export class GetTableStructureUseCase
   }
 
   private async attachForeignColumnNames(
-    foreignKey: IForeignKey,
+    foreignKey: ForeignKeyDS,
     userId: string,
     connectionId: string,
     dao: IDataAccessObject | IDataAccessObjectAgent,
-  ): Promise<IForeignKeyWithForeignColumnName> {
+  ): Promise<ForeignKeyWithAutocompleteColumnsDS> {
     try {
       const [foreignTableSettings, foreignTableStructure] = await Promise.all([
         this._dbContext.tableSettingsRepository.findTableSettings(connectionId, foreignKey.referenced_table_name),

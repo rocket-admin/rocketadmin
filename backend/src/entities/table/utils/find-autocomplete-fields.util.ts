@@ -2,11 +2,11 @@ import { TableSettingsEntity } from '../../table-settings/table-settings.entity.
 import { AutocompleteFieldsDs } from '../application/data-structures/found-table-rows.ds.js';
 import { HttpException, HttpStatus } from '@nestjs/common';
 import { Messages } from '../../../exceptions/text/messages.js';
-import { ITableStructure } from '../../../data-access-layer/shared/data-access-object-interface.js';
+import { TableStructureDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/table-structure.ds.js';
 
 export function findAutocompleteFieldsUtil(
   query: string,
-  tableStructure: Array<ITableStructure>,
+  tableStructure: Array<TableStructureDS>,
   tableSettings: TableSettingsEntity,
   referencedColumn: string,
 ): AutocompleteFieldsDs {

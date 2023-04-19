@@ -3,7 +3,7 @@ import axios from 'axios';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
-import { createDataAccessObject } from '../../../data-access-layer/shared/create-data-access-object.js';
+import { getDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/create-data-access-object.js';
 import { LogOperationTypeEnum, OperationResultStatusEnum } from '../../../enums/index.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { Encryptor } from '../../../helpers/encryption/encryptor.js';
@@ -51,7 +51,7 @@ export class ActivateTableActionsUseCase
       connectionId,
       masterPwd,
     );
-    const dataAccessObject = createDataAccessObject(foundConnection, userId);
+    const dataAccessObject = getDataAccessObject(foundConnection);
     const tablePrimaryKeys = await dataAccessObject.getTablePrimaryColumns(tableName, null);
     const primaryKeyValuesArray: Array<Record<string, unknown>> = [];
     for (const primaryKeyInBody of request_body) {
