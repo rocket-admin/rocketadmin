@@ -29,6 +29,7 @@
     "@nestjs/platform-express": "^9.3.9",
     "@nestjs/platform-ws": "^9.3.9",
     "@nestjs/testing": "^9.3.9",
+    "@rocketadmin/shared-code": "workspace:*",
     "@types/pg": "^8.6.6",
     "argon2": "^0.30.3",
     "crypto-js": "^4.1.1",
