@@ -122,7 +122,7 @@ describe('Command executor tests', () => {
         };
 
         const result = await commandExecutor.executeCommand({
-          data: commandData,
+          data: commandData as any,
         });
         expect(result.id).toBe(43);
       });
@@ -148,7 +148,7 @@ describe('Command executor tests', () => {
         };
 
         const result = await commandExecutor.executeCommand({
-          data: commandData,
+          data: commandData as any,
         });
         expect(result instanceof Error).toBeTruthy();
       });
@@ -176,7 +176,7 @@ describe('Command executor tests', () => {
         };
 
         const result = await commandExecutor.executeCommand({
-          data: commandData,
+          data: commandData as any,
         });
         expect(result[0].id).toBe(1);
         expect(result.length).toBe(1);
@@ -203,7 +203,7 @@ describe('Command executor tests', () => {
         };
 
         const result = await commandExecutor.executeCommand({
-          data: commandData,
+          data: commandData as any,
         });
         expect(result instanceof Error).toBeTruthy();
       });
@@ -231,7 +231,7 @@ describe('Command executor tests', () => {
         };
 
         const result = await commandExecutor.executeCommand({
-          data: commandData,
+          data: commandData as any,
         });
         expect(result.length).toBe(1);
         expect(result[0].id).toBe(1);
@@ -262,7 +262,7 @@ describe('Command executor tests', () => {
         };
 
         const result = await commandExecutor.executeCommand({
-          data: commandData,
+          data: commandData as any,
         });
         expect(result instanceof Error).toBeTruthy();
       });
@@ -290,7 +290,7 @@ describe('Command executor tests', () => {
         };
 
         const result = await commandExecutor.executeCommand({
-          data: commandData,
+          data: commandData as any,
         });
         expect(result.data.length).toBe(20);
         expect(result.hasOwnProperty('pagination'));
@@ -323,7 +323,7 @@ describe('Command executor tests', () => {
         };
 
         const result = await commandExecutor.executeCommand({
-          data: commandData,
+          data: commandData as any,
         });
         expect(result instanceof Error).toBeTruthy();
       });
@@ -351,7 +351,7 @@ describe('Command executor tests', () => {
         };
 
         const result = await commandExecutor.executeCommand({
-          data: commandData,
+          data: commandData as any,
         });
         expect(result.length).toBe(0);
       });
@@ -377,7 +377,7 @@ describe('Command executor tests', () => {
         };
 
         const result = await commandExecutor.executeCommand({
-          data: commandData,
+          data: commandData as any,
         });
         expect(result instanceof Error).toBeTruthy();
       });
@@ -405,7 +405,7 @@ describe('Command executor tests', () => {
         };
 
         const result = await commandExecutor.executeCommand({
-          data: commandData,
+          data: commandData as any,
         });
         expect(result.length).toBe(1);
         expect(result[0].column_name).toBe('id');
@@ -433,7 +433,7 @@ describe('Command executor tests', () => {
         };
 
         const result = await commandExecutor.executeCommand({
-          data: commandData,
+          data: commandData as any,
         });
         expect(result instanceof Error).toBeTruthy();
       });
@@ -461,7 +461,7 @@ describe('Command executor tests', () => {
         };
 
         const result = await commandExecutor.executeCommand({
-          data: commandData,
+          data: commandData as any,
         });
 
         expect(result.length).toBe(5);
@@ -496,7 +496,7 @@ describe('Command executor tests', () => {
         };
 
         const result = await commandExecutor.executeCommand({
-          data: commandData,
+          data: commandData as any,
         });
         expect(result instanceof Error).toBeTruthy();
       });
@@ -524,7 +524,7 @@ describe('Command executor tests', () => {
         };
 
         const result = await commandExecutor.executeCommand({
-          data: commandData,
+          data: commandData as any,
         });
         expect(result.length).toBe(1);
         expect(result[0]).toBe(testTableName);
@@ -551,7 +551,7 @@ describe('Command executor tests', () => {
         };
 
         const result = await commandExecutor.executeCommand({
-          data: commandData,
+          data: commandData as any,
         });
         expect(result instanceof Error).toBeTruthy();
       });
@@ -591,7 +591,7 @@ describe('Command executor tests', () => {
         };
 
         const result = await commandExecutor.executeCommand({
-          data: commandData,
+          data: commandData as any,
         });
         expect(JSON.stringify(result)).toBe(JSON.stringify([primaryKey]));
       });
@@ -621,7 +621,7 @@ describe('Command executor tests', () => {
         };
 
         const result = await commandExecutor.executeCommand({
-          data: commandData,
+          data: commandData as any,
         });
         expect(result instanceof Error).toBeTruthy();
       });
@@ -667,7 +667,7 @@ describe('Command executor tests', () => {
         };
 
         const result = await commandExecutor.executeCommand({
-          data: commandData,
+          data: commandData as any,
         });
         expect(result.length).toBe(0);
       });
@@ -711,7 +711,7 @@ describe('Command executor tests', () => {
         };
 
         const result = await commandExecutor.executeCommand({
-          data: commandData,
+          data: commandData as any,
         });
         expect(result.length).toBe(1);
       });
