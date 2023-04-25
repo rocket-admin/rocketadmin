@@ -2,11 +2,11 @@ import { QueryOrderingEnum } from '../../enums/query-ordering.enum.js';
 import { Messages } from '../../text/messages.js';
 import { isObjectEmpty } from '../is-object-empty.js';
 import { ITableSettings } from '../../interfaces/interfaces.js';
-import { IPrimaryKeyInfo } from '../../dal/shared/dao-interface.js';
+import { PrimaryKeyDSInfo } from '../../dal/shared/dao-interface.js';
 
 export function tableSettingsFieldValidator(
   tableStructure: any,
-  primaryColumns: Array<IPrimaryKeyInfo>,
+  primaryColumns: Array<PrimaryKeyDSInfo>,
   settings: ITableSettings,
 ): Array<string> {
   /* eslint-disable */

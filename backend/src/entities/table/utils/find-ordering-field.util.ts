@@ -3,11 +3,11 @@ import { OrderingFiledDs } from '../application/data-structures/found-table-rows
 import { HttpException, HttpStatus } from '@nestjs/common';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { QueryOrderingEnum } from '../../../enums/index.js';
-import { ITableStructure } from '../../../data-access-layer/shared/data-access-object-interface.js';
+import { TableStructureDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/table-structure.ds.js';
 
 export function findOrderingFieldUtil(
   query: string,
-  tableStructure: Array<ITableStructure>,
+  tableStructure: Array<TableStructureDS>,
   tableSettings: TableSettingsEntity,
 ): OrderingFiledDs {
   const rowNames = tableStructure.map((el) => {

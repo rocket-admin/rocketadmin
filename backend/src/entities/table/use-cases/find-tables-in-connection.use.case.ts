@@ -4,8 +4,7 @@ import PQueue from 'p-queue';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
-import { createDataAccessObject } from '../../../data-access-layer/shared/create-data-access-object.js';
-import { ITableStructure } from '../../../data-access-layer/shared/data-access-object-interface.js';
+import { getDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/create-data-access-object.js';
 import { AccessLevelEnum, AmplitudeEventTypeEnum } from '../../../enums/index.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { isConnectionTypeAgent } from '../../../helpers/index.js';
@@ -19,6 +18,7 @@ import { FindTablesDs } from '../application/data-structures/find-tables.ds.js';
 import { FoundTableDs } from '../application/data-structures/found-table.ds.js';
 import { buildTableFieldInfoEntity, buildTableInfoEntity } from '../utils/save-tables-info-in-database.util.js';
 import { IFindTablesInConnection } from './table-use-cases.interface.js';
+import { TableStructureDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/table-structure.ds.js';
 
 @Injectable()
 export class FindTablesInConnectionUseCase
@@ -44,7 +44,7 @@ export class FindTablesInConnectionUseCase
         HttpStatus.BAD_REQUEST,
       );
     }
-    const dao = createDataAccessObject(connection, userId);
+    const dao = getDataAccessObject(connection);
     let userEmail;
     let operationResult = false;
     if (isConnectionTypeAgent(connection.type)) {
@@ -222,10 +222,10 @@ export class FindTablesInConnectionUseCase
   ): Promise<void> {
     try {
       const queue = new PQueue({ concurrency: 2 });
-      const dao = createDataAccessObject(connection, userId);
+      const dao = getDataAccessObject(connection);
       const tablesStructures: Array<{
         tableName: string;
-        structure: Array<ITableStructure>;
+        structure: Array<TableStructureDS>;
       }> = await Promise.all(
         tables.map(async (tableName) => {
           return await queue.add(async () => {

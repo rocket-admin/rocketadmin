@@ -1,7 +1,4 @@
-import { SubscriptionLevelEnum } from '../../../enums/index.js';
-import { isSaaS } from '../../../helpers/app/is-saas.js';
 import { Constants } from '../../../helpers/constants/constants.js';
-import { getCurrentUserSubscription } from '../../stripe/stripe-helpers/get-current-user-subscription.js';
 import { CreateUserDs } from '../application/data-structures/create-user.ds.js';
 import { RegisterUserDs } from '../application/data-structures/register-user-ds.js';
 import { UserEntity } from '../user.entity.js';
@@ -116,21 +113,5 @@ export const userCustomRepositoryExtension: IUserRepository = {
       .orWhere('user_action.id is null')
       .andWhere('tableLogs.id is null');
     return await usersQb.getMany();
-  },
-
-  async checkOwnerInviteAbility(ownerId: string, usersCount: number): Promise<boolean> {
-    if (usersCount <= Constants.FREE_PLAN_USERS_COUNT || !isSaaS()) {
-      return true;
-    }
-    const foundOwner = await this.findOneUserById(ownerId);
-    if (!foundOwner.stripeId) {
-      return false;
-    }
-
-    const ownerSubscription = await getCurrentUserSubscription(foundOwner.stripeId);
-    if (ownerSubscription === SubscriptionLevelEnum.FREE_PLAN) {
-      return false;
-    }
-    return true;
   },
 };

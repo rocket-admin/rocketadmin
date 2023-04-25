@@ -1,13 +1,9 @@
+/* eslint-disable prefer-const */
 import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
-import { createDataAccessObject } from '../../../data-access-layer/shared/create-data-access-object.js';
-import {
-  IDataAccessObject,
-  IForeignKey,
-  IForeignKeyWithForeignColumnName,
-} from '../../../data-access-layer/shared/data-access-object-interface.js';
+import { getDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/create-data-access-object.js';
 import {
   AmplitudeEventTypeEnum,
   LogOperationTypeEnum,
@@ -20,12 +16,16 @@ import { AmplitudeService } from '../../amplitude/amplitude.service.js';
 import { isTestConnectionUtil } from '../../connection/utils/is-test-connection-util.js';
 import { TableLogsService } from '../../table-logs/table-logs.service.js';
 import { UpdateRowInTableDs } from '../application/data-structures/update-row-in-table.ds.js';
-import { IForeignKeyInfo, ITableRowRO } from '../table.interface.js';
+import { ForeignKeyDSInfo, ITableRowRO } from '../table.interface.js';
 import { formFullTableStructure } from '../utils/form-full-table-structure.js';
 import { hashPasswordsInRowUtil } from '../utils/hash-passwords-in-row.util.js';
 import { processUuidsInRowUtil } from '../utils/process-uuids-in-row-util.js';
 import { removePasswordsFromRowsUtil } from '../utils/remove-password-from-row.util.js';
 import { IUpdateRowInTable } from './table-use-cases.interface.js';
+import { IDataAccessObjectAgent } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/interfaces/data-access-object-agent.interface.js';
+import { IDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/interfaces/data-access-object.interface.js';
+import { ForeignKeyWithAutocompleteColumnsDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/foreign-key-with-autocomplete-columns.ds.js';
+import { ForeignKeyDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/foreign-key.ds.js';
 
 @Injectable()
 export class UpdateRowInTableUseCase
@@ -61,20 +61,27 @@ export class UpdateRowInTableUseCase
       );
     }
 
-    const dao = createDataAccessObject(connection, userId);
+    const dao = getDataAccessObject(connection);
 
     let userEmail: string;
     if (isConnectionTypeAgent(connection.type)) {
       userEmail = await this._dbContext.userRepository.getUserEmailOrReturnNull(userId);
     }
 
-    // eslint-disable-next-line prefer-const
-    let [tableStructure, tableWidgets, tableSettings, tableForeignKeys, tablePrimaryKeys] = await Promise.all([
+    let [
+      tableStructure,
+      tableWidgets,
+      tableSettings,
+      tableForeignKeys,
+      tablePrimaryKeys,
+      referencedTableNamesAndColumns,
+    ] = await Promise.all([
       dao.getTableStructure(tableName, userEmail),
       this._dbContext.tableWidgetsRepository.findTableWidgets(connectionId, tableName),
       this._dbContext.tableSettingsRepository.findTableSettings(connectionId, tableName),
       dao.getTableForeignKeys(tableName, userEmail),
       dao.getTablePrimaryColumns(tableName, userEmail),
+      dao.getReferencedTableNamesAndColumns(tableName, userEmail),
     ]);
 
     if (tableSettings && !tableSettings?.can_update) {
@@ -97,17 +104,17 @@ export class UpdateRowInTableUseCase
       );
     }
 
-    const foreignKeysFromWidgets: Array<IForeignKeyInfo> = tableWidgets
+    const foreignKeysFromWidgets: Array<ForeignKeyDSInfo> = tableWidgets
       .filter((el) => {
         return el.widget_type === WidgetTypeEnum.Foreign_key;
       })
       .map((widget) => {
-        return widget.widget_params as unknown as IForeignKeyInfo;
+        return widget.widget_params as unknown as ForeignKeyDSInfo;
       });
 
     tableForeignKeys = tableForeignKeys.concat(foreignKeysFromWidgets);
 
-    let foreignKeysWithAutocompleteColumns: Array<IForeignKeyWithForeignColumnName> = [];
+    let foreignKeysWithAutocompleteColumns: Array<ForeignKeyWithAutocompleteColumnsDS> = [];
 
     if (tableForeignKeys && tableForeignKeys.length > 0) {
       foreignKeysWithAutocompleteColumns = await Promise.all(
@@ -115,7 +122,7 @@ export class UpdateRowInTableUseCase
           try {
             return this.attachForeignColumnNames(el, userId, connectionId, dao);
           } catch (e) {
-            return el as IForeignKeyWithForeignColumnName;
+            return el as ForeignKeyWithAutocompleteColumnsDS;
           }
         }),
       );
@@ -173,6 +180,7 @@ export class UpdateRowInTableUseCase
         readonly_fields: tableSettings?.readonly_fields ? tableSettings.readonly_fields : [],
         list_fields: tableSettings?.list_fields?.length > 0 ? tableSettings.list_fields : [],
         identity_column: tableSettings?.identity_column ? tableSettings.identity_column : null,
+        referenced_table_names_and_columns: referencedTableNamesAndColumns,
       };
     } catch (e) {
       operationResult = OperationResultStatusEnum.unsuccessfully;
@@ -203,11 +211,11 @@ export class UpdateRowInTableUseCase
   }
 
   private async attachForeignColumnNames(
-    foreignKey: IForeignKey,
+    foreignKey: ForeignKeyDS,
     userId: string,
     connectionId: string,
-    dao: IDataAccessObject,
-  ): Promise<IForeignKeyWithForeignColumnName> {
+    dao: IDataAccessObject | IDataAccessObjectAgent,
+  ): Promise<ForeignKeyWithAutocompleteColumnsDS> {
     try {
       const [foreignTableSettings, foreignTableStructure] = await Promise.all([
         this._dbContext.tableSettingsRepository.findTableSettings(connectionId, foreignKey.referenced_table_name),

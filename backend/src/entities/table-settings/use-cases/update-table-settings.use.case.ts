@@ -3,7 +3,7 @@ import { HttpException } from '@nestjs/common/exceptions/http.exception.js';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
-import { createDataAccessObject } from '../../../data-access-layer/shared/create-data-access-object.js';
+import { getDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/create-data-access-object.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { toPrettyErrorsMsg } from '../../../helpers/index.js';
 import { CreateTableSettingsDs } from '../application/data-structures/create-table-settings.ds.js';
@@ -11,6 +11,8 @@ import { FoundTableSettingsDs } from '../application/data-structures/found-table
 import { buildFoundTableSettingsDs } from '../utils/build-found-table-settings-ds.js';
 import { buildNewTableSettingsEntity } from '../utils/build-new-table-settings-entity.js';
 import { IUpdateTableSettings } from './use-cases.interface.js';
+import { ValidateTableSettingsDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/validate-table-settings.ds.js';
+import { buildValidateTableSettingsDS } from '@rocketadmin/shared-code/dist/src/helpers/datascturcute-builders/validate-table-settings-ds.builder.js';
 
 @Injectable()
 export class UpdateTableSettingsUseCase
@@ -25,13 +27,14 @@ export class UpdateTableSettingsUseCase
   }
 
   protected async implementation(inputData: CreateTableSettingsDs): Promise<FoundTableSettingsDs> {
-    const { connection_id, masterPwd, userId, table_name } = inputData;
+    const { connection_id, masterPwd, table_name } = inputData;
     const foundConnection = await this._dbContext.connectionRepository.findAndDecryptConnection(
       connection_id,
       masterPwd,
     );
-    const dao = createDataAccessObject(foundConnection, userId);
-    const errors: Array<string> = await dao.validateSettings(inputData, table_name, undefined);
+    const dao = getDataAccessObject(foundConnection);
+    const tableSettingsDs: ValidateTableSettingsDS = buildValidateTableSettingsDS(inputData);
+    const errors: Array<string> = await dao.validateSettings(tableSettingsDs, table_name, undefined);
     if (errors.length > 0) {
       throw new HttpException(
         {

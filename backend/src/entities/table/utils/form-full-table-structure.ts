@@ -1,10 +1,10 @@
-import { ITableStructure } from '../../../data-access-layer/shared/data-access-object-interface.js';
 import { TableSettingsEntity } from '../../table-settings/table-settings.entity.js';
 import { FullTableStructureDs } from '../application/data-structures/found-table-structure.ds.js';
 import { checkFieldAutoincrement } from '../../../helpers/index.js';
+import { TableStructureDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/table-structure.ds.js';
 
 export function formFullTableStructure(
-  structure: Array<ITableStructure>,
+  structure: Array<TableStructureDS>,
   tableSettings: TableSettingsEntity,
 ): Array<FullTableStructureDs> {
   const fullStructure = [];

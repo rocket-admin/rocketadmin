@@ -1,10 +1,10 @@
 import { FilteringFieldsDs } from '../application/data-structures/found-table-rows.ds.js';
 import { FilterCriteriaEnum } from '../../../enums/index.js';
-import { ITableStructure } from '../../../data-access-layer/shared/data-access-object-interface.js';
+import { TableStructureDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/table-structure.ds.js';
 
 export function findFilteringFieldsUtil(
   query: string,
-  tableStructure: Array<ITableStructure>,
+  tableStructure: Array<TableStructureDS>,
 ): Array<FilteringFieldsDs> {
   const rowNames = tableStructure.map((el) => {
     return el.column_name;

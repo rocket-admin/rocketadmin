@@ -1,16 +1,16 @@
 import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface.js';
-import { BaseType } from '../../../common/data-injection.tokens.js';
+import { BaseType, DynamicModuleEnum } from '../../../common/data-injection.tokens.js';
 import { SubscriptionLevelEnum } from '../../../enums/index.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { Constants } from '../../../helpers/constants/constants.js';
 import { ConnectionEntity } from '../../connection/connection.entity.js';
 import { sendEmailConfirmation, sendInvitationToGroup } from '../../email/send-email.js';
 import { PermissionEntity } from '../../permission/permission.entity.js';
-import { createStripeUsageRecord } from '../../stripe/stripe-helpers/create-stripe-usage-record.js';
-import { getCurrentUserSubscription } from '../../stripe/stripe-helpers/get-current-user-subscription.js';
+import { IStripeSerice } from '../../stripe/application/interfaces/stripe-service.interface.js';
 import { TableSettingsEntity } from '../../table-settings/table-settings.entity.js';
+import { UserHelperService } from '../../user/user-helper.service.js';
 import { UserEntity } from '../../user/user.entity.js';
 import { buildConnectionEntitiesFromTestDtos } from '../../user/utils/build-connection-entities-from-test-dtos.js';
 import { buildDefaultAdminGroups } from '../../user/utils/build-default-admin-groups.js';
@@ -29,6 +29,9 @@ export class AddUserInGroupUseCase
   constructor(
     @Inject(BaseType.GLOBAL_DB_CONTEXT)
     protected _dbContext: IGlobalDatabaseContext,
+    @Inject(DynamicModuleEnum.STRIPE_SERVICE)
+    private readonly stripeService: IStripeSerice,
+    private readonly userHelperService: UserHelperService,
   ) {
     super();
   }
@@ -42,11 +45,10 @@ export class AddUserInGroupUseCase
     // eslint-disable-next-line prefer-const
     let { usersInConnections, usersInConnectionsCount } =
       await this._dbContext.connectionRepository.calculateUsersInAllConnectionsOfThisOwner(ownerId);
-    const ownerSubscriptionLevel: SubscriptionLevelEnum = await getCurrentUserSubscription(foundOwner.stripeId);
-    const canInviteMoreUsers = await this._dbContext.userRepository.checkOwnerInviteAbility(
-      ownerId,
-      usersInConnectionsCount,
+    const ownerSubscriptionLevel: SubscriptionLevelEnum = await this.stripeService.getCurrentUserSubscription(
+      foundOwner.stripeId,
     );
+    const canInviteMoreUsers = await this.userHelperService.checkOwnerInviteAbility(ownerId, usersInConnectionsCount);
 
     const newUserAlreadyInConnection = !!usersInConnections.find((userInConnection) => {
       if (!foundUser) {
@@ -79,7 +81,11 @@ export class AddUserInGroupUseCase
       delete savedGroup.connection;
       if (!newUserAlreadyInConnection) {
         ++usersInConnectionsCount;
-        await createStripeUsageRecord(ownerSubscriptionLevel, usersInConnectionsCount, foundOwner.stripeId);
+        await this.stripeService.createStripeUsageRecord(
+          ownerSubscriptionLevel,
+          usersInConnectionsCount,
+          foundOwner.stripeId,
+        );
       }
       return {
         group: savedGroup,
@@ -150,7 +156,11 @@ export class AddUserInGroupUseCase
       }
       if (!newUserAlreadyInConnection) {
         ++usersInConnectionsCount;
-        await createStripeUsageRecord(ownerSubscriptionLevel, usersInConnectionsCount, foundOwner.stripeId);
+        await this.stripeService.createStripeUsageRecord(
+          ownerSubscriptionLevel,
+          usersInConnectionsCount,
+          foundOwner.stripeId,
+        );
       }
       return {
         group: savedGroup,

@@ -1,24 +1,24 @@
+/* eslint-disable prefer-const */
 import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
-import { createDataAccessObject } from '../../../data-access-layer/shared/create-data-access-object.js';
-import {
-  IDataAccessObject,
-  IForeignKey,
-  IForeignKeyWithForeignColumnName,
-} from '../../../data-access-layer/shared/data-access-object-interface.js';
+import { getDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/create-data-access-object.js';
 import { WidgetTypeEnum } from '../../../enums/index.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { compareArrayElements, isConnectionTypeAgent } from '../../../helpers/index.js';
 import { buildCreatedTableActionDS } from '../../table-actions/utils/build-created-table-action-ds.js';
 import { GetRowByPrimaryKeyDs } from '../application/data-structures/get-row-by-primary-key.ds.js';
-import { IForeignKeyInfo, ITableRowRO } from '../table.interface.js';
+import { ForeignKeyDSInfo, ITableRowRO } from '../table.interface.js';
 import { convertBinaryDataInRowUtil } from '../utils/convert-binary-data-in-row.util.js';
 import { convertHexDataInPrimaryKeyUtil } from '../utils/convert-hex-data-in-primary-key.util.js';
 import { formFullTableStructure } from '../utils/form-full-table-structure.js';
 import { removePasswordsFromRowsUtil } from '../utils/remove-password-from-row.util.js';
 import { IGetRowByPrimaryKey } from './table-use-cases.interface.js';
+import { IDataAccessObjectAgent } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/interfaces/data-access-object-agent.interface.js';
+import { IDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/interfaces/data-access-object.interface.js';
+import { ForeignKeyWithAutocompleteColumnsDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/foreign-key-with-autocomplete-columns.ds.js';
+import { ForeignKeyDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/foreign-key.ds.js';
 
 @Injectable()
 export class GetRowByPrimaryKeyUseCase
@@ -54,23 +54,30 @@ export class GetRowByPrimaryKeyUseCase
       );
     }
 
-    const dao = createDataAccessObject(connection, userId);
+    const dao = getDataAccessObject(connection);
 
     let userEmail: string;
     if (isConnectionTypeAgent(connection.type)) {
       userEmail = await this._dbContext.userRepository.getUserEmailOrReturnNull(userId);
     }
 
-    // eslint-disable-next-line prefer-const
-    let [tableStructure, tableWidgets, tableSettings, tableForeignKeys, tablePrimaryKeys, tableActions] =
-      await Promise.all([
-        dao.getTableStructure(tableName, userEmail),
-        this._dbContext.tableWidgetsRepository.findTableWidgets(connectionId, tableName),
-        this._dbContext.tableSettingsRepository.findTableSettings(connectionId, tableName),
-        dao.getTableForeignKeys(tableName, userEmail),
-        dao.getTablePrimaryColumns(tableName, userEmail),
-        this._dbContext.tableActionRepository.findTableActions(connectionId, tableName),
-      ]);
+    let [
+      tableStructure,
+      tableWidgets,
+      tableSettings,
+      tableForeignKeys,
+      tablePrimaryKeys,
+      tableActions,
+      referencedTableNamesAndColumns,
+    ] = await Promise.all([
+      dao.getTableStructure(tableName, userEmail),
+      this._dbContext.tableWidgetsRepository.findTableWidgets(connectionId, tableName),
+      this._dbContext.tableSettingsRepository.findTableSettings(connectionId, tableName),
+      dao.getTableForeignKeys(tableName, userEmail),
+      dao.getTablePrimaryColumns(tableName, userEmail),
+      this._dbContext.tableActionRepository.findTableActions(connectionId, tableName),
+      dao.getReferencedTableNamesAndColumns(tableName, userEmail),
+    ]);
     primaryKey = convertHexDataInPrimaryKeyUtil(primaryKey, tableStructure);
     const availablePrimaryColumns: Array<string> = tablePrimaryKeys.map((column) => column.column_name);
     for (const key in primaryKey) {
@@ -87,23 +94,23 @@ export class GetRowByPrimaryKeyUseCase
       );
     }
 
-    const foreignKeysFromWidgets: Array<IForeignKeyInfo> = tableWidgets
+    const foreignKeysFromWidgets: Array<ForeignKeyDSInfo> = tableWidgets
       .filter((el) => {
         return el.widget_type === WidgetTypeEnum.Foreign_key;
       })
       .map((widget) => {
-        return widget.widget_params as unknown as IForeignKeyInfo;
+        return widget.widget_params as unknown as ForeignKeyDSInfo;
       });
 
     tableForeignKeys = tableForeignKeys.concat(foreignKeysFromWidgets);
-    let foreignKeysWithAutocompleteColumns: Array<IForeignKeyWithForeignColumnName> = [];
+    let foreignKeysWithAutocompleteColumns: Array<ForeignKeyWithAutocompleteColumnsDS> = [];
     if (tableForeignKeys && tableForeignKeys.length > 0) {
       foreignKeysWithAutocompleteColumns = await Promise.all(
         tableForeignKeys.map((el) => {
           try {
             return this.attachForeignColumnNames(el, userId, connectionId, dao);
           } catch (e) {
-            return el as IForeignKeyWithForeignColumnName;
+            return el as ForeignKeyWithAutocompleteColumnsDS;
           }
         }),
       );
@@ -131,15 +138,16 @@ export class GetRowByPrimaryKeyUseCase
       list_fields: tableSettings?.list_fields?.length > 0 ? tableSettings.list_fields : [],
       table_actions: tableActions?.length > 0 ? tableActions.map((el) => buildCreatedTableActionDS(el)) : [],
       identity_column: tableSettings?.identity_column ? tableSettings.identity_column : null,
+      referenced_table_names_and_columns: referencedTableNamesAndColumns,
     };
   }
 
   private async attachForeignColumnNames(
-    foreignKey: IForeignKey,
+    foreignKey: ForeignKeyDS,
     userId: string,
     connectionId: string,
-    dao: IDataAccessObject,
-  ): Promise<IForeignKeyWithForeignColumnName> {
+    dao: IDataAccessObject | IDataAccessObjectAgent,
+  ): Promise<ForeignKeyWithAutocompleteColumnsDS> {
     try {
       const [foreignTableSettings, foreignTableStructure] = await Promise.all([
         this._dbContext.tableSettingsRepository.findTableSettings(connectionId, foreignKey.referenced_table_name),

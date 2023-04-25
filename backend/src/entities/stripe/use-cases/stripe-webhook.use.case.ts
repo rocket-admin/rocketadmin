@@ -1,11 +1,10 @@
 import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
-import Stripe from 'stripe';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface.js';
-import { BaseType } from '../../../common/data-injection.tokens.js';
+import { BaseType, DynamicModuleEnum } from '../../../common/data-injection.tokens.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { StripeWebhookDS } from '../application/data-structures/stripe-webhook.ds.js';
-import { getStripe } from '../stripe-helpers/get-stripe.js';
+import { IStripeSerice } from '../application/interfaces/stripe-service.interface.js';
 import { IStripeWebhook } from './stripe-use-cases.interface.js';
 
 @Injectable()
@@ -13,39 +12,21 @@ export class StripeWebhookUseCase extends AbstractUseCase<StripeWebhookDS, void>
   constructor(
     @Inject(BaseType.GLOBAL_DB_CONTEXT)
     protected _dbContext: IGlobalDatabaseContext,
+    @Inject(DynamicModuleEnum.STRIPE_SERVICE)
+    private readonly stripeService: IStripeSerice,
   ) {
     super();
   }
 
   protected async implementation(inputData: StripeWebhookDS): Promise<void> {
-    const { request, stripeSigranture } = inputData;
-    let event: Stripe.Event;
-    try {
-      const endpointSecret = process.env.STRIPE_ENDPOINT_SECRET;
-      if (!endpointSecret) {
-        throw new Error('Stripe enpoint secret missiong');
-      }
-      const stripe = getStripe();
-      event = stripe.webhooks.constructEvent(request.rawBody, stripeSigranture, endpointSecret);
-    } catch (error) {
-      throw new HttpException(
-        {
-          message: `Webhook Error: ${error.message}`,
-        },
-        HttpStatus.BAD_REQUEST,
-      );
+    const provessWebHookResult = this.stripeService.processStripeWebhook(inputData);
+    if (!provessWebHookResult) {
+      return;
     }
-
-    switch (event.type) {
-      case 'checkout.session.completed':
-        const userId = event.data.object['client_reference_id'];
-        const stripeCustomerId = event.data.object['customer'];
-        await this.setStripeCustomerIdToUser(userId, stripeCustomerId);
-        break;
-      default:
-        console.log(`Unhandled event type ${event.type}`);
+    const { stripeCustomerId, userId } = provessWebHookResult;
+    if (stripeCustomerId && userId) {
+      await this.setStripeCustomerIdToUser(userId, stripeCustomerId);
     }
-    return;
   }
 
   private async setStripeCustomerIdToUser(userId: string, stripeCustomerId: string): Promise<void> {

@@ -30,7 +30,7 @@
     "@amplitude/node": "1.10.2",
     "@faker-js/faker": "^7.6.0",
     "@nestjs/common": "9.3.9",
-    "@nestjs/config": "^2.3.1",
+    "@nestjs/config": "2.3.1",
     "@nestjs/core": "9.3.9",
     "@nestjs/jwt": "10.0.2",
     "@nestjs/passport": "9.0.3",
@@ -40,6 +40,8 @@
     "@nestjs/typeorm": "^9.0.1",
     "@nestjsx/crud": "4.6.2",
     "@ntegral/nestjs-sentry": "4.0.0",
+    "@rocketadmin/private-modules": "workspace:*",
+    "@rocketadmin/shared-code": "workspace:*",
     "@sentry/minimal": "^6.19.7",
     "@sentry/node": "7.30.0",
     "@types/crypto-js": "^4.1.1",
@@ -132,19 +134,5 @@
     "ts-node": "^10.9.1",
     "tsconfig-paths": "^4.1.2",
     "typescript": "4.9.4"
-  },
-  "jest": {
-    "moduleFileExtensions": [
-      "js",
-      "json",
-      "ts"
-    ],
-    "rootDir": ".",
-    "testRegex": ".spec.ts$",
-    "transform": {
-      "^.+\\.(t|j)s$": "ts-jest"
-    },
-    "coverageDirectory": "../coverage",
-    "testEnvironment": "node"
   }
 }

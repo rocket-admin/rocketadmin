@@ -1,3 +1,4 @@
+import { ReferencedTableNamesAndColumnsDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/referenced-table-names-columns.ds.js';
 import { FilterCriteriaEnum, QueryOrderingEnum } from '../../enums/index.js';
 import { ITableAccessLevel, ITablePermissionData } from '../permission/permission.interface.js';
 import { CreatedTableActionDS } from '../table-actions/application/data-sctructures/created-table-action.ds.js';
@@ -18,14 +19,14 @@ export interface IFilteringFields {
   value: string;
 }
 
-export interface IForeignKeyInfo {
+export interface ForeignKeyDSInfo {
   referenced_column_name: string;
   referenced_table_name: string;
   constraint_name: string;
   column_name: string;
 }
 
-export interface IForeignKeyStructure {
+export interface ForeignKeyDSStructure {
   referenced_column_name: string;
   referenced_table_name: string;
   constraint_name: string;
@@ -61,7 +62,7 @@ export interface IStructureInfo {
 export interface IStructureRO {
   structure: Array<IStructureRowInfo>;
   primaryColumns: Array<IPrimaryColumnName>;
-  foreignKeys: Array<IForeignKeyStructure>;
+  foreignKeys: Array<ForeignKeyDSStructure>;
   readonly_fields: Array<string>;
   table_widgets: Array<ITableWidgetRO>;
   list_fields?: Array<string>;
@@ -85,13 +86,14 @@ export interface ITablePrimaryColumnInfo {
 export interface ITableRowRO {
   row: string | Record<string, unknown>;
   structure: Array<IStructureRowInfo>;
-  foreignKeys: Array<IForeignKeyStructure>;
+  foreignKeys: Array<ForeignKeyDSStructure>;
   primaryColumns: Array<IPrimaryColumnName>;
   readonly_fields: Array<string>;
   table_widgets: Array<ITableWidgetRO>;
   list_fields: Array<string>;
   table_actions?: Array<CreatedTableActionDS>;
   identity_column: string;
+  referenced_table_names_and_columns: Array<ReferencedTableNamesAndColumnsDS>;
 }
 
 export interface ITableRowsRO {
@@ -103,7 +105,7 @@ export interface ITableRowsRO {
   ordering: QueryOrderingEnum;
   columns_view: Array<string>;
   structure: Array<IStructureRowInfo>;
-  foreignKeys: Array<IForeignKeyStructure>;
+  foreignKeys: Array<ForeignKeyDSStructure>;
 }
 
 export interface ITablesWithTableAccessLevel {

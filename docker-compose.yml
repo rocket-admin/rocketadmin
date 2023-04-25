@@ -2,7 +2,7 @@ version: "3.7"
 services:
   backend:
     build:
-      context: backend
+      context: .
     ports:
       - 3000:3000
     env_file: ./backend/.development.env

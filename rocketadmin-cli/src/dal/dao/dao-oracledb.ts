@@ -3,7 +3,7 @@ import { Constants } from '../../helpers/constants/constants.js';
 import { QueryOrderingEnum } from '../../enums/query-ordering.enum.js';
 import { FilterCriteriaEnum } from '../../enums/filter-criteria.enum.js';
 import { ICLIConnectionCredentials, ITableSettings } from '../../interfaces/interfaces.js';
-import { IDaoInterface, ITestConnectResult } from '../shared/dao-interface.js';
+import { IDaoInterface, IReferecedTableNamesAndColumns, ITestConnectResult } from '../shared/dao-interface.js';
 import knex from 'knex';
 import { checkFieldAutoincrement } from '../../helpers/check-field-autoincrement.js';
 import { isObjectEmpty } from '../../helpers/is-object-empty.js';
@@ -11,6 +11,14 @@ import { listTables } from '../../helpers/get-tables-helper.js';
 import { objectKeysToLowercase } from '../../helpers/object-keys-to-lowercase.js';
 import { renameObjectKeyName } from '../../helpers/rename-object-key-name.js';
 import { tableSettingsFieldValidator } from '../../helpers/validators/table-settings-field-validator.js';
+
+type RefererencedConstraint = {
+  TABLE_NAME: string;
+  CONSTRAINT_NAME: string;
+  TABLE_NAME_ON: string;
+  COLUMN_NAME_ON: string;
+};
+
 export class DaoOracledb implements IDaoInterface {
   private readonly connection: ICLIConnectionCredentials;
 
@@ -524,6 +532,80 @@ export class DaoOracledb implements IDaoInterface {
         .then(trx.commit)
         .catch(trx.rollback);
     });
+  }
+
+  public async getReferencedTableNamesAndColumns(tableName: string): Promise<IReferecedTableNamesAndColumns[]> {
+    const primaryColumns = await this.getTablePrimaryColumns(tableName);
+    const knex = await this.configureKnex(this.connection);
+    const result: Array<IReferecedTableNamesAndColumns> = [];
+    for (const primaryColumn of primaryColumns) {
+      const referencedConstraints: Array<RefererencedConstraint> = (await knex
+        .transaction((trx) => {
+          knex
+            .raw(
+              `
+              SELECT
+              UC.TABLE_NAME as TABLE_NAME,
+              UC.CONSTRAINT_NAME as CONSTRAINT_NAME,
+              UCC.TABLE_NAME as TABLE_NAME_ON,
+              UCC.COLUMN_NAME as COLUMN_NAME_ON
+          FROM
+              USER_CONSTRAINTS UC,
+              USER_CONS_COLUMNS UCC
+          WHERE
+              UC.R_CONSTRAINT_NAME = UCC.CONSTRAINT_NAME
+              AND uc.constraint_type = 'R'
+              AND UCC.TABLE_NAME = ?
+              AND UCC.COLUMN_NAME = ?
+          ORDER BY
+              UC.TABLE_NAME,
+              UC.R_CONSTRAINT_NAME,
+              UCC.TABLE_NAME,
+              UCC.COLUMN_NAME
+      `,
+              [tableName, primaryColumn.column_name],
+            )
+            .transacting(trx)
+            .then(trx.commit)
+            .catch(trx.rollback);
+        })
+        .catch((e) => {
+          throw new Error(e);
+        })) as Array<RefererencedConstraint>;
+
+      for (const referencedConstraint of referencedConstraints) {
+        const columnName = await knex
+          .transaction((trx) => {
+            knex
+              .raw(
+                `
+            SELECT column_name
+            FROM all_cons_columns
+            WHERE constraint_name = ?
+            `,
+                referencedConstraint.CONSTRAINT_NAME,
+              )
+              .transacting(trx)
+              .then(trx.commit)
+              .catch(trx.rollback);
+          })
+          .catch((e) => {
+            throw new Error(e);
+          });
+        referencedConstraint.CONSTRAINT_NAME = columnName[0].COLUMN_NAME;
+      }
+      result.push({
+        referenced_on_column_name: primaryColumn.column_name,
+        referenced_by: referencedConstraints.map((constraint) => {
+          return {
+            table_name: constraint.TABLE_NAME,
+            column_name: constraint.CONSTRAINT_NAME,
+          };
+        }),
+      });
+    }
+
+    return result;
   }
 
   async testConnect(): Promise<ITestConnectResult> {

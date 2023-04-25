@@ -97,3 +97,7 @@ export enum UseCaseType {
 
   STRIPE_WEBHOOK = 'STRIPE_WEBHOOK',
 }
+
+export enum DynamicModuleEnum {
+  STRIPE_SERVICE = 'STRIPE_SERVICE',
+}
