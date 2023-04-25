@@ -4,8 +4,7 @@ export function codeSnippets(signingKey: string) {
             langName: 'C#',
             mode: 'clike',
             snippet: {
-                single: `
-    using System.Linq;
+                single: `using System.Linq;
     using System.Security.Cryptography;
     using System.Text;
     using Microsoft.AspNetCore.Mvc;
@@ -39,8 +38,7 @@ export function codeSnippets(signingKey: string) {
         }
     }
                 `,
-                multiple: `
-    using System;
+                multiple: `using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Security.Cryptography;

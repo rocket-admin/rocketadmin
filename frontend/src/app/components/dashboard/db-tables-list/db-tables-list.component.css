@@ -27,7 +27,7 @@
     height: 40px !important;
 }
 
-.list-item_active {
+.list-item_active ::ng-deep .mdc-list-item__primary-text {
     color: var(--color-accentedPalette-500);
 }
 
@@ -37,8 +37,26 @@
 }
 
 .search-input {
-    margin-top: -12px;
+    background-color: transparent;
+    margin-top: 12px;
     margin-left: 16px;
-    margin-bottom: -12px;
+    margin-bottom: -24px;
     width: calc(100% - 32px);
+}
+
+.search-input ::ng-deep * {
+    background-color: transparent !important;
+}
+
+.search-input ::ng-deep .mdc-text-field {
+    padding: 0 !important;
+}
+
+.search-input ::ng-deep .mat-mdc-form-field-infix {
+    min-height: 0;
+}
+
+.search-input ::ng-deep .mdc-text-field--no-label:not(.mdc-text-field--outlined):not(.mdc-text-field--textarea) .mat-mdc-form-field-infix {
+    padding-top: 8px;
+    padding-bottom: 8px;
 }

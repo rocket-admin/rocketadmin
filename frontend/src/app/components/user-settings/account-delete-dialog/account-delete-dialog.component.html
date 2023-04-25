@@ -1,5 +1,5 @@
 <h1 mat-dialog-title>Delete <strong>{{ userEmail }}</strong> account</h1>
-<div mat-dialog-content>
+<mat-dialog-content>
     <p class="mat-body">
         Tell us why are you deleting your account.
     </p>
@@ -26,11 +26,11 @@
             ></textarea>
         </mat-form-field>
     </form>
-</div>
-<div mat-dialog-actions>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
   <button mat-raised-button mat-dialog-close mat-dialog-close="cancel">Abort</button>
   <button mat-raised-button color="warn"
     (click)="openDeleteConfirmation()">
     Delete
   </button>
-</div>
+</mat-dialog-actions>

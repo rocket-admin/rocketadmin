@@ -37,7 +37,8 @@
 .tables-list {
     position: relative;
     grid-column: 1 / span 2;
-    margin-top: -20px;
+    display: grid;
+    grid-template-columns: 1fr repeat(5, auto);
 }
 
 .tables-overlay {
@@ -61,20 +62,7 @@
 }
 
 .permission-checkbox {
-    margin-left: 32px;
-}
-
-.table-permission-item {
-    margin: 0 -16px;
-}
-
-.mat-dialog-content {
-    padding-bottom: 1em;
-}
-
-.mat-dialog-actions {
-    justify-content: flex-end;
-    padding: 8px 0 24px;
+    margin-left: 20px;
 }
 
 .visibilityIcon {

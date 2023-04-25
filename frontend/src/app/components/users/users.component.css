@@ -31,6 +31,7 @@ header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin: 0 -1em;
+    box-sizing: border-box;
+    padding-right: 1.5em;
     width: calc(100% + 1em);
 }

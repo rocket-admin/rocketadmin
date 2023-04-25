@@ -1,5 +1,5 @@
 <h1 mat-dialog-title>Log details</h1>
-<div mat-dialog-content>
+<mat-dialog-content>
     <p class="mat-body-1" data-block="preamble" data-hj-suppress>
       {{ log.User }} {{ action }} in "{{ normalizedTableName }}" table on {{formattedCrreatedAt}} {{ log.Status }}.
     </p>
@@ -41,9 +41,7 @@
         </tr>
       </table>
     </ng-template>
-
-
-</div>
-<div mat-dialog-actions>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
   <button mat-raised-button color="primary" mat-dialog-close mat-dialog-close>Ok</button>
-</div>
+</mat-dialog-actions>

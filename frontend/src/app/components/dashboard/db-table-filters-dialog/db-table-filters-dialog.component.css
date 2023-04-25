@@ -2,11 +2,12 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
+    margin-top: 16px;
 }
 
 .filters-content {
     display: grid;
-    grid-template-columns: auto 228px 0 1fr 48px;
+    grid-template-columns: auto 228px 0 1fr 32px;
     grid-column-gap: 8px;
     align-content: flex-start;
     align-items: flex-start;
@@ -42,16 +43,11 @@
 }
 
 .column-name {
-    margin-top: 28px;
+    margin-top: 18px;
 }
 
 .filter-delete-button {
-    margin-top: 16px;
-}
-
-.mat-dialog-actions {
-    justify-content: flex-end;
-    padding: 8px 0 24px;
+    margin-top: 4px;
 }
 
 .settings-form__reset-button {

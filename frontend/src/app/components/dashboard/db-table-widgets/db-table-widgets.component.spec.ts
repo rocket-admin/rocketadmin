@@ -1,7 +1,9 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ConnectionsService } from 'src/app/services/connections.service';
+import { DashboardComponent } from '../dashboard.component';
 import { DbTableWidgetsComponent } from './db-table-widgets.component';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
@@ -9,8 +11,6 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { TablesService } from 'src/app/services/tables.service';
 import { WidgetDeleteDialogComponent } from './widget-delete-dialog/widget-delete-dialog.component';
 import { of } from 'rxjs';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { DashboardComponent } from '../dashboard.component';
 
 describe('DbTableWidgetsComponent', () => {
   let component: DbTableWidgetsComponent;
@@ -263,12 +263,20 @@ describe('DbTableWidgetsComponent', () => {
         description: ""
       }
     ];
-    spyOn(tablesService, 'updateTableWidgets').and.returnValue(of(tableWidgetsNetwork));
+    const fakeUpdateTableWidgets = spyOn(tablesService, 'updateTableWidgets').and.returnValue(of());
     // const fakeFatchWidgets = spyOn(tablesService, 'fetchTableWidgets').and.returnValue(of(tableWidgetsNetwork));
 
     component.updateWidgets();
 
-    // expect(fakeFatchWidgets).toHaveBeenCalledOnceWith('12345678', 'users');
+    expect(fakeUpdateTableWidgets).toHaveBeenCalledOnceWith('12345678', 'users', [
+      {
+        field_name: "email",
+        widget_type: "Textarea",
+        widget_params: '',
+        name: "user email",
+        description: ""
+      }
+    ]);
     expect(component.submitting).toBeFalse();
   });
 });

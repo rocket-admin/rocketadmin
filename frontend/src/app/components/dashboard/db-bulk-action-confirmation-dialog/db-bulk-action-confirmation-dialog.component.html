@@ -1,5 +1,5 @@
 <h1 mat-dialog-title>Confirm {{data.title}} for {{ selectedTableName }} table</h1>
-<div mat-dialog-content>
+<mat-dialog-content>
     <div class="mat-body">You are going to {{data.title}} with following primary key(s)
         <ul *ngIf="data.identityFieldValues; else primaryKeysList" class="listOfPrimaryKeys">
             <li *ngFor="let identityValue of data.identityFieldValues; let last = last">
@@ -28,8 +28,8 @@
     </div>
     <p class="mat-body">Please confirm.</p>
 
-</div>
-<div mat-dialog-actions>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
   <button mat-raised-button mat-dialog-close>Cancel</button>
   <button mat-raised-button color="warn" (click)="handleConfirmedActions()" [disabled]="submitting">{{data.title}}</button>
-</div>
+</mat-dialog-actions>

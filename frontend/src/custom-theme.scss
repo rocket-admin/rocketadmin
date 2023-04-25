@@ -1,7 +1,8 @@
+@use '@angular/material' as mat;
 @use 'generate-material-palette' as palette;
-@import '~@angular/material/theming';
 
-@include mat-core();
+@import '@angular/material/theming';
+@include mat.core();
 
 /* For use in src/lib/core/theming/_palette.scss */
 $md-app-primary-color: palette.createpalette('primaryPalette');
@@ -60,7 +61,7 @@ $md-app-accented-color: palette.createpalette('accentedPalette');
 //         200 : #000000,
 //         300 : #000000,
 //         400 : #000000,
-//         500 : #ffffff,
+//         500 : #000000,
 //         600 : #ffffff,
 //         700 : #ffffff,
 //         800 : #ffffff,
@@ -107,15 +108,82 @@ $md-app-warn-color: palette.createpalette('warnPalette');
 //     )
 // );
 
-$custom-theme-primary: mat-palette($md-app-primary-color);
-$custom-theme-accent: mat-palette($md-app-accented-color);
-$custom-theme-warn: mat-palette($md-app-warn-color);
+$custom-palette-primary: mat.define-palette($md-app-primary-color);
+$custom-palette-accent: mat.define-palette($md-app-accented-color);
+$custom-palette-warn: mat.define-palette($md-app-warn-color);
 
-$custom-theme: mat-light-theme($custom-theme-primary, $custom-theme-accent, $custom-theme-warn);
+body .mat-mdc-raised-button.mat-primary, body .mat-mdc-unelevated-button.mat-primary {
+  --mat-mdc-button-persistent-ripple-color: var(--color-primaryPalette-500-contrast) !important;
+  --mdc-protected-button-label-text-color: var(--color-primaryPalette-500-contrast) !important;
+  --mdc-filled-button-label-text-color: var(--color-primaryPalette-500-contrast) !important;
+  --mat-mdc-button-ripple-color: rgba(255, 255, 255, 0.1) !important;
+}
 
-$custom-typography: mat-typography-config(
-  $font-family: 'Poppins, sans-serif'
+body .mat-mdc-raised-button.mat-accent, body .mat-mdc-unelevated-button.mat-accent {
+  --mat-mdc-button-persistent-ripple-color: var(--color-accentedPalette-500-contrast) !important;
+  --mdc-protected-button-label-text-color: var(--color-accentedPalette-500-contrast) !important;
+  --mdc-filled-button-label-text-color: var(--color-accentedPalette-500-contrast) !important;
+  --mat-mdc-button-ripple-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+body .mat-mdc-raised-button.mat-warn, body .mat-mdc-unelevated-button.mat-warn {
+  --mat-mdc-button-persistent-ripple-color: var(--color-warnPalette-500-contrast) !important;
+  --mdc-protected-button-label-text-color: var(--color-warnPalette-500-contrast) !important;
+  --mdc-filled-button-label-text-color: var(--color-warnPalette-500-contrast) !important;
+  --mat-mdc-button-ripple-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+.mat-mdc-checkbox .mdc-form-field {
+  --mdc-checkbox-selected-checkmark-color: var(--color-warnPalette-500-contrast) !important;
+}
+
+$button-custom-level: mat.define-typography-level(
+  $font-family: 'Poppins',
+  $font-weight: 500,
+  $font-size: 14px,
+  $line-height: 34px,
+  $letter-spacing: normal,
 );
 
-@include angular-material-theme($custom-theme);
-@include angular-material-typography($custom-typography);
+$body-1-custom-level: mat.define-typography-level(
+  $font-family: 'Poppins',
+  $font-weight: 400,
+  $font-size: 14px,
+  $line-height: 20px,
+  $letter-spacing: normal,
+);
+
+$caption-custom-level: mat.define-typography-level(
+  $font-family: 'Poppins',
+  $font-weight: 400,
+  $font-size: 12px,
+  $line-height: 16px,
+  $letter-spacing: normal
+);
+
+$custom-typography-config: mat.define-typography-config(
+    $font-family: 'Poppins',
+    $button: $button-custom-level,
+    $body-1: $body-1-custom-level,
+    $caption: $caption-custom-level,
+);
+
+
+$custom-theme: mat.define-light-theme((
+ color: (
+    primary: $custom-palette-primary,
+    accent: $custom-palette-accent,
+    warn: $custom-palette-warn,
+ ),
+ density: -3,
+));
+
+
+
+body {
+  @include mat.button-density(0);
+}
+// @include angular-material-theme($custom-theme);
+
+@include mat.all-component-themes($custom-theme);
+@include mat.all-component-typographies($custom-typography-config);

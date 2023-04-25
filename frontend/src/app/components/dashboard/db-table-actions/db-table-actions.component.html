@@ -33,8 +33,7 @@
                 </mat-icon>
             </button>
         </mat-action-list>
-        <mat-form-field appearance="standard" *ngIf="newAction"
-            class="new-action-input">
+        <mat-form-field *ngIf="newAction" appearance="standard" class="new-action-input">
             <input matInput autofocus="true" name="newActionTitle" #newActionTitle="matInput"
                 required
                 placeholder="Enter action name"

@@ -2,14 +2,14 @@
 <div class="wrapper">
     <div class="connectionsBox connectionsBox_main">
         <header class="header">
-            <h1 class="mat-display-1">Your admin panels</h1>
+            <h1 class="header__title">Your admin panels</h1>
         </header>
 
         <app-content-loader *ngIf="connections === null"></app-content-loader>
 
         <div *ngIf="!connections?.length && connections !== null" class="empty-state">
             <img src="../../../assets/no-files.svg" alt="">
-            <p class="mat-body-2 empty-state__text">No dabase connections</p>
+            <p class="mat-body-2 empty-state__text">No database connected</p>
         </div>
 
         <mat-nav-list *ngIf="connections" class="connectionsBox__connectionsList">

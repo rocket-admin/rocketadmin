@@ -1,24 +1,24 @@
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { Component, OnInit } from '@angular/core';
+import { CustomAction, TableProperties } from 'src/app/models/table';
 import { first, map } from 'rxjs/operators';
 import { getComparators, getFilters } from 'src/app/lib/parse-filter-params';
 
+import { BbBulkActionConfirmationDialogComponent } from './db-bulk-action-confirmation-dialog/db-bulk-action-confirmation-dialog.component';
 import { ConnectionsService } from 'src/app/services/connections.service';
 import { DbActionConfirmationDialogComponent } from './db-action-confirmation-dialog/db-action-confirmation-dialog.component';
+import { DbActionLinkDialogComponent } from './db-action-link-dialog/db-action-link-dialog.component';
 import { DbTableFiltersDialogComponent } from './db-table-filters-dialog/db-table-filters-dialog.component';
 import { HttpErrorResponse } from '@angular/common/http';
 import { MatDialog } from '@angular/material/dialog';
 import { NotificationsService } from 'src/app/services/notifications.service';
-import { CustomAction, TableProperties } from 'src/app/models/table';
+import { SelectionModel } from '@angular/cdk/collections';
 import { TableRowService } from 'src/app/services/table-row.service';
 import { TablesDataSource } from './db-tables-data-source';
 import { TablesService } from 'src/app/services/tables.service';
 import { User } from 'src/app/models/user';
 import { normalizeTableName } from '../../lib/normalize'
 import { omitBy } from "lodash";
-import { BbBulkActionConfirmationDialogComponent } from './db-bulk-action-confirmation-dialog/db-bulk-action-confirmation-dialog.component';
-import { SelectionModel } from '@angular/cdk/collections';
-import { DbActionLinkDialogComponent } from './db-action-link-dialog/db-action-link-dialog.component';
 
 interface DataToActivateActions {
   action: CustomAction,
@@ -84,7 +84,7 @@ export class DashboardComponent implements OnInit {
       this.loading = false;
       this.dbFetchError = true;
       if (error instanceof HttpErrorResponse) {
-        this.errorMessage = error.error.message
+        this.errorMessage = error.error.message || error.message;
       } else  { throw error };
     }
 

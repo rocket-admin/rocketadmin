@@ -44,15 +44,14 @@
     justify-content: center;
     background: #171d39;
     border-radius: 4px;
-    margin-top: 4px;
     max-width: 160px;
-    height: 64px;
+    height: 56px;
     object-fit: contain;
-    padding: 0 8px;
+    padding: 4px 8px;
 }
 
 .logo-img {
-    height: 48px;
+    height: 40px;
     max-width: 136px;
     object-fit: contain;
 }
@@ -80,20 +79,21 @@
     width: 100%;
 }
 
-.color-input ::ng-deep input.mat-input-element {
+.color-input ::ng-deep input.mat-mdc-input-element {
     box-sizing: border-box;
-    padding-left: 3em;
+    padding-top: 4px;
+    padding-left: 24px;
 }
 
 .color-sample {
     position: absolute;
-    top: 20px;
-    left: 12px;
+    top: 8px;
+    left: 8px;
     background-color: var(--color);
     border-radius: 4px;
-    height: 32px;
+    height: 24px;
     margin-top: 4px;
-    width: 32px;
+    width: 24px;
 }
 
 /* .file-input {
@@ -130,11 +130,6 @@
     height: 64px;
     padding: 0 max(calc(50vw - 325px), 10%);
     width: 100vw;
-}
-
-.mat-dialog-actions {
-    justify-content: flex-end;
-    padding: 8px 0 24px;
 }
 
 .settings-form__back-button {

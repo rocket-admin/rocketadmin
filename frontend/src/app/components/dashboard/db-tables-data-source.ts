@@ -302,7 +302,7 @@ export class TablesDataSource implements DataSource<Object> {
   getActionsColumnWidth(actions, permissions) {
     const defaultActionsCount = permissions.edit + permissions.delete;
     if (actions.length || defaultActionsCount) {
-      const lendthValue = (((actions.length + defaultActionsCount) * 40) + 32);
+      const lendthValue = (((actions.length + defaultActionsCount) * 36) + 32);
       return `${lendthValue}px`
     };
     return '0';

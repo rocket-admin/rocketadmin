@@ -3,10 +3,10 @@
     overflow-x: hidden !important;
 }
 
-.mat-sidenav {
+/* .mat-sidenav {
     padding-bottom: 16px;
     width: clamp(200px, 15%, 280px);
-}
+} */
 
 .mat-list-item {
     text-decoration: none;

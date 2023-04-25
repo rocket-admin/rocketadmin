@@ -1,9 +1,9 @@
 <h1 mat-dialog-title>Connection error</h1>
-<div mat-dialog-content class="mat-body">
+<mat-dialog-content class="mat-body">
     <p>Connection does not exist or credentials are incorrect.</p>
     <strong>Error: {{data.errorMessage}}</strong>
-</div>
-<div mat-dialog-actions>
+</mat-dialog-content>
+<mat-dialog-actions class="connection-error__actions" align="end">
     <button mat-button mat-dialog-close="change" color="primary">
         Keep editing
     </button>
@@ -19,4 +19,4 @@
         </button>
     </ng-template>
     <button mat-flat-button color="accent" (click)="openIntercome()">Chat with support</button>
-</div>
+</mat-dialog-actions>

@@ -57,7 +57,7 @@ export class UsersComponent implements OnInit {
       });
   }
 
-  openCreateUsersGroupDialog() {
+  openCreateUsersGroupDialog(event) {
     event.preventDefault();
     event.stopImmediatePropagation();
     this.dialog.open(GroupAddDialogComponent, {
@@ -66,15 +66,9 @@ export class UsersComponent implements OnInit {
   }
 
   openPermissionsDialog(group: UserGroup) {
-    const dialogRef = this.dialog.open(PermissionsAddDialogComponent, {
+    this.dialog.open(PermissionsAddDialogComponent, {
       width: '50em',
       data: group
-    })
-
-    dialogRef.afterClosed().subscribe(action => {
-      if (action === 'add_group') {
-        this.openCreateUsersGroupDialog();
-      }
     })
   }
 

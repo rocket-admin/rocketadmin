@@ -5,7 +5,7 @@
     background-color: #F5F5F5;
     border-left: 4px solid var(--alert-theme-color);
     margin-bottom: 8px;
-    padding: 12px 16px;
+    padding: 12px 16px 0;
     z-index: 1;
 }
 
@@ -37,6 +37,7 @@
 
 .alert__message {
     margin-top: 8px;
+    margin-bottom: 18px;
 }
 
 .actions {

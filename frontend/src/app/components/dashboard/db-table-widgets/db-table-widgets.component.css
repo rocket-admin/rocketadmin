@@ -32,7 +32,8 @@
 
 .widget-settings {
     display: grid;
-    grid-template-columns: 8% 1fr 2fr 1fr 2fr 50px;
+    grid-template-columns: minmax(10%, 130px) 1fr 2fr 1fr 2fr 50px;
+    align-items: start;
     grid-gap: 0 20px;
 }
 
@@ -44,9 +45,9 @@
 
 ::ng-deep .CodeMirror {
     border-radius: 4px;
-    border: 1px solid rgba(0,0,0,0.12);
+    border: 1px solid rgba(0, 0, 0, 0.34);
     height: auto;
-    margin-top: 4px;
+    /* margin-top: 4px; */
     margin-bottom: 20px;
     min-height: 78px;
 }
@@ -70,7 +71,7 @@
 }
 
 .widget-delete-button {
-    margin-top: 16px;
+    margin-top: 4px;
 }
 
 .actions {

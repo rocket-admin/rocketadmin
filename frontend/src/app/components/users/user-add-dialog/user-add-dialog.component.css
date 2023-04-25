@@ -1,13 +1,4 @@
-.mat-dialog-content {
-    padding-bottom: 1em;
-}
-
-.mat-dialog-actions {
-    justify-content: flex-end;
-    padding: 8px 0 24px;
-}
-
-.mat-form-field {
+.mat-mdc-form-field {
     width: 100%;
 }
 
