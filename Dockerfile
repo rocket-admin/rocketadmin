@@ -1,6 +1,6 @@
 FROM public.ecr.aws/docker/library/node:18
 RUN apt-get update && apt-get install -y \
-    tini \
+    tini nginx \
     && rm -rf /var/lib/apt/lists/*
 RUN apt update && \
     apt install libaio1 libc6 curl -y && \
