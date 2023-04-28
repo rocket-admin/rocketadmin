@@ -1,16 +1,17 @@
-FROM node:18 AS front_builder
+FROM node:18-slim AS front_builder
 WORKDIR /app/frontend
 COPY frontend/package.json frontend/yarn.lock frontend/angular.json frontend/tsconfig.app.json frontend/tsconfig.json /app/frontend
 RUN yarn install
 COPY frontend/src /app/frontend/src
 RUN API_ROOT=/api yarn build
 RUN ls /app/frontend/dist/dissendium-v0
-FROM public.ecr.aws/docker/library/node:18
+
+FROM node:18-slim
 RUN apt-get update && apt-get install -y \
     tini nginx \
     && rm -rf /var/lib/apt/lists/*
 RUN apt update && \
-    apt install libaio1 libc6 curl -y && \
+    apt install libaio1 libc6 curl unzip -y && \
     cd /tmp && \
     curl -o instantclient-basiclite.zip https://download.oracle.com/otn_software/linux/instantclient/instantclient-basiclite-linuxx64.zip -SL && \
     unzip instantclient-basiclite.zip && \
@@ -38,7 +39,7 @@ RUN yarn install --network-timeout 1000000 --frozen-lockfile
 RUN cd shared-code && ../node_modules/.bin/tsc
 RUN cd private-modules && ( test -d node_modules && yarn run nest build || true )
 RUN cd backend && yarn run nest build
-COPY --from=front_builder /app/frontend/dist/dissendium-v0 /usr/share/nginx/html
+COPY --from=front_builder /app/frontend/dist/dissendium-v0 /var/www/html
 COPY frontend/nginx/default.conf /etc/nginx/sites-enabled/default
 WORKDIR /app/backend
 CMD [ "/app/backend/runner.sh" ]
