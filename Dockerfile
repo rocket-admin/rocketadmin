@@ -4,6 +4,7 @@ COPY frontend/package.json frontend/yarn.lock frontend/angular.json frontend/tsc
 RUN yarn install
 COPY frontend/src /app/frontend/src
 RUN API_ROOT=/api yarn build
+RUN ls /app/frontend/dist/dissendium-v0
 FROM public.ecr.aws/docker/library/node:18
 RUN apt-get update && apt-get install -y \
     tini nginx \
@@ -36,7 +37,7 @@ RUN yarn install --network-timeout 1000000 --frozen-lockfile
 RUN cd shared-code && ../node_modules/.bin/tsc
 RUN cd private-modules && ( test -d node_modules && yarn run nest build || true )
 RUN cd backend && yarn run nest build
-COPY --from=front_builder /app/frontend/dist /usr/share/nginx/html
+COPY --from=front_builder /app/frontend/dist/dissendium-v0 /usr/share/nginx/html
 COPY frontend/nginx/default.conf /etc/nginx/conf.d
 WORKDIR /app/backend
 CMD [ "/app/backend/runner.sh" ]
