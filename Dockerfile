@@ -28,13 +28,10 @@ COPY .yarn /app/.yarn
 RUN yarn set version berry
 RUN yarn install --network-timeout 1000000 --frozen-lockfile
 RUN cd shared-code && ../node_modules/.bin/tsc
-RUN cd private-modules && yarn install --network-timeout 1000000
-RUN cd private-modules && yarn run nest build
-RUN cd rocketadmin-agent && yarn install --network-timeout 1000000
-RUN cd rocketadmin-agent && yarn run nest build
+RUN cd private-modules && ( test -d node_modules && yarn run nest build || true )
 RUN cd backend && yarn run nest build
 WORKDIR /app/backend
-CMD [ "tini", "node", "--", "--enable-source-maps", "dist/main.js"]
+CMD [ "/app/backend/runner.sh" ]
 ENTRYPOINT ["/app/backend/entrypoint.sh"]
 
 

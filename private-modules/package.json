@@ -1,0 +1,6 @@
+{
+  "name": "@rocketadmin/private-modules",
+  "version": "1.0.0",
+  "description": "noop for public version",
+  "type": "module"
+}
