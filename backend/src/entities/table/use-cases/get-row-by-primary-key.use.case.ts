@@ -60,7 +60,6 @@ export class GetRowByPrimaryKeyUseCase
     if (isConnectionTypeAgent(connection.type)) {
       userEmail = await this._dbContext.userRepository.getUserEmailOrReturnNull(userId);
     }
-
     let [
       tableStructure,
       tableWidgets,
@@ -115,7 +114,6 @@ export class GetRowByPrimaryKeyUseCase
         }),
       );
     }
-
     let rowData = await dao.getRowByPrimaryKey(tableName, primaryKey, tableSettings, userEmail);
     if (!rowData) {
       throw new HttpException(

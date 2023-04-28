@@ -234,6 +234,13 @@ export class MockFactory {
     return dto;
   }
 
+  generateConnectionToTestDbOracleAgent() {
+    const dto = new CreateConnectionDto();
+    dto.title = 'Test connection to agent db';
+    dto.type = ConnectionTypeEnum.agent_oracledb;
+    return dto;
+  }
+
   generateUpdateConnectionDto() {
     const dto = new CreateConnectionDto();
     dto.title = 'Updated Test Connection';

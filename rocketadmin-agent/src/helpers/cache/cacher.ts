@@ -25,7 +25,7 @@ export class Cacher {
   }
 
   public static delTunnelCache(connection): void {
-    tunnelCache.del(JSON.stringify(connection));
+    tunnelCache.delete(JSON.stringify(connection));
   }
 
   public static getDriverCache(connection): any {
@@ -38,7 +38,7 @@ export class Cacher {
   }
 
   public static delDriverCache(connection): void {
-    driverCache.del(JSON.stringify(connection));
+    driverCache.delete(JSON.stringify(connection));
   }
 
   public static async clearKnexCache() {

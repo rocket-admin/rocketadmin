@@ -95,12 +95,33 @@ services:
     environment:
       ORACLE_PASSWORD: 12345
 
-  # rocketadmin-agent:
-  #   build:
-  #     context: rocketadmin-agent
-  #   ports:
-  #     - 8088:8088
-  #   volumes:
-  #     - ./rocketadmin-agent/dist:/app/dist
-  #     - ./rocketadmin-agent/src:/app/src
-  #   command: ["yarn", "start:dev"]  
+  rocketadmin-agent:
+    build:
+      context: .
+      dockerfile: ./rocketadmin-agent/Dockerfile
+    ports:
+      - 8088:8088
+    volumes:
+      - ./rocketadmin-agent/dist:/app/dist
+      - ./rocketadmin-agent/src:/app/src
+    links:
+      - autoadmin-ws-server
+    depends_on:
+      - autoadmin-ws-server
+    environment:
+      - REMOTE_WEBSOCKET_ADDRESS=ws://autoadmin-ws-server:8009
+    command: ["yarn", "start:dev"]
+
+  autoadmin-ws-server:
+    build:
+      context: autoadmin-ws-server
+    ports:
+      - 8008:8008
+    env_file: ./autoadmin-ws-server/.ws-server-development.env
+    volumes:
+      - ./autoadmin-ws-server/dist:/app/dist
+      - ./autoadmin-ws-server/src:/app/src
+    links:
+      - backend
+    depends_on:
+      - backend  

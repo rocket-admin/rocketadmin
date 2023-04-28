@@ -43,7 +43,7 @@ export class CreateConnectionUseCase
     const savedConnection: ConnectionEntity = await this._dbContext.connectionRepository.saveNewConnection(
       createdConnection,
     );
-    let token;
+    let token: string;
     if (isConnectionTypeAgent(savedConnection.type)) {
       token = await this._dbContext.agentRepository.createNewAgentForConnectionAndReturnToken(savedConnection);
     }

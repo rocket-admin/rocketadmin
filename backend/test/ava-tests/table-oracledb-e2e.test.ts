@@ -82,9 +82,9 @@ test(`${currentTest} should return list of tables in connection`, async (t) => {
       .set('Cookie', firstUserToken)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
-    t.is(getTablesResponse.status, 200);
-    const getTablesRO = JSON.parse(getTablesResponse.text);
 
+    const getTablesRO = JSON.parse(getTablesResponse.text);
+    t.is(getTablesResponse.status, 200);
     t.is(typeof getTablesRO, 'object');
     t.is(getTablesRO.length > 0, true);
 
@@ -568,7 +568,6 @@ should return all found rows with pagination page=1 perPage=3`, async (t) => {
       .set('Accept', 'application/json');
     t.is(getTableRowsResponse.status, 200);
     const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
-    console.log('getTableRowsRO.primaryColumns[0] ->', getTableRowsRO.primaryColumns[0]);
     t.is(typeof getTableRowsRO, 'object');
     t.is(getTableRowsRO.hasOwnProperty('rows'), true);
     t.is(getTableRowsRO.hasOwnProperty('primaryColumns'), true);
@@ -1294,9 +1293,9 @@ should return all found rows with search, pagination: page=1, perPage=2 and DESC
 
     t.is(getTableRowsRO.pagination.currentPage, 1);
     t.is(getTableRowsRO.pagination.perPage, 2);
-
     t.is(typeof getTableRowsRO.primaryColumns, 'object');
     t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('column_name'), true);
+
     // t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('data_type'), true);
   } catch (e) {
     console.error(e);
@@ -2966,9 +2965,9 @@ test(`${currentTest} found row`, async (t) => {
     .set('Cookie', firstUserToken)
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
-
-  t.is(foundRowInTableResponse.status, 200);
   const foundRowInTableRO = JSON.parse(foundRowInTableResponse.text);
+  t.is(foundRowInTableResponse.status, 200);
+
   t.is(foundRowInTableRO.hasOwnProperty('row'), true);
   t.is(foundRowInTableRO.hasOwnProperty('structure'), true);
   t.is(foundRowInTableRO.hasOwnProperty('foreignKeys'), true);

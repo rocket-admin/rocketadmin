@@ -18,8 +18,7 @@ import { LRUStorage } from '../../caching/lru-storage.js';
 
 export class DataAccessObjectAgent implements IDataAccessObjectAgent {
   private readonly connection: ConnectionAgentParams;
-  private readonly serverAddress: string = process.env.LOCAL_SERVER_ADDRESS || `http://autoadmin-ws.local:8008/`;
-
+  private readonly serverAddress: string = process.env.LOCAL_WS_SERVER_ADDRESS || `http://autoadmin-ws.local:8008/`;
   constructor(connection: ConnectionAgentParams) {
     this.connection = connection;
   }
@@ -43,6 +42,9 @@ export class DataAccessObjectAgent implements IDataAccessObjectAgent {
       );
       if (res.data.commandResult instanceof Error) {
         throw new Error(res.data.commandResult.message);
+      }
+      if (!res?.data?.commandResult) {
+        throw new Error(ERROR_MESSAGES.NO_DATA_RETURNED_FROM_AGENT);
       }
       return res.data.commandResult;
     } catch (e) {
@@ -70,6 +72,9 @@ export class DataAccessObjectAgent implements IDataAccessObjectAgent {
       );
       if (res.data.commandResult instanceof Error) {
         throw new Error(res.data.commandResult.message);
+      }
+      if (!res?.data?.commandResult) {
+        throw new Error(ERROR_MESSAGES.NO_DATA_RETURNED_FROM_AGENT);
       }
       return res.data.commandResult;
     } catch (e) {
@@ -102,6 +107,9 @@ export class DataAccessObjectAgent implements IDataAccessObjectAgent {
       if (res.data.commandResult instanceof Error) {
         throw new Error(res.data.commandResult.message);
       }
+      if (!res?.data?.commandResult) {
+        throw new Error(ERROR_MESSAGES.NO_DATA_RETURNED_FROM_AGENT);
+      }
       return res.data.commandResult;
     } catch (e) {
       this.checkIsErrorLocalAndThrowException(e);
@@ -131,7 +139,13 @@ export class DataAccessObjectAgent implements IDataAccessObjectAgent {
       if (res.data.commandResult instanceof Error) {
         throw new Error(res.data.commandResult.message);
       }
-      return res.data.commandResult[0];
+      if (!res?.data?.commandResult) {
+        throw new Error(ERROR_MESSAGES.NO_DATA_RETURNED_FROM_AGENT);
+      }
+      if (Array.isArray(res.data.commandResult)) {
+        return res.data.commandResult[0];
+      }
+      return res.data.commandResult;
     } catch (e) {
       this.checkIsErrorLocalAndThrowException(e);
       throw new Error(e.response.data);
@@ -168,6 +182,9 @@ export class DataAccessObjectAgent implements IDataAccessObjectAgent {
       if (res.data.commandResult instanceof Error) {
         throw new Error(res.data.commandResult.message);
       }
+      if (!res?.data?.commandResult) {
+        throw new Error(ERROR_MESSAGES.NO_DATA_RETURNED_FROM_AGENT);
+      }
       return res.data.commandResult;
     } catch (e) {
       this.checkIsErrorLocalAndThrowException(e);
@@ -193,6 +210,9 @@ export class DataAccessObjectAgent implements IDataAccessObjectAgent {
       );
       if (res.data.commandResult instanceof Error) {
         throw new Error(res.data.commandResult.message);
+      }
+      if (!res?.data?.commandResult) {
+        throw new Error(ERROR_MESSAGES.NO_DATA_RETURNED_FROM_AGENT);
       }
       const result = res.data.commandResult;
       LRUStorage.setTableForeignKeysCache(this.connection, tableName, result);
@@ -222,6 +242,9 @@ export class DataAccessObjectAgent implements IDataAccessObjectAgent {
       if (res.data.commandResult instanceof Error) {
         throw new Error(res.data.commandResult.message);
       }
+      if (!res?.data?.commandResult) {
+        throw new Error(ERROR_MESSAGES.NO_DATA_RETURNED_FROM_AGENT);
+      }
       const result = res.data.commandResult;
       LRUStorage.setTablePrimaryKeysCache(this.connection, tableName, result);
       return result;
@@ -244,6 +267,9 @@ export class DataAccessObjectAgent implements IDataAccessObjectAgent {
       );
       if (res.data.commandResult instanceof Error) {
         throw new Error(res.data.commandResult.message);
+      }
+      if (!res?.data?.commandResult) {
+        throw new Error(ERROR_MESSAGES.NO_DATA_RETURNED_FROM_AGENT);
       }
       return res.data.commandResult;
     } catch (e) {
@@ -270,6 +296,9 @@ export class DataAccessObjectAgent implements IDataAccessObjectAgent {
       );
       if (res.data.commandResult instanceof Error) {
         throw new Error(res.data.commandResult.message);
+      }
+      if (!res?.data?.commandResult) {
+        throw new Error(ERROR_MESSAGES.NO_DATA_RETURNED_FROM_AGENT);
       }
       const result = res.data.commandResult;
       LRUStorage.setTableStructureCache(this.connection, tableName, result);
@@ -323,6 +352,9 @@ export class DataAccessObjectAgent implements IDataAccessObjectAgent {
       if (res.data.commandResult instanceof Error) {
         throw new Error(res.data.commandResult.message);
       }
+      if (!res?.data?.commandResult) {
+        throw new Error(ERROR_MESSAGES.NO_DATA_RETURNED_FROM_AGENT);
+      }
       return res.data.commandResult;
     } catch (e) {
       this.checkIsErrorLocalAndThrowException(e);
@@ -350,6 +382,9 @@ export class DataAccessObjectAgent implements IDataAccessObjectAgent {
       if (res.data.commandResult instanceof Error) {
         throw new Error(res.data.commandResult.message);
       }
+      if (!res?.data?.commandResult) {
+        throw new Error(ERROR_MESSAGES.NO_DATA_RETURNED_FROM_AGENT);
+      }
       return res.data.commandResult;
     } catch (e) {
       this.checkIsErrorLocalAndThrowException(e);
@@ -374,6 +409,9 @@ export class DataAccessObjectAgent implements IDataAccessObjectAgent {
       if (res.data.commandResult instanceof Error) {
         throw new Error(res.data.commandResult.message);
       }
+      if (!res?.data?.commandResult) {
+        throw new Error(ERROR_MESSAGES.NO_DATA_RETURNED_FROM_AGENT);
+      }
       return res.data.commandResult;
     } catch (e) {
       this.checkIsErrorLocalAndThrowException(e);
@@ -395,7 +433,10 @@ export class DataAccessObjectAgent implements IDataAccessObjectAgent {
   }
 
   private checkIsErrorLocalAndThrowException(e: any): void {
-    if (e.code.toLowerCase() === 'enotfound' && e.hostname === 'autoadmin-ws.local') {
+    if (e.message === ERROR_MESSAGES.NO_DATA_RETURNED_FROM_AGENT) {
+      throw new Error(e.message);
+    }
+    if (e?.code?.toLowerCase() === 'enotfound' && e?.hostname === 'autoadmin-ws.local') {
       throw new Error(ERROR_MESSAGES.CANT_CONNECT_AUTOADMIN_WS);
     }
   }

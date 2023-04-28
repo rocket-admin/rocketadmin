@@ -1,0 +1,40 @@
+version: 0.2
+
+phases: 
+  install:
+    runtime-versions:
+        docker: 18     
+    commands: 
+      - nohup /usr/local/bin/dockerd --host=unix:///var/run/docker.sock --host=tcp://127.0.0.1:2375 --storage-driver=overlay2&
+      - timeout 15 sh -c "until docker info; do echo .; sleep 1; done"
+  pre_build: 
+    commands: 
+    - echo Logging in to Amazon ECR.... 
+    - aws --version
+    # update the following line with your own region
+    - docker login --username autoadmin --password 53705f3e-b96d-47cf-82af-7da93b1d9d21
+    - aws ecr get-login-password --region=us-east-2 | docker login --username AWS --password-stdin 680745329161.dkr.ecr.us-east-2.amazonaws.com
+    - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
+    - IMAGE_TAG=${COMMIT_HASH:=latest}
+    - REPOSITORY_URI=680745329161.dkr.ecr.us-east-2.amazonaws.com/autoadmin-ws
+  build: 
+    commands: 
+    - echo Build started on `date` 
+    - echo Building the Docker image... 
+    # update the following line with the name of your own ECR repository
+    - docker build -t $REPOSITORY_URI:latest .
+    # update the following line with the URI of your own ECR repository (view the Push Commands in the console)
+    - docker tag $REPOSITORY_URI:latest $REPOSITORY_URI:$IMAGE_TAG 
+  post_build: 
+    commands: 
+    - echo Build completed on `date` 
+    - echo pushing to repo
+    # update the following line with the URI of your own ECR repository
+    - docker push $REPOSITORY_URI:latest
+    - docker push $REPOSITORY_URI:$IMAGE_TAG
+    - echo Writing image definitions file... 
+    - printf '[{"name":"autoadmin-ws","imageUri":"%s", "portMappings":[{"hostPort":8008, "containerPort":8008}, {"hostPort":8009, "containerPort":8009}]}]' $REPOSITORY_URI:$IMAGE_TAG > imageDetail.json
+    #- printf '{"ImageURI":"%s"}' $REPOSITORY_URI:$IMAGE_TAG > imageDetail.json
+artifacts:
+  files:
+    - imageDetail.json
