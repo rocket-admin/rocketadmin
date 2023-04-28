@@ -1,3 +1,5 @@
+/* eslint-disable security/detect-object-injection */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { faker } from '@faker-js/faker';
 import { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
@@ -25,7 +27,7 @@ let testUtils: TestUtils;
 const testSearchedUserName = 'Vasia';
 const testTables: Array<string> = [];
 let currentTest;
-let masterPwd = faker.internet.password();
+const masterPwd = faker.internet.password();
 
 test.before(async () => {
   const moduleFixture = await Test.createTestingModule({
@@ -2315,10 +2317,6 @@ test(`${currentTest} should throw an exception when table name passed in request
     .set('masterpwd', masterPwd)
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
-  console.log(
-    '🚀 ~ file: table-postgres-encrypted-e2e.test.ts ~ line 2879 ~ test ~ getTableRowsResponse.text',
-    getTableRowsResponse.text,
-  );
 
   t.is(getTableRowsResponse.status, 200);
 
@@ -2876,10 +2874,6 @@ test(`${currentTest} should throw an exception when tableName not passed in requ
     .set('masterpwd', masterPwd)
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
-  console.log(
-    '🚀 ~ file: table-postgres-encrypted-e2e.test.ts ~ line 2879 ~ test ~ getTableRowsResponse.text',
-    getTableRowsResponse.text,
-  );
 
   t.is(getTableRowsResponse.status, 200);
 

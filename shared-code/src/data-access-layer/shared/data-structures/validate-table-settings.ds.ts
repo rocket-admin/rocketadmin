@@ -3,7 +3,6 @@ import { CustomFieldDS } from './custom-field.ds.js';
 import { TableWidgetDS } from './table-widget.ds.js';
 
 export class ValidateTableSettingsDS {
-  connection_id: string;
   table_name: string;
   display_name: string;
   search_fields: Array<string>;
