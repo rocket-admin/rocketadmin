@@ -69,7 +69,6 @@
     "get-port": "6.1.2",
     "google-auth-library": "^8.7.0",
     "helmet": "6.0.1",
-    "hybrid-crypto-js": "0.2.4",
     "ip-range-check": "0.2.0",
     "json2csv": "^5.0.7",
     "jsonwebtoken": "^9.0.0",
