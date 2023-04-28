@@ -22,7 +22,8 @@ RUN apt update && \
     ln -s /usr/lib/instantclient/libnnz19.so /usr/lib/libnnz19.so && \
     ln -s /usr/lib/libnsl.so.2 /usr/lib/libnsl.so.1 && \
     ln -s /lib/libc.so.6 /usr/lib/libresolv.so.2 && \
-    ln -s /lib64/ld-linux-x86-64.so.2 /usr/lib/ld-linux-x86-64.so.2
+    ln -s /lib64/ld-linux-x86-64.so.2 /usr/lib/ld-linux-x86-64.so.2 && \
+    rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 COPY package.json .yarnrc.yml yarn.lock /app/
