@@ -39,7 +39,7 @@ RUN cd shared-code && ../node_modules/.bin/tsc
 RUN cd private-modules && ( test -d node_modules && yarn run nest build || true )
 RUN cd backend && yarn run nest build
 COPY --from=front_builder /app/frontend/dist/dissendium-v0 /usr/share/nginx/html
-COPY frontend/nginx/default.conf /etc/nginx/conf.d
+COPY frontend/nginx/default.conf /etc/nginx/sites-enabled/default
 WORKDIR /app/backend
 CMD [ "/app/backend/runner.sh" ]
 ENTRYPOINT ["/app/backend/entrypoint.sh"]
