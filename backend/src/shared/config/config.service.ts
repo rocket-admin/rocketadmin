@@ -39,13 +39,10 @@ class ConfigService {
   }
 
   public getTypeOrmConfig(): DataSourceOptions {
+    const connectionParams = this.parseTypeORMUrl(this.getValue('TYPEORM_URL'));
     const newTypeOrmProdConfig: DataSourceOptions = {
       type: 'postgres',
-      host: this.getValue('TYPEORM_HOST'),
-      port: parseInt(this.getValue('TYPEORM_PORT', false)) || 5432,
-      username: this.getValue('TYPEORM_USERNAME'),
-      password: this.getValue('TYPEORM_PASSWORD'),
-      database: this.getValue('TYPEORM_DATABASE'),
+      ...connectionParams,
       entities: [join(__dirname, '..', '..', '**', '*.entity.{ts,js}')],
       migrations: [join(__dirname, '..', '..', 'migrations', '*.{ts,js}')],
       synchronize: false,
@@ -58,11 +55,7 @@ class ConfigService {
 
     const newTypeOrmTestConfig: DataSourceOptions = {
       type: 'postgres',
-      host: 'postgres',
-      port: 5432,
-      username: 'postgres',
-      password: 'abc123',
-      database: 'postgres',
+      ...connectionParams,
       entities: [join(__dirname, '..', '..', '**', '*.entity.{ts,js}')],
       migrations: [join(__dirname, '..', '..', 'migrations', '*.{ts,js}')],
       synchronize: false,
@@ -80,14 +73,27 @@ class ConfigService {
 
     return this.isTestEnvironment() ? newTypeOrmTestConfig : newTypeOrmProdConfig;
   }
+
+  private parseTypeORMUrl(url: string): {
+    host: string;
+    port: number;
+    username: string;
+    password: string;
+    database: string;
+  } {
+    const match = url.match(/^postgres:\/\/([^:]+):([^@]+)@([^:]+):(\d+)\/(.+)$/);
+    if (!match) {
+      throw new Error('Invalid TypeORM URL');
+    }
+    const [, username, password, host, portStr, database] = match;
+    const port = parseInt(portStr, 10);
+    if (isNaN(port)) {
+      throw new Error('Invalid port number in TypeORM URL');
+    }
+    return { host, port, username, password, database };
+  }
 }
 
-const configService = new ConfigService(process.env).ensureValues([
-  'TYPEORM_HOST',
-  'TYPEORM_PORT',
-  'TYPEORM_USERNAME',
-  'TYPEORM_PASSWORD',
-  'TYPEORM_DATABASE',
-]);
+const configService = new ConfigService(process.env).ensureValues(['TYPEORM_URL']);
 
 export { configService };
