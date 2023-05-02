@@ -14,7 +14,7 @@ class ConfigService {
   private getValue(key: string, throwOnMissing = !this.isTestEnvironment()): string {
     // eslint-disable-next-line security/detect-object-injection
     const value = this.env[key];
-    if (!value && throwOnMissing && key !== 'TYPEORM_PORT') {
+    if (!value && throwOnMissing) {
       throw new Error(`config error - missing env.${key}`);
     }
 
@@ -39,7 +39,7 @@ class ConfigService {
   }
 
   public getTypeOrmConfig(): DataSourceOptions {
-    const connectionParams = this.parseTypeORMUrl(this.getValue('TYPEORM_URL'));
+    const connectionParams = this.parseTypeORMUrl(this.getValue('DATABASE_URL'));
     const newTypeOrmProdConfig: DataSourceOptions = {
       type: 'postgres',
       ...connectionParams,
@@ -83,17 +83,17 @@ class ConfigService {
   } {
     const match = url.match(/^postgres:\/\/([^:]+):([^@]+)@([^:]+):(\d+)\/(.+)$/);
     if (!match) {
-      throw new Error('Invalid TypeORM URL');
+      throw new Error('Invalid Database URL');
     }
     const [, username, password, host, portStr, database] = match;
     const port = parseInt(portStr, 10);
     if (isNaN(port)) {
-      throw new Error('Invalid port number in TypeORM URL');
+      throw new Error('Invalid port number in Database URL');
     }
     return { host, port, username, password, database };
   }
 }
 
-const configService = new ConfigService(process.env).ensureValues(['TYPEORM_URL']);
+const configService = new ConfigService(process.env).ensureValues(['DATABASE_URL']);
 
 export { configService };
