@@ -2,7 +2,7 @@ import { Messages } from '../../exceptions/text/messages.js';
 
 export function requiredEnvironmentVariablesValidator(): void {
   const requiredParameterNames: Array<string> = [
-    'TYPEORM_URL',
+    'DATABASE_URL',
     'PRIVATE_KEY',
     'JWT_SECRET',
   ];
