@@ -110,6 +110,7 @@ services:
       - autoadmin-ws-server
     environment:
       - REMOTE_WEBSOCKET_ADDRESS=ws://autoadmin-ws-server:8009
+      - APPLICATION_CONFIG_FILE_NAME=.oracle_test_agent_config.txt
     command: ["yarn", "start:dev"]
 
   autoadmin-ws-server:
