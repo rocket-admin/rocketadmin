@@ -131,6 +131,24 @@ services:
       - APPLICATION_CONFIG_FILE_NAME=.postgres_test_agent_config.txt
     command: ["yarn", "start:dev"]    
 
+  rocketadmin-agent_mysql:
+    build:
+      context: .
+      dockerfile: ./rocketadmin-agent/Dockerfile
+    ports:
+      - 8108:8108
+    volumes:
+      - ./rocketadmin-agent/dist:/app/dist
+      - ./rocketadmin-agent/src:/app/src
+    links:
+      - autoadmin-ws-server
+    depends_on:
+      - autoadmin-ws-server
+    environment:
+      - REMOTE_WEBSOCKET_ADDRESS=ws://autoadmin-ws-server:8009
+      - APPLICATION_CONFIG_FILE_NAME=.mysql_test_agent_config.txt
+    command: ["yarn", "start:dev"]   
+
   autoadmin-ws-server:
     build:
       context: autoadmin-ws-server
