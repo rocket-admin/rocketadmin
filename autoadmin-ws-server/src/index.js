@@ -95,9 +95,12 @@ async function checkConnectionToken(connectionToken) {
     return true;
   }
   try {
-    const checkConnectionTokenUrl = 
-    process.env.CHECK_CONNECTION_TOKEN_URL ||
-    `http://autoadmin-internal-auth.local:3000/connection/token?token=${connectionToken}`;
+    let checkConnectionTokenUrl; 
+    if(process.env.CHECK_CONNECTION_TOKEN_URL) {
+      checkConnectionTokenUrl = `${process.env.CHECK_CONNECTION_TOKEN_URL}?token=${connectionToken}`
+    } else {
+      checkConnectionTokenUrl = `http://autoadmin-internal-auth.local:3000/connection/token?token=${connectionToken}`;
+    }   
     const response = await axios.get(checkConnectionTokenUrl);
     if (response.status !== 200) {
       return false;
