@@ -50,7 +50,7 @@ export function getDataAccessObject(
 }
 
 function buildAgentConnectionParams(connectionParams: IUnknownConnectionParams): ConnectionAgentParams {
-  if (!connectionParams.agent || connectionParams.agent.token) {
+  if (!connectionParams.agent || !connectionParams.agent.token) {
     throw new Error(ERROR_MESSAGES.AGENT_SHOULD_BE_DEFINED);
   }
   return {

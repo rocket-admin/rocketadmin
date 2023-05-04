@@ -184,6 +184,7 @@ export class DataAccessObjectOracle extends BasicDataAccessObject implements IDa
     primaryKey: Record<string, unknown>,
     tableSettings: TableSettingsDS,
   ): Promise<Record<string, unknown>> {
+    const schema = this.connection.schema ?? this.connection.username.toUpperCase();
     const knex = await this.configureKnex();
     if (!tableSettings) {
       return (

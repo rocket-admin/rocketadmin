@@ -4,7 +4,6 @@ import { buildTableWidgetDs } from './table-widget-ds.builder.js';
 
 export function buildValidateTableSettingsDS(tableSettings: IUnknownDataStructure): ValidateTableSettingsDS {
   return {
-    connection_id: tableSettings.connection_id,
     table_name: tableSettings.table_name,
     display_name: tableSettings.display_name,
     search_fields: tableSettings.search_fields,

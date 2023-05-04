@@ -6,4 +6,5 @@ export const ERROR_MESSAGES = {
   CONNECTION_PARAMS_SHOULD_BE_DEFINED: `Connection parameters should be defined`,
   CONNECTION_TYPE_INVALID: `Connection type is invalid`,
   AGENT_SHOULD_BE_DEFINED: `Agent and agent token should be defined`,
+  NO_DATA_RETURNED_FROM_AGENT: `No data returned from agent`,
 };

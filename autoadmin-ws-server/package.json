@@ -1,0 +1,17 @@
+{
+  "name": "autoadmin-ws-server",
+  "version": "1.0.0",
+  "main": "src/index.js",
+  "license": "MIT",
+  "scripts": {
+    "start": "node src/index.js"
+  },
+  "dependencies": {
+    "axios": "^0.21.1",
+    "express": "^4.17.1",
+    "jsonwebtoken": "^8.5.1",
+    "lru-cache": "^6.0.0",
+    "nanoid": "^3.1.23",
+    "ws": "^7.4.6"
+  }
+}

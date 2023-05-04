@@ -1,3 +1,4 @@
+/* eslint-disable security/detect-object-injection */
 /* eslint-disable prefer-const */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { faker } from '@faker-js/faker';
@@ -19,6 +20,7 @@ import { registerUserAndReturnUserInfo } from '../utils/register-user-and-return
 import { TestUtils } from '../utils/test.utils.js';
 import knex from 'knex';
 import { getRandomConstraintName, getRandomTestTableName } from '../utils/get-random-test-table-name.js';
+import { ERROR_MESSAGES } from '@rocketadmin/shared-code/dist/src/helpers/errors/error-messages.js';
 
 const mockFactory = new MockFactory();
 let app: INestApplication;
@@ -46,7 +48,7 @@ test.before(async () => {
   await app.init();
   app.getHttpServer().listen(0);
   firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-  connectionToTestDB = getTestData(mockFactory).postgresAgentConnection;
+  connectionToTestDB = getTestData(mockFactory).oracleAgentConnection;
 });
 
 currentTest = 'GET /connection/tables/:slug';
@@ -54,8 +56,6 @@ currentTest = 'GET /connection/tables/:slug';
 test('should run', (t) => {
   t.pass();
 });
-
-/*
 
 test.beforeEach('restDatabase', async (t) => {
   const host = 'test-oracle-e2e-testing';
@@ -122,8 +122,8 @@ test(`${currentTest} should return list of tables in connection`, async (t) => {
       .set('Cookie', firstUserToken)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
-    t.is(getTablesResponse.status, 200);
     const getTablesRO = JSON.parse(getTablesResponse.text);
+    t.is(getTablesResponse.status, 200);
 
     t.is(typeof getTablesRO, 'object');
     t.is(getTablesRO.length > 0, true);
@@ -2099,9 +2099,9 @@ test(`${currentTest} should update row in table and return result`, async (t) =>
     .set('Cookie', firstUserToken)
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
+  const updateRowInTableRO = JSON.parse(updateRowInTableResponse.text);
 
   t.is(updateRowInTableResponse.status, 200);
-  const updateRowInTableRO = JSON.parse(updateRowInTableResponse.text);
 
   t.is(updateRowInTableRO.hasOwnProperty('row'), true);
   t.is(updateRowInTableRO.hasOwnProperty('structure'), true);
@@ -2354,10 +2354,10 @@ test(`${currentTest} should throw an exception when primary key passed in reques
     .set('Cookie', firstUserToken)
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
-
-  t.is(updateRowInTableResponse.status, 400);
   const { message } = JSON.parse(updateRowInTableResponse.text);
-  t.is(message, Messages.ROW_PRIMARY_KEY_NOT_FOUND);
+  t.is(updateRowInTableResponse.status, 500);
+
+  t.is(message, ERROR_MESSAGES.NO_DATA_RETURNED_FROM_AGENT);
 });
 
 currentTest = 'DELETE /table/row/:slug';
@@ -2380,9 +2380,8 @@ test(`${currentTest} should delete row in table and return result`, async (t) =>
     .set('Cookie', firstUserToken)
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
-
-  t.is(deleteRowInTableResponse.status, 200);
   const deleteRowInTableRO = JSON.parse(deleteRowInTableResponse.text);
+  t.is(deleteRowInTableResponse.status, 200);
 
   t.is(deleteRowInTableRO.hasOwnProperty('row'), true);
 
@@ -2692,8 +2691,8 @@ test(`${currentTest} should throw an exception when primary key passed in reques
     .set('Accept', 'application/json');
 
   const deleteRowInTableRO = JSON.parse(deleteRowInTableResponse.text);
-  t.is(deleteRowInTableResponse.status, 400);
-  t.is(deleteRowInTableRO.message, Messages.ROW_PRIMARY_KEY_NOT_FOUND);
+  t.is(deleteRowInTableResponse.status, 500);
+  t.is(deleteRowInTableRO.message, ERROR_MESSAGES.NO_DATA_RETURNED_FROM_AGENT);
 });
 
 currentTest = 'GET /table/row/:slug';
@@ -2898,9 +2897,9 @@ test(`${currentTest} should throw an exception, when primary key passed in reque
     .set('Accept', 'application/json');
 
   const { message } = JSON.parse(foundRowInTableResponse.text);
-  t.is(foundRowInTableResponse.status, 400);
+  t.is(foundRowInTableResponse.status, 500);
   // const {message} = JSON.parse(foundRowInTableResponse.text);
-  t.is(message, Messages.ROW_PRIMARY_KEY_NOT_FOUND);
+  t.is(message, ERROR_MESSAGES.NO_DATA_RETURNED_FROM_AGENT);
 });
 
 currentTest = 'PUT /table/rows/delete/:slug';
@@ -2979,4 +2978,3 @@ test(`${currentTest} should delete rows in table and return result`, async (t) =
     t.is(onlyDeleteLogs.findIndex((log) => log.received_data.id === key.id) >= 0, true);
   }
 });
-*/

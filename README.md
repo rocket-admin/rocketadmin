@@ -1,30 +1,72 @@
 ## Rocket Admin
 
-[![Total alerts](https://img.shields.io/lgtm/alerts/g/Autoadmin-org/auto-admin.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/Autoadmin-org/auto-admin/alerts/)
-
 Create admin panel for your service with a few clicks
 
 ## Installation
 
-You need to run two containers in your production cluster:
-1. public.ecr.aws/o1a6p9d1/frontend:latest
-2. public.ecr.aws/o1a6p9d1/backend:latest
+In order to set up a Docker container with the `rocketadmin/rocketadmin` image and configure the required environment variables, follow these steps:
 
-Available environment variables for frontend container:
+1. Install Docker on your system, if you haven't already. You can find installation instructions for different operating systems on the official Docker website: https://docs.docker.com/get-docker/
 
-API_ROOT - http root for backend container
+2. Pull the `rocketadmin/rocketadmin` image from the Docker Hub:
 
-Environment variables for backend container:
+```bash
+docker pull rocketadmin/rocketadmin
+```
 
-* TYPEORM_HOST - hostname of the database, where autoadmin stores its metadata
-* TYPEORM_USERNAME - username to database with metadata
-* TYPEORM_PASSWORD - password to database with metadata
-* TYPEORM_DATABASE - database with metadata name
-* JWT_SECRET - any random 64-character string
-* APP_DOMAIN_ADDRESS - http root for frontend container
-* PRIVATE_KEY - optional key
+3. Generate a random 64-character string for the JWT_SECRET variable. You can use an online tool like https://randomkeygen.com/ or create it using a script in your preferred programming language.
 
-## Running development server
+4. Now, you're ready to run the Docker container. Use the `docker run` command with the `-e` flag to set each environment variable. Replace `<variable_value>` with your actual values for each variable:
 
-1. Change default API_ROOT value in docker-compose.yml
-2. `docker-compose up`
+```bash
+docker run -d \
+  -e TYPEORM_HOST=<typeorm_host> \
+  -e TYPEORM_USERNAME=<typeorm_username> \
+  -e TYPEORM_PASSWORD=<typeorm_password> \
+  -e TYPEORM_DATABASE=<typeorm_database> \
+  -e JWT_SECRET=<jwt_secret> \
+  -e PRIVATE_KEY=<private_key> \
+  -p 8080:8080 \
+  --name rocketadmin \
+  rocketadmin/rocketadmin
+```
+
+5. If the `PRIVATE_KEY` is optional and you don't want to set it, simply remove the corresponding line:
+
+```bash
+docker run -d \
+  -e TYPEORM_HOST=<typeorm_host> \
+  -e TYPEORM_USERNAME=<typeorm_username> \
+  -e TYPEORM_PASSWORD=<typeorm_password> \
+  -e TYPEORM_DATABASE=<typeorm_database> \
+  -e JWT_SECRET=<jwt_secret> \
+  -p 8080:8080 \
+  --name rocketadmin \
+  rocketadmin/rocketadmin
+```
+
+6. Your `rocketadmin/rocketadmin` container should now be running and accessible on port 8080 of your host system. You can verify that the container is running by executing:
+
+```bash
+docker ps
+```
+
+If you need to stop the container, use the following command:
+
+```bash
+docker stop rocketadmin
+```
+
+To start the container again, run:
+
+```bash
+docker start rocketadmin
+```
+
+And to remove the container completely, execute:
+
+```bash
+docker rm rocketadmin
+```
+
+Remember to replace `<variable_value>` with the appropriate values for your setup.

@@ -1,9 +1,19 @@
 FROM node:18
 WORKDIR /app
-COPY package.json yarn.lock nest-cli.json /app/
+COPY package.json ./yarn.lock .yarnrc.yml /app/
+COPY ./.yarn /app/.yarn
+COPY ./rocketadmin-agent/package.json /app/rocketadmin-agent/
+COPY shared-code/package.json /app/shared-code/
 RUN yarn install --network-timeout 1000000
-COPY . /app
-RUN yarn run nest build
+COPY ./rocketadmin-agent/src /app/rocketadmin-agent/src
+COPY ./rocketadmin-agent/storage /app/rocketadmin-agent/storage
+COPY ./rocketadmin-agent/tsconfig.json /app/rocketadmin-agent/
+COPY ./rocketadmin-agent/tsconfig.build.json /app/rocketadmin-agent/
+COPY ./rocketadmin-agent/.autoadmin-config.txt /app/rocketadmin-agent/
+COPY shared-code /app/shared-code
+COPY ./rocketadmin-agent/ssl-cert.txt /app/rocketadmin-agent/
+
+RUN cd rocketadmin-agent && yarn run nest build
 CMD [ "./node_modules/.bin/nest", "start"]
 
 RUN apt update
