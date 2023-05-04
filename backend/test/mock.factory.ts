@@ -241,6 +241,13 @@ export class MockFactory {
     return dto;
   }
 
+  generateConnectionToTestDbMysqlAgent() {
+    const dto = new CreateConnectionDto();
+    dto.title = 'Test connection to agent db';
+    dto.type = ConnectionTypeEnum.agent_mysql;
+    return dto;
+  }
+
   generateUpdateConnectionDto() {
     const dto = new CreateConnectionDto();
     dto.title = 'Updated Test Connection';
