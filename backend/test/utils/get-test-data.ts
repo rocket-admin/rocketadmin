@@ -21,6 +21,7 @@ export function getTestData(mockFactory: MockFactory) {
   const postgresAgentConnection = mockFactory.generateConnectionToTestDbPostgresAgent();
   const oracleAgentConnection = mockFactory.generateConnectionToTestDbOracleAgent();
   const mysqlAgentConnection = mockFactory.generateConnectionToTestDbMysqlAgent();
+  const mssqlAgentConnection = mockFactory.generateConnectionToTestDbMssqlAgent();
   return {
     newConnection,
     newEncryptedConnection,
@@ -42,5 +43,6 @@ export function getTestData(mockFactory: MockFactory) {
     postgresAgentConnection,
     oracleAgentConnection,
     mysqlAgentConnection,
+    mssqlAgentConnection,
   };
 }

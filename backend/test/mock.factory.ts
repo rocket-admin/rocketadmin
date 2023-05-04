@@ -248,6 +248,13 @@ export class MockFactory {
     return dto;
   }
 
+  generateConnectionToTestDbMssqlAgent() {
+    const dto = new CreateConnectionDto();
+    dto.title = 'Test connection to agent db';
+    dto.type = ConnectionTypeEnum.agent_mssql;
+    return dto;
+  }
+
   generateUpdateConnectionDto() {
     const dto = new CreateConnectionDto();
     dto.title = 'Updated Test Connection';
