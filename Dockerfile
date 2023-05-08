@@ -1,6 +1,7 @@
 FROM node:18-slim AS front_builder
 WORKDIR /app/frontend
 COPY frontend/package.json frontend/yarn.lock frontend/angular.json frontend/tsconfig.app.json frontend/tsconfig.json /app/frontend
+COPY frontend/.yarn /app/frontend/.yarn
 RUN yarn install
 COPY frontend/src /app/frontend/src
 RUN API_ROOT=/api yarn build
@@ -34,7 +35,7 @@ COPY rocketadmin-cli /app/rocketadmin-cli
 COPY rocketadmin-agent /app/rocketadmin-agent
 COPY private-modules /app/private-modules
 COPY .yarn /app/.yarn
-RUN yarn set version berry
+#RUN yarn set version berry
 RUN yarn install --network-timeout 1000000 --frozen-lockfile
 RUN cd shared-code && ../node_modules/.bin/tsc
 RUN cd private-modules && ( test -d node_modules && yarn run nest build || true )
