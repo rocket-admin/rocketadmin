@@ -1,7 +1,7 @@
-const { decode } = require('../utils/jwt');
-const CONSTANTS = require('../constants/constants');
+import { decode } from '../utils/jwt.js';
+import { CONSTANTS } from '../constants/constants.js';
 
-module.exports.authByToken = async (req, res, next) => {
+export async function authByToken(req, res, next) {
   const jwtSecret = process.env.JWT_SECRET;
   let token = req.headers.authorization?.replace('Bearer ', '');
 
@@ -23,4 +23,4 @@ module.exports.authByToken = async (req, res, next) => {
     });
   }
 
-};
+}
