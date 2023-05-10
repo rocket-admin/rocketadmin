@@ -45,7 +45,7 @@
     background: #171d39;
     border-radius: 4px;
     max-width: 160px;
-    height: 56px;
+    height: 44px;
     object-fit: contain;
     padding: 4px 8px;
 }
@@ -61,7 +61,7 @@
 }
 
 .logo-stub {
-    margin-top: 24px;
+    margin-top: 12px;
 }
 
 .color-theme {

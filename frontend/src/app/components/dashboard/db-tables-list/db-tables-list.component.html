@@ -6,7 +6,7 @@
 
 <ng-template #tablesList>
     <div *ngIf="tables && tables.length; else noTables" class="tables-list">
-        <mat-form-field appearance="standard" class="search-input">
+        <mat-form-field appearance="fill" class="search-input">
             <input matInput name="search" #search="ngModel"
                 placeholder="Search"
                 [(ngModel)]="searchString"
