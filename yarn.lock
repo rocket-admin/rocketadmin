@@ -12692,6 +12692,7 @@ __metadata:
     "@nestjs/platform-ws": ^9.3.9
     "@nestjs/schematics": ^9.0.4
     "@nestjs/testing": ^9.3.9
+    "@rocketadmin/shared-code": "workspace:*"
     "@types/express": ^4.17.17
     "@types/jest": ^29.4.0
     "@types/node": ^18.14.4

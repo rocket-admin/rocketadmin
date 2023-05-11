@@ -2,6 +2,9 @@ import { QueryOrderingEnum } from '../enums/query-ordering.enum.js';
 import { FilterCriteriaEnum } from '../enums/filter-criteria.enum.js';
 import { WidgetTypeEnum } from '../enums/widget-type.enum.js';
 import { OperationTypeEnum } from '../enums/operation-type.enum.js';
+import { TableSettingsDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/table-settings.ds.js';
+import { FilteringFieldsDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/filtering-fields.ds.js';
+import { AutocompleteFieldsDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/autocomplete-fields.ds.js';
 
 export interface IAutocompleteFields {
   fields: Array<string>;
@@ -64,12 +67,12 @@ export interface IMessageDataInfo {
   tableName: string;
   row: any;
   primaryKey: any;
-  tableSettings: ITableSettings | Record<string, unknown>;
+  tableSettings: TableSettingsDS;
   page: number;
   perPage: number;
   searchedFieldValue: string;
-  filteringFields: Array<string>;
-  autocompleteFields: Array<string>;
+  filteringFields: Array<FilteringFieldsDS>;
+  autocompleteFields: AutocompleteFieldsDS;
   fieldValues: Array<string | number>;
   identityColumnName: string;
   referencedFieldName: string;
