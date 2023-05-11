@@ -1,6 +1,6 @@
 import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
-import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface.js';
+import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType, DynamicModuleEnum } from '../../../common/data-injection.tokens.js';
 import { SubscriptionLevelEnum } from '../../../enums/index.js';
 import { Messages } from '../../../exceptions/text/messages.js';
@@ -54,7 +54,9 @@ export class RemoveUserFromGroupUseCase
     const ownerId = await this._dbContext.connectionRepository.getConnectionAuthorIdByGroupInConnectionId(groupId);
     const updatedGroup = await this._dbContext.groupRepository.saveNewOrUpdatedGroup(groupToUpdate);
     const foundOwner = await this._dbContext.userRepository.findOneUserById(ownerId);
-    const ownerSubscriptionLevel: SubscriptionLevelEnum = await this.stripeService.getCurrentUserSubscription(foundOwner.stripeId);
+    const ownerSubscriptionLevel: SubscriptionLevelEnum = await this.stripeService.getCurrentUserSubscription(
+      foundOwner.stripeId,
+    );
     // eslint-disable-next-line prefer-const
     let { usersInConnections, usersInConnectionsCount } =
       await this._dbContext.connectionRepository.calculateUsersInAllConnectionsOfThisOwner(ownerId);

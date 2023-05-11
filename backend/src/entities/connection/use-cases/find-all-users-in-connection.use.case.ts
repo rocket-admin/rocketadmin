@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
-import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface.js';
+import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
 import { FoundUserDs } from '../../user/application/data-structures/found-user.ds.js';
 import { IFindUsersInConnection } from './use-cases.interfaces.js';

@@ -7,7 +7,7 @@ import { IEmailVerificationRepository } from '../../entities/email/repository/em
 import { IGroupRepository } from '../../entities/group/repository/group.repository.interface.js';
 import { ILogOutRepository } from '../../entities/log-out/repository/log-out-repository.interface.js';
 import { IPermissionRepository } from '../../entities/permission/repository/permission.repository.interface.js';
-import { ITableActionRepository } from '../../entities/table-actions/repository/table-action-custom-reposiotory.interface.js';
+import { ITableActionRepository } from '../../entities/table-actions/repository/table-action-custom-repository.interface.js';
 import { TableFieldInfoEntity } from '../../entities/table-field-info/table-field-info.entity.js';
 import { TableInfoEntity } from '../../entities/table-info/table-info.entity.js';
 import { ITableLogsRepository } from '../../entities/table-logs/repository/table-logs-repository.interface.js';

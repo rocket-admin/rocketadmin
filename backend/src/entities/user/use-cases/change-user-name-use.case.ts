@@ -1,6 +1,6 @@
 import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
-import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface.js';
+import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { ChangeUserNameDS } from '../application/data-structures/change-user-name.ds.js';
@@ -29,7 +29,7 @@ export class ChangeUserNameUseCase extends AbstractUseCase<ChangeUserNameDS, Fou
         HttpStatus.BAD_REQUEST,
       );
     }
-    
+
     foundUser.name = name;
     const savedUser = await this._dbContext.userRepository.saveUserEntity(foundUser);
     return await this.userHelperService.buildFoundUserDs(savedUser);

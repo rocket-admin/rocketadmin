@@ -1,9 +1,9 @@
 import { TableSettingsEntity } from '../../table-settings/table-settings.entity.js';
 import { TableActionEntity } from '../table-action.entity.js';
-import { ITableActionRepository } from './table-action-custom-reposiotory.interface.js';
+import { ITableActionRepository } from './table-action-custom-repository.interface.js';
 
 export const tableActionsCustomRepositoryExtension: ITableActionRepository = {
-  async saveNewOrOupdatedTableAction(action: TableActionEntity): Promise<TableActionEntity> {
+  async saveNewOrUpdatedTableAction(action: TableActionEntity): Promise<TableActionEntity> {
     return await this.save(action);
   },
 

@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
-import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface.js';
+import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
 import { FoundCustomFieldsDs } from '../application/data-structures/found-custom-fields.ds.js';
 import { GetCustomFieldsDs } from '../application/data-structures/get-custom-fields.ds.js';
