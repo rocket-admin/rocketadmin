@@ -249,6 +249,7 @@ test(`${currentTest} should return rows of selected table with search and withou
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
     const createConnectionRO = JSON.parse(createConnectionResponse.text);
+
     t.is(createConnectionResponse.status, 201);
 
     const createTableSettingsDTO = mockFactory.generateTableSettings(
