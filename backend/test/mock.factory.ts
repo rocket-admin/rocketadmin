@@ -16,6 +16,7 @@ import {
 } from '../src/enums/index.js';
 import { TestConstants } from './mocks/test-constants.js';
 import json5 from 'json5';
+import { ConnectionTypeTestEnum } from '../src/enums/connection-type.enum.js';
 
 export class MockFactory {
   generateCognitoUserName() {
@@ -252,6 +253,34 @@ export class MockFactory {
     const dto = new CreateConnectionDto();
     dto.title = 'Test connection to agent db';
     dto.type = ConnectionTypeEnum.agent_mssql;
+    return dto;
+  }
+
+  generateConnectionToTestDbMssqlCli() {
+    const dto = new CreateConnectionDto();
+    dto.title = 'Test connection to cli db mssql';
+    dto.type = ConnectionTypeTestEnum.cli_mssql;
+    return dto;
+  }
+
+  generateConnectionToTestDbMysqlCli() {
+    const dto = new CreateConnectionDto();
+    dto.title = 'Test connection to cli db mysql';
+    dto.type = ConnectionTypeTestEnum.cli_mysql;
+    return dto;
+  }
+
+  generateConnectionToTestDbPostgresCli() {
+    const dto = new CreateConnectionDto();
+    dto.title = 'Test connection to cli db pg';
+    dto.type = ConnectionTypeTestEnum.cli_postgres;
+    return dto;
+  }
+
+  generateConnectionToTestDbOracleCli() {
+    const dto = new CreateConnectionDto();
+    dto.title = 'Test connection to cli db oracle';
+    dto.type = ConnectionTypeTestEnum.cli_oracledb;
     return dto;
   }
 

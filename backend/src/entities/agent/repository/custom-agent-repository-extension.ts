@@ -1,7 +1,7 @@
 import { nanoid } from 'nanoid';
 import { ConnectionEntity } from '../../connection/connection.entity.js';
 import { AgentEntity } from '../agent.entity.js';
-import { ConnectionTypeEnum } from '../../../enums/connection-type.enum.js';
+import { ConnectionTypeEnum, ConnectionTypeTestEnum } from '../../../enums/connection-type.enum.js';
 
 export const customAgentRepositoryExtension = {
   async saveNewAgent(agent: AgentEntity): Promise<AgentEntity> {
@@ -47,17 +47,25 @@ export const customAgentRepositoryExtension = {
     }
   },
 
-  getTestAgentToken(connectionType: ConnectionTypeEnum): string {
+  getTestAgentToken(connectionType: ConnectionTypeTestEnum): string {
     if (process.env.NODE_ENV !== 'test') throw new Error('Test agent token can only be used in test environment');
     switch (connectionType) {
-      case ConnectionTypeEnum.agent_oracledb:
+      case ConnectionTypeTestEnum.agent_oracledb:
         return 'ORACLE-TEST-AGENT-TOKEN';
-      case ConnectionTypeEnum.agent_mssql:
+      case ConnectionTypeTestEnum.agent_mssql:
         return 'MSSQL-TEST-AGENT-TOKEN';
-      case ConnectionTypeEnum.agent_mysql:
+      case ConnectionTypeTestEnum.agent_mysql:
         return 'MYSQL-TEST-AGENT-TOKEN';
-      case ConnectionTypeEnum.agent_postgres:
+      case ConnectionTypeTestEnum.agent_postgres:
         return 'POSTGRES-TEST-AGENT-TOKEN';
+      case ConnectionTypeTestEnum.cli_mssql:
+        return  'MSSQL-TEST-CLI-TOKEN';
+      case ConnectionTypeTestEnum.cli_mysql:
+        return 'MYSQL-TEST-CLI-TOKEN';
+      case ConnectionTypeTestEnum.cli_oracledb:
+        return 'ORACLE-TEST-CLI-TOKEN';
+      case ConnectionTypeTestEnum.cli_postgres:
+        return 'POSTGRES-TEST-CLI-TOKEN';       
     }
   },
 };
