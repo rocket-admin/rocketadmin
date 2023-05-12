@@ -20,10 +20,7 @@ docker pull rocketadmin/rocketadmin
 
 ```bash
 docker run -d \
-  -e TYPEORM_HOST=<typeorm_host> \
-  -e TYPEORM_USERNAME=<typeorm_username> \
-  -e TYPEORM_PASSWORD=<typeorm_password> \
-  -e TYPEORM_DATABASE=<typeorm_database> \
+  -e DATABASE_URL=postgresql://username:password@host/database \
   -e JWT_SECRET=<jwt_secret> \
   -e PRIVATE_KEY=<private_key> \
   -p 8080:8080 \
@@ -31,14 +28,11 @@ docker run -d \
   rocketadmin/rocketadmin
 ```
 
-5. If the `PRIVATE_KEY` is optional and you don't want to set it, simply remove the corresponding line:
+5. The `PRIVATE_KEY` is optional and if you don't want to set it, simply remove the corresponding line:
 
 ```bash
 docker run -d \
-  -e TYPEORM_HOST=<typeorm_host> \
-  -e TYPEORM_USERNAME=<typeorm_username> \
-  -e TYPEORM_PASSWORD=<typeorm_password> \
-  -e TYPEORM_DATABASE=<typeorm_database> \
+  -e DATABASE_URL=postgresql://username:password@host/database \
   -e JWT_SECRET=<jwt_secret> \
   -p 8080:8080 \
   --name rocketadmin \
