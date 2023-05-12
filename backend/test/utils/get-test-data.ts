@@ -18,8 +18,14 @@ export function getTestData(mockFactory: MockFactory) {
   const connectionToPostgresSchema = mockFactory.generateConnectionToTestPostgresDBWithSchemaInDocker();
   const connectionToPostgres = mockFactory.generateConnectionToTestPostgresDBInDocker();
   const internalConnection = mockFactory.generateCreateConnectionDto();
-  const postgresAgentConnection = mockFactory.generateConnectionToTestDbAgent();
+  const postgresAgentConnection = mockFactory.generateConnectionToTestDbPostgresAgent();
   const oracleAgentConnection = mockFactory.generateConnectionToTestDbOracleAgent();
+  const mysqlAgentConnection = mockFactory.generateConnectionToTestDbMysqlAgent();
+  const mssqlAgentConnection = mockFactory.generateConnectionToTestDbMssqlAgent();
+  const mssqlCliConnection = mockFactory.generateConnectionToTestDbMssqlCli();
+  const mysqlCliConnection = mockFactory.generateConnectionToTestDbMysqlCli();
+  const postgresCliConnection = mockFactory.generateConnectionToTestDbPostgresCli();
+  const oracleCliConnection = mockFactory.generateConnectionToTestDbOracleCli();
   return {
     newConnection,
     newEncryptedConnection,
@@ -40,5 +46,11 @@ export function getTestData(mockFactory: MockFactory) {
     internalConnection,
     postgresAgentConnection,
     oracleAgentConnection,
+    mysqlAgentConnection,
+    mssqlAgentConnection,
+    mssqlCliConnection,
+    mysqlCliConnection,
+    postgresCliConnection,
+    oracleCliConnection,
   };
 }

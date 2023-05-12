@@ -5,7 +5,7 @@ import { Messages } from '../exceptions/text/messages.js';
 import { buildBadRequestException, buildForbiddenException } from './utils/index.js';
 import { validateUuidByRegex } from './utils/validate-uuid-by-regex.js';
 import { BaseType } from '../common/data-injection.tokens.js';
-import { IGlobalDatabaseContext } from '../common/application/global-database-context.intarface.js';
+import { IGlobalDatabaseContext } from '../common/application/global-database-context.interface.js';
 
 @Injectable()
 export class ConnectionEditGuard implements CanActivate {

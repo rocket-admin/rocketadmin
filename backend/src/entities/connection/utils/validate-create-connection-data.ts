@@ -10,6 +10,7 @@ import { isSaaS } from '../../../helpers/app/is-saas.js';
 import { Constants } from '../../../helpers/constants/constants.js';
 import { CreateConnectionDs } from '../application/data-structures/create-connection.ds.js';
 import { UpdateConnectionDs } from '../application/data-structures/update-connection.ds.js';
+import { ConnectionTypeTestEnum } from '../../../enums/connection-type.enum.js';
 
 export async function validateCreateConnectionData(
   createConnectionData: CreateConnectionDs | UpdateConnectionDs,
@@ -72,6 +73,9 @@ export async function validateCreateConnectionData(
 }
 
 function validateConnectionType(type: string): string {
+  if (process.env.NODE_ENV === 'test') {
+    return Object.keys(ConnectionTypeTestEnum).find((key) => key === type);
+  }
   return Object.keys(ConnectionTypeEnum).find((key) => key === type);
 }
 

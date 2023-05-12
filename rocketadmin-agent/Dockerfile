@@ -10,6 +10,10 @@ COPY ./rocketadmin-agent/storage /app/rocketadmin-agent/storage
 COPY ./rocketadmin-agent/tsconfig.json /app/rocketadmin-agent/
 COPY ./rocketadmin-agent/tsconfig.build.json /app/rocketadmin-agent/
 COPY ./rocketadmin-agent/.autoadmin-config.txt /app/rocketadmin-agent/
+COPY ./rocketadmin-agent/.oracle_test_agent_config.txt /app/rocketadmin-agent/
+COPY ./rocketadmin-agent/.postgres_test_agent_config.txt /app/rocketadmin-agent/
+COPY ./rocketadmin-agent/.mysql_test_agent_config.txt /app/rocketadmin-agent/
+COPY ./rocketadmin-agent/.mssql_test_agent_config.txt /app/rocketadmin-agent/
 COPY shared-code /app/shared-code
 COPY ./rocketadmin-agent/ssl-cert.txt /app/rocketadmin-agent/
 

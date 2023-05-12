@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
-import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface.js';
+import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
 import { CreateTableSettingsDs } from '../../table-settings/application/data-structures/create-table-settings.ds.js';
 import { FoundTableSettingsDs } from '../../table-settings/application/data-structures/found-table-settings.ds.js';

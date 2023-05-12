@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { UserEntity } from 'src/entities/user/user.entity';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
-import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface.js';
+import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
 import { FoundUserInGroupDs } from '../../user/application/data-structures/found-user-in-group.ds.js';
 import { UserHelperService } from '../../user/user-helper.service.js';

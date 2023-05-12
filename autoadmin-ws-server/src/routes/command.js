@@ -1,9 +1,9 @@
-const express = require('express');
-const router = express.Router();
+import { Router } from 'express';
+const router = Router();
 
-const commandController = require('../controllers/command');
-const { authByToken } = require('../middleware/auth');
+import { executeCommand } from '../controllers/command.js';
+import { authByToken } from '../middleware/auth.js';
 
-router.post('/', authByToken, commandController.executeCommand);
+router.post('/', authByToken, executeCommand);
 
-module.exports = router;
+export default router;

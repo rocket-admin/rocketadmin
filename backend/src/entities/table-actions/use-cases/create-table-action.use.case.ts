@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
-import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface.js';
+import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
 import { Encryptor } from '../../../helpers/encryption/encryptor.js';
 import { buildEmptyTableSettingsWithEmptyWidgets } from '../../table-settings/utils/build-empty-table-settings.js';
@@ -46,7 +46,7 @@ export class CreateTableActionUseCase
     }
 
     const newTableAction = buildNewTableActionEntity(inputData);
-    const savedTableAction = await this._dbContext.tableActionRepository.saveNewOrOupdatedTableAction(newTableAction);
+    const savedTableAction = await this._dbContext.tableActionRepository.saveNewOrUpdatedTableAction(newTableAction);
     tableSettingToUpdate.table_actions.push(savedTableAction);
     await this._dbContext.tableSettingsRepository.saveNewOrUpdatedSettings(tableSettingToUpdate);
     return buildCreatedTableActionDS(savedTableAction);
