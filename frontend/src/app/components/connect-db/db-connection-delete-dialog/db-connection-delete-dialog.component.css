@@ -1,11 +1,5 @@
-.mat-dialog-content {
-    padding-bottom: 1em;
-}
-
-.mat-dialog-actions {
-    justify-content: flex-end;
-    margin-top: -32px;
-    padding-bottom: 20px;
+.mat-mdc-dialog-content {
+    margin-bottom: -20px;
 }
 
 .radio-group {

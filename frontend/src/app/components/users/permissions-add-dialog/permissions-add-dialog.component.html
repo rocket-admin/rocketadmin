@@ -1,6 +1,6 @@
 <h1 mat-dialog-title>Permissions for <strong>{{ group.title }}</strong> group</h1>
-<form action="" #addPermissionsForm="ngForm" (ngSubmit)="addPermissions()">
-    <div mat-dialog-content>
+<form #addPermissionsForm="ngForm" (ngSubmit)="addPermissions()">
+    <mat-dialog-content>
         <app-alert *ngIf="connectionAccess === 'edit' && group.title === 'Admin'" [alert]="adminGroupAlert"></app-alert>
         <app-alert *ngIf="connectionAccess === 'edit' && group.title !== 'Admin'" [alert]="connectionFullAccessAlert"></app-alert>
 
@@ -53,9 +53,9 @@
             </div>
 
             <app-content-loader *ngIf="loading"></app-content-loader>
-            <mat-list role="list" class="tables-list">
+            <div class="tables-list">
                 <div *ngIf="connectionAccess === 'edit'" class="tables-overlay"></div>
-                <mat-list-item role="listitem" class="table-permission-item" *ngFor="let table of tablesAccess">
+                <ng-container *ngFor="let table of tablesAccess">
                     <span mat-line>{{table.tableName}}</span>
 
                     <div class="tableVisibility">
@@ -95,21 +95,21 @@
                         [(ngModel)]="table.accessLevel.edit">
                         Edit
                     </mat-checkbox>
-                </mat-list-item>
-            </mat-list>
+                </ng-container>
+            </div>
         </div>
-    </div>
-    <div mat-dialog-actions *ngIf="group.title !== 'Admin'; else adminActions">
+    </mat-dialog-content>
+    <mat-dialog-actions *ngIf="group.title !== 'Admin'; else adminActions" align="end">
         <button mat-raised-button mat-dialog-close>Cancel</button>
         <button mat-raised-button color="primary"
             [disabled]="submitting || addPermissionsForm.form.invalid">
                 Update
         </button>
-    </div>
+    </mat-dialog-actions>
     <ng-template #adminActions>
-        <div mat-dialog-actions>
+        <mat-dialog-actions align="end">
             <button mat-raised-button mat-dialog-close>Close</button>
-        </div>
+        </mat-dialog-actions>
     </ng-template>
 
 </form>

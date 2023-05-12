@@ -5,10 +5,10 @@
 
 .form {
     display: grid;
-    grid-template-columns: repeat(4, 25%);
-    grid-gap: 1.25em 1.5em;
+    grid-template-columns: repeat(4, 1fr);
+    grid-gap: 0.5em 1.5em;
     margin: 0 auto 40px;
-    width: clamp(18.75em, 96%, 45em);
+    width: clamp(18.75em, 96%, 50em);
 }
 
 @media screen and (max-width: 600px) {
@@ -37,6 +37,10 @@
     margin-right: 12px;
 }
 
+.warningMessage .mat-body-1 {
+    margin-bottom: 0;
+}
+
 .encription-setting {
     display: flex;
     justify-content: space-between;
@@ -47,13 +51,13 @@
 
 .encription-password {
     display: flex;
-    margin-top: 16px;
+    margin-top: 32px;
     margin-bottom: 8px;
     width: 100%;
 }
 
 .encription-password__copy-button {
-    margin-top: 16px;
+    margin-top: 4px;
     margin-left: 12px;
 }
 
@@ -62,16 +66,13 @@
     grid-column: 1 / span 3;
 }
 
-.connectForm__hostname code {
-    font-size: 1.25em;
+.connectForm__hostname,
+.connectForm__port {
+    padding-bottom: 2em;
 }
 
 .connectForm__fullLine {
     grid-column: 1 / span 4;
-}
-
-.connectForm__agentRadio {
-    margin-bottom: 20px;
 }
 
 .connectForm__firstHalf {
@@ -80,6 +81,10 @@
 
 .connectForm__secondHalf {
     grid-column: 3 / span 2;
+}
+
+.connectForm__agentRadio {
+    margin-top: -1em;
 }
 
 .radio-button {
@@ -150,7 +155,7 @@
 .advanced-settings {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    grid-gap: 1em 1.5em;
+    grid-gap: 0.25em 1.5em;
 }
 
 @media screen and (max-width: 600px) {

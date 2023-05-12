@@ -1,10 +1,11 @@
 import { Component, OnInit, Inject } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { UsersService } from 'src/app/services/users.service';
 import { GroupDeleteDialogComponent } from '../group-delete-dialog/group-delete-dialog.component';
 import { UserGroup, TablePermission, AccessLevel } from 'src/app/models/user';
 import { ConnectionsService } from 'src/app/services/connections.service';
 import { AlertActionType, AlertType } from 'src/app/models/alert';
+import { GroupAddDialogComponent } from '../group-add-dialog/group-add-dialog.component';
 
 @Component({
   selector: 'app-permissions-add-dialog',
@@ -28,7 +29,7 @@ export class PermissionsAddDialogComponent implements OnInit {
       {
         type: AlertActionType.Button,
         caption: 'New group',
-        action: () => this.dialogRef.close('add_group')
+        action: () => this.handleOpenNewGroupPopup()
       }
     ]
   };
@@ -42,6 +43,7 @@ export class PermissionsAddDialogComponent implements OnInit {
     @Inject(MAT_DIALOG_DATA) public group: UserGroup,
     private _usersService: UsersService,
     public dialogRef: MatDialogRef<GroupDeleteDialogComponent>,
+    public dialog: MatDialog,
     private _connections: ConnectionsService
   ) { }
 
@@ -63,6 +65,13 @@ export class PermissionsAddDialogComponent implements OnInit {
     table.accessLevel.add = false;
     table.accessLevel.delete = false;
     table.accessLevel.edit = false;
+  }
+
+  handleOpenNewGroupPopup() {
+    this.dialogRef.close('add_group');
+    this.dialog.open(GroupAddDialogComponent, {
+      width: '25em',
+    });
   }
 
   grantFullTableAccess() {

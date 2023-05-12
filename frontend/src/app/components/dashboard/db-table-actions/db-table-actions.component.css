@@ -28,16 +28,46 @@
     text-align: center;
 }
 
-.new-action-input {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    margin-top: -20px;
+/* .new-action-input {
+    background-color: transparent;
+    margin-top: 12px;
     margin-left: 16px;
+    margin-bottom: -24px;
+    width: calc(100% - 32px);
 }
 
-.new-action-input ::ng-deep.mat-form-field-wrapper {
+.new-action-input ::ng-deep.mat-mdc-form-field-wrapper {
     width: calc(100% - 16px);
+} */
+
+.new-action-input {
+    background-color: transparent;
+    margin-left: 16px;
+    min-width: 220px;
+    width: calc(100% - 32px);
+}
+
+.new-action-input ::ng-deep * {
+    background-color: transparent !important;
+}
+
+.new-action-input ::ng-deep .mdc-text-field {
+    padding: 0 !important;
+}
+
+.new-action-input ::ng-deep .mat-mdc-form-field-infix {
+    min-height: 0;
+}
+
+.new-action-input ::ng-deep .mdc-text-field--no-label:not(.mdc-text-field--outlined):not(.mdc-text-field--textarea) .mat-mdc-form-field-infix {
+    padding-top: 8px;
+    padding-bottom: 8px;
+}
+
+.new-action-input ::ng-deep .mat-mdc-icon-button.mat-mdc-button-base {
+    width: 36px;
+    height: 36px;
+    padding: 6px;
 }
 
 .action-error {
@@ -66,7 +96,7 @@
 .action-settings {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 4px;
     min-width: 420px;
     width: 50%;
 }
@@ -121,6 +151,7 @@
 .icons-menu {
     display: flex;
     flex-direction: column;
+    padding: 0 16px;
 }
 
 .icons-list {
@@ -157,11 +188,11 @@
 }
 
 .radio-button_first {
-    margin-left: 32px;
+    margin-left: 16px;
 }
 
 .radio-button_second {
-    margin-left: 16px;
+    margin-left: 8px;
 }
 
 .action__actions {
@@ -172,6 +203,8 @@
 
 .action-codeSnippet,
 .action-codeSnippet ::ng-deep .CodeMirror {
+    font-size: 12px;
+    line-height: 14px;
     height: 100%;
     width: 100%;
 }
@@ -193,7 +226,7 @@
     z-index: 5;
 }
 
-.lang-select ::ng-deep .mat-form-field-outline {
+.lang-select ::ng-deep .mdc-text-field {
     background-color: #fff;
 }
 
@@ -207,7 +240,7 @@
 .copy-button {
     position: absolute;
     right: 184px;
-    top: 36px;
+    top: 26px;
     background-color: #fff;
     z-index: 5;
 }
@@ -220,5 +253,5 @@
 }
 
 .confirmation-checkbox {
-    margin-top: 20px;
+    margin-top: 12px;
 }

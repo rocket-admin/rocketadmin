@@ -81,7 +81,7 @@
                     [disabled]="submitting"
                     [(ngModel)]="db.host">
                 <mat-hint>
-                    E.g. <code>my-test-db.cvfuxe8nltiq.us-east-2.rds.amazonaws.com</code>.
+                    E.g. <strong><code>my-test-db.cvfuxe8nltiq.us-east-2.rds.amazonaws.com</code></strong>.
                     Connections from internal IPs (e.g. localhost) are not supported.
                 </mat-hint>
 
@@ -94,7 +94,7 @@
                 <mat-error *ngIf="hostname.errors?.isInvalidHostname && hostname.invalid">Hostname is invalid.</mat-error>
             </mat-form-field>
 
-            <mat-form-field appearance="outline">
+            <mat-form-field appearance="outline" class="connectForm__port">
                 <mat-label>Port</mat-label>
                 <input matInput type="number" name="port" #port="ngModel"
                     angulartics2On="change"
@@ -125,8 +125,8 @@
                     [readonly]="accessLevel === 'readonly' && db.id"
                     [disabled]="submitting"
                     [(ngModel)]="db.password">
-                <mat-hint *ngIf="db.id && (hostname.untouched && port.untouched)">To keep password the same please keep this field blank.</mat-hint>
-                <mat-hint *ngIf="db.id && (hostname.touched || port.touched)">Password is required if hostname or port was changed</mat-hint>
+                <mat-hint *ngIf="db.id && (hostname.untouched && port.untouched)">To keep password the same keep this field blank.</mat-hint>
+                <mat-hint *ngIf="db.id && (hostname.touched || port.touched)">Password needed due to hostname/port change.</mat-hint>
                 <!-- <mat-error *ngIf="email.errors.required && (email.invalid && email.touched)">Email should not be empty.</mat-error> -->
             </mat-form-field>
 

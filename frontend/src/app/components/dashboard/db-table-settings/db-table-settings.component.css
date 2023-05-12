@@ -97,7 +97,8 @@
 }
 
 .form-group-ordering__order-options {
-    margin-top: 24px;
+    flex-shrink: 0;
+    margin-top: 10px;
     margin-left: 16px;
 }
 
@@ -117,11 +118,6 @@
     height: 64px;
     padding: 0 max(calc(50vw - 325px), 10%);
     width: 100vw;
-}
-
-.mat-dialog-actions {
-    justify-content: flex-end;
-    padding: 8px 0 24px;
 }
 
 .settings-form__back-button {

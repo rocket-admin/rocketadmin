@@ -3,11 +3,11 @@ import { Component, Inject, OnInit } from '@angular/core';
 import { TableField, TableOrdering, TableSettings } from 'src/app/models/table';
 
 import { ConnectionsService } from 'src/app/services/connections.service';
+import { Location } from '@angular/common';
 import { NgForm } from '@angular/forms';
 import { Router } from '@angular/router';
 import { TablesService } from 'src/app/services/tables.service';
 import { normalizeTableName } from 'src/app/lib/normalize';
-import { Location } from '@angular/common';
 
 @Component({
   selector: 'app-db-table-settings',
@@ -97,8 +97,9 @@ export class DbTableSettingsComponent implements OnInit {
         if (Object.keys(res).length !== 0) {
           this.isSettingsExist = true
           this.tableSettings = res;
+          this.listFieldsOrder = [...res.list_fields];
         };
-        if (this.tableSettings && !this.tableSettings.list_fields.length) {
+        if (res && !res.list_fields.length) {
           this.listFieldsOrder = [...this.fields];
         };
       }
@@ -113,6 +114,7 @@ export class DbTableSettingsComponent implements OnInit {
 
   resetColumnsOrder() {
     this.tableSettings.list_fields = [];
+    this.listFieldsOrder = [...this.fields];
     this.orderChanged = true;
   }
 

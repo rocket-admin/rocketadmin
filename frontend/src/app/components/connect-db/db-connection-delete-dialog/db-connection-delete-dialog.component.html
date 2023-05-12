@@ -1,5 +1,5 @@
 <h1 mat-dialog-title>Delete <strong>{{ connectionName }}</strong> connection</h1>
-<div mat-dialog-content>
+<mat-dialog-content>
     <p class="mat-body">
       Before you delete the connection, please let us know why.
       Every bit of feedback helps!
@@ -30,12 +30,12 @@
             ></textarea>
         </mat-form-field>
     </form>
-</div>
-<div mat-dialog-actions>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
   <button mat-raised-button mat-dialog-close mat-dialog-close="cancel">Abort</button>
   <button mat-raised-button color="warn"
     [disabled]="submitting"
     (click)="deleteConnection()">
     Proceed
   </button>
-</div>
+</mat-dialog-actions>

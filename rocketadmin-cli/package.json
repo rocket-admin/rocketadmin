@@ -29,7 +29,6 @@
     "@nestjs/platform-ws": "^9.3.9",
     "@rocketadmin/shared-code": "workspace:*",
     "crypto-js": "^4.1.1",
-    "faker": "^6.6.6",
     "get-port": "^6.1.2",
     "knex": "^2.4.2",
     "knex-paginate": "^3.0.2",

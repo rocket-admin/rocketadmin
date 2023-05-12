@@ -30,21 +30,25 @@
 }
 
 .nav-bar__button {
+    --mdc-text-button-label-text-color: rgba(255, 255, 255, 0.56) !important;
+    --mdc-outlined-button-label-text-color: rgba(255, 255, 255, 0.56) !important;
     color: rgba(255, 255, 255, 0.56);
-    font-weight: 300;
+    font-weight: 400 !important;
 }
 
 .nav-bar__button ::ng-deep .mat-badge-content {
     top: 6px;
-    right: 6px !important;
+    right: 0 !important;
     color: var(--color-accentedPalette-500);
     height: 6px;
     width: 6px;
 }
 
 .nav-bar__button_active {
+    --mdc-text-button-label-text-color: rgba(255, 255, 255, 1) !important;
+    --mdc-outlined-button-label-text-color: rgba(255, 255, 255, 1) !important;
     color: #fff;
-    font-weight: 400;
+    font-weight: 500;
 }
 
 @media screen and (max-width: 600px) {
@@ -160,7 +164,7 @@
 
 .connection-name {
     position: absolute;
-    top: 8px;
+    top: 6px;
     left: 8px;
     max-width: calc((100vw - 980px) / 2);
     overflow: hidden;
@@ -215,9 +219,15 @@
 	overflow: hidden;
 }
 
-/* .interval-form-field .mat-form-field-infix {
-    width: auto !important;
-} */
+.nav-bar__button-logout {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.nav-bar__button-logout ::ng-deep .mat-icon {
+    margin-top: 2px;
+}
 
 .logout-button {
     font-size: inherit;

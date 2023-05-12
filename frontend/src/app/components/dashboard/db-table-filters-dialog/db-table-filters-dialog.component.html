@@ -9,7 +9,7 @@
     </h1>
     <app-content-loader *ngIf="!tableFilters || !tableTypes; else filterControls"></app-content-loader>
     <ng-template #filterControls>
-        <div mat-dialog-content class="filters-content">
+        <mat-dialog-content class="filters-content">
             <mat-form-field class="filters-select" appearance="outline">
                 <mat-label>Add filter by...</mat-label>
                 <input type="text" matInput name="filter_columns"
@@ -127,10 +127,10 @@
                     <mat-icon>close</mat-icon>
                 </button>
             </ng-container>
-        </div>
+        </mat-dialog-content>
     </ng-template>
 
-    <div mat-dialog-actions>
+    <mat-dialog-actions align="end">
         <button mat-raised-button color="warn"
             mat-dialog-close="reset"
             type="button"
@@ -145,5 +145,5 @@
             [disabled]="tableFiltersCount === 0">
             Filter
         </button>
-    </div>
+    </mat-dialog-actions>
 </form>

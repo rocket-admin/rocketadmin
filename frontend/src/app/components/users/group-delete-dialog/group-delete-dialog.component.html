@@ -1,15 +1,14 @@
 <h1 mat-dialog-title>Confirm users group delete</h1>
-<div mat-dialog-content>
+<mat-dialog-content>
     <p class="mat-body">You are going to delete <strong>{{ data.title }}</strong> group.</p>
     <br>
     <p class="mat-body">Please confirm.</p>
-
-</div>
-<div mat-dialog-actions>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
   <button mat-raised-button mat-dialog-close mat-dialog-close>Cancel</button>
   <button mat-raised-button color="warn"
     [disabled]="submitting"
     (click)="deleteUsersGroup(data.id)">
       Delete
   </button>
-</div>
+</mat-dialog-actions>

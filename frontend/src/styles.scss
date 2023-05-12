@@ -1,6 +1,6 @@
-@import "~jsoneditor/dist/jsoneditor.min.css";
-@import '~codemirror/lib/codemirror';
-@import '~codemirror/theme/ttcn';
+@import "jsoneditor/dist/jsoneditor.min.css";
+@import 'codemirror/lib/codemirror';
+@import 'codemirror/theme/ttcn';
 
 .jsoneditor {
     border: thin solid #171D39;
@@ -29,7 +29,7 @@
 
 body {
     color: #0a0a0a;
-    font-family: Poppins, sans-serif;
+    // font-family: Poppins, sans-serif;
 }
 
 html, body { height: 100%; }

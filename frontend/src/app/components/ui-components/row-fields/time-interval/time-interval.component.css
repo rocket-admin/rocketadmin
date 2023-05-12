@@ -4,7 +4,7 @@
     grid-column-gap: 16px;
 }
 
-::ng-deep .interval-form-field .mat-form-field-infix {
+::ng-deep .interval-form-field .mat-mdc-form-field-infix {
     width: auto !important;
 }
 

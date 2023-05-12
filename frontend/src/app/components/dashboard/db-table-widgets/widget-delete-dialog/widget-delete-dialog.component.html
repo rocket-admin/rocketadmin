@@ -1,5 +1,5 @@
 <h1 mat-dialog-title>Confirm widget delete</h1>
-<div mat-dialog-content>
+<mat-dialog-content>
     <p *ngIf="widgetFieldName; else clearAllMessage" class="mat-body">
         You are going to delete widget for <strong>{{ widgetFieldName }}</strong> field.
     </p>
@@ -8,8 +8,8 @@
     </ng-template>
     <br>
     <p class="mat-body">Please confirm.</p>
-</div>
-<div mat-dialog-actions>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
   <button mat-raised-button mat-dialog-close>Cancel</button>
   <button mat-raised-button color="warn" mat-dialog-close="delete">Delete</button>
-</div>
+</mat-dialog-actions>

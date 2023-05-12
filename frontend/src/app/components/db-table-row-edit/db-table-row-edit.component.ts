@@ -7,15 +7,15 @@ import { UIwidgets, fieldTypes } from 'src/app/consts/field-types';
 
 import { ConnectionsService } from 'src/app/services/connections.service';
 import { DBtype } from 'src/app/models/connection';
+import { DbActionConfirmationDialogComponent } from '../dashboard/db-action-confirmation-dialog/db-action-confirmation-dialog.component';
+import { DbActionLinkDialogComponent } from '../dashboard/db-action-link-dialog/db-action-link-dialog.component';
+import { Location } from '@angular/common';
+import { MatDialog } from '@angular/material/dialog';
 import { NotificationsService } from 'src/app/services/notifications.service';
 import { TableRowService } from 'src/app/services/table-row.service';
 import { TablesService } from 'src/app/services/tables.service';
 import { getTableTypes } from 'src/app/lib/setup-table-row-structure';
 import { normalizeTableName } from '../../lib/normalize';
-import { Location } from '@angular/common';
-import { MatDialog } from '@angular/material/dialog';
-import { DbActionConfirmationDialogComponent } from '../dashboard/db-action-confirmation-dialog/db-action-confirmation-dialog.component';
-import { DbActionLinkDialogComponent } from '../dashboard/db-action-link-dialog/db-action-link-dialog.component';
 
 @Component({
   selector: 'app-db-table-row-edit',
@@ -154,7 +154,12 @@ export class DbTableRowEditComponent implements OnInit {
   }
 
   goBack() {
-    this._location.back();
+    console.log(this._location);
+    if (window.history.length > 1) {
+      this._location.back()
+    } else {
+      this.router.navigate([`/dashboard/${this.connectionID}/${this.tableName}`])
+    }
   }
 
   setRowStructure(structure: TableField[]) {

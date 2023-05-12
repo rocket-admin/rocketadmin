@@ -33,7 +33,6 @@
     "@types/pg": "^8.6.6",
     "argon2": "^0.30.3",
     "crypto-js": "^4.1.1",
-    "faker": "^6.6.6",
     "get-port": "^6.1.2",
     "knex": "2.4.2",
     "knex-paginate": "3.0.2",

@@ -7,10 +7,6 @@
     width: 96%;
 }
 
-.mat-h1 {
-    margin-bottom: 1em;
-}
-
 .user-settings {
     margin-top: 32px;
 }
@@ -26,7 +22,7 @@
 }
 
 .user-settings__save-button {
-    margin-top: -16px;
+    margin-top: -20px;
     margin-left: -84px;
 }
 

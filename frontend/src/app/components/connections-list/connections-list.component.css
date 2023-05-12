@@ -66,10 +66,6 @@
     margin-top: 2em;
 }
 
-.mat-display-1 {
-    margin-bottom: 16px;
-}
-
 .empty-state {
     display: flex;
     flex-direction: column;
@@ -82,15 +78,12 @@
     text-align: center;
 }
 
-.mat-list-item {
-    text-decoration: none;
-}
-
 .connection {
+    text-decoration: none;
     width: 100%;
 }
 
-::ng-deep .mat-list-item-content {
+.connection ::ng-deep .mdc-list-item__content .mdc-list-item__primary-text {
     display: flex !important;
     align-items: center;
     justify-content: space-between;

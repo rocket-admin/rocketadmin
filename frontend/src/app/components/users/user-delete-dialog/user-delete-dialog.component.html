@@ -1,5 +1,5 @@
 <h1 mat-dialog-title>Confirm users delete</h1>
-<div mat-dialog-content>
+<mat-dialog-content>
     <p class="mat-body">
         You are going to delete
         <span *ngIf="data.user.name; else userEmail">
@@ -13,8 +13,8 @@
     </p>
     <br>
     <p class="mat-body">Please confirm.</p>
-</div>
-<div mat-dialog-actions>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
   <button mat-raised-button mat-dialog-close
     aria-label="Cancel">
     Cancel
@@ -25,4 +25,4 @@
     (click)="deleteGroupUser()">
       Delete
   </button>
-</div>
+</mat-dialog-actions>

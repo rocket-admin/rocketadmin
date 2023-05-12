@@ -84,8 +84,10 @@
 
                 <button mat-button (click)="logOut()" class="nav-bar__button"
                     matTooltip="Logout {{currentUser.email}}">
-                    Log out
-                    <mat-icon inline>exit_to_app</mat-icon>
+                    <div class="nav-bar__button-logout">
+                        Log out
+                        <mat-icon inline>exit_to_app</mat-icon>
+                    </div>
                 </button>
             </div>
 
@@ -117,7 +119,7 @@
             </div>
         </div>-->
 
-        <nav mat-tab-nav-bar mat-align-tabs="center" *ngIf="connectionID">
+        <nav mat-tab-nav-bar mat-stretch-tabs="false" mat-align-tabs="center" *ngIf="connectionID" [tabPanel]="tabPanel">
             <a mat-button class="connection-name"
                 [matTooltip]="currantConnection.title || currantConnection.database"
                 [matTooltipDisabled]="currantConnection.title.length < 25"
@@ -132,9 +134,11 @@
             </a>
         </nav>
 
-        <div class="content">
-            <router-outlet></router-outlet>
-        </div>
+        <mat-tab-nav-panel #tabPanel>
+            <div class="content">
+                <router-outlet></router-outlet>
+            </div>
+        </mat-tab-nav-panel>
 
         <div *ngIf="!authBarTheme" class="footer">
             <span class="footer__text">&copy; 2022 Autoadmin</span>

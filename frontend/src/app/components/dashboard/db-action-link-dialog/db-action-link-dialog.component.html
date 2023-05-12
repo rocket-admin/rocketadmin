@@ -1,5 +1,5 @@
 <h1 mat-dialog-title>Action</h1>
-<div mat-dialog-content>
+<mat-dialog-content>
     <a [href]="data.href" target="_blank" (click)="closeDialog()">
         Take action {{data.actionName}} for
         <strong *ngIf="data.identityFieldValue; else primaryKeysList">{{data.identityFieldValue}}</strong>
@@ -9,7 +9,7 @@
             </strong>
         </ng-template>.
     </a>
-</div>
-<div mat-dialog-actions>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
   <button mat-raised-button mat-dialog-close>Cancel</button>
-</div>
+</mat-dialog-actions>

@@ -10,19 +10,19 @@
 <ng-template #userAdd>
     <h1 mat-dialog-title>Add user to <strong>{{ group.title }}</strong> group</h1>
     <form action="" #addUserForm="ngForm" (ngSubmit)="joinGroupUser()">
-    <div mat-dialog-content>
+    <mat-dialog-content>
         <mat-form-field appearance="outline">
             <mat-label>Enter user email</mat-label>
             <input matInput [(ngModel)]="groupUserEmail" name="email" #email="ngModel" required>
             <mat-error *ngIf="email.errors?.required && (email.invalid && email.touched)">Title should not be empty.</mat-error>
         </mat-form-field>
-    </div>
-    <div mat-dialog-actions>
+    </mat-dialog-content>
+    <mat-dialog-actions align="end">
       <button type="button" mat-raised-button mat-dialog-close>Cancel</button>
       <button mat-raised-button color="primary"
         [disabled]="submitting || addUserForm.form.invalid">
         Add
       </button>
-    </div>
+    </mat-dialog-actions>
   </form>
 </ng-template>

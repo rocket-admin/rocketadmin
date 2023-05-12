@@ -1,17 +1,17 @@
 import { ComponentFixture, TestBed, async } from '@angular/core/testing';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
-import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef, MatDialog } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 
-import { RouterTestingModule } from "@angular/router/testing";
-import { UsersComponent } from './users.component';
-import { of } from 'rxjs';
-import { UsersService } from 'src/app/services/users.service';
 import { GroupAddDialogComponent } from './group-add-dialog/group-add-dialog.component';
-import { PermissionsAddDialogComponent } from './permissions-add-dialog/permissions-add-dialog.component';
-import { UserAddDialogComponent } from './user-add-dialog/user-add-dialog.component';
 import { GroupDeleteDialogComponent } from './group-delete-dialog/group-delete-dialog.component';
+import { PermissionsAddDialogComponent } from './permissions-add-dialog/permissions-add-dialog.component';
+import { RouterTestingModule } from "@angular/router/testing";
+import { UserAddDialogComponent } from './user-add-dialog/user-add-dialog.component';
 import { UserDeleteDialogComponent } from './user-delete-dialog/user-delete-dialog.component';
+import { UsersComponent } from './users.component';
+import { UsersService } from 'src/app/services/users.service';
+import { of } from 'rxjs';
 
 describe('UsersComponent', () => {
   let component: UsersComponent;
@@ -102,7 +102,7 @@ describe('UsersComponent', () => {
     const fakeCreateUsersGroupOpen = spyOn(dialog, 'open');
     event = jasmine.createSpyObj('event', [ 'preventDefault', 'stopImmediatePropagation' ]);
 
-    component.openCreateUsersGroupDialog();
+    component.openCreateUsersGroupDialog(event);
     expect(fakeCreateUsersGroupOpen).toHaveBeenCalledOnceWith(GroupAddDialogComponent, {
       width: '25em'
     });
