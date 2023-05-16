@@ -21,7 +21,7 @@ import { FormControl } from '@angular/forms';
 export class DbTableFiltersDialogComponent implements OnInit {
 
   public tableFilters = [];
-  public myControl = new FormControl('');
+  public fieldSearchControl = new FormControl('');
 
   public fields: string[];
   public foundFields: Observable<string[]>;
@@ -79,7 +79,7 @@ export class DbTableFiltersDialogComponent implements OnInit {
 
     this.data.structure.widgets.length && this.setWidgets(this.data.structure.widgets);
 
-    this.foundFields = this.myControl.valueChanges.pipe(
+    this.foundFields = this.fieldSearchControl.valueChanges.pipe(
       startWith(''),
       map(value => this._filter(value || '')),
     );
@@ -139,6 +139,7 @@ export class DbTableFiltersDialogComponent implements OnInit {
     const key = e.option.value;
     this.tableRowFieldsShown = {...this.tableRowFieldsShown, [key]: this.tableRowFields[key]};
     this.tableRowFieldsComparator = {...this.tableRowFieldsComparator, [key]: this.tableRowFieldsComparator[key] || 'eq'};
+    this.fieldSearchControl.setValue('');
   }
 
   updateComparator(event, fieldName: string) {
