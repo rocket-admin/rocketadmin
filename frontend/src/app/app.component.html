@@ -34,14 +34,14 @@
     <mat-sidenav-content class="main-menu-content">
         <mat-toolbar color="primary" class="nav-bar" [ngClass]="{'nav-bar_white': !userLoggedIn}">
             <a routerLink="/connections-list" *ngIf="userLoggedIn; else externalLink" class="logo">
-                <img *ngIf="!logo && !name" src="../assets/logo.png" alt="Autoadmin logo">
-                <img *ngIf="logo" [src]="logo || '../assets/logo.png'" alt="Logo">
+                <img *ngIf="!logo && !name" src="../assets/rocketadmin_logo_white.svg" alt="Autoadmin logo">
+                <img *ngIf="logo" [src]="logo || '../rocketadmin_logo_white.svg'" alt="Logo">
                 <span *ngIf="name">{{name}}</span>
             </a>
 
             <ng-template #externalLink>
                 <a href="https://autoadmin.org/" class="logo">
-                    <img src="../assets/autoadmin_logo_full_color.png" alt="Autoadmin logo">
+                    <img src="../assets/rocketadmin_logo_black.svg" alt="Autoadmin logo">
                 </a>
             </ng-template>
 
@@ -134,7 +134,7 @@
             </a>
         </nav>
 
-        <mat-tab-nav-panel #tabPanel>
+        <mat-tab-nav-panel #tabPanel class="tab-content-wrapper">
             <div class="content">
                 <router-outlet></router-outlet>
             </div>
