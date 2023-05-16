@@ -1,22 +1,22 @@
-const LRU = require('lru-cache');
-const CONSTANTS = require('../constants/constants');
-const WebSocket = require('ws');
-const Command = require('./command');
-const clientsCache = new LRU(CONSTANTS.WS_CACHE_OPTIONS);
+import { LRUCache } from 'lru-cache'
+import { CONSTANTS } from '../constants/constants.js';
+import WebSocket from 'ws';
+import { getCachedResponse, delCachedResponse } from './command.js';
+const clientsCache = new LRUCache(CONSTANTS.WS_CACHE_OPTIONS);
 
-module.exports.cacheWsConnection = (connectionToken, wsConnection) => {
+export function cacheWsConnection(connectionToken, wsConnection) {
   clientsCache.set(connectionToken, wsConnection);
-};
+}
 
-module.exports.getCacheWsConnection = (connectionToken) => {
+export function getCacheWsConnection(connectionToken) {
   return clientsCache.get(connectionToken);
-};
+}
 
-module.exports.delCachedWsConnection = (connectionToken) => {
-  clientsCache.del(connectionToken);
-};
+export function delCachedWsConnection(connectionToken) {
+  clientsCache.delete(connectionToken);
+}
 
-module.exports.sendCommandToWsClient = (connectionToken, receivedData, resId) => {
+export function sendCommandToWsClient(connectionToken, receivedData, resId) {
   const cachedConnection = clientsCache.get(connectionToken);
   const data = {
     connectionToken: connectionToken,
@@ -30,18 +30,18 @@ module.exports.sendCommandToWsClient = (connectionToken, receivedData, resId) =>
         console.log('-> Error sending command to client', e.message);
       }
     } else {
-      clientsCache.del(connectionToken);
-      const cachedResponse = Command.getCachedResponse(resId);
+      clientsCache.delete(connectionToken);
+      const cachedResponse = getCachedResponse(resId);
       if (cachedResponse) {
         cachedResponse.status(523).send(CONSTANTS.CLIENT_NOT_CONNECTED);
-        Command.delCachedResponse(resId);
+        delCachedResponse(resId);
       }
     }
   } else {
-    const cachedResponse = Command.getCachedResponse(resId);
+    const cachedResponse = getCachedResponse(resId);
     if (cachedResponse) {
       cachedResponse.status(523).send(CONSTANTS.CLIENT_NOT_CONNECTED);
-      Command.delCachedResponse(resId);
+      delCachedResponse(resId);
     }
   }
-};
+}

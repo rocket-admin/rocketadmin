@@ -28,17 +28,6 @@ services:
       - test-oracle-e2e-testing
     command: ["yarn", "start:dev"]
 
-  frontend:
-    build:
-      context: frontend
-    environment:
-      API_ROOT: http://backend:3000
-    ports:
-      - 80:80
-    depends_on:
-      - backend
-    links:
-      - backend
 
   testDB:
     image: postgres
@@ -95,7 +84,21 @@ services:
     environment:
       ORACLE_PASSWORD: 12345
 
-  rocketadmin-agent:
+  autoadmin-ws-server:
+    build:
+      context: autoadmin-ws-server
+    ports:
+      - 8008:8008
+    env_file: ./autoadmin-ws-server/.ws-server-development.env
+    volumes:
+      - ./autoadmin-ws-server/dist:/app/dist
+      - ./autoadmin-ws-server/src:/app/src
+    links:
+      - backend
+    depends_on:
+      - backend  
+
+  rocketadmin-agent_oracle:
     build:
       context: .
       dockerfile: ./rocketadmin-agent/Dockerfile
@@ -110,18 +113,131 @@ services:
       - autoadmin-ws-server
     environment:
       - REMOTE_WEBSOCKET_ADDRESS=ws://autoadmin-ws-server:8009
+      - APPLICATION_CONFIG_FILE_NAME=.oracle_test_agent_config.txt
     command: ["yarn", "start:dev"]
 
-  autoadmin-ws-server:
+  rocketadmin-agent_postgres:
     build:
-      context: autoadmin-ws-server
+      context: .
+      dockerfile: ./rocketadmin-agent/Dockerfile
     ports:
-      - 8008:8008
-    env_file: ./autoadmin-ws-server/.ws-server-development.env
+      - 8098:8098
     volumes:
-      - ./autoadmin-ws-server/dist:/app/dist
-      - ./autoadmin-ws-server/src:/app/src
+      - ./rocketadmin-agent/dist:/app/dist
+      - ./rocketadmin-agent/src:/app/src
     links:
-      - backend
+      - autoadmin-ws-server
     depends_on:
-      - backend  
+      - autoadmin-ws-server
+    environment:
+      - REMOTE_WEBSOCKET_ADDRESS=ws://autoadmin-ws-server:8009
+      - APPLICATION_CONFIG_FILE_NAME=.postgres_test_agent_config.txt
+    command: ["yarn", "start:dev"]    
+
+  rocketadmin-agent_mysql:
+    build:
+      context: .
+      dockerfile: ./rocketadmin-agent/Dockerfile
+    ports:
+      - 8108:8108
+    volumes:
+      - ./rocketadmin-agent/dist:/app/dist
+      - ./rocketadmin-agent/src:/app/src
+    links:
+      - autoadmin-ws-server
+    depends_on:
+      - autoadmin-ws-server
+    environment:
+      - REMOTE_WEBSOCKET_ADDRESS=ws://autoadmin-ws-server:8009
+      - APPLICATION_CONFIG_FILE_NAME=.mysql_test_agent_config.txt
+    command: ["yarn", "start:dev"]   
+
+  rocketadmin-agent_mssql:
+    build:
+      context: .
+      dockerfile: ./rocketadmin-agent/Dockerfile
+    ports:
+      - 8118:8118
+    volumes:
+      - ./rocketadmin-agent/dist:/app/dist
+      - ./rocketadmin-agent/src:/app/src
+    links:
+      - autoadmin-ws-server
+    depends_on:
+      - autoadmin-ws-server
+    environment:
+      - REMOTE_WEBSOCKET_ADDRESS=ws://autoadmin-ws-server:8009
+      - APPLICATION_CONFIG_FILE_NAME=.mssql_test_agent_config.txt
+    command: ["yarn", "start:dev"]
+
+  rocketadmin-cli_oracle:
+    build:
+      context: .
+      dockerfile: ./rocketadmin-cli/Dockerfile
+    ports:
+      - 8288:8288
+    volumes:
+      - ./rocketadmin-cli/dist:/app/dist
+      - ./rocketadmin-cli/src:/app/src
+    links:
+      - autoadmin-ws-server
+    depends_on:
+      - autoadmin-ws-server
+    environment:
+      - REMOTE_WEBSOCKET_ADDRESS=ws://autoadmin-ws-server:8009
+      - APPLICATION_CONFIG_FILE_NAME=.oracle_test_cli_config.txt
+    command: ["yarn", "start:dev"]
+
+  rocketadmin-cli_postgres:
+    build:
+      context: .
+      dockerfile: ./rocketadmin-cli/Dockerfile
+    ports:
+      - 8298:8298
+    volumes:
+      - ./rocketadmin-cli/dist:/app/dist
+      - ./rocketadmin-cli/src:/app/src
+    links:
+      - autoadmin-ws-server
+    depends_on:
+      - autoadmin-ws-server
+    environment:
+      - REMOTE_WEBSOCKET_ADDRESS=ws://autoadmin-ws-server:8009
+      - APPLICATION_CONFIG_FILE_NAME=.postgres_test_cli_config.txt
+    command: ["yarn", "start:dev"]    
+
+  rocketadmin-cli_mysql:
+    build:
+      context: .
+      dockerfile: ./rocketadmin-cli/Dockerfile
+    ports:
+      - 8208:8208
+    volumes:
+      - ./rocketadmin-cli/dist:/app/dist
+      - ./rocketadmin-cli/src:/app/src
+    links:
+      - autoadmin-ws-server
+    depends_on:
+      - autoadmin-ws-server
+    environment:
+      - REMOTE_WEBSOCKET_ADDRESS=ws://autoadmin-ws-server:8009
+      - APPLICATION_CONFIG_FILE_NAME=.mysql_test_cli_config.txt
+    command: ["yarn", "start:dev"]   
+
+  rocketadmin-cli_mssql:
+    build:
+      context: .
+      dockerfile: ./rocketadmin-cli/Dockerfile
+    ports:
+      - 8218:8218
+    volumes:
+      - ./rocketadmin-cli/dist:/app/dist
+      - ./rocketadmin-cli/src:/app/src
+    links:
+      - autoadmin-ws-server
+    depends_on:
+      - autoadmin-ws-server
+    environment:
+      - REMOTE_WEBSOCKET_ADDRESS=ws://autoadmin-ws-server:8009
+      - APPLICATION_CONFIG_FILE_NAME=.mssql_test_cli_config.txt
+    command: ["yarn", "start:dev"]   

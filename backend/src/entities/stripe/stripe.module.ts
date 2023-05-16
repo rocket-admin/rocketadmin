@@ -27,20 +27,20 @@ import { isSaaS } from '../../helpers/app/is-saas.js';
              is an error. Private stripe service should be loaded only in SaaS mode.`);
           }
           console.info(`Loading private stripe service...`);
-          const stripeService = (
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          // @ts-ignore
-            await import('@rocketadmin/private-modules/dist/src/private-stripe-module/private-stripe.service.js')
-          ).PrivateStripeService;
+          const stripeService =
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            (await import('@rocketadmin/private-modules/dist/src/private-stripe-module/private-stripe.service.js'))
+              .PrivateStripeService;
           return new stripeService();
         } catch (error) {
-          if (isSaaS()) {
-            throw new Error(`Loading public stripe service in SaaS mode probably
-             is an error. Public stripe service should be loaded only in SaaS mode.`);
+          if (isSaaS() && process.env.NODE_ENV !== 'test') {
+            console.warn(`Loading public stripe service in SaaS mode probably
+            //  is an error. Public stripe service should be loaded only in SaaS mode.`);
           }
-          const publicStripeServie = (await import('./public-stripe-service.js')).PublicStripeService;
+          const publicStripeService = (await import('./public-stripe-service.js')).PublicStripeService;
           console.info(`Loading public stripe service...`);
-          return new publicStripeServie();
+          return new publicStripeService();
         }
       },
     },

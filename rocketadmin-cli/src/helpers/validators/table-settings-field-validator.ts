@@ -2,11 +2,12 @@ import { QueryOrderingEnum } from '../../enums/query-ordering.enum.js';
 import { Messages } from '../../text/messages.js';
 import { isObjectEmpty } from '../is-object-empty.js';
 import { ITableSettings } from '../../interfaces/interfaces.js';
-import { PrimaryKeyDSInfo } from '../../dal/shared/dao-interface.js';
+import { PrimaryKeyDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/primary-key.ds.js';
+
 
 export function tableSettingsFieldValidator(
   tableStructure: any,
-  primaryColumns: Array<PrimaryKeyDSInfo>,
+  primaryColumns: Array<PrimaryKeyDS>,
   settings: ITableSettings,
 ): Array<string> {
   /* eslint-disable */

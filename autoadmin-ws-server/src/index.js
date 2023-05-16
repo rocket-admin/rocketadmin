@@ -1,30 +1,34 @@
 'use strict';
-const express = require('express');
-const axios = require('axios').default;
+import express, { Router, json } from 'express';
+import axios from 'axios';
 const app = express();
-const http = require('http');
-const httpServer = require('http').Server(app);
-const wsServer = http.createServer((req, res) => {
+import { createServer } from 'http';
+const httpServer = createServer(app);
+const wsServer = createServer((req, res) => {
   res.writeHead(200);
   res.end();
 });
-const WebSocket = require('ws');
-const router = express.Router();
-const commandRoute = require('./routes/command');
-const wsConnections = require('./controllers/ws-connections');
-const CONSTANTS = require('./constants/constants');
-const COMMAND_TYPE = require('./constants/command-type');
-const Command = require('./controllers/command');
-const crypto = require('crypto');
-const LRU = require('lru-cache');
+import WebSocket, { WebSocketServer } from 'ws';
+const router = Router();
+import commandRoute from './routes/command.js';
+import {
+  getCacheWsConnection,
+  cacheWsConnection,
+  delCachedWsConnection,
+} from './controllers/ws-connections.js';
+import { COMMAND_TYPE } from './constants/command-type.js';
+import { CONSTANTS } from './constants/constants.js';
+import { getCachedResponse, delCachedResponse } from './controllers/command.js';
+import { createHmac } from 'crypto';
+import { LRUCache } from 'lru-cache';
 
 const httpPort = process.env.HTTP_PORT || 8008;
 const wsPort = process.env.WS_PORT || 8009;
 const hostname = process.env.HOST || '172.16.0.0'; //172.16.0.0
 const privateKey = process.env.PRIVATE_KEY;
-const tokenCacheResult = new LRU(CONSTANTS.TOKEN_RESULT_CACHE_OPTIONS);
+const tokenCacheResult = new LRUCache(CONSTANTS.TOKEN_RESULT_CACHE_OPTIONS);
 
-app.use(express.json());
+app.use(json());
 
 app.get('/', (req, res) => {
   res.json({ status: CONSTANTS.API_IS_RUNNING });
@@ -36,13 +40,13 @@ wsServer.listen(wsPort, () => {
   console.log(`Web socket server listening on port: ${wsPort}`);
 });
 
-const ws = new WebSocket.Server({ server: wsServer });
+const ws = new WebSocketServer({ server: wsServer });
 
 ws.on('connection', (connection, req) => {
   const ip = req.socket.remoteAddress;
   // console.log(`Connected ${ip}`);
 
-  connection.on('message', async message => {
+  connection.on('message', async (message) => {
     let data;
     try {
       data = JSON.parse(message);
@@ -52,28 +56,32 @@ ws.on('connection', (connection, req) => {
     }
     const { operationType, resId } = data;
 
-    if (data.connectionToken && operationType && operationType === COMMAND_TYPE.initialConnection) {
-      if (!await checkConnectionToken(data.connectionToken)) {
+    if (
+      data.connectionToken &&
+      operationType &&
+      operationType === COMMAND_TYPE.initialConnection
+    ) {
+      if (!(await checkConnectionToken(data.connectionToken))) {
         connection.close(1003, CONSTANTS.CONNECTION_TOKEN_INCORRECT);
       }
-      const hmac = crypto.createHmac('sha256', privateKey);
+      const hmac = createHmac('sha256', privateKey);
       hmac.update(data.connectionToken);
       data.connectionToken = hmac.digest('hex');
     }
 
-    const cachedConnection = wsConnections.getCacheWsConnection(data.connectionToken);
+    const cachedConnection = getCacheWsConnection(data.connectionToken);
     if (!cachedConnection) {
-      wsConnections.cacheWsConnection(data.connectionToken, connection);
+      cacheWsConnection(data.connectionToken, connection);
     }
     if (cachedConnection && cachedConnection.readyState !== WebSocket.OPEN) {
-      wsConnections.delCachedWsConnection(data.connectionToken);
-      wsConnections.cacheWsConnection(data.connectionToken, connection);
+      delCachedWsConnection(data.connectionToken);
+      cacheWsConnection(data.connectionToken, connection);
     }
     if (operationType === COMMAND_TYPE.dataFromAgent) {
-      const cachedResponse = Command.getCachedResponse(resId);
+      const cachedResponse = getCachedResponse(resId);
       if (cachedResponse) {
         cachedResponse.send(message);
-        Command.delCachedResponse(resId);
+        delCachedResponse(resId);
       }
     }
   });
@@ -81,7 +89,6 @@ ws.on('connection', (connection, req) => {
   connection.on('close', () => {
     // console.log(`Disconnected ${ip}`);
   });
-
 });
 
 httpServer.listen(httpPort, hostname, () => {
@@ -95,14 +102,17 @@ async function checkConnectionToken(connectionToken) {
     return true;
   }
   try {
-    const checkConnectionTokenUrl = 
-    process.env.CHECK_CONNECTION_TOKEN_URL ||
-    `http://autoadmin-internal-auth.local:3000/connection/token?token=${connectionToken}`;
+    let checkConnectionTokenUrl;
+    if (process.env.CHECK_CONNECTION_TOKEN_URL) {
+      checkConnectionTokenUrl = `${process.env.CHECK_CONNECTION_TOKEN_URL}?token=${connectionToken}`;
+    } else {
+      checkConnectionTokenUrl = `http://autoadmin-internal-auth.local:3000/connection/token?token=${connectionToken}`;
+    }
     const response = await axios.get(checkConnectionTokenUrl);
     if (response.status !== 200) {
       return false;
     }
-    const result = (response.data === true);
+    const result = response.data === true;
     if (result) {
       tokenCacheResult.set(connectionToken, true);
     }

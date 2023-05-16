@@ -13,7 +13,7 @@ import {
 } from '@nestjs/common';
 import { HttpException } from '@nestjs/common/exceptions/http.exception.js';
 import validator from 'validator';
-import { IGlobalDatabaseContext } from '../../common/application/global-database-context.intarface.js';
+import { IGlobalDatabaseContext } from '../../common/application/global-database-context.interface.js';
 import { BaseType, UseCaseType } from '../../common/data-injection.tokens.js';
 import { BodyUuid, GCLlId, MasterPassword, QueryUuid, SlugUuid, UserId } from '../../decorators/index.js';
 import { AmplitudeEventTypeEnum, ConnectionTypeEnum, InTransactionEnum } from '../../enums/index.js';

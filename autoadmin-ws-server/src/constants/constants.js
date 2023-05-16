@@ -1,4 +1,4 @@
-module.exports = Object.freeze({
+export const CONSTANTS = Object.freeze({
   AUTHORIZATION_FAILED: 'Authorization failed',
   NO_AUTHORIZATION_HEADER: 'No Authorization header',
   TOKEN_MISSING: 'Token missing',

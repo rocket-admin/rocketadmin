@@ -24,7 +24,7 @@ import { ILogOutRepository } from '../../entities/log-out/repository/log-out-rep
 import { PermissionEntity } from '../../entities/permission/permission.entity.js';
 import { permissionCustomRepositoryExtension } from '../../entities/permission/repository/permission-custom-repository-extension.js';
 import { IPermissionRepository } from '../../entities/permission/repository/permission.repository.interface.js';
-import { ITableActionRepository } from '../../entities/table-actions/repository/table-action-custom-reposiotory.interface.js';
+import { ITableActionRepository } from '../../entities/table-actions/repository/table-action-custom-repository.interface.js';
 import { tableActionsCustomRepositoryExtension } from '../../entities/table-actions/repository/table-actions-custom-repository.extension.js';
 import { TableActionEntity } from '../../entities/table-actions/table-action.entity.js';
 import { TableFieldInfoEntity } from '../../entities/table-field-info/table-field-info.entity.js';
@@ -56,7 +56,7 @@ import { tableWidgetsCustomRepositoryExtension } from '../../entities/widget/rep
 import { ITableWidgetsRepository } from '../../entities/widget/repository/table-widgets-repository.interface.js';
 import { TableWidgetEntity } from '../../entities/widget/table-widget.entity.js';
 import { BaseType } from '../data-injection.tokens.js';
-import { IGlobalDatabaseContext } from './global-database-context.intarface.js';
+import { IGlobalDatabaseContext } from './global-database-context.interface.js';
 
 @Injectable()
 export class GlobalDatabaseContext implements IGlobalDatabaseContext {

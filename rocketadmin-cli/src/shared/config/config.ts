@@ -9,7 +9,7 @@ import { CLIQuestionUtility } from '../../helpers/cli/cli-questions.js';
 import { Constants } from '../../helpers/constants/constants.js';
 import { Messages } from '../../text/messages.js';
 
-const applicationConfigFileName = '.autoadmin-config.txt';
+const applicationConfigFileName = process.env.APPLICATION_CONFIG_FILE_NAME || '.autoadmin-config.txt';
 const connectionConfig: ICLIConnectionCredentials = {
   app_port: 3000,
   azure_encryption: false,

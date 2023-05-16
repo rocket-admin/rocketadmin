@@ -116,6 +116,4 @@ temp/
 .env.dev
 .amazon.env
 .development.env
-.ws-server-development.env
-
 # End of https://www.gitignore.io/api/node

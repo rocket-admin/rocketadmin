@@ -1,4 +1,4 @@
-module.exports = Object.freeze({
+export const COMMAND_TYPE = Object.freeze({
   addRowInTable: 'addRowInTable',
   deleteRowInTable: 'deleteRowInTable',
   getRowByPrimaryKey: 'getRowByPrimaryKey',

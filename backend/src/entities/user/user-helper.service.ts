@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { IGlobalDatabaseContext } from '../../common/application/global-database-context.intarface.js';
+import { IGlobalDatabaseContext } from '../../common/application/global-database-context.interface.js';
 import { BaseType, DynamicModuleEnum } from '../../common/data-injection.tokens.js';
 import { SubscriptionLevelEnum } from '../../enums/subscription-level.enum.js';
 import { isSaaS } from '../../helpers/app/is-saas.js';

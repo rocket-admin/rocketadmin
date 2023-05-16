@@ -1,6 +1,6 @@
-const jwt = require('jsonwebtoken');
+import * as jwt from 'jsonwebtoken';
 
-module.exports.sign = async (agent) => {
+export async function signToken(agent) {
   const JWT_SECRET = process.env.JWT_SECRET;
   return new Promise((resolve, reject) => {
     jwt.sign({
@@ -12,9 +12,9 @@ module.exports.sign = async (agent) => {
     });
   });
 
-};
+}
 
-module.exports.decode = async (token) => {
+export async function decode(token) {
   const JWT_SECRET = process.env.JWT_SECRET;
   return new Promise((resolve, reject) => {
     jwt.verify(token, JWT_SECRET, (err, decoded) => {
@@ -24,4 +24,4 @@ module.exports.decode = async (token) => {
       return resolve(decoded);
     });
   });
-};
+}

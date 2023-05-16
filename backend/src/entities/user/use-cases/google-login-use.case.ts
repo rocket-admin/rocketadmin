@@ -2,7 +2,7 @@ import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import Sentry from '@sentry/node';
 import { LoginTicket, OAuth2Client, TokenPayload } from 'google-auth-library';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
-import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface.js';
+import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { Constants } from '../../../helpers/constants/constants.js';

@@ -55,3 +55,6 @@ Thumbs.db
 !.yarn/releases
 !.yarn/sdks
 !.yarn/versions
+
+# Private data 
+/private-modules

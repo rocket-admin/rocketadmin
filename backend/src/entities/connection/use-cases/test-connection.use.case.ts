@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { getRepository } from 'typeorm';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
-import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.intarface.js';
+import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
 import { getDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/create-data-access-object.js';
 import { Messages } from '../../../exceptions/text/messages.js';
