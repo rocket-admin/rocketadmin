@@ -1,8 +1,8 @@
 FROM node:18-slim AS front_builder
 WORKDIR /app/frontend
-COPY frontend/package.json frontend/yarn.lock frontend/angular.json frontend/tsconfig.app.json frontend/tsconfig.json /app/frontend
+COPY frontend/package.json frontend/yarn.lock frontend/angular.json frontend/tsconfig.app.json frontend/tsconfig.json /app/frontend/
 COPY frontend/.yarn /app/frontend/.yarn
-RUN yarn install
+RUN yarn install --immutable --network-timeout 1000000
 COPY frontend/src /app/frontend/src
 RUN API_ROOT=/api yarn build
 RUN ls /app/frontend/dist/dissendium-v0

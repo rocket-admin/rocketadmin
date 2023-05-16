@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 import { Injectable } from '@nestjs/common';
 import { DatabaseService } from '../../src/shared/database/database.service.js';
 
@@ -54,6 +55,14 @@ export class TestUtils {
     } catch (error) {
       throw new Error(`ERROR: Cleaning test db: ${error}`);
     }
+  }
+
+  sleep(ms = 1000): Promise<void> {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        resolve();
+      }, ms);
+    });
   }
 
   // private async addMockEntities() {

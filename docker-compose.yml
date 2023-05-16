@@ -28,17 +28,6 @@ services:
       - test-oracle-e2e-testing
     command: ["yarn", "start:dev"]
 
-  frontend:
-    build:
-      context: frontend
-    environment:
-      API_ROOT: http://backend:3000
-    ports:
-      - 80:80
-    depends_on:
-      - backend
-    links:
-      - backend
 
   testDB:
     image: postgres

@@ -49,6 +49,13 @@ test.before(async () => {
   app.getHttpServer().listen(0);
   firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
   connectionToTestDB = getTestData(mockFactory).postgresAgentConnection;
+  const createConnectionResponse = await request(app.getHttpServer())
+  .post('/connection')
+  .send(connectionToTestDB)
+  .set('Cookie', firstUserToken)
+  .set('Content-Type', 'application/json')
+  .set('Accept', 'application/json');
+  await testUtils.sleep();
 });
 
 currentTest = 'GET /connection/tables/:slug';

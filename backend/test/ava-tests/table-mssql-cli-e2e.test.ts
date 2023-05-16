@@ -49,6 +49,13 @@ test.before(async () => {
   app.getHttpServer().listen(0);
   firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
   connectionToTestDB = getTestData(mockFactory).mssqlCliConnection;
+  const createConnectionResponse = await request(app.getHttpServer())
+  .post('/connection')
+  .send(connectionToTestDB)
+  .set('Cookie', firstUserToken)
+  .set('Content-Type', 'application/json')
+  .set('Accept', 'application/json');
+  await testUtils.sleep();
 });
 
 currentTest = 'GET /connection/tables/:slug';
@@ -340,7 +347,6 @@ test(`${currentTest} should return page of all rows with pagination page=1, perP
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
     t.is(createTableSettingsResponse.status, 201);
-
     const getTableRowsResponse = await request(app.getHttpServer())
       .get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=1&perPage=2`)
       .set('Content-Type', 'application/json')
@@ -408,7 +414,6 @@ test(`${currentTest} should return page of all rows with pagination page=3, perP
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
     t.is(createTableSettingsResponse.status, 201);
-
     const getTableRowsResponse = await request(app.getHttpServer())
       .get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=3&perPage=2`)
       .set('Cookie', firstUserToken)
