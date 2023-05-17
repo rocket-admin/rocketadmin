@@ -35,7 +35,6 @@ COPY rocketadmin-cli /app/rocketadmin-cli
 COPY rocketadmin-agent /app/rocketadmin-agent
 COPY private-modules /app/private-modules
 COPY .yarn /app/.yarn
-#RUN yarn set version berry
 RUN yarn install --network-timeout 1000000 --frozen-lockfile
 RUN cd shared-code && ../node_modules/.bin/tsc
 RUN cd private-modules && ( test -d node_modules && yarn run nest build || true )
