@@ -22,6 +22,7 @@ import { Knex } from 'knex';
 import { renameObjectKeyName } from '../../helpers/rename-object-keyname.js';
 import { getNumbersFromString } from '../../helpers/get-numbers-from-string.js';
 import { tableSettingsFieldValidator } from '../../helpers/validation/table-settings-validator.js';
+import { TableDS } from '../shared/data-structures/table.ds.js';
 
 export class DataAccessObjectMysql extends BasicDataAccessObject implements IDataAccessObject {
   constructor(connection: ConnectionParams) {
@@ -328,7 +329,7 @@ export class DataAccessObjectMysql extends BasicDataAccessObject implements IDat
     return primaryColumnsInLowercase;
   }
 
-  public async getTablesFromDB(): Promise<string[]> {
+  public async getTablesFromDB(): Promise<TableDS[]> {
     const knex = await this.configureKnex();
     const schema = this.connection.database;
     const query = `
@@ -342,8 +343,10 @@ export class DataAccessObjectMysql extends BasicDataAccessObject implements IDat
     `;
     const [rows] = await knex.raw(query, [schema, schema]);
     return rows.map((row: any) => {
-      if (row.hasOwnProperty('TABLE_NAME')) return row.TABLE_NAME;
-      if (row.hasOwnProperty('table_name')) return row.table_name;
+      return {
+        tableName: row.hasOwnProperty('TABLE_NAME') ? row.TABLE_NAME : row.table_name,
+        isView: row.type === 'view',
+      };
     });
   }
 

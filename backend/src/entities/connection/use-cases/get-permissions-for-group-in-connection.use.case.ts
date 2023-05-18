@@ -34,7 +34,7 @@ export class GetPermissionsForGroupInConnectionUseCase
       inputData.masterPwd,
     );
     const dao = getDataAccessObject(connection);
-    const tables: Array<string> = await dao.getTablesFromDB();
+    const tables: Array<string> = (await dao.getTablesFromDB()).map((table) => table.tableName);
 
     const tablesWithAccessLevels: Array<TablePermissionDs> = await Promise.all(
       tables.map(async (table: string) => {

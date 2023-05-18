@@ -20,6 +20,7 @@ import { LRUStorage } from '../../caching/lru-storage.js';
 import { objectKeysToLowercase } from '../../helpers/object-kyes-to-lowercase.js';
 import { renameObjectKeyName } from '../../helpers/rename-object-keyname.js';
 import { tableSettingsFieldValidator } from '../../helpers/validation/table-settings-validator.js';
+import { TableDS } from '../shared/data-structures/table.ds.js';
 
 type RefererencedConstraint = {
   TABLE_NAME: string;
@@ -465,7 +466,7 @@ export class DataAccessObjectOracle extends BasicDataAccessObject implements IDa
     return primaryColumnsInLowercase as PrimaryKeyDS[];
   }
 
-  public async getTablesFromDB(): Promise<string[]> {
+  public async getTablesFromDB(): Promise<TableDS[]> {
     const schema = this.connection.schema ?? this.connection.username.toUpperCase();
     const knex = await this.configureKnex();
     const query = `
@@ -475,9 +476,12 @@ export class DataAccessObjectOracle extends BasicDataAccessObject implements IDa
       AND object_type IN ('TABLE', 'VIEW')
     `;
     const result = await knex.raw<{ OBJECT_NAME: string; OBJECT_TYPE: string }[]>(query, [schema]);
-    const tablesOracle = result.filter((row) => row.OBJECT_TYPE === 'TABLE').map((row) => row.OBJECT_NAME);
-    const viewsOracle = result.filter((row) => row.OBJECT_TYPE === 'VIEW').map((row) => row.OBJECT_NAME);
-    return [...tablesOracle, ...viewsOracle];
+    return result.map((row) => {
+      return {
+        tableName: row.OBJECT_NAME,
+        isView: row.OBJECT_TYPE === 'VIEW',
+      };
+    });
   }
 
   public async getTableStructure(tableName: string): Promise<TableStructureDS[]> {

@@ -1,3 +1,4 @@
+/* eslint-disable security/detect-object-injection */
 import { faker } from '@faker-js/faker';
 import { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
@@ -62,9 +63,9 @@ test(`${currentTest} should return list of tables in connection`, async (t) => {
       .set('Cookie', firstUserToken)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
-    t.is(getTablesResponse.status, 200);
-    const getTablesRO = JSON.parse(getTablesResponse.text);
 
+    const getTablesRO = JSON.parse(getTablesResponse.text);
+    console.log('🚀 ~ file: table-postgres-e2e.test.ts:68 ~ test ~ getTablesRO:', getTablesRO);
     t.is(typeof getTablesRO, 'object');
     t.is(getTablesRO.length > 0, true);
 

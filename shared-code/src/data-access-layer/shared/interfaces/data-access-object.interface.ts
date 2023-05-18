@@ -9,6 +9,7 @@ import { TableSettingsDS } from '../data-structures/table-settings.ds.js';
 import { TableStructureDS } from '../data-structures/table-structure.ds.js';
 import { TestConnectionResultDS } from '../data-structures/test-result-connection.ds.js';
 import { ValidateTableSettingsDS } from '../data-structures/validate-table-settings.ds.js';
+import { TableDS } from '../data-structures/table.ds.js';
 
 export interface IDataAccessObject {
   addRowInTable(tableName: string, row: Record<string, unknown>): Promise<Record<string, unknown> | number>;
@@ -44,7 +45,7 @@ export interface IDataAccessObject {
 
   getTablePrimaryColumns(tableName: string): Promise<Array<PrimaryKeyDS>>;
 
-  getTablesFromDB(): Promise<Array<string>>;
+  getTablesFromDB(): Promise<Array<TableDS>>;
 
   getTableStructure(tableName: string): Promise<Array<TableStructureDS>>;
 
