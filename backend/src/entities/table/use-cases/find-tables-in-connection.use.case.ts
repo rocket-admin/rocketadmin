@@ -12,13 +12,14 @@ import { Logger } from '../../../helpers/logging/Logger.js';
 import { AmplitudeService } from '../../amplitude/amplitude.service.js';
 import { ConnectionEntity } from '../../connection/connection.entity.js';
 import { isTestConnectionUtil } from '../../connection/utils/is-test-connection-util.js';
-import { ITablePermissionData } from '../../permission/permission.interface.js';
+import { ITableAndViewPermissionData } from '../../permission/permission.interface.js';
 import { TableSettingsEntity } from '../../table-settings/table-settings.entity.js';
 import { FindTablesDs } from '../application/data-structures/find-tables.ds.js';
 import { FoundTableDs } from '../application/data-structures/found-table.ds.js';
 import { buildTableFieldInfoEntity, buildTableInfoEntity } from '../utils/save-tables-info-in-database.util.js';
 import { IFindTablesInConnection } from './table-use-cases.interface.js';
 import { TableStructureDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/table-structure.ds.js';
+import { TableDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/table.ds.js';
 
 @Injectable()
 export class FindTablesInConnectionUseCase
@@ -50,7 +51,7 @@ export class FindTablesInConnectionUseCase
     if (isConnectionTypeAgent(connection.type)) {
       userEmail = await this._dbContext.userRepository.getUserEmailOrReturnNull(userId);
     }
-    let tables;
+    let tables: Array<TableDS>;
     try {
       tables = await dao.getTablesFromDB(userEmail);
       operationResult = true;
@@ -65,7 +66,7 @@ export class FindTablesInConnectionUseCase
     } finally {
       if (!connection.isTestConnection) {
         Logger.logInfo({
-          tables: tables,
+          tables: tables.map((table) => table.tableName),
           connectionId: connectionId,
           connectionType: connection.type,
         });
@@ -129,10 +130,10 @@ export class FindTablesInConnectionUseCase
 
   private async addDisplayNamesForTables(
     connectionId: string,
-    tablesObjArr: Array<ITablePermissionData>,
+    tablesObjArr: Array<ITableAndViewPermissionData>,
   ): Promise<Array<FoundTableDs>> {
     const tableSettings = await this._dbContext.tableSettingsRepository.findTableSettingsInConnection(connectionId);
-    return tablesObjArr.map((tableObj: ITablePermissionData) => {
+    return tablesObjArr.map((tableObj: ITableAndViewPermissionData) => {
       const displayName =
         tableSettings[
           tableSettings.findIndex((el: TableSettingsEntity) => {
@@ -141,6 +142,7 @@ export class FindTablesInConnectionUseCase
         ]?.display_name;
       return {
         table: tableObj.tableName,
+        isView: tableObj.isView || false,
         permissions: tableObj.accessLevel,
         display_name: displayName ? displayName : undefined,
       };
@@ -150,13 +152,14 @@ export class FindTablesInConnectionUseCase
   private async getUserPermissionsForAvailableTables(
     userId: string,
     connectionId: string,
-    tableNames: Array<string>,
-  ): Promise<Array<ITablePermissionData>> {
+    tables: Array<TableDS>,
+  ): Promise<Array<ITableAndViewPermissionData>> {
     const connectionEdit = await this._dbContext.userAccessRepository.checkUserConnectionEdit(userId, connectionId);
     if (connectionEdit) {
-      return tableNames.map((tableName) => {
+      return tables.map((table) => {
         return {
-          tableName: tableName,
+          tableName: table.tableName,
+          isView: table.isView,
           accessLevel: {
             visibility: true,
             readonly: false,
@@ -171,21 +174,21 @@ export class FindTablesInConnectionUseCase
     const allTablePermissions =
       await this._dbContext.permissionRepository.getAllUserPermissionsForAllTablesInConnection(userId, connectionId);
     const tablesAndAccessLevels = {};
-    tableNames.map((tableName) => {
-      if (tableName !== '__proto__') {
+    tables.map((table) => {
+      if (table.tableName !== '__proto__') {
         // eslint-disable-next-line security/detect-object-injection
-        tablesAndAccessLevels[tableName] = [];
+        tablesAndAccessLevels[table.tableName] = [];
       }
     });
-    tableNames.map((tableName) => {
+    tables.map((table) => {
       allTablePermissions.map((permission) => {
-        if (permission.tableName === tableName && tablesAndAccessLevels.hasOwnProperty(tableName)) {
+        if (permission.tableName === table.tableName && tablesAndAccessLevels.hasOwnProperty(table.tableName)) {
           // eslint-disable-next-line security/detect-object-injection
-          tablesAndAccessLevels[tableName].push(permission.accessLevel);
+          tablesAndAccessLevels[table.tableName].push(permission.accessLevel);
         }
       });
     });
-    const tablesWithPermissions: Array<ITablePermissionData> = [];
+    const tablesWithPermissions: Array<ITableAndViewPermissionData> = [];
     for (const key in tablesAndAccessLevels) {
       if (tablesAndAccessLevels.hasOwnProperty(key)) {
         // eslint-disable-next-line security/detect-object-injection
@@ -198,6 +201,7 @@ export class FindTablesInConnectionUseCase
         const readOnly = !(addPermission || deletePermission || editPermission);
         tablesWithPermissions.push({
           tableName: key,
+          isView: tables.find((table) => table.tableName === key).isView,
           accessLevel: {
             // eslint-disable-next-line security/detect-object-injection
             visibility: tablesAndAccessLevels[key].includes(AccessLevelEnum.visibility),
@@ -210,7 +214,7 @@ export class FindTablesInConnectionUseCase
         });
       }
     }
-    return tablesWithPermissions.filter((tableWithPermission: ITablePermissionData) => {
+    return tablesWithPermissions.filter((tableWithPermission: ITableAndViewPermissionData) => {
       return !!tableWithPermission.accessLevel.visibility;
     });
   }
@@ -218,16 +222,17 @@ export class FindTablesInConnectionUseCase
   private async saveTableInfoInDatabase(
     connection: ConnectionEntity,
     userId: string,
-    tables: Array<string>,
+    tables: Array<TableDS>,
   ): Promise<void> {
     try {
+      const tableNames: Array<string> = tables.map((table) => table.tableName);
       const queue = new PQueue({ concurrency: 2 });
       const dao = getDataAccessObject(connection);
       const tablesStructures: Array<{
         tableName: string;
         structure: Array<TableStructureDS>;
       }> = await Promise.all(
-        tables.map(async (tableName) => {
+        tableNames.map(async (tableName) => {
           return await queue.add(async () => {
             const structure = await dao.getTableStructure(tableName, undefined);
             return {

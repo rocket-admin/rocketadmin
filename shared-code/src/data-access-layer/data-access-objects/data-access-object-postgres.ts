@@ -21,6 +21,7 @@ import { getPropertyValue } from '../../helpers/get-property-value.js';
 import { renameObjectKeyName } from '../../helpers/rename-object-keyname.js';
 import { setPropertyValue } from '../../helpers/set-property-value.js';
 import { tableSettingsFieldValidator } from '../../helpers/validation/table-settings-validator.js';
+import { TableDS } from '../shared/data-structures/table.ds.js';
 
 export class DataAccessObjectPostgres extends BasicDataAccessObject implements IDataAccessObject {
   constructor(connection: ConnectionParams) {
@@ -326,25 +327,25 @@ export class DataAccessObjectPostgres extends BasicDataAccessObject implements I
     return resultKeys;
   }
 
-  public async getTablesFromDB(): Promise<string[]> {
+  public async getTablesFromDB(): Promise<TableDS[]> {
     const knex = await this.configureKnex();
     const schema = this.connection.schema ?? 'public';
     const database = this.connection.database;
     const query = `
-        SELECT table_name 
-        FROM information_schema.tables 
-        WHERE table_schema = ? 
-            AND table_catalog = ?
-        UNION
-        SELECT table_name 
-        FROM information_schema.views 
-        WHERE table_schema = ? 
-            AND table_catalog = ?
+    SELECT table_name, false AS is_view 
+    FROM information_schema.tables 
+    WHERE table_schema = ? 
+        AND table_catalog = ?
+    UNION
+    SELECT table_name, true AS is_view 
+    FROM information_schema.views 
+    WHERE table_schema = ? 
+        AND table_catalog = ?
     `;
     const bindings = [schema, database, schema, database];
     try {
       const results = await knex.raw(query, bindings);
-      return results.rows.map((row) => row.table_name);
+      return results.rows.map((row: Record<string, unknown>) => ({ tableName: row.table_name, isView: row.is_view }));
     } catch (error) {
       throw error;
     }

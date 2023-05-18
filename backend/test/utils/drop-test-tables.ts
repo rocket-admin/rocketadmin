@@ -28,7 +28,7 @@ export async function dropAllTestTables(connectionParams): Promise<void> {
   }
   const foundKnex = getTestKnex(connectionParamsCopy);
   const dao = getDataAccessObject(connectionParamsCopy);
-  const tables = await dao.getTablesFromDB();
+  const tables = (await dao.getTablesFromDB()).map((table) => table.tableName);
   await Promise.all(
     tables.map(async (tableName) => {
       if (connectionParamsCopy.schema) {

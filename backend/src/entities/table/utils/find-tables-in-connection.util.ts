@@ -7,5 +7,6 @@ export async function findTablesInConnectionUtil(
   userEmail = 'unknown',
 ): Promise<Array<string>> {
   const dao = getDataAccessObject(connection);
-  return await dao.getTablesFromDB(userEmail);
+  const tables = await dao.getTablesFromDB(userEmail);
+  return tables.map((table) => table.tableName);
 }

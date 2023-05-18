@@ -6,6 +6,7 @@ import { PrimaryKeyDS } from '../data-structures/primary-key.ds.js';
 import { ReferencedTableNamesAndColumnsDS } from '../data-structures/referenced-table-names-columns.ds.js';
 import { TableSettingsDS } from '../data-structures/table-settings.ds.js';
 import { TableStructureDS } from '../data-structures/table-structure.ds.js';
+import { TableDS } from '../data-structures/table.ds.js';
 import { TestConnectionResultDS } from '../data-structures/test-result-connection.ds.js';
 import { ValidateTableSettingsDS } from '../data-structures/validate-table-settings.ds.js';
 
@@ -52,7 +53,7 @@ export interface IDataAccessObjectAgent {
 
   getTablePrimaryColumns(tableName: string, userEmail: string): Promise<Array<PrimaryKeyDS>>;
 
-  getTablesFromDB(userEmail?: string): Promise<Array<string>>;
+  getTablesFromDB(userEmail?: string): Promise<Array<TableDS>>;
 
   getTableStructure(tableName: string, userEmail: string): Promise<Array<TableStructureDS>>;
 

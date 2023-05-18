@@ -28,3 +28,7 @@ export interface ITablePermissionData {
   tableName: string;
   accessLevel: ITableAccessLevel;
 }
+
+export interface ITableAndViewPermissionData extends ITablePermissionData {
+  isView: boolean;
+}
