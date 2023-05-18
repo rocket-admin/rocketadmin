@@ -14,7 +14,7 @@
                 <mat-label>Add filter by...</mat-label>
                 <input type="text" matInput name="filter_columns"
                     [matAutocomplete]="auto"
-                    [formControl]="myControl">
+                    [formControl]="fieldSearchControl">
                 <mat-autocomplete autoActiveFirstOption #auto="matAutocomplete" (optionSelected)="addFilter($event)">
                     <mat-option *ngFor="let field of foundFields | async"
                         [ngClass]="{'disabled': field === 'No matches'}"
