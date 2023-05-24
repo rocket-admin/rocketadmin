@@ -2,6 +2,7 @@ import { join } from 'path';
 import { DataSourceOptions } from 'typeorm';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import parse from 'pg-connection-string';
 import dotenv from 'dotenv';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -81,16 +82,16 @@ class ConfigService {
     password: string;
     database: string;
   } {
-    const match = url.match(/^postgres:\/\/([^:]+):([^@]+)@([^:]+):(\d+)\/(.+)$/);
-    if (!match) {
-      throw new Error('Invalid Database URL');
-    }
-    const [, username, password, host, portStr, database] = match;
-    const port = parseInt(portStr, 10);
-    if (isNaN(port)) {
-      throw new Error('Invalid port number in Database URL');
-    }
-    return { host, port, username, password, database };
+    const parsingResult = parse.parse(url);
+    const { host, port, user, password, database } = parsingResult;
+
+    return {
+      host,
+      port: parseInt(port),
+      username: user,
+      password,
+      database,
+    };
   }
 }
 

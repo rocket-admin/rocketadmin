@@ -151,7 +151,7 @@ export const userAccessCustomReposiotoryExtension = {
       foundConnection = Encryptor.decryptConnectionCredentials(foundConnection, masterPwd);
     }
     const dao = getDataAccessObject(foundConnection);
-    const availableTables = await dao.getTablesFromDB();
+    const availableTables = (await dao.getTablesFromDB()).map((table) => table.tableName);
     if (availableTables.indexOf(tableName) < 0) {
       throw new HttpException(
         {

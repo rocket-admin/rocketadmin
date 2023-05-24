@@ -13,7 +13,7 @@ export async function validateCreateConnectionPropertiesDs(
   const { hidden_tables } = createConnectionProperties;
   const errors = [];
   const dao = getDataAccessObject(connection);
-  const tablesInConnection = await dao.getTablesFromDB();
+  const tablesInConnection = (await dao.getTablesFromDB()).map((table) => table.tableName);
   if (!Array.isArray(hidden_tables)) {
     errors.push(Messages.HIDDEN_TABLES_MUST_BE_ARRAY);
   }

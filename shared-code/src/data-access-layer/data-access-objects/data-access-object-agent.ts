@@ -15,6 +15,7 @@ import { ValidateTableSettingsDS } from '../shared/data-structures/validate-tabl
 import { IDataAccessObjectAgent } from '../shared/interfaces/data-access-object-agent.interface.js';
 import { DataAccessObjectCommandsEnum } from '../shared/enums/data-access-object-commands.enum.js';
 import { LRUStorage } from '../../caching/lru-storage.js';
+import { TableDS } from '../shared/data-structures/table.ds.js';
 
 export class DataAccessObjectAgent implements IDataAccessObjectAgent {
   private readonly connection: ConnectionAgentParams;
@@ -254,7 +255,7 @@ export class DataAccessObjectAgent implements IDataAccessObjectAgent {
     }
   }
 
-  public async getTablesFromDB(userEmail: string): Promise<string[]> {
+  public async getTablesFromDB(userEmail: string): Promise<TableDS[]> {
     const jwtAuthToken = this.generateJWT(this.connection.token);
     try {
       const res = await axios.post(

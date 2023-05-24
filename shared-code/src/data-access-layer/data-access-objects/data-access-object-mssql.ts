@@ -13,6 +13,7 @@ import { PrimaryKeyDS } from '../shared/data-structures/primary-key.ds.js';
 import { ReferencedTableNamesAndColumnsDS } from '../shared/data-structures/referenced-table-names-columns.ds.js';
 import { TableSettingsDS } from '../shared/data-structures/table-settings.ds.js';
 import { TableStructureDS } from '../shared/data-structures/table-structure.ds.js';
+import { TableDS } from '../shared/data-structures/table.ds.js';
 import { TestConnectionResultDS } from '../shared/data-structures/test-result-connection.ds.js';
 import { ValidateTableSettingsDS } from '../shared/data-structures/validate-table-settings.ds.js';
 import { FilterCriteriaEnum } from '../shared/enums/filter-criteria.enum.js';
@@ -294,19 +295,29 @@ export class DataAccessObjectMssql extends BasicDataAccessObject implements IDat
     return primaryColumnsInLowercase;
   }
 
-  public async getTablesFromDB(): Promise<string[]> {
+  public async getTablesFromDB(): Promise<TableDS[]> {
     const knex = await this.configureKnex();
-    const andString = this.connection.schema ? ` AND TABLE_SCHEMA = '${this.connection.schema}'` : undefined;
-    let result = await knex.raw(
-      `SELECT TABLE_NAME
-       FROM ??.INFORMATION_SCHEMA.TABLES
-       WHERE TABLE_TYPE = 'BASE TABLE' ${andString ? andString : ''}`,
-      [this.connection.database],
-    );
-    result = result.map((e: { TABLE_NAME: string }) => {
-      return e.TABLE_NAME;
+    const query = `
+    SELECT TABLE_NAME,
+       CASE
+           WHEN TABLE_TYPE = 'BASE TABLE' THEN 0
+           ELSE 1
+           END AS isView
+FROM ??.INFORMATION_SCHEMA.TABLES
+WHERE TABLE_TYPE = 'BASE TABLE'
+UNION
+SELECT TABLE_NAME,
+       CASE
+           WHEN TABLE_TYPE = 'BASE TABLE' THEN 0
+           ELSE 1
+           END AS isView
+FROM ??.INFORMATION_SCHEMA.TABLES
+WHERE TABLE_TYPE = 'VIEW'
+    `;
+    let result = await knex.raw(query, [this.connection.database, this.connection.database]);
+    return result.map((table: { TABLE_NAME: string; isView: number }) => {
+      return { tableName: table.TABLE_NAME, isView: table.isView === 1 };
     });
-    return result;
   }
 
   public async getTableStructure(tableName: string): Promise<TableStructureDS[]> {

@@ -20,7 +20,7 @@ export async function validateCreateCustomFieldDto(
   if (type && type !== 'AA:Link') errors.push(Messages.CUSTOM_FIELD_TYPE_INCORRECT);
   const tableFieldsFromTemplate = getValuesBetweenCurlies(template_string);
   const dao = getDataAccessObject(connection);
-  const tablesInConnection: Array<string> = await dao.getTablesFromDB();
+  const tablesInConnection: Array<string> = (await dao.getTablesFromDB()).map((table) => table.tableName);
   const tableIndexInTables = tablesInConnection.findIndex((table_name) => table_name === tableName);
   if (tableIndexInTables < 0) {
     throw new HttpException(
