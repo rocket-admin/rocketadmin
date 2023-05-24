@@ -19,6 +19,22 @@
     width: 96%;
 }
 
+.related-views {
+    display: flex;
+    flex-direction: column;
+    margin: 20px auto;
+    max-width: 520px;
+    min-width: 300px;
+    width: 96%;
+}
+
+.related-tables {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 12px 0;
+}
+
 .widget {
     display: grid;
     grid-template-columns: 0 1fr 36px;

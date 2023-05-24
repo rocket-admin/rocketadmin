@@ -23,6 +23,19 @@
             </button>
         </div>
     </div>
+    <div *ngIf="referencedTables && referencedTables.length" class="related-views">
+        <span>Rewiev</span>
+        <div class="related-tables">
+            <a *ngFor="let referencedTable of referencedTables; let i = index"
+                mat-stroked-button color="primary"
+                routerLink="/dashboard/{{connectionID}}/{{referencedTable.table_name}}"
+                [queryParams]="referencedTablesURLParams[i]">
+                {{referencedTable.normalizedTableName}}
+            </a>
+        </div>
+
+        <span>for {{tableRowValues[identityColumn] || 'this entity'}}.</span>
+    </div>
     <form #editRowForm="ngForm" class="form"
         (ngSubmit)="handleRowSubmitting()">
         <div *ngFor="let value of fieldsOrdered; let index = index">

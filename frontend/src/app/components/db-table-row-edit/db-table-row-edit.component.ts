@@ -31,6 +31,7 @@ export class DbTableRowEditComponent implements OnInit {
   public tableRowValues: object;
   public tableRowStructure: object;
   public tableRowRequiredValues: object;
+  public identityColumn: string;
   public readonlyFields: string[];
   public keyAttributesFromURL: object = {};
   public hasKeyAttributesFromURL: boolean;
@@ -45,6 +46,8 @@ export class DbTableRowEditComponent implements OnInit {
   public rowError: string = null;
   public fieldsOrdered: string[];
   public rowActions: CustomAction[];
+  public referencedTables: any;
+  public referencedTablesURLParams: any;
 
   public tableForeignKeys: TableForeignKey[];
 
@@ -117,6 +120,15 @@ export class DbTableRowEditComponent implements OnInit {
             if (res.table_actions) this.rowActions = res.table_actions;
             res.table_widgets && this.setWidgets(res.table_widgets);
             this.setRowStructure(res.structure);
+            this.identityColumn = res.identity_column;
+            this.referencedTables = res.referenced_table_names_and_columns[0].referenced_by
+              .map((table: any) => { return {...table, normalizedTableName: normalizeTableName(table.table_name)}});
+            this.referencedTablesURLParams = res.referenced_table_names_and_columns[0].referenced_by
+              .map((table: any) => { return {
+                [`f__${table.column_name}__eq`]:
+                this.tableRowValues[res.referenced_table_names_and_columns[0].referenced_on_column_name],
+                page_index: 0
+              }});;
             this.loading = false;
           },
           (error) => {
