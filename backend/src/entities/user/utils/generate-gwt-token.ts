@@ -24,8 +24,8 @@ export function generateGwtToken(user: UserEntity): IToken {
 export function generateTemporaryJwtToken(user: UserEntity): IToken {
   const today = new Date();
   const exp = new Date(today);
-  exp.setTime(today.getTime() + 60 * 60 * 1000 * 3);
-  const jwtSecret = process.env.TEMPORARY_JWT;
+  exp.setTime(today.getTime() + 1000 * 60 * 4);
+  const jwtSecret = process.env.TEMPORARY_JWT_SECRET;
   const token = jwt.sign(
     {
       id: user.id,
@@ -49,4 +49,5 @@ export interface IToken {
 
 export interface ITokenExp {
   expires: Date;
+  isTemporary: boolean;
 }

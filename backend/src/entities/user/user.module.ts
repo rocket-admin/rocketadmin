@@ -35,6 +35,7 @@ import { UserEntity } from './user.entity.js';
 import { GenerateOtpUseCase } from './use-cases/generate-otp-use.case.js';
 import { VerifyOtpUseCase } from './use-cases/verify-otp-use.case.js';
 import { OtpLoginUseCase } from './use-cases/otp-login-use.case.js';
+import { TemporaryAuthMiddleware } from '../../authorization/temporary-auth.middleware.js';
 
 @Module({
   imports: [
@@ -153,6 +154,10 @@ export class UserModule implements NestModule {
         { path: 'user/delete/', method: RequestMethod.PUT },
         { path: 'user/email/change/request', method: RequestMethod.GET },
         { path: 'user/otp/generate', method: RequestMethod.POST },
-      );
+        { path: 'user/otp/verify', method: RequestMethod.POST },
+        { path: 'user/otp/disable', method: RequestMethod.POST },
+      )
+      .apply(TemporaryAuthMiddleware)
+      .forRoutes({ path: 'user/otp/login', method: RequestMethod.POST });
   }
 }

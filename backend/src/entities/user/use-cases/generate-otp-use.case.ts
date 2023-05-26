@@ -5,7 +5,6 @@ import { BaseType } from '../../../common/data-injection.tokens.js';
 import { IGenerateOTP } from './user-use-cases.interfaces.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { authenticator } from 'otplib';
-import { Encryptor } from '../../../helpers/encryption/encryptor.js';
 import { OtpSecretDS } from '../application/data-structures/otp-secret.ds.js';
 import { generateQRCode } from '../utils/generate-qr-code.js';
 
@@ -30,13 +29,13 @@ export class GenerateOtpUseCase extends AbstractUseCase<string, OtpSecretDS> imp
     }
 
     foundUser.isOTPEnabled = true;
-    const otpSecretKey = Encryptor.generateOTPSecret();
+    const otpSecretKey = authenticator.generateSecret();
     foundUser.otpSecretKey = otpSecretKey;
-    const token = authenticator.generate(otpSecretKey);
     await this._dbContext.userRepository.saveUserEntity(foundUser);
+    const { otpauth, qrCode } = await generateQRCode(foundUser.email, otpSecretKey);
     return {
-      otpToken: token,
-      otpauth_url: await generateQRCode(token),
+      otpauth_url: otpauth,
+      qrCode: qrCode,
     };
   }
 }

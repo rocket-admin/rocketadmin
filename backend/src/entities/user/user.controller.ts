@@ -181,7 +181,7 @@ export class UserController {
       httpOnly: false,
       ...this.getCookieDomainOtions(),
     });
-    return { expires: tokenInfo.exp };
+    return { expires: tokenInfo.exp, isTemporary: tokenInfo.isTemporary };
   }
 
   @Post('user/register/')
@@ -233,7 +233,10 @@ export class UserController {
       httpOnly: false,
       ...this.getCookieDomainOtions(),
     });
-    return { expires: tokenInfo.exp };
+    return {
+      expires: tokenInfo.exp,
+      isTemporary: tokenInfo.isTemporary,
+    };
   }
 
   @Post('user/logout/')
@@ -283,7 +286,10 @@ export class UserController {
       httpOnly: false,
       ...this.getCookieDomainOtions(),
     });
-    return { expires: tokenInfo.exp };
+    return {
+      expires: tokenInfo.exp,
+      isTemporary: tokenInfo.isTemporary,
+    };
   }
 
   @Post('user/facebook/login/')
@@ -307,7 +313,10 @@ export class UserController {
       httpOnly: false,
       ...this.getCookieDomainOtions(),
     });
-    return { expires: tokenInfo.exp };
+    return {
+      expires: tokenInfo.exp,
+      isTemporary: tokenInfo.isTemporary,
+    };
   }
 
   @Post('user/password/change/')
@@ -356,7 +365,7 @@ export class UserController {
       httpOnly: false,
       ...this.getCookieDomainOtions(),
     });
-    return { expires: tokenInfo.exp };
+    return { expires: tokenInfo.exp, isTemporary: tokenInfo.isTemporary };
   }
 
   @Get('user/email/verify/request')
