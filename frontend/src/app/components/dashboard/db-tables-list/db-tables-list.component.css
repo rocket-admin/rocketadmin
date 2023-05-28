@@ -2,7 +2,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 20px 16px 0;
+    padding: 20px 16px 4px;
 }
 
 .mat-h1 {
@@ -21,6 +21,17 @@
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
+}
+
+.table-list-initials {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background-color: var(--color-primaryPalette-200);
+    color: var(--color-primaryPalette-200-contrast);
 }
 
 .tables-list ::ng-deep .mat-list-base .mat-list-item {

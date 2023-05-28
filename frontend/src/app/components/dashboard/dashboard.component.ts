@@ -76,6 +76,7 @@ export class DashboardComponent implements OnInit {
   async ngOnInit() {
     this.connectionID = this._connections.currentConnectionID;
     this.dataSource = new TablesDataSource(this._tables, this._notifications, this._connections);
+    this.shownTableTitles = localStorage.getItem(`shownTableTitles__${this.connectionID}`) === 'true';
 
     let tables;
     try {
@@ -131,8 +132,22 @@ export class DashboardComponent implements OnInit {
 
   formatTableNames(tables: TableProperties[]) {
     this.tablesList = tables.map((tableItem: TableProperties) => {
-      if (tableItem.display_name) return {...tableItem}
-      else return {...tableItem, normalizedTableName: normalizeTableName(tableItem.table)}
+      let normalizedTableName;
+      if (tableItem.display_name) {
+        normalizedTableName = tableItem.display_name;
+      } else {
+        normalizedTableName = normalizeTableName(tableItem.table);
+      };
+      const words = normalizedTableName.split(' ');
+      const initials = words.reduce((result, word) => {
+        if (word.length > 0) {
+          return result + word[0].toUpperCase();
+        }
+        return result;
+      }, '');
+
+      if (tableItem.display_name) return {...tableItem, initials: initials.slice(0, 2)}
+      else return {...tableItem, normalizedTableName, initials: initials.slice(0, 2)}
     })
   }
 
@@ -279,5 +294,10 @@ export class DashboardComponent implements OnInit {
       this._tables.activateActions(this.connectionID, this.selectedTableName, action.id, action.title, primaryKeys)
         .subscribe(() => {console.log('activated')})
     }
+  }
+
+  toggleSideBar() {
+    this.shownTableTitles = !this.shownTableTitles;
+    localStorage.setItem(`shownTableTitles__${this.connectionID}`, `${this.shownTableTitles}`);
   }
 }

@@ -121,14 +121,18 @@ export class DbTableRowEditComponent implements OnInit {
             res.table_widgets && this.setWidgets(res.table_widgets);
             this.setRowStructure(res.structure);
             this.identityColumn = res.identity_column;
-            this.referencedTables = res.referenced_table_names_and_columns[0].referenced_by
-              .map((table: any) => { return {...table, normalizedTableName: normalizeTableName(table.table_name)}});
-            this.referencedTablesURLParams = res.referenced_table_names_and_columns[0].referenced_by
-              .map((table: any) => { return {
-                [`f__${table.column_name}__eq`]:
-                this.tableRowValues[res.referenced_table_names_and_columns[0].referenced_on_column_name],
-                page_index: 0
-              }});;
+
+            if (res.referenced_table_names_and_columns) {
+              this.referencedTables = res.referenced_table_names_and_columns[0].referenced_by
+                .map((table: any) => { return {...table, normalizedTableName: normalizeTableName(table.table_name)}});
+              this.referencedTablesURLParams = res.referenced_table_names_and_columns[0].referenced_by
+                .map((table: any) => { return {
+                  [`f__${table.column_name}__eq`]:
+                  this.tableRowValues[res.referenced_table_names_and_columns[0].referenced_on_column_name],
+                  page_index: 0
+                }});;
+            }
+
             this.loading = false;
           },
           (error) => {

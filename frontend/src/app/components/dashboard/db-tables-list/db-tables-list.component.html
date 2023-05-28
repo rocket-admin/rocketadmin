@@ -1,12 +1,15 @@
 <div class="sidenav-header">
-    <h1 class="mat-h1">Tables</h1>
+    <mat-icon *ngIf="collapsed; else tableHeader">table_view</mat-icon>
+    <ng-template #tableHeader>
+        <h1 class="mat-h1">Tables</h1>
+    </ng-template>
 </div>
 
 <app-content-loader *ngIf="tables === null; else tablesList"></app-content-loader>
 
 <ng-template #tablesList>
     <div *ngIf="tables && tables.length; else noTables" class="tables-list">
-        <mat-form-field appearance="fill" class="search-input">
+        <mat-form-field *ngIf="!collapsed" appearance="fill" class="search-input">
             <input matInput name="search" #search="ngModel"
                 placeholder="Search"
                 [(ngModel)]="searchString"
@@ -23,7 +26,14 @@
                 routerLinkActive="list-item_active"
                 class="table-list-item"
                 [ngClass]="{'list-item_active': selectedTable === tableItem.table}">
-                {{ getTableName(tableItem) }}
+                <div *ngIf="collapsed; else fullTableName"
+                    class="table-list-initials"
+                    [matTooltip]="getTableName(tableItem)">
+                    {{tableItem.initials}}
+                </div>
+                <ng-template #fullTableName>
+                    {{getTableName(tableItem)}}
+                </ng-template>
             </a>
         </mat-nav-list>
     </div>

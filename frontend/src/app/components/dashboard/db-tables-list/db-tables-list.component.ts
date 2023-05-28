@@ -11,6 +11,7 @@ export class DbTablesListComponent {
   @Input() connectionID: string;
   @Input() tables: TableProperties[];
   @Input() selectedTable: string;
+  @Input() collapsed: boolean;
 
   public searchString: string;
   public foundTables: TableProperties[];

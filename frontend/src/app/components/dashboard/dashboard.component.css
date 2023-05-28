@@ -8,6 +8,16 @@
     width: clamp(200px, 15%, 280px);
 } */
 
+.side-bar_collapsed {
+    position: static;
+    float: left;
+    display: block;
+    height: 100%;
+    width: 65px;
+    visibility: visible !important;
+    transform: translate3d(0, 0, 0);
+}
+
 .mat-list-item {
     text-decoration: none;
 }
@@ -17,25 +27,12 @@
 }
 
 .toggle-button-position {
-    position: absolute;
-    top: 148px;
-    z-index: 10;
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: -48px;
+    margin-top: 24px;
+    margin-right: -8px;
 
-}
-
-.toggle-button-position__opened {
-    left: clamp(188px, calc(15% - 12px), 268px);
-    transition: left 500ms;
-}
-
-.toggle-button-position__closed {
-    left: -4px;
-    transition: left 500ms;
-}
-
-.toggle-button-position__closed + ::ng-deep .mat-drawer-container .table-wrapper {
-    max-width: calc(100vw - 48px);
-    width: 100%;
 }
 
 .toggle-button {
