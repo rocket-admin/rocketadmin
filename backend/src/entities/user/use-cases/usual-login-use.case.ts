@@ -5,7 +5,7 @@ import { BaseType } from '../../../common/data-injection.tokens.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { Encryptor } from '../../../helpers/encryption/encryptor.js';
 import { UsualLoginDs } from '../application/data-structures/usual-login.ds.js';
-import { generateGwtToken, IToken } from '../utils/generate-gwt-token.js';
+import { generateGwtToken, generateTemporaryJwtToken, IToken } from '../utils/generate-gwt-token.js';
 import { IUsualLogin } from './user-use-cases.interfaces.js';
 
 @Injectable()
@@ -43,6 +43,9 @@ export class UsualLoginUseCase extends AbstractUseCase<UsualLoginDs, IToken> imp
         },
         HttpStatus.UNAUTHORIZED,
       );
+    }
+    if (user.isOTPEnabled) {
+      return generateTemporaryJwtToken(user);
     }
     return generateGwtToken(user);
   }

@@ -9,6 +9,8 @@ import {
   PrimaryGeneratedColumn,
   BeforeInsert,
   Relation,
+  BeforeUpdate,
+  AfterLoad,
 } from 'typeorm';
 import { GroupEntity } from '../group/group.entity.js';
 import { UserActionEntity } from '../user-actions/user-action.entity.js';
@@ -41,11 +43,31 @@ export class UserEntity {
     }
   }
 
+  @BeforeUpdate()
+  encryptOtpSecretKey() {
+    if (this.isOTPEnabled && this.otpSecretKey) {
+      this.otpSecretKey = Encryptor.encryptData(this.otpSecretKey);
+    }
+  }
+
+  @AfterLoad()
+  decryptOtpSecretKey() {
+    if (this.isOTPEnabled && this.otpSecretKey) {
+      this.otpSecretKey = Encryptor.decryptData(this.otpSecretKey);
+    }
+  }
+
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;
 
   @Column({ default: null })
   gclid: string;
+
+  @Column({ default: false })
+  isOTPEnabled: boolean;
+
+  @Column({ default: null })
+  otpSecretKey: string;
 
   @OneToMany(() => ConnectionEntity, (connection) => connection.author)
   @JoinTable()

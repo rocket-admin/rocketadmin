@@ -140,6 +140,8 @@ export const Messages = {
   ORDERING_FIELD_INCORRECT: `Value of sorting order is incorrect. You can choose from values ${enumToString(
     QueryOrderingEnum,
   )}`,
+  OTP_NOT_ENABLED: `OTP is not enabled`,
+  OTP_VALIDATION_FAILED: `OTP validation failed`,
   PAGE_AND_PERPAGE_INVALID: `Parameters "page" and "perPage" must be more than zero`,
   PARAMETER_MISSING: 'Required parameter missing',
   PARAMETER_NAME_MISSING: (parameterName: string) => `Required parameter "${parameterName}" missing`,

@@ -32,6 +32,10 @@ import { VerifyUserEmailUseCase } from './use-cases/verify-user-email.use.case.j
 import { UserHelperService } from './user-helper.service.js';
 import { UserController } from './user.controller.js';
 import { UserEntity } from './user.entity.js';
+import { GenerateOtpUseCase } from './use-cases/generate-otp-use.case.js';
+import { VerifyOtpUseCase } from './use-cases/verify-otp-use.case.js';
+import { OtpLoginUseCase } from './use-cases/otp-login-use.case.js';
+import { TemporaryAuthMiddleware } from '../../authorization/temporary-auth.middleware.js';
 
 @Module({
   imports: [
@@ -118,6 +122,18 @@ import { UserEntity } from './user.entity.js';
       provide: UseCaseType.CHANGE_USER_NAME,
       useClass: ChangeUserNameUseCase,
     },
+    {
+      provide: UseCaseType.GENERATE_OTP,
+      useClass: GenerateOtpUseCase,
+    },
+    {
+      provide: UseCaseType.VERIFY_OTP,
+      useClass: VerifyOtpUseCase,
+    },
+    {
+      provide: UseCaseType.OTP_LOGIN,
+      useClass: OtpLoginUseCase,
+    },
     UserHelperService,
   ],
   controllers: [UserController],
@@ -137,6 +153,11 @@ export class UserModule implements NestModule {
         { path: 'user/email/verify/request', method: RequestMethod.GET },
         { path: 'user/delete/', method: RequestMethod.PUT },
         { path: 'user/email/change/request', method: RequestMethod.GET },
-      );
+        { path: 'user/otp/generate', method: RequestMethod.POST },
+        { path: 'user/otp/verify', method: RequestMethod.POST },
+        { path: 'user/otp/disable', method: RequestMethod.POST },
+      )
+      .apply(TemporaryAuthMiddleware)
+      .forRoutes({ path: 'user/otp/login', method: RequestMethod.POST });
   }
 }

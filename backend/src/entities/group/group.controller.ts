@@ -155,7 +155,10 @@ export class GroupController {
     };
     const token: IToken = await this.verifyAddUserInGroupUseCase.execute(inputData, InTransactionEnum.ON);
     response.cookie(Constants.JWT_COOKIE_KEY_NAME, token.token);
-    return { expires: token.exp };
+    return {
+      expires: token.exp,
+      isTemporary: token.isTemporary,
+    };
   }
 
   @UseGuards(GroupEditGuard)
