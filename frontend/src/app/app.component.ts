@@ -31,7 +31,7 @@ export class AppComponent {
   userInactive: Subject<any> = new Subject();
   chatHasBeenShownOnce: boolean = false;
 
-  title = 'Autoadmin';
+  title = 'Rocketadmin';
   userLoggedIn = null;
   redirect_uri = `${location.origin}/loader`;
   connections = [];
@@ -249,7 +249,7 @@ export class AppComponent {
     this.setUserLoggedIn(null);
     localStorage.removeItem('token_expiration');
     if ((environment as any).saas) {
-      if (!isTokenExpired) window.location.href="https://autoadmin.org/";
+      if (!isTokenExpired) window.location.href="https://rocketadmin.com/";
     } else {
       this.router.navigate(['/login'])
     }

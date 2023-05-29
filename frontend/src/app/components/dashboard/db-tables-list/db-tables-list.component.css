@@ -30,8 +30,12 @@
     width: 32px;
     height: 32px;
     border-radius: 50%;
+    background-color: var(--color-primaryPalette-100);
+    color: var(--color-primaryPalette-100-contrast);
+}
+
+.table-list-initials:hover {
     background-color: var(--color-primaryPalette-200);
-    color: var(--color-primaryPalette-200-contrast);
 }
 
 .tables-list ::ng-deep .mat-list-base .mat-list-item {

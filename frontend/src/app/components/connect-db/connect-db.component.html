@@ -53,7 +53,7 @@
             <div *ngIf="connectionID; else warningAlert" class="warningMessage">
                 <mat-icon class="warningMessage__icon">warning_amber</mat-icon>
                 <div class="mat-body-1">
-                    Please make sure our servers are able to access your database. <br/> Autoadmin uses
+                    Please make sure our servers are able to access your database. <br/> Rocketadmin uses
                     <app-ip-address-button ip="18.221.81.73"></app-ip-address-button>
                     IP address for all outbound requests.
                 </div>
@@ -62,7 +62,7 @@
             <ng-template #warningAlert>
                 <app-alert [alert]="warning">
                     <div class="mat-body-1">
-                        Please make sure our servers are able to access your database. <br/> Autoadmin uses
+                        Please make sure our servers are able to access your database. <br/> Rocketadmin uses
                         <app-ip-address-button ip="18.221.81.73"></app-ip-address-button>
                         IP address for all outbound requests.
                     </div>
@@ -176,7 +176,7 @@
                                 <mat-label>Master password</mat-label>
                                 <input matInput [(ngModel)]="masterKey" name="masterPassword" #masterPassword="ngModel" readonly>
                                 <mat-hint>
-                                    Autoadmin does not store the key.
+                                    Rocketadmin does not store the key.
                                     Please save this password on your computer in protected place,
                                     we recommend using password managers.
                                     Share this password with all users of the connection.
@@ -329,7 +329,7 @@
                                 "Credentials accepted. Try to <strong>launch application</strong>"
                             </li>
                             <li class="instruction-step">
-                                Open the list of connections and check that your local <strong>database is connected to Autoadmin interface</strong>.
+                                Open the list of connections and check that your local <strong>database is connected to Rocketadmin interface</strong>.
                             </li>
                         </ol>
                     </mat-expansion-panel>
@@ -355,7 +355,7 @@
                             <li class="instruction-step">
                                 Create <strong>docker-compose.yml</strong> file.
                                 Copy and paste configuration from
-                                <a href="https://github.com/Autoadmin-org/autoadmin-agent/blob/master/docker-compose.yml" target="_blank"
+                                <a href="https://github.com/rocket-admin/rocketadmin-agent/blob/master/docker-compose.yml" target="_blank"
                                     class="instruction-step__link">
                                     (source file)
                                 </a>
@@ -363,7 +363,7 @@
                             </li>
                             <li class="instruction-step">
                                 Create <strong>.config.env</strong> file in the same directory. Copy and paste the contents of
-                                <a href="https://github.com/Autoadmin-org/autoadmin-agent/blob/master/.config.env" target="_blank"
+                                <a href="https://github.com/rocket-admin/rocketadmin-agent/blob/master/.config.env" target="_blank"
                                     class="instruction-step__link">
                                     (source file)
                                 </a> or download this file.
@@ -376,8 +376,8 @@
                                 <code class="instruction-command">docker-compose up --build</code>
                             </li>
                         </ol>
-                        <p>After sucessfull execution, new connection will appear in Autoadmin Connections List.</p>
-                        <p>For more information visit <a href="https://github.com/Autoadmin-org/autoadmin-agent" class="instruction-step__link">docs</a>.</p>
+                        <p>After sucessfull execution, new connection will appear in Rocketadmin Connections List.</p>
+                        <p>For more information visit <a href="https://github.com/rocket-admin/rocketadmin-agent" class="instruction-step__link">docs</a>.</p>
                     </mat-expansion-panel>
                 </mat-accordion>
             </div>

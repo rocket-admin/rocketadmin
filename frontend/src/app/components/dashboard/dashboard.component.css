@@ -31,16 +31,15 @@
     justify-content: flex-end;
     margin-bottom: -48px;
     margin-top: 24px;
-    margin-right: -8px;
 
 }
 
 .toggle-button {
     background-color: #fff;
+    border-radius: 4px 0 0 4px !important;
     color: inherit;
     line-height: 24px;
-    width: 24px;
-    height: 24px;
+    min-width: 52px !important;
     box-shadow: 0px 2px 4px -1px rgba(0, 0, 0, 0.1),0px 6px 8px 0px rgba(0, 0, 0, 0.07),0px 1px 8px 0px rgba(0, 0, 0, 0.06);
 }
 

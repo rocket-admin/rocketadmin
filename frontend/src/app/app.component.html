@@ -4,7 +4,7 @@
         mode="over"
         class="main-menu-sidenav"
         >
-        <mat-toolbar>Autoadmin</mat-toolbar>
+        <mat-toolbar>Rocketadmin</mat-toolbar>
         <mat-nav-list *ngIf="userLoggedIn === true">
             <a mat-list-item routerLink="/connections-list"
                 routerLinkActive="nav-bar__button_active"
@@ -34,14 +34,14 @@
     <mat-sidenav-content class="main-menu-content">
         <mat-toolbar color="primary" class="nav-bar" [ngClass]="{'nav-bar_white': !userLoggedIn}">
             <a routerLink="/connections-list" *ngIf="userLoggedIn; else externalLink" class="logo">
-                <img *ngIf="!logo && !name" src="../assets/rocketadmin_logo_white.svg" alt="Autoadmin logo">
+                <img *ngIf="!logo && !name" src="../assets/rocketadmin_logo_white.svg" alt="Rocketadmin logo">
                 <img *ngIf="logo" [src]="logo || '../rocketadmin_logo_white.svg'" alt="Logo">
                 <span *ngIf="name">{{name}}</span>
             </a>
 
             <ng-template #externalLink>
-                <a href="https://autoadmin.org/" class="logo">
-                    <img src="../assets/rocketadmin_logo_black.svg" alt="Autoadmin logo">
+                <a href="https://rocketadmin.com/" class="logo">
+                    <img src="../assets/rocketadmin_logo_black.svg" alt="Rocketadmin logo">
                 </a>
             </ng-template>
 
@@ -141,7 +141,7 @@
         </mat-tab-nav-panel>
 
         <div *ngIf="!authBarTheme" class="footer">
-            <span class="footer__text">&copy; 2022 Autoadmin</span>
+            <span class="footer__text">&copy; 2023 Rocketadmin</span>
         </div>
     </mat-sidenav-content>
 </mat-sidenav-container>
