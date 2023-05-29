@@ -4,7 +4,9 @@ COPY frontend/package.json frontend/yarn.lock frontend/angular.json frontend/tsc
 COPY frontend/.yarn /app/frontend/.yarn
 RUN yarn install --immutable --network-timeout 1000000
 COPY frontend/src /app/frontend/src
-RUN API_ROOT=/api yarn build
+ARG SAAS
+RUN $SAAS && API_ROOT=/api yarn build --configuration=saas
+RUN $SAAS || API_ROOT=/api yarn build
 RUN ls /app/frontend/dist/dissendium-v0
 
 FROM node:18-slim
