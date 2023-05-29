@@ -19,7 +19,7 @@ import { buildDefaultAdminGroups } from '../utils/build-default-admin-groups.js'
 import { buildDefaultAdminPermissions } from '../utils/build-default-admin-permissions.js';
 import { buildRegisteredUserDS } from '../utils/build-registered-user.ds.js';
 import { buildTestTableSettings } from '../utils/build-test-table-settings.js';
-import { generateGwtToken, IToken } from '../utils/generate-gwt-token.js';
+import { generateGwtToken, generateTemporaryJwtToken, IToken } from '../utils/generate-gwt-token.js';
 import { IGoogleLogin } from './user-use-cases.interfaces.js';
 
 @Injectable()
@@ -65,6 +65,9 @@ export class GoogleLoginUseCase extends AbstractUseCase<GoogleLoginDs, IToken> i
       if (foundUser.name !== name && name) {
         foundUser.name = name;
         await this._dbContext.userRepository.saveUserEntity(foundUser);
+      }
+      if (foundUser.isOTPEnabled) {
+        return generateTemporaryJwtToken(foundUser);
       }
       return generateGwtToken(foundUser);
     }

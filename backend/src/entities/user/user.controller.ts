@@ -39,8 +39,10 @@ import {
   IDeleteUserAccount,
   IFacebookLogin,
   IFindUserUseCase,
+  IGenerateOTP,
   IGoogleLogin,
   ILogOut,
+  IOtpLogin,
   IRequestEmailChange,
   IRequestEmailVerification,
   IRequestPasswordReset,
@@ -50,9 +52,11 @@ import {
   IUsualRegister,
   IVerifyEmail,
   IVerifyEmailChange,
+  IVerifyOTP,
   IVerifyPasswordReset,
 } from './use-cases/user-use-cases.interfaces.js';
 import { ITokenExp } from './utils/generate-gwt-token.js';
+import { OtpSecretDS } from './application/data-structures/otp-secret.ds.js';
 
 @UseInterceptors(SentryInterceptor)
 @Controller()
@@ -91,6 +95,12 @@ export class UserController {
     private readonly deleteUserAccountUseCase: IDeleteUserAccount,
     @Inject(UseCaseType.CHANGE_USER_NAME)
     private readonly changeUserNameUseCase: IChangeUserName,
+    @Inject(UseCaseType.GENERATE_OTP)
+    private readonly generateOtpUseCase: IGenerateOTP,
+    @Inject(UseCaseType.VERIFY_OTP)
+    private readonly verifyOtpUseCase: IVerifyOTP,
+    @Inject(UseCaseType.OTP_LOGIN)
+    private readonly otpLoginUseCase: IOtpLogin,
   ) {}
 
   @Get('user')
@@ -171,7 +181,7 @@ export class UserController {
       httpOnly: false,
       ...this.getCookieDomainOtions(),
     });
-    return { expires: tokenInfo.exp };
+    return { expires: tokenInfo.exp, isTemporary: tokenInfo.isTemporary };
   }
 
   @Post('user/register/')
@@ -223,7 +233,10 @@ export class UserController {
       httpOnly: false,
       ...this.getCookieDomainOtions(),
     });
-    return { expires: tokenInfo.exp };
+    return {
+      expires: tokenInfo.exp,
+      isTemporary: tokenInfo.isTemporary,
+    };
   }
 
   @Post('user/logout/')
@@ -273,7 +286,10 @@ export class UserController {
       httpOnly: false,
       ...this.getCookieDomainOtions(),
     });
-    return { expires: tokenInfo.exp };
+    return {
+      expires: tokenInfo.exp,
+      isTemporary: tokenInfo.isTemporary,
+    };
   }
 
   @Post('user/facebook/login/')
@@ -297,7 +313,10 @@ export class UserController {
       httpOnly: false,
       ...this.getCookieDomainOtions(),
     });
-    return { expires: tokenInfo.exp };
+    return {
+      expires: tokenInfo.exp,
+      isTemporary: tokenInfo.isTemporary,
+    };
   }
 
   @Post('user/password/change/')
@@ -346,7 +365,7 @@ export class UserController {
       httpOnly: false,
       ...this.getCookieDomainOtions(),
     });
-    return { expires: tokenInfo.exp };
+    return { expires: tokenInfo.exp, isTemporary: tokenInfo.isTemporary };
   }
 
   @Get('user/email/verify/request')
@@ -420,6 +439,26 @@ export class UserController {
     const slackMessage = Messages.USER_DELETED_ACCOUNT(deleteResult.email, reason, message);
     await slackPostMessage(slackMessage);
     return deleteResult;
+  }
+
+  @Post('user/otp/generate/')
+  async generateOtp(@UserId() userId: string): Promise<OtpSecretDS> {
+    return await this.generateOtpUseCase.execute(userId, InTransactionEnum.OFF);
+  }
+
+  @Post('user/otp/verify/')
+  async verifyOtp(@UserId() userId: string, @Body('otpToken') otpToken: string): Promise<any> {
+    return await this.verifyOtpUseCase.execute({ userId, otpToken }, InTransactionEnum.OFF);
+  }
+
+  @Post('user/otp/disable/')
+  async disableOtp(@UserId() userId: string): Promise<any> {
+    return undefined;
+  }
+
+  @Post('user/otp/login/')
+  async validateOtp(@UserId() userId: string): Promise<any> {
+    return await this.otpLoginUseCase.execute(userId, InTransactionEnum.OFF);
   }
 
   private getCookieDomainOtions(): { domain: string } | undefined {
