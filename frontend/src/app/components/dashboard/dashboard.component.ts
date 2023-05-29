@@ -76,7 +76,14 @@ export class DashboardComponent implements OnInit {
   async ngOnInit() {
     this.connectionID = this._connections.currentConnectionID;
     this.dataSource = new TablesDataSource(this._tables, this._notifications, this._connections);
-    this.shownTableTitles = localStorage.getItem(`shownTableTitles__${this.connectionID}`) === 'true';
+    const isTitlesShown = localStorage.getItem(`shownTableTitles__${this.connectionID}`);
+    if (isTitlesShown === null) {
+      this.shownTableTitles = true
+    } else {
+      this.shownTableTitles = localStorage.getItem(`shownTableTitles__${this.connectionID}`) === 'true';
+    };
+
+    console.log({isTitlesShown});
 
     let tables;
     try {
