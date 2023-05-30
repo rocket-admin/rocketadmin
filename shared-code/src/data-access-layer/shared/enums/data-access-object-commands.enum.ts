@@ -12,4 +12,5 @@ export enum DataAccessObjectCommandsEnum {
   validateSettings = 'validateSettings',
   getIdentityColumns = 'getIdentityColumns',
   getReferencedTableNamesAndColumns = 'getReferencedTableNamesAndColumns',
+  isView = 'isView',
 }

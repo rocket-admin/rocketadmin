@@ -60,7 +60,15 @@ export class AddRowInTableUseCase extends AbstractUseCase<AddRowInTableDs, ITabl
     if (isConnectionTypeAgent(connection.type)) {
       userEmail = await this._dbContext.userRepository.getUserEmailOrReturnNull(userId);
     }
-
+    const isView = await dao.isView(tableName, userEmail);
+    if (isView) {
+      throw new HttpException(
+        {
+          message: Messages.CANT_UPDATE_TABLE_VIEW,
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
     let [
       tableStructure,
       tableWidgets,
