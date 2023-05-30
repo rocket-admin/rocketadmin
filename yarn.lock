@@ -2428,7 +2428,7 @@ __metadata:
     pg: ^8.10.0
     prettier: 2.8.7
     tedious: ^15.1.3
-    tunnel-ssh: 5.0.4
+    tunnel-ssh: 4.1.6
     typescript: ^4.9.5
   languageName: unknown
   linkType: soft
@@ -4069,7 +4069,6 @@ __metadata:
     ts-loader: ^9.4.2
     ts-node: ^10.9.1
     tsconfig-paths: ^4.1.2
-    tunnel-ssh: 5.0.4
     typeorm: ^0.3.11
     typescript: 4.9.4
     uuid: ^9.0.0
@@ -5495,6 +5494,16 @@ __metadata:
     path-type: ^4.0.0
     yaml: ^1.10.0
   checksum: c53bf7befc1591b2651a22414a5e786cd5f2eeaa87f3678a3d49d6069835a9d8d1aef223728e98aa8fec9a95bf831120d245096db12abe019fecb51f5696c96f
+  languageName: node
+  linkType: hard
+
+"cpu-features@npm:0.0.2":
+  version: 0.0.2
+  resolution: "cpu-features@npm:0.0.2"
+  dependencies:
+    nan: ^2.14.1
+    node-gyp: latest
+  checksum: 15177f9a2d465e4d84390f902c977b34f237dadb29fd8553853b13d906ffe5f15be9f091c72db4f34c71412d5ff4e0e4edf04caebc875b02d1d7ecfce2963299
   languageName: node
   linkType: hard
 
@@ -9606,6 +9615,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"lodash.defaults@npm:^4.1.0":
+  version: 4.2.0
+  resolution: "lodash.defaults@npm:4.2.0"
+  checksum: 84923258235592c8886e29de5491946ff8c2ae5c82a7ac5cddd2e3cb697e6fbdfbbb6efcca015795c86eec2bb953a5a2ee4016e3735a3f02720428a40efbb8f1
+  languageName: node
+  linkType: hard
+
 "lodash.get@npm:^4.4.2":
   version: 4.4.2
   resolution: "lodash.get@npm:4.4.2"
@@ -10375,7 +10391,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"nan@npm:^2.16.0, nan@npm:^2.17.0":
+"nan@npm:^2.14.1, nan@npm:^2.15.0, nan@npm:^2.16.0, nan@npm:^2.17.0":
   version: 2.17.0
   resolution: "nan@npm:2.17.0"
   dependencies:
@@ -13198,6 +13214,23 @@ __metadata:
   languageName: node
   linkType: hard
 
+"ssh2@npm:1.4.0":
+  version: 1.4.0
+  resolution: "ssh2@npm:1.4.0"
+  dependencies:
+    asn1: ^0.2.4
+    bcrypt-pbkdf: ^1.0.2
+    cpu-features: 0.0.2
+    nan: ^2.15.0
+  dependenciesMeta:
+    cpu-features:
+      optional: true
+    nan:
+      optional: true
+  checksum: 354ed1a4ed5df39e4d898b9ad02f0207851c2256adfddd34ca53971a67b793e72b4581d8812b2155c9d70bceb69b4c582445e743a013867516595c31e922d674
+  languageName: node
+  linkType: hard
+
 "ssh2@npm:^1.11.0":
   version: 1.13.0
   resolution: "ssh2@npm:1.13.0"
@@ -14126,12 +14159,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tunnel-ssh@npm:5.0.4":
-  version: 5.0.4
-  resolution: "tunnel-ssh@npm:5.0.4"
+"tunnel-ssh@npm:4.1.6":
+  version: 4.1.6
+  resolution: "tunnel-ssh@npm:4.1.6"
   dependencies:
-    ssh2: ^1.11.0
-  checksum: 07b4228e7694822e5714274ebbe3741e908feb3cdd8b2ec701a39535d7d996e0f095270034a35350dc92d65a4d15a8848c7653fd77575d53a0b4153bcb1bcf75
+    debug: 2.6.9
+    lodash.defaults: ^4.1.0
+    ssh2: 1.4.0
+  checksum: 4d39e3a7ffee1ebfa24607b9f4d920f4b2aa3fa841e60301ef7a115b5227243a97cbbc9d6032a2bab9a35888b6b736013e51fa55882fa7538ecf86e17bfe5289
   languageName: node
   linkType: hard
 

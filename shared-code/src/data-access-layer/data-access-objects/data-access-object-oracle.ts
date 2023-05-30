@@ -21,6 +21,7 @@ import { objectKeysToLowercase } from '../../helpers/object-kyes-to-lowercase.js
 import { renameObjectKeyName } from '../../helpers/rename-object-keyname.js';
 import { tableSettingsFieldValidator } from '../../helpers/validation/table-settings-validator.js';
 import { TableDS } from '../shared/data-structures/table.ds.js';
+import { ERROR_MESSAGES } from '../../helpers/errors/error-messages.js';
 
 type RefererencedConstraint = {
   TABLE_NAME: string;
@@ -630,6 +631,25 @@ export class DataAccessObjectOracle extends BasicDataAccessObject implements IDa
     }
 
     return result;
+  }
+
+  public async isView(tableName: string): Promise<boolean> {
+    const knex = await this.configureKnex();
+    const schemaName = this.connection.schema ?? this.connection.username.toUpperCase();
+    const result = await knex.raw(
+      `SELECT object_type
+       FROM all_objects
+       WHERE owner = :schemaName
+         AND object_name = :tableName`,
+      {
+        schemaName,
+        tableName,
+      },
+    );
+    if (result.length === 0) {
+      throw new Error(ERROR_MESSAGES.TABLE_NOT_FOUND(tableName));
+    }
+    return result[0].OBJECT_TYPE === 'VIEW';
   }
 
   private attachSchemaNameToTableName(tableName: string): string {

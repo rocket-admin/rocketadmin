@@ -72,4 +72,6 @@ export interface IDataAccessObjectAgent {
     tableName: string,
     userEmail: string,
   ): Promise<Array<ReferencedTableNamesAndColumnsDS>>;
+
+  isView(tableName: string, userEmail: string): Promise<boolean>;
 }

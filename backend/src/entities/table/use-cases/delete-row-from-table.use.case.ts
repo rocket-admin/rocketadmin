@@ -56,6 +56,15 @@ export class DeleteRowFromTableUseCase
     if (isConnectionTypeAgent(connection.type)) {
       userEmail = await this._dbContext.userRepository.getUserEmailOrReturnNull(userId);
     }
+    const isView = await dao.isView(tableName, userEmail);
+    if (isView) {
+      throw new HttpException(
+        {
+          message: Messages.CANT_UPDATE_TABLE_VIEW,
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
     const tableStructure = await dao.getTableStructure(tableName, userEmail);
     primaryKey = convertHexDataInPrimaryKeyUtil(primaryKey, tableStructure);
     const primaryColumns = await dao.getTablePrimaryColumns(tableName, userEmail);

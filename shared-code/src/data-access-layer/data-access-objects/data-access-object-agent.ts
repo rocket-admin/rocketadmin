@@ -404,6 +404,7 @@ export class DataAccessObjectAgent implements IDataAccessObjectAgent {
         {
           operationType: DataAccessObjectCommandsEnum.getReferencedTableNamesAndColumns,
           email: userEmail,
+          tableName: tableName,
         },
         { headers: { authorization: `Bearer ${jwtAuthToken}` } },
       );
@@ -411,6 +412,36 @@ export class DataAccessObjectAgent implements IDataAccessObjectAgent {
         throw new Error(res.data.commandResult.message);
       }
       if (!res?.data?.commandResult) {
+        throw new Error(ERROR_MESSAGES.NO_DATA_RETURNED_FROM_AGENT);
+      }
+      return res.data.commandResult;
+    } catch (e) {
+      this.checkIsErrorLocalAndThrowException(e);
+      throw new Error(e.response.data);
+    }
+  }
+
+  public async isView(tableName: string, userEmail: string): Promise<boolean> {
+    const jwtAuthToken = this.generateJWT(this.connection.token);
+    try {
+      const res = await axios.post(
+        this.serverAddress,
+        {
+          operationType: DataAccessObjectCommandsEnum.isView,
+          email: userEmail,
+          tableName: tableName,
+        },
+        { headers: { authorization: `Bearer ${jwtAuthToken}` } },
+      );
+      if (res.data.commandResult instanceof Error) {
+        throw new Error(res.data.commandResult.message);
+      }
+      if (
+        res.data === undefined ||
+        res.data === null ||
+        res.data.commandResult === null ||
+        res.data.commandResult === undefined
+      ) {
         throw new Error(ERROR_MESSAGES.NO_DATA_RETURNED_FROM_AGENT);
       }
       return res.data.commandResult;
