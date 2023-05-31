@@ -23,6 +23,7 @@ import { renameObjectKeyName } from '../../helpers/rename-object-keyname.js';
 import { getNumbersFromString } from '../../helpers/get-numbers-from-string.js';
 import { tableSettingsFieldValidator } from '../../helpers/validation/table-settings-validator.js';
 import { TableDS } from '../shared/data-structures/table.ds.js';
+import { ERROR_MESSAGES } from '../../helpers/errors/error-messages.js';
 
 export class DataAccessObjectMysql extends BasicDataAccessObject implements IDataAccessObject {
   constructor(connection: ConnectionParams) {
@@ -477,6 +478,18 @@ export class DataAccessObjectMysql extends BasicDataAccessObject implements IDat
       });
     }
     return results;
+  }
+
+  public async isView(tableName: string): Promise<boolean> {
+    const knex = await this.configureKnex();
+    const result = await knex('information_schema.tables').select('table_type').where({
+      table_schema: this.connection.database,
+      table_name: tableName,
+    });
+    if (result.length === 0) {
+      throw new Error(ERROR_MESSAGES.TABLE_NOT_FOUND(tableName));
+    }
+    return result[0].table_type === 'VIEW';
   }
 
   private async getRowsCount(

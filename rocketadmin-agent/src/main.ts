@@ -26,7 +26,7 @@ async function bootstrap() {
         console.error(Messages.CONNECTION_TOKEN_MISSING);
         process.exit(0);
       }
-      console.log('-> Connected to the remote server');
+      console.info('-> Connected to the remote server');
       const data = {
         operationType: 'initialConnection',
         connectionToken: connectionToken,

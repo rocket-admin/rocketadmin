@@ -16,7 +16,7 @@ export class AccountDeleteDialogComponent implements OnInit {
     {
       id: 'missing-features',
       caption: 'Missing features I need',
-      message: 'Perhaps Autoadmin has updated the functions you need and they are in a different place. ' +
+      message: 'Perhaps Rocketadmin has updated the functions you need and they are in a different place. ' +
         'Our <strong>Support team</strong> will advise you.'
     },
     {
@@ -37,7 +37,7 @@ export class AccountDeleteDialogComponent implements OnInit {
     {
       id: 'money-value',
       caption: 'I`m not getting value from my membership.',
-      message: 'If you have other membership needs, you can always choose another <a href="https://app.autoadmin.org/upgrade">trial plan</a>.'
+      message: 'If you have other membership needs, you can always choose another <a href="https://app.rocketadmin.com/upgrade">trial plan</a>.'
     },
     {
       id: 'other',

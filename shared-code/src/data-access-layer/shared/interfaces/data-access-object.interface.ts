@@ -60,4 +60,6 @@ export interface IDataAccessObject {
   validateSettings(settings: ValidateTableSettingsDS, tableName: string): Promise<Array<string>>;
 
   getReferencedTableNamesAndColumns(tableName: string): Promise<Array<ReferencedTableNamesAndColumnsDS>>;
+
+  isView(tableName: string): Promise<boolean>;
 }

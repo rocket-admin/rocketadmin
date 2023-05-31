@@ -14,4 +14,5 @@ export enum OperationTypeEnum {
   dataFromAgent = 'dataFromAgent',
   getIdentityColumns = 'getIdentityColumns',
   getReferencedTableNamesAndColumns = 'getReferencedTableNamesAndColumns',
+  isView = 'isView',
 }

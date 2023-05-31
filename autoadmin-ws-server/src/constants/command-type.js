@@ -12,4 +12,5 @@ export const COMMAND_TYPE = Object.freeze({
   validateSettings: 'validateSettings',
   initialConnection: 'initialConnection',
   dataFromAgent: 'dataFromAgent',
+  isView: 'isView',
 });
