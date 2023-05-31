@@ -51,8 +51,6 @@
     "@types/qrcode": "^1.5.0",
     "@zapier/secret-scrubber": "^1.0.7",
     "argon2": "0.30.3",
-    "aws-sdk": "2.1295.0",
-    "aws-sdk-mock": "5.8.0",
     "aws-xray-sdk-core": "3.4.1",
     "aws-xray-sdk-express": "3.4.1",
     "axios": "^1.2.2",
