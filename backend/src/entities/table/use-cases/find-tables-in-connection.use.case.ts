@@ -20,6 +20,7 @@ import { buildTableFieldInfoEntity, buildTableInfoEntity } from '../utils/save-t
 import { IFindTablesInConnection } from './table-use-cases.interface.js';
 import { TableStructureDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/table-structure.ds.js';
 import { TableDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/table.ds.js';
+import { UnknownSQLException } from '../../../exceptions/custom-exceptions/unknown-sql-exception.js';
 
 @Injectable()
 export class FindTablesInConnectionUseCase
@@ -46,7 +47,7 @@ export class FindTablesInConnectionUseCase
       );
     }
     const dao = getDataAccessObject(connection);
-    let userEmail;
+    let userEmail: string;
     let operationResult = false;
     if (isConnectionTypeAgent(connection.type)) {
       userEmail = await this._dbContext.userRepository.getUserEmailOrReturnNull(userId);
@@ -56,13 +57,7 @@ export class FindTablesInConnectionUseCase
       tables = await dao.getTablesFromDB(userEmail);
       operationResult = true;
     } catch (e) {
-      throw new HttpException(
-        {
-          message: `${Messages.FAILED_GET_TABLES} ${Messages.ERROR_MESSAGE}
-         ${e.message} ${Messages.TRY_AGAIN_LATER}`,
-        },
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
+      throw new UnknownSQLException(e.message, Messages.FAILED_GET_TABLES);
     } finally {
       if (!connection.isTestConnection) {
         Logger.logInfo({
