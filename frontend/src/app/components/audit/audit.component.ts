@@ -1,16 +1,17 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { Subscription, merge } from 'rxjs';
 
 import { AuditDataSource } from './audit-data-source';
 import { ConnectionsService } from 'src/app/services/connections.service';
 import { InfoDialogComponent } from './info-dialog/info-dialog.component';
 import { Log } from 'src/app/models/logs';
 import { MatDialog } from '@angular/material/dialog';
-import {MatPaginator} from '@angular/material/paginator';
+import { MatPaginator } from '@angular/material/paginator';
 import { TableProperties } from 'src/app/models/table';
 import { TablesService } from 'src/app/services/tables.service';
+import { Title } from '@angular/platform-browser';
 import { User } from '@sentry/angular';
 import { UsersService } from 'src/app/services/users.service';
-import { merge } from 'rxjs';
 import { tap } from 'rxjs/operators';
 
 @Component({
@@ -18,7 +19,7 @@ import { tap } from 'rxjs/operators';
   templateUrl: './audit.component.html',
   styleUrls: ['./audit.component.css']
 })
-export class AuditComponent implements OnInit {
+export class AuditComponent implements OnInit, OnDestroy {
   public connectionID: string;
   public columns: string[];
   public dataColumns: string[];
@@ -30,7 +31,7 @@ export class AuditComponent implements OnInit {
   public noTablesError: boolean = false;
 
   public dataSource: AuditDataSource = null;
-
+  private getTitleSubscription: Subscription;
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
 
@@ -39,6 +40,7 @@ export class AuditComponent implements OnInit {
     private _tables: TablesService,
     private _users: UsersService,
     public dialog: MatDialog,
+    private title: Title
   ) { }
 
   ngAfterViewInit() {
@@ -49,11 +51,14 @@ export class AuditComponent implements OnInit {
             tap(() => this.loadLogsPage())
         )
         .subscribe();
-
   }
 
   ngOnInit(): void {
-    this.connectionID = this._connections.currentConnectionID;;
+    this.getTitleSubscription = this._connections.getCurrentConnectionTitle().subscribe(connectionTitle => {
+      this.title.setTitle(`Audit - ${connectionTitle} | Rocketadmin`);
+      console.log('audit ngOnInit');
+    });
+    this.connectionID = this._connections.currentConnectionID;
     this.columns = ['Table', 'User', 'Action', 'Date', 'Status', 'Details'];
     this.dataColumns = ['Table', 'User', 'Action', 'Date', 'Status'];
     this.dataSource = new AuditDataSource(this._connections);
@@ -73,6 +78,10 @@ export class AuditComponent implements OnInit {
       .subscribe(res => {
         this.usersList = res;
       })
+  }
+
+  ngOnDestroy() {
+    this.getTitleSubscription.unsubscribe();
   }
 
   loadLogsPage() {

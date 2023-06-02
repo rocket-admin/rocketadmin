@@ -1,6 +1,5 @@
-import { ActivatedRoute, Router } from '@angular/router';
 import { Alert, AlertActionType, AlertType } from 'src/app/models/alert';
-import { Component, NgZone, OnInit } from '@angular/core';
+import { Component, NgZone, OnDestroy, OnInit } from '@angular/core';
 import { Connection, ConnectionType, DBtype, TestConnection } from 'src/app/models/connection';
 
 import { AccessLevel } from 'src/app/models/user';
@@ -12,6 +11,9 @@ import { DbConnectionIpAccessDialogComponent } from './db-connection-ip-access-d
 import { MatDialog } from '@angular/material/dialog';
 import { NgForm } from '@angular/forms';
 import { NotificationsService } from 'src/app/services/notifications.service';
+import { Router } from '@angular/router';
+import { Subscription } from 'rxjs';
+import { Title } from '@angular/platform-browser';
 import { UserService } from 'src/app/services/user.service';
 
 @Component({
@@ -19,7 +21,7 @@ import { UserService } from 'src/app/services/user.service';
   templateUrl: './connect-db.component.html',
   styleUrls: ['./connect-db.component.css']
 })
-export class ConnectDBComponent implements OnInit {
+export class ConnectDBComponent implements OnInit, OnDestroy {
 
   public connectionID: string | null = null;
   public masterKey: string;
@@ -53,19 +55,26 @@ export class ConnectDBComponent implements OnInit {
     Linux: 'https://github.com/rocket-admin/rocketadmin-cli/releases/download/latest/rocketadmin-cli-linux'
   }
 
+  private getTitleSubscription: Subscription;
+
   constructor(
     private _connections: ConnectionsService,
-    private ngZone: NgZone,
-    public router: Router,
-    private route: ActivatedRoute,
-    public dialog: MatDialog,
     private _notifications: NotificationsService,
     public _user: UserService,
-    private angulartics2: Angulartics2
+    private ngZone: NgZone,
+    public router: Router,
+    public dialog: MatDialog,
+    private angulartics2: Angulartics2,
+    private title: Title
   ) { }
 
   ngOnInit() {
     this.connectionID = this._connections.currentConnectionID;
+
+    if (this.connectionID) this.getTitleSubscription = this._connections.getCurrentConnectionTitle().subscribe(connectionTitle => {
+      this.title.setTitle(`Edit connection ${connectionTitle} | Rocketadmin`);
+    });
+
     const currentMasterKey = localStorage.getItem(`${this.connectionID}__masterKey`);
     if (currentMasterKey) {this.masterKey = currentMasterKey};
 
@@ -81,6 +90,10 @@ export class ConnectDBComponent implements OnInit {
       // @ts-ignore
       fbq('trackCustom', 'Add_connection');
     };
+  }
+
+  ngOnDestroy() {
+    this.getTitleSubscription.unsubscribe();
   }
 
   get db():Connection {

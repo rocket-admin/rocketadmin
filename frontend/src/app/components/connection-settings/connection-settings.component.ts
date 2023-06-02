@@ -1,10 +1,12 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 
 import { AccessLevel } from 'src/app/models/user';
 import { ConnectionSettings } from 'src/app/models/connection';
 import { ConnectionsService } from 'src/app/services/connections.service';
+import { Subscription } from 'rxjs';
 import { TableProperties } from 'src/app/models/table';
 import { TablesService } from 'src/app/services/tables.service';
+import { Title } from '@angular/platform-browser';
 import { normalizeTableName } from '../../lib/normalize'
 
 @Component({
@@ -12,7 +14,7 @@ import { normalizeTableName } from '../../lib/normalize'
   templateUrl: './connection-settings.component.html',
   styleUrls: ['./connection-settings.component.css']
 })
-export class ConnectionSettingsComponent implements OnInit {
+export class ConnectionSettingsComponent implements OnInit, OnDestroy {
 
   public connectionID: string | null = null;
   public tablesList: TableProperties[] = null;
@@ -30,12 +32,19 @@ export class ConnectionSettingsComponent implements OnInit {
   public noTablesError: boolean = false;
   public errorMessage: string;
 
+  private getTitleSubscription: Subscription;
+
   constructor(
     private _connections: ConnectionsService,
     private _tables: TablesService,
+    private title: Title
   ) { }
 
   ngOnInit(): void {
+    this.getTitleSubscription = this._connections.getCurrentConnectionTitle().subscribe(connectionTitle => {
+      this.title.setTitle(`Settings - ${connectionTitle} | Rocketadmin`);
+    });
+
     this.connectionID = this._connections.currentConnectionID;
 
     this.loading = true;
@@ -61,6 +70,10 @@ export class ConnectionSettingsComponent implements OnInit {
           // this.errorMessage = error.error.message;
         }
       )
+  }
+
+  ngOnDestroy() {
+    this.getTitleSubscription.unsubscribe();
   }
 
   get connectionName() {
