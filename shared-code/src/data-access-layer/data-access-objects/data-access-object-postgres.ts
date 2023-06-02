@@ -22,6 +22,7 @@ import { renameObjectKeyName } from '../../helpers/rename-object-keyname.js';
 import { setPropertyValue } from '../../helpers/set-property-value.js';
 import { tableSettingsFieldValidator } from '../../helpers/validation/table-settings-validator.js';
 import { TableDS } from '../shared/data-structures/table.ds.js';
+import { ERROR_MESSAGES } from '../../helpers/errors/error-messages.js';
 
 export class DataAccessObjectPostgres extends BasicDataAccessObject implements IDataAccessObject {
   constructor(connection: ConnectionParams) {
@@ -524,6 +525,17 @@ export class DataAccessObjectPostgres extends BasicDataAccessObject implements I
       });
     }
     return results;
+  }
+
+  public async isView(tableName: string): Promise<boolean> {
+    const schema = this.connection.schema ? this.connection.schema : 'public';
+    const knex = await this.configureKnex();
+    const entityType = await knex('information_schema.tables')
+      .select('table_type')
+      .where('table_schema', schema)
+      .andWhere('table_name', tableName);
+    if (entityType.length === 0) throw new Error(ERROR_MESSAGES.TABLE_NOT_FOUND(tableName));
+    return entityType[0].table_type === 'VIEW';
   }
 
   private async getRowsCount(

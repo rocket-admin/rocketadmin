@@ -54,7 +54,15 @@ export class DeleteRowsFromTableUseCase
     if (isConnectionTypeAgent(connection.type)) {
       userEmail = await this._dbContext.userRepository.getUserEmailOrReturnNull(userId);
     }
-
+    const isView = await dao.isView(tableName, userEmail);
+    if (isView) {
+      throw new HttpException(
+        {
+          message: Messages.CANT_UPDATE_TABLE_VIEW,
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
     const [tableStructure, primaryColumns, tableSettings] = await Promise.all([
       dao.getTableStructure(tableName, userEmail),
       dao.getTablePrimaryColumns(tableName, userEmail),

@@ -435,6 +435,20 @@ WHERE
     return results;
   }
 
+  public async isView(tableName: string): Promise<boolean> {
+    const knex = await this.configureKnex();
+    const schemaName = await this.getSchemaNameWithoutBrackets(tableName);
+    const result = await knex('information_schema.tables')
+      .select('TABLE_TYPE')
+      .where('TABLE_SCHEMA', schemaName)
+      .andWhere('TABLE_NAME', tableName);
+
+    if (result.length === 0) {
+      throw new Error(ERROR_MESSAGES.TABLE_NOT_FOUND(tableName));
+    }
+    return result[0].TABLE_TYPE === 'VIEW';
+  }
+
   private async getSchemaName(tableName: string): Promise<string> {
     if (this.connection.schema) {
       return `[${this.connection.schema}]`;
