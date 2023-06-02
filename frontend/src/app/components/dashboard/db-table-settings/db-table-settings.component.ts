@@ -7,6 +7,7 @@ import { Location } from '@angular/common';
 import { NgForm } from '@angular/forms';
 import { Router } from '@angular/router';
 import { TablesService } from 'src/app/services/tables.service';
+import { Title } from '@angular/platform-browser';
 import { normalizeTableName } from 'src/app/lib/normalize';
 
 @Component({
@@ -46,14 +47,16 @@ export class DbTableSettingsComponent implements OnInit {
   constructor(
     private _tables: TablesService,
     private _connections: ConnectionsService,
+    private _location: Location,
     public router: Router,
-    private _location: Location
+    private title: Title,
   ) { }
 
   ngOnInit(): void {
     this.connectionID = this._connections.currentConnectionID;
     this.tableName = this._tables.currentTableName;
     this.displayTableName = normalizeTableName(this.tableName);
+    this.title.setTitle(`Table settings - ${this.displayTableName} | Rocketadmin`);
     this._tables.cast.subscribe();
     this._tables.fetchTableStructure(this.connectionID, this.tableName)
       .subscribe(res => {
@@ -99,7 +102,7 @@ export class DbTableSettingsComponent implements OnInit {
           this.tableSettings = res;
           this.listFieldsOrder = [...res.list_fields];
         };
-        if (res && !res.list_fields.length) {
+        if (res && res.list_fields && !res.list_fields.length) {
           this.listFieldsOrder = [...this.fields];
         };
       }

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { GroupUser, User, UserGroup, UserGroupInfo } from 'src/app/models/user';
 
 import { Connection } from 'src/app/models/connection';
@@ -7,6 +7,8 @@ import { GroupAddDialogComponent } from './group-add-dialog/group-add-dialog.com
 import { GroupDeleteDialogComponent } from './group-delete-dialog/group-delete-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
 import { PermissionsAddDialogComponent } from './permissions-add-dialog/permissions-add-dialog.component';
+import { Subscription } from 'rxjs';
+import { Title } from '@angular/platform-browser';
 import { UserAddDialogComponent } from './user-add-dialog/user-add-dialog.component';
 import { UserDeleteDialogComponent } from './user-delete-dialog/user-delete-dialog.component';
 import { UserService } from 'src/app/services/user.service';
@@ -17,7 +19,7 @@ import { UsersService } from '../../services/users.service';
   templateUrl: './users.component.html',
   styleUrls: ['./users.component.css']
 })
-export class UsersComponent implements OnInit {
+export class UsersComponent implements OnInit, OnDestroy {
 
   public users: { [key: string]: GroupUser[] | 'empty' } = {};
   public currentUser: User;
@@ -25,14 +27,20 @@ export class UsersComponent implements OnInit {
   public currentConnection: Connection;
   public connectionID: string | null = null;
 
+  private getTitleSubscription: Subscription;
+
   constructor(
     private _usersService: UsersService,
     private _userService: UserService,
+    private _connections: ConnectionsService,
     public dialog: MatDialog,
-    private _connections: ConnectionsService
+    private title: Title
   ) { }
 
   ngOnInit() {
+    this.getTitleSubscription = this._connections.getCurrentConnectionTitle().subscribe(connectionTitle => {
+      this.title.setTitle(`User permissions - ${connectionTitle} | Rocketadmin`);
+    });
     this.connectionID = this._connections.currentConnectionID;
     this.getUsersGroups();
     this._userService.cast.subscribe(user => this.currentUser = user);
@@ -44,6 +52,10 @@ export class UsersComponent implements OnInit {
         this.fetchGroupUsers(arg);
       };
     });
+  }
+
+  ngOnDestroy() {
+    this.getTitleSubscription.unsubscribe();
   }
 
   isPermitted(accessLevel) {

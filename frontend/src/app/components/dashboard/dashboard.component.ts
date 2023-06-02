@@ -16,6 +16,7 @@ import { SelectionModel } from '@angular/cdk/collections';
 import { TableRowService } from 'src/app/services/table-row.service';
 import { TablesDataSource } from './db-tables-data-source';
 import { TablesService } from 'src/app/services/tables.service';
+import { Title } from '@angular/platform-browser';
 import { User } from 'src/app/models/user';
 import { normalizeTableName } from '../../lib/normalize'
 import { omitBy } from "lodash";
@@ -60,13 +61,14 @@ export class DashboardComponent implements OnInit {
   public selection = new SelectionModel<any>(true, []);
 
   constructor(
-    public router: Router,
-    private route: ActivatedRoute,
-    public dialog: MatDialog,
     private _connections: ConnectionsService,
     private _tables: TablesService,
     private _notifications: NotificationsService,
     private _tableRow: TableRowService,
+    public router: Router,
+    private route: ActivatedRoute,
+    public dialog: MatDialog,
+    private title: Title,
   ) {}
 
   get currentConnectionAccessLevel () {
@@ -82,8 +84,6 @@ export class DashboardComponent implements OnInit {
     } else {
       this.shownTableTitles = localStorage.getItem(`shownTableTitles__${this.connectionID}`) === 'true';
     };
-
-    console.log({isTitlesShown});
 
     let tables;
     try {
@@ -108,6 +108,7 @@ export class DashboardComponent implements OnInit {
             if (tableName) {
               this.selectedTableName = tableName;
               this.setTable(tableName);
+              this.title.setTitle(`${this.selectedTableDisplayName} table | Rocketadmin`);
               this.selection.clear();
             } else {
               this.router.navigate([`/dashboard/${this.connectionID}/${this.tablesList[0].table}`], {replaceUrl: true});

@@ -31,7 +31,6 @@ export class AppComponent {
   userInactive: Subject<any> = new Subject();
   chatHasBeenShownOnce: boolean = false;
 
-  title = 'Rocketadmin';
   userLoggedIn = null;
   redirect_uri = `${location.origin}/loader`;
   connections = [];
@@ -57,7 +56,7 @@ export class AppComponent {
     private _tables: TablesService,
     angulartics2Amplitude: Angulartics2Amplitude,
     private domSanitizer: DomSanitizer,
-    private matIconRegistry: MatIconRegistry
+    private matIconRegistry: MatIconRegistry,
   ) {
     this.matIconRegistry.addSvgIcon("mysql", this.domSanitizer.bypassSecurityTrustResourceUrl("/assets/icons/mysql_logo.svg"));
     this.matIconRegistry.addSvgIcon("mssql", this.domSanitizer.bypassSecurityTrustResourceUrl("/assets/icons/mssql_logo.svg"));
