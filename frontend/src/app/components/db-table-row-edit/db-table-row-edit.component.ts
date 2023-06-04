@@ -126,7 +126,7 @@ export class DbTableRowEditComponent implements OnInit {
             this.setRowStructure(res.structure);
             this.identityColumn = res.identity_column;
 
-            if (res.referenced_table_names_and_columns && res.referenced_table_names_and_columns[0].referenced_by) {
+            if (res.referenced_table_names_and_columns && res.referenced_table_names_and_columns[0].referenced_by[0] !== null) {
               this.referencedTables = res.referenced_table_names_and_columns[0].referenced_by
                 .map((table: any) => { return {...table, normalizedTableName: normalizeTableName(table.table_name)}});
               this.referencedTablesURLParams = res.referenced_table_names_and_columns[0].referenced_by
