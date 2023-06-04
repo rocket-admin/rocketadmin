@@ -429,7 +429,7 @@ WHERE
       );
       results.push({
         referenced_on_column_name: primaryColumn.column_name,
-        referenced_by: result[0],
+        referenced_by: [result[0]],
       });
     }
     return results;
