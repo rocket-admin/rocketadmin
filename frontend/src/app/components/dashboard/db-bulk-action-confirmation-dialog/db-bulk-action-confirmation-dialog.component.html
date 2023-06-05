@@ -1,6 +1,7 @@
-<h1 mat-dialog-title>Confirm {{data.title}} for {{ selectedTableName }} table</h1>
+<h1 mat-dialog-title>Confirm <span class="actions-title">{{data.title}}</span> for {{ selectedTableName }} table</h1>
 <mat-dialog-content>
-    <div class="mat-body">You are going to {{data.title}} with following primary key(s)
+    <div *ngIf="data.identityFieldValues; else primaryKeysList">
+        <p class="mat-body">You are going to <strong class="actions-title">{{data.title}}</strong> for:</p>
         <ul *ngIf="data.identityFieldValues; else primaryKeysList" class="listOfPrimaryKeys">
             <li *ngFor="let identityValue of data.identityFieldValues; let last = last">
                 <strong>
@@ -11,21 +12,22 @@
                 </strong>
             </li>
         </ul>
-        <ng-template #primaryKeysList>
-            <ul class="listOfPrimaryKeys">
-                <li *ngFor="let primaryKey of data.primaryKeys; let i = index">
-                    <strong *ngFor="let attribute of primaryKey | keyvalue; let last = last">
-                        {{attribute.key}} = {{attribute.value}}<span *ngIf="!last">,</span>
-                    </strong>
-                    <span *ngIf="i !== data.primaryKeys.length - 1; else dot">;</span>
-                    <ng-template #dot>
-                        <span>.</span>
-                    </ng-template>
-                </li>
-            </ul>
-        </ng-template>
-
     </div>
+    <ng-template #primaryKeysList>
+        <p class="mat-body">You are going to <strong class="actions-title">{{data.title}}</strong> with following primary key(s)</p>
+        <ul class="listOfPrimaryKeys">
+            <li *ngFor="let primaryKey of data.primaryKeys; let i = index">
+                <strong *ngFor="let attribute of primaryKey | keyvalue; let last = last">
+                    {{attribute.key}} = {{attribute.value}}<span *ngIf="!last">,</span>
+                </strong>
+                <span *ngIf="i !== data.primaryKeys.length - 1; else dot">;</span>
+                <ng-template #dot>
+                    <span>.</span>
+                </ng-template>
+            </li>
+        </ul>
+    </ng-template>
+    <br />
     <p class="mat-body">Please confirm.</p>
 
 </mat-dialog-content>

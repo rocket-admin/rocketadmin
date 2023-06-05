@@ -7,10 +7,10 @@ import { AccessLevel } from 'src/app/models/user';
 import { ActivatedRoute } from '@angular/router';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
+import { TablesService } from 'src/app/services/tables.service';
 import { merge } from 'rxjs';
 import { normalizeTableName } from '../../../lib/normalize'
 import { tap } from 'rxjs/operators';
-import { TablesService } from 'src/app/services/tables.service';
 
 interface Column {
   title: string,
@@ -35,8 +35,6 @@ export class DbTableComponent implements OnInit {
 
   @Output() openFilters = new EventEmitter();
   @Output() openPage = new EventEmitter();
-  @Output() deleteRow = new EventEmitter();
-  @Output() deleteRows = new EventEmitter();
   @Output() search = new EventEmitter();
   @Output() removeFilter = new EventEmitter();
   @Output() resetAllFilters = new EventEmitter();

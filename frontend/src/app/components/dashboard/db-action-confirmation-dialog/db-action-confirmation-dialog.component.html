@@ -1,13 +1,15 @@
-<h1 mat-dialog-title>Confirm {{data.title}} for {{ selectedTableName }} table</h1>
+<h1 mat-dialog-title>Confirm <span class="actions-title">{{data.title}}</span> for {{ selectedTableName }} table</h1>
 <mat-dialog-content>
-    <p class="mat-body">You are going to {{data.title}} with following primary key(s)
-        <strong *ngIf="data.identityFieldValue; else primaryKeysList">{{data.identityFieldValue}}</strong>
-        <ng-template #primaryKeysList>
+    <p *ngIf="data.identityFieldValue; else primaryKeysList">
+        You are going to <strong class="actions-title">{{data.title}}</strong> for <strong>{{data.identityFieldValue}}</strong>.
+    </p>
+    <ng-template #primaryKeysList>
+        <p class="mat-body">You are going to <strong class="actions-title">{{data.title}}</strong> with following primary key(s)
             <strong *ngFor="let primaryKey of data.primaryKeys | keyvalue; let last = last">
                 {{primaryKey.key}} = {{primaryKey.value}}<span *ngIf="!last">,</span>
             </strong>.
-        </ng-template>
-    </p>
+        </p>
+    </ng-template>
     <br />
     <p class="mat-body">Please confirm.</p>
 

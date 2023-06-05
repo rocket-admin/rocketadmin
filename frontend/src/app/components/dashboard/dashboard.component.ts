@@ -251,24 +251,14 @@ export class DashboardComponent implements OnInit {
     });
   }
 
-  confirmDeleteRows(selectedRows) {
-    const primaryKeys = this.getPrimaryKeys(selectedRows);
-
-    this.dialog.open(BbBulkActionConfirmationDialogComponent, {
-      width: '25em',
-      data: {title: 'delete', primaryKeys}
-    });
-  }
-
   openIntercome() {
     // @ts-ignore
     Intercom('show');
   }
 
-
   activateAction({action, primaryKeys, identityFieldValue}: DataToActivateAction) {
     if (action.requireConfirmation) {
-      if (action.type === CustomActionType.Single) {
+      if (action.type === CustomActionType.Single || action.title === 'Delete row') {
         this.dialog.open(DbActionConfirmationDialogComponent, {
           width: '25em',
           data: {id: action.id, title: action.title, primaryKeys, identityFieldValue}
