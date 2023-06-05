@@ -1,6 +1,7 @@
 import * as Sentry from "@sentry/angular";
 
 import { APP_INITIALIZER, CUSTOM_ELEMENTS_SCHEMA, ErrorHandler, NgModule } from '@angular/core';
+import { BrowserModule, Title } from '@angular/platform-browser';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { IColorConfig, NgxThemeModule } from "@brumeilde/ngx-theme";
@@ -21,7 +22,6 @@ import { BinaryDataCaptionComponent } from './components/ui-components/row-field
 import { BooleanComponent } from './components/ui-components/row-fields/boolean/boolean.component';
 import { BreadcrumbsComponent } from './components/ui-components/breadcrumbs/breadcrumbs.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { BrowserModule } from '@angular/platform-browser';
 import { ClipboardModule } from '@angular/cdk/clipboard';
 import { CodemirrorModule } from '@ctrl/ngx-codemirror';
 import { ConfigModule } from './modules/config.module';
@@ -217,6 +217,7 @@ const saasExtraProviders = (environment as any).saas ? [
     NotificationsService,
     TablesService,
     CookieService,
+    Title,
     {
       provide: HTTP_INTERCEPTORS,
       useClass: TokenInterceptor,

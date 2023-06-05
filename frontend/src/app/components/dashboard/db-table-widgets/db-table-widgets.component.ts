@@ -2,14 +2,15 @@ import { Component, OnInit } from '@angular/core';
 import { TableField, Widget } from 'src/app/models/table';
 
 import { ConnectionsService } from 'src/app/services/connections.service';
+import { Location } from '@angular/common';
 import { MatDialog } from '@angular/material/dialog';
+import { Router } from '@angular/router';
 import { TablesService } from 'src/app/services/tables.service';
+import { Title } from '@angular/platform-browser';
 import { UIwidgets } from "src/app/consts/field-types";
 import { WidgetDeleteDialogComponent } from './widget-delete-dialog/widget-delete-dialog.component';
 import { difference } from "lodash";
 import { normalizeTableName } from 'src/app/lib/normalize';
-import { Router } from '@angular/router';
-import { Location } from '@angular/common';
 
 @Component({
   selector: 'app-db-table-widgets',
@@ -94,15 +95,17 @@ export class DbTableWidgetsComponent implements OnInit {
   constructor(
     private _connections: ConnectionsService,
     private _tables: TablesService,
+    private _location: Location,
     public dialog: MatDialog,
     public router: Router,
-    private _location: Location
+    private title: Title,
   ) {}
 
   ngOnInit(): void {
     this.connectionID = this._connections.currentConnectionID;
     this.tableName = this._tables.currentTableName;
     this.normalizedTableName = normalizeTableName(this.tableName);
+    this.title.setTitle(`Widgets - ${this.normalizedTableName} | Rocketadmin`);
     this.widgetsWithSettings = Object
       .entries(this.defaultParams)
       .filter(([key, value]) => value !== '// No settings required')

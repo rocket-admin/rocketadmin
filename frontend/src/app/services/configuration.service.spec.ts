@@ -1,6 +1,5 @@
-import { TestBed } from '@angular/core/testing';
-
 import { ConfigurationService } from './configuration.service';
+import { TestBed } from '@angular/core/testing';
 
 describe('ConfigurationService', () => {
   let service: ConfigurationService;
@@ -10,7 +9,7 @@ describe('ConfigurationService', () => {
       providers: [
         {
           provide: ConfigurationService,
-          useValue: { CONFIG_URL: 'https://api-v2.autoadmin.org' }
+          useValue: { CONFIG_URL: 'https://app.rocketadmin.com/api' }
         }
       ]
     });

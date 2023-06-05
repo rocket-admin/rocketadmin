@@ -1,6 +1,6 @@
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { Component, OnInit } from '@angular/core';
-import { CustomAction, TableProperties } from 'src/app/models/table';
+import { CustomAction, CustomActionType, TableProperties } from 'src/app/models/table';
 import { first, map } from 'rxjs/operators';
 import { getComparators, getFilters } from 'src/app/lib/parse-filter-params';
 
@@ -16,6 +16,7 @@ import { SelectionModel } from '@angular/cdk/collections';
 import { TableRowService } from 'src/app/services/table-row.service';
 import { TablesDataSource } from './db-tables-data-source';
 import { TablesService } from 'src/app/services/tables.service';
+import { Title } from '@angular/platform-browser';
 import { User } from 'src/app/models/user';
 import { normalizeTableName } from '../../lib/normalize'
 import { omitBy } from "lodash";
@@ -60,13 +61,14 @@ export class DashboardComponent implements OnInit {
   public selection = new SelectionModel<any>(true, []);
 
   constructor(
-    public router: Router,
-    private route: ActivatedRoute,
-    public dialog: MatDialog,
     private _connections: ConnectionsService,
     private _tables: TablesService,
     private _notifications: NotificationsService,
     private _tableRow: TableRowService,
+    public router: Router,
+    private route: ActivatedRoute,
+    public dialog: MatDialog,
+    private title: Title,
   ) {}
 
   get currentConnectionAccessLevel () {
@@ -82,8 +84,6 @@ export class DashboardComponent implements OnInit {
     } else {
       this.shownTableTitles = localStorage.getItem(`shownTableTitles__${this.connectionID}`) === 'true';
     };
-
-    console.log({isTitlesShown});
 
     let tables;
     try {
@@ -108,6 +108,7 @@ export class DashboardComponent implements OnInit {
             if (tableName) {
               this.selectedTableName = tableName;
               this.setTable(tableName);
+              this.title.setTitle(`${this.selectedTableDisplayName} table | Rocketadmin`);
               this.selection.clear();
             } else {
               this.router.navigate([`/dashboard/${this.connectionID}/${this.tablesList[0].table}`], {replaceUrl: true});
@@ -267,18 +268,30 @@ export class DashboardComponent implements OnInit {
 
   activateAction({action, primaryKeys, identityFieldValue}: DataToActivateAction) {
     if (action.requireConfirmation) {
-      this.dialog.open(DbActionConfirmationDialogComponent, {
-        width: '25em',
-        data: {id: action.id, title: action.title, primaryKeys, identityFieldValue}
-      });
+      if (action.type === CustomActionType.Single) {
+        this.dialog.open(DbActionConfirmationDialogComponent, {
+          width: '25em',
+          data: {id: action.id, title: action.title, primaryKeys, identityFieldValue}
+        });
+      } else if (action.type === CustomActionType.Multiple) {
+        this.dialog.open(BbBulkActionConfirmationDialogComponent, {
+          width: '25em',
+          data: {id: action.id, title: action.title, primaryKeys: [primaryKeys], identityFieldValues: [identityFieldValue]}
+        });
+      }
     } else {
-      this._tables.activateAction(this.connectionID, this.selectedTableName, action.id, action.title, primaryKeys)
+      if (action.type === CustomActionType.Single) {
+        this._tables.activateAction(this.connectionID, this.selectedTableName, action.id, action.title, primaryKeys)
         .subscribe((res) => {
           if (res && res.location) this.dialog.open(DbActionLinkDialogComponent, {
             width: '25em',
             data: {href: res.location, actionName: action.title, primaryKeys, identityFieldValue}
           })
         })
+      } else if (action.type === CustomActionType.Multiple) {
+        this._tables.activateActions(this.connectionID, this.selectedTableName, action.id, action.title, [primaryKeys])
+          .subscribe(() => {console.log('activated')})
+      }
     }
   }
 

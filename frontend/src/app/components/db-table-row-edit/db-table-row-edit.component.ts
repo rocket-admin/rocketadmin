@@ -14,6 +14,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { NotificationsService } from 'src/app/services/notifications.service';
 import { TableRowService } from 'src/app/services/table-row.service';
 import { TablesService } from 'src/app/services/tables.service';
+import { Title } from '@angular/platform-browser';
 import { getTableTypes } from 'src/app/lib/setup-table-row-structure';
 import { normalizeTableName } from '../../lib/normalize';
 
@@ -57,12 +58,13 @@ export class DbTableRowEditComponent implements OnInit {
     private _connections: ConnectionsService,
     private _tables: TablesService,
     private _tableRow: TableRowService,
+    private _notifications: NotificationsService,
+    private _location: Location,
     private route: ActivatedRoute,
     private ngZone: NgZone,
     public router: Router,
-    private _notifications: NotificationsService,
-    private _location: Location,
     public dialog: MatDialog,
+    private title: Title,
   ) { }
 
   ngOnInit(): void {
@@ -73,6 +75,7 @@ export class DbTableRowEditComponent implements OnInit {
 
     this.route.queryParams.subscribe((params) => {
       if (Object.keys(params).length === 0) {
+        this.title.setTitle(`Add new record - ${this.normalizedTableName} | Rocketadmin`);
         this._tables.fetchTableStructure(this.connectionID, this.tableName)
           .subscribe(res => {
             this.keyAttributesFromStructure = res.primaryColumns;
@@ -102,6 +105,7 @@ export class DbTableRowEditComponent implements OnInit {
             this.loading = false;
           })
       } else {
+        this.title.setTitle(`Edit record - ${this.normalizedTableName} | Rocketadmin`);
         this.keyAttributesFromURL = params;
         this.hasKeyAttributesFromURL = !!Object.keys(this.keyAttributesFromURL).length;
         this._tableRow.fetchTableRow(this.connectionID, this.tableName, params)
@@ -122,7 +126,7 @@ export class DbTableRowEditComponent implements OnInit {
             this.setRowStructure(res.structure);
             this.identityColumn = res.identity_column;
 
-            if (res.referenced_table_names_and_columns) {
+            if (res.referenced_table_names_and_columns && res.referenced_table_names_and_columns[0].referenced_by[0] !== null) {
               this.referencedTables = res.referenced_table_names_and_columns[0].referenced_by
                 .map((table: any) => { return {...table, normalizedTableName: normalizeTableName(table.table_name)}});
               this.referencedTablesURLParams = res.referenced_table_names_and_columns[0].referenced_by

@@ -6,6 +6,7 @@ import { ConnectDBComponent } from './components/connect-db/connect-db.component
 import { ConnectionSettingsComponent } from './components/connection-settings/connection-settings.component';
 import { ConnectionsListComponent } from './components/connections-list/connections-list.component';
 import { DashboardComponent } from './components/dashboard/dashboard.component'
+import { DbTableActionsComponent } from './components/dashboard/db-table-actions/db-table-actions.component';
 import { DbTableComponent } from './components/dashboard/db-table/db-table.component';
 import { DbTableRowEditComponent } from './components/db-table-row-edit/db-table-row-edit.component';
 import { DbTableSettingsComponent } from './components/dashboard/db-table-settings/db-table-settings.component';
@@ -14,6 +15,7 @@ import { EmailChangeComponent } from './components/email-change/email-change.com
 import { EmailVerificationComponent } from './components/email-verification/email-verification.component';
 import { GroupUserVerificationComponent } from './components/group-user-verification/group-user-verification.component';
 import { LoginComponent } from './components/login/login.component';
+import { NewVersionComponent } from './components/new-version/new-version.component';
 import { NgModule } from '@angular/core';
 import { PageLoaderComponent } from './components/page-loader/page-loader.component';
 import { PageNotFoundComponent } from './components/page-not-found/page-not-found.component';
@@ -22,30 +24,28 @@ import { PasswordRequestComponent } from './components/password-request/password
 import { PasswordResetComponent } from './components/password-reset/password-change.component';
 import { RegistrationComponent } from './components/registration/registration.component';
 import { UpgradeComponent } from './components/upgrade/upgrade.component';
+import { UpgradeSuccessComponent } from './components/upgrade-success/upgrade-success.component';
+import { UserDeletedSuccessComponent } from './components/user-deleted-success/user-deleted-success.component';
 import { UserSettingsComponent } from './components/user-settings/user-settings.component';
 import { UsersComponent } from './components/users/users.component';
-import { NewVersionComponent } from './components/new-version/new-version.component';
-import { UserDeletedSuccessComponent } from './components/user-deleted-success/user-deleted-success.component';
-import { DbTableActionsComponent } from './components/dashboard/db-table-actions/db-table-actions.component';
-import { UpgradeSuccessComponent } from './components/upgrade-success/upgrade-success.component';
 
 const routes: Routes = [
   {path: '', redirectTo: '/connections-list', pathMatch: 'full'},
   {path: 'loader', component: PageLoaderComponent},
   {path: 'registration', component: RegistrationComponent},
-  {path: 'login', component: LoginComponent},
-  {path: 'forget-password', component: PasswordRequestComponent},
-  {path: 'api/user/password/reset/verify/:verification-token', component: PasswordResetComponent},
-  {path: 'api/user/email/verify/:verification-token', component: EmailVerificationComponent},
-  {path: 'api/user/email/change/verify/:change-token', component: EmailChangeComponent},
-  {path: 'deleted', component: UserDeletedSuccessComponent},
-  {path: 'new-version', component: NewVersionComponent},
-  {path: 'connect-db', component: ConnectDBComponent, canActivate: [AuthGuard]},
-  {path: 'connections-list', component: ConnectionsListComponent, canActivate: [AuthGuard]},
-  {path: 'user-settings', component: UserSettingsComponent, canActivate: [AuthGuard]},
+  {path: 'login', component: LoginComponent, title: 'Login | Rocketadmin'},
+  {path: 'forget-password', component: PasswordRequestComponent, title: 'Request password | Rocketadmin'},
+  {path: 'api/user/password/reset/verify/:verification-token', component: PasswordResetComponent, title: 'Reset password | Rocketadmin'},
+  {path: 'api/user/email/verify/:verification-token', component: EmailVerificationComponent, title: 'Email verification | Rocketadmin'},
+  {path: 'api/user/email/change/verify/:change-token', component: EmailChangeComponent, title: 'Email updating | Rocketadmin'},
+  {path: 'deleted', component: UserDeletedSuccessComponent, title: 'User deleted | Rocketadmin'},
+  {path: 'new-version', component: NewVersionComponent, title: 'New version | Rocketadmin'},
+  {path: 'connect-db', component: ConnectDBComponent, canActivate: [AuthGuard], title: 'Add new database | Rocketadmin'},
+  {path: 'connections-list', component: ConnectionsListComponent, canActivate: [AuthGuard], title: 'Connections | Rocketadmin'},
+  {path: 'user-settings', component: UserSettingsComponent, canActivate: [AuthGuard], title: 'User settings | Rocketadmin'},
   {path: 'change-password', component: PasswordChangeComponent, canActivate: [AuthGuard]},
-  {path: 'upgrade', component: UpgradeComponent, canActivate: [AuthGuard]},
-  {path: 'subscription/success', component: UpgradeSuccessComponent, canActivate: [AuthGuard]},
+  {path: 'upgrade', component: UpgradeComponent, canActivate: [AuthGuard], title: 'Upgrade | Rocketadmin'},
+  {path: 'subscription/success', component: UpgradeSuccessComponent, canActivate: [AuthGuard], title: 'Upgraded successfully | Rocketadmin'},
   {path: 'edit-db/:connection-id', component: ConnectDBComponent, canActivate: [AuthGuard]},
   {path: 'connection-settings/:connection-id', component: ConnectionSettingsComponent, canActivate: [AuthGuard]},
   {path: 'dashboard/:connection-id', component: DashboardComponent, canActivate: [AuthGuard]},
