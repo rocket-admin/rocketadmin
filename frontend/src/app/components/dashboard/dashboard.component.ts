@@ -1,6 +1,6 @@
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { Component, OnInit } from '@angular/core';
-import { CustomAction, TableProperties } from 'src/app/models/table';
+import { CustomAction, CustomActionType, TableProperties } from 'src/app/models/table';
 import { first, map } from 'rxjs/operators';
 import { getComparators, getFilters } from 'src/app/lib/parse-filter-params';
 
@@ -268,18 +268,30 @@ export class DashboardComponent implements OnInit {
 
   activateAction({action, primaryKeys, identityFieldValue}: DataToActivateAction) {
     if (action.requireConfirmation) {
-      this.dialog.open(DbActionConfirmationDialogComponent, {
-        width: '25em',
-        data: {id: action.id, title: action.title, primaryKeys, identityFieldValue}
-      });
+      if (action.type === CustomActionType.Single) {
+        this.dialog.open(DbActionConfirmationDialogComponent, {
+          width: '25em',
+          data: {id: action.id, title: action.title, primaryKeys, identityFieldValue}
+        });
+      } else if (action.type === CustomActionType.Multiple) {
+        this.dialog.open(BbBulkActionConfirmationDialogComponent, {
+          width: '25em',
+          data: {id: action.id, title: action.title, primaryKeys: [primaryKeys], identityFieldValues: [identityFieldValue]}
+        });
+      }
     } else {
-      this._tables.activateAction(this.connectionID, this.selectedTableName, action.id, action.title, primaryKeys)
+      if (action.type === CustomActionType.Single) {
+        this._tables.activateAction(this.connectionID, this.selectedTableName, action.id, action.title, primaryKeys)
         .subscribe((res) => {
           if (res && res.location) this.dialog.open(DbActionLinkDialogComponent, {
             width: '25em',
             data: {href: res.location, actionName: action.title, primaryKeys, identityFieldValue}
           })
         })
+      } else if (action.type === CustomActionType.Multiple) {
+        this._tables.activateActions(this.connectionID, this.selectedTableName, action.id, action.title, [primaryKeys])
+          .subscribe(() => {console.log('activated')})
+      }
     }
   }
 
