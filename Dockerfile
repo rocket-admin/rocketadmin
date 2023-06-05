@@ -1,4 +1,5 @@
 FROM node:18-slim AS front_builder
+SHELL ["/bin/bash", "-c"]
 WORKDIR /app/frontend
 COPY frontend/package.json frontend/yarn.lock frontend/angular.json frontend/tsconfig.app.json frontend/tsconfig.json /app/frontend/
 COPY frontend/.yarn /app/frontend/.yarn
