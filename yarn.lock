@@ -4081,17 +4081,14 @@ __metadata:
     lodash: 4.17.21
     lru-cache: ^7.14.1
     moment: 2.29.4
-    mysql2: 2.3.3
     nanoid: 4.0.0
     nest-winston: 1.8.0
     nodemailer: ^6.9.0
-    oracledb: 5.5.0
     otplib: ^12.0.1
     p-queue: 7.3.0
     passport: 0.6.0
     passport-jwt: 4.0.1
     passport-local: 1.0.0
-    pg: ^8.8.0
     pg-connection-string: ^2.6.0
     prettier: ^2.8.2
     qrcode: ^1.5.3
@@ -4101,11 +4098,8 @@ __metadata:
     safe-regex2: ^3.1.0
     secure-json-parse: 2.7.0
     sinon: 15.0.1
-    ssh2: 1.11.0
     stripe: 11.6.0
     supertest: ^6.3.3
-    swagger-ui-express: 4.6.0
-    tedious: ^15.1.3
     ts-jest: 29.0.5
     ts-loader: ^9.4.2
     ts-node: ^10.9.1
@@ -5510,7 +5504,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cpu-features@npm:~0.0.4, cpu-features@npm:~0.0.7":
+"cpu-features@npm:~0.0.7":
   version: 0.0.7
   resolution: "cpu-features@npm:0.0.7"
   dependencies:
@@ -5771,7 +5765,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"denque@npm:^2.0.1, denque@npm:^2.1.0":
+"denque@npm:^2.1.0":
   version: 2.1.0
   resolution: "denque@npm:2.1.0"
   checksum: 1d4ae1d05e59ac3a3481e7b478293f4b4c813819342273f3d5b826c7ffa9753c520919ba264f377e09108d24ec6cf0ec0ac729a5686cbb8f32d797126c5dae74
@@ -9665,13 +9659,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"long@npm:^4.0.0":
-  version: 4.0.0
-  resolution: "long@npm:4.0.0"
-  checksum: 16afbe8f749c7c849db1f4de4e2e6a31ac6e617cead3bdc4f9605cb703cd20e1e9fc1a7baba674ffcca57d660a6e5b53a9e236d7b25a295d3855cca79cc06744
-  languageName: node
-  linkType: hard
-
 "long@npm:^5.2.1":
   version: 5.2.3
   resolution: "long@npm:5.2.3"
@@ -10316,22 +10303,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"mysql2@npm:2.3.3":
-  version: 2.3.3
-  resolution: "mysql2@npm:2.3.3"
-  dependencies:
-    denque: ^2.0.1
-    generate-function: ^2.3.1
-    iconv-lite: ^0.6.3
-    long: ^4.0.0
-    lru-cache: ^6.0.0
-    named-placeholders: ^1.1.2
-    seq-queue: ^0.0.5
-    sqlstring: ^2.3.2
-  checksum: 45e479d0cbdb24ceb9d1846a1708ae2c33aa64f603f7899279b33560b1eec441f1b7a596075896f1305f701cfbc083bceb88bc72ba5d2f3656a3d6102611286a
-  languageName: node
-  linkType: hard
-
 "mysql2@npm:^3.1.2, mysql2@npm:^3.2.0":
   version: 3.3.1
   resolution: "mysql2@npm:3.3.1"
@@ -10359,7 +10330,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"named-placeholders@npm:^1.1.2, named-placeholders@npm:^1.1.3":
+"named-placeholders@npm:^1.1.3":
   version: 1.1.3
   resolution: "named-placeholders@npm:1.1.3"
   dependencies:
@@ -10368,7 +10339,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"nan@npm:^2.14.1, nan@npm:^2.15.0, nan@npm:^2.16.0, nan@npm:^2.17.0":
+"nan@npm:^2.14.1, nan@npm:^2.15.0, nan@npm:^2.17.0":
   version: 2.17.0
   resolution: "nan@npm:2.17.0"
   dependencies:
@@ -11085,7 +11056,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"oracledb@npm:5.5.0, oracledb@npm:^5.5.0":
+"oracledb@npm:^5.5.0":
   version: 5.5.0
   resolution: "oracledb@npm:5.5.0"
   checksum: 6f4112e0303397017229d7508bfaf557fa7a31b5f5fa9abf5384d20252761d41add80c42fc5efa2e232b28e54699c88287671ff31dd3c74b0608f3f13556a73c
@@ -11672,7 +11643,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"pg@npm:^8.10.0, pg@npm:^8.8.0, pg@npm:^8.9.0":
+"pg@npm:^8.10.0, pg@npm:^8.9.0":
   version: 8.11.0
   resolution: "pg@npm:8.11.0"
   dependencies:
@@ -13171,23 +13142,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ssh2@npm:1.11.0":
-  version: 1.11.0
-  resolution: "ssh2@npm:1.11.0"
-  dependencies:
-    asn1: ^0.2.4
-    bcrypt-pbkdf: ^1.0.2
-    cpu-features: ~0.0.4
-    nan: ^2.16.0
-  dependenciesMeta:
-    cpu-features:
-      optional: true
-    nan:
-      optional: true
-  checksum: e40cb9f171741a807c170dc555078aa8c49dc93dd36fc9c8be026fce1cfd31f0d37078d9b60a0f2cfb11d0e007ed5407376b72f8a0ef9f2cb89574632bbfb824
-  languageName: node
-  linkType: hard
-
 "ssh2@npm:1.4.0":
   version: 1.4.0
   resolution: "ssh2@npm:1.4.0"
@@ -13531,24 +13485,6 @@ __metadata:
   version: 1.0.0
   resolution: "supports-preserve-symlinks-flag@npm:1.0.0"
   checksum: 53b1e247e68e05db7b3808b99b892bd36fb096e6fba213a06da7fab22045e97597db425c724f2bbd6c99a3c295e1e73f3e4de78592289f38431049e1277ca0ae
-  languageName: node
-  linkType: hard
-
-"swagger-ui-dist@npm:>=4.11.0":
-  version: 4.18.3
-  resolution: "swagger-ui-dist@npm:4.18.3"
-  checksum: 1b0b42801bcd79588fa73f235e57b4a4c258466ac92d992e0015df8ace565b7dd16b54366ad1a72e34a73cbc855c28fb8a28bc5f3403f2bdf13e1beb16d1cca3
-  languageName: node
-  linkType: hard
-
-"swagger-ui-express@npm:4.6.0":
-  version: 4.6.0
-  resolution: "swagger-ui-express@npm:4.6.0"
-  dependencies:
-    swagger-ui-dist: ">=4.11.0"
-  peerDependencies:
-    express: ">=4.0.0"
-  checksum: 8e5e2bf431f4b2207fc4c07eeaee78ec983fae4ab14b6df8fd6d87bd7edf0a9c644bf32bb251b8478a9bad7b1617d6bec56c6b87208f5eddb18840832abf55a3
   languageName: node
   linkType: hard
 
