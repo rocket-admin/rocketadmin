@@ -20,7 +20,7 @@
             <a mat-list-item *ngFor="let tableItem of foundTables"
                 routerLink="/dashboard/{{connectionID}}/{{tableItem.table}}"
                 [matTooltip]="getTableName(tableItem)"
-                [matTooltipDisabled]="getTableNameLength(getTableName(tableItem)) < 20"
+                [matTooltipDisabled]="getTableNameLength(getTableName(tableItem)) < 20 || collapsed"
                 matTooltipPosition="right"
                 [queryParams]="{page_index: 0, page_size: 30}"
                 routerLinkActive="list-item_active"
