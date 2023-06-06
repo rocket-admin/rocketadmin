@@ -26,6 +26,9 @@ import { IDataAccessObjectAgent } from '@rocketadmin/shared-code/dist/src/data-a
 import { IDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/interfaces/data-access-object.interface.js';
 import { ForeignKeyWithAutocompleteColumnsDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/foreign-key-with-autocomplete-columns.ds.js';
 import { ForeignKeyDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/foreign-key.ds.js';
+import { GetRowByPrimaryKeyException } from '../../../exceptions/custom-exceptions/get-table-row-by-primary-key.js';
+import { UnknownSQLException } from '../../../exceptions/custom-exceptions/unknown-sql-exception.js';
+import { ExceptionOperations } from '../../../exceptions/custom-exceptions/exception-operation.js';
 
 @Injectable()
 export class UpdateRowInTableUseCase
@@ -155,7 +158,12 @@ export class UpdateRowInTableUseCase
       );
     }
 
-    const oldRowData = await dao.getRowByPrimaryKey(tableName, primaryKey, tableSettings, userEmail);
+    let oldRowData: Record<string, unknown>;
+    try {
+      oldRowData = await dao.getRowByPrimaryKey(tableName, primaryKey, tableSettings, userEmail);
+    } catch (e) {
+      throw new GetRowByPrimaryKeyException(e.message);
+    }
     if (!oldRowData) {
       throw new HttpException(
         {
@@ -193,13 +201,7 @@ export class UpdateRowInTableUseCase
       };
     } catch (e) {
       operationResult = OperationResultStatusEnum.unsuccessfully;
-      throw new HttpException(
-        {
-          message: `${Messages.UPDATE_ROW_FAILED} ${Messages.ERROR_MESSAGE} "${e.message}"
-         ${Messages.TRY_AGAIN_LATER}`,
-        },
-        HttpStatus.BAD_REQUEST,
-      );
+      throw new UnknownSQLException(e.message, ExceptionOperations.FAILED_TO_UPDATE_ROW_IN_TABLE);
     } finally {
       const logRecord = {
         table_name: tableName,

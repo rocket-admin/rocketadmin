@@ -21,6 +21,7 @@ import { IFindTablesInConnection } from './table-use-cases.interface.js';
 import { TableStructureDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/table-structure.ds.js';
 import { TableDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/table.ds.js';
 import { UnknownSQLException } from '../../../exceptions/custom-exceptions/unknown-sql-exception.js';
+import { GetTablesException } from '../../../exceptions/custom-exceptions/get-tables-exception.js';
 
 @Injectable()
 export class FindTablesInConnectionUseCase
@@ -57,7 +58,7 @@ export class FindTablesInConnectionUseCase
       tables = await dao.getTablesFromDB(userEmail);
       operationResult = true;
     } catch (e) {
-      throw new UnknownSQLException(e.message, Messages.FAILED_GET_TABLES);
+      throw new GetTablesException(e.message);
     } finally {
       if (!connection.isTestConnection) {
         Logger.logInfo({
