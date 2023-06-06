@@ -37,8 +37,15 @@ export class ConnectDBComponent implements OnInit, OnDestroy {
 
   public testConnetionInfo: Alert = {
     id: 10000000,
-    type: AlertType.Info,
-    message: 'You cannot edit test connection.'
+    type: AlertType.Warning,
+    message: 'You cannot edit test connection.',
+    actions: [
+      {
+        type: AlertActionType.Anchor,
+        caption: 'Create your own',
+        to: '/connect-db'
+      }
+    ]
   }
   // public errorAlert: Alert;
 
@@ -93,7 +100,7 @@ export class ConnectDBComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    this.getTitleSubscription.unsubscribe();
+    if (this.connectionID) this.getTitleSubscription.unsubscribe();
   }
 
   get db():Connection {
