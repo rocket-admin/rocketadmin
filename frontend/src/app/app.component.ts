@@ -235,16 +235,6 @@ export class AppComponent {
       console.log(error);
     }
 
-    try {
-      // @ts-ignore
-      FB.logout(function(response) {
-        console.log(response);
-      });
-    } catch(error) {
-      console.log('fb error');
-      console.log(error);
-    }
-
     this.setUserLoggedIn(null);
     localStorage.removeItem('token_expiration');
     if ((environment as any).saas) {

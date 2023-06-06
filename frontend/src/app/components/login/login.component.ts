@@ -42,27 +42,10 @@ export class LoginComponent implements OnInit {
     //@ts-ignore
     google.accounts.id.renderButton(
       document.getElementById("google_login_button"),
-      { theme: "filled_blue", size: "large", width: "224px" }
+      { theme: "filled_blue", size: "large", width: "400px" }
     );
     //@ts-ignore
     google.accounts.id.prompt();
-
-    //@ts-ignore
-    if (typeof FB !== 'undefined') window.fbAsyncInit();
-
-    //@ts-ignore
-    window.loginWithFacebook = () => {
-      //@ts-ignore
-      FB.getLoginStatus((response) => {
-        this.ngZone.run(() => {
-          this._auth.loginWithFacebook(response.authResponse.accessToken).subscribe(() => {
-            this.angulartics2.eventTrack.next({
-              action: 'Login: fb login success'
-            });
-          });
-        })
-      });
-    }
   }
 
   loginUser() {

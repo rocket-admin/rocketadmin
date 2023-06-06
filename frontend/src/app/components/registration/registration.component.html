@@ -4,7 +4,7 @@
         <form class="register-form"
             #registrationForm="ngForm"
             (ngSubmit)="registerUser()">
-            <h1 class="mat-h1">Create an account to manage your database</h1>
+            <h1 class="mat-h1 registrationTitle">Create an account to manage your database</h1>
 
             <div id="google_registration_button"
                 angulartics2On="click"
@@ -30,20 +30,6 @@
                 [disabled]="submitting || registrationForm.form.invalid || registrationForm.form.pristine">
                 {{ submitting ? 'Submitting' : 'Create account'}}
             </button>
-
-            <div class="divider"></div>
-
-            <div class="fb-login-button"
-                data-width="400"
-                data-size="large"
-                data-button-type="continue_with"
-                data-layout="default"
-                data-auto-logout-link="false"
-                data-use-continue-as="false"
-                onlogin="loginWithFacebook()"
-                angulartics2On="click"
-                angularticsAction="Reg: sign up with fb">
-            </div>
         </form>
 
         <p class="mat-caption agreement">

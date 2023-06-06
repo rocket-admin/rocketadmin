@@ -34,22 +34,10 @@
                 [disabled]="submitting || loginForm.form.invalid || loginForm.form.pristine">
                 {{ submitting ? 'Submitting' : 'Login'}}
             </button>
-            <div class="soc-buttons">
-                <div id="google_login_button"
-                    angulartics2On="click"
-                    angularticsAction="Login: login with facebook is clicked">
-                </div>
-                <div class="fb-login-button"
-                    data-width="200"
-                    data-size="large"
-                    data-button-type="continue_with"
-                    data-layout="default"
-                    data-auto-logout-link="false"
-                    data-use-continue-as="false"
-                    onlogin="loginWithFacebook()"
-                    angulartics2On="click"
-                    angularticsAction="Login: login with facebook is clicked">
-                </div>
+            <div class="divider"><span class="divider__label">or</span></div>
+            <div id="google_login_button"
+                angulartics2On="click"
+                angularticsAction="Login: login with google is clicked">
             </div>
         </form>
     </div>

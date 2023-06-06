@@ -27,20 +27,6 @@
     margin-top: 20px;
 }
 
-.soc-buttons {
-    display: flex;
-    gap: 16px;
-    margin: 20px 0 40px;
-}
-
-@media screen and (max-width: 600px) {
-    .soc-buttons {
-        flex-direction: column;
-        align-items: center;
-        gap: 20px;
-    }
-}
-
 .sing-up {
     margin-top: 12px;
     text-align: center;
@@ -49,4 +35,21 @@
 .link {
     color: #3258F0;
     text-decoration: none;
+}
+
+.divider {
+    position: relative;
+    background-color: #E8E8E8;
+    height: 1px;
+    margin: 36px 0;
+    width: 100%
+}
+
+.divider__label {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #fff;
+    font-size: 14px;
+    padding: 0 16px;
 }

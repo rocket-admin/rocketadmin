@@ -64,29 +64,6 @@ export class AuthService {
     );
   }
 
-  loginWithFacebook(token: string) {
-    return this._http.post<any>('/user/facebook/login', {token})
-    .pipe(
-      map(res => {
-        console.log('loginWithFacebook our api');
-        console.log(res);
-        this.auth.next(res);
-        return res
-      }),
-      catchError((err) => {
-        console.log(err);
-        this._notifications.showAlert(AlertType.Error, err.error.message, [
-          {
-            type: AlertActionType.Button,
-            caption: 'Dismiss',
-            action: (id: number) => this._notifications.dismissAlert()
-          }
-        ]);
-        return EMPTY;
-      })
-    );
-  }
-
   loginWithGoogle(token: string) {
     return this._http.post<any>('/user/google/login', {token})
     .pipe(

@@ -10,6 +10,10 @@
     }
 }
 
+.registrationTitle {
+    margin-bottom: 32px;
+}
+
 .register-form-box {
     display: flex;
     flex-direction: column;
