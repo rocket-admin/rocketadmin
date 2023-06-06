@@ -27,7 +27,7 @@ export class AccountDeleteDialogComponent implements OnInit {
     {
       id: 'another-product',
       caption: 'Another product',
-      message: 'If you are interested in another product, you can read <a href="https://help.autoadmin.org/comparisons-with-other-database-admin-tools">the article</a> where they compare'
+      message: 'If you are interested in another product, you can read <a href="https://help.rocketadmin.com/comparisons-with-other-database-admin-tools">the article</a> where they compare'
     },
     {
       id: 'privacy-concern',

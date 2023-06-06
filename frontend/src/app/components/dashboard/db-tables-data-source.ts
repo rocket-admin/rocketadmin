@@ -230,7 +230,7 @@ export class TablesDataSource implements DataSource<Object> {
                 {
                   type: AlertActionType.Anchor,
                   caption: 'Instruction',
-                  to: 'https://help.autoadmin.org/'
+                  to: 'https://help.rocketadmin.com/'
                 }
               ]
             }
@@ -262,7 +262,7 @@ export class TablesDataSource implements DataSource<Object> {
                     {
                       type: AlertActionType.Anchor,
                       caption: 'Instruction',
-                      to: 'https://help.autoadmin.org/'
+                      to: 'https://help.rocketadmin.com/'
                     }
                   ]
                 }
