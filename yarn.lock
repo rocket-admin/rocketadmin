@@ -2465,17 +2465,17 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@rocketadmin/shared-code@workspace:shared-code"
   dependencies:
-    axios: ^1.3.5
-    get-port: ^6.1.2
+    axios: ^1.4.0
+    get-port: ^7.0.0
     jsonwebtoken: ^9.0.0
     knex: ^2.4.2
-    knex-paginate: ^3.1.0
+    knex-paginate: ^3.1.1
     lru-cache: ^8.0.5
-    mysql2: ^3.2.0
-    oracledb: ^5.5.0
-    pg: ^8.10.0
-    prettier: 2.8.7
-    tedious: ^15.1.3
+    mysql2: ^3.3.3
+    oracledb: ^6.0.0
+    pg: ^8.11.0
+    prettier: 2.8.8
+    tedious: ^16.1.0
     tunnel-ssh: 4.1.6
     typescript: ^4.9.5
   languageName: unknown
@@ -4081,17 +4081,14 @@ __metadata:
     lodash: 4.17.21
     lru-cache: ^7.14.1
     moment: 2.29.4
-    mysql2: 2.3.3
     nanoid: 4.0.0
     nest-winston: 1.8.0
     nodemailer: ^6.9.0
-    oracledb: 5.5.0
     otplib: ^12.0.1
     p-queue: 7.3.0
     passport: 0.6.0
     passport-jwt: 4.0.1
     passport-local: 1.0.0
-    pg: ^8.8.0
     pg-connection-string: ^2.6.0
     prettier: ^2.8.2
     qrcode: ^1.5.3
@@ -4101,11 +4098,8 @@ __metadata:
     safe-regex2: ^3.1.0
     secure-json-parse: 2.7.0
     sinon: 15.0.1
-    ssh2: 1.11.0
     stripe: 11.6.0
     supertest: ^6.3.3
-    swagger-ui-express: 4.6.0
-    tedious: ^15.1.3
     ts-jest: 29.0.5
     ts-loader: ^9.4.2
     ts-node: ^10.9.1
@@ -4210,7 +4204,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"axios@npm:^1.0.0, axios@npm:^1.2.2, axios@npm:^1.3.5":
+"axios@npm:^1.0.0, axios@npm:^1.2.2, axios@npm:^1.4.0":
   version: 1.4.0
   resolution: "axios@npm:1.4.0"
   dependencies:
@@ -5510,7 +5504,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cpu-features@npm:~0.0.4, cpu-features@npm:~0.0.7":
+"cpu-features@npm:~0.0.7":
   version: 0.0.7
   resolution: "cpu-features@npm:0.0.7"
   dependencies:
@@ -5771,7 +5765,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"denque@npm:^2.0.1, denque@npm:^2.1.0":
+"denque@npm:^2.1.0":
   version: 2.1.0
   resolution: "denque@npm:2.1.0"
   checksum: 1d4ae1d05e59ac3a3481e7b478293f4b4c813819342273f3d5b826c7ffa9753c520919ba264f377e09108d24ec6cf0ec0ac729a5686cbb8f32d797126c5dae74
@@ -7224,6 +7218,13 @@ __metadata:
   version: 6.1.2
   resolution: "get-port@npm:6.1.2"
   checksum: e3c3d591492a11393455ef220f24c812a28f7da56ec3e4a2512d931a1f196d42850b50ac6138349a44622eda6dc3c0ccd8495cd91376d968e2d9e6f6f849e0a9
+  languageName: node
+  linkType: hard
+
+"get-port@npm:^7.0.0":
+  version: 7.0.0
+  resolution: "get-port@npm:7.0.0"
+  checksum: e9087f62d086bbb70f20c0a208e7cac552679c1426e29e0607eb1b8907a5cc4509337d5971b7f635385cd2a773a14cd21b7d9c3254a2eb5ebeaf5f8fde19fb07
   languageName: node
   linkType: hard
 
@@ -9271,7 +9272,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"knex-paginate@npm:^3.0.2, knex-paginate@npm:^3.1.0":
+"knex-paginate@npm:^3.0.2, knex-paginate@npm:^3.1.1":
   version: 3.1.1
   resolution: "knex-paginate@npm:3.1.1"
   peerDependencies:
@@ -9662,13 +9663,6 @@ __metadata:
     safe-stable-stringify: ^2.3.1
     triple-beam: ^1.3.0
   checksum: 08fdf03be5bb69af33bac214eb4f6a0c83ad3821a30de498925fccb61e993e5a4a87470aab356ca2110c11e4643685bed5597ca5f46dd1cd11437c44a0e0e3c2
-  languageName: node
-  linkType: hard
-
-"long@npm:^4.0.0":
-  version: 4.0.0
-  resolution: "long@npm:4.0.0"
-  checksum: 16afbe8f749c7c849db1f4de4e2e6a31ac6e617cead3bdc4f9605cb703cd20e1e9fc1a7baba674ffcca57d660a6e5b53a9e236d7b25a295d3855cca79cc06744
   languageName: node
   linkType: hard
 
@@ -10316,23 +10310,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"mysql2@npm:2.3.3":
-  version: 2.3.3
-  resolution: "mysql2@npm:2.3.3"
-  dependencies:
-    denque: ^2.0.1
-    generate-function: ^2.3.1
-    iconv-lite: ^0.6.3
-    long: ^4.0.0
-    lru-cache: ^6.0.0
-    named-placeholders: ^1.1.2
-    seq-queue: ^0.0.5
-    sqlstring: ^2.3.2
-  checksum: 45e479d0cbdb24ceb9d1846a1708ae2c33aa64f603f7899279b33560b1eec441f1b7a596075896f1305f701cfbc083bceb88bc72ba5d2f3656a3d6102611286a
-  languageName: node
-  linkType: hard
-
-"mysql2@npm:^3.1.2, mysql2@npm:^3.2.0":
+"mysql2@npm:^3.1.2":
   version: 3.3.1
   resolution: "mysql2@npm:3.3.1"
   dependencies:
@@ -10348,6 +10326,22 @@ __metadata:
   languageName: node
   linkType: hard
 
+"mysql2@npm:^3.3.3":
+  version: 3.3.3
+  resolution: "mysql2@npm:3.3.3"
+  dependencies:
+    denque: ^2.1.0
+    generate-function: ^2.3.1
+    iconv-lite: ^0.6.3
+    long: ^5.2.1
+    lru-cache: ^8.0.0
+    named-placeholders: ^1.1.3
+    seq-queue: ^0.0.5
+    sqlstring: ^2.3.2
+  checksum: 99bf73dc685102a7ff543a6457c1717b235a6808488da940769a36dafc2d7068cfca737ffd6c158f157a836949db2852eb79471dd3d4985c043c43538ba57052
+  languageName: node
+  linkType: hard
+
 "mz@npm:^2.4.0":
   version: 2.7.0
   resolution: "mz@npm:2.7.0"
@@ -10359,7 +10353,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"named-placeholders@npm:^1.1.2, named-placeholders@npm:^1.1.3":
+"named-placeholders@npm:^1.1.3":
   version: 1.1.3
   resolution: "named-placeholders@npm:1.1.3"
   dependencies:
@@ -10368,7 +10362,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"nan@npm:^2.14.1, nan@npm:^2.15.0, nan@npm:^2.16.0, nan@npm:^2.17.0":
+"nan@npm:^2.14.1, nan@npm:^2.15.0, nan@npm:^2.17.0":
   version: 2.17.0
   resolution: "nan@npm:2.17.0"
   dependencies:
@@ -10458,7 +10452,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"node-abort-controller@npm:^3.0.1":
+"node-abort-controller@npm:^3.0.1, node-abort-controller@npm:^3.1.1":
   version: 3.1.1
   resolution: "node-abort-controller@npm:3.1.1"
   checksum: 2c340916af9710328b11c0828223fc65ba320e0d082214a211311bf64c2891028e42ef276b9799188c4ada9e6e1c54cf7a0b7c05dd9d59fcdc8cd633304c8047
@@ -11085,10 +11079,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"oracledb@npm:5.5.0, oracledb@npm:^5.5.0":
+"oracledb@npm:^5.5.0":
   version: 5.5.0
   resolution: "oracledb@npm:5.5.0"
   checksum: 6f4112e0303397017229d7508bfaf557fa7a31b5f5fa9abf5384d20252761d41add80c42fc5efa2e232b28e54699c88287671ff31dd3c74b0608f3f13556a73c
+  languageName: node
+  linkType: hard
+
+"oracledb@npm:^6.0.0":
+  version: 6.0.0
+  resolution: "oracledb@npm:6.0.0"
+  checksum: bd3d74f23b26eed85a7d7699da6ff5634a850f8ef081d075947555d46531a0f367e2c0b5080c76350a11b9ef1d4d2ad2201036cea86c4eb709825886cd64b1f2
   languageName: node
   linkType: hard
 
@@ -11672,7 +11673,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"pg@npm:^8.10.0, pg@npm:^8.8.0, pg@npm:^8.9.0":
+"pg@npm:^8.11.0, pg@npm:^8.9.0":
   version: 8.11.0
   resolution: "pg@npm:8.11.0"
   dependencies:
@@ -11852,16 +11853,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"prettier@npm:2.8.7":
-  version: 2.8.7
-  resolution: "prettier@npm:2.8.7"
-  bin:
-    prettier: bin-prettier.js
-  checksum: fdc8f2616f099f5f0d685907f4449a70595a0fc1d081a88919604375989e0d5e9168d6121d8cc6861f21990b31665828e00472544d785d5940ea08a17660c3a6
-  languageName: node
-  linkType: hard
-
-"prettier@npm:^2.3.2, prettier@npm:^2.8.2, prettier@npm:^2.8.4":
+"prettier@npm:2.8.8, prettier@npm:^2.3.2, prettier@npm:^2.8.2, prettier@npm:^2.8.4":
   version: 2.8.8
   resolution: "prettier@npm:2.8.8"
   bin:
@@ -13171,23 +13163,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ssh2@npm:1.11.0":
-  version: 1.11.0
-  resolution: "ssh2@npm:1.11.0"
-  dependencies:
-    asn1: ^0.2.4
-    bcrypt-pbkdf: ^1.0.2
-    cpu-features: ~0.0.4
-    nan: ^2.16.0
-  dependenciesMeta:
-    cpu-features:
-      optional: true
-    nan:
-      optional: true
-  checksum: e40cb9f171741a807c170dc555078aa8c49dc93dd36fc9c8be026fce1cfd31f0d37078d9b60a0f2cfb11d0e007ed5407376b72f8a0ef9f2cb89574632bbfb824
-  languageName: node
-  linkType: hard
-
 "ssh2@npm:1.4.0":
   version: 1.4.0
   resolution: "ssh2@npm:1.4.0"
@@ -13534,24 +13509,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"swagger-ui-dist@npm:>=4.11.0":
-  version: 4.18.3
-  resolution: "swagger-ui-dist@npm:4.18.3"
-  checksum: 1b0b42801bcd79588fa73f235e57b4a4c258466ac92d992e0015df8ace565b7dd16b54366ad1a72e34a73cbc855c28fb8a28bc5f3403f2bdf13e1beb16d1cca3
-  languageName: node
-  linkType: hard
-
-"swagger-ui-express@npm:4.6.0":
-  version: 4.6.0
-  resolution: "swagger-ui-express@npm:4.6.0"
-  dependencies:
-    swagger-ui-dist: ">=4.11.0"
-  peerDependencies:
-    express: ">=4.0.0"
-  checksum: 8e5e2bf431f4b2207fc4c07eeaee78ec983fae4ab14b6df8fd6d87bd7edf0a9c644bf32bb251b8478a9bad7b1617d6bec56c6b87208f5eddb18840832abf55a3
-  languageName: node
-  linkType: hard
-
 "symbol-observable@npm:4.0.0":
   version: 4.0.0
   resolution: "symbol-observable@npm:4.0.0"
@@ -13638,6 +13595,26 @@ __metadata:
     punycode: ^2.1.0
     sprintf-js: ^1.1.2
   checksum: b441c17a3fc895eb75560fddd3bb819c3310cf8c02098660f02d91febbc5b1f331df0fa9f2f2c9ecf0ed3237d935745dd674803a480d18ceaa92bdc29cd62489
+  languageName: node
+  linkType: hard
+
+"tedious@npm:^16.1.0":
+  version: 16.1.0
+  resolution: "tedious@npm:16.1.0"
+  dependencies:
+    "@azure/identity": ^2.0.4
+    "@azure/keyvault-keys": ^4.4.0
+    "@js-joda/core": ^5.2.0
+    bl: ^5.0.0
+    es-aggregate-error: ^1.0.8
+    iconv-lite: ^0.6.3
+    js-md4: ^0.3.2
+    jsbi: ^4.3.0
+    native-duplexpair: ^1.0.0
+    node-abort-controller: ^3.1.1
+    punycode: ^2.1.0
+    sprintf-js: ^1.1.2
+  checksum: 4ffe07c63524ba3ef8211baea97bfee5f025d074c28025c6ec30fa9286c48a174f1718ddc7df0e9d231dee1fc4f62c1830e4f01d74b545c4e6d947337d5b8845
   languageName: node
   linkType: hard
 
