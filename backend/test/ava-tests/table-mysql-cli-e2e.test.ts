@@ -21,6 +21,7 @@ import { TestUtils } from '../utils/test.utils.js';
 import knex from 'knex';
 import { getRandomConstraintName, getRandomTestTableName } from '../utils/get-random-test-table-name.js';
 import { ERROR_MESSAGES } from '@rocketadmin/shared-code/dist/src/helpers/errors/error-messages.js';
+import { ErrorsMessages } from '../../src/exceptions/custom-exceptions/messages/custom-errors-messages.js';
 
 const mockFactory = new MockFactory();
 let app: INestApplication;
@@ -50,11 +51,11 @@ test.before(async () => {
   firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
   connectionToTestDB = getTestData(mockFactory).mysqlCliConnection;
   const createConnectionResponse = await request(app.getHttpServer())
-  .post('/connection')
-  .send(connectionToTestDB)
-  .set('Cookie', firstUserToken)
-  .set('Content-Type', 'application/json')
-  .set('Accept', 'application/json');
+    .post('/connection')
+    .send(connectionToTestDB)
+    .set('Cookie', firstUserToken)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
   await testUtils.sleep();
 });
 
@@ -2362,10 +2363,11 @@ test(`${currentTest} should throw an exception when primary key passed in reques
     .set('Cookie', firstUserToken)
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
-  const { message } = JSON.parse(updateRowInTableResponse.text);
+  const { message, originalMessage } = JSON.parse(updateRowInTableResponse.text);
   t.is(updateRowInTableResponse.status, 500);
 
-  t.is(message, ERROR_MESSAGES.NO_DATA_RETURNED_FROM_AGENT);
+  t.is(originalMessage, ERROR_MESSAGES.NO_DATA_RETURNED_FROM_AGENT);
+  t.is(message, ErrorsMessages.FAILED_TO_GET_ROW);
 });
 
 currentTest = 'DELETE /table/row/:slug';
@@ -2700,7 +2702,8 @@ test(`${currentTest} should throw an exception when primary key passed in reques
 
   const deleteRowInTableRO = JSON.parse(deleteRowInTableResponse.text);
   t.is(deleteRowInTableResponse.status, 500);
-  t.is(deleteRowInTableRO.message, ERROR_MESSAGES.NO_DATA_RETURNED_FROM_AGENT);
+  t.is(deleteRowInTableRO.originalMessage, ERROR_MESSAGES.NO_DATA_RETURNED_FROM_AGENT);
+  t.is(deleteRowInTableRO.message, ErrorsMessages.FAILED_TO_GET_ROW);
 });
 
 currentTest = 'GET /table/row/:slug';
@@ -2904,10 +2907,11 @@ test(`${currentTest} should throw an exception, when primary key passed in reque
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
 
-  const { message } = JSON.parse(foundRowInTableResponse.text);
+  const { message, originalMessage } = JSON.parse(foundRowInTableResponse.text);
   t.is(foundRowInTableResponse.status, 500);
   // const {message} = JSON.parse(foundRowInTableResponse.text);
-  t.is(message, ERROR_MESSAGES.NO_DATA_RETURNED_FROM_AGENT);
+  t.is(originalMessage, ERROR_MESSAGES.NO_DATA_RETURNED_FROM_AGENT);
+  t.is(message, ErrorsMessages.FAILED_TO_GET_ROW);
 });
 
 currentTest = 'PUT /table/rows/delete/:slug';
