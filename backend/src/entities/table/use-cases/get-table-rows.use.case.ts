@@ -33,6 +33,8 @@ import { IDataAccessObjectAgent } from '@rocketadmin/shared-code/dist/src/data-a
 import { IDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/interfaces/data-access-object.interface.js';
 import { ForeignKeyWithAutocompleteColumnsDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/foreign-key-with-autocomplete-columns.ds.js';
 import { ForeignKeyDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/foreign-key.ds.js';
+import { FoundRowsDS } from '@rocketadmin/shared-code/src/data-access-layer/shared/data-structures/found-rows.ds.js';
+import { GetRowsException } from '../../../exceptions/custom-exceptions/get-table-rows-exception.js';
 
 @Injectable()
 export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTableRowsDs> implements IGetTableRows {
@@ -119,16 +121,22 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
         tableSettings.search_fields = binaryFields;
       }
 
-      let rows = await dao.getRowsFromTable(
-        tableName,
-        tableSettings,
-        page,
-        perPage,
-        searchingFieldValue,
-        filteringFields,
-        autocompleteFields,
-        userEmail,
-      );
+      let rows: FoundRowsDS;
+      try {
+        rows = await dao.getRowsFromTable(
+          tableName,
+          tableSettings,
+          page,
+          perPage,
+          searchingFieldValue,
+          filteringFields,
+          autocompleteFields,
+          userEmail,
+        );
+      } catch (e) {
+        throw new GetRowsException(e.message);
+      }
+
       rows = addCustomFieldsInRowsUtil(rows, tableCustomFields);
       rows = convertBinaryDataInRowsUtil(rows, tableStructure);
       rows = removePasswordsFromRowsUtil(rows, tableWidgets);

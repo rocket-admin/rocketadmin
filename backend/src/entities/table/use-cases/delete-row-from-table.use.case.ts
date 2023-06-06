@@ -13,6 +13,12 @@ import { DeleteRowFromTableDs } from '../application/data-structures/delete-row-
 import { DeletedRowFromTableDs } from '../application/data-structures/deleted-row-from-table.ds.js';
 import { convertHexDataInPrimaryKeyUtil } from '../utils/convert-hex-data-in-primary-key.util.js';
 import { IDeleteRowFromTable } from './table-use-cases.interface.js';
+import { DeleteRowException } from '../../../exceptions/custom-exceptions/delete-row-exception.js';
+import { GetTableStructureException } from '../../../exceptions/custom-exceptions/get-table-structure-exception.js';
+import { TableStructureDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/table-structure.ds.js';
+import { PrimaryKeyDS } from '@rocketadmin/shared-code/src/data-access-layer/shared/data-structures/primary-key.ds.js';
+import { GetTablePrimaryColumnsException } from '../../../exceptions/custom-exceptions/get-table-primary-columns-exception.js';
+import { GetRowByPrimaryKeyException } from '../../../exceptions/custom-exceptions/get-table-row-by-primary-key.js';
 
 @Injectable()
 export class DeleteRowFromTableUseCase
@@ -65,9 +71,22 @@ export class DeleteRowFromTableUseCase
         HttpStatus.BAD_REQUEST,
       );
     }
-    const tableStructure = await dao.getTableStructure(tableName, userEmail);
+    let tableStructure: Array<TableStructureDS>;
+
+    try {
+      tableStructure = await dao.getTableStructure(tableName, userEmail);
+    } catch (e) {
+      throw new GetTableStructureException(e.message);
+    }
+
+    let primaryColumns: Array<PrimaryKeyDS>;
+    try {
+      primaryColumns = await dao.getTablePrimaryColumns(tableName, userEmail);
+    } catch (e) {
+      throw new GetTablePrimaryColumnsException(e.message);
+    }
+
     primaryKey = convertHexDataInPrimaryKeyUtil(primaryKey, tableStructure);
-    const primaryColumns = await dao.getTablePrimaryColumns(tableName, userEmail);
     const availablePrimaryColumns: Array<string> = primaryColumns.map((column) => column.column_name);
     for (const key in primaryKey) {
       // eslint-disable-next-line security/detect-object-injection
@@ -92,8 +111,13 @@ export class DeleteRowFromTableUseCase
         HttpStatus.FORBIDDEN,
       );
     }
+    let oldRowData: Record<string, unknown>;
+    try {
+      oldRowData = await dao.getRowByPrimaryKey(tableName, primaryKey, tableSettings, userEmail);
+    } catch (e) {
+      throw new GetRowByPrimaryKeyException(e.message);
+    }
 
-    const oldRowData = await dao.getRowByPrimaryKey(tableName, primaryKey, tableSettings, userEmail);
     if (!oldRowData) {
       throw new HttpException(
         {
@@ -110,13 +134,7 @@ export class DeleteRowFromTableUseCase
       };
     } catch (e) {
       operationResult = OperationResultStatusEnum.unsuccessfully;
-      throw new HttpException(
-        {
-          message: `${Messages.DELETE_ROW_FAILED} ${Messages.ERROR_MESSAGE} "${e.message}"
-          ${Messages.TRY_AGAIN_LATER}`,
-        },
-        HttpStatus.BAD_REQUEST,
-      );
+      throw new DeleteRowException(e.message);
     } finally {
       const logRecord = {
         table_name: tableName,

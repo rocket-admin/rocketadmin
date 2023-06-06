@@ -19,6 +19,7 @@ import { IDataAccessObjectAgent } from '@rocketadmin/shared-code/dist/src/data-a
 import { IDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/interfaces/data-access-object.interface.js';
 import { ForeignKeyWithAutocompleteColumnsDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/foreign-key-with-autocomplete-columns.ds.js';
 import { ForeignKeyDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/foreign-key.ds.js';
+import { GetRowByPrimaryKeyException } from '../../../exceptions/custom-exceptions/get-table-row-by-primary-key.js';
 
 @Injectable()
 export class GetRowByPrimaryKeyUseCase
@@ -114,7 +115,13 @@ export class GetRowByPrimaryKeyUseCase
         }),
       );
     }
-    let rowData = await dao.getRowByPrimaryKey(tableName, primaryKey, tableSettings, userEmail);
+    let rowData: Record<string, unknown>;
+    try {
+      rowData = await dao.getRowByPrimaryKey(tableName, primaryKey, tableSettings, userEmail);
+    } catch (e) {
+      throw new GetRowByPrimaryKeyException(e.message);
+    }
+
     if (!rowData) {
       throw new HttpException(
         {

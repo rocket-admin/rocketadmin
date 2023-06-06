@@ -11,7 +11,8 @@ export class AllExceptionsFilter implements ExceptionFilter {
     let text = exception.message;
     text = processExceptionMessage(text);
     const type = exception?.response?.type;
-
+    const originalMessage = exception?.originalMessage;
+    const internalCode = exception?.internalCode;
     const status = exception instanceof HttpException ? exception.getStatus() : HttpStatus.INTERNAL_SERVER_ERROR;
 
     if (status === 500 || status === 408) {
@@ -24,6 +25,8 @@ export class AllExceptionsFilter implements ExceptionFilter {
       statusCode: status,
       timestamp: new Date().toISOString(),
       path: request.url,
+      originalMessage: originalMessage,
+      internalCode: internalCode,
     });
   }
 }
