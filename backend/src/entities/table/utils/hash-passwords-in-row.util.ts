@@ -20,7 +20,11 @@ export async function hashPasswordsInRowUtil(
   for (const widget of passwordWidgets) {
     try {
       const widgetParams = JSON5.parse(widget.widget_params) as unknown as IPasswordWidgetParams;
-      if (row[widget.field_name] && widgetParams.encrypt) {
+      if (row[widget.field_name] !== undefined && widgetParams.encrypt) {
+        if (row[widget.field_name] === '') {
+          delete row[widget.field_name];
+          continue;
+        }
         row[widget.field_name] = await Encryptor.processDataWithAlgorithm(
           row[widget.field_name] as any,
           widgetParams.algorithm,
