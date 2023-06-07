@@ -22,5 +22,6 @@ export function buildValidateTableSettingsDS(tableSettings: IUnknownDataStructur
       ? tableSettings.table_widgets.map((widget: IUnknownDataStructure) => buildTableWidgetDs(widget))
       : null,
     columns_view: tableSettings.columns_view,
+    icon: tableSettings.icon,
   };
 }

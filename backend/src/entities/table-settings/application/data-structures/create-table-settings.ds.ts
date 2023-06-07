@@ -28,4 +28,5 @@ export class CreateTableSettingsDs {
   can_delete: boolean;
   can_update: boolean;
   can_add: boolean;
+  icon: string;
 }
