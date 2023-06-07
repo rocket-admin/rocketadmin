@@ -26,6 +26,7 @@ export function buildEmptyTableSettings(connectionId: string, tableName: string)
     can_add: undefined,
     can_delete: undefined,
     can_update: undefined,
+    icon: undefined,
   };
 }
 
@@ -59,5 +60,6 @@ export function buildEmptyTableSettingsWithEmptyWidgets(
     can_add: undefined,
     can_delete: undefined,
     can_update: undefined,
+    icon: undefined,
   };
 }

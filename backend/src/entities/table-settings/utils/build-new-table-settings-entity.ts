@@ -29,6 +29,7 @@ export function buildNewTableSettingsEntity(
     can_add,
     can_delete,
     can_update,
+    icon,
   } = settings;
   newSettings.connection_id = connection;
   newSettings.display_name = display_name;
@@ -52,5 +53,6 @@ export function buildNewTableSettingsEntity(
   newSettings.can_add = can_add;
   newSettings.can_delete = can_delete;
   newSettings.can_update = can_update;
+  newSettings.icon = icon;
   return newSettings;
 }

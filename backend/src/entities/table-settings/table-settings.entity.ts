@@ -70,6 +70,9 @@ export class TableSettingsEntity {
   @Column('varchar', { array: true, default: null })
   sensitive_fields: string[];
 
+  @Column('varchar', { default: null })
+  icon: string;
+
   @Transform(({ value: connection }) => connection.id)
   @ManyToOne((type) => ConnectionEntity, (connection) => connection.settings, {
     onDelete: 'CASCADE',

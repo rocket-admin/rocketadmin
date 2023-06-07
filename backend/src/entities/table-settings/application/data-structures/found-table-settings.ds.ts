@@ -27,4 +27,5 @@ export class FoundTableSettingsDs {
   can_add: boolean;
   can_delete: boolean;
   can_update: boolean;
+  icon: string;
 }
