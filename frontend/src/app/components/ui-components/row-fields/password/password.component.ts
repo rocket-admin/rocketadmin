@@ -23,6 +23,8 @@ export class PasswordComponent implements OnInit {
 
   ngOnInit(): void {
     this.normalizedLabel = normalizeFieldName(this.label);
+    if (this.value === '***') this.value = '';
+    this.onFieldChange.emit(this.value);
   }
 
   onClearPasswordChange() {
