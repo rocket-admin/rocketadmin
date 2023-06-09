@@ -91,7 +91,7 @@ function buildConnectionParams(connectionParams: IUnknownConnectionParams): Conn
     ssh: connectionParams.ssh,
     privateSSHKey: connectionParams.privateSSHKey || null,
     sshHost: connectionParams.sshHost || null,
-    sshPort: connectionParams.port || null,
+    sshPort: connectionParams.sshPort || null,
     sshUsername: connectionParams.sshUsername || null,
     ssl: connectionParams.ssl || false,
     cert: connectionParams.cert || null,
