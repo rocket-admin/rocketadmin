@@ -26,13 +26,15 @@ export async function validateCreateConnectionData(
       errors.push(Messages.HOST_MISSING);
     }
     if (ssh) {
-      if (!validator.isFQDN(host) && !validator.isIP(host)) errors.push(Messages.HOST_NAME_INVALID);
-      throw new HttpException(
-        {
-          message: toPrettyErrorsMsg(errors),
-        },
-        HttpStatus.BAD_REQUEST,
-      );
+      if (!validator.isFQDN(host) && !validator.isIP(host)) {
+        errors.push(Messages.HOST_NAME_INVALID);
+        throw new HttpException(
+          {
+            message: toPrettyErrorsMsg(errors),
+          },
+          HttpStatus.BAD_REQUEST,
+        );
+      }
     }
     if (port < 0 || port > 65535 || !port) errors.push(Messages.PORT_MISSING);
     if (typeof port !== 'number') errors.push(Messages.PORT_FORMAT_INCORRECT);
