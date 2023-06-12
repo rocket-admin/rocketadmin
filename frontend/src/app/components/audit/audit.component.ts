@@ -13,6 +13,7 @@ import { Title } from '@angular/platform-browser';
 import { User } from '@sentry/angular';
 import { UsersService } from 'src/app/services/users.service';
 import { tap } from 'rxjs/operators';
+import { ServerError } from 'src/app/models/alert';
 
 @Component({
   selector: 'app-audit',
@@ -27,7 +28,8 @@ export class AuditComponent implements OnInit, OnDestroy {
   public tableName: string = 'showAll';
   public usersList: User[];
   public userEmail: string = 'showAll';
-  public errorMessage: string;
+  public isServerError: boolean = false;
+  public serverError: ServerError;
   public noTablesError: boolean = false;
 
   public dataSource: AuditDataSource = null;
@@ -71,7 +73,8 @@ export class AuditComponent implements OnInit, OnDestroy {
         this.noTablesError = (res.length === 0)
       },
       (err) => {
-        this.errorMessage = err.error.message;
+        this.isServerError = true;
+        this.serverError = {abstract: err.error.message, details: err.error.originalMessage};
       })
 
     this._users.fetchConnectionUsers(this.connectionID)

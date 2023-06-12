@@ -13,15 +13,21 @@
         </p>
     </app-banner>
 
-    <app-banner *ngIf="errorMessage" type="error" class="settings-banner">
-        <p class="mat-body-1 error-message">{{errorMessage}}</p>
+    <app-banner *ngIf="isServerError" type="error" class="settings-banner">
+        <div *ngIf="serverError.details; else stringError" class="mat-body-1">
+            <strong>{{serverError.abstract}}</strong>
+            <p class="mat-body-1">{{serverError.details}}</p>
+        </div>
+        <ng-template #stringError>
+            <p class="mat-body-1">{{serverError.abstract}}</p>
+        </ng-template>
         <div class="error-actions">
             <a mat-stroked-button routerLink="/edit-db/{{connectionID}}">Connection settings</a>
             <button mat-flat-button color="warn" (click)="openIntercome()">Chat with support</button>
         </div>
     </app-banner>
 
-    <form *ngIf="!errorMessage && !noTablesError && !loading" #connectionSettingsForm="ngForm" (ngSubmit)="handleSettingsSubmitting()">
+    <form *ngIf="!isServerError && !noTablesError && !loading" #connectionSettingsForm="ngForm" (ngSubmit)="handleSettingsSubmitting()">
         <div class="settings-form">
             <div class="logo-uploader">
                 <div class="logo-box" *ngIf="connectionSettings.logo_url; else logoStub">

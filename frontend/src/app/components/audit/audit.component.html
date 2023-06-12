@@ -2,14 +2,14 @@
     <header>
         <h1>Audit</h1>
         <div class="filters">
-            <mat-form-field *ngIf="tablesList && !errorMessage && !noTablesError" appearance="outline">
+            <mat-form-field *ngIf="tablesList && !isServerError && !noTablesError" appearance="outline">
                 <mat-label>Tables</mat-label>
                 <mat-select [(ngModel)]="tableName" (ngModelChange)="loadLogsPage()">
                     <mat-option value="showAll">Show all</mat-option>
                     <mat-option *ngFor="let tableItem of tablesList" [value]="tableItem.table">{{tableItem.table}}</mat-option>
                 </mat-select>
             </mat-form-field>
-            <mat-form-field *ngIf="usersList && !errorMessage" appearance="outline">
+            <mat-form-field *ngIf="usersList && !isServerError" appearance="outline">
                 <mat-label>Users</mat-label>
                 <mat-select [(ngModel)]="userEmail" (ngModelChange)="loadLogsPage()">
                     <mat-option value="showAll">Show all</mat-option>
@@ -28,15 +28,21 @@
         </p>
     </app-banner>
 
-    <app-banner *ngIf="errorMessage" type="error" class="audit-banner">
-        <p class="mat-body-1 error-message">{{errorMessage}}</p>
+    <app-banner *ngIf="isServerError" type="error" class="audit-banner">
+        <div *ngIf="serverError.details; else stringError" class="mat-body-1">
+            <strong>{{serverError.abstract}}</strong>
+            <p class="mat-body-1">{{serverError.details}}</p>
+        </div>
+        <ng-template #stringError>
+            <p class="mat-body-1">{{serverError.abstract}}</p>
+        </ng-template>
         <div class="error-actions">
             <a mat-stroked-button routerLink="/edit-db/{{connectionID}}">Connection settings</a>
             <button mat-flat-button color="warn" (click)="openIntercome()">Chat with support</button>
         </div>
     </app-banner>
 
-    <div *ngIf="!noTablesError && !errorMessage" class="mat-elevation-z4 table-wrapper">
+    <div *ngIf="!noTablesError && !isServerError" class="mat-elevation-z4 table-wrapper">
         <div class="spinner-wrapper" *ngIf="dataSource.loading$ | async">
             <mat-spinner diameter="36"></mat-spinner>
         </div>

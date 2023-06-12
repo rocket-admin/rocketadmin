@@ -69,7 +69,7 @@ export class UserService {
           return res;
         }),
         catchError((err) => {
-          this._notifications.showAlert(AlertType.Error, err.error.message, [
+          this._notifications.showAlert(AlertType.Error, {abstract: err.error.message, details: err.error.originalMessage}, [
             {
               type: AlertActionType.Link,
               caption: 'Settings',
@@ -102,7 +102,7 @@ export class UserService {
       }),
       catchError((err) => {
         console.log(err);
-        this._notifications.showAlert(AlertType.Error, err.error.message, [
+        this._notifications.showAlert(AlertType.Error, {abstract: err.error.message, details: err.error.originalMessage}, [
           {
             type: AlertActionType.Button,
             caption: 'Dismiss',
@@ -123,7 +123,7 @@ export class UserService {
       }),
       catchError((err) => {
         console.log(err);
-        this._notifications.showAlert(AlertType.Error, err.error.message, [
+        this._notifications.showAlert(AlertType.Error, {abstract: err.error.message, details: err.error.originalMessage}, [
           {
             type: AlertActionType.Button,
             caption: 'Dismiss',
@@ -150,7 +150,7 @@ export class UserService {
       }),
       catchError((err) => {
         console.log(err);
-        this._notifications.showAlert(AlertType.Error, err.error.message, [
+        this._notifications.showAlert(AlertType.Error, {abstract: err.error.message, details: err.error.originalMessage}, [
           {
             type: AlertActionType.Button,
             caption: 'Dismiss',
@@ -171,7 +171,7 @@ export class UserService {
       }),
       catchError((err) => {
         console.log(err);
-        this._notifications.showAlert(AlertType.Error, err.error.message, [
+        this._notifications.showAlert(AlertType.Error, {abstract: err.error.message, details: err.error.originalMessage}, [
           {
             type: AlertActionType.Button,
             caption: 'Dismiss',
@@ -192,7 +192,7 @@ export class UserService {
       }),
       catchError((err) => {
         console.log(err);
-        this._notifications.showAlert(AlertType.Error, err.error.message, [
+        this._notifications.showAlert(AlertType.Error, {abstract: err.error.message, details: err.error.originalMessage}, [
           {
             type: AlertActionType.Button,
             caption: 'Dismiss',
@@ -229,7 +229,7 @@ export class UserService {
       }),
       catchError((err) => {
         console.log(err);
-        this._notifications.showAlert(AlertType.Error, err.error.message, [
+        this._notifications.showAlert(AlertType.Error, {abstract: err.error.message, details: err.error.originalMessage}, [
           {
             type: AlertActionType.Button,
             caption: 'Dismiss',

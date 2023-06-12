@@ -17,6 +17,7 @@ import { TablesService } from 'src/app/services/tables.service';
 import { Title } from '@angular/platform-browser';
 import { getTableTypes } from 'src/app/lib/setup-table-row-structure';
 import { normalizeTableName } from '../../lib/normalize';
+import { ServerError } from 'src/app/models/alert';
 
 @Component({
   selector: 'app-db-table-row-edit',
@@ -44,7 +45,8 @@ export class DbTableRowEditComponent implements OnInit {
   public shownRows;
   public submitting = false;
   public UIwidgets = UIwidgets;
-  public rowError: string = null;
+  public isServerError: boolean = false;
+  public serverError: ServerError;
   public fieldsOrdered: string[];
   public rowActions: CustomAction[];
   public referencedTables: any;
@@ -139,10 +141,11 @@ export class DbTableRowEditComponent implements OnInit {
 
             this.loading = false;
           },
-          (error) => {
-            this.rowError = error.error.message;
+          (err) => {
             this.loading = false;
-            console.log(this.rowError);
+            this.isServerError = true;
+            this.serverError = {abstract: err.error.message || err.message, details: err.error.originalMessage};
+            console.log(err);
           })
       }
     })

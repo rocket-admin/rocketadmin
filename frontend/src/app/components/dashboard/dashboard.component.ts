@@ -20,6 +20,7 @@ import { Title } from '@angular/platform-browser';
 import { User } from 'src/app/models/user';
 import { normalizeTableName } from '../../lib/normalize'
 import { omitBy } from "lodash";
+import { ServerError } from 'src/app/models/alert';
 
 interface DataToActivateActions {
   action: CustomAction,
@@ -51,8 +52,8 @@ export class DashboardComponent implements OnInit {
   public comparators: object;
 
   public loading: boolean = true;
-  public dbFetchError: boolean = false;
-  public errorMessage: string;
+  public isServerError: boolean = false;
+  public serverError: ServerError;
 
   public noTablesError: boolean = false;
 
@@ -88,12 +89,12 @@ export class DashboardComponent implements OnInit {
     let tables;
     try {
       tables = await this.getTables();
-    } catch(error) {
+    } catch(err) {
       this.loading = false;
-      this.dbFetchError = true;
-      if (error instanceof HttpErrorResponse) {
-        this.errorMessage = error.error.message || error.message;
-      } else  { throw error };
+      this.isServerError = true;
+      if (err instanceof HttpErrorResponse) {
+        this.serverError = {abstract: err.error.message || err.message, details: err.error.originalMessage};
+      } else  { throw err };
     }
 
     if (tables && tables.length === 0) {

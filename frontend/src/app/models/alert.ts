@@ -21,7 +21,11 @@ export interface AlertAction {
 export interface Alert {
     id: number,
     type: AlertType,
-    message: string,
+    message: ServerError | string,
     actions?: AlertAction[]
 }
 
+export interface ServerError {
+    abstract: string,
+    details: string
+}

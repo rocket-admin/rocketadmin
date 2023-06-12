@@ -1,8 +1,14 @@
 <app-alert></app-alert>
 <app-content-loader *ngIf="loading"></app-content-loader>
 
-<app-banner *ngIf="rowError" type="error" class="row-banner">
-    <p class="mat-body-1 error-message">{{rowError}}</p>
+<app-banner *ngIf="isServerError" type="error" class="row-banner">
+    <div *ngIf="serverError.details; else stringError" class="mat-body-1">
+        <strong>{{serverError.abstract}}</strong>
+        <p class="mat-body-1">{{serverError.details}}</p>
+    </div>
+    <ng-template #stringError>
+        <p class="mat-body-1">{{serverError.abstract}}</p>
+    </ng-template>
     <div class="error-actions">
         <a mat-stroked-button routerLink="/dashboard/{{connectionID}}/{{tableName}}">
             Dashboard

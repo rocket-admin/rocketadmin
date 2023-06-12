@@ -8,6 +8,7 @@ import { TableProperties } from 'src/app/models/table';
 import { TablesService } from 'src/app/services/tables.service';
 import { Title } from '@angular/platform-browser';
 import { normalizeTableName } from '../../lib/normalize'
+import { ServerError } from 'src/app/models/alert';
 
 @Component({
   selector: 'app-connection-settings',
@@ -30,7 +31,8 @@ export class ConnectionSettingsComponent implements OnInit, OnDestroy {
   public submitting: boolean = false;
   public isSettingsExist: boolean = false;
   public noTablesError: boolean = false;
-  public errorMessage: string;
+  public isServerError: boolean = false;
+  public serverError: ServerError;
 
   private getTitleSubscription: Subscription;
 
@@ -63,11 +65,10 @@ export class ConnectionSettingsComponent implements OnInit, OnDestroy {
           }
           this.getSettings();
         },
-        (error) => {
+        (err) => {
           this.loading = false;
-          this.errorMessage = error.error.message;
-          // this.dbFetchError = true;
-          // this.errorMessage = error.error.message;
+          this.isServerError = true;
+          this.serverError = {abstract: err.error.message, details: err.error.originalMessage};
         }
       )
   }

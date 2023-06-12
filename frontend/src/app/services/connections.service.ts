@@ -184,8 +184,7 @@ export class ConnectionsService {
         }),
         catchError((err) => {
           console.log(err);
-          // this._notifications.showErrorSnackbar(err.error.message);
-          this._notifications.showAlert(AlertType.Error, err.error.message, [
+          this._notifications.showAlert(AlertType.Error, {abstract: err.error.message, details: err.error.originalMessage}, [
             {
               type: AlertActionType.Button,
               caption: 'Dismiss',
@@ -241,7 +240,7 @@ export class ConnectionsService {
       map(res => res),
       catchError((err) => {
         console.log(err);
-        this._notifications.showAlert(AlertType.Error, err.error.message, []);
+        this._notifications.showAlert(AlertType.Error, {abstract: err.error.message, details: err.error.originalMessage}, []);
         return EMPTY;
       }
       )
@@ -268,7 +267,7 @@ export class ConnectionsService {
       }),
       catchError((err) => {
         console.log(err);
-        this._notifications.showErrorSnackbar(err.error.message);
+        this._notifications.showAlert(AlertType.Error, {abstract: err.error.message, details: err.error.originalMessage}, []);
         return EMPTY;
       }
       )
@@ -295,7 +294,7 @@ export class ConnectionsService {
       }),
       catchError((err) => {
         console.log(err);
-        this._notifications.showAlert(AlertType.Error, err.error.message, [
+        this._notifications.showAlert(AlertType.Error, {abstract: err.error.message, details: err.error.originalMessage}, [
           {
             type: AlertActionType.Button,
             caption: 'Dismiss',
