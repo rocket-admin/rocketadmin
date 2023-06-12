@@ -16,25 +16,25 @@ const tablePrimaryKeysCache = new LRU(CACHING_CONSTANTS.DEFAULT_TABLE_STRUCTURE_
 
 export class LRUStorage {
   public static getCachedKnex(connectionConfig: ConnectionParams): Knex | null {
-    const cachedKnex = knexCache.get(JSON.stringify(connectionConfig)) as Knex;
+    const cachedKnex = knexCache.get(this.getConnectionIdentifier(connectionConfig)) as Knex;
     return cachedKnex ? cachedKnex : null;
   }
 
   public static setKnexCache(connectionConfig: ConnectionParams, newKnex: Knex): void {
-    knexCache.set(JSON.stringify(connectionConfig), newKnex);
+    knexCache.set(this.getConnectionIdentifier(connectionConfig), newKnex);
   }
 
   public static getTunnelCache(connection: ConnectionParams): any {
-    const cachedTnl = tunnelCache.get(JSON.stringify(connection));
+    const cachedTnl = tunnelCache.get(this.getConnectionIdentifier(connection));
     return cachedTnl ? cachedTnl : null;
   }
 
   public static setTunnelCache(connection: ConnectionParams, tnlObj: Record<string, unknown>): void {
-    tunnelCache.set(JSON.stringify(connection), tnlObj);
+    tunnelCache.set(this.getConnectionIdentifier(connection), tnlObj);
   }
 
   public static delTunnelCache(connection: ConnectionParams): void {
-    tunnelCache.delete(JSON.stringify(connection));
+    tunnelCache.delete(this.getConnectionIdentifier(connection));
   }
 
   public static setTableForeignKeysCache(
@@ -107,5 +107,45 @@ export class LRUStorage {
     };
     const cacheObj = JSON.stringify({ connectionCopy, tableName });
     tableStructureCache.set(cacheObj, structure);
+  }
+
+  public static getConnectionIdentifier(connectionParams: ConnectionParams | ConnectionAgentParams): string {
+    if (this.isConnectionAgentParams(connectionParams)) {
+      const cacheObj = {
+        id: connectionParams.id,
+        token: connectionParams.token,
+        signing_key: connectionParams.signing_key,
+      };
+      return JSON.stringify(cacheObj);
+    }
+    if (connectionParams.ssh) {
+      const cacheObj = {
+        id: connectionParams.id,
+        signing_key: connectionParams.signing_key,
+        type: connectionParams.type,
+        username: connectionParams.username,
+        database: connectionParams.database,
+      };
+      return JSON.stringify(cacheObj);
+    }
+    const cacheObj = {
+      id: connectionParams.id,
+      signing_key: connectionParams.signing_key,
+      type: connectionParams.type,
+      host: connectionParams.host,
+      port: connectionParams.port,
+      username: connectionParams.username,
+      database: connectionParams.database,
+    };
+    return JSON.stringify(cacheObj);
+  }
+
+  public static isConnectionAgentParams(
+    connectionParams: ConnectionParams | ConnectionAgentParams,
+  ): connectionParams is ConnectionAgentParams {
+    if (connectionParams.hasOwnProperty('token') && connectionParams['token']) {
+      return true;
+    }
+    return false;
   }
 }
