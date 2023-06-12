@@ -11079,17 +11079,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"oracledb@npm:^5.5.0":
-  version: 5.5.0
-  resolution: "oracledb@npm:5.5.0"
-  checksum: 6f4112e0303397017229d7508bfaf557fa7a31b5f5fa9abf5384d20252761d41add80c42fc5efa2e232b28e54699c88287671ff31dd3c74b0608f3f13556a73c
-  languageName: node
-  linkType: hard
-
 "oracledb@npm:^6.0.0":
   version: 6.0.0
   resolution: "oracledb@npm:6.0.0"
   checksum: bd3d74f23b26eed85a7d7699da6ff5634a850f8ef081d075947555d46531a0f367e2c0b5080c76350a11b9ef1d4d2ad2201036cea86c4eb709825886cd64b1f2
+  languageName: node
+  linkType: hard
+
+"oracledb@npm:^6.0.1":
+  version: 6.0.1
+  resolution: "oracledb@npm:6.0.1"
+  checksum: e3a5279b531ca61e87b551755a01a2ab98815fdade5d05d1b06f9146c5c89009e64b46ad7816a3d36cc1f234a8dd9011eef4fd277145de896880b057b1df8c11
   languageName: node
   linkType: hard
 
@@ -12537,7 +12537,7 @@ __metadata:
     knex-paginate: 3.0.2
     mysql2: ^3.1.2
     nest-winston: ^1.9.0
-    oracledb: ^5.5.0
+    oracledb: ^6.0.1
     pg: ^8.9.0
     prettier: ^2.8.4
     readline-sync: ^1.4.10
@@ -12587,7 +12587,7 @@ __metadata:
     knex-paginate: ^3.0.2
     mysql2: ^3.1.2
     nest-winston: ^1.9.0
-    oracledb: ^5.5.0
+    oracledb: ^6.0.1
     pg: ^8.9.0
     prettier: ^2.8.4
     readline-sync: ^1.4.10

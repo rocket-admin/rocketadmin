@@ -130,17 +130,20 @@ export class FindTablesInConnectionUseCase
   ): Promise<Array<FoundTableDs>> {
     const tableSettings = await this._dbContext.tableSettingsRepository.findTableSettingsInConnection(connectionId);
     return tablesObjArr.map((tableObj: ITableAndViewPermissionData) => {
-      const displayName =
+      const foundTableSettings =
         tableSettings[
           tableSettings.findIndex((el: TableSettingsEntity) => {
             return el.table_name === tableObj.tableName;
           })
-        ]?.display_name;
+        ];
+      const displayName = foundTableSettings ? foundTableSettings.display_name : undefined;
+      const icon = foundTableSettings ? foundTableSettings.icon : undefined;
       return {
         table: tableObj.tableName,
         isView: tableObj.isView || false,
         permissions: tableObj.accessLevel,
-        display_name: displayName ? displayName : undefined,
+        display_name: displayName,
+        icon: icon,
       };
     });
   }

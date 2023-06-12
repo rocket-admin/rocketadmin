@@ -95,6 +95,7 @@ export class TableSettingsController {
     @Body('can_delete') can_delete: boolean,
     @Body('can_update') can_update: boolean,
     @Body('can_add') can_add: boolean,
+    @Body('icon') icon: string,
     @UserId() userId: string,
     @MasterPassword() masterPwd: string,
   ): Promise<FoundTableSettingsDs> {
@@ -122,6 +123,7 @@ export class TableSettingsController {
       can_delete: can_delete,
       can_update: can_update,
       can_add: can_add,
+      icon: icon,
     };
     /* eslint-enable */
     const errors = this.validateParameters(inputData);
@@ -160,6 +162,7 @@ export class TableSettingsController {
     @Body('can_delete') can_delete: boolean,
     @Body('can_update') can_update: boolean,
     @Body('can_add') can_add: boolean,
+    @Body('icon') icon: string,
     @UserId() userId: string,
     @MasterPassword() masterPwd: string,
   ): Promise<FoundTableSettingsDs> {
@@ -186,6 +189,7 @@ export class TableSettingsController {
       can_delete: can_delete,
       can_update: can_update,
       can_add: can_add,
+      icon: icon,
     };
     /* eslint-enable */
     const errors = this.validateParameters(inputData);

@@ -19,4 +19,5 @@ export class ValidateTableSettingsDS {
   custom_fields?: Array<CustomFieldDS>;
   table_widgets?: Array<TableWidgetDS>;
   columns_view?: Array<string>;
+  icon?: string;
 }
