@@ -15,22 +15,6 @@ RUN apt-get update && apt-get install -y \
     tini nginx \
     && rm -rf /var/lib/apt/lists/*
 
-RUN apt update && \
-    apt install libaio1 libc6 curl unzip -y && \
-    cd /tmp && \
-    curl -o instantclient-basiclite.zip https://download.oracle.com/otn_software/linux/instantclient/instantclient-basiclite-linuxx64.zip -SL && \
-    unzip instantclient-basiclite.zip && \
-    mv instantclient*/ /usr/lib/instantclient && \
-    rm instantclient-basiclite.zip && \
-    ln -s /usr/lib/instantclient/libclntsh.so.19.1 /usr/lib/libclntsh.so && \
-    ln -s /usr/lib/instantclient/libocci.so.19.1 /usr/lib/libocci.so && \
-    ln -s /usr/lib/instantclient/libociicus.so /usr/lib/libociicus.so && \
-    ln -s /usr/lib/instantclient/libnnz19.so /usr/lib/libnnz19.so && \
-    ln -s /usr/lib/libnsl.so.2 /usr/lib/libnsl.so.1 && \
-    ln -s /lib/libc.so.6 /usr/lib/libresolv.so.2 && \
-    ln -s /lib64/ld-linux-x86-64.so.2 /usr/lib/ld-linux-x86-64.so.2 && \
-    rm -rf /var/lib/apt/lists/*
-
 WORKDIR /app
 COPY package.json .yarnrc.yml yarn.lock /app/
 COPY backend /app/backend
