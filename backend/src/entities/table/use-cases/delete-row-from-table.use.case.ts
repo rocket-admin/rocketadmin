@@ -14,11 +14,11 @@ import { DeletedRowFromTableDs } from '../application/data-structures/deleted-ro
 import { convertHexDataInPrimaryKeyUtil } from '../utils/convert-hex-data-in-primary-key.util.js';
 import { IDeleteRowFromTable } from './table-use-cases.interface.js';
 import { DeleteRowException } from '../../../exceptions/custom-exceptions/delete-row-exception.js';
-import { GetTableStructureException } from '../../../exceptions/custom-exceptions/get-table-structure-exception.js';
 import { TableStructureDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/table-structure.ds.js';
 import { PrimaryKeyDS } from '@rocketadmin/shared-code/src/data-access-layer/shared/data-structures/primary-key.ds.js';
-import { GetTablePrimaryColumnsException } from '../../../exceptions/custom-exceptions/get-table-primary-columns-exception.js';
 import { GetRowByPrimaryKeyException } from '../../../exceptions/custom-exceptions/get-table-row-by-primary-key.js';
+import { UnknownSQLException } from '../../../exceptions/custom-exceptions/unknown-sql-exception.js';
+import { ExceptionOperations } from '../../../exceptions/custom-exceptions/exception-operation.js';
 
 @Injectable()
 export class DeleteRowFromTableUseCase
@@ -72,18 +72,25 @@ export class DeleteRowFromTableUseCase
       );
     }
     let tableStructure: Array<TableStructureDS>;
-
-    try {
-      tableStructure = await dao.getTableStructure(tableName, userEmail);
-    } catch (e) {
-      throw new GetTableStructureException(e.message);
+    let primaryColumns: Array<PrimaryKeyDS>;
+    const [tableStructureResult, primaryColumnsResult] = await Promise.allSettled([
+      dao.getTableStructure(tableName, userEmail),
+      dao.getTablePrimaryColumns(tableName, userEmail),
+    ]);
+    const errors = [];
+    if (tableStructureResult.status === 'fulfilled') {
+      tableStructure = tableStructureResult.value;
+    } else {
+      errors.push(tableStructureResult.reason);
+    }
+    if (primaryColumnsResult.status === 'fulfilled') {
+      primaryColumns = primaryColumnsResult.value;
+    } else {
+      errors.push(primaryColumnsResult.reason);
     }
 
-    let primaryColumns: Array<PrimaryKeyDS>;
-    try {
-      primaryColumns = await dao.getTablePrimaryColumns(tableName, userEmail);
-    } catch (e) {
-      throw new GetTablePrimaryColumnsException(e.message);
+    if (errors.length > 0) {
+      throw new UnknownSQLException(errors.map((error) => error.message).join('\n'), ExceptionOperations.FAILED_TO_DELETE_ROW_FROM_TABLE);
     }
 
     primaryKey = convertHexDataInPrimaryKeyUtil(primaryKey, tableStructure);
@@ -115,7 +122,7 @@ export class DeleteRowFromTableUseCase
     try {
       oldRowData = await dao.getRowByPrimaryKey(tableName, primaryKey, tableSettings, userEmail);
     } catch (e) {
-      throw new GetRowByPrimaryKeyException(e.message);
+      throw new UnknownSQLException(e.message, ExceptionOperations.FAILED_TO_DELETE_ROW_FROM_TABLE);
     }
 
     if (!oldRowData) {
