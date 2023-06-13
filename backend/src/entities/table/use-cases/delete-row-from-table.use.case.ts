@@ -16,7 +16,6 @@ import { IDeleteRowFromTable } from './table-use-cases.interface.js';
 import { DeleteRowException } from '../../../exceptions/custom-exceptions/delete-row-exception.js';
 import { TableStructureDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/table-structure.ds.js';
 import { PrimaryKeyDS } from '@rocketadmin/shared-code/src/data-access-layer/shared/data-structures/primary-key.ds.js';
-import { GetRowByPrimaryKeyException } from '../../../exceptions/custom-exceptions/get-table-row-by-primary-key.js';
 import { UnknownSQLException } from '../../../exceptions/custom-exceptions/unknown-sql-exception.js';
 import { ExceptionOperations } from '../../../exceptions/custom-exceptions/exception-operation.js';
 

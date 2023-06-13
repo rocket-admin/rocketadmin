@@ -13,6 +13,11 @@ import { DeleteRowsFromTableDs } from '../application/data-structures/delete-row
 import { convertHexDataInPrimaryKeyUtil } from '../utils/convert-hex-data-in-primary-key.util.js';
 import { findObjectsWithProperties } from '../utils/find-objects-with-properties.js';
 import { IDeleteRowsFromTable } from './table-use-cases.interface.js';
+import { TableStructureDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/table-structure.ds.js';
+import { PrimaryKeyDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/primary-key.ds.js';
+import { TableSettingsEntity } from '../../table-settings/table-settings.entity.js';
+import { UnknownSQLException } from '../../../exceptions/custom-exceptions/unknown-sql-exception.js';
+import { ExceptionOperations } from '../../../exceptions/custom-exceptions/exception-operation.js';
 
 @Injectable()
 export class DeleteRowsFromTableUseCase
@@ -63,11 +68,40 @@ export class DeleteRowsFromTableUseCase
         HttpStatus.BAD_REQUEST,
       );
     }
-    const [tableStructure, primaryColumns, tableSettings] = await Promise.all([
+
+    let tableStructure: Array<TableStructureDS>;
+    let primaryColumns: Array<PrimaryKeyDS>;
+    let tableSettings: TableSettingsEntity;
+
+    const [tableStructureResult, primaryColumnsResult, tableSettingsResult] = await Promise.allSettled([
       dao.getTableStructure(tableName, userEmail),
       dao.getTablePrimaryColumns(tableName, userEmail),
       this._dbContext.tableSettingsRepository.findTableSettings(connectionId, tableName),
     ]);
+    const errors = [];
+
+    if (tableStructureResult.status === 'fulfilled') {
+      tableStructure = tableStructureResult.value;
+    } else {
+      errors.push(tableStructureResult.reason);
+    }
+    if (primaryColumnsResult.status === 'fulfilled') {
+      primaryColumns = primaryColumnsResult.value;
+    } else {
+      errors.push(primaryColumnsResult.reason);
+    }
+    if (tableSettingsResult.status === 'fulfilled') {
+      tableSettings = tableSettingsResult.value;
+    } else {
+      errors.push(tableSettingsResult.reason);
+    }
+
+    if (errors.length > 0) {
+      throw new UnknownSQLException(
+        errors.map((error) => error.message).join('\n'),
+        ExceptionOperations.FAILED_TO_DELETE_ROWS_FROM_TABLE,
+      );
+    }
 
     if (tableSettings && !tableSettings?.can_delete) {
       throw new HttpException(
