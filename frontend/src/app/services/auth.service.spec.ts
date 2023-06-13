@@ -14,8 +14,9 @@ describe('AuthService', () => {
   let fakeNotifications;
 
   const fakeError = {
-    "message": "Connection error",
-    "statusCode": 400
+    "message": "Auth error",
+    "statusCode": 400,
+    "originalMessage": "Auth error details"
   }
 
   beforeEach(() => {
@@ -88,7 +89,7 @@ describe('AuthService', () => {
     req.flush(fakeError, {status: 400, statusText: ''});
     await tokenExpiration;
 
-    expect(fakeNotifications.showAlert).toHaveBeenCalledWith(AlertType.Error, fakeError.message, [jasmine.objectContaining({
+    expect(fakeNotifications.showAlert).toHaveBeenCalledWith(AlertType.Error, { abstract: fakeError.message, details: fakeError.originalMessage }, [jasmine.objectContaining({
       type: AlertActionType.Button,
       caption: 'Dismiss',
     })]);
@@ -132,7 +133,7 @@ describe('AuthService', () => {
     req.flush(fakeError, {status: 400, statusText: ''});
     await tokenExpiration;
 
-    expect(fakeNotifications.showAlert).toHaveBeenCalledWith(AlertType.Error, fakeError.message, [jasmine.objectContaining({
+    expect(fakeNotifications.showAlert).toHaveBeenCalledWith(AlertType.Error, { abstract: fakeError.message, details: fakeError.originalMessage }, [jasmine.objectContaining({
       type: AlertActionType.Button,
       caption: 'Dismiss',
     })]);
@@ -165,7 +166,7 @@ describe('AuthService', () => {
     req.flush(fakeError, {status: 400, statusText: ''});
     await verifyResponse;
 
-    expect(fakeNotifications.showAlert).toHaveBeenCalledWith(AlertType.Error, fakeError.message, [jasmine.objectContaining({
+    expect(fakeNotifications.showAlert).toHaveBeenCalledWith(AlertType.Error, { abstract: fakeError.message, details: fakeError.originalMessage }, [jasmine.objectContaining({
       type: AlertActionType.Button,
       caption: 'Dismiss',
     })]);

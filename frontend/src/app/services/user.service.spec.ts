@@ -21,9 +21,10 @@ describe('UserService', () => {
   }
 
   const fakeError = {
-    "message": "Connection error",
+    "message": "User error",
     "statusCode": 400,
-    "type": "no_master_key"
+    "type": "no_master_key",
+    "originalMessage": "User error details"
   }
 
   beforeEach(() => {
@@ -120,7 +121,7 @@ describe('UserService', () => {
     req.flush(fakeError, {status: 400, statusText: ''});
     await upgradeUser;
 
-    expect(fakeNotifications.showAlert).toHaveBeenCalledWith(AlertType.Error, fakeError.message, [
+    expect(fakeNotifications.showAlert).toHaveBeenCalledWith(AlertType.Error, { abstract: fakeError.message, details: fakeError.originalMessage }, [
       jasmine.objectContaining({
         type: AlertActionType.Link,
         caption: 'Settings',
@@ -164,7 +165,7 @@ describe('UserService', () => {
     req.flush(fakeError, {status: 400, statusText: ''});
     await resMessage;
 
-    expect(fakeNotifications.showAlert).toHaveBeenCalledWith(AlertType.Error, fakeError.message, [jasmine.objectContaining({
+    expect(fakeNotifications.showAlert).toHaveBeenCalledWith(AlertType.Error, { abstract: fakeError.message, details: fakeError.originalMessage }, [jasmine.objectContaining({
       type: AlertActionType.Button,
       caption: 'Dismiss',
     })]);
@@ -199,7 +200,7 @@ describe('UserService', () => {
     req.flush(fakeError, {status: 400, statusText: ''});
     await resMessage;
 
-    expect(fakeNotifications.showAlert).toHaveBeenCalledWith(AlertType.Error, fakeError.message, [jasmine.objectContaining({
+    expect(fakeNotifications.showAlert).toHaveBeenCalledWith(AlertType.Error, { abstract: fakeError.message, details: fakeError.originalMessage }, [jasmine.objectContaining({
       type: AlertActionType.Button,
       caption: 'Dismiss',
     })]);
@@ -236,7 +237,7 @@ describe('UserService', () => {
     req.flush(fakeError, {status: 400, statusText: ''});
     await resMessage;
 
-    expect(fakeNotifications.showAlert).toHaveBeenCalledWith(AlertType.Error, fakeError.message, [jasmine.objectContaining({
+    expect(fakeNotifications.showAlert).toHaveBeenCalledWith(AlertType.Error, { abstract: fakeError.message, details: fakeError.originalMessage }, [jasmine.objectContaining({
       type: AlertActionType.Button,
       caption: 'Dismiss',
     })]);
@@ -271,7 +272,7 @@ describe('UserService', () => {
     req.flush(fakeError, {status: 400, statusText: ''});
     await resMessage;
 
-    expect(fakeNotifications.showAlert).toHaveBeenCalledWith(AlertType.Error, fakeError.message, [jasmine.objectContaining({
+    expect(fakeNotifications.showAlert).toHaveBeenCalledWith(AlertType.Error, { abstract: fakeError.message, details: fakeError.originalMessage }, [jasmine.objectContaining({
       type: AlertActionType.Button,
       caption: 'Dismiss',
     })]);
@@ -310,7 +311,7 @@ describe('UserService', () => {
     req.flush(fakeError, {status: 400, statusText: ''});
     await resMessage;
 
-    expect(fakeNotifications.showAlert).toHaveBeenCalledWith(AlertType.Error, fakeError.message, [jasmine.objectContaining({
+    expect(fakeNotifications.showAlert).toHaveBeenCalledWith(AlertType.Error, { abstract: fakeError.message, details: fakeError.originalMessage }, [jasmine.objectContaining({
       type: AlertActionType.Button,
       caption: 'Dismiss',
     })]);
@@ -350,7 +351,7 @@ describe('UserService', () => {
     req.flush(fakeError, {status: 400, statusText: ''});
     await resMessage;
 
-    expect(fakeNotifications.showAlert).toHaveBeenCalledWith(AlertType.Error, fakeError.message, [jasmine.objectContaining({
+    expect(fakeNotifications.showAlert).toHaveBeenCalledWith(AlertType.Error, { abstract: fakeError.message, details: fakeError.originalMessage }, [jasmine.objectContaining({
       type: AlertActionType.Button,
       caption: 'Dismiss',
     })]);

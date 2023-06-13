@@ -29,8 +29,8 @@ describe('ConnectDBComponent', () => {
   let fakeNotifications = jasmine.createSpyObj('NotificationsService', ['showErrorSnackbar', 'showSuccessSnackbar', 'showAlert', 'dismissAlert']);
   let fakeConnectionsService = jasmine.createSpyObj('ConnectionsService', [
     'currentConnection', 'currentConnectionAccessLevel', 'testConnection',
-    'createConnection', 'updateConnection'
-  ]);
+    'createConnection', 'updateConnection', 'getCurrentConnectionTitle'
+  ], {currentConnectionID: '9d5f6d0f-9516-4598-91c4-e4fe6330b4d4'});
 
   const connectionCredsApp = {
     "title": "Test connection via SSH tunnel to mySQL",
@@ -109,6 +109,7 @@ describe('ConnectDBComponent', () => {
       global.window.Intercom = jasmine.createSpy();
 
     fakeConnectionsService.currentConnection.and.returnValue(connectionCredsApp);
+    fakeConnectionsService.getCurrentConnectionTitle.and.returnValue(of('Test connection via SSH tunnel to mySQL'));
     // fakeConnectionsService.currentConnectionAccessLevel.and.returnValue('edit');
 
     fixture.detectChanges();

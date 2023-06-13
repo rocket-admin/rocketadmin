@@ -4,7 +4,7 @@
 <app-banner *ngIf="isServerError" type="error" class="row-banner">
     <div *ngIf="serverError.details; else stringError" class="mat-body-1">
         <strong>{{serverError.abstract}}</strong>
-        <p class="mat-body-1">{{serverError.details}}</p>
+        <p class="mat-body-1 error-details">{{serverError.details}}</p>
     </div>
     <ng-template #stringError>
         <p class="mat-body-1">{{serverError.abstract}}</p>

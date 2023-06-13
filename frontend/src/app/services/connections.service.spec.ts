@@ -87,7 +87,8 @@ describe('ConnectionsService', () => {
   const fakeError = {
     "message": "Connection error",
     "statusCode": 400,
-    "type": "no_master_key"
+    "type": "no_master_key",
+    "originalMessage": "Connection error details"
   }
 
   beforeEach(() => {
@@ -333,7 +334,7 @@ describe('ConnectionsService', () => {
     req.flush(fakeError, {status: 400, statusText: ''});
     await connections;
 
-    expect(fakeNotifications.showAlert).toHaveBeenCalledWith(AlertType.Error, fakeError.message, [jasmine.objectContaining({
+    expect(fakeNotifications.showAlert).toHaveBeenCalledWith(AlertType.Error, { abstract: fakeError.message, details: fakeError.originalMessage }, [jasmine.objectContaining({
       type: AlertActionType.Button,
       caption: 'Dismiss',
     })]);
@@ -408,7 +409,7 @@ describe('ConnectionsService', () => {
     req.flush(fakeError, {status: 400, statusText: ''});
     await isConnectionWorks;
 
-    expect(fakeNotifications.showAlert).toHaveBeenCalledWith(AlertType.Error, fakeError.message, []);
+    expect(fakeNotifications.showAlert).toHaveBeenCalledWith(AlertType.Error, { abstract: fakeError.message, details: fakeError.originalMessage }, []);
   });
 
   it('should call createConnection and show Success Snackbar', () => {
@@ -437,7 +438,7 @@ describe('ConnectionsService', () => {
     req.flush(fakeError, {status: 400, statusText: ''});
     await createdConnection;
 
-    expect(fakeNotifications.showErrorSnackbar).toHaveBeenCalledOnceWith(fakeError.message);
+    expect(fakeNotifications.showAlert).toHaveBeenCalledWith(AlertType.Error, { abstract: fakeError.message, details: fakeError.originalMessage }, []);
   });
 
   it('should call updateConnection and show Success Snackbar', () => {
@@ -465,7 +466,7 @@ describe('ConnectionsService', () => {
     req.flush(fakeError, {status: 400, statusText: ''});
     await updatedConnection;
 
-    expect(fakeNotifications.showAlert).toHaveBeenCalledOnceWith(AlertType.Error, fakeError.message, [jasmine.objectContaining({
+    expect(fakeNotifications.showAlert).toHaveBeenCalledOnceWith(AlertType.Error, { abstract: fakeError.message, details: fakeError.originalMessage }, [jasmine.objectContaining({
       type: AlertActionType.Button,
       caption: 'Dismiss',
     })]);

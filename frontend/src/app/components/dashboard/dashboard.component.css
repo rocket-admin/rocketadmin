@@ -84,3 +84,7 @@
 .server-alert:empty {
     margin-top: 0;
 }
+
+.error-details {
+    margin-top: 8px;
+}

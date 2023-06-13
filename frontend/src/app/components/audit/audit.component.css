@@ -71,6 +71,10 @@ th.mat-header-cell, td.mat-cell {
     width: clamp(300px, 50vw, 450px);
 }
 
+.error-details {
+    margin-top: 8px;
+}
+
 .audit-banner {
     margin-top: 60px;
 }

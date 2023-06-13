@@ -52,9 +52,10 @@ describe('TableRowService', () => {
   }
 
   const fakeError = {
-    "message": "Connection error",
+    "message": "Table row error",
     "statusCode": 400,
-    "type": "no_master_key"
+    "type": "no_master_key",
+    "originalMessage": "Table row error details"
   }
 
   beforeEach(() => {
@@ -125,7 +126,7 @@ describe('TableRowService', () => {
     req.flush(fakeError, {status: 400, statusText: ''});
     await addTableRow;
 
-    expect(fakeNotifications.showAlert).toHaveBeenCalledWith(AlertType.Error, fakeError.message, [jasmine.objectContaining({
+    expect(fakeNotifications.showAlert).toHaveBeenCalledWith(AlertType.Error, { abstract: fakeError.message, details: fakeError.originalMessage }, [jasmine.objectContaining({
       type: AlertActionType.Button,
       caption: 'Dismiss',
     })]);
@@ -155,7 +156,7 @@ describe('TableRowService', () => {
     req.flush(fakeError, {status: 400, statusText: ''});
     await addTableRow;
 
-    expect(fakeNotifications.showAlert).toHaveBeenCalledWith(AlertType.Error, fakeError.message, [jasmine.objectContaining({
+    expect(fakeNotifications.showAlert).toHaveBeenCalledWith(AlertType.Error, { abstract: fakeError.message, details: fakeError.originalMessage }, [jasmine.objectContaining({
       type: AlertActionType.Button,
       caption: 'Dismiss',
     })]);

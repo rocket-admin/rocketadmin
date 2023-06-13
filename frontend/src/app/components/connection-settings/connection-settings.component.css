@@ -143,3 +143,7 @@
 .settings-banner ::ng-deep .banner-wrapper {
     margin-top: 60px;
 }
+
+.error-details {
+    margin-top: 8px;
+}
