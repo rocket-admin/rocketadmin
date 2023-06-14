@@ -26,7 +26,6 @@ import { IDataAccessObjectAgent } from '@rocketadmin/shared-code/dist/src/data-a
 import { IDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/interfaces/data-access-object.interface.js';
 import { ForeignKeyWithAutocompleteColumnsDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/foreign-key-with-autocomplete-columns.ds.js';
 import { ForeignKeyDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/foreign-key.ds.js';
-import { GetRowByPrimaryKeyException } from '../../../exceptions/custom-exceptions/get-table-row-by-primary-key.js';
 import { UnknownSQLException } from '../../../exceptions/custom-exceptions/unknown-sql-exception.js';
 import { ExceptionOperations } from '../../../exceptions/custom-exceptions/exception-operation.js';
 
@@ -105,8 +104,6 @@ export class UpdateRowInTableUseCase
       );
     }
 
-    // const validationErrors = validateTableRowUtil(row, tableStructure);
-    // errors = errors.concat(validationErrors);
     if (errors.length > 0) {
       throw new HttpException(
         {
@@ -162,7 +159,7 @@ export class UpdateRowInTableUseCase
     try {
       oldRowData = await dao.getRowByPrimaryKey(tableName, primaryKey, tableSettings, userEmail);
     } catch (e) {
-      throw new GetRowByPrimaryKeyException(e.message);
+      throw new UnknownSQLException(e.message,  ExceptionOperations.FAILED_TO_UPDATE_ROW_IN_TABLE);
     }
     if (!oldRowData) {
       throw new HttpException(
@@ -172,9 +169,11 @@ export class UpdateRowInTableUseCase
         HttpStatus.BAD_REQUEST,
       );
     }
+
     const oldRowDataLog = {
       ...oldRowData,
     };
+
     const futureRowData = Object.assign(oldRowData, row);
     const futurePrimaryKey = {};
     for (const primaryColumn of tablePrimaryKeys) {

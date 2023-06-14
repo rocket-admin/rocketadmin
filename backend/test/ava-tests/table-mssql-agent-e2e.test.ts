@@ -2361,7 +2361,7 @@ test(`${currentTest} should throw an exception when primary key passed in reques
   const { message, originalMessage } = JSON.parse(updateRowInTableResponse.text);
   t.is(updateRowInTableResponse.status, 500);
   t.is(originalMessage, ERROR_MESSAGES.NO_DATA_RETURNED_FROM_AGENT);
-  t.is(message, ErrorsMessages.FAILED_TO_GET_ROW);
+  t.is(message,  'Failed to update row in table. No data returned from agent');
 });
 
 currentTest = 'DELETE /table/row/:slug';
@@ -2698,7 +2698,7 @@ test(`${currentTest} should throw an exception when primary key passed in reques
   t.is(deleteRowInTableResponse.status, 500);
   t.is(
     deleteRowInTableRO.message,
-    'Failed to delete row from table. It seems like something went wrong while processing your query. Please try again later or contact our support team.',
+    'Failed to delete row from table. No data returned from agent',
   );
   t.is(deleteRowInTableRO.originalMessage, ERROR_MESSAGES.NO_DATA_RETURNED_FROM_AGENT);
 });
@@ -2906,7 +2906,7 @@ test(`${currentTest} should throw an exception, when primary key passed in reque
 
   const { message, originalMessage } = JSON.parse(foundRowInTableResponse.text);
   t.is(foundRowInTableResponse.status, 500);
-  t.is(message, ErrorsMessages.FAILED_TO_GET_ROW);
+  t.is(message, 'Failed to get row by primary key. No data returned from agent');
   t.is(originalMessage, ERROR_MESSAGES.NO_DATA_RETURNED_FROM_AGENT);
 });
 
