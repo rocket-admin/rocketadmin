@@ -3,7 +3,7 @@ SHELL ["/bin/bash", "-c"]
 WORKDIR /app/frontend
 COPY frontend/package.json frontend/yarn.lock frontend/angular.json frontend/tsconfig.app.json frontend/tsconfig.json /app/frontend/
 COPY frontend/.yarn /app/frontend/.yarn
-RUN yarn install --immutable --network-timeout 1000000
+RUN yarn install --immutable --network-timeout 1000000 --silent
 COPY frontend/src /app/frontend/src
 ARG SAAS
 RUN if [[ -n $SAAS ]]; then API_ROOT=/api yarn build --configuration=saas-production; \
@@ -23,7 +23,7 @@ COPY rocketadmin-cli /app/rocketadmin-cli
 COPY rocketadmin-agent /app/rocketadmin-agent
 COPY private-modules /app/private-modules
 COPY .yarn /app/.yarn
-RUN yarn install --network-timeout 1000000 --frozen-lockfile
+RUN yarn install --network-timeout 1000000 --frozen-lockfile --silent
 RUN cd shared-code && ../node_modules/.bin/tsc
 RUN cd private-modules && ( test -d node_modules && yarn run nest build || true )
 RUN cd backend && yarn run nest build
