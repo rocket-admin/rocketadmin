@@ -51,11 +51,11 @@ test.before(async () => {
   firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
   connectionToTestDB = getTestData(mockFactory).mysqlAgentConnection;
   const createConnectionResponse = await request(app.getHttpServer())
-  .post('/connection')
-  .send(connectionToTestDB)
-  .set('Cookie', firstUserToken)
-  .set('Content-Type', 'application/json')
-  .set('Accept', 'application/json');
+    .post('/connection')
+    .send(connectionToTestDB)
+    .set('Cookie', firstUserToken)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
   await testUtils.sleep();
 });
 
@@ -2701,7 +2701,10 @@ test(`${currentTest} should throw an exception when primary key passed in reques
   const deleteRowInTableRO = JSON.parse(deleteRowInTableResponse.text);
   t.is(deleteRowInTableResponse.status, 500);
   t.is(deleteRowInTableRO.originalMessage, ERROR_MESSAGES.NO_DATA_RETURNED_FROM_AGENT);
-  t.is(deleteRowInTableRO.message, ErrorsMessages.FAILED_TO_GET_ROW);
+  t.is(
+    deleteRowInTableRO.message,
+    'Failed to delete row from table. It seems like something went wrong while processing your query. Please try again later or contact our support team.',
+  );
 });
 
 currentTest = 'GET /table/row/:slug';
