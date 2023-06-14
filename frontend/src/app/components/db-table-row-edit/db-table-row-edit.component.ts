@@ -77,7 +77,7 @@ export class DbTableRowEditComponent implements OnInit {
 
     this.route.queryParams.subscribe((params) => {
       if (Object.keys(params).length === 0) {
-        this.title.setTitle(`Add new record - ${this.normalizedTableName} | Rocketadmin`);
+        this.title.setTitle(`${this.normalizedTableName} - Add new record | Rocketadmin`);
         this._tables.fetchTableStructure(this.connectionID, this.tableName)
           .subscribe(res => {
             this.keyAttributesFromStructure = res.primaryColumns;
@@ -107,7 +107,7 @@ export class DbTableRowEditComponent implements OnInit {
             this.loading = false;
           })
       } else {
-        this.title.setTitle(`Edit record - ${this.normalizedTableName} | Rocketadmin`);
+        this.title.setTitle(`${this.normalizedTableName} - Edit record | Rocketadmin`);
         this.keyAttributesFromURL = params;
         this.hasKeyAttributesFromURL = !!Object.keys(this.keyAttributesFromURL).length;
         this._tableRow.fetchTableRow(this.connectionID, this.tableName, params)

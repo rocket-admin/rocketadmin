@@ -56,7 +56,7 @@ export class DbTableSettingsComponent implements OnInit {
     this.connectionID = this._connections.currentConnectionID;
     this.tableName = this._tables.currentTableName;
     this.displayTableName = normalizeTableName(this.tableName);
-    this.title.setTitle(`Table settings - ${this.displayTableName} | Rocketadmin`);
+    this.title.setTitle(`${this.displayTableName} - Table settings | Rocketadmin`);
     this._tables.cast.subscribe();
     this._tables.fetchTableStructure(this.connectionID, this.tableName)
       .subscribe(res => {
