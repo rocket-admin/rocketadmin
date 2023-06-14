@@ -7,7 +7,7 @@ export class UnknownSQLException extends HttpException {
   constructor(originalMessage: string, operationType?: string) {
     const readableMessage = `${
       operationType ? `${operationType} ` : ''
-    }Tt seems like something went wrong while processing your query. Please try again later or contact our support team.`;
+    }It seems like something went wrong while processing your query. Please try again later or contact our support team.`;
     super(readableMessage, HttpStatus.INTERNAL_SERVER_ERROR);
     this.originalMessage = originalMessage;
     this.internalCode = ExceptionsInternalCodes.UNKNOWN_SQL_EXCEPTION;

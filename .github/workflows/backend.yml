@@ -5,8 +5,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+      - uses: extractions/setup-just@v1
       - name: run tests
-        run: cd backend && docker compose -f docker-compose.yml -f docker-compose.test.yml up --abort-on-container-exit
+        run: just test
   license:
     runs-on: ubuntu-latest
     steps:

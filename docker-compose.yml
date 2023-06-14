@@ -1,4 +1,4 @@
-version: "3.7"
+version: "3.9"
 services:
   backend:
     build:
@@ -78,7 +78,7 @@ services:
       - "5434:1433"
 
   test-oracle-e2e-testing:
-    image: gvenzl/oracle-xe:latest
+    image: gvenzl/oracle-xe
     ports:
       - 1521:1521
     environment:

@@ -16,7 +16,7 @@ COPY ./rocketadmin-agent/.mysql_test_agent_config.txt /app/rocketadmin-agent/
 COPY ./rocketadmin-agent/.mssql_test_agent_config.txt /app/rocketadmin-agent/
 COPY shared-code /app/shared-code
 COPY ./rocketadmin-agent/ssl-cert.txt /app/rocketadmin-agent/
-
+RUN cd shared-code && ../node_modules/.bin/tsc
 RUN cd rocketadmin-agent && yarn run nest build
 CMD [ "./node_modules/.bin/nest", "start"]
 
