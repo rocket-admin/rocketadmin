@@ -15,6 +15,7 @@ COPY ./rocketadmin-cli/.mysql_test_cli_config.txt /app/rocketadmin-cli/
 COPY ./rocketadmin-cli/.mssql_test_cli_config.txt /app/rocketadmin-cli/
 COPY shared-code /app/shared-code
 
+RUN cd shared-code && ../node_modules/.bin/tsc
 RUN cd rocketadmin-cli && yarn run nest build
 CMD [ "./node_modules/.bin/nest", "start"]
 

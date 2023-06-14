@@ -1,0 +1,4 @@
+version: '2'
+services:
+  backend:
+    command: ["sh", "-c", "yarn test"]
