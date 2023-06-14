@@ -183,7 +183,7 @@
 }
 
 .google-icons-link {
-    color: #3258f0;
+    color: var(--color-primaryPalette-500);
     text-decoration: none;
 }
 

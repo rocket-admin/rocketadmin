@@ -30,6 +30,7 @@ export class DbTableSettingsComponent implements OnInit {
   public tableSettings: TableSettings = {
     connection_id: '',
     table_name: '',
+    icon: '',
     display_name: '',
     autocomplete_columns: [],
     identity_column: '',
@@ -42,7 +43,9 @@ export class DbTableSettingsComponent implements OnInit {
     sortable_by: [],
     columns_view: [],
     sensitive_fields: []
-  }
+  };
+  public defaultIcons = ['favorite', 'star', 'done', 'arrow_forward', 'key', 'lock', 'visibility', 'language', 'notifications', 'schedule'];
+
 
   constructor(
     private _tables: TablesService,

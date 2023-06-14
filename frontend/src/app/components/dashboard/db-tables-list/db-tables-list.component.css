@@ -38,12 +38,23 @@
     background-color: var(--color-primaryPalette-200);
 }
 
+.table-list-icon {
+    font-size: 20px;
+    height: 20px;
+    width: 20px;
+}
+
 .tables-list ::ng-deep .mat-list-base .mat-list-item {
     height: 40px !important;
 }
 
 .list-item_active ::ng-deep .mdc-list-item__primary-text {
     color: var(--color-accentedPalette-500);
+}
+
+.list-item_active ::ng-deep .table-list-initials {
+    background-color: var(--color-primaryPalette-400);
+    color: var(--color-primaryPalette-400-contrast);
 }
 
 .empty-message {

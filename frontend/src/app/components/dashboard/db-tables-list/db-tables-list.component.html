@@ -29,7 +29,12 @@
                 <div *ngIf="collapsed; else fullTableName"
                     class="table-list-initials"
                     [matTooltip]="getTableName(tableItem)">
-                    {{tableItem.initials}}
+                    <mat-icon *ngIf="tableItem.icon; else tableNameInitials" class="table-list-icon">
+                        {{tableItem.icon}}
+                    </mat-icon>
+                    <ng-template #tableNameInitials>
+                        {{tableItem.initials}}
+                    </ng-template>
                 </div>
                 <ng-template #fullTableName>
                     {{getTableName(tableItem)}}

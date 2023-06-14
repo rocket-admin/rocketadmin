@@ -127,3 +127,52 @@
 .settings-form__save-button {
     margin-left: 20px;
 }
+
+.settings-icon-menu {
+    margin-bottom: 20px;
+    margin-left: auto;
+    margin-right: -8px;
+}
+
+.settings-add-icon-button {
+    margin-right: -40px;
+}
+
+.icons-menu {
+    display: flex;
+    flex-direction: column;
+    padding: 0 16px;
+}
+
+.icons-list {
+    list-style: none;
+    display: grid;
+    grid-template-columns: repeat(5, 40px);
+    grid-gap: 4px;
+    justify-content: space-between;
+    margin-top: 12px;
+    margin-bottom: 12px;
+}
+
+.icon-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    height: 40px;
+    width: 40px;
+}
+
+.icon-radio-button:checked + ::ng-deep.icon-button {
+    background-color: rgba(0,0,0,0.16);
+}
+
+.apply-icon-button {
+    align-self: flex-end;
+    margin-top: 4px;
+}
+
+.google-icons-link {
+    color: var(--color-primaryPalette-500);
+    text-decoration: none;
+}
