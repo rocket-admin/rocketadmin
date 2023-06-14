@@ -427,10 +427,11 @@ WHERE
       `,
         tableName,
       );
-      const resultValue = result[0];
+      let resultValue = result[0] || [];
+      resultValue = Array.isArray(resultValue) ? resultValue : [resultValue];
       results.push({
         referenced_on_column_name: primaryColumn.column_name,
-        referenced_by: resultValue ? [resultValue] : [],
+        referenced_by: resultValue,
       });
     }
     return results;
