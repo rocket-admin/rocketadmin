@@ -2,7 +2,8 @@ name: backend
 on: push
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on:
+      labels: ubuntu-latest-4-cores
     steps:
       - uses: actions/checkout@v2
       - uses: extractions/setup-just@v1
