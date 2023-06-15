@@ -66,7 +66,7 @@ export const PROCESSING_MESSAGES_REPLACE = {
     const dbUser = words.at(userWordIndex + 1);
     const message = `
     User ${dbUser} don't have permission to perform select command for this table.
-    Please gran select permissions to user in your database.
+    Please grant select permissions to user in your database.
     `;
     return message;
   },
