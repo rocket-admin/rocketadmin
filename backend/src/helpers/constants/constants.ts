@@ -11,7 +11,7 @@ export const Constants = {
   DEFAULT_LOG_ROWS_LIMIT: 500,
   MIDNIGHT_CRON_KEY: `44aea3c3-68f9-4c19-926c-40d2d5b502a2`,
   MORNING_CRON_KEY: `15ccb8d8-9b64-4d38-9f71-39b3a56c04d8`,
-  CONNECTION_KEYS_NONE_PERMISSION: ['id', 'title', 'database', 'type'],
+  CONNECTION_KEYS_NONE_PERMISSION: ['id', 'title', 'database', 'type', 'connection_properties'],
   FREE_PLAN_USERS_COUNT: 3,
 
   VERIFICATION_STRING_WHITELIST: () => {
