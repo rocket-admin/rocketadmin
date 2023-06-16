@@ -97,7 +97,7 @@
     "typeorm": "^0.3.11",
     "uuid": "^9.0.0",
     "validator": "^13.7.0",
-    "winston": "3.8.2"
+    "winston": "3.9.0"
   },
   "devDependencies": {
     "@ava/typescript": "^3.0.1",
