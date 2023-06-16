@@ -4110,7 +4110,7 @@ __metadata:
     moment: 2.29.4
     nanoid: 4.0.0
     nest-winston: 1.8.0
-    nodemailer: ^6.9.0
+    nodemailer: ^6.9.3
     otplib: ^12.0.1
     p-queue: 7.3.0
     passport: 0.6.0
@@ -10648,10 +10648,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"nodemailer@npm:^6.9.0":
-  version: 6.9.2
-  resolution: "nodemailer@npm:6.9.2"
-  checksum: 76a7ea0cff221914d3ebb666f26f30c9374f84dd80c1b95bb186873295ecf8dea887ed36a1e8d5d90930c36b30f85ceac062fc9efb7bc75821fe497be4103d25
+"nodemailer@npm:^6.9.3":
+  version: 6.9.3
+  resolution: "nodemailer@npm:6.9.3"
+  checksum: 3bea8316652c0578515d9146d2f24660e4855807520153f061d39af76b440a4f61b4e70f10fed35f8f12f115f6aea1aeb483ea7ba0337c0e3e675f117c41c611
   languageName: node
   linkType: hard
 
