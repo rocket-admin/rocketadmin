@@ -94,7 +94,7 @@
     "secure-json-parse": "2.7.0",
     "sinon": "15.0.1",
     "stripe": "11.6.0",
-    "typeorm": "^0.3.11",
+    "typeorm": "^0.3.16",
     "uuid": "^9.0.0",
     "validator": "^13.9.0",
     "winston": "3.9.0"
