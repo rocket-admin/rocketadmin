@@ -100,7 +100,7 @@
     "winston": "3.9.0"
   },
   "devDependencies": {
-    "@ava/typescript": "^3.0.1",
+    "@ava/typescript": "^4.0.0",
     "@nestjs/cli": "^9.2.0",
     "@nestjs/schematics": "9.0.4",
     "@nestjs/testing": "^9.3.9",
@@ -116,7 +116,7 @@
     "@types/validator": "^13.7.10",
     "@typescript-eslint/eslint-plugin": "^5.48.1",
     "@typescript-eslint/parser": "^5.48.1",
-    "ava": "^5.1.0",
+    "ava": "^5.3.0",
     "eslint": "^8.42.0",
     "eslint-config-prettier": "^8.8.0",
     "eslint-plugin-import": "^2.27.5",
