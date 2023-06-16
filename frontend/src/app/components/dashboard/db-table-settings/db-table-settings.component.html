@@ -5,11 +5,59 @@
     <app-content-loader *ngIf="loading"></app-content-loader>
     <form action="" #tableSettingsForm="ngForm" (ngSubmit)="updateSettings()">
         <div class="settings-form">
-            <mat-form-field appearance="outline" class="settings-form__full-line">
+            <mat-form-field appearance="outline">
                 <mat-label>Table display name</mat-label>
                 <input matInput [(ngModel)]="tableSettings.display_name" name="display_name" #displayName="ngModel">
                 <!-- <mat-error *ngIf="title.errors?.required && (title.invalid && title.touched)">Title should not be empty.</mat-error> -->
             </mat-form-field>
+            <div class="settings-icon-menu">
+                <button mat-icon-button *ngIf="tableSettings.icon; else addButton"
+                    type="button"
+                    [matMenuTriggerFor]="menu"
+                    class="settings-icon">
+                    <mat-icon>
+                        {{ tableSettings.icon }}
+                    </mat-icon>
+                </button>
+                <ng-template #addButton>
+                    <button mat-button type="button" [matMenuTriggerFor]="menu" class="settings-add-icon-button">
+                        Add icon
+                    </button>
+                </ng-template>
+                <mat-menu #menu="matMenu">
+                    <div class="icons-menu">
+                        <strong>Select an icon</strong>
+                        <ul class="icons-list">
+                            <li *ngFor="let icon of defaultIcons; let i = index">
+                                <label for="icon-{{i}}" class="icon-radio-label" (click)="$event.stopPropagation();">
+                                    <input type="radio" name="action-icon"
+                                        [value]="icon" id="icon-{{i}}"
+                                        [(ngModel)]="tableSettings.icon"
+                                        class="icon-radio-button visually-hidden">
+                                    <div class="icon-button">
+                                        <mat-icon>{{icon}}</mat-icon>
+                                    </div>
+                                </label>
+                            </li>
+                        </ul>
+                        <mat-form-field appearance="outline" class="icon-input">
+                            <mat-label>Another icon</mat-label>
+                            <input matInput
+                                [(ngModel)]="tableSettings.icon"
+                                name="action-icon"
+                                (click)="$event.stopPropagation();">
+                            <mat-hint>
+                                More icons <a href="https://fonts.google.com/icons" target="_blank" (click)="$event.stopPropagation();" class="google-icons-link">here</a>
+                            </mat-hint>
+                        </mat-form-field>
+                        <!--<button mat-button color="primary"
+                            class="apply-icon-button"
+                            type="button">
+                            Apply
+                        </button>-->
+                    </div>
+                </mat-menu>
+            </div>
 
             <mat-form-field appearance="outline">
                 <mat-label>Sensitive fields</mat-label>

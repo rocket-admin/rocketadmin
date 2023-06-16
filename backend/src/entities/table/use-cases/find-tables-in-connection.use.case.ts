@@ -21,13 +21,12 @@ import { IFindTablesInConnection } from './table-use-cases.interface.js';
 import { TableStructureDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/table-structure.ds.js';
 import { TableDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/table.ds.js';
 import { UnknownSQLException } from '../../../exceptions/custom-exceptions/unknown-sql-exception.js';
-import { GetTablesException } from '../../../exceptions/custom-exceptions/get-tables-exception.js';
+import { ExceptionOperations } from '../../../exceptions/custom-exceptions/exception-operation.js';
 
 @Injectable()
 export class FindTablesInConnectionUseCase
   extends AbstractUseCase<FindTablesDs, Array<FoundTableDs>>
-  implements IFindTablesInConnection
-{
+  implements IFindTablesInConnection {
   constructor(
     @Inject(BaseType.GLOBAL_DB_CONTEXT)
     protected _dbContext: IGlobalDatabaseContext,
@@ -58,9 +57,10 @@ export class FindTablesInConnectionUseCase
       tables = await dao.getTablesFromDB(userEmail);
       operationResult = true;
     } catch (e) {
-      throw new GetTablesException(e.message);
+      operationResult = false;
+      throw new UnknownSQLException(e.message, ExceptionOperations.FAILED_TO_GET_TABLES);
     } finally {
-      if (!connection.isTestConnection) {
+      if (!connection.isTestConnection && tables && tables.length) {
         Logger.logInfo({
           tables: tables.map((table) => table.tableName),
           connectionId: connectionId,
@@ -132,9 +132,9 @@ export class FindTablesInConnectionUseCase
     return tablesObjArr.map((tableObj: ITableAndViewPermissionData) => {
       const foundTableSettings =
         tableSettings[
-          tableSettings.findIndex((el: TableSettingsEntity) => {
-            return el.table_name === tableObj.tableName;
-          })
+        tableSettings.findIndex((el: TableSettingsEntity) => {
+          return el.table_name === tableObj.tableName;
+        })
         ];
       const displayName = foundTableSettings ? foundTableSettings.display_name : undefined;
       const icon = foundTableSettings ? foundTableSettings.icon : undefined;

@@ -34,7 +34,8 @@ import { IDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access
 import { ForeignKeyWithAutocompleteColumnsDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/foreign-key-with-autocomplete-columns.ds.js';
 import { ForeignKeyDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/foreign-key.ds.js';
 import { FoundRowsDS } from '@rocketadmin/shared-code/src/data-access-layer/shared/data-structures/found-rows.ds.js';
-import { GetRowsException } from '../../../exceptions/custom-exceptions/get-table-rows-exception.js';
+import { UnknownSQLException } from '../../../exceptions/custom-exceptions/unknown-sql-exception.js';
+import { ExceptionOperations } from '../../../exceptions/custom-exceptions/exception-operation.js';
 
 @Injectable()
 export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTableRowsDs> implements IGetTableRows {
@@ -134,7 +135,7 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
           userEmail,
         );
       } catch (e) {
-        throw new GetRowsException(e.message);
+        throw new UnknownSQLException(e.message, ExceptionOperations.FAILED_TO_GET_ROW_BY_PRIMARY_KEY);
       }
 
       rows = addCustomFieldsInRowsUtil(rows, tableCustomFields);

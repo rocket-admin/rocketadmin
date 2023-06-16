@@ -105,7 +105,7 @@ export class DbTableWidgetsComponent implements OnInit {
     this.connectionID = this._connections.currentConnectionID;
     this.tableName = this._tables.currentTableName;
     this.normalizedTableName = normalizeTableName(this.tableName);
-    this.title.setTitle(`Widgets - ${this.normalizedTableName} | Rocketadmin`);
+    this.title.setTitle(`${this.normalizedTableName} - Widgets | Rocketadmin`);
     this.widgetsWithSettings = Object
       .entries(this.defaultParams)
       .filter(([key, value]) => value !== '// No settings required')

@@ -150,6 +150,10 @@
     grid-template-columns: repeat(var(--colCount), auto) !important;
 }
 
+.db-table ::ng-deep .mat-mdc-row:nth-child(even) {
+    background-color: rgba(0, 0, 0, 0.02);
+}
+
 .db-table ::ng-deep .mat-mdc-row,
 .db-table ::ng-deep .mat-mdc-header-row,
 .db-table ::ng-deep .mat-mdc-footer-row {

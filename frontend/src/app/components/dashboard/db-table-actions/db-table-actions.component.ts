@@ -47,7 +47,7 @@ export class DbTableActionsComponent implements OnInit {
     this.signingKey = this._connections.currentConnection.signing_key;
     this.tableName = this._tables.currentTableName;
     this.normalizedTableName = normalizeTableName(this.tableName);
-    this.title.setTitle(`Actions - ${this.normalizedTableName} | Rocketadmin`);
+    this.title.setTitle(`${this.normalizedTableName} - Actions | Rocketadmin`);
     this.codeSnippets = codeSnippets(this._connections.currentConnection.signing_key);
 
     try {

@@ -15,6 +15,8 @@ import { IDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access
 import { IDataAccessObjectAgent } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/interfaces/data-access-object-agent.interface.js';
 import { ForeignKeyWithAutocompleteColumnsDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/foreign-key-with-autocomplete-columns.ds.js';
 import { ForeignKeyDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/foreign-key.ds.js';
+import { UnknownSQLException } from '../../../exceptions/custom-exceptions/unknown-sql-exception.js';
+import { ExceptionOperations } from '../../../exceptions/custom-exceptions/exception-operation.js';
 
 @Injectable()
 export class GetTableStructureUseCase
@@ -89,13 +91,7 @@ export class GetTableStructureUseCase
         list_fields: tableSettings?.list_fields ? tableSettings.list_fields : [],
       };
     } catch (e) {
-      throw new HttpException(
-        {
-          message: `${Messages.FAILED_GET_TABLE_STRUCTURE} ${Messages.ERROR_MESSAGE}
-         ${e.message} ${Messages.TRY_AGAIN_LATER}`,
-        },
-        HttpStatus.BAD_REQUEST,
-      );
+      throw new UnknownSQLException(e.message, ExceptionOperations.FAILED_TO_GET_TABLE_STRUCTURE);
     }
   }
 
