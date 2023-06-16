@@ -68,7 +68,7 @@
     "express-rate-limit": "6.7.0",
     "get-port": "6.1.2",
     "google-auth-library": "^8.7.0",
-    "helmet": "6.0.1",
+    "helmet": "7.0.0",
     "ip-range-check": "0.2.0",
     "json2csv": "^5.0.7",
     "jsonwebtoken": "^9.0.0",
