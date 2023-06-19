@@ -24,7 +24,7 @@
             </a>
         </mat-nav-list>
 
-        <a mat-flat-button
+        <a mat-flat-button data-test-id="add-connection-button"
             color="accent" class="connectionsBox__addButton"
             routerLink="/connect-db"
             angulartics2On="click"
@@ -39,7 +39,8 @@
         </header>
 
         <mat-nav-list class="connectionsBox__connectionsList">
-            <a mat-list-item *ngFor="let testConnectionItem of testConnections" class="connection"
+            <a mat-list-item *ngFor="let testConnectionItem of testConnections" attr.data-test-id="{{testConnectionItem.connection.id}}-test-connection-list-item"
+                class="connection"
                 routerLink="/dashboard/{{testConnectionItem.connection.id}}">
                 <mat-icon mat-list-icon [svgIcon]="testConnectionItem.connection.type" class="connection__icon"></mat-icon>
                 {{ titles[testConnectionItem.connection.id] }}

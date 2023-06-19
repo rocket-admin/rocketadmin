@@ -40,11 +40,11 @@
             </app-db-tables-list>
         </mat-sidenav>
         <mat-sidenav-content>
-            <app-alert class="server-alert"></app-alert>
+            <app-alert class="server-alert" data-test-id="alert-server-error"></app-alert>
             <div class="alerts">
-                <app-alert *ngIf="dataSource.alert_settingsInfo" [alert]="dataSource.alert_settingsInfo"></app-alert>
-                <app-alert *ngIf="dataSource.alert_primaryKeysInfo" [alert]="dataSource.alert_primaryKeysInfo"></app-alert>
-                <app-alert *ngIf="dataSource.alert_widgetsWarning" [alert]="dataSource.alert_widgetsWarning"></app-alert>
+                <app-alert *ngIf="dataSource.alert_settingsInfo" [alert]="dataSource.alert_settingsInfo" data-test-id="alert-not-configured"></app-alert>
+                <app-alert *ngIf="dataSource.alert_primaryKeysInfo" [alert]="dataSource.alert_primaryKeysInfo" data-test-id="alert-no-primary-keys"></app-alert>
+                <app-alert *ngIf="dataSource.alert_widgetsWarning" [alert]="dataSource.alert_widgetsWarning" data-test-id="alert-widgets-warning"></app-alert>
             </div>
 
             <app-content-loader *ngIf="dataSource === null"></app-content-loader>

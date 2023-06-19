@@ -9,7 +9,8 @@
 
             <mat-form-field appearance="outline">
                 <mat-label>Email</mat-label>
-                <input matInput type="email" name="email" #email="ngModel" required
+                <input matInput type="email" name="email" data-test-id="login-email-input"
+                    #email="ngModel" required
                     angulartics2On="change"
                     angularticsAction="Login: email is changed"
                     [(ngModel)]="user.email" >
@@ -18,24 +19,26 @@
 
             <mat-form-field appearance="outline">
                 <mat-label>Password</mat-label>
-                <input matInput type="password" name="password" #password="ngModel" required
+                <input matInput type="password" name="password" data-test-id="login-password-input"
+                    #password="ngModel" required
                     angulartics2On="change"
                     angularticsAction="Login: password is changed"
                     [(ngModel)]="user.password">
                 <mat-hint>
-                    <a routerLink="/forget-password" class="link">Forgot password</a>
+                    <a routerLink="/forget-password" class="link" data-test-id="forgot-password-link">Forgot password</a>
                 </mat-hint>
                 <!-- <mat-error *ngIf="port.errors?.required && (port.invalid && port.touched)">Port should not be empty.</mat-error> -->
             </mat-form-field>
 
-            <button type="submit" mat-raised-button color="accent" class="login-button"
+            <button type="submit" mat-raised-button color="accent" data-test-id="login-button"
+                class="login-button"
                 angulartics2On="click"
                 angularticsAction="Login: login is clicked"
                 [disabled]="submitting || loginForm.form.invalid || loginForm.form.pristine">
                 {{ submitting ? 'Submitting' : 'Login'}}
             </button>
             <div class="divider"><span class="divider__label">or</span></div>
-            <div id="google_login_button"
+            <div id="google_login_button" data-test-id="login-google-button"
                 angulartics2On="click"
                 angularticsAction="Login: login with google is clicked">
             </div>

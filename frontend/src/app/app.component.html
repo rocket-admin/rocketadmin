@@ -46,12 +46,13 @@
             </ng-template>
 
             <div *ngIf="userLoggedIn === true" class="menu">
-                <a routerLink="/connections-list" mat-button class="action nav-bar__button"
+                <a routerLink="/connections-list" mat-button data-test-id="connections-list-header-link"
+                    class="action nav-bar__button"
                     routerLinkActive="nav-bar__button_active"
                     aria-label="List of connections">
                     Connections
                 </a>
-                <a routerLink="/user-settings" mat-button
+                <a routerLink="/user-settings" mat-button data-test-id="account-header-link"
                     matBadge="1" [matBadgeHidden]="currentUser.isActive"  matBadgeColor="accent" matBadgeSize="small"
                     class="action nav-bar__button"
                     routerLinkActive="nav-bar__button_active">
@@ -69,12 +70,13 @@
 
             <div *ngIf="userLoggedIn === true" class="actions actions_auth">
                 <ng-container *ngIf="upgradeButtonShown">
-                    <a *ngIf="currentUser.portal_link; else subscriptionLink" [href]="currentUser.portal_link " mat-flat-button
+                    <a *ngIf="currentUser.portal_link; else subscriptionLink" data-test-id="upgrade-stripe-link"
+                        [href]="currentUser.portal_link " mat-flat-button
                         class="nav-bar__upgrade-button" target="_blank">
                         Upgrade
                     </a>
                     <ng-template #subscriptionLink>
-                        <a routerLink="/upgrade" mat-flat-button
+                        <a routerLink="/upgrade" mat-flat-button data-test-id="upgrade-local-link"
                             routerLinkActive="mat-accent" class="nav-bar__upgrade-button">
                             Upgrade
                         </a>
@@ -82,7 +84,7 @@
 
                 </ng-container>
 
-                <button mat-button (click)="logOut()" class="nav-bar__button"
+                <button mat-button (click)="logOut()" class="nav-bar__button" data-test-id="logout-button"
                     matTooltip="Logout {{currentUser.email}}">
                     <div class="nav-bar__button-logout">
                         Log out
@@ -127,7 +129,7 @@
                 {{currantConnection.title || currantConnection.database}}
             </a>
 
-            <a mat-tab-link *ngFor="let tab of visibleTabs"
+            <a mat-tab-link *ngFor="let tab of visibleTabs" attr.data-test-id="{{tab}}-tab"
                 routerLink="{{tab}}/{{connectionID}}"
                 [active]="currentTab == tab">
                 <mat-icon class="tab-icon">{{navigationTabs[tab].icon}}</mat-icon>{{navigationTabs[tab].caption}}
