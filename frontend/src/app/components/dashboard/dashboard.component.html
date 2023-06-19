@@ -1,6 +1,6 @@
 <app-content-loader *ngIf="loading"></app-content-loader>
 
-<app-banner *ngIf="isServerError" type="error">
+<app-banner *ngIf="isServerError" type="error" data-test-id="connection-server-error-banner">
     <div *ngIf="serverError.details; else stringError" class="mat-body-1">
         <strong>{{serverError.abstract}}</strong>
         <p class="mat-body-1 error-details">{{serverError.details}}</p>
@@ -14,7 +14,7 @@
     </div>
 </app-banner>
 
-<app-banner *ngIf="noTablesError" type="info">
+<app-banner *ngIf="noTablesError" type="info" data-test-id="no-tables-error-banner">
     <h3 class='mat-subheading-2'>Rocketadmin can not find any tables</h3>
     <p class="mat-body-1">
         Rocketadmin don't have access to connection tables or there aren't any.
