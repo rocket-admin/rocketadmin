@@ -21,7 +21,8 @@ jobs:
       - name: license checker
         run: 'cd backend && npx license-checker --onlyAllow="MIT;ISC;Python-2.0;Apache-2.0;BSD;MPL;CC;Custom: http://github.com/dscape/statsd-parser;" --excludePrivatePackages'
   lint:
-    runs-on: ubuntu-latest
+    runs-on:
+      labels: ubuntu-latest-4-cores
     steps:
       - uses: actions/checkout@v3
       - uses: extractions/setup-just@v1
