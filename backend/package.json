@@ -93,7 +93,7 @@
     "safe-regex2": "^3.1.0",
     "secure-json-parse": "2.7.0",
     "sinon": "15.1.2",
-    "stripe": "11.6.0",
+    "stripe": "12.9.0",
     "typeorm": "^0.3.16",
     "uuid": "^9.0.0",
     "validator": "^13.9.0",
