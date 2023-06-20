@@ -94,11 +94,11 @@
             </div>
 
             <div *ngIf="userLoggedIn === null" class="actions">
-                <a class="authButton authButton_login"
+                <a class="authButton authButton_login" data-test-id="login-header-link"
                     routerLink="/login">
                     Login
                 </a>
-                <a class="authButton authButton_signup"
+                <a class="authButton authButton_signup" data-test-id="registration-header-link"
                     routerLink="/registration">
                     Sign up
                 </a>
