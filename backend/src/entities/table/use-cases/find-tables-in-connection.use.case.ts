@@ -22,11 +22,13 @@ import { TableStructureDS } from '@rocketadmin/shared-code/dist/src/data-access-
 import { TableDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/table.ds.js';
 import { UnknownSQLException } from '../../../exceptions/custom-exceptions/unknown-sql-exception.js';
 import { ExceptionOperations } from '../../../exceptions/custom-exceptions/exception-operation.js';
+import { TableInfoEntity } from '../../table-info/table-info.entity.js';
 
 @Injectable()
 export class FindTablesInConnectionUseCase
   extends AbstractUseCase<FindTablesDs, Array<FoundTableDs>>
-  implements IFindTablesInConnection {
+  implements IFindTablesInConnection
+{
   constructor(
     @Inject(BaseType.GLOBAL_DB_CONTEXT)
     protected _dbContext: IGlobalDatabaseContext,
@@ -132,9 +134,9 @@ export class FindTablesInConnectionUseCase
     return tablesObjArr.map((tableObj: ITableAndViewPermissionData) => {
       const foundTableSettings =
         tableSettings[
-        tableSettings.findIndex((el: TableSettingsEntity) => {
-          return el.table_name === tableObj.tableName;
-        })
+          tableSettings.findIndex((el: TableSettingsEntity) => {
+            return el.table_name === tableObj.tableName;
+          })
         ];
       const displayName = foundTableSettings ? foundTableSettings.display_name : undefined;
       const icon = foundTableSettings ? foundTableSettings.icon : undefined;
@@ -240,7 +242,10 @@ export class FindTablesInConnectionUseCase
             };
           });
         }),
-      );
+      ) as Array<{
+        tableName: string;
+        structure: Array<TableStructureDS>;
+      }>
       connection.tables_info = await Promise.all(
         tablesStructures.map(async (tableStructure) => {
           return await queue.add(async () => {
@@ -254,7 +259,7 @@ export class FindTablesInConnectionUseCase
             return newTableInfo;
           });
         }),
-      );
+      ) as Array<TableInfoEntity>;
       connection.saved_table_info = ++connection.saved_table_info;
       await this._dbContext.connectionRepository.saveUpdatedConnection(connection);
     } catch (e) {

@@ -4241,7 +4241,7 @@ __metadata:
     nest-winston: 1.9.2
     nodemailer: ^6.9.3
     otplib: ^12.0.1
-    p-queue: 7.3.0
+    p-queue: 7.3.4
     passport: 0.6.0
     passport-jwt: 4.0.1
     passport-local: 1.0.0
@@ -11467,13 +11467,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"p-queue@npm:7.3.0":
-  version: 7.3.0
-  resolution: "p-queue@npm:7.3.0"
+"p-queue@npm:7.3.4":
+  version: 7.3.4
+  resolution: "p-queue@npm:7.3.4"
   dependencies:
     eventemitter3: ^4.0.7
     p-timeout: ^5.0.2
-  checksum: eda8b8d4dac9456d1722c8ee0892bbb2e7f7b79d1f90b6cc1bac5fb9dcf3120285f90c28a68dc2f66bc9e46c7d7d42ad206a2c4d83e7aad27a0226ae042081ee
+  checksum: a21b8a4dd75f64a4988e4468cc344d1b45132506ddd2c771932d3de446d108ee68713b629e0d3f0809c227bc10eafc613edde6ae741d9f60db89b6031e40921c
   languageName: node
   linkType: hard
 
