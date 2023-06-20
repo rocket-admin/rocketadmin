@@ -59,7 +59,7 @@ export const Constants = {
   KEEP_ALIVE_COUNT_MAX: 120,
 
   DEFAULT_CONNECTION_CACHE_OPTIONS: {
-    max: 50,
+    max: 150,
     ttl: 1000 * 60 * 60,
     updateAgeOnGet: false,
     updateAgeOnHas: false,
