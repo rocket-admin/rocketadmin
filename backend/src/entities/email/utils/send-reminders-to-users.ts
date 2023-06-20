@@ -5,7 +5,7 @@ import Mail from 'nodemailer/lib/mailer';
 
 export async function sendRemindersToUsers(userEmails: Array<string>): Promise<Array<ICronMessagingResults>> {
   const queue = new PQueue({ concurrency: 8 });
-  const mailingResults: Array<SMTPTransport.SentMessageInfo> = await Promise.all(
+  const mailingResults: Array<SMTPTransport.SentMessageInfo | void> = await Promise.all(
     userEmails.map(async (email: string, index) => {
       return await queue.add(async () => {
         const result = await sendReminderToUser(email);
@@ -17,7 +17,7 @@ export async function sendRemindersToUsers(userEmails: Array<string>): Promise<A
   return buildMailingResults(mailingResults);
 }
 
-function buildMailingResults(results: Array<SMTPTransport.SentMessageInfo>): Array<ICronMessagingResults> {
+function buildMailingResults(results: Array<SMTPTransport.SentMessageInfo | void>): Array<ICronMessagingResults> {
   return results.map((result) => {
     if (!result) {
       return;

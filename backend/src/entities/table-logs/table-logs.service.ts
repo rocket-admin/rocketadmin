@@ -258,7 +258,7 @@ export class TableLogsService {
       tableLogsEntities.push(newLogRecord);
     }
     const queue = new PQueue({ concurrency: 2 });
-    const createdLogs: Array<CreatedLogRecordDs> = await Promise.all(
+    const createdLogs: Array<CreatedLogRecordDs | void> = await Promise.all(
       tableLogsEntities.map(async (newLogRecord) => {
         return await queue.add(async () => {
           const savedLogRecord = await this.tableLogsRepository.save(newLogRecord);
@@ -266,7 +266,7 @@ export class TableLogsService {
         });
       }),
     );
-    return createdLogs;
+    return createdLogs.filter((log) => log) as Array<CreatedLogRecordDs>;
   }
 
   private compareValues(val1: any, val2: any): boolean {

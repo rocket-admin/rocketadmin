@@ -1,18 +1,18 @@
 import { Knex } from 'knex';
-import LRU from 'lru-cache';
+import { LRUCache } from 'lru-cache'
 import { ConnectionEntity } from '../../entities/connection/connection.entity.js';
 import { Constants } from '../constants/constants.js';
 import { TableStructureDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/table-structure.ds.js';
 import { PrimaryKeyDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/primary-key.ds.js';
 import { ForeignKeyDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/foreign-key.ds.js';
 
-const knexCache = new LRU(Constants.DEFAULT_CONNECTION_CACHE_OPTIONS);
-const tunnelCache = new LRU(Constants.DEFAULT_TUNNEL_CACHE_OPTIONS);
-const driverCache = new LRU(Constants.DEFAULT_DRIVER_CACHE_OPTIONS);
-const invitationCache = new LRU(Constants.DEFAULT_INVITATION_CACHE_OPTIONS);
-const tableStructureCache = new LRU(Constants.DEFAULT_TABLE_STRUCTURE_ELEMENTS_CACHE_OPTIONS);
-const tableForeignKeysCache = new LRU(Constants.DEFAULT_TABLE_STRUCTURE_ELEMENTS_CACHE_OPTIONS);
-const tablePrimaryKeysCache = new LRU(Constants.DEFAULT_TABLE_STRUCTURE_ELEMENTS_CACHE_OPTIONS);
+const knexCache = new LRUCache(Constants.DEFAULT_CONNECTION_CACHE_OPTIONS);
+const tunnelCache = new LRUCache(Constants.DEFAULT_TUNNEL_CACHE_OPTIONS);
+const driverCache = new LRUCache(Constants.DEFAULT_DRIVER_CACHE_OPTIONS);
+const invitationCache = new LRUCache(Constants.DEFAULT_INVITATION_CACHE_OPTIONS);
+const tableStructureCache = new LRUCache(Constants.DEFAULT_TABLE_STRUCTURE_ELEMENTS_CACHE_OPTIONS);
+const tableForeignKeysCache = new LRUCache(Constants.DEFAULT_TABLE_STRUCTURE_ELEMENTS_CACHE_OPTIONS);
+const tablePrimaryKeysCache = new LRUCache(Constants.DEFAULT_TABLE_STRUCTURE_ELEMENTS_CACHE_OPTIONS);
 
 export class Cacher {
   public static increaseGroupInvitationsCacheCount(groupId: string): void {
@@ -75,7 +75,7 @@ export class Cacher {
   }
 
   public static delDriverCache(connection: ConnectionEntity): void {
-    driverCache.del(JSON.stringify(connection));
+    driverCache.delete(JSON.stringify(connection));
   }
 
   public static setTableStructureCache(
