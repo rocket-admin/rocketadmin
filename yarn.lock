@@ -4206,10 +4206,10 @@ __metadata:
     "@typescript-eslint/parser": ^5.59.11
     "@zapier/secret-scrubber": ^1.0.7
     argon2: 0.30.3
-    ava: ^5.3.0
-    aws-xray-sdk-core: 3.4.1
-    aws-xray-sdk-express: 3.4.1
-    axios: ^1.2.2
+    ava: ^5.3.1
+    aws-xray-sdk-core: 3.5.0
+    aws-xray-sdk-express: 3.5.0
+    axios: ^1.4.0
     base32-encode: ^2.0.0
     basic-auth: 2.0.1
     bcrypt: 5.1.0
@@ -4268,9 +4268,9 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"ava@npm:^5.3.0":
-  version: 5.3.0
-  resolution: "ava@npm:5.3.0"
+"ava@npm:^5.3.1":
+  version: 5.3.1
+  resolution: "ava@npm:5.3.1"
   dependencies:
     acorn: ^8.8.2
     acorn-walk: ^8.2.0
@@ -4322,7 +4322,7 @@ __metadata:
       optional: true
   bin:
     ava: entrypoints/cli.mjs
-  checksum: 2e4177148a629dcf9b9a799b2f90a3e586864fa6f9cb80fcd68446d33978bcd4ab3054110472d9d1e1d556c91ff1381dc9803ad042e71609ac09109dc579638f
+  checksum: 126a5932baef74eccd8bec992bd522e25c05b6ee4985dde87c20cece76c2377f0bf9448f242f3f9cd2abbf7a5ac932fe4e4abde2a23792d6271a6088e5a1984e
   languageName: node
   linkType: hard
 
@@ -4333,32 +4333,32 @@ __metadata:
   languageName: node
   linkType: hard
 
-"aws-xray-sdk-core@npm:3.4.1":
-  version: 3.4.1
-  resolution: "aws-xray-sdk-core@npm:3.4.1"
+"aws-xray-sdk-core@npm:3.5.0":
+  version: 3.5.0
+  resolution: "aws-xray-sdk-core@npm:3.5.0"
   dependencies:
     "@aws-sdk/service-error-classification": ^3.4.1
     "@aws-sdk/types": ^3.4.1
     "@types/cls-hooked": ^4.3.3
     atomic-batcher: ^1.0.2
     cls-hooked: ^4.2.2
-    semver: ^5.3.0
-  checksum: c43400126f59a9a3381fff62b43c41fca38966fcb5051f339b9eed732c65b7266b2cb9187c41ac3e59ba93986fdcc8ac89bf708a29bd579f361ff258030ccdac
+    semver: ^7.3.8
+  checksum: 136df71a4454d9fb52dc0608088f8308c0cb1c1087d2956c14da72b4f44f53bcd115b3c1740afecdba37fb99f5af21e8bbd2409c1e75f13f0a850e193f6428e5
   languageName: node
   linkType: hard
 
-"aws-xray-sdk-express@npm:3.4.1":
-  version: 3.4.1
-  resolution: "aws-xray-sdk-express@npm:3.4.1"
+"aws-xray-sdk-express@npm:3.5.0":
+  version: 3.5.0
+  resolution: "aws-xray-sdk-express@npm:3.5.0"
   dependencies:
     "@types/express": "*"
   peerDependencies:
-    aws-xray-sdk-core: ^3.4.1
-  checksum: 22f070255c701e2b5f700af0215fa3201faf3b03ef2bc48d4fe80f9c5daf7bbdf4e32e272a15ad9089a558772f2b3d6a81b669cea7187e6142c00f6f52046f32
+    aws-xray-sdk-core: ^3.5.0
+  checksum: cf366a3ecd2721bacf48a04939f809b6dfe81413a90bca5cb7ebc87660bb69e48d4e5b36431cc1c9669f9f1c55df4128bdc1a73557c129fc0266a0d076f2e635
   languageName: node
   linkType: hard
 
-"axios@npm:^1.0.0, axios@npm:^1.2.2, axios@npm:^1.4.0":
+"axios@npm:^1.0.0, axios@npm:^1.4.0":
   version: 1.4.0
   resolution: "axios@npm:1.4.0"
   dependencies:
@@ -12974,7 +12974,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"semver@npm:2 || 3 || 4 || 5, semver@npm:^5.3.0, semver@npm:^5.4.1, semver@npm:^5.6.0":
+"semver@npm:2 || 3 || 4 || 5, semver@npm:^5.4.1, semver@npm:^5.6.0":
   version: 5.7.1
   resolution: "semver@npm:5.7.1"
   bin:
