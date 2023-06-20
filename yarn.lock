@@ -4238,7 +4238,7 @@ __metadata:
     lru-cache: ^7.14.1
     moment: 2.29.4
     nanoid: 4.0.2
-    nest-winston: 1.8.0
+    nest-winston: 1.9.2
     nodemailer: ^6.9.3
     otplib: ^12.0.1
     p-queue: 7.3.0
@@ -4249,8 +4249,8 @@ __metadata:
     prettier: ^2.8.8
     qrcode: ^1.5.3
     reflect-metadata: 0.1.13
-    rimraf: 4.0.4
-    rxjs: 7.8.0
+    rimraf: 5.0.1
+    rxjs: 7.8.1
     safe-regex2: ^3.1.0
     secure-json-parse: 2.7.0
     sinon: 15.1.2
@@ -7591,6 +7591,21 @@ __metadata:
   languageName: node
   linkType: hard
 
+"glob@npm:^10.2.5":
+  version: 10.2.7
+  resolution: "glob@npm:10.2.7"
+  dependencies:
+    foreground-child: ^3.1.0
+    jackspeak: ^2.0.3
+    minimatch: ^9.0.1
+    minipass: ^5.0.0 || ^6.0.2
+    path-scurry: ^1.7.0
+  bin:
+    glob: dist/cjs/src/bin.js
+  checksum: 555205a74607d6f8d9874ba888924b305b5ea1abfaa2e9ccb11ac713d040aac7edbf7d8702a2f4a1cd81b2d7666412170ce7ef061d33cddde189dae8c1a1a054
+  languageName: node
+  linkType: hard
+
 "glob@npm:^7.0.0, glob@npm:^7.1.3, glob@npm:^7.1.4":
   version: 7.2.3
   resolution: "glob@npm:7.2.3"
@@ -10277,6 +10292,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"minimatch@npm:^9.0.1":
+  version: 9.0.1
+  resolution: "minimatch@npm:9.0.1"
+  dependencies:
+    brace-expansion: ^2.0.1
+  checksum: 97f5f5284bb57dc65b9415dec7f17a0f6531a33572193991c60ff18450dcfad5c2dad24ffeaf60b5261dccd63aae58cc3306e2209d57e7f88c51295a532d8ec3
+  languageName: node
+  linkType: hard
+
 "minimist-options@npm:4.1.0":
   version: 4.1.0
   resolution: "minimist-options@npm:4.1.0"
@@ -10626,19 +10650,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"nest-winston@npm:1.8.0":
-  version: 1.8.0
-  resolution: "nest-winston@npm:1.8.0"
-  dependencies:
-    fast-safe-stringify: ^2.1.1
-  peerDependencies:
-    "@nestjs/common": ^5.0.0 || ^6.6.0 || ^7.0.0 || ^8.0.0 || ^9.0.0
-    winston: ^3.0.0
-  checksum: 7837eea05d68af3b4b6b6a1771adbf915086f4b6dff03c0131be1b0800b562e6fde7ef580a5e626f5a3ab92996845889230ac037432fe1d0e14a61da93668314
-  languageName: node
-  linkType: hard
-
-"nest-winston@npm:^1.9.0":
+"nest-winston@npm:1.9.2, nest-winston@npm:^1.9.0":
   version: 1.9.2
   resolution: "nest-winston@npm:1.9.2"
   dependencies:
@@ -12709,15 +12721,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"rimraf@npm:4.0.4":
-  version: 4.0.4
-  resolution: "rimraf@npm:4.0.4"
-  bin:
-    rimraf: dist/cjs/src/bin.js
-  checksum: a3296ea15c79fe3da0bae06a484dd8b8ec1e6d3044b02f05ce27575ef23c856e37eef6e71a668ce0e263da594a05ace1e88be6f42200f1fbbf433b57121bae32
-  languageName: node
-  linkType: hard
-
 "rimraf@npm:4.4.1, rimraf@npm:^4.1.2, rimraf@npm:^4.1.3, rimraf@npm:^4.4.1":
   version: 4.4.1
   resolution: "rimraf@npm:4.4.1"
@@ -12726,6 +12729,17 @@ __metadata:
   bin:
     rimraf: dist/cjs/src/bin.js
   checksum: b786adc02651e2e24bbedb04bbdea80652fc9612632931ff2d9f898c5e4708fe30956186597373c568bd5230a4dc2fadfc816ccacba8a1daded3a006a6b74f1a
+  languageName: node
+  linkType: hard
+
+"rimraf@npm:5.0.1":
+  version: 5.0.1
+  resolution: "rimraf@npm:5.0.1"
+  dependencies:
+    glob: ^10.2.5
+  bin:
+    rimraf: dist/cjs/src/bin.js
+  checksum: bafce85391349a2d960847980bf9b5caa2a8887f481af630f1ea27e08288217293cec72d75e9a2ba35495c212789f66a7f3d23366ba6197026ab71c535126857
   languageName: node
   linkType: hard
 
@@ -12873,15 +12887,6 @@ __metadata:
   dependencies:
     tslib: ^1.9.0
   checksum: bc334edef1bb8bbf56590b0b25734ba0deaf8825b703256a93714308ea36dff8a11d25533671adf8e104e5e8f256aa6fdfe39b2e248cdbd7a5f90c260acbbd1b
-  languageName: node
-  linkType: hard
-
-"rxjs@npm:7.8.0":
-  version: 7.8.0
-  resolution: "rxjs@npm:7.8.0"
-  dependencies:
-    tslib: ^2.1.0
-  checksum: 61b4d4fd323c1043d8d6ceb91f24183b28bcf5def4f01ca111511d5c6b66755bc5578587fe714ef5d67cf4c9f2e26f4490d4e1d8cabf9bd5967687835e9866a2
   languageName: node
   linkType: hard
 
