@@ -131,7 +131,6 @@ export class LRUStorage {
     const cacheObj = {
       id: connectionParams.id,
       signing_key: connectionParams.signing_key,
-      type: connectionParams.type,
       host: connectionParams.host,
       port: connectionParams.port,
       username: connectionParams.username,
