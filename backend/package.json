@@ -75,7 +75,7 @@
     "knex": "2.4.2",
     "knex-paginate": "3.1.1",
     "lodash": "4.17.21",
-    "lru-cache": "^7.14.1",
+    "lru-cache": "^10.0.0",
     "moment": "2.29.4",
     "nanoid": "4.0.2",
     "nest-winston": "1.9.2",

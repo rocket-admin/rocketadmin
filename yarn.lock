@@ -4248,7 +4248,7 @@ __metadata:
     knex: 2.4.2
     knex-paginate: 3.1.1
     lodash: 4.17.21
-    lru-cache: ^7.14.1
+    lru-cache: ^10.0.0
     moment: 2.29.4
     nanoid: 4.0.2
     nest-winston: 1.9.2
@@ -9877,6 +9877,13 @@ __metadata:
   version: 5.2.3
   resolution: "long@npm:5.2.3"
   checksum: 885ede7c3de4facccbd2cacc6168bae3a02c3e836159ea4252c87b6e34d40af819824b2d4edce330bfb5c4d6e8ce3ec5864bdcf9473fa1f53a4f8225860e5897
+  languageName: node
+  linkType: hard
+
+"lru-cache@npm:^10.0.0":
+  version: 10.0.0
+  resolution: "lru-cache@npm:10.0.0"
+  checksum: 18f101675fe283bc09cda0ef1e3cc83781aeb8373b439f086f758d1d91b28730950db785999cd060d3c825a8571c03073e8c14512b6655af2188d623031baf50
   languageName: node
   linkType: hard
 

@@ -1,10 +1,10 @@
 import knex from 'knex';
 import { Knex } from 'knex';
-import LRU from 'lru-cache';
+import { LRUCache } from 'lru-cache'
 import { ConnectionTypeEnum } from '../../src/enums/index.js';
 import { Constants } from '../../src/helpers/constants/constants.js';
 
-const knexCache = new LRU(Constants.DEFAULT_CONNECTION_CACHE_OPTIONS);
+const knexCache = new LRUCache(Constants.DEFAULT_CONNECTION_CACHE_OPTIONS);
 
 export function getTestKnex(connectionParams): Knex {
   const cachedKnex = knexCache.get(JSON.stringify(connectionParams)) as Knex;
