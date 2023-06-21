@@ -8,8 +8,8 @@ export async function createTestTable(
   testSearchedUserName = 'Vasia',
 ): Promise<CreatedTableInfo> {
   const testTableName = getRandomTestTableName();
-  const testTableColumnName = `${faker.random.words(1)}_${faker.random.words(1)}`;
-  const testTableSecondColumnName = `${faker.random.words(1)}_${faker.random.words(1)}`;
+  const testTableColumnName = `${faker.lorem.words(1)}_${faker.lorem.words(1)}`;
+  const testTableSecondColumnName = `${faker.lorem.words(1)}_${faker.lorem.words(1)}`;
   const connectionParamsCopy = {
     ...connectionParams,
   };
@@ -35,7 +35,7 @@ export async function createTestTable(
       });
     } else {
       await Knex(testTableName).insert({
-        [testTableColumnName]: faker.name.firstName(),
+        [testTableColumnName]: faker.person.firstName(),
         [testTableSecondColumnName]: faker.internet.email(),
         created_at: new Date(),
         updated_at: new Date(),
@@ -64,8 +64,8 @@ export async function createTestTableForMSSQLWithChema(
   schemaName = 'test_chema',
 ) {
   const testTableName = getRandomTestTableName();
-  const testTableColumnName = `${faker.random.words(1)}_${faker.random.words(1)}`;
-  const testTableSecondColumnName = `${faker.random.words(1)}_${faker.random.words(1)}`;
+  const testTableColumnName = `${faker.lorem.words(1)}_${faker.lorem.words(1)}`;
+  const testTableSecondColumnName = `${faker.lorem.words(1)}_${faker.lorem.words(1)}`;
   const Knex = getTestKnex(connectionParams);
   try {
     await Knex.raw(`IF NOT EXISTS ( SELECT  *
@@ -98,7 +98,7 @@ EXEC('CREATE SCHEMA [test_schema]');`);
       await Knex(testTableName)
         .withSchema('test_schema')
         .insert({
-          [testTableColumnName]: faker.name.firstName(),
+          [testTableColumnName]: faker.person.firstName(),
           [testTableSecondColumnName]: faker.internet.email(),
           created_at: new Date(),
           updated_at: new Date(),
@@ -154,7 +154,7 @@ export async function createTestOracleTable(
           .withSchema(username.toUpperCase())
           .insert({
             [pColumnName]: ++counter,
-            [testTableColumnName]: faker.name.firstName(),
+            [testTableColumnName]: faker.person.firstName(),
             [testTableSecondColumnName]: faker.internet.email(),
             created_at: new Date(),
             updated_at: new Date(),
@@ -174,7 +174,7 @@ export async function createTestOracleTable(
       } else {
         await Knex(testTableName).insert({
           [pColumnName]: ++counter,
-          [testTableColumnName]: faker.name.firstName(),
+          [testTableColumnName]: faker.person.firstName(),
           [testTableSecondColumnName]: faker.internet.email(),
           created_at: new Date(),
           updated_at: new Date(),
@@ -226,7 +226,7 @@ export async function createTestPostgresTableWithSchema(
       await Knex(testTableName)
         .withSchema(testSchema)
         .insert({
-          [testTableColumnName]: faker.name.firstName(),
+          [testTableColumnName]: faker.person.firstName(),
           [testTableSecondColumnName]: faker.internet.email(),
           created_at: new Date(),
           updated_at: new Date(),

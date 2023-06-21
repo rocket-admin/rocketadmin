@@ -37,9 +37,9 @@ currentTest = 'GET /user';
 test(`${currentTest} should user info for this user`, async (t) => {
   try {
     const adminUserRegisterInfo = {
-      email: `${faker.random.words(1)}_${faker.internet.email()}`,
+      email: `${faker.lorem.words(1)}_${faker.internet.email()}`,
       password: faker.internet.password(),
-      name: faker.name.firstName(),
+      name: faker.person.firstName(),
     };
 
     const registerAdminUserResponse = await request(app.getHttpServer())
@@ -73,9 +73,9 @@ currentTest = 'DELETE /user';
 test(`${currentTest} should return user deletion result`, async (t) => {
   try {
     const adminUserRegisterInfo = {
-      email: `${faker.random.words(1)}_${faker.internet.email()}`,
+      email: `${faker.lorem.words(1)}_${faker.internet.email()}`,
       password: faker.internet.password(),
-      name: faker.name.firstName(),
+      name: faker.person.firstName(),
     };
     const registerAdminUserResponse = await request(app.getHttpServer())
       .post('/user/register/')
@@ -115,9 +115,9 @@ test(`${currentTest} should return user deletion result`, async (t) => {
 test(`${currentTest} should return expitarion token when user login`, async (t) => {
   try {
     const adminUserRegisterInfo = {
-      email: `${faker.random.words(1)}_${faker.internet.email()}`,
+      email: `${faker.lorem.words(1)}_${faker.internet.email()}`,
       password: faker.internet.password(),
-      name: faker.name.firstName(),
+      name: faker.person.firstName(),
     };
     const registerAdminUserResponse = await request(app.getHttpServer())
       .post('/user/register/')
@@ -145,9 +145,9 @@ test(`${currentTest} should return expitarion token when user login`, async (t) 
 test(`${currentTest} reject authorisation when try to login with wrong password`, async (t) => {
   try {
     const adminUserRegisterInfo = {
-      email: `${faker.random.words(1)}_${faker.internet.email()}`,
+      email: `${faker.lorem.words(1)}_${faker.internet.email()}`,
       password: faker.internet.password(),
-      name: faker.name.firstName(),
+      name: faker.person.firstName(),
     };
     const registerAdminUserResponse = await request(app.getHttpServer())
       .post('/user/register/')
@@ -169,12 +169,12 @@ test(`${currentTest} reject authorisation when try to login with wrong password`
 
     adminUserRegisterInfo.password = realPassword;
     const loginUserResult = await request(app.getHttpServer())
-    .post('/user/login/')
-    .send(adminUserRegisterInfo)
-    .set('Content-Type', 'application/json')
-    .set('Accept', 'application/json');
-  const loginUserRO = JSON.parse(loginUserResult.text);
-  t.is(loginUserRO.hasOwnProperty('expires'), true);
+      .post('/user/login/')
+      .send(adminUserRegisterInfo)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+    const loginUserRO = JSON.parse(loginUserResult.text);
+    t.is(loginUserRO.hasOwnProperty('expires'), true);
   } catch (err) {
     throw err;
   }

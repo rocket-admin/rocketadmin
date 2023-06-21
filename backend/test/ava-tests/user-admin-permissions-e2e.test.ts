@@ -1750,7 +1750,7 @@ test(`${currentTest} should throw an exception when table name passed in request
       .set('Accept', 'application/json');
     t.is(createOrUpdatePermissionResponse.status, 200);
 
-    const fakeTableName = `${faker.random.words(1)}_${faker.datatype.uuid()}`;
+    const fakeTableName = `${faker.lorem.words(1)}_${faker.datatype.uuid()}`;
     const getTablesInConnection = await request(app.getHttpServer())
       .get(`/table/rows/${testData.connections.firstId}?tableName=${fakeTableName}`)
       .set('Cookie', testData.users.simpleUserToken)
@@ -2059,7 +2059,7 @@ test(`${currentTest} should throw an exception when table name passed in request
       .set('Accept', 'application/json');
     t.is(createOrUpdatePermissionResponse.status, 200);
 
-    const fakeTableName = `${faker.random.words(1)}_${faker.datatype.uuid()}`;
+    const fakeTableName = `${faker.lorem.words(1)}_${faker.datatype.uuid()}`;
     const getTablesStructure = await request(app.getHttpServer())
       .get(`/table/structure/${testData.connections.firstId}?tableName=${fakeTableName}`)
       .set('Cookie', testData.users.simpleUserToken)
@@ -2122,7 +2122,7 @@ test(`${currentTest} should return added row`, async (t) => {
       .set('Accept', 'application/json');
     t.is(createOrUpdatePermissionResponse.status, 200);
 
-    const randomName = faker.name.firstName();
+    const randomName = faker.person.firstName();
     const randomEmail = faker.internet.email();
 
     const created_at = new Date();
@@ -2201,7 +2201,7 @@ test(`${currentTest} should throw an exception when connection id passed in requ
       .set('Accept', 'application/json');
     t.is(createOrUpdatePermissionResponse.status, 200);
 
-    const randomName = faker.name.firstName();
+    const randomName = faker.person.firstName();
     const randomEmail = faker.internet.email();
 
     const created_at = new Date();
@@ -2272,12 +2272,12 @@ test(`${currentTest} should throw an exception when table name passed in request
       .set('Accept', 'application/json');
     t.is(createOrUpdatePermissionResponse.status, 200);
 
-    const randomName = faker.name.firstName();
+    const randomName = faker.person.firstName();
     const randomEmail = faker.internet.email();
 
     const created_at = new Date();
     const updated_at = new Date();
-    const fakeTableName = `${faker.random.words(1)}_${faker.datatype.uuid()}`;
+    const fakeTableName = `${faker.lorem.words(1)}_${faker.datatype.uuid()}`;
     const addRowInTable = await request(app.getHttpServer())
       .post(`/table/row/${testData.connections.firstId}?tableName=${fakeTableName}`)
       .send({
@@ -2346,7 +2346,7 @@ test(`${currentTest} should return updated row`, async (t) => {
 
     t.is(createOrUpdatePermissionResponse.status, 200);
 
-    const randomName = faker.name.firstName();
+    const randomName = faker.person.firstName();
     const randomEmail = faker.internet.email();
 
     const created_at = new Date();
@@ -2425,7 +2425,7 @@ test(`${currentTest} should throw an exception when connection id passed in requ
       .set('Accept', 'application/json');
     t.is(createOrUpdatePermissionResponse.status, 200);
 
-    const randomName = faker.name.firstName();
+    const randomName = faker.person.firstName();
     const randomEmail = faker.internet.email();
 
     const created_at = new Date();
@@ -2496,12 +2496,12 @@ test(`${currentTest} should throw an exception when table name passed in request
       .set('Accept', 'application/json');
     t.is(createOrUpdatePermissionResponse.status, 200);
 
-    const randomName = faker.name.firstName();
+    const randomName = faker.person.firstName();
     const randomEmail = faker.internet.email();
 
     const created_at = new Date();
     const updated_at = new Date();
-    const fakeTableName = `${faker.random.words(1)}_${faker.datatype.uuid()}`;
+    const fakeTableName = `${faker.lorem.words(1)}_${faker.datatype.uuid()}`;
     const addRowInTable = await request(app.getHttpServer())
       .put(`/table/row/${testData.connections.firstId}?tableName=${fakeTableName}&id=1`)
       .send({
@@ -2687,7 +2687,7 @@ test(`${currentTest} should throw an exception when table name passed in request
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
     t.is(createOrUpdatePermissionResponse.status, 200);
-    const fakeTableName = `${faker.random.words(1)}_${faker.datatype.uuid()}`;
+    const fakeTableName = `${faker.lorem.words(1)}_${faker.datatype.uuid()}`;
     const deleteRowInTable = await request(app.getHttpServer())
       .delete(`/table/row/${testData.connections.firstId}?tableName=${fakeTableName}&id=1`)
       .set('Cookie', testData.users.simpleUserToken)
@@ -2877,7 +2877,7 @@ test(`${currentTest} should throw an exception when table name passed in request
       .set('Accept', 'application/json');
     t.is(createOrUpdatePermissionResponse.status, 200);
 
-    const fakeTableName = `${faker.random.words(1)}_${faker.datatype.uuid()}`;
+    const fakeTableName = `${faker.lorem.words(1)}_${faker.datatype.uuid()}`;
     const addRowInTable = await request(app.getHttpServer())
       .get(`/table/row/${testData.connections.firstId}?tableName=${fakeTableName}&id=5`)
       .set('Cookie', testData.users.simpleUserToken)
@@ -2899,7 +2899,7 @@ test(`${currentTest} should return all found logs in connection`, async (t) => {
   try {
     const testData = await createConnectionsAndInviteNewUserInAdminGroupOfFirstConnection(app);
 
-    const randomName = faker.name.firstName();
+    const randomName = faker.person.firstName();
     const randomEmail = faker.internet.email();
     /* eslint-disable */
     const created_at = new Date();

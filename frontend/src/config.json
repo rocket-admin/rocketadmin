@@ -1,3 +1,4 @@
 {
-  "baseURL": "https://app.rocketadmin.com/api"
+  "#important to keep it /api for prod": true,
+  "baseURL": "/api"
 }
