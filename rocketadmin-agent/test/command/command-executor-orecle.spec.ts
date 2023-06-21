@@ -8,7 +8,6 @@ import { CommandExecutor } from '../../src/command/command-executor.js';
 import { OperationTypeEnum } from '../../src/enums/operation-type.enum.js';
 import { Constants } from '../../src/helpers/constants/constants.js';
 import { QueryOrderingEnum } from '../../src/enums/query-ordering.enum.js';
-import { DaoPostgres } from '../../src/dal/dao/dao-postgres.js';
 
 describe('Command executor tests', () => {
   let app: INestApplication;
@@ -68,7 +67,7 @@ describe('Command executor tests', () => {
         });
       } else {
         await Knex(testTableName).insert({
-          [testTableColumnName]: faker.name.findName(),
+          [testTableColumnName]: faker.person.firstName(),
           [testTAbleSecondColumnName]: faker.internet.email(),
           created_at: new Date(),
           updated_at: new Date(),
@@ -89,16 +88,12 @@ describe('Command executor tests', () => {
     await resetOracleTestDB();
   });
 
-  afterAll(async () => {
-    await DaoPostgres.clearKnexCache();
-  });
-
   describe('execute command', () => {
     describe('addRowInTable command', () => {
       it('should return added row primary key when call add row in table', async () => {
         const commandExecutor = new CommandExecutor(connectionConfig);
 
-        const fakeName = faker.name.findName();
+        const fakeName = faker.person.firstName();
         const fakeMail = faker.internet.email();
 
         const row = {
@@ -564,7 +559,7 @@ describe('Command executor tests', () => {
       it('should return 1 when called update table row primary key operation', async () => {
         const commandExecutor = new CommandExecutor(connectionConfig);
 
-        const fakeName = faker.name.findName();
+        const fakeName = faker.person.firstName();
         const fakeMail = faker.internet.email();
 
         const row = {
