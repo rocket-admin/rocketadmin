@@ -1,12 +1,12 @@
 import knex, { Knex } from 'knex';
-import LRU from 'lru-cache';
+import { LRUCache } from 'lru-cache'
 import tunnel from 'tunnel-ssh';
 import getPort from 'get-port';
 import { ConnectionParams } from '../data-access-layer/shared/data-structures/connections-params.ds.js';
 import { CACHING_CONSTANTS } from '../caching/caching-constants.js';
 
-const knexCache = new LRU(CACHING_CONSTANTS.DEFAULT_CONNECTION_CACHE_OPTIONS);
-const tunnelCache = new LRU(CACHING_CONSTANTS.DEFAULT_TUNNEL_CACHE_OPTIONS);
+const knexCache = new LRUCache(CACHING_CONSTANTS.DEFAULT_CONNECTION_CACHE_OPTIONS);
+const tunnelCache = new LRUCache(CACHING_CONSTANTS.DEFAULT_TUNNEL_CACHE_OPTIONS);
 
 export class KnexManager {
   static knexStorage() {

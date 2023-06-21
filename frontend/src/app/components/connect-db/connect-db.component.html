@@ -429,7 +429,7 @@
             </button>
 
             <ng-template #goButton>
-                <a type="submit" *ngIf="connectionToken; else addButton"
+                <a *ngIf="connectionToken && connectionID; else addButton"
                     routerLink="/dashboard/{{connectionID}}"
                     mat-raised-button color="primary">
                     Open dashboard

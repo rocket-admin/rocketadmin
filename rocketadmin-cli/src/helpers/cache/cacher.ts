@@ -1,7 +1,7 @@
-import LRU from 'lru-cache';
+import { LRUCache } from 'lru-cache'
 import { Constants } from '../constants/constants.js';
 
-const knexCache = new LRU(Constants.DEFAULT_CONNECTION_CACHE_OPTIONS);
+const knexCache = new LRUCache(Constants.DEFAULT_CONNECTION_CACHE_OPTIONS);
 
 export class Cacher {
   public static getCachedKnex(connectionConfig): any {

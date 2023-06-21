@@ -60,7 +60,7 @@ async function resetPostgresTestDB(testTableName) {
       });
     } else {
       await Knex(testTableName).insert({
-        [testTableColumnName]: faker.name.firstName(),
+        [testTableColumnName]: faker.person.firstName(),
         [testTAbleSecondColumnName]: faker.internet.email(),
         created_at: new Date(),
         updated_at: new Date(),
@@ -70,7 +70,7 @@ async function resetPostgresTestDB(testTableName) {
 }
 
 test.beforeEach(async (t) => {
-  testTableName = faker.random.words(1);
+  testTableName = faker.lorem.words(1);
   testTables.push(testTableName);
   newConnectionProperties = mockFactory.generateConnectionPropertiesUserExcluded(testTableName);
   await resetPostgresTestDB(testTableName);
@@ -208,7 +208,10 @@ test(`${currentTest} should throw an exception when excluded table name is incor
     const createConnectionRO = JSON.parse(createConnectionResponse.text);
     t.is(createConnectionResponse.status, 201);
     const copyNewConnectionResponse = JSON.parse(JSON.stringify(newConnectionProperties));
-    copyNewConnectionResponse.hidden_tables[0] = `${faker.random.words(1)}_${faker.datatype.number({min: 1, max: 10000})}`;;
+    copyNewConnectionResponse.hidden_tables[0] = `${faker.lorem.words(1)}_${faker.datatype.number({
+      min: 1,
+      max: 10000,
+    })}`;
     const createConnectionPropertiesResponse = await request(app.getHttpServer())
       .post(`/connection/properties/${createConnectionRO.id}`)
       .send(copyNewConnectionResponse)

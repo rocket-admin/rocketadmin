@@ -299,7 +299,7 @@ export class MockFactory {
 
   generateCreateGroupDto1() {
     const dto = new CreateGroupDto();
-    dto.title = `${faker.random.words(1)}_${faker.random.words(1)}`;
+    dto.title = `${faker.lorem.words(1)}_${faker.lorem.words(1)}`;
 
     return dto;
   }
@@ -748,7 +748,7 @@ export class MockFactory {
 
   public static generateCreateGroupDtoWithRandomTitle(words = 1) {
     const dto = new CreateGroupDto();
-    dto.title = faker.random.words(words);
+    dto.title = faker.lorem.words(words);
     return dto;
   }
 
@@ -762,7 +762,7 @@ export class MockFactory {
   public generateNewTableAction(): TableActionEntity {
     const newTableAction = new TableActionEntity();
     newTableAction.url = faker.internet.url();
-    newTableAction.title = faker.random.words(2);
+    newTableAction.title = faker.lorem.words(2);
     newTableAction.type = TableActionTypeEnum.single;
     return newTableAction;
   }

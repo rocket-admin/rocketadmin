@@ -221,7 +221,7 @@ test.serial(`${currentTest} should throw exception when tableName passed in requ
   const createConnectionRO = JSON.parse(createConnectionResponse.text);
   t.is(createConnectionResponse.status, 201);
   const newCustomField = mockFactory.generateCustomFieldForConnectionTable('id', 'title');
-  const tableName = faker.random.words(2);
+  const tableName = faker.lorem.words(2);
   const createCustomFieldResponse = await request(app.getHttpServer())
     .post(`/field/${createConnectionRO.id}?tableName=${tableName}`)
     .send(newCustomField)
@@ -539,7 +539,7 @@ test.serial(`${currentTest} should throw exception when tableName passed in requ
   const createConnectionRO = JSON.parse(createConnectionResponse.text);
   t.is(createConnectionResponse.status, 201);
   const newCustomField = mockFactory.generateCustomFieldForConnectionTable('id', 'title');
-  const tableName = faker.random.words(2);
+  const tableName = faker.lorem.words(2);
   const createCustomFieldResponse = await request(app.getHttpServer())
     .post(`/field/${createConnectionRO.id}?tableName=${tableName}`)
     .send(newCustomField)
@@ -816,7 +816,7 @@ test.serial(`${currentTest} should throw exception, when tableName passed in req
     text: 'updated',
     template_string: 'https//?connectionId={{id}}&connectionType={{type}}',
   };
-  const tableName = faker.random.words();
+  const tableName = faker.lorem.words();
   const updateCustomFieldResponse = await request(app.getHttpServer())
     .put(`/field/${createConnectionRO.id}?tableName=${tableName}`)
     .send(updateDTO)
@@ -1059,7 +1059,7 @@ test.serial(`${currentTest} should throw exception, when field type passed in re
 
   const updateDTO = {
     id: getCustomFieldsRO[0].id,
-    type: faker.random.words(),
+    type: faker.lorem.words(),
     text: 'updated',
     template_string: 'https//?connectionId={{id}}&connectionType={{type}}',
   };
@@ -1241,8 +1241,8 @@ test.serial(`${currentTest} should throw exception, when fields passed in templa
   t.is(getCustomFieldsRO[0].text, newCustomField.text);
   t.is(getCustomFieldsRO[0].template_string, 'https//?connectionId={{id}}&connectionTitle={{title}}');
 
-  const randomField1 = faker.random.words(1);
-  const randomField2 = faker.random.words(1);
+  const randomField1 = faker.lorem.words(1);
+  const randomField2 = faker.lorem.words(1);
   const updateDTO = {
     id: getCustomFieldsRO[0].id,
     type: getCustomFieldsRO[0].type,
@@ -1607,7 +1607,7 @@ test.serial(`${currentTest} should throw exception, when tableName passed in req
   t.is(getCustomFieldsRO[0].text, newCustomField.text);
   t.is(getCustomFieldsRO[0].template_string, 'https//?connectionId={{id}}&connectionTitle={{title}}');
 
-  const tableName = faker.random.words();
+  const tableName = faker.lorem.words();
   const deleteCustomField = await request(app.getHttpServer())
     .delete(`/field/${createConnectionRO.id}?tableName=${tableName}&id=${getCustomFieldsRO[0].id}`)
     .set('Content-Type', 'application/json')

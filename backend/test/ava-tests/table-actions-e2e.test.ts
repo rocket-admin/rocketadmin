@@ -75,7 +75,7 @@ async function resetPostgresTestDB() {
       });
     } else {
       await Knex(testTableName).insert({
-        [testTableColumnName]: faker.name.firstName(),
+        [testTableColumnName]: faker.person.firstName(),
         [testTAbleSecondColumnName]: faker.internet.email(),
         created_at: new Date(),
         updated_at: new Date(),
@@ -139,7 +139,7 @@ test(`${currentTest} should throw exception when type is incorrect`, async (t) =
   const tableActionCopy = {
     ...newTableAction,
   };
-  tableActionCopy.type = faker.random.words(1) as any;
+  tableActionCopy.type = faker.lorem.words(1) as any;
 
   const createTableActionResult = await request(app.getHttpServer())
     .post(`/table/action/${createConnectionRO.id}?tableName=${testTableName}`)
@@ -274,7 +274,7 @@ test(`${currentTest} should return updated table action`, async (t) => {
   const updatedTableAction = {
     ...newTableAction,
   };
-  updatedTableAction.title = faker.random.words(2);
+  updatedTableAction.title = faker.lorem.words(2);
   updatedTableAction.url = faker.internet.url();
   delete updatedTableAction.id;
 
@@ -334,7 +334,7 @@ test(`${currentTest} should throw exception when type is incorrect`, async (t) =
   const updatedTableAction = {
     ...newTableAction,
   };
-  updatedTableAction.title = faker.random.words(2);
+  updatedTableAction.title = faker.lorem.words(2);
   updatedTableAction.url = faker.internet.url();
   updatedTableAction.type = faker.datatype.uuid() as any;
 
@@ -375,7 +375,7 @@ test(`${currentTest} should throw exception when connection id incorrect`, async
   const updatedTableAction = {
     ...newTableAction,
   };
-  updatedTableAction.title = faker.random.words(2);
+  updatedTableAction.title = faker.lorem.words(2);
   updatedTableAction.url = faker.internet.url();
 
   createConnectionRO.id = faker.datatype.uuid();

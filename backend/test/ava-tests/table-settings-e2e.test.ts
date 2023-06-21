@@ -87,7 +87,7 @@ test(`${currentTest} should throw an exception when connectionId is missing`, as
       .set('Accept', 'application/json');
 
     const connectionId = '';
-    const tableName = faker.random.words();
+    const tableName = faker.lorem.words();
     const findSettingsResponce = await request(app.getHttpServer())
       .get(`/settings/?connectionId=${connectionId}&tableName=${tableName}`)
       .set('Cookie', token)
@@ -116,7 +116,7 @@ test(`${currentTest} should return an empty connection settings object, when set
 
     const connectionId = JSON.parse(createdConnection.text).id;
 
-    const tableName = faker.random.words();
+    const tableName = faker.lorem.words();
     const findSettingsResponce = await request(app.getHttpServer())
       .get(`/settings/?connectionId=${connectionId}&tableName=${tableName}`)
       .set('Cookie', token)
@@ -336,7 +336,7 @@ test(`${currentTest} should throw exception when connectionId is missing`, async
       undefined,
     );
 
-    const tableName = faker.random.words(1);
+    const tableName = faker.lorem.words(1);
     const createTableSettingsResponse = await request(app.getHttpServer())
       .post(`/settings?connectionId=${connectionId}&tableName=${tableName}`)
       .send(createTableSettingsDTO)
