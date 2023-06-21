@@ -49,9 +49,9 @@ test(`${currentTest} should return list of tables in connection`, async (t) => {
       ...connectionToTestDB,
     };
 
-    const testTableName = `${faker.random.words(1)}_${faker.random.words(1)}`;
-    const testTableColumnName = `${faker.random.words(1)}_${faker.random.words(1)}`;
-    const testTableSecondColumnName = `${faker.random.words(1)}_${faker.random.words(1)}`;
+    const testTableName = `${faker.lorem.words(1)}_${faker.lorem.words(1)}`;
+    const testTableColumnName = `${faker.lorem.words(1)}_${faker.lorem.words(1)}`;
+    const testTableSecondColumnName = `${faker.lorem.words(1)}_${faker.lorem.words(1)}`;
     const Knex = getTestKnex(connectionParamsCopy);
     await Knex.schema.createTable(testTableName, function (table) {
       table.increments();
