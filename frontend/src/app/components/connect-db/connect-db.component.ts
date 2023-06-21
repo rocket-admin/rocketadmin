@@ -152,11 +152,11 @@ export class ConnectDBComponent implements OnInit, OnDestroy {
     this._connections.createConnection(this.db)
     .subscribe((res: any) => {
         this.ngZone.run(() => {
-          this.connectionID = res.id!;
+          const createdConnectionID = res.id!;
           if (this.db.connectionType === 'agent') {
             this.connectionToken = res.token;
           } else {
-            this.router.navigate([`/dashboard/${this.connectionID}`]);
+            this.router.navigate([`/dashboard/${createdConnectionID}`]);
           };
           this.angulartics2.eventTrack.next({
             action: 'Connect DB: connection is added successfully'
