@@ -44,7 +44,7 @@ export class UserService {
         }),
         catchError((err) => {
           console.log(err);
-          this._notifications.showErrorSnackbar(err.error.message);
+          this._notifications.showErrorSnackbar(err.error.message || err.message);
           return EMPTY;
         })
       );

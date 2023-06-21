@@ -20,13 +20,13 @@
         </div>
         <mat-action-list *ngIf="actions && actions.length">
             <button mat-list-item *ngFor="let action of actions; let i = index"
-            class="list-action-list-item"
-            [ngClass]="{
-                'list-action-list-item_active': selectedAction && action.title === selectedAction.title,
-                'list-action-list-item_notSaved': action.id === ''
-            }"
-            (click)="switchActionView(action)">
-                {{ action.title }}
+                class="list-action-list-item"
+                [ngClass]="{
+                    'list-action-list-item_active': selectedAction && action.title === selectedAction.title,
+                    'list-action-list-item_notSaved': action.id === ''
+                }"
+                (click)="switchActionView(action)">
+                <span>{{ action.title }}</span>
                 <mat-icon *ngIf="!action.id" fontSet="material-icons-outlined"
                     class="list-action-list-item__savingIcon">
                     save

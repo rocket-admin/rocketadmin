@@ -52,7 +52,7 @@ export class AuthService {
       }),
       catchError((err) => {
         console.log(err);
-        this._notifications.showAlert(AlertType.Error, {abstract: err.error.message, details: err.error.originalMessage}, [
+        this._notifications.showAlert(AlertType.Error, {abstract: err.error.message || err.message, details: err.error.originalMessage}, [
           {
             type: AlertActionType.Button,
             caption: 'Dismiss',

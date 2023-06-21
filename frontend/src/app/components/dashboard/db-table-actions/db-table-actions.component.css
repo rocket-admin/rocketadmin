@@ -105,6 +105,12 @@
     padding: 16px !important;
 }
 
+.list-action-list-item ::ng-deep .mdc-list-item__primary-text {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
 
 .list-action-list-item_active {
     color: var(--color-accentedPalette-500);
