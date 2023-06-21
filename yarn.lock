@@ -3037,7 +3037,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:^18.14.2, @types/node@npm:^18.14.4":
+"@types/node@npm:^18.14.2":
   version: 18.16.12
   resolution: "@types/node@npm:18.16.12"
   checksum: 90b316c097a059534870bc8e358c7996d99e3bb4395c88a91b893b925ad34e32ff1177009ec6c16a6467266414dca64ec9613e9e6bb3f91b6de0ab629d3bb3b9
@@ -5688,6 +5688,17 @@ __metadata:
     nan: ^2.17.0
     node-gyp: latest
   checksum: 1b5cd0ebd898844dd37c3864ba887ae94fa026eddb3bfde03f6f1221cc26bb8b5b282007a399f2f7866592e7c99b07de5b430ebe412ed6bda3bbec47db9e976a
+  languageName: node
+  linkType: hard
+
+"cpu-features@npm:~0.0.8":
+  version: 0.0.8
+  resolution: "cpu-features@npm:0.0.8"
+  dependencies:
+    buildcheck: ~0.0.6
+    nan: ^2.17.0
+    node-gyp: latest
+  checksum: 7b52da1e538beb31185c63a874c8b88c40048ee7ebb5dfd37bb15d9c9044fffa2da048c2bc46d9f2e0916ec86d38c6812c7c6baafdddd504d56594eeff614444
   languageName: node
   linkType: hard
 
@@ -9527,7 +9538,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"knex-paginate@npm:3.1.1, knex-paginate@npm:^3.0.2, knex-paginate@npm:^3.1.1":
+"knex-paginate@npm:3.1.1, knex-paginate@npm:^3.1.1":
   version: 3.1.1
   resolution: "knex-paginate@npm:3.1.1"
   peerDependencies:
@@ -10647,7 +10658,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"nest-winston@npm:1.9.2, nest-winston@npm:^1.9.0":
+"nest-winston@npm:1.9.2, nest-winston@npm:^1.9.0, nest-winston@npm:^1.9.2":
   version: 1.9.2
   resolution: "nest-winston@npm:1.9.2"
   dependencies:
@@ -12711,7 +12722,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"rimraf@npm:4.4.1, rimraf@npm:^4.1.2, rimraf@npm:^4.1.3, rimraf@npm:^4.4.1":
+"rimraf@npm:4.4.1, rimraf@npm:^4.1.2, rimraf@npm:^4.4.1":
   version: 4.4.1
   resolution: "rimraf@npm:4.4.1"
   dependencies:
@@ -12722,7 +12733,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"rimraf@npm:5.0.1":
+"rimraf@npm:5.0.1, rimraf@npm:^5.0.1":
   version: 5.0.1
   resolution: "rimraf@npm:5.0.1"
   dependencies:
@@ -12812,37 +12823,37 @@ __metadata:
     "@nestjs/testing": ^9.3.9
     "@rocketadmin/shared-code": "workspace:*"
     "@types/express": ^4.17.17
-    "@types/jest": ^29.4.0
-    "@types/node": ^18.14.4
+    "@types/jest": ^29.5.2
+    "@types/node": ^20.3.1
     "@types/readline-sync": ^1.4.4
     "@types/supertest": ^2.0.12
-    "@typescript-eslint/eslint-plugin": ^5.54.0
-    "@typescript-eslint/parser": ^5.54.0
+    "@typescript-eslint/eslint-plugin": ^5.60.0
+    "@typescript-eslint/parser": ^5.60.0
     crypto-js: ^4.1.1
-    eslint: ^8.35.0
-    eslint-config-prettier: ^8.6.0
+    eslint: ^8.43.0
+    eslint-config-prettier: ^8.8.0
     eslint-plugin-prettier: ^4.2.1
-    get-port: ^6.1.2
+    get-port: ^7.0.0
     knex: ^2.4.2
-    knex-paginate: ^3.0.2
-    mysql2: ^3.1.2
-    nest-winston: ^1.9.0
+    knex-paginate: ^3.1.1
+    mysql2: ^3.4.0
+    nest-winston: ^1.9.2
     oracledb: ^6.0.1
-    pg: ^8.9.0
-    prettier: ^2.8.4
+    pg: ^8.11.0
+    prettier: ^2.8.8
     readline-sync: ^1.4.10
     reflect-metadata: ^0.1.13
-    rimraf: ^4.1.3
-    rxjs: ^7.8.0
-    ssh2: ^1.11.0
+    rimraf: ^5.0.1
+    rxjs: ^7.8.1
+    ssh2: ^1.14.0
     supertest: ^6.3.3
-    tedious: ^15.1.3
-    ts-jest: ^29.0.5
-    ts-loader: ^9.4.2
+    tedious: ^16.1.0
+    ts-jest: ^29.1.0
+    ts-loader: ^9.4.3
     ts-node: ^10.9.1
-    tsconfig-paths: ^3.14.2
-    typescript: ^4.9.5
-    winston: ^3.8.2
+    tsconfig-paths: ^4.2.0
+    typescript: ^5.1.3
+    winston: ^3.9.0
     yarn: ^1.22.19
   languageName: unknown
   linkType: soft
@@ -12880,7 +12891,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"rxjs@npm:7.8.1, rxjs@npm:^7.2.0, rxjs@npm:^7.5.5, rxjs@npm:^7.8.0":
+"rxjs@npm:7.8.1, rxjs@npm:^7.2.0, rxjs@npm:^7.5.5, rxjs@npm:^7.8.0, rxjs@npm:^7.8.1":
   version: 7.8.1
   resolution: "rxjs@npm:7.8.1"
   dependencies:
@@ -13425,6 +13436,23 @@ __metadata:
     nan:
       optional: true
   checksum: 56df3eb9d0c579230001af99b8b83cec12c3cc393720f27af59eefbe542b453a3190ecd1ab56fbb8b71ae3e5381b39387dc3587bc7b413c495ccb74e62f7689f
+  languageName: node
+  linkType: hard
+
+"ssh2@npm:^1.14.0":
+  version: 1.14.0
+  resolution: "ssh2@npm:1.14.0"
+  dependencies:
+    asn1: ^0.2.6
+    bcrypt-pbkdf: ^1.0.2
+    cpu-features: ~0.0.8
+    nan: ^2.17.0
+  dependenciesMeta:
+    cpu-features:
+      optional: true
+    nan:
+      optional: true
+  checksum: c583527950312716f1b620d5120e3c3e241f8cc221f19fc88fd3d561c6020c1009532438f2177a2e706223d91842deff137d93e00832b7b9016593da9a00fb89
   languageName: node
   linkType: hard
 
@@ -14148,7 +14176,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ts-jest@npm:29.1.0, ts-jest@npm:^29.0.5":
+"ts-jest@npm:29.1.0, ts-jest@npm:^29.0.5, ts-jest@npm:^29.1.0":
   version: 29.1.0
   resolution: "ts-jest@npm:29.1.0"
   dependencies:
@@ -15029,7 +15057,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"winston@npm:3.9.0":
+"winston@npm:3.9.0, winston@npm:^3.9.0":
   version: 3.9.0
   resolution: "winston@npm:3.9.0"
   dependencies:
