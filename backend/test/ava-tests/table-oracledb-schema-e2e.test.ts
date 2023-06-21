@@ -1705,7 +1705,7 @@ test(`${currentTest} should throw an exception when table name passed in request
     const fieldGtvalue = '25';
     const fieldLtvalue = '40';
 
-    const fakeTableName = `${faker.random.words(1)}_${faker.datatype.uuid()}`;
+    const fakeTableName = `${faker.lorem.words(1)}_${faker.datatype.uuid()}`;
     const getTableRowsResponse = await request(app.getHttpServer())
       .get(
         `/table/rows/${createConnectionRO.id}?tableName=${fakeTableName}&search=${testSearchedUserName}&page=1&perPage=2&f_${fieldname}__lt=${fieldLtvalue}&f_${fieldname}__gt=${fieldGtvalue}`,
@@ -1765,7 +1765,7 @@ test(`${currentTest} should return an array with searched fields when filtered n
       .set('Accept', 'application/json');
     t.is(createTableSettingsResponse.status, 201);
 
-    const fieldname = faker.random.words(1);
+    const fieldname = faker.lorem.words(1);
     const fieldGtvalue = '25';
     const fieldLtvalue = '40';
 
@@ -1940,7 +1940,7 @@ test(`${currentTest} should throw an exception when tableName passed in request 
     .set('Accept', 'application/json');
   const createConnectionRO = JSON.parse(createConnectionResponse.text);
   t.is(createConnectionResponse.status, 201);
-  const tableName = faker.random.words(1);
+  const tableName = faker.lorem.words(1);
   const getTableStructure = await request(app.getHttpServer())
     .get(`/table/structure/${createConnectionRO.id}?tableName=${tableName}`)
     .set('Cookie', firstUserToken)
@@ -1970,7 +1970,7 @@ test(`${currentTest} should add row in table and return result`, async (t) => {
   const createConnectionRO = JSON.parse(createConnectionResponse.text);
   t.is(createConnectionResponse.status, 201);
 
-  const fakeName = faker.name.firstName();
+  const fakeName = faker.person.firstName();
   const fakeMail = faker.internet.email();
 
   const row = {
@@ -2036,7 +2036,7 @@ test(`${currentTest} should throw an exception when connection id is not passed 
   const createConnectionRO = JSON.parse(createConnectionResponse.text);
   t.is(createConnectionResponse.status, 201);
 
-  const fakeName = faker.name.firstName();
+  const fakeName = faker.person.firstName();
   const fakeMail = faker.internet.email();
 
   const row = {
@@ -2090,7 +2090,7 @@ test(`${currentTest} should throw an exception when table name is not passed in 
   const createConnectionRO = JSON.parse(createConnectionResponse.text);
   t.is(createConnectionResponse.status, 201);
 
-  const fakeName = faker.name.firstName();
+  const fakeName = faker.person.firstName();
   const fakeMail = faker.internet.email();
 
   const row = {
@@ -2194,7 +2194,7 @@ test(`${currentTest} should throw an exception when table name passed in request
   const createConnectionRO = JSON.parse(createConnectionResponse.text);
   t.is(createConnectionResponse.status, 201);
 
-  const fakeName = faker.name.firstName();
+  const fakeName = faker.person.firstName();
   const fakeMail = faker.internet.email();
 
   const row = {
@@ -2203,7 +2203,7 @@ test(`${currentTest} should throw an exception when table name passed in request
     [testTableSecondColumnName]: fakeMail,
   };
 
-  const fakeTableName = `${faker.random.words(1)}_${faker.datatype.uuid()}`;
+  const fakeTableName = `${faker.lorem.words(1)}_${faker.datatype.uuid()}`;
   const addRowInTableResponse = await request(app.getHttpServer())
     .post(`/table/row/${createConnectionRO.id}?tableName=${fakeTableName}`)
     .send(JSON.stringify(row))
@@ -2253,7 +2253,7 @@ test(`${currentTest} should update row in table and return result`, async (t) =>
   const createConnectionRO = JSON.parse(createConnectionResponse.text);
   t.is(createConnectionResponse.status, 201);
 
-  const fakeName = faker.name.firstName();
+  const fakeName = faker.person.firstName();
   const fakeMail = faker.internet.email();
 
   const row = {
@@ -2318,7 +2318,7 @@ test(`${currentTest} should throw an exception when connection id not passed in 
   const createConnectionRO = JSON.parse(createConnectionResponse.text);
   t.is(createConnectionResponse.status, 201);
 
-  const fakeName = faker.name.firstName();
+  const fakeName = faker.person.firstName();
   const fakeMail = faker.internet.email();
 
   const row = {
@@ -2355,7 +2355,7 @@ test(`${currentTest} should throw an exception when connection id passed in requ
 
   t.is(createConnectionResponse.status, 201);
 
-  const fakeName = faker.name.firstName();
+  const fakeName = faker.person.firstName();
   const fakeMail = faker.internet.email();
 
   const row = {
@@ -2393,7 +2393,7 @@ test(`${currentTest} should throw an exception when tableName not passed in requ
   const createConnectionRO = JSON.parse(createConnectionResponse.text);
   t.is(createConnectionResponse.status, 201);
 
-  const fakeName = faker.name.firstName();
+  const fakeName = faker.person.firstName();
   const fakeMail = faker.internet.email();
 
   const row = {
@@ -2431,7 +2431,7 @@ test(`${currentTest} should throw an exception when tableName passed in request 
   const createConnectionRO = JSON.parse(createConnectionResponse.text);
   t.is(createConnectionResponse.status, 201);
 
-  const fakeName = faker.name.firstName();
+  const fakeName = faker.person.firstName();
   const fakeMail = faker.internet.email();
 
   const row = {
@@ -2469,7 +2469,7 @@ test(`${currentTest} should throw an exception when primary key not passed in re
 
   const createConnectionRO = JSON.parse(createConnectionResponse.text);
   t.is(createConnectionResponse.status, 201);
-  const fakeName = faker.name.firstName();
+  const fakeName = faker.person.firstName();
   const fakeMail = faker.internet.email();
 
   const row = {
@@ -2506,7 +2506,7 @@ test(`${currentTest} should throw an exception when primary key passed in reques
   const createConnectionRO = JSON.parse(createConnectionResponse.text);
   t.is(createConnectionResponse.status, 201);
 
-  const fakeName = faker.name.firstName();
+  const fakeName = faker.person.firstName();
   const fakeMail = faker.internet.email();
 
   const row = {
@@ -2543,7 +2543,7 @@ test(`${currentTest} should throw an exception when primary key passed in reques
   const createConnectionRO = JSON.parse(createConnectionResponse.text);
   t.is(createConnectionResponse.status, 201);
 
-  const fakeName = faker.name.firstName();
+  const fakeName = faker.person.firstName();
   const fakeMail = faker.internet.email();
 
   const row = {
@@ -2781,7 +2781,7 @@ test(`${currentTest} should throw an exception when tableName passed in request 
   t.is(createConnectionResponse.status, 201);
 
   const idForDeletion = 1;
-  const fakeTableName = `${faker.random.words(1)}_${faker.datatype.uuid()}`;
+  const fakeTableName = `${faker.lorem.words(1)}_${faker.datatype.uuid()}`;
   const deleteRowInTableResponse = await request(app.getHttpServer())
     .delete(`/table/row/${createConnectionRO.id}?tableName=${fakeTableName}&id=${idForDeletion}`)
     .set('Cookie', firstUserToken)
@@ -3087,7 +3087,7 @@ test(`${currentTest} should throw an exception, when tableName passed in request
   t.is(createConnectionResponse.status, 201);
 
   const idForSearch = 1;
-  const fakeTableName = `${faker.random.words(1)}_${faker.datatype.uuid()}`;
+  const fakeTableName = `${faker.lorem.words(1)}_${faker.datatype.uuid()}`;
   const foundRowInTableResponse = await request(app.getHttpServer())
     .get(`/table/row/${createConnectionRO.id}?tableName=${fakeTableName}&id=${idForSearch}`)
     .set('Cookie', firstUserToken)

@@ -9,7 +9,6 @@ import { OperationTypeEnum } from '../../src/enums/operation-type.enum.js';
 import { Constants } from '../../src/helpers/constants/constants.js';
 import { QueryOrderingEnum } from '../../src/enums/query-ordering.enum.js';
 
-
 describe('Command executor tests', () => {
   let app: INestApplication;
   const testTableName = 'users';
@@ -674,7 +673,7 @@ describe('Command executor tests', () => {
           connection_id: faker.datatype.uuid(),
           table_name: testTableName,
           display_name: '',
-          search_fields: [faker.random.words(1)],
+          search_fields: [faker.lorem.words(1)],
           excluded_fields: undefined,
           list_fields: undefined,
           identification_fields: undefined,

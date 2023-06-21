@@ -1482,7 +1482,7 @@ test(`${currentTest} should throw an exception when table name passed in request
       secondTableInfo,
       users: { adminUserToken, simpleUserToken },
     } = testData;
-    const fakeTableName = `${faker.random.words(1)}_${faker.datatype.uuid()}`;
+    const fakeTableName = `${faker.lorem.words(1)}_${faker.datatype.uuid()}`;
     const getTablesRows = await request(app.getHttpServer())
       .get(`/table/rows/${connections.firstId}?tableName=${fakeTableName}`)
       .set('Cookie', simpleUserToken)
@@ -1620,7 +1620,7 @@ test(`${currentTest} should throw an exception when table name passed in request
       secondTableInfo,
       users: { adminUserToken, simpleUserToken },
     } = testData;
-    const fakeTableName = `${faker.random.words(1)}_${faker.datatype.uuid()}`;
+    const fakeTableName = `${faker.lorem.words(1)}_${faker.datatype.uuid()}`;
     const getTablesStructure = await request(app.getHttpServer())
       .get(`/table/structure/${connections.firstId}?tableName=${fakeTableName}`)
       .set('Cookie', simpleUserToken)
@@ -1649,7 +1649,7 @@ test(`${currentTest} should return added row`, async (t) => {
       users: { adminUserToken, simpleUserToken },
     } = testData;
 
-    const randomName = faker.name.firstName();
+    const randomName = faker.person.firstName();
     const randomEmail = faker.internet.email();
 
     const created_at = new Date();
@@ -1693,7 +1693,7 @@ test(`${currentTest} should throw an exception when connection id passed in requ
       secondTableInfo,
       users: { adminUserToken, simpleUserToken },
     } = testData;
-    const randomName = faker.name.firstName();
+    const randomName = faker.person.firstName();
     const randomEmail = faker.internet.email();
     const created_at = new Date();
     const updated_at = new Date();
@@ -1728,11 +1728,11 @@ test(`${currentTest} should throw an exception when table name passed in request
       secondTableInfo,
       users: { adminUserToken, simpleUserToken },
     } = testData;
-    const randomName = faker.name.firstName();
+    const randomName = faker.person.firstName();
     const randomEmail = faker.internet.email();
     const created_at = new Date();
     const updated_at = new Date();
-    const fakeTableName = `${faker.random.words(1)}_${faker.datatype.uuid()}`;
+    const fakeTableName = `${faker.lorem.words(1)}_${faker.datatype.uuid()}`;
     const addRowInTable = await request(app.getHttpServer())
       .post(`/table/row/${connections.firstId}?tableName=${fakeTableName}`)
       .send({
@@ -1766,7 +1766,7 @@ test(`${currentTest} should throw an exception do not have permission, when you 
       users: { adminUserToken, simpleUserToken },
     } = testData;
 
-    const randomName = faker.name.firstName();
+    const randomName = faker.person.firstName();
     const randomEmail = faker.internet.email();
     const created_at = new Date();
     const updated_at = new Date();
@@ -1801,7 +1801,7 @@ test(`${currentTest} should throw an exception when connection id passed in requ
       secondTableInfo,
       users: { adminUserToken, simpleUserToken },
     } = testData;
-    const randomName = faker.name.firstName();
+    const randomName = faker.person.firstName();
     const randomEmail = faker.internet.email();
     const created_at = new Date();
     const updated_at = new Date();
@@ -1836,11 +1836,11 @@ test(`${currentTest} should throw an exception when table name passed in request
       secondTableInfo,
       users: { adminUserToken, simpleUserToken },
     } = testData;
-    const randomName = faker.name.firstName();
+    const randomName = faker.person.firstName();
     const randomEmail = faker.internet.email();
     const created_at = new Date();
     const updated_at = new Date();
-    const fakeTableName = `${faker.random.words(1)}_${faker.datatype.uuid()}`;
+    const fakeTableName = `${faker.lorem.words(1)}_${faker.datatype.uuid()}`;
     const addRowInTable = await request(app.getHttpServer())
       .put(`/table/row/${connections.firstId}?tableName=${fakeTableName}&id=1`)
       .send({
@@ -1923,7 +1923,7 @@ test(`${currentTest} should throw an exception when table name passed in request
       secondTableInfo,
       users: { adminUserToken, simpleUserToken },
     } = testData;
-    const fakeTableName = `${faker.random.words(1)}_${faker.datatype.uuid()}`;
+    const fakeTableName = `${faker.lorem.words(1)}_${faker.datatype.uuid()}`;
     const deleteRowInTable = await request(app.getHttpServer())
       .delete(`/table/row/${connections.firstId}?tableName=${fakeTableName}&id=1`)
       .set('Cookie', simpleUserToken)
@@ -2006,7 +2006,7 @@ test(`${currentTest} should throw an exception when table name passed in request
       secondTableInfo,
       users: { adminUserToken, simpleUserToken },
     } = testData;
-    const fakeTableName = `${faker.random.words(1)}_${faker.datatype.uuid()}`;
+    const fakeTableName = `${faker.lorem.words(1)}_${faker.datatype.uuid()}`;
     const addRowInTable = await request(app.getHttpServer())
       .get(`/table/row/${connections.firstId}?tableName=${fakeTableName}&id=5`)
       .set('Cookie', simpleUserToken)
@@ -2035,7 +2035,7 @@ test(`${currentTest} should return all found logs in connection'`, async (t) => 
       secondTableInfo,
       users: { adminUserToken, simpleUserToken },
     } = testData;
-    const randomName = faker.name.firstName();
+    const randomName = faker.person.firstName();
     const randomEmail = faker.internet.email();
     const created_at = new Date();
     const updated_at = new Date();

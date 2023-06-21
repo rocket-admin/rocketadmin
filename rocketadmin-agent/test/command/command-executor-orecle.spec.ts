@@ -677,7 +677,7 @@ describe('Command executor tests', () => {
           connection_id: faker.datatype.uuid(),
           table_name: testTableName,
           display_name: '',
-          search_fields: [faker.random.words(1)],
+          search_fields: [faker.lorem.words(1)],
           excluded_fields: undefined,
           list_fields: undefined,
           identification_fields: undefined,
