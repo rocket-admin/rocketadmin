@@ -92,9 +92,9 @@
     "rxjs": "7.8.1",
     "safe-regex2": "^3.1.0",
     "secure-json-parse": "2.7.0",
-    "sinon": "15.1.2",
+    "sinon": "15.2.0",
     "stripe": "12.9.0",
-    "typeorm": "0.3.16",
+    "typeorm": "0.3.17",
     "uuid": "^9.0.0",
     "validator": "^13.9.0",
     "winston": "3.9.0"
