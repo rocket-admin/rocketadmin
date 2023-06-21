@@ -77,6 +77,7 @@ export class DashboardComponent implements OnInit {
   }
 
   async ngOnInit() {
+    console.log('DashboardComponent ngOnInit');
     this.connectionID = this._connections.currentConnectionID;
     this.dataSource = new TablesDataSource(this._tables, this._notifications, this._connections);
     const isTitlesShown = localStorage.getItem(`shownTableTitles__${this.connectionID}`);
@@ -92,6 +93,8 @@ export class DashboardComponent implements OnInit {
     } catch(err) {
       this.loading = false;
       this.isServerError = true;
+      this.title.setTitle('Dashboard | Rocketadmin');
+
       if (err instanceof HttpErrorResponse) {
         this.serverError = {abstract: err.error.message || err.message, details: err.error.originalMessage};
       } else  { throw err };
@@ -100,6 +103,7 @@ export class DashboardComponent implements OnInit {
     if (tables && tables.length === 0) {
       this.noTablesError = true;
       this.loading = false;
+      this.title.setTitle('No tables | Rocketadmin');
     } else if (tables) {
       this.formatTableNames(tables);
       this.route.paramMap

@@ -100,7 +100,7 @@ export class ConnectDBComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    if (this.connectionID) this.getTitleSubscription.unsubscribe();
+    if (this.connectionID && !this.connectionToken) this.getTitleSubscription.unsubscribe();
   }
 
   get db():Connection {
