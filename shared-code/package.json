@@ -9,15 +9,15 @@
     "jsonwebtoken": "^9.0.0",
     "knex": "^2.4.2",
     "knex-paginate": "^3.1.1",
-    "lru-cache": "^8.0.5",
-    "mysql2": "^3.3.3",
-    "oracledb": "^6.0.0",
+    "lru-cache": "^10.0.0",
+    "mysql2": "^3.4.0",
+    "oracledb": "^6.0.1",
     "pg": "^8.11.0",
     "tedious": "^16.1.0",
     "tunnel-ssh": "4.1.6"
   },
   "devDependencies": {
     "prettier": "2.8.8",
-    "typescript": "^4.9.5"
+    "typescript": "^5.1.3"
   }
 }

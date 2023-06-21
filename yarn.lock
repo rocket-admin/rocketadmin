@@ -2488,14 +2488,14 @@ __metadata:
     jsonwebtoken: ^9.0.0
     knex: ^2.4.2
     knex-paginate: ^3.1.1
-    lru-cache: ^8.0.5
-    mysql2: ^3.3.3
-    oracledb: ^6.0.0
+    lru-cache: ^10.0.0
+    mysql2: ^3.4.0
+    oracledb: ^6.0.1
     pg: ^8.11.0
     prettier: 2.8.8
     tedious: ^16.1.0
     tunnel-ssh: 4.1.6
-    typescript: ^4.9.5
+    typescript: ^5.1.3
   languageName: unknown
   linkType: soft
 
@@ -9921,7 +9921,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"lru-cache@npm:^8.0.0, lru-cache@npm:^8.0.5":
+"lru-cache@npm:^8.0.0":
   version: 8.0.5
   resolution: "lru-cache@npm:8.0.5"
   checksum: 87d72196d8f46e8299c4ab576ed2ec8a07e3cbef517dc9874399c0b2470bd9bf62aacec3b67f84ed6d74aaa1ef31636d048edf996f76248fd17db72bfb631609
@@ -10558,9 +10558,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"mysql2@npm:^3.3.3":
-  version: 3.3.3
-  resolution: "mysql2@npm:3.3.3"
+"mysql2@npm:^3.4.0":
+  version: 3.4.0
+  resolution: "mysql2@npm:3.4.0"
   dependencies:
     denque: ^2.1.0
     generate-function: ^2.3.1
@@ -10570,7 +10570,7 @@ __metadata:
     named-placeholders: ^1.1.3
     seq-queue: ^0.0.5
     sqlstring: ^2.3.2
-  checksum: 99bf73dc685102a7ff543a6457c1717b235a6808488da940769a36dafc2d7068cfca737ffd6c158f157a836949db2852eb79471dd3d4985c043c43538ba57052
+  checksum: 2f38e859251dc853f65e561e25b4e8525494ea4124370c7533f03d21273c997efc1aca7ab07be279e122ad70fbbe80231519d02f26f98b4b4f05763cab53636b
   languageName: node
   linkType: hard
 
@@ -11314,13 +11314,6 @@ __metadata:
     strip-ansi: ^6.0.0
     wcwidth: ^1.0.1
   checksum: 28d476ee6c1049d68368c0dc922e7225e3b5600c3ede88fade8052837f9ed342625fdaa84a6209302587c8ddd9b664f71f0759833cbdb3a4cf81344057e63c63
-  languageName: node
-  linkType: hard
-
-"oracledb@npm:^6.0.0":
-  version: 6.0.0
-  resolution: "oracledb@npm:6.0.0"
-  checksum: bd3d74f23b26eed85a7d7699da6ff5634a850f8ef081d075947555d46531a0f367e2c0b5080c76350a11b9ef1d4d2ad2201036cea86c4eb709825886cd64b1f2
   languageName: node
   linkType: hard
 
@@ -14561,7 +14554,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript@npm:5.1.3":
+"typescript@npm:5.1.3, typescript@npm:^5.1.3":
   version: 5.1.3
   resolution: "typescript@npm:5.1.3"
   bin:
@@ -14581,7 +14574,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript@patch:typescript@5.1.3#~builtin<compat/typescript>":
+"typescript@patch:typescript@5.1.3#~builtin<compat/typescript>, typescript@patch:typescript@^5.1.3#~builtin<compat/typescript>":
   version: 5.1.3
   resolution: "typescript@patch:typescript@npm%3A5.1.3#~builtin<compat/typescript>::version=5.1.3&hash=1f5320"
   bin:
