@@ -3330,7 +3330,7 @@ __metadata:
     lru-cache: ^10.0.0
     moment: 2.29.4
     nanoid: 4.0.2
-    nest-winston: 1.9.2
+    nest-winston: 1.9.3
     nodemailer: ^6.9.3
     otplib: ^12.0.1
     p-queue: 7.3.4
@@ -8390,19 +8390,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"nest-winston@npm:1.9.2":
-  version: 1.9.2
-  resolution: "nest-winston@npm:1.9.2"
-  dependencies:
-    fast-safe-stringify: ^2.1.1
-  peerDependencies:
-    "@nestjs/common": ^5.0.0 || ^6.6.0 || ^7.0.0 || ^8.0.0 || ^9.0.0
-    winston: ^3.0.0
-  checksum: a29858cc401a69260a2bc7d9f815569c9c588e55d645d21a34d9d4788680df649b3de01d0017552ca12e5632aec11505c8d5095acc38743411a5f1211f08a388
-  languageName: node
-  linkType: hard
-
-"nest-winston@npm:^1.9.2":
+"nest-winston@npm:1.9.3, nest-winston@npm:^1.9.2":
   version: 1.9.3
   resolution: "nest-winston@npm:1.9.3"
   dependencies:
