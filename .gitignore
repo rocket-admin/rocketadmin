@@ -57,4 +57,4 @@ Thumbs.db
 !.yarn/versions
 
 # Private data 
-/private-modules
+/private-modules/*
