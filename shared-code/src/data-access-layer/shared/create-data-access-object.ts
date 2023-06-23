@@ -70,9 +70,7 @@ function buildConnectionParams(connectionParams: IUnknownConnectionParams): Conn
   if (connectionParams.ssh) {
     requiredKeys.push('sshHost', 'sshPort', 'sshUsername');
   }
-  if (connectionParams.ssl) {
-    requiredKeys.push('cert');
-  }
+  
   const missingKeys = requiredKeys.filter((key) => !connectionParams[key]);
   if (missingKeys.length > 0) {
     throw new Error(`Missing required key${missingKeys.length > 1 ? 's' : ''}: ${missingKeys.join(', ')}`);
