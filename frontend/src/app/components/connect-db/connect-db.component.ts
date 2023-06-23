@@ -236,7 +236,7 @@ export class ConnectDBComponent implements OnInit, OnDestroy {
   }
 
   createConnection(connectForm: NgForm) {
-    // if (connectForm.form.valid) {
+    // if (connectForm.form.vald) {
 
     // }
     if (this.db.connectionType === 'direct') {
