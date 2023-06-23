@@ -236,33 +236,39 @@ export class ConnectDBComponent implements OnInit, OnDestroy {
   }
 
   createConnection(connectForm: NgForm) {
-    if (connectForm.form.valid) {
-      if (this.db.connectionType === 'direct') {
-        const ipAddressDilaog = this.dialog.open(DbConnectionIpAccessDialogComponent, {
-          width: '36em',
-          data: this.db
-        });
+    // if (connectForm.form.valid) {
 
-        ipAddressDilaog.afterClosed().subscribe( async (action) => {
-          if (action === 'confirmed') {
-            this.submitting = true;
-            let credsCorrect: TestConnection;
+    // }
+    if (this.db.connectionType === 'direct') {
+      const ipAddressDilaog = this.dialog.open(DbConnectionIpAccessDialogComponent, {
+        width: '36em',
+        data: this.db
+      });
 
-            this.checkMasterPassword();
+      ipAddressDilaog.afterClosed().subscribe( async (action) => {
+        if (action === 'confirmed') {
+          this.submitting = true;
+          let credsCorrect: TestConnection = null;
 
+          this.checkMasterPassword();
+
+          try {
             (credsCorrect as any) = await this._connections.testConnection(this.connectionID, this.db).toPromise();
             this.amplitudeTrackAddConnection(credsCorrect.result);
 
-            if (credsCorrect.result) {
+            if (credsCorrect && credsCorrect.result) {
               this.createConnectionRequest();
             } else {
               this.handleConnectionError(credsCorrect.message);
-            }
+            };
+          } catch (e) {
+            credsCorrect = null;
+            this.submitting = false;
           }
-        })
-      } else {
-        this.createConnectionRequest();
-      }
+        }
+      })
+    } else {
+      this.createConnectionRequest();
     }
   }
 
