@@ -32,7 +32,7 @@ import { UsersComponent } from './components/users/users.component';
 const routes: Routes = [
   {path: '', redirectTo: '/connections-list', pathMatch: 'full'},
   {path: 'loader', component: PageLoaderComponent},
-  {path: 'registration', component: RegistrationComponent},
+  {path: 'registration', component: RegistrationComponent, title: 'Sign up | Rocketadmin'},
   {path: 'login', component: LoginComponent, title: 'Login | Rocketadmin'},
   {path: 'forget-password', component: PasswordRequestComponent, title: 'Request password | Rocketadmin'},
   {path: 'api/user/password/reset/verify/:verification-token', component: PasswordResetComponent, title: 'Reset password | Rocketadmin'},
