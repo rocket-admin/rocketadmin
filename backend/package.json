@@ -93,7 +93,7 @@
     "safe-regex2": "^3.1.0",
     "secure-json-parse": "2.7.0",
     "sinon": "15.2.0",
-    "stripe": "12.9.0",
+    "stripe": "12.10.0",
     "typeorm": "0.3.17",
     "uuid": "^9.0.0",
     "validator": "^13.9.0",
@@ -101,7 +101,7 @@
   },
   "devDependencies": {
     "@ava/typescript": "^4.0.0",
-    "@nestjs/cli": "^10.0.3",
+    "@nestjs/cli": "^10.0.5",
     "@nestjs/schematics": "10.0.1",
     "@nestjs/testing": "^10.0.3",
     "@types/bcrypt": "^5.0.0",
