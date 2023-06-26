@@ -13,6 +13,7 @@
                     #email="ngModel" required
                     angulartics2On="change"
                     angularticsAction="Login: email is changed"
+                    pattern="[a-zA-Z0-9.-_]{1,}@[a-zA-Z.-]{2,}[.]{1}[a-zA-Z]{2,}"
                     [(ngModel)]="user.email" >
                 <!-- <mat-error *ngIf="hostname.errors?.required && (hostname.invalid && hostname.touched)">Hostname should not be empty.</mat-error> -->
             </mat-form-field>
