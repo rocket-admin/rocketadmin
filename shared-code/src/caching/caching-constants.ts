@@ -15,7 +15,8 @@ export const CACHING_CONSTANTS = {
     ttl: 1000 * 60 * 60,
     dispose: async (tnl: any) => {
       try {
-        await tnl.close();
+        await tnl.server.close();
+        await tnl.client.destroy();
       } catch (e) {
         console.error('Tunnel closing error: ' + e);
       }

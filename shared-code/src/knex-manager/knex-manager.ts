@@ -1,6 +1,6 @@
 import knex, { Knex } from 'knex';
-import { LRUCache } from 'lru-cache'
-import tunnel from 'tunnel-ssh';
+import { LRUCache } from 'lru-cache';
+import { createTunnel } from 'tunnel-ssh';
 import getPort from 'get-port';
 import { ConnectionParams } from '../data-access-layer/shared/data-structures/connections-params.ds.js';
 import { CACHING_CONSTANTS } from '../caching/caching-constants.js';
@@ -76,53 +76,75 @@ export class KnexManager {
   }
 
   private static async createTunneledKnex(connection: ConnectionParams): Promise<Knex<any, any[]>> {
+    const connectionCopy = { ...connection };
     return new Promise<Knex<any, any[]>>(async (resolve, reject): Promise<Knex<any, any[]>> => {
-      const cachedTnl = tunnelCache.get(JSON.stringify(connection));
-      if (cachedTnl && cachedTnl.knex && cachedTnl.tnl) {
+      const cachedTnl = tunnelCache.get(JSON.stringify(connectionCopy));
+      if (cachedTnl && cachedTnl.knex && cachedTnl.server && cachedTnl.client) {
         resolve(cachedTnl.knex);
         return;
       }
       const freePort = await getPort();
-      const sshConfig = KnexManager.getSshTunelConfig(connection, freePort);
-      const tnl = await tunnel(sshConfig, async (err: any, server: any) => {
-        if (err) {
-          throw err;
-        }
+      try {
+        const [server, client] = await this.getTunnel(connectionCopy, freePort);
         connection.host = '127.0.0.1';
         connection.port = freePort;
-
         const knex = KnexManager.getKnex(connection);
         const tnlCachedObj = {
-          tnl: tnl,
+          server: server,
+          client: client,
           knex: knex,
         };
-        tnl.on('error', (e) => {
-          tunnelCache.delete(JSON.stringify(connection));
+
+        tunnelCache.set(JSON.stringify(connectionCopy), tnlCachedObj);
+
+        resolve(tnlCachedObj.knex);
+
+        client.on('error', (e) => {
+          tunnelCache.delete(JSON.stringify(connectionCopy));
           reject(e);
           return;
         });
-        tunnelCache.set(JSON.stringify(connection), tnlCachedObj);
-        resolve(tnlCachedObj.knex);
+
+        server.on('error', (e) => {
+          tunnelCache.delete(JSON.stringify(connectionCopy));
+          reject(e);
+          return;
+        });
         return;
-      });
-    }).catch((e) => {
-      throw new Error(e);
+      } catch (error) {
+        tunnelCache.delete(JSON.stringify(connectionCopy));
+        reject(error);
+        return;
+      }
     });
   }
 
-  private static getSshTunelConfig(connection: ConnectionParams, freePort: number) {
+  private static getTunnel(connection: ConnectionParams, freePort: number) {
     const { host, port, privateSSHKey, sshPort, sshHost, sshUsername } = connection;
-    return {
+
+    const sshOptions = {
       host: sshHost,
       port: sshPort,
       username: sshUsername,
       privateKey: privateSSHKey,
-      keepAlive: true,
-      dstHost: host,
-      dstPort: port,
-      localHost: 'localhost',
-      localPort: freePort,
     };
+
+    let forwardOptions = {
+      srcAddr: 'localhost',
+      srcPort: freePort,
+      dstAddr: host,
+      dstPort: port,
+    };
+
+    let tunnelOptions = {
+      autoClose: true,
+    };
+
+    const serverOptions = {
+      port: freePort,
+    };
+
+    return createTunnel(tunnelOptions, serverOptions, sshOptions, forwardOptions);
   }
 
   private static getPostgresKnex(connection: ConnectionParams): Knex<any, any[]> {
@@ -148,7 +170,7 @@ export class KnexManager {
         password: password,
         database: database,
         port: port,
-        application_name: 'autoadmin',
+        application_name: 'rocketadmin',
         ssl: ssl ? { ca: cert ?? undefined, rejectUnauthorized: !cert } : false,
       },
     });
