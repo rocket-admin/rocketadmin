@@ -36,6 +36,7 @@ import { GenerateOtpUseCase } from './use-cases/generate-otp-use.case.js';
 import { VerifyOtpUseCase } from './use-cases/verify-otp-use.case.js';
 import { OtpLoginUseCase } from './use-cases/otp-login-use.case.js';
 import { TemporaryAuthMiddleware } from '../../authorization/temporary-auth.middleware.js';
+import { DisableOtpUseCase } from './use-cases/disable-otp.use.case.js';
 
 @Module({
   imports: [
@@ -133,6 +134,10 @@ import { TemporaryAuthMiddleware } from '../../authorization/temporary-auth.midd
     {
       provide: UseCaseType.OTP_LOGIN,
       useClass: OtpLoginUseCase,
+    },
+    {
+      provide: UseCaseType.DISABLE_OTP,
+      useClass: DisableOtpUseCase,
     },
     UserHelperService,
   ],

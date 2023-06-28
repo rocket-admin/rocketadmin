@@ -9,6 +9,7 @@ import { FoundUserDs } from '../application/data-structures/found-user.ds.js';
 import { GoogleLoginDs } from '../application/data-structures/google-login.ds.js';
 import { OperationResultMessageDs } from '../application/data-structures/operation-result-message.ds.js';
 import { OtpSecretDS } from '../application/data-structures/otp-secret.ds.js';
+import { OtpDisablingResultDS, OtpValidationResultDS } from '../application/data-structures/otp-validation-result.ds.js';
 import { RegisteredUserDs } from '../application/data-structures/registered-user.ds.js';
 import { ResetUsualUserPasswordDs } from '../application/data-structures/reset-usual-user-password.ds.js';
 import { UpgradeUserSubscriptionDs } from '../application/data-structures/upgrade-user-subscription.ds.js';
@@ -94,5 +95,9 @@ export interface IGenerateOTP {
 }
 
 export interface IVerifyOTP {
-  execute(inputData: VerifyOtpDS, inTransaction: InTransactionEnum): Promise<any>;
+  execute(inputData: VerifyOtpDS, inTransaction: InTransactionEnum): Promise<OtpValidationResultDS>;
+}
+
+export interface IDisableOTP {
+  execute(inputData: VerifyOtpDS, inTransaction: InTransactionEnum): Promise<OtpDisablingResultDS>;
 }
