@@ -4,6 +4,7 @@ import { GlobalDatabaseContext } from '../../common/application/global-database-
 import { StripeWebhookController } from './stripe.controller.js';
 import { StripeWebhookUseCase } from './use-cases/stripe-webhook.use.case.js';
 import { isSaaS } from '../../helpers/app/is-saas.js';
+import Sentry from '@sentry/minimal';
 
 @Global()
 @Module({
@@ -35,6 +36,7 @@ import { isSaaS } from '../../helpers/app/is-saas.js';
               .PrivateStripeService;
           return new stripeService();
         } catch (error) {
+          Sentry.captureException(error);
           if (isSaaS() && process.env.NODE_ENV !== 'test') {
             console.warn(
               `Loading public stripe service in SaaS mode probably is an error. Public stripe service should be loaded only in non - SaaS mode.`,
