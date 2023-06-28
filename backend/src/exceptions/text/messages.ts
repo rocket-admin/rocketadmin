@@ -143,6 +143,7 @@ export const Messages = {
   )}`,
   OTP_NOT_ENABLED: `OTP is not enabled`,
   OTP_VALIDATION_FAILED: `OTP validation failed`,
+  OTP_DISABLING_FAILED: `OTP disabling failed`,
   PAGE_AND_PERPAGE_INVALID: `Parameters "page" and "perPage" must be more than zero`,
   PARAMETER_MISSING: 'Required parameter missing',
   PARAMETER_NAME_MISSING: (parameterName: string) => `Required parameter "${parameterName}" missing`,

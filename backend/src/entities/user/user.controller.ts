@@ -37,6 +37,7 @@ import { UsualRegisterUserDs } from './application/data-structures/usual-registe
 import {
   IChangeUserName,
   IDeleteUserAccount,
+  IDisableOTP,
   IFacebookLogin,
   IFindUserUseCase,
   IGenerateOTP,
@@ -102,6 +103,8 @@ export class UserController {
     private readonly verifyOtpUseCase: IVerifyOTP,
     @Inject(UseCaseType.OTP_LOGIN)
     private readonly otpLoginUseCase: IOtpLogin,
+    @Inject(UseCaseType.DISABLE_OTP)
+    private readonly disableOtpUseCase: IDisableOTP,
   ) {}
 
   @Get('user')
@@ -453,8 +456,8 @@ export class UserController {
   }
 
   @Post('user/otp/disable/')
-  async disableOtp(@UserId() userId: string): Promise<any> {
-    return undefined;
+  async disableOtp(@UserId() userId: string, @Body('otpToken') otpToken: string): Promise<any> {
+    return await this.disableOtpUseCase.execute({ userId, otpToken }, InTransactionEnum.OFF);
   }
 
   @Post('user/otp/login/')
