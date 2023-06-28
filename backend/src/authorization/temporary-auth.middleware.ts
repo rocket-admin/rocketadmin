@@ -19,7 +19,7 @@ export class TemporaryAuthMiddleware implements NestMiddleware {
     private readonly logOutRepository: Repository<LogOutEntity>,
   ) {}
   async use(req: Request, res: Response, next: (err?: any, res?: any) => void): Promise<void> {
-    console.log(`auth middleware triggered ->: ${new Date().toISOString()}`);
+    console.log(`temporary auth middleware triggered ->: ${new Date().toISOString()}`);
     let token: string;
     try {
       token = req.cookies[Constants.JWT_COOKIE_KEY_NAME];

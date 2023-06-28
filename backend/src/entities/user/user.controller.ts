@@ -57,6 +57,7 @@ import {
 } from './use-cases/user-use-cases.interfaces.js';
 import { ITokenExp } from './utils/generate-gwt-token.js';
 import { OtpSecretDS } from './application/data-structures/otp-secret.ds.js';
+import { OtpValidationResultDS } from './application/data-structures/otp-validation-result.ds.js';
 
 @UseInterceptors(SentryInterceptor)
 @Controller()
@@ -447,7 +448,7 @@ export class UserController {
   }
 
   @Post('user/otp/verify/')
-  async verifyOtp(@UserId() userId: string, @Body('otpToken') otpToken: string): Promise<any> {
+  async verifyOtp(@UserId() userId: string, @Body('otpToken') otpToken: string): Promise<OtpValidationResultDS> {
     return await this.verifyOtpUseCase.execute({ userId, otpToken }, InTransactionEnum.OFF);
   }
 
@@ -457,8 +458,21 @@ export class UserController {
   }
 
   @Post('user/otp/login/')
-  async validateOtp(@UserId() userId: string): Promise<any> {
-    return await this.otpLoginUseCase.execute(userId, InTransactionEnum.OFF);
+  async validateOtp(@Res({ passthrough: true }) response: Response, @UserId() userId: string): Promise<any> {
+    const tokenInfo = await this.otpLoginUseCase.execute(userId, InTransactionEnum.OFF);
+    response.cookie(Constants.JWT_COOKIE_KEY_NAME, tokenInfo.token, {
+      httpOnly: true,
+      secure: true,
+      expires: tokenInfo.exp,
+    });
+    response.cookie(Constants.ROCKETADMIN_AUTHENTICATED_COOKIE, 1, {
+      httpOnly: false,
+      ...this.getCookieDomainOtions(),
+    });
+    return {
+      expires: tokenInfo.exp,
+      isTemporary: tokenInfo.isTemporary,
+    };
   }
 
   private getCookieDomainOtions(): { domain: string } | undefined {
