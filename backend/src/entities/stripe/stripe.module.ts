@@ -23,8 +23,9 @@ import { isSaaS } from '../../helpers/app/is-saas.js';
       useFactory: async () => {
         try {
           if (!isSaaS()) {
-            throw new Error(`Loading private stripe service in non SaaS mode probably
-             is an error. Private stripe service should be loaded only in SaaS mode.`);
+            throw new Error(
+              `Loading private stripe service in non SaaS mode probably is an error. Private stripe service should be loaded only in SaaS mode.`,
+            );
           }
           console.info(`Loading private stripe service...`);
           const stripeService =
@@ -35,8 +36,9 @@ import { isSaaS } from '../../helpers/app/is-saas.js';
           return new stripeService();
         } catch (error) {
           if (isSaaS() && process.env.NODE_ENV !== 'test') {
-            console.warn(`Loading public stripe service in SaaS mode probably
-            //  is an error. Public stripe service should be loaded only in SaaS mode.`);
+            console.warn(
+              `Loading public stripe service in SaaS mode probably is an error. Public stripe service should be loaded only in non - SaaS mode.`,
+            );
           }
           const publicStripeService = (await import('./public-stripe-service.js')).PublicStripeService;
           console.info(`Loading public stripe service...`);
