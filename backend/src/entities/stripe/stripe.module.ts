@@ -4,7 +4,6 @@ import { GlobalDatabaseContext } from '../../common/application/global-database-
 import { StripeWebhookController } from './stripe.controller.js';
 import { StripeWebhookUseCase } from './use-cases/stripe-webhook.use.case.js';
 import { isSaaS } from '../../helpers/app/is-saas.js';
-import Sentry from '@sentry/minimal';
 
 @Global()
 @Module({
@@ -23,12 +22,12 @@ import Sentry from '@sentry/minimal';
       provide: DynamicModuleEnum.STRIPE_SERVICE,
       useFactory: async () => {
         try {
+          console.info(`Loading private stripe service...`);
           if (!isSaaS()) {
             throw new Error(
               `Loading private stripe service in non SaaS mode probably is an error. Private stripe service should be loaded only in SaaS mode.`,
             );
           }
-          console.info(`Loading private stripe service...`);
           const stripeService =
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore
@@ -36,14 +35,14 @@ import Sentry from '@sentry/minimal';
               .PrivateStripeService;
           return new stripeService();
         } catch (error) {
-          Sentry.captureException(error);
+          console.error(`Error loading private stripe service: ${error.message}`);
+          console.info(`Loading public stripe service...`);
           if (isSaaS() && process.env.NODE_ENV !== 'test') {
             console.warn(
               `Loading public stripe service in SaaS mode probably is an error. Public stripe service should be loaded only in non - SaaS mode.`,
             );
           }
           const publicStripeService = (await import('./public-stripe-service.js')).PublicStripeService;
-          console.info(`Loading public stripe service...`);
           return new publicStripeService();
         }
       },
