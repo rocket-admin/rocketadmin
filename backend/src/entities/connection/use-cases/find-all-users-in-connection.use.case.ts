@@ -19,16 +19,15 @@ export class FindAllUsersInConnectionUseCase
 
   protected async implementation(connectionId: string): Promise<Array<FoundUserDs>> {
     const userInConnection = await this._dbContext.userRepository.findAllUsersInConnection(connectionId);
-    return await Promise.all(
-      userInConnection.map(async (user) => {
-        return {
-          id: user.id,
-          isActive: user.isActive,
-          email: user.email,
-          createdAt: user.createdAt,
-          name: user.name,
-        };
-      }),
-    );
+    return userInConnection.map((user) => {
+      return {
+        id: user.id,
+        isActive: user.isActive,
+        email: user.email,
+        createdAt: user.createdAt,
+        name: user.name,
+        is_2fa_enabled: user.otpSecretKey !== null && user.isOTPEnabled,
+      };
+    });
   }
 }

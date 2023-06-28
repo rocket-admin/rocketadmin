@@ -57,6 +57,7 @@ export class UserHelperService {
       subscriptionLevel: userSubscriptionLevel,
       intercom_hash: intercomHash,
       name: user.name,
+      is_2fa_enabled: user.otpSecretKey !== null && user.isOTPEnabled,
     };
   }
 }
