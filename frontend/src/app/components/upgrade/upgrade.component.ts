@@ -20,7 +20,7 @@ export class UpgradeComponent implements OnInit {
       title: 'Database',
       free: 'MySQL, PostgreSQL',
       team: 'MySQL, PostgreSQL',
-      enterprise: 'MySQL, PostgreSQL, Microsoft SQL, Oracle'
+      enterprise: 'MySQL, PostgreSQL, \n Microsoft SQL, Oracle'
     },
     {
       title: 'User access',
@@ -56,7 +56,7 @@ export class UpgradeComponent implements OnInit {
 
   public displayedColumns = ['title', 'free', 'team', 'enterprise']
 
-  public columns = [
+  public plans = [
     {key: 'title'},
     {key: 'free', name: 'Free', priceM: '0', priceA: '0'},
     {key: 'team', name: 'Team', priceM: '5', priceA: '50'},
@@ -85,6 +85,7 @@ export class UpgradeComponent implements OnInit {
     // }
 
     // this.currentPlan = this.currentPlan.slice(0, -5).toLowerCase();
+    this.currentPlan = 'enterprise';
   }
 
   upgradePlan(plan, isAnnually: boolean) {

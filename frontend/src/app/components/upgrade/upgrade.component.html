@@ -1,6 +1,6 @@
 <app-alert></app-alert>
 
-<div class="upgrade-box">
+<!--<div class="upgrade-box">
     <h1 class='mat-h1 upgrade-box__title'>Manage plans</h1>
     <stripe-pricing-table *ngIf="currentUser"
         [attr.client-reference-id]="currentUser.id"
@@ -8,48 +8,68 @@
         pricing-table-id="prctbl_1LQzmPFtHdda1TsBHcj3EIvg"
         publishable-key="pk_live_51JM8FBFtHdda1TsBR7nieMFVFigZAUXbPhQTNvaSyLynIW1lbfzO6rfqqIUn0JAGJRq9mrwKwrVCsDDFOs84M7pE006xDqNgHk">
     </stripe-pricing-table>
-</div>
+</div>-->
 
-<!--<div class="page">
+<div class="page">
     <div class="plans">
         <div class="header">
-            <h1 class="mat-h1">
-                Manage plans
-            </h1>
-            <div class="toggle">
-                <span class="toggle-label" [ngClass]="{'toggle-label-active': !isAnnually}">Monthly</span>
-                <mat-slide-toggle [(ngModel)]="isAnnually"></mat-slide-toggle>
-                <span class="toggle-label" [ngClass]="{'toggle-label-active': isAnnually}">Annually</span>
-            </div>
-        </div>
+            <div>
 
-        <table mat-table [dataSource]="plansTable" class="plansTable mat-elevation-z8">
-            <ng-container *ngFor="let column of columns" [matColumnDef]="column.key">
-                <th mat-header-cell *matHeaderCellDef>
-                    <div *ngIf="column.name" class="plan-header">
-                        <span class="mat-h3">{{column.name}} </span>
-                        <span class="price">${{isAnnually ? column.priceA : column.priceM}}</span>
+            </div>
+            <ng-container *ngFor="let plan of plans">
+                <div *ngIf="plan.key === 'title'; else planHeaderCard">
+                    <h1 class="mat-h1">
+                        Manage plans
+                    </h1>
+                    <div class="toggle">
+                        <span class="toggle-label" [ngClass]="{'toggle-label-active': !isAnnually}">Monthly</span>
+                        <mat-slide-toggle [(ngModel)]="isAnnually"></mat-slide-toggle>
+                        <span class="toggle-label" [ngClass]="{'toggle-label-active': isAnnually}">Annually</span>
+                    </div>
+                </div>
+                <ng-template #planHeaderCard>
+                    <div class="plan-header mat-elevation-z2">
+                        <div class="plan-header-name">
+                            <span class="mat-h3">{{plan.name}} </span>
+                            <mat-chip disabled *ngIf="plan.name === 'Team'" class="plan-badge">Recommended</mat-chip>
+                        </div>
+                        <span class="price">${{isAnnually ? plan.priceA : plan.priceM}}</span>
                         <span class="period">{{isAnnually ? 'annually' : 'monthly'}}</span>
-                        <span *ngIf="isCurrent(column.key); else activeButton" class="mat-body-1 current">
+                        <button mat-flat-button color="accent"
+                            *ngIf="isCurrent(plan.key); else activeButton"
+                            disabled class="current"
+                            (click)="upgradePlan(plan.key, isAnnually)">
                             Current
-                        </span>
+                        </button>
                         <ng-template #activeButton>
                             <button mat-flat-button color="accent"
                                 [disabled]="submitting"
-                                (click)="upgradePlan(column.key, isAnnually)">
+                                (click)="upgradePlan(plan.key, isAnnually)">
                                 Try for free
                             </button>
                         </ng-template>
                     </div>
-                </th>
-                <td mat-cell *matCellDef="let element" [ngClass]="{'cell-centered': column.key !== 'title'}">
-                    <span *ngIf="element[column.key] === true; else nonBoolValue">✓</span>
-                    <ng-template #nonBoolValue>{{element[column.key]}}</ng-template>
-                </td>
+                </ng-template>
             </ng-container>
 
-            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+
+        </div>
+
+        <table mat-table [dataSource]="plansTable" class="plansTable mat-elevation-z2">
+            <colgroup>
+                <col style="width: 28%">
+                <col style="width: 24%">
+                <col style="width: 24%">
+                <col style="width: 24%">
+            </colgroup>
+            <ng-container *ngFor="let plan of plans" [matColumnDef]="plan.key">
+                <td mat-cell *matCellDef="let element"
+                    [ngClass]="{'cell_centered': plan.key !== 'title', cell_current: plan.key === currentPlan}">
+                    <span *ngIf="element[plan.key] === true; else nonBoolValue">✓</span>
+                    <ng-template #nonBoolValue>{{element[plan.key]}}</ng-template>
+                </td>
+            </ng-container>
             <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
         </table>
     </div>
-</div>-->
+</div>
