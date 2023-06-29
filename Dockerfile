@@ -25,7 +25,7 @@ COPY private-modules /app/private-modules
 COPY .yarn /app/.yarn
 RUN yarn install --network-timeout 1000000 --frozen-lockfile --silent
 RUN cd shared-code && ../node_modules/.bin/tsc
-RUN cd private-modules && ( test -d node_modules && yarn run nest build || true )
+RUN cd private-modules && ( test -d node_modules && ../node_modules/.bin/tsc || true )
 RUN cd backend && yarn run nest build
 COPY --from=front_builder /app/frontend/dist/dissendium-v0 /var/www/html
 COPY frontend/nginx/default.conf /etc/nginx/sites-enabled/default
