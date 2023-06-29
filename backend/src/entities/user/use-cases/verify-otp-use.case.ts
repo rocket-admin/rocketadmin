@@ -28,6 +28,16 @@ export class VerifyOtpUseCase extends AbstractUseCase<VerifyOtpDS, OtpValidation
         HttpStatus.BAD_REQUEST,
       );
     }
+
+    if (!foundUser.isActive) {
+      throw new HttpException(
+        {
+          message: Messages.USER_NOT_ACTIVE,
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
     const { otpSecretKey } = foundUser;
     if (!otpSecretKey) {
       throw new HttpException(

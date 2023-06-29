@@ -28,6 +28,15 @@ export class GenerateOtpUseCase extends AbstractUseCase<string, OtpSecretDS> imp
       );
     }
 
+    if (!foundUser.isActive) {
+      throw new HttpException(
+        {
+          message: Messages.USER_NOT_ACTIVE,
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
     const otpSecretKey = authenticator.generateSecret();
     foundUser.otpSecretKey = otpSecretKey;
     await this._dbContext.userRepository.saveUserEntity(foundUser);
