@@ -35,7 +35,7 @@ export interface IUsualLogin {
 }
 
 export interface IOtpLogin {
-  execute(temporaryJwtToken: string, inTransaction: InTransactionEnum): Promise<IToken>;
+  execute(inputData: VerifyOtpDS, inTransaction: InTransactionEnum): Promise<IToken>;
 }
 
 export interface IUsualRegister {

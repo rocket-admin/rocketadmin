@@ -461,8 +461,12 @@ export class UserController {
   }
 
   @Post('user/otp/login/')
-  async validateOtp(@Res({ passthrough: true }) response: Response, @UserId() userId: string): Promise<any> {
-    const tokenInfo = await this.otpLoginUseCase.execute(userId, InTransactionEnum.OFF);
+  async validateOtp(
+    @Res({ passthrough: true }) response: Response,
+    @UserId() userId: string,
+    @Body('otpToken') otpToken: string,
+  ): Promise<any> {
+    const tokenInfo = await this.otpLoginUseCase.execute({ userId, otpToken }, InTransactionEnum.OFF);
     response.cookie(Constants.JWT_COOKIE_KEY_NAME, tokenInfo.token, {
       httpOnly: true,
       secure: true,
