@@ -20,6 +20,7 @@ import { EmailVerificationEntity } from '../email/email-verification.entity.js';
 import { PasswordResetEntity } from './user-password/password-reset.entity.js';
 import { EmailChangeEntity } from './user-email/email-change.entity.js';
 import { UserInvitationEntity } from './user-invitation/user-invitation.entity.js';
+import { GitHubUserIdentifierEntity } from './user-github-identifier/github-user-identifier.entity.js';
 
 @Entity('user')
 export class UserEntity {
@@ -91,6 +92,9 @@ export class UserEntity {
 
   @OneToOne(() => UserInvitationEntity, (user_invitation) => user_invitation.user)
   user_invitation: Relation<UserInvitationEntity>;
+
+  @OneToOne(() => GitHubUserIdentifierEntity, (github_user_identifier) => github_user_identifier.user)
+  github_user_identifier: Relation<GitHubUserIdentifierEntity>;
 
   @Column({ default: false })
   isActive: boolean;

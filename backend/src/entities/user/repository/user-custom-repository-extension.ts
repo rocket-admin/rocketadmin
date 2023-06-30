@@ -114,4 +114,11 @@ export const userCustomRepositoryExtension: IUserRepository = {
       .andWhere('tableLogs.id is null');
     return await usersQb.getMany();
   },
+
+  async findOneUserByGitHubId(gitHubId: number): Promise<UserEntity> {
+    const userQb = this.createQueryBuilder('user')
+      .leftJoinAndSelect('user.github_user_identifier', 'github_user_identifier')
+      .where('github_user_identifier.gitHubId = :gitHubId', { gitHubId: gitHubId });
+    return await userQb.getOne();
+  }
 };

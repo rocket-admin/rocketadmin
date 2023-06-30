@@ -101,3 +101,11 @@ export interface IVerifyOTP {
 export interface IDisableOTP {
   execute(inputData: VerifyOtpDS, inTransaction: InTransactionEnum): Promise<OtpDisablingResultDS>;
 }
+
+export interface IGetGitHubLoginLink {
+  execute(inTransaction: InTransactionEnum): Promise<string>;
+}
+
+export interface IAuthGitHub {
+  execute(code: string, inTransaction: InTransactionEnum): Promise<IToken>;
+}
