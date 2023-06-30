@@ -37,6 +37,8 @@ import { VerifyOtpUseCase } from './use-cases/verify-otp-use.case.js';
 import { OtpLoginUseCase } from './use-cases/otp-login-use.case.js';
 import { TemporaryAuthMiddleware } from '../../authorization/temporary-auth.middleware.js';
 import { DisableOtpUseCase } from './use-cases/disable-otp.use.case.js';
+import { GetGitHubLoginLinkUseCase } from './use-cases/get-github-login-link.use.case.js';
+import { AuthenticateWithGitHubUseCase } from './use-cases/authenticate-with-github.use.case.js';
 
 @Module({
   imports: [
@@ -138,6 +140,14 @@ import { DisableOtpUseCase } from './use-cases/disable-otp.use.case.js';
     {
       provide: UseCaseType.DISABLE_OTP,
       useClass: DisableOtpUseCase,
+    },
+    {
+      provide: UseCaseType.GET_GITHUB_LOGIN_LINK,
+      useClass: GetGitHubLoginLinkUseCase,
+    },
+    {
+      provide: UseCaseType.AUTHENTICATE_WITH_GITHUB,
+      useClass: AuthenticateWithGitHubUseCase,
     },
     UserHelperService,
   ],

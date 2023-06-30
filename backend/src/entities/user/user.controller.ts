@@ -8,6 +8,7 @@ import {
   Injectable,
   Post,
   Put,
+  Query,
   Req,
   Res,
   UseInterceptors,
@@ -35,12 +36,14 @@ import { UpgradeUserSubscriptionDs } from './application/data-structures/upgrade
 import { UsualLoginDs } from './application/data-structures/usual-login.ds.js';
 import { UsualRegisterUserDs } from './application/data-structures/usual-register-user.ds.js';
 import {
+  IAuthGitHub,
   IChangeUserName,
   IDeleteUserAccount,
   IDisableOTP,
   IFacebookLogin,
   IFindUserUseCase,
   IGenerateOTP,
+  IGetGitHubLoginLink,
   IGoogleLogin,
   ILogOut,
   IOtpLogin,
@@ -105,6 +108,10 @@ export class UserController {
     private readonly otpLoginUseCase: IOtpLogin,
     @Inject(UseCaseType.DISABLE_OTP)
     private readonly disableOtpUseCase: IDisableOTP,
+    @Inject(UseCaseType.GET_GITHUB_LOGIN_LINK)
+    private readonly getGithubLoginLinkUseCase: IGetGitHubLoginLink,
+    @Inject(UseCaseType.AUTHENTICATE_WITH_GITHUB)
+    private readonly authenticateWithGithubUseCase: IAuthGitHub,
   ) {}
 
   @Get('user')
@@ -463,6 +470,30 @@ export class UserController {
   @Post('user/otp/login/')
   async validateOtp(@Res({ passthrough: true }) response: Response, @UserId() userId: string): Promise<any> {
     const tokenInfo = await this.otpLoginUseCase.execute(userId, InTransactionEnum.OFF);
+    response.cookie(Constants.JWT_COOKIE_KEY_NAME, tokenInfo.token, {
+      httpOnly: true,
+      secure: true,
+      expires: tokenInfo.exp,
+    });
+    response.cookie(Constants.ROCKETADMIN_AUTHENTICATED_COOKIE, 1, {
+      httpOnly: false,
+      ...this.getCookieDomainOtions(),
+    });
+    return {
+      expires: tokenInfo.exp,
+      isTemporary: tokenInfo.isTemporary,
+    };
+  }
+
+  @Get('user/login/github')
+  async loginGithub(@Res({ passthrough: true }) response: Response): Promise<any> {
+    const redirectionLink = await this.getGithubLoginLinkUseCase.execute(InTransactionEnum.OFF);
+    response.redirect(redirectionLink);
+  }
+
+  @Get('user/authenticate/github')
+  async authenticateGithub(@Query('code') code: string, @Res({ passthrough: true }) response: Response): Promise<any> {
+    const tokenInfo = await this.authenticateWithGithubUseCase.execute(code, InTransactionEnum.OFF);
     response.cookie(Constants.JWT_COOKIE_KEY_NAME, tokenInfo.token, {
       httpOnly: true,
       secure: true,
