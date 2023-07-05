@@ -181,7 +181,7 @@ export const Constants = {
     return this.getTestConnectionsArr().map((connection) => connection.host);
   },
 
-  APP_DOMAIN_ADDRESS: process.env.APP_DOMAIN_ADDRESS || `https://v2.autoadmin.org`,
+  APP_DOMAIN_ADDRESS: process.env.APP_DOMAIN_ADDRESS || `https://app.rocketadmin.com`,
 
   AUTOADMIN_SUPPORT_MAIL: 'support@autoadmin.org',
   AUTOADMIN_EMAIL_TEXT: `Hi!
