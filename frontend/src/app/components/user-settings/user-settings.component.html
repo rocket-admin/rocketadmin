@@ -61,9 +61,39 @@
             <span *ngIf="currentPlan !== 'Free'">
                 ({{ isAnnually ? 'annually' : 'monthly' }})
             </span>
-
         </span>
 
+        <div>
+            <mat-slide-toggle [(ngModel)]="currentUser.is_2fa_enabled"
+                [disabled]="!currentUser.isActive"
+                (change)="switch2FA($event)">
+                Two-factor authentication
+            </mat-slide-toggle>
+            <div *ngIf="is2FAswitchingOnSettingsShown" class="qr-verification">
+                <p class="mat-body-1">Scan this QR code with 2FA application</p>
+                <img [src]="secondFAQRCode" class="qr-verification-image" alt="qr">
+                <mat-form-field appearance="outline" class="user-settings__name">
+                    <mat-label>Enter the code from your authenticator</mat-label>
+                    <input matInput [(ngModel)]="authCode" name="code" #codeField="ngModel">
+                </mat-form-field>
+                <button type="button" mat-button color="primary"
+                    (click)="verify2FA()">
+                    Enable
+                </button>
+            </div>
+            <div *ngIf="is2FAswitchingOffSettingsShown" class="qr-verification">
+                <mat-form-field appearance="outline" class="user-settings__name">
+                    <mat-label>Enter the code from your authenticator</mat-label>
+                    <input matInput [(ngModel)]="authCode" name="code" #codeField="ngModel">
+                </mat-form-field>
+                <button type="button" mat-button color="primary"
+                    (click)="switchOff2FA()">
+                    Disable
+                </button>
+            </div>
+
+
+        </div>
     </div>
 
     <button mat-button class="delete-button"

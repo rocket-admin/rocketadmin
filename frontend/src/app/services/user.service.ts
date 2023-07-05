@@ -219,6 +219,50 @@ export class UserService {
       );
   }
 
+  switchOn2FA() {
+    return this._http.post<any>('/user/otp/generate', {})
+      .pipe(
+        map((res) => {
+          return res
+        }),
+        catchError((err) => {
+          console.log(err);
+          this._notifications.showErrorSnackbar(err.error.message);
+          return EMPTY;
+        })
+      );
+  }
+
+  confirm2FA(code: string) {
+    return this._http.post<any>('/user/otp/verify', {otpToken: code})
+      .pipe(
+        map((res) => {
+          this._notifications.showSuccessSnackbar('2FA is turned on successfully.');
+          return res
+        }),
+        catchError((err) => {
+          console.log(err);
+          this._notifications.showErrorSnackbar(err.error.message);
+          return EMPTY;
+        })
+      );
+  }
+
+  switchOff2FA(code: string) {
+    return this._http.post<any>('/user/otp/disable', {otpToken: code})
+      .pipe(
+        map((res) => {
+          this._notifications.showSuccessSnackbar('2FA is turned off successfully.');
+          return res
+        }),
+        catchError((err) => {
+          console.log(err);
+          this._notifications.showErrorSnackbar(err.error.message);
+          return EMPTY;
+        })
+      );
+  }
+
 
   deleteAccount(metadata) {
     return this._http.put<any>(`/user/delete`, metadata)

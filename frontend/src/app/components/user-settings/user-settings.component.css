@@ -36,6 +36,15 @@
     text-transform: capitalize;
 }
 
+.qr-verification {
+    margin-top: 28px;
+}
+
+.qr-verification-image {
+    margin-top: -8px;
+    margin-bottom: 12px;
+}
+
 .delete-button {
     align-self: center;
     margin-top: 80px;

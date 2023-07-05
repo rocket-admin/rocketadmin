@@ -30,6 +30,10 @@ export class UserSettingsComponent implements OnInit {
       }
     ]
   }
+  public secondFAQRCode: string;
+  public authCode: string;
+  public is2FAswitchingOnSettingsShown: boolean = false;
+  public is2FAswitchingOffSettingsShown: boolean = false;
 
   constructor(
     private _userService: UserService,
@@ -89,5 +93,36 @@ export class UserSettingsComponent implements OnInit {
     )
   }
 
+  switch2FA(event) {
+    if (event.checked) {
+      this._userService.switchOn2FA()
+        .subscribe((res) => {
+          this.is2FAswitchingOnSettingsShown = true;
+          this.secondFAQRCode = res.qrCode;
+        });
+    } else {
+      this.is2FAswitchingOffSettingsShown = true;
+    }
+  }
+
+  verify2FA() {
+    this._userService.confirm2FA(this.authCode)
+      .subscribe((res) => {
+        if (res.validated) {
+          this.is2FAswitchingOnSettingsShown = false;
+          this.authCode = '';
+        }
+      });
+  }
+
+  switchOff2FA() {
+    this._userService.switchOff2FA(this.authCode)
+      .subscribe((res) => {
+        if (res.disabled) {
+          this.is2FAswitchingOffSettingsShown = false;
+          this.authCode = '';
+        }
+      });
+  }
 
 }
