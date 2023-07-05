@@ -17,7 +17,6 @@ export class RegistrationComponent implements OnInit {
     password: ''
   };
   public submitting: boolean;
-  // public passwordHidden: boolean;
 
   constructor(
     private ngZone: NgZone,
