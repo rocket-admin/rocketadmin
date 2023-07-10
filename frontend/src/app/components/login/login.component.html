@@ -10,12 +10,13 @@
 
             <mat-form-field appearance="outline">
                 <mat-label>Email</mat-label>
-                <input matInput type="email" name="email" data-test-id="login-email-input"
+                <input matInput type="email" name="email" emailValidator
+                    data-test-id="login-email-input"
                     #email="ngModel" required
                     angulartics2On="change"
                     angularticsAction="Login: email is changed"
                     [(ngModel)]="user.email" >
-                <!-- <mat-error *ngIf="hostname.errors?.required && (hostname.invalid && hostname.touched)">Hostname should not be empty.</mat-error> -->
+                <mat-error *ngIf="email.errors?.isInvalidEmail">Invalid email format.</mat-error>
             </mat-form-field>
 
             <mat-form-field appearance="outline">

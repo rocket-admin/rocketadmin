@@ -49,7 +49,9 @@ import { DbTablesListComponent } from './components/dashboard/db-tables-list/db-
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { DynamicModule } from 'ng-dynamic-component';
 import { EmailChangeComponent } from './components/email-change/email-change.component';
+import { EmailValidationDirective } from "./directives/emailValidator.directive";
 import { EmailVerificationComponent } from './components/email-verification/email-verification.component';
+import { EnableTwoFADialogComponent } from './components/user-settings/enable-two-fa-dialog/enable-two-fa-dialog.component';
 import { EncodeUrlParamsSafelyInterceptor } from './services/url-params.interceptor';
 import { FileComponent } from './components/ui-components/row-fields/file/file.component';
 import { ForeignKeyComponent } from './components/ui-components/row-fields/foreign-key/foreign-key.component';
@@ -100,7 +102,6 @@ import { UsersComponent } from './components/users/users.component';
 import { UsersService } from './services/users.service';
 import { WidgetDeleteDialogComponent } from './components/dashboard/db-table-widgets/widget-delete-dialog/widget-delete-dialog.component';
 import { environment } from '../environments/environment';
-import { EnableTwoFADialogComponent } from './components/user-settings/enable-two-fa-dialog/enable-two-fa-dialog.component';
 
 type Palettes = { primaryPalette: string, accentedPalette: string, warnPalette: string };
 type Colors = { myColorName: string };
@@ -176,6 +177,7 @@ const saasExtraProviders = (environment as any).saas ? [
     PasswordValidationDirective,
     Base64ValidationDirective,
     HexValidationDirective,
+    EmailValidationDirective,
     BannerComponent,
     DbTableSettingsComponent,
     ConnectionSettingsComponent,
