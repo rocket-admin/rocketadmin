@@ -23,47 +23,73 @@
 
         <div class="user-settings__section-heading">
             <strong>Email:</strong>
-            <button mat-button color="primary" data-test-id="change-user-email-button"
+            <span class="mat-body-1 user-settings__value">{{currentUser.email}}</span>
+        </div>
+        <button mat-button color="primary" data-test-id="user-settings__button"
                 class="user-settings__button"
                 [disabled]="!currentUser.isActive"
                 (click)="changeEmail()">
                 Change email
-            </button>
-        </div>
-        <span class="user-settings__value">{{currentUser.email}}</span>
+        </button>
 
         <div class="user-settings__section-heading">
             <strong>Password:</strong>
-            <a mat-button routerLink="/change-password" color="primary" data-test-id="change-user-password-link"
-                class="user-settings__button">
-                Change password
-            </a>
         </div>
-        <span class="user-settings__value">********</span>
+        <a mat-button routerLink="/change-password" color="primary" data-test-id="change-user-password-link"
+            [disabled]="!currentUser.isActive"
+            class="user-settings__button">
+            Change password
+        </a>
 
 
         <div class="user-settings__section-heading">
             <strong>Current plan:</strong>
-            <a *ngIf="currentUser.portal_link; else updgadePageLink" mat-button color="accent"
-                class="upgrade-button"
-                [href]="currentUser.portal_link" target="_blank">
+            <span class="user-settings__value">
+                <span class="user-settings__value_capitalized">{{currentPlan}}</span>
+                <span *ngIf="currentPlan !== 'free'">
+                    ({{ isAnnually ? 'annually' : 'monthly' }})
+                </span>
+            </span>
+        </div>
+        <a *ngIf="currentUser.portal_link; else updgadePageLink" mat-button color="accent"
+            class="user-settings__button"
+            [href]="currentUser.portal_link" target="_blank">
+            Manage payment settings
+        </a>
+        <ng-template #updgadePageLink>
+            <a mat-button color="accent" class="user-settings__button"
+                routerLink="/upgrade">
                 Manage payment settings
             </a>
-            <ng-template #updgadePageLink>
-                <a mat-button color="accent" class="upgrade-button"
-                    routerLink="/upgrade">
-                    Manage payment settings
-                </a>
-            </ng-template>
+        </ng-template>
+
+
+        <div>
+            <div class="twoFA-toggle">
+                <mat-slide-toggle [(ngModel)]="is2FAEnabledToggle"
+                    [disabled]="!currentUser.isActive"
+                    (change)="switch2FA($event)">
+                    Two-factor authentication
+                </mat-slide-toggle>
+                <mat-icon *ngIf="!currentUser.isActive" class="twoFAhint"
+                    matTooltip="Available only after email confirmation.">
+                    info_outline
+                </mat-icon>
+            </div>
+
+            <div *ngIf="is2FAswitchingOffSettingsShown" class="qr-verification">
+                <mat-form-field appearance="outline" class="user-settings__name">
+                    <mat-label>Enter the code from your authenticator</mat-label>
+                    <input matInput [(ngModel)]="authCode" name="code" #codeField="ngModel">
+                </mat-form-field>
+                <button type="button" mat-button color="primary"
+                    (click)="switchOff2FA()">
+                    Disable
+                </button>
+            </div>
+
+
         </div>
-        <span class="user-settings__value">
-            <span class="user-settings__value_capitalized">{{currentPlan}}</span>
-            <span *ngIf="currentPlan !== 'Free'">
-                ({{ isAnnually ? 'annually' : 'monthly' }})
-            </span>
-
-        </span>
-
     </div>
 
     <button mat-button class="delete-button"

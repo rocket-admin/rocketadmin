@@ -1,8 +1,9 @@
 <app-alert></app-alert>
 
-    <div class="wrapper">
+<div class="wrapper">
     <div class="login-page">
-        <form action="" class="login-form"
+        <form class="login-form"
+            [hidden]="is2FAShown"
             #loginForm="ngForm"
             (ngSubmit)="loginUser()">
             <h1 class="mat-h1">Welcome to Rocketadmin</h1>
@@ -35,12 +36,26 @@
                 angulartics2On="click"
                 angularticsAction="Login: login is clicked"
                 [disabled]="submitting || loginForm.form.invalid || loginForm.form.pristine">
-                {{ submitting ? 'Submitting' : 'Login'}}
+                {{ submitting ? 'Submitting' : 'Log in'}}
             </button>
             <div class="divider"><span class="divider__label">or</span></div>
             <div id="google_login_button" data-test-id="login-google-button"
                 angulartics2On="click"
                 angularticsAction="Login: login with google is clicked">
+            </div>
+        </form>
+
+        <form *ngIf="is2FAShown">
+            <div class="qr-verification">
+                <h2 class="mat-h2">Enter second factor code</h2>
+                <mat-form-field appearance="outline" class="user-settings__name">
+                    <mat-label>Enter the code from your authenticator</mat-label>
+                    <input matInput [(ngModel)]="authCode" name="code" #codeField="ngModel">
+                </mat-form-field>
+                <button type="submit" mat-button color="primary" class="qr-verification-button"
+                    (click)="loginWith2FA()">
+                    Verify
+                </button>
             </div>
         </form>
     </div>
