@@ -40,7 +40,7 @@ export class CreateConnectionUseCase
     }
     await slackPostMessage(Messages.USER_TRY_CREATE_CONNECTION(connectionAuthor.email));
     await validateCreateConnectionData(createConnectionData);
-    createConnectionData = await this.processAWSConnection(createConnectionData);
+    // createConnectionData = await this.processAWSConnection(createConnectionData);
     const createdConnection: ConnectionEntity = buildConnectionEntity(createConnectionData, connectionAuthor);
     const savedConnection: ConnectionEntity = await this._dbContext.connectionRepository.saveNewConnection(
       createdConnection,
