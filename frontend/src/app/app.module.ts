@@ -100,6 +100,7 @@ import { UsersComponent } from './components/users/users.component';
 import { UsersService } from './services/users.service';
 import { WidgetDeleteDialogComponent } from './components/dashboard/db-table-widgets/widget-delete-dialog/widget-delete-dialog.component';
 import { environment } from '../environments/environment';
+import { EnableTwoFADialogComponent } from './components/user-settings/enable-two-fa-dialog/enable-two-fa-dialog.component';
 
 type Palettes = { primaryPalette: string, accentedPalette: string, warnPalette: string };
 type Colors = { myColorName: string };
@@ -201,6 +202,7 @@ const saasExtraProviders = (environment as any).saas ? [
     ActionDeleteDialogComponent,
     UpgradeSuccessComponent,
     DbActionLinkDialogComponent,
+    EnableTwoFADialogComponent,
   ],
   entryComponents: [
     DbActionConfirmationDialogComponent,

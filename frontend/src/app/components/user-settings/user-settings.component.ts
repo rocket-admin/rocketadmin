@@ -3,6 +3,7 @@ import { Component, Input, OnInit } from '@angular/core';
 
 import { AccountDeleteDialogComponent } from './account-delete-dialog/account-delete-dialog.component';
 import { AuthService } from 'src/app/services/auth.service';
+import { EnableTwoFADialogComponent } from './enable-two-fa-dialog/enable-two-fa-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
 import { User } from 'src/app/models/user';
 import { UserService } from 'src/app/services/user.service';
@@ -30,10 +31,10 @@ export class UserSettingsComponent implements OnInit {
       }
     ]
   }
-  public secondFAQRCode: string;
+
   public authCode: string;
-  public is2FAswitchingOnSettingsShown: boolean = false;
   public is2FAswitchingOffSettingsShown: boolean = false;
+  public is2FAEnabledToggle: boolean;
 
   constructor(
     private _userService: UserService,
@@ -45,8 +46,9 @@ export class UserSettingsComponent implements OnInit {
     this.currentUser = null;
     this._userService.cast
       .subscribe(user => {
-        this.currentUser = user;
+        this.currentUser =user;
         this.userName = user.name;
+        this.is2FAEnabledToggle = user.is_2fa_enabled;
 
         if (user.subscriptionLevel) {
           this.currentPlan = user.subscriptionLevel;
@@ -58,7 +60,7 @@ export class UserSettingsComponent implements OnInit {
 
           this.currentPlan = this.currentPlan.slice(0, -5).toLowerCase();
         } else {
-          this.currentPlan = "Free"
+          this.currentPlan = "free"
         }
 
       });
@@ -94,25 +96,31 @@ export class UserSettingsComponent implements OnInit {
   }
 
   switch2FA(event) {
-    if (event.checked) {
+    // let enableTwoFADialog = null;
+    console.log('event.checked');
+    console.log(event.checked);
+    console.log('this.currentUser.is_2fa_enabled');
+    console.log(this.currentUser);
+    console.log(this.currentUser.is_2fa_enabled);
+    if (event.checked && !this.currentUser.is_2fa_enabled) {
       this._userService.switchOn2FA()
         .subscribe((res) => {
-          this.is2FAswitchingOnSettingsShown = true;
-          this.secondFAQRCode = res.qrCode;
+          const enableTwoFADialog = this.dialog.open(EnableTwoFADialogComponent, {
+            width: '32em',
+            data: res.qrCode
+          });
+
+          enableTwoFADialog.afterClosed().subscribe(action => {
+            if (action !== 'enable') {
+              this.is2FAEnabledToggle = false;
+            }
+          })
         });
+    } else if (event.checked && this.currentUser.is_2fa_enabled) {
+      this.is2FAswitchingOffSettingsShown = false;
     } else {
       this.is2FAswitchingOffSettingsShown = true;
     }
-  }
-
-  verify2FA() {
-    this._userService.confirm2FA(this.authCode)
-      .subscribe((res) => {
-        if (res.validated) {
-          this.is2FAswitchingOnSettingsShown = false;
-          this.authCode = '';
-        }
-      });
   }
 
   switchOff2FA() {
