@@ -3,6 +3,10 @@
     overflow-x: hidden !important;
 }
 
+.table-list-sidenav {
+    max-width: 280px;
+}
+
 /* .mat-sidenav {
     padding-bottom: 16px;
     width: clamp(200px, 15%, 280px);

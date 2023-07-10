@@ -25,7 +25,9 @@
 
 <ng-container *ngIf="!loading && !isServerError && !noTablesError">
     <mat-sidenav-container>
-        <mat-sidenav #sideList mode="side" [(opened)]="shownTableTitles" [ngClass]="{'side-bar_collapsed': !shownTableTitles}">
+        <mat-sidenav #sideList mode="side" [(opened)]="shownTableTitles"
+            class="table-list-sidenav"
+            [ngClass]="{'side-bar_collapsed': !shownTableTitles}">
             <div class="toggle-button-position"
                 [ngClass]="(shownTableTitles)?'toggle-button-position__opened':'toggle-button-position__closed'">
                 <button mat-button class="toggle-button" (click)="toggleSideBar()">
