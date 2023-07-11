@@ -98,6 +98,20 @@ services:
     depends_on:
       - backend  
 
+
+  rocketadmin-private-microservice:
+    build:
+      context: ../auth-micro-service
+      dockerfile: ../auth-micro-service/Dockerfile
+    ports:
+      - 3001:3001
+    env_file: ../auth-micro-service/.env  
+    links:
+      - backend
+    depends_on:
+      - backend
+    command: ["yarn", "start"]
+
   rocketadmin-agent_oracle:
     build:
       context: .
