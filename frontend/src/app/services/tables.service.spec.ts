@@ -1,11 +1,12 @@
+import { AlertActionType, AlertType } from '../models/alert';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+
+import { NotificationsService } from './notifications.service';
 import { RouterTestingModule } from "@angular/router/testing";
+import { TableOrdering } from '../models/table';
 import { TablesService } from './tables.service';
 import { TestBed } from '@angular/core/testing';
-import { NotificationsService } from './notifications.service';
-import { TableOrdering } from '../models/table';
-import { AlertActionType, AlertType } from '../models/alert';
 
 describe('TablesService', () => {
   let service: TablesService;
@@ -148,6 +149,7 @@ describe('TablesService', () => {
     ],
     "connection_id": "e4b99271-badd-4112-9967-b99dd8024dda",
     "display_name": "",
+    "icon": "",
     "excluded_fields": [],
     "id": "dbf4d648-32f8-4202-9c18-300e1a4dc959",
     "identification_fields": [],
