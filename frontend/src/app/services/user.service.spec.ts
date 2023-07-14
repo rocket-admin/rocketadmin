@@ -4,10 +4,10 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { TestBed, async } from '@angular/core/testing';
 
 import { NotificationsService } from './notifications.service';
+import { Router } from '@angular/router';
+import { RouterTestingModule } from '@angular/router/testing';
 import { UserService } from './user.service';
 import { of } from 'rxjs';
-import { RouterTestingModule } from '@angular/router/testing';
-import { Router } from '@angular/router';
 
 describe('UserService', () => {
   let service: UserService;
@@ -315,6 +315,38 @@ describe('UserService', () => {
       type: AlertActionType.Button,
       caption: 'Dismiss',
     })]);
+  });
+
+  it('should call changeUserName', () => {
+    let isChangeUserNameCalled = false;
+
+    const requestResponse = {}
+
+    service.changeUserName('Eric').subscribe((res) => {
+      expect(res).toEqual(requestResponse);
+      expect(fakeNotifications.showSuccessSnackbar).toHaveBeenCalledOnceWith('Your name has been changed successfully.');
+      isChangeUserNameCalled = true;
+    });
+
+    const req = httpMock.expectOne(`/user/name`);
+    expect(req.request.method).toBe("PUT");
+    expect(req.request.body).toEqual({
+      name: 'Eric'
+    });
+    req.flush(requestResponse);
+
+    expect(isChangeUserNameCalled).toBeTrue();
+  });
+
+  it('should fall for changeUserName and show Error alert', async () => {
+    const resMessage = service.changeUserName('Eric').toPromise();
+
+    const req = httpMock.expectOne(`/user/name`);
+    expect(req.request.method).toBe("PUT");
+    req.flush(fakeError, {status: 400, statusText: ''});
+    await resMessage;
+
+    expect(fakeNotifications.showErrorSnackbar).toHaveBeenCalledWith(fakeError.message);
   });
 
   it('should call deleteAccount', () => {
