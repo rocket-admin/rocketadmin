@@ -44,6 +44,7 @@ import {
   IFindUserUseCase,
   IGenerateOTP,
   IGetGitHubLoginLink,
+  IGetStripeIntentId,
   IGoogleLogin,
   ILogOut,
   IOtpLogin,
@@ -112,6 +113,8 @@ export class UserController {
     private readonly getGithubLoginLinkUseCase: IGetGitHubLoginLink,
     @Inject(UseCaseType.AUTHENTICATE_WITH_GITHUB)
     private readonly authenticateWithGithubUseCase: IAuthGitHub,
+    @Inject(UseCaseType.GET_STRIPE_INTENT_ID)
+    private readonly getStripeIntentIdUseCase: IGetStripeIntentId,
   ) {}
 
   @Get('user')
@@ -511,6 +514,11 @@ export class UserController {
       expires: tokenInfo.exp,
       isTemporary: tokenInfo.isTemporary,
     };
+  }
+
+  @Post('user/stripe/intent')
+  async getStripeIntent(@UserId() userId: string): Promise<any> {
+    return await this.getStripeIntentIdUseCase.execute(userId, InTransactionEnum.OFF);
   }
 
   private getCookieDomainOtions(): { domain: string } | undefined {

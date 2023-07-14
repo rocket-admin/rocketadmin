@@ -1,4 +1,4 @@
-FROM public.ecr.aws/docker/library/node:16-alpine as builder
+FROM public.ecr.aws/docker/library/node:18-alpine as builder
 WORKDIR /app
 COPY package.json yarn.lock ./
 RUN yarn global add @angular/cli && yarn install

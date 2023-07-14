@@ -4,7 +4,7 @@ import { IGlobalDatabaseContext } from '../../../common/application/global-datab
 import { BaseType, DynamicModuleEnum } from '../../../common/data-injection.tokens.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { StripeWebhookDS } from '../application/data-structures/stripe-webhook.ds.js';
-import { IStripeSerice } from '../application/interfaces/stripe-service.interface.js';
+import { IStripeService } from '../application/interfaces/stripe-service.interface.js';
 import { IStripeWebhook } from './stripe-use-cases.interface.js';
 
 @Injectable()
@@ -13,7 +13,7 @@ export class StripeWebhookUseCase extends AbstractUseCase<StripeWebhookDS, void>
     @Inject(BaseType.GLOBAL_DB_CONTEXT)
     protected _dbContext: IGlobalDatabaseContext,
     @Inject(DynamicModuleEnum.STRIPE_SERVICE)
-    private readonly stripeService: IStripeSerice,
+    private readonly stripeService: IStripeService,
   ) {
     super();
   }
