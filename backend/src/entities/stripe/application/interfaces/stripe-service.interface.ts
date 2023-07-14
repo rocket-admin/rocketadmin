@@ -8,7 +8,12 @@ export interface ISubscriptionUpgradeResult {
   message: string;
 }
 
-export interface IStripeSerice {
+export interface ICreatedStripeSetupIntent {
+  client_secret: string;
+  id: string;
+}
+
+export interface IStripeService {
   processStripeWebhook(inputData: StripeWebhookDS): ProcessedStripeWebhook | null;
 
   createStripeUsageRecord(
@@ -25,4 +30,6 @@ export interface IStripeSerice {
   ): Promise<ISubscriptionUpgradeResult>;
 
   createPortalLink(user: UserEntity): Promise<string>;
+
+  createStripeSetupIntent(userStripeId: string): Promise<ICreatedStripeSetupIntent | null>;
 }

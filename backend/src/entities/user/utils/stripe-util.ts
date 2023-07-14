@@ -14,7 +14,7 @@ export class StripeUtil {
     const stripe = this.getStripe();
     const session: Stripe.BillingPortal.Session = await stripe.billingPortal.sessions.create({
       customer: user.stripeId,
-      return_url: 'https://autoadmin.org',
+      return_url: 'https://rocketadmin.com',
     });
     return session.url;
   }
