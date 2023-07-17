@@ -256,7 +256,6 @@ const saasExtraProviders = (environment as any).saas ? [
     HttpClientModule,
     BrowserAnimationsModule,
     MaterialModule,
-    MatMenuModule,
     RouterModule,
     DynamicModule,
     NgmatTableQueryReflectorModule,
