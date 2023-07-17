@@ -37,16 +37,15 @@
                         <span class="period">{{isAnnually ? 'annually' : 'monthly'}}</span>
                         <button mat-flat-button color="accent"
                             *ngIf="isCurrent(plan.key); else activeButton"
-                            disabled class="current"
-                            (click)="upgradePlan(plan.key, isAnnually)">
+                            disabled class="current">
                             Current
                         </button>
                         <ng-template #activeButton>
-                            <button mat-flat-button color="accent"
+                            <a mat-flat-button color="accent"
                                 [disabled]="submitting"
-                                (click)="upgradePlan(plan.key, isAnnually)">
+                                routerLink="/upgrade/payment">
                                 Try for free
-                            </button>
+                        </a>
                         </ng-template>
                     </div>
                 </ng-template>

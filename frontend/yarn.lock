@@ -3231,6 +3231,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@stripe/stripe-js@npm:^1.54.1":
+  version: 1.54.1
+  resolution: "@stripe/stripe-js@npm:1.54.1"
+  checksum: eb54054edea3d3f9a8c18e8442cc05b46f7afbe5bd85863121737f268875d30aab6de16ee84d467853ad9d983bf69f922f45daeee6f13134ca138f7e862c9eb4
+  languageName: node
+  linkType: hard
+
 "@tootallnate/once@npm:2":
   version: 2.0.0
   resolution: "@tootallnate/once@npm:2.0.0"
@@ -5445,6 +5452,7 @@ __metadata:
     "@sentry-internal/rrweb": ^1.108.0
     "@sentry/angular": ^7.55.0
     "@sentry/tracing": ^7.55.0
+    "@stripe/stripe-js": ^1.54.1
     "@types/jasmine": ~4.3.1
     "@types/jasminewd2": ~2.0.10
     "@types/lodash": ^4.14.191
@@ -5468,6 +5476,7 @@ __metadata:
     lodash: ^4.17.21
     ng-dynamic-component: ^10.7.0
     ngx-cookie-service: ^15.0.0
+    ngx-stripe: ^16.1.2
     pluralize: ^8.0.0
     postgres-interval: ^4.0.0
     private-ip: ^3.0.0
@@ -8224,6 +8233,19 @@ __metadata:
     "@angular/common": ^15.0.0
     "@angular/core": ^15.0.0
   checksum: 5d4ff91b6d2b52a96c2d70ca1da4fba84a06d90505e6d9d6898c730f7f365acd5915275fadb01529df77068d950849af0cfba673f3843702042189d3ff4d6632
+  languageName: node
+  linkType: hard
+
+"ngx-stripe@npm:^16.1.2":
+  version: 16.1.2
+  resolution: "ngx-stripe@npm:16.1.2"
+  dependencies:
+    tslib: ^2.3.0
+  peerDependencies:
+    "@angular/common": ">=16.0.0 <17.0.0"
+    "@angular/core": ">=16.0.0 <17.0.0"
+    "@stripe/stripe-js": ^1.54.1 <2.0.0
+  checksum: b694a6d0e6a6a966a31172fe4fa7ab515deb44e1d2a001e41f154989a94e1462a16e82e71261dc6a899570c936fda791cc1da55f778e580ca473e0624bdf4191
   languageName: node
   linkType: hard
 

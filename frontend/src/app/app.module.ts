@@ -100,6 +100,8 @@ import { UsersComponent } from './components/users/users.component';
 import { UsersService } from './services/users.service';
 import { WidgetDeleteDialogComponent } from './components/dashboard/db-table-widgets/widget-delete-dialog/widget-delete-dialog.component';
 import { environment } from '../environments/environment';
+import { PaymentFormComponent } from './components/payment-form/payment-form.component';
+import { NgxStripeModule } from 'ngx-stripe';
 
 type Palettes = { primaryPalette: string, accentedPalette: string, warnPalette: string };
 type Colors = { myColorName: string };
@@ -201,6 +203,7 @@ const saasExtraProviders = (environment as any).saas ? [
     ActionDeleteDialogComponent,
     UpgradeSuccessComponent,
     DbActionLinkDialogComponent,
+    PaymentFormComponent,
   ],
   entryComponents: [
     DbActionConfirmationDialogComponent,
@@ -265,6 +268,7 @@ const saasExtraProviders = (environment as any).saas ? [
     NgxThemeModule.forRoot(colorConfig, {
         frameworks: ['material'], // optional, default : ['tailwind', 'material']
     }),
+    NgxStripeModule.forRoot('pk_live_51JM8FBFtHdda1TsBR7nieMFVFigZAUXbPhQTNvaSyLynIW1lbfzO6rfqqIUn0JAGJRq9mrwKwrVCsDDFOs84M7pE006xDqNgHk'),
     ConfigModule.buildForConfigUrl('/config.json')
   ],
   bootstrap: [AppComponent],

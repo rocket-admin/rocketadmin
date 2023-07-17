@@ -88,20 +88,20 @@ export class UpgradeComponent implements OnInit {
     this.currentPlan = 'enterprise';
   }
 
-  upgradePlan(plan, isAnnually: boolean) {
-    this.submitting = true;
-    let subscriptionLevel = `${plan.toUpperCase()}_PLAN`;
-    if (isAnnually && plan !== 'free') subscriptionLevel = `ANNUAL_${subscriptionLevel}`;
-    this._userService.upgradeUser(subscriptionLevel).subscribe(() => {
-      this._userService.fetchUser().subscribe(() => {
-          this.submitting = false;
-          this.isCurrentAnnually = this.isAnnually
-        }
-      );
-    },
-    () => this.submitting = false,
-    () => this.submitting = false);
-  }
+  // upgradePlan(plan, isAnnually: boolean) {
+  //   this.submitting = true;
+  //   let subscriptionLevel = `${plan.toUpperCase()}_PLAN`;
+  //   if (isAnnually && plan !== 'free') subscriptionLevel = `ANNUAL_${subscriptionLevel}`;
+  //   this._userService.upgradeUser(subscriptionLevel).subscribe(() => {
+  //     this._userService.fetchUser().subscribe(() => {
+  //         this.submitting = false;
+  //         this.isCurrentAnnually = this.isAnnually
+  //       }
+  //     );
+  //   },
+  //   () => this.submitting = false,
+  //   () => this.submitting = false);
+  // }
 
   isCurrent(columnKey) {
     if (this.currentPlan === 'free') return this.currentPlan === columnKey;
