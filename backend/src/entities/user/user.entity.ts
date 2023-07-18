@@ -101,4 +101,7 @@ export class UserEntity {
 
   @Column({ default: null })
   stripeId: string;
+
+  @Column('uuid', { array: true, default: [] })
+  companyIds: string[];
 }
