@@ -1,0 +1,19 @@
+.payment-page {
+    margin: 0 auto;
+    width: clamp(18.75em, 96%, 42em);
+}
+
+.payment-page__header {
+    margin: 2em 0 1em;
+}
+
+.billing-form {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-gap: 16px;
+    gap: 16px;
+}
+
+.full-width {
+    grid-column: 1 / span 2;
+}
