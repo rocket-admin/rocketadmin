@@ -10,8 +10,11 @@ import { UserService } from 'src/app/services/user.service';
 export class UpgradeComponent implements OnInit {
   public currentUser: User;
   public id = '1234567890';
-  public currentPlan;
-  public isCurrentAnnually = false;
+  public currentPlan = {
+    key: 'free',
+    isAnnually: false,
+    priceM: '0',
+  };
   public isAnnually = false;
   public submitting = false;
 
@@ -69,23 +72,31 @@ export class UpgradeComponent implements OnInit {
 
   ngOnInit(): void {
     this._userService.cast.subscribe(user => {
+      // user.subscriptionLevel = "ANNUAL_ENTERPRISE_PLAN";
       this.setUser(user);
     });
   }
 
-  setUser(user) {
+  setUser(user: User) {
     console.log(user);
     this.currentUser = user;
-    // this.currentPlan = user.subscriptionLevel;
+    // this.currentUser.subscriptionLevel = "FREE_PLAN";
 
-    // if (user.subscriptionLevel.startsWith('ANNUAL_')) {
-    //   this.isAnnually = true;
-    //   this.isCurrentAnnually = true;
-    //   this.currentPlan = this.currentPlan.substring(7);
-    // }
+    let currentPlanKey = this.currentUser.subscriptionLevel || 'FREE_PLAN';
+    if (this.currentUser.subscriptionLevel.startsWith('ANNUAL_')) {
+      this.isAnnually = true;
+      currentPlanKey = currentPlanKey.substring(7);
+    }
 
-    // this.currentPlan = this.currentPlan.slice(0, -5).toLowerCase();
-    this.currentPlan = 'enterprise';
+    currentPlanKey = currentPlanKey.slice(0, -5).toLowerCase();
+
+    this.currentPlan = {
+      key: currentPlanKey,
+      isAnnually: this.isAnnually,
+      priceM: this.plans.find(plan => plan.key === currentPlanKey).priceM,
+    };
+
+    console.log(this.currentPlan);
   }
 
   // upgradePlan(plan, isAnnually: boolean) {
@@ -104,7 +115,15 @@ export class UpgradeComponent implements OnInit {
   // }
 
   isCurrent(columnKey) {
-    if (this.currentPlan === 'free') return this.currentPlan === columnKey;
-    return this.currentPlan === columnKey && this.isCurrentAnnually === this.isAnnually;
+    if (this.currentPlan.key === 'free') return this.currentPlan.key === columnKey;
+    return this.currentPlan.key === columnKey && this.currentPlan.isAnnually === this.isAnnually;
+  }
+
+  getCaption(columnKey) {
+    if (this.currentPlan === columnKey) return 'Change';
+  }
+
+  isMoreExpensive (priceM) {
+    return parseInt(this.currentPlan.priceM) <= parseInt(priceM);
   }
 }

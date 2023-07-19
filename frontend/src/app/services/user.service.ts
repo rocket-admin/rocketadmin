@@ -12,7 +12,7 @@ import { Router } from '@angular/router';
   providedIn: 'root'
 })
 export class UserService {
-  public initialUserState = {
+  public initialUserState:User = {
     id: '',
     isActive: false,
     email: '',

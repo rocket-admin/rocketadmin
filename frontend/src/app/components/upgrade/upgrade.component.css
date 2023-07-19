@@ -48,6 +48,7 @@
 }
 
 .cell_centered {
+    padding: 0 4px 0 16px !important;
     text-align: center;
 }
 
@@ -112,3 +113,7 @@
     border-radius: 12px;
     overflow: hidden;
 }
+
+/* .plansTable :ng-deep.mdc-data-table__cell {
+    padding: 0 0 0 16px !important;
+} */

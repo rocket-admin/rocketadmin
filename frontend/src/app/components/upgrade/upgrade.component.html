@@ -41,11 +41,20 @@
                             Current
                         </button>
                         <ng-template #activeButton>
-                            <a mat-flat-button color="accent"
+                            <a mat-flat-button color="accent" *ngIf="isMoreExpensive(plan.priceM); else notCTAbutton"
                                 [disabled]="submitting"
-                                routerLink="/upgrade/payment">
-                                Try for free
-                        </a>
+                                routerLink="/upgrade/payment"
+                                [queryParams]="{plan: plan.key, period: isAnnually ? 'annually' : 'monthly'}">
+                                {{ currentPlan.key === plan.key && currentPlan.isAnnually !== isAnnually ? 'Change' : 'Upgrade' }}
+                            </a>
+                            <ng-template #notCTAbutton>
+                                <a mat-button
+                                    [disabled]="submitting"
+                                    routerLink="/upgrade/payment"
+                                    [queryParams]="{plan: plan.key, period: isAnnually ? 'annually' : 'monthly'}">
+                                    Downgrade
+                                </a>
+                            </ng-template>
                         </ng-template>
                     </div>
                 </ng-template>
@@ -63,7 +72,7 @@
             </colgroup>
             <ng-container *ngFor="let plan of plans" [matColumnDef]="plan.key">
                 <td mat-cell *matCellDef="let element"
-                    [ngClass]="{'cell_centered': plan.key !== 'title', cell_current: plan.key === currentPlan}">
+                    [ngClass]="{'cell_centered': plan.key !== 'title', cell_current: plan.key === currentPlan.key}">
                     <span *ngIf="element[plan.key] === true; else nonBoolValue">✓</span>
                     <ng-template #nonBoolValue>{{element[plan.key]}}</ng-template>
                 </td>
