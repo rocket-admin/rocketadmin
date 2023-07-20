@@ -1,4 +1,6 @@
 import { InTransactionEnum } from '../../../enums/index.js';
+import { AddStripeSetupIntentDs } from '../application/data-structures/add-stripe-setup-intent.ds.js';
+import { AddedStripeSetupIntentDs } from '../application/data-structures/added-stripe-setup-intent.ds.js';
 import { ChangeUserEmailDs } from '../application/data-structures/change-user-email.ds.js';
 import { ChangeUserNameDS } from '../application/data-structures/change-user-name.ds.js';
 import { ChangeUsualUserPasswordDs } from '../application/data-structures/change-usual-user-password.ds.js';
@@ -116,4 +118,8 @@ export interface IAuthGitHub {
 
 export interface IGetStripeIntentId {
   execute(userId: string, inTransaction: InTransactionEnum): Promise<StripeIntentDs>;
+}
+
+export interface IAddStripeSetupIntent {
+  execute(inputData: AddStripeSetupIntentDs, inTransaction: InTransactionEnum): Promise<AddedStripeSetupIntentDs>;
 }
