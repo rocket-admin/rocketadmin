@@ -32,4 +32,10 @@ export interface IStripeService {
   createPortalLink(user: UserEntity): Promise<string>;
 
   createStripeSetupIntent(userStripeId: string): Promise<ICreatedStripeSetupIntent | null>;
+
+  attachStripeSetupIntentToCustomer(
+    userStripeId: string,
+    defaultPaymentMethodId: string,
+    subscriptionLevel: SubscriptionLevelEnum,
+  ): Promise<ISubscriptionUpgradeResult>;
 }

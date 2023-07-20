@@ -4,7 +4,7 @@ import { SubscriptionLevelEnum } from '../../enums/subscription-level.enum.js';
 import { Messages } from '../../exceptions/text/messages.js';
 import { UserEntity } from '../user/user.entity.js';
 import { StripeWebhookDS } from './application/data-structures/stripe-webhook.ds.js';
-import { IStripeService } from './application/interfaces/stripe-service.interface.js';
+import { IStripeService, ISubscriptionUpgradeResult } from './application/interfaces/stripe-service.interface.js';
 
 @Injectable()
 export class PublicStripeService implements IStripeService {
@@ -30,6 +30,14 @@ export class PublicStripeService implements IStripeService {
   }
 
   public async createStripeSetupIntent(userStripeId: string): Promise<any> {
+    return null;
+  }
+
+  public async attachStripeSetupIntentToCustomer(
+    userStripeId: string,
+    defaultPaymentMethodId: string,
+    subscriptionLevel: SubscriptionLevelEnum,
+  ): Promise<ISubscriptionUpgradeResult> {
     return null;
   }
 }
