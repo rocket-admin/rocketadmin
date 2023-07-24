@@ -23,7 +23,6 @@ import { TableDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/sha
 import { UnknownSQLException } from '../../../exceptions/custom-exceptions/unknown-sql-exception.js';
 import { ExceptionOperations } from '../../../exceptions/custom-exceptions/exception-operation.js';
 import { TableInfoEntity } from '../../table-info/table-info.entity.js';
-import Sentry from '@sentry/node';
 
 @Injectable()
 export class FindTablesInConnectionUseCase
