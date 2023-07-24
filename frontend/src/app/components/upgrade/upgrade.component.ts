@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { User } from 'src/app/models/user';
 import { UserService } from 'src/app/services/user.service';
+import plans from '../../consts/plans';
 
 @Component({
   selector: 'app-upgrade',
@@ -57,14 +58,8 @@ export class UpgradeComponent implements OnInit {
     },
   ]
 
-  public displayedColumns = ['title', 'free', 'team', 'enterprise']
-
-  public plans = [
-    {key: 'title'},
-    {key: 'free', name: 'Free', priceM: '0', priceA: '0'},
-    {key: 'team', name: 'Team', priceM: '5', priceA: '50'},
-    {key: 'enterprise', name: 'Enterprise', priceM: '10', priceA: '100'},
-  ]
+  public plans = plans;
+  public displayedColumns = plans.map(plan => plan.key);
 
   constructor(
     private _userService: UserService,
@@ -93,7 +88,7 @@ export class UpgradeComponent implements OnInit {
     this.currentPlan = {
       key: currentPlanKey,
       isAnnually: this.isAnnually,
-      priceM: this.plans.find(plan => plan.key === currentPlanKey).priceM,
+      priceM: plans.find(plan => plan.key === currentPlanKey).priceM,
     };
 
     console.log(this.currentPlan);

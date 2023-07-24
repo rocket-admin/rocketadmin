@@ -9,6 +9,12 @@ import {
 } from '@stripe/stripe-js';
 import { HttpClient } from '@angular/common/http';
 import { FormBuilder, Validators } from '@angular/forms';
+import { SubscriptionPlans, User } from 'src/app/models/user';
+import { ActivatedRoute, Router } from '@angular/router';
+import plans from '../../consts/plans';
+import { NotificationsService } from 'src/app/services/notifications.service';
+import { AlertActionType, AlertType } from 'src/app/models/alert';
+import { addMonths, format } from 'date-fns'
 
 @Component({
   selector: 'app-payment-form',
@@ -45,25 +51,40 @@ export class PaymentFormComponent implements OnInit {
   constructor(
     private _paymentService: PaymentService,
     private _userService: UserService,
+    private _notifications: NotificationsService,
     private http: HttpClient,
     private fb: FormBuilder,
-    private stripeService: StripeService
+    private stripeService: StripeService,
+    private route: ActivatedRoute,
+    public router: Router,
   ) { }
 
-  public paymentElementForm;
+  public paymentElementForm = null;
+  public plan: 'team' | 'enterprise' | 'free';
+  public price: string;
+  public isAnnually: boolean;
+  public subscriptionLevel: string;
+  public nextPaymentDate: string;
 
   ngOnInit(): void {
-    this.paymentElementForm = this.fb.group({
-      name: ['', [Validators.required]],
-      email: ['', [Validators.required]],
-      address: [''],
-      zipcode: [''],
-      city: ['']
-    });
+    const queryParams = this.route.snapshot.queryParams;
+    this.plan = queryParams.plan;
+    this.isAnnually = queryParams.isAnnually;
+    const chosenPlan = plans.find(plan => plan.key === this.plan);
+    this.price = this.isAnnually ? chosenPlan.priceA : chosenPlan.priceM;
+    this.subscriptionLevel = `${ this.isAnnually ? 'ANNUAL_' : '' }${this.plan.toUpperCase()}_PLAN`;
+    this.nextPaymentDate = format(addMonths(new Date(), 1), 'P');
 
     this._userService.cast.subscribe(user => {
-      if (user) this._paymentService.intentToPay().subscribe(res => {
+      if (user) this._paymentService.createIntentToSubscription().subscribe(res => {
         console.log(res);
+        this.paymentElementForm = this.fb.group({
+          name: [user.name, [Validators.required]],
+          email: [user.email, [Validators.required]],
+          address: [''],
+          zipcode: [''],
+          city: ['']
+        });
         this.elementsOptions.clientSecret = res.stripeIntentSecret;
       });
     });
@@ -94,12 +115,30 @@ export class PaymentFormComponent implements OnInit {
         if (result.error) {
           // Show error to your customer (e.g., insufficient funds)
           console.log({ success: false, error: result.error.message });
+          this._notifications.showAlert(AlertType.Error, result.error.message, [
+            {
+              type: AlertActionType.Button,
+              caption: 'Dismiss',
+              action: (id: number) => this._notifications.dismissAlert()
+            }
+          ]);
         } else {
           // The payment has been processed!
           if (result.setupIntent.status === 'succeeded') {
-            // Show a success message to your customer
-            console.log({ success: true });
-            console.log(result.setupIntent.client_secret);
+            this._paymentService.createSubscription(result.setupIntent.payment_method, this.subscriptionLevel)
+              .subscribe(res => {
+                console.log(res);
+                this._notifications.showSuccessSnackbar('Payment successful');
+                this.router.navigate(['/upgrade']);
+              })
+          } else {
+            this._notifications.showAlert(AlertType.Error, result.error.message, [
+              {
+                type: AlertActionType.Button,
+                caption: 'Dismiss',
+                action: (id: number) => this._notifications.dismissAlert()
+              }
+            ]);
           }
         }
       });

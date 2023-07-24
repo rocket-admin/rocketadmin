@@ -1,6 +1,15 @@
+<app-alert></app-alert>
+
 <div class="payment-page">
     <h1 class="mat-h1" class="payment-page__header">Payment</h1>
-    <div [formGroup]="paymentElementForm" class="billing-form">
+    <div class="mat-body-1 plan-details">
+        <span>Plan:</span>
+        <strong class="plan-name">{{plan}}</strong>
+        <span>Price:</span>
+        <strong *ngIf="isAnnually">${{price}} / per user per year.</strong>
+        <strong *ngIf="!isAnnually">${{price}} / per user per month will be charged on {{nextPaymentDate}}.</strong>
+    </div>
+    <div *ngIf="paymentElementForm" [formGroup]="paymentElementForm" class="billing-form">
         <mat-form-field appearance="outline">
             <mat-label>Name</mat-label>
             <input matInput formControlName="name" />

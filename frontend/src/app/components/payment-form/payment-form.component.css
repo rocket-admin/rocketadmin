@@ -7,6 +7,10 @@
     margin: 2em 0 1em;
 }
 
+.plan-name {
+    text-transform: capitalize;
+}
+
 .billing-form {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -16,4 +20,10 @@
 
 .full-width {
     grid-column: 1 / span 2;
+}
+
+.plan-details {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    grid-gap: 12px 20px;
 }

@@ -41,6 +41,7 @@ export interface User {
     id: string,
     isActive: boolean,
     email: string,
+    name?: string,
     createdAt?: string,
     portal_link: string,
     subscriptionLevel: SubscriptionPlans

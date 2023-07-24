@@ -136,7 +136,7 @@ export class AppComponent {
         const expirationInterval = differenceInMilliseconds(expirationTime, new Date());
         setTimeout(() => {
           this.logOut(true);
-          this.router.navigate(['/login'])
+          this.router.navigate(['/login']);
         }, expirationInterval);
 
       } else if (res !== 'delete') {
