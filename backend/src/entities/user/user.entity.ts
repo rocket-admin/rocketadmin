@@ -11,6 +11,7 @@ import {
   Relation,
   BeforeUpdate,
   AfterLoad,
+  ManyToOne,
 } from 'typeorm';
 import { GroupEntity } from '../group/group.entity.js';
 import { UserActionEntity } from '../user-actions/user-action.entity.js';
@@ -21,6 +22,7 @@ import { PasswordResetEntity } from './user-password/password-reset.entity.js';
 import { EmailChangeEntity } from './user-email/email-change.entity.js';
 import { UserInvitationEntity } from './user-invitation/user-invitation.entity.js';
 import { GitHubUserIdentifierEntity } from './user-github-identifier/github-user-identifier.entity.js';
+import { CompanyInfoEntity } from '../company-info/company-info.entity.js';
 
 @Entity('user')
 export class UserEntity {
@@ -74,6 +76,10 @@ export class UserEntity {
   @JoinTable()
   connections: Relation<ConnectionEntity>[];
 
+  @ManyToOne((type) => CompanyInfoEntity, (company) => company.users)
+  @JoinTable()
+  company: Relation<CompanyInfoEntity>;
+
   @ManyToMany((type) => GroupEntity, (group) => group.users)
   @JoinTable()
   groups: Relation<GroupEntity>[];
@@ -101,7 +107,4 @@ export class UserEntity {
 
   @Column({ default: null })
   stripeId: string;
-
-  @Column('uuid', { array: true, default: [] })
-  companyIds: string[];
 }

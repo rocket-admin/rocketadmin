@@ -1,4 +1,4 @@
 export class RegisteredCompanyDS {
   userId: string;
-  companyIds: Array<string>;
+  companyId: string;
 }

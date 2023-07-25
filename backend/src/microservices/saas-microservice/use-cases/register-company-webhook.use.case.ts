@@ -6,6 +6,7 @@ import { ICompanyRegistration } from './saas-use-cases.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { Messages } from '../../../exceptions/text/messages.js';
+import { CompanyInfoEntity } from '../../../entities/company-info/company-info.entity.js';
 
 @Injectable()
 export class RegisteredCompanyWebhookUseCase
@@ -30,11 +31,23 @@ export class RegisteredCompanyWebhookUseCase
         HttpStatus.NOT_FOUND,
       );
     }
-    foundUser.companyIds.push(companyId);
+    const foundCompanyInfo = await this._dbContext.companyInfoRepository.findCompanyInfoWithUsersById(companyId);
+    if (foundCompanyInfo) {
+      throw new HttpException(
+        {
+          message: Messages.COMPANY_ALREADY_EXISTS,
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+    const newCompanyInfo = new CompanyInfoEntity();
+    newCompanyInfo.id = companyId;
+    newCompanyInfo.users = [foundUser];
+    const savedCompanyInfo = await this._dbContext.companyInfoRepository.save(newCompanyInfo);
     const savedUser = await this._dbContext.userRepository.saveUserEntity(foundUser);
     return {
       userId: savedUser.id,
-      companyIds: savedUser.companyIds,
+      companyId: savedCompanyInfo.id,
     };
   }
 }
