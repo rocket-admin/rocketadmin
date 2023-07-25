@@ -20,6 +20,11 @@ export class SentryInterceptor implements NestInterceptor {
               hostname: receivedConnectionHost,
             });
           }
+          if (exception.originalMessage) {
+            Sentry.setContext('original_exception_message', {
+              originalMessage: exception.originalMessage,
+            });
+          }
           Sentry.captureException(exception);
         }),
       );
