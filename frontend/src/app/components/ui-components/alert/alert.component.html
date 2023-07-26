@@ -13,15 +13,18 @@
     <div *ngIf="currentAlert.actions" class="actions">
         <ng-container *ngFor="let action of currentAlert.actions">
             <button mat-button type="button" *ngIf="action.type === 'button'"
+                attr.data-testid="{{action.testID}}"
                 (click)="onButtonClick(currentAlert, action)">
                 {{action.caption}}
             </button>
             <a mat-button *ngIf="action.type === 'external link'"
-                [href]="action.to" target="_blank">
+                [href]="action.to" target="_blank" attr.data-testid="{{action.testID}}">
                 {{action.caption}}
             </a>
             <a mat-button *ngIf="action.type === 'internal link'"
-                [routerLink]="action.to">{{action.caption}}</a>
+                [routerLink]="action.to" attr.data-testid="{{action.testID}}">
+                {{action.caption}}
+            </a>
         </ng-container>
     </div>
 </div>
