@@ -334,7 +334,7 @@ export const Constants = {
       GROUP_INVITE_TEXT_DATA: function (verificationString) {
         return `You have been added to a group in the Autoadmin project.
          Please follow the link and accept the invitation:
-           ${Constants.APP_DOMAIN_ADDRESS}/api/group/user/verify/${verificationString}/`;
+           ${Constants.APP_DOMAIN_ADDRESS}/external/group/user/verify/${verificationString}/`;
       },
       GROUP_INVITE_HTML_DATA: function (verificationString) {
         return `
@@ -345,7 +345,7 @@ export const Constants = {
           <p>
           You have been added to a group in the Autoadmin project.
           Please follow the link and accept the invitation:
-          <a href="${Constants.APP_DOMAIN_ADDRESS}/api/group/user/verify/${verificationString}"></a>
+          <a href="${Constants.APP_DOMAIN_ADDRESS}/external/group/user/verify/${verificationString}"></a>
           </p>
           <p>
             Thanks.

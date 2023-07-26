@@ -60,6 +60,7 @@ export class FindTablesInConnectionUseCase
       operationResult = true;
     } catch (e) {
       operationResult = false;
+      Sentry.captureException(e);
       throw new UnknownSQLException(e.message, ExceptionOperations.FAILED_TO_GET_TABLES);
     } finally {
       if (!connection.isTestConnection && tables && tables.length) {
