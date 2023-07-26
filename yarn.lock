@@ -1454,6 +1454,49 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@nestjs/microservices@npm:^10.0.5":
+  version: 10.0.5
+  resolution: "@nestjs/microservices@npm:10.0.5"
+  dependencies:
+    iterare: 1.2.1
+    tslib: 2.6.0
+  peerDependencies:
+    "@grpc/grpc-js": "*"
+    "@nestjs/common": ^10.0.0
+    "@nestjs/core": ^10.0.0
+    "@nestjs/websockets": ^10.0.0
+    amqp-connection-manager: "*"
+    amqplib: "*"
+    cache-manager: "*"
+    ioredis: "*"
+    kafkajs: "*"
+    mqtt: "*"
+    nats: "*"
+    reflect-metadata: ^0.1.12
+    rxjs: ^7.1.0
+  peerDependenciesMeta:
+    "@grpc/grpc-js":
+      optional: true
+    "@nestjs/websockets":
+      optional: true
+    amqp-connection-manager:
+      optional: true
+    amqplib:
+      optional: true
+    cache-manager:
+      optional: true
+    ioredis:
+      optional: true
+    kafkajs:
+      optional: true
+    mqtt:
+      optional: true
+    nats:
+      optional: true
+  checksum: a4ffd8ad36682220d84f084f26c49f4011edcfd46068fb359b601ebc786a7abe1697774e02b32829ca643329fc08f583199d68d4c66d84eaffb8a14865d7df54
+  languageName: node
+  linkType: hard
+
 "@nestjs/passport@npm:10.0.0":
   version: 10.0.0
   resolution: "@nestjs/passport@npm:10.0.0"
@@ -3151,6 +3194,7 @@ __metadata:
     "@nestjs/config": 3.0.0
     "@nestjs/core": 10.0.3
     "@nestjs/jwt": 10.1.0
+    "@nestjs/microservices": ^10.0.5
     "@nestjs/passport": 10.0.0
     "@nestjs/platform-express": 10.0.3
     "@nestjs/schedule": ^3.0.1
@@ -10847,6 +10891,13 @@ __metadata:
   version: 2.5.3
   resolution: "tslib@npm:2.5.3"
   checksum: 88902b309afaf83259131c1e13da1dceb0ad1682a213143a1346a649143924d78cf3760c448b84d796938fd76127183894f8d85cbb3bf9c4fddbfcc140c0003c
+  languageName: node
+  linkType: hard
+
+"tslib@npm:2.6.0":
+  version: 2.6.0
+  resolution: "tslib@npm:2.6.0"
+  checksum: c01066038f950016a18106ddeca4649b4d76caa76ec5a31e2a26e10586a59fceb4ee45e96719bf6c715648e7c14085a81fee5c62f7e9ebee68e77a5396e5538f
   languageName: node
   linkType: hard
 

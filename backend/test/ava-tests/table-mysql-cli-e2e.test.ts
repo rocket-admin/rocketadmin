@@ -124,7 +124,6 @@ test(`${currentTest} should return list of tables in connection`, async (t) => {
       .set('Accept', 'application/json');
     const createConnectionRO = JSON.parse(createConnectionResponse.text);
     t.is(createConnectionResponse.status, 201);
-
     const getTablesResponse = await request(app.getHttpServer())
       .get(`/connection/tables/${createConnectionRO.id}`)
       .set('Cookie', firstUserToken)

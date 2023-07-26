@@ -5,6 +5,7 @@ import {
   BeforeUpdate,
   Column,
   Entity,
+  JoinTable,
   ManyToOne,
   OneToMany,
   OneToOne,
@@ -20,6 +21,7 @@ import { TableInfoEntity } from '../table-info/table-info.entity.js';
 import { TableLogsEntity } from '../table-logs/table-logs.entity.js';
 import { TableSettingsEntity } from '../table-settings/table-settings.entity.js';
 import { UserEntity } from '../user/user.entity.js';
+import { CompanyInfoEntity } from '../company-info/company-info.entity.js';
 
 @Entity('connection')
 export class ConnectionEntity {
@@ -172,4 +174,8 @@ export class ConnectionEntity {
 
   @OneToMany((type) => TableInfoEntity, (table_info) => table_info.connection)
   tables_info: Relation<TableInfoEntity>[];
+
+  @ManyToOne((type) => CompanyInfoEntity, (company) => company.connections)
+  @JoinTable()
+  company: Relation<CompanyInfoEntity>;
 }

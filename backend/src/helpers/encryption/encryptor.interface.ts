@@ -5,6 +5,7 @@ import { TableSettingsEntity } from '../../entities/table-settings/table-setting
 import { AgentEntity } from '../../entities/agent/agent.entity.js';
 import { ConnectionPropertiesEntity } from '../../entities/connection-properties/connection-properties.entity.js';
 import { TableInfoEntity } from '../../entities/table-info/table-info.entity.js';
+import { CompanyInfoEntity } from '../../entities/company-info/company-info.entity.js';
 
 export interface IEncryptorInterfaceDTO {
   id: string;
@@ -40,4 +41,5 @@ export interface IEncryptorInterfaceDTO {
   tables_info: Array<TableInfoEntity>;
   saved_table_info?: number;
   signing_key: string;
+  company: CompanyInfoEntity;
 }
