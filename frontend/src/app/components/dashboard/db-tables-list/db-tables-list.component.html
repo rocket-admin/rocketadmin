@@ -16,11 +16,11 @@
                 (keyup)="serach()">
             <mat-error *ngIf="foundTables.length === 0">Nothing found.</mat-error>
         </mat-form-field>
-        <mat-nav-list data-test-id="tables-list">
-            <a mat-list-item *ngFor="let tableItem of foundTables" attr.data-test-id="table-{{tableItem.table}}-list-item"
+        <mat-nav-list data-testid="tables-list">
+            <a mat-list-item *ngFor="let tableItem of foundTables" attr.data-testid="table-{{tableItem.table}}-list-item"
                 routerLink="/dashboard/{{connectionID}}/{{tableItem.table}}"
                 [matTooltip]="getTableName(tableItem)"
-                [matTooltipDisabled]="getTableNameLength(getTableName(tableItem)) < 20 || collapsed"
+                [matTooltipDisabled]="getTableNameLength(getTableName(tableItem)) < 30 || collapsed"
                 matTooltipPosition="right"
                 [queryParams]="{page_index: 0, page_size: 30}"
                 routerLinkActive="list-item_active"

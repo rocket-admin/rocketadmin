@@ -39,6 +39,8 @@ import { TemporaryAuthMiddleware } from '../../authorization/temporary-auth.midd
 import { DisableOtpUseCase } from './use-cases/disable-otp.use.case.js';
 import { GetGitHubLoginLinkUseCase } from './use-cases/get-github-login-link.use.case.js';
 import { AuthenticateWithGitHubUseCase } from './use-cases/authenticate-with-github.use.case.js';
+import { GetStripeIntentIdUseCase } from './use-cases/get-stripe-intent-id.use.case.js';
+import { AddSetupIntentToCustomerUseCase } from './use-cases/add-setup-intent-to-customer.use.case.js';
 
 @Module({
   imports: [
@@ -149,6 +151,14 @@ import { AuthenticateWithGitHubUseCase } from './use-cases/authenticate-with-git
       provide: UseCaseType.AUTHENTICATE_WITH_GITHUB,
       useClass: AuthenticateWithGitHubUseCase,
     },
+    {
+      provide: UseCaseType.GET_STRIPE_INTENT_ID,
+      useClass: GetStripeIntentIdUseCase,
+    },
+    {
+      provide: UseCaseType.ADD_STRIPE_SETUP_INTENT_TO_CUSTOMER,
+      useClass: AddSetupIntentToCustomerUseCase,
+    },
     UserHelperService,
   ],
   controllers: [UserController],
@@ -171,6 +181,8 @@ export class UserModule implements NestModule {
         { path: 'user/otp/generate', method: RequestMethod.POST },
         { path: 'user/otp/verify', method: RequestMethod.POST },
         { path: 'user/otp/disable', method: RequestMethod.POST },
+        { path: 'user/stripe/intent', method: RequestMethod.POST },
+        { path: 'user/setup/intent', method: RequestMethod.POST },
       )
       .apply(TemporaryAuthMiddleware)
       .forRoutes({ path: 'user/otp/login', method: RequestMethod.POST });

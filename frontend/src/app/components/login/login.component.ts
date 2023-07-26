@@ -16,7 +16,9 @@ export class LoginComponent implements OnInit {
     email: '',
     password: ''
   };
+  public authCode: string;
   public submitting: boolean;
+  public is2FAShown: boolean = false;
 
   constructor(
     private _auth: AuthService,
@@ -51,14 +53,31 @@ export class LoginComponent implements OnInit {
   loginUser() {
     this.submitting = true;
     this._auth.loginUser(this.user)
-      .subscribe(() => {
+      .subscribe((res) => {
         this.submitting = false;
+        if (res.isTemporary) this.is2FAShown = true;
         this.angulartics2.eventTrack.next({
           action: 'Login: login success'
         });
       }, (error) => {
         this.angulartics2.eventTrack.next({
           action: 'Login: login unsuccess'
+        });
+        this.submitting = false;
+      }, () => this.submitting = false)
+  }
+
+  loginWith2FA() {
+    this.submitting = true;
+    this._auth.loginWith2FA(this.authCode)
+      .subscribe(() => {
+        this.submitting = false;
+        this.angulartics2.eventTrack.next({
+          action: 'Login: login with 2fa success'
+        });
+      }, (error) => {
+        this.angulartics2.eventTrack.next({
+          action: 'Login: login with 2fa unsuccess'
         });
         this.submitting = false;
       }, () => this.submitting = false)

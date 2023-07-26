@@ -35,7 +35,7 @@ export class AuthService {
             {
               type: AlertActionType.Button,
               caption: 'Dismiss',
-              action: (id: number) => this._notifications.dismissAlert()
+              action: () => this._notifications.dismissAlert()
             }
           ]);
           return EMPTY;
@@ -56,7 +56,28 @@ export class AuthService {
           {
             type: AlertActionType.Button,
             caption: 'Dismiss',
-            action: (id: number) => this._notifications.dismissAlert()
+            action: () => this._notifications.dismissAlert()
+          }
+        ]);
+        return EMPTY;
+      })
+    );
+  }
+
+  loginWith2FA(code: string) {
+    return this._http.post<any>('/user/otp/login', {otpToken: code})
+    .pipe(
+      map(res => {
+        this.auth.next(res);
+        return res
+      }),
+      catchError((err) => {
+        console.log(err);
+        this._notifications.showAlert(AlertType.Error, {abstract: err.error.message, details: err.error.originalMessage}, [
+          {
+            type: AlertActionType.Button,
+            caption: 'Dismiss',
+            action: () => this._notifications.dismissAlert()
           }
         ]);
         return EMPTY;
@@ -98,7 +119,7 @@ export class AuthService {
           {
             type: AlertActionType.Button,
             caption: 'Dismiss',
-            action: (id: number) => this._notifications.dismissAlert()
+            action: () => this._notifications.dismissAlert()
           }
         ]);
         return EMPTY;
@@ -120,7 +141,7 @@ export class AuthService {
           {
             type: AlertActionType.Button,
             caption: 'Dismiss',
-            action: (id: number) => this._notifications.dismissAlert()
+            action: () => this._notifications.dismissAlert()
           }
         ]);
         return EMPTY;

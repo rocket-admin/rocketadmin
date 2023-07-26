@@ -1,46 +1,62 @@
 <app-alert></app-alert>
 
-    <div class="wrapper">
+<div class="wrapper">
     <div class="login-page">
-        <form action="" class="login-form"
+        <form class="login-form"
+            [hidden]="is2FAShown"
             #loginForm="ngForm"
             (ngSubmit)="loginUser()">
             <h1 class="mat-h1">Welcome to Rocketadmin</h1>
 
             <mat-form-field appearance="outline">
                 <mat-label>Email</mat-label>
-                <input matInput type="email" name="email" data-test-id="login-email-input"
+                <input matInput type="email" name="email" emailValidator
+                    data-testid="login-email-input"
                     #email="ngModel" required
                     angulartics2On="change"
                     angularticsAction="Login: email is changed"
                     [(ngModel)]="user.email" >
-                <!-- <mat-error *ngIf="hostname.errors?.required && (hostname.invalid && hostname.touched)">Hostname should not be empty.</mat-error> -->
+                <mat-error *ngIf="email.errors?.isInvalidEmail">Invalid email format.</mat-error>
             </mat-form-field>
 
             <mat-form-field appearance="outline">
                 <mat-label>Password</mat-label>
-                <input matInput type="password" name="password" data-test-id="login-password-input"
+                <input matInput type="password" name="password" data-testid="login-password-input"
                     #password="ngModel" required
                     angulartics2On="change"
                     angularticsAction="Login: password is changed"
                     [(ngModel)]="user.password">
                 <mat-hint>
-                    <a routerLink="/forget-password" class="link" data-test-id="forgot-password-link">Forgot password</a>
+                    <a routerLink="/forget-password" class="link" data-testid="forgot-password-link">Forgot password</a>
                 </mat-hint>
                 <!-- <mat-error *ngIf="port.errors?.required && (port.invalid && port.touched)">Port should not be empty.</mat-error> -->
             </mat-form-field>
 
-            <button type="submit" mat-raised-button color="accent" data-test-id="login-button"
+            <button type="submit" mat-raised-button color="accent" data-testid="login-button"
                 class="login-button"
                 angulartics2On="click"
                 angularticsAction="Login: login is clicked"
                 [disabled]="submitting || loginForm.form.invalid || loginForm.form.pristine">
-                {{ submitting ? 'Submitting' : 'Login'}}
+                {{ submitting ? 'Submitting' : 'Log in'}}
             </button>
             <div class="divider"><span class="divider__label">or</span></div>
-            <div id="google_login_button" data-test-id="login-google-button"
+            <div id="google_login_button" data-testid="login-google-button"
                 angulartics2On="click"
                 angularticsAction="Login: login with google is clicked">
+            </div>
+        </form>
+
+        <form *ngIf="is2FAShown">
+            <div class="qr-verification">
+                <h2 class="mat-h2">Enter second factor code</h2>
+                <mat-form-field appearance="outline" class="user-settings__name">
+                    <mat-label>Enter the code from your authenticator</mat-label>
+                    <input matInput [(ngModel)]="authCode" name="code" #codeField="ngModel">
+                </mat-form-field>
+                <button type="submit" mat-button color="primary" class="qr-verification-button"
+                    (click)="loginWith2FA()">
+                    Verify
+                </button>
             </div>
         </form>
     </div>

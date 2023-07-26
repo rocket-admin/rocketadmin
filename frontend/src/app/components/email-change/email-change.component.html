@@ -4,9 +4,11 @@
     <form #newEmailForm="ngForm" class="new-email-form" (ngSubmit)="updateEmail()">
         <mat-form-field appearance="outline" class="email-input">
             <mat-label>Enter new email</mat-label>
-            <input type="email" matInput [(ngModel)]="newEmail" name="email" #email="ngModel" required>
+            <input type="email" matInput [(ngModel)]="newEmail" name="email" #email="ngModel" required emailValidator>
             <mat-error *ngIf="email.errors?.required && (email.invalid && email.touched)">Cannot be not empty.</mat-error>
+            <mat-error *ngIf="email.errors?.isInvalidEmail">Invalid email format.</mat-error>
         </mat-form-field>
+
         <button mat-raised-button color="primary" class="new-email-button"
             [disabled]="submitting || newEmailForm.form.invalid">
             Change

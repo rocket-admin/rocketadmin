@@ -105,7 +105,7 @@ export class DbTableSettingsComponent implements OnInit {
           this.tableSettings = res;
           this.listFieldsOrder = [...res.list_fields];
         };
-        if (res && res.list_fields && !res.list_fields.length) {
+        if (Object.keys(res).length === 0 || (res && res.list_fields && !res.list_fields.length)) {
           this.listFieldsOrder = [...this.fields];
         };
       }

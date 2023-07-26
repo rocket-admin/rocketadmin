@@ -13,8 +13,9 @@
     <mat-dialog-content>
         <mat-form-field appearance="outline">
             <mat-label>Enter user email</mat-label>
-            <input matInput [(ngModel)]="groupUserEmail" name="email" #email="ngModel" required>
+            <input matInput [(ngModel)]="groupUserEmail" name="email" #email="ngModel" required emailValidator>
             <mat-error *ngIf="email.errors?.required && (email.invalid && email.touched)">Title should not be empty.</mat-error>
+            <mat-error *ngIf="email.errors?.isInvalidEmail">Invalid email format.</mat-error>
         </mat-form-field>
     </mat-dialog-content>
     <mat-dialog-actions align="end">

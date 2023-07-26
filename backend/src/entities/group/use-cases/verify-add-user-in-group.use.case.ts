@@ -7,7 +7,7 @@ import { Messages } from '../../../exceptions/text/messages.js';
 import { Constants } from '../../../helpers/constants/constants.js';
 import { Encryptor } from '../../../helpers/encryption/encryptor.js';
 import { ValidationHelper } from '../../../helpers/validators/validation-helper.js';
-import { IStripeSerice } from '../../stripe/application/interfaces/stripe-service.interface.js';
+import { IStripeService } from '../../stripe/application/interfaces/stripe-service.interface.js';
 import { UserHelperService } from '../../user/user-helper.service.js';
 import { generateGwtToken, IToken } from '../../user/utils/generate-gwt-token.js';
 import { VerifyAddUserInGroupDs } from '../application/data-sctructures/verify-add-user-in-group.ds.js';
@@ -22,7 +22,7 @@ export class VerifyAddUserInGroupUseCase
     @Inject(BaseType.GLOBAL_DB_CONTEXT)
     protected _dbContext: IGlobalDatabaseContext,
     @Inject(DynamicModuleEnum.STRIPE_SERVICE)
-    private readonly stripeService: IStripeSerice,
+    private readonly stripeService: IStripeService,
     private readonly userHelperService: UserHelperService,
   ) {
     super();

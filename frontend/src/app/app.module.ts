@@ -49,7 +49,9 @@ import { DbTablesListComponent } from './components/dashboard/db-tables-list/db-
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { DynamicModule } from 'ng-dynamic-component';
 import { EmailChangeComponent } from './components/email-change/email-change.component';
+import { EmailValidationDirective } from "./directives/emailValidator.directive";
 import { EmailVerificationComponent } from './components/email-verification/email-verification.component';
+import { EnableTwoFADialogComponent } from './components/user-settings/enable-two-fa-dialog/enable-two-fa-dialog.component';
 import { EncodeUrlParamsSafelyInterceptor } from './services/url-params.interceptor';
 import { FileComponent } from './components/ui-components/row-fields/file/file.component';
 import { ForeignKeyComponent } from './components/ui-components/row-fields/foreign-key/foreign-key.component';
@@ -175,6 +177,7 @@ const saasExtraProviders = (environment as any).saas ? [
     PasswordValidationDirective,
     Base64ValidationDirective,
     HexValidationDirective,
+    EmailValidationDirective,
     BannerComponent,
     DbTableSettingsComponent,
     ConnectionSettingsComponent,
@@ -201,6 +204,7 @@ const saasExtraProviders = (environment as any).saas ? [
     ActionDeleteDialogComponent,
     UpgradeSuccessComponent,
     DbActionLinkDialogComponent,
+    EnableTwoFADialogComponent,
   ],
   entryComponents: [
     DbActionConfirmationDialogComponent,
@@ -252,7 +256,6 @@ const saasExtraProviders = (environment as any).saas ? [
     HttpClientModule,
     BrowserAnimationsModule,
     MaterialModule,
-    MatMenuModule,
     RouterModule,
     DynamicModule,
     NgmatTableQueryReflectorModule,

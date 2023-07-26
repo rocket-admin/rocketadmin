@@ -82,6 +82,7 @@ export const Messages = {
     `The field "${fieldName}" does not exists in this table or is excluded.`,
   FAILED_ADD_GROUP_IN_CONNECTION: 'Connection failed to add group in connection.',
   FAILED_ADD_PERMISSION_IN_GROUP: 'Failed to add permission in group.',
+  FAILED_TO_ADD_SETUP_INTENT_AND_SUBSCRIPTION: `Failed to add setup intent and create subscription`,
   FAILED_ADD_ROW_IN_TABLE: 'Failed to add row in table.',
   FAILED_ADD_USER_IN_GROUP: 'Failed to receive all user groups.',
   FAILED_CONNECTION_DELETE: 'Connection failed to delete.',

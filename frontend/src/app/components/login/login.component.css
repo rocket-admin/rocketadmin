@@ -23,6 +23,8 @@
     flex-direction: column;
 }
 
+[hidden] { display: none !important;}
+
 .login-button {
     margin-top: 20px;
 }
@@ -52,4 +54,13 @@
     background-color: #fff;
     font-size: 14px;
     padding: 0 16px;
+}
+
+.qr-verification {
+    display: flex;
+    flex-direction: column;
+}
+
+.qr-verification-button {
+    align-self: flex-end;
 }

@@ -83,8 +83,12 @@
     grid-column: 3 / span 2;
 }
 
-.connectForm__agentRadio {
-    margin-top: -1em;
+.connectForm__typeSwitch {
+    margin-bottom: 12px;
+}
+
+.connectForm__typeSwitch ::ng-deep .mat-button-toggle-checked {
+    background-color: rgba(0, 0, 0, 0.08) !important;
 }
 
 .radio-button {
@@ -123,7 +127,6 @@
 }
 
 .instruction {
-    margin-top: 20px;
     margin-bottom: 36px;
 }
 

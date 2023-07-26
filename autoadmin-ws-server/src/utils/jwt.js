@@ -1,4 +1,4 @@
-import jwt from 'jsonwebtoken';
+import jwt from 'jsonwebtoken'
 
 export async function signToken(agent) {
   const JWT_SECRET = process.env.JWT_SECRET;
