@@ -69,7 +69,7 @@ export class PaymentFormComponent implements OnInit {
   ngOnInit(): void {
     const queryParams = this.route.snapshot.queryParams;
     this.plan = queryParams.plan;
-    this.isAnnually = queryParams.isAnnually;
+    this.isAnnually = queryParams.period === 'annually';
     const chosenPlan = plans.find(plan => plan.key === this.plan);
     this.price = this.isAnnually ? chosenPlan.priceA : chosenPlan.priceM;
     this.subscriptionLevel = `${ this.isAnnually ? 'ANNUAL_' : '' }${this.plan.toUpperCase()}_PLAN`;

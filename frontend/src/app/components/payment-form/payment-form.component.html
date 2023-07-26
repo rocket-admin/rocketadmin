@@ -6,8 +6,8 @@
         <span>Plan:</span>
         <strong class="plan-name">{{plan}}</strong>
         <span>Price:</span>
-        <strong *ngIf="isAnnually">${{price}} / per user per year.</strong>
-        <strong *ngIf="!isAnnually">${{price}} / per user per month will be charged on {{nextPaymentDate}}.</strong>
+        <strong *ngIf="isAnnually">${{price}} / user, billed annually or after usage exceedes $300.</strong>
+        <strong *ngIf="!isAnnually">${{price}} / user , billed monthly.</strong>
     </div>
     <div *ngIf="paymentElementForm" [formGroup]="paymentElementForm" class="billing-form">
         <mat-form-field appearance="outline">
