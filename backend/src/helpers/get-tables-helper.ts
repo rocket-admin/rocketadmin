@@ -33,16 +33,12 @@ export async function listTables(knex: any, schema = null): Promise<Array<string
       const viewsOracle = (await knex.raw(query, bindings)).map((row) => row['VIEW_NAME']);
       return [...tablesOracle, ...viewsOracle];
     case 'Client_PG':
-      query = `SELECT table_name FROM information_schema.tables WHERE table_schema = ? AND table_catalog = ?`;
+      query = `SELECT table_name FROM information_schema.tables WHERE table_schema = ? AND table_catalog = current_database()`;
       bindingSchema = schema ? schema : 'public';
-      bindings = [bindingSchema, knex.client.database()];
+      bindings = [bindingSchema];
       const tablesPg: Array<string> = (await knex.raw(query, bindings)).rows.map((row) => row.table_name);
-      query = `SELECT table_name FROM information_schema.views WHERE table_schema = ? AND table_catalog = ?`;
-      bindingSchema = schema ? schema : 'public';
-      bindings = [bindingSchema, knex.client.database()];
-      const viewsPg: Array<string> = (await knex.raw(query, bindings)).rows.map((row) => row.table_name);
-
-      return [...tablesPg, ...viewsPg];
+      console.log({ tablesPg });
+      return tablesPg;
     case 'Client_SQLite3':
       query = "SELECT name AS table_name FROM sqlite_master WHERE type='table'";
       break;
