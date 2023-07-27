@@ -41,7 +41,7 @@ export class AppComponent {
   navigationTabs: object;
   currentUser: User;
   normalizedTableName;
-  upgradeButtonShown: boolean = true;
+  // upgradeButtonShown: boolean = true;
 
   // connectionID: string;
 
@@ -85,7 +85,7 @@ export class AppComponent {
   // }
 
   ngOnInit() {
-    this.upgradeButtonShown = (environment as any).saas;
+    // this.upgradeButtonShown = (environment as any).saas;
 
     this.navigationTabs = {
       'dashboard': {
@@ -134,14 +134,10 @@ export class AppComponent {
             }
         )
 
-        interval(5*60*1000).subscribe(() => {
-          this._user.fetchUser().subscribe((res: User) => this.currentUser = res);
-        });
-
         const expirationInterval = differenceInMilliseconds(expirationTime, new Date());
         setTimeout(() => {
           this.logOut(true);
-          this.router.navigate(['/login'])
+          this.router.navigate(['/login']);
         }, expirationInterval);
 
       } else if (res !== 'delete') {
@@ -165,10 +161,6 @@ export class AppComponent {
                   });
                 }
             );
-
-            interval(5*60*1000).subscribe(() => {
-              this._user.fetchUser().subscribe((res: User) => this.currentUser = res);
-            });
 
             setTimeout(() => {
               this.logOut(true);

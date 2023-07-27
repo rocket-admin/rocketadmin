@@ -28,6 +28,7 @@ import { UpgradeSuccessComponent } from './components/upgrade-success/upgrade-su
 import { UserDeletedSuccessComponent } from './components/user-deleted-success/user-deleted-success.component';
 import { UserSettingsComponent } from './components/user-settings/user-settings.component';
 import { UsersComponent } from './components/users/users.component';
+import { PaymentFormComponent } from './components/payment-form/payment-form.component';
 
 const routes: Routes = [
   {path: '', redirectTo: '/connections-list', pathMatch: 'full'},
@@ -45,6 +46,7 @@ const routes: Routes = [
   {path: 'user-settings', component: UserSettingsComponent, canActivate: [AuthGuard], title: 'User settings | Rocketadmin'},
   {path: 'change-password', component: PasswordChangeComponent, canActivate: [AuthGuard]},
   {path: 'upgrade', component: UpgradeComponent, canActivate: [AuthGuard], title: 'Upgrade | Rocketadmin'},
+  {path: 'upgrade/payment', component: PaymentFormComponent, canActivate: [AuthGuard], title: 'Payment | Rocketadmin'},
   {path: 'subscription/success', component: UpgradeSuccessComponent, canActivate: [AuthGuard], title: 'Upgraded successfully | Rocketadmin'},
   {path: 'edit-db/:connection-id', component: ConnectDBComponent, canActivate: [AuthGuard]},
   {path: 'connection-settings/:connection-id', component: ConnectionSettingsComponent, canActivate: [AuthGuard]},

@@ -8,7 +8,7 @@ import { Constants } from '../../../helpers/constants/constants.js';
 import { ConnectionEntity } from '../../connection/connection.entity.js';
 import { sendEmailConfirmation, sendInvitationToGroup } from '../../email/send-email.js';
 import { PermissionEntity } from '../../permission/permission.entity.js';
-import { IStripeSerice } from '../../stripe/application/interfaces/stripe-service.interface.js';
+import { IStripeService } from '../../stripe/application/interfaces/stripe-service.interface.js';
 import { TableSettingsEntity } from '../../table-settings/table-settings.entity.js';
 import { UserHelperService } from '../../user/user-helper.service.js';
 import { UserEntity } from '../../user/user.entity.js';
@@ -30,7 +30,7 @@ export class AddUserInGroupUseCase
     @Inject(BaseType.GLOBAL_DB_CONTEXT)
     protected _dbContext: IGlobalDatabaseContext,
     @Inject(DynamicModuleEnum.STRIPE_SERVICE)
-    private readonly stripeService: IStripeSerice,
+    private readonly stripeService: IStripeService,
     private readonly userHelperService: UserHelperService,
   ) {
     super();

@@ -36,6 +36,7 @@ import { UpgradeUserSubscriptionDs } from './application/data-structures/upgrade
 import { UsualLoginDs } from './application/data-structures/usual-login.ds.js';
 import { UsualRegisterUserDs } from './application/data-structures/usual-register-user.ds.js';
 import {
+  IAddStripeSetupIntent,
   IAuthGitHub,
   IChangeUserName,
   IDeleteUserAccount,
@@ -44,6 +45,7 @@ import {
   IFindUserUseCase,
   IGenerateOTP,
   IGetGitHubLoginLink,
+  IGetStripeIntentId,
   IGoogleLogin,
   ILogOut,
   IOtpLogin,
@@ -62,6 +64,8 @@ import {
 import { ITokenExp } from './utils/generate-gwt-token.js';
 import { OtpSecretDS } from './application/data-structures/otp-secret.ds.js';
 import { OtpValidationResultDS } from './application/data-structures/otp-validation-result.ds.js';
+import { StripeIntentDs } from './application/data-structures/stripe-intent-id.ds.js';
+import { AddStripeSetupIntentDs } from './application/data-structures/add-stripe-setup-intent.ds.js';
 
 @UseInterceptors(SentryInterceptor)
 @Controller()
@@ -112,6 +116,10 @@ export class UserController {
     private readonly getGithubLoginLinkUseCase: IGetGitHubLoginLink,
     @Inject(UseCaseType.AUTHENTICATE_WITH_GITHUB)
     private readonly authenticateWithGithubUseCase: IAuthGitHub,
+    @Inject(UseCaseType.GET_STRIPE_INTENT_ID)
+    private readonly getStripeIntentIdUseCase: IGetStripeIntentId,
+    @Inject(UseCaseType.ADD_STRIPE_SETUP_INTENT_TO_CUSTOMER)
+    private readonly addSetupIntentToCustomerUseCase: IAddStripeSetupIntent,
   ) {}
 
   @Get('user')
@@ -511,6 +519,33 @@ export class UserController {
       expires: tokenInfo.exp,
       isTemporary: tokenInfo.isTemporary,
     };
+  }
+
+  @Post('user/stripe/intent')
+  async getStripeIntent(@UserId() userId: string): Promise<StripeIntentDs> {
+    return await this.getStripeIntentIdUseCase.execute(userId, InTransactionEnum.OFF);
+  }
+
+  @Post('user/setup/intent')
+  async addSetupIntentToCustomer(
+    @UserId() userId: string,
+    @Body('defaultPaymentMethodId') defaultPaymentMethodId: string,
+    @Body('subscriptionLevel') subscriptionLevel: SubscriptionLevelEnum,
+  ): Promise<any> {
+    if (!validateStringWithEnum(subscriptionLevel, SubscriptionLevelEnum)) {
+      throw new HttpException(
+        {
+          message: Messages.SUBSCRIPTION_TYPE_INCORRECT(subscriptionLevel),
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+    const inputData: AddStripeSetupIntentDs = {
+      userId: userId,
+      defaultPaymentMethodId: defaultPaymentMethodId,
+      subscriptionLevel: subscriptionLevel,
+    };
+    return await this.addSetupIntentToCustomerUseCase.execute(inputData, InTransactionEnum.OFF);
   }
 
   private getCookieDomainOtions(): { domain: string } | undefined {

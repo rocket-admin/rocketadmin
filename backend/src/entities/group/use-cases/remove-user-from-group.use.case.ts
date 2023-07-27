@@ -4,7 +4,7 @@ import { IGlobalDatabaseContext } from '../../../common/application/global-datab
 import { BaseType, DynamicModuleEnum } from '../../../common/data-injection.tokens.js';
 import { SubscriptionLevelEnum } from '../../../enums/index.js';
 import { Messages } from '../../../exceptions/text/messages.js';
-import { IStripeSerice } from '../../stripe/application/interfaces/stripe-service.interface.js';
+import { IStripeService } from '../../stripe/application/interfaces/stripe-service.interface.js';
 import { AddUserInGroupDs } from '../application/data-sctructures/add-user-in-group.ds.js';
 import { RemoveUserFromGroupResultDs } from '../application/data-sctructures/remove-user-from-group-result.ds.js';
 import { buildRemoveUserFromGroupResultDs } from '../utils/build-remove-user-from-group-result.ds.js';
@@ -19,7 +19,7 @@ export class RemoveUserFromGroupUseCase
     @Inject(BaseType.GLOBAL_DB_CONTEXT)
     protected _dbContext: IGlobalDatabaseContext,
     @Inject(DynamicModuleEnum.STRIPE_SERVICE)
-    private readonly stripeService: IStripeSerice,
+    private readonly stripeService: IStripeService,
   ) {
     super();
   }

@@ -60,6 +60,9 @@ import { IGlobalDatabaseContext } from './global-database-context.interface.js';
 import { IUserGitHubIdentifierRepository } from '../../entities/user/user-github-identifier/repository/user-github-identifier-repository.interface.js';
 import { GitHubUserIdentifierEntity } from '../../entities/user/user-github-identifier/github-user-identifier.entity.js';
 import { userGitHubIdentifierCustomRepositoryExtension } from '../../entities/user/user-github-identifier/repository/user-github-identifier-custom-repository.extension.js';
+import { ICompanyInfoRepository } from '../../entities/company-info/repository/company-info-repository.interface.js';
+import { CompanyInfoEntity } from '../../entities/company-info/company-info.entity.js';
+import { companyInfoRepositoryExtension } from '../../entities/company-info/repository/company-info-custom-repository.extension.js';
 
 @Injectable()
 export class GlobalDatabaseContext implements IGlobalDatabaseContext {
@@ -86,6 +89,7 @@ export class GlobalDatabaseContext implements IGlobalDatabaseContext {
   private _tableInfoReposioty: Repository<TableInfoEntity>;
   private _tableActionRepository: ITableActionRepository;
   private _userGitHubIdentifierRepository: IUserGitHubIdentifierRepository;
+  private _companyInfoRepository: Repository<CompanyInfoEntity> & ICompanyInfoRepository;
 
   public constructor(
     @Inject(BaseType.DATA_SOURCE)
@@ -146,6 +150,9 @@ export class GlobalDatabaseContext implements IGlobalDatabaseContext {
     this._userGitHubIdentifierRepository = this.appDataSource
       .getRepository(GitHubUserIdentifierEntity)
       .extend(userGitHubIdentifierCustomRepositoryExtension);
+    this._companyInfoRepository = this.appDataSource
+      .getRepository(CompanyInfoEntity)
+      .extend(companyInfoRepositoryExtension);
   }
 
   public get userRepository(): IUserRepository {
@@ -230,6 +237,10 @@ export class GlobalDatabaseContext implements IGlobalDatabaseContext {
 
   public get userGitHubIdentifierRepository(): IUserGitHubIdentifierRepository {
     return this._userGitHubIdentifierRepository;
+  }
+
+  public get companyInfoRepository(): Repository<CompanyInfoEntity> & ICompanyInfoRepository {
+    return this._companyInfoRepository;
   }
 
   public startTransaction(): Promise<void> {

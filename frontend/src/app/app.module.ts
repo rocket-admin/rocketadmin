@@ -72,6 +72,7 @@ import { MaterialModule } from './modules/material.module';
 import { NewVersionComponent } from './components/new-version/new-version.component';
 import { NgJsonEditorModule } from 'ang-jsoneditor'
 import { NgmatTableQueryReflectorModule } from '@nghacks/ngmat-table-query-reflector';
+import { NgxStripeModule } from 'ngx-stripe';
 import { NotificationsService } from './services/notifications.service';
 import { NumberComponent } from './components/ui-components/row-fields/number/number.component';
 import { PageLoaderComponent } from './components/page-loader/page-loader.component';
@@ -81,6 +82,7 @@ import { PasswordComponent } from './components/ui-components/row-fields/passwor
 import { PasswordRequestComponent } from './components/password-request/password-request.component';
 import { PasswordResetComponent } from './components/password-reset/password-change.component';
 import { PasswordValidationDirective } from "./directives/passwordValidator.directive";
+import { PaymentFormComponent } from './components/payment-form/payment-form.component';
 import { PermissionsAddDialogComponent } from './components/users/permissions-add-dialog/permissions-add-dialog.component';
 import { PointComponent } from './components/ui-components/row-fields/point/point.component';
 import { RegistrationComponent } from './components/registration/registration.component';
@@ -204,6 +206,7 @@ const saasExtraProviders = (environment as any).saas ? [
     ActionDeleteDialogComponent,
     UpgradeSuccessComponent,
     DbActionLinkDialogComponent,
+    PaymentFormComponent,
     EnableTwoFADialogComponent,
   ],
   entryComponents: [
@@ -256,7 +259,6 @@ const saasExtraProviders = (environment as any).saas ? [
     HttpClientModule,
     BrowserAnimationsModule,
     MaterialModule,
-    MatMenuModule,
     RouterModule,
     DynamicModule,
     NgmatTableQueryReflectorModule,
@@ -269,6 +271,7 @@ const saasExtraProviders = (environment as any).saas ? [
     NgxThemeModule.forRoot(colorConfig, {
         frameworks: ['material'], // optional, default : ['tailwind', 'material']
     }),
+    NgxStripeModule.forRoot('pk_live_51JM8FBFtHdda1TsBR7nieMFVFigZAUXbPhQTNvaSyLynIW1lbfzO6rfqqIUn0JAGJRq9mrwKwrVCsDDFOs84M7pE006xDqNgHk'),
     ConfigModule.buildForConfigUrl('/config.json')
   ],
   bootstrap: [AppComponent],

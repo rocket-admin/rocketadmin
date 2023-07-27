@@ -13,13 +13,13 @@
 
 .plans {
     margin: 2em auto;
-    width: clamp(300px, 90%, 800px);
+    width: clamp(300px, 90%, 840px);
 }
 
 .header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+    display: grid;
+    grid-template-columns: 0 7fr repeat(3, 6fr);
+    grid-column-gap: 12px;
     margin-bottom: 1em;
 }
 
@@ -28,7 +28,7 @@
 }
 
 .toggle {
-    margin-right: -12px;
+    margin-left: -12px;
 }
 
 .toggle-label {
@@ -47,16 +47,50 @@
     width: 25%;
 }
 
-.cell-centered {
+.cell_centered {
+    padding: 0 4px 0 16px !important;
     text-align: center;
+}
+
+.cell_current {
+    background: linear-gradient(to right, transparent 12px, rgba(0, 0, 0, 0.04) 12px, rgba(0, 0, 0, 0.04));
 }
 
 .plan-header {
     display: flex;
     flex-direction: column;
-    align-items: center;
+    align-items: flex-start;
+    border-radius: 12px;
     color: rgba(0, 0, 0, 0.87);
-    padding: 2em 0;
+    padding: 1.5em;
+}
+
+.plan-header-name {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 16px;
+    width: 100%;
+}
+
+.plan-header h3 {
+    margin-bottom: 0;
+}
+
+.plan-badge {
+    background-color: var(--color-primaryPalette-100) !important;
+    border-radius: 4px;
+    font-size: 0.75em;
+    opacity: 1 !important;
+    height: 20px;
+}
+
+.plan-badge ::ng-deep .mdc-evolution-chip__action--primary {
+    padding-left: 4px !important;
+    padding-right: 4px !important;
+}
+
+.plan-badge ::ng-deep .mat-mdc-chip-action-label {
+    color: var(--color-primaryPalette-200-contrast) !important;
 }
 
 .price {
@@ -71,5 +105,15 @@
 }
 
 .current {
-    color: #3258F0;
+    background: transparent !important;
+    margin-left: -16px;
 }
+
+.plansTable {
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+/* .plansTable :ng-deep.mdc-data-table__cell {
+    padding: 0 0 0 16px !important;
+} */

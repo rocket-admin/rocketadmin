@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { User } from 'src/app/models/user';
 import { UserService } from 'src/app/services/user.service';
+import plans from '../../consts/plans';
 
 @Component({
   selector: 'app-upgrade',
@@ -10,8 +11,11 @@ import { UserService } from 'src/app/services/user.service';
 export class UpgradeComponent implements OnInit {
   public currentUser: User;
   public id = '1234567890';
-  public currentPlan;
-  public isCurrentAnnually = false;
+  public currentPlan = {
+    key: 'free',
+    isAnnually: false,
+    priceM: '0',
+  };
   public isAnnually = false;
   public submitting = false;
 
@@ -20,7 +24,7 @@ export class UpgradeComponent implements OnInit {
       title: 'Database',
       free: 'MySQL, PostgreSQL',
       team: 'MySQL, PostgreSQL',
-      enterprise: 'MySQL, PostgreSQL, Microsoft SQL, Oracle'
+      enterprise: 'MySQL, PostgreSQL, \n Microsoft SQL, Oracle'
     },
     {
       title: 'User access',
@@ -54,14 +58,8 @@ export class UpgradeComponent implements OnInit {
     },
   ]
 
-  public displayedColumns = ['title', 'free', 'team', 'enterprise']
-
-  public columns = [
-    {key: 'title'},
-    {key: 'free', name: 'Free', priceM: '0', priceA: '0'},
-    {key: 'team', name: 'Team', priceM: '5', priceA: '50'},
-    {key: 'enterprise', name: 'Enterprise', priceM: '10', priceA: '100'},
-  ]
+  public plans = plans;
+  public displayedColumns = plans.map(plan => plan.key);
 
   constructor(
     private _userService: UserService,
@@ -69,41 +67,58 @@ export class UpgradeComponent implements OnInit {
 
   ngOnInit(): void {
     this._userService.cast.subscribe(user => {
+      // user.subscriptionLevel = "ANNUAL_ENTERPRISE_PLAN";
       this.setUser(user);
     });
   }
 
-  setUser(user) {
+  setUser(user: User) {
     console.log(user);
     this.currentUser = user;
-    // this.currentPlan = user.subscriptionLevel;
+    // this.currentUser.subscriptionLevel = "FREE_PLAN";
 
-    // if (user.subscriptionLevel.startsWith('ANNUAL_')) {
-    //   this.isAnnually = true;
-    //   this.isCurrentAnnually = true;
-    //   this.currentPlan = this.currentPlan.substring(7);
-    // }
+    let currentPlanKey = this.currentUser.subscriptionLevel || 'FREE_PLAN';
+    if (this.currentUser.subscriptionLevel.startsWith('ANNUAL_')) {
+      this.isAnnually = true;
+      currentPlanKey = currentPlanKey.substring(7);
+    }
 
-    // this.currentPlan = this.currentPlan.slice(0, -5).toLowerCase();
+    currentPlanKey = currentPlanKey.slice(0, -5).toLowerCase();
+
+    this.currentPlan = {
+      key: currentPlanKey,
+      isAnnually: this.isAnnually,
+      priceM: plans.find(plan => plan.key === currentPlanKey).priceM,
+    };
+
+    console.log(this.currentPlan);
   }
 
-  upgradePlan(plan, isAnnually: boolean) {
-    this.submitting = true;
-    let subscriptionLevel = `${plan.toUpperCase()}_PLAN`;
-    if (isAnnually && plan !== 'free') subscriptionLevel = `ANNUAL_${subscriptionLevel}`;
-    this._userService.upgradeUser(subscriptionLevel).subscribe(() => {
-      this._userService.fetchUser().subscribe(() => {
-          this.submitting = false;
-          this.isCurrentAnnually = this.isAnnually
-        }
-      );
-    },
-    () => this.submitting = false,
-    () => this.submitting = false);
-  }
+  // upgradePlan(plan, isAnnually: boolean) {
+  //   this.submitting = true;
+  //   let subscriptionLevel = `${plan.toUpperCase()}_PLAN`;
+  //   if (isAnnually && plan !== 'free') subscriptionLevel = `ANNUAL_${subscriptionLevel}`;
+  //   this._userService.upgradeUser(subscriptionLevel).subscribe(() => {
+  //     this._userService.fetchUser().subscribe(() => {
+  //         this.submitting = false;
+  //         this.isCurrentAnnually = this.isAnnually
+  //       }
+  //     );
+  //   },
+  //   () => this.submitting = false,
+  //   () => this.submitting = false);
+  // }
 
   isCurrent(columnKey) {
-    if (this.currentPlan === 'free') return this.currentPlan === columnKey;
-    return this.currentPlan === columnKey && this.isCurrentAnnually === this.isAnnually;
+    if (this.currentPlan.key === 'free') return this.currentPlan.key === columnKey;
+    return this.currentPlan.key === columnKey && this.currentPlan.isAnnually === this.isAnnually;
+  }
+
+  getCaption(columnKey) {
+    if (this.currentPlan === columnKey) return 'Change';
+  }
+
+  isMoreExpensive (priceM) {
+    return parseInt(this.currentPlan.priceM) <= parseInt(priceM);
   }
 }

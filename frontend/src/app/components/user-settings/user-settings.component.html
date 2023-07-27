@@ -10,9 +10,9 @@
         <form class="user-settings__section-heading" (ngSubmit)="changeUserName()">
             <mat-form-field appearance="outline" class="user-settings__name">
                 <mat-label>Name</mat-label>
-                <input matInput [(ngModel)]="userName" name="userName" #nameField="ngModel" data-test-id="user-name-input">
+                <input matInput [(ngModel)]="userName" name="user-name" #nameField="ngModel" data-testid="user-name-input">
             </mat-form-field>
-            <button type="submit" mat-button color="primary" data-test-id="save-user-name-button"
+            <button type="button" mat-button color="primary" data-testid="save-user-name-button"
                 class="user-settings__save-button"
                 [disabled]="!nameField.dirty || submittingChangedName">
                 Save
@@ -24,7 +24,7 @@
             <strong>Email:</strong>
             <span class="mat-body-1 user-settings__value">{{currentUser.email}}</span>
         </div>
-        <button mat-button color="primary" data-test-id="user-settings__button"
+        <button mat-button color="primary" data-testid="user-settings__button"
                 class="user-settings__button"
                 [disabled]="!currentUser.isActive"
                 (click)="changeEmail()">
@@ -34,7 +34,7 @@
         <div class="user-settings__section-heading">
             <strong>Password:</strong>
         </div>
-        <a mat-button routerLink="/change-password" color="primary" data-test-id="change-user-password-link"
+        <a mat-button routerLink="/change-password" color="primary" data-testid="change-user-password-link"
             [disabled]="!currentUser.isActive"
             class="user-settings__button">
             Change password
@@ -50,17 +50,11 @@
                 </span>
             </span>
         </div>
-        <a *ngIf="currentUser.portal_link; else updgadePageLink" mat-button color="accent"
-            class="user-settings__button"
-            [href]="currentUser.portal_link" target="_blank">
+        <a mat-button color="accent" class="upgrade-button"
+            routerLink="/upgrade"
+            class="user-settings__button">
             Manage payment settings
         </a>
-        <ng-template #updgadePageLink>
-            <a mat-button color="accent" class="user-settings__button"
-                routerLink="/upgrade">
-                Manage payment settings
-            </a>
-        </ng-template>
 
 
         <div>
@@ -85,9 +79,8 @@
                     Disable
                 </button>
             </form>
-
-
         </div>
+
     </div>
 
     <button mat-button class="delete-button"

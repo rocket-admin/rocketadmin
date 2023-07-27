@@ -1,0 +1,45 @@
+<app-alert></app-alert>
+
+<div class="payment-page">
+    <h1 class="mat-h1" class="payment-page__header">Payment</h1>
+    <div class="mat-body-1 plan-details">
+        <span>Plan:</span>
+        <strong class="plan-name">{{plan}}</strong>
+        <span>Price:</span>
+        <strong *ngIf="isAnnually">${{price}} / user, billed annually or after usage exceedes $300.</strong>
+        <strong *ngIf="!isAnnually">${{price}} / user , billed monthly.</strong>
+    </div>
+    <div *ngIf="paymentElementForm" [formGroup]="paymentElementForm" class="billing-form">
+        <mat-form-field appearance="outline">
+            <mat-label>Name</mat-label>
+            <input matInput formControlName="name" />
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+            <mat-label>Email</mat-label>
+            <input matInput type="email" formControlName="email" />
+        </mat-form-field>
+        <mat-form-field class="full-width" appearance="outline">
+            <mat-label>Address</mat-label>
+            <input matInput formControlName="address" />
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+            <mat-label>ZIP Code</mat-label>
+            <input matInput formControlName="zipcode" />
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+            <mat-label>City</mat-label>
+            <input matInput formControlName="city" />
+        </mat-form-field>
+        <div *ngIf="elementsOptions?.clientSecret as clientSecret"
+            class="full-width">
+            <ngx-stripe-payment [clientSecret]="clientSecret">
+            </ngx-stripe-payment>
+        </div>
+        <button mat-flat-button color="accent"
+            class="full-width"
+            (click)="pay()">
+            PAY
+        </button>
+    </div>
+</div>
+

@@ -61,13 +61,9 @@ class ConfigService {
       migrations: [join(__dirname, '..', '..', 'migrations', '*.{ts,js}')],
       synchronize: false,
       migrationsRun: false,
-      // maxQueryExecutionTime: 50,
-      // ssl: this.isProduction(),
       logging: false,
       extra: {
         max: 2,
-        // idle_in_transaction_session_timeout: 10*1000,
-        //  idle_in_transaction_session_timeout: 1000,
       },
       logger: 'advanced-console',
     };
