@@ -9,4 +9,5 @@ export class FoundUserDs {
   subscriptionLevel?: SubscriptionLevelEnum;
   intercom_hash?: string;
   name: string;
+  is_2fa_enabled: boolean;
 }

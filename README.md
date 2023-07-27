@@ -23,23 +23,14 @@ docker run -d \
   -e DATABASE_URL=postgresql://username:password@host/database \
   -e JWT_SECRET=<jwt_secret> \
   -e PRIVATE_KEY=<private_key> \
+  -e TEMPORARY_JWT_SECRET=<temporary_jwt_secret>
+  -e APP_DOMAIN_ADDRESS=https://rocketadmin.yourcompany.internal
   -p 8080:8080 \
   --name rocketadmin \
   rocketadmin/rocketadmin
 ```
 
-5. The `PRIVATE_KEY` is optional and if you don't want to set it, simply remove the corresponding line:
-
-```bash
-docker run -d \
-  -e DATABASE_URL=postgresql://username:password@host/database \
-  -e JWT_SECRET=<jwt_secret> \
-  -p 8080:8080 \
-  --name rocketadmin \
-  rocketadmin/rocketadmin
-```
-
-6. Your `rocketadmin/rocketadmin` container should now be running and accessible on port 8080 of your host system. You can verify that the container is running by executing:
+5. Your `rocketadmin/rocketadmin` container should now be running and accessible on port 8080 of your host system. You can verify that the container is running by executing:
 
 ```bash
 docker ps

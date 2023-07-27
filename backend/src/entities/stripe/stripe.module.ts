@@ -22,11 +22,12 @@ import { isSaaS } from '../../helpers/app/is-saas.js';
       provide: DynamicModuleEnum.STRIPE_SERVICE,
       useFactory: async () => {
         try {
-          if (!isSaaS()) {
-            throw new Error(`Loading private stripe service in non SaaS mode probably
-             is an error. Private stripe service should be loaded only in SaaS mode.`);
-          }
           console.info(`Loading private stripe service...`);
+          if (!isSaaS() || process.env.NODE_ENV === 'test') {
+            throw new Error(
+              `Loading private stripe service in non SaaS mode probably is an error. Private stripe service should be loaded only in SaaS mode.`,
+            );
+          }
           const stripeService =
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore
@@ -34,12 +35,14 @@ import { isSaaS } from '../../helpers/app/is-saas.js';
               .PrivateStripeService;
           return new stripeService();
         } catch (error) {
+          console.error(`Error loading private stripe service: ${error.message}`);
+          console.info(`Loading public stripe service...`);
           if (isSaaS() && process.env.NODE_ENV !== 'test') {
-            console.warn(`Loading public stripe service in SaaS mode probably
-            //  is an error. Public stripe service should be loaded only in SaaS mode.`);
+            console.warn(
+              `Loading public stripe service in SaaS mode probably is an error. Public stripe service should be loaded only in non - SaaS mode.`,
+            );
           }
           const publicStripeService = (await import('./public-stripe-service.js')).PublicStripeService;
-          console.info(`Loading public stripe service...`);
           return new publicStripeService();
         }
       },

@@ -34,7 +34,18 @@
             </mat-select>
         </mat-form-field>
 
-        <div class="connectForm__fullLine connectForm__agentRadio">
+        <div class="connectForm__fullLine">
+            <mat-button-toggle-group name="connectionType"
+                class="connectForm__typeSwitch"
+                [disabled]="submitting"
+                [(ngModel)]="db.connectionType">
+                <mat-button-toggle value="direct">Direct connection</mat-button-toggle>
+                <mat-button-toggle value="agent">Agent connection</mat-button-toggle>
+            </mat-button-toggle-group>
+        </div>
+
+
+        <!--<div class="connectForm__fullLine connectForm__agentRadio">
             <mat-radio-group required
                 name="connectionType"
                 class="radio-group"
@@ -47,7 +58,7 @@
                     Agent connection
                 </mat-radio-button>
             </mat-radio-group>
-        </div>
+        </div>-->
 
         <div *ngIf="db && db.connectionType === 'direct'" class="connectForm__fullLine">
             <div *ngIf="connectionID; else warningAlert" class="warningMessage">
@@ -305,7 +316,7 @@
 
             <div class="docker-instruction">
                 <mat-accordion>
-                    <mat-expansion-panel>
+                    <mat-expansion-panel [expanded]="true">
                         <mat-expansion-panel-header>
                             <mat-panel-title>
                                 Installation

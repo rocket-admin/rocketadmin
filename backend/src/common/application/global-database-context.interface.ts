@@ -20,6 +20,9 @@ import { IUserInvitationRepository } from '../../entities/user/user-invitation/r
 import { IPasswordResetRepository } from '../../entities/user/user-password/repository/password-reset-repository.interface.js';
 import { ITableWidgetsRepository } from '../../entities/widget/repository/table-widgets-repository.interface.js';
 import { IDatabaseContext } from '../database-context.interface.js';
+import { IUserGitHubIdentifierRepository } from '../../entities/user/user-github-identifier/repository/user-github-identifier-repository.interface.js';
+import { CompanyInfoEntity } from '../../entities/company-info/company-info.entity.js';
+import { ICompanyInfoRepository } from '../../entities/company-info/repository/company-info-repository.interface.js';
 
 export interface IGlobalDatabaseContext extends IDatabaseContext {
   userRepository: IUserRepository;
@@ -42,4 +45,6 @@ export interface IGlobalDatabaseContext extends IDatabaseContext {
   tableInfoRepository: Repository<TableInfoEntity>;
   tableFieldInfoRepository: Repository<TableFieldInfoEntity>;
   tableActionRepository: ITableActionRepository;
+  userGitHubIdentifierRepository: IUserGitHubIdentifierRepository;
+  companyInfoRepository: Repository<CompanyInfoEntity> & ICompanyInfoRepository;
 }

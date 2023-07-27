@@ -1,0 +1,23 @@
+<h1 mat-dialog-title>Enable 2FA</h1>
+<form #twoFAform="ngForm" (ngSubmit)="verify2FA()">
+    <mat-dialog-content>
+        <p class="mat-body-1">Scan this QR code with 2FA application</p>
+
+        <img [src]="qr" class="qr-verification-image" alt="qr">
+
+        <br />
+        <mat-form-field appearance="outline" class="authenticator-code">
+            <mat-label>Enter the code from your authenticator</mat-label>
+            <input matInput [(ngModel)]="secondFAQRCode" name="code" #codeField="ngModel" required>
+        </mat-form-field>
+
+    </mat-dialog-content>
+    <mat-dialog-actions align="end">
+        <button mat-raised-button mat-dialog-close>Cancel</button>
+        <button mat-raised-button color="primary" type="submit"
+            mat-dialog-close="enable"
+            [disabled]="submitting || twoFAform.form.invalid">
+                Enable
+        </button>
+    </mat-dialog-actions>
+</form>

@@ -1,4 +1,6 @@
 import { InTransactionEnum } from '../../../enums/index.js';
+import { AddStripeSetupIntentDs } from '../application/data-structures/add-stripe-setup-intent.ds.js';
+import { AddedStripeSetupIntentDs } from '../application/data-structures/added-stripe-setup-intent.ds.js';
 import { ChangeUserEmailDs } from '../application/data-structures/change-user-email.ds.js';
 import { ChangeUserNameDS } from '../application/data-structures/change-user-name.ds.js';
 import { ChangeUsualUserPasswordDs } from '../application/data-structures/change-usual-user-password.ds.js';
@@ -9,8 +11,13 @@ import { FoundUserDs } from '../application/data-structures/found-user.ds.js';
 import { GoogleLoginDs } from '../application/data-structures/google-login.ds.js';
 import { OperationResultMessageDs } from '../application/data-structures/operation-result-message.ds.js';
 import { OtpSecretDS } from '../application/data-structures/otp-secret.ds.js';
+import {
+  OtpDisablingResultDS,
+  OtpValidationResultDS,
+} from '../application/data-structures/otp-validation-result.ds.js';
 import { RegisteredUserDs } from '../application/data-structures/registered-user.ds.js';
 import { ResetUsualUserPasswordDs } from '../application/data-structures/reset-usual-user-password.ds.js';
+import { StripeIntentDs } from '../application/data-structures/stripe-intent-id.ds.js';
 import { UpgradeUserSubscriptionDs } from '../application/data-structures/upgrade-user-subscription.ds.js';
 import { UpgradedUserSubscriptionDs } from '../application/data-structures/upgraded-user-subscription.ds.js';
 import { UsualLoginDs } from '../application/data-structures/usual-login.ds.js';
@@ -34,7 +41,7 @@ export interface IUsualLogin {
 }
 
 export interface IOtpLogin {
-  execute(temporaryJwtToken: string, inTransaction: InTransactionEnum): Promise<IToken>;
+  execute(inputData: VerifyOtpDS, inTransaction: InTransactionEnum): Promise<IToken>;
 }
 
 export interface IUsualRegister {
@@ -94,5 +101,25 @@ export interface IGenerateOTP {
 }
 
 export interface IVerifyOTP {
-  execute(inputData: VerifyOtpDS, inTransaction: InTransactionEnum): Promise<any>;
+  execute(inputData: VerifyOtpDS, inTransaction: InTransactionEnum): Promise<OtpValidationResultDS>;
+}
+
+export interface IDisableOTP {
+  execute(inputData: VerifyOtpDS, inTransaction: InTransactionEnum): Promise<OtpDisablingResultDS>;
+}
+
+export interface IGetGitHubLoginLink {
+  execute(inTransaction: InTransactionEnum): Promise<string>;
+}
+
+export interface IAuthGitHub {
+  execute(code: string, inTransaction: InTransactionEnum): Promise<IToken>;
+}
+
+export interface IGetStripeIntentId {
+  execute(userId: string, inTransaction: InTransactionEnum): Promise<StripeIntentDs>;
+}
+
+export interface IAddStripeSetupIntent {
+  execute(inputData: AddStripeSetupIntentDs, inTransaction: InTransactionEnum): Promise<AddedStripeSetupIntentDs>;
 }

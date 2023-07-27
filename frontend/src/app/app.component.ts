@@ -112,7 +112,8 @@ export class AppComponent {
 
     document.cookie = "G_AUTH2_MIGRATION=informational";
     this._auth.cast.subscribe( res =>  {
-      if (res.expires) {
+      if (!res.isTemporary && res.expires) {
+        console.log(res);
         const expirationTime = new Date(res.expires);
         if (expirationTime) localStorage.setItem('token_expiration', expirationTime.toString());
 

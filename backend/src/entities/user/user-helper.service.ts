@@ -4,7 +4,7 @@ import { BaseType, DynamicModuleEnum } from '../../common/data-injection.tokens.
 import { SubscriptionLevelEnum } from '../../enums/subscription-level.enum.js';
 import { isSaaS } from '../../helpers/app/is-saas.js';
 import { Constants } from '../../helpers/constants/constants.js';
-import { IStripeSerice } from '../stripe/application/interfaces/stripe-service.interface.js';
+import { IStripeService } from '../stripe/application/interfaces/stripe-service.interface.js';
 import { FoundUserInGroupDs } from './application/data-structures/found-user-in-group.ds.js';
 import { FoundUserDs } from './application/data-structures/found-user.ds.js';
 import { UserEntity } from './user.entity.js';
@@ -16,7 +16,7 @@ export class UserHelperService {
     @Inject(BaseType.GLOBAL_DB_CONTEXT)
     private readonly _dbContext: IGlobalDatabaseContext,
     @Inject(DynamicModuleEnum.STRIPE_SERVICE)
-    private readonly stripeService: IStripeSerice,
+    private readonly stripeService: IStripeService,
   ) {}
 
   public async checkOwnerInviteAbility(ownerId: string, usersCount: number): Promise<boolean> {
@@ -57,6 +57,7 @@ export class UserHelperService {
       subscriptionLevel: userSubscriptionLevel,
       intercom_hash: intercomHash,
       name: user.name,
+      is_2fa_enabled: user.otpSecretKey !== null && user.isOTPEnabled,
     };
   }
 }

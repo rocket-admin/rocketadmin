@@ -36,9 +36,9 @@ const routes: Routes = [
   {path: 'registration', component: RegistrationComponent, title: 'Sign up | Rocketadmin'},
   {path: 'login', component: LoginComponent, title: 'Login | Rocketadmin'},
   {path: 'forget-password', component: PasswordRequestComponent, title: 'Request password | Rocketadmin'},
-  {path: 'api/user/password/reset/verify/:verification-token', component: PasswordResetComponent, title: 'Reset password | Rocketadmin'},
-  {path: 'api/user/email/verify/:verification-token', component: EmailVerificationComponent, title: 'Email verification | Rocketadmin'},
-  {path: 'api/user/email/change/verify/:change-token', component: EmailChangeComponent, title: 'Email updating | Rocketadmin'},
+  {path: 'external/user/password/reset/verify/:verification-token', component: PasswordResetComponent, title: 'Reset password | Rocketadmin'},
+  {path: 'external/user/email/verify/:verification-token', component: EmailVerificationComponent, title: 'Email verification | Rocketadmin'},
+  {path: 'external/user/email/change/verify/:change-token', component: EmailChangeComponent, title: 'Email updating | Rocketadmin'},
   {path: 'deleted', component: UserDeletedSuccessComponent, title: 'User deleted | Rocketadmin'},
   {path: 'new-version', component: NewVersionComponent, title: 'New version | Rocketadmin'},
   {path: 'connect-db', component: ConnectDBComponent, canActivate: [AuthGuard], title: 'Add new database | Rocketadmin'},
@@ -63,7 +63,7 @@ const routes: Routes = [
   {path: 'dashboard/:connection-id/:table-name/settings', pathMatch: 'full', component: DbTableSettingsComponent, canActivate: [AuthGuard]},
   {path: 'dashboard/:connection-id/:table-name/actions', pathMatch: 'full', component: DbTableActionsComponent, canActivate: [AuthGuard]},
   {path: 'users/:connection-id', component: UsersComponent, canActivate: [AuthGuard]},
-  {path: 'api/group/user/verify/:verification-token', component: GroupUserVerificationComponent},
+  {path: 'external/group/user/verify/:verification-token', component: GroupUserVerificationComponent},
   {path: '**', component: PageNotFoundComponent},
 ];
 

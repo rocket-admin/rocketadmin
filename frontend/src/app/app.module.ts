@@ -49,7 +49,9 @@ import { DbTablesListComponent } from './components/dashboard/db-tables-list/db-
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { DynamicModule } from 'ng-dynamic-component';
 import { EmailChangeComponent } from './components/email-change/email-change.component';
+import { EmailValidationDirective } from "./directives/emailValidator.directive";
 import { EmailVerificationComponent } from './components/email-verification/email-verification.component';
+import { EnableTwoFADialogComponent } from './components/user-settings/enable-two-fa-dialog/enable-two-fa-dialog.component';
 import { EncodeUrlParamsSafelyInterceptor } from './services/url-params.interceptor';
 import { FileComponent } from './components/ui-components/row-fields/file/file.component';
 import { ForeignKeyComponent } from './components/ui-components/row-fields/foreign-key/foreign-key.component';
@@ -70,6 +72,7 @@ import { MaterialModule } from './modules/material.module';
 import { NewVersionComponent } from './components/new-version/new-version.component';
 import { NgJsonEditorModule } from 'ang-jsoneditor'
 import { NgmatTableQueryReflectorModule } from '@nghacks/ngmat-table-query-reflector';
+import { NgxStripeModule } from 'ngx-stripe';
 import { NotificationsService } from './services/notifications.service';
 import { NumberComponent } from './components/ui-components/row-fields/number/number.component';
 import { PageLoaderComponent } from './components/page-loader/page-loader.component';
@@ -79,6 +82,7 @@ import { PasswordComponent } from './components/ui-components/row-fields/passwor
 import { PasswordRequestComponent } from './components/password-request/password-request.component';
 import { PasswordResetComponent } from './components/password-reset/password-change.component';
 import { PasswordValidationDirective } from "./directives/passwordValidator.directive";
+import { PaymentFormComponent } from './components/payment-form/payment-form.component';
 import { PermissionsAddDialogComponent } from './components/users/permissions-add-dialog/permissions-add-dialog.component';
 import { PointComponent } from './components/ui-components/row-fields/point/point.component';
 import { RegistrationComponent } from './components/registration/registration.component';
@@ -100,8 +104,6 @@ import { UsersComponent } from './components/users/users.component';
 import { UsersService } from './services/users.service';
 import { WidgetDeleteDialogComponent } from './components/dashboard/db-table-widgets/widget-delete-dialog/widget-delete-dialog.component';
 import { environment } from '../environments/environment';
-import { PaymentFormComponent } from './components/payment-form/payment-form.component';
-import { NgxStripeModule } from 'ngx-stripe';
 
 type Palettes = { primaryPalette: string, accentedPalette: string, warnPalette: string };
 type Colors = { myColorName: string };
@@ -177,6 +179,7 @@ const saasExtraProviders = (environment as any).saas ? [
     PasswordValidationDirective,
     Base64ValidationDirective,
     HexValidationDirective,
+    EmailValidationDirective,
     BannerComponent,
     DbTableSettingsComponent,
     ConnectionSettingsComponent,
@@ -204,6 +207,7 @@ const saasExtraProviders = (environment as any).saas ? [
     UpgradeSuccessComponent,
     DbActionLinkDialogComponent,
     PaymentFormComponent,
+    EnableTwoFADialogComponent,
   ],
   entryComponents: [
     DbActionConfirmationDialogComponent,
@@ -255,7 +259,6 @@ const saasExtraProviders = (environment as any).saas ? [
     HttpClientModule,
     BrowserAnimationsModule,
     MaterialModule,
-    MatMenuModule,
     RouterModule,
     DynamicModule,
     NgmatTableQueryReflectorModule,

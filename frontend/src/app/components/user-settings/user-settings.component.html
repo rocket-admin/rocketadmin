@@ -10,9 +10,9 @@
         <form class="user-settings__section-heading">
             <mat-form-field appearance="outline" class="user-settings__name">
                 <mat-label>Name</mat-label>
-                <input matInput [(ngModel)]="userName" name="user-name" #nameField="ngModel" data-test-id="user-name-input">
+                <input matInput [(ngModel)]="userName" name="user-name" #nameField="ngModel" data-testid="user-name-input">
             </mat-form-field>
-            <button type="button" mat-button color="primary" data-test-id="save-user-name-button"
+            <button type="button" mat-button color="primary" data-testid="save-user-name-button"
                 class="user-settings__save-button"
                 (click)="changeUserName()"
                 [disabled]="!nameField.dirty || submittingChangedName">
@@ -23,23 +23,23 @@
 
         <div class="user-settings__section-heading">
             <strong>Email:</strong>
-            <button mat-button color="primary" data-test-id="change-user-email-button"
+            <span class="mat-body-1 user-settings__value">{{currentUser.email}}</span>
+        </div>
+        <button mat-button color="primary" data-testid="user-settings__button"
                 class="user-settings__button"
                 [disabled]="!currentUser.isActive"
                 (click)="changeEmail()">
                 Change email
-            </button>
-        </div>
-        <span class="user-settings__value">{{currentUser.email}}</span>
+        </button>
 
         <div class="user-settings__section-heading">
             <strong>Password:</strong>
-            <a mat-button routerLink="/change-password" color="primary" data-test-id="change-user-password-link"
-                class="user-settings__button">
-                Change password
-            </a>
         </div>
-        <span class="user-settings__value">********</span>
+        <a mat-button routerLink="/change-password" color="primary" data-testid="change-user-password-link"
+            [disabled]="!currentUser.isActive"
+            class="user-settings__button">
+            Change password
+        </a>
 
 
         <div class="user-settings__section-heading">

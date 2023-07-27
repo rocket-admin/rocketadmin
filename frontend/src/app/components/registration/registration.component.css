@@ -74,6 +74,10 @@
     }
 }
 
+.password-field {
+    margin-top: 8px;
+}
+
 .soc-button {
     display: flex;
     align-items: center;

@@ -1,6 +1,6 @@
 <div class="wrapper">
     <div class="register-form-box">
-        <app-alert></app-alert>
+        <app-alert data-testid="registration-server-alert"></app-alert>
         <form class="register-form"
             #registrationForm="ngForm"
             (ngSubmit)="registerUser()">
@@ -15,15 +15,17 @@
 
             <mat-form-field appearance="outline">
                 <mat-label>Email</mat-label>
-                <input matInput type="email" name="email" #email="ngModel" required
+                <input matInput type="email" name="email" #email="ngModel" required emailValidator
                     angulartics2On="change"
                     angularticsAction="Reg: email is changed"
-                    pattern="[a-zA-Z0-9.-_+]{1,}@[a-zA-Z.-]{2,}[.]{1}[a-zA-Z]{2,}"
                     [(ngModel)]="user.email">
-                <!-- <mat-error *ngIf="hostname.errors?.required && (hostname.invalid && hostname.touched)">Hostname should not be empty.</mat-error> -->
+                <mat-error *ngIf="email.errors?.isInvalidEmail">Invalid email format.</mat-error>
             </mat-form-field>
 
-            <app-user-password label="Password" [value]="user.password" (onFieldChange)="updatePasswordField($event)"></app-user-password>
+            <app-user-password label="Password" [value]="user.password"
+                class="password-field"
+                (onFieldChange)="updatePasswordField($event)">
+            </app-user-password>
 
             <button type="submit" mat-raised-button color="accent" class="submit-button"
                 angulartics2On="click"

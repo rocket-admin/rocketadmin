@@ -1,6 +1,6 @@
 <app-content-loader *ngIf="loading"></app-content-loader>
 
-<app-banner *ngIf="isServerError" type="error" data-test-id="connection-server-error-banner">
+<app-banner *ngIf="isServerError" type="error" data-testid="connection-server-error-banner">
     <div *ngIf="serverError.details; else stringError" class="mat-body-1">
         <strong>{{serverError.abstract}}</strong>
         <p class="mat-body-1 error-details">{{serverError.details}}</p>
@@ -14,7 +14,7 @@
     </div>
 </app-banner>
 
-<app-banner *ngIf="noTablesError" type="info" data-test-id="no-tables-error-banner">
+<app-banner *ngIf="noTablesError" type="info" data-testid="no-tables-error-banner">
     <h3 class='mat-subheading-2'>Rocketadmin can not find any tables</h3>
     <p class="mat-body-1">
         Rocketadmin don't have access to connection tables or there aren't any.
@@ -25,7 +25,9 @@
 
 <ng-container *ngIf="!loading && !isServerError && !noTablesError">
     <mat-sidenav-container>
-        <mat-sidenav #sideList mode="side" [(opened)]="shownTableTitles" [ngClass]="{'side-bar_collapsed': !shownTableTitles}">
+        <mat-sidenav #sideList mode="side" [(opened)]="shownTableTitles"
+            class="table-list-sidenav"
+            [ngClass]="{'side-bar_collapsed': !shownTableTitles}">
             <div class="toggle-button-position"
                 [ngClass]="(shownTableTitles)?'toggle-button-position__opened':'toggle-button-position__closed'">
                 <button mat-button class="toggle-button" (click)="toggleSideBar()">
@@ -40,11 +42,11 @@
             </app-db-tables-list>
         </mat-sidenav>
         <mat-sidenav-content>
-            <app-alert class="server-alert" data-test-id="alert-server-error"></app-alert>
+            <app-alert class="server-alert" data-testid="alert-server-error"></app-alert>
             <div class="alerts">
-                <app-alert *ngIf="dataSource.alert_settingsInfo" [alert]="dataSource.alert_settingsInfo" data-test-id="alert-not-configured"></app-alert>
-                <app-alert *ngIf="dataSource.alert_primaryKeysInfo" [alert]="dataSource.alert_primaryKeysInfo" data-test-id="alert-no-primary-keys"></app-alert>
-                <app-alert *ngIf="dataSource.alert_widgetsWarning" [alert]="dataSource.alert_widgetsWarning" data-test-id="alert-widgets-warning"></app-alert>
+                <app-alert *ngIf="dataSource.alert_settingsInfo" [alert]="dataSource.alert_settingsInfo" data-testid="alert-not-configured"></app-alert>
+                <app-alert *ngIf="dataSource.alert_primaryKeysInfo" [alert]="dataSource.alert_primaryKeysInfo" data-testid="alert-no-primary-keys"></app-alert>
+                <app-alert *ngIf="dataSource.alert_widgetsWarning" [alert]="dataSource.alert_widgetsWarning" data-testid="alert-widgets-warning"></app-alert>
             </div>
 
             <app-content-loader *ngIf="dataSource === null"></app-content-loader>

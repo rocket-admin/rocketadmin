@@ -1281,6 +1281,46 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@nestjs/cli@npm:^10.0.5":
+  version: 10.0.5
+  resolution: "@nestjs/cli@npm:10.0.5"
+  dependencies:
+    "@angular-devkit/core": 16.1.0
+    "@angular-devkit/schematics": 16.1.0
+    "@angular-devkit/schematics-cli": 16.1.0
+    "@nestjs/schematics": ^10.0.1
+    chalk: 4.1.2
+    chokidar: 3.5.3
+    cli-table3: 0.6.3
+    commander: 4.1.1
+    fork-ts-checker-webpack-plugin: 8.0.0
+    inquirer: 8.2.5
+    node-emoji: 1.11.0
+    ora: 5.4.1
+    os-name: 4.0.1
+    rimraf: 4.4.1
+    shelljs: 0.8.5
+    source-map-support: 0.5.21
+    tree-kill: 1.2.2
+    tsconfig-paths: 4.2.0
+    tsconfig-paths-webpack-plugin: 4.0.1
+    typescript: 5.1.3
+    webpack: 5.87.0
+    webpack-node-externals: 3.0.0
+  peerDependencies:
+    "@swc/cli": ^0.1.62
+    "@swc/core": ^1.3.62
+  peerDependenciesMeta:
+    "@swc/cli":
+      optional: true
+    "@swc/core":
+      optional: true
+  bin:
+    nest: bin/nest.js
+  checksum: 985855548576d0caa3b72cff2336b180501ebb6db510b53079efcda3a11362c11f157991c6e4bc7adad001464665b0d18022098381fd3cb7710461c9949d038a
+  languageName: node
+  linkType: hard
+
 "@nestjs/common@npm:10.0.3, @nestjs/common@npm:^10.0.3":
   version: 10.0.3
   resolution: "@nestjs/common@npm:10.0.3"
@@ -1411,6 +1451,49 @@ __metadata:
     class-validator:
       optional: true
   checksum: 85f295a1474c6dd1b6fb07556f744fee138571f3c6a4c5e693c72bddc716aeb8e73c02f8146fb3457e4e4a604559aa6c40985e3fbf1b3aadc0ea04a6970016d1
+  languageName: node
+  linkType: hard
+
+"@nestjs/microservices@npm:^10.0.5":
+  version: 10.0.5
+  resolution: "@nestjs/microservices@npm:10.0.5"
+  dependencies:
+    iterare: 1.2.1
+    tslib: 2.6.0
+  peerDependencies:
+    "@grpc/grpc-js": "*"
+    "@nestjs/common": ^10.0.0
+    "@nestjs/core": ^10.0.0
+    "@nestjs/websockets": ^10.0.0
+    amqp-connection-manager: "*"
+    amqplib: "*"
+    cache-manager: "*"
+    ioredis: "*"
+    kafkajs: "*"
+    mqtt: "*"
+    nats: "*"
+    reflect-metadata: ^0.1.12
+    rxjs: ^7.1.0
+  peerDependenciesMeta:
+    "@grpc/grpc-js":
+      optional: true
+    "@nestjs/websockets":
+      optional: true
+    amqp-connection-manager:
+      optional: true
+    amqplib:
+      optional: true
+    cache-manager:
+      optional: true
+    ioredis:
+      optional: true
+    kafkajs:
+      optional: true
+    mqtt:
+      optional: true
+    nats:
+      optional: true
+  checksum: a4ffd8ad36682220d84f084f26c49f4011edcfd46068fb359b601ebc786a7abe1697774e02b32829ca643329fc08f583199d68d4c66d84eaffb8a14865d7df54
   languageName: node
   linkType: hard
 
@@ -1743,12 +1826,13 @@ __metadata:
     knex: ^2.4.2
     knex-paginate: ^3.1.1
     lru-cache: ^10.0.0
-    mysql2: ^3.4.0
+    mysql2: ^3.4.2
     oracledb: ^6.0.1
     pg: ^8.11.0
     prettier: 2.8.8
+    ssh2: ^1.14.0
     tedious: ^16.1.0
-    tunnel-ssh: 4.1.6
+    tunnel-ssh: 5.0.8
     typescript: ^5.1.3
   languageName: unknown
   linkType: soft
@@ -3059,7 +3143,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"asn1@npm:^0.2.4, asn1@npm:^0.2.6":
+"asn1@npm:^0.2.6":
   version: 0.2.6
   resolution: "asn1@npm:0.2.6"
   dependencies:
@@ -3105,11 +3189,12 @@ __metadata:
     "@amplitude/node": 1.10.2
     "@ava/typescript": ^4.0.0
     "@faker-js/faker": ^8.0.2
-    "@nestjs/cli": ^10.0.3
+    "@nestjs/cli": ^10.0.5
     "@nestjs/common": 10.0.3
     "@nestjs/config": 3.0.0
     "@nestjs/core": 10.0.3
     "@nestjs/jwt": 10.1.0
+    "@nestjs/microservices": ^10.0.5
     "@nestjs/passport": 10.0.0
     "@nestjs/platform-express": 10.0.3
     "@nestjs/schedule": ^3.0.1
@@ -3184,13 +3269,14 @@ __metadata:
     pg-connection-string: ^2.6.0
     prettier: ^2.8.8
     qrcode: ^1.5.3
+    query-string: ^8.1.0
     reflect-metadata: 0.1.13
     rimraf: 5.0.1
     rxjs: 7.8.1
     safe-regex2: ^3.1.0
     secure-json-parse: 2.7.0
     sinon: 15.2.0
-    stripe: 12.9.0
+    stripe: 12.10.0
     supertest: ^6.3.3
     ts-jest: 29.1.0
     ts-loader: ^9.4.3
@@ -4303,16 +4389,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cpu-features@npm:0.0.2":
-  version: 0.0.2
-  resolution: "cpu-features@npm:0.0.2"
-  dependencies:
-    nan: ^2.14.1
-    node-gyp: latest
-  checksum: 15177f9a2d465e4d84390f902c977b34f237dadb29fd8553853b13d906ffe5f15be9f091c72db4f34c71412d5ff4e0e4edf04caebc875b02d1d7ecfce2963299
-  languageName: node
-  linkType: hard
-
 "cpu-features@npm:~0.0.8":
   version: 0.0.8
   resolution: "cpu-features@npm:0.0.8"
@@ -4431,6 +4507,13 @@ __metadata:
   version: 1.2.0
   resolution: "decamelize@npm:1.2.0"
   checksum: ad8c51a7e7e0720c70ec2eeb1163b66da03e7616d7b98c9ef43cce2416395e84c1e9548dd94f5f6ffecfee9f8b94251fc57121a8b021f2ff2469b2bae247b8aa
+  languageName: node
+  linkType: hard
+
+"decode-uri-component@npm:^0.4.1":
+  version: 0.4.1
+  resolution: "decode-uri-component@npm:0.4.1"
+  checksum: 0473924860986fb6ca19ee65a2af13e08801b4f3660475b058500ea8479ed715c919884a026b6bf4296dbb640d3cea74fadf45490b2439152fc548271d0201ec
   languageName: node
   linkType: hard
 
@@ -5411,6 +5494,13 @@ __metadata:
   dependencies:
     to-regex-range: ^5.0.1
   checksum: cc283f4e65b504259e64fd969bcf4def4eb08d85565e906b7d36516e87819db52029a76b6363d0f02d0d532f0033c9603b9e2d943d56ee3b0d4f7ad3328ff917
+  languageName: node
+  linkType: hard
+
+"filter-obj@npm:^5.1.0":
+  version: 5.1.0
+  resolution: "filter-obj@npm:5.1.0"
+  checksum: ba7c24d9b2c0552ee87d268e07eca74483af61fb740545ffa809f7e9e5294de38cf163ecc55af0e8a40020af9a49512c32f4022de2a858b110420fc8bffa7c9c
   languageName: node
   linkType: hard
 
@@ -7589,13 +7679,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"lodash.defaults@npm:^4.1.0":
-  version: 4.2.0
-  resolution: "lodash.defaults@npm:4.2.0"
-  checksum: 84923258235592c8886e29de5491946ff8c2ae5c82a7ac5cddd2e3cb697e6fbdfbbb6efcca015795c86eec2bb953a5a2ee4016e3735a3f02720428a40efbb8f1
-  languageName: node
-  linkType: hard
-
 "lodash.get@npm:^4.4.2":
   version: 4.4.2
   resolution: "lodash.get@npm:4.4.2"
@@ -8138,9 +8221,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"mysql2@npm:^3.4.0":
-  version: 3.4.0
-  resolution: "mysql2@npm:3.4.0"
+"mysql2@npm:^3.4.2":
+  version: 3.4.2
+  resolution: "mysql2@npm:3.4.2"
   dependencies:
     denque: ^2.1.0
     generate-function: ^2.3.1
@@ -8150,7 +8233,7 @@ __metadata:
     named-placeholders: ^1.1.3
     seq-queue: ^0.0.5
     sqlstring: ^2.3.2
-  checksum: 2f38e859251dc853f65e561e25b4e8525494ea4124370c7533f03d21273c997efc1aca7ab07be279e122ad70fbbe80231519d02f26f98b4b4f05763cab53636b
+  checksum: 804a335d46f708f97f8d732312f45a76db0b4bd8263414bd2394fb8dc9e97b95452de7b0e61c646622e7dc2d41eb51a4ab95a7b24c80567cafe64ee83a9f6bcc
   languageName: node
   linkType: hard
 
@@ -8174,7 +8257,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"nan@npm:^2.14.1, nan@npm:^2.15.0, nan@npm:^2.17.0":
+"nan@npm:^2.17.0":
   version: 2.17.0
   resolution: "nan@npm:2.17.0"
   dependencies:
@@ -9288,6 +9371,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"query-string@npm:^8.1.0":
+  version: 8.1.0
+  resolution: "query-string@npm:8.1.0"
+  dependencies:
+    decode-uri-component: ^0.4.1
+    filter-obj: ^5.1.0
+    split-on-first: ^3.0.0
+  checksum: 16fe49ab714f2b802bd31bc417876a38a82cd49bea01c0d6c37ca3439604c774752c8c66f9eda5ee33c268de2fc2a65e0e0e27aa97d8d98159af5c1fc838a017
+  languageName: node
+  linkType: hard
+
 "queue-microtask@npm:^1.2.2":
   version: 1.2.3
   resolution: "queue-microtask@npm:1.2.3"
@@ -9589,7 +9683,7 @@ __metadata:
   resolution: "rocketadmin-agent@workspace:rocketadmin-agent"
   dependencies:
     "@azure/core-tracing": ^1.0.1
-    "@nestjs/cli": ^10.0.3
+    "@nestjs/cli": ^10.0.5
     "@nestjs/common": ^10.0.3
     "@nestjs/config": ^3.0.0
     "@nestjs/core": ^10.0.3
@@ -9615,7 +9709,7 @@ __metadata:
     jest: ^29.5.0
     knex: 2.4.2
     knex-paginate: 3.1.1
-    mysql2: ^3.4.0
+    mysql2: ^3.4.2
     nest-winston: ^1.9.3
     oracledb: ^6.0.1
     pg: ^8.11.0
@@ -9631,7 +9725,6 @@ __metadata:
     ts-loader: ^9.4.3
     ts-node: ^10.9.1
     tsconfig-paths: ^4.2.0
-    tunnel-ssh: 4.1.6
     typescript: ^5.1.3
     winston: ^3.9.0
     yarn: ^1.22.19
@@ -9642,7 +9735,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "rocketadmin-cli@workspace:rocketadmin-cli"
   dependencies:
-    "@nestjs/cli": ^10.0.3
+    "@nestjs/cli": ^10.0.5
     "@nestjs/common": ^10.0.3
     "@nestjs/config": ^3.0.0
     "@nestjs/core": ^10.0.3
@@ -9665,7 +9758,7 @@ __metadata:
     get-port: ^7.0.0
     knex: ^2.4.2
     knex-paginate: ^3.1.1
-    mysql2: ^3.4.0
+    mysql2: ^3.4.2
     nest-winston: ^1.9.3
     oracledb: ^6.0.1
     pg: ^8.11.0
@@ -9674,7 +9767,6 @@ __metadata:
     reflect-metadata: ^0.1.13
     rimraf: ^5.0.1
     rxjs: ^7.8.1
-    ssh2: ^1.14.0
     supertest: ^6.3.3
     tedious: ^16.1.0
     ts-jest: ^29.1.0
@@ -10083,6 +10175,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"split-on-first@npm:^3.0.0":
+  version: 3.0.0
+  resolution: "split-on-first@npm:3.0.0"
+  checksum: 75dc27ecbac65cfbeab9a3b90cf046307220192d3d7a30e46aa0f19571cc9b4802aac813f3de2cc9b16f2e46aae72f275659b5d2614bb5369c77724d739e5f73
+  languageName: node
+  linkType: hard
+
 "split2@npm:^4.1.0":
   version: 4.2.0
   resolution: "split2@npm:4.2.0"
@@ -10111,24 +10210,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ssh2@npm:1.4.0":
-  version: 1.4.0
-  resolution: "ssh2@npm:1.4.0"
-  dependencies:
-    asn1: ^0.2.4
-    bcrypt-pbkdf: ^1.0.2
-    cpu-features: 0.0.2
-    nan: ^2.15.0
-  dependenciesMeta:
-    cpu-features:
-      optional: true
-    nan:
-      optional: true
-  checksum: 354ed1a4ed5df39e4d898b9ad02f0207851c2256adfddd34ca53971a67b793e72b4581d8812b2155c9d70bceb69b4c582445e743a013867516595c31e922d674
-  languageName: node
-  linkType: hard
-
-"ssh2@npm:^1.14.0":
+"ssh2@npm:^1.13.0, ssh2@npm:^1.14.0":
   version: 1.14.0
   resolution: "ssh2@npm:1.14.0"
   dependencies:
@@ -10334,13 +10416,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"stripe@npm:12.9.0":
-  version: 12.9.0
-  resolution: "stripe@npm:12.9.0"
+"stripe@npm:12.10.0":
+  version: 12.10.0
+  resolution: "stripe@npm:12.10.0"
   dependencies:
     "@types/node": ">=8.1.0"
     qs: ^6.11.0
-  checksum: a860736592ec96b4468697c3636591cee781e1483afa963d75be4c2e4d8d413983328129e4b15dab578494ffc5fd22a11eebc74bbdb3b675dd4a99c37c70ab76
+  checksum: d97ce28e09f95fb6682e683b65b5e56dce60103dbcbbcd90aeb9564eba63433860c8489e6d7c3d213094c58737559afceaa6961c5c97f83beb7c5b22d8ea0cbe
   languageName: node
   linkType: hard
 
@@ -10812,6 +10894,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"tslib@npm:2.6.0":
+  version: 2.6.0
+  resolution: "tslib@npm:2.6.0"
+  checksum: c01066038f950016a18106ddeca4649b4d76caa76ec5a31e2a26e10586a59fceb4ee45e96719bf6c715648e7c14085a81fee5c62f7e9ebee68e77a5396e5538f
+  languageName: node
+  linkType: hard
+
 "tslib@npm:^1.8.1, tslib@npm:^1.9.3":
   version: 1.14.1
   resolution: "tslib@npm:1.14.1"
@@ -10830,14 +10919,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tunnel-ssh@npm:4.1.6":
-  version: 4.1.6
-  resolution: "tunnel-ssh@npm:4.1.6"
+"tunnel-ssh@npm:5.0.8":
+  version: 5.0.8
+  resolution: "tunnel-ssh@npm:5.0.8"
   dependencies:
-    debug: 2.6.9
-    lodash.defaults: ^4.1.0
-    ssh2: 1.4.0
-  checksum: 4d39e3a7ffee1ebfa24607b9f4d920f4b2aa3fa841e60301ef7a115b5227243a97cbbc9d6032a2bab9a35888b6b736013e51fa55882fa7538ecf86e17bfe5289
+    ssh2: ^1.13.0
+  checksum: 455e6d547d50aaf07e10c1cae29ff264f00a0316b3a7dbdb575cd2715f34b29810798a2afb98c916d6b2b37eb8303a11fd687eb99b6fb960fe78268d4cca23b2
   languageName: node
   linkType: hard
 

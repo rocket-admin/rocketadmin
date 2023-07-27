@@ -44,7 +44,8 @@ export interface User {
     name?: string,
     createdAt?: string,
     portal_link: string,
-    subscriptionLevel: SubscriptionPlans
+    subscriptionLevel: SubscriptionPlans,
+    is_2fa_enabled: boolean,
 }
 
 export enum AccessLevel {

@@ -16,7 +16,6 @@ services:
       - testMySQL-e2e-testing
       - testPg-e2e-testing
       - mssql-e2e-testing
-      - nestjsTesting
       - test-oracle-e2e-testing
     links:
       - postgres
@@ -24,9 +23,8 @@ services:
       - testMySQL-e2e-testing
       - testPg-e2e-testing
       - mssql-e2e-testing
-      - nestjsTesting
       - test-oracle-e2e-testing
-    command: ["yarn", "start:dev"]
+    command: ["yarn", "start"]
 
 
   testDB:
@@ -35,15 +33,7 @@ services:
       - 8000:8000
     environment:
       POSTGRES_PASSWORD: 123
-    command: postgres -c 'max_connections=300'  
-
-  nestjsTesting:
-    image: postgres
-    ports:
-      - 8001:5432
-    environment:
-      POSTGRES_PASSWORD: postgres
-    command: postgres -c 'max_connections=300'  
+    command: postgres -c 'max_connections=300'
 
   testMySQL-e2e-testing:
     image: mysql:8.0.23
@@ -97,6 +87,30 @@ services:
       - backend
     depends_on:
       - backend  
+
+
+  rocketadmin-private-microservice:
+    build:
+      context: ../rocketadmin-saas
+      dockerfile: ../rocketadmin-saas/Dockerfile
+    ports:
+      - 3001:3001
+    env_file: ../rocketadmin-saas/.env  
+    links:
+      - backend
+      - rocketadmin-private-microservice-test-database
+    depends_on:
+      - backend
+      - rocketadmin-private-microservice-test-database
+    command: ["yarn", "start"]
+
+  rocketadmin-private-microservice-test-database:
+    image: postgres
+    ports:
+      - 8001:5432
+    environment:
+      POSTGRES_PASSWORD: abc987
+    command: postgres -c 'max_connections=300'  
 
   rocketadmin-agent_oracle:
     build:

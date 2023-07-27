@@ -18,7 +18,8 @@ export class UserService {
     email: '',
     createdAt: '',
     portal_link: '',
-    subscriptionLevel: SubscriptionPlans.free
+    subscriptionLevel: SubscriptionPlans.free,
+    is_2fa_enabled: false,
   }
 
   private user = new BehaviorSubject<any>(this.initialUserState);
@@ -143,7 +144,8 @@ export class UserService {
           {
             type: AlertActionType.Button,
             caption: 'Dismiss',
-            action: (id: number) => this._notifications.dismissAlert()
+            action: (id: number) => this._notifications.dismissAlert(),
+            testID: 'password-reset-server-alert-dismiss-success-button'
           }
         ]);
         return res
@@ -154,7 +156,8 @@ export class UserService {
           {
             type: AlertActionType.Button,
             caption: 'Dismiss',
-            action: (id: number) => this._notifications.dismissAlert()
+            action: (id: number) => this._notifications.dismissAlert(),
+            testID: 'password-reset-request-server-alert-dismiss-error-button'
           }
         ]);
         return EMPTY;
@@ -175,7 +178,8 @@ export class UserService {
           {
             type: AlertActionType.Button,
             caption: 'Dismiss',
-            action: (id: number) => this._notifications.dismissAlert()
+            action: (id: number) => this._notifications.dismissAlert(),
+            testID: 'reset-password-server-alert-dismiss-button'
           }
         ]);
         return EMPTY;
@@ -209,6 +213,50 @@ export class UserService {
       .pipe(
         map((res) => {
           this._notifications.showSuccessSnackbar('Your name has been changed successfully.');
+          return res
+        }),
+        catchError((err) => {
+          console.log(err);
+          this._notifications.showErrorSnackbar(err.error.message);
+          return EMPTY;
+        })
+      );
+  }
+
+  switchOn2FA() {
+    return this._http.post<any>('/user/otp/generate', {})
+      .pipe(
+        map((res) => {
+          return res
+        }),
+        catchError((err) => {
+          console.log(err);
+          this._notifications.showErrorSnackbar(err.error.message);
+          return EMPTY;
+        })
+      );
+  }
+
+  confirm2FA(code: string) {
+    return this._http.post<any>('/user/otp/verify', {otpToken: code})
+      .pipe(
+        map((res) => {
+          this._notifications.showSuccessSnackbar('2FA is turned on successfully.');
+          return res
+        }),
+        catchError((err) => {
+          console.log(err);
+          this._notifications.showErrorSnackbar(err.error.message);
+          return EMPTY;
+        })
+      );
+  }
+
+  switchOff2FA(code: string) {
+    return this._http.post<any>('/user/otp/disable', {otpToken: code})
+      .pipe(
+        map((res) => {
+          this._notifications.showSuccessSnackbar('2FA is turned off successfully.');
           return res
         }),
         catchError((err) => {

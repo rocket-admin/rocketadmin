@@ -27,13 +27,32 @@
 }
 
 .user-settings__value {
-    display: inline-block;
-    margin-top: 4px;
-    margin-bottom: 28px;
+    margin-bottom: 0;
+}
+
+.user-settings__button {
+    margin-top: 8px;
+    margin-bottom: 40px;
 }
 
 .user-settings__value_capitalized {
     text-transform: capitalize;
+}
+
+.twoFA-toggle {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.twoFA-toggle .twoFAhint {
+    font-size: 20px;
+    height: 20px;
+    width: 20px;
+}
+
+.qr-verification {
+    margin-top: 28px;
 }
 
 .delete-button {

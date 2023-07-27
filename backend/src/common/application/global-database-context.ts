@@ -57,6 +57,12 @@ import { ITableWidgetsRepository } from '../../entities/widget/repository/table-
 import { TableWidgetEntity } from '../../entities/widget/table-widget.entity.js';
 import { BaseType } from '../data-injection.tokens.js';
 import { IGlobalDatabaseContext } from './global-database-context.interface.js';
+import { IUserGitHubIdentifierRepository } from '../../entities/user/user-github-identifier/repository/user-github-identifier-repository.interface.js';
+import { GitHubUserIdentifierEntity } from '../../entities/user/user-github-identifier/github-user-identifier.entity.js';
+import { userGitHubIdentifierCustomRepositoryExtension } from '../../entities/user/user-github-identifier/repository/user-github-identifier-custom-repository.extension.js';
+import { ICompanyInfoRepository } from '../../entities/company-info/repository/company-info-repository.interface.js';
+import { CompanyInfoEntity } from '../../entities/company-info/company-info.entity.js';
+import { companyInfoRepositoryExtension } from '../../entities/company-info/repository/company-info-custom-repository.extension.js';
 
 @Injectable()
 export class GlobalDatabaseContext implements IGlobalDatabaseContext {
@@ -82,6 +88,8 @@ export class GlobalDatabaseContext implements IGlobalDatabaseContext {
   private _tableFieldInfoRepository: Repository<TableFieldInfoEntity>;
   private _tableInfoReposioty: Repository<TableInfoEntity>;
   private _tableActionRepository: ITableActionRepository;
+  private _userGitHubIdentifierRepository: IUserGitHubIdentifierRepository;
+  private _companyInfoRepository: Repository<CompanyInfoEntity> & ICompanyInfoRepository;
 
   public constructor(
     @Inject(BaseType.DATA_SOURCE)
@@ -139,6 +147,12 @@ export class GlobalDatabaseContext implements IGlobalDatabaseContext {
     this._tableActionRepository = this.appDataSource
       .getRepository(TableActionEntity)
       .extend(tableActionsCustomRepositoryExtension);
+    this._userGitHubIdentifierRepository = this.appDataSource
+      .getRepository(GitHubUserIdentifierEntity)
+      .extend(userGitHubIdentifierCustomRepositoryExtension);
+    this._companyInfoRepository = this.appDataSource
+      .getRepository(CompanyInfoEntity)
+      .extend(companyInfoRepositoryExtension);
   }
 
   public get userRepository(): IUserRepository {
@@ -219,6 +233,14 @@ export class GlobalDatabaseContext implements IGlobalDatabaseContext {
 
   public get tableActionRepository(): ITableActionRepository {
     return this._tableActionRepository;
+  }
+
+  public get userGitHubIdentifierRepository(): IUserGitHubIdentifierRepository {
+    return this._userGitHubIdentifierRepository;
+  }
+
+  public get companyInfoRepository(): Repository<CompanyInfoEntity> & ICompanyInfoRepository {
+    return this._companyInfoRepository;
   }
 
   public startTransaction(): Promise<void> {
