@@ -14,6 +14,8 @@ export class SaasController {
     private readonly companyRegistrationUseCase: ICompanyRegistration,
     @Inject(UseCaseType.SAAS_GET_USER_INFO)
     private readonly getUserInfoUseCase: IGetUserInfo,
+    @Inject(UseCaseType.SAAS_GET_USER_INFO_BY_EMAIL)
+    private readonly getUserInfoByEmailUseCase: IGetUserInfo,
   ) {}
 
   @Post('/company/registered')
@@ -28,5 +30,10 @@ export class SaasController {
   @Get('/user/:userId')
   async getUserInfo(@Param('userId') userId: string): Promise<UserEntity> {
     return await this.getUserInfoUseCase.execute(userId);
+  }
+
+  @Get('/user/email/:userEmail')
+  async getUserInfoByEmail(@Param('userEmail') userEmail: string): Promise<UserEntity> {
+    return await this.getUserInfoByEmailUseCase.execute(userEmail);
   }
 }
