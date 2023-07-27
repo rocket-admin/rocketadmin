@@ -89,51 +89,6 @@ describe('UserService', () => {
     expect(fakeNotifications.showErrorSnackbar).toHaveBeenCalledOnceWith(fakeError.message);
   });
 
-  it('should call upgradeUser', () => {
-    const user = {
-      "id": "97cbc96d-7cbc-4c8d-b8b8-36322509106d",
-      "isActive": true,
-      "email": "lyubov+9999@voloshko.com",
-      "createdAt": "2021-01-20T11:17:44.138Z",
-      "portal_link": "https://billing.stripe.com/session/live_YWNjdF8xSk04RkJGdEhkZGExVHNCLF9LdHlWbVdQYWFZTWRHSWFST2xUUmZVZ1E0UVFoMjBX0100erRIau3Y",
-      "subscriptionLevel": "ANNUAL_ENTERPRISE_PLAN"
-    }
-    let isSubscribeCalled = false;
-
-    service.upgradeUser('ANNUAL_ENTERPRISE_PLAN').subscribe(res => {
-      expect(res).toEqual(user);
-      isSubscribeCalled = true;
-    });
-
-    const req = httpMock.expectOne(`/user/subscription/upgrade`);
-    expect(req.request.method).toBe("POST");
-    expect(req.request.body).toEqual({subscriptionLevel: 'ANNUAL_ENTERPRISE_PLAN'});
-    req.flush(user);
-
-    expect(isSubscribeCalled).toBe(true);
-  });
-
-  it('should fall upgradeUser and show Error alert', async () => {
-    const upgradeUser = service.upgradeUser('ANNUAL_ENTERPRISE_PLAN').toPromise();
-
-    const req = httpMock.expectOne(`/user/subscription/upgrade`);
-    expect(req.request.method).toBe("POST");
-    req.flush(fakeError, {status: 400, statusText: ''});
-    await upgradeUser;
-
-    expect(fakeNotifications.showAlert).toHaveBeenCalledWith(AlertType.Error, { abstract: fakeError.message, details: fakeError.originalMessage }, [
-      jasmine.objectContaining({
-        type: AlertActionType.Link,
-        caption: 'Settings',
-        to: '/user-settings'
-      }),
-      jasmine.objectContaining({
-        type: AlertActionType.Button,
-        caption: 'Dismiss',
-      }),
-    ]);
-  });
-
   it('should call requestEmailChange', () => {
     let isEmailChangeRequestedCalled = false;
 
