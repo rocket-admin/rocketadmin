@@ -88,6 +88,7 @@ export const Messages = {
   FAILED_CONNECTION_DELETE: 'Connection failed to delete.',
   FAILED_CONNECTION_UPDATE: 'Connection failed to update.',
   FAILED_CREATE_GROUP_IN_CONNECTION: 'Failed to create group in connection.',
+  FAILED_TO_CREATE_STRIPE_CUSTOMER: `Failed to create stripe customer.`,
   FAILED_TO_CHANGE_USER_NAME_WITH_THIS_PASSWORD: `Failed to change user name. Incorrect password or you registered with social netword`,
   FAILED_DECRYPT_CONNECTION_CREDENTIALS: `Failed to decrypt connection parameters. Most likely the master password is incorrect.`,
   FAILED_DELETE_GROUP: 'Failed to delete group.',

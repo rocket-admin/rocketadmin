@@ -40,4 +40,8 @@ export class PublicStripeService implements IStripeService {
   ): Promise<ISubscriptionUpgradeResult> {
     return null;
   }
+
+  public async createStripeCustomer(userId: string, userEmail: string): Promise<string> {
+    return 'no_stripe_in_this_mode';
+  }
 }
