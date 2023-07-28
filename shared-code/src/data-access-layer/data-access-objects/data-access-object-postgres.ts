@@ -510,11 +510,11 @@ export class DataAccessObjectPostgres extends BasicDataAccessObject implements I
                      AND r.constraint_name = fk.constraint_name
       WHERE
           u.column_name = ? AND
-          u.table_catalog = ? AND
+          u.table_catalog = current_database() AND
           u.table_schema = ? AND
           u.table_name = ?
       `,
-        [primaryColumn.column_name, this.connection.database, schema, tableName],
+        [primaryColumn.column_name, schema, tableName],
       );
       results.push({
         referenced_on_column_name: primaryColumn.column_name,
