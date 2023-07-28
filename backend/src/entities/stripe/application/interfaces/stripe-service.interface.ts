@@ -38,4 +38,6 @@ export interface IStripeService {
     defaultPaymentMethodId: string,
     subscriptionLevel: SubscriptionLevelEnum,
   ): Promise<ISubscriptionUpgradeResult>;
+
+  createStripeCustomer(userId: string, userEmail: string): Promise<string>;
 }

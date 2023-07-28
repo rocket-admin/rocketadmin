@@ -28,6 +28,20 @@ export class GetStripeIntentIdUseCase extends AbstractUseCase<string, StripeInte
         HttpStatus.NOT_FOUND,
       );
     }
+    if (!user.stripeId) {
+      const createdCustomerId: string = await this.stripeService.createStripeCustomer(user.id, user.email);
+      if (!createdCustomerId) {
+        throw new HttpException(
+          {
+            message: Messages.FAILED_TO_CREATE_STRIPE_CUSTOMER,
+          },
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+      user.stripeId = createdCustomerId;
+      await this._dbContext.userRepository.saveUserEntity(user);
+    }
+
     const result = await this.stripeService.createStripeSetupIntent(user.stripeId);
     if (result) {
       return {
