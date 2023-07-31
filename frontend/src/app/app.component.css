@@ -16,6 +16,17 @@
     background-color: #171D39;
 }
 
+.nav-bar_home {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.nav-bar_connection {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+}
+
 @media screen and (max-width: 600px) {
     .nav-bar {
         display: flex;
@@ -68,6 +79,10 @@
     }
 }
 
+.nav-bar__account-button {
+    color: #fff;
+}
+
 .authButton {
     align-items: center;
     background: var(--bg-color);
@@ -110,6 +125,9 @@
 }
 
 .menu {
+    display: flex;
+    align-items: center;
+    justify-content: center;
     text-align: center;
 }
 
@@ -237,4 +255,9 @@
     font-size: inherit;
     font-weight: inherit;
     margin: 4px 0;
+}
+
+.user-email {
+    color: rgba(0, 0, 0, 0.54);
+    font-size: 12px;
 }
