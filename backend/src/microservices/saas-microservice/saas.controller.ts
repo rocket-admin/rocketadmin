@@ -1,7 +1,12 @@
 import { UseInterceptors, Controller, Injectable, Inject, Post, Body, Get, Param } from '@nestjs/common';
 import { SentryInterceptor } from '../../interceptors/sentry.interceptor.js';
 import { UseCaseType } from '../../common/data-injection.tokens.js';
-import { ICompanyRegistration, IGetUserInfo, ISaasRegisterUser } from './use-cases/saas-use-cases.interface.js';
+import {
+  ICompanyRegistration,
+  IGetUserInfo,
+  ILoginUserWithGoogle,
+  ISaasRegisterUser,
+} from './use-cases/saas-use-cases.interface.js';
 import { RegisteredCompanyDS } from './data-structures/registered-company.ds.js';
 import { UserEntity } from '../../entities/user/user.entity.js';
 import { FoundUserDs } from '../../entities/user/application/data-structures/found-user.ds.js';
@@ -19,6 +24,8 @@ export class SaasController {
     private readonly getUserInfoByEmailUseCase: IGetUserInfo,
     @Inject(UseCaseType.SAAS_USUAL_REGISTER_USER)
     private readonly usualRegisterUserUseCase: ISaasRegisterUser,
+    @Inject(UseCaseType.SAAS_LOGIN_USER_WITH_GOOGLE)
+    private readonly loginUserWithGoogleUseCase: ILoginUserWithGoogle,
   ) {}
 
   @Post('/company/registered')
@@ -47,6 +54,15 @@ export class SaasController {
     @Body('gclidValue') gclidValue: string,
     @Body('name') name: string,
   ): Promise<FoundUserDs> {
-    return await this.usualRegisterUserUseCase.execute({ email, password, gclidValue, name});
+    return await this.usualRegisterUserUseCase.execute({ email, password, gclidValue, name });
+  }
+
+  @Post('user/google/login')
+  async loginUserWithGoogle(
+    @Body('email') email: string,
+    @Body('name') name: string,
+    @Body('glidCookieValue') glidCookieValue: string,
+  ): Promise<UserEntity> {
+    return await this.loginUserWithGoogleUseCase.execute({ email, name, glidCookieValue });
   }
 }

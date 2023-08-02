@@ -7,6 +7,7 @@ import { SaaSAuthMiddleware } from '../../authorization/saas-auth.middleware.js'
 import { getUserInfoUseCase } from './use-cases/get-user-info.use.case.js';
 import { getUserInfoByEmailUseCase } from './use-cases/get-user-info-by-email.use.case.js';
 import { SaasUsualRegisterUseCase } from './use-cases/saas-usual-register-user.use.case.js';
+import { LoginWithGoogleUseCase } from './use-cases/login-with-google.use.case.js';
 
 @Module({
   imports: [],
@@ -30,6 +31,10 @@ import { SaasUsualRegisterUseCase } from './use-cases/saas-usual-register-user.u
     {
       provide: UseCaseType.SAAS_USUAL_REGISTER_USER,
       useClass: SaasUsualRegisterUseCase,
+    },
+    {
+      provide: UseCaseType.SAAS_LOGIN_USER_WITH_GOOGLE,
+      useClass: LoginWithGoogleUseCase,
     }
   ],
   controllers: [SaasController],
@@ -44,6 +49,7 @@ export class SaasModule {
         { path: 'saas/user/:userId', method: RequestMethod.GET },
         { path: 'saas/user/email/:userEmail', method: RequestMethod.GET },
         { path: 'saas/user/register', method: RequestMethod.POST },
+        { path: 'saas/user/google/login', method: RequestMethod.POST}
       );
   }
 }
