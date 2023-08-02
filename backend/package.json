@@ -97,6 +97,7 @@
     "sinon": "15.2.0",
     "stripe": "12.10.0",
     "typeorm": "0.3.17",
+    "undici": "^5.22.1",
     "uuid": "^9.0.0",
     "validator": "^13.9.0",
     "winston": "3.9.0"

@@ -6,6 +6,7 @@ import { RegisteredCompanyWebhookUseCase } from './use-cases/register-company-we
 import { SaaSAuthMiddleware } from '../../authorization/saas-auth.middleware.js';
 import { getUserInfoUseCase } from './use-cases/get-user-info.use.case.js';
 import { getUserInfoByEmailUseCase } from './use-cases/get-user-info-by-email.use.case.js';
+import { SaasUsualRegisterUseCase } from './use-cases/saas-usual-register-user.use.case.js';
 
 @Module({
   imports: [],
@@ -26,6 +27,10 @@ import { getUserInfoByEmailUseCase } from './use-cases/get-user-info-by-email.us
       provide: UseCaseType.SAAS_GET_USER_INFO_BY_EMAIL,
       useClass: getUserInfoByEmailUseCase,
     },
+    {
+      provide: UseCaseType.SAAS_USUAL_REGISTER_USER,
+      useClass: SaasUsualRegisterUseCase,
+    }
   ],
   controllers: [SaasController],
   exports: [],
@@ -38,6 +43,7 @@ export class SaasModule {
         { path: 'saas/company/registered', method: RequestMethod.POST },
         { path: 'saas/user/:userId', method: RequestMethod.GET },
         { path: 'saas/user/email/:userEmail', method: RequestMethod.GET },
+        { path: 'saas/user/register', method: RequestMethod.POST },
       );
   }
 }
