@@ -83,6 +83,8 @@
                 </a>
 
                 <button mat-icon-button type="button" data-testid="account-menu-anchor"
+                    matBadge="1" [matBadgeHidden]="currentUser.isActive"
+                    matBadgeColor="accent" matBadgeSize="small"
                     [matMenuTriggerFor]="accountMenu"
                     matTooltip="{{currentUser.email}}"
                     class="nav-bar__account-button">
@@ -90,7 +92,11 @@
                 </button>
                 <mat-menu #accountMenu="matMenu" data-testid="account-menu-dropdown">
                     <a mat-menu-item routerLink="/user-settings" data-testid="account-menu-account-link">
-                        <mat-icon>face</mat-icon>
+                        <mat-icon class="nav-menu__list-link-icon"
+                            matBadge="1" [matBadgeHidden]="currentUser.isActive"
+                            matBadgeColor="accent" matBadgeSize="small">
+                            face
+                        </mat-icon>
                         <span>Account</span>
                         <br/>
                         <span class="user-email">{{currentUser.email}}</span>
@@ -104,7 +110,6 @@
                         <span>Log out</span>
                     </button>
                 </mat-menu>
-
             </div>
 
             <div *ngIf="userLoggedIn === null" class="actions">

@@ -7,13 +7,13 @@ import { InfoDialogComponent } from './info-dialog/info-dialog.component';
 import { Log } from 'src/app/models/logs';
 import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator } from '@angular/material/paginator';
+import { ServerError } from 'src/app/models/alert';
 import { TableProperties } from 'src/app/models/table';
 import { TablesService } from 'src/app/services/tables.service';
 import { Title } from '@angular/platform-browser';
 import { User } from '@sentry/angular';
 import { UsersService } from 'src/app/services/users.service';
 import { tap } from 'rxjs/operators';
-import { ServerError } from 'src/app/models/alert';
 
 @Component({
   selector: 'app-audit',
@@ -22,6 +22,7 @@ import { ServerError } from 'src/app/models/alert';
 })
 export class AuditComponent implements OnInit, OnDestroy {
   public connectionID: string;
+  public accesLevel: string;
   public columns: string[];
   public dataColumns: string[];
   public tablesList: TableProperties[] = null;
@@ -61,6 +62,7 @@ export class AuditComponent implements OnInit, OnDestroy {
       console.log('audit ngOnInit');
     });
     this.connectionID = this._connections.currentConnectionID;
+    this.accesLevel = this._connections.currentConnectionAccessLevel;
     this.columns = ['Table', 'User', 'Action', 'Date', 'Status', 'Details'];
     this.dataColumns = ['Table', 'User', 'Action', 'Date', 'Status'];
     this.dataSource = new AuditDataSource(this._connections);
@@ -77,7 +79,7 @@ export class AuditComponent implements OnInit, OnDestroy {
         this.serverError = {abstract: err.error.message, details: err.error.originalMessage};
       })
 
-    this._users.fetchConnectionUsers(this.connectionID)
+    if (this.accesLevel !== 'none') this._users.fetchConnectionUsers(this.connectionID)
       .subscribe(res => {
         this.usersList = res;
       })

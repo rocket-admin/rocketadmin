@@ -11,8 +11,6 @@
 
 .nav-bar {
     flex-shrink: 0;
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
     background-color: #171D39;
 }
 
@@ -35,7 +33,9 @@
 }
 
 .nav-bar_white {
-    grid-template-columns: 1fr auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
     background-color: #fff;
     box-shadow: 0px -10px 100px rgba(23, 29, 57, 0.08);
 }
@@ -47,12 +47,20 @@
     font-weight: 400 !important;
 }
 
-.nav-bar__button ::ng-deep .mat-badge-content {
+.nav-bar__account-button ::ng-deep .mat-badge-content {
     top: 6px;
+    right: 6px !important;
+    color: var(--color-accentedPalette);
+    height: 8px !important;
+    width: 8px !important;
+}
+
+.nav-menu__list-link-icon ::ng-deep .mat-badge-content {
+    top: 0;
     right: 0 !important;
-    color: var(--color-accentedPalette-500);
-    height: 6px;
-    width: 6px;
+    color: var(--color-accentedPalette);
+    height: 8px !important;
+    width: 8px !important;
 }
 
 .nav-bar__button_active {
