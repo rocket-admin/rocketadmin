@@ -5,6 +5,7 @@ import { DatabaseModule } from '../../src/shared/database/database.module.js';
 import { DatabaseService } from '../../src/shared/database/database.service.js';
 import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
+import { registerUserOnSaasAndReturnUserInfo } from '../utils/register-user-and-return-user-info.js';
 
 let app: INestApplication;
 

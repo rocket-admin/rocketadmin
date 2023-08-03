@@ -336,13 +336,15 @@ export class DataAccessObjectPostgres extends BasicDataAccessObject implements I
     SELECT table_name, table_type = 'VIEW' AS is_view
     FROM information_schema.tables
     WHERE table_schema = ?
-        AND table_catalog = ?
+        AND table_catalog = current_database()
     `;
-    const bindings = [schema, database];
+    const bindings = [schema];
     try {
       const results = await knex.raw(query, bindings);
+      console.log({ tablesPg: results });
       return results.rows.map((row: Record<string, unknown>) => ({ tableName: row.table_name, isView: !!row.is_view }));
     } catch (error) {
+      console.log({ tablesPg: error });
       throw error;
     }
   }
@@ -508,11 +510,11 @@ export class DataAccessObjectPostgres extends BasicDataAccessObject implements I
                      AND r.constraint_name = fk.constraint_name
       WHERE
           u.column_name = ? AND
-          u.table_catalog = ? AND
+          u.table_catalog = current_database() AND
           u.table_schema = ? AND
           u.table_name = ?
       `,
-        [primaryColumn.column_name, this.connection.database, schema, tableName],
+        [primaryColumn.column_name, schema, tableName],
       );
       results.push({
         referenced_on_column_name: primaryColumn.column_name,
