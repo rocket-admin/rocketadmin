@@ -1,4 +1,5 @@
 .wrapper {
+    position: relative;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -20,17 +21,27 @@
 }
 
 .related-views {
+    position: fixed;
+    top: calc(52px + 96px);
+    right: 0;
     display: flex;
     flex-direction: column;
-    margin: 20px auto;
+    margin: 0 auto 0;
+    height: calc(100vh - 52px - 64px - 96px);
     max-width: 520px;
     min-width: 300px;
-    width: 96%;
+    overflow: auto;
+    width: max(calc(45vw - 260px), 2%);
+}
+
+.related-views__title {
+    margin-left: 8px;
 }
 
 .related-tables {
     display: flex;
     flex-wrap: wrap;
+    align-items: center;
     gap: 8px;
     margin: 12px 0;
 }
