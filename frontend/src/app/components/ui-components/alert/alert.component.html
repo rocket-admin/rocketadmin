@@ -1,10 +1,14 @@
 <div *ngIf="currentAlert" class="alert" [ngClass]="'alert_' + currentAlert.type">
     <mat-icon class="alert__icon">{{icons[currentAlert.type]}}</mat-icon>
-    <div *ngIf="currentAlert.message && getMessageType() === 'complexMessage'" class="alert__message mat-body-1">
-        <strong>{{messageAbstract}}</strong>
-        <p>{{messageDetails}}</p>
+    <div *ngIf="currentAlert.message && getMessageType() === 'complexMessage'"
+        attr.data-testid="alert-{{currentAlert.type}}-message-box"
+        class="alert__message mat-body-1">
+        <strong data-testid="alert-abstract">{{messageAbstract}}</strong>
+        <p data-testid="alert-details">{{messageDetails}}</p>
     </div>
-    <p *ngIf="currentAlert.message && getMessageType() === 'plainMessage'" class="alert__message mat-body-1">
+    <p *ngIf="currentAlert.message && getMessageType() === 'plainMessage'"
+        attr.data-testid="alert-{{currentAlert.type}}-message"
+        class="alert__message mat-body-1">
         {{currentAlert.message}}
     </p>
     <div *ngIf="currentAlert.message === null">
@@ -13,16 +17,16 @@
     <div *ngIf="currentAlert.actions" class="actions">
         <ng-container *ngFor="let action of currentAlert.actions">
             <button mat-button type="button" *ngIf="action.type === 'button'"
-                attr.data-testid="{{action.testID}}"
+                attr.data-testid="alert-action-button"
                 (click)="onButtonClick(currentAlert, action)">
                 {{action.caption}}
             </button>
             <a mat-button *ngIf="action.type === 'external link'"
-                [href]="action.to" target="_blank" attr.data-testid="{{action.testID}}">
+                [href]="action.to" target="_blank" attr.data-testid="alert-action-external-link">
                 {{action.caption}}
             </a>
             <a mat-button *ngIf="action.type === 'internal link'"
-                [routerLink]="action.to" attr.data-testid="{{action.testID}}">
+                [routerLink]="action.to" attr.data-testid="alert-action-internal-link">
                 {{action.caption}}
             </a>
         </ng-container>

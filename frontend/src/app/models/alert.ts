@@ -15,8 +15,7 @@ export interface AlertAction {
     type: AlertActionType,
     caption: string,
     to?: string,
-    action?: (id: number) => void,
-    testID?: string
+    action?: (id: number) => void
 }
 
 export interface Alert {

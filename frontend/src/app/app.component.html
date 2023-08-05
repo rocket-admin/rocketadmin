@@ -64,7 +64,7 @@
                     Connections
                 </a>
                 <mat-icon class="nav-bar__button">chevron_right</mat-icon>
-                <a mat-button *ngFor="let tab of visibleTabs" attr.data-testid="{{tab}}-tab"
+                <a mat-button *ngFor="let tab of visibleTabs" attr.data-testid="{{tab}}-header-link"
                     routerLink="{{tab}}/{{connectionID}}"
                     routerLinkActive="nav-bar__button_active"
                     class="action nav-bar__button">
@@ -77,12 +77,12 @@
             </button>
 
             <div *ngIf="userLoggedIn === true" class="actions actions_auth">
-                <a routerLink="/upgrade" mat-flat-button data-test-id="upgrade-local-link"
+                <a routerLink="/upgrade" mat-flat-button data-testid="upgrade-header-link"
                     routerLinkActive="mat-accent" class="nav-bar__upgrade-button">
                     Upgrade
                 </a>
 
-                <button mat-icon-button type="button" data-testid="account-menu-anchor"
+                <button mat-icon-button type="button" data-testid="account-menu-anchor-header-button"
                     matBadge="1" [matBadgeHidden]="currentUser.isActive"
                     matBadgeColor="accent" matBadgeSize="small"
                     [matMenuTriggerFor]="accountMenu"
@@ -91,7 +91,7 @@
                     <mat-icon>account_circle</mat-icon>
                 </button>
                 <mat-menu #accountMenu="matMenu" data-testid="account-menu-dropdown">
-                    <a mat-menu-item routerLink="/user-settings" data-testid="account-menu-account-link">
+                    <a mat-menu-item routerLink="/user-settings" data-testid="account-link-account-menu">
                         <mat-icon class="nav-menu__list-link-icon"
                             matBadge="1" [matBadgeHidden]="currentUser.isActive"
                             matBadgeColor="accent" matBadgeSize="small">
@@ -105,7 +105,7 @@
                         <mat-icon fontSet="material-icons-outlined">help_outlined</mat-icon>
                         <span>Help center</span>
                     </a>
-                    <button mat-menu-item (click)="logOut()" data-testid="account-menu-logout-button">
+                    <button mat-menu-item (click)="logOut()" data-testid="logout-button-account-menu">
                         <mat-icon>exit_to_app</mat-icon>
                         <span>Log out</span>
                     </button>

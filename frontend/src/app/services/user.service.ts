@@ -118,8 +118,7 @@ export class UserService {
           {
             type: AlertActionType.Button,
             caption: 'Dismiss',
-            action: (id: number) => this._notifications.dismissAlert(),
-            testID: 'password-reset-server-alert-dismiss-success-button'
+            action: (id: number) => this._notifications.dismissAlert()
           }
         ]);
         return res
@@ -130,8 +129,7 @@ export class UserService {
           {
             type: AlertActionType.Button,
             caption: 'Dismiss',
-            action: (id: number) => this._notifications.dismissAlert(),
-            testID: 'password-reset-request-server-alert-dismiss-error-button'
+            action: (id: number) => this._notifications.dismissAlert()
           }
         ]);
         return EMPTY;
@@ -152,8 +150,7 @@ export class UserService {
           {
             type: AlertActionType.Button,
             caption: 'Dismiss',
-            action: (id: number) => this._notifications.dismissAlert(),
-            testID: 'reset-password-server-alert-dismiss-button'
+            action: (id: number) => this._notifications.dismissAlert()
           }
         ]);
         return EMPTY;
