@@ -1,0 +1,53 @@
+<button mat-icon-button *ngIf="icon; else addButton"
+    type="button"
+    [matMenuTriggerFor]="menu"
+    [matTooltip]="tooltip"
+    [matTooltipDisabled]="!tooltip"
+    matTooltipPosition="above"
+    class="anchor-icon-button">
+    <mat-icon>
+        {{ icon }}
+    </mat-icon>
+</button>
+<ng-template #addButton>
+    <button mat-button type="button" [matMenuTriggerFor]="menu">
+        Add icon
+    </button>
+</ng-template>
+<mat-menu #menu="matMenu">
+    <div class="icons-menu">
+        <strong>Select an icon</strong>
+        <ul class="icons-list">
+            <li *ngFor="let defaultIcon of defaultIcons; let i = index">
+                <label for="defaultIcon-{{i}}" class="icon-radio-label">
+                    <input type="radio" name="action-icon"
+                        [value]="defaultIcon" id="defaultIcon-{{i}}"
+                        [(ngModel)]="icon"
+                        (ngModelChange)="onFieldChange.emit(icon)"
+                        class="icon-radio-button visually-hidden">
+                    <div class="icon-button">
+                        <mat-icon>{{ defaultIcon }}</mat-icon>
+                    </div>
+                </label>
+            </li>
+        </ul>
+        <div class="custom-icon-box" (click)="$event.stopPropagation();">
+            <mat-form-field appearance="outline" class="icon-input">
+                <mat-label>Another icon</mat-label>
+                <input matInput
+                    name="action-icon"
+                    [(ngModel)]="customIcon">
+                <mat-hint>
+                    More icons <a href="https://fonts.google.com/icons" target="_blank" class="google-icons-link">here</a>
+                </mat-hint>
+            </mat-form-field>
+            <button type="button" mat-button color="primary"
+                [disabled]="!customIcon"
+                class="apply-icon-button"
+                (click)="applyIcon()">
+                Apply
+            </button>
+        </div>
+
+    </div>
+</mat-menu>

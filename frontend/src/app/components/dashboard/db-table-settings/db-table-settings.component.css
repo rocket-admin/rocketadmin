@@ -7,7 +7,8 @@
 
 .settings-form {
     display: grid;
-    grid-template-columns: auto 40px;
+    grid-template-columns: 1fr auto;
+    grid-column-gap: 16px;
     align-items: center;
     padding: 24px max(calc(50vw - 325px), 10%) 60px;
 }
@@ -16,13 +17,18 @@
     grid-column: 1 / span 2;
 }
 
+.icon-picker {
+    margin-left: -4px;
+    margin-bottom: 20px;
+}
+
 .order-settings {
     position: relative;
 }
 
 .order-settings ::ng-deep .mat-expansion-panel-header {
     height: auto;
-    min-height: 60px;
+    min-height: 44px;
     padding: 0.75em;
 }
 
@@ -80,12 +86,12 @@
 
 .settings-form__tooltip {
     margin-bottom: 20px;
-    margin-left: auto;
 }
 
 .settings-form__resetButton {
     align-self: flex-start;
-    margin-top: 12px;
+    margin-top: 4px;
+    margin-left: -4px;
 }
 
 .form-group-ordering {
@@ -98,7 +104,6 @@
 
 .form-group-ordering__order-options {
     flex-shrink: 0;
-    margin-top: 10px;
     margin-left: 16px;
 }
 
@@ -126,53 +131,4 @@
 
 .settings-form__save-button {
     margin-left: 20px;
-}
-
-.settings-icon-menu {
-    margin-bottom: 20px;
-    margin-left: auto;
-    margin-right: -8px;
-}
-
-.settings-add-icon-button {
-    margin-right: -40px;
-}
-
-.icons-menu {
-    display: flex;
-    flex-direction: column;
-    padding: 0 16px;
-}
-
-.icons-list {
-    list-style: none;
-    display: grid;
-    grid-template-columns: repeat(5, 40px);
-    grid-gap: 4px;
-    justify-content: space-between;
-    margin-top: 12px;
-    margin-bottom: 12px;
-}
-
-.icon-button {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-    height: 40px;
-    width: 40px;
-}
-
-.icon-radio-button:checked + ::ng-deep.icon-button {
-    background-color: rgba(0,0,0,0.16);
-}
-
-.apply-icon-button {
-    align-self: flex-end;
-    margin-top: 4px;
-}
-
-.google-icons-link {
-    color: var(--color-primaryPalette-500);
-    text-decoration: none;
 }

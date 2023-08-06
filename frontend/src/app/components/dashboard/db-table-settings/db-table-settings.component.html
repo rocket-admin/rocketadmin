@@ -3,6 +3,7 @@
     <app-breadcrumbs [crumbs]="getCrumbs(currentConnection.title)" class="row-breadcrumbs"></app-breadcrumbs>
 
     <app-content-loader *ngIf="loading"></app-content-loader>
+
     <form action="" #tableSettingsForm="ngForm" (ngSubmit)="updateSettings()">
         <div class="settings-form">
             <mat-form-field appearance="outline">
@@ -10,54 +11,12 @@
                 <input matInput [(ngModel)]="tableSettings.display_name" name="display_name" #displayName="ngModel">
                 <!-- <mat-error *ngIf="title.errors?.required && (title.invalid && title.touched)">Title should not be empty.</mat-error> -->
             </mat-form-field>
-            <div class="settings-icon-menu">
-                <button mat-icon-button *ngIf="tableSettings.icon; else addButton"
-                    type="button"
-                    [matMenuTriggerFor]="menu"
-                    class="settings-icon">
-                    <mat-icon>
-                        {{ tableSettings.icon }}
-                    </mat-icon>
-                </button>
-                <ng-template #addButton>
-                    <button mat-button type="button" [matMenuTriggerFor]="menu" class="settings-add-icon-button">
-                        Add icon
-                    </button>
-                </ng-template>
-                <mat-menu #menu="matMenu">
-                    <div class="icons-menu">
-                        <strong>Select an icon</strong>
-                        <ul class="icons-list">
-                            <li *ngFor="let icon of defaultIcons; let i = index">
-                                <label for="icon-{{i}}" class="icon-radio-label" (click)="$event.stopPropagation();">
-                                    <input type="radio" name="action-icon"
-                                        [value]="icon" id="icon-{{i}}"
-                                        [(ngModel)]="tableSettings.icon"
-                                        class="icon-radio-button visually-hidden">
-                                    <div class="icon-button">
-                                        <mat-icon>{{icon}}</mat-icon>
-                                    </div>
-                                </label>
-                            </li>
-                        </ul>
-                        <mat-form-field appearance="outline" class="icon-input">
-                            <mat-label>Another icon</mat-label>
-                            <input matInput
-                                [(ngModel)]="tableSettings.icon"
-                                name="action-icon"
-                                (click)="$event.stopPropagation();">
-                            <mat-hint>
-                                More icons <a href="https://fonts.google.com/icons" target="_blank" (click)="$event.stopPropagation();" class="google-icons-link">here</a>
-                            </mat-hint>
-                        </mat-form-field>
-                        <!--<button mat-button color="primary"
-                            class="apply-icon-button"
-                            type="button">
-                            Apply
-                        </button>-->
-                    </div>
-                </mat-menu>
-            </div>
+            <app-icon-picker class="icon-picker"
+                [icon]="tableSettings.icon"
+                [defaultIcons]="defaultIcons"
+                tooltip="Choose an icon"
+                (onFieldChange)="updateIcon($event)">
+            </app-icon-picker>
 
             <mat-form-field appearance="outline">
                 <mat-label>Sensitive fields</mat-label>
@@ -110,7 +69,7 @@
                     </div>
                 </mat-expansion-panel>
             </div>
-            <button mat-button type="button"
+            <button mat-icon-button type="button"
                 class="settings-form__resetButton"
                 matTooltip="Reset"
                 [disabled]="tableSettings.list_fields.length === 0"
@@ -174,6 +133,20 @@
                 info_outline
             </mat-icon>
 
+            <mat-form-field appearance="outline">
+                <mat-label>Read-only fields</mat-label>
+                <mat-select multiple
+                    name="readonly_fields"
+                    [(ngModel)]="tableSettings.readonly_fields">
+                    <mat-option *ngFor="let field of fields" [value]="field">{{field}}</mat-option>
+                </mat-select>
+            </mat-form-field>
+            <mat-icon class="settings-form__tooltip"
+                matTooltip="Choose columns you want to display and protect from editing."
+                matTooltipPosition="above">
+                info_outline
+            </mat-icon>
+
             <div class="form-group-ordering settings-form__full-line">
                 <mat-form-field appearance="outline" class="form-group-ordering__ordering-by">
                     <mat-label>Ordering by field</mat-label>
@@ -191,20 +164,6 @@
                     <mat-radio-button value="DESC">Descending</mat-radio-button>
                 </mat-radio-group>
             </div>
-
-            <mat-form-field appearance="outline">
-                <mat-label>Read-only fields</mat-label>
-                <mat-select multiple
-                    name="readonly_fields"
-                    [(ngModel)]="tableSettings.readonly_fields">
-                    <mat-option *ngFor="let field of fields" [value]="field">{{field}}</mat-option>
-                </mat-select>
-            </mat-form-field>
-            <mat-icon class="settings-form__tooltip"
-                matTooltip="Choose columns you want to display and protect from editing."
-                matTooltipPosition="above">
-                info_outline
-            </mat-icon>
 
             <mat-form-field appearance="outline" class="settings-form__full-line">
                 <mat-label>Sort fields by</mat-label>
@@ -227,7 +186,7 @@
             <button mat-raised-button color="primary"
                 type="submit"
                 class="settings-form__save-button"
-                [disabled]="(submitting || tableSettingsForm.form.invalid || tableSettingsForm.form.pristine) && !orderChanged">
+                [disabled]="(submitting || tableSettingsForm.form.invalid || tableSettingsForm.form.pristine) && !orderChanged && !iconChanged">
                 Save
             </button>
         </div>
