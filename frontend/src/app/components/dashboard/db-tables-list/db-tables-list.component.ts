@@ -9,6 +9,7 @@ import { TableProperties } from 'src/app/models/table';
 })
 export class DbTablesListComponent {
   @Input() connectionID: string;
+  @Input() connectionTitle: string;
   @Input() tables: TableProperties[];
   @Input() selectedTable: string;
   @Input() collapsed: boolean;
