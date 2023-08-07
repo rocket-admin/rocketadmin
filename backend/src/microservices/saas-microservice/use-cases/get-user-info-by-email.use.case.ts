@@ -7,7 +7,7 @@ import { BaseType } from '../../../common/data-injection.tokens.js';
 import { IGetUserInfo } from './saas-use-cases.interface.js';
 
 @Injectable()
-export class getUserInfoByEmailUseCase extends AbstractUseCase<string, UserEntity> implements IGetUserInfo {
+export class GetUserInfoByEmailUseCase extends AbstractUseCase<string, UserEntity> implements IGetUserInfo {
   constructor(
     @Inject(BaseType.GLOBAL_DB_CONTEXT)
     protected _dbContext: IGlobalDatabaseContext,
