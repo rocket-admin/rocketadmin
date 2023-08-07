@@ -3,6 +3,7 @@ import { UsualRegisterUserDs } from '../../../entities/user/application/data-str
 import { UserEntity } from '../../../entities/user/user.entity.js';
 import { RegisterCompanyWebhookDS } from '../data-structures/register-company.ds.js';
 import { RegisteredCompanyDS } from '../data-structures/registered-company.ds.js';
+import { SaasRegisterUserWithGithub } from '../data-structures/saas-register-user-with-github.js';
 import { SaasRegisterUserWithGoogleDS } from '../data-structures/sass-register-user-with-google.js';
 
 export interface ICompanyRegistration {
@@ -19,4 +20,12 @@ export interface ISaasRegisterUser {
 
 export interface ILoginUserWithGoogle {
   execute(inputData: SaasRegisterUserWithGoogleDS): Promise<UserEntity>;
+}
+
+export interface IGetUserGithubIdInfo {
+  execute(githubId: number): Promise<UserEntity>;
+}
+
+export interface ILoginUserWithGitHub {
+  execute(userData: SaasRegisterUserWithGithub): Promise<UserEntity>;
 }

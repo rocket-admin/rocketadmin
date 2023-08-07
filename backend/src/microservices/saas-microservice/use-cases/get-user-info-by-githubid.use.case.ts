@@ -1,13 +1,13 @@
-import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
+import { Injectable, Inject, HttpException, HttpStatus } from '@nestjs/common';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
-import { UserEntity } from '../../../entities/user/user.entity.js';
-import { Messages } from '../../../exceptions/text/messages.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
-import { IGetUserInfo } from './saas-use-cases.interface.js';
+import { UserEntity } from '../../../entities/user/user.entity.js';
+import { Messages } from '../../../exceptions/text/messages.js';
+import { IGetUserGithubIdInfo } from './saas-use-cases.interface.js';
 
 @Injectable()
-export class GetUserInfoUseCase extends AbstractUseCase<string, UserEntity> implements IGetUserInfo {
+export class GetUserInfoByGitHubIdUseCase extends AbstractUseCase<number, UserEntity> implements IGetUserGithubIdInfo {
   constructor(
     @Inject(BaseType.GLOBAL_DB_CONTEXT)
     protected _dbContext: IGlobalDatabaseContext,
@@ -15,8 +15,8 @@ export class GetUserInfoUseCase extends AbstractUseCase<string, UserEntity> impl
     super();
   }
 
-  protected async implementation(userId: string): Promise<UserEntity> {
-    const foundUser = await this._dbContext.userRepository.findOneUserById(userId);
+  protected async implementation(githubId: number): Promise<UserEntity> {
+    const foundUser = await this._dbContext.userRepository.findOneUserByGitHubId(githubId);
     if (!foundUser) {
       throw new HttpException(
         {

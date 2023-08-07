@@ -3,7 +3,9 @@ import { SentryInterceptor } from '../../interceptors/sentry.interceptor.js';
 import { UseCaseType } from '../../common/data-injection.tokens.js';
 import {
   ICompanyRegistration,
+  IGetUserGithubIdInfo,
   IGetUserInfo,
+  ILoginUserWithGitHub,
   ILoginUserWithGoogle,
   ISaasRegisterUser,
 } from './use-cases/saas-use-cases.interface.js';
@@ -26,6 +28,10 @@ export class SaasController {
     private readonly usualRegisterUserUseCase: ISaasRegisterUser,
     @Inject(UseCaseType.SAAS_LOGIN_USER_WITH_GOOGLE)
     private readonly loginUserWithGoogleUseCase: ILoginUserWithGoogle,
+    @Inject(UseCaseType.SAAS_GET_USER_INFO_BY_GITHUBID)
+    private readonly getUserInfoUseCaseByGithubId: IGetUserGithubIdInfo,
+    @Inject(UseCaseType.SAAS_LOGIN_USER_WITH_GITHUB)
+    private readonly loginUserWithGithubUseCase: ILoginUserWithGitHub,
   ) {}
 
   @Post('/company/registered')
@@ -40,6 +46,11 @@ export class SaasController {
   @Get('/user/:userId')
   async getUserInfo(@Param('userId') userId: string): Promise<UserEntity> {
     return await this.getUserInfoUseCase.execute(userId);
+  }
+
+  @Get('/user/github/:githubId')
+  async getUserInfoByGitHubId(@Param('githubId') githubId: number): Promise<UserEntity> {
+    return await this.getUserInfoUseCaseByGithubId.execute(Number(githubId));
   }
 
   @Get('/user/email/:userEmail')
@@ -64,5 +75,15 @@ export class SaasController {
     @Body('glidCookieValue') glidCookieValue: string,
   ): Promise<UserEntity> {
     return await this.loginUserWithGoogleUseCase.execute({ email, name, glidCookieValue });
+  }
+
+  @Post('user/github/login')
+  async loginUserWithGithub(
+    @Body('email') email: string,
+    @Body('name') name: string,
+    @Body('githubId') githubId: number,
+    @Body('glidCookieValue') glidCookieValue: string,
+  ): Promise<UserEntity> {
+    return await this.loginUserWithGithubUseCase.execute({ email, name, githubId, glidCookieValue });
   }
 }

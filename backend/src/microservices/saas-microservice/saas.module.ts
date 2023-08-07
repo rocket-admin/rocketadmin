@@ -4,10 +4,12 @@ import { GlobalDatabaseContext } from '../../common/application/global-database-
 import { BaseType, UseCaseType } from '../../common/data-injection.tokens.js';
 import { RegisteredCompanyWebhookUseCase } from './use-cases/register-company-webhook.use.case.js';
 import { SaaSAuthMiddleware } from '../../authorization/saas-auth.middleware.js';
-import { getUserInfoUseCase } from './use-cases/get-user-info.use.case.js';
-import { getUserInfoByEmailUseCase } from './use-cases/get-user-info-by-email.use.case.js';
+import { GetUserInfoUseCase } from './use-cases/get-user-info.use.case.js';
+import { GetUserInfoByEmailUseCase } from './use-cases/get-user-info-by-email.use.case.js';
 import { SaasUsualRegisterUseCase } from './use-cases/saas-usual-register-user.use.case.js';
 import { LoginWithGoogleUseCase } from './use-cases/login-with-google.use.case.js';
+import { GetUserInfoByGitHubIdUseCase } from './use-cases/get-user-info-by-githubid.use.case.js';
+import { LoginUserWithGithubUseCase } from './use-cases/login-with-github.use.case.js';
 
 @Module({
   imports: [],
@@ -22,11 +24,11 @@ import { LoginWithGoogleUseCase } from './use-cases/login-with-google.use.case.j
     },
     {
       provide: UseCaseType.SAAS_GET_USER_INFO,
-      useClass: getUserInfoUseCase,
+      useClass: GetUserInfoUseCase,
     },
     {
       provide: UseCaseType.SAAS_GET_USER_INFO_BY_EMAIL,
-      useClass: getUserInfoByEmailUseCase,
+      useClass: GetUserInfoByEmailUseCase,
     },
     {
       provide: UseCaseType.SAAS_USUAL_REGISTER_USER,
@@ -35,7 +37,15 @@ import { LoginWithGoogleUseCase } from './use-cases/login-with-google.use.case.j
     {
       provide: UseCaseType.SAAS_LOGIN_USER_WITH_GOOGLE,
       useClass: LoginWithGoogleUseCase,
-    }
+    },
+    {
+      provide: UseCaseType.SAAS_GET_USER_INFO_BY_GITHUBID,
+      useClass: GetUserInfoByGitHubIdUseCase,
+    },
+    {
+      provide: UseCaseType.SAAS_LOGIN_USER_WITH_GITHUB,
+      useClass: LoginUserWithGithubUseCase,
+    },
   ],
   controllers: [SaasController],
   exports: [],
@@ -49,7 +59,9 @@ export class SaasModule {
         { path: 'saas/user/:userId', method: RequestMethod.GET },
         { path: 'saas/user/email/:userEmail', method: RequestMethod.GET },
         { path: 'saas/user/register', method: RequestMethod.POST },
-        { path: 'saas/user/google/login', method: RequestMethod.POST}
+        { path: 'saas/user/google/login', method: RequestMethod.POST },
+        { path: 'saas/user/github/:githubId', method: RequestMethod.GET },
+        { path: 'saas/user/github/login', method: RequestMethod.POST },
       );
   }
 }
