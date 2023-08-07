@@ -62,7 +62,7 @@ export class UpdateConnectionUseCase
     });
     for (const key of Object.keys(connection_parameters)) {
       // eslint-disable-next-line security/detect-object-injection
-      if (!connection_parameters[key] && !booleanKeys.includes(key)) {
+      if (!connection_parameters[key] && !booleanKeys.includes(key) && key !== 'title' && key !== 'schema') {
         // eslint-disable-next-line security/detect-object-injection
         delete connection_parameters[key];
       }
