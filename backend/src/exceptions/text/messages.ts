@@ -121,6 +121,7 @@ export const Messages = {
   GOOGLE_LOGIN_FAILED:
     'Google login failed. Please try again later. If the problem persists, please contact our support team',
   GITHUB_AUTHENTICATION_FAILED: `GitHub authentication failed. Please try again later. If the problem persists, please contact our support team`,
+  GITHUB_REGISTRATION_FAILED: `Registration with github failed. Please try again later. If the problem persists, please contact our support team`,
   HOST_MISSING: 'Host is missing',
   HOST_NAME_INVALID: 'Hostname is invalid',
   ID_MISSING: 'Id is missing',

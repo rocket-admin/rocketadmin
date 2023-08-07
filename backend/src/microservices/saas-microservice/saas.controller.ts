@@ -1,7 +1,14 @@
 import { UseInterceptors, Controller, Injectable, Inject, Post, Body, Get, Param } from '@nestjs/common';
 import { SentryInterceptor } from '../../interceptors/sentry.interceptor.js';
 import { UseCaseType } from '../../common/data-injection.tokens.js';
-import { ICompanyRegistration, IGetUserInfo, ISaasRegisterUser } from './use-cases/saas-use-cases.interface.js';
+import {
+  ICompanyRegistration,
+  IGetUserGithubIdInfo,
+  IGetUserInfo,
+  ILoginUserWithGitHub,
+  ILoginUserWithGoogle,
+  ISaasRegisterUser,
+} from './use-cases/saas-use-cases.interface.js';
 import { RegisteredCompanyDS } from './data-structures/registered-company.ds.js';
 import { UserEntity } from '../../entities/user/user.entity.js';
 import { FoundUserDs } from '../../entities/user/application/data-structures/found-user.ds.js';
@@ -19,6 +26,12 @@ export class SaasController {
     private readonly getUserInfoByEmailUseCase: IGetUserInfo,
     @Inject(UseCaseType.SAAS_USUAL_REGISTER_USER)
     private readonly usualRegisterUserUseCase: ISaasRegisterUser,
+    @Inject(UseCaseType.SAAS_LOGIN_USER_WITH_GOOGLE)
+    private readonly loginUserWithGoogleUseCase: ILoginUserWithGoogle,
+    @Inject(UseCaseType.SAAS_GET_USER_INFO_BY_GITHUBID)
+    private readonly getUserInfoUseCaseByGithubId: IGetUserGithubIdInfo,
+    @Inject(UseCaseType.SAAS_LOGIN_USER_WITH_GITHUB)
+    private readonly loginUserWithGithubUseCase: ILoginUserWithGitHub,
   ) {}
 
   @Post('/company/registered')
@@ -35,6 +48,11 @@ export class SaasController {
     return await this.getUserInfoUseCase.execute(userId);
   }
 
+  @Get('/user/github/:githubId')
+  async getUserInfoByGitHubId(@Param('githubId') githubId: number): Promise<UserEntity> {
+    return await this.getUserInfoUseCaseByGithubId.execute(Number(githubId));
+  }
+
   @Get('/user/email/:userEmail')
   async getUserInfoByEmail(@Param('userEmail') userEmail: string): Promise<UserEntity> {
     return await this.getUserInfoByEmailUseCase.execute(userEmail);
@@ -47,6 +65,25 @@ export class SaasController {
     @Body('gclidValue') gclidValue: string,
     @Body('name') name: string,
   ): Promise<FoundUserDs> {
-    return await this.usualRegisterUserUseCase.execute({ email, password, gclidValue, name});
+    return await this.usualRegisterUserUseCase.execute({ email, password, gclidValue, name });
+  }
+
+  @Post('user/google/login')
+  async loginUserWithGoogle(
+    @Body('email') email: string,
+    @Body('name') name: string,
+    @Body('glidCookieValue') glidCookieValue: string,
+  ): Promise<UserEntity> {
+    return await this.loginUserWithGoogleUseCase.execute({ email, name, glidCookieValue });
+  }
+
+  @Post('user/github/login')
+  async loginUserWithGithub(
+    @Body('email') email: string,
+    @Body('name') name: string,
+    @Body('githubId') githubId: number,
+    @Body('glidCookieValue') glidCookieValue: string,
+  ): Promise<UserEntity> {
+    return await this.loginUserWithGithubUseCase.execute({ email, name, githubId, glidCookieValue });
   }
 }
