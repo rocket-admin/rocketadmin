@@ -1,7 +1,7 @@
 <div class="wrapper">
     <header>
             <h1 class="mat-h1">User groups</h1>
-            <button mat-button
+            <button mat-button *ngIf="connectionAccessLevel !== 'none'"
                 color="primary" class="add-group-button"
                 angulartics2On="click"
                 angularticsAction="Users: add group dialog is opened"
@@ -48,7 +48,10 @@
             <mat-list role="list">
                 <mat-list-item role="listitem" *ngFor="let user of users[groupItem.group.id]">
                     <div class="user">
-                        <span>{{user.name || user.email}}</span>
+                        <span *ngIf="user.name; else userEmail">{{user.name}} ({{user.email}})</span>
+                        <ng-template #userEmail>
+                            <span>{{user.email}}</span>
+                        </ng-template>
                         <button mat-icon-button *ngIf="(currentUser?.email !== user.email) && isPermitted(groupItem.accessLevel)"
                             angulartics2On="click"
                             angularticsAction="Users: delete user dialog is opened"

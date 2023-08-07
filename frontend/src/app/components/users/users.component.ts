@@ -58,6 +58,10 @@ export class UsersComponent implements OnInit, OnDestroy {
     this.getTitleSubscription.unsubscribe();
   }
 
+  get connectionAccessLevel() {
+    return this._connections.currentConnectionAccessLevel || 'none';
+  }
+
   isPermitted(accessLevel) {
     return accessLevel === 'fullaccess' || accessLevel === 'edit'
   }
