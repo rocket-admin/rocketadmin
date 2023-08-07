@@ -35,8 +35,7 @@ export class AuthService {
             {
               type: AlertActionType.Button,
               caption: 'Dismiss',
-              action: () => this._notifications.dismissAlert(),
-              testID: 'registration-server-alert-dismiss-button'
+              action: () => this._notifications.dismissAlert()
             }
           ]);
           return EMPTY;
@@ -57,8 +56,7 @@ export class AuthService {
           {
             type: AlertActionType.Button,
             caption: 'Dismiss',
-            action: () => this._notifications.dismissAlert(),
-            testID: 'login-server-alert-dismiss-button'
+            action: () => this._notifications.dismissAlert()
           }
         ]);
         return EMPTY;
@@ -100,8 +98,7 @@ export class AuthService {
           {
             type: AlertActionType.Button,
             caption: 'Dismiss',
-            action: (id: number) => this._notifications.dismissAlert(),
-            testID: 'login-with-google-server-alert-dismiss-button'
+            action: (id: number) => this._notifications.dismissAlert()
           }
         ]);
         return EMPTY;

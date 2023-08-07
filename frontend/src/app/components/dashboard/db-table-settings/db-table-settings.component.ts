@@ -26,6 +26,7 @@ export class DbTableSettingsComponent implements OnInit {
   public fields: string[];
   public fields_to_exclude: string[];
   public orderChanged: boolean;
+  public iconChanged: boolean = false;
   public listFieldsOrder: string[];
   public tableSettings: TableSettings = {
     connection_id: '',
@@ -96,7 +97,6 @@ export class DbTableSettingsComponent implements OnInit {
   }
 
   getTableSettings() {
-    console.log('getTableSettings');
     this._tables.fetchTableSettings(this.connectionID, this.tableName)
       .subscribe(res => {
         this.loading = false;
@@ -110,6 +110,11 @@ export class DbTableSettingsComponent implements OnInit {
         };
       }
     );
+  }
+
+  updateIcon(icon: string) {
+    this.tableSettings.icon = icon;
+    this.iconChanged = true;
   }
 
   drop(event: CdkDragDrop<string[]>) {

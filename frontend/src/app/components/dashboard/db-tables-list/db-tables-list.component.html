@@ -1,7 +1,7 @@
 <div class="sidenav-header">
     <mat-icon *ngIf="collapsed; else tableHeader">table_view</mat-icon>
     <ng-template #tableHeader>
-        <h1 class="mat-h1">Tables</h1>
+        <h1 class="mat-h2 connection-title">{{connectionTitle}}</h1>
     </ng-template>
 </div>
 

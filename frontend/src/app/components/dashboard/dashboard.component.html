@@ -38,15 +38,16 @@
                 [collapsed]="!shownTableTitles"
                 [tables]="tablesList"
                 [connectionID]="connectionID"
+                [connectionTitle]="currentConnectionTitle"
                 [selectedTable]="selectedTableName">
             </app-db-tables-list>
         </mat-sidenav>
         <mat-sidenav-content>
-            <app-alert class="server-alert" data-testid="alert-server-error"></app-alert>
+            <app-alert class="server-alert"></app-alert>
             <div class="alerts">
-                <app-alert *ngIf="dataSource.alert_settingsInfo" [alert]="dataSource.alert_settingsInfo" data-testid="alert-not-configured"></app-alert>
-                <app-alert *ngIf="dataSource.alert_primaryKeysInfo" [alert]="dataSource.alert_primaryKeysInfo" data-testid="alert-no-primary-keys"></app-alert>
-                <app-alert *ngIf="dataSource.alert_widgetsWarning" [alert]="dataSource.alert_widgetsWarning" data-testid="alert-widgets-warning"></app-alert>
+                <app-alert *ngIf="dataSource.alert_settingsInfo" [alert]="dataSource.alert_settingsInfo"></app-alert>
+                <app-alert *ngIf="dataSource.alert_primaryKeysInfo" [alert]="dataSource.alert_primaryKeysInfo"></app-alert>
+                <app-alert *ngIf="dataSource.alert_widgetsWarning" [alert]="dataSource.alert_widgetsWarning"></app-alert>
             </div>
 
             <app-content-loader *ngIf="dataSource === null"></app-content-loader>

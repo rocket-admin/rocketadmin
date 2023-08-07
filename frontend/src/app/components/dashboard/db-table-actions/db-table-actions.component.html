@@ -61,47 +61,12 @@
 
                 <div class="actions-icon-selector">
                     <span>Icon</span>
-                    <button mat-icon-button type="button" [matMenuTriggerFor]="menu">
-                        <mat-icon *ngIf="selectedAction.icon; else defaultIcon" fontSet="material-icons-outlined">
-                            {{ selectedAction.icon }}
-                        </mat-icon>
-                        <ng-template #defaultIcon>
-                            <mat-icon fontSet="material-icons-outlined">add_reaction</mat-icon>
-                        </ng-template>
-                    </button>
-                    <mat-menu #menu="matMenu">
-                        <div class="icons-menu">
-                            <strong>Select an icon</strong>
-                            <ul class="icons-list">
-                                <li *ngFor="let icon of defaultIcons; let i = index">
-                                    <label for="icon-{{i}}" class="icon-radio-label" (click)="$event.stopPropagation();">
-                                        <input type="radio" name="action-icon"
-                                            [value]="icon" id="icon-{{i}}"
-                                            [(ngModel)]="selectedAction.icon"
-                                            class="icon-radio-button visually-hidden">
-                                        <div class="icon-button">
-                                            <mat-icon fontSet="material-icons-outlined">{{icon}}</mat-icon>
-                                        </div>
-                                    </label>
-                                </li>
-                            </ul>
-                            <mat-form-field appearance="outline" class="icon-input">
-                                <mat-label>Another icon</mat-label>
-                                <input matInput
-                                    [(ngModel)]="selectedAction.icon"
-                                    name="action-icon"
-                                    (click)="$event.stopPropagation();">
-                                <mat-hint>
-                                    More icons <a href="https://fonts.google.com/icons" target="_blank" (click)="$event.stopPropagation();" class="google-icons-link">here</a>
-                                </mat-hint>
-                            </mat-form-field>
-                            <!--<button mat-button color="primary"
-                                class="apply-icon-button"
-                                type="button">
-                                Apply
-                            </button>-->
-                        </div>
-                    </mat-menu>
+                    <app-icon-picker class="icon-picker"
+                        [icon]="selectedAction.icon"
+                        [defaultIcons]="defaultIcons"
+                        tooltip="Choose an icon"
+                        (onFieldChange)="updateIcon($event)">
+                    </app-icon-picker>
                 </div>
 
                 <mat-form-field appearance="outline">

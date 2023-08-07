@@ -105,6 +105,10 @@ export class DbTableActionsComponent implements OnInit {
     this.updatedActionTitle = action.title;
   }
 
+  updateIcon(icon: string) {
+    this.selectedAction.icon = icon;
+  }
+
   switchActionView(action: CustomAction) {
     this.setSelectedAction(action);
   }

@@ -53,7 +53,8 @@ describe('PasswordChangeComponent', () => {
       email: 'my@email.com',
       isActive: true,
       portal_link: 'http://lsdkjfl.dhj',
-      subscriptionLevel: SubscriptionPlans.free
+      subscriptionLevel: SubscriptionPlans.free,
+      "is_2fa_enabled": false
     };
     const fakeChangePassword = spyOn(userService, 'changePassword').and.returnValue(of());
 

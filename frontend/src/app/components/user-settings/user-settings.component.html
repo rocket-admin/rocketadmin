@@ -7,14 +7,13 @@
     </h1>
 
     <div class="user-settings mat-body-1">
-        <form class="user-settings__section-heading">
+        <form class="user-settings__section-heading" (ngSubmit)="changeUserName()">
             <mat-form-field appearance="outline" class="user-settings__name">
                 <mat-label>Name</mat-label>
                 <input matInput [(ngModel)]="userName" name="user-name" #nameField="ngModel" data-testid="user-name-input">
             </mat-form-field>
             <button type="button" mat-button color="primary" data-testid="save-user-name-button"
                 class="user-settings__save-button"
-                (click)="changeUserName()"
                 [disabled]="!nameField.dirty || submittingChangedName">
                 Save
             </button>
@@ -44,18 +43,43 @@
 
         <div class="user-settings__section-heading">
             <strong>Current plan:</strong>
-            <a mat-button color="accent" class="upgrade-button"
-                routerLink="/upgrade">
-                Manage payment settings
-            </a>
-        </div>
-        <span class="user-settings__value">
-            <span class="user-settings__value_capitalized">{{currentPlan}}</span>
-            <span *ngIf="currentPlan !== 'free'">
-                ({{ isAnnually ? 'annually' : 'monthly' }})
+            <span class="user-settings__value">
+                <span class="user-settings__value_capitalized">{{currentPlan}}</span>
+                <span *ngIf="currentPlan !== 'free'">
+                    ({{ isAnnually ? 'annually' : 'monthly' }})
+                </span>
             </span>
+        </div>
+        <a mat-button color="accent" class="upgrade-button"
+            routerLink="/upgrade"
+            class="user-settings__button">
+            Manage payment settings
+        </a>
 
-        </span>
+
+        <div>
+            <div class="twoFA-toggle">
+                <mat-slide-toggle [(ngModel)]="is2FAEnabledToggle"
+                    [disabled]="!currentUser.isActive"
+                    (change)="switch2FA($event)">
+                    Two-factor authentication
+                </mat-slide-toggle>
+                <mat-icon *ngIf="!currentUser.isActive" class="twoFAhint"
+                    matTooltip="Available only after email confirmation.">
+                    info_outline
+                </mat-icon>
+            </div>
+
+            <form *ngIf="is2FAswitchingOffSettingsShown" class="qr-verification" (ngSubmit)="switchOff2FA()">
+                <mat-form-field appearance="outline" class="user-settings__name">
+                    <mat-label>Enter the code from your authenticator</mat-label>
+                    <input matInput [(ngModel)]="authCode" name="code" #codeField="ngModel">
+                </mat-form-field>
+                <button type="submit" mat-button color="primary">
+                    Disable
+                </button>
+            </form>
+        </div>
 
     </div>
 

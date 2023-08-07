@@ -32,35 +32,43 @@
     </mat-sidenav>
 
     <mat-sidenav-content class="main-menu-content">
-        <mat-toolbar color="primary" class="nav-bar" [ngClass]="{'nav-bar_white': !userLoggedIn}">
-            <a routerLink="/connections-list" *ngIf="userLoggedIn; else externalLink" class="logo">
-                <img *ngIf="!logo && !name" src="../assets/rocketadmin_logo_white.svg" alt="Rocketadmin logo">
-                <img *ngIf="logo" [src]="logo || '../rocketadmin_logo_white.svg'" alt="Logo">
-                <span *ngIf="name">{{name}}</span>
+        <mat-toolbar color="primary" class="nav-bar"
+            [ngClass]="{'nav-bar_white': !userLoggedIn, 'nav-bar_home': !connectionID, 'nav-bar_connection': connectionID}">
+            <a routerLink="/dashboard/{{connectionID}}" *ngIf="userLoggedIn && logo && name" class="logo">
+                <img [src]="logo || '../assets/rocketadmin_logo_white.svg'" alt="Logo">
+                <span>{{name}}</span>
             </a>
 
-            <ng-template #externalLink>
-                <a href="https://rocketadmin.com/" class="logo">
-                    <img src="../assets/rocketadmin_logo_black.svg" alt="Rocketadmin logo">
-                </a>
-            </ng-template>
+            <a routerLink="/dashboard/{{connectionID}}" *ngIf="userLoggedIn && logo && !name" class="logo">
+                <img [src]="logo || '../assets/rocketadmin_logo_white.svg'" alt="Logo">
+            </a>
 
-            <div *ngIf="userLoggedIn === true" class="menu">
-                <a routerLink="/connections-list" mat-button data-testid="connections-list-header-link"
-                    class="action nav-bar__button"
+            <a routerLink="/dashboard/{{connectionID}}" *ngIf="userLoggedIn && !logo && name" class="logo">
+                <img [src]="logo || '../assets/rocketadmin_logo_white-short.svg'" alt="Logo">
+                <span>{{name}}</span>
+            </a>
+
+            <a routerLink="/connections-list" *ngIf="userLoggedIn && !logo && !name" class="logo">
+                <img *ngIf="!logo && !name" src="../assets/rocketadmin_logo_white.svg" alt="Rocketadmin logo">
+            </a>
+
+            <a *ngIf="!userLoggedIn" href="https://rocketadmin.com/" class="logo">
+                <img src="../assets/rocketadmin_logo_black.svg" alt="Rocketadmin logo">
+            </a>
+
+            <div *ngIf="connectionID" class="menu">
+                <a mat-button data-testid="connections-list-header-link"
+                    routerLink="/connections-list"
                     routerLinkActive="nav-bar__button_active"
-                    aria-label="List of connections">
+                    class="nav-bar__button">
                     Connections
                 </a>
-                <a routerLink="/user-settings" mat-button data-testid="account-header-link"
-                    matBadge="1" [matBadgeHidden]="currentUser.isActive"  matBadgeColor="accent" matBadgeSize="small"
-                    class="action nav-bar__button"
-                    routerLinkActive="nav-bar__button_active">
-                    Account
-                </a>
-                <a href="https://help.rocketadmin.com/" target="_blank" mat-button class="nav-bar__button">
-                    <!--<mat-icon>help_outline</mat-icon> -->
-                    Help
+                <mat-icon class="nav-bar__button">chevron_right</mat-icon>
+                <a mat-button *ngFor="let tab of visibleTabs" attr.data-testid="{{tab}}-header-link"
+                    routerLink="{{tab}}/{{connectionID}}"
+                    routerLinkActive="nav-bar__button_active"
+                    class="action nav-bar__button">
+                    {{navigationTabs[tab].caption}}
                 </a>
             </div>
 
@@ -69,18 +77,39 @@
             </button>
 
             <div *ngIf="userLoggedIn === true" class="actions actions_auth">
-                <a routerLink="/upgrade" mat-flat-button data-test-id="upgrade-local-link"
+                <a routerLink="/upgrade" mat-flat-button data-testid="upgrade-header-link"
                     routerLinkActive="mat-accent" class="nav-bar__upgrade-button">
                     Upgrade
                 </a>
 
-                <button mat-button (click)="logOut()" class="nav-bar__button" data-testid="logout-button"
-                    matTooltip="Logout {{currentUser.email}}">
-                    <div class="nav-bar__button-logout">
-                        Log out
-                        <mat-icon inline>exit_to_app</mat-icon>
-                    </div>
+                <button mat-icon-button type="button" data-testid="account-menu-anchor-header-button"
+                    matBadge="1" [matBadgeHidden]="currentUser.isActive"
+                    matBadgeColor="accent" matBadgeSize="small"
+                    [matMenuTriggerFor]="accountMenu"
+                    matTooltip="{{currentUser.email}}"
+                    class="nav-bar__account-button">
+                    <mat-icon>account_circle</mat-icon>
                 </button>
+                <mat-menu #accountMenu="matMenu" data-testid="account-menu-dropdown">
+                    <a mat-menu-item routerLink="/user-settings" data-testid="account-link-account-menu">
+                        <mat-icon class="nav-menu__list-link-icon"
+                            matBadge="1" [matBadgeHidden]="currentUser.isActive"
+                            matBadgeColor="accent" matBadgeSize="small">
+                            face
+                        </mat-icon>
+                        <span>Account</span>
+                        <br/>
+                        <span class="user-email">{{currentUser.email}}</span>
+                    </a>
+                    <a mat-menu-item href="https://help.rocketadmin.com/" target="_blank">
+                        <mat-icon fontSet="material-icons-outlined">help_outlined</mat-icon>
+                        <span>Help center</span>
+                    </a>
+                    <button mat-menu-item (click)="logOut()" data-testid="logout-button-account-menu">
+                        <mat-icon>exit_to_app</mat-icon>
+                        <span>Log out</span>
+                    </button>
+                </mat-menu>
             </div>
 
             <div *ngIf="userLoggedIn === null" class="actions">
@@ -97,34 +126,6 @@
 
             </ng-template> -->
         </mat-toolbar>
-
-        <!--<div *ngIf="connectionID" class="mat-body-2 breadcrumbs">
-            <a mat-button
-                routerLink="/dashboard/{{connectionID}}">
-                {{currantConnection.title || currantConnection.database}}
-            </a>
-            <div *ngIf="tableName" class="breadcrumbs__tableName">
-                <mat-icon class="breadcrumbs__arrowIcon">arrow_forward_ios</mat-icon>
-                <a mat-button routerLink="/dashboard/{{connectionID}}/{{tableName}}">
-                    {{normalizedTableName}}
-                </a>
-            </div>
-        </div>-->
-
-        <nav mat-tab-nav-bar mat-stretch-tabs="false" mat-align-tabs="center" *ngIf="connectionID" [tabPanel]="tabPanel">
-            <a mat-button class="connection-name"
-                [matTooltip]="currantConnection.title || currantConnection.database"
-                [matTooltipDisabled]="currantConnection.title.length < 25"
-                routerLink="/dashboard/{{connectionID}}">
-                {{currantConnection.title || currantConnection.database}}
-            </a>
-
-            <a mat-tab-link *ngFor="let tab of visibleTabs" attr.data-testid="{{tab}}-tab"
-                routerLink="{{tab}}/{{connectionID}}"
-                [active]="currentTab == tab">
-                <mat-icon class="tab-icon">{{navigationTabs[tab].icon}}</mat-icon>{{navigationTabs[tab].caption}}
-            </a>
-        </nav>
 
         <mat-tab-nav-panel #tabPanel class="tab-content-wrapper">
             <div class="content">

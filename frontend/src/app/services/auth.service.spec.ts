@@ -1,11 +1,11 @@
-import { TestBed } from '@angular/core/testing';
+import { AlertActionType, AlertType } from '../models/alert';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
-import { MatSnackBarModule } from '@angular/material/snack-bar';
-import { NotificationsService } from './notifications.service';
 
 import { AuthService } from './auth.service';
-import { AlertActionType, AlertType } from '../models/alert';
 import { ConnectionsService } from './connections.service';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { NotificationsService } from './notifications.service';
+import { TestBed } from '@angular/core/testing';
 
 describe('AuthService', () => {
   let service: AuthService;
@@ -132,6 +132,103 @@ describe('AuthService', () => {
     expect(req.request.method).toBe("POST");
     req.flush(fakeError, {status: 400, statusText: ''});
     await tokenExpiration;
+
+    expect(fakeNotifications.showAlert).toHaveBeenCalledWith(AlertType.Error, { abstract: fakeError.message, details: fakeError.originalMessage }, [jasmine.objectContaining({
+      type: AlertActionType.Button,
+      caption: 'Dismiss',
+    })]);
+  });
+
+  it('should call loginWith2FA', () => {
+    let isLoginWith2FACalled = false;
+
+    const twofaResponse = {}
+
+    service.loginWith2FA('123456').subscribe((res) => {
+      expect(res).toEqual(twofaResponse);
+      isLoginWith2FACalled = true;
+    });
+
+    const req = httpMock.expectOne(`/user/otp/login`);
+    expect(req.request.method).toBe("POST");
+    expect(req.request.body).toEqual({ otpToken: '123456'});
+    req.flush(twofaResponse);
+
+    expect(isLoginWith2FACalled).toBeTrue();
+  });
+
+  it('should fall for loginWith2FA and show Error alert', async () => {
+    const twofaResponse = service.loginWith2FA('123456').toPromise();
+
+    const req = httpMock.expectOne(`/user/otp/login`);
+    expect(req.request.method).toBe("POST");
+    expect(req.request.body).toEqual({ otpToken: '123456'});
+    req.flush(fakeError, {status: 400, statusText: ''});
+    await twofaResponse;
+
+    expect(fakeNotifications.showAlert).toHaveBeenCalledWith(AlertType.Error, { abstract: fakeError.message, details: fakeError.originalMessage }, [jasmine.objectContaining({
+      type: AlertActionType.Button,
+      caption: 'Dismiss',
+    })]);
+  });
+
+  it('should call loginWithGoogle', () => {
+    let isLoginWithGoogleCalled = false;
+
+    const googleResponse = {}
+
+    service.loginWithGoogle('google-token-12345678').subscribe((res) => {
+      expect(res).toEqual(googleResponse);
+      isLoginWithGoogleCalled = true;
+    });
+
+    const req = httpMock.expectOne(`/user/google/login`);
+    expect(req.request.method).toBe("POST");
+    expect(req.request.body).toEqual({ token: 'google-token-12345678'});
+    req.flush(googleResponse);
+
+    expect(isLoginWithGoogleCalled).toBeTrue();
+  });
+
+  it('should fall for loginWithGoogle and show Error alert', async () => {
+    const googleResponse = service.loginWithGoogle('google-token-12345678').toPromise();
+
+    const req = httpMock.expectOne(`/user/google/login`);
+    expect(req.request.method).toBe("POST");
+    expect(req.request.body).toEqual({ token: 'google-token-12345678'});
+    req.flush(fakeError, {status: 400, statusText: ''});
+    await googleResponse;
+
+    expect(fakeNotifications.showAlert).toHaveBeenCalledWith(AlertType.Error, { abstract: fakeError.message, details: fakeError.originalMessage }, [jasmine.objectContaining({
+      type: AlertActionType.Button,
+      caption: 'Dismiss',
+    })]);
+  });
+
+  it('should call requestEmailVerifications', () => {
+    let isRequestEmailVerificationsCalled = false;
+
+    const googleResponse = {}
+
+    service.requestEmailVerifications().subscribe((res) => {
+      expect(res).toEqual(googleResponse);
+      isRequestEmailVerificationsCalled = true;
+    });
+
+    const req = httpMock.expectOne(`/user/email/verify/request`);
+    expect(req.request.method).toBe("GET");
+    req.flush(googleResponse);
+
+    expect(isRequestEmailVerificationsCalled).toBeTrue();
+  });
+
+  it('should fall for requestEmailVerifications and show Error alert', async () => {
+    const googleResponse = service.requestEmailVerifications().toPromise();
+
+    const req = httpMock.expectOne(`/user/email/verify/request`);
+    expect(req.request.method).toBe("GET");
+    req.flush(fakeError, {status: 400, statusText: ''});
+    await googleResponse;
 
     expect(fakeNotifications.showAlert).toHaveBeenCalledWith(AlertType.Error, { abstract: fakeError.message, details: fakeError.originalMessage }, [jasmine.objectContaining({
       type: AlertActionType.Button,

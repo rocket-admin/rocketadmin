@@ -76,8 +76,11 @@ export class DashboardComponent implements OnInit {
     return this._connections.currentConnectionAccessLevel
   }
 
+  get currentConnectionTitle () {
+    return this._connections.currentConnection.title || this._connections.currentConnection.database || 'Tables'
+  }
+
   async ngOnInit() {
-    console.log('DashboardComponent ngOnInit');
     this.connectionID = this._connections.currentConnectionID;
     this.dataSource = new TablesDataSource(this._tables, this._notifications, this._connections);
     const isTitlesShown = localStorage.getItem(`shownTableTitles__${this.connectionID}`);

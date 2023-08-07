@@ -62,32 +62,6 @@ export class UserService {
     );
   }
 
-  // upgradeUser(subscriptionLevel) {
-  //   return this._http.post<any>(`/user/subscription/upgrade`, {subscriptionLevel})
-  //     .pipe(
-  //       map(res => {
-  //         this._notifications.showSuccessSnackbar('Your plan has been upgraded successfully.');
-  //         return res;
-  //       }),
-  //       catchError((err) => {
-  //         this._notifications.showAlert(AlertType.Error, {abstract: err.error.message, details: err.error.originalMessage}, [
-  //           {
-  //             type: AlertActionType.Link,
-  //             caption: 'Settings',
-  //             to: '/user-settings'
-  //           },
-  //           {
-  //             type: AlertActionType.Button,
-  //             caption: 'Dismiss',
-  //             action: (id: number) => this._notifications.dismissAlert()
-  //           }
-  //         ]);
-  //         console.log(err);
-  //         return EMPTY;
-  //       })
-  //     );
-  // }
-
   requestEmailChange() {
     return this._http.get<any>(`/user/email/change/request`)
     .pipe(
@@ -144,8 +118,7 @@ export class UserService {
           {
             type: AlertActionType.Button,
             caption: 'Dismiss',
-            action: (id: number) => this._notifications.dismissAlert(),
-            testID: 'password-reset-server-alert-dismiss-success-button'
+            action: (id: number) => this._notifications.dismissAlert()
           }
         ]);
         return res
@@ -156,8 +129,7 @@ export class UserService {
           {
             type: AlertActionType.Button,
             caption: 'Dismiss',
-            action: (id: number) => this._notifications.dismissAlert(),
-            testID: 'password-reset-request-server-alert-dismiss-error-button'
+            action: (id: number) => this._notifications.dismissAlert()
           }
         ]);
         return EMPTY;
@@ -178,8 +150,7 @@ export class UserService {
           {
             type: AlertActionType.Button,
             caption: 'Dismiss',
-            action: (id: number) => this._notifications.dismissAlert(),
-            testID: 'reset-password-server-alert-dismiss-button'
+            action: (id: number) => this._notifications.dismissAlert()
           }
         ]);
         return EMPTY;

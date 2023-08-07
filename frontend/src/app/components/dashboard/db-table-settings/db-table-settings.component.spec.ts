@@ -14,6 +14,7 @@ import { TablesService } from 'src/app/services/tables.service';
 import { of } from 'rxjs';
 import { TableSettings, TableOrdering } from 'src/app/models/table';
 import { ConnectionsService } from 'src/app/services/connections.service';
+import { MatMenuModule } from '@angular/material/menu';
 
 describe('DbTableSettingsComponent', () => {
   let component: DbTableSettingsComponent;
@@ -80,6 +81,7 @@ describe('DbTableSettingsComponent', () => {
     // id: "f3df6ca8-18af-4347-9777-47c086d83969",
     table_name: "actor",
     display_name: "",
+    icon: "",
     search_fields: [],
     excluded_fields: [],
     list_fields: [],
@@ -109,7 +111,8 @@ describe('DbTableSettingsComponent', () => {
         MatSelectModule,
         MatRadioModule,
         MatInputModule,
-        BrowserAnimationsModule
+        BrowserAnimationsModule,
+        MatMenuModule
       ],
       declarations: [ DbTableSettingsComponent ]
     })
