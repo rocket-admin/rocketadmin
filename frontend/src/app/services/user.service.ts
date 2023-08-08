@@ -1,5 +1,5 @@
 import { AlertActionType, AlertType } from '../models/alert';
-import { BehaviorSubject, EMPTY } from 'rxjs';
+import { BehaviorSubject, EMPTY, throwError } from 'rxjs';
 import { SubscriptionPlans, User } from '../models/user';
 import { catchError, map } from 'rxjs/operators';
 
@@ -218,7 +218,7 @@ export class UserService {
         catchError((err) => {
           console.log(err);
           this._notifications.showErrorSnackbar(err.error.message);
-          return EMPTY;
+          return throwError(() => new Error(err.error.message));
         })
       );
   }

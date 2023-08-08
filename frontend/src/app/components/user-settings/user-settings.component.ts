@@ -114,6 +114,12 @@ export class UserSettingsComponent implements OnInit {
             if (action !== 'enable') {
               this.is2FAEnabledToggle = false;
             }
+          });
+
+          enableTwoFADialog.componentInstance.confirm2FAerror.subscribe((result: boolean) => {
+            if (result) {
+              this.is2FAEnabledToggle = false;
+            }
           })
         });
     } else if (event.checked && this.currentUser.is_2fa_enabled) {

@@ -1,4 +1,4 @@
-import { Component, Inject } from '@angular/core';
+import { Component, EventEmitter, Inject, Output } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { UserService } from 'src/app/services/user.service';
 import { GroupDeleteDialogComponent } from '../../users/group-delete-dialog/group-delete-dialog.component';
@@ -9,6 +9,8 @@ import { GroupDeleteDialogComponent } from '../../users/group-delete-dialog/grou
   styleUrls: ['./enable-two-fa-dialog.component.css']
 })
 export class EnableTwoFADialogComponent {
+  @Output() confirm2FAerror = new EventEmitter<boolean>();
+
   public secondFAQRCode: string;
   public submitting: boolean = false;
 
@@ -28,6 +30,8 @@ export class EnableTwoFADialogComponent {
           this.submitting = false;
           this.dialogRef.close();
         }
-      });
+      },
+      (err) => { console.log('error !!!!', err); this.confirm2FAerror.emit(true); }
+      )
   }
 }
