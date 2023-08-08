@@ -29,6 +29,7 @@ export class CronJobsService {
     try {
       const isJobAdded = await this.insertMidnightJob();
       if (!isJobAdded) {
+        await slackPostMessage('duplicated midnight cron job cron not started', Constants.EXCEPTIONS_CHANNELS);
         return;
       }
       console.info('midnight cron started');
@@ -48,9 +49,9 @@ export class CronJobsService {
     try {
       const isJobAdded = await this.insertMorningJob();
       if (!isJobAdded) {
+        await slackPostMessage('duplicated morning cron job cron not started', Constants.EXCEPTIONS_CHANNELS);
         return;
       }
-      console.info('morning cron started');
       await slackPostMessage(
         'started checking user actions and finding emails for messaging',
         Constants.EXCEPTIONS_CHANNELS,
@@ -76,16 +77,24 @@ export class CronJobsService {
   }
 
   private async insertMidnightJob(): Promise<boolean> {
-    const foundJob = await this.jobListRepository.findOne({ where: { job_key: Constants.MIDNIGHT_CRON_KEY } });
-    if (foundJob) {
-      return false;
-    }
-    const newJob = new JobListEntity();
-    newJob.job_key = Constants.MIDNIGHT_CRON_KEY;
+    const queryRunner = this.jobListRepository.manager.connection.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
     try {
-      return !!(await this.jobListRepository.save(newJob));
+      const foundJob = await this.jobListRepository.findOne({ where: { job_key: Constants.MIDNIGHT_CRON_KEY } });
+      if (foundJob) {
+        return false;
+      }
+      const newJob = new JobListEntity();
+      newJob.job_key = Constants.MIDNIGHT_CRON_KEY;
+      await queryRunner.manager.save(newJob);
+      await queryRunner.commitTransaction();
+      return true;
     } catch (e) {
+      await queryRunner.rollbackTransaction();
       return false;
+    } finally {
+      await queryRunner.release();
     }
   }
 
@@ -98,16 +107,24 @@ export class CronJobsService {
   }
 
   private async insertMorningJob(): Promise<boolean> {
-    const foundJob = await this.jobListRepository.findOne({ where: { job_key: Constants.MORNING_CRON_KEY } });
-    if (foundJob) {
-      return false;
-    }
-    const newJob = new JobListEntity();
-    newJob.job_key = Constants.MORNING_CRON_KEY;
+    const queryRunner = this.jobListRepository.manager.connection.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
     try {
-      return !!(await this.jobListRepository.save(newJob));
+      const foundJob = await this.jobListRepository.findOne({ where: { job_key: Constants.MORNING_CRON_KEY } });
+      if (foundJob) {
+        return false;
+      }
+      const newJob = new JobListEntity();
+      newJob.job_key = Constants.MORNING_CRON_KEY;
+      await queryRunner.manager.save(newJob);
+      await queryRunner.commitTransaction();
+      return true;
     } catch (e) {
+      await queryRunner.rollbackTransaction();
       return false;
+    } finally {
+      await queryRunner.release();
     }
   }
 
