@@ -3,7 +3,6 @@ import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
 import { Constants } from '../../src/helpers/constants/constants.js';
 import { TestUtils } from './test.utils.js';
-import { request as undiciRequest } from 'undici';
 
 export async function registerUserAndReturnUserInfo(app: INestApplication): Promise<{
   token: string;
@@ -49,17 +48,18 @@ export async function registerUserOnSaasAndReturnUserInfo(): Promise<{
     companyName: `${faker.lorem.words(1)}_${faker.lorem.words(1)}_${faker.lorem.words(1)}_${faker.company.name()}}`,
   };
 
-  const result = await undiciRequest('http://rocketadmin-private-microservice:3001/saas/user/register', {
+  const result = await fetch('http://rocketadmin-private-microservice:3001/saas/user/register', {
     method: 'POST',
     body: JSON.stringify(userRegisterInfo),
     headers: {
       'Content-Type': 'application/json',
+      Accept: 'application/json',
     },
   });
-  if(result.statusCode > 201) {
-    console.info('result.body -> ', await result.body.json());
+  if (result.status > 201) {
+    console.info('result.body -> ', await result.json());
   }
-  const token = `${Constants.JWT_COOKIE_KEY_NAME}=${TestUtils.getJwtTokenFromResponse(result)}`;
+  const token = `${Constants.JWT_COOKIE_KEY_NAME}=${TestUtils.getJwtTokenFromResponse2(result)}`;
   return { token: token, ...userRegisterInfo };
 }
 
