@@ -60,7 +60,6 @@ export class DbTableSettingsComponent implements OnInit {
     this.connectionID = this._connections.currentConnectionID;
     this.tableName = this._tables.currentTableName;
     this.displayTableName = normalizeTableName(this.tableName);
-    this.title.setTitle(`${this.displayTableName} - Table settings | Rocketadmin`);
     this._tables.cast.subscribe();
     this._tables.fetchTableStructure(this.connectionID, this.tableName)
       .subscribe(res => {
@@ -82,7 +81,7 @@ export class DbTableSettingsComponent implements OnInit {
         link: `/dashboard/${this.connectionID}`
       },
       {
-        label: this.displayTableName,
+        label: this.tableSettings.display_name || this.displayTableName,
         link: `/dashboard/${this.connectionID}/${this.tableName}`
       },
       {
@@ -108,6 +107,7 @@ export class DbTableSettingsComponent implements OnInit {
         if (Object.keys(res).length === 0 || (res && res.list_fields && !res.list_fields.length)) {
           this.listFieldsOrder = [...this.fields];
         };
+        this.title.setTitle(`${res.display_name || this.displayTableName} - Table settings | Rocketadmin`);
       }
     );
   }
