@@ -8,6 +8,7 @@ import {
 import { CreateTableActionDS } from '../application/data-sctructures/create-table-action.ds.js';
 import { CreatedTableActionDS } from '../application/data-sctructures/created-table-action.ds.js';
 import { FindTableActionsDS } from '../application/data-sctructures/find-table-actions.ds.js';
+import { FoundTableActionsDS } from '../application/data-sctructures/found-table-actions.ds.js';
 import { UpdateTableActionDS } from '../application/data-sctructures/update-table-action.ds.js';
 
 export interface ICreateTableAction {
@@ -15,7 +16,7 @@ export interface ICreateTableAction {
 }
 
 export interface IFindAllTableActions {
-  execute(inputData: FindTableActionsDS, inTransaction: InTransactionEnum): Promise<Array<CreatedTableActionDS>>;
+  execute(inputData: FindTableActionsDS, inTransaction: InTransactionEnum): Promise<FoundTableActionsDS>;
 }
 
 export interface IActivateTableAction {

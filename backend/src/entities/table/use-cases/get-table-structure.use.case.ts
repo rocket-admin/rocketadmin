@@ -89,6 +89,7 @@ export class GetTableStructureUseCase
         readonly_fields: readonly_fields,
         table_widgets: tableWidgets?.length > 0 ? tableWidgets.map((widget) => buildFoundTableWidgetDs(widget)) : [],
         list_fields: tableSettings?.list_fields ? tableSettings.list_fields : [],
+        display_name: tableSettings?.display_name ? tableSettings.display_name : null,
       };
     } catch (e) {
       throw new UnknownSQLException(e.message, ExceptionOperations.FAILED_TO_GET_TABLE_STRUCTURE);

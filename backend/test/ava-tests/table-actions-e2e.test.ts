@@ -208,11 +208,11 @@ test(`${currentTest} should return found table actions`, async (t) => {
     .set('Accept', 'application/json');
 
   const findTableActionRO = JSON.parse(findTableActiponResult.text);
-  t.is(Array.isArray(findTableActionRO), true);
-  t.is(findTableActionRO[0].hasOwnProperty('id'), true);
-  t.is(findTableActionRO[0].title, newTableAction.title);
-  t.is(findTableActionRO[0].type, newTableAction.type);
-  t.is(findTableActionRO[0].url, newTableAction.url);
+  t.is(Array.isArray(findTableActionRO.table_actions), true);
+  t.is(findTableActionRO.table_actions[0].hasOwnProperty('id'), true);
+  t.is(findTableActionRO.table_actions[0].title, newTableAction.title);
+  t.is(findTableActionRO.table_actions[0].type, newTableAction.type);
+  t.is(findTableActionRO.table_actions[0].url, newTableAction.url);
 });
 
 test(`${currentTest} should throw exception when connection id incorrect`, async (t) => {
@@ -303,10 +303,10 @@ test(`${currentTest} should return updated table action`, async (t) => {
   const findTableActionRO = JSON.parse(findTableActiponResult.text);
 
   t.is(findTableActiponResult.status, 200);
-  t.is(findTableActionRO[0].id, createTableActionRO.id);
-  t.is(findTableActionRO[0].title, updatedTableAction.title);
-  t.is(findTableActionRO[0].url, updatedTableAction.url);
-  t.is(findTableActionRO[0].type, newTableAction.type);
+  t.is(findTableActionRO.table_actions[0].id, createTableActionRO.id);
+  t.is(findTableActionRO.table_actions[0].title, updatedTableAction.title);
+  t.is(findTableActionRO.table_actions[0].url, updatedTableAction.url);
+  t.is(findTableActionRO.table_actions[0].type, newTableAction.type);
 });
 
 test(`${currentTest} should throw exception when type is incorrect`, async (t) => {
