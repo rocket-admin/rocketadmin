@@ -30,6 +30,13 @@ export class TestUtils {
     return jwt;
   }
 
+  static getJwtTokenFromResponse2(res: any): string {
+    let jwt: string = res.headers.get('set-cookie');
+    jwt = jwt.replace('rocketadmin_cookie=', '');
+    jwt = jwt.replace('; Path=/', '');
+    return jwt;
+  }
+
   async closeDbConnection() {
     try {
       this.databaseService.closeConnection();
