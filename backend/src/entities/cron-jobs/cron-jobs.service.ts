@@ -36,11 +36,10 @@ export class CronJobsService {
       await slackPostMessage('midnight cron started', Constants.EXCEPTIONS_CHANNELS);
       await this.checkUsersLogsAndUpdateActionsUseCase.execute();
       await slackPostMessage('midnight cron finished', Constants.EXCEPTIONS_CHANNELS);
+      await this.removeMidnightJob();
     } catch (e) {
       Sentry.captureException(e);
       console.error(e);
-    } finally {
-      await this.removeMidnightJob();
     }
   }
 
@@ -68,11 +67,10 @@ export class CronJobsService {
         await slackPostMessage(mailingResultToString, Constants.EXCEPTIONS_CHANNELS);
         await slackPostMessage('morning cron finished', Constants.EXCEPTIONS_CHANNELS);
       }
+      await this.removeMorningJob();
     } catch (e) {
       Sentry.captureException(e);
       console.error(e);
-    } finally {
-      await this.removeMorningJob();
     }
   }
 
