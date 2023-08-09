@@ -9,7 +9,7 @@ import { Messages } from '../../../exceptions/text/messages.js';
 import { compareArrayElements, isConnectionTypeAgent } from '../../../helpers/index.js';
 import { buildCreatedTableActionDS } from '../../table-actions/utils/build-created-table-action-ds.js';
 import { GetRowByPrimaryKeyDs } from '../application/data-structures/get-row-by-primary-key.ds.js';
-import { ForeignKeyDSInfo, ITableRowRO } from '../table.interface.js';
+import { ForeignKeyDSInfo, IReferencedTableNamesAndColumns, ITableRowRO } from '../table.interface.js';
 import { convertBinaryDataInRowUtil } from '../utils/convert-binary-data-in-row.util.js';
 import { convertHexDataInPrimaryKeyUtil } from '../utils/convert-hex-data-in-primary-key.util.js';
 import { formFullTableStructure } from '../utils/form-full-table-structure.js';
@@ -21,6 +21,7 @@ import { ForeignKeyWithAutocompleteColumnsDS } from '@rocketadmin/shared-code/di
 import { ForeignKeyDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/foreign-key.ds.js';
 import { UnknownSQLException } from '../../../exceptions/custom-exceptions/unknown-sql-exception.js';
 import { ExceptionOperations } from '../../../exceptions/custom-exceptions/exception-operation.js';
+import { ReferencedTableNamesAndColumnsDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/referenced-table-names-columns.ds.js';
 
 @Injectable()
 export class GetRowByPrimaryKeyUseCase
@@ -134,6 +135,28 @@ export class GetRowByPrimaryKeyUseCase
     rowData = removePasswordsFromRowsUtil(rowData, tableWidgets);
     rowData = convertBinaryDataInRowUtil(rowData, tableStructure);
     const formedTableStructure = formFullTableStructure(tableStructure, tableSettings);
+    const referencedTableNamesAndColumnsWithTablesDisplayNames: Array<IReferencedTableNamesAndColumns> =
+      await Promise.all(
+        referencedTableNamesAndColumns.map(async (el: ReferencedTableNamesAndColumnsDS) => {
+          const { referenced_by, referenced_on_column_name } = el;
+          const responseObject: IReferencedTableNamesAndColumns = {
+            referenced_on_column_name: referenced_on_column_name,
+            referenced_by: [],
+          };
+          for (const element of referenced_by) {
+            const foundTableSettings = await this._dbContext.tableSettingsRepository.findTableSettings(
+              connectionId,
+              element.table_name,
+            );
+            const displayName = foundTableSettings?.display_name ? foundTableSettings.display_name : null;
+            responseObject.referenced_by.push({
+              ...element,
+              display_name: displayName,
+            });
+          }
+          return responseObject;
+        }),
+      );
     return {
       row: rowData,
       foreignKeys: foreignKeysWithAutocompleteColumns,
@@ -144,7 +167,8 @@ export class GetRowByPrimaryKeyUseCase
       list_fields: tableSettings?.list_fields?.length > 0 ? tableSettings.list_fields : [],
       table_actions: tableActions?.length > 0 ? tableActions.map((el) => buildCreatedTableActionDS(el)) : [],
       identity_column: tableSettings?.identity_column ? tableSettings.identity_column : null,
-      referenced_table_names_and_columns: referencedTableNamesAndColumns,
+      referenced_table_names_and_columns: referencedTableNamesAndColumnsWithTablesDisplayNames,
+      display_name: tableSettings?.display_name ? tableSettings.display_name : null,
     };
   }
 

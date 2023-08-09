@@ -16,7 +16,7 @@ import { AmplitudeService } from '../../amplitude/amplitude.service.js';
 import { isTestConnectionUtil } from '../../connection/utils/is-test-connection-util.js';
 import { TableLogsService } from '../../table-logs/table-logs.service.js';
 import { AddRowInTableDs } from '../application/data-structures/add-row-in-table.ds.js';
-import { ForeignKeyDSInfo, ITableRowRO } from '../table.interface.js';
+import { ForeignKeyDSInfo, IReferencedTableNamesAndColumns, ITableRowRO } from '../table.interface.js';
 import { convertHexDataInRowUtil } from '../utils/convert-hex-data-in-row.util.js';
 import { formFullTableStructure } from '../utils/form-full-table-structure.js';
 import { hashPasswordsInRowUtil } from '../utils/hash-passwords-in-row.util.js';
@@ -28,6 +28,7 @@ import { IDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access
 import { IDataAccessObjectAgent } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/interfaces/data-access-object-agent.interface.js';
 import { ForeignKeyWithAutocompleteColumnsDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/foreign-key-with-autocomplete-columns.ds.js';
 import { ForeignKeyDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/foreign-key.ds.js';
+import { ReferencedTableNamesAndColumnsDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/referenced-table-names-columns.ds.js';
 
 @Injectable()
 export class AddRowInTableUseCase extends AbstractUseCase<AddRowInTableDs, ITableRowRO> implements IAddRowInTable {
@@ -84,6 +85,29 @@ export class AddRowInTableUseCase extends AbstractUseCase<AddRowInTableDs, ITabl
       dao.getTablePrimaryColumns(tableName, userEmail),
       dao.getReferencedTableNamesAndColumns(tableName, userEmail),
     ]);
+
+    const referencedTableNamesAndColumnsWithTablesDisplayNames: Array<IReferencedTableNamesAndColumns> =
+      await Promise.all(
+        referencedTableNamesAndColumns.map(async (el: ReferencedTableNamesAndColumnsDS) => {
+          const { referenced_by, referenced_on_column_name } = el;
+          const responseObject: IReferencedTableNamesAndColumns = {
+            referenced_on_column_name: referenced_on_column_name,
+            referenced_by: [],
+          };
+          for (const element of referenced_by) {
+            const foundTableSettings = await this._dbContext.tableSettingsRepository.findTableSettings(
+              connectionId,
+              element.table_name,
+            );
+            const displayName = foundTableSettings?.display_name ? foundTableSettings.display_name : null;
+            responseObject.referenced_by.push({
+              ...element,
+              display_name: displayName,
+            });
+          }
+          return responseObject;
+        }),
+      );
 
     if (tableSettings && !tableSettings?.can_add) {
       throw new HttpException(
@@ -144,10 +168,11 @@ export class AddRowInTableUseCase extends AbstractUseCase<AddRowInTableDs, ITabl
           primaryColumns: tablePrimaryKeys,
           structure: formedTableStructure,
           table_widgets: tableWidgets,
+          display_name: tableSettings?.display_name ? tableSettings.display_name : null,
           readonly_fields: tableSettings?.readonly_fields ? tableSettings.readonly_fields : [],
           list_fields: tableSettings?.list_fields?.length > 0 ? tableSettings.list_fields : [],
           identity_column: tableSettings?.identity_column ? tableSettings.identity_column : null,
-          referenced_table_names_and_columns: referencedTableNamesAndColumns,
+          referenced_table_names_and_columns: referencedTableNamesAndColumnsWithTablesDisplayNames,
         };
       }
     } catch (e) {

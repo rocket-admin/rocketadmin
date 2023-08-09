@@ -37,6 +37,7 @@ import {
   IFindTableAction,
   IUpdateTableAction,
 } from './use-cases/table-actions-use-cases.interface.js';
+import { FoundTableActionsDS } from './application/data-sctructures/found-table-actions.ds.js';
 
 @UseInterceptors(SentryInterceptor)
 @Controller()
@@ -66,7 +67,7 @@ export class TableActionsController {
     @QueryTableName() tableName: string,
     @UserId() userId: string,
     @MasterPassword() masterPwd: string,
-  ): Promise<Array<CreatedTableActionDS>> {
+  ): Promise<FoundTableActionsDS> {
     const inputData: FindTableActionsDS = {
       connectionId: connectionId,
       tableName: tableName,

@@ -16,7 +16,7 @@ import { AmplitudeService } from '../../amplitude/amplitude.service.js';
 import { isTestConnectionUtil } from '../../connection/utils/is-test-connection-util.js';
 import { TableLogsService } from '../../table-logs/table-logs.service.js';
 import { UpdateRowInTableDs } from '../application/data-structures/update-row-in-table.ds.js';
-import { ForeignKeyDSInfo, ITableRowRO } from '../table.interface.js';
+import { ForeignKeyDSInfo, IReferencedTableNamesAndColumns, ITableRowRO } from '../table.interface.js';
 import { formFullTableStructure } from '../utils/form-full-table-structure.js';
 import { hashPasswordsInRowUtil } from '../utils/hash-passwords-in-row.util.js';
 import { processUuidsInRowUtil } from '../utils/process-uuids-in-row-util.js';
@@ -28,6 +28,7 @@ import { ForeignKeyWithAutocompleteColumnsDS } from '@rocketadmin/shared-code/di
 import { ForeignKeyDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/foreign-key.ds.js';
 import { UnknownSQLException } from '../../../exceptions/custom-exceptions/unknown-sql-exception.js';
 import { ExceptionOperations } from '../../../exceptions/custom-exceptions/exception-operation.js';
+import { ReferencedTableNamesAndColumnsDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/referenced-table-names-columns.ds.js';
 
 @Injectable()
 export class UpdateRowInTableUseCase
@@ -95,6 +96,29 @@ export class UpdateRowInTableUseCase
       dao.getReferencedTableNamesAndColumns(tableName, userEmail),
     ]);
 
+    const referencedTableNamesAndColumnsWithTablesDisplayNames: Array<IReferencedTableNamesAndColumns> =
+      await Promise.all(
+        referencedTableNamesAndColumns.map(async (el: ReferencedTableNamesAndColumnsDS) => {
+          const { referenced_by, referenced_on_column_name } = el;
+          const responseObject: IReferencedTableNamesAndColumns = {
+            referenced_on_column_name: referenced_on_column_name,
+            referenced_by: [],
+          };
+          for (const element of referenced_by) {
+            const foundTableSettings = await this._dbContext.tableSettingsRepository.findTableSettings(
+              connectionId,
+              element.table_name,
+            );
+            const displayName = foundTableSettings?.display_name ? foundTableSettings.display_name : null;
+            responseObject.referenced_by.push({
+              ...element,
+              display_name: displayName,
+            });
+          }
+          return responseObject;
+        }),
+      );
+
     if (tableSettings && !tableSettings?.can_update) {
       throw new HttpException(
         {
@@ -159,7 +183,7 @@ export class UpdateRowInTableUseCase
     try {
       oldRowData = await dao.getRowByPrimaryKey(tableName, primaryKey, tableSettings, userEmail);
     } catch (e) {
-      throw new UnknownSQLException(e.message,  ExceptionOperations.FAILED_TO_UPDATE_ROW_IN_TABLE);
+      throw new UnknownSQLException(e.message, ExceptionOperations.FAILED_TO_UPDATE_ROW_IN_TABLE);
     }
     if (!oldRowData) {
       throw new HttpException(
@@ -193,10 +217,11 @@ export class UpdateRowInTableUseCase
         primaryColumns: tablePrimaryKeys,
         structure: formedTableStructure,
         table_widgets: tableWidgets,
+        display_name: tableSettings?.display_name ? tableSettings.display_name : null,
         readonly_fields: tableSettings?.readonly_fields ? tableSettings.readonly_fields : [],
         list_fields: tableSettings?.list_fields?.length > 0 ? tableSettings.list_fields : [],
         identity_column: tableSettings?.identity_column ? tableSettings.identity_column : null,
-        referenced_table_names_and_columns: referencedTableNamesAndColumns,
+        referenced_table_names_and_columns: referencedTableNamesAndColumnsWithTablesDisplayNames,
       };
     } catch (e) {
       operationResult = OperationResultStatusEnum.unsuccessfully;
