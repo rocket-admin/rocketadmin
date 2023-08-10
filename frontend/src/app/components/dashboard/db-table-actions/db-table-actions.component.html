@@ -47,7 +47,7 @@
         </mat-form-field>
     </mat-drawer>
 
-    <mat-drawer-content>
+    <mat-drawer-content *ngIf="actionsData">
         <app-alert></app-alert>
         <app-breadcrumbs [crumbs]="getCrumbs(currentConnection.title)" class="actions-breadcrumbs"></app-breadcrumbs>
         <app-content-loader *ngIf="!actions"></app-content-loader>
