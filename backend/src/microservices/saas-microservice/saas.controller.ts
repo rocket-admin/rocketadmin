@@ -1,4 +1,4 @@
-import { UseInterceptors, Controller, Injectable, Inject, Post, Body, Get, Param } from '@nestjs/common';
+import { UseInterceptors, Controller, Injectable, Inject, Post, Body, Get, Param, Put } from '@nestjs/common';
 import { SentryInterceptor } from '../../interceptors/sentry.interceptor.js';
 import { UseCaseType } from '../../common/data-injection.tokens.js';
 import {
@@ -8,6 +8,7 @@ import {
   ILoginUserWithGitHub,
   ILoginUserWithGoogle,
   ISaasRegisterUser,
+  IUpdateUserStripeCustomerId,
 } from './use-cases/saas-use-cases.interface.js';
 import { RegisteredCompanyDS } from './data-structures/registered-company.ds.js';
 import { UserEntity } from '../../entities/user/user.entity.js';
@@ -32,6 +33,8 @@ export class SaasController {
     private readonly getUserInfoUseCaseByGithubId: IGetUserGithubIdInfo,
     @Inject(UseCaseType.SAAS_LOGIN_USER_WITH_GITHUB)
     private readonly loginUserWithGithubUseCase: ILoginUserWithGitHub,
+    @Inject(UseCaseType.SAAS_UPDATE_USER_STRIPE_CUSTOMER_ID)
+    private readonly updateUserStripeCustomerIdUseCase: IUpdateUserStripeCustomerId,
   ) {}
 
   @Post('/company/registered')
@@ -85,5 +88,14 @@ export class SaasController {
     @Body('glidCookieValue') glidCookieValue: string,
   ): Promise<UserEntity> {
     return await this.loginUserWithGithubUseCase.execute({ email, name, githubId, glidCookieValue });
+  }
+
+  @Put('user/:userId/stripe')
+  async updateUserStripeCustomerId(
+    @Param('userId') userId: string,
+    @Body('stripeCustomerId') stripeCustomerId: string,
+  ): Promise<{ success: boolean }> {
+    await this.updateUserStripeCustomerIdUseCase.execute({ userId, stripeCustomerId });
+    return { success: true };
   }
 }

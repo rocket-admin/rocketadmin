@@ -10,6 +10,7 @@ import { SaasUsualRegisterUseCase } from './use-cases/saas-usual-register-user.u
 import { LoginWithGoogleUseCase } from './use-cases/login-with-google.use.case.js';
 import { GetUserInfoByGitHubIdUseCase } from './use-cases/get-user-info-by-githubid.use.case.js';
 import { LoginUserWithGithubUseCase } from './use-cases/login-with-github.use.case.js';
+import { UpdateUserStripeCustomerIdUseCase } from './use-cases/update-user-stripe-customer-id.use.case.js';
 
 @Module({
   imports: [],
@@ -46,6 +47,10 @@ import { LoginUserWithGithubUseCase } from './use-cases/login-with-github.use.ca
       provide: UseCaseType.SAAS_LOGIN_USER_WITH_GITHUB,
       useClass: LoginUserWithGithubUseCase,
     },
+    {
+      provide: UseCaseType.SAAS_UPDATE_USER_STRIPE_CUSTOMER_ID,
+      useClass: UpdateUserStripeCustomerIdUseCase,
+    },
   ],
   controllers: [SaasController],
   exports: [],
@@ -62,6 +67,7 @@ export class SaasModule {
         { path: 'saas/user/google/login', method: RequestMethod.POST },
         { path: 'saas/user/github/:githubId', method: RequestMethod.GET },
         { path: 'saas/user/github/login', method: RequestMethod.POST },
+        { path: 'saas/user/:userId/stripe', method: RequestMethod.PUT },
       );
   }
 }
