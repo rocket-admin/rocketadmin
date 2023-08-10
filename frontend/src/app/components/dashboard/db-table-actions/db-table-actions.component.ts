@@ -21,6 +21,11 @@ export class DbTableActionsComponent implements OnInit {
   public connectionID: string | null = null;
   public tableName: string | null = null;
   public normalizedTableName: string;
+  public actionsData: {
+    table_name: string,
+    display_name: string,
+    table_actions: CustomAction[]
+  };
   public actions: CustomAction[];
   public submitting: boolean;
   public selectedAction: CustomAction = null;
@@ -47,12 +52,13 @@ export class DbTableActionsComponent implements OnInit {
     this.signingKey = this._connections.currentConnection.signing_key;
     this.tableName = this._tables.currentTableName;
     this.normalizedTableName = normalizeTableName(this.tableName);
-    this.title.setTitle(`${this.normalizedTableName} - Actions | Rocketadmin`);
     this.codeSnippets = codeSnippets(this._connections.currentConnection.signing_key);
 
     try {
-      this.actions = await this.getActions();
+      this.actionsData = await this.getActions();
+      this.actions = this.actionsData.table_actions;
       if (this.actions.length) this.setSelectedAction(this.actions[0]);
+      this.title.setTitle(`${this.actionsData.display_name || this.normalizedTableName} - Actions | Rocketadmin`);
     } catch(error) {
       if (error instanceof HttpErrorResponse) {
         console.log(error.error.message);
@@ -63,8 +69,8 @@ export class DbTableActionsComponent implements OnInit {
       if (arg === 'delete-action') {
         this.actions = this.actions.filter((action:CustomAction) => action.id !== this.selectedAction.id)
         try {
-          const undatedActions: CustomAction[] = await this.getActions();
-          this.actions = unionBy(undatedActions, this.actions, "title");
+          const undatedActionsData = await this.getActions();
+          this.actions = unionBy(undatedActionsData.table_actions, this.actions, "title");
           if (this.actions.length) this.setSelectedAction(this.actions[0]);
         } catch(error) {
           if (error instanceof HttpErrorResponse) {
@@ -86,7 +92,7 @@ export class DbTableActionsComponent implements OnInit {
         link: `/dashboard/${this.connectionID}`
       },
       {
-        label: this.normalizedTableName,
+        label: this.actionsData.display_name || this.normalizedTableName,
         link: `/dashboard/${this.connectionID}/${this.tableName}`
       },
       {
@@ -179,8 +185,8 @@ export class DbTableActionsComponent implements OnInit {
       .subscribe(async (res) => {
         this.submitting = false;
         try {
-          const undatedActions: CustomAction[] = await this.getActions();
-          this.actions = unionBy(undatedActions, this.actions, "title");
+          const undatedActionsData = await this.getActions();
+          this.actions = unionBy(undatedActionsData.table_actions, this.actions, "title");
           const currentAction = this.actions.find((action: CustomAction) => action.id === res.id);
           this.setSelectedAction(currentAction);
         } catch(error) {
@@ -201,9 +207,9 @@ export class DbTableActionsComponent implements OnInit {
       .subscribe(async (res) => {
         this.submitting = false;
         try {
-          const undatedActions: CustomAction[] = await this.getActions();
+          const undatedActionsData = await this.getActions();
           this.actions = this.actions.filter((action: CustomAction)  => action.title != this.selectedAction.id);
-          this.actions = unionBy(undatedActions, this.actions, "title");
+          this.actions = unionBy(undatedActionsData.table_actions, this.actions, "title");
           const currentAction = this.actions.find((action: CustomAction) => action.id === res.id);
           this.selectedAction = {...currentAction};
         } catch(error) {
