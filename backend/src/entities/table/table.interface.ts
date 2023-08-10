@@ -1,4 +1,3 @@
-import { ReferencedTableNamesAndColumnsDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/referenced-table-names-columns.ds.js';
 import { FilterCriteriaEnum, QueryOrderingEnum } from '../../enums/index.js';
 import { ITableAccessLevel, ITablePermissionData } from '../permission/permission.interface.js';
 import { CreatedTableActionDS } from '../table-actions/application/data-sctructures/created-table-action.ds.js';
@@ -66,6 +65,7 @@ export interface IStructureRO {
   readonly_fields: Array<string>;
   table_widgets: Array<ITableWidgetRO>;
   list_fields?: Array<string>;
+  display_name: string;
 }
 
 export interface IStructureRowInfo {
@@ -93,7 +93,19 @@ export interface ITableRowRO {
   list_fields: Array<string>;
   table_actions?: Array<CreatedTableActionDS>;
   identity_column: string;
-  referenced_table_names_and_columns: Array<ReferencedTableNamesAndColumnsDS>;
+  display_name: string;
+  referenced_table_names_and_columns: Array<IReferencedTableNamesAndColumns>;
+}
+
+export interface IReferencedByTableInfo {
+  table_name: string;
+  display_name: string;
+  column_name: string;
+}
+
+export interface IReferencedTableNamesAndColumns {
+  referenced_by: Array<IReferencedByTableInfo>;
+  referenced_on_column_name: string;
 }
 
 export interface ITableRowsRO {

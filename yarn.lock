@@ -3441,7 +3441,6 @@ __metadata:
     tsconfig-paths: ^4.2.0
     typeorm: 0.3.17
     typescript: 5.1.6
-    undici: ^5.23.0
     uuid: ^9.0.0
     validator: ^13.11.0
     winston: 3.10.0
@@ -3874,7 +3873,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"busboy@npm:^1.0.0, busboy@npm:^1.6.0":
+"busboy@npm:^1.0.0":
   version: 1.6.0
   resolution: "busboy@npm:1.6.0"
   dependencies:
@@ -11481,15 +11480,6 @@ __metadata:
     has-symbols: ^1.0.3
     which-boxed-primitive: ^1.0.2
   checksum: b7a1cf5862b5e4b5deb091672ffa579aa274f648410009c81cca63fed3b62b610c4f3b773f912ce545bb4e31edc3138975b5bc777fc6e4817dca51affb6380e9
-  languageName: node
-  linkType: hard
-
-"undici@npm:^5.23.0":
-  version: 5.23.0
-  resolution: "undici@npm:5.23.0"
-  dependencies:
-    busboy: ^1.6.0
-  checksum: 906ca4fb1d47163d2cee2ecbbc664a1d92508a2cdf1558146621109f525c983a83597910b36e6ba468240e95259be5939cea6babc99fc0c36360b16630f66784
   languageName: node
   linkType: hard
 

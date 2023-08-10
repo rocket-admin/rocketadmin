@@ -4,14 +4,14 @@ import { IGlobalDatabaseContext } from '../../../common/application/global-datab
 import { BaseType } from '../../../common/data-injection.tokens.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { findTablesInConnectionUtil } from '../../table/utils/find-tables-in-connection.util.js';
-import { CreatedTableActionDS } from '../application/data-sctructures/created-table-action.ds.js';
 import { FindTableActionsDS } from '../application/data-sctructures/find-table-actions.ds.js';
 import { buildCreatedTableActionDS } from '../utils/build-created-table-action-ds.js';
 import { IFindAllTableActions } from './table-actions-use-cases.interface.js';
+import { FoundTableActionsDS } from '../application/data-sctructures/found-table-actions.ds.js';
 
 @Injectable()
 export class FindTableActionsUseCase
-  extends AbstractUseCase<FindTableActionsDS, Array<CreatedTableActionDS>>
+  extends AbstractUseCase<FindTableActionsDS, FoundTableActionsDS>
   implements IFindAllTableActions
 {
   constructor(
@@ -21,7 +21,7 @@ export class FindTableActionsUseCase
     super();
   }
 
-  protected async implementation(inputData: FindTableActionsDS): Promise<Array<CreatedTableActionDS>> {
+  protected async implementation(inputData: FindTableActionsDS): Promise<FoundTableActionsDS> {
     const { connectionId, tableName, masterPwd, userId } = inputData;
     const connection = await this._dbContext.connectionRepository.findAndDecryptConnection(connectionId, masterPwd);
     const tablesInConnection = await findTablesInConnectionUtil(connection, userId, null);
@@ -34,6 +34,12 @@ export class FindTableActionsUseCase
       );
     }
     const foundTableActions = await this._dbContext.tableActionRepository.findTableActions(connectionId, tableName);
-    return foundTableActions.map((action) => buildCreatedTableActionDS(action));
+    const foundTableSettings = await this._dbContext.tableSettingsRepository.findTableSettings(connectionId, tableName);
+    const formedTableActionsDS = foundTableActions.map((action) => buildCreatedTableActionDS(action));
+    return {
+      table_name: tableName,
+      display_name: foundTableSettings.display_name,
+      table_actions: formedTableActionsDS,
+    };
   }
 }
