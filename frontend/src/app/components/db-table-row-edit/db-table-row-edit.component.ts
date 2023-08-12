@@ -29,7 +29,7 @@ export class DbTableRowEditComponent implements OnInit {
   public connectionID: string | null = null;
   public connectionName: string | null = null;
   public tableName: string | null = null;
-  public normalizedTableName: string | null = null;
+  public dispalyTableName: string | null = null;
   public tableRowValues: object;
   public tableRowStructure: object;
   public tableRowRequiredValues: object;
@@ -73,13 +73,14 @@ export class DbTableRowEditComponent implements OnInit {
     this.loading = true;
     this.connectionID = this._connections.currentConnectionID;
     this.tableName = this._tables.currentTableName;
-    this.normalizedTableName = normalizeTableName(this.tableName);
 
     this.route.queryParams.subscribe((params) => {
       if (Object.keys(params).length === 0) {
-        this.title.setTitle(`${this.normalizedTableName} - Add new record | Rocketadmin`);
         this._tables.fetchTableStructure(this.connectionID, this.tableName)
           .subscribe(res => {
+            this.dispalyTableName = res.display_name || normalizeTableName(this.tableName);
+            this.title.setTitle(`${this.dispalyTableName} - Add new record | Rocketadmin`);
+
             this.keyAttributesFromStructure = res.primaryColumns;
             this.readonlyFields = res.readonly_fields;
             this.tableForeignKeys = res.foreignKeys;
@@ -107,11 +108,13 @@ export class DbTableRowEditComponent implements OnInit {
             this.loading = false;
           })
       } else {
-        this.title.setTitle(`${this.normalizedTableName} - Edit record | Rocketadmin`);
         this.keyAttributesFromURL = params;
         this.hasKeyAttributesFromURL = !!Object.keys(this.keyAttributesFromURL).length;
         this._tableRow.fetchTableRow(this.connectionID, this.tableName, params)
           .subscribe(res => {
+            this.dispalyTableName = res.display_name || normalizeTableName(this.tableName);
+            this.title.setTitle(`${this.dispalyTableName} - Edit record | Rocketadmin`);
+
             const autoincrementFields = res.structure.filter((field: TableField) => field.auto_increment).map((field: TableField) => field.column_name);
             this.readonlyFields = [...res.readonly_fields, ...autoincrementFields];
             this.tableForeignKeys = res.foreignKeys;
@@ -130,7 +133,7 @@ export class DbTableRowEditComponent implements OnInit {
 
             if (res.referenced_table_names_and_columns && res.referenced_table_names_and_columns[0].referenced_by[0] !== null) {
               this.referencedTables = res.referenced_table_names_and_columns[0].referenced_by
-                .map((table: any) => { return {...table, normalizedTableName: normalizeTableName(table.table_name)}});
+                .map((table: any) => { return {...table, displayTableName: table.display_name || normalizeTableName(table.table_name)}});
               this.referencedTablesURLParams = res.referenced_table_names_and_columns[0].referenced_by
                 .map((table: any) => { return {
                   [`f__${table.column_name}__eq`]:
@@ -166,7 +169,7 @@ export class DbTableRowEditComponent implements OnInit {
         link: `/dashboard/${this.connectionID}`
       },
       {
-        label: this.normalizedTableName,
+        label: this.dispalyTableName,
         link: `/dashboard/${this.connectionID}/${this.tableName}`
       },
       {

@@ -3,13 +3,13 @@
         <div class="drawer-header">
             <h1 class="mat-h1">Actions</h1>
 
-            <button mat-icon-button color="primary" *ngIf="actions && actions.length !== 0"
+            <button mat-icon-button color="primary" *ngIf="actionsData && actions && actions.length !== 0"
                 type="button" class="add-icon-button"
                 (click)="addNewAction()">
                 <mat-icon>add</mat-icon>
             </button>
         </div>
-        <div class="no-actions" *ngIf="actions && actions.length === 0 && !newAction">
+        <div class="no-actions" *ngIf="actionsData && actions && actions.length === 0 && !newAction">
             <span class="mat-body-1">No actions added</span>
             <button mat-stroked-button color="primary"
                 type="button"
@@ -18,7 +18,7 @@
                 Add action
             </button>
         </div>
-        <mat-action-list *ngIf="actions && actions.length">
+        <mat-action-list *ngIf="actionsData && actions && actions.length">
             <button mat-list-item *ngFor="let action of actions; let i = index"
                 class="list-action-list-item"
                 [ngClass]="{

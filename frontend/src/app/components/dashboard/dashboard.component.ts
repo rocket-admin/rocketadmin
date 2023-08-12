@@ -269,12 +269,12 @@ export class DashboardComponent implements OnInit {
       if (action.type === CustomActionType.Single || action.title === 'Delete row') {
         this.dialog.open(DbActionConfirmationDialogComponent, {
           width: '25em',
-          data: {id: action.id, title: action.title, primaryKeys, identityFieldValue}
+          data: {id: action.id, title: action.title, primaryKeys, identityFieldValue, tableDisplayName: this.selectedTableDisplayName}
         });
       } else if (action.type === CustomActionType.Multiple) {
         this.dialog.open(BbBulkActionConfirmationDialogComponent, {
           width: '25em',
-          data: {id: action.id, title: action.title, primaryKeys: [primaryKeys], identityFieldValues: [identityFieldValue]}
+          data: {id: action.id, title: action.title, primaryKeys: [primaryKeys], identityFieldValues: [identityFieldValue], tableDisplayName: this.selectedTableDisplayName}
         });
       }
     } else {
@@ -283,7 +283,7 @@ export class DashboardComponent implements OnInit {
         .subscribe((res) => {
           if (res && res.location) this.dialog.open(DbActionLinkDialogComponent, {
             width: '25em',
-            data: {href: res.location, actionName: action.title, primaryKeys, identityFieldValue}
+            data: {href: res.location, actionName: action.title, primaryKeys, identityFieldValue, tableDisplayName: this.selectedTableDisplayName}
           })
         })
       } else if (action.type === CustomActionType.Multiple) {
@@ -306,7 +306,7 @@ export class DashboardComponent implements OnInit {
     if (action.requireConfirmation) {
       this.dialog.open(BbBulkActionConfirmationDialogComponent, {
         width: '25em',
-        data: {id: action.id, title: action.title, primaryKeys, identityFieldValues}
+        data: {id: action.id, title: action.title, primaryKeys, identityFieldValues, tableDisplayName: this.selectedTableDisplayName}
       });
     } else {
       this._tables.activateActions(this.connectionID, this.selectedTableName, action.id, action.title, primaryKeys)

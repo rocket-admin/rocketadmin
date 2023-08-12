@@ -26,7 +26,7 @@ export class BbBulkActionConfirmationDialogComponent implements OnInit {
   ngOnInit(): void {
     this.connectionID = this._connections.currentConnectionID;
     this.selectedTableName = this._tables.currentTableName;
-
+    console.log(this.data);
     // this._tableRow.cast.subscribe();
     this._tables.cast.subscribe();
   }

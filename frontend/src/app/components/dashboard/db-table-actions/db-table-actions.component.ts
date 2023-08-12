@@ -56,11 +56,13 @@ export class DbTableActionsComponent implements OnInit {
 
     try {
       this.actionsData = await this.getActions();
+      console.log(this.actionsData);
       this.actions = this.actionsData.table_actions;
       if (this.actions.length) this.setSelectedAction(this.actions[0]);
       this.title.setTitle(`${this.actionsData.display_name || this.normalizedTableName} - Actions | Rocketadmin`);
     } catch(error) {
       if (error instanceof HttpErrorResponse) {
+        this.actionsData = null;
         console.log(error.error.message);
       } else  { throw error };
     }

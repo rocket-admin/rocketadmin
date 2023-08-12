@@ -21,7 +21,7 @@ export class DbTableWidgetsComponent implements OnInit {
 
   public connectionID: string | null = null;
   public tableName: string | null = null;
-  public normalizedTableName: string;
+  public dispalyTableName: string;
   public fields: string[] = [];
   public fieldsCount: number;
   public widgets: Widget[] = null;
@@ -104,19 +104,17 @@ export class DbTableWidgetsComponent implements OnInit {
   ngOnInit(): void {
     this.connectionID = this._connections.currentConnectionID;
     this.tableName = this._tables.currentTableName;
-    this.normalizedTableName = normalizeTableName(this.tableName);
-    this.title.setTitle(`${this.normalizedTableName} - Widgets | Rocketadmin`);
     this.widgetsWithSettings = Object
       .entries(this.defaultParams)
       .filter(([key, value]) => value !== '// No settings required')
       .map(widgetDefault => widgetDefault[0]);
-    // console.log(settings);
-    // this.widgetsWithSettings = Object.keys(settings);
 
     this._tables.fetchTableStructure(this.connectionID, this.tableName)
       .subscribe(res => {
         this.fieldsCount = res.structure.length;
         this.fields = res.structure.map((field: TableField) => field.column_name);
+        this.dispalyTableName = res.display_name || normalizeTableName(this.tableName);
+        this.title.setTitle(`${this.dispalyTableName} - Add new record | Rocketadmin`);
         this.getWidgets();
       })
   }
@@ -132,7 +130,7 @@ export class DbTableWidgetsComponent implements OnInit {
         link: `/dashboard/${this.connectionID}`
       },
       {
-        label: this.normalizedTableName,
+        label: this.dispalyTableName,
         link: `/dashboard/${this.connectionID}/${this.tableName}`
       },
       {

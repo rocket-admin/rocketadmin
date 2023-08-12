@@ -1,4 +1,4 @@
-<h1 mat-dialog-title>Confirm <span class="actions-title">{{data.title}}</span> for {{ selectedTableName }} table</h1>
+<h1 mat-dialog-title>Confirm <span class="actions-title">{{data.title}}</span> for {{ data.tableDisplayName }} table</h1>
 <mat-dialog-content>
     <div *ngIf="data.identityFieldValues; else primaryKeysList">
         <p class="mat-body">You are going to <strong class="actions-title">{{data.title}}</strong> for:</p>

@@ -145,7 +145,7 @@ export class FileComponent implements OnInit {
     // let dataStringArray = new Array(dataString.byteLength);
 
     this.hexData = [...new Uint8Array(dataString)]
-      .map (b => b.toString(16).padStart (2, "0"))
-      .join ("");
+      .map(b => b.toString(16).padStart (2, "0"))
+      .join("");
   }
 }
