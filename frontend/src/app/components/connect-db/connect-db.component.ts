@@ -15,6 +15,7 @@ import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { Title } from '@angular/platform-browser';
 import { UserService } from 'src/app/services/user.service';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-connect-db',
@@ -94,8 +95,10 @@ export class ConnectDBComponent implements OnInit, OnDestroy {
 
     if (!this.connectionID) {
       this._user.sendUserAction('CONNECTION_CREATION_NOT_FINISHED').subscribe();
-      // @ts-ignore
-      fbq('trackCustom', 'Add_connection');
+      if ((environment as any).saas) {
+        // @ts-ignore
+        fbq('trackCustom', 'Add_connection');
+      }
     };
   }
 

@@ -6,6 +6,7 @@ import { AuthUser } from '../models/user';
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { NotificationsService } from './notifications.service';
+import { environment } from 'src/environments/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -23,8 +24,10 @@ export class AuthService {
     return this._http.post<any>('/user/register', userData)
       .pipe(
         map(res => {
-          // @ts-ignore
-          fbq('trackCustom', 'Signup');
+          if ((environment as any).saas) {
+            // @ts-ignore
+            fbq('trackCustom', 'Signup');
+          }
           this._notifications.showSuccessSnackbar(`Confirmation email has been sent to you.`);
           this.auth.next(res);
           return res
