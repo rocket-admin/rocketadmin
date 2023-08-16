@@ -2,12 +2,15 @@
     margin-bottom: 12px;
 }
 
+.permissions-form ::ng-deep .mat-mdc-dialog-content {
+    color: #0a0a0a;
+}
+
 .permissions {
     display: grid;
     grid-template-columns: auto 1fr;
-    grid-gap: 12px 60px;
+    grid-column-gap: 60px;
     align-items: center;
-    margin-top: 16px;
     margin-bottom: 8px;
 }
 
@@ -39,6 +42,25 @@
     grid-column: 1 / span 2;
     display: grid;
     grid-template-columns: 1fr repeat(5, auto);
+    grid-row-gap: 8px;
+    align-items: center;
+}
+
+.table-name {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.table-name__title {
+    color: black;
+    font-size: 16px;
+    margin-bottom: -6px;
+}
+
+.table-name__line {
+    color: rgba(0, 0, 0, 0.6);
+    font-size: 12px;
 }
 
 .tables-overlay {

@@ -6,6 +6,7 @@ import { UserGroup, TablePermission, AccessLevel } from 'src/app/models/user';
 import { ConnectionsService } from 'src/app/services/connections.service';
 import { AlertActionType, AlertType } from 'src/app/models/alert';
 import { GroupAddDialogComponent } from '../group-add-dialog/group-add-dialog.component';
+import { normalizeTableName } from 'src/app/lib/normalize';
 
 @Component({
   selector: 'app-permissions-add-dialog',
@@ -53,7 +54,7 @@ export class PermissionsAddDialogComponent implements OnInit {
       .subscribe( res => {
         this.connectionAccess = res.connection.accessLevel;
         this.groupAccess = res.group.accessLevel;
-        this.tablesAccess = res.tables;
+        this.tablesAccess = res.tables.map( table => {return {...table, dispaleyName: table.display_name || normalizeTableName(table.tableName)}} );
         this.loading = false;
 
         if (this.group.title === 'Admin') this.grantFullTableAccess()
