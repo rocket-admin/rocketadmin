@@ -56,6 +56,7 @@ export enum AccessLevel {
 
 export interface TablePermission {
     tableName: string,
+    display_name: string,
     accessLevel: TablePermissions
 }
 

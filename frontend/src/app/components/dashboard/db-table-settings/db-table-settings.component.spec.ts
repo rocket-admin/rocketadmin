@@ -14,7 +14,6 @@ import { TablesService } from 'src/app/services/tables.service';
 import { of } from 'rxjs';
 import { TableSettings, TableOrdering } from 'src/app/models/table';
 import { ConnectionsService } from 'src/app/services/connections.service';
-import { MatMenuModule } from '@angular/material/menu';
 
 describe('DbTableSettingsComponent', () => {
   let component: DbTableSettingsComponent;
@@ -111,8 +110,7 @@ describe('DbTableSettingsComponent', () => {
         MatSelectModule,
         MatRadioModule,
         MatInputModule,
-        BrowserAnimationsModule,
-        MatMenuModule
+        BrowserAnimationsModule
       ],
       declarations: [ DbTableSettingsComponent ]
     })

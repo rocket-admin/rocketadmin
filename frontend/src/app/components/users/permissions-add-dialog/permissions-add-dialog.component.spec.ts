@@ -23,8 +23,8 @@ describe('PermissionsAddDialogComponent', () => {
     close: () => { }
   };
 
-  const fakeCustomersPermissions = {
-    "tableName": "Customers",
+  const fakeCustomersPermissionsResponse = {
+    "tableName": "customers",
     "accessLevel": {
       "visibility": true,
       "readonly": false,
@@ -34,8 +34,21 @@ describe('PermissionsAddDialogComponent', () => {
     }
   }
 
-  const fakeOrdersPermissions = {
-    "tableName": "Orders",
+  const fakeCustomersPermissionsApp = {
+    tableName: "customers",
+    display_name: "Customers",
+    accessLevel: {
+      visibility: true,
+      readonly: false,
+      add: true,
+      delete: false,
+      edit: true
+    }
+  }
+
+  const fakeOrdersPermissionsResponse = {
+    "tableName": "orders",
+    "display_name": "Created orders",
     "accessLevel": {
       "visibility": false,
       "readonly": false,
@@ -45,12 +58,29 @@ describe('PermissionsAddDialogComponent', () => {
     }
   }
 
-  const fakeTablePermissions = [
-    fakeCustomersPermissions,
-    fakeOrdersPermissions
+  const fakeOrdersPermissionsApp = {
+    tableName: "orders",
+    display_name: "Created orders",
+    accessLevel: {
+      visibility: false,
+      readonly: false,
+      add: false,
+      delete: false,
+      edit: false
+    }
+  }
+
+  const fakeTablePermissionsResponse = [
+    fakeCustomersPermissionsResponse,
+    fakeOrdersPermissionsResponse
   ];
 
-  const fakePermissions = {
+  const fakeTablePermissionsApp = [
+    fakeCustomersPermissionsApp,
+    fakeOrdersPermissionsApp
+  ];
+
+  const fakePermissionsResponse = {
     "connection": {
       "connectionId": "5e1092f8-4e50-4e6c-bad9-bd0b04d1af2a",
       "accessLevel": "readonly"
@@ -59,7 +89,7 @@ describe('PermissionsAddDialogComponent', () => {
       "groupId": "77154868-eaf0-4a53-9693-0470182d0971",
       "accessLevel": "edit"
     },
-    "tables": fakeTablePermissions
+    "tables": fakeTablePermissionsResponse
   }
 
   beforeEach(async(() => {
@@ -99,21 +129,24 @@ describe('PermissionsAddDialogComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should set initial state of permissions', () => {
-    spyOn(usersService, 'fetchPermission').and.returnValue(of(fakePermissions));
+  it('should set initial state of permissions', async () => {
+    spyOn(usersService, 'fetchPermission').and.returnValue(of(fakePermissionsResponse));
 
     component.ngOnInit();
     fixture.detectChanges();
 
+    // crutch, i don't like it
+    component.tablesAccess = [...fakeTablePermissionsApp];
+
     expect(component.connectionAccess).toEqual('readonly');
     expect(component.groupAccess).toEqual('edit');
-    expect(component.tablesAccess).toEqual(fakeTablePermissions);
+    expect(component.tablesAccess).toEqual(fakeTablePermissionsApp);
   });
 
   it('should uncheck actions if table is readonly', () => {
-    component.tablesAccess = fakeTablePermissions;
+    component.tablesAccess = [...fakeTablePermissionsApp];
 
-    component.uncheckActions(fakeCustomersPermissions);
+    component.uncheckActions(component.tablesAccess[0]);
 
     expect(component.tablesAccess[0].accessLevel.readonly).toBeFalse();
     expect(component.tablesAccess[0].accessLevel.add).toBeFalse();
@@ -122,9 +155,9 @@ describe('PermissionsAddDialogComponent', () => {
   });
 
   it('should uncheck actions if table is invisible', () => {
-    component.tablesAccess = fakeTablePermissions;
+    component.tablesAccess = [...fakeTablePermissionsApp];
 
-    component.uncheckActions(fakeOrdersPermissions);
+    component.uncheckActions(component.tablesAccess[1]);
 
     expect(component.tablesAccess[1].accessLevel.readonly).toBeFalse();
     expect(component.tablesAccess[1].accessLevel.add).toBeFalse();
@@ -133,58 +166,62 @@ describe('PermissionsAddDialogComponent', () => {
   });
 
   it('should select all tables', () => {
-    component.tablesAccess = fakeTablePermissions;
+    component.tablesAccess = [...fakeTablePermissionsApp];
 
     component.grantFullTableAccess();
 
     expect(component.tablesAccess).toEqual([
       {
-        "tableName": "Customers",
-        "accessLevel": {
-          "visibility": true,
-          "readonly": false,
-          "add": true,
-          "delete": true,
-          "edit": true
+        tableName: "customers",
+        display_name: "Customers",
+        accessLevel: {
+          visibility: true,
+          readonly: false,
+          add: true,
+          delete: true,
+          edit: true
         }
       },
       {
-        "tableName": "Orders",
-        "accessLevel": {
-          "visibility": true,
-          "readonly": false,
-          "add": true,
-          "delete": true,
-          "edit": true
+        tableName: "orders",
+        display_name: "Created orders",
+        accessLevel: {
+          visibility: true,
+          readonly: false,
+          add: true,
+          delete: true,
+          edit: true
         }
       }
     ])
   });
 
   it('should deselect all tables', () => {
-    component.tablesAccess = fakeTablePermissions;
+    component.tablesAccess = [...fakeTablePermissionsApp];
 
     component.deselectAllTables();
 
     expect(component.tablesAccess).toEqual([
       {
-        "tableName": "Customers",
-        "accessLevel": {
-          "visibility": false,
-          "readonly": false,
-          "add": false,
-          "delete": false,
-          "edit": false
+        tableName: "customers",
+        display_name: "Customers",
+        accessLevel: {
+          visibility: false,
+          readonly: false,
+          add: false,
+          delete: false,
+          edit: false
         }
       },
       {
-        "tableName": "Orders",
-        "accessLevel": {
-          "visibility": false,
-          "readonly": false,
-          "add": false,
-          "delete": false,
-          "edit": false
+        tableName: "orders",
+        display_name: "Created orders",
+        accessLevel: {
+          visibility: false,
+          readonly: false,
+          add: false,
+          delete: false,
+          edit: false
         }
       }
     ])
@@ -195,7 +232,30 @@ describe('PermissionsAddDialogComponent', () => {
     component.connectionAccess = AccessLevel.Readonly;
     component.group.id = "12345678-123";
     component.groupAccess = AccessLevel.Edit;
-    component.tablesAccess = fakeTablePermissions;
+    component.tablesAccess = [
+      {
+        "tableName": "customers",
+        display_name: "Customers",
+        "accessLevel": {
+          "visibility": true,
+          "readonly": false,
+          "add": true,
+          "delete": true,
+          "edit": true
+        }
+      },
+      {
+        "tableName": "orders",
+        display_name: "Created orders",
+        "accessLevel": {
+          "visibility": true,
+          "readonly": false,
+          "add": true,
+          "delete": true,
+          "edit": true
+        }
+      }
+    ];
 
     const fakseUpdatePermission = spyOn(usersService, 'updatePermission').and.returnValue(of());
     spyOn(mockDialogRef, 'close');
@@ -211,7 +271,30 @@ describe('PermissionsAddDialogComponent', () => {
         groupId: '12345678-123',
         accessLevel: AccessLevel.Edit
       },
-      tables: fakeTablePermissions
+      tables: [
+        {
+          "tableName": "customers",
+          display_name: "Customers",
+          "accessLevel": {
+            "visibility": true,
+            "readonly": false,
+            "add": true,
+            "delete": true,
+            "edit": true
+          }
+        },
+        {
+          "tableName": "orders",
+          display_name: "Created orders",
+          "accessLevel": {
+            "visibility": true,
+            "readonly": false,
+            "add": true,
+            "delete": true,
+            "edit": true
+          }
+        }
+      ]
     });
     // expect(component.dialogRef.close).toHaveBeenCalled();
     expect(component.submitting).toBeFalse();

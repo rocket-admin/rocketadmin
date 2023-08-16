@@ -20,7 +20,7 @@ export class PermissionsAddDialogComponent implements OnInit {
   public connectionAccess: AccessLevel;
   public groupAccess: AccessLevel;
   public tablesAccessOptions = 'select';
-  public tablesAccess: TablePermission[];
+  public tablesAccess: TablePermission[] = [];
   public connectionID: string;
   public adminGroupAlert = {
     id: 10000,
@@ -54,7 +54,7 @@ export class PermissionsAddDialogComponent implements OnInit {
       .subscribe( res => {
         this.connectionAccess = res.connection.accessLevel;
         this.groupAccess = res.group.accessLevel;
-        this.tablesAccess = res.tables.map( table => {return {...table, dispaleyName: table.display_name || normalizeTableName(table.tableName)}} );
+        this.tablesAccess = res.tables.map( table => {return {...table, display_name: table.display_name || normalizeTableName(table.tableName)}} );
         this.loading = false;
 
         if (this.group.title === 'Admin') this.grantFullTableAccess()

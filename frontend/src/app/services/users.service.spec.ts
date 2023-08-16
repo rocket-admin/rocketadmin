@@ -78,7 +78,8 @@ describe('UsersService', () => {
           "readonly": true,
           "visibility": true
         },
-        "tableName": "TOYS_TEST"
+        "tableName": "TOYS_TEST",
+        display_name: "Toys tests"
       },
       {
         "accessLevel": {
@@ -88,7 +89,8 @@ describe('UsersService', () => {
           "readonly": false,
           "visibility": true
         },
-        "tableName": "PRODUCTS_TEST"
+        "tableName": "PRODUCTS_TEST",
+        display_name: "Product tests"
       }
     ]
   }
