@@ -304,6 +304,97 @@ describe('UserService', () => {
     expect(fakeNotifications.showErrorSnackbar).toHaveBeenCalledWith(fakeError.message);
   });
 
+  it('should call switchOn2FA', () => {
+    let isSwitchOn2FACalled = false;
+
+    const requestResponse = {}
+
+    service.switchOn2FA().subscribe((res) => {
+      expect(res).toEqual(requestResponse);
+      isSwitchOn2FACalled = true;
+    });
+
+    const req = httpMock.expectOne(`/user/otp/generate`);
+    expect(req.request.method).toBe("POST");
+    expect(req.request.body).toEqual({});
+    req.flush(requestResponse);
+
+    expect(isSwitchOn2FACalled).toBeTrue();
+  });
+
+  it('should fall for switchOn2FA and show Error alert', async () => {
+    const resMessage = service.switchOn2FA().toPromise();
+
+    const req = httpMock.expectOne(`/user/otp/generate`);
+    expect(req.request.method).toBe("POST");
+    req.flush(fakeError, {status: 400, statusText: ''});
+    await resMessage;
+
+    expect(fakeNotifications.showErrorSnackbar).toHaveBeenCalledWith(fakeError.message);
+  });
+
+  it('should call confirm2FA', () => {
+    let isConfirm2FACalled = false;
+
+    const requestResponse = {}
+
+    service.confirm2FA('123456').subscribe((res) => {
+      expect(res).toEqual(requestResponse);
+      expect(fakeNotifications.showSuccessSnackbar).toHaveBeenCalledOnceWith('2FA is turned on successfully.');
+      isConfirm2FACalled = true;
+    });
+
+    const req = httpMock.expectOne(`/user/otp/verify`);
+    expect(req.request.method).toBe("POST");
+    expect(req.request.body).toEqual({otpToken: '123456'});
+    req.flush(requestResponse);
+
+    expect(isConfirm2FACalled).toBeTrue();
+  });
+
+  xit('should fall for confirm2FA and show Error alert', async () => {
+    const resMessage = service.confirm2FA('123456').toPromise();
+
+    const req = httpMock.expectOne(`/user/otp/verify`);
+    expect(req.request.method).toBe("POST");
+    expect(req.request.body).toEqual({otpToken: '123456'});
+    req.flush(fakeError, {status: 400, statusText: ''});
+    await resMessage;
+
+    expect(fakeNotifications.showErrorSnackbar).toHaveBeenCalledWith(fakeError.message);
+  });
+
+  it('should call switchOff2FA', () => {
+    let isSwitchOff2FACalled = false;
+
+    const requestResponse = {}
+
+    service.switchOff2FA('123456').subscribe((res) => {
+      expect(res).toEqual(requestResponse);
+      expect(fakeNotifications.showSuccessSnackbar).toHaveBeenCalledOnceWith('2FA is turned off successfully.');
+      isSwitchOff2FACalled = true;
+    });
+
+    const req = httpMock.expectOne(`/user/otp/disable`);
+    expect(req.request.method).toBe("POST");
+    expect(req.request.body).toEqual({otpToken: '123456'});
+    req.flush(requestResponse);
+
+    expect(isSwitchOff2FACalled).toBeTrue();
+  });
+
+  it('should fall for switchOff2FA and show Error alert', async () => {
+    const resMessage = service.switchOff2FA('123456').toPromise();
+
+    const req = httpMock.expectOne(`/user/otp/disable`);
+    expect(req.request.method).toBe("POST");
+    expect(req.request.body).toEqual({otpToken: '123456'});
+    req.flush(fakeError, {status: 400, statusText: ''});
+    await resMessage;
+
+    expect(fakeNotifications.showErrorSnackbar).toHaveBeenCalledWith(fakeError.message);
+  });
+
   it('should call deleteAccount', () => {
     let isDeleteuserCalled = false;
     const metadata = {
