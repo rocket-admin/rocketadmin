@@ -8,6 +8,7 @@ import { MatMenuTrigger } from '@angular/material/menu';
   styleUrls: ['./icon-picker.component.css']
 })
 export class IconPickerComponent {
+  @Input() resetButtonShown: boolean;
   @Input() icon: string;
   @Input() defaultIcons: Array<string>;
   @Input() tooltip: string;
@@ -16,8 +17,19 @@ export class IconPickerComponent {
 
   public customIcon: string = '';
 
+  constructor() { console.log(this.resetButtonShown, 'resetButtonShown'); }
+
+  ngOnInit() {
+    console.log(this.resetButtonShown, 'resetButtonShown');
+  }
+
   applyIcon() {
     this.onFieldChange.emit(this.customIcon);
+    this.trigger.closeMenu();
+  }
+
+  resetIcon() {
+    this.onFieldChange.emit(null);
     this.trigger.closeMenu();
   }
 }

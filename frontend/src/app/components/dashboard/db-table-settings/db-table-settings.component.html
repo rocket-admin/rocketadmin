@@ -11,7 +11,7 @@
                 <input matInput [(ngModel)]="tableSettings.display_name" name="display_name" #displayName="ngModel">
                 <!-- <mat-error *ngIf="title.errors?.required && (title.invalid && title.touched)">Title should not be empty.</mat-error> -->
             </mat-form-field>
-            <app-icon-picker class="icon-picker"
+            <app-icon-picker class="icon-picker" [resetButtonShown]="true"
                 [icon]="tableSettings.icon"
                 [defaultIcons]="defaultIcons"
                 tooltip="Choose an icon"

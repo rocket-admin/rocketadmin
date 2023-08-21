@@ -16,7 +16,14 @@
 </ng-template>
 <mat-menu #menu="matMenu">
     <div class="icons-menu">
-        <strong>Select an icon</strong>
+        <div class="icons-menu__header">
+            <strong>Select an icon</strong>
+            <button type="button" *ngIf="icon && resetButtonShown"
+                mat-button color="warn"
+                (click)="resetIcon()">
+                Reset
+            </button>
+        </div>
         <ul class="icons-list">
             <li *ngFor="let defaultIcon of defaultIcons; let i = index">
                 <label for="defaultIcon-{{i}}" class="icon-radio-label">
