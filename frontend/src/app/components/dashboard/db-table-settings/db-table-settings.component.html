@@ -96,6 +96,7 @@
                 <mat-select
                     name="identity_column"
                     [(ngModel)]="tableSettings.identity_column">
+                    <mat-option value="">None</mat-option>
                     <mat-option *ngFor="let field of fields" [value]="field">{{field}}</mat-option>
                 </mat-select>
             </mat-form-field>
@@ -151,6 +152,7 @@
                 <mat-form-field appearance="outline" class="form-group-ordering__ordering-by">
                     <mat-label>Ordering by field</mat-label>
                     <mat-select name="ordering_field" [(ngModel)]="tableSettings.ordering_field">
+                        <mat-option value="">None</mat-option>
                         <mat-option *ngFor="let field of fields" [value]="field">
                             {{field}}
                         </mat-option>
