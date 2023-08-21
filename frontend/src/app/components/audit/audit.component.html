@@ -6,7 +6,12 @@
                 <mat-label>Tables</mat-label>
                 <mat-select [(ngModel)]="tableName" (ngModelChange)="loadLogsPage()">
                     <mat-option value="showAll">Show all</mat-option>
-                    <mat-option *ngFor="let tableItem of tablesList" [value]="tableItem.table">{{tableItem.table}}</mat-option>
+                    <mat-option *ngFor="let tableItem of tablesList" [value]="tableItem.table">
+                        <div class="table-name">
+                            <span class="table-name__title">{{tableItem.display_name || tableItem.normalizedTableName}}</span>
+                            <span class="table-name__line"> ({{tableItem.table}})</span>
+                        </div>
+                    </mat-option>
                 </mat-select>
             </mat-form-field>
             <mat-form-field *ngIf="usersList && !isServerError" appearance="outline">
