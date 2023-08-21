@@ -4,10 +4,14 @@ import { UserEntity } from '../../../entities/user/user.entity.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
-import { IGetUserInfo } from './saas-use-cases.interface.js';
+import { IGetUserInfoByEmail } from './saas-use-cases.interface.js';
+import { GetUserInfoByEmailDS } from '../data-structures/get-user-info.ds.js';
 
 @Injectable()
-export class GetUserInfoByEmailUseCase extends AbstractUseCase<string, UserEntity> implements IGetUserInfo {
+export class GetUserInfoByEmailUseCase
+  extends AbstractUseCase<GetUserInfoByEmailDS, UserEntity>
+  implements IGetUserInfoByEmail
+{
   constructor(
     @Inject(BaseType.GLOBAL_DB_CONTEXT)
     protected _dbContext: IGlobalDatabaseContext,
@@ -15,8 +19,15 @@ export class GetUserInfoByEmailUseCase extends AbstractUseCase<string, UserEntit
     super();
   }
 
-  protected async implementation(userId: string): Promise<UserEntity> {
-    const foundUser = await this._dbContext.userRepository.findOneUserByEmail(userId);
+  protected async implementation(inputData: GetUserInfoByEmailDS): Promise<UserEntity> {
+    let foundUser: UserEntity = null;
+    const { email, companyId } = inputData;
+    if (companyId) {
+      foundUser = await this._dbContext.userRepository.findOneUserByEmailAndCompanyId(email, companyId);
+    } else {
+      foundUser = await this._dbContext.userRepository.findOneUserByEmail(email);
+    }
+
     if (!foundUser) {
       throw new HttpException(
         {

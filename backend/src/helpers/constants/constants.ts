@@ -63,7 +63,7 @@ export const Constants = {
     ttl: 1000 * 60 * 60,
     updateAgeOnGet: false,
     updateAgeOnHas: false,
-    dispose: async (knex: Knex, key) => {
+    dispose: async (knex: Knex) => {
       await knex.destroy();
     },
   },

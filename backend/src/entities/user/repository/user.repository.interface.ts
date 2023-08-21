@@ -34,4 +34,6 @@ export interface IUserRepository {
   findUsersWithoutLogs(): Promise<Array<UserEntity>>;
 
   findOneUserByGitHubId(gitHubId: number): Promise<UserEntity>;
+
+  findOneUserByEmailAndCompanyId(email: string, companyId: string): Promise<UserEntity>;
 }
