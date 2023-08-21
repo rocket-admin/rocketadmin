@@ -12,7 +12,7 @@
                 <mat-label>Name</mat-label>
                 <input matInput [(ngModel)]="userName" name="user-name" #nameField="ngModel" data-testid="user-name-input">
             </mat-form-field>
-            <button type="button" mat-button color="primary" data-testid="save-user-name-button"
+            <button type="submit" mat-button color="primary" data-testid="save-user-name-button"
                 class="user-settings__save-button"
                 [disabled]="!nameField.dirty || submittingChangedName">
                 Save
