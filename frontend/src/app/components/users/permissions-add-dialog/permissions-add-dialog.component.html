@@ -1,11 +1,11 @@
 <h1 mat-dialog-title>Permissions for <strong>{{ group.title }}</strong> group</h1>
-<form #addPermissionsForm="ngForm" (ngSubmit)="addPermissions()">
+<form #addPermissionsForm="ngForm" class="permissions-form" (ngSubmit)="addPermissions()">
     <mat-dialog-content>
         <app-alert *ngIf="connectionAccess === 'edit' && group.title === 'Admin'" [alert]="adminGroupAlert"></app-alert>
         <app-alert *ngIf="connectionAccess === 'edit' && group.title !== 'Admin'" [alert]="connectionFullAccessAlert"></app-alert>
 
         <div class="permissions">
-            <h2 class="mat-subheading-1"><strong>Connection credentials</strong></h2>
+            <h2 class="mat-subtitle-1">Connection credentials</h2>
             <mat-radio-group [(ngModel)]="connectionAccess" name="connection-permissions"
                 (ngModelChange)="handleConnectionAccessChange()"
                 aria-labelledby="example-radio-group-label"
@@ -22,7 +22,7 @@
                 </mat-radio-button>
             </mat-radio-group>
 
-            <h2 class="mat-subheading-1"><strong>User management</strong></h2>
+            <h2 class="mat-subtitle-1">User management</h2>
             <mat-radio-group [(ngModel)]="groupAccess" name="users-permissions"
                 aria-labelledby="permission-radio-group-label"
                 class="example-radio-group"
@@ -38,7 +38,7 @@
                 </mat-radio-button>
             </mat-radio-group>
 
-            <h2 class="mat-subheading-1 mat-subheading-1_tables"><strong>Tables</strong></h2>
+            <h2 class="mat-subtitle-1 mat-subheading-1_tables">Tables</h2>
             <span *ngIf="connectionAccess === 'edit' || group.title === 'Admin'">Full access</span>
             <div class="tables-options">
                 <button mat-button type="button" *ngIf="!(connectionAccess === 'edit' || group.title === 'Admin')"
@@ -56,7 +56,10 @@
             <div class="tables-list">
                 <div *ngIf="connectionAccess === 'edit'" class="tables-overlay"></div>
                 <ng-container *ngFor="let table of tablesAccess">
-                    <span mat-line>{{table.tableName}}</span>
+                    <div class="table-name">
+                        <span class="table-name__title">{{table.dispaleyName}}</span>
+                        <span class="table-name__line">{{table.tableName}}</span>
+                    </div>
 
                     <div class="tableVisibility">
                         <input type="checkbox" name="{{table.tableName}}-visibility" id="{{table.tableName}}-visibility"

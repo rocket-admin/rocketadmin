@@ -102,8 +102,14 @@
                 <mat-label>Hidden tables</mat-label>
                 <mat-select multiple
                     name="columns_view"
-                    [(ngModel)]="connectionSettings.hidden_tables">
-                    <mat-option *ngFor="let table of tablesList" [value]="table.table">{{table.display_name || table.normalizedTableName}}</mat-option>
+                    [(ngModel)]="connectionSettings.hidden_tables"
+                    (optionSelectionChanges)="onColumnsViewChange($event)">
+                    <mat-option *ngFor="let table of tablesList" [value]="table.table" >
+                        <div class="table-name">
+                            <span class="table-name__title">{{table.display_name || table.normalizedTableName}}</span>
+                            <span class="table-name__line"> ({{table.table}})</span>
+                        </div>
+                    </mat-option>
                 </mat-select>
             </mat-form-field>
         </div>

@@ -5636,8 +5636,8 @@ __metadata:
   linkType: hard
 
 "engine.io@npm:~6.4.1":
-  version: 6.4.1
-  resolution: "engine.io@npm:6.4.1"
+  version: 6.4.2
+  resolution: "engine.io@npm:6.4.2"
   dependencies:
     "@types/cookie": ^0.4.1
     "@types/cors": ^2.8.12
@@ -5649,7 +5649,7 @@ __metadata:
     debug: ~4.3.1
     engine.io-parser: ~5.0.3
     ws: ~8.11.0
-  checksum: b3921c35911d18b851153b97c1ad49f24ae068f01ddc17cd4d40b47a581d1317a8a1ed62665f63d07d076366b926b08a185d672573fedd186ee3304f9fa542d2
+  checksum: c4ca538c98d251ff00756ed955d924c3fd78e61af0a5825c9fa1d77ebb661ead7971598fb61daf079c2655c7be2d4a26094e446759e3c6786d8ac75ccffe36d5
   languageName: node
   linkType: hard
 
@@ -9827,11 +9827,11 @@ __metadata:
   linkType: hard
 
 "semver@npm:^5.3.0, semver@npm:^5.6.0":
-  version: 5.7.1
-  resolution: "semver@npm:5.7.1"
+  version: 5.7.2
+  resolution: "semver@npm:5.7.2"
   bin:
-    semver: ./bin/semver
-  checksum: 57fd0acfd0bac382ee87cd52cd0aaa5af086a7dc8d60379dfe65fea491fb2489b6016400813930ecd61fd0952dae75c115287a1b16c234b1550887117744dfaf
+    semver: bin/semver
+  checksum: fb4ab5e0dd1c22ce0c937ea390b4a822147a9c53dbd2a9a0132f12fe382902beef4fbf12cf51bb955248d8d15874ce8cd89532569756384f994309825f10b686
   languageName: node
   linkType: hard
 
@@ -10009,12 +10009,12 @@ __metadata:
   linkType: hard
 
 "socket.io-parser@npm:~4.2.1":
-  version: 4.2.2
-  resolution: "socket.io-parser@npm:4.2.2"
+  version: 4.2.4
+  resolution: "socket.io-parser@npm:4.2.4"
   dependencies:
     "@socket.io/component-emitter": ~3.1.0
     debug: ~4.3.1
-  checksum: ba929645cb252e23d9800f00c77092480d07cc5d6c97a5d11f515ef636870ea5b3ad6f62b7ba6147b4d703efc92588064f5638a0a0841c8530e4ac50c4b1197a
+  checksum: 61540ef99af33e6a562b9effe0fad769bcb7ec6a301aba5a64b3a8bccb611a0abdbe25f469933ab80072582006a78ca136bf0ad8adff9c77c9953581285e2263
   languageName: node
   linkType: hard
 
