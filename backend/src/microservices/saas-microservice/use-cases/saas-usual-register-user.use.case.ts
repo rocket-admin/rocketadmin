@@ -3,7 +3,7 @@ import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
 import { FoundUserDs } from '../../../entities/user/application/data-structures/found-user.ds.js';
-import { UsualRegisterUserDs } from '../../../entities/user/application/data-structures/usual-register-user.ds.js';
+import { SaasUsualUserRegisterDS } from '../../../entities/user/application/data-structures/usual-register-user.ds.js';
 import { TableSettingsEntity } from '../../../entities/table-settings/table-settings.entity.js';
 import assert from 'assert';
 import { ConnectionEntity } from '../../../entities/connection/connection.entity.js';
@@ -21,7 +21,7 @@ import { ValidationHelper } from '../../../helpers/validators/validation-helper.
 import { ISaasRegisterUser } from './saas-use-cases.interface.js';
 
 export class SaasUsualRegisterUseCase
-  extends AbstractUseCase<UsualRegisterUserDs, FoundUserDs>
+  extends AbstractUseCase<SaasUsualUserRegisterDS, FoundUserDs>
   implements ISaasRegisterUser
 {
   constructor(
@@ -31,10 +31,10 @@ export class SaasUsualRegisterUseCase
     super();
   }
 
-  protected async implementation(userData: UsualRegisterUserDs): Promise<FoundUserDs> {
-    const { email, password, gclidValue, name } = userData;
+  protected async implementation(userData: SaasUsualUserRegisterDS): Promise<FoundUserDs> {
+    const { email, password, gclidValue, name, companyId } = userData;
     ValidationHelper.isPasswordStrongOrThrowError(password);
-    const foundUser = await this._dbContext.userRepository.findOneUserByEmail(email);
+    const foundUser = await this._dbContext.userRepository.findOneUserByEmailAndCompanyId(email, companyId);
     if (foundUser) {
       throw new HttpException(
         {

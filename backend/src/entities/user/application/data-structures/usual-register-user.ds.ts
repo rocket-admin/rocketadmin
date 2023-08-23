@@ -4,3 +4,7 @@ export class UsualRegisterUserDs {
   gclidValue: string;
   name: string;
 }
+
+export class SaasUsualUserRegisterDS extends UsualRegisterUserDs {
+  companyId?: string;
+}
