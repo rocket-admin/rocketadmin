@@ -1,10 +1,12 @@
-import { UseInterceptors, Controller, Injectable, Inject, Post, Body, Get, Param, Put } from '@nestjs/common';
+import { UseInterceptors, Controller, Injectable, Inject, Post, Body, Get, Param, Put, Query } from '@nestjs/common';
 import { SentryInterceptor } from '../../interceptors/sentry.interceptor.js';
 import { UseCaseType } from '../../common/data-injection.tokens.js';
 import {
+  IAddOrRemoveCompanyIdToUser,
   ICompanyRegistration,
   IGetUserGithubIdInfo,
   IGetUserInfo,
+  IGetUserInfoByEmail,
   ILoginUserWithGitHub,
   ILoginUserWithGoogle,
   ISaasRegisterUser,
@@ -24,7 +26,7 @@ export class SaasController {
     @Inject(UseCaseType.SAAS_GET_USER_INFO)
     private readonly getUserInfoUseCase: IGetUserInfo,
     @Inject(UseCaseType.SAAS_GET_USER_INFO_BY_EMAIL)
-    private readonly getUserInfoByEmailUseCase: IGetUserInfo,
+    private readonly getUserInfoByEmailUseCase: IGetUserInfoByEmail,
     @Inject(UseCaseType.SAAS_USUAL_REGISTER_USER)
     private readonly usualRegisterUserUseCase: ISaasRegisterUser,
     @Inject(UseCaseType.SAAS_LOGIN_USER_WITH_GOOGLE)
@@ -35,6 +37,10 @@ export class SaasController {
     private readonly loginUserWithGithubUseCase: ILoginUserWithGitHub,
     @Inject(UseCaseType.SAAS_UPDATE_USER_STRIPE_CUSTOMER_ID)
     private readonly updateUserStripeCustomerIdUseCase: IUpdateUserStripeCustomerId,
+    @Inject(UseCaseType.SAAS_ADD_COMPANY_ID_TO_USER)
+    private readonly addCompanyIdToUserUseCase: IAddOrRemoveCompanyIdToUser,
+    @Inject(UseCaseType.SAAS_REMOVE_COMPANY_ID_FROM_USER)
+    private readonly removeCompanyIdFromUserUserUseCase: IAddOrRemoveCompanyIdToUser,
   ) {}
 
   @Post('/company/registered')
@@ -57,8 +63,15 @@ export class SaasController {
   }
 
   @Get('/user/email/:userEmail')
-  async getUserInfoByEmail(@Param('userEmail') userEmail: string): Promise<UserEntity> {
-    return await this.getUserInfoByEmailUseCase.execute(userEmail);
+  async getUserInfoByEmail(
+    @Param('userEmail') userEmail: string,
+    @Query('companyId') companyId: string,
+  ): Promise<UserEntity> {
+    const inputData = {
+      email: userEmail,
+      companyId: companyId ? companyId : null,
+    };
+    return await this.getUserInfoByEmailUseCase.execute(inputData);
   }
 
   @Post('user/register')
@@ -67,8 +80,10 @@ export class SaasController {
     @Body('password') password: string,
     @Body('gclidValue') gclidValue: string,
     @Body('name') name: string,
+    @Body('companyId') companyId: string,
   ): Promise<FoundUserDs> {
-    return await this.usualRegisterUserUseCase.execute({ email, password, gclidValue, name });
+    companyId = companyId ? companyId : null;
+    return await this.usualRegisterUserUseCase.execute({ email, password, gclidValue, name, companyId });
   }
 
   @Post('user/google/login')
@@ -97,5 +112,15 @@ export class SaasController {
   ): Promise<{ success: boolean }> {
     await this.updateUserStripeCustomerIdUseCase.execute({ userId, stripeCustomerId });
     return { success: true };
+  }
+
+  @Put('/user/:userId/company/:companyId')
+  async addCompanyIdToUser(@Param('userId') userId: string, @Param('companyId') companyId: string): Promise<void> {
+    await this.addCompanyIdToUserUseCase.execute({ userId, companyId });
+  }
+
+  @Put('/user/remove/:userId/company/:companyId')
+  async removeCompanyIdFromUser(@Param('userId') userId: string, @Param('companyId') companyId: string): Promise<void> {
+    await this.removeCompanyIdFromUserUserUseCase.execute({ userId, companyId });
   }
 }

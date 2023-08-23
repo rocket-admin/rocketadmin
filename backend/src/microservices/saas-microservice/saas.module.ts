@@ -11,6 +11,8 @@ import { LoginWithGoogleUseCase } from './use-cases/login-with-google.use.case.j
 import { GetUserInfoByGitHubIdUseCase } from './use-cases/get-user-info-by-githubid.use.case.js';
 import { LoginUserWithGithubUseCase } from './use-cases/login-with-github.use.case.js';
 import { UpdateUserStripeCustomerIdUseCase } from './use-cases/update-user-stripe-customer-id.use.case.js';
+import { AddCompanyIdToUserUseCase } from './use-cases/add-company-id-to-user-use.case.js';
+import { RemoveCompanyIdFromUserUseCase } from './use-cases/remove-company-id-from-user.use.case.js';
 
 @Module({
   imports: [],
@@ -51,6 +53,14 @@ import { UpdateUserStripeCustomerIdUseCase } from './use-cases/update-user-strip
       provide: UseCaseType.SAAS_UPDATE_USER_STRIPE_CUSTOMER_ID,
       useClass: UpdateUserStripeCustomerIdUseCase,
     },
+    {
+      provide: UseCaseType.SAAS_ADD_COMPANY_ID_TO_USER,
+      useClass: AddCompanyIdToUserUseCase,
+    },
+    {
+      provide: UseCaseType.SAAS_REMOVE_COMPANY_ID_FROM_USER,
+      useClass: RemoveCompanyIdFromUserUseCase,
+    }
   ],
   controllers: [SaasController],
   exports: [],
@@ -68,6 +78,7 @@ export class SaasModule {
         { path: 'saas/user/github/:githubId', method: RequestMethod.GET },
         { path: 'saas/user/github/login', method: RequestMethod.POST },
         { path: 'saas/user/:userId/stripe', method: RequestMethod.PUT },
+        { path: 'saas/user/:userId/company/:companyId', method: RequestMethod.PUT },
       );
   }
 }
