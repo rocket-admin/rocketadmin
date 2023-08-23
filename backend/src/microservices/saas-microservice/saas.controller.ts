@@ -2,7 +2,7 @@ import { UseInterceptors, Controller, Injectable, Inject, Post, Body, Get, Param
 import { SentryInterceptor } from '../../interceptors/sentry.interceptor.js';
 import { UseCaseType } from '../../common/data-injection.tokens.js';
 import {
-  IAddCompanyIdToUser,
+  IAddOrRemoveCompanyIdToUser,
   ICompanyRegistration,
   IGetUserGithubIdInfo,
   IGetUserInfo,
@@ -38,7 +38,9 @@ export class SaasController {
     @Inject(UseCaseType.SAAS_UPDATE_USER_STRIPE_CUSTOMER_ID)
     private readonly updateUserStripeCustomerIdUseCase: IUpdateUserStripeCustomerId,
     @Inject(UseCaseType.SAAS_ADD_COMPANY_ID_TO_USER)
-    private readonly addCompanyIdToUserUseCase: IAddCompanyIdToUser,
+    private readonly addCompanyIdToUserUseCase: IAddOrRemoveCompanyIdToUser,
+    @Inject(UseCaseType.SAAS_REMOVE_COMPANY_ID_FROM_USER)
+    private readonly removeCompanyIdFromUserUserUseCase: IAddOrRemoveCompanyIdToUser,
   ) {}
 
   @Post('/company/registered')
@@ -78,8 +80,10 @@ export class SaasController {
     @Body('password') password: string,
     @Body('gclidValue') gclidValue: string,
     @Body('name') name: string,
+    @Body('companyId') companyId: string,
   ): Promise<FoundUserDs> {
-    return await this.usualRegisterUserUseCase.execute({ email, password, gclidValue, name });
+    companyId = companyId ? companyId : null;
+    return await this.usualRegisterUserUseCase.execute({ email, password, gclidValue, name, companyId });
   }
 
   @Post('user/google/login')
@@ -113,5 +117,10 @@ export class SaasController {
   @Put('/user/:userId/company/:companyId')
   async addCompanyIdToUser(@Param('userId') userId: string, @Param('companyId') companyId: string): Promise<void> {
     await this.addCompanyIdToUserUseCase.execute({ userId, companyId });
+  }
+
+  @Put('/user/remove/:userId/company/:companyId')
+  async removeCompanyIdFromUser(@Param('userId') userId: string, @Param('companyId') companyId: string): Promise<void> {
+    await this.removeCompanyIdFromUserUserUseCase.execute({ userId, companyId });
   }
 }

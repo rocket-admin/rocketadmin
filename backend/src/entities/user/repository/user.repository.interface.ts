@@ -36,4 +36,6 @@ export interface IUserRepository {
   findOneUserByGitHubId(gitHubId: number): Promise<UserEntity>;
 
   findOneUserByEmailAndCompanyId(email: string, companyId: string): Promise<UserEntity>;
+
+  findOneUserByIdWithCompany(userId: string): Promise<UserEntity>;
 }

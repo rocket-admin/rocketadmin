@@ -103,6 +103,7 @@ export const Messages = {
   FAILED_GET_TABLE_STRUCTURE: 'Failed to get table structure.',
   FAILED_GET_TABLES: 'Failed to get tables in connection.',
   FAILED_REMOVE_PERMISSION_FROM_GROUP: 'Failed to remove permission from group.',
+  FAILED_REMOVE_USER_FROM_COMPANY: 'Failed to remove user from company.',
   FAILED_REMOVE_USER_FROM_GROUP: 'Failed to remove user from group.',
   FAILED_TABLE_SETTINGS_DELETE: 'Failed to delete table settings. ',
   FAILED_TO_GET_TABLE_SCHEMA: (tableName: string) => `Table schema of table ${tableName} not found.`,
@@ -268,7 +269,7 @@ export const Messages = {
   HIDDEN_TABLES_MUST_BE_ARRAY: `Hidden tables must be array`,
   SUBSCRIPTION_SUCCESSFULLY_CREATED: `Subscription created successfully`,
   SUBSCRIPTION_CANCELLED: `Subscription cancelled`,
-  SUBSCRIPTION_TYPE_INCORRECT: (type: any) =>
+  SUBSCRIPTION_TYPE_INCORRECT: () =>
     `Subscription type is incorrect. Now we support subscriptions: ${enumToString(SubscriptionLevelEnum)}`,
   MAXIMUM_INVITATIONS_COUNT_REACHED: 'Sorry, the maximum number of invitations has been reached. Try again later.',
   MAXIMUM_FREE_INVITATION_REACHED: 'Sorry, reached maximum number of users for free plan',

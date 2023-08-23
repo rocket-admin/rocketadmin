@@ -12,6 +12,7 @@ import { GetUserInfoByGitHubIdUseCase } from './use-cases/get-user-info-by-githu
 import { LoginUserWithGithubUseCase } from './use-cases/login-with-github.use.case.js';
 import { UpdateUserStripeCustomerIdUseCase } from './use-cases/update-user-stripe-customer-id.use.case.js';
 import { AddCompanyIdToUserUseCase } from './use-cases/add-company-id-to-user-use.case.js';
+import { RemoveCompanyIdFromUserUseCase } from './use-cases/remove-company-id-from-user.use.case.js';
 
 @Module({
   imports: [],
@@ -56,6 +57,10 @@ import { AddCompanyIdToUserUseCase } from './use-cases/add-company-id-to-user-us
       provide: UseCaseType.SAAS_ADD_COMPANY_ID_TO_USER,
       useClass: AddCompanyIdToUserUseCase,
     },
+    {
+      provide: UseCaseType.SAAS_REMOVE_COMPANY_ID_FROM_USER,
+      useClass: RemoveCompanyIdFromUserUseCase,
+    }
   ],
   controllers: [SaasController],
   exports: [],

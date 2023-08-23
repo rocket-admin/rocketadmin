@@ -4,8 +4,9 @@ import { IGlobalDatabaseContext } from '../../../common/application/global-datab
 import { BaseType } from '../../../common/data-injection.tokens.js';
 import { AddRemoveCompanyIdToUserDS } from '../data-structures/add-company-id-to-user.ds.js';
 import { IAddOrRemoveCompanyIdToUser } from './saas-use-cases.interface.js';
+import { Messages } from '../../../exceptions/text/messages.js';
 
-export class AddCompanyIdToUserUseCase
+export class RemoveCompanyIdFromUserUseCase
   extends AbstractUseCase<AddRemoveCompanyIdToUserDS, void>
   implements IAddOrRemoveCompanyIdToUser
 {
@@ -18,18 +19,25 @@ export class AddCompanyIdToUserUseCase
 
   protected async implementation(inputData: AddRemoveCompanyIdToUserDS): Promise<void> {
     const { userId, companyId } = inputData;
-    const foundUser = await this._dbContext.userRepository.findOneUserById(userId);
-    const foundCompany = await this._dbContext.companyInfoRepository.findOneBy({ id: companyId });
-    if (!foundUser || !foundCompany) {
+    const foundUser = await this._dbContext.userRepository.findOneUserByIdWithCompany(userId);
+    if (!foundUser || !foundUser.company) {
       throw new HttpException(
         {
-          message: 'Required entity not found',
+          message: Messages.USER_NOT_FOUND,
+        },
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    if (foundUser.company.id !== companyId) {
+      throw new HttpException(
+        {
+          message: Messages.FAILED_REMOVE_USER_FROM_COMPANY,
         },
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
-
-    foundUser.company = foundCompany;
+    foundUser.company = null;
     await this._dbContext.userRepository.saveUserEntity(foundUser);
   }
 }

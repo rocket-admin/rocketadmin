@@ -1,4 +1,4 @@
-export class AddCompanyIdToUserDS {
+export class AddRemoveCompanyIdToUserDS {
   userId: string;
   companyId: string;
 }

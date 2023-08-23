@@ -140,7 +140,7 @@ export class UserController {
     if (!validateStringWithEnum(subscriptionLevel, SubscriptionLevelEnum)) {
       throw new HttpException(
         {
-          message: Messages.SUBSCRIPTION_TYPE_INCORRECT(subscriptionLevel),
+          message: Messages.SUBSCRIPTION_TYPE_INCORRECT(),
         },
         HttpStatus.BAD_REQUEST,
       );
@@ -535,7 +535,7 @@ export class UserController {
     if (!validateStringWithEnum(subscriptionLevel, SubscriptionLevelEnum)) {
       throw new HttpException(
         {
-          message: Messages.SUBSCRIPTION_TYPE_INCORRECT(subscriptionLevel),
+          message: Messages.SUBSCRIPTION_TYPE_INCORRECT(),
         },
         HttpStatus.BAD_REQUEST,
       );

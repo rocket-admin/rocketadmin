@@ -1,7 +1,7 @@
 import { FoundUserDs } from '../../../entities/user/application/data-structures/found-user.ds.js';
-import { UsualRegisterUserDs } from '../../../entities/user/application/data-structures/usual-register-user.ds.js';
+import { SaasUsualUserRegisterDS } from '../../../entities/user/application/data-structures/usual-register-user.ds.js';
 import { UserEntity } from '../../../entities/user/user.entity.js';
-import { AddCompanyIdToUserDS } from '../data-structures/add-company-id-to-user.ds.js';
+import { AddRemoveCompanyIdToUserDS } from '../data-structures/add-company-id-to-user.ds.js';
 import { GetUserInfoByEmailDS } from '../data-structures/get-user-info.ds.js';
 import { RegisterCompanyWebhookDS } from '../data-structures/register-company.ds.js';
 import { RegisteredCompanyDS } from '../data-structures/registered-company.ds.js';
@@ -22,7 +22,7 @@ export interface IGetUserInfoByEmail {
 }
 
 export interface ISaasRegisterUser {
-  execute(userData: UsualRegisterUserDs): Promise<FoundUserDs>;
+  execute(userData: SaasUsualUserRegisterDS): Promise<FoundUserDs>;
 }
 
 export interface ILoginUserWithGoogle {
@@ -41,6 +41,6 @@ export interface IUpdateUserStripeCustomerId {
   execute(inputData: UpdateUserStripeCustomerDS): Promise<void>;
 }
 
-export interface IAddCompanyIdToUser {
-  execute(inputData: AddCompanyIdToUserDS): Promise<void>;
+export interface IAddOrRemoveCompanyIdToUser {
+  execute(inputData: AddRemoveCompanyIdToUserDS): Promise<void>;
 }
