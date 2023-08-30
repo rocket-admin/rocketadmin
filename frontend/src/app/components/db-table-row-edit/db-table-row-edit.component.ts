@@ -270,15 +270,19 @@ export class DbTableRowEditComponent implements OnInit {
     }
     //end crutch
 
-    const jsonFields = Object.entries(this.tableTypes).filter(([key, value]) => value === 'json' || value === 'jsonb');
+    const jsonFields = Object.entries(this.tableTypes)
+      .filter(([key, value]) => value === 'json' || value === 'jsonb')
+      .map(jsonField => jsonField[0]);
     if (jsonFields.length) {
       for (const jsonField of jsonFields) {
-        if (this.tableRowValues[jsonField[0]] !== null) {
-          const clearString = this.tableRowValues[jsonField[0]].split('\n').join('').split('\t').join('');
+        if (this.tableRowValues[jsonField] !== null) {
+          console.log('this.tableRowValues', jsonField);
+          console.log(this.tableRowValues[jsonField]);
+          const clearString = this.tableRowValues[jsonField].split('\n').join('').split('\t').join('');
           console.log({clearString});
           const updatedFiled = JSON.parse(clearString);
           console.log({updatedFiled});
-          this.tableRowValues[jsonField[0]] = updatedFiled;
+          this.tableRowValues[jsonField] = updatedFiled;
         }
       }
     }
