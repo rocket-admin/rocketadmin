@@ -162,4 +162,8 @@ export class ConnectionSettingsComponent implements OnInit, OnDestroy {
     // @ts-ignore
     Intercom('show');
   }
+
+  onColumnsViewChange(event) {
+    console.log(event);
+  }
 }

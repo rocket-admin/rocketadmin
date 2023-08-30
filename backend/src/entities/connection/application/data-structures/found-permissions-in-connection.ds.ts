@@ -11,6 +11,7 @@ export class FoundPermissionsInConnectionDs {
   };
   tables: Array<{
     tableName: string;
+    display_name: string;
     accessLevel: {
       visibility: boolean;
       readonly: boolean;

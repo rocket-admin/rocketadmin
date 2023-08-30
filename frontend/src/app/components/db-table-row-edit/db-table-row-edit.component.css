@@ -35,16 +35,16 @@
     width: max(calc(45vw - 260px), 2%);
 }
 
-.related-views__title {
-    margin-left: 8px;
+.related-tables {
+    margin-top: -4px;
 }
 
-.related-tables {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 8px;
-    margin: 12px 0;
+.related-tables ::ng-deep .mat-mdc-standard-chip {
+    background-color: transparent !important;
+}
+
+.related-tables ::ng-deep .mat-mdc-standard-chip .mdc-evolution-chip__action--primary::before {
+    border: 1px solid var(--mdc-chip-elevated-container-color) !important;
 }
 
 .widget {

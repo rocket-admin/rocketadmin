@@ -76,11 +76,11 @@ export class UserEntity {
   @JoinTable()
   connections: Relation<ConnectionEntity>[];
 
-  @ManyToOne((type) => CompanyInfoEntity, (company) => company.users)
+  @ManyToOne(() => CompanyInfoEntity, (company) => company.users)
   @JoinTable()
   company: Relation<CompanyInfoEntity>;
 
-  @ManyToMany((type) => GroupEntity, (group) => group.users)
+  @ManyToMany(() => GroupEntity, (group) => group.users)
   @JoinTable()
   groups: Relation<GroupEntity>[];
 

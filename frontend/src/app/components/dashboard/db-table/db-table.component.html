@@ -84,6 +84,7 @@
                             (click)="$event.stopPropagation();">
                             <mat-checkbox color="primary"
                                 class="db-table-header__columnsCheckbox"
+                                [disabled]="tableData.displayedDataColumns.length === 1 && column.selected"
                                 (change)="tableData.changleColumnList()"
                                 [(ngModel)]="column.selected">
                                 {{column.normalizedTitle}}

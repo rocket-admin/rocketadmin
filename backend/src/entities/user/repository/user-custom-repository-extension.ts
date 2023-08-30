@@ -120,5 +120,24 @@ export const userCustomRepositoryExtension: IUserRepository = {
       .leftJoinAndSelect('user.github_user_identifier', 'github_user_identifier')
       .where('github_user_identifier.gitHubId = :gitHubId', { gitHubId: gitHubId });
     return await userQb.getOne();
-  }
+  },
+
+  async findOneUserByEmailAndCompanyId(email: string, companyId: string): Promise<UserEntity> {
+    const userQb = this.createQueryBuilder('user')
+      .leftJoinAndSelect('user.company', 'company')
+      .where('user.email = :userEmail', { userEmail: email });
+    if (companyId) {
+      userQb.andWhere('company.id = :companyId', { companyId: companyId });
+    } else {
+      userQb.andWhere('company.id is null');
+    }
+    return await userQb.getOne();
+  },
+
+  async findOneUserByIdWithCompany(userId: string): Promise<UserEntity> {
+    const userQb = this.createQueryBuilder('user')
+      .leftJoinAndSelect('user.company', 'company')
+      .where('user.id = :userId', { userId: userId });
+    return await userQb.getOne();
+  },
 };

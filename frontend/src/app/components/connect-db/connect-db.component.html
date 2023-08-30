@@ -414,7 +414,7 @@
         </div>
 
         <div class="actions" *ngIf="accessLevel === 'edit' || !db.id">
-            <button type="button" *ngIf="db.id" mat-button color="warn"
+            <button type="button" *ngIf="db.id && !db.isTestConnection" mat-button color="warn"
                 class="delete-button"
                 angulartics2On="click"
                 angularticsAction="Connection creds: delete db"

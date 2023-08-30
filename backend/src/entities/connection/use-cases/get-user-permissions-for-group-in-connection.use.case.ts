@@ -44,6 +44,9 @@ export class GetUserPermissionsForGroupInConnectionUseCase
         );
       }),
     );
+    const allTableSettingsInConnection = await this._dbContext.tableSettingsRepository.findTableSettingsInConnection(
+      inputData.connectionId,
+    );
     return {
       connection: {
         connectionId: connectionId,
@@ -53,7 +56,15 @@ export class GetUserPermissionsForGroupInConnectionUseCase
         groupId: groupId,
         accessLevel: userGroupAccessLevel,
       },
-      tables: tablesWithAccessLevels,
+      tables: tablesWithAccessLevels.map((table) => {
+        const tableSettings = allTableSettingsInConnection.find(
+          (tableSettings) => tableSettings.table_name === table.tableName,
+        );
+        return {
+          ...table,
+          display_name: tableSettings?.display_name ?? null,
+        };
+      }),
     };
   }
 }
