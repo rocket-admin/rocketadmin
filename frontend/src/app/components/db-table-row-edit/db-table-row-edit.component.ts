@@ -233,6 +233,23 @@ export class DbTableRowEditComponent implements OnInit {
     return this.tableWidgetsList.includes(columnName);
   }
 
+  getFormatedRow = (row) => {
+    let formattedRow = {...row};
+    const jsonFields = Object.entries(this.tableTypes)
+      .filter(([key, value]) => value === 'json' || value === 'jsonb')
+      .map(jsonField => jsonField[0]);
+    if (jsonFields.length) {
+      for (const jsonField of jsonFields) {
+        if (formattedRow[jsonField] !== null) {
+          const clearString = formattedRow[jsonField].split('\n').join('').split('\t').join('');
+          const updatedFiled = JSON.parse(clearString);
+          formattedRow[jsonField] = updatedFiled;
+        }
+      }
+    }
+    return formattedRow;
+  }
+
   updateField = (updatedValue: any, field: string) => {
     if (typeof(updatedValue) === 'object' && updatedValue !== null) {
       for (const prop of Object.getOwnPropertyNames(this.tableRowValues[field])) {
@@ -270,24 +287,9 @@ export class DbTableRowEditComponent implements OnInit {
     }
     //end crutch
 
-    const jsonFields = Object.entries(this.tableTypes)
-      .filter(([key, value]) => value === 'json' || value === 'jsonb')
-      .map(jsonField => jsonField[0]);
-    if (jsonFields.length) {
-      for (const jsonField of jsonFields) {
-        if (this.tableRowValues[jsonField] !== null) {
-          console.log('this.tableRowValues', jsonField);
-          console.log(this.tableRowValues[jsonField]);
-          const clearString = this.tableRowValues[jsonField].split('\n').join('').split('\t').join('');
-          console.log({clearString});
-          const updatedFiled = JSON.parse(clearString);
-          console.log({updatedFiled});
-          this.tableRowValues[jsonField] = updatedFiled;
-        }
-      }
-    }
+    const formattedRow = this.getFormatedRow(this.tableRowValues);
 
-    this._tableRow.addTableRow(this.connectionID, this.tableName, this.tableRowValues)
+    this._tableRow.addTableRow(this.connectionID, this.tableName, formattedRow)
       .subscribe((res) => {
 
         this.keyAttributesFromURL = {};
@@ -324,7 +326,9 @@ export class DbTableRowEditComponent implements OnInit {
       }
     //end crutch
 
-    this._tableRow.updateTableRow(this.connectionID, this.tableName, this.keyAttributesFromURL, this.tableRowValues)
+    const formattedRow = this.getFormatedRow(this.tableRowValues);
+
+    this._tableRow.updateTableRow(this.connectionID, this.tableName, this.keyAttributesFromURL, formattedRow)
       .subscribe((res) => {
         this.ngZone.run(() => {
           if (continueEditing) {

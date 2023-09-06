@@ -25,6 +25,34 @@
                     [(ngModel)]="tableSettings.sensitive_fields">
                     <mat-option *ngFor="let field of fields" [value]="field">{{field}}</mat-option>
                 </mat-select>
+
+
+                <mat-chip-grid #chipList>
+                    <mat-chip
+                        *ngFor="let field of tableSettings['sensitive_fields']"
+                        selectable
+                        removable
+                        (removed)="remove(field, 'sensitive_fields')">
+                        {{field}}
+                        <mat-icon matChipRemove>cancel</mat-icon>
+                    </mat-chip>
+                    <input
+                        placeholder="Add field..."
+                        #sensitivefieldsInput
+                        #autocompleteTrigger="matAutocompleteTrigger"
+                        [formControl]="sensitiveFieldsCtrl"
+                        [matAutocomplete]="auto"
+                        [matChipInputFor]="chipList"
+                        [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+                        (matChipInputTokenEnd)="add($event, 'sensitive_fields')">
+                  </mat-chip-grid>
+                  <mat-autocomplete #auto="matAutocomplete" (optionSelected)="selected($event, 'sensitive_fields')" autoActiveFirstOption>
+                    <mat-option *ngFor="let field of filteredSensitiveFields | async" [value]="field">
+                      <mat-checkbox color="primary" style="padding: 0 12px;" [checked]="fields.indexOf(field) >= 0"></mat-checkbox>
+                      {{field}}
+                    </mat-option>
+                  </mat-autocomplete>
+                  <button type="button" mat-icon-button matSuffix style="width: 34px; height: 34px;" (click)="openAuto(autocompleteTrigger)"> <mat-icon style="width: 34px;">expand_more</mat-icon></button>
             </mat-form-field>
             <mat-icon class="settings-form__tooltip"
                 matTooltip="Define sensitive fields to hide them from Audit logs."

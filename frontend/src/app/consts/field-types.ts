@@ -135,6 +135,7 @@ export const fieldTypes = {
 
         //etc
         set: TextComponent, //(text)
+        tsvector: TextComponent, //(text)
 
         "foreign key": ForeignKeyComponent
     },
