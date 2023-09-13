@@ -158,6 +158,7 @@ export class ConnectDBComponent implements OnInit, OnDestroy {
           const createdConnectionID = res.id!;
           if (this.db.connectionType === 'agent') {
             this.connectionToken = res.token;
+            this.connectionID = res.id;
           } else {
             this.router.navigate([`/dashboard/${createdConnectionID}`]);
           };

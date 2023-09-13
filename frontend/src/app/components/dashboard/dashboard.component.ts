@@ -13,6 +13,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { MatDialog } from '@angular/material/dialog';
 import { NotificationsService } from 'src/app/services/notifications.service';
 import { SelectionModel } from '@angular/cdk/collections';
+import { ServerError } from 'src/app/models/alert';
 import { TableRowService } from 'src/app/services/table-row.service';
 import { TablesDataSource } from './db-tables-data-source';
 import { TablesService } from 'src/app/services/tables.service';
@@ -20,7 +21,6 @@ import { Title } from '@angular/platform-browser';
 import { User } from 'src/app/models/user';
 import { normalizeTableName } from '../../lib/normalize'
 import { omitBy } from "lodash";
-import { ServerError } from 'src/app/models/alert';
 
 interface DataToActivateActions {
   action: CustomAction,
@@ -177,7 +177,11 @@ export class DashboardComponent implements OnInit {
     })
 
     const selectedTableProperties = this.tablesList.find( (table: any) => table.table == this.selectedTableName);
-    this.selectedTableDisplayName = selectedTableProperties.display_name || normalizeTableName(selectedTableProperties.table);
+    if (selectedTableProperties) {
+      this.selectedTableDisplayName = selectedTableProperties.display_name || normalizeTableName(selectedTableProperties.table);
+    } else {
+      return;
+    }
     this.loading = false;
   }
 
