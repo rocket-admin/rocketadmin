@@ -12,12 +12,12 @@ import { DbActionLinkDialogComponent } from '../dashboard/db-action-link-dialog/
 import { Location } from '@angular/common';
 import { MatDialog } from '@angular/material/dialog';
 import { NotificationsService } from 'src/app/services/notifications.service';
+import { ServerError } from 'src/app/models/alert';
 import { TableRowService } from 'src/app/services/table-row.service';
 import { TablesService } from 'src/app/services/tables.service';
 import { Title } from '@angular/platform-browser';
 import { getTableTypes } from 'src/app/lib/setup-table-row-structure';
 import { normalizeTableName } from '../../lib/normalize';
-import { ServerError } from 'src/app/models/alert';
 
 @Component({
   selector: 'app-db-table-row-edit',
@@ -248,6 +248,37 @@ export class DbTableRowEditComponent implements OnInit {
     };
   }
 
+  getFormattedUpdatedRow = () => {
+    let updatedRow = {...this.tableRowValues};
+
+    //crutch, format datetime fields
+    if (this._connections.currentConnection.type === DBtype.MySQL) {
+      const datetimeFields = Object.entries(this.tableTypes)
+        .filter(([key, value]) => value === 'datetime');
+      if (datetimeFields.length) {
+        for (const datetimeField of datetimeFields) {
+          if (updatedRow[datetimeField[0]]) updatedRow[datetimeField[0]] = updatedRow[datetimeField[0]].split('.')[0];
+        }
+      }
+    }
+    //end crutch
+
+    //parse json fields
+    const jsonFields = Object.entries(this.tableTypes)
+      .filter(([key, value]) => value === 'json' || value === 'jsonb')
+      .map(jsonField => jsonField[0]);
+    if (jsonFields.length) {
+      for (const jsonField of jsonFields) {
+        if (updatedRow[jsonField] !== null) {
+          const updatedFiled = JSON.parse(updatedRow[jsonField].toString());
+          updatedRow[jsonField] = updatedFiled;
+        }
+      }
+    }
+
+    return updatedRow;
+  }
+
   handleRowSubmitting() {
     if (this.hasKeyAttributesFromURL) {
       this.updateRow();
@@ -259,35 +290,9 @@ export class DbTableRowEditComponent implements OnInit {
   addRow(continueEditing?: boolean) {
     this.submitting = true;
 
-    //crutch
-    if (this._connections.currentConnection.type === DBtype.MySQL) {
-      const datetimeFields = Object.entries(this.tableTypes).filter(([key, value]) => value === 'datetime');
-      if (datetimeFields.length) {
-        for (const datetimeField of datetimeFields) {
-          if (this.tableRowValues[datetimeField[0]]) this.tableRowValues[datetimeField[0]] = this.tableRowValues[datetimeField[0]].split('.')[0];
-        }
-      }
-    }
-    //end crutch
+    const formattedUpdatedRow = this.getFormattedUpdatedRow();
 
-    const jsonFields = Object.entries(this.tableTypes)
-      .filter(([key, value]) => value === 'json' || value === 'jsonb')
-      .map(jsonField => jsonField[0]);
-    if (jsonFields.length) {
-      for (const jsonField of jsonFields) {
-        if (this.tableRowValues[jsonField] !== null) {
-          console.log('this.tableRowValues', jsonField);
-          console.log(this.tableRowValues[jsonField]);
-          const clearString = this.tableRowValues[jsonField].split('\n').join('').split('\t').join('');
-          console.log({clearString});
-          const updatedFiled = JSON.parse(clearString);
-          console.log({updatedFiled});
-          this.tableRowValues[jsonField] = updatedFiled;
-        }
-      }
-    }
-
-    this._tableRow.addTableRow(this.connectionID, this.tableName, this.tableRowValues)
+    this._tableRow.addTableRow(this.connectionID, this.tableName, formattedUpdatedRow)
       .subscribe((res) => {
 
         this.keyAttributesFromURL = {};
@@ -312,19 +317,9 @@ export class DbTableRowEditComponent implements OnInit {
   updateRow(continueEditing?: boolean) {
     this.submitting = true;
 
-    //crutch
-      if (this._connections.currentConnection.type === DBtype.MySQL) {
-        const datetimeFields = Object.entries(this.tableTypes)
-          .filter(([key, value]) => value === 'datetime');
-        if (datetimeFields.length) {
-          for (const datetimeField of datetimeFields) {
-            if (this.tableRowValues[datetimeField[0]]) this.tableRowValues[datetimeField[0]] = this.tableRowValues[datetimeField[0]].split('.')[0];
-          }
-        }
-      }
-    //end crutch
+    const formattedUpdatedRow = this.getFormattedUpdatedRow();
 
-    this._tableRow.updateTableRow(this.connectionID, this.tableName, this.keyAttributesFromURL, this.tableRowValues)
+    this._tableRow.updateTableRow(this.connectionID, this.tableName, this.keyAttributesFromURL, formattedUpdatedRow)
       .subscribe((res) => {
         this.ngZone.run(() => {
           if (continueEditing) {
