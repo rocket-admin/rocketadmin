@@ -28,8 +28,8 @@ import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { ClientMicroserviceModule } from './microservice-client/client-microservice.module.js';
 import { SaasModule } from './microservices/saas-microservice/saas.module.js';
+import { SaaSGatewayModule } from './microservices/gateways/saas-gateway.ts/saas-gateway.module.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -52,8 +52,8 @@ const __dirname = path.dirname(__filename);
     DatabaseModule,
     TableActionModule,
     StripeModule,
-    ClientMicroserviceModule,
     SaasModule,
+    SaaSGatewayModule,
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'client'),
     }),

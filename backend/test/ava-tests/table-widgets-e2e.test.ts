@@ -208,7 +208,7 @@ test(`${currentTest} should throw exception when connection id passed in request
   t.is(uuidRegex.test(createTableWidgetRO[1].id), true);
   t.is(createTableWidgetRO[0].description, newTableWidgets[0].description);
 
-  const fakeConnectionId = faker.datatype.uuid();
+  const fakeConnectionId = faker.string.uuid();
   const getTableWidgets = await request(app.getHttpServer())
     .get(`/widgets/${fakeConnectionId}?tableName=${tableNameForWidgets}`)
     .set('Content-Type', 'application/json')
@@ -252,7 +252,7 @@ test(`${currentTest} should throw exception when tableName passed in request is 
   t.is(uuidRegex.test(createTableWidgetRO[1].id), true);
   t.is(createTableWidgetRO[0].description, newTableWidgets[0].description);
 
-  const fakeTableName = `${faker.lorem.words(1)}_${faker.datatype.uuid()}`;
+  const fakeTableName = `${faker.lorem.words(1)}_${faker.string.uuid()}`;
   const getTableWidgets = await request(app.getHttpServer())
     .get(`/widgets/${connectionId}?tableName=${fakeTableName}`)
     .set('Content-Type', 'application/json')
@@ -590,7 +590,7 @@ test(`${currentTest} should throw exception when connection id passed in request
     .set('Accept', 'application/json');
   const newTableWidgets = mockFactory.generateCreateWidgetDTOsArrayForConnectionTable();
   const connectionId = JSON.parse(createdConnection.text).id;
-  const fakeConnectionId = faker.datatype.uuid();
+  const fakeConnectionId = faker.string.uuid();
   const createTableWidgetResponse = await request(app.getHttpServer())
     .post(`/widget/${fakeConnectionId}?tableName=${tableNameForWidgets}`)
     .send({ widgets: newTableWidgets })
@@ -616,7 +616,7 @@ test(`${currentTest} should throw exception when tableName passed in request is 
 
   const connectionId = JSON.parse(createdConnection.text).id;
   const newTableWidgets = mockFactory.generateCreateWidgetDTOsArrayForConnectionTable();
-  const fakeTableName = `${faker.lorem.words(1)}_${faker.datatype.uuid()}`;
+  const fakeTableName = `${faker.lorem.words(1)}_${faker.string.uuid()}`;
 
   const createTableWidgetResponse = await request(app.getHttpServer())
     .post(`/widget/${connectionId}?tableName=${fakeTableName}`)

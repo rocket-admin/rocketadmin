@@ -46,7 +46,8 @@ export class CreateOrUpdatePermissionsUseCase
         connection: { connectionId },
       },
     } = inputData;
-    const connectionWithThisGroup = await this._dbContext.connectionRepository.getConnectionByGroupId(groupId);
+    const connectionWithThisGroup =
+      await this._dbContext.connectionRepository.getConnectionByGroupIdWithCompanyAndUsersInCompany(groupId);
     if (connectionWithThisGroup.id !== connectionId) {
       throw new HttpException(
         {

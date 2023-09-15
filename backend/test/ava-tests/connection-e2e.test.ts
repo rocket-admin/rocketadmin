@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { faker } from '@faker-js/faker';
 import { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
@@ -7,11 +8,11 @@ import request from 'supertest';
 import { ApplicationModule } from '../../src/app.module.js';
 import { AccessLevelEnum } from '../../src/enums/index.js';
 import { Messages } from '../../src/exceptions/text/messages.js';
-import { Constants } from '../../src/helpers/constants/constants.js';
 import { DatabaseModule } from '../../src/shared/database/database.module.js';
 import { DatabaseService } from '../../src/shared/database/database.service.js';
 import { MockFactory } from '../mock.factory.js';
 import { TestUtils } from '../utils/test.utils.js';
+import { inviteUserInCompanyAndAcceptInvitation, registerUserAndReturnUserInfo } from '../utils/register-user-and-return-user-info.js';
 
 const mockFactory = new MockFactory();
 let app: INestApplication;
@@ -52,31 +53,11 @@ function getTestData() {
   };
 }
 
-async function registerUserAndReturnUserInfo(): Promise<{
-  token: string;
-  email: string;
-  password: string;
-}> {
-  const adminUserRegisterInfo: RegisterUserData = {
-    email: faker.internet.email(),
-    password: 'ahalai-mahalai',
-  };
-
-  const registerAdminUserResponse = await request(app.getHttpServer())
-    .post('/user/register/')
-    .send(adminUserRegisterInfo)
-    .set('Content-Type', 'application/json')
-    .set('Accept', 'application/json');
-
-  const token = `${Constants.JWT_COOKIE_KEY_NAME}=${TestUtils.getJwtTokenFromResponse(registerAdminUserResponse)}`;
-  return { token: token, ...adminUserRegisterInfo };
-}
-
 currentTest = '> GET /connections >';
 test(`${currentTest} should return all connections for this user`, async (t) => {
   try {
     const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
-    const { token } = await registerUserAndReturnUserInfo();
+    const { token } = await registerUserAndReturnUserInfo(app);
     const findAllConnectionsResponse = await request(app.getHttpServer())
       .get('/connections')
       .set('Cookie', token)
@@ -140,7 +121,7 @@ currentTest = '> GET connection/users/:slug >';
 test(`${currentTest} should return all connection users`, async (t) => {
   try {
     const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
-    const { token } = await registerUserAndReturnUserInfo();
+    const { token } = await registerUserAndReturnUserInfo(app);
     const createConnectionResponse = await request(app.getHttpServer())
       .post('/connection')
       .send(newConnection)
@@ -174,7 +155,7 @@ test(`${currentTest} should return all connection users`, async (t) => {
 test(`${currentTest} should return all connection users from different groups`, async (t) => {
   try {
     const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
-    const { token } = await registerUserAndReturnUserInfo();
+    const { token } = await registerUserAndReturnUserInfo(app)
     const createConnectionResponse = await request(app.getHttpServer())
       .post('/connection')
       .send(newConnection)
@@ -196,8 +177,10 @@ test(`${currentTest} should return all connection users from different groups`, 
     t.is(createGroupResponse.status, 201);
     const createGroupRO = JSON.parse(createGroupResponse.text);
 
+    const secondUserRegisterInfo = await inviteUserInCompanyAndAcceptInvitation(token, undefined, app);
+
     const requestBody = {
-      email: faker.internet.email(),
+      email: secondUserRegisterInfo.email,
       groupId: createGroupRO.id,
     };
     const addUserInGroupResponse = await request(app.getHttpServer())
@@ -237,7 +220,7 @@ test(`${currentTest} should return all connection users from different groups`, 
 test(`${currentTest} should throw an exception, when connection id is incorrect`, async (t) => {
   try {
     const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
-    const { token } = await registerUserAndReturnUserInfo();
+    const { token } = await registerUserAndReturnUserInfo(app);
     const createConnectionResponse = await request(app.getHttpServer())
       .post('/connection')
       .send(newConnection)
@@ -257,8 +240,10 @@ test(`${currentTest} should throw an exception, when connection id is incorrect`
     t.is(createGroupResponse.status, 201);
     const createGroupRO = JSON.parse(createGroupResponse.text);
 
+    const secondUserRegisterInfo = await inviteUserInCompanyAndAcceptInvitation(token, undefined, app);
+
     const requestBody = {
-      email: faker.internet.email(),
+      email: secondUserRegisterInfo.email,
       groupId: createGroupRO.id,
     };
 
@@ -270,7 +255,7 @@ test(`${currentTest} should throw an exception, when connection id is incorrect`
       .set('Accept', 'application/json');
     t.is(addUserInGroupResponse.status, 200);
 
-    const fakeConnectionId = faker.datatype.uuid();
+    const fakeConnectionId = faker.string.uuid();
     const findAllUsersResponse = await request(app.getHttpServer())
       .get(`/connection/users/${fakeConnectionId}`)
       .set('Content-Type', 'application/json')
@@ -290,7 +275,7 @@ currentTest = 'GET /connection/one/:slug';
 test(`${currentTest} should return a found connection`, async (t) => {
   try {
     const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
-    const { token } = await registerUserAndReturnUserInfo();
+    const { token } = await registerUserAndReturnUserInfo(app);
 
     const createConnectionResponse = await request(app.getHttpServer())
       .post('/connection')
@@ -333,7 +318,7 @@ test(`${currentTest} should return a found connection`, async (t) => {
 test(`${currentTest} should throw an exception "id is missing" when connection id not passed in the request`, async (t) => {
   try {
     const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
-    const { token } = await registerUserAndReturnUserInfo();
+    const { token } = await registerUserAndReturnUserInfo(app);
 
     const createConnectionResponse = await request(app.getHttpServer())
       .post('/connection')
@@ -364,7 +349,7 @@ currentTest = 'POST /connection';
 test(`${currentTest} should return created connection`, async (t) => {
   try {
     const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
-    const { token } = await registerUserAndReturnUserInfo();
+    const { token } = await registerUserAndReturnUserInfo(app);
 
     const response = await request(app.getHttpServer())
       .post('/connection')
@@ -410,7 +395,7 @@ test(`${currentTest} should return created connection`, async (t) => {
 test(`${currentTest} should throw error when create connection without type`, async (t) => {
   try {
     const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
-    const { token } = await registerUserAndReturnUserInfo();
+    const { token } = await registerUserAndReturnUserInfo(app);
 
     delete newConnection.type;
     const response = await request(app.getHttpServer())
@@ -433,7 +418,7 @@ test(`${currentTest} should throw error when create connection without type`, as
 test(`${currentTest} should throw error when create connection without host`, async (t) => {
   try {
     const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
-    const { token } = await registerUserAndReturnUserInfo();
+    const { token } = await registerUserAndReturnUserInfo(app);
     delete newConnection.host;
     const response = await request(app.getHttpServer())
       .post('/connection')
@@ -455,7 +440,7 @@ test(`${currentTest} should throw error when create connection without host`, as
 test(`${currentTest} should throw error when create connection without port`, async (t) => {
   try {
     const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
-    const { token } = await registerUserAndReturnUserInfo();
+    const { token } = await registerUserAndReturnUserInfo(app);
     delete newConnection.port;
     const response = await request(app.getHttpServer())
       .post('/connection')
@@ -477,7 +462,7 @@ test(`${currentTest} should throw error when create connection without port`, as
 test(`${currentTest} should throw error when create connection wit port value more than 65535`, async (t) => {
   try {
     const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
-    const { token } = await registerUserAndReturnUserInfo();
+    const { token } = await registerUserAndReturnUserInfo(app);
     newConnection.port = 65536;
     const response = await request(app.getHttpServer())
       .post('/connection')
@@ -499,7 +484,7 @@ test(`${currentTest} should throw error when create connection wit port value mo
 test(`${currentTest} should throw error when create connection wit port value less than 0`, async (t) => {
   try {
     const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
-    const { token } = await registerUserAndReturnUserInfo();
+    const { token } = await registerUserAndReturnUserInfo(app);
 
     newConnection.port = -1;
     const response = await request(app.getHttpServer())
@@ -521,7 +506,7 @@ test(`${currentTest} should throw error when create connection wit port value le
 test(`${currentTest} should throw error when create connection without username`, async (t) => {
   try {
     const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
-    const { token } = await registerUserAndReturnUserInfo();
+    const { token } = await registerUserAndReturnUserInfo(app);
     delete newConnection.username;
     const response = await request(app.getHttpServer())
       .post('/connection')
@@ -543,7 +528,7 @@ test(`${currentTest} should throw error when create connection without username`
 test(`${currentTest} should throw error when create connection without database`, async (t) => {
   try {
     const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
-    const { token } = await registerUserAndReturnUserInfo();
+    const { token } = await registerUserAndReturnUserInfo(app);
     delete newConnection.database;
     const response = await request(app.getHttpServer())
       .post('/connection')
@@ -565,7 +550,7 @@ test(`${currentTest} should throw error when create connection without database`
 test(`${currentTest} should throw error when create connection without password`, async (t) => {
   try {
     const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
-    const { token } = await registerUserAndReturnUserInfo();
+    const { token } = await registerUserAndReturnUserInfo(app);
     delete newConnection.password;
     const response = await request(app.getHttpServer())
       .post('/connection')
@@ -586,7 +571,7 @@ test(`${currentTest} should throw error when create connection without password`
 test(`${currentTest} should throw error with complex message when create connection without database, type, port`, async (t) => {
   try {
     const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
-    const { token } = await registerUserAndReturnUserInfo();
+    const { token } = await registerUserAndReturnUserInfo(app);
     delete newConnection.database;
     delete newConnection.type;
     delete newConnection.port;
@@ -615,7 +600,7 @@ currentTest = 'PUT /connection';
 test(`${currentTest} should return updated connection`, async (t) => {
   try {
     const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
-    const { token } = await registerUserAndReturnUserInfo();
+    const { token } = await registerUserAndReturnUserInfo(app);
     const createConnectionResponse = await request(app.getHttpServer())
       .post('/connection')
       .send(newConnection)
@@ -656,7 +641,7 @@ test(`${currentTest} should return updated connection`, async (t) => {
 test(`${currentTest} 'should throw error when update connection without type'`, async (t) => {
   try {
     const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
-    const { token } = await registerUserAndReturnUserInfo();
+    const { token } = await registerUserAndReturnUserInfo(app);
     const createConnectionResponse = await request(app.getHttpServer())
       .post('/connection')
       .send(newConnection)
@@ -687,7 +672,7 @@ test(`${currentTest} 'should throw error when update connection without type'`, 
 test(`${currentTest} should throw error when update connection without host`, async (t) => {
   try {
     const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
-    const { token } = await registerUserAndReturnUserInfo();
+    const { token } = await registerUserAndReturnUserInfo(app);
     const createConnectionResponse = await request(app.getHttpServer())
       .post('/connection')
       .send(newConnection)
@@ -717,7 +702,7 @@ test(`${currentTest} should throw error when update connection without host`, as
 test(`${currentTest} should throw error when update connection without port`, async (t) => {
   try {
     const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
-    const { token } = await registerUserAndReturnUserInfo();
+    const { token } = await registerUserAndReturnUserInfo(app);
 
     const createConnectionResponse = await request(app.getHttpServer())
       .post('/connection')
@@ -749,7 +734,7 @@ test(`${currentTest} should throw error when update connection without port`, as
 test(`${currentTest} should throw error when update connection wit port value more than 65535`, async (t) => {
   try {
     const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
-    const { token } = await registerUserAndReturnUserInfo();
+    const { token } = await registerUserAndReturnUserInfo(app);
     const createConnectionResponse = await request(app.getHttpServer())
       .post('/connection')
       .send(newConnection)
@@ -780,7 +765,7 @@ test(`${currentTest} should throw error when update connection wit port value mo
 test(`${currentTest} should throw error when update connection wit port value less than 0`, async (t) => {
   try {
     const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
-    const { token } = await registerUserAndReturnUserInfo();
+    const { token } = await registerUserAndReturnUserInfo(app);
 
     const createConnectionResponse = await request(app.getHttpServer())
       .post('/connection')
@@ -812,7 +797,7 @@ test(`${currentTest} should throw error when update connection wit port value le
 test(`${currentTest} should throw error when update connection without username`, async (t) => {
   try {
     const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
-    const { token } = await registerUserAndReturnUserInfo();
+    const { token } = await registerUserAndReturnUserInfo(app);
     const createConnectionResponse = await request(app.getHttpServer())
       .post('/connection')
       .send(newConnection)
@@ -843,7 +828,7 @@ test(`${currentTest} should throw error when update connection without username`
 test(`${currentTest} should throw error when update connection without database`, async (t) => {
   try {
     const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
-    const { token } = await registerUserAndReturnUserInfo();
+    const { token } = await registerUserAndReturnUserInfo(app);
 
     const createConnectionResponse = await request(app.getHttpServer())
       .post('/connection')
@@ -875,7 +860,7 @@ test(`${currentTest} should throw error when update connection without database`
 test(`${currentTest} should throw error with complex message when update connection without database, type, port`, async (t) => {
   try {
     const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
-    const { token } = await registerUserAndReturnUserInfo();
+    const { token } = await registerUserAndReturnUserInfo(app);
 
     const createConnectionResponse = await request(app.getHttpServer())
       .post('/connection')
@@ -913,7 +898,7 @@ currentTest = 'DELETE /connection/:slug';
 test(`${currentTest} should return delete result`, async (t) => {
   try {
     const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
-    const { token } = await registerUserAndReturnUserInfo();
+    const { token } = await registerUserAndReturnUserInfo(app);
     const createConnectionResult = await request(app.getHttpServer())
       .post('/connection')
       .send(newConnection)
@@ -967,7 +952,7 @@ test(`${currentTest} should return delete result`, async (t) => {
 test(`${currentTest} should throw an exception when connection not found`, async (t) => {
   try {
     const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
-    const { token } = await registerUserAndReturnUserInfo();
+    const { token } = await registerUserAndReturnUserInfo(app);
 
     const createConnectionResult = await request(app.getHttpServer())
       .post('/connection')
@@ -977,7 +962,7 @@ test(`${currentTest} should throw an exception when connection not found`, async
       .set('Accept', 'application/json');
 
     const createConnectionRO = JSON.parse(createConnectionResult.text);
-    createConnectionRO.id = faker.datatype.uuid();
+    createConnectionRO.id = faker.string.uuid();
 
     const response = await request(app.getHttpServer())
       .put(`/connection/delete/${createConnectionRO.id}`)
@@ -998,7 +983,7 @@ test(`${currentTest} should throw an exception when connection not found`, async
 test(`${currentTest} should throw an exception when connection id not passed in the request`, async (t) => {
   try {
     const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
-    const { token } = await registerUserAndReturnUserInfo();
+    const { token } = await registerUserAndReturnUserInfo(app);
 
     const createConnectionResult = await request(app.getHttpServer())
       .post('/connection')
@@ -1028,7 +1013,7 @@ currentTest = 'POST /connection/group/:slug';
 test(`${currentTest} should return a created group`, async (t) => {
   try {
     const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
-    const { token, email } = await registerUserAndReturnUserInfo();
+    const { token, email } = await registerUserAndReturnUserInfo(app);
 
     const createConnectionResponse = await request(app.getHttpServer())
       .post('/connection')
@@ -1066,7 +1051,7 @@ test(`${currentTest} should return a created group`, async (t) => {
 test(`${currentTest} throw an exception when connectionId not passed in request`, async (t) => {
   try {
     const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
-    const { token } = await registerUserAndReturnUserInfo();
+    const { token } = await registerUserAndReturnUserInfo(app);
 
     const createConnectionResponse = await request(app.getHttpServer())
       .post('/connection')
@@ -1095,7 +1080,7 @@ test(`${currentTest} throw an exception when connectionId not passed in request`
 test(`${currentTest} throw an exception when group title not passed in request`, async (t) => {
   try {
     const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
-    const { token } = await registerUserAndReturnUserInfo();
+    const { token } = await registerUserAndReturnUserInfo(app);
 
     const createConnectionResponse = await request(app.getHttpServer())
       .post('/connection')
@@ -1127,7 +1112,7 @@ test(`${currentTest} throw an exception when group title not passed in request`,
 test(`${currentTest} throw an exception when connectionId is incorrect`, async (t) => {
   try {
     const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
-    const { token } = await registerUserAndReturnUserInfo();
+    const { token } = await registerUserAndReturnUserInfo(app);
 
     const createConnectionResponse = await request(app.getHttpServer())
       .post('/connection')
@@ -1137,7 +1122,7 @@ test(`${currentTest} throw an exception when connectionId is incorrect`, async (
       .set('Accept', 'application/json');
 
     const createConnectionRO = JSON.parse(createConnectionResponse.text);
-    createConnectionRO.id = faker.datatype.uuid();
+    createConnectionRO.id = faker.string.uuid();
     const createGroupResponse = await request(app.getHttpServer())
       .post(`/connection/group/${createConnectionRO.id}`)
       .send(newGroup1)
@@ -1159,7 +1144,7 @@ test(`${currentTest} throw an exception when connectionId is incorrect`, async (
 test(`${currentTest} throw an exception when group name is not unique`, async (t) => {
   try {
     const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
-    const { token } = await registerUserAndReturnUserInfo();
+    const { token } = await registerUserAndReturnUserInfo(app);
 
     const createConnectionResponse = await request(app.getHttpServer())
       .post('/connection')
@@ -1192,7 +1177,7 @@ currentTest = 'PUT /connection/group/delete/:slug';
 test(`${currentTest} should return connection without deleted group result`, async (t) => {
   try {
     const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
-    const { token } = await registerUserAndReturnUserInfo();
+    const { token } = await registerUserAndReturnUserInfo(app);
 
     const createConnectionResult = await request(app.getHttpServer())
       .post('/connection')
@@ -1267,7 +1252,7 @@ test(`${currentTest} should return connection without deleted group result`, asy
 test(`${currentTest}`, async (t) => {
   try {
     const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
-    const { token } = await registerUserAndReturnUserInfo();
+    const { token } = await registerUserAndReturnUserInfo(app);
     t.pass();
   } catch (e) {
     throw e;
@@ -1277,7 +1262,7 @@ test(`${currentTest}`, async (t) => {
 test(`${currentTest} should throw an exception when connection id is not passed in the request`, async (t) => {
   try {
     const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
-    const { token } = await registerUserAndReturnUserInfo();
+    const { token } = await registerUserAndReturnUserInfo(app);
     const createConnectionResult = await request(app.getHttpServer())
       .post('/connection')
       .send(newConnection)
@@ -1321,7 +1306,7 @@ test(`${currentTest} should throw an exception when connection id is not passed 
 test(`${currentTest} should throw an exception when group id is not passed in the request`, async (t) => {
   try {
     const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
-    const { token } = await registerUserAndReturnUserInfo();
+    const { token } = await registerUserAndReturnUserInfo(app);
 
     const createConnectionResult = await request(app.getHttpServer())
       .post('/connection')
@@ -1368,7 +1353,7 @@ test(`${currentTest} should throw an exception when group id is not passed in th
 test(`${currentTest} should throw an exception when group id is incorrect`, async (t) => {
   try {
     const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
-    const { token } = await registerUserAndReturnUserInfo();
+    const { token } = await registerUserAndReturnUserInfo(app);
 
     const createConnectionResult = await request(app.getHttpServer())
       .post('/connection')
@@ -1395,7 +1380,7 @@ test(`${currentTest} should throw an exception when group id is incorrect`, asyn
     t.is(result.title, newGroup1.title);
 
     const createGroupRO = JSON.parse(createGroupResponse.text);
-    createGroupRO.id = faker.datatype.uuid();
+    createGroupRO.id = faker.string.uuid();
     const response = await request(app.getHttpServer())
       .put(`/connection/group/delete/${createConnectionRO.id}`)
       .send({ groupId: createGroupRO.id })
@@ -1416,7 +1401,7 @@ test(`${currentTest} should throw an exception when group id is incorrect`, asyn
 test(`${currentTest} should throw an exception when connection id is incorrect`, async (t) => {
   try {
     const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
-    const { token } = await registerUserAndReturnUserInfo();
+    const { token } = await registerUserAndReturnUserInfo(app);
 
     const createConnectionResult = await request(app.getHttpServer())
       .post('/connection')
@@ -1443,7 +1428,7 @@ test(`${currentTest} should throw an exception when connection id is incorrect`,
     t.is(result.title, newGroup1.title);
 
     const createGroupRO = JSON.parse(createGroupResponse.text);
-    createConnectionRO.id = faker.datatype.uuid();
+    createConnectionRO.id = faker.string.uuid();
     const response = await request(app.getHttpServer())
       .put(`/connection/group/delete/${createConnectionRO.id}`)
       .send({ groupId: createGroupRO.id })
@@ -1464,7 +1449,7 @@ test(`${currentTest} should throw an exception when connection id is incorrect`,
 test(`${currentTest} should throw an exception when trying delete admin group`, async (t) => {
   try {
     const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
-    const { token } = await registerUserAndReturnUserInfo();
+    const { token } = await registerUserAndReturnUserInfo(app);
 
     const createConnectionResult = await request(app.getHttpServer())
       .post('/connection')
@@ -1496,7 +1481,7 @@ currentTest = 'PUT /connection/encryption/restore/:slug';
 test(`${currentTest} should return restored connection`, async (t) => {
   try {
     const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
-    const { token } = await registerUserAndReturnUserInfo();
+    const { token } = await registerUserAndReturnUserInfo(app);
 
     const newPgConnection = mockFactory.generateConnectionToTestPostgresDBInDocker();
     newPgConnection.masterEncryption = true;
@@ -1546,7 +1531,7 @@ currentTest = 'GET /connection/groups/:slug';
 test(`${currentTest} should groups in connection`, async (t) => {
   try {
     const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
-    const { token } = await registerUserAndReturnUserInfo();
+    const { token } = await registerUserAndReturnUserInfo(app);
 
     const createConnectionResponse = await request(app.getHttpServer())
       .post('/connection')
@@ -1596,7 +1581,7 @@ test(`${currentTest} should groups in connection`, async (t) => {
 test(`${currentTest} should throw an exception when connection id not passed in the request`, async (t) => {
   try {
     const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
-    const { token } = await registerUserAndReturnUserInfo();
+    const { token } = await registerUserAndReturnUserInfo(app);
 
     const createConnectionResponse = await request(app.getHttpServer())
       .post('/connection')
@@ -1634,7 +1619,7 @@ test(`${currentTest} should throw an exception when connection id not passed in 
 test(`${currentTest} should throw an exception when connection id is invalid`, async (t) => {
   try {
     const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
-    const { token } = await registerUserAndReturnUserInfo();
+    const { token } = await registerUserAndReturnUserInfo(app);
     const createConnectionResponse = await request(app.getHttpServer())
       .post('/connection')
       .send(newConnection)
@@ -1652,7 +1637,7 @@ test(`${currentTest} should throw an exception when connection id is invalid`, a
       .set('Accept', 'application/json');
 
     t.is(createGroupResponse.status, 201);
-    createConnectionRO.id = faker.datatype.uuid();
+    createConnectionRO.id = faker.string.uuid();
     const response = await request(app.getHttpServer())
       .get(`/connection/groups/${createConnectionRO.id}`)
       .send(newConnection)
@@ -1677,7 +1662,7 @@ currentTest = 'GET /connection/user/permissions';
 // test(`${currentTest}`, async (t) => {
 //   try {
 //     const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
-//     const { token } = await registerUserAndReturnUserInfo();
+//     const { token } = await registerUserAndReturnUserInfo(app);
 //     t.pass();
 //   } catch (e) {
 //     throw e;

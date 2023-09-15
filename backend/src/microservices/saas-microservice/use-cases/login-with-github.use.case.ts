@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Inject } from '@nestjs/common';
+import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
@@ -18,6 +18,7 @@ import { buildTestTableSettings } from '../../../entities/user/utils/build-test-
 import { Constants } from '../../../helpers/constants/constants.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 
+@Injectable()
 export class LoginUserWithGithubUseCase
   extends AbstractUseCase<SaasRegisterUserWithGithub, UserEntity>
   implements ILoginUserWithGitHub

@@ -57,6 +57,14 @@ export class CreateConnectionUseCase
     delete createdAdminGroup.connection;
     await this._dbContext.userRepository.saveUserEntity(connectionAuthor);
     createdConnection.groups = [createdAdminGroup];
+    const foundUserCompany = await this._dbContext.companyInfoRepository.findOneCompanyInfoByUserIdWithConnections(
+      connectionAuthor.id,
+    );
+    if (foundUserCompany) {
+      const connection = await this._dbContext.connectionRepository.findOneById(savedConnection.id);
+      connection.company = foundUserCompany;
+      await this._dbContext.connectionRepository.saveUpdatedConnection(connection);
+    }
     return buildCreatedConnectionDs(savedConnection, token, masterPwd);
   }
 

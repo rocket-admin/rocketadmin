@@ -627,7 +627,7 @@ describe('Command executor tests', () => {
         const commandExecutor = new CommandExecutor(connectionConfig);
 
         const settings = {
-          connection_id: faker.datatype.uuid(),
+          connection_id: faker.string.uuid();,
           table_name: testTableName,
           display_name: '',
           search_fields: [testTableColumnName],
@@ -671,7 +671,7 @@ describe('Command executor tests', () => {
         const commandExecutor = new CommandExecutor(connectionConfig);
 
         const settings = {
-          connection_id: faker.datatype.uuid(),
+          connection_id: faker.string.uuid();,
           table_name: testTableName,
           display_name: '',
           search_fields: [faker.lorem.words(1)],

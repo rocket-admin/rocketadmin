@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Inject } from '@nestjs/common';
+import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
@@ -6,6 +6,7 @@ import { AddRemoveCompanyIdToUserDS } from '../data-structures/add-company-id-to
 import { IAddOrRemoveCompanyIdToUser } from './saas-use-cases.interface.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 
+@Injectable()
 export class RemoveCompanyIdFromUserUseCase
   extends AbstractUseCase<AddRemoveCompanyIdToUserDS, void>
   implements IAddOrRemoveCompanyIdToUser

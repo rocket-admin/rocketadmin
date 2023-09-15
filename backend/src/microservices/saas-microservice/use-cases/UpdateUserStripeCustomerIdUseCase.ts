@@ -6,14 +6,14 @@ import { UpdateUserStripeCustomerDS } from '../data-structures/update-user-strip
 import { IUpdateUserStripeCustomerId } from './saas-use-cases.interface.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 
+
 @Injectable()
 export class UpdateUserStripeCustomerIdUseCase
   extends AbstractUseCase<UpdateUserStripeCustomerDS, void>
-  implements IUpdateUserStripeCustomerId
-{
+  implements IUpdateUserStripeCustomerId {
   constructor(
     @Inject(BaseType.GLOBAL_DB_CONTEXT)
-    protected _dbContext: IGlobalDatabaseContext,
+    protected _dbContext: IGlobalDatabaseContext
   ) {
     super();
   }
@@ -25,7 +25,7 @@ export class UpdateUserStripeCustomerIdUseCase
         {
           message: Messages.USER_NOT_FOUND,
         },
-        HttpStatus.BAD_REQUEST,
+        HttpStatus.BAD_REQUEST
       );
     }
     foundUser.stripeId = inputData.stripeCustomerId;

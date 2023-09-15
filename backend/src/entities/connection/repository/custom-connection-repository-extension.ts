@@ -83,10 +83,10 @@ export const customConnectionRepositoryExtension: IConnectionRepository = {
     connectionId: string,
   ): Promise<Omit<ConnectionEntity, 'password' | 'privateSSHKey' | 'groups'> | null> {
     const connectionQb = this.createQueryBuilder('connection')
-    .leftJoinAndSelect('connection.connection_properties', 'connection_properties')
-    .where('connection.id = :connectionId', {
-      connectionId: connectionId,
-    });
+      .leftJoinAndSelect('connection.connection_properties', 'connection_properties')
+      .where('connection.id = :connectionId', {
+        connectionId: connectionId,
+      });
     const connection = await connectionQb.getOne();
     if (!connection) {
       return null;
@@ -173,9 +173,12 @@ export const customConnectionRepositoryExtension: IConnectionRepository = {
     });
   },
 
-  async getConnectionByGroupId(groupId: string): Promise<ConnectionEntity> {
-    const qb = this.createQueryBuilder('connection').leftJoinAndSelect('connection.groups', 'group');
-    qb.andWhere('group.id = :id', { id: groupId });
+  async getConnectionByGroupIdWithCompanyAndUsersInCompany(groupId: string): Promise<ConnectionEntity> {
+    const qb = this.createQueryBuilder('connection')
+      .leftJoinAndSelect('connection.groups', 'group')
+      .leftJoinAndSelect('connection.company', 'company')
+      .leftJoinAndSelect('company.users', 'user');
+    qb.andWhere('group.id = :groupId', { groupId: groupId });
     return await qb.getOne();
   },
 
