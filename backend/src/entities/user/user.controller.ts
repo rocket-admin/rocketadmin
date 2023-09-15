@@ -8,7 +8,6 @@ import {
   Injectable,
   Post,
   Put,
-  Query,
   Req,
   Res,
   UseInterceptors,
@@ -28,25 +27,19 @@ import { ChangeUserNameDS } from './application/data-structures/change-user-name
 import { ChangeUsualUserPasswordDs } from './application/data-structures/change-usual-user-password.ds.js';
 import { FindUserDs } from './application/data-structures/find-user.ds.js';
 import { FoundUserDs } from './application/data-structures/found-user.ds.js';
-import { GoogleLoginDs } from './application/data-structures/google-login.ds.js';
 import { OperationResultMessageDs } from './application/data-structures/operation-result-message.ds.js';
 import { RegisteredUserDs } from './application/data-structures/registered-user.ds.js';
 import { ResetUsualUserPasswordDs } from './application/data-structures/reset-usual-user-password.ds.js';
 import { UpgradeUserSubscriptionDs } from './application/data-structures/upgrade-user-subscription.ds.js';
 import { UsualLoginDs } from './application/data-structures/usual-login.ds.js';
-import { UsualRegisterUserDs } from './application/data-structures/usual-register-user.ds.js';
 import {
   IAddStripeSetupIntent,
-  IAuthGitHub,
   IChangeUserName,
   IDeleteUserAccount,
   IDisableOTP,
-  IFacebookLogin,
   IFindUserUseCase,
   IGenerateOTP,
-  IGetGitHubLoginLink,
   IGetStripeIntentId,
-  IGoogleLogin,
   ILogOut,
   IOtpLogin,
   IRequestEmailChange,
@@ -55,7 +48,6 @@ import {
   IUpgradeSubscription,
   IUsualLogin,
   IUsualPasswordChange,
-  IUsualRegister,
   IVerifyEmail,
   IVerifyEmailChange,
   IVerifyOTP,
@@ -78,14 +70,8 @@ export class UserController {
     private readonly upgradeUserSubscriptionUseCase: IUpgradeSubscription,
     @Inject(UseCaseType.USUAL_LOGIN)
     private readonly usualLoginUseCase: IUsualLogin,
-    @Inject(UseCaseType.USUAL_REGISTER)
-    private readonly usualRegisterUseCase: IUsualRegister,
     @Inject(UseCaseType.LOG_OUT)
     private readonly logOutUseCase: ILogOut,
-    @Inject(UseCaseType.GOOGLE_LOGIN)
-    private readonly googleLoginUseCase: IGoogleLogin,
-    @Inject(UseCaseType.FACEBOOK_LOGIN)
-    private readonly facebookLoginUseCase: IFacebookLogin,
     @Inject(UseCaseType.CHANGE_USUAL_PASSWORD)
     private readonly changeUsualPasswordUseCase: IUsualPasswordChange,
     @Inject(UseCaseType.VERIFY_EMAIL)
@@ -112,10 +98,6 @@ export class UserController {
     private readonly otpLoginUseCase: IOtpLogin,
     @Inject(UseCaseType.DISABLE_OTP)
     private readonly disableOtpUseCase: IDisableOTP,
-    @Inject(UseCaseType.GET_GITHUB_LOGIN_LINK)
-    private readonly getGithubLoginLinkUseCase: IGetGitHubLoginLink,
-    @Inject(UseCaseType.AUTHENTICATE_WITH_GITHUB)
-    private readonly authenticateWithGithubUseCase: IAuthGitHub,
     @Inject(UseCaseType.GET_STRIPE_INTENT_ID)
     private readonly getStripeIntentIdUseCase: IGetStripeIntentId,
     @Inject(UseCaseType.ADD_STRIPE_SETUP_INTENT_TO_CUSTOMER)
@@ -203,61 +185,6 @@ export class UserController {
     return { expires: tokenInfo.exp, isTemporary: tokenInfo.isTemporary };
   }
 
-  @Post('user/register/')
-  async usualRegister(
-    @GCLlId() glidCookieValue: string,
-    @Res({ passthrough: true }) response: Response,
-    @BodyEmail('email') email: string,
-    @Body('password') password: string,
-    @Body('name') name: string,
-  ): Promise<ITokenExp> {
-    if (!email) {
-      throw new HttpException(
-        {
-          message: Messages.EMAIL_MISSING,
-        },
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-    const emailValidationResult = isEmail(email);
-    if (!emailValidationResult) {
-      throw new HttpException(
-        {
-          message: Messages.EMAIL_INVALID,
-        },
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-    if (!password) {
-      throw new HttpException(
-        {
-          message: Messages.PASSWORD_MISSING,
-        },
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-    const inputData: UsualRegisterUserDs = {
-      email: email,
-      password: password,
-      gclidValue: glidCookieValue,
-      name: name,
-    };
-    const tokenInfo = await this.usualRegisterUseCase.execute(inputData, InTransactionEnum.ON);
-    response.cookie(Constants.JWT_COOKIE_KEY_NAME, tokenInfo.token, {
-      httpOnly: true,
-      secure: true,
-      expires: tokenInfo.exp,
-    });
-    response.cookie(Constants.ROCKETADMIN_AUTHENTICATED_COOKIE, 1, {
-      httpOnly: false,
-      ...this.getCookieDomainOtions(),
-    });
-    return {
-      expires: tokenInfo.exp,
-      isTemporary: tokenInfo.isTemporary,
-    };
-  }
-
   @Post('user/logout/')
   async logOut(@Req() request, @Res({ passthrough: true }) response: Response): Promise<any> {
     const token = request.cookies[Constants.JWT_COOKIE_KEY_NAME];
@@ -275,67 +202,6 @@ export class UserController {
       ...this.getCookieDomainOtions(),
     });
     return await this.logOutUseCase.execute(token, InTransactionEnum.ON);
-  }
-
-  @Post('user/google/login/')
-  async registerWithGoogle(
-    @GCLlId() gclidCookieValue: string,
-    @Res({ passthrough: true }) response: Response,
-    @Body('token') token: string,
-  ): Promise<ITokenExp> {
-    if (!token) {
-      throw new HttpException(
-        {
-          message: Messages.TOKEN_MISSING,
-        },
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-    const googleLoginDs: GoogleLoginDs = {
-      token: token,
-      glidCookieValue: gclidCookieValue,
-    };
-    const tokenInfo = await this.googleLoginUseCase.execute(googleLoginDs, InTransactionEnum.ON);
-    response.cookie(Constants.JWT_COOKIE_KEY_NAME, tokenInfo.token, {
-      httpOnly: true,
-      secure: true,
-      expires: tokenInfo.exp,
-    });
-    response.cookie(Constants.ROCKETADMIN_AUTHENTICATED_COOKIE, 1, {
-      httpOnly: false,
-      ...this.getCookieDomainOtions(),
-    });
-    return {
-      expires: tokenInfo.exp,
-      isTemporary: tokenInfo.isTemporary,
-    };
-  }
-
-  @Post('user/facebook/login/')
-  async registerWithFacebook(@Req() request, @Res({ passthrough: true }) response: Response): Promise<ITokenExp> {
-    const token = request.body.token;
-    if (!token) {
-      throw new HttpException(
-        {
-          message: Messages.TOKEN_MISSING,
-        },
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-    const tokenInfo = await this.facebookLoginUseCase.execute(token, InTransactionEnum.ON);
-    response.cookie(Constants.JWT_COOKIE_KEY_NAME, tokenInfo.token, {
-      httpOnly: true,
-      secure: true,
-      expires: tokenInfo.exp,
-    });
-    response.cookie(Constants.ROCKETADMIN_AUTHENTICATED_COOKIE, 1, {
-      httpOnly: false,
-      ...this.getCookieDomainOtions(),
-    });
-    return {
-      expires: tokenInfo.exp,
-      isTemporary: tokenInfo.isTemporary,
-    };
   }
 
   @Post('user/password/change/')
@@ -397,6 +263,7 @@ export class UserController {
     return await this.verifyEmailUseCase.execute(verificationString, InTransactionEnum.ON);
   }
 
+  //todo: make admin endpoint
   @Post('user/password/reset/verify/:slug')
   async resetUserPassword(
     @Body('password') password: string,
@@ -482,30 +349,6 @@ export class UserController {
     @Body('otpToken') otpToken: string,
   ): Promise<any> {
     const tokenInfo = await this.otpLoginUseCase.execute({ userId, otpToken }, InTransactionEnum.OFF);
-    response.cookie(Constants.JWT_COOKIE_KEY_NAME, tokenInfo.token, {
-      httpOnly: true,
-      secure: true,
-      expires: tokenInfo.exp,
-    });
-    response.cookie(Constants.ROCKETADMIN_AUTHENTICATED_COOKIE, 1, {
-      httpOnly: false,
-      ...this.getCookieDomainOtions(),
-    });
-    return {
-      expires: tokenInfo.exp,
-      isTemporary: tokenInfo.isTemporary,
-    };
-  }
-
-  @Get('user/login/github')
-  async loginGithub(@Res({ passthrough: true }) response: Response): Promise<any> {
-    const redirectionLink = await this.getGithubLoginLinkUseCase.execute(InTransactionEnum.OFF);
-    response.redirect(redirectionLink);
-  }
-
-  @Get('user/authenticate/github')
-  async authenticateGithub(@Query('code') code: string, @Res({ passthrough: true }) response: Response): Promise<any> {
-    const tokenInfo = await this.authenticateWithGithubUseCase.execute(code, InTransactionEnum.OFF);
     response.cookie(Constants.JWT_COOKIE_KEY_NAME, tokenInfo.token, {
       httpOnly: true,
       secure: true,
