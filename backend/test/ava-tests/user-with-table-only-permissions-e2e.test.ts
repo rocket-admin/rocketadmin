@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable security/detect-object-injection */
 import { faker } from '@faker-js/faker';
 import { INestApplication } from '@nestjs/common';
@@ -17,6 +18,7 @@ import { MockFactory } from '../mock.factory.js';
 import { compareTableWidgetsArrays } from '../utils/compare-table-widgets-arrays.js';
 import { TestUtils } from '../utils/test.utils.js';
 import { createConnectionsAndInviteNewUserInNewGroupWithOnlyTablePermissions } from '../utils/user-with-different-permissions-utils.js';
+import { inviteUserInCompanyAndAcceptInvitation } from '../utils/register-user-and-return-user-info.js';
 
 let app: INestApplication;
 let testUtils: TestUtils;
@@ -84,7 +86,7 @@ test(`${currentTest} should return connections, where second user have access`, 
     t.is(findAll.status, 200);
 
     const result = findAll.body.connections;
-    t.is(result.length, 5);
+    t.is(result.length, 1);
     const nonTestConnection = result.find(({ connection }) => connection.id === connections.firstId);
     for (const key in nonTestConnection.connection) {
       t.is(Constants.CONNECTION_KEYS_NONE_PERMISSION.includes(key), true);
@@ -696,13 +698,13 @@ test(`${currentTest} should return found groups with current user`, async (t) =>
     t.is(getGroupsResponse.status, 200);
     const getGroupsRO = JSON.parse(getGroupsResponse.text);
     const { groups, groupsCount } = getGroupsRO;
-    t.is(groupsCount, 5);
-    t.is(groups.length, 5);
+    t.is(groupsCount, 1);
+    t.is(groups.length, 1);
     t.is(groups[0].hasOwnProperty('group'), true);
-    t.is(groups[1].hasOwnProperty('accessLevel'), true);
+    t.is(groups[0].hasOwnProperty('accessLevel'), true);
     t.is(uuidRegex.test(groups[0].group.id), true);
-    t.is(groups[2].group.hasOwnProperty('title'), true);
-    t.is(groups[3].group.hasOwnProperty('isMain'), true);
+    t.is(groups[0].group.hasOwnProperty('title'), true);
+    t.is(groups[0].group.hasOwnProperty('isMain'), true);
   } catch (e) {
     console.error(e);
     throw e;
@@ -881,7 +883,7 @@ test(`${currentTest} should throw exception, when group id passed in request is 
     const getGroupsRO = JSON.parse(getGroupsResponse.text);
 
     const email = faker.internet.email();
-    const groupId = faker.datatype.uuid();
+    const groupId = faker.string.uuid();
     const addUserInGroupResponse = await request(app.getHttpServer())
       .put('/group/user')
       .set('Cookie', simpleUserToken)
@@ -1020,7 +1022,7 @@ test(`${currentTest} should throw an exception when group id passed in request i
 
     t.is(getGroupsResponse.status, 200);
 
-    const groupId = faker.datatype.uuid();
+    const groupId = faker.string.uuid();
     const deleteGroupResponse = await request(app.getHttpServer())
       .delete(`/group/${groupId}`)
       .set('Cookie', simpleUserToken)
@@ -1058,14 +1060,9 @@ test(`${currentTest} should throw an exception ${Messages.DONT_HAVE_PERMISSIONS}
 
     const groupId = getGroupsRO[0].group.id;
 
-    const email = faker.internet.email();
-    const addUserInGroupResponse = await request(app.getHttpServer())
-      .put('/group/user')
-      .set('Cookie', adminUserToken)
-      .send({ groupId, email })
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-    t.is(addUserInGroupResponse.status, 200);
+    const thirdTestUser = await inviteUserInCompanyAndAcceptInvitation(adminUserToken, undefined, app);
+    
+    const email = thirdTestUser.email;
 
     const deleteUserInGroupResponse = await request(app.getHttpServer())
       .put('/group/user/delete')
@@ -1102,16 +1099,9 @@ test(`${currentTest} should throw exception, when group id not passed in request
     t.is(getGroupsResponse.status, 200);
     const getGroupsRO = JSON.parse(getGroupsResponse.text);
 
-    const groupId = getGroupsRO[0].group.id;
-
-    const email = faker.internet.email();
-    const addUserInGroupResponse = await request(app.getHttpServer())
-      .put('/group/user')
-      .set('Cookie', adminUserToken)
-      .send({ groupId, email })
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-    t.is(addUserInGroupResponse.status, 200);
+    const thirdTestUser = await inviteUserInCompanyAndAcceptInvitation(adminUserToken, undefined, app);
+    
+    const email = thirdTestUser.email;
 
     const deleteUserInGroupResponse = await request(app.getHttpServer())
       .put('/group/user/delete')
@@ -1374,7 +1364,7 @@ test(`${currentTest} should throw an exception, when connection id passed in req
       secondTableInfo,
       users: { adminUserToken, simpleUserToken },
     } = testData;
-    const fakeConnectionId = faker.datatype.uuid();
+    const fakeConnectionId = faker.string.uuid();
     const getTablesInConnection = await request(app.getHttpServer())
       .get(`/connection/tables/${fakeConnectionId}`)
       .set('Cookie', simpleUserToken)
@@ -1457,7 +1447,7 @@ test(`${currentTest} should throw an exception when connection id passed in requ
       secondTableInfo,
       users: { adminUserToken, simpleUserToken },
     } = testData;
-    const fakeId = faker.datatype.uuid();
+    const fakeId = faker.string.uuid();
     const getTableRows = await request(app.getHttpServer())
       .get(`/table/rows/${fakeId}?tableName=${testData.firstTableInfo.testTableName}`)
       .set('Cookie', simpleUserToken)
@@ -1483,7 +1473,7 @@ test(`${currentTest} should throw an exception when table name passed in request
       secondTableInfo,
       users: { adminUserToken, simpleUserToken },
     } = testData;
-    const fakeTableName = `${faker.lorem.words(1)}_${faker.datatype.uuid()}`;
+    const fakeTableName = `${faker.lorem.words(1)}_${faker.string.uuid()}`;
     const getTablesRows = await request(app.getHttpServer())
       .get(`/table/rows/${connections.firstId}?tableName=${fakeTableName}`)
       .set('Cookie', simpleUserToken)
@@ -1570,7 +1560,7 @@ test(`${currentTest} should throw an exception when connection id passed in requ
       users: { adminUserToken, simpleUserToken },
     } = testData;
 
-    const fakeConnectionId = faker.datatype.uuid();
+    const fakeConnectionId = faker.string.uuid();
     const getTablesStructure = await request(app.getHttpServer())
       .get(`/table/structure/${fakeConnectionId}?tableName=${firstTableInfo.testTableName}`)
       .set('Cookie', simpleUserToken)
@@ -1621,7 +1611,7 @@ test(`${currentTest} should throw an exception when table name passed in request
       secondTableInfo,
       users: { adminUserToken, simpleUserToken },
     } = testData;
-    const fakeTableName = `${faker.lorem.words(1)}_${faker.datatype.uuid()}`;
+    const fakeTableName = `${faker.lorem.words(1)}_${faker.string.uuid()}`;
     const getTablesStructure = await request(app.getHttpServer())
       .get(`/table/structure/${connections.firstId}?tableName=${fakeTableName}`)
       .set('Cookie', simpleUserToken)
@@ -1698,7 +1688,7 @@ test(`${currentTest} should throw an exception when connection id passed in requ
     const randomEmail = faker.internet.email();
     const created_at = new Date();
     const updated_at = new Date();
-    const fakeConnectionId = faker.datatype.uuid();
+    const fakeConnectionId = faker.string.uuid();
     const addRowInTable = await request(app.getHttpServer())
       .post(`/table/row/${fakeConnectionId}?tableName=${firstTableInfo.testTableName}`)
       .send({
@@ -1733,7 +1723,7 @@ test(`${currentTest} should throw an exception when table name passed in request
     const randomEmail = faker.internet.email();
     const created_at = new Date();
     const updated_at = new Date();
-    const fakeTableName = `${faker.lorem.words(1)}_${faker.datatype.uuid()}`;
+    const fakeTableName = `${faker.lorem.words(1)}_${faker.string.uuid()}`;
     const addRowInTable = await request(app.getHttpServer())
       .post(`/table/row/${connections.firstId}?tableName=${fakeTableName}`)
       .send({
@@ -1806,7 +1796,7 @@ test(`${currentTest} should throw an exception when connection id passed in requ
     const randomEmail = faker.internet.email();
     const created_at = new Date();
     const updated_at = new Date();
-    const fakeConnectionId = faker.datatype.uuid();
+    const fakeConnectionId = faker.string.uuid();
     const addRowInTable = await request(app.getHttpServer())
       .put(`/table/row/${fakeConnectionId}?tableName=${firstTableInfo.testTableName}&id=1`)
       .send({
@@ -1841,7 +1831,7 @@ test(`${currentTest} should throw an exception when table name passed in request
     const randomEmail = faker.internet.email();
     const created_at = new Date();
     const updated_at = new Date();
-    const fakeTableName = `${faker.lorem.words(1)}_${faker.datatype.uuid()}`;
+    const fakeTableName = `${faker.lorem.words(1)}_${faker.string.uuid()}`;
     const addRowInTable = await request(app.getHttpServer())
       .put(`/table/row/${connections.firstId}?tableName=${fakeTableName}&id=1`)
       .send({
@@ -1898,7 +1888,7 @@ test(`${currentTest} should throw an exception when connection id passed in requ
       secondTableInfo,
       users: { adminUserToken, simpleUserToken },
     } = testData;
-    const fakeConnectionId = faker.datatype.uuid();
+    const fakeConnectionId = faker.string.uuid();
     const deleteRowInTable = await request(app.getHttpServer())
       .delete(`/table/row/${fakeConnectionId}?tableName=${firstTableInfo.testTableName}&id=1`)
       .set('Cookie', simpleUserToken)
@@ -1924,7 +1914,7 @@ test(`${currentTest} should throw an exception when table name passed in request
       secondTableInfo,
       users: { adminUserToken, simpleUserToken },
     } = testData;
-    const fakeTableName = `${faker.lorem.words(1)}_${faker.datatype.uuid()}`;
+    const fakeTableName = `${faker.lorem.words(1)}_${faker.string.uuid()}`;
     const deleteRowInTable = await request(app.getHttpServer())
       .delete(`/table/row/${connections.firstId}?tableName=${fakeTableName}&id=1`)
       .set('Cookie', simpleUserToken)
@@ -1982,7 +1972,7 @@ test(`${currentTest} should throw an exception when connection id passed in requ
       secondTableInfo,
       users: { adminUserToken, simpleUserToken },
     } = testData;
-    const fakeConnectionId = faker.datatype.uuid();
+    const fakeConnectionId = faker.string.uuid();
     const addRowInTable = await request(app.getHttpServer())
       .get(`/table/row/${fakeConnectionId}?tableName=${firstTableInfo.testTableName}&id=5`)
       .set('Cookie', simpleUserToken)
@@ -2007,7 +1997,7 @@ test(`${currentTest} should throw an exception when table name passed in request
       secondTableInfo,
       users: { adminUserToken, simpleUserToken },
     } = testData;
-    const fakeTableName = `${faker.lorem.words(1)}_${faker.datatype.uuid()}`;
+    const fakeTableName = `${faker.lorem.words(1)}_${faker.string.uuid()}`;
     const addRowInTable = await request(app.getHttpServer())
       .get(`/table/row/${connections.firstId}?tableName=${fakeTableName}&id=5`)
       .set('Cookie', simpleUserToken)

@@ -8,7 +8,10 @@ import { DatabaseModule } from '../../src/shared/database/database.module.js';
 import { DatabaseService } from '../../src/shared/database/database.service.js';
 import cookieParser from 'cookie-parser';
 import { AllExceptionsFilter } from '../../src/exceptions/all-exceptions.filter.js';
-import { registerUserAndReturnUserInfo } from '../utils/register-user-and-return-user-info.js';
+import {
+  inviteUserInCompanyAndAcceptInvitation,
+  registerUserAndReturnUserInfo,
+} from '../utils/register-user-and-return-user-info.js';
 import { getTestData } from '../utils/get-test-data.js';
 import request from 'supertest';
 import { AccessLevelEnum } from '../../src/enums/index.js';
@@ -75,7 +78,6 @@ test(`${currentTest} should return all user groups`, async (t) => {
     t.is(findAllUserGroups.status, 200);
 
     const result = JSON.parse(findAllUserGroups.text);
-    console.log('-> result', result);
 
     t.is(result.length, 2);
     t.is(uuidRegex.test(result[0].group.id), true);
@@ -174,7 +176,7 @@ test(`${currentTest} should throw an error when group id is not real`, async (t)
 
     const createGroupRO = JSON.parse(createGroupResponse.text);
 
-    createGroupRO.id = faker.datatype.uuid();
+    createGroupRO.id = faker.string.uuid();
     const findAllUsersInGroup = await request(app.getHttpServer())
       .get(`/group/users/${createGroupRO.id}`)
       .set('Cookie', firstUserToken)
@@ -240,7 +242,7 @@ currentTest = 'PUT /group/user/:slug';
 test(`${currentTest} should return a group with new added user`, async (t) => {
   try {
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-    const secondUserRegisterInfo = await registerUserAndReturnUserInfo(app);
+    const secondUserRegisterInfo = await inviteUserInCompanyAndAcceptInvitation(firstUserToken, undefined, app);
     const { newConnection, newConnection2, newGroup1 } = getTestData(mockFactory);
 
     let createConnectionResponse = await request(app.getHttpServer())
@@ -299,7 +301,7 @@ test(`${currentTest} should return a group with new added user`, async (t) => {
 test(`${currentTest} should throw an error when groupId not passed in request`, async (t) => {
   try {
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-    const secondUserRegisterInfo = await registerUserAndReturnUserInfo(app);
+    const secondUserRegisterInfo = await inviteUserInCompanyAndAcceptInvitation(firstUserToken, undefined, app);
     const { newConnection, newConnection2, newGroup1 } = getTestData(mockFactory);
 
     let createConnectionResponse = await request(app.getHttpServer())
@@ -402,7 +404,7 @@ test(`${currentTest} should throw an error when user email not passed in request
 test(`${currentTest} should throw an error when groupId is incorrect`, async (t) => {
   try {
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-    const secondUserRegisterInfo = await registerUserAndReturnUserInfo(app);
+    const secondUserRegisterInfo = await inviteUserInCompanyAndAcceptInvitation(firstUserToken, undefined, app);
 
     const { newConnection, newConnection2, newGroup1 } = getTestData(mockFactory);
 
@@ -433,7 +435,7 @@ test(`${currentTest} should throw an error when groupId is incorrect`, async (t)
 
     const createGroupRO = JSON.parse(createGroupResponse.text);
 
-    createGroupRO.id = faker.datatype.uuid();
+    createGroupRO.id = faker.string.uuid();
 
     const requestBody = {
       email: secondUserRegisterInfo.email,
@@ -458,7 +460,7 @@ test(`${currentTest} should throw an error when groupId is incorrect`, async (t)
 test(`${currentTest} should throw an error when add a user what been already added in this group`, async (t) => {
   try {
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-    const secondUserRegisterInfo = await registerUserAndReturnUserInfo(app);
+    const secondUserRegisterInfo = await inviteUserInCompanyAndAcceptInvitation(firstUserToken, undefined, app);
 
     const { newConnection, newConnection2, newGroup1 } = getTestData(mockFactory);
 
@@ -468,7 +470,7 @@ test(`${currentTest} should throw an error when add a user what been already add
       .set('Cookie', firstUserToken)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
-    const createConnectionRO = JSON.parse(createConnectionResponse.text);
+    let createConnectionRO = JSON.parse(createConnectionResponse.text);
     t.is(createConnectionResponse.status, 201);
 
     createConnectionResponse = await request(app.getHttpServer())
@@ -478,6 +480,7 @@ test(`${currentTest} should throw an error when add a user what been already add
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
     t.is(createConnectionResponse.status, 201);
+    createConnectionRO = JSON.parse(createConnectionResponse.text);
 
     const createGroupResponse = await request(app.getHttpServer())
       .post(`/connection/group/${createConnectionRO.id}`)
@@ -493,6 +496,7 @@ test(`${currentTest} should throw an error when add a user what been already add
       email: secondUserRegisterInfo.email,
       groupId: createGroupRO.id,
     };
+
     const addUserInGroup1 = await request(app.getHttpServer())
       .put(`/group/user/`)
       .send(requestBody)
@@ -508,6 +512,7 @@ test(`${currentTest} should throw an error when add a user what been already add
       .set('Cookie', firstUserToken)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
+
     t.is(addUserInGroup2.status, 400);
     const { message } = JSON.parse(addUserInGroup2.text);
     t.is(message, Messages.USER_ALREADY_ADDED_BUT_NOT_ACTIVE);
@@ -626,7 +631,7 @@ test(`${currentTest} should return throw an exception when groupId is incorrect`
 
     const createGroupRO = JSON.parse(createGroupResponse.text);
 
-    createGroupRO.id = faker.datatype.uuid();
+    createGroupRO.id = faker.string.uuid();
     const deleteResult = await request(app.getHttpServer())
       .delete(`/group/${createGroupRO.id}`)
       .set('Cookie', firstUserToken)
@@ -694,7 +699,7 @@ currentTest = 'PUT /group/user/delete';
 test(`${currentTest} should return a group without deleted user`, async (t) => {
   try {
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-    const secondUserRegisterInfo = await registerUserAndReturnUserInfo(app);
+    const secondUserRegisterInfo = await inviteUserInCompanyAndAcceptInvitation(firstUserToken, undefined, app);
 
     const { newConnection, newConnection2, newGroup1 } = getTestData(mockFactory);
 
@@ -772,7 +777,7 @@ test(`${currentTest} should return a group without deleted user`, async (t) => {
 test(`${currentTest} should throw an error, when group id not passed in request`, async (t) => {
   try {
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-    const secondUserRegisterInfo = await registerUserAndReturnUserInfo(app);
+    const secondUserRegisterInfo = await inviteUserInCompanyAndAcceptInvitation(firstUserToken, undefined, app);
 
     const { newConnection, newConnection2, newGroup1 } = getTestData(mockFactory);
 
@@ -845,7 +850,7 @@ test(`${currentTest} should throw an error, when group id not passed in request`
 test(`${currentTest} should throw an error, when email is not passed in request`, async (t) => {
   try {
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-    const secondUserRegisterInfo = await registerUserAndReturnUserInfo(app);
+    const secondUserRegisterInfo = await inviteUserInCompanyAndAcceptInvitation(firstUserToken, undefined, app);
     const { newConnection, newConnection2, newGroup1 } = getTestData(mockFactory);
 
     let createConnectionResponse = await request(app.getHttpServer())
@@ -917,7 +922,7 @@ test(`${currentTest} should throw an error, when email is not passed in request`
 test(`${currentTest} should throw an error, when there is no this email in database`, async (t) => {
   try {
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-    const secondUserRegisterInfo = await registerUserAndReturnUserInfo(app);
+    const secondUserRegisterInfo = await inviteUserInCompanyAndAcceptInvitation(firstUserToken, undefined, app);
 
     const { newConnection, newConnection2, newGroup1 } = getTestData(mockFactory);
 
@@ -983,7 +988,7 @@ test(`${currentTest} should throw an error, when there is no this email in datab
 test(`${currentTest} should throw an error, when group id is incorrect`, async (t) => {
   try {
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-    const secondUserRegisterInfo = await registerUserAndReturnUserInfo(app);
+    const secondUserRegisterInfo = await inviteUserInCompanyAndAcceptInvitation(firstUserToken, undefined, app);
 
     const { newConnection, newConnection2, newGroup1 } = getTestData(mockFactory);
 
@@ -1035,7 +1040,7 @@ test(`${currentTest} should throw an error, when group id is incorrect`, async (
     t.is(uuidRegex.test(result.users[0].id), true);
     t.is(result.users[1].email, secondUserRegisterInfo.email);
 
-    requestBody.groupId = faker.datatype.uuid();
+    requestBody.groupId = faker.string.uuid();
     const removeUserFromGroup = await request(app.getHttpServer())
       .put(`/group/user/delete/`)
       .send(requestBody)

@@ -1,5 +1,8 @@
 import { FoundUserDs } from '../../../entities/user/application/data-structures/found-user.ds.js';
-import { SaasUsualUserRegisterDS } from '../../../entities/user/application/data-structures/usual-register-user.ds.js';
+import {
+  RegisterInvitedUserDS,
+  SaasUsualUserRegisterDS,
+} from '../../../entities/user/application/data-structures/usual-register-user.ds.js';
 import { UserEntity } from '../../../entities/user/user.entity.js';
 import { AddRemoveCompanyIdToUserDS } from '../data-structures/add-company-id-to-user.ds.js';
 import { GetUserInfoByEmailDS } from '../data-structures/get-user-info.ds.js';
@@ -23,6 +26,10 @@ export interface IGetUserInfoByEmail {
 
 export interface ISaasRegisterUser {
   execute(userData: SaasUsualUserRegisterDS): Promise<FoundUserDs>;
+}
+
+export interface ISaaSRegisterInvitedUser {
+  execute(userData: RegisterInvitedUserDS): Promise<FoundUserDs>;
 }
 
 export interface ILoginUserWithGoogle {

@@ -8,3 +8,10 @@ export class UsualRegisterUserDs {
 export class SaasUsualUserRegisterDS extends UsualRegisterUserDs {
   companyId?: string;
 }
+
+export class RegisterInvitedUserDS {
+  email: string;
+  password: string;
+  name: string;
+  companyId: string;
+}

@@ -154,28 +154,28 @@ export class ConnectionEntity {
     }
   }
 
-  @ManyToOne((type) => UserEntity, (user) => user.connections, { onDelete: 'CASCADE' })
+  @ManyToOne(() => UserEntity, (user) => user.connections, { onDelete: 'CASCADE' })
   author: Relation<UserEntity>;
 
-  @OneToMany((type) => GroupEntity, (group) => group.connection)
+  @OneToMany(() => GroupEntity, (group) => group.connection)
   groups: Relation<GroupEntity>[];
 
-  @OneToMany((type) => TableSettingsEntity, (settings) => settings.connection_id)
+  @OneToMany(() => TableSettingsEntity, (settings) => settings.connection_id)
   settings: Relation<TableSettingsEntity>[];
 
-  @OneToMany((type) => TableLogsEntity, (logs) => logs.connection_id)
+  @OneToMany(() => TableLogsEntity, (logs) => logs.connection_id)
   logs: Relation<TableLogsEntity>[];
 
-  @OneToOne((type) => AgentEntity, (agent) => agent.connection)
+  @OneToOne(() => AgentEntity, (agent) => agent.connection)
   agent: Relation<AgentEntity>;
 
-  @OneToOne((type) => ConnectionPropertiesEntity, (connection_properties) => connection_properties.connection)
+  @OneToOne(() => ConnectionPropertiesEntity, (connection_properties) => connection_properties.connection)
   connection_properties: Relation<ConnectionPropertiesEntity>;
 
-  @OneToMany((type) => TableInfoEntity, (table_info) => table_info.connection)
+  @OneToMany(() => TableInfoEntity, (table_info) => table_info.connection)
   tables_info: Relation<TableInfoEntity>[];
 
-  @ManyToOne((type) => CompanyInfoEntity, (company) => company.connections)
+  @ManyToOne(() => CompanyInfoEntity, (company) => company.connections)
   @JoinTable()
   company: Relation<CompanyInfoEntity>;
 }

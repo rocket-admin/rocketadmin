@@ -33,7 +33,7 @@ export interface IConnectionRepository {
 
   getWorkedConnectionsInTwoWeeks(): Promise<Array<ConnectionEntity>>;
 
-  getConnectionByGroupId(groupId: string): Promise<ConnectionEntity>;
+  getConnectionByGroupIdWithCompanyAndUsersInCompany(groupId: string): Promise<ConnectionEntity>;
 
   findOneById(connectionId: string): Promise<ConnectionEntity>;
 

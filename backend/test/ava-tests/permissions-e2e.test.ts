@@ -197,7 +197,7 @@ test(`${currentTest} should throw an exception when groupId passed in request is
       connectionAccessLevel,
       groupAccesssLevel,
     );
-    createGroupRO.id = faker.datatype.uuid();
+    createGroupRO.id = faker.string.uuid();
     let createPermissionsResponse = await request(app.getHttpServer())
       .put(`/permissions/${createGroupRO.id}`)
       .send(permissionsDTO)
@@ -243,7 +243,7 @@ test(`${currentTest} should throw an exception when connectionId is incorrect`, 
       connectionAccessLevel,
       groupAccesssLevel,
     );
-    permissionsDTO.permissions.connection.connectionId = faker.datatype.uuid();
+    permissionsDTO.permissions.connection.connectionId = faker.string.uuid();
     let createPermissionsResponse = await request(app.getHttpServer())
       .put(`/permissions/${createGroupRO.id}`)
       .send(permissionsDTO)

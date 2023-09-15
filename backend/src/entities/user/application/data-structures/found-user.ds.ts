@@ -10,4 +10,7 @@ export class FoundUserDs {
   intercom_hash?: string;
   name: string;
   is_2fa_enabled: boolean;
+  company?: {
+    id: string;
+  };
 }

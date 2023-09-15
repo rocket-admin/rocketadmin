@@ -40,7 +40,8 @@ export class AddUserInGroupUseCase
     const { email, groupId } = inputData;
     const ownerId = await this._dbContext.connectionRepository.getConnectionAuthorIdByGroupInConnectionId(groupId);
     const foundGroup = await this._dbContext.groupRepository.findGroupById(groupId);
-    const foundUser = await this._dbContext.userRepository.findUserByEmailWithEmailVerificationAndInvitation(email);
+    const foundUser =
+      await this._dbContext.userRepository.findUserByEmailEndCompanyIdWithEmailVerificationAndInvitation(email);
     const foundOwner = await this._dbContext.userRepository.findOneUserById(ownerId);
     // eslint-disable-next-line prefer-const
     let { usersInConnections, usersInConnectionsCount } =

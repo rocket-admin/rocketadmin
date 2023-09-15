@@ -165,7 +165,7 @@ test(`${currentTest} should throw exception when connection id incorrect`, async
   const createConnectionRO = JSON.parse(createConnectionResult.text);
   t.is(createConnectionResult.status, 201);
 
-  createConnectionRO.id = faker.datatype.uuid();
+  createConnectionRO.id = faker.string.uuid();
   const createTableActionResult = await request(app.getHttpServer())
     .post(`/table/action/${createConnectionRO.id}?tableName=${testTableName}`)
     .send(newTableAction)
@@ -236,7 +236,7 @@ test(`${currentTest} should throw exception when connection id incorrect`, async
 
   t.is(createTableActionResult.status, 201);
 
-  createConnectionRO.id = faker.datatype.uuid();
+  createConnectionRO.id = faker.string.uuid();
   const findTableActiponResult = await request(app.getHttpServer())
     .get(`/table/actions/${createConnectionRO.id}?tableName=${testTableName}`)
     .set('Cookie', token)
@@ -336,7 +336,7 @@ test(`${currentTest} should throw exception when type is incorrect`, async (t) =
   };
   updatedTableAction.title = faker.lorem.words(2);
   updatedTableAction.url = faker.internet.url();
-  updatedTableAction.type = faker.datatype.uuid() as any;
+  updatedTableAction.type = faker.string.uuid() as any;
 
   const updateTableActionResult = await request(app.getHttpServer())
     .post(`/table/action/${createConnectionRO.id}?tableName=${testTableName}&actionId=${createTableActionRO.id}`)
@@ -378,7 +378,7 @@ test(`${currentTest} should throw exception when connection id incorrect`, async
   updatedTableAction.title = faker.lorem.words(2);
   updatedTableAction.url = faker.internet.url();
 
-  createConnectionRO.id = faker.datatype.uuid();
+  createConnectionRO.id = faker.string.uuid();
   const updateTableActionResult = await request(app.getHttpServer())
     .post(`/table/action/${createConnectionRO.id}?tableName=${testTableName}&actionId=${createTableActionRO.id}`)
     .send(updatedTableAction)
@@ -456,7 +456,7 @@ test(`${currentTest} should throw exception when connection id incorrect`, async
   const createTableActionRO = JSON.parse(createTableActionResult.text);
   t.is(createTableActionResult.status, 201);
 
-  createConnectionRO.id = faker.datatype.uuid();
+  createConnectionRO.id = faker.string.uuid();
   const deleteTableActionResult = await request(app.getHttpServer())
     .delete(`/table/action/${createConnectionRO.id}?actionId=${createTableActionRO.id}`)
     .set('Cookie', token)
@@ -488,7 +488,7 @@ test(`${currentTest} should throw exception when table action id incorrect`, asy
   const createTableActionRO = JSON.parse(createTableActionResult.text);
   t.is(createTableActionResult.status, 201);
 
-  createTableActionRO.id = faker.datatype.uuid();
+  createTableActionRO.id = faker.string.uuid();
   const deleteTableActionResult = await request(app.getHttpServer())
     .delete(`/table/action/${createConnectionRO.id}?actionId=${createTableActionRO.id}`)
     .set('Cookie', token)
@@ -558,7 +558,7 @@ test(`${currentTest} should throw exception when connection id incorrect`, async
   const createTableActionRO = JSON.parse(createConnectionResult.text);
   t.is(createTableActionResult.status, 201);
 
-  createConnectionRO.id = faker.datatype.uuid();
+  createConnectionRO.id = faker.string.uuid();
 
   const findTableActionResult = await request(app.getHttpServer())
     .get(`/table/action/${createConnectionRO.id}?actionId=${createTableActionRO.id}`)
@@ -592,7 +592,7 @@ test(`${currentTest} should throw exception when table action id is incorrect`, 
   const createTableActionRO = JSON.parse(createConnectionResult.text);
   t.is(createTableActionResult.status, 201);
 
-  createTableActionRO.id = faker.datatype.uuid();
+  createTableActionRO.id = faker.string.uuid();
 
   const findTableActionResult = await request(app.getHttpServer())
     .get(`/table/action/${createConnectionRO.id}?actionId=${createTableActionRO.id}`)
