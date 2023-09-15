@@ -14,7 +14,9 @@
 
         <mat-nav-list *ngIf="connections" class="connectionsBox__connectionsList">
             <a mat-list-item *ngFor="let connectionItem of connections" class="connection"
-                routerLink="/dashboard/{{connectionItem.connection.id}}">
+                routerLink="/dashboard/{{connectionItem.connection.id}}"
+                angulartics2On="click"
+                angularticsAction="Connections: open own db is clicked">
                 <mat-icon *ngIf="connectionItem.connection.type; else defaultIcon" mat-list-icon [svgIcon]="connectionItem.connection.type" class="connection__icon"></mat-icon>
                 <ng-template #defaultIcon>
                     <mat-icon mat-list-icon class="connection__icon">storage</mat-icon>
@@ -28,7 +30,7 @@
             color="accent" class="connectionsBox__addButton"
             routerLink="/connect-db"
             angulartics2On="click"
-            angularticsAction="Connections list is opened">
+            angularticsAction="Connections: Add connection button is clicked">
             {{ connections?.length ? 'Add connection' : 'Connect your database' }}
         </a>
     </div>
@@ -41,7 +43,9 @@
         <mat-nav-list class="connectionsBox__connectionsList">
             <a mat-list-item *ngFor="let testConnectionItem of testConnections" attr.data-testid="{{testConnectionItem.connection.id}}-test-connection-list-item"
                 class="connection"
-                routerLink="/dashboard/{{testConnectionItem.connection.id}}">
+                routerLink="/dashboard/{{testConnectionItem.connection.id}}"
+                angulartics2On="click"
+                angularticsAction="Connections: open test db is clicked">
                 <mat-icon mat-list-icon [svgIcon]="testConnectionItem.connection.type" class="connection__icon"></mat-icon>
                 {{ titles[testConnectionItem.connection.id] }}
                 <mat-icon class="connection__goIcon">arrow_forward</mat-icon>
