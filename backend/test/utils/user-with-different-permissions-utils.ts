@@ -3,7 +3,10 @@ import request from 'supertest';
 import { AccessLevelEnum } from '../../src/enums/index.js';
 import { MockFactory } from '../mock.factory.js';
 import { CreatedTableInfo, createTestTable } from './create-test-table.js';
-import { registerUserAndReturnUserInfo } from './register-user-and-return-user-info.js';
+import {
+  inviteUserInCompanyAndAcceptInvitation,
+  registerUserAndReturnUserInfo,
+} from './register-user-and-return-user-info.js';
 
 export async function createConnectionsAndInviteNewUserInNewGroupInFirstConnection(
   app: INestApplication,
@@ -15,7 +18,11 @@ export async function createConnectionsAndInviteNewUserInNewGroupInFirstConnecti
   };
   const mockFactory = new MockFactory();
   const connectionAdminUserInfo = await registerUserAndReturnUserInfo(app);
-  const simpleUserRegisterInfo = await registerUserAndReturnUserInfo(app);
+  const simpleUserRegisterInfo = await inviteUserInCompanyAndAcceptInvitation(
+    connectionAdminUserInfo.token,
+    undefined,
+    app,
+  );
   const connectionAdminUserToken = connectionAdminUserInfo.token;
   const simpleUserToken = simpleUserRegisterInfo.token;
 
@@ -130,7 +137,11 @@ export async function createConnectionsAndInviteNewUserInNewGroupWithGroupPermis
   };
   const mockFactory = new MockFactory();
   const connectionAdminUserInfo = await registerUserAndReturnUserInfo(app);
-  const simpleUserRegisterInfo = await registerUserAndReturnUserInfo(app);
+  const simpleUserRegisterInfo = await inviteUserInCompanyAndAcceptInvitation(
+    connectionAdminUserInfo.token,
+    undefined,
+    app,
+  );
   const connectionAdminUserToken = connectionAdminUserInfo.token;
   const simpleUserToken = simpleUserRegisterInfo.token;
 
@@ -255,7 +266,11 @@ export async function createConnectionsAndInviteNewUserInNewGroupWithOnlyTablePe
   };
   const mockFactory = new MockFactory();
   const connectionAdminUserInfo = await registerUserAndReturnUserInfo(app);
-  const simpleUserRegisterInfo = await registerUserAndReturnUserInfo(app);
+  const simpleUserRegisterInfo = await inviteUserInCompanyAndAcceptInvitation(
+    connectionAdminUserInfo.token,
+    undefined,
+    app,
+  );
   const connectionAdminUserToken = connectionAdminUserInfo.token;
   const simpleUserToken = simpleUserRegisterInfo.token;
 
@@ -380,7 +395,11 @@ export async function createConnectionsAndInviteNewUserInNewGroupWithTableDiffer
   };
   const mockFactory = new MockFactory();
   const connectionAdminUserInfo = await registerUserAndReturnUserInfo(app);
-  const simpleUserRegisterInfo = await registerUserAndReturnUserInfo(app);
+  const simpleUserRegisterInfo = await inviteUserInCompanyAndAcceptInvitation(
+    connectionAdminUserInfo.token,
+    undefined,
+    app,
+  );
   const connectionAdminUserToken = connectionAdminUserInfo.token;
   const simpleUserToken = simpleUserRegisterInfo.token;
 
@@ -505,7 +524,11 @@ export async function createConnectionsAndInviteNewUserInAdminGroupOfFirstConnec
   };
   const mockFactory = new MockFactory();
   const connectionAdminUserInfo = await registerUserAndReturnUserInfo(app);
-  const simpleUserRegisterInfo = await registerUserAndReturnUserInfo(app);
+  const simpleUserRegisterInfo = await inviteUserInCompanyAndAcceptInvitation(
+    connectionAdminUserInfo.token,
+    undefined,
+    app,
+  );
   const connectionAdminUserToken = connectionAdminUserInfo.token;
   const simpleUserToken = simpleUserRegisterInfo.token;
 

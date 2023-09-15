@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { faker } from '@faker-js/faker';
 import { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
@@ -5,13 +6,12 @@ import test from 'ava';
 import cookieParser from 'cookie-parser';
 import request from 'supertest';
 import { ApplicationModule } from '../../src/app.module.js';
-import { Constants } from '../../src/helpers/constants/constants.js';
 import { DatabaseModule } from '../../src/shared/database/database.module.js';
 import { DatabaseService } from '../../src/shared/database/database.service.js';
 import { MockFactory } from '../mock.factory.js';
-import { dropTestTables } from '../utils/drop-test-tables.js';
 import { getTestKnex } from '../utils/get-test-knex.js';
 import { TestUtils } from '../utils/test.utils.js';
+import { registerUserAndReturnUserInfo } from '../utils/register-user-and-return-user-info.js';
 
 const mockFactory = new MockFactory();
 let app: INestApplication;
@@ -85,29 +85,6 @@ type RegisterUserData = {
   password: string;
 };
 
-async function registerUserAndReturnUserInfo(): Promise<{
-  token: string;
-  email: string;
-  password: string;
-}> {
-  const adminUserRegisterInfo: RegisterUserData = {
-    email: faker.internet.email(),
-    password: 'ahalai-mahalai',
-  };
-
-  const registerAdminUserResponse = await request(app.getHttpServer())
-    .post('/user/register/')
-    .send(adminUserRegisterInfo)
-    .set('Content-Type', 'application/json')
-    .set('Accept', 'application/json');
-
-  if (registerAdminUserResponse.status > 300) {
-    console.log('registerAdminUserResponse.text -> ', registerAdminUserResponse.text);
-  }
-  const token = `${Constants.JWT_COOKIE_KEY_NAME}=${TestUtils.getJwtTokenFromResponse(registerAdminUserResponse)}`;
-  return { token: token, ...adminUserRegisterInfo };
-}
-
 function getTestData() {
   const newConnection = mockFactory.generateConnectionToTestPostgresDBInDocker();
   const newConnection2 = mockFactory.generateCreateConnectionDto2();
@@ -127,7 +104,7 @@ currentTest = 'POST /connection/properties/:slug';
 test(`${currentTest} should return created connection properties`, async (t) => {
   try {
     const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
-    const { token } = await registerUserAndReturnUserInfo();
+    const { token } = await registerUserAndReturnUserInfo(app);
 
     const createConnectionResponse = await request(app.getHttpServer())
       .post('/connection')
@@ -157,7 +134,7 @@ test(`${currentTest} should return created connection properties`, async (t) => 
 test(`${currentTest} should return connection without excluded tables`, async (t) => {
   try {
     const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
-    const { token } = await registerUserAndReturnUserInfo();
+    const { token } = await registerUserAndReturnUserInfo(app);
 
     const createConnectionResponse = await request(app.getHttpServer())
       .post('/connection')
@@ -197,7 +174,7 @@ test(`${currentTest} should return connection without excluded tables`, async (t
 test(`${currentTest} should throw an exception when excluded table name is incorrect`, async (t) => {
   try {
     const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
-    const { token } = await registerUserAndReturnUserInfo();
+    const { token } = await registerUserAndReturnUserInfo(app);
 
     const createConnectionResponse = await request(app.getHttpServer())
       .post('/connection')
@@ -229,7 +206,7 @@ currentTest = 'GET /connection/properties/:slug';
 test(`${currentTest} should return connection properties`, async (t) => {
   try {
     const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
-    const { token } = await registerUserAndReturnUserInfo();
+    const { token } = await registerUserAndReturnUserInfo(app);
 
     const createConnectionResponse = await request(app.getHttpServer())
       .post('/connection')
@@ -266,7 +243,7 @@ test(`${currentTest} should return connection properties`, async (t) => {
 test(`${currentTest} should throw exception when connection id is incorrect`, async (t) => {
   try {
     const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
-    const { token } = await registerUserAndReturnUserInfo();
+    const { token } = await registerUserAndReturnUserInfo(app);
 
     const createConnectionResponse = await request(app.getHttpServer())
       .post('/connection')
@@ -286,7 +263,7 @@ test(`${currentTest} should throw exception when connection id is incorrect`, as
     t.is(createConnectionPropertiesResponse.status, 201);
 
     const getConnectionPropertiesResponse = await request(app.getHttpServer())
-      .get(`/connection/properties/${faker.datatype.uuid()}`)
+      .get(`/connection/properties/${faker.string.uuid()}`)
       .set('Cookie', token)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
@@ -300,7 +277,7 @@ currentTest = 'DELETE /connection/properties/:slug';
 test(`${currentTest} should return deleted connection properties`, async (t) => {
   try {
     const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
-    const { token } = await registerUserAndReturnUserInfo();
+    const { token } = await registerUserAndReturnUserInfo(app);
 
     const createConnectionResponse = await request(app.getHttpServer())
       .post('/connection')
@@ -358,7 +335,7 @@ test(`${currentTest} should return deleted connection properties`, async (t) => 
 test(`${currentTest} should throw exception when connection id is incorrect`, async (t) => {
   try {
     const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
-    const { token } = await registerUserAndReturnUserInfo();
+    const { token } = await registerUserAndReturnUserInfo(app);
 
     const createConnectionResponse = await request(app.getHttpServer())
       .post('/connection')
@@ -378,7 +355,7 @@ test(`${currentTest} should throw exception when connection id is incorrect`, as
     t.is(createConnectionPropertiesResponse.status, 201);
 
     const getConnectionPropertiesResponse = await request(app.getHttpServer())
-      .get(`/connection/properties/${faker.datatype.uuid()}`)
+      .get(`/connection/properties/${faker.string.uuid()}`)
       .set('Cookie', token)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
@@ -392,7 +369,7 @@ currentTest = 'PUT /connection/properties/:slug';
 test(`${currentTest} should return updated connection properties`, async (t) => {
   try {
     const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
-    const { token } = await registerUserAndReturnUserInfo();
+    const { token } = await registerUserAndReturnUserInfo(app);
 
     const createConnectionResponse = await request(app.getHttpServer())
       .post('/connection')

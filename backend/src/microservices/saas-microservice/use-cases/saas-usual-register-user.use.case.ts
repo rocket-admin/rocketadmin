@@ -19,6 +19,8 @@ import { Messages } from '../../../exceptions/text/messages.js';
 import { Constants } from '../../../helpers/constants/constants.js';
 import { ValidationHelper } from '../../../helpers/validators/validation-helper.js';
 import { ISaasRegisterUser } from './saas-use-cases.interface.js';
+import { CompanyInfoEntity } from '../../../entities/company-info/company-info.entity.js';
+import { UserEntity } from '../../../entities/user/user.entity.js';
 
 export class SaasUsualRegisterUseCase
   extends AbstractUseCase<SaasUsualUserRegisterDS, FoundUserDs>
@@ -35,6 +37,8 @@ export class SaasUsualRegisterUseCase
     const { email, password, gclidValue, name, companyId } = userData;
     ValidationHelper.isPasswordStrongOrThrowError(password);
     const foundUser = await this._dbContext.userRepository.findOneUserByEmailAndCompanyId(email, companyId);
+    const foundCompany = await this._dbContext.companyInfoRepository.findCompanyInfoWithUsersById(companyId);
+
     if (foundUser) {
       throw new HttpException(
         {
@@ -51,6 +55,7 @@ export class SaasUsualRegisterUseCase
       name: name,
     };
     const savedUser = await this._dbContext.userRepository.saveRegisteringUser(registerUserData);
+
     const testConnections = Constants.getTestConnectionsArr();
     const testConnectionsEntities = buildConnectionEntitiesFromTestDtos(testConnections);
     const createdTestConnections = await Promise.all(
@@ -84,6 +89,14 @@ export class SaasUsualRegisterUseCase
       savedUser,
     );
     await sendEmailConfirmation(savedUser.email, createdEmailVerification.verification_string);
+
+    if (foundCompany) {
+      foundCompany.users.push(savedUser);
+      await this._dbContext.companyInfoRepository.save(foundCompany);
+    } else {
+      await this.registerEmptyCompany(savedUser, createdTestConnections, companyId);
+    }
+
     return {
       id: savedUser.id,
       createdAt: savedUser.createdAt,
@@ -95,5 +108,19 @@ export class SaasUsualRegisterUseCase
       name: savedUser.name,
       is_2fa_enabled: false,
     };
+  }
+
+  private async registerEmptyCompany(
+    savedUser: UserEntity,
+    testConnections: Array<ConnectionEntity>,
+    companyId: string,
+  ): Promise<CompanyInfoEntity> {
+    const newCompanyInfo = new CompanyInfoEntity();
+    newCompanyInfo.id = companyId;
+    newCompanyInfo.connections = [...testConnections];
+    const savedCompanyInfo = await this._dbContext.companyInfoRepository.save(newCompanyInfo);
+    savedUser.company = savedCompanyInfo;
+    await this._dbContext.userRepository.saveUserEntity(savedUser);
+    return savedCompanyInfo;
   }
 }

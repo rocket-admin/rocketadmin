@@ -19,8 +19,11 @@ export class AddCompanyIdToUserUseCase
   protected async implementation(inputData: AddRemoveCompanyIdToUserDS): Promise<void> {
     const { userId, companyId } = inputData;
     const foundUser = await this._dbContext.userRepository.findOneUserById(userId);
-    const foundCompany = await this._dbContext.companyInfoRepository.findOneBy({ id: companyId });
-    if (!foundUser || !foundCompany) {
+    const foundCompanyWithUsers = await this._dbContext.companyInfoRepository.findOne({
+      where: { id: companyId },
+      relations: ['users'],
+    });
+    if (!foundUser || !foundCompanyWithUsers) {
       throw new HttpException(
         {
           message: 'Required entity not found',
@@ -28,8 +31,10 @@ export class AddCompanyIdToUserUseCase
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
-
-    foundUser.company = foundCompany;
-    await this._dbContext.userRepository.saveUserEntity(foundUser);
+    const userAlreadyInCompany = !!foundCompanyWithUsers.users.find((user) => user.id === foundUser.id);
+    if (!userAlreadyInCompany) {
+      foundCompanyWithUsers.users.push(foundUser);
+      await this._dbContext.companyInfoRepository.save(foundCompanyWithUsers);
+    }
   }
 }

@@ -155,7 +155,7 @@ test(`${currentTest} should throw an error when connection id is incorrect`, asy
     const createConnectionRO = JSON.parse(createConnectionResponse.text);
 
     t.is(createConnectionResponse.status, 201);
-    createConnectionRO.id = faker.datatype.uuid();
+    createConnectionRO.id = faker.string.uuid();
     const getTablesResponse = await request(app.getHttpServer())
       .get(`/connection/tables/${createConnectionRO.id}`)
       .set('Cookie', firstUserToken)
@@ -1642,7 +1642,7 @@ test(`${currentTest} should throw an exception when connection id passed in requ
     const fieldGtvalue = '25';
     const fieldLtvalue = '40';
 
-    createConnectionRO.id = faker.datatype.uuid();
+    createConnectionRO.id = faker.string.uuid();
     const getTableRowsResponse = await request(app.getHttpServer())
       .get(
         `/table/rows/${createConnectionRO.id}?tableName=${testTableName}&search=${testSearchedUserName}&page=1&perPage=2&f_${fieldname}__lt=${fieldLtvalue}&f_${fieldname}__gt=${fieldGtvalue}`,
@@ -1706,7 +1706,7 @@ test(`${currentTest} should throw an exception when table name passed in request
     const fieldGtvalue = '25';
     const fieldLtvalue = '40';
 
-    const fakeTableName = `${faker.lorem.words(1)}_${faker.datatype.uuid()}`;
+    const fakeTableName = `${faker.lorem.words(1)}_${faker.string.uuid()}`;
     const getTableRowsResponse = await request(app.getHttpServer())
       .get(
         `/table/rows/${createConnectionRO.id}?tableName=${fakeTableName}&search=${testSearchedUserName}&page=1&perPage=2&f_${fieldname}__lt=${fieldLtvalue}&f_${fieldname}__gt=${fieldGtvalue}`,
@@ -1887,7 +1887,7 @@ test(`${currentTest} should throw an exception whe connection id passed in reque
   const createConnectionRO = JSON.parse(createConnectionResponse.text);
   t.is(createConnectionResponse.status, 201);
 
-  createConnectionRO.id = faker.datatype.uuid();
+  createConnectionRO.id = faker.string.uuid();
   const getTableStructure = await request(app.getHttpServer())
     .get(`/table/structure/${createConnectionRO.id}?tableName=${testTableName}`)
     .set('Cookie', firstUserToken)
@@ -2204,7 +2204,7 @@ test(`${currentTest} should throw an exception when table name passed in request
     [testTableSecondColumnName]: fakeMail,
   };
 
-  const fakeTableName = `${faker.lorem.words(1)}_${faker.datatype.uuid()}`;
+  const fakeTableName = `${faker.lorem.words(1)}_${faker.string.uuid()}`;
   const addRowInTableResponse = await request(app.getHttpServer())
     .post(`/table/row/${createConnectionRO.id}?tableName=${fakeTableName}`)
     .send(JSON.stringify(row))
@@ -2364,7 +2364,7 @@ test(`${currentTest} should throw an exception when connection id passed in requ
     [testTableSecondColumnName]: fakeMail,
   };
 
-  createConnectionRO.id = faker.datatype.uuid();
+  createConnectionRO.id = faker.string.uuid();
   const updateRowInTableResponse = await request(app.getHttpServer())
     .put(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&id=1`)
     .send(JSON.stringify(row))
@@ -2402,7 +2402,7 @@ test(`${currentTest} should throw an exception when tableName not passed in requ
     [testTableSecondColumnName]: fakeMail,
   };
 
-  createConnectionRO.id = faker.datatype.uuid();
+  createConnectionRO.id = faker.string.uuid();
   const updateRowInTableResponse = await request(app.getHttpServer())
     .put(`/table/row/${createConnectionRO.id}?tableName=&id=1`)
     .send(JSON.stringify(row))
@@ -2440,7 +2440,7 @@ test(`${currentTest} should throw an exception when tableName passed in request 
     [testTableSecondColumnName]: fakeMail,
   };
 
-  const fakeTableName = faker.datatype.uuid();
+  const fakeTableName = faker.string.uuid();
   const updateRowInTableResponse = await request(app.getHttpServer())
     .put(`/table/row/${createConnectionRO.id}?tableName=${fakeTableName}&id=1`)
     .send(JSON.stringify(row))
@@ -2682,7 +2682,7 @@ test(`${currentTest} should throw an exception when connection id passed in requ
   t.is(createConnectionResponse.status, 201);
 
   const idForDeletion = 1;
-  const connectionId = faker.datatype.uuid();
+  const connectionId = faker.string.uuid();
   const deleteRowInTableResponse = await request(app.getHttpServer())
     .delete(`/table/row/${connectionId}?tableName=${testTableName}&id=${idForDeletion}`)
     .set('Cookie', firstUserToken)
@@ -2782,7 +2782,7 @@ test(`${currentTest} should throw an exception when tableName passed in request 
   t.is(createConnectionResponse.status, 201);
 
   const idForDeletion = 1;
-  const fakeTableName = `${faker.lorem.words(1)}_${faker.datatype.uuid()}`;
+  const fakeTableName = `${faker.lorem.words(1)}_${faker.string.uuid()}`;
   const deleteRowInTableResponse = await request(app.getHttpServer())
     .delete(`/table/row/${createConnectionRO.id}?tableName=${fakeTableName}&id=${idForDeletion}`)
     .set('Cookie', firstUserToken)
@@ -3028,7 +3028,7 @@ test(`${currentTest} should throw an exception, when connection id passed in req
   t.is(createConnectionResponse.status, 201);
 
   const idForSearch = 1;
-  createConnectionRO.id = faker.datatype.uuid();
+  createConnectionRO.id = faker.string.uuid();
   const foundRowInTableResponse = await request(app.getHttpServer())
     .get(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&id=${idForSearch}`)
     .set('Cookie', firstUserToken)
@@ -3088,7 +3088,7 @@ test(`${currentTest} should throw an exception, when tableName passed in request
   t.is(createConnectionResponse.status, 201);
 
   const idForSearch = 1;
-  const fakeTableName = `${faker.lorem.words(1)}_${faker.datatype.uuid()}`;
+  const fakeTableName = `${faker.lorem.words(1)}_${faker.string.uuid()}`;
   const foundRowInTableResponse = await request(app.getHttpServer())
     .get(`/table/row/${createConnectionRO.id}?tableName=${fakeTableName}&id=${idForSearch}`)
     .set('Cookie', firstUserToken)

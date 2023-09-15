@@ -191,7 +191,7 @@ test.serial(`${currentTest} should throw exception when connection id passed in 
   t.is(createConnectionResponse.status, 201);
   const newCustomField = mockFactory.generateCustomFieldForConnectionTable('id', 'title');
 
-  createConnectionRO.id = faker.datatype.uuid();
+  createConnectionRO.id = faker.string.uuid();
 
   const createCustomFieldResponse = await request(app.getHttpServer())
     .post(`/field/${createConnectionRO.id}?tableName=connection`)
@@ -511,7 +511,7 @@ test.serial(`${currentTest} should throw exception when connection id passed in 
 
   t.is(createConnectionResponse.status, 201);
   const newCustomField = mockFactory.generateCustomFieldForConnectionTable('id', 'title');
-  createConnectionRO.id = faker.datatype.uuid();
+  createConnectionRO.id = faker.string.uuid();
   const createCustomFieldResponse = await request(app.getHttpServer())
     .post(`/field/${createConnectionRO.id}?tableName=connection`)
     .send(newCustomField)
@@ -754,7 +754,7 @@ test.serial(`${currentTest} should throw exception, when connection id passed in
     text: 'updated',
     template_string: 'https//?connectionId={{id}}&connectionType={{type}}',
   };
-  createConnectionRO.id = faker.datatype.uuid();
+  createConnectionRO.id = faker.string.uuid();
   const updateCustomFieldResponse = await request(app.getHttpServer())
     .put(`/field/${createConnectionRO.id}?tableName=connection`)
     .send(updateDTO)
@@ -1499,7 +1499,7 @@ test.serial(`${currentTest} should throw exception, when connection id passed in
   t.is(getCustomFieldsRO[0].text, newCustomField.text);
   t.is(getCustomFieldsRO[0].template_string, 'https//?connectionId={{id}}&connectionTitle={{title}}');
 
-  createConnectionRO.id = faker.datatype.uuid();
+  createConnectionRO.id = faker.string.uuid();
   const deleteCustomField = await request(app.getHttpServer())
     .delete(`/field/${createConnectionRO.id}?tableName=connection&id=${getCustomFieldsRO[0].id}`)
     .set('Content-Type', 'application/json')
@@ -1715,7 +1715,7 @@ test.serial(`${currentTest} should throw exception, when field id passed in requ
   t.is(getCustomFieldsRO[0].text, newCustomField.text);
   t.is(getCustomFieldsRO[0].template_string, 'https//?connectionId={{id}}&connectionTitle={{title}}');
 
-  getCustomFieldsRO[0].id = faker.datatype.uuid();
+  getCustomFieldsRO[0].id = faker.string.uuid();
   const deleteCustomField = await request(app.getHttpServer())
     .delete(`/field/${createConnectionRO.id}?tableName=connection&id=${getCustomFieldsRO[0].id}`)
     .set('Content-Type', 'application/json')

@@ -10,9 +10,10 @@ import { SaasUsualRegisterUseCase } from './use-cases/saas-usual-register-user.u
 import { LoginWithGoogleUseCase } from './use-cases/login-with-google.use.case.js';
 import { GetUserInfoByGitHubIdUseCase } from './use-cases/get-user-info-by-githubid.use.case.js';
 import { LoginUserWithGithubUseCase } from './use-cases/login-with-github.use.case.js';
-import { UpdateUserStripeCustomerIdUseCase } from './use-cases/update-user-stripe-customer-id.use.case.js';
+import { UpdateUserStripeCustomerIdUseCase } from './use-cases/UpdateUserStripeCustomerIdUseCase.js';
 import { AddCompanyIdToUserUseCase } from './use-cases/add-company-id-to-user-use.case.js';
 import { RemoveCompanyIdFromUserUseCase } from './use-cases/remove-company-id-from-user.use.case.js';
+import { SaasRegisterInvitedUserUseCase } from './use-cases/register-invited-user-use.case.js';
 
 @Module({
   imports: [],
@@ -60,7 +61,11 @@ import { RemoveCompanyIdFromUserUseCase } from './use-cases/remove-company-id-fr
     {
       provide: UseCaseType.SAAS_REMOVE_COMPANY_ID_FROM_USER,
       useClass: RemoveCompanyIdFromUserUseCase,
-    }
+    },
+    {
+      provide: UseCaseType.SAAS_REGISTER_INVITED_USER,
+      useClass: SaasRegisterInvitedUserUseCase,
+    },
   ],
   controllers: [SaasController],
   exports: [],
@@ -79,6 +84,7 @@ export class SaasModule {
         { path: 'saas/user/github/login', method: RequestMethod.POST },
         { path: 'saas/user/:userId/stripe', method: RequestMethod.PUT },
         { path: 'saas/user/:userId/company/:companyId', method: RequestMethod.PUT },
+        { path: 'sass/user/register/invite', method: RequestMethod.POST },
       );
   }
 }

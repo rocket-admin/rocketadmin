@@ -24,7 +24,9 @@ export const userCustomRepositoryExtension: IUserRepository = {
   },
 
   async findOneUserById(userId: string): Promise<UserEntity | null> {
-    const userQb = this.createQueryBuilder('user').andWhere('user.id = :userId', { userId: userId });
+    const userQb = this.createQueryBuilder('user')
+      .leftJoinAndSelect('user.company', 'company')
+      .andWhere('user.id = :userId', { userId: userId });
     return await userQb.getOne();
   },
 
@@ -47,11 +49,18 @@ export const userCustomRepositoryExtension: IUserRepository = {
     return await usersQb.getOne();
   },
 
-  async findUserByEmailWithEmailVerificationAndInvitation(email: string): Promise<UserEntity> {
+  async findUserByEmailEndCompanyIdWithEmailVerificationAndInvitation(
+    email: string,
+    companyId?: string,
+  ): Promise<UserEntity> {
     const usersQb = this.createQueryBuilder('user')
       .leftJoinAndSelect('user.email_verification', 'email_verification')
       .leftJoinAndSelect('user.user_invitation', 'user_invitation')
+      .leftJoinAndSelect('user.company', 'company')
       .where('user.email = :userEmail', { userEmail: email });
+    if (companyId) {
+      usersQb.andWhere('company.id = :companyId', { companyId: companyId });
+    }
     return await usersQb.getOne();
   },
 
@@ -122,10 +131,10 @@ export const userCustomRepositoryExtension: IUserRepository = {
     return await userQb.getOne();
   },
 
-  async findOneUserByEmailAndCompanyId(email: string, companyId: string): Promise<UserEntity> {
+  async findOneUserByEmailAndCompanyId(userEmail: string, companyId: string): Promise<UserEntity> {
     const userQb = this.createQueryBuilder('user')
       .leftJoinAndSelect('user.company', 'company')
-      .where('user.email = :userEmail', { userEmail: email });
+      .where('user.email = :userEmail', { userEmail: userEmail });
     if (companyId) {
       userQb.andWhere('company.id = :companyId', { companyId: companyId });
     } else {

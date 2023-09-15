@@ -9,6 +9,7 @@ import {
   IGetUserInfoByEmail,
   ILoginUserWithGitHub,
   ILoginUserWithGoogle,
+  ISaaSRegisterInvitedUser,
   ISaasRegisterUser,
   IUpdateUserStripeCustomerId,
 } from './use-cases/saas-use-cases.interface.js';
@@ -41,6 +42,8 @@ export class SaasController {
     private readonly addCompanyIdToUserUseCase: IAddOrRemoveCompanyIdToUser,
     @Inject(UseCaseType.SAAS_REMOVE_COMPANY_ID_FROM_USER)
     private readonly removeCompanyIdFromUserUserUseCase: IAddOrRemoveCompanyIdToUser,
+    @Inject(UseCaseType.SAAS_REGISTER_INVITED_USER)
+    private readonly registerInvitedUserUseCase: ISaaSRegisterInvitedUser,
   ) {}
 
   @Post('/company/registered')
@@ -84,6 +87,16 @@ export class SaasController {
   ): Promise<FoundUserDs> {
     companyId = companyId ? companyId : null;
     return await this.usualRegisterUserUseCase.execute({ email, password, gclidValue, name, companyId });
+  }
+
+  @Post('/user/register/invite')
+  async registerInvitedUser(
+    @Body('email') email: string,
+    @Body('password') password: string,
+    @Body('name') name: string,
+    @Body('companyId') companyId: string,
+  ): Promise<FoundUserDs> {
+    return await this.registerInvitedUserUseCase.execute({ email, password, name, companyId });
   }
 
   @Post('user/google/login')

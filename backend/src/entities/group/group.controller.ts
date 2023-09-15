@@ -26,18 +26,18 @@ import { SentryInterceptor } from '../../interceptors/index.js';
 import { AmplitudeService } from '../amplitude/amplitude.service.js';
 import { FoundUserInGroupDs } from '../user/application/data-structures/found-user-in-group.ds.js';
 import { IToken, ITokenExp } from '../user/utils/generate-gwt-token.js';
-import { AddUserInGroupDs } from './application/data-sctructures/add-user-in-group.ds.js';
+import { AddUserInGroupDs, AddUserInGroupWithSaaSDs } from './application/data-sctructures/add-user-in-group.ds.js';
 import { AddedUserInGroupDs } from './application/data-sctructures/added-user-in-group.ds.js';
 import { DeletedGroupResultDs } from './application/data-sctructures/deleted-group-result.ds.js';
 import { FoundUserGroupsDs } from './application/data-sctructures/found-user-groups.ds.js';
 import { RemoveUserFromGroupResultDs } from './application/data-sctructures/remove-user-from-group-result.ds.js';
 import { VerifyAddUserInGroupDs } from './application/data-sctructures/verify-add-user-in-group.ds.js';
 import {
-  IAddUserInGroup,
   IDeleteGroup,
   IFindAllUsersInGroup,
   IFindUserGroups,
   IRemoveUserFromGroup,
+  ISaaSAddUserInGroup,
   IVerifyAddUserInGroup,
 } from './use-cases/use-cases.interfaces.js';
 
@@ -47,7 +47,7 @@ import {
 export class GroupController {
   constructor(
     @Inject(UseCaseType.INVITE_USER_IN_GROUP)
-    private readonly addUserInGroupUseCase: IAddUserInGroup,
+    private readonly addUserInGroupUseCase: ISaaSAddUserInGroup,
     @Inject(UseCaseType.VERIFY_INVITE_USER_IN_GROUP)
     private readonly verifyAddUserInGroupUseCase: IVerifyAddUserInGroup,
     @Inject(UseCaseType.FIND_ALL_USER_GROUPS)
@@ -90,6 +90,8 @@ export class GroupController {
     @BodyEmail() email: string,
     @BodyUuid('groupId') groupId: string,
     @UserId() userId: string,
+    @Body('companyId') companyId: string,
+    @Body('role') userSaasRole: string,
   ): Promise<AddedUserInGroupDs> {
     if (!email || email.length <= 0) {
       throw new HttpException(
@@ -110,8 +112,15 @@ export class GroupController {
     }
     Cacher.increaseUserInvitationsCacheCount(userId);
     Cacher.increaseGroupInvitationsCacheCount(groupId);
+    const inputData: AddUserInGroupWithSaaSDs = {
+      companyId: companyId,
+      email: email,
+      groupId: groupId,
+      userSaasRole: userSaasRole,
+      inviterId: userId,
+    };
     try {
-      return await this.addUserInGroupUseCase.execute({ email, groupId }, InTransactionEnum.ON);
+      return await this.addUserInGroupUseCase.execute(inputData, InTransactionEnum.ON);
     } catch (e) {
       throw e;
     } finally {
