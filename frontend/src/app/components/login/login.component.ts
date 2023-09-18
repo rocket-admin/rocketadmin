@@ -61,7 +61,7 @@ export class LoginComponent implements OnInit {
         });
       }, (error) => {
         this.angulartics2.eventTrack.next({
-          action: 'Login: login unsuccess'
+          action: 'Login: login unsuccessful'
         });
         this.submitting = false;
       }, () => this.submitting = false)
@@ -77,7 +77,7 @@ export class LoginComponent implements OnInit {
         });
       }, (error) => {
         this.angulartics2.eventTrack.next({
-          action: 'Login: login with 2fa unsuccess'
+          action: 'Login: login with 2fa unsuccessful'
         });
         this.submitting = false;
       }, () => this.submitting = false)

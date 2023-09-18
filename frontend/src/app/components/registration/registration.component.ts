@@ -70,7 +70,7 @@ export class RegistrationComponent implements OnInit {
       });
     }, (error) => {
       this.angulartics2.eventTrack.next({
-        action: 'Reg: sing up unsuccess'
+        action: 'Reg: sing up unsuccessful'
       });
       this.submitting = false;
     }, () => this.submitting = false)

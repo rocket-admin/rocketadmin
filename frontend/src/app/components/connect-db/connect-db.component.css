@@ -103,9 +103,24 @@
     resize: none;
 }
 
+.test-connection-actions {
+    grid-column: 1 / span 4;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    margin-top: 16px;
+}
+
+.test-connection-message {
+    color: rgba(0, 0, 0, 0.54);
+    margin-bottom: 4px;
+}
+
 .actions {
     grid-column: 1 / span 4;
     display: flex;
+    align-items: center;
     justify-content: flex-end;
     margin-top: 12px;
 }
@@ -126,13 +141,8 @@
     margin-left: 8px;
 }
 
-.instruction {
-    margin-bottom: 36px;
-}
-
 .instruction-steps {
     list-style-position: inside;
-    margin-bottom: 24px;
 }
 
 .instruction-step {

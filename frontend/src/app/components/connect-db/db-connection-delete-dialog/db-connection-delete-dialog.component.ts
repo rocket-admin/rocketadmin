@@ -37,13 +37,13 @@ export class DbConnectionDeleteDialogComponent implements OnInit {
     this._connectionsService.deleteConnection(this.data.id, metadata)
       .subscribe(() => {
         this.angulartics2.eventTrack.next({
-          action: 'Delete connection',
-          properties: {
-            id: this.data.id,
-            title: this.data.title || null,
-            reason: this.reason,
-            message: this.message
-          }
+          action: 'Connect DB: connection is deleted',
+            properties: {
+              id: this.data.id,
+              title: this.data.title || null,
+              reason: this.reason,
+              message: this.message
+            }
         });
         this.submitting = false;
         this.router.navigate([`/connections-list`]);

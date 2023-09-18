@@ -1,5 +1,5 @@
 import { AlertActionType, AlertType } from '../models/alert';
-import { BehaviorSubject, EMPTY } from 'rxjs';
+import { BehaviorSubject, EMPTY, throwError } from 'rxjs';
 import { Connection, ConnectionSettings, ConnectionType, DBtype } from '../models/connection';
 import { IColorConfig, NgxThemeService } from '@brumeilde/ngx-theme';
 import { NavigationEnd, ResolveEnd, Router, RouterEvent } from '@angular/router';
@@ -268,7 +268,7 @@ export class ConnectionsService {
       catchError((err) => {
         console.log(err);
         this._notifications.showAlert(AlertType.Error, {abstract: err.error.message, details: err.error.originalMessage}, []);
-        return EMPTY;
+        return throwError(() => new Error(err.error.message));
       }
       )
     );
@@ -302,7 +302,8 @@ export class ConnectionsService {
           }
         ]);
         // this._notifications.showErrorSnackbar(`${err.error.message}. Connection has not been updated.`);
-        return EMPTY;
+        console.log('updateConnection catchError');
+        return throwError(() => new Error(err.error.message));
       }
       )
     );
