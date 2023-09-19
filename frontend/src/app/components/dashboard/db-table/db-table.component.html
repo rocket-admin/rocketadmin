@@ -36,20 +36,20 @@
                 <a mat-button *ngIf="tableData && tableData.permissions && tableData.permissions.add && (!tableData.isEmptyTable || searchString || getFiltersCount(activeFilters))"
                     routerLink="/dashboard/{{connectionID}}/{{name}}/entry"
                     angulartics2On="click"
-                    angularticsAction="Tables: add row page is opened">
+                    angularticsAction="Dashboard: add row is clicked">
                     Add row
                 </a>
                 <a mat-button *ngIf="accessLevel === 'edit'"
                     routerLink="/dashboard/{{connectionID}}/{{name}}/settings"
                     angulartics2On="click"
-                    angularticsAction="Tables: settings dialog is opened">
+                    angularticsAction="Dashboard: settings is clicked">
                     Settings
                 </a>
                 <a mat-button *ngIf="accessLevel === 'edit' && tableData"
                     routerLink="/dashboard/{{connectionID}}/{{name}}/widgets"
                     [ngClass]="{'action_active': tableData.widgetsCount}"
                     angulartics2On="click"
-                    angularticsAction="Tables: widgets page is opened">
+                    angularticsAction="Dashboard: widgets is clicked">
                     Widgets
                 </a>
                 <div [matTooltip]="!tableData.keyAttributes?.length ? 'Add primary keys to create custom actions for rows.' : null">
@@ -57,7 +57,7 @@
                         routerLink="/dashboard/{{connectionID}}/{{name}}/actions"
                         [disabled]="!tableData.keyAttributes?.length"
                         angulartics2On="click"
-                        angularticsAction="Tables: actions page is opened">
+                        angularticsAction="Dashboard: actions is clicked">
                         Actions
                         <mat-icon *ngIf="!tableData.keyAttributes?.length">
                             info_outline
@@ -67,7 +67,7 @@
 
                 <button mat-button [ngClass]="{'action_active': getFiltersCount(activeFilters)}"
                     angulartics2On="click"
-                    angularticsAction="Tables: settings dialog is opened"
+                    angularticsAction="Dashboard: filters is clicked"
                     (click)="handleOpenFilters()">
                     Filter
                 </button>
@@ -190,13 +190,13 @@
                         routerLink="/dashboard/{{connectionID}}/{{name}}/entry"
                         [queryParams]="tableData.getQueryParams(element)"
                         angulartics2On="click"
-                        angularticsAction="Tables: edit row is opened"
+                        angularticsAction="Dashboard: edit row is clicked"
                         matTooltip="Edit row">
                         <mat-icon>create</mat-icon>
                     </a>
                     <button type="button" mat-icon-button *ngIf="tableData.permissions.delete"
                         angulartics2On="click"
-                        angularticsAction="Tables: delete row is opened"
+                        angularticsAction="Dashboard: delete row is clicked"
                         matTooltip="Delete row"
                         (click)="activateAction.emit({action: {title: 'Delete row', type: 'multiple',  requireConfirmation: true}, primaryKeys: tableData.getQueryParams(element), identityFieldValue: element[tableData.identityColumn]})">
                         <mat-icon>delete</mat-icon>
@@ -218,7 +218,7 @@
         <a mat-button color="accent"
             routerLink="/dashboard/{{connectionID}}/{{name}}/entry"
             angulartics2On="click"
-            angularticsAction="Tables: add row page is opened">
+            angularticsAction="Dashboard: add row is clicked">
             <mat-icon>add</mat-icon>
             Add row
         </a>
