@@ -30,7 +30,6 @@ export class UserEntity {
   id: string;
 
   @Column({ default: null })
-  @IsEmail()
   email: string;
 
   @Column({ default: null })
