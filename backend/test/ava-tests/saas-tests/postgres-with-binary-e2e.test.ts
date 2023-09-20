@@ -1,28 +1,25 @@
+/* eslint-disable security/detect-object-injection */
+/* eslint-disable prefer-const */
 import { faker } from '@faker-js/faker';
 import { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import test from 'ava';
 import cookieParser from 'cookie-parser';
 import request from 'supertest';
-import { ApplicationModule } from '../../src/app.module.js';
-import { LogOperationTypeEnum, QueryOrderingEnum } from '../../src/enums/index.js';
-import { AllExceptionsFilter } from '../../src/exceptions/all-exceptions.filter.js';
-import { Messages } from '../../src/exceptions/text/messages.js';
-import { Constants } from '../../src/helpers/constants/constants.js';
-import { DatabaseModule } from '../../src/shared/database/database.module.js';
-import { DatabaseService } from '../../src/shared/database/database.service.js';
-import { MockFactory } from '../mock.factory.js';
-import { getTestData } from '../utils/get-test-data.js';
-import { registerUserAndReturnUserInfo } from '../utils/register-user-and-return-user-info.js';
-import { TestUtils } from '../utils/test.utils.js';
-import { getTestKnex } from '../utils/get-test-knex.js';
-import { binaryToHex, hexToBinary } from '../../src/helpers/binary-to-hex.js';
+import { ApplicationModule } from '../../../src/app.module.js';
+import { AllExceptionsFilter } from '../../../src/exceptions/all-exceptions.filter.js';
+import { DatabaseModule } from '../../../src/shared/database/database.module.js';
+import { DatabaseService } from '../../../src/shared/database/database.service.js';
+import { MockFactory } from '../../mock.factory.js';
+import { getTestData } from '../../utils/get-test-data.js';
+import { registerUserAndReturnUserInfo } from '../../utils/register-user-and-return-user-info.js';
+import { TestUtils } from '../../utils/test.utils.js';
+import { getTestKnex } from '../../utils/get-test-knex.js';
+import { hexToBinary } from '../../../src/helpers/binary-to-hex.js';
 
 const mockFactory = new MockFactory();
 let app: INestApplication;
 let testUtils: TestUtils;
-const testSearchedUserName = 'Vasia';
-const testTables: Array<string> = [];
 let currentTest;
 
 test.before(async () => {

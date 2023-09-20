@@ -7,21 +7,21 @@ import { Test } from '@nestjs/testing';
 import test from 'ava';
 import cookieParser from 'cookie-parser';
 import request from 'supertest';
-import { ApplicationModule } from '../../src/app.module.js';
-import { LogOperationTypeEnum, QueryOrderingEnum } from '../../src/enums/index.js';
-import { AllExceptionsFilter } from '../../src/exceptions/all-exceptions.filter.js';
-import { Messages } from '../../src/exceptions/text/messages.js';
-import { Constants } from '../../src/helpers/constants/constants.js';
-import { DatabaseModule } from '../../src/shared/database/database.module.js';
-import { DatabaseService } from '../../src/shared/database/database.service.js';
-import { MockFactory } from '../mock.factory.js';
-import { getTestData } from '../utils/get-test-data.js';
-import { registerUserAndReturnUserInfo } from '../utils/register-user-and-return-user-info.js';
-import { TestUtils } from '../utils/test.utils.js';
+import { ApplicationModule } from '../../../src/app.module.js';
+import { LogOperationTypeEnum, QueryOrderingEnum } from '../../../src/enums/index.js';
+import { AllExceptionsFilter } from '../../../src/exceptions/all-exceptions.filter.js';
+import { Messages } from '../../../src/exceptions/text/messages.js';
+import { Constants } from '../../../src/helpers/constants/constants.js';
+import { DatabaseModule } from '../../../src/shared/database/database.module.js';
+import { DatabaseService } from '../../../src/shared/database/database.service.js';
+import { MockFactory } from '../../mock.factory.js';
+import { getTestData } from '../../utils/get-test-data.js';
+import { registerUserAndReturnUserInfo } from '../../utils/register-user-and-return-user-info.js';
+import { TestUtils } from '../../utils/test.utils.js';
 import knex from 'knex';
-import { getRandomConstraintName, getRandomTestTableName } from '../utils/get-random-test-table-name.js';
+import { getRandomConstraintName, getRandomTestTableName } from '../../utils/get-random-test-table-name.js';
 import { ERROR_MESSAGES } from '@rocketadmin/shared-code/dist/src/helpers/errors/error-messages.js';
-import { ErrorsMessages } from '../../src/exceptions/custom-exceptions/messages/custom-errors-messages.js';
+import { ErrorsMessages } from '../../../src/exceptions/custom-exceptions/messages/custom-errors-messages.js';
 
 const mockFactory = new MockFactory();
 let app: INestApplication;
@@ -49,7 +49,7 @@ test.before(async () => {
   await app.init();
   app.getHttpServer().listen(0);
   firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-  connectionToTestDB = getTestData(mockFactory).oracleCliConnection;
+  connectionToTestDB = getTestData(mockFactory).mysqlCliConnection;
   const createConnectionResponse = await request(app.getHttpServer())
     .post('/connection')
     .send(connectionToTestDB)
@@ -66,16 +66,16 @@ test('should run', (t) => {
 });
 
 test.beforeEach('restDatabase', async (t) => {
-  const host = 'test-oracle-e2e-testing';
-  const port = 1521;
-  const sid = 'XE';
+  const host = 'testMySQL-e2e-testing';
+  const port = 3306;
   const Knex = knex({
-    client: 'oracledb',
+    client: 'mysql2',
     connection: {
-      user: 'SYSTEM',
-      database: 'XEPDB1',
-      password: '12345',
-      connectString: `${host}:${port}/${sid ? sid : ''}`,
+      user: 'root',
+      database: 'testDB',
+      password: '123',
+      port: port,
+      host: host,
     },
   });
 
@@ -124,7 +124,6 @@ test(`${currentTest} should return list of tables in connection`, async (t) => {
       .set('Accept', 'application/json');
     const createConnectionRO = JSON.parse(createConnectionResponse.text);
     t.is(createConnectionResponse.status, 201);
-
     const getTablesResponse = await request(app.getHttpServer())
       .get(`/connection/tables/${createConnectionRO.id}`)
       .set('Cookie', firstUserToken)
@@ -257,6 +256,7 @@ test(`${currentTest} should return rows of selected table with search and withou
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
     const createConnectionRO = JSON.parse(createConnectionResponse.text);
+
     t.is(createConnectionResponse.status, 201);
 
     const createTableSettingsDTO = mockFactory.generateTableSettings(

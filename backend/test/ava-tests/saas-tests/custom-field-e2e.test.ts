@@ -1,20 +1,21 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Test } from '@nestjs/testing';
-import { ApplicationModule } from '../../src/app.module.js';
-import { DatabaseModule } from '../../src/shared/database/database.module.js';
-import { DatabaseService } from '../../src/shared/database/database.service.js';
-import { TestUtils } from '../utils/test.utils.js';
+import { ApplicationModule } from '../../../src/app.module.js';
+import { DatabaseModule } from '../../../src/shared/database/database.module.js';
+import { DatabaseService } from '../../../src/shared/database/database.service.js';
+import { TestUtils } from '../../utils/test.utils.js';
 import cookieParser from 'cookie-parser';
 import { INestApplication } from '@nestjs/common';
-import { MockFactory } from '../mock.factory.js';
-import { Encryptor } from '../../src/helpers/encryption/encryptor.js';
+import { MockFactory } from '../../mock.factory.js';
+import { Encryptor } from '../../../src/helpers/encryption/encryptor.js';
 import test from 'ava';
-import { registerUserAndReturnUserInfo } from '../utils/register-user-and-return-user-info.js';
-import { getTestData } from '../utils/get-test-data.js';
+import { registerUserAndReturnUserInfo } from '../../utils/register-user-and-return-user-info.js';
+import { getTestData } from '../../utils/get-test-data.js';
 import request from 'supertest';
-import { replaceTextInCurlies } from '../../src/helpers/index.js';
+import { replaceTextInCurlies } from '../../../src/helpers/index.js';
 import { faker } from '@faker-js/faker';
-import { Messages } from '../../src/exceptions/text/messages.js';
-import { AllExceptionsFilter } from '../../src/exceptions/all-exceptions.filter.js';
+import { Messages } from '../../../src/exceptions/text/messages.js';
+import { AllExceptionsFilter } from '../../../src/exceptions/all-exceptions.filter.js';
 
 let app: INestApplication;
 let testUtils: TestUtils;

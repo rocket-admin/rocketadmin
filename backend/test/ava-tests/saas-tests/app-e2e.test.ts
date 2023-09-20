@@ -1,11 +1,11 @@
 import test from 'ava';
 import { Test } from '@nestjs/testing';
-import { ApplicationModule } from '../../src/app.module.js';
-import { DatabaseModule } from '../../src/shared/database/database.module.js';
-import { DatabaseService } from '../../src/shared/database/database.service.js';
+
 import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
-import { registerUserOnSaasAndReturnUserInfo } from '../utils/register-user-and-return-user-info.js';
+import { ApplicationModule } from '../../../src/app.module.js';
+import { DatabaseService } from '../../../src/shared/database/database.service.js';
+import { DatabaseModule } from '../../../src/shared/database/database.module.js';
 
 let app: INestApplication;
 

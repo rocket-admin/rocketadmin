@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { faker } from '@faker-js/faker';
 import { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
@@ -5,16 +6,16 @@ import test from 'ava';
 import cookieParser from 'cookie-parser';
 import knex from 'knex';
 import request from 'supertest';
-import { ApplicationModule } from '../../src/app.module.js';
-import { TableActionEntity } from '../../src/entities/table-actions/table-action.entity.js';
-import { AllExceptionsFilter } from '../../src/exceptions/all-exceptions.filter.js';
-import { Messages } from '../../src/exceptions/text/messages.js';
-import { Cacher } from '../../src/helpers/cache/cacher.js';
-import { DatabaseModule } from '../../src/shared/database/database.module.js';
-import { DatabaseService } from '../../src/shared/database/database.service.js';
-import { MockFactory } from '../mock.factory.js';
-import { registerUserAndReturnUserInfo } from '../utils/register-user-and-return-user-info.js';
-import { TestUtils } from '../utils/test.utils.js';
+import { ApplicationModule } from '../../../src/app.module.js';
+import { TableActionEntity } from '../../../src/entities/table-actions/table-action.entity.js';
+import { AllExceptionsFilter } from '../../../src/exceptions/all-exceptions.filter.js';
+import { Messages } from '../../../src/exceptions/text/messages.js';
+import { Cacher } from '../../../src/helpers/cache/cacher.js';
+import { DatabaseModule } from '../../../src/shared/database/database.module.js';
+import { DatabaseService } from '../../../src/shared/database/database.service.js';
+import { MockFactory } from '../../mock.factory.js';
+import { registerUserAndReturnUserInfo } from '../../utils/register-user-and-return-user-info.js';
+import { TestUtils } from '../../utils/test.utils.js';
 
 const mockFactory = new MockFactory();
 let app: INestApplication;

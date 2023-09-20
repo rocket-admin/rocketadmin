@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
 import { AccessLevelEnum } from '../../src/enums/index.js';

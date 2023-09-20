@@ -1,22 +1,23 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { INestApplication } from '@nestjs/common';
-import { TestUtils } from '../utils/test.utils.js';
-import { MockFactory } from '../mock.factory.js';
+import { TestUtils } from '../../utils/test.utils.js';
+import { MockFactory } from '../../mock.factory.js';
 import test from 'ava';
 import { Test } from '@nestjs/testing';
-import { ApplicationModule } from '../../src/app.module.js';
-import { DatabaseModule } from '../../src/shared/database/database.module.js';
-import { DatabaseService } from '../../src/shared/database/database.service.js';
+import { ApplicationModule } from '../../../src/app.module.js';
+import { DatabaseModule } from '../../../src/shared/database/database.module.js';
+import { DatabaseService } from '../../../src/shared/database/database.service.js';
 import cookieParser from 'cookie-parser';
-import { AllExceptionsFilter } from '../../src/exceptions/all-exceptions.filter.js';
+import { AllExceptionsFilter } from '../../../src/exceptions/all-exceptions.filter.js';
 import {
   inviteUserInCompanyAndAcceptInvitation,
   registerUserAndReturnUserInfo,
-} from '../utils/register-user-and-return-user-info.js';
-import { getTestData } from '../utils/get-test-data.js';
+} from '../../utils/register-user-and-return-user-info.js';
+import { getTestData } from '../../utils/get-test-data.js';
 import request from 'supertest';
-import { AccessLevelEnum } from '../../src/enums/index.js';
+import { AccessLevelEnum } from '../../../src/enums/index.js';
 import { faker } from '@faker-js/faker';
-import { Messages } from '../../src/exceptions/text/messages.js';
+import { Messages } from '../../../src/exceptions/text/messages.js';
 
 let app: INestApplication;
 let testUtils: TestUtils;

@@ -7,21 +7,21 @@ import { Test } from '@nestjs/testing';
 import test from 'ava';
 import cookieParser from 'cookie-parser';
 import request from 'supertest';
-import { ApplicationModule } from '../../src/app.module.js';
-import { LogOperationTypeEnum, QueryOrderingEnum } from '../../src/enums/index.js';
-import { AllExceptionsFilter } from '../../src/exceptions/all-exceptions.filter.js';
-import { Messages } from '../../src/exceptions/text/messages.js';
-import { Constants } from '../../src/helpers/constants/constants.js';
-import { DatabaseModule } from '../../src/shared/database/database.module.js';
-import { DatabaseService } from '../../src/shared/database/database.service.js';
-import { MockFactory } from '../mock.factory.js';
-import { getTestData } from '../utils/get-test-data.js';
-import { registerUserAndReturnUserInfo } from '../utils/register-user-and-return-user-info.js';
-import { TestUtils } from '../utils/test.utils.js';
+import { ApplicationModule } from '../../../src/app.module.js';
+import { LogOperationTypeEnum, QueryOrderingEnum } from '../../../src/enums/index.js';
+import { AllExceptionsFilter } from '../../../src/exceptions/all-exceptions.filter.js';
+import { Messages } from '../../../src/exceptions/text/messages.js';
+import { Constants } from '../../../src/helpers/constants/constants.js';
+import { DatabaseModule } from '../../../src/shared/database/database.module.js';
+import { DatabaseService } from '../../../src/shared/database/database.service.js';
+import { MockFactory } from '../../mock.factory.js';
+import { getTestData } from '../../utils/get-test-data.js';
+import { registerUserAndReturnUserInfo } from '../../utils/register-user-and-return-user-info.js';
+import { TestUtils } from '../../utils/test.utils.js';
 import knex from 'knex';
-import { getRandomConstraintName, getRandomTestTableName } from '../utils/get-random-test-table-name.js';
+import { getRandomConstraintName, getRandomTestTableName } from '../../utils/get-random-test-table-name.js';
 import { ERROR_MESSAGES } from '@rocketadmin/shared-code/dist/src/helpers/errors/error-messages.js';
-import { ErrorsMessages } from '../../src/exceptions/custom-exceptions/messages/custom-errors-messages.js';
+import { ErrorsMessages } from '../../../src/exceptions/custom-exceptions/messages/custom-errors-messages.js';
 
 const mockFactory = new MockFactory();
 let app: INestApplication;
@@ -49,7 +49,7 @@ test.before(async () => {
   await app.init();
   app.getHttpServer().listen(0);
   firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-  connectionToTestDB = getTestData(mockFactory).mysqlAgentConnection;
+  connectionToTestDB = getTestData(mockFactory).mssqlCliConnection;
   const createConnectionResponse = await request(app.getHttpServer())
     .post('/connection')
     .send(connectionToTestDB)
@@ -66,14 +66,14 @@ test('should run', (t) => {
 });
 
 test.beforeEach('restDatabase', async (t) => {
-  const host = 'testMySQL-e2e-testing';
-  const port = 3306;
+  const host = 'mssql-e2e-testing';
+  const port = 1433;
   const Knex = knex({
-    client: 'mysql2',
+    client: 'mssql',
     connection: {
-      user: 'root',
-      database: 'testDB',
-      password: '123',
+      user: 'sa',
+      database: 'TempDB',
+      password: 'yNuXf@6T#BgoQ%U6knMp',
       port: port,
       host: host,
     },
@@ -81,20 +81,20 @@ test.beforeEach('restDatabase', async (t) => {
 
   await Knex.schema.dropTableIfExists(testTableName);
   await Knex.schema.createTable(testTableName, function (table) {
-    table.integer(pColumnName);
+    table.increments();
     table.string(testTableColumnName);
     table.string(testTableSecondColumnName);
     table.timestamps();
   });
-  const primaryKeyConstraintName = getRandomConstraintName();
-  await Knex.schema.alterTable(testTableName, function (t) {
-    t.primary([pColumnName], primaryKeyConstraintName);
-  });
-  let counter = 0;
+  // const primaryKeyConstraintName ='id';
+  // await Knex.schema.alterTable(testTableName, function (t) {
+  //   t.primary([pColumnName], primaryKeyConstraintName);
+  // });
+  // let counter = 0;
   for (let i = 0; i < testEntitiesSeedsCount; i++) {
     if (i === 0 || i === testEntitiesSeedsCount - 21 || i === testEntitiesSeedsCount - 5) {
       await Knex(testTableName).insert({
-        [pColumnName]: ++counter,
+        // [pColumnName]: ++counter,
         [testTableColumnName]: testSearchedUserName,
         [testTableSecondColumnName]: faker.internet.email(),
         created_at: new Date(),
@@ -102,7 +102,7 @@ test.beforeEach('restDatabase', async (t) => {
       });
     } else {
       await Knex(testTableName).insert({
-        [pColumnName]: ++counter,
+        // [pColumnName]: ++counter,
         [testTableColumnName]: faker.person.firstName(),
         [testTableSecondColumnName]: faker.internet.email(),
         created_at: new Date(),
@@ -348,7 +348,6 @@ test(`${currentTest} should return page of all rows with pagination page=1, perP
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
     t.is(createTableSettingsResponse.status, 201);
-
     const getTableRowsResponse = await request(app.getHttpServer())
       .get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=1&perPage=2`)
       .set('Content-Type', 'application/json')
@@ -416,7 +415,6 @@ test(`${currentTest} should return page of all rows with pagination page=3, perP
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
     t.is(createTableSettingsResponse.status, 201);
-
     const getTableRowsResponse = await request(app.getHttpServer())
       .get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=3&perPage=2`)
       .set('Cookie', firstUserToken)
@@ -1839,7 +1837,6 @@ test(`${currentTest} should add row in table and return result`, async (t) => {
   const fakeMail = faker.internet.email();
 
   const row = {
-    id: 43,
     [testTableColumnName]: fakeName,
     [testTableSecondColumnName]: fakeMail,
   };
@@ -1900,7 +1897,6 @@ test(`${currentTest} should throw an exception when connection id is not passed 
   const fakeMail = faker.internet.email();
 
   const row = {
-    id: 999,
     [testTableColumnName]: fakeName,
     [testTableSecondColumnName]: fakeMail,
   };
@@ -1949,7 +1945,6 @@ test(`${currentTest} should throw an exception when table name is not passed in 
   const fakeMail = faker.internet.email();
 
   const row = {
-    id: 999,
     [testTableColumnName]: fakeName,
     [testTableSecondColumnName]: fakeMail,
   };
@@ -2043,7 +2038,6 @@ test(`${currentTest} should throw an exception when table name passed in request
   const fakeMail = faker.internet.email();
 
   const row = {
-    id: 999,
     [testTableColumnName]: fakeName,
     [testTableSecondColumnName]: fakeMail,
   };
@@ -2364,7 +2358,9 @@ test(`${currentTest} should throw an exception when primary key passed in reques
     .set('Accept', 'application/json');
   const { message, originalMessage } = JSON.parse(updateRowInTableResponse.text);
   t.is(updateRowInTableResponse.status, 500);
+
   t.is(message, 'Failed to update row in table. No data returned from agent');
+  t.is(originalMessage, ERROR_MESSAGES.NO_DATA_RETURNED_FROM_AGENT);
 });
 
 currentTest = 'DELETE /table/row/:slug';
@@ -2699,8 +2695,8 @@ test(`${currentTest} should throw an exception when primary key passed in reques
 
   const deleteRowInTableRO = JSON.parse(deleteRowInTableResponse.text);
   t.is(deleteRowInTableResponse.status, 500);
-  t.is(deleteRowInTableRO.originalMessage, ERROR_MESSAGES.NO_DATA_RETURNED_FROM_AGENT);
   t.is(deleteRowInTableRO.message, 'Failed to delete row from table. No data returned from agent');
+  t.is(deleteRowInTableRO.originalMessage, ERROR_MESSAGES.NO_DATA_RETURNED_FROM_AGENT);
 });
 
 currentTest = 'GET /table/row/:slug';
@@ -2906,7 +2902,6 @@ test(`${currentTest} should throw an exception, when primary key passed in reque
 
   const { message, originalMessage } = JSON.parse(foundRowInTableResponse.text);
   t.is(foundRowInTableResponse.status, 500);
-  // const {message} = JSON.parse(foundRowInTableResponse.text);
   t.is(originalMessage, ERROR_MESSAGES.NO_DATA_RETURNED_FROM_AGENT);
   t.is(message, 'Failed to get row by primary key. No data returned from agent');
 });
