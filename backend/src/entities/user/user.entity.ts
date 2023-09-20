@@ -15,7 +15,6 @@ import {
 } from 'typeorm';
 import { GroupEntity } from '../group/group.entity.js';
 import { UserActionEntity } from '../user-actions/user-action.entity.js';
-import { IsEmail } from 'class-validator';
 import { Encryptor } from '../../helpers/encryption/encryptor.js';
 import { EmailVerificationEntity } from '../email/email-verification.entity.js';
 import { PasswordResetEntity } from './user-password/password-reset.entity.js';
