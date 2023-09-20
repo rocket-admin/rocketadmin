@@ -2,6 +2,7 @@ import {CdkDragDrop, moveItemInArray} from '@angular/cdk/drag-drop';
 import { Component, Inject, OnInit } from '@angular/core';
 import { TableField, TableOrdering, TableSettings } from 'src/app/models/table';
 
+import { Angulartics2 } from 'angulartics2';
 import { ConnectionsService } from 'src/app/services/connections.service';
 import { Location } from '@angular/common';
 import { NgForm } from '@angular/forms';
@@ -25,10 +26,10 @@ export class DbTableSettingsComponent implements OnInit {
   public loading: boolean = true;
   public fields: string[];
   public fields_to_exclude: string[];
-  public orderChanged: boolean;
+  public orderChanged: boolean = false;
   public iconChanged: boolean = false;
   public listFieldsOrder: string[];
-  public tableSettings: TableSettings = {
+  public tableSettingsInitial: TableSettings = {
     connection_id: '',
     table_name: '',
     icon: '',
@@ -44,7 +45,8 @@ export class DbTableSettingsComponent implements OnInit {
     sortable_by: [],
     columns_view: [],
     sensitive_fields: []
-  };
+  }
+  public tableSettings: TableSettings = this.tableSettingsInitial;
   public defaultIcons = ['favorite', 'star', 'done', 'arrow_forward', 'key', 'lock', 'visibility', 'language', 'notifications', 'schedule'];
 
 
@@ -54,6 +56,7 @@ export class DbTableSettingsComponent implements OnInit {
     private _location: Location,
     public router: Router,
     private title: Title,
+    private angulartics2: Angulartics2,
   ) { }
 
   ngOnInit(): void {
@@ -134,12 +137,32 @@ export class DbTableSettingsComponent implements OnInit {
     this.tableSettings.connection_id =  this.connectionID;
     this.tableSettings.table_name =  this.tableName;
 
+    const updatedSettings = {}
+
+    for (const [key, value] of Object.entries(this.tableSettings)) {
+      if (key !== 'connection_id' && key !== 'table_name' && key !== 'ordering') {
+        if (Array.isArray(value)) {
+          if (key === 'list_fields') {
+            updatedSettings[key] = this.orderChanged;
+          } else {
+            updatedSettings[key] = value.length > 0;
+          }
+        } else {
+          updatedSettings[key] = Boolean(value);
+        }
+      }
+    }
+
     this._tables.updateTableSettings(this.isSettingsExist, this.connectionID, this.tableName, this.tableSettings)
       .subscribe(() => {
         this.submitting = false;
+        this.angulartics2.eventTrack.next({
+          action: 'Table settings: updated successfully',
+          properties: updatedSettings
+        });
         this.router.navigate([`/dashboard/${this.connectionID}/${this.tableName}`]);
       },
-      () => { },
+      () => { this.submitting = false; },
       () => { this.submitting = false; }
     );
   }
@@ -150,8 +173,12 @@ export class DbTableSettingsComponent implements OnInit {
       .subscribe(() => {
         form.reset();
         this.submitting = false;
+        this.tableSettings = this.tableSettingsInitial;
+        this.angulartics2.eventTrack.next({
+          action: 'Table settings: reset successfully',
+        });
       },
-        () => { },
+        () => { this.submitting = false; },
         () => { this.submitting = false; }
       )
   }
