@@ -5,14 +5,17 @@
 
             <button mat-icon-button color="primary" *ngIf="actionsData && actions && actions.length !== 0"
                 type="button" class="add-icon-button"
+                angulartics2On="click"
+                angularticsAction="Actions: add first action is clicked"
                 (click)="addNewAction()">
                 <mat-icon>add</mat-icon>
             </button>
         </div>
         <div class="no-actions" *ngIf="actionsData && actions && actions.length === 0 && !newAction">
             <span class="mat-body-1">No actions added</span>
-            <button mat-stroked-button color="primary"
-                type="button"
+            <button mat-stroked-button color="primary" type="button"
+                angulartics2On="click"
+                angularticsAction="Actions: add action is clicked"
                 (click)="addNewAction()">
                 <mat-icon>add</mat-icon>
                 Add action

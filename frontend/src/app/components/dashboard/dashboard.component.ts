@@ -4,6 +4,7 @@ import { CustomAction, CustomActionType, TableProperties } from 'src/app/models/
 import { first, map } from 'rxjs/operators';
 import { getComparators, getFilters } from 'src/app/lib/parse-filter-params';
 
+import { Angulartics2 } from 'angulartics2';
 import { BbBulkActionConfirmationDialogComponent } from './db-bulk-action-confirmation-dialog/db-bulk-action-confirmation-dialog.component';
 import { ConnectionsService } from 'src/app/services/connections.service';
 import { DbActionConfirmationDialogComponent } from './db-action-confirmation-dialog/db-action-confirmation-dialog.component';
@@ -70,6 +71,7 @@ export class DashboardComponent implements OnInit {
     private route: ActivatedRoute,
     public dialog: MatDialog,
     private title: Title,
+    private angulartics2: Angulartics2,
   ) {}
 
   get currentConnectionAccessLevel () {
@@ -218,6 +220,9 @@ export class DashboardComponent implements OnInit {
 
           this.getRows();
           this.router.navigate([`/dashboard/${this.connectionID}/${this.selectedTableName}`], { queryParams: {...filtersQueryParams, page_index: 0} });
+          this.angulartics2.eventTrack.next({
+            action: 'Dashboard: filter is applied',
+          });
         }
       }
     })

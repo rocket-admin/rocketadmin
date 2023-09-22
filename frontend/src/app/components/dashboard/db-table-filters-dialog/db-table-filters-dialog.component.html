@@ -139,10 +139,16 @@
             (click)="resetFilters()">
             Reset
         </button>
-        <button mat-raised-button mat-dialog-close>Cancel</button>
+        <button mat-raised-button mat-dialog-close
+            angulartics2On="click"
+            angularticsAction="Filters: cancel is clicked">
+            Cancel
+        </button>
         <button mat-raised-button mat-dialog-close="filter"
             color="primary" type="submit"
-            [disabled]="tableFiltersCount === 0">
+            [disabled]="tableFiltersCount === 0"
+            angulartics2On="click"
+            angularticsAction="Filters: filter is clicked">
             Filter
         </button>
     </mat-dialog-actions>

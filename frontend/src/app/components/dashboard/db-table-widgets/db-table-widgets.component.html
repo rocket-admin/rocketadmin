@@ -14,6 +14,8 @@
             </button>
             <button mat-stroked-button color="accent"
                 type="button"
+                angulartics2On="click"
+                angularticsAction="Widgets: add widget is clicked"
                 (click)="addNewWidget()"
                 [disabled]="fields.length === 0 || widgets.length === fieldsCount">
                 <mat-icon>add</mat-icon>
@@ -96,8 +98,9 @@
     <ng-template #emptyState>
         <div class="empty-state">
             <p class="empty-state__text">No widgets added</p>
-            <button mat-flat-button
-                color="accent"
+            <button mat-flat-button color="accent"
+                angulartics2On="click"
+                angularticsAction="Widgets: add first widget is clicked"
                 (click)="addNewWidget()">
                 <mat-icon>add</mat-icon>
                 Add widget

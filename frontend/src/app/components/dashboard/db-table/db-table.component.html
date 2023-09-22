@@ -22,16 +22,20 @@
     </div>
     <ng-template #generalActions>
         <div class="db-table-actions">
-            <mat-form-field appearance="fill" class="search-input">
-                <input matInput name="search"
-                    placeholder="Search"
-                    [(ngModel)]="searchString"
-                    (keyup.enter)="handleSearch()">
-                <button mat-icon-button matSuffix *ngIf="searchString"
-                    (click)="clearSearch()">
-                    <mat-icon>close</mat-icon>
-                </button>
-            </mat-form-field>
+            <form #searchForm="ngForm"
+                angulartics2On="submit"
+                angularticsAction="Dashboard: search is applied"
+                (ngSubmit)="handleSearch()">
+                <mat-form-field appearance="fill" class="search-input">
+                    <input matInput name="search"
+                        placeholder="Search"
+                        [(ngModel)]="searchString">
+                    <button type="button" mat-icon-button matSuffix *ngIf="searchString"
+                        (click)="clearSearch()">
+                        <mat-icon>close</mat-icon>
+                    </button>
+                </mat-form-field>
+            </form>
             <div class="actions">
                 <a mat-button *ngIf="tableData && tableData.permissions && tableData.permissions.add && (!tableData.isEmptyTable || searchString || getFiltersCount(activeFilters))"
                     routerLink="/dashboard/{{connectionID}}/{{name}}/entry"
