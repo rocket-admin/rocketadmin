@@ -178,12 +178,13 @@
                     <div class="encription-setting advanced-settings__fullLine">
                         <mat-slide-toggle name="encryption"
                             angulartics2On="click"
-                            angularticsAction="Connection creds {{ db.id ? 'edit' : 'add' }}: encryption is {{ db.masterEncryption ? 'on' : 'off' }}"
+                            angularticsAction="Connection creds {{ db.id ? 'edit' : 'add' }}: client-side encryption is switched"
+                            [angularticsProperties]="{'enable': db.masterEncryption}"
                             [disabled]="accessLevel === 'readonly' || submitting || db.isTestConnection"
                             [(ngModel)]="db.masterEncryption"
                             [(ngModel)]="db.masterEncryption"
                             (ngModelChange)="generatePassword()">
-                            Use clientside encryption
+                            Use client-side encryption
                         </mat-slide-toggle>
                         <div *ngIf="db.masterEncryption" class="encription-password">
                             <mat-form-field appearance="outline" style="width:100%">
@@ -221,7 +222,8 @@
                     <mat-checkbox class="checkbox-line advanced-settings__fullLine" name="ssh" #ssh="ngModel"
                         labelPosition="after"
                         angulartics2On="click"
-                        angularticsAction="Connection creds {{ db.id ? 'edit' : 'add' }}: SSH is {{ db.ssh ? 'on' : 'off' }}"
+                        angularticsAction="Connection creds {{ db.id ? 'edit' : 'add' }}: SSH is switched"
+                        [angularticsProperties]="{'enable': db.ssh}"
                         [disabled]="submitting || db.isTestConnection"
                         [(ngModel)]="db.ssh">
                         Use SSH tunnel
@@ -275,7 +277,8 @@
                     <mat-checkbox class="checkbox-line advanced-settings__fullLine" name="ssl" #ssh="ngModel"
                         labelPosition="after"
                         angulartics2On="click"
-                        angularticsAction="Connection creds {{ db.id ? 'edit' : 'add' }}: SSL is {{ db.ssl ? 'on' : 'off' }}"
+                        angularticsAction="Connection creds {{ db.id ? 'edit' : 'add' }}: SSL is switched"
+                        [angularticsProperties]="{'enable': db.ssl}"
                         [disabled]="submitting || db.isTestConnection"
                         [(ngModel)]="db.ssl">
                         Check SSL certificate
@@ -296,7 +299,8 @@
                     <mat-checkbox *ngIf="db.type === 'mssql'" class="checkbox-line advanced-settings__fullLine" name="ssl" #ssh="ngModel"
                         labelPosition="after"
                         angulartics2On="click"
-                        angularticsAction="Connection creds {{ db.id ? 'edit' : 'add' }}: azure encryption is {{ db.azure_encryption ? 'on' : 'off' }}"
+                        angularticsAction="Connection creds {{ db.id ? 'edit' : 'add' }}: azure encryption is switched"
+                        [angularticsProperties]="{'enable': db.azure_encryption}"
                         [disabled]="submitting"
                         [(ngModel)]="db.azure_encryption">
                         Encryption
