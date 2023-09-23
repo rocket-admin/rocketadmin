@@ -10,7 +10,11 @@
         <form class="user-settings__section-heading" (ngSubmit)="changeUserName()">
             <mat-form-field appearance="outline" class="user-settings__name">
                 <mat-label>Name</mat-label>
-                <input matInput [(ngModel)]="userName" name="user-name" #nameField="ngModel" data-testid="user-name-input">
+                <input matInput name="user-name" #nameField="ngModel"
+                    data-testid="user-name-input"
+                    angulartics2On="change"
+                    angularticsAction="User settings: user name is edited"
+                    [(ngModel)]="userName">
             </mat-form-field>
             <button type="submit" mat-button color="primary" data-testid="save-user-name-button"
                 class="user-settings__save-button"
@@ -18,7 +22,6 @@
                 Save
             </button>
         </form>
-
 
         <div class="user-settings__section-heading">
             <strong>Email:</strong>
@@ -35,6 +38,8 @@
             <strong>Password:</strong>
         </div>
         <a mat-button routerLink="/change-password" color="primary" data-testid="change-user-password-link"
+            angulartics2On="click"
+            angularticsAction="User settings: change password is clicked"
             [disabled]="!currentUser.isActive"
             class="user-settings__button">
             Change password
@@ -52,7 +57,9 @@
         </div>
         <a mat-button color="accent" class="upgrade-button"
             routerLink="/upgrade"
-            class="user-settings__button">
+            class="user-settings__button"
+            angulartics2On="click"
+            angularticsAction="User settings: Manage payment settings is clicked">
             Manage payment settings
         </a>
 
@@ -60,6 +67,9 @@
         <div>
             <div class="twoFA-toggle">
                 <mat-slide-toggle [(ngModel)]="is2FAEnabledToggle"
+                    angulartics2On="click"
+                    angularticsAction="User settings: 2fa is toggled"
+                    [angularticsProperties]="{'enable': is2FAEnabledToggle}"
                     [disabled]="!currentUser.isActive"
                     (change)="switch2FA($event)">
                     Two-factor authentication
