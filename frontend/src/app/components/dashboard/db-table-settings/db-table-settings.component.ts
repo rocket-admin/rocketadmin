@@ -46,7 +46,7 @@ export class DbTableSettingsComponent implements OnInit {
     columns_view: [],
     sensitive_fields: []
   }
-  public tableSettings: TableSettings = this.tableSettingsInitial;
+  public tableSettings: TableSettings = {...this.tableSettingsInitial};
   public defaultIcons = ['favorite', 'star', 'done', 'arrow_forward', 'key', 'lock', 'visibility', 'language', 'notifications', 'schedule'];
 
 
@@ -173,7 +173,7 @@ export class DbTableSettingsComponent implements OnInit {
       .subscribe(() => {
         form.reset();
         this.submitting = false;
-        this.tableSettings = this.tableSettingsInitial;
+        this.tableSettings = {...this.tableSettingsInitial};
         this.angulartics2.eventTrack.next({
           action: 'Table settings: reset successfully',
         });

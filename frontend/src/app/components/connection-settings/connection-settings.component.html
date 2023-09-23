@@ -41,6 +41,8 @@
                 <mat-form-field appearance="outline" class="logo-input">
                     <mat-label>Logo URL</mat-label>
                     <input matInput name="logo-url" #username="ngModel"
+                        angulartics2On="change"
+                        angularticsAction="Connection settings: logo URL is edited"
                         [disabled]="submitting"
                         [(ngModel)]="connectionSettings.logo_url">
                     <mat-error *ngIf="username.errors?.required && (username.invalid && username.touched)">Username should not be empty.</mat-error>
@@ -68,6 +70,8 @@
             <mat-form-field appearance="outline">
                 <mat-label>Company name</mat-label>
                 <input matInput name="company-name" #username="ngModel"
+                    angulartics2On="change"
+                    angularticsAction="Connection settings: company name is edited"
                     [disabled]="submitting"
                     [(ngModel)]="connectionSettings.company_name">
                 <mat-error *ngIf="username.errors?.required && (username.invalid && username.touched)">Username should not be empty.</mat-error>
@@ -79,6 +83,8 @@
                     <mat-form-field appearance="outline" class="color-input">
                         <mat-label>Primary color (HEX)</mat-label>
                         <input matInput name="primary-color" #username="ngModel"
+                            angulartics2On="change"
+                            angularticsAction="Connection settings: primary color is edited"
                             [disabled]="submitting"
                             [(ngModel)]="connectionSettings.primary_color">
                         <mat-error *ngIf="username.errors?.required && (username.invalid && username.touched)">Username should not be empty.</mat-error>
@@ -90,6 +96,8 @@
                     <mat-form-field appearance="outline" class="color-input">
                         <mat-label>Accented color (HEX)</mat-label>
                         <input matInput name="accented-color" #username="ngModel"
+                            angulartics2On="change"
+                            angularticsAction="Connection settings: accented color is edited"
                             [disabled]="submitting"
                             [(ngModel)]="connectionSettings.secondary_color">
                         <mat-error *ngIf="username.errors?.required && (username.invalid && username.touched)">Username should not be empty.</mat-error>
@@ -102,6 +110,8 @@
                 <mat-label>Hidden tables</mat-label>
                 <mat-select multiple
                     name="columns_view"
+                    angulartics2On="click"
+                    angularticsAction="Connection settings: hidden tables is selected"
                     [(ngModel)]="connectionSettings.hidden_tables"
                     (optionSelectionChanges)="onColumnsViewChange($event)">
                     <mat-option *ngFor="let table of tablesList" [value]="table.table" >
