@@ -4,7 +4,11 @@
         <div class="filters">
             <mat-form-field *ngIf="tablesList && !isServerError && !noTablesError" appearance="outline">
                 <mat-label>Tables</mat-label>
-                <mat-select [(ngModel)]="tableName" (ngModelChange)="loadLogsPage()">
+                <mat-select
+                    angulartics2On="click"
+                    angularticsAction="Audit: table is selected"
+                    [(ngModel)]="tableName"
+                    (ngModelChange)="loadLogsPage()">
                     <mat-option value="showAll">Show all</mat-option>
                     <mat-option *ngFor="let tableItem of tablesList" [value]="tableItem.table">
                         <div class="table-name">
@@ -16,7 +20,10 @@
             </mat-form-field>
             <mat-form-field *ngIf="usersList && !isServerError" appearance="outline">
                 <mat-label>Users</mat-label>
-                <mat-select [(ngModel)]="userEmail" (ngModelChange)="loadLogsPage()">
+                <mat-select
+                    angulartics2On="click"
+                    angularticsAction="Audit: user is selected"
+                    [(ngModel)]="userEmail" (ngModelChange)="loadLogsPage()">
                     <mat-option value="showAll">Show all</mat-option>
                     <mat-option *ngFor="let user of usersList" [value]="user.email">{{user.email}}</mat-option>
                 </mat-select>
@@ -66,6 +73,8 @@
                 <th mat-header-cell *matHeaderCellDef> Details </th>
                 <td mat-cell *matCellDef="let element">
                     <button mat-button color="primary"
+                        angulartics2On="click"
+                        angularticsAction="Audit: view changes is clicked"
                         (click)="openInfoLogDialog(element)">
                         View changes
                     </button>
