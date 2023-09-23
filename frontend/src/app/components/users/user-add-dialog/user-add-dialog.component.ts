@@ -2,6 +2,7 @@ import { Component, OnInit, Inject } from '@angular/core';
 import { UsersService } from 'src/app/services/users.service';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { UserGroup } from 'src/app/models/user';
+import { Angulartics2 } from 'angulartics2';
 
 @Component({
   selector: 'app-user-add-dialog',
@@ -17,6 +18,7 @@ export class UserAddDialogComponent implements OnInit {
   constructor(
     @Inject(MAT_DIALOG_DATA) public group: UserGroup,
     private _usersService: UsersService,
+    private angulartics2: Angulartics2,
     // private dialogRef: MatDialogRef<UserAddDialogComponent>
   ) { }
 
@@ -31,6 +33,9 @@ export class UserAddDialogComponent implements OnInit {
           // this.dialogRef.close();
           this.responseMessage = res.message;
           this.submitting = false;
+          this.angulartics2.eventTrack.next({
+            action: 'User groups: user was added to group successfully',
+          });
         },
         () => { },
         () => { this.submitting = false; }

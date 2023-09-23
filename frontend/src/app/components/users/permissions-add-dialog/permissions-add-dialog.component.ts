@@ -7,6 +7,7 @@ import { ConnectionsService } from 'src/app/services/connections.service';
 import { AlertActionType, AlertType } from 'src/app/models/alert';
 import { GroupAddDialogComponent } from '../group-add-dialog/group-add-dialog.component';
 import { normalizeTableName } from 'src/app/lib/normalize';
+import { Angulartics2 } from 'angulartics2';
 
 @Component({
   selector: 'app-permissions-add-dialog',
@@ -45,7 +46,8 @@ export class PermissionsAddDialogComponent implements OnInit {
     private _usersService: UsersService,
     public dialogRef: MatDialogRef<GroupDeleteDialogComponent>,
     public dialog: MatDialog,
-    private _connections: ConnectionsService
+    private _connections: ConnectionsService,
+    private angulartics2: Angulartics2,
   ) { }
 
   ngOnInit(): void {
@@ -121,6 +123,9 @@ export class PermissionsAddDialogComponent implements OnInit {
       .subscribe( () => {
         this.dialogRef.close();
         this.submitting = false;
+        this.angulartics2.eventTrack.next({
+          action: 'User groups: user group permissions were updated successfully',
+        });
       },
       () => { },
       () => { this.submitting = false; }

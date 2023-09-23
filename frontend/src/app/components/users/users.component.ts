@@ -1,6 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { GroupUser, User, UserGroup, UserGroupInfo } from 'src/app/models/user';
 
+import { Angulartics2 } from 'angulartics2';
 import { Connection } from 'src/app/models/connection';
 import { ConnectionsService } from 'src/app/services/connections.service';
 import { GroupAddDialogComponent } from './group-add-dialog/group-add-dialog.component';
@@ -34,7 +35,8 @@ export class UsersComponent implements OnInit, OnDestroy {
     private _userService: UserService,
     private _connections: ConnectionsService,
     public dialog: MatDialog,
-    private title: Title
+    private title: Title,
+    private angulartics2: Angulartics2,
   ) { }
 
   ngOnInit() {
@@ -68,7 +70,7 @@ export class UsersComponent implements OnInit, OnDestroy {
 
   getUsersGroups() {
     this._usersService.fetchConnectionGroups(this.connectionID)
-    .subscribe((res: any) => {
+      .subscribe((res: any) => {
         this.groups = res;
       });
   }
