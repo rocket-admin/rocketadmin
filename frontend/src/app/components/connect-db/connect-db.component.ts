@@ -149,23 +149,19 @@ export class ConnectDBComponent implements OnInit, OnDestroy {
           if (this.db.connectionType === 'agent') {
             this.connectionToken = res.token;
             this.connectionID = res.id;
-            this.angulartics2.eventTrack.next({
-              action: 'Connect DB: connection is added successfully',
-              properties: { connectionType: 'agent' }
-            });
           } else {
-            this.angulartics2.eventTrack.next({
-              action: 'Connect DB: connection is added successfully',
-              properties: { connectionType: 'direct' }
-            });
             this.router.navigate([`/dashboard/${createdConnectionID}`]);
           };
+          this.angulartics2.eventTrack.next({
+            action: 'Connect DB: connection is added successfully',
+            properties: { connectionType: this.db.connectionType, dbType: this.db.type }
+          });
         });
       },
       (errorMessage) => {
         this.angulartics2.eventTrack.next({
           action: 'Connect DB: connection is added unsuccessfully',
-          properties: { errorMessage }
+          properties: { connectionType: this.db.connectionType, dbType: this.db.type, errorMessage }
         });
         this.submitting = false;
       },
@@ -266,7 +262,7 @@ export class ConnectDBComponent implements OnInit, OnDestroy {
 
             this.angulartics2.eventTrack.next({
               action: `Connect DB: automatic test connection on add is ${credsCorrect.result ? 'passed' : 'failed'}`,
-              properties: { errorMessage: credsCorrect.message }
+              properties: { connectionType: this.db.connectionType, dbType: this.db.type, errorMessage: credsCorrect.message }
             });
 
             if (credsCorrect && credsCorrect.result) {
