@@ -15,7 +15,6 @@ import {
 } from 'typeorm';
 import { GroupEntity } from '../group/group.entity.js';
 import { UserActionEntity } from '../user-actions/user-action.entity.js';
-import { IsEmail } from 'class-validator';
 import { Encryptor } from '../../helpers/encryption/encryptor.js';
 import { EmailVerificationEntity } from '../email/email-verification.entity.js';
 import { PasswordResetEntity } from './user-password/password-reset.entity.js';
@@ -23,6 +22,7 @@ import { EmailChangeEntity } from './user-email/email-change.entity.js';
 import { UserInvitationEntity } from './user-invitation/user-invitation.entity.js';
 import { GitHubUserIdentifierEntity } from './user-github-identifier/github-user-identifier.entity.js';
 import { CompanyInfoEntity } from '../company-info/company-info.entity.js';
+import { UserRoleEnum } from './enums/user-role.enum.js';
 
 @Entity('user')
 export class UserEntity {
@@ -30,7 +30,6 @@ export class UserEntity {
   id: string;
 
   @Column({ default: null })
-  @IsEmail()
   email: string;
 
   @Column({ default: null })
@@ -107,4 +106,11 @@ export class UserEntity {
 
   @Column({ default: null })
   stripeId: string;
+
+  @Column('enum', {
+    nullable: false,
+    enum: UserRoleEnum,
+    default: UserRoleEnum.USER,
+  })
+  role: UserRoleEnum;
 }

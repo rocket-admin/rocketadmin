@@ -16,16 +16,13 @@ import { TableWidgetEntity } from '../widget/table-widget.entity.js';
 import { ChangeUserNameUseCase } from './use-cases/change-user-name-use.case.js';
 import { ChangeUsualPasswordUseCase } from './use-cases/change-usual-password-use.case.js';
 import { DeleteUserAccountUseCase } from './use-cases/delete-user-account-use-case.js';
-import { FacebookLoginUseCase } from './use-cases/facebook-login.use.case.js';
 import { FindUserUseCase } from './use-cases/find-user-use.case.js';
-import { GoogleLoginUseCase } from './use-cases/google-login-use.case.js';
 import { LogOutUseCase } from './use-cases/log-out.use.case.js';
 import { RequestChangeUserEmailUseCase } from './use-cases/request-change-user-email.use.case.js';
 import { RequestEmailVerificationUseCase } from './use-cases/request-email-verification.use.case.js';
 import { RequestResetUserPasswordUseCase } from './use-cases/request-reset-user-password.use.case.js';
 import { UpgradeSubscriptionUseCase } from './use-cases/upgrade-subscription.use.case.js';
 import { UsualLoginUseCase } from './use-cases/usual-login-use.case.js';
-import { UsualRegisterUseCase } from './use-cases/usual-register-use.case.js';
 import { VerifyChangeUserEmailUseCase } from './use-cases/verify-change-user-email.use.case.js';
 import { VerifyResetUserPasswordUseCase } from './use-cases/verify-reset-user-password.use.case.js';
 import { VerifyUserEmailUseCase } from './use-cases/verify-user-email.use.case.js';
@@ -37,8 +34,6 @@ import { VerifyOtpUseCase } from './use-cases/verify-otp-use.case.js';
 import { OtpLoginUseCase } from './use-cases/otp-login-use.case.js';
 import { TemporaryAuthMiddleware } from '../../authorization/temporary-auth.middleware.js';
 import { DisableOtpUseCase } from './use-cases/disable-otp.use.case.js';
-import { GetGitHubLoginLinkUseCase } from './use-cases/get-github-login-link.use.case.js';
-import { AuthenticateWithGitHubUseCase } from './use-cases/authenticate-with-github.use.case.js';
 import { GetStripeIntentIdUseCase } from './use-cases/get-stripe-intent-id.use.case.js';
 import { AddSetupIntentToCustomerUseCase } from './use-cases/add-setup-intent-to-customer.use.case.js';
 
@@ -76,20 +71,8 @@ import { AddSetupIntentToCustomerUseCase } from './use-cases/add-setup-intent-to
       useClass: UsualLoginUseCase,
     },
     {
-      provide: UseCaseType.USUAL_REGISTER,
-      useClass: UsualRegisterUseCase,
-    },
-    {
       provide: UseCaseType.LOG_OUT,
       useClass: LogOutUseCase,
-    },
-    {
-      provide: UseCaseType.GOOGLE_LOGIN,
-      useClass: GoogleLoginUseCase,
-    },
-    {
-      provide: UseCaseType.FACEBOOK_LOGIN,
-      useClass: FacebookLoginUseCase,
     },
     {
       provide: UseCaseType.CHANGE_USUAL_PASSWORD,
@@ -142,14 +125,6 @@ import { AddSetupIntentToCustomerUseCase } from './use-cases/add-setup-intent-to
     {
       provide: UseCaseType.DISABLE_OTP,
       useClass: DisableOtpUseCase,
-    },
-    {
-      provide: UseCaseType.GET_GITHUB_LOGIN_LINK,
-      useClass: GetGitHubLoginLinkUseCase,
-    },
-    {
-      provide: UseCaseType.AUTHENTICATE_WITH_GITHUB,
-      useClass: AuthenticateWithGitHubUseCase,
     },
     {
       provide: UseCaseType.GET_STRIPE_INTENT_ID,

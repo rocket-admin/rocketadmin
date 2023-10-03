@@ -1,10 +1,11 @@
 import { Knex } from 'knex';
-import { LRUCache } from 'lru-cache'
+import { LRUCache } from 'lru-cache';
 import { ConnectionEntity } from '../../entities/connection/connection.entity.js';
 import { Constants } from '../constants/constants.js';
 import { TableStructureDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/table-structure.ds.js';
 import { PrimaryKeyDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/primary-key.ds.js';
 import { ForeignKeyDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/foreign-key.ds.js';
+import { isSaaS } from '../app/is-saas.js';
 
 const knexCache = new LRUCache(Constants.DEFAULT_CONNECTION_CACHE_OPTIONS);
 const tunnelCache = new LRUCache(Constants.DEFAULT_TUNNEL_CACHE_OPTIONS);
@@ -38,6 +39,9 @@ export class Cacher {
   }
 
   public static canInvite(userId: string, groupId: string): boolean {
+    if (!isSaaS()) {
+      return true;
+    }
     const userInvitations = Cacher.getUserInvitationCachedCount(userId);
     const groupInvitations = Cacher.getGroupInvitationCachedCount(groupId);
     return userInvitations <= 10 && groupInvitations <= 10;
