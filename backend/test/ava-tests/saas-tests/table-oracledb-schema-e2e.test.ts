@@ -35,7 +35,7 @@ test.before(async () => {
   }).compile();
   app = moduleFixture.createNestApplication() as any;
   testUtils = moduleFixture.get<TestUtils>(TestUtils);
-  await testUtils.resetDb();
+
   app.use(cookieParser());
   app.useGlobalFilters(new AllExceptionsFilter());
   await app.init();
@@ -568,7 +568,6 @@ should return all found rows with pagination page=1 perPage=3`, async (t) => {
       .set('Accept', 'application/json');
     t.is(getTableRowsResponse.status, 200);
     const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
-    console.log('getTableRowsRO.primaryColumns[0] ->', getTableRowsRO.primaryColumns[0]);
     t.is(typeof getTableRowsRO, 'object');
     t.is(getTableRowsRO.hasOwnProperty('rows'), true);
     t.is(getTableRowsRO.hasOwnProperty('primaryColumns'), true);

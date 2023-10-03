@@ -44,7 +44,7 @@ test.before(async () => {
   }).compile();
   app = moduleFixture.createNestApplication();
   testUtils = moduleFixture.get<TestUtils>(TestUtils);
-  await testUtils.resetDb();
+
   app.use(cookieParser());
   app.useGlobalFilters(new AllExceptionsFilter());
   await app.init();
@@ -1111,8 +1111,13 @@ test(`${currentTest} should throw an exception ${Messages.DONT_HAVE_PERMISSIONS}
 
     const groupId = getGroupsRO[0].group.id;
 
-    const thirdTestUser = await inviteUserInCompanyAndAcceptInvitation(adminUserToken, undefined, app);
-    
+    const thirdTestUser = await inviteUserInCompanyAndAcceptInvitation(
+      testData.users.adminUserToken,
+      undefined,
+      app,
+      undefined,
+    );
+
     const email = thirdTestUser.email;
 
     const deleteUserInGroupResponse = await request(app.getHttpServer())
@@ -1153,8 +1158,13 @@ test(`${currentTest} should throw exception, when group id not passed in request
 
     const groupId = getGroupsRO[0].group.id;
 
-    const thirdTestUser = await inviteUserInCompanyAndAcceptInvitation(adminUserToken, undefined, app);
-    
+    const thirdTestUser = await inviteUserInCompanyAndAcceptInvitation(
+      testData.users.adminUserToken,
+      undefined,
+      app,
+      undefined,
+    );
+
     const email = thirdTestUser.email;
 
     const deleteUserInGroupResponse = await request(app.getHttpServer())

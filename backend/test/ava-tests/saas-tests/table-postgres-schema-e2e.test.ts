@@ -35,7 +35,7 @@ test.before(async () => {
   }).compile();
   app = moduleFixture.createNestApplication();
   testUtils = moduleFixture.get<TestUtils>(TestUtils);
-  await testUtils.resetDb();
+
   app.use(cookieParser());
   app.useGlobalFilters(new AllExceptionsFilter());
   await app.init();

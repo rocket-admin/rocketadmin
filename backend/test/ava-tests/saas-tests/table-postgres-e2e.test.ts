@@ -33,7 +33,7 @@ test.before(async () => {
   }).compile();
   app = moduleFixture.createNestApplication() as any;
   testUtils = moduleFixture.get<TestUtils>(TestUtils);
-  await testUtils.resetDb();
+
   app.use(cookieParser());
   app.useGlobalFilters(new AllExceptionsFilter());
   await app.init();
@@ -66,7 +66,6 @@ test(`${currentTest} should return list of tables in connection`, async (t) => {
       .set('Accept', 'application/json');
 
     const getTablesRO = JSON.parse(getTablesResponse.text);
-    console.log('🚀 ~ file: table-postgres-e2e.test.ts:68 ~ test ~ getTablesRO:', getTablesRO);
     t.is(typeof getTablesRO, 'object');
     t.is(getTablesRO.length > 0, true);
 

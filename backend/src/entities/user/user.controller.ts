@@ -58,6 +58,7 @@ import { OtpSecretDS } from './application/data-structures/otp-secret.ds.js';
 import { OtpValidationResultDS } from './application/data-structures/otp-validation-result.ds.js';
 import { StripeIntentDs } from './application/data-structures/stripe-intent-id.ds.js';
 import { AddStripeSetupIntentDs } from './application/data-structures/add-stripe-setup-intent.ds.js';
+import { getCookieDomainOptions } from './utils/get-cookie-domain-options.js';
 
 @UseInterceptors(SentryInterceptor)
 @Controller()
@@ -180,7 +181,7 @@ export class UserController {
     });
     response.cookie(Constants.ROCKETADMIN_AUTHENTICATED_COOKIE, 1, {
       httpOnly: false,
-      ...this.getCookieDomainOtions(),
+      ...getCookieDomainOptions(),
     });
     return { expires: tokenInfo.exp, isTemporary: tokenInfo.isTemporary };
   }
@@ -199,7 +200,7 @@ export class UserController {
     response.cookie(Constants.JWT_COOKIE_KEY_NAME, '');
     response.cookie(Constants.ROCKETADMIN_AUTHENTICATED_COOKIE, 1, {
       httpOnly: false,
-      ...this.getCookieDomainOtions(),
+      ...getCookieDomainOptions(),
     });
     return await this.logOutUseCase.execute(token, InTransactionEnum.ON);
   }
@@ -248,7 +249,7 @@ export class UserController {
     });
     response.cookie(Constants.ROCKETADMIN_AUTHENTICATED_COOKIE, 1, {
       httpOnly: false,
-      ...this.getCookieDomainOtions(),
+      ...getCookieDomainOptions(),
     });
     return { expires: tokenInfo.exp, isTemporary: tokenInfo.isTemporary };
   }
@@ -356,7 +357,7 @@ export class UserController {
     });
     response.cookie(Constants.ROCKETADMIN_AUTHENTICATED_COOKIE, 1, {
       httpOnly: false,
-      ...this.getCookieDomainOtions(),
+      ...getCookieDomainOptions(),
     });
     return {
       expires: tokenInfo.exp,
@@ -389,13 +390,5 @@ export class UserController {
       subscriptionLevel: subscriptionLevel,
     };
     return await this.addSetupIntentToCustomerUseCase.execute(inputData, InTransactionEnum.OFF);
-  }
-
-  private getCookieDomainOtions(): { domain: string } | undefined {
-    const cookieDomain = process.env.ROCKETADMIN_COOKIE_DOMAIN;
-    if (cookieDomain) {
-      return { domain: cookieDomain };
-    }
-    return undefined;
   }
 }

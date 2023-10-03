@@ -44,7 +44,7 @@ test.before(async () => {
   }).compile();
   app = moduleFixture.createNestApplication();
   testUtils = moduleFixture.get<TestUtils>(TestUtils);
-  await testUtils.resetDb();
+
   app.use(cookieParser());
   app.useGlobalFilters(new AllExceptionsFilter());
   await app.init();
@@ -661,7 +661,6 @@ test(`${currentTest} should return permissions object for current group in curre
 
     t.is(response.status, 200);
     const result = JSON.parse(response.text);
-    console.log('🚀 ~ file: user-with-table-only-permissions-e2e.test.ts:661 ~ test ~ result', result);
 
     t.is(result.hasOwnProperty('connection'), true);
     t.is(result.hasOwnProperty('group'), true);
@@ -1060,8 +1059,13 @@ test(`${currentTest} should throw an exception ${Messages.DONT_HAVE_PERMISSIONS}
 
     const groupId = getGroupsRO[0].group.id;
 
-    const thirdTestUser = await inviteUserInCompanyAndAcceptInvitation(adminUserToken, undefined, app);
-    
+    const thirdTestUser = await inviteUserInCompanyAndAcceptInvitation(
+      testData.users.adminUserToken,
+      undefined,
+      app,
+      undefined,
+    );
+
     const email = thirdTestUser.email;
 
     const deleteUserInGroupResponse = await request(app.getHttpServer())
@@ -1099,8 +1103,13 @@ test(`${currentTest} should throw exception, when group id not passed in request
     t.is(getGroupsResponse.status, 200);
     const getGroupsRO = JSON.parse(getGroupsResponse.text);
 
-    const thirdTestUser = await inviteUserInCompanyAndAcceptInvitation(adminUserToken, undefined, app);
-    
+    const thirdTestUser = await inviteUserInCompanyAndAcceptInvitation(
+      testData.users.adminUserToken,
+      undefined,
+      app,
+      undefined,
+    );
+
     const email = thirdTestUser.email;
 
     const deleteUserInGroupResponse = await request(app.getHttpServer())

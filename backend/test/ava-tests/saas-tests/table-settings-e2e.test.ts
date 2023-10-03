@@ -29,7 +29,7 @@ test.before(async () => {
   }).compile();
   app = moduleFixture.createNestApplication();
   testUtils = moduleFixture.get<TestUtils>(TestUtils);
-  await testUtils.resetDb();
+
   app.use(cookieParser());
   app.useGlobalFilters(new AllExceptionsFilter());
   await app.init();
@@ -731,10 +731,6 @@ test(`${currentTest} should throw exception when there are no such field in the 
       .set('Cookie', token)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
-    console.log(
-      '🚀 ~ file: table-settings-e2e.test.ts:736 ~ test ~ createTableSettingsResponse.text',
-      createTableSettingsResponse.text,
-    );
 
     t.is(createTableSettingsResponse.status, 400);
     const createTableSettingsRO = JSON.parse(createTableSettingsResponse.text);

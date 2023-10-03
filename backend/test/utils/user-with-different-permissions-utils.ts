@@ -23,6 +23,7 @@ export async function createConnectionsAndInviteNewUserInNewGroupInFirstConnecti
     connectionAdminUserInfo.token,
     undefined,
     app,
+    undefined,
   );
   const connectionAdminUserToken = connectionAdminUserInfo.token;
   const simpleUserToken = simpleUserRegisterInfo.token;
@@ -142,6 +143,7 @@ export async function createConnectionsAndInviteNewUserInNewGroupWithGroupPermis
     connectionAdminUserInfo.token,
     undefined,
     app,
+    undefined,
   );
   const connectionAdminUserToken = connectionAdminUserInfo.token;
   const simpleUserToken = simpleUserRegisterInfo.token;
@@ -271,6 +273,7 @@ export async function createConnectionsAndInviteNewUserInNewGroupWithOnlyTablePe
     connectionAdminUserInfo.token,
     undefined,
     app,
+    undefined,
   );
   const connectionAdminUserToken = connectionAdminUserInfo.token;
   const simpleUserToken = simpleUserRegisterInfo.token;
@@ -349,12 +352,16 @@ export async function createConnectionsAndInviteNewUserInNewGroupWithOnlyTablePe
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
 
-  await request(app.getHttpServer())
+  const addUserResult = await request(app.getHttpServer())
     .put('/group/user')
     .set('Cookie', connectionAdminUserToken)
     .send({ groupId, email })
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
+  const addUserRO = JSON.parse(addUserResult.text);
+  if (addUserResult.status > 201) {
+    console.error('addUserResult.body -> ', addUserRO);
+  }
 
   return {
     firstTableInfo: firstTable,
@@ -400,6 +407,7 @@ export async function createConnectionsAndInviteNewUserInNewGroupWithTableDiffer
     connectionAdminUserInfo.token,
     undefined,
     app,
+    undefined,
   );
   const connectionAdminUserToken = connectionAdminUserInfo.token;
   const simpleUserToken = simpleUserRegisterInfo.token;
@@ -529,6 +537,7 @@ export async function createConnectionsAndInviteNewUserInAdminGroupOfFirstConnec
     connectionAdminUserInfo.token,
     undefined,
     app,
+    undefined,
   );
   const connectionAdminUserToken = connectionAdminUserInfo.token;
   const simpleUserToken = simpleUserRegisterInfo.token;

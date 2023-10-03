@@ -22,6 +22,7 @@ import { EmailChangeEntity } from './user-email/email-change.entity.js';
 import { UserInvitationEntity } from './user-invitation/user-invitation.entity.js';
 import { GitHubUserIdentifierEntity } from './user-github-identifier/github-user-identifier.entity.js';
 import { CompanyInfoEntity } from '../company-info/company-info.entity.js';
+import { UserRoleEnum } from './enums/user-role.enum.js';
 
 @Entity('user')
 export class UserEntity {
@@ -105,4 +106,11 @@ export class UserEntity {
 
   @Column({ default: null })
   stripeId: string;
+
+  @Column('enum', {
+    nullable: false,
+    enum: UserRoleEnum,
+    default: UserRoleEnum.USER,
+  })
+  role: UserRoleEnum;
 }

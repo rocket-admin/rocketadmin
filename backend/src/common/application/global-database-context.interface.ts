@@ -23,6 +23,8 @@ import { IDatabaseContext } from '../database-context.interface.js';
 import { IUserGitHubIdentifierRepository } from '../../entities/user/user-github-identifier/repository/user-github-identifier-repository.interface.js';
 import { CompanyInfoEntity } from '../../entities/company-info/company-info.entity.js';
 import { ICompanyInfoRepository } from '../../entities/company-info/repository/company-info-repository.interface.js';
+import { InvitationInCompanyEntity } from '../../entities/company-info/invitation-in-company/invitation-in-company.entity.js';
+import { IInvitationInCompanyRepository } from '../../entities/company-info/invitation-in-company/repository/invitation-repository.interface.js';
 
 export interface IGlobalDatabaseContext extends IDatabaseContext {
   userRepository: IUserRepository;
@@ -47,4 +49,5 @@ export interface IGlobalDatabaseContext extends IDatabaseContext {
   tableActionRepository: ITableActionRepository;
   userGitHubIdentifierRepository: IUserGitHubIdentifierRepository;
   companyInfoRepository: Repository<CompanyInfoEntity> & ICompanyInfoRepository;
+  invitationInCompanyRepository: Repository<InvitationInCompanyEntity> & IInvitationInCompanyRepository;
 }

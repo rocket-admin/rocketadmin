@@ -36,7 +36,7 @@ test.before(async () => {
   }).compile();
   app = moduleFixture.createNestApplication();
   testUtils = moduleFixture.get<TestUtils>(TestUtils);
-  await testUtils.resetDb();
+
   app.use(cookieParser());
   app.useGlobalFilters(new AllExceptionsFilter());
   await app.init();
@@ -293,7 +293,7 @@ test(`${currentTest} should return a created group`, async (t) => {
     t.is(typeof result.users, 'object');
     t.is(result.users.length, 1);
     t.is(result.users[0].email, testData.users.simpleUserEmail);
-    t.is(result.users[0].isActive, false);
+    t.is(result.users[0].isActive, true);
     t.is(uuidRegex.test(result.users[0].id), true);
   } catch (error) {
     console.error(error);
@@ -754,8 +754,13 @@ test(`${currentTest} should return group with added user`, async (t) => {
 
     const groupId = getGroupsRO[0].group.id;
 
-    const thirdTestUser = await inviteUserInCompanyAndAcceptInvitation(testData.users.adminUserToken, undefined, app);
-    
+    const thirdTestUser = await inviteUserInCompanyAndAcceptInvitation(
+      testData.users.adminUserToken,
+      undefined,
+      app,
+      undefined,
+    );
+
     const email = thirdTestUser.email;
 
     const addUserInGroupResponse = await request(app.getHttpServer())
@@ -1000,8 +1005,13 @@ test(`${currentTest} should return group without deleted user`, async (t) => {
 
     const groupId = getGroupsRO[0].group.id;
 
-    const thirdTestUser = await inviteUserInCompanyAndAcceptInvitation(testData.users.adminUserToken, undefined, app);
-    
+    const thirdTestUser = await inviteUserInCompanyAndAcceptInvitation(
+      testData.users.adminUserToken,
+      undefined,
+      app,
+      undefined,
+    );
+
     const email = thirdTestUser.email;
 
     const addUserInGroupResponse = await request(app.getHttpServer())
@@ -1046,8 +1056,13 @@ test(`${currentTest} should throw exception, when user email not passed in reque
 
     const groupId = getGroupsRO[0].group.id;
 
-    const thirdTestUser = await inviteUserInCompanyAndAcceptInvitation(testData.users.adminUserToken, undefined, app);
-    
+    const thirdTestUser = await inviteUserInCompanyAndAcceptInvitation(
+      testData.users.adminUserToken,
+      undefined,
+      app,
+      undefined,
+    );
+
     const email = thirdTestUser.email;
 
     const deleteUserInGroupResponse = await request(app.getHttpServer())
@@ -1078,8 +1093,13 @@ test(`${currentTest} should throw exception, when group id not passed in request
 
     const groupId = getGroupsRO[0].group.id;
 
-    const thirdTestUser = await inviteUserInCompanyAndAcceptInvitation(testData.users.adminUserToken, undefined, app);
-    
+    const thirdTestUser = await inviteUserInCompanyAndAcceptInvitation(
+      testData.users.adminUserToken,
+      undefined,
+      app,
+      undefined,
+    );
+
     const email = thirdTestUser.email;
 
     const deleteUserInGroupResponse = await request(app.getHttpServer())
@@ -1109,8 +1129,13 @@ test(`${currentTest} should throw exception, when group id passed in request is 
     const getGroupsRO = JSON.parse(getGroupsResponse.text);
 
     let groupId = getGroupsRO[0].group.id;
-    const thirdTestUser = await inviteUserInCompanyAndAcceptInvitation(testData.users.adminUserToken, undefined, app);
-    
+    const thirdTestUser = await inviteUserInCompanyAndAcceptInvitation(
+      testData.users.adminUserToken,
+      undefined,
+      app,
+      undefined,
+    );
+
     const email = thirdTestUser.email;
 
     groupId = faker.string.uuid();

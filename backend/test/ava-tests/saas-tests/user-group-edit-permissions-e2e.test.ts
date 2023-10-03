@@ -44,7 +44,7 @@ test.before(async () => {
   }).compile();
   app = moduleFixture.createNestApplication();
   testUtils = moduleFixture.get<TestUtils>(TestUtils);
-  await testUtils.resetDb();
+
   app.use(cookieParser());
   app.useGlobalFilters(new AllExceptionsFilter());
   await app.init();
@@ -1112,17 +1112,22 @@ test(`${currentTest} should return group without deleted user`, async (t) => {
 
     const groupId = getGroupsRO[0].group.id;
 
-    const thirdTestUser = await inviteUserInCompanyAndAcceptInvitation(adminUserToken, undefined, app);
-    
+    const thirdTestUser = await inviteUserInCompanyAndAcceptInvitation(
+      testData.users.adminUserToken,
+      undefined,
+      app,
+      undefined,
+    );
+
     const email = thirdTestUser.email;
 
     const addUserInGroupResponse = await request(app.getHttpServer())
-    .put('/group/user')
-    .set('Cookie', testData.users.simpleUserToken)
-    .send({ groupId, email })
-    .set('Content-Type', 'application/json')
-    .set('Accept', 'application/json');
-  t.is(addUserInGroupResponse.status, 200);
+      .put('/group/user')
+      .set('Cookie', testData.users.simpleUserToken)
+      .send({ groupId, email })
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+    t.is(addUserInGroupResponse.status, 200);
 
     const deleteUserInGroupResponse = await request(app.getHttpServer())
       .put('/group/user/delete')
@@ -1165,8 +1170,13 @@ test(`${currentTest} should throw exception, when user email not passed in reque
 
     const groupId = getGroupsRO[0].group.id;
 
-    const thirdTestUser = await inviteUserInCompanyAndAcceptInvitation(adminUserToken, undefined, app);
-    
+    const thirdTestUser = await inviteUserInCompanyAndAcceptInvitation(
+      testData.users.adminUserToken,
+      undefined,
+      app,
+      undefined,
+    );
+
     const email = thirdTestUser.email;
 
     const deleteUserInGroupResponse = await request(app.getHttpServer())
@@ -1204,8 +1214,13 @@ test(`${currentTest} should throw exception, when group id not passed in request
 
     const groupId = getGroupsRO[0].group.id;
 
-    const thirdTestUser = await inviteUserInCompanyAndAcceptInvitation(adminUserToken, undefined, app);
-    
+    const thirdTestUser = await inviteUserInCompanyAndAcceptInvitation(
+      testData.users.adminUserToken,
+      undefined,
+      app,
+      undefined,
+    );
+
     const email = thirdTestUser.email;
 
     const deleteUserInGroupResponse = await request(app.getHttpServer())
@@ -1243,8 +1258,13 @@ test(`${currentTest} should throw exception, when group id passed in request is 
 
     let groupId = getGroupsRO[0].group.id;
 
-    const thirdTestUser = await inviteUserInCompanyAndAcceptInvitation(adminUserToken, undefined, app);
-    
+    const thirdTestUser = await inviteUserInCompanyAndAcceptInvitation(
+      testData.users.adminUserToken,
+      undefined,
+      app,
+      undefined,
+    );
+
     const email = thirdTestUser.email;
 
     groupId = faker.string.uuid();

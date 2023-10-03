@@ -36,7 +36,7 @@ test.before(async () => {
   }).compile();
   app = moduleFixture.createNestApplication();
   testUtils = moduleFixture.get<TestUtils>(TestUtils);
-  await testUtils.resetDb();
+
   app.use(cookieParser());
   app.useGlobalFilters(new AllExceptionsFilter());
   await app.init();
@@ -2906,10 +2906,6 @@ test(`${currentTest} should throw an exception when tableName passed in request 
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
   const createConnectionRO = JSON.parse(createConnectionResponse.text);
-  console.log(
-    '🚀 ~ file: table-postgres-encrypted-e2e.test.ts ~ line 2932 ~ test ~ createConnectionRO.text',
-    createConnectionRO.text,
-  );
 
   t.is(createConnectionResponse.status, 201);
 
@@ -2933,11 +2929,6 @@ test(`${currentTest} should throw an exception when tableName passed in request 
     .set('masterpwd', masterPwd)
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
-
-  console.log(
-    '🚀 ~ file: table-postgres-encrypted-e2e.test.ts ~ line 2932 ~ test ~ getTableRowsResponse.text',
-    getTableRowsResponse.text,
-  );
 
   t.is(getTableRowsResponse.status, 200);
 
@@ -3284,7 +3275,6 @@ test(`${currentTest} should throw an exception, when primary key is not passed i
     .set('Accept', 'application/json');
 
   const { message } = JSON.parse(foundRowInTableResponse.text);
-  console.log('🚀 ~ file: table-postgres-encrypted-e2e.test.ts ~ line 3273 ~ test ~ message', message);
   t.is(foundRowInTableResponse.status, 400);
   t.is(message, Messages.PRIMARY_KEY_INVALID);
 });
@@ -3314,11 +3304,6 @@ test(`${currentTest} should throw an exception, when primary key passed in reque
     .set('masterpwd', masterPwd)
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
-
-  console.log(
-    '🚀 ~ file: table-postgres-encrypted-e2e.test.ts ~ line 2932 ~ test ~ foundRowInTableResponse.text',
-    foundRowInTableResponse.text,
-  );
 
   t.is(foundRowInTableResponse.status, 400);
 

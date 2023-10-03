@@ -21,6 +21,7 @@ import { ValidationHelper } from '../../../helpers/validators/validation-helper.
 import { ISaasRegisterUser } from './saas-use-cases.interface.js';
 import { CompanyInfoEntity } from '../../../entities/company-info/company-info.entity.js';
 import { UserEntity } from '../../../entities/user/user.entity.js';
+import { UserRoleEnum } from '../../../entities/user/enums/user-role.enum.js';
 
 export class SaasUsualRegisterUseCase
   extends AbstractUseCase<SaasUsualUserRegisterDS, FoundUserDs>
@@ -120,6 +121,7 @@ export class SaasUsualRegisterUseCase
     newCompanyInfo.connections = [...testConnections];
     const savedCompanyInfo = await this._dbContext.companyInfoRepository.save(newCompanyInfo);
     savedUser.company = savedCompanyInfo;
+    savedUser.role = UserRoleEnum.ADMIN;
     await this._dbContext.userRepository.saveUserEntity(savedUser);
     return savedCompanyInfo;
   }

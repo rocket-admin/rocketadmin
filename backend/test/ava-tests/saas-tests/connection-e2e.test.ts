@@ -12,7 +12,10 @@ import { DatabaseModule } from '../../../src/shared/database/database.module.js'
 import { DatabaseService } from '../../../src/shared/database/database.service.js';
 import { MockFactory } from '../../mock.factory.js';
 import { TestUtils } from '../../utils/test.utils.js';
-import { inviteUserInCompanyAndAcceptInvitation, registerUserAndReturnUserInfo } from '../../utils/register-user-and-return-user-info.js';
+import {
+  inviteUserInCompanyAndAcceptInvitation,
+  registerUserAndReturnUserInfo,
+} from '../../utils/register-user-and-return-user-info.js';
 
 const mockFactory = new MockFactory();
 let app: INestApplication;
@@ -31,7 +34,7 @@ test.before(async () => {
     providers: [DatabaseService, TestUtils],
   }).compile();
   testUtils = moduleFixture.get<TestUtils>(TestUtils);
-  await testUtils.resetDb();
+
   app = moduleFixture.createNestApplication() as any;
   app.use(cookieParser());
   await app.init();
@@ -155,7 +158,7 @@ test(`${currentTest} should return all connection users`, async (t) => {
 test(`${currentTest} should return all connection users from different groups`, async (t) => {
   try {
     const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
-    const { token } = await registerUserAndReturnUserInfo(app)
+    const { token } = await registerUserAndReturnUserInfo(app);
     const createConnectionResponse = await request(app.getHttpServer())
       .post('/connection')
       .send(newConnection)
@@ -177,7 +180,7 @@ test(`${currentTest} should return all connection users from different groups`, 
     t.is(createGroupResponse.status, 201);
     const createGroupRO = JSON.parse(createGroupResponse.text);
 
-    const secondUserRegisterInfo = await inviteUserInCompanyAndAcceptInvitation(token, undefined, app);
+    const secondUserRegisterInfo = await inviteUserInCompanyAndAcceptInvitation(token, undefined, app, undefined);
 
     const requestBody = {
       email: secondUserRegisterInfo.email,
@@ -205,7 +208,7 @@ test(`${currentTest} should return all connection users from different groups`, 
     t.is(uuidRegex.test(foundUsersRO[1].id), true);
 
     t.is(foundUsersRO[0].isActive, false);
-    t.is(foundUsersRO[1].isActive, false);
+    t.is(foundUsersRO[1].isActive, true);
     t.is(foundUsersRO[1].hasOwnProperty('email'), true);
     t.is(foundUsersRO[0].hasOwnProperty('email'), true);
     t.is(foundUsersRO[0].hasOwnProperty('createdAt'), true);
@@ -240,7 +243,7 @@ test(`${currentTest} should throw an exception, when connection id is incorrect`
     t.is(createGroupResponse.status, 201);
     const createGroupRO = JSON.parse(createGroupResponse.text);
 
-    const secondUserRegisterInfo = await inviteUserInCompanyAndAcceptInvitation(token, undefined, app);
+    const secondUserRegisterInfo = await inviteUserInCompanyAndAcceptInvitation(token, undefined, app, undefined);
 
     const requestBody = {
       email: secondUserRegisterInfo.email,

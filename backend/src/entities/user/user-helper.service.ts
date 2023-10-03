@@ -12,6 +12,7 @@ import { getUserIntercomHash } from './utils/get-user-intercom-hash.js';
 import { Encryptor } from '../../helpers/encryption/encryptor.js';
 import { CompanyInfoEntity } from '../company-info/company-info.entity.js';
 import { RegisterUserDs } from './application/data-structures/register-user-ds.js';
+import { UserRoleEnum } from './enums/user-role.enum.js';
 
 @Injectable()
 export class UserHelperService implements OnModuleInit {
@@ -69,8 +70,14 @@ export class UserHelperService implements OnModuleInit {
     if (isSaaS()) {
       return;
     }
-    const email = process.env.ADMIN_EMAIL || 'admin';
-    const password = process.env.ADMIN_PASSWORD || Encryptor.generateRandomString(10);
+    const email = process.env.ADMIN_EMAIL || 'admin@email.local';
+    const password =
+      process.env.ADMIN_PASSWORD || process.env.NODE_ENV === 'test' ? 'test12345' : Encryptor.generateRandomString(10);
+
+    const foundTestUser = await this._dbContext.userRepository.findOneUserByEmail(email);
+    if (foundTestUser) {
+      return;
+    }
 
     const registerUserData: RegisterUserDs = {
       email: email,
@@ -78,13 +85,14 @@ export class UserHelperService implements OnModuleInit {
       isActive: true,
       gclidValue: null,
       name: 'Admin',
+      role: UserRoleEnum.ADMIN,
     };
-
     const savedUser = await this._dbContext.userRepository.saveRegisteringUser(registerUserData);
     const newCompanyInfo = new CompanyInfoEntity();
     newCompanyInfo.id = Encryptor.generateUUID();
-    newCompanyInfo.users = [savedUser];
-    await this._dbContext.companyInfoRepository.save(newCompanyInfo);
+    const savedCompanyInfo = await this._dbContext.companyInfoRepository.save(newCompanyInfo);
+    savedUser.company = savedCompanyInfo;
+    await this._dbContext.userRepository.saveUserEntity(savedUser);
     console.info(`Admin user created with email: "${email}" and password: "${password}"`);
   }
 }

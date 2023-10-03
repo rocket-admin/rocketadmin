@@ -46,7 +46,6 @@ export class TestUtils {
   }
 
   async resetDb() {
-    return;
     try {
       // const entities = await this.getEntities();
       await this.databaseService.dropDatabase();

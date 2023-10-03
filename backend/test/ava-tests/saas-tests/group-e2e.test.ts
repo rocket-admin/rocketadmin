@@ -32,7 +32,7 @@ test.before(async () => {
   }).compile();
   app = moduleFixture.createNestApplication();
   testUtils = moduleFixture.get<TestUtils>(TestUtils);
-  await testUtils.resetDb();
+
   app.use(cookieParser());
   app.useGlobalFilters(new AllExceptionsFilter());
   await app.init();
@@ -243,7 +243,12 @@ currentTest = 'PUT /group/user/:slug';
 test(`${currentTest} should return a group with new added user`, async (t) => {
   try {
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-    const secondUserRegisterInfo = await inviteUserInCompanyAndAcceptInvitation(firstUserToken, undefined, app);
+    const secondUserRegisterInfo = await inviteUserInCompanyAndAcceptInvitation(
+      firstUserToken,
+      undefined,
+      app,
+      undefined,
+    );
     const { newConnection, newConnection2, newGroup1 } = getTestData(mockFactory);
 
     let createConnectionResponse = await request(app.getHttpServer())
@@ -302,7 +307,12 @@ test(`${currentTest} should return a group with new added user`, async (t) => {
 test(`${currentTest} should throw an error when groupId not passed in request`, async (t) => {
   try {
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-    const secondUserRegisterInfo = await inviteUserInCompanyAndAcceptInvitation(firstUserToken, undefined, app);
+    const secondUserRegisterInfo = await inviteUserInCompanyAndAcceptInvitation(
+      firstUserToken,
+      undefined,
+      app,
+      undefined,
+    );
     const { newConnection, newConnection2, newGroup1 } = getTestData(mockFactory);
 
     let createConnectionResponse = await request(app.getHttpServer())
@@ -405,7 +415,12 @@ test(`${currentTest} should throw an error when user email not passed in request
 test(`${currentTest} should throw an error when groupId is incorrect`, async (t) => {
   try {
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-    const secondUserRegisterInfo = await inviteUserInCompanyAndAcceptInvitation(firstUserToken, undefined, app);
+    const secondUserRegisterInfo = await inviteUserInCompanyAndAcceptInvitation(
+      firstUserToken,
+      undefined,
+      app,
+      undefined,
+    );
 
     const { newConnection, newConnection2, newGroup1 } = getTestData(mockFactory);
 
@@ -461,7 +476,12 @@ test(`${currentTest} should throw an error when groupId is incorrect`, async (t)
 test(`${currentTest} should throw an error when add a user what been already added in this group`, async (t) => {
   try {
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-    const secondUserRegisterInfo = await inviteUserInCompanyAndAcceptInvitation(firstUserToken, undefined, app);
+    const secondUserRegisterInfo = await inviteUserInCompanyAndAcceptInvitation(
+      firstUserToken,
+      undefined,
+      app,
+      undefined,
+    );
 
     const { newConnection, newConnection2, newGroup1 } = getTestData(mockFactory);
 
@@ -516,7 +536,7 @@ test(`${currentTest} should throw an error when add a user what been already add
 
     t.is(addUserInGroup2.status, 400);
     const { message } = JSON.parse(addUserInGroup2.text);
-    t.is(message, Messages.USER_ALREADY_ADDED_BUT_NOT_ACTIVE);
+    t.is(message, Messages.USER_ALREADY_ADDED);
   } catch (e) {
     console.error(e);
     throw e;
@@ -700,7 +720,12 @@ currentTest = 'PUT /group/user/delete';
 test(`${currentTest} should return a group without deleted user`, async (t) => {
   try {
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-    const secondUserRegisterInfo = await inviteUserInCompanyAndAcceptInvitation(firstUserToken, undefined, app);
+    const secondUserRegisterInfo = await inviteUserInCompanyAndAcceptInvitation(
+      firstUserToken,
+      undefined,
+      app,
+      undefined,
+    );
 
     const { newConnection, newConnection2, newGroup1 } = getTestData(mockFactory);
 
@@ -778,7 +803,12 @@ test(`${currentTest} should return a group without deleted user`, async (t) => {
 test(`${currentTest} should throw an error, when group id not passed in request`, async (t) => {
   try {
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-    const secondUserRegisterInfo = await inviteUserInCompanyAndAcceptInvitation(firstUserToken, undefined, app);
+    const secondUserRegisterInfo = await inviteUserInCompanyAndAcceptInvitation(
+      firstUserToken,
+      undefined,
+      app,
+      undefined,
+    );
 
     const { newConnection, newConnection2, newGroup1 } = getTestData(mockFactory);
 
@@ -851,7 +881,12 @@ test(`${currentTest} should throw an error, when group id not passed in request`
 test(`${currentTest} should throw an error, when email is not passed in request`, async (t) => {
   try {
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-    const secondUserRegisterInfo = await inviteUserInCompanyAndAcceptInvitation(firstUserToken, undefined, app);
+    const secondUserRegisterInfo = await inviteUserInCompanyAndAcceptInvitation(
+      firstUserToken,
+      undefined,
+      app,
+      undefined,
+    );
     const { newConnection, newConnection2, newGroup1 } = getTestData(mockFactory);
 
     let createConnectionResponse = await request(app.getHttpServer())
@@ -923,7 +958,12 @@ test(`${currentTest} should throw an error, when email is not passed in request`
 test(`${currentTest} should throw an error, when there is no this email in database`, async (t) => {
   try {
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-    const secondUserRegisterInfo = await inviteUserInCompanyAndAcceptInvitation(firstUserToken, undefined, app);
+    const secondUserRegisterInfo = await inviteUserInCompanyAndAcceptInvitation(
+      firstUserToken,
+      undefined,
+      app,
+      undefined,
+    );
 
     const { newConnection, newConnection2, newGroup1 } = getTestData(mockFactory);
 
@@ -989,7 +1029,12 @@ test(`${currentTest} should throw an error, when there is no this email in datab
 test(`${currentTest} should throw an error, when group id is incorrect`, async (t) => {
   try {
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-    const secondUserRegisterInfo = await inviteUserInCompanyAndAcceptInvitation(firstUserToken, undefined, app);
+    const secondUserRegisterInfo = await inviteUserInCompanyAndAcceptInvitation(
+      firstUserToken,
+      undefined,
+      app,
+      undefined,
+    );
 
     const { newConnection, newConnection2, newGroup1 } = getTestData(mockFactory);
 
