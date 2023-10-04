@@ -4,9 +4,12 @@ import { UseCaseType } from '../../common/data-injection.tokens.js';
 import { SentryInterceptor } from '../../interceptors/index.js';
 import { StripeWebhookDS } from './application/data-structures/stripe-webhook.ds.js';
 import { IStripeWebhook } from './use-cases/stripe-use-cases.interface.js';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
 @UseInterceptors(SentryInterceptor)
 @Controller()
+@ApiBearerAuth()
+@ApiTags('stripe')
 @Injectable()
 export class StripeWebhookController {
   constructor(

@@ -27,9 +27,12 @@ import {
   IFindConnectionProperties,
   IUpdateConnectionProperties,
 } from './use-cases/connection-properties-use.cases.interface.js';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
 @UseInterceptors(SentryInterceptor)
 @Controller()
+@ApiBearerAuth()
+@ApiTags('connection properties')
 @Injectable()
 export class ConnectionPropertiesController {
   constructor(

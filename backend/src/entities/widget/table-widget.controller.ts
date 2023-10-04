@@ -21,12 +21,15 @@ import { SentryInterceptor } from '../../interceptors/index.js';
 import { CreateTableWidgetsDs } from './application/data-sctructures/create-table-widgets.ds.js';
 import { FindTableWidgetsDs } from './application/data-sctructures/find-table-widgets.ds.js';
 import { FoundTableWidgetsDs } from './application/data-sctructures/found-table-widgets.ds.js';
-import { CreateOrUpdateTableWidgetsDto, CreateTableWidgetDto } from './dto/index.js';
+import { CreateTableWidgetDto } from './dto/index.js';
 import { ITableWidgetRO } from './table-widget.interface.js';
 import { ICreateUpdateDeleteTableWidgets, IFindTableWidgets } from './use-cases/table-widgets-use-cases.interface.js';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
 @UseInterceptors(SentryInterceptor)
 @Controller()
+@ApiBearerAuth()
+@ApiTags('table widgets')
 @Injectable()
 export class TableWidgetController {
   constructor(

@@ -16,9 +16,12 @@ import {
 import { RegisteredCompanyDS } from './data-structures/registered-company.ds.js';
 import { UserEntity } from '../../entities/user/user.entity.js';
 import { FoundUserDs } from '../../entities/user/application/data-structures/found-user.ds.js';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
 @UseInterceptors(SentryInterceptor)
 @Controller('saas')
+@ApiBearerAuth()
+@ApiTags('saas')
 @Injectable()
 export class SaasController {
   constructor(

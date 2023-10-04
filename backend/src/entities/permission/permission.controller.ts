@@ -18,9 +18,12 @@ import { SentryInterceptor } from '../../interceptors/index.js';
 import { CreatePermissionsDs } from './application/data-structures/create-permissions.ds.js';
 import { IComplexPermission } from './permission.interface.js';
 import { ICreateOrUpdatePermissions } from './use-cases/permissions-use-cases.interface.js';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
 @UseInterceptors(SentryInterceptor)
 @Controller()
+@ApiBearerAuth()
+@ApiTags('permissions')
 @Injectable()
 export class PermissionController {
   constructor(

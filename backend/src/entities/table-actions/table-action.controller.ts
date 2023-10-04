@@ -38,9 +38,12 @@ import {
   IUpdateTableAction,
 } from './use-cases/table-actions-use-cases.interface.js';
 import { FoundTableActionsDS } from './application/data-sctructures/found-table-actions.ds.js';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
 @UseInterceptors(SentryInterceptor)
 @Controller()
+@ApiBearerAuth()
+@ApiTags('table actions')
 @Injectable()
 export class TableActionsController {
   constructor(

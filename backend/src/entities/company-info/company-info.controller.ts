@@ -30,9 +30,12 @@ import { ITokenExp } from '../user/utils/generate-gwt-token.js';
 import { Response } from 'express';
 import { Constants } from '../../helpers/constants/constants.js';
 import { getCookieDomainOptions } from '../user/utils/get-cookie-domain-options.js';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
 @UseInterceptors(SentryInterceptor)
 @Controller('company')
+@ApiBearerAuth()
+@ApiTags('company')
 @Injectable()
 export class CompanyInfoController {
   constructor(

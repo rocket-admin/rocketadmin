@@ -59,9 +59,12 @@ import { OtpValidationResultDS } from './application/data-structures/otp-validat
 import { StripeIntentDs } from './application/data-structures/stripe-intent-id.ds.js';
 import { AddStripeSetupIntentDs } from './application/data-structures/add-stripe-setup-intent.ds.js';
 import { getCookieDomainOptions } from './utils/get-cookie-domain-options.js';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
 @UseInterceptors(SentryInterceptor)
 @Controller()
+@ApiBearerAuth()
+@ApiTags('user')
 @Injectable()
 export class UserController {
   constructor(

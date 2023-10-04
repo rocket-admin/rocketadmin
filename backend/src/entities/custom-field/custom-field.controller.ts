@@ -31,9 +31,12 @@ import {
   IGetCustomFields,
   IUpdateCustomFields,
 } from './use-cases/custom-field-use-cases.interface.js';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
 @UseInterceptors(SentryInterceptor)
 @Controller()
+@ApiBearerAuth()
+@ApiTags('custom fields')
 @Injectable()
 export class CustomFieldController {
   constructor(

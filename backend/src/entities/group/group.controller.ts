@@ -40,9 +40,12 @@ import {
   ISaaSAddUserInGroup,
   IVerifyAddUserInGroup,
 } from './use-cases/use-cases.interfaces.js';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
 @UseInterceptors(SentryInterceptor)
 @Controller()
+@ApiBearerAuth()
+@ApiTags('groups')
 @Injectable()
 export class GroupController {
   constructor(

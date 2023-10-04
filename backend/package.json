@@ -38,6 +38,7 @@
     "@nestjs/platform-express": "10.1.3",
     "@nestjs/schedule": "^3.0.2",
     "@nestjs/serve-static": "^4.0.0",
+    "@nestjs/swagger": "^7.1.13",
     "@nestjs/typeorm": "^10.0.0",
     "@nestjsx/crud": "4.6.2",
     "@ntegral/nestjs-sentry": "4.0.0",

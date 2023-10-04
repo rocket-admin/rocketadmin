@@ -32,9 +32,12 @@ import {
   IFindTableSettings,
   IUpdateTableSettings,
 } from './use-cases/use-cases.interface.js';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
 @UseInterceptors(SentryInterceptor)
 @Controller()
+@ApiBearerAuth()
+@ApiTags('table settings')
 @Injectable()
 export class TableSettingsController {
   constructor(

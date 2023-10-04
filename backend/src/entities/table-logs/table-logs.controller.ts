@@ -17,9 +17,12 @@ import { SentryInterceptor } from '../../interceptors/index.js';
 import { FindLogsDs } from './application/data-structures/find-logs.ds.js';
 import { FoundLogsDs } from './application/data-structures/found-logs.ds.js';
 import { IFindLogs } from './use-cases/use-cases.interface.js';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
 @UseInterceptors(SentryInterceptor)
 @Controller()
+@ApiBearerAuth()
+@ApiTags('table logs')
 @Injectable()
 export class TableLogsController {
   constructor(

@@ -66,9 +66,12 @@ import {
 } from './use-cases/use-cases.interfaces.js';
 import { isTestConnectionUtil } from './utils/is-test-connection-util.js';
 import { TestConnectionResultDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/test-result-connection.ds.js';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
 @UseInterceptors(SentryInterceptor)
 @Controller()
+@ApiBearerAuth()
+@ApiTags('connection')
 @Injectable()
 export class ConnectionController {
   constructor(
