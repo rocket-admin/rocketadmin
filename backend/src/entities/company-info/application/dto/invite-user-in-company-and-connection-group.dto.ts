@@ -1,10 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { UserRoleEnum } from '../../../user/enums/user-role.enum.js';
 
-export class InvitedUserInCompanyAndConnectionGroupDs {
-  @ApiProperty()
-  companyId: string;
-
+export class InviteUserInCompanyAndConnectionGroupDto {
   @ApiProperty()
   groupId: string;
 

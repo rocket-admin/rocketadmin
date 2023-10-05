@@ -30,7 +30,11 @@ import { ITokenExp } from '../user/utils/generate-gwt-token.js';
 import { Response } from 'express';
 import { Constants } from '../../helpers/constants/constants.js';
 import { getCookieDomainOptions } from '../user/utils/get-cookie-domain-options.js';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { InvitedUserInCompanyAndConnectionGroupDs } from './application/data-structures/invited-user-in-company-and-connection-group.ds.js';
+import { InviteUserInCompanyAndConnectionGroupDto } from './application/dto/invite-user-in-company-and-connection-group.dto.js';
+import { VerifyCompanyInvitationRequestDto } from './application/dto/verify-company-invitation-request-dto.js';
+import { TokenExpirationResponseDto } from './application/dto/token-expiration-response.dto.js';
 
 @UseInterceptors(SentryInterceptor)
 @Controller('company')
@@ -45,6 +49,13 @@ export class CompanyInfoController {
     private readonly verifyInviteUserInCompanyAndConnectionGroupUseCase: IVerifyInviteUserInCompanyAndConnectionGroup,
   ) {}
 
+  @ApiOperation({ summary: 'Invite user in company and connection group' })
+  @ApiBody({ type: InviteUserInCompanyAndConnectionGroupDto })
+  @ApiResponse({
+    status: 200,
+    description: 'The company has been successfully invited.',
+    type: InvitedUserInCompanyAndConnectionGroupDs,
+  })
   @UseGuards(CompanyAdminGuard)
   @Put('user/:slug')
   async inviteUserInCompanyAndConnectionGroup(
@@ -71,6 +82,13 @@ export class CompanyInfoController {
     });
   }
 
+  @ApiOperation({ summary: 'Verify invitation in company' })
+  @ApiBody({ type: VerifyCompanyInvitationRequestDto })
+  @ApiResponse({
+    status: 201,
+    description: 'User was successfully invited.',
+    type: TokenExpirationResponseDto,
+  })
   @Post('/invite/verify/:verificationString')
   async verifyCompanyInvitation(
     @Res({ passthrough: true }) response: Response,
