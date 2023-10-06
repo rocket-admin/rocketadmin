@@ -1,9 +1,9 @@
 import dns from 'dns';
 import ipRangeCheck from 'ip-range-check';
 import { Constants } from '../../../helpers/constants/constants.js';
-import { CreateConnectionDto } from '../dto/index.js';
 import { isConnectionEntityAgent } from '../../../helpers/index.js';
 import { isSaaS } from '../../../helpers/app/is-saas.js';
+import { CreateConnectionDto } from '../application/dto/create-connection.dto.js';
 
 export async function isHostAllowed(connectionData: CreateConnectionDto): Promise<boolean> {
   if (isConnectionEntityAgent(connectionData) || process.env.NODE_ENV === 'test') {
@@ -16,7 +16,7 @@ export async function isHostAllowed(connectionData: CreateConnectionDto): Promis
   return new Promise<boolean>((resolve, reject) => {
     const testHosts = Constants.getTestConnectionsHostNamesArr();
     if (!connectionData.ssh) {
-      dns.lookup(connectionData.host, (err, address, family) => {
+      dns.lookup(connectionData.host, (err, address) => {
         if (ipRangeCheck(address, Constants.FORBIDDEN_HOSTS) && !testHosts.includes(connectionData.host)) {
           resolve(false);
         } else {
@@ -27,7 +27,7 @@ export async function isHostAllowed(connectionData: CreateConnectionDto): Promis
         }
       });
     } else if (connectionData.ssh && connectionData.sshHost) {
-      dns.lookup(connectionData.sshHost, (err, address, family) => {
+      dns.lookup(connectionData.sshHost, (err, address) => {
         if (ipRangeCheck(address, Constants.FORBIDDEN_HOSTS) && !testHosts.includes(connectionData.host)) {
           resolve(false);
         } else {
