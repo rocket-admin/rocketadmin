@@ -755,6 +755,11 @@ export class MockFactory {
     tableName = tableName || 'users';
     return {
       hidden_tables: [tableName],
+      logo_url: faker.internet.url(),
+      primary_color: faker.internet.color(),
+      secondary_color: faker.internet.color(),
+      hostname: faker.internet.url(),
+      company_name: faker.company.name(),
     };
   }
 
