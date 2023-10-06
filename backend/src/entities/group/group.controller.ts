@@ -40,7 +40,10 @@ import {
   ISaaSAddUserInGroup,
   IVerifyAddUserInGroup,
 } from './use-cases/use-cases.interfaces.js';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { AddUserIngroupDto } from './dto/add-user-ingroup-dto.js';
+import { TokenExpirationResponseDto } from '../company-info/application/dto/token-expiration-response.dto.js';
+import { DeleteUserFromGroupDTO } from './dto/delete-user-from-group-dto.js';
 
 @UseInterceptors(SentryInterceptor)
 @Controller()
@@ -64,6 +67,12 @@ export class GroupController {
     private readonly amplitudeService: AmplitudeService,
   ) {}
 
+  @ApiOperation({ summary: 'Get all user groups' })
+  @ApiResponse({
+    status: 200,
+    description: 'Get all user groups.',
+    type: FoundUserGroupsDs,
+  })
   @Get('groups')
   async findAll(@UserId() userId: string): Promise<FoundUserGroupsDs> {
     try {
@@ -75,6 +84,12 @@ export class GroupController {
     }
   }
 
+  @ApiOperation({ summary: 'Get all users in group' })
+  @ApiResponse({
+    status: 200,
+    description: 'Get all users in group.',
+    type: Array<FoundUserInGroupDs>,
+  })
   @UseGuards(GroupReadGuard)
   @Get('group/users/:slug')
   async findAllUsersInGroup(@UserId() userId: string, @SlugUuid() groupId: string): Promise<Array<FoundUserInGroupDs>> {
@@ -87,6 +102,13 @@ export class GroupController {
     }
   }
 
+  @ApiOperation({ summary: 'Add user in company and group in company' })
+  @ApiBody({ type: AddUserIngroupDto })
+  @ApiResponse({
+    status: 200,
+    description: 'Add user in company and group in company.',
+    type: AddedUserInGroupDs,
+  })
   @UseGuards(GroupEditGuard)
   @Put('/group/user')
   async addUserInGroup(
@@ -131,6 +153,13 @@ export class GroupController {
     }
   }
 
+  @ApiOperation({ summary: 'Verify user in group invitation' })
+  @ApiBody({ type: VerifyAddUserInGroupDs })
+  @ApiResponse({
+    status: 200,
+    description: 'Verify user in group invitation.',
+    type: TokenExpirationResponseDto,
+  })
   @Put('/group/user/verify/:slug')
   async verifyUserInvitation(
     @Body('password') password: string,
@@ -173,6 +202,12 @@ export class GroupController {
     };
   }
 
+  @ApiOperation({ summary: 'Delete group' })
+  @ApiResponse({
+    status: 200,
+    description: 'Delete group.',
+    type: DeletedGroupResultDs,
+  })
   @UseGuards(GroupEditGuard)
   @Delete('/group/:slug')
   async delete(@SlugUuid() groupId: string, @UserId() userId: string): Promise<DeletedGroupResultDs> {
@@ -185,6 +220,13 @@ export class GroupController {
     }
   }
 
+  @ApiOperation({ summary: 'Delete user from group' })
+  @ApiBody({ type: DeleteUserFromGroupDTO })
+  @ApiResponse({
+    status: 200,
+    description: 'Delete user from group.',
+    type: RemoveUserFromGroupResultDs,
+  })
   @UseGuards(GroupEditGuard)
   @Put('/group/user/delete')
   async removeUserFromGroup(

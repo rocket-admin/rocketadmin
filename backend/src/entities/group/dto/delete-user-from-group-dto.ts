@@ -1,9 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger';
 
-export class VerifyAddUserInGroupDs {
+export class DeleteUserFromGroupDTO {
   @ApiProperty()
-  password: string;
+  email: string;
 
   @ApiProperty()
-  name: string;
+  groupId: string;
 }
