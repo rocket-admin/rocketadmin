@@ -31,7 +31,8 @@ import {
   IGetCustomFields,
   IUpdateCustomFields,
 } from './use-cases/custom-field-use-cases.interface.js';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { CreateCustomFieldDto, UpdateCustomFieldDTO } from './dto/create-custom-field.dto.js';
 
 @UseInterceptors(SentryInterceptor)
 @Controller()
@@ -50,6 +51,12 @@ export class CustomFieldController {
     private readonly deleteCustomFieldUseCase: IDeleteCustomField,
   ) {}
 
+  @ApiOperation({ summary: 'Get custom fields' })
+  @ApiResponse({
+    status: 200,
+    description: 'Receive custom fields.',
+    type: Array<FoundCustomFieldsDs>,
+  })
   @UseGuards(ConnectionReadGuard)
   @Get('/fields/:slug')
   @UseInterceptors(ClassSerializerInterceptor)
@@ -64,6 +71,13 @@ export class CustomFieldController {
     return await this.getCustomFieldsUseCase.execute(inputData, InTransactionEnum.OFF);
   }
 
+  @ApiOperation({ summary: 'Create custom field' })
+  @ApiBody({ type: CreateCustomFieldDto })
+  @ApiResponse({
+    status: 201,
+    description: 'Create custom field.',
+    type: FoundTableSettingsDs,
+  })
   @UseGuards(ConnectionEditGuard)
   @Post('/field/:slug')
   @UseInterceptors(ClassSerializerInterceptor)
@@ -91,6 +105,13 @@ export class CustomFieldController {
     return await this.createCustomFieldsUseCase.execute(inputData, InTransactionEnum.ON);
   }
 
+  @ApiOperation({ summary: 'Update custom field' })
+  @ApiBody({ type: UpdateCustomFieldDTO })
+  @ApiResponse({
+    status: 200,
+    description: 'Update custom field.',
+    type: FoundCustomFieldsDs,
+  })
   @UseGuards(ConnectionEditGuard)
   @Put('/field/:slug')
   @UseInterceptors(ClassSerializerInterceptor)
@@ -128,6 +149,12 @@ export class CustomFieldController {
     return await this.updateCustomFieldsUseCase.execute(inputData, InTransactionEnum.ON);
   }
 
+  @ApiOperation({ summary: 'Delete custom field' })
+  @ApiResponse({
+    status: 200,
+    description: 'Delete custom field.',
+    type: FoundTableSettingsDs,
+  })
   @UseGuards(ConnectionEditGuard)
   @Delete('/field/:slug')
   @UseInterceptors(ClassSerializerInterceptor)
