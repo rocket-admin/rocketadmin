@@ -208,7 +208,7 @@ export const Constants = {
   </p>
  </body>`,
 
-  AUTOADMIN_EMAIL_SUBJECT_DATA: 'Can we help you with your Autoadmin database connection?',
+  AUTOADMIN_EMAIL_SUBJECT_DATA: 'Can we help you with your Rocketadmin database connection?',
 
   EMAIL: {
     AUTOADMIN_SUPPORT_MAIL: 'support@autoadmin.org',
@@ -239,9 +239,9 @@ export const Constants = {
         `;
       },
 
-      NEW_PASSWORD_SUBJECT_DATA: `Password for Autoadmin changed`,
+      NEW_PASSWORD_SUBJECT_DATA: `Password for Rocketadmin changed`,
       NEW_PASSWORD_EMAIL_TEXT: function (newPassword: string): string {
-        return `Hi! Your password for Autoadmin has been changed. Your new password is: ${newPassword}
+        return `Hi! Your password for Rocketadmin has been changed. Your new password is: ${newPassword}
          If it wasn't you, please contact our support team.`;
       },
       NEW_PASSWORD_EMAIL_HTML: function (newPassword: string): string {
@@ -251,7 +251,7 @@ export const Constants = {
             Hi!
           </p>
           <p>
-          Your password for Autoadmin has been changed. Your new password is:
+          Your password for Rocketadmin has been changed. Your new password is:
           <b>${newPassword}</b>
           </p>
           <p>
@@ -271,7 +271,7 @@ export const Constants = {
          If it wasn't you, please contact our support team.`;
       },
       CHANGED_EMAIL_TEXT: 'Hi! Your email successfully changed.',
-      CHANGED_EMAIL_SUBJECT_DATA: 'Your Autoadmin email changed',
+      CHANGED_EMAIL_SUBJECT_DATA: 'Your Rocketadmin email changed',
       CHANGE_EMAIL_HTML: function (requestString: string) {
         return `
         <body>
@@ -303,9 +303,9 @@ export const Constants = {
           </p>
       </body>
       `,
-      CONFIRM_EMAIL_SUBJECT: `Finish your registration in Autoadmin project`,
+      CONFIRM_EMAIL_SUBJECT: `Finish your registration in Rocketadmin project`,
       CONFIRM_EMAIL_TEXT: function (verificationString: string) {
-        return `Hi! You have registered in the Autoadmin project. Please follow the link and verify your email:
+        return `Hi! You have registered in the Rocketadmin project. Please follow the link and verify your email:
        ${Constants.APP_DOMAIN_ADDRESS}/external/user/email/verify/${verificationString}
        `;
       },
@@ -330,9 +330,9 @@ export const Constants = {
       },
     },
     GROUP_INVITE: {
-      GROUP_INVITE_SUBJECT_DATA: 'You were invited to a group in the Autoadmin project',
+      GROUP_INVITE_SUBJECT_DATA: 'You were invited to a group in the Rocketadmin project',
       GROUP_INVITE_TEXT_DATA: function (verificationString) {
-        return `You have been added to a group in the Autoadmin project.
+        return `You have been added to a group in the Rocketadmin project.
          Please follow the link and accept the invitation:
            ${Constants.APP_DOMAIN_ADDRESS}/external/group/user/verify/${verificationString}/`;
       },
@@ -343,9 +343,34 @@ export const Constants = {
             Hi!
           </p>
           <p>
-          You have been added to a group in the Autoadmin project.
+          You have been added to a group in the Rocketadmin project.
           Please follow the link and accept the invitation:
           <a href="${Constants.APP_DOMAIN_ADDRESS}/external/group/user/verify/${verificationString}"></a>
+          </p>
+          <p>
+            Thanks.
+          </p>
+        </body>
+        `;
+      },
+    },
+    COMPANY_INVITE: {
+      COMPANY_INVITE_SUBJECT_DATA: 'You were invited to a company in the Rocketadmin project',
+      COMPANY_INVITE_TEXT_DATA: function (verificationString) {
+        return `You have been added to a company in the Rocketadmin project.
+         Please follow the link and accept the invitation:
+           ${Constants.APP_DOMAIN_ADDRESS}/external/company/user/verify/${verificationString}/`;
+      },
+      COMPANY_INVITE_HTML_DATA: function (verificationString) {
+        return `
+        <body>
+          <p>
+            Hi!
+          </p>
+          <p>
+          You have been added to a company in the Rocketadmin project.
+          Please follow the link and accept the invitation:
+          <a href="${Constants.APP_DOMAIN_ADDRESS}/external/company/user/verify/${verificationString}"></a>
           </p>
           <p>
             Thanks.

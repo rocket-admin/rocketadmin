@@ -1,3 +1,5 @@
+import { UserRoleEnum } from "../../enums/user-role.enum.js";
+
 export class UsualRegisterUserDs {
   email: string;
   password: string;
@@ -7,6 +9,7 @@ export class UsualRegisterUserDs {
 
 export class SaasUsualUserRegisterDS extends UsualRegisterUserDs {
   companyId?: string;
+  userRole?: UserRoleEnum;
 }
 
 export class RegisterInvitedUserDS {

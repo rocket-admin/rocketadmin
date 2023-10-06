@@ -249,4 +249,8 @@ export class Encryptor {
     const secret = base32Encode(secretBytes, 'RFC4648', { padding: false });
     return secret;
   }
+
+  static generateUUID(): string {
+    return crypto.randomUUID();
+  }
 }

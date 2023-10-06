@@ -11,6 +11,7 @@ import {
 } from '../../enums/index.js';
 import { toPrettyErrorsMsg } from '../../helpers/index.js';
 import { enumToString } from '../../helpers/enum-to-string.js';
+import { UserRoleEnum } from '../../entities/user/enums/user-role.enum.js';
 
 export const Messages = {
   ACCESS_LEVEL_INVALID: 'Access level is invalid',
@@ -109,8 +110,8 @@ export const Messages = {
   FAILED_REMOVE_USER_FROM_GROUP: 'Failed to remove user from group.',
   FAILED_TABLE_SETTINGS_DELETE: 'Failed to delete table settings. ',
   FAILED_TO_GET_TABLE_SCHEMA: (tableName: string) => `Table schema of table ${tableName} not found.`,
-  FAILED_TO_SEND_INVITATION_EMAIL: (email: string) => `Failed to send invitation email on adress ${email}`,
-  FAILED_TO_SEND_CONFIRMATION_EMAIL: (email: string) => `Failed to send confirmation email on adress ${email}`,
+  FAILED_TO_SEND_INVITATION_EMAIL: (email: string) => `Failed to send invitation email on address ${email}`,
+  FAILED_TO_SEND_CONFIRMATION_EMAIL: (email: string) => `Failed to send confirmation email on address ${email}`,
   FAILED_LOGOUT: `Failed to log out`,
   FAILED_UPDATE_MASTER_PASSWORD: `Failed update master password`,
   FAILED_UPDATE_TABLE_SETTINGS: 'Failed to update table settings. ',
@@ -133,6 +134,7 @@ export const Messages = {
     LogOperationTypeEnum,
   )}`,
   INVALID_USERNAME_OR_PASSWORD: `Username or password is invalid`,
+  INVALID_USER_COMPANY_ROLE: `Invalid user role in company. Only supported is ${enumToString(UserRoleEnum)}`,
   INVALID_JWT_TOKEN: `JWT token syntax is invalid`,
   LIST_PER_PAGE_INCORRECT: `You can't display less than one row per page`,
   MASTED_NEW_PASSWORD_MISSING: `New master password is missing.`,
@@ -190,7 +192,7 @@ export const Messages = {
   SSH_PORT_FORMAT_INCORRECT: 'Ssh port value must be a number',
   SSH_USERNAME_MISSING: 'Ssh username is missing',
   SSH_PASSWORD_MISSING: 'Ssh private key is missing',
-  TABLE_ACTION_TYPE_INCORRECT: `Incrorrect table action. Now we supports types: ${enumToString(TableActionTypeEnum)}`,
+  TABLE_ACTION_TYPE_INCORRECT: `Incorrect table action. Now we supports types: ${enumToString(TableActionTypeEnum)}`,
   TABLE_ID_MISSING: 'Table id is missing',
   TABLE_LOGS_NOT_FOUND: `Unable to find logs for this table`,
   TABLE_NAME_MISSING: 'Table name missing.',
@@ -212,8 +214,13 @@ export const Messages = {
   UNABLE_FIND_PORT: `Unable to find a free port. Please try again later. If the problem persists, please contact our support team`,
   UPDATE_ROW_FAILED: 'Row updating failed',
   USER_ALREADY_ADDED: 'User has already been added in this group',
+  USER_ALREADY_ADDED_IN_COMPANY: 'User has already been added in this company',
+  USER_ALREADY_ADDED_IN_COMPANY_BUT_NOT_ACTIVE:
+    'User has already been added in this company, but email is not confirmed. We sent new invitation on this users email.',
   USER_ALREADY_ADDED_BUT_NOT_ACTIVE:
     'User already added in this group, but email is not confirmed. We sent new invitation on this users email.',
+  USER_ALREADY_ADDED_BUT_NOT_ACTIVE_IN_COMPANY:
+    'User already added in this company, but email is not confirmed. We sent new invitation on this users email.',  
   USER_CREATE_CONNECTION: (email: string, connectionType: any) =>
     `Connection of type "${connectionType}" was added by user "${email}".`,
   USER_CREATED: (email: string, provider: ProviderTypeEnum = null) =>
@@ -255,7 +262,8 @@ export const Messages = {
   USER_ADDED_IN_GROUP: (email: string) => `User ${email} was added in group successfully`,
   USER_ALREADY_REGISTERED: (email: string) => `User with email ${email} is already registered`,
   USER_NOT_FOUND: 'User with specified parameters not found',
-  USER_NOT_INVITED_IN_COMPANY: (email: string) => `User ${email} is not invited in company. Invite user in company first`,
+  USER_NOT_INVITED_IN_COMPANY: (email: string) =>
+    `User ${email} is not invited in company. Invite user in company first`,
   USER_ID_MISSING: 'User id is missing',
   USER_TRY_CREATE_CONNECTION: (email: string) => `User "${email}" tried to create connection.`,
   USERNAME_MISSING: 'Username is missing',
@@ -278,8 +286,10 @@ export const Messages = {
   MAXIMUM_INVITATIONS_COUNT_REACHED: 'Sorry, the maximum number of invitations has been reached. Try again later.',
   MAXIMUM_FREE_INVITATION_REACHED: 'Sorry, reached maximum number of users for free plan',
   MAXIMUM_FREE_INVITATION_REACHED_CANNOT_BE_INVITED:
-    'Sorry you can not join this group because reached maximum number of users for free plan. Please ask you connection owner to upgrade plan or delete unnessesary user from group',
-  FAILED_CREATE_SUBSCRIPTION_LOG: 'Failed to create subscription log. Please contact our support team.',
+    'Sorry you can not join this group because reached maximum number of users for free plan. Please ask you connection owner to upgrade plan or delete unnecessary user from group',
+    MAXIMUM_FREE_INVITATION_REACHED_CANNOT_BE_INVITED_IN_COMPANY:
+    'Sorry you can not join this company because reached maximum number of users for free plan. Please ask you connection owner to upgrade plan or delete unnecessary user from company',
+    FAILED_CREATE_SUBSCRIPTION_LOG: 'Failed to create subscription log. Please contact our support team.',
   FAILED_CREATE_SUBSCRIPTION_LOG_YOUR_CUSTOMER_IS_DELETED: `Failed to create subscription log. Your customer is deleted. Please contact our support team.`,
   URL_INVALID: `Url is invalid`,
 };

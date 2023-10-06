@@ -2,6 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { BaseSaasGatewayService } from './base-saas-gateway.service.js';
 import { RegisteredCompanyUserInviteGroupDS } from './data-structures/registered-company-when-user-invite-group.ds.js';
 import { isObjectEmpty } from '../../../helpers/is-object-empty.js';
+import { UserRoleEnum } from '../../../entities/user/enums/user-role.enum.js';
+import { isSaaS } from '../../../helpers/app/is-saas.js';
 
 @Injectable()
 export class SaasCompanyGatewayService extends BaseSaasGatewayService {
@@ -30,6 +32,9 @@ export class SaasCompanyGatewayService extends BaseSaasGatewayService {
   }
 
   public async canInviteMoreUsers(companyId: string): Promise<boolean> {
+    if (!isSaaS()) {
+      return true;
+    }
     const canInviteMoreUsersResult = await this.sendRequestToSaaS(
       `/webhook/company/invite/check/${companyId}`,
       'GET',
@@ -67,5 +72,35 @@ export class SaasCompanyGatewayService extends BaseSaasGatewayService {
     gitHubId: number,
   ): Promise<RegisteredCompanyUserInviteGroupDS | null> {
     return await this.registerCompanyWhenUserInviteInGroup(userId, userEmail, gitHubId);
+  }
+
+  public async invitationSentWebhook(
+    companyId: string,
+    newUserEmail: string,
+    userRole: UserRoleEnum,
+    inviterId: string,
+    verificationString: string,
+  ): Promise<void> {
+    await this.sendRequestToSaaS(`/webhook/company/invitation`, 'POST', {
+      userEmail: newUserEmail,
+      companyId: companyId,
+      userRole: userRole,
+      inviterId: inviterId,
+      verificationString: verificationString,
+    });
+  }
+
+  public async invitationAcceptedWebhook(
+    newUserId: string,
+    companyId: string,
+    userRole: UserRoleEnum,
+    newUserEmail: string,
+  ): Promise<void> {
+    await this.sendRequestToSaaS(`/webhook/company/invitation/accept`, 'POST', {
+      newUserId,
+      companyId,
+      userRole,
+      newUserEmail,
+    });
   }
 }
