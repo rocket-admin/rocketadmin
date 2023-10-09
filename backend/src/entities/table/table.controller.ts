@@ -37,7 +37,7 @@ import { GetRowByPrimaryKeyDs } from './application/data-structures/get-row-by-p
 import { GetTableRowsDs } from './application/data-structures/get-table-rows.ds.js';
 import { GetTableStructureDs } from './application/data-structures/get-table-structure-ds.js';
 import { UpdateRowInTableDs } from './application/data-structures/update-row-in-table.ds.js';
-import { IStructureRO, ITableRowRO } from './table.interface.js';
+import { TableStructureDs, TableRowRODs } from './table-datastructures.js';
 import {
   IAddRowInTable,
   IDeleteRowFromTable,
@@ -48,7 +48,7 @@ import {
   IGetTableStructure,
   IUpdateRowInTable,
 } from './use-cases/table-use-cases.interface.js';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 @UseInterceptors(SentryInterceptor)
 @Controller()
@@ -82,6 +82,12 @@ export class TableController {
     protected _dbContext: IGlobalDatabaseContext,
   ) {}
 
+  @ApiOperation({ summary: 'Get tables from connection' })
+  @ApiResponse({
+    status: 200,
+    description: 'Returns all tables from connection.',
+    type: Array<FoundTableDs>,
+  })
   @Get('/connection/tables/:slug')
   async findTablesInConnection(
     @SlugUuid() connectionId: string,
@@ -107,6 +113,12 @@ export class TableController {
     return await this.findTablesInConnectionUseCase.execute(inputData, InTransactionEnum.OFF);
   }
 
+  @ApiOperation({ summary: 'Get all table rows' })
+  @ApiResponse({
+    status: 200,
+    description: 'Returns all table rows.',
+    type: FoundTableRowsDs,
+  })
   @UseGuards(TableReadGuard)
   @Get('/table/rows/:slug')
   async findAllRows(
@@ -152,6 +164,12 @@ export class TableController {
     return await this.getTableRowsUseCase.execute(inputData, InTransactionEnum.OFF);
   }
 
+  @ApiOperation({ summary: 'Get table structure' })
+  @ApiResponse({
+    status: 200,
+    description: 'Returns table structure.',
+    type: TableStructureDs,
+  })
   @UseGuards(TableReadGuard)
   @Get('/table/structure/:slug')
   async getTableStructure(
@@ -159,7 +177,7 @@ export class TableController {
     @UserId() userId: string,
     @SlugUuid() connectionId: string,
     @MasterPassword() masterPwd: string,
-  ): Promise<IStructureRO> {
+  ): Promise<TableStructureDs> {
     if (!connectionId) {
       throw new HttpException(
         {
@@ -177,16 +195,23 @@ export class TableController {
     return await this.getTableStructureUseCase.execute(inputData, InTransactionEnum.OFF);
   }
 
+  @ApiOperation({ summary: 'Add row in table' })
+  @ApiBody({ type: Object })
+  @ApiResponse({
+    status: 201,
+    description: 'Add row in table.',
+    type: TableRowRODs,
+  })
   @UseGuards(TableAddGuard)
   @Post('/table/row/:slug')
   async addRowInTable(
-    @Body() body: string,
+    @Body() body: Record<string, unknown>,
     @Query() query: string,
     @SlugUuid() connectionId: string,
     @UserId() userId: string,
     @MasterPassword() masterPwd: string,
     @QueryTableName() tableName: string,
-  ): Promise<ITableRowRO | boolean> {
+  ): Promise<TableRowRODs | boolean> {
     if (!connectionId || isObjectEmpty(body)) {
       throw new HttpException(
         {
@@ -198,13 +223,19 @@ export class TableController {
     const inputData: AddRowInTableDs = {
       connectionId: connectionId,
       masterPwd: masterPwd,
-      row: body as unknown as Record<string, unknown>,
+      row: body,
       tableName: tableName,
       userId: userId,
     };
     return await this.addRowInTableUseCase.execute(inputData, InTransactionEnum.OFF);
   }
-
+  @ApiOperation({ summary: 'Update row in table by primary key' })
+  @ApiBody({ type: Object })
+  @ApiResponse({
+    status: 200,
+    description: 'Update row in table.',
+    type: TableRowRODs,
+  })
   @UseGuards(TableEditGuard)
   @Put('/table/row/:slug')
   async updateRowInTable(
@@ -214,7 +245,7 @@ export class TableController {
     @MasterPassword() masterPwd: string,
     @SlugUuid() connectionId: string,
     @QueryTableName() tableName: string,
-  ): Promise<ITableRowRO> {
+  ): Promise<TableRowRODs> {
     if (!connectionId || !body) {
       throw new HttpException(
         {
@@ -240,6 +271,12 @@ export class TableController {
     return await this.updateRowInTableUseCase.execute(inputData, InTransactionEnum.OFF);
   }
 
+  @ApiOperation({ summary: 'Delete row from table by primary key' })
+  @ApiResponse({
+    status: 200,
+    description: 'Delete row from table.',
+    type: DeletedRowFromTableDs,
+  })
   @UseGuards(TableDeleteGuard)
   @Delete('/table/row/:slug')
   async deleteRowInTable(
@@ -273,6 +310,12 @@ export class TableController {
     return await this.deleteRowFromTableUseCase.execute(inputData, InTransactionEnum.OFF);
   }
 
+  @ApiOperation({ summary: 'Multiple delete rows from table by primary key' })
+  @ApiResponse({
+    status: 200,
+    description: 'Delete rows from table.',
+    type: Array<Record<string, unknown>>,
+  })
   @UseGuards(TableDeleteGuard)
   @Put('/table/rows/delete/:slug')
   async deleteRowsInTable(
@@ -308,6 +351,12 @@ export class TableController {
     return await this.deleteRowsFromTableUseCase.execute(inputData, InTransactionEnum.OFF);
   }
 
+  @ApiOperation({ summary: 'Get row from table by primary key' })
+  @ApiResponse({
+    status: 200,
+    description: 'Get row from table.',
+    type: TableRowRODs,
+  })
   @UseGuards(TableReadGuard)
   @Get('/table/row/:slug')
   async getRowByPrimaryKey(
@@ -316,7 +365,7 @@ export class TableController {
     @SlugUuid() connectionId: string,
     @UserId() userId: string,
     @QueryTableName() tableName: string,
-  ): Promise<ITableRowRO> {
+  ): Promise<TableRowRODs> {
     const primaryKeys = await this.getPrimaryKeys(userId, connectionId, tableName, query, masterPwd);
 
     const propertiesArray = primaryKeys.map((el) => {

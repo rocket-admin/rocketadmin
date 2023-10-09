@@ -20,17 +20,29 @@ export class PermissionsDs {
   tables: Array<TablePermissionDs>;
 }
 
-export class TablePermissionDs {
-  accessLevel: TableAccessLevelsDs;
-  tableName: string;
+export class TableAccessLevelsDs {
+  @ApiProperty()
+  add: boolean;
+
+  @ApiProperty()
+  delete: boolean;
+
+  @ApiProperty()
+  edit: boolean;
+
+  @ApiProperty()
+  readonly: boolean;
+
+  @ApiProperty()
+  visibility: boolean;
 }
 
-export class TableAccessLevelsDs {
-  add: boolean;
-  delete: boolean;
-  edit: boolean;
-  readonly: boolean;
-  visibility: boolean;
+export class TablePermissionDs {
+  @ApiProperty()
+  accessLevel: TableAccessLevelsDs;
+
+  @ApiProperty()
+  tableName: string;
 }
 
 export class GroupPermissionDs {

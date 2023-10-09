@@ -19,7 +19,7 @@ import { TableLogsService } from '../../table-logs/table-logs.service.js';
 import { TableSettingsEntity } from '../../table-settings/table-settings.entity.js';
 import { FoundTableRowsDs } from '../application/data-structures/found-table-rows.ds.js';
 import { GetTableRowsDs } from '../application/data-structures/get-table-rows.ds.js';
-import { ForeignKeyDSInfo } from '../table.interface.js';
+import { ForeignKeyDSInfo } from '../table-datastructures.js';
 import { addCustomFieldsInRowsUtil } from '../utils/add-custom-fields-in-rows.util.js';
 import { convertBinaryDataInRowsUtil } from '../utils/convert-binary-data-in-rows.util.js';
 import { findAutocompleteFieldsUtil } from '../utils/find-autocomplete-fields.util.js';

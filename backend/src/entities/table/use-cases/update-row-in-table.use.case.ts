@@ -16,7 +16,7 @@ import { AmplitudeService } from '../../amplitude/amplitude.service.js';
 import { isTestConnectionUtil } from '../../connection/utils/is-test-connection-util.js';
 import { TableLogsService } from '../../table-logs/table-logs.service.js';
 import { UpdateRowInTableDs } from '../application/data-structures/update-row-in-table.ds.js';
-import { ForeignKeyDSInfo, IReferencedTableNamesAndColumns, ITableRowRO } from '../table.interface.js';
+import { ForeignKeyDSInfo, ReferencedTableNamesAndColumnsDs, TableRowRODs } from '../table-datastructures.js';
 import { formFullTableStructure } from '../utils/form-full-table-structure.js';
 import { hashPasswordsInRowUtil } from '../utils/hash-passwords-in-row.util.js';
 import { processUuidsInRowUtil } from '../utils/process-uuids-in-row-util.js';
@@ -32,7 +32,7 @@ import { ReferencedTableNamesAndColumnsDS } from '@rocketadmin/shared-code/dist/
 
 @Injectable()
 export class UpdateRowInTableUseCase
-  extends AbstractUseCase<UpdateRowInTableDs, ITableRowRO>
+  extends AbstractUseCase<UpdateRowInTableDs, TableRowRODs>
   implements IUpdateRowInTable
 {
   constructor(
@@ -44,7 +44,7 @@ export class UpdateRowInTableUseCase
     super();
   }
 
-  protected async implementation(inputData: UpdateRowInTableDs): Promise<ITableRowRO> {
+  protected async implementation(inputData: UpdateRowInTableDs): Promise<TableRowRODs> {
     // eslint-disable-next-line prefer-const
     let { connectionId, masterPwd, primaryKey, row, tableName, userId } = inputData;
     let operationResult = OperationResultStatusEnum.unknown;
@@ -96,11 +96,11 @@ export class UpdateRowInTableUseCase
       dao.getReferencedTableNamesAndColumns(tableName, userEmail),
     ]);
 
-    const referencedTableNamesAndColumnsWithTablesDisplayNames: Array<IReferencedTableNamesAndColumns> =
+    const referencedTableNamesAndColumnsWithTablesDisplayNames: Array<ReferencedTableNamesAndColumnsDs> =
       await Promise.all(
         referencedTableNamesAndColumns.map(async (el: ReferencedTableNamesAndColumnsDS) => {
           const { referenced_by, referenced_on_column_name } = el;
-          const responseObject: IReferencedTableNamesAndColumns = {
+          const responseObject: ReferencedTableNamesAndColumnsDs = {
             referenced_on_column_name: referenced_on_column_name,
             referenced_by: [],
           };

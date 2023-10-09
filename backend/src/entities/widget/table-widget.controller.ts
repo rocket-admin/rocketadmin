@@ -22,7 +22,7 @@ import { CreateTableWidgetsDs } from './application/data-sctructures/create-tabl
 import { FindTableWidgetsDs } from './application/data-sctructures/find-table-widgets.ds.js';
 import { FoundTableWidgetsDs } from './application/data-sctructures/found-table-widgets.ds.js';
 import { CreateTableWidgetDto } from './dto/index.js';
-import { ITableWidgetRO } from './table-widget.interface.js';
+import { TableWidgetRO } from './table-widget.interface.js';
 import { ICreateUpdateDeleteTableWidgets, IFindTableWidgets } from './use-cases/table-widgets-use-cases.interface.js';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
@@ -48,7 +48,7 @@ export class TableWidgetController {
     @MasterPassword() masterPwd: string,
     @Param() params,
     @QueryTableName() tableName: string,
-  ): Promise<Array<ITableWidgetRO>> {
+  ): Promise<Array<TableWidgetRO>> {
     if (!connectionId) {
       throw new HttpException(
         {
