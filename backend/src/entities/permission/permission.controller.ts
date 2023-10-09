@@ -15,10 +15,9 @@ import { InTransactionEnum } from '../../enums/index.js';
 import { Messages } from '../../exceptions/text/messages.js';
 import { GroupEditGuard } from '../../guards/index.js';
 import { SentryInterceptor } from '../../interceptors/index.js';
-import { CreatePermissionsDs } from './application/data-structures/create-permissions.ds.js';
-import { IComplexPermission } from './permission.interface.js';
+import { ComplexPermissionDs, CreatePermissionsDs } from './application/data-structures/create-permissions.ds.js';
 import { ICreateOrUpdatePermissions } from './use-cases/permissions-use-cases.interface.js';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 @UseInterceptors(SentryInterceptor)
 @Controller()
@@ -31,14 +30,21 @@ export class PermissionController {
     private readonly createOrUpdatePermissionsUseCase: ICreateOrUpdatePermissions,
   ) {}
 
+  @ApiOperation({ summary: 'Create or update permissions in group' })
+  @ApiBody({ type: ComplexPermissionDs })
+  @ApiResponse({
+    status: 200,
+    description: 'Create or update permissions in group.',
+    type: ComplexPermissionDs,
+  })
   @UseGuards(GroupEditGuard)
   @Put('permissions/:slug')
   async createOrUpdatePermissions(
-    @Body('permissions') permissions: IComplexPermission,
+    @Body('permissions') permissions: ComplexPermissionDs,
     @SlugUuid() groupId: string,
     @UserId() userId: string,
     @MasterPassword() masterPwd: string,
-  ): Promise<IComplexPermission> {
+  ): Promise<ComplexPermissionDs> {
     if (!groupId) {
       throw new HttpException(
         {

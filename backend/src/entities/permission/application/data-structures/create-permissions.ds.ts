@@ -1,3 +1,4 @@
+import { ApiProperty } from '@nestjs/swagger';
 import { AccessLevelEnum } from '../../../../enums/index.js';
 
 export class CreatePermissionsDs {
@@ -30,4 +31,31 @@ export class TableAccessLevelsDs {
   edit: boolean;
   readonly: boolean;
   visibility: boolean;
+}
+
+export class GroupPermissionDs {
+  @ApiProperty()
+  groupId: string;
+
+  @ApiProperty({ enum: AccessLevelEnum })
+  accessLevel: AccessLevelEnum;
+}
+
+export class ConnectionPermissionDs {
+  @ApiProperty()
+  connectionId: string;
+
+  @ApiProperty({ enum: AccessLevelEnum })
+  accessLevel: AccessLevelEnum;
+}
+
+export class ComplexPermissionDs {
+  @ApiProperty()
+  connection: ConnectionPermissionDs;
+
+  @ApiProperty()
+  group: GroupPermissionDs;
+
+  @ApiProperty({ isArray: true, type: TablePermissionDs })
+  tables: Array<TablePermissionDs>;
 }
