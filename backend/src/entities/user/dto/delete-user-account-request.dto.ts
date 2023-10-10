@@ -1,9 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger';
 
-export class UpgradedUserSubscriptionDs {
+export class DeleteUserAccountDTO {
   @ApiProperty()
-  success: boolean;
+  reason: string;
 
   @ApiProperty()
-  message: string;
+  password: string;
 }

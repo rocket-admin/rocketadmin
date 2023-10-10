@@ -1,9 +1,9 @@
-import { ApiProperty } from '@nestjs/swagger';
 import { SubscriptionLevelEnum } from '../../../../enums/index.js';
+import { ApiProperty } from '@nestjs/swagger';
 
 export class UpgradeUserSubscriptionDs {
-  cognitoUserName: string;
-
-  @ApiProperty()
+  @ApiProperty({ enum: SubscriptionLevelEnum })
   subscriptionLevel: SubscriptionLevelEnum;
+  
+  cognitoUserName: string;
 }
