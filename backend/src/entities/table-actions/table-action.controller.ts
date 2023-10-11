@@ -38,9 +38,13 @@ import {
   IUpdateTableAction,
 } from './use-cases/table-actions-use-cases.interface.js';
 import { FoundTableActionsDS } from './application/data-sctructures/found-table-actions.ds.js';
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ActivateTableActionRO } from './dto/activate-table-action.ro.js';
 
 @UseInterceptors(SentryInterceptor)
 @Controller()
+@ApiBearerAuth()
+@ApiTags('table actions')
 @Injectable()
 export class TableActionsController {
   constructor(
@@ -60,6 +64,12 @@ export class TableActionsController {
     private readonly findTableActionUseCase: IFindTableAction,
   ) {}
 
+  @ApiOperation({ summary: 'Get table actions' })
+  @ApiResponse({
+    status: 200,
+    description: 'Returns table actions.',
+    type: FoundTableActionsDS,
+  })
   @UseGuards(ConnectionReadGuard)
   @Get('/table/actions/:slug')
   async findTableActions(
@@ -77,6 +87,12 @@ export class TableActionsController {
     return await this.findTableActionsUseCase.execute(inputData, InTransactionEnum.OFF);
   }
 
+  @ApiOperation({ summary: 'Get table action by id' })
+  @ApiResponse({
+    status: 200,
+    description: 'Returns table action with specified id.',
+    type: CreatedTableActionDS,
+  })
   @UseGuards(ConnectionReadGuard)
   @Get('/table/action/:slug')
   async findTableAction(@Query('actionId') actionId: string): Promise<CreatedTableActionDS> {
@@ -91,6 +107,13 @@ export class TableActionsController {
     return await this.findTableActionUseCase.execute(actionId, InTransactionEnum.OFF);
   }
 
+  @ApiOperation({ summary: 'Create table action' })
+  @ApiBody({ type: CreateTableActionDS })
+  @ApiResponse({
+    status: 201,
+    description: 'Create table action.',
+    type: CreatedTableActionDS,
+  })
   @UseGuards(ConnectionEditGuard)
   @Post('/table/action/:slug')
   async createAction(
@@ -119,6 +142,13 @@ export class TableActionsController {
     return await this.createTableActionUseCase.execute(inputData, InTransactionEnum.OFF);
   }
 
+  @ApiOperation({ summary: 'Update table action' })
+  @ApiBody({ type: CreateTableActionDS })
+  @ApiResponse({
+    status: 200,
+    description: 'Update table action.',
+    type: CreatedTableActionDS,
+  })
   @UseGuards(ConnectionEditGuard)
   @Put('/table/action/:slug')
   async updateAction(
@@ -141,12 +171,24 @@ export class TableActionsController {
     return await this.updateTableActionUseCase.execute(inputData, InTransactionEnum.OFF);
   }
 
+  @ApiOperation({ summary: 'Delete table action' })
+  @ApiResponse({
+    status: 200,
+    description: 'Delete table action.',
+    type: CreatedTableActionDS,
+  })
   @UseGuards(ConnectionEditGuard)
   @Delete('/table/action/:slug')
   async deleteAction(@Query('actionId') actionId: string): Promise<CreatedTableActionDS> {
     return await this.deleteTableActionUseCase.execute(actionId, InTransactionEnum.OFF);
   }
 
+  @ApiOperation({ summary: 'Activate table action' })
+  @ApiResponse({
+    status: 201,
+    description: 'Activate table action.',
+    type: ActivateTableActionRO,
+  })
   @UseGuards(ConnectionReadGuard)
   @Post('/table/action/activate/:slug')
   async activateAction(
@@ -171,6 +213,11 @@ export class TableActionsController {
     return await this.activateTableActionUseCase.execute(inputData, InTransactionEnum.OFF);
   }
 
+  @ApiOperation({ summary: 'Activate multiple table actions' })
+  @ApiResponse({
+    status: 201,
+    description: 'Activate table actions.',
+  })
   @UseGuards(ConnectionReadGuard)
   @Post('/table/actions/activate/:slug')
   async activateActions(

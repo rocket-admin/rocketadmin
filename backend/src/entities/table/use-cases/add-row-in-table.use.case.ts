@@ -16,7 +16,7 @@ import { AmplitudeService } from '../../amplitude/amplitude.service.js';
 import { isTestConnectionUtil } from '../../connection/utils/is-test-connection-util.js';
 import { TableLogsService } from '../../table-logs/table-logs.service.js';
 import { AddRowInTableDs } from '../application/data-structures/add-row-in-table.ds.js';
-import { ForeignKeyDSInfo, IReferencedTableNamesAndColumns, ITableRowRO } from '../table.interface.js';
+import { ForeignKeyDSInfo, ReferencedTableNamesAndColumnsDs, TableRowRODs } from '../table-datastructures.js';
 import { convertHexDataInRowUtil } from '../utils/convert-hex-data-in-row.util.js';
 import { formFullTableStructure } from '../utils/form-full-table-structure.js';
 import { hashPasswordsInRowUtil } from '../utils/hash-passwords-in-row.util.js';
@@ -31,7 +31,7 @@ import { ForeignKeyDS } from '@rocketadmin/shared-code/dist/src/data-access-laye
 import { ReferencedTableNamesAndColumnsDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/referenced-table-names-columns.ds.js';
 
 @Injectable()
-export class AddRowInTableUseCase extends AbstractUseCase<AddRowInTableDs, ITableRowRO> implements IAddRowInTable {
+export class AddRowInTableUseCase extends AbstractUseCase<AddRowInTableDs, TableRowRODs> implements IAddRowInTable {
   constructor(
     @Inject(BaseType.GLOBAL_DB_CONTEXT)
     protected _dbContext: IGlobalDatabaseContext,
@@ -41,7 +41,7 @@ export class AddRowInTableUseCase extends AbstractUseCase<AddRowInTableDs, ITabl
     super();
   }
 
-  protected async implementation(inputData: AddRowInTableDs): Promise<ITableRowRO> {
+  protected async implementation(inputData: AddRowInTableDs): Promise<TableRowRODs> {
     // eslint-disable-next-line prefer-const
     let { connectionId, masterPwd, row, tableName, userId } = inputData;
     const connection = await this._dbContext.connectionRepository.findAndDecryptConnection(connectionId, masterPwd);
@@ -86,11 +86,11 @@ export class AddRowInTableUseCase extends AbstractUseCase<AddRowInTableDs, ITabl
       dao.getReferencedTableNamesAndColumns(tableName, userEmail),
     ]);
 
-    const referencedTableNamesAndColumnsWithTablesDisplayNames: Array<IReferencedTableNamesAndColumns> =
+    const referencedTableNamesAndColumnsWithTablesDisplayNames: Array<ReferencedTableNamesAndColumnsDs> =
       await Promise.all(
         referencedTableNamesAndColumns.map(async (el: ReferencedTableNamesAndColumnsDS) => {
           const { referenced_by, referenced_on_column_name } = el;
-          const responseObject: IReferencedTableNamesAndColumns = {
+          const responseObject: ReferencedTableNamesAndColumnsDs = {
             referenced_on_column_name: referenced_on_column_name,
             referenced_by: [],
           };

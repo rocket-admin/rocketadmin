@@ -9,7 +9,7 @@ import { Messages } from '../../../exceptions/text/messages.js';
 import { compareArrayElements, isConnectionTypeAgent } from '../../../helpers/index.js';
 import { buildCreatedTableActionDS } from '../../table-actions/utils/build-created-table-action-ds.js';
 import { GetRowByPrimaryKeyDs } from '../application/data-structures/get-row-by-primary-key.ds.js';
-import { ForeignKeyDSInfo, IReferencedTableNamesAndColumns, ITableRowRO } from '../table.interface.js';
+import { ForeignKeyDSInfo, ReferencedTableNamesAndColumnsDs, TableRowRODs } from '../table-datastructures.js';
 import { convertBinaryDataInRowUtil } from '../utils/convert-binary-data-in-row.util.js';
 import { convertHexDataInPrimaryKeyUtil } from '../utils/convert-hex-data-in-primary-key.util.js';
 import { formFullTableStructure } from '../utils/form-full-table-structure.js';
@@ -25,7 +25,7 @@ import { ReferencedTableNamesAndColumnsDS } from '@rocketadmin/shared-code/dist/
 
 @Injectable()
 export class GetRowByPrimaryKeyUseCase
-  extends AbstractUseCase<GetRowByPrimaryKeyDs, ITableRowRO>
+  extends AbstractUseCase<GetRowByPrimaryKeyDs, TableRowRODs>
   implements IGetRowByPrimaryKey
 {
   constructor(
@@ -35,7 +35,7 @@ export class GetRowByPrimaryKeyUseCase
     super();
   }
 
-  protected async implementation(inputData: GetRowByPrimaryKeyDs): Promise<ITableRowRO> {
+  protected async implementation(inputData: GetRowByPrimaryKeyDs): Promise<TableRowRODs> {
     // eslint-disable-next-line prefer-const
     let { connectionId, masterPwd, primaryKey, tableName, userId } = inputData;
     if (!primaryKey) {
@@ -135,11 +135,11 @@ export class GetRowByPrimaryKeyUseCase
     rowData = removePasswordsFromRowsUtil(rowData, tableWidgets);
     rowData = convertBinaryDataInRowUtil(rowData, tableStructure);
     const formedTableStructure = formFullTableStructure(tableStructure, tableSettings);
-    const referencedTableNamesAndColumnsWithTablesDisplayNames: Array<IReferencedTableNamesAndColumns> =
+    const referencedTableNamesAndColumnsWithTablesDisplayNames: Array<ReferencedTableNamesAndColumnsDs> =
       await Promise.all(
         referencedTableNamesAndColumns.map(async (el: ReferencedTableNamesAndColumnsDS) => {
           const { referenced_by, referenced_on_column_name } = el;
-          const responseObject: IReferencedTableNamesAndColumns = {
+          const responseObject: ReferencedTableNamesAndColumnsDs = {
             referenced_on_column_name: referenced_on_column_name,
             referenced_by: [],
           };

@@ -1,7 +1,7 @@
 import { Knex } from 'knex';
-import { CreateConnectionDto } from '../../entities/connection/dto/index.js';
 import { ConnectionTypeEnum } from '../../enums/index.js';
 import { getProcessVariable } from '../get-process-variable.js';
+import { CreateConnectionDto } from '../../entities/connection/application/dto/create-connection.dto.js';
 
 export const Constants = {
   ROCKETADMIN_AUTHENTICATED_COOKIE: 'rocketadmin_authenticated',

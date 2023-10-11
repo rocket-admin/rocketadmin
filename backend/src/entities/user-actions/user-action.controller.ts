@@ -8,16 +8,23 @@ import { SentryInterceptor } from '../../interceptors/index.js';
 import { CreateUserActionDs } from './application/data-sctructures/create-user-action.ds.js';
 import { ICreateUserAction } from './use-cases/use-cases-interfaces.js';
 import { UserActionEntity } from './user-action.entity.js';
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { CreateUserActionDto } from './dto/create-user-action.dto.js';
 
 @UseInterceptors(SentryInterceptor)
 @Injectable()
 @Controller()
+@ApiBearerAuth()
+@ApiTags('user actions')
 export class UserActionController {
   constructor(
     @Inject(UseCaseType.CREATE_USER_ACTION)
     private readonly createUserActionUseCase: ICreateUserAction,
   ) {}
 
+  @ApiOperation({ summary: 'Create user action' })
+  @ApiResponse({ status: 201, description: 'Created user action' })
+  @ApiBody({ type: CreateUserActionDto })
   @Post('action')
   async createUserAction(
     @Body('message') message: UserActionEnum,

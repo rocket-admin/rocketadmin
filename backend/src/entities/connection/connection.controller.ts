@@ -46,7 +46,7 @@ import { GetPermissionsInConnectionDs } from './application/data-structures/get-
 import { RestoredConnectionDs } from './application/data-structures/restored-connection.ds.js';
 import { UpdateConnectionDs } from './application/data-structures/update-connection.ds.js';
 import { UpdateMasterPasswordDs } from './application/data-structures/update-master-password.ds.js';
-import { CreateConnectionDto } from './dto/index.js';
+
 import {
   ICreateConnection,
   ICreateGroupInConnection,
@@ -66,9 +66,21 @@ import {
 } from './use-cases/use-cases.interfaces.js';
 import { isTestConnectionUtil } from './utils/is-test-connection-util.js';
 import { TestConnectionResultDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/test-result-connection.ds.js';
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { CreateConnectionDto } from './application/dto/index.js';
+import { UpdatedConnectionResponseDTO } from './application/dto/updated-connection-responce.dto.js';
+import { DeleteConnectionDS } from './application/dto/delete-connection.dto.js';
+import { DeleteGroupFromConnectionDTO } from './application/dto/delete-group-from-connection-request.dto.js';
+import { CreateDeleteGroupInConnectionResponseDTO } from './application/dto/delete-froup-from-connection-response.dto.js';
+import { CreateGroupInConnectionDTO } from './application/dto/create-froup-in-connection.dto.js';
+import { FoundPermissionsInConnectionDs } from './application/data-structures/found-permissions-in-connection.ds.js';
+import { TestConnectionResponseDTO } from './application/dto/test-connection-response.dto.js';
+import { ConnectionTokenResponseDTO } from './application/dto/new-connection-token-response.dto.js';
 
 @UseInterceptors(SentryInterceptor)
 @Controller()
+@ApiBearerAuth()
+@ApiTags('connection')
 @Injectable()
 export class ConnectionController {
   constructor(
@@ -109,6 +121,11 @@ export class ConnectionController {
     private readonly amplitudeService: AmplitudeService,
   ) {}
 
+  @ApiOperation({ summary: 'Get all connections where user have access' })
+  @ApiResponse({
+    status: 200,
+    type: FoundConnectionsDs,
+  })
   @Get('/connections')
   async findAll(@UserId() userId: string, @GCLlId() glidCookieValue: string): Promise<FoundConnectionsDs> {
     console.log(`findAll triggered in connection.controller ->: ${new Date().toISOString()}`);
@@ -119,6 +136,11 @@ export class ConnectionController {
     return await this.findConnectionsUseCase.execute(userData, InTransactionEnum.OFF);
   }
 
+  @ApiOperation({ summary: 'Get all users in connection' })
+  @ApiResponse({
+    status: 200,
+    type: Array<FoundUserDs>,
+  })
   @UseGuards(ConnectionReadGuard)
   @Get('/connection/users/:slug')
   async findAllUsers(@UserId() userId: string, @SlugUuid() connectionId: string): Promise<Array<FoundUserDs>> {
@@ -137,6 +159,11 @@ export class ConnectionController {
     }
   }
 
+  @ApiOperation({ summary: 'One connection by id' })
+  @ApiResponse({
+    status: 200,
+    type: FoundOneConnectionDs,
+  })
   @Get('/connection/one/:slug')
   async findOne(
     @SlugUuid() connectionId: string,
@@ -165,6 +192,13 @@ export class ConnectionController {
     }
   }
 
+  @ApiOperation({ summary: 'Create connection' })
+  @ApiBody({ type: CreateConnectionDto })
+  @ApiResponse({
+    status: 201,
+    description: 'Connection was created.',
+    type: CreatedConnectionDs,
+  })
   @Post('/connection')
   async create(
     @Body('title') title: string,
@@ -241,6 +275,13 @@ export class ConnectionController {
     return await this.createConnectionUseCase.execute(createConnectionDs, InTransactionEnum.ON);
   }
 
+  @ApiOperation({ summary: 'Updated connection' })
+  @ApiBody({ type: CreateConnectionDto })
+  @ApiResponse({
+    status: 200,
+    description: 'Connection was updated.',
+    type: UpdatedConnectionResponseDTO,
+  })
   @UseGuards(ConnectionEditGuard)
   @Put('/connection/:slug')
   async update(
@@ -265,7 +306,7 @@ export class ConnectionController {
     @SlugUuid() connectionId: string,
     @UserId() userId: string,
     @MasterPassword() masterPwd: string,
-  ): Promise<{ connection: Omit<CreatedConnectionDs, 'groups'> }> {
+  ): Promise<UpdatedConnectionResponseDTO> {
     const errors = [];
     if (masterEncryption && !masterPwd) {
       errors.push(Messages.MASTER_PASSWORD_REQUIRED);
@@ -310,6 +351,13 @@ export class ConnectionController {
     return { connection: updatedConnection };
   }
 
+  @ApiOperation({ summary: 'Delete connection' })
+  @ApiBody({ type: DeleteConnectionDS })
+  @ApiResponse({
+    status: 200,
+    description: 'Connection was deleted.',
+    type: CreatedConnectionDs,
+  })
   @UseGuards(ConnectionEditGuard)
   @Put('/connection/delete/:slug')
   async delete(
@@ -342,13 +390,20 @@ export class ConnectionController {
     return deleteResult;
   }
 
+  @ApiOperation({ summary: 'Delete group from connection' })
+  @ApiBody({ type: DeleteGroupFromConnectionDTO })
+  @ApiResponse({
+    status: 200,
+    description: 'Group was removed from connection.',
+    type: CreateDeleteGroupInConnectionResponseDTO,
+  })
   @UseGuards(ConnectionEditGuard)
   @Put('/connection/group/delete/:slug')
   async deleteGroupFromConnection(
     @BodyUuid('groupId') groupId: string,
     @SlugUuid() connectionId: string,
     @UserId() userId: string,
-  ): Promise<Omit<GroupEntity, 'connection'>> {
+  ): Promise<CreateDeleteGroupInConnectionResponseDTO> {
     if (!groupId) {
       throw new HttpException(
         {
@@ -365,12 +420,17 @@ export class ConnectionController {
     return await this.deleteGroupInConnectionUseCase.execute(inputData, InTransactionEnum.ON);
   }
 
+  @ApiOperation({ summary: 'Create group in connection' })
+  @ApiBody({ type: CreateGroupInConnectionDTO })
+  @ApiResponse({
+    status: 201,
+    description: 'Group was created.',
+    type: CreateDeleteGroupInConnectionResponseDTO,
+  })
   @UseGuards(ConnectionEditGuard)
   @Post('/connection/group/:slug')
   async createGroupInConnection(
     @Body('title') title: string,
-    @Body('permissions') permissions: any,
-    @Body('users') users: any,
     @SlugUuid() connectionId: string,
     @UserId() userId: string,
   ): Promise<Omit<GroupEntity, 'connection'>> {
@@ -394,6 +454,12 @@ export class ConnectionController {
     return await this.createGroupInConnectionUseCase.execute(inputData, InTransactionEnum.ON);
   }
 
+  @ApiOperation({ summary: 'Get all groups in connection' })
+  @ApiResponse({
+    status: 200,
+    type: FoundUserGroupsInConnectionDs,
+    isArray: true,
+  })
   @Get('/connection/groups/:slug')
   async getGroupsInConnection(
     @UserId() userId: string,
@@ -414,6 +480,11 @@ export class ConnectionController {
     return await this.getUserGroupsInConnectionUseCase.execute(inputData, InTransactionEnum.OFF);
   }
 
+  @ApiOperation({ summary: 'Get group permissions for connection' })
+  @ApiResponse({
+    status: 200,
+    type: FoundPermissionsInConnectionDs,
+  })
   @Get('/connection/permissions')
   async getPermissionsForGroupInConnection(
     @QueryUuid('connectionId') connectionId: string,
@@ -438,6 +509,11 @@ export class ConnectionController {
     return await this.getPermissionsForGroupInConnectionUseCase.execute(inputData, InTransactionEnum.OFF);
   }
 
+  @ApiOperation({ summary: 'Get user permissions for group and connection' })
+  @ApiResponse({
+    status: 200,
+    type: FoundPermissionsInConnectionDs,
+  })
   @Get('/connection/user/permissions')
   async getUserPermissionsForGroupInConnection(
     @QueryUuid('connectionId') connectionId: string,
@@ -461,7 +537,12 @@ export class ConnectionController {
     };
     return await this.getUserPermissionsForGroupInConnectionUseCase.execute(inputData, InTransactionEnum.OFF);
   }
-
+  @ApiOperation({ summary: 'Create connection' })
+  @ApiBody({ type: CreateConnectionDto })
+  @ApiResponse({
+    status: 201,
+    type: TestConnectionResponseDTO,
+  })
   @Post('/connection/test/')
   async testConnection(
     @Body('title') title: string,
@@ -525,6 +606,11 @@ export class ConnectionController {
     return result;
   }
 
+  @ApiOperation({ summary: 'Change connection master password' })
+  @ApiBody({ type: UpdateMasterPasswordDs })
+  @ApiResponse({
+    status: 200,
+  })
   @UseGuards(ConnectionEditGuard)
   @Put('/connection/encryption/update/:slug')
   async updateConnectionMasterPwd(
@@ -563,7 +649,13 @@ export class ConnectionController {
     };
     return await this.updateConnectionMasterPasswordUseCase.execute(inputData, InTransactionEnum.ON);
   }
-
+  @ApiOperation({ summary: 'Restore connection encrypted with master password' })
+  @ApiBody({ type: CreateConnectionDto })
+  @ApiResponse({
+    status: 201,
+    description: 'Connection was created.',
+    type: RestoredConnectionDs,
+  })
   @UseGuards(ConnectionEditGuard)
   @Put('/connection/encryption/restore/:slug')
   async restore(
@@ -635,7 +727,12 @@ export class ConnectionController {
     }
     return await this.restoreConnectionUseCase.execute(connectionData, InTransactionEnum.ON);
   }
-
+  @ApiOperation({ summary: 'Check if connection agent token is valid' })
+  @ApiResponse({
+    status: 200,
+    description: 'Connection token is valid.',
+    type: Boolean,
+  })
   @Get('/connection/token/')
   async validateConnectionAgentToken(@Query('token') token: string): Promise<boolean> {
     if (!token) {
@@ -644,6 +741,12 @@ export class ConnectionController {
     return await this.validateConnectionTokenUseCase.execute(token, InTransactionEnum.OFF);
   }
 
+  @ApiOperation({ summary: 'Generate new connection token' })
+  @ApiResponse({
+    status: 200,
+    description: 'New connection token was generated.',
+    type: ConnectionTokenResponseDTO,
+  })
   @UseGuards(ConnectionEditGuard)
   @Get('/connection/token/refresh/:slug')
   async refreshConnectionAgentToken(@SlugUuid() connectionId: string): Promise<{ token: string }> {

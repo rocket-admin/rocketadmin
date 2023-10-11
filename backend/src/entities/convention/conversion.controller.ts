@@ -4,9 +4,12 @@ import { UseCaseType } from '../../common/data-injection.tokens.js';
 import { InTransactionEnum } from '../../enums/index.js';
 import { SentryInterceptor } from '../../interceptors/index.js';
 import { IGetConversions } from './use-cases/get-conversions-use-cases.interface.js';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
 @UseInterceptors(SentryInterceptor)
 @Controller()
+@ApiBearerAuth()
+@ApiTags('conversion')
 @Injectable()
 export class ConversionController {
   constructor(

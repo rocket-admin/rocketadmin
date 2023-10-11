@@ -21,12 +21,15 @@ import { SentryInterceptor } from '../../interceptors/index.js';
 import { CreateTableWidgetsDs } from './application/data-sctructures/create-table-widgets.ds.js';
 import { FindTableWidgetsDs } from './application/data-sctructures/find-table-widgets.ds.js';
 import { FoundTableWidgetsDs } from './application/data-sctructures/found-table-widgets.ds.js';
-import { CreateOrUpdateTableWidgetsDto, CreateTableWidgetDto } from './dto/index.js';
-import { ITableWidgetRO } from './table-widget.interface.js';
+import { CreateTableWidgetDto } from './dto/index.js';
+import { TableWidgetRO } from './table-widget.interface.js';
 import { ICreateUpdateDeleteTableWidgets, IFindTableWidgets } from './use-cases/table-widgets-use-cases.interface.js';
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 @UseInterceptors(SentryInterceptor)
 @Controller()
+@ApiBearerAuth()
+@ApiTags('table widgets')
 @Injectable()
 export class TableWidgetController {
   constructor(
@@ -37,6 +40,12 @@ export class TableWidgetController {
   ) {}
 
   @UseGuards(ConnectionReadGuard)
+  @ApiOperation({ summary: 'Get all table widgets' })
+  @ApiResponse({
+    status: 200,
+    description: 'Return all table widgets',
+    type: Array<TableWidgetRO>,
+  })
   @Get('/widgets/:slug')
   @UseInterceptors(ClassSerializerInterceptor)
   async findAll(
@@ -45,7 +54,7 @@ export class TableWidgetController {
     @MasterPassword() masterPwd: string,
     @Param() params,
     @QueryTableName() tableName: string,
-  ): Promise<Array<ITableWidgetRO>> {
+  ): Promise<Array<TableWidgetRO>> {
     if (!connectionId) {
       throw new HttpException(
         {
@@ -65,6 +74,13 @@ export class TableWidgetController {
   }
 
   @UseGuards(ConnectionEditGuard)
+  @ApiOperation({ summary: 'Create new table widget' })
+  @ApiResponse({
+    status: 201,
+    description: 'Return table settings with created table widget',
+    type: Array<TableWidgetRO>,
+  })
+  @ApiBody({ type: Array<CreateTableWidgetDto> })
   @Post('/widget/:slug')
   @UseInterceptors(ClassSerializerInterceptor)
   async createOrUpdateTableWidgets(

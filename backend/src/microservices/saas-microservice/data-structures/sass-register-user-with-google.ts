@@ -1,5 +1,12 @@
+import { ApiProperty } from '@nestjs/swagger';
+
 export class SaasRegisterUserWithGoogleDS {
-  public email: string;
-  public name: string;
-  public glidCookieValue: string;
+  @ApiProperty()
+  email: string;
+
+  @ApiProperty()
+  name: string;
+
+  @ApiProperty()
+  glidCookieValue: string;
 }

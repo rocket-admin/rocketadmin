@@ -2,7 +2,6 @@ import { faker } from '@faker-js/faker';
 import jwt from 'jsonwebtoken';
 import { IRequestWithCognitoInfo } from '../src/authorization/index.js';
 import { CreateConnectionPropertiesDto } from '../src/entities/connection-properties/dto/index.js';
-import { CreateConnectionDto } from '../src/entities/connection/dto/index.js';
 import { CreateGroupDto } from '../src/entities/group/dto/index.js';
 import { TableActionEntity } from '../src/entities/table-actions/table-action.entity.js';
 import { CreateTableWidgetDto } from '../src/entities/widget/dto/index.js';
@@ -17,6 +16,7 @@ import {
 import { TestConstants } from './mocks/test-constants.js';
 import json5 from 'json5';
 import { ConnectionTypeTestEnum } from '../src/enums/connection-type.enum.js';
+import { CreateConnectionDto } from '../src/entities/connection/application/dto/create-connection.dto.js';
 
 export class MockFactory {
   generateCognitoUserName() {
@@ -364,7 +364,6 @@ export class MockFactory {
     connectionAccessLevel: string,
     groupAccessLevel: string,
   ) {
-    const bool = Math.random() < 0.5;
     return {
       permissions: {
         connection: {
@@ -756,6 +755,11 @@ export class MockFactory {
     tableName = tableName || 'users';
     return {
       hidden_tables: [tableName],
+      logo_url: faker.internet.url(),
+      primary_color: faker.internet.color(),
+      secondary_color: faker.internet.color(),
+      hostname: faker.internet.url(),
+      company_name: faker.company.name(),
     };
   }
 
