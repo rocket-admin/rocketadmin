@@ -24,7 +24,7 @@ import { FoundTableWidgetsDs } from './application/data-sctructures/found-table-
 import { CreateTableWidgetDto } from './dto/index.js';
 import { TableWidgetRO } from './table-widget.interface.js';
 import { ICreateUpdateDeleteTableWidgets, IFindTableWidgets } from './use-cases/table-widgets-use-cases.interface.js';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 @UseInterceptors(SentryInterceptor)
 @Controller()
@@ -40,6 +40,12 @@ export class TableWidgetController {
   ) {}
 
   @UseGuards(ConnectionReadGuard)
+  @ApiOperation({ summary: 'Get all table widgets' })
+  @ApiResponse({
+    status: 200,
+    description: 'Return all table widgets',
+    type: Array<TableWidgetRO>,
+  })
   @Get('/widgets/:slug')
   @UseInterceptors(ClassSerializerInterceptor)
   async findAll(
@@ -68,6 +74,13 @@ export class TableWidgetController {
   }
 
   @UseGuards(ConnectionEditGuard)
+  @ApiOperation({ summary: 'Create new table widget' })
+  @ApiResponse({
+    status: 201,
+    description: 'Return table settings with created table widget',
+    type: Array<TableWidgetRO>,
+  })
+  @ApiBody({ type: Array<CreateTableWidgetDto> })
   @Post('/widget/:slug')
   @UseInterceptors(ClassSerializerInterceptor)
   async createOrUpdateTableWidgets(
