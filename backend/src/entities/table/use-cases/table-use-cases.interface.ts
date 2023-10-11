@@ -12,7 +12,7 @@ import { GetRowByPrimaryKeyDs } from '../application/data-structures/get-row-by-
 import { GetTableRowsDs } from '../application/data-structures/get-table-rows.ds.js';
 import { GetTableStructureDs } from '../application/data-structures/get-table-structure-ds.js';
 import { UpdateRowInTableDs } from '../application/data-structures/update-row-in-table.ds.js';
-import { IStructureRO, ITableRowRO } from '../table.interface.js';
+import { TableStructureDs, TableRowRODs } from '../table-datastructures.js';
 
 export interface IFindTablesInConnection {
   execute(inputData: FindTablesDs, inTransaction: InTransactionEnum): Promise<Array<FoundTableDs>>;
@@ -23,15 +23,15 @@ export interface IGetTableRows {
 }
 
 export interface IGetTableStructure {
-  execute(inputData: GetTableStructureDs, inTransaction: InTransactionEnum): Promise<IStructureRO>;
+  execute(inputData: GetTableStructureDs, inTransaction: InTransactionEnum): Promise<TableStructureDs>;
 }
 
 export interface IAddRowInTable {
-  execute(inputData: AddRowInTableDs, inTransaction: InTransactionEnum): Promise<ITableRowRO>;
+  execute(inputData: AddRowInTableDs, inTransaction: InTransactionEnum): Promise<TableRowRODs>;
 }
 
 export interface IUpdateRowInTable {
-  execute(inputData: UpdateRowInTableDs, inTransaction: InTransactionEnum): Promise<ITableRowRO>;
+  execute(inputData: UpdateRowInTableDs, inTransaction: InTransactionEnum): Promise<TableRowRODs>;
 }
 
 export interface IDeleteRowFromTable {
@@ -43,5 +43,5 @@ export interface IDeleteRowsFromTable {
 }
 
 export interface IGetRowByPrimaryKey {
-  execute(inputData: GetRowByPrimaryKeyDs, inTransaction: InTransactionEnum): Promise<ITableRowRO>;
+  execute(inputData: GetRowByPrimaryKeyDs, inTransaction: InTransactionEnum): Promise<TableRowRODs>;
 }

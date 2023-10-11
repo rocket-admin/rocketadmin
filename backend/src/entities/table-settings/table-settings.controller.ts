@@ -32,9 +32,12 @@ import {
   IFindTableSettings,
   IUpdateTableSettings,
 } from './use-cases/use-cases.interface.js';
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 @UseInterceptors(SentryInterceptor)
 @Controller()
+@ApiBearerAuth()
+@ApiTags('table settings')
 @Injectable()
 export class TableSettingsController {
   constructor(
@@ -48,6 +51,12 @@ export class TableSettingsController {
     private readonly deleteTableSettingsUseCase: IDeleteTableSettings,
   ) {}
 
+  @ApiOperation({ summary: 'Get all table settings in this connection' })
+  @ApiResponse({
+    status: 200,
+    description: 'Return all table settings.',
+    type: FoundTableSettingsDs,
+  })
   @UseGuards(ConnectionReadGuard)
   @Get('/settings/')
   @UseInterceptors(ClassSerializerInterceptor)
@@ -71,6 +80,13 @@ export class TableSettingsController {
     return await this.findTableSettingsUseCase.execute(inputData, InTransactionEnum.OFF);
   }
 
+  @ApiOperation({ summary: 'Create table settings' })
+  @ApiBody({ type: CreateTableSettingsDs })
+  @ApiResponse({
+    status: 201,
+    description: 'The settings was successfully created.',
+    type: FoundTableSettingsDs,
+  })
   @UseGuards(ConnectionEditGuard)
   @Post('/settings/')
   async createSettings(
@@ -138,6 +154,13 @@ export class TableSettingsController {
     return await this.createTableSettingsUseCase.execute(inputData, InTransactionEnum.ON);
   }
 
+  @ApiOperation({ summary: 'Update table settings' })
+  @ApiBody({ type: CreateTableSettingsDs })
+  @ApiResponse({
+    status: 200,
+    description: 'The settings was successfully updated.',
+    type: FoundTableSettingsDs,
+  })
   @UseGuards(ConnectionEditGuard)
   @Put('/settings/')
   async updateSettings(
@@ -204,6 +227,13 @@ export class TableSettingsController {
     return await this.updateTableSettingsUseCase.execute(inputData, InTransactionEnum.ON);
   }
 
+  @ApiOperation({ summary: 'Delete table settings' })
+  @ApiBody({ type: CreateTableSettingsDs })
+  @ApiResponse({
+    status: 200,
+    description: 'The settings was successfully deleted.',
+    type: FoundTableSettingsDs,
+  })
   @UseGuards(ConnectionEditGuard)
   @Delete('/settings/')
   async deleteSettings(

@@ -1,4 +1,4 @@
-import { CreateConnectionDto } from '../../connection/dto/index.js';
+import { CreateConnectionDto } from '../../connection/application/dto/create-connection.dto.js';
 import { ConnectionEntity } from '../../connection/connection.entity.js';
 
 export function buildConnectionEntitiesFromTestDtos(dtos: Array<CreateConnectionDto>): Array<ConnectionEntity> {
