@@ -2766,6 +2766,7 @@ test(`${currentTest} should throw an exception, when you try to get widgets from
     const getTableWidgetsRO = JSON.parse(getTableWidgets.text);
     t.is(getTableWidgets.status, 403);
     t.is(getTableWidgetsRO.message, Messages.DONT_HAVE_PERMISSIONS);
+    t.pass();
   } catch (e) {
     console.error(e);
   }

@@ -16,6 +16,7 @@ import { TableSettingsEntity } from '../table-settings/table-settings.entity.js'
 import { UserEntity } from '../user/user.entity.js';
 import { TableWidgetEntity } from '../widget/table-widget.entity.js';
 import { CompanyInfoController } from './company-info.controller.js';
+import { GetUserCompanyUseCase } from './use-cases/get-user-company.use.case.js';
 
 @Module({
   imports: [
@@ -45,14 +46,20 @@ import { CompanyInfoController } from './company-info.controller.js';
       provide: UseCaseType.VERIFY_INVITE_USER_IN_COMPANY_AND_CONNECTION_GROUP,
       useClass: VerifyInviteUserInCompanyAndConnectionGroupUseCase,
     },
+    {
+      provide: UseCaseType.GET_USER_COMPANY,
+      useClass: GetUserCompanyUseCase,
+    },
   ],
   controllers: [CompanyInfoController],
 })
 export class CompanyInfoModule implements NestModule {
   public configure(consumer: MiddlewareConsumer): any {
-    consumer.apply(AuthMiddleware).forRoutes({
-      path: '/company/user/:slug',
-      method: RequestMethod.PUT,
-    });
+    consumer
+      .apply(AuthMiddleware)
+      .forRoutes(
+        { path: '/company/user/:slug', method: RequestMethod.PUT },
+        { path: '/company/my', method: RequestMethod.GET },
+      );
   }
 }
