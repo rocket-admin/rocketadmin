@@ -4,6 +4,7 @@ import { RegisteredCompanyUserInviteGroupDS } from './data-structures/registered
 import { isObjectEmpty } from '../../../helpers/is-object-empty.js';
 import { UserRoleEnum } from '../../../entities/user/enums/user-role.enum.js';
 import { isSaaS } from '../../../helpers/app/is-saas.js';
+import { FoundSassCompanyInfoDS } from './data-structures/found-saas-company-info.ds.js';
 
 @Injectable()
 export class SaasCompanyGatewayService extends BaseSaasGatewayService {
@@ -102,5 +103,27 @@ export class SaasCompanyGatewayService extends BaseSaasGatewayService {
       userRole,
       newUserEmail,
     });
+  }
+
+  public async getCompanyInfo(companyId: string): Promise<FoundSassCompanyInfoDS | null> {
+    const result = await this.sendRequestToSaaS(`/webhook/company/${companyId}`, 'GET', null);
+    if (this.isDataFoundSassCompanyInfoDS(result.body)) {
+      return result.body;
+    }
+    return null;
+  }
+
+  private isDataFoundSassCompanyInfoDS(data: unknown): data is FoundSassCompanyInfoDS {
+    return (
+      typeof data === 'object' &&
+      data !== null &&
+      'id' in data &&
+      'additional_info' in data &&
+      'name' in data &&
+      'createdAt' in data &&
+      'updatedAt' in data &&
+      'users' in data &&
+      'address' in data
+    );
   }
 }

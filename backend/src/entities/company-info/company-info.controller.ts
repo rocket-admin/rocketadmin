@@ -11,6 +11,7 @@ import {
   Param,
   Post,
   Res,
+  Get,
 } from '@nestjs/common';
 import { SentryInterceptor } from '../../interceptors/sentry.interceptor.js';
 import { CompanyAdminGuard } from '../../guards/company-admin.guard.js';
@@ -22,6 +23,7 @@ import { Messages } from '../../exceptions/text/messages.js';
 import { UseCaseType } from '../../common/data-injection.tokens.js';
 import { SlugUuid } from '../../decorators/slug-uuid.decorator.js';
 import {
+  IGetUserCompany,
   IInviteUserInCompanyAndConnectionGroup,
   IVerifyInviteUserInCompanyAndConnectionGroup,
 } from './use-cases/company-info-use-cases.interface.js';
@@ -35,6 +37,8 @@ import { InvitedUserInCompanyAndConnectionGroupDs } from './application/data-str
 import { InviteUserInCompanyAndConnectionGroupDto } from './application/dto/invite-user-in-company-and-connection-group.dto.js';
 import { VerifyCompanyInvitationRequestDto } from './application/dto/verify-company-invitation-request-dto.js';
 import { TokenExpirationResponseDto } from './application/dto/token-expiration-response.dto.js';
+import { CompanyUserGuard } from '../../guards/company-user.guard.js';
+import { FoundUserCompanyInfoDs } from './application/data-structures/found-company-info.ds.js';
 
 @UseInterceptors(SentryInterceptor)
 @Controller('company')
@@ -47,7 +51,21 @@ export class CompanyInfoController {
     private readonly inviteUserInCompanyAndConnectionGroupUseCase: IInviteUserInCompanyAndConnectionGroup,
     @Inject(UseCaseType.VERIFY_INVITE_USER_IN_COMPANY_AND_CONNECTION_GROUP)
     private readonly verifyInviteUserInCompanyAndConnectionGroupUseCase: IVerifyInviteUserInCompanyAndConnectionGroup,
+    @Inject(UseCaseType.GET_USER_COMPANY)
+    private readonly getUserCompanyUseCase: IGetUserCompany,
   ) {}
+
+  @ApiOperation({ summary: 'Get user company' })
+  @ApiResponse({
+    status: 200,
+    description: 'Get user company.',
+    type: FoundUserCompanyInfoDs,
+  })
+  @UseGuards(CompanyUserGuard)
+  @Get('my')
+  async getUserCompany(@UserId() userId: string): Promise<FoundUserCompanyInfoDs> {
+    return await this.getUserCompanyUseCase.execute(userId);
+  }
 
   @ApiOperation({ summary: 'Invite user in company and connection group' })
   @ApiBody({ type: InviteUserInCompanyAndConnectionGroupDto })
