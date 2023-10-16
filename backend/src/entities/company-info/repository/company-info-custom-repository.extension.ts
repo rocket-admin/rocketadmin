@@ -23,4 +23,16 @@ export const companyInfoRepositoryExtension: ICompanyInfoRepository = {
       .where('users.id = :userId', { userId })
       .getOne();
   },
+
+  async findFullCompanyInfoByUserId(userId: string): Promise<CompanyInfoEntity> {
+    return await this.createQueryBuilder('company_info')
+      .leftJoinAndSelect('company_info.users', 'users')
+      .leftJoinAndSelect('company_info.connections', 'connections')
+      .leftJoinAndSelect('company_info.invitations', 'invitations')
+      .leftJoinAndSelect('connections.groups', 'groups')
+      .leftJoinAndSelect('connections.author', 'connection_author')
+      .leftJoinAndSelect('groups.users', 'groups_users')
+      .where('users.id = :userId', { userId })
+      .getOne();
+  },
 };

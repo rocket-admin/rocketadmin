@@ -17,6 +17,7 @@ import { UserEntity } from '../user/user.entity.js';
 import { TableWidgetEntity } from '../widget/table-widget.entity.js';
 import { CompanyInfoController } from './company-info.controller.js';
 import { GetUserCompanyUseCase } from './use-cases/get-user-company.use.case.js';
+import { GetUserCompanyFullInfoUseCase } from './use-cases/get-full-user-company-info.use.case.js';
 
 @Module({
   imports: [
@@ -50,6 +51,10 @@ import { GetUserCompanyUseCase } from './use-cases/get-user-company.use.case.js'
       provide: UseCaseType.GET_USER_COMPANY,
       useClass: GetUserCompanyUseCase,
     },
+    {
+      provide: UseCaseType.GET_FULL_USER_COMPANIES_INFO,
+      useClass: GetUserCompanyFullInfoUseCase,
+    },
   ],
   controllers: [CompanyInfoController],
 })
@@ -60,6 +65,7 @@ export class CompanyInfoModule implements NestModule {
       .forRoutes(
         { path: '/company/user/:slug', method: RequestMethod.PUT },
         { path: '/company/my', method: RequestMethod.GET },
+        { path: 'company/my/full', method: RequestMethod.GET },
       );
   }
 }

@@ -10,7 +10,6 @@ import { DatabaseModule } from '../../../src/shared/database/database.module.js'
 import { DatabaseService } from '../../../src/shared/database/database.service.js';
 import { MockFactory } from '../../mock.factory.js';
 import { TestUtils } from '../../utils/test.utils.js';
-import { setSaasEnvVariable } from '../../utils/set-saas-env-variable.js';
 import { AllExceptionsFilter } from '../../../src/exceptions/all-exceptions.filter.js';
 import { createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions } from '../../utils/user-with-different-permissions-utils.js';
 
@@ -20,7 +19,6 @@ let testUtils: TestUtils;
 let currentTest: string;
 
 test.before(async () => {
-  setSaasEnvVariable();
   const moduleFixture = await Test.createTestingModule({
     imports: [ApplicationModule, DatabaseModule],
     providers: [DatabaseService, TestUtils],
@@ -56,8 +54,13 @@ test(`${currentTest} should return found company info for user`, async (t) => {
 
     t.is(foundCompanyInfo.status, 200);
     const foundCompanyInfoRO = JSON.parse(foundCompanyInfo.text);
+    t.is(Object.keys(foundCompanyInfoRO).length, 6);
     t.is(foundCompanyInfoRO.hasOwnProperty('id'), true);
-    t.is(Object.keys(foundCompanyInfoRO).length, 1);
+    t.is(foundCompanyInfoRO.hasOwnProperty('name'), true);
+    t.is(foundCompanyInfoRO.hasOwnProperty('additional_info'), true);
+    t.is(foundCompanyInfoRO.hasOwnProperty('address'), true);
+    t.is(foundCompanyInfoRO.hasOwnProperty('createdAt'), true);
+    t.is(foundCompanyInfoRO.hasOwnProperty('updatedAt'), true);
   } catch (error) {
     console.error(error);
   }
@@ -93,7 +96,12 @@ test(`${currentTest} should return full found company info for company admin use
 
     t.is(foundCompanyInfo.status, 200);
     t.is(foundCompanyInfoRO.hasOwnProperty('id'), true);
-    t.is(Object.keys(foundCompanyInfoRO).length, 3);
+    t.is(foundCompanyInfoRO.hasOwnProperty('name'), true);
+    t.is(foundCompanyInfoRO.hasOwnProperty('additional_info'), true);
+    t.is(foundCompanyInfoRO.hasOwnProperty('address'), true);
+    t.is(foundCompanyInfoRO.hasOwnProperty('createdAt'), true);
+    t.is(foundCompanyInfoRO.hasOwnProperty('updatedAt'), true);
+    t.is(Object.keys(foundCompanyInfoRO).length, 8);
     t.is(foundCompanyInfoRO.hasOwnProperty('connections'), true);
     t.is(foundCompanyInfoRO.connections.length > 3, true);
     t.is(foundCompanyInfoRO.hasOwnProperty('invitations'), true);
