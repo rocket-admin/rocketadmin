@@ -1,4 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { FoundInvitationInCompanyDs } from './found-invitation-in-company.ds.js';
+import { FoundSipleConnectionInfoDS } from '../../../connection/application/data-structures/found-connections.ds.js';
 
 export class FoundCompanyAddressDs {
   id: string;
@@ -52,4 +54,14 @@ export class FoundUserCompanyInfoDs {
 
   @ApiProperty({ required: false })
   address?: FoundCompanyAddressDs;
+}
+
+export class FoundUserFullCompanyInfoDs extends FoundUserCompanyInfoDs {
+  @ApiProperty({ isArray: true })
+  connections: Array<FoundSipleConnectionInfoDS>;
+
+  @ApiProperty({ isArray: true, type: FoundInvitationInCompanyDs })
+  invitations: Array<FoundInvitationInCompanyDs>;
+
+
 }

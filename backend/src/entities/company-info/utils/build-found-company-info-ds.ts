@@ -1,6 +1,50 @@
 import { FoundSassCompanyInfoDS } from '../../../microservices/gateways/saas-gateway.ts/data-structures/found-saas-company-info.ds.js';
-import { FoundUserCompanyInfoDs } from '../application/data-structures/found-company-info.ds.js';
+import { FoundSipleConnectionInfoDS } from '../../connection/application/data-structures/found-connections.ds.js';
+import { buildSimpleUserInfoDs } from '../../user/utils/build-created-user.ds.js';
+import {
+  FoundUserCompanyInfoDs,
+  FoundUserFullCompanyInfoDs,
+} from '../application/data-structures/found-company-info.ds.js';
+import { FoundInvitationInCompanyDs } from '../application/data-structures/found-invitation-in-company.ds.js';
 import { CompanyInfoEntity } from '../company-info.entity.js';
+
+export function buildFoundCompanyFullInfoDs(
+  companyInfoFromCore: CompanyInfoEntity,
+  companyInfoFromSaas: FoundSassCompanyInfoDS | null,
+): FoundUserFullCompanyInfoDs {
+  const responseObject = buildFoundCompanyInfoDs(companyInfoFromCore, companyInfoFromSaas) as any;
+  const connectionsRO: Array<FoundSipleConnectionInfoDS> = companyInfoFromCore.connections.map((connection) => {
+    return {
+      id: connection.id,
+      createdAt: connection.createdAt,
+      updatedAt: connection.updatedAt,
+      title: connection.title,
+      author: buildSimpleUserInfoDs(connection.author),
+      groups: connection.groups.map((group) => {
+        return {
+          id: group.id,
+          isMain: group.isMain,
+          title: group.title,
+          users: group.users.map((user) => buildSimpleUserInfoDs(user)),
+        };
+      }),
+    };
+  });
+  responseObject.connections = connectionsRO;
+  const invitationsRO: Array<FoundInvitationInCompanyDs> = companyInfoFromCore.invitations.map((invitation) => {
+    return {
+      id: invitation.id,
+      verification_string: invitation.verification_string,
+      groupId: invitation.groupId,
+      inviterId: invitation.inviterId,
+      invitedUserEmail: invitation.invitedUserEmail,
+      role: invitation.role,
+      createdAt: invitation.createdAt,
+    };
+  });
+  responseObject.invitations = invitationsRO;
+  return responseObject;
+}
 
 export function buildFoundCompanyInfoDs(
   companyInfoFromCore: CompanyInfoEntity,

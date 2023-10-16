@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { AccessLevelEnum } from '../../../../enums/index.js';
+import { SimpleFoundUserInfoDs } from '../../../user/application/data-structures/found-user.ds.js';
 
 export class FoundGroupDataInfoDs {
   @ApiProperty()
@@ -10,6 +11,11 @@ export class FoundGroupDataInfoDs {
 
   @ApiProperty()
   isMain: boolean;
+}
+
+export class FoundGroupDataWithUsersDs extends FoundGroupDataInfoDs {
+  @ApiProperty({ isArray: true })
+  users: Array<SimpleFoundUserInfoDs>;
 }
 
 export class FoundGroupDataWithAccessLevelDs {

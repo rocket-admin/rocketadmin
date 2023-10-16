@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { SubscriptionLevelEnum } from '../../../../enums/index.js';
+import { UserRoleEnum } from '../../enums/user-role.enum.js';
 
 export class CompanyIdDS {
   @ApiProperty()
@@ -35,4 +36,27 @@ export class FoundUserDs {
 
   @ApiProperty({ required: false })
   company?: CompanyIdDS;
+}
+
+export class SimpleFoundUserInfoDs {
+  @ApiProperty()
+  id: string;
+
+  @ApiProperty()
+  isActive: boolean;
+
+  @ApiProperty()
+  email: string;
+
+  @ApiProperty()
+  createdAt: Date;
+
+  @ApiProperty()
+  name: string;
+
+  @ApiProperty()
+  is_2fa_enabled: boolean;
+
+  @ApiProperty()
+  role: UserRoleEnum;
 }

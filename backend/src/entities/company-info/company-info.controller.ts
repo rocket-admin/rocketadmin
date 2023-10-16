@@ -24,6 +24,7 @@ import { UseCaseType } from '../../common/data-injection.tokens.js';
 import { SlugUuid } from '../../decorators/slug-uuid.decorator.js';
 import {
   IGetUserCompany,
+  IGetUserFullCompanyInfo,
   IInviteUserInCompanyAndConnectionGroup,
   IVerifyInviteUserInCompanyAndConnectionGroup,
 } from './use-cases/company-info-use-cases.interface.js';
@@ -38,7 +39,10 @@ import { InviteUserInCompanyAndConnectionGroupDto } from './application/dto/invi
 import { VerifyCompanyInvitationRequestDto } from './application/dto/verify-company-invitation-request-dto.js';
 import { TokenExpirationResponseDto } from './application/dto/token-expiration-response.dto.js';
 import { CompanyUserGuard } from '../../guards/company-user.guard.js';
-import { FoundUserCompanyInfoDs } from './application/data-structures/found-company-info.ds.js';
+import {
+  FoundUserCompanyInfoDs,
+  FoundUserFullCompanyInfoDs,
+} from './application/data-structures/found-company-info.ds.js';
 
 @UseInterceptors(SentryInterceptor)
 @Controller('company')
@@ -53,6 +57,8 @@ export class CompanyInfoController {
     private readonly verifyInviteUserInCompanyAndConnectionGroupUseCase: IVerifyInviteUserInCompanyAndConnectionGroup,
     @Inject(UseCaseType.GET_USER_COMPANY)
     private readonly getUserCompanyUseCase: IGetUserCompany,
+    @Inject(UseCaseType.GET_FULL_USER_COMPANIES_INFO)
+    private readonly getUserFullCompanyInfoUseCase: IGetUserFullCompanyInfo,
   ) {}
 
   @ApiOperation({ summary: 'Get user company' })
@@ -65,6 +71,18 @@ export class CompanyInfoController {
   @Get('my')
   async getUserCompany(@UserId() userId: string): Promise<FoundUserCompanyInfoDs> {
     return await this.getUserCompanyUseCase.execute(userId);
+  }
+
+  @ApiOperation({ summary: 'Get user company full info' })
+  @ApiResponse({
+    status: 200,
+    description: 'Get user company full info.',
+    type: FoundUserFullCompanyInfoDs,
+  })
+  @UseGuards(CompanyAdminGuard)
+  @Get('my/full')
+  async getUserCompanies(@UserId() userId: string): Promise<FoundUserCompanyInfoDs | FoundUserFullCompanyInfoDs> {
+    return await this.getUserFullCompanyInfoUseCase.execute(userId);
   }
 
   @ApiOperation({ summary: 'Invite user in company and connection group' })

@@ -1,6 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { AccessLevelEnum, ConnectionTypeEnum } from '../../../../enums/index.js';
 import { UserEntity } from '../../../user/user.entity.js';
+import { FoundGroupDataWithUsersDs } from '../../../group/application/data-sctructures/found-user-groups.ds.js';
+import { SimpleFoundUserInfoDs } from '../../../user/application/data-structures/found-user.ds.js';
 
 export class FoundDirectConnectionsDs {
   @ApiProperty()
@@ -99,6 +101,28 @@ export class FoundAgentConnectionsDs {
 
   @ApiProperty()
   signing_key: string;
+}
+
+export class FoundDirectConnectionsWithGroupAndUsersDs extends FoundDirectConnectionsDs {
+  @ApiProperty({ isArray: true })
+  groups: Array<FoundGroupDataWithUsersDs>;
+}
+
+export class FoundSipleConnectionInfoDS {
+  @ApiProperty()
+  id: string;
+
+  @ApiProperty()
+  title?: string;
+
+  @ApiProperty({ enum: ConnectionTypeEnum })
+  type?: ConnectionTypeEnum | string;
+
+  @ApiProperty({ required: false })
+  author: SimpleFoundUserInfoDs;
+
+  @ApiProperty({ isArray: true })
+  groups: Array<FoundGroupDataWithUsersDs>;
 }
 
 export class ConnectionWithAccessLevelDS {
