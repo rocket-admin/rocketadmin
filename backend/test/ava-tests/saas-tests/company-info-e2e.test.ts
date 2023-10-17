@@ -132,8 +132,7 @@ test(`${currentTest} should return full found company info for company admin use
   }
 });
 
-// todo: enable if endpoint should be available for non-admin users
-test.skip(`${currentTest} should return found company info for non-admin user`, async (t) => {
+test(`${currentTest} should return found company info for non-admin user`, async (t) => {
   try {
     const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
     const {
@@ -152,40 +151,15 @@ test.skip(`${currentTest} should return found company info for non-admin user`, 
       .set('Accept', 'application/json');
 
     const foundCompanyInfoRO = JSON.parse(foundCompanyInfo.text);
-    // console.log(
-    //   `🚀 ~ file: non-saas-company-info-e2e.test.ts:87 ~ test ~ foundCompanyInfoRO: \n\n
-    // ${JSON.stringify(foundCompanyInfoRO)}
-    // \n\n
-    // `
-    // );
 
     t.is(foundCompanyInfo.status, 200);
+    t.is(Object.keys(foundCompanyInfoRO).length, 6);
     t.is(foundCompanyInfoRO.hasOwnProperty('id'), true);
-    t.is(Object.keys(foundCompanyInfoRO).length, 3);
-    t.is(foundCompanyInfoRO.hasOwnProperty('connections'), true);
-    t.is(foundCompanyInfoRO.connections.length > 3, true);
-    t.is(foundCompanyInfoRO.hasOwnProperty('invitations'), true);
-    t.is(foundCompanyInfoRO.invitations.length, 0);
-    t.is(Object.keys(foundCompanyInfoRO.connections[0]).length, 6);
-    t.is(foundCompanyInfoRO.connections[0].hasOwnProperty('id'), true);
-    t.is(foundCompanyInfoRO.connections[0].hasOwnProperty('title'), true);
-    t.is(foundCompanyInfoRO.connections[0].hasOwnProperty('createdAt'), true);
-    t.is(foundCompanyInfoRO.connections[0].hasOwnProperty('updatedAt'), true);
-    t.is(foundCompanyInfoRO.connections[0].hasOwnProperty('author'), true);
-    t.is(foundCompanyInfoRO.connections[0].hasOwnProperty('groups'), true);
-    t.is(foundCompanyInfoRO.connections[0].groups.length > 0, true);
-    t.is(Object.keys(foundCompanyInfoRO.connections[0].groups[0]).length, 4);
-    t.is(foundCompanyInfoRO.connections[0].groups[0].hasOwnProperty('id'), true);
-    t.is(foundCompanyInfoRO.connections[0].groups[0].hasOwnProperty('title'), true);
-    t.is(foundCompanyInfoRO.connections[0].groups[0].hasOwnProperty('isMain'), true);
-    t.is(foundCompanyInfoRO.connections[0].groups[0].hasOwnProperty('users'), true);
-    t.is(foundCompanyInfoRO.connections[0].groups[0].users.length > 0, true);
-    t.is(Object.keys(foundCompanyInfoRO.connections[0].groups[0].users[0]).length, 7);
-    t.is(foundCompanyInfoRO.connections[0].groups[0].users[0].hasOwnProperty('id'), true);
-    t.is(foundCompanyInfoRO.connections[0].groups[0].users[0].hasOwnProperty('email'), true);
-    t.is(foundCompanyInfoRO.connections[0].groups[0].users[0].hasOwnProperty('role'), true);
-    t.is(foundCompanyInfoRO.connections[0].groups[0].users[0].hasOwnProperty('createdAt'), true);
-    t.is(foundCompanyInfoRO.connections[0].groups[0].users[0].hasOwnProperty('password'), false);
+    t.is(foundCompanyInfoRO.hasOwnProperty('name'), true);
+    t.is(foundCompanyInfoRO.hasOwnProperty('additional_info'), true);
+    t.is(foundCompanyInfoRO.hasOwnProperty('address'), true);
+    t.is(foundCompanyInfoRO.hasOwnProperty('createdAt'), true);
+    t.is(foundCompanyInfoRO.hasOwnProperty('updatedAt'), true);
   } catch (error) {
     console.error(error);
     throw error;

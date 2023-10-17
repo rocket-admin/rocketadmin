@@ -79,7 +79,7 @@ export class CompanyInfoController {
     description: 'Get user company full info.',
     type: FoundUserFullCompanyInfoDs,
   })
-  @UseGuards(CompanyAdminGuard)
+  @UseGuards(CompanyUserGuard)
   @Get('my/full')
   async getUserCompanies(@UserId() userId: string): Promise<FoundUserCompanyInfoDs | FoundUserFullCompanyInfoDs> {
     return await this.getUserFullCompanyInfoUseCase.execute(userId);
