@@ -8,4 +8,6 @@ export interface ICompanyInfoRepository {
   findCompanyInfoByUserId(userId: string): Promise<CompanyInfoEntity>;
 
   findFullCompanyInfoByUserId(userId: string): Promise<CompanyInfoEntity>;
+
+  findCompanyInfosByUserEmail(userEmail: string): Promise<CompanyInfoEntity[]>;
 }

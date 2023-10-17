@@ -87,12 +87,6 @@ test(`${currentTest} should return full found company info for company admin use
       .set('Accept', 'application/json');
 
     const foundCompanyInfoRO = JSON.parse(foundCompanyInfo.text);
-    // console.log(
-    //   `🚀 ~ file: non-saas-company-info-e2e.test.ts:87 ~ test ~ foundCompanyInfoRO: \n\n
-    // ${JSON.stringify(foundCompanyInfoRO)}
-    // \n\n
-    // `
-    // );
 
     t.is(foundCompanyInfo.status, 200);
     t.is(foundCompanyInfoRO.hasOwnProperty('id'), true);
@@ -160,6 +154,69 @@ test(`${currentTest} should return found company info for non-admin user`, async
     t.is(foundCompanyInfoRO.hasOwnProperty('address'), true);
     t.is(foundCompanyInfoRO.hasOwnProperty('createdAt'), true);
     t.is(foundCompanyInfoRO.hasOwnProperty('updatedAt'), true);
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+});
+
+currentTest = 'GET /company/my/email';
+
+test(`${currentTest} should return found company infos for admin user`, async (t) => {
+  try {
+    const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
+    const {
+      connections,
+      firstTableInfo,
+      groups,
+      permissions,
+      secondTableInfo,
+      users: { adminUserToken, simpleUserToken },
+    } = testData;
+
+    const foundCompanyInfo = await request(app.getHttpServer())
+      .get(`/company/my/email/${testData.users.adminUserEmail}`)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+
+    const foundCompanyInfoRO = JSON.parse(foundCompanyInfo.text);
+
+    t.is(foundCompanyInfo.status, 200);
+    t.is(Array.isArray(foundCompanyInfoRO), true);
+    t.is(foundCompanyInfoRO.length, 1);
+    t.is(foundCompanyInfoRO[0].hasOwnProperty('id'), true);
+    t.is(Object.keys(foundCompanyInfoRO[0]).length, 2);
+    t.is(foundCompanyInfoRO[0].hasOwnProperty('name'), true);
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+});
+
+test(`${currentTest} should return found company infos for non-admin user`, async (t) => {
+  try {
+    const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
+    const {
+      connections,
+      firstTableInfo,
+      groups,
+      permissions,
+      secondTableInfo,
+      users: { adminUserToken, simpleUserToken },
+    } = testData;
+
+    const foundCompanyInfo = await request(app.getHttpServer())
+      .get(`/company/my/email/${testData.users.simpleUserEmail}`)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+
+    const foundCompanyInfoRO = JSON.parse(foundCompanyInfo.text);
+
+    t.is(foundCompanyInfo.status, 200);
+    t.is(Array.isArray(foundCompanyInfoRO), true);
+    t.is(foundCompanyInfoRO.length, 1);
+    t.is(Object.keys(foundCompanyInfoRO[0]).length, 2);
+    t.is(foundCompanyInfoRO[0].hasOwnProperty('name'), true);
   } catch (error) {
     console.error(error);
     throw error;

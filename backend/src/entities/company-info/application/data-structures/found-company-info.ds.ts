@@ -62,6 +62,12 @@ export class FoundUserFullCompanyInfoDs extends FoundUserCompanyInfoDs {
 
   @ApiProperty({ isArray: true, type: FoundInvitationInCompanyDs })
   invitations: Array<FoundInvitationInCompanyDs>;
+}
 
+export class FoundUserEmailCompaniesInfoDs {
+  @ApiProperty()
+  id: string;
 
+  @ApiProperty({ required: false })
+  name?: string;
 }

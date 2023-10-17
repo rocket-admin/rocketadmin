@@ -124,7 +124,6 @@ test(`${currentTest} should return full found company info for company admin use
   }
 });
 
-// todo: enable if endpoint should be available for non-admin users
 test(`${currentTest} should return found company info for non-admin user`, async (t) => {
   try {
     const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
@@ -148,6 +147,67 @@ test(`${currentTest} should return found company info for non-admin user`, async
     t.is(foundCompanyInfo.status, 200);
     t.is(foundCompanyInfoRO.hasOwnProperty('id'), true);
     t.is(Object.keys(foundCompanyInfoRO).length, 1);
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+});
+
+currentTest = 'GET /company/my/email';
+
+test(`${currentTest} should return found company infos for admin user`, async (t) => {
+  try {
+    const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
+    const {
+      connections,
+      firstTableInfo,
+      groups,
+      permissions,
+      secondTableInfo,
+      users: { adminUserToken, simpleUserToken },
+    } = testData;
+
+    const foundCompanyInfo = await request(app.getHttpServer())
+      .get(`/company/my/email/${testData.users.adminUserEmail}`)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+
+    const foundCompanyInfoRO = JSON.parse(foundCompanyInfo.text);
+
+    t.is(foundCompanyInfo.status, 200);
+    t.is(Array.isArray(foundCompanyInfoRO), true);
+    t.is(foundCompanyInfoRO.length, 1);
+    t.is(foundCompanyInfoRO[0].hasOwnProperty('id'), true);
+    
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+});
+
+test(`${currentTest} should return found company infos for non-admin user`, async (t) => {
+  try {
+    const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
+    const {
+      connections,
+      firstTableInfo,
+      groups,
+      permissions,
+      secondTableInfo,
+      users: { adminUserToken, simpleUserToken },
+    } = testData;
+
+    const foundCompanyInfo = await request(app.getHttpServer())
+      .get(`/company/my/email/${testData.users.simpleUserEmail}`)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+
+    const foundCompanyInfoRO = JSON.parse(foundCompanyInfo.text);
+
+    t.is(foundCompanyInfo.status, 200);
+    t.is(Array.isArray(foundCompanyInfoRO), true);
+    t.is(foundCompanyInfoRO.length, 1);
+    t.is(foundCompanyInfoRO[0].hasOwnProperty('id'), true);
   } catch (error) {
     console.error(error);
     throw error;

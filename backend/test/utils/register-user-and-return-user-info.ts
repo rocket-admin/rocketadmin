@@ -76,7 +76,7 @@ export async function registerUserOnSaasAndReturnUserInfo(): Promise<{
   const userRegisterInfo: RegisterUserData & { companyName: string } = {
     email: `${faker.lorem.words(1)}_${faker.lorem.words(1)}_${faker.internet.email()}`,
     password: `#r@dY^e&7R4b5Ib@31iE4xbn`,
-    companyName: `${faker.lorem.words(1)}_${faker.lorem.words(1)}_${faker.lorem.words(1)}_${faker.company.name()}}`,
+    companyName: `${faker.lorem.words(1)}_${faker.lorem.words(1)}_${faker.lorem.words(1)}_${faker.company.name()}`,
   };
 
   const result = await fetch('http://rocketadmin-private-microservice:3001/saas/user/register', {
