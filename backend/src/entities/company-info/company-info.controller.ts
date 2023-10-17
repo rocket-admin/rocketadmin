@@ -24,6 +24,7 @@ import { UseCaseType } from '../../common/data-injection.tokens.js';
 import { SlugUuid } from '../../decorators/slug-uuid.decorator.js';
 import {
   IGetUserCompany,
+  IGetUserEmailCompanies,
   IGetUserFullCompanyInfo,
   IInviteUserInCompanyAndConnectionGroup,
   IVerifyInviteUserInCompanyAndConnectionGroup,
@@ -41,6 +42,7 @@ import { TokenExpirationResponseDto } from './application/dto/token-expiration-r
 import { CompanyUserGuard } from '../../guards/company-user.guard.js';
 import {
   FoundUserCompanyInfoDs,
+  FoundUserEmailCompaniesInfoDs,
   FoundUserFullCompanyInfoDs,
 } from './application/data-structures/found-company-info.ds.js';
 
@@ -59,6 +61,8 @@ export class CompanyInfoController {
     private readonly getUserCompanyUseCase: IGetUserCompany,
     @Inject(UseCaseType.GET_FULL_USER_COMPANIES_INFO)
     private readonly getUserFullCompanyInfoUseCase: IGetUserFullCompanyInfo,
+    @Inject(UseCaseType.GET_USER_EMAIL_COMPANIES)
+    private readonly getUserEmailCompaniesUseCase: IGetUserEmailCompanies,
   ) {}
 
   @ApiOperation({ summary: 'Get user company' })
@@ -71,6 +75,18 @@ export class CompanyInfoController {
   @Get('my')
   async getUserCompany(@UserId() userId: string): Promise<FoundUserCompanyInfoDs> {
     return await this.getUserCompanyUseCase.execute(userId);
+  }
+
+  @ApiOperation({ summary: 'Get companies where user with this email registered (for login in company)' })
+  @ApiResponse({
+    status: 200,
+    description: 'Get companies where user with this email registered.',
+    type: Array<FoundUserEmailCompaniesInfoDs>,
+  })
+  @Get('my/email/:email')
+  async getUserEmailCompanies(@Param('email') userEmail: string): Promise<Array<FoundUserEmailCompaniesInfoDs>> {
+    ValidationHelper.validateOrThrowHttpExceptionEmail(userEmail);
+    return await this.getUserEmailCompaniesUseCase.execute(userEmail);
   }
 
   @ApiOperation({ summary: 'Get user company full info' })

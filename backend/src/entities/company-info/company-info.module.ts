@@ -18,6 +18,7 @@ import { TableWidgetEntity } from '../widget/table-widget.entity.js';
 import { CompanyInfoController } from './company-info.controller.js';
 import { GetUserCompanyUseCase } from './use-cases/get-user-company.use.case.js';
 import { GetUserCompanyFullInfoUseCase } from './use-cases/get-full-user-company-info.use.case.js';
+import { GetUserEmailCompaniesUseCase } from './use-cases/get-user-email-companies.use.case.js';
 
 @Module({
   imports: [
@@ -55,6 +56,10 @@ import { GetUserCompanyFullInfoUseCase } from './use-cases/get-full-user-company
       provide: UseCaseType.GET_FULL_USER_COMPANIES_INFO,
       useClass: GetUserCompanyFullInfoUseCase,
     },
+    {
+      provide: UseCaseType.GET_USER_EMAIL_COMPANIES,
+      useClass: GetUserEmailCompaniesUseCase,
+    }
   ],
   controllers: [CompanyInfoController],
 })

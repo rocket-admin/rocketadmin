@@ -2,6 +2,7 @@ import { IToken } from '../../user/utils/generate-gwt-token.js';
 import { AcceptUserValidationInCompany } from '../application/data-structures/accept-user-invitation-in-company.ds.js';
 import {
   FoundUserCompanyInfoDs,
+  FoundUserEmailCompaniesInfoDs,
   FoundUserFullCompanyInfoDs,
 } from '../application/data-structures/found-company-info.ds.js';
 import { InviteUserInCompanyAndConnectionGroupDs } from '../application/data-structures/invite-user-in-company-and-connection-group.ds.js';
@@ -21,4 +22,8 @@ export interface IGetUserCompany {
 
 export interface IGetUserFullCompanyInfo {
   execute(userId: string): Promise<FoundUserCompanyInfoDs | FoundUserFullCompanyInfoDs>;
+}
+
+export interface IGetUserEmailCompanies {
+  execute(userEmail: string): Promise<Array<FoundUserEmailCompaniesInfoDs>>;
 }

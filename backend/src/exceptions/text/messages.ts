@@ -50,6 +50,7 @@ export const Messages = {
   COMPANY_ALREADY_EXISTS: 'Company already exists',
   COMPANY_NOT_EXISTS_IN_CONNECTION: `Connection does not attached to company. Please contact our support team`,
   COMPANY_NOT_FOUND: 'Company not found. Please contact our support team',
+  COMPANIES_USER_EMAIL_NOT_FOUND: (email: string) => `No companies found for user ${email}`,
   CONNECTION_ID_MISSING: 'Connection id is missing',
   CONNECTION_NOT_CREATED: 'Connection was not successfully created.',
   CONNECTION_NOT_FOUND: 'Connection with specified parameters not found',

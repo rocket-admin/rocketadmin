@@ -35,4 +35,11 @@ export const companyInfoRepositoryExtension: ICompanyInfoRepository = {
       .where('users.id = :userId', { userId })
       .getOne();
   },
+
+  async findCompanyInfosByUserEmail(userEmail: string): Promise<CompanyInfoEntity[]> {
+    return await this.createQueryBuilder('company_info')
+      .leftJoinAndSelect('company_info.users', 'users')
+      .where('users.email = :userEmail', { userEmail })
+      .getMany();
+  },
 };
