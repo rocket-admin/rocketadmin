@@ -112,33 +112,33 @@ $custom-palette-primary: mat.define-palette($md-app-primary-color);
 $custom-palette-accent: mat.define-palette($md-app-accented-color);
 $custom-palette-warn: mat.define-palette($md-app-warn-color);
 
-body .mat-mdc-raised-button.mat-primary, body .mat-mdc-unelevated-button.mat-primary {
+body .mat-mdc-flat-button.mat-primary, body .mat-mdc-unelevated-button.mat-primary {
   --mat-mdc-button-persistent-ripple-color: var(--color-primaryPalette-500-contrast) !important;
   --mdc-protected-button-label-text-color: var(--color-primaryPalette-500-contrast) !important;
   --mdc-filled-button-label-text-color: var(--color-primaryPalette-500-contrast) !important;
   --mat-mdc-button-ripple-color: rgba(255, 255, 255, 0.1) !important;
 }
 
-body .mat-mdc-raised-button.mat-accent, body .mat-mdc-unelevated-button.mat-accent {
+body .mat-mdc-flat-button.mat-accent, body .mat-mdc-unelevated-button.mat-accent {
   --mat-mdc-button-persistent-ripple-color: var(--color-accentedPalette-500-contrast) !important;
   --mdc-protected-button-label-text-color: var(--color-accentedPalette-500-contrast) !important;
   --mdc-filled-button-label-text-color: var(--color-accentedPalette-500-contrast) !important;
   --mat-mdc-button-ripple-color: rgba(255, 255, 255, 0.1) !important;
 }
 
-body .mat-mdc-raised-button.mat-warn, body .mat-mdc-unelevated-button.mat-warn {
+body .mat-mdc-flat-button.mat-warn, body .mat-mdc-unelevated-button.mat-warn {
   --mat-mdc-button-persistent-ripple-color: var(--color-warnPalette-500-contrast) !important;
   --mdc-protected-button-label-text-color: var(--color-warnPalette-500-contrast) !important;
   --mdc-filled-button-label-text-color: var(--color-warnPalette-500-contrast) !important;
   --mat-mdc-button-ripple-color: rgba(255, 255, 255, 0.1) !important;
 }
 
-.mat-mdc-checkbox .mdc-form-field {
-  --mdc-checkbox-selected-checkmark-color: var(--color-warnPalette-500-contrast) !important;
-}
+// .mat-mdc-checkbox .mdc-form-field {
+//   --mdc-checkbox-selected-checkmark-color: var(--color-accentedPalette-500-contrast) !important;
+// }
 
 $button-custom-level: mat.define-typography-level(
-  $font-family: 'Poppins',
+  $font-family: 'Noto Sans',
   $font-weight: 500,
   $font-size: 14px,
   $line-height: 34px,
@@ -146,7 +146,7 @@ $button-custom-level: mat.define-typography-level(
 );
 
 $body-1-custom-level: mat.define-typography-level(
-  $font-family: 'Poppins',
+  $font-family: 'Noto Sans',
   $font-weight: 400,
   $font-size: 14px,
   $line-height: 20px,
@@ -154,7 +154,7 @@ $body-1-custom-level: mat.define-typography-level(
 );
 
 $caption-custom-level: mat.define-typography-level(
-  $font-family: 'Poppins',
+  $font-family: 'Noto Sans',
   $font-weight: 400,
   $font-size: 12px,
   $line-height: 16px,
@@ -162,7 +162,7 @@ $caption-custom-level: mat.define-typography-level(
 );
 
 $custom-typography-config: mat.define-typography-config(
-    $font-family: 'Poppins',
+    $font-family: 'Noto Sans',
     $button: $button-custom-level,
     $body-1: $body-1-custom-level,
     $caption: $caption-custom-level,

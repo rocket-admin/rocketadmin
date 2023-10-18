@@ -124,13 +124,13 @@
             </mat-form-field>
         </div>
         <div *ngIf="accessLevel !== 'readonly'" class="actions">
-            <button mat-raised-button color="warn"
+            <button mat-flat-button color="warn"
                 type="button"
                 [disabled]="!isSettingsExist || submitting || connectionSettingsForm.form.invalid"
                 (click)="resetSettings()">
                 Reset
             </button>
-            <button mat-raised-button color="primary"
+            <button mat-flat-button color="primary"
                 type="submit"
                 class="settings-form__save-button"
                 [disabled]="submitting || connectionSettingsForm.form.invalid || connectionSettingsForm.form.pristine">

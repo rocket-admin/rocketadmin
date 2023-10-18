@@ -1,20 +1,21 @@
+import { ActivatedRoute, Router } from '@angular/router';
+import { AlertActionType, AlertType } from 'src/app/models/alert';
 import { Component, OnInit, ViewChild } from '@angular/core';
+import { FormBuilder, Validators } from '@angular/forms';
+import {
+  PaymentIntent,
+  StripeCardElementOptions,
+  StripeElementsOptions
+} from '@stripe/stripe-js';
+import { StripePaymentElementComponent, StripeService } from 'ngx-stripe';
+import { SubscriptionPlans, User } from 'src/app/models/user';
+import { addMonths, format } from 'date-fns'
+
+import { HttpClient } from '@angular/common/http';
+import { NotificationsService } from 'src/app/services/notifications.service';
 import { PaymentService } from 'src/app/services/payment.service';
 import { UserService } from 'src/app/services/user.service';
-import { StripeService, StripePaymentElementComponent } from 'ngx-stripe';
-import {
-  StripeElementsOptions,
-  PaymentIntent,
-  StripeCardElementOptions
-} from '@stripe/stripe-js';
-import { HttpClient } from '@angular/common/http';
-import { FormBuilder, Validators } from '@angular/forms';
-import { SubscriptionPlans, User } from 'src/app/models/user';
-import { ActivatedRoute, Router } from '@angular/router';
 import plans from '../../consts/plans';
-import { NotificationsService } from 'src/app/services/notifications.service';
-import { AlertActionType, AlertType } from 'src/app/models/alert';
-import { addMonths, format } from 'date-fns'
 
 @Component({
   selector: 'app-payment-form',
@@ -36,7 +37,7 @@ export class PaymentFormComponent implements OnInit {
         iconColor: '#666EE8',
         color: '#31325F',
         fontWeight: '300',
-        fontFamily: 'Poppins, sans-serif',
+        fontFamily: 'Noto Sans, sans-serif',
         fontSize: '18px',
         '::placeholder': {
           color: '#CFD7E0',

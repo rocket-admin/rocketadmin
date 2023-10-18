@@ -60,6 +60,7 @@ import { GroupDeleteDialogComponent } from './components/users/group-delete-dial
 import { GroupUserVerificationComponent } from './components/group-user-verification/group-user-verification.component';
 import { HexValidationDirective } from "./directives/hexValidator.directive";
 import { HostnameValidationDirective } from "./directives/hostnameValidator.directive";
+import { IconPickerComponent } from './components/ui-components/icon-picker/icon-picker.component';
 import { IdComponent } from "./components/ui-components/row-fields/id/id.component";
 import { InfoDialogComponent } from './components/audit/info-dialog/info-dialog.component';
 import { IpAddressButtonComponent } from './components/ui-components/ip-address-button/ip-address-button.component';
@@ -104,13 +105,12 @@ import { UsersComponent } from './components/users/users.component';
 import { UsersService } from './services/users.service';
 import { WidgetDeleteDialogComponent } from './components/dashboard/db-table-widgets/widget-delete-dialog/widget-delete-dialog.component';
 import { environment } from '../environments/environment';
-import { IconPickerComponent } from './components/ui-components/icon-picker/icon-picker.component';
 
 type Palettes = { primaryPalette: string, accentedPalette: string, warnPalette: string };
 type Colors = { myColorName: string };
 
 const colorConfig: IColorConfig<Palettes, Colors> = {
-  palettes: { primaryPalette: '#3258f0', accentedPalette: '#ed4870', warnPalette: '#e53935' },
+  palettes: { primaryPalette: '#A63BFB', accentedPalette: '#95CFA3', warnPalette: '#B00020' },
   simpleColors: { myColorName: '#2e959a' },
 };
 

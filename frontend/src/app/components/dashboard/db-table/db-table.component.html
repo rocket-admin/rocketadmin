@@ -88,7 +88,7 @@
                             role="menuitemcheckbox"
                             *ngFor="let column of tableData.columns"
                             (click)="$event.stopPropagation();">
-                            <mat-checkbox color="primary"
+                            <mat-checkbox
                                 class="db-table-header__columnsCheckbox"
                                 [disabled]="tableData.displayedDataColumns.length === 1 && column.selected"
                                 (change)="tableData.changleColumnList()"

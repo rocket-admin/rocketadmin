@@ -9,7 +9,7 @@
             <mat-error *ngIf="email.errors?.isInvalidEmail">Invalid email format.</mat-error>
         </mat-form-field>
 
-        <button mat-raised-button color="primary" class="new-email-button"
+        <button mat-flat-button color="primary" class="new-email-button"
             [disabled]="submitting || newEmailForm.form.invalid">
             Change
         </button>

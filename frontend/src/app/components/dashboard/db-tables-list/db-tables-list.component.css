@@ -58,7 +58,7 @@
 }
 
 .list-item_active ::ng-deep .mdc-list-item__primary-text {
-    color: var(--color-accentedPalette-500);
+    color: var(--color-accentedPalette-700);
 }
 
 .list-item_active ::ng-deep .table-list-initials {

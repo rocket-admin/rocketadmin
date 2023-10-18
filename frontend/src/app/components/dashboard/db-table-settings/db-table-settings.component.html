@@ -179,13 +179,13 @@
         <div class="actions">
             <button mat-stroked-button type="button" class="settings-form__back-button" (click)="goBack()">Back</button>
 
-            <button mat-raised-button color="warn"
+            <button mat-flat-button color="warn"
                 type="button"
                 [disabled]="submitting || !isSettingsExist"
                 (click)="resetSettings(tableSettingsForm)">
                 Reset
             </button>
-            <button mat-raised-button color="primary"
+            <button mat-flat-button color="primary"
                 type="submit"
                 class="settings-form__save-button"
                 [disabled]="(submitting || tableSettingsForm.form.invalid || tableSettingsForm.form.pristine) && !orderChanged && !iconChanged">

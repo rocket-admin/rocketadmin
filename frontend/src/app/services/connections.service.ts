@@ -147,14 +147,14 @@ export class ConnectionsService {
         } else {
           this.connectionLogo = null;
           this.companyName = null;
-          this._themeService.updateColors({ palettes: { primaryPalette: '#3258f0', accentedPalette: '#ed4870' }});
+          this._themeService.updateColors({ palettes: { primaryPalette: '#A63BFB', accentedPalette: '#95CFA3' }});
         }
       });
     } else {
       this.connection = {...this.connectionInitialState};
       this.connectionLogo = null;
       this.companyName = null;
-      this._themeService.updateColors({ palettes: { primaryPalette: '#3258f0', accentedPalette: '#ed4870' }});
+      this._themeService.updateColors({ palettes: { primaryPalette: '#A63BFB', accentedPalette: '#95CFA3' }});
     }
   }
 

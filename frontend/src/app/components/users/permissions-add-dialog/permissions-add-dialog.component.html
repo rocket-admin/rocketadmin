@@ -103,15 +103,15 @@
         </div>
     </mat-dialog-content>
     <mat-dialog-actions *ngIf="group.title !== 'Admin'; else adminActions" align="end">
-        <button mat-raised-button mat-dialog-close>Cancel</button>
-        <button mat-raised-button color="primary"
+        <button mat-flat-button mat-dialog-close>Cancel</button>
+        <button mat-flat-button color="primary"
             [disabled]="submitting || addPermissionsForm.form.invalid">
                 Update
         </button>
     </mat-dialog-actions>
     <ng-template #adminActions>
         <mat-dialog-actions align="end">
-            <button mat-raised-button mat-dialog-close>Close</button>
+            <button mat-flat-button mat-dialog-close>Close</button>
         </mat-dialog-actions>
     </ng-template>
 

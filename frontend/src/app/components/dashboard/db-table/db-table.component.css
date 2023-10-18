@@ -224,7 +224,7 @@ tr.mat-row:hover {
 }
 
 .foreign-key-link {
-    color: var(--color-accentedPalette-500);
+    color: var(--color-accentedPalette-700);
 }
 
 .empty-table {

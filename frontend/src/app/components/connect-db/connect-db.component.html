@@ -431,7 +431,7 @@
             <p class="mat-body-1 test-connection-message">You cannot edit test connection.</p>
             <a *ngIf="db.isTestConnection"
                 routerLink="/connect-db"
-                mat-raised-button color="accent">
+                mat-flat-button color="accent">
                 Create your own
             </a>
             <button type="button" mat-button color="warn"
@@ -458,7 +458,7 @@
                 Test connection
             </button>
             <button type="submit" *ngIf="!connectionToken && !connectionID"
-                mat-raised-button color="primary"
+                mat-flat-button color="primary"
                 angulartics2On="click"
                 angularticsAction="Connection creds add: db add clicked"
                 [disabled]="submitting">
@@ -466,7 +466,7 @@
             </button>
             <a *ngIf="connectionToken && connectionID"
                 routerLink="/dashboard/{{connectionID}}"
-                mat-raised-button color="primary">
+                mat-flat-button color="primary">
                 Open dashboard
             </a>
         </div>
@@ -491,7 +491,7 @@
 
             <!-- right button -->
             <button type="submit" *ngIf="db.id"
-                mat-raised-button color="primary"
+                mat-flat-button color="primary"
                 angulartics2On="click"
                 angularticsAction="Connection creds edit: db edit is clicked"
                 [disabled]="submitting || connectForm.form.pristine || db.isTestConnection">
@@ -500,7 +500,7 @@
 
             <a *ngIf="connectionToken && connectionID"
                 routerLink="/dashboard/{{connectionID}}"
-                mat-raised-button color="primary">
+                mat-flat-button color="primary">
                 Open dashboard
             </a>
         </div>

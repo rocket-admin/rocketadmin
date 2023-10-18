@@ -102,13 +102,13 @@
             </button>
 
             <button *ngIf="hasKeyAttributesFromURL; else addButton"
-                type="submit" mat-raised-button color="primary"
+                type="submit" mat-flat-button color="primary"
                 [disabled]="submitting || editRowForm.form.invalid">
                 Edit
             </button>
 
             <ng-template #addButton>
-                <button type="submit" mat-raised-button color="primary" [disabled]="submitting || editRowForm.form.invalid">
+                <button type="submit" mat-flat-button color="primary" [disabled]="submitting || editRowForm.form.invalid">
                     Add
                 </button>
             </ng-template>
