@@ -40,4 +40,6 @@ export interface IUserRepository {
   findOneUserByIdAndCompanyId(userId: string, companyId: string): Promise<UserEntity>;
 
   findOneUserByIdWithCompany(userId: string): Promise<UserEntity>;
+
+  findAllUsersWithEmail(email: string): Promise<Array<UserEntity>>;
 }

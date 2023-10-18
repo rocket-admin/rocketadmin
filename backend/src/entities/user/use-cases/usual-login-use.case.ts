@@ -7,6 +7,7 @@ import { Encryptor } from '../../../helpers/encryption/encryptor.js';
 import { UsualLoginDs } from '../application/data-structures/usual-login.ds.js';
 import { generateGwtToken, generateTemporaryJwtToken, IToken } from '../utils/generate-gwt-token.js';
 import { IUsualLogin } from './user-use-cases.interfaces.js';
+import { UserEntity } from '../user.entity.js';
 
 @Injectable()
 export class UsualLoginUseCase extends AbstractUseCase<UsualLoginDs, IToken> implements IUsualLogin {
@@ -18,7 +19,32 @@ export class UsualLoginUseCase extends AbstractUseCase<UsualLoginDs, IToken> imp
   }
 
   protected async implementation(userData: UsualLoginDs): Promise<IToken> {
-    const user = await this._dbContext.userRepository.findOneUserByEmail(userData.email);
+    const { email, companyId } = userData;
+    let user: UserEntity = null;
+
+    if (companyId) {
+      user = await this._dbContext.userRepository.findOneUserByEmailAndCompanyId(email, companyId);
+      if (!user) {
+        throw new HttpException(
+          {
+            message: Messages.LOGIN_DENIED,
+          },
+          HttpStatus.UNAUTHORIZED,
+        );
+      }
+    } else {
+      const foundUsers = await this._dbContext.userRepository.findAllUsersWithEmail(email);
+      if (foundUsers.length > 1) {
+        throw new HttpException(
+          {
+            message: Messages.LOGIN_DENIED_SHOULD_CHOOSE_COMPANY,
+          },
+          HttpStatus.UNAUTHORIZED,
+        );
+      }
+      user = foundUsers[0];
+    }
+
     if (!user) {
       throw new HttpException(
         {
