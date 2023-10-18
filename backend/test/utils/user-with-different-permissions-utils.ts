@@ -125,6 +125,8 @@ export async function createConnectionsAndInviteNewUserInNewGroupInFirstConnecti
       simpleUserToken: simpleUserToken,
       simpleUserEmail: simpleUserRegisterInfo.email,
       adminUserEmail: connectionAdminUserInfo.email,
+      adminUserPassword: connectionAdminUserInfo.password,
+      simpleUserPassword: simpleUserRegisterInfo.password,
     },
   };
 }
@@ -255,6 +257,8 @@ export async function createConnectionsAndInviteNewUserInNewGroupWithGroupPermis
       simpleUserToken: simpleUserToken,
       simpleUserEmail: simpleUserRegisterInfo.email,
       adminUserEmail: connectionAdminUserInfo.email,
+      adminUserPassword: connectionAdminUserInfo.password,
+      simpleUserPassword: simpleUserRegisterInfo.password,
     },
   };
 }
@@ -389,6 +393,8 @@ export async function createConnectionsAndInviteNewUserInNewGroupWithOnlyTablePe
       simpleUserToken: simpleUserToken,
       simpleUserEmail: simpleUserRegisterInfo.email,
       adminUserEmail: connectionAdminUserInfo.email,
+      adminUserPassword: connectionAdminUserInfo.password,
+      simpleUserPassword: simpleUserRegisterInfo.password,
     },
   };
 }
@@ -519,6 +525,8 @@ export async function createConnectionsAndInviteNewUserInNewGroupWithTableDiffer
       simpleUserToken: simpleUserToken,
       simpleUserEmail: simpleUserRegisterInfo.email,
       adminUserEmail: connectionAdminUserInfo.email,
+      adminUserPassword: connectionAdminUserInfo.password,
+      simpleUserPassword: simpleUserRegisterInfo.password,
     },
   };
 }
@@ -625,6 +633,8 @@ export async function createConnectionsAndInviteNewUserInAdminGroupOfFirstConnec
       simpleUserToken: simpleUserToken,
       simpleUserEmail: simpleUserRegisterInfo.email,
       adminUserEmail: connectionAdminUserInfo.email,
+      adminUserPassword: connectionAdminUserInfo.password,
+      simpleUserPassword: simpleUserRegisterInfo.password,
     },
   };
 }
@@ -655,5 +665,7 @@ interface IUserDifferentTableOnlyPermissionsFooData {
     simpleUserToken: string;
     simpleUserEmail: string;
     adminUserEmail: string;
+    adminUserPassword: string;
+    simpleUserPassword: string;
   };
 }

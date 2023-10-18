@@ -7,5 +7,8 @@ export class UsualLoginDs {
   @ApiProperty()
   password: string;
 
+  @ApiProperty()
+  companyId: string;
+
   gclidValue: string;
 }

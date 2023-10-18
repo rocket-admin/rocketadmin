@@ -68,13 +68,15 @@ export async function registerUserOnCoreAndReturnUserInfo(app: INestApplication)
   return { token: token, ...userRegisterInfo };
 }
 
-export async function registerUserOnSaasAndReturnUserInfo(): Promise<{
+export async function registerUserOnSaasAndReturnUserInfo(
+  email: string = `${faker.lorem.words(1)}_${faker.lorem.words(1)}_${faker.internet.email()}`,
+): Promise<{
   token: string;
   email: string;
   password: string;
 }> {
   const userRegisterInfo: RegisterUserData & { companyName: string } = {
-    email: `${faker.lorem.words(1)}_${faker.lorem.words(1)}_${faker.internet.email()}`,
+    email: email,
     password: `#r@dY^e&7R4b5Ib@31iE4xbn`,
     companyName: `${faker.lorem.words(1)}_${faker.lorem.words(1)}_${faker.lorem.words(1)}_${faker.company.name()}`,
   };

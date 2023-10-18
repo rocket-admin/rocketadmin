@@ -169,6 +169,7 @@ export class UserController {
     @Res({ passthrough: true }) response: Response,
     @BodyEmail('email') email: string,
     @Body('password') password: string,
+    @Body('companyId') userCompanyId: string,
   ): Promise<ITokenExp> {
     if (!email) {
       throw new HttpException(
@@ -199,6 +200,7 @@ export class UserController {
       email: email,
       password: password,
       gclidValue: null,
+      companyId: userCompanyId,
     };
 
     const tokenInfo = await this.usualLoginUseCase.execute(userData, InTransactionEnum.OFF);
