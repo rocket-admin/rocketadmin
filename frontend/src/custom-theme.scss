@@ -137,6 +137,10 @@ body .mat-mdc-flat-button.mat-warn, body .mat-mdc-unelevated-button.mat-warn {
 //   --mdc-checkbox-selected-checkmark-color: var(--color-accentedPalette-500-contrast) !important;
 // }
 
+.mat-mdc-checkbox .mdc-checkbox .mdc-checkbox__native-control:enabled ~ .mdc-checkbox__background .mdc-checkbox__checkmark {
+  --mdc-checkbox-selected-checkmark-color: var(--color-accentedPalette-500-contrast) !important;
+}
+
 $button-custom-level: mat.define-typography-level(
   $font-family: 'Noto Sans',
   $font-weight: 500,

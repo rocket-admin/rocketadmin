@@ -27,7 +27,7 @@
             <strong>Email:</strong>
             <span class="mat-body-1 user-settings__value">{{currentUser.email}}</span>
         </div>
-        <button mat-button color="primary" data-testid="user-settings__button"
+        <button mat-stroked-button color="primary" data-testid="user-settings__button"
                 class="user-settings__button"
                 [disabled]="!currentUser.isActive"
                 (click)="changeEmail()">
@@ -37,7 +37,7 @@
         <div class="user-settings__section-heading">
             <strong>Password:</strong>
         </div>
-        <a mat-button routerLink="/change-password" color="primary" data-testid="change-user-password-link"
+        <a mat-stroked-button routerLink="/change-password" color="primary" data-testid="change-user-password-link"
             angulartics2On="click"
             angularticsAction="User settings: change password is clicked"
             [disabled]="!currentUser.isActive"
@@ -55,7 +55,7 @@
                 </span>
             </span>
         </div>
-        <a mat-button color="accent" class="upgrade-button"
+        <a mat-stroked-button color="accent" class="upgrade-button"
             routerLink="/upgrade"
             class="user-settings__button"
             angulartics2On="click"

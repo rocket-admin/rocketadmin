@@ -39,12 +39,12 @@
     width: 32px;
     height: 32px;
     border-radius: 50%;
-    background-color: var(--color-primaryPalette-100);
-    color: var(--color-primaryPalette-100-contrast);
+    background-color: var(--color-primaryPalette-50);
+    color: var(--color-primaryPalette-50-contrast);
 }
 
 .table-list-initials:hover {
-    background-color: var(--color-primaryPalette-200);
+    background-color: var(--color-primaryPalette-100);
 }
 
 .table-list-icon {
@@ -58,12 +58,12 @@
 }
 
 .list-item_active ::ng-deep .mdc-list-item__primary-text {
-    color: var(--color-accentedPalette-700);
+    color: var(--color-accentedPalette-500);
 }
 
 .list-item_active ::ng-deep .table-list-initials {
-    background-color: var(--color-primaryPalette-400);
-    color: var(--color-primaryPalette-400-contrast);
+    background-color: var(--color-accentedPalette-500);
+    color: var(--color-accentedPalette-500-contrast);
 }
 
 .empty-message {

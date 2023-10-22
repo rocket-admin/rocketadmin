@@ -110,7 +110,7 @@ type Palettes = { primaryPalette: string, accentedPalette: string, warnPalette: 
 type Colors = { myColorName: string };
 
 const colorConfig: IColorConfig<Palettes, Colors> = {
-  palettes: { primaryPalette: '#A63BFB', accentedPalette: '#95CFA3', warnPalette: '#B00020' },
+  palettes: { primaryPalette: '#212121', accentedPalette: '#A63BFB', warnPalette: '#B00020' },
   simpleColors: { myColorName: '#2e959a' },
 };
 
