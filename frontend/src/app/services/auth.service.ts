@@ -92,7 +92,9 @@ export class AuthService {
   }
 
   loginWithGoogle(token: string) {
-    return this._http.post<any>('/user/google/login', {token})
+    const config = this._configuration.getConfig();
+
+    return this._http.post<any>(config.saasURL + '/user/google/login', {token})
     .pipe(
       map(res => {
         this.auth.next(res);
