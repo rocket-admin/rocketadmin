@@ -1,5 +1,5 @@
 import { AlertActionType, AlertType } from '../models/alert';
-import { BehaviorSubject, EMPTY, Subject } from 'rxjs';
+import { BehaviorSubject, EMPTY } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 
 import { AuthUser } from '../models/user';
@@ -7,6 +7,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { NotificationsService } from './notifications.service';
 import { environment } from 'src/environments/environment';
+import { ConfigurationService } from './configuration.service';
 
 @Injectable({
   providedIn: 'root'
@@ -17,11 +18,13 @@ export class AuthService {
 
   constructor(
     private _http: HttpClient,
-    private _notifications: NotificationsService
+    private _notifications: NotificationsService,
+    private _configuration: ConfigurationService
   ) { }
 
   signUpUser(userData: AuthUser) {
-    return this._http.post<any>('/user/register', userData)
+    const config = this._configuration.getConfig();
+    return this._http.post<any>(config.saasURL + '/user/register', userData)
       .pipe(
         map(res => {
           if ((environment as any).saas) {
@@ -43,7 +46,7 @@ export class AuthService {
           ]);
           return EMPTY;
         })
-      );
+      )
   }
 
   loginUser(userData: AuthUser) {
