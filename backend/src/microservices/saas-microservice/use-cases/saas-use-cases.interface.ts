@@ -24,6 +24,10 @@ export interface IGetUserInfoByEmail {
   execute(inputData: GetUserInfoByEmailDS): Promise<UserEntity>;
 }
 
+export interface ISaasGetUsersInfosByEmail {
+  execute(userEmail: string): Promise<UserEntity[]>;
+}
+
 export interface ISaasRegisterUser {
   execute(userData: SaasUsualUserRegisterDS): Promise<FoundUserDs>;
 }
