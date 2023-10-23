@@ -22,7 +22,7 @@ export class StripeUtil {
   private static getStripe(): Stripe {
     const stripeKey = process.env.STRIPE_SECRET_KEY;
     return new Stripe(stripeKey, {
-      apiVersion: '2022-11-15',
+      apiVersion: '2023-10-16',
     });
   }
 }
