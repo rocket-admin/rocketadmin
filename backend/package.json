@@ -96,7 +96,7 @@
     "safe-regex2": "^3.1.0",
     "secure-json-parse": "2.7.0",
     "sinon": "17.0.0",
-    "stripe": "14.1.0",
+    "stripe": "12.17.0",
     "typeorm": "0.3.17",
     "uuid": "^9.0.1",
     "validator": "^13.11.0",
