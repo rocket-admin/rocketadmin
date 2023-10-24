@@ -268,30 +268,13 @@ export class ConnectionController {
   @UseGuards(ConnectionEditGuard)
   @Put('/connection/:slug')
   async update(
-    @Body('title') title: string,
-    @Body('masterEncryption') masterEncryption: boolean,
-    @Body('type') type: ConnectionTypeEnum,
-    @Body('host') host: string,
-    @Body('port') port: number,
-    @Body('username') username: string,
-    @Body('password') password: string,
-    @Body('database') database: string,
-    @Body('schema') schema: string,
-    @Body('sid') sid: string,
-    @Body('ssh') ssh: boolean,
-    @Body('privateSSHKey') privateSSHKey: string,
-    @Body('sshHost') sshHost: string,
-    @Body('sshPort') sshPort: number,
-    @Body('sshUsername') sshUsername: string,
-    @Body('ssl') ssl: boolean,
-    @Body('cert') cert: string,
-    @Body('azure_encryption') azure_encryption: boolean,
+    @Body() updateConnectionDto: CreateConnectionDto,
     @SlugUuid() connectionId: string,
     @UserId() userId: string,
     @MasterPassword() masterPwd: string,
   ): Promise<UpdatedConnectionResponseDTO> {
     const errors = [];
-    if (masterEncryption && !masterPwd) {
+    if (updateConnectionDto.masterEncryption && !masterPwd) {
       errors.push(Messages.MASTER_PASSWORD_REQUIRED);
     }
     if (errors.length > 0) {
@@ -304,24 +287,24 @@ export class ConnectionController {
     }
     const connectionData: UpdateConnectionDs = {
       connection_parameters: {
-        azure_encryption: azure_encryption,
-        cert: cert,
-        database: database,
-        host: host,
-        masterEncryption: masterEncryption,
-        password: password,
-        port: port,
-        privateSSHKey: privateSSHKey,
-        schema: schema,
-        sid: sid,
-        ssh: ssh,
-        sshHost: sshHost,
-        sshPort: sshPort,
-        sshUsername: sshUsername,
-        ssl: ssl,
-        title: title,
-        type: type,
-        username: username,
+        azure_encryption: updateConnectionDto.azure_encryption,
+        cert: updateConnectionDto.cert,
+        database: updateConnectionDto.database,
+        host: updateConnectionDto.host,
+        masterEncryption: updateConnectionDto.masterEncryption,
+        password: updateConnectionDto.password,
+        port: updateConnectionDto.port,
+        privateSSHKey: updateConnectionDto.privateSSHKey,
+        schema: updateConnectionDto.schema,
+        sid: updateConnectionDto.sid,
+        ssh: updateConnectionDto.ssh,
+        sshHost: updateConnectionDto.sshHost,
+        sshPort: updateConnectionDto.sshPort,
+        sshUsername: updateConnectionDto.sshUsername,
+        ssl: updateConnectionDto.ssl,
+        title: updateConnectionDto.title,
+        type: updateConnectionDto.type,
+        username: updateConnectionDto.username,
       },
       update_info: {
         authorId: userId,
