@@ -8,6 +8,7 @@ import { AllExceptionsFilter } from './exceptions/all-exceptions.filter.js';
 import { Constants } from './helpers/constants/constants.js';
 import { requiredEnvironmentVariablesValidator } from './helpers/validators/required-environment-variables.validator.js';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
   try {
@@ -59,6 +60,8 @@ async function bootstrap() {
       .build();
     const document = SwaggerModule.createDocument(app, config);
     SwaggerModule.setup('docs', app, document);
+
+    app.useGlobalPipes(new ValidationPipe());
 
     await app.listen(3000);
   } catch (e) {

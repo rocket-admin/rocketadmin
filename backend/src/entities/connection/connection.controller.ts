@@ -201,28 +201,11 @@ export class ConnectionController {
   })
   @Post('/connection')
   async create(
-    @Body('title') title: string,
-    @Body('masterEncryption') masterEncryption: boolean,
-    @Body('type') type: ConnectionTypeEnum,
-    @Body('host') host: string,
-    @Body('port') port: number,
-    @Body('username') username: string,
-    @Body('password') password: string,
-    @Body('database') database: string,
-    @Body('schema') schema: string,
-    @Body('sid') sid: string,
-    @Body('ssh') ssh: boolean,
-    @Body('privateSSHKey') privateSSHKey: string,
-    @Body('sshHost') sshHost: string,
-    @Body('sshPort') sshPort: number,
-    @Body('sshUsername') sshUsername: string,
-    @Body('ssl') ssl: boolean,
-    @Body('cert') cert: string,
-    @Body('azure_encryption') azure_encryption: boolean,
+    @Body() createConnectionDto: CreateConnectionDto,
     @UserId() userId: string,
     @MasterPassword() masterPwd: string,
   ): Promise<CreatedConnectionDs> {
-    if (!password && !isConnectionTypeAgent(type)) {
+    if (!createConnectionDto.password && !isConnectionTypeAgent(createConnectionDto.type)) {
       throw new HttpException(
         {
           message: Messages.PASSWORD_MISSING,
@@ -230,7 +213,7 @@ export class ConnectionController {
         HttpStatus.BAD_REQUEST,
       );
     }
-    if (masterEncryption && !masterPwd) {
+    if (createConnectionDto.masterEncryption && !masterPwd) {
       throw new HttpException(
         {
           message: Messages.MASTER_PASSWORD_REQUIRED,
@@ -238,7 +221,7 @@ export class ConnectionController {
         HttpStatus.BAD_REQUEST,
       );
     }
-    if (ssh && !privateSSHKey) {
+    if (createConnectionDto.ssh && !createConnectionDto.privateSSHKey) {
       throw new HttpException(
         {
           message: Messages.SSH_PASSWORD_MISSING,
@@ -248,24 +231,24 @@ export class ConnectionController {
     }
     const createConnectionDs: CreateConnectionDs = {
       connection_parameters: {
-        azure_encryption: azure_encryption,
-        cert: cert,
-        database: database,
-        host: host,
-        masterEncryption: masterEncryption,
-        password: password,
-        port: port,
-        privateSSHKey: privateSSHKey,
-        schema: schema,
-        sid: sid,
-        ssh: ssh,
-        sshHost: sshHost,
-        sshPort: sshPort,
-        sshUsername: sshUsername,
-        ssl: ssl,
-        title: title,
-        type: type,
-        username: username,
+        azure_encryption: createConnectionDto.azure_encryption,
+        cert: createConnectionDto.cert,
+        database: createConnectionDto.database,
+        host: createConnectionDto.host,
+        masterEncryption: createConnectionDto.masterEncryption,
+        password: createConnectionDto.password,
+        port: createConnectionDto.port,
+        privateSSHKey: createConnectionDto.privateSSHKey,
+        schema: createConnectionDto.schema,
+        sid: createConnectionDto.sid,
+        ssh: createConnectionDto.ssh,
+        sshHost: createConnectionDto.sshHost,
+        sshPort: createConnectionDto.sshPort,
+        sshUsername: createConnectionDto.sshUsername,
+        ssl: createConnectionDto.ssl,
+        title: createConnectionDto.title,
+        type: createConnectionDto.type,
+        username: createConnectionDto.username,
       },
       creation_info: {
         authorId: userId,
