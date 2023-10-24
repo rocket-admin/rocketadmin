@@ -69,7 +69,7 @@ import { TestConnectionResultDS } from '@rocketadmin/shared-code/dist/src/data-a
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CreateConnectionDto } from './application/dto/index.js';
 import { UpdatedConnectionResponseDTO } from './application/dto/updated-connection-responce.dto.js';
-import { DeleteConnectionDS } from './application/dto/delete-connection.dto.js';
+import { DeleteConnectionReasonDto } from './application/dto/delete-connection.dto.js';
 import { DeleteGroupFromConnectionDTO } from './application/dto/delete-group-from-connection-request.dto.js';
 import { CreateDeleteGroupInConnectionResponseDTO } from './application/dto/delete-froup-from-connection-response.dto.js';
 import { CreateGroupInConnectionDTO } from './application/dto/create-froup-in-connection.dto.js';
@@ -318,7 +318,7 @@ export class ConnectionController {
   }
 
   @ApiOperation({ summary: 'Delete connection' })
-  @ApiBody({ type: DeleteConnectionDS })
+  @ApiBody({ type: DeleteConnectionReasonDto })
   @ApiResponse({
     status: 200,
     description: 'Connection was deleted.',
@@ -327,8 +327,7 @@ export class ConnectionController {
   @UseGuards(ConnectionEditGuard)
   @Put('/connection/delete/:slug')
   async delete(
-    @Body('reason') reason: string,
-    @Body('message') message: string,
+    @Body() reasonData: DeleteConnectionReasonDto,
     @UserId() userId: string,
     @SlugUuid() connectionId: string,
     @MasterPassword() masterPwd: string,
@@ -342,15 +341,15 @@ export class ConnectionController {
     const isTest = isTestConnectionUtil(deleteResult);
     if (!isTest) {
       const userEmail = await this._dbContext.userRepository.getUserEmailOrReturnNull(userId);
-      const slackMessage = Messages.USER_DELETED_CONNECTION(userEmail, reason, message);
+      const slackMessage = Messages.USER_DELETED_CONNECTION(userEmail, reasonData.reason, reasonData.message);
       await slackPostMessage(slackMessage);
     }
     await this.amplitudeService.formAndSendLogRecord(
       isTest ? AmplitudeEventTypeEnum.connectionDeletedTest : AmplitudeEventTypeEnum.connectionDeleted,
       inputData.cognitoUserName,
       {
-        reason: reason,
-        message: message,
+        reason: reasonData.reason,
+        message: reasonData.message,
       },
     );
     return deleteResult;
