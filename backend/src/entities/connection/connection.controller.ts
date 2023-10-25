@@ -72,7 +72,7 @@ import { UpdatedConnectionResponseDTO } from './application/dto/updated-connecti
 import { DeleteConnectionReasonDto } from './application/dto/delete-connection.dto.js';
 import { DeleteGroupFromConnectionDTO } from './application/dto/delete-group-from-connection-request.dto.js';
 import { CreateDeleteGroupInConnectionResponseDTO } from './application/dto/delete-froup-from-connection-response.dto.js';
-import { CreateGroupInConnectionDTO } from './application/dto/create-froup-in-connection.dto.js';
+import { CreateGroupInConnectionDTO } from './application/dto/create-group-in-connection.dto.js';
 import { FoundPermissionsInConnectionDs } from './application/data-structures/found-permissions-in-connection.ds.js';
 import { TestConnectionResponseDTO } from './application/dto/test-connection-response.dto.js';
 import { ConnectionTokenResponseDTO } from './application/dto/new-connection-token-response.dto.js';
@@ -395,10 +395,11 @@ export class ConnectionController {
   @UseGuards(ConnectionEditGuard)
   @Post('/connection/group/:slug')
   async createGroupInConnection(
-    @Body('title') title: string,
+    @Body() groupData: CreateGroupInConnectionDTO,
     @SlugUuid() connectionId: string,
     @UserId() userId: string,
   ): Promise<Omit<GroupEntity, 'connection'>> {
+    const { title } = groupData;
     if (!title) {
       throw new HttpException(
         {
@@ -510,48 +511,49 @@ export class ConnectionController {
   })
   @Post('/connection/test/')
   async testConnection(
-    @Body('title') title: string,
-    @Body('masterEncryption') masterEncryption: boolean,
-    @Body('type') type: ConnectionTypeEnum,
-    @Body('host') host: string,
-    @Body('port') port: number,
-    @Body('username') username: string,
-    @Body('password') password: string,
-    @Body('database') database: string,
-    @Body('schema') schema: string,
-    @Body('sid') sid: string,
-    @Body('ssh') ssh: boolean,
-    @Body('privateSSHKey') privateSSHKey: string,
-    @Body('sshHost') sshHost: string,
-    @Body('sshPort') sshPort: number,
-    @Body('sshUsername') sshUsername: string,
-    @Body('ssl') ssl: boolean,
-    @Body('cert') cert: string,
-    @Body('azure_encryption') azure_encryption: boolean,
+    @Body() testConnectionData: CreateConnectionDto,
+    // @Body('title') title: string,
+    // @Body('masterEncryption') masterEncryption: boolean,
+    // @Body('type') type: ConnectionTypeEnum,
+    // @Body('host') host: string,
+    // @Body('port') port: number,
+    // @Body('username') username: string,
+    // @Body('password') password: string,
+    // @Body('database') database: string,
+    // @Body('schema') schema: string,
+    // @Body('sid') sid: string,
+    // @Body('ssh') ssh: boolean,
+    // @Body('privateSSHKey') privateSSHKey: string,
+    // @Body('sshHost') sshHost: string,
+    // @Body('sshPort') sshPort: number,
+    // @Body('sshUsername') sshUsername: string,
+    // @Body('ssl') ssl: boolean,
+    // @Body('cert') cert: string,
+    // @Body('azure_encryption') azure_encryption: boolean,
     @Query('connectionId') connectionId: string,
     @MasterPassword() masterPwd: string,
     @UserId() userId: string,
   ): Promise<TestConnectionResultDS> {
     const inputData: UpdateConnectionDs = {
       connection_parameters: {
-        azure_encryption: azure_encryption,
-        cert: cert,
-        database: database,
-        host: host,
-        masterEncryption: masterEncryption,
-        password: password,
-        port: port,
-        privateSSHKey: privateSSHKey,
-        schema: schema,
-        sid: sid,
-        ssh: ssh,
-        sshHost: sshHost,
-        sshPort: sshPort,
-        sshUsername: sshUsername,
-        ssl: ssl,
-        title: title,
-        type: type,
-        username: username,
+        azure_encryption: testConnectionData.azure_encryption,
+        cert: testConnectionData.cert,
+        database: testConnectionData.database,
+        host: testConnectionData.host,
+        masterEncryption: testConnectionData.masterEncryption,
+        password: testConnectionData.password,
+        port: testConnectionData.port,
+        privateSSHKey: testConnectionData.privateSSHKey,
+        schema: testConnectionData.schema,
+        sid: testConnectionData.sid,
+        ssh: testConnectionData.ssh,
+        sshHost: testConnectionData.sshHost,
+        sshPort: testConnectionData.sshPort,
+        sshUsername: testConnectionData.sshUsername,
+        ssl: testConnectionData.ssl,
+        title: testConnectionData.title,
+        type: testConnectionData.type,
+        username: testConnectionData.username,
       },
       update_info: {
         authorId: userId,

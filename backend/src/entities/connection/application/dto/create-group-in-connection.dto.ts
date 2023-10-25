@@ -1,10 +1,9 @@
-import { PermissionEntity } from '../../../permission/permission.entity.js';
-import { UserEntity } from '../../../user/user.entity.js';
+import { ApiProperty } from '@nestjs/swagger';
+import { IsNotEmpty, IsString } from 'class-validator';
 
-export class CreateGroupInConnectionDto {
+export class CreateGroupInConnectionDTO {
+  @IsNotEmpty()
+  @IsString()
+  @ApiProperty()
   title: string;
-
-  permissions?: Array<PermissionEntity>;
-
-  users?: Array<UserEntity>;
 }
