@@ -76,6 +76,7 @@ import { CreateGroupInConnectionDTO } from './application/dto/create-group-in-co
 import { FoundPermissionsInConnectionDs } from './application/data-structures/found-permissions-in-connection.ds.js';
 import { TestConnectionResponseDTO } from './application/dto/test-connection-response.dto.js';
 import { ConnectionTokenResponseDTO } from './application/dto/new-connection-token-response.dto.js';
+import { UpdateMasterPasswordRequestBodyDto } from './application/dto/update-master-password-request-body.dto.js';
 
 @UseInterceptors(SentryInterceptor)
 @Controller()
@@ -512,24 +513,6 @@ export class ConnectionController {
   @Post('/connection/test/')
   async testConnection(
     @Body() testConnectionData: CreateConnectionDto,
-    // @Body('title') title: string,
-    // @Body('masterEncryption') masterEncryption: boolean,
-    // @Body('type') type: ConnectionTypeEnum,
-    // @Body('host') host: string,
-    // @Body('port') port: number,
-    // @Body('username') username: string,
-    // @Body('password') password: string,
-    // @Body('database') database: string,
-    // @Body('schema') schema: string,
-    // @Body('sid') sid: string,
-    // @Body('ssh') ssh: boolean,
-    // @Body('privateSSHKey') privateSSHKey: string,
-    // @Body('sshHost') sshHost: string,
-    // @Body('sshPort') sshPort: number,
-    // @Body('sshUsername') sshUsername: string,
-    // @Body('ssl') ssl: boolean,
-    // @Body('cert') cert: string,
-    // @Body('azure_encryption') azure_encryption: boolean,
     @Query('connectionId') connectionId: string,
     @MasterPassword() masterPwd: string,
     @UserId() userId: string,
@@ -582,8 +565,7 @@ export class ConnectionController {
   @Put('/connection/encryption/update/:slug')
   async updateConnectionMasterPwd(
     @SlugUuid() connectionId: string,
-    @Body('oldMasterPwd') oldMasterPwd: string,
-    @Body('newMasterPwd') newMasterPwd: string,
+    @Body() passwordData: UpdateMasterPasswordRequestBodyDto,
   ): Promise<boolean> {
     if (!connectionId) {
       throw new HttpException(
@@ -593,6 +575,8 @@ export class ConnectionController {
         HttpStatus.BAD_REQUEST,
       );
     }
+    const { oldMasterPwd, newMasterPwd } = passwordData;
+
     if (!oldMasterPwd) {
       throw new HttpException(
         {
@@ -616,6 +600,7 @@ export class ConnectionController {
     };
     return await this.updateConnectionMasterPasswordUseCase.execute(inputData, InTransactionEnum.ON);
   }
+
   @ApiOperation({ summary: 'Restore connection encrypted with master password' })
   @ApiBody({ type: CreateConnectionDto })
   @ApiResponse({
@@ -626,48 +611,31 @@ export class ConnectionController {
   @UseGuards(ConnectionEditGuard)
   @Put('/connection/encryption/restore/:slug')
   async restore(
-    @Body('title') title: string,
-    @Body('masterEncryption') masterEncryption: boolean,
-    @Body('type') type: string,
-    @Body('host') host: string,
-    @Body('port') port: number,
-    @Body('username') username: string,
-    @Body('password') password: string,
-    @Body('database') database: string,
-    @Body('schema') schema: string,
-    @Body('sid') sid: string,
-    @Body('ssh') ssh: boolean,
-    @Body('privateSSHKey') privateSSHKey: string,
-    @Body('sshHost') sshHost: string,
-    @Body('sshPort') sshPort: number,
-    @Body('sshUsername') sshUsername: string,
-    @Body('ssl') ssl: boolean,
-    @Body('cert') cert: string,
-    @Body('azure_encryption') azure_encryption: boolean,
+    @Body() restoreConnectionData: CreateConnectionDto,
     @SlugUuid() connectionId: string,
     @UserId() userId: string,
     @MasterPassword() masterPwd: string,
   ): Promise<RestoredConnectionDs> {
     const connectionData: UpdateConnectionDs = {
       connection_parameters: {
-        title: title,
-        masterEncryption: masterEncryption,
-        type: type as ConnectionTypeEnum,
-        host: host,
-        port: port,
-        username: username,
-        password: password,
-        database: database,
-        schema: schema,
-        sid: sid,
-        ssh: ssh,
-        privateSSHKey: privateSSHKey,
-        sshHost: sshHost,
-        sshPort: sshPort,
-        sshUsername: sshUsername,
-        ssl: ssl,
-        cert: cert,
-        azure_encryption: azure_encryption,
+        title: restoreConnectionData.title,
+        masterEncryption: restoreConnectionData.masterEncryption,
+        type: restoreConnectionData.type,
+        host: restoreConnectionData.host,
+        port: restoreConnectionData.port,
+        username: restoreConnectionData.username,
+        password: restoreConnectionData.password,
+        database: restoreConnectionData.database,
+        schema: restoreConnectionData.schema,
+        sid: restoreConnectionData.sid,
+        ssh: restoreConnectionData.ssh,
+        privateSSHKey: restoreConnectionData.privateSSHKey,
+        sshHost: restoreConnectionData.sshHost,
+        sshPort: restoreConnectionData.sshPort,
+        sshUsername: restoreConnectionData.sshUsername,
+        ssl: restoreConnectionData.ssl,
+        cert: restoreConnectionData.cert,
+        azure_encryption: restoreConnectionData.azure_encryption,
       },
       update_info: {
         connectionId: connectionId,
@@ -694,6 +662,7 @@ export class ConnectionController {
     }
     return await this.restoreConnectionUseCase.execute(connectionData, InTransactionEnum.ON);
   }
+
   @ApiOperation({ summary: 'Check if connection agent token is valid' })
   @ApiResponse({
     status: 200,
@@ -702,7 +671,7 @@ export class ConnectionController {
   })
   @Get('/connection/token/')
   async validateConnectionAgentToken(@Query('token') token: string): Promise<boolean> {
-    if (!token) {
+    if (!token || typeof token !== 'string' || token.length === 0) {
       return false;
     }
     return await this.validateConnectionTokenUseCase.execute(token, InTransactionEnum.OFF);
