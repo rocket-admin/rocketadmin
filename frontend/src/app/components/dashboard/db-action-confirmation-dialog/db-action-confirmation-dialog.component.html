@@ -16,5 +16,8 @@
 </mat-dialog-content>
 <mat-dialog-actions align="end">
   <button mat-raised-button mat-dialog-close>Cancel</button>
-  <button mat-raised-button color="warn" (click)="handleConfirmedAction()" [disabled]="submitting">{{data.title}}</button>
+  <button mat-raised-button color="warn"
+  attr.data-testid="{{data.id ? 'table-apply-action-dialog-button' : 'table-delete-record-dialog-button'}}"
+    [disabled]="submitting"
+    (click)="handleConfirmedAction()">{{data.title}}</button>
 </mat-dialog-actions>
