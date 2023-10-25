@@ -15,7 +15,7 @@ export class CustomFieldsEntity {
   @Column()
   text: string;
 
-  @ManyToOne((type) => TableSettingsEntity, (settings) => settings.custom_fields, { onDelete: 'CASCADE' })
+  @ManyToOne(() => TableSettingsEntity, (settings) => settings.custom_fields, { onDelete: 'CASCADE' })
   @JoinColumn()
   settings: Relation<TableSettingsEntity>;
 }
