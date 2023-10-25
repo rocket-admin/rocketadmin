@@ -1,5 +1,6 @@
 import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
 
+import { TableField } from 'src/app/models/table';
 // import { JsonEditorComponent as JsonEditor, JsonEditorOptions } from 'ang-jsoneditor';
 import { normalizeFieldName } from '../../../../lib/normalize';
 
@@ -9,31 +10,17 @@ import { normalizeFieldName } from '../../../../lib/normalize';
   styleUrls: ['./json-editor.component.css']
 })
 export class JsonEditorComponent implements OnInit {
-
-  @Input() key: string;
-  @Input() label: string;
   @Input() value: Object;
   @Input() required: boolean;
   @Input() readonly: boolean;
+  @Input() structure: TableField;
 
   @Output() onFieldChange = new EventEmitter();
 
-  // @ViewChild(JsonEditor, { static: false }) editor: JsonEditor;
-
-  public normalizedLabel: string;
-  // public editorOptions: JsonEditorOptions;
-
-  constructor() {
-    // this.editorOptions = new JsonEditorOptions();
-  }
+  public label: string;
 
   ngOnInit(): void {
-    this.normalizedLabel = normalizeFieldName(this.label);
+    this.label = normalizeFieldName(this.structure.column_name);
     this.value = JSON.stringify(this.value, undefined, 4) || '';
   }
-
-  // onJSONchange(event) {
-  //   this.onFieldChange.emit(JSON.parse(event));
-  // }
-
 }

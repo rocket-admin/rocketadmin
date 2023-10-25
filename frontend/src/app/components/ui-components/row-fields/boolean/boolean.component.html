@@ -1,7 +1,8 @@
 <div *ngIf="isRadiogroup; else checkboxElement" class="radio-line">
-    <label id="">{{normalizedLabel}} {{ required ? '*' : '' }}</label>
-    <mat-radio-group [required]="required"
-        name="{{label}}-{{key}}"
+    <label id="">{{label}} {{ required ? '*' : '' }}</label>
+    <mat-radio-group [required]="required" name="{{structure.column_name}}"
+        attr.data-testid="record-{{structure.column_name}}-radio-group"
+        attr.data-test-field-type="{{structure.data_type}}"
         class="radio-group"
         [disabled]="readonly"
         [(ngModel)]="value" (ngModelChange)="onFieldChange.emit($event)">
@@ -18,12 +19,13 @@
 </div>
 
 <ng-template #checkboxElement>
-    <mat-checkbox [required]="required"
-        name="{{label}}-{{key}}"
+    <mat-checkbox [required]="required" name="{{structure.column_name}}"
+        attr.data-testid="record-{{structure.column_name}}-checkbox"
+        attr.data-test-field-type="{{structure.data_type}}"
         labelPosition="before"
         class="checkbox-line"
         [disabled]="readonly"
         [(ngModel)]="value" (ngModelChange)="onFieldChange.emit($event)">
-        {{normalizedLabel}} {{ required ? '*' : '' }}
+        {{label}} {{ required ? '*' : '' }}
     </mat-checkbox>
 </ng-template>

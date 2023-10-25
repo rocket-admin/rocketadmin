@@ -1,6 +1,7 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { TableField, Widget } from 'src/app/models/table';
+
 import { normalizeFieldName } from '../../../../lib/normalize';
-import { Widget } from 'src/app/models/table';
 
 @Component({
   selector: 'app-long-text',
@@ -8,29 +9,38 @@ import { Widget } from 'src/app/models/table';
   styleUrls: ['./long-text.component.css']
 })
 export class LongTextComponent implements OnInit {
-
-  @Input() key: string;
-  @Input() label: string;
   @Input() value: string;
   @Input() required: boolean;
   @Input() readonly: boolean;
+  @Input() structure: TableField;
   @Input() widgetStructure: Widget;
 
   @Output() onFieldChange = new EventEmitter();
 
   static type = 'text';
-  public normalizedLabel: string;
+  public label: string;
+  public name: string;
+  public testId: string;
+  public fieldType: string;
   public rowsCount: string;
 
   constructor() { }
 
   ngOnInit(): void {
-    this.normalizedLabel = normalizeFieldName(this.label);
-    if (this.widgetStructure && this.widgetStructure.widget_params) {
-      this.rowsCount = this.widgetStructure.widget_params.rows
+    console.log(this.widgetStructure);
+    if (this.widgetStructure) {
+      this.label = this.widgetStructure.name;
+      this.name = this.widgetStructure.field_name;
+      this.testId = `record-${this.widgetStructure.field_name}-textarea-widget`;
+      this.fieldType = this.widgetStructure.widget_type;
+      this.rowsCount = this.widgetStructure.widget_params.rows || '4';
     } else {
-      this.rowsCount = '4'
-    };
+      this.label = normalizeFieldName(this.structure.column_name);
+      this.name = this.structure.column_name;
+      this.testId = `record-${this.structure.column_name}-textarea`;
+      this.fieldType = this.structure.data_type;
+      this.rowsCount = '4';
+    }
   }
 
 }

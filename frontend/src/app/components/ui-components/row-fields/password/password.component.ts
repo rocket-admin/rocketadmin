@@ -1,4 +1,6 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+
+import { Widget } from 'src/app/models/table';
 import { normalizeFieldName } from 'src/app/lib/normalize';
 
 @Component({
@@ -7,22 +9,21 @@ import { normalizeFieldName } from 'src/app/lib/normalize';
   styleUrls: ['./password.component.css']
 })
 export class PasswordComponent implements OnInit {
-
-  @Input() key: string;
-  @Input() label: string;
   @Input() value: string;
   @Input() required: boolean;
   @Input() readonly: boolean;
+  @Input() widgetStructure: Widget;
 
   @Output() onFieldChange = new EventEmitter();
 
-  public normalizedLabel: string;
+  public label: string;
   public clearPassword: boolean;
 
   constructor() { }
 
   ngOnInit(): void {
-    this.normalizedLabel = normalizeFieldName(this.label);
+    console.log(this.widgetStructure);
+    this.label = normalizeFieldName(this.widgetStructure.field_name);
     if (this.value === '***') this.value = '';
     this.onFieldChange.emit(this.value);
   }

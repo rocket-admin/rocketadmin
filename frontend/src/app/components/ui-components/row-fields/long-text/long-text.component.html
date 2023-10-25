@@ -1,6 +1,8 @@
 <mat-form-field class="form-field" appearance="outline">
-    <mat-label>{{normalizedLabel}}</mat-label>
-    <textarea matInput name="{{label}}-{{key}}"
+    <mat-label>{{label}}</mat-label>
+    <textarea matInput [name]="name"
+        [attr.data-testid]="testId"
+        [attr.data-test-field-type]="fieldType"
         class="form-textarea" [rows]="rowsCount"
         [required]="required" [disabled]="readonly"
         [(ngModel)]="value" (ngModelChange)="onFieldChange.emit($event)">

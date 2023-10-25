@@ -1,4 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
+
+import { TableField } from 'src/app/models/table';
 import { normalizeFieldName } from '../../../../lib/normalize';
 
 @Component({
@@ -10,6 +12,7 @@ export class StaticTextComponent implements OnInit {
 
   @Input() label: string;
   @Input() value: string;
+  @Input() structure: TableField;
 
   public normalizedLabel: string;
 

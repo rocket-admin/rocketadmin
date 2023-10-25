@@ -1,5 +1,6 @@
-import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { TableField, Widget } from 'src/app/models/table';
+
 import { normalizeFieldName } from '../../../../lib/normalize';
 
 @Component({
@@ -8,8 +9,6 @@ import { normalizeFieldName } from '../../../../lib/normalize';
   styleUrls: ['./boolean.component.css']
 })
 export class BooleanComponent implements OnInit {
-  @Input() key: string;
-  @Input() label: string;
   @Input() value;
   @Input() required: boolean;
   @Input() readonly: boolean;
@@ -18,7 +17,7 @@ export class BooleanComponent implements OnInit {
 
   @Output() onFieldChange = new EventEmitter();
 
-  public normalizedLabel: string;
+  public label: string;
   public isRadiogroup: boolean;
   constructor() { }
 
@@ -33,6 +32,6 @@ export class BooleanComponent implements OnInit {
 
     this.isRadiogroup = (this.structure?.allow_null) || !!(this.widgetStructure?.widget_params?.structure?.allow_null);
 
-    this.normalizedLabel = normalizeFieldName(this.label);
+    this.label = normalizeFieldName(this.structure.column_name);
   }
 }

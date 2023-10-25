@@ -1,10 +1,10 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { TableField, TableForeignKey } from 'src/app/models/table';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 
 import { ConnectionsService } from 'src/app/services/connections.service';
 import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { Subject } from 'rxjs';
-import { TableForeignKey } from 'src/app/models/table';
 import { TablesService } from 'src/app/services/tables.service';
 import { normalizeFieldName } from '../../../../lib/normalize';
 
@@ -20,13 +20,11 @@ interface Suggestion {
   styleUrls: ['./foreign-key.component.css']
 })
 export class ForeignKeyComponent implements OnInit {
-
-  @Input() key: string;
-  @Input() label: string;
   @Input() value;
   @Input() relations: TableForeignKey;
   @Input() required: boolean;
   @Input() readonly: boolean;
+  @Input() structure: TableField;
 
   @Output() onFieldChange = new EventEmitter();
 
@@ -36,7 +34,7 @@ export class ForeignKeyComponent implements OnInit {
   public currentFieldQueryParams: any;
   public suggestions: Suggestion[];
   public fetching: boolean = true;
-  public normalizedLabel: string;
+  public label: string;
   public identityColumn: string;
   public primaeyKeys: {data_type: string, column_name: string}[];
 
@@ -56,7 +54,7 @@ export class ForeignKeyComponent implements OnInit {
 
   ngOnInit(): void {
     this.connectionID = this._connections.currentConnectionID;
-    this.normalizedLabel = normalizeFieldName(this.label);
+    this.label = normalizeFieldName(this.structure.column_name);
 
     this.relations && this._tables.fetchTable({
         connectionID: this.connectionID,

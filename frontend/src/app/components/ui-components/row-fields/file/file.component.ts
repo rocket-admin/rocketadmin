@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
+import { TableField, Widget } from 'src/app/models/table';
 
-import { Widget } from 'src/app/models/table';
 import { base64Validation } from 'src/app/validators/base64.validator';
 import { hexValidation } from 'src/app/validators/hex.validator';
 import { normalizeFieldName } from 'src/app/lib/normalize';
@@ -23,19 +23,17 @@ enum FileType {
   styleUrls: ['./file.component.css']
 })
 export class FileComponent implements OnInit {
-
-  @Input() key: string;
-  @Input() label: string;
   @Input() value: Blob;
   @Input() required: boolean;
   @Input() readonly: boolean;
   @Input() widgetStructure: Widget;
+  @Input() structure: TableField;
 
   @Output() onFieldChange = new EventEmitter();
 
   static type = 'file';
   public isNotSwitcherActive;
-  public normalizedLabel: string;
+  public label: string;
   public fileType: FileType = FileType.Hex;
   public hexData;
   public base64Data;
@@ -48,7 +46,7 @@ export class FileComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    this.normalizedLabel = normalizeFieldName(this.label);
+    this.label = normalizeFieldName(this.structure.column_name);
 
     if (this.widgetStructure && this.value) {
       this.fileType = this.widgetStructure.widget_params.type;

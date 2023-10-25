@@ -1,4 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
+
+import { TableField } from 'src/app/models/table';
 import { normalizeFieldName } from '../../../../lib/normalize';
 
 @Component({
@@ -8,14 +10,15 @@ import { normalizeFieldName } from '../../../../lib/normalize';
 })
 export class BinaryDataCaptionComponent implements OnInit {
 
-  @Input() label: string;
+  // @Input() label: string;
+  @Input() structure: TableField;
 
-  public normalizedLabel: string;
+  public label: string;
 
   constructor() { }
 
   ngOnInit(): void {
-    this.normalizedLabel = normalizeFieldName(this.label);
+    this.label = normalizeFieldName(this.structure.column_name);
   }
 
 }

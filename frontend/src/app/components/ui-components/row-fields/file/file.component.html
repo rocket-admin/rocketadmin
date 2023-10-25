@@ -1,6 +1,6 @@
 <div class="file">
     <div class="header">
-        <span class="file-label">{{ normalizedLabel }}</span>
+        <span class="file-label">{{label}}</span>
 
         <div *ngIf="widgetStructure && widgetStructure.widget_params.type; else fileOptions">
             <span *ngIf="initError; else fileType" class="mat-body-1">{{ initError }}</span>
@@ -11,7 +11,7 @@
 
         <ng-template #fileOptions>
             <mat-radio-group
-                name="{{label}}-{{key}}-file-type"
+                name="{{structure.column_name}}-file-type"
                 class="file-types"
                 [(ngModel)]="fileType"
                 (ngModelChange)="convertValue($event)">
@@ -31,7 +31,7 @@
         <mat-form-field *ngIf="fileType === 'hex'" appearance="outline" class="file-raw-data">
             <mat-label>Hex</mat-label>
             <textarea matInput resizeToFitContent rows="8" hexValidator
-                name="{{label}}-{{key}}-hex-content"
+                name="{{structure.column_name}}-hex-content"
                 #hexContent="ngModel"
                 [(ngModel)]="hexData" (ngModelChange)="onHexChange()"
             ></textarea>
@@ -41,7 +41,7 @@
         <mat-form-field *ngIf="fileType === 'base64'" appearance="outline" class="file-raw-data">
             <mat-label>Base64</mat-label>
             <textarea matInput resizeToFitContent rows="8" base64Validator
-                name="{{label}}-{{key}}-base64-content"
+                name="{{structure.column_name}}-base64-content"
                 #base64Content="ngModel"
                 [(ngModel)]="base64Data" (ngModelChange)="onBase64Change()"
             ></textarea>
@@ -49,7 +49,7 @@
         </mat-form-field>
 
         <div *ngIf="fileType === 'file'" class="file-uploader-appearance">
-            <input type="file" class="file-input" name="{{label}}-{{key}}-file" [required]="required" [disabled]="readonly"
+            <input type="file" class="file-input" name="{{structure.column_name}}-file" [required]="required" [disabled]="readonly"
                 (change)="onFileSelected($event)" #fileUpload>
 
             <span class="file-name mat-body-2">{{ value ? 'File is uploaded.' : 'No file uploaded yet.' }}</span>

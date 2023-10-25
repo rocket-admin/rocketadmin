@@ -1,5 +1,7 @@
 <mat-form-field class="text-form-field" appearance="outline">
-    <mat-label>{{normalizedLabel}}</mat-label>
-    <input matInput type="text" name="{{label}}-{{key}}" [required]="required" [disabled]="readonly"
+    <mat-label>{{label}}</mat-label>
+    <input matInput type="text" name="{{structure.column_name}}" [required]="required" [disabled]="readonly"
+        attr.data-testid="record-{{structure.column_name}}-text-input"
+        attr.data-test-field-type="{{structure.data_type}}"
         [(ngModel)]="value" (ngModelChange)="onFieldChange.emit($event)">
 </mat-form-field>

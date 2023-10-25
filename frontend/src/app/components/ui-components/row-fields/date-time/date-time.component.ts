@@ -1,5 +1,6 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 
+import { TableField } from 'src/app/models/table';
 import { format } from 'date-fns'
 import { normalizeFieldName } from '../../../../lib/normalize';
 
@@ -9,19 +10,17 @@ import { normalizeFieldName } from '../../../../lib/normalize';
   styleUrls: ['./date-time.component.css']
 })
 export class DateTimeComponent implements OnInit {
-
-  @Input() key: string;
-  @Input() label: string;
   @Input() value: string;
   @Input() required: boolean;
   @Input() readonly: boolean;
+  @Input() structure: TableField;
 
   @Output() onFieldChange = new EventEmitter();
 
   static type = 'datetime';
   public date: string;
   public time: string;
-  public normalizedLabel: string;
+  public label: string;
 
   constructor() {
   }
@@ -33,7 +32,7 @@ export class DateTimeComponent implements OnInit {
       this.time = format(datetime, 'HH:mm:ss');
     }
 
-    this.normalizedLabel = normalizeFieldName(this.label);
+    this.label = normalizeFieldName(this.structure.column_name);
   }
 
   onDateChange() {

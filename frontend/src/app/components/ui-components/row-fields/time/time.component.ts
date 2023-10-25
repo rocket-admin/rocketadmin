@@ -1,6 +1,7 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { normalizeFieldName } from '../../../../lib/normalize';
 
+import { TableField } from 'src/app/models/table';
+import { normalizeFieldName } from '../../../../lib/normalize';
 
 @Component({
   selector: 'app-time',
@@ -14,6 +15,7 @@ export class TimeComponent implements OnInit {
   @Input() value;
   @Input() required: boolean;
   @Input() readonly: boolean;
+  @Input() structure: TableField;
 
   @Output() onFieldChange = new EventEmitter();
 

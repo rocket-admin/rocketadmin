@@ -3,7 +3,7 @@
 
 <div class="foreign-key">
     <mat-form-field class="full-width" appearance="outline">
-        <mat-label>{{normalizedLabel}}</mat-label>
+        <mat-label>{{label}}</mat-label>
         <mat-spinner *ngIf="fetching" class="loader" diameter="20"></mat-spinner>
         <input type="text" matInput
                 [required]="required" [disabled]="readonly"
