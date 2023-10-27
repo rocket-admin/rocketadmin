@@ -3473,7 +3473,7 @@ __metadata:
     basic-auth: 2.0.1
     bcrypt: 5.1.1
     class-transformer: 0.5.1
-    class-validator: 0.14.0
+    class-validator: ^0.14.0
     cookie-parser: ^1.4.6
     crc: ^4.3.2
     crypto-js: 4.1.1
@@ -4155,7 +4155,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"class-validator@npm:0.14.0":
+"class-validator@npm:^0.14.0":
   version: 0.14.0
   resolution: "class-validator@npm:0.14.0"
   dependencies:
@@ -8030,9 +8030,9 @@ __metadata:
   linkType: hard
 
 "libphonenumber-js@npm:^1.10.14":
-  version: 1.10.36
-  resolution: "libphonenumber-js@npm:1.10.36"
-  checksum: e5a52e13add03db3cb8c0b7401f4cc5a4167a78965954a6e61b64bf412aacd5424e37ea6ab6ef9f77fc8994e7812bd758585f78b8fb871ca75e2c6b6507982fb
+  version: 1.10.48
+  resolution: "libphonenumber-js@npm:1.10.48"
+  checksum: 8f86bc5753429efe192d3827db7dc46b4bcbca879991a501182da99d344e0205eb51e2e945eed561905632b1353062948ea5971f6253821d278f5fc735a796e2
   languageName: node
   linkType: hard
 

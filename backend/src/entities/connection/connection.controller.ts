@@ -69,13 +69,14 @@ import { TestConnectionResultDS } from '@rocketadmin/shared-code/dist/src/data-a
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CreateConnectionDto } from './application/dto/index.js';
 import { UpdatedConnectionResponseDTO } from './application/dto/updated-connection-responce.dto.js';
-import { DeleteConnectionDS } from './application/dto/delete-connection.dto.js';
+import { DeleteConnectionReasonDto } from './application/dto/delete-connection.dto.js';
 import { DeleteGroupFromConnectionDTO } from './application/dto/delete-group-from-connection-request.dto.js';
 import { CreateDeleteGroupInConnectionResponseDTO } from './application/dto/delete-froup-from-connection-response.dto.js';
-import { CreateGroupInConnectionDTO } from './application/dto/create-froup-in-connection.dto.js';
+import { CreateGroupInConnectionDTO } from './application/dto/create-group-in-connection.dto.js';
 import { FoundPermissionsInConnectionDs } from './application/data-structures/found-permissions-in-connection.ds.js';
 import { TestConnectionResponseDTO } from './application/dto/test-connection-response.dto.js';
 import { ConnectionTokenResponseDTO } from './application/dto/new-connection-token-response.dto.js';
+import { UpdateMasterPasswordRequestBodyDto } from './application/dto/update-master-password-request-body.dto.js';
 
 @UseInterceptors(SentryInterceptor)
 @Controller()
@@ -201,28 +202,11 @@ export class ConnectionController {
   })
   @Post('/connection')
   async create(
-    @Body('title') title: string,
-    @Body('masterEncryption') masterEncryption: boolean,
-    @Body('type') type: ConnectionTypeEnum,
-    @Body('host') host: string,
-    @Body('port') port: number,
-    @Body('username') username: string,
-    @Body('password') password: string,
-    @Body('database') database: string,
-    @Body('schema') schema: string,
-    @Body('sid') sid: string,
-    @Body('ssh') ssh: boolean,
-    @Body('privateSSHKey') privateSSHKey: string,
-    @Body('sshHost') sshHost: string,
-    @Body('sshPort') sshPort: number,
-    @Body('sshUsername') sshUsername: string,
-    @Body('ssl') ssl: boolean,
-    @Body('cert') cert: string,
-    @Body('azure_encryption') azure_encryption: boolean,
+    @Body() createConnectionDto: CreateConnectionDto,
     @UserId() userId: string,
     @MasterPassword() masterPwd: string,
   ): Promise<CreatedConnectionDs> {
-    if (!password && !isConnectionTypeAgent(type)) {
+    if (!createConnectionDto.password && !isConnectionTypeAgent(createConnectionDto.type)) {
       throw new HttpException(
         {
           message: Messages.PASSWORD_MISSING,
@@ -230,7 +214,7 @@ export class ConnectionController {
         HttpStatus.BAD_REQUEST,
       );
     }
-    if (masterEncryption && !masterPwd) {
+    if (createConnectionDto.masterEncryption && !masterPwd) {
       throw new HttpException(
         {
           message: Messages.MASTER_PASSWORD_REQUIRED,
@@ -238,7 +222,7 @@ export class ConnectionController {
         HttpStatus.BAD_REQUEST,
       );
     }
-    if (ssh && !privateSSHKey) {
+    if (createConnectionDto.ssh && !createConnectionDto.privateSSHKey) {
       throw new HttpException(
         {
           message: Messages.SSH_PASSWORD_MISSING,
@@ -248,24 +232,24 @@ export class ConnectionController {
     }
     const createConnectionDs: CreateConnectionDs = {
       connection_parameters: {
-        azure_encryption: azure_encryption,
-        cert: cert,
-        database: database,
-        host: host,
-        masterEncryption: masterEncryption,
-        password: password,
-        port: port,
-        privateSSHKey: privateSSHKey,
-        schema: schema,
-        sid: sid,
-        ssh: ssh,
-        sshHost: sshHost,
-        sshPort: sshPort,
-        sshUsername: sshUsername,
-        ssl: ssl,
-        title: title,
-        type: type,
-        username: username,
+        azure_encryption: createConnectionDto.azure_encryption,
+        cert: createConnectionDto.cert,
+        database: createConnectionDto.database,
+        host: createConnectionDto.host,
+        masterEncryption: createConnectionDto.masterEncryption,
+        password: createConnectionDto.password,
+        port: createConnectionDto.port,
+        privateSSHKey: createConnectionDto.privateSSHKey,
+        schema: createConnectionDto.schema,
+        sid: createConnectionDto.sid,
+        ssh: createConnectionDto.ssh,
+        sshHost: createConnectionDto.sshHost,
+        sshPort: createConnectionDto.sshPort,
+        sshUsername: createConnectionDto.sshUsername,
+        ssl: createConnectionDto.ssl,
+        title: createConnectionDto.title,
+        type: createConnectionDto.type,
+        username: createConnectionDto.username,
       },
       creation_info: {
         authorId: userId,
@@ -285,30 +269,13 @@ export class ConnectionController {
   @UseGuards(ConnectionEditGuard)
   @Put('/connection/:slug')
   async update(
-    @Body('title') title: string,
-    @Body('masterEncryption') masterEncryption: boolean,
-    @Body('type') type: ConnectionTypeEnum,
-    @Body('host') host: string,
-    @Body('port') port: number,
-    @Body('username') username: string,
-    @Body('password') password: string,
-    @Body('database') database: string,
-    @Body('schema') schema: string,
-    @Body('sid') sid: string,
-    @Body('ssh') ssh: boolean,
-    @Body('privateSSHKey') privateSSHKey: string,
-    @Body('sshHost') sshHost: string,
-    @Body('sshPort') sshPort: number,
-    @Body('sshUsername') sshUsername: string,
-    @Body('ssl') ssl: boolean,
-    @Body('cert') cert: string,
-    @Body('azure_encryption') azure_encryption: boolean,
+    @Body() updateConnectionDto: CreateConnectionDto,
     @SlugUuid() connectionId: string,
     @UserId() userId: string,
     @MasterPassword() masterPwd: string,
   ): Promise<UpdatedConnectionResponseDTO> {
     const errors = [];
-    if (masterEncryption && !masterPwd) {
+    if (updateConnectionDto.masterEncryption && !masterPwd) {
       errors.push(Messages.MASTER_PASSWORD_REQUIRED);
     }
     if (errors.length > 0) {
@@ -321,24 +288,24 @@ export class ConnectionController {
     }
     const connectionData: UpdateConnectionDs = {
       connection_parameters: {
-        azure_encryption: azure_encryption,
-        cert: cert,
-        database: database,
-        host: host,
-        masterEncryption: masterEncryption,
-        password: password,
-        port: port,
-        privateSSHKey: privateSSHKey,
-        schema: schema,
-        sid: sid,
-        ssh: ssh,
-        sshHost: sshHost,
-        sshPort: sshPort,
-        sshUsername: sshUsername,
-        ssl: ssl,
-        title: title,
-        type: type,
-        username: username,
+        azure_encryption: updateConnectionDto.azure_encryption,
+        cert: updateConnectionDto.cert,
+        database: updateConnectionDto.database,
+        host: updateConnectionDto.host,
+        masterEncryption: updateConnectionDto.masterEncryption,
+        password: updateConnectionDto.password,
+        port: updateConnectionDto.port,
+        privateSSHKey: updateConnectionDto.privateSSHKey,
+        schema: updateConnectionDto.schema,
+        sid: updateConnectionDto.sid,
+        ssh: updateConnectionDto.ssh,
+        sshHost: updateConnectionDto.sshHost,
+        sshPort: updateConnectionDto.sshPort,
+        sshUsername: updateConnectionDto.sshUsername,
+        ssl: updateConnectionDto.ssl,
+        title: updateConnectionDto.title,
+        type: updateConnectionDto.type,
+        username: updateConnectionDto.username,
       },
       update_info: {
         authorId: userId,
@@ -352,7 +319,7 @@ export class ConnectionController {
   }
 
   @ApiOperation({ summary: 'Delete connection' })
-  @ApiBody({ type: DeleteConnectionDS })
+  @ApiBody({ type: DeleteConnectionReasonDto })
   @ApiResponse({
     status: 200,
     description: 'Connection was deleted.',
@@ -361,8 +328,7 @@ export class ConnectionController {
   @UseGuards(ConnectionEditGuard)
   @Put('/connection/delete/:slug')
   async delete(
-    @Body('reason') reason: string,
-    @Body('message') message: string,
+    @Body() reasonData: DeleteConnectionReasonDto,
     @UserId() userId: string,
     @SlugUuid() connectionId: string,
     @MasterPassword() masterPwd: string,
@@ -376,15 +342,15 @@ export class ConnectionController {
     const isTest = isTestConnectionUtil(deleteResult);
     if (!isTest) {
       const userEmail = await this._dbContext.userRepository.getUserEmailOrReturnNull(userId);
-      const slackMessage = Messages.USER_DELETED_CONNECTION(userEmail, reason, message);
+      const slackMessage = Messages.USER_DELETED_CONNECTION(userEmail, reasonData.reason, reasonData.message);
       await slackPostMessage(slackMessage);
     }
     await this.amplitudeService.formAndSendLogRecord(
       isTest ? AmplitudeEventTypeEnum.connectionDeletedTest : AmplitudeEventTypeEnum.connectionDeleted,
       inputData.cognitoUserName,
       {
-        reason: reason,
-        message: message,
+        reason: reasonData.reason,
+        message: reasonData.message,
       },
     );
     return deleteResult;
@@ -430,10 +396,11 @@ export class ConnectionController {
   @UseGuards(ConnectionEditGuard)
   @Post('/connection/group/:slug')
   async createGroupInConnection(
-    @Body('title') title: string,
+    @Body() groupData: CreateGroupInConnectionDTO,
     @SlugUuid() connectionId: string,
     @UserId() userId: string,
   ): Promise<Omit<GroupEntity, 'connection'>> {
+    const { title } = groupData;
     if (!title) {
       throw new HttpException(
         {
@@ -545,48 +512,31 @@ export class ConnectionController {
   })
   @Post('/connection/test/')
   async testConnection(
-    @Body('title') title: string,
-    @Body('masterEncryption') masterEncryption: boolean,
-    @Body('type') type: ConnectionTypeEnum,
-    @Body('host') host: string,
-    @Body('port') port: number,
-    @Body('username') username: string,
-    @Body('password') password: string,
-    @Body('database') database: string,
-    @Body('schema') schema: string,
-    @Body('sid') sid: string,
-    @Body('ssh') ssh: boolean,
-    @Body('privateSSHKey') privateSSHKey: string,
-    @Body('sshHost') sshHost: string,
-    @Body('sshPort') sshPort: number,
-    @Body('sshUsername') sshUsername: string,
-    @Body('ssl') ssl: boolean,
-    @Body('cert') cert: string,
-    @Body('azure_encryption') azure_encryption: boolean,
+    @Body() testConnectionData: CreateConnectionDto,
     @Query('connectionId') connectionId: string,
     @MasterPassword() masterPwd: string,
     @UserId() userId: string,
   ): Promise<TestConnectionResultDS> {
     const inputData: UpdateConnectionDs = {
       connection_parameters: {
-        azure_encryption: azure_encryption,
-        cert: cert,
-        database: database,
-        host: host,
-        masterEncryption: masterEncryption,
-        password: password,
-        port: port,
-        privateSSHKey: privateSSHKey,
-        schema: schema,
-        sid: sid,
-        ssh: ssh,
-        sshHost: sshHost,
-        sshPort: sshPort,
-        sshUsername: sshUsername,
-        ssl: ssl,
-        title: title,
-        type: type,
-        username: username,
+        azure_encryption: testConnectionData.azure_encryption,
+        cert: testConnectionData.cert,
+        database: testConnectionData.database,
+        host: testConnectionData.host,
+        masterEncryption: testConnectionData.masterEncryption,
+        password: testConnectionData.password,
+        port: testConnectionData.port,
+        privateSSHKey: testConnectionData.privateSSHKey,
+        schema: testConnectionData.schema,
+        sid: testConnectionData.sid,
+        ssh: testConnectionData.ssh,
+        sshHost: testConnectionData.sshHost,
+        sshPort: testConnectionData.sshPort,
+        sshUsername: testConnectionData.sshUsername,
+        ssl: testConnectionData.ssl,
+        title: testConnectionData.title,
+        type: testConnectionData.type,
+        username: testConnectionData.username,
       },
       update_info: {
         authorId: userId,
@@ -615,8 +565,7 @@ export class ConnectionController {
   @Put('/connection/encryption/update/:slug')
   async updateConnectionMasterPwd(
     @SlugUuid() connectionId: string,
-    @Body('oldMasterPwd') oldMasterPwd: string,
-    @Body('newMasterPwd') newMasterPwd: string,
+    @Body() passwordData: UpdateMasterPasswordRequestBodyDto,
   ): Promise<boolean> {
     if (!connectionId) {
       throw new HttpException(
@@ -626,6 +575,8 @@ export class ConnectionController {
         HttpStatus.BAD_REQUEST,
       );
     }
+    const { oldMasterPwd, newMasterPwd } = passwordData;
+
     if (!oldMasterPwd) {
       throw new HttpException(
         {
@@ -649,6 +600,7 @@ export class ConnectionController {
     };
     return await this.updateConnectionMasterPasswordUseCase.execute(inputData, InTransactionEnum.ON);
   }
+
   @ApiOperation({ summary: 'Restore connection encrypted with master password' })
   @ApiBody({ type: CreateConnectionDto })
   @ApiResponse({
@@ -659,48 +611,31 @@ export class ConnectionController {
   @UseGuards(ConnectionEditGuard)
   @Put('/connection/encryption/restore/:slug')
   async restore(
-    @Body('title') title: string,
-    @Body('masterEncryption') masterEncryption: boolean,
-    @Body('type') type: string,
-    @Body('host') host: string,
-    @Body('port') port: number,
-    @Body('username') username: string,
-    @Body('password') password: string,
-    @Body('database') database: string,
-    @Body('schema') schema: string,
-    @Body('sid') sid: string,
-    @Body('ssh') ssh: boolean,
-    @Body('privateSSHKey') privateSSHKey: string,
-    @Body('sshHost') sshHost: string,
-    @Body('sshPort') sshPort: number,
-    @Body('sshUsername') sshUsername: string,
-    @Body('ssl') ssl: boolean,
-    @Body('cert') cert: string,
-    @Body('azure_encryption') azure_encryption: boolean,
+    @Body() restoreConnectionData: CreateConnectionDto,
     @SlugUuid() connectionId: string,
     @UserId() userId: string,
     @MasterPassword() masterPwd: string,
   ): Promise<RestoredConnectionDs> {
     const connectionData: UpdateConnectionDs = {
       connection_parameters: {
-        title: title,
-        masterEncryption: masterEncryption,
-        type: type as ConnectionTypeEnum,
-        host: host,
-        port: port,
-        username: username,
-        password: password,
-        database: database,
-        schema: schema,
-        sid: sid,
-        ssh: ssh,
-        privateSSHKey: privateSSHKey,
-        sshHost: sshHost,
-        sshPort: sshPort,
-        sshUsername: sshUsername,
-        ssl: ssl,
-        cert: cert,
-        azure_encryption: azure_encryption,
+        title: restoreConnectionData.title,
+        masterEncryption: restoreConnectionData.masterEncryption,
+        type: restoreConnectionData.type,
+        host: restoreConnectionData.host,
+        port: restoreConnectionData.port,
+        username: restoreConnectionData.username,
+        password: restoreConnectionData.password,
+        database: restoreConnectionData.database,
+        schema: restoreConnectionData.schema,
+        sid: restoreConnectionData.sid,
+        ssh: restoreConnectionData.ssh,
+        privateSSHKey: restoreConnectionData.privateSSHKey,
+        sshHost: restoreConnectionData.sshHost,
+        sshPort: restoreConnectionData.sshPort,
+        sshUsername: restoreConnectionData.sshUsername,
+        ssl: restoreConnectionData.ssl,
+        cert: restoreConnectionData.cert,
+        azure_encryption: restoreConnectionData.azure_encryption,
       },
       update_info: {
         connectionId: connectionId,
@@ -727,6 +662,7 @@ export class ConnectionController {
     }
     return await this.restoreConnectionUseCase.execute(connectionData, InTransactionEnum.ON);
   }
+
   @ApiOperation({ summary: 'Check if connection agent token is valid' })
   @ApiResponse({
     status: 200,
@@ -735,7 +671,7 @@ export class ConnectionController {
   })
   @Get('/connection/token/')
   async validateConnectionAgentToken(@Query('token') token: string): Promise<boolean> {
-    if (!token) {
+    if (!token || typeof token !== 'string' || token.length === 0) {
       return false;
     }
     return await this.validateConnectionTokenUseCase.execute(token, InTransactionEnum.OFF);

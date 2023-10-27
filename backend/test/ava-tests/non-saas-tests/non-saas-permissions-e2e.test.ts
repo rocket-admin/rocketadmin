@@ -1,6 +1,7 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable prefer-const */
 /* eslint-disable security/detect-object-injection */
-import { INestApplication } from '@nestjs/common';
+import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { TestUtils } from '../../utils/test.utils.js';
 import { MockFactory } from '../../mock.factory.js';
 import test from 'ava';
@@ -17,6 +18,8 @@ import { AccessLevelEnum } from '../../../src/enums/index.js';
 import { faker } from '@faker-js/faker';
 import { Messages } from '../../../src/exceptions/text/messages.js';
 import { setSaasEnvVariable } from '../../utils/set-saas-env-variable.js';
+import { ValidationException } from '../../../src/exceptions/custom-exceptions/validation-exception.js';
+import { ValidationError } from 'class-validator';
 
 let app: INestApplication;
 let testUtils: TestUtils;
@@ -35,6 +38,13 @@ test.before(async () => {
 
   app.use(cookieParser());
   app.useGlobalFilters(new AllExceptionsFilter());
+  app.useGlobalPipes(
+    new ValidationPipe({
+      exceptionFactory(validationErrors: ValidationError[] = []) {
+        return new ValidationException(validationErrors);
+      },
+    }),
+  );
   await app.init();
   app.getHttpServer().listen(0);
 });

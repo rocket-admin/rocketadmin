@@ -16,9 +16,6 @@ import {
 import { SentryInterceptor } from '../../interceptors/sentry.interceptor.js';
 import { CompanyAdminGuard } from '../../guards/company-admin.guard.js';
 import { UserId } from '../../decorators/user-id.decorator.js';
-import { UserRoleEnum } from '../user/enums/user-role.enum.js';
-import { BodyEmail } from '../../decorators/body-email.decorator.js';
-import { validateStringWithEnum } from '../../helpers/validators/validate-string-with-enum.js';
 import { Messages } from '../../exceptions/text/messages.js';
 import { UseCaseType } from '../../common/data-injection.tokens.js';
 import { SlugUuid } from '../../decorators/slug-uuid.decorator.js';
@@ -113,18 +110,9 @@ export class CompanyInfoController {
   async inviteUserInCompanyAndConnectionGroup(
     @UserId() userId: string,
     @SlugUuid() companyId: string,
-    @Body('groupId') groupId: string,
-    @BodyEmail('email') email: string,
-    @Body('role') role: UserRoleEnum = UserRoleEnum.USER,
+    @Body() inviteUserData: InviteUserInCompanyAndConnectionGroupDto,
   ) {
-    if (!validateStringWithEnum(role, UserRoleEnum)) {
-      throw new HttpException(
-        {
-          message: Messages.INVALID_USER_COMPANY_ROLE,
-        },
-        HttpStatus.BAD_REQUEST,
-      );
-    }
+    const { email, groupId, role } = inviteUserData;
     return await this.inviteUserInCompanyAndConnectionGroupUseCase.execute({
       inviterId: userId,
       companyId,
@@ -145,9 +133,9 @@ export class CompanyInfoController {
   async verifyCompanyInvitation(
     @Res({ passthrough: true }) response: Response,
     @Param('verificationString') verificationString: string,
-    @Body('password') password: string,
-    @Body('userName') userName: string,
+    @Body() verificationData: VerifyCompanyInvitationRequestDto,
   ): Promise<ITokenExp> {
+    const { password, userName } = verificationData;
     if (!verificationString || !password) {
       throw new HttpException(
         {

@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { faker } from '@faker-js/faker';
-import { INestApplication } from '@nestjs/common';
+import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import test from 'ava';
 import cookieParser from 'cookie-parser';
@@ -16,6 +16,9 @@ import {
   inviteUserInCompanyAndAcceptInvitation,
   registerUserAndReturnUserInfo,
 } from '../../utils/register-user-and-return-user-info.js';
+import { ValidationException } from '../../../src/exceptions/custom-exceptions/validation-exception.js';
+import { ValidationError } from 'class-validator';
+import { ErrorsMessages } from '../../../src/exceptions/custom-exceptions/messages/custom-errors-messages.js';
 
 const mockFactory = new MockFactory();
 let app: INestApplication;
@@ -37,6 +40,13 @@ test.before(async () => {
 
   app = moduleFixture.createNestApplication() as any;
   app.use(cookieParser());
+  app.useGlobalPipes(
+    new ValidationPipe({
+      exceptionFactory(validationErrors: ValidationError[] = []) {
+        return new ValidationException(validationErrors);
+      },
+    }),
+  );
   await app.init();
   app.getHttpServer().listen(0);
 });
@@ -410,7 +420,7 @@ test(`${currentTest} should throw error when create connection without type`, as
 
     const { message } = JSON.parse(response.text);
     t.is(response.status, 400);
-    t.is(message, `${Messages.TYPE_MISSING}, ${Messages.CONNECTION_TYPE_INVALID}`);
+    t.is(message, ErrorsMessages.VALIDATION_FAILED);
 
     t.pass();
   } catch (e) {
@@ -476,7 +486,7 @@ test(`${currentTest} should throw error when create connection wit port value mo
 
     t.is(response.status, 400);
     const { message } = JSON.parse(response.text);
-    t.is(message, Messages.PORT_MISSING);
+    t.is(message, ErrorsMessages.VALIDATION_FAILED);
 
     t.pass();
   } catch (e) {
@@ -499,7 +509,7 @@ test(`${currentTest} should throw error when create connection wit port value le
 
     t.is(response.status, 400);
     const { message } = JSON.parse(response.text);
-    t.is(message, Messages.PORT_MISSING);
+    t.is(message, ErrorsMessages.VALIDATION_FAILED);
     t.pass();
   } catch (e) {
     throw e;
@@ -588,10 +598,7 @@ test(`${currentTest} should throw error with complex message when create connect
 
     t.is(response.status, 400);
     const { message } = JSON.parse(response.text);
-    t.is(
-      message,
-      `${Messages.TYPE_MISSING}, ${Messages.CONNECTION_TYPE_INVALID}, ${Messages.PORT_MISSING}, ${Messages.PORT_FORMAT_INCORRECT}, ${Messages.DATABASE_MISSING}`,
-    );
+    t.is(message, ErrorsMessages.VALIDATION_FAILED);
 
     t.pass();
   } catch (e) {
@@ -664,7 +671,7 @@ test(`${currentTest} 'should throw error when update connection without type'`, 
 
     t.is(response.status, 400);
     const { message } = JSON.parse(response.text);
-    t.is(message, `${Messages.TYPE_MISSING}, ${Messages.CONNECTION_TYPE_INVALID}`);
+    t.is(message, ErrorsMessages.VALIDATION_FAILED);
 
     t.pass();
   } catch (e) {
@@ -757,7 +764,7 @@ test(`${currentTest} should throw error when update connection wit port value mo
 
     t.is(response.status, 400);
     const { message } = JSON.parse(response.text);
-    t.is(message, Messages.PORT_MISSING);
+    t.is(message, ErrorsMessages.VALIDATION_FAILED);
 
     t.pass();
   } catch (e) {
@@ -789,7 +796,7 @@ test(`${currentTest} should throw error when update connection wit port value le
 
     t.is(response.status, 400);
     const { message } = JSON.parse(response.text);
-    t.is(message, Messages.PORT_MISSING);
+    t.is(message, ErrorsMessages.VALIDATION_FAILED);
 
     t.pass();
   } catch (e) {
@@ -886,10 +893,7 @@ test(`${currentTest} should throw error with complex message when update connect
 
     t.is(response.status, 400);
     const { message } = JSON.parse(response.text);
-    t.is(
-      message,
-      `${Messages.TYPE_MISSING}, ${Messages.CONNECTION_TYPE_INVALID}, ${Messages.PORT_MISSING}, ${Messages.PORT_FORMAT_INCORRECT}, ${Messages.DATABASE_MISSING}`,
-    );
+    t.is(message, ErrorsMessages.VALIDATION_FAILED);
 
     t.pass();
   } catch (e) {
@@ -1104,7 +1108,7 @@ test(`${currentTest} throw an exception when group title not passed in request`,
     const { message } = JSON.parse(createGroupResponse.text);
 
     t.is(createGroupResponse.status, 400);
-    t.is(message, Messages.GROUP_TITLE_MISSING);
+    t.is(message, ErrorsMessages.VALIDATION_FAILED);
 
     t.pass();
   } catch (e) {

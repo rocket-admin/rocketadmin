@@ -5,7 +5,7 @@ import { ApplicationModule } from '../../../src/app.module.js';
 import { DatabaseModule } from '../../../src/shared/database/database.module.js';
 import { DatabaseService } from '../../../src/shared/database/database.service.js';
 import { TestUtils } from '../../utils/test.utils.js';
-import { INestApplication } from '@nestjs/common';
+import { INestApplication, ValidationPipe } from '@nestjs/common';
 import request from 'supertest';
 import { Constants } from '../../../src/helpers/constants/constants.js';
 import { IUserInfo } from '../../../src/entities/user/user.interface.js';
@@ -18,6 +18,8 @@ import {
 } from '../../utils/register-user-and-return-user-info.js';
 import { createConnectionsAndInviteNewUserInNewGroupWithTableDifferentConnectionGroupReadOnlyPermissions } from '../../utils/user-with-different-permissions-utils.js';
 import { Messages } from '../../../src/exceptions/text/messages.js';
+import { ValidationException } from '../../../src/exceptions/custom-exceptions/validation-exception.js';
+import { ValidationError } from 'class-validator';
 
 let app: INestApplication;
 let currentTest: string;
@@ -35,6 +37,13 @@ test.before(async () => {
 
   app.use(cookieParser());
   app.useGlobalFilters(new AllExceptionsFilter());
+  app.useGlobalPipes(
+    new ValidationPipe({
+      exceptionFactory(validationErrors: ValidationError[] = []) {
+        return new ValidationException(validationErrors);
+      },
+    }),
+  );
   await app.init();
   app.getHttpServer().listen(0);
 });

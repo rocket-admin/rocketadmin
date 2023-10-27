@@ -1,4 +1,4 @@
-FROM node:18-slim AS front_builder
+FROM node:20-slim AS front_builder
 SHELL ["/bin/bash", "-c"]
 WORKDIR /app/frontend
 COPY frontend/package.json frontend/yarn.lock frontend/angular.json frontend/tsconfig.app.json frontend/tsconfig.json /app/frontend/
@@ -10,7 +10,7 @@ RUN if [[ -n $SAAS ]]; then API_ROOT=/api yarn build --configuration=saas-produc
     else API_ROOT=/api yarn build; fi
 RUN ls /app/frontend/dist/dissendium-v0
 
-FROM node:18-slim
+FROM node:20-slim
 RUN apt-get update && apt-get install -y \
     tini nginx \
     && rm -rf /var/lib/apt/lists/*

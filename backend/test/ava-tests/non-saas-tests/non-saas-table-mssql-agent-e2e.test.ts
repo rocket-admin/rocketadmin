@@ -2,7 +2,7 @@
 /* eslint-disable prefer-const */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { faker } from '@faker-js/faker';
-import { INestApplication } from '@nestjs/common';
+import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import test from 'ava';
 import cookieParser from 'cookie-parser';
@@ -23,6 +23,8 @@ import { getRandomConstraintName, getRandomTestTableName } from '../../utils/get
 import { ERROR_MESSAGES } from '@rocketadmin/shared-code/dist/src/helpers/errors/error-messages.js';
 import { ErrorsMessages } from '../../../src/exceptions/custom-exceptions/messages/custom-errors-messages.js';
 import { setSaasEnvVariable } from '../../utils/set-saas-env-variable.js';
+import { ValidationException } from '../../../src/exceptions/custom-exceptions/validation-exception.js';
+import { ValidationError } from 'class-validator';
 
 const mockFactory = new MockFactory();
 let app: INestApplication;
@@ -48,6 +50,13 @@ test.before(async () => {
   testUtils = moduleFixture.get<TestUtils>(TestUtils);
   app.use(cookieParser());
   app.useGlobalFilters(new AllExceptionsFilter());
+  app.useGlobalPipes(
+    new ValidationPipe({
+      exceptionFactory(validationErrors: ValidationError[] = []) {
+        return new ValidationException(validationErrors);
+      },
+    }),
+  );
   await app.init();
   app.getHttpServer().listen(0);
   firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
