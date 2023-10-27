@@ -3,9 +3,7 @@ import { IsArray, IsOptional, IsString } from 'class-validator';
 
 export class CreateConnectionPropertiesDto {
   @IsOptional()
-  @IsArray({
-    each: true,
-  })
+  @IsArray()
   @ApiProperty({ isArray: true, type: String })
   hidden_tables: Array<string>;
 

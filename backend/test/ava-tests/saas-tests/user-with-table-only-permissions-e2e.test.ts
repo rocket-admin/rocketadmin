@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable security/detect-object-injection */
 import { faker } from '@faker-js/faker';
-import { INestApplication } from '@nestjs/common';
+import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import test from 'ava';
 import cookieParser from 'cookie-parser';
@@ -19,6 +19,8 @@ import { compareTableWidgetsArrays } from '../../utils/compare-table-widgets-arr
 import { TestUtils } from '../../utils/test.utils.js';
 import { createConnectionsAndInviteNewUserInNewGroupWithOnlyTablePermissions } from '../../utils/user-with-different-permissions-utils.js';
 import { inviteUserInCompanyAndAcceptInvitation } from '../../utils/register-user-and-return-user-info.js';
+import { ValidationException } from '../../../src/exceptions/custom-exceptions/validation-exception.js';
+import { ValidationError } from 'class-validator';
 
 let app: INestApplication;
 let testUtils: TestUtils;
@@ -47,6 +49,13 @@ test.before(async () => {
 
   app.use(cookieParser());
   app.useGlobalFilters(new AllExceptionsFilter());
+  app.useGlobalPipes(
+    new ValidationPipe({
+      exceptionFactory(validationErrors: ValidationError[] = []) {
+        return new ValidationException(validationErrors);
+      },
+    }),
+  );
   await app.init();
   app.getHttpServer().listen(0);
 });

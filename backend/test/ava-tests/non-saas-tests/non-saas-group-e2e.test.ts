@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { INestApplication } from '@nestjs/common';
+import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { TestUtils } from '../../utils/test.utils.js';
 import { MockFactory } from '../../mock.factory.js';
 import test from 'ava';
@@ -19,6 +19,9 @@ import { AccessLevelEnum } from '../../../src/enums/index.js';
 import { faker } from '@faker-js/faker';
 import { Messages } from '../../../src/exceptions/text/messages.js';
 import { setSaasEnvVariable } from '../../utils/set-saas-env-variable.js';
+import { ValidationException } from '../../../src/exceptions/custom-exceptions/validation-exception.js';
+import { ValidationError } from 'class-validator';
+import { ErrorsMessages } from '../../../src/exceptions/custom-exceptions/messages/custom-errors-messages.js';
 
 let app: INestApplication;
 let testUtils: TestUtils;
@@ -37,8 +40,24 @@ test.before(async () => {
 
   app.use(cookieParser());
   app.useGlobalFilters(new AllExceptionsFilter());
-  await app.init();
-  app.getHttpServer().listen(0);
+
+  app.useGlobalPipes(
+    new ValidationPipe({
+      exceptionFactory(validationErrors: ValidationError[] = []) {
+        return new ValidationException(validationErrors);
+      },
+    }),
+  );
+  
+   app.useGlobalPipes(
+    new ValidationPipe({
+      exceptionFactory(validationErrors: ValidationError[] = []) {
+        return new ValidationException(validationErrors);
+      },
+    }),
+  );
+await app.init();
+ app.getHttpServer().listen(0);
 });
 
 let currentTest = 'GET /groups';
@@ -406,8 +425,8 @@ test(`${currentTest} should throw an error when user email not passed in request
       .set('Accept', 'application/json');
 
     t.is(addUserInGroup.status, 400);
-    const { message } = JSON.parse(addUserInGroup.text);
-    t.is(message, Messages.USER_EMAIL_MISSING);
+    const responseObject = JSON.parse(addUserInGroup.text);
+    t.is(responseObject.message, ErrorsMessages.VALIDATION_FAILED);
   } catch (e) {
     console.error(e);
     throw e;
@@ -950,7 +969,7 @@ test(`${currentTest} should throw an error, when email is not passed in request`
 
     const { message } = JSON.parse(removeUserFromGroup.text);
     t.is(removeUserFromGroup.status, 400);
-    t.is(message, Messages.USER_EMAIL_MISSING);
+    t.is(message, ErrorsMessages.VALIDATION_FAILED);
   } catch (e) {
     console.error(e);
     throw e;

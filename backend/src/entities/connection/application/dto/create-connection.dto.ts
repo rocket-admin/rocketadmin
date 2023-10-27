@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsBoolean, IsEnum, IsNumber, IsOptional, IsString, Max, Min } from 'class-validator';
-import { ConnectionTypeEnum } from '../../../../enums/connection-type.enum.js';
+import { ConnectionTypeEnum, ConnectionTypeTestEnum } from '../../../../enums/connection-type.enum.js';
+import { isTest } from '../../../../helpers/app/is-test.js';
 
 export class CreateConnectionDto {
   @ApiProperty({ required: false })
@@ -13,7 +14,7 @@ export class CreateConnectionDto {
   @ApiProperty()
   masterEncryption: boolean;
 
-  @IsEnum(ConnectionTypeEnum)
+  @IsEnum(isTest() ? ConnectionTypeTestEnum : ConnectionTypeEnum)
   @ApiProperty()
   type: ConnectionTypeEnum;
 

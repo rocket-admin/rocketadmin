@@ -5,7 +5,7 @@ import { DatabaseModule } from '../../../src/shared/database/database.module.js'
 import { DatabaseService } from '../../../src/shared/database/database.service.js';
 import { TestUtils } from '../../utils/test.utils.js';
 import cookieParser from 'cookie-parser';
-import { INestApplication } from '@nestjs/common';
+import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { MockFactory } from '../../mock.factory.js';
 import { Encryptor } from '../../../src/helpers/encryption/encryptor.js';
 import test from 'ava';
@@ -16,6 +16,9 @@ import { replaceTextInCurlies } from '../../../src/helpers/index.js';
 import { faker } from '@faker-js/faker';
 import { Messages } from '../../../src/exceptions/text/messages.js';
 import { AllExceptionsFilter } from '../../../src/exceptions/all-exceptions.filter.js';
+import { ValidationException } from '../../../src/exceptions/custom-exceptions/validation-exception.js';
+import { ValidationError } from 'class-validator';
+import { ErrorsMessages } from '../../../src/exceptions/custom-exceptions/messages/custom-errors-messages.js';
 
 let app: INestApplication;
 let testUtils: TestUtils;
@@ -43,6 +46,13 @@ test.before(async () => {
 
   app.use(cookieParser());
   app.useGlobalFilters(new AllExceptionsFilter());
+  app.useGlobalPipes(
+    new ValidationPipe({
+      exceptionFactory(validationErrors: ValidationError[] = []) {
+        return new ValidationException(validationErrors);
+      },
+    }),
+  );
   await app.init();
   app.getHttpServer().listen(0);
 });
@@ -337,7 +347,7 @@ test.serial(
     const createCustomField = JSON.parse(createCustomFieldResponse.text);
 
     t.is(createCustomFieldResponse.status, 400);
-    t.is(createCustomField.message, Messages.CUSTOM_FIELD_TEXT_MISSING);
+    t.is(createCustomField.message, ErrorsMessages.VALIDATION_FAILED);
   },
 );
 
@@ -369,7 +379,7 @@ test.serial(
     const createCustomField = JSON.parse(createCustomFieldResponse.text);
 
     t.is(createCustomFieldResponse.status, 400);
-    t.is(createCustomField.message, Messages.CUSTOM_FIELD_TYPE_MISSING);
+    t.is(createCustomField.message, ErrorsMessages.VALIDATION_FAILED);
   },
 );
 
@@ -403,7 +413,7 @@ test.serial(
     const createCustomField = JSON.parse(createCustomFieldResponse.text);
 
     t.is(createCustomFieldResponse.status, 400);
-    t.is(createCustomField.message, Messages.CUSTOM_FIELD_TEMPLATE_MISSING);
+    t.is(createCustomField.message, ErrorsMessages.VALIDATION_FAILED);
   },
 );
 
@@ -466,7 +476,7 @@ test.serial(
     const createCustomField = JSON.parse(createCustomFieldResponse.text);
 
     t.is(createCustomFieldResponse.status, 400);
-    t.is(createCustomField.message, `${Messages.CUSTOM_FIELD_TEXT_MISSING}, ${Messages.CUSTOM_FIELD_TYPE_INCORRECT}`);
+    t.is(createCustomField.message, ErrorsMessages.VALIDATION_FAILED);
   },
 );
 
@@ -951,7 +961,7 @@ test.serial(`${currentTest} should throw exception, when field id not passed in 
 
   const updatedCustomFieldRO = JSON.parse(updateCustomFieldResponse.text);
   t.is(updateCustomFieldResponse.status, 400);
-  t.is(updatedCustomFieldRO.message, Messages.CUSTOM_FIELD_ID_MISSING);
+  t.is(updatedCustomFieldRO.message, ErrorsMessages.VALIDATION_FAILED);
 });
 
 test.serial(`${currentTest} should throw exception, when field type not passed in request`, async (t) => {
@@ -1013,7 +1023,7 @@ test.serial(`${currentTest} should throw exception, when field type not passed i
 
   const updatedCustomFieldRO = JSON.parse(updateCustomFieldResponse.text);
   t.is(updateCustomFieldResponse.status, 400);
-  t.is(updatedCustomFieldRO.message, Messages.CUSTOM_FIELD_TYPE_MISSING);
+  t.is(updatedCustomFieldRO.message, ErrorsMessages.VALIDATION_FAILED);
 });
 
 test.serial(`${currentTest} should throw exception, when field type passed in request is incorrect`, async (t) => {
@@ -1135,7 +1145,7 @@ test.serial(`${currentTest} should throw exception, when field text is not passe
 
   const updatedCustomFieldRO = JSON.parse(updateCustomFieldResponse.text);
   t.is(updateCustomFieldResponse.status, 400);
-  t.is(updatedCustomFieldRO.message, Messages.CUSTOM_FIELD_TEXT_MISSING);
+  t.is(updatedCustomFieldRO.message, ErrorsMessages.VALIDATION_FAILED);
 });
 
 test.serial(`${currentTest} should throw exception, when field template_string is not passed in request`, async (t) => {
@@ -1197,7 +1207,7 @@ test.serial(`${currentTest} should throw exception, when field template_string i
 
   const updatedCustomFieldRO = JSON.parse(updateCustomFieldResponse.text);
   t.is(updateCustomFieldResponse.status, 400);
-  t.is(updatedCustomFieldRO.message, Messages.CUSTOM_FIELD_TEMPLATE_MISSING);
+  t.is(updatedCustomFieldRO.message, ErrorsMessages.VALIDATION_FAILED);
 });
 
 test.serial(`${currentTest} should throw exception, when fields passed in template string are incorrect`, async (t) => {
@@ -1326,10 +1336,7 @@ test.serial(
 
     const updatedCustomFieldRO = JSON.parse(updateCustomFieldResponse.text);
     t.is(updateCustomFieldResponse.status, 400);
-    t.is(
-      updatedCustomFieldRO.message,
-      `${Messages.CUSTOM_FIELD_TYPE_MISSING}, ${Messages.CUSTOM_FIELD_TEMPLATE_MISSING}`,
-    );
+    t.is(updatedCustomFieldRO.message, ErrorsMessages.VALIDATION_FAILED);
   },
 );
 

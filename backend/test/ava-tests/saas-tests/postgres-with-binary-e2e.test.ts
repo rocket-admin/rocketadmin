@@ -1,7 +1,8 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable security/detect-object-injection */
 /* eslint-disable prefer-const */
 import { faker } from '@faker-js/faker';
-import { INestApplication } from '@nestjs/common';
+import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import test from 'ava';
 import cookieParser from 'cookie-parser';
@@ -16,6 +17,8 @@ import { registerUserAndReturnUserInfo } from '../../utils/register-user-and-ret
 import { TestUtils } from '../../utils/test.utils.js';
 import { getTestKnex } from '../../utils/get-test-knex.js';
 import { hexToBinary } from '../../../src/helpers/binary-to-hex.js';
+import { ValidationException } from '../../../src/exceptions/custom-exceptions/validation-exception.js';
+import { ValidationError } from 'class-validator';
 
 const mockFactory = new MockFactory();
 let app: INestApplication;
@@ -32,6 +35,13 @@ test.before(async () => {
 
   app.use(cookieParser());
   app.useGlobalFilters(new AllExceptionsFilter());
+  app.useGlobalPipes(
+    new ValidationPipe({
+      exceptionFactory(validationErrors: ValidationError[] = []) {
+        return new ValidationException(validationErrors);
+      },
+    }),
+  );
   await app.init();
   app.getHttpServer().listen(0);
 });
