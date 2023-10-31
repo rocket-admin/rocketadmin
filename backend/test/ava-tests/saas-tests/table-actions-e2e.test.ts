@@ -18,6 +18,7 @@ import { registerUserAndReturnUserInfo } from '../../utils/register-user-and-ret
 import { TestUtils } from '../../utils/test.utils.js';
 import { ValidationException } from '../../../src/exceptions/custom-exceptions/validation-exception.js';
 import { ValidationError } from 'class-validator';
+import { ErrorsMessages } from '../../../src/exceptions/custom-exceptions/messages/custom-errors-messages.js';
 
 const mockFactory = new MockFactory();
 let app: INestApplication;
@@ -160,7 +161,7 @@ test(`${currentTest} should throw exception when type is incorrect`, async (t) =
 
   const createTableActionRO = JSON.parse(createTableActionResult.text);
   t.is(createTableActionResult.status, 400);
-  t.is(createTableActionRO.message, Messages.TABLE_ACTION_TYPE_INCORRECT);
+  t.is(createTableActionRO.message, ErrorsMessages.VALIDATION_FAILED);
 });
 
 test(`${currentTest} should throw exception when connection id incorrect`, async (t) => {
@@ -357,7 +358,7 @@ test(`${currentTest} should throw exception when type is incorrect`, async (t) =
 
   const updateTableActionRO = JSON.parse(updateTableActionResult.text);
   t.is(updateTableActionResult.status, 400);
-  t.is(updateTableActionRO.message, Messages.TABLE_ACTION_TYPE_INCORRECT);
+  t.is(updateTableActionRO.message, ErrorsMessages.VALIDATION_FAILED);
 });
 
 test(`${currentTest} should throw exception when connection id incorrect`, async (t) => {

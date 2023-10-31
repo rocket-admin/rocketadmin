@@ -13,8 +13,6 @@ import {
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
 import { IGlobalDatabaseContext } from '../../common/application/global-database-context.interface.js';
 import { BaseType, UseCaseType } from '../../common/data-injection.tokens.js';
 import { getDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/create-data-access-object.js';
@@ -25,8 +23,6 @@ import { TableAddGuard, TableDeleteGuard, TableEditGuard, TableReadGuard } from 
 import { isConnectionTypeAgent, isObjectEmpty } from '../../helpers/index.js';
 import { SentryInterceptor } from '../../interceptors/index.js';
 import { AmplitudeService } from '../amplitude/amplitude.service.js';
-import { ConnectionEntity } from '../connection/connection.entity.js';
-import { UserEntity } from '../user/user.entity.js';
 import { AddRowInTableDs } from './application/data-structures/add-row-in-table.ds.js';
 import { DeleteRowFromTableDs, DeleteRowsFromTableDs } from './application/data-structures/delete-row-from-table.ds.js';
 import { DeletedRowFromTableDs } from './application/data-structures/deleted-row-from-table.ds.js';
@@ -74,10 +70,6 @@ export class TableController {
     private readonly getRowByPrimaryKeyUseCase: IGetRowByPrimaryKey,
     @Inject(UseCaseType.DELETE_ROWS_FROM_TABLE)
     private readonly deleteRowsFromTableUseCase: IDeleteRowsFromTable,
-    @InjectRepository(ConnectionEntity)
-    private readonly connectionRepository: Repository<ConnectionEntity>,
-    @InjectRepository(UserEntity)
-    private readonly userRepository: Repository<UserEntity>,
     @Inject(BaseType.GLOBAL_DB_CONTEXT)
     protected _dbContext: IGlobalDatabaseContext,
   ) {}
