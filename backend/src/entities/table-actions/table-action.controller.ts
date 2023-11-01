@@ -40,6 +40,7 @@ import {
 import { FoundTableActionsDS } from './application/data-sctructures/found-table-actions.ds.js';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ActivateTableActionRO } from './dto/activate-table-action.ro.js';
+import { CreateTableActionDTO } from './dto/create-table-action.dto.js';
 
 @UseInterceptors(SentryInterceptor)
 @Controller()
@@ -108,7 +109,7 @@ export class TableActionsController {
   }
 
   @ApiOperation({ summary: 'Create table action' })
-  @ApiBody({ type: CreateTableActionDS })
+  @ApiBody({ type: CreateTableActionDTO })
   @ApiResponse({
     status: 201,
     description: 'Create table action.',
@@ -121,12 +122,9 @@ export class TableActionsController {
     @UserId() userId: string,
     @MasterPassword() masterPwd: string,
     @QueryTableName() tableName: string,
-    @Body('title') title: string,
-    @Body('url') url: string,
-    @Body('icon') icon: string,
-    @Body('type') type: TableActionTypeEnum,
-    @Body('requireConfirmation') requireConfirmation: boolean,
+    @Body() tableActionData: CreateTableActionDTO,
   ): Promise<CreatedTableActionDS> {
+    const { title, url, icon, type, requireConfirmation } = tableActionData;
     const inputData: CreateTableActionDS = {
       connectionId: connectionId,
       masterPwd: masterPwd,
@@ -143,7 +141,7 @@ export class TableActionsController {
   }
 
   @ApiOperation({ summary: 'Update table action' })
-  @ApiBody({ type: CreateTableActionDS })
+  @ApiBody({ type: CreateTableActionDTO })
   @ApiResponse({
     status: 200,
     description: 'Update table action.',
@@ -153,12 +151,9 @@ export class TableActionsController {
   @Put('/table/action/:slug')
   async updateAction(
     @Query('actionId') actionId: string,
-    @Body('title') title: string,
-    @Body('url') url: string,
-    @Body('icon') icon: string,
-    @Body('type') type: TableActionTypeEnum,
-    @Body('requireConfirmation') requireConfirmation: boolean,
+    @Body() tableActionData: CreateTableActionDTO,
   ): Promise<CreatedTableActionDS> {
+    const { title, url, icon, type, requireConfirmation } = tableActionData;
     const inputData: UpdateTableActionDS = {
       actionId: actionId,
       title: title,

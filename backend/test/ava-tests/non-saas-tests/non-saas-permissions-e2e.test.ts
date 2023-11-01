@@ -86,8 +86,10 @@ test(`${currentTest} should return created permissions`, async (t) => {
       .set('Cookie', firstUserToken)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
-    t.is(createPermissionsResponse.status, 200);
+
     let createPermissionsRO = JSON.parse(createPermissionsResponse.text);
+    t.is(createPermissionsResponse.status, 200);
+
     let { connection: connectionDTO, group: groupDTO, tables: tablesDTO } = permissionsDTO.permissions;
     let { connection, group, tables } = createPermissionsRO;
     t.is(connection.accessLevel, connectionDTO.accessLevel);

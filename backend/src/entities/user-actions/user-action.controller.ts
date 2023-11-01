@@ -1,9 +1,7 @@
-import { Body, Controller, HttpException, HttpStatus, Inject, Injectable, Post, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Inject, Injectable, Post, UseInterceptors } from '@nestjs/common';
 import { UseCaseType } from '../../common/data-injection.tokens.js';
 import { UserId } from '../../decorators/index.js';
-import { InTransactionEnum, UserActionEnum } from '../../enums/index.js';
-import { Messages } from '../../exceptions/text/messages.js';
-import { validateStringWithEnum } from '../../helpers/validators/validate-string-with-enum.js';
+import { InTransactionEnum } from '../../enums/index.js';
 import { SentryInterceptor } from '../../interceptors/index.js';
 import { CreateUserActionDs } from './application/data-sctructures/create-user-action.ds.js';
 import { ICreateUserAction } from './use-cases/use-cases-interfaces.js';
@@ -27,27 +25,11 @@ export class UserActionController {
   @ApiBody({ type: CreateUserActionDto })
   @Post('action')
   async createUserAction(
-    @Body('message') message: UserActionEnum,
+    @Body() userActionData: CreateUserActionDto,
     @UserId() userId: string,
   ): Promise<Omit<UserActionEntity, 'user'>> {
-    if (!userId || !message) {
-      throw new HttpException(
-        {
-          message: Messages.PARAMETER_MISSING,
-        },
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-    if (!validateStringWithEnum(message, UserActionEnum)) {
-      throw new HttpException(
-        {
-          message: Messages.USER_ACTION_INCORRECT,
-        },
-        HttpStatus.BAD_REQUEST,
-      );
-    }
     const actionData: CreateUserActionDs = {
-      message: message,
+      message: userActionData.message,
       userId: userId,
     };
     return await this.createUserActionUseCase.execute(actionData, InTransactionEnum.ON);
