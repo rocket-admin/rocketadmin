@@ -21,7 +21,7 @@ import { SentryInterceptor } from '../../interceptors/index.js';
 import { CreateTableWidgetsDs } from './application/data-sctructures/create-table-widgets.ds.js';
 import { FindTableWidgetsDs } from './application/data-sctructures/find-table-widgets.ds.js';
 import { FoundTableWidgetsDs } from './application/data-sctructures/found-table-widgets.ds.js';
-import { CreateTableWidgetDto } from './dto/index.js';
+import { CreateOrUpdateTableWidgetsDto } from './dto/index.js';
 import { TableWidgetRO } from './table-widget.interface.js';
 import { ICreateUpdateDeleteTableWidgets, IFindTableWidgets } from './use-cases/table-widgets-use-cases.interface.js';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
@@ -80,12 +80,12 @@ export class TableWidgetController {
     description: 'Return table settings with created table widget',
     type: Array<TableWidgetRO>,
   })
-  @ApiBody({ type: Array<CreateTableWidgetDto> })
+  @ApiBody({ type: CreateOrUpdateTableWidgetsDto })
   @Post('/widget/:slug')
   @UseInterceptors(ClassSerializerInterceptor)
   async createOrUpdateTableWidgets(
     @QueryTableName() tableName: string,
-    @Body('widgets') widgets: Array<CreateTableWidgetDto>,
+    @Body() tableWidgetsData: CreateOrUpdateTableWidgetsDto,
     @SlugUuid() connectionId: string,
     @MasterPassword() masterPwd: string,
     @UserId() userId: string,
@@ -103,7 +103,7 @@ export class TableWidgetController {
       masterPwd: masterPwd,
       tableName: tableName,
       userId: userId,
-      widgets: widgets,
+      widgets: tableWidgetsData.widgets,
     };
     return await this.createUpdateDeleteTableWidgetsUseCase.execute(inputData, InTransactionEnum.ON);
   }
