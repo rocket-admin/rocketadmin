@@ -6,10 +6,10 @@
         <mat-label>{{normalizedLabel}}</mat-label>
         <mat-spinner *ngIf="fetching" class="loader" diameter="20"></mat-spinner>
         <input type="text" matInput
-                [required]="required" [disabled]="readonly"
-                [(ngModel)]="currentDisplayedString"
-                [matAutocomplete]="auto"
-                (ngModelChange)="autocmpleteUpdate.next($event)">
+            [required]="required" [disabled]="readonly"
+            [(ngModel)]="currentDisplayedString"
+            [matAutocomplete]="auto"
+            (ngModelChange)="autocmpleteUpdate.next($event)">
         <mat-autocomplete autoActiveFirstOption #auto="matAutocomplete" (optionSelected)="updateRelatedLink($event)">
             <mat-option *ngFor="let suggestion of suggestions"
                 [ngClass]="{'disabled': suggestion.displayString === 'No matches'}"

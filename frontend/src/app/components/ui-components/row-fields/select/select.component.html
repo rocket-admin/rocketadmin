@@ -2,6 +2,7 @@
     <mat-label>{{normalizedLabel}}</mat-label>
     <mat-select *ngIf="widgetStructure; else nativeSelect"
         name="{{label}}-{{key}}" [required]="required" [disabled]="readonly"
+        attr.data-testid="record-{{label}}-select"
         [(ngModel)]="value" (ngModelChange)="onFieldChange.emit($event)">
         <mat-option *ngFor="let option of options"
             [value]="option.value">
