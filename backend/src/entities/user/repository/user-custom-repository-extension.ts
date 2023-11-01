@@ -159,4 +159,9 @@ export const userCustomRepositoryExtension: IUserRepository = {
       .where('user.id = :userId', { userId: userId });
     return await userQb.getOne();
   },
+
+  async findAllUsersWithEmail(email: string): Promise<Array<UserEntity>> {
+    const usersQb = this.createQueryBuilder('user').where('user.email = :userEmail', { userEmail: email });
+    return await usersQb.getMany();
+  },
 };

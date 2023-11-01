@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { faker } from '@faker-js/faker';
-import { INestApplication } from '@nestjs/common';
+import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import test from 'ava';
 import cookieParser from 'cookie-parser';
@@ -16,6 +16,9 @@ import { DatabaseService } from '../../../src/shared/database/database.service.j
 import { MockFactory } from '../../mock.factory.js';
 import { registerUserAndReturnUserInfo } from '../../utils/register-user-and-return-user-info.js';
 import { TestUtils } from '../../utils/test.utils.js';
+import { ValidationException } from '../../../src/exceptions/custom-exceptions/validation-exception.js';
+import { ValidationError } from 'class-validator';
+import { ErrorsMessages } from '../../../src/exceptions/custom-exceptions/messages/custom-errors-messages.js';
 
 const mockFactory = new MockFactory();
 let app: INestApplication;
@@ -39,6 +42,13 @@ test.before(async () => {
 
   app.use(cookieParser());
   app.useGlobalFilters(new AllExceptionsFilter());
+  app.useGlobalPipes(
+    new ValidationPipe({
+      exceptionFactory(validationErrors: ValidationError[] = []) {
+        return new ValidationException(validationErrors);
+      },
+    }),
+  );
   await app.init();
   app.getHttpServer().listen(0);
   newTableAction = mockFactory.generateNewTableAction();
@@ -151,7 +161,7 @@ test(`${currentTest} should throw exception when type is incorrect`, async (t) =
 
   const createTableActionRO = JSON.parse(createTableActionResult.text);
   t.is(createTableActionResult.status, 400);
-  t.is(createTableActionRO.message, Messages.TABLE_ACTION_TYPE_INCORRECT);
+  t.is(createTableActionRO.message, ErrorsMessages.VALIDATION_FAILED);
 });
 
 test(`${currentTest} should throw exception when connection id incorrect`, async (t) => {
@@ -348,7 +358,7 @@ test(`${currentTest} should throw exception when type is incorrect`, async (t) =
 
   const updateTableActionRO = JSON.parse(updateTableActionResult.text);
   t.is(updateTableActionResult.status, 400);
-  t.is(updateTableActionRO.message, Messages.TABLE_ACTION_TYPE_INCORRECT);
+  t.is(updateTableActionRO.message, ErrorsMessages.VALIDATION_FAILED);
 });
 
 test(`${currentTest} should throw exception when connection id incorrect`, async (t) => {

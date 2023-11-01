@@ -83,13 +83,12 @@ export class CustomFieldController {
   @UseInterceptors(ClassSerializerInterceptor)
   async createCustomField(
     @QueryTableName() tableName: string,
-    @Body('type') type: string,
-    @Body('template_string') template_string: string,
-    @Body('text') text: string,
+    @Body() customFieldData: CreateCustomFieldDto,
     @SlugUuid() connectionId: string,
     @MasterPassword() masterPwd: string,
     @UserId() userId: string,
   ): Promise<FoundTableSettingsDs> {
+    const { type, template_string, text } = customFieldData;
     const createFieldDto = {
       type: type,
       text: text,
@@ -117,14 +116,12 @@ export class CustomFieldController {
   @UseInterceptors(ClassSerializerInterceptor)
   async updateCustomField(
     @QueryTableName() tableName: string,
-    @Body('type') type: string,
-    @Body('template_string') template_string: string,
-    @Body('text') text: string,
-    @Body('id') id: string,
+    @Body() customFieldData: UpdateCustomFieldDTO,
     @SlugUuid() connectionId: string,
     @MasterPassword() masterPwd: string,
     @UserId() userId: string,
   ): Promise<FoundCustomFieldsDs> {
+    const { id, type, template_string, text } = customFieldData;
     const updateFieldDto = {
       id: id,
       type: type,

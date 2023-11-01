@@ -23,6 +23,10 @@ export class CompanyAdminGuard implements CanActivate {
         companyId = request.body['companyId'];
       }
       if (!companyId || !validateUuidByRegex(companyId)) {
+        const foundCompanyInfo = await this._dbContext.companyInfoRepository.findCompanyInfoByUserId(userId);
+        companyId = foundCompanyInfo?.id;
+      }
+      if (!companyId || !validateUuidByRegex(companyId)) {
         reject(
           new HttpException(
             {

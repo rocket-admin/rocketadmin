@@ -24,7 +24,7 @@ export class MockFactory {
   }
 
   generateCreateConnectionDtoToTEstDB() {
-    const dto = new CreateConnectionDto();
+    const dto = new CreateConnectionDto() as any;
     dto.title = 'Connection to Test DB';
     dto.type = 'postgres';
     dto.host = 'postgres';
@@ -37,7 +37,7 @@ export class MockFactory {
   }
 
   generateCreateConnectionDto() {
-    const dto = new CreateConnectionDto();
+    const dto = new CreateConnectionDto() as any;
     dto.title = 'Test Connection';
     dto.type = 'postgres';
     dto.host = 'nestjs_testing';
@@ -50,7 +50,7 @@ export class MockFactory {
   }
 
   generateCreateEncryptedConnectionDto() {
-    const dto = new CreateConnectionDto();
+    const dto = new CreateConnectionDto() as any;
     dto.title = 'Test Connection';
     dto.type = 'postgres';
     dto.host = 'nestjs_testing';
@@ -64,7 +64,7 @@ export class MockFactory {
   }
 
   generateCreateInternalConnectionDto() {
-    const dto = new CreateConnectionDto();
+    const dto = new CreateConnectionDto() as any;
     dto.title = 'Test Internal Connection';
     dto.type = 'postgres';
     dto.host = 'postgres';
@@ -77,7 +77,7 @@ export class MockFactory {
   }
 
   generateCreateEncryptedInternalConnectionDto() {
-    const dto = new CreateConnectionDto();
+    const dto = new CreateConnectionDto() as any;
     dto.title = 'Test Internal Connection';
     dto.type = 'postgres';
     dto.host = 'postgres';
@@ -91,7 +91,7 @@ export class MockFactory {
   }
 
   generateCreateConnectionDto2() {
-    const dto = new CreateConnectionDto();
+    const dto = new CreateConnectionDto() as any;
     dto.title = 'Test Connection 2';
     dto.type = 'mysql';
     dto.host = 'testMySQL-e2e-testing';
@@ -104,7 +104,7 @@ export class MockFactory {
   }
 
   generateConnectionToTestMySQLDBInDocker() {
-    const dto = new CreateConnectionDto();
+    const dto = new CreateConnectionDto() as any;
     dto.title = 'Test connection to MySQL in Docker';
     dto.type = 'mysql';
     dto.host = 'testMySQL-e2e-testing';
@@ -117,7 +117,7 @@ export class MockFactory {
   }
 
   generateConnectionToTestPostgresDBInDocker() {
-    const dto = new CreateConnectionDto();
+    const dto = new CreateConnectionDto() as any;
     dto.title = 'Test connection to Postgres in Docker';
     dto.type = 'postgres';
     dto.host = 'testPg-e2e-testing';
@@ -130,7 +130,7 @@ export class MockFactory {
   }
 
   generateEncryptedConnectionToTestPostgresDBInDocker() {
-    const dto = new CreateConnectionDto();
+    const dto = new CreateConnectionDto() as any;
     dto.title = 'Test connection to Postgres in Docker';
     dto.type = 'postgres';
     dto.host = 'testPg-e2e-testing';
@@ -144,7 +144,7 @@ export class MockFactory {
   }
 
   generateConnectionToTestPostgresDBWithSchemaInDocker() {
-    const dto = new CreateConnectionDto();
+    const dto = new CreateConnectionDto() as any;
     dto.title = 'Test connection to Postgres in Docker';
     dto.type = 'postgres';
     dto.host = 'testPg-e2e-testing';
@@ -158,7 +158,7 @@ export class MockFactory {
   }
 
   generateConnectionToTestMsSQlDBInDocker() {
-    const dto = new CreateConnectionDto();
+    const dto = new CreateConnectionDto() as any;
     dto.title = 'Test connection to MSSQL in Docker';
     dto.type = 'mssql';
     dto.host = 'mssql-e2e-testing';
@@ -171,7 +171,7 @@ export class MockFactory {
   }
 
   generateConnectionToTestSchemaMsSQlDBInDocker() {
-    const dto = new CreateConnectionDto();
+    const dto = new CreateConnectionDto() as any;
     dto.title = 'Test connection to MSSQL in Docker';
     dto.type = 'mssql';
     dto.host = 'mssql-e2e-testing';
@@ -185,7 +185,7 @@ export class MockFactory {
   }
 
   generateConnectionToTestOracleDBInDocker() {
-    const dto = new CreateConnectionDto();
+    const dto = new CreateConnectionDto() as any;
     dto.title = 'Test connection to Oracle on localhost';
     dto.type = 'oracledb';
     dto.host = 'test-oracle-e2e-testing';
@@ -199,7 +199,7 @@ export class MockFactory {
   }
 
   generateConnectionToSchemaOracleDBInDocker() {
-    const dto = new CreateConnectionDto();
+    const dto = new CreateConnectionDto() as any;
     dto.title = 'Test connection to Oracle on localhost';
     dto.type = 'oracledb';
     dto.host = 'test-oracle-e2e-testing';
@@ -229,63 +229,63 @@ export class MockFactory {
   }
 
   generateConnectionToTestDbPostgresAgent() {
-    const dto = new CreateConnectionDto();
+    const dto = new CreateConnectionDto() as any;
     dto.title = 'Test connection to agent db';
     dto.type = ConnectionTypeEnum.agent_postgres;
     return dto;
   }
 
   generateConnectionToTestDbOracleAgent() {
-    const dto = new CreateConnectionDto();
+    const dto = new CreateConnectionDto() as any;
     dto.title = 'Test connection to agent db';
     dto.type = ConnectionTypeEnum.agent_oracledb;
     return dto;
   }
 
   generateConnectionToTestDbMysqlAgent() {
-    const dto = new CreateConnectionDto();
+    const dto = new CreateConnectionDto() as any;
     dto.title = 'Test connection to agent db';
     dto.type = ConnectionTypeEnum.agent_mysql;
     return dto;
   }
 
   generateConnectionToTestDbMssqlAgent() {
-    const dto = new CreateConnectionDto();
+    const dto = new CreateConnectionDto() as any;
     dto.title = 'Test connection to agent db';
     dto.type = ConnectionTypeEnum.agent_mssql;
     return dto;
   }
 
   generateConnectionToTestDbMssqlCli() {
-    const dto = new CreateConnectionDto();
+    const dto = new CreateConnectionDto() as any;
     dto.title = 'Test connection to cli db mssql';
     dto.type = ConnectionTypeTestEnum.cli_mssql;
     return dto;
   }
 
   generateConnectionToTestDbMysqlCli() {
-    const dto = new CreateConnectionDto();
+    const dto = new CreateConnectionDto() as any;
     dto.title = 'Test connection to cli db mysql';
     dto.type = ConnectionTypeTestEnum.cli_mysql;
     return dto;
   }
 
   generateConnectionToTestDbPostgresCli() {
-    const dto = new CreateConnectionDto();
+    const dto = new CreateConnectionDto() as any;
     dto.title = 'Test connection to cli db pg';
     dto.type = ConnectionTypeTestEnum.cli_postgres;
     return dto;
   }
 
   generateConnectionToTestDbOracleCli() {
-    const dto = new CreateConnectionDto();
+    const dto = new CreateConnectionDto() as any;
     dto.title = 'Test connection to cli db oracle';
     dto.type = ConnectionTypeTestEnum.cli_oracledb;
     return dto;
   }
 
   generateUpdateConnectionDto() {
-    const dto = new CreateConnectionDto();
+    const dto = new CreateConnectionDto() as any;
     dto.title = 'Updated Test Connection';
     dto.type = 'postgres';
     dto.host = 'testing_nestjs';

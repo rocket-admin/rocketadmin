@@ -5,14 +5,21 @@ import { ApplicationModule } from '../../../src/app.module.js';
 import { DatabaseModule } from '../../../src/shared/database/database.module.js';
 import { DatabaseService } from '../../../src/shared/database/database.service.js';
 import { TestUtils } from '../../utils/test.utils.js';
-import { INestApplication } from '@nestjs/common';
+import { INestApplication, ValidationPipe } from '@nestjs/common';
 import request from 'supertest';
 import { Constants } from '../../../src/helpers/constants/constants.js';
 import { IUserInfo } from '../../../src/entities/user/user.interface.js';
 import { faker } from '@faker-js/faker';
 import { AllExceptionsFilter } from '../../../src/exceptions/all-exceptions.filter.js';
 import cookieParser from 'cookie-parser';
-import { registerUserAndReturnUserInfo } from '../../utils/register-user-and-return-user-info.js';
+import {
+  registerUserAndReturnUserInfo,
+  registerUserOnSaasAndReturnUserInfo,
+} from '../../utils/register-user-and-return-user-info.js';
+import { createConnectionsAndInviteNewUserInNewGroupWithTableDifferentConnectionGroupReadOnlyPermissions } from '../../utils/user-with-different-permissions-utils.js';
+import { Messages } from '../../../src/exceptions/text/messages.js';
+import { ValidationException } from '../../../src/exceptions/custom-exceptions/validation-exception.js';
+import { ValidationError } from 'class-validator';
 
 let app: INestApplication;
 let currentTest: string;
@@ -30,6 +37,13 @@ test.before(async () => {
 
   app.use(cookieParser());
   app.useGlobalFilters(new AllExceptionsFilter());
+  app.useGlobalPipes(
+    new ValidationPipe({
+      exceptionFactory(validationErrors: ValidationError[] = []) {
+        return new ValidationException(validationErrors);
+      },
+    }),
+  );
   await app.init();
   app.getHttpServer().listen(0);
 });
@@ -90,6 +104,7 @@ test(`${currentTest} should return user deletion result`, async (t) => {
   t.pass();
 });
 
+currentTest = 'POST /user/login';
 test(`${currentTest} should return expiration token when user login`, async (t) => {
   try {
     const adminUserRegisterInfo = await registerUserAndReturnUserInfo(app);
@@ -102,6 +117,99 @@ test(`${currentTest} should return expiration token when user login`, async (t) 
       .set('Accept', 'application/json');
     const loginUserRO = JSON.parse(loginUserResult.text);
     t.is(loginUserRO.hasOwnProperty('expires'), true);
+  } catch (err) {
+    throw err;
+  }
+  t.pass();
+});
+
+test(`${currentTest} should return expiration token when user login with company id`, async (t) => {
+  try {
+    const adminUserRegisterInfo = await registerUserAndReturnUserInfo(app);
+    const { email, password } = adminUserRegisterInfo;
+
+    const foundCompanyInfos = await request(app.getHttpServer())
+      .get(`/company/my/email/${email}`)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+
+    const foundCompanyInfosRO = JSON.parse(foundCompanyInfos.text);
+
+    const loginBodyRequest = {
+      email,
+      password,
+      companyId: foundCompanyInfosRO[0].id,
+    };
+    const loginUserResult = await request(app.getHttpServer())
+      .post('/user/login/')
+      .send(loginBodyRequest)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+    const loginUserRO = JSON.parse(loginUserResult.text);
+    t.is(loginUserRO.hasOwnProperty('expires'), true);
+  } catch (err) {
+    throw err;
+  }
+  t.pass();
+});
+
+test.only(`${currentTest} should return expiration token when user login with company id and have more than one company`, async (t) => {
+  try {
+    const testEmail = 'test@mail.com';
+    const testData_1 = await registerUserOnSaasAndReturnUserInfo(testEmail);
+    const testData_2 = await registerUserOnSaasAndReturnUserInfo(testEmail);
+
+    const foundCompanyInfos = await request(app.getHttpServer())
+      .get(`/company/my/email/${testEmail}`)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+
+    const foundCompanyInfosRO = JSON.parse(foundCompanyInfos.text);
+
+    const loginBodyRequest = {
+      email: testEmail,
+      password: testData_1.password,
+      companyId: foundCompanyInfosRO[0].id,
+    };
+
+    const loginUserResult = await request(app.getHttpServer())
+      .post('/user/login/')
+      .send(loginBodyRequest)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+    const loginUserRO = JSON.parse(loginUserResult.text);
+    t.is(loginUserResult.status, 201);
+    t.is(loginUserRO.hasOwnProperty('expires'), true);
+  } catch (err) {
+    throw err;
+  }
+  t.pass();
+});
+
+test(`${currentTest} should throw an error when user login without company id with more than one company`, async (t) => {
+  try {
+    const testEmail = 'test@mail.com';
+    const testData_1 = await registerUserOnSaasAndReturnUserInfo(testEmail);
+    const testData_2 = await registerUserOnSaasAndReturnUserInfo(testEmail);
+
+    const foundCompanyInfos = await request(app.getHttpServer())
+      .get(`/company/my/email/${testEmail}`)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+
+    const loginBodyRequest = {
+      email: testEmail,
+      password: testData_1.password,
+    };
+
+    const loginUserResult = await request(app.getHttpServer())
+      .post('/user/login/')
+      .send(loginBodyRequest)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+    const loginUserRO = JSON.parse(loginUserResult.text);
+    t.is(loginUserResult.status, 401);
+    t.is(loginUserRO.message, Messages.LOGIN_DENIED_SHOULD_CHOOSE_COMPANY);
   } catch (err) {
     throw err;
   }

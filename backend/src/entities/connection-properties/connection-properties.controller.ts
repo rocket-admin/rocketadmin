@@ -79,12 +79,7 @@ export class ConnectionPropertiesController {
   @UseGuards(ConnectionEditGuard)
   @Post('/connection/properties/:slug')
   async createConnectionProperties(
-    @Body('hidden_tables') hidden_tables: Array<string>,
-    @Body('logo_url') logo_url: string,
-    @Body('primary_color') primary_color: string,
-    @Body('secondary_color') secondary_color: string,
-    @Body('hostname') hostname: string,
-    @Body('company_name') company_name: string,
+    @Body() connectionPropertiesData: CreateConnectionPropertiesDto,
     @UserId() userId: string,
     @MasterPassword() masterPwd: string,
     @SlugUuid() connectionId: string,
@@ -100,13 +95,13 @@ export class ConnectionPropertiesController {
     const createConnectionPropertiesDs: CreateConnectionPropertiesDs = {
       connectionId: connectionId,
       master_password: masterPwd,
-      hidden_tables: hidden_tables,
+      hidden_tables: connectionPropertiesData.hidden_tables,
       userId: userId,
-      logo_url: logo_url,
-      primary_color: primary_color,
-      secondary_color: secondary_color,
-      hostname: hostname,
-      company_name: company_name,
+      logo_url: connectionPropertiesData.logo_url,
+      primary_color: connectionPropertiesData.primary_color,
+      secondary_color: connectionPropertiesData.secondary_color,
+      hostname: connectionPropertiesData.hostname,
+      company_name: connectionPropertiesData.company_name,
     };
 
     return await this.createConnectionPropertiesUseCase.execute(createConnectionPropertiesDs, InTransactionEnum.ON);
@@ -124,12 +119,7 @@ export class ConnectionPropertiesController {
   @UseGuards(ConnectionEditGuard)
   @Put('/connection/properties/:slug')
   async updateConnectionProperties(
-    @Body('hidden_tables') hidden_tables: Array<string>,
-    @Body('logo_url') logo_url: string,
-    @Body('primary_color') primary_color: string,
-    @Body('secondary_color') secondary_color: string,
-    @Body('hostname') hostname: string,
-    @Body('company_name') company_name: string,
+    @Body() connectionPropertiesData: CreateConnectionPropertiesDto,
     @UserId() userId: string,
     @MasterPassword() masterPwd: string,
     @SlugUuid() connectionId: string,
@@ -146,22 +136,19 @@ export class ConnectionPropertiesController {
     const inputData: CreateConnectionPropertiesDs = {
       connectionId: connectionId,
       master_password: masterPwd,
-      hidden_tables: hidden_tables,
+      hidden_tables: connectionPropertiesData.hidden_tables,
       userId: userId,
-      logo_url: logo_url,
-      primary_color: primary_color,
-      secondary_color: secondary_color,
-      company_name: company_name,
-      hostname: hostname,
+      logo_url: connectionPropertiesData.logo_url,
+      primary_color: connectionPropertiesData.primary_color,
+      secondary_color: connectionPropertiesData.secondary_color,
+      company_name: connectionPropertiesData.company_name,
+      hostname: connectionPropertiesData.hostname,
     };
 
     return await this.updateConnectionPropertiesUseCase.execute(inputData, InTransactionEnum.ON);
   }
 
   @ApiOperation({ summary: 'Delete connection properties' })
-  @ApiBody({
-    type: CreateConnectionPropertiesDto,
-  })
   @ApiResponse({
     status: 200,
     description: 'Delete connection properties.',

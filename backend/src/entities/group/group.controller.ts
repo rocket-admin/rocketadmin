@@ -14,9 +14,8 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { Response, Request } from 'express';
-import validator from 'validator';
 import { UseCaseType } from '../../common/data-injection.tokens.js';
-import { BodyEmail, BodyUuid, SlugUuid, UserId, VerificationString } from '../../decorators/index.js';
+import { SlugUuid, UserId, VerificationString } from '../../decorators/index.js';
 import { AmplitudeEventTypeEnum, InTransactionEnum } from '../../enums/index.js';
 import { Messages } from '../../exceptions/text/messages.js';
 import { GroupEditGuard, GroupReadGuard } from '../../guards/index.js';
@@ -41,9 +40,10 @@ import {
   IVerifyAddUserInGroup,
 } from './use-cases/use-cases.interfaces.js';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { AddUserIngroupDto } from './dto/add-user-ingroup-dto.js';
+import { AddUserInGroupDto } from './dto/add-user-ingroup-dto.js';
 import { TokenExpirationResponseDto } from '../company-info/application/dto/token-expiration-response.dto.js';
 import { DeleteUserFromGroupDTO } from './dto/delete-user-from-group-dto.js';
+import { VerifyUserInGroupInvitationDto } from './dto/verify-user-in-group-invitation-request-body.dto.js';
 
 @UseInterceptors(SentryInterceptor)
 @Controller()
@@ -103,7 +103,7 @@ export class GroupController {
   }
 
   @ApiOperation({ summary: 'Add user in company and group in company' })
-  @ApiBody({ type: AddUserIngroupDto })
+  @ApiBody({ type: AddUserInGroupDto })
   @ApiResponse({
     status: 200,
     description: 'Add user in company and group in company.',
@@ -111,22 +111,8 @@ export class GroupController {
   })
   @UseGuards(GroupEditGuard)
   @Put('/group/user')
-  async addUserInGroup(
-    @BodyEmail() email: string,
-    @BodyUuid('groupId') groupId: string,
-    @UserId() userId: string,
-    @Body('companyId') companyId: string,
-    @Body('role') userSaasRole: string,
-  ): Promise<AddedUserInGroupDs> {
-    if (!email || email.length <= 0) {
-      throw new HttpException(
-        {
-          message: Messages.USER_EMAIL_MISSING,
-        },
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-
+  async addUserInGroup(@Body() userData: AddUserInGroupDto, @UserId() userId: string): Promise<AddedUserInGroupDs> {
+    const { email, groupId, companyId, role } = userData;
     if (!Cacher.canInvite(userId, groupId)) {
       throw new HttpException(
         {
@@ -141,7 +127,7 @@ export class GroupController {
       companyId: companyId,
       email: email,
       groupId: groupId,
-      userSaasRole: userSaasRole,
+      userSaasRole: role,
       inviterId: userId,
     };
     try {
@@ -154,7 +140,7 @@ export class GroupController {
   }
 
   @ApiOperation({ summary: 'Verify user in group invitation' })
-  @ApiBody({ type: VerifyAddUserInGroupDs })
+  @ApiBody({ type: VerifyUserInGroupInvitationDto })
   @ApiResponse({
     status: 200,
     description: 'Verify user in group invitation.',
@@ -162,20 +148,12 @@ export class GroupController {
   })
   @Put('/group/user/verify/:slug')
   async verifyUserInvitation(
-    @Body('password') password: string,
+    @Body() verificationData: VerifyUserInGroupInvitationDto,
     @Res({ passthrough: true }) response: Response,
     @VerificationString() verificationString: string,
-    @Body('name') name: string,
     @Req() req: Request,
   ): Promise<ITokenExp> {
-    if (!password) {
-      throw new HttpException(
-        {
-          message: Messages.PASSWORD_MISSING,
-        },
-        HttpStatus.BAD_REQUEST,
-      );
-    }
+    const { password, name } = verificationData;
     try {
       const tokenInReq = req.cookies[Constants.JWT_COOKIE_KEY_NAME];
       if (tokenInReq) {
@@ -230,18 +208,10 @@ export class GroupController {
   @UseGuards(GroupEditGuard)
   @Put('/group/user/delete')
   async removeUserFromGroup(
-    @BodyEmail() email: string,
-    @BodyUuid('groupId') groupId: string,
+    @Body() userToExcludeData: DeleteUserFromGroupDTO,
     @UserId() userId: string,
   ): Promise<RemoveUserFromGroupResultDs> {
-    if (!email || email.length <= 0 || !validator.isEmail(email)) {
-      throw new HttpException(
-        {
-          message: Messages.USER_EMAIL_MISSING,
-        },
-        HttpStatus.BAD_REQUEST,
-      );
-    }
+    const { email, groupId } = userToExcludeData;
     const inputData: AddUserInGroupDs = {
       email: email,
       groupId: groupId,

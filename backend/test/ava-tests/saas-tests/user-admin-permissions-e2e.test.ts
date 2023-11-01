@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable security/detect-object-injection */
 import { faker } from '@faker-js/faker';
-import { INestApplication } from '@nestjs/common';
+import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import test from 'ava';
 import cookieParser from 'cookie-parser';
@@ -19,6 +19,9 @@ import { compareTableWidgetsArrays } from '../../utils/compare-table-widgets-arr
 import { TestUtils } from '../../utils/test.utils.js';
 import { createConnectionsAndInviteNewUserInAdminGroupOfFirstConnection } from '../../utils/user-with-different-permissions-utils.js';
 import { inviteUserInCompanyAndAcceptInvitation } from '../../utils/register-user-and-return-user-info.js';
+import { ValidationException } from '../../../src/exceptions/custom-exceptions/validation-exception.js';
+import { ValidationError } from 'class-validator';
+import { ErrorsMessages } from '../../../src/exceptions/custom-exceptions/messages/custom-errors-messages.js';
 
 let app: INestApplication;
 let testUtils: TestUtils;
@@ -39,6 +42,13 @@ test.before(async () => {
 
   app.use(cookieParser());
   app.useGlobalFilters(new AllExceptionsFilter());
+  app.useGlobalPipes(
+    new ValidationPipe({
+      exceptionFactory(validationErrors: ValidationError[] = []) {
+        return new ValidationException(validationErrors);
+      },
+    }),
+  );
   await app.init();
   app.getHttpServer().listen(0);
 });
@@ -807,7 +817,7 @@ test(`${currentTest} should throw exception, when user email not passed in reque
       .set('Accept', 'application/json');
     const addUserInGroupRO = JSON.parse(addUserInGroupResponse.text);
     t.is(addUserInGroupResponse.status, 400);
-    t.is(addUserInGroupRO.message, Messages.USER_EMAIL_MISSING);
+    t.is(addUserInGroupRO.message, ErrorsMessages.VALIDATION_FAILED);
   } catch (error) {
     console.error(error);
     throw error;
@@ -1072,7 +1082,7 @@ test(`${currentTest} should throw exception, when user email not passed in reque
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
     const deleteUserInGroupRO = JSON.parse(deleteUserInGroupResponse.text);
-    t.is(deleteUserInGroupRO.message, Messages.USER_EMAIL_MISSING);
+    t.is(deleteUserInGroupRO.message, ErrorsMessages.VALIDATION_FAILED);
   } catch (error) {
     console.error(error);
     throw error;

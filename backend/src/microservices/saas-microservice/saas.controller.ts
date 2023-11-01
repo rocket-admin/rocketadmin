@@ -10,6 +10,7 @@ import {
   ILoginUserWithGitHub,
   ILoginUserWithGoogle,
   ISaaSRegisterInvitedUser,
+  ISaasGetUsersInfosByEmail,
   ISaasRegisterUser,
   IUpdateUserStripeCustomerId,
 } from './use-cases/saas-use-cases.interface.js';
@@ -40,6 +41,8 @@ export class SaasController {
     private readonly getUserInfoUseCase: IGetUserInfo,
     @Inject(UseCaseType.SAAS_GET_USER_INFO_BY_EMAIL)
     private readonly getUserInfoByEmailUseCase: IGetUserInfoByEmail,
+    @Inject(UseCaseType.SAAS_SAAS_GET_USERS_INFOS_BY_EMAIL)
+    private readonly getUsersInfosByEmailUseCase: ISaasGetUsersInfosByEmail,
     @Inject(UseCaseType.SAAS_USUAL_REGISTER_USER)
     private readonly usualRegisterUserUseCase: ISaasRegisterUser,
     @Inject(UseCaseType.SAAS_LOGIN_USER_WITH_GOOGLE)
@@ -109,6 +112,16 @@ export class SaasController {
       companyId: companyId ? companyId : null,
     };
     return await this.getUserInfoByEmailUseCase.execute(inputData);
+  }
+
+  @ApiOperation({ summary: 'Get users infos by email webhook' })
+  @ApiBody({ type: Array<RegisterCompanyWebhookDS> })
+  @ApiResponse({
+    status: 200,
+  })
+  @Get('/users/email/:userEmail')
+  async getUsersInfoByEmail(@Param('userEmail') userEmail: string): Promise<Array<UserEntity>> {
+    return await this.getUsersInfosByEmailUseCase.execute(userEmail);
   }
 
   @ApiOperation({ summary: 'User register webhook' })

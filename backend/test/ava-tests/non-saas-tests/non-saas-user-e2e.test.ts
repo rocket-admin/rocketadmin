@@ -5,7 +5,7 @@ import { ApplicationModule } from '../../../src/app.module.js';
 import { DatabaseModule } from '../../../src/shared/database/database.module.js';
 import { DatabaseService } from '../../../src/shared/database/database.service.js';
 import { TestUtils } from '../../utils/test.utils.js';
-import { INestApplication } from '@nestjs/common';
+import { INestApplication, ValidationPipe } from '@nestjs/common';
 import request from 'supertest';
 import { Constants } from '../../../src/helpers/constants/constants.js';
 import { IUserInfo } from '../../../src/entities/user/user.interface.js';
@@ -14,6 +14,8 @@ import { AllExceptionsFilter } from '../../../src/exceptions/all-exceptions.filt
 import cookieParser from 'cookie-parser';
 import { registerUserAndReturnUserInfo } from '../../utils/register-user-and-return-user-info.js';
 import { setSaasEnvVariable } from '../../utils/set-saas-env-variable.js';
+import { ValidationException } from '../../../src/exceptions/custom-exceptions/validation-exception.js';
+import { ValidationError } from 'class-validator';
 
 let app: INestApplication;
 let currentTest: string;
@@ -32,6 +34,13 @@ test.beforeEach(async () => {
   await testUtils.resetDb();
   app.use(cookieParser());
   app.useGlobalFilters(new AllExceptionsFilter());
+  app.useGlobalPipes(
+    new ValidationPipe({
+      exceptionFactory(validationErrors: ValidationError[] = []) {
+        return new ValidationException(validationErrors);
+      },
+    }),
+  );
   await app.init();
   app.getHttpServer().listen(0);
 });
