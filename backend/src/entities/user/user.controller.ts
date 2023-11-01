@@ -205,6 +205,7 @@ export class UserController {
     }
     response.cookie(Constants.JWT_COOKIE_KEY_NAME, '');
     response.cookie(Constants.ROCKETADMIN_AUTHENTICATED_COOKIE, 1, {
+      expires: new Date(0),
       httpOnly: false,
       ...getCookieDomainOptions(),
     });
