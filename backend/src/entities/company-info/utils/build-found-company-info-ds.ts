@@ -1,5 +1,6 @@
 import { FoundSassCompanyInfoDS } from '../../../microservices/gateways/saas-gateway.ts/data-structures/found-saas-company-info.ds.js';
 import { FoundSipleConnectionInfoDS } from '../../connection/application/data-structures/found-connections.ds.js';
+import { UserRoleEnum } from '../../user/enums/user-role.enum.js';
 import { buildSimpleUserInfoDs } from '../../user/utils/build-created-user.ds.js';
 import {
   FoundUserCompanyInfoDs,
@@ -11,8 +12,9 @@ import { CompanyInfoEntity } from '../company-info.entity.js';
 export function buildFoundCompanyFullInfoDs(
   companyInfoFromCore: CompanyInfoEntity,
   companyInfoFromSaas: FoundSassCompanyInfoDS | null,
+  userRole: UserRoleEnum,
 ): FoundUserFullCompanyInfoDs {
-  const responseObject = buildFoundCompanyInfoDs(companyInfoFromCore, companyInfoFromSaas) as any;
+  const responseObject = buildFoundCompanyInfoDs(companyInfoFromCore, companyInfoFromSaas, userRole) as any;
   const connectionsRO: Array<FoundSipleConnectionInfoDS> = companyInfoFromCore.connections.map((connection) => {
     return {
       id: connection.id,
@@ -49,16 +51,20 @@ export function buildFoundCompanyFullInfoDs(
 export function buildFoundCompanyInfoDs(
   companyInfoFromCore: CompanyInfoEntity,
   companyInfoFromSaas: FoundSassCompanyInfoDS | null,
+  userRole?: UserRoleEnum,
 ): FoundUserCompanyInfoDs {
   if (!companyInfoFromSaas) {
     return {
       id: companyInfoFromCore.id,
     };
   }
+  const isUserAdmin = userRole === UserRoleEnum.ADMIN;
   return {
     id: companyInfoFromCore.id,
     name: companyInfoFromSaas.name,
     additional_info: companyInfoFromSaas.additional_info,
+    portal_link: isUserAdmin ? companyInfoFromSaas.portal_link : undefined,
+    subscriptionLevel: isUserAdmin ? companyInfoFromSaas.subscriptionLevel : undefined,
     address: {
       id: companyInfoFromSaas.address?.id,
       city: companyInfoFromSaas.address?.city,
