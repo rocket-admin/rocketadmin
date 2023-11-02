@@ -1,7 +1,9 @@
 .wrapper {
     display: grid;
-    grid-template-columns: repeat(2, 50%);
+    grid-template-columns: auto 62.5%;
+    grid-column-gap: 24px;
     height: 100%;
+    padding: 40px 24px;
 }
 
 @media screen and (max-width: 600px) {
@@ -11,22 +13,27 @@
 }
 
 .registrationTitle {
+    font-weight: 700;
+    margin-top: -4px;
     margin-bottom: 32px;
+}
+
+.registrationTitle__emphasis {
+    color: var(--color-accentedPalette-500)
 }
 
 .register-form-box {
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
-    background: linear-gradient(0deg, rgba(102, 188, 255, 0.12) -16.81%, rgba(102, 188, 255, 0) 73.59%);
+    /* justify-content: space-between; */
     padding-bottom: 20px;
 }
 
 .register-form {
     display: flex;
     flex-direction: column;
-    margin: 0 auto;
-    width: 400px;
+    height: 100%;
+    padding: 0 48px;
 }
 
 @media screen and (max-width: 600px) {
@@ -101,11 +108,12 @@
 }
 
 .register-image-box {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    align-items: center;
-    background-color: #181D37;
-    max-height: calc(100vh - 64px);
+    display: flex;
+    justify-content: flex-end;
+    align-items: flex-end;
+    background-color: #E8F1EA;
+    border-radius: 12px;
+    height: calc(100vh - 120px);
     overflow: hidden;
     padding-top: 3vw;
 }
@@ -121,17 +129,16 @@
 }
 
 .register-image {
-    margin: 0 -1.5vw;
+    /* margin: 0 -1.5vw;
     transform: translateX(-70%);
-    height: 84.5vh;
+    height: 84.5vh; */
+    height: 85vh;
 }
 
 .agreement {
-    margin-top: 12px;
-    text-align: center;
+    margin-top: auto;
 }
 
 .link {
-    color: #66BCFF;
-    text-decoration: none;
+    color: var(--color-accentedPalette-500);
 }

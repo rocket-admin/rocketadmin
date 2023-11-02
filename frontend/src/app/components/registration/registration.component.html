@@ -4,7 +4,10 @@
         <form class="register-form"
             #registrationForm="ngForm"
             (ngSubmit)="registerUser()">
-            <h1 class="mat-h1 registrationTitle">Create an account to manage your database</h1>
+            <h1 class="mat-headline-4 registrationTitle">
+                Create an Account to
+                <span class="registrationTitle__emphasis">Manage Your Database</span>
+            </h1>
 
             <div id="google_registration_button"
                 angulartics2On="click"
@@ -33,17 +36,15 @@
                 [disabled]="submitting || registrationForm.form.invalid || registrationForm.form.pristine">
                 {{ submitting ? 'Submitting' : 'Create account'}}
             </button>
+            <p class="mat-caption agreement">
+                By creating this account you agree to Rocketadmin's <br/>
+                <a href="https://rocketadmin.com/privacy" class="link" target="_blanck">Privacy Policy</a>
+                and
+                <a href="https://rocketadmin.com/terms" class="link">Terms and Conditions</a>.
+            </p>
         </form>
-
-        <p class="mat-caption agreement">
-            By creating this account you agree to Rocketadmin's <br/>
-            <a href="https://rocketadmin.com/privacy" class="link" target="_blanck">Privacy Policy</a>
-            and
-            <a href="https://rocketadmin.com/terms" class="link">Terms and Conditions</a>.
-        </p>
     </div>
     <div class="register-image-box">
-        <img src="../assets/main-table-view.svg" class="register-image" alt="">
         <img src="../assets/main-table-view.svg" class="register-image" alt="">
     </div>
 </div>

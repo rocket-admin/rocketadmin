@@ -33,7 +33,7 @@
 
     <mat-sidenav-content class="main-menu-content">
         <mat-toolbar color="primary" class="nav-bar"
-            [ngClass]="{'nav-bar_white': !userLoggedIn, 'nav-bar_home': !connectionID, 'nav-bar_connection': connectionID}">
+            [ngClass]="{'nav-bar_home': !connectionID, 'nav-bar_connection': connectionID}">
             <a routerLink="/dashboard/{{connectionID}}" *ngIf="userLoggedIn && logo && name" class="logo">
                 <img [src]="logo || '../assets/rocketadmin_logo_white.svg'" alt="Logo">
                 <span>{{name}}</span>
@@ -53,7 +53,7 @@
             </a>
 
             <a *ngIf="!userLoggedIn" href="https://rocketadmin.com/" class="logo">
-                <img src="../assets/rocketadmin_logo_black.svg" alt="Rocketadmin logo">
+                <img src="../assets/rocketadmin_logo_white.svg" alt="Rocketadmin logo">
             </a>
 
             <div *ngIf="connectionID" class="menu">
@@ -113,12 +113,14 @@
             </div>
 
             <div *ngIf="userLoggedIn === null" class="actions">
-                <a class="authButton authButton_login" data-testid="login-header-link"
-                    routerLink="/login">
+                <a mat-stroked-button routerLink="/login"
+                    data-testid="login-header-link"
+                    class="action">
                     Login
                 </a>
-                <a class="authButton authButton_signup" data-testid="registration-header-link"
-                    routerLink="/registration">
+                <a mat-flat-button color="accent" routerLink="/registration"
+                    data-testid="registration-header-link"
+                    class="action">
                     Sign up
                 </a>
             </div>
