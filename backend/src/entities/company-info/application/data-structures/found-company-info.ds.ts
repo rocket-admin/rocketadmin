@@ -54,6 +54,12 @@ export class FoundUserCompanyInfoDs {
 
   @ApiProperty({ required: false })
   address?: FoundCompanyAddressDs;
+
+  @ApiProperty({ required: false })
+  portal_link?: string;
+
+  @ApiProperty({ required: false })
+  subscriptionLevel?: string;
 }
 
 export class FoundUserFullCompanyInfoDs extends FoundUserCompanyInfoDs {

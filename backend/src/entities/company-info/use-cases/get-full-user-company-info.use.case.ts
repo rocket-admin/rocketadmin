@@ -26,7 +26,8 @@ export class GetUserCompanyFullInfoUseCase
   }
 
   protected async implementation(userId: string): Promise<FoundUserCompanyInfoDs | FoundUserFullCompanyInfoDs> {
-    const foundFullUserCoreCompanyInfo = await this._dbContext.companyInfoRepository.findFullCompanyInfoByUserId(userId);
+    const foundFullUserCoreCompanyInfo =
+      await this._dbContext.companyInfoRepository.findFullCompanyInfoByUserId(userId);
     if (!foundFullUserCoreCompanyInfo) {
       throw new HttpException(
         {
@@ -65,7 +66,7 @@ export class GetUserCompanyFullInfoUseCase
     }
 
     if (foundUser.role === UserRoleEnum.ADMIN) {
-      return buildFoundCompanyFullInfoDs(foundFullUserCoreCompanyInfo, foundUserCompanySaasInfo);
+      return buildFoundCompanyFullInfoDs(foundFullUserCoreCompanyInfo, foundUserCompanySaasInfo, foundUser.role);
     }
 
     return buildFoundCompanyInfoDs(foundFullUserCoreCompanyInfo, foundUserCompanySaasInfo);

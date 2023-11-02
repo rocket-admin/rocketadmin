@@ -1,3 +1,5 @@
+import { SubscriptionLevelEnum } from '../../../../enums/subscription-level.enum.js';
+
 export class CompanyAddressRO {
   id: string;
   street: string;
@@ -28,4 +30,6 @@ export class FoundSassCompanyInfoDS {
   updatedAt: Date;
   users: UserInfoRO[];
   address: CompanyAddressRO;
+  portal_link?: string;
+  subscriptionLevel?: SubscriptionLevelEnum;
 }
