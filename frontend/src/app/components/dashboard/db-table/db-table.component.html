@@ -173,7 +173,7 @@
                                 {{ getWidgetValue(column, element[column]) }}
                             </ng-container>
                             <ng-template #simpleValue>
-                                <span *ngIf="tableData.keyAttributes[0].column_name === column; else nonPrimaryKey"
+                                <span *ngIf="tableData.keyAttributes[0]?.column_name === column; else nonPrimaryKey"
                                     attr.data-testid="table-primary-key-{{i}}-cell">
                                     {{element[column] || '—'}}
                                 </span>
@@ -205,8 +205,8 @@
                         routerLink="/dashboard/{{connectionID}}/{{name}}/entry"
                         [queryParams]="tableData.getQueryParams(element)"
                         attr.data-testid="table-edit-record-{{i}}-link"
-                        attr.data-test-primary-key-name="{{tableData.keyAttributes[0].column_name}}"
-                        attr.data-test-primary-key-value="{{element[tableData.keyAttributes[0].column_name]}}"
+                        attr.data-test-primary-key-name="{{tableData.keyAttributes[0]?.column_name}}"
+                        attr.data-test-primary-key-value="{{element[tableData.keyAttributes[0]?.column_name]}}"
                         angulartics2On="click"
                         angularticsAction="Dashboard: edit row is clicked"
                         matTooltip="Edit row">

@@ -18,7 +18,7 @@
 
 <div *ngIf="tableRowValues" class="wrapper">
     <div class="row-edit-header">
-        <app-breadcrumbs [crumbs]="getCrumbs(currentConnection.title)"></app-breadcrumbs>
+        <app-breadcrumbs [crumbs]="getCrumbs(currentConnection.title || currentConnection.database)"></app-breadcrumbs>
         <div *ngIf="rowActions && rowActions.length">
             <button type="button" mat-icon-button *ngFor="let action of rowActions"
                 [matTooltip]="action.title"

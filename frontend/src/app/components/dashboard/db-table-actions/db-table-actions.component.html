@@ -52,7 +52,7 @@
 
     <mat-drawer-content *ngIf="actionsData">
         <app-alert></app-alert>
-        <app-breadcrumbs [crumbs]="getCrumbs(currentConnection.title)" class="actions-breadcrumbs"></app-breadcrumbs>
+        <app-breadcrumbs [crumbs]="getCrumbs(currentConnection.title || currentConnection.database)" class="actions-breadcrumbs"></app-breadcrumbs>
         <app-content-loader *ngIf="!actions"></app-content-loader>
 
         <div class="action" *ngIf="selectedAction && actions.length">
