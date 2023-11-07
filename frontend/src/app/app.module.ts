@@ -105,12 +105,12 @@ import { UsersComponent } from './components/users/users.component';
 import { UsersService } from './services/users.service';
 import { WidgetDeleteDialogComponent } from './components/dashboard/db-table-widgets/widget-delete-dialog/widget-delete-dialog.component';
 import { environment } from '../environments/environment';
-
+import { PasswordStrengthMeterModule } from 'angular-password-strength-meter';
 type Palettes = { primaryPalette: string, accentedPalette: string, warnPalette: string };
 type Colors = { myColorName: string };
 
 const colorConfig: IColorConfig<Palettes, Colors> = {
-  palettes: { primaryPalette: '#212121', accentedPalette: '#A63BFB', warnPalette: '#B00020' },
+  palettes: { primaryPalette: '#212121', accentedPalette: '#A63BFB', warnPalette: '#FB2424' },
   simpleColors: { myColorName: '#2e959a' },
 };
 
@@ -269,6 +269,7 @@ const saasExtraProviders = (environment as any).saas ? [
     ClipboardModule,
     DragDropModule,
     CodemirrorModule,
+    PasswordStrengthMeterModule.forRoot(),
     // ...saasExtraModules,
     NgxThemeModule.forRoot(colorConfig, {
         frameworks: ['material'], // optional, default : ['tailwind', 'material']

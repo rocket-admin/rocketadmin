@@ -3738,6 +3738,22 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@zxcvbn-ts/core@npm:^3.0.4":
+  version: 3.0.4
+  resolution: "@zxcvbn-ts/core@npm:3.0.4"
+  dependencies:
+    fastest-levenshtein: 1.0.16
+  checksum: b2c4a5d875f8329b4d742ee1a6a81519e786bc2f0a0657b496a44e8ee70333673f33f388e5dd500bb735765e8c7ef46ac41cd95a266a97b50f1f480116b90873
+  languageName: node
+  linkType: hard
+
+"@zxcvbn-ts/language-en@npm:^2.1.0":
+  version: 2.1.0
+  resolution: "@zxcvbn-ts/language-en@npm:2.1.0"
+  checksum: 73473860490530e31e4e90f0897bcdd71dba9f5d672867108fb1668eb3104ca154c73b45c7e4c8a00c72cd55e398a1f09209afdb0237ef421b527169a284a52e
+  languageName: node
+  linkType: hard
+
 "abab@npm:^2.0.6":
   version: 2.0.6
   resolution: "abab@npm:2.0.6"
@@ -3959,6 +3975,20 @@ __metadata:
     "@angular/core": "*"
     jsoneditor: ^9.1.8
   checksum: 7868172074a90e28b7d65bb028d0e39beaedbf845d5f14d1bbef72ccd39388b20aebe07d4956de3f1a994363ce77a7eb2254ce954ef2aa0b9b3b862c4a71bb06
+  languageName: node
+  linkType: hard
+
+"angular-password-strength-meter@npm:^6.0.0":
+  version: 6.0.0
+  resolution: "angular-password-strength-meter@npm:6.0.0"
+  dependencies:
+    tslib: ^2.5.0
+  peerDependencies:
+    "@angular/common": ^15.0.0
+    "@angular/core": ^15.0.0
+    "@zxcvbn-ts/core": ^2.0.1
+    "@zxcvbn-ts/language-en": ^2.0.1
+  checksum: 42842665c650def8a9ede21fa8bd39ff82659d368c229cd12606e209d97283188ed51bee18ee31da5db365fd6908d813c8306e4afda7b5dff1f84e3e9dc78146
   languageName: node
   linkType: hard
 
@@ -5457,8 +5487,11 @@ __metadata:
     "@types/jasminewd2": ~2.0.10
     "@types/lodash": ^4.14.191
     "@types/node": ^18.15.3
+    "@zxcvbn-ts/core": ^3.0.4
+    "@zxcvbn-ts/language-en": ^2.1.0
     amplitude-js: ^8.21.6
     ang-jsoneditor: ^2.0.0
+    angular-password-strength-meter: ^6.0.0
     angulartics2: ^12.2.0
     codelyzer: ^6.0.2
     codemirror: ^5.60.5
@@ -6062,6 +6095,13 @@ __metadata:
   version: 2.1.0
   resolution: "fast-json-stable-stringify@npm:2.1.0"
   checksum: b191531e36c607977e5b1c47811158733c34ccb3bfde92c44798929e9b4154884378536d26ad90dfecd32e1ffc09c545d23535ad91b3161a27ddbb8ebe0cbecb
+  languageName: node
+  linkType: hard
+
+"fastest-levenshtein@npm:1.0.16":
+  version: 1.0.16
+  resolution: "fastest-levenshtein@npm:1.0.16"
+  checksum: a78d44285c9e2ae2c25f3ef0f8a73f332c1247b7ea7fb4a191e6bb51aa6ee1ef0dfb3ed113616dcdc7023e18e35a8db41f61c8d88988e877cf510df8edafbc71
   languageName: node
   linkType: hard
 
