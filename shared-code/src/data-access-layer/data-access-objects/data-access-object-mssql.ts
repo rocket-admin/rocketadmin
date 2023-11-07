@@ -20,6 +20,7 @@ import { FilterCriteriaEnum } from '../shared/enums/filter-criteria.enum.js';
 import { QueryOrderingEnum } from '../shared/enums/query-ordering.enum.js';
 import { IDataAccessObject } from '../shared/interfaces/data-access-object.interface.js';
 import { BasicDataAccessObject } from './basic-data-access-object.js';
+import { Stream } from 'node:stream';
 
 export class DataAccessObjectMssql extends BasicDataAccessObject implements IDataAccessObject {
   constructor(connection: ConnectionParams) {
@@ -451,8 +452,109 @@ WHERE
     return result[0].TABLE_TYPE === 'VIEW';
   }
 
-  public async getTableRowsStream(): Promise<any> {
-    return null;
+  public async getTableRowsStream(
+    tableName: string,
+    tableSettings: TableSettingsDS,
+    page: number,
+    perPage: number,
+    searchedFieldValue: string,
+    filteringFields: Array<FilteringFieldsDS>,
+  ): Promise<Stream & AsyncIterable<unknown>> {
+    if (!page || page <= 0) {
+      page = DAO_CONSTANTS.DEFAULT_PAGINATION.page;
+      const { list_per_page } = tableSettings;
+      if (list_per_page && list_per_page > 0 && (!perPage || perPage <= 0)) {
+        perPage = list_per_page;
+      } else {
+        perPage = DAO_CONSTANTS.DEFAULT_PAGINATION.perPage;
+      }
+    }
+    const offset = (page - 1) * perPage;
+    const knex = await this.configureKnex();
+    const [rowsCount, tableStructure, tableSchema] = await Promise.all([
+      this.getRowsCount(tableName),
+      this.getTableStructure(tableName),
+      this.getSchemaName(tableName),
+    ]);
+
+    const availableFields = this.findAvaliableFields(tableSettings, tableStructure);
+
+    if (rowsCount >= DAO_CONSTANTS.LARGE_DATASET_ROW_LIMIT) {
+      throw new Error(ERROR_MESSAGES.DATA_IS_TO_LARGE);
+    }
+
+    if (tableSchema) {
+      tableName = `${tableSchema}.[${tableName}]`;
+    }
+
+    if (!tableSettings?.ordering_field) {
+      tableSettings.ordering_field = availableFields[0];
+      tableSettings.ordering = QueryOrderingEnum.ASC;
+    }
+    const rowsAsStream = knex(tableName)
+      .select(availableFields)
+      .modify((builder) => {
+        /*eslint-disable*/
+        let { search_fields } = tableSettings;
+        if ((!search_fields || search_fields?.length === 0) && searchedFieldValue) {
+          search_fields = availableFields;
+        }
+        if (search_fields && searchedFieldValue && search_fields.length > 0) {
+          for (const field of search_fields) {
+            if (Buffer.isBuffer(searchedFieldValue)) {
+              builder.orWhere(field, '=', searchedFieldValue);
+            } else {
+              builder.orWhereRaw(` CAST (?? AS CHAR (255))=?`, [field, searchedFieldValue]);
+            }
+          }
+        }
+        /*eslint-enable*/
+      })
+      .modify((builder) => {
+        if (filteringFields && filteringFields.length > 0) {
+          for (const filterObject of filteringFields) {
+            const { field, criteria, value } = filterObject;
+            switch (criteria) {
+              case FilterCriteriaEnum.eq:
+                builder.andWhere(field, '=', `${value}`);
+                break;
+              case FilterCriteriaEnum.startswith:
+                builder.andWhere(field, 'like', `${value}%`);
+                break;
+              case FilterCriteriaEnum.endswith:
+                builder.andWhere(field, 'like', `%${value}`);
+                break;
+              case FilterCriteriaEnum.gt:
+                builder.andWhere(field, '>', value);
+                break;
+              case FilterCriteriaEnum.lt:
+                builder.andWhere(field, '<', value);
+                break;
+              case FilterCriteriaEnum.lte:
+                builder.andWhere(field, '<=', value);
+                break;
+              case FilterCriteriaEnum.gte:
+                builder.andWhere(field, '>=', value);
+                break;
+              case FilterCriteriaEnum.contains:
+                builder.andWhere(field, 'like', `%${value}%`);
+                break;
+              case FilterCriteriaEnum.icontains:
+                builder.andWhereNot(field, 'like', `%${value}%`);
+                break;
+              case FilterCriteriaEnum.empty:
+                builder.orWhereNull(field);
+                builder.orWhere(field, '=', `''`);
+                break;
+            }
+          }
+        }
+      })
+      .orderBy(tableSettings.ordering_field, tableSettings.ordering)
+      .limit(perPage)
+      .offset(offset)
+      .stream();
+    return rowsAsStream;
   }
 
   private async getSchemaName(tableName: string): Promise<string> {
