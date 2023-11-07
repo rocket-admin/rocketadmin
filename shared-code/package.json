@@ -13,6 +13,7 @@
     "mysql2": "^3.4.2",
     "oracledb": "^6.0.1",
     "pg": "^8.11.0",
+    "pg-query-stream": "^4.5.3",
     "ssh2": "^1.14.0",
     "tedious": "^16.1.0",
     "tunnel-ssh": "5.0.8"

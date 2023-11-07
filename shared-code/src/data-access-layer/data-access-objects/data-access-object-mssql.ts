@@ -451,6 +451,10 @@ WHERE
     return result[0].TABLE_TYPE === 'VIEW';
   }
 
+  public async getTableRowsStream(): Promise<any> {
+    return null;
+  }
+
   private async getSchemaName(tableName: string): Promise<string> {
     if (this.connection.schema) {
       return `[${this.connection.schema}]`;

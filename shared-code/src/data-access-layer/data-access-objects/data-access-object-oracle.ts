@@ -652,6 +652,10 @@ export class DataAccessObjectOracle extends BasicDataAccessObject implements IDa
     return result[0].OBJECT_TYPE === 'VIEW';
   }
 
+  public async getTableRowsStream(): Promise<any> {
+    return null;
+  }
+
   private attachSchemaNameToTableName(tableName: string): string {
     tableName = this.connection.schema
       ? `"${this.connection.schema}"."${tableName}"`

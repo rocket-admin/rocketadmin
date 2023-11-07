@@ -1866,6 +1866,7 @@ __metadata:
     mysql2: ^3.4.2
     oracledb: ^6.0.1
     pg: ^8.11.0
+    pg-query-stream: ^4.5.3
     prettier: 2.8.8
     ssh2: ^1.14.0
     tedious: ^16.1.0
@@ -3477,6 +3478,7 @@ __metadata:
     cookie-parser: ^1.4.6
     crc: ^4.3.2
     crypto-js: 4.1.1
+    csv: ^6.3.5
     dotenv: 16.3.1
     eslint: ^8.52.0
     eslint-config-prettier: ^9.0.0
@@ -4700,6 +4702,39 @@ __metadata:
   version: 4.1.1
   resolution: "crypto-js@npm:4.1.1"
   checksum: b3747c12ee3a7632fab3b3e171ea50f78b182545f0714f6d3e7e2858385f0f4101a15f2517e033802ce9d12ba50a391575ff4638c9de3dd9b2c4bc47768d5425
+  languageName: node
+  linkType: hard
+
+"csv-generate@npm:^4.3.0":
+  version: 4.3.0
+  resolution: "csv-generate@npm:4.3.0"
+  checksum: cd0f7fe3d021010b683c618fcca165e4dcf3157ee7d514033d1baf4dfeee697228bdad9215ec85e962babd71e8dbd1bde67fdb50cf0aed99409f23ebefce0875
+  languageName: node
+  linkType: hard
+
+"csv-parse@npm:^5.5.2":
+  version: 5.5.2
+  resolution: "csv-parse@npm:5.5.2"
+  checksum: de2eb0c29b049783ef101b7eb843456200dc9a4fc9f4b400473bb0521b41aadb77af560cf4edc49bac65cc457b32596519860120181b26ec3b372109ddf8e8ea
+  languageName: node
+  linkType: hard
+
+"csv-stringify@npm:^6.4.4":
+  version: 6.4.4
+  resolution: "csv-stringify@npm:6.4.4"
+  checksum: cc0c0d49e32c2c862658cc45fa2e9668cd67d85ff7eb1f65de0383335aaaae53bf2fc73e8f8051ba8de50f8f5dbffd8f3686bdaa760363762bba02525fe61939
+  languageName: node
+  linkType: hard
+
+"csv@npm:^6.3.5":
+  version: 6.3.5
+  resolution: "csv@npm:6.3.5"
+  dependencies:
+    csv-generate: ^4.3.0
+    csv-parse: ^5.5.2
+    csv-stringify: ^6.4.4
+    stream-transform: ^3.2.10
+  checksum: ec54ebf4b213bdab3dc143aa36ca90ed4777cbd90580d4e44be2eb0cd85ef58c5a69726905d88930c02c262dca4815671b7efd06d72b6cd58fb96bc65cc86073
   languageName: node
   linkType: hard
 
@@ -9486,6 +9521,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"pg-cursor@npm:^2.10.3":
+  version: 2.10.3
+  resolution: "pg-cursor@npm:2.10.3"
+  peerDependencies:
+    pg: ^8
+  checksum: 86dd66c4bf70da5272eb60d485a60f4216ebbffe2b7d314fe18a28a0cadf9b0d056d2291e0f108ed413be185818c2e82105bf290bf98fc91f73c52e4d0de42b8
+  languageName: node
+  linkType: hard
+
 "pg-int8@npm:1.0.1":
   version: 1.0.1
   resolution: "pg-int8@npm:1.0.1"
@@ -9513,6 +9557,17 @@ __metadata:
   version: 1.6.0
   resolution: "pg-protocol@npm:1.6.0"
   checksum: e12662d2de2011e0c3a03f6a09f435beb1025acdc860f181f18a600a5495dc38a69d753bbde1ace279c8c442536af9c1a7c11e1d0fe3fad3aa1348b28d9d2683
+  languageName: node
+  linkType: hard
+
+"pg-query-stream@npm:^4.5.3":
+  version: 4.5.3
+  resolution: "pg-query-stream@npm:4.5.3"
+  dependencies:
+    pg-cursor: ^2.10.3
+  peerDependencies:
+    pg: ^8
+  checksum: 942b8fa9f33c4d6403c9d07ad5fc2f68b5ad3664bce5aecd861b6034932feb6a1389d8a364adf621798f1d314ca51b11b5bc2fafc12085022dc262cb6a3dddfb
   languageName: node
   linkType: hard
 
@@ -10795,6 +10850,13 @@ __metadata:
   version: 1.1.0
   resolution: "stoppable@npm:1.1.0"
   checksum: 63104fcbdece130bc4906fd982061e763d2ef48065ed1ab29895e5ad00552c625f8a4c50c9cd2e3bfa805c8a2c3bfdda0f07c5ae39694bd2d5cb0bee1618d1e9
+  languageName: node
+  linkType: hard
+
+"stream-transform@npm:^3.2.10":
+  version: 3.2.10
+  resolution: "stream-transform@npm:3.2.10"
+  checksum: e2755beed075e4891db2be30ee5fcc925a6b332f88b66144ef0c035252347660d4a0131f291cba175eb6a8ff2ca0ac05931b464ad1a227d7d2cffd19ebe1d536
   languageName: node
   linkType: hard
 

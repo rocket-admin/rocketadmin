@@ -494,6 +494,10 @@ export class DataAccessObjectMysql extends BasicDataAccessObject implements IDat
     return result[0].table_type === 'VIEW';
   }
 
+  public async getTableRowsStream(): Promise<any> {
+    return null;
+  }
+
   private async getRowsCount(
     knex: Knex<any, any[]>,
     tableName: string,
