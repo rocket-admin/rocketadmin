@@ -75,9 +75,9 @@ export class ForeignKeyComponent implements OnInit {
               this.identityColumn ?
                 `${res.rows[0][this.identityColumn]} (${Object.values(modifiedRow).filter(value => value).join(' | ')})` :
                 Object.values(modifiedRow).filter(value => value).join(' | ');
-                this.currentFieldValue = res.rows[0][this.relations.referenced_column_name];
-                this.currentFieldQueryParams = Object.assign({}, ...res.primaryColumns.map((primaeyKey) => ({[primaeyKey.column_name]: res.rows[0][primaeyKey.column_name]})));
-                this.onFieldChange.emit(this.currentFieldValue);
+            this.currentFieldValue = res.rows[0][this.relations.referenced_column_name];
+            this.currentFieldQueryParams = Object.assign({}, ...res.primaryColumns.map((primaeyKey) => ({[primaeyKey.column_name]: res.rows[0][primaeyKey.column_name]})));
+            this.onFieldChange.emit(this.currentFieldValue);
           }
         }
 
@@ -124,7 +124,7 @@ export class ForeignKeyComponent implements OnInit {
         this.identityColumn = res.identity_column;
         if (res.rows.length === 0) {
           this.suggestions = [{
-            displayString: 'No matches'
+            displayString: `No field starts with "${this.currentDisplayedString}" in foreign entity.`
           }]
         } else {
           this.suggestions = res.rows.map(row => {
