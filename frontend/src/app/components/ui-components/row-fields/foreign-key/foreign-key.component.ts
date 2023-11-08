@@ -50,6 +50,7 @@ export class ForeignKeyComponent implements OnInit {
       debounceTime(500),
       distinctUntilChanged())
       .subscribe(value => {
+        if (this.currentDisplayedString === '') this.onFieldChange.emit(null);
         this.fetchSuggestions();
       });
    }
