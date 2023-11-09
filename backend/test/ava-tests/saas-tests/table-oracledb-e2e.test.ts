@@ -22,6 +22,14 @@ import { registerUserAndReturnUserInfo } from '../../utils/register-user-and-ret
 import { TestUtils } from '../../utils/test.utils.js';
 import { ValidationException } from '../../../src/exceptions/custom-exceptions/validation-exception.js';
 import { ValidationError } from 'class-validator';
+import knex, { Knex } from 'knex';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { join } from 'path';
+import oracledb from 'oracledb';
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const mockFactory = new MockFactory();
 let app: INestApplication;
@@ -3291,4 +3299,174 @@ test(`${currentTest} should test connection and return result`, async (t) => {
   t.is(testConnectionResponse.status, 201);
   const { message } = JSON.parse(testConnectionResponse.text);
   t.is(message, 'Successfully connected');
+});
+
+currentTest = 'GET table/csv/:slug';
+
+test(`${currentTest} should return csv file with table data`, async (t) => {
+  const connectionToTestDB = getTestData(mockFactory).connectionToOracleDB;
+  const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
+
+  const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
+    await createTestOracleTable(connectionToTestDB);
+
+  const createConnectionResponse = await request(app.getHttpServer())
+    .post('/connection')
+    .send(connectionToTestDB)
+    .set('Cookie', firstUserToken)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+  const createConnectionRO = JSON.parse(createConnectionResponse.text);
+  t.is(createConnectionResponse.status, 201);
+
+  const getTableCsvResponse = await request(app.getHttpServer())
+    .get(`/table/csv/${createConnectionRO.id}?tableName=${testTableName}`)
+    .set('Cookie', firstUserToken)
+    .set('Content-Type', 'text/csv')
+    .set('Accept', 'text/csv');
+
+  if (getTableCsvResponse.status !== 200) {
+    console.log(getTableCsvResponse.text);
+  }
+  t.is(getTableCsvResponse.status, 200);
+  const fileName = `${testTableName}.csv`;
+  const downloadedFilePatch = join(__dirname, 'response-files', fileName);
+
+  const dir = join(__dirname, 'response-files');
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir);
+  }
+  // eslint-disable-next-line security/detect-non-literal-fs-filename
+  fs.writeFileSync(downloadedFilePatch, getTableCsvResponse.body);
+
+  // eslint-disable-next-line security/detect-non-literal-fs-filename
+  const isFileExists = fs.existsSync(downloadedFilePatch);
+  t.is(isFileExists, true);
+});
+
+test(`${currentTest} should return csv file with table data with search, with pagination, with sorting,
+with search and pagination: page=1, perPage=2 and DESC sorting`, async (t) => {
+  const connectionToTestDB = getTestData(mockFactory).connectionToOracleDB;
+  const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
+
+  const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
+    await createTestOracleTable(connectionToTestDB);
+
+  const createConnectionResponse = await request(app.getHttpServer())
+    .post('/connection')
+    .send(connectionToTestDB)
+    .set('Cookie', firstUserToken)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+  const createConnectionRO = JSON.parse(createConnectionResponse.text);
+  t.is(createConnectionResponse.status, 201);
+
+  const createTableSettingsDTO = mockFactory.generateTableSettings(
+    createConnectionRO.id,
+    testTableName,
+    [testTableColumnName],
+    undefined,
+    undefined,
+    3,
+    QueryOrderingEnum.DESC,
+    'id',
+    undefined,
+    undefined,
+    undefined,
+    undefined,
+    undefined,
+  );
+
+  const createTableSettingsResponse = await request(app.getHttpServer())
+    .post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
+    .send(createTableSettingsDTO)
+    .set('Cookie', firstUserToken)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+  t.is(createTableSettingsResponse.status, 201);
+
+  const getTableCsvResponse = await request(app.getHttpServer())
+    .get(
+      `/table/csv/${createConnectionRO.id}?tableName=${testTableName}&search=${testSearchedUserName}&page=1&perPage=2`,
+    )
+    .set('Cookie', firstUserToken)
+    .set('Content-Type', 'text/csv')
+    .set('Accept', 'text/csv');
+
+  if (getTableCsvResponse.status !== 200) {
+    console.log(getTableCsvResponse.text);
+  }
+  t.is(getTableCsvResponse.status, 200);
+  const fileName = `${testTableName}.csv`;
+  const downloadedFilePatch = join(__dirname, 'response-files', fileName);
+
+  const dir = join(__dirname, 'response-files');
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir);
+  }
+  // eslint-disable-next-line security/detect-non-literal-fs-filename
+  fs.writeFileSync(downloadedFilePatch, getTableCsvResponse.body);
+
+  // eslint-disable-next-line security/detect-non-literal-fs-filename
+  const isFileExists = fs.existsSync(downloadedFilePatch);
+  t.is(isFileExists, true);
+});
+
+test.skip(`Oracle stream Knex test`, async (t) => {
+  const connectionToTestDB = getTestData(mockFactory).connectionToOracleDB;
+
+  const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
+    await createTestOracleTable(connectionToTestDB);
+
+  const { host, username, password, database, port, type, sid, ssl, cert } = connectionToTestDB;
+  const newKnex = knex({
+    client: type,
+    connection: {
+      user: username,
+      database: database,
+      password: password,
+      connectString: `${host}:${port}/${sid ? sid : ''}`,
+      ssl: ssl ? { ca: cert ?? undefined, rejectUnauthorized: !cert } : false,
+    },
+  });
+
+  const stream = newKnex(testTableName).select('*').stream();
+
+  stream.on('error', function (error) {
+    console.log('error: ', error);
+  });
+
+  stream.on('data', function (data) {
+    console.log('data: ', data);
+  });
+
+  stream.on('end', function () {
+    console.log('end');
+    stream.destroy();
+  });
+
+  stream.on('close', function () {
+    console.log('close');
+  });
+
+  stream.on('metadata', function (metadata) {
+    console.log('metadata: ', metadata);
+  });
+
+  const config = {
+    user: username,
+    password: password,
+    connectString: `${host}:${port}/${sid ? sid : ''}`,
+    externalAuth: false,
+  };
+
+  const pool = await oracledb.createPool(config);
+  const connection = await pool.getConnection();
+  const result = connection.queryStream(`SELECT * FROM ${testTableName}`);
+
+  result.on('data', function (data) {
+    console.log('data: ', data);
+  });
+
+  t.pass();
 });

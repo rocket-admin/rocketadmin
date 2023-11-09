@@ -82,6 +82,11 @@ export class ExportCSVFromTableUseCase extends AbstractUseCase<GetTableRowsDs, a
         searchingFieldValue,
         filteringFields,
       );
+      
+      //todo: rework as streams when node oracle driver will support it correctly
+      if (connection.type === 'oracledb') {
+        return new StreamableFile(csv.stringify(rowsStream as any, { header: true }));
+      }
       return new StreamableFile(rowsStream.pipe(csv.stringify({ header: true })));
     } catch (error) {
       throw new HttpException(

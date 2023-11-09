@@ -22,6 +22,7 @@ import { renameObjectKeyName } from '../../helpers/rename-object-keyname.js';
 import { tableSettingsFieldValidator } from '../../helpers/validation/table-settings-validator.js';
 import { TableDS } from '../shared/data-structures/table.ds.js';
 import { ERROR_MESSAGES } from '../../helpers/errors/error-messages.js';
+import { Stream, Readable } from 'node:stream';
 
 type RefererencedConstraint = {
   TABLE_NAME: string;
@@ -232,8 +233,8 @@ export class DataAccessObjectOracle extends BasicDataAccessObject implements IDa
           .raw(
             `SELECT ${autocompleteFields.fields.map((_) => '??').join(', ')}
              FROM ${tableName} ${andWhere ? andWhere : ''} FETCH FIRST ${
-              DAO_CONSTANTS.AUTOCOMPLETE_ROW_LIMIT
-            } ROWS ONLY `,
+               DAO_CONSTANTS.AUTOCOMPLETE_ROW_LIMIT
+             } ROWS ONLY `,
             [...autocompleteFields.fields, ...autocompleteFields.fields],
           )
           .transacting(trx)
@@ -652,8 +653,151 @@ export class DataAccessObjectOracle extends BasicDataAccessObject implements IDa
     return result[0].OBJECT_TYPE === 'VIEW';
   }
 
-  public async getTableRowsStream(): Promise<any> {
-    return null;
+  public async getTableRowsStream(
+    tableName: string,
+    settings: TableSettingsDS,
+    page: number,
+    perPage: number,
+    searchedFieldValue: string,
+    filteringFields: Array<FilteringFieldsDS>,
+  ): Promise<Stream & AsyncIterable<unknown>> {
+    const knex = await this.configureKnex();
+
+    if (!page || page <= 0) {
+      page = DAO_CONSTANTS.DEFAULT_PAGINATION.page;
+      const { list_per_page } = settings;
+      if (list_per_page && list_per_page > 0 && (!perPage || perPage <= 0)) {
+        perPage = list_per_page;
+      } else {
+        perPage = DAO_CONSTANTS.DEFAULT_PAGINATION.perPage;
+      }
+    }
+    const tableStructure = await this.getTableStructure(tableName);
+    const availableFields = this.findAvaliableFields(settings, tableStructure);
+
+    let orderingField = undefined;
+    let order = undefined;
+    let searchedFields = undefined;
+    if (settings.search_fields && settings.search_fields.length > 0) {
+      searchedFields = settings.search_fields;
+    }
+    if ((!searchedFields || searchedFields?.length === 0) && searchedFieldValue) {
+      searchedFields = availableFields;
+    }
+    if (settings && settings.ordering_field) {
+      orderingField = settings.ordering_field;
+    } else {
+      orderingField = availableFields[0];
+    }
+    if (settings.ordering) {
+      order = settings.ordering;
+    } else {
+      order = QueryOrderingEnum.ASC;
+    }
+
+    const tableSchema = this.connection.schema ? this.connection.schema : this.connection.username.toUpperCase();
+
+    const offset = (page - 1) * perPage;
+
+    const { large_dataset } = await getRowsCount(knex, tableName, tableSchema);
+    if (large_dataset) {
+      throw new Error(ERROR_MESSAGES.DATA_IS_TO_LARGE);
+    }
+
+    const rowsAsStream = await knex(tableName)
+      .withSchema(tableSchema)
+      .select(availableFields)
+      .modify((builder) => {
+        const search_fields = searchedFields;
+        if (searchedFieldValue && search_fields.length > 0) {
+          for (const field of search_fields) {
+            if (Buffer.isBuffer(searchedFieldValue)) {
+              builder.orWhere(field, '=', searchedFieldValue);
+            } else {
+              builder.orWhereRaw(` CAST (?? AS VARCHAR (255))=?`, [field, searchedFieldValue]);
+            }
+          }
+        }
+      })
+      .modify((builder) => {
+        if (filteringFields && filteringFields.length > 0) {
+          for (const filterObject of filteringFields) {
+            const { field, criteria, value } = filterObject;
+            switch (criteria) {
+              case FilterCriteriaEnum.eq:
+                builder.andWhere(field, '=', `${value}`);
+                break;
+              case FilterCriteriaEnum.startswith:
+                builder.andWhere(field, 'like', `${value}%`);
+                break;
+              case FilterCriteriaEnum.endswith:
+                builder.andWhere(field, 'like', `%${value}`);
+                break;
+              case FilterCriteriaEnum.gt:
+                builder.andWhere(field, '>', value);
+                break;
+              case FilterCriteriaEnum.lt:
+                builder.andWhere(field, '<', value);
+                break;
+              case FilterCriteriaEnum.lte:
+                builder.andWhere(field, '<=', value);
+                break;
+              case FilterCriteriaEnum.gte:
+                builder.andWhere(field, '>=', value);
+                break;
+              case FilterCriteriaEnum.contains:
+                builder.andWhere(field, 'like', `%${value}%`);
+                break;
+              case FilterCriteriaEnum.icontains:
+                builder.andWhereNot(field, 'like', `%${value}%`);
+                break;
+              case FilterCriteriaEnum.empty:
+                builder.orWhereNull(field);
+                builder.orWhere(field, '=', `''`);
+                break;
+            }
+          }
+        }
+      })
+      .modify((builder) => {
+        if (settings.ordering_field && settings.ordering) {
+          builder.orderBy(settings.ordering_field, settings.ordering);
+        }
+      })
+      .limit(perPage)
+      .offset(offset);
+
+    return rowsAsStream;
+
+    async function getRowsCount(
+      knex: Knex<any, any[]>,
+      tableName: string,
+      tableSchema: string,
+    ): Promise<{ rowsCount: number; large_dataset: boolean }> {
+      const fastCountQueryResult = await knex('ALL_TABLES')
+        .select('NUM_ROWS')
+        .where('TABLE_NAME', '=', tableName)
+        .andWhere('OWNER', '=', tableSchema);
+      const fastCount = fastCountQueryResult[0]['NUM_ROWS'];
+      if (fastCount >= DAO_CONSTANTS.LARGE_DATASET_ROW_LIMIT) {
+        return { rowsCount: fastCount, large_dataset: true };
+      }
+      const count = (await knex(tableName).withSchema(tableSchema).count('*')) as any;
+      const rowsCount = parseInt(count[0]['COUNT(*)']);
+      return { rowsCount: rowsCount, large_dataset: false };
+    }
+  }
+
+  private objectToStream(obj: any): Readable {
+    const stream = new Readable({
+      objectMode: true,
+      read() {
+        this.push(obj);
+        this.push(null);
+      }
+    });
+  
+    return stream;
   }
 
   private attachSchemaNameToTableName(tableName: string): string {

@@ -528,7 +528,7 @@ export class DataAccessObjectMysql extends BasicDataAccessObject implements IDat
 
     const availableFields = this.findAvaliableFields(settings, tableStructure);
 
-    const rowsAsStream = await knex(tableName)
+    const rowsAsStream = knex(tableName)
       .select(availableFields)
       .modify((builder) => {
         let { search_fields } = settings;

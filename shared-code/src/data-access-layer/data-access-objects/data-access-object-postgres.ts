@@ -543,7 +543,7 @@ export class DataAccessObjectPostgres extends BasicDataAccessObject implements I
     perPage: number,
     searchedFieldValue: string,
     filteringFields: Array<FilteringFieldsDS>,
-  ): Promise<Stream & AsyncIterable<any>> {
+  ): Promise<Stream & AsyncIterable<unknown>> {
     if (!page || page <= 0) {
       page = DAO_CONSTANTS.DEFAULT_PAGINATION.page;
       const { list_per_page } = settings;
