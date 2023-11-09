@@ -16,6 +16,7 @@ import { IDataAccessObjectAgent } from '../shared/interfaces/data-access-object-
 import { DataAccessObjectCommandsEnum } from '../shared/enums/data-access-object-commands.enum.js';
 import { LRUStorage } from '../../caching/lru-storage.js';
 import { TableDS } from '../shared/data-structures/table.ds.js';
+import { Stream } from 'node:stream';
 
 export class DataAccessObjectAgent implements IDataAccessObjectAgent {
   private readonly connection: ConnectionAgentParams;
@@ -449,6 +450,10 @@ export class DataAccessObjectAgent implements IDataAccessObjectAgent {
       this.checkIsErrorLocalAndThrowException(e);
       throw new Error(e.response.data);
     }
+  }
+
+  public async getTableRowsStream(): Promise<any> {
+    return null;
   }
 
   private generateJWT(connectionToken: string): string {

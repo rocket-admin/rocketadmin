@@ -10,6 +10,7 @@ import {
   Post,
   Put,
   Query,
+  StreamableFile,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
@@ -38,6 +39,7 @@ import {
   IAddRowInTable,
   IDeleteRowFromTable,
   IDeleteRowsFromTable,
+  IExportCSVFromTable,
   IFindTablesInConnection,
   IGetRowByPrimaryKey,
   IGetTableRows,
@@ -70,6 +72,8 @@ export class TableController {
     private readonly getRowByPrimaryKeyUseCase: IGetRowByPrimaryKey,
     @Inject(UseCaseType.DELETE_ROWS_FROM_TABLE)
     private readonly deleteRowsFromTableUseCase: IDeleteRowsFromTable,
+    @Inject(UseCaseType.EXPORT_CSV_FROM_TABLE)
+    private readonly exportCSVFromTableUseCase: IExportCSVFromTable,
     @Inject(BaseType.GLOBAL_DB_CONTEXT)
     protected _dbContext: IGlobalDatabaseContext,
   ) {}
@@ -390,6 +394,56 @@ export class TableController {
         userId,
       );
     }
+  }
+
+  @ApiOperation({ summary: 'Export table as csv file' })
+  @ApiResponse({
+    status: 200,
+    description: 'Export table as csv file.',
+  })
+  @UseGuards(TableReadGuard)
+  @Get('/table/csv/:slug')
+  async exportCSVFromTable(
+    @QueryTableName() tableName: string,
+    @Query('page') page: any,
+    @Query('perPage') perPage: any,
+    @Query('search') searchingFieldValue: string,
+    @Query() query,
+    @SlugUuid() connectionId: string,
+    @UserId() userId: string,
+    @MasterPassword() masterPwd: string,
+  ): Promise<StreamableFile> {
+    if (!connectionId) {
+      throw new HttpException(
+        {
+          message: Messages.CONNECTION_ID_MISSING,
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+    if (page && perPage) {
+      page = parseInt(page);
+      perPage = parseInt(perPage);
+      if ((page && page <= 0) || (perPage && perPage <= 0)) {
+        throw new HttpException(
+          {
+            message: Messages.PAGE_AND_PERPAGE_INVALID,
+          },
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+    }
+    const inputData: GetTableRowsDs = {
+      connectionId: connectionId,
+      masterPwd: masterPwd,
+      page: page,
+      perPage: perPage,
+      query: query,
+      searchingFieldValue: searchingFieldValue,
+      tableName: tableName,
+      userId: userId,
+    };
+    return await this.exportCSVFromTableUseCase.execute(inputData, InTransactionEnum.OFF);
   }
 
   private async getPrimaryKeys(

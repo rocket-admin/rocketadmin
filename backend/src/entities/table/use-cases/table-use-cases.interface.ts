@@ -1,3 +1,4 @@
+import { StreamableFile } from '@nestjs/common';
 import { InTransactionEnum } from '../../../enums/index.js';
 import { AddRowInTableDs } from '../application/data-structures/add-row-in-table.ds.js';
 import {
@@ -44,4 +45,8 @@ export interface IDeleteRowsFromTable {
 
 export interface IGetRowByPrimaryKey {
   execute(inputData: GetRowByPrimaryKeyDs, inTransaction: InTransactionEnum): Promise<TableRowRODs>;
+}
+
+export interface IExportCSVFromTable {
+  execute(inputData: GetTableRowsDs, inTransaction: InTransactionEnum): Promise<StreamableFile>;
 }

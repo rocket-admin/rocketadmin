@@ -25,6 +25,7 @@ import { GetRowByPrimaryKeyUseCase } from './use-cases/get-row-by-primary-key.us
 import { GetTableRowsUseCase } from './use-cases/get-table-rows.use.case.js';
 import { GetTableStructureUseCase } from './use-cases/get-table-structure.use.case.js';
 import { UpdateRowInTableUseCase } from './use-cases/update-row-in-table.use.case.js';
+import { ExportCSVFromTableUseCase } from './use-cases/export-csv-from-table.use.case.js';
 
 @Module({
   imports: [
@@ -81,6 +82,10 @@ import { UpdateRowInTableUseCase } from './use-cases/update-row-in-table.use.cas
       provide: UseCaseType.GET_ROW_BY_PRIMARY_KEY,
       useClass: GetRowByPrimaryKeyUseCase,
     },
+    {
+      provide: UseCaseType.EXPORT_CSV_FROM_TABLE,
+      useClass: ExportCSVFromTableUseCase,
+    },
   ],
   controllers: [TableController],
 })
@@ -100,6 +105,7 @@ export class TableModule {
         { path: '/table/row/:slug', method: RequestMethod.DELETE },
         { path: '/table/rows/delete/:slug', method: RequestMethod.PUT },
         { path: '/table/row/:slug', method: RequestMethod.GET },
+        { path: 'table/csv/:slug', method: RequestMethod.GET },
       );
   }
 }

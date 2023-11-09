@@ -10,6 +10,7 @@ import { TableStructureDS } from '../data-structures/table-structure.ds.js';
 import { TestConnectionResultDS } from '../data-structures/test-result-connection.ds.js';
 import { ValidateTableSettingsDS } from '../data-structures/validate-table-settings.ds.js';
 import { TableDS } from '../data-structures/table.ds.js';
+import { Stream } from 'node:stream';
 
 export interface IDataAccessObject {
   addRowInTable(tableName: string, row: Record<string, unknown>): Promise<Record<string, unknown> | number>;
@@ -62,4 +63,13 @@ export interface IDataAccessObject {
   getReferencedTableNamesAndColumns(tableName: string): Promise<Array<ReferencedTableNamesAndColumnsDS>>;
 
   isView(tableName: string): Promise<boolean>;
+
+  getTableRowsStream(
+    tableName: string,
+    settings: TableSettingsDS,
+    page: number,
+    perPage: number,
+    searchedFieldValue: string,
+    filteringFields: Array<FilteringFieldsDS>,
+  ): Promise<Stream & AsyncIterable<any>>;
 }

@@ -153,7 +153,7 @@ test(`${currentTest} should return expiration token when user login with company
   t.pass();
 });
 
-test.only(`${currentTest} should return expiration token when user login with company id and have more than one company`, async (t) => {
+test(`${currentTest} should return expiration token when user login with company id and have more than one company`, async (t) => {
   try {
     const testEmail = 'test@mail.com';
     const testData_1 = await registerUserOnSaasAndReturnUserInfo(testEmail);
