@@ -63,7 +63,7 @@
     "class-validator": "^0.14.0",
     "cookie-parser": "^1.4.6",
     "crc": "^4.3.2",
-    "crypto-js": "4.1.1",
+    "crypto-js": "4.2.0",
     "csv": "^6.3.5",
     "dotenv": "16.3.1",
     "eslint-plugin-security": "1.7.1",
