@@ -75,12 +75,12 @@
 
         <form *ngIf="is2FAShown">
             <div class="qr-verification">
-                <h2 class="mat-h2">Enter second factor code</h2>
-                <mat-form-field appearance="outline" class="user-settings__name">
+                <h2 class="mat-headline-4 qr-verification__title">Enter 2nd factor code</h2>
+                <mat-form-field class="user-settings__name">
                     <mat-label>Enter the code from your authenticator</mat-label>
                     <input matInput [(ngModel)]="authCode" name="code" #codeField="ngModel">
                 </mat-form-field>
-                <button type="submit" mat-button color="primary" class="qr-verification-button"
+                <button type="submit" mat-flat-button color="primary"
                     (click)="loginWith2FA()">
                     Verify
                 </button>
