@@ -6,9 +6,18 @@
             [hidden]="is2FAShown"
             #loginForm="ngForm"
             (ngSubmit)="loginUser()">
-            <h1 class="mat-h1">Welcome to Rocketadmin</h1>
 
-            <mat-form-field appearance="outline">
+            <div class="login-header">
+                <svg class="login-header__logo" width="56" height="54" viewBox="0 0 56 54" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M47.2367 17.9125H35.1499C33.3671 17.9125 32.4833 16.5678 33.1783 14.9286L37.5295 4.71527C38.5191 2.39612 37.2651 0.5 34.742 0.5H23.4711C22.3682 0.5 21.1142 1.33097 20.6836 2.34323L15.4485 14.634C14.5798 16.6661 15.6827 18.328 17.8885 18.328H29.4465C30.7231 18.328 31.8789 19.0909 32.3775 20.2618L37.5295 32.3486C38.232 33.9954 37.3406 35.3401 35.5578 35.3401H8.62703C7.52411 35.3401 6.27011 36.1711 5.83952 37.1833L0.823517 48.9453C-0.166086 51.2644 1.08792 53.1605 3.61103 53.1605H29.8242C30.9271 53.1605 32.1811 52.3296 32.6117 51.3173L38.4435 37.629C38.9346 36.4808 40.0526 35.7405 41.299 35.7405H52.6833C54.9722 35.7405 56.1053 34.0181 55.2064 31.918L50.0242 19.7633C49.5936 18.751 48.3396 17.92 47.2367 17.92V17.9125Z" fill="#08041B"/>
+                </svg>
+                <h1 class="mat-headline-4 loginTitle">
+                    Welcome back to <br>
+                    <span class="loginTitle__emphasis">Rocketadmin</span>
+                </h1>
+            </div>
+
+            <mat-form-field class="login-form__email">
                 <mat-label>Email</mat-label>
                 <input matInput type="email" name="email" emailValidator
                     data-testid="login-email-input"
@@ -19,31 +28,49 @@
                 <mat-error *ngIf="email.errors?.isInvalidEmail">Invalid email format.</mat-error>
             </mat-form-field>
 
-            <mat-form-field appearance="outline">
+            <mat-form-field class="login-form__password">
                 <mat-label>Password</mat-label>
                 <input matInput type="password" name="password" data-testid="login-password-input"
                     #password="ngModel" required
                     angulartics2On="change"
                     angularticsAction="Login: password is changed"
                     [(ngModel)]="user.password">
-                <mat-hint>
-                    <a routerLink="/forget-password" class="link" data-testid="forgot-password-link">Forgot password</a>
-                </mat-hint>
                 <!-- <mat-error *ngIf="port.errors?.required && (port.invalid && port.touched)">Port should not be empty.</mat-error> -->
             </mat-form-field>
 
-            <button type="submit" mat-flat-button color="accent" data-testid="login-button"
-                class="login-button"
+            <button type="submit" mat-flat-button color="primary" data-testid="login-button"
+                class="login-form__login-button"
                 angulartics2On="click"
                 angularticsAction="Login: login is clicked"
                 [disabled]="submitting || loginForm.form.invalid || loginForm.form.pristine">
                 {{ submitting ? 'Submitting' : 'Log in'}}
             </button>
             <div class="divider"><span class="divider__label">or</span></div>
+
             <div id="google_login_button" data-testid="login-google-button"
+                class="login-form__google-button"
                 angulartics2On="click"
                 angularticsAction="Login: login with google is clicked">
             </div>
+
+            <button type="button" mat-stroked-button color="primary" data-testid="login-github-button"
+                class="login-form__github-button"
+                angulartics2On="click"
+                angularticsAction="Login: login with github is clicked"
+                [disabled]="submitting">
+                <svg class="login-form__github-icon" width="98" height="96" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M48.854 0C21.839 0 0 22 0 49.217c0 21.756 13.993 40.172 33.405 46.69 2.427.49 3.316-1.059 3.316-2.362 0-1.141-.08-5.052-.08-9.127-13.59 2.934-16.42-5.867-16.42-5.867-2.184-5.704-5.42-7.17-5.42-7.17-4.448-3.015.324-3.015.324-3.015 4.934.326 7.523 5.052 7.523 5.052 4.367 7.496 11.404 5.378 14.235 4.074.404-3.178 1.699-5.378 3.074-6.6-10.839-1.141-22.243-5.378-22.243-24.283 0-5.378 1.94-9.778 5.014-13.2-.485-1.222-2.184-6.275.486-13.038 0 0 4.125-1.304 13.426 5.052a46.97 46.97 0 0 1 12.214-1.63c4.125 0 8.33.571 12.213 1.63 9.302-6.356 13.427-5.052 13.427-5.052 2.67 6.763.97 11.816.485 13.038 3.155 3.422 5.015 7.822 5.015 13.2 0 18.905-11.404 23.06-22.324 24.283 1.78 1.548 3.316 4.481 3.316 9.126 0 6.6-.08 11.897-.08 13.526 0 1.304.89 2.853 3.316 2.364 19.412-6.52 33.405-24.935 33.405-46.691C97.707 22 75.788 0 48.854 0z" fill="#24292f"/></svg>
+                Continue with GitHub
+            </button>
+
+            <button type="button" mat-stroked-button color="primary" data-testid="login-github-button"
+                class="login-form__sso-button"
+                angulartics2On="click"
+                angularticsAction="Login: login with github is clicked"
+                [disabled]="submitting">
+                Continue with SSO
+            </button>
+
+            <a routerLink="/forget-password" class="login-form__link link" data-testid="forgot-password-link">Can’t Log In?</a>
         </form>
 
         <form *ngIf="is2FAShown">

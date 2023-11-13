@@ -1,5 +1,11 @@
 .wrapper {
-    height: 100%;
+    background-image:
+        url('../../../assets/bg/decor-left.svg'),
+        url('../../../assets/bg/decor-right.svg');
+    background-repeat: no-repeat;
+    background-position: left 125%, right -13%;
+    background-size: 20%, 25%;
+    height: calc(100vh - 56px);
     padding: 16px;
 }
 
@@ -7,9 +13,10 @@
     display: flex;
     flex-direction: column;
     justify-content: center;
+    align-items: center;
     height: 100%;
-    margin: 0 auto;
-    width: 464px;
+    /* margin: 0 auto; */
+    /* width: 464px; */
 }
 
 @media screen and (max-width: 600px) {
@@ -19,32 +26,101 @@
 }
 
 .login-form {
+    display: grid;
+    grid-template-columns: 360px 52px 360px;
+    justify-items: center;
+}
+
+.login-header {
+    grid-column: 1 / span 3;
     display: flex;
     flex-direction: column;
+    align-items: center;
+}
+
+.login-header__logo {
+    margin-bottom: 36px;
+    width: 44px;
+}
+
+.loginTitle {
+    font-weight: 600;
+    text-align: center;
+}
+
+.loginTitle__emphasis {
+    color: var(--color-accentedPalette-500)
 }
 
 [hidden] { display: none !important;}
 
-.login-button {
-    margin-top: 20px;
+.login-form__email {
+    grid-column: 1;
+    grid-row: 2;
+    width: 100%;
 }
 
-.sing-up {
-    margin-top: 12px;
-    text-align: center;
+.login-form__password {
+    grid-column: 1;
+    grid-row: 3;
+    width: 100%;
+}
+
+.login-form__login-button {
+    grid-column: 1;
+    grid-row: 4;
+    height: 40px;
+    width: 100%;
+}
+
+.login-form__google-button {
+    grid-column: 3;
+    grid-row: 2;
+}
+
+/* .login-form__google-button ::ng-deep div {
+    height: 56px;
+} */
+
+.login-form__github-button {
+    grid-column: 3;
+    grid-row: 3;
+    height: 40px;
+    width: 100%;
+}
+
+.login-form__github-icon {
+    height: 18px;
+    width: 18px;
+}
+
+.login-form__sso-button {
+    grid-column: 3;
+    grid-row: 4;
+    height: 40px;
+    width: 100%;
+}
+
+.login-form__link {
+    grid-column: 1 / span 3;
+    grid-row: 5;
+    padding-top: 48px;
 }
 
 .link {
-    color: #3258F0;
+    color: var(--color-primaryPalette-500);
     text-decoration: none;
 }
 
 .divider {
+    grid-column: 2;
+    grid-row: 2 / span 3;
+    align-self: center;
     position: relative;
     background-color: #E8E8E8;
-    height: 1px;
     margin: 36px 0;
-    width: 100%
+    height: 100%;
+    width: 1px;
 }
 
 .divider__label {

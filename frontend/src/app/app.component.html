@@ -113,16 +113,31 @@
             </div>
 
             <div *ngIf="userLoggedIn === null" class="actions">
-                <a mat-stroked-button routerLink="/login"
-                    data-testid="login-header-link"
-                    class="action">
-                    Login
-                </a>
-                <a mat-flat-button color="accent" routerLink="/registration"
-                    data-testid="registration-header-link"
-                    class="action">
-                    Sign up
-                </a>
+                <ng-container *ngIf="page === '/login'">
+                    <a mat-stroked-button routerLink="/login"
+                        data-testid="login-header-link"
+                        class="action">
+                        Login
+                    </a>
+                    <a mat-flat-button color="accent" routerLink="/registration"
+                        data-testid="registration-header-link"
+                        class="action">
+                        Sign up
+                    </a>
+                </ng-container>
+                <ng-container *ngIf="page === '/registration'">
+                    <a mat-flat-button color="accent" routerLink="/login"
+                        data-testid="login-header-link"
+                        class="action">
+                        Login
+                    </a>
+                    <a mat-stroked-button routerLink="/registration"
+                        data-testid="registration-header-link"
+                        class="action">
+                        Sign up
+                    </a>
+                </ng-container>
+
             </div>
             <!-- <ng-template #nonAuthBlock>
 

@@ -1,4 +1,4 @@
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { ChangeDetectorRef, Component, HostListener, NgZone } from '@angular/core';
 
 import { Angulartics2Amplitude } from 'angulartics2';
@@ -15,6 +15,7 @@ import { differenceInMilliseconds } from 'date-fns';
 import { environment } from '../environments/environment';
 import { interval } from 'rxjs';
 import { normalizeTableName } from './lib/normalize';
+import { catchError, filter, map } from 'rxjs/operators';
 
 //@ts-ignore
 window.amplitude = amplitude;
@@ -41,6 +42,7 @@ export class AppComponent {
   navigationTabs: object;
   currentUser: User;
   normalizedTableName;
+  page: string;
   // upgradeButtonShown: boolean = true;
 
   // connectionID: string;
@@ -86,6 +88,22 @@ export class AppComponent {
 
   ngOnInit() {
     // this.upgradeButtonShown = (environment as any).saas;
+
+    // this.route.queryParams.pipe(first()).subscribe((queryParams) => {
+    //   this.filters = getFilters(queryParams);
+    //   this.comparators = getComparators(queryParams);
+    //   const search = queryParams.search;
+    //   this.getRows(search);
+    // })
+    this.router.events
+      .pipe(
+        filter(event => event instanceof NavigationEnd)
+      )
+      .subscribe(() => {
+        this.page = this.router.routerState.snapshot.url;
+    })
+    // console.log('this.page');
+    // console.log(this.page);
 
     this.navigationTabs = {
       'dashboard': {
