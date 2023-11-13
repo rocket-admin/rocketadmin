@@ -10,11 +10,12 @@ export function buildTestTableSettings(connections: Array<ConnectionEntity>): Ar
     let testSettings: Array<CreateTableSettingsDto> = null;
     let testSettingsEntities: Array<TableSettingsEntity> = [];
     switch (connection.host) {
-      case Constants.TEST_CONNECTION_TO_POSTGRES.host:
-        testSettings = TableSettingForTestConnections.getPostgresSettingsDTOs(connection.id);
-        testSettingsEntities = tableSettingsDtosToTableSettingsEntity(testSettings, connection);
-        testTablesSettingsEntities.push(testSettingsEntities);
-        break;
+      // case Constants.TEST_CONNECTION_TO_POSTGRES.host:
+      //   continue;
+      //   testSettings = TableSettingForTestConnections.getPostgresSettingsDTOs(connection.id);
+      //   testSettingsEntities = tableSettingsDtosToTableSettingsEntity(testSettings, connection);
+      //   testTablesSettingsEntities.push(testSettingsEntities);
+      //   break;
       case Constants.TEST_SSH_CONNECTION_TO_MYSQL.host:
         testSettings = TableSettingForTestConnections.getMySQLTableSettingsDTOs(connection.id);
         testSettingsEntities = tableSettingsDtosToTableSettingsEntity(testSettings, connection);
