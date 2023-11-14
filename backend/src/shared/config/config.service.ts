@@ -77,9 +77,10 @@ class ConfigService {
     username: string;
     password: string;
     database: string;
+    ssl: any;
   } {
     const parsingResult = parse.parse(url);
-    const { host, port, user, password, database } = parsingResult;
+    const { host, port, user, password, database, ssl } = parsingResult;
 
     return {
       host,
@@ -87,6 +88,7 @@ class ConfigService {
       username: user,
       password,
       database,
+      ssl,
     };
   }
 }
