@@ -34,10 +34,11 @@
 }
 
 .nav-bar__button {
-    --mdc-text-button-label-text-color: rgba(255, 255, 255, 0.56) !important;
-    --mdc-outlined-button-label-text-color: rgba(255, 255, 255, 0.56) !important;
-    color: rgba(255, 255, 255, 0.56);
+    --mdc-text-button-label-text-color: rgba(255, 255, 255, 1) !important;
+    --mat-mdc-button-persistent-ripple-color: transparent !important;
     font-weight: 400 !important;
+    outline: 2px solid transparent;
+    transition: outline 0.2s;
 }
 
 .nav-bar__account-button ::ng-deep .mat-badge-content {
@@ -57,10 +58,8 @@
 }
 
 .nav-bar__button_active {
-    --mdc-text-button-label-text-color: rgba(255, 255, 255, 1) !important;
-    --mdc-outlined-button-label-text-color: rgba(255, 255, 255, 1) !important;
-    color: #fff;
-    font-weight: 500;
+    --mdc-text-button-label-text-color: var(--color-accentedPalette-500) !important;
+    font-weight: 500 !important;
 }
 
 @media screen and (max-width: 600px) {
@@ -93,7 +92,6 @@
 
 .logo img {
     height: 24px;
-    /* margin-top: 8px; */
     margin-right: 12px;
 }
 
@@ -101,6 +99,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    gap: 4px;
     text-align: center;
 }
 
@@ -121,12 +120,12 @@
     gap: 20px;
 }
 
-.action {
+.actions .action {
     --mdc-outlined-button-outline-color: #fff;
     width: 96px;
 }
 
-.action {
+.actions .action {
     margin-left: 0.5em;
 }
 
@@ -223,10 +222,6 @@
     display: flex;
     align-items: center;
     gap: 4px;
-}
-
-.nav-bar__button-logout ::ng-deep .mat-icon {
-    margin-top: 2px;
 }
 
 .logout-button {

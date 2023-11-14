@@ -23,7 +23,7 @@
                 Upgrade
             </a>
             <div mat-list-item>
-                <button mat-button class="logout-button" (click)="logOut()">
+                <button mat-button (click)="logOut()">
                     Log out
                     <mat-icon>exit_to_app</mat-icon>
                 </button>
@@ -67,7 +67,7 @@
                 <a mat-button *ngFor="let tab of visibleTabs" attr.data-testid="{{tab}}-header-link"
                     routerLink="{{tab}}/{{connectionID}}"
                     routerLinkActive="nav-bar__button_active"
-                    class="action nav-bar__button">
+                    class="nav-bar__button">
                     {{navigationTabs[tab].caption}}
                 </a>
             </div>
