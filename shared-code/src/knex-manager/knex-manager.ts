@@ -163,7 +163,7 @@ export class KnexManager {
       return newKnex;
     }
 
-    if (host === process.env.POSTGRES_CONNECTION_USERNAME) {
+    if (host === process.env.POSTGRES_CONNECTION_HOST) {
       const newKnex = knex({
         client: type,
         connection: {
