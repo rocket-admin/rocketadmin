@@ -162,6 +162,24 @@ export class KnexManager {
       });
       return newKnex;
     }
+
+    if (host === process.env.POSTGRES_CONNECTION_USERNAME) {
+      const newKnex = knex({
+        client: type,
+        connection: {
+          host: host,
+          user: username,
+          password: password,
+          database: database,
+          port: port,
+          application_name: 'rocketadmin',
+          ssl: {
+            rejectUnauthorized: false,
+          },
+        },
+      });
+      return newKnex;
+    }
     const newKnex = knex({
       client: type,
       connection: {
