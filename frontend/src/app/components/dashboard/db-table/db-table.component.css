@@ -196,6 +196,10 @@ th.mat-header-cell, td.mat-cell {
     padding-right: 20px;
 }
 
+.db-table ::ng-deep .mat-mdc-header-cell .mat-sort-header-content {
+    text-align: left;
+}
+
 .table-cell-content {
     overflow: hidden;
     white-space: nowrap;
