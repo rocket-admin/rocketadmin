@@ -38,6 +38,8 @@ async function bootstrap() {
         'https://app.autoadmin.org',
         'http://localhost:4200',
         'https://app.rocketadmin.org',
+        'https://saas.rocketadmin.com',
+        'https://app-beta.rocketadmin.com',
         Constants.APP_DOMAIN_ADDRESS,
       ],
       methods: 'GET,PUT,PATCH,POST,DELETE',
