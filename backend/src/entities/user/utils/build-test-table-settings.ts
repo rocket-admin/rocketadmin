@@ -16,21 +16,21 @@ export function buildTestTableSettings(connections: Array<ConnectionEntity>): Ar
       //   testSettingsEntities = tableSettingsDtosToTableSettingsEntity(testSettings, connection);
       //   testTablesSettingsEntities.push(testSettingsEntities);
       //   break;
-      case Constants.TEST_SSH_CONNECTION_TO_MYSQL.host:
-        testSettings = TableSettingForTestConnections.getMySQLTableSettingsDTOs(connection.id);
-        testSettingsEntities = tableSettingsDtosToTableSettingsEntity(testSettings, connection);
-        testTablesSettingsEntities.push(testSettingsEntities);
-        break;
-      case Constants.TEST_CONNECTION_TO_ORACLE.host:
-        testSettings = TableSettingForTestConnections.getOracleSettingsDTOs(connection.id);
-        testSettingsEntities = tableSettingsDtosToTableSettingsEntity(testSettings, connection);
-        testTablesSettingsEntities.push(testSettingsEntities);
-        break;
-      case Constants.TEST_CONNECTION_TO_MSSQL.host:
-        testSettings = TableSettingForTestConnections.getMsSQLSettingsDTOs(connection.id);
-        testSettingsEntities = tableSettingsDtosToTableSettingsEntity(testSettings, connection);
-        testTablesSettingsEntities.push(testSettingsEntities);
-        break;
+      // case Constants.TEST_SSH_CONNECTION_TO_MYSQL.host:
+      //   testSettings = TableSettingForTestConnections.getMySQLTableSettingsDTOs(connection.id);
+      //   testSettingsEntities = tableSettingsDtosToTableSettingsEntity(testSettings, connection);
+      //   testTablesSettingsEntities.push(testSettingsEntities);
+      //   break;
+      // case Constants.TEST_CONNECTION_TO_ORACLE.host:
+      //   testSettings = TableSettingForTestConnections.getOracleSettingsDTOs(connection.id);
+      //   testSettingsEntities = tableSettingsDtosToTableSettingsEntity(testSettings, connection);
+      //   testTablesSettingsEntities.push(testSettingsEntities);
+      //   break;
+      // case Constants.TEST_CONNECTION_TO_MSSQL.host:
+      //   testSettings = TableSettingForTestConnections.getMsSQLSettingsDTOs(connection.id);
+      //   testSettingsEntities = tableSettingsDtosToTableSettingsEntity(testSettings, connection);
+      //   testTablesSettingsEntities.push(testSettingsEntities);
+      //   break;
       default:
         testTablesSettingsEntities.push([]);
     }
