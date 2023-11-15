@@ -36,6 +36,7 @@ import { ForeignKeyDS } from '@rocketadmin/shared-code/dist/src/data-access-laye
 import { FoundRowsDS } from '@rocketadmin/shared-code/src/data-access-layer/shared/data-structures/found-rows.ds.js';
 import { UnknownSQLException } from '../../../exceptions/custom-exceptions/unknown-sql-exception.js';
 import { ExceptionOperations } from '../../../exceptions/custom-exceptions/exception-operation.js';
+import Sentry from '@sentry/minimal';
 
 @Injectable()
 export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTableRowsDs> implements IGetTableRows {
@@ -135,7 +136,8 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
           userEmail,
         );
       } catch (e) {
-        throw new UnknownSQLException(e.message, ExceptionOperations.FAILED_TO_GET_ROW_BY_PRIMARY_KEY);
+        Sentry.captureException(e);
+        throw new UnknownSQLException(e.message, ExceptionOperations.FAILED_TO_GET_ROWS_FROM_TABLE);
       }
 
       rows = addCustomFieldsInRowsUtil(rows, tableCustomFields);
@@ -249,6 +251,7 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
       operationResult = OperationResultStatusEnum.successfully;
       return rowsRO;
     } catch (e) {
+      Sentry.captureException(e);
       operationResult = OperationResultStatusEnum.unsuccessfully;
       throw new HttpException(
         {
