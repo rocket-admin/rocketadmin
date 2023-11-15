@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Inject } from '@nestjs/common';
+import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
@@ -13,6 +13,7 @@ import {
 import { UserRoleEnum } from '../../user/enums/user-role.enum.js';
 import { buildFoundCompanyFullInfoDs, buildFoundCompanyInfoDs } from '../utils/build-found-company-info-ds.js';
 
+@Injectable()
 export class GetUserCompanyFullInfoUseCase
   extends AbstractUseCase<string, FoundUserCompanyInfoDs>
   implements IGetUserFullCompanyInfo

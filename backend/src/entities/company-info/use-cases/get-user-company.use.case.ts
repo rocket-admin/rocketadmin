@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Inject } from '@nestjs/common';
+import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
@@ -9,6 +9,7 @@ import { isSaaS } from '../../../helpers/app/is-saas.js';
 import { FoundUserCompanyInfoDs } from '../application/data-structures/found-company-info.ds.js';
 import { buildFoundCompanyInfoDs } from '../utils/build-found-company-info-ds.js';
 
+@Injectable()
 export class GetUserCompanyUseCase extends AbstractUseCase<string, FoundUserCompanyInfoDs> implements IGetUserCompany {
   constructor(
     @Inject(BaseType.GLOBAL_DB_CONTEXT)
