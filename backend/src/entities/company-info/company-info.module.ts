@@ -76,7 +76,7 @@ export class CompanyInfoModule implements NestModule {
         { path: '/company/user/:slug', method: RequestMethod.PUT },
         { path: '/company/my', method: RequestMethod.GET },
         { path: 'company/my/full', method: RequestMethod.GET },
-        { path: '/company/users', method: RequestMethod.GET },
+        { path: '/company/users/:slug', method: RequestMethod.GET },
       );
   }
 }
