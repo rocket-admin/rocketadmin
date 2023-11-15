@@ -19,6 +19,7 @@ import { CompanyInfoController } from './company-info.controller.js';
 import { GetUserCompanyUseCase } from './use-cases/get-user-company.use.case.js';
 import { GetUserCompanyFullInfoUseCase } from './use-cases/get-full-user-company-info.use.case.js';
 import { GetUserEmailCompaniesUseCase } from './use-cases/get-user-email-companies.use.case.js';
+import { GetAllUsersInCompanyUseCase } from './use-cases/get-all-users-in-company.use.case.js';
 
 @Module({
   imports: [
@@ -59,7 +60,11 @@ import { GetUserEmailCompaniesUseCase } from './use-cases/get-user-email-compani
     {
       provide: UseCaseType.GET_USER_EMAIL_COMPANIES,
       useClass: GetUserEmailCompaniesUseCase,
-    }
+    },
+    {
+      provide: UseCaseType.GET_USERS_IN_COMPANY,
+      useClass: GetAllUsersInCompanyUseCase,
+    },
   ],
   controllers: [CompanyInfoController],
 })
@@ -71,6 +76,7 @@ export class CompanyInfoModule implements NestModule {
         { path: '/company/user/:slug', method: RequestMethod.PUT },
         { path: '/company/my', method: RequestMethod.GET },
         { path: 'company/my/full', method: RequestMethod.GET },
+        { path: '/company/users', method: RequestMethod.GET },
       );
   }
 }

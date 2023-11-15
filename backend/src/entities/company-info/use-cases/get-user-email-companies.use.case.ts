@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Inject } from '@nestjs/common';
+import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
@@ -9,6 +9,7 @@ import { Messages } from '../../../exceptions/text/messages.js';
 import { isSaaS } from '../../../helpers/app/is-saas.js';
 import { FoundSassCompanyInfoDS } from '../../../microservices/gateways/saas-gateway.ts/data-structures/found-saas-company-info.ds.js';
 
+@Injectable()
 export class GetUserEmailCompaniesUseCase
   extends AbstractUseCase<string, Array<FoundUserEmailCompaniesInfoDs>>
   implements IGetUserEmailCompanies

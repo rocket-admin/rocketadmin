@@ -23,6 +23,7 @@ import {
   IGetUserCompany,
   IGetUserEmailCompanies,
   IGetUserFullCompanyInfo,
+  IGetUsersInCompany,
   IInviteUserInCompanyAndConnectionGroup,
   IVerifyInviteUserInCompanyAndConnectionGroup,
 } from './use-cases/company-info-use-cases.interface.js';
@@ -42,6 +43,7 @@ import {
   FoundUserEmailCompaniesInfoDs,
   FoundUserFullCompanyInfoDs,
 } from './application/data-structures/found-company-info.ds.js';
+import { SimpleFoundUserInfoDs } from '../user/application/data-structures/found-user.ds.js';
 
 @UseInterceptors(SentryInterceptor)
 @Controller('company')
@@ -60,6 +62,8 @@ export class CompanyInfoController {
     private readonly getUserFullCompanyInfoUseCase: IGetUserFullCompanyInfo,
     @Inject(UseCaseType.GET_USER_EMAIL_COMPANIES)
     private readonly getUserEmailCompaniesUseCase: IGetUserEmailCompanies,
+    @Inject(UseCaseType.GET_USERS_IN_COMPANY)
+    private readonly getUsersInCompanyUseCase: IGetUsersInCompany,
   ) {}
 
   @ApiOperation({ summary: 'Get user company' })
@@ -72,6 +76,19 @@ export class CompanyInfoController {
   @Get('my')
   async getUserCompany(@UserId() userId: string): Promise<FoundUserCompanyInfoDs> {
     return await this.getUserCompanyUseCase.execute(userId);
+  }
+
+  @ApiOperation({ summary: 'Get users in company' })
+  @ApiResponse({
+    status: 200,
+    description: 'Get users in company.',
+    type: Array<SimpleFoundUserInfoDs>,
+    isArray: true,
+  })
+  @UseGuards(CompanyUserGuard)
+  @Get('users')
+  async getUsersInCompany(@SlugUuid() companyId: string): Promise<Array<SimpleFoundUserInfoDs>> {
+    return await this.getUsersInCompanyUseCase.execute(companyId);
   }
 
   @ApiOperation({ summary: 'Get companies where user with this email registered (for login in company)' })
