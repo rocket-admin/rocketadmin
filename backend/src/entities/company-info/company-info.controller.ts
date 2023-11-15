@@ -82,11 +82,11 @@ export class CompanyInfoController {
   @ApiResponse({
     status: 200,
     description: 'Get users in company.',
-    type: Array<SimpleFoundUserInfoDs>,
+    type: SimpleFoundUserInfoDs,
     isArray: true,
   })
   @UseGuards(CompanyUserGuard)
-  @Get('users')
+  @Get('users/:slug')
   async getUsersInCompany(@SlugUuid() companyId: string): Promise<Array<SimpleFoundUserInfoDs>> {
     return await this.getUsersInCompanyUseCase.execute(companyId);
   }
@@ -95,7 +95,8 @@ export class CompanyInfoController {
   @ApiResponse({
     status: 200,
     description: 'Get companies where user with this email registered.',
-    type: Array<FoundUserEmailCompaniesInfoDs>,
+    type: FoundUserEmailCompaniesInfoDs,
+    isArray: true,
   })
   @Get('my/email/:email')
   async getUserEmailCompanies(@Param('email') userEmail: string): Promise<Array<FoundUserEmailCompaniesInfoDs>> {
