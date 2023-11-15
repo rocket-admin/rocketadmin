@@ -18,7 +18,7 @@ export async function sendEmailToUser(letterContent: IMessage): Promise<SMTPTran
   return null;
 
   async function sendEmailWithTimeout(letterContent: IMessage) {
-    return new Promise<SMTPTransport.SentMessageInfo>(async (resolve, reject) => {
+    return new Promise<SMTPTransport.SentMessageInfo>(async (resolve) => {
       setTimeout(() => {
         resolve(null);
       }, 4000);
@@ -124,6 +124,21 @@ export async function sendEmailConfirmation(
     subject: Constants.EMAIL.EMAIL.CONFIRM_EMAIL_SUBJECT,
     text: Constants.EMAIL.EMAIL.CONFIRM_EMAIL_TEXT(verificationString),
     html: Constants.EMAIL.EMAIL.CONFIRM_EMAIL_HTML(verificationString),
+  };
+  return await sendEmailToUser(letterContent);
+}
+
+export async function sendInvitationToCompany(
+  email: string,
+  verificationString: string,
+): Promise<SMTPTransport.SentMessageInfo> {
+  const emailFrom = getProcessVariable('EMAIL_FROM') || Constants.AUTOADMIN_SUPPORT_MAIL;
+  const letterContent: IMessage = {
+    from: emailFrom,
+    to: email,
+    subject: Constants.EMAIL.COMPANY_INVITE.COMPANY_INVITE_SUBJECT_DATA,
+    text: Constants.EMAIL.COMPANY_INVITE.COMPANY_INVITE_TEXT_DATA(verificationString),
+    html: Constants.EMAIL.COMPANY_INVITE.COMPANY_INVITE_HTML_DATA(verificationString),
   };
   return await sendEmailToUser(letterContent);
 }

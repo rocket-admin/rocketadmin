@@ -10,15 +10,28 @@ import {
   ILoginUserWithGitHub,
   ILoginUserWithGoogle,
   ISaaSRegisterInvitedUser,
+  ISaasGetUsersInfosByEmail,
   ISaasRegisterUser,
   IUpdateUserStripeCustomerId,
 } from './use-cases/saas-use-cases.interface.js';
 import { RegisteredCompanyDS } from './data-structures/registered-company.ds.js';
 import { UserEntity } from '../../entities/user/user.entity.js';
 import { FoundUserDs } from '../../entities/user/application/data-structures/found-user.ds.js';
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { RegisterCompanyWebhookDS } from './data-structures/register-company.ds.js';
+import {
+  RegisterInvitedUserDS,
+  SaasUsualUserRegisterDS,
+} from '../../entities/user/application/data-structures/usual-register-user.ds.js';
+import { SaasRegisterUserWithGoogleDS } from './data-structures/sass-register-user-with-google.js';
+import { SaasRegisterUserWithGithub } from './data-structures/saas-register-user-with-github.js';
+import { SuccessResponse } from './data-structures/common-responce.ds.js';
+import { UpdateUserStripeCustomerDS } from './data-structures/update-user-stripe-customer-id.ds.js';
 
 @UseInterceptors(SentryInterceptor)
 @Controller('saas')
+@ApiBearerAuth()
+@ApiTags('saas')
 @Injectable()
 export class SaasController {
   constructor(
@@ -28,6 +41,8 @@ export class SaasController {
     private readonly getUserInfoUseCase: IGetUserInfo,
     @Inject(UseCaseType.SAAS_GET_USER_INFO_BY_EMAIL)
     private readonly getUserInfoByEmailUseCase: IGetUserInfoByEmail,
+    @Inject(UseCaseType.SAAS_SAAS_GET_USERS_INFOS_BY_EMAIL)
+    private readonly getUsersInfosByEmailUseCase: ISaasGetUsersInfosByEmail,
     @Inject(UseCaseType.SAAS_USUAL_REGISTER_USER)
     private readonly usualRegisterUserUseCase: ISaasRegisterUser,
     @Inject(UseCaseType.SAAS_LOGIN_USER_WITH_GOOGLE)
@@ -46,6 +61,13 @@ export class SaasController {
     private readonly registerInvitedUserUseCase: ISaaSRegisterInvitedUser,
   ) {}
 
+  @ApiOperation({ summary: 'Company registered webhook' })
+  @ApiBody({ type: RegisterCompanyWebhookDS })
+  @ApiResponse({
+    status: 201,
+    description: 'The company has been successfully created.',
+    type: RegisteredCompanyDS,
+  })
   @Post('/company/registered')
   async companyRegistered(
     @Body('userId') registrarUserId: string,
@@ -55,16 +77,31 @@ export class SaasController {
     return result;
   }
 
+  @ApiOperation({ summary: 'Get user info by id webhook' })
+  @ApiBody({ type: RegisterCompanyWebhookDS })
+  @ApiResponse({
+    status: 200,
+  })
   @Get('/user/:userId')
   async getUserInfo(@Param('userId') userId: string): Promise<UserEntity> {
     return await this.getUserInfoUseCase.execute(userId);
   }
 
+  @ApiOperation({ summary: 'Get user info by github id webhook' })
+  @ApiBody({ type: RegisterCompanyWebhookDS })
+  @ApiResponse({
+    status: 200,
+  })
   @Get('/user/github/:githubId')
   async getUserInfoByGitHubId(@Param('githubId') githubId: number): Promise<UserEntity> {
     return await this.getUserInfoUseCaseByGithubId.execute(Number(githubId));
   }
 
+  @ApiOperation({ summary: 'Get user info by email webhook' })
+  @ApiBody({ type: RegisterCompanyWebhookDS })
+  @ApiResponse({
+    status: 200,
+  })
   @Get('/user/email/:userEmail')
   async getUserInfoByEmail(
     @Param('userEmail') userEmail: string,
@@ -77,6 +114,23 @@ export class SaasController {
     return await this.getUserInfoByEmailUseCase.execute(inputData);
   }
 
+  @ApiOperation({ summary: 'Get users infos by email webhook' })
+  @ApiBody({ type: Array<RegisterCompanyWebhookDS> })
+  @ApiResponse({
+    status: 200,
+  })
+  @Get('/users/email/:userEmail')
+  async getUsersInfoByEmail(@Param('userEmail') userEmail: string): Promise<Array<UserEntity>> {
+    return await this.getUsersInfosByEmailUseCase.execute(userEmail);
+  }
+
+  @ApiOperation({ summary: 'User register webhook' })
+  @ApiBody({ type: SaasUsualUserRegisterDS })
+  @ApiResponse({
+    status: 201,
+    description: 'User has been successfully registered.',
+    type: FoundUserDs,
+  })
   @Post('user/register')
   async usualUserRegister(
     @Body('email') email: string,
@@ -89,6 +143,13 @@ export class SaasController {
     return await this.usualRegisterUserUseCase.execute({ email, password, gclidValue, name, companyId });
   }
 
+  @ApiOperation({ summary: 'Register invited user in company webhook' })
+  @ApiBody({ type: RegisterInvitedUserDS })
+  @ApiResponse({
+    status: 201,
+    description: 'User was successfully invited.',
+    type: FoundUserDs,
+  })
   @Post('/user/register/invite')
   async registerInvitedUser(
     @Body('email') email: string,
@@ -99,6 +160,11 @@ export class SaasController {
     return await this.registerInvitedUserUseCase.execute({ email, password, name, companyId });
   }
 
+  @ApiOperation({ summary: 'Login or create user with google webhook' })
+  @ApiBody({ type: SaasRegisterUserWithGoogleDS })
+  @ApiResponse({
+    status: 201,
+  })
   @Post('user/google/login')
   async loginUserWithGoogle(
     @Body('email') email: string,
@@ -108,6 +174,11 @@ export class SaasController {
     return await this.loginUserWithGoogleUseCase.execute({ email, name, glidCookieValue });
   }
 
+  @ApiOperation({ summary: 'Login or create user with github webhook' })
+  @ApiBody({ type: SaasRegisterUserWithGithub })
+  @ApiResponse({
+    status: 201,
+  })
   @Post('user/github/login')
   async loginUserWithGithub(
     @Body('email') email: string,
@@ -118,22 +189,46 @@ export class SaasController {
     return await this.loginUserWithGithubUseCase.execute({ email, name, githubId, glidCookieValue });
   }
 
+  @ApiOperation({ summary: 'Update stripe customer id webhook' })
+  @ApiBody({ type: UpdateUserStripeCustomerDS })
+  @ApiResponse({
+    status: 200,
+    type: SuccessResponse,
+  })
   @Put('user/:userId/stripe')
   async updateUserStripeCustomerId(
     @Param('userId') userId: string,
     @Body('stripeCustomerId') stripeCustomerId: string,
-  ): Promise<{ success: boolean }> {
+  ): Promise<SuccessResponse> {
     await this.updateUserStripeCustomerIdUseCase.execute({ userId, stripeCustomerId });
     return { success: true };
   }
 
+  @ApiOperation({ summary: 'Add user in company webhook' })
+  @ApiResponse({
+    status: 200,
+    type: SuccessResponse,
+  })
   @Put('/user/:userId/company/:companyId')
-  async addCompanyIdToUser(@Param('userId') userId: string, @Param('companyId') companyId: string): Promise<void> {
+  async addCompanyIdToUser(
+    @Param('userId') userId: string,
+    @Param('companyId') companyId: string,
+  ): Promise<SuccessResponse> {
     await this.addCompanyIdToUserUseCase.execute({ userId, companyId });
+    return { success: true };
   }
 
+  @ApiOperation({ summary: 'Remove user from company webhook' })
+  @ApiResponse({
+    status: 200,
+    type: SuccessResponse,
+  })
   @Put('/user/remove/:userId/company/:companyId')
-  async removeCompanyIdFromUser(@Param('userId') userId: string, @Param('companyId') companyId: string): Promise<void> {
+  async removeCompanyIdFromUser(
+    @Param('userId') userId: string,
+    @Param('companyId') companyId: string,
+  ): Promise<SuccessResponse> {
     await this.removeCompanyIdFromUserUserUseCase.execute({ userId, companyId });
+    return { success: true };
   }
 }

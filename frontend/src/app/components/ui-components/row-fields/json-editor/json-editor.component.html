@@ -7,6 +7,7 @@
 <ngx-codemirror
 name="{{label}}-{{key}}"
     class="codemirror-wrapper"
+    attr.data-testid="record-{{label}}-json"
     [(ngModel)]="value"
     (ngModelChange)="onFieldChange.emit($event)"
     [options]="{

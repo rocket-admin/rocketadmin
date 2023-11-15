@@ -1,8 +1,11 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { faker } from '@faker-js/faker';
 import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
 import { Constants } from '../../src/helpers/constants/constants.js';
 import { TestUtils } from './test.utils.js';
+import { isSaaS } from '../../src/helpers/app/is-saas.js';
+import { InvitedUserInCompanyAndConnectionGroupDs } from '../../src/entities/company-info/application/data-structures/invited-user-in-company-and-connection-group.ds.js';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export async function registerUserAndReturnUserInfo(app: INestApplication): Promise<{
@@ -10,8 +13,35 @@ export async function registerUserAndReturnUserInfo(app: INestApplication): Prom
   email: string;
   password: string;
 }> {
+  if (!isSaaS()) {
+    return await loginTestAdminUserAndReturnInfo(app);
+  }
   // return await registerUserOnCoreAndReturnUserInfo(app);
   return await registerUserOnSaasAndReturnUserInfo();
+}
+
+export async function loginTestAdminUserAndReturnInfo(app: INestApplication): Promise<{
+  token: string;
+  email: string;
+  password: string;
+}> {
+  const userLoginInfo = {
+    email: 'admin@email.local',
+    password: 'test12345',
+  };
+  const registerAdminUserResponse = await request(app.getHttpServer())
+    .post('/user/login/')
+    .send(userLoginInfo)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+
+  const registerAdminUserResponseJson = JSON.parse(registerAdminUserResponse.text);
+  if (registerAdminUserResponse.status > 201) {
+    console.info('registerAdminUserResponse.text -> ', registerAdminUserResponseJson);
+  }
+
+  const token = `${Constants.JWT_COOKIE_KEY_NAME}=${TestUtils.getJwtTokenFromResponse(registerAdminUserResponse)}`;
+  return { token: token, ...userLoginInfo };
 }
 
 export async function registerUserOnCoreAndReturnUserInfo(app: INestApplication): Promise<{
@@ -38,15 +68,17 @@ export async function registerUserOnCoreAndReturnUserInfo(app: INestApplication)
   return { token: token, ...userRegisterInfo };
 }
 
-export async function registerUserOnSaasAndReturnUserInfo(): Promise<{
+export async function registerUserOnSaasAndReturnUserInfo(
+  email: string = `${faker.lorem.words(1)}_${faker.lorem.words(1)}_${faker.internet.email()}`,
+): Promise<{
   token: string;
   email: string;
   password: string;
 }> {
   const userRegisterInfo: RegisterUserData & { companyName: string } = {
-    email: `${faker.lorem.words(1)}_${faker.lorem.words(1)}_${faker.internet.email()}`,
+    email: email,
     password: `#r@dY^e&7R4b5Ib@31iE4xbn`,
-    companyName: `${faker.lorem.words(1)}_${faker.lorem.words(1)}_${faker.lorem.words(1)}_${faker.company.name()}}`,
+    companyName: `${faker.lorem.words(1)}_${faker.lorem.words(1)}_${faker.lorem.words(1)}_${faker.company.name()}`,
   };
 
   const result = await fetch('http://rocketadmin-private-microservice:3001/saas/user/register', {
@@ -73,11 +105,15 @@ export async function inviteUserInCompanyAndAcceptInvitation(
   inviterJwtToken: string,
   role: 'ADMIN' | 'USER' = 'USER',
   app: INestApplication,
+  groupId: string,
 ): Promise<{
   email: string;
   password: string;
   token: string;
 }> {
+  return await inviteUserInCompanyAndGroupAndAcceptInvitation(inviterJwtToken, role, groupId, app);
+  /*
+
   const foundUser: any = await request(app.getHttpServer())
     .get('/user/')
     .set('Cookie', inviterJwtToken)
@@ -118,10 +154,64 @@ export async function inviteUserInCompanyAndAcceptInvitation(
       Accept: 'application/json',
     },
   });
-   if (verificationResult.status > 201) {
+  if (verificationResult.status > 201) {
     console.info('verificationResult.body -> ', await verificationResult.json());
   }
   const token = `${Constants.JWT_COOKIE_KEY_NAME}=${TestUtils.getJwtTokenFromResponse2(verificationResult)}`;
 
+  return { email: newEmail, password: newPassword, token: token };
+  */
+}
+
+export async function inviteUserInCompanyAndGroupAndAcceptInvitation(
+  inviterJwtToken: string,
+  role: 'ADMIN' | 'USER' = 'USER',
+  groupId: string,
+  app: INestApplication,
+): Promise<{
+  email: string;
+  password: string;
+  token: string;
+}> {
+  const foundUser: any = await request(app.getHttpServer())
+    .get('/user/')
+    .set('Cookie', inviterJwtToken)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+  const foundUserJson = JSON.parse(foundUser.text);
+  const companyId = foundUserJson.company.id;
+  const newEmail = `${faker.lorem.words(1)}_${faker.lorem.words(1)}_${faker.internet.email()}`;
+  const newPassword = `#r@dY^e&7R4b5Ib@31iE4xbn`;
+  const invitationRequestBody = {
+    companyId: foundUserJson.company.id,
+    email: newEmail,
+    role: role,
+    groupId: groupId,
+  };
+
+  const invitationResult = await request(app.getHttpServer())
+    .put(`/company/user/${companyId}`)
+    .send(invitationRequestBody)
+    .set('Cookie', inviterJwtToken)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+
+  const invitationRO: InvitedUserInCompanyAndConnectionGroupDs = JSON.parse(invitationResult.text);
+  if (invitationResult.status > 201) {
+    console.info('invitationResult.body -> ', invitationRO);
+  }
+  const verificationResult = await request(app.getHttpServer())
+    .post(`/company/invite/verify/test`)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json')
+    .send({
+      password: newPassword,
+      userName: newEmail,
+    });
+  const verificationRO = JSON.parse(verificationResult.text);
+  if (verificationResult.status > 201) {
+    console.info('verificationResult.body -> ', verificationRO);
+  }
+  const token = `${Constants.JWT_COOKIE_KEY_NAME}=${TestUtils.getJwtTokenFromResponse(verificationResult)}`;
   return { email: newEmail, password: newPassword, token: token };
 }

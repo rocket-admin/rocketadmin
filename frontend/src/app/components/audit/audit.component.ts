@@ -11,7 +11,7 @@ import { ServerError } from 'src/app/models/alert';
 import { TableProperties } from 'src/app/models/table';
 import { TablesService } from 'src/app/services/tables.service';
 import { Title } from '@angular/platform-browser';
-import { User } from '@sentry/angular';
+import { User } from '@sentry/angular-ivy';
 import { UsersService } from 'src/app/services/users.service';
 import { tap } from 'rxjs/operators';
 import { normalizeTableName } from 'src/app/lib/normalize';

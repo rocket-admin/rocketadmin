@@ -1,14 +1,22 @@
-import { FoundConnectionPropertiesDs } from 'src/entities/connection-properties/application/data-structures/found-connection-properties.ds.js';
 import { AccessLevelEnum } from '../../../../enums/index.js';
+import { FoundConnectionPropertiesDs } from '../../../connection-properties/application/data-structures/found-connection-properties.ds.js';
 import {
   FoundAgentConnectionsDs,
   FoundDirectConnectionsDs,
   FoundDirectConnectionsNonePermissionDs,
 } from './found-connections.ds.js';
+import { ApiProperty } from '@nestjs/swagger';
 
 export class FoundOneConnectionDs {
+  @ApiProperty()
   connection: FoundDirectConnectionsDs | FoundAgentConnectionsDs | FoundDirectConnectionsNonePermissionDs;
+
+  @ApiProperty({ enum: AccessLevelEnum })
   accessLevel: AccessLevelEnum;
+
+  @ApiProperty()
   groupManagement: boolean;
+
+  @ApiProperty()
   connectionProperties: FoundConnectionPropertiesDs;
 }

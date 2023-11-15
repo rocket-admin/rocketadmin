@@ -5,9 +5,9 @@ import { IGlobalDatabaseContext } from '../../../common/application/global-datab
 import { BaseType, DynamicModuleEnum } from '../../../common/data-injection.tokens.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { IStripeService } from '../../stripe/application/interfaces/stripe-service.interface.js';
-import { UpgradeUserSubscriptionDs } from '../application/data-structures/upgrade-user-subscription.ds.js';
 import { UpgradedUserSubscriptionDs } from '../application/data-structures/upgraded-user-subscription.ds.js';
 import { IUpgradeSubscription } from './user-use-cases.interfaces.js';
+import { UpgradeUserSubscriptionDs } from '../application/data-structures/upgrade-user-subscription.ds.js';
 
 @Injectable()
 export class UpgradeSubscriptionUseCase

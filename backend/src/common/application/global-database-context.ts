@@ -63,6 +63,9 @@ import { userGitHubIdentifierCustomRepositoryExtension } from '../../entities/us
 import { ICompanyInfoRepository } from '../../entities/company-info/repository/company-info-repository.interface.js';
 import { CompanyInfoEntity } from '../../entities/company-info/company-info.entity.js';
 import { companyInfoRepositoryExtension } from '../../entities/company-info/repository/company-info-custom-repository.extension.js';
+import { InvitationInCompanyEntity } from '../../entities/company-info/invitation-in-company/invitation-in-company.entity.js';
+import { IInvitationInCompanyRepository } from '../../entities/company-info/invitation-in-company/repository/invitation-repository.interface.js';
+import { invitationInCompanyCustomRepositoryExtension } from '../../entities/company-info/invitation-in-company/repository/invitation-in-company-custom-repository-extension.js';
 
 @Injectable()
 export class GlobalDatabaseContext implements IGlobalDatabaseContext {
@@ -90,6 +93,7 @@ export class GlobalDatabaseContext implements IGlobalDatabaseContext {
   private _tableActionRepository: ITableActionRepository;
   private _userGitHubIdentifierRepository: IUserGitHubIdentifierRepository;
   private _companyInfoRepository: Repository<CompanyInfoEntity> & ICompanyInfoRepository;
+  private _invitationInCompanyRepository: Repository<InvitationInCompanyEntity> & IInvitationInCompanyRepository;
 
   public constructor(
     @Inject(BaseType.DATA_SOURCE)
@@ -153,6 +157,9 @@ export class GlobalDatabaseContext implements IGlobalDatabaseContext {
     this._companyInfoRepository = this.appDataSource
       .getRepository(CompanyInfoEntity)
       .extend(companyInfoRepositoryExtension);
+    this._invitationInCompanyRepository = this.appDataSource
+      .getRepository(InvitationInCompanyEntity)
+      .extend(invitationInCompanyCustomRepositoryExtension);
   }
 
   public get userRepository(): IUserRepository {
@@ -241,6 +248,10 @@ export class GlobalDatabaseContext implements IGlobalDatabaseContext {
 
   public get companyInfoRepository(): Repository<CompanyInfoEntity> & ICompanyInfoRepository {
     return this._companyInfoRepository;
+  }
+
+  public get invitationInCompanyRepository(): Repository<InvitationInCompanyEntity> & IInvitationInCompanyRepository {
+    return this._invitationInCompanyRepository;
   }
 
   public startTransaction(): Promise<void> {

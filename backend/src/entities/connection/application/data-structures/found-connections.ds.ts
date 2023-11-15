@@ -1,50 +1,142 @@
+import { ApiProperty } from '@nestjs/swagger';
 import { AccessLevelEnum, ConnectionTypeEnum } from '../../../../enums/index.js';
 import { UserEntity } from '../../../user/user.entity.js';
-
-export class FoundConnectionsDs {
-  connections: Array<{
-    connection: FoundDirectConnectionsDs | FoundAgentConnectionsDs | FoundDirectConnectionsNonePermissionDs;
-    accessLevel: AccessLevelEnum;
-  }>;
-  connectionsCount: number;
-}
+import { FoundGroupDataWithUsersDs } from '../../../group/application/data-sctructures/found-user-groups.ds.js';
+import { SimpleFoundUserInfoDs } from '../../../user/application/data-structures/found-user.ds.js';
 
 export class FoundDirectConnectionsDs {
+  @ApiProperty()
   id: string;
+
+  @ApiProperty({ required: false })
   title?: string;
+
+  @ApiProperty()
   masterEncryption: boolean;
+
+  @ApiProperty({ enum: ConnectionTypeEnum })
   type?: ConnectionTypeEnum | string;
+
+  @ApiProperty()
   host?: string;
+
+  @ApiProperty()
   port?: number | null;
+
+  @ApiProperty()
   username?: string;
+
+  @ApiProperty()
   database?: string;
+
+  @ApiProperty()
   schema?: string;
+
+  @ApiProperty({ required: false })
   sid?: string;
+
+  @ApiProperty({ required: false })
   createdAt?: Date;
+
+  @ApiProperty({ required: false })
   updatedAt?: Date;
+
+  @ApiProperty()
   ssh?: boolean;
+
+  @ApiProperty({ required: false })
   sshHost?: string;
+
+  @ApiProperty({ required: false })
   sshPort?: number;
+
+  @ApiProperty()
   ssl?: boolean;
+
+  @ApiProperty({ required: false })
   cert?: string;
+
+  @ApiProperty({ required: false })
   author?: UserEntity | string;
+
+  @ApiProperty({ required: false })
   token?: string;
+
+  @ApiProperty({ required: false })
   azure_encryption?: boolean;
+
+  @ApiProperty()
   signing_key: string;
 }
 
 export class FoundDirectConnectionsNonePermissionDs {
+  @ApiProperty()
   id: string;
+
+  @ApiProperty({ required: false })
   title?: string;
+
+  @ApiProperty()
   type?: ConnectionTypeEnum | string;
+
+  @ApiProperty()
   database: string;
 }
 
 export class FoundAgentConnectionsDs {
+  @ApiProperty()
   id: string;
+
+  @ApiProperty()
   title?: string;
+
+  @ApiProperty({ enum: ConnectionTypeEnum })
   type?: ConnectionTypeEnum | string;
+
+  @ApiProperty({ required: false })
   author: UserEntity | string;
+
+  @ApiProperty()
   token: string;
+
+  @ApiProperty()
   signing_key: string;
+}
+
+export class FoundDirectConnectionsWithGroupAndUsersDs extends FoundDirectConnectionsDs {
+  @ApiProperty({ isArray: true })
+  groups: Array<FoundGroupDataWithUsersDs>;
+}
+
+export class FoundSipleConnectionInfoDS {
+  @ApiProperty()
+  id: string;
+
+  @ApiProperty()
+  title?: string;
+
+  @ApiProperty({ enum: ConnectionTypeEnum })
+  type?: ConnectionTypeEnum | string;
+
+  @ApiProperty({ required: false })
+  author: SimpleFoundUserInfoDs;
+
+  @ApiProperty({ isArray: true })
+  groups: Array<FoundGroupDataWithUsersDs>;
+}
+
+export class ConnectionWithAccessLevelDS {
+  @ApiProperty()
+  connection: FoundDirectConnectionsDs | FoundAgentConnectionsDs | FoundDirectConnectionsNonePermissionDs;
+
+  @ApiProperty()
+  accessLevel: AccessLevelEnum;
+}
+
+export class FoundConnectionsDs {
+  @ApiProperty({ isArray: true, type: ConnectionWithAccessLevelDS })
+  connections: Array<ConnectionWithAccessLevelDS>;
+
+  @ApiProperty()
+  connectionsCount: number;
 }

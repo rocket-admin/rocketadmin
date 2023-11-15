@@ -14,6 +14,7 @@ import { UpdateUserStripeCustomerIdUseCase } from './use-cases/UpdateUserStripeC
 import { AddCompanyIdToUserUseCase } from './use-cases/add-company-id-to-user-use.case.js';
 import { RemoveCompanyIdFromUserUseCase } from './use-cases/remove-company-id-from-user.use.case.js';
 import { SaasRegisterInvitedUserUseCase } from './use-cases/register-invited-user-use.case.js';
+import { GetUsersInfosByEmailUseCase } from './use-cases/get-users-infos-by-email.use.case.js';
 
 @Module({
   imports: [],
@@ -65,6 +66,10 @@ import { SaasRegisterInvitedUserUseCase } from './use-cases/register-invited-use
     {
       provide: UseCaseType.SAAS_REGISTER_INVITED_USER,
       useClass: SaasRegisterInvitedUserUseCase,
+    },
+    {
+      provide: UseCaseType.SAAS_SAAS_GET_USERS_INFOS_BY_EMAIL,
+      useClass: GetUsersInfosByEmailUseCase,
     },
   ],
   controllers: [SaasController],

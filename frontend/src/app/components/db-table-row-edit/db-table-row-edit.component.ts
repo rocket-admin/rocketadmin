@@ -139,7 +139,7 @@ export class DbTableRowEditComponent implements OnInit {
                   [`f__${table.column_name}__eq`]:
                   this.tableRowValues[res.referenced_table_names_and_columns[0].referenced_on_column_name],
                   page_index: 0
-                }});;
+                }});
             }
 
             this.loading = false;

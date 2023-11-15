@@ -18,7 +18,7 @@
 
 <div *ngIf="tableRowValues" class="wrapper">
     <div class="row-edit-header">
-        <app-breadcrumbs [crumbs]="getCrumbs(currentConnection.title)"></app-breadcrumbs>
+        <app-breadcrumbs [crumbs]="getCrumbs(currentConnection.title || currentConnection.database)"></app-breadcrumbs>
         <div *ngIf="rowActions && rowActions.length">
             <button type="button" mat-icon-button *ngFor="let action of rowActions"
                 [matTooltip]="action.title"
@@ -91,11 +91,14 @@
         </div>
 
         <div class="actions">
-            <button mat-stroked-button type="button" (click)="goBack()">
+            <button mat-stroked-button type="button"
+                data-testid="record-back-to-table-button"
+                (click)="goBack()">
                 Back
             </button>
             <button type="button" mat-button color="primary" *ngIf="keyAttributesFromStructure.length || hasKeyAttributesFromURL"
                 class="actions__continue"
+                data-testid="record-save-and-continue-editing-button"
                 [disabled]="submitting || editRowForm.form.invalid"
                 (click)="hasKeyAttributesFromURL ? updateRow(true) : addRow(true)">
                 Save and continue editing
@@ -103,12 +106,15 @@
 
             <button *ngIf="hasKeyAttributesFromURL; else addButton"
                 type="submit" mat-flat-button color="primary"
+                data-testid="record-edit-button"
                 [disabled]="submitting || editRowForm.form.invalid">
                 Edit
             </button>
 
             <ng-template #addButton>
-                <button type="submit" mat-flat-button color="primary" [disabled]="submitting || editRowForm.form.invalid">
+                <button type="submit" mat-flat-button color="primary"
+                    data-testid="record-add-button"
+                    [disabled]="submitting || editRowForm.form.invalid">
                     Add
                 </button>
             </ng-template>

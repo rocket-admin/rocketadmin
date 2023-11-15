@@ -8,7 +8,7 @@ import { DomSanitizer } from '@angular/platform-browser';
 import { MatIconRegistry } from '@angular/material/icon';
 import { Subject } from 'rxjs';
 import { TablesService } from './services/tables.service';
-import { User } from '@sentry/angular';
+import { User } from '@sentry/angular-ivy';
 import { UserService } from './services/user.service';
 import amplitude from 'amplitude-js';
 import { differenceInMilliseconds } from 'date-fns';

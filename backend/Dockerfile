@@ -1,4 +1,4 @@
-FROM public.ecr.aws/docker/library/node:18
+FROM public.ecr.aws/docker/library/node:20
 RUN apt-get update && apt-get install -y \
     tini \
  && rm -rf /var/lib/apt/lists/*

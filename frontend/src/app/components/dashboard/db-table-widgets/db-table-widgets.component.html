@@ -3,7 +3,7 @@
 
 <div *ngIf="widgets" class="wrapper">
     <header class="header">
-        <app-breadcrumbs [crumbs]="getCrumbs(currentConnection.title)" class="row-breadcrumbs"></app-breadcrumbs>
+        <app-breadcrumbs [crumbs]="getCrumbs(currentConnection.title || currentConnection.database)" class="row-breadcrumbs"></app-breadcrumbs>
 
         <div *ngIf="widgets.length" class="header-actions">
             <button  mat-stroked-button

@@ -1,4 +1,5 @@
 export const ERROR_MESSAGES = {
+  DATA_IS_TO_LARGE: `Data is too large`,
   TABLE_NOT_FOUND: (tableName: string): string => `Table ${tableName} not found`,
   TABLE_SCHEMA_NOT_FOUND: (tableName: string): string =>
     `Table schema for table ${tableName} not found or this table does not exists`,

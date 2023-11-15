@@ -1,6 +1,7 @@
 import { Constants } from '../../../helpers/constants/constants.js';
 import { CreateUserDs } from '../application/data-structures/create-user.ds.js';
 import { RegisterUserDs } from '../application/data-structures/register-user-ds.js';
+import { UserRoleEnum } from '../enums/user-role.enum.js';
 import { UserEntity } from '../user.entity.js';
 import { IUserRepository } from './user.repository.interface.js';
 
@@ -20,6 +21,7 @@ export const userCustomRepositoryExtension: IUserRepository = {
     newUser.password = userData.password;
     newUser.isActive = userData.isActive;
     newUser.name = userData.name;
+    newUser.role = userData.role ? userData.role : UserRoleEnum.USER;
     return await this.save(newUser);
   },
 
@@ -143,10 +145,23 @@ export const userCustomRepositoryExtension: IUserRepository = {
     return await userQb.getOne();
   },
 
+  async findOneUserByIdAndCompanyId(userId: string, companyId: string): Promise<UserEntity> {
+    const userQb = this.createQueryBuilder('user')
+      .leftJoinAndSelect('user.company', 'company')
+      .where('user.id = :userId', { userId: userId })
+      .andWhere('company.id = :companyId', { companyId: companyId });
+    return await userQb.getOne();
+  },
+
   async findOneUserByIdWithCompany(userId: string): Promise<UserEntity> {
     const userQb = this.createQueryBuilder('user')
       .leftJoinAndSelect('user.company', 'company')
       .where('user.id = :userId', { userId: userId });
     return await userQb.getOne();
+  },
+
+  async findAllUsersWithEmail(email: string): Promise<Array<UserEntity>> {
+    const usersQb = this.createQueryBuilder('user').where('user.email = :userEmail', { userEmail: email });
+    return await usersQb.getMany();
   },
 };

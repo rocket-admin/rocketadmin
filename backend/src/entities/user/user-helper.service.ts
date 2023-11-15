@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
 import { IGlobalDatabaseContext } from '../../common/application/global-database-context.interface.js';
 import { BaseType, DynamicModuleEnum } from '../../common/data-injection.tokens.js';
 import { SubscriptionLevelEnum } from '../../enums/subscription-level.enum.js';
@@ -9,9 +9,13 @@ import { FoundUserInGroupDs } from './application/data-structures/found-user-in-
 import { FoundUserDs } from './application/data-structures/found-user.ds.js';
 import { UserEntity } from './user.entity.js';
 import { getUserIntercomHash } from './utils/get-user-intercom-hash.js';
+import { Encryptor } from '../../helpers/encryption/encryptor.js';
+import { CompanyInfoEntity } from '../company-info/company-info.entity.js';
+import { RegisterUserDs } from './application/data-structures/register-user-ds.js';
+import { UserRoleEnum } from './enums/user-role.enum.js';
 
 @Injectable()
-export class UserHelperService {
+export class UserHelperService implements OnModuleInit {
   constructor(
     @Inject(BaseType.GLOBAL_DB_CONTEXT)
     private readonly _dbContext: IGlobalDatabaseContext,
@@ -60,5 +64,35 @@ export class UserHelperService {
       is_2fa_enabled: user.otpSecretKey !== null && user.isOTPEnabled,
       company: user.company ? { id: user.company.id } : null,
     };
+  }
+
+  public async onModuleInit(): Promise<void> {
+    if (isSaaS()) {
+      return;
+    }
+    const email = process.env.ADMIN_EMAIL || 'admin@email.local';
+    const password =
+      process.env.ADMIN_PASSWORD || process.env.NODE_ENV === 'test' ? 'test12345' : Encryptor.generateRandomString(10);
+
+    const foundTestUser = await this._dbContext.userRepository.findOneUserByEmail(email);
+    if (foundTestUser) {
+      return;
+    }
+
+    const registerUserData: RegisterUserDs = {
+      email: email,
+      password: password,
+      isActive: true,
+      gclidValue: null,
+      name: 'Admin',
+      role: UserRoleEnum.ADMIN,
+    };
+    const savedUser = await this._dbContext.userRepository.saveRegisteringUser(registerUserData);
+    const newCompanyInfo = new CompanyInfoEntity();
+    newCompanyInfo.id = Encryptor.generateUUID();
+    const savedCompanyInfo = await this._dbContext.companyInfoRepository.save(newCompanyInfo);
+    savedUser.company = savedCompanyInfo;
+    await this._dbContext.userRepository.saveUserEntity(savedUser);
+    console.info(`Admin user created with email: "${email}" and password: "${password}"`);
   }
 }
