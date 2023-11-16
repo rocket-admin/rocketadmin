@@ -270,6 +270,7 @@ export class DataAccessObjectPostgres extends BasicDataAccessObject implements I
     }
     const knex = await this.configureKnex();
     const tableSchema = this.connection.schema ?? 'public';
+    const database = this.connection.database;
     const foreignKeys: Array<{
       foreign_column_name: string;
       foreign_table_name: string;
@@ -284,15 +285,15 @@ export class DataAccessObjectPostgres extends BasicDataAccessObject implements I
       )
       .from(
         knex.raw(
-          `information_schema.table_constraints AS tc
-      JOIN information_schema.key_column_usage AS kcu
+          `??.information_schema.table_constraints AS tc
+      JOIN ??.information_schema.key_column_usage AS kcu
       ON tc.constraint_name = kcu.constraint_name
       AND tc.table_schema = kcu.table_schema
-      JOIN information_schema.constraint_column_usage AS ccu
+      JOIN ??.information_schema.constraint_column_usage AS ccu
       ON ccu.constraint_name = tc.constraint_name
       AND ccu.table_schema = tc.table_schema
       WHERE tc.constraint_type = 'FOREIGN KEY' AND tc.table_name=? AND tc.table_schema =?;`,
-          [tableName, tableSchema],
+          [database, database, database, tableName, tableSchema],
         ),
       );
     const resultKeys = foreignKeys.map((key) => {
