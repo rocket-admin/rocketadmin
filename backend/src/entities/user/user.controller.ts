@@ -179,6 +179,7 @@ export class UserController {
       httpOnly: true,
       secure: true,
       expires: tokenInfo.exp,
+      ...getCookieDomainOptions(),
     });
     response.cookie(Constants.ROCKETADMIN_AUTHENTICATED_COOKIE, 1, {
       httpOnly: false,
@@ -203,7 +204,9 @@ export class UserController {
         HttpStatus.BAD_REQUEST,
       );
     }
-    response.cookie(Constants.JWT_COOKIE_KEY_NAME, '');
+    response.cookie(Constants.JWT_COOKIE_KEY_NAME, '', {
+      ...getCookieDomainOptions(),
+    });
     response.cookie(Constants.ROCKETADMIN_AUTHENTICATED_COOKIE, 1, {
       expires: new Date(0),
       httpOnly: false,
@@ -235,6 +238,7 @@ export class UserController {
       httpOnly: true,
       secure: true,
       expires: tokenInfo.exp,
+      ...getCookieDomainOptions(),
     });
     response.cookie(Constants.ROCKETADMIN_AUTHENTICATED_COOKIE, 1, {
       httpOnly: false,
@@ -426,6 +430,7 @@ export class UserController {
       httpOnly: true,
       secure: true,
       expires: tokenInfo.exp,
+      ...getCookieDomainOptions(),
     });
     response.cookie(Constants.ROCKETADMIN_AUTHENTICATED_COOKIE, 1, {
       httpOnly: false,
