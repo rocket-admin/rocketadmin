@@ -154,6 +154,7 @@ export class CompanyInfoController {
       httpOnly: true,
       secure: true,
       expires: tokenInfo.exp,
+      ...getCookieDomainOptions(),
     });
     response.cookie(Constants.ROCKETADMIN_AUTHENTICATED_COOKIE, 1, {
       httpOnly: false,
