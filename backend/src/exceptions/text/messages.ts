@@ -295,4 +295,5 @@ export const Messages = {
     FAILED_CREATE_SUBSCRIPTION_LOG: 'Failed to create subscription log. Please contact our support team.',
   FAILED_CREATE_SUBSCRIPTION_LOG_YOUR_CUSTOMER_IS_DELETED: `Failed to create subscription log. Your customer is deleted. Please contact our support team.`,
   URL_INVALID: `Url is invalid`,
+  FAILED_REMOVE_USER_SAAS_UNHANDLED_ERROR: `Failed to remove user from company. Please contact our support team.`,
 };

@@ -25,6 +25,7 @@ import {
   IGetUserFullCompanyInfo,
   IGetUsersInCompany,
   IInviteUserInCompanyAndConnectionGroup,
+  IRemoveUserFromCompany,
   IVerifyInviteUserInCompanyAndConnectionGroup,
 } from './use-cases/company-info-use-cases.interface.js';
 import { ValidationHelper } from '../../helpers/validators/validation-helper.js';
@@ -44,6 +45,8 @@ import {
   FoundUserFullCompanyInfoDs,
 } from './application/data-structures/found-company-info.ds.js';
 import { SimpleFoundUserInfoDs } from '../user/application/data-structures/found-user.ds.js';
+import { RemoveUserFromCompanyRequestDto } from './application/dto/remove-user-from-company-request.dto.js';
+import { SuccessResponse } from '../../microservices/saas-microservice/data-structures/common-responce.ds.js';
 
 @UseInterceptors(SentryInterceptor)
 @Controller('company')
@@ -64,6 +67,8 @@ export class CompanyInfoController {
     private readonly getUserEmailCompaniesUseCase: IGetUserEmailCompanies,
     @Inject(UseCaseType.GET_USERS_IN_COMPANY)
     private readonly getUsersInCompanyUseCase: IGetUsersInCompany,
+    @Inject(UseCaseType.REMOVE_USER_FROM_COMPANY)
+    private readonly removeUserFromCompanyUseCase: IRemoveUserFromCompany,
   ) {}
 
   @ApiOperation({ summary: 'Get user company' })
@@ -120,7 +125,7 @@ export class CompanyInfoController {
   @ApiBody({ type: InviteUserInCompanyAndConnectionGroupDto })
   @ApiResponse({
     status: 200,
-    description: 'The company has been successfully invited.',
+    description: 'The user has been successfully invited.',
     type: InvitedUserInCompanyAndConnectionGroupDs,
   })
   @UseGuards(CompanyAdminGuard)
@@ -138,6 +143,24 @@ export class CompanyInfoController {
       invitedUserEmail: email,
       invitedUserCompanyRole: role,
     });
+  }
+
+  @ApiOperation({ summary: 'Remove user from company' })
+  @ApiBody({ type: RemoveUserFromCompanyRequestDto })
+  @ApiResponse({
+    status: 200,
+    description: 'The user was successfully removed.',
+    type: SuccessResponse,
+  })
+  @UseGuards(CompanyAdminGuard)
+  @Put('user/remove/:slug')
+  async removeUserFromCompany(
+    @UserId() userId: string,
+    @SlugUuid() companyId: string,
+    @Body() removeUserData: RemoveUserFromCompanyRequestDto,
+  ) {
+    const { email } = removeUserData;
+    return await this.removeUserFromCompanyUseCase.execute({ email, companyId });
   }
 
   @ApiOperation({ summary: 'Verify invitation in company' })
