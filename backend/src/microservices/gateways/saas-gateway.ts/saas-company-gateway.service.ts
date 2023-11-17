@@ -5,6 +5,7 @@ import { isObjectEmpty } from '../../../helpers/is-object-empty.js';
 import { UserRoleEnum } from '../../../entities/user/enums/user-role.enum.js';
 import { isSaaS } from '../../../helpers/app/is-saas.js';
 import { FoundSassCompanyInfoDS } from './data-structures/found-saas-company-info.ds.js';
+import { SuccessResponse } from '../../saas-microservice/data-structures/common-responce.ds.js';
 
 @Injectable()
 export class SaasCompanyGatewayService extends BaseSaasGatewayService {
@@ -64,6 +65,19 @@ export class SaasCompanyGatewayService extends BaseSaasGatewayService {
     return {
       companyId: registrationResult.body.companyId as string,
       userId: registrationResult.body.userId as string,
+    };
+  }
+
+  public async removeUserFromCompany(companyId: string, userId: string): Promise<SuccessResponse | null> {
+    const removalResult = await this.sendRequestToSaaS(`/webhook/company/remove`, 'POST', {
+      userId: userId,
+      companyId: companyId,
+    });
+    if (isObjectEmpty(removalResult.body)) {
+      return null;
+    }
+    return {
+      success: removalResult.body.success as boolean,
     };
   }
 

@@ -20,6 +20,7 @@ import { GetUserCompanyUseCase } from './use-cases/get-user-company.use.case.js'
 import { GetUserCompanyFullInfoUseCase } from './use-cases/get-full-user-company-info.use.case.js';
 import { GetUserEmailCompaniesUseCase } from './use-cases/get-user-email-companies.use.case.js';
 import { GetAllUsersInCompanyUseCase } from './use-cases/get-all-users-in-company.use.case.js';
+import { RemoveUserFromCompanyUseCase } from './use-cases/remove-user-from-company.use.case.js';
 
 @Module({
   imports: [
@@ -65,6 +66,10 @@ import { GetAllUsersInCompanyUseCase } from './use-cases/get-all-users-in-compan
       provide: UseCaseType.GET_USERS_IN_COMPANY,
       useClass: GetAllUsersInCompanyUseCase,
     },
+    {
+      provide: UseCaseType.REMOVE_USER_FROM_COMPANY,
+      useClass: RemoveUserFromCompanyUseCase,
+    },
   ],
   controllers: [CompanyInfoController],
 })
@@ -77,6 +82,7 @@ export class CompanyInfoModule implements NestModule {
         { path: '/company/my', method: RequestMethod.GET },
         { path: 'company/my/full', method: RequestMethod.GET },
         { path: '/company/users/:slug', method: RequestMethod.GET },
+        { path: '/company/user/remove/:slug', method: RequestMethod.PUT },
       );
   }
 }
