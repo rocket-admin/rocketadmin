@@ -81,6 +81,19 @@ export class SaasCompanyGatewayService extends BaseSaasGatewayService {
     };
   }
 
+  public async revokeUserInvitationInCompany(companyId: string, invitationId: string): Promise<SuccessResponse | null> {
+    const removalResult = await this.sendRequestToSaaS(`/webhook/company/invitation/revoke`, 'POST', {
+      invitationId: invitationId,
+      companyId: companyId,
+    });
+    if (isObjectEmpty(removalResult.body)) {
+      return null;
+    }
+    return {
+      success: removalResult.body.success as boolean,
+    };
+  }
+
   public async registerEmptyCompany(
     userId: string,
     userEmail: string,

@@ -282,15 +282,99 @@ test(`${currentTest} should remove user from company`, async (t) => {
       .set('Cookie', adminUserToken)
       .set('Accept', 'application/json');
 
-      const foundCompanyInfoROAfterUserDeletion = JSON.parse(foundCompanyInfoAfterUserDeletion.text);
+    const foundCompanyInfoROAfterUserDeletion = JSON.parse(foundCompanyInfoAfterUserDeletion.text);
 
     const allGroupsInResultAfterUserDeletion = foundCompanyInfoROAfterUserDeletion.connections
       .map((connection) => connection.groups)
       .flat();
     const allUsersInResultAfterUserDeletion = allGroupsInResultAfterUserDeletion.map((group) => group.users).flat();
-    const foundSimpleUserInResultAfterUserDeletion = !!allUsersInResultAfterUserDeletion.find((user) => user.email === simpleUserEmail);
+    const foundSimpleUserInResultAfterUserDeletion = !!allUsersInResultAfterUserDeletion.find(
+      (user) => user.email === simpleUserEmail,
+    );
 
     t.is(foundSimpleUserInResultAfterUserDeletion, false);
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+});
+
+currentTest = 'PUT invitation/revoke/:slug';
+
+test(`${currentTest} should remove user from company`, async (t) => {
+  try {
+    const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
+    const {
+      connections,
+      firstTableInfo,
+      groups,
+      permissions,
+      secondTableInfo,
+      users: { adminUserToken, simpleUserToken, adminUserEmail, simpleUserEmail },
+    } = testData;
+
+    const foundCompanyInfo = await request(app.getHttpServer())
+      .get('/company/my/full')
+      .set('Content-Type', 'application/json')
+      .set('Cookie', adminUserToken)
+      .set('Accept', 'application/json');
+
+    const foundCompanyInfoRO = JSON.parse(foundCompanyInfo.text);
+    t.is(foundCompanyInfoRO.invitations.length, 0);
+
+    const removeUserFromCompanyResult = await request(app.getHttpServer())
+      .put(`/company/user/remove/${foundCompanyInfoRO.id}`)
+      .send({
+        email: simpleUserEmail,
+      })
+      .set('Content-Type', 'application/json')
+      .set('Cookie', adminUserToken)
+      .set('Accept', 'application/json');
+
+    const invitationRequestBody = {
+      companyId: foundCompanyInfoRO.id,
+      email: simpleUserEmail,
+      role: 'USER',
+      groupId: foundCompanyInfoRO.connections[0].groups[0].id,
+    };
+
+    const invitationResult = await request(app.getHttpServer())
+      .put(`/company/user/${foundCompanyInfoRO.id}`)
+      .send(invitationRequestBody)
+      .set('Cookie', adminUserToken)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+
+    t.is(invitationResult.status, 200);
+
+    const foundCompanyInfoWithInvitation = await request(app.getHttpServer())
+      .get('/company/my/full')
+      .set('Content-Type', 'application/json')
+      .set('Cookie', adminUserToken)
+      .set('Accept', 'application/json');
+
+    const foundCompanyInfoWithInvitationRO = JSON.parse(foundCompanyInfoWithInvitation.text);
+    t.is(foundCompanyInfoWithInvitationRO.invitations.length, 1);
+
+    const deleteInvitationResult = await request(app.getHttpServer())
+      .put(`/company/invitation/revoke/${foundCompanyInfoRO.id}`)
+      .send({
+        email: simpleUserEmail,
+      })
+      .set('Content-Type', 'application/json')
+      .set('Cookie', adminUserToken)
+      .set('Accept', 'application/json');
+
+    t.is(deleteInvitationResult.status, 200);
+
+    const foundCompanyInfoAfterInvitationDeletion = await request(app.getHttpServer())
+      .get('/company/my/full')
+      .set('Content-Type', 'application/json')
+      .set('Cookie', adminUserToken)
+      .set('Accept', 'application/json');
+
+    const foundCompanyInfoROAfterInvitationDeletion = JSON.parse(foundCompanyInfoAfterInvitationDeletion.text);
+    t.is(foundCompanyInfoROAfterInvitationDeletion.invitations.length, 0);
   } catch (error) {
     console.error(error);
     throw error;

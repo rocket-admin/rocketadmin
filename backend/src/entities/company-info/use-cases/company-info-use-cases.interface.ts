@@ -38,3 +38,7 @@ export interface IGetUserEmailCompanies {
 export interface IRemoveUserFromCompany {
   execute(inputData: RemoveUserFromCompanyDs): Promise<SuccessResponse>;
 }
+
+export interface IRevokeUserInvitationInCompany {
+  execute(inputData: RemoveUserFromCompanyDs): Promise<SuccessResponse>;
+}
