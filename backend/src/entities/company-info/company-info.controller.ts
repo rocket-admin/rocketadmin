@@ -26,6 +26,7 @@ import {
   IGetUsersInCompany,
   IInviteUserInCompanyAndConnectionGroup,
   IRemoveUserFromCompany,
+  IRevokeUserInvitationInCompany,
   IVerifyInviteUserInCompanyAndConnectionGroup,
 } from './use-cases/company-info-use-cases.interface.js';
 import { ValidationHelper } from '../../helpers/validators/validation-helper.js';
@@ -47,6 +48,7 @@ import {
 import { SimpleFoundUserInfoDs } from '../user/application/data-structures/found-user.ds.js';
 import { RemoveUserFromCompanyRequestDto } from './application/dto/remove-user-from-company-request.dto.js';
 import { SuccessResponse } from '../../microservices/saas-microservice/data-structures/common-responce.ds.js';
+import { RevokeInvitationRequestDto } from './application/dto/revoke-invitation-request.dto.js';
 
 @UseInterceptors(SentryInterceptor)
 @Controller('company')
@@ -69,6 +71,8 @@ export class CompanyInfoController {
     private readonly getUsersInCompanyUseCase: IGetUsersInCompany,
     @Inject(UseCaseType.REMOVE_USER_FROM_COMPANY)
     private readonly removeUserFromCompanyUseCase: IRemoveUserFromCompany,
+    @Inject(UseCaseType.REVOKE_INVITATION_IN_COMPANY)
+    private readonly revokeInvitationInCompanyUseCase: IRevokeUserInvitationInCompany,
   ) {}
 
   @ApiOperation({ summary: 'Get user company' })
@@ -161,6 +165,23 @@ export class CompanyInfoController {
   ) {
     const { email } = removeUserData;
     return await this.removeUserFromCompanyUseCase.execute({ email, companyId });
+  }
+
+  @ApiOperation({ summary: 'Revoke invitation in company' })
+  @ApiBody({ type: RevokeInvitationRequestDto })
+  @ApiResponse({
+    status: 200,
+    description: 'The invitation in company was revoked.',
+    type: SuccessResponse,
+  })
+  @UseGuards(CompanyAdminGuard)
+  @Put('invitation/revoke/:slug')
+  async revokeUserInvitationInCompany(
+    @SlugUuid() companyId: string,
+    @Body() revokeInvitationData: RevokeInvitationRequestDto,
+  ) {
+    const { email } = revokeInvitationData;
+    return await this.revokeInvitationInCompanyUseCase.execute({ email, companyId });
   }
 
   @ApiOperation({ summary: 'Verify invitation in company' })
