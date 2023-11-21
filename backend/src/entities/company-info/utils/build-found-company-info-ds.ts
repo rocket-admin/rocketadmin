@@ -56,6 +56,7 @@ export function buildFoundCompanyInfoDs(
   if (!companyInfoFromSaas) {
     return {
       id: companyInfoFromCore.id,
+      name: companyInfoFromCore.name,
     };
   }
   const isUserAdmin = userRole === UserRoleEnum.ADMIN;

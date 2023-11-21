@@ -72,8 +72,9 @@ export class SaasController {
   async companyRegistered(
     @Body('userId') registrarUserId: string,
     @Body('companyId') companyId: string,
+    @Body('companyName') companyName: string,
   ): Promise<RegisteredCompanyDS> {
-    const result = await this.companyRegistrationUseCase.execute({ companyId, registrarUserId });
+    const result = await this.companyRegistrationUseCase.execute({ companyId, registrarUserId, companyName });
     return result;
   }
 
