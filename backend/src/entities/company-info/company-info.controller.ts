@@ -27,6 +27,7 @@ import {
   IInviteUserInCompanyAndConnectionGroup,
   IRemoveUserFromCompany,
   IRevokeUserInvitationInCompany,
+  IUpdateCompanyName,
   IVerifyInviteUserInCompanyAndConnectionGroup,
 } from './use-cases/company-info-use-cases.interface.js';
 import { ValidationHelper } from '../../helpers/validators/validation-helper.js';
@@ -49,6 +50,7 @@ import { SimpleFoundUserInfoDs } from '../user/application/data-structures/found
 import { RemoveUserFromCompanyRequestDto } from './application/dto/remove-user-from-company-request.dto.js';
 import { SuccessResponse } from '../../microservices/saas-microservice/data-structures/common-responce.ds.js';
 import { RevokeInvitationRequestDto } from './application/dto/revoke-invitation-request.dto.js';
+import { UpdateCompanyNameDto } from './application/dto/update-company-name.dto.js';
 
 @UseInterceptors(SentryInterceptor)
 @Controller('company')
@@ -73,6 +75,8 @@ export class CompanyInfoController {
     private readonly removeUserFromCompanyUseCase: IRemoveUserFromCompany,
     @Inject(UseCaseType.REVOKE_INVITATION_IN_COMPANY)
     private readonly revokeInvitationInCompanyUseCase: IRevokeUserInvitationInCompany,
+    @Inject(UseCaseType.UPDATE_COMPANY_NAME)
+    private readonly updateCompanyNameUseCase: IUpdateCompanyName,
   ) {}
 
   @ApiOperation({ summary: 'Get user company' })
@@ -225,5 +229,19 @@ export class CompanyInfoController {
       expires: tokenInfo.exp,
       isTemporary: tokenInfo.isTemporary,
     };
+  }
+
+  @ApiOperation({ summary: 'Update company name' })
+  @ApiBody({ type: UpdateCompanyNameDto })
+  @ApiResponse({
+    status: 200,
+    description: 'Company name was updated.',
+    type: SuccessResponse,
+  })
+  @UseGuards(CompanyAdminGuard)
+  @Put('/name/:slug')
+  async updateCompanyName(@SlugUuid() companyId: string, @Body() nameData: UpdateCompanyNameDto) {
+    const { name } = nameData;
+    return await this.updateCompanyNameUseCase.execute({ name, companyId });
   }
 }

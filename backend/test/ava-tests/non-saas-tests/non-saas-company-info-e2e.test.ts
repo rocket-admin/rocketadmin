@@ -15,6 +15,8 @@ import { AllExceptionsFilter } from '../../../src/exceptions/all-exceptions.filt
 import { createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions } from '../../utils/user-with-different-permissions-utils.js';
 import { ValidationException } from '../../../src/exceptions/custom-exceptions/validation-exception.js';
 import { ValidationError } from 'class-validator';
+import { faker } from '@faker-js/faker';
+import { nanoid } from 'nanoid';
 
 const mockFactory = new MockFactory();
 let app: INestApplication;
@@ -66,7 +68,8 @@ test(`${currentTest} should return found company info for user`, async (t) => {
     t.is(foundCompanyInfo.status, 200);
     const foundCompanyInfoRO = JSON.parse(foundCompanyInfo.text);
     t.is(foundCompanyInfoRO.hasOwnProperty('id'), true);
-    t.is(Object.keys(foundCompanyInfoRO).length, 1);
+    t.is(foundCompanyInfoRO.hasOwnProperty('name'), true);
+    t.is(Object.keys(foundCompanyInfoRO).length, 2);
   } catch (error) {
     console.error(error);
   }
@@ -102,7 +105,8 @@ test(`${currentTest} should return full found company info for company admin use
 
     t.is(foundCompanyInfo.status, 200);
     t.is(foundCompanyInfoRO.hasOwnProperty('id'), true);
-    t.is(Object.keys(foundCompanyInfoRO).length, 3);
+    t.is(foundCompanyInfoRO.hasOwnProperty('name'), true);
+    t.is(Object.keys(foundCompanyInfoRO).length, 4);
     t.is(foundCompanyInfoRO.hasOwnProperty('connections'), true);
     t.is(foundCompanyInfoRO.connections.length > 3, true);
     t.is(foundCompanyInfoRO.hasOwnProperty('invitations'), true);
@@ -155,7 +159,8 @@ test(`${currentTest} should return found company info for non-admin user`, async
 
     t.is(foundCompanyInfo.status, 200);
     t.is(foundCompanyInfoRO.hasOwnProperty('id'), true);
-    t.is(Object.keys(foundCompanyInfoRO).length, 1);
+    t.is(foundCompanyInfoRO.hasOwnProperty('name'), true);
+    t.is(Object.keys(foundCompanyInfoRO).length, 2);
   } catch (error) {
     console.error(error);
     throw error;
@@ -371,3 +376,49 @@ test(`${currentTest} should remove user invitation from company`, async (t) => {
   }
 });
 
+currentTest = 'PUT company/name/:slug';
+
+test(`${currentTest} should update company name`, async (t) => {
+  const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
+  const {
+    connections,
+    firstTableInfo,
+    groups,
+    permissions,
+    secondTableInfo,
+    users: { adminUserToken, simpleUserToken, adminUserEmail, simpleUserEmail },
+  } = testData;
+
+  const foundCompanyInfo = await request(app.getHttpServer())
+    .get('/company/my/full')
+    .set('Content-Type', 'application/json')
+    .set('Cookie', adminUserToken)
+    .set('Accept', 'application/json');
+
+  t.is(foundCompanyInfo.status, 200);
+  const foundCompanyInfoRO = JSON.parse(foundCompanyInfo.text);
+  t.is(foundCompanyInfoRO.hasOwnProperty('name'), true);
+
+  const newName = `${faker.company.name()}_${nanoid(5)}`;
+
+  const updateCompanyNameResult = await request(app.getHttpServer())
+    .put(`/company/name/${foundCompanyInfoRO.id}`)
+    .send({
+      name: newName,
+    })
+    .set('Content-Type', 'application/json')
+    .set('Cookie', adminUserToken)
+    .set('Accept', 'application/json');
+  t.is(updateCompanyNameResult.status, 200);
+
+  const foundCompanyInfoAfterUpdate = await request(app.getHttpServer())
+    .get('/company/my/full')
+    .set('Content-Type', 'application/json')
+    .set('Cookie', adminUserToken)
+    .set('Accept', 'application/json');
+
+  t.is(foundCompanyInfo.status, 200);
+  const foundCompanyInfoROAfterUpdate = JSON.parse(foundCompanyInfoAfterUpdate.text);
+  t.is(foundCompanyInfoROAfterUpdate.hasOwnProperty('name'), true);
+  t.is(foundCompanyInfoROAfterUpdate.name, newName);
+});

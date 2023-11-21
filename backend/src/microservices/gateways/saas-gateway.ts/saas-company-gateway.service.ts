@@ -140,6 +140,19 @@ export class SaasCompanyGatewayService extends BaseSaasGatewayService {
     return null;
   }
 
+  public async updateCompanyName(companyId: string, newCompanyName: string): Promise<SuccessResponse | null> {
+    const result = await this.sendRequestToSaaS(`/webhook/company/update/name`, 'POST', {
+      companyId,
+      newCompanyName,
+    });
+    if (!isObjectEmpty(result.body)) {
+      return {
+        success: result.body.success as boolean,
+      };
+    }
+    return null;
+  }
+
   private isDataFoundSassCompanyInfoDS(data: unknown): data is FoundSassCompanyInfoDS {
     return (
       typeof data === 'object' &&
