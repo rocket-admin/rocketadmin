@@ -22,7 +22,7 @@ export class RemoveUserFromCompanyUseCase
   }
 
   protected async implementation(inputData: RemoveUserFromCompanyDs): Promise<SuccessResponse> {
-    const { companyId, email } = inputData;
+    const { companyId, userId } = inputData;
     const foundCompanyWithUsers = await this._dbContext.companyInfoRepository.findCompanyInfoWithUsersById(companyId);
     if (!foundCompanyWithUsers) {
       throw new HttpException(
@@ -32,7 +32,7 @@ export class RemoveUserFromCompanyUseCase
         HttpStatus.NOT_FOUND,
       );
     }
-    const foundUser = foundCompanyWithUsers.users.find((user) => user.email === email);
+    const foundUser = foundCompanyWithUsers.users.find((user) => user.id === userId);
     if (!foundUser) {
       throw new HttpException(
         {

@@ -12,6 +12,7 @@ import {
   Post,
   Res,
   Get,
+  Delete,
 } from '@nestjs/common';
 import { SentryInterceptor } from '../../interceptors/sentry.interceptor.js';
 import { CompanyAdminGuard } from '../../guards/company-admin.guard.js';
@@ -47,7 +48,6 @@ import {
   FoundUserFullCompanyInfoDs,
 } from './application/data-structures/found-company-info.ds.js';
 import { SimpleFoundUserInfoDs } from '../user/application/data-structures/found-user.ds.js';
-import { RemoveUserFromCompanyRequestDto } from './application/dto/remove-user-from-company-request.dto.js';
 import { SuccessResponse } from '../../microservices/saas-microservice/data-structures/common-responce.ds.js';
 import { RevokeInvitationRequestDto } from './application/dto/revoke-invitation-request.dto.js';
 import { UpdateCompanyNameDto } from './application/dto/update-company-name.dto.js';
@@ -154,21 +154,23 @@ export class CompanyInfoController {
   }
 
   @ApiOperation({ summary: 'Remove user from company' })
-  @ApiBody({ type: RemoveUserFromCompanyRequestDto })
   @ApiResponse({
     status: 200,
     description: 'The user was successfully removed.',
     type: SuccessResponse,
   })
   @UseGuards(CompanyAdminGuard)
-  @Put('user/remove/:slug')
-  async removeUserFromCompany(
-    @UserId() userId: string,
-    @SlugUuid() companyId: string,
-    @Body() removeUserData: RemoveUserFromCompanyRequestDto,
-  ) {
-    const { email } = removeUserData;
-    return await this.removeUserFromCompanyUseCase.execute({ email, companyId });
+  @Delete('/:companyId/user/:userId')
+  async removeUserFromCompany(@Param('userId') userId: string, @Param('companyId') companyId: string) {
+    if (!ValidationHelper.isValidUUID(userId) || !ValidationHelper.isValidUUID(companyId)) {
+      throw new HttpException(
+        {
+          message: Messages.UUID_INVALID,
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+    return await this.removeUserFromCompanyUseCase.execute({ userId, companyId });
   }
 
   @ApiOperation({ summary: 'Revoke invitation in company' })

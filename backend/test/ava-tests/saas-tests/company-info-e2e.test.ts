@@ -265,10 +265,7 @@ test(`${currentTest} should remove user from company`, async (t) => {
     t.is(foundSimpleUserInResult.email, simpleUserEmail);
 
     const removeUserFromCompanyResult = await request(app.getHttpServer())
-      .put(`/company/user/remove/${foundCompanyInfoRO.id}`)
-      .send({
-        email: simpleUserEmail,
-      })
+      .delete(`/company/${foundCompanyInfoRO.id}/user/${foundSimpleUserInResult.id}`)
       .set('Content-Type', 'application/json')
       .set('Cookie', adminUserToken)
       .set('Accept', 'application/json');
@@ -324,14 +321,17 @@ test(`${currentTest} should remove user from company`, async (t) => {
     const foundCompanyInfoRO = JSON.parse(foundCompanyInfo.text);
     t.is(foundCompanyInfoRO.invitations.length, 0);
 
+    const allGroupsInResult = foundCompanyInfoRO.connections.map((connection) => connection.groups).flat();
+    const allUsersInResult = allGroupsInResult.map((group) => group.users).flat();
+    const foundSimpleUserInResult = allUsersInResult.find((user) => user.email === simpleUserEmail);
+
     const removeUserFromCompanyResult = await request(app.getHttpServer())
-      .put(`/company/user/remove/${foundCompanyInfoRO.id}`)
-      .send({
-        email: simpleUserEmail,
-      })
+      .delete(`/company/${foundCompanyInfoRO.id}/user/${foundSimpleUserInResult.id}`)
       .set('Content-Type', 'application/json')
       .set('Cookie', adminUserToken)
       .set('Accept', 'application/json');
+
+    t.is(removeUserFromCompanyResult.status, 200);
 
     const invitationRequestBody = {
       companyId: foundCompanyInfoRO.id,
@@ -347,6 +347,7 @@ test(`${currentTest} should remove user from company`, async (t) => {
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
 
+    console.log(invitationResult.text);
     t.is(invitationResult.status, 200);
 
     const foundCompanyInfoWithInvitation = await request(app.getHttpServer())
