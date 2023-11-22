@@ -72,7 +72,7 @@ export class InviteUserInCompanyAndConnectionGroupUseCase
         invitedUserEmail,
         invitedUserCompanyRole,
       );
-      await sendInvitationToCompany(invitedUserEmail, renewedInvitation.verification_string);
+      await sendInvitationToCompany(invitedUserEmail, renewedInvitation.verification_string, foundCompany.id, foundCompany.name);
 
       if (!isSaaS()) {
         Logger.printTechString(`Invitation verification string: ${renewedInvitation.verification_string}`);
@@ -101,7 +101,7 @@ export class InviteUserInCompanyAndConnectionGroupUseCase
       invitedUserEmail,
       invitedUserCompanyRole,
     );
-    await sendInvitationToCompany(invitedUserEmail, newInvitation.verification_string);
+    await sendInvitationToCompany(invitedUserEmail, newInvitation.verification_string, companyId, foundCompany.name);
     if (isSaaS()) {
       await this.saasCompanyGatewayService.invitationSentWebhook(
         companyId,

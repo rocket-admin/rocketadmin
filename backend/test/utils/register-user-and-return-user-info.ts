@@ -201,7 +201,7 @@ export async function inviteUserInCompanyAndGroupAndAcceptInvitation(
     console.info('invitationResult.body -> ', invitationRO);
   }
   const verificationResult = await request(app.getHttpServer())
-    .post(`/company/invite/verify/test`)
+    .post(`/company/${faker.string.uuid()}/invite/verify/test`)
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json')
     .send({
