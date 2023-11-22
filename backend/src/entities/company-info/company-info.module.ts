@@ -92,7 +92,7 @@ export class CompanyInfoModule implements NestModule {
         { path: '/company/my', method: RequestMethod.GET },
         { path: 'company/my/full', method: RequestMethod.GET },
         { path: '/company/users/:slug', method: RequestMethod.GET },
-        { path: '/company/user/remove/:slug', method: RequestMethod.PUT },
+        { path: '/company/:companyId/user/:userId', method: RequestMethod.DELETE },
         { path: '/company/invitation/revoke/:slug', method: RequestMethod.PUT },
         { path: '/company/name/:slug', method: RequestMethod.PUT },
       );

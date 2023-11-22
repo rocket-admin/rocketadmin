@@ -4,13 +4,13 @@ import { IGlobalDatabaseContext } from '../../../common/application/global-datab
 import { BaseType } from '../../../common/data-injection.tokens.js';
 import { SaasCompanyGatewayService } from '../../../microservices/gateways/saas-gateway.ts/saas-company-gateway.service.js';
 import { SuccessResponse } from '../../../microservices/saas-microservice/data-structures/common-responce.ds.js';
-import { RemoveUserFromCompanyDs } from '../application/data-structures/remove-user-from-company.ds.js';
 import { IRevokeUserInvitationInCompany } from './company-info-use-cases.interface.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { isSaaS } from '../../../helpers/app/is-saas.js';
+import { RevokeUserInvitationDs } from '../application/data-structures/revoke-user-invitation.dto.js';
 
 export class RevokeUserInvitationInCompanyUseCase
-  extends AbstractUseCase<RemoveUserFromCompanyDs, SuccessResponse>
+  extends AbstractUseCase<RevokeUserInvitationDs, SuccessResponse>
   implements IRevokeUserInvitationInCompany
 {
   constructor(
@@ -21,7 +21,7 @@ export class RevokeUserInvitationInCompanyUseCase
     super();
   }
 
-  protected async implementation(inputData: RemoveUserFromCompanyDs): Promise<SuccessResponse> {
+  protected async implementation(inputData: RevokeUserInvitationDs): Promise<SuccessResponse> {
     const { companyId, email } = inputData;
     const foundCompanyWithInvitations =
       await this._dbContext.companyInfoRepository.findCompanyWithInvitationsById(companyId);
