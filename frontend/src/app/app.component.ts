@@ -228,12 +228,15 @@ export class AppComponent {
       console.log(error);
     }
 
-    this.setUserLoggedIn(null);
-    localStorage.removeItem('token_expiration');
-    if ((environment as any).saas) {
-      if (!isTokenExpired) window.location.href="https://rocketadmin.com/";
-    } else {
-      this.router.navigate(['/login'])
-    }
+    this._auth.logOutUser().subscribe(() => {
+      this.setUserLoggedIn(null);
+      localStorage.removeItem('token_expiration');
+
+      if ((environment as any).saas) {
+        if (!isTokenExpired) window.location.href="https://rocketadmin.com/";
+      } else {
+        this.router.navigate(['/login'])
+      }
+    });
   }
 }
