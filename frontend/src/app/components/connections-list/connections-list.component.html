@@ -41,7 +41,7 @@
         </header>
 
         <mat-nav-list class="connectionsBox__connectionsList">
-            <a mat-list-item *ngFor="let testConnectionItem of testConnections" attr.data-testid="{{testConnectionItem.connection.id}}-test-connection-list-item"
+            <a mat-list-item *ngFor="let testConnectionItem of testConnections" attr.data-testid="{{testConnectionItem.connection.database}}-test-connection-list-item"
                 class="connection"
                 routerLink="/dashboard/{{testConnectionItem.connection.id}}"
                 angulartics2On="click"
