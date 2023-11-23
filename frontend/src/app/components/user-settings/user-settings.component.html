@@ -45,25 +45,6 @@
             Change password
         </a>
 
-
-        <div class="user-settings__section-heading">
-            <strong>Current plan:</strong>
-            <span class="user-settings__value">
-                <span class="user-settings__value_capitalized">{{currentPlan}}</span>
-                <span *ngIf="currentPlan !== 'free'">
-                    ({{ isAnnually ? 'annually' : 'monthly' }})
-                </span>
-            </span>
-        </div>
-        <a mat-button color="accent" class="upgrade-button"
-            routerLink="/upgrade"
-            class="user-settings__button"
-            angulartics2On="click"
-            angularticsAction="User settings: Manage payment settings is clicked">
-            Manage payment settings
-        </a>
-
-
         <div>
             <div class="twoFA-toggle">
                 <mat-slide-toggle [(ngModel)]="is2FAEnabledToggle"

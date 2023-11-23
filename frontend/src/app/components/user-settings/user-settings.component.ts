@@ -17,8 +17,6 @@ import { UserService } from 'src/app/services/user.service';
 export class UserSettingsComponent implements OnInit {
   public currentUser: User = null;
   public submittingChangedName: boolean;
-  public currentPlan: string;
-  public isAnnually: boolean;
   public userName: string;
   public emailVerificationWarning: Alert = {
     id: 10000001,
@@ -51,20 +49,6 @@ export class UserSettingsComponent implements OnInit {
         this.currentUser =user;
         this.userName = user.name;
         this.is2FAEnabledToggle = user.is_2fa_enabled;
-
-        if (user.subscriptionLevel) {
-          this.currentPlan = user.subscriptionLevel;
-
-          if (this.currentPlan.startsWith('ANNUAL_')) {
-            this.isAnnually = true;
-            this.currentPlan = this.currentPlan.substring(7);
-          }
-
-          this.currentPlan = this.currentPlan.slice(0, -5).toLowerCase();
-        } else {
-          this.currentPlan = "free"
-        }
-
       });
   }
 

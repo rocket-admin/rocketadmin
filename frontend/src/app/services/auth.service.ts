@@ -157,6 +157,48 @@ export class AuthService {
     );
   }
 
+  fetchUserCompanies(email: string) {
+    return this._http.get<any>(`/company/my/email/${email}`)
+    .pipe(
+      map(res => res),
+      catchError((err) => {
+        console.log(err);
+        this._notifications.showAlert(AlertType.Error, {abstract: err.error.message, details: err.error.originalMessage}, [
+          {
+            type: AlertActionType.Button,
+            caption: 'Dismiss',
+            action: () => this._notifications.dismissAlert()
+          }
+        ]);
+        return EMPTY;
+      })
+    );
+  }
+
+  acceptCompanyInvitation(token: string, password: string, userName: string) {
+    return this._http.post<any>(`/company/invite/verify/${token}`, {
+      password,
+      userName
+    })
+      .pipe(
+        map(res => {
+          this.auth.next(res);
+          return res;
+        }),
+        catchError((err) => {
+          console.log(err);
+          this._notifications.showAlert(AlertType.Error, {abstract: err.error.message, details: err.error.originalMessage}, [
+            {
+              type: AlertActionType.Button,
+              caption: 'Dismiss',
+              action: (id: number) => this._notifications.dismissAlert()
+            }
+          ]);
+          return EMPTY;
+        })
+      );
+  }
+
   logOutUser() {
     return this._http.post<any>('/user/logout', undefined)
       .pipe(

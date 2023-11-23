@@ -1,0 +1,37 @@
+.companyPage {
+    margin: 3em auto;
+    width: clamp(600px, 50vw, 800px);
+}
+
+.company-name-settings__name {
+    width: 100%;
+}
+
+.company-name-settings__save-button {
+    margin-left: -64px;
+}
+
+.company-plan {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.company-plan-name {
+    text-transform: capitalize;
+}
+
+.tableHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 24px;
+}
+
+.tableHeader__button {
+    margin-bottom: 16px;
+}
+
+.table-icon {
+    margin-bottom: -8px;
+}

@@ -16,6 +16,7 @@ export class LoginComponent implements OnInit {
     email: '',
     password: ''
   };
+  public userCompanies: [];
   public authCode: string;
   public submitting: boolean;
   public is2FAShown: boolean = false;
@@ -48,6 +49,13 @@ export class LoginComponent implements OnInit {
     );
     //@ts-ignore
     google.accounts.id.prompt();
+  }
+
+  requestUserCompanies() {
+    this._auth.fetchUserCompanies(this.user.email)
+      .subscribe(companies => {
+        this.userCompanies = companies;
+      });
   }
 
   loginUser() {

@@ -1,5 +1,5 @@
 {
   "#important to keep it /api for prod": true,
-  "baseURL": "/api",
+  "baseURL": "https://app.rocketadmin.com/api",
   "saasURL": "https://saas.rocketadmin.com/saas"
 }

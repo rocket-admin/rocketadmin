@@ -105,6 +105,9 @@ import { UsersService } from './services/users.service';
 import { WidgetDeleteDialogComponent } from './components/dashboard/db-table-widgets/widget-delete-dialog/widget-delete-dialog.component';
 import { environment } from '../environments/environment';
 import { IconPickerComponent } from './components/ui-components/icon-picker/icon-picker.component';
+import { CompanyComponent } from './components/company/company.component';
+import { InviteMemberDialogComponent } from './components/company/invite-member-dialog/invite-member-dialog.component';
+import { CompanyMemberInvitationComponent } from './components/company-member-invitation/company-member-invitation.component';
 
 type Palettes = { primaryPalette: string, accentedPalette: string, warnPalette: string };
 type Colors = { myColorName: string };
@@ -210,6 +213,9 @@ const saasExtraProviders = (environment as any).saas ? [
     PaymentFormComponent,
     EnableTwoFADialogComponent,
     IconPickerComponent,
+    CompanyComponent,
+    InviteMemberDialogComponent,
+    CompanyMemberInvitationComponent,
   ],
   entryComponents: [
     DbActionConfirmationDialogComponent,

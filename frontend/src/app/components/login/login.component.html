@@ -19,6 +19,15 @@
                 <mat-error *ngIf="email.errors?.isInvalidEmail">Invalid email format.</mat-error>
             </mat-form-field>
 
+            <button type="button" mat-raised-button color="accent"
+                class="login-button"
+                [disabled]="submitting"
+                (click)="requestUserCompanies()">
+                {{ submitting ? 'Submitting' : 'Next'}}
+            </button>
+
+            {{userCompanies|json}}
+
             <mat-form-field appearance="outline">
                 <mat-label>Password</mat-label>
                 <input matInput type="password" name="password" data-testid="login-password-input"
