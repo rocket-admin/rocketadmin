@@ -1,11 +1,12 @@
-import { Injectable } from '@nestjs/common';
-import { BaseSaasGatewayService } from './base-saas-gateway.service.js';
+import { HttpException, Injectable } from '@nestjs/common';
+import { BaseSaasGatewayService, SaaSResponse } from './base-saas-gateway.service.js';
 import { RegisteredCompanyUserInviteGroupDS } from './data-structures/registered-company-when-user-invite-group.ds.js';
 import { isObjectEmpty } from '../../../helpers/is-object-empty.js';
 import { UserRoleEnum } from '../../../entities/user/enums/user-role.enum.js';
 import { isSaaS } from '../../../helpers/app/is-saas.js';
 import { FoundSassCompanyInfoDS } from './data-structures/found-saas-company-info.ds.js';
 import { SuccessResponse } from '../../saas-microservice/data-structures/common-responce.ds.js';
+import { Messages } from '../../../exceptions/text/messages.js';
 
 @Injectable()
 export class SaasCompanyGatewayService extends BaseSaasGatewayService {
@@ -123,13 +124,28 @@ export class SaasCompanyGatewayService extends BaseSaasGatewayService {
     companyId: string,
     userRole: UserRoleEnum,
     newUserEmail: string,
-  ): Promise<void> {
-    await this.sendRequestToSaaS(`/webhook/company/invitation/accept`, 'POST', {
+  ): Promise<SaaSResponse | null> {
+    const result = await this.sendRequestToSaaS(`/webhook/company/invitation/accept`, 'POST', {
       newUserId,
       companyId,
       userRole,
       newUserEmail,
     });
+    if (isObjectEmpty(result.body)) {
+      return null;
+    }
+    if (result.status > 299) {
+      throw new HttpException(
+        {
+          message: Messages.FAILED_ACCEPT_INVITATION_SAAS_UNHANDLED_ERROR,
+        },
+        result.status,
+      );
+    }
+    return {
+      status: result.status,
+      body: result.body,
+    };
   }
 
   public async getCompanyInfo(companyId: string): Promise<FoundSassCompanyInfoDS | null> {

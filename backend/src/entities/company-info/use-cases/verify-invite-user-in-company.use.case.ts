@@ -84,13 +84,21 @@ export class VerifyInviteUserInCompanyAndConnectionGroupUseCase
       }
     }
     await this._dbContext.invitationInCompanyRepository.remove(foundInvitation);
-    if (isSaaS) {
-      await this.saasCompanyGatewayService.invitationAcceptedWebhook(
+    if (isSaaS()) {
+      const saasResult = await this.saasCompanyGatewayService.invitationAcceptedWebhook(
         savedUser.id,
         foundInvitation.company.id,
         foundInvitation.role,
         savedUser.email,
       );
+      if (!saasResult) {
+        throw new HttpException(
+          {
+            message: Messages.FAILED_ACCEPT_INVITATION_SAAS_UNHANDLED_ERROR,
+          },
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
     }
     return generateGwtToken(newUser);
   }
