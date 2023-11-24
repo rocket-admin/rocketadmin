@@ -25,8 +25,6 @@ export class UpdateCompanyNameUseCase
   protected async implementation(inputData: UpdateCompanyNameDS): Promise<SuccessResponse> {
     const { companyId, name } = inputData;
     const foundCompany = await this._dbContext.companyInfoRepository.findOneBy({ id: companyId });
-    foundCompany.name = name;
-    await this._dbContext.companyInfoRepository.save(foundCompany);
 
     if (isSaaS()) {
       const saasResponse = await this.saasCompanyGatewayService.updateCompanyName(companyId, name);
@@ -39,6 +37,8 @@ export class UpdateCompanyNameUseCase
         );
       }
     }
+    foundCompany.name = name;
+    await this._dbContext.companyInfoRepository.save(foundCompany);
     return {
       success: true,
     };
