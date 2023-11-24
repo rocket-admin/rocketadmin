@@ -21,6 +21,7 @@ import { Messages } from '../../exceptions/text/messages.js';
 import { UseCaseType } from '../../common/data-injection.tokens.js';
 import { SlugUuid } from '../../decorators/slug-uuid.decorator.js';
 import {
+  IGetCompanyName,
   IGetUserCompany,
   IGetUserEmailCompanies,
   IGetUserFullCompanyInfo,
@@ -51,6 +52,7 @@ import { SimpleFoundUserInfoDs } from '../user/application/data-structures/found
 import { SuccessResponse } from '../../microservices/saas-microservice/data-structures/common-responce.ds.js';
 import { RevokeInvitationRequestDto } from './application/dto/revoke-invitation-request.dto.js';
 import { UpdateCompanyNameDto } from './application/dto/update-company-name.dto.js';
+import { FoundCompanyNameDs } from './application/data-structures/found-company-name.ds.js';
 
 @UseInterceptors(SentryInterceptor)
 @Controller('company')
@@ -65,6 +67,8 @@ export class CompanyInfoController {
     private readonly verifyInviteUserInCompanyAndConnectionGroupUseCase: IVerifyInviteUserInCompanyAndConnectionGroup,
     @Inject(UseCaseType.GET_USER_COMPANY)
     private readonly getUserCompanyUseCase: IGetUserCompany,
+    @Inject(UseCaseType.GET_COMPANY_NAME)
+    private readonly getCompanyNameUseCase: IGetCompanyName,
     @Inject(UseCaseType.GET_FULL_USER_COMPANIES_INFO)
     private readonly getUserFullCompanyInfoUseCase: IGetUserFullCompanyInfo,
     @Inject(UseCaseType.GET_USER_EMAIL_COMPANIES)
@@ -89,6 +93,17 @@ export class CompanyInfoController {
   @Get('my')
   async getUserCompany(@UserId() userId: string): Promise<FoundUserCompanyInfoDs> {
     return await this.getUserCompanyUseCase.execute(userId);
+  }
+
+  @ApiOperation({ summary: 'Get company name by id' })
+  @ApiResponse({
+    status: 200,
+    description: 'Get company name by id.',
+    type: FoundCompanyNameDs,
+  })
+  @Get('name/:companyId')
+  async getCompanyNameById(@Param('companyId') companyId: string): Promise<FoundCompanyNameDs> {
+    return await this.getCompanyNameUseCase.execute(companyId);
   }
 
   @ApiOperation({ summary: 'Get users in company' })

@@ -23,6 +23,7 @@ import { GetAllUsersInCompanyUseCase } from './use-cases/get-all-users-in-compan
 import { RemoveUserFromCompanyUseCase } from './use-cases/remove-user-from-company.use.case.js';
 import { RevokeUserInvitationInCompanyUseCase } from './use-cases/revoke-invitation-in-company.use.case.js';
 import { UpdateCompanyNameUseCase } from './use-cases/update-company-name.use.case.js';
+import { GetCompanyNameUseCase } from './use-cases/get-company-name.use.case.js';
 
 @Module({
   imports: [
@@ -79,6 +80,10 @@ import { UpdateCompanyNameUseCase } from './use-cases/update-company-name.use.ca
     {
       provide: UseCaseType.UPDATE_COMPANY_NAME,
       useClass: UpdateCompanyNameUseCase,
+    },
+    {
+      provide: UseCaseType.GET_COMPANY_NAME,
+      useClass: GetCompanyNameUseCase,
     },
   ],
   controllers: [CompanyInfoController],

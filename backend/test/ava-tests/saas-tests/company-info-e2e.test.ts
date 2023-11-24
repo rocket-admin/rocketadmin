@@ -430,3 +430,39 @@ test(`${currentTest} should update company name`, async (t) => {
   t.is(foundCompanyInfoROAfterUpdate.hasOwnProperty('name'), true);
   t.is(foundCompanyInfoROAfterUpdate.name, newName);
 });
+
+currentTest = 'GET company/name/:companyId';
+
+test(`${currentTest} should return company name`, async (t) => {
+  const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
+  const {
+    connections,
+    firstTableInfo,
+    groups,
+    permissions,
+    secondTableInfo,
+    users: { adminUserToken, simpleUserToken, adminUserEmail, simpleUserEmail },
+  } = testData;
+
+  const foundCompanyInfo = await request(app.getHttpServer())
+    .get('/company/my/full')
+    .set('Content-Type', 'application/json')
+    .set('Cookie', adminUserToken)
+    .set('Accept', 'application/json');
+
+  t.is(foundCompanyInfo.status, 200);
+
+  const foundCompanyInfoRO = JSON.parse(foundCompanyInfo.text);
+
+  const foundCompanyName = await request(app.getHttpServer())
+    .get(`/company/name/${foundCompanyInfoRO.id}`)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+
+  t.is(foundCompanyName.status, 200);
+  const foundCompanyNameRO = JSON.parse(foundCompanyName.text);
+  t.is(foundCompanyNameRO.hasOwnProperty('name'), true);
+  t.is(foundCompanyNameRO.name, foundCompanyInfoRO.name);
+  t.pass();
+
+});
