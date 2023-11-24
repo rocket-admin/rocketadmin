@@ -197,11 +197,10 @@ export class CompanyInfoController {
     description: 'User was successfully invited.',
     type: TokenExpirationResponseDto,
   })
-  @Post(':companyId/invite/verify/:verificationString')
+  @Post('/invite/verify/:verificationString')
   async verifyCompanyInvitation(
     @Res({ passthrough: true }) response: Response,
     @Param('verificationString') verificationString: string,
-    @Param('companyId') companyId: string,
     @Body() verificationData: VerifyCompanyInvitationRequestDto,
   ): Promise<ITokenExp> {
     const { password, userName } = verificationData;
