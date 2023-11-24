@@ -86,9 +86,8 @@ export class SaasUsualRegisterUseCase
         }),
       );
     }
-    const createdEmailVerification = await this._dbContext.emailVerificationRepository.createOrUpdateEmailVerification(
-      savedUser,
-    );
+    const createdEmailVerification =
+      await this._dbContext.emailVerificationRepository.createOrUpdateEmailVerification(savedUser);
     await sendEmailConfirmation(savedUser.email, createdEmailVerification.verification_string);
 
     if (foundCompany) {
