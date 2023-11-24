@@ -35,7 +35,7 @@ export class SaasUsualRegisterUseCase
   }
 
   protected async implementation(userData: SaasUsualUserRegisterDS): Promise<FoundUserDs> {
-    const { email, password, gclidValue, name, companyId } = userData;
+    const { email, password, gclidValue, name, companyId, companyName } = userData;
     ValidationHelper.isPasswordStrongOrThrowError(password);
     const foundUser = await this._dbContext.userRepository.findOneUserByEmailAndCompanyId(email, companyId);
     const foundCompany = await this._dbContext.companyInfoRepository.findCompanyInfoWithUsersById(companyId);
@@ -94,7 +94,7 @@ export class SaasUsualRegisterUseCase
       foundCompany.users.push(savedUser);
       await this._dbContext.companyInfoRepository.save(foundCompany);
     } else {
-      await this.registerEmptyCompany(savedUser, createdTestConnections, companyId);
+      await this.registerEmptyCompany(savedUser, createdTestConnections, companyId, companyName);
     }
 
     return {
@@ -114,9 +114,11 @@ export class SaasUsualRegisterUseCase
     savedUser: UserEntity,
     testConnections: Array<ConnectionEntity>,
     companyId: string,
+    companyName: string,
   ): Promise<CompanyInfoEntity> {
     const newCompanyInfo = new CompanyInfoEntity();
     newCompanyInfo.id = companyId;
+    newCompanyInfo.name = companyName;
     newCompanyInfo.connections = [...testConnections];
     const savedCompanyInfo = await this._dbContext.companyInfoRepository.save(newCompanyInfo);
     savedUser.company = savedCompanyInfo;

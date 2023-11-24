@@ -7,6 +7,7 @@ import {
   FoundUserEmailCompaniesInfoDs,
   FoundUserFullCompanyInfoDs,
 } from '../application/data-structures/found-company-info.ds.js';
+import { FoundCompanyNameDs } from '../application/data-structures/found-company-name.ds.js';
 import { InviteUserInCompanyAndConnectionGroupDs } from '../application/data-structures/invite-user-in-company-and-connection-group.ds.js';
 import { InvitedUserInCompanyAndConnectionGroupDs } from '../application/data-structures/invited-user-in-company-and-connection-group.ds.js';
 import { RemoveUserFromCompanyDs } from '../application/data-structures/remove-user-from-company.ds.js';
@@ -23,6 +24,10 @@ export interface IVerifyInviteUserInCompanyAndConnectionGroup {
 
 export interface IGetUserCompany {
   execute(userId: string): Promise<FoundUserCompanyInfoDs>;
+}
+
+export interface IGetCompanyName {
+  execute(companyId: string): Promise<FoundCompanyNameDs>;
 }
 
 export interface IGetUserFullCompanyInfo {
