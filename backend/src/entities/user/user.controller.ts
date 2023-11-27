@@ -38,11 +38,13 @@ import {
   IFindUserUseCase,
   IGenerateOTP,
   IGetStripeIntentId,
+  IGetUserSettings,
   ILogOut,
   IOtpLogin,
   IRequestEmailChange,
   IRequestEmailVerification,
   IRequestPasswordReset,
+  ISaveUserSettings,
   IUpgradeSubscription,
   IUsualLogin,
   IUsualPasswordChange,
@@ -70,6 +72,7 @@ import { LoginUserDto } from './dto/login-user.dto.js';
 import { UserNameDto } from './dto/user-name.dto.js';
 import { OtpTokenDto } from './dto/otp-token.dto.js';
 import { StripeIntentDto } from './dto/stripe-intent.dto.js';
+import { UserSettingsDataRequestDto } from './dto/user-settings-data-request.dto.js';
 
 @UseInterceptors(SentryInterceptor)
 @Controller()
@@ -116,6 +119,10 @@ export class UserController {
     private readonly getStripeIntentIdUseCase: IGetStripeIntentId,
     @Inject(UseCaseType.ADD_STRIPE_SETUP_INTENT_TO_CUSTOMER)
     private readonly addSetupIntentToCustomerUseCase: IAddStripeSetupIntent,
+    @Inject(UseCaseType.SAVE_USER_SESSION_SETTINGS)
+    private readonly saveUserSessionSettingsUseCase: ISaveUserSettings,
+    @Inject(UseCaseType.GET_USER_SESSION_SETTINGS)
+    private readonly getUserSessionSettingsUseCase: IGetUserSettings,
   ) {}
 
   @ApiOperation({ summary: 'Get user' })
@@ -473,5 +480,39 @@ export class UserController {
       subscriptionLevel: subscriptionLevel,
     };
     return await this.addSetupIntentToCustomerUseCase.execute(inputData, InTransactionEnum.OFF);
+  }
+
+  @ApiOperation({ summary: 'Save user session settings' })
+  @ApiBody({ type: UserSettingsDataRequestDto })
+  @ApiResponse({
+    status: 201,
+    description: 'User session settings saved.',
+    type: UserSettingsDataRequestDto,
+  })
+  @Post('user/settings/')
+  async saveUserSessionSettings(
+    @Body() userSettings: UserSettingsDataRequestDto,
+    @UserId() userId: string,
+  ): Promise<UserSettingsDataRequestDto> {
+    return await this.saveUserSessionSettingsUseCase.execute(
+      { userId, userSettings: userSettings.userSettings },
+      InTransactionEnum.OFF,
+    );
+  }
+
+  @ApiOperation({ summary: 'Get user session settings' })
+  @ApiResponse({
+    status: 201,
+    description: 'User session settings saved.',
+    type: UserSettingsDataRequestDto,
+  })
+  @Get('user/settings/')
+  async getUserSessionSettings(
+    @UserId() userId: string,
+  ): Promise<UserSettingsDataRequestDto> {
+    return await this.getUserSessionSettingsUseCase.execute(
+      userId,
+      InTransactionEnum.OFF,
+    );
   }
 }

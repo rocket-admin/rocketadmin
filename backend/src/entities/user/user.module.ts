@@ -36,6 +36,8 @@ import { TemporaryAuthMiddleware } from '../../authorization/temporary-auth.midd
 import { DisableOtpUseCase } from './use-cases/disable-otp.use.case.js';
 import { GetStripeIntentIdUseCase } from './use-cases/get-stripe-intent-id.use.case.js';
 import { AddSetupIntentToCustomerUseCase } from './use-cases/add-setup-intent-to-customer.use.case.js';
+import { GetUserSessionSettingsUseCase } from './use-cases/get-user-session-settings.use.case.js';
+import { SaveUserSettingsUseCase } from './use-cases/save-user-session-settings.use.case.js';
 
 @Module({
   imports: [
@@ -134,6 +136,14 @@ import { AddSetupIntentToCustomerUseCase } from './use-cases/add-setup-intent-to
       provide: UseCaseType.ADD_STRIPE_SETUP_INTENT_TO_CUSTOMER,
       useClass: AddSetupIntentToCustomerUseCase,
     },
+    {
+      provide: UseCaseType.SAVE_USER_SESSION_SETTINGS,
+      useClass: SaveUserSettingsUseCase,
+    },
+    {
+      provide: UseCaseType.GET_USER_SESSION_SETTINGS,
+      useClass: GetUserSessionSettingsUseCase,
+    },
     UserHelperService,
   ],
   controllers: [UserController],
@@ -158,6 +168,8 @@ export class UserModule implements NestModule {
         { path: 'user/otp/disable', method: RequestMethod.POST },
         { path: 'user/stripe/intent', method: RequestMethod.POST },
         { path: 'user/setup/intent', method: RequestMethod.POST },
+        { path: 'user/settings', method: RequestMethod.POST },
+        { path: 'user/settings', method: RequestMethod.GET },
       )
       .apply(TemporaryAuthMiddleware)
       .forRoutes({ path: 'user/otp/login', method: RequestMethod.POST });
