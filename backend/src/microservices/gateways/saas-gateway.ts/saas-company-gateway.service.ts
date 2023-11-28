@@ -165,6 +165,7 @@ export class SaasCompanyGatewayService extends BaseSaasGatewayService {
       throw new HttpException(
         {
           message: Messages.COMPANY_NAME_UPDATE_FAILED_UNHANDLED_ERROR,
+          originalMessage: result.body.message ? result.body.message : undefined,
         },
         result.status,
       );
