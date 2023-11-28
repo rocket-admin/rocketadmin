@@ -314,7 +314,8 @@ export class DataAccessObjectOracle extends BasicDataAccessObject implements IDa
               if (Buffer.isBuffer(searchedFieldValue)) {
                 builder.orWhere(field, '=', searchedFieldValue);
               } else {
-                builder.orWhereRaw(` CAST (?? AS VARCHAR (255))=?`, [field, searchedFieldValue]);
+                builder.orWhereRaw(` Lower(??) LIKE ?`, [field, `${searchedFieldValue.toLowerCase()}%`]);
+                //  builder.orWhereRaw(` CAST (?? AS VARCHAR (255))=?`, [field, searchedFieldValue]);
               }
             }
           }
@@ -794,9 +795,9 @@ export class DataAccessObjectOracle extends BasicDataAccessObject implements IDa
       read() {
         this.push(obj);
         this.push(null);
-      }
+      },
     });
-  
+
     return stream;
   }
 
