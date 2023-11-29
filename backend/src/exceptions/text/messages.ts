@@ -189,6 +189,7 @@ export const Messages = {
     } missing`,
   ROW_PRIMARY_KEY_NOT_FOUND: 'Row with this primary key not found',
   SAAS_COMPANY_NOT_REGISTERED_WITH_USER_INVITATION: `Failed to invite user in SaaS. Please contact our support team.`,
+  SAAS_UPDATE_USERS_ROLES_FAILED_UNHANDLED_ERROR: `Failed to update users roles in SaaS. Please contact our support team.`,
   SOMETHING_WENT_WRONG_ROW_ADD: 'Something went wrong on row insertion, check inserted parameters and try again',
   SSH_FORMAT_INCORRECT: 'Ssh value must be a boolean',
   SSH_HOST_MISSING: 'Ssh host is missing',
@@ -300,4 +301,6 @@ export const Messages = {
   FILED_REVOKE_USER_INVITATION_UNHANDLED_ERROR: `Failed to revoke user invitation. Please contact our support team.`,
   FAILED_ACCEPT_INVITATION_SAAS_UNHANDLED_ERROR: `Failed to accept user invitation. Failed process webhook. Please contact our support team.`,
   NOTHING_TO_REVOKE: `Nothing to revoke`,
+  NO_USERS_FOUND_TO_UPDATE_ROLES: `No users found to update roles`,
+  USER_ROLES_UPDATE_FAILED: `Failed to update user roles`,
 };

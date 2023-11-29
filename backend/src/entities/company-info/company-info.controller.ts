@@ -30,6 +30,7 @@ import {
   IRemoveUserFromCompany,
   IRevokeUserInvitationInCompany,
   IUpdateCompanyName,
+  IUpdateUsersCompanyRoles,
   IVerifyInviteUserInCompanyAndConnectionGroup,
 } from './use-cases/company-info-use-cases.interface.js';
 import { ValidationHelper } from '../../helpers/validators/validation-helper.js';
@@ -53,6 +54,7 @@ import { SuccessResponse } from '../../microservices/saas-microservice/data-stru
 import { RevokeInvitationRequestDto } from './application/dto/revoke-invitation-request.dto.js';
 import { UpdateCompanyNameDto } from './application/dto/update-company-name.dto.js';
 import { FoundCompanyNameDs } from './application/data-structures/found-company-name.ds.js';
+import { UpdateUsersRolesRequestDto } from './application/dto/update-users-roles-resuest.dto.js';
 
 @UseInterceptors(SentryInterceptor)
 @Controller('company')
@@ -81,6 +83,8 @@ export class CompanyInfoController {
     private readonly revokeInvitationInCompanyUseCase: IRevokeUserInvitationInCompany,
     @Inject(UseCaseType.UPDATE_COMPANY_NAME)
     private readonly updateCompanyNameUseCase: IUpdateCompanyName,
+    @Inject(UseCaseType.UPDATE_USERS_COMPANY_ROLES)
+    private readonly updateUsersCompanyRolesUseCase: IUpdateUsersCompanyRoles,
   ) {}
 
   @ApiOperation({ summary: 'Get user company' })
@@ -261,5 +265,19 @@ export class CompanyInfoController {
   async updateCompanyName(@SlugUuid() companyId: string, @Body() nameData: UpdateCompanyNameDto) {
     const { name } = nameData;
     return await this.updateCompanyNameUseCase.execute({ name, companyId });
+  }
+
+  @ApiOperation({ summary: 'Update users roles in company' })
+  @ApiBody({ type: UpdateUsersRolesRequestDto })
+  @ApiResponse({
+    status: 200,
+    description: 'Users roles in company was updated.',
+    type: SuccessResponse,
+  })
+  @UseGuards(CompanyAdminGuard)
+  @Put('/users/roles/:companyId')
+  async updateUsersRoles(@Param('companyId') companyId: string, @Body() usersAndRoles: UpdateUsersRolesRequestDto) {
+    const { users } = usersAndRoles;
+    return await this.updateUsersCompanyRolesUseCase.execute({ users, companyId });
   }
 }

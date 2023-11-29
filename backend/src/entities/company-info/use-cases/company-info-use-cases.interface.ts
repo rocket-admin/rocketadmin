@@ -13,6 +13,7 @@ import { InvitedUserInCompanyAndConnectionGroupDs } from '../application/data-st
 import { RemoveUserFromCompanyDs } from '../application/data-structures/remove-user-from-company.ds.js';
 import { RevokeUserInvitationDs } from '../application/data-structures/revoke-user-invitation.dto.js';
 import { UpdateCompanyNameDS } from '../application/data-structures/update-company-name.ds.js';
+import { UpdateUsersCompanyRolesDs } from '../application/data-structures/update-users-company-roles.ds.js';
 
 export interface IInviteUserInCompanyAndConnectionGroup {
   execute(inputData: InviteUserInCompanyAndConnectionGroupDs): Promise<InvitedUserInCompanyAndConnectionGroupDs>;
@@ -52,4 +53,8 @@ export interface IRevokeUserInvitationInCompany {
 
 export interface IUpdateCompanyName {
   execute(inputData: UpdateCompanyNameDS): Promise<SuccessResponse>;
+}
+
+export interface IUpdateUsersCompanyRoles {
+  execute(inputData: UpdateUsersCompanyRolesDs): Promise<SuccessResponse>;
 }

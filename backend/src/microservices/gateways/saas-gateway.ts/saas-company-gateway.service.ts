@@ -178,6 +178,34 @@ export class SaasCompanyGatewayService extends BaseSaasGatewayService {
     return null;
   }
 
+  public async updateUsersRolesInCompany(
+    clearUsersWithNewRoles: Array<{ userId: string; role: UserRoleEnum }>,
+    companyId: string,
+  ): Promise<SuccessResponse | null> {
+    const result = await this.sendRequestToSaaS(`/webhook/company/update/users/roles`, 'POST', {
+      clearUsersWithNewRoles,
+      companyId,
+    });
+    console.log('🚀 ~ file: saas-company-gateway.service.ts:187 ~ SaasCompanyGatewayService ~ result:', result)
+
+    if (result.status > 299) {
+      throw new HttpException(
+        {
+          message: Messages.SAAS_UPDATE_USERS_ROLES_FAILED_UNHANDLED_ERROR,
+          originalMessage: result?.body?.message ? result.body.message : undefined,
+        },
+        result.status,
+      );
+    }
+
+    if (!isObjectEmpty(result.body)) {
+      return {
+        success: result.body.success as boolean,
+      };
+    }
+    return null;
+  }
+
   private isDataFoundSassCompanyInfoDS(data: unknown): data is FoundSassCompanyInfoDS {
     return (
       typeof data === 'object' &&

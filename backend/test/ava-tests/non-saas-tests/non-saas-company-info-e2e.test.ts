@@ -455,5 +455,76 @@ test(`${currentTest} should return company name`, async (t) => {
   t.is(foundCompanyNameRO.hasOwnProperty('name'), true);
   t.is(foundCompanyNameRO.name, foundCompanyInfoRO.name);
   t.pass();
-  
+});
+
+currentTest = `PUT company/users/roles/:companyId`;
+
+test(`${currentTest} should update user roles in company`, async (t) => {
+  const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
+  const {
+    connections,
+    firstTableInfo,
+    groups,
+    permissions,
+    secondTableInfo,
+    users: { adminUserToken, simpleUserToken, adminUserEmail, simpleUserEmail },
+  } = testData;
+
+  const foundCompanyInfo = await request(app.getHttpServer())
+    .get('/company/my/full')
+    .set('Content-Type', 'application/json')
+    .set('Cookie', adminUserToken)
+    .set('Accept', 'application/json');
+
+  t.is(foundCompanyInfo.status, 200);
+
+  const foundCompanyInfoRO = JSON.parse(foundCompanyInfo.text);
+
+  const usersInCompany = await request(app.getHttpServer())
+    .get(`/company/users/${foundCompanyInfoRO.id}`)
+    .set('Content-Type', 'application/json')
+    .set('Cookie', adminUserToken)
+    .set('Accept', 'application/json');
+
+  t.is(usersInCompany.status, 200);
+  const usersInCompanyRO = JSON.parse(usersInCompany.text);
+
+  t.is(usersInCompanyRO.length > 0, true);
+
+  const foundNonAdminUser = usersInCompanyRO.find((user) => user.role === 'USER');
+  t.is(!!foundNonAdminUser, true);
+
+  const updateUserRoleRequest = {
+    users: [
+      {
+        userId: foundNonAdminUser.id,
+        role: 'ADMIN',
+      },
+    ],
+  };
+
+  const updateUserRoleResult = await request(app.getHttpServer())
+    .put(`/company/users/roles/${foundCompanyInfoRO.id}`)
+    .send(updateUserRoleRequest)
+    .set('Content-Type', 'application/json')
+    .set('Cookie', adminUserToken)
+    .set('Accept', 'application/json');
+
+  t.is(updateUserRoleResult.status, 200);
+  const updateUserRoleResultRO = JSON.parse(updateUserRoleResult.text);
+  t.is(updateUserRoleResultRO.success, true);
+
+  const usersInCompanyAfterUpdate = await request(app.getHttpServer())
+    .get(`/company/users/${foundCompanyInfoRO.id}`)
+    .set('Content-Type', 'application/json')
+    .set('Cookie', adminUserToken)
+    .set('Accept', 'application/json');
+
+  t.is(usersInCompanyAfterUpdate.status, 200);
+  const usersInCompanyROAfterUpdate = JSON.parse(usersInCompanyAfterUpdate.text);
+
+  t.is(usersInCompanyRO.length > 0, true);
+
+  const foundUserAfterUpdate = usersInCompanyROAfterUpdate.find((user) => user.id === foundNonAdminUser.id);
+  t.is(foundUserAfterUpdate.role, 'ADMIN');
 });
