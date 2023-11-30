@@ -1,6 +1,5 @@
 import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
-import { IGlobalDatabaseContext } from '../../common/application/global-database-context.interface.js';
-import { BaseType, DynamicModuleEnum } from '../../common/data-injection.tokens.js';
+import { DynamicModuleEnum } from '../../common/data-injection.tokens.js';
 import { SubscriptionLevelEnum } from '../../enums/subscription-level.enum.js';
 import { isSaaS } from '../../helpers/app/is-saas.js';
 import { Constants } from '../../helpers/constants/constants.js';
@@ -13,12 +12,17 @@ import { Encryptor } from '../../helpers/encryption/encryptor.js';
 import { CompanyInfoEntity } from '../company-info/company-info.entity.js';
 import { RegisterUserDs } from './application/data-structures/register-user-ds.js';
 import { UserRoleEnum } from './enums/user-role.enum.js';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { buildRegisteringUser } from './utils/build-registering-user.util.js';
 
 @Injectable()
 export class UserHelperService implements OnModuleInit {
   constructor(
-    @Inject(BaseType.GLOBAL_DB_CONTEXT)
-    private readonly _dbContext: IGlobalDatabaseContext,
+    @InjectRepository(UserEntity)
+    private readonly userRepository: Repository<UserEntity>,
+    @InjectRepository(CompanyInfoEntity)
+    private readonly companyInfoRepository: Repository<CompanyInfoEntity>,
     @Inject(DynamicModuleEnum.STRIPE_SERVICE)
     private readonly stripeService: IStripeService,
   ) {}
@@ -27,7 +31,7 @@ export class UserHelperService implements OnModuleInit {
     if (usersCount <= Constants.FREE_PLAN_USERS_COUNT || !isSaaS()) {
       return true;
     }
-    const foundOwner = await this._dbContext.userRepository.findOneUserById(ownerId);
+    const foundOwner = await this.userRepository.findOneBy({ id: ownerId });
     if (!foundOwner.stripeId) {
       return false;
     }
@@ -74,7 +78,7 @@ export class UserHelperService implements OnModuleInit {
     const password =
       process.env.ADMIN_PASSWORD || process.env.NODE_ENV === 'test' ? 'test12345' : Encryptor.generateRandomString(10);
 
-    const foundTestUser = await this._dbContext.userRepository.findOneUserByEmail(email);
+    const foundTestUser = await this.userRepository.findOneBy({ email: email });
     if (foundTestUser) {
       return;
     }
@@ -87,12 +91,12 @@ export class UserHelperService implements OnModuleInit {
       name: 'Admin',
       role: UserRoleEnum.ADMIN,
     };
-    const savedUser = await this._dbContext.userRepository.saveRegisteringUser(registerUserData);
+    const savedUser = await this.userRepository.save(buildRegisteringUser(registerUserData));
     const newCompanyInfo = new CompanyInfoEntity();
     newCompanyInfo.id = Encryptor.generateUUID();
-    const savedCompanyInfo = await this._dbContext.companyInfoRepository.save(newCompanyInfo);
+    const savedCompanyInfo = await this.companyInfoRepository.save(newCompanyInfo);
     savedUser.company = savedCompanyInfo;
-    await this._dbContext.userRepository.saveUserEntity(savedUser);
+    await this.userRepository.save(savedUser);
     console.info(`Admin user created with email: "${email}" and password: "${password}"`);
   }
 }

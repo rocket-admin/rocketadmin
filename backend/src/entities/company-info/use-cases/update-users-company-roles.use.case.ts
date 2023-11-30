@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Inject, Injectable, Scope } from '@nestjs/common';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { SuccessResponse } from '../../../microservices/saas-microservice/data-structures/common-responce.ds.js';
 import { UpdateUsersCompanyRolesDs } from '../application/data-structures/update-users-company-roles.ds.js';
@@ -11,7 +11,7 @@ import { UserEntity } from '../../user/user.entity.js';
 import { UserRoleEnum } from '../../user/enums/user-role.enum.js';
 import { isSaaS } from '../../../helpers/app/is-saas.js';
 
-@Injectable()
+@Injectable({ scope: Scope.REQUEST })
 export class UpdateUsersCompanyRolesUseCase
   extends AbstractUseCase<UpdateUsersCompanyRolesDs, SuccessResponse>
   implements IUpdateUsersCompanyRoles
