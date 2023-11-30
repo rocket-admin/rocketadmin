@@ -164,4 +164,8 @@ export const userCustomRepositoryExtension: IUserRepository = {
     const usersQb = this.createQueryBuilder('user').where('user.email = :userEmail', { userEmail: email });
     return await usersQb.getMany();
   },
+
+  async bulkSaveUpdatedUsers(updatedUsers: Array<UserEntity>): Promise<Array<UserEntity>> {
+    return await this.save(updatedUsers);
+  }
 };

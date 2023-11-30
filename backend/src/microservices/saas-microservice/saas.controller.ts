@@ -72,8 +72,9 @@ export class SaasController {
   async companyRegistered(
     @Body('userId') registrarUserId: string,
     @Body('companyId') companyId: string,
+    @Body('companyName') companyName: string,
   ): Promise<RegisteredCompanyDS> {
-    const result = await this.companyRegistrationUseCase.execute({ companyId, registrarUserId });
+    const result = await this.companyRegistrationUseCase.execute({ companyId, registrarUserId, companyName });
     return result;
   }
 
@@ -138,9 +139,10 @@ export class SaasController {
     @Body('gclidValue') gclidValue: string,
     @Body('name') name: string,
     @Body('companyId') companyId: string,
+    @Body('companyName') companyName: string,
   ): Promise<FoundUserDs> {
     companyId = companyId ? companyId : null;
-    return await this.usualRegisterUserUseCase.execute({ email, password, gclidValue, name, companyId });
+    return await this.usualRegisterUserUseCase.execute({ email, password, gclidValue, name, companyId, companyName });
   }
 
   @ApiOperation({ summary: 'Register invited user in company webhook' })

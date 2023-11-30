@@ -25,6 +25,8 @@ import { CompanyInfoEntity } from '../../entities/company-info/company-info.enti
 import { ICompanyInfoRepository } from '../../entities/company-info/repository/company-info-repository.interface.js';
 import { InvitationInCompanyEntity } from '../../entities/company-info/invitation-in-company/invitation-in-company.entity.js';
 import { IInvitationInCompanyRepository } from '../../entities/company-info/invitation-in-company/repository/invitation-repository.interface.js';
+import { IUserSessionSettings } from '../../entities/user/user-session-settings/reposiotory/user-session-settings-repository.interface.js';
+import { UserSessionSettingsEntity } from '../../entities/user/user-session-settings/user-session-settings.entity.js';
 
 export interface IGlobalDatabaseContext extends IDatabaseContext {
   userRepository: IUserRepository;
@@ -50,4 +52,5 @@ export interface IGlobalDatabaseContext extends IDatabaseContext {
   userGitHubIdentifierRepository: IUserGitHubIdentifierRepository;
   companyInfoRepository: Repository<CompanyInfoEntity> & ICompanyInfoRepository;
   invitationInCompanyRepository: Repository<InvitationInCompanyEntity> & IInvitationInCompanyRepository;
+  userSessionSettingsRepository: Repository<UserSessionSettingsEntity> & IUserSessionSettings;
 }

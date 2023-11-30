@@ -6,4 +6,7 @@ export class RegisterCompanyWebhookDS {
 
   @ApiProperty()
   registrarUserId: string;
+
+  @ApiProperty()
+  companyName: string;
 }

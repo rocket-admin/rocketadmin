@@ -15,6 +15,8 @@ import { AllExceptionsFilter } from '../../../src/exceptions/all-exceptions.filt
 import { createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions } from '../../utils/user-with-different-permissions-utils.js';
 import { ValidationException } from '../../../src/exceptions/custom-exceptions/validation-exception.js';
 import { ValidationError } from 'class-validator';
+import { faker } from '@faker-js/faker';
+import { nanoid } from 'nanoid';
 
 const mockFactory = new MockFactory();
 let app: INestApplication;
@@ -66,7 +68,8 @@ test(`${currentTest} should return found company info for user`, async (t) => {
     t.is(foundCompanyInfo.status, 200);
     const foundCompanyInfoRO = JSON.parse(foundCompanyInfo.text);
     t.is(foundCompanyInfoRO.hasOwnProperty('id'), true);
-    t.is(Object.keys(foundCompanyInfoRO).length, 1);
+    t.is(foundCompanyInfoRO.hasOwnProperty('name'), true);
+    t.is(Object.keys(foundCompanyInfoRO).length, 2);
   } catch (error) {
     console.error(error);
   }
@@ -102,7 +105,8 @@ test(`${currentTest} should return full found company info for company admin use
 
     t.is(foundCompanyInfo.status, 200);
     t.is(foundCompanyInfoRO.hasOwnProperty('id'), true);
-    t.is(Object.keys(foundCompanyInfoRO).length, 3);
+    t.is(foundCompanyInfoRO.hasOwnProperty('name'), true);
+    t.is(Object.keys(foundCompanyInfoRO).length, 4);
     t.is(foundCompanyInfoRO.hasOwnProperty('connections'), true);
     t.is(foundCompanyInfoRO.connections.length > 3, true);
     t.is(foundCompanyInfoRO.hasOwnProperty('invitations'), true);
@@ -155,7 +159,8 @@ test(`${currentTest} should return found company info for non-admin user`, async
 
     t.is(foundCompanyInfo.status, 200);
     t.is(foundCompanyInfoRO.hasOwnProperty('id'), true);
-    t.is(Object.keys(foundCompanyInfoRO).length, 1);
+    t.is(foundCompanyInfoRO.hasOwnProperty('name'), true);
+    t.is(Object.keys(foundCompanyInfoRO).length, 2);
   } catch (error) {
     console.error(error);
     throw error;
@@ -220,4 +225,306 @@ test(`${currentTest} should return found company infos for non-admin user`, asyn
     console.error(error);
     throw error;
   }
+});
+
+currentTest = 'POST /company/remove';
+
+test(`${currentTest} should remove user from company`, async (t) => {
+  try {
+    const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
+    const {
+      connections,
+      firstTableInfo,
+      groups,
+      permissions,
+      secondTableInfo,
+      users: { adminUserToken, simpleUserToken, adminUserEmail, simpleUserEmail },
+    } = testData;
+
+    const foundCompanyInfo = await request(app.getHttpServer())
+      .get('/company/my/full')
+      .set('Content-Type', 'application/json')
+      .set('Cookie', adminUserToken)
+      .set('Accept', 'application/json');
+
+    const foundCompanyInfoRO = JSON.parse(foundCompanyInfo.text);
+
+    t.is(foundCompanyInfo.status, 200);
+
+    const allGroupsInResult = foundCompanyInfoRO.connections.map((connection) => connection.groups).flat();
+    const allUsersInResult = allGroupsInResult.map((group) => group.users).flat();
+    const foundSimpleUserInResult = allUsersInResult.find((user) => user.email === simpleUserEmail);
+
+    t.is(foundSimpleUserInResult.email, simpleUserEmail);
+
+    const removeUserFromCompanyResult = await request(app.getHttpServer())
+      .delete(`/company/${foundCompanyInfoRO.id}/user/${foundSimpleUserInResult.id}`)
+      .set('Content-Type', 'application/json')
+      .set('Cookie', adminUserToken)
+      .set('Accept', 'application/json');
+
+    const removeUserFromCompany = JSON.parse(removeUserFromCompanyResult.text);
+
+    t.is(removeUserFromCompanyResult.status, 200);
+    t.is(removeUserFromCompany.success, true);
+
+    const foundCompanyInfoAfterUserDeletion = await request(app.getHttpServer())
+      .get('/company/my/full')
+      .set('Content-Type', 'application/json')
+      .set('Cookie', adminUserToken)
+      .set('Accept', 'application/json');
+
+    const foundCompanyInfoROAfterUserDeletion = JSON.parse(foundCompanyInfoAfterUserDeletion.text);
+
+    const allGroupsInResultAfterUserDeletion = foundCompanyInfoROAfterUserDeletion.connections
+      .map((connection) => connection.groups)
+      .flat();
+    const allUsersInResultAfterUserDeletion = allGroupsInResultAfterUserDeletion.map((group) => group.users).flat();
+    const foundSimpleUserInResultAfterUserDeletion = !!allUsersInResultAfterUserDeletion.find(
+      (user) => user.email === simpleUserEmail,
+    );
+
+    t.is(foundSimpleUserInResultAfterUserDeletion, false);
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+});
+
+currentTest = 'PUT invitation/revoke/:slug';
+
+test(`${currentTest} should remove user invitation from company`, async (t) => {
+  try {
+    const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
+    const {
+      connections,
+      firstTableInfo,
+      groups,
+      permissions,
+      secondTableInfo,
+      users: { adminUserToken, simpleUserToken, adminUserEmail, simpleUserEmail },
+    } = testData;
+
+    const foundCompanyInfo = await request(app.getHttpServer())
+      .get('/company/my/full')
+      .set('Content-Type', 'application/json')
+      .set('Cookie', adminUserToken)
+      .set('Accept', 'application/json');
+
+    const foundCompanyInfoRO = JSON.parse(foundCompanyInfo.text);
+    t.is(foundCompanyInfoRO.invitations.length, 0);
+
+    const allGroupsInResult = foundCompanyInfoRO.connections.map((connection) => connection.groups).flat();
+    const allUsersInResult = allGroupsInResult.map((group) => group.users).flat();
+    const foundSimpleUserInResult = allUsersInResult.find((user) => user.email === simpleUserEmail);
+
+    const removeUserFromCompanyResult = await request(app.getHttpServer())
+      .delete(`/company/${foundCompanyInfoRO.id}/user/${foundSimpleUserInResult.id}`)
+      .set('Content-Type', 'application/json')
+      .set('Cookie', adminUserToken)
+      .set('Accept', 'application/json');
+
+    const invitationRequestBody = {
+      companyId: foundCompanyInfoRO.id,
+      email: simpleUserEmail,
+      role: 'USER',
+      groupId: foundCompanyInfoRO.connections[0].groups[0].id,
+    };
+
+    const invitationResult = await request(app.getHttpServer())
+      .put(`/company/user/${foundCompanyInfoRO.id}`)
+      .send(invitationRequestBody)
+      .set('Cookie', adminUserToken)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+
+    console.log(invitationResult.text);
+    t.is(invitationResult.status, 200);
+
+    const foundCompanyInfoWithInvitation = await request(app.getHttpServer())
+      .get('/company/my/full')
+      .set('Content-Type', 'application/json')
+      .set('Cookie', adminUserToken)
+      .set('Accept', 'application/json');
+
+    const foundCompanyInfoWithInvitationRO = JSON.parse(foundCompanyInfoWithInvitation.text);
+    t.is(foundCompanyInfoWithInvitationRO.invitations.length, 1);
+
+    const deleteInvitationResult = await request(app.getHttpServer())
+      .put(`/company/invitation/revoke/${foundCompanyInfoRO.id}`)
+      .send({
+        email: simpleUserEmail,
+      })
+      .set('Content-Type', 'application/json')
+      .set('Cookie', adminUserToken)
+      .set('Accept', 'application/json');
+
+    t.is(deleteInvitationResult.status, 200);
+
+    const foundCompanyInfoAfterInvitationDeletion = await request(app.getHttpServer())
+      .get('/company/my/full')
+      .set('Content-Type', 'application/json')
+      .set('Cookie', adminUserToken)
+      .set('Accept', 'application/json');
+
+    const foundCompanyInfoROAfterInvitationDeletion = JSON.parse(foundCompanyInfoAfterInvitationDeletion.text);
+    t.is(foundCompanyInfoROAfterInvitationDeletion.invitations.length, 0);
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+});
+
+currentTest = 'PUT company/name/:slug';
+
+test(`${currentTest} should update company name`, async (t) => {
+  const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
+  const {
+    connections,
+    firstTableInfo,
+    groups,
+    permissions,
+    secondTableInfo,
+    users: { adminUserToken, simpleUserToken, adminUserEmail, simpleUserEmail },
+  } = testData;
+
+  const foundCompanyInfo = await request(app.getHttpServer())
+    .get('/company/my/full')
+    .set('Content-Type', 'application/json')
+    .set('Cookie', adminUserToken)
+    .set('Accept', 'application/json');
+
+  t.is(foundCompanyInfo.status, 200);
+  const foundCompanyInfoRO = JSON.parse(foundCompanyInfo.text);
+  t.is(foundCompanyInfoRO.hasOwnProperty('name'), true);
+
+  const newName = `${faker.company.name()}_${nanoid(5)}`;
+
+  const updateCompanyNameResult = await request(app.getHttpServer())
+    .put(`/company/name/${foundCompanyInfoRO.id}`)
+    .send({
+      name: newName,
+    })
+    .set('Content-Type', 'application/json')
+    .set('Cookie', adminUserToken)
+    .set('Accept', 'application/json');
+  t.is(updateCompanyNameResult.status, 200);
+
+  const foundCompanyInfoAfterUpdate = await request(app.getHttpServer())
+    .get('/company/my/full')
+    .set('Content-Type', 'application/json')
+    .set('Cookie', adminUserToken)
+    .set('Accept', 'application/json');
+
+  t.is(foundCompanyInfo.status, 200);
+  const foundCompanyInfoROAfterUpdate = JSON.parse(foundCompanyInfoAfterUpdate.text);
+  t.is(foundCompanyInfoROAfterUpdate.hasOwnProperty('name'), true);
+  t.is(foundCompanyInfoROAfterUpdate.name, newName);
+});
+
+currentTest = 'GET company/name/:companyId';
+
+test(`${currentTest} should return company name`, async (t) => {
+  const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
+  const {
+    connections,
+    firstTableInfo,
+    groups,
+    permissions,
+    secondTableInfo,
+    users: { adminUserToken, simpleUserToken, adminUserEmail, simpleUserEmail },
+  } = testData;
+
+  const foundCompanyInfo = await request(app.getHttpServer())
+    .get('/company/my/full')
+    .set('Content-Type', 'application/json')
+    .set('Cookie', adminUserToken)
+    .set('Accept', 'application/json');
+
+  t.is(foundCompanyInfo.status, 200);
+
+  const foundCompanyInfoRO = JSON.parse(foundCompanyInfo.text);
+
+  const foundCompanyName = await request(app.getHttpServer())
+    .get(`/company/name/${foundCompanyInfoRO.id}`)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+
+  t.is(foundCompanyName.status, 200);
+  const foundCompanyNameRO = JSON.parse(foundCompanyName.text);
+  t.is(foundCompanyNameRO.hasOwnProperty('name'), true);
+  t.is(foundCompanyNameRO.name, foundCompanyInfoRO.name);
+  t.pass();
+});
+
+currentTest = `PUT company/users/roles/:companyId`;
+
+test(`${currentTest} should update user roles in company`, async (t) => {
+  const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
+  const {
+    connections,
+    firstTableInfo,
+    groups,
+    permissions,
+    secondTableInfo,
+    users: { adminUserToken, simpleUserToken, adminUserEmail, simpleUserEmail },
+  } = testData;
+
+  const foundCompanyInfo = await request(app.getHttpServer())
+    .get('/company/my/full')
+    .set('Content-Type', 'application/json')
+    .set('Cookie', adminUserToken)
+    .set('Accept', 'application/json');
+
+  t.is(foundCompanyInfo.status, 200);
+
+  const foundCompanyInfoRO = JSON.parse(foundCompanyInfo.text);
+
+  const usersInCompany = await request(app.getHttpServer())
+    .get(`/company/users/${foundCompanyInfoRO.id}`)
+    .set('Content-Type', 'application/json')
+    .set('Cookie', adminUserToken)
+    .set('Accept', 'application/json');
+
+  t.is(usersInCompany.status, 200);
+  const usersInCompanyRO = JSON.parse(usersInCompany.text);
+
+  t.is(usersInCompanyRO.length > 0, true);
+
+  const foundNonAdminUser = usersInCompanyRO.find((user) => user.role === 'USER');
+  t.is(!!foundNonAdminUser, true);
+
+  const updateUserRoleRequest = {
+    users: [
+      {
+        userId: foundNonAdminUser.id,
+        role: 'ADMIN',
+      },
+    ],
+  };
+
+  const updateUserRoleResult = await request(app.getHttpServer())
+    .put(`/company/users/roles/${foundCompanyInfoRO.id}`)
+    .send(updateUserRoleRequest)
+    .set('Content-Type', 'application/json')
+    .set('Cookie', adminUserToken)
+    .set('Accept', 'application/json');
+
+  t.is(updateUserRoleResult.status, 200);
+  const updateUserRoleResultRO = JSON.parse(updateUserRoleResult.text);
+  t.is(updateUserRoleResultRO.success, true);
+
+  const usersInCompanyAfterUpdate = await request(app.getHttpServer())
+    .get(`/company/users/${foundCompanyInfoRO.id}`)
+    .set('Content-Type', 'application/json')
+    .set('Cookie', adminUserToken)
+    .set('Accept', 'application/json');
+
+  t.is(usersInCompanyAfterUpdate.status, 200);
+  const usersInCompanyROAfterUpdate = JSON.parse(usersInCompanyAfterUpdate.text);
+
+  t.is(usersInCompanyRO.length > 0, true);
+
+  const foundUserAfterUpdate = usersInCompanyROAfterUpdate.find((user) => user.id === foundNonAdminUser.id);
+  t.is(foundUserAfterUpdate.role, 'ADMIN');
 });

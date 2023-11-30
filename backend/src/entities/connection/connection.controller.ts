@@ -250,6 +250,7 @@ export class ConnectionController {
         title: createConnectionDto.title,
         type: createConnectionDto.type,
         username: createConnectionDto.username,
+        tables_audit: createConnectionDto.tables_audit,
       },
       creation_info: {
         authorId: userId,
@@ -306,6 +307,7 @@ export class ConnectionController {
         title: updateConnectionDto.title,
         type: updateConnectionDto.type,
         username: updateConnectionDto.username,
+        tables_audit: updateConnectionDto.tables_audit,
       },
       update_info: {
         authorId: userId,
@@ -537,6 +539,7 @@ export class ConnectionController {
         title: testConnectionData.title,
         type: testConnectionData.type,
         username: testConnectionData.username,
+        tables_audit: false,
       },
       update_info: {
         authorId: userId,
@@ -636,6 +639,7 @@ export class ConnectionController {
         ssl: restoreConnectionData.ssl,
         cert: restoreConnectionData.cert,
         azure_encryption: restoreConnectionData.azure_encryption,
+        tables_audit: restoreConnectionData.tables_audit,
       },
       update_info: {
         connectionId: connectionId,

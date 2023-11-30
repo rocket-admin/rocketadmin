@@ -20,6 +20,7 @@ export class CreateConnectionDs {
     ssl: boolean;
     cert: string;
     azure_encryption: boolean;
+    tables_audit: boolean;
   };
   creation_info: {
     authorId: string;

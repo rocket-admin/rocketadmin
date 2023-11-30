@@ -286,9 +286,10 @@ test(`${currentTest} should return rows of selected table with search and withou
       .set('Cookie', firstUserToken)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
-    t.is(getTableRowsResponse.status, 200);
+
     const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
 
+    t.is(getTableRowsResponse.status, 200);
     t.is(typeof getTableRowsRO, 'object');
     t.is(getTableRowsRO.hasOwnProperty('rows'), true);
     t.is(getTableRowsRO.hasOwnProperty('primaryColumns'), true);

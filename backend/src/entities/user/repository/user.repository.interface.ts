@@ -42,4 +42,6 @@ export interface IUserRepository {
   findOneUserByIdWithCompany(userId: string): Promise<UserEntity>;
 
   findAllUsersWithEmail(email: string): Promise<Array<UserEntity>>;
+
+  bulkSaveUpdatedUsers(updatedUsers: Array<UserEntity>): Promise<Array<UserEntity>>;
 }
