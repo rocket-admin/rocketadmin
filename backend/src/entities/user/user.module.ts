@@ -38,6 +38,7 @@ import { GetStripeIntentIdUseCase } from './use-cases/get-stripe-intent-id.use.c
 import { AddSetupIntentToCustomerUseCase } from './use-cases/add-setup-intent-to-customer.use.case.js';
 import { GetUserSessionSettingsUseCase } from './use-cases/get-user-session-settings.use.case.js';
 import { SaveUserSettingsUseCase } from './use-cases/save-user-session-settings.use.case.js';
+import { CompanyInfoEntity } from '../company-info/company-info.entity.js';
 
 @Module({
   imports: [
@@ -52,6 +53,7 @@ import { SaveUserSettingsUseCase } from './use-cases/save-user-session-settings.
       UserEntity,
       ConnectionPropertiesEntity,
       LogOutEntity,
+      CompanyInfoEntity,
     ]),
     AgentModule,
   ],

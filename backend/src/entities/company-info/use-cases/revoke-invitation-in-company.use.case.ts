@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Inject, Injectable, Scope } from '@nestjs/common';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
@@ -9,7 +9,7 @@ import { Messages } from '../../../exceptions/text/messages.js';
 import { isSaaS } from '../../../helpers/app/is-saas.js';
 import { RevokeUserInvitationDs } from '../application/data-structures/revoke-user-invitation.dto.js';
 
-@Injectable()
+@Injectable({ scope: Scope.REQUEST })
 export class RevokeUserInvitationInCompanyUseCase
   extends AbstractUseCase<RevokeUserInvitationDs, SuccessResponse>
   implements IRevokeUserInvitationInCompany

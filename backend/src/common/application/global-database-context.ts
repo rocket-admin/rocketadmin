@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, Scope } from '@nestjs/common';
 import { DataSource, QueryRunner, Repository } from 'typeorm';
 import { AgentEntity } from '../../entities/agent/agent.entity.js';
 import { IAgentRepository } from '../../entities/agent/repository/agent.repository.interface.js';
@@ -70,7 +70,7 @@ import { UserSessionSettingsEntity } from '../../entities/user/user-session-sett
 import { userSessionSettingsRepositoryExtension } from '../../entities/user/user-session-settings/reposiotory/user-session-settings-custom-repository.extension.js';
 import { IUserSessionSettings } from '../../entities/user/user-session-settings/reposiotory/user-session-settings-repository.interface.js';
 
-@Injectable()
+@Injectable({ scope: Scope.REQUEST })
 export class GlobalDatabaseContext implements IGlobalDatabaseContext {
   private _queryRunner: QueryRunner;
 

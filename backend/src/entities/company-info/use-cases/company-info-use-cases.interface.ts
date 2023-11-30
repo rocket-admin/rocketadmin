@@ -1,3 +1,4 @@
+import { InTransactionEnum } from '../../../enums/in-transaction.enum.js';
 import { SuccessResponse } from '../../../microservices/saas-microservice/data-structures/common-responce.ds.js';
 import { SimpleFoundUserInfoDs } from '../../user/application/data-structures/found-user.ds.js';
 import { IToken } from '../../user/utils/generate-gwt-token.js';
@@ -44,17 +45,17 @@ export interface IGetUserEmailCompanies {
 }
 
 export interface IRemoveUserFromCompany {
-  execute(inputData: RemoveUserFromCompanyDs): Promise<SuccessResponse>;
+  execute(inputData: RemoveUserFromCompanyDs, inTransaction: InTransactionEnum): Promise<SuccessResponse>;
 }
 
 export interface IRevokeUserInvitationInCompany {
-  execute(inputData: RevokeUserInvitationDs): Promise<SuccessResponse>;
+  execute(inputData: RevokeUserInvitationDs, inTransaction: InTransactionEnum): Promise<SuccessResponse>;
 }
 
 export interface IUpdateCompanyName {
-  execute(inputData: UpdateCompanyNameDS): Promise<SuccessResponse>;
+  execute(inputData: UpdateCompanyNameDS, inTransaction: InTransactionEnum): Promise<SuccessResponse>;
 }
 
 export interface IUpdateUsersCompanyRoles {
-  execute(inputData: UpdateUsersCompanyRolesDs): Promise<SuccessResponse>;
+  execute(inputData: UpdateUsersCompanyRolesDs, inTransaction: InTransactionEnum): Promise<SuccessResponse>;
 }

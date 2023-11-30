@@ -1,4 +1,4 @@
-import { Injectable, Inject, HttpException, HttpStatus } from '@nestjs/common';
+import { Injectable, Inject, HttpException, HttpStatus, Scope } from '@nestjs/common';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
@@ -11,7 +11,7 @@ import { Logger } from '../../../helpers/logging/Logger.js';
 import { isSaaS } from '../../../helpers/app/is-saas.js';
 import { SaasCompanyGatewayService } from '../../../microservices/gateways/saas-gateway.ts/saas-company-gateway.service.js';
 
-@Injectable()
+@Injectable({ scope: Scope.REQUEST })
 export class InviteUserInCompanyAndConnectionGroupUseCase
   extends AbstractUseCase<InviteUserInCompanyAndConnectionGroupDs, InvitedUserInCompanyAndConnectionGroupDs>
   implements IInviteUserInCompanyAndConnectionGroup
@@ -72,7 +72,12 @@ export class InviteUserInCompanyAndConnectionGroupUseCase
         invitedUserEmail,
         invitedUserCompanyRole,
       );
-      await sendInvitationToCompany(invitedUserEmail, renewedInvitation.verification_string, foundCompany.id, foundCompany.name);
+      await sendInvitationToCompany(
+        invitedUserEmail,
+        renewedInvitation.verification_string,
+        foundCompany.id,
+        foundCompany.name,
+      );
 
       if (!isSaaS()) {
         Logger.printTechString(`Invitation verification string: ${renewedInvitation.verification_string}`);

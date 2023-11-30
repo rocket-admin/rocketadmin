@@ -55,6 +55,7 @@ import { RevokeInvitationRequestDto } from './application/dto/revoke-invitation-
 import { UpdateCompanyNameDto } from './application/dto/update-company-name.dto.js';
 import { FoundCompanyNameDs } from './application/data-structures/found-company-name.ds.js';
 import { UpdateUsersRolesRequestDto } from './application/dto/update-users-roles-resuest.dto.js';
+import { InTransactionEnum } from '../../enums/in-transaction.enum.js';
 
 @UseInterceptors(SentryInterceptor)
 @Controller('company')
@@ -189,7 +190,7 @@ export class CompanyInfoController {
         HttpStatus.BAD_REQUEST,
       );
     }
-    return await this.removeUserFromCompanyUseCase.execute({ userId, companyId });
+    return await this.removeUserFromCompanyUseCase.execute({ userId, companyId }, InTransactionEnum.ON);
   }
 
   @ApiOperation({ summary: 'Revoke invitation in company' })
@@ -206,7 +207,7 @@ export class CompanyInfoController {
     @Body() revokeInvitationData: RevokeInvitationRequestDto,
   ) {
     const { email } = revokeInvitationData;
-    return await this.revokeInvitationInCompanyUseCase.execute({ email, companyId });
+    return await this.revokeInvitationInCompanyUseCase.execute({ email, companyId }, InTransactionEnum.ON);
   }
 
   @ApiOperation({ summary: 'Verify invitation in company' })
@@ -264,7 +265,7 @@ export class CompanyInfoController {
   @Put('/name/:slug')
   async updateCompanyName(@SlugUuid() companyId: string, @Body() nameData: UpdateCompanyNameDto) {
     const { name } = nameData;
-    return await this.updateCompanyNameUseCase.execute({ name, companyId });
+    return await this.updateCompanyNameUseCase.execute({ name, companyId }, InTransactionEnum.ON);
   }
 
   @ApiOperation({ summary: 'Update users roles in company' })
@@ -278,6 +279,6 @@ export class CompanyInfoController {
   @Put('/users/roles/:companyId')
   async updateUsersRoles(@Param('companyId') companyId: string, @Body() usersAndRoles: UpdateUsersRolesRequestDto) {
     const { users } = usersAndRoles;
-    return await this.updateUsersCompanyRolesUseCase.execute({ users, companyId });
+    return await this.updateUsersCompanyRolesUseCase.execute({ users, companyId }, InTransactionEnum.ON);
   }
 }
