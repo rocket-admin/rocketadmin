@@ -56,6 +56,18 @@ export class CompanyService {
       );
   };
 
+  fetchCompanyName(companyId: string) {
+    return this._http.get<any>(`/company/name/${companyId}`)
+      .pipe(
+        map(res => res),
+        catchError((err) => {
+          console.log(err);
+          this._notifications.showErrorSnackbar(err.error.message || err.message);
+          return EMPTY;
+        })
+      );
+  }
+
   inviteCompanyMember(companyId: string, groupId: string, email: string, role: CompanyMemberRole) {
     return this._http.put<any>(`/company/user/${companyId}`, {
       groupId,

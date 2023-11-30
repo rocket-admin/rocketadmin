@@ -1,7 +1,7 @@
 <app-alert></app-alert>
 <div class="wrapper">
     <form class="password-form" #inviteUserForm="ngForm" (ngSubmit)="acceptInvitation()">
-        <h1 class="mat-h1">You were invited to [name] company</h1>
+        <h1 class="mat-h1">You were invited to <strong *ngIf="companyName !== null">{{companyName || 'Unknown company'}}</strong> company</h1>
         <p class="mat-body-1">Create password for your account in this company.</p>
         <app-user-password label="Password" [value]="password" (onFieldChange)="updatePasswordField($event)"></app-user-password>
 

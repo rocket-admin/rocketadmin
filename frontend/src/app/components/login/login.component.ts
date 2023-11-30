@@ -2,7 +2,7 @@ import { Component, NgZone, OnInit } from '@angular/core';
 
 import { Angulartics2 } from 'angulartics2';
 import { AuthService } from 'src/app/services/auth.service';
-import { AuthUser } from 'src/app/models/user';
+import { ExistingAuthUser } from 'src/app/models/user';
 import { Router } from '@angular/router';
 
 @Component({
@@ -12,13 +12,15 @@ import { Router } from '@angular/router';
 })
 export class LoginComponent implements OnInit {
 
-  public user: AuthUser = {
+  public user: ExistingAuthUser = {
     email: '',
-    password: ''
+    password: '',
+    companyId: ''
   };
   public userCompanies: [];
   public authCode: string;
   public submitting: boolean;
+  public isPasswordFieldShown: boolean = false;
   public is2FAShown: boolean = false;
 
   constructor(
@@ -55,6 +57,11 @@ export class LoginComponent implements OnInit {
     this._auth.fetchUserCompanies(this.user.email)
       .subscribe(companies => {
         this.userCompanies = companies;
+
+        if (companies.length === 1) {
+          this.isPasswordFieldShown = true;
+          this.user.companyId = companies[0].id;
+        }
       });
   }
 

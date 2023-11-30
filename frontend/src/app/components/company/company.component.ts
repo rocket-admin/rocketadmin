@@ -4,6 +4,8 @@ import { CompanyService } from 'src/app/services/company.service';
 import { Component } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { SubscriptionPlans } from 'src/app/models/user';
+import { UserService } from 'src/app/services/user.service';
+import { orderBy } from "lodash";
 
 @Component({
   selector: 'app-company',
@@ -17,14 +19,17 @@ export class CompanyComponent {
   public currentPlan: string;
   public isAnnually: boolean;
   public submitting: boolean;
-  public userCount: number;
+  public usersCount: number;
+  public adminsCount: number;
   public membersTableDisplayedColumns: string[] = ['email', 'name', 'role', 'twoFA', 'actions'];
   // public invitationsTableDisplayColumns: string[] = ['invitedUserEmail', 'role'];
   public companyName: string;
   public submittingChangedName: boolean =false;
+  public currentUser;
 
   constructor(
     private _company: CompanyService,
+    private _userService: UserService,
     // private _notifications: NotificationsService,
     // public _user: UserService,
     // private ngZone: NgZone,
@@ -61,12 +66,23 @@ export class CompanyComponent {
 
   getCompanyMembers(companyId: string) {
     this._company.fetchCompanyMembers(companyId).subscribe(res => {
-      this.company.invitations.map( (invitee: any) =>  {
-        invitee.email = invitee.invitedUserEmail;
-        invitee.pending = true;
+      if (this.company.invitations) {
+          this.company.invitations.map( (invitee: any) =>  {
+          invitee.email = invitee.invitedUserEmail;
+          invitee.pending = true;
+        })
+      } else {
+        this.company.invitations = [];
+      };
+      this._userService.cast
+        .subscribe(user => {
+          this.currentUser = res.find(member => member.email === user.email);
       });
-      this.members = [...res, ...this.company.invitations];
-      this.userCount = this.company.invitations.length + res.length;
+
+      const currentMembers = orderBy(res, ['role', 'email'])
+      this.members = [...currentMembers, ...this.company.invitations];
+      this.adminsCount = res.filter(user => user.role === 'ADMIN').length;
+      this.usersCount = this.company.invitations.length + res.length;
     });
   }
 

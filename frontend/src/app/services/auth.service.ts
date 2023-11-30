@@ -2,7 +2,7 @@ import { AlertActionType, AlertType } from '../models/alert';
 import { BehaviorSubject, EMPTY } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 
-import { AuthUser } from '../models/user';
+import { ExistingAuthUser, NewAuthUser } from '../models/user';
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { NotificationsService } from './notifications.service';
@@ -22,7 +22,7 @@ export class AuthService {
     private _configuration: ConfigurationService
   ) { }
 
-  signUpUser(userData: AuthUser) {
+  signUpUser(userData: NewAuthUser) {
     const config = this._configuration.getConfig();
     return this._http.post<any>(config.saasURL + '/user/register', userData)
       .pipe(
@@ -49,7 +49,7 @@ export class AuthService {
       )
   }
 
-  loginUser(userData: AuthUser) {
+  loginUser(userData: ExistingAuthUser) {
     return this._http.post<any>('/user/login', userData)
     .pipe(
       map(res => {

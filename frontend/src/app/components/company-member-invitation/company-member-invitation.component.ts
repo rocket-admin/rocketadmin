@@ -14,6 +14,7 @@ import { CompanyService } from 'src/app/services/company.service';
 export class CompanyMemberInvitationComponent implements OnInit {
 
   public token: string;
+  public companyName: string = null;
   public password: string;
   public userName: string;
   public submitting: boolean;
@@ -30,6 +31,8 @@ export class CompanyMemberInvitationComponent implements OnInit {
       .pipe(
         map((params: ParamMap) => {
           this.token = params.get('verification-token');
+          const companyId = params.get('company-id');
+          this._company.fetchCompanyName(companyId).subscribe(res => this.companyName = res.name);
         })
       ).subscribe();
   }

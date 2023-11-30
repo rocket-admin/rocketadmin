@@ -19,16 +19,27 @@
                 <mat-error *ngIf="email.errors?.isInvalidEmail">Invalid email format.</mat-error>
             </mat-form-field>
 
-            <button type="button" mat-raised-button color="accent"
+            <div *ngIf="userCompanies && userCompanies.length > 1">
+                <label>Pick a company you want to log in</label><br/>
+                <mat-radio-group
+                    class="companiesRadioGroup"
+                    [(ngModel)]="user.companyId">
+                <mat-radio-button class="example-radio-button" *ngFor="let company of userCompanies" [value]="company.id">
+                    {{company.name}}
+                </mat-radio-button>
+                </mat-radio-group>
+            </div>
+
+            <button *ngIf="!user.companyId"
+                type="button" mat-raised-button color="accent"
                 class="login-button"
                 [disabled]="submitting"
                 (click)="requestUserCompanies()">
                 {{ submitting ? 'Submitting' : 'Next'}}
             </button>
 
-            {{userCompanies|json}}
 
-            <mat-form-field appearance="outline">
+            <mat-form-field appearance="outline" *ngIf="isPasswordFieldShown || user.companyId">
                 <mat-label>Password</mat-label>
                 <input matInput type="password" name="password" data-testid="login-password-input"
                     #password="ngModel" required
@@ -41,13 +52,15 @@
                 <!-- <mat-error *ngIf="port.errors?.required && (port.invalid && port.touched)">Port should not be empty.</mat-error> -->
             </mat-form-field>
 
-            <button type="submit" mat-raised-button color="accent" data-testid="login-button"
+            <button type="submit" mat-raised-button color="accent" *ngIf="isPasswordFieldShown || user.companyId"
+                data-testid="login-button"
                 class="login-button"
                 angulartics2On="click"
                 angularticsAction="Login: login is clicked"
                 [disabled]="submitting || loginForm.form.invalid || loginForm.form.pristine">
                 {{ submitting ? 'Submitting' : 'Log in'}}
             </button>
+
             <div class="divider"><span class="divider__label">or</span></div>
             <div id="google_login_button" data-testid="login-google-button"
                 angulartics2On="click"
