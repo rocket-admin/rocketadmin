@@ -1,45 +1,34 @@
-<div *ngIf="responseMessage; else userAdd" class="message-box">
-  <p class="mat-body-1 message-text">
-    {{ responseMessage }}
-  </p>
-  <button mat-raised-button mat-dialog-close color="primary">
-    Ok
-  </button>
-</div>
-
-<ng-template #userAdd>
-    <h1 mat-dialog-title>Add user to <strong>{{ group.title }}</strong> group</h1>
-    <form action="" #addUserForm="ngForm" (ngSubmit)="joinGroupUser()">
-    <mat-dialog-content>
-        <mat-form-field *ngIf="availableMembers.length; else noAvailableMembersMessage" appearance="outline">
-          <mat-label>Select user</mat-label>
-          <mat-select name="email"
-              [(ngModel)]="groupUserEmail">
-              <mat-option *ngFor="let member of availableMembers" [value]="member.email">
-                <span *ngIf="member.name">{{member.name}} (</span>{{member.email}}<span *ngIf="member.name">)</span>
-              </mat-option>
-          </mat-select>
-      </mat-form-field>
-      <ng-template #noAvailableMembersMessage>
-        <p class="mat-body-1">
-          All your company members are already in this group. To add a new one first add them in your company.
-        </p>
-      </ng-template>
-    </mat-dialog-content>
-    <mat-dialog-actions align="end">
-      <button type="button" mat-raised-button mat-dialog-close>Cancel</button>
-      <button *ngIf="availableMembers.length; else companyButton"
-        mat-raised-button color="primary"
-        [disabled]="submitting || addUserForm.form.invalid">
-        Add
-      </button>
-      <ng-template #companyButton>
-        <a mat-raised-button mat-dialog-close
-          color="primary"
-          routerLink="/company">
-          Open company page
-      </a>
-      </ng-template>
-    </mat-dialog-actions>
-  </form>
-</ng-template>
+<h1 mat-dialog-title>Add user to <strong>{{ group.title }}</strong> group</h1>
+<form action="" #addUserForm="ngForm" (ngSubmit)="joinGroupUser()">
+  <mat-dialog-content>
+      <mat-form-field *ngIf="availableMembers.length; else noAvailableMembersMessage" appearance="outline">
+        <mat-label>Select user</mat-label>
+        <mat-select name="email"
+            [(ngModel)]="groupUserEmail">
+            <mat-option *ngFor="let member of availableMembers" [value]="member.email">
+              <span *ngIf="member.name">{{member.name}} (</span>{{member.email}}<span *ngIf="member.name">)</span>
+            </mat-option>
+        </mat-select>
+    </mat-form-field>
+    <ng-template #noAvailableMembersMessage>
+      <p class="mat-body-1">
+        All your company members are already in this group. To add a new one first add them in your company.
+      </p>
+    </ng-template>
+  </mat-dialog-content>
+  <mat-dialog-actions align="end">
+    <button type="button" mat-raised-button mat-dialog-close>Cancel</button>
+    <button *ngIf="availableMembers.length; else companyButton"
+      mat-raised-button color="primary"
+      [disabled]="submitting || addUserForm.form.invalid">
+      Add
+    </button>
+    <ng-template #companyButton>
+      <a mat-raised-button mat-dialog-close
+        color="primary"
+        routerLink="/company">
+        Open company page
+    </a>
+    </ng-template>
+  </mat-dialog-actions>
+</form>

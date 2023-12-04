@@ -16,7 +16,6 @@ export class UserAddDialogComponent implements OnInit {
 
   public submitting: boolean = false;
   public groupUserEmail: string = '';
-  public responseMessage: string = null;
   public availableMembers;
 
   constructor(
@@ -25,7 +24,7 @@ export class UserAddDialogComponent implements OnInit {
     private _userService: UserService,
     private _company: CompanyService,
     private angulartics2: Angulartics2,
-    // private dialogRef: MatDialogRef<UserAddDialogComponent>
+    private dialogRef: MatDialogRef<UserAddDialogComponent>
   ) { }
 
   ngOnInit(): void {
@@ -46,8 +45,7 @@ export class UserAddDialogComponent implements OnInit {
     this.submitting = true;
     this._usersService.addGroupUser(this.group.id, this.groupUserEmail)
       .subscribe((res) => {
-          // this.dialogRef.close();
-          this.responseMessage = res.message;
+          this.dialogRef.close();
           this.submitting = false;
           this.angulartics2.eventTrack.next({
             action: 'User groups: user was added to group successfully',
