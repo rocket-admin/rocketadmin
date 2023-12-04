@@ -15,7 +15,7 @@ export class CompanyMemberInvitationComponent implements OnInit {
 
   public token: string;
   public companyName: string = null;
-  public password: string;
+  public password: string = '';
   public userName: string;
   public submitting: boolean;
 

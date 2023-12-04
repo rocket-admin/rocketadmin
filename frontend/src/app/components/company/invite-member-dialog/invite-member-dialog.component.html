@@ -9,7 +9,7 @@
             <mat-error *ngIf="email.errors?.isInvalidEmail">Invalid email format.</mat-error>
         </mat-form-field>
         <mat-form-field appearance="outline" class="add-member-input">
-            <mat-label>Database type</mat-label>
+            <mat-label>Role</mat-label>
             <mat-select name="memberType" #memberType="ngModel"
                 [disabled]="submitting"
                 [(ngModel)]="companyMemberRole">
