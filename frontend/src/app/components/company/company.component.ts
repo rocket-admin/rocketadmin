@@ -24,7 +24,6 @@ export class CompanyComponent {
   public adminsCount: number;
   public membersTableDisplayedColumns: string[] = ['email', 'name', 'role', 'twoFA', 'actions'];
   // public invitationsTableDisplayColumns: string[] = ['invitedUserEmail', 'role'];
-  public companyName: string;
   public submittingChangedName: boolean =false;
   public currentUser;
 
@@ -43,7 +42,6 @@ export class CompanyComponent {
   ngOnInit() {
     this._company.fetchCompany().subscribe(res => {
       this.company = res;
-      this.companyName = res.name;
 
       this.setCompanyPlan(res.subscriptionLevel);
 
@@ -78,10 +76,17 @@ export class CompanyComponent {
       this._userService.cast
         .subscribe(user => {
           this.currentUser = res.find(member => member.email === user.email);
-      });
 
-      const currentMembers = orderBy(res, ['role', 'email'])
-      this.members = [...currentMembers, ...this.company.invitations];
+          const currentMembers = orderBy(res, ['role', 'email']);
+          const userIndex = currentMembers.findIndex(user => user.email === this.currentUser.email);
+
+          if (userIndex !== -1) {
+            const user = currentMembers.splice(userIndex, 1)[0];
+            currentMembers.unshift(user);
+          }
+
+          this.members = [...currentMembers, ...this.company.invitations];
+      });
       this.adminsCount = res.filter(user => user.role === 'ADMIN').length;
       this.usersCount = this.company.invitations.length + res.length;
     });
@@ -122,5 +127,6 @@ export class CompanyComponent {
 
   changeCompanyName() {
     this.submittingChangedName = true;
+    this._company.updateCompanyName(this.company.id, this.company.name).subscribe();
   }
 }

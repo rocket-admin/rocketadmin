@@ -68,6 +68,19 @@ export class CompanyService {
       );
   }
 
+  updateCompanyName(companyId: string, name: string) {
+    console.log({name});
+    return this._http.put<any>(`/company/name/${companyId}`, {name})
+      .pipe(
+        map(res => res),
+        catchError((err) => {
+          console.log(err);
+          this._notifications.showErrorSnackbar(err.error.message || err.message);
+          return EMPTY;
+        })
+      );
+  }
+
   inviteCompanyMember(companyId: string, groupId: string, email: string, role: CompanyMemberRole) {
     return this._http.put<any>(`/company/user/${companyId}`, {
       groupId,

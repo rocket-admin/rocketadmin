@@ -1,6 +1,6 @@
 <app-alert></app-alert>
 
-<div class="companyPage">
+<div *ngIf="company" class="companyPage">
     <h1 class="mat-h1">
         Company settings
     </h1>
@@ -9,7 +9,7 @@
             <mat-label>Name</mat-label>
             <input matInput name="user-name" #nameField="ngModel"
                 data-testid="user-name-input"
-                [(ngModel)]="companyName">
+                [(ngModel)]="company.name">
         </mat-form-field>
         <button type="submit" mat-button color="primary"
             class="company-name-settings__save-button"
@@ -41,7 +41,8 @@
 
     <div class="tableHeader">
         <h2 class="heading-2">Members <span *ngIf="currentPlan === 'free'">({{usersCount}}/3)</span></h2>
-        <button mat-flat-button type="button" *ngIf="currentUser && currentUser.role === 'ADMIN'"
+        <button *ngIf="currentUser && currentUser.role === 'ADMIN' && currentPlan === 'free' && usersCount < 3"
+            mat-flat-button type="button"
             class="tableHeader__button" color="primary"
             (click)="handleAddMemberDialogOpen()">
             Invite member
