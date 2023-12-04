@@ -91,7 +91,7 @@
             <td mat-cell *matCellDef="let element">
                 <button mat-button *ngIf="element.invitedUserEmail; else deleteUserButton"
                     type="button" color="warn"
-                    (click)="revokeInvitation(element.email)">
+                    (click)="handleRevokeInvitationDialogOpen(element.email)">
                     Revoke
                 </button>
                 <ng-template #deleteUserButton>

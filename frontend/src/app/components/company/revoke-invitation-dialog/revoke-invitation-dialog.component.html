@@ -1,6 +1,6 @@
-<h1 mat-dialog-title>Confirm member delete</h1>
+<h1 mat-dialog-title>Revoke email invitation</h1>
 <mat-dialog-content>
-    <p class="mat-body">You are going to delete <strong>{{ data.user.name ||  data.user.email}}</strong> from your company.</p>
+    <p class="mat-body">You are going to revoke invitation from <strong>{{ data.userEmail }}</strong> email.</p>
     <br>
     <p class="mat-body">Please confirm.</p>
 </mat-dialog-content>
@@ -8,7 +8,7 @@
   <button mat-raised-button mat-dialog-close>Cancel</button>
   <button mat-raised-button color="warn"
     [disabled]="submitting"
-    (click)="deleteCompanyMember()">
-    Delete
+    (click)="revokeInvitation()">
+    Revoke
   </button>
 </mat-dialog-actions>

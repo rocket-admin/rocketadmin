@@ -69,10 +69,9 @@ export class CompanyService {
   }
 
   updateCompanyName(companyId: string, name: string) {
-    console.log({name});
     return this._http.put<any>(`/company/name/${companyId}`, {name})
       .pipe(
-        map(res => res),
+        map(res => this._notifications.showSuccessSnackbar('Company name has been updated.')),
         catchError((err) => {
           console.log(err);
           this._notifications.showErrorSnackbar(err.error.message || err.message);
@@ -89,6 +88,7 @@ export class CompanyService {
     })
       .pipe(
         map(() => {
+          this._notifications.showSuccessSnackbar(`Invitation link has been sent to ${email}.`);
           this.company.next('invited');
         }),
         catchError((err) => {
@@ -103,6 +103,7 @@ export class CompanyService {
     return this._http.put<any>(`/company/invitation/revoke/${companyId}`, { email })
       .pipe(
         map(() => {
+          this._notifications.showSuccessSnackbar(`Invitation has been revoked for ${email}.`);
           this.company.next('revoked');
         }),
         catchError((err) => {

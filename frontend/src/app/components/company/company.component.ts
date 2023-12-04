@@ -7,6 +7,7 @@ import { SubscriptionPlans } from 'src/app/models/user';
 import { UserService } from 'src/app/services/user.service';
 import { orderBy } from "lodash";
 import { DeleteMemberDialogComponent } from './delete-member-dialog/delete-member-dialog.component';
+import { RevokeInvitationDialogComponent } from './revoke-invitation-dialog/revoke-invitation-dialog.component';
 
 @Component({
   selector: 'app-company',
@@ -121,12 +122,19 @@ export class CompanyComponent {
     });
   }
 
-  revokeInvitation(email: string) {
-    this._company.revokeInvitation(this.company.id, email).subscribe();
+  handleRevokeInvitationDialogOpen(userEmail: string) {
+    this.dialog.open(RevokeInvitationDialogComponent, {
+      width: '25em',
+      data: {companyId: this.company.id, userEmail}
+    });
   }
 
   changeCompanyName() {
     this.submittingChangedName = true;
-    this._company.updateCompanyName(this.company.id, this.company.name).subscribe();
+    this._company.updateCompanyName(this.company.id, this.company.name).subscribe(
+      () => this.submittingChangedName = false,
+      () => this.submittingChangedName = false,
+      () => this.submittingChangedName = false
+    );
   }
 }
