@@ -31,9 +31,6 @@ export class TableLogsService {
 
   public async crateAndSaveNewLogUtil(logData: CreateLogRecordDs): Promise<CreatedLogRecordDs> {
     const { userId, connection, table_name, old_data, row } = logData;
-    if (!connection.tables_audit) {
-      return;
-    }
     const foundUser = await this.userRepository.findOne({ where: { id: userId } });
     const { email } = foundUser;
     const tableSettingsQb = this.tableSettingsRepository

@@ -101,9 +101,4 @@ export class CreateConnectionDto {
   @IsBoolean()
   @ApiProperty({ required: false })
   isTestConnection?: boolean;
-
-  @IsOptional()
-  @IsBoolean()
-  @ApiProperty({ required: false })
-  tables_audit?: boolean;
 }

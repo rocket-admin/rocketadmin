@@ -17,7 +17,6 @@ export async function updateConnectionEntityForRestoration(
   toUpdate.ssh = connection_parameters.ssh;
   toUpdate.ssl = connection_parameters.ssl;
   toUpdate.isTestConnection = isTestConnection;
-  toUpdate.tables_audit = connection_parameters.tables_audit;
   if (!isConnectionEntityAgent(connection_parameters)) {
     toUpdate.masterEncryption = connection_parameters.masterEncryption;
     toUpdate.host = connection_parameters.host;

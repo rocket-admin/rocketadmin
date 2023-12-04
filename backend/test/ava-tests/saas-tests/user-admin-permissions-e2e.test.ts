@@ -2970,7 +2970,7 @@ test(`${currentTest} should return all found logs in connection`, async (t) => {
   }
 });
 
-test(`${currentTest} should not return all found logs in connection, when table audit is disabled in connection'`, async (t) => {
+test.skip(`${currentTest} should not return all found logs in connection, when table audit is disabled in connection'`, async (t) => {
   try {
     const testData = await createConnectionsAndInviteNewUserInAdminGroupOfFirstConnection(app);
     const {
@@ -2987,7 +2987,6 @@ test(`${currentTest} should not return all found logs in connection, when table 
     const updated_at = new Date();
 
     const updateConnection = mockFactory.generateConnectionToTestPostgresDBInDocker();
-    updateConnection.tables_audit = false;
 
     const updateConnectionResponse = await request(app.getHttpServer())
       .put(`/connection/${connections.firstId}`)
