@@ -79,11 +79,13 @@ export class CompanyComponent {
           this.currentUser = res.find(member => member.email === user.email);
 
           const currentMembers = orderBy(res, ['role', 'email']);
-          const userIndex = currentMembers.findIndex(user => user.email === this.currentUser.email);
+          if (this.currentUser.role === 'ADMIN') {
+            const userIndex = currentMembers.findIndex(user => user.email === this.currentUser.email);
 
-          if (userIndex !== -1) {
-            const user = currentMembers.splice(userIndex, 1)[0];
-            currentMembers.unshift(user);
+            if (userIndex !== -1) {
+              const user = currentMembers.splice(userIndex, 1)[0];
+              currentMembers.unshift(user);
+            }
           }
 
           this.members = [...currentMembers, ...this.company.invitations];
