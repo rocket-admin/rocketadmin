@@ -100,10 +100,8 @@ export class CompanyService {
       );
   }
 
-  removeCompanyMemder(companyId: string, email: string, userName: string) {
-    return this._http.put<any>(`/company/user/remove/${companyId}`, {
-      email
-    })
+  removeCompanyMemder(companyId: string, userId:string, email: string, userName: string) {
+    return this._http.delete<any>(`/company/${companyId}/user/${userId}`)
       .pipe(
         map(res => {
           this._notifications.showAlert(AlertType.Success, `${userName || email} has been removed from company.`, [

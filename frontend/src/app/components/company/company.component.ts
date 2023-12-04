@@ -6,6 +6,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { SubscriptionPlans } from 'src/app/models/user';
 import { UserService } from 'src/app/services/user.service';
 import { orderBy } from "lodash";
+import { DeleteMemberDialogComponent } from './delete-member-dialog/delete-member-dialog.component';
 
 @Component({
   selector: 'app-company',
@@ -99,7 +100,6 @@ export class CompanyComponent {
     } else {
       this.currentPlan = "free"
     }
-
   }
 
   handleAddMemberDialogOpen() {
@@ -107,11 +107,13 @@ export class CompanyComponent {
       width: '25em',
       data: {id: this.company.id, name: this.company.name}
     });
-    this.submitting = false;
   }
 
-  deleteCompanyMember(user) {
-    this._company.removeCompanyMemder(this.company.id, user.email, user.name).subscribe();
+  handleDeleteMemberDialogOpen(user) {
+    this.dialog.open(DeleteMemberDialogComponent, {
+      width: '25em',
+      data: {companyId: this.company.id, user}
+    });
   }
 
   revokeInvitation(email: string) {

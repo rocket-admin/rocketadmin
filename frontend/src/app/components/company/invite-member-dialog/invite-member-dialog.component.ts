@@ -2,7 +2,6 @@ import { CompanyMemberRole } from 'src/app/models/company';
 import { CompanyService } from 'src/app/services/company.service';
 import { Component, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { GroupDeleteDialogComponent } from '../../users/group-delete-dialog/group-delete-dialog.component';
 
 @Component({
   selector: 'app-invite-member-dialog',
@@ -16,7 +15,7 @@ export class InviteMemberDialogComponent {
 
   constructor(
     @Inject(MAT_DIALOG_DATA) public company: any,
-    public dialogRef: MatDialogRef<GroupDeleteDialogComponent>,
+    public dialogRef: MatDialogRef<InviteMemberDialogComponent>,
     private _company: CompanyService,
   ) { }
 
