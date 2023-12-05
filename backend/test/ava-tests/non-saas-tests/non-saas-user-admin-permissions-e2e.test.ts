@@ -2972,7 +2972,7 @@ test(`${currentTest} should return all found logs in connection`, async (t) => {
   }
 });
 
-test.skip(`${currentTest} should not return all found logs in connection, when table audit is disabled in connection'`, async (t) => {
+test(`${currentTest} should not return all found logs in connection, when table audit is disabled in connection'`, async (t) => {
   try {
     const testData = await createConnectionsAndInviteNewUserInAdminGroupOfFirstConnection(app);
     const {
@@ -2998,6 +2998,17 @@ test.skip(`${currentTest} should not return all found logs in connection, when t
       .set('Accept', 'application/json');
 
     t.is(updateConnectionResponse.status, 200);
+
+    const newConnectionProperties = mockFactory.generateConnectionPropertiesUserExcluded(null, false);
+
+    const createConnectionPropertiesResponse = await request(app.getHttpServer())
+      .post(`/connection/properties/${connections.firstId}`)
+      .send(newConnectionProperties)
+      .set('Cookie', adminUserToken)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+
+    t.is(createConnectionPropertiesResponse.status, 201);  
 
     const addRowInTable = await request(app.getHttpServer())
       .post(`/table/row/${connections.firstId}?tableName=${firstTableInfo.testTableName}`)

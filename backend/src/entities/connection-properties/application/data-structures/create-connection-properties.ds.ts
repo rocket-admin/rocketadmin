@@ -8,4 +8,5 @@ export class CreateConnectionPropertiesDs {
   secondary_color: string;
   hostname: string;
   company_name: string;
+  tables_audit: boolean;
 }

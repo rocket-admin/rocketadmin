@@ -606,10 +606,6 @@ test(`${currentTest} should return permissions object for current group in curre
       .set('Accept', 'application/json');
     t.is(getGroupsResponse.status, 200);
     const getGroupsRO = JSON.parse(getGroupsResponse.text);
-    console.log(
-      '🚀 ~ file: non-saas-user-with-table-only-permissions-e2e.test.ts:599 ~ test.only ~ getGroupsRO:',
-      getGroupsRO,
-    );
     const groupId = getGroupsRO[0].group.id;
 
     const response = await request(app.getHttpServer())
@@ -2081,7 +2077,7 @@ test(`${currentTest} should return all found logs in connection'`, async (t) => 
   }
 });
 
-test.skip(`${currentTest} should not return all found logs in connection, when table audit is disabled in connection'`, async (t) => {
+test(`${currentTest} should not return all found logs in connection, when table audit is disabled in connection'`, async (t) => {
   try {
     const testData = await createConnectionsAndInviteNewUserInNewGroupWithOnlyTablePermissions(app);
     const {
@@ -2107,6 +2103,21 @@ test.skip(`${currentTest} should not return all found logs in connection, when t
       .set('Accept', 'application/json');
 
     t.is(updateConnectionResponse.status, 200);
+
+    const newConnectionProperties = mockFactory.generateConnectionPropertiesUserExcluded(null, false);
+    newConnectionProperties.hidden_tables = [];
+    newConnectionProperties.tables_audit = false;
+
+    const createConnectionPropertiesResponse = await request(app.getHttpServer())
+      .post(`/connection/properties/${connections.firstId}`)
+      .send(newConnectionProperties)
+      .set('Cookie', adminUserToken)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+
+    const connectionPropertiesResult = JSON.parse(createConnectionPropertiesResponse.text);
+
+    t.is(createConnectionPropertiesResponse.status, 201);
 
     const addRowInTable = await request(app.getHttpServer())
       .post(`/table/row/${connections.firstId}?tableName=${firstTableInfo.testTableName}`)

@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { findSensitiveValues, scrub } from '@zapier/secret-scrubber';
 import PQueue from 'p-queue';
@@ -13,8 +13,7 @@ import { CreatedLogRecordDs } from './application/data-structures/created-log-re
 import { TableLogsEntity } from './table-logs.entity.js';
 import { buildCreatedLogRecord } from './utils/build-created-log-record.js';
 import { buildTableLogsEntity } from './utils/build-table-logs-entity.js';
-import { BaseType } from '../../common/data-injection.tokens.js';
-import { IGlobalDatabaseContext } from '../../common/application/global-database-context.interface.js';
+import { ConnectionPropertiesEntity } from '../connection-properties/connection-properties.entity.js';
 
 @Injectable()
 export class TableLogsService {
@@ -25,12 +24,16 @@ export class TableLogsService {
     private readonly userRepository: Repository<UserEntity>,
     @InjectRepository(TableSettingsEntity)
     private readonly tableSettingsRepository: Repository<TableSettingsEntity>,
-    @Inject(BaseType.GLOBAL_DB_CONTEXT)
-    protected _dbContext: IGlobalDatabaseContext,
+    @InjectRepository(ConnectionPropertiesEntity)
+    private readonly connectionPropertiesRepository: Repository<ConnectionPropertiesEntity>,
   ) {}
 
   public async crateAndSaveNewLogUtil(logData: CreateLogRecordDs): Promise<CreatedLogRecordDs> {
     const { userId, connection, table_name, old_data, row } = logData;
+    const isAuditEnabled = await this.isTableAuditEnabledInConnectionProperties(connection.id);
+    if (!isAuditEnabled) {
+      return;
+    }
     const foundUser = await this.userRepository.findOne({ where: { id: userId } });
     const { email } = foundUser;
     const tableSettingsQb = this.tableSettingsRepository
@@ -119,6 +122,10 @@ export class TableLogsService {
     table_name: string,
     operationType: LogOperationTypeEnum,
   ): Promise<Array<CreatedLogRecordDs>> {
+    const isAuditEnabled = await this.isTableAuditEnabledInConnectionProperties(connection.id);
+    if (!isAuditEnabled) {
+      return;
+    }
     const foundUser = await this.userRepository.findOne({ where: { id: userId } });
     const { email } = foundUser;
     const tableSettingsQb = this.tableSettingsRepository
@@ -213,6 +220,16 @@ export class TableLogsService {
       }),
     );
     return createdLogs.filter((log) => log) as Array<CreatedLogRecordDs>;
+  }
+
+  private async isTableAuditEnabledInConnectionProperties(connectionId: string): Promise<boolean> {
+    const connectionProperties = await this.connectionPropertiesRepository.findOne({
+      where: { connection: { id: connectionId } },
+    });
+    if (!connectionProperties) {
+      return true;
+    }
+    return connectionProperties.tables_audit;
   }
 
   private compareValues(val1: any, val2: any): boolean {

@@ -24,4 +24,7 @@ export class FoundConnectionPropertiesDs {
 
   @ApiProperty()
   company_name: string;
+
+  @ApiProperty()
+  tables_audit: boolean;
 }
