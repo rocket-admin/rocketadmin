@@ -2101,7 +2101,6 @@ test(`${currentTest} should not return all found logs in connection, when table 
     const updated_at = new Date();
 
     const updateConnection = mockFactory.generateConnectionToTestPostgresDBInDocker();
-    updateConnection.tables_audit = false;
 
     const updateConnectionResponse = await request(app.getHttpServer())
       .put(`/connection/${connections.firstId}`)
@@ -2111,6 +2110,18 @@ test(`${currentTest} should not return all found logs in connection, when table 
       .set('Accept', 'application/json');
 
     t.is(updateConnectionResponse.status, 200);
+
+    const newConnectionProperties = mockFactory.generateConnectionPropertiesUserExcluded(null, false);
+
+    const createConnectionPropertiesResponse = await request(app.getHttpServer())
+      .post(`/connection/properties/${connections.firstId}`)
+      .send(newConnectionProperties)
+      .set('Cookie', adminUserToken)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+
+    t.is(createConnectionPropertiesResponse.status, 201);  
+
 
     const addRowInTable = await request(app.getHttpServer())
       .post(`/table/row/${connections.firstId}?tableName=${firstTableInfo.testTableName}`)

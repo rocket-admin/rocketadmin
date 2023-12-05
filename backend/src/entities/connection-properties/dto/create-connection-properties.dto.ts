@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsArray, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsBoolean, IsOptional, IsString } from 'class-validator';
 
 export class CreateConnectionPropertiesDto {
   @IsOptional()
@@ -31,4 +31,9 @@ export class CreateConnectionPropertiesDto {
   @IsString()
   @ApiProperty()
   company_name: string;
+
+  @IsOptional()
+  @IsBoolean()
+  @ApiProperty()
+  tables_audit: boolean;
 }
