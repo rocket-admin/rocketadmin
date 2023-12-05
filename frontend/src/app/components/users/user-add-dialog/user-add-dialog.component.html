@@ -1,7 +1,7 @@
 <h1 mat-dialog-title>Add user to <strong>{{ group.title }}</strong> group</h1>
 <form action="" #addUserForm="ngForm" (ngSubmit)="joinGroupUser()">
   <mat-dialog-content>
-      <mat-form-field *ngIf="availableMembers.length; else noAvailableMembersMessage" appearance="outline">
+      <mat-form-field *ngIf="availableMembers && availableMembers.length; else noAvailableMembersMessage" appearance="outline">
         <mat-label>Select user</mat-label>
         <mat-select name="email"
             [(ngModel)]="groupUserEmail">
@@ -18,7 +18,7 @@
   </mat-dialog-content>
   <mat-dialog-actions align="end">
     <button type="button" mat-raised-button mat-dialog-close>Cancel</button>
-    <button *ngIf="availableMembers.length; else companyButton"
+    <button *ngIf="availableMembers && availableMembers.length; else companyButton"
       mat-raised-button color="primary"
       [disabled]="submitting || addUserForm.form.invalid">
       Add

@@ -16,7 +16,7 @@ export class UserAddDialogComponent implements OnInit {
 
   public submitting: boolean = false;
   public groupUserEmail: string = '';
-  public availableMembers;
+  public availableMembers = null;
 
   constructor(
     @Inject(MAT_DIALOG_DATA) public group: UserGroup,
