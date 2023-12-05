@@ -98,9 +98,6 @@ export class ConnectionEntity {
   @Column({ default: null })
   signing_key: string;
 
-  @Column({ default: true })
-  tables_audit: boolean;
-
   @BeforeUpdate()
   updateTimestampEncryptCredentials(): void {
     this.updatedAt = new Date();

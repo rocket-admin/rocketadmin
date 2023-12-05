@@ -102,6 +102,7 @@ export class ConnectionPropertiesController {
       secondary_color: connectionPropertiesData.secondary_color,
       hostname: connectionPropertiesData.hostname,
       company_name: connectionPropertiesData.company_name,
+      tables_audit: connectionPropertiesData.tables_audit,
     };
 
     return await this.createConnectionPropertiesUseCase.execute(createConnectionPropertiesDs, InTransactionEnum.ON);
@@ -143,6 +144,7 @@ export class ConnectionPropertiesController {
       secondary_color: connectionPropertiesData.secondary_color,
       company_name: connectionPropertiesData.company_name,
       hostname: connectionPropertiesData.hostname,
+      tables_audit: connectionPropertiesData.tables_audit,
     };
 
     return await this.updateConnectionPropertiesUseCase.execute(inputData, InTransactionEnum.ON);

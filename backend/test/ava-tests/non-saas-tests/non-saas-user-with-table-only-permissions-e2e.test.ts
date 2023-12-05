@@ -606,10 +606,6 @@ test(`${currentTest} should return permissions object for current group in curre
       .set('Accept', 'application/json');
     t.is(getGroupsResponse.status, 200);
     const getGroupsRO = JSON.parse(getGroupsResponse.text);
-    console.log(
-      '🚀 ~ file: non-saas-user-with-table-only-permissions-e2e.test.ts:599 ~ test.only ~ getGroupsRO:',
-      getGroupsRO,
-    );
     const groupId = getGroupsRO[0].group.id;
 
     const response = await request(app.getHttpServer())
@@ -2098,7 +2094,6 @@ test(`${currentTest} should not return all found logs in connection, when table 
     const updated_at = new Date();
 
     const updateConnection = mockFactory.generateConnectionToTestPostgresDBInDocker();
-    updateConnection.tables_audit = false;
 
     const updateConnectionResponse = await request(app.getHttpServer())
       .put(`/connection/${connections.firstId}`)
@@ -2108,6 +2103,21 @@ test(`${currentTest} should not return all found logs in connection, when table 
       .set('Accept', 'application/json');
 
     t.is(updateConnectionResponse.status, 200);
+
+    const newConnectionProperties = mockFactory.generateConnectionPropertiesUserExcluded(null, false);
+    newConnectionProperties.hidden_tables = [];
+    newConnectionProperties.tables_audit = false;
+
+    const createConnectionPropertiesResponse = await request(app.getHttpServer())
+      .post(`/connection/properties/${connections.firstId}`)
+      .send(newConnectionProperties)
+      .set('Cookie', adminUserToken)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+
+    const connectionPropertiesResult = JSON.parse(createConnectionPropertiesResponse.text);
+
+    t.is(createConnectionPropertiesResponse.status, 201);
 
     const addRowInTable = await request(app.getHttpServer())
       .post(`/table/row/${connections.firstId}?tableName=${firstTableInfo.testTableName}`)
