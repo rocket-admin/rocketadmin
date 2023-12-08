@@ -15,6 +15,7 @@ import { buildDefaultAdminPermissions } from '../../../entities/user/utils/build
 import { buildTestTableSettings } from '../../../entities/user/utils/build-test-table-settings.js';
 import { ILoginUserWithGoogle } from './saas-use-cases.interface.js';
 import { SaasRegisterUserWithGoogleDS } from '../data-structures/sass-register-user-with-google.js';
+import { ExternalRegistrationProviderEnum } from '../../../entities/user/enums/external-registration-provider.enum.js';
 
 @Injectable()
 export class LoginWithGoogleUseCase
@@ -31,7 +32,10 @@ export class LoginWithGoogleUseCase
   protected async implementation(inputData: SaasRegisterUserWithGoogleDS): Promise<UserEntity> {
     const { email, name, glidCookieValue } = inputData;
 
-    const foundUser: UserEntity = await this._dbContext.userRepository.findOneUserByEmail(email);
+    const foundUser: UserEntity = await this._dbContext.userRepository.findOneUserByEmail(
+      email,
+      ExternalRegistrationProviderEnum.GOOGLE,
+    );
     if (foundUser) {
       if (foundUser.name !== name && name) {
         foundUser.name = name;
@@ -46,7 +50,10 @@ export class LoginWithGoogleUseCase
       isActive: true,
       name: name ? name : null,
     };
-    const savedUser = await this._dbContext.userRepository.saveRegisteringUser(userData);
+    const savedUser = await this._dbContext.userRepository.saveRegisteringUser(
+      userData,
+      ExternalRegistrationProviderEnum.GOOGLE,
+    );
     const testConnections = Constants.getTestConnectionsArr();
     const testConnectionsEntities = buildConnectionEntitiesFromTestDtos(testConnections);
     const createdTestConnections = await Promise.all(

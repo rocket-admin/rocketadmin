@@ -4,9 +4,10 @@ import { IGlobalDatabaseContext } from '../../../common/application/global-datab
 import { BaseType } from '../../../common/data-injection.tokens.js';
 import { UserEntity } from '../../../entities/user/user.entity.js';
 import { ISaasGetUsersInfosByEmail } from './saas-use-cases.interface.js';
+import { GetUsersInfosByEmailDS } from '../data-structures/get-users-infos-by-email.ds.js';
 
 export class GetUsersInfosByEmailUseCase
-  extends AbstractUseCase<string, Array<UserEntity>>
+  extends AbstractUseCase<GetUsersInfosByEmailDS, Array<UserEntity>>
   implements ISaasGetUsersInfosByEmail
 {
   constructor(
@@ -16,8 +17,12 @@ export class GetUsersInfosByEmailUseCase
     super();
   }
 
-  protected async implementation(userEmail: string): Promise<Array<UserEntity>> {
-    const foundUsers: Array<UserEntity> = await this._dbContext.userRepository.findAllUsersWithEmail(userEmail);
+  protected async implementation(usersData: GetUsersInfosByEmailDS): Promise<Array<UserEntity>> {
+    const { userEmail, externalProvider } = usersData;
+    const foundUsers: Array<UserEntity> = await this._dbContext.userRepository.findAllUsersWithEmail(
+      userEmail,
+      externalProvider,
+    );
     return foundUsers.map((user) => {
       delete user.password;
       return user;
