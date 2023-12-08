@@ -23,6 +23,7 @@ import { UserInvitationEntity } from './user-invitation/user-invitation.entity.j
 import { GitHubUserIdentifierEntity } from './user-github-identifier/github-user-identifier.entity.js';
 import { CompanyInfoEntity } from '../company-info/company-info.entity.js';
 import { UserRoleEnum } from './enums/user-role.enum.js';
+import { ExternalRegistrationProviderEnum } from './enums/external-registration-provider.enum.js';
 
 @Entity('user')
 export class UserEntity {
@@ -113,4 +114,11 @@ export class UserEntity {
     default: UserRoleEnum.USER,
   })
   role: UserRoleEnum;
+
+  @Column('enum', {
+    nullable: true,
+    enum: ExternalRegistrationProviderEnum,
+    default: null,
+  })
+  externalRegistrationProvider: ExternalRegistrationProviderEnum;
 }
