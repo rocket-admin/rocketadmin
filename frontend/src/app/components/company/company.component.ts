@@ -8,6 +8,7 @@ import { UserService } from 'src/app/services/user.service';
 import { orderBy } from "lodash";
 import { DeleteMemberDialogComponent } from './delete-member-dialog/delete-member-dialog.component';
 import { RevokeInvitationDialogComponent } from './revoke-invitation-dialog/revoke-invitation-dialog.component';
+import { Angulartics2 } from 'angulartics2';
 
 @Component({
   selector: 'app-company',
@@ -30,13 +31,10 @@ export class CompanyComponent {
 
   constructor(
     private _company: CompanyService,
-    private _userService: UserService,
+    private _user: UserService,
     // private _notifications: NotificationsService,
-    // public _user: UserService,
-    // private ngZone: NgZone,
-    // public router: Router,
     public dialog: MatDialog,
-    // private angulartics2: Angulartics2,
+    private angulartics2: Angulartics2,
     // private title: Title
   ) { }
 
@@ -74,7 +72,7 @@ export class CompanyComponent {
       } else {
         this.company.invitations = [];
       };
-      this._userService.cast
+      this._user.cast
         .subscribe(user => {
           this.currentUser = res.find(member => member.email === user.email);
 
@@ -134,7 +132,12 @@ export class CompanyComponent {
   changeCompanyName() {
     this.submittingChangedName = true;
     this._company.updateCompanyName(this.company.id, this.company.name).subscribe(
-      () => this.submittingChangedName = false,
+      () => {
+        this.angulartics2.eventTrack.next({
+          action: 'Company: company name is updated successfully',
+        });
+        this.submittingChangedName = false
+      },
       () => this.submittingChangedName = false,
       () => this.submittingChangedName = false
     );

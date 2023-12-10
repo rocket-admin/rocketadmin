@@ -56,6 +56,13 @@ export class LoginComponent implements OnInit {
   requestUserCompanies() {
     this._auth.fetchUserCompanies(this.user.email)
       .subscribe(companies => {
+        this.angulartics2.eventTrack.next({
+          action: 'Login: companies is received',
+          properties: {
+            count: companies.length
+          }
+        })
+
         this.userCompanies = companies;
 
         if (companies.length === 1) {

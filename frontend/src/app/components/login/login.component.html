@@ -24,9 +24,9 @@
                 <mat-radio-group
                     class="companiesRadioGroup"
                     [(ngModel)]="user.companyId">
-                <mat-radio-button class="example-radio-button" *ngFor="let company of userCompanies" [value]="company.id">
-                    {{company.name}}
-                </mat-radio-button>
+                    <mat-radio-button class="example-radio-button" *ngFor="let company of userCompanies" [value]="company.id">
+                        {{company.name}}
+                    </mat-radio-button>
                 </mat-radio-group>
             </div>
 
