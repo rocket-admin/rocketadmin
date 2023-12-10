@@ -2,7 +2,7 @@ import { AlertActionType, AlertType } from '../models/alert';
 import { BehaviorSubject, EMPTY } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 
-import { AuthUser } from '../models/user';
+import { ExistingAuthUser, NewAuthUser } from '../models/user';
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { NotificationsService } from './notifications.service';
@@ -22,7 +22,7 @@ export class AuthService {
     private _configuration: ConfigurationService
   ) { }
 
-  signUpUser(userData: AuthUser) {
+  signUpUser(userData: NewAuthUser) {
     const config = this._configuration.getConfig();
     return this._http.post<any>(config.saasURL + '/user/register', userData)
       .pipe(
@@ -49,7 +49,7 @@ export class AuthService {
       )
   }
 
-  loginUser(userData: AuthUser) {
+  loginUser(userData: ExistingAuthUser) {
     return this._http.post<any>('/user/login', userData)
     .pipe(
       map(res => {
@@ -155,6 +155,48 @@ export class AuthService {
         return EMPTY;
       })
     );
+  }
+
+  fetchUserCompanies(email: string) {
+    return this._http.get<any>(`/company/my/email/${email}`)
+    .pipe(
+      map(res => res),
+      catchError((err) => {
+        console.log(err);
+        this._notifications.showAlert(AlertType.Error, {abstract: err.error.message, details: err.error.originalMessage}, [
+          {
+            type: AlertActionType.Button,
+            caption: 'Dismiss',
+            action: () => this._notifications.dismissAlert()
+          }
+        ]);
+        return EMPTY;
+      })
+    );
+  }
+
+  acceptCompanyInvitation(token: string, password: string, userName: string) {
+    return this._http.post<any>(`/company/invite/verify/${token}`, {
+      password,
+      userName
+    })
+      .pipe(
+        map(res => {
+          this.auth.next(res);
+          return res;
+        }),
+        catchError((err) => {
+          console.log(err);
+          this._notifications.showAlert(AlertType.Error, {abstract: err.error.message, details: err.error.originalMessage}, [
+            {
+              type: AlertActionType.Button,
+              caption: 'Dismiss',
+              action: (id: number) => this._notifications.dismissAlert()
+            }
+          ]);
+          return EMPTY;
+        })
+      );
   }
 
   logOutUser() {

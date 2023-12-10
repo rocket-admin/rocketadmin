@@ -1,5 +1,6 @@
 import { CreateUserDs } from '../application/data-structures/create-user.ds.js';
 import { RegisterUserDs } from '../application/data-structures/register-user-ds.js';
+import { ExternalRegistrationProviderEnum } from '../enums/external-registration-provider.enum.js';
 import { UserEntity } from '../user.entity.js';
 
 export interface IUserRepository {
@@ -9,13 +10,19 @@ export interface IUserRepository {
 
   findOneUserWithUserAction(userId: string): Promise<UserEntity>;
 
-  findOneUserByEmail(email: string): Promise<UserEntity>;
+  findOneUserByEmail(
+    email: string,
+    externalRegistrationProvider?: ExternalRegistrationProviderEnum,
+  ): Promise<UserEntity>;
 
   findUserWithConnections(userId: string): Promise<UserEntity>;
 
   findAllUsersInConnection(connectionId: string): Promise<Array<Omit<UserEntity, 'connections' | 'groups'>>>;
 
-  saveRegisteringUser(userData: RegisterUserDs): Promise<UserEntity>;
+  saveRegisteringUser(
+    userData: RegisterUserDs,
+    externalRegistrationProvider?: ExternalRegistrationProviderEnum,
+  ): Promise<UserEntity>;
 
   saveUserEntity(user: UserEntity): Promise<UserEntity>;
 
@@ -41,5 +48,7 @@ export interface IUserRepository {
 
   findOneUserByIdWithCompany(userId: string): Promise<UserEntity>;
 
-  findAllUsersWithEmail(email: string): Promise<Array<UserEntity>>;
+  findAllUsersWithEmail(email: string, externalProvider?: ExternalRegistrationProviderEnum): Promise<Array<UserEntity>>;
+
+  bulkSaveUpdatedUsers(updatedUsers: Array<UserEntity>): Promise<Array<UserEntity>>;
 }

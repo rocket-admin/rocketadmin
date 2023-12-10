@@ -77,7 +77,7 @@
             </button>
 
             <div *ngIf="userLoggedIn === true" class="actions actions_auth">
-                <a routerLink="/upgrade" mat-flat-button data-testid="upgrade-header-link"
+                <a routerLink="/upgrade" mat-flat-button color="accent" data-testid="upgrade-header-link"
                     routerLinkActive="mat-accent" class="nav-bar__upgrade-button">
                     Upgrade
                 </a>
@@ -100,6 +100,12 @@
                         <span>Account</span>
                         <br/>
                         <span class="user-email">{{currentUser.email}}</span>
+                    </a>
+                    <a mat-menu-item routerLink="/company" data-testid="company-link-account-menu">
+                        <mat-icon class="nav-menu__list-link-icon">
+                            apartment
+                        </mat-icon>
+                        <span>Company</span>
                     </a>
                     <a mat-menu-item href="https://help.rocketadmin.com/" target="_blank">
                         <mat-icon fontSet="material-icons-outlined">help_outlined</mat-icon>

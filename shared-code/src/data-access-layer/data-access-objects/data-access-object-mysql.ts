@@ -205,7 +205,8 @@ export class DataAccessObjectMysql extends BasicDataAccessObject implements IDat
             if (Buffer.isBuffer(searchedFieldValue)) {
               builder.orWhere(field, '=', searchedFieldValue);
             } else {
-              builder.orWhereRaw(` CAST (?? AS CHAR (255))=?`, [field, searchedFieldValue]);
+              builder.orWhereRaw(` LOWER(CAST (?? AS CHAR (255))) LIKE ?`, [field, `${searchedFieldValue.toLowerCase()}%`]);
+             //  builder.orWhereRaw(` CAST (?? AS CHAR (255))=?`, [field, searchedFieldValue]);
             }
           }
         }

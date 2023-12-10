@@ -1,10 +1,12 @@
-import { Injectable } from '@nestjs/common';
-import { BaseSaasGatewayService } from './base-saas-gateway.service.js';
+import { HttpException, Injectable } from '@nestjs/common';
+import { BaseSaasGatewayService, SaaSResponse } from './base-saas-gateway.service.js';
 import { RegisteredCompanyUserInviteGroupDS } from './data-structures/registered-company-when-user-invite-group.ds.js';
 import { isObjectEmpty } from '../../../helpers/is-object-empty.js';
 import { UserRoleEnum } from '../../../entities/user/enums/user-role.enum.js';
 import { isSaaS } from '../../../helpers/app/is-saas.js';
 import { FoundSassCompanyInfoDS } from './data-structures/found-saas-company-info.ds.js';
+import { SuccessResponse } from '../../saas-microservice/data-structures/common-responce.ds.js';
+import { Messages } from '../../../exceptions/text/messages.js';
 
 @Injectable()
 export class SaasCompanyGatewayService extends BaseSaasGatewayService {
@@ -67,6 +69,32 @@ export class SaasCompanyGatewayService extends BaseSaasGatewayService {
     };
   }
 
+  public async removeUserFromCompany(companyId: string, userId: string): Promise<SuccessResponse | null> {
+    const removalResult = await this.sendRequestToSaaS(`/webhook/company/remove`, 'POST', {
+      userId: userId,
+      companyId: companyId,
+    });
+    if (isObjectEmpty(removalResult.body)) {
+      return null;
+    }
+    return {
+      success: removalResult.body.success as boolean,
+    };
+  }
+
+  public async revokeUserInvitationInCompany(companyId: string, invitationId: string): Promise<SuccessResponse | null> {
+    const removalResult = await this.sendRequestToSaaS(`/webhook/company/invitation/revoke`, 'POST', {
+      invitationId: invitationId,
+      companyId: companyId,
+    });
+    if (isObjectEmpty(removalResult.body)) {
+      return null;
+    }
+    return {
+      success: removalResult.body.success as boolean,
+    };
+  }
+
   public async registerEmptyCompany(
     userId: string,
     userEmail: string,
@@ -96,19 +124,84 @@ export class SaasCompanyGatewayService extends BaseSaasGatewayService {
     companyId: string,
     userRole: UserRoleEnum,
     newUserEmail: string,
-  ): Promise<void> {
-    await this.sendRequestToSaaS(`/webhook/company/invitation/accept`, 'POST', {
+  ): Promise<SaaSResponse | null> {
+    const result = await this.sendRequestToSaaS(`/webhook/company/invitation/accept`, 'POST', {
       newUserId,
       companyId,
       userRole,
       newUserEmail,
     });
+    if (isObjectEmpty(result.body)) {
+      return null;
+    }
+    if (result.status > 299) {
+      throw new HttpException(
+        {
+          message: Messages.FAILED_ACCEPT_INVITATION_SAAS_UNHANDLED_ERROR,
+        },
+        result.status,
+      );
+    }
+    return {
+      status: result.status,
+      body: result.body,
+    };
   }
 
   public async getCompanyInfo(companyId: string): Promise<FoundSassCompanyInfoDS | null> {
     const result = await this.sendRequestToSaaS(`/webhook/company/${companyId}`, 'GET', null);
     if (this.isDataFoundSassCompanyInfoDS(result.body)) {
       return result.body;
+    }
+    return null;
+  }
+
+  public async updateCompanyName(companyId: string, newCompanyName: string): Promise<SuccessResponse | null> {
+    const result = await this.sendRequestToSaaS(`/webhook/company/update/name`, 'POST', {
+      companyId,
+      newCompanyName,
+    });
+    if (result.status > 299) {
+      throw new HttpException(
+        {
+          message: Messages.COMPANY_NAME_UPDATE_FAILED_UNHANDLED_ERROR,
+          originalMessage: result?.body?.message ? result.body.message : undefined,
+        },
+        result.status,
+      );
+    }
+    if (!isObjectEmpty(result.body)) {
+      return {
+        success: result.body.success as boolean,
+      };
+    }
+    return null;
+  }
+
+  public async updateUsersRolesInCompany(
+    clearUsersWithNewRoles: Array<{ userId: string; role: UserRoleEnum }>,
+    companyId: string,
+  ): Promise<SuccessResponse | null> {
+    const result = await this.sendRequestToSaaS(`/webhook/company/update/users/roles`, 'POST', {
+      clearUsersWithNewRoles,
+      companyId,
+    });
+    console.log('🚀 ~ file: saas-company-gateway.service.ts:187 ~ SaasCompanyGatewayService ~ result:', result)
+
+    if (result.status > 299) {
+      throw new HttpException(
+        {
+          message: Messages.SAAS_UPDATE_USERS_ROLES_FAILED_UNHANDLED_ERROR,
+          originalMessage: result?.body?.message ? result.body.message : undefined,
+        },
+        result.status,
+      );
+    }
+
+    if (!isObjectEmpty(result.body)) {
+      return {
+        success: result.body.success as boolean,
+      };
     }
     return null;
   }

@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, Scope } from '@nestjs/common';
 import { DataSource, QueryRunner, Repository } from 'typeorm';
 import { AgentEntity } from '../../entities/agent/agent.entity.js';
 import { IAgentRepository } from '../../entities/agent/repository/agent.repository.interface.js';
@@ -66,8 +66,11 @@ import { companyInfoRepositoryExtension } from '../../entities/company-info/repo
 import { InvitationInCompanyEntity } from '../../entities/company-info/invitation-in-company/invitation-in-company.entity.js';
 import { IInvitationInCompanyRepository } from '../../entities/company-info/invitation-in-company/repository/invitation-repository.interface.js';
 import { invitationInCompanyCustomRepositoryExtension } from '../../entities/company-info/invitation-in-company/repository/invitation-in-company-custom-repository-extension.js';
+import { UserSessionSettingsEntity } from '../../entities/user/user-session-settings/user-session-settings.entity.js';
+import { userSessionSettingsRepositoryExtension } from '../../entities/user/user-session-settings/reposiotory/user-session-settings-custom-repository.extension.js';
+import { IUserSessionSettings } from '../../entities/user/user-session-settings/reposiotory/user-session-settings-repository.interface.js';
 
-@Injectable()
+@Injectable({ scope: Scope.REQUEST })
 export class GlobalDatabaseContext implements IGlobalDatabaseContext {
   private _queryRunner: QueryRunner;
 
@@ -94,6 +97,7 @@ export class GlobalDatabaseContext implements IGlobalDatabaseContext {
   private _userGitHubIdentifierRepository: IUserGitHubIdentifierRepository;
   private _companyInfoRepository: Repository<CompanyInfoEntity> & ICompanyInfoRepository;
   private _invitationInCompanyRepository: Repository<InvitationInCompanyEntity> & IInvitationInCompanyRepository;
+  private _userSessionSettingsRepository: Repository<UserSessionSettingsEntity> & IUserSessionSettings;
 
   public constructor(
     @Inject(BaseType.DATA_SOURCE)
@@ -160,6 +164,9 @@ export class GlobalDatabaseContext implements IGlobalDatabaseContext {
     this._invitationInCompanyRepository = this.appDataSource
       .getRepository(InvitationInCompanyEntity)
       .extend(invitationInCompanyCustomRepositoryExtension);
+    this._userSessionSettingsRepository = this.appDataSource
+      .getRepository(UserSessionSettingsEntity)
+      .extend(userSessionSettingsRepositoryExtension);
   }
 
   public get userRepository(): IUserRepository {
@@ -252,6 +259,10 @@ export class GlobalDatabaseContext implements IGlobalDatabaseContext {
 
   public get invitationInCompanyRepository(): Repository<InvitationInCompanyEntity> & IInvitationInCompanyRepository {
     return this._invitationInCompanyRepository;
+  }
+
+  public get userSessionSettingsRepository(): Repository<UserSessionSettingsEntity> & IUserSessionSettings {
+    return this._userSessionSettingsRepository;
   }
 
   public startTransaction(): Promise<void> {

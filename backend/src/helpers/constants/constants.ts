@@ -356,21 +356,21 @@ export const Constants = {
     },
     COMPANY_INVITE: {
       COMPANY_INVITE_SUBJECT_DATA: 'You were invited to a company in the Rocketadmin project',
-      COMPANY_INVITE_TEXT_DATA: function (verificationString) {
-        return `You have been added to a company in the Rocketadmin project.
+      COMPANY_INVITE_TEXT_DATA: function (verificationString: string, companyId: string, companyName: string) {
+        return `You have been added to a company${companyName ? ` "${companyName}" ` : ` `}in the Rocketadmin project.
          Please follow the link and accept the invitation:
-           ${Constants.APP_DOMAIN_ADDRESS}/external/company/user/verify/${verificationString}/`;
+           ${Constants.APP_DOMAIN_ADDRESS}/company/${companyId}/verify/${verificationString}/`;
       },
-      COMPANY_INVITE_HTML_DATA: function (verificationString) {
+      COMPANY_INVITE_HTML_DATA: function (verificationString: string, companyId: string, companyName: string) {
         return `
         <body>
           <p>
             Hi!
           </p>
           <p>
-          You have been added to a company in the Rocketadmin project.
+          You have been added to a company${companyName ? ` "${companyName}" ` : ` `}in the Rocketadmin project.
           Please follow the link and accept the invitation:
-          <a href="${Constants.APP_DOMAIN_ADDRESS}/external/company/user/verify/${verificationString}"></a>
+          <a href="${Constants.APP_DOMAIN_ADDRESS}/company/${companyId}/verify/${verificationString}"></a>
           </p>
           <p>
             Thanks.

@@ -1,6 +1,7 @@
 import { Constants } from '../../../helpers/constants/constants.js';
 import { CreateUserDs } from '../application/data-structures/create-user.ds.js';
 import { RegisterUserDs } from '../application/data-structures/register-user-ds.js';
+import { ExternalRegistrationProviderEnum } from '../enums/external-registration-provider.enum.js';
 import { UserRoleEnum } from '../enums/user-role.enum.js';
 import { UserEntity } from '../user.entity.js';
 import { IUserRepository } from './user.repository.interface.js';
@@ -14,7 +15,10 @@ export const userCustomRepositoryExtension: IUserRepository = {
     return await this.save(newUser);
   },
 
-  async saveRegisteringUser(userData: RegisterUserDs): Promise<UserEntity> {
+  async saveRegisteringUser(
+    userData: RegisterUserDs,
+    externalRegistrationProvider: ExternalRegistrationProviderEnum = null,
+  ): Promise<UserEntity> {
     const newUser: UserEntity = new UserEntity();
     newUser.gclid = userData.gclidValue;
     newUser.email = userData.email;
@@ -22,6 +26,7 @@ export const userCustomRepositoryExtension: IUserRepository = {
     newUser.isActive = userData.isActive;
     newUser.name = userData.name;
     newUser.role = userData.role ? userData.role : UserRoleEnum.USER;
+    newUser.externalRegistrationProvider = externalRegistrationProvider;
     return await this.save(newUser);
   },
 
@@ -39,8 +44,14 @@ export const userCustomRepositoryExtension: IUserRepository = {
     return await userQb.getOne();
   },
 
-  async findOneUserByEmail(email: string): Promise<UserEntity | null> {
+  async findOneUserByEmail(
+    email: string,
+    externalRegistrationProvider: ExternalRegistrationProviderEnum = null,
+  ): Promise<UserEntity | null> {
     const userQb = this.createQueryBuilder('user').where('user.email = :userEmail', { userEmail: email });
+    if (externalRegistrationProvider) {
+      userQb.andWhere('user.externalRegistrationProvider = :externalRegistrationProvider', { externalRegistrationProvider: externalRegistrationProvider });
+    }
     return userQb.getOne();
   },
 
@@ -160,8 +171,18 @@ export const userCustomRepositoryExtension: IUserRepository = {
     return await userQb.getOne();
   },
 
-  async findAllUsersWithEmail(email: string): Promise<Array<UserEntity>> {
+  async findAllUsersWithEmail(
+    email: string,
+    externalRegistrationProvider: ExternalRegistrationProviderEnum = null,
+  ): Promise<Array<UserEntity>> {
     const usersQb = this.createQueryBuilder('user').where('user.email = :userEmail', { userEmail: email });
+    if (externalRegistrationProvider) {
+      usersQb.andWhere('user.externalRegistrationProvider = :externalRegistrationProvider', { externalRegistrationProvider: externalRegistrationProvider });
+    }
     return await usersQb.getMany();
+  },
+
+  async bulkSaveUpdatedUsers(updatedUsers: Array<UserEntity>): Promise<Array<UserEntity>> {
+    return await this.save(updatedUsers);
   },
 };

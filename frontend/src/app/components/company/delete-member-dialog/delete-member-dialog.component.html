@@ -1,0 +1,14 @@
+<h1 mat-dialog-title>Confirm member delete</h1>
+<mat-dialog-content>
+    <p class="mat-body">You are going to delete <strong>{{ data.user.name ||  data.user.email}}</strong> from your company.</p>
+    <br>
+    <p class="mat-body">Please confirm.</p>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-raised-button mat-dialog-close>Cancel</button>
+  <button mat-raised-button color="warn"
+    [disabled]="submitting"
+    (click)="deleteCompanyMember()">
+    Delete
+  </button>
+</mat-dialog-actions>

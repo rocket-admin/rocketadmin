@@ -3505,6 +3505,7 @@ __metadata:
     crc: ^4.3.2
     crypto-js: 4.2.0
     csv: ^6.3.5
+    docker-names: ^1.2.1
     dotenv: 16.3.1
     eslint: ^8.52.0
     eslint-config-prettier: ^9.0.0
@@ -5031,6 +5032,13 @@ __metadata:
   dependencies:
     path-type: ^4.0.0
   checksum: fa05e18324510d7283f55862f3161c6759a3f2f8dbce491a2fc14c8324c498286c54282c1f0e933cb930da8419b30679389499b919122952a4f8592362ef4615
+  languageName: node
+  linkType: hard
+
+"docker-names@npm:^1.2.1":
+  version: 1.2.1
+  resolution: "docker-names@npm:1.2.1"
+  checksum: c935a9094447d3d05130bb83f7debac0d65d2933065880ad94ce845aab87e021d81f2da23f9bd592b91a0d2132162a683a402cffe3831a1a856a7930587d3533
   languageName: node
   linkType: hard
 

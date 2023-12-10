@@ -131,14 +131,16 @@ export async function sendEmailConfirmation(
 export async function sendInvitationToCompany(
   email: string,
   verificationString: string,
+  companyId: string,
+  companyName: string,
 ): Promise<SMTPTransport.SentMessageInfo> {
   const emailFrom = getProcessVariable('EMAIL_FROM') || Constants.AUTOADMIN_SUPPORT_MAIL;
   const letterContent: IMessage = {
     from: emailFrom,
     to: email,
     subject: Constants.EMAIL.COMPANY_INVITE.COMPANY_INVITE_SUBJECT_DATA,
-    text: Constants.EMAIL.COMPANY_INVITE.COMPANY_INVITE_TEXT_DATA(verificationString),
-    html: Constants.EMAIL.COMPANY_INVITE.COMPANY_INVITE_HTML_DATA(verificationString),
+    text: Constants.EMAIL.COMPANY_INVITE.COMPANY_INVITE_TEXT_DATA(verificationString, companyId, companyName),
+    html: Constants.EMAIL.COMPANY_INVITE.COMPANY_INVITE_HTML_DATA(verificationString, companyId, companyName),
   };
   return await sendEmailToUser(letterContent);
 }

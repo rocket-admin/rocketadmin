@@ -73,12 +73,6 @@
     margin-right: 8px;
 }
 
-@media screen and (max-width: 600px) {
-    .nav-bar__upgrade-button {
-        color: #3258F0;
-    }
-}
-
 .nav-bar__account-button {
     color: #fff;
 }

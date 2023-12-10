@@ -49,6 +49,7 @@ export async function updateConnectionEntityForRestoration(
         : connection_parameters.sshUsername;
     toUpdate.cert = connection_parameters.cert;
     toUpdate.schema = connection_parameters.schema;
+    toUpdate.azure_encryption = connection_parameters.azure_encryption;
   }
   return toUpdate;
 }

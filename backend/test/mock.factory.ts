@@ -751,7 +751,7 @@ export class MockFactory {
     return dto;
   }
 
-  public generateConnectionPropertiesUserExcluded(tableName: string = null): CreateConnectionPropertiesDto {
+  public generateConnectionPropertiesUserExcluded(tableName: string = null, tables_audit = true): CreateConnectionPropertiesDto {
     tableName = tableName || 'users';
     return {
       hidden_tables: [tableName],
@@ -760,6 +760,7 @@ export class MockFactory {
       secondary_color: faker.internet.color(),
       hostname: faker.internet.url(),
       company_name: faker.company.name(),
+      tables_audit: tables_audit,
     };
   }
 

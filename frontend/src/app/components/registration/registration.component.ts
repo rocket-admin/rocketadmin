@@ -2,7 +2,7 @@ import { Component, NgZone, OnInit } from '@angular/core';
 
 import { Angulartics2 } from 'angulartics2';
 import { AuthService } from 'src/app/services/auth.service';
-import { AuthUser } from 'src/app/models/user';
+import { NewAuthUser } from 'src/app/models/user';
 import { Router } from '@angular/router';
 
 @Component({
@@ -12,7 +12,7 @@ import { Router } from '@angular/router';
 })
 export class RegistrationComponent implements OnInit {
 
-  public user: AuthUser = {
+  public user: NewAuthUser = {
     email: '',
     password: ''
   };

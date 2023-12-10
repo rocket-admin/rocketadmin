@@ -17,6 +17,7 @@ import {
 } from '../application/data-structures/otp-validation-result.ds.js';
 import { RegisteredUserDs } from '../application/data-structures/registered-user.ds.js';
 import { ResetUsualUserPasswordDs } from '../application/data-structures/reset-usual-user-password.ds.js';
+import { SaveUserSettingsDs } from '../application/data-structures/save-user-settings.ds.js';
 import { StripeIntentDs } from '../application/data-structures/stripe-intent-id.ds.js';
 import { UpgradeUserSubscriptionDs } from '../application/data-structures/upgrade-user-subscription.ds.js';
 import { UpgradedUserSubscriptionDs } from '../application/data-structures/upgraded-user-subscription.ds.js';
@@ -122,4 +123,12 @@ export interface IGetStripeIntentId {
 
 export interface IAddStripeSetupIntent {
   execute(inputData: AddStripeSetupIntentDs, inTransaction: InTransactionEnum): Promise<AddedStripeSetupIntentDs>;
+}
+
+export interface ISaveUserSettings {
+  execute(settingsData: SaveUserSettingsDs, inTransaction: InTransactionEnum): Promise<SaveUserSettingsDs>;
+}
+
+export interface IGetUserSettings {
+  execute(userId: string, inTransaction: InTransactionEnum): Promise<SaveUserSettingsDs>;
 }

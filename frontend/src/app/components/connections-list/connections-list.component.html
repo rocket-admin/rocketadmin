@@ -155,7 +155,7 @@
         {{ connections?.length ? 'Add connection' : 'Connect your database' }}
     </a>
 
-    <mat-divider class="connections-divider"></mat-divider>
+    <mat-divider *ngIf="testConnections && testConnections.length" class="connections-divider"></mat-divider>
 
     <ng-container *ngIf="testConnections && testConnections.length">
         <h1 class="mat-display-1">Demo Admin Panels</h1>

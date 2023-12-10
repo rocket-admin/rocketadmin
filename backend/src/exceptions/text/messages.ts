@@ -51,6 +51,7 @@ export const Messages = {
   COMPANY_ALREADY_EXISTS: 'Company already exists',
   COMPANY_NOT_EXISTS_IN_CONNECTION: `Connection does not attached to company. Please contact our support team`,
   COMPANY_NOT_FOUND: 'Company not found. Please contact our support team',
+  COMPANY_NAME_UPDATE_FAILED_UNHANDLED_ERROR: `Failed to update company name. Please contact our support team.`,
   COMPANIES_USER_EMAIL_NOT_FOUND: (email: string) => `No companies found for user ${email}`,
   CONNECTION_ID_MISSING: 'Connection id is missing',
   CONNECTION_NOT_CREATED: 'Connection was not successfully created.',
@@ -188,6 +189,7 @@ export const Messages = {
     } missing`,
   ROW_PRIMARY_KEY_NOT_FOUND: 'Row with this primary key not found',
   SAAS_COMPANY_NOT_REGISTERED_WITH_USER_INVITATION: `Failed to invite user in SaaS. Please contact our support team.`,
+  SAAS_UPDATE_USERS_ROLES_FAILED_UNHANDLED_ERROR: `Failed to update users roles in SaaS. Please contact our support team.`,
   SOMETHING_WENT_WRONG_ROW_ADD: 'Something went wrong on row insertion, check inserted parameters and try again',
   SSH_FORMAT_INCORRECT: 'Ssh value must be a boolean',
   SSH_HOST_MISSING: 'Ssh host is missing',
@@ -223,7 +225,7 @@ export const Messages = {
   USER_ALREADY_ADDED_BUT_NOT_ACTIVE:
     'User already added in this group, but email is not confirmed. We sent new invitation on this users email.',
   USER_ALREADY_ADDED_BUT_NOT_ACTIVE_IN_COMPANY:
-    'User already added in this company, but email is not confirmed. We sent new invitation on this users email.',  
+    'User already added in this company, but email is not confirmed. We sent new invitation on this users email.',
   USER_CREATE_CONNECTION: (email: string, connectionType: any) =>
     `Connection of type "${connectionType}" was added by user "${email}".`,
   USER_CREATED: (email: string, provider: ProviderTypeEnum = null) =>
@@ -290,9 +292,15 @@ export const Messages = {
   MAXIMUM_FREE_INVITATION_REACHED: 'Sorry, reached maximum number of users for free plan',
   MAXIMUM_FREE_INVITATION_REACHED_CANNOT_BE_INVITED:
     'Sorry you can not join this group because reached maximum number of users for free plan. Please ask you connection owner to upgrade plan or delete unnecessary user from group',
-    MAXIMUM_FREE_INVITATION_REACHED_CANNOT_BE_INVITED_IN_COMPANY:
+  MAXIMUM_FREE_INVITATION_REACHED_CANNOT_BE_INVITED_IN_COMPANY:
     'Sorry you can not join this company because reached maximum number of users for free plan. Please ask you connection owner to upgrade plan or delete unnecessary user from company',
-    FAILED_CREATE_SUBSCRIPTION_LOG: 'Failed to create subscription log. Please contact our support team.',
+  FAILED_CREATE_SUBSCRIPTION_LOG: 'Failed to create subscription log. Please contact our support team.',
   FAILED_CREATE_SUBSCRIPTION_LOG_YOUR_CUSTOMER_IS_DELETED: `Failed to create subscription log. Your customer is deleted. Please contact our support team.`,
   URL_INVALID: `Url is invalid`,
+  FAILED_REMOVE_USER_SAAS_UNHANDLED_ERROR: `Failed to remove user from company. Please contact our support team.`,
+  FILED_REVOKE_USER_INVITATION_UNHANDLED_ERROR: `Failed to revoke user invitation. Please contact our support team.`,
+  FAILED_ACCEPT_INVITATION_SAAS_UNHANDLED_ERROR: `Failed to accept user invitation. Failed process webhook. Please contact our support team.`,
+  NOTHING_TO_REVOKE: `Nothing to revoke`,
+  NO_USERS_FOUND_TO_UPDATE_ROLES: `No users found to update roles`,
+  USER_ROLES_UPDATE_FAILED: `Failed to update user roles`,
 };

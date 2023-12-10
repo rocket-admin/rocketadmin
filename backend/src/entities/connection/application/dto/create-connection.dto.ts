@@ -99,5 +99,6 @@ export class CreateConnectionDto {
 
   @IsOptional()
   @IsBoolean()
+  @ApiProperty({ required: false })
   isTestConnection?: boolean;
 }

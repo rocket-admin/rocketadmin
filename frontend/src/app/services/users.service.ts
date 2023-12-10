@@ -129,7 +129,7 @@ export class UsersService {
       .pipe(
         map((res) => {
           this.groups.next(groupID);
-          // this._notifications.showSuccessSnackbar('User has been added to group.');
+          this._notifications.showSuccessSnackbar('User has been added to group.');
           return res;
         }),
         catchError((err) => {

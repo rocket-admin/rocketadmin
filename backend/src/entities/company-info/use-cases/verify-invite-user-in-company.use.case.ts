@@ -1,4 +1,4 @@
-import { Injectable, Inject, HttpException, HttpStatus } from '@nestjs/common';
+import { Injectable, Inject, HttpException, HttpStatus, Scope } from '@nestjs/common';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
@@ -9,7 +9,7 @@ import { Messages } from '../../../exceptions/text/messages.js';
 import { AcceptUserValidationInCompany } from '../application/data-structures/accept-user-invitation-in-company.ds.js';
 import { isSaaS } from '../../../helpers/app/is-saas.js';
 
-@Injectable()
+@Injectable({ scope: Scope.REQUEST })
 export class VerifyInviteUserInCompanyAndConnectionGroupUseCase
   extends AbstractUseCase<AcceptUserValidationInCompany, IToken>
   implements IVerifyInviteUserInCompanyAndConnectionGroup
@@ -84,13 +84,21 @@ export class VerifyInviteUserInCompanyAndConnectionGroupUseCase
       }
     }
     await this._dbContext.invitationInCompanyRepository.remove(foundInvitation);
-    if (isSaaS) {
-      await this.saasCompanyGatewayService.invitationAcceptedWebhook(
+    if (isSaaS()) {
+      const saasResult = await this.saasCompanyGatewayService.invitationAcceptedWebhook(
         savedUser.id,
         foundInvitation.company.id,
         foundInvitation.role,
         savedUser.email,
       );
+      if (!saasResult) {
+        throw new HttpException(
+          {
+            message: Messages.FAILED_ACCEPT_INVITATION_SAAS_UNHANDLED_ERROR,
+          },
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
     }
     return generateGwtToken(newUser);
   }

@@ -44,6 +44,7 @@ import { AddUserInGroupDto } from './dto/add-user-ingroup-dto.js';
 import { TokenExpirationResponseDto } from '../company-info/application/dto/token-expiration-response.dto.js';
 import { DeleteUserFromGroupDTO } from './dto/delete-user-from-group-dto.js';
 import { VerifyUserInGroupInvitationDto } from './dto/verify-user-in-group-invitation-request-body.dto.js';
+import { getCookieDomainOptions } from '../user/utils/get-cookie-domain-options.js';
 
 @UseInterceptors(SentryInterceptor)
 @Controller()
@@ -173,7 +174,16 @@ export class GroupController {
       user_name: name,
     };
     const token: IToken = await this.verifyAddUserInGroupUseCase.execute(inputData, InTransactionEnum.ON);
-    response.cookie(Constants.JWT_COOKIE_KEY_NAME, token.token);
+    response.cookie(Constants.JWT_COOKIE_KEY_NAME, token.token, {
+      httpOnly: true,
+      secure: true,
+      expires: token.exp,
+      ...getCookieDomainOptions(),
+    });
+    response.cookie(Constants.ROCKETADMIN_AUTHENTICATED_COOKIE, 1, {
+      httpOnly: false,
+      ...getCookieDomainOptions(),
+    });
     return {
       expires: token.exp,
       isTemporary: token.isTemporary,

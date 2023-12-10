@@ -122,9 +122,17 @@ export class UsersComponent implements OnInit, OnDestroy {
     this._usersService.fetcGroupUsers(groupID)
       .subscribe(res => {
         if (res.length) {
-          this.users[groupID] = res
+          let groupUsers = [...res];
+          const userIndex = groupUsers.findIndex(user => user.email === this.currentUser.email);
+
+          if (userIndex !== -1) {
+            const user = groupUsers.splice(userIndex, 1)[0];
+            groupUsers.unshift(user);
+          }
+
+          this.users[groupID] = groupUsers;
         } else {
-          this.users[groupID] = 'empty'
+          this.users[groupID] = 'empty';
         };
       })
   }

@@ -1,0 +1,28 @@
+<h1 mat-dialog-title>Add member to <strong>{{company.name}}</strong> company</h1>
+<form action="" #addUserForm="ngForm" (ngSubmit)="addCompanyMember()">
+    <mat-dialog-content>
+        <mat-form-field appearance="outline" class="add-member-input">
+            <mat-label>Enter user email</mat-label>
+            <input matInput type="email" [(ngModel)]="companyMemberEmail"
+                name="email" #email="ngModel" required emailValidator [disabled]="submitting">
+            <mat-error *ngIf="email.errors?.required && (email.invalid && email.touched)">Title should not be empty.</mat-error>
+            <mat-error *ngIf="email.errors?.isInvalidEmail">Invalid email format.</mat-error>
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="add-member-input">
+            <mat-label>Role</mat-label>
+            <mat-select name="memberType" #memberType="ngModel"
+                [disabled]="submitting"
+                [(ngModel)]="companyMemberRole">
+                <mat-option value="ADMIN">Super admin</mat-option>
+                <mat-option value="USER">Member</mat-option>
+            </mat-select>
+        </mat-form-field>
+    </mat-dialog-content>
+    <mat-dialog-actions align="end">
+        <button type="button" mat-raised-button mat-dialog-close>Cancel</button>
+        <button mat-raised-button color="primary"
+            [disabled]="submitting || addUserForm.form.invalid">
+            Add
+        </button>
+    </mat-dialog-actions>
+</form>

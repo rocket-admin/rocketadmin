@@ -19,6 +19,12 @@ import { CompanyInfoController } from './company-info.controller.js';
 import { GetUserCompanyUseCase } from './use-cases/get-user-company.use.case.js';
 import { GetUserCompanyFullInfoUseCase } from './use-cases/get-full-user-company-info.use.case.js';
 import { GetUserEmailCompaniesUseCase } from './use-cases/get-user-email-companies.use.case.js';
+import { GetAllUsersInCompanyUseCase } from './use-cases/get-all-users-in-company.use.case.js';
+import { RemoveUserFromCompanyUseCase } from './use-cases/remove-user-from-company.use.case.js';
+import { RevokeUserInvitationInCompanyUseCase } from './use-cases/revoke-invitation-in-company.use.case.js';
+import { UpdateCompanyNameUseCase } from './use-cases/update-company-name.use.case.js';
+import { GetCompanyNameUseCase } from './use-cases/get-company-name.use.case.js';
+import { UpdateUsersCompanyRolesUseCase } from './use-cases/update-users-company-roles.use.case.js';
 
 @Module({
   imports: [
@@ -59,7 +65,31 @@ import { GetUserEmailCompaniesUseCase } from './use-cases/get-user-email-compani
     {
       provide: UseCaseType.GET_USER_EMAIL_COMPANIES,
       useClass: GetUserEmailCompaniesUseCase,
-    }
+    },
+    {
+      provide: UseCaseType.GET_USERS_IN_COMPANY,
+      useClass: GetAllUsersInCompanyUseCase,
+    },
+    {
+      provide: UseCaseType.REMOVE_USER_FROM_COMPANY,
+      useClass: RemoveUserFromCompanyUseCase,
+    },
+    {
+      provide: UseCaseType.REVOKE_INVITATION_IN_COMPANY,
+      useClass: RevokeUserInvitationInCompanyUseCase,
+    },
+    {
+      provide: UseCaseType.UPDATE_COMPANY_NAME,
+      useClass: UpdateCompanyNameUseCase,
+    },
+    {
+      provide: UseCaseType.GET_COMPANY_NAME,
+      useClass: GetCompanyNameUseCase,
+    },
+    {
+      provide: UseCaseType.UPDATE_USERS_COMPANY_ROLES,
+      useClass: UpdateUsersCompanyRolesUseCase,
+    },
   ],
   controllers: [CompanyInfoController],
 })
@@ -71,6 +101,11 @@ export class CompanyInfoModule implements NestModule {
         { path: '/company/user/:slug', method: RequestMethod.PUT },
         { path: '/company/my', method: RequestMethod.GET },
         { path: 'company/my/full', method: RequestMethod.GET },
+        { path: '/company/users/:slug', method: RequestMethod.GET },
+        { path: '/company/:companyId/user/:userId', method: RequestMethod.DELETE },
+        { path: '/company/invitation/revoke/:slug', method: RequestMethod.PUT },
+        { path: '/company/name/:slug', method: RequestMethod.PUT },
+        { path: '/company/users/roles/:companyId', method: RequestMethod.PUT },
       );
   }
 }

@@ -606,10 +606,6 @@ test(`${currentTest} should return permissions object for current group in curre
       .set('Accept', 'application/json');
     t.is(getGroupsResponse.status, 200);
     const getGroupsRO = JSON.parse(getGroupsResponse.text);
-    console.log(
-      '🚀 ~ file: non-saas-user-with-table-only-permissions-e2e.test.ts:599 ~ test.only ~ getGroupsRO:',
-      getGroupsRO,
-    );
     const groupId = getGroupsRO[0].group.id;
 
     const response = await request(app.getHttpServer())
@@ -2075,6 +2071,75 @@ test(`${currentTest} should return all found logs in connection'`, async (t) => 
     t.is(getRowInTableRO.logs[0].hasOwnProperty('operationStatusResult'), true);
     t.is(getRowInTableRO.logs[0].hasOwnProperty('createdAt'), true);
     t.is(getRowInTableRO.logs[0].hasOwnProperty('connection_id'), true);
+  } catch (e) {
+    console.error(e);
+    throw e;
+  }
+});
+
+test(`${currentTest} should not return all found logs in connection, when table audit is disabled in connection'`, async (t) => {
+  try {
+    const testData = await createConnectionsAndInviteNewUserInNewGroupWithOnlyTablePermissions(app);
+    const {
+      connections,
+      firstTableInfo,
+      groups,
+      permissions,
+      secondTableInfo,
+      users: { adminUserToken, simpleUserToken },
+    } = testData;
+    const randomName = faker.person.firstName();
+    const randomEmail = faker.internet.email();
+    const created_at = new Date();
+    const updated_at = new Date();
+
+    const updateConnection = mockFactory.generateConnectionToTestPostgresDBInDocker();
+
+    const updateConnectionResponse = await request(app.getHttpServer())
+      .put(`/connection/${connections.firstId}`)
+      .send(updateConnection)
+      .set('Cookie', adminUserToken)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+
+    t.is(updateConnectionResponse.status, 200);
+
+    const newConnectionProperties = mockFactory.generateConnectionPropertiesUserExcluded(null, false);
+    newConnectionProperties.hidden_tables = [];
+    newConnectionProperties.tables_audit = false;
+
+    const createConnectionPropertiesResponse = await request(app.getHttpServer())
+      .post(`/connection/properties/${connections.firstId}`)
+      .send(newConnectionProperties)
+      .set('Cookie', adminUserToken)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+
+    const connectionPropertiesResult = JSON.parse(createConnectionPropertiesResponse.text);
+
+    t.is(createConnectionPropertiesResponse.status, 201);
+
+    const addRowInTable = await request(app.getHttpServer())
+      .post(`/table/row/${connections.firstId}?tableName=${firstTableInfo.testTableName}`)
+      .send({
+        [firstTableInfo.testTableColumnName]: randomName,
+        [firstTableInfo.testTableSecondColumnName]: randomEmail,
+        created_at: created_at,
+        updated_at: updated_at,
+      })
+      .set('Cookie', simpleUserToken)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+    t.is(addRowInTable.status, 201);
+
+    const getTableLogs = await request(app.getHttpServer())
+      .get(`/logs/${connections.firstId}`)
+      .set('Cookie', simpleUserToken)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+    const getRowInTableRO = JSON.parse(getTableLogs.text);
+
+    t.is(getRowInTableRO.logs.length, 0);
   } catch (e) {
     console.error(e);
     throw e;

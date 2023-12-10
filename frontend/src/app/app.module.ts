@@ -106,6 +106,12 @@ import { UsersService } from './services/users.service';
 import { WidgetDeleteDialogComponent } from './components/dashboard/db-table-widgets/widget-delete-dialog/widget-delete-dialog.component';
 import { environment } from '../environments/environment';
 import { PasswordStrengthMeterModule } from 'angular-password-strength-meter';
+import { CompanyComponent } from './components/company/company.component';
+import { InviteMemberDialogComponent } from './components/company/invite-member-dialog/invite-member-dialog.component';
+import { CompanyMemberInvitationComponent } from './components/company-member-invitation/company-member-invitation.component';
+import { DeleteMemberDialogComponent } from './components/company/delete-member-dialog/delete-member-dialog.component';
+import { RevokeInvitationDialogComponent } from './components/company/revoke-invitation-dialog/revoke-invitation-dialog.component';
+
 type Palettes = { primaryPalette: string, accentedPalette: string, warnPalette: string };
 type Colors = { myColorName: string };
 
@@ -210,6 +216,11 @@ const saasExtraProviders = (environment as any).saas ? [
     PaymentFormComponent,
     EnableTwoFADialogComponent,
     IconPickerComponent,
+    CompanyComponent,
+    InviteMemberDialogComponent,
+    CompanyMemberInvitationComponent,
+    DeleteMemberDialogComponent,
+    RevokeInvitationDialogComponent,
   ],
   entryComponents: [
     DbActionConfirmationDialogComponent,

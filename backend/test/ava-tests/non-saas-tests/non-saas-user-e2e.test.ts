@@ -146,3 +146,80 @@ test(`${currentTest} reject authorization when try to login with wrong password`
   }
   t.pass();
 });
+
+currentTest = 'POST /user/settings';
+test(`${currentTest} should return created user settings`, async (t) => {
+  try {
+    const adminUserRegisterInfo = await registerUserAndReturnUserInfo(app);
+    const { token } = adminUserRegisterInfo;
+
+    const settings = JSON.stringify({ test: 'test' });
+
+    const saveUserSettingsResult = await request(app.getHttpServer())
+      .post('/user/settings')
+      .send({ userSettings: settings })
+      .set('Cookie', token)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+
+    t.is(saveUserSettingsResult.status, 201);
+    const saveUserSettingsRO = JSON.parse(saveUserSettingsResult.text);
+    t.is(saveUserSettingsRO.hasOwnProperty('userSettings'), true);
+    t.is(JSON.parse(saveUserSettingsRO.userSettings).test, 'test');
+  } catch (err) {
+    throw err;
+  }
+  t.pass();
+});
+
+currentTest = 'GET /user/settings';
+test(`${currentTest} should return empty user settings when it was not created`, async (t) => {
+  try {
+    const adminUserRegisterInfo = await registerUserAndReturnUserInfo(app);
+    const { token } = adminUserRegisterInfo;
+
+    const getUserSettingsResult = await request(app.getHttpServer())
+      .get('/user/settings')
+      .set('Cookie', token)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+    const getUserSettingsRO = JSON.parse(getUserSettingsResult.text);
+    t.is(getUserSettingsResult.status, 200);
+    t.is(getUserSettingsRO.hasOwnProperty('userSettings'), true);
+    t.is(getUserSettingsRO.userSettings, null);
+  } catch (err) {
+    throw err;
+  }
+  t.pass();
+});
+
+test(`${currentTest} should return user settings when it was created`, async (t) => {
+  try {
+    const adminUserRegisterInfo = await registerUserAndReturnUserInfo(app);
+    const { token } = adminUserRegisterInfo;
+
+    const settings = JSON.stringify({ test: 'test' });
+
+    const saveUserSettingsResult = await request(app.getHttpServer())
+      .post('/user/settings')
+      .send({ userSettings: settings })
+      .set('Cookie', token)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+
+    t.is(saveUserSettingsResult.status, 201);
+
+    const getUserSettingsResult = await request(app.getHttpServer())
+      .get('/user/settings')
+      .set('Cookie', token)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+    const getUserSettingsRO = JSON.parse(getUserSettingsResult.text);
+    t.is(getUserSettingsResult.status, 200);
+    t.is(getUserSettingsRO.hasOwnProperty('userSettings'), true);
+    t.is(JSON.parse(getUserSettingsRO.userSettings).test, 'test');
+  } catch (err) {
+    throw err;
+  }
+  t.pass();
+});
