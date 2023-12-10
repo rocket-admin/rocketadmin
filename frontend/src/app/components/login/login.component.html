@@ -33,14 +33,17 @@
                 <mat-radio-group
                     class="companiesRadioGroup"
                     [(ngModel)]="user.companyId">
-                <mat-radio-button class="example-radio-button" *ngFor="let company of userCompanies" [value]="company.id">
-                    {{company.name}}
-                </mat-radio-button>
+                    <mat-radio-button *ngFor="let company of userCompanies; let i = index"
+                        [value]="company.id"
+                        attr.data-testid="user-company-{{i}}">
+                        {{company.name}}
+                    </mat-radio-button>
                 </mat-radio-group>
             </div>
 
             <button *ngIf="!user.companyId"
                 type="button" mat-raised-button color="accent"
+                data-testid="login-next-button"
                 class="login-button"
                 [disabled]="submitting"
                 (click)="requestUserCompanies()">

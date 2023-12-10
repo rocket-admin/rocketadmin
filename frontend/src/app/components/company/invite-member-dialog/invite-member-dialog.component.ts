@@ -2,6 +2,7 @@ import { CompanyMemberRole } from 'src/app/models/company';
 import { CompanyService } from 'src/app/services/company.service';
 import { Component, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { Angulartics2 } from 'angulartics2';
 
 @Component({
   selector: 'app-invite-member-dialog',
@@ -17,6 +18,7 @@ export class InviteMemberDialogComponent {
     @Inject(MAT_DIALOG_DATA) public company: any,
     public dialogRef: MatDialogRef<InviteMemberDialogComponent>,
     private _company: CompanyService,
+    private angulartics2: Angulartics2,
   ) { }
 
   ngOnInit(): void {
@@ -27,6 +29,10 @@ export class InviteMemberDialogComponent {
     this.submitting = true;
     this._company.inviteCompanyMember(this.company.id, null, this.companyMemberEmail, this.companyMemberRole)
     .subscribe(() => {
+      this.angulartics2.eventTrack.next({
+        action: 'Company: member is invited successfully',
+      });
+
       this.submitting = false;
       this.dialogRef.close();
     },

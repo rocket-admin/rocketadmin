@@ -5,6 +5,7 @@ import { Component, OnInit } from '@angular/core';
 import { map } from 'rxjs/operators';
 import { AuthService } from 'src/app/services/auth.service';
 import { CompanyService } from 'src/app/services/company.service';
+import { Angulartics2 } from 'angulartics2';
 
 @Component({
   selector: 'app-company-member-invitation',
@@ -24,6 +25,7 @@ export class CompanyMemberInvitationComponent implements OnInit {
     private _company: CompanyService,
     private router: Router,
     private route: ActivatedRoute,
+    private angulartics2: Angulartics2,
   ) {}
 
   ngOnInit(): void {
@@ -43,6 +45,9 @@ export class CompanyMemberInvitationComponent implements OnInit {
 
   acceptInvitation() {
     this._auth.acceptCompanyInvitation(this.token, this.password, this.userName).subscribe(() => {
+      this.angulartics2.eventTrack.next({
+        action: 'Company invitation: invitation is accepted successfully',
+      });
       this.router.navigate(['/connections-list'])
     })
   }
