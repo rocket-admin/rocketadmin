@@ -24,7 +24,9 @@
                 <mat-radio-group
                     class="companiesRadioGroup"
                     [(ngModel)]="user.companyId">
-                    <mat-radio-button class="example-radio-button" *ngFor="let company of userCompanies" [value]="company.id">
+                    <mat-radio-button *ngFor="let company of userCompanies; let i = index"
+                        [value]="company.id"
+                        attr.data-testid="user-company-{{i}}">
                         {{company.name}}
                     </mat-radio-button>
                 </mat-radio-group>
@@ -32,6 +34,7 @@
 
             <button *ngIf="!user.companyId"
                 type="button" mat-raised-button color="accent"
+                data-testid="login-next-button"
                 class="login-button"
                 [disabled]="submitting"
                 (click)="requestUserCompanies()">
@@ -46,9 +49,6 @@
                     angulartics2On="change"
                     angularticsAction="Login: password is changed"
                     [(ngModel)]="user.password">
-                <mat-hint>
-                    <a routerLink="/forget-password" class="link" data-testid="forgot-password-link">Forgot password</a>
-                </mat-hint>
                 <!-- <mat-error *ngIf="port.errors?.required && (port.invalid && port.touched)">Port should not be empty.</mat-error> -->
             </mat-form-field>
 
