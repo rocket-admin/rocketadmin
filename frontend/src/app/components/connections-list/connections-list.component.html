@@ -129,7 +129,7 @@
     </div>
 
     <ul *ngIf="connections" class="connections">
-        <li *ngFor="let connectionItem of connections" class="connectionItem">
+        <li *ngFor="let connectionItem of connections | slice:0:displayedCardCount" class="connectionItem">
             <a routerLink="/dashboard/{{connectionItem.connection.id}}" class="connection"
                 angulartics2On="click"
                 angularticsAction="Connections: open own db is clicked">
@@ -144,6 +144,17 @@
             </a>
         </li>
     </ul>
+
+    <button *ngIf="displayedCardCount < connections.length"
+        type="button" mat-button color="accent"
+        class="showAllButton" (click)="showMore()">
+        Show all
+    </button>
+    <button *ngIf="displayedCardCount > 3"
+        type="button" mat-button color="accent"
+        class="showAllButton" (click)="showLess()">
+        Show less
+    </button>
 
     <a mat-flat-button data-testid="add-connection-button"
         color="primary"
