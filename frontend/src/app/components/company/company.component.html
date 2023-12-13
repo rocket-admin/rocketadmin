@@ -1,10 +1,10 @@
 <app-alert></app-alert>
 
 <div *ngIf="company" class="companyPage">
-    <h1 class="mat-h1">
-        Company settings
+    <h1 class="mat-h1 companyPageHeader">
+        <strong>{{ company.name }}</strong> company settings
     </h1>
-    <form class="company-name-settings" (ngSubmit)="changeCompanyName()">
+    <form *ngIf="currentUser && currentUser.role === 'ADMIN'" class="company-name-settings" (ngSubmit)="changeCompanyName()">
         <mat-form-field appearance="outline" class="company-name-settings__name">
             <mat-label>Name</mat-label>
             <input matInput name="user-name" #nameField="ngModel"
@@ -13,8 +13,8 @@
                 angularticsAction="Company: company name is edited"
                 [(ngModel)]="company.name">
         </mat-form-field>
-        <button type="submit" mat-button color="primary"
-            class="company-name-settings__save-button"
+        <button type="submit"
+            mat-button color="primary" class="company-name-settings__save-button"
             [disabled]="!nameField.dirty || submittingChangedName">
             Save
         </button>
@@ -30,7 +30,8 @@
                 </span>
             </span>
         </div>
-        <a mat-button color="accent" class="upgrade-button"
+        <a *ngIf="currentUser && currentUser.role === 'ADMIN'"
+            mat-button color="accent" class="upgrade-button"
             routerLink="/upgrade"
             class="user-settings__button"
             angulartics2On="click"
@@ -109,7 +110,7 @@
                     Revoke
                 </button>
                 <ng-template #deleteUserButton>
-                    <button mat-button *ngIf="adminsCount !== 1 || currentUser.role === 'ADMIN'"
+                    <button mat-button *ngIf="adminsCount > 1 && currentUser.role === 'ADMIN'"
                         type="button" color="warn"
                         angulartics2On="click"
                         angularticsAction="Company: Delete member is clicked"
