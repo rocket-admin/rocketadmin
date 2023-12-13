@@ -17,14 +17,14 @@
     </ng-template>
   </mat-dialog-content>
   <mat-dialog-actions align="end">
-    <button type="button" mat-raised-button mat-dialog-close>Cancel</button>
+    <button type="button" mat-flat-button mat-dialog-close>Cancel</button>
     <button *ngIf="availableMembers && availableMembers.length; else companyButton"
-      mat-raised-button color="primary"
+      mat-flat-button color="primary"
       [disabled]="submitting || addUserForm.form.invalid">
       Add
     </button>
     <ng-template #companyButton>
-      <a mat-raised-button mat-dialog-close
+      <a mat-flat-button mat-dialog-close
         color="primary"
         routerLink="/company">
         Open company page
