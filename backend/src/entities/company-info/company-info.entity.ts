@@ -2,8 +2,7 @@ import { BeforeInsert, Column, Entity, OneToMany, PrimaryColumn, Relation } from
 import { UserEntity } from '../user/user.entity.js';
 import { ConnectionEntity } from '../connection/connection.entity.js';
 import { InvitationInCompanyEntity } from './invitation-in-company/invitation-in-company.entity.js';
-import DockerNames from 'docker-names';
-import { nanoid } from 'nanoid';
+import { getCompanyName } from './utils/get-company-name.js';
 
 @Entity('company_info')
 export class CompanyInfoEntity {
@@ -21,7 +20,7 @@ export class CompanyInfoEntity {
   @BeforeInsert()
   getRandomName(): void {
     if (!this.name) {
-      this.name = `${DockerNames.getRandomName()}_${nanoid(5)}`;
+      this.name = getCompanyName();
     }
   }
 
