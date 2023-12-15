@@ -76,7 +76,7 @@ export class UserEntity {
   @JoinTable()
   connections: Relation<ConnectionEntity>[];
 
-  @ManyToOne(() => CompanyInfoEntity, (company) => company.users)
+  @ManyToOne(() => CompanyInfoEntity, (company) => company.users, { onDelete: 'SET NULL' })
   @JoinTable()
   company: Relation<CompanyInfoEntity>;
 
