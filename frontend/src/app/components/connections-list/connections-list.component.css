@@ -90,10 +90,14 @@
         0px 8px 10px 0px rgba(0, 0, 0, 0.14);
 }
 
-.connection__logoPreview {
+.connectionLogoPreview {
     flex-shrink: 0;
     display: flex;
+    /* flex-direction: column; */
+    /* align-items: flex-start; */
     align-items: center;
+    /* justify-content: center; */
+    gap: 4px;
     background-color: var(--color-primaryPalette-500);
     border-radius: 2px;
     color: #fff;
@@ -102,6 +106,16 @@
     height: 52px;
     margin-bottom: 4px;
     padding: 8px;
+}
+
+.connectionLogoPreview__logo {
+    height: 100%;
+    object-fit: contain;
+}
+
+.connectionLogoPreview__name {
+    margin-bottom: 0;
+    font-size: 20px;
 }
 
 .connectionInfo {
@@ -162,6 +176,7 @@
 }
 
 .testConnectionLink__iconBox {
+    flex-shrink: 0;
     display: flex;
     align-items: center;
     justify-content: center;
