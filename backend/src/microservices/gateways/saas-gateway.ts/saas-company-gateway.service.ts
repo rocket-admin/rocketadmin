@@ -186,7 +186,6 @@ export class SaasCompanyGatewayService extends BaseSaasGatewayService {
       clearUsersWithNewRoles,
       companyId,
     });
-    console.log('🚀 ~ file: saas-company-gateway.service.ts:187 ~ SaasCompanyGatewayService ~ result:', result)
 
     if (result.status > 299) {
       throw new HttpException(
