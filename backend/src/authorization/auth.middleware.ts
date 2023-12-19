@@ -55,15 +55,15 @@ export class AuthMiddleware implements NestMiddleware {
       if (!userId) {
         throw new Error('JWT verification failed');
       }
-      const foundUser = await this.userRepository.findOne({ where: { id: userId } });
-      if (!foundUser) {
-        throw new HttpException(
-          {
-            message: Messages.USER_NOT_FOUND,
-          },
-          HttpStatus.UNAUTHORIZED,
-        );
-      }
+      // const foundUser = await this.userRepository.findOne({ where: { id: userId } });
+      // if (!foundUser) {
+      //   throw new HttpException(
+      //     {
+      //       message: Messages.USER_NOT_FOUND,
+      //     },
+      //     HttpStatus.UNAUTHORIZED,
+      //   );
+      // }
       const payload = {
         sub: userId,
         email: data['email'],
