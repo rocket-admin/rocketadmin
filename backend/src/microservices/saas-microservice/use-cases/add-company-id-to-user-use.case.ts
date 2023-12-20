@@ -23,10 +23,20 @@ export class AddCompanyIdToUserUseCase
       where: { id: companyId },
       relations: ['users'],
     });
-    if (!foundUser || !foundCompanyWithUsers) {
+
+    if (!foundUser) {
       throw new HttpException(
         {
-          message: 'Required entity not found',
+          message: 'Required user not found',
+        },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+
+    if (!foundCompanyWithUsers) {
+      throw new HttpException(
+        {
+          message: 'Required company not found',
         },
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
