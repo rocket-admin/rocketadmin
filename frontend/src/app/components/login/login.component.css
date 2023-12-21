@@ -15,8 +15,6 @@
     justify-content: center;
     align-items: center;
     height: 100%;
-    /* margin: 0 auto; */
-    /* width: 464px; */
 }
 
 @media screen and (max-width: 600px) {
@@ -28,6 +26,7 @@
 .login-form {
     display: grid;
     grid-template-columns: 360px 52px 360px;
+    grid-template-rows: auto 64px 64px 64px auto;
     justify-items: center;
 }
 
@@ -60,27 +59,29 @@
     width: 100%;
 }
 
+.login-form__companies {
+    width: 100%;
+}
+
 .login-form__password {
-    grid-column: 1;
-    grid-row: 3;
+    /* grid-column: 1;
+    grid-row: 3; */
     width: 100%;
 }
 
 .login-form__login-button {
-    grid-column: 1;
+    /* grid-column: 1;
     grid-row: 4;
     height: 40px;
-    width: 100%;
+    width: 100%; */
+    grid-column: 1 / span 3;
+    grid-row: 5;
 }
 
 .login-form__google-button {
     grid-column: 3;
     grid-row: 2;
 }
-
-/* .login-form__google-button ::ng-deep div {
-    height: 56px;
-} */
 
 .login-form__github-button {
     grid-column: 3;
@@ -103,7 +104,7 @@
 
 .login-form__link {
     grid-column: 1 / span 3;
-    grid-row: 5;
+    grid-row: 6;
     padding-top: 48px;
 }
 
@@ -148,4 +149,35 @@
     flex-direction: column;
     align-items: flex-start;
     margin-bottom: 12px;
+}
+
+.login-form__field-loader {
+    position: relative;
+    background-color: rgba(0, 0, 0, 0.06);
+    overflow: hidden;
+    height: 44px;
+    width: 100%;
+}
+
+.login-form__field-loader::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    transform: translateX(-100%);
+    background-image: linear-gradient(
+        90deg,
+        transparent 30%,
+        rgba(255,255,255, 1),
+        transparent 70%
+    );
+    animation: shimmer 800ms ease-in-out infinite alternate-reverse;
+}
+
+@keyframes shimmer {
+    100% {
+        transform: translateX(100%);
+    }
 }

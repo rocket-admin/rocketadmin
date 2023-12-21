@@ -28,30 +28,18 @@
                 <mat-error *ngIf="email.errors?.isInvalidEmail">Invalid email format.</mat-error>
             </mat-form-field>
 
-            <div *ngIf="userCompanies && userCompanies.length > 1">
-                <label>Pick a company you want to log in</label><br/>
-                <mat-radio-group
-                    class="companiesRadioGroup"
-                    [(ngModel)]="user.companyId">
-                    <mat-radio-button *ngFor="let company of userCompanies; let i = index"
-                        [value]="company.id"
-                        attr.data-testid="user-company-{{i}}">
-                        {{company.name}}
-                    </mat-radio-button>
-                </mat-radio-group>
-            </div>
+            <div *ngIf="isLoadingUserCompanies" class="login-form__field-loader"></div>
 
-            <button *ngIf="!user.companyId"
-                type="button" mat-flat-button color="accent"
-                data-testid="login-next-button"
-                class="login-button"
-                [disabled]="submitting"
-                (click)="requestUserCompanies()">
-                {{ submitting ? 'Submitting' : 'Next'}}
-            </button>
+            <mat-form-field appearance="fill" *ngIf="userCompanies && userCompanies.length > 1" class="login-form__companies">
+                <mat-label>Company</mat-label>
+                <mat-select [(ngModel)]="user.companyId">
+                  <mat-option *ngFor="let company of userCompanies; let i = index" [value]="company.id">
+                    {{company.name}}
+                  </mat-option>
+                </mat-select>
+            </mat-form-field>
 
-
-            <mat-form-field appearance="outline" *ngIf="isPasswordFieldShown || user.companyId">
+            <mat-form-field *ngIf="isPasswordFieldShown || user.companyId" class="login-form__password">
                 <mat-label>Password</mat-label>
                 <input matInput type="password" name="password" data-testid="login-password-input"
                     #password="ngModel" required
@@ -60,15 +48,6 @@
                     [(ngModel)]="user.password">
                 <!-- <mat-error *ngIf="port.errors?.required && (port.invalid && port.touched)">Port should not be empty.</mat-error> -->
             </mat-form-field>
-
-            <button type="submit" mat-flat-button color="accent" *ngIf="isPasswordFieldShown || user.companyId"
-                data-testid="login-button"
-                class="login-button"
-                angulartics2On="click"
-                angularticsAction="Login: login is clicked"
-                [disabled]="submitting || loginForm.form.invalid || loginForm.form.pristine">
-                {{ submitting ? 'Submitting' : 'Log in'}}
-            </button>
 
             <div class="divider"><span class="divider__label">or</span></div>
 
@@ -93,6 +72,24 @@
                 angularticsAction="Login: login with github is clicked"
                 [disabled]="submitting">
                 Continue with SSO
+            </button>
+
+            <button *ngIf="!user.companyId"
+                type="button" mat-stroked-button
+                data-testid="login-next-button"
+                class="login-form__login-button"
+                [disabled]="submitting"
+                (click)="requestUserCompanies()">
+                {{ submitting ? 'Submitting' : 'Next'}}
+            </button>
+
+            <button type="submit" mat-flat-button color="accent" *ngIf="isPasswordFieldShown || user.companyId"
+                data-testid="login-button"
+                class="login-form__login-button"
+                angulartics2On="click"
+                angularticsAction="Login: login is clicked"
+                [disabled]="submitting || loginForm.form.invalid || loginForm.form.pristine">
+                {{ submitting ? 'Submitting' : 'Log in'}}
             </button>
 
             <a routerLink="/forget-password" class="login-form__link link" data-testid="forgot-password-link">Can’t Log In?</a>

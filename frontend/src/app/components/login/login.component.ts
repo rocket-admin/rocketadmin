@@ -17,7 +17,8 @@ export class LoginComponent implements OnInit {
     password: '',
     companyId: ''
   };
-  public userCompanies: [];
+  public userCompanies: [] = null;
+  public isLoadingUserCompanies: boolean = false;
   public authCode: string;
   public submitting: boolean;
   public isPasswordFieldShown: boolean = false;
@@ -54,6 +55,7 @@ export class LoginComponent implements OnInit {
   }
 
   requestUserCompanies() {
+    this.isLoadingUserCompanies = true;
     this._auth.fetchUserCompanies(this.user.email)
       .subscribe(companies => {
         this.angulartics2.eventTrack.next({
@@ -64,6 +66,7 @@ export class LoginComponent implements OnInit {
         })
 
         this.userCompanies = companies;
+        this.isLoadingUserCompanies = false;
 
         if (companies.length === 1) {
           this.isPasswordFieldShown = true;
