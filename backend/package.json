@@ -41,7 +41,7 @@
     "@nestjs/swagger": "^7.1.17",
     "@nestjs/typeorm": "^10.0.1",
     "@nestjsx/crud": "4.6.2",
-    "@nt egral/nestjs-sentry": "4.0.0",
+    "@ntegral/nestjs-sentry": "4.0.0",
     "@rocketadmin/private-modules": "workspace:*",
     "@rocketadmin/shared-code": "workspace:*",
     "@sentry/minimal": "^6.19.7",
