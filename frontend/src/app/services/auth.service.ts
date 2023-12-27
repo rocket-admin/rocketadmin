@@ -1,13 +1,15 @@
+import * as Sentry from "@sentry/angular-ivy";
+
 import { AlertActionType, AlertType } from '../models/alert';
 import { BehaviorSubject, EMPTY } from 'rxjs';
+import { ExistingAuthUser, NewAuthUser } from '../models/user';
 import { catchError, map } from 'rxjs/operators';
 
-import { ExistingAuthUser, NewAuthUser } from '../models/user';
+import { ConfigurationService } from './configuration.service';
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { NotificationsService } from './notifications.service';
 import { environment } from 'src/environments/environment';
-import { ConfigurationService } from './configuration.service';
 
 @Injectable({
   providedIn: 'root'
@@ -102,6 +104,7 @@ export class AuthService {
       }),
       catchError((err) => {
         console.log(err);
+        Sentry.captureException(err);
         this._notifications.showAlert(AlertType.Error, {abstract: err.error.message, details: err.error.originalMessage}, [
           {
             type: AlertActionType.Button,
