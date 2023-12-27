@@ -28,6 +28,7 @@ import { SaasRegisterUserWithGithub } from './data-structures/saas-register-user
 import { SuccessResponse } from './data-structures/common-responce.ds.js';
 import { UpdateUserStripeCustomerDS } from './data-structures/update-user-stripe-customer-id.ds.js';
 import { ExternalRegistrationProviderEnum } from '../../entities/user/enums/external-registration-provider.enum.js';
+import { UserRoleEnum } from '../../entities/user/enums/user-role.enum.js';
 
 @UseInterceptors(SentryInterceptor)
 @Controller('saas')
@@ -219,8 +220,9 @@ export class SaasController {
   async addCompanyIdToUser(
     @Param('userId') userId: string,
     @Param('companyId') companyId: string,
+    @Query('userRole') userRole: UserRoleEnum,
   ): Promise<SuccessResponse> {
-    await this.addCompanyIdToUserUseCase.execute({ userId, companyId });
+    await this.addCompanyIdToUserUseCase.execute({ userId, companyId, userRole });
     return { success: true };
   }
 
@@ -233,8 +235,9 @@ export class SaasController {
   async removeCompanyIdFromUser(
     @Param('userId') userId: string,
     @Param('companyId') companyId: string,
+    @Query('userRole') userRole: UserRoleEnum,
   ): Promise<SuccessResponse> {
-    await this.removeCompanyIdFromUserUserUseCase.execute({ userId, companyId });
+    await this.removeCompanyIdFromUserUserUseCase.execute({ userId, companyId, userRole });
     return { success: true };
   }
 }
