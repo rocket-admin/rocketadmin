@@ -35,6 +35,7 @@
     display: flex;
     flex-direction: column;
     align-items: center;
+    padding-bottom: 40px;
 }
 
 .login-header__logo {
@@ -44,6 +45,7 @@
 
 .loginTitle {
     font-weight: 600;
+    margin-bottom: 40px;
     text-align: center;
 }
 
@@ -70,12 +72,10 @@
 }
 
 .login-form__login-button {
-    /* grid-column: 1;
-    grid-row: 4;
-    height: 40px;
-    width: 100%; */
     grid-column: 1 / span 3;
     grid-row: 5;
+    width: 360px;
+    margin-top: 40px;
 }
 
 .login-form__google-button {
@@ -90,9 +90,24 @@
     width: 100%;
 }
 
+.login-form__github-button ::ng-deep .mdc-button__label {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.login-form__github-caption {
+    flex: 1 0 auto;
+    text-align: center;
+}
+
 .login-form__github-icon {
     height: 18px;
     width: 18px;
+}
+
+.login-form__github-button:disabled .login-form__github-icon {
+    filter: invert(0.85);
 }
 
 .login-form__sso-button {
@@ -100,6 +115,26 @@
     grid-row: 4;
     height: 40px;
     width: 100%;
+}
+
+.login-form__sso-button ::ng-deep .mdc-button__label {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.login-form__sso-caption {
+    flex: 1 0 auto;
+    text-align: center;
+}
+
+.login-form__sso-icon {
+    height: 18px;
+    width: 18px;
+}
+
+.login-form__sso-button:disabled .login-form__sso-icon {
+    filter: invert(0.85);
 }
 
 .login-form__link {
@@ -173,7 +208,7 @@
         rgba(255,255,255, 1),
         transparent 70%
     );
-    animation: shimmer 800ms ease-in-out infinite alternate-reverse;
+    animation: shimmer 800ms ease-in-out infinite alternate;
 }
 
 @keyframes shimmer {
