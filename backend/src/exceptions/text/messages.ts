@@ -100,6 +100,8 @@ export const Messages = {
   FAILED_DECRYPT_CONNECTION_CREDENTIALS: `Failed to decrypt connection parameters. Most likely the master password is incorrect.`,
   FAILED_DELETE_GROUP: 'Failed to delete group.',
   FAILED_DELETE_GROUP_FROM_CONNECTION: 'Failed to to delete group from connection.',
+  FAILED_DELETE_USER_ACCOUNT_IN_SAAS: `Failed to delete user account. Please contact our support team.`,
+  FAILED_UPDATE_USER_EMAIL_IN_SAAS: `Failed to update user email. Please contact our support team.`,
   FAILED_ESTABLISH_SSH_CONNECTION: `Failed to establish ssh connection`,
   FAILED_FIND_USERS_IN_GROUP: 'Failed to receive users in this group.',
   FAILED_GET_ALL_GROUPS: 'Failed to receive all user groups.',

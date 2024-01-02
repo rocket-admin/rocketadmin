@@ -143,7 +143,7 @@ export class ConnectionsService {
           console.log('setConnectionInfo ui');
           this.connectionLogo = res.connectionProperties.logo_url;
           this.companyName = res.connectionProperties.company_name;
-          this._themeService.updateColors({ palettes: { primaryPalette: res.primary_color, accentedPalette: res.secondary_color }});
+          this._themeService.updateColors({ palettes: { primaryPalette: res.connectionProperties.primary_color, accentedPalette: res.connectionProperties.secondary_color }});
         } else {
           this.connectionLogo = null;
           this.companyName = null;

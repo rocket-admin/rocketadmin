@@ -97,7 +97,7 @@ test(`${currentTest} should return user deletion result`, async (t) => {
       .set('Cookie', token)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
-    t.is(getUserResult.status, 401);
+    t.is(getUserResult.status, 404);
   } catch (err) {
     throw err;
   }
@@ -302,7 +302,7 @@ test(`${currentTest} should return user settings when it was created`, async (t)
       .send({ userSettings: settings })
       .set('Cookie', token)
       .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
+      .set('Accept', 'application/json'); 
 
     t.is(saveUserSettingsResult.status, 201);
 

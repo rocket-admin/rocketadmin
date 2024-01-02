@@ -373,10 +373,21 @@ export class UserController {
   async deleteUser(
     @UserId() userId: string,
     @Body() deletingAccountReasonData: DeleteUserAccountDTO,
+    @Res({ passthrough: true }) response: Response,
   ): Promise<Omit<RegisteredUserDs, 'token'>> {
     const deleteResult = await this.deleteUserAccountUseCase.execute(userId, InTransactionEnum.ON);
     const { reason, message } = deletingAccountReasonData;
     const slackMessage = Messages.USER_DELETED_ACCOUNT(deleteResult.email, reason, message);
+
+    response.cookie(Constants.JWT_COOKIE_KEY_NAME, '', {
+      ...getCookieDomainOptions(),
+    });
+    response.cookie(Constants.ROCKETADMIN_AUTHENTICATED_COOKIE, 1, {
+      expires: new Date(0),
+      httpOnly: false,
+      ...getCookieDomainOptions(),
+    });
+
     await slackPostMessage(slackMessage);
     return deleteResult;
   }
@@ -507,12 +518,7 @@ export class UserController {
     type: UserSettingsDataRequestDto,
   })
   @Get('user/settings/')
-  async getUserSessionSettings(
-    @UserId() userId: string,
-  ): Promise<UserSettingsDataRequestDto> {
-    return await this.getUserSessionSettingsUseCase.execute(
-      userId,
-      InTransactionEnum.OFF,
-    );
+  async getUserSessionSettings(@UserId() userId: string): Promise<UserSettingsDataRequestDto> {
+    return await this.getUserSessionSettingsUseCase.execute(userId, InTransactionEnum.OFF);
   }
 }

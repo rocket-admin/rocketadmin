@@ -17,7 +17,6 @@ import { buildDefaultAdminPermissions } from '../../../entities/user/utils/build
 import { buildTestTableSettings } from '../../../entities/user/utils/build-test-table-settings.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { Constants } from '../../../helpers/constants/constants.js';
-import { ValidationHelper } from '../../../helpers/validators/validation-helper.js';
 import { ISaasRegisterUser } from './saas-use-cases.interface.js';
 import { CompanyInfoEntity } from '../../../entities/company-info/company-info.entity.js';
 import { UserEntity } from '../../../entities/user/user.entity.js';
@@ -36,7 +35,6 @@ export class SaasUsualRegisterUseCase
 
   protected async implementation(userData: SaasUsualUserRegisterDS): Promise<FoundUserDs> {
     const { email, password, gclidValue, name, companyId, companyName } = userData;
-    ValidationHelper.isPasswordStrongOrThrowError(password);
     const foundUser = await this._dbContext.userRepository.findOneUserByEmailAndCompanyId(email, companyId);
     const foundCompany = await this._dbContext.companyInfoRepository.findCompanyInfoWithUsersById(companyId);
 

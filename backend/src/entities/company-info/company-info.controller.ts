@@ -233,11 +233,14 @@ export class CompanyInfoController {
       );
     }
     ValidationHelper.isPasswordStrongOrThrowError(password);
-    const tokenInfo = await this.verifyInviteUserInCompanyAndConnectionGroupUseCase.execute({
-      verificationString,
-      userPassword: password,
-      userName,
-    });
+    const tokenInfo = await this.verifyInviteUserInCompanyAndConnectionGroupUseCase.execute(
+      {
+        verificationString,
+        userPassword: password,
+        userName,
+      },
+      InTransactionEnum.ON,
+    );
     response.cookie(Constants.JWT_COOKIE_KEY_NAME, tokenInfo.token, {
       httpOnly: true,
       secure: true,

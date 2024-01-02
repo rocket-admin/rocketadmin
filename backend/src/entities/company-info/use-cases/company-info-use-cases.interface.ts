@@ -21,7 +21,7 @@ export interface IInviteUserInCompanyAndConnectionGroup {
 }
 
 export interface IVerifyInviteUserInCompanyAndConnectionGroup {
-  execute(inputData: AcceptUserValidationInCompany): Promise<IToken>;
+  execute(inputData: AcceptUserValidationInCompany, inTransaction?: InTransactionEnum): Promise<IToken>;
 }
 
 export interface IGetUserCompany {

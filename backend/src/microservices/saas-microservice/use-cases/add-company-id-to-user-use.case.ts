@@ -17,22 +17,36 @@ export class AddCompanyIdToUserUseCase
   }
 
   protected async implementation(inputData: AddRemoveCompanyIdToUserDS): Promise<void> {
-    const { userId, companyId } = inputData;
+    const { userId, companyId, userRole } = inputData;
     const foundUser = await this._dbContext.userRepository.findOneUserById(userId);
     const foundCompanyWithUsers = await this._dbContext.companyInfoRepository.findOne({
       where: { id: companyId },
       relations: ['users'],
     });
-    if (!foundUser || !foundCompanyWithUsers) {
+
+    if (!foundUser) {
       throw new HttpException(
         {
-          message: 'Required entity not found',
+          message: 'Required user not found',
+        },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+
+    if (!foundCompanyWithUsers) {
+      throw new HttpException(
+        {
+          message: 'Required company not found',
         },
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
     const userAlreadyInCompany = !!foundCompanyWithUsers.users.find((user) => user.id === foundUser.id);
     if (!userAlreadyInCompany) {
+      if (userRole) {
+        foundUser.role = userRole;
+        await this._dbContext.userRepository.saveUserEntity(foundUser);
+      }
       foundCompanyWithUsers.users.push(foundUser);
       await this._dbContext.companyInfoRepository.save(foundCompanyWithUsers);
     }

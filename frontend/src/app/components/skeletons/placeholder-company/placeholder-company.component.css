@@ -1,5 +1,13 @@
 .wrapper {
+    margin: 3em auto;
+    padding: 0 clamp(300px, 25vw, 400px);
     width: 100%;
+}
+
+.title {
+    height: 32px;
+    margin-bottom: 32px;
+    width: 332px;
 }
 
 .form__field {
@@ -25,7 +33,7 @@
 
 .form__string {
     height: 24px;
-    width: 100px;
+    width: 120px;
 }
 
 .form__button {

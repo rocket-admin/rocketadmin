@@ -3,6 +3,10 @@
     padding: 0 clamp(300px, 25vw, 400px);
 }
 
+.companyPageHeader {
+    margin-bottom: 40px;
+}
+
 .company-name-settings__name {
     width: 100%;
 }
