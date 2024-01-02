@@ -10,7 +10,7 @@
             </button>
     </header>
 
-    <app-content-loader *ngIf="groups === null"></app-content-loader>
+    <app-placeholder-user-groups *ngIf="groups === null"></app-placeholder-user-groups>
 
     <mat-accordion multi="true" *ngIf="groups">
         <mat-expansion-panel *ngFor="let groupItem of groups" (opened)="openUsersList(groupItem.group.id)">
@@ -43,7 +43,7 @@
                 </mat-panel-description>
             </mat-expansion-panel-header>
 
-            <app-content-loader *ngIf="users[groupItem.group.id] === null"></app-content-loader>
+            <app-placeholder-user-group *ngIf="users[groupItem.group.id] === null"></app-placeholder-user-group>
             <p class="body-2" *ngIf="users[groupItem.group.id] === 'empty'">No users in the group</p>
             <mat-list role="list">
                 <mat-list-item role="listitem" *ngFor="let user of users[groupItem.group.id]">

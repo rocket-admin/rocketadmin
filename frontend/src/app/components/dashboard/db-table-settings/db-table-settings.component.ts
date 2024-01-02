@@ -46,7 +46,7 @@ export class DbTableSettingsComponent implements OnInit {
     columns_view: [],
     sensitive_fields: []
   }
-  public tableSettings: TableSettings = {...this.tableSettingsInitial};
+  public tableSettings: TableSettings = null;
   public defaultIcons = ['favorite', 'star', 'done', 'arrow_forward', 'key', 'lock', 'visibility', 'language', 'notifications', 'schedule'];
 
 
@@ -106,6 +106,8 @@ export class DbTableSettingsComponent implements OnInit {
           this.isSettingsExist = true
           this.tableSettings = res;
           this.listFieldsOrder = [...res.list_fields];
+        } else {
+          this.tableSettings = this.tableSettingsInitial;
         };
         if (Object.keys(res).length === 0 || (res && res.list_fields && !res.list_fields.length)) {
           this.listFieldsOrder = [...this.fields];

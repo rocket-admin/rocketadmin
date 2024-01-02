@@ -1,6 +1,6 @@
 .companyPage {
     margin: 3em auto;
-    width: clamp(600px, 50vw, 800px);
+    padding: 0 clamp(300px, 25vw, 400px);
 }
 
 .company-name-settings__name {

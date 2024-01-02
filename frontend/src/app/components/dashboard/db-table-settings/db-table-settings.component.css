@@ -6,6 +6,10 @@
 }
 
 .settings-form {
+    width: 100%;
+}
+
+.settings-fields {
     display: grid;
     grid-template-columns: 1fr auto;
     grid-column-gap: 16px;

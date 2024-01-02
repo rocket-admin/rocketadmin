@@ -82,10 +82,13 @@
     grid-column: 3;
     grid-row: 2;
 }
-
-.login-form__github-button {
+.login-form__github-button-box {
     grid-column: 3;
     grid-row: 3;
+    width: 100%;
+}
+
+.login-form__github-button {
     height: 40px;
     width: 100%;
 }
@@ -110,9 +113,13 @@
     filter: invert(0.85);
 }
 
-.login-form__sso-button {
+.login-form__sso-button-box {
     grid-column: 3;
     grid-row: 4;
+    width: 100%;
+}
+
+.login-form__sso-button {
     height: 40px;
     width: 100%;
 }

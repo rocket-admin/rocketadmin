@@ -123,14 +123,13 @@
     <button mat-button color="warn" *ngIf="getFiltersCount(activeFilters) > 1" (click)="resetAllFilters.emit()">Reset filters</button>
 </div>
 
-<div class="mat-elevation-z4">
+<div *ngIf="tableData && tableData.loading$ | async" class="skeleton mat-elevation-z4">
+    <app-placeholder-table-data></app-placeholder-table-data>
+</div>
 
-    <div class="spinner-wrapper" *ngIf="tableData && tableData.loading$ | async">
-        <mat-spinner diameter="48"></mat-spinner>
-    </div>
-
+<div [ngClass]="{hidden: !tableData || tableData.loading$ | async}" class="mat-elevation-z4">
     <div class="table-box">
-        <mat-table *ngIf="tableData" matSort [dataSource]="tableData" NgMatTableQueryReflector
+        <mat-table matSort [dataSource]="tableData" NgMatTableQueryReflector
             class="db-table"
             [ngClass]="tableData.actionsColumnWidth === '0' ? 'db-table_withoutActions' : 'db-table_withActions'"
             [style.--colCount]="tableData.displayedDataColumns?.length"

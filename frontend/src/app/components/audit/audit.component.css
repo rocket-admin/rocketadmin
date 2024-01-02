@@ -95,3 +95,7 @@ th.mat-header-cell, td.mat-cell {
 .audit-banner {
     margin-top: 60px;
 }
+
+.hidden {
+    display: none;
+}

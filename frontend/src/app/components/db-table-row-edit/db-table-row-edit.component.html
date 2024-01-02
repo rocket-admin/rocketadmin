@@ -1,5 +1,5 @@
 <app-alert></app-alert>
-<app-content-loader *ngIf="loading"></app-content-loader>
+<app-placeholder-row-edit *ngIf="loading"></app-placeholder-row-edit>
 
 <app-banner *ngIf="isServerError" type="error" class="row-banner">
     <div *ngIf="serverError.details; else stringError" class="mat-body-1">

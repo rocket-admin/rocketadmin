@@ -221,7 +221,7 @@ tr.mat-row:hover {
     display: flex;
     justify-content: center;
     background: rgba(255, 255, 255, 0.9);
-    height: calc(100% - 112px);
+    height: 500px;
     width: 100%;
     z-index: 2;
 }
@@ -248,4 +248,8 @@ tr.mat-row:hover {
     margin: -20px 0;
     padding: 8px 0;
     width: 100%;
+}
+
+.hidden {
+    display: none;
 }

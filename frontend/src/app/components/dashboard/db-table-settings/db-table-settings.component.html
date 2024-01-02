@@ -1,11 +1,10 @@
 <app-alert></app-alert>
-<div class="settings-page">
+<app-placeholder-table-settings *ngIf="loading"></app-placeholder-table-settings>
+
+<div *ngIf="tableSettings !== null && currentConnection" class="settings-page">
     <app-breadcrumbs [crumbs]="getCrumbs(currentConnection.title || currentConnection.database)" class="row-breadcrumbs"></app-breadcrumbs>
-
-    <app-content-loader *ngIf="loading"></app-content-loader>
-
-    <form action="" #tableSettingsForm="ngForm" (ngSubmit)="updateSettings()">
-        <div class="settings-form">
+    <form #tableSettingsForm="ngForm" class="settings-form" (ngSubmit)="updateSettings()">
+        <div class="settings-fields">
             <mat-form-field appearance="outline">
                 <mat-label>Table display name</mat-label>
                 <input matInput [(ngModel)]="tableSettings.display_name" name="display_name" #displayName="ngModel">

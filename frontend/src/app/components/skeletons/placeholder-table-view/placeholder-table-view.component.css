@@ -1,0 +1,41 @@
+.placeholder {
+    display: flex;
+    height: 100%;
+}
+
+.sidebar {
+    border-right: solid 1px rgba(0, 0, 0, 0.12);
+    height: 100%;
+    max-width: 240px;
+    width: 14%;;
+}
+
+.table-header {
+    display: flex;
+    margin-top: 8px;
+    padding: 12px 0;
+    width: 100%;
+}
+
+.table-header__title {
+    margin-right: auto;
+    height: 36px;
+    width: 15vw;
+}
+
+.table-header__search {
+    border-radius: 4px 4px 0 0;
+    height: 36px;
+    width: 200px;
+}
+
+.table-header__button {
+    border-radius: 4px;
+    margin-left: 12px;
+    height: 36px;
+    width: 80px;
+}
+
+.table-view {
+    padding: 0 24px 24px;
+}

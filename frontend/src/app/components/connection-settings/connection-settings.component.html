@@ -2,7 +2,7 @@
 <div class="settings-page">
     <h1 class="mat-h1">Settings for <strong>{{connectionName}}</strong> connection</h1>
 
-    <app-content-loader *ngIf="loading"></app-content-loader>
+    <app-placeholder-connection-settings *ngIf="loading"></app-placeholder-connection-settings>
 
     <app-banner *ngIf="noTablesError" type="info" class="settings-banner">
         <h3 class='mat-subheading-2'>Rocketadmin can not find any tables</h3>

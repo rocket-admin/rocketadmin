@@ -24,6 +24,8 @@ import { BreadcrumbsComponent } from './components/ui-components/breadcrumbs/bre
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ClipboardModule } from '@angular/cdk/clipboard';
 import { CodemirrorModule } from '@ctrl/ngx-codemirror';
+import { CompanyComponent } from './components/company/company.component';
+import { CompanyMemberInvitationComponent } from './components/company-member-invitation/company-member-invitation.component';
 import { ConfigModule } from './modules/config.module';
 import { ConnectDBComponent } from './components/connect-db/connect-db.component';
 import { ConnectionSettingsComponent } from "./components/connection-settings/connection-settings.component";
@@ -46,6 +48,7 @@ import { DbTableRowEditComponent } from './components/db-table-row-edit/db-table
 import { DbTableSettingsComponent } from './components/dashboard/db-table-settings/db-table-settings.component';
 import { DbTableWidgetsComponent } from './components/dashboard/db-table-widgets/db-table-widgets.component';
 import { DbTablesListComponent } from './components/dashboard/db-tables-list/db-tables-list.component';
+import { DeleteMemberDialogComponent } from './components/company/delete-member-dialog/delete-member-dialog.component';
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { DynamicModule } from 'ng-dynamic-component';
 import { EmailChangeComponent } from './components/email-change/email-change.component';
@@ -63,6 +66,7 @@ import { HostnameValidationDirective } from "./directives/hostnameValidator.dire
 import { IconPickerComponent } from './components/ui-components/icon-picker/icon-picker.component';
 import { IdComponent } from "./components/ui-components/row-fields/id/id.component";
 import { InfoDialogComponent } from './components/audit/info-dialog/info-dialog.component';
+import { InviteMemberDialogComponent } from './components/company/invite-member-dialog/invite-member-dialog.component';
 import { IpAddressButtonComponent } from './components/ui-components/ip-address-button/ip-address-button.component';
 import { JsonEditorComponent } from './components/ui-components/row-fields/json-editor/json-editor.component';
 import { LoginComponent } from './components/login/login.component';
@@ -82,11 +86,14 @@ import { PasswordChangeComponent } from './components/password-change/password-c
 import { PasswordComponent } from './components/ui-components/row-fields/password/password.component';
 import { PasswordRequestComponent } from './components/password-request/password-request.component';
 import { PasswordResetComponent } from './components/password-reset/password-change.component';
+import { PasswordStrengthMeterModule } from 'angular-password-strength-meter';
 import { PasswordValidationDirective } from "./directives/passwordValidator.directive";
 import { PaymentFormComponent } from './components/payment-form/payment-form.component';
 import { PermissionsAddDialogComponent } from './components/users/permissions-add-dialog/permissions-add-dialog.component';
+import { PlaceholderConnectionsComponent } from './components/skeletons/placeholder-connections/placeholder-connections.component';
 import { PointComponent } from './components/ui-components/row-fields/point/point.component';
 import { RegistrationComponent } from './components/registration/registration.component';
+import { RevokeInvitationDialogComponent } from './components/company/revoke-invitation-dialog/revoke-invitation-dialog.component';
 import { SelectComponent } from './components/ui-components/row-fields/select/select.component';
 import { StaticTextComponent } from './components/ui-components/row-fields/static-text/static-text.component';
 import { TablesService } from './services/tables.service';
@@ -105,12 +112,16 @@ import { UsersComponent } from './components/users/users.component';
 import { UsersService } from './services/users.service';
 import { WidgetDeleteDialogComponent } from './components/dashboard/db-table-widgets/widget-delete-dialog/widget-delete-dialog.component';
 import { environment } from '../environments/environment';
-import { PasswordStrengthMeterModule } from 'angular-password-strength-meter';
-import { CompanyComponent } from './components/company/company.component';
-import { InviteMemberDialogComponent } from './components/company/invite-member-dialog/invite-member-dialog.component';
-import { CompanyMemberInvitationComponent } from './components/company-member-invitation/company-member-invitation.component';
-import { DeleteMemberDialogComponent } from './components/company/delete-member-dialog/delete-member-dialog.component';
-import { RevokeInvitationDialogComponent } from './components/company/revoke-invitation-dialog/revoke-invitation-dialog.component';
+import { PlaceholderTableViewComponent } from './components/skeletons/placeholder-table-view/placeholder-table-view.component';
+import { PlaceholderTableDataComponent } from './components/skeletons/placeholder-table-data/placeholder-table-data.component';
+import { PlaceholderRowEditComponent } from './components/skeletons/placeholder-row-edit/placeholder-row-edit.component';
+import { PlaceholderTableSettingsComponent } from './components/skeletons/placeholder-table-settings/placeholder-table-settings.component';
+import { PlaceholderTableWidgetsComponent } from './components/skeletons/placeholder-table-widgets/placeholder-table-widgets.component';
+import { PlaceholderUserGroupComponent } from './components/skeletons/placeholder-user-group/placeholder-user-group.component';
+import { PlaceholderUserGroupsComponent } from './components/skeletons/placeholder-user-groups/placeholder-user-groups.component';
+import { PlaceholderConnectionSettingsComponent } from './components/skeletons/placeholder-connection-settings/placeholder-connection-settings.component';
+import { PlaceholderAuditLogComponent } from './components/skeletons/placeholder-audit-log/placeholder-audit-log.component';
+import { PlaceholderCompanyComponent } from './components/skeletons/placeholder-company/placeholder-company.component';
 
 type Palettes = { primaryPalette: string, accentedPalette: string, warnPalette: string };
 type Colors = { myColorName: string };
@@ -221,6 +232,17 @@ const saasExtraProviders = (environment as any).saas ? [
     CompanyMemberInvitationComponent,
     DeleteMemberDialogComponent,
     RevokeInvitationDialogComponent,
+    PlaceholderConnectionsComponent,
+    PlaceholderTableViewComponent,
+    PlaceholderTableDataComponent,
+    PlaceholderRowEditComponent,
+    PlaceholderTableSettingsComponent,
+    PlaceholderTableWidgetsComponent,
+    PlaceholderUserGroupComponent,
+    PlaceholderUserGroupsComponent,
+    PlaceholderConnectionSettingsComponent,
+    PlaceholderAuditLogComponent,
+    PlaceholderCompanyComponent,
   ],
   entryComponents: [
     DbActionConfirmationDialogComponent,
