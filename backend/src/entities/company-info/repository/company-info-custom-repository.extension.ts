@@ -47,6 +47,7 @@ export const companyInfoRepositoryExtension: ICompanyInfoRepository = {
     return await this.createQueryBuilder('company_info')
       .leftJoinAndSelect('company_info.users', 'users')
       .where('users.email = :userEmail', { userEmail })
+      .andWhere('users."externalRegistrationProvider" IS NULL')
       .getMany();
   },
 };
