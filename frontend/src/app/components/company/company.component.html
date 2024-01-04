@@ -53,11 +53,12 @@
                 angulartics2On="click"
                 angularticsAction="Company: invite member is clicked"
                 class="tableHeader__button" color="primary"
-                (click)="handleAddMemberDialogOpen()">
+                (click)="handleAddMemberDialogOpen()"
+                [disabled]="currentPlan === 'free' && usersCount >= 3">
                 Invite member
-                <!--<mat-icon *ngIf="currentPlan === 'free' && usersCount >= 3">
+                <mat-icon *ngIf="currentPlan === 'free' && usersCount >= 3">
                     info_outline
-                </mat-icon>-->
+                </mat-icon>
             </button>
         </div>
     </div>
