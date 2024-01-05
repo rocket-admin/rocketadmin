@@ -216,12 +216,12 @@ export class TablesDataSource implements DataSource<Object> {
             .reduce((normalizedColumns, column) => (normalizedColumns[column.title] = column.normalizedTitle, normalizedColumns), {})
           this.displayedDataColumns = (filter(this.columns, column => column.selected === true)).map(column => column.title);
           this.permissions = res.table_permissions.accessLevel;
-          if (this.keyAttributes.length && (this.permissions.edit || this.permissions.delete)) {
+          if (this.keyAttributes.length) {
             this.actionsColumnWidth = this.getActionsColumnWidth(this.tableActions, this.permissions);
             this.displayedColumns = ['select', ...this.displayedDataColumns, 'actions'];
           } else {
-            this.actionsColumnWidth = '0';
-            this.displayedColumns = [...this.displayedDataColumns];
+            // this.actionsColumnWidth = '0';
+            // this.displayedColumns = [...this.displayedDataColumns];
             this.alert_primaryKeysInfo = {
               id: 10000,
               type: AlertType.Info,
@@ -300,12 +300,10 @@ export class TablesDataSource implements DataSource<Object> {
   }
 
   getActionsColumnWidth(actions, permissions) {
-    const defaultActionsCount = permissions.edit + permissions.delete;
-    if (actions.length || defaultActionsCount) {
-      const lendthValue = (((actions.length + defaultActionsCount) * 36) + 32);
-      return `${lendthValue}px`
-    };
-    return '0';
+    // const defaultActionsCount = permissions.edit || permissions.readonly + permissions.delete;
+    const defaultActionsCount = 1 + permissions.delete;
+    const lendthValue = (((actions.length + defaultActionsCount) * 36) + 32);
+    return `${lendthValue}px`
   }
 
   changleColumnList() {
