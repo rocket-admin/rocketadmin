@@ -43,7 +43,7 @@ export class InviteUserInCompanyAndConnectionGroupUseCase
       if (!canInviteMoreUsers) {
         throw new HttpException(
           {
-            message: Messages.MAXIMUM_FREE_INVITATION_REACHED_CANNOT_BE_INVITED_IN_COMPANY,
+            message: Messages.MAXIMUM_INVITATIONS_COUNT_REACHED_CANT_INVITE,
           },
           HttpStatus.BAD_REQUEST,
         );
