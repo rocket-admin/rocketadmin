@@ -3,7 +3,7 @@
     <textarea matInput name="{{label}}-{{key}}"
         class="form-textarea" [rows]="rowsCount"
         attr.data-testid="record-{{label}}-long-text"
-        [required]="required" [disabled]="readonly"
+        [required]="required" [disabled]="disabled" [readonly]="readonly"
         [(ngModel)]="value" (ngModelChange)="onFieldChange.emit($event)">
     </textarea>
 </mat-form-field>

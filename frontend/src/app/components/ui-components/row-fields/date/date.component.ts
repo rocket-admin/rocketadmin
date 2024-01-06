@@ -1,7 +1,8 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { normalizeFieldName } from '../../../../lib/normalize';
 
 import { format } from 'date-fns'
+import { normalizeFieldName } from '../../../../lib/normalize';
+
 @Component({
   selector: 'app-date',
   templateUrl: './date.component.html',
@@ -14,6 +15,7 @@ export class DateComponent implements OnInit {
   @Input() value: string;
   @Input() required: boolean;
   @Input() readonly: boolean;
+  @Input() disabled: boolean;
 
   @Output() onFieldChange = new EventEmitter();
 

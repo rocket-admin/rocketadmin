@@ -15,6 +15,7 @@ export class TimeIntervalComponent implements OnInit {
   @Input() value;
   @Input() required: boolean;
   @Input() readonly: boolean;
+  @Input() disabled: boolean;
 
   @Output() onFieldChange = new EventEmitter();
 

@@ -1,7 +1,8 @@
 <mat-form-field class="select-form-field" appearance="outline">
     <mat-label>{{normalizedLabel}}</mat-label>
     <mat-select *ngIf="widgetStructure; else nativeSelect"
-        name="{{label}}-{{key}}" [required]="required" [disabled]="readonly"
+        name="{{label}}-{{key}}"
+        [required]="required" [disabled]="disabled" [readonly]="readonly"
         attr.data-testid="record-{{label}}-select"
         [(ngModel)]="value" (ngModelChange)="onFieldChange.emit($event)">
         <mat-option *ngFor="let option of options"
@@ -10,7 +11,8 @@
         </mat-option>
     </mat-select>
     <ng-template #nativeSelect>
-        <mat-select name="{{label}}-{{key}}" [required]="required" [disabled]="readonly"
+        <mat-select name="{{label}}-{{key}}"
+            [required]="required" [disabled]="disabled" [readonly]="readonly"
             [(ngModel)]="value" (ngModelChange)="onFieldChange.emit($event)">
             <mat-option *ngFor="let option of options" [value]="option">
                 {{option}}

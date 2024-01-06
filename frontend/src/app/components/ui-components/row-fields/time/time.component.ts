@@ -14,6 +14,7 @@ export class TimeComponent implements OnInit {
   @Input() value;
   @Input() required: boolean;
   @Input() readonly: boolean;
+  @Input() disabled: boolean;
 
   @Output() onFieldChange = new EventEmitter();
 

@@ -2,32 +2,38 @@
     <span class="label">{{normalizedLabel}} <span *ngIf="required">*</span></span>
     <mat-form-field class="interval-form-field" appearance="outline">
         <mat-label>years</mat-label>
-        <input matInput type="number" name="{{label}}-{{key}}" [disabled]="readonly" [required]="required"
+        <input matInput type="number" name="{{label}}-{{key}}"
+            [required]="required" [disabled]="disabled" [readonly]="readonly"
             [(ngModel)]="interval.years" (ngModelChange)="onInputChange()">
     </mat-form-field>
     <mat-form-field class="interval-form-field" appearance="outline">
         <mat-label>months</mat-label>
-        <input matInput type="number" name="{{label}}-{{key}}" [disabled]="readonly" [required]="required"
+        <input matInput type="number" name="{{label}}-{{key}}"
+            [required]="required" [disabled]="disabled" [readonly]="readonly"
             [(ngModel)]="interval.months" (ngModelChange)="onInputChange()">
     </mat-form-field>
     <mat-form-field class="interval-form-field" appearance="outline">
         <mat-label>days</mat-label>
-        <input matInput type="number" name="{{label}}-{{key}}" [disabled]="readonly" [required]="required"
+        <input matInput type="number" name="{{label}}-{{key}}"
+            [required]="required" [disabled]="disabled" [readonly]="readonly"
             [(ngModel)]="interval.days" (ngModelChange)="onInputChange()">
     </mat-form-field>
     <mat-form-field class="interval-form-field" appearance="outline">
         <mat-label>hours</mat-label>
-        <input matInput type="number" name="{{label}}-{{key}}" [disabled]="readonly" [required]="required"
+        <input matInput type="number" name="{{label}}-{{key}}"
+            [required]="required" [disabled]="disabled" [readonly]="readonly"
             [(ngModel)]="interval.hours" (ngModelChange)="onInputChange()">
     </mat-form-field>
     <mat-form-field class="interval-form-field" appearance="outline">
         <mat-label>minutes</mat-label>
-        <input matInput type="number" name="{{label}}-{{key}}" [disabled]="readonly" [required]="required"
+        <input matInput type="number" name="{{label}}-{{key}}"
+            [required]="required" [disabled]="disabled" [readonly]="readonly"
             [(ngModel)]="interval.minutes" (ngModelChange)="onInputChange()">
     </mat-form-field>
     <mat-form-field class="interval-form-field" appearance="outline">
         <mat-label>seconds</mat-label>
-        <input matInput type="number" name="{{label}}-{{key}}" [disabled]="readonly" [required]="required"
+        <input matInput type="number" name="{{label}}-{{key}}"
+            [required]="required" [disabled]="disabled" [readonly]="readonly"
             [(ngModel)]="interval.seconds" (ngModelChange)="onInputChange()">
     </mat-form-field>
 </div>

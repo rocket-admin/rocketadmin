@@ -27,6 +27,7 @@ export class ForeignKeyComponent implements OnInit {
   @Input() relations: TableForeignKey;
   @Input() required: boolean;
   @Input() readonly: boolean;
+  @Input() disabled: boolean;
 
   @Output() onFieldChange = new EventEmitter();
 

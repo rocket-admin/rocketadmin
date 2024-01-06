@@ -55,7 +55,8 @@
                         label: tableWidgets[value].name || value,
                         value: tableRowValues[value],
                         required: tableRowRequiredValues[value],
-                        readonly: isReadonly(value),
+                        readonly: !permissions.edit,
+                        disabled: isReadonlyField(value),
                         widgetStructure: tableWidgets[value],
                         relations: tableTypes[value] === 'foreign key' ? getRelations(value) : undefined
                     }"
@@ -79,7 +80,8 @@
                         label: value,
                         value: tableRowValues[value],
                         required: tableRowRequiredValues[value],
-                        readonly: isReadonly(value),
+                        readonly: !permissions.edit,
+                        disabled: isReadonlyField(value),
                         structure: tableRowStructure[value],
                         relations: tableTypes[value] === 'foreign key' ? getRelations(value) : undefined
                     }"
@@ -96,7 +98,8 @@
                 (click)="goBack()">
                 Back
             </button>
-            <button type="button" mat-button color="primary" *ngIf="keyAttributesFromStructure.length || hasKeyAttributesFromURL"
+            <button type="button" mat-button color="primary"
+                *ngIf="(keyAttributesFromStructure.length || hasKeyAttributesFromURL) && permissions.edit"
                 class="actions__continue"
                 data-testid="record-save-and-continue-editing-button"
                 [disabled]="submitting || editRowForm.form.invalid"
@@ -104,20 +107,18 @@
                 Save and continue editing
             </button>
 
-            <button *ngIf="hasKeyAttributesFromURL; else addButton"
+            <button *ngIf="hasKeyAttributesFromURL && permissions.edit"
                 type="submit" mat-flat-button color="primary"
                 data-testid="record-edit-button"
                 [disabled]="submitting || editRowForm.form.invalid">
                 Edit
             </button>
 
-            <ng-template #addButton>
-                <button type="submit" mat-flat-button color="primary"
-                    data-testid="record-add-button"
-                    [disabled]="submitting || editRowForm.form.invalid">
-                    Add
-                </button>
-            </ng-template>
+            <button *ngIf="!hasKeyAttributesFromURL" type="submit" mat-flat-button color="primary"
+                data-testid="record-add-button"
+                [disabled]="submitting || editRowForm.form.invalid">
+                Add
+            </button>
         </div>
     </form>
 </div>

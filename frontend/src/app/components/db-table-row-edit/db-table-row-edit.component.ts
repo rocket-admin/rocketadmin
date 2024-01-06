@@ -2,7 +2,7 @@ import * as JSON5 from 'json5';
 
 import { ActivatedRoute, Router } from '@angular/router';
 import { Component, NgZone, OnInit } from '@angular/core';
-import { CustomAction, TableField, TableForeignKey, Widget } from 'src/app/models/table';
+import { CustomAction, TableField, TableForeignKey, TablePermissions, Widget } from 'src/app/models/table';
 import { UIwidgets, fieldTypes } from 'src/app/consts/field-types';
 
 import { ConnectionsService } from 'src/app/services/connections.service';
@@ -51,6 +51,7 @@ export class DbTableRowEditComponent implements OnInit {
   public rowActions: CustomAction[];
   public referencedTables: any;
   public referencedTablesURLParams: any;
+  public permissions: TablePermissions;
 
   public tableForeignKeys: TableForeignKey[];
 
@@ -114,6 +115,7 @@ export class DbTableRowEditComponent implements OnInit {
           .subscribe(res => {
             this.dispalyTableName = res.display_name || normalizeTableName(this.tableName);
             this.title.setTitle(`${this.dispalyTableName} - Edit record | Rocketadmin`);
+            this.permissions = res.table_access_level;
 
             const autoincrementFields = res.structure.filter((field: TableField) => field.auto_increment).map((field: TableField) => field.column_name);
             this.readonlyFields = [...res.readonly_fields, ...autoincrementFields];
@@ -225,7 +227,7 @@ export class DbTableRowEditComponent implements OnInit {
     return relation;
   }
 
-  isReadonly(columnName: string) {
+  isReadonlyField(columnName: string) {
     return this.readonlyFields.includes(columnName);
   }
 

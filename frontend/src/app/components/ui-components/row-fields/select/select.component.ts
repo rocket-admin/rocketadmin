@@ -15,6 +15,7 @@ export class SelectComponent implements OnInit {
   @Input() required: boolean;
   @Input() readonly: boolean;
   @Input() structure: TableField;
+  @Input() disabled: boolean;
   @Input() widgetStructure: Widget;
 
   @Output() onFieldChange = new EventEmitter();
