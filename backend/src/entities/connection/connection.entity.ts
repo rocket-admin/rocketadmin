@@ -154,7 +154,7 @@ export class ConnectionEntity {
     }
   }
 
-  @ManyToOne(() => UserEntity, (user) => user.connections, { onDelete: 'SET NULL' })
+  @ManyToOne(() => UserEntity, (user) => user.connections, { onDelete: 'SET NULL', nullable: true })
   author: Relation<UserEntity>;
 
   @OneToMany(() => GroupEntity, (group) => group.connection)
