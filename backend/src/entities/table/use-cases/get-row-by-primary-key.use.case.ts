@@ -71,6 +71,7 @@ export class GetRowByPrimaryKeyUseCase
       tablePrimaryKeys,
       tableActions,
       referencedTableNamesAndColumns,
+      tableAccessLevel,
     ] = await Promise.all([
       dao.getTableStructure(tableName, userEmail),
       this._dbContext.tableWidgetsRepository.findTableWidgets(connectionId, tableName),
@@ -79,6 +80,7 @@ export class GetRowByPrimaryKeyUseCase
       dao.getTablePrimaryColumns(tableName, userEmail),
       this._dbContext.tableActionRepository.findTableActions(connectionId, tableName),
       dao.getReferencedTableNamesAndColumns(tableName, userEmail),
+      this._dbContext.userAccessRepository.getUserTablePermissions(userId, connectionId, tableName, masterPwd),
     ]);
     primaryKey = convertHexDataInPrimaryKeyUtil(primaryKey, tableStructure);
     const availablePrimaryColumns: Array<string> = tablePrimaryKeys.map((column) => column.column_name);
@@ -169,6 +171,7 @@ export class GetRowByPrimaryKeyUseCase
       identity_column: tableSettings?.identity_column ? tableSettings.identity_column : null,
       referenced_table_names_and_columns: referencedTableNamesAndColumnsWithTablesDisplayNames,
       display_name: tableSettings?.display_name ? tableSettings.display_name : null,
+      table_access_level: tableAccessLevel.accessLevel,
     };
   }
 

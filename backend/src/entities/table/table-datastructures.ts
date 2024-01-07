@@ -1,5 +1,8 @@
 import { FilterCriteriaEnum, QueryOrderingEnum } from '../../enums/index.js';
-import { TablePermissionDs } from '../permission/application/data-structures/create-permissions.ds.js';
+import {
+  TableAccessLevelsDs,
+  TablePermissionDs,
+} from '../permission/application/data-structures/create-permissions.ds.js';
 import { ITableAccessLevel } from '../permission/permission.interface.js';
 import { CreatedTableActionDS } from '../table-actions/application/data-sctructures/created-table-action.ds.js';
 import { TableWidgetRO } from '../widget/table-widget.interface.js';
@@ -210,6 +213,9 @@ export class TableRowRODs {
 
   @ApiProperty()
   display_name: string;
+
+  @ApiProperty()
+  table_access_level?: TableAccessLevelsDs;
 
   @ApiProperty({ isArray: true, type: ReferencedTableNamesAndColumnsDs })
   referenced_table_names_and_columns: Array<ReferencedTableNamesAndColumnsDs>;
