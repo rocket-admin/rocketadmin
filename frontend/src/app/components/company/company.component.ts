@@ -9,6 +9,7 @@ import { orderBy } from "lodash";
 import { DeleteMemberDialogComponent } from './delete-member-dialog/delete-member-dialog.component';
 import { RevokeInvitationDialogComponent } from './revoke-invitation-dialog/revoke-invitation-dialog.component';
 import { Angulartics2 } from 'angulartics2';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-company',
@@ -17,10 +18,10 @@ import { Angulartics2 } from 'angulartics2';
 })
 export class CompanyComponent {
 
+  public isSaas = (environment as any).saas;
   public company: Company = null;
   public members: any = null;
   public currentPlan: string;
-  public isAnnually: boolean;
   public submitting: boolean;
   public usersCount: number;
   public adminsCount: number;
@@ -98,7 +99,6 @@ export class CompanyComponent {
       this.currentPlan = subscriptionLevel;
 
       if (this.currentPlan.startsWith('ANNUAL_')) {
-        this.isAnnually = true;
         this.currentPlan = this.currentPlan.substring(7);
       }
 

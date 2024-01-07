@@ -27,18 +27,6 @@
     margin: 0;
 }
 
-.toggle {
-    margin-left: -12px;
-}
-
-.toggle-label {
-    margin: 0 12px;
-}
-
-.toggle-label-active {
-    font-weight: 600;
-}
-
 .mat-table {
     width: 100%;
 }
@@ -97,8 +85,11 @@
     font-size: 2em;
 }
 
-.period {
+.per {
     color: rgba(0, 0, 0, 0.54);
+}
+
+.period {
     font-weight: 400;
     margin-top: 0.25em;
     margin-bottom: 2em;

@@ -26,7 +26,7 @@ export class AuthService {
 
   signUpUser(userData: NewAuthUser) {
     const config = this._configuration.getConfig();
-    return this._http.post<any>(config.saasURL + '/user/register', userData)
+    return this._http.post<any>(config.saasURL + '/saas/user/register', userData)
       .pipe(
         map(res => {
           if ((environment as any).saas) {
@@ -96,7 +96,7 @@ export class AuthService {
   loginWithGoogle(token: string) {
     const config = this._configuration.getConfig();
 
-    return this._http.post<any>(config.saasURL + '/user/google/login', {token})
+    return this._http.post<any>(config.saasURL + '/saas/user/google/login', {token})
     .pipe(
       map(res => {
         this.auth.next(res);

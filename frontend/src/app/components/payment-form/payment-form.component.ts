@@ -62,23 +62,24 @@ export class PaymentFormComponent implements OnInit {
 
   public paymentElementForm = null;
   public plan: 'team' | 'enterprise' | 'free';
-  public price: string;
+  public price: number;
   public isAnnually: boolean;
   public subscriptionLevel: string;
   public nextPaymentDate: string;
+  public companyId: string;
 
   ngOnInit(): void {
     const queryParams = this.route.snapshot.queryParams;
     this.plan = queryParams.plan;
     this.isAnnually = queryParams.period === 'annually';
     const chosenPlan = plans.find(plan => plan.key === this.plan);
-    this.price = this.isAnnually ? chosenPlan.priceA : chosenPlan.priceM;
+    this.price = chosenPlan.price;
     this.subscriptionLevel = `${ this.isAnnually ? 'ANNUAL_' : '' }${this.plan.toUpperCase()}_PLAN`;
     this.nextPaymentDate = format(addMonths(new Date(), 1), 'P');
 
     this._userService.cast.subscribe(user => {
-      if (user) this._paymentService.createIntentToSubscription().subscribe(res => {
-        console.log(res);
+      if (user) this._paymentService.createIntentToSubscription(user.company.id).subscribe(res => {
+        this.companyId = user.company.id;
         this.paymentElementForm = this.fb.group({
           name: [user.name, [Validators.required]],
           email: [user.email, [Validators.required]],
@@ -126,9 +127,8 @@ export class PaymentFormComponent implements OnInit {
         } else {
           // The payment has been processed!
           if (result.setupIntent.status === 'succeeded') {
-            this._paymentService.createSubscription(result.setupIntent.payment_method, this.subscriptionLevel)
+            this._paymentService.createSubscription(this.companyId, result.setupIntent.payment_method, this.subscriptionLevel)
               .subscribe(res => {
-                console.log(res);
                 this._notifications.showSuccessSnackbar('Payment successful');
                 this.router.navigate(['/upgrade']);
               })

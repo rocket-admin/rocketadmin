@@ -28,12 +28,7 @@
     <div class="company-plan">
         <div>
             <strong>Current plan: </strong>
-            <span>
-                <span class="company-plan-name">{{currentPlan}}</span>
-                <span *ngIf="currentPlan !== 'free'">
-                    ({{ isAnnually ? 'annually' : 'monthly' }})
-                </span>
-            </span>
+            <span class="company-plan-name">{{currentPlan}}</span>
         </div>
         <a *ngIf="currentUser && currentUser.role === 'ADMIN'"
             mat-button color="accent" class="upgrade-button"
@@ -47,16 +42,16 @@
 
     <div class="tableHeader">
         <h2 class="heading-2">Members <span *ngIf="currentPlan === 'free'">({{usersCount}}/3)</span></h2>
-        <div [matTooltip]="currentPlan === 'free' && usersCount >= 3 ? 'To add more members please upgrade your plan.' : null">
+        <div [matTooltip]="currentPlan === 'free' && usersCount >= 3 && isSaas ? 'To add more members please upgrade your plan.' : null">
             <button *ngIf="currentUser && currentUser.role === 'ADMIN'"
                 mat-flat-button type="button"
                 angulartics2On="click"
                 angularticsAction="Company: invite member is clicked"
                 class="tableHeader__button" color="primary"
                 (click)="handleAddMemberDialogOpen()"
-                [disabled]="currentPlan === 'free' && usersCount >= 3">
+                [disabled]="currentPlan === 'free' && usersCount >= 3 && isSaas">
                 Invite member
-                <mat-icon *ngIf="currentPlan === 'free' && usersCount >= 3">
+                <mat-icon *ngIf="currentPlan === 'free' && usersCount >= 3 && isSaas">
                     info_outline
                 </mat-icon>
             </button>
@@ -110,7 +105,7 @@
                     Revoke
                 </button>
                 <ng-template #deleteUserButton>
-                    <button mat-button *ngIf="adminsCount !== 1 || currentUser.role === 'ADMIN'"
+                    <button mat-button *ngIf="adminsCount > 1 && currentUser.role === 'ADMIN'"
                         type="button" color="warn"
                         angulartics2On="click"
                         angularticsAction="Company: Delete member is clicked"
