@@ -8,7 +8,6 @@ import { ConnectionEntity } from '../../connection/connection.entity.js';
 import { sendEmailConfirmation, sendInvitationToGroup } from '../../email/send-email.js';
 import { PermissionEntity } from '../../permission/permission.entity.js';
 import { TableSettingsEntity } from '../../table-settings/table-settings.entity.js';
-import { UserHelperService } from '../../user/user-helper.service.js';
 import { UserEntity } from '../../user/user.entity.js';
 import { buildConnectionEntitiesFromTestDtos } from '../../user/utils/build-connection-entities-from-test-dtos.js';
 import { buildDefaultAdminGroups } from '../../user/utils/build-default-admin-groups.js';
@@ -27,7 +26,6 @@ export class AddUserInGroupUseCase
   constructor(
     @Inject(BaseType.GLOBAL_DB_CONTEXT)
     protected _dbContext: IGlobalDatabaseContext,
-    private readonly userHelperService: UserHelperService,
   ) {
     super();
   }
@@ -38,20 +36,6 @@ export class AddUserInGroupUseCase
     const foundGroup = await this._dbContext.groupRepository.findGroupById(groupId);
     const foundUser =
       await this._dbContext.userRepository.findUserByEmailEndCompanyIdWithEmailVerificationAndInvitation(email);
-
-    const { usersInConnectionsCount } =
-      await this._dbContext.connectionRepository.calculateUsersInAllConnectionsOfThisOwner(ownerId);
-
-    const canInviteMoreUsers = await this.userHelperService.checkOwnerInviteAbility(ownerId, usersInConnectionsCount);
-
-    if (!canInviteMoreUsers) {
-      throw new HttpException(
-        {
-          message: Messages.MAXIMUM_FREE_INVITATION_REACHED,
-        },
-        HttpStatus.PAYMENT_REQUIRED,
-      );
-    }
 
     if (foundUser && foundUser.isActive) {
       const userAlreadyAdded = !!foundGroup.users.find((u) => u.id === foundUser.id);
