@@ -23,9 +23,8 @@ export class GetUserEmailCompaniesUseCase
   }
 
   protected async implementation(userEmail: string): Promise<Array<FoundUserEmailCompaniesInfoDs>> {
-    const useEmailCompaniesInfosFromCore = await this._dbContext.companyInfoRepository.findCompanyInfosByUserEmail(
-      userEmail,
-    );
+    const useEmailCompaniesInfosFromCore =
+      await this._dbContext.companyInfoRepository.findCompanyInfosByUserEmail(userEmail);
     if (!useEmailCompaniesInfosFromCore.length) {
       throw new HttpException(
         {
@@ -38,12 +37,13 @@ export class GetUserEmailCompaniesUseCase
     const companiesInfoFromCore: Array<FoundSassCompanyInfoDS> = [];
 
     if (isSaaS()) {
-      const resultFromCore = await Promise.all(
+      const resultFromSaaS = await Promise.all(
         useEmailCompaniesInfosFromCore.map(async ({ id }) => {
           return await this.saasCompanyGatewayService.getCompanyInfo(id);
         }),
       );
-      companiesInfoFromCore.push(...resultFromCore);
+      resultFromSaaS.filter((companyInfo) => !!companyInfo);
+      companiesInfoFromCore.push(...resultFromSaaS);
     }
     return useEmailCompaniesInfosFromCore.map(({ id }) => {
       return {
