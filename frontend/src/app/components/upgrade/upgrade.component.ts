@@ -16,7 +16,7 @@ export class UpgradeComponent implements OnInit {
     key: PlanKey.Free,
     price: 0,
   };
-  public hasStripeAccount = false;
+  public hasPaymentMethod = false;
   public companyId: string;
   public submitting = false;
 
@@ -75,7 +75,7 @@ export class UpgradeComponent implements OnInit {
     this._company.fetchCompany().subscribe(company => {
       this.currentPlan = this.getPlan(company.subscriptionLevel);
       this.companyId = company.id;
-      this.hasStripeAccount = !!company.portal_link;
+      this.hasPaymentMethod = company.is_payment_method_added;
     })
   }
 

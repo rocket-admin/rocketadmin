@@ -39,27 +39,27 @@
                         </button>
                         <ng-template #activeButton>
                             <button mat-flat-button color="accent" type="button"
-                                *ngIf="plan.price > currentPlan.price && hasStripeAccount"
+                                *ngIf="plan.price > currentPlan.price && hasPaymentMethod"
                                 [disabled]="submitting"
                                 (click)="changePlan(plan.key)">
                                 Upgrade
                             </button>
                             <button mat-button type="button"
-                                *ngIf="plan.price < currentPlan.price && hasStripeAccount"
+                                *ngIf="plan.price < currentPlan.price && hasPaymentMethod"
                                 [disabled]="submitting"
                                 (click)="changePlan(plan.key)">
                                 Downgrade
                             </button>
 
                             <a mat-flat-button color="accent"
-                                *ngIf="plan.price > currentPlan.price && !hasStripeAccount"
+                                *ngIf="plan.price > currentPlan.price && !hasPaymentMethod"
                                 [disabled]="submitting"
                                 routerLink="/upgrade/payment"
                                 [queryParams]="{plan: plan.key}">
                                 Upgrade
                             </a>
                             <a mat-button
-                                *ngIf="plan.price < currentPlan.price && !hasStripeAccount"
+                                *ngIf="plan.price < currentPlan.price && !hasPaymentMethod"
                                 [disabled]="submitting"
                                 routerLink="/upgrade/payment"
                                 [queryParams]="{plan: plan.key}">
