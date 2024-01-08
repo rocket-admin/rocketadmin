@@ -66,6 +66,7 @@ export function buildFoundCompanyInfoDs(
     additional_info: companyInfoFromSaas.additional_info,
     portal_link: isUserAdmin ? companyInfoFromSaas.portal_link : undefined,
     subscriptionLevel: isUserAdmin ? companyInfoFromSaas.subscriptionLevel : undefined,
+    is_payment_method_added: isUserAdmin ? companyInfoFromSaas.is_payment_method_added : undefined,
     address: {
       id: companyInfoFromSaas.address?.id,
       city: companyInfoFromSaas.address?.city,
