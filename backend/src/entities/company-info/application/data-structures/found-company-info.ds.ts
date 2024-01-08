@@ -60,6 +60,9 @@ export class FoundUserCompanyInfoDs {
 
   @ApiProperty({ required: false })
   subscriptionLevel?: string;
+
+  @ApiProperty({ required: false })
+  is_payment_method_added?: boolean;
 }
 
 export class FoundUserFullCompanyInfoDs extends FoundUserCompanyInfoDs {

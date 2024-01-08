@@ -32,4 +32,5 @@ export class FoundSassCompanyInfoDS {
   address: CompanyAddressRO;
   portal_link?: string;
   subscriptionLevel?: SubscriptionLevelEnum;
+  is_payment_method_added?: boolean;
 }
