@@ -81,6 +81,13 @@ export class DbTableRowEditComponent implements OnInit {
           .subscribe(res => {
             this.dispalyTableName = res.display_name || normalizeTableName(this.tableName);
             this.title.setTitle(`${this.dispalyTableName} - Add new record | Rocketadmin`);
+            this.permissions = {
+              visibility: true,
+              readonly: false,
+              add: true,
+              delete: true,
+              edit: true
+            };
 
             this.keyAttributesFromStructure = res.primaryColumns;
             this.readonlyFields = res.readonly_fields;

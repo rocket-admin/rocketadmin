@@ -55,7 +55,7 @@
                         label: tableWidgets[value].name || value,
                         value: tableRowValues[value],
                         required: tableRowRequiredValues[value],
-                        readonly: !permissions.edit,
+                        readonly: !permissions?.edit,
                         disabled: isReadonlyField(value),
                         widgetStructure: tableWidgets[value],
                         relations: tableTypes[value] === 'foreign key' ? getRelations(value) : undefined
@@ -80,7 +80,7 @@
                         label: value,
                         value: tableRowValues[value],
                         required: tableRowRequiredValues[value],
-                        readonly: !permissions.edit,
+                        readonly: !permissions?.edit,
                         disabled: isReadonlyField(value),
                         structure: tableRowStructure[value],
                         relations: tableTypes[value] === 'foreign key' ? getRelations(value) : undefined
@@ -107,7 +107,7 @@
                 Save and continue editing
             </button>
 
-            <button *ngIf="hasKeyAttributesFromURL && permissions.edit"
+            <button *ngIf="hasKeyAttributesFromURL && permissions?.edit"
                 type="submit" mat-flat-button color="primary"
                 data-testid="record-edit-button"
                 [disabled]="submitting || editRowForm.form.invalid">
