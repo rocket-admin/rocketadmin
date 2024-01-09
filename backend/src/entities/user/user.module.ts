@@ -21,7 +21,6 @@ import { LogOutUseCase } from './use-cases/log-out.use.case.js';
 import { RequestChangeUserEmailUseCase } from './use-cases/request-change-user-email.use.case.js';
 import { RequestEmailVerificationUseCase } from './use-cases/request-email-verification.use.case.js';
 import { RequestResetUserPasswordUseCase } from './use-cases/request-reset-user-password.use.case.js';
-import { UpgradeSubscriptionUseCase } from './use-cases/upgrade-subscription.use.case.js';
 import { UsualLoginUseCase } from './use-cases/usual-login-use.case.js';
 import { VerifyChangeUserEmailUseCase } from './use-cases/verify-change-user-email.use.case.js';
 import { VerifyResetUserPasswordUseCase } from './use-cases/verify-reset-user-password.use.case.js';
@@ -34,8 +33,6 @@ import { VerifyOtpUseCase } from './use-cases/verify-otp-use.case.js';
 import { OtpLoginUseCase } from './use-cases/otp-login-use.case.js';
 import { TemporaryAuthMiddleware } from '../../authorization/temporary-auth.middleware.js';
 import { DisableOtpUseCase } from './use-cases/disable-otp.use.case.js';
-import { GetStripeIntentIdUseCase } from './use-cases/get-stripe-intent-id.use.case.js';
-import { AddSetupIntentToCustomerUseCase } from './use-cases/add-setup-intent-to-customer.use.case.js';
 import { GetUserSessionSettingsUseCase } from './use-cases/get-user-session-settings.use.case.js';
 import { SaveUserSettingsUseCase } from './use-cases/save-user-session-settings.use.case.js';
 import { CompanyInfoEntity } from '../company-info/company-info.entity.js';
@@ -65,10 +62,6 @@ import { CompanyInfoEntity } from '../company-info/company-info.entity.js';
     {
       provide: UseCaseType.FIND_USER,
       useClass: FindUserUseCase,
-    },
-    {
-      provide: UseCaseType.UPGRADE_USER_SUBSCRIPTION,
-      useClass: UpgradeSubscriptionUseCase,
     },
     {
       provide: UseCaseType.USUAL_LOGIN,
@@ -129,14 +122,6 @@ import { CompanyInfoEntity } from '../company-info/company-info.entity.js';
     {
       provide: UseCaseType.DISABLE_OTP,
       useClass: DisableOtpUseCase,
-    },
-    {
-      provide: UseCaseType.GET_STRIPE_INTENT_ID,
-      useClass: GetStripeIntentIdUseCase,
-    },
-    {
-      provide: UseCaseType.ADD_STRIPE_SETUP_INTENT_TO_CUSTOMER,
-      useClass: AddSetupIntentToCustomerUseCase,
     },
     {
       provide: UseCaseType.SAVE_USER_SESSION_SETTINGS,

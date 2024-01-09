@@ -12,7 +12,6 @@ import { CronJobsModule } from './entities/cron-jobs/cron-jobs.module.js';
 import { CustomFieldModule } from './entities/custom-field/custom-field.module.js';
 import { GroupModule } from './entities/group/group.module.js';
 import { PermissionModule } from './entities/permission/permission.module.js';
-import { StripeModule } from './entities/stripe/stripe.module.js';
 import { TableActionModule } from './entities/table-actions/table-action.module.js';
 import { TableLogsModule } from './entities/table-logs/table-logs.module.js';
 import { TableSettingsModule } from './entities/table-settings/table-settings.module.js';
@@ -52,7 +51,6 @@ const __dirname = path.dirname(__filename);
     CronJobsModule,
     DatabaseModule,
     TableActionModule,
-    StripeModule,
     SaasModule,
     CompanyInfoModule,
     SaaSGatewayModule,
