@@ -16,7 +16,6 @@ import {
 import { RegisteredUserDs } from '../application/data-structures/registered-user.ds.js';
 import { ResetUsualUserPasswordDs } from '../application/data-structures/reset-usual-user-password.ds.js';
 import { SaveUserSettingsDs } from '../application/data-structures/save-user-settings.ds.js';
-import { StripeIntentDs } from '../application/data-structures/stripe-intent-id.ds.js';
 import { UsualLoginDs } from '../application/data-structures/usual-login.ds.js';
 import { VerifyOtpDS } from '../application/data-structures/verify-otp.ds.js';
 import { IToken } from '../utils/generate-gwt-token.js';
@@ -107,10 +106,6 @@ export interface IGetGitHubLoginLink {
 
 export interface IAuthGitHub {
   execute(code: string, inTransaction: InTransactionEnum): Promise<IToken>;
-}
-
-export interface IGetStripeIntentId {
-  execute(userId: string, inTransaction: InTransactionEnum): Promise<StripeIntentDs>;
 }
 
 export interface ISaveUserSettings {

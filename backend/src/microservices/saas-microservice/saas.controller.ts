@@ -12,7 +12,6 @@ import {
   ISaaSRegisterInvitedUser,
   ISaasGetUsersInfosByEmail,
   ISaasRegisterUser,
-  IUpdateUserStripeCustomerId,
 } from './use-cases/saas-use-cases.interface.js';
 import { RegisteredCompanyDS } from './data-structures/registered-company.ds.js';
 import { UserEntity } from '../../entities/user/user.entity.js';
@@ -26,7 +25,6 @@ import {
 import { SaasRegisterUserWithGoogleDS } from './data-structures/sass-register-user-with-google.js';
 import { SaasRegisterUserWithGithub } from './data-structures/saas-register-user-with-github.js';
 import { SuccessResponse } from './data-structures/common-responce.ds.js';
-import { UpdateUserStripeCustomerDS } from './data-structures/update-user-stripe-customer-id.ds.js';
 import { ExternalRegistrationProviderEnum } from '../../entities/user/enums/external-registration-provider.enum.js';
 import { UserRoleEnum } from '../../entities/user/enums/user-role.enum.js';
 
@@ -53,8 +51,6 @@ export class SaasController {
     private readonly getUserInfoUseCaseByGithubId: IGetUserGithubIdInfo,
     @Inject(UseCaseType.SAAS_LOGIN_USER_WITH_GITHUB)
     private readonly loginUserWithGithubUseCase: ILoginUserWithGitHub,
-    @Inject(UseCaseType.SAAS_UPDATE_USER_STRIPE_CUSTOMER_ID)
-    private readonly updateUserStripeCustomerIdUseCase: IUpdateUserStripeCustomerId,
     @Inject(UseCaseType.SAAS_ADD_COMPANY_ID_TO_USER)
     private readonly addCompanyIdToUserUseCase: IAddOrRemoveCompanyIdToUser,
     @Inject(UseCaseType.SAAS_REMOVE_COMPANY_ID_FROM_USER)
@@ -194,21 +190,6 @@ export class SaasController {
     @Body('glidCookieValue') glidCookieValue: string,
   ): Promise<UserEntity> {
     return await this.loginUserWithGithubUseCase.execute({ email, name, githubId, glidCookieValue });
-  }
-
-  @ApiOperation({ summary: 'Update stripe customer id webhook' })
-  @ApiBody({ type: UpdateUserStripeCustomerDS })
-  @ApiResponse({
-    status: 200,
-    type: SuccessResponse,
-  })
-  @Put('user/:userId/stripe')
-  async updateUserStripeCustomerId(
-    @Param('userId') userId: string,
-    @Body('stripeCustomerId') stripeCustomerId: string,
-  ): Promise<SuccessResponse> {
-    await this.updateUserStripeCustomerIdUseCase.execute({ userId, stripeCustomerId });
-    return { success: true };
   }
 
   @ApiOperation({ summary: 'Add user in company webhook' })
