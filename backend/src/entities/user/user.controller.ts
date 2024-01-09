@@ -31,13 +31,11 @@ import { RegisteredUserDs } from './application/data-structures/registered-user.
 import { ResetUsualUserPasswordDs } from './application/data-structures/reset-usual-user-password.ds.js';
 import { UsualLoginDs } from './application/data-structures/usual-login.ds.js';
 import {
-  IAddStripeSetupIntent,
   IChangeUserName,
   IDeleteUserAccount,
   IDisableOTP,
   IFindUserUseCase,
   IGenerateOTP,
-  IGetStripeIntentId,
   IGetUserSettings,
   ILogOut,
   IOtpLogin,
@@ -45,7 +43,6 @@ import {
   IRequestEmailVerification,
   IRequestPasswordReset,
   ISaveUserSettings,
-  IUpgradeSubscription,
   IUsualLogin,
   IUsualPasswordChange,
   IVerifyEmail,
@@ -56,22 +53,14 @@ import {
 import { ITokenExp, TokenExpDs } from './utils/generate-gwt-token.js';
 import { OtpSecretDS } from './application/data-structures/otp-secret.ds.js';
 import { OtpDisablingResultDS, OtpValidationResultDS } from './application/data-structures/otp-validation-result.ds.js';
-import { StripeIntentDs } from './application/data-structures/stripe-intent-id.ds.js';
-import { AddStripeSetupIntentDs } from './application/data-structures/add-stripe-setup-intent.ds.js';
 import { getCookieDomainOptions } from './utils/get-cookie-domain-options.js';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { UpgradedUserSubscriptionDs } from './application/data-structures/upgraded-user-subscription.ds.js';
 import { PasswordDto } from './dto/password.dto.js';
 import { EmailDto } from './dto/email.dto.js';
 import { DeleteUserAccountDTO } from './dto/delete-user-account-request.dto.js';
-import { VerifyOtpDS } from './application/data-structures/verify-otp.ds.js';
-import { AddedStripeSetupIntentDs } from './application/data-structures/added-stripe-setup-intent.ds.js';
-import { UpgradeUserSubscriptionDs } from './application/data-structures/upgrade-user-subscription.ds.js';
-import { UpgradeSubscriptionDto } from './dto/upgrade-subscription.dto.js';
 import { LoginUserDto } from './dto/login-user.dto.js';
 import { UserNameDto } from './dto/user-name.dto.js';
 import { OtpTokenDto } from './dto/otp-token.dto.js';
-import { StripeIntentDto } from './dto/stripe-intent.dto.js';
 import { UserSettingsDataRequestDto } from './dto/user-settings-data-request.dto.js';
 
 @UseInterceptors(SentryInterceptor)
@@ -83,8 +72,6 @@ export class UserController {
   constructor(
     @Inject(UseCaseType.FIND_USER)
     private readonly findUserUseCase: IFindUserUseCase,
-    @Inject(UseCaseType.UPGRADE_USER_SUBSCRIPTION)
-    private readonly upgradeUserSubscriptionUseCase: IUpgradeSubscription,
     @Inject(UseCaseType.USUAL_LOGIN)
     private readonly usualLoginUseCase: IUsualLogin,
     @Inject(UseCaseType.LOG_OUT)
@@ -115,10 +102,6 @@ export class UserController {
     private readonly otpLoginUseCase: IOtpLogin,
     @Inject(UseCaseType.DISABLE_OTP)
     private readonly disableOtpUseCase: IDisableOTP,
-    @Inject(UseCaseType.GET_STRIPE_INTENT_ID)
-    private readonly getStripeIntentIdUseCase: IGetStripeIntentId,
-    @Inject(UseCaseType.ADD_STRIPE_SETUP_INTENT_TO_CUSTOMER)
-    private readonly addSetupIntentToCustomerUseCase: IAddStripeSetupIntent,
     @Inject(UseCaseType.SAVE_USER_SESSION_SETTINGS)
     private readonly saveUserSessionSettingsUseCase: ISaveUserSettings,
     @Inject(UseCaseType.GET_USER_SESSION_SETTINGS)
@@ -139,25 +122,6 @@ export class UserController {
     };
 
     return await this.findUserUseCase.execute(findUserDs, InTransactionEnum.OFF);
-  }
-
-  @ApiOperation({ summary: 'Upgrade user subscription' })
-  @ApiBody({ type: UpgradeSubscriptionDto })
-  @ApiResponse({
-    status: 200,
-    description: 'Upgrade user subscription.',
-    type: FoundUserDs,
-  })
-  @Post('user/subscription/upgrade')
-  async upgradeSubscription(
-    @Body() subscriptionLevelData: UpgradeSubscriptionDto,
-    @UserId() userId: string,
-  ): Promise<UpgradedUserSubscriptionDs> {
-    const inputData: UpgradeUserSubscriptionDs = {
-      subscriptionLevel: subscriptionLevelData.subscriptionLevel,
-      cognitoUserName: userId,
-    };
-    return await this.upgradeUserSubscriptionUseCase.execute(inputData, InTransactionEnum.ON);
   }
 
   @ApiOperation({ summary: 'Login with email and password' })
@@ -460,38 +424,6 @@ export class UserController {
     };
   }
 
-  @ApiOperation({ summary: 'Create user stripe setup intent' })
-  @ApiBody({ type: VerifyOtpDS })
-  @ApiResponse({
-    status: 201,
-    description: 'Create user stripe setup intent.',
-    type: StripeIntentDs,
-  })
-  @Post('user/stripe/intent')
-  async getStripeIntent(@UserId() userId: string): Promise<StripeIntentDs> {
-    return await this.getStripeIntentIdUseCase.execute(userId, InTransactionEnum.OFF);
-  }
-
-  @ApiOperation({ summary: 'Add stripe setup intent to user' })
-  @ApiBody({ type: StripeIntentDto })
-  @ApiResponse({
-    status: 201,
-    description: 'Add stripe setup intent to user.',
-    type: StripeIntentDs,
-  })
-  @Post('user/setup/intent')
-  async addSetupIntentToCustomer(
-    @UserId() userId: string,
-    @Body() stripeIntentData: StripeIntentDto,
-  ): Promise<AddedStripeSetupIntentDs> {
-    const { defaultPaymentMethodId, subscriptionLevel } = stripeIntentData;
-    const inputData: AddStripeSetupIntentDs = {
-      userId: userId,
-      defaultPaymentMethodId: defaultPaymentMethodId,
-      subscriptionLevel: subscriptionLevel,
-    };
-    return await this.addSetupIntentToCustomerUseCase.execute(inputData, InTransactionEnum.OFF);
-  }
 
   @ApiOperation({ summary: 'Save user session settings' })
   @ApiBody({ type: UserSettingsDataRequestDto })

@@ -62,7 +62,6 @@ test(`${currentTest} should return user info for this user`, async (t) => {
     t.is(getUserRO.isActive, true);
     t.is(getUserRO.email, adminUserRegisterInfo.email);
     t.is(getUserRO.hasOwnProperty('createdAt'), true);
-    t.is(getUserRO.portal_link, null);
   } catch (err) {
     throw err;
   }
