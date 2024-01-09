@@ -31,7 +31,6 @@ import { RegisteredUserDs } from './application/data-structures/registered-user.
 import { ResetUsualUserPasswordDs } from './application/data-structures/reset-usual-user-password.ds.js';
 import { UsualLoginDs } from './application/data-structures/usual-login.ds.js';
 import {
-  IAddStripeSetupIntent,
   IChangeUserName,
   IDeleteUserAccount,
   IDisableOTP,
@@ -59,11 +58,9 @@ import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nes
 import { PasswordDto } from './dto/password.dto.js';
 import { EmailDto } from './dto/email.dto.js';
 import { DeleteUserAccountDTO } from './dto/delete-user-account-request.dto.js';
-import { VerifyOtpDS } from './application/data-structures/verify-otp.ds.js';
 import { LoginUserDto } from './dto/login-user.dto.js';
 import { UserNameDto } from './dto/user-name.dto.js';
 import { OtpTokenDto } from './dto/otp-token.dto.js';
-import { StripeIntentDto } from './dto/stripe-intent.dto.js';
 import { UserSettingsDataRequestDto } from './dto/user-settings-data-request.dto.js';
 
 @UseInterceptors(SentryInterceptor)

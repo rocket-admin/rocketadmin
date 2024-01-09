@@ -145,7 +145,6 @@ export class UserModule implements NestModule {
         { path: 'user', method: RequestMethod.PUT },
         { path: 'user/name/', method: RequestMethod.PUT },
         { path: 'user/permissions/:slug', method: RequestMethod.GET },
-        { path: 'user/subscription/upgrade', method: RequestMethod.POST },
         { path: 'user/logout/', method: RequestMethod.POST },
         { path: 'user/email/verify/request', method: RequestMethod.GET },
         { path: 'user/delete/', method: RequestMethod.PUT },
@@ -153,8 +152,6 @@ export class UserModule implements NestModule {
         { path: 'user/otp/generate', method: RequestMethod.POST },
         { path: 'user/otp/verify', method: RequestMethod.POST },
         { path: 'user/otp/disable', method: RequestMethod.POST },
-        { path: 'user/stripe/intent', method: RequestMethod.POST },
-        { path: 'user/setup/intent', method: RequestMethod.POST },
         { path: 'user/settings', method: RequestMethod.POST },
         { path: 'user/settings', method: RequestMethod.GET },
       )
