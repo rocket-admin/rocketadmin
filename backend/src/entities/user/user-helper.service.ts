@@ -1,6 +1,5 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { isSaaS } from '../../helpers/app/is-saas.js';
-import { Constants } from '../../helpers/constants/constants.js';
 import { FoundUserInGroupDs } from './application/data-structures/found-user-in-group.ds.js';
 import { FoundUserDs } from './application/data-structures/found-user.ds.js';
 import { UserEntity } from './user.entity.js';
@@ -21,17 +20,6 @@ export class UserHelperService implements OnModuleInit {
     @InjectRepository(CompanyInfoEntity)
     private readonly companyInfoRepository: Repository<CompanyInfoEntity>,
   ) {}
-
-  public async checkOwnerInviteAbility(ownerId: string, usersCount: number): Promise<boolean> {
-    if (usersCount <= Constants.FREE_PLAN_USERS_COUNT || !isSaaS()) {
-      return true;
-    }
-    const foundOwner = await this.userRepository.findOneBy({ id: ownerId });
-    if (!foundOwner.stripeId) {
-      return false;
-    }
-    return true;
-  }
 
   public buildFoundUserInGroupDs(user: UserEntity): FoundUserInGroupDs {
     return {

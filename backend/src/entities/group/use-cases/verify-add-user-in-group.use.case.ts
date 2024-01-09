@@ -58,23 +58,6 @@ export class VerifyAddUserInGroupUseCase
       return generateGwtToken(savedUser);
     }
 
-    const foundOwner = await this._dbContext.userRepository.findOneUserById(invitationEntity.ownerId);
-
-    const { usersInConnectionsCount } =
-      await this._dbContext.connectionRepository.calculateUsersInAllConnectionsOfThisOwner(invitationEntity.ownerId);
-    const canInviteMoreUsers = await this.userHelperService.checkOwnerInviteAbility(
-      foundOwner.id,
-      usersInConnectionsCount,
-    );
-    if (!canInviteMoreUsers) {
-      throw new HttpException(
-        {
-          message: Messages.MAXIMUM_FREE_INVITATION_REACHED_CANNOT_BE_INVITED,
-        },
-        HttpStatus.PAYMENT_REQUIRED,
-      );
-    }
-
     const foundUser = await this._dbContext.userRepository.findOneUserById(invitationEntity.user.id);
     foundUser.isActive = true;
     foundUser.password = await Encryptor.hashUserPassword(user_password);
