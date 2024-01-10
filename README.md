@@ -67,10 +67,11 @@ The provided Docker command example includes several environment variables. Here
 
 2. **JWT_SECRET**: This variable is used for setting the JSON Web Token (JWT) secret. It's a key used for signing and verifying JWT tokens. This should be a secure, random string at least 64 characters long.
 
-3. **PRIVATE_KEY**: This environment variable is used to set a private key. It's used for encryption of the database credentials. The key should be kept confidential and not shared publicly.
+3. **PRIVATE_KEY**: This environment variable is used to set a private key. It's used for encryption of the database credentials. The key should be kept confidential and not shared publicly. This also should be a secure, random string at least 64 characters long.
 
 4. **TEMPORARY_JWT_SECRET**: Similar to `JWT_SECRET`, this is also used for JWT token operations. It may be used as a secondary key for temporary tokens or during token rotation processes.
 
-5. **APP_DOMAIN_ADDRESS** (optional): This sets the domain address of your application. The format is a URL, such as `https://rocketadmin.yourcompany.internal`. This address is typically used for internal links or email messages.
+5. **APP_DOMAIN_ADDRESS** (optional): This sets the domain address of your application. The format is a URL, such as `https://rocketadmin.yourcompany.internal`. This address is used for internal links or email messages.
+6. **EMAIL_CONFIG_STRING**: Settings for connecting to an SMTP server for email sending in an application. It follows the format `smtps://username:password@smtp.example.com/?pool=true`, where smtps:// indicates a secure SMTP connection using SSL/TLS encryption. username and password are the credentials for the SMTP server, smtp.example.com is the server address, and the pool=true query parameter enables connection pooling for efficient management of multiple email transmissions. More information about the parameters you can find in the nodemailer npm module documentation
 
 Each of these environment variables plays a crucial role in the configuration and security of the RocketAdmin application. It's important to ensure that sensitive information like `JWT_SECRET`, `PRIVATE_KEY`, and `TEMPORARY_JWT_SECRET` are kept secure and are not exposed in publicly accessible areas of your code or repositories. Additionally, the `DATABASE_URL` should be set correctly to ensure that the application can successfully connect to your database.
