@@ -538,3 +538,42 @@ test(`${currentTest} should update user roles in company`, async (t) => {
     t.is(user.role, 'ADMIN');
   }
 });
+
+currentTest = `DELETE company`;
+
+test(`${currentTest} should delete company`, async (t) => {
+  const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
+  const {
+    connections,
+    firstTableInfo,
+    groups,
+    permissions,
+    secondTableInfo,
+    users: { adminUserToken, simpleUserToken, adminUserEmail, simpleUserEmail },
+  } = testData;
+  const foundCompanyInfo = await request(app.getHttpServer())
+    .get('/company/my/full')
+    .set('Content-Type', 'application/json')
+    .set('Cookie', adminUserToken)
+    .set('Accept', 'application/json');
+
+  t.is(foundCompanyInfo.status, 200);
+
+  const deleteCompanyResult = await request(app.getHttpServer())
+    .delete(`/company/my`)
+    .set('Content-Type', 'application/json')
+    .set('Cookie', adminUserToken)
+    .set('Accept', 'application/json');
+
+  t.is(deleteCompanyResult.status, 200);
+  const deleteCompanyResultRO = JSON.parse(deleteCompanyResult.text);
+  t.is(deleteCompanyResultRO.success, true);
+
+  const foundCompanyInfoAfterDelete = await request(app.getHttpServer())
+    .get('/company/my/full')
+    .set('Content-Type', 'application/json')
+    .set('Cookie', adminUserToken)
+    .set('Accept', 'application/json');
+
+  t.is(foundCompanyInfoAfterDelete.status, 403);
+});

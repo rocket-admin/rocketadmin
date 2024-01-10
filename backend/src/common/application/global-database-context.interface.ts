@@ -27,10 +27,12 @@ import { InvitationInCompanyEntity } from '../../entities/company-info/invitatio
 import { IInvitationInCompanyRepository } from '../../entities/company-info/invitation-in-company/repository/invitation-repository.interface.js';
 import { IUserSessionSettings } from '../../entities/user/user-session-settings/reposiotory/user-session-settings-repository.interface.js';
 import { UserSessionSettingsEntity } from '../../entities/user/user-session-settings/user-session-settings.entity.js';
+import { UserEntity } from '../../entities/user/user.entity.js';
+import { ConnectionEntity } from '../../entities/connection/connection.entity.js';
 
 export interface IGlobalDatabaseContext extends IDatabaseContext {
-  userRepository: IUserRepository;
-  connectionRepository: IConnectionRepository;
+  userRepository: Repository<UserEntity> & IUserRepository;
+  connectionRepository: Repository<ConnectionEntity> & IConnectionRepository;
   groupRepository: IGroupRepository;
   permissionRepository: IPermissionRepository;
   tableSettingsRepository: ITableSettingsRepository;

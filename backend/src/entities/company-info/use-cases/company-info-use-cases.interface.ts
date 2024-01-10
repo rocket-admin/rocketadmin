@@ -59,3 +59,7 @@ export interface IUpdateCompanyName {
 export interface IUpdateUsersCompanyRoles {
   execute(inputData: UpdateUsersCompanyRolesDs, inTransaction: InTransactionEnum): Promise<SuccessResponse>;
 }
+
+export interface IDeleteCompany {
+  execute(userId: string, inTransaction: InTransactionEnum): Promise<SuccessResponse>;
+}
