@@ -33,13 +33,14 @@ export const companyInfoRepositoryExtension: ICompanyInfoRepository = {
 
   async findFullCompanyInfoByUserId(userId: string): Promise<CompanyInfoEntity> {
     return await this.createQueryBuilder('company_info')
+      .leftJoinAndSelect('company_info.users', 'current_user')
       .leftJoinAndSelect('company_info.users', 'users')
       .leftJoinAndSelect('company_info.connections', 'connections')
       .leftJoinAndSelect('company_info.invitations', 'invitations')
       .leftJoinAndSelect('connections.groups', 'groups')
       .leftJoinAndSelect('connections.author', 'connection_author')
       .leftJoinAndSelect('groups.users', 'groups_users')
-      .where('users.id = :userId', { userId })
+      .where('current_user.id = :userId', { userId })
       .getOne();
   },
 

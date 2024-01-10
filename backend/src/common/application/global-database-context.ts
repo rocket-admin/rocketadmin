@@ -74,8 +74,8 @@ import { IUserSessionSettings } from '../../entities/user/user-session-settings/
 export class GlobalDatabaseContext implements IGlobalDatabaseContext {
   private _queryRunner: QueryRunner;
 
-  private _userRepository: IUserRepository;
-  private _connectionRepository: IConnectionRepository;
+  private _userRepository: Repository<UserEntity> & IUserRepository;
+  private _connectionRepository: Repository<ConnectionEntity> & IConnectionRepository;
   private _groupRepository: IGroupRepository;
   private _permissionRepository: IPermissionRepository;
   private _tableSettingsRepository: ITableSettingsRepository;
@@ -169,11 +169,11 @@ export class GlobalDatabaseContext implements IGlobalDatabaseContext {
       .extend(userSessionSettingsRepositoryExtension);
   }
 
-  public get userRepository(): IUserRepository {
+  public get userRepository(): Repository<UserEntity> & IUserRepository {
     return this._userRepository;
   }
 
-  public get connectionRepository(): IConnectionRepository {
+  public get connectionRepository(): Repository<ConnectionEntity> & IConnectionRepository {
     return this._connectionRepository;
   }
 

@@ -27,14 +27,7 @@ export class CompanyUserGuard implements CanActivate {
         companyId = foundCompanyInfo?.id;
       }
       if (!companyId || !validateUuidByRegex(companyId)) {
-        reject(
-          new HttpException(
-            {
-              message: 'Company id is missing',
-            },
-            HttpStatus.BAD_REQUEST,
-          ),
-        );
+        resolve(false);
         return;
       }
       let foundUser: UserEntity;
