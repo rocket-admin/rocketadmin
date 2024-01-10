@@ -182,12 +182,11 @@ export class AppComponent {
               this.logOut(true);
               this.router.navigate(['/login']);
             }, expirationInterval);
+          } else {
+            this.router.navigate(['/login']);
           }
         }
       }
-      // else {
-      //   this.router.navigate(['/login']);
-      // }
     });
 
     this._user.cast.subscribe( arg => {
