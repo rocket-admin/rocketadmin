@@ -25,7 +25,7 @@ docker run -d \
   -e PRIVATE_KEY=<private_key> \
   -e TEMPORARY_JWT_SECRET=<temporary_jwt_secret>
   -e APP_DOMAIN_ADDRESS=https://rocketadmin.yourcompany.internal
-  -p 8080:8080 \
+  -p 8080:80 \
   --name rocketadmin \
   rocketadmin/rocketadmin
 ```
