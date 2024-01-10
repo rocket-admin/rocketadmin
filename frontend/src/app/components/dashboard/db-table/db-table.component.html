@@ -80,7 +80,7 @@
                     <button *ngIf="tableData.displayedColumns && tableData.columns" mat-button [matMenuTriggerFor]="menu"
                         angulartics2On="click"
                         angularticsAction="Dashboard: columns multiselect is clicked">
-                        Columns ({{ tableData.displayedDataColumns.length  }}
+                        Columns ({{ tableData.actionsColumnWidth === '0' ? tableData.displayedColumns.length : tableData.displayedDataColumns.length  }}
                             /
                             {{ tableData.columns.length }})
                     </button>

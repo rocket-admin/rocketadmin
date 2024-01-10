@@ -220,8 +220,8 @@ export class TablesDataSource implements DataSource<Object> {
             this.actionsColumnWidth = this.getActionsColumnWidth(this.tableActions, this.permissions);
             this.displayedColumns = ['select', ...this.displayedDataColumns, 'actions'];
           } else {
-            // this.actionsColumnWidth = '0';
-            // this.displayedColumns = [...this.displayedDataColumns];
+            this.actionsColumnWidth = '0';
+            this.displayedColumns = [...this.displayedDataColumns];
             this.alert_primaryKeysInfo = {
               id: 10000,
               type: AlertType.Info,
