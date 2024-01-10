@@ -67,7 +67,7 @@ The provided Docker command example includes several environment variables. Here
 
 2. **JWT_SECRET**: This variable is used for setting the JSON Web Token (JWT) secret. It's a key used for signing and verifying JWT tokens. This should be a secure, random string at least 64 characters long.
 
-3. **PRIVATE_KEY** (optional): This environment variable is used to set a private key. It's often used for encryption or for creating secure connections. The key should be kept confidential and not shared publicly.
+3. **PRIVATE_KEY** (optional): This environment variable is used to set a private key. It's used for encryption of the database credentials. The key should be kept confidential and not shared publicly.
 
 4. **TEMPORARY_JWT_SECRET**: Similar to `JWT_SECRET`, this is also used for JWT token operations. It may be used as a secondary key for temporary tokens or during token rotation processes.
 
