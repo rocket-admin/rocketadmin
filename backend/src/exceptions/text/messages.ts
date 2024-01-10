@@ -95,7 +95,6 @@ export const Messages = {
   FAILED_CONNECTION_DELETE: 'Connection failed to delete.',
   FAILED_CONNECTION_UPDATE: 'Connection failed to update.',
   FAILED_CREATE_GROUP_IN_CONNECTION: 'Failed to create group in connection.',
-  FAILED_TO_CREATE_STRIPE_CUSTOMER: `Failed to create stripe customer.`,
   FAILED_TO_CHANGE_USER_NAME_WITH_THIS_PASSWORD: `Failed to change user name. Incorrect password or you registered with social netword`,
   FAILED_DECRYPT_CONNECTION_CREDENTIALS: `Failed to decrypt connection parameters. Most likely the master password is incorrect.`,
   FAILED_DELETE_GROUP: 'Failed to delete group.',
@@ -149,7 +148,6 @@ export const Messages = {
   MASTER_PASSWORD_REQUIRED: `A master password is required if you want to apply additional encryption.`,
   MUST_BE_ARRAY: (fieldName: string) => `The field "${fieldName}" must be an array`,
   MUST_CONTAIN_ARRAY_OF_PRIMARY_KEYS: `Body must contain array of primary keys`,
-  NO_STRIPE: 'no_stripe_in_this_mode',
   NO_SUCH_FIELDS_IN_TABLES: (fields: Array<string>, tableName: string) =>
     `There are no such fields: ${fields.join(', ')} - in the table "${tableName}"`,
   NO_SUCH_FIELD_IN_TABLE: (fieldName: string, tableName: string) =>
@@ -192,6 +190,7 @@ export const Messages = {
   ROW_PRIMARY_KEY_NOT_FOUND: 'Row with this primary key not found',
   SAAS_COMPANY_NOT_REGISTERED_WITH_USER_INVITATION: `Failed to invite user in SaaS. Please contact our support team.`,
   SAAS_UPDATE_USERS_ROLES_FAILED_UNHANDLED_ERROR: `Failed to update users roles in SaaS. Please contact our support team.`,
+  SAAS_DELETE_COMPANY_FAILED_UNHANDLED_ERROR: `Failed to delete company in SaaS. Please contact our support team.`,
   SOMETHING_WENT_WRONG_ROW_ADD: 'Something went wrong on row insertion, check inserted parameters and try again',
   SSH_FORMAT_INCORRECT: 'Ssh value must be a boolean',
   SSH_HOST_MISSING: 'Ssh host is missing',

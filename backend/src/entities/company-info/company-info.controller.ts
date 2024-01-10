@@ -21,6 +21,7 @@ import { Messages } from '../../exceptions/text/messages.js';
 import { UseCaseType } from '../../common/data-injection.tokens.js';
 import { SlugUuid } from '../../decorators/slug-uuid.decorator.js';
 import {
+  IDeleteCompany,
   IGetCompanyName,
   IGetUserCompany,
   IGetUserEmailCompanies,
@@ -86,6 +87,8 @@ export class CompanyInfoController {
     private readonly updateCompanyNameUseCase: IUpdateCompanyName,
     @Inject(UseCaseType.UPDATE_USERS_COMPANY_ROLES)
     private readonly updateUsersCompanyRolesUseCase: IUpdateUsersCompanyRoles,
+    @Inject(UseCaseType.DELETE_COMPANY)
+    private readonly deleteCompanyUseCase: IDeleteCompany,
   ) {}
 
   @ApiOperation({ summary: 'Get user company' })
@@ -266,7 +269,10 @@ export class CompanyInfoController {
   })
   @UseGuards(CompanyAdminGuard)
   @Put('/name/:slug')
-  async updateCompanyName(@SlugUuid() companyId: string, @Body() nameData: UpdateCompanyNameDto) {
+  async updateCompanyName(
+    @SlugUuid() companyId: string,
+    @Body() nameData: UpdateCompanyNameDto,
+  ): Promise<SuccessResponse> {
     const { name } = nameData;
     return await this.updateCompanyNameUseCase.execute({ name, companyId }, InTransactionEnum.ON);
   }
@@ -280,8 +286,36 @@ export class CompanyInfoController {
   })
   @UseGuards(CompanyAdminGuard)
   @Put('/users/roles/:companyId')
-  async updateUsersRoles(@Param('companyId') companyId: string, @Body() usersAndRoles: UpdateUsersRolesRequestDto) {
+  async updateUsersRoles(
+    @Param('companyId') companyId: string,
+    @Body() usersAndRoles: UpdateUsersRolesRequestDto,
+  ): Promise<SuccessResponse> {
     const { users } = usersAndRoles;
     return await this.updateUsersCompanyRolesUseCase.execute({ users, companyId }, InTransactionEnum.ON);
+  }
+
+  @ApiOperation({ summary: 'Delete company' })
+  @ApiResponse({
+    status: 200,
+    description: 'Company was deleted.',
+    type: SuccessResponse,
+  })
+  @UseGuards(CompanyAdminGuard)
+  @Delete('/my')
+  async deleteCompany(
+    @UserId() userId: string,
+    @Res({ passthrough: true }) response: Response,
+  ): Promise<SuccessResponse> {
+    const deleteResult = await this.deleteCompanyUseCase.execute(userId, InTransactionEnum.OFF);
+
+    response.cookie(Constants.JWT_COOKIE_KEY_NAME, '', {
+      ...getCookieDomainOptions(),
+    });
+    response.cookie(Constants.ROCKETADMIN_AUTHENTICATED_COOKIE, 1, {
+      expires: new Date(0),
+      httpOnly: false,
+      ...getCookieDomainOptions(),
+    });
+    return deleteResult;
   }
 }

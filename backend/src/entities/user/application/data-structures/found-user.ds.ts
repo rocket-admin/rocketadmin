@@ -20,12 +20,6 @@ export class FoundUserDs {
   createdAt: Date;
 
   @ApiProperty({ required: false })
-  portal_link?: string;
-
-  @ApiProperty({ required: false })
-  subscriptionLevel?: SubscriptionLevelEnum;
-
-  @ApiProperty({ required: false })
   intercom_hash?: string;
 
   @ApiProperty()

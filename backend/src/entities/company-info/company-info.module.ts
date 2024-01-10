@@ -25,6 +25,7 @@ import { RevokeUserInvitationInCompanyUseCase } from './use-cases/revoke-invitat
 import { UpdateCompanyNameUseCase } from './use-cases/update-company-name.use.case.js';
 import { GetCompanyNameUseCase } from './use-cases/get-company-name.use.case.js';
 import { UpdateUsersCompanyRolesUseCase } from './use-cases/update-users-company-roles.use.case.js';
+import { DeleteCompanyUseCase } from './use-cases/delete-company-use-case.js';
 
 @Module({
   imports: [
@@ -90,6 +91,10 @@ import { UpdateUsersCompanyRolesUseCase } from './use-cases/update-users-company
       provide: UseCaseType.UPDATE_USERS_COMPANY_ROLES,
       useClass: UpdateUsersCompanyRolesUseCase,
     },
+    {
+      provide: UseCaseType.DELETE_COMPANY,
+      useClass: DeleteCompanyUseCase,
+    },
   ],
   controllers: [CompanyInfoController],
 })
@@ -100,6 +105,7 @@ export class CompanyInfoModule implements NestModule {
       .forRoutes(
         { path: '/company/user/:slug', method: RequestMethod.PUT },
         { path: '/company/my', method: RequestMethod.GET },
+        { path: '/company/my', method: RequestMethod.DELETE },
         { path: 'company/my/full', method: RequestMethod.GET },
         { path: '/company/users/:slug', method: RequestMethod.GET },
         { path: '/company/:companyId/user/:userId', method: RequestMethod.DELETE },

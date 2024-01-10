@@ -1,9 +1,5 @@
-import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
-import { DynamicModuleEnum } from '../../common/data-injection.tokens.js';
-import { SubscriptionLevelEnum } from '../../enums/subscription-level.enum.js';
+import { Injectable, OnModuleInit } from '@nestjs/common';
 import { isSaaS } from '../../helpers/app/is-saas.js';
-import { Constants } from '../../helpers/constants/constants.js';
-import { IStripeService } from '../stripe/application/interfaces/stripe-service.interface.js';
 import { FoundUserInGroupDs } from './application/data-structures/found-user-in-group.ds.js';
 import { FoundUserDs } from './application/data-structures/found-user.ds.js';
 import { UserEntity } from './user.entity.js';
@@ -23,24 +19,7 @@ export class UserHelperService implements OnModuleInit {
     private readonly userRepository: Repository<UserEntity>,
     @InjectRepository(CompanyInfoEntity)
     private readonly companyInfoRepository: Repository<CompanyInfoEntity>,
-    @Inject(DynamicModuleEnum.STRIPE_SERVICE)
-    private readonly stripeService: IStripeService,
   ) {}
-
-  public async checkOwnerInviteAbility(ownerId: string, usersCount: number): Promise<boolean> {
-    if (usersCount <= Constants.FREE_PLAN_USERS_COUNT || !isSaaS()) {
-      return true;
-    }
-    const foundOwner = await this.userRepository.findOneBy({ id: ownerId });
-    if (!foundOwner.stripeId) {
-      return false;
-    }
-    const ownerSubscription = await this.stripeService.getCurrentUserSubscription(foundOwner.stripeId);
-    if (ownerSubscription === SubscriptionLevelEnum.FREE_PLAN) {
-      return false;
-    }
-    return true;
-  }
 
   public buildFoundUserInGroupDs(user: UserEntity): FoundUserInGroupDs {
     return {
@@ -53,16 +32,12 @@ export class UserHelperService implements OnModuleInit {
   }
 
   public async buildFoundUserDs(user: UserEntity): Promise<FoundUserDs> {
-    const portalLink = await this.stripeService.createPortalLink(user);
-    const userSubscriptionLevel = await this.stripeService.getCurrentUserSubscription(user.stripeId);
     const intercomHash = getUserIntercomHash(user.id);
     return {
       id: user.id,
       createdAt: user.createdAt,
       isActive: user.isActive,
       email: user.email,
-      portal_link: portalLink,
-      subscriptionLevel: userSubscriptionLevel,
       intercom_hash: intercomHash,
       name: user.name,
       is_2fa_enabled: user.otpSecretKey !== null && user.isOTPEnabled,

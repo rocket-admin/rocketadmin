@@ -68,8 +68,6 @@ export class SaasRegisterInvitedUserUseCase
       createdAt: savedUser.createdAt,
       isActive: savedUser.isActive,
       email: savedUser.email,
-      portal_link: null,
-      subscriptionLevel: null,
       intercom_hash: null,
       name: savedUser.name,
       is_2fa_enabled: false,

@@ -106,7 +106,7 @@ test(`${currentTest} should return full found company info for company admin use
     t.is(foundCompanyInfoRO.hasOwnProperty('address'), true);
     t.is(foundCompanyInfoRO.hasOwnProperty('createdAt'), true);
     t.is(foundCompanyInfoRO.hasOwnProperty('updatedAt'), true);
-    t.is(Object.keys(foundCompanyInfoRO).length, 10);
+    t.is(Object.keys(foundCompanyInfoRO).length, 11);
     t.is(foundCompanyInfoRO.hasOwnProperty('connections'), true);
     t.is(foundCompanyInfoRO.connections.length > 3, true);
     t.is(foundCompanyInfoRO.hasOwnProperty('invitations'), true);
@@ -537,4 +537,43 @@ test(`${currentTest} should update user roles in company`, async (t) => {
   for (const user of usersInCompanyROAfterUpdate) {
     t.is(user.role, 'ADMIN');
   }
+});
+
+currentTest = `DELETE company`;
+
+test(`${currentTest} should delete company`, async (t) => {
+  const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
+  const {
+    connections,
+    firstTableInfo,
+    groups,
+    permissions,
+    secondTableInfo,
+    users: { adminUserToken, simpleUserToken, adminUserEmail, simpleUserEmail },
+  } = testData;
+  const foundCompanyInfo = await request(app.getHttpServer())
+    .get('/company/my/full')
+    .set('Content-Type', 'application/json')
+    .set('Cookie', adminUserToken)
+    .set('Accept', 'application/json');
+
+  t.is(foundCompanyInfo.status, 200);
+
+  const deleteCompanyResult = await request(app.getHttpServer())
+    .delete(`/company/my`)
+    .set('Content-Type', 'application/json')
+    .set('Cookie', adminUserToken)
+    .set('Accept', 'application/json');
+
+  t.is(deleteCompanyResult.status, 200);
+  const deleteCompanyResultRO = JSON.parse(deleteCompanyResult.text);
+  t.is(deleteCompanyResultRO.success, true);
+
+  const foundCompanyInfoAfterDelete = await request(app.getHttpServer())
+    .get('/company/my/full')
+    .set('Content-Type', 'application/json')
+    .set('Cookie', adminUserToken)
+    .set('Accept', 'application/json');
+
+  t.is(foundCompanyInfoAfterDelete.status, 403);
 });
