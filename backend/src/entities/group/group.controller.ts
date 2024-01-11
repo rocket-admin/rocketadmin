@@ -28,7 +28,7 @@ import { IToken, ITokenExp } from '../user/utils/generate-gwt-token.js';
 import { AddUserInGroupDs, AddUserInGroupWithSaaSDs } from './application/data-sctructures/add-user-in-group.ds.js';
 import { AddedUserInGroupDs } from './application/data-sctructures/added-user-in-group.ds.js';
 import { DeletedGroupResultDs } from './application/data-sctructures/deleted-group-result.ds.js';
-import { FoundUserGroupsDs } from './application/data-sctructures/found-user-groups.ds.js';
+import { FoundGroupDataInfoDs, FoundUserGroupsDs } from './application/data-sctructures/found-user-groups.ds.js';
 import { RemoveUserFromGroupResultDs } from './application/data-sctructures/remove-user-from-group-result.ds.js';
 import { VerifyAddUserInGroupDs } from './application/data-sctructures/verify-add-user-in-group.ds.js';
 import {
@@ -37,6 +37,7 @@ import {
   IFindUserGroups,
   IRemoveUserFromGroup,
   ISaaSAddUserInGroup,
+  IUpdateGroupTitle,
   IVerifyAddUserInGroup,
 } from './use-cases/use-cases.interfaces.js';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
@@ -45,6 +46,7 @@ import { TokenExpirationResponseDto } from '../company-info/application/dto/toke
 import { DeleteUserFromGroupDTO } from './dto/delete-user-from-group-dto.js';
 import { VerifyUserInGroupInvitationDto } from './dto/verify-user-in-group-invitation-request-body.dto.js';
 import { getCookieDomainOptions } from '../user/utils/get-cookie-domain-options.js';
+import { UpdateGroupTitleDto } from './dto/update-group-title.dto.js';
 
 @UseInterceptors(SentryInterceptor)
 @Controller()
@@ -65,6 +67,8 @@ export class GroupController {
     private readonly removeUserFromGroupUseCase: IRemoveUserFromGroup,
     @Inject(UseCaseType.DELETE_GROUP)
     private readonly deleteGroupUseCase: IDeleteGroup,
+    @Inject(UseCaseType.UPDATE_GROUP_TITLE)
+    private readonly updateGroupTitleUseCase: IUpdateGroupTitle,
     private readonly amplitudeService: AmplitudeService,
   ) {}
 
@@ -233,5 +237,18 @@ export class GroupController {
     } finally {
       await this.amplitudeService.formAndSendLogRecord(AmplitudeEventTypeEnum.groupUserRemoved, userId);
     }
+  }
+
+  @ApiOperation({ summary: 'Update group title' })
+  @ApiBody({ type: UpdateGroupTitleDto })
+  @ApiResponse({
+    status: 200,
+    description: 'Update group title.',
+    type: FoundGroupDataInfoDs,
+  })
+  @UseGuards(GroupEditGuard)
+  @Put('/group/title/')
+  async updateGroupTitle(@Body() groupData: UpdateGroupTitleDto): Promise<FoundGroupDataInfoDs> {
+    return await this.updateGroupTitleUseCase.execute(groupData, InTransactionEnum.OFF);
   }
 }
