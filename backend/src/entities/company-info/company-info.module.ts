@@ -26,6 +26,7 @@ import { UpdateCompanyNameUseCase } from './use-cases/update-company-name.use.ca
 import { GetCompanyNameUseCase } from './use-cases/get-company-name.use.case.js';
 import { UpdateUsersCompanyRolesUseCase } from './use-cases/update-users-company-roles.use.case.js';
 import { DeleteCompanyUseCase } from './use-cases/delete-company-use-case.js';
+import { CheckIsVerificationLinkAvailable } from './use-cases/check-verification-link.available.use.case.js';
 
 @Module({
   imports: [
@@ -94,6 +95,10 @@ import { DeleteCompanyUseCase } from './use-cases/delete-company-use-case.js';
     {
       provide: UseCaseType.DELETE_COMPANY,
       useClass: DeleteCompanyUseCase,
+    },
+    {
+      provide: UseCaseType.CHECK_IS_VERIFICATION_LINK_AVAILABLE,
+      useClass: CheckIsVerificationLinkAvailable,
     },
   ],
   controllers: [CompanyInfoController],

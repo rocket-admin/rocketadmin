@@ -21,6 +21,7 @@ import { Messages } from '../../exceptions/text/messages.js';
 import { UseCaseType } from '../../common/data-injection.tokens.js';
 import { SlugUuid } from '../../decorators/slug-uuid.decorator.js';
 import {
+  ICheckVerificationLinkAvailable,
   IDeleteCompany,
   IGetCompanyName,
   IGetUserCompany,
@@ -89,6 +90,8 @@ export class CompanyInfoController {
     private readonly updateUsersCompanyRolesUseCase: IUpdateUsersCompanyRoles,
     @Inject(UseCaseType.DELETE_COMPANY)
     private readonly deleteCompanyUseCase: IDeleteCompany,
+    @Inject(UseCaseType.CHECK_IS_VERIFICATION_LINK_AVAILABLE)
+    private readonly checkIsVerificationLinkAvailableUseCase: ICheckVerificationLinkAvailable,
   ) {}
 
   @ApiOperation({ summary: 'Get user company' })
@@ -258,6 +261,24 @@ export class CompanyInfoController {
       expires: tokenInfo.exp,
       isTemporary: tokenInfo.isTemporary,
     };
+  }
+
+  @ApiOperation({ summary: 'Check is verification link is available' })
+  @ApiBody({ type: VerifyCompanyInvitationRequestDto })
+  @ApiResponse({
+    status: 200,
+    type: SuccessResponse,
+  })
+  @Get('/invite/verify/:verificationString')
+  async checkIsVerificationLinkAvailable(
+    @Param('verificationString') verificationString: string,
+  ): Promise<SuccessResponse> {
+    if (!verificationString) {
+      return {
+        success: false,
+      };
+    }
+    return await this.checkIsVerificationLinkAvailableUseCase.execute(verificationString);
   }
 
   @ApiOperation({ summary: 'Update company name' })
