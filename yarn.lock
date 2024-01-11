@@ -2076,6 +2076,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/body-parser@npm:^1.19.5":
+  version: 1.19.5
+  resolution: "@types/body-parser@npm:1.19.5"
+  dependencies:
+    "@types/connect": "*"
+    "@types/node": "*"
+  checksum: 1e251118c4b2f61029cc43b0dc028495f2d1957fe8ee49a707fb940f86a9bd2f9754230805598278fe99958b49e9b7e66eec8ef6a50ab5c1f6b93e1ba2aaba82
+  languageName: node
+  linkType: hard
+
 "@types/cls-hooked@npm:^4.3.3":
   version: 4.3.4
   resolution: "@types/cls-hooked@npm:4.3.4"
@@ -3375,6 +3385,7 @@ __metadata:
     "@sentry/minimal": ^6.19.7
     "@sentry/node": 7.90.0
     "@types/bcrypt": ^5.0.2
+    "@types/body-parser": ^1.19.5
     "@types/cookie-parser": ^1.4.6
     "@types/cron": ^2.0.1
     "@types/crypto-js": ^4.2.1
@@ -3400,6 +3411,7 @@ __metadata:
     base32-encode: ^2.0.0
     basic-auth: 2.0.1
     bcrypt: 5.1.1
+    body-parser: ^1.20.2
     class-transformer: 0.5.1
     class-validator: ^0.14.0
     cookie-parser: ^1.4.6
@@ -3755,7 +3767,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"body-parser@npm:1.20.2":
+"body-parser@npm:1.20.2, body-parser@npm:^1.20.2":
   version: 1.20.2
   resolution: "body-parser@npm:1.20.2"
   dependencies:
