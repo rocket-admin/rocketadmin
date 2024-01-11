@@ -11,6 +11,7 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { ValidationPipe } from '@nestjs/common';
 import { ValidationError } from 'class-validator';
 import { ValidationException } from './exceptions/custom-exceptions/validation-exception.js';
+import bodyParser from 'body-parser';
 
 async function bootstrap() {
   try {
@@ -55,6 +56,9 @@ async function bootstrap() {
 
     app.use('/api/', apiLimiter);
     app.use(cookieParser());
+
+    app.use(bodyParser.json({ limit: '10mb' }));
+    app.use(bodyParser.urlencoded({ limit: '10mb', extended: true }));
 
     const config = new DocumentBuilder()
       .setTitle('Rocketadmin')
