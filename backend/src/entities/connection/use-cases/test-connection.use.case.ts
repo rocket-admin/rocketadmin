@@ -36,7 +36,7 @@ export class TestConnectionUseCase
         message: Messages.CANNOT_CREATE_CONNECTION_TO_THIS_HOST,
       };
     }
-    const {
+    let {
       update_info: { connectionId, masterPwd },
       connection_parameters: connectionData,
     } = inputData;
@@ -117,6 +117,7 @@ export class TestConnectionUseCase
           message: Messages.PASSWORD_MISSING,
         };
       }
+      connectionData = await processAWSConnection(connectionData as any) as any;
       const dao = getDataAccessObject(connectionData as ConnectionEntity);
       try {
         return await dao.testConnect();
@@ -131,4 +132,3 @@ export class TestConnectionUseCase
     }
   }
 }
- 
