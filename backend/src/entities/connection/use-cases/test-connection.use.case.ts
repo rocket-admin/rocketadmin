@@ -14,6 +14,7 @@ import { UpdateConnectionDs } from '../application/data-structures/update-connec
 import { ConnectionEntity } from '../connection.entity.js';
 import { isHostAllowed } from '../utils/is-host-allowed.js';
 import { ITestConnection } from './use-cases.interfaces.js';
+import { processAWSConnection } from '../utils/process-aws-connection.util.js';
 
 @Injectable()
 export class TestConnectionUseCase
@@ -95,7 +96,8 @@ export class TestConnectionUseCase
           message: `${Messages.CONNECTION_TEST_FILED}${e ? e : ''}`,
         };
       }
-      const updated = Object.assign(toUpdate, connectionData);
+      let updated = Object.assign(toUpdate, connectionData);
+      updated = await processAWSConnection(updated);
       const dao = getDataAccessObject(updated);
 
       try {
@@ -129,3 +131,4 @@ export class TestConnectionUseCase
     }
   }
 }
+ 
