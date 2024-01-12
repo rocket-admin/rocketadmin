@@ -53,8 +53,8 @@ export const Constants = {
 
   LARGE_DATASET_ROW_LIMIT: 100000,
 
-  DEFAULT_SLACK_CHANNEL: '#rocketadmin-errors',
-  EXCEPTIONS_CHANNELS: '#rocketadmin-errors',
+  DEFAULT_SLACK_CHANNEL: '#errors',
+  EXCEPTIONS_CHANNELS: '#errors',
   KEEP_ALIVE_INTERVAL: 30000,
   KEEP_ALIVE_COUNT_MAX: 120,
 
