@@ -51,6 +51,7 @@ export class ActivateTableActionsUseCase
       connectionId,
       masterPwd,
     );
+
     const dataAccessObject = getDataAccessObject(foundConnection);
     const tablePrimaryKeys = await dataAccessObject.getTablePrimaryColumns(tableName, null);
     const primaryKeyValuesArray: Array<Record<string, unknown>> = [];
@@ -65,28 +66,27 @@ export class ActivateTableActionsUseCase
     }
 
     const dateString = new Date().toISOString();
-    const autoadminSignatureHeader = this.generateAutoadminSignature(
-      foundConnection.signing_key,
-      primaryKeyValuesArray,
-      actionId,
-      dateString,
-      tableName,
-    );
+
+    const requestBody = {
+      $$_raUserId: userId,
+      primaryKeys: primaryKeyValuesArray,
+      $$_date: dateString,
+      $$_actionId: actionId,
+      $$_tableName: tableName,
+    };
+
+    const bodyString = JSON.stringify(requestBody);
+
+    const rocketadminSignatureHeader = Encryptor.hashDataHMACexternalKey(foundConnection.signing_key, bodyString);
 
     try {
-      const result = await axios.post(
-        foundTableAction.url,
-        {
-          $$_raUserId: userId,
-          primaryKeys: primaryKeyValuesArray,
-          $$_date: dateString,
-          $$_actionId: actionId,
-          $$_tableName: tableName,
+      const result = await axios.post(foundTableAction.url, bodyString, {
+        headers: {
+          'Rocketadmin-Signature': rocketadminSignatureHeader,
+          'Content-Type': 'application/json',
         },
-        {
-          headers: { 'Rocketadmin-Signature': autoadminSignatureHeader },
-        },
-      );
+      });
+
       const operationStatusCode = result.status;
       if (operationStatusCode >= 200 && operationStatusCode < 300) {
         operationResult = OperationResultStatusEnum.successfully;
@@ -126,28 +126,5 @@ export class ActivateTableActionsUseCase
       };
       await this.tableLogsService.crateAndSaveNewLogUtil(logRecord);
     }
-  }
-  private generateAutoadminSignature(
-    signingKey: string,
-    primaryKeys: Array<Record<string, unknown>>,
-    actionId: string,
-    dateString: string,
-    tableName: string,
-  ): string {
-    let stringifyedPKeys: string;
-    for (const pKeys of primaryKeys) {
-      stringifyedPKeys = this.objToString(pKeys);
-    }
-    const strTohash = dateString + '$$' + stringifyedPKeys + '$$' + actionId + '$$' + tableName;
-    const hash = Encryptor.hashDataHMACexternalKey(signingKey, strTohash);
-    return hash;
-  }
-
-  private objToString(obj: Record<string, unknown>): string {
-    return Object.entries(obj)
-      .reduce((str, [p, val]) => {
-        return `${str}${p}::${val}\n`;
-      }, '')
-      .slice(0, -1);
   }
 }
