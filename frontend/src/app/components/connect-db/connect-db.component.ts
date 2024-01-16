@@ -69,9 +69,6 @@ export class ConnectDBComponent implements OnInit, OnDestroy {
       this.title.setTitle(`Edit connection ${connectionTitle} | Rocketadmin`);
     });
 
-    const currentMasterKey = localStorage.getItem(`${this.connectionID}__masterKey`);
-    if (currentMasterKey) {this.masterKey = currentMasterKey};
-
     if (navigator.appVersion.indexOf("Win") != -1) this.userOS = "Windows";
     if (navigator.appVersion.indexOf("Mac") != -1) this.userOS = "Mac";
     if (navigator.appVersion.indexOf("Linux") != -1) this.userOS = "Linux";
@@ -142,6 +139,7 @@ export class ConnectDBComponent implements OnInit, OnDestroy {
   }
 
   createConnectionRequest() {
+    this.checkMasterPassword();
     this._connections.createConnection(this.db)
     .subscribe((res: any) => {
         this.ngZone.run(() => {
@@ -170,10 +168,10 @@ export class ConnectDBComponent implements OnInit, OnDestroy {
   }
 
   updateConnectionRequest() {
+    this.checkMasterPassword();
     this._connections.updateConnection(this.db)
     .subscribe((res: any) => {
       this.ngZone.run(() => {
-        this.checkMasterPassword();
         const connectionID = res.connection.id!;
         if (this.db.connectionType === 'agent') {
           this.connectionToken = res.connection.token;

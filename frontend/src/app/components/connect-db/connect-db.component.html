@@ -186,7 +186,7 @@
                             (ngModelChange)="generatePassword()">
                             Use client-side encryption
                         </mat-slide-toggle>
-                        <div *ngIf="db.masterEncryption" class="encription-password">
+                        <div *ngIf="db.masterEncryption && masterKey" class="encription-password">
                             <mat-form-field appearance="outline" style="width:100%">
                                 <mat-label>Master password</mat-label>
                                 <input matInput [(ngModel)]="masterKey" name="masterPassword" #masterPassword="ngModel" readonly>
