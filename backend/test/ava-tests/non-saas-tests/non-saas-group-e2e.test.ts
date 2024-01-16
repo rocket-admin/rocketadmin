@@ -1179,3 +1179,53 @@ test(`${currentTest} should throw an error, trying delete last user from admin g
     throw e;
   }
 });
+
+currentTest = 'PUT /group/title/';
+
+test(`${currentTest} should return a group with new title`, async (t) => {
+  try {
+    const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
+
+    const { newConnection, newConnection2, newGroup1 } = getTestData(mockFactory);
+
+    let createConnectionResponse = await request(app.getHttpServer())
+      .post('/connection')
+      .send(newConnection)
+      .set('Cookie', firstUserToken)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+    const createConnectionRO = JSON.parse(createConnectionResponse.text);
+
+    t.is(createConnectionResponse.status, 201);
+
+    const createGroupResponse = await request(app.getHttpServer())
+      .post(`/connection/group/${createConnectionRO.id}`)
+      .send(newGroup1)
+      .set('Cookie', firstUserToken)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+    t.is(createGroupResponse.status, 201);
+
+    const createGroupRO = JSON.parse(createGroupResponse.text);
+    const groupId = createGroupRO.id;
+
+    const groupUpdateData = {
+      title: 'Updated title',
+      groupId: groupId,
+    };
+
+    const updateGroupResponse = await request(app.getHttpServer())
+      .put(`/group/title/`)
+      .send(groupUpdateData)
+      .set('Cookie', firstUserToken)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+    t.is(updateGroupResponse.status, 200);
+
+    const updateGroupTitleRO = JSON.parse(updateGroupResponse.text);
+    t.is(updateGroupTitleRO.title, groupUpdateData.title);
+  } catch (e) {
+    console.error(e);
+    throw e;
+  }
+});

@@ -8,15 +8,18 @@ import { AllExceptionsFilter } from './exceptions/all-exceptions.filter.js';
 import { Constants } from './helpers/constants/constants.js';
 import { requiredEnvironmentVariablesValidator } from './helpers/validators/required-environment-variables.validator.js';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
-import { ValidationPipe } from '@nestjs/common';
+import { NestApplicationOptions, ValidationPipe } from '@nestjs/common';
 import { ValidationError } from 'class-validator';
 import { ValidationException } from './exceptions/custom-exceptions/validation-exception.js';
+import bodyParser from 'body-parser';
 
 async function bootstrap() {
   try {
+    process.env.NO_COLOR = 'true';
     requiredEnvironmentVariablesValidator();
-    const appOptions = {
+    const appOptions: NestApplicationOptions = {
       rawBody: true,
+      logger: ['error', 'warn', 'fatal', 'warn'],
     };
     const app = await NestFactory.create(ApplicationModule, appOptions);
 
@@ -55,6 +58,9 @@ async function bootstrap() {
 
     app.use('/api/', apiLimiter);
     app.use(cookieParser());
+
+    app.use(bodyParser.json({ limit: '10mb' }));
+    app.use(bodyParser.urlencoded({ limit: '10mb', extended: true }));
 
     const config = new DocumentBuilder()
       .setTitle('Rocketadmin')

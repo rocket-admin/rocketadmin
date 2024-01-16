@@ -18,6 +18,7 @@ import { FindAllUsersInGroupUseCase } from './use-cases/find-all-users-in-group.
 import { RemoveUserFromGroupUseCase } from './use-cases/remove-user-from-group.use.case.js';
 import { VerifyAddUserInGroupUseCase } from './use-cases/verify-add-user-in-group.use.case.js';
 import { SaaSAddUserInGroupV2UseCase } from './use-cases/saas-add-user-in-group-v2.use.case.js';
+import { UpdateGroupTitleUseCase } from './use-cases/update-group-title.use.case.js';
 
 @Module({
   imports: [
@@ -61,6 +62,10 @@ import { SaaSAddUserInGroupV2UseCase } from './use-cases/saas-add-user-in-group-
       provide: UseCaseType.DELETE_GROUP,
       useClass: DeleteGroupUseCase,
     },
+    {
+      provide: UseCaseType.UPDATE_GROUP_TITLE,
+      useClass: UpdateGroupTitleUseCase,
+    },
   ],
   controllers: [GroupController],
   exports: [],
@@ -80,6 +85,7 @@ export class GroupModule {
         { path: '/group/permission/delete', method: RequestMethod.PUT },
         { path: 'group/delete/:slug', method: RequestMethod.DELETE },
         { path: 'group/users/:slug', method: RequestMethod.GET },
+        { path: 'group/title', method: RequestMethod.PUT },
       );
   }
 }

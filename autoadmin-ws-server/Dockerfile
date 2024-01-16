@@ -1,4 +1,4 @@
-FROM node:18
+FROM node:20
 WORKDIR /app
 COPY package.json yarn.lock /app/
 RUN yarn install --network-timeout 1000000

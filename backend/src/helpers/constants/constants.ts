@@ -53,8 +53,8 @@ export const Constants = {
 
   LARGE_DATASET_ROW_LIMIT: 100000,
 
-  DEFAULT_SLACK_CHANNEL: '#rocketadmin-errors',
-  EXCEPTIONS_CHANNELS: '#rocketadmin-errors',
+  DEFAULT_SLACK_CHANNEL: '#errors',
+  EXCEPTIONS_CHANNELS: '#errors',
   KEEP_ALIVE_INTERVAL: 30000,
   KEEP_ALIVE_COUNT_MAX: 120,
 
@@ -181,7 +181,7 @@ export const Constants = {
     return this.getTestConnectionsArr().map((connection) => connection.host);
   },
 
-  APP_DOMAIN_ADDRESS: process.env.APP_DOMAIN_ADDRESS || `https://app.rocketadmin.com`,
+  APP_DOMAIN_ADDRESS: process.env.APP_DOMAIN_ADDRESS || `http://localhost:3000`,
 
   AUTOADMIN_SUPPORT_MAIL: 'support@autoadmin.org',
   AUTOADMIN_EMAIL_TEXT: `Hi!

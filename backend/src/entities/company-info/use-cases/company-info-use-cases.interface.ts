@@ -63,3 +63,7 @@ export interface IUpdateUsersCompanyRoles {
 export interface IDeleteCompany {
   execute(userId: string, inTransaction: InTransactionEnum): Promise<SuccessResponse>;
 }
+
+export interface ICheckVerificationLinkAvailable {
+  execute(verificationString: string): Promise<SuccessResponse>;
+}
