@@ -157,7 +157,8 @@ export class AppComponent {
         }, expirationInterval);
 
       } else if (res !== 'delete') {
-        const expirationTime = new Date(localStorage.getItem('token_expiration'));
+        const expirationToken = localStorage.getItem('token_expiration');
+        const expirationTime = expirationToken ? new Date(expirationToken) : null;
         const currantTime = new Date();
 
         if (expirationTime && currantTime) {
@@ -183,6 +184,7 @@ export class AppComponent {
               this.router.navigate(['/login']);
             }, expirationInterval);
           } else {
+            this.logOut(true);
             this.router.navigate(['/login']);
           }
         }
