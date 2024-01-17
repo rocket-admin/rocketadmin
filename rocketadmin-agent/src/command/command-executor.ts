@@ -194,6 +194,35 @@ export class CommandExecutor {
           console.log(Messages.FAIL_MESSAGE(e.message));
           return new Error(Messages.FAILED_TO_CHECK_IS_VIEW);
         }
+
+      case OperationTypeEnum.getRowsAsStream:
+        try {
+          operationStatusResult = OperationResultStatusEnum.successfully;
+          return await dao.getRowsFromTable(
+            tableName,
+            tableSettings,
+            page,
+            perPage,
+            searchedFieldValue,
+            filteringFields,
+            autocompleteFields,
+          );
+        } catch (e) {
+          operationStatusResult = OperationResultStatusEnum.unsuccessfully;
+          console.log(Messages.FAIL_MESSAGE(e.message));
+          return new Error(Messages.FAILED_GET_ROWS_FROM_TABLE);
+        } finally {
+          Logger.createLogRecord(
+            null,
+            tableName,
+            email,
+            LogOperationTypeEnum.rowsReceived,
+            operationStatusResult,
+            null,
+          );
+        }
+        break;
+
       default:
         return new Error(Messages.UNKNOWN_OPERATION(operationType));
     }

@@ -15,4 +15,5 @@ export enum OperationTypeEnum {
   getIdentityColumns = 'getIdentityColumns',
   getReferencedTableNamesAndColumns = 'getReferencedTableNamesAndColumns',
   isView = 'isView',
+  getRowsAsStream = 'getRowsAsStream',
 }
