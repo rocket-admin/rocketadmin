@@ -27,7 +27,7 @@ export function buildFoundCompanyFullInfoDs(
           id: group.id,
           isMain: group.isMain,
           title: group.title,
-          users: group.users.map((user) => buildSimpleUserInfoDs(user)),
+          users: group.users.map((user) => buildSimpleUserInfoDs(user)).filter((user) => !!user),
         };
       }),
     };
