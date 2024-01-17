@@ -59,6 +59,7 @@ export class DbTableWidgetsComponent implements OnInit {
 // CA => California
 
 {
+  allow_null: true,
   options: [
     {
       value: 'UA',

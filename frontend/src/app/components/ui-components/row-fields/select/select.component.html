@@ -15,7 +15,7 @@
             [required]="required" [disabled]="disabled" [readonly]="readonly"
             [(ngModel)]="value" (ngModelChange)="onFieldChange.emit($event)">
             <mat-option *ngFor="let option of options" [value]="option">
-                {{option}}
+                {{option === null ? '' : option}}
             </mat-option>
         </mat-select>
     </ng-template>
