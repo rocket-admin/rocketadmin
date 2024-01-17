@@ -12,6 +12,9 @@ export function buildCreatedUserDs(user: UserEntity): CreatedUserDs {
 }
 
 export function buildSimpleUserInfoDs(user: UserEntity): SimpleFoundUserInfoDs {
+  if (!user) {
+    return null;
+  }
   return {
     id: user.id,
     isActive: user.isActive,
