@@ -24,6 +24,12 @@ import { ERROR_MESSAGES } from '@rocketadmin/shared-code/dist/src/helpers/errors
 import { ErrorsMessages } from '../../../src/exceptions/custom-exceptions/messages/custom-errors-messages.js';
 import { ValidationException } from '../../../src/exceptions/custom-exceptions/validation-exception.js';
 import { ValidationError } from 'class-validator';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { join } from 'path';
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const mockFactory = new MockFactory();
 let app: INestApplication;
@@ -2990,4 +2996,53 @@ test(`${currentTest} should delete rows in table and return result`, async (t) =
   for (const key of primaryKeysForDeletion) {
     t.is(onlyDeleteLogs.findIndex((log) => log.received_data.id === key.id) >= 0, true);
   }
+});
+
+currentTest = 'GET table/csv/:slug';
+
+test(`${currentTest} should return csv file with table data`, async (t) => {
+  const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
+
+  const createConnectionResponse = await request(app.getHttpServer())
+    .post('/connection')
+    .send(connectionToTestDB)
+    .set('Cookie', firstUserToken)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+  const createConnectionRO = JSON.parse(createConnectionResponse.text);
+  t.is(createConnectionResponse.status, 201);
+
+  const getTableRowsResponse = await request(app.getHttpServer())
+    .get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}`)
+    .set('Cookie', firstUserToken)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+  t.is(getTableRowsResponse.status, 200);
+
+  const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
+  t.is(typeof getTableRowsRO, 'object');
+
+  const getTableCsvResponse = await request(app.getHttpServer())
+    .get(`/table/csv/${createConnectionRO.id}?tableName=${testTableName}`)
+    .set('Cookie', firstUserToken)
+    .set('Content-Type', 'text/csv')
+    .set('Accept', 'text/csv');
+
+  if (getTableCsvResponse.status !== 200) {
+    console.log(getTableCsvResponse.text);
+  }
+  t.is(getTableCsvResponse.status, 200);
+  const fileName = `${testTableName}.csv`;
+  const downloadedFilePatch = join(__dirname, 'response-files', fileName);
+
+  const dir = join(__dirname, 'response-files');
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir);
+  }
+  // eslint-disable-next-line security/detect-non-literal-fs-filename
+  fs.writeFileSync(downloadedFilePatch, getTableCsvResponse.body);
+
+  // eslint-disable-next-line security/detect-non-literal-fs-filename
+  const isFileExists = fs.existsSync(downloadedFilePatch);
+  t.is(isFileExists, true);
 });
