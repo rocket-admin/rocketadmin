@@ -1,24 +1,26 @@
-<app-alert></app-alert>
-<div class="wrapper">
-    <form class="password-form" #inviteUserForm="ngForm" (ngSubmit)="acceptInvitation()">
-        <h1 class="mat-h1">You were invited to <strong *ngIf="companyName !== null">{{companyName || 'Unknown company'}}</strong> company</h1>
-        <p class="mat-body-1">Create password for your account in this company.</p>
-        <app-user-password label="Password" [value]="password" (onFieldChange)="updatePasswordField($event)"></app-user-password>
+<div class="background-decoration">
+    <app-alert></app-alert>
+    <div class="wrapper">
+        <form class="password-form" #inviteUserForm="ngForm" (ngSubmit)="acceptInvitation()">
+            <h1 class="mat-h1">You were invited to <strong *ngIf="companyName !== null">{{companyName || 'Unknown company'}}</strong> company</h1>
+            <p class="mat-body-1">Create password for your account in this company.</p>
+            <app-user-password label="Password" [value]="password" (onFieldChange)="updatePasswordField($event)"></app-user-password>
 
-        <mat-divider class="form-divider"></mat-divider>
+            <mat-divider class="form-divider"></mat-divider>
 
-        <p class="mat-body-1">Add name visible to your coworkers.</p>
+            <p class="mat-body-1">Add name visible to your coworkers.</p>
 
-        <mat-form-field appearance="outline" class="name-input">
-            <mat-label>Name</mat-label>
-            <input matInput required [(ngModel)]="userName" name="user-name" #name="ngModel">
-        </mat-form-field>
+            <mat-form-field appearance="outline" class="name-input">
+                <mat-label>Name</mat-label>
+                <input matInput required [(ngModel)]="userName" name="user-name" #name="ngModel">
+            </mat-form-field>
 
-        <div class="actions">
-            <button mat-flat-button color="primary"
-                [disabled]="submitting || inviteUserForm.form.invalid">
-                    Join
-            </button>
-        </div>
-    </form>
+            <div class="actions">
+                <button mat-flat-button color="primary"
+                    [disabled]="submitting || inviteUserForm.form.invalid">
+                        Join
+                </button>
+            </div>
+        </form>
+    </div>
 </div>

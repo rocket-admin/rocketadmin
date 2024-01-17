@@ -44,6 +44,17 @@ body {
     min-height: 100%;
 }
 
+.background-decoration {
+    background-image:
+        url('./assets/bg/decor-left.svg'),
+        url('./assets/bg/decor-right.svg');
+    background-repeat: no-repeat;
+    background-position: left 100%, right -60%;
+    background-size: 20%, 25%;
+    height: 100%;
+    min-height: calc(100vh - 56px);
+}
+
 .skeleton {
     position: relative;
     // overflow: hidden;

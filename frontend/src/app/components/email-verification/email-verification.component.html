@@ -1,3 +1,5 @@
 <app-alert></app-alert>
 
-<app-page-loader *ngIf="!isVerified"></app-page-loader>
+<div *ngIf="!isVerified" class="loader">
+    <h1 class="mat-h1">Verifying...</h1>
+</div>

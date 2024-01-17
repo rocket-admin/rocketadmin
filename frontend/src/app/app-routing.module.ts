@@ -15,7 +15,6 @@ import { DbTableSettingsComponent } from './components/dashboard/db-table-settin
 import { DbTableWidgetsComponent } from './components/dashboard/db-table-widgets/db-table-widgets.component';
 import { EmailChangeComponent } from './components/email-change/email-change.component';
 import { EmailVerificationComponent } from './components/email-verification/email-verification.component';
-import { GroupUserVerificationComponent } from './components/group-user-verification/group-user-verification.component';
 import { LoginComponent } from './components/login/login.component';
 import { NewVersionComponent } from './components/new-version/new-version.component';
 import { NgModule } from '@angular/core';
@@ -67,7 +66,6 @@ const routes: Routes = [
   {path: 'dashboard/:connection-id/:table-name/settings', pathMatch: 'full', component: DbTableSettingsComponent, canActivate: [AuthGuard]},
   {path: 'dashboard/:connection-id/:table-name/actions', pathMatch: 'full', component: DbTableActionsComponent, canActivate: [AuthGuard]},
   {path: 'users/:connection-id', component: UsersComponent, canActivate: [AuthGuard]},
-  {path: 'external/group/user/verify/:verification-token', component: GroupUserVerificationComponent},
   {path: '**', component: PageNotFoundComponent},
 ];
 

@@ -1,10 +1,4 @@
 .wrapper {
-    background-image:
-        url('../../../assets/bg/decor-left.svg'),
-        url('../../../assets/bg/decor-right.svg');
-    background-repeat: no-repeat;
-    background-position: left 125%, right -13%;
-    background-size: 20%, 25%;
     height: calc(100vh - 56px);
     padding: 16px;
 }

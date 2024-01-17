@@ -60,7 +60,6 @@ import { FileComponent } from './components/ui-components/row-fields/file/file.c
 import { ForeignKeyComponent } from './components/ui-components/row-fields/foreign-key/foreign-key.component';
 import { GroupAddDialogComponent } from './components/users/group-add-dialog/group-add-dialog.component';
 import { GroupDeleteDialogComponent } from './components/users/group-delete-dialog/group-delete-dialog.component';
-import { GroupUserVerificationComponent } from './components/group-user-verification/group-user-verification.component';
 import { HexValidationDirective } from "./directives/hexValidator.directive";
 import { HostnameValidationDirective } from "./directives/hostnameValidator.directive";
 import { IconPickerComponent } from './components/ui-components/icon-picker/icon-picker.component';
@@ -212,7 +211,6 @@ const saasExtraProviders = (environment as any).saas ? [
     PasswordRequestComponent,
     PasswordChangeComponent,
     AccountDeleteConfirmationComponent,
-    GroupUserVerificationComponent,
     FileComponent,
     AlertComponent,
     NewVersionComponent,
