@@ -118,13 +118,8 @@ export class CompanyService {
     return this._http.delete<any>(`/company/${companyId}/user/${userId}`)
       .pipe(
         map(res => {
-          this._notifications.showAlert(AlertType.Success, `${userName || email} has been removed from company.`, [
-            {
-              type: AlertActionType.Button,
-              caption: 'Dismiss',
-              action: (id: number) => this._notifications.dismissAlert()
-            }
-          ]);
+          this._notifications.showSuccessSnackbar(`${userName || email} has been removed from company.`);
+          this.company.next('deleted');
           return res
         }),
         catchError((err) => {

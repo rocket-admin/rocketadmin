@@ -42,25 +42,21 @@ export class CompanyComponent {
   ngOnInit() {
     this._company.fetchCompany().subscribe(res => {
       this.company = res;
-
       this.setCompanyPlan(res.subscriptionLevel);
-
       this.getCompanyMembers(res.id);
     });
 
     this._company.cast.subscribe( arg =>  {
       if (arg === 'invited' || arg === 'revoked') {
-        this.getCompany()
+        this._company.fetchCompany().subscribe(res => {
+          this.company = res;
+          this.getCompanyMembers(res.id);
+        });
       }
-      else if (arg === 'user delete') {
+      else if (arg === 'deleted') {
         this.getCompanyMembers(this.company.id);
       };
     });
-
-  }
-
-  getCompany() {
-    return this._company.fetchCompany().subscribe(res => this.company = {...res});
   }
 
   getCompanyMembers(companyId: string) {
