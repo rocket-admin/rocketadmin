@@ -1,5 +1,4 @@
-import { AlertActionType, AlertType } from '../models/alert';
-import { BehaviorSubject, EMPTY } from 'rxjs';
+import { Subject, EMPTY } from 'rxjs';
 import { catchError, filter, map } from 'rxjs/operators';
 
 import { HttpClient } from '@angular/common/http';
@@ -11,36 +10,13 @@ import { Permissions } from 'src/app/models/user';
   providedIn: 'root'
 })
 export class UsersService {
-  private groups = new BehaviorSubject<string>('');
+  private groups = new Subject<any>();
   public cast = this.groups.asObservable();
 
   constructor(
     private _http: HttpClient,
     private _notifications: NotificationsService
   ) { }
-
-  verifyGroupUserEmail(token: string, password: string) {
-    return this._http.put<any>(`/group/user/verify/${token}`, {
-      password
-    })
-    .pipe(
-      map(res => {
-        this._notifications.showSuccessSnackbar('Your email is verified.');
-        return res
-      }),
-      catchError((err) => {
-        console.log(err);
-        this._notifications.showAlert(AlertType.Error, {abstract: err.error.message, details: err.error.originalMessage}, [
-          {
-            type: AlertActionType.Button,
-            caption: 'Dismiss',
-            action: (id: number) => this._notifications.dismissAlert()
-          }
-        ]);
-        return EMPTY;
-      })
-    );
-  }
 
   fetchConnectionUsers(connectionID: string) {
     return this._http.get<any>(`/connection/users/${connectionID}`)
@@ -81,8 +57,8 @@ export class UsersService {
   createUsersGroup(connectionID: string, title: string) {
     return this._http.post<any>(`/connection/group/${connectionID}`, {title: title})
       .pipe(
-        map(() => {
-          this.groups.next('groups');
+        map((res) => {
+          this.groups.next({action: 'add group', group: res});
           this._notifications.showSuccessSnackbar('Group of users has been created.');
         }),
         catchError((err) => {
@@ -128,7 +104,7 @@ export class UsersService {
     return this._http.put<any>(`/group/user`, {email: userEmail, groupId: groupID})
       .pipe(
         map((res) => {
-          this.groups.next(groupID);
+          this.groups.next({action: 'add user', groupId: groupID});
           this._notifications.showSuccessSnackbar('User has been added to group.');
           return res;
         }),
@@ -144,7 +120,7 @@ export class UsersService {
     return this._http.delete<any>(`/group/${groupID}`)
       .pipe(
         map(() => {
-          this.groups.next('groups');
+          this.groups.next({action: 'delete group', groupId: groupID});
           this._notifications.showSuccessSnackbar('Group has been removed.')
         }),
         catchError((err) => {
@@ -159,7 +135,7 @@ export class UsersService {
     return this._http.put<any>(`/group/user/delete`, {email: email, groupId: groupID})
       .pipe(
         map(() => {
-          this.groups.next(groupID);
+          this.groups.next({action: 'delete user', groupId: groupID});
           this._notifications.showSuccessSnackbar('User has been removed from group.')
         }),
         catchError((err) => {

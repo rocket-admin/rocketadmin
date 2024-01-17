@@ -8,7 +8,7 @@ import { GroupAddDialogComponent } from './group-add-dialog/group-add-dialog.com
 import { GroupDeleteDialogComponent } from './group-delete-dialog/group-delete-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
 import { PermissionsAddDialogComponent } from './permissions-add-dialog/permissions-add-dialog.component';
-import { Subscription } from 'rxjs';
+import { Subscription, first } from 'rxjs';
 import { Title } from '@angular/platform-browser';
 import { UserAddDialogComponent } from './user-add-dialog/user-add-dialog.component';
 import { UserDeleteDialogComponent } from './user-delete-dialog/user-delete-dialog.component';
@@ -47,11 +47,16 @@ export class UsersComponent implements OnInit, OnDestroy {
     this.getUsersGroups();
     this._userService.cast.subscribe(user => this.currentUser = user);
     this._usersService.cast.subscribe( arg =>  {
-      if (arg === 'groups') {
+      if (arg.action === 'add group' || arg.action === 'delete group') {
         this.getUsersGroups()
-      }
-      else if (arg) {
-        this.fetchGroupUsers(arg);
+
+        if (arg.action === 'add group') {
+          console.log('ngOnInit _usersService.cast.subscribe');
+          console.log(arg);
+          this.openPermissionsDialog(arg.group);
+        }
+      } else if (arg.action === 'add user' || arg.action === 'delete user') {
+        this.fetchGroupUsers(arg.groupId);
       };
     });
   }
