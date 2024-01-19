@@ -13,7 +13,7 @@ import { UseCaseType } from '../../common/data-injection.tokens.js';
 import { MasterPassword, SlugUuid, UserId } from '../../decorators/index.js';
 import { InTransactionEnum } from '../../enums/index.js';
 import { Messages } from '../../exceptions/text/messages.js';
-import { GroupEditGuard } from '../../guards/index.js';
+import { ConnectionEditGuard } from '../../guards/index.js';
 import { SentryInterceptor } from '../../interceptors/index.js';
 import { ComplexPermissionDs, CreatePermissionsDs } from './application/data-structures/create-permissions.ds.js';
 import { ICreateOrUpdatePermissions } from './use-cases/permissions-use-cases.interface.js';
@@ -37,7 +37,7 @@ export class PermissionController {
     description: 'Create or update permissions in group.',
     type: ComplexPermissionDs,
   })
-  @UseGuards(GroupEditGuard)
+  @UseGuards(ConnectionEditGuard)
   @Put('permissions/:slug')
   async createOrUpdatePermissions(
     @Body('permissions') permissions: ComplexPermissionDs,
