@@ -122,6 +122,12 @@
                     </mat-option>
                 </mat-select>
             </mat-form-field>
+
+            <mat-slide-toggle
+                class="audit-toggle" color="primary"
+                [(ngModel)]="connectionSettings.tables_audit">
+                Record changes in tables
+            </mat-slide-toggle>
         </div>
         <div *ngIf="accessLevel !== 'readonly'" class="actions">
             <button mat-flat-button color="warn"

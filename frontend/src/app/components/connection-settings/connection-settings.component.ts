@@ -26,6 +26,7 @@ export class ConnectionSettingsComponent implements OnInit, OnDestroy {
     secondary_color: '',
     logo_url: '',
     company_name: '',
+    tables_audit: false,
   };
   public connectionSettings: ConnectionSettings = {...this.connectionSettingsInitial};
   // public hiddenTables: string[];

@@ -89,9 +89,6 @@
                 </button>
             </div>
 
-
-
-
             <button *ngIf="!user.companyId"
                 type="submit" mat-stroked-button
                 data-testid="login-next-button"
@@ -110,7 +107,7 @@
                 {{ submitting ? 'Submitting' : 'Log in'}}
             </button>
 
-            <a routerLink="/forget-password" class="login-form__link link" data-testid="forgot-password-link">Can’t Log In?</a>
+            <a routerLink="/forget-password" class="login-form__link" data-testid="forgot-password-link">Can’t Log In?</a>
         </form>
 
         <form *ngIf="is2FAShown">

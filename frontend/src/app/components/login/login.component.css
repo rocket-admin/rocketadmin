@@ -44,7 +44,7 @@
 }
 
 .loginTitle__emphasis {
-    color: var(--color-accentedPalette-500)
+    color: var(--color-accentedPalette-500);
 }
 
 [hidden] { display: none !important;}
@@ -141,7 +141,9 @@
 .login-form__link {
     grid-column: 1 / span 3;
     grid-row: 6;
-    padding-top: 48px;
+    color: var(--color-accentedPalette-500);
+    margin-top: 48px;
+    text-decoration: none;
 }
 
 .link {

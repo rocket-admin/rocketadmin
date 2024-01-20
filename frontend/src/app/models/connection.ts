@@ -55,4 +55,5 @@ export interface ConnectionSettings {
     secondary_color?: string,
     logo_url?: string,
     company_name?: string,
+    tables_audit: boolean,
 }

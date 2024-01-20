@@ -48,3 +48,7 @@
 .form__button_invite {
     width: 152px;
 }
+
+.form__table {
+    padding: 0 8px;
+}
