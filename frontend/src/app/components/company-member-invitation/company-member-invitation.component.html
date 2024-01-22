@@ -1,8 +1,17 @@
-<div class="background-decoration">
+<app-placeholder-company-invitation *ngIf="checkingLink"></app-placeholder-company-invitation>
+
+
+<app-banner *ngIf="!isLinkAvailable && !checkingLink">
+    <h1 class="mat-h1">Invitation link is invalid</h1>
+    <p class="mat-body-1">The link you are trying to use is invalid. Please contact the person who sent you the link.</p>
+    <a mat-flat-button color="primary" routerLink="/login">Go to login page</a>
+</app-banner>
+
+<div *ngIf="isLinkAvailable && !checkingLink" class="background-decoration">
     <app-alert></app-alert>
     <div class="wrapper">
         <form class="password-form" #inviteUserForm="ngForm" (ngSubmit)="acceptInvitation()">
-            <h1 class="mat-h1">You were invited to <strong *ngIf="companyName !== null">{{companyName || 'Unknown company'}}</strong> company</h1>
+            <h1 class="mat-h1 password-form__title">You were invited to <strong *ngIf="companyName !== null">{{companyName || 'Unknown company'}}</strong> company</h1>
             <p class="mat-body-1">Create password for your account in this company.</p>
             <app-user-password label="Password" [value]="password" (onFieldChange)="updatePasswordField($event)"></app-user-password>
 

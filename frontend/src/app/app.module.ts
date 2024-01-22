@@ -121,6 +121,7 @@ import { PlaceholderUserGroupsComponent } from './components/skeletons/placehold
 import { PlaceholderConnectionSettingsComponent } from './components/skeletons/placeholder-connection-settings/placeholder-connection-settings.component';
 import { PlaceholderAuditLogComponent } from './components/skeletons/placeholder-audit-log/placeholder-audit-log.component';
 import { PlaceholderCompanyComponent } from './components/skeletons/placeholder-company/placeholder-company.component';
+import { PlaceholderCompanyInvitationComponent } from './components/skeletons/placeholder-company-invitation/placeholder-company-invitation.component';
 
 type Palettes = { primaryPalette: string, accentedPalette: string, warnPalette: string };
 type Colors = { myColorName: string };
@@ -241,6 +242,7 @@ const saasExtraProviders = (environment as any).saas ? [
     PlaceholderConnectionSettingsComponent,
     PlaceholderAuditLogComponent,
     PlaceholderCompanyComponent,
+    PlaceholderCompanyInvitationComponent,
   ],
   entryComponents: [
     DbActionConfirmationDialogComponent,

@@ -5,9 +5,13 @@
     height: 100%;
     margin: 0 auto;
     padding: 16px;
-    max-width: 420px;
+    max-width: 520px;
     min-width: 300px;
     width: 90%;
+}
+
+.password-form__title {
+    margin-bottom: 32px;
 }
 
 .name-input {

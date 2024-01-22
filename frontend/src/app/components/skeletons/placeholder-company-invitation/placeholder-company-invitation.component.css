@@ -1,0 +1,40 @@
+.wrapper {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    height: 100%;
+    margin: 0 auto;
+    padding: 16px;
+    max-width: 520px;
+    min-width: 300px;
+    width: 90%;
+}
+
+.title {
+    height: 32px;
+    margin-bottom: 32px;
+    width: 100%;
+}
+
+.form__field {
+    height: 44px;
+    width: 100%;
+}
+.form__string {
+    height: 24px;
+    margin-bottom: 16px;
+    width: 120px;
+}
+
+.form__button {
+    border-radius: 4px;
+    height: 36px;
+    margin-top: 16px;
+    margin-left: auto;
+    width: 64px;
+}
+
+.form-divider {
+    margin-top: 48px;
+    margin-bottom: 20px;
+}

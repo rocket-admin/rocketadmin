@@ -19,6 +19,8 @@ export class CompanyMemberInvitationComponent implements OnInit {
   public password: string = '';
   public userName: string;
   public submitting: boolean;
+  public checkingLink: boolean = true;
+  public isLinkAvailable: boolean = false;
 
   constructor(
     private _auth: AuthService,
@@ -35,6 +37,10 @@ export class CompanyMemberInvitationComponent implements OnInit {
           this.token = params.get('verification-token');
           const companyId = params.get('company-id');
           this._company.fetchCompanyName(companyId).subscribe(res => this.companyName = res.name);
+          this._auth.checkInvitationAvailability(this.token).subscribe(res => {
+            this.isLinkAvailable = res.success;
+            this.checkingLink = false;
+          })
         })
       ).subscribe();
   }

@@ -178,6 +178,24 @@ export class AuthService {
     );
   }
 
+  checkInvitationAvailability(token: string) {
+    return this._http.get<any>(`/company/invite/verify/${token}`)
+    .pipe(
+      map(res => {return res}),
+      catchError((err) => {
+        console.log(err);
+        this._notifications.showAlert(AlertType.Error, {abstract: err.error.message, details: err.error.originalMessage}, [
+          {
+            type: AlertActionType.Button,
+            caption: 'Dismiss',
+            action: () => this._notifications.dismissAlert()
+          }
+        ]);
+        return EMPTY;
+      })
+    );
+  };
+
   acceptCompanyInvitation(token: string, password: string, userName: string) {
     return this._http.post<any>(`/company/invite/verify/${token}`, {
       password,
