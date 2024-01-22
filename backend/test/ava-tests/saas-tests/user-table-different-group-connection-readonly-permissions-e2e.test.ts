@@ -1241,7 +1241,7 @@ test(`${currentTest} should throw an exception do not have permission`, async (t
     };
 
     const createOrUpdatePermissionResponse = await request(app.getHttpServer())
-      .put(`/permissions/${newGroupId}`)
+      .put(`/permissions/${newGroupId}?connectionId=${testData.connections.firstId}`)
       .send({ permissions })
       .set('Cookie', simpleUserToken)
       .set('Content-Type', 'application/json')
@@ -1302,7 +1302,7 @@ test(`${currentTest} should throw ${Messages.DONT_HAVE_PERMISSIONS} exception ob
     };
 
     const createOrUpdatePermissionResponse = await request(app.getHttpServer())
-      .put(`/permissions/${groupId}`)
+      .put(`/permissions/${groupId}?connectionId=${connections.firstId}`)
       .send({ permissions })
       .set('Cookie', simpleUserToken)
       .set('Content-Type', 'application/json')
@@ -2204,8 +2204,7 @@ test(`${currentTest} should not return all found logs in connection, when table 
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
 
-    t.is(createConnectionPropertiesResponse.status, 201);  
-
+    t.is(createConnectionPropertiesResponse.status, 201);
 
     const addRowInTable = await request(app.getHttpServer())
       .post(`/table/row/${connections.firstId}?tableName=${firstTableInfo.testTableName}`)

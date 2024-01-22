@@ -48,7 +48,7 @@ export class CreateOrUpdatePermissionsUseCase
     } = inputData;
     const connectionWithThisGroup =
       await this._dbContext.connectionRepository.getConnectionByGroupIdWithCompanyAndUsersInCompany(groupId);
-    if (connectionWithThisGroup.id !== connectionId) {
+    if (connectionWithThisGroup?.id !== connectionId) {
       throw new HttpException(
         {
           message: Messages.GROUP_NOT_FROM_THIS_CONNECTION,

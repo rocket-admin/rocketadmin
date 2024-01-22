@@ -81,7 +81,7 @@ test(`${currentTest} should return created permissions`, async (t) => {
       groupAccesssLevel,
     );
     let createPermissionsResponse = await request(app.getHttpServer())
-      .put(`/permissions/${createGroupRO.id}`)
+      .put(`/permissions/${createGroupRO.id}?connectionId=${createConnectionRO.id}`)
       .send(permissionsDTO)
       .set('Cookie', firstUserToken)
       .set('Content-Type', 'application/json')
@@ -113,7 +113,7 @@ test(`${currentTest} should return created permissions`, async (t) => {
     );
 
     createPermissionsResponse = await request(app.getHttpServer())
-      .put(`/permissions/${createGroupRO.id}`)
+      .put(`/permissions/${createGroupRO.id}?connectionId=${createConnectionRO.id}`)
       .send(permissionsDTO)
       .set('Cookie', firstUserToken)
       .set('Content-Type', 'application/json')
@@ -171,7 +171,7 @@ test(`${currentTest} should throw an exception when groupId not passed`, async (
     );
     createGroupRO.id = '';
     let createPermissionsResponse = await request(app.getHttpServer())
-      .put(`/permissions/${createGroupRO.id}`)
+      .put(`/permissions/${createGroupRO.id}?connectionId=${createConnectionRO.id}`)
       .send(permissionsDTO)
       .set('Cookie', firstUserToken)
       .set('Content-Type', 'application/json')
@@ -215,14 +215,14 @@ test(`${currentTest} should throw an exception when groupId passed in request is
     );
     createGroupRO.id = faker.string.uuid();
     let createPermissionsResponse = await request(app.getHttpServer())
-      .put(`/permissions/${createGroupRO.id}`)
+      .put(`/permissions/${createGroupRO.id}?connectionId=${createConnectionRO.id}`)
       .send(permissionsDTO)
       .set('Cookie', firstUserToken)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
     t.is(createPermissionsResponse.status, 400);
     const { message } = JSON.parse(createPermissionsResponse.text);
-    t.is(message, Messages.CONNECTION_NOT_FOUND);
+    t.is(message, Messages.GROUP_NOT_FROM_THIS_CONNECTION);
   } catch (e) {
     console.error(e);
     throw e;
@@ -261,7 +261,7 @@ test(`${currentTest} should throw an exception when connectionId is incorrect`, 
     );
     permissionsDTO.permissions.connection.connectionId = faker.string.uuid();
     let createPermissionsResponse = await request(app.getHttpServer())
-      .put(`/permissions/${createGroupRO.id}`)
+      .put(`/permissions/${createGroupRO.id}?connectionId=${createConnectionRO.id}`)
       .send(permissionsDTO)
       .set('Cookie', firstUserToken)
       .set('Content-Type', 'application/json')

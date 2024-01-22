@@ -1206,7 +1206,7 @@ test(`${currentTest} should return created complex permissions object when you c
     };
 
     const createOrUpdatePermissionResponse = await request(app.getHttpServer())
-      .put(`/permissions/${newGroupId}`)
+      .put(`/permissions/${newGroupId}?connectionId=${testData.connections.firstId}`)
       .send({ permissions })
       .set('Cookie', testData.users.simpleUserToken)
       .set('Content-Type', 'application/json')
@@ -1259,7 +1259,7 @@ test(`${currentTest} should return updated complex permissions object when you u
     };
 
     let createOrUpdatePermissionResponse = await request(app.getHttpServer())
-      .put(`/permissions/${newGroupId}`)
+      .put(`/permissions/${newGroupId}?connectionId=${testData.connections.firstId}`)
       .send({ permissions })
       .set('Cookie', testData.users.simpleUserToken)
       .set('Content-Type', 'application/json')
@@ -1297,7 +1297,7 @@ test(`${currentTest} should return updated complex permissions object when you u
     };
 
     createOrUpdatePermissionResponse = await request(app.getHttpServer())
-      .put(`/permissions/${newGroupId}`)
+      .put(`/permissions/${newGroupId}?connectionId=${testData.connections.firstId}`)
       .send({ permissions })
       .set('Cookie', testData.users.simpleUserToken)
       .set('Content-Type', 'application/json')
@@ -1342,7 +1342,7 @@ test(`${currentTest} should throw an exception, when you try change admin group`
     };
 
     const createOrUpdatePermissionResponse = await request(app.getHttpServer())
-      .put(`/permissions/${testData.groups.firstAdminGroupId}`)
+      .put(`/permissions/${testData.groups.firstAdminGroupId}?connectionId=${testData.connections.firstId}`)
       .send({ permissions })
       .set('Cookie', testData.users.simpleUserToken)
       .set('Content-Type', 'application/json')
@@ -1399,7 +1399,7 @@ test(`${currentTest} should return all tables in connection`, async (t) => {
     };
 
     const createOrUpdatePermissionResponse = await request(app.getHttpServer())
-      .put(`/permissions/${newGroupId}`)
+      .put(`/permissions/${newGroupId}?connectionId=${testData.connections.firstId}`)
       .send({ permissions })
       .set('Cookie', testData.users.adminUserToken)
       .set('Content-Type', 'application/json')
@@ -1470,7 +1470,7 @@ test(`${currentTest} should throw an exception, when connection id not passed in
     };
 
     const createOrUpdatePermissionResponse = await request(app.getHttpServer())
-      .put(`/permissions/${newGroupId}`)
+      .put(`/permissions/${newGroupId}?connectionId=${testData.connections.firstId}`)
       .send({ permissions })
       .set('Cookie', testData.users.adminUserToken)
       .set('Content-Type', 'application/json')
@@ -1528,7 +1528,7 @@ test(`${currentTest} should throw an exception, when connection id passed in req
     };
 
     const createOrUpdatePermissionResponse = await request(app.getHttpServer())
-      .put(`/permissions/${newGroupId}`)
+      .put(`/permissions/${newGroupId}?connectionId=${testData.connections.firstId}`)
       .send({ permissions })
       .set('Cookie', testData.users.adminUserToken)
       .set('Content-Type', 'application/json')
@@ -1590,7 +1590,7 @@ test(`${currentTest} should return found rows from table`, async (t) => {
     };
 
     const createOrUpdatePermissionResponse = await request(app.getHttpServer())
-      .put(`/permissions/${newGroupId}`)
+      .put(`/permissions/${newGroupId}?connectionId=${testData.connections.firstId}`)
       .send({ permissions })
       .set('Cookie', testData.users.adminUserToken)
       .set('Content-Type', 'application/json')
@@ -1656,7 +1656,7 @@ test(`${currentTest} should throw an exception when connection id not passed in 
     };
 
     const createOrUpdatePermissionResponse = await request(app.getHttpServer())
-      .put(`/permissions/${newGroupId}`)
+      .put(`/permissions/${newGroupId}?connectionId=${testData.connections.firstId}`)
       .send({ permissions })
       .set('Cookie', testData.users.adminUserToken)
       .set('Content-Type', 'application/json')
@@ -1714,7 +1714,7 @@ test(`${currentTest} should throw an exception when connection id passed in requ
     };
 
     const createOrUpdatePermissionResponse = await request(app.getHttpServer())
-      .put(`/permissions/${newGroupId}`)
+      .put(`/permissions/${newGroupId}?connectionId=${testData.connections.firstId}`)
       .send({ permissions })
       .set('Cookie', testData.users.adminUserToken)
       .set('Content-Type', 'application/json')
@@ -1775,7 +1775,7 @@ test(`${currentTest} should throw an exception when table name passed in request
     };
 
     const createOrUpdatePermissionResponse = await request(app.getHttpServer())
-      .put(`/permissions/${newGroupId}`)
+      .put(`/permissions/${newGroupId}?connectionId=${testData.connections.firstId}`)
       .send({ permissions })
       .set('Cookie', testData.users.adminUserToken)
       .set('Content-Type', 'application/json')
@@ -1838,7 +1838,7 @@ test(`${currentTest} should return table structure`, async (t) => {
     };
 
     const createOrUpdatePermissionResponse = await request(app.getHttpServer())
-      .put(`/permissions/${newGroupId}`)
+      .put(`/permissions/${newGroupId}?connectionId=${testData.connections.firstId}`)
       .send({ permissions })
       .set('Cookie', testData.users.simpleUserToken)
       .set('Content-Type', 'application/json')
@@ -1905,7 +1905,7 @@ test(`${currentTest} should throw an exception when connection id not passed in 
     };
 
     const createOrUpdatePermissionResponse = await request(app.getHttpServer())
-      .put(`/permissions/${newGroupId}`)
+      .put(`/permissions/${newGroupId}?connectionId=${testData.connections.firstId}`)
       .send({ permissions })
       .set('Cookie', testData.users.adminUserToken)
       .set('Content-Type', 'application/json')
@@ -1963,7 +1963,7 @@ test(`${currentTest} should throw an exception when connection id passed in requ
     };
 
     const createOrUpdatePermissionResponse = await request(app.getHttpServer())
-      .put(`/permissions/${newGroupId}`)
+      .put(`/permissions/${newGroupId}?connectionId=${testData.connections.firstId}`)
       .send({ permissions })
       .set('Cookie', testData.users.adminUserToken)
       .set('Content-Type', 'application/json')
@@ -2024,7 +2024,7 @@ test(`${currentTest} should throw an exception when table name not passed in req
     };
 
     const createOrUpdatePermissionResponse = await request(app.getHttpServer())
-      .put(`/permissions/${newGroupId}`)
+      .put(`/permissions/${newGroupId}?connectionId=${testData.connections.firstId}`)
       .send({ permissions })
       .set('Cookie', testData.users.adminUserToken)
       .set('Content-Type', 'application/json')
@@ -2084,7 +2084,7 @@ test(`${currentTest} should throw an exception when table name passed in request
     };
 
     const createOrUpdatePermissionResponse = await request(app.getHttpServer())
-      .put(`/permissions/${newGroupId}`)
+      .put(`/permissions/${newGroupId}?connectionId=${testData.connections.firstId}`)
       .send({ permissions })
       .set('Cookie', testData.users.adminUserToken)
       .set('Content-Type', 'application/json')
@@ -2147,7 +2147,7 @@ test(`${currentTest} should return added row`, async (t) => {
     };
 
     const createOrUpdatePermissionResponse = await request(app.getHttpServer())
-      .put(`/permissions/${newGroupId}`)
+      .put(`/permissions/${newGroupId}?connectionId=${testData.connections.firstId}`)
       .send({ permissions })
       .set('Cookie', testData.users.adminUserToken)
       .set('Content-Type', 'application/json')
@@ -2226,7 +2226,7 @@ test(`${currentTest} should throw an exception when connection id passed in requ
     };
 
     const createOrUpdatePermissionResponse = await request(app.getHttpServer())
-      .put(`/permissions/${newGroupId}`)
+      .put(`/permissions/${newGroupId}?connectionId=${testData.connections.firstId}`)
       .send({ permissions })
       .set('Cookie', testData.users.adminUserToken)
       .set('Content-Type', 'application/json')
@@ -2297,7 +2297,7 @@ test(`${currentTest} should throw an exception when table name passed in request
     };
 
     const createOrUpdatePermissionResponse = await request(app.getHttpServer())
-      .put(`/permissions/${newGroupId}`)
+      .put(`/permissions/${newGroupId}?connectionId=${testData.connections.firstId}`)
       .send({ permissions })
       .set('Cookie', testData.users.adminUserToken)
       .set('Content-Type', 'application/json')
@@ -2370,7 +2370,7 @@ test(`${currentTest} should return updated row`, async (t) => {
     };
 
     const createOrUpdatePermissionResponse = await request(app.getHttpServer())
-      .put(`/permissions/${newGroupId}`)
+      .put(`/permissions/${newGroupId}?connectionId=${testData.connections.firstId}`)
       .send({ permissions })
       .set('Cookie', testData.users.adminUserToken)
       .set('Content-Type', 'application/json')
@@ -2450,7 +2450,7 @@ test(`${currentTest} should throw an exception when connection id passed in requ
     };
 
     const createOrUpdatePermissionResponse = await request(app.getHttpServer())
-      .put(`/permissions/${newGroupId}`)
+      .put(`/permissions/${newGroupId}?connectionId=${testData.connections.firstId}`)
       .send({ permissions })
       .set('Cookie', testData.users.adminUserToken)
       .set('Content-Type', 'application/json')
@@ -2521,7 +2521,7 @@ test(`${currentTest} should throw an exception when table name passed in request
     };
 
     const createOrUpdatePermissionResponse = await request(app.getHttpServer())
-      .put(`/permissions/${newGroupId}`)
+      .put(`/permissions/${newGroupId}?connectionId=${testData.connections.firstId}`)
       .send({ permissions })
       .set('Cookie', testData.users.adminUserToken)
       .set('Content-Type', 'application/json')
@@ -2594,7 +2594,7 @@ test(`${currentTest} should return delete result`, async (t) => {
     };
 
     const createOrUpdatePermissionResponse = await request(app.getHttpServer())
-      .put(`/permissions/${newGroupId}`)
+      .put(`/permissions/${newGroupId}?connectionId=${testData.connections.firstId}`)
       .send({ permissions })
       .set('Cookie', testData.users.adminUserToken)
       .set('Content-Type', 'application/json')
@@ -2652,7 +2652,7 @@ test(`${currentTest} should throw an exception when connection id passed in requ
     };
 
     const createOrUpdatePermissionResponse = await request(app.getHttpServer())
-      .put(`/permissions/${newGroupId}`)
+      .put(`/permissions/${newGroupId}?connectionId=${testData.connections.firstId}`)
       .send({ permissions })
       .set('Cookie', testData.users.adminUserToken)
       .set('Content-Type', 'application/json')
@@ -2713,7 +2713,7 @@ test(`${currentTest} should throw an exception when table name passed in request
     };
 
     const createOrUpdatePermissionResponse = await request(app.getHttpServer())
-      .put(`/permissions/${newGroupId}`)
+      .put(`/permissions/${newGroupId}?connectionId=${testData.connections.firstId}`)
       .send({ permissions })
       .set('Cookie', testData.users.adminUserToken)
       .set('Content-Type', 'application/json')
@@ -2774,7 +2774,7 @@ test(`${currentTest} `, async (t) => {
     };
 
     const createOrUpdatePermissionResponse = await request(app.getHttpServer())
-      .put(`/permissions/${newGroupId}`)
+      .put(`/permissions/${newGroupId}?connectionId=${testData.connections.firstId}`)
       .send({ permissions })
       .set('Cookie', testData.users.adminUserToken)
       .set('Content-Type', 'application/json')
@@ -2841,7 +2841,7 @@ test(`${currentTest} should throw an exception when connection id passed in requ
     };
 
     const createOrUpdatePermissionResponse = await request(app.getHttpServer())
-      .put(`/permissions/${newGroupId}`)
+      .put(`/permissions/${newGroupId}?connectionId=${testData.connections.firstId}`)
       .send({ permissions })
       .set('Cookie', testData.users.adminUserToken)
       .set('Content-Type', 'application/json')
@@ -2902,7 +2902,7 @@ test(`${currentTest} should throw an exception when table name passed in request
     };
 
     const createOrUpdatePermissionResponse = await request(app.getHttpServer())
-      .put(`/permissions/${newGroupId}`)
+      .put(`/permissions/${newGroupId}?connectionId=${testData.connections.firstId}`)
       .send({ permissions })
       .set('Cookie', testData.users.adminUserToken)
       .set('Content-Type', 'application/json')

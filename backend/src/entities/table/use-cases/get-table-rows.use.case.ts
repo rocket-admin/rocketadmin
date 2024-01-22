@@ -170,8 +170,8 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
       const largeDataset = rows.large_dataset
         ? true
         : rows.pagination.total > Constants.LARGE_DATASET_ROW_LIMIT
-        ? true
-        : false;
+          ? true
+          : false;
       const rowsRO = {
         rows: rows.data,
         primaryColumns: tablePrimaryColumns,
@@ -256,9 +256,9 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
       throw new HttpException(
         {
           message: `${Messages.FAILED_GET_TABLE_ROWS} ${Messages.ERROR_MESSAGE}
-         ${e.message} ${Messages.TRY_AGAIN_LATER}`,
+         ${e.message} ${Messages.TRY_AGAIN_LATER} ${Messages.ERROR_MESSAGE_ORIGINAL} ${e.originalMessage}`,
         },
-        HttpStatus.BAD_REQUEST,
+        HttpStatus.INTERNAL_SERVER_ERROR,
       );
     } finally {
       const logRecord = {

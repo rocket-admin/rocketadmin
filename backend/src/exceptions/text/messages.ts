@@ -85,6 +85,7 @@ export const Messages = {
       EncryptionAlgorithmEnum,
     )} algorithms.`,
   ERROR_MESSAGE: 'Error message: ',
+  ERROR_MESSAGE_ORIGINAL: 'Error message from database: ',
   EXCLUDED_OR_NOT_EXISTS: (fieldName: string) =>
     `The field "${fieldName}" does not exists in this table or is excluded.`,
   FAILED_ADD_GROUP_IN_CONNECTION: 'Connection failed to add group in connection.',
