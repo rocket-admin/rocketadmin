@@ -1,5 +1,5 @@
 import { InviteMemberDialogComponent } from './invite-member-dialog/invite-member-dialog.component';
-import { Company } from 'src/app/models/company';
+import { Company, CompanyMemberRole } from 'src/app/models/company';
 import { CompanyService } from 'src/app/services/company.service';
 import { Component } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
@@ -29,6 +29,7 @@ export class CompanyComponent {
   // public invitationsTableDisplayColumns: string[] = ['invitedUserEmail', 'role'];
   public submittingChangedName: boolean =false;
   public currentUser;
+  public submittingUsersChange: boolean = false;
 
   constructor(
     private _company: CompanyService,
@@ -48,12 +49,15 @@ export class CompanyComponent {
 
     this._company.cast.subscribe( arg =>  {
       if (arg === 'invited' || arg === 'revoked') {
+        this.submittingUsersChange = true;
         this._company.fetchCompany().subscribe(res => {
           this.company = res;
           this.getCompanyMembers(res.id);
+          this.submittingUsersChange = false;
         });
       }
       else if (arg === 'deleted') {
+        this.submittingUsersChange = true;
         this.getCompanyMembers(this.company.id);
       };
     });
@@ -87,6 +91,7 @@ export class CompanyComponent {
       });
       this.adminsCount = res.filter(user => user.role === 'ADMIN').length;
       this.usersCount = this.company.invitations.length + res.length;
+      this.submittingUsersChange = false;
     });
   }
 
@@ -137,5 +142,12 @@ export class CompanyComponent {
       () => this.submittingChangedName = false,
       () => this.submittingChangedName = false
     );
+  }
+
+  updateRole(userId: string, userRole: CompanyMemberRole) {
+    this.submittingUsersChange = true;
+    this._company.updateCompanyMemberRole(this.company.id, userId, userRole).subscribe(() => {
+      this.getCompanyMembers(this.company.id);
+    });
   }
 }

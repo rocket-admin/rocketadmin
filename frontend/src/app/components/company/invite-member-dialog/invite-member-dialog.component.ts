@@ -11,7 +11,7 @@ import { Angulartics2 } from 'angulartics2';
 })
 export class InviteMemberDialogComponent {
   public companyMemberEmail: string;
-  public companyMemberRole: CompanyMemberRole;
+  public companyMemberRole: CompanyMemberRole = CompanyMemberRole.Member;
   public submitting: boolean = false;
 
   constructor(

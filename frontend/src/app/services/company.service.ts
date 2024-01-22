@@ -135,4 +135,25 @@ export class CompanyService {
         })
       );
   }
+
+  updateCompanyMemberRole(companyId: string, userId: string, role: CompanyMemberRole) {
+    return this._http.put<any>(`/company/users/roles/${companyId}`, { users: [{userId, role}] })
+      .pipe(
+        map(res => {
+          this._notifications.showSuccessSnackbar(`Company member role has been updated.`);
+          return res
+        }),
+        catchError((err) => {
+          console.log(err);
+          this._notifications.showAlert(AlertType.Error, {abstract: err.error.message, details: err.error.originalMessage}, [
+            {
+              type: AlertActionType.Button,
+              caption: 'Dismiss',
+              action: (id: number) => this._notifications.dismissAlert()
+            }
+          ]);
+          return EMPTY;
+        })
+      );
+  }
 }

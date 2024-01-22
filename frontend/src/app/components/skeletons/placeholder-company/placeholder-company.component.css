@@ -1,6 +1,6 @@
 .wrapper {
     margin: 3em auto;
-    padding: 0 clamp(300px, 25vw, 400px);
+    padding: 0 clamp(200px, 20vw, 300px);
     width: 100%;
 }
 
