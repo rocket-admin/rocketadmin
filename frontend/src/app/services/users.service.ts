@@ -86,8 +86,10 @@ export class UsersService {
       );
   }
 
-  updatePermission(permissions: Permissions) {
-    return this._http.put<any>(`/permissions/${permissions.group.groupId}`, {permissions})
+  updatePermission(connectionID: string, permissions: Permissions) {
+    return this._http.put<any>(`/permissions/${permissions.group.groupId}`, {permissions}, {
+        params: {"connectionId": connectionID}
+      })
       .pipe(
         map(() => {
           this._notifications.showSuccessSnackbar('Permissions have been updated successfully.');
