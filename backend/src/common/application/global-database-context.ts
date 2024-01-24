@@ -277,8 +277,6 @@ export class GlobalDatabaseContext implements IGlobalDatabaseContext {
       await this._queryRunner.commitTransaction();
     } catch (e) {
       throw e;
-    } finally {
-      await this._queryRunner.release();
     }
   }
 
@@ -289,8 +287,6 @@ export class GlobalDatabaseContext implements IGlobalDatabaseContext {
     } catch (e) {
       console.error(e);
       throw e;
-    } finally {
-      await this._queryRunner.release();
     }
   }
 
