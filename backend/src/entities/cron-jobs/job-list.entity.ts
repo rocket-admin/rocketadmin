@@ -1,7 +1,10 @@
-import { Entity, PrimaryColumn } from 'typeorm';
+import { Column, Entity, PrimaryColumn } from 'typeorm';
 
 @Entity('job_list')
 export class JobListEntity {
-  @PrimaryColumn('varchar', { length: 100, unique: true, onUpdate: 'NO ACTION' })
-  job_key: string;
+  @PrimaryColumn({ type: 'int', nullable: false, unique: true })
+  id: number;
+
+  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  createdAt: Date;
 }

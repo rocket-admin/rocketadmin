@@ -86,7 +86,7 @@ export async function createConnectionsAndInviteNewUserInNewGroupInFirstConnecti
   };
 
   const createOrUpdatePermissionResponse = await request(app.getHttpServer())
-    .put(`/permissions/${groupId}`)
+    .put(`/permissions/${groupId}?connectionId=${connectionsId.firstId}`)
     .send({ permissions })
     .set('Cookie', connectionAdminUserToken)
     .set('Content-Type', 'application/json')
@@ -218,7 +218,7 @@ export async function createConnectionsAndInviteNewUserInNewGroupWithGroupPermis
   };
 
   const createOrUpdatePermissionResponse = await request(app.getHttpServer())
-    .put(`/permissions/${groupId}`)
+    .put(`/permissions/${groupId}?connectionId=${connectionsId.firstId}`)
     .send({ permissions })
     .set('Cookie', connectionAdminUserToken)
     .set('Content-Type', 'application/json')
@@ -350,7 +350,7 @@ export async function createConnectionsAndInviteNewUserInNewGroupWithOnlyTablePe
   };
 
   const createOrUpdatePermissionResponse = await request(app.getHttpServer())
-    .put(`/permissions/${groupId}`)
+    .put(`/permissions/${groupId}?connectionId=${connectionsId.firstId}`)
     .send({ permissions })
     .set('Cookie', connectionAdminUserToken)
     .set('Content-Type', 'application/json')
@@ -486,7 +486,7 @@ export async function createConnectionsAndInviteNewUserInNewGroupWithTableDiffer
   };
 
   const createOrUpdatePermissionResponse = await request(app.getHttpServer())
-    .put(`/permissions/${groupId}`)
+    .put(`/permissions/${groupId}?connectionId=${connectionsId.firstId}`)
     .send({ permissions })
     .set('Cookie', connectionAdminUserToken)
     .set('Content-Type', 'application/json')

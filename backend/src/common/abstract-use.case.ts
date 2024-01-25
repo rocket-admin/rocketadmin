@@ -24,8 +24,9 @@ abstract class AbstractUseCase<TInputData = void, TOutputData = void> {
     } catch (error) {
       if (this._inTransaction) await this._dbContext.rollbackTransaction();
       throw error;
+    } finally {
+      if (this._inTransaction) await this._dbContext.releaseQueryRunner();
     }
-    await this._dbContext.releaseQueryRunner();
     return result;
   }
 

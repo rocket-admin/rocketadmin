@@ -18,9 +18,9 @@ export class ConnectionEditGuard implements CanActivate {
     return new Promise(async (resolve, reject) => {
       const request: IRequestWithCognitoInfo = context.switchToHttp().getRequest();
       const cognitoUserName = request.decoded.sub;
-      let connectionId: string = request.params?.slug;
+      let connectionId: string = request.query['connectionId'];
       if (!connectionId || !validateUuidByRegex(connectionId)) {
-        connectionId = request.query['connectionId'];
+        connectionId = request.params?.slug;
       }
       if (!connectionId || !validateUuidByRegex(connectionId)) {
         reject(buildBadRequestException(Messages.CONNECTION_ID_MISSING));

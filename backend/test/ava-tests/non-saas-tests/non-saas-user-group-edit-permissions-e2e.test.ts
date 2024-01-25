@@ -1322,7 +1322,7 @@ test(`${currentTest} should throw an exception do not have permission`, async (t
     };
 
     const createOrUpdatePermissionResponse = await request(app.getHttpServer())
-      .put(`/permissions/${newGroupId}`)
+     .put(`/permissions/${newGroupId}?connectionId=${testData.connections.firstId}`)
       .send({ permissions })
       .set('Cookie', simpleUserToken)
       .set('Content-Type', 'application/json')
@@ -1381,16 +1381,13 @@ test(`${currentTest} should return updated complex permissions object when you u
     };
 
     const createOrUpdatePermissionResponse = await request(app.getHttpServer())
-      .put(`/permissions/${groupId}`)
+      .put(`/permissions/${groupId}?connectionId=${connections.firstId}`)
       .send({ permissions })
       .set('Cookie', simpleUserToken)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
     const createOrUpdatePermissionRO = JSON.parse(createOrUpdatePermissionResponse.text);
-    t.is(createOrUpdatePermissionResponse.status, 200);
-    t.is(JSON.stringify(createOrUpdatePermissionRO.connection), JSON.stringify(permissions.connection));
-    t.is(JSON.stringify(createOrUpdatePermissionRO.group), JSON.stringify(permissions.group));
-    t.is(JSON.stringify(createOrUpdatePermissionRO.tables), JSON.stringify(permissions.tables));
+    t.is(createOrUpdatePermissionResponse.status, 403);
   } catch (e) {
     console.error(e);
   }

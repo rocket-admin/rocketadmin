@@ -1178,7 +1178,7 @@ test(`${currentTest} should throw an exception do not have permission`, async (t
     };
 
     const createOrUpdatePermissionResponse = await request(app.getHttpServer())
-      .put(`/permissions/${newGroupId}`)
+     .put(`/permissions/${newGroupId}?connectionId=${testData.connections.firstId}`)
       .send({ permissions })
       .set('Cookie', simpleUserToken)
       .set('Content-Type', 'application/json')
@@ -1238,7 +1238,7 @@ test(`${currentTest} should throw ${Messages.DONT_HAVE_PERMISSIONS} exception ob
     };
 
     const createOrUpdatePermissionResponse = await request(app.getHttpServer())
-      .put(`/permissions/${groupId}`)
+      .put(`/permissions/${groupId}?connectionId=${connections.firstId}`)
       .send({ permissions })
       .set('Cookie', simpleUserToken)
       .set('Content-Type', 'application/json')
