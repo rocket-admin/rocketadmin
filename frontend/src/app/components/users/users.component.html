@@ -19,7 +19,7 @@
                     {{ groupItem.group.title }}
                 </mat-panel-title>
                 <mat-panel-description (click)="$event.stopPropagation();">
-                    <button mat-icon-button *ngIf="isPermitted(groupItem.accessLevel)"
+                    <button mat-icon-button *ngIf="connectionAccessLevel === 'edit'"
                         angulartics2On="click"
                         angularticsAction="Users access: permissions is clicked"
                         matTooltip="Configure permissions"
