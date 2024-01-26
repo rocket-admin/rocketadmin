@@ -1,3 +1,4 @@
+import { Knex } from 'knex';
 import { LRUStorage } from '../../caching/lru-storage.js';
 import { DAO_CONSTANTS } from '../../helpers/data-access-objects-constants.js';
 import { ERROR_MESSAGES } from '../../helpers/errors/error-messages.js';
@@ -96,7 +97,7 @@ export class DataAccessObjectMssql extends BasicDataAccessObject implements IDat
   }
 
   public async getRowsFromTable(
-    tableName: string,
+    receivedTableName: string,
     tableSettings: TableSettingsDS,
     page: number,
     perPage: number,
@@ -114,21 +115,18 @@ export class DataAccessObjectMssql extends BasicDataAccessObject implements IDat
       }
     }
     const knex = await this.configureKnex();
-    const [rowsCount, tableStructure, tableSchema] = await Promise.all([
-      this.getRowsCount(tableName),
-      this.getTableStructure(tableName),
-      this.getSchemaName(tableName),
+    const [tableStructure, tableSchema] = await Promise.all([
+      this.getTableStructure(receivedTableName),
+      this.getSchemaName(receivedTableName),
     ]);
     const availableFields = this.findAvaliableFields(tableSettings, tableStructure);
+    const tableNameWithoutSchema = receivedTableName;
+    const tableNameWithSchema = tableSchema ? `${tableSchema}.[${receivedTableName}]` : receivedTableName;
 
-    if (tableSchema) {
-      tableName = `${tableSchema}.[${tableName}]`;
-    }
-    const lastPage = Math.ceil(rowsCount / perPage);
     /* eslint-enable */
     let rowsRO: FoundRowsDS;
     if (autocompleteFields && autocompleteFields.value && autocompleteFields.fields.length > 0) {
-      const rows = await knex(tableName)
+      const rows = await knex(tableNameWithSchema)
         .select(autocompleteFields.fields)
         .modify((builder) => {
           /*eslint-disable*/
@@ -143,10 +141,11 @@ export class DataAccessObjectMssql extends BasicDataAccessObject implements IDat
           /*eslint-enable*/
         })
         .limit(DAO_CONSTANTS.AUTOCOMPLETE_ROW_LIMIT);
+      const rowsCount = await this.getRowsCount(tableNameWithoutSchema, null);
       rowsRO = {
         data: rows,
         pagination: {} as any,
-        large_dataset: false,
+        large_dataset: rowsCount >= DAO_CONSTANTS.LARGE_DATASET_ROW_LIMIT,
       };
 
       return rowsRO;
@@ -156,8 +155,7 @@ export class DataAccessObjectMssql extends BasicDataAccessObject implements IDat
       tableSettings.ordering_field = availableFields[0];
       tableSettings.ordering = QueryOrderingEnum.ASC;
     }
-    const rows = await knex(tableName)
-      .select(availableFields)
+    const rowsCountQuery = knex(tableNameWithSchema)
       .modify((builder) => {
         /*eslint-disable*/
         let { search_fields } = tableSettings;
@@ -218,23 +216,25 @@ export class DataAccessObjectMssql extends BasicDataAccessObject implements IDat
             }
           }
         }
-      })
-      .orderBy(tableSettings.ordering_field, tableSettings.ordering)
-      .paginate({
-        perPage: perPage,
-        currentPage: page,
-        isLengthAware: true,
       });
-    const { data } = rows;
-    const receivedPagination = rows.pagination;
+    const rowsDataQuery = rowsCountQuery.clone();
+
+    const rowsCount = await this.getRowsCount(tableNameWithoutSchema, rowsCountQuery);
+
+    const rows = await rowsDataQuery
+      .select(availableFields)
+      .orderBy(tableSettings.ordering_field, tableSettings.ordering)
+      .limit(perPage)
+      .offset((page - 1) * perPage);
+
     const pagination = {
-      total: receivedPagination.total ? receivedPagination.total : rowsCount,
-      lastPage: receivedPagination.lastPage ? receivedPagination.lastPage : lastPage,
-      perPage: receivedPagination.perPage,
-      currentPage: receivedPagination.currentPage,
+      total: rowsCount,
+      lastPage: Math.ceil(rowsCount / perPage),
+      perPage: perPage,
+      currentPage: page,
     };
     rowsRO = {
-      data,
+      data: rows,
       pagination,
       large_dataset: rowsCount >= DAO_CONSTANTS.LARGE_DATASET_ROW_LIMIT,
     };
@@ -476,7 +476,7 @@ WHERE
     const offset = (page - 1) * perPage;
     const knex = await this.configureKnex();
     const [rowsCount, tableStructure, tableSchema] = await Promise.all([
-      this.getRowsCount(tableName),
+      this.getRowsCount(tableName, null),
       this.getTableStructure(tableName),
       this.getSchemaName(tableName),
     ]);
@@ -591,9 +591,9 @@ WHERE
     return tableSchema;
   }
 
-  private async getRowsCount(tableName: string): Promise<number> {
+  private async getRowsCount(tableName: string, countRowsQB: Knex.QueryBuilder<any, any[]> | null): Promise<number> {
     const knex = await this.configureKnex();
-    const countQueryResult = await knex.raw(
+    const fastCountQueryResult = await knex.raw(
       `SELECT QUOTENAME(SCHEMA_NAME(sOBJ.schema_id)) + '.' + QUOTENAME(sOBJ.name) AS [TableName]
       , SUM(sdmvPTNS.row_count) AS [RowCount]
        FROM
@@ -612,8 +612,16 @@ WHERE
        ORDER BY [TableName]`,
       [tableName],
     );
-    const rowsCount = countQueryResult[0].RowCount;
-    return parseInt(rowsCount);
+    const fastRowsCount = parseInt(fastCountQueryResult[0].RowCount);
+    if (fastRowsCount >= DAO_CONSTANTS.LARGE_DATASET_ROW_LIMIT) {
+      return fastRowsCount;
+    }
+    if (countRowsQB) {
+      const slowRowsCountQueryResult = await countRowsQB.count('*');
+      const slowRowsCount = Object.values(slowRowsCountQueryResult[0])[0];
+      return slowRowsCount as number;
+    }
+    return fastRowsCount;
   }
 
   private async getSchemaNameWithoutBrackets(tableName: string): Promise<string> {
