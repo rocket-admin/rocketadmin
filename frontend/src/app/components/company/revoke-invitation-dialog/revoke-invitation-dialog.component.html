@@ -1,0 +1,14 @@
+<h1 mat-dialog-title>Revoke email invitation</h1>
+<mat-dialog-content>
+    <p class="mat-body">You are going to revoke invitation from <strong>{{ data.userEmail }}</strong> email.</p>
+    <br>
+    <p class="mat-body">Please confirm.</p>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-flat-button mat-dialog-close>Cancel</button>
+  <button mat-flat-button color="warn"
+    [disabled]="submitting"
+    (click)="revokeInvitation()">
+    Revoke
+  </button>
+</mat-dialog-actions>

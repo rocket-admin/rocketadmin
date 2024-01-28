@@ -23,6 +23,7 @@ import { setPropertyValue } from '../../helpers/set-property-value.js';
 import { tableSettingsFieldValidator } from '../../helpers/validation/table-settings-validator.js';
 import { TableDS } from '../shared/data-structures/table.ds.js';
 import { ERROR_MESSAGES } from '../../helpers/errors/error-messages.js';
+import { Stream } from 'node:stream';
 
 export class DataAccessObjectPostgres extends BasicDataAccessObject implements IDataAccessObject {
   constructor(connection: ConnectionParams) {
@@ -142,12 +143,8 @@ export class DataAccessObjectPostgres extends BasicDataAccessObject implements I
 
     const knex = await this.configureKnex();
     const tableSchema = this.connection.schema ?? 'public';
-    const [{ rowsCount, large_dataset }, tableStructure] = await Promise.all([
-      this.getRowsCount(knex, tableName, tableSchema),
-      this.getTableStructure(tableName),
-    ]);
+    const [tableStructure] = await Promise.all([this.getTableStructure(tableName)]);
     const availableFields = this.findAvaliableFields(settings, tableStructure);
-    const lastPage = Math.ceil(rowsCount / perPage);
     let rowsRO: FoundRowsDS;
 
     if (autocompleteFields && autocompleteFields.value && autocompleteFields.fields.length > 0) {
@@ -167,7 +164,7 @@ export class DataAccessObjectPostgres extends BasicDataAccessObject implements I
           /*eslint-enable*/
         })
         .limit(DAO_CONSTANTS.AUTOCOMPLETE_ROW_LIMIT);
-
+      const { large_dataset } = await this.getRowsCount(knex, null, tableName, tableSchema);
       rowsRO = {
         data: rows,
         pagination: {} as any,
@@ -176,9 +173,8 @@ export class DataAccessObjectPostgres extends BasicDataAccessObject implements I
       return rowsRO;
     }
 
-    const rows = await knex(tableName)
+    const countRowsQB = knex(tableName)
       .withSchema(this.connection.schema ?? 'public')
-      .select(availableFields)
       .modify((builder) => {
         /*eslint-disable*/
         let { search_fields } = settings;
@@ -190,7 +186,11 @@ export class DataAccessObjectPostgres extends BasicDataAccessObject implements I
             if (Buffer.isBuffer(searchedFieldValue)) {
               builder.orWhere(field, '=', searchedFieldValue);
             } else {
-              builder.orWhereRaw(` CAST (?? AS VARCHAR (255))=?`, [field, searchedFieldValue]);
+              builder.orWhereRaw(` LOWER(CAST (?? AS VARCHAR (255))) LIKE ?`, [
+                field,
+                `${searchedFieldValue.toLowerCase()}%`,
+              ]);
+              //  builder.orWhereRaw(` CAST (?? AS VARCHAR (255))=?`, [field, searchedFieldValue]);
             }
           }
         }
@@ -235,27 +235,28 @@ export class DataAccessObjectPostgres extends BasicDataAccessObject implements I
             }
           }
         }
-      })
+      });
+
+    const rowsResultQb = countRowsQB.clone();
+    const offset = (page - 1) * perPage;
+    const rows = await rowsResultQb
+      .select(availableFields)
+      .limit(perPage)
+      .offset(offset)
       .modify((builder) => {
         if (settings.ordering_field && settings.ordering) {
           builder.orderBy(settings.ordering_field, settings.ordering);
         }
-      })
-      .paginate({
-        perPage: perPage,
-        currentPage: page,
-        isLengthAware: true,
       });
-    const { data } = rows;
-    let { pagination } = rows;
-    pagination = {
-      total: pagination.total ? pagination.total : rowsCount,
-      lastPage: pagination.lastPage ? pagination.lastPage : lastPage,
-      perPage: pagination.perPage,
-      currentPage: pagination.currentPage,
-    } as any;
+    const { large_dataset, rowsCount } = await this.getRowsCount(knex, countRowsQB, tableName, tableSchema);
+    const pagination = {
+      total: rowsCount,
+      lastPage: Math.ceil(rowsCount / perPage),
+      perPage: perPage,
+      currentPage: page,
+    };
     rowsRO = {
-      data,
+      data: rows,
       pagination,
       large_dataset: large_dataset,
     };
@@ -269,6 +270,7 @@ export class DataAccessObjectPostgres extends BasicDataAccessObject implements I
     }
     const knex = await this.configureKnex();
     const tableSchema = this.connection.schema ?? 'public';
+    const database = this.connection.database;
     const foreignKeys: Array<{
       foreign_column_name: string;
       foreign_table_name: string;
@@ -283,15 +285,15 @@ export class DataAccessObjectPostgres extends BasicDataAccessObject implements I
       )
       .from(
         knex.raw(
-          `information_schema.table_constraints AS tc
-      JOIN information_schema.key_column_usage AS kcu
+          `??.information_schema.table_constraints AS tc
+      JOIN ??.information_schema.key_column_usage AS kcu
       ON tc.constraint_name = kcu.constraint_name
       AND tc.table_schema = kcu.table_schema
-      JOIN information_schema.constraint_column_usage AS ccu
+      JOIN ??.information_schema.constraint_column_usage AS ccu
       ON ccu.constraint_name = tc.constraint_name
       AND ccu.table_schema = tc.table_schema
       WHERE tc.constraint_type = 'FOREIGN KEY' AND tc.table_name=? AND tc.table_schema =?;`,
-          [tableName, tableSchema],
+          [database, database, database, tableName, tableSchema],
         ),
       );
     const resultKeys = foreignKeys.map((key) => {
@@ -535,19 +537,122 @@ export class DataAccessObjectPostgres extends BasicDataAccessObject implements I
     return entityType[0].table_type === 'VIEW';
   }
 
+  public async getTableRowsStream(
+    tableName: string,
+    settings: TableSettingsDS,
+    page: number,
+    perPage: number,
+    searchedFieldValue: string,
+    filteringFields: Array<FilteringFieldsDS>,
+  ): Promise<Stream & AsyncIterable<unknown>> {
+    if (!page || page <= 0) {
+      page = DAO_CONSTANTS.DEFAULT_PAGINATION.page;
+      const { list_per_page } = settings;
+      if (list_per_page && list_per_page > 0 && (!perPage || perPage <= 0)) {
+        perPage = list_per_page;
+      } else {
+        perPage = DAO_CONSTANTS.DEFAULT_PAGINATION.perPage;
+      }
+    }
+    const offset = (page - 1) * perPage;
+    const knex = await this.configureKnex();
+
+    const tableSchema = this.connection.schema ?? 'public';
+    const [{ rowsCount, large_dataset }, tableStructure] = await Promise.all([
+      this.getRowsCount(knex, null, tableName, tableSchema),
+      this.getTableStructure(tableName),
+    ]);
+    const availableFields = this.findAvaliableFields(settings, tableStructure);
+
+    if (large_dataset) {
+      throw new Error(ERROR_MESSAGES.DATA_IS_TO_LARGE);
+    }
+    const rowsAsStream = knex(tableName)
+      .withSchema(this.connection.schema ?? 'public')
+      .select(availableFields)
+      .modify((builder) => {
+        let { search_fields } = settings;
+        if ((!search_fields || search_fields?.length === 0) && searchedFieldValue) {
+          search_fields = availableFields;
+        }
+        if (searchedFieldValue && search_fields.length > 0) {
+          for (const field of search_fields) {
+            if (Buffer.isBuffer(searchedFieldValue)) {
+              builder.orWhere(field, '=', searchedFieldValue);
+            } else {
+              builder.orWhereRaw(` CAST (?? AS VARCHAR (255))=?`, [field, searchedFieldValue]);
+            }
+          }
+        }
+      })
+      .modify((builder) => {
+        if (filteringFields && filteringFields.length > 0) {
+          for (const filterObject of filteringFields) {
+            const { field, criteria, value } = filterObject;
+            switch (criteria) {
+              case FilterCriteriaEnum.eq:
+                builder.andWhere(field, '=', `${value}`);
+                break;
+              case FilterCriteriaEnum.startswith:
+                builder.andWhere(field, 'like', `${value}%`);
+                break;
+              case FilterCriteriaEnum.endswith:
+                builder.andWhere(field, 'like', `%${value}`);
+                break;
+              case FilterCriteriaEnum.gt:
+                builder.andWhere(field, '>', value);
+                break;
+              case FilterCriteriaEnum.lt:
+                builder.andWhere(field, '<', value);
+                break;
+              case FilterCriteriaEnum.lte:
+                builder.andWhere(field, '<=', value);
+                break;
+              case FilterCriteriaEnum.gte:
+                builder.andWhere(field, '>=', value);
+                break;
+              case FilterCriteriaEnum.contains:
+                builder.andWhere(field, 'like', `%${value}%`);
+                break;
+              case FilterCriteriaEnum.icontains:
+                builder.andWhereNot(field, 'like', `%${value}%`);
+                break;
+              case FilterCriteriaEnum.empty:
+                builder.orWhereNull(field);
+                builder.orWhere(field, '=', `''`);
+                break;
+            }
+          }
+        }
+      })
+      .modify((builder) => {
+        if (settings.ordering_field && settings.ordering) {
+          builder.orderBy(settings.ordering_field, settings.ordering);
+        }
+      })
+      .limit(perPage)
+      .offset(offset)
+      .stream();
+    return rowsAsStream;
+  }
+
   private async getRowsCount(
     knex: Knex<any, any[]>,
+    countRowsQB: Knex.QueryBuilder<any, any[]> | null,
     tableName: string,
     tableSchema: string,
   ): Promise<{ rowsCount: number; large_dataset: boolean }> {
     try {
       const fastCount = await knex.raw(
         `
-  SELECT ((reltuples / relpages)
-  * (pg_relation_size('??.??') / current_setting('block_size')::int)
-         )::bigint as count
-FROM   pg_class
-WHERE  oid = '??.??'::regclass;`,
+        SELECT CASE
+        WHEN relpages = 0 THEN 0
+        ELSE ((reltuples / relpages)
+        * (pg_relation_size('??.??') / current_setting('block_size')::int)
+               )::bigint
+      END as count
+      FROM   pg_class
+      WHERE  oid = '??.??'::regclass;`,
         [tableSchema, tableName, tableSchema, tableName],
       );
 
@@ -560,7 +665,14 @@ WHERE  oid = '??.??'::regclass;`,
     } catch (e) {
       return { rowsCount: 0, large_dataset: false };
     }
-    const count = (await knex(tableName).withSchema(tableSchema).count('*')) as any;
+    let count: any;
+    if (countRowsQB) {
+      count = (await countRowsQB.count('*')) as any;
+    } else {
+      count = (await knex(tableName)
+        .withSchema(this.connection.schema ?? 'public')
+        .count('*')) as any;
+    }
     const slowCount = parseInt(count[0].count);
     return {
       rowsCount: slowCount,

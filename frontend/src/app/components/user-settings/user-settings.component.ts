@@ -2,6 +2,7 @@ import { Alert, AlertActionType, AlertType } from 'src/app/models/alert';
 import { Component, Input, OnInit } from '@angular/core';
 
 import { AccountDeleteDialogComponent } from './account-delete-dialog/account-delete-dialog.component';
+import { Angulartics2 } from 'angulartics2';
 import { AuthService } from 'src/app/services/auth.service';
 import { EnableTwoFADialogComponent } from './enable-two-fa-dialog/enable-two-fa-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
@@ -16,8 +17,6 @@ import { UserService } from 'src/app/services/user.service';
 export class UserSettingsComponent implements OnInit {
   public currentUser: User = null;
   public submittingChangedName: boolean;
-  public currentPlan: string;
-  public isAnnually: boolean;
   public userName: string;
   public emailVerificationWarning: Alert = {
     id: 10000001,
@@ -40,6 +39,7 @@ export class UserSettingsComponent implements OnInit {
     private _userService: UserService,
     private _authService: AuthService,
     public dialog: MatDialog,
+    private angulartics2: Angulartics2,
   ) {}
 
   ngOnInit(): void {
@@ -49,20 +49,6 @@ export class UserSettingsComponent implements OnInit {
         this.currentUser =user;
         this.userName = user.name;
         this.is2FAEnabledToggle = user.is_2fa_enabled;
-
-        if (user.subscriptionLevel) {
-          this.currentPlan = user.subscriptionLevel;
-
-          if (this.currentPlan.startsWith('ANNUAL_')) {
-            this.isAnnually = true;
-            this.currentPlan = this.currentPlan.substring(7);
-          }
-
-          this.currentPlan = this.currentPlan.slice(0, -5).toLowerCase();
-        } else {
-          this.currentPlan = "free"
-        }
-
       });
   }
 
@@ -72,7 +58,12 @@ export class UserSettingsComponent implements OnInit {
 
   changeEmail() {
     this._userService.requestEmailChange()
-      .subscribe((res) => console.log(res));
+      .subscribe((res) => {
+        this.angulartics2.eventTrack.next({
+          action: 'User settings: email change request is sent successfully',
+        });
+        console.log(res)
+      });
   }
 
   confirmDeleteAccount() {
@@ -89,6 +80,9 @@ export class UserSettingsComponent implements OnInit {
     this._userService.changeUserName(this.userName)
       .subscribe((res) => {
         this.submittingChangedName = false;
+        this.angulartics2.eventTrack.next({
+          action: 'User settings: user name is updated successfully',
+        });
       },
       () => { this.submittingChangedName = false; },
       () => { this.submittingChangedName = false; }
@@ -96,12 +90,6 @@ export class UserSettingsComponent implements OnInit {
   }
 
   switch2FA(event) {
-    // let enableTwoFADialog = null;
-    console.log('event.checked');
-    console.log(event.checked);
-    console.log('this.currentUser.is_2fa_enabled');
-    console.log(this.currentUser);
-    console.log(this.currentUser.is_2fa_enabled);
     if (event.checked && !this.currentUser.is_2fa_enabled) {
       this._userService.switchOn2FA()
         .subscribe((res) => {
@@ -135,8 +123,10 @@ export class UserSettingsComponent implements OnInit {
         if (res.disabled) {
           this.is2FAswitchingOffSettingsShown = false;
           this.authCode = '';
+          this.angulartics2.eventTrack.next({
+            action: 'User settings: 2fa disabled successfully',
+          });
         }
       });
   }
-
 }

@@ -15,7 +15,6 @@ import {
 } from 'typeorm';
 import { GroupEntity } from '../group/group.entity.js';
 import { UserActionEntity } from '../user-actions/user-action.entity.js';
-import { IsEmail } from 'class-validator';
 import { Encryptor } from '../../helpers/encryption/encryptor.js';
 import { EmailVerificationEntity } from '../email/email-verification.entity.js';
 import { PasswordResetEntity } from './user-password/password-reset.entity.js';
@@ -23,6 +22,8 @@ import { EmailChangeEntity } from './user-email/email-change.entity.js';
 import { UserInvitationEntity } from './user-invitation/user-invitation.entity.js';
 import { GitHubUserIdentifierEntity } from './user-github-identifier/github-user-identifier.entity.js';
 import { CompanyInfoEntity } from '../company-info/company-info.entity.js';
+import { UserRoleEnum } from './enums/user-role.enum.js';
+import { ExternalRegistrationProviderEnum } from './enums/external-registration-provider.enum.js';
 
 @Entity('user')
 export class UserEntity {
@@ -30,7 +31,6 @@ export class UserEntity {
   id: string;
 
   @Column({ default: null })
-  @IsEmail()
   email: string;
 
   @Column({ default: null })
@@ -76,11 +76,11 @@ export class UserEntity {
   @JoinTable()
   connections: Relation<ConnectionEntity>[];
 
-  @ManyToOne((type) => CompanyInfoEntity, (company) => company.users)
+  @ManyToOne(() => CompanyInfoEntity, (company) => company.users, { onDelete: 'SET NULL' })
   @JoinTable()
   company: Relation<CompanyInfoEntity>;
 
-  @ManyToMany((type) => GroupEntity, (group) => group.users)
+  @ManyToMany(() => GroupEntity, (group) => group.users)
   @JoinTable()
   groups: Relation<GroupEntity>[];
 
@@ -105,6 +105,17 @@ export class UserEntity {
   @Column({ default: false })
   isActive: boolean;
 
-  @Column({ default: null })
-  stripeId: string;
+  @Column('enum', {
+    nullable: false,
+    enum: UserRoleEnum,
+    default: UserRoleEnum.USER,
+  })
+  role: UserRoleEnum;
+
+  @Column('enum', {
+    nullable: true,
+    enum: ExternalRegistrationProviderEnum,
+    default: null,
+  })
+  externalRegistrationProvider: ExternalRegistrationProviderEnum;
 }

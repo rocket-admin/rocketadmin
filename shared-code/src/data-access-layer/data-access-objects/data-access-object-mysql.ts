@@ -24,6 +24,7 @@ import { getNumbersFromString } from '../../helpers/get-numbers-from-string.js';
 import { tableSettingsFieldValidator } from '../../helpers/validation/table-settings-validator.js';
 import { TableDS } from '../shared/data-structures/table.ds.js';
 import { ERROR_MESSAGES } from '../../helpers/errors/error-messages.js';
+import { Stream } from 'node:stream';
 
 export class DataAccessObjectMysql extends BasicDataAccessObject implements IDataAccessObject {
   constructor(connection: ConnectionParams) {
@@ -156,13 +157,8 @@ export class DataAccessObjectMysql extends BasicDataAccessObject implements IDat
       }
     }
     const knex = await this.configureKnex();
-    const [{ rowsCount, large_dataset }, tableStructure] = await Promise.all([
-      this.getRowsCount(knex, tableName, this.connection.database),
-      this.getTableStructure(tableName),
-    ]);
+    const [tableStructure] = await Promise.all([this.getTableStructure(tableName)]);
     const availableFields = this.findAvaliableFields(settings, tableStructure);
-
-    const lastPage = Math.ceil(rowsCount / perPage);
 
     let rowsRO: FoundRowsDS;
 
@@ -182,6 +178,7 @@ export class DataAccessObjectMysql extends BasicDataAccessObject implements IDat
           /*eslint-enable*/
         })
         .limit(DAO_CONSTANTS.AUTOCOMPLETE_ROW_LIMIT);
+      const { large_dataset } = await this.getRowsCount(knex, null, tableName, this.connection.database);
       rowsRO = {
         data: rows,
         pagination: {} as any,
@@ -191,8 +188,7 @@ export class DataAccessObjectMysql extends BasicDataAccessObject implements IDat
       return rowsRO;
     }
 
-    const rows = await knex(tableName)
-      .select(availableFields)
+    const countRowsQB = knex(tableName)
       .modify((builder) => {
         /*eslint-disable*/
         let { search_fields } = settings;
@@ -204,7 +200,11 @@ export class DataAccessObjectMysql extends BasicDataAccessObject implements IDat
             if (Buffer.isBuffer(searchedFieldValue)) {
               builder.orWhere(field, '=', searchedFieldValue);
             } else {
-              builder.orWhereRaw(` CAST (?? AS CHAR (255))=?`, [field, searchedFieldValue]);
+              builder.orWhereRaw(` LOWER(CAST (?? AS CHAR (255))) LIKE ?`, [
+                field,
+                `${searchedFieldValue.toLowerCase()}%`,
+              ]);
+              //  builder.orWhereRaw(` CAST (?? AS CHAR (255))=?`, [field, searchedFieldValue]);
             }
           }
         }
@@ -249,27 +249,34 @@ export class DataAccessObjectMysql extends BasicDataAccessObject implements IDat
             }
           }
         }
-      })
+      });
+
+    const rowsResultQb = countRowsQB.clone();
+    const offset = (page - 1) * perPage;
+    const rows = await rowsResultQb
+      .select(availableFields)
+      .limit(perPage)
+      .offset(offset)
       .modify((builder) => {
         if (settings.ordering_field && settings.ordering) {
           builder.orderBy(settings.ordering_field, settings.ordering);
         }
-      })
-      .paginate({
-        perPage: perPage,
-        currentPage: page,
-        isLengthAware: true,
       });
-    const { data } = rows;
-    const receivedPagination = rows.pagination;
+    const { large_dataset, rowsCount } = await this.getRowsCount(
+      knex,
+      countRowsQB,
+      tableName,
+      this.connection.database,
+    );
+
     const pagination = {
-      total: receivedPagination.total ? receivedPagination.total : rowsCount,
-      lastPage: receivedPagination.lastPage ? receivedPagination.lastPage : lastPage,
-      perPage: receivedPagination.perPage,
-      currentPage: receivedPagination.currentPage,
+      total: rowsCount,
+      lastPage: Math.ceil(rowsCount / perPage),
+      perPage: perPage,
+      currentPage: page,
     };
     rowsRO = {
-      data,
+      data: rows,
       pagination,
       large_dataset,
     };
@@ -494,8 +501,110 @@ export class DataAccessObjectMysql extends BasicDataAccessObject implements IDat
     return result[0].table_type === 'VIEW';
   }
 
+  public async getTableRowsStream(
+    tableName: string,
+    settings: TableSettingsDS,
+    page: number,
+    perPage: number,
+    searchedFieldValue: string,
+    filteringFields: Array<FilteringFieldsDS>,
+  ): Promise<Stream & AsyncIterable<unknown>> {
+    if (!page || page <= 0) {
+      page = DAO_CONSTANTS.DEFAULT_PAGINATION.page;
+      const { list_per_page } = settings;
+      if (list_per_page && list_per_page > 0 && (!perPage || perPage <= 0)) {
+        perPage = list_per_page;
+      } else {
+        perPage = DAO_CONSTANTS.DEFAULT_PAGINATION.perPage;
+      }
+    }
+
+    const offset = (page - 1) * perPage;
+
+    const knex = await this.configureKnex();
+
+    const [{ large_dataset }, tableStructure] = await Promise.all([
+      this.getRowsCount(knex, null, tableName, this.connection.database),
+      this.getTableStructure(tableName),
+    ]);
+
+    if (large_dataset) {
+      throw new Error(ERROR_MESSAGES.DATA_IS_TO_LARGE);
+    }
+
+    const availableFields = this.findAvaliableFields(settings, tableStructure);
+
+    const rowsAsStream = knex(tableName)
+      .select(availableFields)
+      .modify((builder) => {
+        let { search_fields } = settings;
+        if ((!search_fields || search_fields?.length === 0) && searchedFieldValue) {
+          search_fields = availableFields;
+        }
+        if (search_fields && searchedFieldValue && search_fields.length > 0) {
+          for (const field of search_fields) {
+            if (Buffer.isBuffer(searchedFieldValue)) {
+              builder.orWhere(field, '=', searchedFieldValue);
+            } else {
+              builder.orWhereRaw(` CAST (?? AS CHAR (255))=?`, [field, searchedFieldValue]);
+            }
+          }
+        }
+      })
+      .modify((builder) => {
+        if (filteringFields && filteringFields.length > 0) {
+          for (const filterObject of filteringFields) {
+            const { field, criteria, value } = filterObject;
+            switch (criteria) {
+              case FilterCriteriaEnum.eq:
+                builder.andWhere(field, '=', `${value}`);
+                break;
+              case FilterCriteriaEnum.startswith:
+                builder.andWhere(field, 'like', `${value}%`);
+                break;
+              case FilterCriteriaEnum.endswith:
+                builder.andWhere(field, 'like', `%${value}`);
+                break;
+              case FilterCriteriaEnum.gt:
+                builder.andWhere(field, '>', value);
+                break;
+              case FilterCriteriaEnum.lt:
+                builder.andWhere(field, '<', value);
+                break;
+              case FilterCriteriaEnum.lte:
+                builder.andWhere(field, '<=', value);
+                break;
+              case FilterCriteriaEnum.gte:
+                builder.andWhere(field, '>=', value);
+                break;
+              case FilterCriteriaEnum.contains:
+                builder.andWhere(field, 'like', `%${value}%`);
+                break;
+              case FilterCriteriaEnum.icontains:
+                builder.andWhereNot(field, 'like', `%${value}%`);
+                break;
+              case FilterCriteriaEnum.empty:
+                builder.orWhereNull(field);
+                builder.orWhere(field, '=', `''`);
+                break;
+            }
+          }
+        }
+      })
+      .modify((builder) => {
+        if (settings.ordering_field && settings.ordering) {
+          builder.orderBy(settings.ordering_field, settings.ordering);
+        }
+      })
+      .limit(perPage)
+      .offset(offset)
+      .stream();
+    return rowsAsStream;
+  }
+
   private async getRowsCount(
     knex: Knex<any, any[]>,
+    countRowsQB: Knex.QueryBuilder<any, any[]> | null,
     tableName: string,
     database: string,
   ): Promise<{ rowsCount: number; large_dataset: boolean }> {
@@ -503,7 +612,12 @@ export class DataAccessObjectMysql extends BasicDataAccessObject implements IDat
     if (fastCount >= DAO_CONSTANTS.LARGE_DATASET_ROW_LIMIT) {
       return { rowsCount: fastCount, large_dataset: true };
     }
-    const slowCount = (await knex(tableName).count('*'))[0]['count(*)'] as number;
+    let slowCount: number;
+    if (countRowsQB) {
+      slowCount = (await countRowsQB.count('*'))[0]['count(*)'] as number;
+    } else {
+      slowCount = (await knex(tableName).count('*'))[0]['count(*)'] as number;
+    }
     return { rowsCount: slowCount, large_dataset: false };
   }
 }

@@ -4,141 +4,52 @@
 @import '@angular/material/theming';
 @include mat.core();
 
-/* For use in src/lib/core/theming/_palette.scss */
 $md-app-primary-color: palette.createpalette('primaryPalette');
-// $md-app-primary-color: (
-//     50 : #e6ebfd,
-//     100 : #c2cdfb,
-//     200 : #99acf8,
-//     300 : #708af5,
-//     400 : #5171f2,
-//     500 : #3258f0,
-//     600 : #2d50ee,
-//     700 : #2647ec,
-//     800 : #1f3de9,
-//     900 : #132de5,
-//     A100 : #ffffff,
-//     A200 : #e0e3ff,
-//     A400 : #adb5ff,
-//     A700 : #949eff,
-//     contrast: (
-//         50 : #000000,
-//         100 : #000000,
-//         200 : #000000,
-//         300 : #000000,
-//         400 : #ffffff,
-//         500 : #ffffff,
-//         600 : #ffffff,
-//         700 : #ffffff,
-//         800 : #ffffff,
-//         900 : #ffffff,
-//         A100 : #000000,
-//         A200 : #000000,
-//         A400 : #000000,
-//         A700 : #000000,
-//     )
-// );
-
 $md-app-accented-color: palette.createpalette('accentedPalette');
-// $md-app-accented-color: (
-//     50 : #fde9ee,
-//     100 : #fac8d4,
-//     200 : #f6a4b8,
-//     300 : #f27f9b,
-//     400 : #f06385,
-//     500 : #ed4870,
-//     600 : #eb4168,
-//     700 : #e8385d,
-//     800 : #e53053,
-//     900 : #e02141,
-//     A100 : #ffffff,
-//     A200 : #ffe5e9,
-//     A400 : #ffb3be,
-//     A700 : #ff99a8,
-//     contrast: (
-//         50 : #000000,
-//         100 : #000000,
-//         200 : #000000,
-//         300 : #000000,
-//         400 : #000000,
-//         500 : #000000,
-//         600 : #ffffff,
-//         700 : #ffffff,
-//         800 : #ffffff,
-//         900 : #ffffff,
-//         A100 : #000000,
-//         A200 : #000000,
-//         A400 : #000000,
-//         A700 : #000000,
-//     )
-// );
-
-/* For use in src/lib/core/theming/_palette.scss */
 $md-app-warn-color: palette.createpalette('warnPalette');
-// $md-app-warn-color: (
-//     50 : #fce7e7,
-//     100 : #f7c4c2,
-//     200 : #f29c9a,
-//     300 : #ed7472,
-//     400 : #e95753,
-//     500 : #e53935,
-//     600 : #e23330,
-//     700 : #de2c28,
-//     800 : #da2422,
-//     900 : #d31716,
-//     A100 : #ffffff,
-//     A200 : #ffd1d1,
-//     A400 : #ff9f9e,
-//     A700 : #ff8585,
-//     contrast: (
-//         50 : #000000,
-//         100 : #000000,
-//         200 : #000000,
-//         300 : #000000,
-//         400 : #000000,
-//         500 : #ffffff,
-//         600 : #ffffff,
-//         700 : #ffffff,
-//         800 : #ffffff,
-//         900 : #ffffff,
-//         A100 : #000000,
-//         A200 : #000000,
-//         A400 : #000000,
-//         A700 : #000000,
-//     )
-// );
 
 $custom-palette-primary: mat.define-palette($md-app-primary-color);
 $custom-palette-accent: mat.define-palette($md-app-accented-color);
 $custom-palette-warn: mat.define-palette($md-app-warn-color);
 
-body .mat-mdc-raised-button.mat-primary, body .mat-mdc-unelevated-button.mat-primary {
+html {
+  --mdc-shape-small: 0px;
+  --mdc-filled-button-container-shape: 4px;
+  --mdc-outlined-button-container-shape: 4px;
+  --mdc-text-button-container-shape: 4px;
+}
+
+body .mat-mdc-flat-button.mat-primary, body .mat-mdc-unelevated-button.mat-primary {
   --mat-mdc-button-persistent-ripple-color: var(--color-primaryPalette-500-contrast) !important;
   --mdc-protected-button-label-text-color: var(--color-primaryPalette-500-contrast) !important;
   --mdc-filled-button-label-text-color: var(--color-primaryPalette-500-contrast) !important;
   --mat-mdc-button-ripple-color: rgba(255, 255, 255, 0.1) !important;
 }
 
-body .mat-mdc-raised-button.mat-accent, body .mat-mdc-unelevated-button.mat-accent {
+body .mat-mdc-flat-button.mat-accent, body .mat-mdc-unelevated-button.mat-accent {
   --mat-mdc-button-persistent-ripple-color: var(--color-accentedPalette-500-contrast) !important;
   --mdc-protected-button-label-text-color: var(--color-accentedPalette-500-contrast) !important;
   --mdc-filled-button-label-text-color: var(--color-accentedPalette-500-contrast) !important;
   --mat-mdc-button-ripple-color: rgba(255, 255, 255, 0.1) !important;
 }
 
-body .mat-mdc-raised-button.mat-warn, body .mat-mdc-unelevated-button.mat-warn {
+body .mat-mdc-flat-button.mat-warn, body .mat-mdc-unelevated-button.mat-warn {
   --mat-mdc-button-persistent-ripple-color: var(--color-warnPalette-500-contrast) !important;
   --mdc-protected-button-label-text-color: var(--color-warnPalette-500-contrast) !important;
   --mdc-filled-button-label-text-color: var(--color-warnPalette-500-contrast) !important;
   --mat-mdc-button-ripple-color: rgba(255, 255, 255, 0.1) !important;
 }
 
-.mat-mdc-checkbox .mdc-form-field {
-  --mdc-checkbox-selected-checkmark-color: var(--color-warnPalette-500-contrast) !important;
+// .mat-mdc-checkbox .mdc-form-field {
+//   --mdc-checkbox-selected-checkmark-color: var(--color-accentedPalette-500-contrast) !important;
+// }
+
+.mat-mdc-checkbox .mdc-checkbox .mdc-checkbox__native-control:enabled ~ .mdc-checkbox__background .mdc-checkbox__checkmark {
+  --mdc-checkbox-selected-checkmark-color: var(--color-accentedPalette-500-contrast) !important;
 }
 
 $button-custom-level: mat.define-typography-level(
-  $font-family: 'Poppins',
+  $font-family: 'Noto Sans',
   $font-weight: 500,
   $font-size: 14px,
   $line-height: 34px,
@@ -146,7 +57,7 @@ $button-custom-level: mat.define-typography-level(
 );
 
 $body-1-custom-level: mat.define-typography-level(
-  $font-family: 'Poppins',
+  $font-family: 'Noto Sans',
   $font-weight: 400,
   $font-size: 14px,
   $line-height: 20px,
@@ -154,7 +65,7 @@ $body-1-custom-level: mat.define-typography-level(
 );
 
 $caption-custom-level: mat.define-typography-level(
-  $font-family: 'Poppins',
+  $font-family: 'Noto Sans',
   $font-weight: 400,
   $font-size: 12px,
   $line-height: 16px,
@@ -162,7 +73,7 @@ $caption-custom-level: mat.define-typography-level(
 );
 
 $custom-typography-config: mat.define-typography-config(
-    $font-family: 'Poppins',
+    $font-family: 'Noto Sans',
     $button: $button-custom-level,
     $body-1: $body-1-custom-level,
     $caption: $caption-custom-level,

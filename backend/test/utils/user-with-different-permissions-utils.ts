@@ -1,9 +1,13 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
 import { AccessLevelEnum } from '../../src/enums/index.js';
 import { MockFactory } from '../mock.factory.js';
 import { CreatedTableInfo, createTestTable } from './create-test-table.js';
-import { registerUserAndReturnUserInfo } from './register-user-and-return-user-info.js';
+import {
+  inviteUserInCompanyAndAcceptInvitation,
+  registerUserAndReturnUserInfo,
+} from './register-user-and-return-user-info.js';
 
 export async function createConnectionsAndInviteNewUserInNewGroupInFirstConnection(
   app: INestApplication,
@@ -15,7 +19,12 @@ export async function createConnectionsAndInviteNewUserInNewGroupInFirstConnecti
   };
   const mockFactory = new MockFactory();
   const connectionAdminUserInfo = await registerUserAndReturnUserInfo(app);
-  const simpleUserRegisterInfo = await registerUserAndReturnUserInfo(app);
+  const simpleUserRegisterInfo = await inviteUserInCompanyAndAcceptInvitation(
+    connectionAdminUserInfo.token,
+    undefined,
+    app,
+    undefined,
+  );
   const connectionAdminUserToken = connectionAdminUserInfo.token;
   const simpleUserToken = simpleUserRegisterInfo.token;
 
@@ -77,7 +86,7 @@ export async function createConnectionsAndInviteNewUserInNewGroupInFirstConnecti
   };
 
   const createOrUpdatePermissionResponse = await request(app.getHttpServer())
-    .put(`/permissions/${groupId}`)
+    .put(`/permissions/${groupId}?connectionId=${connectionsId.firstId}`)
     .send({ permissions })
     .set('Cookie', connectionAdminUserToken)
     .set('Content-Type', 'application/json')
@@ -116,6 +125,8 @@ export async function createConnectionsAndInviteNewUserInNewGroupInFirstConnecti
       simpleUserToken: simpleUserToken,
       simpleUserEmail: simpleUserRegisterInfo.email,
       adminUserEmail: connectionAdminUserInfo.email,
+      adminUserPassword: connectionAdminUserInfo.password,
+      simpleUserPassword: simpleUserRegisterInfo.password,
     },
   };
 }
@@ -130,7 +141,12 @@ export async function createConnectionsAndInviteNewUserInNewGroupWithGroupPermis
   };
   const mockFactory = new MockFactory();
   const connectionAdminUserInfo = await registerUserAndReturnUserInfo(app);
-  const simpleUserRegisterInfo = await registerUserAndReturnUserInfo(app);
+  const simpleUserRegisterInfo = await inviteUserInCompanyAndAcceptInvitation(
+    connectionAdminUserInfo.token,
+    undefined,
+    app,
+    undefined,
+  );
   const connectionAdminUserToken = connectionAdminUserInfo.token;
   const simpleUserToken = simpleUserRegisterInfo.token;
 
@@ -202,7 +218,7 @@ export async function createConnectionsAndInviteNewUserInNewGroupWithGroupPermis
   };
 
   const createOrUpdatePermissionResponse = await request(app.getHttpServer())
-    .put(`/permissions/${groupId}`)
+    .put(`/permissions/${groupId}?connectionId=${connectionsId.firstId}`)
     .send({ permissions })
     .set('Cookie', connectionAdminUserToken)
     .set('Content-Type', 'application/json')
@@ -241,6 +257,8 @@ export async function createConnectionsAndInviteNewUserInNewGroupWithGroupPermis
       simpleUserToken: simpleUserToken,
       simpleUserEmail: simpleUserRegisterInfo.email,
       adminUserEmail: connectionAdminUserInfo.email,
+      adminUserPassword: connectionAdminUserInfo.password,
+      simpleUserPassword: simpleUserRegisterInfo.password,
     },
   };
 }
@@ -255,7 +273,12 @@ export async function createConnectionsAndInviteNewUserInNewGroupWithOnlyTablePe
   };
   const mockFactory = new MockFactory();
   const connectionAdminUserInfo = await registerUserAndReturnUserInfo(app);
-  const simpleUserRegisterInfo = await registerUserAndReturnUserInfo(app);
+  const simpleUserRegisterInfo = await inviteUserInCompanyAndAcceptInvitation(
+    connectionAdminUserInfo.token,
+    undefined,
+    app,
+    undefined,
+  );
   const connectionAdminUserToken = connectionAdminUserInfo.token;
   const simpleUserToken = simpleUserRegisterInfo.token;
 
@@ -327,18 +350,22 @@ export async function createConnectionsAndInviteNewUserInNewGroupWithOnlyTablePe
   };
 
   const createOrUpdatePermissionResponse = await request(app.getHttpServer())
-    .put(`/permissions/${groupId}`)
+    .put(`/permissions/${groupId}?connectionId=${connectionsId.firstId}`)
     .send({ permissions })
     .set('Cookie', connectionAdminUserToken)
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
 
-  await request(app.getHttpServer())
+  const addUserResult = await request(app.getHttpServer())
     .put('/group/user')
     .set('Cookie', connectionAdminUserToken)
     .send({ groupId, email })
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
+  const addUserRO = JSON.parse(addUserResult.text);
+  if (addUserResult.status > 201) {
+    console.error('addUserResult.body -> ', addUserRO);
+  }
 
   return {
     firstTableInfo: firstTable,
@@ -366,6 +393,8 @@ export async function createConnectionsAndInviteNewUserInNewGroupWithOnlyTablePe
       simpleUserToken: simpleUserToken,
       simpleUserEmail: simpleUserRegisterInfo.email,
       adminUserEmail: connectionAdminUserInfo.email,
+      adminUserPassword: connectionAdminUserInfo.password,
+      simpleUserPassword: simpleUserRegisterInfo.password,
     },
   };
 }
@@ -380,7 +409,12 @@ export async function createConnectionsAndInviteNewUserInNewGroupWithTableDiffer
   };
   const mockFactory = new MockFactory();
   const connectionAdminUserInfo = await registerUserAndReturnUserInfo(app);
-  const simpleUserRegisterInfo = await registerUserAndReturnUserInfo(app);
+  const simpleUserRegisterInfo = await inviteUserInCompanyAndAcceptInvitation(
+    connectionAdminUserInfo.token,
+    undefined,
+    app,
+    undefined,
+  );
   const connectionAdminUserToken = connectionAdminUserInfo.token;
   const simpleUserToken = simpleUserRegisterInfo.token;
 
@@ -452,7 +486,7 @@ export async function createConnectionsAndInviteNewUserInNewGroupWithTableDiffer
   };
 
   const createOrUpdatePermissionResponse = await request(app.getHttpServer())
-    .put(`/permissions/${groupId}`)
+    .put(`/permissions/${groupId}?connectionId=${connectionsId.firstId}`)
     .send({ permissions })
     .set('Cookie', connectionAdminUserToken)
     .set('Content-Type', 'application/json')
@@ -491,6 +525,8 @@ export async function createConnectionsAndInviteNewUserInNewGroupWithTableDiffer
       simpleUserToken: simpleUserToken,
       simpleUserEmail: simpleUserRegisterInfo.email,
       adminUserEmail: connectionAdminUserInfo.email,
+      adminUserPassword: connectionAdminUserInfo.password,
+      simpleUserPassword: simpleUserRegisterInfo.password,
     },
   };
 }
@@ -505,7 +541,12 @@ export async function createConnectionsAndInviteNewUserInAdminGroupOfFirstConnec
   };
   const mockFactory = new MockFactory();
   const connectionAdminUserInfo = await registerUserAndReturnUserInfo(app);
-  const simpleUserRegisterInfo = await registerUserAndReturnUserInfo(app);
+  const simpleUserRegisterInfo = await inviteUserInCompanyAndAcceptInvitation(
+    connectionAdminUserInfo.token,
+    undefined,
+    app,
+    undefined,
+  );
   const connectionAdminUserToken = connectionAdminUserInfo.token;
   const simpleUserToken = simpleUserRegisterInfo.token;
 
@@ -592,6 +633,8 @@ export async function createConnectionsAndInviteNewUserInAdminGroupOfFirstConnec
       simpleUserToken: simpleUserToken,
       simpleUserEmail: simpleUserRegisterInfo.email,
       adminUserEmail: connectionAdminUserInfo.email,
+      adminUserPassword: connectionAdminUserInfo.password,
+      simpleUserPassword: simpleUserRegisterInfo.password,
     },
   };
 }
@@ -622,5 +665,7 @@ interface IUserDifferentTableOnlyPermissionsFooData {
     simpleUserToken: string;
     simpleUserEmail: string;
     adminUserEmail: string;
+    adminUserPassword: string;
+    simpleUserPassword: string;
   };
 }

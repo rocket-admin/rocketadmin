@@ -13,4 +13,5 @@ export const COMMAND_TYPE = Object.freeze({
   initialConnection: 'initialConnection',
   dataFromAgent: 'dataFromAgent',
   isView: 'isView',
+  getRowsAsStream: 'getRowsAsStream',
 });

@@ -1,0 +1,33 @@
+.wrapper {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    height: 100%;
+    margin: 0 auto;
+    padding: 16px;
+    max-width: 520px;
+    min-width: 300px;
+    width: 90%;
+}
+
+.password-form__title {
+    margin-bottom: 32px;
+}
+
+.name-input {
+    width: 100%;
+}
+
+.form-divider {
+    margin-top: 48px;
+    margin-bottom: 20px;
+}
+
+.actions {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.password-form__back {
+    margin-right: 20px;
+}

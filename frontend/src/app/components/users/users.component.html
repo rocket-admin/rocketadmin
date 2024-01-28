@@ -1,16 +1,16 @@
 <div class="wrapper">
     <header>
             <h1 class="mat-h1">User groups</h1>
-            <button mat-button *ngIf="connectionAccessLevel !== 'none'"
+            <button mat-stroked-button *ngIf="connectionAccessLevel !== 'none'"
                 color="primary" class="add-group-button"
                 angulartics2On="click"
-                angularticsAction="Users: add group dialog is opened"
+                angularticsAction="Users access: add group is clicked"
                 (click)="openCreateUsersGroupDialog($event)">
                 New group
             </button>
     </header>
 
-    <app-content-loader *ngIf="groups === null"></app-content-loader>
+    <app-placeholder-user-groups *ngIf="groups === null"></app-placeholder-user-groups>
 
     <mat-accordion multi="true" *ngIf="groups">
         <mat-expansion-panel *ngFor="let groupItem of groups" (opened)="openUsersList(groupItem.group.id)">
@@ -19,23 +19,23 @@
                     {{ groupItem.group.title }}
                 </mat-panel-title>
                 <mat-panel-description (click)="$event.stopPropagation();">
-                    <button mat-icon-button *ngIf="isPermitted(groupItem.accessLevel)"
+                    <button mat-icon-button *ngIf="connectionAccessLevel === 'edit'"
                         angulartics2On="click"
-                        angularticsAction="Users: permissions dialog is opened"
+                        angularticsAction="Users access: permissions is clicked"
                         matTooltip="Configure permissions"
                         (click)="openPermissionsDialog(groupItem.group)">
                         <mat-icon>vpn_key</mat-icon>
                     </button>
                     <button mat-icon-button *ngIf="isPermitted(groupItem.accessLevel) && groupItem.group.title !== 'Admin'"
                         angulartics2On="click"
-                        angularticsAction="Users: delete group dialog is opened"
+                        angularticsAction="Users access: delete group is clicked"
                         matTooltip="Delete group"
                         (click)="openDeleteGroupDialog(groupItem.group)">
                         <mat-icon>delete_outline</mat-icon>
                     </button>
                     <button mat-icon-button *ngIf="isPermitted(groupItem.accessLevel)"
                         angulartics2On="click"
-                        angularticsAction="Users: add user dialog is opened"
+                        angularticsAction="Users access: add user is clicked"
                         matTooltip="Add user"
                         (click)="openAddUserDialog(groupItem.group)">
                         <mat-icon>person_add</mat-icon>
@@ -43,7 +43,7 @@
                 </mat-panel-description>
             </mat-expansion-panel-header>
 
-            <app-content-loader *ngIf="users[groupItem.group.id] === null"></app-content-loader>
+            <app-placeholder-user-group *ngIf="users[groupItem.group.id] === null"></app-placeholder-user-group>
             <p class="body-2" *ngIf="users[groupItem.group.id] === 'empty'">No users in the group</p>
             <mat-list role="list">
                 <mat-list-item role="listitem" *ngFor="let user of users[groupItem.group.id]">
@@ -54,7 +54,7 @@
                         </ng-template>
                         <button mat-icon-button *ngIf="(currentUser?.email !== user.email) && isPermitted(groupItem.accessLevel)"
                             angulartics2On="click"
-                            angularticsAction="Users: delete user dialog is opened"
+                            angularticsAction="Users access: delete user is clicked"
                             matTooltip="Delete user"
                             (click)="openDeleteUserDialog(user, groupItem.group)">
                             <mat-icon>person_remove</mat-icon>

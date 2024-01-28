@@ -8,6 +8,12 @@
     padding: 0 16px;
 }
 
+.icons-menu__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
 .icons-list {
     list-style: none;
     display: grid;

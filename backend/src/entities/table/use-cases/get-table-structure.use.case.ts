@@ -8,7 +8,7 @@ import { Messages } from '../../../exceptions/text/messages.js';
 import { isConnectionTypeAgent } from '../../../helpers/index.js';
 import { buildFoundTableWidgetDs } from '../../widget/utils/build-found-table-widget-ds.js';
 import { GetTableStructureDs } from '../application/data-structures/get-table-structure-ds.js';
-import { ForeignKeyDSInfo, IStructureRO } from '../table.interface.js';
+import { ForeignKeyDSInfo, TableStructureDs } from '../table-datastructures.js';
 import { formFullTableStructure } from '../utils/form-full-table-structure.js';
 import { IGetTableStructure } from './table-use-cases.interface.js';
 import { IDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/interfaces/data-access-object.interface.js';
@@ -20,7 +20,7 @@ import { ExceptionOperations } from '../../../exceptions/custom-exceptions/excep
 
 @Injectable()
 export class GetTableStructureUseCase
-  extends AbstractUseCase<GetTableStructureDs, IStructureRO>
+  extends AbstractUseCase<GetTableStructureDs, TableStructureDs>
   implements IGetTableStructure
 {
   constructor(
@@ -30,7 +30,7 @@ export class GetTableStructureUseCase
     super();
   }
 
-  protected async implementation(inputData: GetTableStructureDs): Promise<IStructureRO> {
+  protected async implementation(inputData: GetTableStructureDs): Promise<TableStructureDs> {
     const { connectionId, masterPwd, tableName, userId } = inputData;
     const foundConnection = await this._dbContext.connectionRepository.findAndDecryptConnection(
       connectionId,

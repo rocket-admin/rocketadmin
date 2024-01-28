@@ -1,3 +1,4 @@
+import { Knex } from 'knex';
 import { LRUStorage } from '../../caching/lru-storage.js';
 import { DAO_CONSTANTS } from '../../helpers/data-access-objects-constants.js';
 import { ERROR_MESSAGES } from '../../helpers/errors/error-messages.js';
@@ -20,6 +21,7 @@ import { FilterCriteriaEnum } from '../shared/enums/filter-criteria.enum.js';
 import { QueryOrderingEnum } from '../shared/enums/query-ordering.enum.js';
 import { IDataAccessObject } from '../shared/interfaces/data-access-object.interface.js';
 import { BasicDataAccessObject } from './basic-data-access-object.js';
+import { Stream } from 'node:stream';
 
 export class DataAccessObjectMssql extends BasicDataAccessObject implements IDataAccessObject {
   constructor(connection: ConnectionParams) {
@@ -95,7 +97,7 @@ export class DataAccessObjectMssql extends BasicDataAccessObject implements IDat
   }
 
   public async getRowsFromTable(
-    tableName: string,
+    receivedTableName: string,
     tableSettings: TableSettingsDS,
     page: number,
     perPage: number,
@@ -113,21 +115,18 @@ export class DataAccessObjectMssql extends BasicDataAccessObject implements IDat
       }
     }
     const knex = await this.configureKnex();
-    const [rowsCount, tableStructure, tableSchema] = await Promise.all([
-      this.getRowsCount(tableName),
-      this.getTableStructure(tableName),
-      this.getSchemaName(tableName),
+    const [tableStructure, tableSchema] = await Promise.all([
+      this.getTableStructure(receivedTableName),
+      this.getSchemaName(receivedTableName),
     ]);
     const availableFields = this.findAvaliableFields(tableSettings, tableStructure);
+    const tableNameWithoutSchema = receivedTableName;
+    const tableNameWithSchema = tableSchema ? `${tableSchema}.[${receivedTableName}]` : receivedTableName;
 
-    if (tableSchema) {
-      tableName = `${tableSchema}.[${tableName}]`;
-    }
-    const lastPage = Math.ceil(rowsCount / perPage);
     /* eslint-enable */
     let rowsRO: FoundRowsDS;
     if (autocompleteFields && autocompleteFields.value && autocompleteFields.fields.length > 0) {
-      const rows = await knex(tableName)
+      const rows = await knex(tableNameWithSchema)
         .select(autocompleteFields.fields)
         .modify((builder) => {
           /*eslint-disable*/
@@ -142,10 +141,11 @@ export class DataAccessObjectMssql extends BasicDataAccessObject implements IDat
           /*eslint-enable*/
         })
         .limit(DAO_CONSTANTS.AUTOCOMPLETE_ROW_LIMIT);
+      const rowsCount = await this.getRowsCount(tableNameWithoutSchema, null);
       rowsRO = {
         data: rows,
         pagination: {} as any,
-        large_dataset: false,
+        large_dataset: rowsCount >= DAO_CONSTANTS.LARGE_DATASET_ROW_LIMIT,
       };
 
       return rowsRO;
@@ -155,8 +155,7 @@ export class DataAccessObjectMssql extends BasicDataAccessObject implements IDat
       tableSettings.ordering_field = availableFields[0];
       tableSettings.ordering = QueryOrderingEnum.ASC;
     }
-    const rows = await knex(tableName)
-      .select(availableFields)
+    const rowsCountQuery = knex(tableNameWithSchema)
       .modify((builder) => {
         /*eslint-disable*/
         let { search_fields } = tableSettings;
@@ -168,7 +167,11 @@ export class DataAccessObjectMssql extends BasicDataAccessObject implements IDat
             if (Buffer.isBuffer(searchedFieldValue)) {
               builder.orWhere(field, '=', searchedFieldValue);
             } else {
-              builder.orWhereRaw(` CAST (?? AS CHAR (255))=?`, [field, searchedFieldValue]);
+              builder.orWhereRaw(` LOWER(CAST (?? AS CHAR (255))) LIKE ?`, [
+                field,
+                `${searchedFieldValue.toLowerCase()}%`,
+              ]);
+              // builder.orWhereRaw(` CAST (?? AS CHAR (255))=?`, [field, searchedFieldValue]);
             }
           }
         }
@@ -213,23 +216,25 @@ export class DataAccessObjectMssql extends BasicDataAccessObject implements IDat
             }
           }
         }
-      })
-      .orderBy(tableSettings.ordering_field, tableSettings.ordering)
-      .paginate({
-        perPage: perPage,
-        currentPage: page,
-        isLengthAware: true,
       });
-    const { data } = rows;
-    const receivedPagination = rows.pagination;
+    const rowsDataQuery = rowsCountQuery.clone();
+
+    const rowsCount = await this.getRowsCount(tableNameWithoutSchema, rowsCountQuery);
+
+    const rows = await rowsDataQuery
+      .select(availableFields)
+      .orderBy(tableSettings.ordering_field, tableSettings.ordering)
+      .limit(perPage)
+      .offset((page - 1) * perPage);
+
     const pagination = {
-      total: receivedPagination.total ? receivedPagination.total : rowsCount,
-      lastPage: receivedPagination.lastPage ? receivedPagination.lastPage : lastPage,
-      perPage: receivedPagination.perPage,
-      currentPage: receivedPagination.currentPage,
+      total: rowsCount,
+      lastPage: Math.ceil(rowsCount / perPage),
+      perPage: perPage,
+      currentPage: page,
     };
     rowsRO = {
-      data,
+      data: rows,
       pagination,
       large_dataset: rowsCount >= DAO_CONSTANTS.LARGE_DATASET_ROW_LIMIT,
     };
@@ -451,6 +456,111 @@ WHERE
     return result[0].TABLE_TYPE === 'VIEW';
   }
 
+  public async getTableRowsStream(
+    tableName: string,
+    tableSettings: TableSettingsDS,
+    page: number,
+    perPage: number,
+    searchedFieldValue: string,
+    filteringFields: Array<FilteringFieldsDS>,
+  ): Promise<Stream & AsyncIterable<unknown>> {
+    if (!page || page <= 0) {
+      page = DAO_CONSTANTS.DEFAULT_PAGINATION.page;
+      const { list_per_page } = tableSettings;
+      if (list_per_page && list_per_page > 0 && (!perPage || perPage <= 0)) {
+        perPage = list_per_page;
+      } else {
+        perPage = DAO_CONSTANTS.DEFAULT_PAGINATION.perPage;
+      }
+    }
+    const offset = (page - 1) * perPage;
+    const knex = await this.configureKnex();
+    const [rowsCount, tableStructure, tableSchema] = await Promise.all([
+      this.getRowsCount(tableName, null),
+      this.getTableStructure(tableName),
+      this.getSchemaName(tableName),
+    ]);
+
+    const availableFields = this.findAvaliableFields(tableSettings, tableStructure);
+
+    if (rowsCount >= DAO_CONSTANTS.LARGE_DATASET_ROW_LIMIT) {
+      throw new Error(ERROR_MESSAGES.DATA_IS_TO_LARGE);
+    }
+
+    if (tableSchema) {
+      tableName = `${tableSchema}.[${tableName}]`;
+    }
+
+    if (!tableSettings?.ordering_field) {
+      tableSettings.ordering_field = availableFields[0];
+      tableSettings.ordering = QueryOrderingEnum.ASC;
+    }
+    const rowsAsStream = knex(tableName)
+      .select(availableFields)
+      .modify((builder) => {
+        /*eslint-disable*/
+        let { search_fields } = tableSettings;
+        if ((!search_fields || search_fields?.length === 0) && searchedFieldValue) {
+          search_fields = availableFields;
+        }
+        if (search_fields && searchedFieldValue && search_fields.length > 0) {
+          for (const field of search_fields) {
+            if (Buffer.isBuffer(searchedFieldValue)) {
+              builder.orWhere(field, '=', searchedFieldValue);
+            } else {
+              builder.orWhereRaw(` CAST (?? AS CHAR (255))=?`, [field, searchedFieldValue]);
+            }
+          }
+        }
+        /*eslint-enable*/
+      })
+      .modify((builder) => {
+        if (filteringFields && filteringFields.length > 0) {
+          for (const filterObject of filteringFields) {
+            const { field, criteria, value } = filterObject;
+            switch (criteria) {
+              case FilterCriteriaEnum.eq:
+                builder.andWhere(field, '=', `${value}`);
+                break;
+              case FilterCriteriaEnum.startswith:
+                builder.andWhere(field, 'like', `${value}%`);
+                break;
+              case FilterCriteriaEnum.endswith:
+                builder.andWhere(field, 'like', `%${value}`);
+                break;
+              case FilterCriteriaEnum.gt:
+                builder.andWhere(field, '>', value);
+                break;
+              case FilterCriteriaEnum.lt:
+                builder.andWhere(field, '<', value);
+                break;
+              case FilterCriteriaEnum.lte:
+                builder.andWhere(field, '<=', value);
+                break;
+              case FilterCriteriaEnum.gte:
+                builder.andWhere(field, '>=', value);
+                break;
+              case FilterCriteriaEnum.contains:
+                builder.andWhere(field, 'like', `%${value}%`);
+                break;
+              case FilterCriteriaEnum.icontains:
+                builder.andWhereNot(field, 'like', `%${value}%`);
+                break;
+              case FilterCriteriaEnum.empty:
+                builder.orWhereNull(field);
+                builder.orWhere(field, '=', `''`);
+                break;
+            }
+          }
+        }
+      })
+      .orderBy(tableSettings.ordering_field, tableSettings.ordering)
+      .limit(perPage)
+      .offset(offset)
+      .stream();
+    return rowsAsStream;
+  }
+
   private async getSchemaName(tableName: string): Promise<string> {
     if (this.connection.schema) {
       return `[${this.connection.schema}]`;
@@ -481,9 +591,9 @@ WHERE
     return tableSchema;
   }
 
-  private async getRowsCount(tableName: string): Promise<number> {
+  private async getRowsCount(tableName: string, countRowsQB: Knex.QueryBuilder<any, any[]> | null): Promise<number> {
     const knex = await this.configureKnex();
-    const countQueryResult = await knex.raw(
+    const fastCountQueryResult = await knex.raw(
       `SELECT QUOTENAME(SCHEMA_NAME(sOBJ.schema_id)) + '.' + QUOTENAME(sOBJ.name) AS [TableName]
       , SUM(sdmvPTNS.row_count) AS [RowCount]
        FROM
@@ -502,8 +612,16 @@ WHERE
        ORDER BY [TableName]`,
       [tableName],
     );
-    const rowsCount = countQueryResult[0].RowCount;
-    return parseInt(rowsCount);
+    const fastRowsCount = parseInt(fastCountQueryResult[0].RowCount);
+    if (fastRowsCount >= DAO_CONSTANTS.LARGE_DATASET_ROW_LIMIT) {
+      return fastRowsCount;
+    }
+    if (countRowsQB) {
+      const slowRowsCountQueryResult = await countRowsQB.count('*');
+      const slowRowsCount = Object.values(slowRowsCountQueryResult[0])[0];
+      return slowRowsCount as number;
+    }
+    return fastRowsCount;
   }
 
   private async getSchemaNameWithoutBrackets(tableName: string): Promise<string> {

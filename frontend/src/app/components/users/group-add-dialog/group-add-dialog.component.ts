@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 
+import { Angulartics2 } from 'angulartics2';
 import { ConnectionsService } from 'src/app/services/connections.service';
 import { MatDialogRef } from '@angular/material/dialog';
 import { UsersService } from 'src/app/services/users.service';
@@ -18,7 +19,8 @@ export class GroupAddDialogComponent implements OnInit {
   constructor(
     private _connections: ConnectionsService,
     public _usersService: UsersService,
-    public dialogRef: MatDialogRef<GroupAddDialogComponent>
+    public dialogRef: MatDialogRef<GroupAddDialogComponent>,
+    private angulartics2: Angulartics2,
   ) { }
 
   ngOnInit(): void {
@@ -33,6 +35,9 @@ export class GroupAddDialogComponent implements OnInit {
       () => {
         this.submitting = false;
         this.dialogRef.close();
+        this.angulartics2.eventTrack.next({
+          action: 'User groups: user groups was created successfully',
+        });
       },
       () => { },
       () => { this.submitting = false; }

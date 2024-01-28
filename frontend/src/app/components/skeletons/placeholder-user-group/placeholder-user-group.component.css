@@ -1,0 +1,13 @@
+.box {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 20px;
+    width: 100%;
+}
+
+.user-email {
+    height: 20px;
+    width: 100%;
+    mix-blend-mode: normal !important;
+}

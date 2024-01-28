@@ -1,15 +1,20 @@
 import { InTransactionEnum } from '../../../enums/index.js';
 import { FoundUserInGroupDs } from '../../user/application/data-structures/found-user-in-group.ds.js';
 import { IToken } from '../../user/utils/generate-gwt-token.js';
-import { AddUserInGroupDs } from '../application/data-sctructures/add-user-in-group.ds.js';
+import { AddUserInGroupDs, AddUserInGroupWithSaaSDs } from '../application/data-sctructures/add-user-in-group.ds.js';
 import { AddedUserInGroupDs } from '../application/data-sctructures/added-user-in-group.ds.js';
 import { DeletedGroupResultDs } from '../application/data-sctructures/deleted-group-result.ds.js';
-import { FoundUserGroupsDs } from '../application/data-sctructures/found-user-groups.ds.js';
+import { FoundGroupDataInfoDs, FoundUserGroupsDs } from '../application/data-sctructures/found-user-groups.ds.js';
 import { RemoveUserFromGroupResultDs } from '../application/data-sctructures/remove-user-from-group-result.ds.js';
 import { VerifyAddUserInGroupDs } from '../application/data-sctructures/verify-add-user-in-group.ds.js';
+import { UpdateGroupTitleDto } from '../dto/update-group-title.dto.js';
 
 export interface IAddUserInGroup {
   execute(inputData: AddUserInGroupDs, inTransaction: InTransactionEnum): Promise<AddedUserInGroupDs>;
+}
+
+export interface ISaaSAddUserInGroup {
+  execute(inputData: AddUserInGroupWithSaaSDs, inTransaction: InTransactionEnum): Promise<AddedUserInGroupDs>;
 }
 
 export interface IVerifyAddUserInGroup {
@@ -30,4 +35,8 @@ export interface IRemoveUserFromGroup {
 
 export interface IDeleteGroup {
   execute(groupId: string, inTransaction: InTransactionEnum): Promise<DeletedGroupResultDs>;
+}
+
+export interface IUpdateGroupTitle {
+  execute(inputData: UpdateGroupTitleDto, inTransaction: InTransactionEnum): Promise<FoundGroupDataInfoDs>;
 }

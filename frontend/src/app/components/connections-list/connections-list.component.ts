@@ -15,6 +15,7 @@ export class ConnectionsListComponent implements OnInit {
   public connections: ConnectionItem[] = null;
   public testConnections: ConnectionItem[] = null;
   public titles: Object;
+  public displayedCardCount: number = 3;
 
   constructor(
     private _connectionsServise: ConnectionsService,
@@ -44,5 +45,13 @@ export class ConnectionsListComponent implements OnInit {
   getTitle(connection: Connection) {
     if (!connection.title && connection.masterEncryption) return 'Untitled encrypted connection'
     return connection.title || connection.database
+  }
+
+  showMore() {
+    this.displayedCardCount = this.connections.length;
+  }
+
+  showLess() {
+    this.displayedCardCount = 3;
   }
 }

@@ -1,17 +1,16 @@
 <app-alert></app-alert>
-<div class="settings-page">
-    <app-breadcrumbs [crumbs]="getCrumbs(currentConnection.title)" class="row-breadcrumbs"></app-breadcrumbs>
+<app-placeholder-table-settings *ngIf="loading"></app-placeholder-table-settings>
 
-    <app-content-loader *ngIf="loading"></app-content-loader>
-
-    <form action="" #tableSettingsForm="ngForm" (ngSubmit)="updateSettings()">
-        <div class="settings-form">
+<div *ngIf="tableSettings !== null && currentConnection" class="settings-page">
+    <app-breadcrumbs [crumbs]="getCrumbs(currentConnection.title || currentConnection.database)" class="row-breadcrumbs"></app-breadcrumbs>
+    <form #tableSettingsForm="ngForm" class="settings-form" (ngSubmit)="updateSettings()">
+        <div class="settings-fields">
             <mat-form-field appearance="outline">
                 <mat-label>Table display name</mat-label>
                 <input matInput [(ngModel)]="tableSettings.display_name" name="display_name" #displayName="ngModel">
                 <!-- <mat-error *ngIf="title.errors?.required && (title.invalid && title.touched)">Title should not be empty.</mat-error> -->
             </mat-form-field>
-            <app-icon-picker class="icon-picker"
+            <app-icon-picker class="icon-picker" [resetButtonShown]="true"
                 [icon]="tableSettings.icon"
                 [defaultIcons]="defaultIcons"
                 tooltip="Choose an icon"
@@ -96,6 +95,7 @@
                 <mat-select
                     name="identity_column"
                     [(ngModel)]="tableSettings.identity_column">
+                    <mat-option value="">None</mat-option>
                     <mat-option *ngFor="let field of fields" [value]="field">{{field}}</mat-option>
                 </mat-select>
             </mat-form-field>
@@ -151,6 +151,7 @@
                 <mat-form-field appearance="outline" class="form-group-ordering__ordering-by">
                     <mat-label>Ordering by field</mat-label>
                     <mat-select name="ordering_field" [(ngModel)]="tableSettings.ordering_field">
+                        <mat-option value="">None</mat-option>
                         <mat-option *ngFor="let field of fields" [value]="field">
                             {{field}}
                         </mat-option>
@@ -177,13 +178,13 @@
         <div class="actions">
             <button mat-stroked-button type="button" class="settings-form__back-button" (click)="goBack()">Back</button>
 
-            <button mat-raised-button color="warn"
+            <button mat-flat-button color="warn"
                 type="button"
                 [disabled]="submitting || !isSettingsExist"
                 (click)="resetSettings(tableSettingsForm)">
                 Reset
             </button>
-            <button mat-raised-button color="primary"
+            <button mat-flat-button color="primary"
                 type="submit"
                 class="settings-form__save-button"
                 [disabled]="(submitting || tableSettingsForm.form.invalid || tableSettingsForm.form.pristine) && !orderChanged && !iconChanged">

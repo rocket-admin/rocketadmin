@@ -1,8 +1,11 @@
+import * as Sentry from "@sentry/angular-ivy";
+
 import { AlertActionType, AlertType } from '../models/alert';
-import { BehaviorSubject, EMPTY, Subject } from 'rxjs';
+import { BehaviorSubject, EMPTY } from 'rxjs';
+import { ExistingAuthUser, NewAuthUser } from '../models/user';
 import { catchError, map } from 'rxjs/operators';
 
-import { AuthUser } from '../models/user';
+import { ConfigurationService } from './configuration.service';
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { NotificationsService } from './notifications.service';
@@ -17,11 +20,13 @@ export class AuthService {
 
   constructor(
     private _http: HttpClient,
-    private _notifications: NotificationsService
+    private _notifications: NotificationsService,
+    private _configuration: ConfigurationService
   ) { }
 
-  signUpUser(userData: AuthUser) {
-    return this._http.post<any>('/user/register', userData)
+  signUpUser(userData: NewAuthUser) {
+    const config = this._configuration.getConfig();
+    return this._http.post<any>(config.saasURL + '/saas/user/register', userData)
       .pipe(
         map(res => {
           if ((environment as any).saas) {
@@ -43,10 +48,10 @@ export class AuthService {
           ]);
           return EMPTY;
         })
-      );
+      )
   }
 
-  loginUser(userData: AuthUser) {
+  loginUser(userData: ExistingAuthUser) {
     return this._http.post<any>('/user/login', userData)
     .pipe(
       map(res => {
@@ -89,7 +94,9 @@ export class AuthService {
   }
 
   loginWithGoogle(token: string) {
-    return this._http.post<any>('/user/google/login', {token})
+    const config = this._configuration.getConfig();
+
+    return this._http.post<any>(config.saasURL + '/saas/user/google/login', {token})
     .pipe(
       map(res => {
         this.auth.next(res);
@@ -97,6 +104,7 @@ export class AuthService {
       }),
       catchError((err) => {
         console.log(err);
+        Sentry.captureException(err);
         this._notifications.showAlert(AlertType.Error, {abstract: err.error.message, details: err.error.originalMessage}, [
           {
             type: AlertActionType.Button,
@@ -150,6 +158,66 @@ export class AuthService {
         return EMPTY;
       })
     );
+  }
+
+  fetchUserCompanies(email: string) {
+    return this._http.get<any>(`/company/my/email/${email}`)
+    .pipe(
+      map(res => res),
+      catchError((err) => {
+        console.log(err);
+        this._notifications.showAlert(AlertType.Error, {abstract: err.error.message, details: err.error.originalMessage}, [
+          {
+            type: AlertActionType.Button,
+            caption: 'Dismiss',
+            action: () => this._notifications.dismissAlert()
+          }
+        ]);
+        return EMPTY;
+      })
+    );
+  }
+
+  checkInvitationAvailability(token: string) {
+    return this._http.get<any>(`/company/invite/verify/${token}`)
+    .pipe(
+      map(res => {return res}),
+      catchError((err) => {
+        console.log(err);
+        this._notifications.showAlert(AlertType.Error, {abstract: err.error.message, details: err.error.originalMessage}, [
+          {
+            type: AlertActionType.Button,
+            caption: 'Dismiss',
+            action: () => this._notifications.dismissAlert()
+          }
+        ]);
+        return EMPTY;
+      })
+    );
+  };
+
+  acceptCompanyInvitation(token: string, password: string, userName: string) {
+    return this._http.post<any>(`/company/invite/verify/${token}`, {
+      password,
+      userName
+    })
+      .pipe(
+        map(res => {
+          this.auth.next(res);
+          return res;
+        }),
+        catchError((err) => {
+          console.log(err);
+          this._notifications.showAlert(AlertType.Error, {abstract: err.error.message, details: err.error.originalMessage}, [
+            {
+              type: AlertActionType.Button,
+              caption: 'Dismiss',
+              action: (id: number) => this._notifications.dismissAlert()
+            }
+          ]);
+          return EMPTY;
+        })
+      );
   }
 
   logOutUser() {

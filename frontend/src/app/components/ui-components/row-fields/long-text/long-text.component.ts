@@ -14,6 +14,7 @@ export class LongTextComponent implements OnInit {
   @Input() value: string;
   @Input() required: boolean;
   @Input() readonly: boolean;
+  @Input() disabled: boolean;
   @Input() widgetStructure: Widget;
 
   @Output() onFieldChange = new EventEmitter();

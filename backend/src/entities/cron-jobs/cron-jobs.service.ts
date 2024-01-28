@@ -36,7 +36,6 @@ export class CronJobsService {
       await slackPostMessage('midnight cron started', Constants.EXCEPTIONS_CHANNELS);
       await this.checkUsersLogsAndUpdateActionsUseCase.execute();
       await slackPostMessage('midnight cron finished', Constants.EXCEPTIONS_CHANNELS);
-      await this.removeMidnightJob();
     } catch (e) {
       Sentry.captureException(e);
       console.error(e);
@@ -67,70 +66,31 @@ export class CronJobsService {
         await slackPostMessage(mailingResultToString, Constants.EXCEPTIONS_CHANNELS);
         await slackPostMessage('morning cron finished', Constants.EXCEPTIONS_CHANNELS);
       }
-      await this.removeMorningJob();
     } catch (e) {
       Sentry.captureException(e);
       console.error(e);
     }
   }
 
-  private async insertMidnightJob(): Promise<boolean> {
-    const queryRunner = this.jobListRepository.manager.connection.createQueryRunner();
-    await queryRunner.connect();
-    await queryRunner.startTransaction();
-    try {
-      const foundJob = await this.jobListRepository.findOne({ where: { job_key: Constants.MIDNIGHT_CRON_KEY } });
-      if (foundJob) {
-        return false;
-      }
-      const newJob = new JobListEntity();
-      newJob.job_key = Constants.MIDNIGHT_CRON_KEY;
-      await queryRunner.manager.save(newJob);
-      await queryRunner.commitTransaction();
-      return true;
-    } catch (e) {
-      await queryRunner.rollbackTransaction();
-      return false;
-    } finally {
-      await queryRunner.release();
-    }
+  @Cron(CronExpression.EVERY_DAY_AT_NOON)
+  public async clearJobList(): Promise<void> {
+    await this.jobListRepository.clear();
   }
 
-  private async removeMidnightJob(): Promise<boolean> {
-    const jobToRemove = await this.jobListRepository.findOne({ where: { job_key: Constants.MIDNIGHT_CRON_KEY } });
-    if (jobToRemove) {
-      return !!(await this.jobListRepository.remove(jobToRemove));
-    }
-    return false;
+  private async insertMidnightJob(): Promise<boolean> {
+    return this.insertJobInProgress(Constants.MIDNIGHT_CRON_KEY);
   }
 
   private async insertMorningJob(): Promise<boolean> {
-    const queryRunner = this.jobListRepository.manager.connection.createQueryRunner();
-    await queryRunner.connect();
-    await queryRunner.startTransaction();
-    try {
-      const foundJob = await this.jobListRepository.findOne({ where: { job_key: Constants.MORNING_CRON_KEY } });
-      if (foundJob) {
-        return false;
-      }
-      const newJob = new JobListEntity();
-      newJob.job_key = Constants.MORNING_CRON_KEY;
-      await queryRunner.manager.save(newJob);
-      await queryRunner.commitTransaction();
-      return true;
-    } catch (e) {
-      await queryRunner.rollbackTransaction();
-      return false;
-    } finally {
-      await queryRunner.release();
-    }
+    return this.insertJobInProgress(Constants.MORNING_CRON_KEY);
   }
 
-  private async removeMorningJob(): Promise<boolean> {
-    const jobToRemove = await this.jobListRepository.findOne({ where: { job_key: Constants.MORNING_CRON_KEY } });
-    if (jobToRemove) {
-      return !!(await this.jobListRepository.remove(jobToRemove));
+  private async insertJobInProgress(jobId: number): Promise<boolean> {
+    try {
+      await this.jobListRepository.insert({ id: jobId });
+      return true;
+    } catch (error) {
+      return false;
     }
-    return false;
   }
 }

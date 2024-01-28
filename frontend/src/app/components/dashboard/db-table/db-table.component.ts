@@ -163,8 +163,11 @@ export class DbTableComponent implements OnInit {
   }
 
   handleSearch() {
+    console.log('handle search');
+    // event.preventDefault();
     this.searchString = this.searchString.trim();
     this.staticSearchString = this.searchString;
+    console.log('this.searchString', this.searchString)
     this.search.emit(this.searchString);
   }
 

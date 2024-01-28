@@ -13,6 +13,7 @@ export class NumberComponent implements OnInit {
   @Input() value: number;
   @Input() required: boolean;
   @Input() readonly: boolean;
+  @Input() disabled: boolean;
 
   @Output() onFieldChange = new EventEmitter();
 

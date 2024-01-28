@@ -1,0 +1,45 @@
+.companyPage {
+    margin: 3em auto;
+    padding: 0 clamp(200px, 20vw, 300px);
+}
+
+.companyPageHeader {
+    margin-bottom: 40px;
+}
+
+.company-name-settings__name {
+    width: 100%;
+}
+
+.company-name-settings__save-button {
+    margin-left: -64px;
+}
+
+.company-plan {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.company-plan-name {
+    text-transform: capitalize;
+}
+
+.tableHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 24px;
+}
+
+.tableHeader__button {
+    margin-bottom: 16px;
+}
+
+.table-icon {
+    margin-bottom: -8px;
+}
+
+.role-select {
+    width: 148px;
+}

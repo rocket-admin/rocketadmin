@@ -36,20 +36,6 @@ export class ConnectDBComponent implements OnInit, OnDestroy {
     message: null
   }
 
-  public testConnetionInfo: Alert = {
-    id: 10000000,
-    type: AlertType.Warning,
-    message: 'You cannot edit test connection.',
-    actions: [
-      {
-        type: AlertActionType.Anchor,
-        caption: 'Create your own',
-        to: '/connect-db'
-      }
-    ]
-  }
-  // public errorAlert: Alert;
-
   public ports = {
     [DBtype.MySQL]: '3306',
     [DBtype.Postgres]: '5432',
@@ -83,9 +69,6 @@ export class ConnectDBComponent implements OnInit, OnDestroy {
       this.title.setTitle(`Edit connection ${connectionTitle} | Rocketadmin`);
     });
 
-    const currentMasterKey = localStorage.getItem(`${this.connectionID}__masterKey`);
-    if (currentMasterKey) {this.masterKey = currentMasterKey};
-
     if (navigator.appVersion.indexOf("Win") != -1) this.userOS = "Windows";
     if (navigator.appVersion.indexOf("Mac") != -1) this.userOS = "Mac";
     if (navigator.appVersion.indexOf("Linux") != -1) this.userOS = "Linux";
@@ -107,11 +90,11 @@ export class ConnectDBComponent implements OnInit, OnDestroy {
   }
 
   get db():Connection {
-    return this._connections.currentConnection
+    return this._connections.currentConnection;
   }
 
   get accessLevel():AccessLevel {
-    return this._connections.currentConnectionAccessLevel
+    return this._connections.currentConnectionAccessLevel;
   }
 
   dbTypeChange() {
@@ -123,6 +106,10 @@ export class ConnectDBComponent implements OnInit, OnDestroy {
     this._connections.testConnection(this.connectionID, this.db)
       .subscribe(
         (credsCorrect: TestConnection) => {
+          this.angulartics2.eventTrack.next({
+            action: `Connect DB: manual test connection before ${this.db.id ? 'edit' : 'add'} is ${credsCorrect.result ? 'passed' : 'failed'}`,
+            properties: { errorMessage: credsCorrect.message }
+          });
           if (credsCorrect.result) {
             this._notifications.dismissAlert();
             this._notifications.showSuccessSnackbar('Connection exists. Your credentials are correct.')
@@ -152,42 +139,62 @@ export class ConnectDBComponent implements OnInit, OnDestroy {
   }
 
   createConnectionRequest() {
+    this.checkMasterPassword();
     this._connections.createConnection(this.db)
     .subscribe((res: any) => {
         this.ngZone.run(() => {
           const createdConnectionID = res.id!;
           if (this.db.connectionType === 'agent') {
             this.connectionToken = res.token;
+            this.connectionID = res.id;
           } else {
             this.router.navigate([`/dashboard/${createdConnectionID}`]);
           };
           this.angulartics2.eventTrack.next({
-            action: 'Connect DB: connection is added successfully'
+            action: 'Connect DB: connection is added successfully',
+            properties: { connectionType: this.db.connectionType, dbType: this.db.type }
           });
         });
       },
-      () => {
+      (errorMessage) => {
         this.angulartics2.eventTrack.next({
-          action: 'Connect DB: connection is added unsuccessfully'
+          action: 'Connect DB: connection is added unsuccessfully',
+          properties: { connectionType: this.db.connectionType, dbType: this.db.type, errorMessage }
         });
+        this.submitting = false;
       },
       () => {this.submitting = false}
     )
   }
 
   updateConnectionRequest() {
+    this.checkMasterPassword();
     this._connections.updateConnection(this.db)
     .subscribe((res: any) => {
       this.ngZone.run(() => {
-        this.checkMasterPassword();
         const connectionID = res.connection.id!;
         if (this.db.connectionType === 'agent') {
           this.connectionToken = res.connection.token;
+          this.angulartics2.eventTrack.next({
+            action: 'Connect DB: connection is edited successfully',
+            properties: { connectionType: 'agent' }
+          });
         } else {
+          this.angulartics2.eventTrack.next({
+            action: 'Connect DB: connection is edited successfully',
+            properties: { connectionType: 'direct' }
+          });
           this.router.navigate([`/dashboard/${connectionID}`]);
         };
       });
-    }, undefined, () => {
+    },
+    (errorMessage) => {
+      this.angulartics2.eventTrack.next({
+        action: 'Connect DB: connection is edited unsuccessfully',
+        properties: { errorMessage }
+      });
+      this.submitting = false;
+    }, () => {
       this.submitting = false;
     })
   }
@@ -205,18 +212,6 @@ export class ConnectDBComponent implements OnInit, OnDestroy {
     // Intercom('show');
   }
 
-  amplitudeTrackAddConnection(isCorrectCreds: boolean) {
-    if (isCorrectCreds) {
-      this.angulartics2.eventTrack.next({
-        action: 'Connect DB: test connection is passed'
-      });
-    } else {
-      this.angulartics2.eventTrack.next({
-        action: 'Connect DB: test connection is failed'
-      });
-    }
-  }
-
   handleCredentialsSubmitting(connectForm: NgForm) {
     if (this.db.id) {
       this.editConnection();
@@ -230,6 +225,11 @@ export class ConnectDBComponent implements OnInit, OnDestroy {
     let credsCorrect: TestConnection;
 
     (credsCorrect as any) = await this._connections.testConnection(this.connectionID, this.db).toPromise();
+
+    this.angulartics2.eventTrack.next({
+      action: `Connect DB: automatic test connection on edit is ${credsCorrect.result ? 'passed' : 'failed'}`,
+      properties: { errorMessage: credsCorrect.message }
+    });
 
     if ((this.db.connectionType === 'agent' || credsCorrect.result)) {
       this.updateConnectionRequest();
@@ -257,7 +257,11 @@ export class ConnectDBComponent implements OnInit, OnDestroy {
 
           try {
             (credsCorrect as any) = await this._connections.testConnection(this.connectionID, this.db).toPromise();
-            this.amplitudeTrackAddConnection(credsCorrect.result);
+
+            this.angulartics2.eventTrack.next({
+              action: `Connect DB: automatic test connection on add is ${credsCorrect.result ? 'passed' : 'failed'}`,
+              properties: { connectionType: this.db.connectionType, dbType: this.db.type, errorMessage: credsCorrect.message }
+            });
 
             if (credsCorrect && credsCorrect.result) {
               this.createConnectionRequest();

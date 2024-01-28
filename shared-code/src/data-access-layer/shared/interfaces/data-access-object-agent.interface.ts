@@ -9,6 +9,7 @@ import { TableStructureDS } from '../data-structures/table-structure.ds.js';
 import { TableDS } from '../data-structures/table.ds.js';
 import { TestConnectionResultDS } from '../data-structures/test-result-connection.ds.js';
 import { ValidateTableSettingsDS } from '../data-structures/validate-table-settings.ds.js';
+import { Stream } from 'node:stream';
 
 export interface IDataAccessObjectAgent {
   addRowInTable(
@@ -74,4 +75,13 @@ export interface IDataAccessObjectAgent {
   ): Promise<Array<ReferencedTableNamesAndColumnsDS>>;
 
   isView(tableName: string, userEmail: string): Promise<boolean>;
+
+  getTableRowsStream(
+    tableName: string,
+    settings: TableSettingsDS,
+    page: number,
+    perPage: number,
+    searchedFieldValue: string,
+    filteringFields: Array<FilteringFieldsDS>,
+  ): Promise<Stream & AsyncIterable<never>>;
 }

@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 
+import { Angulartics2 } from 'angulartics2';
 import { Router } from '@angular/router';
 import { User } from 'src/app/models/user';
 import { UserService } from 'src/app/services/user.service';
@@ -19,6 +20,7 @@ export class PasswordChangeComponent implements OnInit {
   constructor(
     private _userService: UserService,
     public router: Router,
+    private angulartics2: Angulartics2,
   ) { }
 
   ngOnInit(): void {
@@ -34,6 +36,9 @@ export class PasswordChangeComponent implements OnInit {
     this._userService.changePassword(this.oldPassword, this.newPassword, this.currentUser.email)
       .subscribe(() => {
           this.submitting = false;
+          this.angulartics2.eventTrack.next({
+            action: 'Manual password change: password updated successfully',
+          });
           this.router.navigate(['/user-settings']);
         },
         undefined,

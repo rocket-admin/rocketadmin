@@ -1,16 +1,13 @@
 import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
-import { BaseType, DynamicModuleEnum } from '../../../common/data-injection.tokens.js';
-import { SubscriptionLevelEnum } from '../../../enums/index.js';
+import { BaseType } from '../../../common/data-injection.tokens.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { Constants } from '../../../helpers/constants/constants.js';
 import { ConnectionEntity } from '../../connection/connection.entity.js';
 import { sendEmailConfirmation, sendInvitationToGroup } from '../../email/send-email.js';
 import { PermissionEntity } from '../../permission/permission.entity.js';
-import { IStripeService } from '../../stripe/application/interfaces/stripe-service.interface.js';
 import { TableSettingsEntity } from '../../table-settings/table-settings.entity.js';
-import { UserHelperService } from '../../user/user-helper.service.js';
 import { UserEntity } from '../../user/user.entity.js';
 import { buildConnectionEntitiesFromTestDtos } from '../../user/utils/build-connection-entities-from-test-dtos.js';
 import { buildDefaultAdminGroups } from '../../user/utils/build-default-admin-groups.js';
@@ -29,9 +26,6 @@ export class AddUserInGroupUseCase
   constructor(
     @Inject(BaseType.GLOBAL_DB_CONTEXT)
     protected _dbContext: IGlobalDatabaseContext,
-    @Inject(DynamicModuleEnum.STRIPE_SERVICE)
-    private readonly stripeService: IStripeService,
-    private readonly userHelperService: UserHelperService,
   ) {
     super();
   }
@@ -40,31 +34,8 @@ export class AddUserInGroupUseCase
     const { email, groupId } = inputData;
     const ownerId = await this._dbContext.connectionRepository.getConnectionAuthorIdByGroupInConnectionId(groupId);
     const foundGroup = await this._dbContext.groupRepository.findGroupById(groupId);
-    const foundUser = await this._dbContext.userRepository.findUserByEmailWithEmailVerificationAndInvitation(email);
-    const foundOwner = await this._dbContext.userRepository.findOneUserById(ownerId);
-    // eslint-disable-next-line prefer-const
-    let { usersInConnections, usersInConnectionsCount } =
-      await this._dbContext.connectionRepository.calculateUsersInAllConnectionsOfThisOwner(ownerId);
-    const ownerSubscriptionLevel: SubscriptionLevelEnum = await this.stripeService.getCurrentUserSubscription(
-      foundOwner.stripeId,
-    );
-    const canInviteMoreUsers = await this.userHelperService.checkOwnerInviteAbility(ownerId, usersInConnectionsCount);
-
-    const newUserAlreadyInConnection = !!usersInConnections.find((userInConnection) => {
-      if (!foundUser) {
-        return false;
-      }
-      return userInConnection.id === foundUser.id;
-    });
-
-    if (!canInviteMoreUsers) {
-      throw new HttpException(
-        {
-          message: Messages.MAXIMUM_FREE_INVITATION_REACHED,
-        },
-        HttpStatus.PAYMENT_REQUIRED,
-      );
-    }
+    const foundUser =
+      await this._dbContext.userRepository.findUserByEmailEndCompanyIdWithEmailVerificationAndInvitation(email);
 
     if (foundUser && foundUser.isActive) {
       const userAlreadyAdded = !!foundGroup.users.find((u) => u.id === foundUser.id);
@@ -79,14 +50,6 @@ export class AddUserInGroupUseCase
       foundGroup.users.push(foundUser);
       const savedGroup = await this._dbContext.groupRepository.saveNewOrUpdatedGroup(foundGroup);
       delete savedGroup.connection;
-      if (!newUserAlreadyInConnection) {
-        ++usersInConnectionsCount;
-        await this.stripeService.createStripeUsageRecord(
-          ownerSubscriptionLevel,
-          usersInConnectionsCount,
-          foundOwner.stripeId,
-        );
-      }
       return {
         group: savedGroup,
         message: Messages.USER_ADDED_IN_GROUP(foundUser.email),
@@ -117,9 +80,8 @@ export class AddUserInGroupUseCase
 
       const savedGroup = await this._dbContext.groupRepository.saveNewOrUpdatedGroup(foundGroup);
       delete savedGroup.connection;
-      const newEmailVerification = await this._dbContext.emailVerificationRepository.createOrUpdateEmailVerification(
-        foundUser,
-      );
+      const newEmailVerification =
+        await this._dbContext.emailVerificationRepository.createOrUpdateEmailVerification(foundUser);
 
       const confiramtionMailResult = await sendEmailConfirmation(
         foundUser.email,
@@ -152,14 +114,6 @@ export class AddUserInGroupUseCase
             message: Messages.USER_ALREADY_ADDED_BUT_NOT_ACTIVE,
           },
           HttpStatus.BAD_REQUEST,
-        );
-      }
-      if (!newUserAlreadyInConnection) {
-        ++usersInConnectionsCount;
-        await this.stripeService.createStripeUsageRecord(
-          ownerSubscriptionLevel,
-          usersInConnectionsCount,
-          foundOwner.stripeId,
         );
       }
       return {

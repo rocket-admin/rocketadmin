@@ -7,6 +7,7 @@ import { BaseType } from '../../../common/data-injection.tokens.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { CompanyInfoEntity } from '../../../entities/company-info/company-info.entity.js';
+import { UserRoleEnum } from '../../../entities/user/enums/user-role.enum.js';
 
 @Injectable()
 export class RegisteredCompanyWebhookUseCase
@@ -21,7 +22,7 @@ export class RegisteredCompanyWebhookUseCase
   }
 
   protected async implementation(inputData: RegisterCompanyWebhookDS): Promise<RegisteredCompanyDS> {
-    const { companyId, registrarUserId } = inputData;
+    const { companyId, registrarUserId, companyName } = inputData;
     const foundUser = await this._dbContext.userRepository.findOneUserById(registrarUserId);
     if (!foundUser) {
       throw new HttpException(
@@ -40,7 +41,10 @@ export class RegisteredCompanyWebhookUseCase
         HttpStatus.BAD_REQUEST,
       );
     }
+    foundUser.role = UserRoleEnum.ADMIN;
+    await this._dbContext.userRepository.saveUserEntity(foundUser);
     const newCompanyInfo = new CompanyInfoEntity();
+    newCompanyInfo.name = companyName;
     newCompanyInfo.id = companyId;
     newCompanyInfo.users = [foundUser];
     const savedCompanyInfo = await this._dbContext.companyInfoRepository.save(newCompanyInfo);

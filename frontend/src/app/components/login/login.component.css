@@ -1,5 +1,5 @@
 .wrapper {
-    height: 100%;
+    height: calc(100vh - 56px);
     padding: 16px;
 }
 
@@ -7,9 +7,8 @@
     display: flex;
     flex-direction: column;
     justify-content: center;
+    align-items: center;
     height: 100%;
-    margin: 0 auto;
-    width: 464px;
 }
 
 @media screen and (max-width: 600px) {
@@ -19,32 +18,148 @@
 }
 
 .login-form {
+    display: grid;
+    grid-template-columns: 360px 52px 360px;
+    grid-template-rows: auto 64px 64px 64px auto;
+    justify-items: center;
+}
+
+.login-header {
+    grid-column: 1 / span 3;
     display: flex;
     flex-direction: column;
+    align-items: center;
+    padding-bottom: 40px;
+}
+
+.login-header__logo {
+    margin-bottom: 36px;
+    width: 44px;
+}
+
+.loginTitle {
+    font-weight: 600;
+    margin-bottom: 40px;
+    text-align: center;
+}
+
+.loginTitle__emphasis {
+    color: var(--color-accentedPalette-500);
 }
 
 [hidden] { display: none !important;}
 
-.login-button {
-    margin-top: 20px;
+.login-form__email {
+    grid-column: 1;
+    grid-row: 2;
+    width: 100%;
 }
 
-.sing-up {
-    margin-top: 12px;
+.login-form__companies {
+    width: 100%;
+}
+
+.login-form__password {
+    /* grid-column: 1;
+    grid-row: 3; */
+    width: 100%;
+}
+
+.login-form__login-button {
+    grid-column: 1 / span 3;
+    grid-row: 5;
+    width: 360px;
+    margin-top: 40px;
+}
+
+.login-form__google-button {
+    grid-column: 3;
+    grid-row: 2;
+}
+.login-form__github-button-box {
+    grid-column: 3;
+    grid-row: 3;
+    width: 100%;
+}
+
+.login-form__github-button {
+    height: 40px;
+    width: 100%;
+}
+
+.login-form__github-button ::ng-deep .mdc-button__label {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.login-form__github-caption {
+    flex: 1 0 auto;
     text-align: center;
 }
 
+.login-form__github-icon {
+    height: 18px;
+    width: 18px;
+}
+
+.login-form__github-button:disabled .login-form__github-icon {
+    filter: invert(0.85);
+}
+
+.login-form__sso-button-box {
+    grid-column: 3;
+    grid-row: 4;
+    width: 100%;
+}
+
+.login-form__sso-button {
+    height: 40px;
+    width: 100%;
+}
+
+.login-form__sso-button ::ng-deep .mdc-button__label {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.login-form__sso-caption {
+    flex: 1 0 auto;
+    text-align: center;
+}
+
+.login-form__sso-icon {
+    height: 18px;
+    width: 18px;
+}
+
+.login-form__sso-button:disabled .login-form__sso-icon {
+    filter: invert(0.85);
+}
+
+.login-form__link {
+    grid-column: 1 / span 3;
+    grid-row: 6;
+    color: var(--color-accentedPalette-500);
+    margin-top: 48px;
+    text-decoration: none;
+}
+
 .link {
-    color: #3258F0;
+    color: var(--color-primaryPalette-500);
     text-decoration: none;
 }
 
 .divider {
+    grid-column: 2;
+    grid-row: 2 / span 3;
+    align-self: center;
     position: relative;
     background-color: #E8E8E8;
-    height: 1px;
     margin: 36px 0;
-    width: 100%
+    height: 100%;
+    width: 1px;
 }
 
 .divider__label {
@@ -59,8 +174,48 @@
 .qr-verification {
     display: flex;
     flex-direction: column;
+    width: 400px;
 }
 
-.qr-verification-button {
-    align-self: flex-end;
+.qr-verification__title {
+    text-align: center;
+    margin-bottom: 32px;
+}
+
+.companiesRadioGroup {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    margin-bottom: 12px;
+}
+
+.login-form__field-loader {
+    position: relative;
+    background-color: rgba(0, 0, 0, 0.06);
+    overflow: hidden;
+    height: 44px;
+    width: 100%;
+}
+
+.login-form__field-loader::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    transform: translateX(-100%);
+    background-image: linear-gradient(
+        90deg,
+        transparent 30%,
+        rgba(255,255,255, 1),
+        transparent 70%
+    );
+    animation: shimmer 800ms ease-in-out infinite alternate;
+}
+
+@keyframes shimmer {
+    100% {
+        transform: translateX(100%);
+    }
 }

@@ -17,9 +17,12 @@ import { SentryInterceptor } from '../../interceptors/index.js';
 import { FindLogsDs } from './application/data-structures/find-logs.ds.js';
 import { FoundLogsDs } from './application/data-structures/found-logs.ds.js';
 import { IFindLogs } from './use-cases/use-cases.interface.js';
+import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 @UseInterceptors(SentryInterceptor)
 @Controller()
+@ApiBearerAuth()
+@ApiTags('table logs')
 @Injectable()
 export class TableLogsController {
   constructor(
@@ -27,6 +30,24 @@ export class TableLogsController {
     private readonly findLogsUseCase: IFindLogs,
   ) {}
 
+  @ApiOperation({
+    summary: `Get all connection logs.
+  In query you can pass:
+  tableName=value |
+  order=ASC (sorting by time when  record was created at) |
+  page=value &
+  perPage=value |
+  dateFrom=value &
+  dateTo=value (to get logs between two dates) |
+  email=value |
+  limit=value (if you do not want use pagination. default limit is 500) 
+  `,
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Return all table logs.',
+    type: FoundLogsDs,
+  })
   @Get('/logs/:slug')
   async findAll(
     @Query() query,

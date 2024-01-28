@@ -1,4 +1,5 @@
 import { Component, EventEmitter, Injectable, Input, OnInit, Output } from '@angular/core';
+
 import { normalizeFieldName } from '../../../../lib/normalize';
 
 @Injectable()
@@ -15,6 +16,7 @@ export class TextComponent implements OnInit {
   @Input() value: string;
   @Input() required: boolean;
   @Input() readonly: boolean;
+  @Input() disabled: boolean;
 
   @Output() onFieldChange = new EventEmitter();
 
@@ -24,6 +26,10 @@ export class TextComponent implements OnInit {
   constructor() { }
 
   ngOnInit(): void {
+    console.log('this.readonly');
+    console.log(this.readonly);
+    console.log('this.disabled');
+    console.log(this.disabled);
     this.normalizedLabel = normalizeFieldName(this.label);
   }
 

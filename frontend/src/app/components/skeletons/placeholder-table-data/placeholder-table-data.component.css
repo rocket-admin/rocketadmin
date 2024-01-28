@@ -1,0 +1,16 @@
+.data-table {
+    display: grid;
+    grid-template-columns: 56px 20% 30% 7% 8% 15% calc(20% - 56px);
+    overflow: auto;
+    width: 100%;
+}
+
+.table-cell {
+    border-bottom: 1px solid #0000001f;
+    box-sizing: border-box;
+    padding: 8px 16px;
+}
+
+.table-cell-content {
+    height: 24px;
+}

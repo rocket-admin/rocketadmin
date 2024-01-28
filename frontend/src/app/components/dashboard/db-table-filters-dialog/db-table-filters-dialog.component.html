@@ -131,7 +131,7 @@
     </ng-template>
 
     <mat-dialog-actions align="end">
-        <button mat-raised-button color="warn"
+        <button mat-flat-button color="warn"
             mat-dialog-close="reset"
             type="button"
             class="settings-form__reset-button"
@@ -139,10 +139,16 @@
             (click)="resetFilters()">
             Reset
         </button>
-        <button mat-raised-button mat-dialog-close>Cancel</button>
-        <button mat-raised-button mat-dialog-close="filter"
+        <button mat-flat-button mat-dialog-close
+            angulartics2On="click"
+            angularticsAction="Filters: cancel is clicked">
+            Cancel
+        </button>
+        <button mat-flat-button mat-dialog-close="filter"
             color="primary" type="submit"
-            [disabled]="tableFiltersCount === 0">
+            [disabled]="tableFiltersCount === 0"
+            angulartics2On="click"
+            angularticsAction="Filters: filter is clicked">
             Filter
         </button>
     </mat-dialog-actions>

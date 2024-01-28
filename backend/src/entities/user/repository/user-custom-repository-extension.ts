@@ -1,6 +1,8 @@
 import { Constants } from '../../../helpers/constants/constants.js';
 import { CreateUserDs } from '../application/data-structures/create-user.ds.js';
 import { RegisterUserDs } from '../application/data-structures/register-user-ds.js';
+import { ExternalRegistrationProviderEnum } from '../enums/external-registration-provider.enum.js';
+import { UserRoleEnum } from '../enums/user-role.enum.js';
 import { UserEntity } from '../user.entity.js';
 import { IUserRepository } from './user.repository.interface.js';
 
@@ -13,18 +15,25 @@ export const userCustomRepositoryExtension: IUserRepository = {
     return await this.save(newUser);
   },
 
-  async saveRegisteringUser(userData: RegisterUserDs): Promise<UserEntity> {
+  async saveRegisteringUser(
+    userData: RegisterUserDs,
+    externalRegistrationProvider: ExternalRegistrationProviderEnum = null,
+  ): Promise<UserEntity> {
     const newUser: UserEntity = new UserEntity();
     newUser.gclid = userData.gclidValue;
     newUser.email = userData.email;
     newUser.password = userData.password;
     newUser.isActive = userData.isActive;
     newUser.name = userData.name;
+    newUser.role = userData.role ? userData.role : UserRoleEnum.USER;
+    newUser.externalRegistrationProvider = externalRegistrationProvider;
     return await this.save(newUser);
   },
 
   async findOneUserById(userId: string): Promise<UserEntity | null> {
-    const userQb = this.createQueryBuilder('user').andWhere('user.id = :userId', { userId: userId });
+    const userQb = this.createQueryBuilder('user')
+      .leftJoinAndSelect('user.company', 'company')
+      .andWhere('user.id = :userId', { userId: userId });
     return await userQb.getOne();
   },
 
@@ -35,8 +44,14 @@ export const userCustomRepositoryExtension: IUserRepository = {
     return await userQb.getOne();
   },
 
-  async findOneUserByEmail(email: string): Promise<UserEntity | null> {
+  async findOneUserByEmail(
+    email: string,
+    externalRegistrationProvider: ExternalRegistrationProviderEnum = null,
+  ): Promise<UserEntity | null> {
     const userQb = this.createQueryBuilder('user').where('user.email = :userEmail', { userEmail: email });
+    if (externalRegistrationProvider) {
+      userQb.andWhere('user.externalRegistrationProvider = :externalRegistrationProvider', { externalRegistrationProvider: externalRegistrationProvider });
+    }
     return userQb.getOne();
   },
 
@@ -47,11 +62,18 @@ export const userCustomRepositoryExtension: IUserRepository = {
     return await usersQb.getOne();
   },
 
-  async findUserByEmailWithEmailVerificationAndInvitation(email: string): Promise<UserEntity> {
+  async findUserByEmailEndCompanyIdWithEmailVerificationAndInvitation(
+    email: string,
+    companyId?: string,
+  ): Promise<UserEntity> {
     const usersQb = this.createQueryBuilder('user')
       .leftJoinAndSelect('user.email_verification', 'email_verification')
       .leftJoinAndSelect('user.user_invitation', 'user_invitation')
+      .leftJoinAndSelect('user.company', 'company')
       .where('user.email = :userEmail', { userEmail: email });
+    if (companyId) {
+      usersQb.andWhere('company.id = :companyId', { companyId: companyId });
+    }
     return await usersQb.getOne();
   },
 
@@ -120,5 +142,47 @@ export const userCustomRepositoryExtension: IUserRepository = {
       .leftJoinAndSelect('user.github_user_identifier', 'github_user_identifier')
       .where('github_user_identifier.gitHubId = :gitHubId', { gitHubId: gitHubId });
     return await userQb.getOne();
-  }
+  },
+
+  async findOneUserByEmailAndCompanyId(userEmail: string, companyId: string): Promise<UserEntity> {
+    const userQb = this.createQueryBuilder('user')
+      .leftJoinAndSelect('user.company', 'company')
+      .where('user.email = :userEmail', { userEmail: userEmail });
+    if (companyId) {
+      userQb.andWhere('company.id = :companyId', { companyId: companyId });
+    } else {
+      userQb.andWhere('company.id is null');
+    }
+    return await userQb.getOne();
+  },
+
+  async findOneUserByIdAndCompanyId(userId: string, companyId: string): Promise<UserEntity> {
+    const userQb = this.createQueryBuilder('user')
+      .leftJoinAndSelect('user.company', 'company')
+      .where('user.id = :userId', { userId: userId })
+      .andWhere('company.id = :companyId', { companyId: companyId });
+    return await userQb.getOne();
+  },
+
+  async findOneUserByIdWithCompany(userId: string): Promise<UserEntity> {
+    const userQb = this.createQueryBuilder('user')
+      .leftJoinAndSelect('user.company', 'company')
+      .where('user.id = :userId', { userId: userId });
+    return await userQb.getOne();
+  },
+
+  async findAllUsersWithEmail(
+    email: string,
+    externalRegistrationProvider: ExternalRegistrationProviderEnum = null,
+  ): Promise<Array<UserEntity>> {
+    const usersQb = this.createQueryBuilder('user').where('user.email = :userEmail', { userEmail: email });
+    if (externalRegistrationProvider) {
+      usersQb.andWhere('user.externalRegistrationProvider = :externalRegistrationProvider', { externalRegistrationProvider: externalRegistrationProvider });
+    }
+    return await usersQb.getMany();
+  },
+
+  async bulkSaveUpdatedUsers(updatedUsers: Array<UserEntity>): Promise<Array<UserEntity>> {
+    return await this.save(updatedUsers);
+  },
 };

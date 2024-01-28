@@ -1,5 +1,6 @@
 import jwt from 'jsonwebtoken';
 import { UserEntity } from '../user.entity.js';
+import { ApiProperty } from '@nestjs/swagger';
 
 export function generateGwtToken(user: UserEntity): IToken {
   const today = new Date();
@@ -49,5 +50,13 @@ export interface IToken {
 
 export interface ITokenExp {
   expires: Date;
+  isTemporary: boolean;
+}
+
+export class TokenExpDs {
+  @ApiProperty({ type: Date })
+  expires: Date;
+
+  @ApiProperty()
   isTemporary: boolean;
 }

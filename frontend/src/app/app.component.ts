@@ -1,4 +1,4 @@
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { ChangeDetectorRef, Component, HostListener, NgZone } from '@angular/core';
 
 import { Angulartics2Amplitude } from 'angulartics2';
@@ -8,13 +8,14 @@ import { DomSanitizer } from '@angular/platform-browser';
 import { MatIconRegistry } from '@angular/material/icon';
 import { Subject } from 'rxjs';
 import { TablesService } from './services/tables.service';
-import { User } from '@sentry/angular';
+import { User } from '@sentry/angular-ivy';
 import { UserService } from './services/user.service';
 import amplitude from 'amplitude-js';
 import { differenceInMilliseconds } from 'date-fns';
 import { environment } from '../environments/environment';
 import { interval } from 'rxjs';
 import { normalizeTableName } from './lib/normalize';
+import { catchError, filter, map } from 'rxjs/operators';
 
 //@ts-ignore
 window.amplitude = amplitude;
@@ -41,6 +42,7 @@ export class AppComponent {
   navigationTabs: object;
   currentUser: User;
   normalizedTableName;
+  page: string;
   // upgradeButtonShown: boolean = true;
 
   // connectionID: string;
@@ -87,6 +89,22 @@ export class AppComponent {
   ngOnInit() {
     // this.upgradeButtonShown = (environment as any).saas;
 
+    // this.route.queryParams.pipe(first()).subscribe((queryParams) => {
+    //   this.filters = getFilters(queryParams);
+    //   this.comparators = getComparators(queryParams);
+    //   const search = queryParams.search;
+    //   this.getRows(search);
+    // })
+    this.router.events
+      .pipe(
+        filter(event => event instanceof NavigationEnd)
+      )
+      .subscribe(() => {
+        this.page = this.router.routerState.snapshot.url;
+    })
+    // console.log('this.page');
+    // console.log(this.page);
+
     this.navigationTabs = {
       'dashboard': {
         icon: 'dashboard',
@@ -113,10 +131,8 @@ export class AppComponent {
     document.cookie = "G_AUTH2_MIGRATION=informational";
     this._auth.cast.subscribe( res =>  {
       if (!res.isTemporary && res.expires) {
-        console.log(res);
         const expirationTime = new Date(res.expires);
         if (expirationTime) localStorage.setItem('token_expiration', expirationTime.toString());
-
         this._user.fetchUser()
           .subscribe((res: User) => {
               this.currentUser = res;
@@ -141,7 +157,8 @@ export class AppComponent {
         }, expirationInterval);
 
       } else if (res !== 'delete') {
-        const expirationTime = new Date(localStorage.getItem('token_expiration'));
+        const expirationToken = localStorage.getItem('token_expiration');
+        const expirationTime = expirationToken ? new Date(expirationToken) : null;
         const currantTime = new Date();
 
         if (expirationTime && currantTime) {
@@ -166,12 +183,12 @@ export class AppComponent {
               this.logOut(true);
               this.router.navigate(['/login']);
             }, expirationInterval);
+          } else {
+            this.logOut(true);
+            this.router.navigate(['/login']);
           }
         }
       }
-      // else {
-      //   this.router.navigate(['/login']);
-      // }
     });
 
     this._user.cast.subscribe( arg => {
@@ -228,12 +245,15 @@ export class AppComponent {
       console.log(error);
     }
 
-    this.setUserLoggedIn(null);
-    localStorage.removeItem('token_expiration');
-    if ((environment as any).saas) {
-      if (!isTokenExpired) window.location.href="https://rocketadmin.com/";
-    } else {
-      this.router.navigate(['/login'])
-    }
+    this._auth.logOutUser().subscribe(() => {
+      this.setUserLoggedIn(null);
+      localStorage.removeItem('token_expiration');
+
+      if ((environment as any).saas) {
+        if (!isTokenExpired) window.location.href="https://rocketadmin.com/";
+      } else {
+        this.router.navigate(['/login'])
+      }
+    });
   }
 }

@@ -56,11 +56,6 @@
             <div class="tables-list">
                 <div *ngIf="connectionAccess === 'edit'" class="tables-overlay"></div>
                 <ng-container *ngFor="let table of tablesAccess">
-                    <div class="table-name">
-                        <span class="table-name__title">{{table.display_name}}</span>
-                        <span class="table-name__line">{{table.tableName}}</span>
-                    </div>
-
                     <div class="tableVisibility">
                         <input type="checkbox" name="{{table.tableName}}-visibility" id="{{table.tableName}}-visibility"
                             class="visually-hidden"
@@ -72,6 +67,11 @@
                                 {{ table.accessLevel.visibility ? 'visibility' : 'visibility_off' }}
                             </mat-icon>
                         </label>
+                    </div>
+
+                    <div class="table-name" [ngClass]="{'table-name_disabled': !table.accessLevel.visibility}">
+                        <span class="table-name__title">{{table.dispaleyName}}</span>
+                        <span class="table-name__line">{{table.tableName}}</span>
                     </div>
 
                     <mat-slide-toggle name="{{table.tableName}}-readonly-toggle"
@@ -103,15 +103,15 @@
         </div>
     </mat-dialog-content>
     <mat-dialog-actions *ngIf="group.title !== 'Admin'; else adminActions" align="end">
-        <button mat-raised-button mat-dialog-close>Cancel</button>
-        <button mat-raised-button color="primary"
+        <button mat-flat-button mat-dialog-close>Cancel</button>
+        <button mat-flat-button color="primary"
             [disabled]="submitting || addPermissionsForm.form.invalid">
                 Update
         </button>
     </mat-dialog-actions>
     <ng-template #adminActions>
         <mat-dialog-actions align="end">
-            <button mat-raised-button mat-dialog-close>Close</button>
+            <button mat-flat-button mat-dialog-close>Close</button>
         </mat-dialog-actions>
     </ng-template>
 

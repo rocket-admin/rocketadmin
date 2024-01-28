@@ -150,8 +150,12 @@
     grid-template-columns: repeat(var(--colCount), auto) !important;
 }
 
-.db-table ::ng-deep .mat-mdc-row:nth-child(even) {
+/* .db-table ::ng-deep .mat-mdc-row:nth-child(even) {
     background-color: rgba(0, 0, 0, 0.02);
+} */
+
+.db-table ::ng-deep .mat-mdc-row:hover {
+    background-color: var(--color-primaryPalette-50);
 }
 
 .db-table ::ng-deep .mat-mdc-row,
@@ -192,6 +196,10 @@ th.mat-header-cell, td.mat-cell {
     padding-right: 20px;
 }
 
+.db-table ::ng-deep .mat-mdc-header-cell .mat-sort-header-content {
+    text-align: left;
+}
+
 .table-cell-content {
     overflow: hidden;
     white-space: nowrap;
@@ -213,7 +221,7 @@ tr.mat-row:hover {
     display: flex;
     justify-content: center;
     background: rgba(255, 255, 255, 0.9);
-    height: calc(100% - 112px);
+    height: 500px;
     width: 100%;
     z-index: 2;
 }
@@ -240,4 +248,8 @@ tr.mat-row:hover {
     margin: -20px 0;
     padding: 8px 0;
     width: 100%;
+}
+
+.hidden {
+    display: none;
 }

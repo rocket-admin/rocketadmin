@@ -38,7 +38,7 @@ export class FindTableActionsUseCase
     const formedTableActionsDS = foundTableActions.map((action) => buildCreatedTableActionDS(action));
     return {
       table_name: tableName,
-      display_name: foundTableSettings.display_name,
+      display_name: foundTableSettings?.display_name ? foundTableSettings.display_name : null,
       table_actions: formedTableActionsDS,
     };
   }

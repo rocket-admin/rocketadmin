@@ -1,5 +1,5 @@
 <app-alert></app-alert>
-<app-content-loader *ngIf="loading"></app-content-loader>
+<app-placeholder-row-edit *ngIf="loading"></app-placeholder-row-edit>
 
 <app-banner *ngIf="isServerError" type="error" class="row-banner">
     <div *ngIf="serverError.details; else stringError" class="mat-body-1">
@@ -18,7 +18,7 @@
 
 <div *ngIf="tableRowValues" class="wrapper">
     <div class="row-edit-header">
-        <app-breadcrumbs [crumbs]="getCrumbs(currentConnection.title)"></app-breadcrumbs>
+        <app-breadcrumbs [crumbs]="getCrumbs(currentConnection.title || currentConnection.database)"></app-breadcrumbs>
         <div *ngIf="rowActions && rowActions.length">
             <button type="button" mat-icon-button *ngFor="let action of rowActions"
                 [matTooltip]="action.title"
@@ -30,17 +30,15 @@
         </div>
     </div>
     <div *ngIf="referencedTables && referencedTables.length" class="related-views">
-        <span class="related-views__title">Review <span>for {{tableRowValues[identityColumn] || 'this entity'}}.</span></span>
-        <div class="related-tables">
-            <ng-container *ngFor="let referencedTable of referencedTables; let i = index">
-                <a mat-button color="primary"
-                    routerLink="/dashboard/{{connectionID}}/{{referencedTable.table_name}}"
-                    [queryParams]="referencedTablesURLParams[i]">
-                    {{referencedTable.displayTableName}}
-                </a>
-                <span *ngIf="i !== referencedTables.length - 1">/</span>
-            </ng-container>
-        </div>
+        <span class="mat-body-1">Review <span>for {{tableRowValues[identityColumn] || 'this entity'}}.</span></span>
+        <mat-chip-listbox class="related-tables">
+            <mat-chip-option *ngFor="let referencedTable of referencedTables; let i = index"
+                color="primary"
+                routerLink="/dashboard/{{connectionID}}/{{referencedTable.table_name}}"
+                [queryParams]="referencedTablesURLParams[i]">
+                {{referencedTable.displayTableName}}
+            </mat-chip-option>
+        </mat-chip-listbox>
     </div>
     <form #editRowForm="ngForm" class="form"
         (ngSubmit)="handleRowSubmitting()">
@@ -57,7 +55,8 @@
                         label: tableWidgets[value].name || value,
                         value: tableRowValues[value],
                         required: tableRowRequiredValues[value],
-                        readonly: isReadonly(value),
+                        readonly: !permissions?.edit,
+                        disabled: isReadonlyField(value),
                         widgetStructure: tableWidgets[value],
                         relations: tableTypes[value] === 'foreign key' ? getRelations(value) : undefined
                     }"
@@ -81,7 +80,8 @@
                         label: value,
                         value: tableRowValues[value],
                         required: tableRowRequiredValues[value],
-                        readonly: isReadonly(value),
+                        readonly: !permissions?.edit,
+                        disabled: isReadonlyField(value),
                         structure: tableRowStructure[value],
                         relations: tableTypes[value] === 'foreign key' ? getRelations(value) : undefined
                     }"
@@ -93,27 +93,32 @@
         </div>
 
         <div class="actions">
-            <button mat-stroked-button type="button" (click)="goBack()">
+            <button mat-stroked-button type="button"
+                data-testid="record-back-to-table-button"
+                (click)="goBack()">
                 Back
             </button>
-            <button type="button" mat-button color="primary" *ngIf="keyAttributesFromStructure.length || hasKeyAttributesFromURL"
+            <button type="button" mat-button color="primary"
+                *ngIf="(keyAttributesFromStructure.length || hasKeyAttributesFromURL) && permissions.edit"
                 class="actions__continue"
+                data-testid="record-save-and-continue-editing-button"
                 [disabled]="submitting || editRowForm.form.invalid"
                 (click)="hasKeyAttributesFromURL ? updateRow(true) : addRow(true)">
                 Save and continue editing
             </button>
 
-            <button *ngIf="hasKeyAttributesFromURL; else addButton"
-                type="submit" mat-raised-button color="primary"
+            <button *ngIf="hasKeyAttributesFromURL && permissions?.edit"
+                type="submit" mat-flat-button color="primary"
+                data-testid="record-edit-button"
                 [disabled]="submitting || editRowForm.form.invalid">
                 Edit
             </button>
 
-            <ng-template #addButton>
-                <button type="submit" mat-raised-button color="primary" [disabled]="submitting || editRowForm.form.invalid">
-                    Add
-                </button>
-            </ng-template>
+            <button *ngIf="!hasKeyAttributesFromURL" type="submit" mat-flat-button color="primary"
+                data-testid="record-add-button"
+                [disabled]="submitting || editRowForm.form.invalid">
+                Add
+            </button>
         </div>
     </form>
 </div>

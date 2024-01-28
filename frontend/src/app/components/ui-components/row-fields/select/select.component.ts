@@ -15,12 +15,13 @@ export class SelectComponent implements OnInit {
   @Input() required: boolean;
   @Input() readonly: boolean;
   @Input() structure: TableField;
+  @Input() disabled: boolean;
   @Input() widgetStructure: Widget;
 
   @Output() onFieldChange = new EventEmitter();
 
   public normalizedLabel: string;
-  public options: string[];
+  public options: any[] = [];
 
   originalOrder = () => { return 0; }
 
@@ -29,8 +30,14 @@ export class SelectComponent implements OnInit {
   ngOnInit(): void {
     if (this.widgetStructure) {
       this.options = this.widgetStructure.widget_params.options;
+      if (this.widgetStructure.widget_params.allow_null) {
+        this.options = [{ value: null, label: '' }, ...this.options];
+      }
     } else if (this.structure) {
       this.options = this.structure.data_type_params;
+      if (this.structure.allow_null) {
+        this.options = [null, ...this.options];
+      }
     }
     this.normalizedLabel = normalizeFieldName(this.label);
   }

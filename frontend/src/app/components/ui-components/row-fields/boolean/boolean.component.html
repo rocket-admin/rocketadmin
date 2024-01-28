@@ -3,7 +3,8 @@
     <mat-radio-group [required]="required"
         name="{{label}}-{{key}}"
         class="radio-group"
-        [disabled]="readonly"
+        attr.data-testid="record-{{label}}-boolean-radio-group"
+        [disabled]="disabled"
         [(ngModel)]="value" (ngModelChange)="onFieldChange.emit($event)">
         <mat-radio-button [value]=true class="radio-button">
             yes
@@ -22,7 +23,8 @@
         name="{{label}}-{{key}}"
         labelPosition="before"
         class="checkbox-line"
-        [disabled]="readonly"
+        attr.data-testid="record-{{label}}-boolean-checkbox"
+        [disabled]="disabled"
         [(ngModel)]="value" (ngModelChange)="onFieldChange.emit($event)">
         {{normalizedLabel}} {{ required ? '*' : '' }}
     </mat-checkbox>

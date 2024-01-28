@@ -25,6 +25,23 @@ header {
     gap: 24px;
 }
 
+.table-name {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.table-name__title {
+    color: black;
+    font-size: 16px;
+    margin-bottom: -6px;
+}
+
+.table-name__line {
+    color: rgba(0, 0, 0, 0.6);
+    font-size: 12px;
+}
+
 .mat-table {
     width: 100%;
 }
@@ -77,4 +94,8 @@ th.mat-header-cell, td.mat-cell {
 
 .audit-banner {
     margin-top: 60px;
+}
+
+.hidden {
+    display: none;
 }

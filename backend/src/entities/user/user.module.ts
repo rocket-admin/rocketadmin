@@ -16,16 +16,12 @@ import { TableWidgetEntity } from '../widget/table-widget.entity.js';
 import { ChangeUserNameUseCase } from './use-cases/change-user-name-use.case.js';
 import { ChangeUsualPasswordUseCase } from './use-cases/change-usual-password-use.case.js';
 import { DeleteUserAccountUseCase } from './use-cases/delete-user-account-use-case.js';
-import { FacebookLoginUseCase } from './use-cases/facebook-login.use.case.js';
 import { FindUserUseCase } from './use-cases/find-user-use.case.js';
-import { GoogleLoginUseCase } from './use-cases/google-login-use.case.js';
 import { LogOutUseCase } from './use-cases/log-out.use.case.js';
 import { RequestChangeUserEmailUseCase } from './use-cases/request-change-user-email.use.case.js';
 import { RequestEmailVerificationUseCase } from './use-cases/request-email-verification.use.case.js';
 import { RequestResetUserPasswordUseCase } from './use-cases/request-reset-user-password.use.case.js';
-import { UpgradeSubscriptionUseCase } from './use-cases/upgrade-subscription.use.case.js';
 import { UsualLoginUseCase } from './use-cases/usual-login-use.case.js';
-import { UsualRegisterUseCase } from './use-cases/usual-register-use.case.js';
 import { VerifyChangeUserEmailUseCase } from './use-cases/verify-change-user-email.use.case.js';
 import { VerifyResetUserPasswordUseCase } from './use-cases/verify-reset-user-password.use.case.js';
 import { VerifyUserEmailUseCase } from './use-cases/verify-user-email.use.case.js';
@@ -37,10 +33,9 @@ import { VerifyOtpUseCase } from './use-cases/verify-otp-use.case.js';
 import { OtpLoginUseCase } from './use-cases/otp-login-use.case.js';
 import { TemporaryAuthMiddleware } from '../../authorization/temporary-auth.middleware.js';
 import { DisableOtpUseCase } from './use-cases/disable-otp.use.case.js';
-import { GetGitHubLoginLinkUseCase } from './use-cases/get-github-login-link.use.case.js';
-import { AuthenticateWithGitHubUseCase } from './use-cases/authenticate-with-github.use.case.js';
-import { GetStripeIntentIdUseCase } from './use-cases/get-stripe-intent-id.use.case.js';
-import { AddSetupIntentToCustomerUseCase } from './use-cases/add-setup-intent-to-customer.use.case.js';
+import { GetUserSessionSettingsUseCase } from './use-cases/get-user-session-settings.use.case.js';
+import { SaveUserSettingsUseCase } from './use-cases/save-user-session-settings.use.case.js';
+import { CompanyInfoEntity } from '../company-info/company-info.entity.js';
 
 @Module({
   imports: [
@@ -55,6 +50,7 @@ import { AddSetupIntentToCustomerUseCase } from './use-cases/add-setup-intent-to
       UserEntity,
       ConnectionPropertiesEntity,
       LogOutEntity,
+      CompanyInfoEntity,
     ]),
     AgentModule,
   ],
@@ -68,28 +64,12 @@ import { AddSetupIntentToCustomerUseCase } from './use-cases/add-setup-intent-to
       useClass: FindUserUseCase,
     },
     {
-      provide: UseCaseType.UPGRADE_USER_SUBSCRIPTION,
-      useClass: UpgradeSubscriptionUseCase,
-    },
-    {
       provide: UseCaseType.USUAL_LOGIN,
       useClass: UsualLoginUseCase,
     },
     {
-      provide: UseCaseType.USUAL_REGISTER,
-      useClass: UsualRegisterUseCase,
-    },
-    {
       provide: UseCaseType.LOG_OUT,
       useClass: LogOutUseCase,
-    },
-    {
-      provide: UseCaseType.GOOGLE_LOGIN,
-      useClass: GoogleLoginUseCase,
-    },
-    {
-      provide: UseCaseType.FACEBOOK_LOGIN,
-      useClass: FacebookLoginUseCase,
     },
     {
       provide: UseCaseType.CHANGE_USUAL_PASSWORD,
@@ -144,20 +124,12 @@ import { AddSetupIntentToCustomerUseCase } from './use-cases/add-setup-intent-to
       useClass: DisableOtpUseCase,
     },
     {
-      provide: UseCaseType.GET_GITHUB_LOGIN_LINK,
-      useClass: GetGitHubLoginLinkUseCase,
+      provide: UseCaseType.SAVE_USER_SESSION_SETTINGS,
+      useClass: SaveUserSettingsUseCase,
     },
     {
-      provide: UseCaseType.AUTHENTICATE_WITH_GITHUB,
-      useClass: AuthenticateWithGitHubUseCase,
-    },
-    {
-      provide: UseCaseType.GET_STRIPE_INTENT_ID,
-      useClass: GetStripeIntentIdUseCase,
-    },
-    {
-      provide: UseCaseType.ADD_STRIPE_SETUP_INTENT_TO_CUSTOMER,
-      useClass: AddSetupIntentToCustomerUseCase,
+      provide: UseCaseType.GET_USER_SESSION_SETTINGS,
+      useClass: GetUserSessionSettingsUseCase,
     },
     UserHelperService,
   ],
@@ -173,7 +145,6 @@ export class UserModule implements NestModule {
         { path: 'user', method: RequestMethod.PUT },
         { path: 'user/name/', method: RequestMethod.PUT },
         { path: 'user/permissions/:slug', method: RequestMethod.GET },
-        { path: 'user/subscription/upgrade', method: RequestMethod.POST },
         { path: 'user/logout/', method: RequestMethod.POST },
         { path: 'user/email/verify/request', method: RequestMethod.GET },
         { path: 'user/delete/', method: RequestMethod.PUT },
@@ -181,8 +152,8 @@ export class UserModule implements NestModule {
         { path: 'user/otp/generate', method: RequestMethod.POST },
         { path: 'user/otp/verify', method: RequestMethod.POST },
         { path: 'user/otp/disable', method: RequestMethod.POST },
-        { path: 'user/stripe/intent', method: RequestMethod.POST },
-        { path: 'user/setup/intent', method: RequestMethod.POST },
+        { path: 'user/settings', method: RequestMethod.POST },
+        { path: 'user/settings', method: RequestMethod.GET },
       )
       .apply(TemporaryAuthMiddleware)
       .forRoutes({ path: 'user/otp/login', method: RequestMethod.POST });

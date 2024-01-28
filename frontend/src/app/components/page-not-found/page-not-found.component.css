@@ -1,9 +1,72 @@
 .wrapper {
     display: flex;
-    justify-content: center;
-    margin: 100px 0;
+    align-items: center;
+    background-image: url('../../../assets/bg/not-found-bg.svg');
+    background-repeat: no-repeat;
+    background-size: auto 127%;
+    background-position: 100% 30%;
+    height: calc(100vh - 56px);
+    padding: 0 max(calc(20vw - 250px), 15%);
+    width: 100%;
+}
+
+@media screen and (max-width: 600px) {
+    .wrapper {
+        background: none;
+        height: 100%;
+        padding: 0 4.5vw;
+    }
+
+    .wrapper svg {
+        width: 55%;
+    }
 }
 
 .message {
-    font-size: 3em;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 36px;
+    width: clamp(300px, 60%, 600px)
+}
+
+@media screen and (max-width: 600px) {
+    .message {
+        gap: 16px;
+        width: 100%;
+    }
+}
+
+.message__title {
+    font-weight: 600;
+    margin-bottom: 16px;
+}
+
+@media screen and (max-width: 600px) {
+    .message__title {
+        font-size: 32px;
+        line-height: 40px;
+    }
+}
+
+.message__text {
+    font-size: 20px;
+    margin-bottom: 8px;
+}
+
+@media screen and (max-width: 600px) {
+    .message__text {
+        font-size: 18px;
+        margin-top: 8px;
+    }
+}
+
+.message__button {
+    width: 156px;
+}
+
+@media screen and (max-width: 600px) {
+    .message__button {
+        margin-top: 16px;
+    }
 }

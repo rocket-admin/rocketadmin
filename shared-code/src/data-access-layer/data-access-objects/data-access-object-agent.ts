@@ -16,6 +16,7 @@ import { IDataAccessObjectAgent } from '../shared/interfaces/data-access-object-
 import { DataAccessObjectCommandsEnum } from '../shared/enums/data-access-object-commands.enum.js';
 import { LRUStorage } from '../../caching/lru-storage.js';
 import { TableDS } from '../shared/data-structures/table.ds.js';
+import { Stream } from 'node:stream';
 
 export class DataAccessObjectAgent implements IDataAccessObjectAgent {
   private readonly connection: ConnectionAgentParams;
@@ -445,6 +446,44 @@ export class DataAccessObjectAgent implements IDataAccessObjectAgent {
         throw new Error(ERROR_MESSAGES.NO_DATA_RETURNED_FROM_AGENT);
       }
       return res.data.commandResult;
+    } catch (e) {
+      this.checkIsErrorLocalAndThrowException(e);
+      throw new Error(e.response.data);
+    }
+  }
+
+  public async getTableRowsStream(
+    tableName: string,
+    settings: TableSettingsDS,
+    page: number,
+    perPage: number,
+    searchedFieldValue: string,
+    filteringFields: Array<FilteringFieldsDS>,
+  ): Promise<Stream & AsyncIterable<never>> {
+    const jwtAuthToken = this.generateJWT(this.connection.token);
+    try {
+      const res = await axios.post(
+        this.serverAddress,
+        {
+          operationType: DataAccessObjectCommandsEnum.getRowsAsStream,
+          tableName: tableName,
+          tableSettings: settings,
+          page: page,
+          perPage: perPage,
+          searchedFieldValue: searchedFieldValue,
+          filteringFields: filteringFields,
+        },
+        {
+          headers: { authorization: `Bearer ${jwtAuthToken}` },
+        },
+      );
+      if (res.data.commandResult instanceof Error) {
+        throw new Error(res.data.commandResult.message);
+      }
+      if (!res?.data?.commandResult) {
+        throw new Error(ERROR_MESSAGES.NO_DATA_RETURNED_FROM_AGENT);
+      }
+      return res.data.commandResult?.data;
     } catch (e) {
       this.checkIsErrorLocalAndThrowException(e);
       throw new Error(e.response.data);

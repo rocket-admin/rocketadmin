@@ -1,4 +1,4 @@
-<app-content-loader *ngIf="loading"></app-content-loader>
+<app-placeholder-table-view *ngIf="loading"></app-placeholder-table-view>
 
 <app-banner *ngIf="isServerError" type="error" data-testid="connection-server-error-banner">
     <div *ngIf="serverError.details; else stringError" class="mat-body-1">
@@ -30,7 +30,10 @@
             [ngClass]="{'side-bar_collapsed': !shownTableTitles}">
             <div class="toggle-button-position"
                 [ngClass]="(shownTableTitles)?'toggle-button-position__opened':'toggle-button-position__closed'">
-                <button mat-button class="toggle-button" (click)="toggleSideBar()">
+                <button mat-button class="toggle-button" (click)="toggleSideBar()"
+                    angulartics2On="click"
+                    angularticsAction="Dashboard: toggle sidebar"
+                    [angularticsProperties]="{'collapsed': !shownTableTitles}">
                     <mat-icon>{{ shownTableTitles ? 'chevron_left' : 'chevron_right' }} </mat-icon>
                 </button>
             </div>

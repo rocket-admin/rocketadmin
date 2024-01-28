@@ -10,10 +10,19 @@ import { TableLogsController } from './table-logs.controller.js';
 import { TableLogsEntity } from './table-logs.entity.js';
 import { TableLogsService } from './table-logs.service.js';
 import { FindLogsUseCase } from './use-cases/find-logs.use.case.js';
+import { ConnectionPropertiesEntity } from '../connection-properties/connection-properties.entity.js';
 
 @Global()
 @Module({
-  imports: [TypeOrmModule.forFeature([TableLogsEntity, UserEntity, LogOutEntity, TableSettingsEntity])],
+  imports: [
+    TypeOrmModule.forFeature([
+      TableLogsEntity,
+      UserEntity,
+      LogOutEntity,
+      TableSettingsEntity,
+      ConnectionPropertiesEntity,
+    ]),
+  ],
   providers: [
     {
       provide: BaseType.GLOBAL_DB_CONTEXT,

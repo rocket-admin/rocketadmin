@@ -2,7 +2,7 @@ import * as JSON5 from 'json5';
 
 import { ActivatedRoute, Router } from '@angular/router';
 import { Component, NgZone, OnInit } from '@angular/core';
-import { CustomAction, TableField, TableForeignKey, Widget } from 'src/app/models/table';
+import { CustomAction, TableField, TableForeignKey, TablePermissions, Widget } from 'src/app/models/table';
 import { UIwidgets, fieldTypes } from 'src/app/consts/field-types';
 
 import { ConnectionsService } from 'src/app/services/connections.service';
@@ -12,12 +12,12 @@ import { DbActionLinkDialogComponent } from '../dashboard/db-action-link-dialog/
 import { Location } from '@angular/common';
 import { MatDialog } from '@angular/material/dialog';
 import { NotificationsService } from 'src/app/services/notifications.service';
+import { ServerError } from 'src/app/models/alert';
 import { TableRowService } from 'src/app/services/table-row.service';
 import { TablesService } from 'src/app/services/tables.service';
 import { Title } from '@angular/platform-browser';
 import { getTableTypes } from 'src/app/lib/setup-table-row-structure';
 import { normalizeTableName } from '../../lib/normalize';
-import { ServerError } from 'src/app/models/alert';
 
 @Component({
   selector: 'app-db-table-row-edit',
@@ -51,6 +51,7 @@ export class DbTableRowEditComponent implements OnInit {
   public rowActions: CustomAction[];
   public referencedTables: any;
   public referencedTablesURLParams: any;
+  public permissions: TablePermissions;
 
   public tableForeignKeys: TableForeignKey[];
 
@@ -80,6 +81,13 @@ export class DbTableRowEditComponent implements OnInit {
           .subscribe(res => {
             this.dispalyTableName = res.display_name || normalizeTableName(this.tableName);
             this.title.setTitle(`${this.dispalyTableName} - Add new record | Rocketadmin`);
+            this.permissions = {
+              visibility: true,
+              readonly: false,
+              add: true,
+              delete: true,
+              edit: true
+            };
 
             this.keyAttributesFromStructure = res.primaryColumns;
             this.readonlyFields = res.readonly_fields;
@@ -114,6 +122,7 @@ export class DbTableRowEditComponent implements OnInit {
           .subscribe(res => {
             this.dispalyTableName = res.display_name || normalizeTableName(this.tableName);
             this.title.setTitle(`${this.dispalyTableName} - Edit record | Rocketadmin`);
+            this.permissions = res.table_access_level;
 
             const autoincrementFields = res.structure.filter((field: TableField) => field.auto_increment).map((field: TableField) => field.column_name);
             this.readonlyFields = [...res.readonly_fields, ...autoincrementFields];
@@ -139,7 +148,7 @@ export class DbTableRowEditComponent implements OnInit {
                   [`f__${table.column_name}__eq`]:
                   this.tableRowValues[res.referenced_table_names_and_columns[0].referenced_on_column_name],
                   page_index: 0
-                }});;
+                }});
             }
 
             this.loading = false;
@@ -225,7 +234,7 @@ export class DbTableRowEditComponent implements OnInit {
     return relation;
   }
 
-  isReadonly(columnName: string) {
+  isReadonlyField(columnName: string) {
     return this.readonlyFields.includes(columnName);
   }
 
@@ -248,6 +257,37 @@ export class DbTableRowEditComponent implements OnInit {
     };
   }
 
+  getFormattedUpdatedRow = () => {
+    let updatedRow = {...this.tableRowValues};
+
+    //crutch, format datetime fields
+    if (this._connections.currentConnection.type === DBtype.MySQL) {
+      const datetimeFields = Object.entries(this.tableTypes)
+        .filter(([key, value]) => value === 'datetime');
+      if (datetimeFields.length) {
+        for (const datetimeField of datetimeFields) {
+          if (updatedRow[datetimeField[0]]) updatedRow[datetimeField[0]] = updatedRow[datetimeField[0]].split('.')[0];
+        }
+      }
+    }
+    //end crutch
+
+    //parse json fields
+    const jsonFields = Object.entries(this.tableTypes)
+      .filter(([key, value]) => value === 'json' || value === 'jsonb')
+      .map(jsonField => jsonField[0]);
+    if (jsonFields.length) {
+      for (const jsonField of jsonFields) {
+        if (updatedRow[jsonField] !== null) {
+          const updatedFiled = JSON.parse(updatedRow[jsonField].toString());
+          updatedRow[jsonField] = updatedFiled;
+        }
+      }
+    }
+
+    return updatedRow;
+  }
+
   handleRowSubmitting() {
     if (this.hasKeyAttributesFromURL) {
       this.updateRow();
@@ -259,18 +299,9 @@ export class DbTableRowEditComponent implements OnInit {
   addRow(continueEditing?: boolean) {
     this.submitting = true;
 
-    //crutch
-    if (this._connections.currentConnection.type === DBtype.MySQL) {
-      const datetimeFields = Object.entries(this.tableTypes).filter(([key, value]) => value === 'datetime');
-      if (datetimeFields.length) {
-        for (const datetimeField of datetimeFields) {
-          if (this.tableRowValues[datetimeField[0]]) this.tableRowValues[datetimeField[0]] = this.tableRowValues[datetimeField[0]].split('.')[0];
-        }
-      }
-    }
-    //end crutch
+    const formattedUpdatedRow = this.getFormattedUpdatedRow();
 
-    this._tableRow.addTableRow(this.connectionID, this.tableName, this.tableRowValues)
+    this._tableRow.addTableRow(this.connectionID, this.tableName, formattedUpdatedRow)
       .subscribe((res) => {
 
         this.keyAttributesFromURL = {};
@@ -295,19 +326,9 @@ export class DbTableRowEditComponent implements OnInit {
   updateRow(continueEditing?: boolean) {
     this.submitting = true;
 
-    //crutch
-      if (this._connections.currentConnection.type === DBtype.MySQL) {
-        const datetimeFields = Object.entries(this.tableTypes)
-          .filter(([key, value]) => value === 'datetime');
-        if (datetimeFields.length) {
-          for (const datetimeField of datetimeFields) {
-            if (this.tableRowValues[datetimeField[0]]) this.tableRowValues[datetimeField[0]] = this.tableRowValues[datetimeField[0]].split('.')[0];
-          }
-        }
-      }
-    //end crutch
+    const formattedUpdatedRow = this.getFormattedUpdatedRow();
 
-    this._tableRow.updateTableRow(this.connectionID, this.tableName, this.keyAttributesFromURL, this.tableRowValues)
+    this._tableRow.updateTableRow(this.connectionID, this.tableName, this.keyAttributesFromURL, formattedUpdatedRow)
       .subscribe((res) => {
         this.ngZone.run(() => {
           if (continueEditing) {

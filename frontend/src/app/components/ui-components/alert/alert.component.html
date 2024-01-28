@@ -3,8 +3,8 @@
     <div *ngIf="currentAlert.message && getMessageType() === 'complexMessage'"
         attr.data-testid="alert-{{currentAlert.type}}-message-box"
         class="alert__message mat-body-1">
-        <strong data-testid="alert-abstract">{{messageAbstract}}</strong>
-        <p data-testid="alert-details">{{messageDetails}}</p>
+        <strong data-testid="alert-abstract" class="alert__title">{{messageAbstract}}</strong>
+        <p data-testid="alert-details" class="alert__text">{{messageDetails}}</p>
     </div>
     <p *ngIf="currentAlert.message && getMessageType() === 'plainMessage'"
         attr.data-testid="alert-{{currentAlert.type}}-message"

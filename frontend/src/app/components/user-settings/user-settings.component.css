@@ -35,10 +35,6 @@
     margin-bottom: 40px;
 }
 
-.user-settings__value_capitalized {
-    text-transform: capitalize;
-}
-
 .twoFA-toggle {
     display: flex;
     align-items: center;

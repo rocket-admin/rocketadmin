@@ -12,12 +12,13 @@ import { UserEntity } from '../user/user.entity.js';
 import { UserModule } from '../user/user.module.js';
 import { GroupController } from './group.controller.js';
 import { GroupEntity } from './group.entity.js';
-import { AddUserInGroupUseCase } from './use-cases/add-user-in-group.use.case.js';
 import { DeleteGroupUseCase } from './use-cases/delete-group.use.case.js';
 import { FindAllUserGroupsUseCase } from './use-cases/find-all-user-groups.use.case.js';
 import { FindAllUsersInGroupUseCase } from './use-cases/find-all-users-in-group.use.case.js';
 import { RemoveUserFromGroupUseCase } from './use-cases/remove-user-from-group.use.case.js';
 import { VerifyAddUserInGroupUseCase } from './use-cases/verify-add-user-in-group.use.case.js';
+import { SaaSAddUserInGroupV2UseCase } from './use-cases/saas-add-user-in-group-v2.use.case.js';
+import { UpdateGroupTitleUseCase } from './use-cases/update-group-title.use.case.js';
 
 @Module({
   imports: [
@@ -39,7 +40,7 @@ import { VerifyAddUserInGroupUseCase } from './use-cases/verify-add-user-in-grou
     },
     {
       provide: UseCaseType.INVITE_USER_IN_GROUP,
-      useClass: AddUserInGroupUseCase,
+      useClass: SaaSAddUserInGroupV2UseCase,
     },
     {
       provide: UseCaseType.VERIFY_INVITE_USER_IN_GROUP,
@@ -61,6 +62,10 @@ import { VerifyAddUserInGroupUseCase } from './use-cases/verify-add-user-in-grou
       provide: UseCaseType.DELETE_GROUP,
       useClass: DeleteGroupUseCase,
     },
+    {
+      provide: UseCaseType.UPDATE_GROUP_TITLE,
+      useClass: UpdateGroupTitleUseCase,
+    },
   ],
   controllers: [GroupController],
   exports: [],
@@ -80,6 +85,7 @@ export class GroupModule {
         { path: '/group/permission/delete', method: RequestMethod.PUT },
         { path: 'group/delete/:slug', method: RequestMethod.DELETE },
         { path: 'group/users/:slug', method: RequestMethod.GET },
+        { path: 'group/title', method: RequestMethod.PUT },
       );
   }
 }

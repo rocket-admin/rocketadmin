@@ -189,12 +189,11 @@ export const userAccessCustomReposiotoryExtension = {
     const addPermission = tableAccessLevels.includes(AccessLevelEnum.add);
     const deletePermission = tableAccessLevels.includes(AccessLevelEnum.delete);
     const editPermission = tableAccessLevels.includes(AccessLevelEnum.edit);
-    const readOnly = !(addPermission || deletePermission || editPermission);
     return {
       tableName: tableName,
       accessLevel: {
         visibility: tableAccessLevels.includes(AccessLevelEnum.visibility),
-        readonly: tableAccessLevels.includes(AccessLevelEnum.readonly) && !readOnly,
+        readonly: tableAccessLevels.includes(AccessLevelEnum.readonly),
         add: addPermission,
         delete: deletePermission,
         edit: editPermission,
@@ -256,14 +255,13 @@ export const userAccessCustomReposiotoryExtension = {
         const deletePermission = tablesAndAccessLevels[key].includes(AccessLevelEnum.delete);
         // eslint-disable-next-line security/detect-object-injection
         const editPermission = tablesAndAccessLevels[key].includes(AccessLevelEnum.edit);
-        const readOnly = !(addPermission || deletePermission || editPermission);
         tablesWithPermissionsArr.push({
           tableName: key,
           accessLevel: {
             // eslint-disable-next-line security/detect-object-injection
             visibility: tablesAndAccessLevels[key].includes(AccessLevelEnum.visibility),
             // eslint-disable-next-line security/detect-object-injection
-            readonly: tablesAndAccessLevels[key].includes(AccessLevelEnum.readonly) && !readOnly,
+            readonly: tablesAndAccessLevels[key].includes(AccessLevelEnum.readonly),
             add: addPermission,
             delete: deletePermission,
             edit: editPermission,

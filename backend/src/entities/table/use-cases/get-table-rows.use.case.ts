@@ -19,7 +19,7 @@ import { TableLogsService } from '../../table-logs/table-logs.service.js';
 import { TableSettingsEntity } from '../../table-settings/table-settings.entity.js';
 import { FoundTableRowsDs } from '../application/data-structures/found-table-rows.ds.js';
 import { GetTableRowsDs } from '../application/data-structures/get-table-rows.ds.js';
-import { ForeignKeyDSInfo } from '../table.interface.js';
+import { ForeignKeyDSInfo } from '../table-datastructures.js';
 import { addCustomFieldsInRowsUtil } from '../utils/add-custom-fields-in-rows.util.js';
 import { convertBinaryDataInRowsUtil } from '../utils/convert-binary-data-in-rows.util.js';
 import { findAutocompleteFieldsUtil } from '../utils/find-autocomplete-fields.util.js';
@@ -36,6 +36,7 @@ import { ForeignKeyDS } from '@rocketadmin/shared-code/dist/src/data-access-laye
 import { FoundRowsDS } from '@rocketadmin/shared-code/src/data-access-layer/shared/data-structures/found-rows.ds.js';
 import { UnknownSQLException } from '../../../exceptions/custom-exceptions/unknown-sql-exception.js';
 import { ExceptionOperations } from '../../../exceptions/custom-exceptions/exception-operation.js';
+import Sentry from '@sentry/minimal';
 
 @Injectable()
 export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTableRowsDs> implements IGetTableRows {
@@ -135,7 +136,8 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
           userEmail,
         );
       } catch (e) {
-        throw new UnknownSQLException(e.message, ExceptionOperations.FAILED_TO_GET_ROW_BY_PRIMARY_KEY);
+        Sentry.captureException(e);
+        throw new UnknownSQLException(e.message, ExceptionOperations.FAILED_TO_GET_ROWS_FROM_TABLE);
       }
 
       rows = addCustomFieldsInRowsUtil(rows, tableCustomFields);
@@ -168,8 +170,8 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
       const largeDataset = rows.large_dataset
         ? true
         : rows.pagination.total > Constants.LARGE_DATASET_ROW_LIMIT
-        ? true
-        : false;
+          ? true
+          : false;
       const rowsRO = {
         rows: rows.data,
         primaryColumns: tablePrimaryColumns,
@@ -249,13 +251,14 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
       operationResult = OperationResultStatusEnum.successfully;
       return rowsRO;
     } catch (e) {
+      Sentry.captureException(e);
       operationResult = OperationResultStatusEnum.unsuccessfully;
       throw new HttpException(
         {
           message: `${Messages.FAILED_GET_TABLE_ROWS} ${Messages.ERROR_MESSAGE}
-         ${e.message} ${Messages.TRY_AGAIN_LATER}`,
+         ${e.message} ${Messages.TRY_AGAIN_LATER} ${Messages.ERROR_MESSAGE_ORIGINAL} ${e.originalMessage}`,
         },
-        HttpStatus.BAD_REQUEST,
+        HttpStatus.INTERNAL_SERVER_ERROR,
       );
     } finally {
       const logRecord = {

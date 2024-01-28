@@ -21,11 +21,6 @@
                     <h1 class="mat-h1">
                         Manage plans
                     </h1>
-                    <div class="toggle">
-                        <span class="toggle-label" [ngClass]="{'toggle-label-active': !isAnnually}">Monthly</span>
-                        <mat-slide-toggle [(ngModel)]="isAnnually"></mat-slide-toggle>
-                        <span class="toggle-label" [ngClass]="{'toggle-label-active': isAnnually}">Annually</span>
-                    </div>
                 </div>
                 <ng-template #planHeaderCard>
                     <div class="plan-header mat-elevation-z2">
@@ -33,28 +28,43 @@
                             <span class="mat-h3">{{plan.name}} </span>
                             <mat-chip disabled *ngIf="plan.name === 'Team'" class="plan-badge">Recommended</mat-chip>
                         </div>
-                        <span class="price">${{isAnnually ? plan.priceA : plan.priceM}}</span>
-                        <span class="period">{{isAnnually ? 'annually' : 'monthly'}}</span>
+                        <div>
+                            <span class="price">${{ plan.price }}</span><span class="per">/monthly</span>
+                        </div>
+                        <span class="per period">per user</span>
                         <button mat-flat-button color="accent"
-                            *ngIf="isCurrent(plan.key); else activeButton"
+                            *ngIf="plan.key === currentPlan.key; else activeButton"
                             disabled class="current">
                             Current
                         </button>
                         <ng-template #activeButton>
-                            <a mat-flat-button color="accent" *ngIf="isMoreExpensive(plan.priceM); else notCTAbutton"
+                            <button mat-flat-button color="accent" type="button"
+                                *ngIf="plan.price > currentPlan.price && hasPaymentMethod"
+                                [disabled]="submitting"
+                                (click)="changePlan(plan.key)">
+                                Upgrade
+                            </button>
+                            <button mat-button type="button"
+                                *ngIf="plan.price < currentPlan.price && hasPaymentMethod"
+                                [disabled]="submitting"
+                                (click)="changePlan(plan.key)">
+                                Downgrade
+                            </button>
+
+                            <a mat-flat-button color="accent"
+                                *ngIf="plan.price > currentPlan.price && !hasPaymentMethod"
                                 [disabled]="submitting"
                                 routerLink="/upgrade/payment"
-                                [queryParams]="{plan: plan.key, period: isAnnually ? 'annually' : 'monthly'}">
-                                {{ currentPlan.key === plan.key && currentPlan.isAnnually !== isAnnually ? 'Change' : 'Upgrade' }}
+                                [queryParams]="{plan: plan.key}">
+                                Upgrade
                             </a>
-                            <ng-template #notCTAbutton>
-                                <a mat-button
-                                    [disabled]="submitting"
-                                    routerLink="/upgrade/payment"
-                                    [queryParams]="{plan: plan.key, period: isAnnually ? 'annually' : 'monthly'}">
-                                    Downgrade
-                                </a>
-                            </ng-template>
+                            <a mat-button
+                                *ngIf="plan.price < currentPlan.price && !hasPaymentMethod"
+                                [disabled]="submitting"
+                                routerLink="/upgrade/payment"
+                                [queryParams]="{plan: plan.key}">
+                                Downgrade
+                            </a>
                         </ng-template>
                     </div>
                 </ng-template>

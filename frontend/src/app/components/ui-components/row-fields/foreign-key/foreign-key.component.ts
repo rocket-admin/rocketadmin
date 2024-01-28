@@ -27,6 +27,7 @@ export class ForeignKeyComponent implements OnInit {
   @Input() relations: TableForeignKey;
   @Input() required: boolean;
   @Input() readonly: boolean;
+  @Input() disabled: boolean;
 
   @Output() onFieldChange = new EventEmitter();
 
@@ -50,6 +51,7 @@ export class ForeignKeyComponent implements OnInit {
       debounceTime(500),
       distinctUntilChanged())
       .subscribe(value => {
+        if (this.currentDisplayedString === '') this.onFieldChange.emit(null);
         this.fetchSuggestions();
       });
    }
@@ -57,7 +59,6 @@ export class ForeignKeyComponent implements OnInit {
   ngOnInit(): void {
     this.connectionID = this._connections.currentConnectionID;
     this.normalizedLabel = normalizeFieldName(this.label);
-
     this.relations && this._tables.fetchTable({
         connectionID: this.connectionID,
         tableName: this.relations.referenced_table_name,
@@ -70,13 +71,15 @@ export class ForeignKeyComponent implements OnInit {
           this.identityColumn = res.identity_column;
           // this.primaeyKeys = res.primaryColumns;
           const modifiedRow = this.getModifiedRow(res.rows[0]);
-          this.currentDisplayedString =
-            this.identityColumn ?
-              `${res.rows[0][this.identityColumn]} (${Object.values(modifiedRow).filter(value => value).join(' | ')})` :
-              Object.values(modifiedRow).filter(value => value).join(' | ');
-          this.currentFieldValue = res.rows[0][this.relations.referenced_column_name];
-          this.currentFieldQueryParams = Object.assign({}, ...res.primaryColumns.map((primaeyKey) => ({[primaeyKey.column_name]: res.rows[0][primaeyKey.column_name]})));
-          this.onFieldChange.emit(this.currentFieldValue);
+          if (this.value) {
+            this.currentDisplayedString =
+              this.identityColumn ?
+                `${res.rows[0][this.identityColumn]} (${Object.values(modifiedRow).filter(value => value).join(' | ')})` :
+                Object.values(modifiedRow).filter(value => value).join(' | ');
+            this.currentFieldValue = res.rows[0][this.relations.referenced_column_name];
+            this.currentFieldQueryParams = Object.assign({}, ...res.primaryColumns.map((primaeyKey) => ({[primaeyKey.column_name]: res.rows[0][primaeyKey.column_name]})));
+            this.onFieldChange.emit(this.currentFieldValue);
+          }
         }
 
         this._tables.fetchTable({
@@ -122,7 +125,7 @@ export class ForeignKeyComponent implements OnInit {
         this.identityColumn = res.identity_column;
         if (res.rows.length === 0) {
           this.suggestions = [{
-            displayString: 'No matches'
+            displayString: `No field starts with "${this.currentDisplayedString}" in foreign entity.`
           }]
         } else {
           this.suggestions = res.rows.map(row => {

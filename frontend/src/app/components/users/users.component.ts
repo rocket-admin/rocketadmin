@@ -1,13 +1,14 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { GroupUser, User, UserGroup, UserGroupInfo } from 'src/app/models/user';
 
+import { Angulartics2 } from 'angulartics2';
 import { Connection } from 'src/app/models/connection';
 import { ConnectionsService } from 'src/app/services/connections.service';
 import { GroupAddDialogComponent } from './group-add-dialog/group-add-dialog.component';
 import { GroupDeleteDialogComponent } from './group-delete-dialog/group-delete-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
 import { PermissionsAddDialogComponent } from './permissions-add-dialog/permissions-add-dialog.component';
-import { Subscription } from 'rxjs';
+import { Subscription, first } from 'rxjs';
 import { Title } from '@angular/platform-browser';
 import { UserAddDialogComponent } from './user-add-dialog/user-add-dialog.component';
 import { UserDeleteDialogComponent } from './user-delete-dialog/user-delete-dialog.component';
@@ -34,7 +35,8 @@ export class UsersComponent implements OnInit, OnDestroy {
     private _userService: UserService,
     private _connections: ConnectionsService,
     public dialog: MatDialog,
-    private title: Title
+    private title: Title,
+    private angulartics2: Angulartics2,
   ) { }
 
   ngOnInit() {
@@ -45,11 +47,16 @@ export class UsersComponent implements OnInit, OnDestroy {
     this.getUsersGroups();
     this._userService.cast.subscribe(user => this.currentUser = user);
     this._usersService.cast.subscribe( arg =>  {
-      if (arg === 'groups') {
+      if (arg.action === 'add group' || arg.action === 'delete group') {
         this.getUsersGroups()
-      }
-      else if (arg) {
-        this.fetchGroupUsers(arg);
+
+        if (arg.action === 'add group') {
+          console.log('ngOnInit _usersService.cast.subscribe');
+          console.log(arg);
+          this.openPermissionsDialog(arg.group);
+        }
+      } else if (arg.action === 'add user' || arg.action === 'delete user') {
+        this.fetchGroupUsers(arg.groupId);
       };
     });
   }
@@ -68,7 +75,7 @@ export class UsersComponent implements OnInit, OnDestroy {
 
   getUsersGroups() {
     this._usersService.fetchConnectionGroups(this.connectionID)
-    .subscribe((res: any) => {
+      .subscribe((res: any) => {
         this.groups = res;
       });
   }
@@ -120,9 +127,17 @@ export class UsersComponent implements OnInit, OnDestroy {
     this._usersService.fetcGroupUsers(groupID)
       .subscribe(res => {
         if (res.length) {
-          this.users[groupID] = res
+          let groupUsers = [...res];
+          const userIndex = groupUsers.findIndex(user => user.email === this.currentUser.email);
+
+          if (userIndex !== -1) {
+            const user = groupUsers.splice(userIndex, 1)[0];
+            groupUsers.unshift(user);
+          }
+
+          this.users[groupID] = groupUsers;
         } else {
-          this.users[groupID] = 'empty'
+          this.users[groupID] = 'empty';
         };
       })
   }

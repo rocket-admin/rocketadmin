@@ -8,7 +8,6 @@ import {
   Injectable,
   Post,
   Put,
-  Query,
   Req,
   Res,
   UseInterceptors,
@@ -17,75 +16,66 @@ import { Response } from 'express';
 import isEmail from 'validator/lib/isEmail.js';
 import { UseCaseType } from '../../common/data-injection.tokens.js';
 import { BodyEmail, GCLlId, UserId, VerificationString } from '../../decorators/index.js';
-import { InTransactionEnum, SubscriptionLevelEnum } from '../../enums/index.js';
+import { InTransactionEnum } from '../../enums/index.js';
 import { Messages } from '../../exceptions/text/messages.js';
 import { slackPostMessage } from '../../helpers/index.js';
 import { Constants } from '../../helpers/constants/constants.js';
-import { validateStringWithEnum } from '../../helpers/validators/validate-string-with-enum.js';
 import { SentryInterceptor } from '../../interceptors/index.js';
 import { ChangeUserEmailDs } from './application/data-structures/change-user-email.ds.js';
 import { ChangeUserNameDS } from './application/data-structures/change-user-name.ds.js';
 import { ChangeUsualUserPasswordDs } from './application/data-structures/change-usual-user-password.ds.js';
 import { FindUserDs } from './application/data-structures/find-user.ds.js';
 import { FoundUserDs } from './application/data-structures/found-user.ds.js';
-import { GoogleLoginDs } from './application/data-structures/google-login.ds.js';
 import { OperationResultMessageDs } from './application/data-structures/operation-result-message.ds.js';
 import { RegisteredUserDs } from './application/data-structures/registered-user.ds.js';
 import { ResetUsualUserPasswordDs } from './application/data-structures/reset-usual-user-password.ds.js';
-import { UpgradeUserSubscriptionDs } from './application/data-structures/upgrade-user-subscription.ds.js';
 import { UsualLoginDs } from './application/data-structures/usual-login.ds.js';
-import { UsualRegisterUserDs } from './application/data-structures/usual-register-user.ds.js';
 import {
-  IAddStripeSetupIntent,
-  IAuthGitHub,
   IChangeUserName,
   IDeleteUserAccount,
   IDisableOTP,
-  IFacebookLogin,
   IFindUserUseCase,
   IGenerateOTP,
-  IGetGitHubLoginLink,
-  IGetStripeIntentId,
-  IGoogleLogin,
+  IGetUserSettings,
   ILogOut,
   IOtpLogin,
   IRequestEmailChange,
   IRequestEmailVerification,
   IRequestPasswordReset,
-  IUpgradeSubscription,
+  ISaveUserSettings,
   IUsualLogin,
   IUsualPasswordChange,
-  IUsualRegister,
   IVerifyEmail,
   IVerifyEmailChange,
   IVerifyOTP,
   IVerifyPasswordReset,
 } from './use-cases/user-use-cases.interfaces.js';
-import { ITokenExp } from './utils/generate-gwt-token.js';
+import { ITokenExp, TokenExpDs } from './utils/generate-gwt-token.js';
 import { OtpSecretDS } from './application/data-structures/otp-secret.ds.js';
-import { OtpValidationResultDS } from './application/data-structures/otp-validation-result.ds.js';
-import { StripeIntentDs } from './application/data-structures/stripe-intent-id.ds.js';
-import { AddStripeSetupIntentDs } from './application/data-structures/add-stripe-setup-intent.ds.js';
+import { OtpDisablingResultDS, OtpValidationResultDS } from './application/data-structures/otp-validation-result.ds.js';
+import { getCookieDomainOptions } from './utils/get-cookie-domain-options.js';
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { PasswordDto } from './dto/password.dto.js';
+import { EmailDto } from './dto/email.dto.js';
+import { DeleteUserAccountDTO } from './dto/delete-user-account-request.dto.js';
+import { LoginUserDto } from './dto/login-user.dto.js';
+import { UserNameDto } from './dto/user-name.dto.js';
+import { OtpTokenDto } from './dto/otp-token.dto.js';
+import { UserSettingsDataRequestDto } from './dto/user-settings-data-request.dto.js';
 
 @UseInterceptors(SentryInterceptor)
 @Controller()
+@ApiBearerAuth()
+@ApiTags('user')
 @Injectable()
 export class UserController {
   constructor(
     @Inject(UseCaseType.FIND_USER)
     private readonly findUserUseCase: IFindUserUseCase,
-    @Inject(UseCaseType.UPGRADE_USER_SUBSCRIPTION)
-    private readonly upgradeUserSubscriptionUseCase: IUpgradeSubscription,
     @Inject(UseCaseType.USUAL_LOGIN)
     private readonly usualLoginUseCase: IUsualLogin,
-    @Inject(UseCaseType.USUAL_REGISTER)
-    private readonly usualRegisterUseCase: IUsualRegister,
     @Inject(UseCaseType.LOG_OUT)
     private readonly logOutUseCase: ILogOut,
-    @Inject(UseCaseType.GOOGLE_LOGIN)
-    private readonly googleLoginUseCase: IGoogleLogin,
-    @Inject(UseCaseType.FACEBOOK_LOGIN)
-    private readonly facebookLoginUseCase: IFacebookLogin,
     @Inject(UseCaseType.CHANGE_USUAL_PASSWORD)
     private readonly changeUsualPasswordUseCase: IUsualPasswordChange,
     @Inject(UseCaseType.VERIFY_EMAIL)
@@ -112,16 +102,18 @@ export class UserController {
     private readonly otpLoginUseCase: IOtpLogin,
     @Inject(UseCaseType.DISABLE_OTP)
     private readonly disableOtpUseCase: IDisableOTP,
-    @Inject(UseCaseType.GET_GITHUB_LOGIN_LINK)
-    private readonly getGithubLoginLinkUseCase: IGetGitHubLoginLink,
-    @Inject(UseCaseType.AUTHENTICATE_WITH_GITHUB)
-    private readonly authenticateWithGithubUseCase: IAuthGitHub,
-    @Inject(UseCaseType.GET_STRIPE_INTENT_ID)
-    private readonly getStripeIntentIdUseCase: IGetStripeIntentId,
-    @Inject(UseCaseType.ADD_STRIPE_SETUP_INTENT_TO_CUSTOMER)
-    private readonly addSetupIntentToCustomerUseCase: IAddStripeSetupIntent,
+    @Inject(UseCaseType.SAVE_USER_SESSION_SETTINGS)
+    private readonly saveUserSessionSettingsUseCase: ISaveUserSettings,
+    @Inject(UseCaseType.GET_USER_SESSION_SETTINGS)
+    private readonly getUserSessionSettingsUseCase: IGetUserSettings,
   ) {}
 
+  @ApiOperation({ summary: 'Get user' })
+  @ApiResponse({
+    status: 200,
+    description: 'Returns found user.',
+    type: FoundUserDs,
+  })
   @Get('user')
   async findMe(@UserId() userId: string, @GCLlId() glidCookieValue: string): Promise<FoundUserDs> {
     const findUserDs: FindUserDs = {
@@ -132,61 +124,24 @@ export class UserController {
     return await this.findUserUseCase.execute(findUserDs, InTransactionEnum.OFF);
   }
 
-  @Post('user/subscription/upgrade')
-  async upgradeSubscription(
-    @Body('subscriptionLevel') subscriptionLevel: SubscriptionLevelEnum,
-    @UserId() userId: string,
-  ): Promise<any> {
-    if (!validateStringWithEnum(subscriptionLevel, SubscriptionLevelEnum)) {
-      throw new HttpException(
-        {
-          message: Messages.SUBSCRIPTION_TYPE_INCORRECT(subscriptionLevel),
-        },
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-    const inputData: UpgradeUserSubscriptionDs = {
-      subscriptionLevel: subscriptionLevel,
-      cognitoUserName: userId,
-    };
-    return await this.upgradeUserSubscriptionUseCase.execute(inputData, InTransactionEnum.ON);
-  }
-
+  @ApiOperation({ summary: 'Login with email and password' })
+  @ApiBody({ type: LoginUserDto })
+  @ApiResponse({
+    status: 201,
+    description: 'Login with email and password.',
+    type: TokenExpDs,
+  })
   @Post('user/login/')
   async usualLogin(
     @Res({ passthrough: true }) response: Response,
-    @BodyEmail('email') email: string,
-    @Body('password') password: string,
+    @Body() loginUserData: LoginUserDto,
   ): Promise<ITokenExp> {
-    if (!email) {
-      throw new HttpException(
-        {
-          message: Messages.EMAIL_MISSING,
-        },
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-    const emailValidationResult = isEmail(email);
-    if (!emailValidationResult) {
-      throw new HttpException(
-        {
-          message: Messages.EMAIL_INVALID,
-        },
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-    if (!password) {
-      throw new HttpException(
-        {
-          message: Messages.PASSWORD_MISSING,
-        },
-        HttpStatus.BAD_REQUEST,
-      );
-    }
+    const { email, password, companyId: userCompanyId } = loginUserData;
     const userData: UsualLoginDs = {
       email: email,
       password: password,
       gclidValue: null,
+      companyId: userCompanyId,
     };
 
     const tokenInfo = await this.usualLoginUseCase.execute(userData, InTransactionEnum.OFF);
@@ -195,71 +150,22 @@ export class UserController {
       httpOnly: true,
       secure: true,
       expires: tokenInfo.exp,
+      ...getCookieDomainOptions(),
     });
     response.cookie(Constants.ROCKETADMIN_AUTHENTICATED_COOKIE, 1, {
       httpOnly: false,
-      ...this.getCookieDomainOtions(),
+      ...getCookieDomainOptions(),
     });
     return { expires: tokenInfo.exp, isTemporary: tokenInfo.isTemporary };
   }
 
-  @Post('user/register/')
-  async usualRegister(
-    @GCLlId() glidCookieValue: string,
-    @Res({ passthrough: true }) response: Response,
-    @BodyEmail('email') email: string,
-    @Body('password') password: string,
-    @Body('name') name: string,
-  ): Promise<ITokenExp> {
-    if (!email) {
-      throw new HttpException(
-        {
-          message: Messages.EMAIL_MISSING,
-        },
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-    const emailValidationResult = isEmail(email);
-    if (!emailValidationResult) {
-      throw new HttpException(
-        {
-          message: Messages.EMAIL_INVALID,
-        },
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-    if (!password) {
-      throw new HttpException(
-        {
-          message: Messages.PASSWORD_MISSING,
-        },
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-    const inputData: UsualRegisterUserDs = {
-      email: email,
-      password: password,
-      gclidValue: glidCookieValue,
-      name: name,
-    };
-    const tokenInfo = await this.usualRegisterUseCase.execute(inputData, InTransactionEnum.ON);
-    response.cookie(Constants.JWT_COOKIE_KEY_NAME, tokenInfo.token, {
-      httpOnly: true,
-      secure: true,
-      expires: tokenInfo.exp,
-    });
-    response.cookie(Constants.ROCKETADMIN_AUTHENTICATED_COOKIE, 1, {
-      httpOnly: false,
-      ...this.getCookieDomainOtions(),
-    });
-    return {
-      expires: tokenInfo.exp,
-      isTemporary: tokenInfo.isTemporary,
-    };
-  }
-
+  @ApiOperation({ summary: 'Log out' })
+  @ApiResponse({
+    status: 201,
+    description: 'Log out.',
+  })
   @Post('user/logout/')
-  async logOut(@Req() request, @Res({ passthrough: true }) response: Response): Promise<any> {
+  async logOut(@Req() request: any, @Res({ passthrough: true }) response: Response): Promise<any> {
     const token = request.cookies[Constants.JWT_COOKIE_KEY_NAME];
     if (!token) {
       throw new HttpException(
@@ -269,106 +175,30 @@ export class UserController {
         HttpStatus.BAD_REQUEST,
       );
     }
-    response.cookie(Constants.JWT_COOKIE_KEY_NAME, '');
+    response.cookie(Constants.JWT_COOKIE_KEY_NAME, '', {
+      ...getCookieDomainOptions(),
+    });
     response.cookie(Constants.ROCKETADMIN_AUTHENTICATED_COOKIE, 1, {
+      expires: new Date(0),
       httpOnly: false,
-      ...this.getCookieDomainOtions(),
+      ...getCookieDomainOptions(),
     });
     return await this.logOutUseCase.execute(token, InTransactionEnum.ON);
   }
 
-  @Post('user/google/login/')
-  async registerWithGoogle(
-    @GCLlId() gclidCookieValue: string,
-    @Res({ passthrough: true }) response: Response,
-    @Body('token') token: string,
-  ): Promise<ITokenExp> {
-    if (!token) {
-      throw new HttpException(
-        {
-          message: Messages.TOKEN_MISSING,
-        },
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-    const googleLoginDs: GoogleLoginDs = {
-      token: token,
-      glidCookieValue: gclidCookieValue,
-    };
-    const tokenInfo = await this.googleLoginUseCase.execute(googleLoginDs, InTransactionEnum.ON);
-    response.cookie(Constants.JWT_COOKIE_KEY_NAME, tokenInfo.token, {
-      httpOnly: true,
-      secure: true,
-      expires: tokenInfo.exp,
-    });
-    response.cookie(Constants.ROCKETADMIN_AUTHENTICATED_COOKIE, 1, {
-      httpOnly: false,
-      ...this.getCookieDomainOtions(),
-    });
-    return {
-      expires: tokenInfo.exp,
-      isTemporary: tokenInfo.isTemporary,
-    };
-  }
-
-  @Post('user/facebook/login/')
-  async registerWithFacebook(@Req() request, @Res({ passthrough: true }) response: Response): Promise<ITokenExp> {
-    const token = request.body.token;
-    if (!token) {
-      throw new HttpException(
-        {
-          message: Messages.TOKEN_MISSING,
-        },
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-    const tokenInfo = await this.facebookLoginUseCase.execute(token, InTransactionEnum.ON);
-    response.cookie(Constants.JWT_COOKIE_KEY_NAME, tokenInfo.token, {
-      httpOnly: true,
-      secure: true,
-      expires: tokenInfo.exp,
-    });
-    response.cookie(Constants.ROCKETADMIN_AUTHENTICATED_COOKIE, 1, {
-      httpOnly: false,
-      ...this.getCookieDomainOtions(),
-    });
-    return {
-      expires: tokenInfo.exp,
-      isTemporary: tokenInfo.isTemporary,
-    };
-  }
-
+  @ApiOperation({ summary: 'Change user password' })
+  @ApiBody({ type: ChangeUsualUserPasswordDs })
+  @ApiResponse({
+    status: 201,
+    description: 'Change user password.',
+    type: TokenExpDs,
+  })
   @Post('user/password/change/')
   async changeUsualPassword(
     @Res({ passthrough: true }) response: Response,
-    @BodyEmail('email') email: string,
-    @Body('oldPassword') oldPassword: string,
-    @Body('newPassword') newPassword: string,
+    @Body() changePasswordData: ChangeUsualUserPasswordDs,
   ): Promise<ITokenExp> {
-    if (!email) {
-      throw new HttpException(
-        {
-          message: Messages.EMAIL_MISSING,
-        },
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-    if (!oldPassword) {
-      throw new HttpException(
-        {
-          message: Messages.PASSWORD_OLD_MISSING,
-        },
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-    if (!newPassword) {
-      throw new HttpException(
-        {
-          message: Messages.PASSWORD_NEW_MISSING,
-        },
-        HttpStatus.BAD_REQUEST,
-      );
-    }
+    const { email, newPassword, oldPassword } = changePasswordData;
     const inputData: ChangeUsualUserPasswordDs = {
       email: email,
       newPassword: newPassword,
@@ -379,46 +209,87 @@ export class UserController {
       httpOnly: true,
       secure: true,
       expires: tokenInfo.exp,
+      ...getCookieDomainOptions(),
     });
     response.cookie(Constants.ROCKETADMIN_AUTHENTICATED_COOKIE, 1, {
       httpOnly: false,
-      ...this.getCookieDomainOtions(),
+      ...getCookieDomainOptions(),
     });
     return { expires: tokenInfo.exp, isTemporary: tokenInfo.isTemporary };
   }
 
+  @ApiOperation({ summary: 'Request user email verification' })
+  @ApiResponse({
+    status: 200,
+    description: 'Request user email verification.',
+    type: OperationResultMessageDs,
+  })
   @Get('user/email/verify/request')
   async requestEmailVerification(@UserId() userId: string): Promise<OperationResultMessageDs> {
     return await this.requestEmailVerificationUseCase.execute(userId, InTransactionEnum.ON);
   }
 
+  @ApiOperation({ summary: 'Verify user email' })
+  @ApiResponse({
+    status: 200,
+    description: 'Verify user email.',
+    type: OperationResultMessageDs,
+  })
   @Get('user/email/verify/:slug')
   async verifyEmail(@VerificationString() verificationString: string): Promise<OperationResultMessageDs> {
     return await this.verifyEmailUseCase.execute(verificationString, InTransactionEnum.ON);
   }
 
+  //todo: make admin endpoint
+  @ApiOperation({ summary: 'Verify user password reset' })
+  @ApiBody({ type: PasswordDto })
+  @ApiResponse({
+    status: 201,
+    description: 'Verify user password reset.',
+    type: RegisteredUserDs,
+  })
   @Post('user/password/reset/verify/:slug')
   async resetUserPassword(
-    @Body('password') password: string,
+    @Body() passwordData: PasswordDto,
     @VerificationString() verificationString: string,
   ): Promise<RegisteredUserDs> {
     const inputData: ResetUsualUserPasswordDs = {
       verificationString: verificationString,
-      newUserPassword: password,
+      newUserPassword: passwordData.password,
     };
     return await this.verifyResetUserPasswordUseCase.execute(inputData, InTransactionEnum.ON);
   }
 
+  @ApiOperation({ summary: 'Request user password reset' })
+  @ApiBody({ type: EmailDto })
+  @ApiResponse({
+    status: 201,
+    description: 'Request user password reset.',
+    type: OperationResultMessageDs,
+  })
   @Post('user/password/reset/request/')
   async askResetUserPassword(@BodyEmail('email') email: string): Promise<OperationResultMessageDs> {
     return await this.requestResetUserPasswordUseCase.execute(email, InTransactionEnum.ON);
   }
 
+  @ApiOperation({ summary: 'Request user email change' })
+  @ApiResponse({
+    status: 200,
+    description: 'Request user email change.',
+    type: OperationResultMessageDs,
+  })
   @Get('user/email/change/request/')
   async askChangeUserEmail(@UserId() userId: string): Promise<OperationResultMessageDs> {
     return await this.requestChangeUserEmailUseCase.execute(userId, InTransactionEnum.ON);
   }
 
+  @ApiOperation({ summary: 'Verify user email change' })
+  @ApiBody({ type: EmailDto })
+  @ApiResponse({
+    status: 201,
+    description: 'Verify user email change.',
+    type: OperationResultMessageDs,
+  })
   @Post('user/email/change/verify/:slug')
   async verifyChangeUserEmail(
     @BodyEmail('email') email: string,
@@ -439,57 +310,113 @@ export class UserController {
     return await this.verifyChangeUserEmailUseCase.execute(inputData, InTransactionEnum.ON);
   }
 
+  @ApiOperation({ summary: 'Change user name' })
+  @ApiBody({ type: UserNameDto })
+  @ApiResponse({
+    status: 200,
+    description: 'Change user name.',
+    type: FoundUserDs,
+  })
   @Put('user/name/')
-  async changeUserName(@UserId() userId: string, @Body('name') name: string): Promise<FoundUserDs> {
+  async changeUserName(@UserId() userId: string, @Body() nameData: UserNameDto): Promise<FoundUserDs> {
     const inputData: ChangeUserNameDS = {
       id: userId,
-      name: name,
+      name: nameData.name,
     };
     return await this.changeUserNameUseCase.execute(inputData, InTransactionEnum.OFF);
   }
 
+  @ApiOperation({ summary: 'Delete user account' })
+  @ApiBody({ type: DeleteUserAccountDTO })
+  @ApiResponse({
+    status: 200,
+    description: 'Delete user account.',
+    type: RegisteredUserDs,
+  })
   @Put('user/delete/')
   async deleteUser(
     @UserId() userId: string,
-    @Body('reason') reason: string,
-    @Body('message') message: string,
+    @Body() deletingAccountReasonData: DeleteUserAccountDTO,
+    @Res({ passthrough: true }) response: Response,
   ): Promise<Omit<RegisteredUserDs, 'token'>> {
     const deleteResult = await this.deleteUserAccountUseCase.execute(userId, InTransactionEnum.ON);
+    const { reason, message } = deletingAccountReasonData;
     const slackMessage = Messages.USER_DELETED_ACCOUNT(deleteResult.email, reason, message);
+
+    response.cookie(Constants.JWT_COOKIE_KEY_NAME, '', {
+      ...getCookieDomainOptions(),
+    });
+    response.cookie(Constants.ROCKETADMIN_AUTHENTICATED_COOKIE, 1, {
+      expires: new Date(0),
+      httpOnly: false,
+      ...getCookieDomainOptions(),
+    });
+
     await slackPostMessage(slackMessage);
     return deleteResult;
   }
 
+  @ApiOperation({ summary: 'Generate one time token and qr' })
+  @ApiResponse({
+    status: 201,
+    description: 'Generate one time token and qr.',
+    type: OtpSecretDS,
+  })
   @Post('user/otp/generate/')
   async generateOtp(@UserId() userId: string): Promise<OtpSecretDS> {
     return await this.generateOtpUseCase.execute(userId, InTransactionEnum.OFF);
   }
 
+  @ApiOperation({ summary: 'Verify one time token' })
+  @ApiBody({ type: OtpTokenDto })
+  @ApiResponse({
+    status: 201,
+    description: 'Verify one time token.',
+    type: OtpValidationResultDS,
+  })
   @Post('user/otp/verify/')
-  async verifyOtp(@UserId() userId: string, @Body('otpToken') otpToken: string): Promise<OtpValidationResultDS> {
+  async verifyOtp(@UserId() userId: string, @Body() otpTokenData: OtpTokenDto): Promise<OtpValidationResultDS> {
+    const { otpToken } = otpTokenData;
     return await this.verifyOtpUseCase.execute({ userId, otpToken }, InTransactionEnum.OFF);
   }
 
+  @ApiOperation({ summary: 'Disable user 2fa authentication' })
+  @ApiBody({ type: OtpTokenDto })
+  @ApiResponse({
+    status: 201,
+    description: 'Disable user 2fa authentication.',
+    type: OtpDisablingResultDS,
+  })
   @Post('user/otp/disable/')
-  async disableOtp(@UserId() userId: string, @Body('otpToken') otpToken: string): Promise<any> {
+  async disableOtp(@UserId() userId: string, @Body() otpTokenData: OtpTokenDto): Promise<OtpDisablingResultDS> {
+    const { otpToken } = otpTokenData;
     return await this.disableOtpUseCase.execute({ userId, otpToken }, InTransactionEnum.OFF);
   }
 
+  @ApiOperation({ summary: 'Validate 2fa token for login with second factor' })
+  @ApiBody({ type: OtpTokenDto })
+  @ApiResponse({
+    status: 201,
+    description: 'Validate 2fa token for login with second factor.',
+    type: TokenExpDs,
+  })
   @Post('user/otp/login/')
   async validateOtp(
     @Res({ passthrough: true }) response: Response,
     @UserId() userId: string,
-    @Body('otpToken') otpToken: string,
+    @Body() otpTokenData: OtpTokenDto,
   ): Promise<any> {
+    const { otpToken } = otpTokenData;
     const tokenInfo = await this.otpLoginUseCase.execute({ userId, otpToken }, InTransactionEnum.OFF);
     response.cookie(Constants.JWT_COOKIE_KEY_NAME, tokenInfo.token, {
       httpOnly: true,
       secure: true,
       expires: tokenInfo.exp,
+      ...getCookieDomainOptions(),
     });
     response.cookie(Constants.ROCKETADMIN_AUTHENTICATED_COOKIE, 1, {
       httpOnly: false,
-      ...this.getCookieDomainOtions(),
+      ...getCookieDomainOptions(),
     });
     return {
       expires: tokenInfo.exp,
@@ -497,62 +424,33 @@ export class UserController {
     };
   }
 
-  @Get('user/login/github')
-  async loginGithub(@Res({ passthrough: true }) response: Response): Promise<any> {
-    const redirectionLink = await this.getGithubLoginLinkUseCase.execute(InTransactionEnum.OFF);
-    response.redirect(redirectionLink);
-  }
 
-  @Get('user/authenticate/github')
-  async authenticateGithub(@Query('code') code: string, @Res({ passthrough: true }) response: Response): Promise<any> {
-    const tokenInfo = await this.authenticateWithGithubUseCase.execute(code, InTransactionEnum.OFF);
-    response.cookie(Constants.JWT_COOKIE_KEY_NAME, tokenInfo.token, {
-      httpOnly: true,
-      secure: true,
-      expires: tokenInfo.exp,
-    });
-    response.cookie(Constants.ROCKETADMIN_AUTHENTICATED_COOKIE, 1, {
-      httpOnly: false,
-      ...this.getCookieDomainOtions(),
-    });
-    return {
-      expires: tokenInfo.exp,
-      isTemporary: tokenInfo.isTemporary,
-    };
-  }
-
-  @Post('user/stripe/intent')
-  async getStripeIntent(@UserId() userId: string): Promise<StripeIntentDs> {
-    return await this.getStripeIntentIdUseCase.execute(userId, InTransactionEnum.OFF);
-  }
-
-  @Post('user/setup/intent')
-  async addSetupIntentToCustomer(
+  @ApiOperation({ summary: 'Save user session settings' })
+  @ApiBody({ type: UserSettingsDataRequestDto })
+  @ApiResponse({
+    status: 201,
+    description: 'User session settings saved.',
+    type: UserSettingsDataRequestDto,
+  })
+  @Post('user/settings/')
+  async saveUserSessionSettings(
+    @Body() userSettings: UserSettingsDataRequestDto,
     @UserId() userId: string,
-    @Body('defaultPaymentMethodId') defaultPaymentMethodId: string,
-    @Body('subscriptionLevel') subscriptionLevel: SubscriptionLevelEnum,
-  ): Promise<any> {
-    if (!validateStringWithEnum(subscriptionLevel, SubscriptionLevelEnum)) {
-      throw new HttpException(
-        {
-          message: Messages.SUBSCRIPTION_TYPE_INCORRECT(subscriptionLevel),
-        },
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-    const inputData: AddStripeSetupIntentDs = {
-      userId: userId,
-      defaultPaymentMethodId: defaultPaymentMethodId,
-      subscriptionLevel: subscriptionLevel,
-    };
-    return await this.addSetupIntentToCustomerUseCase.execute(inputData, InTransactionEnum.OFF);
+  ): Promise<UserSettingsDataRequestDto> {
+    return await this.saveUserSessionSettingsUseCase.execute(
+      { userId, userSettings: userSettings.userSettings },
+      InTransactionEnum.OFF,
+    );
   }
 
-  private getCookieDomainOtions(): { domain: string } | undefined {
-    const cookieDomain = process.env.ROCKETADMIN_COOKIE_DOMAIN;
-    if (cookieDomain) {
-      return { domain: cookieDomain };
-    }
-    return undefined;
+  @ApiOperation({ summary: 'Get user session settings' })
+  @ApiResponse({
+    status: 201,
+    description: 'User session settings saved.',
+    type: UserSettingsDataRequestDto,
+  })
+  @Get('user/settings/')
+  async getUserSessionSettings(@UserId() userId: string): Promise<UserSettingsDataRequestDto> {
+    return await this.getUserSessionSettingsUseCase.execute(userId, InTransactionEnum.OFF);
   }
 }

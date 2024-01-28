@@ -1,5 +1,4 @@
 <app-alert></app-alert>
-<app-alert *ngIf="db.isTestConnection" [alert]="testConnetionInfo"></app-alert>
 
 <div class="connectPage">
     <form action="" #connectForm="ngForm" class="form"
@@ -12,9 +11,9 @@
             <mat-label>Connection title</mat-label>
             <input matInput name="title" #title="ngModel"
                 angulartics2On="change"
-                angularticsAction="Connection creds: title is edited"
+                angularticsAction="Connection creds {{ db.id ? 'edit' : 'add' }}: title is edited"
                 [required]="db.connectionType === 'agent'"
-                [readonly]="accessLevel === 'readonly' && db.id"
+                [readonly]="(accessLevel === 'readonly' || db.isTestConnection) && db.id"
                 [disabled]="submitting"
                 [(ngModel)]="db.title">
         </mat-form-field>
@@ -23,7 +22,8 @@
             <mat-label>Database type</mat-label>
             <mat-select name="dbtype" #dbtype="ngModel"
                 angulartics2On="click"
-                angularticsAction="Connection creds: db type is set in {{ db.type }}"
+                angularticsAction="Connection creds {{ db.id ? 'edit' : 'add' }}: db type is selected"
+                [angularticsProperties]="{'dbType': db.type}"
                 [disabled]="submitting"
                 [(ngModel)]="db.type"
                 (ngModelChange)="dbTypeChange()" >
@@ -37,7 +37,7 @@
         <div class="connectForm__fullLine">
             <mat-button-toggle-group name="connectionType"
                 class="connectForm__typeSwitch"
-                [disabled]="submitting"
+                [disabled]="submitting || db.isTestConnection"
                 [(ngModel)]="db.connectionType">
                 <mat-button-toggle value="direct">Direct connection</mat-button-toggle>
                 <mat-button-toggle value="agent">Agent connection</mat-button-toggle>
@@ -60,7 +60,7 @@
             </mat-radio-group>
         </div>-->
 
-        <div *ngIf="db && db.connectionType === 'direct'" class="connectForm__fullLine">
+        <div *ngIf="db && db.connectionType === 'direct' && !db.isTestConnection" class="connectForm__fullLine">
             <div *ngIf="connectionID; else warningAlert" class="warningMessage">
                 <mat-icon class="warningMessage__icon">warning_amber</mat-icon>
                 <div class="mat-body-1">
@@ -72,7 +72,7 @@
 
             <ng-template #warningAlert>
                 <app-alert [alert]="warning">
-                    <div class="mat-body-1" style="margin-bottom: 4px">
+                    <div class="mat-body-1" style="margin-bottom: 0">
                         Please make sure our servers are able to access your database. <br/> Rocketadmin uses
                         <app-ip-address-button ip="18.221.81.73"></app-ip-address-button>
                         IP address for all outbound requests.
@@ -86,9 +86,9 @@
                 <mat-label>Hostname</mat-label>
                 <input matInput name="hostname" #hostname="ngModel"
                     angulartics2On="change"
-                    angularticsAction="Connection creds: hostname is edited"
-                    required
-                    [readonly]="accessLevel === 'readonly' && db.id" hostnameValidator
+                    angularticsAction="Connection creds {{ db.id ? 'edit' : 'add' }}: hostname is edited"
+                    required hostnameValidator
+                    [readonly]="(accessLevel === 'readonly' || db.isTestConnection) && db.id"
                     [disabled]="submitting"
                     [(ngModel)]="db.host">
                 <mat-hint>
@@ -109,8 +109,9 @@
                 <mat-label>Port</mat-label>
                 <input matInput type="number" name="port" #port="ngModel"
                     angulartics2On="change"
-                    angularticsAction="Connection creds: port is edited"
-                    required [readonly]="accessLevel === 'readonly' && db.id"
+                    angularticsAction="Connection creds {{ db.id ? 'edit' : 'add' }}: port is edited"
+                    required
+                    [readonly]="(accessLevel === 'readonly' || db.isTestConnection) && db.id"
                     [disabled]="submitting"
                     [(ngModel)]="db.port">
                 <mat-error *ngIf="port.errors?.required && (port.invalid && port.touched)">Port should not be empty.</mat-error>
@@ -120,8 +121,9 @@
                 <mat-label>Username</mat-label>
                 <input matInput name="username" #username="ngModel"
                     angulartics2On="change"
-                    angularticsAction="Connection creds: username is edited"
-                    required [readonly]="accessLevel === 'readonly' && db.id"
+                    angularticsAction="Connection creds {{ db.id ? 'edit' : 'add' }}: username is edited"
+                    required
+                    [readonly]="(accessLevel === 'readonly' || db.isTestConnection) && db.id"
                     [disabled]="submitting"
                     [(ngModel)]="db.username">
                 <mat-error *ngIf="username.errors?.required && (username.invalid && username.touched)">Username should not be empty.</mat-error>
@@ -131,13 +133,13 @@
                 <mat-label>Password</mat-label>
                 <input type="password" matInput name="password" #password="ngModel"
                     angulartics2On="change"
-                    angularticsAction="Connection creds: password is edited"
+                    angularticsAction="Connection creds {{ db.id ? 'edit' : 'add' }}: password is edited"
                     [required]="!db.id || hostname.touched || port.touched"
-                    [readonly]="accessLevel === 'readonly' && db.id"
+                    [readonly]="(accessLevel === 'readonly' || db.isTestConnection) && db.id"
                     [disabled]="submitting"
                     [(ngModel)]="db.password">
-                <mat-hint *ngIf="db.id && (hostname.untouched && port.untouched)">To keep password the same keep this field blank.</mat-hint>
-                <mat-hint *ngIf="db.id && (hostname.touched || port.touched)">Password needed due to hostname/port change.</mat-hint>
+                <mat-hint *ngIf="db.id && (hostname.pristine && port.pristine)">To keep password the same keep this field blank.</mat-hint>
+                <mat-hint *ngIf="db.id && (hostname.dirty || port.dirty)">Password needed due to hostname/port change.</mat-hint>
                 <!-- <mat-error *ngIf="email.errors.required && (email.invalid && email.touched)">Email should not be empty.</mat-error> -->
             </mat-form-field>
 
@@ -145,8 +147,9 @@
                 <mat-label>Database Name</mat-label>
                 <input matInput name="database" #database="ngModel"
                     angulartics2On="change"
-                    angularticsAction="Connection creds: database name is edited"
-                    required [readonly]="accessLevel === 'readonly' && db.id"
+                    angularticsAction="Connection creds {{ db.id ? 'edit' : 'add' }}: database name is edited"
+                    required
+                    [readonly]="(accessLevel === 'readonly' || db.isTestConnection) && db.id"
                     [disabled]="submitting"
                     [(ngModel)]="db.database">
                 <mat-error *ngIf="database.errors?.required && (database.invalid && database.touched)">Name should not be empty.</mat-error>
@@ -156,9 +159,9 @@
                 <mat-label>Schema</mat-label>
                 <input matInput name="schema" #schema="ngModel"
                     angulartics2On="change"
-                    angularticsAction="Connection creds: database schema is edited"
+                    angularticsAction="Connection creds {{ db.id ? 'edit' : 'add' }}: database schema is edited"
                     [required]="db.type === 'mssql'"
-                    [readonly]="accessLevel === 'readonly' && db.id"
+                    [readonly]="(accessLevel === 'readonly' || db.isTestConnection) && db.id"
                     [disabled]="submitting"
                     [(ngModel)]="db.schema">
                 <mat-error *ngIf="schema.errors?.required && (schema.invalid && schema.touched)">Name should not be empty.</mat-error>
@@ -175,14 +178,15 @@
                     <div class="encription-setting advanced-settings__fullLine">
                         <mat-slide-toggle name="encryption"
                             angulartics2On="click"
-                            angularticsAction="Connection creds: encryption is {{ db.masterEncryption ? 'on' : 'off' }}"
-                            [disabled]="accessLevel === 'readonly' || submitting"
+                            angularticsAction="Connection creds {{ db.id ? 'edit' : 'add' }}: client-side encryption is switched"
+                            [angularticsProperties]="{'enable': db.masterEncryption}"
+                            [disabled]="accessLevel === 'readonly' || submitting || db.isTestConnection"
                             [(ngModel)]="db.masterEncryption"
                             [(ngModel)]="db.masterEncryption"
                             (ngModelChange)="generatePassword()">
-                            Use clientside encryption
+                            Use client-side encryption
                         </mat-slide-toggle>
-                        <div *ngIf="db.masterEncryption" class="encription-password">
+                        <div *ngIf="db.masterEncryption && masterKey" class="encription-password">
                             <mat-form-field appearance="outline" style="width:100%">
                                 <mat-label>Master password</mat-label>
                                 <input matInput [(ngModel)]="masterKey" name="masterPassword" #masterPassword="ngModel" readonly>
@@ -208,8 +212,8 @@
                         <mat-label>SID</mat-label>
                         <input matInput
                             angulartics2On="change"
-                            angularticsAction="Connection creds: SID is edited"
-                            [readonly]="accessLevel === 'readonly' && db.id"
+                            angularticsAction="Connection creds {{ db.id ? 'edit' : 'add' }}: SID is edited"
+                            [readonly]="(accessLevel === 'readonly' || db.isTestConnection) && db.id"
                             [disabled]="submitting"
                             [(ngModel)]="db.sid" name="sid" #sid="ngModel">
                         <!-- <mat-error *ngIf="sid.invalid && sid.touched">Email should not be empty.</mat-error> -->
@@ -218,8 +222,9 @@
                     <mat-checkbox class="checkbox-line advanced-settings__fullLine" name="ssh" #ssh="ngModel"
                         labelPosition="after"
                         angulartics2On="click"
-                        angularticsAction="Connection creds: SSH is {{ db.ssh ? 'on' : 'off' }}"
-                        [disabled]="submitting"
+                        angularticsAction="Connection creds {{ db.id ? 'edit' : 'add' }}: SSH is switched"
+                        [angularticsProperties]="{'enable': db.ssh}"
+                        [disabled]="submitting || db.isTestConnection"
                         [(ngModel)]="db.ssh">
                         Use SSH tunnel
                     </mat-checkbox>
@@ -228,7 +233,7 @@
                         <mat-label>Private SSH key</mat-label>
                         <textarea matInput resizeToFitContent rows="8" name="privateSSHKey" #privateSSHKey="ngModel"
                             angulartics2On="change"
-                            angularticsAction="Connection creds: SSH key is edited"
+                            angularticsAction="Connection creds {{ db.id ? 'edit' : 'add' }}: SSH key is edited"
                             [required]="db.ssh && !db.id" [readonly]="accessLevel === 'readonly' && db.id"
                             [disabled]="submitting"
                             [(ngModel)]="db.privateSSHKey"
@@ -240,7 +245,7 @@
                         <mat-label>SSH host</mat-label>
                         <input matInput name="sshHost" #sshHost="ngModel"
                             angulartics2On="change"
-                            angularticsAction="Connection creds: SSH host is edited"
+                            angularticsAction="Connection creds {{ db.id ? 'edit' : 'add' }}: SSH host is edited"
                             [required]="db.ssh" [readonly]="accessLevel === 'readonly' && db.id"
                             [disabled]="submitting"
                             [(ngModel)]="db.sshHost">
@@ -251,7 +256,7 @@
                         <mat-label>SSH port</mat-label>
                         <input matInput type="number" name="sshPort" #sshPort="ngModel"
                             angulartics2On="change"
-                            angularticsAction="Connection creds: SSH port is edited"
+                            angularticsAction="Connection creds {{ db.id ? 'edit' : 'add' }}: SSH port is edited"
                             [required]="db.ssh" [readonly]="accessLevel === 'readonly' && db.id"
                             [disabled]="submitting"
                             [(ngModel)]="db.sshPort">
@@ -262,7 +267,7 @@
                         <mat-label>SSH username</mat-label>
                         <input matInput name="sshUsername" #sshUsername="ngModel"
                             angulartics2On="change"
-                            angularticsAction="Connection creds: SSH username is edited"
+                            angularticsAction="Connection creds {{ db.id ? 'edit' : 'add' }}: SSH username is edited"
                             [required]="db.ssh" [readonly]="accessLevel === 'readonly' && db.id"
                             [disabled]="submitting"
                             [(ngModel)]="db.sshUsername">
@@ -272,8 +277,9 @@
                     <mat-checkbox class="checkbox-line advanced-settings__fullLine" name="ssl" #ssh="ngModel"
                         labelPosition="after"
                         angulartics2On="click"
-                        angularticsAction="Connection creds: SSL is {{ db.ssl ? 'on' : 'off' }}"
-                        [disabled]="submitting"
+                        angularticsAction="Connection creds {{ db.id ? 'edit' : 'add' }}: SSL is switched"
+                        [angularticsProperties]="{'enable': db.ssl}"
+                        [disabled]="submitting || db.isTestConnection"
                         [(ngModel)]="db.ssl">
                         Check SSL certificate
                     </mat-checkbox>
@@ -282,7 +288,7 @@
                         <mat-label>SSL certificate</mat-label>
                         <textarea matInput resizeToFitContent rows="8" name="sslCert" #sslCert="ngModel"
                             angulartics2On="change"
-                            angularticsAction="Connection creds: SSL certificate is edited"
+                            angularticsAction="Connection creds {{ db.id ? 'edit' : 'add' }}: SSL certificate is edited"
                             [required]="db.ssl" [readonly]="accessLevel === 'readonly' && db.id"
                             [disabled]="submitting"
                             [(ngModel)]="db.cert"
@@ -293,7 +299,8 @@
                     <mat-checkbox *ngIf="db.type === 'mssql'" class="checkbox-line advanced-settings__fullLine" name="ssl" #ssh="ngModel"
                         labelPosition="after"
                         angulartics2On="click"
-                        angularticsAction="Connection creds: azure encryption is {{ db.azure_encryption ? 'on' : 'off' }}"
+                        angularticsAction="Connection creds {{ db.id ? 'edit' : 'add' }}: azure encryption is switched"
+                        [angularticsProperties]="{'enable': db.azure_encryption}"
                         [disabled]="submitting"
                         [(ngModel)]="db.azure_encryption">
                         Encryption
@@ -303,14 +310,20 @@
 
         </ng-container>
 
-        <div *ngIf="db.connectionType === 'agent'" class="connectForm__fullLine mat-body-1 instruction">
+        <div *ngIf="db.connectionType === 'agent'" class="connectForm__fullLine instruction">
 
             <a mat-flat-button color="accent"
-                [href]="osAgents[userOS]">
+                [href]="osAgents[userOS]"
+                angulartics2On="mousedown"
+                angularticsAction="Connection creds {{ db.id ? 'edit' : 'add' }}: Download agent for user OS"
+                [angularticsProperties]="{'downloadForUserOS': userOS}">
                 Download for {{ userOS }}
             </a>
             <a mat-button  *ngFor="let os of otherOS"
-                [href]="osAgents[os]" class="download-button">
+                [href]="osAgents[os]" class="download-button"
+                angulartics2On="mousedown"
+                angularticsAction="Connection creds {{ db.id ? 'edit' : 'add' }}: Download agent for OS"
+                [angularticsProperties]="{downloadForOS: os}">
                 Download for {{os}}
             </a>
 
@@ -413,47 +426,83 @@
             </div>
         </div>
 
-        <div class="actions" *ngIf="accessLevel === 'edit' || !db.id">
-            <button type="button" *ngIf="db.id" mat-button color="warn"
-                class="delete-button"
+        <!-- test connection actions -->
+        <div *ngIf="db.isTestConnection" class="test-connection-actions">
+            <p class="mat-body-1 test-connection-message">You cannot edit test connection.</p>
+            <a *ngIf="db.isTestConnection"
+                routerLink="/connect-db"
+                mat-flat-button color="accent">
+                Create your own
+            </a>
+            <button type="button" mat-button color="warn"
                 angulartics2On="click"
-                angularticsAction="Connection creds: delete db"
+                angularticsAction="Connection creds test: delete db is clicked"
                 [disabled]="submitting"
                 (click)="confirmDeleteConnection(db)">
                 Delete
             </button>
+        </div>
 
-            <button *ngIf="db.id || db.connectionType === 'direct'" type="button" mat-button color="primary" class="test-button"
+        <!-- add connection actions -->
+        <div class="actions" *ngIf="!db.id && !db.isTestConnection">
+            <a routerLink="/connections-list"
+                mat-stroked-button
+                class="delete-button">
+                Back
+            </a>
+            <button *ngIf="db.connectionType === 'direct'" type="button" mat-button color="primary" class="test-button"
                 angulartics2On="click"
-                angularticsAction="Connection creds: test db creads"
+                angularticsAction="Connection creds {{ db.id ? 'edit' : 'add' }}: test db creds is clicked"
+                (click)="testConnection()"
+                [disabled]="submitting">
+                Test connection
+            </button>
+            <button type="submit" *ngIf="!connectionToken && !connectionID"
+                mat-flat-button color="primary"
+                angulartics2On="click"
+                angularticsAction="Connection creds add: db add clicked"
+                [disabled]="submitting">
+                {{ submitting ? 'Checking' : 'Add'}}
+            </button>
+            <a *ngIf="connectionToken && connectionID"
+                routerLink="/dashboard/{{connectionID}}"
+                mat-flat-button color="primary">
+                Open dashboard
+            </a>
+        </div>
+
+        <!-- edit connection actions -->
+        <div class="actions" *ngIf="accessLevel && db.id && accessLevel === 'edit' && !db.isTestConnection">
+            <button type="button" mat-button color="warn"
+                class="delete-button"
+                angulartics2On="click"
+                angularticsAction="Connection creds edit: delete db is clicked"
+                [disabled]="submitting"
+                (click)="confirmDeleteConnection(db)">
+                Delete
+            </button>
+            <button type="button" mat-button color="primary" class="test-button"
+                angulartics2On="click"
+                angularticsAction="Connection creds {{ db.id ? 'edit' : 'add' }}: test db creads is clicked"
                 (click)="testConnection()"
                 [disabled]="submitting">
                 Test connection
             </button>
 
-            <button type="submit" *ngIf="db.id; else goButton"
-                mat-raised-button color="primary"
+            <!-- right button -->
+            <button type="submit" *ngIf="db.id"
+                mat-flat-button color="primary"
                 angulartics2On="click"
-                angularticsAction="Connection creds: db is edited"
-                [disabled]="submitting || connectForm.form.pristine">
+                angularticsAction="Connection creds edit: db edit is clicked"
+                [disabled]="submitting || connectForm.form.pristine || db.isTestConnection">
                 {{ submitting ? 'Checking' : 'Edit'}}
             </button>
 
-            <ng-template #goButton>
-                <a *ngIf="connectionToken && connectionID; else addButton"
-                    routerLink="/dashboard/{{connectionID}}"
-                    mat-raised-button color="primary">
-                    Open dashboard
-                </a>
-                <ng-template #addButton>
-                    <button type="submit" mat-raised-button color="primary"
-                        angulartics2On="click"
-                        angularticsAction="Connection creds: db is added"
-                        [disabled]="submitting">
-                        {{ submitting ? 'Checking' : 'Add'}}
-                    </button>
-                </ng-template>
-            </ng-template>
+            <a *ngIf="connectionToken && connectionID"
+                routerLink="/dashboard/{{connectionID}}"
+                mat-flat-button color="primary">
+                Open dashboard
+            </a>
         </div>
     </form>
 </div>

@@ -2,6 +2,7 @@ import { Component, EventEmitter, Inject, Output } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { UserService } from 'src/app/services/user.service';
 import { GroupDeleteDialogComponent } from '../../users/group-delete-dialog/group-delete-dialog.component';
+import { Angulartics2 } from 'angulartics2';
 
 @Component({
   selector: 'app-enable-two-fa-dialog',
@@ -18,6 +19,7 @@ export class EnableTwoFADialogComponent {
     @Inject(MAT_DIALOG_DATA) public qr: any,
     public dialogRef: MatDialogRef<GroupDeleteDialogComponent>,
     private _userService: UserService,
+    private angulartics2: Angulartics2,
   ) {}
 
   verify2FA() {
@@ -29,6 +31,9 @@ export class EnableTwoFADialogComponent {
           this.secondFAQRCode = '';
           this.submitting = false;
           this.dialogRef.close();
+          this.angulartics2.eventTrack.next({
+            action: 'User settings: 2fa enabled successfully',
+          });
         }
       },
       (err) => { console.log('error !!!!', err); this.confirm2FAerror.emit(true); }

@@ -14,6 +14,8 @@ import { UpdateConnectionDs } from '../application/data-structures/update-connec
 import { ConnectionEntity } from '../connection.entity.js';
 import { isHostAllowed } from '../utils/is-host-allowed.js';
 import { ITestConnection } from './use-cases.interfaces.js';
+import { processAWSConnection } from '../utils/process-aws-connection.util.js';
+import { CreateConnectionDs } from '../application/data-structures/create-connection.ds.js';
 
 @Injectable()
 export class TestConnectionUseCase
@@ -35,7 +37,7 @@ export class TestConnectionUseCase
         message: Messages.CANNOT_CREATE_CONNECTION_TO_THIS_HOST,
       };
     }
-    const {
+    let {
       update_info: { connectionId, masterPwd },
       connection_parameters: connectionData,
     } = inputData;
@@ -95,7 +97,12 @@ export class TestConnectionUseCase
           message: `${Messages.CONNECTION_TEST_FILED}${e ? e : ''}`,
         };
       }
-      const updated = Object.assign(toUpdate, connectionData);
+      let updated = Object.assign(toUpdate, connectionData);
+      const dataForProcessing: CreateConnectionDs = {
+        connection_parameters: updated,
+        creation_info: null,
+      };
+      updated = (await processAWSConnection(dataForProcessing)).connection_parameters;
       const dao = getDataAccessObject(updated);
 
       try {
@@ -115,6 +122,11 @@ export class TestConnectionUseCase
           message: Messages.PASSWORD_MISSING,
         };
       }
+      const dataForProcessing: CreateConnectionDs = {
+        connection_parameters: connectionData,
+        creation_info: null,
+      };
+      connectionData = (await processAWSConnection(dataForProcessing)).connection_parameters;
       const dao = getDataAccessObject(connectionData as ConnectionEntity);
       try {
         return await dao.testConnect();

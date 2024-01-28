@@ -1,6 +1,8 @@
+import { Injectable, Scope } from '@nestjs/common';
 import { InTransactionEnum } from '../enums/index.js';
 import { IDatabaseContext } from './database-context.interface.js';
 
+@Injectable({ scope: Scope.REQUEST })
 abstract class AbstractUseCase<TInputData = void, TOutputData = void> {
   protected _inputData: TInputData;
   protected _inTransaction: boolean;
@@ -11,7 +13,7 @@ abstract class AbstractUseCase<TInputData = void, TOutputData = void> {
     inTransaction: InTransactionEnum = InTransactionEnum.OFF,
   ): Promise<TOutputData> {
     this._inputData = inputData;
-    this._inTransaction = inTransaction === InTransactionEnum.DEBUG;
+    this._inTransaction = inTransaction === InTransactionEnum.ON;
 
     let result: TOutputData;
 
@@ -22,8 +24,9 @@ abstract class AbstractUseCase<TInputData = void, TOutputData = void> {
     } catch (error) {
       if (this._inTransaction) await this._dbContext.rollbackTransaction();
       throw error;
+    } finally {
+      if (this._inTransaction) await this._dbContext.releaseQueryRunner();
     }
-    await this._dbContext.releaseQueryRunner();
     return result;
   }
 

@@ -2,7 +2,7 @@ import { Component, NgZone, OnInit } from '@angular/core';
 
 import { Angulartics2 } from 'angulartics2';
 import { AuthService } from 'src/app/services/auth.service';
-import { AuthUser } from 'src/app/models/user';
+import { ExistingAuthUser } from 'src/app/models/user';
 import { Router } from '@angular/router';
 
 @Component({
@@ -12,12 +12,16 @@ import { Router } from '@angular/router';
 })
 export class LoginComponent implements OnInit {
 
-  public user: AuthUser = {
+  public user: ExistingAuthUser = {
     email: '',
-    password: ''
+    password: '',
+    companyId: ''
   };
+  public userCompanies: [] = null;
+  public isLoadingUserCompanies: boolean = false;
   public authCode: string;
   public submitting: boolean;
+  public isPasswordFieldShown: boolean = false;
   public is2FAShown: boolean = false;
 
   constructor(
@@ -44,10 +48,31 @@ export class LoginComponent implements OnInit {
     //@ts-ignore
     google.accounts.id.renderButton(
       document.getElementById("google_login_button"),
-      { theme: "filled_blue", size: "large", width: "400px" }
+      { theme: "outline", size: "large", width: "360px", text: "continue_with" }
     );
     //@ts-ignore
     google.accounts.id.prompt();
+  }
+
+  requestUserCompanies() {
+    this.isLoadingUserCompanies = true;
+    this._auth.fetchUserCompanies(this.user.email)
+      .subscribe(companies => {
+        this.angulartics2.eventTrack.next({
+          action: 'Login: companies is received',
+          properties: {
+            count: companies.length
+          }
+        })
+
+        this.userCompanies = companies;
+        this.isLoadingUserCompanies = false;
+
+        if (companies.length === 1) {
+          this.isPasswordFieldShown = true;
+          this.user.companyId = companies[0].id;
+        }
+      });
   }
 
   loginUser() {
@@ -61,7 +86,7 @@ export class LoginComponent implements OnInit {
         });
       }, (error) => {
         this.angulartics2.eventTrack.next({
-          action: 'Login: login unsuccess'
+          action: 'Login: login unsuccessful'
         });
         this.submitting = false;
       }, () => this.submitting = false)
@@ -77,7 +102,7 @@ export class LoginComponent implements OnInit {
         });
       }, (error) => {
         this.angulartics2.eventTrack.next({
-          action: 'Login: login with 2fa unsuccess'
+          action: 'Login: login with 2fa unsuccessful'
         });
         this.submitting = false;
       }, () => this.submitting = false)

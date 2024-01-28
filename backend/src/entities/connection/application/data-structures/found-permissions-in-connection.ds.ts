@@ -1,23 +1,57 @@
+import { ApiProperty } from '@nestjs/swagger';
 import { AccessLevelEnum } from '../../../../enums/index.js';
 
+export class FoundConnectionPermissionsDs {
+  @ApiProperty()
+  connectionId: string;
+
+  @ApiProperty({ enum: AccessLevelEnum })
+  accessLevel: AccessLevelEnum;
+}
+
+export class FoundConnectionGroupPermissionDs {
+  @ApiProperty()
+  groupId: string;
+
+  @ApiProperty({ enum: AccessLevelEnum })
+  accessLevel: AccessLevelEnum;
+}
+
+export class FoundTablePermissionsDs {
+  @ApiProperty()
+  visibility: boolean;
+
+  @ApiProperty()
+  readonly: boolean;
+
+  @ApiProperty()
+  add: boolean;
+
+  @ApiProperty()
+  delete: boolean;
+
+  @ApiProperty()
+  edit: boolean;
+}
+
+export class FoundTablesWithPermissionsDs {
+  @ApiProperty()
+  tableName: string;
+
+  @ApiProperty()
+  display_name: string;
+
+  @ApiProperty()
+  accessLevel: FoundTablePermissionsDs;
+}
+
 export class FoundPermissionsInConnectionDs {
-  connection: {
-    connectionId: string;
-    accessLevel: AccessLevelEnum;
-  };
-  group: {
-    groupId: string;
-    accessLevel: AccessLevelEnum;
-  };
-  tables: Array<{
-    tableName: string;
-    display_name: string;
-    accessLevel: {
-      visibility: boolean;
-      readonly: boolean;
-      add: boolean;
-      delete: boolean;
-      edit: boolean;
-    };
-  }>;
+  @ApiProperty()
+  connection: FoundConnectionPermissionsDs;
+
+  @ApiProperty()
+  group: FoundConnectionGroupPermissionDs;
+
+  @ApiProperty({ isArray: true, type: FoundTablesWithPermissionsDs })
+  tables: Array<FoundTablesWithPermissionsDs>;
 }

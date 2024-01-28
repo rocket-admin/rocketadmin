@@ -23,7 +23,7 @@
                 Upgrade
             </a>
             <div mat-list-item>
-                <button mat-button class="logout-button" (click)="logOut()">
+                <button mat-button (click)="logOut()">
                     Log out
                     <mat-icon>exit_to_app</mat-icon>
                 </button>
@@ -33,7 +33,7 @@
 
     <mat-sidenav-content class="main-menu-content">
         <mat-toolbar color="primary" class="nav-bar"
-            [ngClass]="{'nav-bar_white': !userLoggedIn, 'nav-bar_home': !connectionID, 'nav-bar_connection': connectionID}">
+            [ngClass]="{'nav-bar_home': !connectionID, 'nav-bar_connection': connectionID}">
             <a routerLink="/dashboard/{{connectionID}}" *ngIf="userLoggedIn && logo && name" class="logo">
                 <img [src]="logo || '../assets/rocketadmin_logo_white.svg'" alt="Logo">
                 <span>{{name}}</span>
@@ -53,7 +53,7 @@
             </a>
 
             <a *ngIf="!userLoggedIn" href="https://rocketadmin.com/" class="logo">
-                <img src="../assets/rocketadmin_logo_black.svg" alt="Rocketadmin logo">
+                <img src="../assets/rocketadmin_logo_white.svg" alt="Rocketadmin logo">
             </a>
 
             <div *ngIf="connectionID" class="menu">
@@ -67,7 +67,7 @@
                 <a mat-button *ngFor="let tab of visibleTabs" attr.data-testid="{{tab}}-header-link"
                     routerLink="{{tab}}/{{connectionID}}"
                     routerLinkActive="nav-bar__button_active"
-                    class="action nav-bar__button">
+                    class="nav-bar__button">
                     {{navigationTabs[tab].caption}}
                 </a>
             </div>
@@ -77,7 +77,7 @@
             </button>
 
             <div *ngIf="userLoggedIn === true" class="actions actions_auth">
-                <a routerLink="/upgrade" mat-flat-button data-testid="upgrade-header-link"
+                <a routerLink="/upgrade" mat-flat-button color="accent" data-testid="upgrade-header-link"
                     routerLinkActive="mat-accent" class="nav-bar__upgrade-button">
                     Upgrade
                 </a>
@@ -101,6 +101,12 @@
                         <br/>
                         <span class="user-email">{{currentUser.email}}</span>
                     </a>
+                    <a mat-menu-item routerLink="/company" data-testid="company-link-account-menu">
+                        <mat-icon class="nav-menu__list-link-icon">
+                            apartment
+                        </mat-icon>
+                        <span>Company</span>
+                    </a>
                     <a mat-menu-item href="https://help.rocketadmin.com/" target="_blank">
                         <mat-icon fontSet="material-icons-outlined">help_outlined</mat-icon>
                         <span>Help center</span>
@@ -113,14 +119,31 @@
             </div>
 
             <div *ngIf="userLoggedIn === null" class="actions">
-                <a class="authButton authButton_login" data-testid="login-header-link"
-                    routerLink="/login">
-                    Login
-                </a>
-                <a class="authButton authButton_signup" data-testid="registration-header-link"
-                    routerLink="/registration">
-                    Sign up
-                </a>
+                <ng-container *ngIf="page === '/login'">
+                    <a mat-stroked-button routerLink="/login"
+                        data-testid="login-header-link"
+                        class="action">
+                        Login
+                    </a>
+                    <a mat-flat-button color="accent" routerLink="/registration"
+                        data-testid="registration-header-link"
+                        class="action">
+                        Sign up
+                    </a>
+                </ng-container>
+                <ng-container *ngIf="page === '/registration'">
+                    <a mat-flat-button color="accent" routerLink="/login"
+                        data-testid="login-header-link"
+                        class="action">
+                        Login
+                    </a>
+                    <a mat-stroked-button routerLink="/registration"
+                        data-testid="registration-header-link"
+                        class="action">
+                        Sign up
+                    </a>
+                </ng-container>
+
             </div>
             <!-- <ng-template #nonAuthBlock>
 
@@ -134,7 +157,7 @@
         </mat-tab-nav-panel>
 
         <div *ngIf="!authBarTheme" class="footer">
-            <span class="footer__text">&copy; 2023 Rocketadmin</span>
+            <span class="footer__text">&copy; 2024 Rocketadmin</span>
         </div>
     </mat-sidenav-content>
 </mat-sidenav-container>

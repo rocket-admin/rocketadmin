@@ -13,6 +13,7 @@ export class BooleanComponent implements OnInit {
   @Input() value;
   @Input() required: boolean;
   @Input() readonly: boolean;
+  @Input() disabled: boolean;
   @Input() structure: TableField;
   @Input() widgetStructure: Widget;
 

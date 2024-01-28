@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Inject } from '@nestjs/common';
+import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
@@ -17,7 +17,9 @@ import { buildDefaultAdminPermissions } from '../../../entities/user/utils/build
 import { buildTestTableSettings } from '../../../entities/user/utils/build-test-table-settings.js';
 import { Constants } from '../../../helpers/constants/constants.js';
 import { Messages } from '../../../exceptions/text/messages.js';
+import { ExternalRegistrationProviderEnum } from '../../../entities/user/enums/external-registration-provider.enum.js';
 
+@Injectable()
 export class LoginUserWithGithubUseCase
   extends AbstractUseCase<SaasRegisterUserWithGithub, UserEntity>
   implements ILoginUserWithGitHub
@@ -51,7 +53,10 @@ export class LoginUserWithGithubUseCase
     };
 
     try {
-      const savedUser = await this._dbContext.userRepository.saveRegisteringUser(userData);
+      const savedUser = await this._dbContext.userRepository.saveRegisteringUser(
+        userData,
+        ExternalRegistrationProviderEnum.GITHUB,
+      );
       const newUserGitHubIdentifier = buildUserGitHubIdentifierEntity(savedUser, Number(githubId));
       await this._dbContext.userGitHubIdentifierRepository.saveGitHubIdentifierEntity(newUserGitHubIdentifier);
 

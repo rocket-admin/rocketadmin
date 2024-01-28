@@ -1,5 +1,5 @@
 import { AlertActionType, AlertType } from '../models/alert';
-import { BehaviorSubject, EMPTY } from 'rxjs';
+import { BehaviorSubject, EMPTY, throwError } from 'rxjs';
 import { Connection, ConnectionSettings, ConnectionType, DBtype } from '../models/connection';
 import { IColorConfig, NgxThemeService } from '@brumeilde/ngx-theme';
 import { NavigationEnd, ResolveEnd, Router, RouterEvent } from '@angular/router';
@@ -143,18 +143,18 @@ export class ConnectionsService {
           console.log('setConnectionInfo ui');
           this.connectionLogo = res.connectionProperties.logo_url;
           this.companyName = res.connectionProperties.company_name;
-          this._themeService.updateColors({ palettes: { primaryPalette: res.primary_color, accentedPalette: res.secondary_color }});
+          this._themeService.updateColors({ palettes: { primaryPalette: res.connectionProperties.primary_color, accentedPalette: res.connectionProperties.secondary_color }});
         } else {
           this.connectionLogo = null;
           this.companyName = null;
-          this._themeService.updateColors({ palettes: { primaryPalette: '#3258f0', accentedPalette: '#ed4870' }});
+          this._themeService.updateColors({ palettes: { primaryPalette: '#212121', accentedPalette: '#A63BFB' }});
         }
       });
     } else {
       this.connection = {...this.connectionInitialState};
       this.connectionLogo = null;
       this.companyName = null;
-      this._themeService.updateColors({ palettes: { primaryPalette: '#3258f0', accentedPalette: '#ed4870' }});
+      this._themeService.updateColors({ palettes: { primaryPalette: '#212121', accentedPalette: '#A63BFB' }});
     }
   }
 
@@ -268,7 +268,7 @@ export class ConnectionsService {
       catchError((err) => {
         console.log(err);
         this._notifications.showAlert(AlertType.Error, {abstract: err.error.message, details: err.error.originalMessage}, []);
-        return EMPTY;
+        return throwError(() => new Error(err.error.message));
       }
       )
     );
@@ -302,7 +302,8 @@ export class ConnectionsService {
           }
         ]);
         // this._notifications.showErrorSnackbar(`${err.error.message}. Connection has not been updated.`);
-        return EMPTY;
+        console.log('updateConnection catchError');
+        return throwError(() => new Error(err.error.message));
       }
       )
     );

@@ -1,8 +1,14 @@
 import { TablePermissions } from './table';
 
-export interface AuthUser {
+export interface NewAuthUser {
     email: string,
-    password: string
+    password: string,
+}
+
+export interface ExistingAuthUser {
+    email: string,
+    password: string,
+    companyId: string
 }
 
 export interface UserGroup {

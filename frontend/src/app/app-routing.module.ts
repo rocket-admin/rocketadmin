@@ -2,6 +2,8 @@ import { RouterModule, Routes } from '@angular/router';
 
 import { AuditComponent } from './components/audit/audit.component';
 import { AuthGuard } from './auth.guard';
+import { CompanyComponent } from './components/company/company.component';
+import { CompanyMemberInvitationComponent } from './components/company-member-invitation/company-member-invitation.component';
 import { ConnectDBComponent } from './components/connect-db/connect-db.component'
 import { ConnectionSettingsComponent } from './components/connection-settings/connection-settings.component';
 import { ConnectionsListComponent } from './components/connections-list/connections-list.component';
@@ -13,7 +15,6 @@ import { DbTableSettingsComponent } from './components/dashboard/db-table-settin
 import { DbTableWidgetsComponent } from './components/dashboard/db-table-widgets/db-table-widgets.component';
 import { EmailChangeComponent } from './components/email-change/email-change.component';
 import { EmailVerificationComponent } from './components/email-verification/email-verification.component';
-import { GroupUserVerificationComponent } from './components/group-user-verification/group-user-verification.component';
 import { LoginComponent } from './components/login/login.component';
 import { NewVersionComponent } from './components/new-version/new-version.component';
 import { NgModule } from '@angular/core';
@@ -22,13 +23,13 @@ import { PageNotFoundComponent } from './components/page-not-found/page-not-foun
 import { PasswordChangeComponent } from './components/password-change/password-change.component';
 import { PasswordRequestComponent } from './components/password-request/password-request.component';
 import { PasswordResetComponent } from './components/password-reset/password-change.component';
+import { PaymentFormComponent } from './components/payment-form/payment-form.component';
 import { RegistrationComponent } from './components/registration/registration.component';
 import { UpgradeComponent } from './components/upgrade/upgrade.component';
 import { UpgradeSuccessComponent } from './components/upgrade-success/upgrade-success.component';
 import { UserDeletedSuccessComponent } from './components/user-deleted-success/user-deleted-success.component';
 import { UserSettingsComponent } from './components/user-settings/user-settings.component';
 import { UsersComponent } from './components/users/users.component';
-import { PaymentFormComponent } from './components/payment-form/payment-form.component';
 
 const routes: Routes = [
   {path: '', redirectTo: '/connections-list', pathMatch: 'full'},
@@ -44,6 +45,8 @@ const routes: Routes = [
   {path: 'connect-db', component: ConnectDBComponent, canActivate: [AuthGuard], title: 'Add new database | Rocketadmin'},
   {path: 'connections-list', component: ConnectionsListComponent, canActivate: [AuthGuard], title: 'Connections | Rocketadmin'},
   {path: 'user-settings', component: UserSettingsComponent, canActivate: [AuthGuard], title: 'User settings | Rocketadmin'},
+  {path: 'company', component: CompanyComponent, canActivate: [AuthGuard], title: 'Company settings | Rocketadmin'},
+  {path: 'company/:company-id/verify/:verification-token', component: CompanyMemberInvitationComponent, title: 'Invitation | Rocketadmin'},
   {path: 'change-password', component: PasswordChangeComponent, canActivate: [AuthGuard]},
   {path: 'upgrade', component: UpgradeComponent, canActivate: [AuthGuard], title: 'Upgrade | Rocketadmin'},
   {path: 'upgrade/payment', component: PaymentFormComponent, canActivate: [AuthGuard], title: 'Payment | Rocketadmin'},
@@ -63,7 +66,6 @@ const routes: Routes = [
   {path: 'dashboard/:connection-id/:table-name/settings', pathMatch: 'full', component: DbTableSettingsComponent, canActivate: [AuthGuard]},
   {path: 'dashboard/:connection-id/:table-name/actions', pathMatch: 'full', component: DbTableActionsComponent, canActivate: [AuthGuard]},
   {path: 'users/:connection-id', component: UsersComponent, canActivate: [AuthGuard]},
-  {path: 'external/group/user/verify/:verification-token', component: GroupUserVerificationComponent},
   {path: '**', component: PageNotFoundComponent},
 ];
 

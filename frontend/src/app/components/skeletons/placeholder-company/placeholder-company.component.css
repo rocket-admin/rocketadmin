@@ -1,0 +1,54 @@
+.wrapper {
+    margin: 3em auto;
+    padding: 0 clamp(200px, 20vw, 300px);
+    width: 100%;
+}
+
+.title {
+    height: 32px;
+    margin-bottom: 32px;
+    width: 332px;
+}
+
+.form__field {
+    height: 44px;
+    width: 100%;
+}
+
+.form__line {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 8px 0;
+}
+
+.form__line_invite {
+    margin-bottom: 16px;
+}
+
+.form__title {
+    height: 32px;
+    width: 142px;
+}
+
+.form__string {
+    height: 24px;
+    width: 120px;
+}
+
+.form__button {
+    border-radius: 4px;
+    height: 36px;
+}
+
+.form__button_plan {
+    width: 190px;
+}
+
+.form__button_invite {
+    width: 152px;
+}
+
+.form__table {
+    padding: 0 8px;
+}

@@ -1,9 +1,9 @@
 <app-alert></app-alert>
-<app-content-loader *ngIf="!widgets"></app-content-loader>
+<app-placeholder-table-widgets *ngIf="!widgets"></app-placeholder-table-widgets>
 
 <div *ngIf="widgets" class="wrapper">
     <header class="header">
-        <app-breadcrumbs [crumbs]="getCrumbs(currentConnection.title)" class="row-breadcrumbs"></app-breadcrumbs>
+        <app-breadcrumbs [crumbs]="getCrumbs(currentConnection.title || currentConnection.database)" class="row-breadcrumbs"></app-breadcrumbs>
 
         <div *ngIf="widgets.length" class="header-actions">
             <button  mat-stroked-button
@@ -14,6 +14,8 @@
             </button>
             <button mat-stroked-button color="accent"
                 type="button"
+                angulartics2On="click"
+                angularticsAction="Widgets: add widget is clicked"
                 (click)="addNewWidget()"
                 [disabled]="fields.length === 0 || widgets.length === fieldsCount">
                 <mat-icon>add</mat-icon>
@@ -86,7 +88,7 @@
                 Back
             </a>
 
-            <button mat-raised-button color="primary"
+            <button mat-flat-button color="primary"
                 type="submit" [disabled]="submitting">
                 Save
             </button>
@@ -96,8 +98,9 @@
     <ng-template #emptyState>
         <div class="empty-state">
             <p class="empty-state__text">No widgets added</p>
-            <button mat-flat-button
-                color="accent"
+            <button mat-flat-button color="accent"
+                angulartics2On="click"
+                angularticsAction="Widgets: add first widget is clicked"
                 (click)="addNewWidget()">
                 <mat-icon>add</mat-icon>
                 Add widget
@@ -108,7 +111,7 @@
                     Back
                 </button>
 
-                <button mat-raised-button color="primary"
+                <button mat-flat-button color="primary"
                     type="submit" disabled>
                     Save
                 </button>

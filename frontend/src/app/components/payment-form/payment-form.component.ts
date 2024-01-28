@@ -1,20 +1,21 @@
+import { ActivatedRoute, Router } from '@angular/router';
+import { AlertActionType, AlertType } from 'src/app/models/alert';
 import { Component, OnInit, ViewChild } from '@angular/core';
+import { FormBuilder, Validators } from '@angular/forms';
+import {
+  PaymentIntent,
+  StripeCardElementOptions,
+  StripeElementsOptions
+} from '@stripe/stripe-js';
+import { StripePaymentElementComponent, StripeService } from 'ngx-stripe';
+import { SubscriptionPlans, User } from 'src/app/models/user';
+import { addMonths, format } from 'date-fns'
+
+import { HttpClient } from '@angular/common/http';
+import { NotificationsService } from 'src/app/services/notifications.service';
 import { PaymentService } from 'src/app/services/payment.service';
 import { UserService } from 'src/app/services/user.service';
-import { StripeService, StripePaymentElementComponent } from 'ngx-stripe';
-import {
-  StripeElementsOptions,
-  PaymentIntent,
-  StripeCardElementOptions
-} from '@stripe/stripe-js';
-import { HttpClient } from '@angular/common/http';
-import { FormBuilder, Validators } from '@angular/forms';
-import { SubscriptionPlans, User } from 'src/app/models/user';
-import { ActivatedRoute, Router } from '@angular/router';
 import plans from '../../consts/plans';
-import { NotificationsService } from 'src/app/services/notifications.service';
-import { AlertActionType, AlertType } from 'src/app/models/alert';
-import { addMonths, format } from 'date-fns'
 
 @Component({
   selector: 'app-payment-form',
@@ -36,7 +37,7 @@ export class PaymentFormComponent implements OnInit {
         iconColor: '#666EE8',
         color: '#31325F',
         fontWeight: '300',
-        fontFamily: 'Poppins, sans-serif',
+        fontFamily: 'Noto Sans, sans-serif',
         fontSize: '18px',
         '::placeholder': {
           color: '#CFD7E0',
@@ -61,23 +62,24 @@ export class PaymentFormComponent implements OnInit {
 
   public paymentElementForm = null;
   public plan: 'team' | 'enterprise' | 'free';
-  public price: string;
+  public price: number;
   public isAnnually: boolean;
   public subscriptionLevel: string;
   public nextPaymentDate: string;
+  public companyId: string;
 
   ngOnInit(): void {
     const queryParams = this.route.snapshot.queryParams;
     this.plan = queryParams.plan;
     this.isAnnually = queryParams.period === 'annually';
     const chosenPlan = plans.find(plan => plan.key === this.plan);
-    this.price = this.isAnnually ? chosenPlan.priceA : chosenPlan.priceM;
+    this.price = chosenPlan.price;
     this.subscriptionLevel = `${ this.isAnnually ? 'ANNUAL_' : '' }${this.plan.toUpperCase()}_PLAN`;
     this.nextPaymentDate = format(addMonths(new Date(), 1), 'P');
 
     this._userService.cast.subscribe(user => {
-      if (user) this._paymentService.createIntentToSubscription().subscribe(res => {
-        console.log(res);
+      if (user) this._paymentService.createIntentToSubscription(user.company.id).subscribe(res => {
+        this.companyId = user.company.id;
         this.paymentElementForm = this.fb.group({
           name: [user.name, [Validators.required]],
           email: [user.email, [Validators.required]],
@@ -125,9 +127,8 @@ export class PaymentFormComponent implements OnInit {
         } else {
           // The payment has been processed!
           if (result.setupIntent.status === 'succeeded') {
-            this._paymentService.createSubscription(result.setupIntent.payment_method, this.subscriptionLevel)
+            this._paymentService.createSubscription(this.companyId, result.setupIntent.payment_method, this.subscriptionLevel)
               .subscribe(res => {
-                console.log(res);
                 this._notifications.showSuccessSnackbar('Payment successful');
                 this.router.navigate(['/upgrade']);
               })

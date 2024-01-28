@@ -13,4 +13,5 @@ export enum DataAccessObjectCommandsEnum {
   getIdentityColumns = 'getIdentityColumns',
   getReferencedTableNamesAndColumns = 'getReferencedTableNamesAndColumns',
   isView = 'isView',
+  getRowsAsStream = 'getRowsAsStream',
 }

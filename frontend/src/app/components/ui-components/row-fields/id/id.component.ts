@@ -13,6 +13,7 @@ export class IdComponent implements OnInit {
   @Input() value: string;
   @Input() required: boolean;
   @Input() readonly: boolean;
+  @Input() disabled: boolean;
 
   @Output() onFieldChange = new EventEmitter();
 

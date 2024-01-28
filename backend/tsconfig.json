@@ -17,7 +17,6 @@
   },
   /*"references": [
     { "path": "../shared-code" },
-    { "path": "../private-modules" }
 ],*/
   "include": ["src", "test"],
   "exclude": ["node_modules", "dist", "../node_modules"]

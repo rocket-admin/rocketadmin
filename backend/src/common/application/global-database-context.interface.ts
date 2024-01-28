@@ -23,10 +23,16 @@ import { IDatabaseContext } from '../database-context.interface.js';
 import { IUserGitHubIdentifierRepository } from '../../entities/user/user-github-identifier/repository/user-github-identifier-repository.interface.js';
 import { CompanyInfoEntity } from '../../entities/company-info/company-info.entity.js';
 import { ICompanyInfoRepository } from '../../entities/company-info/repository/company-info-repository.interface.js';
+import { InvitationInCompanyEntity } from '../../entities/company-info/invitation-in-company/invitation-in-company.entity.js';
+import { IInvitationInCompanyRepository } from '../../entities/company-info/invitation-in-company/repository/invitation-repository.interface.js';
+import { IUserSessionSettings } from '../../entities/user/user-session-settings/reposiotory/user-session-settings-repository.interface.js';
+import { UserSessionSettingsEntity } from '../../entities/user/user-session-settings/user-session-settings.entity.js';
+import { UserEntity } from '../../entities/user/user.entity.js';
+import { ConnectionEntity } from '../../entities/connection/connection.entity.js';
 
 export interface IGlobalDatabaseContext extends IDatabaseContext {
-  userRepository: IUserRepository;
-  connectionRepository: IConnectionRepository;
+  userRepository: Repository<UserEntity> & IUserRepository;
+  connectionRepository: Repository<ConnectionEntity> & IConnectionRepository;
   groupRepository: IGroupRepository;
   permissionRepository: IPermissionRepository;
   tableSettingsRepository: ITableSettingsRepository;
@@ -47,4 +53,6 @@ export interface IGlobalDatabaseContext extends IDatabaseContext {
   tableActionRepository: ITableActionRepository;
   userGitHubIdentifierRepository: IUserGitHubIdentifierRepository;
   companyInfoRepository: Repository<CompanyInfoEntity> & ICompanyInfoRepository;
+  invitationInCompanyRepository: Repository<InvitationInCompanyEntity> & IInvitationInCompanyRepository;
+  userSessionSettingsRepository: Repository<UserSessionSettingsEntity> & IUserSessionSettings;
 }

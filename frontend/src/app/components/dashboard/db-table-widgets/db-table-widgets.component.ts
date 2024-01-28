@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { TableField, Widget } from 'src/app/models/table';
 
+import { Angulartics2 } from 'angulartics2';
 import { ConnectionsService } from 'src/app/services/connections.service';
 import { Location } from '@angular/common';
 import { MatDialog } from '@angular/material/dialog';
@@ -58,6 +59,7 @@ export class DbTableWidgetsComponent implements OnInit {
 // CA => California
 
 {
+  allow_null: true,
   options: [
     {
       value: 'UA',
@@ -99,6 +101,7 @@ export class DbTableWidgetsComponent implements OnInit {
     public dialog: MatDialog,
     public router: Router,
     private title: Title,
+    private angulartics2: Angulartics2,
   ) {}
 
   ngOnInit(): void {
@@ -214,6 +217,9 @@ export class DbTableWidgetsComponent implements OnInit {
     this._tables.updateTableWidgets(this.connectionID, this.tableName, this.widgets)
       .subscribe(() => {
         this.submitting = false;
+        this.angulartics2.eventTrack.next({
+          action: 'Widgets: widgets are updated successfully'
+        });
         if (!afterDeleteAll) this.router.navigate([`/dashboard/${this.connectionID}/${this.tableName}`]);
       },
       undefined,

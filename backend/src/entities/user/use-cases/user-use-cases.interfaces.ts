@@ -1,6 +1,4 @@
 import { InTransactionEnum } from '../../../enums/index.js';
-import { AddStripeSetupIntentDs } from '../application/data-structures/add-stripe-setup-intent.ds.js';
-import { AddedStripeSetupIntentDs } from '../application/data-structures/added-stripe-setup-intent.ds.js';
 import { ChangeUserEmailDs } from '../application/data-structures/change-user-email.ds.js';
 import { ChangeUserNameDS } from '../application/data-structures/change-user-name.ds.js';
 import { ChangeUsualUserPasswordDs } from '../application/data-structures/change-usual-user-password.ds.js';
@@ -17,9 +15,7 @@ import {
 } from '../application/data-structures/otp-validation-result.ds.js';
 import { RegisteredUserDs } from '../application/data-structures/registered-user.ds.js';
 import { ResetUsualUserPasswordDs } from '../application/data-structures/reset-usual-user-password.ds.js';
-import { StripeIntentDs } from '../application/data-structures/stripe-intent-id.ds.js';
-import { UpgradeUserSubscriptionDs } from '../application/data-structures/upgrade-user-subscription.ds.js';
-import { UpgradedUserSubscriptionDs } from '../application/data-structures/upgraded-user-subscription.ds.js';
+import { SaveUserSettingsDs } from '../application/data-structures/save-user-settings.ds.js';
 import { UsualLoginDs } from '../application/data-structures/usual-login.ds.js';
 import { VerifyOtpDS } from '../application/data-structures/verify-otp.ds.js';
 import { IToken } from '../utils/generate-gwt-token.js';
@@ -30,10 +26,6 @@ export interface ICreateUserUseCase {
 
 export interface IFindUserUseCase {
   execute(userData: FindUserDs | CreateUserDs, inTransaction: InTransactionEnum): Promise<FoundUserDs>;
-}
-
-export interface IUpgradeSubscription {
-  execute(inputData: UpgradeUserSubscriptionDs, inTransaction: InTransactionEnum): Promise<UpgradedUserSubscriptionDs>;
 }
 
 export interface IUsualLogin {
@@ -116,10 +108,10 @@ export interface IAuthGitHub {
   execute(code: string, inTransaction: InTransactionEnum): Promise<IToken>;
 }
 
-export interface IGetStripeIntentId {
-  execute(userId: string, inTransaction: InTransactionEnum): Promise<StripeIntentDs>;
+export interface ISaveUserSettings {
+  execute(settingsData: SaveUserSettingsDs, inTransaction: InTransactionEnum): Promise<SaveUserSettingsDs>;
 }
 
-export interface IAddStripeSetupIntent {
-  execute(inputData: AddStripeSetupIntentDs, inTransaction: InTransactionEnum): Promise<AddedStripeSetupIntentDs>;
+export interface IGetUserSettings {
+  execute(userId: string, inTransaction: InTransactionEnum): Promise<SaveUserSettingsDs>;
 }

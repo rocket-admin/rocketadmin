@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CustomAction, CustomActionType } from 'src/app/models/table';
 
 import { ActionDeleteDialogComponent } from './action-delete-dialog/action-delete-dialog.component';
+import { Angulartics2 } from 'angulartics2';
 import { ConnectionsService } from 'src/app/services/connections.service';
 import { HttpErrorResponse } from '@angular/common/http';
 import { MatDialog } from '@angular/material/dialog';
@@ -45,6 +46,7 @@ export class DbTableActionsComponent implements OnInit {
     private _notifications: NotificationsService,
     public dialog: MatDialog,
     private title: Title,
+    private angulartics2: Angulartics2,
   ) { }
 
   async ngOnInit() {
@@ -186,6 +188,9 @@ export class DbTableActionsComponent implements OnInit {
     this._tables.saveAction(this.connectionID, this.tableName, this.selectedAction)
       .subscribe(async (res) => {
         this.submitting = false;
+        this.angulartics2.eventTrack.next({
+          action: 'Actions: action is saved successfully'
+        });
         try {
           const undatedActionsData = await this.getActions();
           this.actions = unionBy(undatedActionsData.table_actions, this.actions, "title");

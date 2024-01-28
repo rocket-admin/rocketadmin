@@ -4,6 +4,7 @@ import { CustomAction, CustomActionType, TableProperties } from 'src/app/models/
 import { first, map } from 'rxjs/operators';
 import { getComparators, getFilters } from 'src/app/lib/parse-filter-params';
 
+import { Angulartics2 } from 'angulartics2';
 import { BbBulkActionConfirmationDialogComponent } from './db-bulk-action-confirmation-dialog/db-bulk-action-confirmation-dialog.component';
 import { ConnectionsService } from 'src/app/services/connections.service';
 import { DbActionConfirmationDialogComponent } from './db-action-confirmation-dialog/db-action-confirmation-dialog.component';
@@ -13,6 +14,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { MatDialog } from '@angular/material/dialog';
 import { NotificationsService } from 'src/app/services/notifications.service';
 import { SelectionModel } from '@angular/cdk/collections';
+import { ServerError } from 'src/app/models/alert';
 import { TableRowService } from 'src/app/services/table-row.service';
 import { TablesDataSource } from './db-tables-data-source';
 import { TablesService } from 'src/app/services/tables.service';
@@ -20,7 +22,6 @@ import { Title } from '@angular/platform-browser';
 import { User } from 'src/app/models/user';
 import { normalizeTableName } from '../../lib/normalize'
 import { omitBy } from "lodash";
-import { ServerError } from 'src/app/models/alert';
 
 interface DataToActivateActions {
   action: CustomAction,
@@ -70,6 +71,7 @@ export class DashboardComponent implements OnInit {
     private route: ActivatedRoute,
     public dialog: MatDialog,
     private title: Title,
+    private angulartics2: Angulartics2,
   ) {}
 
   get currentConnectionAccessLevel () {
@@ -177,7 +179,11 @@ export class DashboardComponent implements OnInit {
     })
 
     const selectedTableProperties = this.tablesList.find( (table: any) => table.table == this.selectedTableName);
-    this.selectedTableDisplayName = selectedTableProperties.display_name || normalizeTableName(selectedTableProperties.table);
+    if (selectedTableProperties) {
+      this.selectedTableDisplayName = selectedTableProperties.display_name || normalizeTableName(selectedTableProperties.table);
+    } else {
+      return;
+    }
     this.loading = false;
   }
 
@@ -214,6 +220,9 @@ export class DashboardComponent implements OnInit {
 
           this.getRows();
           this.router.navigate([`/dashboard/${this.connectionID}/${this.selectedTableName}`], { queryParams: {...filtersQueryParams, page_index: 0} });
+          this.angulartics2.eventTrack.next({
+            action: 'Dashboard: filter is applied',
+          });
         }
       }
     })

@@ -2,7 +2,7 @@
 <div class="settings-page">
     <h1 class="mat-h1">Settings for <strong>{{connectionName}}</strong> connection</h1>
 
-    <app-content-loader *ngIf="loading"></app-content-loader>
+    <app-placeholder-connection-settings *ngIf="loading"></app-placeholder-connection-settings>
 
     <app-banner *ngIf="noTablesError" type="info" class="settings-banner">
         <h3 class='mat-subheading-2'>Rocketadmin can not find any tables</h3>
@@ -41,6 +41,8 @@
                 <mat-form-field appearance="outline" class="logo-input">
                     <mat-label>Logo URL</mat-label>
                     <input matInput name="logo-url" #username="ngModel"
+                        angulartics2On="change"
+                        angularticsAction="Connection settings: logo URL is edited"
                         [disabled]="submitting"
                         [(ngModel)]="connectionSettings.logo_url">
                     <mat-error *ngIf="username.errors?.required && (username.invalid && username.touched)">Username should not be empty.</mat-error>
@@ -66,8 +68,10 @@
                 </div>
             </div>-->
             <mat-form-field appearance="outline">
-                <mat-label>Company name</mat-label>
+                <mat-label>Project name</mat-label>
                 <input matInput name="company-name" #username="ngModel"
+                    angulartics2On="change"
+                    angularticsAction="Connection settings: company name is edited"
                     [disabled]="submitting"
                     [(ngModel)]="connectionSettings.company_name">
                 <mat-error *ngIf="username.errors?.required && (username.invalid && username.touched)">Username should not be empty.</mat-error>
@@ -79,6 +83,8 @@
                     <mat-form-field appearance="outline" class="color-input">
                         <mat-label>Primary color (HEX)</mat-label>
                         <input matInput name="primary-color" #username="ngModel"
+                            angulartics2On="change"
+                            angularticsAction="Connection settings: primary color is edited"
                             [disabled]="submitting"
                             [(ngModel)]="connectionSettings.primary_color">
                         <mat-error *ngIf="username.errors?.required && (username.invalid && username.touched)">Username should not be empty.</mat-error>
@@ -90,6 +96,8 @@
                     <mat-form-field appearance="outline" class="color-input">
                         <mat-label>Accented color (HEX)</mat-label>
                         <input matInput name="accented-color" #username="ngModel"
+                            angulartics2On="change"
+                            angularticsAction="Connection settings: accented color is edited"
                             [disabled]="submitting"
                             [(ngModel)]="connectionSettings.secondary_color">
                         <mat-error *ngIf="username.errors?.required && (username.invalid && username.touched)">Username should not be empty.</mat-error>
@@ -102,19 +110,33 @@
                 <mat-label>Hidden tables</mat-label>
                 <mat-select multiple
                     name="columns_view"
-                    [(ngModel)]="connectionSettings.hidden_tables">
-                    <mat-option *ngFor="let table of tablesList" [value]="table.table">{{table.display_name || table.normalizedTableName}}</mat-option>
+                    angulartics2On="click"
+                    angularticsAction="Connection settings: hidden tables is selected"
+                    [(ngModel)]="connectionSettings.hidden_tables"
+                    (optionSelectionChanges)="onColumnsViewChange($event)">
+                    <mat-option *ngFor="let table of tablesList" [value]="table.table" >
+                        <div class="table-name">
+                            <span class="table-name__title">{{table.display_name || table.normalizedTableName}}</span>
+                            <span class="table-name__line"> ({{table.table}})</span>
+                        </div>
+                    </mat-option>
                 </mat-select>
             </mat-form-field>
+
+            <mat-slide-toggle
+                class="audit-toggle" color="primary"
+                [(ngModel)]="connectionSettings.tables_audit">
+                Record changes in tables
+            </mat-slide-toggle>
         </div>
         <div *ngIf="accessLevel !== 'readonly'" class="actions">
-            <button mat-raised-button color="warn"
+            <button mat-flat-button color="warn"
                 type="button"
                 [disabled]="!isSettingsExist || submitting || connectionSettingsForm.form.invalid"
                 (click)="resetSettings()">
                 Reset
             </button>
-            <button mat-raised-button color="primary"
+            <button mat-flat-button color="primary"
                 type="submit"
                 class="settings-form__save-button"
                 [disabled]="submitting || connectionSettingsForm.form.invalid || connectionSettingsForm.form.pristine">
