@@ -3360,32 +3360,34 @@ with search and pagination: page=1, perPage=2 and DESC sorting`, async (t) => {
   const createConnectionRO = JSON.parse(createConnectionResponse.text);
   t.is(createConnectionResponse.status, 201);
 
-   const createTableSettingsDTO = mockFactory.generateTableSettings(
-      createConnectionRO.id,
-      testTableName,
-      [testTableColumnName],
-      undefined,
-      undefined,
-      3,
-      QueryOrderingEnum.DESC,
-      'id',
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-    );
+  const createTableSettingsDTO = mockFactory.generateTableSettings(
+    createConnectionRO.id,
+    testTableName,
+    [testTableColumnName],
+    undefined,
+    undefined,
+    3,
+    QueryOrderingEnum.DESC,
+    'id',
+    undefined,
+    undefined,
+    undefined,
+    undefined,
+    undefined,
+  );
 
-    const createTableSettingsResponse = await request(app.getHttpServer())
-      .post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
-      .send(createTableSettingsDTO)
-      .set('Cookie', firstUserToken)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-    t.is(createTableSettingsResponse.status, 201);
+  const createTableSettingsResponse = await request(app.getHttpServer())
+    .post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
+    .send(createTableSettingsDTO)
+    .set('Cookie', firstUserToken)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+  t.is(createTableSettingsResponse.status, 201);
 
   const getTableCsvResponse = await request(app.getHttpServer())
-    .get(`/table/csv/${createConnectionRO.id}?tableName=${testTableName}&search=${testSearchedUserName}&page=1&perPage=2`)
+    .get(
+      `/table/csv/${createConnectionRO.id}?tableName=${testTableName}&search=${testSearchedUserName}&page=1&perPage=2`,
+    )
     .set('Cookie', firstUserToken)
     .set('Content-Type', 'text/csv')
     .set('Accept', 'text/csv');

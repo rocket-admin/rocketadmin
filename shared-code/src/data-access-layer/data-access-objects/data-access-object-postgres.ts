@@ -143,12 +143,8 @@ export class DataAccessObjectPostgres extends BasicDataAccessObject implements I
 
     const knex = await this.configureKnex();
     const tableSchema = this.connection.schema ?? 'public';
-    const [{ rowsCount, large_dataset }, tableStructure] = await Promise.all([
-      this.getRowsCount(knex, tableName, tableSchema),
-      this.getTableStructure(tableName),
-    ]);
+    const [tableStructure] = await Promise.all([this.getTableStructure(tableName)]);
     const availableFields = this.findAvaliableFields(settings, tableStructure);
-    const lastPage = Math.ceil(rowsCount / perPage);
     let rowsRO: FoundRowsDS;
 
     if (autocompleteFields && autocompleteFields.value && autocompleteFields.fields.length > 0) {
@@ -168,7 +164,7 @@ export class DataAccessObjectPostgres extends BasicDataAccessObject implements I
           /*eslint-enable*/
         })
         .limit(DAO_CONSTANTS.AUTOCOMPLETE_ROW_LIMIT);
-
+      const { large_dataset } = await this.getRowsCount(knex, null, tableName, tableSchema);
       rowsRO = {
         data: rows,
         pagination: {} as any,
@@ -177,9 +173,8 @@ export class DataAccessObjectPostgres extends BasicDataAccessObject implements I
       return rowsRO;
     }
 
-    const rows = await knex(tableName)
+    const countRowsQB = knex(tableName)
       .withSchema(this.connection.schema ?? 'public')
-      .select(availableFields)
       .modify((builder) => {
         /*eslint-disable*/
         let { search_fields } = settings;
@@ -191,8 +186,11 @@ export class DataAccessObjectPostgres extends BasicDataAccessObject implements I
             if (Buffer.isBuffer(searchedFieldValue)) {
               builder.orWhere(field, '=', searchedFieldValue);
             } else {
-              builder.orWhereRaw(` LOWER(CAST (?? AS VARCHAR (255))) LIKE ?`, [field, `${searchedFieldValue.toLowerCase()}%`]);
-           //  builder.orWhereRaw(` CAST (?? AS VARCHAR (255))=?`, [field, searchedFieldValue]);
+              builder.orWhereRaw(` LOWER(CAST (?? AS VARCHAR (255))) LIKE ?`, [
+                field,
+                `${searchedFieldValue.toLowerCase()}%`,
+              ]);
+              //  builder.orWhereRaw(` CAST (?? AS VARCHAR (255))=?`, [field, searchedFieldValue]);
             }
           }
         }
@@ -237,27 +235,28 @@ export class DataAccessObjectPostgres extends BasicDataAccessObject implements I
             }
           }
         }
-      })
+      });
+
+    const rowsResultQb = countRowsQB.clone();
+    const offset = (page - 1) * perPage;
+    const rows = await rowsResultQb
+      .select(availableFields)
+      .limit(perPage)
+      .offset(offset)
       .modify((builder) => {
         if (settings.ordering_field && settings.ordering) {
           builder.orderBy(settings.ordering_field, settings.ordering);
         }
-      })
-      .paginate({
-        perPage: perPage,
-        currentPage: page,
-        isLengthAware: true,
       });
-    const { data } = rows;
-    let { pagination } = rows;
-    pagination = {
-      total: pagination.total ? pagination.total : rowsCount,
-      lastPage: pagination.lastPage ? pagination.lastPage : lastPage,
-      perPage: pagination.perPage,
-      currentPage: pagination.currentPage,
-    } as any;
+    const { large_dataset, rowsCount } = await this.getRowsCount(knex, countRowsQB, tableName, tableSchema);
+    const pagination = {
+      total: rowsCount,
+      lastPage: Math.ceil(rowsCount / perPage),
+      perPage: perPage,
+      currentPage: page,
+    };
     rowsRO = {
-      data,
+      data: rows,
       pagination,
       large_dataset: large_dataset,
     };
@@ -560,7 +559,7 @@ export class DataAccessObjectPostgres extends BasicDataAccessObject implements I
 
     const tableSchema = this.connection.schema ?? 'public';
     const [{ rowsCount, large_dataset }, tableStructure] = await Promise.all([
-      this.getRowsCount(knex, tableName, tableSchema),
+      this.getRowsCount(knex, null, tableName, tableSchema),
       this.getTableStructure(tableName),
     ]);
     const availableFields = this.findAvaliableFields(settings, tableStructure);
@@ -639,17 +638,21 @@ export class DataAccessObjectPostgres extends BasicDataAccessObject implements I
 
   private async getRowsCount(
     knex: Knex<any, any[]>,
+    countRowsQB: Knex.QueryBuilder<any, any[]> | null,
     tableName: string,
     tableSchema: string,
   ): Promise<{ rowsCount: number; large_dataset: boolean }> {
     try {
       const fastCount = await knex.raw(
         `
-  SELECT ((reltuples / relpages)
-  * (pg_relation_size('??.??') / current_setting('block_size')::int)
-         )::bigint as count
-FROM   pg_class
-WHERE  oid = '??.??'::regclass;`,
+        SELECT CASE
+        WHEN relpages = 0 THEN 0
+        ELSE ((reltuples / relpages)
+        * (pg_relation_size('??.??') / current_setting('block_size')::int)
+               )::bigint
+      END as count
+      FROM   pg_class
+      WHERE  oid = '??.??'::regclass;`,
         [tableSchema, tableName, tableSchema, tableName],
       );
 
@@ -662,7 +665,14 @@ WHERE  oid = '??.??'::regclass;`,
     } catch (e) {
       return { rowsCount: 0, large_dataset: false };
     }
-    const count = (await knex(tableName).withSchema(tableSchema).count('*')) as any;
+    let count: any;
+    if (countRowsQB) {
+      count = (await countRowsQB.count('*')) as any;
+    } else {
+      count = (await knex(tableName)
+        .withSchema(this.connection.schema ?? 'public')
+        .count('*')) as any;
+    }
     const slowCount = parseInt(count[0].count);
     return {
       rowsCount: slowCount,

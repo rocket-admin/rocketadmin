@@ -157,13 +157,8 @@ export class DataAccessObjectMysql extends BasicDataAccessObject implements IDat
       }
     }
     const knex = await this.configureKnex();
-    const [{ rowsCount, large_dataset }, tableStructure] = await Promise.all([
-      this.getRowsCount(knex, tableName, this.connection.database),
-      this.getTableStructure(tableName),
-    ]);
+    const [tableStructure] = await Promise.all([this.getTableStructure(tableName)]);
     const availableFields = this.findAvaliableFields(settings, tableStructure);
-
-    const lastPage = Math.ceil(rowsCount / perPage);
 
     let rowsRO: FoundRowsDS;
 
@@ -183,6 +178,7 @@ export class DataAccessObjectMysql extends BasicDataAccessObject implements IDat
           /*eslint-enable*/
         })
         .limit(DAO_CONSTANTS.AUTOCOMPLETE_ROW_LIMIT);
+      const { large_dataset } = await this.getRowsCount(knex, null, tableName, this.connection.database);
       rowsRO = {
         data: rows,
         pagination: {} as any,
@@ -192,8 +188,7 @@ export class DataAccessObjectMysql extends BasicDataAccessObject implements IDat
       return rowsRO;
     }
 
-    const rows = await knex(tableName)
-      .select(availableFields)
+    const countRowsQB = knex(tableName)
       .modify((builder) => {
         /*eslint-disable*/
         let { search_fields } = settings;
@@ -205,8 +200,11 @@ export class DataAccessObjectMysql extends BasicDataAccessObject implements IDat
             if (Buffer.isBuffer(searchedFieldValue)) {
               builder.orWhere(field, '=', searchedFieldValue);
             } else {
-              builder.orWhereRaw(` LOWER(CAST (?? AS CHAR (255))) LIKE ?`, [field, `${searchedFieldValue.toLowerCase()}%`]);
-             //  builder.orWhereRaw(` CAST (?? AS CHAR (255))=?`, [field, searchedFieldValue]);
+              builder.orWhereRaw(` LOWER(CAST (?? AS CHAR (255))) LIKE ?`, [
+                field,
+                `${searchedFieldValue.toLowerCase()}%`,
+              ]);
+              //  builder.orWhereRaw(` CAST (?? AS CHAR (255))=?`, [field, searchedFieldValue]);
             }
           }
         }
@@ -251,27 +249,34 @@ export class DataAccessObjectMysql extends BasicDataAccessObject implements IDat
             }
           }
         }
-      })
+      });
+
+    const rowsResultQb = countRowsQB.clone();
+    const offset = (page - 1) * perPage;
+    const rows = await rowsResultQb
+      .select(availableFields)
+      .limit(perPage)
+      .offset(offset)
       .modify((builder) => {
         if (settings.ordering_field && settings.ordering) {
           builder.orderBy(settings.ordering_field, settings.ordering);
         }
-      })
-      .paginate({
-        perPage: perPage,
-        currentPage: page,
-        isLengthAware: true,
       });
-    const { data } = rows;
-    const receivedPagination = rows.pagination;
+    const { large_dataset, rowsCount } = await this.getRowsCount(
+      knex,
+      countRowsQB,
+      tableName,
+      this.connection.database,
+    );
+
     const pagination = {
-      total: receivedPagination.total ? receivedPagination.total : rowsCount,
-      lastPage: receivedPagination.lastPage ? receivedPagination.lastPage : lastPage,
-      perPage: receivedPagination.perPage,
-      currentPage: receivedPagination.currentPage,
+      total: rowsCount,
+      lastPage: Math.ceil(rowsCount / perPage),
+      perPage: perPage,
+      currentPage: page,
     };
     rowsRO = {
-      data,
+      data: rows,
       pagination,
       large_dataset,
     };
@@ -519,7 +524,7 @@ export class DataAccessObjectMysql extends BasicDataAccessObject implements IDat
     const knex = await this.configureKnex();
 
     const [{ large_dataset }, tableStructure] = await Promise.all([
-      this.getRowsCount(knex, tableName, this.connection.database),
+      this.getRowsCount(knex, null, tableName, this.connection.database),
       this.getTableStructure(tableName),
     ]);
 
@@ -599,6 +604,7 @@ export class DataAccessObjectMysql extends BasicDataAccessObject implements IDat
 
   private async getRowsCount(
     knex: Knex<any, any[]>,
+    countRowsQB: Knex.QueryBuilder<any, any[]> | null,
     tableName: string,
     database: string,
   ): Promise<{ rowsCount: number; large_dataset: boolean }> {
@@ -606,7 +612,12 @@ export class DataAccessObjectMysql extends BasicDataAccessObject implements IDat
     if (fastCount >= DAO_CONSTANTS.LARGE_DATASET_ROW_LIMIT) {
       return { rowsCount: fastCount, large_dataset: true };
     }
-    const slowCount = (await knex(tableName).count('*'))[0]['count(*)'] as number;
+    let slowCount: number;
+    if (countRowsQB) {
+      slowCount = (await countRowsQB.count('*'))[0]['count(*)'] as number;
+    } else {
+      slowCount = (await knex(tableName).count('*'))[0]['count(*)'] as number;
+    }
     return { rowsCount: slowCount, large_dataset: false };
   }
 }

@@ -1,4 +1,3 @@
-import { attachPaginate } from 'knex-paginate';
 import { KnexManager } from '../../knex-manager/knex-manager.js';
 import { ConnectionParams } from '../shared/data-structures/connections-params.ds.js';
 import { Knex } from 'knex';
@@ -6,7 +5,6 @@ import { isObjectEmpty } from '../../helpers/is-object-empty.js';
 import { comparePrimitiveArrayElements } from '../../helpers/compate-primitive-array-elements.js';
 import { TableStructureDS } from '../shared/data-structures/table-structure.ds.js';
 import { TableSettingsDS } from '../shared/data-structures/table-settings.ds.js';
-attachPaginate();
 
 export class BasicDataAccessObject {
   protected connection: ConnectionParams;
