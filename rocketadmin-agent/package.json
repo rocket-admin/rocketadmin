@@ -34,6 +34,7 @@
     "argon2": "^0.30.3",
     "crypto-js": "^4.1.1",
     "get-port": "^7.0.0",
+    "ibm_db": "^3.2.3",
     "knex": "2.4.2",
     "knex-paginate": "3.1.1",
     "mysql2": "^3.4.2",
