@@ -1,4 +1,4 @@
-import { LRUCache } from 'lru-cache'
+import { LRUCache } from 'lru-cache';
 import { Knex } from 'knex';
 import { CACHING_CONSTANTS } from './caching-constants.js';
 import {
@@ -8,13 +8,24 @@ import {
 import { ForeignKeyDS } from '../data-access-layer/shared/data-structures/foreign-key.ds.js';
 import { PrimaryKeyDS } from '../data-access-layer/shared/data-structures/primary-key.ds.js';
 import { TableStructureDS } from '../data-access-layer/shared/data-structures/table-structure.ds.js';
+import { Database } from 'ibm_db';
 const knexCache = new LRUCache(CACHING_CONSTANTS.DEFAULT_CONNECTION_CACHE_OPTIONS);
 const tunnelCache = new LRUCache(CACHING_CONSTANTS.DEFAULT_TUNNEL_CACHE_OPTIONS);
+const imdbDb2Cache = new LRUCache(CACHING_CONSTANTS.DEFAULT_IMDB_DB2_CACHE_OPTIONS);
 const tableStructureCache = new LRUCache(CACHING_CONSTANTS.DEFAULT_TABLE_STRUCTURE_ELEMENTS_CACHE_OPTIONS);
 const tableForeignKeysCache = new LRUCache(CACHING_CONSTANTS.DEFAULT_TABLE_STRUCTURE_ELEMENTS_CACHE_OPTIONS);
 const tablePrimaryKeysCache = new LRUCache(CACHING_CONSTANTS.DEFAULT_TABLE_STRUCTURE_ELEMENTS_CACHE_OPTIONS);
 
 export class LRUStorage {
+  public static getImdbDb2Cache(connection: ConnectionParams): Database | null {
+    const cachedDb = imdbDb2Cache.get(this.getConnectionIdentifier(connection)) as Database;
+    return cachedDb ? cachedDb : null;
+  }
+
+  public static setImdbDb2Cache(connection: ConnectionParams, newDb: Database): void {
+    imdbDb2Cache.set(this.getConnectionIdentifier(connection), newDb);
+  }
+
   public static getCachedKnex(connectionConfig: ConnectionParams): Knex | null {
     const cachedKnex = knexCache.get(this.getConnectionIdentifier(connectionConfig)) as Knex;
     return cachedKnex ? cachedKnex : null;

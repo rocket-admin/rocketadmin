@@ -14,7 +14,7 @@ export class BasicDataAccessObject {
   constructor(connection: ConnectionParams) {
     this.connection = connection;
   }
-  public async configureKnex(): Promise<Knex<any, any[]>> {
+  protected async configureKnex(): Promise<Knex<any, any[]>> {
     const knexManager = KnexManager.knexStorage();
     return knexManager.get(this.connection.type)(this.connection);
   }
