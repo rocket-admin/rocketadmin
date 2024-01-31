@@ -172,7 +172,7 @@ WHERE
       tableName.toUpperCase(),
       this.connection.schema.toUpperCase(),
     ]);
-    
+
     return tableStructure.map((column: any) => {
       return {
         allow_null: column.IS_NULLABLE === 'Y',
@@ -225,7 +225,50 @@ WHERE
   }
 
   public async getReferencedTableNamesAndColumns(tableName: string): Promise<ReferencedTableNamesAndColumnsDS[]> {
-    throw new Error('Method not implemented.');
+    const primaryColumns = await this.getTablePrimaryColumns(tableName);
+    const connectionToDb = await this.getConnectionToDatabase();
+    const results: Array<ReferencedTableNamesAndColumnsDS> = [];
+    for (const primaryColumn of primaryColumns) {
+      const query = `
+      SELECT 
+      ref.tabname AS referencing_table_name, 
+      col.colname AS referencing_column_name
+    FROM 
+      syscat.references ref
+    JOIN 
+      syscat.keycoluse col 
+    ON 
+      ref.constname = col.constname AND 
+      ref.tabschema = col.tabschema
+    WHERE 
+      ref.reftabname = ? AND 
+      ref.reftabschema = ? AND 
+      ref.refkeyname IN (
+        SELECT constname 
+        FROM syscat.keycoluse 
+        WHERE tabschema = ? AND 
+              tabname = ? AND 
+              colname = ?
+      )
+      `;
+      const foreignKeys = await connectionToDb.query(query, [
+        tableName.toUpperCase(),
+        this.connection.schema.toUpperCase(),
+        this.connection.schema.toUpperCase(),
+        tableName.toUpperCase(),
+        primaryColumn.column_name.toUpperCase(),
+      ]);
+      results.push({
+        referenced_on_column_name: primaryColumn.column_name,
+        referenced_by: foreignKeys.map((foreignKey: any) => {
+          return {
+            table_name: foreignKey.REFERENCING_TABLE_NAME,
+            column_name: foreignKey.REFERENCING_COLUMN_NAME,
+          };
+        }),
+      });
+    }
+    return results;
   }
 
   public async isView(tableName: string): Promise<boolean> {
