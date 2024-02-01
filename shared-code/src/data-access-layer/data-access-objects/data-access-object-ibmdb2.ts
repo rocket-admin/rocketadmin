@@ -31,7 +31,18 @@ export class DataAccessObjectIbmDb2 extends BasicDataAccessObject implements IDa
     tableName: string,
     primaryKey: Record<string, unknown>,
   ): Promise<Record<string, unknown>> {
-    throw new Error('Method not implemented.');
+    this.validateNamesAndThrowError([tableName, this.connection.schema, ...Object.keys(primaryKey)]);
+    const connectionToDb = await this.getConnectionToDatabase();
+    const whereClause = Object.keys(primaryKey)
+      .map((key) => `${key} = ?`)
+      .join(' AND ');
+    const query = `
+    DELETE FROM ${this.connection.schema.toUpperCase()}.${tableName.toUpperCase()}
+    WHERE ${whereClause}
+  `;
+    const params = Object.values(primaryKey);
+    await connectionToDb.query(query, params);
+    return primaryKey;
   }
 
   public async getIdentityColumns(
