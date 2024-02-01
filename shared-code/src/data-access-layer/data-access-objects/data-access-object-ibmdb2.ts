@@ -24,9 +24,50 @@ export class DataAccessObjectIbmDb2 extends BasicDataAccessObject implements IDa
     tableName: string,
     row: Record<string, unknown>,
   ): Promise<number | Record<string, unknown>> {
-    throw new Error('Method not implemented.');
-  }
+    this.validateNamesAndThrowError([tableName, this.connection.schema, ...Object.keys(row)]);
+    const connectionToDb = await this.getConnectionToDatabase();
+    const [tableStructure, primaryColumns] = await Promise.all([
+      this.getTableStructure(tableName),
+      this.getTablePrimaryColumns(tableName),
+    ]);
 
+    const jsonColumnNames = tableStructure
+      .filter((structEl) => structEl.data_type.toLowerCase() === 'json')
+      .map((structEl) => structEl.column_name);
+
+    for (const key in row) {
+      if (jsonColumnNames.includes(key)) {
+        row[key] = JSON.stringify(row[key]);
+      }
+    }
+
+    const columns = Object.keys(row).join(', ');
+    const placeholders = Object.keys(row)
+      .map(() => '?')
+      .join(', ');
+    const values = Object.values(row);
+    const query = `
+    INSERT INTO ${this.connection.schema.toUpperCase()}.${tableName.toUpperCase()} (${columns})
+    VALUES (${placeholders})
+  `;
+    await connectionToDb.query(query, values);
+
+    if (primaryColumns?.length > 0) {
+      const primaryKey = primaryColumns.map((column) => column.column_name);
+      const selectQuery = `
+      SELECT ${primaryKey.join(', ')}
+      FROM ${this.connection.schema.toUpperCase()}.${tableName.toUpperCase()}
+      WHERE ${primaryKey.map((key) => `${key} = ?`).join(' AND ')}
+    `;
+      const result = await connectionToDb.query(
+        selectQuery,
+        primaryKey.map((key) => row[key]),
+      );
+      return result[0];
+    }
+    return row;
+  }
+  
   public async deleteRowInTable(
     tableName: string,
     primaryKey: Record<string, unknown>,
