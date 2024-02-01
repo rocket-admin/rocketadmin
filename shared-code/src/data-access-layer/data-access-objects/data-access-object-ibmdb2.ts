@@ -15,6 +15,7 @@ import { IDataAccessObject } from '../shared/interfaces/data-access-object.inter
 import { BasicDataAccessObject } from './basic-data-access-object.js';
 import ibmdb, { Database } from 'ibm_db';
 import { LRUStorage } from '../../caching/lru-storage.js';
+
 export class DataAccessObjectIbmDb2 extends BasicDataAccessObject implements IDataAccessObject {
   constructor(connection: ConnectionParams) {
     super(connection);
@@ -67,7 +68,7 @@ export class DataAccessObjectIbmDb2 extends BasicDataAccessObject implements IDa
     }
     return row;
   }
-  
+
   public async deleteRowInTable(
     tableName: string,
     primaryKey: Record<string, unknown>,
@@ -263,7 +264,7 @@ WHERE
         character_maximum_length: column.CHARACTER_MAXIMUM_LENGTH,
         data_type_params: null,
         udt_name: null,
-        extra: column.ORDINAL_POSITION === 1 ? 'auto_increment' : null,
+        extra: null,
       };
     });
   }
@@ -298,7 +299,36 @@ WHERE
     row: Record<string, unknown>,
     primaryKey: Record<string, unknown>,
   ): Promise<Record<string, unknown>> {
-    throw new Error('Method not implemented.');
+    this.validateNamesAndThrowError([
+      tableName,
+      this.connection.schema,
+      ...Object.keys(row),
+      ...Object.keys(primaryKey),
+    ]);
+    const connectionToDb = await this.getConnectionToDatabase();
+
+    const setClause = Object.keys(row)
+      .map((key) => `${key} = ?`)
+      .join(', ');
+    const whereClause = Object.keys(primaryKey)
+      .map((key) => `${key} = ?`)
+      .join(' AND ');
+
+    const query = `
+      UPDATE ${this.connection.schema.toUpperCase()}.${tableName.toUpperCase()}
+      SET ${setClause}
+      WHERE ${whereClause}
+    `;
+    const params = [...Object.values(row), ...Object.values(primaryKey)];
+    await connectionToDb.query(query, params);
+
+    const selectQuery = `
+      SELECT *
+      FROM ${this.connection.schema.toUpperCase()}.${tableName.toUpperCase()}
+      WHERE ${whereClause}
+    `;
+    const result = await connectionToDb.query(selectQuery, Object.values(primaryKey));
+    return result[0];
   }
 
   public async validateSettings(settings: ValidateTableSettingsDS, tableName: string): Promise<string[]> {
