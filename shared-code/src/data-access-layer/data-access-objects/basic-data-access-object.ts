@@ -19,7 +19,10 @@ export class BasicDataAccessObject {
     return knexManager.get(this.connection.type)(this.connection);
   }
 
-  protected findAvaliableFields(settings: TableSettingsDS, tableStructure: Array<TableStructureDS>): Array<string> {
+  protected findAvaliableFields(
+    settings: TableSettingsDS,
+    tableStructure: Array<TableStructureDS>,
+  ): Array<string> {
     let availableFields: Array<string> = [];
     const fieldsFromStructure = tableStructure.map((el) => {
       return el.column_name;
@@ -57,24 +60,5 @@ export class BasicDataAccessObject {
       }
     }
     return availableFields;
-  }
-
-  protected validateNamesAndThrowError(names: string | Array<string>): void {
-    if (typeof names === 'string') {
-      if (!this.isValidName(names)) {
-        throw new Error(`Parameter "${names}" is invalid`);
-      }
-    }
-    if (Array.isArray(names)) {
-      for (const name of names) {
-        if (!this.isValidName(name)) {
-          throw new Error(`Parameter "${name}" is invalid`);
-        }
-      }
-    }
-  }
-
-  private isValidName(name: string): boolean {
-    return typeof name === 'string' && name.length > 0 && /^[a-zA-Z0-9_]+$/.test(name);
   }
 }
