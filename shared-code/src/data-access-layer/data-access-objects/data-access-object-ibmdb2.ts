@@ -40,13 +40,14 @@ export class DataAccessObjectIbmDb2 extends BasicDataAccessObject implements IDa
     identityColumnName: string,
     fieldValues: (string | number)[],
   ): Promise<string[]> {
-    this.validateNamesAndThrowError([tableName, referencedFieldName, identityColumnName]);
+    const schemaName = this.connection.schema.toUpperCase();
+    this.validateNamesAndThrowError([tableName, referencedFieldName, identityColumnName, schemaName]);
     const connectionToDb = await this.getConnectionToDatabase();
     const columnsToSelect = identityColumnName ? `${referencedFieldName}, ${identityColumnName}` : referencedFieldName;
     const placeholders = fieldValues.map(() => '?').join(',');
     const query = `
       SELECT ${columnsToSelect} 
-      FROM ${this.connection.schema.toUpperCase()}.${tableName.toUpperCase()}
+      FROM ${schemaName}.${tableName.toUpperCase()}
       WHERE ${referencedFieldName} IN (${placeholders})
     `;
     const result = connectionToDb.query(query, [...fieldValues]);
