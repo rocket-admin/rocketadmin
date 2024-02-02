@@ -15,6 +15,7 @@ import { IDataAccessObject } from '../shared/interfaces/data-access-object.inter
 import { BasicDataAccessObject } from './basic-data-access-object.js';
 import ibmdb, { Database } from 'ibm_db';
 import { LRUStorage } from '../../caching/lru-storage.js';
+import { tableSettingsFieldValidator } from '../../helpers/validation/table-settings-validator.js';
 
 export class DataAccessObjectIbmDb2 extends BasicDataAccessObject implements IDataAccessObject {
   constructor(connection: ConnectionParams) {
@@ -332,7 +333,11 @@ WHERE
   }
 
   public async validateSettings(settings: ValidateTableSettingsDS, tableName: string): Promise<string[]> {
-    throw new Error('Method not implemented.');
+    const [tableStructure, primaryColumns] = await Promise.all([
+      this.getTableStructure(tableName),
+      this.getTablePrimaryColumns(tableName),
+    ]);
+    return tableSettingsFieldValidator(tableStructure, primaryColumns, settings);
   }
 
   public async getReferencedTableNamesAndColumns(tableName: string): Promise<ReferencedTableNamesAndColumnsDS[]> {
