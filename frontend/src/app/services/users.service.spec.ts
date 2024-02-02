@@ -287,7 +287,7 @@ describe('UsersService', () => {
   it('should call updatePermission and show Success snackbar', () => {
     let isSubscribeCalled = false;
 
-    service.updatePermission(permissionsApp).subscribe(res => {
+    service.updatePermission('12345678', permissionsApp).subscribe(res => {
       expect(fakeNotifications.showSuccessSnackbar).toHaveBeenCalledOnceWith('Permissions have been updated successfully.');
       isSubscribeCalled = true;
     });
@@ -301,7 +301,7 @@ describe('UsersService', () => {
   });
 
   it('should fall updatePermission and show Error snackbar', async () => {
-    const updatePermission = service.updatePermission(permissionsApp).toPromise();
+    const updatePermission = service.updatePermission('12345678', permissionsApp).toPromise();
 
     const req = httpMock.expectOne(`/permissions/1c042912-326d-4fc5-bb0c-10da88dd37c4`);
     expect(req.request.method).toBe("PUT");

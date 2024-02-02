@@ -100,7 +100,8 @@ describe('AuthService', () => {
 
     const userData = {
       email: 'john@smith.com',
-      password: 'mM87654321'
+      password: 'mM87654321',
+      companyId: 'company_1'
     };
 
     const loginResponse = {
@@ -123,7 +124,8 @@ describe('AuthService', () => {
   it('should fall for loginUser and show Error alert', async () => {
     const userData = {
       email: 'john@smith.com',
-      password: 'mM87654321'
+      password: 'mM87654321',
+      companyId: 'company_1'
     };
 
     const tokenExpiration = service.loginUser(userData).toPromise();

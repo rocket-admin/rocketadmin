@@ -119,7 +119,7 @@ export class PermissionsAddDialogComponent implements OnInit {
       },
       tables: this.tablesAccess
     };
-    this._usersService.updatePermission(this.connectionID,permissions)
+    this._usersService.updatePermission(this.connectionID, permissions)
       .subscribe( () => {
         this.dialogRef.close();
         this.submitting = false;

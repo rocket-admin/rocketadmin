@@ -262,7 +262,7 @@ describe('PermissionsAddDialogComponent', () => {
 
     component.addPermissions();
 
-    expect(fakseUpdatePermission).toHaveBeenCalledOnceWith({
+    expect(fakseUpdatePermission).toHaveBeenCalledOnceWith('12345678', {
       connection: {
         connectionId: '12345678',
         accessLevel: AccessLevel.Readonly

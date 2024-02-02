@@ -241,7 +241,7 @@ describe('DbTableRowEditComponent', () => {
   it('should check if field is readonly', () => {
     component.readonlyFields = ['Id', 'Price'];
 
-    const isPriceReafonly = component.isReadonly('Price');
+    const isPriceReafonly = component.isReadonlyField('Price');
     expect(isPriceReafonly).toBeTrue();
   });
 
