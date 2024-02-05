@@ -13,6 +13,7 @@ import { RouterTestingModule } from "@angular/router/testing";
 import { TablesService } from 'src/app/services/tables.service';
 import { forwardRef } from '@angular/core';
 import { of } from 'rxjs';
+import { Angulartics2Module } from 'angulartics2';
 
 describe('ConnectionSettingsComponent', () => {
   let component: ConnectionSettingsComponent;
@@ -78,7 +79,8 @@ describe('ConnectionSettingsComponent', () => {
         MatDialogModule,
         FormsModule,
         MatSelectModule,
-        BrowserAnimationsModule
+        BrowserAnimationsModule,
+        Angulartics2Module.forRoot()
       ],
       declarations: [ ConnectionSettingsComponent ],
       providers: [

@@ -14,6 +14,7 @@ import { UserService } from 'src/app/services/user.service';
 import { UserSettingsComponent } from './user-settings.component';
 import { forwardRef } from '@angular/core';
 import { of } from 'rxjs';
+import { Angulartics2Module } from 'angulartics2';
 
 describe('UserSettingsComponent', () => {
   let component: UserSettingsComponent;
@@ -31,7 +32,8 @@ describe('UserSettingsComponent', () => {
         MatSlideToggleModule,
         MatDialogModule,
         MatSnackBarModule,
-        BrowserAnimationsModule
+        BrowserAnimationsModule,
+        Angulartics2Module.forRoot()
       ],
       declarations: [ UserSettingsComponent ],
       providers: [

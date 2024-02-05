@@ -292,7 +292,7 @@ describe('UsersService', () => {
       isSubscribeCalled = true;
     });
 
-    const req = httpMock.expectOne(`/permissions/1c042912-326d-4fc5-bb0c-10da88dd37c4`);
+    const req = httpMock.expectOne(`/permissions/1c042912-326d-4fc5-bb0c-10da88dd37c4?connectionId=12345678`);
     expect(req.request.method).toBe("PUT");
     expect(req.request.body).toEqual({permissions: permissionsApp});
     req.flush(permissionsNetwork);
@@ -303,7 +303,7 @@ describe('UsersService', () => {
   it('should fall updatePermission and show Error snackbar', async () => {
     const updatePermission = service.updatePermission('12345678', permissionsApp).toPromise();
 
-    const req = httpMock.expectOne(`/permissions/1c042912-326d-4fc5-bb0c-10da88dd37c4`);
+    const req = httpMock.expectOne(`/permissions/1c042912-326d-4fc5-bb0c-10da88dd37c4?connectionId=12345678`);
     expect(req.request.method).toBe("PUT");
     req.flush(fakeError, {status: 400, statusText: ''});
     await updatePermission;

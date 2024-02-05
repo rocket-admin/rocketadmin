@@ -13,6 +13,7 @@ import { of } from 'rxjs';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { AccessLevel } from 'src/app/models/user';
+import { Angulartics2Module } from 'angulartics2';
 
 describe('PermissionsAddDialogComponent', () => {
   let component: PermissionsAddDialogComponent;
@@ -103,7 +104,8 @@ describe('PermissionsAddDialogComponent', () => {
         MatSlideToggleModule,
         MatCheckboxModule,
         RouterTestingModule.withRoutes([]),
-        MatDialogModule
+        MatDialogModule,
+        Angulartics2Module.forRoot()
       ],
       providers: [
         { provide: MAT_DIALOG_DATA, useValue: {} },

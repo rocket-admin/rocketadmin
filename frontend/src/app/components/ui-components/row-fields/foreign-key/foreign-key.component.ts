@@ -72,11 +72,15 @@ export class ForeignKeyComponent implements OnInit {
           // this.primaeyKeys = res.primaryColumns;
           const modifiedRow = this.getModifiedRow(res.rows[0]);
           if (this.value) {
+            console.log('test if this.value true');
+            console.log(this.value);
             this.currentDisplayedString =
               this.identityColumn ?
                 `${res.rows[0][this.identityColumn]} (${Object.values(modifiedRow).filter(value => value).join(' | ')})` :
                 Object.values(modifiedRow).filter(value => value).join(' | ');
-            this.currentFieldValue = res.rows[0][this.relations.referenced_column_name];
+              console.log('test identityColumn');
+              console.log(this.currentDisplayedString);
+              this.currentFieldValue = res.rows[0][this.relations.referenced_column_name];
             this.currentFieldQueryParams = Object.assign({}, ...res.primaryColumns.map((primaeyKey) => ({[primaeyKey.column_name]: res.rows[0][primaeyKey.column_name]})));
             this.onFieldChange.emit(this.currentFieldValue);
           }

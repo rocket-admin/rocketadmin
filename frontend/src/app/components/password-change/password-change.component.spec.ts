@@ -9,6 +9,7 @@ import { RouterTestingModule } from "@angular/router/testing";
 import { SubscriptionPlans } from 'src/app/models/user';
 import { UserService } from 'src/app/services/user.service';
 import { of } from 'rxjs';
+import { Angulartics2Module } from 'angulartics2';
 
 describe('PasswordChangeComponent', () => {
   let component: PasswordChangeComponent;
@@ -24,7 +25,8 @@ describe('PasswordChangeComponent', () => {
         HttpClientTestingModule,
         // RouterTestingModule.withRoutes([]),
         FormsModule,
-        MatSnackBarModule
+        MatSnackBarModule,
+        Angulartics2Module.forRoot()
       ],
       providers: [
         { provide: Router, useValue: routerSpy },

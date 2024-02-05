@@ -11,6 +11,7 @@ import { RouterTestingModule } from "@angular/router/testing";
 import { TablesDataSource } from '../db-tables-data-source';
 import { CustomActionType } from 'src/app/models/table';
 import { SelectionModel } from '@angular/cdk/collections';
+import { FormsModule } from '@angular/forms';
 
 describe('DbTableComponent', () => {
   let component: DbTableComponent;
@@ -66,7 +67,8 @@ describe('DbTableComponent', () => {
         MatSnackBarModule,
         MatPaginatorModule,
         BrowserAnimationsModule,
-        MatSortModule
+        MatSortModule,
+        FormsModule
       ],
       declarations: [ DbTableComponent ]
     })

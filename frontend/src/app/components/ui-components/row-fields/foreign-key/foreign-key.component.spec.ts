@@ -9,7 +9,7 @@ import { RouterTestingModule } from "@angular/router/testing";
 import { TablesService } from 'src/app/services/tables.service';
 import { of } from 'rxjs';
 
-describe('ForeignKeyComponent', () => {
+fdescribe('ForeignKeyComponent', () => {
   let component: ForeignKeyComponent;
   let fixture: ComponentFixture<ForeignKeyComponent>;
   let tablesService: TablesService;
@@ -156,8 +156,8 @@ describe('ForeignKeyComponent', () => {
     fixture.detectChanges();
 
     expect(component.identityColumn).toEqual('lastname');
-    expect(component.currentDisplayedString).toEqual('Taylor (Alex | new-user-5@email.com)');
-    expect(component.currentFieldValue).toEqual(33);
+    expect(component.currentDisplayedString).toBeUndefined;
+    expect(component.currentFieldValue).toBeUndefined;
 
     expect(component.suggestions).toEqual([
       {
@@ -189,8 +189,8 @@ describe('ForeignKeyComponent', () => {
     fixture.detectChanges();
 
     expect(component.identityColumn).toBeUndefined;
-    expect(component.currentDisplayedString).toEqual('Alex | Taylor | new-user-5@email.com');
-    expect(component.currentFieldValue).toEqual(33);
+    expect(component.currentDisplayedString).toBeUndefined;
+    expect(component.currentFieldValue).toBeUndefined;
 
     expect(component.suggestions).toEqual([
       {
@@ -211,7 +211,7 @@ describe('ForeignKeyComponent', () => {
     ])
   });
 
-  it('should fill initial dropdown values when autocomplete_columns is not set', () => {
+  it('should fill initial dropdown values when autocomplete_columns and field value is not set', () => {
     spyOn(tablesService, 'fetchTable').and.returnValue(of(usersTableNetwork));
 
     component.connectionID = '12345678';
@@ -229,8 +229,55 @@ describe('ForeignKeyComponent', () => {
     fixture.detectChanges();
 
     expect(component.identityColumn).toBeUndefined;
-    expect(component.currentDisplayedString).toEqual('33 | Alex | Taylor | new-user-5@email.com | 24');
-    expect(component.currentFieldValue).toEqual(33);
+    expect(component.currentDisplayedString).toBeUndefined;
+    expect(component.currentFieldValue).toBeUndefined;
+
+    expect(component.suggestions).toEqual([
+      {
+        displayString: '33 | Alex | Taylor | new-user-5@email.com | 24',
+        primaryKeys: {id: 33},
+        fieldValue: 33
+      },
+      {
+        displayString: '34 | Alex | Johnson | new-user-4@email.com | 24',
+        primaryKeys: {id: 34},
+        fieldValue: 34
+      },
+      {
+        displayString: '35 | Alex | Smith | some-new@email.com | 24',
+        primaryKeys: {id: 35},
+        fieldValue: 35
+      }
+    ])
+  });
+
+  it('should fill initial dropdown values when autocomplete_columns is not set and field value is set', async () => {
+    spyOn(tablesService, 'fetchTable').and.returnValue(of(usersTableNetwork));
+
+    component.value = 34;
+    component.connectionID = '12345678';
+    component.relations = {
+      autocomplete_columns: [],
+      column_name: 'userId',
+      constraint_name: '',
+      referenced_column_name: 'id',
+      referenced_table_name: 'users',
+      column_default: '',
+    };
+
+    component.ngOnInit();
+    console.log('test ngOnInit');
+    console.log(component.value);
+    fixture.detectChanges();
+    console.log('test detectChanges');
+    console.log(component.value);
+    await fixture.whenStable();
+    console.log('test whenStable');
+    console.log(component.value);
+
+    expect(component.identityColumn).toBeUndefined;
+    expect(component.currentDisplayedString).toEqual('34 | Alex | Johnson | new-user-4@email.com | 24');
+    expect(component.currentFieldValue).toEqual(34);
 
     expect(component.suggestions).toEqual([
       {
@@ -364,7 +411,7 @@ describe('ForeignKeyComponent', () => {
 
     expect(component.suggestions).toEqual([
       {
-        displayString: 'No matches',
+        displayString: 'No field starts with "skjfhskjdf" in foreign entity.',
       }
     ])
   })

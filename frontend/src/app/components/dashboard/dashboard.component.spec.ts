@@ -10,6 +10,7 @@ import { of } from 'rxjs';
 import { TablesService } from 'src/app/services/tables.service';
 import { AccessLevel } from 'src/app/models/user';
 import { ActivatedRoute, convertToParamMap, Router } from '@angular/router';
+import { Angulartics2Module } from 'angulartics2';
 
 describe('DashboardComponent', () => {
   let component: DashboardComponent;
@@ -72,7 +73,8 @@ describe('DashboardComponent', () => {
         HttpClientTestingModule,
         RouterTestingModule.withRoutes([]),
         MatSnackBarModule,
-        MatDialogModule
+        MatDialogModule,
+        Angulartics2Module.forRoot()
       ],
       providers: [
         {
