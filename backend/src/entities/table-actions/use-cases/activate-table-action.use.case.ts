@@ -54,25 +54,23 @@ export class ActivateTableActionUseCase
     const tablePrimaryKeys = await dataAccessObject.getTablePrimaryColumns(tableName, null);
     const primaryKeysObj = this.getPrimaryKeysFromBody(request_body, tablePrimaryKeys);
     const dateString = new Date().toISOString();
-    const autoadminSignatureHeader = this.generateAutoadminSignature(
+    const requestBody = JSON.stringify({
+      $$_raUserId: userId,
+      primaryKeys: primaryKeysObj,
+      $$_date: dateString,
+      $$_actionId: actionId,
+      $$_tableName: tableName,
+    });
+    const autoadminSignatureHeader = Encryptor.hashDataHMACexternalKey(
       foundConnection.signing_key,
-      primaryKeysObj,
-      actionId,
-      dateString,
-      tableName,
+      requestBody,
     );
     try {
       const result = await axios.post(
         foundTableAction.url,
+        requestBody,
         {
-          $$_raUserId: userId,
-          primaryKeys: primaryKeysObj,
-          $$_date: dateString,
-          $$_actionId: actionId,
-          $$_tableName: tableName,
-        },
-        {
-          headers: { 'Rocketadmin-Signature': autoadminSignatureHeader },
+          headers: { 'Rocketadmin-Signature': autoadminSignatureHeader, "Content-Type": "application/json" },
           maxRedirects: 0,
           validateStatus: function (status) {
             return status >= 200 && status <= 302;
@@ -131,26 +129,5 @@ export class ActivateTableActionUseCase
       }
     }
     return pKeysObj;
-  }
-
-  private generateAutoadminSignature(
-    signingKey: string,
-    primaryKeys: Record<string, unknown>,
-    actionId: string,
-    dateString: string,
-    tableName: string,
-  ): string {
-    const stringifyedPKeys = this.objToString(primaryKeys);
-    const strTohash = dateString + '$$' + stringifyedPKeys + '$$' + actionId + '$$' + tableName;
-    const hash = Encryptor.hashDataHMACexternalKey(signingKey, strTohash);
-    return hash;
-  }
-
-  private objToString(obj: Record<string, unknown>): string {
-    return Object.entries(obj)
-      .reduce((str, [p, val]) => {
-        return `${str}${p}::${val}\n`;
-      }, '')
-      .slice(0, -1);
   }
 }
