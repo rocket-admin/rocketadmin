@@ -51,6 +51,30 @@ export class AuthService {
       )
   }
 
+  signUpWithGoogle(token: string) {
+    const config = this._configuration.getConfig();
+
+    return this._http.post<any>(config.saasURL + '/saas/user/google/register', {token})
+    .pipe(
+      map(res => {
+        this.auth.next(res);
+        return res
+      }),
+      catchError((err) => {
+        console.log(err);
+        Sentry.captureException(err);
+        this._notifications.showAlert(AlertType.Error, {abstract: err.error.message, details: err.error.originalMessage}, [
+          {
+            type: AlertActionType.Button,
+            caption: 'Dismiss',
+            action: (id: number) => this._notifications.dismissAlert()
+          }
+        ]);
+        return EMPTY;
+      })
+    );
+  }
+
   loginUser(userData: ExistingAuthUser) {
     return this._http.post<any>('/user/login', userData)
     .pipe(

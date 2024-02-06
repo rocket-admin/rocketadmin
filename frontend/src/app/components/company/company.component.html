@@ -78,7 +78,7 @@
         <ng-container matColumnDef="role">
             <th mat-header-cell *matHeaderCellDef>Role</th>
             <td mat-cell *matCellDef="let element">
-                <mat-select *ngIf="currentUser && currentUser.role === 'ADMIN' && !element.invitedUserEmail; else noSelect"
+                <mat-select *ngIf="currentUser && currentUser.role === 'ADMIN' && (adminsCount > 1 || element.role === 'USER') && !element.invitedUserEmail; else noSelect"
                     class="role-select"
                     [(ngModel)]="element.role"
                     (ngModelChange)="updateRole(element.id, element.role)">
