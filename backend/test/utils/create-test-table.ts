@@ -118,7 +118,11 @@ async function createTestTableIbmDb2(
       await ibmDatabase.query(
         `INSERT INTO ${
           connectionParams.schema
-        }.${testTableName} (${testTableColumnName}, ${testTableSecondColumnName}, created_at, updated_at) VALUES ('${faker.person.firstName()}', '${faker.internet.email()}', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`,
+        }.${testTableName} (${testTableColumnName}, ${testTableSecondColumnName}, created_at, updated_at) VALUES ('${faker.person
+          .firstName()
+          .replace(/["']/g, '')}', '${faker.internet
+          .email()
+          .replace(/["']/g, '')}', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`,
       );
     }
   }

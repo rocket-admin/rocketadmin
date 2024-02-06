@@ -18,6 +18,7 @@ import { LRUStorage } from '../../caching/lru-storage.js';
 import { tableSettingsFieldValidator } from '../../helpers/validation/table-settings-validator.js';
 import { DAO_CONSTANTS } from '../../helpers/data-access-objects-constants.js';
 import { FilterCriteriaEnum } from '../shared/enums/filter-criteria.enum.js';
+import { ERROR_MESSAGES } from '../../helpers/errors/error-messages.js';
 
 export class DataAccessObjectIbmDb2 extends BasicDataAccessObject implements IDataAccessObject {
   constructor(connection: ConnectionParams) {
@@ -505,7 +506,20 @@ WHERE
     searchedFieldValue: string,
     filteringFields: FilteringFieldsDS[],
   ): Promise<Stream & AsyncIterable<any>> {
-    throw new Error('Method not implemented.');
+    const { large_dataset } = await this.getRowsCount(tableName, this.connection.schema);
+    if (large_dataset) {
+      throw new Error(ERROR_MESSAGES.DATA_IS_TO_LARGE);
+    }
+    const rowsResult = await this.getRowsFromTable(
+      tableName,
+      settings,
+      page,
+      perPage,
+      searchedFieldValue,
+      filteringFields,
+      null,
+    ) as any;
+    return rowsResult.data;
   }
 
   private async getConnectionToDatabase(): Promise<Database> {

@@ -3297,7 +3297,7 @@ test(`${currentTest} should test connection and return result`, async (t) => {
 
 currentTest = 'GET table/csv/:slug';
 
-test.skip(`${currentTest} should return csv file with table data`, async (t) => {
+test(`${currentTest} should return csv file with table data`, async (t) => {
   const connectionToTestDB = getTestData(mockFactory).connectionToIbmDb2;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
 
@@ -3338,7 +3338,7 @@ test.skip(`${currentTest} should return csv file with table data`, async (t) => 
   t.is(isFileExists, true);
 });
 
-test.skip(`${currentTest} should return csv file with table data with search, with pagination, with sorting,
+test(`${currentTest} should return csv file with table data with search, with pagination, with sorting,
 with search and pagination: page=1, perPage=2 and DESC sorting`, async (t) => {
   const connectionToTestDB = getTestData(mockFactory).connectionToIbmDb2;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
