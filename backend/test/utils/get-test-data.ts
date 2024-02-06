@@ -26,6 +26,7 @@ export function getTestData(mockFactory: MockFactory) {
   const mysqlCliConnection = mockFactory.generateConnectionToTestDbMysqlCli();
   const postgresCliConnection = mockFactory.generateConnectionToTestDbPostgresCli();
   const oracleCliConnection = mockFactory.generateConnectionToTestDbOracleCli();
+  const connectionToIbmDb2 = mockFactory.generateConnectionToTestDbIbmDb2();
   return {
     newConnection,
     newEncryptedConnection,
@@ -52,5 +53,6 @@ export function getTestData(mockFactory: MockFactory) {
     mysqlCliConnection,
     postgresCliConnection,
     oracleCliConnection,
+    connectionToIbmDb2,
   };
 }

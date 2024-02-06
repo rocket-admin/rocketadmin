@@ -17,7 +17,7 @@ services:
       - testPg-e2e-testing
       - mssql-e2e-testing
       - test-oracle-e2e-testing
-      - db2server
+      - test-ibm-db2-e2e-testing
     links:
       - postgres
       - testDB
@@ -25,7 +25,7 @@ services:
       - testPg-e2e-testing
       - mssql-e2e-testing
       - test-oracle-e2e-testing
-      - db2server
+      - test-ibm-db2-e2e-testing
     command: ["yarn", "start"]
 
   testDB:
@@ -256,7 +256,7 @@ services:
       - APPLICATION_CONFIG_FILE_NAME=.mssql_test_cli_config.txt
     command: ["yarn", "start:dev"]
 
-  db2server:
+  test-ibm-db2-e2e-testing:
     image: icr.io/db2_community/db2
     restart: always
     privileged: true

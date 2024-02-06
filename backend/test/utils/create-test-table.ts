@@ -2,12 +2,17 @@
 import { faker } from '@faker-js/faker';
 import { getRandomConstraintName, getRandomTestTableName } from './get-random-test-table-name.js';
 import { getTestKnex } from './get-test-knex.js';
+import { ConnectionTypeEnum } from '../../src/enums/connection-type.enum.js';
+import ibmdb, { Database } from 'ibm_db';
 
 export async function createTestTable(
-  connectionParams,
+  connectionParams: any,
   testEntitiesSeedsCount = 42,
   testSearchedUserName = 'Vasia',
 ): Promise<CreatedTableInfo> {
+  if (connectionParams.type === ConnectionTypeEnum.ibmdb2) {
+    return createTestTableIbmDb2(connectionParams, testEntitiesSeedsCount, testSearchedUserName);
+  }
   const testTableName = getRandomTestTableName();
   const testTableColumnName = `${faker.lorem.words(1)}_${faker.lorem.words(1)}`;
   const testTableSecondColumnName = `${faker.lorem.words(1)}_${faker.lorem.words(1)}`;
@@ -43,6 +48,81 @@ export async function createTestTable(
       });
     }
   }
+  return {
+    testTableName: testTableName,
+    testTableColumnName: testTableColumnName,
+    testTableSecondColumnName: testTableSecondColumnName,
+    testEntitiesSeedsCount: testEntitiesSeedsCount,
+  };
+}
+
+async function createTestTableIbmDb2(
+  connectionParams: any,
+  testEntitiesSeedsCount = 42,
+  testSearchedUserName = 'Vasia',
+): Promise<CreatedTableInfo> {
+  const testTableName = getRandomTestTableName().toUpperCase();
+  const testTableColumnName = `${faker.lorem.words(1)}_${faker.lorem.words(1)}`.replace(/[-@]/g, '').toUpperCase();
+  const testTableSecondColumnName = `${faker.lorem.words(1)}_${faker.lorem.words(1)}`
+    .replace(/[-@]/g, '')
+    .toUpperCase();
+  const connStr = `DATABASE=${connectionParams.database};HOSTNAME=${connectionParams.host};UID=${connectionParams.username};PWD=${connectionParams.password};PORT=${connectionParams.port};PROTOCOL=TCPIP`;
+
+  const ibmDatabase = ibmdb();
+  await ibmDatabase.open(connStr);
+  const queryCheckSchemaExists = `SELECT COUNT(*) FROM SYSCAT.SCHEMATA WHERE SCHEMANAME = '${connectionParams.schema}'`;
+  const schemaExists = await ibmDatabase.query(queryCheckSchemaExists);
+
+  if (!schemaExists.length || !schemaExists[0]['1']) {
+    let queryCreateSchema = `CREATE SCHEMA ${connectionParams.schema}`;
+    try {
+      await ibmDatabase.query(queryCreateSchema);
+    } catch (error) {
+      console.error(`Error while creating schema: ${error}`);
+      console.info(`Query: ${queryCreateSchema}`);
+    }
+  }
+
+  const queryCheckTableExists = `SELECT COUNT(*) FROM SYSCAT.TABLES WHERE TABNAME = '${testTableName}' AND TABSCHEMA = '${connectionParams.schema}'`;
+  const tableExists = await ibmDatabase.query(queryCheckTableExists);
+
+  if (tableExists.length && tableExists[0]['1']) {
+    await ibmDatabase.query(`DROP TABLE ${connectionParams.schema}.${testTableName}`);
+  }
+
+  const query = `
+  CREATE TABLE ${connectionParams.schema}.${testTableName} (
+    id INTEGER NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1),
+    ${testTableColumnName} VARCHAR(255),
+    ${testTableSecondColumnName} VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT TIMESTAMP,
+    PRIMARY KEY (id)
+)`;
+
+  try {
+    await ibmDatabase.query(query);
+  } catch (error) {
+    console.error(`Error while creating table: ${error}`);
+    console.info(`Query: ${query}`);
+  }
+
+  for (let i = 0; i < testEntitiesSeedsCount; i++) {
+    if (i === 0 || i === testEntitiesSeedsCount - 21 || i === testEntitiesSeedsCount - 5) {
+      await ibmDatabase.query(
+        `INSERT INTO ${
+          connectionParams.schema
+        }.${testTableName} (${testTableColumnName}, ${testTableSecondColumnName}, created_at, updated_at) VALUES ('${testSearchedUserName}', '${faker.internet.email()}', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`,
+      );
+    } else {
+      await ibmDatabase.query(
+        `INSERT INTO ${
+          connectionParams.schema
+        }.${testTableName} (${testTableColumnName}, ${testTableSecondColumnName}, created_at, updated_at) VALUES ('${faker.person.firstName()}', '${faker.internet.email()}', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`,
+      );
+    }
+  }
+
   return {
     testTableName: testTableName,
     testTableColumnName: testTableColumnName,

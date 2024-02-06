@@ -17,6 +17,7 @@ import ibmdb, { Database } from 'ibm_db';
 import { LRUStorage } from '../../caching/lru-storage.js';
 import { tableSettingsFieldValidator } from '../../helpers/validation/table-settings-validator.js';
 import { DAO_CONSTANTS } from '../../helpers/data-access-objects-constants.js';
+import { FilterCriteriaEnum } from '../shared/enums/filter-criteria.enum.js';
 
 export class DataAccessObjectIbmDb2 extends BasicDataAccessObject implements IDataAccessObject {
   constructor(connection: ConnectionParams) {
@@ -60,12 +61,11 @@ export class DataAccessObjectIbmDb2 extends BasicDataAccessObject implements IDa
       const selectQuery = `
       SELECT ${primaryKey.join(', ')}
       FROM ${this.connection.schema.toUpperCase()}.${tableName.toUpperCase()}
-      WHERE ${primaryKey.map((key) => `${key} = ?`).join(' AND ')}
+      WHERE ${Object.keys(row)
+        .map((key) => `${key} = ?`)
+        .join(' AND ')}
     `;
-      const result = await connectionToDb.query(
-        selectQuery,
-        primaryKey.map((key) => row[key]),
-      );
+      const result = await connectionToDb.query(selectQuery, Object.values(row));
       return result[0];
     }
     return row;
@@ -144,7 +144,102 @@ export class DataAccessObjectIbmDb2 extends BasicDataAccessObject implements IDa
     filteringFields: FilteringFieldsDS[],
     autocompleteFields: AutocompleteFieldsDS,
   ): Promise<FoundRowsDS> {
-    throw new Error('Method not implemented.');
+    const connectionSchema = this.connection.schema.toUpperCase();
+    tableName = tableName.toUpperCase();
+    this.validateNamesAndThrowError([tableName, connectionSchema]);
+
+    if (!page || page <= 0) {
+      page = DAO_CONSTANTS.DEFAULT_PAGINATION.page;
+      const { list_per_page } = settings;
+      if (list_per_page && list_per_page > 0 && (!perPage || perPage <= 0)) {
+        perPage = list_per_page;
+      } else {
+        perPage = DAO_CONSTANTS.DEFAULT_PAGINATION.perPage;
+      }
+    }
+    const connectionToDb = await this.getConnectionToDatabase();
+
+    const { large_dataset, rowsCount } = await this.getRowsCount(tableName, this.connection.schema);
+    const tableStructure = await this.getTableStructure(tableName);
+    const availableFields = this.findAvaliableFields(settings, tableStructure);
+
+    const lastPage = Math.ceil(rowsCount / perPage);
+    let rowsRO: FoundRowsDS;
+
+    if (autocompleteFields && autocompleteFields.value && autocompleteFields.fields.length > 0) {
+      const fields = autocompleteFields.fields.join(', ');
+      const autocompleteQuery = `SELECT ${fields} FROM ${connectionSchema}.${tableName} WHERE ${fields} LIKE '${autocompleteFields.value}%' FETCH FIRST ${DAO_CONSTANTS.AUTOCOMPLETE_ROW_LIMIT} ROWS ONLY`;
+      const rows = await connectionToDb.query(autocompleteQuery);
+
+      rowsRO = {
+        data: rows,
+        pagination: {} as any,
+        large_dataset: large_dataset,
+      };
+      return rowsRO;
+    }
+
+    let searchQuery = '';
+    if (searchedFieldValue) {
+      const searchFields = settings.search_fields?.length > 0 ? settings.search_fields : availableFields;
+      const searchConditions = searchFields
+        .map((field) => `LOWER(CAST(${field} AS VARCHAR(255))) LIKE '${searchedFieldValue.toLowerCase()}%'`)
+        .join(' OR ');
+      searchQuery = ` WHERE (${searchConditions})`;
+    }
+
+    let filterQuery = '';
+    if (filteringFields && filteringFields.length > 0) {
+      const filterConditions = filteringFields
+        .map((filterObject) => {
+          switch (filterObject.criteria) {
+            case FilterCriteriaEnum.eq:
+              return `${filterObject.field} = '${filterObject.value}'`;
+            case FilterCriteriaEnum.startswith:
+              return `${filterObject.field} LIKE '${filterObject.value}%'`;
+            case FilterCriteriaEnum.endswith:
+              return `${filterObject.field} LIKE '%${filterObject.value}'`;
+            case FilterCriteriaEnum.gt:
+              return `${filterObject.field} > ${filterObject.value}`;
+            case FilterCriteriaEnum.lt:
+              return `${filterObject.field} < ${filterObject.value}`;
+            case FilterCriteriaEnum.lte:
+              return `${filterObject.field} <= ${filterObject.value}`;
+            case FilterCriteriaEnum.gte:
+              return `${filterObject.field} >= ${filterObject.value}`;
+            case FilterCriteriaEnum.contains:
+              return `${filterObject.field} LIKE '%${filterObject.value}%'`;
+            case FilterCriteriaEnum.icontains:
+              return `${filterObject.field} NOT LIKE '%${filterObject.value}%'`;
+            case FilterCriteriaEnum.empty:
+              return `(${filterObject.field} IS NULL OR ${filterObject.field} = '')`;
+          }
+        })
+        .join(' AND ');
+      filterQuery = ` AND (${filterConditions})`;
+    }
+
+    const orderQuery =
+      settings.ordering_field && settings.ordering ? ` ORDER BY ${settings.ordering_field} ${settings.ordering}` : '';
+    const paginationQuery = ` OFFSET ${(page - 1) * perPage} ROWS FETCH NEXT ${perPage} ROWS ONLY`;
+
+    const rowsQuery = `SELECT ${availableFields.join(
+      ',',
+    )} FROM  ${connectionSchema}.${tableName}${searchQuery}${filterQuery}${orderQuery}${paginationQuery}`;
+
+    const rows = await connectionToDb.query(rowsQuery);
+
+    rowsRO = {
+      data: rows,
+      pagination: {
+        total: rowsCount,
+        lastPage: lastPage,
+        perPage: perPage,
+        currentPage: page,
+      } as any,
+      large_dataset: large_dataset,
+    };
+    return rowsRO;
   }
 
   public async getTableForeignKeys(tableName: string): Promise<ForeignKeyDS[]> {
