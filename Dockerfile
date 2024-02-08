@@ -10,10 +10,11 @@ RUN if [[ -n $SAAS ]]; then API_ROOT=/api yarn build --configuration=saas-produc
     else API_ROOT=/api yarn build; fi
 RUN ls /app/frontend/dist/dissendium-v0
 
-FROM node:20-slim
+FROM node:20
 RUN apt-get update && apt-get install -y \
     tini nginx \
-    && rm -rf /var/lib/apt/lists/*
+    make gcc g++ python3 \
+    && rm -rf /var/lib/apt/lists/* 
 
 WORKDIR /app
 COPY package.json .yarnrc.yml yarn.lock /app/

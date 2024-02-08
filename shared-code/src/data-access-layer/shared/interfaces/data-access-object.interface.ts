@@ -1,4 +1,3 @@
-import { Knex } from 'knex';
 import { AutocompleteFieldsDS } from '../data-structures/autocomplete-fields.ds.js';
 import { FilteringFieldsDS } from '../data-structures/filtering-fields.ds.js';
 import { ForeignKeyDS } from '../data-structures/foreign-key.ds.js';
@@ -14,8 +13,6 @@ import { Stream } from 'node:stream';
 
 export interface IDataAccessObject {
   addRowInTable(tableName: string, row: Record<string, unknown>): Promise<Record<string, unknown> | number>;
-
-  configureKnex(): Promise<Knex<any, any[]>>;
 
   deleteRowInTable(tableName: string, primaryKey: Record<string, unknown>): Promise<Record<string, unknown>>;
 
