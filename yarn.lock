@@ -9032,9 +9032,9 @@ __metadata:
   linkType: hard
 
 "nodemailer@npm:^6.9.7":
-  version: 6.9.7
-  resolution: "nodemailer@npm:6.9.7"
-  checksum: 0cf66d27aed3bd2cbdff9939402cec3d2119c31b2b9ff4af3bcd59f48287ea75b90c0ce2cd9eb0df838164972cd25581b4b723c91fd673e2608bcb28445ccb1b
+  version: 6.9.9
+  resolution: "nodemailer@npm:6.9.9"
+  checksum: 9af862b497273796ad6ba7ca9eac23a7d69737554f6dd51cfd3557f60902c56344158192672f1208daf00340a47a9e1805bd809965edc191011b35dd98a74be1
   languageName: node
   linkType: hard
 
