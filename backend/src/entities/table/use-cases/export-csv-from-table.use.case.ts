@@ -86,11 +86,12 @@ export class ExportCSVFromTableUseCase extends AbstractUseCase<GetTableRowsDs, a
       //todo: rework as streams when node oracle driver will support it correctly
       //todo: agent return data as array of table rows, not as stream, because we cant
       //todo: transfer data as a stream from clint to server
-      if (connection.type === 'oracledb' || 'ibmdb2' || isConnectionTypeAgent(connection.type)) {
+      if (connection.type === 'oracledb' || connection.type === 'ibmdb2' || isConnectionTypeAgent(connection.type)) {
         return new StreamableFile(csv.stringify(rowsStream as any, { header: true }));
       }
       return new StreamableFile(rowsStream.pipe(csv.stringify({ header: true })));
     } catch (error) {
+      console.error(error);
       throw new HttpException(
         {
           message: Messages.CSV_EXPORT_FAILED,
