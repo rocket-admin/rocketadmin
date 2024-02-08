@@ -553,6 +553,9 @@ export class ConnectionController {
     }
     const result = await this.testConnectionUseCase.execute(inputData, InTransactionEnum.OFF);
     result.message = processExceptionMessage(result.message);
+    if (result.result) {
+      await slackPostMessage(Messages.USER_SUCCESSFULLY_TESTED_CONNECTION(userId, testConnectionData.type));
+    }
     return result;
   }
 
