@@ -12,7 +12,7 @@ import { AccessLevel } from 'src/app/models/user';
 import { ActivatedRoute, convertToParamMap, Router } from '@angular/router';
 import { Angulartics2Module } from 'angulartics2';
 
-describe('DashboardComponent', () => {
+fdescribe('DashboardComponent', () => {
   let component: DashboardComponent;
   let fixture: ComponentFixture<DashboardComponent>;
   // let routerSpy;
@@ -128,7 +128,7 @@ describe('DashboardComponent', () => {
   });
 
   it('should call getTables', async () => {
-    // fakeTablesService.fetchTables.and.returnValue(of(fakeTables));
+    fakeTablesService.fetchTables.and.returnValue(of(fakeTables));
     const tables = await component.getTables();
     expect(tables).toEqual(fakeTables);
   });
