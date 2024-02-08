@@ -32,7 +32,6 @@
     "get-port": "^7.0.0",
     "ibm_db": "^3.2.3",
     "knex": "^2.4.2",
-    "knex-paginate": "^3.1.1",
     "mysql2": "^3.4.2",
     "nest-winston": "^1.9.3",
     "oracledb": "^6.0.1",

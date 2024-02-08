@@ -2937,7 +2937,6 @@ test(`${currentTest} should delete rows in table and return result`, async (t) =
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
   const createConnectionRO = JSON.parse(createConnectionResponse.text);
-  console.log('🚀 ~ file: table-postgres-cli-e2e.test.ts:2934 ~ test ~ createConnectionRO:', createConnectionRO)
   t.is(createConnectionResponse.status, 201);
   const primaryKeysForDeletion: Array<Record<string, unknown>> = [
     {

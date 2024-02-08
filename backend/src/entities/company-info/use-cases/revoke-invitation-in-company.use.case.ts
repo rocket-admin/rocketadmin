@@ -60,10 +60,10 @@ export class RevokeUserInvitationInCompanyUseCase
         );
       }
     }
-    foundCompanyWithInvitations.invitations.filter((invitation) => invitation.invitedUserEmail !== email);
+    foundCompanyWithInvitations.invitations = foundCompanyWithInvitations.invitations.filter(
+      (invitation) => invitation.invitedUserEmail !== email,
+    );
     await this._dbContext.companyInfoRepository.save(foundCompanyWithInvitations);
-    foundInvitation.company = null;
-    await this._dbContext.invitationInCompanyRepository.save(foundInvitation);
     await this._dbContext.invitationInCompanyRepository.remove(foundInvitation);
     return {
       success: true,
