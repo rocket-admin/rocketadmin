@@ -25,6 +25,7 @@ import { tableSettingsFieldValidator } from '../../helpers/validation/table-sett
 import { TableDS } from '../shared/data-structures/table.ds.js';
 import { ERROR_MESSAGES } from '../../helpers/errors/error-messages.js';
 import { Stream } from 'node:stream';
+import { SHARED_CONSTANTS } from '../../helpers/shared-constants/shared-constants.js';
 
 export class DataAccessObjectMysql extends BasicDataAccessObject implements IDataAccessObject {
   constructor(connection: ConnectionParams) {
@@ -608,16 +609,63 @@ export class DataAccessObjectMysql extends BasicDataAccessObject implements IDat
     tableName: string,
     database: string,
   ): Promise<{ rowsCount: number; large_dataset: boolean }> {
-    const fastCount = parseInt((await knex.raw(`SHOW TABLE STATUS IN ?? LIKE ?;`, [database, tableName]))[0][0].Rows);
-    if (fastCount >= DAO_CONSTANTS.LARGE_DATASET_ROW_LIMIT) {
-      return { rowsCount: fastCount, large_dataset: true };
-    }
-    let slowCount: number;
     if (countRowsQB) {
-      slowCount = (await countRowsQB.count('*'))[0]['count(*)'] as number;
-    } else {
-      slowCount = (await knex(tableName).count('*'))[0]['count(*)'] as number;
+      const slowRowsCount = await this.getRowsCountByQueryWithTimeOut(countRowsQB);
+      if (slowRowsCount) {
+        return {
+          rowsCount: slowRowsCount,
+          large_dataset: slowRowsCount >= DAO_CONSTANTS.LARGE_DATASET_ROW_LIMIT,
+        };
+      }
+      const fastRowsCount = await this.getFastRowsCount(knex, tableName, database);
+      return {
+        rowsCount: fastRowsCount,
+        large_dataset: fastRowsCount >= DAO_CONSTANTS.LARGE_DATASET_ROW_LIMIT,
+      };
     }
-    return { rowsCount: slowCount, large_dataset: false };
+
+    const fastRowsCount = await this.getFastRowsCount(knex, tableName, database);
+    if (fastRowsCount >= DAO_CONSTANTS.LARGE_DATASET_ROW_LIMIT) {
+      return {
+        rowsCount: fastRowsCount,
+        large_dataset: true,
+      };
+    }
+    const slowRowsCount = await this.getSlowRowsCount(knex, tableName);
+    return {
+      rowsCount: slowRowsCount,
+      large_dataset: false,
+    };
+  }
+
+  private async getRowsCountByQueryWithTimeOut(countRowsQB: Knex.QueryBuilder<any, any[]>): Promise<number | null> {
+    return new Promise(async (resolve) => {
+      setTimeout(() => {
+        resolve(null);
+      }, SHARED_CONSTANTS.COUNT_QUERY_TIMEOUT_MS);
+
+      try {
+        const slowCount = (await countRowsQB.count('*'))[0]['count(*)'] as number;
+        resolve(slowCount);
+      } catch (error) {
+        resolve(null);
+      }
+    });
+  }
+
+  private async getSlowRowsCount(knex: Knex<any, any[]>, tableName: string): Promise<number | null> {
+    const slowCount = (await knex(tableName).count('*'))[0]['count(*)'] as number;
+    return slowCount;
+  }
+
+  private async getFastRowsCount(
+    knex: Knex<any, any[]>,
+    tableName: string,
+    databaseName: string,
+  ): Promise<number | null> {
+    const fastCount = parseInt(
+      (await knex.raw(`SHOW TABLE STATUS IN ?? LIKE ?;`, [databaseName, tableName]))[0][0].Rows,
+    );
+    return fastCount;
   }
 }
