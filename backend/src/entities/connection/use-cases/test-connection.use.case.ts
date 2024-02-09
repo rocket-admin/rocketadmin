@@ -108,7 +108,17 @@ export class TestConnectionUseCase
       try {
         return await dao.testConnect();
       } catch (e) {
-        let text = e.message;
+        let text: string = e.message.toLowerCase();
+
+        if (text.includes('ssl required') || text.includes('ssl connection required')) {
+          updated.ssl = true;
+          const dao = getDataAccessObject(updated);
+          try {
+            return await dao.testConnect();
+          } catch (e) {
+            text = e.message;
+          }
+        }
         text = processExceptionMessage(text);
         return {
           result: false,
@@ -131,7 +141,16 @@ export class TestConnectionUseCase
       try {
         return await dao.testConnect();
       } catch (e) {
-        let text = e.message;
+        let text: string = e.message.toLowerCase();
+        if (text.includes('ssl required') || text.includes('ssl connection required')) {
+          connectionData.ssl = true;
+          const dao = getDataAccessObject(connectionData);
+          try {
+            return await dao.testConnect();
+          } catch (e) {
+            text = e.message;
+          }
+        }
         text = processExceptionMessage(text);
         return {
           result: false,
