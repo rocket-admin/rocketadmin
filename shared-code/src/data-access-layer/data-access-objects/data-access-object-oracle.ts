@@ -389,17 +389,32 @@ export class DataAccessObjectOracle extends BasicDataAccessObject implements IDa
       tableName: string,
       tableSchema: string,
     ): Promise<{ rowsCount: number; large_dataset: boolean }> {
+      const fastCount = await getFastRowsCount(knex, tableName, tableSchema);
+      if (fastCount >= DAO_CONSTANTS.LARGE_DATASET_ROW_LIMIT) {
+        return { rowsCount: fastCount, large_dataset: true };
+      }
+
+      const rowsCount = await slowCountWithTimeOut(knex, tableName, tableSchema);
+      return { rowsCount: rowsCount, large_dataset: false };
+    }
+
+    async function getFastRowsCount(knex: Knex<any, any[]>, tableName: string, tableSchema: string): Promise<number> {
       const fastCountQueryResult = await knex('ALL_TABLES')
         .select('NUM_ROWS')
         .where('TABLE_NAME', '=', tableName)
         .andWhere('OWNER', '=', tableSchema);
       const fastCount = fastCountQueryResult[0]['NUM_ROWS'];
-      if (fastCount >= DAO_CONSTANTS.LARGE_DATASET_ROW_LIMIT) {
-        return { rowsCount: fastCount, large_dataset: true };
-      }
+      return fastCount;
+    }
+
+    async function slowCountWithTimeOut(
+      knex: Knex<any, any[]>,
+      tableName: string,
+      tableSchema: string,
+    ): Promise<number> {
       const count = (await knex(tableName).withSchema(tableSchema).count('*')) as any;
       const rowsCount = parseInt(count[0]['COUNT(*)']);
-      return { rowsCount: rowsCount, large_dataset: false };
+      return rowsCount;
     }
   }
 
