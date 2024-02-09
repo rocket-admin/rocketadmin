@@ -25,7 +25,6 @@ import { tableSettingsFieldValidator } from '../../helpers/validation/table-sett
 import { TableDS } from '../shared/data-structures/table.ds.js';
 import { ERROR_MESSAGES } from '../../helpers/errors/error-messages.js';
 import { Stream } from 'node:stream';
-import { SHARED_CONSTANTS } from '../../helpers/shared-constants/shared-constants.js';
 
 export class DataAccessObjectMysql extends BasicDataAccessObject implements IDataAccessObject {
   constructor(connection: ConnectionParams) {
@@ -642,7 +641,7 @@ export class DataAccessObjectMysql extends BasicDataAccessObject implements IDat
     return new Promise(async (resolve) => {
       setTimeout(() => {
         resolve(null);
-      }, SHARED_CONSTANTS.COUNT_QUERY_TIMEOUT_MS);
+      }, DAO_CONSTANTS.COUNT_QUERY_TIMEOUT_MS);
 
       try {
         const slowCount = (await countRowsQB.count('*'))[0]['count(*)'] as number;

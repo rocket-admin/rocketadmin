@@ -22,7 +22,6 @@ import { QueryOrderingEnum } from '../shared/enums/query-ordering.enum.js';
 import { IDataAccessObject } from '../shared/interfaces/data-access-object.interface.js';
 import { BasicDataAccessObject } from './basic-data-access-object.js';
 import { Stream } from 'node:stream';
-import { SHARED_CONSTANTS } from '../../helpers/shared-constants/shared-constants.js';
 
 export class DataAccessObjectMssql extends BasicDataAccessObject implements IDataAccessObject {
   constructor(connection: ConnectionParams) {
@@ -625,7 +624,7 @@ WHERE
     return new Promise(async (resolve) => {
       setTimeout(() => {
         resolve(null);
-      }, SHARED_CONSTANTS.COUNT_QUERY_TIMEOUT_MS);
+      }, DAO_CONSTANTS.COUNT_QUERY_TIMEOUT_MS);
 
       try {
         const slowRowsCountQueryResult = await countRowsQB.count('*');
