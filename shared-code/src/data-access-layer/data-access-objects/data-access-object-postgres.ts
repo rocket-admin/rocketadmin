@@ -642,42 +642,79 @@ export class DataAccessObjectPostgres extends BasicDataAccessObject implements I
     tableName: string,
     tableSchema: string,
   ): Promise<{ rowsCount: number; large_dataset: boolean }> {
-    try {
-      const fastCount = await knex.raw(
-        `
-        SELECT CASE
-        WHEN relpages = 0 THEN 0
-        ELSE ((reltuples / relpages)
-        * (pg_relation_size('??.??') / current_setting('block_size')::int)
-               )::bigint
-      END as count
-      FROM   pg_class
-      WHERE  oid = '??.??'::regclass;`,
-        [tableSchema, tableName, tableSchema, tableName],
-      );
-
-      if (fastCount >= DAO_CONSTANTS.LARGE_DATASET_ROW_LIMIT) {
+    if (countRowsQB) {
+      const slowRowsCount = await this.getRowsCountByQueryWithTimeOut(countRowsQB);
+      if (slowRowsCount) {
         return {
-          rowsCount: fastCount,
-          large_dataset: true,
+          rowsCount: slowRowsCount,
+          large_dataset: slowRowsCount >= DAO_CONSTANTS.LARGE_DATASET_ROW_LIMIT,
         };
       }
-    } catch (e) {
-      return { rowsCount: 0, large_dataset: false };
+      const fastRowsCount = await this.getFastRowsCount(knex, tableName, tableSchema);
+      return {
+        rowsCount: fastRowsCount,
+        large_dataset: fastRowsCount >= DAO_CONSTANTS.LARGE_DATASET_ROW_LIMIT,
+      };
     }
-    let count: any;
-    if (countRowsQB) {
-      count = (await countRowsQB.count('*')) as any;
-    } else {
-      count = (await knex(tableName)
-        .withSchema(this.connection.schema ?? 'public')
-        .count('*')) as any;
+
+    const fastRowsCount = await this.getFastRowsCount(knex, tableName, tableSchema);
+
+    if (fastRowsCount >= DAO_CONSTANTS.LARGE_DATASET_ROW_LIMIT) {
+      return {
+        rowsCount: fastRowsCount,
+        large_dataset: true,
+      };
     }
-    const slowCount = parseInt(count[0].count);
+
+    const slowRowsCount = await this.getSlowRowsCount(knex, tableName);
     return {
-      rowsCount: slowCount,
+      rowsCount: slowRowsCount,
       large_dataset: false,
     };
+  }
+
+  private async getRowsCountByQueryWithTimeOut(countRowsQB: Knex.QueryBuilder<any, any[]>): Promise<number | null> {
+    return new Promise(async (resolve) => {
+      setTimeout(() => {
+        resolve(null);
+      }, DAO_CONSTANTS.COUNT_QUERY_TIMEOUT_MS);
+
+      try {
+        const count = (await countRowsQB.count('*')) as any;
+        const slowCount = parseInt(count[0].count);
+        resolve(slowCount);
+      } catch (error) {
+        resolve(null);
+      }
+    });
+  }
+
+  private async getSlowRowsCount(knex: Knex<any, any[]>, tableName: string): Promise<number | null> {
+    const count = (await knex(tableName)
+      .withSchema(this.connection.schema ?? 'public')
+      .count('*')) as any;
+    const slowCount = parseInt(count[0].count);
+    return slowCount;
+  }
+
+  private async getFastRowsCount(
+    knex: Knex<any, any[]>,
+    tableName: string,
+    tableSchema: string,
+  ): Promise<number | null> {
+    const fastCount = await knex.raw(
+      `
+      SELECT CASE
+      WHEN relpages = 0 THEN 0
+      ELSE ((reltuples / relpages)
+      * (pg_relation_size('??.??') / current_setting('block_size')::int)
+             )::bigint
+    END as count
+    FROM   pg_class
+    WHERE  oid = '??.??'::regclass;`,
+      [tableSchema, tableName, tableSchema, tableName],
+    );
+    return parseInt(fastCount);
   }
 
   private attachSchemaNameToTableName(tableName: string): string {
