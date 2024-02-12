@@ -49,9 +49,9 @@ export class RevokeUserInvitationInCompanyUseCase
     if (isSaaS()) {
       const saasRevokeResponse = await this.saasCompanyGatewayService.revokeUserInvitationInCompany(
         companyId,
-        foundInvitation.id,
+        foundInvitation.verification_string,
       );
-      if (!saasRevokeResponse) {
+      if (!saasRevokeResponse.success) {
         throw new HttpException(
           {
             message: Messages.FILED_REVOKE_USER_INVITATION_UNHANDLED_ERROR,
