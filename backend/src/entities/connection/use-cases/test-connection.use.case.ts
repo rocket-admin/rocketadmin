@@ -6,7 +6,7 @@ import { BaseType } from '../../../common/data-injection.tokens.js';
 import { getDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/create-data-access-object.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { processExceptionMessage } from '../../../exceptions/utils/process-exception-message.js';
-import { isConnectionTypeAgent } from '../../../helpers/index.js';
+import { isConnectionTypeAgent, slackPostMessage } from '../../../helpers/index.js';
 import { Encryptor } from '../../../helpers/encryption/encryptor.js';
 import { ValidationHelper } from '../../../helpers/validators/validation-helper.js';
 import { TestConnectionResultDs } from '../application/data-structures/test-connection-result.ds.js';
@@ -105,8 +105,10 @@ export class TestConnectionUseCase
       updated = (await processAWSConnection(dataForProcessing)).connection_parameters;
       const dao = getDataAccessObject(updated);
 
+      let testResult: TestConnectionResultDs;
       try {
-        return await dao.testConnect();
+        testResult = await dao.testConnect();
+        return testResult;
       } catch (e) {
         let text: string = e.message.toLowerCase();
 
@@ -114,7 +116,8 @@ export class TestConnectionUseCase
           updated.ssl = true;
           const dao = getDataAccessObject(updated);
           try {
-            return await dao.testConnect();
+            testResult = await dao.testConnect();
+            return testResult;
           } catch (e) {
             text = e.message;
           }
@@ -124,6 +127,13 @@ export class TestConnectionUseCase
           result: false,
           message: text,
         };
+      } finally {
+        if (testResult.result) {
+          const foundUser = await this._dbContext.userRepository.findOneUserById(inputData.update_info.authorId);
+          await slackPostMessage(
+            Messages.USER_SUCCESSFULLY_TESTED_CONNECTION(foundUser?.email, inputData.connection_parameters.type),
+          );
+        }
       }
     } else {
       if (!connectionData.password) {
@@ -138,15 +148,18 @@ export class TestConnectionUseCase
       };
       connectionData = (await processAWSConnection(dataForProcessing)).connection_parameters;
       const dao = getDataAccessObject(connectionData as ConnectionEntity);
+      let testResult: TestConnectionResultDs;
       try {
-        return await dao.testConnect();
+        testResult = await dao.testConnect();
+        return testResult;
       } catch (e) {
         let text: string = e.message.toLowerCase();
         if (text.includes('ssl required') || text.includes('ssl connection required')) {
           connectionData.ssl = true;
           const dao = getDataAccessObject(connectionData);
           try {
-            return await dao.testConnect();
+            testResult = await dao.testConnect();
+            return testResult;
           } catch (e) {
             text = e.message;
           }
@@ -156,6 +169,13 @@ export class TestConnectionUseCase
           result: false,
           message: text,
         };
+      } finally {
+        if (testResult.result) {
+          const foundUser = await this._dbContext.userRepository.findOneUserById(inputData.update_info.authorId);
+          await slackPostMessage(
+            Messages.USER_SUCCESSFULLY_TESTED_CONNECTION(foundUser?.email, inputData.connection_parameters.type),
+          );
+        }
       }
     }
   }
