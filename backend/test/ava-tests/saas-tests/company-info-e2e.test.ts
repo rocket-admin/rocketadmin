@@ -300,7 +300,7 @@ test(`${currentTest} should remove user from company`, async (t) => {
 
 currentTest = 'PUT invitation/revoke/:slug';
 
-test(`${currentTest} should remove user from company`, async (t) => {
+test(`${currentTest} should revoke user invitation from company`, async (t) => {
   try {
     const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
     const {
