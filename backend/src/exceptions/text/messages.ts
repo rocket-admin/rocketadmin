@@ -273,8 +273,8 @@ export const Messages = {
     `User ${email} is not invited in company. Invite user in company first`,
   USER_ID_MISSING: 'User id is missing',
   USER_TRY_CREATE_CONNECTION: (email: string) => `User "${email}" tried to create connection.`,
-  USER_SUCCESSFULLY_TESTED_CONNECTION: (userId: string, connectionType: ConnectionTypeEnum) =>
-    `User "${userId}" successfully tested the "${connectionType}" connection.`,
+  USER_SUCCESSFULLY_TESTED_CONNECTION: (userEmail: string, connectionType: ConnectionTypeEnum) =>
+    `User "${userEmail}" successfully tested the "${connectionType}" connection.`,
   USERNAME_MISSING: 'Username is missing',
   USER_ACTION_INCORRECT: `User action message if incorrect. Supported actions are ${enumToString(UserActionEnum)}`,
   USER_NOT_ACTIVE: 'User is not active. Please confirm your email address.',
