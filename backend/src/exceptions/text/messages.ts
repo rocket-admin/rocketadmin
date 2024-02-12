@@ -273,6 +273,7 @@ export const Messages = {
     `User ${email} is not invited in company. Invite user in company first`,
   USER_ID_MISSING: 'User id is missing',
   USER_TRY_CREATE_CONNECTION: (email: string) => `User "${email}" tried to create connection.`,
+  USER_CREATED_CONNECTION: (email: string) => `User "${email}" created connection.`,
   USER_SUCCESSFULLY_TESTED_CONNECTION: (userEmail: string, connectionType: ConnectionTypeEnum) =>
     `User "${userEmail}" successfully tested the "${connectionType}" connection.`,
   USERNAME_MISSING: 'Username is missing',

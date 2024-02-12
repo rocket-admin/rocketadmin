@@ -83,6 +83,7 @@ export class CreateConnectionUseCase
       connection.company = foundUserCompany;
       await this._dbContext.connectionRepository.saveUpdatedConnection(connection);
     }
+    await slackPostMessage(Messages.USER_CREATED_CONNECTION(connectionAuthor.email));
     return buildCreatedConnectionDs(savedConnection, token, masterPwd);
   }
 }
