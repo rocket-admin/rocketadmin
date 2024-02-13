@@ -13,6 +13,7 @@ import { buildCreatedConnectionDs } from '../utils/build-created-connection.ds.j
 import { validateCreateConnectionData } from '../utils/validate-create-connection-data.js';
 import { ICreateConnection } from './use-cases.interfaces.js';
 import { processAWSConnection } from '../utils/process-aws-connection.util.js';
+import { getDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/create-data-access-object.js';
 
 @Injectable()
 export class CreateConnectionUseCase
@@ -42,6 +43,24 @@ export class CreateConnectionUseCase
     await validateCreateConnectionData(createConnectionData);
     createConnectionData = await processAWSConnection(createConnectionData);
     const createdConnection: ConnectionEntity = buildConnectionEntity(createConnectionData, connectionAuthor);
+
+    if (!isConnectionTypeAgent(createdConnection.type)) {
+      const dao = getDataAccessObject(createdConnection);
+      try {
+        await dao.testConnect();
+      } catch (e) {
+        let text: string = e.message.toLowerCase();
+        if (text.includes('ssl required') || text.includes('ssl connection required')) {
+          createdConnection.ssl = true;
+          try {
+            const updatedDao = getDataAccessObject(createdConnection);
+            await updatedDao.testConnect();
+          } catch (e) {
+            createdConnection.ssl = false;
+          }
+        }
+      }
+    }
     const savedConnection: ConnectionEntity =
       await this._dbContext.connectionRepository.saveNewConnection(createdConnection);
     let token: string;
@@ -64,6 +83,7 @@ export class CreateConnectionUseCase
       connection.company = foundUserCompany;
       await this._dbContext.connectionRepository.saveUpdatedConnection(connection);
     }
+    await slackPostMessage(Messages.USER_CREATED_CONNECTION(connectionAuthor.email));
     return buildCreatedConnectionDs(savedConnection, token, masterPwd);
   }
 }

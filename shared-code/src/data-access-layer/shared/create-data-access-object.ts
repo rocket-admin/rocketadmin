@@ -1,5 +1,6 @@
 import { ERROR_MESSAGES } from '../../helpers/errors/error-messages.js';
 import { DataAccessObjectAgent } from '../data-access-objects/data-access-object-agent.js';
+import { DataAccessObjectIbmDb2 } from '../data-access-objects/data-access-object-ibmdb2.js';
 import { DataAccessObjectMssql } from '../data-access-objects/data-access-object-mssql.js';
 import { DataAccessObjectMysql } from '../data-access-objects/data-access-object-mysql.js';
 import { DataAccessObjectOracle } from '../data-access-objects/data-access-object-oracle.js';
@@ -43,6 +44,9 @@ export function getDataAccessObject(
     case ConnectionTypesEnum.oracledb:
       const connectionParamsOracle = buildConnectionParams(connectionParams);
       return new DataAccessObjectOracle(connectionParamsOracle);
+    case ConnectionTypesEnum.ibmdb2:
+      const connectionParamsToIbmDB2 = buildConnectionParams(connectionParams);
+      return new DataAccessObjectIbmDb2(connectionParamsToIbmDB2);
     default:
       if (!agentTypes.includes(connectionParams.type)) {
         throw new Error(ERROR_MESSAGES.CONNECTION_TYPE_INVALID);

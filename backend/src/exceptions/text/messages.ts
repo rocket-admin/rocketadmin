@@ -52,6 +52,7 @@ export const Messages = {
   COMPANY_NOT_EXISTS_IN_CONNECTION: `Connection does not attached to company. Please contact our support team`,
   COMPANY_NOT_FOUND: 'Company not found. Please contact our support team',
   COMPANY_NAME_UPDATE_FAILED_UNHANDLED_ERROR: `Failed to update company name. Please contact our support team.`,
+  COMPANY_ID_MISSING: `Company id is missing`,
   COMPANIES_USER_EMAIL_NOT_FOUND: (email: string) => `No companies found for user ${email}`,
   CONNECTION_ID_MISSING: 'Connection id is missing',
   CONNECTION_NOT_CREATED: 'Connection was not successfully created.',
@@ -273,6 +274,9 @@ export const Messages = {
     `User ${email} is not invited in company. Invite user in company first`,
   USER_ID_MISSING: 'User id is missing',
   USER_TRY_CREATE_CONNECTION: (email: string) => `User "${email}" tried to create connection.`,
+  USER_CREATED_CONNECTION: (email: string) => `User "${email}" created connection.`,
+  USER_SUCCESSFULLY_TESTED_CONNECTION: (userEmail: string, connectionType: ConnectionTypeEnum) =>
+    `User "${userEmail}" successfully tested the "${connectionType}" connection.`,
   USERNAME_MISSING: 'Username is missing',
   USER_ACTION_INCORRECT: `User action message if incorrect. Supported actions are ${enumToString(UserActionEnum)}`,
   USER_NOT_ACTIVE: 'User is not active. Please confirm your email address.',

@@ -213,6 +213,14 @@ export class CompanyInfoController {
     @Body() revokeInvitationData: RevokeInvitationRequestDto,
   ) {
     const { email } = revokeInvitationData;
+    if (!companyId) {
+      throw new HttpException(
+        {
+          message: Messages.COMPANY_ID_MISSING,
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
     return await this.revokeInvitationInCompanyUseCase.execute({ email, companyId }, InTransactionEnum.ON);
   }
 
