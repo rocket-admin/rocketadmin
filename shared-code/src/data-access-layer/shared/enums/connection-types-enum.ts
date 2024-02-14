@@ -9,4 +9,5 @@ export enum ConnectionTypesEnum {
   agent_mysql = 'agent_mysql',
   agent_oracledb = 'agent_oracledb',
   agent_mssql = 'agent_mssql',
+  agent_ibmdb2 = 'agent_ibmdb2',
 }

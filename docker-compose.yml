@@ -95,7 +95,7 @@ services:
       dockerfile: ../rocketadmin-saas/Dockerfile
     ports:
       - 3001:3001
-    env_file: ../rocketadmin-saas/.env  
+    env_file: ../rocketadmin-saas/.env
     links:
       - backend
       - rocketadmin-private-microservice-test-database
@@ -183,6 +183,25 @@ services:
       - REMOTE_WEBSOCKET_ADDRESS=ws://autoadmin-ws-server:8009
       - APPLICATION_CONFIG_FILE_NAME=.mssql_test_agent_config.txt
     command: ["yarn", "start:dev"]
+
+  rocketadmin-agent_ibmdb2:
+    build:
+      context: .
+      dockerfile: ./rocketadmin-agent/Dockerfile
+    ports:
+      - 8308:8308
+    volumes:
+      - ./rocketadmin-agent/dist:/app/dist
+      - ./rocketadmin-agent/src:/app/src
+      - ./rocketadmin-agent/wait-for-db2.sh:/app/wait-for-db2.sh
+    links:
+      - autoadmin-ws-server
+    depends_on:
+      - autoadmin-ws-server
+    environment:
+      - REMOTE_WEBSOCKET_ADDRESS=ws://autoadmin-ws-server:8009
+      - APPLICATION_CONFIG_FILE_NAME=.ibmdb2_test_agent_config.txt
+    command: ["/bin/sh", "/app/wait-for-db2.sh"]
 
   rocketadmin-cli_oracle:
     build:

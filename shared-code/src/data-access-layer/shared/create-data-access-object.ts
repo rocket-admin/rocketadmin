@@ -21,9 +21,16 @@ export function getDataAccessObject(
     ConnectionTypesEnum.agent_mysql,
     ConnectionTypesEnum.agent_oracledb,
     ConnectionTypesEnum.agent_postgres,
+    ConnectionTypesEnum.agent_ibmdb2,
   ];
   if (process.env.NODE_ENV === 'test') {
-    agentTypes.push('cli_mssql' as any, 'cli_mysql' as any, 'cli_oracledb' as any, 'cli_postgres' as any);
+    agentTypes.push(
+      'cli_mssql' as any,
+      'cli_mysql' as any,
+      'cli_oracledb' as any,
+      'cli_postgres' as any,
+      'cli_ibmdb2' as any,
+    );
   }
   if (!connectionParams || connectionParams === null) {
     throw new Error(ERROR_MESSAGES.CONNECTION_PARAMS_SHOULD_BE_DEFINED);
