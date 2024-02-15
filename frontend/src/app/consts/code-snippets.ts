@@ -38,56 +38,39 @@ export function codeSnippets(signingKey: string) {
         }
     }
                 `,
-                multiple: `using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Security.Cryptography;
-    using Microsoft.AspNetCore.Mvc;
+            multiple: `using System;
+using System.Security.Cryptography;
+using System.Text;
+using Microsoft.AspNetCore.Mvc;
 
-    namespace RocketAdminController
+[Route("rocketadmin")]
+[ApiController]
+public class RocketAdminController : ControllerBase
+{
+    [HttpPost]
+    public IActionResult Post([FromBody] dynamic bodyData)
     {
-        [Route("api/[controller]")]
-        [ApiController]
-        public class RocketAdminController : ControllerBase
-        {
-            [HttpPost]
-            public IActionResult Post([FromBody] Dictionary<string, string> bodyData)
-            {
-                string[] primaryKeys = { "id" };
-                string rocketAdminSignature = Request.Headers["Rocketadmin-Signature"];
-                List<Dictionary<string, string>> primaryKeyValuesArray = new List<Dictionary<string, string>>();
-                foreach (string pKey in primaryKeys)
-                {
-                    primaryKeyValuesArray.Add(new Dictionary<string, string> { { pKey, bodyData[pKey] } });
-                }
-                string actionId = bodyData["$$_actionId"];
-                string date = bodyData["$$_date"];
-                string tableName = bodyData["$$_tableName"];
-                string hash = GetRocketAdminSignature("${signingKey}", primaryKeyValuesArray, actionId, date, tableName);
-                if (hash == rocketAdminSignature)
-                {
-                    // Your code here
-                    return Ok();
-                }
-                else
-                {
-                    return BadRequest("Signature invalid");
-                }
-            }
+        string rocketadminSignature = Request.Headers["rocketadmin-signature"];
 
-            private string GetRocketAdminSignature(string signingKey, List<Dictionary<string, string>> primaryKeys, string actionId, string dateString, string tableName)
-            {
-                string stringifiedPrimaryKeys = string.Join("\n", primaryKeys.Select(x => string.Join("::", x.Select(y => y.Key + "::" + y.Value))));
-                string strToHash = dateString + "$$" + stringifiedPrimaryKeys + "$$" + actionId + "$$" + tableName;
-                using (HMACSHA256 hmac = new HMACSHA256(System.Text.Encoding.UTF8.GetBytes(signingKey)))
-                {
-                    byte[] hashValue = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(strToHash));
-                    return BitConverter.ToString(hashValue).Replace("-", string.Empty).ToLower();
-                }
-            }
+        string bodyToJson = Newtonsoft.Json.JsonConvert.SerializeObject(bodyData);
+
+        var hmac = new HMACSHA256(Encoding.UTF8.GetBytes("your_rocketadmin_signing_key"));
+        byte[] hash = hmac.ComputeHash(Encoding.UTF8.GetBytes(bodyToJson));
+
+        string hashString = BitConverter.ToString(hash).Replace("-", "").ToLower();
+
+        if (hashString == rocketadminSignature)
+        {
+            // your code
+            return Ok();
+        }
+        else
+        {
+            return BadRequest("Signature invalid");
         }
     }
-                `
+}
+`
             }
         },
 
@@ -145,55 +128,42 @@ export function codeSnippets(signingKey: string) {
     }
 
             `,
-                multiple: `@RestController
-    public class RocketadminController {
+                multiple: `import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+import java.nio.charset.StandardCharsets;
+import java.security.InvalidKeyException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Base64;
+import java.util.Map;
 
-        private static final String SIGNING_KEY = "${signingKey}";
-        private static final String[] PRIMARY_KEYS = {"id"};
+@RestController
+@RequestMapping("/rocketadmin")
+public class RocketAdminController {
 
-        @PostMapping("/rocketadmin")
-        public ResponseEntity<Void> handleRequest(@RequestHeader("Rocketadmin-Signature") String rocketadminSignature, @RequestBody Map<String, Object> bodyData) {
-        Map<String, Object> primaryKeyValues = new HashMap<>();
-        for (String pKey : PRIMARY_KEYS) {
-            primaryKeyValues.put(pKey, bodyData.get(pKey));
-        }
+    @PostMapping
+    public ResponseEntity<String> handlePost(@RequestBody Map<String, Object> bodyData,
+                                                @RequestHeader("rocketadmin-signature") String rocketadminSignature) throws NoSuchAlgorithmException, InvalidKeyException {
+        String bodyToJson = new ObjectMapper().writeValueAsString(bodyData);
 
-        String actionId = (String) bodyData.get("$$_actionId");
-        String date = (String) bodyData.get("$$_date");
-        String tableName = (String) bodyData.get("$$_tableName");
+        SecretKeySpec secretKeySpec = new SecretKeySpec("your_rocketadmin_signing_key".getBytes(StandardCharsets.UTF_8), "HmacSHA256");
+        Mac mac = Mac.getInstance("HmacSHA256");
+        mac.init(secretKeySpec);
+        byte[] hash = mac.doFinal(bodyToJson.getBytes(StandardCharsets.UTF_8));
 
-        String hash = getRocketadminSignature(primaryKeyValues, actionId, date, tableName);
+        String hashString = Base64.getEncoder().encodeToString(hash);
 
-        if (hash.equals(rocketadminSignature)) {
-            // Your code here
-            return new ResponseEntity<>(HttpStatus.OK);
+        if (MessageDigest.isEqual(hashString.getBytes(StandardCharsets.UTF_8), rocketadminSignature.getBytes(StandardCharsets.UTF_8))) {
+            // your code
+            return ResponseEntity.ok().build();
         } else {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            return ResponseEntity.status(400).body("Signature invalid");
         }
     }
-
-    private String getRocketadminSignature(Map<String, Object> primaryKeys, String actionId, String dateString, String tableName) {
-        String stringifiedPKeys = objToString(primaryKeys);
-        String strToHash = dateString + "$$" + stringifiedPKeys + "$$" + actionId + "$$" + tableName;
-        try {
-            Mac sha256_HMAC = Mac.getInstance("HmacSHA256");
-            SecretKeySpec secret_key = new SecretKeySpec(SIGNING_KEY.getBytes("UTF-8"), "HmacSHA256");
-            sha256_HMAC.init(secret_key);
-            byte[] hash = sha256_HMAC.doFinal(strToHash.getBytes("UTF-8"));
-            return DatatypeConverter.printHexBinary(hash).toLowerCase();
-        } catch (NoSuchAlgorithmException | InvalidKeyException | UnsupportedEncodingException e) {
-            e.printStackTrace();
-            return "";
-        }
-    }
-
-    private String objToString(Map<String, Object> obj) {
-        return obj.entrySet().stream()
-            .map(entry -> entry.getKey() + "::" + entry.getValue().toString())
-            .collect(Collectors.joining("\n"));
-        }
-    }
-            `
+}
+`
             }
         },
 
@@ -239,46 +209,32 @@ class RocketadminController extends Controller
     }
 }
             `,
-            multiple: `use Illuminate\Http\Request;
+            multiple: `<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
-Route::post('/rocketadmin', function (Request $request) {
-    $pKey = "id";
-    $rocketadminSignature = $request->header('Rocketadmin-Signature');
-    $bodyData = $request->input('primaryKeys');
-    $primaryKeyValuesArray = [
-        [$pKey => $bodyData[$pKey]]
-    ];
-    $actionId = $bodyData["$$_actionId"];
-    $date = $bodyData["$$_date"];
-    $tableName = $bodyData["$$_tableName"];
-    $hash = getRocketadminSignature("${signingKey}", $primaryKeyValuesArray, $actionId, $date, $tableName);
+class RocketadminController extends Controller
+{
+    public function store(Request $request)
+    {
+        $rocketadminSignature = $request->header('rocketadmin-signature');
+        $bodyData = $request->all();
 
-    if ($hash === $rocketadminSignature) {
-    // Your code here
-    return response(null, 200);
-    } else {
-    return response("Signature invalid", 400);
-    }
-});
+        $bodyToJson = json_encode($bodyData);
 
-function getRocketadminSignature($signingKey, $primaryKeys, $actionId, $dateString, $tableName) {
-    $stringifyedPKeys = '';
-    foreach ($primaryKeys as $pKeys) {
-    $stringifyedPKeys .= objToString($pKeys);
-    }
-    $strTohash = $dateString . '$$' . $stringifyedPKeys . '$$' . $actionId . '$$' . $tableName;
-    return hash_hmac('sha256', $strTohash, $signingKey);
-}
+        $hmac = hash_hmac('sha256', $bodyToJson, 'your_rocketadmin_signing_key');
 
-function objToString($obj) {
-    $str = '';
-    foreach ($obj as $p => $val) {
-    $str .= $p . '::' . $val . "\n";
+        if (hash_equals($hmac, $rocketadminSignature)) {
+            // your code
+            return response()->json([], 200);
+        } else {
+            return response()->json(['error' => 'Signature invalid'], 400);
+        }
     }
-    return rtrim($str, "\n");
-}
-            `
+}`
             }
         },
 
@@ -314,42 +270,30 @@ def create
 end
 end
             `,
-            multiple:`class RocketAdminController < ApplicationController
-skip_before_action :verify_authenticity_token
+            multiple:`require 'openssl'
 
-def create
-    p_key = %w[id]
-    rocketadmin_signature = request.headers["Rocketadmin-Signature"]
-    body_data = JSON.parse(request.body.read)["primaryKeys"]
-    primary_key_values_array = [
-        { p_key_1 => body_data[p_key] },
-    ]
-    action_id = body_data["$$_actionId"]
-    date = body_data["$$_date"]
-    table_name = body_data["$$_tableName"]
-    hash = get_autoadmin_signature("${signingKey}", primary_key_values_array, action_id, date, table_name)
+class RocketadminController < ApplicationController
+    skip_before_action :verify_authenticity_token
 
-    if hash == rocketadmin_signature
-    # Your code here
-    render json: { success: true }, status: :ok
-    else
-    render json: { error: "Signature invalid" }, status: :bad_request
+    def create
+        rocketadmin_signature = request.headers['rocketadmin-signature']
+        body_data = request.body.read
+
+        body_to_json = body_data.to_json
+
+        hmac = OpenSSL::HMAC.new('your_rocketadmin_signing_key', OpenSSL::Digest.new('sha256'))
+        hmac.update(body_to_json)
+        hash = hmac.hexdigest
+
+        if ActiveSupport::SecurityUtils.secure_compare(hash, rocketadmin_signature)
+            # your code
+            render json: {}, status: :ok
+        else
+            render json: { error: 'Signature invalid' }, status: :bad_request
+        end
     end
 end
-
-private
-
-def get_autoadmin_signature(signing_key, primary_keys, action_id, date_string, table_name)
-    stringifyed_p_keys = primary_keys.map { |p_keys| obj_to_string(p_keys) }.join("\n")
-    str_to_hash = "#{date_string}$$#{stringifyed_p_keys}$$#{action_id}$$#{table_name}"
-    OpenSSL::HMAC.hexdigest("sha256", signing_key, str_to_hash)
-end
-
-def obj_to_string(obj)
-    obj.map { |p, val| "#{p}::#{val}" }.join("\n")
-end
-end
-            `
+`
             }
         },
 
@@ -396,58 +340,40 @@ func main() {
 }
             `,
             multiple: `package main
-
 import (
     "crypto/hmac"
     "crypto/sha256"
     "encoding/hex"
+    "encoding/json"
+    "io/ioutil"
     "net/http"
 )
 
-func RocketAdminHandler(w http.ResponseWriter, r *http.Request) {
-    pKey := "id"
-    rocketadminSignature := r.Header.Get("Rocketadmin-Signature")
-    bodyData := r.PostFormValue("primaryKeys")
-    primaryKeyValuesArray := []map[string]string{
-        map[string]string{pKey: bodyData[pKey1]}
-    }
-    actionId := bodyData["$$_actionId"]
-    date := bodyData["$$_date"]
-    tableName := bodyData["$$_tableName"]
-    hash := getRocketadminSignature("${signingKey}", primaryKeyValuesArray, actionId, date, tableName)
-
-    if hash == rocketadminSignature {
-        // Your code here
-        w.WriteHeader(http.StatusOK)
-    } else {
-        http.Error(w, "Signature invalid", http.StatusBadRequest)
-    }
-}
-
-func getRocketadminSignature(signingKey string, primaryKeys []map[string]string, actionId string, dateString string, tableName string) string {
-    var stringifyedPKeys string
-    for _, pKeys := range primaryKeys {
-        stringifyedPKeys += objToString(pKeys)
-    }
-    strTohash := dateString + "$$" + stringifyedPKeys + "$$" + actionId + "$$" + tableName
-    hmac := hmac.New(sha256.New, []byte(signingKey))
-    hmac.Write([]byte(strTohash))
-    return hex.EncodeToString(hmac.Sum(nil))
-}
-
-func objToString(obj map[string]string) string {
-    var str string
-    for p, val := range obj {
-        str += p + "::" + val + "\n"
-    }
-    return str[:len(str)-1]
-}
-
 func main() {
-    http.HandleFunc("/rocketadmin", RocketAdminHandler)
-    http.ListenAndServe(":3000", nil)
+    http.HandleFunc("/rocketadmin", func(w http.ResponseWriter, r *http.Request) {
+        rocketadminSignature := r.Header.Get("rocketadmin-signature")
+
+        body, _ := ioutil.ReadAll(r.Body)
+        var bodyData map[string]interface{}
+        json.Unmarshal(body, &bodyData)
+
+        bodyToJson, _ := json.Marshal(bodyData)
+
+        h := hmac.New(sha256.New, []byte("your_rocketadmin_signing_key"))
+        h.Write(bodyToJson)
+        hash := hex.EncodeToString(h.Sum(nil))
+
+        if hmac.Equal([]byte(hash), []byte(rocketadminSignature)) {
+            // your code
+            w.WriteHeader(http.StatusOK)
+        } else {
+            http.Error(w, "Signature invalid", http.StatusBadRequest)
+        }
+    })
+
+    http.ListenAndServe(":8080", nil)
 }
-            `
+`
             }
         },
 
@@ -483,44 +409,29 @@ class RocketadminView(View):
             return JsonResponse({'error': 'Signature invalid'}, status=400)
             `,
             multiple: `from django.http import JsonResponse
-from django.views import View
-import hmac
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.crypto import constant_time_compare
 import hashlib
+import hmac
+import json
 
-class RocketAdminView(View):
-    def post(self, request):
-        p_key = ["id"]
-        rocketadmin_signature = request.META.get("Rocketadmin-Signature")
-        body_data = request.body
-        primary_key_values_array = [
-            {p_key: body_data[p_key]}
-        ]
-        action_id = body_data["$$_actionId"]
-        date = body_data["$$_date"]
-        table_name = body_data["$$_tableName"]
-        hash = get_autoadmin_signature(
-            "${signingKey}",
-            primary_key_values_array,
-            action_id,
-            date,
-            table_name,
-        )
+@csrf_exempt
+def rocketadmin(request):
+    if request.method == 'POST':
+        rocketadmin_signature = request.META.get('HTTP_ROCKETADMIN_SIGNATURE')
+        body_data = json.loads(request.body)
 
-        if hash == rocketadmin_signature:
-            # Your code here
-            return JsonResponse({"success": True})
+        body_to_json = json.dumps(body_data)
+
+        hmac_obj = hmac.new(b'your_rocketadmin_signing_key', body_to_json.encode(), hashlib.sha256)
+        hash = hmac_obj.hexdigest()
+
+        if constant_time_compare(hash, rocketadmin_signature):
+            # your code
+            return JsonResponse({}, status=200)
         else:
-            return JsonResponse({"error": "Signature invalid"}, status=400)
-
-def get_autoadmin_signature(signing_key, primary_keys, action_id, date_string, table_name):
-    stringifyed_p_keys = "".join([obj_to_string(p_keys) for p_keys in primary_keys])
-    str_to_hash = f"{date_string}$\${stringifyed_p_keys}$\${action_id}$\${table_name}"
-    hmac_signature = hmac.new(signing_key.encode(), msg=str_to_hash.encode(), digestmod=hashlib.sha256)
-    return hmac_signature.hexdigest()
-
-def obj_to_string(obj):
-    return "".join([f"{p}::{val}\n" for p, val in obj.items()])
-            `
+            return JsonResponse({'error': 'Signature invalid'}, status=400)
+`
             }
         },
 
@@ -557,58 +468,30 @@ app.post("/rocketadmin", (req, res) => {
 
 app.listen(3000, () => console.log("Running on port 3000"));
             `,
-            multiple: `
-const app = express();
-import { createHmac } from "crypto";
-app.use(express.json());
-​
-app.post("/rocketadmin", (req, res) => {
-    const [pKey] = ["id"] // primary keys of your table;
-    const rocketadminSignature = req.headers["Rocketadmin-Signature"];
-    const bodyData = req.body.primaryKeys;
-    const primaryKeyValuesArray = [
-        { [pKey]: bodyData[pKey] },
-    ];
-    const actionId = bodyData["$$_actionId"];
-    const date = bodyData["$$_date"];
-    const tableName = bodyData["$$_tableName"];
-    const hash = getRocketadminSignature("${signingKey}", primaryKeyValuesArray, actionId, date, tableName);
+            multiple: `const crypto = require("crypto");
 
-    if (crypto.timingSafeEqual(hash, rocketadminSignature)) {
-    // Your code here
-    res.status(200).send();
+app.use(express.json());
+
+router.post("/rocketadmin", (req, res) => {
+    const rocketadminSignature = req.headers["rocketadmin-signature"];
+    const bodyData = req.body;
+
+    const bodyToJson = JSON.stringify(bodyData);
+
+    const hmac = crypto.createHmac("sha256", "your_rocketadmin_signing_key");
+
+    hmac.update(bodyToJson);
+    const hash = hmac.digest("hex");
+
+    if (
+    crypto.timingSafeEqual(Buffer.from(hash), Buffer.from(rocketadminSignature))
+    ) {
+    //your code
     } else {
     res.status(400).send("Signature invalid");
     }
 });
-
-function getRocketadminSignature(
-    signingKey,
-    primaryKeys,
-    actionId,
-    dateString,
-    tableName,
-) {
-    let stringifyedPKeys = '';
-    for (const pKeys of primaryKeys) {
-    stringifyedPKeys = objToString(pKeys);
-    }
-    const strTohash = dateString + '$$' + stringifyedPKeys + '$$' + actionId + '$$' + tableName;
-    const hmac = createHmac('sha256', signingKey);
-    hmac.update(strTohash);
-    return hmac.digest('hex');
-}
-
-function objToString(obj) {
-    return Object.entries(obj)
-    .reduce((str, [p, val]) => {
-        return \`\${str}\${p}::\${val}\n\`;
-    }, '')
-    .slice(0, -1);
-}
-
-app.listen(3000, () => console.log("Running on port 3000"));
-            `
+`
             }
         }
     }
