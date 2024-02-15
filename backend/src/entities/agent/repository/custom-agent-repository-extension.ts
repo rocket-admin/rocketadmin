@@ -15,11 +15,12 @@ export const customAgentRepositoryExtension = {
 
   async createNewAgentForConnection(connection: ConnectionEntity): Promise<AgentEntity> {
     const agent = new AgentEntity();
-    const token = nanoid(64);
+    let token = nanoid(64);
     if (process.env.NODE_ENV !== 'test') {
       agent.token = token;
     } else {
-      agent.token = this.getTestAgentToken(connection.type);
+      token = this.getTestAgentToken(connection.type);
+      agent.token = token;
     }
     agent.connection = connection;
     const savedAgent = await this.save(agent);

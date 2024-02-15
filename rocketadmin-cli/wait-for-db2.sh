@@ -1,7 +1,7 @@
 #!/bin/sh
 
 until nc -z test-ibm-db2-e2e-testing 50000; do
-    echo "$(date) - AGENT waiting for DB2..."
+    echo "$(date) - CLI: waiting for DB2..."
     sleep 1
 done
 

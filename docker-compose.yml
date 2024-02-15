@@ -275,6 +275,25 @@ services:
       - APPLICATION_CONFIG_FILE_NAME=.mssql_test_cli_config.txt
     command: ["yarn", "start:dev"]
 
+  rocketadmin-cli_ibmdb2:
+    build:
+      context: .
+      dockerfile: ./rocketadmin-cli/Dockerfile
+    ports:
+      - 8228:8228
+    volumes:
+      - ./rocketadmin-cli/dist:/app/dist
+      - ./rocketadmin-cli/src:/app/src
+      - ./rocketadmin-cli/wait-for-db2.sh:/app/wait-for-db2.sh
+    links:
+      - autoadmin-ws-server
+    depends_on:
+      - autoadmin-ws-server
+    environment:
+      - REMOTE_WEBSOCKET_ADDRESS=ws://autoadmin-ws-server:8009
+      - APPLICATION_CONFIG_FILE_NAME=.ibmdb2_test_cli_config.txt
+    command: ["/bin/sh", "/app/wait-for-db2.sh"]   
+
   test-ibm-db2-e2e-testing:
     image: icr.io/db2_community/db2
     restart: always
