@@ -128,7 +128,7 @@ export class TestConnectionUseCase
           message: text,
         };
       } finally {
-        if (testResult.result) {
+        if (testResult?.result) {
           const foundUser = await this._dbContext.userRepository.findOneUserById(inputData.update_info.authorId);
           await slackPostMessage(
             Messages.USER_SUCCESSFULLY_TESTED_CONNECTION(foundUser?.email, inputData.connection_parameters.type),
