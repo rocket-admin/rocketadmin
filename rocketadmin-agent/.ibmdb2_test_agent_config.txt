@@ -1,0 +1,23 @@
+{
+  "encrypted": false,
+  "hash": null,
+  "credentials": {
+    "app_port": 3000,
+    "azure_encryption": false,
+    "cert": null,
+    "database": "testdb",
+    "host": "test-ibm-db2-e2e-testing",
+    "password": "password",
+    "port": 50000,
+    "schema": "SCHEMA_NAME",
+    "sid": "null",
+    "ssl": false,
+    "token": "IBMDB2-TEST-AGENT-TOKEN",
+    "type": "ibmdb2",
+    "username": "db2inst1",
+    "application_save_option": true,
+    "config_encryption_option": false,
+    "encryption_password": null,
+    "saving_logs_option": false
+  }
+}

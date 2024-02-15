@@ -270,6 +270,20 @@ export class MockFactory {
     return dto;
   }
 
+  generateConnectionToTestDbIbmDb2Agent() {
+    const dto = new CreateConnectionDto() as any;
+    dto.title = 'Test connection to agent db';
+    dto.type = ConnectionTypeEnum.agent_ibmdb2;
+    return dto;
+  }
+
+  generateConnectionToTestDbIbmDb2Cli() {
+    const dto = new CreateConnectionDto() as any;
+    dto.title = 'Test connection to cli db ibm db2';
+    dto.type = ConnectionTypeTestEnum.cli_ibmdb2;
+    return dto;
+  }
+
   generateConnectionToTestDbMssqlCli() {
     const dto = new CreateConnectionDto() as any;
     dto.title = 'Test connection to cli db mssql';

@@ -13,33 +13,39 @@ export function isConnectionEntityAgent(connection: ConnectionEntity | CreateCon
       return true;
     case ConnectionTypeEnum.agent_mssql:
       return true;
+    case ConnectionTypeEnum.agent_ibmdb2:  
+      return true;
     default:
       return false;
   }
 }
 
 export function isConnectionTypeAgent(type: ConnectionTypeEnum | string): boolean {
-    switch (type) {
-      case ConnectionTypeTestEnum.agent_postgres:
-        return true;
-      case ConnectionTypeTestEnum.agent_mysql:
-        return true;
-      case ConnectionTypeTestEnum.agent_oracledb:
-        return true;
-      case ConnectionTypeTestEnum.agent_mssql:
-        return true;
-      case ConnectionTypeTestEnum.cli_mssql:
-        return true;
-      case ConnectionTypeTestEnum.cli_mysql:
-        return true;
-      case ConnectionTypeTestEnum.cli_postgres:
-        return true;
-      case ConnectionTypeTestEnum.cli_oracledb:
-        return true;
-      default:
-        return false;
-    }
-  
+  switch (type) {
+    case ConnectionTypeTestEnum.agent_postgres:
+      return true;
+    case ConnectionTypeTestEnum.agent_mysql:
+      return true;
+    case ConnectionTypeTestEnum.agent_oracledb:
+      return true;
+    case ConnectionTypeTestEnum.agent_mssql:
+      return true;
+    case ConnectionTypeTestEnum.agent_ibmdb2:
+      return true;
+    case ConnectionTypeTestEnum.cli_mssql:
+      return true;
+    case ConnectionTypeTestEnum.cli_mysql:
+      return true;
+    case ConnectionTypeTestEnum.cli_postgres:
+      return true;
+    case ConnectionTypeTestEnum.cli_oracledb:
+      return true;
+    case ConnectionTypeTestEnum.cli_ibmdb2:
+      return true;
+    default:
+      return false;
+  }
+
   // switch (type) {
   //   case ConnectionTypeEnum.agent_postgres:
   //     return true;
