@@ -19,6 +19,8 @@ import { tableSettingsFieldValidator } from '../../helpers/validation/table-sett
 import { DAO_CONSTANTS } from '../../helpers/data-access-objects-constants.js';
 import { FilterCriteriaEnum } from '../shared/enums/filter-criteria.enum.js';
 import { ERROR_MESSAGES } from '../../helpers/errors/error-messages.js';
+import getPort from 'get-port';
+import { getTunnel } from '../../helpers/get-ssh-tunnel.js';
 
 export class DataAccessObjectIbmDb2 extends BasicDataAccessObject implements IDataAccessObject {
   constructor(connection: ConnectionParams) {
@@ -522,18 +524,6 @@ WHERE
     return rowsResult.data;
   }
 
-  private async getConnectionToDatabase(): Promise<Database> {
-    const cachedDatabase = LRUStorage.getImdbDb2Cache(this.connection);
-    if (cachedDatabase && cachedDatabase.connected) {
-      return cachedDatabase;
-    }
-    const connStr = `DATABASE=${this.connection.database};HOSTNAME=${this.connection.host};UID=${this.connection.username};PWD=${this.connection.password};PORT=${this.connection.port};PROTOCOL=TCPIP`;
-    const connectionPool = new Pool();
-    const databaseConnection = await connectionPool.open(connStr);
-    LRUStorage.setImdbDb2Cache(this.connection, databaseConnection);
-    return databaseConnection;
-  }
-
   public async getRowsCount(
     tableName: string,
     tableSchema: string,
@@ -558,5 +548,66 @@ WHERE
     const countResult = await connectionToDb.query(countQuery);
     const rowsCount = parseInt(countResult[0]['1']);
     return { rowsCount: rowsCount, large_dataset: false };
+  }
+
+  private async getConnectionToDatabase(): Promise<Database> {
+    if (this.connection.ssh) {
+      return this.createTunneledConnection(this.connection);
+    }
+    return this.getUsualConnection();
+  }
+
+  private async getUsualConnection(withCache = true): Promise<Database> {
+    const cachedDatabase = LRUStorage.getImdbDb2Cache(this.connection);
+    if (withCache && cachedDatabase && cachedDatabase.connected) {
+      return cachedDatabase;
+    }
+    const connStr = `DATABASE=${this.connection.database};HOSTNAME=${this.connection.host};UID=${this.connection.username};PWD=${this.connection.password};PORT=${this.connection.port};PROTOCOL=TCPIP`;
+    const connectionPool = new Pool();
+    const databaseConnection = await connectionPool.open(connStr);
+    LRUStorage.setImdbDb2Cache(this.connection, databaseConnection);
+    return databaseConnection;
+  }
+
+  private async createTunneledConnection(connection: ConnectionParams): Promise<Database> {
+    const connectionCopy = { ...connection };
+    return new Promise<Database>(async (resolve, reject): Promise<Database> => {
+      const cachedTnl = LRUStorage.getTunnelCache(connectionCopy);
+      if (cachedTnl && cachedTnl.database && cachedTnl.server && cachedTnl.client && cachedTnl.database.connected) {
+        resolve(cachedTnl.database);
+        return;
+      }
+      const freePort = await getPort();
+      try {
+        const [server, client] = await getTunnel(connectionCopy, freePort);
+        connection.host = '127.0.0.1';
+        connection.port = freePort;
+        const database = await this.getUsualConnection(false);
+        const tnlCachedObj = {
+          server: server,
+          client: client,
+          database: database,
+        };
+        LRUStorage.setTunnelCache(connectionCopy, tnlCachedObj);
+        resolve(tnlCachedObj.database);
+
+        client.on('error', (e) => {
+          LRUStorage.delTunnelCache(connectionCopy);
+          reject(e);
+          return;
+        });
+
+        server.on('error', (e) => {
+          LRUStorage.delTunnelCache(connectionCopy);
+          reject(e);
+          return;
+        });
+        return;
+      } catch (error) {
+        LRUStorage.delTunnelCache(connectionCopy);
+        reject(error);
+        return;
+      }
+    });
   }
 }
