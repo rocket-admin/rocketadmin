@@ -119,7 +119,7 @@ export class KnexManager {
     });
   }
 
-  private static getTunnel(connection: ConnectionParams, freePort: number) {
+  private static async getTunnel(connection: ConnectionParams, freePort: number) {
     const { host, port, privateSSHKey, sshPort, sshHost, sshUsername } = connection;
 
     const sshOptions = {
@@ -144,7 +144,7 @@ export class KnexManager {
       port: freePort,
     };
 
-    return createTunnel(tunnelOptions, serverOptions, sshOptions, forwardOptions);
+    return await createTunnel(tunnelOptions, serverOptions, sshOptions, forwardOptions);
   }
 
   private static getPostgresKnex(connection: ConnectionParams): Knex<any, any[]> {
