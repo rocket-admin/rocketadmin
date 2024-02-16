@@ -13,7 +13,7 @@ import { TestConnectionResultDS } from '../shared/data-structures/test-result-co
 import { ValidateTableSettingsDS } from '../shared/data-structures/validate-table-settings.ds.js';
 import { IDataAccessObject } from '../shared/interfaces/data-access-object.interface.js';
 import { BasicDataAccessObject } from './basic-data-access-object.js';
-import ibmdb, { Database } from 'ibm_db';
+import { Database, Pool } from 'ibm_db';
 import { LRUStorage } from '../../caching/lru-storage.js';
 import { tableSettingsFieldValidator } from '../../helpers/validation/table-settings-validator.js';
 import { DAO_CONSTANTS } from '../../helpers/data-access-objects-constants.js';
@@ -510,7 +510,7 @@ WHERE
     if (large_dataset) {
       throw new Error(ERROR_MESSAGES.DATA_IS_TO_LARGE);
     }
-    const rowsResult = await this.getRowsFromTable(
+    const rowsResult = (await this.getRowsFromTable(
       tableName,
       settings,
       page,
@@ -518,7 +518,7 @@ WHERE
       searchedFieldValue,
       filteringFields,
       null,
-    ) as any;
+    )) as any;
     return rowsResult.data;
   }
 
@@ -528,10 +528,10 @@ WHERE
       return cachedDatabase;
     }
     const connStr = `DATABASE=${this.connection.database};HOSTNAME=${this.connection.host};UID=${this.connection.username};PWD=${this.connection.password};PORT=${this.connection.port};PROTOCOL=TCPIP`;
-    const ibmDatabase = ibmdb();
-    await ibmDatabase.open(connStr);
-    LRUStorage.setImdbDb2Cache(this.connection, ibmDatabase);
-    return ibmDatabase;
+    const connectionPool = new Pool();
+    const databaseConnection = await connectionPool.open(connStr);
+    LRUStorage.setImdbDb2Cache(this.connection, databaseConnection);
+    return databaseConnection;
   }
 
   public async getRowsCount(
