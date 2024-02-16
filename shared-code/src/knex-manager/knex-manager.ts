@@ -4,6 +4,7 @@ import { createTunnel } from 'tunnel-ssh';
 import getPort from 'get-port';
 import { ConnectionParams } from '../data-access-layer/shared/data-structures/connections-params.ds.js';
 import { CACHING_CONSTANTS } from '../caching/caching-constants.js';
+import { getTunnel } from '../helpers/get-ssh-tunnel.js';
 
 const knexCache = new LRUCache(CACHING_CONSTANTS.DEFAULT_CONNECTION_CACHE_OPTIONS);
 const tunnelCache = new LRUCache(CACHING_CONSTANTS.DEFAULT_TUNNEL_CACHE_OPTIONS);
@@ -85,7 +86,7 @@ export class KnexManager {
       }
       const freePort = await getPort();
       try {
-        const [server, client] = await this.getTunnel(connectionCopy, freePort);
+        const [server, client] = await getTunnel(connectionCopy, freePort);
         connection.host = '127.0.0.1';
         connection.port = freePort;
         const knex = KnexManager.getKnex(connection);
@@ -117,34 +118,6 @@ export class KnexManager {
         return;
       }
     });
-  }
-
-  private static async getTunnel(connection: ConnectionParams, freePort: number) {
-    const { host, port, privateSSHKey, sshPort, sshHost, sshUsername } = connection;
-
-    const sshOptions = {
-      host: sshHost,
-      port: sshPort,
-      username: sshUsername,
-      privateKey: privateSSHKey,
-    };
-
-    let forwardOptions = {
-      srcAddr: 'localhost',
-      srcPort: freePort,
-      dstAddr: host,
-      dstPort: port,
-    };
-
-    let tunnelOptions = {
-      autoClose: true,
-    };
-
-    const serverOptions = {
-      port: freePort,
-    };
-
-    return await createTunnel(tunnelOptions, serverOptions, sshOptions, forwardOptions);
   }
 
   private static getPostgresKnex(connection: ConnectionParams): Knex<any, any[]> {
