@@ -43,9 +43,9 @@ export class GetUserEmailCompaniesUseCase
           return await this.saasCompanyGatewayService.getCompanyInfo(id);
         }),
       );
-      resultFromSaaS.filter((companyInfo) => !!companyInfo);
       companiesInfoFromCore.push(...resultFromSaaS);
     }
+    companiesInfoFromCore.filter((companyInfo) => !!companyInfo);
     return useEmailCompaniesInfosFromCore.map(({ id }) => {
       return {
         id: id,

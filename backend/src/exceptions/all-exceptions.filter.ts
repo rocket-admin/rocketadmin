@@ -21,8 +21,8 @@ export class AllExceptionsFilter implements ExceptionFilter {
         message_to_user: text ? text : 'Something went wrong',
         path: request.url,
         exception_status_code: status,
-      }
-    }
+      },
+    };
     Sentry.captureException(exception, sentryContextObject);
 
     if (status === 500 || status === 408) {

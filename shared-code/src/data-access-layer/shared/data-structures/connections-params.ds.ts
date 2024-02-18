@@ -3,7 +3,7 @@ export class ConnectionParams {
 
   title: string | null;
 
-  type: 'postgres' | 'oracledb' | 'mysql2' | 'mssql';
+  type: 'postgres' | 'oracledb' | 'mysql2' | 'mssql' | 'ibmdb2';
 
   host: string;
 

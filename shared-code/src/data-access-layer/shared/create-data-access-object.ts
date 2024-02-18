@@ -1,5 +1,6 @@
 import { ERROR_MESSAGES } from '../../helpers/errors/error-messages.js';
 import { DataAccessObjectAgent } from '../data-access-objects/data-access-object-agent.js';
+import { DataAccessObjectIbmDb2 } from '../data-access-objects/data-access-object-ibmdb2.js';
 import { DataAccessObjectMssql } from '../data-access-objects/data-access-object-mssql.js';
 import { DataAccessObjectMysql } from '../data-access-objects/data-access-object-mysql.js';
 import { DataAccessObjectOracle } from '../data-access-objects/data-access-object-oracle.js';
@@ -20,9 +21,16 @@ export function getDataAccessObject(
     ConnectionTypesEnum.agent_mysql,
     ConnectionTypesEnum.agent_oracledb,
     ConnectionTypesEnum.agent_postgres,
+    ConnectionTypesEnum.agent_ibmdb2,
   ];
   if (process.env.NODE_ENV === 'test') {
-    agentTypes.push('cli_mssql' as any, 'cli_mysql' as any, 'cli_oracledb' as any, 'cli_postgres' as any);
+    agentTypes.push(
+      'cli_mssql' as any,
+      'cli_mysql' as any,
+      'cli_oracledb' as any,
+      'cli_postgres' as any,
+      'cli_ibmdb2' as any,
+    );
   }
   if (!connectionParams || connectionParams === null) {
     throw new Error(ERROR_MESSAGES.CONNECTION_PARAMS_SHOULD_BE_DEFINED);
@@ -43,6 +51,9 @@ export function getDataAccessObject(
     case ConnectionTypesEnum.oracledb:
       const connectionParamsOracle = buildConnectionParams(connectionParams);
       return new DataAccessObjectOracle(connectionParamsOracle);
+    case ConnectionTypesEnum.ibmdb2:
+      const connectionParamsToIbmDB2 = buildConnectionParams(connectionParams);
+      return new DataAccessObjectIbmDb2(connectionParamsToIbmDB2);
     default:
       if (!agentTypes.includes(connectionParams.type)) {
         throw new Error(ERROR_MESSAGES.CONNECTION_TYPE_INVALID);

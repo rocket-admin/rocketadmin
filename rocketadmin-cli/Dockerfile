@@ -1,5 +1,6 @@
 FROM node:20
 WORKDIR /app
+RUN apt-get update && apt-get install -y netcat-openbsd
 COPY package.json ./yarn.lock .yarnrc.yml /app/
 COPY ./.yarn /app/.yarn
 COPY ./rocketadmin-cli/package.json /app/rocketadmin-cli/
@@ -13,6 +14,7 @@ COPY ./rocketadmin-cli/.oracle_test_cli_config.txt /app/rocketadmin-cli/
 COPY ./rocketadmin-cli/.postgres_test_cli_config.txt /app/rocketadmin-cli/
 COPY ./rocketadmin-cli/.mysql_test_cli_config.txt /app/rocketadmin-cli/
 COPY ./rocketadmin-cli/.mssql_test_cli_config.txt /app/rocketadmin-cli/
+COPY ./rocketadmin-cli/.ibmdb2_test_cli_config.txt /app/rocketadmin-cli/
 COPY shared-code /app/shared-code
 
 RUN cd shared-code && ../node_modules/.bin/tsc

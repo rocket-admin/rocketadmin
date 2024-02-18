@@ -15,11 +15,12 @@ export const customAgentRepositoryExtension = {
 
   async createNewAgentForConnection(connection: ConnectionEntity): Promise<AgentEntity> {
     const agent = new AgentEntity();
-    const token = nanoid(64);
+    let token = nanoid(64);
     if (process.env.NODE_ENV !== 'test') {
       agent.token = token;
     } else {
-      agent.token = this.getTestAgentToken(connection.type);
+      token = this.getTestAgentToken(connection.type);
+      agent.token = token;
     }
     agent.connection = connection;
     const savedAgent = await this.save(agent);
@@ -59,13 +60,17 @@ export const customAgentRepositoryExtension = {
       case ConnectionTypeTestEnum.agent_postgres:
         return 'POSTGRES-TEST-AGENT-TOKEN';
       case ConnectionTypeTestEnum.cli_mssql:
-        return  'MSSQL-TEST-CLI-TOKEN';
+        return 'MSSQL-TEST-CLI-TOKEN';
       case ConnectionTypeTestEnum.cli_mysql:
         return 'MYSQL-TEST-CLI-TOKEN';
       case ConnectionTypeTestEnum.cli_oracledb:
         return 'ORACLE-TEST-CLI-TOKEN';
       case ConnectionTypeTestEnum.cli_postgres:
-        return 'POSTGRES-TEST-CLI-TOKEN';       
+        return 'POSTGRES-TEST-CLI-TOKEN';
+      case ConnectionTypeTestEnum.agent_ibmdb2:
+        return 'IBMDB2-TEST-AGENT-TOKEN';
+      case ConnectionTypeTestEnum.cli_ibmdb2:
+        return 'IBMDB2-TEST-CLI-TOKEN';
     }
   },
 };

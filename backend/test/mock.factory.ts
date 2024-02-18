@@ -213,6 +213,20 @@ export class MockFactory {
     return dto;
   }
 
+  generateConnectionToTestDbIbmDb2() {
+    const dto = new CreateConnectionDto() as any;
+    dto.title = 'Test connection to cli db ibm db2';
+    dto.type = ConnectionTypeEnum.ibmdb2;
+    dto.host = 'test-ibm-db2-e2e-testing';
+    dto.port = 50000;
+    dto.username = 'db2inst1';
+    dto.password = 'password';
+    dto.database = 'testdb';
+    dto.schema = 'SCHEMA_NAME';
+    dto.ssh = false;
+    return dto;
+  }
+
   generateKnexConfigAgentTests(db_type = 'postgres') {
     switch (db_type) {
       case 'postgres':
@@ -253,6 +267,20 @@ export class MockFactory {
     const dto = new CreateConnectionDto() as any;
     dto.title = 'Test connection to agent db';
     dto.type = ConnectionTypeEnum.agent_mssql;
+    return dto;
+  }
+
+  generateConnectionToTestDbIbmDb2Agent() {
+    const dto = new CreateConnectionDto() as any;
+    dto.title = 'Test connection to agent db';
+    dto.type = ConnectionTypeEnum.agent_ibmdb2;
+    return dto;
+  }
+
+  generateConnectionToTestDbIbmDb2Cli() {
+    const dto = new CreateConnectionDto() as any;
+    dto.title = 'Test connection to cli db ibm db2';
+    dto.type = ConnectionTypeTestEnum.cli_ibmdb2;
     return dto;
   }
 
@@ -751,7 +779,10 @@ export class MockFactory {
     return dto;
   }
 
-  public generateConnectionPropertiesUserExcluded(tableName: string = null, tables_audit = true): CreateConnectionPropertiesDto {
+  public generateConnectionPropertiesUserExcluded(
+    tableName: string = null,
+    tables_audit = true,
+  ): CreateConnectionPropertiesDto {
     tableName = tableName || 'users';
     return {
       hidden_tables: [tableName],

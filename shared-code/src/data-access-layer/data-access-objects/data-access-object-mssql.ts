@@ -592,6 +592,61 @@ WHERE
   }
 
   private async getRowsCount(tableName: string, countRowsQB: Knex.QueryBuilder<any, any[]> | null): Promise<number> {
+    if (countRowsQB) {
+      const slowRowsCount = await this.getRowsCountByQueryWithTimeOut(countRowsQB);
+      if (slowRowsCount) {
+        return slowRowsCount;
+      }
+      return await this.getFastRowsCount(tableName);
+    }
+
+    const fastRowsCount = await this.getFastRowsCount(tableName);
+    if (fastRowsCount >= DAO_CONSTANTS.LARGE_DATASET_ROW_LIMIT) {
+      return fastRowsCount;
+    }
+
+    const knex = await this.configureKnex();
+    const countRows = knex(tableName).count('*');
+    const slowRowsCount = await this.getRowsCountByQuery(countRows);
+    return slowRowsCount || fastRowsCount;
+  }
+
+  private async getSchemaNameWithoutBrackets(tableName: string): Promise<string> {
+    const schema = await this.getSchemaName(tableName);
+    if (!schema) {
+      throw new Error(ERROR_MESSAGES.TABLE_SCHEMA_NOT_FOUND(tableName));
+    }
+    const matches = schema.match(/\[(.*?)\]/);
+    return matches[1];
+  }
+
+  private async getRowsCountByQueryWithTimeOut(countRowsQB: Knex.QueryBuilder<any, any[]>): Promise<number | null> {
+    return new Promise(async (resolve) => {
+      setTimeout(() => {
+        resolve(null);
+      }, DAO_CONSTANTS.COUNT_QUERY_TIMEOUT_MS);
+
+      try {
+        const slowRowsCountQueryResult = await countRowsQB.count('*');
+        const slowRowsCount = Object.values(slowRowsCountQueryResult[0])[0];
+        resolve(slowRowsCount as number);
+      } catch (e) {
+        resolve(null);
+      }
+    });
+  }
+
+  private async getRowsCountByQuery(countRowsQB: Knex.QueryBuilder<any, any[]>): Promise<number | null> {
+    try {
+      const slowRowsCountQueryResult = await countRowsQB.count('*');
+      const slowRowsCount = Object.values(slowRowsCountQueryResult[0])[0];
+      return slowRowsCount as number;
+    } catch (error) {
+      return null;
+    }
+  }
+
+  private async getFastRowsCount(tableName: string): Promise<number> {
     const knex = await this.configureKnex();
     const fastCountQueryResult = await knex.raw(
       `SELECT QUOTENAME(SCHEMA_NAME(sOBJ.schema_id)) + '.' + QUOTENAME(sOBJ.name) AS [TableName]
@@ -612,24 +667,6 @@ WHERE
        ORDER BY [TableName]`,
       [tableName],
     );
-    const fastRowsCount = parseInt(fastCountQueryResult[0].RowCount);
-    if (fastRowsCount >= DAO_CONSTANTS.LARGE_DATASET_ROW_LIMIT) {
-      return fastRowsCount;
-    }
-    if (countRowsQB) {
-      const slowRowsCountQueryResult = await countRowsQB.count('*');
-      const slowRowsCount = Object.values(slowRowsCountQueryResult[0])[0];
-      return slowRowsCount as number;
-    }
-    return fastRowsCount;
-  }
-
-  private async getSchemaNameWithoutBrackets(tableName: string): Promise<string> {
-    const schema = await this.getSchemaName(tableName);
-    if (!schema) {
-      throw new Error(ERROR_MESSAGES.TABLE_SCHEMA_NOT_FOUND(tableName));
-    }
-    const matches = schema.match(/\[(.*?)\]/);
-    return matches[1];
+    return parseInt(fastCountQueryResult[0].RowCount);
   }
 }

@@ -1,6 +1,8 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { TableField, Widget } from 'src/app/models/table';
 import { normalizeFieldName } from '../../../../lib/normalize';
+import { DBtype } from 'src/app/models/connection';
+import { ConnectionsService } from 'src/app/services/connections.service';
 
 @Component({
   selector: 'app-boolean',
@@ -11,7 +13,6 @@ export class BooleanComponent implements OnInit {
   @Input() key: string;
   @Input() label: string;
   @Input() value;
-  @Input() required: boolean;
   @Input() readonly: boolean;
   @Input() disabled: boolean;
   @Input() structure: TableField;
@@ -21,9 +22,14 @@ export class BooleanComponent implements OnInit {
 
   public normalizedLabel: string;
   public isRadiogroup: boolean;
-  constructor() { }
+  private connectionType: DBtype;
+  constructor(
+    private _connections: ConnectionsService,
+  ) { }
 
   ngOnInit(): void {
+    this.connectionType = this._connections.currentConnection.type;
+
     if (this.value) {
       this.value = true;
     } else if (this.value === 0 || this.value === '') {
@@ -35,5 +41,15 @@ export class BooleanComponent implements OnInit {
     this.isRadiogroup = (this.structure?.allow_null) || !!(this.widgetStructure?.widget_params?.structure?.allow_null);
 
     this.normalizedLabel = normalizeFieldName(this.label);
+  }
+
+  onBooleanChange() {
+    let formattedBoolean = this.value;
+
+    if ((this.structure && this.structure.data_type === 'tinyint' && (this.structure.character_maximum_length === 1)) || this.connectionType === 'mysql') {
+      formattedBoolean = this.value ? 1 : 0;
+    }
+
+    this.onFieldChange.emit(formattedBoolean);
   }
 }

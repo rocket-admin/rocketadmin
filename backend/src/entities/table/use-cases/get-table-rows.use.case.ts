@@ -256,7 +256,8 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
       throw new HttpException(
         {
           message: `${Messages.FAILED_GET_TABLE_ROWS} ${Messages.ERROR_MESSAGE}
-         ${e.message} ${Messages.TRY_AGAIN_LATER} ${Messages.ERROR_MESSAGE_ORIGINAL} ${e.originalMessage}`,
+         ${e.message} ${Messages.TRY_AGAIN_LATER}`,
+          originalMessage: e.originalMessage ? `${Messages.ERROR_MESSAGE_ORIGINAL} ${e.originalMessage}` : undefined,
         },
         HttpStatus.INTERNAL_SERVER_ERROR,
       );

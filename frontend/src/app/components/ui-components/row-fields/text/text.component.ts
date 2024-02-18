@@ -26,10 +26,6 @@ export class TextComponent implements OnInit {
   constructor() { }
 
   ngOnInit(): void {
-    console.log('this.readonly');
-    console.log(this.readonly);
-    console.log('this.disabled');
-    console.log(this.disabled);
     this.normalizedLabel = normalizeFieldName(this.label);
   }
 

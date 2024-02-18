@@ -17,6 +17,7 @@ services:
       - testPg-e2e-testing
       - mssql-e2e-testing
       - test-oracle-e2e-testing
+      - test-ibm-db2-e2e-testing
     links:
       - postgres
       - testDB
@@ -24,8 +25,8 @@ services:
       - testPg-e2e-testing
       - mssql-e2e-testing
       - test-oracle-e2e-testing
+      - test-ibm-db2-e2e-testing
     command: ["yarn", "start"]
-
 
   testDB:
     image: postgres
@@ -49,7 +50,7 @@ services:
       - 9002:5432
     environment:
       POSTGRES_PASSWORD: 123
-    command: postgres -c 'max_connections=300'  
+    command: postgres -c 'max_connections=300'
 
   postgres:
     image: postgres
@@ -57,7 +58,7 @@ services:
       - 5432:5432
     environment:
       POSTGRES_PASSWORD: abc123
-    command: postgres -c 'max_connections=300'  
+    command: postgres -c 'max_connections=300'
 
   mssql-e2e-testing:
     image: mcr.microsoft.com/mssql/server:2019-latest
@@ -86,8 +87,7 @@ services:
     links:
       - backend
     depends_on:
-      - backend  
-
+      - backend
 
   rocketadmin-private-microservice:
     build:
@@ -95,7 +95,7 @@ services:
       dockerfile: ../rocketadmin-saas/Dockerfile
     ports:
       - 3001:3001
-    env_file: ../rocketadmin-saas/.env  
+    env_file: ../rocketadmin-saas/.env
     links:
       - backend
       - rocketadmin-private-microservice-test-database
@@ -110,7 +110,7 @@ services:
       - 8001:5432
     environment:
       POSTGRES_PASSWORD: abc987
-    command: postgres -c 'max_connections=300'  
+    command: postgres -c 'max_connections=300'
 
   rocketadmin-agent_oracle:
     build:
@@ -146,7 +146,7 @@ services:
     environment:
       - REMOTE_WEBSOCKET_ADDRESS=ws://autoadmin-ws-server:8009
       - APPLICATION_CONFIG_FILE_NAME=.postgres_test_agent_config.txt
-    command: ["yarn", "start:dev"]    
+    command: ["yarn", "start:dev"]
 
   rocketadmin-agent_mysql:
     build:
@@ -164,7 +164,7 @@ services:
     environment:
       - REMOTE_WEBSOCKET_ADDRESS=ws://autoadmin-ws-server:8009
       - APPLICATION_CONFIG_FILE_NAME=.mysql_test_agent_config.txt
-    command: ["yarn", "start:dev"]   
+    command: ["yarn", "start:dev"]
 
   rocketadmin-agent_mssql:
     build:
@@ -183,6 +183,25 @@ services:
       - REMOTE_WEBSOCKET_ADDRESS=ws://autoadmin-ws-server:8009
       - APPLICATION_CONFIG_FILE_NAME=.mssql_test_agent_config.txt
     command: ["yarn", "start:dev"]
+
+  rocketadmin-agent_ibmdb2:
+    build:
+      context: .
+      dockerfile: ./rocketadmin-agent/Dockerfile
+    ports:
+      - 8308:8308
+    volumes:
+      - ./rocketadmin-agent/dist:/app/dist
+      - ./rocketadmin-agent/src:/app/src
+      - ./rocketadmin-agent/wait-for-db2.sh:/app/wait-for-db2.sh
+    links:
+      - autoadmin-ws-server
+    depends_on:
+      - autoadmin-ws-server
+    environment:
+      - REMOTE_WEBSOCKET_ADDRESS=ws://autoadmin-ws-server:8009
+      - APPLICATION_CONFIG_FILE_NAME=.ibmdb2_test_agent_config.txt
+    command: ["/bin/sh", "/app/wait-for-db2.sh"]
 
   rocketadmin-cli_oracle:
     build:
@@ -218,7 +237,7 @@ services:
     environment:
       - REMOTE_WEBSOCKET_ADDRESS=ws://autoadmin-ws-server:8009
       - APPLICATION_CONFIG_FILE_NAME=.postgres_test_cli_config.txt
-    command: ["yarn", "start:dev"]    
+    command: ["yarn", "start:dev"]
 
   rocketadmin-cli_mysql:
     build:
@@ -236,7 +255,7 @@ services:
     environment:
       - REMOTE_WEBSOCKET_ADDRESS=ws://autoadmin-ws-server:8009
       - APPLICATION_CONFIG_FILE_NAME=.mysql_test_cli_config.txt
-    command: ["yarn", "start:dev"]   
+    command: ["yarn", "start:dev"]
 
   rocketadmin-cli_mssql:
     build:
@@ -254,4 +273,46 @@ services:
     environment:
       - REMOTE_WEBSOCKET_ADDRESS=ws://autoadmin-ws-server:8009
       - APPLICATION_CONFIG_FILE_NAME=.mssql_test_cli_config.txt
-    command: ["yarn", "start:dev"]   
+    command: ["yarn", "start:dev"]
+
+  rocketadmin-cli_ibmdb2:
+    build:
+      context: .
+      dockerfile: ./rocketadmin-cli/Dockerfile
+    ports:
+      - 8228:8228
+    volumes:
+      - ./rocketadmin-cli/dist:/app/dist
+      - ./rocketadmin-cli/src:/app/src
+      - ./rocketadmin-cli/wait-for-db2.sh:/app/wait-for-db2.sh
+    links:
+      - autoadmin-ws-server
+    depends_on:
+      - autoadmin-ws-server
+    environment:
+      - REMOTE_WEBSOCKET_ADDRESS=ws://autoadmin-ws-server:8009
+      - APPLICATION_CONFIG_FILE_NAME=.ibmdb2_test_cli_config.txt
+    command: ["/bin/sh", "/app/wait-for-db2.sh"]   
+
+  test-ibm-db2-e2e-testing:
+    image: icr.io/db2_community/db2
+    restart: always
+    privileged: true
+    environment:
+      - LICENSE=accept
+      - DB2INSTANCE=db2inst1
+      - DB2INST1_PASSWORD=password
+      - DBNAME=testdb
+      - BLU=false
+      - ENABLE_ORACLE_COMPATIBILITY=false
+      - UPDATEAVAIL=NO
+      - TO_CREATE_SAMPLEDB=true
+      - REPODB=false
+      - IS_OSXFS=false
+      - PERSISTENT_HOME=true
+      - HADR_ENABLED=false
+      - ETCD_ENDPOINT=
+      - ETCD_USERNAME=
+      - ETCD_PASSWORD=
+    ports:
+      - 50000:50000
