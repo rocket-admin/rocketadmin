@@ -12,7 +12,7 @@ import { buildFoundTableSettingsDs } from '../utils/build-found-table-settings-d
 import { buildNewTableSettingsEntity } from '../utils/build-new-table-settings-entity.js';
 import { IUpdateTableSettings } from './use-cases.interface.js';
 import { ValidateTableSettingsDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/validate-table-settings.ds.js';
-import { buildValidateTableSettingsDS } from '@rocketadmin/shared-code/dist/src/helpers/datascturcute-builders/validate-table-settings-ds.builder.js';
+import { buildValidateTableSettingsDS } from '@rocketadmin/shared-code/dist/src/helpers/data-structures-builders/validate-table-settings-ds.builder.js';
 
 @Injectable()
 export class UpdateTableSettingsUseCase

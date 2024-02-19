@@ -2,7 +2,7 @@ import { CreateTableSettingsDs } from '../application/data-structures/create-tab
 import { ConnectionEntity } from '../../connection/connection.entity.js';
 import { getDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/create-data-access-object.js';
 import { ValidateTableSettingsDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/validate-table-settings.ds.js';
-import { buildValidateTableSettingsDS } from '@rocketadmin/shared-code/dist/src/helpers/datascturcute-builders/validate-table-settings-ds.builder.js';
+import { buildValidateTableSettingsDS } from '@rocketadmin/shared-code/dist/src/helpers/data-structures-builders/validate-table-settings-ds.builder.js';
 
 export async function validateCreateTableSettingsDs(
   inputData: CreateTableSettingsDs,
