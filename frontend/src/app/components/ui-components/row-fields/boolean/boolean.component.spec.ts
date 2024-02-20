@@ -1,6 +1,9 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, async } from '@angular/core/testing';
 
 import { BooleanComponent } from './boolean.component';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { MatDialogModule } from '@angular/material/dialog';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 describe('BooleanComponent', () => {
   let component: BooleanComponent;
@@ -19,7 +22,12 @@ describe('BooleanComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ BooleanComponent ]
+      declarations: [ BooleanComponent ],
+      imports: [
+        HttpClientTestingModule,
+        MatSnackBarModule,
+        MatDialogModule,
+      ]
     })
     .compileComponents();
   }));

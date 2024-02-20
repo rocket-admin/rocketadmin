@@ -1,3 +1,4 @@
+import { Angulartics2, Angulartics2Module } from 'angulartics2';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { FormsModule }   from '@angular/forms';
@@ -9,7 +10,6 @@ import { RouterTestingModule } from "@angular/router/testing";
 import { SubscriptionPlans } from 'src/app/models/user';
 import { UserService } from 'src/app/services/user.service';
 import { of } from 'rxjs';
-import { Angulartics2Module } from 'angulartics2';
 
 describe('PasswordChangeComponent', () => {
   let component: PasswordChangeComponent;
@@ -19,6 +19,12 @@ describe('PasswordChangeComponent', () => {
 
   beforeEach(async () => {
     // routerSpy = {navigate: jasmine.createSpy('navigate')};
+    const angulartics2Mock = {
+      eventTrack: {
+        next: () => {} // Mocking the next method
+      },
+      trackLocation: () => {} // Mocking the trackLocation method
+    };
 
     await TestBed.configureTestingModule({
       imports: [
@@ -30,6 +36,7 @@ describe('PasswordChangeComponent', () => {
       ],
       providers: [
         { provide: Router, useValue: routerSpy },
+        { provide: Angulartics2, useValue: angulartics2Mock }
       ],
       declarations: [ PasswordChangeComponent ]
     })

@@ -72,8 +72,6 @@ export class ForeignKeyComponent implements OnInit {
           // this.primaeyKeys = res.primaryColumns;
           const modifiedRow = this.getModifiedRow(res.rows[0]);
           if (this.value) {
-            console.log('test if this.value true');
-            console.log(this.value);
             this.currentDisplayedString =
               this.identityColumn ?
                 `${res.rows[0][this.identityColumn]} (${Object.values(modifiedRow).filter(value => value).join(' | ')})` :

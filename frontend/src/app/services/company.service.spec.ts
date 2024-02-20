@@ -2,6 +2,7 @@ import { TestBed } from '@angular/core/testing';
 
 import { CompanyService } from './company.service';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 describe('CompanyService', () => {
   let service: CompanyService;
@@ -10,7 +11,7 @@ describe('CompanyService', () => {
     TestBed.configureTestingModule({
       imports: [
         HttpClientTestingModule,
-        // MatSnackBarModule
+        MatSnackBarModule
       ],
       // providers: [
       //   AuthService,

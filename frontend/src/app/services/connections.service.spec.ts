@@ -1,6 +1,7 @@
 import { AlertActionType, AlertType } from '../models/alert';
 import { ConnectionType, DBtype } from '../models/connection';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
+import { delay, of } from 'rxjs';
 
 import { AccessLevel } from '../models/user';
 import { ConnectionsService } from './connections.service';
@@ -10,7 +11,6 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { NotificationsService } from './notifications.service';
 import { RouterTestingModule } from "@angular/router/testing";
 import { TestBed } from '@angular/core/testing';
-import { of } from 'rxjs';
 
 describe('ConnectionsService', () => {
   let httpMock: HttpTestingController;
@@ -429,15 +429,15 @@ describe('ConnectionsService', () => {
     expect(isSubscribeCalled).toBe(true);
   });
 
-  it('should fall for createConnection and show Error snackbar', async () => {
+  it('should fall for createConnection and show Error alert', async () => {
     const createdConnection = service.createConnection(connectionCredsApp).toPromise();
 
     const req = httpMock.expectOne(`/connection`);
     expect(req.request.method).toBe("POST");
     expect(req.request.body).toEqual(connectionCredsRequested);
     req.flush(fakeError, {status: 400, statusText: ''});
-    await createdConnection;
 
+    await expectAsync(createdConnection).toBeRejectedWith(new Error(fakeError.message));
     expect(fakeNotifications.showAlert).toHaveBeenCalledWith(AlertType.Error, { abstract: fakeError.message, details: fakeError.originalMessage }, []);
   });
 
@@ -457,14 +457,15 @@ describe('ConnectionsService', () => {
     expect(isSubscribeCalled).toBe(true);
   });
 
-  it('should fall for updateConnection and show Error snackbar', async () => {
+  it('should fall for updateConnection and show Error alert', async () => {
     const updatedConnection = service.updateConnection(connectionCredsApp).toPromise();
 
     const req = httpMock.expectOne(`/connection/9d5f6d0f-9516-4598-91c4-e4fe6330b4d4`);
     expect(req.request.method).toBe("PUT");
     expect(req.request.body).toEqual(connectionCredsRequested);
     req.flush(fakeError, {status: 400, statusText: ''});
-    await updatedConnection;
+
+    await expectAsync(updatedConnection).toBeRejectedWith(new Error(fakeError.message));
 
     expect(fakeNotifications.showAlert).toHaveBeenCalledOnceWith(AlertType.Error, { abstract: fakeError.message, details: fakeError.originalMessage }, [jasmine.objectContaining({
       type: AlertActionType.Button,
