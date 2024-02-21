@@ -483,6 +483,40 @@ export class DataAccessObjectPostgres extends BasicDataAccessObject implements I
       .update(row);
   }
 
+  public async bulkUpdateRowsInTable(
+    tableName: string,
+    newValues: Record<string, unknown>,
+    primaryKeys: Array<Record<string, unknown>>,
+  ): Promise<Record<string, unknown>> {
+    const tableStructure = await this.getTableStructure(tableName);
+    const jsonColumnNames = tableStructure
+      .filter((structEl) => {
+        return structEl.data_type.toLowerCase() === 'json';
+      })
+      .map((structEl) => {
+        return structEl.column_name;
+      });
+    for (const key in newValues) {
+      if (jsonColumnNames.includes(key)) {
+        newValues = changeObjPropValByName(
+          newValues,
+          key,
+          JSON.stringify(getPropertyValueByDescriptor(newValues, key)),
+        );
+      }
+    }
+    const primaryKeysNames = Object.keys(primaryKeys[0]);
+    const primaryKeysValues = primaryKeys.map((key) => {
+      return Object.values(key);
+    });
+    const knex = await this.configureKnex();
+    return await knex(tableName)
+      .withSchema(this.connection.schema ? this.connection.schema : 'public')
+      .returning(Object.keys(primaryKeys[0]))
+      .whereIn(primaryKeysNames, primaryKeysValues)
+      .update(newValues);
+  }
+
   public async validateSettings(settings: ValidateTableSettingsDS, tableName: string): Promise<string[]> {
     const [tableStructure, primaryColumns] = await Promise.all([
       this.getTableStructure(tableName),

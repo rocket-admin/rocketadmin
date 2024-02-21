@@ -32,6 +32,7 @@ export const Messages = {
   FAILED_GET_TABLE_STRUCTURE: `Failed to get table structure`,
   FAILED_GET_TABLES: `Failed to get tables from database`,
   FAILED_UPDATE_ROW: `Failed to update row in table`,
+  FAILED_TO_UPDATE_ROWS: `Failed to update rows in table`,
   FAILED_VALIDATE_TABLE_SETTINGS: `Failed validate table settings`,
   FAILED_TO_GET_IDENTITY_COLUMNS: `Failed to get identity columns`,
   FAILED_TO_CHECK_IS_VIEW: `Failed to check is view`,

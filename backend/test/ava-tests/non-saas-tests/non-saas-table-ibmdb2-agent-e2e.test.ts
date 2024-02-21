@@ -1838,7 +1838,6 @@ test(`${currentTest} should add row in table and return result`, async (t) => {
     .set('Accept', 'application/json');
 
   const addRowInTableRO = JSON.parse(addRowInTableResponse.text);
-  console.log('🚀 ~ test ~ addRowInTableRO:', addRowInTableRO);
   t.is(addRowInTableResponse.status, 201);
 
   t.is(addRowInTableRO.hasOwnProperty('row'), true);
@@ -2349,7 +2348,6 @@ test(`${currentTest} should delete row in table and return result`, async (t) =>
     .set('Accept', 'application/json');
 
   const deleteRowInTableRO = JSON.parse(deleteRowInTableResponse.text);
-  console.log('🚀 ~ test ~ deleteRowInTableRO:', deleteRowInTableRO);
 
   t.is(deleteRowInTableResponse.status, 200);
 

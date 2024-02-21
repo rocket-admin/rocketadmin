@@ -2001,7 +2001,6 @@ test(`${currentTest} should add row in table and return result`, async (t) => {
     .set('Accept', 'application/json');
 
   const addRowInTableRO = JSON.parse(addRowInTableResponse.text);
-  console.log('🚀 ~ test ~ addRowInTableRO:', addRowInTableRO);
   t.is(addRowInTableResponse.status, 201);
 
   t.is(addRowInTableRO.hasOwnProperty('row'), true);
@@ -2574,6 +2573,73 @@ test(`${currentTest} should throw an exception when primary key passed in reques
   const { message } = JSON.parse(updateRowInTableResponse.text);
   t.is(message, Messages.ROW_PRIMARY_KEY_NOT_FOUND);
 });
+
+currentTest = 'PUT /table/rows/update/:connectionId';
+
+test(`${currentTest} should update multiple rows and return result`, async (t) => {
+  const connectionToTestDB = getTestData(mockFactory).connectionToIbmDb2;
+  const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
+  const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
+    await createTestTable(connectionToTestDB);
+
+  testTables.push(testTableName);
+
+  const createConnectionResponse = await request(app.getHttpServer())
+    .post('/connection')
+    .send(connectionToTestDB)
+    .set('Cookie', firstUserToken)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+  const createConnectionRO = JSON.parse(createConnectionResponse.text);
+  t.is(createConnectionResponse.status, 201);
+
+  const fakeName = faker.person.firstName();
+  const fakeMail = faker.internet.email();
+
+  const requestData = {
+    primaryKeys: [{ ID: 1 }, { ID: 2 }],
+    newValues: {
+      [testTableColumnName]: fakeName,
+      [testTableSecondColumnName]: fakeMail,
+    },
+  };
+
+  const updateRowInTableResponse = await request(app.getHttpServer())
+    .put(`/table/rows/update/${createConnectionRO.id}?tableName=${testTableName}`)
+    .send(JSON.stringify(requestData))
+    .set('Cookie', firstUserToken)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+
+  const updateRowInTableRO = JSON.parse(updateRowInTableResponse.text);
+
+  t.is(updateRowInTableResponse.status, 200);
+  t.is(updateRowInTableRO.success, true);
+
+  // check that the rows were updated
+  const firstRowResponse = await request(app.getHttpServer())
+    .get(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&ID=1`)
+    .set('Cookie', firstUserToken)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+
+  const firstRow = JSON.parse(firstRowResponse.text);
+  t.is(firstRowResponse.status, 200);
+  t.is(firstRow.row[testTableColumnName], fakeName);
+  t.is(firstRow.row[testTableSecondColumnName], fakeMail);
+
+  const secondRowResponse = await request(app.getHttpServer())
+    .get(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&ID=2`)
+    .set('Cookie', firstUserToken)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+
+  const secondRow = JSON.parse(secondRowResponse.text);
+  t.is(secondRowResponse.status, 200);
+  t.is(secondRow.row[testTableColumnName], fakeName);
+  t.is(secondRow.row[testTableSecondColumnName], fakeMail);
+});
+
 
 currentTest = 'DELETE /table/row/:slug';
 

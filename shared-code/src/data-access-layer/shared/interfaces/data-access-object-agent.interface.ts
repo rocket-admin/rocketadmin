@@ -67,6 +67,13 @@ export interface IDataAccessObjectAgent {
     userEmail: string,
   ): Promise<Record<string, unknown>>;
 
+  bulkUpdateRowsInTable(
+    tableName: string,
+    newValues: Record<string, unknown>,
+    primaryKeys: Array<Record<string, unknown>>,
+    userEmail: string,
+  ): Promise<Record<string, unknown>>;
+
   validateSettings(settings: ValidateTableSettingsDS, tableName: string, userEmail: string): Promise<Array<string>>;
 
   getReferencedTableNamesAndColumns(

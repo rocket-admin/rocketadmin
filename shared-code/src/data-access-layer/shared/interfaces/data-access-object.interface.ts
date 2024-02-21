@@ -55,6 +55,12 @@ export interface IDataAccessObject {
     primaryKey: Record<string, unknown>,
   ): Promise<Record<string, unknown>>;
 
+  bulkUpdateRowsInTable(
+    tableName: string,
+    newValues: Record<string, unknown>,
+    primaryKeys: Array<Record<string, unknown>>,
+  ): Promise<Record<string, unknown>>;
+
   validateSettings(settings: ValidateTableSettingsDS, tableName: string): Promise<Array<string>>;
 
   getReferencedTableNamesAndColumns(tableName: string): Promise<Array<ReferencedTableNamesAndColumnsDS>>;
