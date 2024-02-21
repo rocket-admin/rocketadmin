@@ -398,8 +398,8 @@ export class DataAccessObjectMysql extends BasicDataAccessObject implements IDat
       element.character_maximum_length = element.character_maximum_length
         ? element.character_maximum_length
         : getNumbersFromString(element.column_type)
-        ? getNumbersFromString(element.column_type)
-        : null;
+          ? getNumbersFromString(element.column_type)
+          : null;
     }
     LRUStorage.setTableStructureCache(this.connection, tableName, structureColumnsInLowercase as TableStructureDS[]);
     return structureColumnsInLowercase as TableStructureDS[];
@@ -450,6 +450,39 @@ export class DataAccessObjectMysql extends BasicDataAccessObject implements IDat
     }
 
     return await knex(tableName).returning(Object.keys(primaryKey)).where(primaryKey).update(row);
+  }
+
+  public async bulkUpdateRowsInTable(
+    tableName: string,
+    newValues: Record<string, unknown>,
+    primaryKeys: Record<string, unknown>[],
+  ): Promise<Record<string, unknown>> {
+    const knex = await this.configureKnex();
+    await knex.raw('SET SQL_SAFE_UPDATES = 1;');
+
+    const tableStructure = await this.getTableStructure(tableName);
+    const jsonColumnNames = tableStructure
+      .filter((structEl) => {
+        return structEl.data_type.toLowerCase() === 'json';
+      })
+      .map((structEl) => {
+        return structEl.column_name;
+      });
+    for (const key in newValues) {
+      if (jsonColumnNames.includes(key)) {
+        setPropertyValue(newValues, key, JSON.stringify(getPropertyValueByDescriptor(newValues, key)));
+      }
+    }
+
+    const primaryKeysNames = Object.keys(primaryKeys[0]);
+    const primaryKeysValues = primaryKeys.map((key) => {
+      return Object.values(key);
+    });
+
+    return await knex(tableName)
+      .returning(Object.keys(primaryKeys[0]))
+      .whereIn(primaryKeysNames, primaryKeysValues)
+      .update(newValues);
   }
 
   public async validateSettings(settings: ValidateTableSettingsDS, tableName: string): Promise<string[]> {

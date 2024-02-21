@@ -431,6 +431,15 @@ WHERE
     return result[0];
   }
 
+  public async bulkUpdateRowsInTable(
+    tableName: string,
+    newValues: Record<string, unknown>,
+    primaryKeys: Record<string, unknown>[],
+  ): Promise<Record<string, unknown>> {
+    await Promise.allSettled(primaryKeys.map((key) => this.updateRowInTable(tableName, newValues, key)));
+    return newValues;
+  }
+
   public async validateSettings(settings: ValidateTableSettingsDS, tableName: string): Promise<string[]> {
     const [tableStructure, primaryColumns] = await Promise.all([
       this.getTableStructure(tableName),
@@ -609,5 +618,13 @@ WHERE
         return;
       }
     });
+  }
+
+  private sanitize(value: unknown): string {
+    if (typeof value === 'string') {
+      return value.replace(/'/g, "''");
+    } else {
+      return String(value);
+    }
   }
 }

@@ -401,6 +401,24 @@ WHERE TABLE_TYPE = 'VIEW'
     return knex(tableName).returning(Object.keys(primaryKey)).where(primaryKey).update(row);
   }
 
+  public async bulkUpdateRowsInTable(
+    tableName: string,
+    newValues: Record<string, unknown>,
+    primaryKeys: Record<string, unknown>[],
+  ): Promise<Record<string, unknown>> {
+    const [knex, schemaName] = await Promise.all([this.configureKnex(), this.getSchemaName(tableName)]);
+    tableName = `${schemaName}.[${tableName}]`;
+    const primaryKeysNames = Object.keys(primaryKeys[0]);
+    const primaryKeysValues = primaryKeys.map((key) => {
+      return Object.values(key);
+    });
+
+    return await knex(tableName)
+      .returning(Object.keys(primaryKeys[0]))
+      .whereIn(primaryKeysNames, primaryKeysValues)
+      .update(newValues);
+  }
+
   public async validateSettings(settings: ValidateTableSettingsDS, tableName: string): Promise<string[]> {
     const [tableStructure, primaryColumns] = await Promise.all([
       this.getTableStructure(tableName),

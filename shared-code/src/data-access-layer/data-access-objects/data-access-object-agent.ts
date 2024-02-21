@@ -364,6 +364,38 @@ export class DataAccessObjectAgent implements IDataAccessObjectAgent {
     }
   }
 
+  public async bulkUpdateRowsInTable(
+    tableName: string,
+    newValues: Record<string, unknown>,
+    primaryKeys: Record<string, unknown>[],
+    userEmail: string,
+  ): Promise<Record<string, unknown>> {
+    const jwtAuthToken = this.generateJWT(this.connection.token);
+    try {
+      const res = await axios.post(
+        this.serverAddress,
+        {
+          operationType: DataAccessObjectCommandsEnum.bulkUpdateRowsInTable,
+          tableName: tableName,
+          row: newValues,
+          primaryKey: primaryKeys,
+          email: userEmail,
+        },
+        { headers: { authorization: `Bearer ${jwtAuthToken}` } },
+      );
+      if (res.data.commandResult instanceof Error) {
+        throw new Error(res.data.commandResult.message);
+      }
+      if (!res?.data?.commandResult) {
+        throw new Error(ERROR_MESSAGES.NO_DATA_RETURNED_FROM_AGENT);
+      }
+      return res.data.commandResult;
+    } catch (e) {
+      this.checkIsErrorLocalAndThrowException(e);
+      throw new Error(e.response.data);
+    }
+  }
+
   public async validateSettings(
     settings: ValidateTableSettingsDS,
     tableName: string,

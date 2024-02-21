@@ -9,6 +9,7 @@ export const COMMAND_TYPE = Object.freeze({
   getTablesFromDB: 'getTablesFromDB',
   testConnect: 'testConnect',
   updateRowInTable: 'updateRowInTable',
+  bulkUpdateRowsInTable: 'bulkUpdateRowsInTable',
   validateSettings: 'validateSettings',
   initialConnection: 'initialConnection',
   dataFromAgent: 'dataFromAgent',

@@ -568,6 +568,25 @@ export class DataAccessObjectOracle extends BasicDataAccessObject implements IDa
       .update(row);
   }
 
+  public async bulkUpdateRowsInTable(
+    tableName: string,
+    newValues: Record<string, unknown>,
+    primaryKeys: Record<string, unknown>[],
+  ): Promise<Record<string, unknown>> {
+    const knex = await this.configureKnex();
+
+    const primaryKeysNames = Object.keys(primaryKeys[0]);
+    const primaryKeysValues = primaryKeys.map((key) => {
+      return Object.values(key);
+    });
+
+    return await knex(tableName)
+      .withSchema(this.connection.schema ?? this.connection.username.toUpperCase())
+      .returning(Object.keys(primaryKeys[0]))
+      .whereIn(primaryKeysNames, primaryKeysValues)
+      .update(newValues);
+  }
+
   public async validateSettings(settings: ValidateTableSettingsDS, tableName: string): Promise<string[]> {
     const [tableStructure, primaryColumns] = await Promise.all([
       this.getTableStructure(tableName),

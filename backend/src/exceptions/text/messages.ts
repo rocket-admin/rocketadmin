@@ -178,6 +178,7 @@ export const Messages = {
   PORT_MISSING: 'Port value is invalid',
   PRIMARY_KEY_INVALID: 'Primary key is incorrect. Please check all its parameters',
   PRIMARY_KEY_MISSING: 'Primary key is missing',
+  PRIMARY_KEY_MISSING_PARAMETER_OR_INCORRECT: 'Primary key missing parameter or is incorrect',
   PRIMARY_KEY_NAME_MISSING: 'Primary key name is missing',
   PRIMARY_KEY_NOT_EXIST: 'This type of primary key does not exists in this table',
   PRIMARY_KEY_VALUE_MISSING: 'Primary key value is missing',
