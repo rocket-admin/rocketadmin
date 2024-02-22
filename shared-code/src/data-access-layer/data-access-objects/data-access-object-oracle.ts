@@ -371,37 +371,41 @@ export class DataAccessObjectOracle extends BasicDataAccessObject implements IDa
     if (cachedForeignKeys) {
       return cachedForeignKeys;
     }
+
     const knex = await this.configureKnex();
     const schema = this.connection.schema ?? this.connection.username.toUpperCase();
-    const foreignKeys = await knex.raw(
-      `SELECT a.constraint_name,
-              a.table_name,
-              a.column_name,
-              c.owner,
-              c_pk.table_name r_table_name,
-              b.column_name   r_column_name
-       FROM user_cons_columns a
-                JOIN user_constraints c ON a.owner = c.owner
-           AND a.constraint_name = c.constraint_name
-                JOIN user_constraints c_pk ON c.r_owner = c_pk.owner
-           AND c.r_constraint_name = c_pk.constraint_name
-                JOIN user_cons_columns b ON C_PK.owner = b.owner
-           AND C_PK.CONSTRAINT_NAME = b.constraint_name AND b.POSITION = a.POSITION
-       WHERE c.constraint_type = 'R'
-         AND a.table_name = ?
-         AND a.OWNER = ?`,
-      [tableName, schema],
-    );
-    const resultKeys = foreignKeys.map((key: any) => {
-      return {
-        referenced_column_name: key.R_COLUMN_NAME,
-        referenced_table_name: key.R_TABLE_NAME,
-        constraint_name: key.CONSTRAINT_NAME,
-        column_name: key.COLUMN_NAME,
-      };
-    });
+
+    const foreignKeysQuery = `
+      SELECT a.constraint_name,
+             a.table_name,
+             a.column_name,
+             c.owner,
+             c_pk.table_name r_table_name,
+             b.column_name   r_column_name
+      FROM user_cons_columns a
+      JOIN user_constraints c ON a.owner = c.owner
+          AND a.constraint_name = c.constraint_name
+      JOIN user_constraints c_pk ON c.r_owner = c_pk.owner
+          AND c.r_constraint_name = c_pk.constraint_name
+      JOIN user_cons_columns b ON C_PK.owner = b.owner
+          AND C_PK.CONSTRAINT_NAME = b.constraint_name AND b.POSITION = a.POSITION
+      WHERE c.constraint_type = 'R'
+        AND a.table_name = ?
+        AND a.OWNER = ?
+    `;
+
+    const foreignKeys = await knex.raw(foreignKeysQuery, [tableName, schema]);
+
+    const resultKeys = foreignKeys.map(({ R_COLUMN_NAME, R_TABLE_NAME, CONSTRAINT_NAME, COLUMN_NAME }: any) => ({
+      referenced_column_name: R_COLUMN_NAME,
+      referenced_table_name: R_TABLE_NAME,
+      constraint_name: CONSTRAINT_NAME,
+      column_name: COLUMN_NAME,
+    })) as ForeignKeyDS[];
+
     LRUStorage.setTableForeignKeysCache(this.connection, tableName, resultKeys);
-    return resultKeys as ForeignKeyDS[];
+
+    return resultKeys;
   }
 
   public async getTablePrimaryColumns(tableName: string): Promise<PrimaryKeyDS[]> {
