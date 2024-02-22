@@ -163,13 +163,13 @@ export class DataAccessObjectOracle extends BasicDataAccessObject implements IDa
       const schema = this.connection.schema ?? this.connection.username.toUpperCase();
       const knex = await this.configureKnex();
       let query = knex(tableName).withSchema(schema).where(primaryKey);
-  
+
       if (tableSettings) {
         const tableStructure = await this.getTableStructure(tableName);
         const availableFields = this.findAvaliableFields(tableSettings, tableStructure);
         query = query.select(availableFields);
       }
-  
+
       const result = await query;
       return result[0] as unknown as Record<string, unknown>;
     } catch (error) {
@@ -189,71 +189,54 @@ export class DataAccessObjectOracle extends BasicDataAccessObject implements IDa
   ): Promise<FoundRowsDS> {
     const knex = await this.configureKnex();
 
-    if (autocompleteFields && autocompleteFields.value && autocompleteFields.fields.length > 0) {
-      let andWhere = '';
-      for (let i = 0; i < autocompleteFields.fields.length; i++) {
-        if (i === 0) {
-          andWhere += ` WHERE CAST (?? AS VARCHAR (255)) LIKE '${autocompleteFields.value}%'`;
-        } else {
-          andWhere += ` OR CAST (?? AS VARCHAR (255)) LIKE '${autocompleteFields.value}%'`;
-        }
-      }
+    if (autocompleteFields?.value && autocompleteFields?.fields?.length > 0) {
+      const andWhere = autocompleteFields.fields
+        .map((_, i) => `${i === 0 ? ' WHERE' : ' OR'} CAST (?? AS VARCHAR (255)) LIKE '${autocompleteFields.value}%'`)
+        .join('');
+
       tableName = this.attachSchemaNameToTableName(tableName);
-      const rows = await knex.transaction((trx) => {
-        knex
-          .raw(
-            `SELECT ${autocompleteFields.fields.map((_) => '??').join(', ')}
-             FROM ${tableName} ${andWhere ? andWhere : ''} FETCH FIRST ${
-               DAO_CONSTANTS.AUTOCOMPLETE_ROW_LIMIT
-             } ROWS ONLY `,
-            [...autocompleteFields.fields, ...autocompleteFields.fields],
-          )
-          .transacting(trx)
-          .then(trx.commit)
-          .catch(trx.rollback);
+
+      const rows = await knex.transaction(async (trx) => {
+        try {
+          const result = await knex
+            .raw(
+              `SELECT ${autocompleteFields.fields.map((_) => '??').join(', ')}
+         FROM ${tableName} ${andWhere} FETCH FIRST ${DAO_CONSTANTS.AUTOCOMPLETE_ROW_LIMIT} ROWS ONLY`,
+              [...autocompleteFields.fields, ...autocompleteFields.fields],
+            )
+            .transacting(trx);
+          trx.commit();
+          return result;
+        } catch (error) {
+          trx.rollback();
+          throw error;
+        }
       });
+
       return {
-        data: rows as unknown as unknown as Array<Record<string, unknown>>,
+        data: rows as Array<Record<string, unknown>>,
         pagination: {} as any,
         large_dataset: false,
       };
     }
 
-    /* eslint-disable */
-    if (!page || page <= 0) {
-      page = DAO_CONSTANTS.DEFAULT_PAGINATION.page;
-      const { list_per_page } = settings;
-      if (list_per_page && list_per_page > 0 && (!perPage || perPage <= 0)) {
-        perPage = list_per_page;
-      } else {
-        perPage = DAO_CONSTANTS.DEFAULT_PAGINATION.perPage;
-      }
-    }
+    page = page > 0 ? page : DAO_CONSTANTS.DEFAULT_PAGINATION.page;
+    perPage =
+      perPage > 0
+        ? perPage
+        : settings.list_per_page > 0
+          ? settings.list_per_page
+          : DAO_CONSTANTS.DEFAULT_PAGINATION.perPage;
+
     const tableStructure = await this.getTableStructure(tableName);
     const availableFields = this.findAvaliableFields(settings, tableStructure);
-    //********** with pagination ************
-    let orderingField = undefined;
-    let order = undefined;
-    let searchedFields = undefined;
-    if (settings.search_fields && settings.search_fields.length > 0) {
-      searchedFields = settings.search_fields;
-    }
-    if ((!searchedFields || searchedFields?.length === 0) && searchedFieldValue) {
-      searchedFields = availableFields;
-    }
-    if (settings && settings.ordering_field) {
-      orderingField = settings.ordering_field;
-    } else {
-      orderingField = availableFields[0];
-    }
-    if (settings.ordering) {
-      order = settings.ordering;
-    } else {
-      order = QueryOrderingEnum.ASC;
-    }
 
-    const tableSchema = this.connection.schema ? this.connection.schema : this.connection.username.toUpperCase();
-    return await newGetAvailableFieldsWithPagination(
+    let searchedFields =
+      settings?.search_fields?.length > 0 ? settings.search_fields : searchedFieldValue ? availableFields : [];
+
+    const tableSchema = this.connection.schema || this.connection.username.toUpperCase();
+    return await this.getAvailableFieldsWithPagination(
+      knex,
       tableName,
       tableSchema,
       page,
@@ -262,131 +245,125 @@ export class DataAccessObjectOracle extends BasicDataAccessObject implements IDa
       searchedFields,
       searchedFieldValue,
       filteringFields,
+      settings,
     );
+  }
 
-    async function newGetAvailableFieldsWithPagination(
-      tableName: string,
-      tableSchema: string,
-      page: number,
-      perPage: number,
-      availableFields: Array<string>,
-      searchedFields: Array<string>,
-      searchedFieldValue: any,
-      filteringFields: any,
-    ): Promise<FoundRowsDS> {
-      const offset = (page - 1) * perPage;
-      const rows = await knex(tableName)
-        .withSchema(tableSchema)
-        .select(availableFields)
-        .modify((builder) => {
-          const search_fields = searchedFields;
-          if (searchedFieldValue && search_fields.length > 0) {
-            for (const field of search_fields) {
-              if (Buffer.isBuffer(searchedFieldValue)) {
-                builder.orWhere(field, '=', searchedFieldValue);
-              } else {
-                builder.orWhereRaw(` Lower(??) LIKE ?`, [field, `${searchedFieldValue.toLowerCase()}%`]);
-                //  builder.orWhereRaw(` CAST (?? AS VARCHAR (255))=?`, [field, searchedFieldValue]);
-              }
-            }
-          }
-        })
-        .modify((builder) => {
-          if (filteringFields && filteringFields.length > 0) {
-            for (const filterObject of filteringFields) {
-              const { field, criteria, value } = filterObject;
-              switch (criteria) {
-                case FilterCriteriaEnum.eq:
-                  builder.andWhere(field, '=', `${value}`);
-                  break;
-                case FilterCriteriaEnum.startswith:
-                  builder.andWhere(field, 'like', `${value}%`);
-                  break;
-                case FilterCriteriaEnum.endswith:
-                  builder.andWhere(field, 'like', `%${value}`);
-                  break;
-                case FilterCriteriaEnum.gt:
-                  builder.andWhere(field, '>', value);
-                  break;
-                case FilterCriteriaEnum.lt:
-                  builder.andWhere(field, '<', value);
-                  break;
-                case FilterCriteriaEnum.lte:
-                  builder.andWhere(field, '<=', value);
-                  break;
-                case FilterCriteriaEnum.gte:
-                  builder.andWhere(field, '>=', value);
-                  break;
-                case FilterCriteriaEnum.contains:
-                  builder.andWhere(field, 'like', `%${value}%`);
-                  break;
-                case FilterCriteriaEnum.icontains:
-                  builder.andWhereNot(field, 'like', `%${value}%`);
-                  break;
-                case FilterCriteriaEnum.empty:
-                  builder.orWhereNull(field);
-                  builder.orWhere(field, '=', `''`);
-                  break;
-              }
-            }
-          }
-        })
-        .modify((builder) => {
-          if (settings.ordering_field && settings.ordering) {
-            builder.orderBy(settings.ordering_field, settings.ordering);
-          }
-        })
-        .limit(perPage)
-        .offset(offset);
-      const { rowsCount, large_dataset } = await getRowsCount(knex, tableName, tableSchema);
-      const lastPage = Math.ceil(rowsCount / perPage);
-      return {
-        data: rows.map((row: any) => {
-          delete row['ROWNUM_'];
-          return row;
-        }),
-        pagination: {
-          total: rowsCount,
-          lastPage: lastPage,
-          perPage: perPage,
-          currentPage: page,
-        },
-        large_dataset: large_dataset,
-      };
-    }
+  public async getAvailableFieldsWithPagination(
+    knex: Knex<any, any[]>,
+    tableName: string,
+    tableSchema: string,
+    page: number,
+    perPage: number,
+    availableFields: Array<string>,
+    searchedFields: Array<string>,
+    searchedFieldValue: any,
+    filteringFields: any,
+    settings: TableSettingsDS,
+  ) {
+    const offset = (page - 1) * perPage;
 
-    async function getRowsCount(
-      knex: Knex<any, any[]>,
-      tableName: string,
-      tableSchema: string,
-    ): Promise<{ rowsCount: number; large_dataset: boolean }> {
-      const fastCount = await getFastRowsCount(knex, tableName, tableSchema);
-      if (fastCount >= DAO_CONSTANTS.LARGE_DATASET_ROW_LIMIT) {
-        return { rowsCount: fastCount, large_dataset: true };
+    const applySearchFields = (builder: Knex.QueryBuilder) => {
+      if (searchedFieldValue && searchedFields.length > 0) {
+        for (const field of searchedFields) {
+          if (Buffer.isBuffer(searchedFieldValue)) {
+            builder.orWhere(field, '=', searchedFieldValue);
+          } else {
+            builder.orWhereRaw(` Lower(??) LIKE ?`, [field, `${searchedFieldValue.toLowerCase()}%`]);
+          }
+        }
       }
+    };
 
-      const rowsCount = await slowCountWithTimeOut(knex, tableName, tableSchema);
-      return { rowsCount: rowsCount, large_dataset: false };
+    const applyFilteringFields = (builder: Knex.QueryBuilder) => {
+      if (filteringFields && filteringFields.length > 0) {
+        for (const { field, criteria, value } of filteringFields) {
+          const operators = {
+            [FilterCriteriaEnum.eq]: '=',
+            [FilterCriteriaEnum.startswith]: 'like',
+            [FilterCriteriaEnum.endswith]: 'like',
+            [FilterCriteriaEnum.gt]: '>',
+            [FilterCriteriaEnum.lt]: '<',
+            [FilterCriteriaEnum.lte]: '<=',
+            [FilterCriteriaEnum.gte]: '>=',
+            [FilterCriteriaEnum.contains]: 'like',
+            [FilterCriteriaEnum.icontains]: 'not like',
+            [FilterCriteriaEnum.empty]: ['is', '='],
+          };
+          const values = {
+            [FilterCriteriaEnum.startswith]: `${value}%`,
+            [FilterCriteriaEnum.endswith]: `%${value}`,
+            [FilterCriteriaEnum.contains]: `%${value}%`,
+            [FilterCriteriaEnum.icontains]: `%${value}%`,
+            [FilterCriteriaEnum.empty]: [null, ''],
+          };
+
+          if (criteria === FilterCriteriaEnum.empty) {
+            builder.where(field, operators[criteria][0], values[criteria][0]);
+            builder.orWhere(field, operators[criteria][1], values[criteria][1]);
+          } else {
+            builder.where(field, operators[criteria], values[criteria] || value);
+          }
+        }
+      }
+    };
+
+    const applyOrdering = (builder: Knex.QueryBuilder) => {
+      if (settings.ordering_field && settings.ordering) {
+        builder.orderBy(settings.ordering_field, settings.ordering);
+      }
+    };
+
+    const rows = await knex(tableName)
+      .withSchema(tableSchema)
+      .select(availableFields)
+      .modify(applySearchFields)
+      .modify(applyFilteringFields)
+      .modify(applyOrdering)
+      .limit(perPage)
+      .offset(offset);
+
+    const { rowsCount, large_dataset } = await this.getRowsCount(knex, tableName, tableSchema);
+    const lastPage = Math.ceil(rowsCount / perPage);
+
+    return {
+      data: rows.map((row) => {
+        delete row['ROWNUM_'];
+        return row;
+      }),
+      pagination: {
+        total: rowsCount,
+        lastPage: lastPage,
+        perPage: perPage,
+        currentPage: page,
+      },
+      large_dataset: large_dataset,
+    };
+  }
+
+  public async getRowsCount(knex: Knex<any, any[]>, tableName: string, tableSchema: string) {
+    const fastCount = await this.getFastRowsCount(knex, tableName, tableSchema);
+    if (fastCount >= DAO_CONSTANTS.LARGE_DATASET_ROW_LIMIT) {
+      return { rowsCount: fastCount, large_dataset: true };
     }
 
-    async function getFastRowsCount(knex: Knex<any, any[]>, tableName: string, tableSchema: string): Promise<number> {
-      const fastCountQueryResult = await knex('ALL_TABLES')
-        .select('NUM_ROWS')
-        .where('TABLE_NAME', '=', tableName)
-        .andWhere('OWNER', '=', tableSchema);
-      const fastCount = fastCountQueryResult[0]['NUM_ROWS'];
-      return fastCount;
-    }
+    const rowsCount = await this.slowCountWithTimeOut(knex, tableName, tableSchema);
+    return { rowsCount: rowsCount, large_dataset: false };
+  }
 
-    async function slowCountWithTimeOut(
-      knex: Knex<any, any[]>,
-      tableName: string,
-      tableSchema: string,
-    ): Promise<number> {
-      const count = (await knex(tableName).withSchema(tableSchema).count('*')) as any;
-      const rowsCount = parseInt(count[0]['COUNT(*)']);
-      return rowsCount;
-    }
+  public async getFastRowsCount(knex: Knex<any, any[]>, tableName: string, tableSchema: string) {
+    const fastCountQueryResult = await knex('ALL_TABLES')
+      .select('NUM_ROWS')
+      .where('TABLE_NAME', '=', tableName)
+      .andWhere('OWNER', '=', tableSchema);
+    const fastCount = fastCountQueryResult[0]['NUM_ROWS'];
+    return fastCount;
+  }
+
+  public async slowCountWithTimeOut(knex: Knex<any, any[]>, tableName: string, tableSchema: string) {
+    const count = (await knex(tableName).withSchema(tableSchema).count('*')) as any;
+    const rowsCount = parseInt(count[0]['COUNT(*)']);
+    return rowsCount;
   }
 
   public async getTableForeignKeys(tableName: string): Promise<ForeignKeyDS[]> {
