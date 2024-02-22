@@ -116,11 +116,16 @@ export class DataAccessObjectOracle extends BasicDataAccessObject implements IDa
     tableName: string,
     primaryKey: Record<string, unknown>,
   ): Promise<Record<string, unknown>> {
-    const knex = await this.configureKnex();
-    return await knex(tableName)
-      .withSchema(this.connection.schema ?? this.connection.username.toUpperCase())
-      .where(primaryKey)
-      .del();
+    try {
+      const knex = await this.configureKnex();
+      return knex(tableName)
+        .withSchema(this.connection.schema ?? this.connection.username.toUpperCase())
+        .where(primaryKey)
+        .del();
+    } catch (error) {
+      console.error(`Error deleting row in table ${tableName}:`, error);
+      throw error;
+    }
   }
 
   public async getIdentityColumns(
