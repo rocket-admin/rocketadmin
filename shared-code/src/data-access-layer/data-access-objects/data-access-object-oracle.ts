@@ -599,7 +599,8 @@ export class DataAccessObjectOracle extends BasicDataAccessObject implements IDa
   public async isView(tableName: string): Promise<boolean> {
     const knex = await this.configureKnex();
     const schemaName = this.connection.schema ?? this.connection.username.toUpperCase();
-    const result = await knex.raw(
+  
+    const [result] = await knex.raw(
       `SELECT object_type
        FROM all_objects
        WHERE owner = :schemaName
@@ -609,10 +610,14 @@ export class DataAccessObjectOracle extends BasicDataAccessObject implements IDa
         tableName,
       },
     );
-    if (result.length === 0) {
-      throw new Error(ERROR_MESSAGES.TABLE_NOT_FOUND(tableName));
+  
+    if (!result) {
+      const errorMessage = ERROR_MESSAGES.TABLE_NOT_FOUND(tableName);
+      throw new Error(errorMessage);
     }
-    return result[0].OBJECT_TYPE === 'VIEW';
+  
+    const { OBJECT_TYPE } = result;
+    return OBJECT_TYPE === 'VIEW';
   }
 
   public async getTableRowsStream(
