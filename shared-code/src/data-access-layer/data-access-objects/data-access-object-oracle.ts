@@ -159,23 +159,22 @@ export class DataAccessObjectOracle extends BasicDataAccessObject implements IDa
     primaryKey: Record<string, unknown>,
     tableSettings: TableSettingsDS,
   ): Promise<Record<string, unknown>> {
-    const schema = this.connection.schema ?? this.connection.username.toUpperCase();
-    const knex = await this.configureKnex();
-    if (!tableSettings) {
-      return (
-        await knex(tableName)
-          .withSchema(this.connection.schema ?? this.connection.username.toUpperCase())
-          .where(primaryKey)
-      )[0] as unknown as Record<string, unknown>;
-    } else {
-      const tableStructure = await this.getTableStructure(tableName);
-      const availableFields = this.findAvaliableFields(tableSettings, tableStructure);
-      return (
-        await knex(tableName)
-          .withSchema(this.connection.schema ?? this.connection.username.toUpperCase())
-          .select(availableFields)
-          .where(primaryKey)
-      )[0] as unknown as Record<string, unknown>;
+    try {
+      const schema = this.connection.schema ?? this.connection.username.toUpperCase();
+      const knex = await this.configureKnex();
+      let query = knex(tableName).withSchema(schema).where(primaryKey);
+  
+      if (tableSettings) {
+        const tableStructure = await this.getTableStructure(tableName);
+        const availableFields = this.findAvaliableFields(tableSettings, tableStructure);
+        query = query.select(availableFields);
+      }
+  
+      const result = await query;
+      return result[0] as unknown as Record<string, unknown>;
+    } catch (error) {
+      console.error(`Error getting row by primary key from table ${tableName}:`, error);
+      throw error;
     }
   }
 
