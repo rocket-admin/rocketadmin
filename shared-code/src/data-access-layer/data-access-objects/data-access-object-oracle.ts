@@ -503,8 +503,10 @@ export class DataAccessObjectOracle extends BasicDataAccessObject implements IDa
     primaryKey: Record<string, unknown>,
   ): Promise<Record<string, unknown>> {
     const knex = await this.configureKnex();
+    const schema = this.connection.schema ?? this.connection.username.toUpperCase();
+  
     return await knex(tableName)
-      .withSchema(this.connection.schema ?? this.connection.username.toUpperCase())
+      .withSchema(schema)
       .returning(Object.keys(primaryKey))
       .where(primaryKey)
       .update(row);
