@@ -414,24 +414,25 @@ export class DataAccessObjectOracle extends BasicDataAccessObject implements IDa
       return cachedPrimaryColumns;
     }
     const knex = await this.configureKnex();
-    const schema = this.connection.schema ? this.connection.schema : this.connection.username.toUpperCase();
-    const primaryColumns = await knex(tableName)
-      .select(knex.raw('cols.column_name'))
-      .from(knex.raw('all_constraints cons, all_cons_columns cols'))
-      .where(
-        knex.raw(
-          `cols.table_name = ?
+    const schema = this.connection.schema ?? this.connection.username.toUpperCase();
+
+    const primaryColumnsQuery = `
+      cols.table_name = ?
       AND cols.owner = ?
       AND cons.constraint_type = 'P'
       AND cons.constraint_name = cols.constraint_name
       AND cons.owner = cols.owner
-      `,
-          [tableName, schema],
-        ),
-      );
+    `;
+
+    const primaryColumns = await knex(tableName)
+      .select(knex.raw('cols.column_name'))
+      .from(knex.raw('all_constraints cons, all_cons_columns cols'))
+      .where(knex.raw(primaryColumnsQuery, [tableName, schema]));
+
     const primaryColumnsInLowercase = primaryColumns.map((column) => {
       return objectKeysToLowercase(column);
     });
+    
     LRUStorage.setTablePrimaryKeysCache(this.connection, tableName, primaryColumnsInLowercase as PrimaryKeyDS[]);
     return primaryColumnsInLowercase as PrimaryKeyDS[];
   }
