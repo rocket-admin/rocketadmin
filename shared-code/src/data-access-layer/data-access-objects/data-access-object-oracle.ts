@@ -518,15 +518,14 @@ export class DataAccessObjectOracle extends BasicDataAccessObject implements IDa
     primaryKeys: Record<string, unknown>[],
   ): Promise<Record<string, unknown>> {
     const knex = await this.configureKnex();
-
+    const schema = this.connection.schema ?? this.connection.username.toUpperCase();
+  
     const primaryKeysNames = Object.keys(primaryKeys[0]);
-    const primaryKeysValues = primaryKeys.map((key) => {
-      return Object.values(key);
-    });
-
+    const primaryKeysValues = primaryKeys.map(Object.values);
+  
     return await knex(tableName)
-      .withSchema(this.connection.schema ?? this.connection.username.toUpperCase())
-      .returning(Object.keys(primaryKeys[0]))
+      .withSchema(schema)
+      .returning(primaryKeysNames)
       .whereIn(primaryKeysNames, primaryKeysValues)
       .update(newValues);
   }
