@@ -46,103 +46,70 @@ export class DataAccessObjectOracle extends BasicDataAccessObject implements IDa
     ]);
 
     const primaryKey = primaryColumns[0];
-    let primaryKeyStructure: any;
-
-    if (primaryColumns?.length > 0) {
-      const primaryKeyIndexInStructure = tableStructure.findIndex((e) => {
-        return primaryKey.column_name;
-      });
-      primaryKeyStructure = tableStructure.at(primaryKeyIndexInStructure);
-    }
+    let primaryKeyStructure =
+      primaryColumns?.length > 0 ? tableStructure.find((e) => e.column_name === primaryKey.column_name) : undefined;
 
     const knex = await this.configureKnex();
     const keys = Object.keys(row);
-    const values = Object.values(row).map((val) => {
-      return `${val}`;
-    });
+    const values = Object.values(row).map((val) => `${val}`);
 
-    const primaryKeysInStructure = tableStructure.map((el) => {
-      return tableStructure.find((structureEl) => structureEl.column_name === el.column_name);
-    });
+    const primaryKeysInStructure = tableStructure.filter((el) =>
+      tableStructure.some((structureEl) => structureEl.column_name === el.column_name),
+    );
 
     const autoIncrementPrimaryKey = primaryKeysInStructure.find((key) =>
       checkFieldAutoincrement(key.column_default, key.extra),
     );
 
-    let result: any;
+    let result: Record<string, unknown> | number;
     tableName = this.attachSchemaNameToTableName(tableName);
-    if (primaryColumns?.length > 0) {
-      if (autoIncrementPrimaryKey) {
-        await knex
-          .transaction((trx) => {
-            knex
-              .raw(
-                `insert INTO ${tableName} (${keys.map((_) => '??').join(', ')})
-                 VALUES (${values.map((_) => '?').join(', ')})`,
-                [...keys, ...values],
-              )
-              .transacting(trx)
-              .then(trx.commit)
-              .catch(trx.rollback);
-          })
-          .catch((e) => {
-            throw new Error(e);
-          });
-        const queryResult = await knex()
-          .select(knex.raw(`${primaryKeyStructure.column_default.replace(/nextval/gi, 'currval')}`))
-          .from(knex.raw(`${tableName}`))
-          .catch((e) => {
-            throw new Error(e);
-          });
 
-        const resultObj = {};
-        for (const [index, el] of primaryColumns.entries()) {
-          // eslint-disable-next-line security/detect-object-injection
-          resultObj[el.column_name] = queryResult[index]['CURRVAL'].toString();
-        }
-        result = resultObj;
-      } else {
-        await knex
-          .transaction((trx) => {
-            knex
-              .raw(
-                `insert INTO ${tableName} (${keys.map((_) => '??').join(', ')})
-                 VALUES (${values.map((_) => '?').join(', ')})`,
-                [...keys, ...values],
-              )
-              .transacting(trx)
-              .then(trx.commit)
-              .catch(trx.rollback);
-          })
-          .catch((e) => {
-            throw new Error(e);
-          });
-        const primaryKeys = primaryColumns.map((column) => column.column_name);
-        const resultsArray = [];
-        for (let i = 0; i < primaryKeys.length; i++) {
-          // eslint-disable-next-line security/detect-object-injection
-          resultsArray.push([primaryKeys[i], row[primaryKeys[i]]]);
-        }
-        result = Object.fromEntries(resultsArray);
-      }
-    } else {
-      result = await knex
-        .transaction((trx) => {
+    const insertRow = async () => {
+      try {
+        await knex.transaction((trx) =>
           knex
             .raw(
               `insert INTO ${tableName} (${keys.map((_) => '??').join(', ')})
-               VALUES (${values.map((_) => '?').join(', ')})`,
+             VALUES (${values.map((_) => '?').join(', ')})`,
               [...keys, ...values],
             )
             .transacting(trx)
             .then(trx.commit)
-            .catch(trx.rollback);
-        })
-        .catch((e) => {
-          throw new Error(e);
-        });
+            .catch(trx.rollback),
+        );
+      } catch (e) {
+        console.error(e);
+        throw e;
+      }
+    };
+
+    if (primaryColumns?.length > 0) {
+      if (autoIncrementPrimaryKey) {
+        await insertRow();
+        const queryResult = await knex()
+          .select(knex.raw(`${primaryKeyStructure.column_default.replace(/nextval/gi, 'currval')}`))
+          .from(knex.raw(`${tableName}`))
+          .catch((e) => {
+            console.error(e);
+            throw e;
+          });
+
+        const resultObj = {};
+        for (const [index, el] of primaryColumns.entries()) {
+          resultObj[el.column_name] = queryResult[index]['CURRVAL'].toString();
+        }
+        result = resultObj;
+      } else {
+        await insertRow();
+        const primaryKeys = primaryColumns.map((column) => column.column_name);
+        const resultsArray = primaryKeys.map((key) => [key, row[key]]);
+        result = Object.fromEntries(resultsArray);
+      }
+    } else {
+      await insertRow();
+      result = 1;
     }
-    return result as number | Record<string, unknown>;
+    return result;
   }
 
   public async deleteRowInTable(
