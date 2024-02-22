@@ -481,31 +481,20 @@ export class DataAccessObjectOracle extends BasicDataAccessObject implements IDa
 
   public async testConnect(): Promise<TestConnectionResultDS> {
     const knex = await this.configureKnex();
-    let result: unknown;
     try {
-      result = await knex
-        .transaction((trx) => {
-          knex.raw(`SELECT 1 FROM DUAL`).transacting(trx).then(trx.commit).catch(trx.rollback);
-        })
-        .catch((e) => {
-          throw new Error(e);
-        });
-      if (result) {
-        return {
-          result: true,
-          message: 'Successfully connected',
-        };
-      }
+      await knex.transaction((trx) => {
+        return knex.raw(`SELECT 1 FROM DUAL`).transacting(trx);
+      });
+      return {
+        result: true,
+        message: 'Successfully connected',
+      };
     } catch (e) {
       return {
         result: false,
-        message: e.message,
+        message: e.message || 'Connection failed',
       };
     }
-    return {
-      result: false,
-      message: 'Connection failed',
-    };
   }
 
   public async updateRowInTable(
