@@ -107,6 +107,29 @@ export class GetRowByPrimaryKeyUseCase
       });
 
     tableForeignKeys = tableForeignKeys.concat(foreignKeysFromWidgets);
+    const canUserReadForeignTables: Array<{
+      tableName: string;
+      canRead: boolean;
+    }> = await Promise.all(
+      tableForeignKeys.map(async (foreignKey) => {
+        const cenTableRead = await this._dbContext.userAccessRepository.checkTableRead(
+          userId,
+          connectionId,
+          foreignKey.referenced_table_name,
+          masterPwd,
+        );
+        return {
+          tableName: foreignKey.referenced_table_name,
+          canRead: cenTableRead,
+        };
+      }),
+    );
+    tableForeignKeys = tableForeignKeys.filter((foreignKey) => {
+      return canUserReadForeignTables.find((el) => {
+        return el.tableName === foreignKey.referenced_table_name && el.canRead;
+      });
+    });
+
     let foreignKeysWithAutocompleteColumns: Array<ForeignKeyWithAutocompleteColumnsDS> = [];
     if (tableForeignKeys && tableForeignKeys.length > 0) {
       foreignKeysWithAutocompleteColumns = await Promise.all(
@@ -137,6 +160,21 @@ export class GetRowByPrimaryKeyUseCase
     rowData = removePasswordsFromRowsUtil(rowData, tableWidgets);
     rowData = convertBinaryDataInRowUtil(rowData, tableStructure);
     const formedTableStructure = formFullTableStructure(tableStructure, tableSettings);
+
+    for (const referencedTable of referencedTableNamesAndColumns) {
+      referencedTable.referenced_by = await Promise.all(
+        referencedTable.referenced_by.map(async (referencedByTable) => {
+          const canUserReadTable = await this._dbContext.userAccessRepository.checkTableRead(
+            userId,
+            connectionId,
+            referencedByTable.table_name,
+            masterPwd,
+          );
+          return canUserReadTable ? referencedByTable : null;
+        }),
+      ).then((results) => results.filter(Boolean));
+    }
+
     const referencedTableNamesAndColumnsWithTablesDisplayNames: Array<ReferencedTableNamesAndColumnsDs> =
       await Promise.all(
         referencedTableNamesAndColumns.map(async (el: ReferencedTableNamesAndColumnsDS) => {
