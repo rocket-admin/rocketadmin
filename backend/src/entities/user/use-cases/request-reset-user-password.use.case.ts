@@ -28,14 +28,6 @@ export class RequestResetUserPasswordUseCase
         HttpStatus.FORBIDDEN,
       );
     }
-    if (!foundUser.isActive) {
-      throw new HttpException(
-        {
-          message: Messages.EMAIL_NOT_CONFIRMED,
-        },
-        HttpStatus.FORBIDDEN,
-      );
-    }
     const savedResetPasswordRequest = await this._dbContext.passwordResetRepository.createOrUpdatePasswordResetEntity(
       foundUser,
     );
