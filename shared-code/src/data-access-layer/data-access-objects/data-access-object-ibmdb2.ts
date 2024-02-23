@@ -571,7 +571,13 @@ WHERE
     if (withCache && cachedDatabase && cachedDatabase.connected) {
       return cachedDatabase;
     }
-    const connStr = `DATABASE=${this.connection.database};HOSTNAME=${this.connection.host};UID=${this.connection.username};PWD=${this.connection.password};PORT=${this.connection.port};PROTOCOL=TCPIP`;
+    let connStr = `DATABASE=${this.connection.database};HOSTNAME=${this.connection.host};UID=${this.connection.username};PWD=${this.connection.password};PORT=${this.connection.port};PROTOCOL=TCPIP`;
+    if (this.connection.ssl) {
+      connStr += ';SECURITY=SSL';
+      if (this.connection.cert) {
+        connStr += `;SSLServerCertificate=${this.connection.cert}`;
+      }
+    }
     const connectionPool = new Pool();
     const databaseConnection = await connectionPool.open(connStr);
     LRUStorage.setImdbDb2Cache(this.connection, databaseConnection);
