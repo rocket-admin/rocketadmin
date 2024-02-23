@@ -2582,7 +2582,7 @@ test(`${currentTest} should throw an exception when primary key passed in reques
 
 currentTest = 'PUT /table/rows/update/:connectionId';
 
-test.only(`${currentTest} should update multiple rows and return result`, async (t) => {
+test(`${currentTest} should update multiple rows and return result`, async (t) => {
   const connectionToTestDB = getTestData(mockFactory).connectionToOracleDB;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
   const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
