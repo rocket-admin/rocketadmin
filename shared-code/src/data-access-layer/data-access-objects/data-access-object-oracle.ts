@@ -432,7 +432,7 @@ export class DataAccessObjectOracle extends BasicDataAccessObject implements IDa
     const primaryColumnsInLowercase = primaryColumns.map((column) => {
       return objectKeysToLowercase(column);
     });
-    
+
     LRUStorage.setTablePrimaryKeysCache(this.connection, tableName, primaryColumnsInLowercase as PrimaryKeyDS[]);
     return primaryColumnsInLowercase as PrimaryKeyDS[];
   }
@@ -504,12 +504,8 @@ export class DataAccessObjectOracle extends BasicDataAccessObject implements IDa
   ): Promise<Record<string, unknown>> {
     const knex = await this.configureKnex();
     const schema = this.connection.schema ?? this.connection.username.toUpperCase();
-  
-    return await knex(tableName)
-      .withSchema(schema)
-      .returning(Object.keys(primaryKey))
-      .where(primaryKey)
-      .update(row);
+
+    return await knex(tableName).withSchema(schema).returning(Object.keys(primaryKey)).where(primaryKey).update(row);
   }
 
   public async bulkUpdateRowsInTable(
@@ -519,10 +515,10 @@ export class DataAccessObjectOracle extends BasicDataAccessObject implements IDa
   ): Promise<Record<string, unknown>> {
     const knex = await this.configureKnex();
     const schema = this.connection.schema ?? this.connection.username.toUpperCase();
-  
+
     const primaryKeysNames = Object.keys(primaryKeys[0]);
     const primaryKeysValues = primaryKeys.map(Object.values);
-  
+
     return await knex(tableName)
       .withSchema(schema)
       .returning(primaryKeysNames)
@@ -542,11 +538,13 @@ export class DataAccessObjectOracle extends BasicDataAccessObject implements IDa
     const primaryColumns = await this.getTablePrimaryColumns(tableName);
     const knex = await this.configureKnex();
     const result: Array<ReferencedTableNamesAndColumnsDS> = [];
-  
-    await Promise.all(primaryColumns.map(async (primaryColumn) => {
-      const referencedConstraints: Array<RefererencedConstraint> = await knex.transaction((trx) => {
-        return knex.raw(
-          `
+
+    await Promise.all(
+      primaryColumns.map(async (primaryColumn) => {
+        const referencedConstraints: Array<RefererencedConstraint> = (await knex.transaction((trx) => {
+          return knex
+            .raw(
+              `
           SELECT
           UC.TABLE_NAME as TABLE_NAME,
           UC.CONSTRAINT_NAME as CONSTRAINT_NAME,
@@ -566,40 +564,46 @@ export class DataAccessObjectOracle extends BasicDataAccessObject implements IDa
           UCC.TABLE_NAME,
           UCC.COLUMN_NAME
           `,
-          [tableName, primaryColumn.column_name],
-        ).transacting(trx);
-      }) as Array<RefererencedConstraint>;
-  
-      await Promise.all(referencedConstraints.map(async (referencedConstraint) => {
-        const columnName = await knex.transaction((trx) => {
-          return knex.raw(
-            `
+              [tableName, primaryColumn.column_name],
+            )
+            .transacting(trx);
+        })) as Array<RefererencedConstraint>;
+
+        await Promise.all(
+          referencedConstraints.map(async (referencedConstraint) => {
+            const columnName = await knex.transaction((trx) => {
+              return knex
+                .raw(
+                  `
             SELECT column_name
             FROM all_cons_columns
             WHERE constraint_name = ?
             `,
-            referencedConstraint.CONSTRAINT_NAME,
-          ).transacting(trx);
+                  referencedConstraint.CONSTRAINT_NAME,
+                )
+                .transacting(trx);
+            });
+            referencedConstraint.CONSTRAINT_NAME = columnName[0].COLUMN_NAME;
+          }),
+        );
+
+        result.push({
+          referenced_on_column_name: primaryColumn.column_name,
+          referenced_by: referencedConstraints.map(({ TABLE_NAME, CONSTRAINT_NAME }) => ({
+            table_name: TABLE_NAME,
+            column_name: CONSTRAINT_NAME,
+          })),
         });
-        referencedConstraint.CONSTRAINT_NAME = columnName[0].COLUMN_NAME;
-      }));
-  
-      result.push({
-        referenced_on_column_name: primaryColumn.column_name,
-        referenced_by: referencedConstraints.map(({ TABLE_NAME, CONSTRAINT_NAME }) => ({
-          table_name: TABLE_NAME,
-          column_name: CONSTRAINT_NAME,
-        })),
-      });
-    }));
-  
+      }),
+    );
+
     return result;
   }
 
   public async isView(tableName: string): Promise<boolean> {
     const knex = await this.configureKnex();
     const schemaName = this.connection.schema ?? this.connection.username.toUpperCase();
-  
+
     const [result] = await knex.raw(
       `SELECT object_type
        FROM all_objects
@@ -610,12 +614,12 @@ export class DataAccessObjectOracle extends BasicDataAccessObject implements IDa
         tableName,
       },
     );
-  
+
     if (!result) {
       const errorMessage = ERROR_MESSAGES.TABLE_NOT_FOUND(tableName);
       throw new Error(errorMessage);
     }
-  
+
     const { OBJECT_TYPE } = result;
     return OBJECT_TYPE === 'VIEW';
   }
