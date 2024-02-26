@@ -102,8 +102,8 @@ export class DbTableRowEditComponent implements OnInit {
               .map((field: TableField) => {
                 if (allowNullFields.includes(field.column_name)) {
                   return { [field.column_name]: null }
-                } else if (this.tableTypes[field.column_name] === 'boolean') {
-                  return { [field.column_name]: false }
+                // } else if (this.tableTypes[field.column_name] === 'boolean') {
+                //  return { [field.column_name]: false }
                 };
                 return {[field.column_name]: ''};
               }));
