@@ -379,5 +379,23 @@ export const Constants = {
         `;
       },
     },
+    COMPANY_2FA_ENABLED: {
+      COMPANY_2FA_ENABLED_SUBJECT_DATA: '2FA was enabled in your company',
+      COMPANY_2FA_ENABLED_TEXT_DATA: (companyName: string): string =>
+        `Administrator enabled two-factor authentication for you company "${companyName}". Please enable 2FA in your account. It will be required for login soon.`,
+      COMPANY_2FA_ENABLED_HTML_DATA: (companyName: string): string => `
+      <body>
+      <p>
+        Hi!
+      </p>
+      <p>
+      Administrator enabled two-factor authentication for you company "${companyName}". Please enable 2FA in your account. It will be required for login soon.
+      </p>
+      <p>
+        Thanks.
+      </p>
+    </body>
+      `,
+    },
   },
 };
