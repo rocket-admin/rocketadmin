@@ -7,6 +7,8 @@ export interface ICompanyInfoRepository {
 
   findOneCompanyInfoByUserIdWithConnections(userId: string): Promise<CompanyInfoEntity>;
 
+  finOneCompanyInfoByUserId(userId: string): Promise<CompanyInfoEntity>;
+
   findCompanyInfoByUserId(userId: string): Promise<CompanyInfoEntity>;
 
   findFullCompanyInfoByUserId(userId: string): Promise<CompanyInfoEntity>;

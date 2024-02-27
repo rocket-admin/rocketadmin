@@ -28,6 +28,17 @@ export class DisableOtpUseCase extends AbstractUseCase<VerifyOtpDS, OtpDisabling
         HttpStatus.BAD_REQUEST,
       );
     }
+
+    const foundUserCompany = await this._dbContext.companyInfoRepository.finOneCompanyInfoByUserId(userId);
+    if (foundUserCompany.is2faEnabled) {
+      throw new HttpException(
+        {
+          message: Messages.DISABLING_2FA_FORBIDDEN_BY_ADMIN,
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
     const { otpSecretKey } = foundUser;
     if (!otpSecretKey) {
       throw new HttpException(
