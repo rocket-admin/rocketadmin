@@ -29,18 +29,18 @@ export async function loginTestAdminUserAndReturnInfo(app: INestApplication): Pr
     email: 'admin@email.local',
     password: 'test12345',
   };
-  const registerAdminUserResponse = await request(app.getHttpServer())
+  const loginAdminUserResponse = await request(app.getHttpServer())
     .post('/user/login/')
     .send(userLoginInfo)
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
 
-  const registerAdminUserResponseJson = JSON.parse(registerAdminUserResponse.text);
-  if (registerAdminUserResponse.status > 201) {
-    console.info('registerAdminUserResponse.text -> ', registerAdminUserResponseJson);
+  const loginAdminUserResponseJson = JSON.parse(loginAdminUserResponse.text);
+  if (loginAdminUserResponse.status > 201) {
+    console.info('loginAdminUserResponseJson.text -> ', loginAdminUserResponseJson);
   }
 
-  const token = `${Constants.JWT_COOKIE_KEY_NAME}=${TestUtils.getJwtTokenFromResponse(registerAdminUserResponse)}`;
+  const token = `${Constants.JWT_COOKIE_KEY_NAME}=${TestUtils.getJwtTokenFromResponse(loginAdminUserResponse)}`;
   return { token: token, ...userLoginInfo };
 }
 

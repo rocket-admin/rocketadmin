@@ -14,6 +14,7 @@ import { InvitedUserInCompanyAndConnectionGroupDs } from '../application/data-st
 import { RemoveUserFromCompanyDs } from '../application/data-structures/remove-user-from-company.ds.js';
 import { RevokeUserInvitationDs } from '../application/data-structures/revoke-user-invitation.dto.js';
 import { UpdateCompanyNameDS } from '../application/data-structures/update-company-name.ds.js';
+import { UpdateUsers2faStatusInCompanyDs } from '../application/data-structures/update-users-2fa-status-in-company.ds.js';
 import { UpdateUsersCompanyRolesDs } from '../application/data-structures/update-users-company-roles.ds.js';
 
 export interface IInviteUserInCompanyAndConnectionGroup {
@@ -66,4 +67,8 @@ export interface IDeleteCompany {
 
 export interface ICheckVerificationLinkAvailable {
   execute(verificationString: string): Promise<SuccessResponse>;
+}
+
+export interface IUpdateUsers2faStatusInCompany {
+  execute(inputData: UpdateUsers2faStatusInCompanyDs, inTransaction: InTransactionEnum): Promise<SuccessResponse>;
 }

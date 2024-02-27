@@ -69,7 +69,7 @@ test(`${currentTest} should return found company info for user`, async (t) => {
     const foundCompanyInfoRO = JSON.parse(foundCompanyInfo.text);
     t.is(foundCompanyInfoRO.hasOwnProperty('id'), true);
     t.is(foundCompanyInfoRO.hasOwnProperty('name'), true);
-    t.is(Object.keys(foundCompanyInfoRO).length, 2);
+    t.is(Object.keys(foundCompanyInfoRO).length, 3);
   } catch (error) {
     console.error(error);
   }
@@ -106,7 +106,7 @@ test(`${currentTest} should return full found company info for company admin use
     t.is(foundCompanyInfo.status, 200);
     t.is(foundCompanyInfoRO.hasOwnProperty('id'), true);
     t.is(foundCompanyInfoRO.hasOwnProperty('name'), true);
-    t.is(Object.keys(foundCompanyInfoRO).length, 4);
+    t.is(Object.keys(foundCompanyInfoRO).length, 5);
     t.is(foundCompanyInfoRO.hasOwnProperty('connections'), true);
     t.is(foundCompanyInfoRO.connections.length > 3, true);
     t.is(foundCompanyInfoRO.hasOwnProperty('invitations'), true);
@@ -160,7 +160,7 @@ test(`${currentTest} should return found company info for non-admin user`, async
     t.is(foundCompanyInfo.status, 200);
     t.is(foundCompanyInfoRO.hasOwnProperty('id'), true);
     t.is(foundCompanyInfoRO.hasOwnProperty('name'), true);
-    t.is(Object.keys(foundCompanyInfoRO).length, 2);
+    t.is(Object.keys(foundCompanyInfoRO).length, 3);
   } catch (error) {
     console.error(error);
     throw error;
@@ -528,6 +528,56 @@ test(`${currentTest} should update user roles in company`, async (t) => {
   const foundUserAfterUpdate = usersInCompanyROAfterUpdate.find((user) => user.id === foundNonAdminUser.id);
   t.is(foundUserAfterUpdate.role, 'ADMIN');
 });
+
+currentTest = `PUT company/2fa/:companyId`;
+
+test(`${currentTest} should enable 2fa for company`, async (t) => {
+  const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
+  const {
+    connections,
+    firstTableInfo,
+    groups,
+    permissions,
+    secondTableInfo,
+    users: { adminUserToken, simpleUserToken, adminUserEmail, simpleUserEmail },
+  } = testData;
+
+  const foundCompanyInfo = await request(app.getHttpServer())
+    .get('/company/my/full')
+    .set('Content-Type', 'application/json')
+    .set('Cookie', adminUserToken)
+    .set('Accept', 'application/json');
+
+  t.is(foundCompanyInfo.status, 200);
+
+  const foundCompanyRo = JSON.parse(foundCompanyInfo.text);
+  t.is(foundCompanyRo.hasOwnProperty('is2faEnabled'), true);
+  t.is(foundCompanyRo.is2faEnabled, false);
+
+  const requestBody = {
+    is2faEnabled: true,
+  };
+  const enable2faResult = await request(app.getHttpServer())
+    .put(`/company/2fa/${foundCompanyRo.id}`)
+    .send(requestBody)
+    .set('Content-Type', 'application/json')
+    .set('Cookie', adminUserToken)
+    .set('Accept', 'application/json');
+
+  t.is(enable2faResult.status, 200);
+
+  const foundCompanyInfoAfterUpdate = await request(app.getHttpServer())
+    .get('/company/my/full')
+    .set('Content-Type', 'application/json')
+    .set('Cookie', adminUserToken)
+    .set('Accept', 'application/json');
+
+  t.is(foundCompanyInfoAfterUpdate.status, 200);
+  const foundCompanyRoAfterUpdate = JSON.parse(foundCompanyInfoAfterUpdate.text);
+  t.is(foundCompanyRoAfterUpdate.hasOwnProperty('is2faEnabled'), true);
+  t.is(foundCompanyRoAfterUpdate.is2faEnabled, true);
+});
+
 
 currentTest = `DELETE company`;
 

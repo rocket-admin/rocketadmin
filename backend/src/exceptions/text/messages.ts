@@ -194,6 +194,7 @@ export const Messages = {
   SAAS_COMPANY_NOT_REGISTERED_WITH_USER_INVITATION: `Failed to invite user in SaaS. Please contact our support team.`,
   SAAS_UPDATE_USERS_ROLES_FAILED_UNHANDLED_ERROR: `Failed to update users roles in SaaS. Please contact our support team.`,
   SAAS_DELETE_COMPANY_FAILED_UNHANDLED_ERROR: `Failed to delete company in SaaS. Please contact our support team.`,
+  SAAS_UPDATE_2FA_STATUS_FAILED_UNHANDLED_ERROR: `Failed to update 2fa status in SaaS. Please contact our support team.`,
   SOMETHING_WENT_WRONG_ROW_ADD: 'Something went wrong on row insertion, check inserted parameters and try again',
   SSH_FORMAT_INCORRECT: 'Ssh value must be a boolean',
   SSH_HOST_MISSING: 'Ssh host is missing',
