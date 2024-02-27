@@ -8,6 +8,7 @@ import { IGlobalDatabaseContext } from '../../../common/application/global-datab
 import { SaasCompanyGatewayService } from '../../../microservices/gateways/saas-gateway.ts/saas-company-gateway.service.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { isSaaS } from '../../../helpers/app/is-saas.js';
+import { send2faEnabledInCompany } from '../../email/utils/send-2fa-enabled-in-company-to-users.js';
 
 @Injectable({ scope: Scope.REQUEST })
 export class UpdateUses2faStatusInCompanyUseCase
@@ -37,6 +38,10 @@ export class UpdateUses2faStatusInCompanyUseCase
       if (!updateCompany2faStatusInCoreResult.success) {
         throw new NotFoundException(Messages.COMPANY_NOT_FOUND);
       }
+    }
+    if (is2faEnabled) {
+      const usersEmails = foundCompany.users.map((user) => user.email);
+      send2faEnabledInCompany(usersEmails, foundCompany.name);
     }
     await this._dbContext.companyInfoRepository.save(foundCompany);
     return { success: true };
