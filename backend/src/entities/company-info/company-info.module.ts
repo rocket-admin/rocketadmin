@@ -27,6 +27,7 @@ import { GetCompanyNameUseCase } from './use-cases/get-company-name.use.case.js'
 import { UpdateUsersCompanyRolesUseCase } from './use-cases/update-users-company-roles.use.case.js';
 import { DeleteCompanyUseCase } from './use-cases/delete-company-use-case.js';
 import { CheckIsVerificationLinkAvailable } from './use-cases/check-verification-link.available.use.case.js';
+import { UpdateUses2faStatusInCompanyUseCase } from './use-cases/update-uses-2fa-status-in-company.use.case.js';
 
 @Module({
   imports: [
@@ -100,6 +101,10 @@ import { CheckIsVerificationLinkAvailable } from './use-cases/check-verification
       provide: UseCaseType.CHECK_IS_VERIFICATION_LINK_AVAILABLE,
       useClass: CheckIsVerificationLinkAvailable,
     },
+    {
+      provide: UseCaseType.UPDATE_USERS_2FA_STATUS_IN_COMPANY,
+      useClass: UpdateUses2faStatusInCompanyUseCase,
+    }
   ],
   controllers: [CompanyInfoController],
 })
@@ -117,6 +122,7 @@ export class CompanyInfoModule implements NestModule {
         { path: '/company/invitation/revoke/:slug', method: RequestMethod.PUT },
         { path: '/company/name/:slug', method: RequestMethod.PUT },
         { path: '/company/users/roles/:companyId', method: RequestMethod.PUT },
+        { path: 'company/2fa/:companyId', method: RequestMethod.PUT },
       );
   }
 }

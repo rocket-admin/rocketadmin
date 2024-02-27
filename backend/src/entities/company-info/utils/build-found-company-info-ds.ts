@@ -57,6 +57,7 @@ export function buildFoundCompanyInfoDs(
     return {
       id: companyInfoFromCore.id,
       name: companyInfoFromCore.name,
+      is2faEnabled: companyInfoFromCore.is2faEnabled,
     };
   }
   const isUserAdmin = userRole === UserRoleEnum.ADMIN;
@@ -67,6 +68,7 @@ export function buildFoundCompanyInfoDs(
     portal_link: isUserAdmin ? companyInfoFromSaas.portal_link : undefined,
     subscriptionLevel: isUserAdmin ? companyInfoFromSaas.subscriptionLevel : undefined,
     is_payment_method_added: isUserAdmin ? companyInfoFromSaas.is_payment_method_added : undefined,
+    is2faEnabled: isUserAdmin ? companyInfoFromCore.is2faEnabled : undefined,
     address: {
       id: companyInfoFromSaas.address?.id,
       city: companyInfoFromSaas.address?.city,
