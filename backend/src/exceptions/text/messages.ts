@@ -222,6 +222,7 @@ export const Messages = {
   TRY_VERIFY_ADD_USER_WHEN_LOGGED_IN: `You can't join a group when you are logged in as another user. Please log out and try again.`,
   TYPE_MISSING: 'Type is missing',
   TOKEN_MISSING: 'Token is missing',
+  TWO_FA_REQUIRED: `Two factor authentication required in this company according to company settings. Please enable 2fa in your profile settings.`,
   UNABLE_FIND_PORT: `Unable to find a free port. Please try again later. If the problem persists, please contact our support team`,
   UPDATE_ROW_FAILED: 'Row updating failed',
   USER_ALREADY_ADDED: 'User has already been added in this group',
