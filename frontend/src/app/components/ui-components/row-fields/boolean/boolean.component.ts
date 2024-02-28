@@ -46,10 +46,6 @@ export class BooleanComponent implements OnInit {
   onBooleanChange() {
     let formattedBoolean = this.value;
 
-    if ((this.structure && this.structure.data_type === 'tinyint' && (this.structure.character_maximum_length === 1)) || this.connectionType === 'mysql') {
-      formattedBoolean = this.value ? 1 : 0;
-    }
-
     this.onFieldChange.emit(formattedBoolean);
   }
 }
