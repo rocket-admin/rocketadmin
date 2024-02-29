@@ -16,6 +16,8 @@ import { ValidationException } from '../../../src/exceptions/custom-exceptions/v
 import { ValidationError } from 'class-validator';
 import { faker } from '@faker-js/faker';
 import { nanoid } from 'nanoid';
+import { Messages } from '../../../src/exceptions/text/messages.js';
+import { Constants } from '../../../src/helpers/constants/constants.js';
 
 const mockFactory = new MockFactory();
 let app: INestApplication;
@@ -587,7 +589,7 @@ test(`${currentTest} should enable 2fa for company`, async (t) => {
     groups,
     permissions,
     secondTableInfo,
-    users: { adminUserToken, simpleUserToken, adminUserEmail, simpleUserEmail },
+    users: { adminUserToken, simpleUserToken, adminUserEmail, simpleUserEmail, simpleUserPassword },
   } = testData;
 
   const foundCompanyInfo = await request(app.getHttpServer())
@@ -624,4 +626,33 @@ test(`${currentTest} should enable 2fa for company`, async (t) => {
   const foundCompanyRoAfterUpdate = JSON.parse(foundCompanyInfoAfterUpdate.text);
   t.is(foundCompanyRoAfterUpdate.hasOwnProperty('is2faEnabled'), true);
   t.is(foundCompanyRoAfterUpdate.is2faEnabled, true);
+
+  // user should not be able to use endpoints that require 2fa after login
+
+  const userLoginInfo = {
+    email: simpleUserEmail,
+    password: simpleUserPassword,
+  };
+
+  const loginUserResponse = await request(app.getHttpServer())
+    .post('/user/login/')
+    .send(userLoginInfo)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+
+  if (loginUserResponse.status > 201) {
+    console.info('loginUserResponse.text -> ', loginUserResponse.text);
+  }
+
+  const newSimpleUserToken = `${Constants.JWT_COOKIE_KEY_NAME}=${TestUtils.getJwtTokenFromResponse(loginUserResponse)}`;
+  const connectionsResult = await request(app.getHttpServer())
+    .get('/connections')
+    .set('Content-Type', 'application/json')
+    .set('Cookie', newSimpleUserToken)
+    .set('Accept', 'application/json');
+
+  t.is(connectionsResult.status, 401);
+
+  const connectionsResultsObject = JSON.parse(connectionsResult.text);
+  t.is(connectionsResultsObject.message, Messages.TWO_FA_REQUIRED);
 });

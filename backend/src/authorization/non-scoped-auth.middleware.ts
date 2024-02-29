@@ -4,18 +4,14 @@ import { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import { Repository } from 'typeorm';
 import { LogOutEntity } from '../entities/log-out/log-out.entity.js';
-import { UserEntity } from '../entities/user/user.entity.js';
 import { Messages } from '../exceptions/text/messages.js';
 import { isObjectEmpty } from '../helpers/index.js';
 import { Constants } from '../helpers/constants/constants.js';
 import Sentry from '@sentry/minimal';
-import { JwtScopesEnum } from '../entities/user/enums/jwt-scopes.enum.js';
 
 @Injectable()
-export class AuthMiddleware implements NestMiddleware {
+export class NonScopedAuthMiddleware implements NestMiddleware {
   public constructor(
-    @InjectRepository(UserEntity)
-    private readonly userRepository: Repository<UserEntity>,
     @InjectRepository(LogOutEntity)
     private readonly logOutRepository: Repository<LogOutEntity>,
   ) {}
@@ -66,18 +62,6 @@ export class AuthMiddleware implements NestMiddleware {
       //   );
       // }
 
-      const addedScope: Array<JwtScopesEnum> = data['scope'];
-      if (addedScope && addedScope.length > 0) {
-        if (addedScope.includes(JwtScopesEnum.TWO_FA_ENABLE)) {
-          throw new HttpException(
-            {
-              message: Messages.TWO_FA_REQUIRED,
-            },
-            HttpStatus.UNAUTHORIZED,
-          );
-        }
-      }
-
       const payload = {
         sub: userId,
         email: data['email'],
@@ -93,7 +77,7 @@ export class AuthMiddleware implements NestMiddleware {
       Sentry.captureException(e);
       throw new HttpException(
         {
-          message: e.message === Messages.TWO_FA_REQUIRED ? e.message : Messages.AUTHORIZATION_REJECTED,
+          message: Messages.AUTHORIZATION_REJECTED,
         },
         HttpStatus.UNAUTHORIZED,
       );

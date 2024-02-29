@@ -36,6 +36,7 @@ import { DisableOtpUseCase } from './use-cases/disable-otp.use.case.js';
 import { GetUserSessionSettingsUseCase } from './use-cases/get-user-session-settings.use.case.js';
 import { SaveUserSettingsUseCase } from './use-cases/save-user-session-settings.use.case.js';
 import { CompanyInfoEntity } from '../company-info/company-info.entity.js';
+import { NonScopedAuthMiddleware } from '../../authorization/non-scoped-auth.middleware.js';
 
 @Module({
   imports: [
@@ -149,13 +150,16 @@ export class UserModule implements NestModule {
         { path: 'user/email/verify/request', method: RequestMethod.GET },
         { path: 'user/delete/', method: RequestMethod.PUT },
         { path: 'user/email/change/request', method: RequestMethod.GET },
-        { path: 'user/otp/generate', method: RequestMethod.POST },
-        { path: 'user/otp/verify', method: RequestMethod.POST },
-        { path: 'user/otp/disable', method: RequestMethod.POST },
         { path: 'user/settings', method: RequestMethod.POST },
         { path: 'user/settings', method: RequestMethod.GET },
       )
       .apply(TemporaryAuthMiddleware)
-      .forRoutes({ path: 'user/otp/login', method: RequestMethod.POST });
+      .forRoutes({ path: 'user/otp/login', method: RequestMethod.POST })
+      .apply(NonScopedAuthMiddleware)
+      .forRoutes(
+        { path: 'user/otp/generate', method: RequestMethod.POST },
+        { path: 'user/otp/verify', method: RequestMethod.POST },
+        { path: 'user/otp/disable', method: RequestMethod.POST },
+      );
   }
 }

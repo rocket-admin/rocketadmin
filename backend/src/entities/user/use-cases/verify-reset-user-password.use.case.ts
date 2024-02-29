@@ -9,6 +9,7 @@ import { RegisteredUserDs } from '../application/data-structures/registered-user
 import { ResetUsualUserPasswordDs } from '../application/data-structures/reset-usual-user-password.ds.js';
 import { generateGwtToken } from '../utils/generate-gwt-token.js';
 import { IVerifyPasswordReset } from './user-use-cases.interfaces.js';
+import { get2FaScope } from '../utils/is-jwt-scope-need.util.js';
 
 @Injectable()
 export class VerifyResetUserPasswordUseCase
@@ -25,9 +26,8 @@ export class VerifyResetUserPasswordUseCase
   protected async implementation(inputData: ResetUsualUserPasswordDs): Promise<RegisteredUserDs> {
     const { verificationString, newUserPassword } = inputData;
     ValidationHelper.isPasswordStrongOrThrowError(newUserPassword);
-    const verificationEntity = await this._dbContext.passwordResetRepository.findPasswordResetWidthVerificationString(
-      verificationString,
-    );
+    const verificationEntity =
+      await this._dbContext.passwordResetRepository.findPasswordResetWidthVerificationString(verificationString);
     if (!verificationEntity || !verificationEntity.user) {
       throw new HttpException(
         {
@@ -48,10 +48,11 @@ export class VerifyResetUserPasswordUseCase
     foundUser.password = await Encryptor.hashUserPassword(newUserPassword);
     await this._dbContext.userRepository.saveUserEntity(foundUser);
     await this._dbContext.passwordResetRepository.removePasswordResetEntity(verificationEntity);
+    const foundUserCompany = await this._dbContext.companyInfoRepository.finOneCompanyInfoByUserId(foundUser.id);
     return {
       id: foundUser.id,
       email: foundUser.email,
-      token: generateGwtToken(foundUser),
+      token: generateGwtToken(foundUser, get2FaScope(foundUser, foundUserCompany)),
       name: foundUser.name,
     };
   }
