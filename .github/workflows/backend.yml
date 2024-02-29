@@ -9,6 +9,7 @@ jobs:
       - uses: extractions/setup-just@v1
       - name: run tests
         run: just test
+        timeout-minutes: 50
   license:
     runs-on: ubuntu-latest
     steps:
