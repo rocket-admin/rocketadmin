@@ -132,6 +132,9 @@ export class DbTableFiltersDialogComponent implements OnInit {
   }
 
   updateField = (updatedValue: any, field: string) => {
+    console.log('updateField');
+    console.log(field);
+    console.log(updatedValue);
     this.tableRowFieldsShown[field] = updatedValue;
   }
 

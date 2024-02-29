@@ -1,8 +1,9 @@
-import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { TableField, Widget } from 'src/app/models/table';
-import { normalizeFieldName } from '../../../../lib/normalize';
-import { DBtype } from 'src/app/models/connection';
+
 import { ConnectionsService } from 'src/app/services/connections.service';
+import { DBtype } from 'src/app/models/connection';
+import { normalizeFieldName } from '../../../../lib/normalize';
 
 @Component({
   selector: 'app-boolean',
@@ -30,13 +31,16 @@ export class BooleanComponent implements OnInit {
   ngOnInit(): void {
     this.connectionType = this._connections.currentConnection.type;
 
-    if (this.value) {
+    if (this.value === true || this.value === 1 || this.value === 'Y' || this.value === 'T') {
       this.value = true;
-    } else if (this.value === 0 || this.value === '') {
+    } else if (this.value === false || this.value === 0 || this.value === 'N' || this.value === 'F' || (!this.structure.allow_null && this.value === null)) {
       this.value = false;
     } else {
       this.value = null;
     }
+
+    console.log('boolean this.value');
+    console.log(this.value);
 
     this.isRadiogroup = (this.structure?.allow_null) || !!(this.widgetStructure?.widget_params?.structure?.allow_null);
 
@@ -44,12 +48,28 @@ export class BooleanComponent implements OnInit {
   }
 
   onBooleanChange() {
-    let formattedBoolean = this.value;
-
-    if ((this.structure && this.structure.data_type === 'tinyint' && (this.structure.character_maximum_length === 1)) || this.connectionType === 'mysql') {
-      formattedBoolean = this.value ? 1 : 0;
+    console.log(this.connectionType);
+    let formattedValue;
+    switch (this.connectionType) {
+      case DBtype.MySQL:
+      case DBtype.MSSQL:
+        formattedValue = this.value === null ? null : this.value ? 1 : 0;
+        break;
+      case DBtype.Postgres:
+        formattedValue = this.value;
+        break;
+      case DBtype.Oracle:
+        // Oracle might use 'Y'/'N' or 1/0; assuming 'Y'/'N' here
+        if (this.value === null) {
+          formattedValue = null;
+        } else {
+          formattedValue = this.value ? 'Y' : 'N';
+        }
+        break;
+      default:
+        formattedValue = this.value;
     }
 
-    this.onFieldChange.emit(formattedBoolean);
+    this.onFieldChange.emit(formattedValue);
   }
 }
