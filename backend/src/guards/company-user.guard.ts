@@ -1,4 +1,4 @@
-import { Injectable, CanActivate, Inject, ExecutionContext, HttpException, HttpStatus } from '@nestjs/common';
+import { Injectable, CanActivate, Inject, ExecutionContext } from '@nestjs/common';
 import { IGlobalDatabaseContext } from '../common/application/global-database-context.interface.js';
 import { BaseType } from '../common/data-injection.tokens.js';
 import { IRequestWithCognitoInfo } from '../authorization/cognito-decoded.interface.js';

@@ -49,7 +49,7 @@ export class CreateConnectionUseCase
       try {
         await dao.testConnect();
       } catch (e) {
-        let text: string = e.message.toLowerCase();
+        const text: string = e.message.toLowerCase();
         if (text.includes('ssl required') || text.includes('ssl connection required')) {
           createdConnection.ssl = true;
           try {

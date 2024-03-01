@@ -113,7 +113,7 @@ export class BulkUpdateRowsInTableUseCase
       operationResult = OperationResultStatusEnum.unsuccessfully;
       throw new UnknownSQLException(e.message, ExceptionOperations.FAILED_TO_UPDATE_ROWS_IN_TABLE);
     } finally {
-      const logsData = oldRowsData.map((oldRowData, index) => {
+      const logsData = oldRowsData.map((oldRowData) => {
         return {
           operationStatusResult: operationResult,
           row: newValues,

@@ -1,5 +1,4 @@
 import SMTPTransport from 'nodemailer/lib/smtp-transport';
-import Mail from 'nodemailer/lib/mailer';
 import PQueue from 'p-queue';
 import { Logger } from '../../../helpers/logging/Logger.js';
 import { send2faEnabledInCompanyToUser } from '../send-email.js';

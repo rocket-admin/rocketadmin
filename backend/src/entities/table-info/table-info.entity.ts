@@ -10,10 +10,10 @@ export class TableInfoEntity {
   @Column()
   table_name: string;
 
-  @ManyToOne((type) => ConnectionEntity, (connection) => connection.tables_info, { onDelete: 'CASCADE' })
+  @ManyToOne(() => ConnectionEntity, (connection) => connection.tables_info, { onDelete: 'CASCADE' })
   @JoinColumn()
   connection: Relation<ConnectionEntity>;
 
-  @OneToMany((type) => TableFieldInfoEntity, (table_field_info) => table_field_info.table_info)
+  @OneToMany(() => TableFieldInfoEntity, (table_field_info) => table_field_info.table_info)
   table_fields_info: Relation<TableFieldInfoEntity>[];
 }

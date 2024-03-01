@@ -1,7 +1,7 @@
 import { nanoid } from 'nanoid';
 import { ConnectionEntity } from '../../connection/connection.entity.js';
 import { AgentEntity } from '../agent.entity.js';
-import { ConnectionTypeEnum, ConnectionTypeTestEnum } from '../../../enums/connection-type.enum.js';
+import { ConnectionTypeTestEnum } from '../../../enums/connection-type.enum.js';
 
 export const customAgentRepositoryExtension = {
   async saveNewAgent(agent: AgentEntity): Promise<AgentEntity> {
