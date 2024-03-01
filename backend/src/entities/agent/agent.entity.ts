@@ -28,7 +28,7 @@ export class AgentEntity {
     this.token = Encryptor.hashDataHMAC(this.token);
   }
 
-  @OneToOne((type) => ConnectionEntity, (connection) => connection.agent, {
+  @OneToOne(() => ConnectionEntity, (connection) => connection.agent, {
     onDelete: 'CASCADE',
   })
   @JoinColumn()

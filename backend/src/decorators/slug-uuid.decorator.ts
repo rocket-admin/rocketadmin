@@ -10,6 +10,7 @@ export const SlugUuid = createParamDecorator((parameterName: string = 'slug', ct
   if (!availableSlagParameters.includes(parameterName)) {
     throw buildBadRequestException(Messages.UUID_INVALID);
   }
+  // eslint-disable-next-line security/detect-object-injection
   const uuId: string = request.params?.[parameterName];
   const validationResult = ValidationHelper.isValidUUID(uuId);
   if (validationResult) {

@@ -38,6 +38,7 @@ export class TestConnectionUseCase
       };
     }
     let {
+      // eslint-disable-next-line prefer-const
       update_info: { connectionId, masterPwd },
       connection_parameters: connectionData,
     } = inputData;

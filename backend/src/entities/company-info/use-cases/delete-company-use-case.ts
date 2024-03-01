@@ -18,7 +18,6 @@ export class DeleteCompanyUseCase extends AbstractUseCase<string, SuccessRespons
   }
 
   protected async implementation(userId: string): Promise<SuccessResponse> {
-    let count = 0;
     const foundFullCompany = await this._dbContext.companyInfoRepository.findFullCompanyInfoByUserId(userId);
     if (!foundFullCompany) {
       throw new NotFoundException(Messages.COMPANY_NOT_FOUND);

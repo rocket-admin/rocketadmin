@@ -8,12 +8,10 @@ module.exports = {
     'plugin:@typescript-eslint/eslint-recommended',
     'plugin:@typescript-eslint/recommended',
     'prettier',
-    'plugin:security/recommended',
   ],
   root: true,
   env: {
     node: true,
-    jest: true,
   },
   rules: {
     '@typescript-eslint/interface-name-prefix': 'off',
