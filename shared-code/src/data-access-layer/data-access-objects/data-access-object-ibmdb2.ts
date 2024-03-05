@@ -97,7 +97,7 @@ export class DataAccessObjectIbmDb2 extends BasicDataAccessObject implements IDa
     referencedFieldName: string,
     identityColumnName: string,
     fieldValues: (string | number)[],
-  ): Promise<string[]> {
+  ):Promise<Array<Record<string, unknown>>> {
     const schemaName = this.connection.schema.toUpperCase();
     this.validateNamesAndThrowError([tableName, referencedFieldName, identityColumnName, schemaName]);
     const connectionToDb = await this.getConnectionToDatabase();

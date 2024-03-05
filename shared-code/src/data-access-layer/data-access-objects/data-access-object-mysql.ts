@@ -109,7 +109,7 @@ export class DataAccessObjectMysql extends BasicDataAccessObject implements IDat
     referencedFieldName: string,
     identityColumnName: string,
     fieldValues: (string | number)[],
-  ): Promise<string[]> {
+  ):Promise<Array<Record<string, unknown>>> {
     const knex = await this.configureKnex();
     return await knex(tableName)
       .modify((builder) => {
