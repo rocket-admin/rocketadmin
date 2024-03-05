@@ -91,7 +91,7 @@ export class DataAccessObjectAgent implements IDataAccessObjectAgent {
     identityColumnName: string,
     fieldValues: (string | number)[],
     userEmail: string,
-  ): Promise<string[]> {
+  ): Promise<Array<Record<string, unknown>>> {
     const jwtAuthToken = this.generateJWT(this.connection.token);
     try {
       const res = await axios.post(

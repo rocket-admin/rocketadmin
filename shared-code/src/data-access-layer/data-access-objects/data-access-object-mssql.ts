@@ -62,7 +62,7 @@ export class DataAccessObjectMssql extends BasicDataAccessObject implements IDat
     referencedFieldName: string,
     identityColumnName: string,
     fieldValues: (string | number)[],
-  ): Promise<string[]> {
+  ): Promise<Array<Record<string, unknown>>> {
     const knex = await this.configureKnex();
     const schemaName = await this.getSchemaName(tableName);
     tableName = `${schemaName}.[${tableName}]`;

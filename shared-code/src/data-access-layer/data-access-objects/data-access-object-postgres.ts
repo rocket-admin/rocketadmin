@@ -86,7 +86,7 @@ export class DataAccessObjectPostgres extends BasicDataAccessObject implements I
     referencedFieldName: string,
     identityColumnName: string,
     fieldValues: (string | number)[],
-  ): Promise<string[]> {
+  ): Promise<Array<Record<string, unknown>>> {
     const knex: Knex<any, any[]> = await this.configureKnex();
     return knex(tableName)
       .withSchema(this.connection.schema ?? 'public')

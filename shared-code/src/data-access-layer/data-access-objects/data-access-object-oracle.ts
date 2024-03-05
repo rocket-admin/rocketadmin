@@ -133,7 +133,7 @@ export class DataAccessObjectOracle extends BasicDataAccessObject implements IDa
     referencedFieldName: string,
     identityColumnName: string,
     fieldValues: (string | number)[],
-  ): Promise<string[]> {
+  ): Promise<Array<Record<string, unknown>>> {
     const knex = await this.configureKnex();
     tableName = this.attachSchemaNameToTableName(tableName);
     const columnsForSelect = [referencedFieldName];
