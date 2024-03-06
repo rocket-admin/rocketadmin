@@ -5,7 +5,7 @@ import { Messages } from '../../../exceptions/text/messages.js';
 import { TableStructureDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/table-structure.ds.js';
 
 export function findAutocompleteFieldsUtil(
-  query: string,
+  query: Record<string, unknown>,
   tableStructure: Array<TableStructureDS>,
   tableSettings: TableSettingsEntity,
   referencedColumn: string,
@@ -56,6 +56,6 @@ export function findAutocompleteFieldsUtil(
   }
   return {
     fields: autocompleteFields,
-    value: query['autocomplete'] === '' ? '*' : query['autocomplete'],
+    value: query['autocomplete'] === '' ? '*' : query['autocomplete'] as string,
   };
 }

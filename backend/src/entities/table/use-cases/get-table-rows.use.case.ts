@@ -12,7 +12,7 @@ import {
 import { Messages } from '../../../exceptions/text/messages.js';
 import { hexToBinary, isBinary } from '../../../helpers/binary-to-hex.js';
 import { Constants } from '../../../helpers/constants/constants.js';
-import { isConnectionTypeAgent } from '../../../helpers/index.js';
+import { isConnectionTypeAgent, isObjectEmpty } from '../../../helpers/index.js';
 import { AmplitudeService } from '../../amplitude/amplitude.service.js';
 import { buildCreatedTableActionDS } from '../../table-actions/utils/build-created-table-action-ds.js';
 import { TableLogsService } from '../../table-logs/table-logs.service.js';
@@ -52,7 +52,7 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
   protected async implementation(inputData: GetTableRowsDs): Promise<FoundTableRowsDs> {
     let operationResult = OperationResultStatusEnum.unknown;
     // eslint-disable-next-line prefer-const
-    let { connectionId, masterPwd, page, perPage, query, searchingFieldValue, tableName, userId } = inputData;
+    let { connectionId, masterPwd, page, perPage, query, searchingFieldValue, tableName, userId, filters } = inputData;
     const connection = await this._dbContext.connectionRepository.findAndDecryptConnection(connectionId, masterPwd);
     if (!connection) {
       throw new HttpException(
@@ -92,7 +92,8 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
         this._dbContext.tableActionRepository.findTableActions(connectionId, tableName),
       ]);
 
-      const filteringFields = findFilteringFieldsUtil(query, tableStructure);
+      const filteringData = !isObjectEmpty(filters) ? filters : query;
+      const filteringFields = findFilteringFieldsUtil(filteringData, tableStructure);
       const orderingField = findOrderingFieldUtil(query, tableStructure, tableSettings);
 
       const configured = !!tableSettings;

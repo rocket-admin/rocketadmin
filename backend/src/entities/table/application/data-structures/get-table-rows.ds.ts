@@ -3,8 +3,9 @@ export class GetTableRowsDs {
   masterPwd: string;
   page: number;
   perPage: number;
-  query: string;
+  query: Record<string, any>;
   searchingFieldValue: string;
   tableName: string;
   userId: string;
+  filters?: Record<string, unknown>;
 }

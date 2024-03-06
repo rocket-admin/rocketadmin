@@ -6,7 +6,7 @@ import { QueryOrderingEnum } from '../../../enums/index.js';
 import { TableStructureDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/table-structure.ds.js';
 
 export function findOrderingFieldUtil(
-  query: string,
+  query: Record<string, unknown>,
   tableStructure: Array<TableStructureDS>,
   tableSettings: TableSettingsEntity,
 ): OrderingFiledDs {
