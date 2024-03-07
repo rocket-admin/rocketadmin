@@ -435,17 +435,17 @@ export class DataAccessObjectPostgres extends BasicDataAccessObject implements I
     const jsonColumnNames = tableStructure
       .filter(({ data_type }) => data_type.toLowerCase() === 'json')
       .map(({ column_name }) => column_name);
-  
+
     const updatedValues = { ...newValues };
     jsonColumnNames.forEach((key) => {
       if (key in updatedValues) {
         updatedValues[key] = JSON.stringify(updatedValues[key]);
       }
     });
-  
+
     const primaryKeysNames = Object.keys(primaryKeys[0]);
     const primaryKeysValues = primaryKeys.map(Object.values);
-  
+
     const knex = await this.configureKnex();
     return await knex(tableName)
       .withSchema(this.connection.schema ?? 'public')
@@ -453,7 +453,6 @@ export class DataAccessObjectPostgres extends BasicDataAccessObject implements I
       .whereIn(primaryKeysNames, primaryKeysValues)
       .update(updatedValues);
   }
-  
 
   public async validateSettings(settings: ValidateTableSettingsDS, tableName: string): Promise<string[]> {
     const [tableStructure, primaryColumns] = await Promise.all([
@@ -465,36 +464,39 @@ export class DataAccessObjectPostgres extends BasicDataAccessObject implements I
 
   public async getReferencedTableNamesAndColumns(tableName: string): Promise<ReferencedTableNamesAndColumnsDS[]> {
     const primaryColumns = await this.getTablePrimaryColumns(tableName);
-    const schema = this.connection.schema ? this.connection.schema : 'public';
+    const schema = this.connection.schema ?? 'public';
     const knex = await this.configureKnex();
-    const results: Array<ReferencedTableNamesAndColumnsDS> = [];
-    for (const primaryColumn of primaryColumns) {
-      const result = await knex.raw(
-        `
-      SELECT
-          r.table_name, r.column_name
-      FROM information_schema.constraint_column_usage       u
-      INNER JOIN information_schema.referential_constraints fk
-                 ON u.constraint_catalog = fk.unique_constraint_catalog
-                     AND u.constraint_schema = fk.unique_constraint_schema
-                     AND u.constraint_name = fk.unique_constraint_name
-      INNER JOIN information_schema.key_column_usage        r
-                 ON r.constraint_catalog = fk.constraint_catalog
-                     AND r.constraint_schema = fk.constraint_schema
-                     AND r.constraint_name = fk.constraint_name
-      WHERE
-          u.column_name = ? AND
-          u.table_catalog = current_database() AND
-          u.table_schema = ? AND
-          u.table_name = ?
-      `,
-        [primaryColumn.column_name, schema, tableName],
-      );
-      results.push({
-        referenced_on_column_name: primaryColumn.column_name,
-        referenced_by: result.rows,
-      });
-    }
+
+    const results = await Promise.all(
+      primaryColumns.map(async (primaryColumn) => {
+        const result = await knex.raw(
+          `
+        SELECT
+            r.table_name, r.column_name
+        FROM information_schema.constraint_column_usage       u
+        INNER JOIN information_schema.referential_constraints fk
+                   ON u.constraint_catalog = fk.unique_constraint_catalog
+                       AND u.constraint_schema = fk.unique_constraint_schema
+                       AND u.constraint_name = fk.unique_constraint_name
+        INNER JOIN information_schema.key_column_usage        r
+                   ON r.constraint_catalog = fk.constraint_catalog
+                       AND r.constraint_schema = fk.constraint_schema
+                       AND r.constraint_name = fk.constraint_name
+        WHERE
+            u.column_name = ? AND
+            u.table_catalog = current_database() AND
+            u.table_schema = ? AND
+            u.table_name = ?
+        `,
+          [primaryColumn.column_name, schema, tableName],
+        );
+        return {
+          referenced_on_column_name: primaryColumn.column_name,
+          referenced_by: result.rows,
+        };
+      }),
+    );
+
     return results;
   }
 
