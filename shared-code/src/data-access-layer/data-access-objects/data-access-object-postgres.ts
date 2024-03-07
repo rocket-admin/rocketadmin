@@ -387,25 +387,18 @@ export class DataAccessObjectPostgres extends BasicDataAccessObject implements I
 
   public async testConnect(): Promise<TestConnectionResultDS> {
     const knex = await this.configureKnex();
-    let result: { result: boolean; message: string };
     try {
-      result = await knex().select(1);
-      if (result) {
-        return {
-          result: true,
-          message: 'Successfully connected',
-        };
-      }
+      await knex().select(1);
+      return {
+        result: true,
+        message: 'Successfully connected',
+      };
     } catch (e) {
       return {
         result: false,
-        message: e.message,
+        message: e.message || 'Connection failed',
       };
     }
-    return {
-      result: false,
-      message: 'Connection failed',
-    };
   }
 
   public async updateRowInTable(
@@ -415,23 +408,22 @@ export class DataAccessObjectPostgres extends BasicDataAccessObject implements I
   ): Promise<Record<string, unknown>> {
     const tableStructure = await this.getTableStructure(tableName);
     const jsonColumnNames = tableStructure
-      .filter((structEl) => {
-        return structEl.data_type.toLowerCase() === 'json';
-      })
-      .map((structEl) => {
-        return structEl.column_name;
-      });
-    for (const key in row) {
-      if (jsonColumnNames.includes(key)) {
-        row = changeObjPropValByName(row, key, JSON.stringify(getPropertyValueByDescriptor(row, key)));
+      .filter(({ data_type }) => data_type.toLowerCase() === 'json')
+      .map(({ column_name }) => column_name);
+
+    const updatedRow = { ...row };
+    jsonColumnNames.forEach((key) => {
+      if (key in updatedRow) {
+        updatedRow[key] = JSON.stringify(updatedRow[key]);
       }
-    }
+    });
+
     const knex = await this.configureKnex();
     return await knex(tableName)
-      .withSchema(this.connection.schema ? this.connection.schema : 'public')
+      .withSchema(this.connection.schema ?? 'public')
       .returning(Object.keys(primaryKey))
       .where(primaryKey)
-      .update(row);
+      .update(updatedRow);
   }
 
   public async bulkUpdateRowsInTable(
