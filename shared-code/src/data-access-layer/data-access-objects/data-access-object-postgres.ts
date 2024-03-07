@@ -93,20 +93,19 @@ export class DataAccessObjectPostgres extends BasicDataAccessObject implements I
     primaryKey: Record<string, unknown>,
     settings: TableSettingsDS,
   ): Promise<Record<string, unknown>> {
-    if (!settings) {
-      const knex: Knex<any, any[]> = await this.configureKnex();
-      const result = await knex(tableName)
-        .withSchema(this.connection.schema ?? 'public')
-        .where(primaryKey);
-      return result[0] as unknown as Record<string, unknown>;
-    }
-    const tableStructure = await this.getTableStructure(tableName);
-    const availableFields = this.findAvaliableFields(settings, tableStructure);
     const knex: Knex<any, any[]> = await this.configureKnex();
+    let availableFields: string[] = [];
+
+    if (settings) {
+      const tableStructure = await this.getTableStructure(tableName);
+      availableFields = this.findAvaliableFields(settings, tableStructure);
+    }
+
     const result = await knex(tableName)
       .withSchema(this.connection.schema ?? 'public')
-      .select(availableFields)
+      .select(availableFields.length ? availableFields : '*')
       .where(primaryKey);
+
     return result[0] as unknown as Record<string, unknown>;
   }
 
