@@ -16,7 +16,7 @@ import { Constants } from './helpers/constants/constants.js';
 async function bootstrap() {
   const connectionCredentials: ICLIConnectionCredentials = Config.getConnectionConfig();
   await NestFactory.create(AppModule);
-  const remoteWebsocketAddRess = process.env.REMOTE_WEBSOCKET_ADDRESS || 'wss://ws.autoadmin.org:443/';
+  const remoteWebsocketAddRess = process.env.REMOTE_WEBSOCKET_ADDRESS || 'wss://ws.rocketadmin.com:443/';
   function connect() {
     const ws = new WebSocket(remoteWebsocketAddRess);
 
