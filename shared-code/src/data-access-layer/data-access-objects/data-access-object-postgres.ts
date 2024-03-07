@@ -39,33 +39,26 @@ export class DataAccessObjectPostgres extends BasicDataAccessObject implements I
       this.getTableStructure(tableName),
       this.getTablePrimaryColumns(tableName),
     ]);
+
     const jsonColumnNames = tableStructure
-      .filter((structEl) => {
-        return structEl.data_type.toLowerCase() === 'json';
-      })
-      .map((structEl) => {
-        return structEl.column_name;
-      });
+      .filter(({ data_type }) => data_type.toLowerCase() === 'json')
+      .map(({ column_name }) => column_name);
 
-    for (const key in row) {
-      if (jsonColumnNames.includes(key)) {
-        setPropertyValue(row, key, JSON.stringify(getPropertyValue(row, key)));
+    const processedRow = { ...row };
+    jsonColumnNames.forEach((key) => {
+      if (key in processedRow) {
+        processedRow[key] = JSON.stringify(processedRow[key]);
       }
-    }
+    });
 
-    if (primaryColumns?.length > 0) {
-      const primaryKey = primaryColumns.map((column) => column.column_name);
-      const result = await knex(tableName)
-        .withSchema(this.connection.schema ?? 'public')
-        .returning(primaryKey)
-        .insert(row);
-      return result[0] as unknown as Record<string, unknown>;
-    }
-    const rowFields = Object.keys(row);
+    const returningColumns =
+      primaryColumns?.length > 0 ? primaryColumns.map(({ column_name }) => column_name) : Object.keys(row);
+
     const result = await knex(tableName)
       .withSchema(this.connection.schema ?? 'public')
-      .returning(rowFields)
-      .insert(row);
+      .returning(returningColumns)
+      .insert(processedRow);
+
     return result[0] as unknown as Record<string, unknown>;
   }
 
