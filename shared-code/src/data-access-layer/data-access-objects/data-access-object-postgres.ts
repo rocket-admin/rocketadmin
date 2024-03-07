@@ -130,7 +130,6 @@ export class DataAccessObjectPostgres extends BasicDataAccessObject implements I
     const tableSchema = this.connection.schema ?? 'public';
     const tableStructure = await this.getTableStructure(tableName);
     const availableFields = this.findAvaliableFields(settings, tableStructure);
-    let rowsRO: FoundRowsDS;
 
     if (autocompleteFields?.value && autocompleteFields.fields?.length > 0) {
       const { fields, value } = autocompleteFields;
@@ -302,7 +301,6 @@ export class DataAccessObjectPostgres extends BasicDataAccessObject implements I
   public async getTablesFromDB(): Promise<TableDS[]> {
     const knex = await this.configureKnex();
     const schema = this.connection.schema ?? 'public';
-    const database = this.connection.database;
     const query = `
     SELECT table_name, table_type = 'VIEW' AS is_view
     FROM information_schema.tables
@@ -331,74 +329,58 @@ export class DataAccessObjectPostgres extends BasicDataAccessObject implements I
       .orderBy('dtd_identifier')
       .where(`table_name`, tableName)
       .andWhere('table_schema', this.connection.schema ? this.connection.schema : 'public');
-    const customTypeIndexes = [];
+
+    const customTypeIndexes: Array<number> = [];
     result = result.map((element, i) => {
-      element.is_nullable = element.is_nullable === 'YES';
-      renameObjectKeyName(element, 'is_nullable', 'allow_null');
-      if (element.data_type === 'USER-DEFINED') {
+      const { is_nullable, data_type } = element;
+      element.allow_null = is_nullable === 'YES';
+      delete element.is_nullable;
+      if (data_type === 'USER-DEFINED') {
         customTypeIndexes.push(i);
       }
       return element;
     });
 
-    if (customTypeIndexes.length >= 0) {
-      for (let i = 0; i < customTypeIndexes.length; i++) {
-        const customTypeInTableName = result[customTypeIndexes.at(i)].udt_name;
+    if (customTypeIndexes.length > 0) {
+      for (const index of customTypeIndexes) {
+        const customTypeInTableName = result[index].udt_name;
         const customTypeAttrsQueryResult = await knex.raw(
           `select attname, format_type(atttypid, atttypmod)
-           from pg_type
-                    join pg_class on pg_class.oid = pg_type.typrelid
-                    join pg_attribute on pg_attribute.attrelid = pg_class.oid
-           where typname = ?
-           order by attnum`,
+       from pg_type
+                join pg_class on pg_class.oid = pg_type.typrelid
+                join pg_attribute on pg_attribute.attrelid = pg_class.oid
+       where typname = ?
+       order by attnum`,
           customTypeInTableName,
         );
         const customTypeAttrs = customTypeAttrsQueryResult.rows;
         const enumLabelQueryResult = await knex.raw(
           `SELECT e.enumlabel
-           FROM pg_enum e
-                    JOIN pg_type t ON e.enumtypid = t.oid
-           WHERE t.typname = ?`,
+       FROM pg_enum e
+                JOIN pg_type t ON e.enumtypid = t.oid
+       WHERE t.typname = ?`,
           customTypeInTableName,
         );
         let enumLabelRows = [];
         if (enumLabelQueryResult && enumLabelQueryResult.rows && enumLabelQueryResult.rows.length > 0) {
-          enumLabelRows = enumLabelQueryResult.rows;
-
-          enumLabelRows = enumLabelRows.map((el) => {
-            return el.enumlabel;
-          });
+          enumLabelRows = enumLabelQueryResult.rows.map((el) => el.enumlabel);
         }
-        if (enumLabelRows && enumLabelRows.length > 0) {
-          //has own property check for preventing object injection
-          if (result.hasOwnProperty(customTypeIndexes.at(i))) {
-            // eslint-disable-next-line security/detect-object-injection
-            result[customTypeIndexes[i]].data_type = 'enum';
-            // eslint-disable-next-line security/detect-object-injection
-            result[customTypeIndexes[i]].data_type_params = enumLabelRows;
-          }
+        if (enumLabelRows.length > 0) {
+          result[index].data_type = 'enum';
+          result[index].data_type_params = enumLabelRows;
         }
 
         if (customTypeAttrs && customTypeAttrs.length > 0) {
-          const customDataTypeRo = [];
-          for (const attr of customTypeAttrs) {
-            customDataTypeRo.push({
-              column_name: attr.attname,
-              data_type: attr.format_type,
-            });
-          }
-          //has own property check for preventing object injection
-          if (result.hasOwnProperty(customTypeIndexes.at(i))) {
-            // eslint-disable-next-line security/detect-object-injection
-            result[customTypeIndexes[i]].data_type =
-              // eslint-disable-next-line security/detect-object-injection
-              result[customTypeIndexes[i]].udt_name;
-            // eslint-disable-next-line security/detect-object-injection
-            result[customTypeIndexes[i]].data_type_params = customDataTypeRo;
-          }
+          const customDataTypeRo = customTypeAttrs.map((attr) => ({
+            column_name: attr.attname,
+            data_type: attr.format_type,
+          }));
+          result[index].data_type = result[index].udt_name;
+          result[index].data_type_params = customDataTypeRo;
         }
       }
     }
+
     LRUStorage.setTableStructureCache(this.connection, tableName, result);
     return result;
   }
