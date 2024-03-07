@@ -18,7 +18,7 @@ async function bootstrap() {
   const connectionCredentials: ICLIConnectionCredentials = Config.getConnectionConfig();
   await NestFactory.create(AppModule);
   function connect() {
-    const remoteWebsocketAddRess = process.env.REMOTE_WEBSOCKET_ADDRESS || 'wss://ws.autoadmin.org:443/';
+    const remoteWebsocketAddRess = process.env.REMOTE_WEBSOCKET_ADDRESS || 'wss://ws.rocketadmin.com:443/';
     const ws = new WebSocket(remoteWebsocketAddRess);
 
     ws.on('open', function open() {
