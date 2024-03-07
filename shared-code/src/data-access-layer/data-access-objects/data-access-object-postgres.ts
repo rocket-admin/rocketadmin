@@ -81,15 +81,10 @@ export class DataAccessObjectPostgres extends BasicDataAccessObject implements I
     fieldValues: (string | number)[],
   ): Promise<Array<Record<string, unknown>>> {
     const knex: Knex<any, any[]> = await this.configureKnex();
+    const columnsToSelect = identityColumnName ? [referencedFieldName, identityColumnName] : [referencedFieldName];
     return knex(tableName)
       .withSchema(this.connection.schema ?? 'public')
-      .modify((builder) => {
-        if (identityColumnName) {
-          builder.select(referencedFieldName, identityColumnName);
-        } else {
-          builder.select(referencedFieldName);
-        }
-      })
+      .select(columnsToSelect)
       .whereIn(referencedFieldName, fieldValues);
   }
 
