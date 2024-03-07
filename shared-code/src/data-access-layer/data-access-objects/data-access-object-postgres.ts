@@ -433,32 +433,27 @@ export class DataAccessObjectPostgres extends BasicDataAccessObject implements I
   ): Promise<Record<string, unknown>> {
     const tableStructure = await this.getTableStructure(tableName);
     const jsonColumnNames = tableStructure
-      .filter((structEl) => {
-        return structEl.data_type.toLowerCase() === 'json';
-      })
-      .map((structEl) => {
-        return structEl.column_name;
-      });
-    for (const key in newValues) {
-      if (jsonColumnNames.includes(key)) {
-        newValues = changeObjPropValByName(
-          newValues,
-          key,
-          JSON.stringify(getPropertyValueByDescriptor(newValues, key)),
-        );
+      .filter(({ data_type }) => data_type.toLowerCase() === 'json')
+      .map(({ column_name }) => column_name);
+  
+    const updatedValues = { ...newValues };
+    jsonColumnNames.forEach((key) => {
+      if (key in updatedValues) {
+        updatedValues[key] = JSON.stringify(updatedValues[key]);
       }
-    }
-    const primaryKeysNames = Object.keys(primaryKeys[0]);
-    const primaryKeysValues = primaryKeys.map((key) => {
-      return Object.values(key);
     });
+  
+    const primaryKeysNames = Object.keys(primaryKeys[0]);
+    const primaryKeysValues = primaryKeys.map(Object.values);
+  
     const knex = await this.configureKnex();
     return await knex(tableName)
-      .withSchema(this.connection.schema ? this.connection.schema : 'public')
-      .returning(Object.keys(primaryKeys[0]))
+      .withSchema(this.connection.schema ?? 'public')
+      .returning(primaryKeysNames)
       .whereIn(primaryKeysNames, primaryKeysValues)
-      .update(newValues);
+      .update(updatedValues);
   }
+  
 
   public async validateSettings(settings: ValidateTableSettingsDS, tableName: string): Promise<string[]> {
     const [tableStructure, primaryColumns] = await Promise.all([
