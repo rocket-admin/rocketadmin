@@ -97,7 +97,7 @@ export class DataAccessObjectIbmDb2 extends BasicDataAccessObject implements IDa
     referencedFieldName: string,
     identityColumnName: string,
     fieldValues: (string | number)[],
-  ):Promise<Array<Record<string, unknown>>> {
+  ): Promise<Array<Record<string, unknown>>> {
     const schemaName = this.connection.schema.toUpperCase();
     this.validateNamesAndThrowError([tableName, referencedFieldName, identityColumnName, schemaName]);
     const connectionToDb = await this.getConnectionToDatabase();
@@ -125,7 +125,7 @@ export class DataAccessObjectIbmDb2 extends BasicDataAccessObject implements IDa
     let selectFields = '*';
     if (settings) {
       const tableStructure = await this.getTableStructure(tableName);
-      const availableFields = this.findAvaliableFields(settings, tableStructure);
+      const availableFields = this.findAvailableFields(settings, tableStructure);
       selectFields = availableFields.join(', ');
     }
     const query = `
@@ -164,7 +164,7 @@ export class DataAccessObjectIbmDb2 extends BasicDataAccessObject implements IDa
 
     const { large_dataset, rowsCount } = await this.getRowsCount(tableName, this.connection.schema);
     const tableStructure = await this.getTableStructure(tableName);
-    const availableFields = this.findAvaliableFields(settings, tableStructure);
+    const availableFields = this.findAvailableFields(settings, tableStructure);
 
     const lastPage = Math.ceil(rowsCount / perPage);
     let rowsRO: FoundRowsDS;

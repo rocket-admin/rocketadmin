@@ -166,7 +166,7 @@ export class DataAccessObjectOracle extends BasicDataAccessObject implements IDa
 
       if (tableSettings) {
         const tableStructure = await this.getTableStructure(tableName);
-        const availableFields = this.findAvaliableFields(tableSettings, tableStructure);
+        const availableFields = this.findAvailableFields(tableSettings, tableStructure);
         query = query.select(availableFields);
       }
 
@@ -229,7 +229,7 @@ export class DataAccessObjectOracle extends BasicDataAccessObject implements IDa
           : DAO_CONSTANTS.DEFAULT_PAGINATION.perPage;
 
     const tableStructure = await this.getTableStructure(tableName);
-    const availableFields = this.findAvaliableFields(settings, tableStructure);
+    const availableFields = this.findAvailableFields(settings, tableStructure);
 
     let searchedFields =
       settings?.search_fields?.length > 0 ? settings.search_fields : searchedFieldValue ? availableFields : [];
@@ -636,7 +636,7 @@ export class DataAccessObjectOracle extends BasicDataAccessObject implements IDa
     const { page: updatedPage, perPage: updatedPerPage } = this.setupPagination(page, perPage, settings);
 
     const tableStructure = await this.getTableStructure(tableName);
-    const availableFields = this.findAvaliableFields(settings, tableStructure);
+    const availableFields = this.findAvailableFields(settings, tableStructure);
 
     let searchedFields =
       settings.search_fields?.length > 0 ? settings.search_fields : searchedFieldValue ? availableFields : undefined;

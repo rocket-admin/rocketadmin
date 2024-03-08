@@ -89,7 +89,7 @@ export class DataAccessObjectMssql extends BasicDataAccessObject implements IDat
       return (await knex(tableName).where(primaryKey))[0] as unknown as Record<string, unknown>;
     }
     const tableStructure = await this.getTableStructure(tableName);
-    const availableFields = this.findAvaliableFields(tableSettings, tableStructure);
+    const availableFields = this.findAvailableFields(tableSettings, tableStructure);
     const knex = await this.configureKnex();
     const schemaName = await this.getSchemaName(tableName);
     tableName = `${schemaName}.[${tableName}]`;
@@ -119,7 +119,7 @@ export class DataAccessObjectMssql extends BasicDataAccessObject implements IDat
       this.getTableStructure(receivedTableName),
       this.getSchemaName(receivedTableName),
     ]);
-    const availableFields = this.findAvaliableFields(tableSettings, tableStructure);
+    const availableFields = this.findAvailableFields(tableSettings, tableStructure);
     const tableNameWithoutSchema = receivedTableName;
     const tableNameWithSchema = tableSchema ? `${tableSchema}.[${receivedTableName}]` : receivedTableName;
 
@@ -499,7 +499,7 @@ WHERE
       this.getSchemaName(tableName),
     ]);
 
-    const availableFields = this.findAvaliableFields(tableSettings, tableStructure);
+    const availableFields = this.findAvailableFields(tableSettings, tableStructure);
 
     if (rowsCount >= DAO_CONSTANTS.LARGE_DATASET_ROW_LIMIT) {
       throw new Error(ERROR_MESSAGES.DATA_IS_TO_LARGE);

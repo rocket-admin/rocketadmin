@@ -98,7 +98,7 @@ export class DataAccessObjectPostgres extends BasicDataAccessObject implements I
 
     if (settings) {
       const tableStructure = await this.getTableStructure(tableName);
-      availableFields = this.findAvaliableFields(settings, tableStructure);
+      availableFields = this.findAvailableFields(settings, tableStructure);
     }
 
     const result = await knex(tableName)
@@ -129,7 +129,7 @@ export class DataAccessObjectPostgres extends BasicDataAccessObject implements I
     const knex = await this.configureKnex();
     const tableSchema = this.connection.schema ?? 'public';
     const tableStructure = await this.getTableStructure(tableName);
-    const availableFields = this.findAvaliableFields(settings, tableStructure);
+    const availableFields = this.findAvailableFields(settings, tableStructure);
 
     if (autocompleteFields?.value && autocompleteFields.fields?.length > 0) {
       const { fields, value } = autocompleteFields;
@@ -519,24 +519,23 @@ export class DataAccessObjectPostgres extends BasicDataAccessObject implements I
     searchedFieldValue: string,
     filteringFields: Array<FilteringFieldsDS>,
   ): Promise<Stream & AsyncIterable<unknown>> {
-    if (!page || page <= 0) {
-      page = DAO_CONSTANTS.DEFAULT_PAGINATION.page;
-      const { list_per_page } = settings;
-      if (list_per_page && list_per_page > 0 && (!perPage || perPage <= 0)) {
-        perPage = list_per_page;
-      } else {
-        perPage = DAO_CONSTANTS.DEFAULT_PAGINATION.perPage;
-      }
-    }
+    page = page > 0 ? page : DAO_CONSTANTS.DEFAULT_PAGINATION.page;
+    perPage =
+      perPage > 0
+        ? perPage
+        : settings.list_per_page > 0
+          ? settings.list_per_page
+          : DAO_CONSTANTS.DEFAULT_PAGINATION.perPage;
+
     const offset = (page - 1) * perPage;
     const knex = await this.configureKnex();
 
     const tableSchema = this.connection.schema ?? 'public';
-    const [{ rowsCount, large_dataset }, tableStructure] = await Promise.all([
+    const [{ large_dataset }, tableStructure] = await Promise.all([
       this.getRowsCount(knex, null, tableName, tableSchema),
       this.getTableStructure(tableName),
     ]);
-    const availableFields = this.findAvaliableFields(settings, tableStructure);
+    const availableFields = this.findAvailableFields(settings, tableStructure);
 
     if (large_dataset) {
       throw new Error(ERROR_MESSAGES.DATA_IS_TO_LARGE);
@@ -554,7 +553,10 @@ export class DataAccessObjectPostgres extends BasicDataAccessObject implements I
             if (Buffer.isBuffer(searchedFieldValue)) {
               builder.orWhere(field, '=', searchedFieldValue);
             } else {
-              builder.orWhereRaw(` CAST (?? AS VARCHAR (255))=?`, [field, searchedFieldValue]);
+              builder.orWhereRaw(`LOWER(CAST(?? AS VARCHAR(255))) LIKE ?`, [
+                field,
+                `${searchedFieldValue.toLowerCase()}%`,
+              ]);
             }
           }
         }
@@ -563,38 +565,30 @@ export class DataAccessObjectPostgres extends BasicDataAccessObject implements I
         if (filteringFields && filteringFields.length > 0) {
           for (const filterObject of filteringFields) {
             const { field, criteria, value } = filterObject;
-            switch (criteria) {
-              case FilterCriteriaEnum.eq:
-                builder.andWhere(field, '=', `${value}`);
-                break;
-              case FilterCriteriaEnum.startswith:
-                builder.andWhere(field, 'like', `${value}%`);
-                break;
-              case FilterCriteriaEnum.endswith:
-                builder.andWhere(field, 'like', `%${value}`);
-                break;
-              case FilterCriteriaEnum.gt:
-                builder.andWhere(field, '>', value);
-                break;
-              case FilterCriteriaEnum.lt:
-                builder.andWhere(field, '<', value);
-                break;
-              case FilterCriteriaEnum.lte:
-                builder.andWhere(field, '<=', value);
-                break;
-              case FilterCriteriaEnum.gte:
-                builder.andWhere(field, '>=', value);
-                break;
-              case FilterCriteriaEnum.contains:
-                builder.andWhere(field, 'like', `%${value}%`);
-                break;
-              case FilterCriteriaEnum.icontains:
-                builder.andWhereNot(field, 'like', `%${value}%`);
-                break;
-              case FilterCriteriaEnum.empty:
-                builder.orWhereNull(field);
-                builder.orWhere(field, '=', `''`);
-                break;
+            const operators = {
+              [FilterCriteriaEnum.eq]: '=',
+              [FilterCriteriaEnum.startswith]: 'like',
+              [FilterCriteriaEnum.endswith]: 'like',
+              [FilterCriteriaEnum.gt]: '>',
+              [FilterCriteriaEnum.lt]: '<',
+              [FilterCriteriaEnum.lte]: '<=',
+              [FilterCriteriaEnum.gte]: '>=',
+              [FilterCriteriaEnum.contains]: 'like',
+              [FilterCriteriaEnum.icontains]: 'not like',
+              [FilterCriteriaEnum.empty]: ['is', '='],
+            };
+            const values = {
+              [FilterCriteriaEnum.startswith]: `${value}%`,
+              [FilterCriteriaEnum.endswith]: `%${value}`,
+              [FilterCriteriaEnum.contains]: `%${value}%`,
+              [FilterCriteriaEnum.icontains]: `%${value}%`,
+              [FilterCriteriaEnum.empty]: [null, ''],
+            };
+            if (criteria === FilterCriteriaEnum.empty) {
+              builder.where(field, operators[criteria][0], values[criteria][0]);
+              builder.orWhere(field, operators[criteria][1], values[criteria][1]);
+            } else {
+              builder.where(field, operators[criteria], values[criteria] || value);
             }
           }
         }
