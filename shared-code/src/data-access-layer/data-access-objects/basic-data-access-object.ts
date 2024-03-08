@@ -17,7 +17,7 @@ export class BasicDataAccessObject {
     return knexManager.get(this.connection.type)(this.connection);
   }
 
-  protected findAvaliableFields(settings: TableSettingsDS, tableStructure: Array<TableStructureDS>): Array<string> {
+  protected findAvailableFields(settings: TableSettingsDS, tableStructure: Array<TableStructureDS>): Array<string> {
     let availableFields: Array<string> = [];
     const fieldsFromStructure = tableStructure.map((el) => {
       return el.column_name;

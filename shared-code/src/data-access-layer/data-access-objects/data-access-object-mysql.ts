@@ -109,7 +109,7 @@ export class DataAccessObjectMysql extends BasicDataAccessObject implements IDat
     referencedFieldName: string,
     identityColumnName: string,
     fieldValues: (string | number)[],
-  ):Promise<Array<Record<string, unknown>>> {
+  ): Promise<Array<Record<string, unknown>>> {
     const knex = await this.configureKnex();
     return await knex(tableName)
       .modify((builder) => {
@@ -133,7 +133,7 @@ export class DataAccessObjectMysql extends BasicDataAccessObject implements IDat
       return result[0] as Record<string, unknown>;
     }
     const tableStructure = await this.getTableStructure(tableName);
-    const availableFields = this.findAvaliableFields(tableSettings, tableStructure);
+    const availableFields = this.findAvailableFields(tableSettings, tableStructure);
     const result = await knex(tableName).select(availableFields).where(primaryKey);
     return result[0] as Record<string, unknown>;
   }
@@ -158,7 +158,7 @@ export class DataAccessObjectMysql extends BasicDataAccessObject implements IDat
     }
     const knex = await this.configureKnex();
     const [tableStructure] = await Promise.all([this.getTableStructure(tableName)]);
-    const availableFields = this.findAvaliableFields(settings, tableStructure);
+    const availableFields = this.findAvailableFields(settings, tableStructure);
 
     let rowsRO: FoundRowsDS;
 
@@ -565,7 +565,7 @@ export class DataAccessObjectMysql extends BasicDataAccessObject implements IDat
       throw new Error(ERROR_MESSAGES.DATA_IS_TO_LARGE);
     }
 
-    const availableFields = this.findAvaliableFields(settings, tableStructure);
+    const availableFields = this.findAvailableFields(settings, tableStructure);
 
     const rowsAsStream = knex(tableName)
       .select(availableFields)
