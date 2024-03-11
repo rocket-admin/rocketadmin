@@ -108,15 +108,8 @@ export class DataAccessObjectMysql extends BasicDataAccessObject implements IDat
     fieldValues: (string | number)[],
   ): Promise<Array<Record<string, unknown>>> {
     const knex = await this.configureKnex();
-    return await knex(tableName)
-      .modify((builder) => {
-        if (identityColumnName) {
-          builder.select(referencedFieldName, identityColumnName);
-        } else {
-          builder.select(referencedFieldName);
-        }
-      })
-      .whereIn(referencedFieldName, fieldValues);
+    const columnsToSelect = identityColumnName ? [referencedFieldName, identityColumnName] : [referencedFieldName];
+    return await knex(tableName).select(columnsToSelect).whereIn(referencedFieldName, fieldValues);
   }
 
   public async getRowByPrimaryKey(
@@ -124,15 +117,19 @@ export class DataAccessObjectMysql extends BasicDataAccessObject implements IDat
     primaryKey: Record<string, unknown>,
     tableSettings: TableSettingsDS,
   ): Promise<Record<string, unknown>> {
-    const knex = await this.configureKnex();
-    if (!tableSettings) {
-      const result = await knex(tableName).where(primaryKey);
-      return result[0] as Record<string, unknown>;
+    const knex: Knex<any, any[]> = await this.configureKnex();
+    let availableFields: string[] = [];
+
+    if (tableSettings) {
+      const tableStructure = await this.getTableStructure(tableName);
+      availableFields = this.findAvailableFields(tableSettings, tableStructure);
     }
-    const tableStructure = await this.getTableStructure(tableName);
-    const availableFields = this.findAvailableFields(tableSettings, tableStructure);
-    const result = await knex(tableName).select(availableFields).where(primaryKey);
-    return result[0] as Record<string, unknown>;
+
+    const result = await knex(tableName)
+      .select(availableFields.length ? availableFields : '*')
+      .where(primaryKey);
+
+    return result[0] as unknown as Record<string, unknown>;
   }
 
   public async getRowsFromTable(
