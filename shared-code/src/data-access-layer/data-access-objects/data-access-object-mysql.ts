@@ -274,6 +274,7 @@ export class DataAccessObjectMysql extends BasicDataAccessObject implements IDat
     if (cachedForeignKeys) {
       return cachedForeignKeys;
     }
+    const { database } = this.connection;
     const knex = await this.configureKnex();
     const foreignKeys = await knex(tableName)
       .select(
@@ -286,13 +287,12 @@ export class DataAccessObjectMysql extends BasicDataAccessObject implements IDat
           `INFORMATION_SCHEMA.KEY_COLUMN_USAGE WHERE
        TABLE_SCHEMA = ? AND
        TABLE_NAME  = ? AND REFERENCED_COLUMN_NAME IS NOT NULL;`,
-          [this.connection.database, tableName],
+          [database, tableName],
         ),
       );
 
-    const foreignKeysInLowercase = foreignKeys.map((key) => {
-      return objectKeysToLowercase(key);
-    }) as ForeignKeyDS[];
+    const foreignKeysInLowercase = foreignKeys.map(objectKeysToLowercase) as ForeignKeyDS[];
+
     LRUStorage.setTableForeignKeysCache(this.connection, tableName, foreignKeysInLowercase);
     return foreignKeysInLowercase;
   }
