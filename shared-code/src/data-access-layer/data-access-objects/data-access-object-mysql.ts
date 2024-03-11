@@ -392,28 +392,21 @@ public async getTableStructure(tableName: string): Promise<TableStructureDS[]> {
   return structureColumnsInLowercase as TableStructureDS[];
 }
 
-  public async testConnect(): Promise<TestConnectionResultDS> {
-    const knex = await this.configureKnex();
-    let result: { result: boolean; message: string };
-    try {
-      result = await knex().select(1);
-      if (result) {
-        return {
-          result: true,
-          message: 'Successfully connected',
-        };
-      }
-    } catch (e) {
-      return {
-        result: false,
-        message: e.message,
-      };
-    }
+public async testConnect(): Promise<TestConnectionResultDS> {
+  const knex = await this.configureKnex();
+  try {
+    await knex().select(1);
+    return {
+      result: true,
+      message: 'Successfully connected',
+    };
+  } catch (e) {
     return {
       result: false,
-      message: 'Connection failed',
+      message: e.message || 'Connection failed',
     };
   }
+}
 
   public async updateRowInTable(
     tableName: string,
