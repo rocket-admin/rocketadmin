@@ -335,12 +335,11 @@ export class DataAccessObjectMysql extends BasicDataAccessObject implements IDat
       WHERE table_schema = ?
     `;
     const [rows] = await knex.raw(query, [schema, schema]);
-    return rows.map((row: any) => {
-      return {
-        tableName: row.hasOwnProperty('TABLE_NAME') ? row.TABLE_NAME : row.table_name,
-        isView: row.type === 'view',
-      };
-    });
+    
+    return rows.map(({ TABLE_NAME, table_name, type }: any) => ({
+      tableName: TABLE_NAME ?? table_name,
+      isView: type === 'view',
+    }));
   }
 
   public async getTableStructure(tableName: string): Promise<TableStructureDS[]> {
