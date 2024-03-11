@@ -38,57 +38,54 @@ export class DataAccessObjectMysql extends BasicDataAccessObject implements IDat
       this.getTableStructure(tableName),
       this.getTablePrimaryColumns(tableName),
     ]);
-    const jsonColumnNames = tableStructure
-      .filter((structEl) => {
-        return structEl.data_type.toLowerCase() === 'json';
-      })
-      .map((structEl) => {
-        return structEl.column_name;
-      });
+
+    const jsonColumnNames = tableStructure.reduce((acc, structEl) => {
+      if (structEl.data_type.toLowerCase() === 'json') {
+        acc.add(structEl.column_name);
+      }
+      return acc;
+    }, new Set<string>());
 
     for (const key in row) {
-      if (jsonColumnNames.includes(key)) {
+      if (jsonColumnNames.has(key)) {
         setPropertyValue(row, key, JSON.stringify(getPropertyValueByDescriptor(row, key)));
       }
     }
 
-    const primaryKeysInStructure = tableStructure.map((el) => {
-      return tableStructure.find((structureEl) => structureEl.column_name === el.column_name);
-    });
+    let autoIncrementPrimaryKey = null;
 
-    const autoIncrementPrimaryKey = primaryKeysInStructure.find((key) =>
-      checkFieldAutoincrement(key.column_default, key.extra),
-    );
+    for (const el of primaryColumns) {
+      const primaryKeyInStructure = tableStructure.find((structureEl) => structureEl.column_name === el.column_name);
+
+      if (
+        primaryKeyInStructure &&
+        checkFieldAutoincrement(primaryKeyInStructure.column_default, primaryKeyInStructure.extra)
+      ) {
+        autoIncrementPrimaryKey = primaryKeyInStructure;
+        break;
+      }
+    }
 
     const knex = await this.configureKnex();
     await knex.raw('SET SQL_SAFE_UPDATES = 1;');
+
     if (primaryColumns?.length > 0) {
       const primaryKeys = primaryColumns.map((column) => column.column_name);
-      if (!autoIncrementPrimaryKey) {
-        try {
-          await knex(tableName).insert(row);
-          const resultsArray = [];
-          for (let i = 0; i < primaryKeys.length; i++) {
-            // eslint-disable-next-line security/detect-object-injection
-            resultsArray.push([primaryKeys[i], row[primaryKeys[i]]]);
-          }
+      try {
+        await knex(tableName).insert(row);
+        if (!autoIncrementPrimaryKey) {
+          const resultsArray = primaryKeys.map((key) => [key, row[key]]);
           return Object.fromEntries(resultsArray);
-        } catch (e) {
-          throw new Error(e);
-        }
-      } else {
-        try {
-          await knex(tableName).insert(row);
+        } else {
           const lastInsertId = await knex(tableName).select(knex.raw(`LAST_INSERT_ID()`));
-          const resultObj = {};
-          for (const [index, el] of primaryColumns.entries()) {
-            // eslint-disable-next-line security/detect-object-injection
-            resultObj[el.column_name] = lastInsertId[index]['LAST_INSERT_ID()'];
-          }
+          const resultObj = primaryColumns.reduce((obj, el, index) => {
+            obj[el.column_name] = lastInsertId[index]['LAST_INSERT_ID()'];
+            return obj;
+          }, {});
           return resultObj;
-        } catch (e) {
-          throw new Error(e);
         }
+      } catch (e) {
+        throw new Error(e);
       }
     } else {
       await knex(tableName).insert(row).returning(Object.keys(row));
