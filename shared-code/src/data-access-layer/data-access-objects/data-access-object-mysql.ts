@@ -335,59 +335,62 @@ export class DataAccessObjectMysql extends BasicDataAccessObject implements IDat
       WHERE table_schema = ?
     `;
     const [rows] = await knex.raw(query, [schema, schema]);
-    
+
     return rows.map(({ TABLE_NAME, table_name, type }: any) => ({
       tableName: TABLE_NAME ?? table_name,
       isView: type === 'view',
     }));
   }
 
-  public async getTableStructure(tableName: string): Promise<TableStructureDS[]> {
-    const cachedTableStructure = LRUStorage.getTableStructureCache(this.connection, tableName);
-    if (cachedTableStructure) {
-      return cachedTableStructure;
-    }
-    const knex = await this.configureKnex();
-    const structureColumns = await knex('information_schema.columns')
-      .select(
-        'column_name',
-        'column_default',
-        'data_type',
-        'column_type',
-        'is_nullable',
-        'character_maximum_length',
-        'extra',
-      )
-      .orderBy('ordinal_position')
-      .where({
-        table_schema: this.connection.database,
-        table_name: tableName,
-      });
+public async getTableStructure(tableName: string): Promise<TableStructureDS[]> {
+  const cachedTableStructure = LRUStorage.getTableStructureCache(this.connection, tableName);
+  if (cachedTableStructure) {
+    return cachedTableStructure;
+  }
 
-    const structureColumnsInLowercase = structureColumns.map((column) => {
-      return objectKeysToLowercase(column);
+  const knex = await this.configureKnex();
+  const { database } = this.connection;
+
+  const structureColumns = await knex('information_schema.columns')
+    .select(
+      'column_name',
+      'column_default',
+      'data_type',
+      'column_type',
+      'is_nullable',
+      'character_maximum_length',
+      'extra',
+    )
+    .orderBy('ordinal_position')
+    .where({
+      table_schema: database,
+      table_name: tableName,
     });
 
-    for (const element of structureColumnsInLowercase) {
-      element.is_nullable = element.is_nullable === 'YES';
-      renameObjectKeyName(element, 'is_nullable', 'allow_null');
-      if (element.data_type === 'enum') {
-        const receivedStr = element.column_type.slice(6, element.column_type.length - 2);
-        element.data_type_params = receivedStr.split("','");
-      }
-      if (element.data_type === 'set') {
-        const receivedStr = element.column_type.slice(5, element.column_type.length - 2);
-        element.data_type_params = receivedStr.split("','");
-      }
-      element.character_maximum_length = element.character_maximum_length
-        ? element.character_maximum_length
-        : getNumbersFromString(element.column_type)
-          ? getNumbersFromString(element.column_type)
-          : null;
+  const structureColumnsInLowercase = structureColumns.map(objectKeysToLowercase);
+
+  structureColumnsInLowercase.forEach((element) => {
+    element.is_nullable = element.is_nullable === 'YES';
+    renameObjectKeyName(element, 'is_nullable', 'allow_null');
+
+    switch (element.data_type) {
+      case 'enum':
+        element.data_type_params = element.column_type.slice(6, -2).split("','");
+        break;
+      case 'set':
+        element.data_type_params = element.column_type.slice(5, -2).split("','");
+        break;
     }
-    LRUStorage.setTableStructureCache(this.connection, tableName, structureColumnsInLowercase as TableStructureDS[]);
-    return structureColumnsInLowercase as TableStructureDS[];
-  }
+
+    element.character_maximum_length = element.character_maximum_length
+      ?? getNumbersFromString(element.column_type)
+      ?? null;
+  });
+
+  LRUStorage.setTableStructureCache(this.connection, tableName, structureColumnsInLowercase as TableStructureDS[]);
+
+  return structureColumnsInLowercase as TableStructureDS[];
+}
 
   public async testConnect(): Promise<TestConnectionResultDS> {
     const knex = await this.configureKnex();
