@@ -303,6 +303,8 @@ export class DataAccessObjectMysql extends BasicDataAccessObject implements IDat
       return cachedPrimaryColumns;
     }
     const knex = await this.configureKnex();
+    const { database } = this.connection;
+
     const primaryColumns = await knex(tableName)
       .select('COLUMN_NAME', 'DATA_TYPE')
       .from(knex.raw('information_schema.COLUMNS'))
@@ -311,13 +313,11 @@ export class DataAccessObjectMysql extends BasicDataAccessObject implements IDat
           `TABLE_SCHEMA = ? AND
       TABLE_NAME = ? AND
       COLUMN_KEY = 'PRI'`,
-          [this.connection.database, tableName],
+          [database, tableName],
         ),
       );
 
-    const primaryColumnsInLowercase = primaryColumns.map((column) => {
-      return objectKeysToLowercase(column);
-    }) as PrimaryKeyDS[];
+    const primaryColumnsInLowercase = primaryColumns.map(objectKeysToLowercase) as PrimaryKeyDS[];
     LRUStorage.setTablePrimaryKeysCache(this.connection, tableName, primaryColumnsInLowercase);
     return primaryColumnsInLowercase;
   }
