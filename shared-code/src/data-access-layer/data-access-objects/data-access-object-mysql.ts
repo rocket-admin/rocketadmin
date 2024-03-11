@@ -342,71 +342,70 @@ export class DataAccessObjectMysql extends BasicDataAccessObject implements IDat
     }));
   }
 
-public async getTableStructure(tableName: string): Promise<TableStructureDS[]> {
-  const cachedTableStructure = LRUStorage.getTableStructureCache(this.connection, tableName);
-  if (cachedTableStructure) {
-    return cachedTableStructure;
-  }
-
-  const knex = await this.configureKnex();
-  const { database } = this.connection;
-
-  const structureColumns = await knex('information_schema.columns')
-    .select(
-      'column_name',
-      'column_default',
-      'data_type',
-      'column_type',
-      'is_nullable',
-      'character_maximum_length',
-      'extra',
-    )
-    .orderBy('ordinal_position')
-    .where({
-      table_schema: database,
-      table_name: tableName,
-    });
-
-  const structureColumnsInLowercase = structureColumns.map(objectKeysToLowercase);
-
-  structureColumnsInLowercase.forEach((element) => {
-    element.is_nullable = element.is_nullable === 'YES';
-    renameObjectKeyName(element, 'is_nullable', 'allow_null');
-
-    switch (element.data_type) {
-      case 'enum':
-        element.data_type_params = element.column_type.slice(6, -2).split("','");
-        break;
-      case 'set':
-        element.data_type_params = element.column_type.slice(5, -2).split("','");
-        break;
+  public async getTableStructure(tableName: string): Promise<TableStructureDS[]> {
+    const cachedTableStructure = LRUStorage.getTableStructureCache(this.connection, tableName);
+    if (cachedTableStructure) {
+      return cachedTableStructure;
     }
 
-    element.character_maximum_length = element.character_maximum_length
-      ?? getNumbersFromString(element.column_type)
-      ?? null;
-  });
+    const knex = await this.configureKnex();
+    const { database } = this.connection;
 
-  LRUStorage.setTableStructureCache(this.connection, tableName, structureColumnsInLowercase as TableStructureDS[]);
+    const structureColumns = await knex('information_schema.columns')
+      .select(
+        'column_name',
+        'column_default',
+        'data_type',
+        'column_type',
+        'is_nullable',
+        'character_maximum_length',
+        'extra',
+      )
+      .orderBy('ordinal_position')
+      .where({
+        table_schema: database,
+        table_name: tableName,
+      });
 
-  return structureColumnsInLowercase as TableStructureDS[];
-}
+    const structureColumnsInLowercase = structureColumns.map(objectKeysToLowercase);
 
-public async testConnect(): Promise<TestConnectionResultDS> {
-  const knex = await this.configureKnex();
-  try {
-    await knex().select(1);
-    return {
-      result: true,
-      message: 'Successfully connected',
-    };
-  } catch (e) {
-    return {
-      result: false,
-      message: e.message || 'Connection failed',
-    };
+    structureColumnsInLowercase.forEach((element) => {
+      element.is_nullable = element.is_nullable === 'YES';
+      renameObjectKeyName(element, 'is_nullable', 'allow_null');
+
+      switch (element.data_type) {
+        case 'enum':
+          element.data_type_params = element.column_type.slice(6, -2).split("','");
+          break;
+        case 'set':
+          element.data_type_params = element.column_type.slice(5, -2).split("','");
+          break;
+      }
+
+      element.character_maximum_length =
+        element.character_maximum_length ?? getNumbersFromString(element.column_type) ?? null;
+    });
+
+    LRUStorage.setTableStructureCache(this.connection, tableName, structureColumnsInLowercase as TableStructureDS[]);
+
+    return structureColumnsInLowercase as TableStructureDS[];
   }
-}
+
+  public async testConnect(): Promise<TestConnectionResultDS> {
+    const knex = await this.configureKnex();
+    try {
+      await knex().select(1);
+      return {
+        result: true,
+        message: 'Successfully connected',
+      };
+    } catch (e) {
+      return {
+        result: false,
+        message: e.message || 'Connection failed',
+      };
+    }
+  }
 
   public async updateRowInTable(
     tableName: string,
@@ -415,19 +414,18 @@ public async testConnect(): Promise<TestConnectionResultDS> {
   ): Promise<Record<string, unknown>> {
     const knex = await this.configureKnex();
     await knex.raw('SET SQL_SAFE_UPDATES = 1;');
+
     const tableStructure = await this.getTableStructure(tableName);
+
     const jsonColumnNames = tableStructure
-      .filter((structEl) => {
-        return structEl.data_type.toLowerCase() === 'json';
-      })
-      .map((structEl) => {
-        return structEl.column_name;
-      });
-    for (const key in row) {
+      .filter(({ data_type }) => data_type.toLowerCase() === 'json')
+      .map(({ column_name }) => column_name);
+
+    Object.entries(row).forEach(([key, value]) => {
       if (jsonColumnNames.includes(key)) {
-        setPropertyValue(row, key, JSON.stringify(getPropertyValueByDescriptor(row, key)));
+        row[key] = JSON.stringify(value);
       }
-    }
+    });
 
     return await knex(tableName).returning(Object.keys(primaryKey)).where(primaryKey).update(row);
   }
