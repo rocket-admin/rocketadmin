@@ -374,14 +374,12 @@ WHERE TABLE_TYPE = 'VIEW'
     primaryKeys: Record<string, unknown>[],
   ): Promise<Record<string, unknown>> {
     const [knex, schemaName] = await Promise.all([this.configureKnex(), this.getSchemaName(tableName)]);
-    tableName = `${schemaName}.[${tableName}]`;
+    const tableWithSchema = `${schemaName}.[${tableName}]`;
     const primaryKeysNames = Object.keys(primaryKeys[0]);
-    const primaryKeysValues = primaryKeys.map((key) => {
-      return Object.values(key);
-    });
-
-    return await knex(tableName)
-      .returning(Object.keys(primaryKeys[0]))
+    const primaryKeysValues = primaryKeys.map(Object.values);
+  
+    return knex(tableWithSchema)
+      .returning(primaryKeysNames)
       .whereIn(primaryKeysNames, primaryKeysValues)
       .update(newValues);
   }
