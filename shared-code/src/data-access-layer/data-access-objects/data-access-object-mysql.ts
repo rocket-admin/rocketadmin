@@ -38,57 +38,54 @@ export class DataAccessObjectMysql extends BasicDataAccessObject implements IDat
       this.getTableStructure(tableName),
       this.getTablePrimaryColumns(tableName),
     ]);
-    const jsonColumnNames = tableStructure
-      .filter((structEl) => {
-        return structEl.data_type.toLowerCase() === 'json';
-      })
-      .map((structEl) => {
-        return structEl.column_name;
-      });
+
+    const jsonColumnNames = tableStructure.reduce((acc, structEl) => {
+      if (structEl.data_type.toLowerCase() === 'json') {
+        acc.add(structEl.column_name);
+      }
+      return acc;
+    }, new Set<string>());
 
     for (const key in row) {
-      if (jsonColumnNames.includes(key)) {
+      if (jsonColumnNames.has(key)) {
         setPropertyValue(row, key, JSON.stringify(getPropertyValueByDescriptor(row, key)));
       }
     }
 
-    const primaryKeysInStructure = tableStructure.map((el) => {
-      return tableStructure.find((structureEl) => structureEl.column_name === el.column_name);
-    });
+    let autoIncrementPrimaryKey = null;
 
-    const autoIncrementPrimaryKey = primaryKeysInStructure.find((key) =>
-      checkFieldAutoincrement(key.column_default, key.extra),
-    );
+    for (const el of primaryColumns) {
+      const primaryKeyInStructure = tableStructure.find((structureEl) => structureEl.column_name === el.column_name);
+
+      if (
+        primaryKeyInStructure &&
+        checkFieldAutoincrement(primaryKeyInStructure.column_default, primaryKeyInStructure.extra)
+      ) {
+        autoIncrementPrimaryKey = primaryKeyInStructure;
+        break;
+      }
+    }
 
     const knex = await this.configureKnex();
     await knex.raw('SET SQL_SAFE_UPDATES = 1;');
+
     if (primaryColumns?.length > 0) {
       const primaryKeys = primaryColumns.map((column) => column.column_name);
-      if (!autoIncrementPrimaryKey) {
-        try {
-          await knex(tableName).insert(row);
-          const resultsArray = [];
-          for (let i = 0; i < primaryKeys.length; i++) {
-            // eslint-disable-next-line security/detect-object-injection
-            resultsArray.push([primaryKeys[i], row[primaryKeys[i]]]);
-          }
+      try {
+        await knex(tableName).insert(row);
+        if (!autoIncrementPrimaryKey) {
+          const resultsArray = primaryKeys.map((key) => [key, row[key]]);
           return Object.fromEntries(resultsArray);
-        } catch (e) {
-          throw new Error(e);
-        }
-      } else {
-        try {
-          await knex(tableName).insert(row);
+        } else {
           const lastInsertId = await knex(tableName).select(knex.raw(`LAST_INSERT_ID()`));
-          const resultObj = {};
-          for (const [index, el] of primaryColumns.entries()) {
-            // eslint-disable-next-line security/detect-object-injection
-            resultObj[el.column_name] = lastInsertId[index]['LAST_INSERT_ID()'];
-          }
+          const resultObj = primaryColumns.reduce((obj, el, index) => {
+            obj[el.column_name] = lastInsertId[index]['LAST_INSERT_ID()'];
+            return obj;
+          }, {});
           return resultObj;
-        } catch (e) {
-          throw new Error(e);
         }
+      } catch (e) {
+        throw new Error(e);
       }
     } else {
       await knex(tableName).insert(row).returning(Object.keys(row));
@@ -111,15 +108,8 @@ export class DataAccessObjectMysql extends BasicDataAccessObject implements IDat
     fieldValues: (string | number)[],
   ): Promise<Array<Record<string, unknown>>> {
     const knex = await this.configureKnex();
-    return await knex(tableName)
-      .modify((builder) => {
-        if (identityColumnName) {
-          builder.select(referencedFieldName, identityColumnName);
-        } else {
-          builder.select(referencedFieldName);
-        }
-      })
-      .whereIn(referencedFieldName, fieldValues);
+    const columnsToSelect = identityColumnName ? [referencedFieldName, identityColumnName] : [referencedFieldName];
+    return await knex(tableName).select(columnsToSelect).whereIn(referencedFieldName, fieldValues);
   }
 
   public async getRowByPrimaryKey(
@@ -127,15 +117,19 @@ export class DataAccessObjectMysql extends BasicDataAccessObject implements IDat
     primaryKey: Record<string, unknown>,
     tableSettings: TableSettingsDS,
   ): Promise<Record<string, unknown>> {
-    const knex = await this.configureKnex();
-    if (!tableSettings) {
-      const result = await knex(tableName).where(primaryKey);
-      return result[0] as Record<string, unknown>;
+    const knex: Knex<any, any[]> = await this.configureKnex();
+    let availableFields: string[] = [];
+
+    if (tableSettings) {
+      const tableStructure = await this.getTableStructure(tableName);
+      availableFields = this.findAvailableFields(tableSettings, tableStructure);
     }
-    const tableStructure = await this.getTableStructure(tableName);
-    const availableFields = this.findAvailableFields(tableSettings, tableStructure);
-    const result = await knex(tableName).select(availableFields).where(primaryKey);
-    return result[0] as Record<string, unknown>;
+
+    const result = await knex(tableName)
+      .select(availableFields.length ? availableFields : '*')
+      .where(primaryKey);
+
+    return result[0] as unknown as Record<string, unknown>;
   }
 
   public async getRowsFromTable(
@@ -147,42 +141,40 @@ export class DataAccessObjectMysql extends BasicDataAccessObject implements IDat
     filteringFields: FilteringFieldsDS[],
     autocompleteFields: AutocompleteFieldsDS,
   ): Promise<FoundRowsDS> {
-    if (!page || page <= 0) {
-      page = DAO_CONSTANTS.DEFAULT_PAGINATION.page;
-      const { list_per_page } = settings;
-      if (list_per_page && list_per_page > 0 && (!perPage || perPage <= 0)) {
-        perPage = list_per_page;
-      } else {
-        perPage = DAO_CONSTANTS.DEFAULT_PAGINATION.perPage;
-      }
-    }
+    page = page > 0 ? page : DAO_CONSTANTS.DEFAULT_PAGINATION.page;
+    perPage =
+      perPage > 0
+        ? perPage
+        : settings.list_per_page > 0
+          ? settings.list_per_page
+          : DAO_CONSTANTS.DEFAULT_PAGINATION.perPage;
+
     const knex = await this.configureKnex();
-    const [tableStructure] = await Promise.all([this.getTableStructure(tableName)]);
+    const tableStructure = await this.getTableStructure(tableName);
     const availableFields = this.findAvailableFields(settings, tableStructure);
 
-    let rowsRO: FoundRowsDS;
+    if (autocompleteFields?.value && autocompleteFields?.fields?.length > 0) {
+      const { fields, value } = autocompleteFields;
 
-    if (autocompleteFields && autocompleteFields.value && autocompleteFields.fields.length > 0) {
       const rows = await knex(tableName)
-        .select(autocompleteFields.fields)
+        .select(fields)
         .modify((builder) => {
-          /*eslint-disable*/
-          const { fields, value } = autocompleteFields;
           if (value !== '*') {
-            fields.map((field, index) => {
+            fields.forEach((field) => {
               builder.orWhere(field, 'like', `${value}%`);
             });
           } else {
-            return;
+            return builder;
           }
-          /*eslint-enable*/
         })
         .limit(DAO_CONSTANTS.AUTOCOMPLETE_ROW_LIMIT);
+
       const { large_dataset } = await this.getRowsCount(knex, null, tableName, this.connection.database);
-      rowsRO = {
+
+      const rowsRO = {
         data: rows,
         pagination: {} as any,
-        large_dataset: large_dataset,
+        large_dataset,
       };
 
       return rowsRO;
@@ -190,12 +182,11 @@ export class DataAccessObjectMysql extends BasicDataAccessObject implements IDat
 
     const countRowsQB = knex(tableName)
       .modify((builder) => {
-        /*eslint-disable*/
         let { search_fields } = settings;
-        if ((!search_fields || search_fields?.length === 0) && searchedFieldValue) {
+        if (!search_fields?.length && searchedFieldValue) {
           search_fields = availableFields;
         }
-        if (search_fields && searchedFieldValue && search_fields.length > 0) {
+        if (search_fields?.length && searchedFieldValue) {
           for (const field of search_fields) {
             if (Buffer.isBuffer(searchedFieldValue)) {
               builder.orWhere(field, '=', searchedFieldValue);
@@ -204,51 +195,43 @@ export class DataAccessObjectMysql extends BasicDataAccessObject implements IDat
                 field,
                 `${searchedFieldValue.toLowerCase()}%`,
               ]);
-              //  builder.orWhereRaw(` CAST (?? AS CHAR (255))=?`, [field, searchedFieldValue]);
             }
           }
         }
-        /*eslint-enable*/
+        return builder;
       })
       .modify((builder) => {
-        if (filteringFields && filteringFields.length > 0) {
+        if (filteringFields && filteringFields?.length) {
           for (const filterObject of filteringFields) {
             const { field, criteria, value } = filterObject;
-            switch (criteria) {
-              case FilterCriteriaEnum.eq:
-                builder.andWhere(field, '=', `${value}`);
-                break;
-              case FilterCriteriaEnum.startswith:
-                builder.andWhere(field, 'like', `${value}%`);
-                break;
-              case FilterCriteriaEnum.endswith:
-                builder.andWhere(field, 'like', `%${value}`);
-                break;
-              case FilterCriteriaEnum.gt:
-                builder.andWhere(field, '>', value);
-                break;
-              case FilterCriteriaEnum.lt:
-                builder.andWhere(field, '<', value);
-                break;
-              case FilterCriteriaEnum.lte:
-                builder.andWhere(field, '<=', value);
-                break;
-              case FilterCriteriaEnum.gte:
-                builder.andWhere(field, '>=', value);
-                break;
-              case FilterCriteriaEnum.contains:
-                builder.andWhere(field, 'like', `%${value}%`);
-                break;
-              case FilterCriteriaEnum.icontains:
-                builder.andWhereNot(field, 'like', `%${value}%`);
-                break;
-              case FilterCriteriaEnum.empty:
-                builder.orWhereNull(field);
-                builder.orWhere(field, '=', `''`);
-                break;
+            const operators = {
+              [FilterCriteriaEnum.eq]: '=',
+              [FilterCriteriaEnum.startswith]: 'like',
+              [FilterCriteriaEnum.endswith]: 'like',
+              [FilterCriteriaEnum.gt]: '>',
+              [FilterCriteriaEnum.lt]: '<',
+              [FilterCriteriaEnum.lte]: '<=',
+              [FilterCriteriaEnum.gte]: '>=',
+              [FilterCriteriaEnum.contains]: 'like',
+              [FilterCriteriaEnum.icontains]: 'not like',
+              [FilterCriteriaEnum.empty]: ['is', '='],
+            };
+            const values = {
+              [FilterCriteriaEnum.startswith]: `${value}%`,
+              [FilterCriteriaEnum.endswith]: `%${value}`,
+              [FilterCriteriaEnum.contains]: `%${value}%`,
+              [FilterCriteriaEnum.icontains]: `%${value}%`,
+              [FilterCriteriaEnum.empty]: [null, ''],
+            };
+            if (criteria === FilterCriteriaEnum.empty) {
+              builder.where(field, operators[criteria][0], values[criteria][0]);
+              builder.orWhere(field, operators[criteria][1], values[criteria][1]);
+            } else {
+              builder.where(field, operators[criteria], values[criteria] || value);
             }
           }
         }
+        return builder;
       });
 
     const rowsResultQb = countRowsQB.clone();
@@ -261,7 +244,9 @@ export class DataAccessObjectMysql extends BasicDataAccessObject implements IDat
         if (settings.ordering_field && settings.ordering) {
           builder.orderBy(settings.ordering_field, settings.ordering);
         }
+        return builder;
       });
+
     const { large_dataset, rowsCount } = await this.getRowsCount(
       knex,
       countRowsQB,
@@ -272,10 +257,10 @@ export class DataAccessObjectMysql extends BasicDataAccessObject implements IDat
     const pagination = {
       total: rowsCount,
       lastPage: Math.ceil(rowsCount / perPage),
-      perPage: perPage,
+      perPage,
       currentPage: page,
     };
-    rowsRO = {
+    const rowsRO = {
       data: rows,
       pagination,
       large_dataset,
@@ -289,6 +274,7 @@ export class DataAccessObjectMysql extends BasicDataAccessObject implements IDat
     if (cachedForeignKeys) {
       return cachedForeignKeys;
     }
+    const { database } = this.connection;
     const knex = await this.configureKnex();
     const foreignKeys = await knex(tableName)
       .select(
@@ -301,13 +287,12 @@ export class DataAccessObjectMysql extends BasicDataAccessObject implements IDat
           `INFORMATION_SCHEMA.KEY_COLUMN_USAGE WHERE
        TABLE_SCHEMA = ? AND
        TABLE_NAME  = ? AND REFERENCED_COLUMN_NAME IS NOT NULL;`,
-          [this.connection.database, tableName],
+          [database, tableName],
         ),
       );
 
-    const foreignKeysInLowercase = foreignKeys.map((key) => {
-      return objectKeysToLowercase(key);
-    }) as ForeignKeyDS[];
+    const foreignKeysInLowercase = foreignKeys.map(objectKeysToLowercase) as ForeignKeyDS[];
+
     LRUStorage.setTableForeignKeysCache(this.connection, tableName, foreignKeysInLowercase);
     return foreignKeysInLowercase;
   }
@@ -318,6 +303,8 @@ export class DataAccessObjectMysql extends BasicDataAccessObject implements IDat
       return cachedPrimaryColumns;
     }
     const knex = await this.configureKnex();
+    const { database } = this.connection;
+
     const primaryColumns = await knex(tableName)
       .select('COLUMN_NAME', 'DATA_TYPE')
       .from(knex.raw('information_schema.COLUMNS'))
@@ -326,13 +313,11 @@ export class DataAccessObjectMysql extends BasicDataAccessObject implements IDat
           `TABLE_SCHEMA = ? AND
       TABLE_NAME = ? AND
       COLUMN_KEY = 'PRI'`,
-          [this.connection.database, tableName],
+          [database, tableName],
         ),
       );
 
-    const primaryColumnsInLowercase = primaryColumns.map((column) => {
-      return objectKeysToLowercase(column);
-    }) as PrimaryKeyDS[];
+    const primaryColumnsInLowercase = primaryColumns.map(objectKeysToLowercase) as PrimaryKeyDS[];
     LRUStorage.setTablePrimaryKeysCache(this.connection, tableName, primaryColumnsInLowercase);
     return primaryColumnsInLowercase;
   }
@@ -350,12 +335,11 @@ export class DataAccessObjectMysql extends BasicDataAccessObject implements IDat
       WHERE table_schema = ?
     `;
     const [rows] = await knex.raw(query, [schema, schema]);
-    return rows.map((row: any) => {
-      return {
-        tableName: row.hasOwnProperty('TABLE_NAME') ? row.TABLE_NAME : row.table_name,
-        isView: row.type === 'view',
-      };
-    });
+
+    return rows.map(({ TABLE_NAME, table_name, type }: any) => ({
+      tableName: TABLE_NAME ?? table_name,
+      isView: type === 'view',
+    }));
   }
 
   public async getTableStructure(tableName: string): Promise<TableStructureDS[]> {
@@ -363,7 +347,10 @@ export class DataAccessObjectMysql extends BasicDataAccessObject implements IDat
     if (cachedTableStructure) {
       return cachedTableStructure;
     }
+
     const knex = await this.configureKnex();
+    const { database } = this.connection;
+
     const structureColumns = await knex('information_schema.columns')
       .select(
         'column_name',
@@ -376,56 +363,48 @@ export class DataAccessObjectMysql extends BasicDataAccessObject implements IDat
       )
       .orderBy('ordinal_position')
       .where({
-        table_schema: this.connection.database,
+        table_schema: database,
         table_name: tableName,
       });
 
-    const structureColumnsInLowercase = structureColumns.map((column) => {
-      return objectKeysToLowercase(column);
-    });
+    const structureColumnsInLowercase = structureColumns.map(objectKeysToLowercase);
 
-    for (const element of structureColumnsInLowercase) {
+    structureColumnsInLowercase.forEach((element) => {
       element.is_nullable = element.is_nullable === 'YES';
       renameObjectKeyName(element, 'is_nullable', 'allow_null');
-      if (element.data_type === 'enum') {
-        const receivedStr = element.column_type.slice(6, element.column_type.length - 2);
-        element.data_type_params = receivedStr.split("','");
+
+      switch (element.data_type) {
+        case 'enum':
+          element.data_type_params = element.column_type.slice(6, -2).split("','");
+          break;
+        case 'set':
+          element.data_type_params = element.column_type.slice(5, -2).split("','");
+          break;
       }
-      if (element.data_type === 'set') {
-        const receivedStr = element.column_type.slice(5, element.column_type.length - 2);
-        element.data_type_params = receivedStr.split("','");
-      }
-      element.character_maximum_length = element.character_maximum_length
-        ? element.character_maximum_length
-        : getNumbersFromString(element.column_type)
-          ? getNumbersFromString(element.column_type)
-          : null;
-    }
+
+      element.character_maximum_length =
+        element.character_maximum_length ?? getNumbersFromString(element.column_type) ?? null;
+    });
+
     LRUStorage.setTableStructureCache(this.connection, tableName, structureColumnsInLowercase as TableStructureDS[]);
+
     return structureColumnsInLowercase as TableStructureDS[];
   }
 
   public async testConnect(): Promise<TestConnectionResultDS> {
     const knex = await this.configureKnex();
-    let result: { result: boolean; message: string };
     try {
-      result = await knex().select(1);
-      if (result) {
-        return {
-          result: true,
-          message: 'Successfully connected',
-        };
-      }
+      await knex().select(1);
+      return {
+        result: true,
+        message: 'Successfully connected',
+      };
     } catch (e) {
       return {
         result: false,
-        message: e.message,
+        message: e.message || 'Connection failed',
       };
     }
-    return {
-      result: false,
-      message: 'Connection failed',
-    };
   }
 
   public async updateRowInTable(
@@ -435,19 +414,18 @@ export class DataAccessObjectMysql extends BasicDataAccessObject implements IDat
   ): Promise<Record<string, unknown>> {
     const knex = await this.configureKnex();
     await knex.raw('SET SQL_SAFE_UPDATES = 1;');
+
     const tableStructure = await this.getTableStructure(tableName);
+
     const jsonColumnNames = tableStructure
-      .filter((structEl) => {
-        return structEl.data_type.toLowerCase() === 'json';
-      })
-      .map((structEl) => {
-        return structEl.column_name;
-      });
-    for (const key in row) {
+      .filter(({ data_type }) => data_type.toLowerCase() === 'json')
+      .map(({ column_name }) => column_name);
+
+    Object.entries(row).forEach(([key, value]) => {
       if (jsonColumnNames.includes(key)) {
-        setPropertyValue(row, key, JSON.stringify(getPropertyValueByDescriptor(row, key)));
+        row[key] = JSON.stringify(value);
       }
-    }
+    });
 
     return await knex(tableName).returning(Object.keys(primaryKey)).where(primaryKey).update(row);
   }
@@ -461,27 +439,22 @@ export class DataAccessObjectMysql extends BasicDataAccessObject implements IDat
     await knex.raw('SET SQL_SAFE_UPDATES = 1;');
 
     const tableStructure = await this.getTableStructure(tableName);
-    const jsonColumnNames = tableStructure
-      .filter((structEl) => {
-        return structEl.data_type.toLowerCase() === 'json';
-      })
-      .map((structEl) => {
-        return structEl.column_name;
-      });
-    for (const key in newValues) {
-      if (jsonColumnNames.includes(key)) {
-        setPropertyValue(newValues, key, JSON.stringify(getPropertyValueByDescriptor(newValues, key)));
-      }
-    }
 
-    const primaryKeysNames = Object.keys(primaryKeys[0]);
-    const primaryKeysValues = primaryKeys.map((key) => {
-      return Object.values(key);
+    const jsonColumnNames = tableStructure
+      .filter(({ data_type }) => data_type.toLowerCase() === 'json')
+      .map(({ column_name }) => column_name);
+
+    Object.entries(newValues).forEach(([key, value]) => {
+      if (jsonColumnNames.includes(key)) {
+        newValues[key] = JSON.stringify(value);
+      }
     });
 
+    const primaryKeysNames = Object.keys(primaryKeys[0]);
+
     return await knex(tableName)
-      .returning(Object.keys(primaryKeys[0]))
-      .whereIn(primaryKeysNames, primaryKeysValues)
+      .returning(primaryKeysNames)
+      .whereIn(primaryKeysNames, primaryKeys.map(Object.values))
       .update(newValues);
   }
 
@@ -542,18 +515,15 @@ export class DataAccessObjectMysql extends BasicDataAccessObject implements IDat
     searchedFieldValue: string,
     filteringFields: Array<FilteringFieldsDS>,
   ): Promise<Stream & AsyncIterable<unknown>> {
-    if (!page || page <= 0) {
-      page = DAO_CONSTANTS.DEFAULT_PAGINATION.page;
-      const { list_per_page } = settings;
-      if (list_per_page && list_per_page > 0 && (!perPage || perPage <= 0)) {
-        perPage = list_per_page;
-      } else {
-        perPage = DAO_CONSTANTS.DEFAULT_PAGINATION.perPage;
-      }
-    }
+    page = page > 0 ? page : DAO_CONSTANTS.DEFAULT_PAGINATION.page;
+    perPage =
+      perPage > 0
+        ? perPage
+        : settings.list_per_page > 0
+          ? settings.list_per_page
+          : DAO_CONSTANTS.DEFAULT_PAGINATION.perPage;
 
     const offset = (page - 1) * perPage;
-
     const knex = await this.configureKnex();
 
     const [{ large_dataset }, tableStructure] = await Promise.all([
@@ -588,38 +558,30 @@ export class DataAccessObjectMysql extends BasicDataAccessObject implements IDat
         if (filteringFields && filteringFields.length > 0) {
           for (const filterObject of filteringFields) {
             const { field, criteria, value } = filterObject;
-            switch (criteria) {
-              case FilterCriteriaEnum.eq:
-                builder.andWhere(field, '=', `${value}`);
-                break;
-              case FilterCriteriaEnum.startswith:
-                builder.andWhere(field, 'like', `${value}%`);
-                break;
-              case FilterCriteriaEnum.endswith:
-                builder.andWhere(field, 'like', `%${value}`);
-                break;
-              case FilterCriteriaEnum.gt:
-                builder.andWhere(field, '>', value);
-                break;
-              case FilterCriteriaEnum.lt:
-                builder.andWhere(field, '<', value);
-                break;
-              case FilterCriteriaEnum.lte:
-                builder.andWhere(field, '<=', value);
-                break;
-              case FilterCriteriaEnum.gte:
-                builder.andWhere(field, '>=', value);
-                break;
-              case FilterCriteriaEnum.contains:
-                builder.andWhere(field, 'like', `%${value}%`);
-                break;
-              case FilterCriteriaEnum.icontains:
-                builder.andWhereNot(field, 'like', `%${value}%`);
-                break;
-              case FilterCriteriaEnum.empty:
-                builder.orWhereNull(field);
-                builder.orWhere(field, '=', `''`);
-                break;
+            const operators = {
+              [FilterCriteriaEnum.eq]: '=',
+              [FilterCriteriaEnum.startswith]: 'like',
+              [FilterCriteriaEnum.endswith]: 'like',
+              [FilterCriteriaEnum.gt]: '>',
+              [FilterCriteriaEnum.lt]: '<',
+              [FilterCriteriaEnum.lte]: '<=',
+              [FilterCriteriaEnum.gte]: '>=',
+              [FilterCriteriaEnum.contains]: 'like',
+              [FilterCriteriaEnum.icontains]: 'not like',
+              [FilterCriteriaEnum.empty]: ['is', '='],
+            };
+            const values = {
+              [FilterCriteriaEnum.startswith]: `${value}%`,
+              [FilterCriteriaEnum.endswith]: `%${value}`,
+              [FilterCriteriaEnum.contains]: `%${value}%`,
+              [FilterCriteriaEnum.icontains]: `%${value}%`,
+              [FilterCriteriaEnum.empty]: [null, ''],
+            };
+            if (criteria === FilterCriteriaEnum.empty) {
+              builder.where(field, operators[criteria][0], values[criteria][0]);
+              builder.orWhere(field, operators[criteria][1], values[criteria][1]);
+            } else {
+              builder.where(field, operators[criteria], values[criteria] || value);
             }
           }
         }

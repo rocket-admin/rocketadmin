@@ -15,11 +15,6 @@ import { ConnectionParams } from '../shared/data-structures/connections-params.d
 import { FilterCriteriaEnum } from '../shared/enums/filter-criteria.enum.js';
 import { LRUStorage } from '../../caching/lru-storage.js';
 import { DAO_CONSTANTS } from '../../helpers/data-access-objects-constants.js';
-import { getPropertyValueByDescriptor } from '../../helpers/get-property-value-by-descriptor.js';
-import { changeObjPropValByName } from '../../helpers/change-object-property-by-name.js';
-import { getPropertyValue } from '../../helpers/get-property-value.js';
-import { renameObjectKeyName } from '../../helpers/rename-object-keyname.js';
-import { setPropertyValue } from '../../helpers/set-property-value.js';
 import { tableSettingsFieldValidator } from '../../helpers/validation/table-settings-validator.js';
 import { TableDS } from '../shared/data-structures/table.ds.js';
 import { ERROR_MESSAGES } from '../../helpers/errors/error-messages.js';
@@ -174,7 +169,7 @@ export class DataAccessObjectPostgres extends BasicDataAccessObject implements I
         }
       })
       .modify((builder) => {
-        if (filteringFields && filteringFields.length > 0) {
+        if ( filteringFields.length > 0) {
           for (const filterObject of filteringFields) {
             const { field, criteria, value } = filterObject;
             const operators = {
