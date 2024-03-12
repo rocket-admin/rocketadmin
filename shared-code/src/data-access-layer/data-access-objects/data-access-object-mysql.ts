@@ -439,27 +439,22 @@ export class DataAccessObjectMysql extends BasicDataAccessObject implements IDat
     await knex.raw('SET SQL_SAFE_UPDATES = 1;');
 
     const tableStructure = await this.getTableStructure(tableName);
-    const jsonColumnNames = tableStructure
-      .filter((structEl) => {
-        return structEl.data_type.toLowerCase() === 'json';
-      })
-      .map((structEl) => {
-        return structEl.column_name;
-      });
-    for (const key in newValues) {
-      if (jsonColumnNames.includes(key)) {
-        setPropertyValue(newValues, key, JSON.stringify(getPropertyValueByDescriptor(newValues, key)));
-      }
-    }
 
-    const primaryKeysNames = Object.keys(primaryKeys[0]);
-    const primaryKeysValues = primaryKeys.map((key) => {
-      return Object.values(key);
+    const jsonColumnNames = tableStructure
+      .filter(({ data_type }) => data_type.toLowerCase() === 'json')
+      .map(({ column_name }) => column_name);
+
+    Object.entries(newValues).forEach(([key, value]) => {
+      if (jsonColumnNames.includes(key)) {
+        newValues[key] = JSON.stringify(value);
+      }
     });
 
+    const primaryKeysNames = Object.keys(primaryKeys[0]);
+
     return await knex(tableName)
-      .returning(Object.keys(primaryKeys[0]))
-      .whereIn(primaryKeysNames, primaryKeysValues)
+      .returning(primaryKeysNames)
+      .whereIn(primaryKeysNames, primaryKeys.map(Object.values))
       .update(newValues);
   }
 
