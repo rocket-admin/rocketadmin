@@ -345,23 +345,17 @@ WHERE TABLE_TYPE = 'VIEW'
   public async testConnect(): Promise<TestConnectionResultDS> {
     const knex = await this.configureKnex();
     try {
-      const result = await knex().select(1);
-      if (result) {
-        return {
-          result: true,
-          message: 'Successfully connected',
-        };
-      }
+      await knex().select(1);
+      return {
+        result: true,
+        message: 'Successfully connected',
+      };
     } catch (e) {
       return {
         result: false,
-        message: e.message,
+        message: e.message || 'Connection failed',
       };
     }
-    return {
-      result: false,
-      message: 'Connection failed',
-    };
   }
 
   public async updateRowInTable(
