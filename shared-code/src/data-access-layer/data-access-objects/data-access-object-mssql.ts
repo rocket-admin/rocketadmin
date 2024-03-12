@@ -292,9 +292,11 @@ FROM ??.INFORMATION_SCHEMA.TABLES
 WHERE TABLE_TYPE = 'VIEW'
     `;
     let result = await knex.raw(query, [this.connection.database, this.connection.database]);
-    return result.map((table: { TABLE_NAME: string; isView: number }) => {
-      return { tableName: table.TABLE_NAME, isView: table.isView === 1 };
-    });
+    
+    return result.map(({ TABLE_NAME, isView }: { TABLE_NAME: string; isView: number }) => ({
+      tableName: TABLE_NAME,
+      isView: isView === 1,
+    }));
   }
 
   public async getTableStructure(tableName: string): Promise<TableStructureDS[]> {
