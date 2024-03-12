@@ -451,16 +451,14 @@ WHERE TABLE_TYPE = 'VIEW'
     searchedFieldValue: string,
     filteringFields: Array<FilteringFieldsDS>,
   ): Promise<Stream & AsyncIterable<unknown>> {
-    if (!page || page <= 0) {
-      page = DAO_CONSTANTS.DEFAULT_PAGINATION.page;
-      const { list_per_page } = tableSettings;
-      if (list_per_page && list_per_page > 0 && (!perPage || perPage <= 0)) {
-        perPage = list_per_page;
-      } else {
-        perPage = DAO_CONSTANTS.DEFAULT_PAGINATION.perPage;
-      }
-    }
-    const offset = (page - 1) * perPage;
+    page = page > 0 ? page : DAO_CONSTANTS.DEFAULT_PAGINATION.page;
+    perPage =
+      perPage > 0
+        ? perPage
+        : tableSettings.list_per_page > 0
+          ? tableSettings.list_per_page
+          : DAO_CONSTANTS.DEFAULT_PAGINATION.perPage;
+
     const knex = await this.configureKnex();
     const [rowsCount, tableStructure, tableSchema] = await Promise.all([
       this.getRowsCount(tableName, null),
@@ -478,70 +476,67 @@ WHERE TABLE_TYPE = 'VIEW'
       tableName = `${tableSchema}.[${tableName}]`;
     }
 
-    if (!tableSettings?.ordering_field) {
-      tableSettings.ordering_field = availableFields[0];
-      tableSettings.ordering = QueryOrderingEnum.ASC;
-    }
+    tableSettings.ordering_field = tableSettings?.ordering_field || availableFields[0];
+    tableSettings.ordering = tableSettings?.ordering || QueryOrderingEnum.ASC;
+
+    const { ordering_field, ordering } = tableSettings;
+    const offset = (page - 1) * perPage;
+
     const rowsAsStream = knex(tableName)
-      .select(availableFields)
       .modify((builder) => {
-        /*eslint-disable*/
-        let { search_fields } = tableSettings;
-        if ((!search_fields || search_fields?.length === 0) && searchedFieldValue) {
+        let search_fields = tableSettings?.search_fields || [];
+
+        if (search_fields.length === 0 && searchedFieldValue) {
           search_fields = availableFields;
         }
-        if (search_fields && searchedFieldValue && search_fields.length > 0) {
-          for (const field of search_fields) {
+
+        if (searchedFieldValue) {
+          search_fields.forEach((field) => {
             if (Buffer.isBuffer(searchedFieldValue)) {
               builder.orWhere(field, '=', searchedFieldValue);
             } else {
-              builder.orWhereRaw(` CAST (?? AS CHAR (255))=?`, [field, searchedFieldValue]);
+              builder.orWhereRaw(`LOWER(CAST(?? AS CHAR(255))) LIKE ?`, [
+                field,
+                `${searchedFieldValue.toLowerCase()}%`,
+              ]);
             }
-          }
+          });
         }
-        /*eslint-enable*/
       })
       .modify((builder) => {
-        if (filteringFields && filteringFields.length > 0) {
-          for (const filterObject of filteringFields) {
-            const { field, criteria, value } = filterObject;
-            switch (criteria) {
-              case FilterCriteriaEnum.eq:
-                builder.andWhere(field, '=', `${value}`);
-                break;
-              case FilterCriteriaEnum.startswith:
-                builder.andWhere(field, 'like', `${value}%`);
-                break;
-              case FilterCriteriaEnum.endswith:
-                builder.andWhere(field, 'like', `%${value}`);
-                break;
-              case FilterCriteriaEnum.gt:
-                builder.andWhere(field, '>', value);
-                break;
-              case FilterCriteriaEnum.lt:
-                builder.andWhere(field, '<', value);
-                break;
-              case FilterCriteriaEnum.lte:
-                builder.andWhere(field, '<=', value);
-                break;
-              case FilterCriteriaEnum.gte:
-                builder.andWhere(field, '>=', value);
-                break;
-              case FilterCriteriaEnum.contains:
-                builder.andWhere(field, 'like', `%${value}%`);
-                break;
-              case FilterCriteriaEnum.icontains:
-                builder.andWhereNot(field, 'like', `%${value}%`);
-                break;
-              case FilterCriteriaEnum.empty:
-                builder.orWhereNull(field);
-                builder.orWhere(field, '=', `''`);
-                break;
+        if (filteringFields?.length > 0) {
+          for (const { field, criteria, value } of filteringFields) {
+            const operators = {
+              [FilterCriteriaEnum.eq]: '=',
+              [FilterCriteriaEnum.startswith]: 'like',
+              [FilterCriteriaEnum.endswith]: 'like',
+              [FilterCriteriaEnum.gt]: '>',
+              [FilterCriteriaEnum.lt]: '<',
+              [FilterCriteriaEnum.lte]: '<=',
+              [FilterCriteriaEnum.gte]: '>=',
+              [FilterCriteriaEnum.contains]: 'like',
+              [FilterCriteriaEnum.icontains]: 'not like',
+              [FilterCriteriaEnum.empty]: ['is', '='],
+            };
+
+            const values = {
+              [FilterCriteriaEnum.startswith]: `${value}%`,
+              [FilterCriteriaEnum.endswith]: `%${value}`,
+              [FilterCriteriaEnum.contains]: `%${value}%`,
+              [FilterCriteriaEnum.icontains]: `%${value}%`,
+              [FilterCriteriaEnum.empty]: [null, ''],
+            };
+
+            if (criteria === FilterCriteriaEnum.empty) {
+              builder.where(field, operators[criteria][0], values[criteria][0]);
+              builder.orWhere(field, operators[criteria][1], values[criteria][1]);
+            } else {
+              builder.where(field, operators[criteria], values[criteria] || value);
             }
           }
         }
       })
-      .orderBy(tableSettings.ordering_field, tableSettings.ordering)
+      .orderBy(ordering_field, ordering)
       .limit(perPage)
       .offset(offset)
       .stream();
