@@ -62,14 +62,9 @@ export class DataAccessObjectMssql extends BasicDataAccessObject implements IDat
     const knex = await this.configureKnex();
     const schemaName = await this.getSchemaName(tableName);
     tableName = `${schemaName}.[${tableName}]`;
-    return await knex(tableName)
-      .modify((builder) => {
-        if (identityColumnName) {
-          builder.select(referencedFieldName, identityColumnName);
-        } else {
-          builder.select(referencedFieldName);
-        }
-      })
+    const columnsToSelect = identityColumnName ? [referencedFieldName, identityColumnName] : [referencedFieldName];
+    return knex(tableName)
+      .select(columnsToSelect)
       .whereIn(referencedFieldName, fieldValues);
   }
 
