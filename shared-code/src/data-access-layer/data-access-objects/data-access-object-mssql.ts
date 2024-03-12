@@ -364,8 +364,8 @@ WHERE TABLE_TYPE = 'VIEW'
     primaryKey: Record<string, unknown>,
   ): Promise<Record<string, unknown>> {
     const [knex, schemaName] = await Promise.all([this.configureKnex(), this.getSchemaName(tableName)]);
-    tableName = `${schemaName}.[${tableName}]`;
-    return knex(tableName).returning(Object.keys(primaryKey)).where(primaryKey).update(row);
+    const tableWithSchema = `${schemaName}.[${tableName}]`;
+    return knex(tableWithSchema).returning(Object.keys(primaryKey)).where(primaryKey).update(row);
   }
 
   public async bulkUpdateRowsInTable(
