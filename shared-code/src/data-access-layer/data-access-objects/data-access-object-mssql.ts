@@ -564,13 +564,9 @@ WHERE TABLE_TYPE = 'VIEW'
                           sOBJ.schema_id
                               , sOBJ.name
                       ORDER BY [TableName]`);
-    let tableSchema = undefined;
-    for (const row of queryResult) {
-      if (row.TableName.includes(tableName)) {
-        tableSchema = row.TableName.split('.')[0];
-      }
-    }
-    return tableSchema;
+
+    const row = queryResult.find((row: any) => row.TableName.includes(tableName));
+    return row ? row.TableName.split('.')[0] : undefined;
   }
 
   private async getRowsCount(tableName: string, countRowsQB: Knex.QueryBuilder<any, any[]> | null): Promise<number> {
