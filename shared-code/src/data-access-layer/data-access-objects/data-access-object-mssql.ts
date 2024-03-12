@@ -292,7 +292,7 @@ FROM ??.INFORMATION_SCHEMA.TABLES
 WHERE TABLE_TYPE = 'VIEW'
     `;
     let result = await knex.raw(query, [this.connection.database, this.connection.database]);
-    
+
     return result.map(({ TABLE_NAME, isView }: { TABLE_NAME: string; isView: number }) => ({
       tableName: TABLE_NAME,
       isView: isView === 1,
@@ -304,13 +304,14 @@ WHERE TABLE_TYPE = 'VIEW'
     if (cachedTableStructure) {
       return cachedTableStructure;
     }
+    const { database } = this.connection;
     const knex = await this.configureKnex();
     const schema = await this.getSchemaNameWithoutBrackets(tableName);
     const structureColumns = await knex('information_schema.COLUMNS')
       .select('COLUMN_NAME', 'COLUMN_DEFAULT', 'DATA_TYPE', 'IS_NULLABLE', 'CHARACTER_MAXIMUM_LENGTH')
       .orderBy('ORDINAL_POSITION')
       .where({
-        table_catalog: this.connection.database,
+        table_catalog: database,
         table_name: tableName,
         table_schema: schema,
       });
@@ -322,14 +323,12 @@ WHERE TABLE_TYPE = 'VIEW'
            AND TABLE_CATALOG = ?
            AND TABLE_NAME = ?
            AND TABLE_SCHEMA = ?`,
-      [this.connection.database, tableName, schema],
+      [database, tableName, schema],
     );
 
     generatedColumns = generatedColumns.map((column) => column.COLUMN_NAME);
 
-    const structureColumnsInLowercase = structureColumns.map((column) => {
-      return objectKeysToLowercase(column);
-    });
+    const structureColumnsInLowercase = structureColumns.map(objectKeysToLowercase);
 
     structureColumnsInLowercase.map((column) => {
       renameObjectKeyName(column, 'is_nullable', 'allow_null');
