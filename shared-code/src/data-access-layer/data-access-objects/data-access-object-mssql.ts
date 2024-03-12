@@ -236,9 +236,9 @@ export class DataAccessObjectMssql extends BasicDataAccessObject implements IDat
          AND ccu.TABLE_SCHEMA = ?`,
       [tableName, schema],
     );
-    const foreignKeysInLowercase: ForeignKeyDS[] = foreignKeys.map((key: Record<string, unknown>) => {
-      return objectKeysToLowercase(key);
-    });
+
+    const foreignKeysInLowercase: ForeignKeyDS[] = foreignKeys.map(objectKeysToLowercase);
+
     LRUStorage.setTableForeignKeysCache(this.connection, tableName, foreignKeysInLowercase);
     return foreignKeysInLowercase;
   }
