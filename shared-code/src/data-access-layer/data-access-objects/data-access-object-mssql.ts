@@ -34,17 +34,13 @@ export class DataAccessObjectMssql extends BasicDataAccessObject implements IDat
   ): Promise<number | Record<string, unknown>> {
     const knex = await this.configureKnex();
     const primaryColumns = await this.getTablePrimaryColumns(tableName);
-    const primaryKeys = primaryColumns.map((column) => column.column_name);
+    const primaryKeys = primaryColumns.map(({ column_name }) => column_name);
     const schemaName = await this.getSchemaName(tableName);
-    tableName = `${schemaName}.[${tableName}]`;
-    if (primaryColumns?.length > 0) {
-      const result = await knex(tableName).returning(primaryKeys).insert(row);
-      return result[0];
-    } else {
-      const rowKeys = Object.keys(row);
-      const result = await knex(tableName).returning(rowKeys).insert(row);
-      return result[0];
-    }
+  
+    const keysToReturn = primaryColumns?.length > 0 ? primaryKeys : Object.keys(row);
+    const result = await knex(`${schemaName}.[${tableName}]`).returning(keysToReturn).insert(row);
+  
+    return result[0];
   }
 
   public async deleteRowInTable(
