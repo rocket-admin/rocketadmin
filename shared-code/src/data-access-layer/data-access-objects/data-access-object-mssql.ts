@@ -377,7 +377,7 @@ WHERE TABLE_TYPE = 'VIEW'
     const tableWithSchema = `${schemaName}.[${tableName}]`;
     const primaryKeysNames = Object.keys(primaryKeys[0]);
     const primaryKeysValues = primaryKeys.map(Object.values);
-  
+
     return knex(tableWithSchema)
       .returning(primaryKeysNames)
       .whereIn(primaryKeysNames, primaryKeysValues)
@@ -395,34 +395,38 @@ WHERE TABLE_TYPE = 'VIEW'
   public async getReferencedTableNamesAndColumns(tableName: string): Promise<ReferencedTableNamesAndColumnsDS[]> {
     const primaryColumns = await this.getTablePrimaryColumns(tableName);
     const knex = await this.configureKnex();
-    const results: Array<ReferencedTableNamesAndColumnsDS> = [];
-    for (const primaryColumn of primaryColumns) {
-      const result = await knex.raw(
-        `
-SELECT 
-  OBJECT_NAME(f.parent_object_id) "table_name",
-  COL_NAME(fc.parent_object_id,fc.parent_column_id) "column_name"
-FROM 
-   sys.foreign_keys AS f
-INNER JOIN 
-  sys.foreign_key_columns AS fc 
-    ON f.OBJECT_ID = fc.constraint_object_id
-INNER JOIN 
-  sys.tables t 
-   ON t.OBJECT_ID = fc.referenced_object_id
-WHERE 
-   OBJECT_NAME (f.referenced_object_id) = ?
-      `,
-        tableName,
-      );
-      let resultValue = result[0] || [];
-      resultValue = Array.isArray(resultValue) ? resultValue : [resultValue];
-      results.push({
-        referenced_on_column_name: primaryColumn.column_name,
-        referenced_by: resultValue,
-      });
-    }
-    return results;
+
+    const queries = primaryColumns.map((primaryColumn) =>
+      knex
+        .raw(
+          `
+  SELECT 
+    OBJECT_NAME(f.parent_object_id) "table_name",
+    COL_NAME(fc.parent_object_id,fc.parent_column_id) "column_name"
+  FROM 
+     sys.foreign_keys AS f
+  INNER JOIN 
+    sys.foreign_key_columns AS fc 
+      ON f.OBJECT_ID = fc.constraint_object_id
+  INNER JOIN 
+    sys.tables t 
+     ON t.OBJECT_ID = fc.referenced_object_id
+  WHERE 
+     OBJECT_NAME (f.referenced_object_id) = ?
+        `,
+          tableName,
+        )
+        .then((result) => {
+          let resultValue = result[0] || [];
+          resultValue = Array.isArray(resultValue) ? resultValue : [resultValue];
+          return {
+            referenced_on_column_name: primaryColumn.column_name,
+            referenced_by: resultValue,
+          };
+        }),
+    );
+
+    return Promise.all(queries);
   }
 
   public async isView(tableName: string): Promise<boolean> {
