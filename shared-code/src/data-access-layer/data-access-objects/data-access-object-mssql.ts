@@ -34,17 +34,13 @@ export class DataAccessObjectMssql extends BasicDataAccessObject implements IDat
   ): Promise<number | Record<string, unknown>> {
     const knex = await this.configureKnex();
     const primaryColumns = await this.getTablePrimaryColumns(tableName);
-    const primaryKeys = primaryColumns.map((column) => column.column_name);
+    const primaryKeys = primaryColumns.map(({ column_name }) => column_name);
     const schemaName = await this.getSchemaName(tableName);
-    tableName = `${schemaName}.[${tableName}]`;
-    if (primaryColumns?.length > 0) {
-      const result = await knex(tableName).returning(primaryKeys).insert(row);
-      return result[0];
-    } else {
-      const rowKeys = Object.keys(row);
-      const result = await knex(tableName).returning(rowKeys).insert(row);
-      return result[0];
-    }
+
+    const keysToReturn = primaryColumns?.length > 0 ? primaryKeys : Object.keys(row);
+    const result = await knex(`${schemaName}.[${tableName}]`).returning(keysToReturn).insert(row);
+
+    return result[0];
   }
 
   public async deleteRowInTable(
@@ -66,15 +62,8 @@ export class DataAccessObjectMssql extends BasicDataAccessObject implements IDat
     const knex = await this.configureKnex();
     const schemaName = await this.getSchemaName(tableName);
     tableName = `${schemaName}.[${tableName}]`;
-    return await knex(tableName)
-      .modify((builder) => {
-        if (identityColumnName) {
-          builder.select(referencedFieldName, identityColumnName);
-        } else {
-          builder.select(referencedFieldName);
-        }
-      })
-      .whereIn(referencedFieldName, fieldValues);
+    const columnsToSelect = identityColumnName ? [referencedFieldName, identityColumnName] : [referencedFieldName];
+    return knex(tableName).select(columnsToSelect).whereIn(referencedFieldName, fieldValues);
   }
 
   public async getRowByPrimaryKey(
@@ -82,18 +71,17 @@ export class DataAccessObjectMssql extends BasicDataAccessObject implements IDat
     primaryKey: Record<string, unknown>,
     tableSettings: TableSettingsDS,
   ): Promise<Record<string, unknown>> {
-    if (!tableSettings) {
-      const schemaName = await this.getSchemaName(tableName);
-      tableName = `${schemaName}.[${tableName}]`;
-      const knex = await this.configureKnex();
-      return (await knex(tableName).where(primaryKey))[0] as unknown as Record<string, unknown>;
-    }
-    const tableStructure = await this.getTableStructure(tableName);
-    const availableFields = this.findAvailableFields(tableSettings, tableStructure);
     const knex = await this.configureKnex();
     const schemaName = await this.getSchemaName(tableName);
     tableName = `${schemaName}.[${tableName}]`;
-    return (await knex(tableName).select(availableFields).where(primaryKey))[0] as unknown as Record<string, unknown>;
+
+    let fieldsToSelect: string | Array<string> = '*';
+    if (tableSettings) {
+      const tableStructure = await this.getTableStructure(tableName);
+      fieldsToSelect = this.findAvailableFields(tableSettings, tableStructure);
+    }
+
+    return (await knex(tableName).select(fieldsToSelect).where(primaryKey))[0] as unknown as Record<string, unknown>;
   }
 
   public async getRowsFromTable(
@@ -105,140 +93,126 @@ export class DataAccessObjectMssql extends BasicDataAccessObject implements IDat
     filteringFields: FilteringFieldsDS[],
     autocompleteFields: AutocompleteFieldsDS,
   ): Promise<FoundRowsDS> {
-    if (!page || page <= 0) {
-      page = DAO_CONSTANTS.DEFAULT_PAGINATION.page;
-      const { list_per_page } = tableSettings;
-      if (list_per_page && list_per_page > 0 && (!perPage || perPage <= 0)) {
-        perPage = list_per_page;
-      } else {
-        perPage = DAO_CONSTANTS.DEFAULT_PAGINATION.perPage;
-      }
-    }
+    page = page > 0 ? page : DAO_CONSTANTS.DEFAULT_PAGINATION.page;
+    perPage =
+      perPage > 0
+        ? perPage
+        : tableSettings.list_per_page > 0
+          ? tableSettings.list_per_page
+          : DAO_CONSTANTS.DEFAULT_PAGINATION.perPage;
+
     const knex = await this.configureKnex();
     const [tableStructure, tableSchema] = await Promise.all([
       this.getTableStructure(receivedTableName),
       this.getSchemaName(receivedTableName),
     ]);
+
     const availableFields = this.findAvailableFields(tableSettings, tableStructure);
     const tableNameWithoutSchema = receivedTableName;
     const tableNameWithSchema = tableSchema ? `${tableSchema}.[${receivedTableName}]` : receivedTableName;
 
-    /* eslint-enable */
-    let rowsRO: FoundRowsDS;
     if (autocompleteFields && autocompleteFields.value && autocompleteFields.fields.length > 0) {
       const rows = await knex(tableNameWithSchema)
         .select(autocompleteFields.fields)
         .modify((builder) => {
-          /*eslint-disable*/
-          const { fields, value } = autocompleteFields;
-          if (value !== '*') {
-            fields.map((field, index) => {
-              builder.orWhere(field, 'like', `${value}%`);
+          if (autocompleteFields.value !== '*') {
+            autocompleteFields.fields.forEach((field) => {
+              builder.orWhere(field, 'like', `${autocompleteFields.value}%`);
             });
-          } else {
-            return;
           }
-          /*eslint-enable*/
         })
         .limit(DAO_CONSTANTS.AUTOCOMPLETE_ROW_LIMIT);
+
       const rowsCount = await this.getRowsCount(tableNameWithoutSchema, null);
-      rowsRO = {
+
+      return {
         data: rows,
         pagination: {} as any,
         large_dataset: rowsCount >= DAO_CONSTANTS.LARGE_DATASET_ROW_LIMIT,
       };
-
-      return rowsRO;
     }
 
-    if (!tableSettings?.ordering_field) {
-      tableSettings.ordering_field = availableFields[0];
-      tableSettings.ordering = QueryOrderingEnum.ASC;
-    }
+    tableSettings.ordering_field = tableSettings?.ordering_field || availableFields[0];
+    tableSettings.ordering = tableSettings?.ordering || QueryOrderingEnum.ASC;
+
     const rowsCountQuery = knex(tableNameWithSchema)
       .modify((builder) => {
-        /*eslint-disable*/
-        let { search_fields } = tableSettings;
-        if ((!search_fields || search_fields?.length === 0) && searchedFieldValue) {
+        let search_fields = tableSettings?.search_fields || [];
+
+        if (search_fields.length === 0 && searchedFieldValue) {
           search_fields = availableFields;
         }
-        if (search_fields && searchedFieldValue && search_fields.length > 0) {
-          for (const field of search_fields) {
+
+        if (searchedFieldValue) {
+          search_fields.forEach((field) => {
             if (Buffer.isBuffer(searchedFieldValue)) {
               builder.orWhere(field, '=', searchedFieldValue);
             } else {
-              builder.orWhereRaw(` LOWER(CAST (?? AS CHAR (255))) LIKE ?`, [
+              builder.orWhereRaw(`LOWER(CAST(?? AS CHAR(255))) LIKE ?`, [
                 field,
                 `${searchedFieldValue.toLowerCase()}%`,
               ]);
-              // builder.orWhereRaw(` CAST (?? AS CHAR (255))=?`, [field, searchedFieldValue]);
             }
-          }
+          });
         }
-        /*eslint-enable*/
       })
       .modify((builder) => {
-        if (filteringFields && filteringFields.length > 0) {
-          for (const filterObject of filteringFields) {
-            const { field, criteria, value } = filterObject;
-            switch (criteria) {
-              case FilterCriteriaEnum.eq:
-                builder.andWhere(field, '=', `${value}`);
-                break;
-              case FilterCriteriaEnum.startswith:
-                builder.andWhere(field, 'like', `${value}%`);
-                break;
-              case FilterCriteriaEnum.endswith:
-                builder.andWhere(field, 'like', `%${value}`);
-                break;
-              case FilterCriteriaEnum.gt:
-                builder.andWhere(field, '>', value);
-                break;
-              case FilterCriteriaEnum.lt:
-                builder.andWhere(field, '<', value);
-                break;
-              case FilterCriteriaEnum.lte:
-                builder.andWhere(field, '<=', value);
-                break;
-              case FilterCriteriaEnum.gte:
-                builder.andWhere(field, '>=', value);
-                break;
-              case FilterCriteriaEnum.contains:
-                builder.andWhere(field, 'like', `%${value}%`);
-                break;
-              case FilterCriteriaEnum.icontains:
-                builder.andWhereNot(field, 'like', `%${value}%`);
-                break;
-              case FilterCriteriaEnum.empty:
-                builder.orWhereNull(field);
-                builder.orWhere(field, '=', `''`);
-                break;
+        if (filteringFields?.length > 0) {
+          for (const { field, criteria, value } of filteringFields) {
+            const operators = {
+              [FilterCriteriaEnum.eq]: '=',
+              [FilterCriteriaEnum.startswith]: 'like',
+              [FilterCriteriaEnum.endswith]: 'like',
+              [FilterCriteriaEnum.gt]: '>',
+              [FilterCriteriaEnum.lt]: '<',
+              [FilterCriteriaEnum.lte]: '<=',
+              [FilterCriteriaEnum.gte]: '>=',
+              [FilterCriteriaEnum.contains]: 'like',
+              [FilterCriteriaEnum.icontains]: 'not like',
+              [FilterCriteriaEnum.empty]: ['is', '='],
+            };
+
+            const values = {
+              [FilterCriteriaEnum.startswith]: `${value}%`,
+              [FilterCriteriaEnum.endswith]: `%${value}`,
+              [FilterCriteriaEnum.contains]: `%${value}%`,
+              [FilterCriteriaEnum.icontains]: `%${value}%`,
+              [FilterCriteriaEnum.empty]: [null, ''],
+            };
+
+            if (criteria === FilterCriteriaEnum.empty) {
+              builder.where(field, operators[criteria][0], values[criteria][0]);
+              builder.orWhere(field, operators[criteria][1], values[criteria][1]);
+            } else {
+              builder.where(field, operators[criteria], values[criteria] || value);
             }
           }
         }
       });
+
     const rowsDataQuery = rowsCountQuery.clone();
 
     const rowsCount = await this.getRowsCount(tableNameWithoutSchema, rowsCountQuery);
 
+    const { ordering_field, ordering } = tableSettings;
     const rows = await rowsDataQuery
       .select(availableFields)
-      .orderBy(tableSettings.ordering_field, tableSettings.ordering)
+      .orderBy(ordering_field, ordering)
       .limit(perPage)
       .offset((page - 1) * perPage);
 
     const pagination = {
       total: rowsCount,
       lastPage: Math.ceil(rowsCount / perPage),
-      perPage: perPage,
+      perPage,
       currentPage: page,
     };
-    rowsRO = {
+
+    return {
       data: rows,
       pagination,
       large_dataset: rowsCount >= DAO_CONSTANTS.LARGE_DATASET_ROW_LIMIT,
     };
-    return rowsRO;
   }
 
   public async getTableForeignKeys(tableName: string): Promise<ForeignKeyDS[]> {
@@ -262,9 +236,9 @@ export class DataAccessObjectMssql extends BasicDataAccessObject implements IDat
          AND ccu.TABLE_SCHEMA = ?`,
       [tableName, schema],
     );
-    const foreignKeysInLowercase: ForeignKeyDS[] = foreignKeys.map((key: Record<string, unknown>) => {
-      return objectKeysToLowercase(key);
-    });
+
+    const foreignKeysInLowercase: ForeignKeyDS[] = foreignKeys.map(objectKeysToLowercase);
+
     LRUStorage.setTableForeignKeysCache(this.connection, tableName, foreignKeysInLowercase);
     return foreignKeysInLowercase;
   }
@@ -293,9 +267,7 @@ export class DataAccessObjectMssql extends BasicDataAccessObject implements IDat
       [tableName, schema],
     );
 
-    const primaryColumnsInLowercase: PrimaryKeyDS[] = primaryColumns.map((column: Record<string, unknown>) => {
-      return objectKeysToLowercase(column);
-    });
+    const primaryColumnsInLowercase: PrimaryKeyDS[] = primaryColumns.map(objectKeysToLowercase);
     LRUStorage.setTablePrimaryKeysCache(this.connection, tableName, primaryColumnsInLowercase);
     return primaryColumnsInLowercase;
   }
@@ -320,9 +292,11 @@ FROM ??.INFORMATION_SCHEMA.TABLES
 WHERE TABLE_TYPE = 'VIEW'
     `;
     let result = await knex.raw(query, [this.connection.database, this.connection.database]);
-    return result.map((table: { TABLE_NAME: string; isView: number }) => {
-      return { tableName: table.TABLE_NAME, isView: table.isView === 1 };
-    });
+
+    return result.map(({ TABLE_NAME, isView }: { TABLE_NAME: string; isView: number }) => ({
+      tableName: TABLE_NAME,
+      isView: isView === 1,
+    }));
   }
 
   public async getTableStructure(tableName: string): Promise<TableStructureDS[]> {
@@ -330,13 +304,14 @@ WHERE TABLE_TYPE = 'VIEW'
     if (cachedTableStructure) {
       return cachedTableStructure;
     }
+    const { database } = this.connection;
     const knex = await this.configureKnex();
     const schema = await this.getSchemaNameWithoutBrackets(tableName);
     const structureColumns = await knex('information_schema.COLUMNS')
       .select('COLUMN_NAME', 'COLUMN_DEFAULT', 'DATA_TYPE', 'IS_NULLABLE', 'CHARACTER_MAXIMUM_LENGTH')
       .orderBy('ORDINAL_POSITION')
       .where({
-        table_catalog: this.connection.database,
+        table_catalog: database,
         table_name: tableName,
         table_schema: schema,
       });
@@ -348,14 +323,12 @@ WHERE TABLE_TYPE = 'VIEW'
            AND TABLE_CATALOG = ?
            AND TABLE_NAME = ?
            AND TABLE_SCHEMA = ?`,
-      [this.connection.database, tableName, schema],
+      [database, tableName, schema],
     );
 
     generatedColumns = generatedColumns.map((column) => column.COLUMN_NAME);
 
-    const structureColumnsInLowercase = structureColumns.map((column) => {
-      return objectKeysToLowercase(column);
-    });
+    const structureColumnsInLowercase = structureColumns.map(objectKeysToLowercase);
 
     structureColumnsInLowercase.map((column) => {
       renameObjectKeyName(column, 'is_nullable', 'allow_null');
@@ -372,23 +345,17 @@ WHERE TABLE_TYPE = 'VIEW'
   public async testConnect(): Promise<TestConnectionResultDS> {
     const knex = await this.configureKnex();
     try {
-      const result = await knex().select(1);
-      if (result) {
-        return {
-          result: true,
-          message: 'Successfully connected',
-        };
-      }
+      await knex().select(1);
+      return {
+        result: true,
+        message: 'Successfully connected',
+      };
     } catch (e) {
       return {
         result: false,
-        message: e.message,
+        message: e.message || 'Connection failed',
       };
     }
-    return {
-      result: false,
-      message: 'Connection failed',
-    };
   }
 
   public async updateRowInTable(
@@ -397,8 +364,8 @@ WHERE TABLE_TYPE = 'VIEW'
     primaryKey: Record<string, unknown>,
   ): Promise<Record<string, unknown>> {
     const [knex, schemaName] = await Promise.all([this.configureKnex(), this.getSchemaName(tableName)]);
-    tableName = `${schemaName}.[${tableName}]`;
-    return knex(tableName).returning(Object.keys(primaryKey)).where(primaryKey).update(row);
+    const tableWithSchema = `${schemaName}.[${tableName}]`;
+    return knex(tableWithSchema).returning(Object.keys(primaryKey)).where(primaryKey).update(row);
   }
 
   public async bulkUpdateRowsInTable(
@@ -407,14 +374,12 @@ WHERE TABLE_TYPE = 'VIEW'
     primaryKeys: Record<string, unknown>[],
   ): Promise<Record<string, unknown>> {
     const [knex, schemaName] = await Promise.all([this.configureKnex(), this.getSchemaName(tableName)]);
-    tableName = `${schemaName}.[${tableName}]`;
+    const tableWithSchema = `${schemaName}.[${tableName}]`;
     const primaryKeysNames = Object.keys(primaryKeys[0]);
-    const primaryKeysValues = primaryKeys.map((key) => {
-      return Object.values(key);
-    });
+    const primaryKeysValues = primaryKeys.map(Object.values);
 
-    return await knex(tableName)
-      .returning(Object.keys(primaryKeys[0]))
+    return knex(tableWithSchema)
+      .returning(primaryKeysNames)
       .whereIn(primaryKeysNames, primaryKeysValues)
       .update(newValues);
   }
@@ -430,34 +395,38 @@ WHERE TABLE_TYPE = 'VIEW'
   public async getReferencedTableNamesAndColumns(tableName: string): Promise<ReferencedTableNamesAndColumnsDS[]> {
     const primaryColumns = await this.getTablePrimaryColumns(tableName);
     const knex = await this.configureKnex();
-    const results: Array<ReferencedTableNamesAndColumnsDS> = [];
-    for (const primaryColumn of primaryColumns) {
-      const result = await knex.raw(
-        `
-SELECT 
-  OBJECT_NAME(f.parent_object_id) "table_name",
-  COL_NAME(fc.parent_object_id,fc.parent_column_id) "column_name"
-FROM 
-   sys.foreign_keys AS f
-INNER JOIN 
-  sys.foreign_key_columns AS fc 
-    ON f.OBJECT_ID = fc.constraint_object_id
-INNER JOIN 
-  sys.tables t 
-   ON t.OBJECT_ID = fc.referenced_object_id
-WHERE 
-   OBJECT_NAME (f.referenced_object_id) = ?
-      `,
-        tableName,
-      );
-      let resultValue = result[0] || [];
-      resultValue = Array.isArray(resultValue) ? resultValue : [resultValue];
-      results.push({
-        referenced_on_column_name: primaryColumn.column_name,
-        referenced_by: resultValue,
-      });
-    }
-    return results;
+
+    const queries = primaryColumns.map((primaryColumn) =>
+      knex
+        .raw(
+          `
+  SELECT 
+    OBJECT_NAME(f.parent_object_id) "table_name",
+    COL_NAME(fc.parent_object_id,fc.parent_column_id) "column_name"
+  FROM 
+     sys.foreign_keys AS f
+  INNER JOIN 
+    sys.foreign_key_columns AS fc 
+      ON f.OBJECT_ID = fc.constraint_object_id
+  INNER JOIN 
+    sys.tables t 
+     ON t.OBJECT_ID = fc.referenced_object_id
+  WHERE 
+     OBJECT_NAME (f.referenced_object_id) = ?
+        `,
+          tableName,
+        )
+        .then((result) => {
+          let resultValue = result[0] || [];
+          resultValue = Array.isArray(resultValue) ? resultValue : [resultValue];
+          return {
+            referenced_on_column_name: primaryColumn.column_name,
+            referenced_by: resultValue,
+          };
+        }),
+    );
+
+    return Promise.all(queries);
   }
 
   public async isView(tableName: string): Promise<boolean> {
@@ -482,16 +451,14 @@ WHERE
     searchedFieldValue: string,
     filteringFields: Array<FilteringFieldsDS>,
   ): Promise<Stream & AsyncIterable<unknown>> {
-    if (!page || page <= 0) {
-      page = DAO_CONSTANTS.DEFAULT_PAGINATION.page;
-      const { list_per_page } = tableSettings;
-      if (list_per_page && list_per_page > 0 && (!perPage || perPage <= 0)) {
-        perPage = list_per_page;
-      } else {
-        perPage = DAO_CONSTANTS.DEFAULT_PAGINATION.perPage;
-      }
-    }
-    const offset = (page - 1) * perPage;
+    page = page > 0 ? page : DAO_CONSTANTS.DEFAULT_PAGINATION.page;
+    perPage =
+      perPage > 0
+        ? perPage
+        : tableSettings.list_per_page > 0
+          ? tableSettings.list_per_page
+          : DAO_CONSTANTS.DEFAULT_PAGINATION.perPage;
+
     const knex = await this.configureKnex();
     const [rowsCount, tableStructure, tableSchema] = await Promise.all([
       this.getRowsCount(tableName, null),
@@ -509,70 +476,67 @@ WHERE
       tableName = `${tableSchema}.[${tableName}]`;
     }
 
-    if (!tableSettings?.ordering_field) {
-      tableSettings.ordering_field = availableFields[0];
-      tableSettings.ordering = QueryOrderingEnum.ASC;
-    }
+    tableSettings.ordering_field = tableSettings?.ordering_field || availableFields[0];
+    tableSettings.ordering = tableSettings?.ordering || QueryOrderingEnum.ASC;
+
+    const { ordering_field, ordering } = tableSettings;
+    const offset = (page - 1) * perPage;
+
     const rowsAsStream = knex(tableName)
-      .select(availableFields)
       .modify((builder) => {
-        /*eslint-disable*/
-        let { search_fields } = tableSettings;
-        if ((!search_fields || search_fields?.length === 0) && searchedFieldValue) {
+        let search_fields = tableSettings?.search_fields || [];
+
+        if (search_fields.length === 0 && searchedFieldValue) {
           search_fields = availableFields;
         }
-        if (search_fields && searchedFieldValue && search_fields.length > 0) {
-          for (const field of search_fields) {
+
+        if (searchedFieldValue) {
+          search_fields.forEach((field) => {
             if (Buffer.isBuffer(searchedFieldValue)) {
               builder.orWhere(field, '=', searchedFieldValue);
             } else {
-              builder.orWhereRaw(` CAST (?? AS CHAR (255))=?`, [field, searchedFieldValue]);
+              builder.orWhereRaw(`LOWER(CAST(?? AS CHAR(255))) LIKE ?`, [
+                field,
+                `${searchedFieldValue.toLowerCase()}%`,
+              ]);
             }
-          }
+          });
         }
-        /*eslint-enable*/
       })
       .modify((builder) => {
-        if (filteringFields && filteringFields.length > 0) {
-          for (const filterObject of filteringFields) {
-            const { field, criteria, value } = filterObject;
-            switch (criteria) {
-              case FilterCriteriaEnum.eq:
-                builder.andWhere(field, '=', `${value}`);
-                break;
-              case FilterCriteriaEnum.startswith:
-                builder.andWhere(field, 'like', `${value}%`);
-                break;
-              case FilterCriteriaEnum.endswith:
-                builder.andWhere(field, 'like', `%${value}`);
-                break;
-              case FilterCriteriaEnum.gt:
-                builder.andWhere(field, '>', value);
-                break;
-              case FilterCriteriaEnum.lt:
-                builder.andWhere(field, '<', value);
-                break;
-              case FilterCriteriaEnum.lte:
-                builder.andWhere(field, '<=', value);
-                break;
-              case FilterCriteriaEnum.gte:
-                builder.andWhere(field, '>=', value);
-                break;
-              case FilterCriteriaEnum.contains:
-                builder.andWhere(field, 'like', `%${value}%`);
-                break;
-              case FilterCriteriaEnum.icontains:
-                builder.andWhereNot(field, 'like', `%${value}%`);
-                break;
-              case FilterCriteriaEnum.empty:
-                builder.orWhereNull(field);
-                builder.orWhere(field, '=', `''`);
-                break;
+        if (filteringFields?.length > 0) {
+          for (const { field, criteria, value } of filteringFields) {
+            const operators = {
+              [FilterCriteriaEnum.eq]: '=',
+              [FilterCriteriaEnum.startswith]: 'like',
+              [FilterCriteriaEnum.endswith]: 'like',
+              [FilterCriteriaEnum.gt]: '>',
+              [FilterCriteriaEnum.lt]: '<',
+              [FilterCriteriaEnum.lte]: '<=',
+              [FilterCriteriaEnum.gte]: '>=',
+              [FilterCriteriaEnum.contains]: 'like',
+              [FilterCriteriaEnum.icontains]: 'not like',
+              [FilterCriteriaEnum.empty]: ['is', '='],
+            };
+
+            const values = {
+              [FilterCriteriaEnum.startswith]: `${value}%`,
+              [FilterCriteriaEnum.endswith]: `%${value}`,
+              [FilterCriteriaEnum.contains]: `%${value}%`,
+              [FilterCriteriaEnum.icontains]: `%${value}%`,
+              [FilterCriteriaEnum.empty]: [null, ''],
+            };
+
+            if (criteria === FilterCriteriaEnum.empty) {
+              builder.where(field, operators[criteria][0], values[criteria][0]);
+              builder.orWhere(field, operators[criteria][1], values[criteria][1]);
+            } else {
+              builder.where(field, operators[criteria], values[criteria] || value);
             }
           }
         }
       })
-      .orderBy(tableSettings.ordering_field, tableSettings.ordering)
+      .orderBy(ordering_field, ordering)
       .limit(perPage)
       .offset(offset)
       .stream();
@@ -600,13 +564,9 @@ WHERE
                           sOBJ.schema_id
                               , sOBJ.name
                       ORDER BY [TableName]`);
-    let tableSchema = undefined;
-    for (const row of queryResult) {
-      if (row.TableName.includes(tableName)) {
-        tableSchema = row.TableName.split('.')[0];
-      }
-    }
-    return tableSchema;
+
+    const row = queryResult.find((row: any) => row.TableName.includes(tableName));
+    return row ? row.TableName.split('.')[0] : undefined;
   }
 
   private async getRowsCount(tableName: string, countRowsQB: Knex.QueryBuilder<any, any[]> | null): Promise<number> {

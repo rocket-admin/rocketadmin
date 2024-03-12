@@ -169,7 +169,7 @@ export class DataAccessObjectPostgres extends BasicDataAccessObject implements I
         }
       })
       .modify((builder) => {
-        if ( filteringFields.length > 0) {
+        if ( filteringFields?.length > 0) {
           for (const filterObject of filteringFields) {
             const { field, criteria, value } = filterObject;
             const operators = {
