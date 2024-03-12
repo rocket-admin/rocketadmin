@@ -93,140 +93,126 @@ export class DataAccessObjectMssql extends BasicDataAccessObject implements IDat
     filteringFields: FilteringFieldsDS[],
     autocompleteFields: AutocompleteFieldsDS,
   ): Promise<FoundRowsDS> {
-    if (!page || page <= 0) {
-      page = DAO_CONSTANTS.DEFAULT_PAGINATION.page;
-      const { list_per_page } = tableSettings;
-      if (list_per_page && list_per_page > 0 && (!perPage || perPage <= 0)) {
-        perPage = list_per_page;
-      } else {
-        perPage = DAO_CONSTANTS.DEFAULT_PAGINATION.perPage;
-      }
-    }
+    page = page > 0 ? page : DAO_CONSTANTS.DEFAULT_PAGINATION.page;
+    perPage =
+      perPage > 0
+        ? perPage
+        : tableSettings.list_per_page > 0
+          ? tableSettings.list_per_page
+          : DAO_CONSTANTS.DEFAULT_PAGINATION.perPage;
+
     const knex = await this.configureKnex();
     const [tableStructure, tableSchema] = await Promise.all([
       this.getTableStructure(receivedTableName),
       this.getSchemaName(receivedTableName),
     ]);
+
     const availableFields = this.findAvailableFields(tableSettings, tableStructure);
     const tableNameWithoutSchema = receivedTableName;
     const tableNameWithSchema = tableSchema ? `${tableSchema}.[${receivedTableName}]` : receivedTableName;
 
-    /* eslint-enable */
-    let rowsRO: FoundRowsDS;
     if (autocompleteFields && autocompleteFields.value && autocompleteFields.fields.length > 0) {
       const rows = await knex(tableNameWithSchema)
         .select(autocompleteFields.fields)
         .modify((builder) => {
-          /*eslint-disable*/
-          const { fields, value } = autocompleteFields;
-          if (value !== '*') {
-            fields.map((field, index) => {
-              builder.orWhere(field, 'like', `${value}%`);
+          if (autocompleteFields.value !== '*') {
+            autocompleteFields.fields.forEach((field) => {
+              builder.orWhere(field, 'like', `${autocompleteFields.value}%`);
             });
-          } else {
-            return;
           }
-          /*eslint-enable*/
         })
         .limit(DAO_CONSTANTS.AUTOCOMPLETE_ROW_LIMIT);
+
       const rowsCount = await this.getRowsCount(tableNameWithoutSchema, null);
-      rowsRO = {
+
+      return {
         data: rows,
         pagination: {} as any,
         large_dataset: rowsCount >= DAO_CONSTANTS.LARGE_DATASET_ROW_LIMIT,
       };
-
-      return rowsRO;
     }
 
-    if (!tableSettings?.ordering_field) {
-      tableSettings.ordering_field = availableFields[0];
-      tableSettings.ordering = QueryOrderingEnum.ASC;
-    }
+    tableSettings.ordering_field = tableSettings?.ordering_field || availableFields[0];
+    tableSettings.ordering = tableSettings?.ordering || QueryOrderingEnum.ASC;
+
     const rowsCountQuery = knex(tableNameWithSchema)
       .modify((builder) => {
-        /*eslint-disable*/
-        let { search_fields } = tableSettings;
-        if ((!search_fields || search_fields?.length === 0) && searchedFieldValue) {
+        let search_fields = tableSettings?.search_fields || [];
+
+        if (search_fields.length === 0 && searchedFieldValue) {
           search_fields = availableFields;
         }
-        if (search_fields && searchedFieldValue && search_fields.length > 0) {
-          for (const field of search_fields) {
+
+        if (searchedFieldValue) {
+          search_fields.forEach((field) => {
             if (Buffer.isBuffer(searchedFieldValue)) {
               builder.orWhere(field, '=', searchedFieldValue);
             } else {
-              builder.orWhereRaw(` LOWER(CAST (?? AS CHAR (255))) LIKE ?`, [
+              builder.orWhereRaw(`LOWER(CAST(?? AS CHAR(255))) LIKE ?`, [
                 field,
                 `${searchedFieldValue.toLowerCase()}%`,
               ]);
-              // builder.orWhereRaw(` CAST (?? AS CHAR (255))=?`, [field, searchedFieldValue]);
             }
-          }
+          });
         }
-        /*eslint-enable*/
       })
       .modify((builder) => {
-        if (filteringFields && filteringFields.length > 0) {
-          for (const filterObject of filteringFields) {
-            const { field, criteria, value } = filterObject;
-            switch (criteria) {
-              case FilterCriteriaEnum.eq:
-                builder.andWhere(field, '=', `${value}`);
-                break;
-              case FilterCriteriaEnum.startswith:
-                builder.andWhere(field, 'like', `${value}%`);
-                break;
-              case FilterCriteriaEnum.endswith:
-                builder.andWhere(field, 'like', `%${value}`);
-                break;
-              case FilterCriteriaEnum.gt:
-                builder.andWhere(field, '>', value);
-                break;
-              case FilterCriteriaEnum.lt:
-                builder.andWhere(field, '<', value);
-                break;
-              case FilterCriteriaEnum.lte:
-                builder.andWhere(field, '<=', value);
-                break;
-              case FilterCriteriaEnum.gte:
-                builder.andWhere(field, '>=', value);
-                break;
-              case FilterCriteriaEnum.contains:
-                builder.andWhere(field, 'like', `%${value}%`);
-                break;
-              case FilterCriteriaEnum.icontains:
-                builder.andWhereNot(field, 'like', `%${value}%`);
-                break;
-              case FilterCriteriaEnum.empty:
-                builder.orWhereNull(field);
-                builder.orWhere(field, '=', `''`);
-                break;
+        if (filteringFields?.length > 0) {
+          for (const { field, criteria, value } of filteringFields) {
+            const operators = {
+              [FilterCriteriaEnum.eq]: '=',
+              [FilterCriteriaEnum.startswith]: 'like',
+              [FilterCriteriaEnum.endswith]: 'like',
+              [FilterCriteriaEnum.gt]: '>',
+              [FilterCriteriaEnum.lt]: '<',
+              [FilterCriteriaEnum.lte]: '<=',
+              [FilterCriteriaEnum.gte]: '>=',
+              [FilterCriteriaEnum.contains]: 'like',
+              [FilterCriteriaEnum.icontains]: 'not like',
+              [FilterCriteriaEnum.empty]: ['is', '='],
+            };
+
+            const values = {
+              [FilterCriteriaEnum.startswith]: `${value}%`,
+              [FilterCriteriaEnum.endswith]: `%${value}`,
+              [FilterCriteriaEnum.contains]: `%${value}%`,
+              [FilterCriteriaEnum.icontains]: `%${value}%`,
+              [FilterCriteriaEnum.empty]: [null, ''],
+            };
+
+            if (criteria === FilterCriteriaEnum.empty) {
+              builder.where(field, operators[criteria][0], values[criteria][0]);
+              builder.orWhere(field, operators[criteria][1], values[criteria][1]);
+            } else {
+              builder.where(field, operators[criteria], values[criteria] || value);
             }
           }
         }
       });
+
     const rowsDataQuery = rowsCountQuery.clone();
 
     const rowsCount = await this.getRowsCount(tableNameWithoutSchema, rowsCountQuery);
 
+    const { ordering_field, ordering } = tableSettings;
     const rows = await rowsDataQuery
       .select(availableFields)
-      .orderBy(tableSettings.ordering_field, tableSettings.ordering)
+      .orderBy(ordering_field, ordering)
       .limit(perPage)
       .offset((page - 1) * perPage);
 
     const pagination = {
       total: rowsCount,
       lastPage: Math.ceil(rowsCount / perPage),
-      perPage: perPage,
+      perPage,
       currentPage: page,
     };
-    rowsRO = {
+
+    return {
       data: rows,
       pagination,
       large_dataset: rowsCount >= DAO_CONSTANTS.LARGE_DATASET_ROW_LIMIT,
     };
-    return rowsRO;
   }
 
   public async getTableForeignKeys(tableName: string): Promise<ForeignKeyDS[]> {
