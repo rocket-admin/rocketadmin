@@ -267,9 +267,7 @@ export class DataAccessObjectMssql extends BasicDataAccessObject implements IDat
       [tableName, schema],
     );
 
-    const primaryColumnsInLowercase: PrimaryKeyDS[] = primaryColumns.map((column: Record<string, unknown>) => {
-      return objectKeysToLowercase(column);
-    });
+    const primaryColumnsInLowercase: PrimaryKeyDS[] = primaryColumns.map(objectKeysToLowercase);
     LRUStorage.setTablePrimaryKeysCache(this.connection, tableName, primaryColumnsInLowercase);
     return primaryColumnsInLowercase;
   }
