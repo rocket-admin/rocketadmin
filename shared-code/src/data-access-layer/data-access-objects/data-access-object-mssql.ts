@@ -36,10 +36,10 @@ export class DataAccessObjectMssql extends BasicDataAccessObject implements IDat
     const primaryColumns = await this.getTablePrimaryColumns(tableName);
     const primaryKeys = primaryColumns.map(({ column_name }) => column_name);
     const schemaName = await this.getSchemaName(tableName);
-  
+
     const keysToReturn = primaryColumns?.length > 0 ? primaryKeys : Object.keys(row);
     const result = await knex(`${schemaName}.[${tableName}]`).returning(keysToReturn).insert(row);
-  
+
     return result[0];
   }
 
@@ -63,9 +63,7 @@ export class DataAccessObjectMssql extends BasicDataAccessObject implements IDat
     const schemaName = await this.getSchemaName(tableName);
     tableName = `${schemaName}.[${tableName}]`;
     const columnsToSelect = identityColumnName ? [referencedFieldName, identityColumnName] : [referencedFieldName];
-    return knex(tableName)
-      .select(columnsToSelect)
-      .whereIn(referencedFieldName, fieldValues);
+    return knex(tableName).select(columnsToSelect).whereIn(referencedFieldName, fieldValues);
   }
 
   public async getRowByPrimaryKey(
@@ -73,18 +71,17 @@ export class DataAccessObjectMssql extends BasicDataAccessObject implements IDat
     primaryKey: Record<string, unknown>,
     tableSettings: TableSettingsDS,
   ): Promise<Record<string, unknown>> {
-    if (!tableSettings) {
-      const schemaName = await this.getSchemaName(tableName);
-      tableName = `${schemaName}.[${tableName}]`;
-      const knex = await this.configureKnex();
-      return (await knex(tableName).where(primaryKey))[0] as unknown as Record<string, unknown>;
-    }
-    const tableStructure = await this.getTableStructure(tableName);
-    const availableFields = this.findAvailableFields(tableSettings, tableStructure);
     const knex = await this.configureKnex();
     const schemaName = await this.getSchemaName(tableName);
     tableName = `${schemaName}.[${tableName}]`;
-    return (await knex(tableName).select(availableFields).where(primaryKey))[0] as unknown as Record<string, unknown>;
+
+    let fieldsToSelect: string | Array<string> = '*';
+    if (tableSettings) {
+      const tableStructure = await this.getTableStructure(tableName);
+      fieldsToSelect = this.findAvailableFields(tableSettings, tableStructure);
+    }
+
+    return (await knex(tableName).select(fieldsToSelect).where(primaryKey))[0] as unknown as Record<string, unknown>;
   }
 
   public async getRowsFromTable(
