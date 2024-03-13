@@ -23,10 +23,7 @@ export const userAccessCustomReposiotoryExtension = {
     const connectionAccessLevels = resultPermissions.map((permission: PermissionEntity) => {
       return permission.accessLevel.toLowerCase();
     });
-    if (
-      connectionAccessLevels.includes(AccessLevelEnum.fullaccess) ||
-      connectionAccessLevels.includes(AccessLevelEnum.edit)
-    ) {
+    if (connectionAccessLevels.includes(AccessLevelEnum.edit)) {
       return AccessLevelEnum.edit;
     }
     if (connectionAccessLevels.includes(AccessLevelEnum.readonly)) {
@@ -39,7 +36,6 @@ export const userAccessCustomReposiotoryExtension = {
     const connectionAccessLevel = await this.getUserConnectionAccessLevel(cognitoUserName, connectionId);
     switch (connectionAccessLevel) {
       case AccessLevelEnum.edit:
-      case AccessLevelEnum.fullaccess:
       case AccessLevelEnum.readonly:
         return true;
       default:
@@ -51,7 +47,6 @@ export const userAccessCustomReposiotoryExtension = {
     const connectionAccessLevel = await this.getUserConnectionAccessLevel(cognitoUserName, connectionId);
     switch (connectionAccessLevel) {
       case AccessLevelEnum.edit:
-      case AccessLevelEnum.fullaccess:
         return true;
       case AccessLevelEnum.readonly:
         return false;
@@ -81,10 +76,7 @@ export const userAccessCustomReposiotoryExtension = {
     const connectionAccessLevels = resultPermissions.map((permission: PermissionEntity) => {
       return permission.accessLevel.toLowerCase();
     });
-    if (
-      connectionAccessLevels.includes(AccessLevelEnum.fullaccess) ||
-      connectionAccessLevels.includes(AccessLevelEnum.edit)
-    ) {
+    if (connectionAccessLevels.includes(AccessLevelEnum.edit)) {
       return AccessLevelEnum.edit;
     }
     if (connectionAccessLevels.includes(AccessLevelEnum.readonly)) {
@@ -97,7 +89,6 @@ export const userAccessCustomReposiotoryExtension = {
     const userGroupAccessLevel = await this.getGroupAccessLevel(cognitoUserName, groupId);
     switch (userGroupAccessLevel) {
       case AccessLevelEnum.edit:
-      case AccessLevelEnum.fullaccess:
       case AccessLevelEnum.readonly:
         return true;
       default:
@@ -109,7 +100,6 @@ export const userAccessCustomReposiotoryExtension = {
     const userGroupAccessLevel = await this.getGroupAccessLevel(cognitoUserName, groupId);
     switch (userGroupAccessLevel) {
       case AccessLevelEnum.edit:
-      case AccessLevelEnum.fullaccess:
         return true;
       case AccessLevelEnum.readonly:
         return false;
