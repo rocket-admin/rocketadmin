@@ -1,13 +1,13 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+
 import { normalizeFieldName } from '../../../../lib/normalize';
 
-
 @Component({
-  selector: 'app-time',
+  selector: 'app-row-time',
   templateUrl: './time.component.html',
   styleUrls: ['./time.component.css']
 })
-export class TimeComponent implements OnInit {
+export class TimeRowComponent implements OnInit {
 
   @Input() key: string;
   @Input() label: string;

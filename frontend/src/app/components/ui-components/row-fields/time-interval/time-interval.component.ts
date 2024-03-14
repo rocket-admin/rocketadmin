@@ -1,14 +1,15 @@
 import * as pgInterval from 'postgres-interval'
 
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+
 import { normalizeFieldName } from '../../../../lib/normalize';
 
 @Component({
-  selector: 'app-time-interval',
+  selector: 'app-row-time-interval',
   templateUrl: './time-interval.component.html',
   styleUrls: ['./time-interval.component.css']
 })
-export class TimeIntervalComponent implements OnInit {
+export class TimeIntervalRowComponent implements OnInit {
 
   @Input() key: string;
   @Input() label: string;

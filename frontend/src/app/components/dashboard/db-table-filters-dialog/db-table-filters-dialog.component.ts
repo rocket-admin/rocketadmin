@@ -3,7 +3,8 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { TablesService } from 'src/app/services/tables.service';
 import { TableField, TableForeignKey, Widget } from 'src/app/models/table';
 import { ConnectionsService } from 'src/app/services/connections.service';
-import { fieldTypes, UIwidgets } from 'src/app/consts/field-types';
+import { UIwidgets } from 'src/app/consts/field-types';
+import { filterTypes } from 'src/app/consts/filter-types';
 import { ActivatedRoute } from '@angular/router';
 import { getComparators, getFilters } from 'src/app/lib/parse-filter-params';
 import { getTableTypes } from 'src/app/lib/setup-table-row-structure';
@@ -98,7 +99,7 @@ export class DbTableFiltersDialogComponent implements OnInit {
   }
 
   get inputs() {
-    return fieldTypes[this._connections.currentConnection.type]
+    return filterTypes[this._connections.currentConnection.type]
   }
 
   setWidgets(widgets: Widget[]) {
@@ -132,9 +133,6 @@ export class DbTableFiltersDialogComponent implements OnInit {
   }
 
   updateField = (updatedValue: any, field: string) => {
-    console.log('updateField');
-    console.log(field);
-    console.log(updatedValue);
     this.tableRowFieldsShown[field] = updatedValue;
   }
 

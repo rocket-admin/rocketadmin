@@ -18,11 +18,11 @@ enum FileType {
 }
 
 @Component({
-  selector: 'app-file',
+  selector: 'app-row-file',
   templateUrl: './file.component.html',
   styleUrls: ['./file.component.css']
 })
-export class FileComponent implements OnInit {
+export class FileRowComponent implements OnInit {
 
   @Input() key: string;
   @Input() label: string;

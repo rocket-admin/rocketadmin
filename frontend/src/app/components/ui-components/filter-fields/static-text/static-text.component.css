@@ -1,0 +1,10 @@
+.static-text {
+    margin-bottom: 20px;
+}
+
+.static-text__value {
+    color: #0a0a0a;
+    font-style: italic;
+    opacity: 0.32;
+    padding-left: 8px;
+}

@@ -117,7 +117,7 @@ export class TablesDataSource implements DataSource<Object> {
     const rowToFormat = {};
     for (const [columnName, columnStructute] of columns) {
       let type = '';
-      if (columnStructute.data_type === 'tinyint' && (columnStructute.character_maximum_length === 1)) {
+      if (['number', 'tinyint'].includes(columnStructute.data_type) && (columnStructute.character_maximum_length === 1)) {
         type = 'boolean'
       } else type = columnStructute.data_type;
       rowToFormat[columnName] = this.formatField(row[columnName], type);

@@ -15,11 +15,11 @@ interface Suggestion {
 }
 
 @Component({
-  selector: 'app-foreign-key',
+  selector: 'app-row-foreign-key',
   templateUrl: './foreign-key.component.html',
   styleUrls: ['./foreign-key.component.css']
 })
-export class ForeignKeyComponent implements OnInit {
+export class ForeignKeyRowComponent implements OnInit {
 
   @Input() key: string;
   @Input() label: string;

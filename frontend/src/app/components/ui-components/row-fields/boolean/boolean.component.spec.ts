@@ -1,9 +1,9 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { BooleanComponent } from './boolean.component';
+import { BooleanRowComponent } from './boolean.component';
 
 describe('BooleanComponent', () => {
-  let component: BooleanComponent;
+  let component: BooleanRowComponent;
   let fixture: ComponentFixture<BooleanComponent>;
 
   const fakeStructure = {
@@ -19,13 +19,13 @@ describe('BooleanComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ BooleanComponent ]
+      declarations: [ BooleanRowComponent ]
     })
     .compileComponents();
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(BooleanComponent);
+    fixture = TestBed.createComponent(BooleanRowComponent);
     component = fixture.componentInstance;
   });
 

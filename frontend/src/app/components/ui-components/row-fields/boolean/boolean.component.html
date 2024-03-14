@@ -5,7 +5,7 @@
         class="radio-group"
         attr.data-testid="record-{{label}}-boolean-radio-group"
         [disabled]="disabled"
-        [(ngModel)]="value" (ngModelChange)="onBooleanChange()">
+        [(ngModel)]="value" (ngModelChange)="onFieldChange.emit($event)">
         <mat-radio-button [value]=true class="radio-button">
             yes
         </mat-radio-button>
@@ -25,7 +25,7 @@
         class="checkbox-line"
         attr.data-testid="record-{{label}}-boolean-checkbox"
         [disabled]="disabled"
-        [(ngModel)]="value" (ngModelChange)="onBooleanChange()">
+        [(ngModel)]="value" (ngModelChange)="onFieldChange.emit($event)">
         {{normalizedLabel}}
     </mat-checkbox>
 </ng-template>
