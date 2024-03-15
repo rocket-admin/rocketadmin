@@ -1294,6 +1294,7 @@ should return all found rows with search, pagination: page=1, perPage=2 and DESC
   }
 });
 
+// todo: rework for other tables after removing old endpoint
 test(`${currentTest} with search, with pagination, with sorting and with filtering
 should return all found rows with search, pagination: page=1, perPage=2 and DESC sorting and filtering in body`, async (t) => {
   try {
@@ -1340,7 +1341,7 @@ should return all found rows with search, pagination: page=1, perPage=2 and DESC
     const fieldvalue = '45';
 
     const filters = {
-      [`f_${fieldname}__lt`]: fieldvalue,
+      [fieldname]: { lt: fieldvalue },
     };
 
     const getTableRowsResponse = await request(app.getHttpServer())

@@ -1,6 +1,8 @@
+/* eslint-disable security/detect-object-injection */
 import { FilteringFieldsDs } from '../application/data-structures/found-table-rows.ds.js';
 import { FilterCriteriaEnum } from '../../../enums/index.js';
 import { TableStructureDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/table-structure.ds.js';
+import { validateStringWithEnum } from '../../../helpers/validators/validate-string-with-enum.js';
 
 export function findFilteringFieldsUtil(
   filters: Record<string, unknown>,
@@ -84,5 +86,28 @@ export function findFilteringFieldsUtil(
       });
     }
   }
+  return filteringItems;
+}
+
+export function parseFilteringFieldsFromBodyData(
+  filtersDataFromBody: Record<string, any>,
+  tableStructure: Array<TableStructureDS>,
+): Array<FilteringFieldsDs> {
+  const filteringItems: Array<FilteringFieldsDs> = [];
+  const rowNames = tableStructure.map((el) => el.column_name);
+  rowNames.forEach((rowName) => {
+    if (filtersDataFromBody.hasOwnProperty(rowName)) {
+      for (const key in filtersDataFromBody[rowName]) {
+        if (!validateStringWithEnum(key, FilterCriteriaEnum)) {
+          throw new Error(`Invalid filter criteria: "${key}".`);
+        }
+        filteringItems.push({
+          field: rowName,
+          criteria: key as FilterCriteriaEnum,
+          value: filtersDataFromBody[rowName][key],
+        });
+      }
+    }
+  });
   return filteringItems;
 }

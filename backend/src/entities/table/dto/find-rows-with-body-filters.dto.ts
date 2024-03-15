@@ -5,13 +5,16 @@ export class FindAllRowsWithBodyFiltersDto {
   @ApiProperty({
     type: 'object',
     example: {
-      f_id__eq: 1,
-      f_name__startswith: 'Abc',
-      f_name__endswith: 'Xyz',
-      f_name__gt: 5,
-      f_name__lt: 10,
-      f_name__lte: 9,
-      f_name__gte: 6,
+      id: {
+        eq: 1,
+      },
+      name: {
+        startswith: 'A',
+      },
+      age: {
+        gt: 18,
+        lt: 30,
+      },
     },
   })
   @IsObject()
