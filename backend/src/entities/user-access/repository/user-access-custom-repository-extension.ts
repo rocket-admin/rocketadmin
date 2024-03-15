@@ -17,6 +17,16 @@ export const userAccessCustomReposiotoryExtension = {
       .andWhere('user.id = :cognitoUserName', { cognitoUserName: cognitoUserName })
       .andWhere('permission.type = :permissionType', { permissionType: PermissionTypeEnum.Connection });
     const resultPermissions = await qb.getMany();
+
+    if (resultPermissions[0]?.groups[0]?.users[0]?.suspended) {
+      throw new HttpException(
+        {
+          message: Messages.ACCOUNT_SUSPENDED,
+        },
+        HttpStatus.FORBIDDEN,
+      );
+    }
+
     if (resultPermissions?.length === 0) {
       return AccessLevelEnum.none;
     }
@@ -70,6 +80,16 @@ export const userAccessCustomReposiotoryExtension = {
       .andWhere('permission.type = :permissionType', { permissionType: PermissionTypeEnum.Group })
       .andWhere('group.id = :groupId', { groupId: groupId });
     const resultPermissions = await qb.getMany();
+
+    if (resultPermissions[0]?.groups[0]?.users[0]?.suspended) {
+      throw new HttpException(
+        {
+          message: Messages.ACCOUNT_SUSPENDED,
+        },
+        HttpStatus.FORBIDDEN,
+      );
+    }
+
     if (resultPermissions?.length === 0) {
       return AccessLevelEnum.none;
     }
@@ -173,6 +193,16 @@ export const userAccessCustomReposiotoryExtension = {
       .andWhere('permission.type = :permissionType', { permissionType: PermissionTypeEnum.Table })
       .andWhere('permission.tableName = :tableName', { tableName: tableName });
     const resultPermissions = await qb.getMany();
+
+    if (resultPermissions[0]?.groups[0]?.users[0]?.suspended) {
+      throw new HttpException(
+        {
+          message: Messages.ACCOUNT_SUSPENDED,
+        },
+        HttpStatus.FORBIDDEN,
+      );
+    }
+
     const tableAccessLevels = resultPermissions.map((permission: PermissionEntity) => {
       return permission.accessLevel;
     });

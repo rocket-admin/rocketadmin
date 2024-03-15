@@ -682,7 +682,11 @@ test(`${currentTest} should call function subscription upgrade for company in sa
   let firstConnection = foundCompanyInfoRO.connections.find((connectionRO) => connections.firstId === connectionRO.id);
   const createdGroup = firstConnection.groups.find((groupRO) => groupRO.id === groups.createdGroupId);
 
-  const additionalUsers = [];
+  const additionalUsers: Array<{
+    email: string;
+    password: string;
+    token: string;
+  }> = [];
   for (let i = 0; i < 5; i++) {
     const invitationResult = await inviteUserInCompanyAndGroupAndAcceptInvitation(
       adminUserToken,
@@ -738,4 +742,16 @@ test(`${currentTest} should call function subscription upgrade for company in sa
   t.is(suspendUsersCount, 4);
   const unSuspendedUsersCount = usersAfterUpgrade.filter((user: any) => !user.suspended).length;
   t.is(unSuspendedUsersCount, 3);
+
+  // suspended users should not be able to access endpoints
+
+  const findAllConnectionsResponse = await request(app.getHttpServer())
+    .get('/connections')
+    .set('Cookie', additionalUsers[additionalUsers.length - 1].token)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+
+  const findAllConnectionsResponseRO = JSON.parse(findAllConnectionsResponse.text);
+  t.is(findAllConnectionsResponse.status, 403);
+  t.is(findAllConnectionsResponseRO.message, Messages.ACCOUNT_SUSPENDED);
 });
