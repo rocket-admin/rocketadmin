@@ -20,6 +20,7 @@ export function buildSimpleUserInfoDs(user: UserEntity): SimpleFoundUserInfoDs {
     isActive: user.isActive,
     email: user.email,
     createdAt: user.createdAt,
+    suspended: user.suspended,
     name: user.name,
     is_2fa_enabled: user.isOTPEnabled,
     role: user.role,

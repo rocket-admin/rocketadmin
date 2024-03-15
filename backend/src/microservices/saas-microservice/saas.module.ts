@@ -14,6 +14,7 @@ import { AddCompanyIdToUserUseCase } from './use-cases/add-company-id-to-user-us
 import { RemoveCompanyIdFromUserUseCase } from './use-cases/remove-company-id-from-user.use.case.js';
 import { SaasRegisterInvitedUserUseCase } from './use-cases/register-invited-user-use.case.js';
 import { GetUsersInfosByEmailUseCase } from './use-cases/get-users-infos-by-email.use.case.js';
+import { SuspendUsersUseCase } from './use-cases/suspend-users.use.case.js';
 
 @Module({
   imports: [],
@@ -66,6 +67,10 @@ import { GetUsersInfosByEmailUseCase } from './use-cases/get-users-infos-by-emai
       provide: UseCaseType.SAAS_SAAS_GET_USERS_INFOS_BY_EMAIL,
       useClass: GetUsersInfosByEmailUseCase,
     },
+    {
+      provide: UseCaseType.SAAS_SUSPEND_USERS,
+      useClass: SuspendUsersUseCase,
+    },
   ],
   controllers: [SaasController],
   exports: [],
@@ -83,6 +88,7 @@ export class SaasModule {
         { path: 'saas/user/github/:githubId', method: RequestMethod.GET },
         { path: 'saas/user/github/login', method: RequestMethod.POST },
         { path: 'saas/user/:userId/company/:companyId', method: RequestMethod.PUT },
+        { path: 'saas/company/:companyId/users/suspend', method: RequestMethod.PUT },
         { path: 'sass/user/register/invite', method: RequestMethod.POST },
       );
   }

@@ -12,6 +12,7 @@ import {
   ISaaSRegisterInvitedUser,
   ISaasGetUsersInfosByEmail,
   ISaasRegisterUser,
+  ISuspendUsers,
 } from './use-cases/saas-use-cases.interface.js';
 import { RegisteredCompanyDS } from './data-structures/registered-company.ds.js';
 import { UserEntity } from '../../entities/user/user.entity.js';
@@ -57,6 +58,8 @@ export class SaasController {
     private readonly removeCompanyIdFromUserUserUseCase: IAddOrRemoveCompanyIdToUser,
     @Inject(UseCaseType.SAAS_REGISTER_INVITED_USER)
     private readonly registerInvitedUserUseCase: ISaaSRegisterInvitedUser,
+    @Inject(UseCaseType.SAAS_SUSPEND_USERS)
+    private readonly suspendUsersUseCase: ISuspendUsers,
   ) {}
 
   @ApiOperation({ summary: 'Company registered webhook' })
@@ -219,6 +222,16 @@ export class SaasController {
     @Query('userRole') userRole: UserRoleEnum,
   ): Promise<SuccessResponse> {
     await this.removeCompanyIdFromUserUserUseCase.execute({ userId, companyId, userRole });
+    return { success: true };
+  }
+
+  @ApiOperation({ summary: 'Suspending users' })
+  @Put('/company/:companyId/users/suspend')
+  async suspendUsers(
+    @Body('emailsToSuspend') emailsToSuspend: Array<string>,
+    @Body('companyId') companyId: string,
+  ): Promise<SuccessResponse> {
+    await this.suspendUsersUseCase.execute({ emailsToSuspend, companyId });
     return { success: true };
   }
 }

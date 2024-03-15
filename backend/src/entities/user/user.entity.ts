@@ -39,6 +39,9 @@ export class UserEntity {
   @Column({ default: null })
   name: string;
 
+  @Column({ default: false })
+  suspended: boolean;
+
   @BeforeInsert()
   async hashPassword() {
     if (this.password) {

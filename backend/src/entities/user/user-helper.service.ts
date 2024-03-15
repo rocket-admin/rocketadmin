@@ -28,6 +28,7 @@ export class UserHelperService implements OnModuleInit {
       createdAt: user.createdAt,
       isActive: user.isActive,
       name: user.name,
+      suspended: user.suspended,
     };
   }
 
@@ -36,6 +37,7 @@ export class UserHelperService implements OnModuleInit {
     return {
       id: user.id,
       createdAt: user.createdAt,
+      suspended: user.suspended,
       isActive: user.isActive,
       email: user.email,
       intercom_hash: intercomHash,

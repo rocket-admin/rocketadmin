@@ -18,6 +18,9 @@ export class FoundUserDs {
   @ApiProperty()
   createdAt: Date;
 
+  @ApiProperty()
+  suspended: boolean;
+
   @ApiProperty({ required: false })
   intercom_hash?: string;
 
@@ -43,6 +46,9 @@ export class SimpleFoundUserInfoDs {
 
   @ApiProperty()
   createdAt: Date;
+
+  @ApiProperty()
+  suspended: boolean;
 
   @ApiProperty()
   name: string;

@@ -50,5 +50,11 @@ export interface IUserRepository {
 
   findAllUsersWithEmail(email: string, externalProvider?: ExternalRegistrationProviderEnum): Promise<Array<UserEntity>>;
 
+  findUsersByEmailsAndCompanyId(emails: Array<string>, companyId: string): Promise<Array<UserEntity>>;
+
+  suspendUsers(userIds: Array<string>): Promise<Array<UserEntity>>;
+
+  unSuspendUsers(userIds: Array<string>): Promise<Array<UserEntity>>;
+
   bulkSaveUpdatedUsers(updatedUsers: Array<UserEntity>): Promise<Array<UserEntity>>;
 }
