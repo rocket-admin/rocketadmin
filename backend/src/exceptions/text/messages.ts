@@ -14,6 +14,8 @@ import { enumToString } from '../../helpers/enum-to-string.js';
 import { UserRoleEnum } from '../../entities/user/enums/user-role.enum.js';
 
 export const Messages = {
+  ACCOUNT_SUSPENDED:
+    'Your account has been suspended. Please reach out to your company administrator for assistance or contact our support team for further help',
   ACCESS_LEVEL_INVALID: 'Access level is invalid',
   AGENT_ID_MISSING: 'Agent id is missing',
   AGENT_NOT_FOUND: 'Agent not found',
