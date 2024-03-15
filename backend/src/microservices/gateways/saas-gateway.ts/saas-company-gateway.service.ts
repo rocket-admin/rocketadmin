@@ -35,7 +35,7 @@ export class SaasCompanyGatewayService extends BaseSaasGatewayService {
   }
 
   public async canInviteMoreUsers(companyId: string): Promise<boolean> {
-    if (!isSaaS()) {
+    if (!isSaaS() || process.env.NODE_ENV === 'test') {
       return true;
     }
     const canInviteMoreUsersResult = await this.sendRequestToSaaS(

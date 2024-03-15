@@ -71,6 +71,7 @@ export class SaasRegisterInvitedUserUseCase
       intercom_hash: null,
       name: savedUser.name,
       is_2fa_enabled: false,
+      suspended: false,
     };
   }
 }

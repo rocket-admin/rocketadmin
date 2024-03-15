@@ -18,6 +18,7 @@ import { faker } from '@faker-js/faker';
 import { nanoid } from 'nanoid';
 import { Messages } from '../../../src/exceptions/text/messages.js';
 import { Constants } from '../../../src/helpers/constants/constants.js';
+import { inviteUserInCompanyAndGroupAndAcceptInvitation } from '../../utils/register-user-and-return-user-info.js';
 
 const mockFactory = new MockFactory();
 let app: INestApplication;
@@ -127,7 +128,7 @@ test(`${currentTest} should return full found company info for company admin use
     t.is(foundCompanyInfoRO.connections[0].groups[0].hasOwnProperty('isMain'), true);
     t.is(foundCompanyInfoRO.connections[0].groups[0].hasOwnProperty('users'), true);
     t.is(foundCompanyInfoRO.connections[0].groups[0].users.length > 0, true);
-    t.is(Object.keys(foundCompanyInfoRO.connections[0].groups[0].users[0]).length, 7);
+    t.is(Object.keys(foundCompanyInfoRO.connections[0].groups[0].users[0]).length, 8);
     t.is(foundCompanyInfoRO.connections[0].groups[0].users[0].hasOwnProperty('id'), true);
     t.is(foundCompanyInfoRO.connections[0].groups[0].users[0].hasOwnProperty('email'), true);
     t.is(foundCompanyInfoRO.connections[0].groups[0].users[0].hasOwnProperty('role'), true);
@@ -655,4 +656,86 @@ test(`${currentTest} should enable 2fa for company`, async (t) => {
 
   const connectionsResultsObject = JSON.parse(connectionsResult.text);
   t.is(connectionsResultsObject.message, Messages.TWO_FA_REQUIRED);
+});
+
+currentTest = `PUT /subscription/upgrade/:companyId`;
+test(`${currentTest} should call function subscription upgrade for company in sass, and suspend users`, async (t) => {
+  const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
+  const {
+    connections,
+    firstTableInfo,
+    groups,
+    permissions,
+    secondTableInfo,
+    users: { adminUserToken, simpleUserToken, adminUserEmail, simpleUserEmail, simpleUserPassword },
+  } = testData;
+
+  const foundCompanyInfo = await request(app.getHttpServer())
+    .get('/company/my/full')
+    .set('Content-Type', 'application/json')
+    .set('Cookie', adminUserToken)
+    .set('Accept', 'application/json');
+
+  t.is(foundCompanyInfo.status, 200);
+  const foundCompanyInfoRO = JSON.parse(foundCompanyInfo.text);
+
+  let firstConnection = foundCompanyInfoRO.connections.find((connectionRO) => connections.firstId === connectionRO.id);
+  const createdGroup = firstConnection.groups.find((groupRO) => groupRO.id === groups.createdGroupId);
+
+  const additionalUsers = [];
+  for (let i = 0; i < 5; i++) {
+    const invitationResult = await inviteUserInCompanyAndGroupAndAcceptInvitation(
+      adminUserToken,
+      'USER',
+      createdGroup.id,
+      app,
+    );
+    additionalUsers.push(invitationResult);
+  }
+  const foundCompanyInfoWithAddedUsers = await request(app.getHttpServer())
+    .get('/company/my/full')
+    .set('Content-Type', 'application/json')
+    .set('Cookie', adminUserToken)
+    .set('Accept', 'application/json');
+
+  t.is(foundCompanyInfo.status, 200);
+  const foundCompanyInfoWithAddedUsersRO = JSON.parse(foundCompanyInfoWithAddedUsers.text);
+  firstConnection = foundCompanyInfoWithAddedUsersRO.connections.find(
+    (connectionRO) => connections.firstId === connectionRO.id,
+  );
+  const { users } = firstConnection.groups.find((groupRO) => groupRO.id === groups.createdGroupId);
+  users.forEach((user: any) => {
+    t.is(user.suspended, false);
+  });
+
+  const subscriptionUpgradeResult = await fetch(
+    `http://rocketadmin-private-microservice:3001/company/subscription/upgrade/${foundCompanyInfoRO.id}`,
+    {
+      method: 'POST',
+      headers: {
+        Cookie: adminUserToken,
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      },
+      body: JSON.stringify({
+        subscriptionLevel: 'FREE_PLAN',
+      }),
+    },
+  );
+
+  const foundCompanyInfoAfterUpgrade = await request(app.getHttpServer())
+    .get('/company/my/full')
+    .set('Content-Type', 'application/json')
+    .set('Cookie', adminUserToken)
+    .set('Accept', 'application/json');
+
+  const foundCompanyInfoAfterUpgradeRO = JSON.parse(foundCompanyInfoAfterUpgrade.text);
+  firstConnection = foundCompanyInfoAfterUpgradeRO.connections.find(
+    (connectionRO) => connections.firstId === connectionRO.id,
+  );
+  const { users: usersAfterUpgrade } = firstConnection.groups.find((groupRO) => groupRO.id === groups.createdGroupId);
+  const suspendUsersCount = usersAfterUpgrade.filter((user: any) => user.suspended).length;
+  t.is(suspendUsersCount, 4);
+  const unSuspendedUsersCount = usersAfterUpgrade.filter((user: any) => !user.suspended).length;
+  t.is(unSuspendedUsersCount, 3);
 });
