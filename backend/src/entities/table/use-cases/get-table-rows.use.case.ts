@@ -19,11 +19,11 @@ import { TableLogsService } from '../../table-logs/table-logs.service.js';
 import { TableSettingsEntity } from '../../table-settings/table-settings.entity.js';
 import { FoundTableRowsDs } from '../application/data-structures/found-table-rows.ds.js';
 import { GetTableRowsDs } from '../application/data-structures/get-table-rows.ds.js';
-import { ForeignKeyDSInfo } from '../table-datastructures.js';
+import { FilteringFieldsDs, ForeignKeyDSInfo } from '../table-datastructures.js';
 import { addCustomFieldsInRowsUtil } from '../utils/add-custom-fields-in-rows.util.js';
 import { convertBinaryDataInRowsUtil } from '../utils/convert-binary-data-in-rows.util.js';
 import { findAutocompleteFieldsUtil } from '../utils/find-autocomplete-fields.util.js';
-import { findFilteringFieldsUtil } from '../utils/find-filtering-fields.util.js';
+import { findFilteringFieldsUtil, parseFilteringFieldsFromBodyData } from '../utils/find-filtering-fields.util.js';
 import { findOrderingFieldUtil } from '../utils/find-ordering-field.util.js';
 import { formFullTableStructure } from '../utils/form-full-table-structure.js';
 import { isHexString } from '../utils/is-hex-string.js';
@@ -92,8 +92,13 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
         this._dbContext.tableActionRepository.findTableActions(connectionId, tableName),
       ]);
 
-      const filteringData = !isObjectEmpty(filters) ? filters : query;
-      const filteringFields = findFilteringFieldsUtil(filteringData, tableStructure);
+      let filteringFields: Array<FilteringFieldsDs> = [];
+      if (!isObjectEmpty(filters)) {
+        filteringFields = parseFilteringFieldsFromBodyData(filters, tableStructure);
+      } else {
+        filteringFields = findFilteringFieldsUtil(query, tableStructure);
+      }
+
       const orderingField = findOrderingFieldUtil(query, tableStructure, tableSettings);
 
       const configured = !!tableSettings;
