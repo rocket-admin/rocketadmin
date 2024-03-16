@@ -326,15 +326,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@angular/core@npm:~15.2.4":
-  version: 15.2.10
-  resolution: "@angular/core@npm:15.2.10"
+"@angular/core@npm:~16.0.0":
+  version: 16.0.6
+  resolution: "@angular/core@npm:16.0.6"
   dependencies:
     tslib: ^2.3.0
   peerDependencies:
     rxjs: ^6.5.3 || ^7.4.0
-    zone.js: ~0.11.4 || ~0.12.0 || ~0.13.0
-  checksum: bf189e956e8b70df5ea6b75410bdcc8e020a54a1e1ff7b65bfbec7642bac10c1f15c6e8ebe1e1acab168eeb13de5815384f93b9d41af44b13a6a0abfe9829c23
+    zone.js: ~0.13.0
+  checksum: 38a6ff8a65dc11446ee4747f414111973be3d541a96a8b6de9e7a768b1014fbf11fd46d9d9ab2520aa29fa9c6a57cb8d0b68c374ecb4243bc11b7d02d3f31646
   languageName: node
   linkType: hard
 
@@ -5622,7 +5622,7 @@ __metadata:
     "@angular/common": ~15.2.3
     "@angular/compiler": ~15.2.3
     "@angular/compiler-cli": ~15.2.3
-    "@angular/core": ~15.2.4
+    "@angular/core": ~16.0.0
     "@angular/forms": ~15.2.3
     "@angular/language-service": ~15.2.3
     "@angular/material": ~15.2.3
@@ -6383,12 +6383,12 @@ __metadata:
   linkType: hard
 
 "follow-redirects@npm:^1.0.0":
-  version: 1.15.4
-  resolution: "follow-redirects@npm:1.15.4"
+  version: 1.15.6
+  resolution: "follow-redirects@npm:1.15.6"
   peerDependenciesMeta:
     debug:
       optional: true
-  checksum: e178d1deff8b23d5d24ec3f7a94cde6e47d74d0dc649c35fc9857041267c12ec5d44650a0c5597ef83056ada9ea6ca0c30e7c4f97dbf07d035086be9e6a5b7b6
+  checksum: a62c378dfc8c00f60b9c80cab158ba54e99ba0239a5dd7c81245e5a5b39d10f0c35e249c3379eae719ff0285fff88c365dd446fab19dee771f1d76252df1bbf5
   languageName: node
   linkType: hard
 
@@ -7114,9 +7114,9 @@ __metadata:
   linkType: hard
 
 "ip@npm:^2.0.0":
-  version: 2.0.0
-  resolution: "ip@npm:2.0.0"
-  checksum: cfcfac6b873b701996d71ec82a7dd27ba92450afdb421e356f44044ed688df04567344c36cbacea7d01b1c39a4c732dc012570ebe9bebfb06f27314bca625349
+  version: 2.0.1
+  resolution: "ip@npm:2.0.1"
+  checksum: d765c9fd212b8a99023a4cde6a558a054c298d640fec1020567494d257afd78ca77e37126b1a3ef0e053646ced79a816bf50621d38d5e768cdde0431fa3b0d35
   languageName: node
   linkType: hard
 
