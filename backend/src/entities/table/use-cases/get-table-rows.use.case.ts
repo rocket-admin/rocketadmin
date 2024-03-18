@@ -51,8 +51,9 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
 
   protected async implementation(inputData: GetTableRowsDs): Promise<FoundTableRowsDs> {
     let operationResult = OperationResultStatusEnum.unknown;
-    // eslint-disable-next-line prefer-const
-    let { connectionId, masterPwd, page, perPage, query, searchingFieldValue, tableName, userId, filters } = inputData;
+
+    const { connectionId, masterPwd, page, perPage, query, tableName, userId, filters } = inputData;
+    let { searchingFieldValue } = inputData;
     const connection = await this._dbContext.connectionRepository.findAndDecryptConnection(connectionId, masterPwd);
     if (!connection) {
       throw new HttpException(
@@ -62,6 +63,7 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
         HttpStatus.BAD_REQUEST,
       );
     }
+
     try {
       const dao = getDataAccessObject(connection);
 
