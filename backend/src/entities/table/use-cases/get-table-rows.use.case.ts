@@ -165,7 +165,7 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
       tableForeignKeys = tableForeignKeys.filter(({ referenced_table_name }) =>
         readableForeignTables.has(referenced_table_name),
       );
-
+  
       if (tableForeignKeys && tableForeignKeys.length > 0) {
         tableForeignKeys = await Promise.all(
           tableForeignKeys.map((el) => {
@@ -235,34 +235,26 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
         );
       }
 
-      const foreignKeysConformity = [];
+      const foreignKeysConformity = tableForeignKeys.map((key) => ({
+        currentFKeyName: key.column_name,
+        realFKeyName: key.referenced_column_name,
+        referenced_table_name: key.referenced_table_name,
+      }));
 
-      for (const key of tableForeignKeys) {
-        foreignKeysConformity.push({
-          currentFKeyName: key.column_name,
-          realFKeyName: key.referenced_column_name,
-          referenced_table_name: key.referenced_table_name,
-        });
-      }
-
-      for (const element of foreignKeysConformity) {
+      foreignKeysConformity.forEach((element) => {
         const foundIdentityForCurrentTable = identities.find(
           (el) => el.referenced_table_name === element.referenced_table_name,
         );
-        for (const row of rowsRO.rows) {
+
+        rowsRO.rows.forEach((row) => {
           const foundIdentityForCurrentValue = foundIdentityForCurrentTable?.identity_columns.find(
             (el) => el[element.realFKeyName] === row[element.currentFKeyName],
           );
-          const newFKeyObj = {};
-          if (foundIdentityForCurrentValue) {
-            for (const key of Object.keys(foundIdentityForCurrentValue)) {
-              // eslint-disable-next-line security/detect-object-injection
-              newFKeyObj[key] = foundIdentityForCurrentValue[key];
-            }
-          }
-          row[element.currentFKeyName] = newFKeyObj;
-        }
-      }
+
+          row[element.currentFKeyName] = foundIdentityForCurrentValue ? { ...foundIdentityForCurrentValue } : {};
+        });
+      });
+
       operationResult = OperationResultStatusEnum.successfully;
       return rowsRO;
     } catch (e) {
@@ -305,15 +297,10 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
         dao.getTableStructure(foreignKey.referenced_table_name, userId),
       ]);
 
-      let columnNames = foreignTableStructure.map((el) => {
-        return el.column_name;
-      });
-      if (foreignTableSettings && foreignTableSettings.autocomplete_columns.length > 0) {
-        columnNames = columnNames.filter((el) => {
-          const index = foreignTableSettings.autocomplete_columns.indexOf(el);
-          return index >= 0;
-        });
-      }
+      const columnNames = foreignTableStructure
+        .map((el) => el.column_name)
+        .filter((el) => foreignTableSettings?.autocomplete_columns.includes(el));
+
       return {
         ...foreignKey,
         autocomplete_columns: columnNames,
