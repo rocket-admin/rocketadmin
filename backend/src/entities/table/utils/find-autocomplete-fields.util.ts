@@ -10,12 +10,9 @@ export function findAutocompleteFieldsUtil(
   tableSettings: TableSettingsEntity,
   referencedColumn: string,
 ): AutocompleteFieldsDs {
-  const rowNames = tableStructure.map((el) => {
-    return el.column_name;
-  });
+  const rowNames = new Set(tableStructure.map((el) => el.column_name));
 
-  const { excluded_fields: excludedFields } = tableSettings;
-  if (excludedFields?.indexOf(referencedColumn) >= 0 || rowNames.indexOf(referencedColumn) < 0) {
+  if (tableSettings?.excluded_fields?.includes(referencedColumn) || !rowNames.has(referencedColumn)) {
     throw new HttpException(
       {
         message: Messages.EXCLUDED_OR_NOT_EXISTS(referencedColumn),
@@ -24,38 +21,26 @@ export function findAutocompleteFieldsUtil(
     );
   }
 
-  let autocompleteFields = [];
-  autocompleteFields.push(referencedColumn);
-  if (tableSettings && tableSettings.autocomplete_columns) {
-    for (const column of tableSettings.autocomplete_columns) {
-      const index = rowNames.indexOf(column);
-      if (index >= 0) {
-        autocompleteFields.push(rowNames.at(index));
-      }
-    }
-  } else if (tableSettings && tableSettings.excluded_fields) {
-    for (const column of tableSettings.excluded_fields) {
-      const indexInAll = rowNames.indexOf(column);
-      const indexInExcluded = tableSettings.excluded_fields.indexOf(column);
-      if (indexInAll >= 0 && indexInExcluded < 0) {
-        autocompleteFields.push(column);
-      }
-    }
+  let autocompleteFields = [referencedColumn];
+
+  if (tableSettings?.autocomplete_columns) {
+    autocompleteFields.push(...tableSettings.autocomplete_columns.filter((column) => rowNames.has(column)));
+  } else if (tableSettings?.excluded_fields) {
+    autocompleteFields.push(
+      ...tableSettings.excluded_fields.filter(
+        (column) => rowNames.has(column) && !tableSettings.excluded_fields.includes(column),
+      ),
+    );
   } else {
-    autocompleteFields = rowNames;
+    autocompleteFields = [...rowNames];
   }
-  if (tableSettings) {
-    const identityColumnIndex = autocompleteFields.findIndex((columnName) => {
-      return columnName === tableSettings?.identity_column;
-    });
-    if (identityColumnIndex < 0) {
-      if (tableSettings.identity_column && tableSettings.identity_column.length > 0) {
-        autocompleteFields.unshift(tableSettings.identity_column);
-      }
-    }
+
+  if (tableSettings?.identity_column && !autocompleteFields.includes(tableSettings.identity_column)) {
+    autocompleteFields.unshift(tableSettings.identity_column);
   }
+
   return {
     fields: autocompleteFields,
-    value: query['autocomplete'] === '' ? '*' : query['autocomplete'] as string,
+    value: query['autocomplete'] === '' ? '*' : (query['autocomplete'] as string),
   };
 }
