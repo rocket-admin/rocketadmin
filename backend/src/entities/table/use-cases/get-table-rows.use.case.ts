@@ -20,14 +20,11 @@ import { TableSettingsEntity } from '../../table-settings/table-settings.entity.
 import { FoundTableRowsDs } from '../application/data-structures/found-table-rows.ds.js';
 import { GetTableRowsDs } from '../application/data-structures/get-table-rows.ds.js';
 import { FilteringFieldsDs, ForeignKeyDSInfo } from '../table-datastructures.js';
-import { addCustomFieldsInRowsUtil } from '../utils/add-custom-fields-in-rows.util.js';
-import { convertBinaryDataInRowsUtil } from '../utils/convert-binary-data-in-rows.util.js';
 import { findAutocompleteFieldsUtil } from '../utils/find-autocomplete-fields.util.js';
 import { findFilteringFieldsUtil, parseFilteringFieldsFromBodyData } from '../utils/find-filtering-fields.util.js';
 import { findOrderingFieldUtil } from '../utils/find-ordering-field.util.js';
 import { formFullTableStructure } from '../utils/form-full-table-structure.js';
 import { isHexString } from '../utils/is-hex-string.js';
-import { removePasswordsFromRowsUtil } from '../utils/remove-passwords-from-rows.util.js';
 import { IGetTableRows } from './table-use-cases.interface.js';
 import { IDataAccessObjectAgent } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/interfaces/data-access-object-agent.interface.js';
 import { IDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/interfaces/data-access-object.interface.js';
@@ -37,6 +34,7 @@ import { FoundRowsDS } from '@rocketadmin/shared-code/src/data-access-layer/shar
 import { UnknownSQLException } from '../../../exceptions/custom-exceptions/unknown-sql-exception.js';
 import { ExceptionOperations } from '../../../exceptions/custom-exceptions/exception-operation.js';
 import Sentry from '@sentry/minimal';
+import { processRowsUtil } from '../utils/process-found-rows-util.js';
 
 @Injectable()
 export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTableRowsDs> implements IGetTableRows {
@@ -141,9 +139,10 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
         throw new UnknownSQLException(e.message, ExceptionOperations.FAILED_TO_GET_ROWS_FROM_TABLE);
       }
 
-      rows = addCustomFieldsInRowsUtil(rows, tableCustomFields);
-      rows = convertBinaryDataInRowsUtil(rows, tableStructure);
-      rows = removePasswordsFromRowsUtil(rows, tableWidgets);
+      rows = processRowsUtil(rows, tableWidgets, tableStructure, tableCustomFields);
+      // rows = addCustomFieldsInRowsUtil(rows, tableCustomFields);
+      // rows = convertBinaryDataInRowsUtil(rows, tableStructure);
+      // rows = removePasswordsFromRowsUtil(rows, tableWidgets);
 
       const foreignKeysFromWidgets: Array<ForeignKeyDSInfo> = tableWidgets
         .filter((el) => {
