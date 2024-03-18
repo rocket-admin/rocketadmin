@@ -140,42 +140,32 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
       }
 
       rows = processRowsUtil(rows, tableWidgets, tableStructure, tableCustomFields);
-      // rows = addCustomFieldsInRowsUtil(rows, tableCustomFields);
-      // rows = convertBinaryDataInRowsUtil(rows, tableStructure);
-      // rows = removePasswordsFromRowsUtil(rows, tableWidgets);
 
       const foreignKeysFromWidgets: Array<ForeignKeyDSInfo> = tableWidgets
-        .filter((el) => {
-          return el.widget_type === WidgetTypeEnum.Foreign_key;
-        })
-        .map((widget) => {
-          return widget.widget_params as unknown as ForeignKeyDSInfo;
-        });
+        .filter((widget) => widget.widget_type === WidgetTypeEnum.Foreign_key)
+        .map((widget) => widget.widget_params as unknown as ForeignKeyDSInfo);
 
-      tableForeignKeys = tableForeignKeys.concat(foreignKeysFromWidgets);
+      tableForeignKeys = [...tableForeignKeys, ...foreignKeysFromWidgets];
 
-      const canUserReadForeignTables: Array<{
-        tableName: string;
-        canRead: boolean;
-      }> = await Promise.all(
-        tableForeignKeys.map(async (foreignKey) => {
-          const cenTableRead = await this._dbContext.userAccessRepository.checkTableRead(
-            userId,
-            connectionId,
-            foreignKey.referenced_table_name,
-            masterPwd,
-          );
-          return {
-            tableName: foreignKey.referenced_table_name,
-            canRead: cenTableRead,
-          };
-        }),
+      const canUserReadForeignTables = await Promise.all(
+        tableForeignKeys.map((foreignKey) =>
+          this._dbContext.userAccessRepository
+            .checkTableRead(userId, connectionId, foreignKey.referenced_table_name, masterPwd)
+            .then((canRead) => ({
+              tableName: foreignKey.referenced_table_name,
+              canRead,
+            })),
+        ),
       );
-      tableForeignKeys = tableForeignKeys.filter((foreignKey) => {
-        return canUserReadForeignTables.find((el) => {
-          return el.tableName === foreignKey.referenced_table_name && el.canRead;
-        });
-      });
+
+      const readableForeignTables = new Set(
+        canUserReadForeignTables.filter(({ canRead }) => canRead).map(({ tableName }) => tableName),
+      );
+
+      tableForeignKeys = tableForeignKeys.filter(({ referenced_table_name }) =>
+        readableForeignTables.has(referenced_table_name),
+      );
+
 
       if (tableForeignKeys && tableForeignKeys.length > 0) {
         tableForeignKeys = await Promise.all(
@@ -190,11 +180,13 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
       }
 
       const formedTableStructure = formFullTableStructure(tableStructure, tableSettings);
+      
       const largeDataset = rows.large_dataset
         ? true
         : rows.pagination.total > Constants.LARGE_DATASET_ROW_LIMIT
           ? true
           : false;
+
       const rowsRO = {
         rows: rows.data,
         primaryColumns: tablePrimaryColumns,
