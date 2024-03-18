@@ -166,7 +166,6 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
         readableForeignTables.has(referenced_table_name),
       );
 
-
       if (tableForeignKeys && tableForeignKeys.length > 0) {
         tableForeignKeys = await Promise.all(
           tableForeignKeys.map((el) => {
@@ -180,7 +179,7 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
       }
 
       const formedTableStructure = formFullTableStructure(tableStructure, tableSettings);
-      
+
       const largeDataset = rows.large_dataset
         ? true
         : rows.pagination.total > Constants.LARGE_DATASET_ROW_LIMIT
@@ -205,28 +204,29 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
         table_actions: tableActions.map((el) => buildCreatedTableActionDS(el)),
         large_dataset: largeDataset,
       };
+
       let identities = [];
 
-      if (tableForeignKeys && tableForeignKeys.length > 0) {
+      if (tableForeignKeys?.length > 0) {
         identities = await Promise.all(
           tableForeignKeys.map(async (foreignKey) => {
-            const foreignKeysValuesCollection = [];
-            for (const row of rowsRO.rows) {
-              if (row[foreignKey.column_name]) {
-                foreignKeysValuesCollection.push(row[foreignKey.column_name]);
-              }
-            }
+            const foreignKeysValuesCollection = rowsRO.rows
+              .filter((row) => row[foreignKey.column_name])
+              .map((row) => row[foreignKey.column_name]) as (string | number)[];
+
             const foreignTableSettings = await this._dbContext.tableSettingsRepository.findTableSettings(
               connectionId,
               foreignKey.referenced_table_name,
             );
+
             const identityColumns = await dao.getIdentityColumns(
               foreignKey.referenced_table_name,
               foreignKey.referenced_column_name,
-              foreignTableSettings?.identity_column ? foreignTableSettings.identity_column : undefined,
+              foreignTableSettings?.identity_column,
               foreignKeysValuesCollection,
               userEmail,
             );
+
             return {
               referenced_table_name: foreignKey.referenced_table_name,
               identity_columns: identityColumns,
