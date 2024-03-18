@@ -7,20 +7,21 @@ export function removePasswordsFromRowsUtil(rows: FoundRowsDS, tableWidgets: Arr
   if (!tableWidgets || tableWidgets.length <= 0) {
     return rows;
   }
-  const passwordWidgets = tableWidgets.filter((el) => {
-    return el.widget_type === WidgetTypeEnum.Password;
-  });
+
+  const passwordWidgets = tableWidgets.filter((el) => el.widget_type === WidgetTypeEnum.Password);
+
   if (passwordWidgets.length <= 0) {
     return rows;
   }
-  const { data } = rows;
-  rows.data = data.map((row) => {
-    for (const widget of passwordWidgets) {
+
+  rows.data = rows.data.map((row) => {
+    passwordWidgets.forEach((widget) => {
       if (row[widget.field_name]) {
         row[widget.field_name] = Constants.REMOVED_PASSWORD_VALUE;
       }
-    }
+    });
     return row;
   });
+
   return rows;
 }

@@ -94,12 +94,9 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
         this._dbContext.tableActionRepository.findTableActions(connectionId, tableName),
       ]);
 
-      let filteringFields: Array<FilteringFieldsDs> = [];
-      if (!isObjectEmpty(filters)) {
-        filteringFields = parseFilteringFieldsFromBodyData(filters, tableStructure);
-      } else {
-        filteringFields = findFilteringFieldsUtil(query, tableStructure);
-      }
+      const filteringFields: Array<FilteringFieldsDs> = isObjectEmpty(filters)
+        ? findFilteringFieldsUtil(query, tableStructure)
+        : parseFilteringFieldsFromBodyData(filters, tableStructure);
 
       const orderingField = findOrderingFieldUtil(query, tableStructure, tableSettings);
 
@@ -107,13 +104,12 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
       //todo rework in daos
       tableSettings = tableSettings ? tableSettings : ({} as TableSettingsEntity);
 
-      let autocompleteFields = undefined;
-      const autocomplete = query['autocomplete'];
-      const referencedColumn = query['referencedColumn'];
+      const { autocomplete, referencedColumn } = query;
 
-      if (autocomplete && referencedColumn) {
-        autocompleteFields = findAutocompleteFieldsUtil(query, tableStructure, tableSettings, referencedColumn);
-      }
+      const autocompleteFields =
+        autocomplete && referencedColumn
+          ? findAutocompleteFieldsUtil(query, tableStructure, tableSettings, referencedColumn)
+          : undefined;
 
       if (orderingField) {
         tableSettings.ordering_field = orderingField.field;
@@ -122,12 +118,9 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
 
       if (isHexString(searchingFieldValue)) {
         searchingFieldValue = hexToBinary(searchingFieldValue) as any;
-        const binaryFields = [];
-        for (const field of tableStructure) {
-          if (isBinary(field.data_type)) {
-            binaryFields.push(field.column_name);
-          }
-        }
+        const binaryFields = tableStructure
+          .filter((field) => isBinary(field.data_type))
+          .map((field) => field.column_name);
         tableSettings.search_fields = binaryFields;
       }
 
