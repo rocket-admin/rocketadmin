@@ -7,21 +7,18 @@ export function processUuidsInRowUtil(
   row: Record<string, unknown>,
   tableWidgets: Array<TableWidgetEntity>,
 ): Record<string, unknown> {
-  const uuidWidgets = tableWidgets.filter((el) => {
-    return el.widget_type === WidgetTypeEnum.UUID;
-  });
-  if (uuidWidgets.length <= 0) {
-    return row;
-  }
+  const uuidWidgets = tableWidgets?.filter((widget) => widget.widget_type === WidgetTypeEnum.UUID) || [];
 
   for (const widget of uuidWidgets) {
     try {
-      if (row[widget.field_name] && Buffer.isBuffer(JSON5.parse(widget.widget_params))) {
-        row[widget.field_name] = uuidStringify(JSON5.parse(widget.widget_params));
+      const widgetParams = JSON5.parse(widget.widget_params);
+      if (row[widget.field_name] && Buffer.isBuffer(widgetParams)) {
+        row[widget.field_name] = uuidStringify(widgetParams);
       }
     } catch (e) {
-      console.log('-> Error in password widget encryption processing', e);
+      console.log('-> Error in UUID widget processing', e);
     }
   }
+
   return row;
 }
