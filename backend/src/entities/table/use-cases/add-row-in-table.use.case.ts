@@ -1,4 +1,3 @@
-/* eslint-disable prefer-const */
 import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
@@ -28,7 +27,6 @@ import { IDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access
 import { IDataAccessObjectAgent } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/interfaces/data-access-object-agent.interface.js';
 import { ForeignKeyWithAutocompleteColumnsDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/foreign-key-with-autocomplete-columns.ds.js';
 import { ForeignKeyDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/foreign-key.ds.js';
-import { ReferencedTableNamesAndColumnsDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/referenced-table-names-columns.ds.js';
 
 @Injectable()
 export class AddRowInTableUseCase extends AbstractUseCase<AddRowInTableDs, TableRowRODs> implements IAddRowInTable {
@@ -42,8 +40,8 @@ export class AddRowInTableUseCase extends AbstractUseCase<AddRowInTableDs, Table
   }
 
   protected async implementation(inputData: AddRowInTableDs): Promise<TableRowRODs> {
-    // eslint-disable-next-line prefer-const
-    let { connectionId, masterPwd, row, tableName, userId } = inputData;
+    const { connectionId, masterPwd, tableName, userId } = inputData;
+    let { row } = inputData;
     const connection = await this._dbContext.connectionRepository.findAndDecryptConnection(connectionId, masterPwd);
     if (!connection) {
       throw new HttpException(
@@ -61,6 +59,7 @@ export class AddRowInTableUseCase extends AbstractUseCase<AddRowInTableDs, Table
     if (isConnectionTypeAgent(connection.type)) {
       userEmail = await this._dbContext.userRepository.getUserEmailOrReturnNull(userId);
     }
+
     const isView = await dao.isView(tableName, userEmail);
     if (isView) {
       throw new HttpException(
@@ -70,7 +69,8 @@ export class AddRowInTableUseCase extends AbstractUseCase<AddRowInTableDs, Table
         HttpStatus.BAD_REQUEST,
       );
     }
-    let [
+
+    const [
       tableStructure,
       tableWidgets,
       tableSettings,
@@ -100,28 +100,28 @@ export class AddRowInTableUseCase extends AbstractUseCase<AddRowInTableDs, Table
       ).then((results) => results.filter(Boolean));
     }
 
-    const referencedTableNamesAndColumnsWithTablesDisplayNames: Array<ReferencedTableNamesAndColumnsDs> =
-      await Promise.all(
-        referencedTableNamesAndColumns.map(async (el: ReferencedTableNamesAndColumnsDS) => {
-          const { referenced_by, referenced_on_column_name } = el;
-          const responseObject: ReferencedTableNamesAndColumnsDs = {
-            referenced_on_column_name: referenced_on_column_name,
-            referenced_by: [],
+    const referencedTableNamesAndColumnsWithTablesDisplayNames: Array<ReferencedTableNamesAndColumnsDs> = [];
+
+    for (const el of referencedTableNamesAndColumns) {
+      const { referenced_by, referenced_on_column_name } = el;
+      const referenced_by_with_display_name = await Promise.all(
+        referenced_by.map(async (element) => {
+          const foundTableSettings = await this._dbContext.tableSettingsRepository.findTableSettings(
+            connectionId,
+            element.table_name,
+          );
+          return {
+            ...element,
+            display_name: foundTableSettings?.display_name || null,
           };
-          for (const element of referenced_by) {
-            const foundTableSettings = await this._dbContext.tableSettingsRepository.findTableSettings(
-              connectionId,
-              element.table_name,
-            );
-            const displayName = foundTableSettings?.display_name ? foundTableSettings.display_name : null;
-            responseObject.referenced_by.push({
-              ...element,
-              display_name: displayName,
-            });
-          }
-          return responseObject;
         }),
       );
+
+      referencedTableNamesAndColumnsWithTablesDisplayNames.push({
+        referenced_on_column_name,
+        referenced_by: referenced_by_with_display_name,
+      });
+    }
 
     if (tableSettings && !tableSettings?.can_add) {
       throw new HttpException(
@@ -133,24 +133,16 @@ export class AddRowInTableUseCase extends AbstractUseCase<AddRowInTableDs, Table
     }
 
     const foreignKeysFromWidgets: Array<ForeignKeyDSInfo> = tableWidgets
-      .filter((el) => {
-        return el.widget_type === WidgetTypeEnum.Foreign_key;
-      })
-      .map((widget) => {
-        return widget.widget_params as unknown as ForeignKeyDSInfo;
-      });
+      .filter((el) => el.widget_type === WidgetTypeEnum.Foreign_key)
+      .map((widget) => widget.widget_params as unknown as ForeignKeyDSInfo);
 
-    tableForeignKeys = tableForeignKeys.concat(foreignKeysFromWidgets);
+    let foreignKeysWithKeysFromWidgets = [...tableForeignKeys, ...foreignKeysFromWidgets];
 
     let foreignKeysWithAutocompleteColumns: Array<ForeignKeyWithAutocompleteColumnsDS> = [];
 
-    tableForeignKeys = tableForeignKeys.concat(foreignKeysFromWidgets);
-    const canUserReadForeignTables: Array<{
-      tableName: string;
-      canRead: boolean;
-    }> = await Promise.all(
-      tableForeignKeys.map(async (foreignKey) => {
-        const cenTableRead = await this._dbContext.userAccessRepository.checkTableRead(
+    const canUserReadForeignTables = await Promise.all(
+      foreignKeysWithKeysFromWidgets.map(async (foreignKey) => {
+        const canRead = await this._dbContext.userAccessRepository.checkTableRead(
           userId,
           connectionId,
           foreignKey.referenced_table_name,
@@ -158,21 +150,22 @@ export class AddRowInTableUseCase extends AbstractUseCase<AddRowInTableDs, Table
         );
         return {
           tableName: foreignKey.referenced_table_name,
-          canRead: cenTableRead,
+          canRead,
         };
       }),
     );
-    tableForeignKeys = tableForeignKeys.filter((foreignKey) => {
-      return canUserReadForeignTables.find((el) => {
-        return el.tableName === foreignKey.referenced_table_name && el.canRead;
-      });
-    });
 
-    if (tableForeignKeys && tableForeignKeys.length > 0) {
+    const canReadMap = new Map(canUserReadForeignTables.map((item) => [item.tableName, item.canRead]));
+
+    foreignKeysWithKeysFromWidgets = foreignKeysWithKeysFromWidgets.filter((foreignKey) =>
+      canReadMap.get(foreignKey.referenced_table_name),
+    );
+
+    if (foreignKeysWithKeysFromWidgets?.length > 0) {
       foreignKeysWithAutocompleteColumns = await Promise.all(
-        tableForeignKeys.map((el) => {
+        foreignKeysWithKeysFromWidgets.map(async (el) => {
           try {
-            return this.attachForeignColumnNames(el, userId, connectionId, dao);
+            return await this.attachForeignColumnNames(el, userId, connectionId, dao);
           } catch (e) {
             return el as ForeignKeyWithAutocompleteColumnsDS;
           }
@@ -189,6 +182,7 @@ export class AddRowInTableUseCase extends AbstractUseCase<AddRowInTableDs, Table
         HttpStatus.BAD_REQUEST,
       );
     }
+
     const formedTableStructure = formFullTableStructure(tableStructure, tableSettings);
     try {
       row = await hashPasswordsInRowUtil(row, tableWidgets);
