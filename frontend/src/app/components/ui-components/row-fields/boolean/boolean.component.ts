@@ -30,10 +30,6 @@ export class BooleanRowComponent implements OnInit {
   ngOnInit(): void {
     this.connectionType = this._connections.currentConnection.type;
 
-    console.log('boolean oninit');
-    console.log(this.label);
-    console.log(this.value);
-
     if (this.value) {
       this.value = true;
     } else if (this.value === 0 || this.value === '') {
@@ -42,14 +38,19 @@ export class BooleanRowComponent implements OnInit {
       this.value = null;
     }
 
-    console.log('boolean oninit after if');
-    console.log(this.label);
-    console.log(this.value);
-
     this.onFieldChange.emit(this.value);
 
     this.isRadiogroup = (this.structure?.allow_null) || !!(this.widgetStructure?.widget_params?.structure?.allow_null);
 
     this.normalizedLabel = normalizeFieldName(this.label);
+  }
+
+  onToggleChange(optionValue: boolean): void {
+    if (this.value === optionValue) {
+      this.value = null;
+    } else {
+      this.value = optionValue;
+    }
+    this.onFieldChange.emit(this.value);
   }
 }

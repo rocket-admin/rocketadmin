@@ -199,7 +199,7 @@ export class DashboardComponent implements OnInit {
     });
 
     filterDialodRef.afterClosed().subscribe(action => {
-      if (action === 'filter' || action === 'reset') {
+      if (action === 'filter') {
         const filtersFromDialog = {...filterDialodRef.componentInstance.tableRowFieldsShown};
 
         const nonEmptyFilters = omitBy(filtersFromDialog, (value) => value === undefined);
@@ -224,6 +224,10 @@ export class DashboardComponent implements OnInit {
             action: 'Dashboard: filter is applied',
           });
         }
+      } else if (action === 'reset') {
+        this.filters = {};
+        this.getRows();
+        this.router.navigate([`/dashboard/${this.connectionID}/${this.selectedTableName}`]);
       }
     })
   }
