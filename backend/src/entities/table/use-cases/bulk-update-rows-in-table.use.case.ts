@@ -5,7 +5,6 @@ import { UpdateRowsInTableDs } from '../application/data-structures/update-rows-
 import { IBulkUpdateRowsInTable } from './table-use-cases.interface.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
-import { AmplitudeService } from '../../amplitude/amplitude.service.js';
 import { TableLogsService } from '../../table-logs/table-logs.service.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { getDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/create-data-access-object.js';
@@ -26,7 +25,6 @@ export class BulkUpdateRowsInTableUseCase
   constructor(
     @Inject(BaseType.GLOBAL_DB_CONTEXT)
     protected _dbContext: IGlobalDatabaseContext,
-    private amplitudeService: AmplitudeService,
     private tableLogsService: TableLogsService,
   ) {
     super();

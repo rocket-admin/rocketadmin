@@ -14,8 +14,6 @@ import { DeletedRowFromTableDs } from '../application/data-structures/deleted-ro
 import { convertHexDataInPrimaryKeyUtil } from '../utils/convert-hex-data-in-primary-key.util.js';
 import { IDeleteRowFromTable } from './table-use-cases.interface.js';
 import { DeleteRowException } from '../../../exceptions/custom-exceptions/delete-row-exception.js';
-import { TableStructureDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/table-structure.ds.js';
-import { PrimaryKeyDS } from '@rocketadmin/shared-code/src/data-access-layer/shared/data-structures/primary-key.ds.js';
 import { UnknownSQLException } from '../../../exceptions/custom-exceptions/unknown-sql-exception.js';
 import { ExceptionOperations } from '../../../exceptions/custom-exceptions/exception-operation.js';
 
@@ -36,6 +34,7 @@ export class DeleteRowFromTableUseCase
   protected async implementation(inputData: DeleteRowFromTableDs): Promise<DeletedRowFromTableDs> {
     // eslint-disable-next-line prefer-const
     let { connectionId, masterPwd, primaryKey, tableName, userId } = inputData;
+
     let operationResult = OperationResultStatusEnum.unknown;
     if (!primaryKey) {
       throw new HttpException(
@@ -58,9 +57,11 @@ export class DeleteRowFromTableUseCase
 
     const dao = getDataAccessObject(connection);
     let userEmail: string;
+
     if (isConnectionTypeAgent(connection.type)) {
       userEmail = await this._dbContext.userRepository.getUserEmailOrReturnNull(userId);
     }
+
     const isView = await dao.isView(tableName, userEmail);
     if (isView) {
       throw new HttpException(
@@ -70,34 +71,23 @@ export class DeleteRowFromTableUseCase
         HttpStatus.BAD_REQUEST,
       );
     }
-    let tableStructure: Array<TableStructureDS>;
-    let primaryColumns: Array<PrimaryKeyDS>;
-    const [tableStructureResult, primaryColumnsResult] = await Promise.allSettled([
+
+    const [tableStructure, primaryColumns] = await Promise.all([
       dao.getTableStructure(tableName, userEmail),
       dao.getTablePrimaryColumns(tableName, userEmail),
     ]);
-    const errors = [];
-    if (tableStructureResult.status === 'fulfilled') {
-      tableStructure = tableStructureResult.value;
-    } else {
-      errors.push(tableStructureResult.reason);
-    }
-    if (primaryColumnsResult.status === 'fulfilled') {
-      primaryColumns = primaryColumnsResult.value;
-    } else {
-      errors.push(primaryColumnsResult.reason);
-    }
-
-    if (errors.length > 0) {
-      throw new UnknownSQLException(errors.map((error) => error.message).join('\n'), ExceptionOperations.FAILED_TO_DELETE_ROW_FROM_TABLE);
-    }
 
     primaryKey = convertHexDataInPrimaryKeyUtil(primaryKey, tableStructure);
     const availablePrimaryColumns: Array<string> = primaryColumns.map((column) => column.column_name);
-    for (const key in primaryKey) {
+
+    Object.keys(primaryKey).forEach((key) => {
       // eslint-disable-next-line security/detect-object-injection
-      if (!primaryKey[key] && primaryKey[key] !== '') delete primaryKey[key];
-    }
+      if (!primaryKey[key] && primaryKey[key] !== '') {
+        // eslint-disable-next-line security/detect-object-injection
+        delete primaryKey[key];
+      }
+    });
+
     const receivedPrimaryColumns = Object.keys(primaryKey);
     if (!compareArrayElements(availablePrimaryColumns, receivedPrimaryColumns)) {
       throw new HttpException(
@@ -107,8 +97,8 @@ export class DeleteRowFromTableUseCase
         HttpStatus.BAD_REQUEST,
       );
     }
-    const tableSettings = await this._dbContext.tableSettingsRepository.findTableSettings(connectionId, tableName);
 
+    const tableSettings = await this._dbContext.tableSettingsRepository.findTableSettings(connectionId, tableName);
     if (tableSettings && !tableSettings?.can_delete) {
       throw new HttpException(
         {
@@ -117,6 +107,7 @@ export class DeleteRowFromTableUseCase
         HttpStatus.FORBIDDEN,
       );
     }
+
     let oldRowData: Record<string, unknown>;
     try {
       oldRowData = await dao.getRowByPrimaryKey(tableName, primaryKey, tableSettings, userEmail);
@@ -132,6 +123,7 @@ export class DeleteRowFromTableUseCase
         HttpStatus.BAD_REQUEST,
       );
     }
+
     try {
       await dao.deleteRowInTable(tableName, primaryKey, userEmail);
       operationResult = OperationResultStatusEnum.successfully;
