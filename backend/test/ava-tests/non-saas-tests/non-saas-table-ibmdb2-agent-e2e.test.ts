@@ -2941,7 +2941,7 @@ test(`${currentTest} should return csv file with table data`, async (t) => {
   t.is(createConnectionResponse.status, 201);
 
   const getTableCsvResponse = await request(app.getHttpServer())
-    .get(`/table/csv/${createConnectionRO.id}?tableName=${testTableName}`)
+    .post(`/table/csv/export/${createConnectionRO.id}?tableName=${testTableName}`)
     .set('Cookie', firstUserToken)
     .set('Content-Type', 'text/csv')
     .set('Accept', 'text/csv');
@@ -3001,8 +3001,8 @@ with search and pagination: page=1, perPage=2 and DESC sorting`, async (t) => {
   t.is(createTableSettingsResponse.status, 201);
 
   const getTableCsvResponse = await request(app.getHttpServer())
-    .get(
-      `/table/csv/${createConnectionRO.id}?tableName=${testTableName}&search=${testSearchedUserName}&page=1&perPage=2`,
+    .post(
+      `/table/csv/export/${createConnectionRO.id}?tableName=${testTableName}&search=${testSearchedUserName}&page=1&perPage=2`,
     )
     .set('Cookie', firstUserToken)
     .set('Content-Type', 'text/csv')

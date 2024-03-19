@@ -497,8 +497,9 @@ export class TableController {
     status: 200,
     description: 'Export table as csv file.',
   })
+  @ApiBody({ type: FindAllRowsWithBodyFiltersDto })
   @UseGuards(TableReadGuard)
-  @Get('/table/csv/:slug')
+  @Post('/table/csv/export/:slug')
   async exportCSVFromTable(
     @QueryTableName() tableName: string,
     @Query('page') page: any,
@@ -508,6 +509,7 @@ export class TableController {
     @SlugUuid() connectionId: string,
     @UserId() userId: string,
     @MasterPassword() masterPwd: string,
+    @Body() body: FindAllRowsWithBodyFiltersDto,
   ): Promise<StreamableFile> {
     if (!connectionId) {
       throw new HttpException(
@@ -538,6 +540,7 @@ export class TableController {
       searchingFieldValue: searchingFieldValue,
       tableName: tableName,
       userId: userId,
+      filters: body.filters,
     };
     return await this.exportCSVFromTableUseCase.execute(inputData, InTransactionEnum.OFF);
   }
