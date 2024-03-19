@@ -249,20 +249,16 @@ export class AddRowInTableUseCase extends AbstractUseCase<AddRowInTableDs, Table
     dao: IDataAccessObject | IDataAccessObjectAgent,
   ): Promise<ForeignKeyWithAutocompleteColumnsDS> {
     try {
-      const [foreignTableSettings, foreignTableStructure] = await Promise.all([
-        this._dbContext.tableSettingsRepository.findTableSettings(connectionId, foreignKey.referenced_table_name),
-        dao.getTableStructure(foreignKey.referenced_table_name, userId),
-      ]);
+      const foreignTableSettings = await this._dbContext.tableSettingsRepository.findTableSettings(
+        connectionId,
+        foreignKey.referenced_table_name,
+      );
+      const foreignTableStructure = await dao.getTableStructure(foreignKey.referenced_table_name, userId);
 
-      let columnNames = foreignTableStructure.map((el) => {
-        return el.column_name;
-      });
-      if (foreignTableSettings && foreignTableSettings.autocomplete_columns.length > 0) {
-        columnNames = columnNames.filter((el) => {
-          const index = foreignTableSettings.autocomplete_columns.indexOf(el);
-          return index >= 0;
-        });
-      }
+      const columnNames = foreignTableStructure
+        .map((el) => el.column_name)
+        .filter((el) => foreignTableSettings?.autocomplete_columns.includes(el));
+
       return {
         ...foreignKey,
         autocomplete_columns: columnNames,
