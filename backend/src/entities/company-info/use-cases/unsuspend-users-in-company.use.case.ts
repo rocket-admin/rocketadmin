@@ -1,5 +1,7 @@
 import {
   BadRequestException,
+  HttpException,
+  HttpStatus,
   Inject,
   Injectable,
   InternalServerErrorException,
@@ -44,6 +46,15 @@ export class UnsuspendUsersInCompanyUseCase
     }
 
     if (isSaaS()) {
+      const canInviteMoreUsers = await this.saasCompanyGatewayService.canInviteMoreUsers(companyInfoId);
+      if (!canInviteMoreUsers) {
+        throw new HttpException(
+          {
+            message: Messages.CANT_UNSUSPEND_USERS_FREE_PLAN,
+          },
+          HttpStatus.BAD_REQUEST,
+        );
+      }
       const { success } = await this.saasCompanyGatewayService.unSuspendUsersInCompany(companyInfoId, userIdsToSuspend);
       if (!success) {
         throw new InternalServerErrorException(Messages.SAAS_SUSPEND_USERS_FAILED_UNHANDLED_ERROR);
