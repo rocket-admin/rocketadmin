@@ -31,6 +31,7 @@ import {
   IInviteUserInCompanyAndConnectionGroup,
   IRemoveUserFromCompany,
   IRevokeUserInvitationInCompany,
+  ISuspendUsersInCompany,
   IUpdateCompanyName,
   IUpdateUsers2faStatusInCompany,
   IUpdateUsersCompanyRoles,
@@ -61,6 +62,7 @@ import { UpdateUsersRolesRequestDto } from './application/dto/update-users-roles
 import { InTransactionEnum } from '../../enums/in-transaction.enum.js';
 import { UpdateUsers2faStatusInCompanyDto } from './application/dto/update-users-2fa-status-in-company.dto.js';
 import { UpdateUsers2faStatusInCompanyDs } from './application/data-structures/update-users-2fa-status-in-company.ds.js';
+import { SuspendUsersInCompanyDto } from './application/dto/suspend-users-in-company.dto.js';
 
 @UseInterceptors(SentryInterceptor)
 @Controller('company')
@@ -97,6 +99,8 @@ export class CompanyInfoController {
     private readonly checkIsVerificationLinkAvailableUseCase: ICheckVerificationLinkAvailable,
     @Inject(UseCaseType.UPDATE_USERS_2FA_STATUS_IN_COMPANY)
     private readonly updateUses2faStatusInCompanyUseCase: IUpdateUsers2faStatusInCompany,
+    @Inject(UseCaseType.SUSPEND_USERS_IN_COMPANY)
+    private readonly suspendUsersInCompanyUseCase: ISuspendUsersInCompany,
   ) {}
 
   @ApiOperation({ summary: 'Get user company' })
@@ -380,5 +384,21 @@ export class CompanyInfoController {
       is2faEnabled,
     };
     return await this.updateUses2faStatusInCompanyUseCase.execute(inputData, InTransactionEnum.ON);
+  }
+
+  @ApiOperation({ summary: 'Suspend users in company' })
+  @ApiResponse({
+    status: 200,
+    description: 'Users suspended.',
+    type: SuccessResponse,
+  })
+  @ApiBody({ type: SuspendUsersInCompanyDto })
+  @UseGuards(CompanyAdminGuard)
+  @Put('/users/suspend/:companyId')
+  async suspendUsersInCompany(
+    @Param('companyId') companyInfoId: string,
+    @Body() { usersEmails }: SuspendUsersInCompanyDto,
+  ): Promise<SuccessResponse> {
+    return await this.suspendUsersInCompanyUseCase.execute({ companyInfoId, usersEmails }, InTransactionEnum.ON);
   }
 }

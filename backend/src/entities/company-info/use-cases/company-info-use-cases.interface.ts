@@ -13,6 +13,7 @@ import { InviteUserInCompanyAndConnectionGroupDs } from '../application/data-str
 import { InvitedUserInCompanyAndConnectionGroupDs } from '../application/data-structures/invited-user-in-company-and-connection-group.ds.js';
 import { RemoveUserFromCompanyDs } from '../application/data-structures/remove-user-from-company.ds.js';
 import { RevokeUserInvitationDs } from '../application/data-structures/revoke-user-invitation.dto.js';
+import { SuspendUsersInCompanyDS } from '../application/data-structures/suspend-users-in-company.ds.js';
 import { UpdateCompanyNameDS } from '../application/data-structures/update-company-name.ds.js';
 import { UpdateUsers2faStatusInCompanyDs } from '../application/data-structures/update-users-2fa-status-in-company.ds.js';
 import { UpdateUsersCompanyRolesDs } from '../application/data-structures/update-users-company-roles.ds.js';
@@ -71,4 +72,8 @@ export interface ICheckVerificationLinkAvailable {
 
 export interface IUpdateUsers2faStatusInCompany {
   execute(inputData: UpdateUsers2faStatusInCompanyDs, inTransaction: InTransactionEnum): Promise<SuccessResponse>;
+}
+
+export interface ISuspendUsersInCompany {
+  execute(inputData: SuspendUsersInCompanyDS, inTransaction: InTransactionEnum): Promise<SuccessResponse>;
 }
