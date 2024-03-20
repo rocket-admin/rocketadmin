@@ -200,6 +200,7 @@ export const Messages = {
   SAAS_DELETE_COMPANY_FAILED_UNHANDLED_ERROR: `Failed to delete company in SaaS. Please contact our support team.`,
   SAAS_UPDATE_2FA_STATUS_FAILED_UNHANDLED_ERROR: `Failed to update 2fa status in SaaS. Please contact our support team.`,
   SAAS_SUSPEND_USERS_FAILED_UNHANDLED_ERROR: `Failed to suspend users in SaaS. Please contact our support team.`,
+  SAAS_UNSUSPEND_USERS_FAILED_UNHANDLED_ERROR: `Failed to unsuspend users in SaaS. Please contact our support team.`,
   SOMETHING_WENT_WRONG_ROW_ADD: 'Something went wrong on row insertion, check inserted parameters and try again',
   SSH_FORMAT_INCORRECT: 'Ssh value must be a boolean',
   SSH_HOST_MISSING: 'Ssh host is missing',
@@ -309,6 +310,7 @@ export const Messages = {
   MAXIMUM_FREE_INVITATION_REACHED_CANNOT_BE_INVITED_IN_COMPANY:
     'Sorry you can not join this company because reached maximum number of users for free plan. Please ask you connection owner to upgrade plan or delete unused user accounts from company',
   MAXIMUM_INVITATIONS_COUNT_REACHED_CANT_INVITE: ` Sorry, the maximum number of of users for free plan has been reached. You can't invite more users. Please ask you connection owner to upgrade plan or delete unused user accounts from company, or revoke unaccepted invitations.`,
+  CANT_UNSUSPEND_USERS_FREE_PLAN: `You can't unsuspend users because reached maximum number of users for free plan. Please ask you connection owner to upgrade plan or delete unused/suspended user accounts from company, or revoke unaccepted invitations.`,
   FAILED_CREATE_SUBSCRIPTION_LOG: 'Failed to create subscription log. Please contact our support team.',
   FAILED_CREATE_SUBSCRIPTION_LOG_YOUR_CUSTOMER_IS_DELETED: `Failed to create subscription log. Your customer is deleted. Please contact our support team.`,
   URL_INVALID: `Url is invalid`,
