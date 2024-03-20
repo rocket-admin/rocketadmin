@@ -101,6 +101,8 @@ export class CompanyInfoController {
     private readonly updateUses2faStatusInCompanyUseCase: IUpdateUsers2faStatusInCompany,
     @Inject(UseCaseType.SUSPEND_USERS_IN_COMPANY)
     private readonly suspendUsersInCompanyUseCase: ISuspendUsersInCompany,
+    @Inject(UseCaseType.UNSUSPEND_USERS_IN_COMPANY)
+    private readonly unSuspendUsersInCompanyUseCase: ISuspendUsersInCompany,
   ) {}
 
   @ApiOperation({ summary: 'Get user company' })
@@ -400,5 +402,21 @@ export class CompanyInfoController {
     @Body() { usersEmails }: SuspendUsersInCompanyDto,
   ): Promise<SuccessResponse> {
     return await this.suspendUsersInCompanyUseCase.execute({ companyInfoId, usersEmails }, InTransactionEnum.ON);
+  }
+
+  @ApiOperation({ summary: 'Unsuspend users in company' })
+  @ApiResponse({
+    status: 200,
+    description: 'Users unsuspend.',
+    type: SuccessResponse,
+  })
+  @ApiBody({ type: SuspendUsersInCompanyDto })
+  @UseGuards(CompanyAdminGuard)
+  @Put('/users/unsuspend/:companyId')
+  async unSuspendUsersInCompany(
+    @Param('companyId') companyInfoId: string,
+    @Body() { usersEmails }: SuspendUsersInCompanyDto,
+  ): Promise<SuccessResponse> {
+    return await this.unSuspendUsersInCompanyUseCase.execute({ companyInfoId, usersEmails }, InTransactionEnum.ON);
   }
 }
