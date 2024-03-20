@@ -116,10 +116,9 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
 
       if (isHexString(searchingFieldValue)) {
         searchingFieldValue = hexToBinary(searchingFieldValue) as any;
-        const binaryFields = tableStructure
+        tableSettings.search_fields = tableStructure
           .filter((field) => isBinary(field.data_type))
           .map((field) => field.column_name);
-        tableSettings.search_fields = binaryFields;
       }
 
       let rows: FoundRowsDS;
@@ -165,7 +164,7 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
       tableForeignKeys = tableForeignKeys.filter(({ referenced_table_name }) =>
         readableForeignTables.has(referenced_table_name),
       );
-  
+
       if (tableForeignKeys && tableForeignKeys.length > 0) {
         tableForeignKeys = await Promise.all(
           tableForeignKeys.map((el) => {

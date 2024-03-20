@@ -5,7 +5,6 @@ import { UpdateRowsInTableDs } from '../application/data-structures/update-rows-
 import { IBulkUpdateRowsInTable } from './table-use-cases.interface.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
-import { AmplitudeService } from '../../amplitude/amplitude.service.js';
 import { TableLogsService } from '../../table-logs/table-logs.service.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { getDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/create-data-access-object.js';
@@ -26,7 +25,6 @@ export class BulkUpdateRowsInTableUseCase
   constructor(
     @Inject(BaseType.GLOBAL_DB_CONTEXT)
     protected _dbContext: IGlobalDatabaseContext,
-    private amplitudeService: AmplitudeService,
     private tableLogsService: TableLogsService,
   ) {
     super();
@@ -36,7 +34,7 @@ export class BulkUpdateRowsInTableUseCase
     const { connectionId, masterPwd, newValues, primaryKeys, tableName, userId } = inputData;
     let operationResult = OperationResultStatusEnum.unknown;
 
-    if (!primaryKeys || !primaryKeys.length) {
+    if (!primaryKeys?.length) {
       throw new HttpException(
         {
           message: Messages.PRIMARY_KEY_MISSING,
@@ -44,6 +42,7 @@ export class BulkUpdateRowsInTableUseCase
         HttpStatus.BAD_REQUEST,
       );
     }
+
     const connection = await this._dbContext.connectionRepository.findAndDecryptConnection(connectionId, masterPwd);
     if (!connection) {
       throw new HttpException(
@@ -77,11 +76,12 @@ export class BulkUpdateRowsInTableUseCase
       this._dbContext.tableWidgetsRepository.findTableWidgets(connectionId, tableName),
     ]);
 
-    primaryKeys.map((primaryKey) => {
-      return convertHexDataInPrimaryKeyUtil(primaryKey, tableStructure);
+    primaryKeys.forEach((primaryKey) => {
+      convertHexDataInPrimaryKeyUtil(primaryKey, tableStructure);
     });
 
     const availablePrimaryColumns: Array<string> = primaryColumns.map((column) => column.column_name);
+
     for (const key of primaryKeys) {
       const receivedPrimaryColumns = Object.keys(key);
       if (!availablePrimaryColumns.every((column) => receivedPrimaryColumns.includes(column))) {
@@ -93,12 +93,9 @@ export class BulkUpdateRowsInTableUseCase
         );
       }
     }
-    const oldRowsData: Array<Record<string, unknown>> = [];
-    await Promise.all(
-      primaryKeys.map(async (primaryKey) => {
-        const oldRowData = await dao.getRowByPrimaryKey(tableName, primaryKey, tableSettings, userEmail);
-        oldRowsData.push(oldRowData);
-      }),
+
+    const oldRowsData: Array<Record<string, unknown>> = await Promise.all(
+      primaryKeys.map((primaryKey) => dao.getRowByPrimaryKey(tableName, primaryKey, tableSettings, userEmail)),
     );
 
     try {
