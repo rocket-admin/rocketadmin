@@ -159,6 +159,7 @@ export const Messages = {
   ORDERING_FIELD_INCORRECT: `Value of sorting order is incorrect. You can choose from values ${enumToString(
     QueryOrderingEnum,
   )}`,
+  NO_USERS_TO_SUSPEND: 'No users available for suspension. Please verify the user emails.',
   OTP_NOT_ENABLED: `OTP is not enabled`,
   OTP_VALIDATION_FAILED: `OTP validation failed`,
   OTP_DISABLING_FAILED: `OTP disabling failed`,
@@ -198,6 +199,7 @@ export const Messages = {
   SAAS_UPDATE_USERS_ROLES_FAILED_UNHANDLED_ERROR: `Failed to update users roles in SaaS. Please contact our support team.`,
   SAAS_DELETE_COMPANY_FAILED_UNHANDLED_ERROR: `Failed to delete company in SaaS. Please contact our support team.`,
   SAAS_UPDATE_2FA_STATUS_FAILED_UNHANDLED_ERROR: `Failed to update 2fa status in SaaS. Please contact our support team.`,
+  SAAS_SUSPEND_USERS_FAILED_UNHANDLED_ERROR: `Failed to suspend users in SaaS. Please contact our support team.`,
   SOMETHING_WENT_WRONG_ROW_ADD: 'Something went wrong on row insertion, check inserted parameters and try again',
   SSH_FORMAT_INCORRECT: 'Ssh value must be a boolean',
   SSH_HOST_MISSING: 'Ssh host is missing',
