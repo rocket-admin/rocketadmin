@@ -2946,10 +2946,10 @@ test(`${currentTest} should return csv file with table data`, async (t) => {
     .set('Content-Type', 'text/csv')
     .set('Accept', 'text/csv');
 
-  if (getTableCsvResponse.status !== 200) {
+  if (getTableCsvResponse.status !== 201) {
     console.log(getTableCsvResponse.text);
   }
-  t.is(getTableCsvResponse.status, 200);
+  t.is(getTableCsvResponse.status, 201);
   const fileName = `${testTableName}.csv`;
   const downloadedFilePatch = join(__dirname, 'response-files', fileName);
 
@@ -3008,10 +3008,10 @@ with search and pagination: page=1, perPage=2 and DESC sorting`, async (t) => {
     .set('Content-Type', 'text/csv')
     .set('Accept', 'text/csv');
 
-  if (getTableCsvResponse.status !== 200) {
+  if (getTableCsvResponse.status !== 201) {
     console.log(getTableCsvResponse.text);
   }
-  t.is(getTableCsvResponse.status, 200);
+  t.is(getTableCsvResponse.status, 201);
   const fileName = `${testTableName}.csv`;
   const downloadedFilePatch = join(__dirname, 'response-files', fileName);
 
