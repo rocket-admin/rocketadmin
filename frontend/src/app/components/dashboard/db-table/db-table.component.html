@@ -109,12 +109,12 @@
         cdkDropList
         cdkDropListOrientation="horizontal">
         <mat-chip
-            class="example-box"
+            class="chip-filter"
             cdkDrag
             *ngFor="let activeFilter of activeFilters | keyvalue"
             (removed)="removeFilter.emit(activeFilter.key)"
             >
-            {{ getFilter(activeFilter.key, activeFilter.value) }}
+            {{ getFilter(activeFilter) }}
             <button matChipRemove>
                 <mat-icon>cancel</mat-icon>
             </button>

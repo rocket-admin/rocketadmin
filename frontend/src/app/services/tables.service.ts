@@ -92,20 +92,13 @@ export class TablesService {
     foreignKeyRowName,
     foreignKeyRowValue,
     referencedColumn,
-    filters, comparators,
+    filters,
     search
   }: TableParams) {
     let foreignKeyRowParamName = foreignKeyRowName === 'autocomplete' ? foreignKeyRowName : `f_${foreignKeyRowName}__eq`;
-    let filterParams = {}
-    if (filters && comparators) {
-      Object.keys(filters).forEach(
-        key => {
-          filterParams[`f_${key}__${comparators[key]}`] = filters[key];
-      })
-    }
 
     if (tableName) {
-      return this._http.get<any>(`/table/rows/${connectionID}`, {
+      return this._http.post<any>(`/table/rows/find/${connectionID}`, { filters }, {
         params: {
           tableName,
           perPage: chunkSize.toString(),
@@ -115,7 +108,6 @@ export class TablesService {
           ...(referencedColumn ? {referencedColumn} : {}),
           ...(sortColumn ? {sort_by: sortColumn} : {}),
           ...(sortOrder ? {sort_order: sortOrder} : {}),
-          ...(filterParams ? filterParams : {})
         }
       })
       .pipe(

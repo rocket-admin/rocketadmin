@@ -82,15 +82,9 @@ export class BooleanFilterComponent implements OnInit {
         formattedValue = this.booleanValue;
     }
 
-    this.onFieldChange.emit(formattedValue);
-  }
+    console.log('formattedValue');
+    console.log(formattedValue);
 
-  onToggleChange(optionValue: boolean): void {
-    if (this.value === optionValue) {
-      this.value = null;
-    } else {
-      this.value = optionValue;
-    }
-    this.onFieldChange.emit(this.value);
+    this.onFieldChange.emit(formattedValue);
   }
 }

@@ -255,6 +255,9 @@ export class DbTableRowEditComponent implements OnInit {
     if (this.keyAttributesFromURL && Object.keys(this.keyAttributesFromURL).includes(field)) {
       this.isPrimaryKeyUpdated = true
     };
+
+    console.log('updateField');
+    console.log(this.tableRowValues);
   }
 
   getFormattedUpdatedRow = () => {

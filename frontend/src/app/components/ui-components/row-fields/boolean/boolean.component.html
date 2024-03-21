@@ -2,7 +2,7 @@
     <label id="">{{normalizedLabel}}</label>
     <mat-button-toggle-group name="{{label}}-{{key}}" attr.data-testid="record-{{label}}-boolean-radio-group"
         [disabled]="disabled"
-        [(ngModel)]="value">
+        [value]="value">
         <mat-button-toggle [value]=true (click)="onToggleChange(true)">Yes</mat-button-toggle>
         <mat-button-toggle [value]=false (click)="onToggleChange(false)">No</mat-button-toggle>
     </mat-button-toggle-group>

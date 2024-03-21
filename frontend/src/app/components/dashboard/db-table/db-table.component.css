@@ -253,3 +253,7 @@ tr.mat-row:hover {
 .hidden {
     display: none;
 }
+
+.chip-filter {
+    margin-left: 8px;
+}

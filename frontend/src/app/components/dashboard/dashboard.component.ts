@@ -2,7 +2,7 @@ import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { Component, OnInit } from '@angular/core';
 import { CustomAction, CustomActionType, TableProperties } from 'src/app/models/table';
 import { first, map } from 'rxjs/operators';
-import { getComparators, getFilters } from 'src/app/lib/parse-filter-params';
+import { getComparatorsFromUrl } from 'src/app/lib/parse-filter-params';
 
 import { Angulartics2 } from 'angulartics2';
 import { BbBulkActionConfirmationDialogComponent } from './db-bulk-action-confirmation-dialog/db-bulk-action-confirmation-dialog.component';
@@ -22,6 +22,7 @@ import { Title } from '@angular/platform-browser';
 import { User } from 'src/app/models/user';
 import { normalizeTableName } from '../../lib/normalize'
 import { omitBy } from "lodash";
+import JsonURL from "@jsonurl/jsonurl";
 
 interface DataToActivateActions {
   action: CustomAction,
@@ -49,7 +50,7 @@ export class DashboardComponent implements OnInit {
   public currentPage: number = 1;
   public shownTableTitles: boolean = true;
   public connectionID: string;
-  public filters: object;
+  public filters: object = {};
   public comparators: object;
 
   public loading: boolean = true;
@@ -172,8 +173,8 @@ export class DashboardComponent implements OnInit {
   setTable(tableName: string) {
     this.selectedTableName = tableName;
     this.route.queryParams.pipe(first()).subscribe((queryParams) => {
-      this.filters = getFilters(queryParams);
-      this.comparators = getComparators(queryParams);
+      this.filters = JsonURL.parse( queryParams.filters );
+      this.comparators = getComparatorsFromUrl(this.filters);
       const search = queryParams.search;
       this.getRows(search);
     })
@@ -206,20 +207,19 @@ export class DashboardComponent implements OnInit {
         this.comparators = filterDialodRef.componentInstance.tableRowFieldsComparator;
 
         if (Object.keys(nonEmptyFilters).length) {
-          this.filters = Object.keys(nonEmptyFilters)
-            .reduce((filtersObj, key) => {
-              filtersObj[key] = filtersFromDialog[key].toString().trim();
-              return filtersObj;
-            }, {});
+          this.filters = {};
+          for (const key in nonEmptyFilters) {
+              if (this.comparators[key] !== undefined) {
+                this.filters[key] = {
+                      [this.comparators[key]]: nonEmptyFilters[key]
+                  };
+              }
+          }
 
-          const filtersQueryParams = Object.keys(this.filters)
-            .reduce((paramsObj, key) => {
-              paramsObj[`f__${key}__${this.comparators[key]}`] = this.filters[key];
-              return paramsObj;
-            }, {});
+          const filters = JsonURL.stringify( this.filters );
 
           this.getRows();
-          this.router.navigate([`/dashboard/${this.connectionID}/${this.selectedTableName}`], { queryParams: {...filtersQueryParams, page_index: 0} });
+          this.router.navigate([`/dashboard/${this.connectionID}/${this.selectedTableName}`], { queryParams: {filters, page_index: 0} });
           this.angulartics2.eventTrack.next({
             action: 'Dashboard: filter is applied',
           });
@@ -236,14 +236,10 @@ export class DashboardComponent implements OnInit {
     this.filters[columnName] = undefined;
     this.filters = omitBy(this.filters, (value) => value === undefined);
 
-    const filtersQueryParams = Object.keys(this.filters)
-      .reduce((paramsObj, key) => {
-        paramsObj[`f__${key}__${this.comparators[key]}`] = this.filters[key];
-        return paramsObj;
-      }, {});
+    const filters = JsonURL.stringify( this.filters );
 
-      this.getRows();
-      this.router.navigate([`/dashboard/${this.connectionID}/${this.selectedTableName}`], { queryParams: {...filtersQueryParams, page_index: 0} });
+    this.getRows();
+    this.router.navigate([`/dashboard/${this.connectionID}/${this.selectedTableName}`], { queryParams: {filters, page_index: 0} });
   }
 
   clearAllFilters() {
@@ -267,7 +263,6 @@ export class DashboardComponent implements OnInit {
       sortColumn: undefined,
       sortOrder: undefined,
       filters: this.filters,
-      comparators: this.comparators,
       search
     });
   }

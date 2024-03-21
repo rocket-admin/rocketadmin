@@ -2252,6 +2252,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@jsonurl/jsonurl@npm:^1.1.7":
+  version: 1.1.7
+  resolution: "@jsonurl/jsonurl@npm:1.1.7"
+  checksum: 796a83667cb24c8914729f99550c753f6f371b1c755bb48cd500e0c7068ffc80d1692dd36b49ccc5f9afbd0958b29f41514f3491e59a8e1e201c9f3736923422
+  languageName: node
+  linkType: hard
+
 "@leichtgewicht/ip-codec@npm:^2.0.1":
   version: 2.0.4
   resolution: "@leichtgewicht/ip-codec@npm:2.0.4"
@@ -5631,6 +5638,7 @@ __metadata:
     "@angular/router": ~15.2.3
     "@brumeilde/ngx-theme": ^1.0.1
     "@ctrl/ngx-codemirror": ^6.1.0
+    "@jsonurl/jsonurl": ^1.1.7
     "@nghacks/ngmat-table-query-reflector": ^0.1.3
     "@sentry-internal/rrweb": ^1.108.0
     "@sentry/angular-ivy": ^7.74.1
