@@ -1,10 +1,10 @@
-import { ConnectionTypeEnum } from '../../../../enums/index.js';
+import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/enums/connection-types-enum.js';
 
 export class CreateConnectionDs {
   connection_parameters: {
     title: string;
     masterEncryption: boolean;
-    type: ConnectionTypeEnum;
+    type: ConnectionTypesEnum;
     host: string;
     port: number;
     username: string;

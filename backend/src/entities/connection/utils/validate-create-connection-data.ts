@@ -3,7 +3,7 @@ import { HttpException } from '@nestjs/common/exceptions/http.exception.js';
 import dns from 'dns';
 import ipRangeCheck from 'ip-range-check';
 import validator from 'validator';
-import { ConnectionTypeEnum } from '../../../enums/index.js';
+import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/enums/connection-types-enum.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { isConnectionTypeAgent, toPrettyErrorsMsg } from '../../../helpers/index.js';
 import { isSaaS } from '../../../helpers/app/is-saas.js';
@@ -78,7 +78,7 @@ function validateConnectionType(type: string): string {
   if (process.env.NODE_ENV === 'test') {
     return Object.keys(ConnectionTypeTestEnum).find((key) => key === type);
   }
-  return Object.keys(ConnectionTypeEnum).find((key) => key === type);
+  return Object.keys(ConnectionTypesEnum).find((key) => key === type);
 }
 
 async function checkIsHostAllowed(createConnectionData: CreateConnectionDs | UpdateConnectionDs): Promise<boolean> {

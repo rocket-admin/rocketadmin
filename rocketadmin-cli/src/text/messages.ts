@@ -1,13 +1,13 @@
 import { enumToString } from '../helpers/enum-to-string.js';
 import { QueryOrderingEnum } from '../enums/query-ordering.enum.js';
-import { ConnectionTypeEnum } from '../enums/connection-type.enum.js';
+import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/enums/connection-types-enum.js';
 import { Constants } from '../helpers/constants/constants.js';
 
 export const Messages = {
   APPLICATION_ENCRYPTION_PASSWORD_INVALID: `Invalid encryption password`,
   CANT_LIST_AND_EXCLUDE: `You cannot select the same field names to view and exclude`,
   CANT_ORDER_AND_EXCLUDE: `You cannot select the same field names to order and exclude`,
-  CONNECTION_TYPE_INVALID: `Unsupported database type. Now we supports ${enumToString(ConnectionTypeEnum)}`,
+  CONNECTION_TYPE_INVALID: `Unsupported database type. Now we supports ${enumToString(ConnectionTypesEnum)}`,
   CONNECTION_HOST_INVALID: `Invalid connection host`,
   CONNECTION_PORT_INVALID: `Invalid connection port`,
   CONNECTION_USERNAME_INVALID: `Invalid connection username`,

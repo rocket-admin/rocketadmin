@@ -1,12 +1,12 @@
 import { Messages } from '../text/messages.js';
 import { ICLIConnectionCredentials } from '../interfaces/interfaces.js';
-import { ConnectionTypeEnum } from '../enums/connection-type.enum.js';
+import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/enums/connection-types-enum.js';
 
 export function validateConnectionData(connectionData: ICLIConnectionCredentials): Array<string> {
   const errors = [];
 
   function validateConnectionType(type: string): string {
-    return Object.keys(ConnectionTypeEnum).find((key) => key === type);
+    return Object.keys(ConnectionTypesEnum).find((key) => key === type);
   }
 
   if (!validateConnectionType(connectionData.type)) errors.push(Messages.CONNECTION_TYPE_INVALID);
