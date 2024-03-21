@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { ConnectionTypeEnum } from '../../../../enums/index.js';
+import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/enums/connection-types-enum.js';
 import { GroupEntity } from '../../../group/group.entity.js';
 
 export class CreatedConnectionDs {
@@ -12,8 +12,8 @@ export class CreatedConnectionDs {
   @ApiProperty()
   masterEncryption: boolean;
 
-  @ApiProperty({ enum: ConnectionTypeEnum })
-  type: ConnectionTypeEnum | string;
+  @ApiProperty({ enum: ConnectionTypesEnum })
+  type: ConnectionTypesEnum | string;
 
   @ApiProperty()
   host: string;

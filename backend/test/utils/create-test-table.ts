@@ -2,7 +2,7 @@
 import { faker } from '@faker-js/faker';
 import { getRandomConstraintName, getRandomTestTableName } from './get-random-test-table-name.js';
 import { getTestKnex } from './get-test-knex.js';
-import { ConnectionTypeEnum } from '../../src/enums/connection-type.enum.js';
+import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/enums/connection-types-enum.js';
 import ibmdb, { Database } from 'ibm_db';
 
 export async function createTestTable(
@@ -10,7 +10,7 @@ export async function createTestTable(
   testEntitiesSeedsCount = 42,
   testSearchedUserName = 'Vasia',
 ): Promise<CreatedTableInfo> {
-  if (connectionParams.type === ConnectionTypeEnum.ibmdb2) {
+  if (connectionParams.type === ConnectionTypesEnum.ibmdb2) {
     return createTestTableIbmDb2(connectionParams, testEntitiesSeedsCount, testSearchedUserName);
   }
   const testTableName = getRandomTestTableName();

@@ -108,7 +108,7 @@ export class DataAccessObjectPostgres extends BasicDataAccessObject implements I
     tableName: string,
     settings: TableSettingsDS,
     page: number,
-    perPage: number,
+    perPage: number, 
     searchedFieldValue: string,
     filteringFields: FilteringFieldsDS[],
     autocompleteFields: AutocompleteFieldsDS,

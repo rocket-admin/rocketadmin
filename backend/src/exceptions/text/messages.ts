@@ -1,5 +1,4 @@
 import {
-  ConnectionTypeEnum,
   EncryptionAlgorithmEnum,
   LogOperationTypeEnum,
   ProviderTypeEnum,
@@ -12,7 +11,7 @@ import {
 import { toPrettyErrorsMsg } from '../../helpers/index.js';
 import { enumToString } from '../../helpers/enum-to-string.js';
 import { UserRoleEnum } from '../../entities/user/enums/user-role.enum.js';
-
+import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/enums/connection-types-enum.js';
 export const Messages = {
   ACCOUNT_SUSPENDED:
     'Your account has been suspended. Please reach out to your company administrator for assistance or contact our support team for further help',
@@ -64,7 +63,7 @@ export const Messages = {
     `Connection test failed with error: ${
       message.toLowerCase().includes('timedout') ? '"Connection timed out"' : `"${message}"`
     }`,
-  CONNECTION_TYPE_INVALID: `Unsupported database type. Now we supports ${enumToString(ConnectionTypeEnum)}`,
+  CONNECTION_TYPE_INVALID: `Unsupported database type. Now we supports ${enumToString(ConnectionTypesEnum)}`,
   CONNECTION_PROPERTIES_INVALID: 'Connection properties are invalid',
   CONNECTION_PROPERTIES_CANT_BE_EMPTY: `Connection properties cannot be empty`,
   CONNECTION_PROPERTIES_NOT_FOUND: `Connection properties not found`,
@@ -284,7 +283,7 @@ export const Messages = {
   USER_ID_MISSING: 'User id is missing',
   USER_TRY_CREATE_CONNECTION: (email: string) => `User "${email}" tried to create connection.`,
   USER_CREATED_CONNECTION: (email: string) => `User "${email}" created connection.`,
-  USER_SUCCESSFULLY_TESTED_CONNECTION: (userEmail: string, connectionType: ConnectionTypeEnum) =>
+  USER_SUCCESSFULLY_TESTED_CONNECTION: (userEmail: string, connectionType: ConnectionTypesEnum) =>
     `User "${userEmail}" successfully tested the "${connectionType}" connection.`,
   USERNAME_MISSING: 'Username is missing',
   USER_ACTION_INCORRECT: `User action message if incorrect. Supported actions are ${enumToString(UserActionEnum)}`,

@@ -1,5 +1,5 @@
 import { Knex } from 'knex';
-import { ConnectionTypeEnum } from '../../enums/index.js';
+import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/enums/connection-types-enum.js';
 import { getProcessVariable } from '../get-process-variable.js';
 import { CreateConnectionDto } from '../../entities/connection/application/dto/create-connection.dto.js';
 
@@ -103,7 +103,7 @@ export const Constants = {
   TEST_CONNECTION_TO_POSTGRES: {
     title: 'Postgres',
     masterEncryption: false,
-    type: ConnectionTypeEnum.postgres,
+    type: ConnectionTypesEnum.postgres,
     username: getProcessVariable('POSTGRES_CONNECTION_USERNAME') || null,
     password: getProcessVariable('POSTGRES_CONNECTION_PASSWORD') || null,
     host: getProcessVariable('POSTGRES_CONNECTION_HOST') || null,
@@ -115,7 +115,7 @@ export const Constants = {
   TEST_CONNECTION_TO_MSSQL: {
     title: 'MSSQL',
     masterEncryption: false,
-    type: ConnectionTypeEnum.mssql,
+    type: ConnectionTypesEnum.mssql,
     host: getProcessVariable('MSSQL_CONNECTION_HOST') || null,
     port: parseInt(getProcessVariable('MSSQL_CONNECTION_PORT')) || null,
     password: getProcessVariable('MSSQL_CONNECTION_PASSWORD') || null,
@@ -128,7 +128,7 @@ export const Constants = {
 
   TEST_CONNECTION_TO_ORACLE: {
     title: 'Oracle',
-    type: ConnectionTypeEnum.oracledb,
+    type: ConnectionTypesEnum.oracledb,
     host: getProcessVariable('ORACLE_CONNECTION_HOST') || null,
     port: parseInt(getProcessVariable('ORACLE_CONNECTION_PORT')) || null,
     username: getProcessVariable('ORACLE_CONNECTION_USERNAME') || null,
@@ -140,7 +140,7 @@ export const Constants = {
 
   TEST_SSH_CONNECTION_TO_MYSQL: {
     title: 'MySQL',
-    type: ConnectionTypeEnum.mysql,
+    type: ConnectionTypesEnum.mysql,
     host: getProcessVariable('MYSQL_CONNECTION_HOST') || null,
     port: parseInt(getProcessVariable('MYSQL_CONNECTION_PORT')) || null,
     username: getProcessVariable('MYSQL_CONNECTION_USERNAME') || null,

@@ -1,7 +1,6 @@
 export { AccessLevelEnum } from './access-level.enum.js';
 export { AdministrationAccessLevelEnum } from './administration-access-level.enum.js';
 export { AmplitudeEventTypeEnum } from './amplitude-event-type.enum.js';
-export { ConnectionTypeEnum } from './connection-type.enum.js';
 export { EncryptionAlgorithmEnum } from './encryption-algorithm.enum.js';
 export { FilterCriteriaEnum } from './filter-criteria.enum.js';
 export { InTransactionEnum } from './in-transaction.enum.js';
