@@ -169,7 +169,7 @@ export class DataAccessObjectMssql extends BasicDataAccessObject implements IDat
               [FilterCriteriaEnum.gte]: '>=',
               [FilterCriteriaEnum.contains]: 'like',
               [FilterCriteriaEnum.icontains]: 'not like',
-              [FilterCriteriaEnum.empty]: ['is', '='],
+              [FilterCriteriaEnum.empty]: 'is',
             };
 
             const values = {
@@ -177,15 +177,9 @@ export class DataAccessObjectMssql extends BasicDataAccessObject implements IDat
               [FilterCriteriaEnum.endswith]: `%${value}`,
               [FilterCriteriaEnum.contains]: `%${value}%`,
               [FilterCriteriaEnum.icontains]: `%${value}%`,
-              [FilterCriteriaEnum.empty]: [null, ''],
+              [FilterCriteriaEnum.empty]: null,
             };
-
-            if (criteria === FilterCriteriaEnum.empty) {
-              builder.where(field, operators[criteria][0], values[criteria][0]);
-              builder.orWhere(field, operators[criteria][1], values[criteria][1]);
-            } else {
-              builder.where(field, operators[criteria], values[criteria] || value);
-            }
+            builder.where(field, operators[criteria], values[criteria] || value);
           }
         }
       });

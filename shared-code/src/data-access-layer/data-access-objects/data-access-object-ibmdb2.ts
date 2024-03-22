@@ -215,7 +215,7 @@ export class DataAccessObjectIbmDb2 extends BasicDataAccessObject implements IDa
             case FilterCriteriaEnum.icontains:
               return `${filterObject.field} NOT LIKE '%${filterObject.value}%'`;
             case FilterCriteriaEnum.empty:
-              return `(${filterObject.field} IS NULL OR ${filterObject.field} = '')`;
+              return `(${filterObject.field} IS NULL)`;
           }
         })
         .join(' AND ');
