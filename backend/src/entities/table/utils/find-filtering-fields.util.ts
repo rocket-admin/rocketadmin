@@ -101,9 +101,10 @@ export function parseFilteringFieldsFromBodyData(
         if (!validateStringWithEnum(key, FilterCriteriaEnum)) {
           throw new Error(`Invalid filter criteria: "${key}".`);
         }
+        const isValueNull = filtersDataFromBody[rowName][key] === null && key === FilterCriteriaEnum.eq;
         filteringItems.push({
           field: rowName,
-          criteria: key as FilterCriteriaEnum,
+          criteria: isValueNull ? FilterCriteriaEnum.empty : (key as FilterCriteriaEnum),
           value: filtersDataFromBody[rowName][key],
         });
       }
