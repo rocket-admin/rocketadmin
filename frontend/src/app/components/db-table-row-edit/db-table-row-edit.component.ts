@@ -260,13 +260,9 @@ export class DbTableRowEditComponent implements OnInit {
   getFormattedUpdatedRow = () => {
     let updatedRow = {...this.tableRowValues};
 
-    console.log('updatedRow before');
-    console.log(updatedRow);
-
     //crutch, format datetime fields
     //if no one edit manually datetime field, we have to remove '.000Z', cuz mysql return this format but it doen't record it
 
-    // found in updatedRow all datetime values and for DBtype.MySQL substitute 'T' with space, remove 'Z' and remove everything after '.'
     if (this._connections.currentConnection.type === DBtype.MySQL) {
       const datetimeFields = Object.entries(this.tableTypes)
         .filter(([key, value]) => value === 'datetime');
