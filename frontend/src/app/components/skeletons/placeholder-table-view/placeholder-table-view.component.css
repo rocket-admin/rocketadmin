@@ -36,6 +36,13 @@
     width: 80px;
 }
 
+.table-header__icon-button {
+    border-radius: 50%;
+    margin-left: 12px;
+    height: 36px;
+    width: 36px;
+}
+
 .table-view {
     padding: 0 24px 24px;
 }

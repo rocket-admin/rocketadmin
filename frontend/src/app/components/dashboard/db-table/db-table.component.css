@@ -99,6 +99,8 @@
 }
 
 .action-button_disabled {
+    --mdc-theme-text-disabled-on-background: rgba(0, 0, 0, 0.78);
+
     pointer-events: none;
 }
 
