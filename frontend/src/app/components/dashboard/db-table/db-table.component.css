@@ -254,6 +254,6 @@ tr.mat-row:hover {
     display: none;
 }
 
-.chip-filter {
+.chip-filter:not(:first-child) {
     margin-left: 8px;
 }
