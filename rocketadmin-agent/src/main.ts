@@ -9,14 +9,14 @@ import { checkConnection } from './helpers/check-connection.js';
 import { ICLIConnectionCredentials } from './interfaces/interfaces.js';
 import { Config } from './shared/config/config.js';
 import { CLIQuestionUtility } from './helpers/cli/cli-questions.js';
-import { ConnectionTypeEnum } from './enums/connection-type.enum.js';
+import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/enums/connection-types-enum.js';
 import { mkDirIfNotExistsUtil } from './helpers/write-file-util.js';
 import { Constants } from './helpers/constants/constants.js';
 
 async function bootstrap() {
   const connectionCredentials: ICLIConnectionCredentials = Config.getConnectionConfig();
   await NestFactory.create(AppModule);
-  const remoteWebsocketAddRess = process.env.REMOTE_WEBSOCKET_ADDRESS || 'wss://ws.autoadmin.org:443/';
+  const remoteWebsocketAddRess = process.env.REMOTE_WEBSOCKET_ADDRESS || 'wss://ws.rocketadmin.com:443/';
   function connect() {
     const ws = new WebSocket(remoteWebsocketAddRess);
 
@@ -141,10 +141,10 @@ async function bootstrap() {
     connectionCredentials.password = CLIQuestionUtility.askConnectionPassword();
     connectionCredentials.database = CLIQuestionUtility.askConnectionDatabase();
     connectionCredentials.schema = CLIQuestionUtility.askConnectionSchema();
-    if (connectionCredentials.type === ConnectionTypeEnum.oracledb) {
+    if (connectionCredentials.type === ConnectionTypesEnum.oracledb) {
       connectionCredentials.sid = CLIQuestionUtility.askConnectionSid();
     }
-    if (connectionCredentials.type === ConnectionTypeEnum.mssql) {
+    if (connectionCredentials.type === ConnectionTypesEnum.mssql) {
       connectionCredentials.azure_encryption = CLIQuestionUtility.askConnectionAzureEncryption();
     }
     connectionCredentials.cert = null;

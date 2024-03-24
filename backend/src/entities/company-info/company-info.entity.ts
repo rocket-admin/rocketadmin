@@ -17,6 +17,9 @@ export class CompanyInfoEntity {
   @Column({ type: 'varchar', length: 255, unique: true, nullable: true })
   name: string;
 
+  @Column({ type: 'boolean', default: false })
+  is2faEnabled: boolean;
+  
   @BeforeInsert()
   getRandomName(): void {
     if (!this.name) {

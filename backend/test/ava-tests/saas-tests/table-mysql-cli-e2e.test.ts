@@ -2382,7 +2382,6 @@ test(`${currentTest} should throw an exception when primary key passed in reques
   t.is(message, 'Failed to update row in table. No data returned from agent');
 });
 
-
 currentTest = 'PUT /table/rows/update/:connectionId';
 
 test(`${currentTest} should update multiple rows and return result`, async (t) => {
@@ -2443,7 +2442,6 @@ test(`${currentTest} should update multiple rows and return result`, async (t) =
   t.is(secondRow.row[testTableColumnName], fakeName);
   t.is(secondRow.row[testTableSecondColumnName], fakeMail);
 });
-
 
 currentTest = 'DELETE /table/row/:slug';
 
@@ -3091,15 +3089,15 @@ test(`${currentTest} should return csv file with table data`, async (t) => {
   t.is(typeof getTableRowsRO, 'object');
 
   const getTableCsvResponse = await request(app.getHttpServer())
-    .get(`/table/csv/${createConnectionRO.id}?tableName=${testTableName}`)
+    .post(`/table/csv/export/${createConnectionRO.id}?tableName=${testTableName}`)
     .set('Cookie', firstUserToken)
     .set('Content-Type', 'text/csv')
     .set('Accept', 'text/csv');
 
-  if (getTableCsvResponse.status !== 200) {
+  if (getTableCsvResponse.status !== 201) {
     console.log(getTableCsvResponse.text);
   }
-  t.is(getTableCsvResponse.status, 200);
+  t.is(getTableCsvResponse.status, 201);
   const fileName = `${testTableName}.csv`;
   const downloadedFilePatch = join(__dirname, 'response-files', fileName);
 

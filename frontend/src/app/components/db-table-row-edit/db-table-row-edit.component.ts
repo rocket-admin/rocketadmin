@@ -264,16 +264,23 @@ export class DbTableRowEditComponent implements OnInit {
     let updatedRow = {...this.tableRowValues};
 
     //crutch, format datetime fields
+    //if no one edit manually datetime field, we have to remove '.000Z', cuz mysql return this format but it doen't record it
+
     if (this._connections.currentConnection.type === DBtype.MySQL) {
       const datetimeFields = Object.entries(this.tableTypes)
         .filter(([key, value]) => value === 'datetime');
       if (datetimeFields.length) {
         for (const datetimeField of datetimeFields) {
-          if (updatedRow[datetimeField[0]]) updatedRow[datetimeField[0]] = updatedRow[datetimeField[0]].split('.')[0];
+          if (updatedRow[datetimeField[0]]) {
+            updatedRow[datetimeField[0]] = updatedRow[datetimeField[0]].replace('T', ' ').replace('Z', '').split('.')[0];
+          }
         }
       }
     }
     //end crutch
+
+    console.log('updatedRow after');
+    console.log(updatedRow);
 
     //parse json fields
     const jsonFields = Object.entries(this.tableTypes)

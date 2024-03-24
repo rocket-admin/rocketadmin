@@ -50,7 +50,9 @@ export const userCustomRepositoryExtension: IUserRepository = {
   ): Promise<UserEntity | null> {
     const userQb = this.createQueryBuilder('user').where('user.email = :userEmail', { userEmail: email });
     if (externalRegistrationProvider) {
-      userQb.andWhere('user.externalRegistrationProvider = :externalRegistrationProvider', { externalRegistrationProvider: externalRegistrationProvider });
+      userQb.andWhere('user.externalRegistrationProvider = :externalRegistrationProvider', {
+        externalRegistrationProvider: externalRegistrationProvider,
+      });
     }
     return userQb.getOne();
   },
@@ -177,9 +179,37 @@ export const userCustomRepositoryExtension: IUserRepository = {
   ): Promise<Array<UserEntity>> {
     const usersQb = this.createQueryBuilder('user').where('user.email = :userEmail', { userEmail: email });
     if (externalRegistrationProvider) {
-      usersQb.andWhere('user.externalRegistrationProvider = :externalRegistrationProvider', { externalRegistrationProvider: externalRegistrationProvider });
+      usersQb.andWhere('user.externalRegistrationProvider = :externalRegistrationProvider', {
+        externalRegistrationProvider: externalRegistrationProvider,
+      });
     }
     return await usersQb.getMany();
+  },
+
+  async findUsersByEmailsAndCompanyId(usersEmails: Array<string>, companyId: string): Promise<Array<UserEntity>> {
+    const usersQb = this.createQueryBuilder('user')
+      .leftJoinAndSelect('user.company', 'company')
+      .where('user.email IN (:...userEmails)', { userEmails: usersEmails })
+      .andWhere('company.id = :companyId', { companyId: companyId });
+    return await usersQb.getMany();
+  },
+
+  async suspendUsers(userIds: Array<string>): Promise<Array<UserEntity>> {
+    const usersQb = this.createQueryBuilder('user')
+      .update()
+      .set({ suspended: true })
+      .where('id IN (:...userIds)', { userIds: userIds });
+    await usersQb.execute();
+    return await this.createQueryBuilder('user').whereInIds(userIds).getMany();
+  },
+
+  async unSuspendUsers(userIds: Array<string>): Promise<Array<UserEntity>> {
+    const usersQb = this.createQueryBuilder('user')
+      .update()
+      .set({ suspended: false })
+      .where('id IN (:...userIds)', { userIds: userIds });
+    await usersQb.execute();
+    return await this.createQueryBuilder('user').whereInIds(userIds).getMany();
   },
 
   async bulkSaveUpdatedUsers(updatedUsers: Array<UserEntity>): Promise<Array<UserEntity>> {

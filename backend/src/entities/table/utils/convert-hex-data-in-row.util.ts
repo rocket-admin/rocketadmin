@@ -6,23 +6,14 @@ export function convertHexDataInRowUtil(
   row: Record<string, unknown>,
   structure: Array<TableStructureDS>,
 ): Record<string, unknown> {
-  const binaryColumns = structure
-    .map((el) => {
-      return {
-        column_name: el.column_name,
-        data_type: el.data_type,
-      };
-    })
-    .filter((el) => {
-      return isBinary(el.data_type);
-    });
-  if (binaryColumns.length <= 0) {
-    return row;
-  }
+  const binaryColumns = structure.filter((el) => isBinary(el.data_type));
+
   for (const column of binaryColumns) {
-    if (row[column.column_name]) {
-      row[column.column_name] = hexToBinary(row[column.column_name] as string);
+    const columnValue = row[column.column_name];
+    if (columnValue) {
+      row[column.column_name] = hexToBinary(columnValue as string);
     }
   }
+
   return row;
 }

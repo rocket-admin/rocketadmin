@@ -30,7 +30,7 @@ export interface IDataAccessObjectAgent {
     identityColumnName: string,
     fieldValues: Array<string | number>,
     userEmail: string,
-  ): Promise<Array<string>>;
+  ): Promise<Array<Record<string, unknown>>>;
 
   getRowByPrimaryKey(
     tableName: string,

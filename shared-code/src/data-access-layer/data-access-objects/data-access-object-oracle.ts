@@ -133,7 +133,7 @@ export class DataAccessObjectOracle extends BasicDataAccessObject implements IDa
     referencedFieldName: string,
     identityColumnName: string,
     fieldValues: (string | number)[],
-  ): Promise<string[]> {
+  ): Promise<Array<Record<string, unknown>>> {
     const knex = await this.configureKnex();
     tableName = this.attachSchemaNameToTableName(tableName);
     const columnsForSelect = [referencedFieldName];
@@ -166,7 +166,7 @@ export class DataAccessObjectOracle extends BasicDataAccessObject implements IDa
 
       if (tableSettings) {
         const tableStructure = await this.getTableStructure(tableName);
-        const availableFields = this.findAvaliableFields(tableSettings, tableStructure);
+        const availableFields = this.findAvailableFields(tableSettings, tableStructure);
         query = query.select(availableFields);
       }
 
@@ -229,7 +229,7 @@ export class DataAccessObjectOracle extends BasicDataAccessObject implements IDa
           : DAO_CONSTANTS.DEFAULT_PAGINATION.perPage;
 
     const tableStructure = await this.getTableStructure(tableName);
-    const availableFields = this.findAvaliableFields(settings, tableStructure);
+    const availableFields = this.findAvailableFields(settings, tableStructure);
 
     let searchedFields =
       settings?.search_fields?.length > 0 ? settings.search_fields : searchedFieldValue ? availableFields : [];
@@ -288,22 +288,16 @@ export class DataAccessObjectOracle extends BasicDataAccessObject implements IDa
             [FilterCriteriaEnum.gte]: '>=',
             [FilterCriteriaEnum.contains]: 'like',
             [FilterCriteriaEnum.icontains]: 'not like',
-            [FilterCriteriaEnum.empty]: ['is', '='],
+            [FilterCriteriaEnum.empty]: 'is',
           };
           const values = {
             [FilterCriteriaEnum.startswith]: `${value}%`,
             [FilterCriteriaEnum.endswith]: `%${value}`,
             [FilterCriteriaEnum.contains]: `%${value}%`,
             [FilterCriteriaEnum.icontains]: `%${value}%`,
-            [FilterCriteriaEnum.empty]: [null, ''],
+            [FilterCriteriaEnum.empty]: null,
           };
-
-          if (criteria === FilterCriteriaEnum.empty) {
-            builder.where(field, operators[criteria][0], values[criteria][0]);
-            builder.orWhere(field, operators[criteria][1], values[criteria][1]);
-          } else {
-            builder.where(field, operators[criteria], values[criteria] || value);
-          }
+          builder.where(field, operators[criteria], values[criteria] || value);
         }
       }
     };
@@ -636,7 +630,7 @@ export class DataAccessObjectOracle extends BasicDataAccessObject implements IDa
     const { page: updatedPage, perPage: updatedPerPage } = this.setupPagination(page, perPage, settings);
 
     const tableStructure = await this.getTableStructure(tableName);
-    const availableFields = this.findAvaliableFields(settings, tableStructure);
+    const availableFields = this.findAvailableFields(settings, tableStructure);
 
     let searchedFields =
       settings.search_fields?.length > 0 ? settings.search_fields : searchedFieldValue ? availableFields : undefined;

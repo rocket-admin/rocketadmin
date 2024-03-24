@@ -1,5 +1,4 @@
 import {
-  ConnectionTypeEnum,
   EncryptionAlgorithmEnum,
   LogOperationTypeEnum,
   ProviderTypeEnum,
@@ -12,8 +11,10 @@ import {
 import { toPrettyErrorsMsg } from '../../helpers/index.js';
 import { enumToString } from '../../helpers/enum-to-string.js';
 import { UserRoleEnum } from '../../entities/user/enums/user-role.enum.js';
-
+import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/enums/connection-types-enum.js';
 export const Messages = {
+  ACCOUNT_SUSPENDED:
+    'Your account has been suspended. Please reach out to your company administrator for assistance or contact our support team for further help',
   ACCESS_LEVEL_INVALID: 'Access level is invalid',
   AGENT_ID_MISSING: 'Agent id is missing',
   AGENT_NOT_FOUND: 'Agent not found',
@@ -62,7 +63,7 @@ export const Messages = {
     `Connection test failed with error: ${
       message.toLowerCase().includes('timedout') ? '"Connection timed out"' : `"${message}"`
     }`,
-  CONNECTION_TYPE_INVALID: `Unsupported database type. Now we supports ${enumToString(ConnectionTypeEnum)}`,
+  CONNECTION_TYPE_INVALID: `Unsupported database type. Now we supports ${enumToString(ConnectionTypesEnum)}`,
   CONNECTION_PROPERTIES_INVALID: 'Connection properties are invalid',
   CONNECTION_PROPERTIES_CANT_BE_EMPTY: `Connection properties cannot be empty`,
   CONNECTION_PROPERTIES_NOT_FOUND: `Connection properties not found`,
@@ -157,9 +158,11 @@ export const Messages = {
   ORDERING_FIELD_INCORRECT: `Value of sorting order is incorrect. You can choose from values ${enumToString(
     QueryOrderingEnum,
   )}`,
+  NO_USERS_TO_SUSPEND: 'No users available for suspension. Please verify the user emails.',
   OTP_NOT_ENABLED: `OTP is not enabled`,
   OTP_VALIDATION_FAILED: `OTP validation failed`,
   OTP_DISABLING_FAILED: `OTP disabling failed`,
+  DISABLING_2FA_FORBIDDEN_BY_ADMIN: `Disabling 2fa is forbidden by company administrator`,
   PAGE_AND_PERPAGE_INVALID: `Parameters "page" and "perPage" must be more than zero`,
   PARAMETER_MISSING: 'Required parameter missing',
   PARAMETER_NAME_MISSING: (parameterName: string) => `Required parameter "${parameterName}" missing`,
@@ -194,6 +197,9 @@ export const Messages = {
   SAAS_COMPANY_NOT_REGISTERED_WITH_USER_INVITATION: `Failed to invite user in SaaS. Please contact our support team.`,
   SAAS_UPDATE_USERS_ROLES_FAILED_UNHANDLED_ERROR: `Failed to update users roles in SaaS. Please contact our support team.`,
   SAAS_DELETE_COMPANY_FAILED_UNHANDLED_ERROR: `Failed to delete company in SaaS. Please contact our support team.`,
+  SAAS_UPDATE_2FA_STATUS_FAILED_UNHANDLED_ERROR: `Failed to update 2fa status in SaaS. Please contact our support team.`,
+  SAAS_SUSPEND_USERS_FAILED_UNHANDLED_ERROR: `Failed to suspend users in SaaS. Please contact our support team.`,
+  SAAS_UNSUSPEND_USERS_FAILED_UNHANDLED_ERROR: `Failed to unsuspend users in SaaS. Please contact our support team.`,
   SOMETHING_WENT_WRONG_ROW_ADD: 'Something went wrong on row insertion, check inserted parameters and try again',
   SSH_FORMAT_INCORRECT: 'Ssh value must be a boolean',
   SSH_HOST_MISSING: 'Ssh host is missing',
@@ -220,6 +226,7 @@ export const Messages = {
   TRY_VERIFY_ADD_USER_WHEN_LOGGED_IN: `You can't join a group when you are logged in as another user. Please log out and try again.`,
   TYPE_MISSING: 'Type is missing',
   TOKEN_MISSING: 'Token is missing',
+  TWO_FA_REQUIRED: `Two factor authentication required in this company according to company settings. Please enable 2fa in your profile settings.`,
   UNABLE_FIND_PORT: `Unable to find a free port. Please try again later. If the problem persists, please contact our support team`,
   UPDATE_ROW_FAILED: 'Row updating failed',
   USER_ALREADY_ADDED: 'User has already been added in this group',
@@ -276,7 +283,7 @@ export const Messages = {
   USER_ID_MISSING: 'User id is missing',
   USER_TRY_CREATE_CONNECTION: (email: string) => `User "${email}" tried to create connection.`,
   USER_CREATED_CONNECTION: (email: string) => `User "${email}" created connection.`,
-  USER_SUCCESSFULLY_TESTED_CONNECTION: (userEmail: string, connectionType: ConnectionTypeEnum) =>
+  USER_SUCCESSFULLY_TESTED_CONNECTION: (userEmail: string, connectionType: ConnectionTypesEnum) =>
     `User "${userEmail}" successfully tested the "${connectionType}" connection.`,
   USERNAME_MISSING: 'Username is missing',
   USER_ACTION_INCORRECT: `User action message if incorrect. Supported actions are ${enumToString(UserActionEnum)}`,
@@ -302,6 +309,7 @@ export const Messages = {
   MAXIMUM_FREE_INVITATION_REACHED_CANNOT_BE_INVITED_IN_COMPANY:
     'Sorry you can not join this company because reached maximum number of users for free plan. Please ask you connection owner to upgrade plan or delete unused user accounts from company',
   MAXIMUM_INVITATIONS_COUNT_REACHED_CANT_INVITE: ` Sorry, the maximum number of of users for free plan has been reached. You can't invite more users. Please ask you connection owner to upgrade plan or delete unused user accounts from company, or revoke unaccepted invitations.`,
+  CANT_UNSUSPEND_USERS_FREE_PLAN: `You can't unsuspend users because reached maximum number of users for free plan. Please ask you connection owner to upgrade plan or delete unused/suspended user accounts from company, or revoke unaccepted invitations.`,
   FAILED_CREATE_SUBSCRIPTION_LOG: 'Failed to create subscription log. Please contact our support team.',
   FAILED_CREATE_SUBSCRIPTION_LOG_YOUR_CUSTOMER_IS_DELETED: `Failed to create subscription log. Your customer is deleted. Please contact our support team.`,
   URL_INVALID: `Url is invalid`,

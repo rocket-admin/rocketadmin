@@ -8,6 +8,7 @@ import { IVerifyInviteUserInCompanyAndConnectionGroup } from './company-info-use
 import { Messages } from '../../../exceptions/text/messages.js';
 import { AcceptUserValidationInCompany } from '../application/data-structures/accept-user-invitation-in-company.ds.js';
 import { isSaaS } from '../../../helpers/app/is-saas.js';
+import { get2FaScope } from '../../user/utils/is-jwt-scope-need.util.js';
 
 @Injectable({ scope: Scope.REQUEST })
 export class VerifyInviteUserInCompanyAndConnectionGroupUseCase
@@ -51,11 +52,11 @@ export class VerifyInviteUserInCompanyAndConnectionGroupUseCase
         HttpStatus.BAD_REQUEST,
       );
     }
-    if (foundUser && !foundUser.isActive) {
+    if (foundUser) {
       foundUser.isActive = true;
       foundUser.role = role;
       await this._dbContext.userRepository.saveUserEntity(foundUser);
-      return generateGwtToken(foundUser);
+      return generateGwtToken(foundUser, get2FaScope(foundUser, foundInvitation.company));
     }
     const newUser = await this._dbContext.userRepository.saveRegisteringUser({
       email: invitedUserEmail,
@@ -100,6 +101,6 @@ export class VerifyInviteUserInCompanyAndConnectionGroupUseCase
         );
       }
     }
-    return generateGwtToken(newUser);
+    return generateGwtToken(newUser, get2FaScope(newUser, foundInvitation.company));
   }
 }

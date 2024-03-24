@@ -10,6 +10,7 @@ import { UserHelperService } from '../../user/user-helper.service.js';
 import { generateGwtToken, IToken } from '../../user/utils/generate-gwt-token.js';
 import { VerifyAddUserInGroupDs } from '../application/data-sctructures/verify-add-user-in-group.ds.js';
 import { IVerifyAddUserInGroup } from './use-cases.interfaces.js';
+import { get2FaScope } from '../../user/utils/is-jwt-scope-need.util.js';
 
 @Injectable()
 export class VerifyAddUserInGroupUseCase
@@ -48,6 +49,7 @@ export class VerifyAddUserInGroupUseCase
         HttpStatus.BAD_REQUEST,
       );
     }
+    const foundCompany = await this._dbContext.companyInfoRepository.findCompanyInfoByUserId(invitationEntity.ownerId);
     if (!invitationEntity.ownerId) {
       const foundUser = await this._dbContext.userRepository.findOneUserById(invitationEntity.user.id);
       foundUser.isActive = true;
@@ -55,7 +57,7 @@ export class VerifyAddUserInGroupUseCase
       foundUser.name = user_name;
       const savedUser = await this._dbContext.userRepository.saveUserEntity(foundUser);
       await this._dbContext.userInvitationRepository.removeInvitationEntity(invitationEntity);
-      return generateGwtToken(savedUser);
+      return generateGwtToken(savedUser, get2FaScope(savedUser, foundCompany));
     }
 
     const foundUser = await this._dbContext.userRepository.findOneUserById(invitationEntity.user.id);
@@ -64,6 +66,6 @@ export class VerifyAddUserInGroupUseCase
     foundUser.name = user_name;
     const savedUser = await this._dbContext.userRepository.saveUserEntity(foundUser);
     await this._dbContext.userInvitationRepository.removeInvitationEntity(invitationEntity);
-    return generateGwtToken(savedUser);
+    return generateGwtToken(savedUser, get2FaScope(savedUser, foundCompany));
   }
 }

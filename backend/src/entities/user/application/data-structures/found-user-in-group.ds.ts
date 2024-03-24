@@ -15,4 +15,7 @@ export class FoundUserInGroupDs {
 
   @ApiProperty()
   name: string;
+
+  @ApiProperty()
+  suspended: boolean;
 }

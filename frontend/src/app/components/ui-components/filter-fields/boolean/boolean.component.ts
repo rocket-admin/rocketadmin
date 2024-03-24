@@ -24,7 +24,7 @@ export class BooleanFilterComponent implements OnInit {
   public normalizedLabel: string;
   public isRadiogroup: boolean;
   private connectionType: DBtype;
-  public booleanValue: boolean;
+  public booleanValue: boolean | "unknown";
 
   constructor(
     private _connections: ConnectionsService,
@@ -33,39 +33,35 @@ export class BooleanFilterComponent implements OnInit {
   ngOnInit(): void {
     this.connectionType = this._connections.currentConnection.type;
 
-
     this.setBooleanValue();
-
-    console.log('boolean this.value');
-    console.log(this.booleanValue);
-
-    this.onFieldChange.emit(this.booleanValue);
 
     this.isRadiogroup = (this.structure?.allow_null) || !!(this.widgetStructure?.widget_params?.structure?.allow_null);
     this.normalizedLabel = normalizeFieldName(this.label);
   }
 
   setBooleanValue() {
-    if (typeof this.value === 'boolean' || this.value === null) {
+    if (typeof this.value === 'boolean') {
       this.booleanValue = this.value;
-    };
-
-    switch (this.value) {
-      case 0:
-      case '0':
-      case 'F':
-      case 'N':
-      case 'false':
-        this.booleanValue = false;
-        break;
-      case 1:
-      case '1':
-      case 'T':
-      case 'Y':
-      case 'true':
-        this.booleanValue = true;
-        break;
-
+    } else if (this.value === null) {
+      this.booleanValue = "unknown";
+      console.log('i entered condition this.value === null');
+    } else {
+      switch (this.value) {
+        case 0:
+        case '0':
+        case 'F':
+        case 'N':
+        case 'false':
+          this.booleanValue = false;
+          break;
+        case 1:
+        case '1':
+        case 'T':
+        case 'Y':
+        case 'true':
+          this.booleanValue = true;
+          break;
+      }
     }
   }
 
@@ -76,14 +72,11 @@ export class BooleanFilterComponent implements OnInit {
       case DBtype.MySQL:
       case DBtype.MSSQL:
       case DBtype.Oracle:
-        formattedValue = this.booleanValue === null ? null : Number(this.value);
+        formattedValue = this.booleanValue === "unknown" ? null : Number(this.booleanValue);
         break;
       default:
-        formattedValue = this.booleanValue;
+        formattedValue = this.booleanValue === "unknown" ? null : this.booleanValue;
     }
-
-    console.log('formattedValue');
-    console.log(formattedValue);
 
     this.onFieldChange.emit(formattedValue);
   }

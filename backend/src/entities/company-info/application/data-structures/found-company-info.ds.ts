@@ -63,6 +63,9 @@ export class FoundUserCompanyInfoDs {
 
   @ApiProperty({ required: false })
   is_payment_method_added?: boolean;
+
+  @ApiProperty({ required: false })
+  is2faEnabled: boolean;
 }
 
 export class FoundUserFullCompanyInfoDs extends FoundUserCompanyInfoDs {

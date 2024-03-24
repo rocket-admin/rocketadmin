@@ -104,6 +104,7 @@ export class TableModule {
         { path: '/table/:slug', method: RequestMethod.GET },
         { path: '/connection/tables/:slug', method: RequestMethod.GET },
         { path: '/table/rows/:slug', method: RequestMethod.GET },
+        { path: '/table/rows/find/:slug', method: RequestMethod.POST },
         { path: '/table/structure/:slug', method: RequestMethod.GET },
         { path: '/table/row/:slug', method: RequestMethod.POST },
         { path: '/table/row/:slug', method: RequestMethod.PUT },
@@ -111,7 +112,7 @@ export class TableModule {
         { path: '/table/rows/delete/:slug', method: RequestMethod.PUT },
         { path: '/table/rows/update/:slug', method: RequestMethod.PUT },
         { path: '/table/row/:slug', method: RequestMethod.GET },
-        { path: 'table/csv/:slug', method: RequestMethod.GET },
+        { path: '/table/csv/export/:slug', method: RequestMethod.POST },
       );
   }
 }

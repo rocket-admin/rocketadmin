@@ -24,6 +24,13 @@ export const companyInfoRepositoryExtension: ICompanyInfoRepository = {
       .getOne();
   },
 
+  async finOneCompanyInfoByUserId(userId: string): Promise<CompanyInfoEntity> {
+    return await this.createQueryBuilder('company_info')
+      .leftJoinAndSelect('company_info.users', 'users')
+      .where('users.id = :userId', { userId })
+      .getOne();
+  },
+
   async findCompanyInfoByUserId(userId: string): Promise<CompanyInfoEntity> {
     return await this.createQueryBuilder('company_info')
       .leftJoinAndSelect('company_info.users', 'users')

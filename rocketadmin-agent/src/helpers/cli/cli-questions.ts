@@ -1,7 +1,7 @@
 import readlineSync from 'readline-sync';
 import { Messages } from '../../text/messages.js';
 import { Constants } from '../constants/constants.js';
-import { ConnectionTypeEnum } from '../../enums/connection-type.enum.js';
+import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/enums/connection-types-enum.js';
 
 export class CLIQuestionUtility {
   public static askConnectionToken(): string {
@@ -25,23 +25,23 @@ export class CLIQuestionUtility {
     }
   }
 
-  public static askConnectionType(): ConnectionTypeEnum {
+  public static askConnectionType(): ConnectionTypesEnum {
     console.log(Messages.INTRO_MESSAGES.CONNECTION_TYPE_MESSAGE);
     const connectionTypeList: Array<string> = ['PostgreSQL', 'MySQL', 'Oracle Database', 'Microsoft SQL Server'];
     const connectionTypeIndex = readlineSync.keyInSelect(connectionTypeList, '-> \n') + 1;
     switch (connectionTypeIndex) {
       case 1:
         console.log(`${connectionTypeList[connectionTypeIndex - 1]} selected.`);
-        return ConnectionTypeEnum.postgres;
+        return ConnectionTypesEnum.postgres;
       case 2:
         console.log(`${connectionTypeList[connectionTypeIndex - 1]} selected.`);
-        return ConnectionTypeEnum.mysql;
+        return ConnectionTypesEnum.mysql;
       case 3:
         console.log(`${connectionTypeList[connectionTypeIndex - 1]} selected.`);
-        return ConnectionTypeEnum.oracledb;
+        return ConnectionTypesEnum.oracledb;
       case 4:
         console.log(`${connectionTypeList[connectionTypeIndex - 1]} selected.`);
-        return ConnectionTypeEnum.mssql;
+        return ConnectionTypesEnum.mssql;
       case 0:
         console.log(Messages.INTRO_MESSAGES.APPLICATION_CLI_QUIT);
         process.exit(0);

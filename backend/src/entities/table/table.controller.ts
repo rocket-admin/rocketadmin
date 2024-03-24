@@ -51,6 +51,7 @@ import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nes
 import { UpdateRowsDto } from './dto/update-rows.dto.js';
 import { UpdateRowsInTableDs } from './application/data-structures/update-rows-in-table.ds.js';
 import { SuccessResponse } from '../../microservices/saas-microservice/data-structures/common-responce.ds.js';
+import { FindAllRowsWithBodyFiltersDto } from './dto/find-rows-with-body-filters.dto.js';
 
 @UseInterceptors(SentryInterceptor)
 @Controller()
@@ -162,6 +163,60 @@ export class TableController {
       searchingFieldValue: searchingFieldValue,
       tableName: tableName,
       userId: userId,
+    };
+    return await this.getTableRowsUseCase.execute(inputData, InTransactionEnum.OFF);
+  }
+
+  @ApiOperation({ summary: 'Get all table rows with filter parameters in body' })
+  @ApiResponse({
+    status: 200,
+    description: 'Returns all table rows.',
+    type: FoundTableRowsDs,
+  })
+  @ApiBody({ type: FindAllRowsWithBodyFiltersDto })
+  @UseGuards(TableReadGuard)
+  @Post('/table/rows/find/:slug')
+  async findAllRowsWithBodyFilter(
+    @QueryTableName() tableName: string,
+    @Query('page') page: any,
+    @Query('perPage') perPage: any,
+    @Query('search') searchingFieldValue: string,
+    @Query() query,
+    @SlugUuid() connectionId: string,
+    @UserId() userId: string,
+    @MasterPassword() masterPwd: string,
+    @Body() body: FindAllRowsWithBodyFiltersDto,
+  ): Promise<FoundTableRowsDs> {
+    if (!connectionId) {
+      throw new HttpException(
+        {
+          message: Messages.CONNECTION_ID_MISSING,
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+    if (page && perPage) {
+      page = parseInt(page);
+      perPage = parseInt(perPage);
+      if ((page && page <= 0) || (perPage && perPage <= 0)) {
+        throw new HttpException(
+          {
+            message: Messages.PAGE_AND_PERPAGE_INVALID,
+          },
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+    }
+    const inputData: GetTableRowsDs = {
+      connectionId: connectionId,
+      masterPwd: masterPwd,
+      page: page,
+      perPage: perPage,
+      query: query,
+      searchingFieldValue: searchingFieldValue,
+      tableName: tableName,
+      userId: userId,
+      filters: body.filters,
     };
     return await this.getTableRowsUseCase.execute(inputData, InTransactionEnum.OFF);
   }
@@ -442,8 +497,9 @@ export class TableController {
     status: 200,
     description: 'Export table as csv file.',
   })
+  @ApiBody({ type: FindAllRowsWithBodyFiltersDto })
   @UseGuards(TableReadGuard)
-  @Get('/table/csv/:slug')
+  @Post('/table/csv/export/:slug')
   async exportCSVFromTable(
     @QueryTableName() tableName: string,
     @Query('page') page: any,
@@ -453,6 +509,7 @@ export class TableController {
     @SlugUuid() connectionId: string,
     @UserId() userId: string,
     @MasterPassword() masterPwd: string,
+    @Body() body: FindAllRowsWithBodyFiltersDto,
   ): Promise<StreamableFile> {
     if (!connectionId) {
       throw new HttpException(
@@ -483,6 +540,7 @@ export class TableController {
       searchingFieldValue: searchingFieldValue,
       tableName: tableName,
       userId: userId,
+      filters: body.filters,
     };
     return await this.exportCSVFromTableUseCase.execute(inputData, InTransactionEnum.OFF);
   }

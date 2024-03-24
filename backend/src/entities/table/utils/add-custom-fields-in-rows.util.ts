@@ -3,38 +3,40 @@ import sjson from 'secure-json-parse';
 import { getPropertyValueByDescriptor, getValuesBetweenCurlies, replaceTextInCurlies } from '../../../helpers/index.js';
 import { FoundRowsDS } from '@rocketadmin/shared-code/src/data-access-layer/shared/data-structures/found-rows.ds.js';
 
-export function addCustomFieldsInRowsUtil(rows: FoundRowsDS, customTableFields: Array<CustomFieldsEntity>): FoundRowsDS {
+export function addCustomFieldsInRowsUtil(
+  rows: FoundRowsDS,
+  customTableFields: Array<CustomFieldsEntity>,
+): FoundRowsDS {
   if (!customTableFields || customTableFields.length <= 0) {
     return rows;
   }
-  rows = sjson.parse(JSON.stringify(rows), null, {
+  const parsedRows = sjson.parse(JSON.stringify(rows), null, {
     protoAction: 'remove',
     constructorAction: 'remove',
   });
-  let { data } = rows;
-  data = data.map((row: any) => {
-    row['#autoadmin:customFields'] = [];
-    for (const field of customTableFields) {
+  parsedRows.data = parsedRows.data.map((row: any) => {
+    const customFields = customTableFields.map((field) => {
+
       const fieldNamesFromTemplateString = getValuesBetweenCurlies(field.template_string);
-      const fieldValuesForTemplateString = [];
-      for (const fieldName of fieldNamesFromTemplateString) {
-        if (row.hasOwnProperty(fieldName) && getPropertyValueByDescriptor(row, fieldName)) {
-          fieldValuesForTemplateString.push(getPropertyValueByDescriptor(row, fieldName));
-        }
-      }
+      const fieldValuesForTemplateString = fieldNamesFromTemplateString
+        .filter((fieldName) => row.hasOwnProperty(fieldName) && getPropertyValueByDescriptor(row, fieldName))
+        .map((fieldName) => getPropertyValueByDescriptor(row, fieldName));
+
       const generatedUrlString = replaceTextInCurlies(
         field.template_string,
         fieldNamesFromTemplateString,
         fieldValuesForTemplateString,
       );
-      row['#autoadmin:customFields'].push({
+      
+      return {
         type: field.type,
         url_template: generatedUrlString,
         text: field.text,
-      });
-    }
+      };
+    });
+    row['#autoadmin:customFields'] = customFields;
+
     return row;
   });
-  rows.data = data;
-  return rows;
+  return parsedRows;
 }

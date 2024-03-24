@@ -30,9 +30,6 @@ export class BooleanRowComponent implements OnInit {
   ngOnInit(): void {
     this.connectionType = this._connections.currentConnection.type;
 
-    console.log('this.value in ngOnInit');
-    console.log(this.value);
-
     if (this.value) {
       this.value = true;
     } else if (this.value === 0 || this.value === '' || this.value === false) {
@@ -40,9 +37,6 @@ export class BooleanRowComponent implements OnInit {
     } else {
       this.value = null;
     }
-
-    console.log('this.value in ngOnInit after');
-    console.log(this.value);
 
     this.onFieldChange.emit(this.value);
 
@@ -52,17 +46,11 @@ export class BooleanRowComponent implements OnInit {
   }
 
   onToggleChange(optionValue: boolean): void {
-    console.log('optionValue');
-    console.log(optionValue);
-    console.log('this.value');
-    console.log(this.value);
     if (this.value === optionValue) {
       this.value = null;
     } else {
       this.value = optionValue;
     }
-    console.log('this.value after');
-    console.log(this.value);
     this.onFieldChange.emit(this.value);
   }
 }

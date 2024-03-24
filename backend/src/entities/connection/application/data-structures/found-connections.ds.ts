@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { AccessLevelEnum, ConnectionTypeEnum } from '../../../../enums/index.js';
+import { AccessLevelEnum } from '../../../../enums/index.js';
+import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/enums/connection-types-enum.js';
 import { UserEntity } from '../../../user/user.entity.js';
 import { FoundGroupDataWithUsersDs } from '../../../group/application/data-sctructures/found-user-groups.ds.js';
 import { SimpleFoundUserInfoDs } from '../../../user/application/data-structures/found-user.ds.js';
@@ -14,8 +15,8 @@ export class FoundDirectConnectionsDs {
   @ApiProperty()
   masterEncryption: boolean;
 
-  @ApiProperty({ enum: ConnectionTypeEnum })
-  type?: ConnectionTypeEnum | string;
+  @ApiProperty({ enum: ConnectionTypesEnum })
+  type?: ConnectionTypesEnum | string;
 
   @ApiProperty()
   host?: string;
@@ -77,7 +78,7 @@ export class FoundDirectConnectionsNonePermissionDs {
   title?: string;
 
   @ApiProperty()
-  type?: ConnectionTypeEnum | string;
+  type?: ConnectionTypesEnum | string;
 
   @ApiProperty()
   database: string;
@@ -90,8 +91,8 @@ export class FoundAgentConnectionsDs {
   @ApiProperty()
   title?: string;
 
-  @ApiProperty({ enum: ConnectionTypeEnum })
-  type?: ConnectionTypeEnum | string;
+  @ApiProperty({ enum: ConnectionTypesEnum })
+  type?: ConnectionTypesEnum | string;
 
   @ApiProperty({ required: false })
   author: UserEntity | string;
@@ -115,8 +116,8 @@ export class FoundSipleConnectionInfoDS {
   @ApiProperty()
   title?: string;
 
-  @ApiProperty({ enum: ConnectionTypeEnum })
-  type?: ConnectionTypeEnum | string;
+  @ApiProperty({ enum: ConnectionTypesEnum })
+  type?: ConnectionTypesEnum | string;
 
   @ApiProperty({ required: false })
   author: SimpleFoundUserInfoDs;

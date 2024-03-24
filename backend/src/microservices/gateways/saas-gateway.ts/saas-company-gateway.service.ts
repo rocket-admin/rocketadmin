@@ -35,7 +35,7 @@ export class SaasCompanyGatewayService extends BaseSaasGatewayService {
   }
 
   public async canInviteMoreUsers(companyId: string): Promise<boolean> {
-    if (!isSaaS()) {
+    if (!isSaaS() || process.env.NODE_ENV === 'test') {
       return true;
     }
     const canInviteMoreUsersResult = await this.sendRequestToSaaS(
@@ -82,7 +82,10 @@ export class SaasCompanyGatewayService extends BaseSaasGatewayService {
     };
   }
 
-  public async revokeUserInvitationInCompany(companyId: string, verification_string: string): Promise<SuccessResponse | null> {
+  public async revokeUserInvitationInCompany(
+    companyId: string,
+    verification_string: string,
+  ): Promise<SuccessResponse | null> {
     const removalResult = await this.sendRequestToSaaS(`/webhook/company/invitation/revoke`, 'POST', {
       verification_string: verification_string,
       companyId: companyId,
@@ -211,6 +214,72 @@ export class SaasCompanyGatewayService extends BaseSaasGatewayService {
       throw new HttpException(
         {
           message: Messages.SAAS_DELETE_COMPANY_FAILED_UNHANDLED_ERROR,
+          originalMessage: result?.body?.message ? result.body.message : undefined,
+        },
+        result.status,
+      );
+    }
+    if (!isObjectEmpty(result.body)) {
+      return {
+        success: result.body.success as boolean,
+      };
+    }
+    return null;
+  }
+
+  public async updateCompany2faStatus(companyId: string, is2faEnabled: boolean): Promise<SuccessResponse | null> {
+    const result = await this.sendRequestToSaaS(`/webhook/company/update/2fa`, 'POST', {
+      companyId,
+      is2faEnabled,
+    });
+    if (result.status > 299) {
+      throw new HttpException(
+        {
+          message: Messages.SAAS_UPDATE_2FA_STATUS_FAILED_UNHANDLED_ERROR,
+          originalMessage: result?.body?.message ? result.body.message : undefined,
+        },
+        result.status,
+      );
+    }
+    if (!isObjectEmpty(result.body)) {
+      return {
+        success: result.body.success as boolean,
+      };
+    }
+    return null;
+  }
+
+  public async suspendUsersInCompany(companyId: string, userIds: Array<string>): Promise<SuccessResponse | null> {
+    const result = await this.sendRequestToSaaS(`/webhook/company/suspend/users`, 'POST', {
+      companyId,
+      userIds,
+    });
+    if (result.status > 299) {
+      throw new HttpException(
+        {
+          message: Messages.SAAS_SUSPEND_USERS_FAILED_UNHANDLED_ERROR,
+          originalMessage: result?.body?.message ? result.body.message : undefined,
+        },
+        result.status,
+      );
+    }
+    if (!isObjectEmpty(result.body)) {
+      return {
+        success: result.body.success as boolean,
+      };
+    }
+    return null;
+  }
+
+  public async unSuspendUsersInCompany(companyId: string, userIds: Array<string>): Promise<SuccessResponse | null> {
+    const result = await this.sendRequestToSaaS(`/webhook/company/unsuspend/users`, 'POST', {
+      companyId,
+      userIds,
+    });
+    if (result.status > 299) {
+      throw new HttpException(
+        {
+          message: Messages.SAAS_UNSUSPEND_USERS_FAILED_UNHANDLED_ERROR,
           originalMessage: result?.body?.message ? result.body.message : undefined,
         },
         result.status,

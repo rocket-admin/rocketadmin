@@ -26,6 +26,7 @@ export class FindAllUsersInConnectionUseCase
         email: user.email,
         createdAt: user.createdAt,
         name: user.name,
+        suspended: user.suspended,
         is_2fa_enabled: user.otpSecretKey !== null && user.isOTPEnabled,
       };
     });
