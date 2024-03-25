@@ -1,12 +1,13 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+
 import { normalizeFieldName } from 'src/app/lib/normalize';
 
 @Component({
-  selector: 'app-password',
+  selector: 'app-row-password',
   templateUrl: './password.component.html',
   styleUrls: ['./password.component.css']
 })
-export class PasswordComponent implements OnInit {
+export class PasswordRowComponent implements OnInit {
 
   @Input() key: string;
   @Input() label: string;

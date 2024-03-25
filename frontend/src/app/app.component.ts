@@ -13,7 +13,6 @@ import { UserService } from './services/user.service';
 import amplitude from 'amplitude-js';
 import { differenceInMilliseconds } from 'date-fns';
 import { environment } from '../environments/environment';
-import { interval } from 'rxjs';
 import { normalizeTableName } from './lib/normalize';
 import { catchError, filter, map } from 'rxjs/operators';
 
@@ -65,36 +64,9 @@ export class AppComponent {
     this.matIconRegistry.addSvgIcon("oracledb", this.domSanitizer.bypassSecurityTrustResourceUrl("/assets/icons/oracle_logo.svg"));
     this.matIconRegistry.addSvgIcon("postgres", this.domSanitizer.bypassSecurityTrustResourceUrl("/assets/icons/postgres_logo.svg"));
     angulartics2Amplitude.startTracking();
-
-    // if (window.screen.width > 600) {
-    //   this.userInactive.subscribe(() => {
-    //     // @ts-ignore
-    //     Intercom('show');
-    //     this.chatHasBeenShownOnce = true;
-    //   });
-    // }
   }
 
-  // setTimeout() {
-  //   this.userActivity = setTimeout(() => this.userInactive.next(undefined), 15000);
-  // }
-
-  // @HostListener('window:click')
-  // @HostListener('window:keypress')
-  // refreshUserState() {
-  //   clearTimeout(this.userActivity);
-  //   if (!this.chatHasBeenShownOnce) this.setTimeout();
-  // }
-
   ngOnInit() {
-    // this.upgradeButtonShown = (environment as any).saas;
-
-    // this.route.queryParams.pipe(first()).subscribe((queryParams) => {
-    //   this.filters = getFilters(queryParams);
-    //   this.comparators = getComparators(queryParams);
-    //   const search = queryParams.search;
-    //   this.getRows(search);
-    // })
     this.router.events
       .pipe(
         filter(event => event instanceof NavigationEnd)
@@ -102,8 +74,6 @@ export class AppComponent {
       .subscribe(() => {
         this.page = this.router.routerState.snapshot.url;
     })
-    // console.log('this.page');
-    // console.log(this.page);
 
     this.navigationTabs = {
       'dashboard': {

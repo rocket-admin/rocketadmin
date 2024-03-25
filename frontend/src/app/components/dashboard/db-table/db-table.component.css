@@ -255,3 +255,7 @@ tr.mat-row:hover {
 .hidden {
     display: none;
 }
+
+.chip-filter:not(:first-child) {
+    margin-left: 8px;
+}

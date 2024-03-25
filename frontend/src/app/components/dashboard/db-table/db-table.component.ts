@@ -1,16 +1,14 @@
-import {CdkDragDrop, moveItemInArray} from '@angular/cdk/drag-drop';
-import { Component, ElementRef, EventEmitter, Input, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core';
-import { CustomAction, CustomActionType, TableForeignKey, TablePermissions } from 'src/app/models/table';
-import { getComparators, getFilters } from 'src/app/lib/parse-filter-params';
+import { Component, EventEmitter, Input, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core';
+import { CustomAction, TableForeignKey, TablePermissions } from 'src/app/models/table';
 
 import { AccessLevel } from 'src/app/models/user';
 import { ActivatedRoute } from '@angular/router';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
-import { TablesService } from 'src/app/services/tables.service';
 import { merge } from 'rxjs';
 import { normalizeTableName } from '../../../lib/normalize'
 import { tap } from 'rxjs/operators';
+import JsonURL from "@jsonurl/jsonurl";
 
 interface Column {
   title: string,
@@ -89,8 +87,7 @@ export class DbTableComponent implements OnInit {
 
   loadRowsPage() {
     const queryParams = this.route.snapshot.queryParams;
-    const filters = getFilters(queryParams);
-    const comparators = getComparators(queryParams);
+    const filters = JsonURL.parse( queryParams.filters );
 
     this.tableData.fetchRows({
       connectionID: this.connectionID,
@@ -99,7 +96,6 @@ export class DbTableComponent implements OnInit {
       sortColumn: this.sort.active,
       sortOrder: this.sort.direction.toLocaleUpperCase(),
       filters,
-      comparators,
       search: this.searchString,
       isTablePageSwitched: true
     });
@@ -180,18 +176,20 @@ export class DbTableComponent implements OnInit {
     this.searchString = this.route.snapshot.queryParams.search;
   }
 
-  getFilter(filterKey: string, filterValue: string) {
-    const displayedName = normalizeTableName(filterKey);
-    if (this.filterComparators[filterKey] == 'startswith') {
+  getFilter(activeFilter: {key: string, value: object}) {
+    const displayedName = normalizeTableName(activeFilter.key);
+    const comparator = Object.keys(activeFilter.value)[0];
+    const filterValue = Object.values(activeFilter.value)[0];
+    if (comparator == 'startswith') {
       return `${displayedName} = ${filterValue}...`
-    } else if (this.filterComparators[filterKey] == 'endswith') {
+    } else if (comparator == 'endswith') {
       return `${displayedName} = ...${filterValue}`
-    } else if (this.filterComparators[filterKey] == 'contains') {
+    } else if (comparator == 'contains') {
       return `${displayedName} = ...${filterValue}...`
-    } else if (this.filterComparators[filterKey] == 'empty') {
+    } else if (comparator == 'empty') {
       return `${displayedName} = ' '`
     } else {
-      return `${displayedName} ${this.displayedComparators[this.filterComparators[filterKey]]} ${filterValue}`
+      return `${displayedName} ${this.displayedComparators[Object.keys(activeFilter.value)[0]]} ${filterValue}`
     }
   }
 

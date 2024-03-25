@@ -1,13 +1,14 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { normalizeFieldName } from '../../../../lib/normalize';
+
 import { Widget } from 'src/app/models/table';
+import { normalizeFieldName } from '../../../../lib/normalize';
 
 @Component({
-  selector: 'app-long-text',
+  selector: 'app-row-long-text',
   templateUrl: './long-text.component.html',
   styleUrls: ['./long-text.component.css']
 })
-export class LongTextComponent implements OnInit {
+export class LongTextRowComponent implements OnInit {
 
   @Input() key: string;
   @Input() label: string;

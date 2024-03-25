@@ -1,11 +1,36 @@
 <div *ngIf="isRadiogroup; else checkboxElement" class="radio-line">
     <label id="">{{normalizedLabel}}</label>
+    <mat-button-toggle-group name="{{label}}-{{key}}" attr.data-testid="record-{{label}}-boolean-radio-group"
+        [disabled]="disabled"
+        [value]="value">
+        <mat-button-toggle [value]=true (click)="onToggleChange(true)">Yes</mat-button-toggle>
+        <mat-button-toggle [value]=false (click)="onToggleChange(false)">No</mat-button-toggle>
+    </mat-button-toggle-group>
+</div>
+
+<ng-template #checkboxElement>
+    <div class="radio-line">
+        <label id="">{{normalizedLabel}}</label>
+        <mat-button-toggle-group name="{{label}}-{{key}}" attr.data-testid="record-{{label}}-boolean-radio-group"
+            [disabled]="disabled"
+            [(ngModel)]="value" (ngModelChange)="onFieldChange.emit($event)">
+            <mat-button-toggle [value]=true>Yes</mat-button-toggle>
+            <mat-button-toggle [value]=false>No</mat-button-toggle>
+        </mat-button-toggle-group>
+    </div>
+</ng-template>
+
+
+
+
+<!--<div *ngIf="isRadiogroup; else checkboxElement" class="radio-line">
+    <label id="">{{normalizedLabel}}</label>
     <mat-radio-group
         name="{{label}}-{{key}}"
         class="radio-group"
         attr.data-testid="record-{{label}}-boolean-radio-group"
         [disabled]="disabled"
-        [(ngModel)]="value" (ngModelChange)="onBooleanChange()">
+        [(ngModel)]="value" (ngModelChange)="onFieldChange.emit($event)">
         <mat-radio-button [value]=true class="radio-button">
             yes
         </mat-radio-button>
@@ -25,7 +50,7 @@
         class="checkbox-line"
         attr.data-testid="record-{{label}}-boolean-checkbox"
         [disabled]="disabled"
-        [(ngModel)]="value" (ngModelChange)="onBooleanChange()">
+        [(ngModel)]="value" (ngModelChange)="onFieldChange.emit($event)">
         {{normalizedLabel}}
     </mat-checkbox>
-</ng-template>
+</ng-template>-->

@@ -1,0 +1,13 @@
+.feild-set-6 {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-column-gap: 16px;
+}
+
+::ng-deep .interval-form-field .mat-mdc-form-field-infix {
+    width: auto !important;
+}
+
+.label {
+    grid-column: 1 / span 3;
+}

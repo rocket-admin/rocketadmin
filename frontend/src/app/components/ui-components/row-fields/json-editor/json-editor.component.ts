@@ -4,11 +4,11 @@ import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angu
 import { normalizeFieldName } from '../../../../lib/normalize';
 
 @Component({
-  selector: 'app-json-editor',
+  selector: 'app-row-json-editor',
   templateUrl: './json-editor.component.html',
   styleUrls: ['./json-editor.component.css']
 })
-export class JsonEditorComponent implements OnInit {
+export class JsonEditorRowComponent implements OnInit {
 
   @Input() key: string;
   @Input() label: string;

@@ -4,11 +4,11 @@ import { format } from 'date-fns'
 import { normalizeFieldName } from '../../../../lib/normalize';
 
 @Component({
-  selector: 'app-date',
+  selector: 'app-row-date',
   templateUrl: './date.component.html',
   styleUrls: ['./date.component.css']
 })
-export class DateComponent implements OnInit {
+export class DateRowComponent implements OnInit {
 
   @Input() key: string;
   @Input() label: string;

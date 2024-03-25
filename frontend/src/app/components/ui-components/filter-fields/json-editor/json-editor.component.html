@@ -1,0 +1,22 @@
+<span class="mat-body-1">{{ normalizedLabel }} {{ required ? '*' : '' }}</span>
+<!--<json-editor [options]="editorOptions"
+    [data]="value"
+    (change)="onJSONchange($event)"
+    class="jsoneditor-wrapper">
+</json-editor>-->
+<ngx-codemirror
+name="{{label}}-{{key}}"
+    class="codemirror-wrapper"
+    attr.data-testid="record-{{label}}-json"
+    [(ngModel)]="value"
+    (ngModelChange)="onFieldChange.emit($event)"
+    [options]="{
+        lineNumbers: true,
+        lineWrapping: false,
+        json: true,
+        type: 'object',
+        matchBrackets: true,
+        mode: 'javascript',
+        theme: 'ttcn'
+    }"
+></ngx-codemirror>

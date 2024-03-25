@@ -3,15 +3,16 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { TablesService } from 'src/app/services/tables.service';
 import { TableField, TableForeignKey, Widget } from 'src/app/models/table';
 import { ConnectionsService } from 'src/app/services/connections.service';
-import { fieldTypes, UIwidgets } from 'src/app/consts/field-types';
+import { UIwidgets } from 'src/app/consts/field-types';
+import { filterTypes } from 'src/app/consts/filter-types';
 import { ActivatedRoute } from '@angular/router';
-import { getComparators, getFilters } from 'src/app/lib/parse-filter-params';
+import { getComparatorsFromUrl, getFiltersFromUrl } from 'src/app/lib/parse-filter-params';
 import { getTableTypes } from 'src/app/lib/setup-table-row-structure';
 import * as JSON5 from 'json5';
-import { omit } from "lodash";
 import { map, startWith } from 'rxjs/operators';
 import { Observable, Subject } from 'rxjs';
 import { FormControl } from '@angular/forms';
+import JsonURL from "@jsonurl/jsonurl";
 
 @Component({
   selector: 'app-db-table-filters-dialog',
@@ -62,12 +63,13 @@ export class DbTableFiltersDialogComponent implements OnInit {
     }));
 
     const queryParams = this.route.snapshot.queryParams;
-    const filters = getFilters(queryParams);
+    const filters = JsonURL.parse(queryParams.filters);
+    const filtersValues = getFiltersFromUrl(filters);
 
-    if (Object.keys(filters).length) {
-      this.tableFilters = Object.keys(filters).map(key => key);
-      this.tableRowFieldsShown = filters;
-      this.tableRowFieldsComparator = getComparators(queryParams);
+    if (Object.keys(filtersValues).length) {
+      this.tableFilters = Object.keys(filtersValues).map(key => key);
+      this.tableRowFieldsShown = filtersValues;
+      this.tableRowFieldsComparator = getComparatorsFromUrl(filters);
     } else {
       const fieldsToSearch = this.data.structure.structure.filter((field: TableField) => field.isSearched);
       if (fieldsToSearch.length) {
@@ -94,11 +96,10 @@ export class DbTableFiltersDialogComponent implements OnInit {
     if (change) {
       this.tableFiltersCount = Object.keys(this.tableRowFieldsShown).length;
     }
-
   }
 
   get inputs() {
-    return fieldTypes[this._connections.currentConnection.type]
+    return filterTypes[this._connections.currentConnection.type]
   }
 
   setWidgets(widgets: Widget[]) {
@@ -117,11 +118,6 @@ export class DbTableFiltersDialogComponent implements OnInit {
       })
     );
   }
-
-  // getRelations = (columnName: string) => {
-  //   const relation = this.tableForeignKeys[columnName];
-  //   return relation;
-  // }
 
   trackByFn(index: number) {
     return index; // or item.id
@@ -172,7 +168,9 @@ export class DbTableFiltersDialogComponent implements OnInit {
   }
 
   removeFilter(field) {
-    this.tableRowFieldsShown = omit(this.tableRowFieldsShown, [field]);
-    this.tableRowFieldsComparator = omit(this.tableRowFieldsComparator, [field]);
+    delete this.tableRowFieldsShown[field];
+    delete this.tableRowFieldsComparator[field];
+
+    console.log(this.tableRowFieldsShown);
   }
 }

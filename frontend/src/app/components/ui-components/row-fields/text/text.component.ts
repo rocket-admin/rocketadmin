@@ -5,11 +5,11 @@ import { normalizeFieldName } from '../../../../lib/normalize';
 @Injectable()
 
 @Component({
-  selector: 'app-text',
+  selector: 'app-row-text',
   templateUrl: './text.component.html',
   styleUrls: ['./text.component.css']
 })
-export class TextComponent implements OnInit {
+export class TextRowComponent implements OnInit {
 
   @Input() key: string;
   @Input() label: string;

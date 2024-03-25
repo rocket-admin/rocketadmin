@@ -24,13 +24,13 @@
                 </mat-autocomplete>
             </mat-form-field>
 
-            <ng-container *ngFor="let value of tableRowFieldsShown | keyvalue; let key = index; trackBy:trackByFn">
+            <ng-container *ngFor="let value of tableRowFieldsShown | keyvalue">
                 <div *ngIf="getComparatorType(getInputType(value.key)) === 'nonComparable'; else comparableFilter" class="filter-line">
 
                     <div *ngIf="isWidget(value.key); else defaultTableField">
                         <ndc-dynamic [ndcDynamicComponent]="tableWidgets[value.key].widget_type ? UIwidgets[tableWidgets[value.key].widget_type] : inputs[tableTypes[value.key]]"
                             [ndcDynamicInputs]="{
-                                key: key,
+                                key: value.key,
                                 label: tableWidgets[value.key].name || value.key,
                                 value: tableRowFieldsShown[value.key],
                                 widgetStructure: tableWidgets[value.key],
@@ -45,7 +45,7 @@
                     <ng-template #defaultTableField>
                         <ndc-dynamic [ndcDynamicComponent]="inputs[tableTypes[value.key]]"
                             [ndcDynamicInputs]="{
-                                key: key,
+                                key: value.key,
                                 label: value.key,
                                 value: tableRowFieldsShown[value.key],
                                 structure: tableRowStructure[value.key],
@@ -109,7 +109,7 @@
 
                     <ndc-dynamic [ndcDynamicComponent]="inputs[tableTypes[value.key]]"
                         [ndcDynamicInputs]="{
-                            key: key,
+                            key: value.key,
                             label: value.key,
                             value: tableRowFieldsShown[value.key],
                             readonly: tableRowFieldsComparator[value.key] === 'empty',
