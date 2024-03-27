@@ -5,40 +5,26 @@
         <app-alert *ngIf="connectionAccess === 'edit' && group.title !== 'Admin'" [alert]="connectionFullAccessAlert"></app-alert>
 
         <div class="permissions">
-            <h2 class="mat-subtitle-1">Connection credentials</h2>
-            <mat-radio-group [(ngModel)]="connectionAccess" name="connection-permissions"
-                (ngModelChange)="handleConnectionAccessChange()"
-                aria-labelledby="example-radio-group-label"
-                class="permission-radio-group"
-                [disabled]="connectionAccess === 'edit' && group.title === 'Admin'">
-                <mat-radio-button class="permission-radio-button" name="connection-none" value="none">
-                    None
-                </mat-radio-button>
-                <mat-radio-button class="permission-radio-button" name="connection-readonly" value="readonly">
-                    ReadOnly
-                </mat-radio-button>
-                <mat-radio-button class="permission-radio-button" name="connection-full-access" value="edit">
-                    Full access
-                </mat-radio-button>
-            </mat-radio-group>
+            <h2 class="mat-subtitle-1 permissions__title">Connection credentials</h2>
+            <mat-button-toggle-group name="connection-permissions" class="permissions-toggle-group"
+                [disabled]="connectionAccess === 'edit' && group.title === 'Admin'"
+                [(ngModel)]="connectionAccess"
+                (ngModelChange)="handleConnectionAccessChange()">
+                <mat-button-toggle name="connection-none" value="none">None</mat-button-toggle>
+                <mat-button-toggle name="connection-readonly" value="readonly">ReadOnly</mat-button-toggle>
+                <mat-button-toggle name="connection-full-access" value="edit">Full access</mat-button-toggle>
+            </mat-button-toggle-group>
 
-            <h2 class="mat-subtitle-1">User management</h2>
-            <mat-radio-group [(ngModel)]="groupAccess" name="users-permissions"
-                aria-labelledby="permission-radio-group-label"
-                class="example-radio-group"
-                [disabled]="connectionAccess === 'edit' || group.title === 'Admin'">
-                <mat-radio-button class="permission-radio-button" name="users-none" value="none">
-                    None
-                </mat-radio-button>
-                <mat-radio-button class="permission-radio-button" name="users-readonly" value="readonly">
-                    ReadOnly
-                </mat-radio-button>
-                <mat-radio-button class="permission-radio-button" name="users-full-access" value="edit">
-                    Manage the list
-                </mat-radio-button>
-            </mat-radio-group>
+            <h2 class="mat-subtitle-1 permissions__title">User management</h2>
+            <mat-button-toggle-group name="users-permissions" class="permissions-toggle-group"
+                [disabled]="connectionAccess === 'edit' || group.title === 'Admin'"
+                [(ngModel)]="groupAccess">
+                <mat-button-toggle name="users-none" value="none">None</mat-button-toggle>
+                <mat-button-toggle name="users-readonly" value="readonly">ReadOnly</mat-button-toggle>
+                <mat-button-toggle name="users-full-access" value="edit">Manage the list</mat-button-toggle>
+            </mat-button-toggle-group>
 
-            <h2 class="mat-subtitle-1 mat-subheading-1_tables">Tables</h2>
+            <h2 class="mat-subtitle-1 permissions__title">Tables</h2>
             <span *ngIf="connectionAccess === 'edit' || group.title === 'Admin'">Full access</span>
             <div class="tables-options">
                 <button mat-button type="button" *ngIf="!(connectionAccess === 'edit' || group.title === 'Admin')"
@@ -55,6 +41,12 @@
             <app-content-loader *ngIf="loading"></app-content-loader>
             <div class="tables-list">
                 <div *ngIf="connectionAccess === 'edit'" class="tables-overlay"></div>
+                <div>Visibility</div>
+                <div class="table-name-title">Table name</div>
+                <div>ReadOnly</div>
+                <div>Add</div>
+                <div>Delete</div>
+                <div>Edit</div>
                 <ng-container *ngFor="let table of tablesAccess">
                     <div class="tableVisibility">
                         <input type="checkbox" name="{{table.tableName}}-visibility" id="{{table.tableName}}-visibility"
@@ -78,25 +70,18 @@
                         [disabled]="!table.accessLevel.visibility"
                         (change)="uncheckActions(table)"
                         [(ngModel)]="table.accessLevel.readonly">
-                        ReadOnly
                     </mat-slide-toggle>
                     <mat-checkbox name="{{table.tableName}}-add"
-                        class="permission-checkbox"
                         [disabled]="!table.accessLevel.visibility || table.accessLevel.readonly"
                         [(ngModel)]="table.accessLevel.add">
-                        Add
                     </mat-checkbox>
                     <mat-checkbox name="{{table.tableName}}-delete"
-                        class="permission-checkbox"
                         [disabled]="!table.accessLevel.visibility || table.accessLevel.readonly"
                         [(ngModel)]="table.accessLevel.delete">
-                        Delete
                     </mat-checkbox>
                     <mat-checkbox name="{{table.tableName}}-edit"
-                        class="permission-checkbox"
                         [disabled]="!table.accessLevel.visibility || table.accessLevel.readonly"
                         [(ngModel)]="table.accessLevel.edit">
-                        Edit
                     </mat-checkbox>
                 </ng-container>
             </div>

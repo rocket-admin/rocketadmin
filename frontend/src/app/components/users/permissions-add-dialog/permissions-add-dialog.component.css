@@ -10,20 +10,17 @@
     display: grid;
     grid-template-columns: auto 1fr;
     grid-column-gap: 60px;
+    grid-row-gap: 16px;
     align-items: center;
     margin-bottom: 8px;
 }
 
-.permission-radio-group {
-
+.permissions__title {
+    margin-bottom: 0 !important;
 }
 
-.permission-radio-button {
-    margin-right: 20px;
-}
-
-.mat-subheading-1 {
-    margin-bottom: 0;
+.permissions-toggle-group {
+    justify-self: flex-start;
 }
 
 .tables-options {
@@ -32,27 +29,31 @@
     justify-content: flex-end;
 }
 
-.mat-subheading-1_tables,
-.tables-options {
-    margin-top: 8px;
-}
-
 .tables-list {
     position: relative;
     grid-column: 1 / span 2;
     display: grid;
-    grid-template-columns: 44px 1fr repeat(4, auto);
+    grid-template-columns: 72px 1fr 72px repeat(3, 60px);
     grid-row-gap: 8px;
     align-items: center;
+    justify-items: center;
+    margin: 0 -8px;
+}
+
+.table-name-title {
+    justify-self: flex-start;
+    padding-left: 16px;
 }
 
 .table-name {
     --normalized-table-name-color: rgba(0, 0, 0, 1);
     --orginal-table-name-color: rgba(0, 0, 0, 0.6);
 
+    justify-self: flex-start;
     display: flex;
     flex-direction: column;
     gap: 4px;
+    padding-left: 16px;
 }
 
 .table-name_disabled {
@@ -92,13 +93,8 @@
     margin: 0 auto;
 }
 
-.permission-checkbox {
-    margin-left: 20px;
-}
-
 .visibilityIcon {
     cursor: pointer;
-    margin-right: 20px;
 }
 
 .visibilityIcon_visible {
