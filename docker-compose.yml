@@ -18,6 +18,7 @@ services:
       - mssql-e2e-testing
       - test-oracle-e2e-testing
       - test-ibm-db2-e2e-testing
+      - test-mongo-e2e-testing
     links:
       - postgres
       - testDB
@@ -26,6 +27,7 @@ services:
       - mssql-e2e-testing
       - test-oracle-e2e-testing
       - test-ibm-db2-e2e-testing
+      - test-mongo-e2e-testing
     command: ["yarn", "start"]
 
   testDB:
@@ -316,3 +318,12 @@ services:
       - ETCD_PASSWORD=
     ports:
       - 50000:50000
+
+  test-mongo-e2e-testing:
+    image: mongo
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+    ports:
+      - 27017:27017

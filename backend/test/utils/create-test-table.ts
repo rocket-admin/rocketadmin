@@ -4,6 +4,7 @@ import { getRandomConstraintName, getRandomTestTableName } from './get-random-te
 import { getTestKnex } from './get-test-knex.js';
 import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/enums/connection-types-enum.js';
 import ibmdb, { Database } from 'ibm_db';
+import { MongoClient, Db, ObjectId } from 'mongodb';
 
 export async function createTestTable(
   connectionParams: any,
@@ -13,6 +14,11 @@ export async function createTestTable(
   if (connectionParams.type === ConnectionTypesEnum.ibmdb2) {
     return createTestTableIbmDb2(connectionParams, testEntitiesSeedsCount, testSearchedUserName);
   }
+
+  if (connectionParams.type === ConnectionTypesEnum.mongodb) {
+    return createTestMongoTable(connectionParams, testEntitiesSeedsCount, testSearchedUserName);
+  }
+
   const testTableName = getRandomTestTableName();
   const testTableColumnName = `${faker.lorem.words(1)}_${faker.lorem.words(1)}`;
   const testTableSecondColumnName = `${faker.lorem.words(1)}_${faker.lorem.words(1)}`;
@@ -74,7 +80,7 @@ async function createTestTableIbmDb2(
   const schemaExists = await ibmDatabase.query(queryCheckSchemaExists);
 
   if (!schemaExists.length || !schemaExists[0]['1']) {
-    let queryCreateSchema = `CREATE SCHEMA ${connectionParams.schema}`;
+    const queryCreateSchema = `CREATE SCHEMA ${connectionParams.schema}`;
     try {
       await ibmDatabase.query(queryCreateSchema);
     } catch (error) {
@@ -135,11 +141,71 @@ async function createTestTableIbmDb2(
   };
 }
 
+async function createTestMongoTable(
+  connectionParams,
+  testEntitiesSeedsCount,
+  testSearchedUserName,
+): Promise<CreatedTableInfo> {
+  const testTableName = getRandomTestTableName();
+  const testTableColumnName = `${faker.lorem.words(1)}_${faker.lorem.words(1)}`;
+  const testTableSecondColumnName = `${faker.lorem.words(1)}_${faker.lorem.words(1)}`;
+
+  const mongoConnectionString =
+    `mongodb://${connectionParams.username}` +
+    `:${connectionParams.password}` +
+    `@${connectionParams.host}` +
+    `:${connectionParams.port}` +
+    `/${connectionParams.database}`;
+
+  const client = new MongoClient(mongoConnectionString);
+  await client.connect();
+  const db = client.db(connectionParams.database);
+  const collection = db.collection(testTableName);
+
+  await collection.drop();
+  const insertedSearchedIds = [];
+  for (let i = 0; i < testEntitiesSeedsCount; i++) {
+    if (i === 0 || i === testEntitiesSeedsCount - 21 || i === testEntitiesSeedsCount - 5) {
+      const insertionResult = await collection.insertOne({
+        [testTableColumnName]: testSearchedUserName,
+        [testTableSecondColumnName]: faker.internet.email(),
+        created_at: new Date(),
+        updated_at: new Date(),
+        age: i === 0 ? 14 : i === testEntitiesSeedsCount - 21 ? 90 : 95,
+      });
+      insertedSearchedIds.push({
+        number: i,
+        _id: insertionResult.insertedId.toHexString(),
+      });
+    } else {
+      const insertionResult = await collection.insertOne({
+        [testTableColumnName]: faker.person.firstName(),
+        [testTableSecondColumnName]: faker.internet.email(),
+        created_at: new Date(),
+        updated_at: new Date(),
+        age: faker.number.int({ min: 16, max: 80 }),
+      });
+      insertedSearchedIds.push({
+        number: i,
+        _id: insertionResult.insertedId.toHexString(),
+      });
+    }
+  }
+  return {
+    testTableName: testTableName,
+    testTableColumnName: testTableColumnName,
+    testTableSecondColumnName: testTableSecondColumnName,
+    testEntitiesSeedsCount: testEntitiesSeedsCount,
+    insertedSearchedIds,
+  };
+}
+
 export type CreatedTableInfo = {
   testTableName: string;
   testTableColumnName: string;
   testTableSecondColumnName: string;
   testEntitiesSeedsCount: number;
+  insertedSearchedIds?: Array<{ number: number; _id: string }>;
 };
 
 export async function createTestTableForMSSQLWithChema(
