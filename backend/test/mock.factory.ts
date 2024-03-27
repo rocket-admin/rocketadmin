@@ -128,6 +128,19 @@ export class MockFactory {
     return dto;
   }
 
+  generateConnectionToTestMongoDBInDocker() {
+    const dto = new CreateConnectionDto() as any;
+    dto.title = 'Test connection to MongoDB in Docker';
+    dto.type = 'mongodb';
+    dto.host = 'test-mongo-e2e-testing'
+    dto.port = 27017;
+    dto.database = 'admin',
+    dto.username = 'root',
+    dto.password = 'example',
+    dto.ssh = false;
+    return dto;
+  }
+
   generateEncryptedConnectionToTestPostgresDBInDocker() {
     const dto = new CreateConnectionDto() as any;
     dto.title = 'Test connection to Postgres in Docker';

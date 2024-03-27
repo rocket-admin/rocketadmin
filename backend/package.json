@@ -89,6 +89,7 @@
     "lodash": "4.17.21",
     "lru-cache": "^10.1.0",
     "moment": "2.29.4",
+    "mongodb": "^6.5.0",
     "nanoid": "5.0.4",
     "nest-winston": "1.9.4",
     "node-gyp": "^10.0.1",
