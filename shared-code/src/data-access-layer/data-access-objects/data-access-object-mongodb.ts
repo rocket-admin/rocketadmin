@@ -18,6 +18,7 @@ import { DAO_CONSTANTS } from '../../helpers/data-access-objects-constants.js';
 import { FilterCriteriaEnum } from '../shared/enums/filter-criteria.enum.js';
 import { tableSettingsFieldValidator } from '../../helpers/validation/table-settings-validator.js';
 import { ERROR_MESSAGES } from '../../helpers/errors/error-messages.js';
+import * as BSON from 'bson';
 
 export class DataAccessObjectMongo extends BasicDataAccessObject implements IDataAccessObject {
   constructor(connection: ConnectionParams) {
@@ -265,7 +266,7 @@ export class DataAccessObjectMongo extends BasicDataAccessObject implements IDat
       character_maximum_length: null,
       column_default: key === '_id' ? 'autoincrement' : null,
       column_name: key,
-      data_type: typeof document[key],
+      data_type: this.getMongoDataTypeByValue(document[key]),
       data_type_params: null,
       udt_name: null,
       extra: null,
@@ -377,6 +378,39 @@ export class DataAccessObjectMongo extends BasicDataAccessObject implements IDat
       return new ObjectId(id);
     } catch (error) {
       throw new Error(ERROR_MESSAGES.INVALID_OBJECT_ID_FORMAT);
+    }
+  }
+
+  private getMongoDataTypeByValue(value: unknown): string {
+    switch (true) {
+      case Array.isArray(value):
+        return 'array';
+      case value instanceof BSON.Double:
+        return 'double';
+      case value instanceof BSON.Int32:
+        return 'int32';
+      case value instanceof BSON.Binary:
+        return 'binary';
+      case value instanceof BSON.ObjectId:
+        return 'objectid';
+      case value instanceof BSON.Timestamp:
+        return 'timestamp';
+      case value instanceof BSON.Long:
+        return 'long';
+      case value instanceof BSON.Decimal128:
+        return 'decimal128';
+      case value instanceof BSON.BSONRegExp:
+        return 'regexp';
+      case typeof value === 'string':
+        return 'string';
+      case typeof value === 'number':
+        return 'number';
+      case typeof value === 'boolean':
+        return 'boolean';
+      case value instanceof Date:
+        return 'date';
+      default:
+        return 'unknown';
     }
   }
 }
