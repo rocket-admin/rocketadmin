@@ -47,6 +47,7 @@ export const Messages = {
   PORT_FORMAT_INCORRECT: 'Port value must be a number',
   PORT_MISSING: 'Port value is invalid',
   SSH_FORMAT_INCORRECT: 'Ssh value must be a boolean',
+  SSL_FORMAT_INCORRECT: 'Ssl value must be a boolean',
   SSH_HOST_MISSING: 'Ssh host is missing',
   SSH_PORT_MISSING: 'Ssh port is missing',
   SSH_USERNAME_MISSING: 'Ssh username is missing',
