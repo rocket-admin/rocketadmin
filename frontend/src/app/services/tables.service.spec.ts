@@ -8,7 +8,7 @@ import { TableOrdering } from '../models/table';
 import { TablesService } from './tables.service';
 import { TestBed } from '@angular/core/testing';
 
-fdescribe('TablesService', () => {
+describe('TablesService', () => {
   let service: TablesService;
   let httpMock: HttpTestingController;
 
@@ -307,9 +307,9 @@ fdescribe('TablesService', () => {
     });
 
     const req = httpMock.expectOne(
-      `/table/rows/12345678?tableName=users_table&perPage=30&page=1&f_position_id__eq=9876&referencedColumn=id`
+      `/table/rows/find/12345678?tableName=users_table&perPage=30&page=1&f_position_id__eq=9876&referencedColumn=id`
     );
-    expect(req.request.method).toBe("GET");
+    expect(req.request.method).toBe("POST");
     req.flush(usersTableNetwork);
 
     expect(isSubscribeCalled).toBe(true);
@@ -324,12 +324,12 @@ fdescribe('TablesService', () => {
       requstedPage: 1,
       chunkSize: 30,
       filters: {
-        city: 'NewYork',
-        age: '42'
-      },
-      comparators: {
-        city: 'eq',
-        age: 'eq'
+        city: {
+          eq: 'NewYork'
+        },
+        age: {
+          eq: '42'
+        }
       }
     }).subscribe(res => {
       expect(res).toEqual(usersTableNetwork);

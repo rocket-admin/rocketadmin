@@ -6,12 +6,13 @@ import { CompanyService } from 'src/app/services/company.service';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { of } from 'rxjs';
 
 describe('CompanyComponent', () => {
   let component: CompanyComponent;
   let fixture: ComponentFixture<CompanyComponent>;
 
-  let fakeCompanyService = jasmine.createSpyObj('CompanyService', ['fetchCompany', 'fetchCompanyMembers']);
+  let fakeCompanyService = jasmine.createSpyObj('CompanyService', ['fetchCompany', 'fetchCompanyMembers', 'cast']);
 
   const mockCompany = {
     "id": "company-12345678",
@@ -92,6 +93,9 @@ describe('CompanyComponent', () => {
     }
   ]
 
+  fakeCompanyService.cast = of('invited');
+  fakeCompanyService.fetchCompany.and.returnValue(of(mockCompany));
+
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       declarations: [ CompanyComponent ],
@@ -116,7 +120,7 @@ describe('CompanyComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should set initial values', () => {
+  // it('should set initial values', () => {
 
-  });
+  // });
 });

@@ -9,11 +9,10 @@ const queryParams = {
     },
     city: {
         startswith: 'A'
-    },
-    page_index: 0
+    }
 }
 
-describe('Normalize function', () => {
+describe('Parse filter params', () => {
     it('should return filters from queryParams', () => {
         const filters = getFiltersFromUrl(queryParams);
 
