@@ -42,44 +42,22 @@
                     data-testid="table-add-record-link"
                     angulartics2On="click"
                     angularticsAction="Dashboard: add row is clicked">
+                    <mat-icon>add</mat-icon>
                     Add row
                 </a>
-                <a mat-button *ngIf="accessLevel === 'edit'"
-                    routerLink="/dashboard/{{connectionID}}/{{name}}/settings"
-                    angulartics2On="click"
-                    angularticsAction="Dashboard: settings is clicked">
-                    Settings
-                </a>
-                <a mat-button *ngIf="accessLevel === 'edit' && tableData"
-                    routerLink="/dashboard/{{connectionID}}/{{name}}/widgets"
-                    [ngClass]="{'action_active': tableData.widgetsCount}"
-                    angulartics2On="click"
-                    angularticsAction="Dashboard: widgets is clicked">
-                    Widgets
-                </a>
-                <div [matTooltip]="!tableData.keyAttributes?.length ? 'Add primary keys to create custom actions for rows.' : null">
-                    <a mat-button *ngIf="accessLevel === 'edit' && tableData" [ngClass]="{ 'action-button_disabled': !tableData.keyAttributes?.length }"
-                        routerLink="/dashboard/{{connectionID}}/{{name}}/actions"
-                        [disabled]="!tableData.keyAttributes?.length"
-                        angulartics2On="click"
-                        angularticsAction="Dashboard: actions is clicked">
-                        Actions
-                        <mat-icon *ngIf="!tableData.keyAttributes?.length">
-                            info_outline
-                        </mat-icon>
-                    </a>
-                </div>
 
                 <button mat-button [ngClass]="{'action_active': getFiltersCount(activeFilters)}"
                     angulartics2On="click"
                     angularticsAction="Dashboard: filters is clicked"
                     (click)="handleOpenFilters()">
+                    <mat-icon>filter_list</mat-icon>
                     Filter
                 </button>
                 <div *ngIf="tableData" class="db-table-manage-columns-button">
                     <button *ngIf="tableData.displayedColumns && tableData.columns" mat-button [matMenuTriggerFor]="menu"
                         angulartics2On="click"
                         angularticsAction="Dashboard: columns multiselect is clicked">
+                        <mat-icon fontSet="material-icons-outlined">view_week</mat-icon>
                         Columns ({{ tableData.actionsColumnWidth === '0' ? tableData.displayedColumns.length : tableData.displayedDataColumns.length  }}
                             /
                             {{ tableData.columns.length }})
@@ -99,6 +77,37 @@
                         </button>
                     </mat-menu>
                 </div>
+                <button mat-icon-button [matMenuTriggerFor]="settingsMenu"
+                    angulartics2On="click"
+                    angularticsAction="Dashboard: settings dropdown is clicked">
+                    <mat-icon>settings</mat-icon>
+                </button>
+                <mat-menu #settingsMenu="matMenu">
+                    <a mat-menu-item *ngIf="accessLevel === 'edit'"
+                        routerLink="/dashboard/{{connectionID}}/{{name}}/settings"
+                        angulartics2On="click"
+                        angularticsAction="Dashboard: settings is clicked">
+                        Settings
+                    </a>
+                    <a mat-menu-item *ngIf="accessLevel === 'edit' && tableData"
+                        routerLink="/dashboard/{{connectionID}}/{{name}}/widgets"
+                        [ngClass]="{'action_active': tableData.widgetsCount}"
+                        angulartics2On="click"
+                        angularticsAction="Dashboard: widgets is clicked">
+                        Widgets
+                    </a>
+                    <a mat-menu-item *ngIf="accessLevel === 'edit' && tableData" [ngClass]="{ 'action-button_disabled': !tableData.keyAttributes?.length }"
+                        routerLink="/dashboard/{{connectionID}}/{{name}}/actions"
+                        [disabled]="!tableData.keyAttributes?.length"
+                        angulartics2On="click"
+                        angularticsAction="Dashboard: actions is clicked">
+                        Actions
+                        <br />
+                        <span *ngIf="!tableData.keyAttributes?.length" class="mat-small">
+                            Primary keys are required.
+                        </span>
+                    </a>
+                </mat-menu>
             </div>
         </div>
     </ng-template>
@@ -109,12 +118,12 @@
         cdkDropList
         cdkDropListOrientation="horizontal">
         <mat-chip
-            class="example-box"
+            class="chip-filter"
             cdkDrag
             *ngFor="let activeFilter of activeFilters | keyvalue"
             (removed)="removeFilter.emit(activeFilter.key)"
             >
-            {{ getFilter(activeFilter.key, activeFilter.value) }}
+            {{ getFilter(activeFilter) }}
             <button matChipRemove>
                 <mat-icon>cancel</mat-icon>
             </button>

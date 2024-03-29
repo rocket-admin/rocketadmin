@@ -14,6 +14,8 @@ import { GetTableRowsDs } from '../application/data-structures/get-table-rows.ds
 import { GetTableStructureDs } from '../application/data-structures/get-table-structure-ds.js';
 import { UpdateRowInTableDs } from '../application/data-structures/update-row-in-table.ds.js';
 import { TableStructureDs, TableRowRODs } from '../table-datastructures.js';
+import { UpdateRowsInTableDs } from '../application/data-structures/update-rows-in-table.ds.js';
+import { SuccessResponse } from '../../../microservices/saas-microservice/data-structures/common-responce.ds.js';
 
 export interface IFindTablesInConnection {
   execute(inputData: FindTablesDs, inTransaction: InTransactionEnum): Promise<Array<FoundTableDs>>;
@@ -33,6 +35,10 @@ export interface IAddRowInTable {
 
 export interface IUpdateRowInTable {
   execute(inputData: UpdateRowInTableDs, inTransaction: InTransactionEnum): Promise<TableRowRODs>;
+}
+
+export interface IBulkUpdateRowsInTable {
+  execute(inputData: UpdateRowsInTableDs, inTransaction: InTransactionEnum): Promise<SuccessResponse>;
 }
 
 export interface IDeleteRowFromTable {

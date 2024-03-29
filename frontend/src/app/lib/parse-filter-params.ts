@@ -1,41 +1,15 @@
-export function getClearedKey(key: string) {
-    const comparator = getComparatorFormKey(key);
-    return key.substring(3).slice(0, (-comparator.length - 2));
+export function getFiltersFromUrl(queryParams) {
+  let filters = {};
+  for (const key in queryParams) {
+    filters[key] = Object.values(queryParams[key])[0];
+  }
+  return filters;
 }
 
-export function getComparatorFormKey(key: string) {
-    const keySubstrings = key.split('__')
-    if (keySubstrings.length > 2) {
-      return keySubstrings[keySubstrings.length - 1];
-    } else {
-      return 'eq';
-    }
-}
-
-export function getFilters(queryParams) {
-    const filters = Object.keys(queryParams)
-        .filter(key => key.startsWith('f__'))
-        .reduce((paramsObj, key) => {
-          const clearedKey = getClearedKey(key);
-          paramsObj[clearedKey] = queryParams[key];
-          return paramsObj;
-        }, {});
-    return filters;
-}
-
-export function getComparators(queryParams) {
-    console.log(queryParams);
-    const comparators = Object.keys(queryParams)
-      .filter(key => key.startsWith('f__'))
-      .reduce((paramsObj, key) => {
-        const comparator = getComparatorFormKey(key);
-        const clearedKey = getClearedKey(key);
-        if (comparator === 'eq' && queryParams[key] === '') {
-          paramsObj[clearedKey] = 'empty'
-        } else {
-          paramsObj[clearedKey] = comparator;
-        };
-        return paramsObj;
-      }, {});
-    return comparators;
+export function getComparatorsFromUrl(queryParams) {
+  let comparators = {};
+  for (const key in queryParams) {
+    comparators[key] = Object.keys(queryParams[key])[0];
+  }
+  return comparators;
 }

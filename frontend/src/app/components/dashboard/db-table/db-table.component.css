@@ -99,6 +99,8 @@
 }
 
 .action-button_disabled {
+    --mdc-theme-text-disabled-on-background: rgba(0, 0, 0, 0.78);
+
     pointer-events: none;
 }
 
@@ -252,4 +254,8 @@ tr.mat-row:hover {
 
 .hidden {
     display: none;
+}
+
+.chip-filter:not(:first-child) {
+    margin-left: 8px;
 }

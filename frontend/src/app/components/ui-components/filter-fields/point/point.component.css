@@ -1,0 +1,6 @@
+.mat-mdc-form-field {
+    max-width: 260px;
+    min-width: 150px;
+    width: 48vw;
+    display: block;
+}

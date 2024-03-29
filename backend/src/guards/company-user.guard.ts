@@ -6,6 +6,7 @@ import { Observable } from 'rxjs';
 import { validateUuidByRegex } from './utils/validate-uuid-by-regex.js';
 import { UserEntity } from '../entities/user/user.entity.js';
 import { UserRoleEnum } from '../entities/user/enums/user-role.enum.js';
+import { Messages } from '../exceptions/text/messages.js';
 
 @Injectable()
 export class CompanyUserGuard implements CanActivate {
@@ -33,6 +34,14 @@ export class CompanyUserGuard implements CanActivate {
       let foundUser: UserEntity;
       try {
         foundUser = await this._dbContext.userRepository.findOneUserByIdAndCompanyId(userId, companyId);
+        if (foundUser.suspended) {
+          throw new HttpException(
+            {
+              message: Messages.ACCOUNT_SUSPENDED,
+            },
+            HttpStatus.BAD_REQUEST,
+          );
+        }
         resolve(foundUser?.role === UserRoleEnum.ADMIN || foundUser?.role === UserRoleEnum.USER);
         return;
       } catch (e) {

@@ -17,16 +17,23 @@ export const userAccessCustomReposiotoryExtension = {
       .andWhere('user.id = :cognitoUserName', { cognitoUserName: cognitoUserName })
       .andWhere('permission.type = :permissionType', { permissionType: PermissionTypeEnum.Connection });
     const resultPermissions = await qb.getMany();
+
+    if (resultPermissions[0]?.groups[0]?.users[0]?.suspended) {
+      throw new HttpException(
+        {
+          message: Messages.ACCOUNT_SUSPENDED,
+        },
+        HttpStatus.FORBIDDEN,
+      );
+    }
+
     if (resultPermissions?.length === 0) {
       return AccessLevelEnum.none;
     }
     const connectionAccessLevels = resultPermissions.map((permission: PermissionEntity) => {
       return permission.accessLevel.toLowerCase();
     });
-    if (
-      connectionAccessLevels.includes(AccessLevelEnum.fullaccess) ||
-      connectionAccessLevels.includes(AccessLevelEnum.edit)
-    ) {
+    if (connectionAccessLevels.includes(AccessLevelEnum.edit)) {
       return AccessLevelEnum.edit;
     }
     if (connectionAccessLevels.includes(AccessLevelEnum.readonly)) {
@@ -39,7 +46,6 @@ export const userAccessCustomReposiotoryExtension = {
     const connectionAccessLevel = await this.getUserConnectionAccessLevel(cognitoUserName, connectionId);
     switch (connectionAccessLevel) {
       case AccessLevelEnum.edit:
-      case AccessLevelEnum.fullaccess:
       case AccessLevelEnum.readonly:
         return true;
       default:
@@ -51,7 +57,6 @@ export const userAccessCustomReposiotoryExtension = {
     const connectionAccessLevel = await this.getUserConnectionAccessLevel(cognitoUserName, connectionId);
     switch (connectionAccessLevel) {
       case AccessLevelEnum.edit:
-      case AccessLevelEnum.fullaccess:
         return true;
       case AccessLevelEnum.readonly:
         return false;
@@ -75,16 +80,23 @@ export const userAccessCustomReposiotoryExtension = {
       .andWhere('permission.type = :permissionType', { permissionType: PermissionTypeEnum.Group })
       .andWhere('group.id = :groupId', { groupId: groupId });
     const resultPermissions = await qb.getMany();
+
+    if (resultPermissions[0]?.groups[0]?.users[0]?.suspended) {
+      throw new HttpException(
+        {
+          message: Messages.ACCOUNT_SUSPENDED,
+        },
+        HttpStatus.FORBIDDEN,
+      );
+    }
+
     if (resultPermissions?.length === 0) {
       return AccessLevelEnum.none;
     }
     const connectionAccessLevels = resultPermissions.map((permission: PermissionEntity) => {
       return permission.accessLevel.toLowerCase();
     });
-    if (
-      connectionAccessLevels.includes(AccessLevelEnum.fullaccess) ||
-      connectionAccessLevels.includes(AccessLevelEnum.edit)
-    ) {
+    if (connectionAccessLevels.includes(AccessLevelEnum.edit)) {
       return AccessLevelEnum.edit;
     }
     if (connectionAccessLevels.includes(AccessLevelEnum.readonly)) {
@@ -97,7 +109,6 @@ export const userAccessCustomReposiotoryExtension = {
     const userGroupAccessLevel = await this.getGroupAccessLevel(cognitoUserName, groupId);
     switch (userGroupAccessLevel) {
       case AccessLevelEnum.edit:
-      case AccessLevelEnum.fullaccess:
       case AccessLevelEnum.readonly:
         return true;
       default:
@@ -109,7 +120,6 @@ export const userAccessCustomReposiotoryExtension = {
     const userGroupAccessLevel = await this.getGroupAccessLevel(cognitoUserName, groupId);
     switch (userGroupAccessLevel) {
       case AccessLevelEnum.edit:
-      case AccessLevelEnum.fullaccess:
         return true;
       case AccessLevelEnum.readonly:
         return false;
@@ -183,6 +193,16 @@ export const userAccessCustomReposiotoryExtension = {
       .andWhere('permission.type = :permissionType', { permissionType: PermissionTypeEnum.Table })
       .andWhere('permission.tableName = :tableName', { tableName: tableName });
     const resultPermissions = await qb.getMany();
+
+    if (resultPermissions[0]?.groups[0]?.users[0]?.suspended) {
+      throw new HttpException(
+        {
+          message: Messages.ACCOUNT_SUSPENDED,
+        },
+        HttpStatus.FORBIDDEN,
+      );
+    }
+
     const tableAccessLevels = resultPermissions.map((permission: PermissionEntity) => {
       return permission.accessLevel;
     });

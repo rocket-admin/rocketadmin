@@ -1,12 +1,13 @@
 import { Component, Input, OnInit } from '@angular/core';
+
 import { normalizeFieldName } from '../../../../lib/normalize';
 
 @Component({
-  selector: 'app-static-text',
+  selector: 'app-row-static-text',
   templateUrl: './static-text.component.html',
   styleUrls: ['./static-text.component.css']
 })
-export class StaticTextComponent implements OnInit {
+export class StaticTextRowComponent implements OnInit {
 
   @Input() label: string;
   @Input() value: string;

@@ -223,6 +223,20 @@ export class CommandExecutor {
           );
         }
         break;
+
+      case OperationTypeEnum.bulkUpdateRowsInTable:
+        try {
+          operationStatusResult = OperationResultStatusEnum.successfully;
+          return await dao.bulkUpdateRowsInTable(tableName, row, primaryKey);
+        } catch (e) {
+          operationStatusResult = OperationResultStatusEnum.unsuccessfully;
+          console.log(Messages.FAIL_MESSAGE(e.message));
+          return new Error(Messages.FAILED_TO_UPDATE_ROWS);
+        } finally {
+          Logger.createLogRecord(row, tableName, email, LogOperationTypeEnum.updateRow, operationStatusResult, null);
+        }
+        break;
+
       default:
         return new Error(Messages.UNKNOWN_OPERATION(operationType));
     }

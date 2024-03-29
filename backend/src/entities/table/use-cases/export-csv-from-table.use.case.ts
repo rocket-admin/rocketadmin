@@ -7,13 +7,15 @@ import { TableLogsService } from '../../table-logs/table-logs.service.js';
 import { GetTableRowsDs } from '../application/data-structures/get-table-rows.ds.js';
 import { IExportCSVFromTable } from './table-use-cases.interface.js';
 import { Messages } from '../../../exceptions/text/messages.js';
-import { findFilteringFieldsUtil } from '../utils/find-filtering-fields.util.js';
+import { findFilteringFieldsUtil, parseFilteringFieldsFromBodyData } from '../utils/find-filtering-fields.util.js';
 import { findOrderingFieldUtil } from '../utils/find-ordering-field.util.js';
 import { getDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/create-data-access-object.js';
 import { isConnectionTypeAgent } from '../../../helpers/is-connection-entity-agent.js';
 import { hexToBinary, isBinary } from '../../../helpers/binary-to-hex.js';
 import { isHexString } from '../utils/is-hex-string.js';
 import * as csv from 'csv';
+import { isObjectEmpty } from '../../../helpers/is-object-empty.js';
+import { FilteringFieldsDs } from '../table-datastructures.js';
 
 export class ExportCSVFromTableUseCase extends AbstractUseCase<GetTableRowsDs, any> implements IExportCSVFromTable {
   constructor(
@@ -27,7 +29,7 @@ export class ExportCSVFromTableUseCase extends AbstractUseCase<GetTableRowsDs, a
 
   protected async implementation(inputData: GetTableRowsDs): Promise<StreamableFile> {
     // eslint-disable-next-line prefer-const
-    let { connectionId, masterPwd, page, perPage, query, searchingFieldValue, tableName, userId } = inputData;
+    let { connectionId, masterPwd, page, perPage, query, searchingFieldValue, tableName, userId, filters } = inputData;
     const connection = await this._dbContext.connectionRepository.findAndDecryptConnection(connectionId, masterPwd);
     if (!connection) {
       throw new HttpException(
@@ -55,7 +57,10 @@ export class ExportCSVFromTableUseCase extends AbstractUseCase<GetTableRowsDs, a
         tableSettings = {} as any;
       }
 
-      const filteringFields = findFilteringFieldsUtil(query, tableStructure);
+      const filteringFields: Array<FilteringFieldsDs> = isObjectEmpty(filters)
+        ? findFilteringFieldsUtil(query, tableStructure)
+        : parseFilteringFieldsFromBodyData(filters, tableStructure);
+
       const orderingField = findOrderingFieldUtil(query, tableStructure, tableSettings);
 
       if (orderingField) {
@@ -65,13 +70,9 @@ export class ExportCSVFromTableUseCase extends AbstractUseCase<GetTableRowsDs, a
 
       if (isHexString(searchingFieldValue)) {
         searchingFieldValue = hexToBinary(searchingFieldValue) as any;
-        const binaryFields = [];
-        for (const field of tableStructure) {
-          if (isBinary(field.data_type)) {
-            binaryFields.push(field.column_name);
-          }
-        }
-        tableSettings.search_fields = binaryFields;
+        tableSettings.search_fields = tableStructure
+          .filter((field) => isBinary(field.data_type))
+          .map((field) => field.column_name);
       }
 
       const rowsStream = await dao.getTableRowsStream(

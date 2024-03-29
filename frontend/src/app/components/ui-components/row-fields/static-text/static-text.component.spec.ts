@@ -1,20 +1,20 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, async } from '@angular/core/testing';
 
-import { StaticTextComponent } from './static-text.component';
+import { StaticTextRowComponent } from './static-text.component';
 
-describe('StaticTextComponent', () => {
-  let component: StaticTextComponent;
-  let fixture: ComponentFixture<StaticTextComponent>;
+describe('StaticTextRowComponent', () => {
+  let component: StaticTextRowComponent;
+  let fixture: ComponentFixture<StaticTextRowComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ StaticTextComponent ]
+      declarations: [ StaticTextRowComponent ]
     })
     .compileComponents();
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(StaticTextComponent);
+    fixture = TestBed.createComponent(StaticTextRowComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

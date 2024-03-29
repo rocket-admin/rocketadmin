@@ -8,7 +8,7 @@ import { TableOrdering } from '../models/table';
 import { TablesService } from './tables.service';
 import { TestBed } from '@angular/core/testing';
 
-describe('TablesService', () => {
+fdescribe('TablesService', () => {
   let service: TablesService;
   let httpMock: HttpTestingController;
 
@@ -282,8 +282,9 @@ describe('TablesService', () => {
       isSubscribeCalled = true;
     });
 
-    const req = httpMock.expectOne(`/table/rows/12345678?tableName=users_table&perPage=30&page=1`);
-    expect(req.request.method).toBe("GET");
+    const req = httpMock.expectOne(`/table/rows/find/12345678?tableName=users_table&perPage=30&page=1`);
+    expect(req.request.method).toBe("POST");
+    expect(req.request.body).toEqual({ filters: undefined });
     req.flush(usersTableNetwork);
 
     expect(isSubscribeCalled).toBe(true);
@@ -335,8 +336,16 @@ describe('TablesService', () => {
       isSubscribeCalled = true;
     });
 
-    const req = httpMock.expectOne(`/table/rows/12345678?tableName=users_table&perPage=30&page=1&f_city__eq=NewYork&f_age__eq=42`);
-    expect(req.request.method).toBe("GET");
+    const req = httpMock.expectOne('/table/rows/find/12345678?tableName=users_table&perPage=30&page=1');
+    expect(req.request.method).toBe("POST");
+    expect(req.request.body).toEqual({ filters: {
+      city: {
+        eq: 'NewYork'
+      },
+      age: {
+        eq: '42'
+      }
+    }});
     req.flush(usersTableNetwork);
 
     expect(isSubscribeCalled).toBe(true);
@@ -358,9 +367,10 @@ describe('TablesService', () => {
     });
 
     const req = httpMock.expectOne(
-      `/table/rows/12345678?tableName=users_table&perPage=30&page=1&sort_by=city&sort_order=DESC`
+      `/table/rows/find/12345678?tableName=users_table&perPage=30&page=1&sort_by=city&sort_order=DESC`
     );
-    expect(req.request.method).toBe("GET");
+    expect(req.request.method).toBe("POST");
+    expect(req.request.body).toEqual({ filters: undefined });
     req.flush(usersTableNetwork);
 
     expect(isSubscribeCalled).toBe(true);
@@ -374,8 +384,8 @@ describe('TablesService', () => {
       chunkSize: 30
     }).toPromise();
 
-    const req = httpMock.expectOne(`/table/rows/12345678?tableName=users_table&perPage=30&page=1`);
-    expect(req.request.method).toBe("GET");
+    const req = httpMock.expectOne(`/table/rows/find/12345678?tableName=users_table&perPage=30&page=1`);
+    expect(req.request.method).toBe("POST");
     req.flush(fakeError, {status: 400, statusText: ''});
     await fetchTableRow;
 

@@ -6,23 +6,14 @@ export function convertHexDataInPrimaryKeyUtil(
   primaryKey: Record<string, unknown>,
   structure: Array<TableStructureDS>,
 ): Record<string, unknown> {
-  const binaryColumns = structure
-    .map((el) => {
-      return {
-        column_name: el.column_name,
-        data_type: el.data_type,
-      };
-    })
-    .filter((el) => {
-      return isBinary(el.data_type);
-    });
-  if (binaryColumns.length <= 0) {
-    return primaryKey;
-  }
+  const binaryColumns = structure.filter((el) => isBinary(el.data_type));
+
   for (const column of binaryColumns) {
-    if (primaryKey[column.column_name]) {
-      primaryKey[column.column_name] = hexToBinary(primaryKey[column.column_name] as string);
+    const columnValue = primaryKey[column.column_name];
+    if (columnValue) {
+      primaryKey[column.column_name] = hexToBinary(columnValue as string);
     }
   }
+
   return primaryKey;
 }

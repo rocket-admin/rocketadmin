@@ -27,7 +27,7 @@ export class TableFieldInfoEntity {
   @Column({ default: null })
   udt_name: string;
 
-  @ManyToOne((type) => TableInfoEntity, (table_info) => table_info.table_fields_info, { onDelete: 'CASCADE' })
+  @ManyToOne(() => TableInfoEntity, (table_info) => table_info.table_fields_info, { onDelete: 'CASCADE' })
   @JoinColumn()
   table_info: Relation<TableInfoEntity>;
 }

@@ -1294,6 +1294,90 @@ should return all found rows with search, pagination: page=1, perPage=2 and DESC
   }
 });
 
+// todo: rework for other tables after removing old endpoint
+test(`${currentTest} with search, with pagination, with sorting and with filtering
+should return all found rows with search, pagination: page=1, perPage=2 and DESC sorting and filtering in body`, async (t) => {
+  try {
+    const connectionToTestDB = getTestData(mockFactory).connectionToPostgres;
+    const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
+    const { testTableName, testTableColumnName } = await createTestTable(connectionToTestDB);
+
+    testTables.push(testTableName);
+
+    const createConnectionResponse = await request(app.getHttpServer())
+      .post('/connection')
+      .send(connectionToTestDB)
+      .set('Cookie', firstUserToken)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+    const createConnectionRO = JSON.parse(createConnectionResponse.text);
+    t.is(createConnectionResponse.status, 201);
+
+    const createTableSettingsDTO = mockFactory.generateTableSettings(
+      createConnectionRO.id,
+      testTableName,
+      [testTableColumnName],
+      undefined,
+      undefined,
+      3,
+      QueryOrderingEnum.DESC,
+      'id',
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+    );
+
+    const createTableSettingsResponse = await request(app.getHttpServer())
+      .post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
+      .send(createTableSettingsDTO)
+      .set('Cookie', firstUserToken)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+    t.is(createTableSettingsResponse.status, 201);
+
+    const fieldname = 'id';
+    const fieldvalue = '45';
+
+    const filters = {
+      [fieldname]: { lt: fieldvalue },
+    };
+
+    const getTableRowsResponse = await request(app.getHttpServer())
+      .post(
+        `/table/rows/find/${createConnectionRO.id}?tableName=${testTableName}&search=${testSearchedUserName}&page=1&perPage=2`,
+      )
+      .send({ filters })
+      .set('Cookie', firstUserToken)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+
+    const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
+    t.is(typeof getTableRowsRO, 'object');
+    t.is(getTableRowsRO.hasOwnProperty('rows'), true);
+    t.is(getTableRowsRO.hasOwnProperty('primaryColumns'), true);
+    t.is(getTableRowsRO.hasOwnProperty('pagination'), true);
+    t.is(getTableRowsRO.rows.length, 2);
+    t.is(Object.keys(getTableRowsRO.rows[1]).length, 5);
+
+    t.is(getTableRowsRO.rows[0][testTableColumnName], testSearchedUserName);
+    t.is(getTableRowsRO.rows[0].id, 38);
+    t.is(getTableRowsRO.rows[1][testTableColumnName], testSearchedUserName);
+    t.is(getTableRowsRO.rows[1].id, 22);
+
+    t.is(getTableRowsRO.pagination.currentPage, 1);
+    t.is(getTableRowsRO.pagination.perPage, 2);
+
+    t.is(typeof getTableRowsRO.primaryColumns, 'object');
+    t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('column_name'), true);
+    t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('data_type'), true);
+  } catch (e) {
+    console.error(e);
+    throw e;
+  }
+});
+
 test(`${currentTest} with search, with pagination, with sorting and with filtering
 should return all found rows with search, pagination: page=1, perPage=10 and DESC sorting and filtering'`, async (t) => {
   try {
@@ -2554,6 +2638,72 @@ test(`${currentTest} should throw an exception when primary key passed in reques
   t.is(message, Messages.ROW_PRIMARY_KEY_NOT_FOUND);
 });
 
+currentTest = 'PUT /table/rows/update/:connectionId';
+
+test(`${currentTest} should update multiple rows and return result`, async (t) => {
+  const connectionToTestDB = getTestData(mockFactory).connectionToPostgres;
+  const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
+  const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
+    await createTestTable(connectionToTestDB);
+
+  testTables.push(testTableName);
+
+  const createConnectionResponse = await request(app.getHttpServer())
+    .post('/connection')
+    .send(connectionToTestDB)
+    .set('Cookie', firstUserToken)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+  const createConnectionRO = JSON.parse(createConnectionResponse.text);
+  t.is(createConnectionResponse.status, 201);
+
+  const fakeName = faker.person.firstName();
+  const fakeMail = faker.internet.email();
+
+  const requestData = {
+    primaryKeys: [{ id: 1 }, { id: 2 }],
+    newValues: {
+      [testTableColumnName]: fakeName,
+      [testTableSecondColumnName]: fakeMail,
+    },
+  };
+
+  const updateRowInTableResponse = await request(app.getHttpServer())
+    .put(`/table/rows/update/${createConnectionRO.id}?tableName=${testTableName}`)
+    .send(JSON.stringify(requestData))
+    .set('Cookie', firstUserToken)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+
+  const updateRowInTableRO = JSON.parse(updateRowInTableResponse.text);
+
+  t.is(updateRowInTableResponse.status, 200);
+  t.is(updateRowInTableRO.success, true);
+
+  // check that the rows were updated
+  const firstRowResponse = await request(app.getHttpServer())
+    .get(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&id=1`)
+    .set('Cookie', firstUserToken)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+
+  const firstRow = JSON.parse(firstRowResponse.text);
+  t.is(firstRowResponse.status, 200);
+  t.is(firstRow.row[testTableColumnName], fakeName);
+  t.is(firstRow.row[testTableSecondColumnName], fakeMail);
+
+  const secondRowResponse = await request(app.getHttpServer())
+    .get(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&id=2`)
+    .set('Cookie', firstUserToken)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+
+  const secondRow = JSON.parse(secondRowResponse.text);
+  t.is(secondRowResponse.status, 200);
+  t.is(secondRow.row[testTableColumnName], fakeName);
+  t.is(secondRow.row[testTableSecondColumnName], fakeMail);
+});
+
 currentTest = 'DELETE /table/row/:slug';
 
 test(`${currentTest} should delete row in table and return result`, async (t) => {
@@ -3358,15 +3508,15 @@ test(`${currentTest} should return csv file with table data`, async (t) => {
   t.is(createConnectionResponse.status, 201);
 
   const getTableCsvResponse = await request(app.getHttpServer())
-    .get(`/table/csv/${createConnectionRO.id}?tableName=${testTableName}`)
+    .post(`/table/csv/export/${createConnectionRO.id}?tableName=${testTableName}`)
     .set('Cookie', firstUserToken)
     .set('Content-Type', 'text/csv')
     .set('Accept', 'text/csv');
 
-  if (getTableCsvResponse.status !== 200) {
+  if (getTableCsvResponse.status !== 201) {
     console.log(getTableCsvResponse.text);
   }
-  t.is(getTableCsvResponse.status, 200);
+  t.is(getTableCsvResponse.status, 201);
   const fileName = `${testTableName}.csv`;
   const downloadedFilePatch = join(__dirname, 'response-files', fileName);
 
@@ -3424,17 +3574,17 @@ with search and pagination: page=1, perPage=2 and DESC sorting`, async (t) => {
   t.is(createTableSettingsResponse.status, 201);
 
   const getTableCsvResponse = await request(app.getHttpServer())
-    .get(
-      `/table/csv/${createConnectionRO.id}?tableName=${testTableName}&search=${testSearchedUserName}&page=1&perPage=2`,
+    .post(
+      `/table/csv/export/${createConnectionRO.id}?tableName=${testTableName}&search=${testSearchedUserName}&page=1&perPage=2`,
     )
     .set('Cookie', firstUserToken)
     .set('Content-Type', 'text/csv')
     .set('Accept', 'text/csv');
 
-  if (getTableCsvResponse.status !== 200) {
+  if (getTableCsvResponse.status !== 201) {
     console.log(getTableCsvResponse.text);
   }
-  t.is(getTableCsvResponse.status, 200);
+  t.is(getTableCsvResponse.status, 201);
   const fileName = `${testTableName}.csv`;
   const downloadedFilePatch = join(__dirname, 'response-files', fileName);
 

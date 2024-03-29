@@ -144,3 +144,18 @@ export async function sendInvitationToCompany(
   };
   return await sendEmailToUser(letterContent);
 }
+
+export async function send2faEnabledInCompanyToUser(
+  email: string,
+  companyName: string,
+): Promise<SMTPTransport.SentMessageInfo> {
+  const emailFrom = getProcessVariable('EMAIL_FROM') || Constants.AUTOADMIN_SUPPORT_MAIL;
+  const letterContent: IMessage = {
+    from: emailFrom,
+    to: email,
+    subject: Constants.EMAIL.COMPANY_2FA_ENABLED.COMPANY_2FA_ENABLED_SUBJECT_DATA,
+    text: Constants.EMAIL.COMPANY_2FA_ENABLED.COMPANY_2FA_ENABLED_TEXT_DATA(companyName),
+    html: Constants.EMAIL.COMPANY_2FA_ENABLED.COMPANY_2FA_ENABLED_HTML_DATA(companyName),
+  };
+  return await sendEmailToUser(letterContent);
+}

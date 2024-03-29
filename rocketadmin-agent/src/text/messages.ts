@@ -1,5 +1,5 @@
 import { enumToString } from '../helpers/enum-to-string.js';
-import { ConnectionTypeEnum } from '../enums/connection-type.enum.js';
+import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/enums/connection-types-enum.js';
 import { QueryOrderingEnum } from '../enums/query-ordering.enum.js';
 import { Constants } from '../helpers/constants/constants.js';
 
@@ -7,7 +7,7 @@ export const Messages = {
   APPLICATION_ENCRYPTION_PASSWORD_INVALID: `Invalid encryption password`,
   CANT_LIST_AND_EXCLUDE: `You cannot select the same field names to view and exclude`,
   CANT_ORDER_AND_EXCLUDE: `You cannot select the same field names to order and exclude`,
-  CONNECTION_TYPE_INVALID: `Unsupported database type. Now we supports ${enumToString(ConnectionTypeEnum)}`,
+  CONNECTION_TYPE_INVALID: `Unsupported database type. Now we supports ${enumToString(ConnectionTypesEnum)}`,
   CONNECTION_HOST_INVALID: `Invalid connection host`,
   CONNECTION_PORT_INVALID: `Invalid connection port`,
   CONNECTION_USERNAME_INVALID: `Invalid connection username`,
@@ -32,6 +32,7 @@ export const Messages = {
   FAILED_GET_TABLE_STRUCTURE: `Failed to get table structure`,
   FAILED_GET_TABLES: `Failed to get tables from database`,
   FAILED_UPDATE_ROW: `Failed to update row in table`,
+  FAILED_TO_UPDATE_ROWS: `Failed to update rows in table`,
   FAILED_VALIDATE_TABLE_SETTINGS: `Failed validate table settings`,
   FAILED_TO_GET_IDENTITY_COLUMNS: `Failed to get identity columns`,
   FAILED_TO_CHECK_IS_VIEW: `Failed to check is view`,

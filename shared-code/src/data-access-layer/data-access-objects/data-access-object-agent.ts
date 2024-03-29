@@ -31,27 +31,31 @@ export class DataAccessObjectAgent implements IDataAccessObjectAgent {
     userEmail: string,
   ): Promise<number | Record<string, unknown>> {
     const jwtAuthToken = this.generateJWT(this.connection.token);
+    axios.defaults.headers.common['Authorization'] = `Bearer ${jwtAuthToken}`;
+
     try {
-      const res = await axios.post(
-        this.serverAddress,
-        {
-          operationType: DataAccessObjectCommandsEnum.addRowInTable,
-          tableName: tableName,
-          row: row,
-          email: userEmail,
-        },
-        { headers: { authorization: `Bearer ${jwtAuthToken}` } },
-      );
-      if (res.data.commandResult instanceof Error) {
-        throw new Error(res.data.commandResult.message);
+      const { data: { commandResult } = {} } = await axios.post(this.serverAddress, {
+        operationType: DataAccessObjectCommandsEnum.addRowInTable,
+        tableName,
+        row,
+        email: userEmail,
+      });
+
+      if (commandResult instanceof Error) {
+        throw new Error(commandResult.message);
       }
-      if (!res?.data?.commandResult) {
+
+      if (!commandResult) {
         throw new Error(ERROR_MESSAGES.NO_DATA_RETURNED_FROM_AGENT);
       }
-      return res.data.commandResult;
+
+      return commandResult;
     } catch (e) {
-      this.checkIsErrorLocalAndThrowException(e);
-      throw new Error(e.response.data);
+      if (axios.isAxiosError(e)) {
+        this.checkIsErrorLocalAndThrowException(e);
+        throw new Error(e.response?.data);
+      }
+      throw e;
     }
   }
 
@@ -61,27 +65,31 @@ export class DataAccessObjectAgent implements IDataAccessObjectAgent {
     userEmail: string,
   ): Promise<Record<string, unknown>> {
     const jwtAuthToken = this.generateJWT(this.connection.token);
+    axios.defaults.headers.common['Authorization'] = `Bearer ${jwtAuthToken}`;
+
     try {
-      const res = await axios.post(
-        this.serverAddress,
-        {
-          operationType: DataAccessObjectCommandsEnum.deleteRowInTable,
-          tableName: tableName,
-          primaryKey: primaryKey,
-          email: userEmail,
-        },
-        { headers: { authorization: `Bearer ${jwtAuthToken}` } },
-      );
-      if (res.data.commandResult instanceof Error) {
-        throw new Error(res.data.commandResult.message);
+      const { data: { commandResult } = {} } = await axios.post(this.serverAddress, {
+        operationType: DataAccessObjectCommandsEnum.deleteRowInTable,
+        tableName,
+        primaryKey,
+        email: userEmail,
+      });
+
+      if (commandResult instanceof Error) {
+        throw new Error(commandResult.message);
       }
-      if (!res?.data?.commandResult) {
+
+      if (!commandResult) {
         throw new Error(ERROR_MESSAGES.NO_DATA_RETURNED_FROM_AGENT);
       }
-      return res.data.commandResult;
+
+      return commandResult;
     } catch (e) {
-      this.checkIsErrorLocalAndThrowException(e);
-      throw new Error(e.response.data);
+      if (axios.isAxiosError(e)) {
+        this.checkIsErrorLocalAndThrowException(e);
+        throw new Error(e.response?.data);
+      }
+      throw e;
     }
   }
 
@@ -91,31 +99,35 @@ export class DataAccessObjectAgent implements IDataAccessObjectAgent {
     identityColumnName: string,
     fieldValues: (string | number)[],
     userEmail: string,
-  ): Promise<string[]> {
+  ): Promise<Array<Record<string, unknown>>> {
     const jwtAuthToken = this.generateJWT(this.connection.token);
+    axios.defaults.headers.common['Authorization'] = `Bearer ${jwtAuthToken}`;
+
     try {
-      const res = await axios.post(
-        this.serverAddress,
-        {
-          operationType: DataAccessObjectCommandsEnum.getIdentityColumns,
-          tableName: tableName,
-          referencedFieldName: referencedFieldName,
-          identityColumnName: identityColumnName,
-          fieldValues: fieldValues,
-          email: userEmail,
-        },
-        { headers: { authorization: `Bearer ${jwtAuthToken}` } },
-      );
-      if (res.data.commandResult instanceof Error) {
-        throw new Error(res.data.commandResult.message);
+      const { data: { commandResult } = {} } = await axios.post(this.serverAddress, {
+        operationType: DataAccessObjectCommandsEnum.getIdentityColumns,
+        tableName,
+        referencedFieldName,
+        identityColumnName,
+        fieldValues,
+        email: userEmail,
+      });
+
+      if (commandResult instanceof Error) {
+        throw new Error(commandResult.message);
       }
-      if (!res?.data?.commandResult) {
+
+      if (!commandResult) {
         throw new Error(ERROR_MESSAGES.NO_DATA_RETURNED_FROM_AGENT);
       }
-      return res.data.commandResult;
+
+      return commandResult;
     } catch (e) {
-      this.checkIsErrorLocalAndThrowException(e);
-      throw new Error(e.response.data);
+      if (axios.isAxiosError(e)) {
+        this.checkIsErrorLocalAndThrowException(e);
+        throw new Error(e.response?.data);
+      }
+      throw e;
     }
   }
 
@@ -126,31 +138,36 @@ export class DataAccessObjectAgent implements IDataAccessObjectAgent {
     userEmail: string,
   ): Promise<Record<string, unknown>> {
     const jwtAuthToken = this.generateJWT(this.connection.token);
+    axios.defaults.headers.common['Authorization'] = `Bearer ${jwtAuthToken}`;
+
     try {
-      const res = await axios.post(
-        this.serverAddress,
-        {
-          operationType: DataAccessObjectCommandsEnum.getRowByPrimaryKey,
-          tableName: tableName,
-          primaryKey: primaryKey,
-          tableSettings: settings,
-          email: userEmail,
-        },
-        { headers: { authorization: `Bearer ${jwtAuthToken}` } },
-      );
-      if (res.data.commandResult instanceof Error) {
-        throw new Error(res.data.commandResult.message);
+      const { data: { commandResult } = {} } = await axios.post(this.serverAddress, {
+        operationType: DataAccessObjectCommandsEnum.getRowByPrimaryKey,
+        tableName,
+        primaryKey,
+        tableSettings: settings,
+        email: userEmail,
+      });
+
+      if (commandResult instanceof Error) {
+        throw new Error(commandResult.message);
       }
-      if (!res?.data?.commandResult) {
+
+      if (!commandResult) {
         throw new Error(ERROR_MESSAGES.NO_DATA_RETURNED_FROM_AGENT);
       }
-      if (Array.isArray(res.data.commandResult)) {
-        return res.data.commandResult[0];
+
+      if (Array.isArray(commandResult)) {
+        return commandResult[0];
       }
-      return res.data.commandResult;
+
+      return commandResult;
     } catch (e) {
-      this.checkIsErrorLocalAndThrowException(e);
-      throw new Error(e.response.data);
+      if (axios.isAxiosError(e)) {
+        this.checkIsErrorLocalAndThrowException(e);
+        throw new Error(e.response?.data);
+      }
+      throw e;
     }
   }
 
@@ -165,170 +182,193 @@ export class DataAccessObjectAgent implements IDataAccessObjectAgent {
     userEmail: string,
   ): Promise<FoundRowsDS> {
     const jwtAuthToken = this.generateJWT(this.connection.token);
+    axios.defaults.headers.common['Authorization'] = `Bearer ${jwtAuthToken}`;
+
     try {
-      const res = await axios.post(
-        this.serverAddress,
-        {
-          operationType: DataAccessObjectCommandsEnum.getRowsFromTable,
-          tableName: tableName,
-          tableSettings: settings,
-          page: page,
-          perPage: perPage,
-          searchedFieldValue: searchedFieldValue,
-          filteringFields: filteringFields,
-          autocompleteFields: autocompleteFields,
-          email: userEmail,
-        },
-        { headers: { authorization: `Bearer ${jwtAuthToken}` } },
-      );
-      if (res.data.commandResult instanceof Error) {
-        throw new Error(res.data.commandResult.message);
+      const { data: { commandResult } = {} } = await axios.post(this.serverAddress, {
+        operationType: DataAccessObjectCommandsEnum.getRowsFromTable,
+        tableName,
+        tableSettings: settings,
+        page,
+        perPage,
+        searchedFieldValue,
+        filteringFields,
+        autocompleteFields,
+        email: userEmail,
+      });
+
+      if (commandResult instanceof Error) {
+        throw new Error(commandResult.message);
       }
-      if (!res?.data?.commandResult) {
+
+      if (!commandResult) {
         throw new Error(ERROR_MESSAGES.NO_DATA_RETURNED_FROM_AGENT);
       }
-      return res.data.commandResult;
+
+      return commandResult;
     } catch (e) {
-      this.checkIsErrorLocalAndThrowException(e);
-      throw new Error(e.response.data);
+      if (axios.isAxiosError(e)) {
+        this.checkIsErrorLocalAndThrowException(e);
+        throw new Error(e.response?.data);
+      }
+      throw e;
     }
   }
 
   public async getTableForeignKeys(tableName: string, userEmail: string): Promise<ForeignKeyDS[]> {
     const jwtAuthToken = this.generateJWT(this.connection.token);
+    axios.defaults.headers.common['Authorization'] = `Bearer ${jwtAuthToken}`;
+
     const cachedForeignKeys = LRUStorage.getTableForeignKeysCache(this.connection, tableName);
     if (cachedForeignKeys) {
       return cachedForeignKeys;
     }
+
     try {
-      const res = await axios.post(
-        this.serverAddress,
-        {
-          operationType: DataAccessObjectCommandsEnum.getTableForeignKeys,
-          tableName: tableName,
-          email: userEmail,
-        },
-        { headers: { authorization: `Bearer ${jwtAuthToken}` } },
-      );
-      if (res.data.commandResult instanceof Error) {
-        throw new Error(res.data.commandResult.message);
+      const { data: { commandResult } = {} } = await axios.post(this.serverAddress, {
+        operationType: DataAccessObjectCommandsEnum.getTableForeignKeys,
+        tableName,
+        email: userEmail,
+      });
+
+      if (commandResult instanceof Error) {
+        throw new Error(commandResult.message);
       }
-      if (!res?.data?.commandResult) {
+
+      if (!commandResult) {
         throw new Error(ERROR_MESSAGES.NO_DATA_RETURNED_FROM_AGENT);
       }
-      const result = res.data.commandResult;
-      LRUStorage.setTableForeignKeysCache(this.connection, tableName, result);
-      return result;
+
+      LRUStorage.setTableForeignKeysCache(this.connection, tableName, commandResult);
+      return commandResult;
     } catch (e) {
-      this.checkIsErrorLocalAndThrowException(e);
-      throw new Error(e.response.data);
+      if (axios.isAxiosError(e)) {
+        this.checkIsErrorLocalAndThrowException(e);
+        throw new Error(e.response?.data);
+      }
+      throw e;
     }
   }
 
   public async getTablePrimaryColumns(tableName: string, userEmail: string): Promise<PrimaryKeyDS[]> {
     const jwtAuthToken = this.generateJWT(this.connection.token);
+    axios.defaults.headers.common['Authorization'] = `Bearer ${jwtAuthToken}`;
+
     const cachedPrimaryColumns = LRUStorage.getTablePrimaryKeysCache(this.connection, tableName);
     if (cachedPrimaryColumns) {
       return cachedPrimaryColumns;
     }
+
     try {
-      const res = await axios.post(
-        this.serverAddress,
-        {
-          operationType: DataAccessObjectCommandsEnum.getTablePrimaryColumns,
-          tableName: tableName,
-          email: userEmail,
-        },
-        { headers: { authorization: `Bearer ${jwtAuthToken}` } },
-      );
-      if (res.data.commandResult instanceof Error) {
-        throw new Error(res.data.commandResult.message);
+      const { data: { commandResult } = {} } = await axios.post(this.serverAddress, {
+        operationType: DataAccessObjectCommandsEnum.getTablePrimaryColumns,
+        tableName,
+        email: userEmail,
+      });
+
+      if (commandResult instanceof Error) {
+        throw new Error(commandResult.message);
       }
-      if (!res?.data?.commandResult) {
+
+      if (!commandResult) {
         throw new Error(ERROR_MESSAGES.NO_DATA_RETURNED_FROM_AGENT);
       }
-      const result = res.data.commandResult;
-      LRUStorage.setTablePrimaryKeysCache(this.connection, tableName, result);
-      return result;
+
+      LRUStorage.setTablePrimaryKeysCache(this.connection, tableName, commandResult);
+      return commandResult;
     } catch (e) {
-      this.checkIsErrorLocalAndThrowException(e);
-      throw new Error(e.response.data);
+      if (axios.isAxiosError(e)) {
+        this.checkIsErrorLocalAndThrowException(e);
+        throw new Error(e.response?.data);
+      }
+      throw e;
     }
   }
 
   public async getTablesFromDB(userEmail: string): Promise<TableDS[]> {
     const jwtAuthToken = this.generateJWT(this.connection.token);
+    axios.defaults.headers.common['Authorization'] = `Bearer ${jwtAuthToken}`;
+
     try {
-      const res = await axios.post(
-        this.serverAddress,
-        {
-          operationType: DataAccessObjectCommandsEnum.getTablesFromDB,
-          email: userEmail,
-        },
-        { headers: { authorization: `Bearer ${jwtAuthToken}` } },
-      );
-      if (res.data.commandResult instanceof Error) {
-        throw new Error(res.data.commandResult.message);
+      const { data: { commandResult } = {} } = await axios.post(this.serverAddress, {
+        operationType: DataAccessObjectCommandsEnum.getTablesFromDB,
+        email: userEmail,
+      });
+
+      if (commandResult instanceof Error) {
+        throw new Error(commandResult.message);
       }
-      if (!res?.data?.commandResult) {
+
+      if (!commandResult) {
         throw new Error(ERROR_MESSAGES.NO_DATA_RETURNED_FROM_AGENT);
       }
-      return res.data.commandResult;
+
+      return commandResult;
     } catch (e) {
-      this.checkIsErrorLocalAndThrowException(e);
-      throw new Error(e.response.data);
+      if (axios.isAxiosError(e)) {
+        this.checkIsErrorLocalAndThrowException(e);
+        throw new Error(e.response?.data);
+      }
+      throw e;
     }
   }
 
   public async getTableStructure(tableName: string, userEmail: string): Promise<TableStructureDS[]> {
     const jwtAuthToken = this.generateJWT(this.connection.token);
+    axios.defaults.headers.common['Authorization'] = `Bearer ${jwtAuthToken}`;
+
     const cachedTableStructure = LRUStorage.getTableStructureCache(this.connection, tableName);
     if (cachedTableStructure) {
       return cachedTableStructure;
     }
+
     try {
-      const res = await axios.post(
-        this.serverAddress,
-        {
-          operationType: DataAccessObjectCommandsEnum.getTableStructure,
-          tableName: tableName,
-          email: userEmail,
-        },
-        { headers: { authorization: `Bearer ${jwtAuthToken}` } },
-      );
-      if (res.data.commandResult instanceof Error) {
-        throw new Error(res.data.commandResult.message);
+      const { data: { commandResult } = {} } = await axios.post(this.serverAddress, {
+        operationType: DataAccessObjectCommandsEnum.getTableStructure,
+        tableName,
+        email: userEmail,
+      });
+
+      if (commandResult instanceof Error) {
+        throw new Error(commandResult.message);
       }
-      if (!res?.data?.commandResult) {
+
+      if (!commandResult) {
         throw new Error(ERROR_MESSAGES.NO_DATA_RETURNED_FROM_AGENT);
       }
-      const result = res.data.commandResult;
-      LRUStorage.setTableStructureCache(this.connection, tableName, result);
-      return result;
+
+      LRUStorage.setTableStructureCache(this.connection, tableName, commandResult);
+      return commandResult;
     } catch (e) {
-      this.checkIsErrorLocalAndThrowException(e);
-      throw new Error(e.response.data);
+      if (axios.isAxiosError(e)) {
+        this.checkIsErrorLocalAndThrowException(e);
+        throw new Error(e.response?.data);
+      }
+      throw e;
     }
   }
 
   public async testConnect(userEmail: string = 'unknown'): Promise<TestConnectionResultDS> {
     const jwtAuthToken = this.generateJWT(this.connection.token);
+    axios.defaults.headers.common['Authorization'] = `Bearer ${jwtAuthToken}`;
+
     try {
-      const res = await axios.post(
-        this.serverAddress,
-        {
-          operationType: DataAccessObjectCommandsEnum.testConnect,
-          email: userEmail,
-        },
-        { headers: { authorization: `Bearer ${jwtAuthToken}` } },
-      );
-      if (res.data.commandResult instanceof Error) {
-        throw new Error(res.data.commandResult.message);
+      const { data: { commandResult } = {} } = await axios.post(this.serverAddress, {
+        operationType: DataAccessObjectCommandsEnum.testConnect,
+        email: userEmail,
+      });
+
+      if (commandResult instanceof Error) {
+        throw new Error(commandResult.message);
       }
-      return res.data.commandResult;
+
+      return commandResult;
     } catch (e) {
-      this.checkIsErrorLocalAndThrowException(e);
-      throw new Error(e.response.data);
+      if (axios.isAxiosError(e)) {
+        this.checkIsErrorLocalAndThrowException(e);
+        throw new Error(e.response?.data);
+      }
+      throw e;
     }
   }
 
@@ -339,28 +379,68 @@ export class DataAccessObjectAgent implements IDataAccessObjectAgent {
     userEmail: string,
   ): Promise<Record<string, unknown>> {
     const jwtAuthToken = this.generateJWT(this.connection.token);
+    axios.defaults.headers.common['Authorization'] = `Bearer ${jwtAuthToken}`;
+
     try {
-      const res = await axios.post(
-        this.serverAddress,
-        {
-          operationType: DataAccessObjectCommandsEnum.updateRowInTable,
-          tableName: tableName,
-          row: row,
-          primaryKey: primaryKey,
-          email: userEmail,
-        },
-        { headers: { authorization: `Bearer ${jwtAuthToken}` } },
-      );
-      if (res.data.commandResult instanceof Error) {
-        throw new Error(res.data.commandResult.message);
+      const { data: { commandResult } = {} } = await axios.post(this.serverAddress, {
+        operationType: DataAccessObjectCommandsEnum.updateRowInTable,
+        tableName,
+        row,
+        primaryKey,
+        email: userEmail,
+      });
+
+      if (commandResult instanceof Error) {
+        throw new Error(commandResult.message);
       }
-      if (!res?.data?.commandResult) {
+
+      if (!commandResult) {
         throw new Error(ERROR_MESSAGES.NO_DATA_RETURNED_FROM_AGENT);
       }
-      return res.data.commandResult;
+
+      return commandResult;
     } catch (e) {
-      this.checkIsErrorLocalAndThrowException(e);
-      throw new Error(e.response.data);
+      if (axios.isAxiosError(e)) {
+        this.checkIsErrorLocalAndThrowException(e);
+        throw new Error(e.response?.data);
+      }
+      throw e;
+    }
+  }
+
+  public async bulkUpdateRowsInTable(
+    tableName: string,
+    newValues: Record<string, unknown>,
+    primaryKeys: Record<string, unknown>[],
+    userEmail: string,
+  ): Promise<Record<string, unknown>> {
+    const jwtAuthToken = this.generateJWT(this.connection.token);
+    axios.defaults.headers.common['Authorization'] = `Bearer ${jwtAuthToken}`;
+
+    try {
+      const { data: { commandResult } = {} } = await axios.post(this.serverAddress, {
+        operationType: DataAccessObjectCommandsEnum.bulkUpdateRowsInTable,
+        tableName,
+        row: newValues,
+        primaryKey: primaryKeys,
+        email: userEmail,
+      });
+
+      if (commandResult instanceof Error) {
+        throw new Error(commandResult.message);
+      }
+
+      if (!commandResult) {
+        throw new Error(ERROR_MESSAGES.NO_DATA_RETURNED_FROM_AGENT);
+      }
+
+      return commandResult;
+    } catch (e) {
+      if (axios.isAxiosError(e)) {
+        this.checkIsErrorLocalAndThrowException(e);
+        throw new Error(e.response?.data);
+      }
+      throw e;
     }
   }
 
@@ -370,27 +450,31 @@ export class DataAccessObjectAgent implements IDataAccessObjectAgent {
     userEmail: string,
   ): Promise<string[]> {
     const jwtAuthToken = this.generateJWT(this.connection.token);
+    axios.defaults.headers.common['Authorization'] = `Bearer ${jwtAuthToken}`;
+
     try {
-      const res = await axios.post(
-        this.serverAddress,
-        {
-          operationType: DataAccessObjectCommandsEnum.validateSettings,
-          tableName: tableName,
-          tableSettings: settings,
-          email: userEmail,
-        },
-        { headers: { authorization: `Bearer ${jwtAuthToken}` } },
-      );
-      if (res.data.commandResult instanceof Error) {
-        throw new Error(res.data.commandResult.message);
+      const { data: { commandResult } = {} } = await axios.post(this.serverAddress, {
+        operationType: DataAccessObjectCommandsEnum.validateSettings,
+        tableName,
+        tableSettings: settings,
+        email: userEmail,
+      });
+
+      if (commandResult instanceof Error) {
+        throw new Error(commandResult.message);
       }
-      if (!res?.data?.commandResult) {
+
+      if (!commandResult) {
         throw new Error(ERROR_MESSAGES.NO_DATA_RETURNED_FROM_AGENT);
       }
-      return res.data.commandResult;
+
+      return commandResult;
     } catch (e) {
-      this.checkIsErrorLocalAndThrowException(e);
-      throw new Error(e.response.data);
+      if (axios.isAxiosError(e)) {
+        this.checkIsErrorLocalAndThrowException(e);
+        throw new Error(e.response?.data);
+      }
+      throw e;
     }
   }
 
@@ -399,56 +483,59 @@ export class DataAccessObjectAgent implements IDataAccessObjectAgent {
     userEmail: string,
   ): Promise<ReferencedTableNamesAndColumnsDS[]> {
     const jwtAuthToken = this.generateJWT(this.connection.token);
+    axios.defaults.headers.common['Authorization'] = `Bearer ${jwtAuthToken}`;
+
     try {
-      const res = await axios.post(
-        this.serverAddress,
-        {
-          operationType: DataAccessObjectCommandsEnum.getReferencedTableNamesAndColumns,
-          email: userEmail,
-          tableName: tableName,
-        },
-        { headers: { authorization: `Bearer ${jwtAuthToken}` } },
-      );
-      if (res.data.commandResult instanceof Error) {
-        throw new Error(res.data.commandResult.message);
+      const { data: { commandResult } = {} } = await axios.post(this.serverAddress, {
+        operationType: DataAccessObjectCommandsEnum.getReferencedTableNamesAndColumns,
+        email: userEmail,
+        tableName,
+      });
+
+      if (commandResult instanceof Error) {
+        throw new Error(commandResult.message);
       }
-      if (!res?.data?.commandResult) {
+
+      if (!commandResult) {
         throw new Error(ERROR_MESSAGES.NO_DATA_RETURNED_FROM_AGENT);
       }
-      return res.data.commandResult;
+
+      return commandResult;
     } catch (e) {
-      this.checkIsErrorLocalAndThrowException(e);
-      throw new Error(e.response.data);
+      if (axios.isAxiosError(e)) {
+        this.checkIsErrorLocalAndThrowException(e);
+        throw new Error(e.response?.data);
+      }
+      throw e;
     }
   }
 
   public async isView(tableName: string, userEmail: string): Promise<boolean> {
     const jwtAuthToken = this.generateJWT(this.connection.token);
+    axios.defaults.headers.common['Authorization'] = `Bearer ${jwtAuthToken}`;
+
     try {
-      const res = await axios.post(
-        this.serverAddress,
-        {
-          operationType: DataAccessObjectCommandsEnum.isView,
-          email: userEmail,
-          tableName: tableName,
-        },
-        { headers: { authorization: `Bearer ${jwtAuthToken}` } },
-      );
-      if (res.data.commandResult instanceof Error) {
-        throw new Error(res.data.commandResult.message);
+      const { data: { commandResult } = {} } = await axios.post(this.serverAddress, {
+        operationType: DataAccessObjectCommandsEnum.isView,
+        email: userEmail,
+        tableName,
+      });
+
+      if (commandResult instanceof Error) {
+        throw new Error(commandResult.message);
       }
-      if (
-        res.data === undefined ||
-        res.data === null ||
-        res.data.commandResult === null ||
-        res.data.commandResult === undefined
-      ) {
+
+      if (commandResult === null || commandResult === undefined) {
         throw new Error(ERROR_MESSAGES.NO_DATA_RETURNED_FROM_AGENT);
       }
-      return res.data.commandResult;
+
+      return commandResult;
     } catch (e) {
-      this.checkIsErrorLocalAndThrowException(e);
-      throw new Error(e.response.data);
+      if (axios.isAxiosError(e)) {
+        this.checkIsErrorLocalAndThrowException(e);
+        throw new Error(e.response?.data);
+      }
+      throw e;
     }
   }
 
@@ -461,50 +548,52 @@ export class DataAccessObjectAgent implements IDataAccessObjectAgent {
     filteringFields: Array<FilteringFieldsDS>,
   ): Promise<Stream & AsyncIterable<never>> {
     const jwtAuthToken = this.generateJWT(this.connection.token);
+    axios.defaults.headers.common['Authorization'] = `Bearer ${jwtAuthToken}`;
+
     try {
-      const res = await axios.post(
-        this.serverAddress,
-        {
-          operationType: DataAccessObjectCommandsEnum.getRowsAsStream,
-          tableName: tableName,
-          tableSettings: settings,
-          page: page,
-          perPage: perPage,
-          searchedFieldValue: searchedFieldValue,
-          filteringFields: filteringFields,
-        },
-        {
-          headers: { authorization: `Bearer ${jwtAuthToken}` },
-        },
-      );
-      if (res.data.commandResult instanceof Error) {
-        throw new Error(res.data.commandResult.message);
+      const { data: { commandResult } = {} } = await axios.post(this.serverAddress, {
+        operationType: DataAccessObjectCommandsEnum.getRowsAsStream,
+        tableName,
+        tableSettings: settings,
+        page,
+        perPage,
+        searchedFieldValue,
+        filteringFields,
+      });
+
+      if (commandResult instanceof Error) {
+        throw new Error(commandResult.message);
       }
-      if (!res?.data?.commandResult) {
+
+      if (!commandResult) {
         throw new Error(ERROR_MESSAGES.NO_DATA_RETURNED_FROM_AGENT);
       }
-      return res.data.commandResult?.data;
+
+      return commandResult?.data;
     } catch (e) {
-      this.checkIsErrorLocalAndThrowException(e);
-      throw new Error(e.response.data);
+      if (axios.isAxiosError(e)) {
+        this.checkIsErrorLocalAndThrowException(e);
+        throw new Error(e.response?.data);
+      }
+      throw e;
     }
   }
 
   private generateJWT(connectionToken: string): string {
-    const today = new Date();
-    const exp = new Date(today);
-    exp.setDate(today.getDate() + 60);
+    const exp = new Date();
+    exp.setDate(exp.getDate() + 60);
     const secret = process.env.JWT_SECRET;
     return jwt.sign(
       {
         token: connectionToken,
+        exp: Math.floor(exp.getTime() / 1000),
       },
       secret,
     );
   }
 
-  private checkIsErrorLocalAndThrowException(e: any): void {
-    if (e.message === ERROR_MESSAGES.NO_DATA_RETURNED_FROM_AGENT) {
+  private checkIsErrorLocalAndThrowException(e: Error & { code?: string; hostname?: string }): void {
+    if (e?.message === ERROR_MESSAGES.NO_DATA_RETURNED_FROM_AGENT) {
       throw new Error(e.message);
     }
     if (e?.code?.toLowerCase() === 'enotfound' && e?.hostname === 'autoadmin-ws.local') {

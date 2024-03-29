@@ -1,4 +1,3 @@
-
 import { AccessLevelEnum } from '../../../enums/access-level.enum.js';
 import { PermissionTypeEnum } from '../../../enums/permission-type.enum.js';
 import { GroupEntity } from '../../group/group.entity.js';
@@ -38,7 +37,6 @@ export const permissionCustomRepositoryExtension = {
     if (connectionPermission) {
       switch (connectionPermission.accessLevel.toLowerCase()) {
         case AccessLevelEnum.edit:
-        case AccessLevelEnum.fullaccess:
           connectionAccessLevel = AccessLevelEnum.edit;
           break;
         case AccessLevelEnum.readonly:
@@ -65,7 +63,6 @@ export const permissionCustomRepositoryExtension = {
     if (groupPermission) {
       switch (groupPermission.accessLevel.toLowerCase()) {
         case AccessLevelEnum.edit:
-        case AccessLevelEnum.fullaccess:
           groupAccessLevel = AccessLevelEnum.edit;
           break;
         case AccessLevelEnum.readonly:

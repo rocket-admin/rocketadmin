@@ -79,7 +79,7 @@ export class TableLogsEntity {
   }
 
   @Transform((connection: any) => connection.id)
-  @ManyToOne((type) => ConnectionEntity, (connection) => connection.logs, {
+  @ManyToOne(() => ConnectionEntity, (connection) => connection.logs, {
     onDelete: 'CASCADE',
   })
   @JoinColumn()

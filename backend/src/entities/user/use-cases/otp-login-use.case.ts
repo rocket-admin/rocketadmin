@@ -7,6 +7,7 @@ import { IToken, generateGwtToken } from '../utils/generate-gwt-token.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { VerifyOtpDS } from '../application/data-structures/verify-otp.ds.js';
 import { authenticator } from 'otplib';
+import { get2FaScope } from '../utils/is-jwt-scope-need.util.js';
 
 @Injectable()
 export class OtpLoginUseCase extends AbstractUseCase<VerifyOtpDS, IToken> implements IOtpLogin {
@@ -37,7 +38,7 @@ export class OtpLoginUseCase extends AbstractUseCase<VerifyOtpDS, IToken> implem
         HttpStatus.UNAUTHORIZED,
       );
     }
-
-    return generateGwtToken(foundUser);
+    const foundUserCompany = await this._dbContext.companyInfoRepository.finOneCompanyInfoByUserId(foundUser.id);
+    return generateGwtToken(foundUser, get2FaScope(foundUser, foundUserCompany));
   }
 }

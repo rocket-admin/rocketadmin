@@ -20,12 +20,12 @@ export class GroupEntity {
   })
   permissions?: Relation<PermissionEntity>[];
 
-  @ManyToMany((type) => UserEntity, (user) => user.groups, {
+  @ManyToMany(() => UserEntity, (user) => user.groups, {
     onDelete: 'CASCADE',
   })
   users?: Relation<UserEntity>[];
 
-  @ManyToOne((type) => ConnectionEntity, (connection) => connection.groups, {
+  @ManyToOne(() => ConnectionEntity, (connection) => connection.groups, {
     onDelete: 'CASCADE',
   })
   @JoinColumn()

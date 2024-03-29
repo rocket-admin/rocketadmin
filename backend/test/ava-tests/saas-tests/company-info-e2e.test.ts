@@ -16,6 +16,9 @@ import { ValidationException } from '../../../src/exceptions/custom-exceptions/v
 import { ValidationError } from 'class-validator';
 import { faker } from '@faker-js/faker';
 import { nanoid } from 'nanoid';
+import { Messages } from '../../../src/exceptions/text/messages.js';
+import { Constants } from '../../../src/helpers/constants/constants.js';
+import { inviteUserInCompanyAndGroupAndAcceptInvitation } from '../../utils/register-user-and-return-user-info.js';
 
 const mockFactory = new MockFactory();
 let app: INestApplication;
@@ -106,7 +109,7 @@ test(`${currentTest} should return full found company info for company admin use
     t.is(foundCompanyInfoRO.hasOwnProperty('address'), true);
     t.is(foundCompanyInfoRO.hasOwnProperty('createdAt'), true);
     t.is(foundCompanyInfoRO.hasOwnProperty('updatedAt'), true);
-    t.is(Object.keys(foundCompanyInfoRO).length, 11);
+    t.is(Object.keys(foundCompanyInfoRO).length, 12);
     t.is(foundCompanyInfoRO.hasOwnProperty('connections'), true);
     t.is(foundCompanyInfoRO.connections.length > 3, true);
     t.is(foundCompanyInfoRO.hasOwnProperty('invitations'), true);
@@ -125,7 +128,7 @@ test(`${currentTest} should return full found company info for company admin use
     t.is(foundCompanyInfoRO.connections[0].groups[0].hasOwnProperty('isMain'), true);
     t.is(foundCompanyInfoRO.connections[0].groups[0].hasOwnProperty('users'), true);
     t.is(foundCompanyInfoRO.connections[0].groups[0].users.length > 0, true);
-    t.is(Object.keys(foundCompanyInfoRO.connections[0].groups[0].users[0]).length, 7);
+    t.is(Object.keys(foundCompanyInfoRO.connections[0].groups[0].users[0]).length, 8);
     t.is(foundCompanyInfoRO.connections[0].groups[0].users[0].hasOwnProperty('id'), true);
     t.is(foundCompanyInfoRO.connections[0].groups[0].users[0].hasOwnProperty('email'), true);
     t.is(foundCompanyInfoRO.connections[0].groups[0].users[0].hasOwnProperty('role'), true);
@@ -576,4 +579,364 @@ test(`${currentTest} should delete company`, async (t) => {
     .set('Accept', 'application/json');
 
   t.is(foundCompanyInfoAfterDelete.status, 403);
+});
+
+currentTest = `PUT company/2fa/:companyId`;
+test(`${currentTest} should enable 2fa for company`, async (t) => {
+  const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
+  const {
+    connections,
+    firstTableInfo,
+    groups,
+    permissions,
+    secondTableInfo,
+    users: { adminUserToken, simpleUserToken, adminUserEmail, simpleUserEmail, simpleUserPassword },
+  } = testData;
+
+  const foundCompanyInfo = await request(app.getHttpServer())
+    .get('/company/my/full')
+    .set('Content-Type', 'application/json')
+    .set('Cookie', adminUserToken)
+    .set('Accept', 'application/json');
+
+  t.is(foundCompanyInfo.status, 200);
+
+  const foundCompanyRo = JSON.parse(foundCompanyInfo.text);
+  t.is(foundCompanyRo.hasOwnProperty('is2faEnabled'), true);
+  t.is(foundCompanyRo.is2faEnabled, false);
+
+  const requestBody = {
+    is2faEnabled: true,
+  };
+  const enable2faResult = await request(app.getHttpServer())
+    .put(`/company/2fa/${foundCompanyRo.id}`)
+    .send(requestBody)
+    .set('Content-Type', 'application/json')
+    .set('Cookie', adminUserToken)
+    .set('Accept', 'application/json');
+
+  t.is(enable2faResult.status, 200);
+
+  const foundCompanyInfoAfterUpdate = await request(app.getHttpServer())
+    .get('/company/my/full')
+    .set('Content-Type', 'application/json')
+    .set('Cookie', adminUserToken)
+    .set('Accept', 'application/json');
+
+  t.is(foundCompanyInfoAfterUpdate.status, 200);
+  const foundCompanyRoAfterUpdate = JSON.parse(foundCompanyInfoAfterUpdate.text);
+  t.is(foundCompanyRoAfterUpdate.hasOwnProperty('is2faEnabled'), true);
+  t.is(foundCompanyRoAfterUpdate.is2faEnabled, true);
+
+  // user should not be able to use endpoints that require 2fa after login
+
+  const userLoginInfo = {
+    email: simpleUserEmail,
+    password: simpleUserPassword,
+  };
+
+  const loginUserResponse = await request(app.getHttpServer())
+    .post('/user/login/')
+    .send(userLoginInfo)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+
+  if (loginUserResponse.status > 201) {
+    console.info('loginUserResponse.text -> ', loginUserResponse.text);
+  }
+
+  const newSimpleUserToken = `${Constants.JWT_COOKIE_KEY_NAME}=${TestUtils.getJwtTokenFromResponse(loginUserResponse)}`;
+  const connectionsResult = await request(app.getHttpServer())
+    .get('/connections')
+    .set('Content-Type', 'application/json')
+    .set('Cookie', newSimpleUserToken)
+    .set('Accept', 'application/json');
+
+  t.is(connectionsResult.status, 401);
+
+  const connectionsResultsObject = JSON.parse(connectionsResult.text);
+  t.is(connectionsResultsObject.message, Messages.TWO_FA_REQUIRED);
+});
+
+currentTest = `PUT /subscription/upgrade/:companyId`;
+test(`${currentTest} should call function subscription upgrade for company in sass, and suspend users`, async (t) => {
+  const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
+  const {
+    connections,
+    firstTableInfo,
+    groups,
+    permissions,
+    secondTableInfo,
+    users: { adminUserToken, simpleUserToken, adminUserEmail, simpleUserEmail, simpleUserPassword },
+  } = testData;
+
+  const foundCompanyInfo = await request(app.getHttpServer())
+    .get('/company/my/full')
+    .set('Content-Type', 'application/json')
+    .set('Cookie', adminUserToken)
+    .set('Accept', 'application/json');
+
+  t.is(foundCompanyInfo.status, 200);
+  const foundCompanyInfoRO = JSON.parse(foundCompanyInfo.text);
+
+  let firstConnection = foundCompanyInfoRO.connections.find((connectionRO) => connections.firstId === connectionRO.id);
+  const createdGroup = firstConnection.groups.find((groupRO) => groupRO.id === groups.createdGroupId);
+
+  const additionalUsers: Array<{
+    email: string;
+    password: string;
+    token: string;
+  }> = [];
+  for (let i = 0; i < 5; i++) {
+    const invitationResult = await inviteUserInCompanyAndGroupAndAcceptInvitation(
+      adminUserToken,
+      'USER',
+      createdGroup.id,
+      app,
+    );
+    additionalUsers.push(invitationResult);
+  }
+  const foundCompanyInfoWithAddedUsers = await request(app.getHttpServer())
+    .get('/company/my/full')
+    .set('Content-Type', 'application/json')
+    .set('Cookie', adminUserToken)
+    .set('Accept', 'application/json');
+
+  t.is(foundCompanyInfo.status, 200);
+  const foundCompanyInfoWithAddedUsersRO = JSON.parse(foundCompanyInfoWithAddedUsers.text);
+  firstConnection = foundCompanyInfoWithAddedUsersRO.connections.find(
+    (connectionRO) => connections.firstId === connectionRO.id,
+  );
+  const { users } = firstConnection.groups.find((groupRO) => groupRO.id === groups.createdGroupId);
+  users.forEach((user: any) => {
+    t.is(user.suspended, false);
+  });
+
+  const subscriptionUpgradeResult = await fetch(
+    `http://rocketadmin-private-microservice:3001/company/subscription/upgrade/${foundCompanyInfoRO.id}`,
+    {
+      method: 'POST',
+      headers: {
+        Cookie: adminUserToken,
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      },
+      body: JSON.stringify({
+        subscriptionLevel: 'FREE_PLAN',
+      }),
+    },
+  );
+
+  const foundCompanyInfoAfterUpgrade = await request(app.getHttpServer())
+    .get('/company/my/full')
+    .set('Content-Type', 'application/json')
+    .set('Cookie', adminUserToken)
+    .set('Accept', 'application/json');
+
+  const foundCompanyInfoAfterUpgradeRO = JSON.parse(foundCompanyInfoAfterUpgrade.text);
+  firstConnection = foundCompanyInfoAfterUpgradeRO.connections.find(
+    (connectionRO) => connections.firstId === connectionRO.id,
+  );
+  const { users: usersAfterUpgrade } = firstConnection.groups.find((groupRO) => groupRO.id === groups.createdGroupId);
+  const suspendUsersCount = usersAfterUpgrade.filter((user: any) => user.suspended).length;
+  t.is(suspendUsersCount, 4);
+  const unSuspendedUsersCount = usersAfterUpgrade.filter((user: any) => !user.suspended).length;
+  t.is(unSuspendedUsersCount, 3);
+
+  // suspended users should not be able to access endpoints
+
+  const findAllConnectionsResponse = await request(app.getHttpServer())
+    .get('/connections')
+    .set('Cookie', additionalUsers[additionalUsers.length - 1].token)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+
+  const findAllConnectionsResponseRO = JSON.parse(findAllConnectionsResponse.text);
+  t.is(findAllConnectionsResponse.status, 403);
+  t.is(findAllConnectionsResponseRO.message, Messages.ACCOUNT_SUSPENDED);
+});
+
+currentTest = `PUT /company/users/suspend/:companyId`;
+test(`${currentTest} should suspend users in company`, async (t) => {
+  const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
+  const {
+    connections,
+    firstTableInfo,
+    groups,
+    permissions,
+    secondTableInfo,
+    users: { adminUserToken, simpleUserToken, adminUserEmail, simpleUserEmail, simpleUserPassword },
+  } = testData;
+
+  const foundCompanyInfo = await request(app.getHttpServer())
+    .get('/company/my/full')
+    .set('Content-Type', 'application/json')
+    .set('Cookie', adminUserToken)
+    .set('Accept', 'application/json');
+
+  t.is(foundCompanyInfo.status, 200);
+  const foundCompanyInfoRO = JSON.parse(foundCompanyInfo.text);
+
+  let firstConnection = foundCompanyInfoRO.connections.find((connectionRO) => connections.firstId === connectionRO.id);
+  const createdGroup = firstConnection.groups.find((groupRO) => groupRO.id === groups.createdGroupId);
+
+  const additionalUsers: Array<{
+    email: string;
+    password: string;
+    token: string;
+  }> = [];
+  for (let i = 0; i < 5; i++) {
+    const invitationResult = await inviteUserInCompanyAndGroupAndAcceptInvitation(
+      adminUserToken,
+      'USER',
+      createdGroup.id,
+      app,
+    );
+    additionalUsers.push(invitationResult);
+  }
+  const foundCompanyInfoWithAddedUsers = await request(app.getHttpServer())
+    .get('/company/my/full')
+    .set('Content-Type', 'application/json')
+    .set('Cookie', adminUserToken)
+    .set('Accept', 'application/json');
+
+  t.is(foundCompanyInfo.status, 200);
+  const foundCompanyInfoWithAddedUsersRO = JSON.parse(foundCompanyInfoWithAddedUsers.text);
+  firstConnection = foundCompanyInfoWithAddedUsersRO.connections.find(
+    (connectionRO) => connections.firstId === connectionRO.id,
+  );
+  const { users } = firstConnection.groups.find((groupRO) => groupRO.id === groups.createdGroupId);
+  users.forEach((user: any) => {
+    t.is(user.suspended, false);
+  });
+
+  const suspendUsersResult = await request(app.getHttpServer())
+    .put(`/company/users/suspend/${foundCompanyInfoRO.id}`)
+    .send({
+      usersEmails: additionalUsers.map((user: any) => user.email),
+    })
+    .set('Content-Type', 'application/json')
+    .set('Cookie', adminUserToken)
+    .set('Accept', 'application/json');
+
+  t.is(suspendUsersResult.status, 200);
+
+  const foundCompanyInfoAfterSuspend = await request(app.getHttpServer())
+    .get('/company/my/full')
+    .set('Content-Type', 'application/json')
+    .set('Cookie', adminUserToken)
+    .set('Accept', 'application/json');
+
+  const foundCompanyInfoAfterSuspendRO = JSON.parse(foundCompanyInfoAfterSuspend.text);
+  firstConnection = foundCompanyInfoAfterSuspendRO.connections.find(
+    (connectionRO) => connections.firstId === connectionRO.id,
+  );
+  const { users: usersAfterSuspend } = firstConnection.groups.find((groupRO) => groupRO.id === groups.createdGroupId);
+  const suspendUsersCount = usersAfterSuspend.filter((user: any) => user.suspended).length;
+  t.is(suspendUsersCount, 5);
+});
+
+currentTest = `PUT /company/users/unsuspend/:companyId`;
+test(`${currentTest} should suspend users in company`, async (t) => {
+  const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
+  const {
+    connections,
+    firstTableInfo,
+    groups,
+    permissions,
+    secondTableInfo,
+    users: { adminUserToken, simpleUserToken, adminUserEmail, simpleUserEmail, simpleUserPassword },
+  } = testData;
+
+  const foundCompanyInfo = await request(app.getHttpServer())
+    .get('/company/my/full')
+    .set('Content-Type', 'application/json')
+    .set('Cookie', adminUserToken)
+    .set('Accept', 'application/json');
+
+  t.is(foundCompanyInfo.status, 200);
+  const foundCompanyInfoRO = JSON.parse(foundCompanyInfo.text);
+
+  let firstConnection = foundCompanyInfoRO.connections.find((connectionRO) => connections.firstId === connectionRO.id);
+  const createdGroup = firstConnection.groups.find((groupRO) => groupRO.id === groups.createdGroupId);
+
+  const additionalUsers: Array<{
+    email: string;
+    password: string;
+    token: string;
+  }> = [];
+  for (let i = 0; i < 5; i++) {
+    const invitationResult = await inviteUserInCompanyAndGroupAndAcceptInvitation(
+      adminUserToken,
+      'USER',
+      createdGroup.id,
+      app,
+    );
+    additionalUsers.push(invitationResult);
+  }
+  const foundCompanyInfoWithAddedUsers = await request(app.getHttpServer())
+    .get('/company/my/full')
+    .set('Content-Type', 'application/json')
+    .set('Cookie', adminUserToken)
+    .set('Accept', 'application/json');
+
+  t.is(foundCompanyInfo.status, 200);
+  const foundCompanyInfoWithAddedUsersRO = JSON.parse(foundCompanyInfoWithAddedUsers.text);
+  firstConnection = foundCompanyInfoWithAddedUsersRO.connections.find(
+    (connectionRO) => connections.firstId === connectionRO.id,
+  );
+  const { users } = firstConnection.groups.find((groupRO) => groupRO.id === groups.createdGroupId);
+  users.forEach((user: any) => {
+    t.is(user.suspended, false);
+  });
+
+  const suspendUsersResult = await request(app.getHttpServer())
+    .put(`/company/users/suspend/${foundCompanyInfoRO.id}`)
+    .send({
+      usersEmails: additionalUsers.map((user: any) => user.email),
+    })
+    .set('Content-Type', 'application/json')
+    .set('Cookie', adminUserToken)
+    .set('Accept', 'application/json');
+
+  t.is(suspendUsersResult.status, 200);
+
+  const foundCompanyInfoAfterSuspend = await request(app.getHttpServer())
+    .get('/company/my/full')
+    .set('Content-Type', 'application/json')
+    .set('Cookie', adminUserToken)
+    .set('Accept', 'application/json');
+
+  const foundCompanyInfoAfterSuspendRO = JSON.parse(foundCompanyInfoAfterSuspend.text);
+  firstConnection = foundCompanyInfoAfterSuspendRO.connections.find(
+    (connectionRO) => connections.firstId === connectionRO.id,
+  );
+  const { users: usersAfterSuspend } = firstConnection.groups.find((groupRO) => groupRO.id === groups.createdGroupId);
+  const suspendUsersCount = usersAfterSuspend.filter((user: any) => user.suspended).length;
+  t.is(suspendUsersCount, 5);
+
+  const unsuspendUsersResult = await request(app.getHttpServer())
+    .put(`/company/users/unsuspend/${foundCompanyInfoRO.id}`)
+    .send({
+      usersEmails: additionalUsers.map((user: any) => user.email),
+    })
+    .set('Content-Type', 'application/json')
+    .set('Cookie', adminUserToken)
+    .set('Accept', 'application/json');
+
+  t.is(unsuspendUsersResult.status, 200);
+
+  const foundCompanyInfoAfterUnsuspend = await request(app.getHttpServer())
+    .get('/company/my/full')
+    .set('Content-Type', 'application/json')
+    .set('Cookie', adminUserToken)
+    .set('Accept', 'application/json');
+
+  const foundCompanyInfoAfterUnsuspendRO = JSON.parse(foundCompanyInfoAfterUnsuspend.text);
+  firstConnection = foundCompanyInfoAfterUnsuspendRO.connections.find(
+    (connectionRO) => connections.firstId === connectionRO.id,
+  );
+  const { users: usersAfterUnsuspend } = firstConnection.groups.find((groupRO) => groupRO.id === groups.createdGroupId);
+  const unsuspendUsersCount = usersAfterUnsuspend.filter((user: any) => !user.suspended).length;
+  t.is(unsuspendUsersCount, 7);
 });

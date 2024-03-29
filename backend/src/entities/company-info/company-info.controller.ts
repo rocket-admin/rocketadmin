@@ -31,7 +31,9 @@ import {
   IInviteUserInCompanyAndConnectionGroup,
   IRemoveUserFromCompany,
   IRevokeUserInvitationInCompany,
+  ISuspendUsersInCompany,
   IUpdateCompanyName,
+  IUpdateUsers2faStatusInCompany,
   IUpdateUsersCompanyRoles,
   IVerifyInviteUserInCompanyAndConnectionGroup,
 } from './use-cases/company-info-use-cases.interface.js';
@@ -58,6 +60,9 @@ import { UpdateCompanyNameDto } from './application/dto/update-company-name.dto.
 import { FoundCompanyNameDs } from './application/data-structures/found-company-name.ds.js';
 import { UpdateUsersRolesRequestDto } from './application/dto/update-users-roles-resuest.dto.js';
 import { InTransactionEnum } from '../../enums/in-transaction.enum.js';
+import { UpdateUsers2faStatusInCompanyDto } from './application/dto/update-users-2fa-status-in-company.dto.js';
+import { UpdateUsers2faStatusInCompanyDs } from './application/data-structures/update-users-2fa-status-in-company.ds.js';
+import { SuspendUsersInCompanyDto } from './application/dto/suspend-users-in-company.dto.js';
 
 @UseInterceptors(SentryInterceptor)
 @Controller('company')
@@ -92,6 +97,12 @@ export class CompanyInfoController {
     private readonly deleteCompanyUseCase: IDeleteCompany,
     @Inject(UseCaseType.CHECK_IS_VERIFICATION_LINK_AVAILABLE)
     private readonly checkIsVerificationLinkAvailableUseCase: ICheckVerificationLinkAvailable,
+    @Inject(UseCaseType.UPDATE_USERS_2FA_STATUS_IN_COMPANY)
+    private readonly updateUses2faStatusInCompanyUseCase: IUpdateUsers2faStatusInCompany,
+    @Inject(UseCaseType.SUSPEND_USERS_IN_COMPANY)
+    private readonly suspendUsersInCompanyUseCase: ISuspendUsersInCompany,
+    @Inject(UseCaseType.UNSUSPEND_USERS_IN_COMPANY)
+    private readonly unSuspendUsersInCompanyUseCase: ISuspendUsersInCompany,
   ) {}
 
   @ApiOperation({ summary: 'Get user company' })
@@ -346,5 +357,66 @@ export class CompanyInfoController {
       ...getCookieDomainOptions(),
     });
     return deleteResult;
+  }
+
+  @ApiOperation({ summary: 'Update 2fa auth for users in company' })
+  @ApiResponse({
+    status: 200,
+    description: '2fa status updated.',
+    type: SuccessResponse,
+  })
+  @ApiBody({ type: UpdateUsers2faStatusInCompanyDto })
+  @UseGuards(CompanyAdminGuard)
+  @Put('/2fa/:companyId')
+  async update2faAuthForUsersInCompany(
+    @Param('companyId') companyId: string,
+    @Body() update2faStatusData: UpdateUsers2faStatusInCompanyDto,
+  ): Promise<SuccessResponse> {
+    const { is2faEnabled } = update2faStatusData;
+    if (!companyId) {
+      throw new HttpException(
+        {
+          message: Messages.COMPANY_ID_MISSING,
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+    const inputData: UpdateUsers2faStatusInCompanyDs = {
+      companyId,
+      is2faEnabled,
+    };
+    return await this.updateUses2faStatusInCompanyUseCase.execute(inputData, InTransactionEnum.ON);
+  }
+
+  @ApiOperation({ summary: 'Suspend users in company' })
+  @ApiResponse({
+    status: 200,
+    description: 'Users suspended.',
+    type: SuccessResponse,
+  })
+  @ApiBody({ type: SuspendUsersInCompanyDto })
+  @UseGuards(CompanyAdminGuard)
+  @Put('/users/suspend/:companyId')
+  async suspendUsersInCompany(
+    @Param('companyId') companyInfoId: string,
+    @Body() { usersEmails }: SuspendUsersInCompanyDto,
+  ): Promise<SuccessResponse> {
+    return await this.suspendUsersInCompanyUseCase.execute({ companyInfoId, usersEmails }, InTransactionEnum.ON);
+  }
+
+  @ApiOperation({ summary: 'Unsuspend users in company' })
+  @ApiResponse({
+    status: 200,
+    description: 'Users unsuspend.',
+    type: SuccessResponse,
+  })
+  @ApiBody({ type: SuspendUsersInCompanyDto })
+  @UseGuards(CompanyAdminGuard)
+  @Put('/users/unsuspend/:companyId')
+  async unSuspendUsersInCompany(
+    @Param('companyId') companyInfoId: string,
+    @Body() { usersEmails }: SuspendUsersInCompanyDto,
+  ): Promise<SuccessResponse> {
+    return await this.unSuspendUsersInCompanyUseCase.execute({ companyInfoId, usersEmails }, InTransactionEnum.ON);
   }
 }

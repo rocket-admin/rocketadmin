@@ -18,8 +18,10 @@ import { AuditComponent } from './components/audit/audit.component';
 import { BannerComponent } from './components/ui-components/banner/banner.component';
 import { Base64ValidationDirective } from "./directives/base64Validator.directive";
 import { BbBulkActionConfirmationDialogComponent } from './components/dashboard/db-bulk-action-confirmation-dialog/db-bulk-action-confirmation-dialog.component';
-import { BinaryDataCaptionComponent } from './components/ui-components/row-fields/binary-data-caption/binary-data-caption.component';
-import { BooleanComponent } from './components/ui-components/row-fields/boolean/boolean.component';
+import { BinaryDataCaptionFilterComponent } from './components/ui-components/filter-fields/binary-data-caption/binary-data-caption.component';
+import { BinaryDataCaptionRowComponent } from './components/ui-components/row-fields/binary-data-caption/binary-data-caption.component';
+import { BooleanFilterComponent } from './components/ui-components/filter-fields/boolean/boolean.component';
+import { BooleanRowComponent } from './components/ui-components/row-fields/boolean/boolean.component';
 import { BreadcrumbsComponent } from './components/ui-components/breadcrumbs/breadcrumbs.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ClipboardModule } from '@angular/cdk/clipboard';
@@ -34,8 +36,10 @@ import { ConnectionsService } from './services/connections.service';
 import { ContentLoaderComponent } from './components/ui-components/content-loader/content-loader.component';
 import { CookieService } from 'ngx-cookie-service';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
-import { DateComponent } from './components/ui-components/row-fields/date/date.component';
-import { DateTimeComponent } from './components/ui-components/row-fields/date-time/date-time.component';
+import { DateFilterComponent } from './components/ui-components/filter-fields/date/date.component';
+import { DateRowComponent } from './components/ui-components/row-fields/date/date.component';
+import { DateTimeFilterComponent } from './components/ui-components/filter-fields/date-time/date-time.component';
+import { DateTimeRowComponent } from './components/ui-components/row-fields/date-time/date-time.component';
 import { DbActionConfirmationDialogComponent } from './components/dashboard/db-action-confirmation-dialog/db-action-confirmation-dialog.component';
 import { DbActionLinkDialogComponent } from './components/dashboard/db-action-link-dialog/db-action-link-dialog.component';
 import { DbConnectionConfirmDialogComponent } from './components/connect-db/db-connection-confirm-dialog/db-connection-confirm-dialog.component';
@@ -56,49 +60,72 @@ import { EmailValidationDirective } from "./directives/emailValidator.directive"
 import { EmailVerificationComponent } from './components/email-verification/email-verification.component';
 import { EnableTwoFADialogComponent } from './components/user-settings/enable-two-fa-dialog/enable-two-fa-dialog.component';
 import { EncodeUrlParamsSafelyInterceptor } from './services/url-params.interceptor';
-import { FileComponent } from './components/ui-components/row-fields/file/file.component';
-import { ForeignKeyComponent } from './components/ui-components/row-fields/foreign-key/foreign-key.component';
+import { FileFilterComponent } from './components/ui-components/filter-fields/file/file.component';
+import { FileRowComponent } from './components/ui-components/row-fields/file/file.component';
+import { ForeignKeyFilterComponent } from './components/ui-components/filter-fields/foreign-key/foreign-key.component';
+import { ForeignKeyRowComponent } from './components/ui-components/row-fields/foreign-key/foreign-key.component';
 import { GroupAddDialogComponent } from './components/users/group-add-dialog/group-add-dialog.component';
 import { GroupDeleteDialogComponent } from './components/users/group-delete-dialog/group-delete-dialog.component';
 import { HexValidationDirective } from "./directives/hexValidator.directive";
 import { HostnameValidationDirective } from "./directives/hostnameValidator.directive";
 import { IconPickerComponent } from './components/ui-components/icon-picker/icon-picker.component';
-import { IdComponent } from "./components/ui-components/row-fields/id/id.component";
+import { IdFilterComponent } from "./components/ui-components/filter-fields/id/id.component";
+import { IdRowComponent } from "./components/ui-components/row-fields/id/id.component";
 import { InfoDialogComponent } from './components/audit/info-dialog/info-dialog.component';
 import { InviteMemberDialogComponent } from './components/company/invite-member-dialog/invite-member-dialog.component';
 import { IpAddressButtonComponent } from './components/ui-components/ip-address-button/ip-address-button.component';
-import { JsonEditorComponent } from './components/ui-components/row-fields/json-editor/json-editor.component';
+import { JsonEditorFilterComponent } from './components/ui-components/filter-fields/json-editor/json-editor.component';
+import { JsonEditorRowComponent } from './components/ui-components/row-fields/json-editor/json-editor.component';
 import { LoginComponent } from './components/login/login.component';
-import { LongTextComponent } from './components/ui-components/row-fields/long-text/long-text.component';
+import { LongTextFilterComponent } from './components/ui-components/filter-fields/long-text/long-text.component';
+import { LongTextRowComponent } from './components/ui-components/row-fields/long-text/long-text.component';
 import { MasterPasswordDialogComponent } from './components/master-password-dialog/master-password-dialog.component';
-import { MatMenuModule } from '@angular/material/menu';
 import { MaterialModule } from './modules/material.module';
 import { NewVersionComponent } from './components/new-version/new-version.component';
 import { NgJsonEditorModule } from 'ang-jsoneditor'
 import { NgmatTableQueryReflectorModule } from '@nghacks/ngmat-table-query-reflector';
 import { NgxStripeModule } from 'ngx-stripe';
 import { NotificationsService } from './services/notifications.service';
-import { NumberComponent } from './components/ui-components/row-fields/number/number.component';
+import { NumberFilterComponent } from './components/ui-components/filter-fields/number/number.component';
+import { NumberRowComponent } from './components/ui-components/row-fields/number/number.component';
 import { PageLoaderComponent } from './components/page-loader/page-loader.component';
 import { PageNotFoundComponent } from './components/page-not-found/page-not-found.component';
 import { PasswordChangeComponent } from './components/password-change/password-change.component';
-import { PasswordComponent } from './components/ui-components/row-fields/password/password.component';
+import { PasswordFilterComponent } from './components/ui-components/filter-fields/password/password.component';
 import { PasswordRequestComponent } from './components/password-request/password-request.component';
 import { PasswordResetComponent } from './components/password-reset/password-change.component';
+import { PasswordRowComponent } from './components/ui-components/row-fields/password/password.component';
 import { PasswordStrengthMeterModule } from 'angular-password-strength-meter';
 import { PasswordValidationDirective } from "./directives/passwordValidator.directive";
 import { PaymentFormComponent } from './components/payment-form/payment-form.component';
 import { PermissionsAddDialogComponent } from './components/users/permissions-add-dialog/permissions-add-dialog.component';
+import { PlaceholderAuditLogComponent } from './components/skeletons/placeholder-audit-log/placeholder-audit-log.component';
+import { PlaceholderCompanyComponent } from './components/skeletons/placeholder-company/placeholder-company.component';
+import { PlaceholderCompanyInvitationComponent } from './components/skeletons/placeholder-company-invitation/placeholder-company-invitation.component';
+import { PlaceholderConnectionSettingsComponent } from './components/skeletons/placeholder-connection-settings/placeholder-connection-settings.component';
 import { PlaceholderConnectionsComponent } from './components/skeletons/placeholder-connections/placeholder-connections.component';
-import { PointComponent } from './components/ui-components/row-fields/point/point.component';
+import { PlaceholderRowEditComponent } from './components/skeletons/placeholder-row-edit/placeholder-row-edit.component';
+import { PlaceholderTableDataComponent } from './components/skeletons/placeholder-table-data/placeholder-table-data.component';
+import { PlaceholderTableSettingsComponent } from './components/skeletons/placeholder-table-settings/placeholder-table-settings.component';
+import { PlaceholderTableViewComponent } from './components/skeletons/placeholder-table-view/placeholder-table-view.component';
+import { PlaceholderTableWidgetsComponent } from './components/skeletons/placeholder-table-widgets/placeholder-table-widgets.component';
+import { PlaceholderUserGroupComponent } from './components/skeletons/placeholder-user-group/placeholder-user-group.component';
+import { PlaceholderUserGroupsComponent } from './components/skeletons/placeholder-user-groups/placeholder-user-groups.component';
+import { PointFilterComponent } from './components/ui-components/filter-fields/point/point.component';
+import { PointRowComponent } from './components/ui-components/row-fields/point/point.component';
 import { RegistrationComponent } from './components/registration/registration.component';
 import { RevokeInvitationDialogComponent } from './components/company/revoke-invitation-dialog/revoke-invitation-dialog.component';
-import { SelectComponent } from './components/ui-components/row-fields/select/select.component';
-import { StaticTextComponent } from './components/ui-components/row-fields/static-text/static-text.component';
+import { SelectFilterComponent } from './components/ui-components/filter-fields/select/select.component';
+import { SelectRowComponent } from './components/ui-components/row-fields/select/select.component';
+import { StaticTextFilterComponent } from './components/ui-components/filter-fields/static-text/static-text.component';
+import { StaticTextRowComponent } from './components/ui-components/row-fields/static-text/static-text.component';
 import { TablesService } from './services/tables.service';
-import { TextComponent } from './components/ui-components/row-fields/text/text.component';
-import { TimeComponent } from './components/ui-components/row-fields/time/time.component';
-import { TimeIntervalComponent } from './components/ui-components/row-fields/time-interval/time-interval.component';
+import { TextFilterComponent } from './components/ui-components/filter-fields/text/text.component';
+import { TextRowComponent } from './components/ui-components/row-fields/text/text.component';
+import { TimeFilterComponent } from './components/ui-components/filter-fields/time/time.component';
+import { TimeIntervalFilterComponent } from './components/ui-components/filter-fields/time-interval/time-interval.component';
+import { TimeIntervalRowComponent } from './components/ui-components/row-fields/time-interval/time-interval.component';
+import { TimeRowComponent } from './components/ui-components/row-fields/time/time.component';
 import { TokenInterceptor } from './services/token.interceptor';
 import { UpgradeComponent } from './components/upgrade/upgrade.component';
 import { UpgradeSuccessComponent } from './components/upgrade-success/upgrade-success.component';
@@ -111,17 +138,6 @@ import { UsersComponent } from './components/users/users.component';
 import { UsersService } from './services/users.service';
 import { WidgetDeleteDialogComponent } from './components/dashboard/db-table-widgets/widget-delete-dialog/widget-delete-dialog.component';
 import { environment } from '../environments/environment';
-import { PlaceholderTableViewComponent } from './components/skeletons/placeholder-table-view/placeholder-table-view.component';
-import { PlaceholderTableDataComponent } from './components/skeletons/placeholder-table-data/placeholder-table-data.component';
-import { PlaceholderRowEditComponent } from './components/skeletons/placeholder-row-edit/placeholder-row-edit.component';
-import { PlaceholderTableSettingsComponent } from './components/skeletons/placeholder-table-settings/placeholder-table-settings.component';
-import { PlaceholderTableWidgetsComponent } from './components/skeletons/placeholder-table-widgets/placeholder-table-widgets.component';
-import { PlaceholderUserGroupComponent } from './components/skeletons/placeholder-user-group/placeholder-user-group.component';
-import { PlaceholderUserGroupsComponent } from './components/skeletons/placeholder-user-groups/placeholder-user-groups.component';
-import { PlaceholderConnectionSettingsComponent } from './components/skeletons/placeholder-connection-settings/placeholder-connection-settings.component';
-import { PlaceholderAuditLogComponent } from './components/skeletons/placeholder-audit-log/placeholder-audit-log.component';
-import { PlaceholderCompanyComponent } from './components/skeletons/placeholder-company/placeholder-company.component';
-import { PlaceholderCompanyInvitationComponent } from './components/skeletons/placeholder-company-invitation/placeholder-company-invitation.component';
 
 type Palettes = { primaryPalette: string, accentedPalette: string, warnPalette: string };
 type Colors = { myColorName: string };
@@ -167,29 +183,14 @@ const saasExtraProviders = (environment as any).saas ? [
     UserDeleteDialogComponent,
     PermissionsAddDialogComponent,
     DbTableRowEditComponent,
-    NumberComponent,
-    TextComponent,
-    PointComponent,
     DbActionConfirmationDialogComponent,
     BbBulkActionConfirmationDialogComponent,
-    BooleanComponent,
-    LongTextComponent,
-    DateComponent,
-    StaticTextComponent,
-    BinaryDataCaptionComponent,
-    DateTimeComponent,
-    TimeComponent,
-    TimeIntervalComponent,
-    ForeignKeyComponent,
-    SelectComponent,
     DbTableFiltersDialogComponent,
     AuditComponent,
     InfoDialogComponent,
-    JsonEditorComponent,
     MasterPasswordDialogComponent,
     DbTableWidgetsComponent,
     WidgetDeleteDialogComponent,
-    PasswordComponent,
     DbConnectionConfirmDialogComponent,
     RegistrationComponent,
     LoginComponent,
@@ -204,7 +205,6 @@ const saasExtraProviders = (environment as any).saas ? [
     UserSettingsComponent,
     UpgradeComponent,
     DbConnectionIpAccessDialogComponent,
-    IdComponent,
     EmailVerificationComponent,
     EmailChangeComponent,
     PasswordResetComponent,
@@ -212,7 +212,6 @@ const saasExtraProviders = (environment as any).saas ? [
     PasswordRequestComponent,
     PasswordChangeComponent,
     AccountDeleteConfirmationComponent,
-    FileComponent,
     AlertComponent,
     NewVersionComponent,
     UserDeletedSuccessComponent,
@@ -243,6 +242,40 @@ const saasExtraProviders = (environment as any).saas ? [
     PlaceholderAuditLogComponent,
     PlaceholderCompanyComponent,
     PlaceholderCompanyInvitationComponent,
+    BinaryDataCaptionRowComponent,
+    BooleanRowComponent,
+    BinaryDataCaptionFilterComponent,
+    BooleanFilterComponent,
+    DateRowComponent,
+    DateTimeRowComponent,
+    DateFilterComponent,
+    DateTimeFilterComponent,
+    FileRowComponent,
+    ForeignKeyRowComponent,
+    FileFilterComponent,
+    ForeignKeyFilterComponent,
+    IdRowComponent,
+    IdFilterComponent,
+    JsonEditorRowComponent,
+    JsonEditorFilterComponent,
+    LongTextRowComponent,
+    LongTextFilterComponent,
+    NumberRowComponent,
+    NumberFilterComponent,
+    PasswordRowComponent,
+    PasswordFilterComponent,
+    PointRowComponent,
+    PointFilterComponent,
+    SelectRowComponent,
+    StaticTextRowComponent,
+    SelectFilterComponent,
+    StaticTextFilterComponent,
+    TextRowComponent,
+    TimeRowComponent,
+    TimeIntervalRowComponent,
+    TextFilterComponent,
+    TimeFilterComponent,
+    TimeIntervalFilterComponent,
   ],
   entryComponents: [
     DbActionConfirmationDialogComponent,

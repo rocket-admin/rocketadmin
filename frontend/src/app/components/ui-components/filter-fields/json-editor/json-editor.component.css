@@ -1,0 +1,14 @@
+/* .jsoneditor-wrapper {
+    display: block;
+    padding-bottom: 1.34375em;
+    margin-top: 8px;
+} */
+
+.codemirror-wrapper {
+    display: block;
+    border: 1px solid rgba(0, 0, 0, 0.38);
+    border-radius: 4px;
+    margin-top: 4px;
+    margin-bottom: 20px;
+    overflow: hidden;
+}

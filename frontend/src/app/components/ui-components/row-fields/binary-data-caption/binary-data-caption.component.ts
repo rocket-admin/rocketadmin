@@ -1,12 +1,13 @@
 import { Component, Input, OnInit } from '@angular/core';
+
 import { normalizeFieldName } from '../../../../lib/normalize';
 
 @Component({
-  selector: 'app-static-text',
+  selector: 'app-row-static-text',
   templateUrl: './binary-data-caption.component.html',
   styleUrls: ['./binary-data-caption.component.css']
 })
-export class BinaryDataCaptionComponent implements OnInit {
+export class BinaryDataCaptionRowComponent implements OnInit {
 
   @Input() label: string;
 

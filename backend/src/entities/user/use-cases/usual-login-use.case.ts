@@ -8,6 +8,7 @@ import { UsualLoginDs } from '../application/data-structures/usual-login.ds.js';
 import { generateGwtToken, generateTemporaryJwtToken, IToken } from '../utils/generate-gwt-token.js';
 import { IUsualLogin } from './user-use-cases.interfaces.js';
 import { UserEntity } from '../user.entity.js';
+import { get2FaScope } from '../utils/is-jwt-scope-need.util.js';
 
 @Injectable()
 export class UsualLoginUseCase extends AbstractUseCase<UsualLoginDs, IToken> implements IUsualLogin {
@@ -73,6 +74,7 @@ export class UsualLoginUseCase extends AbstractUseCase<UsualLoginDs, IToken> imp
     if (user.isOTPEnabled) {
       return generateTemporaryJwtToken(user);
     }
-    return generateGwtToken(user);
+    const foundUserCompany = await this._dbContext.companyInfoRepository.finOneCompanyInfoByUserId(user.id);
+    return generateGwtToken(user, get2FaScope(user, foundUserCompany));
   }
 }

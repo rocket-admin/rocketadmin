@@ -7,6 +7,7 @@ import { Encryptor } from '../../../helpers/encryption/encryptor.js';
 import { ChangeUsualUserPasswordDs } from '../application/data-structures/change-usual-user-password.ds.js';
 import { generateGwtToken, IToken } from '../utils/generate-gwt-token.js';
 import { IUsualPasswordChange } from './user-use-cases.interfaces.js';
+import { get2FaScope } from '../utils/is-jwt-scope-need.util.js';
 
 @Injectable()
 export class ChangeUsualPasswordUseCase
@@ -41,6 +42,7 @@ export class ChangeUsualPasswordUseCase
     }
     user.password = await Encryptor.hashUserPassword(userData.newPassword);
     const updatedUser = await this._dbContext.userRepository.saveUserEntity(user);
-    return generateGwtToken(updatedUser);
+    const foundUserCompany = await this._dbContext.companyInfoRepository.finOneCompanyInfoByUserId(updatedUser.id);
+    return generateGwtToken(updatedUser, get2FaScope(updatedUser, foundUserCompany));
   }
 }

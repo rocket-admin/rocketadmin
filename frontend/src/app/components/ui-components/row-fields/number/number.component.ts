@@ -1,12 +1,13 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+
 import { normalizeFieldName } from '../../../../lib/normalize';
 
 @Component({
-  selector: 'app-number',
+  selector: 'app-row-number',
   templateUrl: './number.component.html',
   styleUrls: ['./number.component.css']
 })
-export class NumberComponent implements OnInit {
+export class NumberRowComponent implements OnInit {
 
   @Input() key: string;
   @Input() label: string;

@@ -5,11 +5,11 @@ import { DBtype } from 'src/app/models/connection';
 import { ConnectionsService } from 'src/app/services/connections.service';
 
 @Component({
-  selector: 'app-boolean',
+  selector: 'app-row-boolean',
   templateUrl: './boolean.component.html',
   styleUrls: ['./boolean.component.css']
 })
-export class BooleanComponent implements OnInit {
+export class BooleanRowComponent implements OnInit {
   @Input() key: string;
   @Input() label: string;
   @Input() value;
@@ -32,24 +32,25 @@ export class BooleanComponent implements OnInit {
 
     if (this.value) {
       this.value = true;
-    } else if (this.value === 0 || this.value === '') {
+    } else if (this.value === 0 || this.value === '' || this.value === false) {
       this.value = false;
     } else {
       this.value = null;
     }
+
+    this.onFieldChange.emit(this.value);
 
     this.isRadiogroup = (this.structure?.allow_null) || !!(this.widgetStructure?.widget_params?.structure?.allow_null);
 
     this.normalizedLabel = normalizeFieldName(this.label);
   }
 
-  onBooleanChange() {
-    let formattedBoolean = this.value;
-
-    if ((this.structure && this.structure.data_type === 'tinyint' && (this.structure.character_maximum_length === 1)) || this.connectionType === 'mysql') {
-      formattedBoolean = this.value ? 1 : 0;
+  onToggleChange(optionValue: boolean): void {
+    if (this.value === optionValue) {
+      this.value = null;
+    } else {
+      this.value = optionValue;
     }
-
-    this.onFieldChange.emit(formattedBoolean);
+    this.onFieldChange.emit(this.value);
   }
 }

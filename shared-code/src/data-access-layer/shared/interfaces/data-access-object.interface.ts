@@ -21,7 +21,7 @@ export interface IDataAccessObject {
     referencedFieldName: string,
     identityColumnName: string,
     fieldValues: Array<string | number>,
-  ): Promise<Array<string>>;
+  ):Promise<Array<Record<string, unknown>>>;
 
   getRowByPrimaryKey(
     tableName: string,
@@ -53,6 +53,12 @@ export interface IDataAccessObject {
     tableName: string,
     row: Record<string, unknown>,
     primaryKey: Record<string, unknown>,
+  ): Promise<Record<string, unknown>>;
+
+  bulkUpdateRowsInTable(
+    tableName: string,
+    newValues: Record<string, unknown>,
+    primaryKeys: Array<Record<string, unknown>>,
   ): Promise<Record<string, unknown>>;
 
   validateSettings(settings: ValidateTableSettingsDS, tableName: string): Promise<Array<string>>;

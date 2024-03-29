@@ -1,20 +1,20 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, async } from '@angular/core/testing';
 
-import { BinaryDataCaptionComponent } from './binary-data-caption.component';
+import { BinaryDataCaptionRowComponent } from './binary-data-caption.component';
 
-describe('BinaryDataCaptionComponent', () => {
-  let component: BinaryDataCaptionComponent;
-  let fixture: ComponentFixture<BinaryDataCaptionComponent>;
+describe('BinaryDataCaptionRowComponent', () => {
+  let component: BinaryDataCaptionRowComponent;
+  let fixture: ComponentFixture<BinaryDataCaptionRowComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ BinaryDataCaptionComponent ]
+      declarations: [ BinaryDataCaptionRowComponent ]
     })
     .compileComponents();
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(BinaryDataCaptionComponent);
+    fixture = TestBed.createComponent(BinaryDataCaptionRowComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

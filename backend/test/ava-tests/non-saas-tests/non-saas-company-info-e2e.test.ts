@@ -17,6 +17,8 @@ import { ValidationException } from '../../../src/exceptions/custom-exceptions/v
 import { ValidationError } from 'class-validator';
 import { faker } from '@faker-js/faker';
 import { nanoid } from 'nanoid';
+import { Constants } from '../../../src/helpers/constants/constants.js';
+import { Messages } from '../../../src/exceptions/text/messages.js';
 
 const mockFactory = new MockFactory();
 let app: INestApplication;
@@ -69,7 +71,7 @@ test(`${currentTest} should return found company info for user`, async (t) => {
     const foundCompanyInfoRO = JSON.parse(foundCompanyInfo.text);
     t.is(foundCompanyInfoRO.hasOwnProperty('id'), true);
     t.is(foundCompanyInfoRO.hasOwnProperty('name'), true);
-    t.is(Object.keys(foundCompanyInfoRO).length, 2);
+    t.is(Object.keys(foundCompanyInfoRO).length, 3);
   } catch (error) {
     console.error(error);
   }
@@ -106,7 +108,7 @@ test(`${currentTest} should return full found company info for company admin use
     t.is(foundCompanyInfo.status, 200);
     t.is(foundCompanyInfoRO.hasOwnProperty('id'), true);
     t.is(foundCompanyInfoRO.hasOwnProperty('name'), true);
-    t.is(Object.keys(foundCompanyInfoRO).length, 4);
+    t.is(Object.keys(foundCompanyInfoRO).length, 5);
     t.is(foundCompanyInfoRO.hasOwnProperty('connections'), true);
     t.is(foundCompanyInfoRO.connections.length > 3, true);
     t.is(foundCompanyInfoRO.hasOwnProperty('invitations'), true);
@@ -125,7 +127,7 @@ test(`${currentTest} should return full found company info for company admin use
     t.is(foundCompanyInfoRO.connections[0].groups[0].hasOwnProperty('isMain'), true);
     t.is(foundCompanyInfoRO.connections[0].groups[0].hasOwnProperty('users'), true);
     t.is(foundCompanyInfoRO.connections[0].groups[0].users.length > 0, true);
-    t.is(Object.keys(foundCompanyInfoRO.connections[0].groups[0].users[0]).length, 7);
+    t.is(Object.keys(foundCompanyInfoRO.connections[0].groups[0].users[0]).length, 8);
     t.is(foundCompanyInfoRO.connections[0].groups[0].users[0].hasOwnProperty('id'), true);
     t.is(foundCompanyInfoRO.connections[0].groups[0].users[0].hasOwnProperty('email'), true);
     t.is(foundCompanyInfoRO.connections[0].groups[0].users[0].hasOwnProperty('role'), true);
@@ -160,7 +162,7 @@ test(`${currentTest} should return found company info for non-admin user`, async
     t.is(foundCompanyInfo.status, 200);
     t.is(foundCompanyInfoRO.hasOwnProperty('id'), true);
     t.is(foundCompanyInfoRO.hasOwnProperty('name'), true);
-    t.is(Object.keys(foundCompanyInfoRO).length, 2);
+    t.is(Object.keys(foundCompanyInfoRO).length, 3);
   } catch (error) {
     console.error(error);
     throw error;
@@ -527,6 +529,84 @@ test(`${currentTest} should update user roles in company`, async (t) => {
 
   const foundUserAfterUpdate = usersInCompanyROAfterUpdate.find((user) => user.id === foundNonAdminUser.id);
   t.is(foundUserAfterUpdate.role, 'ADMIN');
+});
+
+currentTest = `PUT company/2fa/:companyId`;
+
+test.skip(`${currentTest} should enable 2fa for company`, async (t) => {
+  const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
+  const {
+    connections,
+    firstTableInfo,
+    groups,
+    permissions,
+    secondTableInfo,
+    users: { adminUserToken, simpleUserToken, adminUserEmail, simpleUserEmail, simpleUserPassword },
+  } = testData;
+
+  const foundCompanyInfo = await request(app.getHttpServer())
+    .get('/company/my/full')
+    .set('Content-Type', 'application/json')
+    .set('Cookie', adminUserToken)
+    .set('Accept', 'application/json');
+
+  t.is(foundCompanyInfo.status, 200);
+
+  const foundCompanyRo = JSON.parse(foundCompanyInfo.text);
+  t.is(foundCompanyRo.hasOwnProperty('is2faEnabled'), true);
+  t.is(foundCompanyRo.is2faEnabled, false);
+
+  const requestBody = {
+    is2faEnabled: true,
+  };
+  const enable2faResult = await request(app.getHttpServer())
+    .put(`/company/2fa/${foundCompanyRo.id}`)
+    .send(requestBody)
+    .set('Content-Type', 'application/json')
+    .set('Cookie', adminUserToken)
+    .set('Accept', 'application/json');
+
+  t.is(enable2faResult.status, 200);
+
+  const foundCompanyInfoAfterUpdate = await request(app.getHttpServer())
+    .get('/company/my/full')
+    .set('Content-Type', 'application/json')
+    .set('Cookie', adminUserToken)
+    .set('Accept', 'application/json');
+
+  t.is(foundCompanyInfoAfterUpdate.status, 200);
+  const foundCompanyRoAfterUpdate = JSON.parse(foundCompanyInfoAfterUpdate.text);
+  t.is(foundCompanyRoAfterUpdate.hasOwnProperty('is2faEnabled'), true);
+  t.is(foundCompanyRoAfterUpdate.is2faEnabled, true);
+
+  // user should not be able to use endpoints that require 2fa after login
+
+  const userLoginInfo = {
+    email: simpleUserEmail,
+    password: simpleUserPassword,
+  };
+
+  const loginUserResponse = await request(app.getHttpServer())
+    .post('/user/login/')
+    .send(userLoginInfo)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+
+  if (loginUserResponse.status > 201) {
+    console.info('loginUserResponse.text -> ', loginUserResponse.text);
+  }
+
+  const newSimpleUserToken = `${Constants.JWT_COOKIE_KEY_NAME}=${TestUtils.getJwtTokenFromResponse(loginUserResponse)}`;
+  const connectionsResult = await request(app.getHttpServer())
+    .get('/connections')
+    .set('Content-Type', 'application/json')
+    .set('Cookie', newSimpleUserToken)
+    .set('Accept', 'application/json');
+
+  t.is(connectionsResult.status, 401);
+
+  const connectionsResultsObject = JSON.parse(connectionsResult.text);
+  t.is(connectionsResultsObject.message, Messages.TWO_FA_REQUIRED);
 });
 
 currentTest = `DELETE company`;

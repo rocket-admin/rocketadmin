@@ -69,6 +69,32 @@ export class GetTableStructureUseCase
 
       tableForeignKeys = tableForeignKeys.concat(foreignKeysFromWidgets);
       let transformedTableForeignKeys: Array<ForeignKeyWithAutocompleteColumnsDS> = [];
+
+      tableForeignKeys = tableForeignKeys.concat(foreignKeysFromWidgets);
+      const canUserReadForeignTables: Array<{
+        tableName: string;
+        canRead: boolean;
+      }> = await Promise.all(
+        tableForeignKeys.map(async (foreignKey) => {
+          const cenTableRead = await this._dbContext.userAccessRepository.checkTableRead(
+            userId,
+            connectionId,
+            foreignKey.referenced_table_name,
+            masterPwd,
+          );
+          return {
+            tableName: foreignKey.referenced_table_name,
+            canRead: cenTableRead,
+          };
+        }),
+      );
+      tableForeignKeys = tableForeignKeys.filter((foreignKey) => {
+        return canUserReadForeignTables.find((el) => {
+          return el.tableName === foreignKey.referenced_table_name && el.canRead;
+        });
+      });
+  
+
       if (tableForeignKeys && tableForeignKeys.length > 0) {
         transformedTableForeignKeys = await Promise.all(
           tableForeignKeys.map((el) => {

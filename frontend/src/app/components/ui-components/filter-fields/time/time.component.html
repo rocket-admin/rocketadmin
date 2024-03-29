@@ -1,0 +1,7 @@
+<mat-form-field class="time-field" appearance="outline">
+    <mat-label>{{normalizedLabel}}</mat-label>
+    <input type="time" matInput name="{{label}}-{{key}}"
+        [required]="required" [disabled]="disabled" [readonly]="readonly"
+        attr.data-testid="record-{{label}}-time"
+        [(ngModel)]="value" (ngModelChange)="onFieldChange.emit($event)">
+</mat-form-field>

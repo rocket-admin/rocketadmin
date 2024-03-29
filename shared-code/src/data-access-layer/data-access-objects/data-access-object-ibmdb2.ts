@@ -97,7 +97,7 @@ export class DataAccessObjectIbmDb2 extends BasicDataAccessObject implements IDa
     referencedFieldName: string,
     identityColumnName: string,
     fieldValues: (string | number)[],
-  ): Promise<string[]> {
+  ): Promise<Array<Record<string, unknown>>> {
     const schemaName = this.connection.schema.toUpperCase();
     this.validateNamesAndThrowError([tableName, referencedFieldName, identityColumnName, schemaName]);
     const connectionToDb = await this.getConnectionToDatabase();
@@ -125,7 +125,7 @@ export class DataAccessObjectIbmDb2 extends BasicDataAccessObject implements IDa
     let selectFields = '*';
     if (settings) {
       const tableStructure = await this.getTableStructure(tableName);
-      const availableFields = this.findAvaliableFields(settings, tableStructure);
+      const availableFields = this.findAvailableFields(settings, tableStructure);
       selectFields = availableFields.join(', ');
     }
     const query = `
@@ -164,7 +164,7 @@ export class DataAccessObjectIbmDb2 extends BasicDataAccessObject implements IDa
 
     const { large_dataset, rowsCount } = await this.getRowsCount(tableName, this.connection.schema);
     const tableStructure = await this.getTableStructure(tableName);
-    const availableFields = this.findAvaliableFields(settings, tableStructure);
+    const availableFields = this.findAvailableFields(settings, tableStructure);
 
     const lastPage = Math.ceil(rowsCount / perPage);
     let rowsRO: FoundRowsDS;
@@ -215,7 +215,7 @@ export class DataAccessObjectIbmDb2 extends BasicDataAccessObject implements IDa
             case FilterCriteriaEnum.icontains:
               return `${filterObject.field} NOT LIKE '%${filterObject.value}%'`;
             case FilterCriteriaEnum.empty:
-              return `(${filterObject.field} IS NULL OR ${filterObject.field} = '')`;
+              return `(${filterObject.field} IS NULL)`;
           }
         })
         .join(' AND ');
@@ -431,6 +431,15 @@ WHERE
     return result[0];
   }
 
+  public async bulkUpdateRowsInTable(
+    tableName: string,
+    newValues: Record<string, unknown>,
+    primaryKeys: Record<string, unknown>[],
+  ): Promise<Record<string, unknown>> {
+    await Promise.allSettled(primaryKeys.map((key) => this.updateRowInTable(tableName, newValues, key)));
+    return newValues;
+  }
+
   public async validateSettings(settings: ValidateTableSettingsDS, tableName: string): Promise<string[]> {
     const [tableStructure, primaryColumns] = await Promise.all([
       this.getTableStructure(tableName),
@@ -562,7 +571,13 @@ WHERE
     if (withCache && cachedDatabase && cachedDatabase.connected) {
       return cachedDatabase;
     }
-    const connStr = `DATABASE=${this.connection.database};HOSTNAME=${this.connection.host};UID=${this.connection.username};PWD=${this.connection.password};PORT=${this.connection.port};PROTOCOL=TCPIP`;
+    let connStr = `DATABASE=${this.connection.database};HOSTNAME=${this.connection.host};UID=${this.connection.username};PWD=${this.connection.password};PORT=${this.connection.port};PROTOCOL=TCPIP`;
+    if (this.connection.ssl) {
+      connStr += ';SECURITY=SSL';
+      if (this.connection.cert) {
+        connStr += `;SSLServerCertificate=${this.connection.cert}`;
+      }
+    }
     const connectionPool = new Pool();
     const databaseConnection = await connectionPool.open(connStr);
     LRUStorage.setImdbDb2Cache(this.connection, databaseConnection);
@@ -609,5 +624,13 @@ WHERE
         return;
       }
     });
+  }
+
+  private sanitize(value: unknown): string {
+    if (typeof value === 'string') {
+      return value.replace(/'/g, "''");
+    } else {
+      return String(value);
+    }
   }
 }

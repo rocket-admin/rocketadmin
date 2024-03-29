@@ -15,11 +15,6 @@ import { ConnectionParams } from '../shared/data-structures/connections-params.d
 import { FilterCriteriaEnum } from '../shared/enums/filter-criteria.enum.js';
 import { LRUStorage } from '../../caching/lru-storage.js';
 import { DAO_CONSTANTS } from '../../helpers/data-access-objects-constants.js';
-import { getPropertyValueByDescriptor } from '../../helpers/get-property-value-by-descriptor.js';
-import { changeObjPropValByName } from '../../helpers/change-object-property-by-name.js';
-import { getPropertyValue } from '../../helpers/get-property-value.js';
-import { renameObjectKeyName } from '../../helpers/rename-object-keyname.js';
-import { setPropertyValue } from '../../helpers/set-property-value.js';
 import { tableSettingsFieldValidator } from '../../helpers/validation/table-settings-validator.js';
 import { TableDS } from '../shared/data-structures/table.ds.js';
 import { ERROR_MESSAGES } from '../../helpers/errors/error-messages.js';
@@ -39,33 +34,26 @@ export class DataAccessObjectPostgres extends BasicDataAccessObject implements I
       this.getTableStructure(tableName),
       this.getTablePrimaryColumns(tableName),
     ]);
+
     const jsonColumnNames = tableStructure
-      .filter((structEl) => {
-        return structEl.data_type.toLowerCase() === 'json';
-      })
-      .map((structEl) => {
-        return structEl.column_name;
-      });
+      .filter(({ data_type }) => data_type.toLowerCase() === 'json')
+      .map(({ column_name }) => column_name);
 
-    for (const key in row) {
-      if (jsonColumnNames.includes(key)) {
-        setPropertyValue(row, key, JSON.stringify(getPropertyValue(row, key)));
+    const processedRow = { ...row };
+    jsonColumnNames.forEach((key) => {
+      if (key in processedRow) {
+        processedRow[key] = JSON.stringify(processedRow[key]);
       }
-    }
+    });
 
-    if (primaryColumns?.length > 0) {
-      const primaryKey = primaryColumns.map((column) => column.column_name);
-      const result = await knex(tableName)
-        .withSchema(this.connection.schema ?? 'public')
-        .returning(primaryKey)
-        .insert(row);
-      return result[0] as unknown as Record<string, unknown>;
-    }
-    const rowFields = Object.keys(row);
+    const returningColumns =
+      primaryColumns?.length > 0 ? primaryColumns.map(({ column_name }) => column_name) : Object.keys(row);
+
     const result = await knex(tableName)
       .withSchema(this.connection.schema ?? 'public')
-      .returning(rowFields)
-      .insert(row);
+      .returning(returningColumns)
+      .insert(processedRow);
+
     return result[0] as unknown as Record<string, unknown>;
   }
 
@@ -86,17 +74,12 @@ export class DataAccessObjectPostgres extends BasicDataAccessObject implements I
     referencedFieldName: string,
     identityColumnName: string,
     fieldValues: (string | number)[],
-  ): Promise<string[]> {
+  ): Promise<Array<Record<string, unknown>>> {
     const knex: Knex<any, any[]> = await this.configureKnex();
+    const columnsToSelect = identityColumnName ? [referencedFieldName, identityColumnName] : [referencedFieldName];
     return knex(tableName)
       .withSchema(this.connection.schema ?? 'public')
-      .modify((builder) => {
-        if (identityColumnName) {
-          builder.select(referencedFieldName, identityColumnName);
-        } else {
-          builder.select(referencedFieldName);
-        }
-      })
+      .select(columnsToSelect)
       .whereIn(referencedFieldName, fieldValues);
   }
 
@@ -105,20 +88,19 @@ export class DataAccessObjectPostgres extends BasicDataAccessObject implements I
     primaryKey: Record<string, unknown>,
     settings: TableSettingsDS,
   ): Promise<Record<string, unknown>> {
-    if (!settings) {
-      const knex: Knex<any, any[]> = await this.configureKnex();
-      const result = await knex(tableName)
-        .withSchema(this.connection.schema ?? 'public')
-        .where(primaryKey);
-      return result[0] as unknown as Record<string, unknown>;
-    }
-    const tableStructure = await this.getTableStructure(tableName);
-    const availableFields = this.findAvaliableFields(settings, tableStructure);
     const knex: Knex<any, any[]> = await this.configureKnex();
+    let availableFields: string[] = [];
+
+    if (settings) {
+      const tableStructure = await this.getTableStructure(tableName);
+      availableFields = this.findAvailableFields(settings, tableStructure);
+    }
+
     const result = await knex(tableName)
       .withSchema(this.connection.schema ?? 'public')
-      .select(availableFields)
+      .select(availableFields.length ? availableFields : '*')
       .where(primaryKey);
+
     return result[0] as unknown as Record<string, unknown>;
   }
 
@@ -131,52 +113,44 @@ export class DataAccessObjectPostgres extends BasicDataAccessObject implements I
     filteringFields: FilteringFieldsDS[],
     autocompleteFields: AutocompleteFieldsDS,
   ): Promise<FoundRowsDS> {
-    if (!page || page <= 0) {
-      page = DAO_CONSTANTS.DEFAULT_PAGINATION.page;
-      const { list_per_page } = settings;
-      if (list_per_page && list_per_page > 0 && (!perPage || perPage <= 0)) {
-        perPage = list_per_page;
-      } else {
-        perPage = DAO_CONSTANTS.DEFAULT_PAGINATION.perPage;
-      }
-    }
+    page = page > 0 ? page : DAO_CONSTANTS.DEFAULT_PAGINATION.page;
+    perPage =
+      perPage > 0
+        ? perPage
+        : settings.list_per_page > 0
+          ? settings.list_per_page
+          : DAO_CONSTANTS.DEFAULT_PAGINATION.perPage;
 
     const knex = await this.configureKnex();
     const tableSchema = this.connection.schema ?? 'public';
-    const [tableStructure] = await Promise.all([this.getTableStructure(tableName)]);
-    const availableFields = this.findAvaliableFields(settings, tableStructure);
-    let rowsRO: FoundRowsDS;
+    const tableStructure = await this.getTableStructure(tableName);
+    const availableFields = this.findAvailableFields(settings, tableStructure);
 
-    if (autocompleteFields && autocompleteFields.value && autocompleteFields.fields.length > 0) {
+    if (autocompleteFields?.value && autocompleteFields.fields?.length > 0) {
+      const { fields, value } = autocompleteFields;
       const rows = await knex(tableName)
         .withSchema(this.connection.schema ?? 'public')
-        .select(autocompleteFields.fields)
+        .select(fields)
         .modify((builder) => {
-          /*eslint-disable*/
-          const { fields, value } = autocompleteFields;
           if (value !== '*') {
-            fields.map((field, index) => {
-              builder.orWhereRaw(`CAST (?? AS TEXT) LIKE '${value}%'`, [field]);
+            fields.forEach((field) => {
+              builder.orWhereRaw(`CAST (?? AS TEXT) LIKE ?`, [field, `${value}%`]);
             });
-          } else {
-            return;
           }
-          /*eslint-enable*/
         })
         .limit(DAO_CONSTANTS.AUTOCOMPLETE_ROW_LIMIT);
+
       const { large_dataset } = await this.getRowsCount(knex, null, tableName, tableSchema);
-      rowsRO = {
+      return {
         data: rows,
         pagination: {} as any,
         large_dataset: large_dataset,
       };
-      return rowsRO;
     }
 
     const countRowsQB = knex(tableName)
       .withSchema(this.connection.schema ?? 'public')
       .modify((builder) => {
-        /*eslint-disable*/
         let { search_fields } = settings;
         if ((!search_fields || search_fields?.length === 0) && searchedFieldValue) {
           search_fields = availableFields;
@@ -186,53 +160,38 @@ export class DataAccessObjectPostgres extends BasicDataAccessObject implements I
             if (Buffer.isBuffer(searchedFieldValue)) {
               builder.orWhere(field, '=', searchedFieldValue);
             } else {
-              builder.orWhereRaw(` LOWER(CAST (?? AS VARCHAR (255))) LIKE ?`, [
+              builder.orWhereRaw(`LOWER(CAST(?? AS VARCHAR(255))) LIKE ?`, [
                 field,
                 `${searchedFieldValue.toLowerCase()}%`,
               ]);
-              //  builder.orWhereRaw(` CAST (?? AS VARCHAR (255))=?`, [field, searchedFieldValue]);
             }
           }
         }
-        /*eslint-enable*/
       })
       .modify((builder) => {
-        if (filteringFields && filteringFields.length > 0) {
+        if (filteringFields?.length > 0) {
           for (const filterObject of filteringFields) {
             const { field, criteria, value } = filterObject;
-            switch (criteria) {
-              case FilterCriteriaEnum.eq:
-                builder.andWhere(field, '=', `${value}`);
-                break;
-              case FilterCriteriaEnum.startswith:
-                builder.andWhere(field, 'like', `${value}%`);
-                break;
-              case FilterCriteriaEnum.endswith:
-                builder.andWhere(field, 'like', `%${value}`);
-                break;
-              case FilterCriteriaEnum.gt:
-                builder.andWhere(field, '>', value);
-                break;
-              case FilterCriteriaEnum.lt:
-                builder.andWhere(field, '<', value);
-                break;
-              case FilterCriteriaEnum.lte:
-                builder.andWhere(field, '<=', value);
-                break;
-              case FilterCriteriaEnum.gte:
-                builder.andWhere(field, '>=', value);
-                break;
-              case FilterCriteriaEnum.contains:
-                builder.andWhere(field, 'like', `%${value}%`);
-                break;
-              case FilterCriteriaEnum.icontains:
-                builder.andWhereNot(field, 'like', `%${value}%`);
-                break;
-              case FilterCriteriaEnum.empty:
-                builder.orWhereNull(field);
-                builder.orWhere(field, '=', `''`);
-                break;
-            }
+            const operators = {
+              [FilterCriteriaEnum.eq]: '=',
+              [FilterCriteriaEnum.startswith]: 'like',
+              [FilterCriteriaEnum.endswith]: 'like',
+              [FilterCriteriaEnum.gt]: '>',
+              [FilterCriteriaEnum.lt]: '<',
+              [FilterCriteriaEnum.lte]: '<=',
+              [FilterCriteriaEnum.gte]: '>=',
+              [FilterCriteriaEnum.contains]: 'like',
+              [FilterCriteriaEnum.icontains]: 'not like',
+              [FilterCriteriaEnum.empty]: 'is',
+            };
+            const values = {
+              [FilterCriteriaEnum.startswith]: `${value}%`,
+              [FilterCriteriaEnum.endswith]: `%${value}`,
+              [FilterCriteriaEnum.contains]: `%${value}%`,
+              [FilterCriteriaEnum.icontains]: `%${value}%`,
+              [FilterCriteriaEnum.empty]: null,
+            };
+            builder.where(field, operators[criteria], values[criteria] || value);
           }
         }
       });
@@ -255,12 +214,11 @@ export class DataAccessObjectPostgres extends BasicDataAccessObject implements I
       perPage: perPage,
       currentPage: page,
     };
-    rowsRO = {
+    return {
       data: rows,
       pagination,
       large_dataset: large_dataset,
     };
-    return rowsRO;
   }
 
   public async getTableForeignKeys(tableName: string): Promise<ForeignKeyDS[]> {
@@ -333,7 +291,6 @@ export class DataAccessObjectPostgres extends BasicDataAccessObject implements I
   public async getTablesFromDB(): Promise<TableDS[]> {
     const knex = await this.configureKnex();
     const schema = this.connection.schema ?? 'public';
-    const database = this.connection.database;
     const query = `
     SELECT table_name, table_type = 'VIEW' AS is_view
     FROM information_schema.tables
@@ -362,99 +319,76 @@ export class DataAccessObjectPostgres extends BasicDataAccessObject implements I
       .orderBy('dtd_identifier')
       .where(`table_name`, tableName)
       .andWhere('table_schema', this.connection.schema ? this.connection.schema : 'public');
-    const customTypeIndexes = [];
+
+    const customTypeIndexes: Array<number> = [];
     result = result.map((element, i) => {
-      element.is_nullable = element.is_nullable === 'YES';
-      renameObjectKeyName(element, 'is_nullable', 'allow_null');
-      if (element.data_type === 'USER-DEFINED') {
+      const { is_nullable, data_type } = element;
+      element.allow_null = is_nullable === 'YES';
+      delete element.is_nullable;
+      if (data_type === 'USER-DEFINED') {
         customTypeIndexes.push(i);
       }
       return element;
     });
 
-    if (customTypeIndexes.length >= 0) {
-      for (let i = 0; i < customTypeIndexes.length; i++) {
-        const customTypeInTableName = result[customTypeIndexes.at(i)].udt_name;
+    if (customTypeIndexes.length > 0) {
+      for (const index of customTypeIndexes) {
+        const customTypeInTableName = result[index].udt_name;
         const customTypeAttrsQueryResult = await knex.raw(
           `select attname, format_type(atttypid, atttypmod)
-           from pg_type
-                    join pg_class on pg_class.oid = pg_type.typrelid
-                    join pg_attribute on pg_attribute.attrelid = pg_class.oid
-           where typname = ?
-           order by attnum`,
+       from pg_type
+                join pg_class on pg_class.oid = pg_type.typrelid
+                join pg_attribute on pg_attribute.attrelid = pg_class.oid
+       where typname = ?
+       order by attnum`,
           customTypeInTableName,
         );
         const customTypeAttrs = customTypeAttrsQueryResult.rows;
         const enumLabelQueryResult = await knex.raw(
           `SELECT e.enumlabel
-           FROM pg_enum e
-                    JOIN pg_type t ON e.enumtypid = t.oid
-           WHERE t.typname = ?`,
+       FROM pg_enum e
+                JOIN pg_type t ON e.enumtypid = t.oid
+       WHERE t.typname = ?`,
           customTypeInTableName,
         );
         let enumLabelRows = [];
         if (enumLabelQueryResult && enumLabelQueryResult.rows && enumLabelQueryResult.rows.length > 0) {
-          enumLabelRows = enumLabelQueryResult.rows;
-
-          enumLabelRows = enumLabelRows.map((el) => {
-            return el.enumlabel;
-          });
+          enumLabelRows = enumLabelQueryResult.rows.map((el) => el.enumlabel);
         }
-        if (enumLabelRows && enumLabelRows.length > 0) {
-          //has own property check for preventing object injection
-          if (result.hasOwnProperty(customTypeIndexes.at(i))) {
-            // eslint-disable-next-line security/detect-object-injection
-            result[customTypeIndexes[i]].data_type = 'enum';
-            // eslint-disable-next-line security/detect-object-injection
-            result[customTypeIndexes[i]].data_type_params = enumLabelRows;
-          }
+        if (enumLabelRows.length > 0) {
+          result[index].data_type = 'enum';
+          result[index].data_type_params = enumLabelRows;
         }
 
         if (customTypeAttrs && customTypeAttrs.length > 0) {
-          const customDataTypeRo = [];
-          for (const attr of customTypeAttrs) {
-            customDataTypeRo.push({
-              column_name: attr.attname,
-              data_type: attr.format_type,
-            });
-          }
-          //has own property check for preventing object injection
-          if (result.hasOwnProperty(customTypeIndexes.at(i))) {
-            // eslint-disable-next-line security/detect-object-injection
-            result[customTypeIndexes[i]].data_type =
-              // eslint-disable-next-line security/detect-object-injection
-              result[customTypeIndexes[i]].udt_name;
-            // eslint-disable-next-line security/detect-object-injection
-            result[customTypeIndexes[i]].data_type_params = customDataTypeRo;
-          }
+          const customDataTypeRo = customTypeAttrs.map((attr) => ({
+            column_name: attr.attname,
+            data_type: attr.format_type,
+          }));
+          result[index].data_type = result[index].udt_name;
+          result[index].data_type_params = customDataTypeRo;
         }
       }
     }
+
     LRUStorage.setTableStructureCache(this.connection, tableName, result);
     return result;
   }
 
   public async testConnect(): Promise<TestConnectionResultDS> {
     const knex = await this.configureKnex();
-    let result: { result: boolean; message: string };
     try {
-      result = await knex().select(1);
-      if (result) {
-        return {
-          result: true,
-          message: 'Successfully connected',
-        };
-      }
+      await knex().select(1);
+      return {
+        result: true,
+        message: 'Successfully connected',
+      };
     } catch (e) {
       return {
         result: false,
-        message: e.message,
+        message: e.message || 'Connection failed',
       };
     }
-    return {
-      result: false,
-      message: 'Connection failed',
-    };
   }
 
   public async updateRowInTable(
@@ -464,23 +398,50 @@ export class DataAccessObjectPostgres extends BasicDataAccessObject implements I
   ): Promise<Record<string, unknown>> {
     const tableStructure = await this.getTableStructure(tableName);
     const jsonColumnNames = tableStructure
-      .filter((structEl) => {
-        return structEl.data_type.toLowerCase() === 'json';
-      })
-      .map((structEl) => {
-        return structEl.column_name;
-      });
-    for (const key in row) {
-      if (jsonColumnNames.includes(key)) {
-        row = changeObjPropValByName(row, key, JSON.stringify(getPropertyValueByDescriptor(row, key)));
+      .filter(({ data_type }) => data_type.toLowerCase() === 'json')
+      .map(({ column_name }) => column_name);
+
+    const updatedRow = { ...row };
+    jsonColumnNames.forEach((key) => {
+      if (key in updatedRow) {
+        updatedRow[key] = JSON.stringify(updatedRow[key]);
       }
-    }
+    });
+
     const knex = await this.configureKnex();
     return await knex(tableName)
-      .withSchema(this.connection.schema ? this.connection.schema : 'public')
+      .withSchema(this.connection.schema ?? 'public')
       .returning(Object.keys(primaryKey))
       .where(primaryKey)
-      .update(row);
+      .update(updatedRow);
+  }
+
+  public async bulkUpdateRowsInTable(
+    tableName: string,
+    newValues: Record<string, unknown>,
+    primaryKeys: Array<Record<string, unknown>>,
+  ): Promise<Record<string, unknown>> {
+    const tableStructure = await this.getTableStructure(tableName);
+    const jsonColumnNames = tableStructure
+      .filter(({ data_type }) => data_type.toLowerCase() === 'json')
+      .map(({ column_name }) => column_name);
+
+    const updatedValues = { ...newValues };
+    jsonColumnNames.forEach((key) => {
+      if (key in updatedValues) {
+        updatedValues[key] = JSON.stringify(updatedValues[key]);
+      }
+    });
+
+    const primaryKeysNames = Object.keys(primaryKeys[0]);
+    const primaryKeysValues = primaryKeys.map(Object.values);
+
+    const knex = await this.configureKnex();
+    return await knex(tableName)
+      .withSchema(this.connection.schema ?? 'public')
+      .returning(primaryKeysNames)
+      .whereIn(primaryKeysNames, primaryKeysValues)
+      .update(updatedValues);
   }
 
   public async validateSettings(settings: ValidateTableSettingsDS, tableName: string): Promise<string[]> {
@@ -493,36 +454,39 @@ export class DataAccessObjectPostgres extends BasicDataAccessObject implements I
 
   public async getReferencedTableNamesAndColumns(tableName: string): Promise<ReferencedTableNamesAndColumnsDS[]> {
     const primaryColumns = await this.getTablePrimaryColumns(tableName);
-    const schema = this.connection.schema ? this.connection.schema : 'public';
+    const schema = this.connection.schema ?? 'public';
     const knex = await this.configureKnex();
-    const results: Array<ReferencedTableNamesAndColumnsDS> = [];
-    for (const primaryColumn of primaryColumns) {
-      const result = await knex.raw(
-        `
-      SELECT
-          r.table_name, r.column_name
-      FROM information_schema.constraint_column_usage       u
-      INNER JOIN information_schema.referential_constraints fk
-                 ON u.constraint_catalog = fk.unique_constraint_catalog
-                     AND u.constraint_schema = fk.unique_constraint_schema
-                     AND u.constraint_name = fk.unique_constraint_name
-      INNER JOIN information_schema.key_column_usage        r
-                 ON r.constraint_catalog = fk.constraint_catalog
-                     AND r.constraint_schema = fk.constraint_schema
-                     AND r.constraint_name = fk.constraint_name
-      WHERE
-          u.column_name = ? AND
-          u.table_catalog = current_database() AND
-          u.table_schema = ? AND
-          u.table_name = ?
-      `,
-        [primaryColumn.column_name, schema, tableName],
-      );
-      results.push({
-        referenced_on_column_name: primaryColumn.column_name,
-        referenced_by: result.rows,
-      });
-    }
+
+    const results = await Promise.all(
+      primaryColumns.map(async (primaryColumn) => {
+        const result = await knex.raw(
+          `
+        SELECT
+            r.table_name, r.column_name
+        FROM information_schema.constraint_column_usage       u
+        INNER JOIN information_schema.referential_constraints fk
+                   ON u.constraint_catalog = fk.unique_constraint_catalog
+                       AND u.constraint_schema = fk.unique_constraint_schema
+                       AND u.constraint_name = fk.unique_constraint_name
+        INNER JOIN information_schema.key_column_usage        r
+                   ON r.constraint_catalog = fk.constraint_catalog
+                       AND r.constraint_schema = fk.constraint_schema
+                       AND r.constraint_name = fk.constraint_name
+        WHERE
+            u.column_name = ? AND
+            u.table_catalog = current_database() AND
+            u.table_schema = ? AND
+            u.table_name = ?
+        `,
+          [primaryColumn.column_name, schema, tableName],
+        );
+        return {
+          referenced_on_column_name: primaryColumn.column_name,
+          referenced_by: result.rows,
+        };
+      }),
+    );
+
     return results;
   }
 
@@ -545,24 +509,23 @@ export class DataAccessObjectPostgres extends BasicDataAccessObject implements I
     searchedFieldValue: string,
     filteringFields: Array<FilteringFieldsDS>,
   ): Promise<Stream & AsyncIterable<unknown>> {
-    if (!page || page <= 0) {
-      page = DAO_CONSTANTS.DEFAULT_PAGINATION.page;
-      const { list_per_page } = settings;
-      if (list_per_page && list_per_page > 0 && (!perPage || perPage <= 0)) {
-        perPage = list_per_page;
-      } else {
-        perPage = DAO_CONSTANTS.DEFAULT_PAGINATION.perPage;
-      }
-    }
+    page = page > 0 ? page : DAO_CONSTANTS.DEFAULT_PAGINATION.page;
+    perPage =
+      perPage > 0
+        ? perPage
+        : settings.list_per_page > 0
+          ? settings.list_per_page
+          : DAO_CONSTANTS.DEFAULT_PAGINATION.perPage;
+
     const offset = (page - 1) * perPage;
     const knex = await this.configureKnex();
 
     const tableSchema = this.connection.schema ?? 'public';
-    const [{ rowsCount, large_dataset }, tableStructure] = await Promise.all([
+    const [{ large_dataset }, tableStructure] = await Promise.all([
       this.getRowsCount(knex, null, tableName, tableSchema),
       this.getTableStructure(tableName),
     ]);
-    const availableFields = this.findAvaliableFields(settings, tableStructure);
+    const availableFields = this.findAvailableFields(settings, tableStructure);
 
     if (large_dataset) {
       throw new Error(ERROR_MESSAGES.DATA_IS_TO_LARGE);
@@ -580,7 +543,10 @@ export class DataAccessObjectPostgres extends BasicDataAccessObject implements I
             if (Buffer.isBuffer(searchedFieldValue)) {
               builder.orWhere(field, '=', searchedFieldValue);
             } else {
-              builder.orWhereRaw(` CAST (?? AS VARCHAR (255))=?`, [field, searchedFieldValue]);
+              builder.orWhereRaw(`LOWER(CAST(?? AS VARCHAR(255))) LIKE ?`, [
+                field,
+                `${searchedFieldValue.toLowerCase()}%`,
+              ]);
             }
           }
         }
@@ -589,39 +555,27 @@ export class DataAccessObjectPostgres extends BasicDataAccessObject implements I
         if (filteringFields && filteringFields.length > 0) {
           for (const filterObject of filteringFields) {
             const { field, criteria, value } = filterObject;
-            switch (criteria) {
-              case FilterCriteriaEnum.eq:
-                builder.andWhere(field, '=', `${value}`);
-                break;
-              case FilterCriteriaEnum.startswith:
-                builder.andWhere(field, 'like', `${value}%`);
-                break;
-              case FilterCriteriaEnum.endswith:
-                builder.andWhere(field, 'like', `%${value}`);
-                break;
-              case FilterCriteriaEnum.gt:
-                builder.andWhere(field, '>', value);
-                break;
-              case FilterCriteriaEnum.lt:
-                builder.andWhere(field, '<', value);
-                break;
-              case FilterCriteriaEnum.lte:
-                builder.andWhere(field, '<=', value);
-                break;
-              case FilterCriteriaEnum.gte:
-                builder.andWhere(field, '>=', value);
-                break;
-              case FilterCriteriaEnum.contains:
-                builder.andWhere(field, 'like', `%${value}%`);
-                break;
-              case FilterCriteriaEnum.icontains:
-                builder.andWhereNot(field, 'like', `%${value}%`);
-                break;
-              case FilterCriteriaEnum.empty:
-                builder.orWhereNull(field);
-                builder.orWhere(field, '=', `''`);
-                break;
-            }
+            const operators = {
+              [FilterCriteriaEnum.eq]: '=',
+              [FilterCriteriaEnum.startswith]: 'like',
+              [FilterCriteriaEnum.endswith]: 'like',
+              [FilterCriteriaEnum.gt]: '>',
+              [FilterCriteriaEnum.lt]: '<',
+              [FilterCriteriaEnum.lte]: '<=',
+              [FilterCriteriaEnum.gte]: '>=',
+              [FilterCriteriaEnum.contains]: 'like',
+              [FilterCriteriaEnum.icontains]: 'not like',
+              [FilterCriteriaEnum.empty]: 'is',
+            };
+            const values = {
+              [FilterCriteriaEnum.startswith]: `${value}%`,
+              [FilterCriteriaEnum.endswith]: `%${value}`,
+              [FilterCriteriaEnum.contains]: `%${value}%`,
+              [FilterCriteriaEnum.icontains]: `%${value}%`,
+              [FilterCriteriaEnum.empty]: null,
+            };
+
+            builder.where(field, operators[criteria], values[criteria] || value);
           }
         }
       })

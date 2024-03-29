@@ -1,9 +1,11 @@
+/* eslint-disable security/detect-object-injection */
 import { FilteringFieldsDs } from '../application/data-structures/found-table-rows.ds.js';
 import { FilterCriteriaEnum } from '../../../enums/index.js';
 import { TableStructureDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/table-structure.ds.js';
+import { validateStringWithEnum } from '../../../helpers/validators/validate-string-with-enum.js';
 
 export function findFilteringFieldsUtil(
-  query: string,
+  filters: Record<string, unknown>,
   tableStructure: Array<TableStructureDS>,
 ): Array<FilteringFieldsDs> {
   const rowNames = tableStructure.map((el) => {
@@ -11,78 +13,102 @@ export function findFilteringFieldsUtil(
   });
   const filteringItems = [];
   for (const fieldname of rowNames) {
-    if (query.hasOwnProperty(`f_${fieldname}__eq`)) {
+    if (filters.hasOwnProperty(`f_${fieldname}__eq`)) {
       filteringItems.push({
         field: fieldname,
         criteria: FilterCriteriaEnum.eq,
-        value: query[`f_${fieldname}__eq`],
+        value: filters[`f_${fieldname}__eq`],
       });
     }
 
-    if (query.hasOwnProperty(`f_${fieldname}__startswith`)) {
+    if (filters.hasOwnProperty(`f_${fieldname}__startswith`)) {
       filteringItems.push({
         field: fieldname,
         criteria: FilterCriteriaEnum.startswith,
-        value: query[`f_${fieldname}__startswith`],
+        value: filters[`f_${fieldname}__startswith`],
       });
     }
-    if (query.hasOwnProperty(`f_${fieldname}__endswith`)) {
+    if (filters.hasOwnProperty(`f_${fieldname}__endswith`)) {
       filteringItems.push({
         field: fieldname,
         criteria: FilterCriteriaEnum.endswith,
-        value: query[`f_${fieldname}__endswith`],
+        value: filters[`f_${fieldname}__endswith`],
       });
     }
-    if (query.hasOwnProperty(`f_${fieldname}__gt`)) {
+    if (filters.hasOwnProperty(`f_${fieldname}__gt`)) {
       filteringItems.push({
         field: fieldname,
         criteria: FilterCriteriaEnum.gt,
-        value: query[`f_${fieldname}__gt`],
+        value: filters[`f_${fieldname}__gt`],
       });
     }
-    if (query.hasOwnProperty(`f_${fieldname}__lt`)) {
+    if (filters.hasOwnProperty(`f_${fieldname}__lt`)) {
       filteringItems.push({
         field: fieldname,
         criteria: FilterCriteriaEnum.lt,
-        value: query[`f_${fieldname}__lt`],
+        value: filters[`f_${fieldname}__lt`],
       });
     }
-    if (query.hasOwnProperty(`f_${fieldname}__lte`)) {
+    if (filters.hasOwnProperty(`f_${fieldname}__lte`)) {
       filteringItems.push({
         field: fieldname,
         criteria: FilterCriteriaEnum.lte,
-        value: query[`f_${fieldname}__lte`],
+        value: filters[`f_${fieldname}__lte`],
       });
     }
-    if (query.hasOwnProperty(`f_${fieldname}__gte`)) {
+    if (filters.hasOwnProperty(`f_${fieldname}__gte`)) {
       filteringItems.push({
         field: fieldname,
         criteria: FilterCriteriaEnum.gte,
-        value: query[`f_${fieldname}__gte`],
+        value: filters[`f_${fieldname}__gte`],
       });
     }
-    if (query.hasOwnProperty(`f_${fieldname}__contains`)) {
+    if (filters.hasOwnProperty(`f_${fieldname}__contains`)) {
       filteringItems.push({
         field: fieldname,
         criteria: FilterCriteriaEnum.contains,
-        value: query[`f_${fieldname}__contains`],
+        value: filters[`f_${fieldname}__contains`],
       });
     }
-    if (query.hasOwnProperty(`f_${fieldname}__icontains`)) {
+    if (filters.hasOwnProperty(`f_${fieldname}__icontains`)) {
       filteringItems.push({
         field: fieldname,
         criteria: FilterCriteriaEnum.icontains,
-        value: query[`f_${fieldname}__icontains`],
+        value: filters[`f_${fieldname}__icontains`],
       });
     }
 
-    if (query.hasOwnProperty(`f_${fieldname}__empty`)) {
+    if (filters.hasOwnProperty(`f_${fieldname}__empty`)) {
       filteringItems.push({
         field: fieldname,
         criteria: FilterCriteriaEnum.empty,
-        value: query[`f_${fieldname}__empty`],
+        value: filters[`f_${fieldname}__empty`],
       });
     }
   }
+  return filteringItems;
+}
+
+export function parseFilteringFieldsFromBodyData(
+  filtersDataFromBody: Record<string, any>,
+  tableStructure: Array<TableStructureDS>,
+): Array<FilteringFieldsDs> {
+  const filteringItems: Array<FilteringFieldsDs> = [];
+  const rowNames = tableStructure.map((el) => el.column_name);
+  rowNames.forEach((rowName) => {
+    if (filtersDataFromBody.hasOwnProperty(rowName)) {
+      for (const key in filtersDataFromBody[rowName]) {
+        if (!validateStringWithEnum(key, FilterCriteriaEnum)) {
+          throw new Error(`Invalid filter criteria: "${key}".`);
+        }
+        const isValueNull = filtersDataFromBody[rowName][key] === null && key === FilterCriteriaEnum.eq;
+        filteringItems.push({
+          field: rowName,
+          criteria: isValueNull ? FilterCriteriaEnum.empty : (key as FilterCriteriaEnum),
+          value: filtersDataFromBody[rowName][key],
+        });
+      }
+    }
+  });
   return filteringItems;
 }

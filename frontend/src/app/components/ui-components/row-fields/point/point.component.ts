@@ -1,12 +1,13 @@
 import { Component, Input, OnInit } from '@angular/core';
+
 import { normalizeFieldName } from '../../../../lib/normalize';
 
 @Component({
-  selector: 'app-point',
+  selector: 'app-row-point',
   templateUrl: './point.component.html',
   styleUrls: ['./point.component.css']
 })
-export class PointComponent implements OnInit {
+export class PointRowComponent implements OnInit {
 
   @Input() key: string;
   @Input() label: string;

@@ -30,7 +30,7 @@ export interface IDataAccessObjectAgent {
     identityColumnName: string,
     fieldValues: Array<string | number>,
     userEmail: string,
-  ): Promise<Array<string>>;
+  ): Promise<Array<Record<string, unknown>>>;
 
   getRowByPrimaryKey(
     tableName: string,
@@ -64,6 +64,13 @@ export interface IDataAccessObjectAgent {
     tableName: string,
     row: Record<string, unknown>,
     primaryKey: Record<string, unknown>,
+    userEmail: string,
+  ): Promise<Record<string, unknown>>;
+
+  bulkUpdateRowsInTable(
+    tableName: string,
+    newValues: Record<string, unknown>,
+    primaryKeys: Array<Record<string, unknown>>,
     userEmail: string,
   ): Promise<Record<string, unknown>>;
 

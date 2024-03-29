@@ -9,17 +9,10 @@ import { compareArrayElements, isConnectionTypeAgent } from '../../../helpers/in
 import { AmplitudeService } from '../../amplitude/amplitude.service.js';
 import { isTestConnectionUtil } from '../../connection/utils/is-test-connection-util.js';
 import { TableLogsService } from '../../table-logs/table-logs.service.js';
-import {
-  DeleteRowsFromTableDs,
-} from '../application/data-structures/delete-row-from-table.ds.js';
+import { DeleteRowsFromTableDs } from '../application/data-structures/delete-row-from-table.ds.js';
 import { convertHexDataInPrimaryKeyUtil } from '../utils/convert-hex-data-in-primary-key.util.js';
 import { findObjectsWithProperties } from '../utils/find-objects-with-properties.js';
 import { IDeleteRowsFromTable } from './table-use-cases.interface.js';
-import { TableStructureDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/table-structure.ds.js';
-import { PrimaryKeyDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/primary-key.ds.js';
-import { TableSettingsEntity } from '../../table-settings/table-settings.entity.js';
-import { UnknownSQLException } from '../../../exceptions/custom-exceptions/unknown-sql-exception.js';
-import { ExceptionOperations } from '../../../exceptions/custom-exceptions/exception-operation.js';
 import { IDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/interfaces/data-access-object.interface.js';
 import { IDataAccessObjectAgent } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/interfaces/data-access-object-agent.interface.js';
 import PQueue from 'p-queue';
@@ -81,39 +74,11 @@ export class DeleteRowsFromTableUseCase
       );
     }
 
-    let tableStructure: Array<TableStructureDS>;
-    let primaryColumns: Array<PrimaryKeyDS>;
-    let tableSettings: TableSettingsEntity;
-
-    const [tableStructureResult, primaryColumnsResult, tableSettingsResult] = await Promise.allSettled([
+    const [tableStructure, primaryColumns, tableSettings] = await Promise.all([
       dao.getTableStructure(tableName, userEmail),
       dao.getTablePrimaryColumns(tableName, userEmail),
       this._dbContext.tableSettingsRepository.findTableSettings(connectionId, tableName),
     ]);
-    const errors = [];
-
-    if (tableStructureResult.status === 'fulfilled') {
-      tableStructure = tableStructureResult.value;
-    } else {
-      errors.push(tableStructureResult.reason);
-    }
-    if (primaryColumnsResult.status === 'fulfilled') {
-      primaryColumns = primaryColumnsResult.value;
-    } else {
-      errors.push(primaryColumnsResult.reason);
-    }
-    if (tableSettingsResult.status === 'fulfilled') {
-      tableSettings = tableSettingsResult.value;
-    } else {
-      errors.push(tableSettingsResult.reason);
-    }
-
-    if (errors.length > 0) {
-      throw new UnknownSQLException(
-        errors.map((error) => error.message).join('\n'),
-        ExceptionOperations.FAILED_TO_DELETE_ROWS_FROM_TABLE,
-      );
-    }
 
     if (tableSettings && !tableSettings?.can_delete) {
       throw new HttpException(
@@ -124,15 +89,19 @@ export class DeleteRowsFromTableUseCase
       );
     }
 
-    primaryKeys = primaryKeys.map((primaryKey) => {
-      return convertHexDataInPrimaryKeyUtil(primaryKey, tableStructure);
-    });
+    primaryKeys = primaryKeys.map((primaryKey) => convertHexDataInPrimaryKeyUtil(primaryKey, tableStructure));
+
     const availablePrimaryColumns: Array<string> = primaryColumns.map((column) => column.column_name);
-    for (const primaryKey of primaryKeys) {
-      for (const key in primaryKey) {
+
+    primaryKeys.forEach((primaryKey) => {
+      Object.keys(primaryKey).forEach((key) => {
         // eslint-disable-next-line security/detect-object-injection
-        if (!primaryKey[key] && primaryKey[key] !== '') delete primaryKey[key];
-      }
+        if (!primaryKey[key] && primaryKey[key] !== '') {
+          // eslint-disable-next-line security/detect-object-injection
+          delete primaryKey[key];
+        }
+      });
+
       const receivedPrimaryColumns = Object.keys(primaryKey);
       if (!compareArrayElements(availablePrimaryColumns, receivedPrimaryColumns)) {
         throw new HttpException(
@@ -142,28 +111,17 @@ export class DeleteRowsFromTableUseCase
           HttpStatus.BAD_REQUEST,
         );
       }
-    }
+    });
 
-    const errorReasonsArray: Array<string> = [];
-    const oldRowsData: Array<Record<string, unknown>> = (
-      await Promise.allSettled(
+    let oldRowsData: Array<Record<string, unknown>>;
+    try {
+      oldRowsData = await Promise.all(
         primaryKeys.map((primaryKey) => dao.getRowByPrimaryKey(tableName, primaryKey, tableSettings, userEmail)),
-      )
-    )
-      .map((result) => {
-        if (result.status === 'fulfilled') {
-          return result.value;
-        } else {
-          errorReasonsArray.push(result.reason.message);
-          return null;
-        }
-      })
-      .filter((result) => result !== null);
-
-    if (errorReasonsArray.length > 0) {
+      );
+    } catch (error) {
       throw new HttpException(
         {
-          message: Messages.BULK_DELETE_FAILED_GET_ROWS(errorReasonsArray),
+          message: Messages.BULK_DELETE_FAILED_GET_ROWS([error.message]),
         },
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
@@ -173,21 +131,20 @@ export class DeleteRowsFromTableUseCase
 
     const queue = new PQueue({ concurrency: 5 });
     const deleteRowsResults: Array<DeleteRowsFromTableResult | void> = await Promise.all(
-      primaryKeys.map(async (primaryKey) => {
-        return await queue.add(async () => {
-          return await this.deleteRowFromTable(dao, tableName, primaryKey, oldRowsData, userEmail);
-        });
-      }),
+      primaryKeys.map((primaryKey) =>
+        queue.add(() => this.deleteRowFromTable(dao, tableName, primaryKey, oldRowsData, userEmail)),
+      ),
     );
+
     const deletionErrors: Array<string> = [];
-    for (const result of deleteRowsResults) {
+    deleteRowsResults.forEach((result) => {
       if (result) {
         deleteOperationsResults.push(result);
         if (result.error) {
           deletionErrors.push(result.error);
         }
       }
-    }
+    });
 
     try {
       if (deletionErrors.length > 0) {

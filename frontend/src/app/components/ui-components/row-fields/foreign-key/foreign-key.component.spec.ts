@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed, async } from '@angular/core/testing';
 
-import { ForeignKeyComponent } from './foreign-key.component';
+import { ForeignKeyRowComponent } from './foreign-key.component';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatDialogModule } from '@angular/material/dialog';
@@ -9,9 +9,9 @@ import { RouterTestingModule } from "@angular/router/testing";
 import { TablesService } from 'src/app/services/tables.service';
 import { of } from 'rxjs';
 
-describe('ForeignKeyComponent', () => {
-  let component: ForeignKeyComponent;
-  let fixture: ComponentFixture<ForeignKeyComponent>;
+describe('ForeignKeyRowComponent', () => {
+  let component: ForeignKeyRowComponent;
+  let fixture: ComponentFixture<ForeignKeyRowComponent>;
   let tablesService: TablesService;
 
   const structureNetwork = [
@@ -120,7 +120,7 @@ describe('ForeignKeyComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ ForeignKeyComponent ],
+      declarations: [ ForeignKeyRowComponent ],
       imports: [
         HttpClientTestingModule,
         RouterTestingModule.withRoutes([]),
@@ -133,7 +133,7 @@ describe('ForeignKeyComponent', () => {
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(ForeignKeyComponent);
+    fixture = TestBed.createComponent(ForeignKeyRowComponent);
     component = fixture.componentInstance;
     component.relations = fakeRelations;
     tablesService = TestBed.inject(TablesService);

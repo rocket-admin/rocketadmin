@@ -26,6 +26,7 @@ import { GetTableRowsUseCase } from './use-cases/get-table-rows.use.case.js';
 import { GetTableStructureUseCase } from './use-cases/get-table-structure.use.case.js';
 import { UpdateRowInTableUseCase } from './use-cases/update-row-in-table.use.case.js';
 import { ExportCSVFromTableUseCase } from './use-cases/export-csv-from-table.use.case.js';
+import { BulkUpdateRowsInTableUseCase } from './use-cases/bulk-update-rows-in-table.use.case.js';
 
 @Module({
   imports: [
@@ -86,6 +87,10 @@ import { ExportCSVFromTableUseCase } from './use-cases/export-csv-from-table.use
       provide: UseCaseType.EXPORT_CSV_FROM_TABLE,
       useClass: ExportCSVFromTableUseCase,
     },
+    {
+      provide: UseCaseType.BULK_UPDATE_ROWS_IN_TABLE,
+      useClass: BulkUpdateRowsInTableUseCase,
+    },
   ],
   controllers: [TableController],
 })
@@ -99,13 +104,15 @@ export class TableModule {
         { path: '/table/:slug', method: RequestMethod.GET },
         { path: '/connection/tables/:slug', method: RequestMethod.GET },
         { path: '/table/rows/:slug', method: RequestMethod.GET },
+        { path: '/table/rows/find/:slug', method: RequestMethod.POST },
         { path: '/table/structure/:slug', method: RequestMethod.GET },
         { path: '/table/row/:slug', method: RequestMethod.POST },
         { path: '/table/row/:slug', method: RequestMethod.PUT },
         { path: '/table/row/:slug', method: RequestMethod.DELETE },
         { path: '/table/rows/delete/:slug', method: RequestMethod.PUT },
+        { path: '/table/rows/update/:slug', method: RequestMethod.PUT },
         { path: '/table/row/:slug', method: RequestMethod.GET },
-        { path: 'table/csv/:slug', method: RequestMethod.GET },
+        { path: '/table/csv/export/:slug', method: RequestMethod.POST },
       );
   }
 }

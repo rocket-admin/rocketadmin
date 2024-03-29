@@ -1,7 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsBoolean, IsEnum, IsNumber, IsOptional, IsString, Max, Min } from 'class-validator';
-import { ConnectionTypeEnum, ConnectionTypeTestEnum } from '../../../../enums/connection-type.enum.js';
+import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/enums/connection-types-enum.js';
 import { isTest } from '../../../../helpers/app/is-test.js';
+import { ConnectionTypeTestEnum } from '../../../../enums/connection-type.enum.js';
 
 export class CreateConnectionDto {
   @ApiProperty({ required: false })
@@ -14,9 +15,9 @@ export class CreateConnectionDto {
   @ApiProperty()
   masterEncryption: boolean;
 
-  @IsEnum(isTest() ? ConnectionTypeTestEnum : ConnectionTypeEnum)
+  @IsEnum(isTest() ? ConnectionTypeTestEnum : ConnectionTypesEnum)
   @ApiProperty()
-  type: ConnectionTypeEnum;
+  type: ConnectionTypesEnum;
 
   @IsOptional()
   @IsString()

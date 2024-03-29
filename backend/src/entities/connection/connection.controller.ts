@@ -16,7 +16,7 @@ import validator from 'validator';
 import { IGlobalDatabaseContext } from '../../common/application/global-database-context.interface.js';
 import { BaseType, UseCaseType } from '../../common/data-injection.tokens.js';
 import { BodyUuid, GCLlId, MasterPassword, QueryUuid, SlugUuid, UserId } from '../../decorators/index.js';
-import { AmplitudeEventTypeEnum, ConnectionTypeEnum, InTransactionEnum } from '../../enums/index.js';
+import { AmplitudeEventTypeEnum, InTransactionEnum } from '../../enums/index.js';
 import { Messages } from '../../exceptions/text/messages.js';
 import { processExceptionMessage } from '../../exceptions/utils/process-exception-message.js';
 import { ConnectionEditGuard, ConnectionReadGuard } from '../../guards/index.js';
@@ -66,6 +66,7 @@ import {
 } from './use-cases/use-cases.interfaces.js';
 import { isTestConnectionUtil } from './utils/is-test-connection-util.js';
 import { TestConnectionResultDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/test-result-connection.ds.js';
+import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/enums/connection-types-enum.js';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CreateConnectionDto } from './application/dto/index.js';
 import { UpdatedConnectionResponseDTO } from './application/dto/updated-connection-responce.dto.js';
@@ -701,7 +702,7 @@ export class ConnectionController {
     const errors = [];
 
     function validateConnectionType(type: string): string {
-      return Object.keys(ConnectionTypeEnum).find((key) => key === type);
+      return Object.keys(ConnectionTypesEnum).find((key) => key === type);
     }
 
     if (!connectionData.type) errors.push(Messages.TYPE_MISSING);

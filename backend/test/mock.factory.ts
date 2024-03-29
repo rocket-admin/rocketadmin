@@ -7,7 +7,6 @@ import { TableActionEntity } from '../src/entities/table-actions/table-action.en
 import { CreateTableWidgetDto } from '../src/entities/widget/dto/index.js';
 import {
   AccessLevelEnum,
-  ConnectionTypeEnum,
   PermissionTypeEnum,
   QueryOrderingEnum,
   TableActionTypeEnum,
@@ -17,7 +16,7 @@ import { TestConstants } from './mocks/test-constants.js';
 import json5 from 'json5';
 import { ConnectionTypeTestEnum } from '../src/enums/connection-type.enum.js';
 import { CreateConnectionDto } from '../src/entities/connection/application/dto/create-connection.dto.js';
-
+import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/enums/connection-types-enum.js';
 export class MockFactory {
   generateCognitoUserName() {
     return 'a876284a-e902-11ea-adc1-0242ac120002';
@@ -216,7 +215,7 @@ export class MockFactory {
   generateConnectionToTestDbIbmDb2() {
     const dto = new CreateConnectionDto() as any;
     dto.title = 'Test connection to cli db ibm db2';
-    dto.type = ConnectionTypeEnum.ibmdb2;
+    dto.type = ConnectionTypesEnum.ibmdb2;
     dto.host = 'test-ibm-db2-e2e-testing';
     dto.port = 50000;
     dto.username = 'db2inst1';
@@ -245,35 +244,35 @@ export class MockFactory {
   generateConnectionToTestDbPostgresAgent() {
     const dto = new CreateConnectionDto() as any;
     dto.title = 'Test connection to agent db';
-    dto.type = ConnectionTypeEnum.agent_postgres;
+    dto.type = ConnectionTypesEnum.agent_postgres;
     return dto;
   }
 
   generateConnectionToTestDbOracleAgent() {
     const dto = new CreateConnectionDto() as any;
     dto.title = 'Test connection to agent db';
-    dto.type = ConnectionTypeEnum.agent_oracledb;
+    dto.type = ConnectionTypesEnum.agent_oracledb;
     return dto;
   }
 
   generateConnectionToTestDbMysqlAgent() {
     const dto = new CreateConnectionDto() as any;
     dto.title = 'Test connection to agent db';
-    dto.type = ConnectionTypeEnum.agent_mysql;
+    dto.type = ConnectionTypesEnum.agent_mysql;
     return dto;
   }
 
   generateConnectionToTestDbMssqlAgent() {
     const dto = new CreateConnectionDto() as any;
     dto.title = 'Test connection to agent db';
-    dto.type = ConnectionTypeEnum.agent_mssql;
+    dto.type = ConnectionTypesEnum.agent_mssql;
     return dto;
   }
 
   generateConnectionToTestDbIbmDb2Agent() {
     const dto = new CreateConnectionDto() as any;
     dto.title = 'Test connection to agent db';
-    dto.type = ConnectionTypeEnum.agent_ibmdb2;
+    dto.type = ConnectionTypesEnum.agent_ibmdb2;
     return dto;
   }
 
