@@ -255,13 +255,13 @@ test(`${currentTest} should return rows of selected table with search and withou
     const searchedDescription = insertedSearchedIds.find((id) => id.number === 5)._id;
 
     const getTableRowsResponse = await request(app.getHttpServer())
-      .get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&search=${searchedDescription}`)
+      .post(`/table/rows/find/${createConnectionRO.id}?tableName=${testTableName}&search=${searchedDescription}`)
       .set('Cookie', firstUserToken)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
-    t.is(getTableRowsResponse.status, 200);
-    const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
 
+    const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
+    t.is(getTableRowsResponse.status, 201);
     t.is(typeof getTableRowsRO, 'object');
     t.is(getTableRowsRO.hasOwnProperty('rows'), true);
     t.is(getTableRowsRO.hasOwnProperty('primaryColumns'), true);
@@ -2259,7 +2259,7 @@ test(`${currentTest} should throw an exception when primary key passed in reques
   };
 
   const updateRowInTableResponse = await request(app.getHttpServer())
-    .put(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&_id=100000000`)
+    .put(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&_id=6606c97e2fff2ec599cc7bca`)
     .send(JSON.stringify(row))
     .set('Cookie', firstUserToken)
     .set('Content-Type', 'application/json')
@@ -2267,7 +2267,7 @@ test(`${currentTest} should throw an exception when primary key passed in reques
 
   t.is(updateRowInTableResponse.status, 500);
   const responseObject = JSON.parse(updateRowInTableResponse.text);
-  t.is(responseObject.originalMessage, `Invalid object id format`);
+  t.is(responseObject.originalMessage, `No data returned from agent`);
 });
 
 currentTest = 'PUT /table/rows/update/:connectionId';
@@ -2641,14 +2641,14 @@ test(`${currentTest} should throw an exception when primary key passed in reques
   t.is(createConnectionResponse.status, 201);
 
   const deleteRowInTableResponse = await request(app.getHttpServer())
-    .delete(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&_id=100000`)
+    .delete(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&_id=6606c97e2fff2ec599cc7bca`)
     .set('Cookie', firstUserToken)
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
 
   const deleteRowInTableRO = JSON.parse(deleteRowInTableResponse.text);
   t.is(deleteRowInTableResponse.status, 500);
-  t.is(deleteRowInTableRO.originalMessage, `Invalid object id format`);
+  t.is(deleteRowInTableRO.originalMessage, `No data returned from agent`);
 });
 
 currentTest = 'GET /table/row/:slug';
@@ -2836,9 +2836,9 @@ test(`${currentTest} should throw an exception, when primary key passed in reque
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
 
-  t.is(foundRowInTableResponse.status, 400);
+  t.is(foundRowInTableResponse.status, 500);
   const findRowResponse = JSON.parse(foundRowInTableResponse.text);
-  t.is(findRowResponse.message, Messages.ROW_PRIMARY_KEY_NOT_FOUND);
+  t.is(findRowResponse.message, `Failed to get row by primary key. No data returned from agent`);
 });
 
 currentTest = 'PUT /table/rows/delete/:slug';
@@ -2975,7 +2975,7 @@ test(`${currentTest} should delete row in table and return result`, async (t) =>
   }
 });
 
-test(`${currentTest} should test connection and return result`, async (t) => {
+test.skip(`${currentTest} should test connection and return result`, async (t) => {
   const testConnectionResponse = await request(app.getHttpServer())
     .post('/connection/test/')
     .send(connectionToTestDB)

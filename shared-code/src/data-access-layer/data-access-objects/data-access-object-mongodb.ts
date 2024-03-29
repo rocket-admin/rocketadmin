@@ -149,7 +149,8 @@ export class DataAccessObjectMongo extends BasicDataAccessObject implements IDat
       const searchQuery = search_fields.reduce((acc, field) => {
         let condition;
         if (field === '_id') {
-          condition = { [field]: this.createObjectIdFromSting(searchedFieldValue) };
+          const parsedSearchedFieldValue = Buffer.from(searchedFieldValue, 'binary').toString('hex');
+          condition = { [field]: this.createObjectIdFromSting(parsedSearchedFieldValue) };
         } else {
           condition = { [field]: new RegExp('^' + String(searchedFieldValue), 'i') };
         }
