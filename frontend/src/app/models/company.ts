@@ -1,3 +1,6 @@
+import { User } from "@sentry/angular-ivy"
+import { SubscriptionPlans, UserGroup } from "./user"
+
 export interface Address {
     street: string,
     number: string,
@@ -9,15 +12,25 @@ export interface Address {
     zipCode: string,
 }
 
+export interface CompanyConnection {
+    id: string,
+    createdAt: string,
+    updatedAt: string,
+    title: string,
+    author: User,
+    groups: UserGroup[],
+}
+
 export interface Company {
     id: string,
     additional_info?: string,
     name: string,
-    address: Address,
+    address: Address | {},
     portal_link: string,
-    subscriptionLevel: string,
-    connections: [],
-    invitations: CompanyMemberInvitation[]
+    subscriptionLevel: SubscriptionPlans,
+    connections: CompanyConnection[],
+    invitations: CompanyMemberInvitation[],
+    is_payment_method_added: boolean,
 }
 
 export interface CompanyMember {

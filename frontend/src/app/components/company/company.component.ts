@@ -1,15 +1,16 @@
-import { InviteMemberDialogComponent } from './invite-member-dialog/invite-member-dialog.component';
-import { Company, CompanyMemberRole } from 'src/app/models/company';
+import { Company, CompanyMember, CompanyMemberRole } from 'src/app/models/company';
+
+import { Angulartics2 } from 'angulartics2';
 import { CompanyService } from 'src/app/services/company.service';
 import { Component } from '@angular/core';
+import { DeleteMemberDialogComponent } from './delete-member-dialog/delete-member-dialog.component';
+import { InviteMemberDialogComponent } from './invite-member-dialog/invite-member-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
+import { RevokeInvitationDialogComponent } from './revoke-invitation-dialog/revoke-invitation-dialog.component';
 import { SubscriptionPlans } from 'src/app/models/user';
 import { UserService } from 'src/app/services/user.service';
-import { orderBy } from "lodash";
-import { DeleteMemberDialogComponent } from './delete-member-dialog/delete-member-dialog.component';
-import { RevokeInvitationDialogComponent } from './revoke-invitation-dialog/revoke-invitation-dialog.component';
-import { Angulartics2 } from 'angulartics2';
 import { environment } from 'src/environments/environment';
+import { orderBy } from "lodash";
 
 @Component({
   selector: 'app-company',
@@ -32,8 +33,8 @@ export class CompanyComponent {
   public submittingUsersChange: boolean = false;
 
   constructor(
-    private _company: CompanyService,
-    private _user: UserService,
+    public _company: CompanyService,
+    public _user: UserService,
     // private _notifications: NotificationsService,
     public dialog: MatDialog,
     private angulartics2: Angulartics2,
@@ -98,11 +99,6 @@ export class CompanyComponent {
   setCompanyPlan(subscriptionLevel: SubscriptionPlans) {
     if (subscriptionLevel) {
       this.currentPlan = subscriptionLevel;
-
-      if (this.currentPlan.startsWith('ANNUAL_')) {
-        this.currentPlan = this.currentPlan.substring(7);
-      }
-
       this.currentPlan = this.currentPlan.slice(0, -5).toLowerCase();
     } else {
       this.currentPlan = "free"
@@ -116,7 +112,7 @@ export class CompanyComponent {
     });
   }
 
-  handleDeleteMemberDialogOpen(user) {
+  handleDeleteMemberDialogOpen(user: CompanyMember) {
     this.dialog.open(DeleteMemberDialogComponent, {
       width: '25em',
       data: {companyId: this.company.id, user}

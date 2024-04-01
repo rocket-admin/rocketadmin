@@ -1,29 +1,38 @@
+import { Company, CompanyMember, CompanyMemberRole } from 'src/app/models/company';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 
 import { Angulartics2Module } from 'angulartics2';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { CompanyComponent } from './company.component';
 import { CompanyService } from 'src/app/services/company.service';
+import { DeleteMemberDialogComponent } from './delete-member-dialog/delete-member-dialog.component';
+import { FormsModule } from '@angular/forms';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
-import { MatDialogModule } from '@angular/material/dialog';
+import { InviteMemberDialogComponent } from './invite-member-dialog/invite-member-dialog.component';
+import { MatInputModule } from '@angular/material/input';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { RevokeInvitationDialogComponent } from './revoke-invitation-dialog/revoke-invitation-dialog.component';
+import { SubscriptionPlans } from 'src/app/models/user';
+import { UserService } from 'src/app/services/user.service';
 import { of } from 'rxjs';
 
 describe('CompanyComponent', () => {
   let component: CompanyComponent;
   let fixture: ComponentFixture<CompanyComponent>;
+  let dialog: MatDialog;
 
-  let fakeCompanyService = jasmine.createSpyObj('CompanyService', ['fetchCompany', 'fetchCompanyMembers', 'cast']);
+  let fakeCompanyService = jasmine.createSpyObj('CompanyService', ['fetchCompany', 'fetchCompanyMembers', 'updateCompanyName', 'updateCompanyMemberRole', 'cast']);
+  let fakeUserService = jasmine.createSpyObj('UserService', ['cast']);
 
-  const mockCompany = {
+  const mockCompany: Company = {
     "id": "company-12345678",
     "name": "My company",
     "additional_info": null,
     "portal_link": "https://payments.rocketadmin.com/p/session/123455",
-    "subscriptionLevel": "FREE_PLAN",
+    "subscriptionLevel": SubscriptionPlans.free,
     "is_payment_method_added": true,
     "address": {},
-    "createdAt": "2024-01-06T21:11:36.569Z",
-    "updatedAt": "2024-01-07T15:28:41.776Z",
     "connections": [
       {
         "id": "12345678",
@@ -33,7 +42,7 @@ describe('CompanyComponent', () => {
         "author": {
           "id": "author-1",
           "isActive": false,
-          "email": "author1@voloshko.com",
+          "email": "author1@test.com",
           "createdAt": "2024-01-06T21:11:36.746Z",
           "name": "John Smith",
           "is_2fa_enabled": false,
@@ -48,11 +57,11 @@ describe('CompanyComponent', () => {
               {
                 "id": "a06ee7bf-e6c9-4c1a-a5aa-e9ba09e3e8a1",
                 "isActive": false,
-                "email": "author1@voloshko.com",
+                "email": "author1@test.com",
                 "createdAt": "2024-01-06T21:11:36.746Z",
                 "name": null,
                 "is_2fa_enabled": false,
-                "role": "ADMIN"
+                "role": CompanyMemberRole.SuperAdmin
               }
             ]
           },
@@ -65,27 +74,26 @@ describe('CompanyComponent', () => {
         "verification_string": "verification_string_12345678",
         "groupId": null,
         "inviterId": "user1",
-        "invitedUserEmail": "lyubov@voloshko.com",
-        "role": "ADMIN",
-        "createdAt": "2024-01-19T15:30:41.693Z"
+        "invitedUserEmail": "admin1@test.com",
+        "role": CompanyMemberRole.SuperAdmin,
       }
     ]
   }
 
-  const mockUsers = [
+  const mockMembers = [
     {
       "id": "61582cb5-5577-43d2-811f-900668ecfff1",
       "isActive": true,
-      "email": "lyubov+3333@voloshko.com",
+      "email": "user1@test.com",
       "createdAt": "2024-02-05T09:41:08.199Z",
-      "name": "Lyubov 3333",
+      "name": "User 3333",
       "is_2fa_enabled": false,
       "role": "USER"
     },
     {
       "id": "a06ee7bf-e6c9-4c1a-a5aa-e9ba09e3e8a1",
       "isActive": false,
-      "email": "lyubov@voloshko.com",
+      "email": "admin0@test.com",
       "createdAt": "2024-01-06T21:11:36.746Z",
       "name": null,
       "is_2fa_enabled": false,
@@ -93,8 +101,12 @@ describe('CompanyComponent', () => {
     }
   ]
 
-  fakeCompanyService.cast = of('invited');
+  fakeCompanyService.cast = of('');
   fakeCompanyService.fetchCompany.and.returnValue(of(mockCompany));
+  fakeCompanyService.fetchCompanyMembers.and.returnValue(of(mockMembers));
+  fakeCompanyService.updateCompanyName.and.returnValue(of({}));
+  fakeCompanyService.updateCompanyMemberRole.and.returnValue(of({}));
+  fakeUserService.cast = of(mockMembers[1]);
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -103,16 +115,21 @@ describe('CompanyComponent', () => {
         HttpClientTestingModule,
         MatSnackBarModule,
         MatDialogModule,
-        Angulartics2Module.forRoot()
+        Angulartics2Module.forRoot(),
+        FormsModule,
+        MatInputModule,
+        BrowserAnimationsModule
       ],
       providers: [
-        { provide: CompanyService, useValue: fakeCompanyService }
+        { provide: CompanyService, useValue: fakeCompanyService },
+        { provide: UserService, useValue: fakeUserService }
       ]
     })
     .compileComponents();
 
     fixture = TestBed.createComponent(CompanyComponent);
     component = fixture.componentInstance;
+    dialog = TestBed.get(MatDialog);
     fixture.detectChanges();
   });
 
@@ -120,7 +137,145 @@ describe('CompanyComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  // it('should set initial values', () => {
+  it('should set initial values and call functions to define plan and receive company members', () => {
+    const fakeSetCompanyPlan = spyOn(component, 'setCompanyPlan');
+    spyOn(fakeCompanyService.cast, 'subscribe');
 
-  // });
+    component.ngOnInit();
+    fixture.detectChanges();
+
+    expect(component.company).toEqual(mockCompany);
+    expect(fakeSetCompanyPlan).toHaveBeenCalledWith(mockCompany.subscriptionLevel);
+    expect(fakeCompanyService.fetchCompanyMembers).toHaveBeenCalledWith(mockCompany.id);
+    expect(fakeCompanyService.cast.subscribe).toHaveBeenCalled();
+  });
+
+  it('should receive company info and members when invitation was sent', () => {
+    fakeCompanyService.cast = of('invited');
+
+    component.ngOnInit();
+    fixture.detectChanges();
+
+    expect(fakeCompanyService.fetchCompany).toHaveBeenCalledWith();
+    expect(fakeCompanyService.fetchCompanyMembers).toHaveBeenCalledWith(mockCompany.id);
+  });
+
+  it('should receive company members when a member was deleted', () => {
+    fakeCompanyService.cast = of('deleted');
+
+    component.ngOnInit();
+    fixture.detectChanges();
+
+    expect(fakeCompanyService.fetchCompanyMembers).toHaveBeenCalledWith(mockCompany.id);
+  });
+
+  it('should get company members and mix it with invitation, and set the value', () => {
+    fakeCompanyService.cast = of('deleted');
+
+    component.getCompanyMembers('company-12345678');
+
+    expect(component.members).toEqual([
+      {
+        "id": "a06ee7bf-e6c9-4c1a-a5aa-e9ba09e3e8a1",
+        "isActive": false,
+        "email": "admin0@test.com",
+        "createdAt": "2024-01-06T21:11:36.746Z",
+        "name": null,
+        "is_2fa_enabled": false,
+        "role": "ADMIN"
+      },
+      {
+        "id": "61582cb5-5577-43d2-811f-900668ecfff1",
+        "isActive": true,
+        "email": "user1@test.com",
+        "createdAt": "2024-02-05T09:41:08.199Z",
+        "name": "User 3333",
+        "is_2fa_enabled": false,
+        "role": "USER"
+      },
+      {
+        "id": "invitation1",
+        "verification_string": "verification_string_12345678",
+        "groupId": null,
+        "inviterId": "user1",
+        "invitedUserEmail": "admin1@test.com",
+        "role": CompanyMemberRole.SuperAdmin,
+        "pending": true,
+        email: "admin1@test.com"
+      }
+    ]);
+    expect(component.adminsCount).toBe(1);
+    expect(component.usersCount).toBe(3);
+  });
+
+  it('should set company plan to team if TEAM_PLAN', () => {
+    component.setCompanyPlan(SubscriptionPlans.team);
+
+    expect(component.currentPlan).toBe('team');
+  });
+
+  it('should set company plan to free if nothing is in subscriptionLevel', () => {
+    component.setCompanyPlan(null);
+
+    expect(component.currentPlan).toBe('free');
+  });
+
+  it('should open Add member dialog and pass company id and name', () => {
+    const fakeAddMemberDialogOpen = spyOn(dialog, 'open');
+    component.company.id = 'company-12345678';
+    component.company.name = 'My company';
+
+    component.handleAddMemberDialogOpen();
+    expect(fakeAddMemberDialogOpen).toHaveBeenCalledOnceWith(InviteMemberDialogComponent, {
+      width: '25em',
+      data: {id: 'company-12345678', name: 'My company'}
+    });
+  });
+
+  it('should open Delete member dialog and pass company id and member', () => {
+    const fakeDeleteMemberDialogOpen = spyOn(dialog, 'open');
+    component.company.id = 'company-12345678';
+    const fakeMember: CompanyMember = {
+      "id": "61582cb5-5577-43d2-811f-900668ecfff1",
+      "isActive": true,
+      "email": "user1@test.com",
+      "name": "User 3333",
+      "is_2fa_enabled": false,
+      "role": CompanyMemberRole.Member
+    }
+
+    component.handleDeleteMemberDialogOpen(fakeMember);
+    expect(fakeDeleteMemberDialogOpen).toHaveBeenCalledOnceWith(DeleteMemberDialogComponent, {
+      width: '25em',
+      data: {companyId: 'company-12345678', user: fakeMember}
+    });
+  });
+
+  it('should open Revoke invitation dialog and pass company id and member email', () => {
+    const fakeRevokeInvitationDialogOpen = spyOn(dialog, 'open');
+    component.company.id = 'company-12345678';
+
+    component.handleRevokeInvitationDialogOpen('user1@test.com');
+    expect(fakeRevokeInvitationDialogOpen).toHaveBeenCalledOnceWith(RevokeInvitationDialogComponent, {
+      width: '25em',
+      data: {companyId: 'company-12345678', userEmail: 'user1@test.com'}
+    });
+  });
+
+  it('should call update company name', () => {
+    component.company.id = 'company-12345678';
+    component.company.name = 'New company name';
+
+    component.changeCompanyName();
+    expect(fakeCompanyService.updateCompanyName).toHaveBeenCalledOnceWith('company-12345678', 'New company name');
+  });
+
+  it('should call update company member role to ADMIN and request company members list', () => {
+    component.company.id = 'company-12345678';
+    component.company.name = 'New company name';
+
+    component.updateRole('user-12345678', CompanyMemberRole.SuperAdmin);
+    expect(fakeCompanyService.updateCompanyMemberRole).toHaveBeenCalledOnceWith('company-12345678', 'user-12345678', 'ADMIN');
+    expect(fakeCompanyService.fetchCompanyMembers).toHaveBeenCalledWith('company-12345678');
+  });
 });
