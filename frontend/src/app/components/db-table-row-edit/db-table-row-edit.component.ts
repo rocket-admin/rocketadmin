@@ -9,6 +9,7 @@ import { ConnectionsService } from 'src/app/services/connections.service';
 import { DBtype } from 'src/app/models/connection';
 import { DbActionConfirmationDialogComponent } from '../dashboard/db-action-confirmation-dialog/db-action-confirmation-dialog.component';
 import { DbActionLinkDialogComponent } from '../dashboard/db-action-link-dialog/db-action-link-dialog.component';
+import JsonURL from "@jsonurl/jsonurl";
 import { Location } from '@angular/common';
 import { MatDialog } from '@angular/material/dialog';
 import { NotificationsService } from 'src/app/services/notifications.service';
@@ -143,11 +144,15 @@ export class DbTableRowEditComponent implements OnInit {
             if (res.referenced_table_names_and_columns && res.referenced_table_names_and_columns[0].referenced_by[0] !== null) {
               this.referencedTables = res.referenced_table_names_and_columns[0].referenced_by
                 .map((table: any) => { return {...table, displayTableName: table.display_name || normalizeTableName(table.table_name)}});
+
               this.referencedTablesURLParams = res.referenced_table_names_and_columns[0].referenced_by
-                .map((table: any) => { return {
-                  [`f__${table.column_name}__eq`]:
-                  this.tableRowValues[res.referenced_table_names_and_columns[0].referenced_on_column_name],
-                  page_index: 0
+                .map((table: any) => {
+                  const params = {[table.column_name]: {
+                    eq: this.tableRowValues[res.referenced_table_names_and_columns[0].referenced_on_column_name]
+                  }};
+                  return {
+                    filters: JsonURL.stringify(params),
+                    page_index: 0
                 }});
             }
 
