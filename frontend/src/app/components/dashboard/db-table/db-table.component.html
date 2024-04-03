@@ -46,7 +46,7 @@
                     Add row
                 </a>
 
-                <button mat-button [ngClass]="{'action_active': getFiltersCount(activeFilters)}"
+                <button mat-button type="button" [ngClass]="{'action_active': getFiltersCount(activeFilters)}"
                     angulartics2On="click"
                     angularticsAction="Dashboard: filters is clicked"
                     (click)="handleOpenFilters()">
@@ -77,7 +77,14 @@
                         </button>
                     </mat-menu>
                 </div>
-                <button mat-icon-button [matMenuTriggerFor]="settingsMenu"
+                <button mat-button type="button"
+                    angulartics2On="click"
+                    angularticsAction="Dashboard: export is clicked"
+                    (click)="exportCSV()">
+                    <mat-icon>ios_share</mat-icon>
+                    Export
+                </button>
+                <button mat-icon-button type="button" [matMenuTriggerFor]="settingsMenu"
                     angulartics2On="click"
                     angularticsAction="Dashboard: settings dropdown is clicked">
                     <mat-icon>settings</mat-icon>

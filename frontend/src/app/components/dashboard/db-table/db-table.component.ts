@@ -3,12 +3,13 @@ import { CustomAction, TableForeignKey, TablePermissions } from 'src/app/models/
 
 import { AccessLevel } from 'src/app/models/user';
 import { ActivatedRoute } from '@angular/router';
+import JsonURL from "@jsonurl/jsonurl";
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
+import { TablesService } from 'src/app/services/tables.service';
 import { merge } from 'rxjs';
 import { normalizeTableName } from '../../../lib/normalize'
 import { tap } from 'rxjs/operators';
-import JsonURL from "@jsonurl/jsonurl";
 
 interface Column {
   title: string,
@@ -70,6 +71,7 @@ export class DbTableComponent implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
+    private _tables: TablesService,
   ) {}
 
   ngAfterViewInit() {
@@ -213,6 +215,29 @@ export class DbTableComponent implements OnInit {
       return `${this.isAllSelected() ? 'deselect' : 'select'} all`;
     }
     return `${this.selection.isSelected(row) ? 'deselect' : 'select'} row ${row.position + 1}`;
+  }
+
+  exportCSV() {
+    console.log('export csv');
+    this._tables.exportTableCSV({
+      connectionID: this.connectionID,
+      tableName: this.name,
+      sortColumn: this.sort.active,
+      sortOrder: this.sort.direction.toLocaleUpperCase(),
+      filters: this.activeFilters,
+      search: this.searchString
+    }).subscribe(res => this.downloadCSV(res));
+  }
+
+  downloadCSV(data) {
+    const blob = new Blob([data], { type: 'text/csv' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'database.csv';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(link.href);
   }
 
   // getBulkActions(actions) {
