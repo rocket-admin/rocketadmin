@@ -294,7 +294,7 @@ services:
     environment:
       - REMOTE_WEBSOCKET_ADDRESS=ws://autoadmin-ws-server:8009
       - APPLICATION_CONFIG_FILE_NAME=.ibmdb2_test_cli_config.txt
-    command: ["/bin/sh", "/app/wait-for-db2.sh"]   
+    command: ["/bin/sh", "/app/wait-for-db2.sh"]
 
   test-ibm-db2-e2e-testing:
     image: icr.io/db2_community/db2
@@ -327,3 +327,21 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: example
     ports:
       - 27017:27017
+
+  rocketadmin-agent_mongo:
+    build:
+      context: .
+      dockerfile: ./rocketadmin-agent/Dockerfile
+    ports:
+       - 8229:8229
+    volumes:
+      - ./rocketadmin-agent/dist:/app/dist
+      - ./rocketadmin-agent/src:/app/src
+    links:
+      - autoadmin-ws-server
+    depends_on:
+      - autoadmin-ws-server
+    environment:
+      - REMOTE_WEBSOCKET_ADDRESS=ws://autoadmin-ws-server:8009
+      - APPLICATION_CONFIG_FILE_NAME=.mongodb_test_agent_config.txt
+    command: ["yarn", "start:dev"]

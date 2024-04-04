@@ -30,6 +30,7 @@ export function getTestData(mockFactory: MockFactory) {
   const connectionToAgentIbmDB2 = mockFactory.generateConnectionToTestDbIbmDb2Agent();
   const ibmDb2CliConnection = mockFactory.generateConnectionToTestDbIbmDb2Cli();
   const mongoDbConnection = mockFactory.generateConnectionToTestMongoDBInDocker();
+  const mongoDbAgentConnection = mockFactory.generateConnectionToTestMongoDBAgent();
   return {
     newConnection,
     newEncryptedConnection,
@@ -60,5 +61,6 @@ export function getTestData(mockFactory: MockFactory) {
     connectionToAgentIbmDB2,
     ibmDb2CliConnection,
     mongoDbConnection,
+    mongoDbAgentConnection,
   };
 }

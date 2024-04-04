@@ -71,6 +71,10 @@ export const customAgentRepositoryExtension = {
         return 'IBMDB2-TEST-AGENT-TOKEN';
       case ConnectionTypeTestEnum.cli_ibmdb2:
         return 'IBMDB2-TEST-CLI-TOKEN';
+      case ConnectionTypeTestEnum.agent_mongodb:
+        return 'MONGODB-TEST-AGENT-TOKEN';
+      case ConnectionTypeTestEnum.cli_mongodb:
+        return 'MONGODB-TEST-CLI-TOKEN';
     }
   },
 };

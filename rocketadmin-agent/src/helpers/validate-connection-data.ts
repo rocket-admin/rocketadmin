@@ -15,7 +15,7 @@ export function validateConnectionData(connectionData: ICLIConnectionCredentials
   if (connectionData.port < 0 || connectionData.port > 65535 || !connectionData.port)
     errors.push(Messages.PORT_MISSING);
   if (typeof connectionData.port !== 'number') errors.push(Messages.PORT_FORMAT_INCORRECT);
-  if (typeof connectionData.ssl !== 'boolean') errors.push(Messages.SSH_FORMAT_INCORRECT);
+  if (typeof connectionData.ssl !== 'boolean') errors.push(Messages.SSL_FORMAT_INCORRECT);
   if (!connectionData.username) errors.push(Messages.USERNAME_MISSING);
   if (!connectionData.database) errors.push(Messages.DATABASE_MISSING);
   if (!connectionData.token) errors.push(Messages.CONNECTION_TOKEN_MISSING);
