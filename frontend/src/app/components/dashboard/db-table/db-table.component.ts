@@ -10,6 +10,8 @@ import { TablesService } from 'src/app/services/tables.service';
 import { merge } from 'rxjs';
 import { normalizeTableName } from '../../../lib/normalize'
 import { tap } from 'rxjs/operators';
+import { MatDialog } from '@angular/material/dialog';
+import { DbTableExportDialogComponent } from '../db-table-export-dialog/db-table-export-dialog.component';
 
 interface Column {
   title: string,
@@ -71,7 +73,7 @@ export class DbTableComponent implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
-    private _tables: TablesService,
+    public dialog: MatDialog,
   ) {}
 
   ngAfterViewInit() {
@@ -161,12 +163,23 @@ export class DbTableComponent implements OnInit {
   }
 
   handleSearch() {
-    console.log('handle search');
-    // event.preventDefault();
     this.searchString = this.searchString.trim();
     this.staticSearchString = this.searchString;
-    console.log('this.searchString', this.searchString)
     this.search.emit(this.searchString);
+  }
+
+  handleOpenExportDialog() {
+    this.dialog.open(DbTableExportDialogComponent, {
+      width: '25em',
+      data: {
+        connectionID: this.connectionID,
+        tableName: this.name,
+        sortColumn: this.sort.active,
+        sortOrder: this.sort.direction.toLocaleUpperCase(),
+        filters: this.activeFilters,
+        search: this.searchString
+      }
+    })
   }
 
   clearSearch () {
@@ -215,29 +228,6 @@ export class DbTableComponent implements OnInit {
       return `${this.isAllSelected() ? 'deselect' : 'select'} all`;
     }
     return `${this.selection.isSelected(row) ? 'deselect' : 'select'} row ${row.position + 1}`;
-  }
-
-  exportCSV() {
-    console.log('export csv');
-    this._tables.exportTableCSV({
-      connectionID: this.connectionID,
-      tableName: this.name,
-      sortColumn: this.sort.active,
-      sortOrder: this.sort.direction.toLocaleUpperCase(),
-      filters: this.activeFilters,
-      search: this.searchString
-    }).subscribe(res => this.downloadCSV(res));
-  }
-
-  downloadCSV(data) {
-    const blob = new Blob([data], { type: 'text/csv' });
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = 'database.csv';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(link.href);
   }
 
   // getBulkActions(actions) {
