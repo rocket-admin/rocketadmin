@@ -352,14 +352,25 @@ export class DataAccessObjectMongo extends BasicDataAccessObject implements IDat
   }
 
   private async getConnectionToDatabase(): Promise<Db> {
-    const mongoConnectionString =
+    let mongoConnectionString =
       `mongodb://${this.connection.username}` +
       `:${this.connection.password}` +
       `@${this.connection.host}` +
       `:${this.connection.port}` +
       `/${this.connection.database}`;
 
-    const client = new MongoClient(mongoConnectionString);
+    let options = {};
+
+    if (this.connection.ssl) {
+      mongoConnectionString += `?ssl=true`;
+      options = {
+        ssl: true,
+        sslValidate: this.connection.cert ? true : false,
+        sslCA: this.connection.cert,
+      };
+    }
+
+    const client = new MongoClient(mongoConnectionString, options);
     await client.connect();
     return client.db(this.connection.database);
   }
