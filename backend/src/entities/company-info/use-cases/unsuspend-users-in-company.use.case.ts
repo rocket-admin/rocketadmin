@@ -47,7 +47,7 @@ export class UnsuspendUsersInCompanyUseCase
 
     if (isSaaS()) {
       const canInviteMoreUsers = await this.saasCompanyGatewayService.canInviteMoreUsers(companyInfoId);
-      if (!canInviteMoreUsers) {
+      if (!canInviteMoreUsers && foundCompany.users?.length > 3) {
         throw new HttpException(
           {
             message: Messages.CANT_UNSUSPEND_USERS_FREE_PLAN,
