@@ -95,9 +95,9 @@
             </td>
         </ng-container>
 
-        <!-- Role Column -->
+        <!-- 2fa Column -->
         <ng-container matColumnDef="twoFA">
-            <th mat-header-cell *matHeaderCellDef>2fa status</th>
+            <th mat-header-cell *matHeaderCellDef>2fa</th>
             <td mat-cell *matCellDef="let element">
                 <div *ngIf="!element.invitedUserEmail">
                     <mat-icon *ngIf="element.is_2fa_enabled; else noTwoFA" color="accente">done</mat-icon>
@@ -105,6 +105,19 @@
                         <mat-icon>remove</mat-icon>
                     </ng-template>
                 </div>
+            </td>
+        </ng-container>
+
+        <!-- Active Column -->
+        <ng-container matColumnDef="active">
+            <th mat-header-cell *matHeaderCellDef>Active status</th>
+            <td mat-cell *matCellDef="let element" class="active-status-cell">
+                <mat-slide-toggle [(ngModel)]="!element.suspended"
+                    angulartics2On="click"
+                    angularticsAction="Company: suspend user is toggled"
+                    [angularticsProperties]="{'enable': element.suspended}"
+                    (change)="switchSuspendance($event.checked, element.email)">
+                </mat-slide-toggle>
             </td>
         </ng-container>
 

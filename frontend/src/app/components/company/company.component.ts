@@ -25,7 +25,7 @@ export class CompanyComponent {
   public submitting: boolean;
   public usersCount: number;
   public adminsCount: number;
-  public membersTableDisplayedColumns: string[] = ['email', 'name', 'role', 'twoFA', 'actions'];
+  public membersTableDisplayedColumns: string[] = ['email', 'name', 'role', 'twoFA', 'active', 'actions'];
   // public invitationsTableDisplayColumns: string[] = ['invitedUserEmail', 'role'];
   public submittingChangedName: boolean =false;
   public currentUser;
@@ -48,7 +48,7 @@ export class CompanyComponent {
     });
 
     this._company.cast.subscribe( arg =>  {
-      if (arg === 'invited' || arg === 'revoked') {
+      if (arg === 'invited' || arg === 'revoked' || arg === 'role' || arg === 'suspended' || arg === 'unsuspended') {
         this.submittingUsersChange = true;
         this._company.fetchCompany().subscribe(res => {
           this.company = res;
@@ -149,5 +149,23 @@ export class CompanyComponent {
     this._company.updateCompanyMemberRole(this.company.id, userId, userRole).subscribe(() => {
       this.getCompanyMembers(this.company.id);
     });
+  }
+
+  switchSuspendance(value: boolean, memberEmail: string) {
+    console.log(value, memberEmail);
+    this.submittingUsersChange = true;
+    if (value) {
+      this._company.restoreCompanyMember(this.company.id, [memberEmail]).subscribe(() => {
+        this.angulartics2.eventTrack.next({
+          action: 'Company: member is restored',
+        });
+      });
+    } else {
+      this._company.suspendCompanyMember(this.company.id, [memberEmail]).subscribe(() => {
+        this.angulartics2.eventTrack.next({
+          action: 'Company: member is suspended',
+        });
+      });
+    }
   }
 }
