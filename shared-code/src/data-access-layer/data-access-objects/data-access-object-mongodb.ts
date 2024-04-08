@@ -18,7 +18,15 @@ import { DAO_CONSTANTS } from '../../helpers/data-access-objects-constants.js';
 import { FilterCriteriaEnum } from '../shared/enums/filter-criteria.enum.js';
 import { tableSettingsFieldValidator } from '../../helpers/validation/table-settings-validator.js';
 import { ERROR_MESSAGES } from '../../helpers/errors/error-messages.js';
+import { LRUStorage } from '../../caching/lru-storage.js';
+import getPort from 'get-port';
+import { getTunnel } from '../../helpers/get-ssh-tunnel.js';
 import * as BSON from 'bson';
+
+export type MongoClientDB = {
+  db: Db;
+  dbClient: MongoClient;
+};
 
 export class DataAccessObjectMongo extends BasicDataAccessObject implements IDataAccessObject {
   constructor(connection: ConnectionParams) {
@@ -352,6 +360,19 @@ export class DataAccessObjectMongo extends BasicDataAccessObject implements IDat
   }
 
   private async getConnectionToDatabase(): Promise<Db> {
+    if (this.connection.ssh) {
+      const { db } = await this.createTunneledConnection(this.connection);
+    }
+    const { db } = await this.getUsualConnection();
+    return db;
+  }
+
+  private async getUsualConnection(): Promise<MongoClientDB> {
+    const cachedDatabase = LRUStorage.getMongoDbCache(this.connection);
+    if (cachedDatabase) {
+      return cachedDatabase;
+    }
+
     let mongoConnectionString =
       `mongodb://${this.connection.username}` +
       `:${this.connection.password}` +
@@ -371,8 +392,54 @@ export class DataAccessObjectMongo extends BasicDataAccessObject implements IDat
     }
 
     const client = new MongoClient(mongoConnectionString, options);
-    await client.connect();
-    return client.db(this.connection.database);
+    const connectedClient = await client.connect();
+    const clientDb = { db: connectedClient.db(this.connection.database), dbClient: connectedClient };
+    LRUStorage.setMongoDbCache(this.connection, clientDb);
+    return clientDb;
+  }
+
+  private async createTunneledConnection(connection: ConnectionParams): Promise<MongoClientDB> {
+    const connectionCopy = { ...connection };
+    return new Promise<MongoClientDB>(async (resolve, reject): Promise<MongoClientDB> => {
+      const cachedTnl = LRUStorage.getTunnelCache(connectionCopy);
+      if (cachedTnl && cachedTnl.mongo && cachedTnl.server && cachedTnl.client) {
+        resolve(cachedTnl.db);
+        return;
+      }
+
+      const freePort = await getPort();
+
+      try {
+        const [server, client] = await getTunnel(connectionCopy, freePort);
+        connection.host = '127.0.0.1';
+        connection.port = freePort;
+        const database = await this.getUsualConnection();
+
+        const tnlCachedObj = {
+          server: server,
+          client: client,
+          mongo: database,
+        };
+        LRUStorage.setTunnelCache(connectionCopy, tnlCachedObj);
+        resolve(tnlCachedObj.mongo);
+        client.on('error', (e) => {
+          LRUStorage.delTunnelCache(connectionCopy);
+          reject(e);
+          return;
+        });
+
+        server.on('error', (e) => {
+          LRUStorage.delTunnelCache(connectionCopy);
+          reject(e);
+          return;
+        });
+        return;
+      } catch (error) {
+        LRUStorage.delTunnelCache(connectionCopy);
+        reject(error);
+        return;
+      }
+    });
   }
 
   private async getRowsCount(
