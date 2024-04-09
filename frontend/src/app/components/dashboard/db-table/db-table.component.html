@@ -84,7 +84,9 @@
                     <mat-icon>ios_share</mat-icon>
                     Export
                 </button>
-                <button mat-icon-button type="button" [matMenuTriggerFor]="settingsMenu"
+                <button mat-icon-button type="button"
+                    *ngIf="accessLevel === 'edit'"
+                    [matMenuTriggerFor]="settingsMenu"
                     angulartics2On="click"
                     angularticsAction="Dashboard: settings dropdown is clicked">
                     <mat-icon>settings</mat-icon>
@@ -96,14 +98,14 @@
                         angularticsAction="Dashboard: settings is clicked">
                         Settings
                     </a>
-                    <a mat-menu-item *ngIf="accessLevel === 'edit' && tableData"
+                    <a mat-menu-item *ngIf="tableData"
                         routerLink="/dashboard/{{connectionID}}/{{name}}/widgets"
                         [ngClass]="{'action_active': tableData.widgetsCount}"
                         angulartics2On="click"
                         angularticsAction="Dashboard: widgets is clicked">
                         Widgets
                     </a>
-                    <a mat-menu-item *ngIf="accessLevel === 'edit' && tableData" [ngClass]="{ 'action-button_disabled': !tableData.keyAttributes?.length }"
+                    <a mat-menu-item *ngIf="tableData" [ngClass]="{ 'action-button_disabled': !tableData.keyAttributes?.length }"
                         routerLink="/dashboard/{{connectionID}}/{{name}}/actions"
                         [disabled]="!tableData.keyAttributes?.length"
                         angulartics2On="click"
