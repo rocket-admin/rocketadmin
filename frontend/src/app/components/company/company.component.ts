@@ -25,7 +25,8 @@ export class CompanyComponent {
   public submitting: boolean;
   public usersCount: number;
   public adminsCount: number;
-  public membersTableDisplayedColumns: string[] = ['email', 'name', 'role', 'twoFA', 'active', 'actions'];
+  public suspendedAdminsCount: number;
+  public membersTableDisplayedColumns: string[];
   // public invitationsTableDisplayColumns: string[] = ['invitedUserEmail', 'role'];
   public submittingChangedName: boolean =false;
   public currentUser;
@@ -77,6 +78,12 @@ export class CompanyComponent {
         .subscribe(user => {
           this.currentUser = res.find(member => member.email === user.email);
 
+          if (this.currentUser.role === 'ADMIN') {
+            this.membersTableDisplayedColumns = ['email', 'name', 'role', 'twoFA', 'active', 'actions'];
+          } else {
+            this.membersTableDisplayedColumns = ['email', 'name', 'role', 'twoFA'];
+          }
+
           const currentMembers = orderBy(res, ['role', 'email']);
           if (this.currentUser.role === 'ADMIN') {
             const userIndex = currentMembers.findIndex(user => user.email === this.currentUser.email);
@@ -90,6 +97,7 @@ export class CompanyComponent {
           this.members = [...currentMembers, ...this.company.invitations];
       });
       this.adminsCount = res.filter(user => user.role === 'ADMIN').length;
+      this.suspendedAdminsCount = res.filter(user => user.role === 'ADMIN' && user.suspended).length;
       this.usersCount = this.company.invitations.length + res.length;
       this.submittingUsersChange = false;
     });
