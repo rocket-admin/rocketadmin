@@ -332,21 +332,23 @@ export class DbTableRowEditComponent implements OnInit {
     return updatedRow;
   }
 
-  handleRowSubmitting() {
+  handleRowSubmitting(continueEditing: boolean) {
     if (this.hasKeyAttributesFromURL && this.pageAction !== 'dub') {
-      this.updateRow();
+      this.updateRow(continueEditing);
     } else {
-      this.addRow();
+      this.addRow(continueEditing);
     }
   }
 
-  addRow(continueEditing?: boolean) {
+  addRow(continueEditing: boolean) {
     this.submitting = true;
 
     const formattedUpdatedRow = this.getFormattedUpdatedRow();
 
     this._tableRow.addTableRow(this.connectionID, this.tableName, formattedUpdatedRow)
       .subscribe((res) => {
+
+        console.log('addRow');
 
         this.keyAttributesFromURL = {};
         for (var i = 0; i < res.primaryColumns.length; i++) {
@@ -359,6 +361,11 @@ export class DbTableRowEditComponent implements OnInit {
             this.router.navigate([`/dashboard/${this.connectionID}/${this.tableName}`]);
           }
         });
+
+        this.pageAction = null;
+
+        console.log('this.pageAction');
+        console.log(this.pageAction);
         this._notifications.dismissAlert();
         this.submitting = false;
       },
@@ -367,7 +374,7 @@ export class DbTableRowEditComponent implements OnInit {
     )
   }
 
-  updateRow(continueEditing?: boolean) {
+  updateRow(continueEditing: boolean) {
     this.submitting = true;
 
     const formattedUpdatedRow = this.getFormattedUpdatedRow();
@@ -390,8 +397,8 @@ export class DbTableRowEditComponent implements OnInit {
             this._notifications.dismissAlert();
           } else {
             this._notifications.dismissAlert();
-            this.goBack();
-            // this.router.navigate([`/dashboard/${this.connectionID}/${this.tableName}`]);
+            // this.goBack();
+            this.router.navigate([`/dashboard/${this.connectionID}/${this.tableName}`]);
           }
         });
       },
