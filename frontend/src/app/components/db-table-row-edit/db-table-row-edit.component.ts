@@ -347,9 +347,6 @@ export class DbTableRowEditComponent implements OnInit {
 
     this._tableRow.addTableRow(this.connectionID, this.tableName, formattedUpdatedRow)
       .subscribe((res) => {
-
-        console.log('addRow');
-
         this.keyAttributesFromURL = {};
         for (var i = 0; i < res.primaryColumns.length; i++) {
           this.keyAttributesFromURL[res.primaryColumns[i].column_name] = res.row[res.primaryColumns[i].column_name];
@@ -364,8 +361,6 @@ export class DbTableRowEditComponent implements OnInit {
 
         this.pageAction = null;
 
-        console.log('this.pageAction');
-        console.log(this.pageAction);
         this._notifications.dismissAlert();
         this.submitting = false;
       },

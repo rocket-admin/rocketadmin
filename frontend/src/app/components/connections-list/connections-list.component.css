@@ -9,12 +9,32 @@
     background-position: left 125%, right -26%;
     background-size: 17%, 18%;
     height: 100%;
-    padding: 72px max(calc(50vw - 535px), 10%) 124px;
+    padding: 72px max(calc(50vw - 535px), 10%) 24px;
+}
+
+.pageTitleHeader {
+    position: relative;
+    align-self: center;
+    margin-bottom: 54px;
+
 }
 
 .pageTitle {
     font-weight: 600;
-    margin-bottom: 54px;
+    margin-bottom: 0;
+}
+
+.companyEditLink {
+    position: absolute;
+    top: 50%;
+    right: -48px;
+    transform: translateY(-50%);
+    opacity: 0;
+    transition: opacity 200ms;
+}
+
+.pageTitleHeader:hover .companyEditLink {
+    opacity: 1;
 }
 
 .empty-state {
@@ -23,10 +43,15 @@
     align-items: center;
 }
 
+.empty-state_bottom {
+    margin-top: auto;
+}
+
 .empty-state__text {
     font-size: 12px;
     font-weight: 500;
-    margin-top: 16px;
+    margin-top: 56px;
+    margin-bottom: 0;
     text-align: center;
     text-transform: uppercase;
 
@@ -38,10 +63,8 @@
 }
 
 .addButton {
-    margin-top: 36px;
-    margin-bottom: 32px;
+    margin-top: 12px;
     height: 40px;
-    width: 215px;
 }
 
 .fabAddButton {

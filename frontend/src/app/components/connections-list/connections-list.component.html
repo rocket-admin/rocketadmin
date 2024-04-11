@@ -1,6 +1,14 @@
 <app-alert></app-alert>
 <div class="wrapper">
-    <h1 class="mat-headline-4 pageTitle">Your Admin Panels</h1>
+    <div *ngIf="companyName" class="pageTitleHeader">
+        <h1 class="mat-headline-4 pageTitle">{{companyName}}</h1>
+        <a mat-icon-button
+            routerLink="/company"
+            class="companyEditLink">
+            <mat-icon>edit</mat-icon>
+        </a>
+    </div>
+
 
     <ng-container *ngIf="connections; else loader">
         <div *ngIf="!connections.length && connections !== null" class="empty-state">
@@ -124,7 +132,7 @@
                 </clipPath>
                 </defs>
             </svg>
-            <p class="mat-body-1 empty-state__text">No database connected</p>
+            <p class="mat-body-1 empty-state__text">Create your first connection</p>
         </div>
 
         <ul class="connections">
@@ -185,8 +193,17 @@
             angulartics2On="click"
             angularticsAction="Connections: Add connection button is clicked">
             <mat-icon *ngIf="connections?.length">add</mat-icon>
-            {{ connections.length ? 'Add connection' : 'Connect your database' }}
+            Add database
         </a>
+
+        <div *ngIf="!connections.length && connections !== null" class="empty-state_bottom">
+            <p class="mat-body-1 empty-state__text">
+                Invited to the company?
+            </p>
+            <p class="mat-body-1">
+                Request access to admin panel from your admin.
+            </p>
+        </div>
 
         <mat-divider *ngIf="testConnections && testConnections.length" class="connections-divider"></mat-divider>
 
