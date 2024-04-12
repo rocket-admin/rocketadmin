@@ -28,42 +28,7 @@ export class FindUserUseCase
     const user = await this._dbContext.userRepository.findOneUserById(userData.id);
     if (user) {
       return await this.userHelperService.buildFoundUserDs(user);
-    } else {
-      throw new NotFoundException(Messages.USER_NOT_FOUND);
     }
-
-    // const savedUser = await this._dbContext.userRepository.createUser(userData);
-    // const testConnections = Constants.getTestConnectionsArr();
-    // const testConnectionsEntities = buildConnectionEntitiesFromTestDtos(testConnections);
-    // const createdTestConnections = await Promise.all(
-    //   testConnectionsEntities.map(async (connection): Promise<ConnectionEntity> => {
-    //     connection.author = savedUser;
-    //     return await this._dbContext.connectionRepository.saveNewConnection(connection);
-    //   }),
-    // );
-    // const testGroupsEntities = buildDefaultAdminGroups(savedUser, createdTestConnections);
-    // const createdTestGroups = await Promise.all(
-    //   testGroupsEntities.map(async (group: GroupEntity) => {
-    //     return await this._dbContext.groupRepository.saveNewOrUpdatedGroup(group);
-    //   }),
-    // );
-    // const testPermissionsEntities = buildDefaultAdminPermissions(createdTestGroups);
-    // await Promise.all(
-    //   testPermissionsEntities.map(async (permission: PermissionEntity) => {
-    //     await this._dbContext.permissionRepository.saveNewOrUpdatedPermission(permission);
-    //   }),
-    // );
-    // const testTableSettingsArrays: Array<Array<TableSettingsEntity>> = buildTestTableSettings(createdTestConnections);
-    // await Promise.all(
-    //   testTableSettingsArrays.map(async (array: Array<TableSettingsEntity>) => {
-    //     await Promise.all(
-    //       array.map(async (tableSettings: TableSettingsEntity) => {
-    //         await this._dbContext.tableSettingsRepository.saveNewOrUpdatedSettings(tableSettings);
-    //       }),
-    //     );
-    //   }),
-    // );
-    // await this.amplitudeService.formAndSendLogRecord(AmplitudeEventTypeEnum.userRegistered, savedUser.id);
-    // return await this.userHelperService.buildFoundUserDs(savedUser);
+    throw new NotFoundException(Messages.USER_NOT_FOUND);
   }
 }
