@@ -265,7 +265,7 @@
             </ng-container>
 
             <mat-header-row *matHeaderRowDef="tableData.displayedColumns"></mat-header-row>
-            <mat-row *matRowDef="let row; columns: tableData.displayedColumns;"></mat-row>
+            <mat-row *matRowDef="let row; columns: tableData.displayedColumns;" (click)="viewRow.emit(row)"></mat-row>
         </mat-table>
     </div>
 

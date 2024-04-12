@@ -63,6 +63,8 @@ export class DashboardComponent implements OnInit {
 
   public selection = new SelectionModel<any>(true, []);
 
+  public selectedRow;
+
   constructor(
     private _connections: ConnectionsService,
     private _tables: TablesService,
@@ -325,5 +327,9 @@ export class DashboardComponent implements OnInit {
   toggleSideBar() {
     this.shownTableTitles = !this.shownTableTitles;
     localStorage.setItem(`shownTableTitles__${this.connectionID}`, `${this.shownTableTitles}`);
+  }
+
+  viewRow(row) {
+    this.selectedRow = row;
   }
 }
