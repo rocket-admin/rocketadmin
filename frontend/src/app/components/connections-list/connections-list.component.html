@@ -2,7 +2,7 @@
 <div class="wrapper">
     <div *ngIf="companyName" class="pageTitleHeader">
         <h1 class="mat-headline-4 pageTitle">{{companyName}}</h1>
-        <a mat-icon-button
+        <a mat-icon-button *ngIf="currentUser.role === 'ADMIN'"
             routerLink="/company"
             class="companyEditLink">
             <mat-icon>edit</mat-icon>

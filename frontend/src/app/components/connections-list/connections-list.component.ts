@@ -5,6 +5,7 @@ import { ConnectionsService } from 'src/app/services/connections.service';
 import { MatDialog } from '@angular/material/dialog';
 import { UserService } from 'src/app/services/user.service';
 import { CompanyService } from 'src/app/services/company.service';
+import { User } from 'src/app/models/user';
 
 @Component({
   selector: 'app-connections-list',
@@ -18,6 +19,7 @@ export class ConnectionsListComponent implements OnInit {
   public titles: Object;
   public displayedCardCount: number = 3;
   public companyName: string;
+  public currentUser: User;
 
   constructor(
     private _connectionsServise: ConnectionsService,
@@ -28,6 +30,7 @@ export class ConnectionsListComponent implements OnInit {
 
   ngOnInit(): void {
     this._userService.cast.subscribe(user => {
+      this.currentUser = user;
       user.id && this._companyService.fetchCompanyName(user.company.id)
       .subscribe((res: any) => {
         this.companyName = res.name;
