@@ -30,6 +30,9 @@ export class FoundUserDs {
   @ApiProperty()
   is_2fa_enabled: boolean;
 
+  @ApiProperty()
+  role: UserRoleEnum;
+
   @ApiProperty({ required: false })
   company?: CompanyIdDS;
 }
