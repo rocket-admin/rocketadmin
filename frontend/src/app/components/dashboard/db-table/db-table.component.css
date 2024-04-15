@@ -1,13 +1,3 @@
-/* .db-table-header__columnsCheckbox .mat-checkbox-layout,
-.db-table-header__columnsCheckbox .mat-checkbox-label {
-    width: 100%;
-    background-color: red;
-} */
-
-.db-table-header__columnsCheckbox {
-    margin-left: -12px;
-}
-
 .hidden {
     display: none;
 }
