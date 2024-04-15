@@ -48,7 +48,7 @@ export class TablesService {
     this.router.events
 			.pipe(
 				filter(
-					( event: RouterEvent ) : boolean => {
+					(event) : boolean => {
 						return( event instanceof NavigationEnd );
 					}
 				)
