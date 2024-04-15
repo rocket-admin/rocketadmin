@@ -332,4 +332,8 @@ export class DashboardComponent implements OnInit {
   viewRow(row) {
     this.selectedRow = row;
   }
+
+  closeRowPreview() {
+    this.selectedRow = null;
+  }
 }

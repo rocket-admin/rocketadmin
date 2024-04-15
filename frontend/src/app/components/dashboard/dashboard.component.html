@@ -45,8 +45,8 @@
                 [selectedTable]="selectedTableName">
             </app-db-tables-list>
         </mat-sidenav>
-        <mat-sidenav-content class="table-preview-content">
-            <div>
+        <mat-sidenav-content class="table-preview">
+            <div class="table-preview-content">
                 <app-alert class="server-alert"></app-alert>
                 <div class="alerts">
                     <app-alert *ngIf="dataSource.alert_settingsInfo" [alert]="dataSource.alert_settingsInfo"></app-alert>
@@ -73,9 +73,20 @@
                     (activateActions)="activateActions($event)">
                 </app-db-table>
             </div>
-            <div class="preview-sidebar">
-                preview
-                {{selectedRow | json}}
+            <div class="row-preview-sidebar" [ngClass]="{'row-preview-sidebar_open': selectedRow}">
+                <div class="row-preview-sidebar__header">
+                    <h2 class="mat-heading-2 row-preview-sidebar__title">Preview</h2>
+                    <button mat-icon-button (click)="closeRowPreview()">
+                        <mat-icon>close</mat-icon>
+                    </button>
+                </div>
+
+                <br />
+                <div *ngFor="let field of selectedRow | keyvalue"
+                    class="row-preview-sidebar__field">
+                    <strong>{{field.key}}</strong>
+                    <span>{{field.value}}</span>
+                </div>
             </div>
 
         </mat-sidenav-content>
