@@ -78,7 +78,7 @@ export class AuthService {
   signUpWithGithubRequest() {
     const config = this._configuration.getConfig();
 
-    return this._http.get<any>(config.saasURL + '/saas/user/registration/github/request')
+    return this._http.get<any>(config.saasURL + '/saas/user/github/registration/request')
     .pipe(
       map(res => res),
       catchError((err) => {
@@ -99,7 +99,7 @@ export class AuthService {
   signUpWithGithub(code: string) {
     const config = this._configuration.getConfig();
 
-    return this._http.get<any>(config.saasURL + '/saas/user/registration/github', {
+    return this._http.get<any>(config.saasURL + '/saas/user/github/registration', {
       params: {
         code
       }
