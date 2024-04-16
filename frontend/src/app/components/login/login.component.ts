@@ -37,8 +37,7 @@ export class LoginComponent implements OnInit {
       client_id: "681163285738-e4l0lrv5vv7m616ucrfhnhso9r396lum.apps.googleusercontent.com",
       callback: (authUser) => {
         this.ngZone.run(() => {
-          this._auth.loginWithGoogle(authUser.credential).subscribe((res) => {
-            if (res.isTemporary) this.is2FAShown = true;
+          this._auth.loginWithGoogle(authUser.credential).subscribe(() => {
             this.angulartics2.eventTrack.next({
               action: 'Login: google login success'
             });

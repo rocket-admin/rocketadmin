@@ -41,7 +41,7 @@
         </mat-chip-listbox>
     </div>
     <form #editRowForm="ngForm" class="form"
-        (ngSubmit)="handleRowSubmitting(false)">
+        (ngSubmit)="handleRowSubmitting()">
         <div *ngFor="let value of fieldsOrdered; let index = index">
                 <!-- <mat-form-field class="example-form-field" appearance="outline">
                     <mat-label>test label</mat-label>
@@ -55,7 +55,7 @@
                         label: tableWidgets[value].name || value,
                         value: tableRowValues[value],
                         required: tableRowRequiredValues[value],
-                        readonly: !permissions?.edit && pageAction !== 'dub',
+                        readonly: !permissions?.edit,
                         disabled: isReadonlyField(value),
                         widgetStructure: tableWidgets[value],
                         relations: tableTypes[value] === 'foreign key' ? getRelations(value) : undefined
@@ -80,7 +80,7 @@
                         label: value,
                         value: tableRowValues[value],
                         required: tableRowRequiredValues[value],
-                        readonly: !permissions?.edit && pageAction !== 'dub',
+                        readonly: !permissions?.edit,
                         disabled: isReadonlyField(value),
                         structure: tableRowStructure[value],
                         relations: tableTypes[value] === 'foreign key' ? getRelations(value) : undefined
@@ -103,22 +103,15 @@
                 class="actions__continue"
                 data-testid="record-save-and-continue-editing-button"
                 [disabled]="submitting || editRowForm.form.invalid"
-                (click)="handleRowSubmitting(true)">
+                (click)="hasKeyAttributesFromURL ? updateRow(true) : addRow(true)">
                 Save and continue editing
             </button>
 
-            <button *ngIf="hasKeyAttributesFromURL && permissions?.edit && !pageAction"
+            <button *ngIf="hasKeyAttributesFromURL && permissions?.edit"
                 type="submit" mat-flat-button color="primary"
                 data-testid="record-edit-button"
                 [disabled]="submitting || editRowForm.form.invalid">
                 Edit
-            </button>
-
-            <button *ngIf="hasKeyAttributesFromURL && permissions?.add && pageAction === 'dub'"
-                type="submit" mat-flat-button color="primary"
-                data-testid="record-duplicate-button"
-                [disabled]="submitting || editRowForm.form.invalid">
-                Duplicate
             </button>
 
             <button *ngIf="!hasKeyAttributesFromURL" type="submit" mat-flat-button color="primary"

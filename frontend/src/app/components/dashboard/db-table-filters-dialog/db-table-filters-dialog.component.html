@@ -24,7 +24,7 @@
                 </mat-autocomplete>
             </mat-form-field>
 
-            <ng-container *ngFor="let value of tableRowFieldsShown | keyvalue; trackBy:trackByFn">
+            <ng-container *ngFor="let value of tableRowFieldsShown | keyvalue">
                 <div *ngIf="getComparatorType(getInputType(value.key)) === 'nonComparable'; else comparableFilter" class="filter-line">
 
                     <div *ngIf="isWidget(value.key); else defaultTableField">

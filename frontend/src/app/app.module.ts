@@ -83,7 +83,7 @@ import { MasterPasswordDialogComponent } from './components/master-password-dial
 import { MaterialModule } from './modules/material.module';
 import { NewVersionComponent } from './components/new-version/new-version.component';
 import { NgJsonEditorModule } from 'ang-jsoneditor'
-import { NgmatTableQueryReflectorModule } from './modules/ngmat-table-query-reflector.module';
+import { NgmatTableQueryReflectorModule } from '@nghacks/ngmat-table-query-reflector';
 import { NgxStripeModule } from 'ngx-stripe';
 import { NotificationsService } from './services/notifications.service';
 import { NumberFilterComponent } from './components/ui-components/filter-fields/number/number.component';
@@ -138,7 +138,6 @@ import { UsersComponent } from './components/users/users.component';
 import { UsersService } from './services/users.service';
 import { WidgetDeleteDialogComponent } from './components/dashboard/db-table-widgets/widget-delete-dialog/widget-delete-dialog.component';
 import { environment } from '../environments/environment';
-import { DbTableExportDialogComponent } from './components/dashboard/db-table-export-dialog/db-table-export-dialog.component';
 
 type Palettes = { primaryPalette: string, accentedPalette: string, warnPalette: string };
 type Colors = { myColorName: string };
@@ -277,7 +276,8 @@ const saasExtraProviders = (environment as any).saas ? [
     TextFilterComponent,
     TimeFilterComponent,
     TimeIntervalFilterComponent,
-    DbTableExportDialogComponent,
+  ],
+  entryComponents: [
     DbActionConfirmationDialogComponent,
     BbBulkActionConfirmationDialogComponent,
     DbConnectionDeleteDialogComponent,

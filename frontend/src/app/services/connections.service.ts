@@ -70,7 +70,7 @@ export class ConnectionsService {
     this.router.events
 			.pipe(
 				filter(
-					(event) : boolean => {
+					( event: RouterEvent ) : boolean => {
 						return( event instanceof NavigationEnd );
 					}
 				)

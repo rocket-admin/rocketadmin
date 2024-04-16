@@ -33,9 +33,7 @@
     display: flex;
     flex-direction: column;
     height: 100%;
-    margin: auto;
     padding: 0 48px;
-    width: 496px;
 }
 
 @media screen and (max-width: 600px) {
@@ -87,6 +85,24 @@
     margin-top: 8px;
 }
 
+.soc-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #66BCFF;
+    border: none;
+    border-radius: 4px;
+    color: #fff;
+    line-height: 36px;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.soc-button-icon {
+    height: 16px;
+    margin-right: 12px;
+}
+
 .submit-button {
     margin-top: 64px;
 }
@@ -125,29 +141,4 @@
 
 .link {
     color: var(--color-accentedPalette-500);
-}
-
-.register-form__github-button {
-    background-color: #24292f;
-    margin-top: 20px;
-    padding: 6px;
-    width: 400px;
-}
-
-.register-form__github-button ::ng-deep .mdc-button__label {
-    display: flex;
-    justify-content: space-between;
-    width: 100%;
-}
-
-.register-form__github-caption {
-    flex: 1 0 auto;
-    color: #fff;
-    margin-top: 2px;
-    text-align: center;
-}
-
-.register-form__github-icon {
-    height: 24px;
-    width: 24px;
 }

@@ -301,7 +301,7 @@ export class TablesDataSource implements DataSource<Object> {
 
   getActionsColumnWidth(actions, permissions) {
     // const defaultActionsCount = permissions.edit || permissions.readonly + permissions.delete;
-    const defaultActionsCount = 1 + permissions.delete + permissions.add;
+    const defaultActionsCount = 1 + permissions.delete;
     const lendthValue = (((actions.length + defaultActionsCount) * 36) + 32);
     return `${lendthValue}px`
   }
@@ -315,7 +315,7 @@ export class TablesDataSource implements DataSource<Object> {
     };
   }
 
-  getQueryParams(row, action) {
+  getQueryParams(row) {
     const params = Object.fromEntries(this.keyAttributes.map((column) => {
       if (this.foreignKeysList.includes(column.column_name)) {
         const referencedColumnNameOfForeignKey = this.foreignKeys[column.column_name].referenced_column_name;
@@ -323,11 +323,6 @@ export class TablesDataSource implements DataSource<Object> {
         };
       return [column.column_name, row[column.column_name]];
     }));
-
-    if (action === 'dub') {
-      return { ...params, action: 'dub' };
-    } else {
-      return params;
-    }
+    return params;
   }
 }

@@ -46,7 +46,7 @@
                     Add row
                 </a>
 
-                <button mat-button type="button" [ngClass]="{'action_active': getFiltersCount(activeFilters)}"
+                <button mat-button [ngClass]="{'action_active': getFiltersCount(activeFilters)}"
                     angulartics2On="click"
                     angularticsAction="Dashboard: filters is clicked"
                     (click)="handleOpenFilters()">
@@ -68,6 +68,7 @@
                             *ngFor="let column of tableData.columns"
                             (click)="$event.stopPropagation();">
                             <mat-checkbox
+                                class="db-table-header__columnsCheckbox"
                                 [disabled]="tableData.displayedDataColumns.length === 1 && column.selected"
                                 (change)="tableData.changleColumnList()"
                                 [(ngModel)]="column.selected">
@@ -76,16 +77,7 @@
                         </button>
                     </mat-menu>
                 </div>
-                <button mat-button type="button"
-                    angulartics2On="click"
-                    angularticsAction="Dashboard: export is clicked"
-                    (click)="handleOpenExportDialog()">
-                    <mat-icon>ios_share</mat-icon>
-                    Export
-                </button>
-                <button mat-icon-button type="button"
-                    *ngIf="accessLevel === 'edit'"
-                    [matMenuTriggerFor]="settingsMenu"
+                <button mat-icon-button [matMenuTriggerFor]="settingsMenu"
                     angulartics2On="click"
                     angularticsAction="Dashboard: settings dropdown is clicked">
                     <mat-icon>settings</mat-icon>
@@ -97,14 +89,14 @@
                         angularticsAction="Dashboard: settings is clicked">
                         Settings
                     </a>
-                    <a mat-menu-item *ngIf="tableData"
+                    <a mat-menu-item *ngIf="accessLevel === 'edit' && tableData"
                         routerLink="/dashboard/{{connectionID}}/{{name}}/widgets"
                         [ngClass]="{'action_active': tableData.widgetsCount}"
                         angulartics2On="click"
                         angularticsAction="Dashboard: widgets is clicked">
                         Widgets
                     </a>
-                    <a mat-menu-item *ngIf="tableData" [ngClass]="{ 'action-button_disabled': !tableData.keyAttributes?.length }"
+                    <a mat-menu-item *ngIf="accessLevel === 'edit' && tableData" [ngClass]="{ 'action-button_disabled': !tableData.keyAttributes?.length }"
                         routerLink="/dashboard/{{connectionID}}/{{name}}/actions"
                         [disabled]="!tableData.keyAttributes?.length"
                         angulartics2On="click"
@@ -241,17 +233,6 @@
                             <mat-icon>preview</mat-icon>
                         </a>
                     </ng-template>
-                    <a mat-icon-button *ngIf="tableData.permissions.add"
-                        routerLink="/dashboard/{{connectionID}}/{{name}}/entry"
-                        [queryParams]="tableData.getQueryParams(element, 'dub')"
-                        attr.data-testid="table-edit-record-{{i}}-link"
-                        attr.data-test-primary-key-name="{{tableData.keyAttributes[0]?.column_name}}"
-                        attr.data-test-primary-key-value="{{element[tableData.keyAttributes[0]?.column_name]}}"
-                        angulartics2On="click"
-                        angularticsAction="Dashboard: duplicate row is clicked"
-                        matTooltip="Duplicate row">
-                        <mat-icon>file_copy</mat-icon>
-                    </a>
                     <button type="button" mat-icon-button *ngIf="tableData.permissions.delete"
                         attr.data-testid="table-delete-record-{{i}}-button"
                         angulartics2On="click"

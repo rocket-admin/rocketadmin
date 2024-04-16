@@ -25,8 +25,7 @@ export class CompanyComponent {
   public submitting: boolean;
   public usersCount: number;
   public adminsCount: number;
-  public suspendedAdminsCount: number;
-  public membersTableDisplayedColumns: string[];
+  public membersTableDisplayedColumns: string[] = ['email', 'name', 'role', 'twoFA', 'actions'];
   // public invitationsTableDisplayColumns: string[] = ['invitedUserEmail', 'role'];
   public submittingChangedName: boolean =false;
   public currentUser;
@@ -49,7 +48,7 @@ export class CompanyComponent {
     });
 
     this._company.cast.subscribe( arg =>  {
-      if (arg === 'invited' || arg === 'revoked' || arg === 'role' || arg === 'suspended' || arg === 'unsuspended') {
+      if (arg === 'invited' || arg === 'revoked') {
         this.submittingUsersChange = true;
         this._company.fetchCompany().subscribe(res => {
           this.company = res;
@@ -78,12 +77,6 @@ export class CompanyComponent {
         .subscribe(user => {
           this.currentUser = res.find(member => member.email === user.email);
 
-          if (this.currentUser.role === 'ADMIN') {
-            this.membersTableDisplayedColumns = ['email', 'name', 'role', 'twoFA', 'active', 'actions'];
-          } else {
-            this.membersTableDisplayedColumns = ['email', 'name', 'role', 'twoFA'];
-          }
-
           const currentMembers = orderBy(res, ['role', 'email']);
           if (this.currentUser.role === 'ADMIN') {
             const userIndex = currentMembers.findIndex(user => user.email === this.currentUser.email);
@@ -97,7 +90,6 @@ export class CompanyComponent {
           this.members = [...currentMembers, ...this.company.invitations];
       });
       this.adminsCount = res.filter(user => user.role === 'ADMIN').length;
-      this.suspendedAdminsCount = res.filter(user => user.role === 'ADMIN' && user.suspended).length;
       this.usersCount = this.company.invitations.length + res.length;
       this.submittingUsersChange = false;
     });
@@ -157,23 +149,5 @@ export class CompanyComponent {
     this._company.updateCompanyMemberRole(this.company.id, userId, userRole).subscribe(() => {
       this.getCompanyMembers(this.company.id);
     });
-  }
-
-  switchSuspendance(value: boolean, memberEmail: string) {
-    console.log(value, memberEmail);
-    this.submittingUsersChange = true;
-    if (value) {
-      this._company.restoreCompanyMember(this.company.id, [memberEmail]).subscribe(() => {
-        this.angulartics2.eventTrack.next({
-          action: 'Company: member is restored',
-        });
-      });
-    } else {
-      this._company.suspendCompanyMember(this.company.id, [memberEmail]).subscribe(() => {
-        this.angulartics2.eventTrack.next({
-          action: 'Company: member is suspended',
-        });
-      });
-    }
   }
 }

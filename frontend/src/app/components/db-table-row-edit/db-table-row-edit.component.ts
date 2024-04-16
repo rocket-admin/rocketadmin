@@ -9,7 +9,6 @@ import { ConnectionsService } from 'src/app/services/connections.service';
 import { DBtype } from 'src/app/models/connection';
 import { DbActionConfirmationDialogComponent } from '../dashboard/db-action-confirmation-dialog/db-action-confirmation-dialog.component';
 import { DbActionLinkDialogComponent } from '../dashboard/db-action-link-dialog/db-action-link-dialog.component';
-import JsonURL from "@jsonurl/jsonurl";
 import { Location } from '@angular/common';
 import { MatDialog } from '@angular/material/dialog';
 import { NotificationsService } from 'src/app/services/notifications.service';
@@ -36,7 +35,6 @@ export class DbTableRowEditComponent implements OnInit {
   public tableRowRequiredValues: object;
   public identityColumn: string;
   public readonlyFields: string[];
-  public autoincrementFields: string[];
   public keyAttributesFromURL: object = {};
   public hasKeyAttributesFromURL: boolean;
   public keyAttributesFromStructure: [] = [];
@@ -54,7 +52,6 @@ export class DbTableRowEditComponent implements OnInit {
   public referencedTables: any;
   public referencedTablesURLParams: any;
   public permissions: TablePermissions;
-  public pageAction: string;
 
   public tableForeignKeys: TableForeignKey[];
 
@@ -119,12 +116,7 @@ export class DbTableRowEditComponent implements OnInit {
             this.loading = false;
           })
       } else {
-        const { action, ...primaryKeys } = params;
-        if (action) {
-          this.pageAction = action;
-        };
-
-        this.keyAttributesFromURL = primaryKeys;
+        this.keyAttributesFromURL = params;
         this.hasKeyAttributesFromURL = !!Object.keys(this.keyAttributesFromURL).length;
         this._tableRow.fetchTableRow(this.connectionID, this.tableName, params)
           .subscribe(res => {
@@ -132,8 +124,8 @@ export class DbTableRowEditComponent implements OnInit {
             this.title.setTitle(`${this.dispalyTableName} - Edit record | Rocketadmin`);
             this.permissions = res.table_access_level;
 
-            this.autoincrementFields = res.structure.filter((field: TableField) => field.auto_increment).map((field: TableField) => field.column_name);
-            this.readonlyFields = [...res.readonly_fields, ...this.autoincrementFields];
+            const autoincrementFields = res.structure.filter((field: TableField) => field.auto_increment).map((field: TableField) => field.column_name);
+            this.readonlyFields = [...res.readonly_fields, ...autoincrementFields];
             this.tableForeignKeys = res.foreignKeys;
             // this.shownRows = res.structure.filter((field: TableField) => !field.column_default?.startsWith('nextval'));
             this.tableRowValues = {...res.row};
@@ -142,12 +134,7 @@ export class DbTableRowEditComponent implements OnInit {
               this.fieldsOrdered = [...res.list_fields];
             } else {
               this.fieldsOrdered = Object.keys(this.tableRowValues).map(key => key);
-            };
-
-            if (this.pageAction === 'dub') {
-              this.fieldsOrdered = this.fieldsOrdered.filter(field => !this.autoincrementFields.includes(field));
             }
-
             if (res.table_actions) this.rowActions = res.table_actions;
             res.table_widgets && this.setWidgets(res.table_widgets);
             this.setRowStructure(res.structure);
@@ -156,15 +143,11 @@ export class DbTableRowEditComponent implements OnInit {
             if (res.referenced_table_names_and_columns && res.referenced_table_names_and_columns[0].referenced_by[0] !== null) {
               this.referencedTables = res.referenced_table_names_and_columns[0].referenced_by
                 .map((table: any) => { return {...table, displayTableName: table.display_name || normalizeTableName(table.table_name)}});
-
               this.referencedTablesURLParams = res.referenced_table_names_and_columns[0].referenced_by
-                .map((table: any) => {
-                  const params = {[table.column_name]: {
-                    eq: this.tableRowValues[res.referenced_table_names_and_columns[0].referenced_on_column_name]
-                  }};
-                  return {
-                    filters: JsonURL.stringify(params),
-                    page_index: 0
+                .map((table: any) => { return {
+                  [`f__${table.column_name}__eq`]:
+                  this.tableRowValues[res.referenced_table_names_and_columns[0].referenced_on_column_name],
+                  page_index: 0
                 }});
             }
 
@@ -189,20 +172,6 @@ export class DbTableRowEditComponent implements OnInit {
   }
 
   getCrumbs(name: string) {
-    let pageTitle = '';
-
-    if (this.hasKeyAttributesFromURL && this.pageAction === 'dub') {
-      pageTitle = 'Duplicate row';
-    }
-
-    if (this.hasKeyAttributesFromURL && !this.pageAction) {
-      pageTitle = 'Edit row';
-    }
-
-    if (!this.hasKeyAttributesFromURL) {
-      pageTitle = 'Add row';
-    }
-
     return [
       {
         label: name,
@@ -213,7 +182,7 @@ export class DbTableRowEditComponent implements OnInit {
         link: `/dashboard/${this.connectionID}/${this.tableName}`
       },
       {
-        label: pageTitle,
+        label: this.hasKeyAttributesFromURL ? 'Edit row' : 'Add row',
         link: null
       }
     ]
@@ -310,6 +279,9 @@ export class DbTableRowEditComponent implements OnInit {
     }
     //end crutch
 
+    console.log('updatedRow after');
+    console.log(updatedRow);
+
     //parse json fields
     const jsonFields = Object.entries(this.tableTypes)
       .filter(([key, value]) => value === 'json' || value === 'jsonb')
@@ -323,30 +295,25 @@ export class DbTableRowEditComponent implements OnInit {
       }
     }
 
-    if (this.pageAction === 'dub') {
-      this.autoincrementFields.forEach((field) => {
-        delete updatedRow[field];
-      });
-    }
-
     return updatedRow;
   }
 
-  handleRowSubmitting(continueEditing: boolean) {
-    if (this.hasKeyAttributesFromURL && this.pageAction !== 'dub') {
-      this.updateRow(continueEditing);
+  handleRowSubmitting() {
+    if (this.hasKeyAttributesFromURL) {
+      this.updateRow();
     } else {
-      this.addRow(continueEditing);
+      this.addRow();
     }
   }
 
-  addRow(continueEditing: boolean) {
+  addRow(continueEditing?: boolean) {
     this.submitting = true;
 
     const formattedUpdatedRow = this.getFormattedUpdatedRow();
 
     this._tableRow.addTableRow(this.connectionID, this.tableName, formattedUpdatedRow)
       .subscribe((res) => {
+
         this.keyAttributesFromURL = {};
         for (var i = 0; i < res.primaryColumns.length; i++) {
           this.keyAttributesFromURL[res.primaryColumns[i].column_name] = res.row[res.primaryColumns[i].column_name];
@@ -358,9 +325,6 @@ export class DbTableRowEditComponent implements OnInit {
             this.router.navigate([`/dashboard/${this.connectionID}/${this.tableName}`]);
           }
         });
-
-        this.pageAction = null;
-
         this._notifications.dismissAlert();
         this.submitting = false;
       },
@@ -369,7 +333,7 @@ export class DbTableRowEditComponent implements OnInit {
     )
   }
 
-  updateRow(continueEditing: boolean) {
+  updateRow(continueEditing?: boolean) {
     this.submitting = true;
 
     const formattedUpdatedRow = this.getFormattedUpdatedRow();
@@ -392,8 +356,8 @@ export class DbTableRowEditComponent implements OnInit {
             this._notifications.dismissAlert();
           } else {
             this._notifications.dismissAlert();
-            // this.goBack();
-            this.router.navigate([`/dashboard/${this.connectionID}/${this.tableName}`]);
+            this.goBack();
+            // this.router.navigate([`/dashboard/${this.connectionID}/${this.tableName}`]);
           }
         });
       },

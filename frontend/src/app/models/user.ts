@@ -1,4 +1,3 @@
-import { CompanyMemberRole } from './company';
 import { TablePermissions } from './table';
 
 export interface NewAuthUser {
@@ -53,7 +52,6 @@ export interface User {
     portal_link: string,
     subscriptionLevel: SubscriptionPlans,
     is_2fa_enabled: boolean,
-    role: CompanyMemberRole
 }
 
 export enum AccessLevel {

@@ -119,8 +119,8 @@ export class DbTableFiltersDialogComponent implements OnInit {
     );
   }
 
-  trackByFn(index: number, item: any) {
-    return item.key; // or item.id
+  trackByFn(index: number) {
+    return index; // or item.id
   }
 
   isWidget(columnName: string) {
