@@ -184,8 +184,9 @@ export class GroupController {
       expires: token.exp,
       ...getCookieDomainOptions(),
     });
-    response.cookie(Constants.ROCKETADMIN_AUTHENTICATED_COOKIE, 1, {
+    response.cookie(Constants.ROCKETADMIN_AUTHENTICATED_COOKIE, token.exp.getTime(), {
       httpOnly: false,
+      expires: token.exp,
       ...getCookieDomainOptions(),
     });
     return {
