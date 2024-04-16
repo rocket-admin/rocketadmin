@@ -75,11 +75,11 @@ export class AppComponent {
         this.page = this.router.routerState.snapshot.url;
     })
 
-    const expirationDateFromURL = this.route.snapshot.queryParams.expires;
+    const expirationDateFromURL = new URLSearchParams(location.search).get('expires');
 
     if (expirationDateFromURL) {
-      const expirationDateString = new Date(expirationDateFromURL).toString();
-      localStorage.setItem('token_expiration', expirationDateString);
+      const expirationDateString = new Date(parseInt(expirationDateFromURL));
+      localStorage.setItem('token_expiration', expirationDateString.toString());
     };
 
     this.navigationTabs = {
