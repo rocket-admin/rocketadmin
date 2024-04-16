@@ -75,6 +75,40 @@ export class AuthService {
     );
   }
 
+  signUpWithGithubRequest() {
+    const config = this._configuration.getConfig();
+
+    location.assign(config.saasURL + '/saas/user/github/registration/request');
+  }
+
+  // signUpWithGithub(code: string) {
+  //   const config = this._configuration.getConfig();
+
+  //   return this._http.get<any>(config.saasURL + '/saas/user/github/registration', {
+  //     params: {
+  //       code
+  //     }
+  //   })
+  //   .pipe(
+  //     map(res => {
+  //       this.auth.next(res);
+  //       return res;
+  //     }),
+  //     catchError((err) => {
+  //       console.log(err);
+  //       Sentry.captureException(err);
+  //       this._notifications.showAlert(AlertType.Error, {abstract: err.error.message, details: err.error.originalMessage}, [
+  //         {
+  //           type: AlertActionType.Button,
+  //           caption: 'Dismiss',
+  //           action: (id: number) => this._notifications.dismissAlert()
+  //         }
+  //       ]);
+  //       return EMPTY;
+  //     })
+  //   );
+  // }
+
   loginUser(userData: ExistingAuthUser) {
     return this._http.post<any>('/user/login', userData)
     .pipe(

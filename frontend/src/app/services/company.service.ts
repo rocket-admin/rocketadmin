@@ -141,6 +141,51 @@ export class CompanyService {
       .pipe(
         map(res => {
           this._notifications.showSuccessSnackbar(`Company member role has been updated.`);
+          this.company.next('role');
+          return res
+        }),
+        catchError((err) => {
+          console.log(err);
+          this._notifications.showAlert(AlertType.Error, {abstract: err.error.message, details: err.error.originalMessage}, [
+            {
+              type: AlertActionType.Button,
+              caption: 'Dismiss',
+              action: (id: number) => this._notifications.dismissAlert()
+            }
+          ]);
+          return EMPTY;
+        })
+      );
+  }
+
+  suspendCompanyMember(companyId: string, usersEmails: string[]) {
+    return this._http.put<any>(`/company/users/suspend/${companyId}`, { usersEmails })
+      .pipe(
+        map(res => {
+          this._notifications.showSuccessSnackbar(`Company member has been suspended.`);
+          this.company.next('suspended');
+          return res
+        }),
+        catchError((err) => {
+          console.log(err);
+          this._notifications.showAlert(AlertType.Error, {abstract: err.error.message, details: err.error.originalMessage}, [
+            {
+              type: AlertActionType.Button,
+              caption: 'Dismiss',
+              action: (id: number) => this._notifications.dismissAlert()
+            }
+          ]);
+          return EMPTY;
+        })
+      );
+  }
+
+  restoreCompanyMember(companyId: string, usersEmails: string[]) {
+    return this._http.put<any>(`/company/users/unsuspend/${companyId}`, { usersEmails })
+      .pipe(
+        map(res => {
+          this._notifications.showSuccessSnackbar(`Company member has been restored.`);
+          this.company.next('unsuspended');
           return res
         }),
         catchError((err) => {

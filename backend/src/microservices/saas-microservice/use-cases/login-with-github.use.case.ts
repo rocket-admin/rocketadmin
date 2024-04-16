@@ -18,7 +18,6 @@ import { buildTestTableSettings } from '../../../entities/user/utils/build-test-
 import { Constants } from '../../../helpers/constants/constants.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { ExternalRegistrationProviderEnum } from '../../../entities/user/enums/external-registration-provider.enum.js';
-import { UserRoleEnum } from '../../../entities/user/enums/user-role.enum.js';
 
 @Injectable()
 export class LoginUserWithGithubUseCase
@@ -51,7 +50,6 @@ export class LoginUserWithGithubUseCase
       password: null,
       isActive: true,
       name: name ? name : null,
-      role: UserRoleEnum.ADMIN,
     };
 
     try {
