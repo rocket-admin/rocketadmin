@@ -75,6 +75,13 @@ export class AppComponent {
         this.page = this.router.routerState.snapshot.url;
     })
 
+    const expirationDateFromURL = this.route.snapshot.queryParams.expires;
+
+    if (expirationDateFromURL) {
+      const expirationDateString = new Date(expirationDateFromURL).toString();
+      localStorage.setItem('token_expiration', expirationDateString);
+    };
+
     this.navigationTabs = {
       'dashboard': {
         icon: 'dashboard',

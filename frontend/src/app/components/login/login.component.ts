@@ -93,6 +93,13 @@ export class LoginComponent implements OnInit {
       }, () => this.submitting = false)
   }
 
+  loginWithGithub() {
+    this._auth.loginWithGithub();
+    this.angulartics2.eventTrack.next({
+      action: 'Login: github login redirect'
+    });
+  }
+
   loginWith2FA() {
     this.submitting = true;
     this._auth.loginWith2FA(this.authCode)

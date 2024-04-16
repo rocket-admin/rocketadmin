@@ -77,7 +77,7 @@ export class RegistrationComponent implements OnInit {
   }
 
   registerWithGithub() {
-    this._auth.signUpWithGithubRequest();
+    this._auth.signUpWithGithub();
     this.angulartics2.eventTrack.next({
       action: 'Reg: github register redirect'
     });
