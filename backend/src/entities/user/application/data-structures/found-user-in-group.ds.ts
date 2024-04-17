@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { ExternalRegistrationProviderEnum } from '../../enums/external-registration-provider.enum.js';
 
 export class FoundUserInGroupDs {
   @ApiProperty()
@@ -18,4 +19,7 @@ export class FoundUserInGroupDs {
 
   @ApiProperty()
   suspended: boolean;
+
+  @ApiProperty()
+  externalRegistrationProvider: ExternalRegistrationProviderEnum;
 }

@@ -127,7 +127,7 @@ test(`${currentTest} should return full found company info for company admin use
     t.is(foundCompanyInfoRO.connections[0].groups[0].hasOwnProperty('isMain'), true);
     t.is(foundCompanyInfoRO.connections[0].groups[0].hasOwnProperty('users'), true);
     t.is(foundCompanyInfoRO.connections[0].groups[0].users.length > 0, true);
-    t.is(Object.keys(foundCompanyInfoRO.connections[0].groups[0].users[0]).length, 8);
+    t.is(Object.keys(foundCompanyInfoRO.connections[0].groups[0].users[0]).length, 9);
     t.is(foundCompanyInfoRO.connections[0].groups[0].users[0].hasOwnProperty('id'), true);
     t.is(foundCompanyInfoRO.connections[0].groups[0].users[0].hasOwnProperty('email'), true);
     t.is(foundCompanyInfoRO.connections[0].groups[0].users[0].hasOwnProperty('role'), true);

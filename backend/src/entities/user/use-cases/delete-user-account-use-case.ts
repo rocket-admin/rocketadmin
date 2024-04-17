@@ -39,6 +39,7 @@ export class DeleteUserAccountUseCase
       id: foundUser.id,
       email: foundUser.email,
       name: foundUser.name,
+      externalRegistrationProvider: foundUser.externalRegistrationProvider,
     };
   }
 }

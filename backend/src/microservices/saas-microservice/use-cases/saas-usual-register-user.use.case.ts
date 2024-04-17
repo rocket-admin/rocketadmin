@@ -105,6 +105,7 @@ export class SaasUsualRegisterUseCase
       role: savedUser.role,
       is_2fa_enabled: false,
       suspended: false,
+      externalRegistrationProvider: savedUser.externalRegistrationProvider,
     };
   }
 
