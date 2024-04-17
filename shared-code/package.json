@@ -4,22 +4,22 @@
   "description": "shared code for rocketadmin backend and client applications (agent version, cli version)",
   "type": "module",
   "dependencies": {
-    "axios": "^1.6.7",
-    "get-port": "^7.0.0",
+    "axios": "^1.6.8",
+    "get-port": "^7.1.0",
     "jsonwebtoken": "^9.0.2",
     "knex": "^3.1.0",
     "lru-cache": "^10.2.0",
-    "mysql2": "^3.9.1",
-    "oracledb": "^6.3.0",
-    "pg": "^8.11.3",
-    "pg-query-stream": "^4.5.3",
+    "mysql2": "^3.9.4",
+    "oracledb": "^6.4.0",
+    "pg": "^8.11.5",
+    "pg-query-stream": "^4.5.5",
     "ssh2": "^1.15.0",
-    "tedious": "^16.7.0",
+    "tedious": "^18.1.0",
     "tunnel-ssh": "5.1.2"
   },
   "devDependencies": {
-    "@types/oracledb": "^6.2.0",
+    "@types/oracledb": "^6.4.0",
     "prettier": "3.2.5",
-    "typescript": "^5.3.3"
+    "typescript": "^5.4.5"
   }
 }
