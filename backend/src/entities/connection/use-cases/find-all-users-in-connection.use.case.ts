@@ -29,6 +29,7 @@ export class FindAllUsersInConnectionUseCase
         suspended: user.suspended,
         role: user.role,
         is_2fa_enabled: user.otpSecretKey !== null && user.isOTPEnabled,
+        externalRegistrationProvider: user.externalRegistrationProvider,
       };
     });
   }

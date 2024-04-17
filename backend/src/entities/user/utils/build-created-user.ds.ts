@@ -24,5 +24,6 @@ export function buildSimpleUserInfoDs(user: UserEntity): SimpleFoundUserInfoDs {
     name: user.name,
     is_2fa_enabled: user.isOTPEnabled,
     role: user.role,
+    externalRegistrationProvider: user.externalRegistrationProvider,
   };
 }

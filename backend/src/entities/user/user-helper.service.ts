@@ -29,6 +29,7 @@ export class UserHelperService implements OnModuleInit {
       isActive: user.isActive,
       name: user.name,
       suspended: user.suspended,
+      externalRegistrationProvider: user.externalRegistrationProvider,
     };
   }
 
@@ -45,6 +46,7 @@ export class UserHelperService implements OnModuleInit {
       role: user.role,
       is_2fa_enabled: user.otpSecretKey !== null && user.isOTPEnabled,
       company: user.company ? { id: user.company.id } : null,
+      externalRegistrationProvider: user.externalRegistrationProvider,
     };
   }
 
