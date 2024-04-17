@@ -83,7 +83,7 @@ import { MasterPasswordDialogComponent } from './components/master-password-dial
 import { MaterialModule } from './modules/material.module';
 import { NewVersionComponent } from './components/new-version/new-version.component';
 import { NgJsonEditorModule } from 'ang-jsoneditor'
-import { NgmatTableQueryReflectorModule } from '@nghacks/ngmat-table-query-reflector';
+import { NgmatTableQueryReflectorModule } from './modules/ngmat-table-query-reflector.module';
 import { NgxStripeModule } from 'ngx-stripe';
 import { NotificationsService } from './services/notifications.service';
 import { NumberFilterComponent } from './components/ui-components/filter-fields/number/number.component';
@@ -278,8 +278,6 @@ const saasExtraProviders = (environment as any).saas ? [
     TimeFilterComponent,
     TimeIntervalFilterComponent,
     DbTableExportDialogComponent,
-  ],
-  entryComponents: [
     DbActionConfirmationDialogComponent,
     BbBulkActionConfirmationDialogComponent,
     DbConnectionDeleteDialogComponent,

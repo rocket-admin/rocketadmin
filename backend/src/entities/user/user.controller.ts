@@ -152,8 +152,9 @@ export class UserController {
       expires: tokenInfo.exp,
       ...getCookieDomainOptions(),
     });
-    response.cookie(Constants.ROCKETADMIN_AUTHENTICATED_COOKIE, 1, {
+    response.cookie(Constants.ROCKETADMIN_AUTHENTICATED_COOKIE, tokenInfo.exp.getTime(), {
       httpOnly: false,
+      expires: tokenInfo.exp,
       ...getCookieDomainOptions(),
     });
     return { expires: tokenInfo.exp, isTemporary: tokenInfo.isTemporary };
@@ -176,6 +177,7 @@ export class UserController {
       );
     }
     response.cookie(Constants.JWT_COOKIE_KEY_NAME, '', {
+      expires: new Date(0),
       ...getCookieDomainOptions(),
     });
     response.cookie(Constants.ROCKETADMIN_AUTHENTICATED_COOKIE, 1, {
@@ -211,8 +213,9 @@ export class UserController {
       expires: tokenInfo.exp,
       ...getCookieDomainOptions(),
     });
-    response.cookie(Constants.ROCKETADMIN_AUTHENTICATED_COOKIE, 1, {
+    response.cookie(Constants.ROCKETADMIN_AUTHENTICATED_COOKIE, tokenInfo.exp.getTime(), {
       httpOnly: false,
+      expires: tokenInfo.exp,
       ...getCookieDomainOptions(),
     });
     return { expires: tokenInfo.exp, isTemporary: tokenInfo.isTemporary };
@@ -345,6 +348,7 @@ export class UserController {
 
     response.cookie(Constants.JWT_COOKIE_KEY_NAME, '', {
       ...getCookieDomainOptions(),
+      expires: new Date(0),
     });
     response.cookie(Constants.ROCKETADMIN_AUTHENTICATED_COOKIE, 1, {
       expires: new Date(0),
@@ -414,8 +418,9 @@ export class UserController {
       expires: tokenInfo.exp,
       ...getCookieDomainOptions(),
     });
-    response.cookie(Constants.ROCKETADMIN_AUTHENTICATED_COOKIE, 1, {
+    response.cookie(Constants.ROCKETADMIN_AUTHENTICATED_COOKIE, tokenInfo.exp.getTime(), {
       httpOnly: false,
+      expires: tokenInfo.exp,
       ...getCookieDomainOptions(),
     });
     return {

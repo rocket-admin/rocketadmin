@@ -70,6 +70,7 @@ export class SaasRegisterInvitedUserUseCase
       email: savedUser.email,
       intercom_hash: null,
       name: savedUser.name,
+      role: savedUser.role,
       is_2fa_enabled: false,
       suspended: false,
     };

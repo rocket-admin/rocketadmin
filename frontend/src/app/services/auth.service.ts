@@ -75,53 +75,10 @@ export class AuthService {
     );
   }
 
-  signUpWithGithubRequest() {
+  signUpWithGithub() {
     const config = this._configuration.getConfig();
 
-    return this._http.get<any>(config.saasURL + '/saas/user/registration/github/request')
-    .pipe(
-      map(res => res),
-      catchError((err) => {
-        console.log(err);
-        Sentry.captureException(err);
-        this._notifications.showAlert(AlertType.Error, {abstract: err.error.message, details: err.error.originalMessage}, [
-          {
-            type: AlertActionType.Button,
-            caption: 'Dismiss',
-            action: (id: number) => this._notifications.dismissAlert()
-          }
-        ]);
-        return EMPTY;
-      })
-    );
-  }
-
-  signUpWithGithub(code: string) {
-    const config = this._configuration.getConfig();
-
-    return this._http.get<any>(config.saasURL + '/saas/user/registration/github', {
-      params: {
-        code
-      }
-    })
-    .pipe(
-      map(res => {
-        this.auth.next(res);
-        return res;
-      }),
-      catchError((err) => {
-        console.log(err);
-        Sentry.captureException(err);
-        this._notifications.showAlert(AlertType.Error, {abstract: err.error.message, details: err.error.originalMessage}, [
-          {
-            type: AlertActionType.Button,
-            caption: 'Dismiss',
-            action: (id: number) => this._notifications.dismissAlert()
-          }
-        ]);
-        return EMPTY;
-      })
-    );
+    location.assign(config.saasURL + '/saas/user/github/registration/request');
   }
 
   loginUser(userData: ExistingAuthUser) {
@@ -188,6 +145,12 @@ export class AuthService {
         return EMPTY;
       })
     );
+  }
+
+  loginWithGithub() {
+    const config = this._configuration.getConfig();
+
+    location.assign(config.saasURL + '/saas/user/github/login/request');
   }
 
   requestEmailVerifications() {
