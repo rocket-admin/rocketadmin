@@ -21,7 +21,8 @@ export class UserService {
     portal_link: '',
     subscriptionLevel: SubscriptionPlans.free,
     is_2fa_enabled: false,
-    role: CompanyMemberRole.Member
+    role: CompanyMemberRole.Member,
+    externalRegistrationProvider: null,
   }
 
   private user = new BehaviorSubject<any>(this.initialUserState);
