@@ -7,7 +7,7 @@
     </h1>
 
     <div class="user-settings mat-body-1">
-        <form class="user-settings__section-heading" (ngSubmit)="changeUserName()">
+        <form class="user-settings__name-form" (ngSubmit)="changeUserName()">
             <mat-form-field appearance="outline" class="user-settings__name">
                 <mat-label>Name</mat-label>
                 <input matInput name="user-name" #nameField="ngModel"
