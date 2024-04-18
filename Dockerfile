@@ -20,7 +20,6 @@ WORKDIR /app
 COPY package.json .yarnrc.yml yarn.lock /app/
 COPY backend /app/backend
 COPY shared-code /app/shared-code
-COPY rocketadmin-cli /app/rocketadmin-cli
 COPY rocketadmin-agent /app/rocketadmin-agent
 COPY .yarn /app/.yarn
 RUN yarn install --network-timeout 1000000 --frozen-lockfile --silent
