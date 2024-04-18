@@ -304,7 +304,10 @@ export class DbTableRowEditComponent implements OnInit {
       .map(jsonField => jsonField[0]);
     if (jsonFields.length) {
       for (const jsonField of jsonFields) {
-        if (updatedRow[jsonField] !== null || updatedRow[jsonField] !== undefined) {
+        if (updatedRow[jsonField] !== null && updatedRow[jsonField] !== undefined) {
+          console.log('updatedRow[jsonField]');
+          console.log(updatedRow[jsonField]);
+
           const updatedFiled = JSON.parse(updatedRow[jsonField].toString());
           updatedRow[jsonField] = updatedFiled;
         }
