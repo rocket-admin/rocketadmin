@@ -216,7 +216,7 @@ export class TablesDataSource implements DataSource<Object> {
             .reduce((normalizedColumns, column) => (normalizedColumns[column.title] = column.normalizedTitle, normalizedColumns), {})
           this.displayedDataColumns = (filter(this.columns, column => column.selected === true)).map(column => column.title);
           this.permissions = res.table_permissions.accessLevel;
-          if (this.keyAttributes.length) {
+          if (this.keyAttributes.length && this.permissions.edit || this.permissions.delete) {
             this.actionsColumnWidth = this.getActionsColumnWidth(this.tableActions, this.permissions);
             this.displayedColumns = ['select', ...this.displayedDataColumns, 'actions'];
           } else {
@@ -300,8 +300,7 @@ export class TablesDataSource implements DataSource<Object> {
   }
 
   getActionsColumnWidth(actions, permissions) {
-    // const defaultActionsCount = permissions.edit || permissions.readonly + permissions.delete;
-    const defaultActionsCount = 1 + permissions.delete + permissions.add;
+    const defaultActionsCount = permissions.edit + permissions.add + permissions.delete;
     const lendthValue = (((actions.length + defaultActionsCount) * 36) + 32);
     return `${lendthValue}px`
   }

@@ -93,11 +93,10 @@
         </div>
 
         <div class="actions">
-            <button mat-stroked-button type="button"
-                data-testid="record-back-to-table-button"
-                (click)="goBack()">
+            <a mat-stroked-button type="button" routerLink="/dashboard/{{connectionID}}/{{tableName}}"
+                data-testid="record-back-to-table-button">
                 Back
-            </button>
+            </a>
             <button type="button" mat-button color="primary"
                 *ngIf="(keyAttributesFromStructure.length || hasKeyAttributesFromURL) && permissions.edit"
                 class="actions__continue"

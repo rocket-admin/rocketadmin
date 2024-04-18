@@ -219,15 +219,6 @@ export class DbTableRowEditComponent implements OnInit {
     ]
   }
 
-  goBack() {
-    console.log(this._location);
-    if (window.history.length > 1) {
-      this._location.back()
-    } else {
-      this.router.navigate([`/dashboard/${this.connectionID}/${this.tableName}`])
-    }
-  }
-
   setRowStructure(structure: TableField[]) {
     this.tableRowStructure = Object.assign({}, ...structure.map((field: TableField) => {
       return {[field.column_name]: field}
@@ -286,9 +277,6 @@ export class DbTableRowEditComponent implements OnInit {
     if (this.keyAttributesFromURL && Object.keys(this.keyAttributesFromURL).includes(field)) {
       this.isPrimaryKeyUpdated = true
     };
-
-    console.log('updateField');
-    console.log(this.tableRowValues);
   }
 
   getFormattedUpdatedRow = () => {
@@ -392,7 +380,6 @@ export class DbTableRowEditComponent implements OnInit {
             this._notifications.dismissAlert();
           } else {
             this._notifications.dismissAlert();
-            // this.goBack();
             this.router.navigate([`/dashboard/${this.connectionID}/${this.tableName}`]);
           }
         });
