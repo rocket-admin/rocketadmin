@@ -44,6 +44,11 @@ export enum SubscriptionPlans {
     enterpriseAnnual = 'ANNUAL_ENTERPRISE_PLAN',
 }
 
+export enum RegistrationProvider {
+    Google = 'GOOGLE',
+    Github = 'GITHUB'
+}
+
 export interface User {
     id: string,
     isActive: boolean,
@@ -53,7 +58,8 @@ export interface User {
     portal_link: string,
     subscriptionLevel: SubscriptionPlans,
     is_2fa_enabled: boolean,
-    role: CompanyMemberRole
+    role: CompanyMemberRole,
+    externalRegistrationProvider: RegistrationProvider | null,
 }
 
 export enum AccessLevel {

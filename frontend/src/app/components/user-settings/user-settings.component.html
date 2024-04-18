@@ -27,17 +27,22 @@
             <strong>Email:</strong>
             <span class="mat-body-1 user-settings__value">{{currentUser.email}}</span>
         </div>
-        <button mat-stroked-button color="primary" data-testid="user-settings__button"
-                class="user-settings__button"
-                [disabled]="!currentUser.isActive"
-                (click)="changeEmail()">
-                Change email
+        <button mat-stroked-button *ngIf="currentUser.externalRegistrationProvider === null"
+            data-testid="user-settings__button"
+            color="primary"
+            class="user-settings__button"
+            [disabled]="!currentUser.isActive"
+            (click)="changeEmail()">
+            Change email
         </button>
 
-        <div class="user-settings__section-heading">
+        <div class="user-settings__section-heading" *ngIf="currentUser.externalRegistrationProvider === null">
             <strong>Password:</strong>
         </div>
-        <a mat-stroked-button routerLink="/change-password" color="primary" data-testid="change-user-password-link"
+        <a mat-stroked-button *ngIf="currentUser.externalRegistrationProvider === null"
+            data-testid="change-user-password-link"
+            routerLink="/change-password"
+            color="primary"
             angulartics2On="click"
             angularticsAction="User settings: change password is clicked"
             [disabled]="!currentUser.isActive"
