@@ -14,7 +14,7 @@ export class CompanyInfoEntity {
   })
   users: Relation<UserEntity>[];
 
-  @Column({ type: 'varchar', length: 255, unique: true, nullable: true })
+  @Column({ type: 'varchar', length: 255, unique: false, nullable: true })
   name: string;
 
   @Column({ type: 'boolean', default: false })
