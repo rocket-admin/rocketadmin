@@ -1,0 +1,33 @@
+<div class="row-preview-sidebar" [ngClass]="{'row-preview-sidebar_open': selectedRow}">
+    <div class="row-preview-sidebar__header">
+        <h2 class="mat-heading-2 row-preview-sidebar__title">Preview</h2>
+        <div class="row-preview-sidebar__actions">
+            <button mat-icon-button
+                matTooltip="Copy link to this record"
+                [cdkCopyToClipboard]="getDedicatedPageLink()"
+                (cdkCopyToClipboardCopied)="showCopyNotification('Link to this record was copied to clipboard.')">
+                <mat-icon>link</mat-icon>
+            </button>
+            <a mat-icon-button
+                [routerLink]="selectedRow.link"
+                [queryParams]="selectedRow.queryParams"
+                matTooltip="Open the record">
+                <mat-icon>open_in_new</mat-icon>
+            </a>
+        </div>
+        <button mat-icon-button (click)="close.emit()">
+            <mat-icon>close</mat-icon>
+        </button>
+    </div>
+
+    <br />
+    <div *ngFor="let column of columns" class="row-preview-sidebar__field">
+        <strong>{{column.normalizedTitle}}</strong>
+        <span *ngIf="isForeignKey(column.title); else stringValue">
+            {{getForeignKeyValue(column.title)}}
+        </span>
+        <ng-template #stringValue>
+            <span>{{selectedRow.row[column.title] || '—'}}</span>
+        </ng-template>
+    </div>
+</div>

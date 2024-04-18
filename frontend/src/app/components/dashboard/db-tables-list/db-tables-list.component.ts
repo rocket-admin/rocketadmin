@@ -14,6 +14,8 @@ export class DbTablesListComponent {
   @Input() selectedTable: string;
   @Input() collapsed: boolean;
 
+  @Output() closeRowPreview = new EventEmitter<string>();
+
   public searchString: string;
   public foundTables: TableProperties[];
   constructor() { }

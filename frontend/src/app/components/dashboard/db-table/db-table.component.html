@@ -144,7 +144,7 @@
     <app-placeholder-table-data></app-placeholder-table-data>
 </div>
 
-<div [ngClass]="{hidden: !tableData || tableData.loading$ | async}" class="mat-elevation-z4">
+<div [ngClass]="{hidden: !tableData || tableData.loading$ | async}" class="mat-elevation-z4 table-surface">
     <div class="table-box">
         <mat-table matSort [dataSource]="tableData" NgMatTableQueryReflector
             class="db-table"
@@ -217,7 +217,7 @@
                             </mat-icon>
                         </button>
                     </ng-container>
-                    <a mat-icon-button *ngIf="tableData.permissions.edit; else viewButton"
+                    <a mat-icon-button *ngIf="tableData.permissions.edit"
                         routerLink="/dashboard/{{connectionID}}/{{name}}/entry"
                         [queryParams]="tableData.getQueryParams(element)"
                         attr.data-testid="table-edit-record-{{i}}-link"
@@ -226,21 +226,8 @@
                         angulartics2On="click"
                         angularticsAction="Dashboard: edit row is clicked"
                         matTooltip="Edit row">
-                        <mat-icon>create</mat-icon>
+                        <mat-icon fontSet="material-icons-outlined">create</mat-icon>
                     </a>
-                    <ng-template #viewButton>
-                        <a mat-icon-button
-                            routerLink="/dashboard/{{connectionID}}/{{name}}/entry"
-                            [queryParams]="tableData.getQueryParams(element)"
-                            attr.data-testid="table-view-record-{{i}}-link"
-                            attr.data-test-primary-key-name="{{tableData.keyAttributes[0]?.column_name}}"
-                            attr.data-test-primary-key-value="{{element[tableData.keyAttributes[0]?.column_name]}}"
-                            angulartics2On="click"
-                            angularticsAction="Dashboard: view row is clicked"
-                            matTooltip="View row">
-                            <mat-icon>preview</mat-icon>
-                        </a>
-                    </ng-template>
                     <a mat-icon-button *ngIf="tableData.permissions.add"
                         routerLink="/dashboard/{{connectionID}}/{{name}}/entry"
                         [queryParams]="tableData.getQueryParams(element, 'dub')"
@@ -250,7 +237,7 @@
                         angulartics2On="click"
                         angularticsAction="Dashboard: duplicate row is clicked"
                         matTooltip="Duplicate row">
-                        <mat-icon>file_copy</mat-icon>
+                        <mat-icon fontSet="material-icons-outlined">difference</mat-icon>
                     </a>
                     <button type="button" mat-icon-button *ngIf="tableData.permissions.delete"
                         attr.data-testid="table-delete-record-{{i}}-button"
@@ -258,13 +245,13 @@
                         angularticsAction="Dashboard: delete row is clicked"
                         matTooltip="Delete row"
                         (click)="activateAction.emit({action: {title: 'Delete row', type: 'multiple',  requireConfirmation: true}, primaryKeys: tableData.getQueryParams(element), identityFieldValue: element[tableData.identityColumn]})">
-                        <mat-icon>delete</mat-icon>
+                        <mat-icon fontSet="material-icons-outlined">delete</mat-icon>
                     </button>
                 </mat-cell>
             </ng-container>
 
             <mat-header-row *matHeaderRowDef="tableData.displayedColumns"></mat-header-row>
-            <mat-row *matRowDef="let row; columns: tableData.displayedColumns;" (click)="viewRow.emit(row)"></mat-row>
+            <mat-row *matRowDef="let row; columns: tableData.displayedColumns;" (click)="viewRow.emit({row, queryParams: tableData.getQueryParams(row)})"></mat-row>
         </mat-table>
     </div>
 

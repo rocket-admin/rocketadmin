@@ -19,13 +19,14 @@
         <mat-nav-list data-testid="tables-list">
             <a mat-list-item *ngFor="let tableItem of foundTables" attr.data-testid="table-{{tableItem.table}}-list-item"
                 routerLink="/dashboard/{{connectionID}}/{{tableItem.table}}"
+                [queryParams]="{page_index: 0, page_size: 30}"
+                [ngClass]="{'list-item_active': selectedTable === tableItem.table}"
                 [matTooltip]="getTableName(tableItem)"
                 [matTooltipDisabled]="getTableNameLength(getTableName(tableItem)) < 30 || collapsed"
                 matTooltipPosition="right"
-                [queryParams]="{page_index: 0, page_size: 30}"
                 routerLinkActive="list-item_active"
                 class="table-list-item"
-                [ngClass]="{'list-item_active': selectedTable === tableItem.table}">
+                (click)="closeRowPreview.emit()">
                 <div *ngIf="collapsed; else fullTableName"
                     class="table-list-initials"
                     [matTooltip]="getTableName(tableItem)">

@@ -125,6 +125,10 @@
     }
 }
 
+.table-surface {
+    margin-bottom: 24px;
+}
+
 .table-box {
     overflow-x: auto;
     width: 100%;
@@ -146,6 +150,10 @@
 /* .db-table ::ng-deep .mat-mdc-row:nth-child(even) {
     background-color: rgba(0, 0, 0, 0.02);
 } */
+
+.db-table ::ng-deep .mat-mdc-row {
+    cursor: pointer;
+}
 
 .db-table ::ng-deep .mat-mdc-row:hover {
     background-color: var(--color-primaryPalette-50);

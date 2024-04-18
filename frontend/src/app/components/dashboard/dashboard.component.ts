@@ -63,7 +63,7 @@ export class DashboardComponent implements OnInit {
 
   public selection = new SelectionModel<any>(true, []);
 
-  public selectedRow;
+  public selectedRow = null;
 
   constructor(
     private _connections: ConnectionsService,
@@ -329,8 +329,8 @@ export class DashboardComponent implements OnInit {
     localStorage.setItem(`shownTableTitles__${this.connectionID}`, `${this.shownTableTitles}`);
   }
 
-  viewRow(row) {
-    this.selectedRow = row;
+  viewRow(row: {row: object, queryParams: object}) {
+    this.selectedRow = {...row, link: `/dashboard/${this.connectionID}/${this.selectedTableName}/entry`}
   }
 
   closeRowPreview() {

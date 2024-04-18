@@ -42,7 +42,8 @@
                 [tables]="tablesList"
                 [connectionID]="connectionID"
                 [connectionTitle]="currentConnectionTitle"
-                [selectedTable]="selectedTableName">
+                [selectedTable]="selectedTableName"
+                (closeRowPreview)="closeRowPreview()">
             </app-db-tables-list>
         </mat-sidenav>
         <mat-sidenav-content class="table-preview">
@@ -73,22 +74,13 @@
                     (activateActions)="activateActions($event)">
                 </app-db-table>
             </div>
-            <div class="row-preview-sidebar" [ngClass]="{'row-preview-sidebar_open': selectedRow}">
-                <div class="row-preview-sidebar__header">
-                    <h2 class="mat-heading-2 row-preview-sidebar__title">Preview</h2>
-                    <button mat-icon-button (click)="closeRowPreview()">
-                        <mat-icon>close</mat-icon>
-                    </button>
-                </div>
-
-                <br />
-                <div *ngFor="let field of selectedRow | keyvalue"
-                    class="row-preview-sidebar__field">
-                    <strong>{{field.key}}</strong>
-                    <span>{{field.value}}</span>
-                </div>
-            </div>
-
+            <app-db-table-row-view *ngIf="selectedRow"
+                [selectedRow]="selectedRow"
+                [columns]="dataSource.columns"
+                [foreignKeys]="dataSource.foreignKeys"
+                [foreignKeysList]="dataSource.foreignKeysList"
+                (close)="closeRowPreview()"
+            ></app-db-table-row-view>
         </mat-sidenav-content>
     </mat-sidenav-container>
 </ng-container>
