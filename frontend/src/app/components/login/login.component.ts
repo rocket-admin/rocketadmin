@@ -53,9 +53,6 @@ export class LoginComponent implements OnInit {
     );
     //@ts-ignore
     google.accounts.id.prompt();
-
-    const isTemporary = new URLSearchParams(location.search).get('temporary');
-    if (isTemporary) this.is2FAShown = true;
   }
 
   requestUserCompanies() {
