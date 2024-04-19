@@ -76,13 +76,8 @@ export class AppComponent {
     })
 
     const expirationDateFromURL = new URLSearchParams(location.search).get('expires');
-    const isTemporary = new URLSearchParams(location.search).get('temporary');
 
-    if (isTemporary) {
-      this.router.navigate(['/login'], { queryParams: { temporary: true } });
-    };
-
-    if (expirationDateFromURL && !isTemporary) {
+    if (expirationDateFromURL) {
       const expirationDateString = new Date(parseInt(expirationDateFromURL));
       localStorage.setItem('token_expiration', expirationDateString.toString());
     };

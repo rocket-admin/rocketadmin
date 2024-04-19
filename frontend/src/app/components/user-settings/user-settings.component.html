@@ -50,7 +50,7 @@
             Change password
         </a>
 
-        <div>
+        <div *ngIf="currentUser.externalRegistrationProvider !== 'GITHUB'">
             <div class="twoFA-toggle">
                 <mat-slide-toggle [(ngModel)]="is2FAEnabledToggle"
                     angulartics2On="click"
