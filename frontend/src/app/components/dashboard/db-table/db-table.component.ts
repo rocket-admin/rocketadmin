@@ -3,12 +3,15 @@ import { CustomAction, TableForeignKey, TablePermissions } from 'src/app/models/
 
 import { AccessLevel } from 'src/app/models/user';
 import { ActivatedRoute } from '@angular/router';
+import JsonURL from "@jsonurl/jsonurl";
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
+import { TablesService } from 'src/app/services/tables.service';
 import { merge } from 'rxjs';
 import { normalizeTableName } from '../../../lib/normalize'
 import { tap } from 'rxjs/operators';
-import JsonURL from "@jsonurl/jsonurl";
+import { MatDialog } from '@angular/material/dialog';
+import { DbTableExportDialogComponent } from '../db-table-export-dialog/db-table-export-dialog.component';
 
 interface Column {
   title: string,
@@ -36,6 +39,7 @@ export class DbTableComponent implements OnInit {
   @Output() search = new EventEmitter();
   @Output() removeFilter = new EventEmitter();
   @Output() resetAllFilters = new EventEmitter();
+  @Output() viewRow = new EventEmitter();
   @Output() activateAction = new EventEmitter();
   @Output() activateActions = new EventEmitter();
 
@@ -70,6 +74,7 @@ export class DbTableComponent implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
+    public dialog: MatDialog,
   ) {}
 
   ngAfterViewInit() {
@@ -159,12 +164,23 @@ export class DbTableComponent implements OnInit {
   }
 
   handleSearch() {
-    console.log('handle search');
-    // event.preventDefault();
     this.searchString = this.searchString.trim();
     this.staticSearchString = this.searchString;
-    console.log('this.searchString', this.searchString)
     this.search.emit(this.searchString);
+  }
+
+  handleOpenExportDialog() {
+    this.dialog.open(DbTableExportDialogComponent, {
+      width: '25em',
+      data: {
+        connectionID: this.connectionID,
+        tableName: this.name,
+        sortColumn: this.sort.active,
+        sortOrder: this.sort.direction.toLocaleUpperCase(),
+        filters: this.activeFilters,
+        search: this.searchString
+      }
+    })
   }
 
   clearSearch () {

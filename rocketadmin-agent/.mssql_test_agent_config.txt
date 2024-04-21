@@ -1,1 +1,23 @@
-{"encrypted":false,"hash":null,"credentials":{"app_port":3000,"azure_encryption":false,"cert":null,"database":"TempDB","host":"mssql-e2e-testing","password":"yNuXf@6T#BgoQ%U6knMp","port":1433,"schema":null,"sid":"null","ssl":false,"token":"MSSQL-TEST-AGENT-TOKEN","type":"mssql","username":"sa","application_save_option":true,"config_encryption_option":false,"encryption_password":null,"saving_logs_option":false}}
+{
+  "encrypted": false,
+  "hash": null,
+  "credentials": {
+    "app_port": 3000,
+    "azure_encryption": false,
+    "cert": null,
+    "database": "TempDB",
+    "host": "mssql-e2e-testing",
+    "password": "yNuXf@6T#BgoQ%U6knMp",
+    "port": 1433,
+    "schema": null,
+    "sid": "null",
+    "ssl": false,
+    "token": "MSSQL-TEST-AGENT-TOKEN",
+    "type": "mssql",
+    "username": "sa",
+    "application_save_option": true,
+    "config_encryption_option": false,
+    "encryption_password": null,
+    "saving_logs_option": false
+  }
+}

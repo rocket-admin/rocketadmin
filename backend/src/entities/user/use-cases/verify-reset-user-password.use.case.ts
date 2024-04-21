@@ -54,6 +54,7 @@ export class VerifyResetUserPasswordUseCase
       email: foundUser.email,
       token: generateGwtToken(foundUser, get2FaScope(foundUser, foundUserCompany)),
       name: foundUser.name,
+      externalRegistrationProvider: foundUser.externalRegistrationProvider,
     };
   }
 }

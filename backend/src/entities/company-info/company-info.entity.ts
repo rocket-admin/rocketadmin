@@ -2,7 +2,7 @@ import { BeforeInsert, Column, Entity, OneToMany, PrimaryColumn, Relation } from
 import { UserEntity } from '../user/user.entity.js';
 import { ConnectionEntity } from '../connection/connection.entity.js';
 import { InvitationInCompanyEntity } from './invitation-in-company/invitation-in-company.entity.js';
-import { getCompanyName } from './utils/get-company-name.js';
+import { generateCompanyName } from './utils/get-company-name.js';
 
 @Entity('company_info')
 export class CompanyInfoEntity {
@@ -14,16 +14,16 @@ export class CompanyInfoEntity {
   })
   users: Relation<UserEntity>[];
 
-  @Column({ type: 'varchar', length: 255, unique: true, nullable: true })
+  @Column({ type: 'varchar', length: 255, unique: false, nullable: true })
   name: string;
 
   @Column({ type: 'boolean', default: false })
   is2faEnabled: boolean;
-  
+
   @BeforeInsert()
   getRandomName(): void {
     if (!this.name) {
-      this.name = getCompanyName();
+      this.name = generateCompanyName();
     }
   }
 

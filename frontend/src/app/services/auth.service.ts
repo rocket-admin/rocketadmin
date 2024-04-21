@@ -75,6 +75,12 @@ export class AuthService {
     );
   }
 
+  signUpWithGithub() {
+    const config = this._configuration.getConfig();
+
+    location.assign(config.saasURL + '/saas/user/github/registration/request');
+  }
+
   loginUser(userData: ExistingAuthUser) {
     return this._http.post<any>('/user/login', userData)
     .pipe(
@@ -139,6 +145,12 @@ export class AuthService {
         return EMPTY;
       })
     );
+  }
+
+  loginWithGithub() {
+    const config = this._configuration.getConfig();
+
+    location.assign(config.saasURL + '/saas/user/github/login/request');
   }
 
   requestEmailVerifications() {

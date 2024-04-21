@@ -7,6 +7,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { NotificationsService } from './notifications.service';
 import { Router } from '@angular/router';
+import { CompanyMemberRole } from '../models/company';
 
 @Injectable({
   providedIn: 'root'
@@ -20,6 +21,8 @@ export class UserService {
     portal_link: '',
     subscriptionLevel: SubscriptionPlans.free,
     is_2fa_enabled: false,
+    role: CompanyMemberRole.Member,
+    externalRegistrationProvider: null,
   }
 
   private user = new BehaviorSubject<any>(this.initialUserState);

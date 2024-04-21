@@ -119,6 +119,9 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
         tableSettings.search_fields = tableStructure
           .filter((field) => isBinary(field.data_type))
           .map((field) => field.column_name);
+        if (connection.type === 'mongodb' || connection.type === 'agent_mongodb') {
+          tableSettings.search_fields.push('_id');
+        }
       }
 
       let rows: FoundRowsDS;

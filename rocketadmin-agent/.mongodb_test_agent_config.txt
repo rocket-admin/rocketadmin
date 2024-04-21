@@ -1,0 +1,21 @@
+{
+  "encrypted": false,
+  "hash": null,
+  "credentials": {
+    "app_port": 3000,
+    "azure_encryption": false,
+    "cert": null,
+    "database": "admin",
+    "host": "test-mongo-e2e-testing",
+    "password": "example",
+    "port": 27017,
+    "token": "MONGODB-TEST-AGENT-TOKEN",
+    "type": "mongodb",
+    "username": "root",
+    "ssl": false,
+    "application_save_option": true,
+    "config_encryption_option": false,
+    "encryption_password": null,
+    "saving_logs_option": false
+  }
+}

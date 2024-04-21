@@ -182,7 +182,6 @@
       }
     }
   },
-  "defaultProject": "dissendium-v0",
   "cli": {
     "analytics": false
   }

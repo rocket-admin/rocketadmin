@@ -1,5 +1,6 @@
 import { Knex } from 'knex';
 import { Database } from 'ibm_db';
+import { MongoClientDB } from '../data-access-layer/data-access-objects/data-access-object-mongodb.js';
 export const CACHING_CONSTANTS = {
   DEFAULT_CONNECTION_CACHE_OPTIONS: {
     max: 150,
@@ -18,6 +19,16 @@ export const CACHING_CONSTANTS = {
     updateAgeOnHas: false,
     dispose: async (db: Database) => {
       await db.close();
+    },
+  },
+
+  DEFAULT_MONGO_DB_CACHE_OPTIONS: {
+    max: 150,
+    ttl: 1000 * 60 * 60,
+    updateAgeOnGet: false,
+    updateAgeOnHas: false,
+    dispose: async (connectionData: MongoClientDB) => {
+      await connectionData.dbClient.close();
     },
   },
 

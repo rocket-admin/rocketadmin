@@ -48,7 +48,7 @@ export class TablesService {
     this.router.events
 			.pipe(
 				filter(
-					( event: RouterEvent ) : boolean => {
+					(event) : boolean => {
 						return( event instanceof NavigationEnd );
 					}
 				)
@@ -167,8 +167,39 @@ export class TablesService {
       );
   }
 
-  updateTableSettings(isSettingsExist: boolean, connectionID: string, tableName: string, settings: TableSettings) {
+  exportTableCSV({
+    connectionID,
+    tableName,
+    chunkSize,
+    sortColumn,
+    sortOrder,
+    filters,
+    search,
+  }) {
+    console.log('export csv service');
 
+    return this._http.post<any>(`/table/csv/export/${connectionID}`, { filters }, {
+      params: {
+        perPage: chunkSize.toString(),
+        page: '1',
+        tableName,
+        ...(search ? {search} : {}),
+        ...(sortColumn ? {sort_by: sortColumn} : {}),
+        ...(sortOrder ? {sort_order: sortOrder} : {}),
+      },
+      responseType: 'text' as 'json'
+    })
+      .pipe(
+        map(res => {return res}),
+        catchError((err) => {
+          console.log(err);
+          this._notifications.showErrorSnackbar(err.error.message);
+          return EMPTY;
+        })
+      );
+  }
+
+  updateTableSettings(isSettingsExist: boolean, connectionID: string, tableName: string, settings: TableSettings) {
     let method: string;
     if (isSettingsExist) {
       method = 'put'

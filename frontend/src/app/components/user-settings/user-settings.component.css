@@ -11,10 +11,18 @@
     margin-top: 32px;
 }
 
+.user-settings__name-form {
+    display: flex;
+    align-items: center;
+    margin-bottom: -24px;
+}
+
 .user-settings__section-heading {
     display: flex;
     align-items: center;
     gap: 12px;
+    margin-top: 40px;
+    margin-bottom: 8px;
 }
 
 .user-settings__name {
@@ -23,22 +31,18 @@
 
 .user-settings__save-button {
     margin-top: -20px;
-    margin-left: -84px;
+    margin-left: -68px;
 }
 
 .user-settings__value {
     margin-bottom: 0;
 }
 
-.user-settings__button {
-    margin-top: 8px;
-    margin-bottom: 40px;
-}
-
 .twoFA-toggle {
     display: flex;
     align-items: center;
     gap: 12px;
+    margin-top: 40px;
 }
 
 .twoFA-toggle .twoFAhint {

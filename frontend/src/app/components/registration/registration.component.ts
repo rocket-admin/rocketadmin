@@ -4,6 +4,8 @@ import { Angulartics2 } from 'angulartics2';
 import { AuthService } from 'src/app/services/auth.service';
 import { NewAuthUser } from 'src/app/models/user';
 import { Router } from '@angular/router';
+import { NotificationsService } from 'src/app/services/notifications.service';
+import { AlertActionType, AlertType } from 'src/app/models/alert';
 
 @Component({
   selector: 'app-registration',
@@ -17,12 +19,17 @@ export class RegistrationComponent implements OnInit {
     password: ''
   };
   public submitting: boolean;
+  public errors = {
+    'User_with_this_email_is_already_registered.': 'User with this email is already registered',
+    'GitHub_registration_failed._Please_contact_our_support_team.': 'GitHub registration failed. Please contact our support team.',
+  }
 
   constructor(
     private ngZone: NgZone,
     private angulartics2: Angulartics2,
     public router: Router,
-    private _auth: AuthService
+    private _auth: AuthService,
+    private _notifications: NotificationsService,
   ) {
    }
 
@@ -54,6 +61,15 @@ export class RegistrationComponent implements OnInit {
     );
     //@ts-ignore
     google.accounts.id.prompt();
+
+    const error = new URLSearchParams(location.search).get('error');
+    if (error) this._notifications.showAlert(AlertType.Error, this.errors[error] || error, [
+      {
+        type: AlertActionType.Button,
+        caption: 'Dismiss',
+        action: (id: number) => this._notifications.dismissAlert()
+      }
+    ]);
   }
 
   updatePasswordField(updatedValue: string) {
@@ -74,5 +90,12 @@ export class RegistrationComponent implements OnInit {
       });
       this.submitting = false;
     }, () => this.submitting = false)
+  }
+
+  registerWithGithub() {
+    this._auth.signUpWithGithub();
+    this.angulartics2.eventTrack.next({
+      action: 'Reg: github register redirect'
+    });
   }
 }

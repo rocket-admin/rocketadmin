@@ -296,7 +296,6 @@ export class ConnectDBComponent implements OnInit, OnDestroy {
 
   showCopyNotification(message: string) {
     this._notifications.showSuccessSnackbar(message);
-
   }
 
   switchToAgent() {

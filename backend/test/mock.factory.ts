@@ -141,6 +141,13 @@ export class MockFactory {
     return dto;
   }
 
+  generateConnectionToTestMongoDBAgent() {
+    const dto = new CreateConnectionDto() as any;
+    dto.title = 'Test connection to agent db';
+    dto.type = ConnectionTypesEnum.agent_mongodb;
+    return dto;
+  }
+
   generateEncryptedConnectionToTestPostgresDBInDocker() {
     const dto = new CreateConnectionDto() as any;
     dto.title = 'Test connection to Postgres in Docker';

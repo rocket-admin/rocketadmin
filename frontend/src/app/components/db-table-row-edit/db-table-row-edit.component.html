@@ -41,7 +41,7 @@
         </mat-chip-listbox>
     </div>
     <form #editRowForm="ngForm" class="form"
-        (ngSubmit)="handleRowSubmitting()">
+        (ngSubmit)="handleRowSubmitting(false)">
         <div *ngFor="let value of fieldsOrdered; let index = index">
                 <!-- <mat-form-field class="example-form-field" appearance="outline">
                     <mat-label>test label</mat-label>
@@ -55,7 +55,7 @@
                         label: tableWidgets[value].name || value,
                         value: tableRowValues[value],
                         required: tableRowRequiredValues[value],
-                        readonly: !permissions?.edit,
+                        readonly: !permissions?.edit && pageAction !== 'dub',
                         disabled: isReadonlyField(value),
                         widgetStructure: tableWidgets[value],
                         relations: tableTypes[value] === 'foreign key' ? getRelations(value) : undefined
@@ -80,7 +80,7 @@
                         label: value,
                         value: tableRowValues[value],
                         required: tableRowRequiredValues[value],
-                        readonly: !permissions?.edit,
+                        readonly: !permissions?.edit && pageAction !== 'dub',
                         disabled: isReadonlyField(value),
                         structure: tableRowStructure[value],
                         relations: tableTypes[value] === 'foreign key' ? getRelations(value) : undefined
@@ -93,25 +93,31 @@
         </div>
 
         <div class="actions">
-            <button mat-stroked-button type="button"
-                data-testid="record-back-to-table-button"
-                (click)="goBack()">
+            <a mat-stroked-button type="button" routerLink="/dashboard/{{connectionID}}/{{tableName}}"
+                data-testid="record-back-to-table-button">
                 Back
-            </button>
+            </a>
             <button type="button" mat-button color="primary"
                 *ngIf="(keyAttributesFromStructure.length || hasKeyAttributesFromURL) && permissions.edit"
                 class="actions__continue"
                 data-testid="record-save-and-continue-editing-button"
                 [disabled]="submitting || editRowForm.form.invalid"
-                (click)="hasKeyAttributesFromURL ? updateRow(true) : addRow(true)">
+                (click)="handleRowSubmitting(true)">
                 Save and continue editing
             </button>
 
-            <button *ngIf="hasKeyAttributesFromURL && permissions?.edit"
+            <button *ngIf="hasKeyAttributesFromURL && permissions?.edit && !pageAction"
                 type="submit" mat-flat-button color="primary"
                 data-testid="record-edit-button"
                 [disabled]="submitting || editRowForm.form.invalid">
                 Edit
+            </button>
+
+            <button *ngIf="hasKeyAttributesFromURL && permissions?.add && pageAction === 'dub'"
+                type="submit" mat-flat-button color="primary"
+                data-testid="record-duplicate-button"
+                [disabled]="submitting || editRowForm.form.invalid">
+                Duplicate
             </button>
 
             <button *ngIf="!hasKeyAttributesFromURL" type="submit" mat-flat-button color="primary"

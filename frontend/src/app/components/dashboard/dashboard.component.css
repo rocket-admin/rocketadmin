@@ -27,7 +27,7 @@
 }
 
 .mat-sidenav-content {
-    padding: 0 24px 24px;
+    padding: 0 24px;
 }
 
 .toggle-button-position {
@@ -92,3 +92,14 @@
 .error-details {
     margin-top: 8px;
 }
+
+.table-preview {
+    display: flex;
+    overflow-x: hidden;
+}
+
+.table-preview-content {
+    flex-grow: 1;
+    width: 100%;
+}
+

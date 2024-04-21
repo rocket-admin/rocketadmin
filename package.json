@@ -4,7 +4,6 @@
   "workspaces": [
     "backend",
     "rocketadmin-agent",
-    "rocketadmin-cli",
     "shared-code"
   ],
   "packageManager": "yarn@3.4.1"
