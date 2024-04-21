@@ -2,7 +2,6 @@ import { ComponentFixture, TestBed, async } from '@angular/core/testing';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { CustomActionType } from 'src/app/models/table';
 import { DbTableComponent } from './db-table.component';
 import { FormsModule } from '@angular/forms';
 import { MatMenuModule } from '@angular/material/menu';
@@ -12,6 +11,7 @@ import { MatSortModule } from '@angular/material/sort';
 import { RouterTestingModule } from "@angular/router/testing";
 import { SelectionModel } from '@angular/cdk/collections';
 import { TablesDataSource } from '../db-tables-data-source';
+import { MatDialogModule } from '@angular/material/dialog';
 
 describe('DbTableComponent', () => {
   let component: DbTableComponent;
@@ -68,7 +68,8 @@ describe('DbTableComponent', () => {
         MatPaginatorModule,
         BrowserAnimationsModule,
         MatSortModule,
-        FormsModule
+        FormsModule,
+        MatDialogModule
       ],
       declarations: [ DbTableComponent ]
     })

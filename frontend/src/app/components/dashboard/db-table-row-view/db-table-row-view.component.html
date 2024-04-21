@@ -1,4 +1,6 @@
-<div class="row-preview-sidebar" [ngClass]="{'row-preview-sidebar_open': selectedRow}">
+<div *ngIf="selectedRow"
+    class="row-preview-sidebar"
+    [ngClass]="{'row-preview-sidebar_open': selectedRow}">
     <div class="row-preview-sidebar__header">
         <h2 class="mat-heading-2 row-preview-sidebar__title">Preview</h2>
         <div class="row-preview-sidebar__actions">
