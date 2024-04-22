@@ -373,16 +373,15 @@ export class DataAccessObjectMongo extends BasicDataAccessObject implements IDat
     if (cachedDatabase) {
       return cachedDatabase;
     }
-
-    let mongoConnectionString =
-      `mongodb://${this.connection.username}` +
-      `:${this.connection.password}` +
-      `@${this.connection.host}` +
-      `:${this.connection.port}` +
-      `/${this.connection.database}`;
-
-    let options = {};
-
+  
+    let mongoConnectionString = '';
+    if (this.connection.host.includes('mongodb+srv')) {
+      mongoConnectionString = `${this.connection.host}/${this.connection.database}`;
+    } else {
+      mongoConnectionString = `mongodb://${this.connection.username}:${this.connection.password}@${this.connection.host}:${this.connection.port}/${this.connection.database}`;
+    }
+  
+    let options: any = {};
     if (this.connection.ssl) {
       mongoConnectionString += `?ssl=true`;
       options = {
@@ -391,12 +390,12 @@ export class DataAccessObjectMongo extends BasicDataAccessObject implements IDat
         sslCA: this.connection?.cert,
       };
     }
-
+  
     const client = new MongoClient(mongoConnectionString, options);
     let clientDb: MongoClientDB;
     try {
       const connectedClient = await client.connect();
-       clientDb = { db: connectedClient.db(this.connection.database), dbClient: connectedClient };
+      clientDb = { db: connectedClient.db(this.connection.database), dbClient: connectedClient };
       LRUStorage.setMongoDbCache(this.connection, clientDb);
     } catch (error) {
       console.error(error);
