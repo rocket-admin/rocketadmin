@@ -154,8 +154,8 @@ export class TestConnectionUseCase
         testResult = await dao.testConnect();
         return testResult;
       } catch (e) {
-        let text: string = e.message.toLowerCase();
-        if (text.includes('ssl required') || text.includes('ssl connection required')) {
+        let text: string = e?.message.toLowerCase();
+        if (text?.includes('ssl required') || text?.includes('ssl connection required')) {
           connectionData.ssl = true;
           const dao = getDataAccessObject(connectionData);
           try {
