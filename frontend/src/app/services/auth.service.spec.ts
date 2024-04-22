@@ -68,7 +68,7 @@ describe('AuthService', () => {
       isSignUpUserCalled = true;
     });
 
-    const req = httpMock.expectOne('/user/register');
+    const req = httpMock.expectOne('https://saas.rocketadmin.com/saas/user/register');
     expect(req.request.method).toBe("POST");
     expect(req.request.body).toEqual(userData);
     req.flush(signUpResponse);
@@ -84,7 +84,7 @@ describe('AuthService', () => {
 
     const tokenExpiration = service.signUpUser(userData).toPromise();
 
-    const req = httpMock.expectOne('/user/register');
+    const req = httpMock.expectOne('https://saas.rocketadmin.com/saas/user/register');
     expect(req.request.method).toBe("POST");
     req.flush(fakeError, {status: 400, statusText: ''});
     await tokenExpiration;
@@ -100,7 +100,8 @@ describe('AuthService', () => {
 
     const userData = {
       email: 'john@smith.com',
-      password: 'mM87654321'
+      password: 'mM87654321',
+      companyId: 'company_1'
     };
 
     const loginResponse = {
@@ -123,7 +124,8 @@ describe('AuthService', () => {
   it('should fall for loginUser and show Error alert', async () => {
     const userData = {
       email: 'john@smith.com',
-      password: 'mM87654321'
+      password: 'mM87654321',
+      companyId: 'company_1'
     };
 
     const tokenExpiration = service.loginUser(userData).toPromise();
@@ -182,7 +184,7 @@ describe('AuthService', () => {
       isLoginWithGoogleCalled = true;
     });
 
-    const req = httpMock.expectOne(`/user/google/login`);
+    const req = httpMock.expectOne(`https://saas.rocketadmin.com/saas/user/google/login`);
     expect(req.request.method).toBe("POST");
     expect(req.request.body).toEqual({ token: 'google-token-12345678'});
     req.flush(googleResponse);
@@ -193,7 +195,7 @@ describe('AuthService', () => {
   it('should fall for loginWithGoogle and show Error alert', async () => {
     const googleResponse = service.loginWithGoogle('google-token-12345678').toPromise();
 
-    const req = httpMock.expectOne(`/user/google/login`);
+    const req = httpMock.expectOne(`https://saas.rocketadmin.com/saas/user/google/login`);
     expect(req.request.method).toBe("POST");
     expect(req.request.body).toEqual({ token: 'google-token-12345678'});
     req.flush(fakeError, {status: 400, statusText: ''});

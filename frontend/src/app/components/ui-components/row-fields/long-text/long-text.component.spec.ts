@@ -1,20 +1,20 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, async } from '@angular/core/testing';
 
-import { LongTextComponent } from './long-text.component';
+import { LongTextRowComponent } from './long-text.component';
 
-describe('LongTextComponent', () => {
-  let component: LongTextComponent;
-  let fixture: ComponentFixture<LongTextComponent>;
+describe('LongTextRowComponent', () => {
+  let component: LongTextRowComponent;
+  let fixture: ComponentFixture<LongTextRowComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ LongTextComponent ]
+      declarations: [ LongTextRowComponent ]
     })
     .compileComponents();
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(LongTextComponent);
+    fixture = TestBed.createComponent(LongTextRowComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

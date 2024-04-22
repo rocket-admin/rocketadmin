@@ -32,5 +32,4 @@ export class DeleteMemberDialogComponent {
       () => {this.submitting = false}
     );
   }
-
 }

@@ -11,6 +11,7 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { TablesService } from 'src/app/services/tables.service';
 import { WidgetDeleteDialogComponent } from './widget-delete-dialog/widget-delete-dialog.component';
 import { of } from 'rxjs';
+import { Angulartics2Module } from 'angulartics2';
 
 describe('DbTableWidgetsComponent', () => {
   let component: DbTableWidgetsComponent;
@@ -96,7 +97,8 @@ describe('DbTableWidgetsComponent', () => {
         ]),
         MatSnackBarModule,
         MatDialogModule,
-        BrowserAnimationsModule
+        BrowserAnimationsModule,
+        Angulartics2Module.forRoot()
       ],
       providers: [
         { provide: MatDialogRef, useValue: {} },

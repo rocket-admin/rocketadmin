@@ -11,6 +11,7 @@ import { NotificationsService } from 'src/app/services/notifications.service';
 import { RouterTestingModule } from '@angular/router/testing';
 import { TablesService } from 'src/app/services/tables.service';
 import { of } from 'rxjs';
+import { Angulartics2Module } from 'angulartics2';
 
 describe('DbTableActionsComponent', () => {
   let component: DbTableActionsComponent;
@@ -37,7 +38,8 @@ describe('DbTableActionsComponent', () => {
         RouterTestingModule,
         MatDialogModule,
         MatSnackBarModule,
-        BrowserAnimationsModule
+        BrowserAnimationsModule,
+        Angulartics2Module.forRoot()
       ]
     })
     .compileComponents();

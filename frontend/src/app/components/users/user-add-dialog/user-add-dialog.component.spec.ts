@@ -8,6 +8,7 @@ import { UserAddDialogComponent } from './user-add-dialog.component';
 import { By } from '@angular/platform-browser';
 import { of } from 'rxjs';
 import { UsersService } from 'src/app/services/users.service';
+import { Angulartics2Module } from 'angulartics2';
 
 describe('UserAddDialogComponent', () => {
   let component: UserAddDialogComponent;
@@ -24,7 +25,8 @@ describe('UserAddDialogComponent', () => {
       imports: [
         HttpClientTestingModule,
         MatSnackBarModule,
-        FormsModule
+        FormsModule,
+        Angulartics2Module.forRoot()
       ],
       providers: [
         { provide: MAT_DIALOG_DATA, useValue: {id: '12345678-123'} },

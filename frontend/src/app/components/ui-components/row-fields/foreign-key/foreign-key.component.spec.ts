@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed, async } from '@angular/core/testing';
 
-import { ForeignKeyComponent } from './foreign-key.component';
+import { ForeignKeyRowComponent } from './foreign-key.component';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatDialogModule } from '@angular/material/dialog';
@@ -9,9 +9,9 @@ import { RouterTestingModule } from "@angular/router/testing";
 import { TablesService } from 'src/app/services/tables.service';
 import { of } from 'rxjs';
 
-describe('ForeignKeyComponent', () => {
-  let component: ForeignKeyComponent;
-  let fixture: ComponentFixture<ForeignKeyComponent>;
+describe('ForeignKeyRowComponent', () => {
+  let component: ForeignKeyRowComponent;
+  let fixture: ComponentFixture<ForeignKeyRowComponent>;
   let tablesService: TablesService;
 
   const structureNetwork = [
@@ -120,7 +120,7 @@ describe('ForeignKeyComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ ForeignKeyComponent ],
+      declarations: [ ForeignKeyRowComponent ],
       imports: [
         HttpClientTestingModule,
         RouterTestingModule.withRoutes([]),
@@ -133,7 +133,7 @@ describe('ForeignKeyComponent', () => {
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(ForeignKeyComponent);
+    fixture = TestBed.createComponent(ForeignKeyRowComponent);
     component = fixture.componentInstance;
     component.relations = fakeRelations;
     tablesService = TestBed.inject(TablesService);
@@ -156,8 +156,8 @@ describe('ForeignKeyComponent', () => {
     fixture.detectChanges();
 
     expect(component.identityColumn).toEqual('lastname');
-    expect(component.currentDisplayedString).toEqual('Taylor (Alex | new-user-5@email.com)');
-    expect(component.currentFieldValue).toEqual(33);
+    expect(component.currentDisplayedString).toBeUndefined;
+    expect(component.currentFieldValue).toBeUndefined;
 
     expect(component.suggestions).toEqual([
       {
@@ -189,8 +189,8 @@ describe('ForeignKeyComponent', () => {
     fixture.detectChanges();
 
     expect(component.identityColumn).toBeUndefined;
-    expect(component.currentDisplayedString).toEqual('Alex | Taylor | new-user-5@email.com');
-    expect(component.currentFieldValue).toEqual(33);
+    expect(component.currentDisplayedString).toBeUndefined;
+    expect(component.currentFieldValue).toBeUndefined;
 
     expect(component.suggestions).toEqual([
       {
@@ -211,7 +211,7 @@ describe('ForeignKeyComponent', () => {
     ])
   });
 
-  it('should fill initial dropdown values when autocomplete_columns is not set', () => {
+  it('should fill initial dropdown values when autocomplete_columns and field value is not set', () => {
     spyOn(tablesService, 'fetchTable').and.returnValue(of(usersTableNetwork));
 
     component.connectionID = '12345678';
@@ -229,8 +229,8 @@ describe('ForeignKeyComponent', () => {
     fixture.detectChanges();
 
     expect(component.identityColumn).toBeUndefined;
-    expect(component.currentDisplayedString).toEqual('33 | Alex | Taylor | new-user-5@email.com | 24');
-    expect(component.currentFieldValue).toEqual(33);
+    expect(component.currentDisplayedString).toBeUndefined;
+    expect(component.currentFieldValue).toBeUndefined;
 
     expect(component.suggestions).toEqual([
       {
@@ -364,7 +364,7 @@ describe('ForeignKeyComponent', () => {
 
     expect(component.suggestions).toEqual([
       {
-        displayString: 'No matches',
+        displayString: 'No field starts with "skjfhskjdf" in foreign entity.',
       }
     ])
   })

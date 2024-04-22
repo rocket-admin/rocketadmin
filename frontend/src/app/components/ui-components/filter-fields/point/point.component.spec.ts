@@ -1,20 +1,20 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, async } from '@angular/core/testing';
 
-import { PointComponent } from './point.component';
+import { PointFilterComponent } from './point.component';
 
-describe('PointComponent', () => {
-  let component: PointComponent;
-  let fixture: ComponentFixture<PointComponent>;
+describe('PointFilterComponent', () => {
+  let component: PointFilterComponent;
+  let fixture: ComponentFixture<PointFilterComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ PointComponent ]
+      declarations: [ PointFilterComponent ]
     })
     .compileComponents();
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(PointComponent);
+    fixture = TestBed.createComponent(PointFilterComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

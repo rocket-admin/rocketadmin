@@ -1,16 +1,16 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+
+import { FileFilterComponent } from './file.component';
 import { FormsModule } from '@angular/forms';
 import { MatRadioModule } from '@angular/material/radio';
 
-import { FileComponent } from './file.component';
-
-describe('FileComponent', () => {
-  let component: FileComponent;
-  let fixture: ComponentFixture<FileComponent>;
+describe('FileFilterComponent', () => {
+  let component: FileFilterComponent;
+  let fixture: ComponentFixture<FileFilterComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ FileComponent ],
+      declarations: [ FileFilterComponent ],
       imports: [
         FormsModule,
         MatRadioModule
@@ -21,7 +21,7 @@ describe('FileComponent', () => {
   });
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(FileComponent);
+    fixture = TestBed.createComponent(FileFilterComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

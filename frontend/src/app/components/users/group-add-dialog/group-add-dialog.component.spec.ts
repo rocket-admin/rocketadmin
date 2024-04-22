@@ -8,6 +8,7 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { RouterTestingModule } from "@angular/router/testing";
 import { UsersService } from 'src/app/services/users.service';
 import { of } from 'rxjs';
+import { Angulartics2Module } from 'angulartics2';
 
 describe('GroupAddDialogComponent', () => {
   let component: GroupAddDialogComponent;
@@ -26,7 +27,8 @@ describe('GroupAddDialogComponent', () => {
         RouterTestingModule.withRoutes([]),
         MatSnackBarModule,
         FormsModule,
-        MatDialogModule
+        MatDialogModule,
+        Angulartics2Module.forRoot({})
       ],
       providers: [
         { provide: MAT_DIALOG_DATA, useValue: {} },

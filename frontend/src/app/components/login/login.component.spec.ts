@@ -49,7 +49,8 @@ describe('LoginComponent', () => {
   it('should login a user', () => {
     component.user = {
       email: 'john@smith.com',
-      password: 'kK123456789'
+      password: 'kK123456789',
+      companyId: 'company_1'
     }
 
     const fakeLoginUser = spyOn(authService, 'loginUser').and.returnValue(of());
@@ -57,7 +58,8 @@ describe('LoginComponent', () => {
     component.loginUser();
     expect(fakeLoginUser).toHaveBeenCalledOnceWith({
       email: 'john@smith.com',
-      password: 'kK123456789'
+      password: 'kK123456789',
+      companyId: 'company_1'
     });
     expect(component.submitting).toBeFalse();
   });

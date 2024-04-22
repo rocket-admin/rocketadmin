@@ -20,6 +20,55 @@ describe('AuditComponent', () => {
   let tablesService: TablesService;
   let usersService: UsersService;
 
+  const mockTablesListResponse = [
+    {
+      "table": "customers",
+      "permissions": {
+        "visibility": true,
+        "readonly": false,
+        "add": true,
+        "delete": true,
+        "edit": true
+      }
+    },
+    {
+      "table": "Orders",
+      "permissions": {
+        "visibility": true,
+        "readonly": false,
+        "add": true,
+        "delete": true,
+        "edit": true
+      },
+      "display_name": "Created orders"
+    },
+    {
+      "table": "product",
+      "permissions": {
+        "visibility": true,
+        "readonly": false,
+        "add": true,
+        "delete": true,
+        "edit": true
+      }
+    }
+  ];
+
+  const mockUsersList = [
+    {
+      "id": "1369ab9e-45d1-4d42-9feb-e3c8f53355ea",
+      "isActive": true,
+      "email": "lyubov+ytrsdzxfcgvhb@voloshko.com",
+      "createdAt": "2021-09-03T10:29:48.100Z"
+    },
+    {
+      "id": "1369ab9e-45d1-4d42-9feb-e3c8f53355ea",
+      "isActive": true,
+      "email": "lyubov+ytrsdzxfcgvhb@voloshko.com",
+      "createdAt": "2021-09-03T10:29:48.100Z"
+    }
+  ];
+
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [
@@ -50,16 +99,24 @@ describe('AuditComponent', () => {
   });
 
   it('should fill users and tables lists', async () => {
-    const mockTablesList = [
+    spyOn(tablesService, 'fetchTables').and.returnValue(of(mockTablesListResponse));
+    spyOn(usersService, 'fetchConnectionUsers').and.returnValue(of(mockUsersList));
+
+    component.ngOnInit();
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(component.tablesList).toEqual([
       {
-        "table": "Customers",
+        "table": "customers",
         "permissions": {
           "visibility": true,
           "readonly": false,
           "add": true,
           "delete": true,
           "edit": true
-        }
+        },
+        normalizedTableName: "Customers"
       },
       {
         "table": "Orders",
@@ -73,39 +130,17 @@ describe('AuditComponent', () => {
         "display_name": "Created orders"
       },
       {
-        "table": "Products",
+        "table": "product",
         "permissions": {
           "visibility": true,
           "readonly": false,
           "add": true,
           "delete": true,
           "edit": true
-        }
+        },
+        normalizedTableName: "Products"
       }
-    ];
-    const mockUsersList = [
-      {
-        "id": "1369ab9e-45d1-4d42-9feb-e3c8f53355ea",
-        "isActive": true,
-        "email": "lyubov+ytrsdzxfcgvhb@voloshko.com",
-        "createdAt": "2021-09-03T10:29:48.100Z"
-      },
-      {
-        "id": "1369ab9e-45d1-4d42-9feb-e3c8f53355ea",
-        "isActive": true,
-        "email": "lyubov+ytrsdzxfcgvhb@voloshko.com",
-        "createdAt": "2021-09-03T10:29:48.100Z"
-      }
-    ];
-
-    spyOn(tablesService, 'fetchTables').and.returnValue(of(mockTablesList));
-    spyOn(usersService, 'fetchConnectionUsers').and.returnValue(of(mockUsersList));
-
-    component.ngOnInit();
-    fixture.detectChanges();
-    await fixture.whenStable();
-
-    expect(component.tablesList).toEqual(mockTablesList);
+    ]);
     expect(component.usersList).toEqual(mockUsersList);
   });
 

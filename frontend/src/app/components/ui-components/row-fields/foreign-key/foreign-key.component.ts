@@ -76,7 +76,9 @@ export class ForeignKeyRowComponent implements OnInit {
               this.identityColumn ?
                 `${res.rows[0][this.identityColumn]} (${Object.values(modifiedRow).filter(value => value).join(' | ')})` :
                 Object.values(modifiedRow).filter(value => value).join(' | ');
-            this.currentFieldValue = res.rows[0][this.relations.referenced_column_name];
+              console.log('test identityColumn');
+              console.log(this.currentDisplayedString);
+              this.currentFieldValue = res.rows[0][this.relations.referenced_column_name];
             this.currentFieldQueryParams = Object.assign({}, ...res.primaryColumns.map((primaeyKey) => ({[primaeyKey.column_name]: res.rows[0][primaeyKey.column_name]})));
             this.onFieldChange.emit(this.currentFieldValue);
           }

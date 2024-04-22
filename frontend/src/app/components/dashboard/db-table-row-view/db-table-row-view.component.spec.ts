@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { DbTableRowViewComponent } from './db-table-row-view.component';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 describe('DbTableRowViewComponent', () => {
   let component: DbTableRowViewComponent;
@@ -8,7 +9,10 @@ describe('DbTableRowViewComponent', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      declarations: [DbTableRowViewComponent]
+      declarations: [DbTableRowViewComponent],
+      imports: [
+        MatSnackBarModule
+      ],
     });
     fixture = TestBed.createComponent(DbTableRowViewComponent);
     component = fixture.componentInstance;

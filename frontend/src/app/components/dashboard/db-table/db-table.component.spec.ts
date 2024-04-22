@@ -3,14 +3,15 @@ import { HttpClientTestingModule, HttpTestingController } from '@angular/common/
 
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { DbTableComponent } from './db-table.component';
+import { FormsModule } from '@angular/forms';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatSortModule } from '@angular/material/sort';
 import { RouterTestingModule } from "@angular/router/testing";
-import { TablesDataSource } from '../db-tables-data-source';
-import { CustomActionType } from 'src/app/models/table';
 import { SelectionModel } from '@angular/cdk/collections';
+import { TablesDataSource } from '../db-tables-data-source';
+import { MatDialogModule } from '@angular/material/dialog';
 
 describe('DbTableComponent', () => {
   let component: DbTableComponent;
@@ -66,7 +67,9 @@ describe('DbTableComponent', () => {
         MatSnackBarModule,
         MatPaginatorModule,
         BrowserAnimationsModule,
-        MatSortModule
+        MatSortModule,
+        FormsModule,
+        MatDialogModule
       ],
       declarations: [ DbTableComponent ]
     })
@@ -183,25 +186,25 @@ describe('DbTableComponent', () => {
   });
 
   it('should return filter chip label for starts with comparator', () => {
-    const chipFilterLable = component.getFilter('first_name', 'A');
+    const chipFilterLable = component.getFilter({key: 'first_name', value: {startswith: 'A'}});
 
     expect(chipFilterLable).toEqual('First Names = A...');
   });
 
   it('should return filter chip label for ends with comparator', () => {
-    const chipFilterLable = component.getFilter('second_name', 'y');
+    const chipFilterLable = component.getFilter({key: 'second_name', value: {endswith: 'y'}});
 
     expect(chipFilterLable).toEqual('Second Names = ...y');
   });
 
   it('should return filter chip label for contains comparator', () => {
-    const chipFilterLable = component.getFilter('email', 'gmail');
+    const chipFilterLable = component.getFilter({key: 'email', value: {contains: 'gmail'}});
 
     expect(chipFilterLable).toEqual('Emails = ...gmail...');
   });
 
   it('should return filter chip label for greater than comparator', () => {
-    const chipFilterLable = component.getFilter('age', '20');
+    const chipFilterLable = component.getFilter({key: 'age', value: {gt: '20'}});
 
     expect(chipFilterLable).toEqual('Ages > 20');
   });

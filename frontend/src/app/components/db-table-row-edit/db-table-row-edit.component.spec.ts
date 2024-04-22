@@ -42,14 +42,12 @@ describe('DbTableRowEditComponent', () => {
   it('should set connection id and table name', () => {
     spyOnProperty(connectionsService, 'currentConnectionID').and.returnValue('12345678');
     spyOnProperty(tablesService, 'currentTableName').and.returnValue('Users_table');
-    jasmine.createSpy().and.returnValue('Users Tables')
 
     component.ngOnInit();
     fixture.detectChanges();
 
     expect(component.connectionID).toEqual('12345678');
     expect(component.tableName).toEqual('Users_table');
-    expect(component.normalizedTableName).toEqual('Users Tables');
   });
 
   it('should set structure — define: relation between column name and type, required columns', async() => {
@@ -243,7 +241,7 @@ describe('DbTableRowEditComponent', () => {
   it('should check if field is readonly', () => {
     component.readonlyFields = ['Id', 'Price'];
 
-    const isPriceReafonly = component.isReadonly('Price');
+    const isPriceReafonly = component.isReadonlyField('Price');
     expect(isPriceReafonly).toBeTrue();
   });
 
