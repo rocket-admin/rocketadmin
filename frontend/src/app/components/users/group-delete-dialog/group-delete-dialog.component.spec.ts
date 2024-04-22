@@ -6,6 +6,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { GroupDeleteDialogComponent } from './group-delete-dialog.component';
 import { UsersService } from 'src/app/services/users.service';
 import { of } from 'rxjs';
+import { Angulartics2Module } from 'angulartics2';
 
 describe('GroupDeleteDialogComponent', () => {
   let component: GroupDeleteDialogComponent;
@@ -19,7 +20,11 @@ describe('GroupDeleteDialogComponent', () => {
   beforeEach(async(() => {
     TestBed.configureTestingModule({
       declarations: [ GroupDeleteDialogComponent ],
-      imports: [HttpClientTestingModule, MatSnackBarModule],
+      imports: [
+        HttpClientTestingModule,
+        MatSnackBarModule,
+        Angulartics2Module.forRoot()
+      ],
       providers: [
         { provide: MAT_DIALOG_DATA, useValue: {} },
         { provide: MatDialogRef, useValue: mockDialogRef },

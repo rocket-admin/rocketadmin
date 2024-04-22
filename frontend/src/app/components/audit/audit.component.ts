@@ -60,7 +60,6 @@ export class AuditComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.getTitleSubscription = this._connections.getCurrentConnectionTitle().subscribe(connectionTitle => {
       this.title.setTitle(`Audit - ${connectionTitle} | Rocketadmin`);
-      console.log('audit ngOnInit');
     });
     this.connectionID = this._connections.currentConnectionID;
     this.accesLevel = this._connections.currentConnectionAccessLevel;

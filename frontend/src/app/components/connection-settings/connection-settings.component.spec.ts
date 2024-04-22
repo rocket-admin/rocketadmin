@@ -13,6 +13,7 @@ import { RouterTestingModule } from "@angular/router/testing";
 import { TablesService } from 'src/app/services/tables.service';
 import { forwardRef } from '@angular/core';
 import { of } from 'rxjs';
+import { Angulartics2Module } from 'angulartics2';
 
 describe('ConnectionSettingsComponent', () => {
   let component: ConnectionSettingsComponent;
@@ -59,7 +60,8 @@ describe('ConnectionSettingsComponent', () => {
     secondary_color: "#F9D648",
     logo_url: "https://www.shutterstock.com/image-vector/abstract-yellow-grunge-texture-isolated-260nw-1981157192.jpg",
     company_name: "Such.Ukr.Lit",
-    hidden_tables: [ "writer_info", "address" ]
+    hidden_tables: [ "writer_info", "address" ],
+    tables_audit: false
   };
 
   const mockConnectionSettingsResponse = {
@@ -77,7 +79,8 @@ describe('ConnectionSettingsComponent', () => {
         MatDialogModule,
         FormsModule,
         MatSelectModule,
-        BrowserAnimationsModule
+        BrowserAnimationsModule,
+        Angulartics2Module.forRoot()
       ],
       declarations: [ ConnectionSettingsComponent ],
       providers: [
@@ -178,7 +181,8 @@ describe('ConnectionSettingsComponent', () => {
       primary_color: '',
       secondary_color: '',
       logo_url: '',
-      company_name: ''
+      company_name: '',
+      tables_audit: true,
     });
     expect(component.isSettingsExist).toBeFalse();
   });
@@ -194,7 +198,8 @@ describe('ConnectionSettingsComponent', () => {
       secondary_color: '#F9D648',
       logo_url: 'https://www.shutterstock.com/image-vector/abstract-yellow-grunge-texture-isolated-260nw-1981157192.jpg',
       company_name: 'Such.Ukr.Lit',
-      hidden_tables: [ "writer_info", "address" ]
+      hidden_tables: [ "writer_info", "address" ],
+      tables_audit: false
     });
     expect(component.submitting).toBeFalse();
   });
@@ -210,7 +215,8 @@ describe('ConnectionSettingsComponent', () => {
       secondary_color: '#F9D648',
       logo_url: 'https://www.shutterstock.com/image-vector/abstract-yellow-grunge-texture-isolated-260nw-1981157192.jpg',
       company_name: 'Such.Ukr.Lit',
-      hidden_tables: [ "writer_info", "address" ]
+      hidden_tables: [ "writer_info", "address" ],
+      tables_audit: false
      });
     expect(component.submitting).toBeFalse();
   });

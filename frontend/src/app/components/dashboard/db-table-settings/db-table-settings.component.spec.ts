@@ -14,7 +14,7 @@ import { TablesService } from 'src/app/services/tables.service';
 import { of } from 'rxjs';
 import { TableSettings, TableOrdering } from 'src/app/models/table';
 import { ConnectionsService } from 'src/app/services/connections.service';
-import { MatMenuModule } from '@angular/material/menu';
+import { Angulartics2Module } from 'angulartics2';
 
 describe('DbTableSettingsComponent', () => {
   let component: DbTableSettingsComponent;
@@ -112,7 +112,7 @@ describe('DbTableSettingsComponent', () => {
         MatRadioModule,
         MatInputModule,
         BrowserAnimationsModule,
-        MatMenuModule
+        Angulartics2Module.forRoot()
       ],
       declarations: [ DbTableSettingsComponent ]
     })

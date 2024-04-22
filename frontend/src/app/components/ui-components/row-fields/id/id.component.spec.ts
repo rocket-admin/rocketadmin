@@ -1,22 +1,22 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { FormsModule } from '@angular/forms';
-import { IdComponent } from './id.component';
+import { IdRowComponent } from './id.component';
 
-describe('IdComponent', () => {
-  let component: IdComponent;
-  let fixture: ComponentFixture<IdComponent>;
+describe('IdRowComponent', () => {
+  let component: IdRowComponent;
+  let fixture: ComponentFixture<IdRowComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [ FormsModule ],
-      declarations: [ IdComponent ]
+      declarations: [ IdRowComponent ]
     })
     .compileComponents();
   });
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(IdComponent);
+    fixture = TestBed.createComponent(IdRowComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

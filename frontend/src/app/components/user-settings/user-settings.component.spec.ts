@@ -14,6 +14,8 @@ import { UserService } from 'src/app/services/user.service';
 import { UserSettingsComponent } from './user-settings.component';
 import { forwardRef } from '@angular/core';
 import { of } from 'rxjs';
+import { Angulartics2Module } from 'angulartics2';
+import { CompanyMemberRole } from 'src/app/models/company';
 
 describe('UserSettingsComponent', () => {
   let component: UserSettingsComponent;
@@ -31,7 +33,8 @@ describe('UserSettingsComponent', () => {
         MatSlideToggleModule,
         MatDialogModule,
         MatSnackBarModule,
-        BrowserAnimationsModule
+        BrowserAnimationsModule,
+        Angulartics2Module.forRoot()
       ],
       declarations: [ UserSettingsComponent ],
       providers: [
@@ -73,7 +76,9 @@ describe('UserSettingsComponent', () => {
       "email": "user@test.com",
       "portal_link": "stripe.link",
       "subscriptionLevel": SubscriptionPlans.free,
-      "is_2fa_enabled": false
+      "is_2fa_enabled": false,
+      role: CompanyMemberRole.Member,
+      externalRegistrationProvider: null
     }
 
     component.confirmDeleteAccount();
@@ -86,7 +91,9 @@ describe('UserSettingsComponent', () => {
         "email": "user@test.com",
         "portal_link": "stripe.link",
         "subscriptionLevel": SubscriptionPlans.free,
-        "is_2fa_enabled": false
+        "is_2fa_enabled": false,
+        role: CompanyMemberRole.Member,
+        externalRegistrationProvider: null
       }
     });
   });

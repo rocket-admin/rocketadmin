@@ -121,7 +121,7 @@ describe('DbTableFiltersDialogComponent', () => {
 
   it('should setup the initial state from search params', async () => {
     component.route.snapshot.queryParams = {
-      f__FirstName__contain: 'nn'
+      filters: '(FirstName:(contains:nn))'
     };
 
     component.ngOnInit();
@@ -133,7 +133,7 @@ describe('DbTableFiltersDialogComponent', () => {
       FirstName: 'nn'
     });
     expect(component.tableRowFieldsComparator).toEqual({
-      FirstName: 'contain'
+      FirstName: 'contains'
     })
   });
 

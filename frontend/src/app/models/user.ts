@@ -15,15 +15,20 @@ export interface ExistingAuthUser {
 export interface UserGroup {
     id: string,
     title: string,
-    isMain: boolean
+    isMain: boolean,
+    users?: {
+        id: string,
+        isActive: boolean,
+        email: string,
+        createdAt?: string,
+        name: string,
+        is_2fa_enabled: boolean,
+        role: CompanyMemberRole
+    }[]
 }
 
 export interface UserGroupInfo {
-    group: {
-        id: string,
-        title: string,
-        isMain: boolean
-    },
+    group: UserGroup,
     accessLevel: string
 }
 
@@ -70,6 +75,7 @@ export enum AccessLevel {
 
 export interface TablePermission {
     tableName: string,
+    display_name: string,
     accessLevel: TablePermissions
 }
 

@@ -12,6 +12,7 @@ import { UserDeleteDialogComponent } from './user-delete-dialog/user-delete-dial
 import { UsersComponent } from './users.component';
 import { UsersService } from 'src/app/services/users.service';
 import { of } from 'rxjs';
+import { Angulartics2Module } from 'angulartics2';
 
 describe('UsersComponent', () => {
   let component: UsersComponent;
@@ -33,7 +34,8 @@ describe('UsersComponent', () => {
         HttpClientTestingModule,
         RouterTestingModule.withRoutes([]),
         MatSnackBarModule,
-        MatDialogModule
+        MatDialogModule,
+        Angulartics2Module.forRoot()
       ],
       declarations: [ UsersComponent ],
       providers: [

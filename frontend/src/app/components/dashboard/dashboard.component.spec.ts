@@ -10,13 +10,11 @@ import { of } from 'rxjs';
 import { TablesService } from 'src/app/services/tables.service';
 import { AccessLevel } from 'src/app/models/user';
 import { ActivatedRoute, convertToParamMap, Router } from '@angular/router';
+import { Angulartics2, Angulartics2Module } from 'angulartics2';
 
 describe('DashboardComponent', () => {
   let component: DashboardComponent;
   let fixture: ComponentFixture<DashboardComponent>;
-  // let routerSpy;
-  // let connectionsService: ConnectionsService;
-  // let tablesService: TablesService;
   let fakeTablesService;
 
   const fakeConnectionsSevice = {
@@ -63,7 +61,18 @@ describe('DashboardComponent', () => {
   ]
 
   beforeEach(async(() => {
-    // routerSpy = {navigate: jasmine.createSpy('navigate')};
+
+    // const paramMapSubject = new BehaviorSubject(convertToParamMap({
+    //   'table-name': undefined
+    // }));
+
+    const angulartics2Mock = {
+      eventTrack: {
+        next: () => {} // Mocking the next method
+      },
+      trackLocation: () => {} // Mocking the trackLocation method
+    };
+
     fakeTablesService = jasmine.createSpyObj('tablesService', {fetchTables: of(fakeTables)});
 
     TestBed.configureTestingModule({
@@ -72,7 +81,8 @@ describe('DashboardComponent', () => {
         HttpClientTestingModule,
         RouterTestingModule.withRoutes([]),
         MatSnackBarModule,
-        MatDialogModule
+        MatDialogModule,
+        Angulartics2Module.forRoot()
       ],
       providers: [
         {
@@ -90,7 +100,8 @@ describe('DashboardComponent', () => {
             ),
           }
         },
-        { provide: Router, useValue: fakeRouter }
+        { provide: Router, useValue: fakeRouter },
+        { provide: Angulartics2, useValue: angulartics2Mock }
       ]
     })
     .compileComponents();
@@ -111,22 +122,8 @@ describe('DashboardComponent', () => {
     expect(component.currentConnectionAccessLevel).toEqual('readonly');
   });
 
-  xit('should redirect on first table, when no table-name in url param', async () => {
-    spyOnProperty(fakeConnectionsSevice, 'currentConnectionID', 'get').and.returnValue('12345678');
-    spyOn(component, 'getTables').and.returnValue(Promise.resolve(fakeTables));
-    // fakeRouter.navigate.and.returnValue(Promise.resolve());
-    // spyOn(component.router, 'navigate').and.returnValue(Promise.resolve());
-
-    component.ngOnInit();
-    fixture.detectChanges();
-
-    expect(component.connectionID).toEqual('12345678');
-    expect(component.selectedTableName).toEqual('actor');
-    // expect(fakeRouter.navigate).toHaveBeenCalledWith(['/dashboard/12345678/actor'], {replaceUrl: true});
-  });
-
   it('should call getTables', async () => {
-    // fakeTablesService.fetchTables.and.returnValue(of(fakeTables));
+    fakeTablesService.fetchTables.and.returnValue(of(fakeTables));
     const tables = await component.getTables();
     expect(tables).toEqual(fakeTables);
   });

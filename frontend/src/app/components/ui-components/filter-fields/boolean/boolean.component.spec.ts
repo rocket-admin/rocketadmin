@@ -1,10 +1,13 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, async } from '@angular/core/testing';
 
-import { BooleanComponent } from './boolean.component';
+import { BooleanFilterComponent } from './boolean.component';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { MatDialogModule } from '@angular/material/dialog';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 
-describe('BooleanComponent', () => {
-  let component: BooleanComponent;
-  let fixture: ComponentFixture<BooleanComponent>;
+describe('BooleanFilterComponent', () => {
+  let component: BooleanFilterComponent;
+  let fixture: ComponentFixture<BooleanFilterComponent>;
 
   const fakeStructure = {
     "column_name": "banned",
@@ -19,13 +22,18 @@ describe('BooleanComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ BooleanComponent ]
+      declarations: [ BooleanFilterComponent ],
+      imports: [
+        HttpClientTestingModule,
+        MatSnackBarModule,
+        MatDialogModule
+       ]
     })
     .compileComponents();
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(BooleanComponent);
+    fixture = TestBed.createComponent(BooleanFilterComponent);
     component = fixture.componentInstance;
   });
 
@@ -33,28 +41,20 @@ describe('BooleanComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should set value in true when input value contain anything', () => {
-    component.value = 'anything';
-    component.structure = fakeStructure;
-    component.ngOnInit();
-
-    expect(component.value).toEqual(true);
-  });
-
-  it('should set value in felse when input value is 0', () => {
+  it('should set booleanValue in false when input value is 0', () => {
     component.value = 0;
     component.structure = fakeStructure;
     component.ngOnInit();
 
-    expect(component.value).toEqual(false);
+    expect(component.booleanValue).toEqual(false);
   });
 
-  it('should set value in null when input value is undefined', () => {
-    component.value = undefined;
+  it('should set booleanValue in unknown when input value is null', () => {
+    component.value = null;
     component.structure = fakeStructure;
     component.ngOnInit();
 
-    expect(component.value).toEqual(null);
+    expect(component.booleanValue).toEqual('unknown');
   });
 
   it('should set isRadiogroup in false if allow_null is false', () => {

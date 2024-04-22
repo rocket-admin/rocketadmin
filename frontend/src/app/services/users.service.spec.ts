@@ -78,7 +78,8 @@ describe('UsersService', () => {
           "readonly": true,
           "visibility": true
         },
-        "tableName": "TOYS_TEST"
+        "tableName": "TOYS_TEST",
+        display_name: "Toys tests"
       },
       {
         "accessLevel": {
@@ -88,7 +89,8 @@ describe('UsersService', () => {
           "readonly": false,
           "visibility": true
         },
-        "tableName": "PRODUCTS_TEST"
+        "tableName": "PRODUCTS_TEST",
+        display_name: "Product tests"
       }
     ]
   }
@@ -285,12 +287,12 @@ describe('UsersService', () => {
   it('should call updatePermission and show Success snackbar', () => {
     let isSubscribeCalled = false;
 
-    service.updatePermission(permissionsApp).subscribe(res => {
+    service.updatePermission('12345678', permissionsApp).subscribe(res => {
       expect(fakeNotifications.showSuccessSnackbar).toHaveBeenCalledOnceWith('Permissions have been updated successfully.');
       isSubscribeCalled = true;
     });
 
-    const req = httpMock.expectOne(`/permissions/1c042912-326d-4fc5-bb0c-10da88dd37c4`);
+    const req = httpMock.expectOne(`/permissions/1c042912-326d-4fc5-bb0c-10da88dd37c4?connectionId=12345678`);
     expect(req.request.method).toBe("PUT");
     expect(req.request.body).toEqual({permissions: permissionsApp});
     req.flush(permissionsNetwork);
@@ -299,9 +301,9 @@ describe('UsersService', () => {
   });
 
   it('should fall updatePermission and show Error snackbar', async () => {
-    const updatePermission = service.updatePermission(permissionsApp).toPromise();
+    const updatePermission = service.updatePermission('12345678', permissionsApp).toPromise();
 
-    const req = httpMock.expectOne(`/permissions/1c042912-326d-4fc5-bb0c-10da88dd37c4`);
+    const req = httpMock.expectOne(`/permissions/1c042912-326d-4fc5-bb0c-10da88dd37c4?connectionId=12345678`);
     expect(req.request.method).toBe("PUT");
     req.flush(fakeError, {status: 400, statusText: ''});
     await updatePermission;

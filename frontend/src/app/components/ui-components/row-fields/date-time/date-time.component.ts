@@ -1,9 +1,9 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 
-import { format } from 'date-fns'
-import { normalizeFieldName } from '../../../../lib/normalize';
 import { ConnectionsService } from 'src/app/services/connections.service';
 import { DBtype } from 'src/app/models/connection';
+import { format } from 'date-fns'
+import { normalizeFieldName } from '../../../../lib/normalize';
 
 @Component({
   selector: 'app-row-date-time',
@@ -25,7 +25,7 @@ export class DateTimeRowComponent implements OnInit {
   public date: string;
   public time: string;
   public normalizedLabel: string;
-  private connectionType: DBtype;
+  public connectionType: DBtype;
 
   constructor(
     private _connections: ConnectionsService

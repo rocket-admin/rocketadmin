@@ -1,20 +1,20 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { JsonEditorComponent } from './json-editor.component';
+import { JsonEditorFilterComponent } from './json-editor.component';
 
-describe('JsonEditorComponent', () => {
-  let component: JsonEditorComponent;
-  let fixture: ComponentFixture<JsonEditorComponent>;
+describe('JsonEditorFilterComponent', () => {
+  let component: JsonEditorFilterComponent;
+  let fixture: ComponentFixture<JsonEditorFilterComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ JsonEditorComponent ]
+      declarations: [ JsonEditorFilterComponent ]
     })
     .compileComponents();
   });
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(JsonEditorComponent);
+    fixture = TestBed.createComponent(JsonEditorFilterComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

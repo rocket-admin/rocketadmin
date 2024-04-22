@@ -21,33 +21,34 @@ export class DbTableRowViewComponent {
     private _notifications: NotificationsService,
   ) { }
 
-  ngOnInit() {
-    console.log('this.selectedRow');
-    console.log(this.selectedRow);
-  }
-
   isForeignKey(columnName: string) {
     return this.foreignKeysList.includes(columnName);
   }
 
   getForeignKeyValue(field: string) {
-    const identityColumnName = Object.keys(this.selectedRow.row[field]).find(key => key !== this.foreignKeys[field].referenced_column_name);
-    if (identityColumnName) {
-      return this.selectedRow.row[field][identityColumnName];
-    } else {
-      const referencedColumnName = this.foreignKeys[field].referenced_column_name;
-      return this.selectedRow.row[field][referencedColumnName];
-    }
+    if (this.selectedRow) {
+      const identityColumnName = Object.keys(this.selectedRow.row[field]).find(key => key !== this.foreignKeys[field].referenced_column_name);
+      if (identityColumnName) {
+        return this.selectedRow.row[field][identityColumnName];
+      } else {
+        const referencedColumnName = this.foreignKeys[field].referenced_column_name;
+        return this.selectedRow.row[field][referencedColumnName];
+      }
+    };
+    return '';
   }
 
   getDedicatedPageLink() {
-    const params = new URLSearchParams();
-    for (const key in this.selectedRow.queryParams) {
-      if (this.selectedRow.queryParams.hasOwnProperty(key)) {
-        params.append(key, this.selectedRow.queryParams[key]);
+    if (this.selectedRow) {
+      const params = new URLSearchParams();
+      for (const key in this.selectedRow.queryParams) {
+        if (this.selectedRow.queryParams.hasOwnProperty(key)) {
+          params.append(key, this.selectedRow.queryParams[key]);
+        }
       }
-    }
-    return `${location.origin}${this.selectedRow.link}?${params.toString()}`;
+      return `${location.origin}${this.selectedRow.link}?${params.toString()}`;
+    };
+    return '';
   }
 
   showCopyNotification(message: string) {
