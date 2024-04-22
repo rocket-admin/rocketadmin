@@ -54,7 +54,7 @@ export class CreateConnectionDto {
   @IsOptional()
   @IsString()
   @ApiProperty()
-  sid: string;
+  sid?: string;
 
   @IsOptional()
   @IsBoolean()

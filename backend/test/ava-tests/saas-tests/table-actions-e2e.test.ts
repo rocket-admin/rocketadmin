@@ -18,7 +18,8 @@ import { registerUserAndReturnUserInfo } from '../../utils/register-user-and-ret
 import { TestUtils } from '../../utils/test.utils.js';
 import { ValidationException } from '../../../src/exceptions/custom-exceptions/validation-exception.js';
 import { ValidationError } from 'class-validator';
-import { ErrorsMessages } from '../../../src/exceptions/custom-exceptions/messages/custom-errors-messages.js';
+import { CreateConnectionDto } from '../../../src/entities/connection/application/dto/create-connection.dto.js';
+import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/enums/connection-types-enum.js';
 
 const mockFactory = new MockFactory();
 let app: INestApplication;
@@ -613,4 +614,97 @@ test(`${currentTest} should throw exception when table action id is incorrect`, 
   const findTableActionRO = JSON.parse(findTableActionResult.text);
   t.is(findTableActionResult.status, 400);
   t.is(findTableActionRO.message, Messages.TABLE_ACTION_NOT_FOUND);
+});
+
+//test impersonate action
+
+currentTest = 'POST /table/action/:slug';
+test(`${currentTest} should return created impersonate action`, async (t) => {
+  const firstUser = await registerUserAndReturnUserInfo(app);
+  const secondUser = await registerUserAndReturnUserInfo(app);
+  //DATABASE_URL=postgres://postgres:abc987@rocketadmin-private-microservice-test-database:5432/postgres
+
+  const connectionToSaasDatabase: CreateConnectionDto = {
+    host: 'rocketadmin-private-microservice-test-database',
+    username: 'postgres',
+    password: 'abc987',
+    database: 'postgres',
+    port: 5432,
+    type: ConnectionTypesEnum.postgres,
+    masterEncryption: false,
+    ssh: false,
+  } as any;
+  const createConnectionResult = await request(app.getHttpServer())
+    .post('/connection')
+    .send(connectionToSaasDatabase)
+    .set('Cookie', firstUser.token)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+
+  const createConnectionRO = JSON.parse(createConnectionResult.text);
+  t.is(createConnectionResult.status, 201);
+
+  const actionTableName = `user_info`;
+  const impersonateAction = {
+    title: faker.lorem.words(2),
+    type: 'multiple',
+    url: `http://rocketadmin-private-microservice:3001/actions/impersonate/link`,
+  };
+
+  const createTableActionResult = await request(app.getHttpServer())
+    .post(`/table/action/${createConnectionRO.id}?tableName=${actionTableName}`)
+    .send(impersonateAction)
+    .set('Cookie', firstUser.token)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+
+  const createTableActionRO = JSON.parse(createTableActionResult.text);
+  t.is(createTableActionResult.status, 201);
+  t.is(typeof createTableActionRO, 'object');
+  t.is(createTableActionRO.title, impersonateAction.title);
+  t.is(createTableActionRO.type, impersonateAction.type);
+  t.is(createTableActionRO.url, impersonateAction.url);
+  t.is(createTableActionRO.hasOwnProperty('id'), true);
+
+  //get second user id from jwt token
+
+  const secondUserId = testUtils.verifyJwtToken(secondUser.token).sub;
+
+  //activate impersonate action and receive redirection link
+
+  const actionActivationResult = await request(app.getHttpServer())
+    .post(
+      `/table/actions/activate/${createConnectionRO.id}?actionId=${createTableActionRO.id}&confirmed=true&tableName=${actionTableName}`,
+    )
+    .send([{ id: secondUserId }])
+    .set('Cookie', firstUser.token)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+
+  const actionActivationRO = JSON.parse(actionActivationResult.text);
+  t.is(actionActivationRO.hasOwnProperty('location'), true);
+  t.is(actionActivationResult.status, 201);
+
+  //check if redirection link is correct
+
+  const redirectionLink = actionActivationRO.location;
+  const getLinkResult = await fetch(redirectionLink, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      Accept: 'application/json',
+      Cookie: firstUser.token,
+    },
+  });
+
+  t.is(getLinkResult.status, 200);
+  const getLinkRO = await getLinkResult.json();
+
+  t.is(getLinkRO.hasOwnProperty('expires'), true);
+  t.is(getLinkRO.hasOwnProperty('isTemporary'), true);
+  t.is(getLinkRO.hasOwnProperty('impersonated'), true);
+  const responseCookie = getLinkResult.headers.get('set-cookie');
+  const decodedReceivedCookie = testUtils.verifyJwtToken(responseCookie);
+  t.is(decodedReceivedCookie.sub, secondUserId);
+  t.is(decodedReceivedCookie.email, secondUser.email);
 });

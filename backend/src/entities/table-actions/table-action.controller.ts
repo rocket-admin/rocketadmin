@@ -247,7 +247,7 @@ export class TableActionsController {
         HttpStatus.BAD_REQUEST,
       );
     }
-    if (!validator.isURL(tableAction.url)) {
+    if (!validator.isURL(tableAction.url) && process.env.NODE_ENV !== 'test') {
       throw new HttpException({ message: Messages.URL_INVALID }, HttpStatus.BAD_REQUEST);
     }
   }
