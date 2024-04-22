@@ -209,5 +209,30 @@ export const filterTypes = {
         smallmoney: TextFilterComponent,
 
         "foreign key": ForeignKeyFilterComponent
+    },
+    mongo: {
+        // numbers (number)
+        number: NumberFilterComponent,
+        double: NumberFilterComponent,
+        int32: NumberFilterComponent,
+        long: NumberFilterComponent,
+        decimal128: NumberFilterComponent,
+
+        //boolean (radiogroup)
+        boolean: BooleanFilterComponent,
+
+        //datetime (datepicker)
+        date: DateFilterComponent,
+        timestamp: DateTimeFilterComponent,
+
+        // short text (text)
+        string: TextFilterComponent,
+        regexp: TextFilterComponent,
+        objectid: TextFilterComponent,
+
+        //file
+        binary: FileFilterComponent,
+
+        "foreign key": ForeignKeyFilterComponent
     }
 }
