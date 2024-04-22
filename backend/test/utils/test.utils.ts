@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import { Injectable } from '@nestjs/common';
 import { DatabaseService } from '../../src/shared/database/database.service.js';
+import jwt from 'jsonwebtoken';
 
 @Injectable()
 // @ts-ignore
@@ -28,6 +29,23 @@ export class TestUtils {
     jwt = jwt.replace('rocketadmin_cookie=', '');
     jwt = jwt.replace('; Path=/', '');
     return jwt;
+  }
+
+  verifyJwtToken(token: string): {
+    sub: string;
+    email: string;
+    exp: number;
+    iat: number;
+  } {
+    const tokenValue = token.split('=')[1].split(';')[0];
+    const jwtSecret = process.env.JWT_SECRET;
+    const data = jwt.verify(tokenValue, jwtSecret);
+    return {
+      sub: data['id'],
+      email: data['email'],
+      exp: data['exp'],
+      iat: data['iat'],
+    };
   }
 
   static getJwtTokenFromResponse2(res: any): string {
