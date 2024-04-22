@@ -362,6 +362,7 @@ export class DataAccessObjectMongo extends BasicDataAccessObject implements IDat
   private async getConnectionToDatabase(): Promise<Db> {
     if (this.connection.ssh) {
       const { db } = await this.createTunneledConnection(this.connection);
+      return db;
     }
     const { db } = await this.getUsualConnection();
     return db;
@@ -386,8 +387,8 @@ export class DataAccessObjectMongo extends BasicDataAccessObject implements IDat
       mongoConnectionString += `?ssl=true`;
       options = {
         ssl: true,
-        sslValidate: this.connection.cert ? true : false,
-        sslCA: this.connection.cert,
+        sslValidate: this.connection?.cert ? true : false,
+        sslCA: this.connection?.cert,
       };
     }
 
