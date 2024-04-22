@@ -393,9 +393,15 @@ export class DataAccessObjectMongo extends BasicDataAccessObject implements IDat
     }
 
     const client = new MongoClient(mongoConnectionString, options);
-    const connectedClient = await client.connect();
-    const clientDb = { db: connectedClient.db(this.connection.database), dbClient: connectedClient };
-    LRUStorage.setMongoDbCache(this.connection, clientDb);
+    let clientDb: MongoClientDB;
+    try {
+      const connectedClient = await client.connect();
+       clientDb = { db: connectedClient.db(this.connection.database), dbClient: connectedClient };
+      LRUStorage.setMongoDbCache(this.connection, clientDb);
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
     return clientDb;
   }
 
