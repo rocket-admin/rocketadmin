@@ -713,7 +713,7 @@ export class ConnectionController {
         return errors;
       }
       if (process.env.NODE_ENV !== 'test' && !connectionData.ssh) {
-        if (!this.ifMongoHost(connectionData.host)) {
+        if (!this.isMongoHost(connectionData.host)) {
           if (!validator.isFQDN(connectionData.host) && !validator.isIP(connectionData.host))
             errors.push(Messages.HOST_NAME_INVALID);
         }
@@ -739,11 +739,7 @@ export class ConnectionController {
     return errors;
   };
 
-  private ifMongoHost(host: string): boolean {
+  private isMongoHost(host: string): boolean {
     return host.startsWith('mongodb+srv');
-  }
-
-  private validateMongoHost(host: string): boolean {
-    return host.startsWith('mongodb+srv') && host.split('.').length > 2;
   }
 }
