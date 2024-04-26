@@ -18,7 +18,10 @@ import { DAO_CONSTANTS } from '../../helpers/data-access-objects-constants.js';
 import { tableSettingsFieldValidator } from '../../helpers/validation/table-settings-validator.js';
 import { TableDS } from '../shared/data-structures/table.ds.js';
 import { ERROR_MESSAGES } from '../../helpers/errors/error-messages.js';
-import { Stream } from 'node:stream';
+import pgStream from 'pg-copy-streams';
+import { Stream, Transform, Readable, pipeline } from 'node:stream';
+import { promisify } from 'node:util';
+import * as csv from 'csv';
 
 export class DataAccessObjectPostgres extends BasicDataAccessObject implements IDataAccessObject {
   constructor(connection: ConnectionParams) {
@@ -590,6 +593,43 @@ export class DataAccessObjectPostgres extends BasicDataAccessObject implements I
     return rowsAsStream;
   }
 
+  public async importCSVInTable(file: Express.Multer.File, tableName: string): Promise<void> {
+    const knex = await this.configureKnex();
+    const structure = await this.getTableStructure(tableName);
+    const timestampColumnNames = structure
+      .filter(({ data_type }) => this.isPostgresDateOrTimeType(data_type))
+      .map(({ column_name }) => column_name);
+    const stream = new Readable();
+    stream.push(file.buffer);
+    stream.push(null);
+
+    const parser = stream.pipe(csv.parse({ columns: true }));
+
+    const results: any[] = [];
+    for await (const record of parser) {
+      results.push(record);
+    }
+
+    try {
+      await knex.transaction(async (trx) => {
+        for (let row of results) {
+          for (let column of timestampColumnNames) {
+            if (row[column] && !this.isPostgresDateStringByRegexp(row[column])) {
+              const date = new Date(Number(row[column]));
+              row[column] = date.toISOString();
+            }
+          }
+
+          await trx(tableName)
+            .withSchema(this.connection.schema ?? 'public')
+            .insert(row);
+        }
+      });
+    } catch (error) {
+      throw error;
+    }
+  }
+
   private async getRowsCount(
     knex: Knex<any, any[]>,
     countRowsQB: Knex.QueryBuilder<any, any[]> | null,
@@ -679,5 +719,13 @@ export class DataAccessObjectPostgres extends BasicDataAccessObject implements I
       fullTableName = `"public"."${tableName}"`;
     }
     return fullTableName;
+  }
+
+  private isPostgresDateOrTimeType(dataType: string): boolean {
+    return ['date', 'time', 'timestamp', 'timestamptz', 'timestamp with time zone'].includes(dataType);
+  }
+  private isPostgresDateStringByRegexp(value: string): boolean {
+    const dateRegexp = /^(\d{4})-(\d{2})-(\d{2})$/;
+    return dateRegexp.test(value);
   }
 }

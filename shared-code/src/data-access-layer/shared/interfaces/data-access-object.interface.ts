@@ -21,7 +21,7 @@ export interface IDataAccessObject {
     referencedFieldName: string,
     identityColumnName: string,
     fieldValues: Array<string | number>,
-  ):Promise<Array<Record<string, unknown>>>;
+  ): Promise<Array<Record<string, unknown>>>;
 
   getRowByPrimaryKey(
     tableName: string,
@@ -75,4 +75,6 @@ export interface IDataAccessObject {
     searchedFieldValue: string,
     filteringFields: Array<FilteringFieldsDS>,
   ): Promise<Stream & AsyncIterable<any>>;
+
+  importCSVInTable?(file: Express.Multer.File, tableName: string): Promise<void>;
 }

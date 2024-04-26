@@ -76,6 +76,7 @@ export const Messages = {
   CUSTOM_FIELD_TYPE_INCORRECT: 'Unsupported custom field type',
   CUSTOM_FIELD_TYPE_MISSING: 'Custom field type is missing',
   CSV_EXPORT_FAILED: 'CSV export failed',
+  CSV_IMPORT_FAILED: 'CSV import failed',
   DATABASE_MISSING: 'Database is missing',
   DELETE_ROW_FAILED: 'Row deletion failed',
   DESCRIPTION_MISSING: 'Description is missing',

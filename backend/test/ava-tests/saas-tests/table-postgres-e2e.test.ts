@@ -1,3 +1,4 @@
+/* eslint-disable security/detect-non-literal-fs-filename */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable security/detect-object-injection */
 import { faker } from '@faker-js/faker';
@@ -3598,4 +3599,102 @@ with search and pagination: page=1, perPage=2 and DESC sorting`, async (t) => {
   // eslint-disable-next-line security/detect-non-literal-fs-filename
   const isFileExists = fs.existsSync(downloadedFilePatch);
   t.is(isFileExists, true);
+});
+
+currentTest = 'POST /table/csv/import/:slug';
+test.only(`${currentTest} should import csv file with table data`, async (t) => {
+  const connectionToTestDB = getTestData(mockFactory).connectionToPostgres;
+  const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
+
+  const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
+    await createTestTable(connectionToTestDB);
+
+  const createConnectionResponse = await request(app.getHttpServer())
+    .post('/connection')
+    .send(connectionToTestDB)
+    .set('Cookie', firstUserToken)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+  const createConnectionRO = JSON.parse(createConnectionResponse.text);
+  t.is(createConnectionResponse.status, 201);
+
+  const createTableSettingsDTO = mockFactory.generateTableSettings(
+    createConnectionRO.id,
+    testTableName,
+    [testTableColumnName],
+    undefined,
+    undefined,
+    3,
+    QueryOrderingEnum.DESC,
+    'id',
+    undefined,
+    undefined,
+    undefined,
+    undefined,
+    undefined,
+  );
+
+  const createTableSettingsResponse = await request(app.getHttpServer())
+    .post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
+    .send(createTableSettingsDTO)
+    .set('Cookie', firstUserToken)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+  t.is(createTableSettingsResponse.status, 201);
+
+  const getTableCsvResponse = await request(app.getHttpServer())
+    .post(
+      `/table/csv/export/${createConnectionRO.id}?tableName=${testTableName}&search=${testSearchedUserName}&page=1&perPage=2`,
+    )
+    .set('Cookie', firstUserToken)
+    .set('Content-Type', 'text/csv')
+    .set('Accept', 'text/csv');
+
+  if (getTableCsvResponse.status !== 201) {
+    console.log(getTableCsvResponse.text);
+  }
+  t.is(getTableCsvResponse.status, 201);
+  const fileName = `${testTableName}.csv`;
+  const downloadedFilePatch = join(__dirname, 'response-files', fileName);
+
+  const dir = join(__dirname, 'response-files');
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir);
+  }
+  // eslint-disable-next-line security/detect-non-literal-fs-filename
+  fs.writeFileSync(downloadedFilePatch, getTableCsvResponse.body);
+  console.log('🚀 ~ test.only ~ downloadedFilePatch:', downloadedFilePatch);
+  // eslint-disable-next-line security/detect-non-literal-fs-filename
+  const isFileExists = fs.existsSync(downloadedFilePatch);
+  t.is(isFileExists, true);
+
+  function changeIdFieldsValuesInCsvFile(filePatch: string) {
+    const fileContent = fs.readFileSync(filePatch).toString();
+    const rows = fileContent.split('\n');
+    const newRows = rows.map((row, index) => {
+      if (index === 0) {
+        return row;
+      }
+      const columns = row.split(',');
+      if (columns.length === 1) {
+        return row;
+      }
+      columns[0] = `5${index}`;
+      return columns.join(',');
+    });
+    return newRows.join('\n');
+  }
+
+  const newFileContent = changeIdFieldsValuesInCsvFile(downloadedFilePatch);
+  fs.writeFileSync(downloadedFilePatch, newFileContent);
+
+  const importCsvResponse = await request(app.getHttpServer())
+    .post(`/table/csv/import/${createConnectionRO.id}?tableName=${testTableName}`)
+    .attach('file', downloadedFilePatch)
+    .set('Cookie', firstUserToken)
+    .set('Accept', 'application/json');
+
+  t.is(importCsvResponse.status, 201);
+  const importCsvRO = JSON.parse(importCsvResponse.text);
+  console.log('🚀 ~ test ~ importCsvRO:', importCsvRO);
 });
