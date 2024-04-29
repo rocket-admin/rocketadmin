@@ -24,7 +24,8 @@ import { getNumbersFromString } from '../../helpers/get-numbers-from-string.js';
 import { tableSettingsFieldValidator } from '../../helpers/validation/table-settings-validator.js';
 import { TableDS } from '../shared/data-structures/table.ds.js';
 import { ERROR_MESSAGES } from '../../helpers/errors/error-messages.js';
-import { Stream } from 'node:stream';
+import { Stream, Readable } from 'node:stream';
+import * as csv from 'csv';
 
 export class DataAccessObjectMysql extends BasicDataAccessObject implements IDataAccessObject {
   constructor(connection: ConnectionParams) {
@@ -588,7 +589,40 @@ export class DataAccessObjectMysql extends BasicDataAccessObject implements IDat
   }
 
   public async importCSVInTable(file: Express.Multer.File, tableName: string): Promise<void> {
-    throw new Error('Method not implemented.');
+    const knex = await this.configureKnex();
+    const structure = await this.getTableStructure(tableName);
+    const timestampColumnNames = structure
+      .filter(({ data_type }) => this.isMySqlDateOrTimeType(data_type))
+      .map(({ column_name }) => column_name);
+    const stream = new Readable();
+    stream.push(file.buffer);
+    stream.push(null);
+
+    const parser = stream.pipe(csv.parse({ columns: true }));
+
+    const results: any[] = [];
+    for await (const record of parser) {
+      results.push(record);
+    }
+
+    try {
+      await knex.transaction(async (trx) => {
+        for (let row of results) {
+          for (let column of timestampColumnNames) {
+            if (row[column] && !this.isMySqlDateOrTimeType(row[column])) {
+              const date = new Date(Number(row[column]));
+              const formattedDate = date.toISOString().slice(0, 19).replace('T', ' ');
+              row[column] = formattedDate;
+            }
+          }
+
+          await trx(tableName).insert(row);
+        }
+      });
+    } catch (error) {
+      console.log('🚀 ~ DataAccessObjectMysql ~ importCSVInTable ~ error:', error);
+      throw error;
+    }
   }
 
   private async getRowsCount(
@@ -655,5 +689,9 @@ export class DataAccessObjectMysql extends BasicDataAccessObject implements IDat
       (await knex.raw(`SHOW TABLE STATUS IN ?? LIKE ?;`, [databaseName, tableName]))[0][0].Rows,
     );
     return fastCount;
+  }
+
+  private isMySqlDateOrTimeType(dataType: string): boolean {
+    return ['date', 'time', 'datetime', 'timestamp'].includes(dataType.toLowerCase());
   }
 }

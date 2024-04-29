@@ -3602,7 +3602,7 @@ with search and pagination: page=1, perPage=2 and DESC sorting`, async (t) => {
 });
 
 currentTest = 'POST /table/csv/import/:slug';
-test.only(`${currentTest} should import csv file with table data`, async (t) => {
+test(`${currentTest} should import csv file with table data`, async (t) => {
   const connectionToTestDB = getTestData(mockFactory).connectionToPostgres;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
 
@@ -3694,6 +3694,17 @@ test.only(`${currentTest} should import csv file with table data`, async (t) => 
     .set('Accept', 'application/json');
 
   t.is(importCsvResponse.status, 201);
-  const importCsvRO = JSON.parse(importCsvResponse.text);
-  console.log('🚀 ~ test ~ importCsvRO:', importCsvRO);
+
+  //checking that the lines was added
+
+  const getTableRowsResponse = await request(app.getHttpServer())
+    .get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=1&perPage=50`)
+    .set('Cookie', firstUserToken)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+
+  const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
+  t.is(getTableRowsResponse.status, 200);
+  const addedRows = getTableRowsRO.rows.filter((row: Record<string, any>) => row.id > testEntitiesSeedsCount);
+  t.is(addedRows.length, 2);
 });

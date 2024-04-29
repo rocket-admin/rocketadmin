@@ -18,9 +18,7 @@ import { DAO_CONSTANTS } from '../../helpers/data-access-objects-constants.js';
 import { tableSettingsFieldValidator } from '../../helpers/validation/table-settings-validator.js';
 import { TableDS } from '../shared/data-structures/table.ds.js';
 import { ERROR_MESSAGES } from '../../helpers/errors/error-messages.js';
-import pgStream from 'pg-copy-streams';
-import { Stream, Transform, Readable, pipeline } from 'node:stream';
-import { promisify } from 'node:util';
+import { Stream, Readable } from 'node:stream';
 import * as csv from 'csv';
 
 export class DataAccessObjectPostgres extends BasicDataAccessObject implements IDataAccessObject {
