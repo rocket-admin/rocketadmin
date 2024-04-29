@@ -3478,7 +3478,7 @@ with search and pagination: page=1, perPage=2 and DESC sorting`, async (t) => {
 });
 
 currentTest = 'POST /table/csv/import/:slug';
-test.only(`${currentTest} should import csv file with table data`, async (t) => {
+test(`${currentTest} should import csv file with table data`, async (t) => {
   const connectionToTestDB = getTestData(mockFactory).connectionToTestMSSQL;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
 
@@ -3543,25 +3543,22 @@ test.only(`${currentTest} should import csv file with table data`, async (t) => 
   const isFileExists = fs.existsSync(downloadedFilePatch);
   t.is(isFileExists, true);
 
-  function changeIdFieldsValuesInCsvFile(filePatch: string) {
+  function deleteIdColumnsInCSVFile(filePatch: string) {
     // eslint-disable-next-line security/detect-non-literal-fs-filename
     const fileContent = fs.readFileSync(filePatch).toString();
     const rows = fileContent.split('\n');
-    const newRows = rows.map((row, index) => {
-      if (index === 0) {
-        return row;
-      }
+    const newRows = rows.map((row) => {
       const columns = row.split(',');
       if (columns.length === 1) {
         return row;
       }
-      columns[0] = `5${index}`;
+      columns.shift();
       return columns.join(',');
     });
     return newRows.join('\n');
   }
 
-  const newFileContent = changeIdFieldsValuesInCsvFile(downloadedFilePatch);
+  const newFileContent = deleteIdColumnsInCSVFile(downloadedFilePatch);
   // eslint-disable-next-line security/detect-non-literal-fs-filename
   fs.writeFileSync(downloadedFilePatch, newFileContent);
 

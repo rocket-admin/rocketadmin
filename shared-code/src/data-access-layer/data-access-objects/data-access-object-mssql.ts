@@ -564,7 +564,6 @@ WHERE TABLE_TYPE = 'VIEW'
         }
       });
     } catch (error) {
-      console.log('🚀 ~ DataAccessObjectMssql ~ importCSVInTable ~ error:', error)
       throw error;
     }
   }
