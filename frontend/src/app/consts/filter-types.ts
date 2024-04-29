@@ -210,7 +210,7 @@ export const filterTypes = {
 
         "foreign key": ForeignKeyFilterComponent
     },
-    mongo: {
+    mongodb: {
         // numbers (number)
         number: NumberFilterComponent,
         double: NumberFilterComponent,

@@ -8,7 +8,9 @@
     "test": "ng test",
     "test:ci": "ng test --watch=false --browsers=ChromeHeadlessCustom",
     "lint": "ng lint",
-    "e2e": "ng e2e"
+    "e2e": "ng e2e",
+    "analyze": "webpack-bundle-analyzer dist/dissendium-v0/stats.json",
+    "build:stats": "ng build --stats-json"
   },
   "private": true,
   "dependencies": {
@@ -52,6 +54,7 @@
     "rxjs": "~7.8.0",
     "tslib": "^2.5.0",
     "validator": "^13.9.0",
+    "webpack-bundle-analyzer": "^4.10.2",
     "zone.js": "~0.13.0"
   },
   "devDependencies": {

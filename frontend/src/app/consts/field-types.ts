@@ -210,7 +210,7 @@ export const fieldTypes = {
 
         "foreign key": ForeignKeyRowComponent
     },
-    mongo: {
+    mongodb: {
         // numbers (number)
         number: NumberRowComponent,
         double: NumberRowComponent,
@@ -232,6 +232,9 @@ export const fieldTypes = {
 
         //file
         binary: FileRowComponent,
+
+        //etc
+        unknown: TextRowComponent,
 
         "foreign key": ForeignKeyRowComponent
     }
