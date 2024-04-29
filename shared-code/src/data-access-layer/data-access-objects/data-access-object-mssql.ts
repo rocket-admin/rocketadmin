@@ -21,7 +21,8 @@ import { FilterCriteriaEnum } from '../shared/enums/filter-criteria.enum.js';
 import { QueryOrderingEnum } from '../shared/enums/query-ordering.enum.js';
 import { IDataAccessObject } from '../shared/interfaces/data-access-object.interface.js';
 import { BasicDataAccessObject } from './basic-data-access-object.js';
-import { Stream } from 'node:stream';
+import { Stream, Readable } from 'node:stream';
+import * as csv from 'csv';
 
 export class DataAccessObjectMssql extends BasicDataAccessObject implements IDataAccessObject {
   constructor(connection: ConnectionParams) {
@@ -532,7 +533,40 @@ WHERE TABLE_TYPE = 'VIEW'
   }
 
   public async importCSVInTable(file: Express.Multer.File, tableName: string): Promise<void> {
-    throw new Error('Method not implemented.');
+    const [knex, schemaName] = await Promise.all([this.configureKnex(), this.getSchemaName(tableName)]);
+    const tableWithSchema = `${schemaName}.[${tableName}]`;
+    const structure = await this.getTableStructure(tableName);
+    const timestampColumnNames = structure
+      .filter(({ data_type }) => this.isMSSQLDateOrTimeType(data_type))
+      .map(({ column_name }) => column_name);
+    const stream = new Readable();
+    stream.push(file.buffer);
+    stream.push(null);
+
+    const parser = stream.pipe(csv.parse({ columns: true }));
+
+    const results: any[] = [];
+    for await (const record of parser) {
+      results.push(record);
+    }
+
+    try {
+      await knex.transaction(async (trx) => {
+        for (let row of results) {
+          for (let column of timestampColumnNames) {
+            if (row[column] && !this.isMSSQLDateOrTimeType(row[column])) {
+              const date = new Date(Number(row[column]));
+              row[column] = date.toISOString();
+            }
+          }
+
+          await trx(tableWithSchema).insert(row);
+        }
+      });
+    } catch (error) {
+      console.log('🚀 ~ DataAccessObjectMssql ~ importCSVInTable ~ error:', error)
+      throw error;
+    }
   }
 
   private async getSchemaName(tableName: string): Promise<string> {
@@ -638,5 +672,9 @@ WHERE TABLE_TYPE = 'VIEW'
       [tableName],
     );
     return parseInt(fastCountQueryResult[0].RowCount);
+  }
+
+  private isMSSQLDateOrTimeType(dataType: string): boolean {
+    return ['date', 'datetime', 'datetime2', 'datetimeoffset', 'smalldatetime', 'time'].includes(dataType);
   }
 }

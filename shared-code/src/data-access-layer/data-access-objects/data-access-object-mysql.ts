@@ -620,7 +620,6 @@ export class DataAccessObjectMysql extends BasicDataAccessObject implements IDat
         }
       });
     } catch (error) {
-      console.log('🚀 ~ DataAccessObjectMysql ~ importCSVInTable ~ error:', error);
       throw error;
     }
   }
