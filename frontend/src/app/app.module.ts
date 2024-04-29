@@ -331,7 +331,6 @@ const saasExtraProviders = (environment as any).saas ? [
     RouterModule,
     DynamicModule,
     NgmatTableQueryReflectorModule,
-    NgJsonEditorModule,
     Angulartics2Module.forRoot(),
     ClipboardModule,
     DragDropModule,
