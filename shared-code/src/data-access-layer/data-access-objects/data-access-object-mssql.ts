@@ -554,7 +554,7 @@ WHERE TABLE_TYPE = 'VIEW'
       await knex.transaction(async (trx) => {
         for (let row of results) {
           for (let column of timestampColumnNames) {
-            if (row[column] && !this.isMSSQLDateOrTimeType(row[column])) {
+            if (row[column] && !this.isMSSQLDateStringByRegexp(row[column])) {
               const date = new Date(Number(row[column]));
               row[column] = date.toISOString();
             }
@@ -675,5 +675,9 @@ WHERE TABLE_TYPE = 'VIEW'
 
   private isMSSQLDateOrTimeType(dataType: string): boolean {
     return ['date', 'datetime', 'datetime2', 'datetimeoffset', 'smalldatetime', 'time'].includes(dataType);
+  }
+
+  private isMSSQLDateStringByRegexp(value: string): boolean {
+    return /(\d{4}-\d{2}-\d{2})T(\d{2}:\d{2}:\d{2}.\d{3}Z)/.test(value);
   }
 }

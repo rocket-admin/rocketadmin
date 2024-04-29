@@ -13,7 +13,6 @@ import { TableStructureDS } from '../shared/data-structures/table-structure.ds.j
 import { TestConnectionResultDS } from '../shared/data-structures/test-result-connection.ds.js';
 import { ValidateTableSettingsDS } from '../shared/data-structures/validate-table-settings.ds.js';
 import { FilterCriteriaEnum } from '../shared/enums/filter-criteria.enum.js';
-import { QueryOrderingEnum } from '../shared/enums/query-ordering.enum.js';
 import { IDataAccessObject } from '../shared/interfaces/data-access-object.interface.js';
 import { BasicDataAccessObject } from './basic-data-access-object.js';
 import { LRUStorage } from '../../caching/lru-storage.js';
@@ -23,6 +22,7 @@ import { tableSettingsFieldValidator } from '../../helpers/validation/table-sett
 import { TableDS } from '../shared/data-structures/table.ds.js';
 import { ERROR_MESSAGES } from '../../helpers/errors/error-messages.js';
 import { Stream, Readable } from 'node:stream';
+import * as csv from 'csv';
 
 type RefererencedConstraint = {
   TABLE_NAME: string;
@@ -698,7 +698,40 @@ export class DataAccessObjectOracle extends BasicDataAccessObject implements IDa
   }
 
   public async importCSVInTable(file: Express.Multer.File, tableName: string): Promise<void> {
-    throw new Error('Method not implemented.');
+    const tableSchema = this.connection.schema ? this.connection.schema : this.connection.username.toUpperCase();
+    const knex = await this.configureKnex();
+    const structure = await this.getTableStructure(tableName);
+    const timestampColumnNames = structure
+      .filter(({ data_type }) => this.isOracleDateOrTimeType(data_type))
+      .map(({ column_name }) => column_name);
+    const stream = new Readable();
+    stream.push(file.buffer);
+    stream.push(null);
+
+    const parser = stream.pipe(csv.parse({ columns: true }));
+
+    const results: any[] = [];
+    for await (const record of parser) {
+      results.push(record);
+    }
+
+    try {
+      await knex.transaction(async (trx) => {
+        for (let row of results) {
+          for (let column of timestampColumnNames) {
+            if (row[column] && !this.isOracleDateStringByRegexp(row[column])) {
+              const date = new Date(Number(row[column]));
+              row[column] = this.formatDate(date);
+            }
+          }
+
+          await trx(tableName).withSchema(tableSchema).insert(row);
+        }
+      });
+    } catch (error) {
+      console.log('🚀 ~ DataAccessObjectOracle ~ importCSVInTable ~ error:', error);
+      throw error;
+    }
   }
 
   private setupPagination(page: number, perPage: number, settings: TableSettingsDS) {
@@ -721,5 +754,27 @@ export class DataAccessObjectOracle extends BasicDataAccessObject implements IDa
       ? `"${this.connection.schema}"."${tableName}"`
       : `"${this.connection.username.toUpperCase()}"."${tableName}"`;
     return tableName;
+  }
+
+  private isOracleDateOrTimeType(type: string): boolean {
+    if (type.toLowerCase().includes('timestamp')) {
+      return true;
+    }
+    const dateTypes = ['date', 'timestamp', 'timestamp with time zone', 'timestamp with local time zone'];
+    return dateTypes.includes(type.toLowerCase());
+  }
+
+  private isOracleDateStringByRegexp(value: string): boolean {
+    const dateRegexp = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z$/;
+    return dateRegexp.test(value);
+  }
+
+  private formatDate(date: Date) {
+    const monthNames = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
+    const day = date.getDate();
+    const monthIndex = date.getMonth();
+    const year = date.getFullYear().toString().slice(-2);
+    const resultString = `${day}-${monthNames[monthIndex]}-${year}`;
+    return resultString;
   }
 }
