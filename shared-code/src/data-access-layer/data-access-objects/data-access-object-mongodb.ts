@@ -373,7 +373,7 @@ export class DataAccessObjectMongo extends BasicDataAccessObject implements IDat
     if (cachedDatabase) {
       return cachedDatabase;
     }
-  
+
     let mongoConnectionString = '';
     if (this.connection.host.includes('mongodb+srv')) {
       const hostNameParts = this.connection.host.split('//');
@@ -470,6 +470,8 @@ export class DataAccessObjectMongo extends BasicDataAccessObject implements IDat
     switch (true) {
       case Array.isArray(value):
         return 'array';
+      case typeof value === 'object' && value !== null:
+        return 'object';
       case value instanceof BSON.Double:
         return 'double';
       case value instanceof BSON.Int32:
