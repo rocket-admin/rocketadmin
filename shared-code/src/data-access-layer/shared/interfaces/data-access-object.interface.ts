@@ -76,5 +76,5 @@ export interface IDataAccessObject {
     filteringFields: Array<FilteringFieldsDS>,
   ): Promise<Stream & AsyncIterable<any>>;
 
-  importCSVInTable?(file: Express.Multer.File, tableName: string): Promise<void>;
+  importCSVInTable(file: Express.Multer.File, tableName: string): Promise<void>;
 }

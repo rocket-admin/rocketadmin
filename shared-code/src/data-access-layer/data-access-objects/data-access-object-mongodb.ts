@@ -339,6 +339,10 @@ export class DataAccessObjectMongo extends BasicDataAccessObject implements IDat
     return false;
   }
 
+  public async importCSVInTable(file: Express.Multer.File, tableName: string): Promise<void> {
+    throw new Error('Method not implemented.');
+  }
+
   public async getTableRowsStream(
     tableName: string,
     settings: TableSettingsDS,

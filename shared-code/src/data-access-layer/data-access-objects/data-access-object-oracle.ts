@@ -697,6 +697,10 @@ export class DataAccessObjectOracle extends BasicDataAccessObject implements IDa
     return rowsAsStream;
   }
 
+  public async importCSVInTable(file: Express.Multer.File, tableName: string): Promise<void> {
+    throw new Error('Method not implemented.');
+  }
+
   private setupPagination(page: number, perPage: number, settings: TableSettingsDS) {
     if (!page || page <= 0) {
       page = DAO_CONSTANTS.DEFAULT_PAGINATION.page;

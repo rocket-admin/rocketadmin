@@ -587,6 +587,10 @@ export class DataAccessObjectMysql extends BasicDataAccessObject implements IDat
     return rowsAsStream;
   }
 
+  public async importCSVInTable(file: Express.Multer.File, tableName: string): Promise<void> {
+    throw new Error('Method not implemented.');
+  }
+
   private async getRowsCount(
     knex: Knex<any, any[]>,
     countRowsQB: Knex.QueryBuilder<any, any[]> | null,

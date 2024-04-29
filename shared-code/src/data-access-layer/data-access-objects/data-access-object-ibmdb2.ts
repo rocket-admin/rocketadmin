@@ -559,6 +559,10 @@ WHERE
     return { rowsCount: rowsCount, large_dataset: false };
   }
 
+  public async importCSVInTable(file: Express.Multer.File, tableName: string): Promise<void> {
+    throw new Error('Method not implemented.');
+  }
+
   private async getConnectionToDatabase(): Promise<Database> {
     if (this.connection.ssh) {
       return this.createTunneledConnection(this.connection);

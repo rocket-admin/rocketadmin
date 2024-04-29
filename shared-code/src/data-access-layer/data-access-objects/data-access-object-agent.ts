@@ -579,6 +579,10 @@ export class DataAccessObjectAgent implements IDataAccessObjectAgent {
     }
   }
 
+  public async importCSVInTable(file: Express.Multer.File, tableName: string): Promise<void> {
+    throw new Error('Method not implemented.');
+  }
+
   private generateJWT(connectionToken: string): string {
     const exp = new Date();
     exp.setDate(exp.getDate() + 60);

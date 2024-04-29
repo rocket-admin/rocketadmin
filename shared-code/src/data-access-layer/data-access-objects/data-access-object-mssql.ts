@@ -531,6 +531,10 @@ WHERE TABLE_TYPE = 'VIEW'
     return rowsAsStream;
   }
 
+  public async importCSVInTable(file: Express.Multer.File, tableName: string): Promise<void> {
+    throw new Error('Method not implemented.');
+  }
+
   private async getSchemaName(tableName: string): Promise<string> {
     if (this.connection.schema) {
       return `[${this.connection.schema}]`;

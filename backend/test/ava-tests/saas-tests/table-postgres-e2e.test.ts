@@ -3663,7 +3663,6 @@ test.only(`${currentTest} should import csv file with table data`, async (t) => 
   }
   // eslint-disable-next-line security/detect-non-literal-fs-filename
   fs.writeFileSync(downloadedFilePatch, getTableCsvResponse.body);
-  console.log('🚀 ~ test.only ~ downloadedFilePatch:', downloadedFilePatch);
   // eslint-disable-next-line security/detect-non-literal-fs-filename
   const isFileExists = fs.existsSync(downloadedFilePatch);
   t.is(isFileExists, true);
