@@ -85,7 +85,11 @@ export class ActivateTableActionsUseCase
           'Rocketadmin-Signature': rocketadminSignatureHeader,
           'Content-Type': 'application/json',
         },
+        validateStatus: function (status) {
+          return status <= 599;
+        },
       });
+
 
       const operationStatusCode = result.status;
       if (operationStatusCode >= 200 && operationStatusCode < 300) {

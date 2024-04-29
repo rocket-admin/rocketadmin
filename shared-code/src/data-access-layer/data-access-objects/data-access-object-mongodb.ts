@@ -362,6 +362,7 @@ export class DataAccessObjectMongo extends BasicDataAccessObject implements IDat
   private async getConnectionToDatabase(): Promise<Db> {
     if (this.connection.ssh) {
       const { db } = await this.createTunneledConnection(this.connection);
+      return db;
     }
     const { db } = await this.getUsualConnection();
     return db;
@@ -373,28 +374,33 @@ export class DataAccessObjectMongo extends BasicDataAccessObject implements IDat
       return cachedDatabase;
     }
 
-    let mongoConnectionString =
-      `mongodb://${this.connection.username}` +
-      `:${this.connection.password}` +
-      `@${this.connection.host}` +
-      `:${this.connection.port}` +
-      `/${this.connection.database}`;
-
-    let options = {};
-
+    let mongoConnectionString = '';
+    if (this.connection.host.includes('mongodb+srv')) {
+      const hostNameParts = this.connection.host.split('//');
+      mongoConnectionString = `${hostNameParts[0]}//${this.connection.username}:${this.connection.password}@${hostNameParts[1]}`;
+    } else {
+      mongoConnectionString = `mongodb://${this.connection.username}:${this.connection.password}@${this.connection.host}:${this.connection.port}/${this.connection.database}`;
+    }
+    let options: any = {};
     if (this.connection.ssl) {
       mongoConnectionString += `?ssl=true`;
       options = {
         ssl: true,
-        sslValidate: this.connection.cert ? true : false,
-        sslCA: this.connection.cert,
+        sslValidate: this.connection?.cert ? true : false,
+        sslCA: this.connection?.cert,
       };
     }
 
     const client = new MongoClient(mongoConnectionString, options);
-    const connectedClient = await client.connect();
-    const clientDb = { db: connectedClient.db(this.connection.database), dbClient: connectedClient };
-    LRUStorage.setMongoDbCache(this.connection, clientDb);
+    let clientDb: MongoClientDB;
+    try {
+      const connectedClient = await client.connect();
+      clientDb = { db: connectedClient.db(this.connection.database), dbClient: connectedClient };
+      LRUStorage.setMongoDbCache(this.connection, clientDb);
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
     return clientDb;
   }
 
@@ -464,6 +470,8 @@ export class DataAccessObjectMongo extends BasicDataAccessObject implements IDat
     switch (true) {
       case Array.isArray(value):
         return 'array';
+      case typeof value === 'object' && value !== null:
+        return 'object';
       case value instanceof BSON.Double:
         return 'double';
       case value instanceof BSON.Int32:

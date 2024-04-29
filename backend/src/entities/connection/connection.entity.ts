@@ -120,6 +120,9 @@ export class ConnectionEntity {
   @BeforeInsert()
   encryptCredentials(): void {
     this.signing_key = Encryptor.generateRandomString(40);
+    if (process.env.NODE_ENV === 'test') {
+      this.signing_key = 'test';
+    }
     if (!isConnectionTypeAgent(this.type)) {
       this.host = Encryptor.encryptData(this.host);
       this.database = Encryptor.encryptData(this.database);

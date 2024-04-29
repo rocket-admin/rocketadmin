@@ -273,7 +273,7 @@ export class DataAccessObjectPostgres extends BasicDataAccessObject implements I
     }
     const knex = await this.configureKnex();
     tableName = this.attachSchemaNameToTableName(tableName);
-    const primaryColumns: Array<any> = await knex(tableName)
+    const primaryColumns: Array<any> = await knex('pg_index i')
       .select(knex.raw('a.attname, format_type(a.atttypid, a.atttypmod) AS data_type'))
       .from(knex.raw('pg_index i'))
       .join(knex.raw('pg_attribute a ON a.attrelid = i.indrelid AND a.attnum = ANY(i.indkey)'))
@@ -672,11 +672,12 @@ export class DataAccessObjectPostgres extends BasicDataAccessObject implements I
   }
 
   private attachSchemaNameToTableName(tableName: string): string {
+    let fullTableName: string;
     if (this.connection.schema) {
-      tableName = `"${this.connection.schema}"."${tableName}"`;
+      fullTableName = `"${this.connection.schema}"."${tableName}"`;
     } else {
-      tableName = `"public"."${tableName}"`;
+      fullTableName = `"public"."${tableName}"`;
     }
-    return tableName;
+    return fullTableName;
   }
 }
