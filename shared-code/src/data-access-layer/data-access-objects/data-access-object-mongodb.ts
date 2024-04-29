@@ -39,6 +39,7 @@ export class DataAccessObjectMongo extends BasicDataAccessObject implements IDat
   ): Promise<number | Record<string, unknown>> {
     const db = await this.getConnectionToDatabase();
     const collection = db.collection(tableName);
+    delete row._id;
     const result = await collection.insertOne(row);
     return { _id: result.insertedId.toHexString() };
   }
@@ -307,6 +308,7 @@ export class DataAccessObjectMongo extends BasicDataAccessObject implements IDat
     const db = await this.getConnectionToDatabase();
     const collection = db.collection(tableName);
     const objectId = this.createObjectIdFromSting(primaryKey._id as string);
+    delete row._id;
     await collection.updateOne({ _id: objectId }, { $set: row });
     return { _id: objectId.toHexString() };
   }
