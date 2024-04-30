@@ -63,6 +63,7 @@ export class AppComponent {
     this.matIconRegistry.addSvgIcon("mssql", this.domSanitizer.bypassSecurityTrustResourceUrl("/assets/icons/mssql_logo.svg"));
     this.matIconRegistry.addSvgIcon("oracledb", this.domSanitizer.bypassSecurityTrustResourceUrl("/assets/icons/oracle_logo.svg"));
     this.matIconRegistry.addSvgIcon("postgres", this.domSanitizer.bypassSecurityTrustResourceUrl("/assets/icons/postgres_logo.svg"));
+    this.matIconRegistry.addSvgIcon("mongodb", this.domSanitizer.bypassSecurityTrustResourceUrl("/assets/icons/mongodb_logo.svg"));
     angulartics2Amplitude.startTracking();
   }
 
