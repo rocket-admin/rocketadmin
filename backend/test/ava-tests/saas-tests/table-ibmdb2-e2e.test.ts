@@ -3472,7 +3472,7 @@ with search and pagination: page=1, perPage=2 and DESC sorting`, async (t) => {
 });
 
 currentTest = 'POST /table/csv/import/:slug';
-test.only(`${currentTest} should import csv file with table data`, async (t) => {
+test(`${currentTest} should import csv file with table data`, async (t) => {
   const connectionToTestDB = getTestData(mockFactory).connectionToIbmDb2;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
 
