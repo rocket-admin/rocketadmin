@@ -1,6 +1,5 @@
 import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
 
-// import { JsonEditorComponent as JsonEditor, JsonEditorOptions } from 'ang-jsoneditor';
 import { normalizeFieldName } from '../../../../lib/normalize';
 
 @Component({

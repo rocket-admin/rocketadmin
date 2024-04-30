@@ -713,8 +713,10 @@ export class ConnectionController {
         return errors;
       }
       if (process.env.NODE_ENV !== 'test' && !connectionData.ssh) {
-        if (!validator.isFQDN(connectionData.host) && !validator.isIP(connectionData.host))
-          errors.push(Messages.HOST_NAME_INVALID);
+        if (!this.isMongoHost(connectionData.host)) {
+          if (!validator.isFQDN(connectionData.host) && !validator.isIP(connectionData.host))
+            errors.push(Messages.HOST_NAME_INVALID);
+        }
       }
       if (connectionData.port < 0 || connectionData.port > 65535 || !connectionData.port)
         errors.push(Messages.PORT_MISSING);
@@ -736,4 +738,8 @@ export class ConnectionController {
 
     return errors;
   };
+
+  private isMongoHost(host: string): boolean {
+    return host.startsWith('mongodb+srv');
+  }
 }
