@@ -40,7 +40,8 @@ export class ConnectDBComponent implements OnInit, OnDestroy {
     [DBtype.MySQL]: '3306',
     [DBtype.Postgres]: '5432',
     [DBtype.Oracle]: '1521',
-    [DBtype.MSSQL]: '1433'
+    [DBtype.MSSQL]: '1433',
+    [DBtype.Mongo]: '27017'
   }
 
   public osAgents = {

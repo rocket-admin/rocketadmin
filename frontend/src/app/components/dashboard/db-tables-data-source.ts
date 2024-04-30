@@ -107,7 +107,7 @@ export class TablesDataSource implements DataSource<Object> {
       if (value || value ===  1) return '✓'
       else if (value === false || value === 0) return '✕'
       else return '—'
-    } else if (type === 'json') {
+    } else if (type === 'json' || type === 'jsonb' || type === 'object' || type === 'array') {
       return JSON.stringify(value)
     }
     return value;

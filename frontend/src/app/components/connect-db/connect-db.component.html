@@ -31,6 +31,7 @@
                 <mat-option value="postgres">PostgreSQL</mat-option>
                 <mat-option value="oracledb">Oracle</mat-option>
                 <mat-option value="mssql">MS SQL</mat-option>
+                <mat-option value="mongodb">MongoDB</mat-option>
             </mat-select>
         </mat-form-field>
 
@@ -143,7 +144,7 @@
                 <!-- <mat-error *ngIf="email.errors.required && (email.invalid && email.touched)">Email should not be empty.</mat-error> -->
             </mat-form-field>
 
-            <mat-form-field appearance="outline" [ngClass]="db.type === 'mysql' ? 'connectForm__fullLine' : 'connectForm__firstHalf'">
+            <mat-form-field appearance="outline" [ngClass]="(db.type === 'mysql' || db.type === 'mongodb') ? 'connectForm__fullLine' : 'connectForm__firstHalf'">
                 <mat-label>Database Name</mat-label>
                 <input matInput name="database" #database="ngModel"
                     angulartics2On="change"
@@ -155,7 +156,7 @@
                 <mat-error *ngIf="database.errors?.required && (database.invalid && database.touched)">Name should not be empty.</mat-error>
             </mat-form-field>
 
-            <mat-form-field *ngIf="db.type !== 'mysql'" appearance="outline" class="connectForm__secondHalf">
+            <mat-form-field *ngIf="db.type !== 'mysql' && db.type !== 'mongodb'" appearance="outline" class="connectForm__secondHalf">
                 <mat-label>Schema</mat-label>
                 <input matInput name="schema" #schema="ngModel"
                     angulartics2On="change"
