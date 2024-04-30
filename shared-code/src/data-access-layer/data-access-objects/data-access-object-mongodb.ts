@@ -381,7 +381,7 @@ export class DataAccessObjectMongo extends BasicDataAccessObject implements IDat
       const hostNameParts = this.connection.host.split('//');
       mongoConnectionString = `${hostNameParts[0]}//${this.connection.username}:${this.connection.password}@${hostNameParts[1]}`;
     } else {
-      mongoConnectionString = `mongodb://${this.connection.username}:${this.connection.password}@${this.connection.host}:${this.connection.port}/${this.connection.database}`;
+      mongoConnectionString = `mongodb://${this.connection.username}:${this.connection.password}@${this.connection.host}:${this.connection.port}/${this.connection.database ? this.connection.database : ''}`;
     }
     let options: any = {};
     if (this.connection.ssl) {
