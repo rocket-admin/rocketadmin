@@ -13,6 +13,7 @@
     "lru-cache": "^10.2.0",
     "mysql2": "^3.9.4",
     "oracledb": "^6.4.0",
+    "p-queue": "^8.0.1",
     "pg": "^8.11.5",
     "pg-copy-streams": "^6.0.6",
     "pg-query-stream": "^4.5.5",

@@ -566,6 +566,7 @@ export class TableController {
     @QueryTableName() tableName: string,
     @SlugUuid() connectionId: string,
     @MasterPassword() masterPwd: string,
+    @UserId() userId: string,
     @UploadedFile(
       new ParseFilePipeBuilder()
         .addFileTypeValidator({ fileType: 'text/csv' })
@@ -587,6 +588,7 @@ export class TableController {
       file: file,
       tableName: tableName,
       materPwd: masterPwd,
+      userId: userId,
     };
     await this.importCSVToTableUseCase.execute(inputData, InTransactionEnum.OFF);
     return {

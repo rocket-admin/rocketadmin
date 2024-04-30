@@ -3,4 +3,5 @@ export class ImportCSVInTableDs {
   tableName: string;
   connectionId: string;
   materPwd: string;
+  userId: string;
 }

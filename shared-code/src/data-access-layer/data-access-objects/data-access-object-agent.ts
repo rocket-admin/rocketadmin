@@ -16,7 +16,9 @@ import { IDataAccessObjectAgent } from '../shared/interfaces/data-access-object-
 import { DataAccessObjectCommandsEnum } from '../shared/enums/data-access-object-commands.enum.js';
 import { LRUStorage } from '../../caching/lru-storage.js';
 import { TableDS } from '../shared/data-structures/table.ds.js';
-import { Stream } from 'node:stream';
+import { Stream, Readable } from 'node:stream';
+import * as csv from 'csv';
+import PQueue from 'p-queue';
 
 export class DataAccessObjectAgent implements IDataAccessObjectAgent {
   private readonly connection: ConnectionAgentParams;
@@ -579,8 +581,33 @@ export class DataAccessObjectAgent implements IDataAccessObjectAgent {
     }
   }
 
-  public async importCSVInTable(file: Express.Multer.File, tableName: string): Promise<void> {
-    throw new Error('Method not implemented.');
+  public async importCSVInTable(file: Express.Multer.File, tableName: string, userEmail: string): Promise<void> {
+    const jwtAuthToken = this.generateJWT(this.connection.token);
+    axios.defaults.headers.common['Authorization'] = `Bearer ${jwtAuthToken}`;
+    try {
+      const stream = new Readable();
+      stream.push(file.buffer);
+      stream.push(null);
+      const parser = stream.pipe(csv.parse({ columns: true }));
+      const results: any[] = [];
+      for await (const record of parser) {
+        results.push(record);
+      }
+      const queue = new PQueue({ concurrency: 3 });
+      await Promise.all(
+        results.map(async (row) => {
+          return await queue.add(async () => {
+            return await this.addRowInTable(tableName, row, userEmail);
+          });
+        }),
+      );
+    } catch (e) {
+      if (axios.isAxiosError(e)) {
+        this.checkIsErrorLocalAndThrowException(e);
+        throw new Error(e.response?.data);
+      }
+      throw e;
+    }
   }
 
   private generateJWT(connectionToken: string): string {
