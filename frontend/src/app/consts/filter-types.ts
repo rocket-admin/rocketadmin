@@ -233,6 +233,11 @@ export const filterTypes = {
         //file
         binary: FileFilterComponent,
 
+        //json
+        //json
+        object: JsonEditorFilterComponent,
+        array: JsonEditorFilterComponent,
+
         "foreign key": ForeignKeyFilterComponent
     }
 }

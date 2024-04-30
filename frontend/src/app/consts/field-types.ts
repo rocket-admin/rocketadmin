@@ -233,6 +233,10 @@ export const fieldTypes = {
         //file
         binary: FileRowComponent,
 
+        //json
+        object: JsonEditorRowComponent,
+        array: JsonEditorRowComponent,
+
         //etc
         unknown: TextRowComponent,
 

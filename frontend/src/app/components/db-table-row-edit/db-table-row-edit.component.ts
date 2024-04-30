@@ -265,7 +265,7 @@ export class DbTableRowEditComponent implements OnInit {
   }
 
   updateField = (updatedValue: any, field: string) => {
-    console.log(updatedValue);
+    console.log(typeof(updatedValue));
     if (typeof(updatedValue) === 'object' && updatedValue !== null) {
       for (const prop of Object.getOwnPropertyNames(this.tableRowValues[field])) {
         delete this.tableRowValues[field][prop];
@@ -302,14 +302,11 @@ export class DbTableRowEditComponent implements OnInit {
 
     //parse json fields
     const jsonFields = Object.entries(this.tableTypes)
-      .filter(([key, value]) => value === 'json' || value === 'jsonb')
+      .filter(([key, value]) => value === 'json' || value === 'jsonb' || value === 'array' || value === 'object')
       .map(jsonField => jsonField[0]);
     if (jsonFields.length) {
       for (const jsonField of jsonFields) {
         if (updatedRow[jsonField] !== null && updatedRow[jsonField] !== undefined) {
-          console.log('updatedRow[jsonField]');
-          console.log(updatedRow[jsonField]);
-
           const updatedFiled = JSON.parse(updatedRow[jsonField].toString());
           updatedRow[jsonField] = updatedFiled;
         }
