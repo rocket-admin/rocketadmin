@@ -729,7 +729,6 @@ export class DataAccessObjectOracle extends BasicDataAccessObject implements IDa
         }
       });
     } catch (error) {
-      console.log('🚀 ~ DataAccessObjectOracle ~ importCSVInTable ~ error:', error);
       throw error;
     }
   }
