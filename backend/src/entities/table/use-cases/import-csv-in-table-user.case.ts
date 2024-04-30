@@ -37,8 +37,7 @@ export class ImportCSVInTableUseCase
     } catch (error) {
       throw new HttpException(
         {
-          message: Messages.CSV_IMPORT_FAILED,
-          originalMessage: error.message,
+          message: `${Messages.CSV_IMPORT_FAILED}. ${error.message}`,
         },
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
