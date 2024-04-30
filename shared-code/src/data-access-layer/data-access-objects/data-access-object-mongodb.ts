@@ -276,7 +276,7 @@ export class DataAccessObjectMongo extends BasicDataAccessObject implements IDat
       character_maximum_length: null,
       column_default: key === '_id' ? 'autoincrement' : null,
       column_name: key,
-      data_type: this.getMongoDataTypeByValue(document[key]),
+      data_type: key === '_id' ? 'string' : this.getMongoDataTypeByValue(document[key]),
       data_type_params: null,
       udt_name: null,
       extra: null,
