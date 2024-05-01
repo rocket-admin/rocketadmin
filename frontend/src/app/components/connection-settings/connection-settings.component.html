@@ -125,6 +125,9 @@
 
             <mat-slide-toggle
                 class="audit-toggle" color="primary"
+                angulartics2On="click"
+                angularticsAction="Connection settings: log recording is toggled"
+                [angularticsProperties]="{'enable': connectionSettings.tables_audit}"
                 [(ngModel)]="connectionSettings.tables_audit">
                 Record changes in tables
             </mat-slide-toggle>

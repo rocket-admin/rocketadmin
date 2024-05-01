@@ -152,6 +152,9 @@ export class CompanyComponent {
     this.submittingUsersChange = true;
     this._company.updateCompanyMemberRole(this.company.id, userId, userRole).subscribe(() => {
       this.getCompanyMembers(this.company.id);
+      this.angulartics2.eventTrack.next({
+        action: 'Company: role is updated successfully',
+      });
     });
   }
 
