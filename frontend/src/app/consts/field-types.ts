@@ -29,7 +29,8 @@ export const UIwidgets = {
     Number: NumberRowComponent,
     Select: SelectRowComponent,
     Password: PasswordRowComponent,
-    File: FileRowComponent
+    File: FileRowComponent,
+    Foreign_key: ForeignKeyRowComponent,
 }
 
 export const fieldTypes = {

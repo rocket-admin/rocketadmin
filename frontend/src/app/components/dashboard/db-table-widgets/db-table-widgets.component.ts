@@ -91,6 +91,14 @@ export class DbTableWidgetsComponent implements OnInit {
 {
   type: 'hex'
 }
+`,
+    Foreign_key: `//Show relations with the referenced table
+
+{
+  autocomplete_columns: null,
+  referenced_column_name: 'ID',
+  referenced_table_name: 'Paintings',
+}
 `
   }
 
