@@ -107,7 +107,10 @@ export class DbTableComponent implements OnInit {
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    if (changes.name && changes.name.currentValue && this.paginator) this.paginator.pageIndex = 0
+    if (changes.name && changes.name.currentValue && this.paginator) {
+      this.paginator.pageIndex = 0;
+      this.searchString = '';
+    }
   }
 
   isSortable(column: string) {
