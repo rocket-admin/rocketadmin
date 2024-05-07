@@ -330,7 +330,10 @@ export class DashboardComponent implements OnInit {
   }
 
   viewRow(row: {row: object, queryParams: object}) {
-    this.selectedRow = {...row, link: `/dashboard/${this.connectionID}/${this.selectedTableName}/entry`}
+    this.selectedRow = {...row, link: `/dashboard/${this.connectionID}/${this.selectedTableName}/entry`};
+    this.angulartics2.eventTrack.next({
+      action: 'Dashboard: row preview is opened',
+    });
   }
 
   closeRowPreview() {

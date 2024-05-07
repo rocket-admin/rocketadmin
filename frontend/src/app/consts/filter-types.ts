@@ -209,5 +209,35 @@ export const filterTypes = {
         smallmoney: TextFilterComponent,
 
         "foreign key": ForeignKeyFilterComponent
+    },
+    mongodb: {
+        // numbers (number)
+        number: NumberFilterComponent,
+        double: NumberFilterComponent,
+        int32: NumberFilterComponent,
+        long: NumberFilterComponent,
+        decimal128: NumberFilterComponent,
+
+        //boolean (radiogroup)
+        boolean: BooleanFilterComponent,
+
+        //datetime (datepicker)
+        date: DateFilterComponent,
+        timestamp: DateTimeFilterComponent,
+
+        // short text (text)
+        string: TextFilterComponent,
+        regexp: TextFilterComponent,
+        objectid: TextFilterComponent,
+
+        //file
+        binary: FileFilterComponent,
+
+        //json
+        //json
+        object: JsonEditorFilterComponent,
+        array: JsonEditorFilterComponent,
+
+        "foreign key": ForeignKeyFilterComponent
     }
 }

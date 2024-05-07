@@ -40,6 +40,7 @@ export class DataAccessObjectMongo extends BasicDataAccessObject implements IDat
   ): Promise<number | Record<string, unknown>> {
     const db = await this.getConnectionToDatabase();
     const collection = db.collection(tableName);
+    delete row._id;
     const result = await collection.insertOne(row);
     return { _id: result.insertedId.toHexString() };
   }
@@ -276,7 +277,7 @@ export class DataAccessObjectMongo extends BasicDataAccessObject implements IDat
       character_maximum_length: null,
       column_default: key === '_id' ? 'autoincrement' : null,
       column_name: key,
-      data_type: this.getMongoDataTypeByValue(document[key]),
+      data_type: key === '_id' ? 'string' : this.getMongoDataTypeByValue(document[key]),
       data_type_params: null,
       udt_name: null,
       extra: null,
@@ -308,6 +309,7 @@ export class DataAccessObjectMongo extends BasicDataAccessObject implements IDat
     const db = await this.getConnectionToDatabase();
     const collection = db.collection(tableName);
     const objectId = this.createObjectIdFromSting(primaryKey._id as string);
+    delete row._id;
     await collection.updateOne({ _id: objectId }, { $set: row });
     return { _id: objectId.toHexString() };
   }
@@ -393,11 +395,13 @@ export class DataAccessObjectMongo extends BasicDataAccessObject implements IDat
       return cachedDatabase;
     }
 
+
     let mongoConnectionString = '';
     if (this.connection.host.includes('mongodb+srv')) {
-      mongoConnectionString = `${this.connection.host}/${this.connection.database}`;
+      const hostNameParts = this.connection.host.split('//');
+      mongoConnectionString = `${hostNameParts[0]}//${this.connection.username}:${this.connection.password}@${hostNameParts[1]}`;
     } else {
-      mongoConnectionString = `mongodb://${this.connection.username}:${this.connection.password}@${this.connection.host}:${this.connection.port}/${this.connection.database}`;
+      mongoConnectionString = `mongodb://${this.connection.username}:${this.connection.password}@${this.connection.host}:${this.connection.port}/${this.connection.database ? this.connection.database : ''}`;
     }
 
     let options: any = {};
@@ -489,6 +493,8 @@ export class DataAccessObjectMongo extends BasicDataAccessObject implements IDat
     switch (true) {
       case Array.isArray(value):
         return 'array';
+      case typeof value === 'object' && value !== null:
+        return 'object';
       case value instanceof BSON.Double:
         return 'double';
       case value instanceof BSON.Int32:

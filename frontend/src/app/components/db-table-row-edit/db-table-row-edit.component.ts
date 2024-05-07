@@ -153,7 +153,7 @@ export class DbTableRowEditComponent implements OnInit {
             this.setRowStructure(res.structure);
             this.identityColumn = res.identity_column;
 
-            if (res.referenced_table_names_and_columns && res.referenced_table_names_and_columns[0].referenced_by[0] !== null) {
+            if (res.referenced_table_names_and_columns && res.referenced_table_names_and_columns.length > 0 && res.referenced_table_names_and_columns[0].referenced_by[0] !== null) {
               this.referencedTables = res.referenced_table_names_and_columns[0].referenced_by
                 .map((table: any) => { return {...table, displayTableName: table.display_name || normalizeTableName(table.table_name)}});
 
@@ -265,12 +265,14 @@ export class DbTableRowEditComponent implements OnInit {
   }
 
   updateField = (updatedValue: any, field: string) => {
+    console.log(typeof(updatedValue));
     if (typeof(updatedValue) === 'object' && updatedValue !== null) {
       for (const prop of Object.getOwnPropertyNames(this.tableRowValues[field])) {
         delete this.tableRowValues[field][prop];
       }
       Object.assign(this.tableRowValues[field], updatedValue);
     } else {
+      console.log('updateField not object');
       this.tableRowValues[field] = updatedValue;
     };
 
@@ -300,14 +302,11 @@ export class DbTableRowEditComponent implements OnInit {
 
     //parse json fields
     const jsonFields = Object.entries(this.tableTypes)
-      .filter(([key, value]) => value === 'json' || value === 'jsonb')
+      .filter(([key, value]) => value === 'json' || value === 'jsonb' || value === 'array' || value === 'object')
       .map(jsonField => jsonField[0]);
     if (jsonFields.length) {
       for (const jsonField of jsonFields) {
         if (updatedRow[jsonField] !== null && updatedRow[jsonField] !== undefined) {
-          console.log('updatedRow[jsonField]');
-          console.log(updatedRow[jsonField]);
-
           const updatedFiled = JSON.parse(updatedRow[jsonField].toString());
           updatedRow[jsonField] = updatedFiled;
         }

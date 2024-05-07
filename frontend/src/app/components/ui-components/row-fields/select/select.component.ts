@@ -22,7 +22,7 @@ export class SelectRowComponent implements OnInit {
   @Output() onFieldChange = new EventEmitter();
 
   public normalizedLabel: string;
-  public options: any[] = [];
+  public options: {value: string | null, label: string}[] = [];
 
   originalOrder = () => { return 0; }
 
@@ -35,9 +35,11 @@ export class SelectRowComponent implements OnInit {
         this.options = [{ value: null, label: '' }, ...this.options];
       }
     } else if (this.structure) {
-      this.options = this.structure.data_type_params;
+      this.options = this.structure.data_type_params.map((option) => {
+        return { value: option, label: option };
+      });
       if (this.structure.allow_null) {
-        this.options = [null, ...this.options];
+        this.options = [{ value: null, label: '' }, ...this.options];
       }
     }
     this.normalizedLabel = normalizeFieldName(this.label);

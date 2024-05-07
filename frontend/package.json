@@ -8,7 +8,9 @@
     "test": "ng test",
     "test:ci": "ng test --watch=false --browsers=ChromeHeadlessCustom",
     "lint": "ng lint",
-    "e2e": "ng e2e"
+    "e2e": "ng e2e",
+    "analyze": "webpack-bundle-analyzer dist/dissendium-v0/stats.json",
+    "build:stats": "ng build --stats-json"
   },
   "private": true,
   "dependencies": {
@@ -33,14 +35,12 @@
     "@zxcvbn-ts/core": "^3.0.4",
     "@zxcvbn-ts/language-en": "^2.1.0",
     "amplitude-js": "^8.21.6",
-    "ang-jsoneditor": "^2.0.0",
     "angular-password-strength-meter": "^6.0.0",
     "angulartics2": "^12.2.0",
     "codemirror": "^5.60.5",
     "date-fns": "^2.29.3",
     "ipaddr.js": "^2.0.1",
     "json5": "^2.2.3",
-    "jsoneditor": "^9.10.0",
     "lodash": "^4.17.21",
     "ng-dynamic-component": "^10.7.0",
     "ngx-cookie-service": "^15.0.0",
@@ -52,6 +52,7 @@
     "rxjs": "~7.8.0",
     "tslib": "^2.5.0",
     "validator": "^13.9.0",
+    "webpack-bundle-analyzer": "^4.10.2",
     "zone.js": "~0.13.0"
   },
   "devDependencies": {

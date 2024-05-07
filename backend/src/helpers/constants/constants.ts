@@ -155,6 +155,17 @@ export const Constants = {
     privateSSHKey: getProcessVariable('MYSQL_CONNECTION_SSH_KEY') || null,
   },
 
+  TEST_CONNECTION_TO_MONGO: {
+    title: 'MongoDB',
+    type: ConnectionTypesEnum.mongodb,
+    host: getProcessVariable('MONGO_CONNECTION_HOST') || null,
+    port: parseInt(getProcessVariable('MONGO_CONNECTION_PORT')) || null,
+    username: getProcessVariable('MONGO_CONNECTION_USERNAME') || null,
+    password: getProcessVariable('MONGO_CONNECTION_PASSWORD') || null,
+    database: getProcessVariable('MONGO_CONNECTION_DATABASE') || null,
+    isTestConnection: true,
+  },
+
   REMOVED_PASSWORD_VALUE: '***',
   REMOVED_SENSITIVE_FIELD_IF_CHANGED: '* * * sensitive data, no logs stored * * *',
   REMOVED_SENSITIVE_FIELD_IF_NOT_CHANGED: '',
@@ -170,6 +181,7 @@ export const Constants = {
       this.TEST_CONNECTION_TO_POSTGRES,
       this.TEST_SSH_CONNECTION_TO_MYSQL,
       this.TEST_CONNECTION_TO_MSSQL,
+      this.TEST_CONNECTION_TO_MONGO,
     );
     return testConnections.filter((dto) => {
       const values = Object.values(dto);

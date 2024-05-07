@@ -7,7 +7,7 @@ RUN yarn install --immutable --network-timeout 1000000 --silent
 COPY frontend/src /app/frontend/src
 ARG SAAS
 RUN if [[ -n $SAAS ]]; then API_ROOT=/api yarn build --configuration=saas-production; \
-    else API_ROOT=/api yarn build; fi
+    else API_ROOT=/api yarn build --configuration=production; fi
 RUN ls /app/frontend/dist/dissendium-v0
 
 FROM node:20

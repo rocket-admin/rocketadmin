@@ -209,5 +209,37 @@ export const fieldTypes = {
         smallmoney: TextRowComponent,
 
         "foreign key": ForeignKeyRowComponent
+    },
+    mongodb: {
+        // numbers (number)
+        number: NumberRowComponent,
+        double: NumberRowComponent,
+        int32: NumberRowComponent,
+        long: NumberRowComponent,
+        decimal128: NumberRowComponent,
+
+        //boolean (radiogroup)
+        boolean: BooleanRowComponent,
+
+        //datetime (datepicker)
+        date: DateRowComponent,
+        timestamp: DateTimeRowComponent,
+
+        // short text (text)
+        string: TextRowComponent,
+        regexp: TextRowComponent,
+        objectid: TextRowComponent,
+
+        //file
+        binary: FileRowComponent,
+
+        //json
+        object: JsonEditorRowComponent,
+        array: JsonEditorRowComponent,
+
+        //etc
+        unknown: TextRowComponent,
+
+        "foreign key": ForeignKeyRowComponent
     }
 }

@@ -82,7 +82,6 @@ import { LongTextRowComponent } from './components/ui-components/row-fields/long
 import { MasterPasswordDialogComponent } from './components/master-password-dialog/master-password-dialog.component';
 import { MaterialModule } from './modules/material.module';
 import { NewVersionComponent } from './components/new-version/new-version.component';
-import { NgJsonEditorModule } from 'ang-jsoneditor'
 import { NgmatTableQueryReflectorModule } from './modules/ngmat-table-query-reflector.module';
 import { NgxStripeModule } from 'ngx-stripe';
 import { NotificationsService } from './services/notifications.service';
@@ -332,7 +331,6 @@ const saasExtraProviders = (environment as any).saas ? [
     RouterModule,
     DynamicModule,
     NgmatTableQueryReflectorModule,
-    NgJsonEditorModule,
     Angulartics2Module.forRoot(),
     ClipboardModule,
     DragDropModule,
