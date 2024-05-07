@@ -16,7 +16,20 @@ import { IDataAccessObjectAgent } from '../shared/interfaces/data-access-object-
 import { DataAccessObjectCommandsEnum } from '../shared/enums/data-access-object-commands.enum.js';
 import { LRUStorage } from '../../caching/lru-storage.js';
 import { TableDS } from '../shared/data-structures/table.ds.js';
-import { Stream } from 'node:stream';
+import { Stream, Readable } from 'node:stream';
+import * as csv from 'csv';
+import PQueue from 'p-queue';
+import {
+  formatOracleDate,
+  isMSSQLDateOrTimeType,
+  isMSSQLDateStringByRegexp,
+  isMySQLDateStringByRegexp,
+  isMySqlDateOrTimeType,
+  isOracleDateStringByRegexp,
+  isPostgresDateOrTimeType,
+  isPostgresDateStringByRegexp,
+} from '../../helpers/is-database-date.js';
+import { ConnectionTypesEnum } from '../shared/enums/connection-types-enum.js';
 
 export class DataAccessObjectAgent implements IDataAccessObjectAgent {
   private readonly connection: ConnectionAgentParams;
@@ -579,6 +592,36 @@ export class DataAccessObjectAgent implements IDataAccessObjectAgent {
     }
   }
 
+  public async importCSVInTable(file: Express.Multer.File, tableName: string, userEmail: string): Promise<void> {
+    const jwtAuthToken = this.generateJWT(this.connection.token);
+    axios.defaults.headers.common['Authorization'] = `Bearer ${jwtAuthToken}`;
+    try {
+      const stream = new Readable();
+      stream.push(file.buffer);
+      stream.push(null);
+      const parser = stream.pipe(csv.parse({ columns: true }));
+      const rows: any[] = [];
+      for await (const record of parser) {
+        rows.push(record);
+      }
+      const rowsWithProcessedDates = await this.processTimeColumnsInRows(rows, tableName, userEmail);
+      const queue = new PQueue({ concurrency: 3 });
+      await Promise.all(
+        rowsWithProcessedDates.map(async (row) => {
+          return await queue.add(async () => {
+            return await this.addRowInTable(tableName, row, userEmail);
+          });
+        }),
+      );
+    } catch (e) {
+      if (axios.isAxiosError(e)) {
+        this.checkIsErrorLocalAndThrowException(e);
+        throw new Error(e.response?.data);
+      }
+      throw e;
+    }
+  }
+
   private generateJWT(connectionToken: string): string {
     const exp = new Date();
     exp.setDate(exp.getDate() + 60);
@@ -599,5 +642,122 @@ export class DataAccessObjectAgent implements IDataAccessObjectAgent {
     if (e?.code?.toLowerCase() === 'enotfound' && e?.hostname === 'autoadmin-ws.local') {
       throw new Error(ERROR_MESSAGES.CANT_CONNECT_AUTOADMIN_WS);
     }
+  }
+
+  private async processTimeColumnsInRows(
+    rows: Array<Record<string, unknown>>,
+    tableName: string,
+    userEmail: string,
+  ): Promise<Array<Record<string, unknown>>> {
+    const tableStructure = await this.getTableStructure(tableName, userEmail);
+    switch (this.connection.type) {
+      case ConnectionTypesEnum.agent_postgres:
+        const timestampColumnNamesPg = tableStructure
+          .filter((column) => {
+            return isPostgresDateOrTimeType(column.data_type);
+          })
+          .map((column) => {
+            return column.column_name;
+          });
+        return this.processPostgresDateColumnsInRows(rows, timestampColumnNamesPg);
+
+      case ConnectionTypesEnum.agent_mysql:
+        const timestampColumnNamesMySQL = tableStructure
+          .filter((column) => {
+            return isMySqlDateOrTimeType(column.data_type);
+          })
+          .map((column) => {
+            return column.column_name;
+          });
+        return this.processMySQLDateColumnsInRows(rows, timestampColumnNamesMySQL);
+
+      case ConnectionTypesEnum.agent_mssql:
+        const timestampColumnNamesMSSQL = tableStructure
+          .filter((column) => {
+            return isMSSQLDateOrTimeType(column.data_type);
+          })
+          .map((column) => {
+            return column.column_name;
+          });
+        return this.processMSSQLDateColumnsInRows(rows, timestampColumnNamesMSSQL);
+
+      case ConnectionTypesEnum.agent_oracledb:
+        const timestampColumnNamesOracle = tableStructure
+          .filter((column) => {
+            return isOracleDateStringByRegexp(column.data_type);
+          })
+          .map((column) => {
+            return column.column_name;
+          });
+        return this.processOracleDateColumnsInRows(rows, timestampColumnNamesOracle);
+      default:
+        return rows;
+    }
+  }
+
+  private processOracleDateColumnsInRows(
+    rows: Array<Record<string, any>>,
+    timestampColumnNames: Array<string>,
+  ): Array<Record<string, unknown>> {
+    for (let row of rows) {
+      for (let column of timestampColumnNames) {
+        if (row[column] && !isOracleDateStringByRegexp(row[column])) {
+          const date = new Date(Number(row[column]));
+          row[column] = formatOracleDate(date);
+        }
+      }
+    }
+    return rows;
+  }
+
+  private processMySQLDateColumnsInRows(
+    rows: Array<Record<string, any>>,
+    timestampColumnNames: Array<string>,
+  ): Array<Record<string, unknown>> {
+    for (let row of rows) {
+      for (let column of timestampColumnNames) {
+        if (row[column] && !isMySQLDateStringByRegexp(row[column])) {
+          let dateStr = row[column];
+          if (dateStr.endsWith('Z')) {
+            dateStr = dateStr.slice(0, -1);
+          }
+          const date = new Date(dateStr);
+          const formattedDate = date.toISOString().slice(0, 19).replace('T', ' ');
+          row[column] = formattedDate;
+        }
+      }
+    }
+    return rows;
+  }
+
+  private processMSSQLDateColumnsInRows(rows: Array<Record<string, any>>, timestampColumnNames: Array<string>) {
+    for (let row of rows) {
+      for (let column of timestampColumnNames) {
+        if (row[column] && !isMSSQLDateStringByRegexp(row[column])) {
+          const date = new Date(Number(row[column]));
+          row[column] = date.toISOString();
+        }
+      }
+    }
+    return rows;
+  }
+
+  private processPostgresDateColumnsInRows(
+    rows: Array<Record<string, any>>,
+    timestampColumnNames: Array<string>,
+  ): Array<Record<string, unknown>> {
+    for (let row of rows) {
+      for (let column of timestampColumnNames) {
+        try {
+          if (row[column] && !isPostgresDateStringByRegexp(row[column])) {
+            const date = new Date(Number(row[column]));
+            row[column] = date.toISOString();
+          }
+        } catch (error) {
+          continue;
+        }
+      }
+    }
+    return rows;
   }
 }

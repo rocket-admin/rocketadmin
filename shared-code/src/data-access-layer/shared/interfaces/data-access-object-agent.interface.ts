@@ -91,4 +91,6 @@ export interface IDataAccessObjectAgent {
     searchedFieldValue: string,
     filteringFields: Array<FilteringFieldsDS>,
   ): Promise<Stream & AsyncIterable<never>>;
+
+  importCSVInTable(file: Express.Multer.File, tableName: string, userEmail: string): Promise<void>;
 }

@@ -13,6 +13,7 @@ export const Constants = {
   MORNING_CRON_KEY: 2,
   CONNECTION_KEYS_NONE_PERMISSION: ['id', 'title', 'database', 'type', 'connection_properties'],
   FREE_PLAN_USERS_COUNT: 3,
+  MAX_FILE_SIZE_IN_BYTES: 10485760,
 
   VERIFICATION_STRING_WHITELIST: () => {
     const numbers = [...Array(10).keys()].map((num) => num.toString());

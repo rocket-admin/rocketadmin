@@ -43,4 +43,5 @@ export class ConnectionAgentParams {
   title?: string | null;
   signing_key: string;
   token: string;
+  type: string;
 }

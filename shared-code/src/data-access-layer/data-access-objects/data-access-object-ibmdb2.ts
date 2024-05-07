@@ -1,4 +1,3 @@
-import { Stream } from 'stream';
 import { AutocompleteFieldsDS } from '../shared/data-structures/autocomplete-fields.ds.js';
 import { ConnectionParams } from '../shared/data-structures/connections-params.ds.js';
 import { FilteringFieldsDS } from '../shared/data-structures/filtering-fields.ds.js';
@@ -21,6 +20,8 @@ import { FilterCriteriaEnum } from '../shared/enums/filter-criteria.enum.js';
 import { ERROR_MESSAGES } from '../../helpers/errors/error-messages.js';
 import getPort from 'get-port';
 import { getTunnel } from '../../helpers/get-ssh-tunnel.js';
+import { Stream, Readable } from 'node:stream';
+import * as csv from 'csv';
 
 export class DataAccessObjectIbmDb2 extends BasicDataAccessObject implements IDataAccessObject {
   constructor(connection: ConnectionParams) {
@@ -557,6 +558,27 @@ WHERE
     const countResult = await connectionToDb.query(countQuery);
     const rowsCount = parseInt(countResult[0]['1']);
     return { rowsCount: rowsCount, large_dataset: false };
+  }
+
+  public async importCSVInTable(file: Express.Multer.File, tableName: string): Promise<void> {
+    const stream = new Readable();
+    stream.push(file.buffer);
+    stream.push(null);
+
+    const parser = stream.pipe(csv.parse({ columns: true }));
+    const results: any[] = [];
+    for await (const record of parser) {
+      results.push(record);
+    }
+    try {
+      await Promise.allSettled(
+        results.map(async (row) => {
+          return await this.addRowInTable(tableName, row);
+        }),
+      );
+    } catch (error) {
+      throw error;
+    }
   }
 
   private async getConnectionToDatabase(): Promise<Database> {

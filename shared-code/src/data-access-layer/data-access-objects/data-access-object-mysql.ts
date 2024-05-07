@@ -24,7 +24,9 @@ import { getNumbersFromString } from '../../helpers/get-numbers-from-string.js';
 import { tableSettingsFieldValidator } from '../../helpers/validation/table-settings-validator.js';
 import { TableDS } from '../shared/data-structures/table.ds.js';
 import { ERROR_MESSAGES } from '../../helpers/errors/error-messages.js';
-import { Stream } from 'node:stream';
+import { Stream, Readable } from 'node:stream';
+import * as csv from 'csv';
+import { isMySqlDateOrTimeType, isMySQLDateStringByRegexp } from '../../helpers/is-database-date.js';
 
 export class DataAccessObjectMysql extends BasicDataAccessObject implements IDataAccessObject {
   constructor(connection: ConnectionParams) {
@@ -88,7 +90,11 @@ export class DataAccessObjectMysql extends BasicDataAccessObject implements IDat
         throw new Error(e);
       }
     } else {
-      await knex(tableName).insert(row).returning(Object.keys(row));
+      try {
+        await knex(tableName).insert(row).returning(Object.keys(row));
+      } catch (error) {
+        throw new Error(error);
+      }
     }
   }
 
@@ -585,6 +591,42 @@ export class DataAccessObjectMysql extends BasicDataAccessObject implements IDat
       .offset(offset)
       .stream();
     return rowsAsStream;
+  }
+
+  public async importCSVInTable(file: Express.Multer.File, tableName: string): Promise<void> {
+    const knex = await this.configureKnex();
+    const structure = await this.getTableStructure(tableName);
+    const timestampColumnNames = structure
+      .filter(({ data_type }) => isMySqlDateOrTimeType(data_type))
+      .map(({ column_name }) => column_name);
+    const stream = new Readable();
+    stream.push(file.buffer);
+    stream.push(null);
+
+    const parser = stream.pipe(csv.parse({ columns: true }));
+
+    const results: any[] = [];
+    for await (const record of parser) {
+      results.push(record);
+    }
+
+    try {
+      await knex.transaction(async (trx) => {
+        for (let row of results) {
+          for (let column of timestampColumnNames) {
+            if (row[column] && !isMySQLDateStringByRegexp(row[column])) {
+              const date = new Date(Number(row[column]));
+              const formattedDate = date.toISOString().slice(0, 19).replace('T', ' ');
+              row[column] = formattedDate;
+            }
+          }
+
+          await trx(tableName).insert(row);
+        }
+      });
+    } catch (error) {
+      throw error;
+    }
   }
 
   private async getRowsCount(

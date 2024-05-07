@@ -27,6 +27,7 @@ import { GetTableStructureUseCase } from './use-cases/get-table-structure.use.ca
 import { UpdateRowInTableUseCase } from './use-cases/update-row-in-table.use.case.js';
 import { ExportCSVFromTableUseCase } from './use-cases/export-csv-from-table.use.case.js';
 import { BulkUpdateRowsInTableUseCase } from './use-cases/bulk-update-rows-in-table.use.case.js';
+import { ImportCSVInTableUseCase } from './use-cases/import-csv-in-table-user.case.js';
 
 @Module({
   imports: [
@@ -91,6 +92,10 @@ import { BulkUpdateRowsInTableUseCase } from './use-cases/bulk-update-rows-in-ta
       provide: UseCaseType.BULK_UPDATE_ROWS_IN_TABLE,
       useClass: BulkUpdateRowsInTableUseCase,
     },
+    {
+      provide: UseCaseType.IMPORT_CSV_TO_TABLE,
+      useClass: ImportCSVInTableUseCase,
+    },
   ],
   controllers: [TableController],
 })
@@ -113,6 +118,7 @@ export class TableModule {
         { path: '/table/rows/update/:slug', method: RequestMethod.PUT },
         { path: '/table/row/:slug', method: RequestMethod.GET },
         { path: '/table/csv/export/:slug', method: RequestMethod.POST },
+        { path: '/table/csv/import/:slug', method: RequestMethod.POST },
       );
   }
 }

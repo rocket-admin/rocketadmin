@@ -1,4 +1,4 @@
-import { Stream } from 'stream';
+import { Stream, Readable } from 'stream';
 import { AutocompleteFieldsDS } from '../shared/data-structures/autocomplete-fields.ds.js';
 import { ConnectionParams } from '../shared/data-structures/connections-params.ds.js';
 import { FilteringFieldsDS } from '../shared/data-structures/filtering-fields.ds.js';
@@ -22,6 +22,7 @@ import { LRUStorage } from '../../caching/lru-storage.js';
 import getPort from 'get-port';
 import { getTunnel } from '../../helpers/get-ssh-tunnel.js';
 import * as BSON from 'bson';
+import * as csv from 'csv';
 
 export type MongoClientDB = {
   db: Db;
@@ -235,7 +236,7 @@ export class DataAccessObjectMongo extends BasicDataAccessObject implements IDat
         });
         return {
           ...row,
-          _id: row._id.toHexString(),
+          _id: row?._id?.toHexString(),
         };
       }),
       pagination,
@@ -341,6 +342,24 @@ export class DataAccessObjectMongo extends BasicDataAccessObject implements IDat
     return false;
   }
 
+  public async importCSVInTable(file: Express.Multer.File, tableName: string): Promise<void> {
+    const db = await this.getConnectionToDatabase();
+    const collection = db.collection(tableName);
+    const stream = new Readable();
+    stream.push(file.buffer);
+    stream.push(null);
+    const parser = stream.pipe(csv.parse({ columns: true }));
+    const results: any[] = [];
+    for await (const record of parser) {
+      results.push(record);
+    }
+    try {
+      await collection.insertMany(results);
+    } catch (error) {
+      throw error;
+    }
+  }
+
   public async getTableRowsStream(
     tableName: string,
     settings: TableSettingsDS,
@@ -376,6 +395,7 @@ export class DataAccessObjectMongo extends BasicDataAccessObject implements IDat
       return cachedDatabase;
     }
 
+
     let mongoConnectionString = '';
     if (this.connection.host.includes('mongodb+srv')) {
       const hostNameParts = this.connection.host.split('//');
@@ -383,6 +403,7 @@ export class DataAccessObjectMongo extends BasicDataAccessObject implements IDat
     } else {
       mongoConnectionString = `mongodb://${this.connection.username}:${this.connection.password}@${this.connection.host}:${this.connection.port}/${this.connection.database ? this.connection.database : ''}`;
     }
+
     let options: any = {};
     if (this.connection.ssl) {
       mongoConnectionString += `?ssl=true`;

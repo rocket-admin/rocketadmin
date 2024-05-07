@@ -1,9 +1,7 @@
-import { HttpException, HttpStatus, Inject, StreamableFile } from '@nestjs/common';
+import { HttpException, HttpStatus, Inject, Injectable, StreamableFile } from '@nestjs/common';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
-import { AmplitudeService } from '../../amplitude/amplitude.service.js';
-import { TableLogsService } from '../../table-logs/table-logs.service.js';
 import { GetTableRowsDs } from '../application/data-structures/get-table-rows.ds.js';
 import { IExportCSVFromTable } from './table-use-cases.interface.js';
 import { Messages } from '../../../exceptions/text/messages.js';
@@ -17,12 +15,11 @@ import * as csv from 'csv';
 import { isObjectEmpty } from '../../../helpers/is-object-empty.js';
 import { FilteringFieldsDs } from '../table-datastructures.js';
 
+@Injectable()
 export class ExportCSVFromTableUseCase extends AbstractUseCase<GetTableRowsDs, any> implements IExportCSVFromTable {
   constructor(
     @Inject(BaseType.GLOBAL_DB_CONTEXT)
     protected _dbContext: IGlobalDatabaseContext,
-    private amplitudeService: AmplitudeService,
-    private tableLogsService: TableLogsService,
   ) {
     super();
   }

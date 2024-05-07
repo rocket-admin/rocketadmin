@@ -16,6 +16,7 @@ import { UpdateRowInTableDs } from '../application/data-structures/update-row-in
 import { TableStructureDs, TableRowRODs } from '../table-datastructures.js';
 import { UpdateRowsInTableDs } from '../application/data-structures/update-rows-in-table.ds.js';
 import { SuccessResponse } from '../../../microservices/saas-microservice/data-structures/common-responce.ds.js';
+import { ImportCSVInTableDs } from '../application/data-structures/import-scv-in-table.ds.js';
 
 export interface IFindTablesInConnection {
   execute(inputData: FindTablesDs, inTransaction: InTransactionEnum): Promise<Array<FoundTableDs>>;
@@ -55,4 +56,8 @@ export interface IGetRowByPrimaryKey {
 
 export interface IExportCSVFromTable {
   execute(inputData: GetTableRowsDs, inTransaction: InTransactionEnum): Promise<StreamableFile>;
+}
+
+export interface IImportCSVFinTable {
+  execute(inputData: ImportCSVInTableDs, inTransaction: InTransactionEnum): Promise<boolean>;
 }

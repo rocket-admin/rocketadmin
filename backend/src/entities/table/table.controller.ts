@@ -13,6 +13,8 @@ import {
   StreamableFile,
   UseGuards,
   UseInterceptors,
+  ParseFilePipeBuilder,
+  UploadedFile,
 } from '@nestjs/common';
 import { IGlobalDatabaseContext } from '../../common/application/global-database-context.interface.js';
 import { BaseType, UseCaseType } from '../../common/data-injection.tokens.js';
@@ -45,6 +47,7 @@ import {
   IGetRowByPrimaryKey,
   IGetTableRows,
   IGetTableStructure,
+  IImportCSVFinTable,
   IUpdateRowInTable,
 } from './use-cases/table-use-cases.interface.js';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
@@ -52,6 +55,9 @@ import { UpdateRowsDto } from './dto/update-rows.dto.js';
 import { UpdateRowsInTableDs } from './application/data-structures/update-rows-in-table.ds.js';
 import { SuccessResponse } from '../../microservices/saas-microservice/data-structures/common-responce.ds.js';
 import { FindAllRowsWithBodyFiltersDto } from './dto/find-rows-with-body-filters.dto.js';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { Constants } from '../../helpers/constants/constants.js';
+import { ImportCSVInTableDs } from './application/data-structures/import-scv-in-table.ds.js';
 
 @UseInterceptors(SentryInterceptor)
 @Controller()
@@ -81,6 +87,8 @@ export class TableController {
     private readonly deleteRowsFromTableUseCase: IDeleteRowsFromTable,
     @Inject(UseCaseType.EXPORT_CSV_FROM_TABLE)
     private readonly exportCSVFromTableUseCase: IExportCSVFromTable,
+    @Inject(UseCaseType.IMPORT_CSV_TO_TABLE)
+    private readonly importCSVToTableUseCase: IImportCSVFinTable,
     @Inject(BaseType.GLOBAL_DB_CONTEXT)
     protected _dbContext: IGlobalDatabaseContext,
   ) {}
@@ -494,7 +502,7 @@ export class TableController {
 
   @ApiOperation({ summary: 'Export table as csv file' })
   @ApiResponse({
-    status: 200,
+    status: 201,
     description: 'Export table as csv file.',
   })
   @ApiBody({ type: FindAllRowsWithBodyFiltersDto })
@@ -543,6 +551,49 @@ export class TableController {
       filters: body.filters,
     };
     return await this.exportCSVFromTableUseCase.execute(inputData, InTransactionEnum.OFF);
+  }
+
+  @ApiOperation({ summary: 'Import csv file in table' })
+  @ApiResponse({
+    status: 201,
+    description: 'Import csv file in table.',
+  })
+  // @ApiBody({ type: FindAllRowsWithBodyFiltersDto })
+  @UseGuards(TableEditGuard)
+  @Post('/table/csv/import/:slug')
+  @UseInterceptors(FileInterceptor('file'))
+  async importCSVFromTable(
+    @QueryTableName() tableName: string,
+    @SlugUuid() connectionId: string,
+    @MasterPassword() masterPwd: string,
+    @UserId() userId: string,
+    @UploadedFile(
+      new ParseFilePipeBuilder()
+        .addFileTypeValidator({ fileType: 'text/csv' })
+        .addMaxSizeValidator({ maxSize: Constants.MAX_FILE_SIZE_IN_BYTES })
+        .build({ errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY }),
+    )
+    file: Express.Multer.File,
+  ): Promise<SuccessResponse> {
+    if (!file) {
+      throw new HttpException(
+        {
+          message: Messages.PARAMETER_MISSING,
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+    const inputData: ImportCSVInTableDs = {
+      connectionId: connectionId,
+      file: file,
+      tableName: tableName,
+      materPwd: masterPwd,
+      userId: userId,
+    };
+    await this.importCSVToTableUseCase.execute(inputData, InTransactionEnum.OFF);
+    return {
+      success: true,
+    };
   }
 
   private async getPrimaryKeys(

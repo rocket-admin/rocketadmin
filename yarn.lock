@@ -1852,15 +1852,20 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@rocketadmin/shared-code@workspace:shared-code"
   dependencies:
+    "@types/multer": ^1.4.11
     "@types/oracledb": ^6.4.0
+    "@types/pg-copy-streams": ^1.2.5
     axios: ^1.6.8
+    csv: ^6.3.8
     get-port: ^7.1.0
     jsonwebtoken: ^9.0.2
     knex: ^3.1.0
     lru-cache: ^10.2.0
     mysql2: ^3.9.4
     oracledb: ^6.4.0
+    p-queue: ^8.0.1
     pg: ^8.11.5
+    pg-copy-streams: ^6.0.6
     pg-query-stream: ^4.5.5
     prettier: 3.2.5
     ssh2: ^1.15.0
@@ -2361,6 +2366,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/multer@npm:^1.4.11":
+  version: 1.4.11
+  resolution: "@types/multer@npm:1.4.11"
+  dependencies:
+    "@types/express": "*"
+  checksum: 3d80b2acdfbc9f3e9027d4467e948925810b67e5622a3017f42f58a3598d34b25376890801e55d0c03973ccc34573abf5218af334e8292ec455832f4ade3e5f5
+  languageName: node
+  linkType: hard
+
 "@types/node@npm:*, @types/node@npm:>=18, @types/node@npm:^20.12.7":
   version: 20.12.7
   resolution: "@types/node@npm:20.12.7"
@@ -2388,7 +2402,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/pg@npm:^8.11.5":
+"@types/pg-copy-streams@npm:^1.2.5":
+  version: 1.2.5
+  resolution: "@types/pg-copy-streams@npm:1.2.5"
+  dependencies:
+    "@types/node": "*"
+    "@types/pg": "*"
+  checksum: 66120c8f33b27a0d70a1998b8c5b3de12c5788be874eea0670bc8df61598330fe18c5463ebfa0b32222ef77f503238a78e055f7f4115bf5160f98bc499c5f946
+  languageName: node
+  linkType: hard
+
+"@types/pg@npm:*, @types/pg@npm:^8.11.5":
   version: 8.11.5
   resolution: "@types/pg@npm:8.11.5"
   dependencies:
@@ -3383,6 +3407,7 @@ __metadata:
     "@types/jest": ^29.5.12
     "@types/json2csv": ^5.0.7
     "@types/jsonwebtoken": ^9.0.6
+    "@types/multer": ^1.4.11
     "@types/node": ^20.12.7
     "@types/nodemailer": ^6.4.14
     "@types/qrcode": ^1.5.5
@@ -9118,7 +9143,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"obuf@npm:~1.1.2":
+"obuf@npm:^1.1.2, obuf@npm:~1.1.2":
   version: 1.1.2
   resolution: "obuf@npm:1.1.2"
   checksum: 41a2ba310e7b6f6c3b905af82c275bf8854896e2e4c5752966d64cbcd2f599cfffd5932006bcf3b8b419dfdacebb3a3912d5d94e10f1d0acab59876c8757f27f
@@ -9325,7 +9350,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"p-queue@npm:8.0.1":
+"p-queue@npm:8.0.1, p-queue@npm:^8.0.1":
   version: 8.0.1
   resolution: "p-queue@npm:8.0.1"
   dependencies:
@@ -9565,6 +9590,15 @@ __metadata:
   version: 2.6.4
   resolution: "pg-connection-string@npm:2.6.4"
   checksum: 2c1d2ac1add1f93076f1594d217a0980f79add05dc48de6363e1c550827c78a6ee3e3b5420da9c54858f6b678cdb348aed49732ee68158b6cdb70f1d1c748cf9
+  languageName: node
+  linkType: hard
+
+"pg-copy-streams@npm:^6.0.6":
+  version: 6.0.6
+  resolution: "pg-copy-streams@npm:6.0.6"
+  dependencies:
+    obuf: ^1.1.2
+  checksum: 9c5c21ae75194137f7cb6908890526afbdc457dbd751daffef4753a60b81853a5324bbfb2838a623dc71058c11a5cfa46e9e6c72b41e2d8e427b3c23e5714cd0
   languageName: node
   linkType: hard
 
