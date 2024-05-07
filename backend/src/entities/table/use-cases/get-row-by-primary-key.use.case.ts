@@ -22,6 +22,7 @@ import { ForeignKeyDS } from '@rocketadmin/shared-code/dist/src/data-access-laye
 import { UnknownSQLException } from '../../../exceptions/custom-exceptions/unknown-sql-exception.js';
 import { ExceptionOperations } from '../../../exceptions/custom-exceptions/exception-operation.js';
 import { ReferencedTableNamesAndColumnsDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/referenced-table-names-columns.ds.js';
+import JSON5 from 'json5';
 
 @Injectable()
 export class GetRowByPrimaryKeyUseCase
@@ -99,12 +100,18 @@ export class GetRowByPrimaryKeyUseCase
     }
 
     const foreignKeysFromWidgets: Array<ForeignKeyDSInfo> = tableWidgets
-      .filter((el) => {
-        return el.widget_type === WidgetTypeEnum.Foreign_key;
-      })
+      .filter((widget) => widget.widget_type === WidgetTypeEnum.Foreign_key)
       .map((widget) => {
-        return widget.widget_params as unknown as ForeignKeyDSInfo;
-      });
+        if (widget.widget_params) {
+          try {
+            const widgetParams = JSON5.parse(widget.widget_params) as ForeignKeyDSInfo;
+            return widgetParams;
+          } catch (e) {
+            return null;
+          }
+        }
+      })
+      .filter((el) => el !== null);
 
     tableForeignKeys = tableForeignKeys.concat(foreignKeysFromWidgets);
     const canUserReadForeignTables: Array<{
