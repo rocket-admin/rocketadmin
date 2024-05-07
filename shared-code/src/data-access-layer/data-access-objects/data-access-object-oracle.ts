@@ -23,6 +23,7 @@ import { TableDS } from '../shared/data-structures/table.ds.js';
 import { ERROR_MESSAGES } from '../../helpers/errors/error-messages.js';
 import { Stream, Readable } from 'node:stream';
 import * as csv from 'csv';
+import { isOracleDateOrTimeType, isOracleDateStringByRegexp } from '../../helpers/is-database-date.js';
 
 type RefererencedConstraint = {
   TABLE_NAME: string;
@@ -702,7 +703,7 @@ export class DataAccessObjectOracle extends BasicDataAccessObject implements IDa
     const knex = await this.configureKnex();
     const structure = await this.getTableStructure(tableName);
     const timestampColumnNames = structure
-      .filter(({ data_type }) => this.isOracleDateOrTimeType(data_type))
+      .filter(({ data_type }) => isOracleDateOrTimeType(data_type))
       .map(({ column_name }) => column_name);
     const stream = new Readable();
     stream.push(file.buffer);
@@ -719,7 +720,7 @@ export class DataAccessObjectOracle extends BasicDataAccessObject implements IDa
       await knex.transaction(async (trx) => {
         for (let row of results) {
           for (let column of timestampColumnNames) {
-            if (row[column] && !this.isOracleDateStringByRegexp(row[column])) {
+            if (row[column] && !isOracleDateStringByRegexp(row[column])) {
               const date = new Date(Number(row[column]));
               row[column] = this.formatDate(date);
             }
@@ -753,19 +754,6 @@ export class DataAccessObjectOracle extends BasicDataAccessObject implements IDa
       ? `"${this.connection.schema}"."${tableName}"`
       : `"${this.connection.username.toUpperCase()}"."${tableName}"`;
     return tableName;
-  }
-
-  private isOracleDateOrTimeType(type: string): boolean {
-    if (type.toLowerCase().includes('timestamp')) {
-      return true;
-    }
-    const dateTypes = ['date', 'timestamp', 'timestamp with time zone', 'timestamp with local time zone'];
-    return dateTypes.includes(type.toLowerCase());
-  }
-
-  private isOracleDateStringByRegexp(value: string): boolean {
-    const dateRegexp = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z$/;
-    return dateRegexp.test(value);
   }
 
   private formatDate(date: Date) {

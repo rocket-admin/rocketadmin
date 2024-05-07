@@ -20,6 +20,7 @@ import { TableDS } from '../shared/data-structures/table.ds.js';
 import { ERROR_MESSAGES } from '../../helpers/errors/error-messages.js';
 import { Stream, Readable } from 'node:stream';
 import * as csv from 'csv';
+import { isPostgresDateOrTimeType, isPostgresDateStringByRegexp } from '../../helpers/is-database-date.js';
 
 export class DataAccessObjectPostgres extends BasicDataAccessObject implements IDataAccessObject {
   constructor(connection: ConnectionParams) {
@@ -595,7 +596,7 @@ export class DataAccessObjectPostgres extends BasicDataAccessObject implements I
     const knex = await this.configureKnex();
     const structure = await this.getTableStructure(tableName);
     const timestampColumnNames = structure
-      .filter(({ data_type }) => this.isPostgresDateOrTimeType(data_type))
+      .filter(({ data_type }) => isPostgresDateOrTimeType(data_type))
       .map(({ column_name }) => column_name);
     const stream = new Readable();
     stream.push(file.buffer);
@@ -612,7 +613,7 @@ export class DataAccessObjectPostgres extends BasicDataAccessObject implements I
       await knex.transaction(async (trx) => {
         for (let row of results) {
           for (let column of timestampColumnNames) {
-            if (row[column] && !this.isPostgresDateStringByRegexp(row[column])) {
+            if (row[column] && !isPostgresDateStringByRegexp(row[column])) {
               const date = new Date(Number(row[column]));
               row[column] = date.toISOString();
             }
@@ -717,13 +718,5 @@ export class DataAccessObjectPostgres extends BasicDataAccessObject implements I
       fullTableName = `"public"."${tableName}"`;
     }
     return fullTableName;
-  }
-
-  private isPostgresDateOrTimeType(dataType: string): boolean {
-    return ['date', 'time', 'timestamp', 'timestamptz', 'timestamp with time zone'].includes(dataType);
-  }
-  private isPostgresDateStringByRegexp(value: string): boolean {
-    const dateRegexp = /^(\d{4})-(\d{2})-(\d{2})$/;
-    return dateRegexp.test(value);
   }
 }

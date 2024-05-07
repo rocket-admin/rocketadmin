@@ -25,16 +25,6 @@ export function getDataAccessObject(
     ConnectionTypesEnum.agent_ibmdb2,
     ConnectionTypesEnum.agent_mongodb,
   ];
-  if (process.env.NODE_ENV === 'test') {
-    agentTypes.push(
-      'cli_mssql' as any,
-      'cli_mysql' as any,
-      'cli_oracledb' as any,
-      'cli_postgres' as any,
-      'cli_ibmdb2' as any,
-      'cli_mongodb' as any,
-    );
-  }
   if (!connectionParams || connectionParams === null) {
     throw new Error(ERROR_MESSAGES.CONNECTION_PARAMS_SHOULD_BE_DEFINED);
   }
@@ -78,6 +68,7 @@ function buildAgentConnectionParams(connectionParams: IUnknownConnectionParams):
     title: connectionParams.title || null,
     signing_key: connectionParams.signing_key,
     token: connectionParams.agent.token,
+    type: connectionParams.type,
   };
 }
 

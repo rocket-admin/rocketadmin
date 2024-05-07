@@ -23,6 +23,7 @@ import { IDataAccessObject } from '../shared/interfaces/data-access-object.inter
 import { BasicDataAccessObject } from './basic-data-access-object.js';
 import { Stream, Readable } from 'node:stream';
 import * as csv from 'csv';
+import { isMSSQLDateOrTimeType, isMSSQLDateStringByRegexp } from '../../helpers/is-database-date.js';
 
 export class DataAccessObjectMssql extends BasicDataAccessObject implements IDataAccessObject {
   constructor(connection: ConnectionParams) {
@@ -537,7 +538,7 @@ WHERE TABLE_TYPE = 'VIEW'
     const tableWithSchema = `${schemaName}.[${tableName}]`;
     const structure = await this.getTableStructure(tableName);
     const timestampColumnNames = structure
-      .filter(({ data_type }) => this.isMSSQLDateOrTimeType(data_type))
+      .filter(({ data_type }) => isMSSQLDateOrTimeType(data_type))
       .map(({ column_name }) => column_name);
     const stream = new Readable();
     stream.push(file.buffer);
@@ -554,7 +555,7 @@ WHERE TABLE_TYPE = 'VIEW'
       await knex.transaction(async (trx) => {
         for (let row of results) {
           for (let column of timestampColumnNames) {
-            if (row[column] && !this.isMSSQLDateStringByRegexp(row[column])) {
+            if (row[column] && !isMSSQLDateStringByRegexp(row[column])) {
               const date = new Date(Number(row[column]));
               row[column] = date.toISOString();
             }
@@ -671,13 +672,5 @@ WHERE TABLE_TYPE = 'VIEW'
       [tableName],
     );
     return parseInt(fastCountQueryResult[0].RowCount);
-  }
-
-  private isMSSQLDateOrTimeType(dataType: string): boolean {
-    return ['date', 'datetime', 'datetime2', 'datetimeoffset', 'smalldatetime', 'time'].includes(dataType);
-  }
-
-  private isMSSQLDateStringByRegexp(value: string): boolean {
-    return /(\d{4}-\d{2}-\d{2})T(\d{2}:\d{2}:\d{2}.\d{3}Z)/.test(value);
   }
 }

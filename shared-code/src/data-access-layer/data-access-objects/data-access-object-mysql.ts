@@ -26,6 +26,7 @@ import { TableDS } from '../shared/data-structures/table.ds.js';
 import { ERROR_MESSAGES } from '../../helpers/errors/error-messages.js';
 import { Stream, Readable } from 'node:stream';
 import * as csv from 'csv';
+import { isMySqlDateOrTimeType, isMySQLDateStringByRegexp } from '../../helpers/is-database-date.js';
 
 export class DataAccessObjectMysql extends BasicDataAccessObject implements IDataAccessObject {
   constructor(connection: ConnectionParams) {
@@ -89,7 +90,11 @@ export class DataAccessObjectMysql extends BasicDataAccessObject implements IDat
         throw new Error(e);
       }
     } else {
-      await knex(tableName).insert(row).returning(Object.keys(row));
+      try {
+        await knex(tableName).insert(row).returning(Object.keys(row));
+      } catch (error) {
+        throw new Error(error);
+      }
     }
   }
 
@@ -592,7 +597,7 @@ export class DataAccessObjectMysql extends BasicDataAccessObject implements IDat
     const knex = await this.configureKnex();
     const structure = await this.getTableStructure(tableName);
     const timestampColumnNames = structure
-      .filter(({ data_type }) => this.isMySqlDateOrTimeType(data_type))
+      .filter(({ data_type }) => isMySqlDateOrTimeType(data_type))
       .map(({ column_name }) => column_name);
     const stream = new Readable();
     stream.push(file.buffer);
@@ -609,7 +614,7 @@ export class DataAccessObjectMysql extends BasicDataAccessObject implements IDat
       await knex.transaction(async (trx) => {
         for (let row of results) {
           for (let column of timestampColumnNames) {
-            if (row[column] && !this.isMySQLDateStringByRegexp(row[column])) {
+            if (row[column] && !isMySQLDateStringByRegexp(row[column])) {
               const date = new Date(Number(row[column]));
               const formattedDate = date.toISOString().slice(0, 19).replace('T', ' ');
               row[column] = formattedDate;
@@ -688,13 +693,5 @@ export class DataAccessObjectMysql extends BasicDataAccessObject implements IDat
       (await knex.raw(`SHOW TABLE STATUS IN ?? LIKE ?;`, [databaseName, tableName]))[0][0].Rows,
     );
     return fastCount;
-  }
-
-  private isMySqlDateOrTimeType(dataType: string): boolean {
-    return ['date', 'time', 'datetime', 'timestamp'].includes(dataType.toLowerCase());
-  }
-
-  private isMySQLDateStringByRegexp(value: string): boolean {
-    return /^\d{4}-\d{2}-\d{2}$/.test(value);
   }
 }
