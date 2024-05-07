@@ -17,6 +17,7 @@ import { ForeignKeyWithAutocompleteColumnsDS } from '@rocketadmin/shared-code/di
 import { ForeignKeyDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/foreign-key.ds.js';
 import { UnknownSQLException } from '../../../exceptions/custom-exceptions/unknown-sql-exception.js';
 import { ExceptionOperations } from '../../../exceptions/custom-exceptions/exception-operation.js';
+import JSON5 from 'json5';
 
 @Injectable()
 export class GetTableStructureUseCase
@@ -60,12 +61,18 @@ export class GetTableStructureUseCase
         this._dbContext.tableWidgetsRepository.findTableWidgets(connectionId, tableName),
       ]);
       const foreignKeysFromWidgets: Array<ForeignKeyDSInfo> = tableWidgets
-        .filter((el) => {
-          return el.widget_type === WidgetTypeEnum.Foreign_key;
-        })
+        .filter((widget) => widget.widget_type === WidgetTypeEnum.Foreign_key)
         .map((widget) => {
-          return widget.widget_params as unknown as ForeignKeyDSInfo;
-        });
+          if (widget.widget_params) {
+            try {
+              const widgetParams = JSON5.parse(widget.widget_params) as ForeignKeyDSInfo;
+              return widgetParams;
+            } catch (e) {
+              return null;
+            }
+          }
+        })
+        .filter((el) => el !== null);
 
       tableForeignKeys = tableForeignKeys.concat(foreignKeysFromWidgets);
       let transformedTableForeignKeys: Array<ForeignKeyWithAutocompleteColumnsDS> = [];
@@ -93,7 +100,6 @@ export class GetTableStructureUseCase
           return el.tableName === foreignKey.referenced_table_name && el.canRead;
         });
       });
-  
 
       if (tableForeignKeys && tableForeignKeys.length > 0) {
         transformedTableForeignKeys = await Promise.all(
