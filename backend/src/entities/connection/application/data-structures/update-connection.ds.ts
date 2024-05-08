@@ -20,6 +20,7 @@ export class UpdateConnectionDs {
     ssl: boolean;
     cert: string;
     azure_encryption: boolean;
+    authSource: string;
   };
   update_info: {
     authorId: string;

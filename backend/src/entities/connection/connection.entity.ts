@@ -98,6 +98,9 @@ export class ConnectionEntity {
   @Column({ default: null })
   signing_key: string;
 
+  @Column({ default: null })
+  authSource?: string;
+
   @BeforeUpdate()
   updateTimestampEncryptCredentials(): void {
     this.updatedAt = new Date();
@@ -106,6 +109,9 @@ export class ConnectionEntity {
       this.database = Encryptor.encryptData(this.database);
       this.password = Encryptor.encryptData(this.password);
       this.username = Encryptor.encryptData(this.username);
+      if (this.authSource) {
+        this.authSource = Encryptor.encryptData(this.authSource);
+      }
       if (this.ssh) {
         this.privateSSHKey = Encryptor.encryptData(this.privateSSHKey);
         this.sshHost = Encryptor.encryptData(this.sshHost);
@@ -128,6 +134,9 @@ export class ConnectionEntity {
       this.database = Encryptor.encryptData(this.database);
       this.password = Encryptor.encryptData(this.password);
       this.username = Encryptor.encryptData(this.username);
+      if (this.authSource) {
+        this.authSource = Encryptor.encryptData(this.authSource);
+      }
       if (this.ssh) {
         this.privateSSHKey = Encryptor.encryptData(this.privateSSHKey);
         this.sshHost = Encryptor.encryptData(this.sshHost);
@@ -146,6 +155,9 @@ export class ConnectionEntity {
       this.database = Encryptor.decryptData(this.database);
       this.password = Encryptor.decryptData(this.password);
       this.username = Encryptor.decryptData(this.username);
+      if (this.authSource) {
+        this.authSource = Encryptor.decryptData(this.authSource);
+      }
       if (this.ssh) {
         this.privateSSHKey = Encryptor.decryptData(this.privateSSHKey);
         this.sshHost = Encryptor.decryptData(this.sshHost);

@@ -36,6 +36,8 @@ export class ConnectionParams {
   azure_encryption: boolean | null;
 
   signing_key: string;
+
+  authSource: string | null;
 }
 
 export class ConnectionAgentParams {

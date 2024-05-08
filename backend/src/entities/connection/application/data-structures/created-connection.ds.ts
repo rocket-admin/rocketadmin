@@ -69,6 +69,9 @@ export class CreatedConnectionDs {
   @ApiProperty()
   author: string;
 
+  @ApiProperty()
+  authSource: string;
+
   @ApiProperty({ isArray: true, type: GroupEntity })
   groups: Array<GroupEntity>;
 }

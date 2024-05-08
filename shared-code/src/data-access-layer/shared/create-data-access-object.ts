@@ -103,5 +103,6 @@ function buildConnectionParams(connectionParams: IUnknownConnectionParams): Conn
     cert: connectionParams.cert || null,
     azure_encryption: connectionParams.azure_encryption || false,
     signing_key: connectionParams.signing_key || null,
+    authSource: connectionParams.authSource || null,
   };
 }

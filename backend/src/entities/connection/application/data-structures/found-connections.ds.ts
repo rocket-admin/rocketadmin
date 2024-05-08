@@ -68,6 +68,9 @@ export class FoundDirectConnectionsDs {
 
   @ApiProperty()
   signing_key: string;
+
+  @ApiProperty({ required: false })
+  authSource?: string;
 }
 
 export class FoundDirectConnectionsNonePermissionDs {

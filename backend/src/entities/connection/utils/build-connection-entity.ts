@@ -29,6 +29,7 @@ export function buildConnectionEntity(
       database,
       type,
       password,
+      authSource,
     },
     creation_info: { masterPwd },
   } = createConnectionData;
@@ -52,6 +53,7 @@ export function buildConnectionEntity(
   connection.sshUsername = sshUsername;
   connection.cert = cert;
   connection.schema = schema;
+  connection.authSource = authSource;
 
   if (connection.masterEncryption && masterPwd && !isConnectionTypeAgent(connection.type)) {
     connection = Encryptor.encryptConnectionCredentials(connection, masterPwd);
