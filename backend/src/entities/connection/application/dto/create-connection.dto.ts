@@ -102,4 +102,9 @@ export class CreateConnectionDto {
   @IsBoolean()
   @ApiProperty({ required: false })
   isTestConnection?: boolean;
+
+  @IsOptional()
+  @IsString()
+  @ApiProperty({ required: false })
+  authSource?: string;
 }

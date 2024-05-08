@@ -42,4 +42,5 @@ export interface IEncryptorInterfaceDTO {
   saved_table_info?: number;
   signing_key: string;
   company: CompanyInfoEntity;
+  authSource?: string;
 }

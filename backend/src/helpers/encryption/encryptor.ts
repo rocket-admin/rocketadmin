@@ -50,7 +50,7 @@ export class Encryptor {
     if (connection.username) connection.username = this.encryptDataMasterPwd(connection.username, masterPwd);
     if (connection.database) connection.database = this.encryptDataMasterPwd(connection.database, masterPwd);
     if (connection.password) connection.password = this.encryptDataMasterPwd(connection.password, masterPwd);
-
+    if (connection.authSource) connection.authSource = this.encryptDataMasterPwd(connection.authSource, masterPwd);
     if (connection.ssh) {
       if (connection.privateSSHKey)
         connection.privateSSHKey = this.encryptDataMasterPwd(connection.privateSSHKey, masterPwd);
@@ -70,6 +70,7 @@ export class Encryptor {
     if (connection.password) {
       connection.password = this.decryptDataMasterPwd(connection.password, masterPwd);
     }
+    if(connection.authSource) connection.authSource = this.decryptDataMasterPwd(connection.authSource, masterPwd);
     if (connection.ssh) {
       if (connection.privateSSHKey)
         connection.privateSSHKey = this.decryptDataMasterPwd(connection.privateSSHKey, masterPwd);

@@ -46,6 +46,7 @@ export function buildCreatedConnectionDs(
     type: connection.type,
     updatedAt: connection.updatedAt,
     username: connection.username,
+    authSource: connection.authSource,
     groups: groupsWithProcessedUsers,
   };
 }

@@ -395,7 +395,6 @@ export class DataAccessObjectMongo extends BasicDataAccessObject implements IDat
       return cachedDatabase;
     }
 
-
     let mongoConnectionString = '';
     if (this.connection.host.includes('mongodb+srv')) {
       const hostNameParts = this.connection.host.split('//');
@@ -412,6 +411,14 @@ export class DataAccessObjectMongo extends BasicDataAccessObject implements IDat
         sslValidate: this.connection?.cert ? true : false,
         sslCA: this.connection?.cert,
       };
+    }
+    if (this.connection.authSource) {
+      if (mongoConnectionString.includes('?')) {
+        mongoConnectionString += '&';
+      } else {
+        mongoConnectionString += '?';
+      }
+      mongoConnectionString += `authSource=${this.connection.authSource}`;
     }
 
     const client = new MongoClient(mongoConnectionString, options);

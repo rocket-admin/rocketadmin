@@ -163,6 +163,7 @@ export const Constants = {
     username: getProcessVariable('MONGO_CONNECTION_USERNAME') || null,
     password: getProcessVariable('MONGO_CONNECTION_PASSWORD') || null,
     database: getProcessVariable('MONGO_CONNECTION_DATABASE') || null,
+    authSource: getProcessVariable('MONGO_CONNECTION_AUTH_SOURCE') || null,
     isTestConnection: true,
   },
 
