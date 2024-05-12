@@ -65,7 +65,7 @@
                         angulartics2On="click"
                         angularticsAction="Dashboard: columns multiselect is clicked">
                         <mat-icon fontSet="material-icons-outlined">view_week</mat-icon>
-                        Columns ({{ tableData.actionsColumnWidth === '0' ? tableData.displayedColumns.length : tableData.displayedDataColumns.length  }}
+                        Columns ({{ tableData.displayedDataColumns.length   }}
                             /
                             {{ tableData.columns.length }})
                     </button>
@@ -250,8 +250,8 @@
                 </mat-cell>
             </ng-container>
 
-            <mat-header-row *matHeaderRowDef="tableData.displayedColumns"></mat-header-row>
-            <mat-row *matRowDef="let row; columns: tableData.displayedColumns;" (click)="viewRow.emit({row, queryParams: tableData.getQueryParams(row)})"></mat-row>
+            <mat-header-row *matHeaderRowDef="tableData.actionsColumnWidth === '0' ? tableData.displayedDataColumns : tableData.displayedColumns"></mat-header-row>
+            <mat-row *matRowDef="let row; columns: tableData.actionsColumnWidth === '0' ? tableData.displayedDataColumns : tableData.displayedColumns;" (click)="viewRow.emit({row, queryParams: tableData.getQueryParams(row)})"></mat-row>
         </mat-table>
     </div>
 
