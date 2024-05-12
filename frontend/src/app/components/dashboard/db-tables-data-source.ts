@@ -16,6 +16,8 @@ import { TablesService } from 'src/app/services/tables.service';
 import { filter } from "lodash";
 import { format } from 'date-fns'
 import { normalizeFieldName } from 'src/app/lib/normalize';
+import { UserService } from 'src/app/services/user.service';
+import { UiSettingsService } from 'src/app/services/ui-settings.service';
 
 interface Column {
   title: string,
@@ -72,8 +74,8 @@ export class TablesDataSource implements DataSource<Object> {
 
   constructor(
     private _tables: TablesService,
-    private _notifications: NotificationsService,
-    private _connections: ConnectionsService
+    private _connections: ConnectionsService,
+    private _uiSettings: UiSettingsService
   ) {}
 
   connect(collectionViewer: CollectionViewer): Observable<Object[]> {
