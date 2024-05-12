@@ -25,7 +25,7 @@ import { omitBy } from "lodash";
 import JsonURL from "@jsonurl/jsonurl";
 import { UserService } from 'src/app/services/user.service';
 import { UiSettingsService } from 'src/app/services/ui-settings.service';
-import { UiSettings } from 'src/app/models/ui-settings';
+import { ConnectionSettingsUI, UiSettings } from 'src/app/models/ui-settings';
 
 interface DataToActivateActions {
   action: CustomAction,
@@ -68,9 +68,7 @@ export class DashboardComponent implements OnInit {
 
   public selectedRow = null;
 
-  public uiSettings = {
-    dashboard: {}
-  };
+  public uiSettings: ConnectionSettingsUI;
 
   constructor(
     private _connections: ConnectionsService,
@@ -99,6 +97,7 @@ export class DashboardComponent implements OnInit {
     this.dataSource = new TablesDataSource(this._tables, this._connections, this._uiSettings);
     this._uiSettings.cast
       .subscribe( (settings: UiSettings) => {
+        this.uiSettings = settings?.connections[this.connectionID];
         this.shownTableTitles = settings?.connections[this.connectionID]?.shownTableTitles ?? true;
       });
 
@@ -265,6 +264,7 @@ export class DashboardComponent implements OnInit {
   }
 
   getRows(search?: string) {
+    const shownColumns = this.uiSettings?.tables[this.selectedTableName]?.shownColumns;
     this.dataSource.fetchRows({
       connectionID: this.connectionID,
       tableName: this.selectedTableName,
@@ -272,7 +272,8 @@ export class DashboardComponent implements OnInit {
       sortColumn: undefined,
       sortOrder: undefined,
       filters: this.filters,
-      search
+      search,
+      shownColumns
     });
   }
 

@@ -33,8 +33,9 @@ interface RowsParams {
   sortOrder?: 'ASC' | 'DESC',
   filters?: object,
   comparators?: object,
+  search?: string,
   isTablePageSwitched?: boolean,
-  search?: string
+  shownColumns?: string[]
 }
 
 export class TablesDataSource implements DataSource<Object> {
@@ -134,11 +135,10 @@ export class TablesDataSource implements DataSource<Object> {
     sortColumn,
     sortOrder,
     filters, comparators,
+    search,
     isTablePageSwitched,
-    search
+    shownColumns
   }: RowsParams) {
-      console.log({search});
-
       this.loadingSubject.next(true);
       this.alert_primaryKeysInfo = null;
       this.alert_settingsInfo = null;
@@ -191,7 +191,13 @@ export class TablesDataSource implements DataSource<Object> {
           if (isTablePageSwitched === undefined) this.columns = orderedColumns
             .filter (item => item.isExcluded === false)
             .map((item, index) => {
-              if (res.columns_view && res.columns_view.length !== 0) {
+              if (shownColumns && shownColumns.length) {
+                return {
+                  title: item.column_name,
+                  normalizedTitle: normalizeFieldName(item.column_name),
+                  selected: shownColumns.includes(item.column_name)
+                }
+              } else if (res.columns_view && res.columns_view.length !== 0) {
                 return {
                   title: item.column_name,
                   normalizedTitle: normalizeFieldName(item.column_name),
@@ -307,13 +313,15 @@ export class TablesDataSource implements DataSource<Object> {
     return `${lendthValue}px`
   }
 
-  changleColumnList() {
+  changleColumnList(connectionId: string, tableName: string) {
     this.displayedDataColumns = (filter(this.columns, column => column.selected === true)).map(column => column.title);
     if (this.keyAttributes.length) {
       this.displayedColumns = ['select', ...this.displayedDataColumns, 'actions' ]
     } else {
       this.displayedColumns = [...this.displayedDataColumns];
     };
+
+    this._uiSettings.updateTableSetting(connectionId, tableName, 'shownColumns', this.displayedDataColumns);
   }
 
   getQueryParams(row, action) {

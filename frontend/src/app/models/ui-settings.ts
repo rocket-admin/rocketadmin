@@ -1,17 +1,17 @@
-export interface GlobalSettings {
+export interface GlobalSettingsUI {
     connectionsListCollapsed: boolean;
 }
 
-export interface TableSettings {
+export interface TableSettingsUI {
     shownColumns: string[];
 }
 
-export interface ConnectionSettings {
+export interface ConnectionSettingsUI {
     shownTableTitles: boolean;
-    tables: { [tableName: string]: TableSettings };
+    tables: { [tableName: string]: TableSettingsUI };
 }
 
 export interface UiSettings {
-    globalSettings: GlobalSettings;
-    connections: { [connectionId: string]: ConnectionSettings };
+    globalSettings: GlobalSettingsUI;
+    connections: { [connectionId: string]: ConnectionSettingsUI };
 }

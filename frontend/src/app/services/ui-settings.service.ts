@@ -3,15 +3,15 @@ import { Injectable } from '@angular/core';
 import { NotificationsService } from './notifications.service';
 import { BehaviorSubject, EMPTY } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
-import { ConnectionSettings, GlobalSettings, UiSettings } from '../models/ui-settings';
+import { ConnectionSettingsUI, GlobalSettingsUI, UiSettings } from '../models/ui-settings';
 
 @Injectable({
   providedIn: 'root'
 })
 export class UiSettingsService {
   public settings: UiSettings = {
-    globalSettings: {} as GlobalSettings,
-    connections: {} as { [connectionId: string]: ConnectionSettings }
+    globalSettings: {} as GlobalSettingsUI,
+    connections: {} as { [connectionId: string]: ConnectionSettingsUI }
   }
 
   private uiSettings = new BehaviorSubject<any>(this.settings);
@@ -40,6 +40,7 @@ export class UiSettingsService {
   }
 
   updateTableSetting(connectionId: string, tableName: string, key: string, value: any) {
+    console.log('updateTableSetting')
     if (!this.settings.connections[connectionId]) {
       this.settings.connections[connectionId] = { shownTableTitles: false, tables: {} };
     }
@@ -47,7 +48,7 @@ export class UiSettingsService {
       this.settings.connections[connectionId].tables[tableName] = { shownColumns: [] };
     }
     this.settings.connections[connectionId].tables[tableName][key] = value;
-    this.syncUiSettings();
+    this.syncUiSettings().subscribe();
   }
 
   getUiSettings() {
