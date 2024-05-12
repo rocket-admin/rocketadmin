@@ -1,0 +1,17 @@
+<h1 mat-dialog-title>Change group name</h1>
+<form #editGroupNameForm="ngForm" (ngSubmit)="addGroup()">
+    <mat-dialog-content>
+        <mat-form-field appearance="outline">
+            <mat-label>Change group name</mat-label>
+            <input matInput [(ngModel)]="groupTitle" name="title" #title="ngModel" required>
+            <mat-error *ngIf="title.errors?.required && (title.invalid && title.touched)">Title should not be empty.</mat-error>
+        </mat-form-field>
+    </mat-dialog-content>
+    <mat-dialog-actions align="end">
+        <button mat-flat-button mat-dialog-close>Cancel</button>
+        <button mat-flat-button color="primary"
+            [disabled]="submitting || editGroupNameForm.form.invalid">
+            Change
+        </button>
+    </mat-dialog-actions>
+</form>

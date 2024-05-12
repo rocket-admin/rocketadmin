@@ -14,6 +14,7 @@ import { UserAddDialogComponent } from './user-add-dialog/user-add-dialog.compon
 import { UserDeleteDialogComponent } from './user-delete-dialog/user-delete-dialog.component';
 import { UserService } from 'src/app/services/user.service';
 import { UsersService } from '../../services/users.service';
+import { GroupNameEditDialogComponent } from './group-name-edit-dialog/group-name-edit-dialog.component';
 
 @Component({
   selector: 'app-users',
@@ -47,7 +48,7 @@ export class UsersComponent implements OnInit, OnDestroy {
     this.getUsersGroups();
     this._userService.cast.subscribe(user => this.currentUser = user);
     this._usersService.cast.subscribe( arg =>  {
-      if (arg.action === 'add group' || arg.action === 'delete group') {
+      if (arg.action === 'add group' || arg.action === 'delete group' || arg.action === 'edit group name') {
         this.getUsersGroups()
 
         if (arg.action === 'add group') {
@@ -104,6 +105,13 @@ export class UsersComponent implements OnInit, OnDestroy {
 
   openDeleteGroupDialog(group: UserGroup) {
     this.dialog.open(GroupDeleteDialogComponent, {
+      width: '25em',
+      data: group
+    })
+  }
+
+  openEditGroupNameDialog(group: UserGroup) {
+    this.dialog.open(GroupNameEditDialogComponent, {
       width: '25em',
       data: group
     })

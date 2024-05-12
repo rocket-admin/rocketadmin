@@ -139,6 +139,7 @@ import { WidgetDeleteDialogComponent } from './components/dashboard/db-table-wid
 import { environment } from '../environments/environment';
 import { DbTableExportDialogComponent } from './components/dashboard/db-table-export-dialog/db-table-export-dialog.component';
 import { DbTableRowViewComponent } from './components/dashboard/db-table-row-view/db-table-row-view.component';
+import { GroupNameEditDialogComponent } from './components/users/group-name-edit-dialog/group-name-edit-dialog.component';
 
 type Palettes = { primaryPalette: string, accentedPalette: string, warnPalette: string };
 type Colors = { myColorName: string };
@@ -285,7 +286,8 @@ const saasExtraProviders = (environment as any).saas ? [
     UserAddDialogComponent,
     GroupDeleteDialogComponent,
     ContentLoaderComponent,
-    DbTableRowViewComponent
+    DbTableRowViewComponent,
+    GroupNameEditDialogComponent
   ],
   providers: [
     ConnectionsService,

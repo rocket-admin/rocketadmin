@@ -118,6 +118,21 @@ export class UsersService {
       );
   }
 
+  editUsersGroupName(groupId: string, title: string) {
+    return this._http.put<any>(`/group/title`, {title, groupId})
+      .pipe(
+        map(() => {
+          this.groups.next({action: 'edit group name', groupId: groupId});
+          this._notifications.showSuccessSnackbar('Group name has been updated.')
+        }),
+        catchError((err) => {
+          console.log(err);
+          this._notifications.showErrorSnackbar(err.error.message);
+          return EMPTY;
+        })
+      );
+  }
+
   deleteUsersGroup(groupID: string) {
     return this._http.delete<any>(`/group/${groupID}`)
       .pipe(
