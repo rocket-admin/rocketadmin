@@ -28,6 +28,13 @@
                     </button>
                     <button mat-icon-button *ngIf="isPermitted(groupItem.accessLevel) && groupItem.group.title !== 'Admin'"
                         angulartics2On="click"
+                        angularticsAction="Users access: edit group name is clicked"
+                        matTooltip="Edit group name"
+                        (click)="openEditGroupNameDialog(groupItem.group)">
+                        <mat-icon>edit</mat-icon>
+                    </button>
+                    <button mat-icon-button *ngIf="isPermitted(groupItem.accessLevel) && groupItem.group.title !== 'Admin'"
+                        angulartics2On="click"
                         angularticsAction="Users access: delete group is clicked"
                         matTooltip="Delete group"
                         (click)="openDeleteGroupDialog(groupItem.group)">
