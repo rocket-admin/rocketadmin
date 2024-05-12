@@ -28,7 +28,7 @@ export class UiSettingsService {
 
   updateGlobalSetting(key: string, value: any) {
     this.settings.globalSettings[key] = value;
-    this.syncUiSettings();
+    this.syncUiSettings().subscribe();
   }
 
   updateConnectionSetting(connectionId: string, key: string, value: any) {

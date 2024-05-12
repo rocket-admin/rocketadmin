@@ -6,6 +6,8 @@ import { MatDialog } from '@angular/material/dialog';
 import { UserService } from 'src/app/services/user.service';
 import { CompanyService } from 'src/app/services/company.service';
 import { User } from 'src/app/models/user';
+import { UiSettingsService } from 'src/app/services/ui-settings.service';
+import { UiSettings } from 'src/app/models/ui-settings';
 
 @Component({
   selector: 'app-connections-list',
@@ -18,6 +20,7 @@ export class ConnectionsListComponent implements OnInit {
   public testConnections: ConnectionItem[] = null;
   public titles: Object;
   public displayedCardCount: number = 3;
+  public connectionsListCollapsed: boolean = true;
   public companyName: string;
   public currentUser: User;
 
@@ -25,7 +28,8 @@ export class ConnectionsListComponent implements OnInit {
     private _connectionsServise: ConnectionsService,
     public deleteDialog: MatDialog,
     private _userService: UserService,
-    private _companyService: CompanyService
+    private _companyService: CompanyService,
+    private _uiSettings: UiSettingsService,
   ) { }
 
   ngOnInit(): void {
@@ -35,6 +39,10 @@ export class ConnectionsListComponent implements OnInit {
       .subscribe((res: any) => {
         this.companyName = res.name;
       })
+    });
+    this._uiSettings.cast
+      .subscribe( (settings: UiSettings) => {
+        this.connectionsListCollapsed = settings?.globalSettings?.connectionsListCollapsed;
     });
     this._connectionsServise.fetchConnections()
       .subscribe((res: any) => {
@@ -46,6 +54,7 @@ export class ConnectionsListComponent implements OnInit {
     this.connections = res.connections.filter(connectionItem => !connectionItem.connection.isTestConnection);
     this.testConnections = res.connections.filter(connectionItem => connectionItem.connection.isTestConnection);
     this.titles = Object.assign({}, ...res.connections.map((connectionItem) => ({[connectionItem.connection.id]: this.getTitle(connectionItem.connection)})));
+    this.displayedCardCount = this.connectionsListCollapsed ? 3 : this.connections.length;
   }
 
   getTitle(connection: Connection) {
@@ -55,9 +64,11 @@ export class ConnectionsListComponent implements OnInit {
 
   showMore() {
     this.displayedCardCount = this.connections.length;
+    this._uiSettings.updateGlobalSetting('connectionsListCollapsed', false);
   }
 
   showLess() {
     this.displayedCardCount = 3;
+    this._uiSettings.updateGlobalSetting('connectionsListCollapsed', true);
   }
 }

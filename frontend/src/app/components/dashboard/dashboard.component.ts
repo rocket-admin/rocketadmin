@@ -99,7 +99,7 @@ export class DashboardComponent implements OnInit {
       .subscribe( (settings: UiSettings) => {
         this.uiSettings = settings?.connections[this.connectionID];
         this.shownTableTitles = settings?.connections[this.connectionID]?.shownTableTitles ?? true;
-      });
+    });
 
     let tables;
     try {
