@@ -15,6 +15,7 @@ import { differenceInMilliseconds } from 'date-fns';
 import { environment } from '../environments/environment';
 import { normalizeTableName } from './lib/normalize';
 import { catchError, filter, map } from 'rxjs/operators';
+import { UiSettingsService } from './services/ui-settings.service';
 
 //@ts-ignore
 window.amplitude = amplitude;
@@ -48,13 +49,14 @@ export class AppComponent {
 
   constructor (
     private changeDetector: ChangeDetectorRef,
-    private ngZone: NgZone,
+    // private ngZone: NgZone,
     public route: ActivatedRoute,
     public router: Router,
     public _connections: ConnectionsService,
     public _user: UserService,
     public _auth: AuthService,
     private _tables: TablesService,
+    private _uiSettings: UiSettingsService,
     angulartics2Amplitude: Angulartics2Amplitude,
     private domSanitizer: DomSanitizer,
     private matIconRegistry: MatIconRegistry,
@@ -167,6 +169,8 @@ export class AppComponent {
           }
         }
       }
+
+      this._uiSettings.getUiSettings().subscribe();
     });
 
     this._user.cast.subscribe( arg => {

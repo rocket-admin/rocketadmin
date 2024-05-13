@@ -23,6 +23,9 @@ import { User } from 'src/app/models/user';
 import { normalizeTableName } from '../../lib/normalize'
 import { omitBy } from "lodash";
 import JsonURL from "@jsonurl/jsonurl";
+import { UserService } from 'src/app/services/user.service';
+import { UiSettingsService } from 'src/app/services/ui-settings.service';
+import { ConnectionSettingsUI, UiSettings } from 'src/app/models/ui-settings';
 
 interface DataToActivateActions {
   action: CustomAction,
@@ -65,11 +68,15 @@ export class DashboardComponent implements OnInit {
 
   public selectedRow = null;
 
+  public uiSettings: ConnectionSettingsUI;
+
   constructor(
     private _connections: ConnectionsService,
     private _tables: TablesService,
     private _notifications: NotificationsService,
     private _tableRow: TableRowService,
+    private _user: UserService,
+    private _uiSettings: UiSettingsService,
     public router: Router,
     private route: ActivatedRoute,
     public dialog: MatDialog,
@@ -87,13 +94,12 @@ export class DashboardComponent implements OnInit {
 
   async ngOnInit() {
     this.connectionID = this._connections.currentConnectionID;
-    this.dataSource = new TablesDataSource(this._tables, this._notifications, this._connections);
-    const isTitlesShown = localStorage.getItem(`shownTableTitles__${this.connectionID}`);
-    if (isTitlesShown === null) {
-      this.shownTableTitles = true
-    } else {
-      this.shownTableTitles = localStorage.getItem(`shownTableTitles__${this.connectionID}`) === 'true';
-    };
+    this.dataSource = new TablesDataSource(this._tables, this._connections, this._uiSettings);
+    this._uiSettings.cast
+      .subscribe( (settings: UiSettings) => {
+        this.uiSettings = settings?.connections[this.connectionID];
+        this.shownTableTitles = settings?.connections[this.connectionID]?.shownTableTitles ?? true;
+    });
 
     let tables;
     try {
@@ -258,6 +264,7 @@ export class DashboardComponent implements OnInit {
   }
 
   getRows(search?: string) {
+    const shownColumns = this.uiSettings?.tables[this.selectedTableName]?.shownColumns;
     this.dataSource.fetchRows({
       connectionID: this.connectionID,
       tableName: this.selectedTableName,
@@ -265,7 +272,8 @@ export class DashboardComponent implements OnInit {
       sortColumn: undefined,
       sortOrder: undefined,
       filters: this.filters,
-      search
+      search,
+      shownColumns
     });
   }
 
@@ -326,7 +334,9 @@ export class DashboardComponent implements OnInit {
 
   toggleSideBar() {
     this.shownTableTitles = !this.shownTableTitles;
-    localStorage.setItem(`shownTableTitles__${this.connectionID}`, `${this.shownTableTitles}`);
+    this._uiSettings.updateConnectionSetting(this.connectionID, 'shownTableTitles', this.shownTableTitles);
+    // (this.uiSettings.dashboard[this.connectionID] = this.uiSettings.dashboard[this.connectionID] || { }).shownTableTitles = this.shownTableTitles;
+    // this._uiSettings.updateUiSettings(this.uiSettings).subscribe();
   }
 
   viewRow(row: {row: object, queryParams: object}) {
@@ -338,5 +348,9 @@ export class DashboardComponent implements OnInit {
 
   closeRowPreview() {
     this.selectedRow = null;
+  }
+
+  updateUiSettings() {
+    // this._uiSettings.updateUiSettings(this.uiSettings).subscribe();
   }
 }
