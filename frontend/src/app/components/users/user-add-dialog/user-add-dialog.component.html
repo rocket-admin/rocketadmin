@@ -1,24 +1,30 @@
 <h1 mat-dialog-title>Add user to <strong>{{ group.title }}</strong> group</h1>
-<form action="" #addUserForm="ngForm" (ngSubmit)="joinGroupUser()">
+<app-placeholder-add-user-dialog *ngIf="availableMembers === null"></app-placeholder-add-user-dialog>
+<form *ngIf="availableMembers" #addUserForm="ngForm" (ngSubmit)="joinGroupUser()">
   <mat-dialog-content>
-      <mat-form-field *ngIf="availableMembers && availableMembers.length; else noAvailableMembersMessage" appearance="outline">
+    <div *ngIf="availableMembers.length">
+      <mat-form-field appearance="outline">
         <mat-label>Select user</mat-label>
-        <mat-select name="email"
-            [(ngModel)]="groupUserEmail">
-            <mat-option *ngFor="let member of availableMembers" [value]="member.email">
-              <span *ngIf="member.name">{{member.name}} (</span>{{member.email}}<span *ngIf="member.name">)</span>
-            </mat-option>
-        </mat-select>
-    </mat-form-field>
-    <ng-template #noAvailableMembersMessage>
-      <p class="mat-body-1">
-        All your company members are already in this group. To add a new one first add them in your company.
+          <mat-select name="email"
+              [(ngModel)]="groupUserEmail">
+              <mat-option *ngFor="let member of availableMembers" [value]="member.email">
+                <span *ngIf="member.name">{{member.name}} (</span>{{member.email}}<span *ngIf="member.name">)</span>
+              </mat-option>
+          </mat-select>
+      </mat-form-field>
+      <p class="mat-body-2">
+        Add users to the
+        <a routerLink="/company" class="link" mat-dialog-close>
+          Company</a> before assigning them to a group.
       </p>
-    </ng-template>
+    </div>
+    <p *ngIf="availableMembers.length === 0" class="mat-body-2">
+      All your company members are already in this group. To add a new one first add them to your company.
+    </p>
   </mat-dialog-content>
   <mat-dialog-actions align="end">
     <button type="button" mat-flat-button mat-dialog-close>Cancel</button>
-    <button *ngIf="availableMembers && availableMembers.length; else companyButton"
+    <button *ngIf="availableMembers.length; else companyButton"
       mat-flat-button color="primary"
       [disabled]="submitting || addUserForm.form.invalid">
       Add
@@ -27,7 +33,7 @@
       <a mat-flat-button mat-dialog-close
         color="primary"
         routerLink="/company">
-        Open company page
+        Open Company page
     </a>
     </ng-template>
   </mat-dialog-actions>

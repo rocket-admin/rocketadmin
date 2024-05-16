@@ -12,3 +12,7 @@
     text-align: center;
     margin-bottom: 24px;
 }
+
+.link {
+    color: var(--color-primaryPalette-500);
+}

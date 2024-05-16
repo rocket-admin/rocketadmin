@@ -140,6 +140,7 @@ import { environment } from '../environments/environment';
 import { DbTableExportDialogComponent } from './components/dashboard/db-table-export-dialog/db-table-export-dialog.component';
 import { DbTableRowViewComponent } from './components/dashboard/db-table-row-view/db-table-row-view.component';
 import { GroupNameEditDialogComponent } from './components/users/group-name-edit-dialog/group-name-edit-dialog.component';
+import { PlaceholderAddUserDialogComponent } from './components/skeletons/placeholder-add-user-dialog/placeholder-add-user-dialog.component';
 
 type Palettes = { primaryPalette: string, accentedPalette: string, warnPalette: string };
 type Colors = { myColorName: string };
@@ -287,7 +288,8 @@ const saasExtraProviders = (environment as any).saas ? [
     GroupDeleteDialogComponent,
     ContentLoaderComponent,
     DbTableRowViewComponent,
-    GroupNameEditDialogComponent
+    GroupNameEditDialogComponent,
+    PlaceholderAddUserDialogComponent
   ],
   providers: [
     ConnectionsService,
