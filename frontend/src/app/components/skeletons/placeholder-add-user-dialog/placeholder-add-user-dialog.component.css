@@ -1,0 +1,35 @@
+.wrapper {
+    position: relative;
+    z-index: 1;
+}
+
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 20px 24px 20px 24px;
+}
+
+.form__field {
+    height: 44px;
+    width: 100%;
+}
+
+.form__string {
+    height: 20px;
+    margin-bottom: -12px;
+    width: 80%;
+}
+
+.actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    padding: 8px;
+}
+
+.form__button {
+    border-radius: 4px;
+    height: 36px;
+    width: 72px;
+}
