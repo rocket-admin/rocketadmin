@@ -238,65 +238,6 @@ class RocketadminController extends Controller
             }
         },
 
-        ruby: {
-          langName: 'Ruby',
-          mode: 'ruby',
-          snippet: {
-            single: `class RocketadminController < ApplicationController
-skip_before_action :verify_authenticity_token
-
-def create
-    your_table_primary_keys_names = ["id"]
-    rocketadmin_signature = request.headers["Rocketadmin-Signature"]
-    body_data = request.POST
-    primary_keys_values = {}
-
-    your_table_primary_keys_names.each do |key_name|
-    primary_keys_values[key_name] = body_data[key_name]
-    end
-
-    stringifyed_p_keys = primary_keys_values.map do |p, val|
-    "#{p}::#{val}\n"
-    end.join.chop
-
-    str_to_hash = "#{body_data[:$$_date]}$$#{stringifyed_p_keys}$$#{body_data[:$$_action_id]}$$#{body_data[:$$_table_name]}"
-    hmac = OpenSSL::HMAC.hexdigest(OpenSSL::Digest.new("sha256"), "${signingKey}", str_to_hash)
-
-    if hmac == rocketadmin_signature
-    # Your code here
-    else
-    render json: { error: "Signature invalid" }, status: :bad_request
-    end
-end
-end
-            `,
-            multiple:`require 'openssl'
-
-class RocketadminController < ApplicationController
-    skip_before_action :verify_authenticity_token
-
-    def create
-        rocketadmin_signature = request.headers['rocketadmin-signature']
-        body_data = request.body.read
-
-        body_to_json = body_data.to_json
-
-        hmac = OpenSSL::HMAC.new('your_rocketadmin_signing_key', OpenSSL::Digest.new('sha256'))
-        hmac.update(body_to_json)
-        hash = hmac.hexdigest
-
-        if ActiveSupport::SecurityUtils.secure_compare(hash, rocketadmin_signature)
-            # your code
-            render json: {}, status: :ok
-        else
-            render json: { error: 'Signature invalid' }, status: :bad_request
-        end
-    end
-end
-`
-            }
-        },
-
         go: {
           langName: 'Go',
           mode: 'go',

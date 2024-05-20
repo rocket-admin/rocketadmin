@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { catchError, map } from 'rxjs/operators';
 import { BehaviorSubject, EMPTY } from 'rxjs';
-import { PaymentMethod } from '@stripe/stripe-js/types/api';
+import { PaymentMethod } from '@stripe/stripe-js';
 import { NotificationsService } from './notifications.service';
 import { AlertActionType, AlertType } from '../models/alert';
 import { ConfigurationService } from './configuration.service';
