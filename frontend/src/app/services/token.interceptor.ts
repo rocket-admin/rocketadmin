@@ -12,6 +12,7 @@ import { CookieService } from 'ngx-cookie-service';
 import { Injectable } from '@angular/core';
 import { ConfigurationService } from './configuration.service';
 import { switchMap } from 'rxjs/operators';
+import { environment } from "../../environments/environment";
 
 // import { Connection } from '../models/connection';
 // import { UserService } from './user.service';
@@ -43,7 +44,7 @@ export class TokenInterceptor implements HttpInterceptor {
     const connectionID = this._connections.currentConnectionID;
 
     request = request.clone({
-      url: this.normalizeURL(request.url, this.config.baseURL),
+      url: this.normalizeURL(request.url, environment.apiRoot || this.config.baseURL),
       setHeaders: {
         GCLID: autoadmin_gclid_cookie
       },
