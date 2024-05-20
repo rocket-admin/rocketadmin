@@ -1,16 +1,16 @@
+import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
+import { Angulartics2, Angulartics2Module } from 'angulartics2';
 import { ComponentFixture, TestBed, async } from '@angular/core/testing';
 
+import { AccessLevel } from 'src/app/models/user';
+import { ConnectionsService } from 'src/app/services/connections.service';
 import { DashboardComponent } from './dashboard.component';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { RouterTestingModule } from "@angular/router/testing";
-import { ConnectionsService } from 'src/app/services/connections.service';
-import { of } from 'rxjs';
 import { TablesService } from 'src/app/services/tables.service';
-import { AccessLevel } from 'src/app/models/user';
-import { ActivatedRoute, convertToParamMap, Router } from '@angular/router';
-import { Angulartics2, Angulartics2Module } from 'angulartics2';
+import { of } from 'rxjs';
 
 describe('DashboardComponent', () => {
   let component: DashboardComponent;
@@ -127,6 +127,4 @@ describe('DashboardComponent', () => {
     const tables = await component.getTables();
     expect(tables).toEqual(fakeTables);
   });
-
-
 });
