@@ -192,9 +192,9 @@ export class AppComponent {
     return this._connections.connectionID;
   }
 
-  get currantConnection() {
-    return this._connections.currentConnection;
-  }
+  // get currantConnection() {
+  //   return this._connections.currentConnection;
+  // }
 
   get visibleTabs() {
     return this._connections.visibleTabs;
