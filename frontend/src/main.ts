@@ -5,12 +5,17 @@ import { enableProdMode } from '@angular/core';
 import { AppModule } from './app/app.module';
 import { environment } from './environments/environment';
 import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
-import 'codemirror/mode/javascript/javascript';
-import 'codemirror/mode/clike/clike';
-import 'codemirror/mode/php/php';
-import 'codemirror/mode/ruby/ruby';
-import 'codemirror/mode/go/go';
-import 'codemirror/mode/python/python';
+import { javascript } from '@codemirror/lang-javascript';
+import { cpp } from '@codemirror/lang-cpp';
+import { php } from '@codemirror/lang-php';
+import { go } from '@codemirror/lang-go';
+import { python } from '@codemirror/lang-python';
+
+javascript();
+cpp();
+php();
+go();
+python();
 
 if (environment.production) {
   enableProdMode();
