@@ -138,6 +138,9 @@
             },
             "saas": {
               "browserTarget": "dissendium-v0:build:saas"
+            },
+            "development": {
+              "browserTarget": "dissendium-v0:build:development"
             }
           }
         },
