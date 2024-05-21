@@ -5,7 +5,7 @@
     <div *ngIf="availableMembers.length">
       <mat-form-field appearance="outline">
         <mat-label>Select user</mat-label>
-          <mat-select name="email"
+          <mat-select name="email" required
               [(ngModel)]="groupUserEmail">
               <mat-option *ngFor="let member of availableMembers" [value]="member.email">
                 <span *ngIf="member.name">{{member.name}} (</span>{{member.email}}<span *ngIf="member.name">)</span>
