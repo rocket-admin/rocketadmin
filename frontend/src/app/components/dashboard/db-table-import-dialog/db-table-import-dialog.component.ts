@@ -1,5 +1,6 @@
 import { Component, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { Angulartics2 } from 'angulartics2';
 import { TablesService } from 'src/app/services/tables.service';
 
 @Component({
@@ -16,6 +17,7 @@ export class DbTableImportDialogComponent {
     @Inject(MAT_DIALOG_DATA) public data: any,
     private _tables: TablesService,
     public dialogRef: MatDialogRef<DbTableImportDialogComponent>,
+    private angulartics2: Angulartics2,
   ) { }
 
   onFileSelected(event: any) {
@@ -27,8 +29,11 @@ export class DbTableImportDialogComponent {
     this._tables.importTableCSV(this.data.connectionID, this.data.tableName, this.file).subscribe(res => {
       this.dialogRef.close();
       this.submitting = false;
+      this.angulartics2.eventTrack.next({
+        action: 'Dashboard: db import is successful',
+      });
     },
-    err => { this.submitting = false; },
+    err => {this.submitting = false; },
     () => { this.submitting = false; }
     );
   }
