@@ -12,6 +12,7 @@ import { normalizeTableName } from '../../../lib/normalize'
 import { tap } from 'rxjs/operators';
 import { MatDialog } from '@angular/material/dialog';
 import { DbTableExportDialogComponent } from '../db-table-export-dialog/db-table-export-dialog.component';
+import { DbTableImportDialogComponent } from '../db-table-import-dialog/db-table-import-dialog.component';
 
 interface Column {
   title: string,
@@ -182,6 +183,16 @@ export class DbTableComponent implements OnInit {
         sortOrder: this.sort.direction.toLocaleUpperCase(),
         filters: this.activeFilters,
         search: this.searchString
+      }
+    })
+  }
+
+  handleOpenImportDialog() {
+    this.dialog.open(DbTableImportDialogComponent, {
+      width: '25em',
+      data: {
+        connectionID: this.connectionID,
+        tableName: this.name,
       }
     })
   }

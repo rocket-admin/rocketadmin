@@ -1,0 +1,16 @@
+<h1 mat-dialog-title>Import</h1>
+<form #importTableForm="ngForm" (ngSubmit)="importCSV()" class="form">
+    <mat-dialog-content>
+        <div class="file-uploader-appearance">
+            <button mat-stroked-button type="button" (click)="fileInput.click()">Browse File</button>
+            <span >{{ file && file.name ? file.name : 'No file selected.' }}</span>
+            <input #fileInput type="file" class="file-input" name="db-table-file" (change)="onFileSelected($event)" hidden>
+        </div>
+    </mat-dialog-content>
+    <mat-dialog-actions align="end">
+        <button mat-flat-button mat-dialog-close>Cancel</button>
+        <button mat-flat-button type="submit" color="primary" [disabled]="submitting">
+            Import
+        </button>
+    </mat-dialog-actions>
+</form>

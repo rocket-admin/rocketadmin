@@ -1,7 +1,6 @@
 import { Component, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { TablesService } from 'src/app/services/tables.service';
-import { GroupAddDialogComponent } from '../../users/group-add-dialog/group-add-dialog.component';
 
 @Component({
   selector: 'app-db-table-export-dialog',
@@ -17,7 +16,7 @@ export class DbTableExportDialogComponent {
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: any,
     private _tables: TablesService,
-    public dialogRef: MatDialogRef<GroupAddDialogComponent>,
+    public dialogRef: MatDialogRef<DbTableExportDialogComponent>,
   ) { }
 
   exportCSV() {

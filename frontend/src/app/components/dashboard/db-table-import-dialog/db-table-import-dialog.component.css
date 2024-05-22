@@ -1,0 +1,15 @@
+.file-uploader-appearance {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.file-name {
+    color: rgba(0, 0, 0, 0.5);
+    font-style: italic;
+    margin-right: 20px;
+}
+
+.upload-btn {
+    margin-right: 12px;
+}

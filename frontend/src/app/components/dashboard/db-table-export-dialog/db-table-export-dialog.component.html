@@ -1,5 +1,5 @@
 <h1 mat-dialog-title>Export</h1>
-<form #exportTableForm="ngForm" (submit)="exportCSV()" class="form">
+<form #exportTableForm="ngForm" (ngSubmit)="exportCSV()" class="form">
     <mat-dialog-content>
         <p class="mat-body-1">
             Select number of records you want to download.

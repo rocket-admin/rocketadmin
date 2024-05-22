@@ -199,6 +199,29 @@ export class TablesService {
       );
   }
 
+  importTableCSV(connectionID: string, tableName: string, file: File) {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    return this._http.post<any>(`/table/csv/import/${connectionID}`, formData, {
+      params: {
+        tableName
+      }
+    })
+      .pipe(
+        map(res => {
+          this.tables.next('import');
+          this._notifications.showSuccessSnackbar('CSV file has been imported successfully.');
+          return res
+        }),
+        catchError((err) => {
+          console.log(err);
+          this._notifications.showErrorSnackbar(err.error.message);
+          return EMPTY;
+        })
+      );
+  }
+
   updateTableSettings(isSettingsExist: boolean, connectionID: string, tableName: string, settings: TableSettings) {
     let method: string;
     if (isSettingsExist) {

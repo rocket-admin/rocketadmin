@@ -142,7 +142,7 @@ export class DashboardComponent implements OnInit {
           };
         });
         this._tables.cast.subscribe((arg) => {
-          if (arg === 'delete rows' && this.selectedTableName) {
+          if ((arg === 'delete rows' || arg === 'import') && this.selectedTableName) {
             this.setTable(this.selectedTableName);
             this.selection.clear();
           };
