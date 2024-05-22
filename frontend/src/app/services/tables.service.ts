@@ -7,6 +7,7 @@ import { catchError, filter, map } from 'rxjs/operators';
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { NotificationsService } from './notifications.service';
+import { Angulartics2 } from 'angulartics2';
 
 export enum SortOrdering {
   Ascending = 'ASC',
@@ -41,7 +42,9 @@ export class TablesService {
   constructor(
     private _http: HttpClient,
     private router: Router,
-    private _notifications: NotificationsService
+    private _notifications: NotificationsService,
+    private angulartics2: Angulartics2,
+
   ) {
     this.router = router;
 
@@ -194,6 +197,35 @@ export class TablesService {
         catchError((err) => {
           console.log(err);
           this._notifications.showErrorSnackbar(err.error.message);
+          this.angulartics2.eventTrack.next({
+            action: 'Dashboard: db export failed',
+          });
+          return EMPTY;
+        })
+      );
+  }
+
+  importTableCSV(connectionID: string, tableName: string, file: File) {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    return this._http.post<any>(`/table/csv/import/${connectionID}`, formData, {
+      params: {
+        tableName
+      }
+    })
+      .pipe(
+        map(res => {
+          this.tables.next('import');
+          this._notifications.showSuccessSnackbar('CSV file has been imported successfully.');
+          return res
+        }),
+        catchError((err) => {
+          console.log(err);
+          this._notifications.showErrorSnackbar(err.error.message);
+          this.angulartics2.eventTrack.next({
+            action: 'Dashboard: db import failed',
+          });
           return EMPTY;
         })
       );

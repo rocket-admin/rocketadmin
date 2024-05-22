@@ -55,6 +55,13 @@
                 </button>
                 <button mat-button type="button"
                     angulartics2On="click"
+                    angularticsAction="Dashboard: import is clicked"
+                    (click)="handleOpenImportDialog()">
+                    <mat-icon>download</mat-icon>
+                    Import
+                </button>
+                <button mat-button type="button"
+                    angulartics2On="click"
                     angularticsAction="Dashboard: export is clicked"
                     (click)="handleOpenExportDialog()">
                     <mat-icon>ios_share</mat-icon>

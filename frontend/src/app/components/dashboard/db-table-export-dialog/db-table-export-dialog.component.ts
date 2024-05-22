@@ -1,7 +1,7 @@
 import { Component, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { Angulartics2 } from 'angulartics2';
 import { TablesService } from 'src/app/services/tables.service';
-import { GroupAddDialogComponent } from '../../users/group-add-dialog/group-add-dialog.component';
 
 @Component({
   selector: 'app-db-table-export-dialog',
@@ -17,7 +17,8 @@ export class DbTableExportDialogComponent {
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: any,
     private _tables: TablesService,
-    public dialogRef: MatDialogRef<GroupAddDialogComponent>,
+    public dialogRef: MatDialogRef<DbTableExportDialogComponent>,
+    private angulartics2: Angulartics2,
   ) { }
 
   exportCSV() {
@@ -34,7 +35,12 @@ export class DbTableExportDialogComponent {
       this.downloadCSV(res);
       this.submitting = false;
       this.dialogRef.close();
-    });
+      this.angulartics2.eventTrack.next({
+        action: 'Dashboard: db export is successful',
+      });
+    },
+    err => { this.submitting = false; },
+    () => { this.submitting = false; });
   }
 
   downloadCSV(data) {

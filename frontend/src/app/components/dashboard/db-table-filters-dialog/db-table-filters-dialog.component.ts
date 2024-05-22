@@ -170,7 +170,5 @@ export class DbTableFiltersDialogComponent implements OnInit {
   removeFilter(field) {
     delete this.tableRowFieldsShown[field];
     delete this.tableRowFieldsComparator[field];
-
-    console.log(this.tableRowFieldsShown);
   }
 }

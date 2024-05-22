@@ -141,6 +141,7 @@ import { DbTableExportDialogComponent } from './components/dashboard/db-table-ex
 import { DbTableRowViewComponent } from './components/dashboard/db-table-row-view/db-table-row-view.component';
 import { GroupNameEditDialogComponent } from './components/users/group-name-edit-dialog/group-name-edit-dialog.component';
 import { PlaceholderAddUserDialogComponent } from './components/skeletons/placeholder-add-user-dialog/placeholder-add-user-dialog.component';
+import { DbTableImportDialogComponent } from "./components/dashboard/db-table-import-dialog/db-table-import-dialog.component";
 
 type Palettes = { primaryPalette: string, accentedPalette: string, warnPalette: string };
 type Colors = { myColorName: string };
@@ -206,6 +207,7 @@ const saasExtraProviders = (environment as any).saas ? [
     DbTableActionsComponent,
     DbTableComponent,
     DbTableExportDialogComponent,
+    DbTableImportDialogComponent,
     DbTableFiltersDialogComponent,
     DbTableRowEditComponent,
     DbTableRowViewComponent,
