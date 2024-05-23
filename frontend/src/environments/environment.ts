@@ -4,6 +4,7 @@
 
 export const environment = {
   production: false,
+  apiRoot: "/api"
 } as Record<string, any>;
 
 /*
