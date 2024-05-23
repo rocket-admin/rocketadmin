@@ -1,7 +1,7 @@
 @use '@angular/material' as mat;
 @use 'generate-material-palette' as palette;
 
-@import '@angular/material/theming';
+// @import '@angular/material/theming';
 @include mat.core();
 
 $md-app-primary-color: palette.createpalette('primaryPalette');
