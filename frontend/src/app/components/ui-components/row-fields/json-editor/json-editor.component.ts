@@ -17,22 +17,19 @@ export class JsonEditorRowComponent implements OnInit {
 
   @Output() onFieldChange = new EventEmitter();
 
-  // @ViewChild(JsonEditor, { static: false }) editor: JsonEditor;
-
   public normalizedLabel: string;
-  // public editorOptions: JsonEditorOptions;
+  public mutableValue: Object;
+  public codeEditorOptions = {
+    minimap: { enabled: false },
+    automaticLayout: true,
+    scrollBeyondLastLine: false,
+    wordWrap: 'on',
+  };
 
-  constructor() {
-    // this.editorOptions = new JsonEditorOptions();
-  }
+  constructor() {}
 
   ngOnInit(): void {
     this.normalizedLabel = normalizeFieldName(this.label);
-    this.value = JSON.stringify(this.value, undefined, 4) || '';
+    this.mutableValue = JSON.stringify(this.value, undefined, 4) || '{}';
   }
-
-  // onJSONchange(event) {
-  //   this.onFieldChange.emit(JSON.parse(event));
-  // }
-
 }

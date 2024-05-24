@@ -2,7 +2,7 @@ export function codeSnippets(signingKey: string) {
     return {
         cs: {
             langName: 'C#',
-            mode: 'clike',
+            mode: 'csharp',
             snippet: {
                 single: `using System.Linq;
     using System.Security.Cryptography;
@@ -76,7 +76,7 @@ public class RocketAdminController : ControllerBase
 
         java: {
             langName: 'Java',
-            mode: 'clike',
+            mode: 'java',
             snippet: {
                 single: `import java.util.Arrays;
     import java.util.Map;

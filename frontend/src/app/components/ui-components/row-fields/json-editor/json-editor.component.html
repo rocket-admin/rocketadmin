@@ -1,18 +1,16 @@
 <span class="mat-body-1">{{ normalizedLabel }} {{ required ? '*' : '' }}</span>
 
-<ngx-codemirror
-name="{{label}}-{{key}}"
-    class="codemirror-wrapper"
-    attr.data-testid="record-{{label}}-json"
-    [(ngModel)]="value"
-    (ngModelChange)="onFieldChange.emit($event)"
-    [options]="{
-        lineNumbers: true,
-        lineWrapping: false,
-        json: true,
-        type: 'object',
-        matchBrackets: true,
-        mode: 'javascript',
-        theme: 'ttcn'
-    }"
-></ngx-codemirror>
+<div class="code-editor-box">
+    <ngs-code-editor
+        theme="vs"
+        [codeModel]="{
+            language: 'json',
+            uri: 'main.json',
+            value: mutableValue
+        }"
+        [options]="codeEditorOptions"
+        [readOnly]="readonly"
+        (valueChanged)="onFieldChange.emit($event)">
+    </ngs-code-editor>
+</div>
+

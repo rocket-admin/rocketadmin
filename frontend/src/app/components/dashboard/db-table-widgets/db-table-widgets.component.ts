@@ -29,6 +29,14 @@ export class DbTableWidgetsComponent implements OnInit {
   public widgetTypes = Object.keys(UIwidgets);
   public submitting: boolean = false;
   public widgetsWithSettings: string[];
+  public paramsEditorOptions = {
+    minimap: { enabled: false },
+    lineNumbersMinChars:  3,
+    folding: false,
+    automaticLayout: true,
+    scrollBeyondLastLine: false,
+    wordWrap: 'on',
+  };
   public defaultParams = {
     Boolean:
 `// Specify allow_null in field structure

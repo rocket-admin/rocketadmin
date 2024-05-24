@@ -51,7 +51,20 @@
                 </mat-select>
             </mat-form-field>
 
-            <ngx-codemirror
+            <div class="code-editor-box">
+                <ngs-code-editor
+                    theme="vs"
+                    [codeModel]="{
+                        language: 'json',
+                        uri: 'main.js',
+                        value: widget.widget_params
+                    }"
+                    [options]="paramsEditorOptions"
+                    [readOnly]="isReadOnly(widget.widget_type)">
+                </ngs-code-editor>
+            </div>
+
+            <!--<ngx-codemirror
                 [(ngModel)]="widget.widget_params"
                 name="{{i}}-field-params"
                 [options]="{
@@ -61,7 +74,7 @@
                     theme: 'ttcn',
                     readOnly: isReadOnly(widget.widget_type) ? 'nocursor' : false
                 }"
-            ></ngx-codemirror>
+            ></ngx-codemirror>-->
 
             <mat-form-field appearance="outline">
                 <mat-label>Field name</mat-label>

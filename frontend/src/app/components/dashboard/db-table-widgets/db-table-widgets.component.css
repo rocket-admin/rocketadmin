@@ -42,13 +42,25 @@
     word-break: break-all;
 }
 
-::ng-deep .CodeMirror {
+/* ::ng-deep .CodeMirror {
     border-radius: 4px;
     border: 1px solid rgba(0, 0, 0, 0.34);
     height: auto;
-    /* margin-top: 4px; */
     margin-bottom: 20px;
     min-height: 78px;
+} */
+
+.code-editor-box {
+    display: block;
+    border: 1px solid rgba(0, 0, 0, 0.38);
+    border-radius: 0;
+    margin-bottom: 20px;
+    overflow-y: auto;
+    resize: vertical;
+}
+
+.code-editor-box ::ng-deep .ngs-code-editor {
+    height: 100%;
 }
 
 .widget-params__label {

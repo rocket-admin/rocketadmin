@@ -40,6 +40,13 @@ export class DbTableActionsComponent implements OnInit {
   public codeLangSelected: string = 'cs';
   public signingKey: string;
 
+  public codeViewerOptions = {
+    minimap: { enabled: false },
+    scrollBeyondLastLine: false,
+    wordWrap: 'on',
+    automaticLayout: true,
+  };
+
   constructor(
     private _connections: ConnectionsService,
     private _tables: TablesService,

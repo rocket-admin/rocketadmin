@@ -25,7 +25,6 @@ import { BooleanRowComponent } from './components/ui-components/row-fields/boole
 import { BreadcrumbsComponent } from './components/ui-components/breadcrumbs/breadcrumbs.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ClipboardModule } from '@angular/cdk/clipboard';
-import { CodemirrorModule } from '@ctrl/ngx-codemirror';
 import { CompanyComponent } from './components/company/company.component';
 import { CompanyMemberInvitationComponent } from './components/company-member-invitation/company-member-invitation.component';
 import { ConfigModule } from './modules/config.module';
@@ -142,6 +141,7 @@ import { DbTableRowViewComponent } from './components/dashboard/db-table-row-vie
 import { GroupNameEditDialogComponent } from './components/users/group-name-edit-dialog/group-name-edit-dialog.component';
 import { PlaceholderAddUserDialogComponent } from './components/skeletons/placeholder-add-user-dialog/placeholder-add-user-dialog.component';
 import { DbTableImportDialogComponent } from "./components/dashboard/db-table-import-dialog/db-table-import-dialog.component";
+import { CodeEditorModule } from '@ngstack/code-editor';
 
 type Palettes = { primaryPalette: string, accentedPalette: string, warnPalette: string };
 type Colors = { myColorName: string };
@@ -340,8 +340,8 @@ const saasExtraProviders = (environment as any).saas ? [
     Angulartics2Module.forRoot(),
     ClipboardModule,
     DragDropModule,
-    CodemirrorModule,
     PasswordStrengthMeterComponent,
+    CodeEditorModule.forRoot(),
     // ...saasExtraModules,
     NgxThemeModule.forRoot(colorConfig, {
         frameworks: ['material'], // optional, default : ['tailwind', 'material']
