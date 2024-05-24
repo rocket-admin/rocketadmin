@@ -38,7 +38,7 @@
 
             <mat-form-field appearance="fill" *ngIf="userCompanies && userCompanies.length > 1" class="login-form__companies">
                 <mat-label>Company</mat-label>
-                <mat-select [(ngModel)]="user.companyId">
+                <mat-select [(value)]="user.companyId">
                   <mat-option *ngFor="let company of userCompanies; let i = index" [value]="company.id">
                     {{company.name}}
                   </mat-option>
