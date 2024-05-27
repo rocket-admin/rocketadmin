@@ -167,6 +167,18 @@ export const Constants = {
     isTestConnection: true,
   },
 
+  TEST_CONNECTION_TO_IBMBD2: {
+    title: 'IBM DB2',
+    type: ConnectionTypesEnum.ibmdb2,
+    host: getProcessVariable('IBM_DB2_CONNECTION_HOST') || null,
+    port: parseInt(getProcessVariable('IBM_DB2_CONNECTION_PORT')) || null,
+    username: getProcessVariable('IBM_DB2_CONNECTION_USERNAME') || null,
+    password: getProcessVariable('IBM_DB2_CONNECTION_PASSWORD') || null,
+    database: getProcessVariable('IBM_DB2_CONNECTION_DATABASE') || null,
+    schema: getProcessVariable('IBM_DB2_CONNECTION_SCHEMA') || null,
+    isTestConnection: true,
+  },
+
   REMOVED_PASSWORD_VALUE: '***',
   REMOVED_SENSITIVE_FIELD_IF_CHANGED: '* * * sensitive data, no logs stored * * *',
   REMOVED_SENSITIVE_FIELD_IF_NOT_CHANGED: '',
@@ -183,6 +195,7 @@ export const Constants = {
       this.TEST_SSH_CONNECTION_TO_MYSQL,
       this.TEST_CONNECTION_TO_MSSQL,
       this.TEST_CONNECTION_TO_MONGO,
+      this.TEST_CONNECTION_TO_IBMBD2,
     );
     return testConnections.filter((dto) => {
       const values = Object.values(dto);
