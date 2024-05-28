@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { TableField, Widget } from 'src/app/models/table';
+import { TableField, WidgetStructure } from 'src/app/models/table';
 
 import { normalizeFieldName } from '../../../../lib/normalize';
 
@@ -17,7 +17,7 @@ export class SelectFilterComponent implements OnInit {
   @Input() readonly: boolean;
   @Input() structure: TableField;
   @Input() disabled: boolean;
-  @Input() widgetStructure: Widget;
+  @Input() widgetStructure: WidgetStructure;
 
   @Output() onFieldChange = new EventEmitter();
 

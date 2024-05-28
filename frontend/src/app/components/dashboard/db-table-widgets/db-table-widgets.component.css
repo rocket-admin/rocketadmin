@@ -36,53 +36,8 @@
     grid-gap: 0 20px;
 }
 
-.widget-field-name {
-    align-self: baseline;
-    margin-top: 8px;
-    word-break: break-all;
-}
-
-/* ::ng-deep .CodeMirror {
-    border-radius: 4px;
-    border: 1px solid rgba(0, 0, 0, 0.34);
-    height: auto;
-    margin-bottom: 20px;
-    min-height: 78px;
-} */
-
-.code-editor-box {
-    display: block;
-    border: 1px solid rgba(0, 0, 0, 0.38);
-    border-radius: 0;
-    margin-bottom: 20px;
-    overflow-y: auto;
-    resize: vertical;
-}
-
-.code-editor-box ::ng-deep .ngs-code-editor {
-    height: 100%;
-}
-
-.widget-params__label {
-    position: absolute;
-    top: 8px;
-    right: 8px;
-    font-size: 12px;
-    font-weight: 600;
-}
-
-.widget-params__shutter {
-    position: absolute;
-    top: 0;
-    left: 0;
-    background: rgba(255, 255, 255, 0.5);
-    cursor: not-allowed;
-    height: 100%;
-    width: 100%;
-}
-
-.widget-delete-button {
-    margin-top: 4px;
+.widget-item {
+    display: contents;
 }
 
 .actions {

@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 
-import { Widget } from 'src/app/models/table';
+import { WidgetStructure } from 'src/app/models/table';
 import { base64Validation } from 'src/app/validators/base64.validator';
 import { hexValidation } from 'src/app/validators/hex.validator';
 import { normalizeFieldName } from 'src/app/lib/normalize';
@@ -29,7 +29,7 @@ export class FileRowComponent implements OnInit {
   @Input() value: Blob;
   @Input() required: boolean;
   @Input() readonly: boolean;
-  @Input() widgetStructure: Widget;
+  @Input() widgetStructure: WidgetStructure;
 
   @Output() onFieldChange = new EventEmitter();
 

@@ -3,14 +3,9 @@
 <div class="code-editor-box">
     <ngs-code-editor
         theme="vs"
-        [codeModel]="{
-            language: 'json',
-            uri: 'main.json',
-            value: mutableValue
-        }"
+        [codeModel]="mutableCodeModel"
         [options]="codeEditorOptions"
         [readOnly]="readonly"
         (valueChanged)="onFieldChange.emit($event)">
     </ngs-code-editor>
 </div>
-

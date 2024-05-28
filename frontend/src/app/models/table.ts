@@ -57,13 +57,22 @@ export interface TableForeignKey {
     column_default?: string,
 }
 
-export interface Widget {
+export interface WidgetStructure {
     field_name: string,
     widget_type: string,
-    widget_params: any,
+    widget_params: Record<string, any>,
     name: string,
     description: string
 }
+
+export interface Widget {
+    field_name: string,
+    widget_type: string,
+    widget_params: string,
+    name: string,
+    description: string
+}
+
 
 export enum CustomActionType {
     Single = "single",

@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 
-import { Widget } from 'src/app/models/table';
+import { WidgetStructure } from 'src/app/models/table';
 import { normalizeFieldName } from '../../../../lib/normalize';
 
 @Component({
@@ -16,7 +16,7 @@ export class LongTextRowComponent implements OnInit {
   @Input() required: boolean;
   @Input() readonly: boolean;
   @Input() disabled: boolean;
-  @Input() widgetStructure: Widget;
+  @Input() widgetStructure: WidgetStructure;
 
   @Output() onFieldChange = new EventEmitter();
 
@@ -28,6 +28,7 @@ export class LongTextRowComponent implements OnInit {
 
   ngOnInit(): void {
     this.normalizedLabel = normalizeFieldName(this.label);
+    console.log(this.widgetStructure);
     if (this.widgetStructure && this.widgetStructure.widget_params) {
       this.rowsCount = this.widgetStructure.widget_params.rows
     } else {

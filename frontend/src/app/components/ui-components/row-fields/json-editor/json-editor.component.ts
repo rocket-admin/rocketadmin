@@ -18,7 +18,7 @@ export class JsonEditorRowComponent implements OnInit {
   @Output() onFieldChange = new EventEmitter();
 
   public normalizedLabel: string;
-  public mutableValue: Object;
+  public mutableCodeModel: Object;
   public codeEditorOptions = {
     minimap: { enabled: false },
     automaticLayout: true,
@@ -30,6 +30,11 @@ export class JsonEditorRowComponent implements OnInit {
 
   ngOnInit(): void {
     this.normalizedLabel = normalizeFieldName(this.label);
-    this.mutableValue = JSON.stringify(this.value, undefined, 4) || '{}';
+    // this.mutableValue = JSON.stringify(this.value, undefined, 4) || '{}';
+    this.mutableCodeModel = {
+      language: 'json',
+      uri: `${this.label}.json`,
+      value: JSON.stringify(this.value, undefined, 4) || '{}'
+  }
   }
 }

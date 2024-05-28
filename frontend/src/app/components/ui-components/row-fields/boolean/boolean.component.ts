@@ -1,5 +1,5 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
-import { TableField, Widget } from 'src/app/models/table';
+import { TableField, WidgetStructure } from 'src/app/models/table';
 import { normalizeFieldName } from '../../../../lib/normalize';
 import { DBtype } from 'src/app/models/connection';
 import { ConnectionsService } from 'src/app/services/connections.service';
@@ -16,7 +16,7 @@ export class BooleanRowComponent implements OnInit {
   @Input() readonly: boolean;
   @Input() disabled: boolean;
   @Input() structure: TableField;
-  @Input() widgetStructure: Widget;
+  @Input() widgetStructure: WidgetStructure;
 
   @Output() onFieldChange = new EventEmitter();
 

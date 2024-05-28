@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { TableField, Widget } from 'src/app/models/table';
+import { TableField, WidgetStructure } from 'src/app/models/table';
 
 import { ConnectionsService } from 'src/app/services/connections.service';
 import { DBtype } from 'src/app/models/connection';
@@ -17,7 +17,7 @@ export class BooleanFilterComponent implements OnInit {
   @Input() readonly: boolean;
   @Input() disabled: boolean;
   @Input() structure: TableField;
-  @Input() widgetStructure: Widget;
+  @Input() widgetStructure: WidgetStructure;
 
   @Output() onFieldChange = new EventEmitter();
 

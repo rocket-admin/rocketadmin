@@ -6,7 +6,8 @@
 
         <div class="permissions">
             <h2 class="mat-subtitle-1 permissions__title">Connection credentials</h2>
-            <mat-button-toggle-group name="connection-permissions" class="permissions-toggle-group"
+            <mat-button-toggle-group name="connection-permissions"
+                class="permissions-toggle-group"
                 [disabled]="connectionAccess === 'edit' && group.title === 'Admin'"
                 [(ngModel)]="connectionAccess"
                 (ngModelChange)="handleConnectionAccessChange()">
@@ -16,7 +17,8 @@
             </mat-button-toggle-group>
 
             <h2 class="mat-subtitle-1 permissions__title">User management</h2>
-            <mat-button-toggle-group name="users-permissions" class="permissions-toggle-group"
+            <mat-button-toggle-group name="users-permissions"
+                class="permissions-toggle-group"
                 [disabled]="connectionAccess === 'edit' || group.title === 'Admin'"
                 [(ngModel)]="groupAccess">
                 <mat-button-toggle name="users-none" value="none">None</mat-button-toggle>
