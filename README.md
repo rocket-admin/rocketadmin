@@ -1,6 +1,6 @@
 ## Rocket Admin
 
-![github_rocketadmin](https://github.com/rocket-admin/rocketadmin/assets/75169/750690f1-c7d9-490c-80e8-bb24825f838d)
+![github - 10fps _ 20sec](https://github.com/rocket-admin/rocketadmin/assets/75169/f0ea6e79-75fd-4790-ad9a-7168879b884c)
 
 
 Create admin panel for your service with a few clicks
