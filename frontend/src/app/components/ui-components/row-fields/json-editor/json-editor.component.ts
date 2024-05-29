@@ -1,23 +1,15 @@
-import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
+import { Component, Input } from '@angular/core';
 
-import { normalizeFieldName } from '../../../../lib/normalize';
+import { BaseRowFieldComponent } from '../base-row-field/base-row-field.component';
 
 @Component({
   selector: 'app-row-json-editor',
   templateUrl: './json-editor.component.html',
   styleUrls: ['./json-editor.component.css']
 })
-export class JsonEditorRowComponent implements OnInit {
-
-  @Input() key: string;
-  @Input() label: string;
+export class JsonEditorRowComponent extends BaseRowFieldComponent {
   @Input() value: Object;
-  @Input() required: boolean;
-  @Input() readonly: boolean;
 
-  @Output() onFieldChange = new EventEmitter();
-
-  public normalizedLabel: string;
   public mutableCodeModel: Object;
   public codeEditorOptions = {
     minimap: { enabled: false },
@@ -26,11 +18,7 @@ export class JsonEditorRowComponent implements OnInit {
     wordWrap: 'on',
   };
 
-  constructor() {}
-
   ngOnInit(): void {
-    this.normalizedLabel = normalizeFieldName(this.label);
-    // this.mutableValue = JSON.stringify(this.value, undefined, 4) || '{}';
     this.mutableCodeModel = {
       language: 'json',
       uri: `${this.label}.json`,
