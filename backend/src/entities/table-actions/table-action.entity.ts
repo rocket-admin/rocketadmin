@@ -1,6 +1,7 @@
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, Relation } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToMany, ManyToOne, PrimaryGeneratedColumn, Relation } from 'typeorm';
 import { TableActionTypeEnum } from '../../enums/index.js';
 import { TableSettingsEntity } from '../table-settings/table-settings.entity.js';
+import { TableTriggersEntity } from '../table-triggers/table-triggers.entity.js';
 
 @Entity('table_actions')
 export class TableActionEntity {
@@ -29,4 +30,7 @@ export class TableActionEntity {
   @ManyToOne(() => TableSettingsEntity, (settings) => settings.table_actions, { onDelete: 'CASCADE' })
   @JoinColumn()
   settings: Relation<TableSettingsEntity>;
+
+  @ManyToMany(() => TableTriggersEntity, (triggers) => triggers.table_actions)
+  table_triggers: Relation<TableTriggersEntity>[];
 }

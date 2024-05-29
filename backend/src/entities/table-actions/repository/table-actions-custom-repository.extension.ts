@@ -25,4 +25,9 @@ export const tableActionsCustomRepositoryExtension: ITableActionRepository = {
   async deleteTableActionUseCase(action: TableActionEntity): Promise<TableActionEntity> {
     return await this.remove(action);
   },
+
+  async findTableActionsByIds(actionIds: Array<string>): Promise<Array<TableActionEntity>> {
+    const qb = this.createQueryBuilder('table_actions').where('table_actions.id IN (:...actionIds)', { actionIds });
+    return await qb.getMany();
+  },
 };

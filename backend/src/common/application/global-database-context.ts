@@ -69,6 +69,9 @@ import { invitationInCompanyCustomRepositoryExtension } from '../../entities/com
 import { UserSessionSettingsEntity } from '../../entities/user/user-session-settings/user-session-settings.entity.js';
 import { userSessionSettingsRepositoryExtension } from '../../entities/user/user-session-settings/reposiotory/user-session-settings-custom-repository.extension.js';
 import { IUserSessionSettings } from '../../entities/user/user-session-settings/reposiotory/user-session-settings-repository.interface.js';
+import { TableTriggersEntity } from '../../entities/table-triggers/table-triggers.entity.js';
+import { ITableTriggersRepository } from '../../entities/table-triggers/repository/table-triggers-custom-repository.interface.js';
+import { tableTriggersCustomRepositoryExtension } from '../../entities/table-triggers/repository/table-triggers-custom-repository.js';
 
 @Injectable({ scope: Scope.REQUEST })
 export class GlobalDatabaseContext implements IGlobalDatabaseContext {
@@ -98,6 +101,7 @@ export class GlobalDatabaseContext implements IGlobalDatabaseContext {
   private _companyInfoRepository: Repository<CompanyInfoEntity> & ICompanyInfoRepository;
   private _invitationInCompanyRepository: Repository<InvitationInCompanyEntity> & IInvitationInCompanyRepository;
   private _userSessionSettingsRepository: Repository<UserSessionSettingsEntity> & IUserSessionSettings;
+  private _tableTriggersRepository: Repository<TableTriggersEntity> & ITableTriggersRepository;
 
   public constructor(
     @Inject(BaseType.DATA_SOURCE)
@@ -167,6 +171,9 @@ export class GlobalDatabaseContext implements IGlobalDatabaseContext {
     this._userSessionSettingsRepository = this.appDataSource
       .getRepository(UserSessionSettingsEntity)
       .extend(userSessionSettingsRepositoryExtension);
+    this._tableTriggersRepository = this.appDataSource
+      .getRepository(TableTriggersEntity)
+      .extend(tableTriggersCustomRepositoryExtension);
   }
 
   public get userRepository(): Repository<UserEntity> & IUserRepository {
@@ -263,6 +270,10 @@ export class GlobalDatabaseContext implements IGlobalDatabaseContext {
 
   public get userSessionSettingsRepository(): Repository<UserSessionSettingsEntity> & IUserSessionSettings {
     return this._userSessionSettingsRepository;
+  }
+
+  public get tableTriggersRepository(): Repository<TableTriggersEntity> & ITableTriggersRepository {
+    return this._tableTriggersRepository;
   }
 
   public startTransaction(): Promise<void> {
