@@ -1,11 +1,12 @@
+import { AlertActionType, AlertType } from 'src/app/models/alert';
 import { Component, NgZone, OnInit } from '@angular/core';
 
 import { Angulartics2 } from 'angulartics2';
 import { AuthService } from 'src/app/services/auth.service';
 import { NewAuthUser } from 'src/app/models/user';
-import { Router } from '@angular/router';
 import { NotificationsService } from 'src/app/services/notifications.service';
-import { AlertActionType, AlertType } from 'src/app/models/alert';
+import { Router } from '@angular/router';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-registration',
@@ -14,6 +15,7 @@ import { AlertActionType, AlertType } from 'src/app/models/alert';
 })
 export class RegistrationComponent implements OnInit {
 
+  public isSaas = (environment as any).saas;
   public user: NewAuthUser = {
     email: '',
     password: ''
