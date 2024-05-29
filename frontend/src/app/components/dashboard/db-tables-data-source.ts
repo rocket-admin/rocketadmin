@@ -13,11 +13,11 @@ import { MatPaginator } from '@angular/material/paginator';
 import { NotificationsService } from 'src/app/services/notifications.service';
 // import { MatSort } from '@angular/material/sort';
 import { TablesService } from 'src/app/services/tables.service';
+import { UiSettingsService } from 'src/app/services/ui-settings.service';
+import { UserService } from 'src/app/services/user.service';
 import { filter } from "lodash";
 import { format } from 'date-fns'
 import { normalizeFieldName } from 'src/app/lib/normalize';
-import { UserService } from 'src/app/services/user.service';
-import { UiSettingsService } from 'src/app/services/ui-settings.service';
 
 interface Column {
   title: string,
@@ -191,6 +191,8 @@ export class TablesDataSource implements DataSource<Object> {
           if (isTablePageSwitched === undefined) this.columns = orderedColumns
             .filter (item => item.isExcluded === false)
             .map((item, index) => {
+              console.log('shownColumns');
+              console.log(shownColumns);
               if (shownColumns && shownColumns.length) {
                 return {
                   title: item.column_name,
