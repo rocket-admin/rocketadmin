@@ -22,8 +22,13 @@ export const tableActionsCustomRepositoryExtension: ITableActionRepository = {
     return await this.findOne({ where: { id: actionId } });
   },
 
-  async deleteTableActionUseCase(action: TableActionEntity): Promise<TableActionEntity> {
-    return await this.remove(action);
+  async deleteTableAction(action: TableActionEntity): Promise<TableActionEntity> {
+    await this.createQueryBuilder('table_actions')
+      .delete()
+      .from(TableActionEntity)
+      .where('id = :id', { id: action.id })
+      .execute();
+    return action;
   },
 
   async findTableActionsByIds(actionIds: Array<string>): Promise<Array<TableActionEntity>> {

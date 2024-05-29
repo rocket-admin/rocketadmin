@@ -23,7 +23,7 @@ export class DeleteTableActionUseCase
     if (!tableActionToDelete) {
       throw new HttpException({ message: Messages.TABLE_ACTION_NOT_FOUND }, HttpStatus.BAD_REQUEST);
     }
-    const deleted = await this._dbContext.tableActionRepository.deleteTableActionUseCase(tableActionToDelete);
+    const deleted = await this._dbContext.tableActionRepository.deleteTableAction(tableActionToDelete);
     return buildCreatedTableActionDS(deleted);
   }
 }
