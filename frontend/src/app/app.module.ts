@@ -143,6 +143,7 @@ import { UsersService } from './services/users.service';
 import { WidgetComponent } from "./components/dashboard/db-table-widgets/widget/widget.component";
 import { WidgetDeleteDialogComponent } from './components/dashboard/db-table-widgets/widget-delete-dialog/widget-delete-dialog.component';
 import { environment } from '../environments/environment';
+import { provideZxvbnServiceForPSM } from 'angular-password-strength-meter/zxcvbn';
 
 type Palettes = { primaryPalette: string, accentedPalette: string, warnPalette: string };
 type Colors = { myColorName: string };
@@ -302,6 +303,7 @@ const saasExtraProviders = (environment as any).saas ? [
     TablesService,
     CookieService,
     Title,
+    provideZxvbnServiceForPSM(),
     {
       provide: HTTP_INTERCEPTORS,
       useClass: TokenInterceptor,
