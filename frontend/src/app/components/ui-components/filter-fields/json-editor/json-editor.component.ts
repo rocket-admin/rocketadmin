@@ -1,5 +1,6 @@
 import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
 
+import { BaseFilterFieldComponent } from '../base-filter-field/base-filter-field.component';
 import { normalizeFieldName } from '../../../../lib/normalize';
 
 @Component({
@@ -7,32 +8,11 @@ import { normalizeFieldName } from '../../../../lib/normalize';
   templateUrl: './json-editor.component.html',
   styleUrls: ['./json-editor.component.css']
 })
-export class JsonEditorFilterComponent implements OnInit {
-
-  @Input() key: string;
-  @Input() label: string;
+export class JsonEditorFilterComponent extends BaseFilterFieldComponent {
   @Input() value: Object;
-  @Input() required: boolean;
-  @Input() readonly: boolean;
-
-  @Output() onFieldChange = new EventEmitter();
-
-  // @ViewChild(JsonEditor, { static: false }) editor: JsonEditor;
-
-  public normalizedLabel: string;
-  // public editorOptions: JsonEditorOptions;
-
-  constructor() {
-    // this.editorOptions = new JsonEditorOptions();
-  }
 
   ngOnInit(): void {
-    this.normalizedLabel = normalizeFieldName(this.label);
+    super.ngOnInit();
     this.value = JSON.stringify(this.value, undefined, 4) || '';
   }
-
-  // onJSONchange(event) {
-  //   this.onFieldChange.emit(JSON.parse(event));
-  // }
-
 }

@@ -40,6 +40,7 @@ export class FileRowComponent extends BaseRowFieldComponent {
   }
 
   ngOnInit(): void {
+    super.ngOnInit();
     if (this.widgetStructure && this.value) {
       this.fileType = this.widgetStructure.widget_params.type;
 

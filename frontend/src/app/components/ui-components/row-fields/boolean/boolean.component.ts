@@ -23,6 +23,7 @@ export class BooleanRowComponent extends BaseRowFieldComponent {
   }
 
   ngOnInit(): void {
+    super.ngOnInit();
     this.connectionType = this._connections.currentConnection.type;
 
     if (this.value) {

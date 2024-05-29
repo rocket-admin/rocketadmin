@@ -15,6 +15,7 @@ export class SelectRowComponent extends BaseRowFieldComponent {
   originalOrder = () => { return 0; }
 
   ngOnInit(): void {
+    super.ngOnInit();
     if (this.widgetStructure) {
       this.options = this.widgetStructure.widget_params.options;
       if (this.widgetStructure.widget_params.allow_null) {

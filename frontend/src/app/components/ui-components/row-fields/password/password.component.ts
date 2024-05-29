@@ -13,6 +13,7 @@ export class PasswordRowComponent extends BaseRowFieldComponent {
   public clearPassword: boolean;
 
   ngOnInit(): void {
+    super.ngOnInit();
     if (this.value === '***') this.value = '';
     this.onFieldChange.emit(this.value);
   }

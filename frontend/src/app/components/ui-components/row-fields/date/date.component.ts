@@ -15,6 +15,7 @@ export class DateRowComponent extends BaseRowFieldComponent {
   public date: string;
 
   ngOnInit(): void {
+    super.ngOnInit();
     if (this.value) {
       const datetime = new Date(this.value);
       this.date = format(datetime, 'yyyy-MM-dd');

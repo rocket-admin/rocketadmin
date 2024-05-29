@@ -4,11 +4,11 @@ import { TableField, TableForeignKey, WidgetStructure } from 'src/app/models/tab
 import { normalizeFieldName } from '../../../../lib/normalize';
 
 @Component({
-  selector: 'app-base-row-field',
-  templateUrl: './base-row-field.component.html',
-  styleUrl: './base-row-field.component.css'
+  selector: 'app-base-filter-field',
+  templateUrl: './base-filter-field.component.html',
+  styleUrl: './base-filter-field.component.css'
 })
-export class BaseRowFieldComponent implements OnInit {
+export class BaseFilterFieldComponent implements OnInit {
   @Input() key: string;
   @Input() label: string;
   @Input() required: boolean;

@@ -14,7 +14,7 @@ export class LongTextRowComponent extends BaseRowFieldComponent {
   public rowsCount: string;
 
   ngOnInit(): void {
-    console.log(this.widgetStructure);
+    super.ngOnInit();
     if (this.widgetStructure && this.widgetStructure.widget_params) {
       this.rowsCount = this.widgetStructure.widget_params.rows
     } else {

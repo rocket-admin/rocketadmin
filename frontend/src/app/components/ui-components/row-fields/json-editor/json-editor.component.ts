@@ -19,6 +19,7 @@ export class JsonEditorRowComponent extends BaseRowFieldComponent {
   };
 
   ngOnInit(): void {
+    super.ngOnInit();
     this.mutableCodeModel = {
       language: 'json',
       uri: `${this.label}.json`,

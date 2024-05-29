@@ -1,26 +1,12 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input } from '@angular/core';
 
-import { normalizeFieldName } from '../../../../lib/normalize';
+import { BaseFilterFieldComponent } from '../base-filter-field/base-filter-field.component';
 
 @Component({
   selector: 'app-filter-point',
   templateUrl: './point.component.html',
   styleUrls: ['./point.component.css']
 })
-export class PointFilterComponent implements OnInit {
-
-  @Input() key: string;
-  @Input() label: string;
+export class PointFilterComponent extends BaseFilterFieldComponent {
   @Input() value;
-  @Input() required: boolean;
-  @Input() readonly: boolean;
-
-  public normalizedLabel: string;
-
-  constructor() { }
-
-  ngOnInit(): void {
-    this.normalizedLabel = normalizeFieldName(this.label);
-  }
-
 }

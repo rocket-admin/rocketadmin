@@ -47,6 +47,7 @@ export class ForeignKeyRowComponent extends BaseRowFieldComponent {
   }
 
   ngOnInit(): void {
+    super.ngOnInit();
     this.connectionID = this._connections.currentConnectionID;
     this.relations && this._tables.fetchTable({
         connectionID: this.connectionID,

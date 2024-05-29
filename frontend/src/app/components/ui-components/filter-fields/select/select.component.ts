@@ -1,34 +1,22 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { TableField, WidgetStructure } from 'src/app/models/table';
+import { Component, Input } from '@angular/core';
 
-import { normalizeFieldName } from '../../../../lib/normalize';
+import { BaseFilterFieldComponent } from '../base-filter-field/base-filter-field.component';
 
 @Component({
   selector: 'app-filter-select',
   templateUrl: './select.component.html',
   styleUrls: ['./select.component.css']
 })
-export class SelectFilterComponent implements OnInit {
-
-  @Input() key: string;
-  @Input() label: string;
+export class SelectFilterComponent extends BaseFilterFieldComponent {
   @Input() value: string;
-  @Input() required: boolean;
-  @Input() readonly: boolean;
-  @Input() structure: TableField;
-  @Input() disabled: boolean;
-  @Input() widgetStructure: WidgetStructure;
 
-  @Output() onFieldChange = new EventEmitter();
-
-  public normalizedLabel: string;
   public options: {value: string | null, label: string}[] = [];
 
   originalOrder = () => { return 0; }
 
-  constructor() { }
 
   ngOnInit(): void {
+    super.ngOnInit();
     if (this.widgetStructure) {
       this.options = this.widgetStructure.widget_params.options;
       if (this.widgetStructure.widget_params.allow_null) {
@@ -42,6 +30,5 @@ export class SelectFilterComponent implements OnInit {
         this.options = [{ value: null, label: '' }, ...this.options];
       }
     }
-    this.normalizedLabel = normalizeFieldName(this.label);
   }
 }
