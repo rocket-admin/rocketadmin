@@ -24,6 +24,6 @@ export class JsonEditorRowComponent extends BaseRowFieldComponent {
       language: 'json',
       uri: `${this.label}.json`,
       value: JSON.stringify(this.value, undefined, 4) || '{}'
-  }
+    }
   }
 }

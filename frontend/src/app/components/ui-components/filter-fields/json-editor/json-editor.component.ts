@@ -1,7 +1,6 @@
-import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
+import { Component, Input } from '@angular/core';
 
 import { BaseFilterFieldComponent } from '../base-filter-field/base-filter-field.component';
-import { normalizeFieldName } from '../../../../lib/normalize';
 
 @Component({
   selector: 'app-filter-json-editor',
@@ -11,8 +10,20 @@ import { normalizeFieldName } from '../../../../lib/normalize';
 export class JsonEditorFilterComponent extends BaseFilterFieldComponent {
   @Input() value: Object;
 
+  public mutableCodeModel: Object;
+  public codeEditorOptions = {
+    minimap: { enabled: false },
+    automaticLayout: true,
+    scrollBeyondLastLine: false,
+    wordWrap: 'on',
+  };
+
   ngOnInit(): void {
     super.ngOnInit();
-    this.value = JSON.stringify(this.value, undefined, 4) || '';
+    this.mutableCodeModel = {
+      language: 'json',
+      uri: `${this.label}.json`,
+      value: JSON.stringify(this.value, undefined, 4) || '{}'
+    }
   }
 }
