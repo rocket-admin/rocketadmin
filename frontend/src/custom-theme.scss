@@ -13,10 +13,11 @@ $custom-palette-accent: mat.define-palette($md-app-accented-color);
 $custom-palette-warn: mat.define-palette($md-app-warn-color);
 
 html {
-  --mdc-shape-small: 0px;
+  --mdc-shape-small: 0px !important;
   --mdc-filled-button-container-shape: 4px;
   --mdc-outlined-button-container-shape: 4px;
   --mdc-text-button-container-shape: 4px;
+  --mdc-outlined-text-field-container-shape: 0px !important;
 }
 
 body .mat-mdc-flat-button.mat-primary, body .mat-mdc-unelevated-button.mat-primary {

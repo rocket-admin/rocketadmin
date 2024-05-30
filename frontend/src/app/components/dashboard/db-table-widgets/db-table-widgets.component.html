@@ -25,62 +25,19 @@
 
     </header>
 
-    <form *ngIf="widgets.length; else emptyState" (ngSubmit)="updateWidgets()" class="widget-settings">
-        <ng-container *ngFor="let widget of widgets; let i = index">
-
-            <span *ngIf="widget.field_name; else fieldsSelect" class="widget-field-name">
-                {{ widget.field_name }}
-            </span>
-            <ng-template #fieldsSelect>
-                <mat-form-field appearance="outline">
-                    <mat-label>Field</mat-label>
-                    <mat-select [(ngModel)]="widget.field_name" name="{{i}}-field-name">
-                        <mat-option *ngFor="let field of fields"
-                            [value]="field" (click)="selectWidgetField(field)">{{ field }}</mat-option>
-                    </mat-select>
-                </mat-form-field>
-            </ng-template>
-
-            <mat-form-field appearance="outline">
-                <mat-label>Widget type</mat-label>
-                <mat-select name="{{i}}-field-type"
-                    [(ngModel)]="widget.widget_type"
-                    (ngModelChange)="onWidgetTypeChange(widget)">
-                    <mat-option *ngFor="let widgetType of widgetTypes"
-                        [value]="widgetType">{{ widgetType }}</mat-option>
-                </mat-select>
-            </mat-form-field>
-
-            <ngx-codemirror
-                [(ngModel)]="widget.widget_params"
-                name="{{i}}-field-params"
-                [options]="{
-                    lineNumbers: true,
-                    lineWrapping: true,
-                    mode: 'javascript',
-                    theme: 'ttcn',
-                    readOnly: isReadOnly(widget.widget_type) ? 'nocursor' : false
-                }"
-            ></ngx-codemirror>
-
-            <mat-form-field appearance="outline">
-                <mat-label>Field name</mat-label>
-                <input matInput [(ngModel)]="widget.name" name="{{i}}-field-new-name">
-                <!-- <mat-error *ngIf="username.errors?.required && (username.invalid && username.touched)">Username should not be empty.</mat-error> -->
-            </mat-form-field>
-
-            <mat-form-field appearance="outline">
-                <mat-label>Description</mat-label>
-                <textarea matInput [(ngModel)]="widget.description" name="{{i}}-field-description"></textarea>
-                <!-- <mat-error *ngIf="sslCert.errors?.required && (sslCert.invalid && sslCert.touched)">SSL certificate should not be empty.</mat-error> -->
-            </mat-form-field>
-
-            <button mat-icon-button type="button" class="widget-delete-button"
-                matTooltip="Delete widget"
-                (click)="openDeleteWidgetDialog(widget.field_name)">
-                <mat-icon>delete_outline</mat-icon>
-            </button>
-        </ng-container>
+    <form *ngIf="widgets && widgets.length; else emptyState" (ngSubmit)="updateWidgets()" class="widget-settings">
+        <app-widget *ngFor="let widget of widgets"
+            class="widget-item"
+            [widgetType]="widget.widget_type"
+            [widget]="widget"
+            [fields]="fields"
+            [widgetTypes]="widgetTypes"
+            [isReadonlyParams]="isReadOnly(widget.widget_type)"
+            (onSelectWidgetField)="selectWidgetField($event)"
+            (onWidgetTypeChange)="widgetTypeChange($event)"
+            (onWidgetParamsChange)="widgetParamsChange($event)"
+            (onWidgetDelete)="openDeleteWidgetDialog($event)">
+        </app-widget>
 
 
         <div class="actions">

@@ -1,5 +1,6 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 
+import { BaseFilterFieldComponent } from '../base-filter-field/base-filter-field.component';
 import { normalizeFieldName } from '../../../../lib/normalize';
 
 @Component({
@@ -7,24 +8,7 @@ import { normalizeFieldName } from '../../../../lib/normalize';
   templateUrl: './number.component.html',
   styleUrls: ['./number.component.css']
 })
-export class NumberFilterComponent implements OnInit {
-
-  @Input() key: string;
-  @Input() label: string;
+export class NumberFilterComponent extends BaseFilterFieldComponent {
   @Input() value: number;
-  @Input() required: boolean;
-  @Input() readonly: boolean;
-  @Input() disabled: boolean;
-
-  @Output() onFieldChange = new EventEmitter();
-
   static type = 'number';
-  public normalizedLabel: string;
-
-  constructor() { }
-
-  ngOnInit(): void {
-    this.normalizedLabel = normalizeFieldName(this.label);
-  }
-
 }

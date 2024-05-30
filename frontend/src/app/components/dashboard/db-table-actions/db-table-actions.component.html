@@ -127,7 +127,18 @@
                     <mat-icon>content_copy</mat-icon>
                 </button>
 
-                <ngx-codemirror class="action-codeSnippet"
+                <div class="action-codeSnippet">
+                    <ngs-code-editor
+                        theme="vs"
+                        [codeModel]="{
+                            language: codeSnippets[codeLangSelected].mode,
+                            value: codeSnippets[codeLangSelected].snippet[selectedAction.type]
+                        }"
+                        [options]="codeViewerOptions">
+                    </ngs-code-editor>
+                </div>
+
+                <!-- <ngx-codemirror class="action-codeSnippet"
                     [(ngModel)]="codeSnippets[codeLangSelected].snippet[selectedAction.type]"
                     name="code-snippet"
                     [options]="{
@@ -137,7 +148,7 @@
                         mode: codeSnippets[codeLangSelected].mode,
                         theme: 'ttcn'
                     }"
-                ></ngx-codemirror>
+                ></ngx-codemirror> -->
             </div>
         </div>
 

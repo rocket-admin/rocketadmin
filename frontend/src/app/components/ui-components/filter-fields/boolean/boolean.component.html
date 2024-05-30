@@ -1,6 +1,7 @@
 <div *ngIf="isRadiogroup; else checkboxElement" class="radio-line">
     <label id="">{{normalizedLabel}}</label>
     <mat-button-toggle-group name="{{label}}-{{key}}" attr.data-testid="record-{{label}}-boolean-radio-group"
+        [hideSingleSelectionIndicator]="true"    
         [disabled]="disabled"
         [(ngModel)]="booleanValue" (ngModelChange)="onBooleanChange()">
         <mat-button-toggle [value]=true>Yes</mat-button-toggle>
@@ -13,6 +14,7 @@
     <div class="radio-line">
         <label id="">{{normalizedLabel}}</label>
         <mat-button-toggle-group name="{{label}}-{{key}}" attr.data-testid="record-{{label}}-boolean-radio-group"
+            [hideSingleSelectionIndicator]="true"
             [disabled]="disabled"
             [(ngModel)]="booleanValue" (ngModelChange)="onBooleanChange()">
             <mat-button-toggle [value]=true>Yes</mat-button-toggle>

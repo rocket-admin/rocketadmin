@@ -1,7 +1,8 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 
-import { Widget } from 'src/app/models/table';
+import { BaseFilterFieldComponent } from '../base-filter-field/base-filter-field.component';
+import { WidgetStructure } from 'src/app/models/table';
 import { base64Validation } from 'src/app/validators/base64.validator';
 import { hexValidation } from 'src/app/validators/hex.validator';
 import { normalizeFieldName } from 'src/app/lib/normalize';
@@ -22,20 +23,11 @@ enum FileType {
   templateUrl: './file.component.html',
   styleUrls: ['./file.component.css']
 })
-export class FileFilterComponent implements OnInit {
-
-  @Input() key: string;
-  @Input() label: string;
+export class FileFilterComponent extends BaseFilterFieldComponent {
   @Input() value: Blob;
-  @Input() required: boolean;
-  @Input() readonly: boolean;
-  @Input() widgetStructure: Widget;
-
-  @Output() onFieldChange = new EventEmitter();
 
   static type = 'file';
   public isNotSwitcherActive;
-  public normalizedLabel: string;
   public fileType: FileType = FileType.Hex;
   public hexData;
   public base64Data;
@@ -45,11 +37,12 @@ export class FileFilterComponent implements OnInit {
 
   constructor(
     private sanitazer: DomSanitizer
-  ) { }
+  ) {
+    super();
+  }
 
   ngOnInit(): void {
-    this.normalizedLabel = normalizeFieldName(this.label);
-
+    super.ngOnInit();
     if (this.widgetStructure && this.value) {
       this.fileType = this.widgetStructure.widget_params.type;
 

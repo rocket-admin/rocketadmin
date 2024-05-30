@@ -1,38 +1,31 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, Input } from '@angular/core';
 
+import { BaseRowFieldComponent } from '../base-row-field/base-row-field.component';
 import { ConnectionsService } from 'src/app/services/connections.service';
 import { DBtype } from 'src/app/models/connection';
 import { format } from 'date-fns'
-import { normalizeFieldName } from '../../../../lib/normalize';
 
 @Component({
   selector: 'app-row-date-time',
   templateUrl: './date-time.component.html',
   styleUrls: ['./date-time.component.css']
 })
-export class DateTimeRowComponent implements OnInit {
-
-  @Input() key: string;
-  @Input() label: string;
+export class DateTimeRowComponent extends BaseRowFieldComponent {
   @Input() value: string;
-  @Input() required: boolean;
-  @Input() readonly: boolean;
-  @Input() disabled: boolean;
-
-  @Output() onFieldChange = new EventEmitter();
 
   static type = 'datetime';
   public date: string;
   public time: string;
-  public normalizedLabel: string;
   public connectionType: DBtype;
 
   constructor(
     private _connections: ConnectionsService
   ) {
+    super();
   }
 
   ngOnInit(): void {
+    super.ngOnInit();
     this.connectionType = this._connections.currentConnection.type;
 
     if (this.value) {
@@ -40,8 +33,6 @@ export class DateTimeRowComponent implements OnInit {
       this.date = format(datetime, 'yyyy-MM-dd');
       this.time = format(datetime, 'HH:mm:ss');
     }
-
-    this.normalizedLabel = normalizeFieldName(this.label);
   }
 
   onDateChange() {

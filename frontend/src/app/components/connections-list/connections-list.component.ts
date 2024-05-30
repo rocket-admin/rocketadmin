@@ -1,13 +1,13 @@
 import { Component, OnInit } from '@angular/core';
-
 import { Connection, ConnectionItem } from 'src/app/models/connection';
+
+import { CompanyService } from 'src/app/services/company.service';
 import { ConnectionsService } from 'src/app/services/connections.service';
 import { MatDialog } from '@angular/material/dialog';
-import { UserService } from 'src/app/services/user.service';
-import { CompanyService } from 'src/app/services/company.service';
-import { User } from 'src/app/models/user';
-import { UiSettingsService } from 'src/app/services/ui-settings.service';
 import { UiSettings } from 'src/app/models/ui-settings';
+import { UiSettingsService } from 'src/app/services/ui-settings.service';
+import { User } from 'src/app/models/user';
+import { UserService } from 'src/app/services/user.service';
 
 @Component({
   selector: 'app-connections-list',
@@ -40,7 +40,7 @@ export class ConnectionsListComponent implements OnInit {
         this.companyName = res.name;
       })
     });
-    this._uiSettings.cast
+    this._uiSettings.getUiSettings()
       .subscribe( (settings: UiSettings) => {
         this.connectionsListCollapsed = settings?.globalSettings?.connectionsListCollapsed;
     });

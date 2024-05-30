@@ -25,7 +25,7 @@ import { BooleanRowComponent } from './components/ui-components/row-fields/boole
 import { BreadcrumbsComponent } from './components/ui-components/breadcrumbs/breadcrumbs.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ClipboardModule } from '@angular/cdk/clipboard';
-import { CodemirrorModule } from '@ctrl/ngx-codemirror';
+import { CodeEditorModule } from '@ngstack/code-editor';
 import { CompanyComponent } from './components/company/company.component';
 import { CompanyMemberInvitationComponent } from './components/company-member-invitation/company-member-invitation.component';
 import { ConfigModule } from './modules/config.module';
@@ -47,8 +47,11 @@ import { DbConnectionDeleteDialogComponent } from './components/connect-db/db-co
 import { DbConnectionIpAccessDialogComponent } from './components/connect-db/db-connection-ip-access-dialog/db-connection-ip-access-dialog.component';
 import { DbTableActionsComponent } from "./components/dashboard/db-table-actions/db-table-actions.component";
 import { DbTableComponent } from './components/dashboard/db-table/db-table.component';
+import { DbTableExportDialogComponent } from './components/dashboard/db-table-export-dialog/db-table-export-dialog.component';
 import { DbTableFiltersDialogComponent } from './components/dashboard/db-table-filters-dialog/db-table-filters-dialog.component';
+import { DbTableImportDialogComponent } from "./components/dashboard/db-table-import-dialog/db-table-import-dialog.component";
 import { DbTableRowEditComponent } from './components/db-table-row-edit/db-table-row-edit.component';
+import { DbTableRowViewComponent } from './components/dashboard/db-table-row-view/db-table-row-view.component';
 import { DbTableSettingsComponent } from './components/dashboard/db-table-settings/db-table-settings.component';
 import { DbTableWidgetsComponent } from './components/dashboard/db-table-widgets/db-table-widgets.component';
 import { DbTablesListComponent } from './components/dashboard/db-tables-list/db-tables-list.component';
@@ -66,6 +69,7 @@ import { ForeignKeyFilterComponent } from './components/ui-components/filter-fie
 import { ForeignKeyRowComponent } from './components/ui-components/row-fields/foreign-key/foreign-key.component';
 import { GroupAddDialogComponent } from './components/users/group-add-dialog/group-add-dialog.component';
 import { GroupDeleteDialogComponent } from './components/users/group-delete-dialog/group-delete-dialog.component';
+import { GroupNameEditDialogComponent } from './components/users/group-name-edit-dialog/group-name-edit-dialog.component';
 import { HexValidationDirective } from "./directives/hexValidator.directive";
 import { HostnameValidationDirective } from "./directives/hostnameValidator.directive";
 import { IconPickerComponent } from './components/ui-components/icon-picker/icon-picker.component';
@@ -98,6 +102,7 @@ import { PasswordStrengthMeterComponent } from 'angular-password-strength-meter'
 import { PasswordValidationDirective } from "./directives/passwordValidator.directive";
 import { PaymentFormComponent } from './components/payment-form/payment-form.component';
 import { PermissionsAddDialogComponent } from './components/users/permissions-add-dialog/permissions-add-dialog.component';
+import { PlaceholderAddUserDialogComponent } from './components/skeletons/placeholder-add-user-dialog/placeholder-add-user-dialog.component';
 import { PlaceholderAuditLogComponent } from './components/skeletons/placeholder-audit-log/placeholder-audit-log.component';
 import { PlaceholderCompanyComponent } from './components/skeletons/placeholder-company/placeholder-company.component';
 import { PlaceholderCompanyInvitationComponent } from './components/skeletons/placeholder-company-invitation/placeholder-company-invitation.component';
@@ -135,13 +140,10 @@ import { UserPasswordComponent } from './components/ui-components/user-password/
 import { UserSettingsComponent } from './components/user-settings/user-settings.component';
 import { UsersComponent } from './components/users/users.component';
 import { UsersService } from './services/users.service';
+import { WidgetComponent } from "./components/dashboard/db-table-widgets/widget/widget.component";
 import { WidgetDeleteDialogComponent } from './components/dashboard/db-table-widgets/widget-delete-dialog/widget-delete-dialog.component';
 import { environment } from '../environments/environment';
-import { DbTableExportDialogComponent } from './components/dashboard/db-table-export-dialog/db-table-export-dialog.component';
-import { DbTableRowViewComponent } from './components/dashboard/db-table-row-view/db-table-row-view.component';
-import { GroupNameEditDialogComponent } from './components/users/group-name-edit-dialog/group-name-edit-dialog.component';
-import { PlaceholderAddUserDialogComponent } from './components/skeletons/placeholder-add-user-dialog/placeholder-add-user-dialog.component';
-import { DbTableImportDialogComponent } from "./components/dashboard/db-table-import-dialog/db-table-import-dialog.component";
+import { provideZxvbnServiceForPSM } from 'angular-password-strength-meter/zxcvbn';
 
 type Palettes = { primaryPalette: string, accentedPalette: string, warnPalette: string };
 type Colors = { myColorName: string };
@@ -292,6 +294,7 @@ const saasExtraProviders = (environment as any).saas ? [
     UsersComponent,
     UserSettingsComponent,
     WidgetDeleteDialogComponent,
+    WidgetComponent,
   ],
   providers: [
     ConnectionsService,
@@ -300,6 +303,7 @@ const saasExtraProviders = (environment as any).saas ? [
     TablesService,
     CookieService,
     Title,
+    provideZxvbnServiceForPSM(),
     {
       provide: HTTP_INTERCEPTORS,
       useClass: TokenInterceptor,
@@ -340,8 +344,8 @@ const saasExtraProviders = (environment as any).saas ? [
     Angulartics2Module.forRoot(),
     ClipboardModule,
     DragDropModule,
-    CodemirrorModule,
     PasswordStrengthMeterComponent,
+    CodeEditorModule.forRoot(),
     // ...saasExtraModules,
     NgxThemeModule.forRoot(colorConfig, {
         frameworks: ['material'], // optional, default : ['tailwind', 'material']

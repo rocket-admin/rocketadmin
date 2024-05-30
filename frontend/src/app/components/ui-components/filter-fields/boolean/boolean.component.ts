@@ -1,42 +1,32 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { TableField, Widget } from 'src/app/models/table';
+import { Component, Input } from '@angular/core';
 
+import { BaseFilterFieldComponent } from '../base-filter-field/base-filter-field.component';
 import { ConnectionsService } from 'src/app/services/connections.service';
 import { DBtype } from 'src/app/models/connection';
-import { normalizeFieldName } from '../../../../lib/normalize';
 
 @Component({
   selector: 'app-filter-boolean',
   templateUrl: './boolean.component.html',
   styleUrls: ['./boolean.component.css']
 })
-export class BooleanFilterComponent implements OnInit {
-  @Input() key: string;
-  @Input() label: string;
+export class BooleanFilterComponent extends BaseFilterFieldComponent {
   @Input() value;
-  @Input() readonly: boolean;
-  @Input() disabled: boolean;
-  @Input() structure: TableField;
-  @Input() widgetStructure: Widget;
 
-  @Output() onFieldChange = new EventEmitter();
-
-  public normalizedLabel: string;
   public isRadiogroup: boolean;
   private connectionType: DBtype;
   public booleanValue: boolean | "unknown";
 
   constructor(
     private _connections: ConnectionsService,
-  ) { }
+  ) {
+    super();
+  }
 
   ngOnInit(): void {
+    super.ngOnInit();
     this.connectionType = this._connections.currentConnection.type;
-
     this.setBooleanValue();
-
     this.isRadiogroup = (this.structure?.allow_null) || !!(this.widgetStructure?.widget_params?.structure?.allow_null);
-    this.normalizedLabel = normalizeFieldName(this.label);
   }
 
   setBooleanValue() {
