@@ -162,11 +162,11 @@ export class AppComponent {
             );
 
             setTimeout(() => {
-              this.logOut(true);
+              if (this.userLoggedIn) this.logOut(true);
               this.router.navigate(['/login']);
             }, expirationInterval);
           } else {
-            this.logOut(true);
+            if (this.userLoggedIn) this.logOut(true);
             this.router.navigate(['/login']);
           }
         }
