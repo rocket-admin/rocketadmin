@@ -1,5 +1,5 @@
+import { AfterViewInit, Component, NgZone, OnInit } from '@angular/core';
 import { AlertActionType, AlertType } from 'src/app/models/alert';
-import { Component, NgZone, OnInit } from '@angular/core';
 
 import { Angulartics2 } from 'angulartics2';
 import { AuthService } from 'src/app/services/auth.service';
@@ -13,7 +13,7 @@ import { environment } from 'src/environments/environment';
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css']
 })
-export class LoginComponent implements OnInit {
+export class LoginComponent implements OnInit, AfterViewInit {
 
   public isSaas = (environment as any).saas;
   public user: ExistingAuthUser = {
@@ -41,6 +41,17 @@ export class LoginComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
+    const error = new URLSearchParams(location.search).get('error');
+    if (error) this._notifications.showAlert(AlertType.Error, this.errors[error] || error, [
+      {
+        type: AlertActionType.Button,
+        caption: 'Dismiss',
+        action: (id: number) => this._notifications.dismissAlert()
+      }
+    ]);
+  }
+
+  ngAfterViewInit() {
     //@ts-ignore
     google.accounts.id.initialize({
       client_id: "681163285738-e4l0lrv5vv7m616ucrfhnhso9r396lum.apps.googleusercontent.com",
@@ -56,21 +67,12 @@ export class LoginComponent implements OnInit {
       }
     });
     //@ts-ignore
-    google.accounts.id.renderButton(
-      document.getElementById("google_login_button"),
-      { theme: "outline", size: "large", width: "360px", text: "continue_with" }
-    );
+    // google.accounts.id.renderButton(
+    //   document.getElementById("google_login_button"),
+    //   { theme: "outline", size: "large", width: "360px", text: "continue_with" }
+    // );
     //@ts-ignore
     google.accounts.id.prompt();
-
-    const error = new URLSearchParams(location.search).get('error');
-    if (error) this._notifications.showAlert(AlertType.Error, this.errors[error] || error, [
-      {
-        type: AlertActionType.Button,
-        caption: 'Dismiss',
-        action: (id: number) => this._notifications.dismissAlert()
-      }
-    ]);
   }
 
   requestUserCompanies() {

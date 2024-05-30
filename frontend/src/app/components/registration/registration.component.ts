@@ -1,5 +1,5 @@
+import { AfterViewInit, Component, NgZone, OnInit } from '@angular/core';
 import { AlertActionType, AlertType } from 'src/app/models/alert';
-import { Component, NgZone, OnInit } from '@angular/core';
 
 import { Angulartics2 } from 'angulartics2';
 import { AuthService } from 'src/app/services/auth.service';
@@ -13,7 +13,7 @@ import { environment } from 'src/environments/environment';
   templateUrl: './registration.component.html',
   styleUrls: ['./registration.component.css']
 })
-export class RegistrationComponent implements OnInit {
+export class RegistrationComponent implements OnInit, AfterViewInit {
 
   public isSaas = (environment as any).saas;
   public user: NewAuthUser = {
@@ -40,6 +40,17 @@ export class RegistrationComponent implements OnInit {
       action: 'Reg: Registration page (component) is loaded'
     });
 
+    const error = new URLSearchParams(location.search).get('error');
+    if (error) this._notifications.showAlert(AlertType.Error, this.errors[error] || error, [
+      {
+        type: AlertActionType.Button,
+        caption: 'Dismiss',
+        action: (id: number) => this._notifications.dismissAlert()
+      }
+    ]);
+  }
+
+  ngAfterViewInit() {
     //@ts-ignore
     gtag('event', 'conversion', {'send_to': 'AW-419937947/auKoCOvwgoYDEJv9nsgB'});
 
@@ -57,21 +68,12 @@ export class RegistrationComponent implements OnInit {
       }
     });
     //@ts-ignore
-    google.accounts.id.renderButton(
-      document.getElementById("google_registration_button"),
-      { theme: "filled_blue", size: "large", width: "400px", text: "signup_with" }
-    );
+    // google.accounts.id.renderButton(
+    //   document.getElementById("google_registration_button"),
+    //   { theme: "filled_blue", size: "large", width: "400px", text: "signup_with" }
+    // );
     //@ts-ignore
     google.accounts.id.prompt();
-
-    const error = new URLSearchParams(location.search).get('error');
-    if (error) this._notifications.showAlert(AlertType.Error, this.errors[error] || error, [
-      {
-        type: AlertActionType.Button,
-        caption: 'Dismiss',
-        action: (id: number) => this._notifications.dismissAlert()
-      }
-    ]);
   }
 
   updatePasswordField(updatedValue: string) {

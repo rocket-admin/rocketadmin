@@ -13,7 +13,7 @@
                 </svg>
                 <h1 class="mat-headline-4 loginTitle">
                     Welcome back to <br>
-                    <span class="loginTitle__emphasis">Rocketadmin</span> {{isSaas}}
+                    <span class="loginTitle__emphasis">Rocketadmin</span>
                 </h1>
                 <div *ngIf="!userCompanies" class="mat-body-1">
                     To log in, please start by entering your email address and click next to continue.
@@ -57,8 +57,16 @@
 
             <div class="divider"><span class="divider__label">or</span></div>
 
-            <div *ngIf="isSaas" id="google_login_button" data-testid="login-google-button"
-                class="login-form__google-button"
+            <div *ngIf="isSaas"
+                class="g_id_signin login-form__google-button"
+                data-type="standard"
+                data-size="large"
+                data-theme="outline"
+                data-text="continue_with"
+                data-shape="rectangular"
+                data-logo_alignment="left"
+                data-width="360px"
+                data-testid="login-google-button"
                 angulartics2On="click"
                 angularticsAction="Login: login with google is clicked">
             </div>
