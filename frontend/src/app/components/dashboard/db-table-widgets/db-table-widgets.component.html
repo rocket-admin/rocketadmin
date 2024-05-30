@@ -26,8 +26,9 @@
     </header>
 
     <form *ngIf="widgets && widgets.length; else emptyState" (ngSubmit)="updateWidgets()" class="widget-settings">
-        <app-widget *ngFor="let widget of widgets"
+        <app-widget *ngFor="let widget of widgets; let i = index"
             class="widget-item"
+            [index]="i"
             [widgetType]="widget.widget_type"
             [widget]="widget"
             [fields]="fields"
