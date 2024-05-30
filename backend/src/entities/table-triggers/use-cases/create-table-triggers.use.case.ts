@@ -8,11 +8,11 @@ import { BaseType } from '../../../common/data-injection.tokens.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { Encryptor } from '../../../helpers/encryption/encryptor.js';
 import { TableTriggersEntity } from '../table-triggers.entity.js';
-import { buildFoundTableTriggersDto } from '../utils/build-found-table-triggers-dto.util.js';
+import { buildFoundTableTriggerDto } from '../utils/build-found-table-triggers-dto.util.js';
 
 @Injectable({ scope: Scope.REQUEST })
 export class CreateTableTriggersUseCase
-  extends AbstractUseCase<CreateTableTriggersDS, Array<FoundTableTriggersWithActionsDTO>>
+  extends AbstractUseCase<CreateTableTriggersDS, FoundTableTriggersWithActionsDTO>
   implements ICreateTableTriggers
 {
   constructor(
@@ -22,7 +22,7 @@ export class CreateTableTriggersUseCase
     super();
   }
 
-  protected async implementation(inputData: CreateTableTriggersDS): Promise<FoundTableTriggersWithActionsDTO[]> {
+  protected async implementation(inputData: CreateTableTriggersDS): Promise<FoundTableTriggersWithActionsDTO> {
     const { connectionId, tableName, actions_ids, trigger_events } = inputData;
     const foundConnection = await this._dbContext.connectionRepository.findOne({ where: { id: connectionId } });
 
@@ -46,6 +46,6 @@ export class CreateTableTriggersUseCase
     newTableTriggers.trigger_events = trigger_events;
     newTableTriggers.table_actions = foundTableActions;
     await this._dbContext.tableTriggersRepository.saveNewOrUpdatedTriggers(newTableTriggers);
-    return buildFoundTableTriggersDto([newTableTriggers]);
+    return buildFoundTableTriggerDto(newTableTriggers);
   }
 }

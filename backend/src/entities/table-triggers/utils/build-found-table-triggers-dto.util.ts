@@ -23,3 +23,22 @@ export function buildFoundTableTriggersDto(
     };
   });
 }
+
+export function buildFoundTableTriggerDto(tableTriggers: TableTriggersEntity): FoundTableTriggersWithActionsDTO {
+  return {
+    id: tableTriggers.id,
+    table_name: tableTriggers.table_name,
+    created_at: tableTriggers.created_at,
+    trigger_events: tableTriggers.trigger_events,
+    table_actions: tableTriggers.table_actions.map((tableAction) => {
+      return {
+        id: tableAction.id,
+        title: tableAction.title,
+        type: tableAction.type,
+        url: tableAction.url,
+        icon: tableAction.icon,
+        require_confirmation: tableAction.require_confirmation,
+      };
+    }),
+  };
+}

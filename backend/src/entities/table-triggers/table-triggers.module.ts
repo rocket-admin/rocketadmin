@@ -7,6 +7,8 @@ import { AuthMiddleware } from '../../authorization/auth.middleware.js';
 import { FindAllTableTriggersUseCase } from './use-cases/find-all-table-triggers.use.case.js';
 import { TableTriggersEntity } from './table-triggers.entity.js';
 import { CreateTableTriggersUseCase } from './use-cases/create-table-triggers.use.case.js';
+import { UpdateTableTriggersUseCase } from './use-cases/update-table-triggers.use.case.js';
+import { DeleteTableTriggersUseCase } from './use-cases/delete-table-triggers.use.case.js';
 
 @Module({
   imports: [TypeOrmModule.forFeature([TableTriggersEntity])],
@@ -23,6 +25,14 @@ import { CreateTableTriggersUseCase } from './use-cases/create-table-triggers.us
       provide: UseCaseType.CREATE_TABLE_TRIGGERS,
       useClass: CreateTableTriggersUseCase,
     },
+    {
+      provide: UseCaseType.UPDATE_TABLE_TRIGGERS,
+      useClass: UpdateTableTriggersUseCase,
+    },
+    {
+      provide: UseCaseType.DELETE_TABLE_TRIGGERS,
+      useClass: DeleteTableTriggersUseCase,
+    },
   ],
   controllers: [TableTriggersController],
 })
@@ -33,6 +43,8 @@ export class TableTriggersModule {
       .forRoutes(
         { path: '/table/triggers/:connectionId', method: RequestMethod.GET },
         { path: '/table/triggers/:connectionId', method: RequestMethod.POST },
+        { path: '/table/triggers/:connectionId', method: RequestMethod.PUT },
+        { path: '/table/triggers/:connectionId', method: RequestMethod.DELETE },
       );
   }
 }
