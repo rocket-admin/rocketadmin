@@ -7,6 +7,10 @@ import { ExistingAuthUser } from 'src/app/models/user';
 import { NotificationsService } from 'src/app/services/notifications.service';
 import { Router } from '@angular/router';
 import { environment } from 'src/environments/environment';
+import { accounts } from 'google-one-tap';
+
+
+declare var google: any;
 
 @Component({
   selector: 'app-login',
@@ -52,8 +56,8 @@ export class LoginComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit() {
-    //@ts-ignore
-    google.accounts.id.initialize({
+    const gAccounts: accounts = google.accounts;
+    gAccounts.id.initialize({
       client_id: "681163285738-e4l0lrv5vv7m616ucrfhnhso9r396lum.apps.googleusercontent.com",
       callback: (authUser) => {
         this.ngZone.run(() => {
@@ -66,13 +70,11 @@ export class LoginComponent implements OnInit, AfterViewInit {
         })
       }
     });
-    //@ts-ignore
-    // google.accounts.id.renderButton(
-    //   document.getElementById("google_login_button"),
-    //   { theme: "outline", size: "large", width: "360px", text: "continue_with" }
-    // );
-    //@ts-ignore
-    google.accounts.id.prompt();
+    gAccounts.id.renderButton(
+       document.getElementById("google_login_button"),
+       { theme: "outline", size: "large", width: 360, text: "continue_with" }
+    );
+    gAccounts.id.prompt();
   }
 
   requestUserCompanies() {

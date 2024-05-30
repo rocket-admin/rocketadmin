@@ -5263,6 +5263,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/google-one-tap@npm:^1.2.6":
+  version: 1.2.6
+  resolution: "@types/google-one-tap@npm:1.2.6"
+  checksum: 7439aa51d79ad07e587087887ce86f0932222f4fa5e24e4a62fce5d8bf17ba663441d2f69da97d55056b82ed11f0474591d8c6a508232dd0a8f61b42ecc036ba
+  languageName: node
+  linkType: hard
+
 "@types/http-proxy@npm:^1.17.8":
   version: 1.17.10
   resolution: "@types/http-proxy@npm:1.17.10"
@@ -7472,6 +7479,7 @@ __metadata:
     "@sentry/angular-ivy": ^7.116.0
     "@sentry/tracing": ^7.116.0
     "@stripe/stripe-js": ^3.4.0
+    "@types/google-one-tap": ^1.2.6
     "@types/jasmine": ~5.1.4
     "@types/jasminewd2": ~2.0.13
     "@types/lodash": ^4.17.4

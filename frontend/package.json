@@ -31,6 +31,7 @@
     "@sentry/angular-ivy": "^7.116.0",
     "@sentry/tracing": "^7.116.0",
     "@stripe/stripe-js": "^3.4.0",
+    "@types/google-one-tap": "^1.2.6",
     "@types/lodash": "^4.17.4",
     "@zxcvbn-ts/core": "^3.0.4",
     "@zxcvbn-ts/language-en": "^3.0.2",
