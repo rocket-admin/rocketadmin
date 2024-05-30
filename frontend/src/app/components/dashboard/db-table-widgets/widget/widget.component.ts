@@ -10,6 +10,7 @@ import { Widget } from 'src/app/models/table';
   styleUrl: './widget.component.css'
 })
 export class WidgetComponent implements OnInit, OnChanges {
+  @Input() index: number;
   @Input() widget: Widget;
   @Input() widgetType: string;
   @Input() fields: string[];
@@ -43,7 +44,7 @@ export class WidgetComponent implements OnInit, OnChanges {
   ngOnInit(): void {
     this.mutableWidgetParams = {
       language: 'json',
-      uri: `${this.widget.field_name}.json`,
+      uri: `widget-params-${this.index}.json`,
       value: this.widget.widget_params
     };
   }
