@@ -357,15 +357,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@angular/core@npm:~17.3.9":
-  version: 17.3.9
-  resolution: "@angular/core@npm:17.3.9"
+"@angular/core@npm:~17.3.10":
+  version: 17.3.10
+  resolution: "@angular/core@npm:17.3.10"
   dependencies:
     tslib: ^2.3.0
   peerDependencies:
     rxjs: ^6.5.3 || ^7.4.0
     zone.js: ~0.14.0
-  checksum: c172788ac33e328269f2e55f8402953456bdcdfb20c7bd43f3ed7c752d4687d8f6a8289330fdbc55b7daae2e140825ffe265097af6486352b7427a11c5e4a0cc
+  checksum: 9f345ad563dde02e8814d540a2faf84fc9268ea0cc333dec7c53e78a8798c5a6b2572e713c5cfd5ebedc8a3c4051592b73b5a6c27650e1038e41144e6a32d879
   languageName: node
   linkType: hard
 
@@ -7465,7 +7465,7 @@ __metadata:
     "@angular/common": ~17.3.9
     "@angular/compiler": ~17.3.9
     "@angular/compiler-cli": ~17.3.9
-    "@angular/core": ~17.3.9
+    "@angular/core": ~17.3.10
     "@angular/forms": ~17.3.9
     "@angular/language-service": ~17.3.9
     "@angular/material": ~17.3.9
@@ -10615,15 +10615,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"nanoid@npm:^3.3.4":
-  version: 3.3.4
-  resolution: "nanoid@npm:3.3.4"
-  bin:
-    nanoid: bin/nanoid.cjs
-  checksum: 2fddd6dee994b7676f008d3ffa4ab16035a754f4bb586c61df5a22cf8c8c94017aadd360368f47d653829e0569a92b129979152ff97af23a558331e47e37cd9c
-  languageName: node
-  linkType: hard
-
 "nanoid@npm:^3.3.7":
   version: 3.3.7
   resolution: "nanoid@npm:3.3.7"
@@ -11603,18 +11594,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"postcss@npm:^8.0.9, postcss@npm:^8.2.14":
-  version: 8.4.21
-  resolution: "postcss@npm:8.4.21"
-  dependencies:
-    nanoid: ^3.3.4
-    picocolors: ^1.0.0
-    source-map-js: ^1.0.2
-  checksum: e39ac60ccd1542d4f9d93d894048aac0d686b3bb38e927d8386005718e6793dbbb46930f0a523fe382f1bbd843c6d980aaea791252bf5e176180e5a4336d9679
-  languageName: node
-  linkType: hard
-
-"postcss@npm:^8.4.23, postcss@npm:^8.4.33, postcss@npm:^8.4.35":
+"postcss@npm:^8.0.9, postcss@npm:^8.2.14, postcss@npm:^8.4.23, postcss@npm:^8.4.33, postcss@npm:^8.4.35":
   version: 8.4.38
   resolution: "postcss@npm:8.4.38"
   dependencies:
