@@ -306,7 +306,9 @@ export class DbTableRowEditComponent implements OnInit {
       .map(jsonField => jsonField[0]);
     if (jsonFields.length) {
       for (const jsonField of jsonFields) {
-        if (updatedRow[jsonField] !== null && updatedRow[jsonField] !== undefined) {
+        if (updatedRow[jsonField] === '') updatedRow[jsonField] = null;
+        if (typeof(updatedRow[jsonField]) === 'string') {
+          console.log(updatedRow[jsonField].toString());
           const updatedFiled = JSON.parse(updatedRow[jsonField].toString());
           updatedRow[jsonField] = updatedFiled;
         }
@@ -386,7 +388,7 @@ export class DbTableRowEditComponent implements OnInit {
           }
         });
       },
-      undefined,
+      () => {this.submitting = false},
       () => {this.submitting = false}
     )
   }
