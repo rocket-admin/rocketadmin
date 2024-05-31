@@ -222,6 +222,7 @@ export const Messages = {
   TABLE_WIDGET_NOT_FOUND: 'Table widget with this parameters not found',
   TABLE_ACTION_NOT_FOUND: 'Table action not found',
   TABLE_ACTION_CONFIRMATION_REQUIRED: 'Table action confirmation required',
+  TABLE_TRIGGERS_NOT_FOUND: 'Table triggers with this parameters not found',
   TABLE_TRIGGERS_NOT_FOUND_FOR_UPDATE: 'No triggers found for update',
   TABLE_TRIGGERS_NOT_FOUND_FOR_DELETE: 'No triggers found for delete',
   TEST_CONNECTIONS_UPDATE_NOT_ALLOWED: `You can't update test connection`,

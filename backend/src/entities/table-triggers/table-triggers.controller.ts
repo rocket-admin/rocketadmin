@@ -21,6 +21,7 @@ import {
   ICreateTableTriggers,
   IDeleteTableTriggers,
   IFindAllTableTriggers,
+  IFindTableTrigger,
   IUpdateTableTriggers,
 } from './use-cases/table-triggers-use-cases.interface.js';
 import { SlugUuid } from '../../decorators/slug-uuid.decorator.js';
@@ -40,6 +41,8 @@ export class TableTriggersController {
   constructor(
     @Inject(UseCaseType.FIND_TABLE_TRIGGERS)
     private readonly findAllTableTriggersUseCase: IFindAllTableTriggers,
+    @Inject(UseCaseType.FIND_TABLE_TRIGGER)
+    private readonly findTableTriggerUseCase: IFindTableTrigger,
     @Inject(UseCaseType.CREATE_TABLE_TRIGGERS)
     private readonly createTableTriggersUseCase: ICreateTableTriggers,
     @Inject(UseCaseType.UPDATE_TABLE_TRIGGERS)
@@ -62,6 +65,19 @@ export class TableTriggersController {
     @QueryTableName() tableName: string,
   ): Promise<FoundTableTriggersWithActionsDTO[]> {
     return await this.findAllTableTriggersUseCase.execute({ connectionId, tableName });
+  }
+
+  @ApiOperation({ summary: 'Get table triggers by id' })
+  @ApiResponse({
+    status: 200,
+    description: 'Return all triggers for this table.',
+    type: FoundTableTriggersWithActionsDTO,
+    isArray: false,
+  })
+  @UseGuards(ConnectionEditGuard)
+  @Get('/table/trigger/:connectionId')
+  async findOneTrigger(@QueryUuid('triggerId') triggerId: string): Promise<FoundTableTriggersWithActionsDTO> {
+    return await this.findTableTriggerUseCase.execute(triggerId);
   }
 
   @ApiOperation({ summary: 'Create triggers for table' })

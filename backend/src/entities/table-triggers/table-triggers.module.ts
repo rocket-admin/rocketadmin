@@ -11,6 +11,7 @@ import { UpdateTableTriggersUseCase } from './use-cases/update-table-triggers.us
 import { DeleteTableTriggersUseCase } from './use-cases/delete-table-triggers.use.case.js';
 import { UserEntity } from '../user/user.entity.js';
 import { LogOutEntity } from '../log-out/log-out.entity.js';
+import { FindTableTriggerUseCase } from './use-cases/find-table-trigger.use.case.js';
 
 @Module({
   imports: [TypeOrmModule.forFeature([TableTriggersEntity, UserEntity, LogOutEntity])],
@@ -35,6 +36,10 @@ import { LogOutEntity } from '../log-out/log-out.entity.js';
       provide: UseCaseType.DELETE_TABLE_TRIGGERS,
       useClass: DeleteTableTriggersUseCase,
     },
+    {
+      provide: UseCaseType.FIND_TABLE_TRIGGER,
+      useClass: FindTableTriggerUseCase,
+    },
   ],
   controllers: [TableTriggersController],
 })
@@ -44,6 +49,7 @@ export class TableTriggersModule {
       .apply(AuthMiddleware)
       .forRoutes(
         { path: '/table/triggers/:connectionId', method: RequestMethod.GET },
+        { path: '/table/trigger/:connectionId', method: RequestMethod.GET },
         { path: '/table/triggers/:connectionId', method: RequestMethod.POST },
         { path: '/table/triggers/:connectionId', method: RequestMethod.PUT },
         { path: '/table/triggers/:connectionId', method: RequestMethod.DELETE },

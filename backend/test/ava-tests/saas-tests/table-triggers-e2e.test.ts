@@ -247,6 +247,90 @@ test(`${currentTest} should return found table triggers`, async (t) => {
   t.is(getTableTriggersRO[0].table_actions[0].hasOwnProperty('id'), true);
 });
 
+currentTest = 'GET /table/trigger/:connectionId';
+
+test(`${currentTest} should return found table triggers`, async (t) => {
+  const { token } = await registerUserAndReturnUserInfo(app);
+
+  const createConnectionResult = await request(app.getHttpServer())
+    .post('/connection')
+    .send(newConnection)
+    .set('Cookie', token)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+
+  const createConnectionRO = JSON.parse(createConnectionResult.text);
+  t.is(createConnectionResult.status, 201);
+
+  // create table action to attach to trigger
+
+  const createTableActionResult = await request(app.getHttpServer())
+    .post(`/table/action/${createConnectionRO.id}?tableName=${testTableName}`)
+    .send(newTableAction)
+    .set('Cookie', token)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+
+  const createTableActionRO = JSON.parse(createTableActionResult.text);
+  t.is(createTableActionResult.status, 201);
+  t.is(typeof createTableActionRO, 'object');
+  t.is(createTableActionRO.title, newTableAction.title);
+  t.is(createTableActionRO.type, newTableAction.type);
+  t.is(createTableActionRO.url, newTableAction.url);
+  t.is(createTableActionRO.hasOwnProperty('id'), true);
+
+  // create table trigger
+
+  const tableTriggerDTO: CreateTableTriggersBodyDTO = {
+    actions_ids: [createTableActionRO.id],
+    trigger_events: [TableTriggerEventEnum.ADD_ROW, TableTriggerEventEnum.UPDATE_ROW],
+  };
+
+  const createTableTriggerResult = await request(app.getHttpServer())
+    .post(`/table/triggers/${createConnectionRO.id}?tableName=${testTableName}`)
+    .send(tableTriggerDTO)
+    .set('Cookie', token)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+
+  const createTableTriggerRO = JSON.parse(createTableTriggerResult.text);
+  t.is(createTableTriggerResult.status, 201);
+  t.is(typeof createTableTriggerRO, 'object');
+  t.is(createTableTriggerRO.hasOwnProperty('id'), true);
+  t.is(createTableTriggerRO.hasOwnProperty('trigger_events'), true);
+  t.is(createTableTriggerRO.hasOwnProperty('table_actions'), true);
+  t.is(createTableTriggerRO.hasOwnProperty('created_at'), true);
+  t.is(createTableTriggerRO.table_actions.length, 1);
+  t.is(createTableTriggerRO.table_actions[0].id, createTableActionRO.id);
+  t.is(createTableTriggerRO.table_actions[0].title, newTableAction.title);
+  t.is(createTableTriggerRO.table_actions[0].type, newTableAction.type);
+  t.is(createTableTriggerRO.table_actions[0].url, newTableAction.url);
+  t.is(createTableTriggerRO.table_actions[0].hasOwnProperty('id'), true);
+
+  // get table trigger
+
+  const getTableTriggerResult = await request(app.getHttpServer())
+    .get(`/table/trigger/${createConnectionRO.id}?triggerId=${createTableTriggerRO.id}`)
+    .set('Cookie', token)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+
+  const getTableTriggerRO = JSON.parse(getTableTriggerResult.text);
+  t.is(getTableTriggerResult.status, 200);
+  t.is(typeof getTableTriggerRO, 'object');
+  t.is(getTableTriggerRO.hasOwnProperty('id'), true);
+  t.is(getTableTriggerRO.hasOwnProperty('trigger_events'), true);
+  t.is(getTableTriggerRO.hasOwnProperty('table_actions'), true);
+  t.is(getTableTriggerRO.hasOwnProperty('created_at'), true);
+  t.is(getTableTriggerRO.id, createTableTriggerRO.id);
+  t.is(getTableTriggerRO.table_actions.length, 1);
+  t.is(getTableTriggerRO.table_actions[0].id, createTableActionRO.id);
+  t.is(getTableTriggerRO.table_actions[0].title, newTableAction.title);
+  t.is(getTableTriggerRO.table_actions[0].type, newTableAction.type);
+  t.is(getTableTriggerRO.table_actions[0].url, newTableAction.url);
+  t.is(getTableTriggerRO.table_actions[0].hasOwnProperty('id'), true);
+});
+
 currentTest = 'PUT /table/triggers/:connectionId';
 
 test(`${currentTest} should return found table triggers`, async (t) => {

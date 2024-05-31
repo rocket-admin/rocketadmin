@@ -25,3 +25,7 @@ export interface IUpdateTableTriggers {
 export interface IDeleteTableTriggers {
   execute(triggerId: string, inTransaction: InTransactionEnum): Promise<FoundTableTriggersWithActionsDTO>;
 }
+
+export interface IFindTableTrigger {
+  execute(triggerId: string): Promise<FoundTableTriggersWithActionsDTO>;
+}
