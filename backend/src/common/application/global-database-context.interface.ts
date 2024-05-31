@@ -29,6 +29,8 @@ import { IUserSessionSettings } from '../../entities/user/user-session-settings/
 import { UserSessionSettingsEntity } from '../../entities/user/user-session-settings/user-session-settings.entity.js';
 import { UserEntity } from '../../entities/user/user.entity.js';
 import { ConnectionEntity } from '../../entities/connection/connection.entity.js';
+import { TableTriggersEntity } from '../../entities/table-triggers/table-triggers.entity.js';
+import { ITableTriggersRepository } from '../../entities/table-triggers/repository/table-triggers-custom-repository.interface.js';
 
 export interface IGlobalDatabaseContext extends IDatabaseContext {
   userRepository: Repository<UserEntity> & IUserRepository;
@@ -55,4 +57,5 @@ export interface IGlobalDatabaseContext extends IDatabaseContext {
   companyInfoRepository: Repository<CompanyInfoEntity> & ICompanyInfoRepository;
   invitationInCompanyRepository: Repository<InvitationInCompanyEntity> & IInvitationInCompanyRepository;
   userSessionSettingsRepository: Repository<UserSessionSettingsEntity> & IUserSessionSettings;
+  tableTriggersRepository: Repository<TableTriggersEntity> & ITableTriggersRepository;
 }

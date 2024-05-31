@@ -24,11 +24,8 @@ export class CreateTableActionUseCase
   }
 
   protected async implementation(inputData: CreateTableActionDS): Promise<CreatedTableActionDS> {
-    const { connectionId, masterPwd, tableName, userId } = inputData;
-    const foundConnection = await this._dbContext.connectionRepository.findAndDecryptConnection(
-      connectionId,
-      masterPwd,
-    );
+    const { connectionId, tableName, userId } = inputData;
+    const foundConnection = await this._dbContext.connectionRepository.findOne({ where: { id: connectionId } });
     if (!foundConnection.signing_key) {
       foundConnection.signing_key = Encryptor.generateRandomString(40);
       await this._dbContext.connectionRepository.saveUpdatedConnection(foundConnection);
