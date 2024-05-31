@@ -8,7 +8,7 @@ export class CreateTableTriggersBodyDTO {
   @ArrayNotEmpty()
   actions_ids: Array<string>;
 
-  @ApiProperty({ isArray: true, type: TableTriggerEventEnum })
+  @ApiProperty({ isArray: true, enum: TableTriggerEventEnum })
   @IsArray()
   @ArrayNotEmpty()
   trigger_events: Array<TableTriggerEventEnum>;

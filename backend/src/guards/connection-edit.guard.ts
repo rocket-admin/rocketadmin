@@ -20,7 +20,7 @@ export class ConnectionEditGuard implements CanActivate {
       const cognitoUserName = request.decoded.sub;
       let connectionId: string = request.query['connectionId'];
       if (!connectionId || !validateUuidByRegex(connectionId)) {
-        connectionId = request.params?.slug;
+        connectionId = request.params?.slug || request.params?.connectionId;
       }
       if (!connectionId || !validateUuidByRegex(connectionId)) {
         reject(buildBadRequestException(Messages.CONNECTION_ID_MISSING));

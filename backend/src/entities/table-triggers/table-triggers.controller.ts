@@ -27,7 +27,6 @@ import { SlugUuid } from '../../decorators/slug-uuid.decorator.js';
 import { CreateTableTriggersBodyDTO } from './application/dto/create-table-triggers-body.dto.js';
 import { CreateTableTriggersDS } from './application/data-structures/create-table-triggers.ds.js';
 import { InTransactionEnum } from '../../enums/in-transaction.enum.js';
-import { MasterPassword } from '../../decorators/master-password.decorator.js';
 import { UpdateTableTriggersDS } from './application/data-structures/update-table-triggers.ds.js';
 import { Messages } from '../../exceptions/text/messages.js';
 import { QueryUuid } from '../../decorators/query-uuid.decorator.js';
@@ -79,7 +78,6 @@ export class TableTriggersController {
     @Body() createTableTriggerData: CreateTableTriggersBodyDTO,
     @SlugUuid('connectionId') connectionId: string,
     @QueryTableName() tableName: string,
-    @MasterPassword() masterPwd: string,
   ): Promise<FoundTableTriggersWithActionsDTO> {
     const { actions_ids, trigger_events } = createTableTriggerData;
     const inputData: CreateTableTriggersDS = {
@@ -87,7 +85,6 @@ export class TableTriggersController {
       trigger_events,
       connectionId,
       tableName,
-      masterPwd,
     };
     return await this.createTableTriggersUseCase.execute(inputData, InTransactionEnum.OFF);
   }

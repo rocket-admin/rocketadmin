@@ -9,9 +9,11 @@ import { TableTriggersEntity } from './table-triggers.entity.js';
 import { CreateTableTriggersUseCase } from './use-cases/create-table-triggers.use.case.js';
 import { UpdateTableTriggersUseCase } from './use-cases/update-table-triggers.use.case.js';
 import { DeleteTableTriggersUseCase } from './use-cases/delete-table-triggers.use.case.js';
+import { UserEntity } from '../user/user.entity.js';
+import { LogOutEntity } from '../log-out/log-out.entity.js';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([TableTriggersEntity])],
+  imports: [TypeOrmModule.forFeature([TableTriggersEntity, UserEntity, LogOutEntity])],
   providers: [
     {
       provide: BaseType.GLOBAL_DB_CONTEXT,

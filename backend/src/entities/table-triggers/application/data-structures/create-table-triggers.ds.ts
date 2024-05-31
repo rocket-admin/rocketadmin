@@ -5,5 +5,4 @@ export class CreateTableTriggersDS {
   tableName: string;
   actions_ids: Array<string>;
   trigger_events: Array<TableTriggerEventEnum>;
-  masterPwd: string;
 }
