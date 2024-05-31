@@ -4,4 +4,5 @@ export class UpdateTableTriggersDS {
   actions_ids: Array<string>;
   trigger_events: Array<TableTriggerEventEnum>;
   triggersId: string;
+  table_name: string;
 }

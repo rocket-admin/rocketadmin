@@ -1,4 +1,13 @@
-import { Column, Entity, JoinColumn, ManyToMany, ManyToOne, PrimaryGeneratedColumn, Relation } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  JoinTable,
+  ManyToMany,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+  Relation,
+} from 'typeorm';
 import { ConnectionEntity } from '../connection/connection.entity.js';
 import { TableActionEntity } from '../table-actions/table-action.entity.js';
 import { TableTriggerEventEnum } from '../../enums/table-trigger-event-enum.js';
@@ -17,8 +26,19 @@ export class TableTriggersEntity {
   @JoinColumn()
   connection: Relation<ConnectionEntity>;
 
-  @ManyToMany(() => TableActionEntity, (action) => action.table_triggers, { onDelete: 'CASCADE' })
-  @JoinColumn()
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  @ManyToMany((type) => TableActionEntity, (action) => action.table_triggers, { onDelete: 'CASCADE' })
+  @JoinTable({
+    name: 'triggers_actions',
+    joinColumn: {
+      name: 'table_triggers',
+      referencedColumnName: 'id',
+    },
+    inverseJoinColumn: {
+      name: 'table_actions',
+      referencedColumnName: 'id',
+    },
+  })
   table_actions: Relation<TableActionEntity>[];
 
   @Column({ default: null })

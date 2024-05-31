@@ -9,7 +9,7 @@ export const tableTriggersCustomRepositoryExtension: ITableTriggersRepository = 
   async findTriggersForTableWithTableActions(connectionId: string, tableName: string): Promise<TableTriggersEntity[]> {
     return await this.createQueryBuilder('table_triggers')
       .leftJoinAndSelect('table_triggers.table_actions', 'table_actions')
-      .where('table_triggers.connection_id = :connectionId', { connectionId })
+      .where('table_triggers.connection = :connectionId', { connectionId })
       .andWhere('table_triggers.table_name = :tableName', { tableName })
       .getMany();
   },
@@ -17,7 +17,7 @@ export const tableTriggersCustomRepositoryExtension: ITableTriggersRepository = 
   async findTableTriggersWithActionsOnAddRow(connectionId: string, tableName: string): Promise<TableTriggersEntity[]> {
     return await this.createQueryBuilder('table_triggers')
       .leftJoinAndSelect('table_triggers.table_actions', 'table_actions')
-      .where('table_triggers.connection_id = :connectionId', { connectionId })
+      .where('table_triggers.connection = :connectionId', { connectionId })
       .andWhere('table_triggers.table_name = :tableName', { tableName })
       .andWhere('table_triggers.trigger_events @> ARRAY[:triggerEvent]', { triggerEvent: ['ADD_ROW'] })
       .getMany();
@@ -29,7 +29,7 @@ export const tableTriggersCustomRepositoryExtension: ITableTriggersRepository = 
   ): Promise<TableTriggersEntity[]> {
     return await this.createQueryBuilder('table_triggers')
       .leftJoinAndSelect('table_triggers.table_actions', 'table_actions')
-      .where('table_triggers.connection_id = :connectionId', { connectionId })
+      .where('table_triggers.connection = :connectionId', { connectionId })
       .andWhere('table_triggers.table_name = :tableName', { tableName })
       .andWhere('table_triggers.trigger_events @> ARRAY[:triggerEvent]', { triggerEvent: ['DELETE_ROW'] })
       .getMany();
@@ -38,7 +38,7 @@ export const tableTriggersCustomRepositoryExtension: ITableTriggersRepository = 
   async findTableTriggersWithActionsOnUpdateRow(connectionId: string, tableName: string): Promise<TableTriggersEntity[]> {
     return await this.createQueryBuilder('table_triggers')
       .leftJoinAndSelect('table_triggers.table_actions', 'table_actions')
-      .where('table_triggers.connection_id = :connectionId', { connectionId })
+      .where('table_triggers.connection = :connectionId', { connectionId })
       .andWhere('table_triggers.table_name = :tableName', { tableName })
       .andWhere('table_triggers.trigger_events @> ARRAY[:triggerEvent]', { triggerEvent: ['UPDATE_ROW'] })
       .getMany();

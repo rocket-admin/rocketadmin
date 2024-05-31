@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { DatabaseModule } from '../../../src/shared/database/database.module.js';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import test from 'ava';
@@ -105,7 +106,7 @@ test.after.always('Close app connection', async () => {
 });
 
 currentTest = 'POST /table/triggers/:connectionId';
-test.skip(`${currentTest} should return created table trigger`, async (t) => {
+test(`${currentTest} should return created table trigger`, async (t) => {
   const { token } = await registerUserAndReturnUserInfo(app);
 
   const createConnectionResult = await request(app.getHttpServer())
@@ -150,13 +151,294 @@ test.skip(`${currentTest} should return created table trigger`, async (t) => {
     .set('Accept', 'application/json');
 
   const createTableTriggerRO = JSON.parse(createTableTriggerResult.text);
-  console.log('🚀 ~ test ~ createTableTriggerRO:', createTableTriggerRO);
   t.is(createTableTriggerResult.status, 201);
   t.is(typeof createTableTriggerRO, 'object');
   t.is(createTableTriggerRO.hasOwnProperty('id'), true);
   t.is(createTableTriggerRO.hasOwnProperty('trigger_events'), true);
-  t.is(createTableTriggerRO.hasOwnProperty('actions'), true);
+  t.is(createTableTriggerRO.hasOwnProperty('table_actions'), true);
   t.is(createTableTriggerRO.hasOwnProperty('created_at'), true);
+  t.is(createTableTriggerRO.table_actions.length, 1);
+  t.is(createTableTriggerRO.table_actions[0].id, createTableActionRO.id);
+  t.is(createTableTriggerRO.table_actions[0].title, newTableAction.title);
+  t.is(createTableTriggerRO.table_actions[0].type, newTableAction.type);
+  t.is(createTableTriggerRO.table_actions[0].url, newTableAction.url);
+  t.is(createTableTriggerRO.table_actions[0].hasOwnProperty('id'), true);
 });
 
 currentTest = 'GET /table/triggers/:connectionId';
+test(`${currentTest} should return found table triggers`, async (t) => {
+  const { token } = await registerUserAndReturnUserInfo(app);
+
+  const createConnectionResult = await request(app.getHttpServer())
+    .post('/connection')
+    .send(newConnection)
+    .set('Cookie', token)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+
+  const createConnectionRO = JSON.parse(createConnectionResult.text);
+  t.is(createConnectionResult.status, 201);
+
+  // create table action to attach to trigger
+
+  const createTableActionResult = await request(app.getHttpServer())
+    .post(`/table/action/${createConnectionRO.id}?tableName=${testTableName}`)
+    .send(newTableAction)
+    .set('Cookie', token)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+
+  const createTableActionRO = JSON.parse(createTableActionResult.text);
+  t.is(createTableActionResult.status, 201);
+  t.is(typeof createTableActionRO, 'object');
+  t.is(createTableActionRO.title, newTableAction.title);
+  t.is(createTableActionRO.type, newTableAction.type);
+  t.is(createTableActionRO.url, newTableAction.url);
+  t.is(createTableActionRO.hasOwnProperty('id'), true);
+
+  // create table trigger
+
+  const tableTriggerDTO: CreateTableTriggersBodyDTO = {
+    actions_ids: [createTableActionRO.id],
+    trigger_events: [TableTriggerEventEnum.ADD_ROW, TableTriggerEventEnum.UPDATE_ROW],
+  };
+
+  const createTableTriggerResult = await request(app.getHttpServer())
+    .post(`/table/triggers/${createConnectionRO.id}?tableName=${testTableName}`)
+    .send(tableTriggerDTO)
+    .set('Cookie', token)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+
+  const createTableTriggerRO = JSON.parse(createTableTriggerResult.text);
+  t.is(createTableTriggerResult.status, 201);
+  t.is(typeof createTableTriggerRO, 'object');
+  t.is(createTableTriggerRO.hasOwnProperty('id'), true);
+  t.is(createTableTriggerRO.hasOwnProperty('trigger_events'), true);
+  t.is(createTableTriggerRO.hasOwnProperty('table_actions'), true);
+  t.is(createTableTriggerRO.hasOwnProperty('created_at'), true);
+  t.is(createTableTriggerRO.table_actions.length, 1);
+  t.is(createTableTriggerRO.table_actions[0].id, createTableActionRO.id);
+  t.is(createTableTriggerRO.table_actions[0].title, newTableAction.title);
+  t.is(createTableTriggerRO.table_actions[0].type, newTableAction.type);
+  t.is(createTableTriggerRO.table_actions[0].url, newTableAction.url);
+  t.is(createTableTriggerRO.table_actions[0].hasOwnProperty('id'), true);
+
+  // get table triggers
+
+  const getTableTriggersResult = await request(app.getHttpServer())
+    .get(`/table/triggers/${createConnectionRO.id}?tableName=${testTableName}`)
+    .set('Cookie', token)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+
+  const getTableTriggersRO = JSON.parse(getTableTriggersResult.text);
+  t.is(getTableTriggersResult.status, 200);
+
+  t.is(typeof getTableTriggersRO, 'object');
+  t.is(getTableTriggersRO.length, 1);
+  t.is(getTableTriggersRO[0].id, createTableTriggerRO.id);
+  t.is(getTableTriggersRO[0].trigger_events.length, 2);
+  t.is(getTableTriggersRO[0].table_actions.length, 1);
+  t.is(getTableTriggersRO[0].table_actions[0].id, createTableActionRO.id);
+  t.is(getTableTriggersRO[0].table_actions[0].title, newTableAction.title);
+  t.is(getTableTriggersRO[0].table_actions[0].type, newTableAction.type);
+  t.is(getTableTriggersRO[0].table_actions[0].url, newTableAction.url);
+  t.is(getTableTriggersRO[0].table_actions[0].hasOwnProperty('id'), true);
+});
+
+currentTest = 'PUT /table/triggers/:connectionId';
+
+test(`${currentTest} should return found table triggers`, async (t) => {
+  const { token } = await registerUserAndReturnUserInfo(app);
+
+  const createConnectionResult = await request(app.getHttpServer())
+    .post('/connection')
+    .send(newConnection)
+    .set('Cookie', token)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+
+  const createConnectionRO = JSON.parse(createConnectionResult.text);
+  t.is(createConnectionResult.status, 201);
+
+  // create table action to attach to trigger
+
+  const createFirstTableActionResult = await request(app.getHttpServer())
+    .post(`/table/action/${createConnectionRO.id}?tableName=${testTableName}`)
+    .send(newTableAction)
+    .set('Cookie', token)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+
+  const createSecondTableActionResult = await request(app.getHttpServer())
+    .post(`/table/action/${createConnectionRO.id}?tableName=${testTableName}`)
+    .send(newTableAction)
+    .set('Cookie', token)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+
+  const createFirstTableActionRO = JSON.parse(createFirstTableActionResult.text);
+  const createSecondTableActionRO = JSON.parse(createSecondTableActionResult.text);
+  // create table trigger
+
+  const tableTriggerDTO: CreateTableTriggersBodyDTO = {
+    actions_ids: [createFirstTableActionRO.id],
+    trigger_events: [TableTriggerEventEnum.ADD_ROW, TableTriggerEventEnum.UPDATE_ROW],
+  };
+
+  const createTableTriggerResult = await request(app.getHttpServer())
+    .post(`/table/triggers/${createConnectionRO.id}?tableName=${testTableName}`)
+    .send(tableTriggerDTO)
+    .set('Cookie', token)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+
+  const createTableTriggerRO = JSON.parse(createTableTriggerResult.text);
+  t.is(createTableTriggerResult.status, 201);
+  t.is(typeof createTableTriggerRO, 'object');
+  t.is(createTableTriggerRO.hasOwnProperty('id'), true);
+  t.is(createTableTriggerRO.hasOwnProperty('trigger_events'), true);
+  t.is(createTableTriggerRO.hasOwnProperty('table_actions'), true);
+  t.is(createTableTriggerRO.hasOwnProperty('created_at'), true);
+  t.is(createTableTriggerRO.table_actions.length, 1);
+  t.is(createTableTriggerRO.table_actions[0].id, createFirstTableActionRO.id);
+  t.is(createTableTriggerRO.table_actions[0].title, newTableAction.title);
+  t.is(createTableTriggerRO.table_actions[0].type, newTableAction.type);
+  t.is(createTableTriggerRO.table_actions[0].url, newTableAction.url);
+  t.is(createTableTriggerRO.table_actions[0].hasOwnProperty('id'), true);
+
+  // get table triggers
+  const updateTableTriggerDTO: CreateTableTriggersBodyDTO = {
+    actions_ids: [createSecondTableActionRO.id],
+    trigger_events: [TableTriggerEventEnum.DELETE_ROW, TableTriggerEventEnum.UPDATE_ROW],
+  };
+
+  const updateTableTriggerResult = await request(app.getHttpServer())
+    .put(`/table/triggers/${createConnectionRO.id}?triggersId=${createTableTriggerRO.id}&tableName=${testTableName}`)
+    .send(updateTableTriggerDTO)
+    .set('Cookie', token)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+
+  const updateTableTriggerRO = JSON.parse(updateTableTriggerResult.text);
+  t.is(updateTableTriggerResult.status, 200);
+  t.is(typeof updateTableTriggerRO, 'object');
+  t.is(updateTableTriggerRO.hasOwnProperty('id'), true);
+  t.is(updateTableTriggerRO.hasOwnProperty('trigger_events'), true);
+  t.is(updateTableTriggerRO.hasOwnProperty('table_actions'), true);
+  t.is(updateTableTriggerRO.hasOwnProperty('created_at'), true);
+  t.is(updateTableTriggerRO.table_actions.length, 1);
+  t.is(updateTableTriggerRO.table_actions[0].id, createSecondTableActionRO.id);
+  t.is(updateTableTriggerRO.table_actions[0].title, newTableAction.title);
+  t.is(updateTableTriggerRO.table_actions[0].type, newTableAction.type);
+  t.is(updateTableTriggerRO.table_actions[0].url, newTableAction.url);
+  t.is(updateTableTriggerRO.table_actions[0].hasOwnProperty('id'), true);
+});
+
+currentTest = 'DELETE /table/triggers/:connectionId';
+
+test(`${currentTest} should return found table triggers`, async (t) => {
+  const { token } = await registerUserAndReturnUserInfo(app);
+
+  const createConnectionResult = await request(app.getHttpServer())
+    .post('/connection')
+    .send(newConnection)
+    .set('Cookie', token)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+
+  const createConnectionRO = JSON.parse(createConnectionResult.text);
+  t.is(createConnectionResult.status, 201);
+
+  // create table action to attach to trigger
+
+  const createFirstTableActionResult = await request(app.getHttpServer())
+    .post(`/table/action/${createConnectionRO.id}?tableName=${testTableName}`)
+    .send(newTableAction)
+    .set('Cookie', token)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+
+  const createSecondTableActionResult = await request(app.getHttpServer())
+    .post(`/table/action/${createConnectionRO.id}?tableName=${testTableName}`)
+    .send(newTableAction)
+    .set('Cookie', token)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+
+  const createFirstTableActionRO = JSON.parse(createFirstTableActionResult.text);
+  const createSecondTableActionRO = JSON.parse(createSecondTableActionResult.text);
+  // create table trigger
+
+  const tableTriggerDTO: CreateTableTriggersBodyDTO = {
+    actions_ids: [createFirstTableActionRO.id],
+    trigger_events: [TableTriggerEventEnum.ADD_ROW, TableTriggerEventEnum.UPDATE_ROW],
+  };
+
+  const createFirstTableTriggerResult = await request(app.getHttpServer())
+    .post(`/table/triggers/${createConnectionRO.id}?tableName=${testTableName}`)
+    .send(tableTriggerDTO)
+    .set('Cookie', token)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+
+  const createSecondTableTriggerResult = await request(app.getHttpServer())
+    .post(`/table/triggers/${createConnectionRO.id}?tableName=${testTableName}`)
+    .send(tableTriggerDTO)
+    .set('Cookie', token)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+
+  const createFirstTableTriggerRO = JSON.parse(createFirstTableTriggerResult.text);
+  const createSecondTableTriggerRO = JSON.parse(createSecondTableTriggerResult.text);
+  t.is(createFirstTableTriggerResult.status, 201);
+  t.is(createSecondTableTriggerResult.status, 201);
+
+  // get table triggers
+  const getTableTriggersResult = await request(app.getHttpServer())
+    .get(`/table/triggers/${createConnectionRO.id}?tableName=${testTableName}`)
+    .set('Cookie', token)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+
+  const getTableTriggersRO = JSON.parse(getTableTriggersResult.text);
+  t.is(getTableTriggersResult.status, 200);
+
+  t.is(typeof getTableTriggersRO, 'object');
+  t.is(getTableTriggersRO.length, 2);
+
+  // delete table triggers
+
+  const deleteFirstTableTriggerResult = await request(app.getHttpServer())
+    .delete(`/table/triggers/${createConnectionRO.id}?triggersId=${createFirstTableTriggerRO.id}`)
+    .set('Cookie', token)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+
+  t.is(deleteFirstTableTriggerResult.status, 200);
+  const deleteFirstTableTriggerRO = JSON.parse(deleteFirstTableTriggerResult.text);
+  t.is(deleteFirstTableTriggerRO.hasOwnProperty('id'), true);
+  t.is(deleteFirstTableTriggerRO.hasOwnProperty('trigger_events'), true);
+  t.is(deleteFirstTableTriggerRO.hasOwnProperty('table_actions'), true);
+  t.is(deleteFirstTableTriggerRO.hasOwnProperty('created_at'), true);
+  t.is(deleteFirstTableTriggerRO.table_actions.length, 1);
+  t.is(deleteFirstTableTriggerRO.table_actions[0].id, createFirstTableActionRO.id);
+  t.is(deleteFirstTableTriggerRO.table_actions[0].title, newTableAction.title);
+  t.is(deleteFirstTableTriggerRO.table_actions[0].type, newTableAction.type);
+  t.is(deleteFirstTableTriggerRO.table_actions[0].url, newTableAction.url);
+  t.is(deleteFirstTableTriggerRO.table_actions[0].hasOwnProperty('id'), true);
+
+  // get table triggers (check that trigger was deleted)
+
+  const getTableTriggersAfterDeleteResult = await request(app.getHttpServer())
+    .get(`/table/triggers/${createConnectionRO.id}?tableName=${testTableName}`)
+    .set('Cookie', token)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+
+  const getTableTriggersAfterDeleteRO = JSON.parse(getTableTriggersAfterDeleteResult.text);
+  t.is(getTableTriggersAfterDeleteResult.status, 200);
+  t.is(typeof getTableTriggersAfterDeleteRO, 'object');
+  t.is(getTableTriggersAfterDeleteRO.length, 1);
+});

@@ -28,9 +28,9 @@ export class TableActionEntity {
   require_confirmation: boolean;
 
   @ManyToOne(() => TableSettingsEntity, (settings) => settings.table_actions, { onDelete: 'CASCADE' })
-  @JoinColumn()
   settings: Relation<TableSettingsEntity>;
 
-  @ManyToMany(() => TableTriggersEntity, (triggers) => triggers.table_actions)
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  @ManyToMany((type) => TableTriggersEntity, (triggers) => triggers.table_actions)
   table_triggers: Relation<TableTriggersEntity>[];
 }

@@ -98,16 +98,18 @@ export class TableTriggersController {
   })
   @ApiBody({ type: CreateTableTriggersBodyDTO })
   @UseGuards(ConnectionEditGuard)
-  @Put('/table/triggers/:connectionId')
+  @Put('/table/triggers/:connectionId/')
   async updateTrigger(
     @Body() createTableTriggerData: CreateTableTriggersBodyDTO,
     @QueryUuid('triggersId') triggersId: string,
+    @QueryTableName() tableName: string,
   ): Promise<FoundTableTriggersWithActionsDTO> {
     const { actions_ids, trigger_events } = createTableTriggerData;
     const inputData: UpdateTableTriggersDS = {
       actions_ids,
       trigger_events,
       triggersId,
+      table_name: tableName,
     };
     return await this.updateTableTriggersUseCase.execute(inputData, InTransactionEnum.OFF);
   }

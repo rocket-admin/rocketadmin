@@ -44,8 +44,11 @@ export class CreateTableTriggersUseCase
     newTableTriggers.connection = foundConnection;
     newTableTriggers.table_name = tableName;
     newTableTriggers.trigger_events = trigger_events;
-    newTableTriggers.table_actions = foundTableActions;
-    await this._dbContext.tableTriggersRepository.saveNewOrUpdatedTriggers(newTableTriggers);
+    newTableTriggers.table_actions = [];
+
+    const savedTrigger = await this._dbContext.tableTriggersRepository.saveNewOrUpdatedTriggers(newTableTriggers);
+    savedTrigger.table_actions.push(...foundTableActions);
+    await this._dbContext.tableTriggersRepository.saveNewOrUpdatedTriggers(savedTrigger);
     return buildFoundTableTriggerDto(newTableTriggers);
   }
 }
