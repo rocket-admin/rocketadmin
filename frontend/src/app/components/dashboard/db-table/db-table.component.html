@@ -219,7 +219,7 @@
                     <ng-container *ngIf="tableData.tableActions && tableData.tableActions.length">
                         <button type="button" mat-icon-button *ngFor="let action of tableData.tableActions"
                             [matTooltip]="action.title"
-                            (click)="action.type === 'multiple' ? activateActions.emit({action, selectedRows: [tableData.getQueryParams(element)]}) : activateAction.emit({action, primaryKeys: tableData.getQueryParams(element), identityFieldValue: element[tableData.identityColumn]})">
+                            (click)="handleAction($event, action, element)">
                             <mat-icon fontSet="material-icons-outlined">
                                 {{action.icon}}
                             </mat-icon>
@@ -254,14 +254,7 @@
                         angulartics2On="click"
                         angularticsAction="Dashboard: delete row is clicked"
                         matTooltip="Delete row"
-                        (click)="activateAction.emit({
-                            action: {
-                                title: 'Delete row',
-                                type: 'multiple',
-                                requireConfirmation: true
-                            },
-                            primaryKeys: tableData.getQueryParams(element),
-                            identityFieldValue: element[tableData.identityColumn]})">
+                        (click)="handleDeleteRow($event, element)">
                         <mat-icon fontSet="material-icons-outlined">delete</mat-icon>
                     </button>
                 </mat-cell>

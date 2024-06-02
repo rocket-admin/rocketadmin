@@ -252,4 +252,35 @@ export class DbTableComponent implements OnInit {
   stashFilters() {
     this._tableState.setState(this.activeFilters);
   }
+
+  handleAction(e, action, element) {
+    e.stopPropagation();
+
+    if (action.type === 'multiple') {
+      this.activateActions.emit({
+        action,
+        selectedRows: [this.tableData.getQueryParams(element)]
+      })
+    } else {
+      this.activateAction.emit({
+        action,
+        primaryKeys: this.tableData.getQueryParams(element),
+        identityFieldValue: element[this.tableData.identityColumn]
+      })
+    }
+  }
+
+  handleDeleteRow(e, element){
+    e.stopPropagation();
+    this.stashFilters();
+
+    this.activateAction.emit({
+      action: {
+          title: 'Delete row',
+          type: 'multiple',
+          requireConfirmation: true
+      },
+      primaryKeys: this.tableData.getQueryParams(element),
+      identityFieldValue: element[this.tableData.identityColumn]})
+  }
 }
