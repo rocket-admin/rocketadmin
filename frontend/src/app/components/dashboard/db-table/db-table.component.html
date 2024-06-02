@@ -41,7 +41,8 @@
                     routerLink="/dashboard/{{connectionID}}/{{name}}/entry"
                     data-testid="table-add-record-link"
                     angulartics2On="click"
-                    angularticsAction="Dashboard: add row is clicked">
+                    angularticsAction="Dashboard: add row is clicked"
+                    (click)="stashFilters()">
                     <mat-icon>add</mat-icon>
                     Add row
                 </a>
@@ -232,7 +233,8 @@
                         attr.data-test-primary-key-value="{{element[tableData.keyAttributes[0]?.column_name]}}"
                         angulartics2On="click"
                         angularticsAction="Dashboard: edit row is clicked"
-                        matTooltip="Edit row">
+                        matTooltip="Edit row"
+                        (click)="stashFilters()">
                         <mat-icon fontSet="material-icons-outlined">create</mat-icon>
                     </a>
                     <a mat-icon-button *ngIf="tableData.permissions.add"
@@ -243,7 +245,8 @@
                         attr.data-test-primary-key-value="{{element[tableData.keyAttributes[0]?.column_name]}}"
                         angulartics2On="click"
                         angularticsAction="Dashboard: duplicate row is clicked"
-                        matTooltip="Duplicate row">
+                        matTooltip="Duplicate row"
+                        (click)="stashFilters()">
                         <mat-icon fontSet="material-icons-outlined">difference</mat-icon>
                     </a>
                     <button type="button" mat-icon-button *ngIf="tableData.permissions.delete"
@@ -251,7 +254,14 @@
                         angulartics2On="click"
                         angularticsAction="Dashboard: delete row is clicked"
                         matTooltip="Delete row"
-                        (click)="activateAction.emit({action: {title: 'Delete row', type: 'multiple',  requireConfirmation: true}, primaryKeys: tableData.getQueryParams(element), identityFieldValue: element[tableData.identityColumn]})">
+                        (click)="activateAction.emit({
+                            action: {
+                                title: 'Delete row',
+                                type: 'multiple',
+                                requireConfirmation: true
+                            },
+                            primaryKeys: tableData.getQueryParams(element),
+                            identityFieldValue: element[tableData.identityColumn]})">
                         <mat-icon fontSet="material-icons-outlined">delete</mat-icon>
                     </button>
                 </mat-cell>
