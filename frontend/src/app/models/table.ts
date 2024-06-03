@@ -36,6 +36,12 @@ export interface TableSettings {
     sensitive_fields: string[]
 }
 
+export interface TableRow {
+    record: object,
+    primaryKeys: object
+    link?: string
+}
+
 export interface TableField {
     column_name: string,
     column_default: string,
@@ -72,7 +78,6 @@ export interface Widget {
     name: string,
     description: string
 }
-
 
 export enum CustomActionType {
     Single = "single",

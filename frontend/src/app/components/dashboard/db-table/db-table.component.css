@@ -159,6 +159,10 @@
     background-color: var(--color-primaryPalette-50);
 }
 
+.db-table .row_selected {
+    background-color: var(--color-primaryPalette-100);
+}
+
 .db-table ::ng-deep .mat-mdc-row,
 .db-table ::ng-deep .mat-mdc-header-row,
 .db-table ::ng-deep .mat-mdc-footer-row {

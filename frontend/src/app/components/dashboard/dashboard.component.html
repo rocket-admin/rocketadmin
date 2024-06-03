@@ -42,8 +42,7 @@
                 [tables]="tablesList"
                 [connectionID]="connectionID"
                 [connectionTitle]="currentConnectionTitle"
-                [selectedTable]="selectedTableName"
-                (closeRowPreview)="closeRowPreview()">
+                [selectedTable]="selectedTableName">
             </app-db-tables-list>
         </mat-sidenav>
         <mat-sidenav-content class="table-preview">
@@ -69,17 +68,14 @@
                     (removeFilter)="removeFilter($event)"
                     (resetAllFilters)="clearAllFilters()"
                     (search)="search($event)"
-                    (viewRow)="viewRow($event)"
                     (activateAction)="activateAction($event)"
                     (activateActions)="activateActions($event)">
                 </app-db-table>
             </div>
             <app-db-table-row-view *ngIf="selectedRow"
-                [selectedRow]="selectedRow"
                 [columns]="dataSource.columns"
                 [foreignKeys]="dataSource.foreignKeys"
                 [foreignKeysList]="dataSource.foreignKeysList"
-                (close)="closeRowPreview()"
             ></app-db-table-row-view>
         </mat-sidenav-content>
     </mat-sidenav-container>

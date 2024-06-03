@@ -26,6 +26,7 @@ import { UserService } from 'src/app/services/user.service';
 import { getComparatorsFromUrl } from 'src/app/lib/parse-filter-params';
 import { normalizeTableName } from '../../lib/normalize'
 import { omitBy } from "lodash";
+import { TableStateService } from 'src/app/services/table-state.service';
 
 interface DataToActivateActions {
   action: CustomAction,
@@ -49,7 +50,6 @@ export class DashboardComponent implements OnInit {
   public tablesList: TableProperties[] = null;
   public selectedTableName: string;
   public selectedTableDisplayName: string;
-  // public selectedTablePermissions: Object = null;
   public currentPage: number = 1;
   public shownTableTitles: boolean = true;
   public connectionID: string;
@@ -77,6 +77,7 @@ export class DashboardComponent implements OnInit {
     private _tableRow: TableRowService,
     private _user: UserService,
     private _uiSettings: UiSettingsService,
+    private _tableState: TableStateService,
     public router: Router,
     private route: ActivatedRoute,
     public dialog: MatDialog,
@@ -95,6 +96,11 @@ export class DashboardComponent implements OnInit {
   ngOnInit() {
     this.connectionID = this._connections.currentConnectionID;
     this.dataSource = new TablesDataSource(this._tables, this._connections, this._uiSettings);
+
+    this._tableState.cast.subscribe(row => {
+      this.selectedRow = row;
+    });
+
     this._uiSettings.getUiSettings()
       .subscribe ((settings: UiSettings) => {
         this.uiSettings = settings?.connections[this.connectionID];
@@ -346,22 +352,5 @@ export class DashboardComponent implements OnInit {
   toggleSideBar() {
     this.shownTableTitles = !this.shownTableTitles;
     this._uiSettings.updateConnectionSetting(this.connectionID, 'shownTableTitles', this.shownTableTitles);
-    // (this.uiSettings.dashboard[this.connectionID] = this.uiSettings.dashboard[this.connectionID] || { }).shownTableTitles = this.shownTableTitles;
-    // this._uiSettings.updateUiSettings(this.uiSettings).subscribe();
-  }
-
-  viewRow(row: {row: object, queryParams: object}) {
-    this.selectedRow = {...row, link: `/dashboard/${this.connectionID}/${this.selectedTableName}/entry`};
-    this.angulartics2.eventTrack.next({
-      action: 'Dashboard: row preview is opened',
-    });
-  }
-
-  closeRowPreview() {
-    this.selectedRow = null;
-  }
-
-  updateUiSettings() {
-    // this._uiSettings.updateUiSettings(this.uiSettings).subscribe();
   }
 }

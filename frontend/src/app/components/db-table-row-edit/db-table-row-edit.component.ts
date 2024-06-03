@@ -79,7 +79,7 @@ export class DbTableRowEditComponent implements OnInit {
     this.loading = true;
     this.connectionID = this._connections.currentConnectionID;
     this.tableName = this._tables.currentTableName;
-    this.tableFiltersUrlString = JsonURL.stringify(this._tableState.getState());
+    this.tableFiltersUrlString = JsonURL.stringify(this._tableState.getBackUrlFilters());
 
     this.route.queryParams.subscribe((params) => {
       if (Object.keys(params).length === 0) {

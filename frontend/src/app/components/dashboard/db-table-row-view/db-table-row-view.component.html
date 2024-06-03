@@ -12,12 +12,12 @@
             </button>
             <a mat-icon-button
                 [routerLink]="selectedRow.link"
-                [queryParams]="selectedRow.queryParams"
+                [queryParams]="selectedRow.primaryKeys"
                 matTooltip="Open the record">
                 <mat-icon>open_in_new</mat-icon>
             </a>
         </div>
-        <button mat-icon-button (click)="close.emit()">
+        <button mat-icon-button (click)="handleClose()">
             <mat-icon>close</mat-icon>
         </button>
     </div>
@@ -29,7 +29,7 @@
             {{getForeignKeyValue(column.title)}}
         </span>
         <ng-template #stringValue>
-            <span>{{selectedRow.row[column.title] || '—'}}</span>
+            <span>{{selectedRow.record[column.title] || '—'}}</span>
         </ng-template>
     </div>
 </div>

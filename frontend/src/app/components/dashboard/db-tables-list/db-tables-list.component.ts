@@ -1,6 +1,7 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, Input } from '@angular/core';
 
 import { TableProperties } from 'src/app/models/table';
+import { TableStateService } from 'src/app/services/table-state.service';
 
 @Component({
   selector: 'app-db-tables-list',
@@ -14,11 +15,11 @@ export class DbTablesListComponent {
   @Input() selectedTable: string;
   @Input() collapsed: boolean;
 
-  @Output() closeRowPreview = new EventEmitter<string>();
-
   public searchString: string;
   public foundTables: TableProperties[];
-  constructor() { }
+  constructor(
+    private _tableState: TableStateService,
+  ) { }
 
   ngOnInit() {
     this.foundTables = this.tables;
@@ -35,5 +36,9 @@ export class DbTablesListComponent {
 
   getTableNameLength(tableName: string) {
     return tableName.length;
+  }
+
+  closeRowPreview() {
+    this._tableState.clearSelection();
   }
 }

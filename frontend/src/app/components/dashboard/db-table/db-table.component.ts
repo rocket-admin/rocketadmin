@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core';
-import { CustomAction, TableForeignKey, TablePermissions } from 'src/app/models/table';
+import { CustomAction, TableForeignKey, TablePermissions, TableRow } from 'src/app/models/table';
 
 import { AccessLevel } from 'src/app/models/user';
 import { ActivatedRoute } from '@angular/router';
@@ -40,7 +40,7 @@ export class DbTableComponent implements OnInit {
   @Output() search = new EventEmitter();
   @Output() removeFilter = new EventEmitter();
   @Output() resetAllFilters = new EventEmitter();
-  @Output() viewRow = new EventEmitter();
+  // @Output() viewRow = new EventEmitter();
   @Output() activateAction = new EventEmitter();
   @Output() activateActions = new EventEmitter();
 
@@ -61,6 +61,7 @@ export class DbTableComponent implements OnInit {
     gte: ">=",
     lte: "<="
   }
+  public selectedRow: TableRow = null;
 
   @Input() set table(value){
     if (value) this.tableData = value;
@@ -202,6 +203,9 @@ export class DbTableComponent implements OnInit {
 
   ngOnInit() {
     this.searchString = this.route.snapshot.queryParams.search;
+    this._tableState.cast.subscribe(row => {
+      this.selectedRow = row;
+    });
   }
 
   getFilter(activeFilter: {key: string, value: object}) {
@@ -250,7 +254,7 @@ export class DbTableComponent implements OnInit {
   // }
 
   stashFilters() {
-    this._tableState.setState(this.activeFilters);
+    this._tableState.setBackUrlFilters(this.activeFilters);
   }
 
   handleAction(e, action, element) {
@@ -282,5 +286,13 @@ export class DbTableComponent implements OnInit {
       },
       primaryKeys: this.tableData.getQueryParams(element),
       identityFieldValue: element[this.tableData.identityColumn]})
+  }
+
+  handleViewRow(row: TableRow) {
+    this._tableState.selectRow({...row, link: `/dashboard/${this.connectionID}/${this.name}/entry`});
+  }
+
+  isRowSelected(primaryKeys) {
+    return this.selectedRow && JSON.stringify(this.selectedRow.primaryKeys) === JSON.stringify(primaryKeys);
   }
 }

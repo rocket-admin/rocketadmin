@@ -191,8 +191,6 @@ export class TablesDataSource implements DataSource<Object> {
           if (isTablePageSwitched === undefined) this.columns = orderedColumns
             .filter (item => item.isExcluded === false)
             .map((item, index) => {
-              console.log('shownColumns');
-              console.log(shownColumns);
               if (shownColumns && shownColumns.length) {
                 return {
                   title: item.column_name,
