@@ -98,7 +98,7 @@ export class ActivateTableActionsUseCase
       }
       if (operationStatusCode >= 300 && operationStatusCode < 400) {
         operationResult = OperationResultStatusEnum.successfully;
-        return { location: result.data } as unknown as ActivatedTableActionsDS;
+        return { location: result.headers?.location } as unknown as ActivatedTableActionsDS;
       }
       if (operationStatusCode >= 400 && operationStatusCode <= 599) {
         operationResult = OperationResultStatusEnum.unsuccessfully;
