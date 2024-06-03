@@ -13,6 +13,7 @@ import { TableStateService } from 'src/app/services/table-state.service';
 import { merge } from 'rxjs';
 import { normalizeTableName } from '../../../lib/normalize'
 import { tap } from 'rxjs/operators';
+import { NotificationsService } from 'src/app/services/notifications.service';
 
 interface Column {
   title: string,
@@ -76,6 +77,7 @@ export class DbTableComponent implements OnInit {
 
   constructor(
     private _tableState: TableStateService,
+    private _notifications: NotificationsService,
     private route: ActivatedRoute,
     public dialog: MatDialog,
   ) {}
@@ -294,5 +296,9 @@ export class DbTableComponent implements OnInit {
 
   isRowSelected(primaryKeys) {
     return this.selectedRow && JSON.stringify(this.selectedRow.primaryKeys) === JSON.stringify(primaryKeys);
+  }
+
+  showCopyNotification(message: string) {
+    this._notifications.showSuccessSnackbar(message);
   }
 }

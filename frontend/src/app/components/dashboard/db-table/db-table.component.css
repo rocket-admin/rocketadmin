@@ -209,6 +209,27 @@ th.mat-header-cell, td.mat-cell {
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
+    width: 100%;
+}
+
+.field-value {
+    position: relative;
+    display: inline-block;
+    width: 100%;
+}
+
+.field-value-copy-button {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translate(0, -50%) scale(0.85);
+    background-color: var(--color-primaryPalette-50);
+    opacity: 0;
+    transition: opacity 400ms;
+}
+
+.field-value:hover .field-value-copy-button {
+    opacity: 1;
 }
 
 tr.mat-row:hover {
