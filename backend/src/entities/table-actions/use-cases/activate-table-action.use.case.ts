@@ -1,17 +1,14 @@
 import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
-import axios from 'axios';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
-import { getDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/create-data-access-object.js';
 import { LogOperationTypeEnum, OperationResultStatusEnum } from '../../../enums/index.js';
 import { Messages } from '../../../exceptions/text/messages.js';
-import { Encryptor } from '../../../helpers/encryption/encryptor.js';
 import { TableLogsService } from '../../table-logs/table-logs.service.js';
 import { ActivateTableActionDS } from '../application/data-sctructures/activate-table-action.ds.js';
 import { ActivatedTableActionDS } from '../application/data-sctructures/activated-table-action.ds.js';
 import { IActivateTableAction } from './table-actions-use-cases.interface.js';
-import { PrimaryKeyDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/primary-key.ds.js';
+import { activateTableAction } from '../utils/activate-table-action.util.js';
 
 @Injectable()
 export class ActivateTableActionUseCase
@@ -50,52 +47,19 @@ export class ActivateTableActionUseCase
       connectionId,
       masterPwd,
     );
-    const dataAccessObject = getDataAccessObject(foundConnection);
-    const tablePrimaryKeys = await dataAccessObject.getTablePrimaryColumns(tableName, null);
-    const primaryKeysObj = this.getPrimaryKeysFromBody(request_body, tablePrimaryKeys);
-    const dateString = new Date().toISOString();
-    const requestBody = JSON.stringify({
-      $$_raUserId: userId,
-      primaryKeys: primaryKeysObj,
-      $$_date: dateString,
-      $$_actionId: actionId,
-      $$_tableName: tableName,
-    });
-    const autoadminSignatureHeader = Encryptor.hashDataHMACexternalKey(
-      foundConnection.signing_key,
-      requestBody,
-    );
+
+    let primaryKeysObj = null;
     try {
-      const result = await axios.post(
-        foundTableAction.url,
-        requestBody,
-        {
-          headers: { 'Rocketadmin-Signature': autoadminSignatureHeader, "Content-Type": "application/json" },
-          maxRedirects: 0,
-          validateStatus: function (status) {
-            return status >= 200 && status <= 302;
-          },
-        },
+      const { receivedOperationResult, location, receivedPrimaryKeysObj } = await activateTableAction(
+        foundTableAction,
+        foundConnection,
+        request_body,
+        userId,
+        tableName,
       );
-      const operationStatusCode = result.status;
-      if (operationStatusCode >= 200 && operationStatusCode < 300) {
-        operationResult = OperationResultStatusEnum.successfully;
-        return;
-      }
-      if (operationStatusCode >= 300 && operationStatusCode < 400) {
-        operationResult = OperationResultStatusEnum.successfully;
-        return { location: result?.headers?.location };
-      }
-      if (operationStatusCode >= 400 && operationStatusCode <= 599) {
-        operationResult = OperationResultStatusEnum.unsuccessfully;
-        throw new HttpException(
-          {
-            message: result.data,
-          },
-          operationStatusCode,
-        );
-      }
-      return;
+      primaryKeysObj = receivedPrimaryKeysObj;
+      operationResult = receivedOperationResult;
+      return { location };
     } catch (e) {
       operationResult = OperationResultStatusEnum.unsuccessfully;
       throw new HttpException(
@@ -116,18 +80,5 @@ export class ActivateTableActionUseCase
       };
       await this.tableLogsService.crateAndSaveNewLogUtil(logRecord);
     }
-  }
-
-  private getPrimaryKeysFromBody(
-    body: Record<string, unknown>,
-    primaryKeys: Array<PrimaryKeyDS>,
-  ): Record<string, unknown> {
-    const pKeysObj: Record<string, unknown> = {};
-    for (const keyItem of primaryKeys) {
-      if (body.hasOwnProperty(keyItem.column_name) && body[keyItem.column_name]) {
-        pKeysObj[keyItem.column_name] = body[keyItem.column_name];
-      }
-    }
-    return pKeysObj;
   }
 }
