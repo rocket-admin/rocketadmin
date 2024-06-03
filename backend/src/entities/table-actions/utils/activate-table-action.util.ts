@@ -6,6 +6,7 @@ import axios from 'axios';
 import { OperationResultStatusEnum } from '../../../enums/operation-result-status.enum.js';
 import { HttpException } from '@nestjs/common';
 import { PrimaryKeyDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/primary-key.ds.js';
+import PQueue from 'p-queue';
 
 export async function activateTableAction(
   tableAction: TableActionEntity,
@@ -79,4 +80,30 @@ function getPrimaryKeysFromBody(
     }
   }
   return pKeysObj;
+}
+
+export async function activateTableActions(
+  tableActions: Array<TableActionEntity>,
+  connection: ConnectionEntity,
+  request_body: Record<string, unknown>,
+  userId: string,
+  tableName: string,
+): Promise<void> {
+  if (!tableActions.length) {
+    return;
+  }
+  try {
+    const queue = new PQueue({ concurrency: 2 });
+    await Promise.all(
+      tableActions.map((tableAction) =>
+        queue
+          .add(() => activateTableAction(tableAction, connection, request_body, userId, tableName))
+          .catch((error) => {
+            console.error('Error in activateTableActions', error);
+          }),
+      ),
+    );
+  } catch (error) {
+    return;
+  }
 }
