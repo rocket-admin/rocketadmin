@@ -258,8 +258,8 @@ export class DbTableComponent implements OnInit {
   }
 
   getIdentityFieldsValues() {
-    console.log(this.selection.selected);
     if (this.tableData.identityColumn) return this.selection.selected.map(row => row[this.tableData.identityColumn]);
+    return null;
   }
 
   handleAction(e, action, element) {
@@ -270,7 +270,7 @@ export class DbTableComponent implements OnInit {
     this.activateActions.emit({
       action,
       primaryKeys: [this.tableData.getQueryParams(element)],
-      identityFieldValues: [element[this.tableData.identityColumn]]
+      ...(this.tableData.identityColumn ? {identityFieldValues: [element[this.tableData.identityColumn]]} : null)
     })
   }
 
@@ -296,7 +296,7 @@ export class DbTableComponent implements OnInit {
           requireConfirmation: true
       },
       primaryKeys: [this.tableData.getQueryParams(element)],
-      identityFieldValues: [element[this.tableData.identityColumn]]
+      ...(this.tableData.identityColumn ? {identityFieldValues: [element[this.tableData.identityColumn]]} : null)
     })
   }
 

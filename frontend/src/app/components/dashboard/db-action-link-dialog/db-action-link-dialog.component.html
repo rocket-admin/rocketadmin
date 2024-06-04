@@ -1,6 +1,6 @@
 <h1 mat-dialog-title>Action</h1>
 <mat-dialog-content>
-    <a [href]="data.href" target="_blank" (click)="closeDialog()">
+    <a [href]="data.href" target="_blank" class="location-link" (click)="closeDialog()">
         Take action {{data.actionName}} for
         <strong *ngIf="data.identityFieldValue; else primaryKeysList">{{data.identityFieldValue}}</strong>
         <ng-template #primaryKeysList>
