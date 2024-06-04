@@ -21,7 +21,6 @@ import { Messages } from '../../exceptions/text/messages.js';
 import { ConnectionEditGuard, ConnectionReadGuard } from '../../guards/index.js';
 import { validateStringWithEnum } from '../../helpers/validators/validate-string-with-enum.js';
 import { SentryInterceptor } from '../../interceptors/index.js';
-import { ActivateTableActionDS } from './application/data-sctructures/activate-table-action.ds.js';
 import { ActivateTableActionsDS } from './application/data-sctructures/activate-table-actions.ds.js';
 import { ActivatedTableActionsDS } from './application/data-sctructures/activated-table-action.ds.js';
 import { CreateTableActionDS } from './application/data-sctructures/create-table-action.ds.js';
@@ -29,7 +28,6 @@ import { CreatedTableActionDS } from './application/data-sctructures/created-tab
 import { FindTableActionsDS } from './application/data-sctructures/find-table-actions.ds.js';
 import { UpdateTableActionDS } from './application/data-sctructures/update-table-action.ds.js';
 import {
-  IActivateTableAction,
   IActivateTableActions,
   ICreateTableAction,
   IDeleteTableAction,
@@ -39,7 +37,6 @@ import {
 } from './use-cases/table-actions-use-cases.interface.js';
 import { FoundTableActionsDS } from './application/data-sctructures/found-table-actions.ds.js';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { ActivateTableActionRO } from './dto/activate-table-action.ro.js';
 import { CreateTableActionDTO } from './dto/create-table-action.dto.js';
 
 @UseInterceptors(SentryInterceptor)
@@ -53,8 +50,6 @@ export class TableActionsController {
     private readonly createTableActionUseCase: ICreateTableAction,
     @Inject(UseCaseType.FIND_TABLE_ACTIONS)
     private readonly findTableActionsUseCase: IFindAllTableActions,
-    @Inject(UseCaseType.ACTIVATE_TABLE_ACTION)
-    private readonly activateTableActionUseCase: IActivateTableAction,
     @Inject(UseCaseType.ACTIVATE_TABLE_ACTIONS)
     private readonly activateTableActionsUseCase: IActivateTableActions,
     @Inject(UseCaseType.UPDATE_TABLE_ACTION)
@@ -176,36 +171,6 @@ export class TableActionsController {
   @Delete('/table/action/:slug')
   async deleteAction(@Query('actionId') actionId: string): Promise<CreatedTableActionDS> {
     return await this.deleteTableActionUseCase.execute(actionId, InTransactionEnum.OFF);
-  }
-
-  @ApiOperation({ summary: 'Activate table action' })
-  @ApiResponse({
-    status: 201,
-    description: 'Activate table action.',
-    type: ActivateTableActionRO,
-  })
-  @UseGuards(ConnectionReadGuard)
-  @Post('/table/action/activate/:slug')
-  async activateAction(
-    @SlugUuid() connectionId: string,
-    @UserId() userId: string,
-    @MasterPassword() masterPwd: string,
-    @QueryTableName() tableName: string,
-    @Query('actionId') actionId: string,
-    @Query('confirmed') confirmed: string,
-    @Body() body: Record<string, unknown>,
-  ): Promise<void | { location: string }> {
-    const inputData: ActivateTableActionDS = {
-      connectionId: connectionId,
-      masterPwd: masterPwd,
-      userId: userId,
-      tableName: tableName,
-      actionId: actionId,
-      confirmed: confirmed && confirmed === 'true' ? true : false,
-      request_body: body,
-    };
-
-    return await this.activateTableActionUseCase.execute(inputData, InTransactionEnum.OFF);
   }
 
   @ApiOperation({ summary: 'Activate multiple table actions' })

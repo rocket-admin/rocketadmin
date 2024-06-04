@@ -13,7 +13,7 @@ services:
     depends_on:
       - postgres
       - testDB
-      # - testMySQL-e2e-testing
+      - testMySQL-e2e-testing
       - testPg-e2e-testing
       - mssql-e2e-testing
       - test-oracle-e2e-testing
@@ -22,7 +22,7 @@ services:
     links:
       - postgres
       - testDB
-      # - testMySQL-e2e-testing
+      - testMySQL-e2e-testing
       - testPg-e2e-testing
       - mssql-e2e-testing
       - test-oracle-e2e-testing
@@ -38,13 +38,13 @@ services:
       POSTGRES_PASSWORD: 123
     command: postgres -c 'max_connections=300'
 
-  # testMySQL-e2e-testing:
-  #   image: mysql:8.0.23
-  #   ports:
-  #     - 3308:3306
-  #   environment:
-  #     MYSQL_ROOT_PASSWORD: 123
-  #     MYSQL_DATABASE: testDB
+  testMySQL-e2e-testing:
+    image: mysql:8.0.23
+    ports:
+      - 3308:3306
+    environment:
+      MYSQL_ROOT_PASSWORD: 123
+      MYSQL_DATABASE: testDB
 
   testPg-e2e-testing:
     image: postgres

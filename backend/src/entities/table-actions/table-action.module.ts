@@ -7,7 +7,6 @@ import { LogOutEntity } from '../log-out/log-out.entity.js';
 import { UserEntity } from '../user/user.entity.js';
 import { TableActionsController } from './table-action.controller.js';
 import { TableActionEntity } from './table-action.entity.js';
-import { ActivateTableActionUseCase } from './use-cases/activate-table-action.use.case.js';
 import { ActivateTableActionsUseCase } from './use-cases/activate-table-actions.use.case.js';
 import { CreateTableActionUseCase } from './use-cases/create-table-action.use.case.js';
 import { DeleteTableActionUseCase } from './use-cases/delete-table-action.use.case.js';
@@ -29,10 +28,6 @@ import { UpdateTableActionUseCase } from './use-cases/update-table-action.use.ca
     {
       provide: UseCaseType.FIND_TABLE_ACTIONS,
       useClass: FindTableActionsUseCase,
-    },
-    {
-      provide: UseCaseType.ACTIVATE_TABLE_ACTION,
-      useClass: ActivateTableActionUseCase,
     },
     {
       provide: UseCaseType.ACTIVATE_TABLE_ACTIONS,
@@ -61,7 +56,6 @@ export class TableActionModule implements NestModule {
         { path: '/table/actions/:slug', method: RequestMethod.GET },
         { path: '/table/action/:slug', method: RequestMethod.GET },
         { path: '/table/action/:slug', method: RequestMethod.POST },
-        { path: '/table/action/activate/:slug', method: RequestMethod.POST },
         { path: '/table/actions/activate/:slug', method: RequestMethod.POST },
         { path: '/table/action/:slug', method: RequestMethod.PUT },
         { path: '/table/action/:slug', method: RequestMethod.DELETE },

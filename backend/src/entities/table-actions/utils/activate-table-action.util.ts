@@ -36,7 +36,7 @@ export async function activateTableAction(
     headers: { 'Rocketadmin-Signature': autoadminSignatureHeader, 'Content-Type': 'application/json' },
     maxRedirects: 0,
     validateStatus: function (status) {
-      return status >= 200 && status <= 302;
+      return status <= 599;
     },
   });
   const operationStatusCode = result.status;
