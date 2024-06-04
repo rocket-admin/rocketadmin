@@ -150,6 +150,7 @@ export class DeleteRowFromTableUseCase
         isTest ? AmplitudeEventTypeEnum.tableRowDeletedTest : AmplitudeEventTypeEnum.tableRowDeleted,
         userId,
       );
+
       const foundAddTableActions =
         await this._dbContext.tableTriggersRepository.findTableActionsFromTriggersOnDeleteRow(connectionId, tableName);
       await activateTableActions(foundAddTableActions, connection, primaryKey, userId, tableName);
