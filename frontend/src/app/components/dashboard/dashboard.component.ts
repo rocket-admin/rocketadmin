@@ -11,7 +11,6 @@ import { DbTableFiltersDialogComponent } from './db-table-filters-dialog/db-tabl
 import { HttpErrorResponse } from '@angular/common/http';
 import JsonURL from "@jsonurl/jsonurl";
 import { MatDialog } from '@angular/material/dialog';
-import { NotificationsService } from 'src/app/services/notifications.service';
 import { SelectionModel } from '@angular/cdk/collections';
 import { ServerError } from 'src/app/models/alert';
 import { TableRowService } from 'src/app/services/table-row.service';
@@ -20,11 +19,11 @@ import { TablesService } from 'src/app/services/tables.service';
 import { Title } from '@angular/platform-browser';
 import { UiSettingsService } from 'src/app/services/ui-settings.service';
 import { User } from 'src/app/models/user';
-import { UserService } from 'src/app/services/user.service';
 import { getComparatorsFromUrl } from 'src/app/lib/parse-filter-params';
 import { normalizeTableName } from '../../lib/normalize'
 import { omitBy } from "lodash";
 import { TableStateService } from 'src/app/services/table-state.service';
+import { DbActionLinkDialogComponent } from './db-action-link-dialog/db-action-link-dialog.component';
 
 interface DataToActivateActions {
   action: CustomAction,
@@ -66,9 +65,7 @@ export class DashboardComponent implements OnInit {
   constructor(
     private _connections: ConnectionsService,
     private _tables: TablesService,
-    private _notifications: NotificationsService,
     private _tableRow: TableRowService,
-    private _user: UserService,
     private _uiSettings: UiSettingsService,
     private _tableState: TableStateService,
     public router: Router,
@@ -300,7 +297,12 @@ export class DashboardComponent implements OnInit {
       });
     } else {
       this._tables.activateActions(this.connectionID, this.selectedTableName, action.id, action.title, primaryKeys)
-        .subscribe(() => {console.log('activated')})
+        .subscribe((res) => {
+          if (res && res.location) this.dialog.open(DbActionLinkDialogComponent, {
+            width: '25em',
+            data: {href: res.location, actionName: action.title, primaryKeys: primaryKeys}
+          })
+        })
     }
   }
 
