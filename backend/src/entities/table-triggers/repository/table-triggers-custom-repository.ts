@@ -20,7 +20,9 @@ export const tableTriggersCustomRepositoryExtension: ITableTriggersRepository = 
       .leftJoinAndSelect('table_triggers.table_actions', 'table_actions')
       .where('table_triggers.connection = :connectionId', { connectionId })
       .andWhere('table_triggers.table_name = :tableName', { tableName })
-      .andWhere('table_triggers.trigger_events @> ARRAY[:triggerEvent]', { triggerEvent: ['ADD_ROW'] })
+      .andWhere('table_triggers.trigger_events @> ARRAY[:triggerEvent]::table_triggers_trigger_events_enum[]', {
+        triggerEvent: 'ADD_ROW',
+      })
       .getMany();
   },
 
@@ -46,7 +48,9 @@ export const tableTriggersCustomRepositoryExtension: ITableTriggersRepository = 
       .leftJoinAndSelect('table_triggers.table_actions', 'table_actions')
       .where('table_triggers.connection = :connectionId', { connectionId })
       .andWhere('table_triggers.table_name = :tableName', { tableName })
-      .andWhere('table_triggers.trigger_events @> ARRAY[:triggerEvent]', { triggerEvent: ['DELETE_ROW'] })
+      .andWhere('table_triggers.trigger_events @> ARRAY[:triggerEvent]::table_triggers_trigger_events_enum[]', {
+        triggerEvent: ['DELETE_ROW'],
+      })
       .getMany();
   },
 
@@ -72,7 +76,9 @@ export const tableTriggersCustomRepositoryExtension: ITableTriggersRepository = 
       .leftJoinAndSelect('table_triggers.table_actions', 'table_actions')
       .where('table_triggers.connection = :connectionId', { connectionId })
       .andWhere('table_triggers.table_name = :tableName', { tableName })
-      .andWhere('table_triggers.trigger_events @> ARRAY[:triggerEvent]', { triggerEvent: ['UPDATE_ROW'] })
+      .andWhere('table_triggers.trigger_events @> ARRAY[:triggerEvent]::table_triggers_trigger_events_enum[]', {
+        triggerEvent: ['UPDATE_ROW'],
+      })
       .getMany();
   },
 
