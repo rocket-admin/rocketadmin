@@ -88,6 +88,7 @@ export class ActivateTableActionsUseCase
         validateStatus: function (status) {
           return status <= 599;
         },
+        maxRedirects: 0,
       });
 
 
@@ -98,7 +99,7 @@ export class ActivateTableActionsUseCase
       }
       if (operationStatusCode >= 300 && operationStatusCode < 400) {
         operationResult = OperationResultStatusEnum.successfully;
-        return { location: result.headers } as unknown as ActivatedTableActionsDS;
+        return { location: result.headers?.location } as unknown as ActivatedTableActionsDS;
       }
       if (operationStatusCode >= 400 && operationStatusCode <= 599) {
         operationResult = OperationResultStatusEnum.unsuccessfully;
