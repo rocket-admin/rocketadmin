@@ -1,14 +1,12 @@
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { Component, OnInit } from '@angular/core';
 import { ConnectionSettingsUI, UiSettings } from 'src/app/models/ui-settings';
-import { CustomAction, CustomActionType, TableProperties } from 'src/app/models/table';
+import { CustomAction, TableProperties } from 'src/app/models/table';
 import { first, map } from 'rxjs/operators';
 
 import { Angulartics2 } from 'angulartics2';
 import { BbBulkActionConfirmationDialogComponent } from './db-bulk-action-confirmation-dialog/db-bulk-action-confirmation-dialog.component';
 import { ConnectionsService } from 'src/app/services/connections.service';
-import { DbActionConfirmationDialogComponent } from './db-action-confirmation-dialog/db-action-confirmation-dialog.component';
-import { DbActionLinkDialogComponent } from './db-action-link-dialog/db-action-link-dialog.component';
 import { DbTableFiltersDialogComponent } from './db-table-filters-dialog/db-table-filters-dialog.component';
 import { HttpErrorResponse } from '@angular/common/http';
 import JsonURL from "@jsonurl/jsonurl";
@@ -30,13 +28,8 @@ import { TableStateService } from 'src/app/services/table-state.service';
 
 interface DataToActivateActions {
   action: CustomAction,
-  selectedRows: object[],
-}
-
-interface DataToActivateAction {
-  action: CustomAction,
-  primaryKeys: object
-  identityFieldValue: string
+  primaryKeys: object[],
+  identityFieldValues: string[]
 }
 
 @Component({
@@ -299,45 +292,7 @@ export class DashboardComponent implements OnInit {
     Intercom('show');
   }
 
-  activateAction({action, primaryKeys, identityFieldValue}: DataToActivateAction) {
-    if (action.requireConfirmation) {
-      if (action.type === CustomActionType.Single || action.title === 'Delete row') {
-        this.dialog.open(DbActionConfirmationDialogComponent, {
-          width: '25em',
-          data: {id: action.id, title: action.title, primaryKeys, identityFieldValue, tableDisplayName: this.selectedTableDisplayName}
-        });
-      } else if (action.type === CustomActionType.Multiple) {
-        this.dialog.open(BbBulkActionConfirmationDialogComponent, {
-          width: '25em',
-          data: {id: action.id, title: action.title, primaryKeys: [primaryKeys], identityFieldValues: [identityFieldValue], tableDisplayName: this.selectedTableDisplayName}
-        });
-      }
-    } else {
-      if (action.type === CustomActionType.Single) {
-        this._tables.activateAction(this.connectionID, this.selectedTableName, action.id, action.title, primaryKeys)
-        .subscribe((res) => {
-          if (res && res.location) this.dialog.open(DbActionLinkDialogComponent, {
-            width: '25em',
-            data: {href: res.location, actionName: action.title, primaryKeys, identityFieldValue, tableDisplayName: this.selectedTableDisplayName}
-          })
-        })
-      } else if (action.type === CustomActionType.Multiple) {
-        this._tables.activateActions(this.connectionID, this.selectedTableName, action.id, action.title, [primaryKeys])
-          .subscribe(() => {console.log('activated')})
-      }
-    }
-  }
-
-  getPrimaryKeys(selectedRows) {
-    return selectedRows.map(row => Object.assign({}, ...this.dataSource.keyAttributes.map((primaryKey) => ({[primaryKey.column_name]: row[primaryKey.column_name]}))));
-  }
-
-  activateActions({action, selectedRows}: DataToActivateActions) {
-    const primaryKeys = this.getPrimaryKeys(selectedRows);
-
-    let identityFieldValues = null;
-    if (this.dataSource.identityColumn) identityFieldValues = selectedRows.map(row => row[this.dataSource.identityColumn]);
-
+  activateActions({action, primaryKeys, identityFieldValues}: DataToActivateActions) {
     if (action.requireConfirmation) {
       this.dialog.open(BbBulkActionConfirmationDialogComponent, {
         width: '25em',

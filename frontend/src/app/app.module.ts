@@ -40,7 +40,6 @@ import { DateFilterComponent } from './components/ui-components/filter-fields/da
 import { DateRowComponent } from './components/ui-components/row-fields/date/date.component';
 import { DateTimeFilterComponent } from './components/ui-components/filter-fields/date-time/date-time.component';
 import { DateTimeRowComponent } from './components/ui-components/row-fields/date-time/date-time.component';
-import { DbActionConfirmationDialogComponent } from './components/dashboard/db-action-confirmation-dialog/db-action-confirmation-dialog.component';
 import { DbActionLinkDialogComponent } from './components/dashboard/db-action-link-dialog/db-action-link-dialog.component';
 import { DbConnectionConfirmDialogComponent } from './components/connect-db/db-connection-confirm-dialog/db-connection-confirm-dialog.component';
 import { DbConnectionDeleteDialogComponent } from './components/connect-db/db-connection-delete-dialog/db-connection-delete-dialog.component';
@@ -199,8 +198,6 @@ const saasExtraProviders = (environment as any).saas ? [
     DateRowComponent,
     DateTimeFilterComponent,
     DateTimeRowComponent,
-    DbActionConfirmationDialogComponent,
-    DbActionConfirmationDialogComponent,
     DbActionLinkDialogComponent,
     DbConnectionConfirmDialogComponent,
     DbConnectionDeleteDialogComponent,

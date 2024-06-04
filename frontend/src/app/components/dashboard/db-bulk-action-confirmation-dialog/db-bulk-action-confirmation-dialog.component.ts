@@ -14,12 +14,12 @@ export class BbBulkActionConfirmationDialogComponent implements OnInit {
   public selectedTableName;
   public submitting: boolean = false;
   public connectionID: string;
-  // public selectedRows: object[];
 
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: any,
     private _connections: ConnectionsService,
     private _tables: TablesService,
+    private _tableRow: TableRowService,
     public dialogRef: MatDialogRef<BbBulkActionConfirmationDialogComponent>
   ) { }
 
@@ -27,7 +27,6 @@ export class BbBulkActionConfirmationDialogComponent implements OnInit {
     this.connectionID = this._connections.currentConnectionID;
     this.selectedTableName = this._tables.currentTableName;
     console.log(this.data);
-    // this._tableRow.cast.subscribe();
     this._tables.cast.subscribe();
   }
 
@@ -47,12 +46,21 @@ export class BbBulkActionConfirmationDialogComponent implements OnInit {
           () => { this.onActionsComplete() }
         )
     } else {
-      this._tables.bulkDelete(this.connectionID, this.selectedTableName, this.data.primaryKeys)
+      if (this.data.primaryKeys.length === 1) {
+        this._tableRow.deleteTableRow(this.connectionID, this.selectedTableName, this.data.primaryKeys[0])
+          .subscribe(
+            () => { this.onActionsComplete() },
+            () => { this.onActionsComplete() },
+            () => { this.onActionsComplete() }
+          )
+      } else if (this.data.primaryKeys.length > 1) {
+        this._tables.bulkDelete(this.connectionID, this.selectedTableName, this.data.primaryKeys)
         .subscribe(
           () => { this.onActionsComplete() },
           () => { this.onActionsComplete() },
           () => { this.onActionsComplete() }
       )
+      }
     }
   }
 }
