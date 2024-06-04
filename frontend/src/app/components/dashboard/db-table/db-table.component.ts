@@ -5,7 +5,6 @@ import { AccessLevel } from 'src/app/models/user';
 import { ActivatedRoute } from '@angular/router';
 import { DbTableExportDialogComponent } from '../db-table-export-dialog/db-table-export-dialog.component';
 import { DbTableImportDialogComponent } from '../db-table-import-dialog/db-table-import-dialog.component';
-import JsonURL from "@jsonurl/jsonurl";
 import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
@@ -249,45 +248,56 @@ export class DbTableComponent implements OnInit {
     return `${this.selection.isSelected(row) ? 'deselect' : 'select'} row ${row.position + 1}`;
   }
 
-  // getBulkActions(actions) {
-  //   console.log('get bulk actions')
-  //   console.log(actions)
-  //   return actions.filter((action: CustomAction) => actions.type === CustomActionType.Multiple)
-  // }
-
   stashFilters() {
     this._tableState.setBackUrlFilters(this.activeFilters);
+  }
+
+  getPrimaryKeys() {
+    return this.selection.selected
+      .map(row => Object.assign({}, ...this.tableData.keyAttributes.map((primaryKey) => ({[primaryKey.column_name]: row[primaryKey.column_name]}))));
+  }
+
+  getIdentityFieldsValues() {
+    console.log(this.selection.selected);
+    if (this.tableData.identityColumn) return this.selection.selected.map(row => row[this.tableData.identityColumn]);
   }
 
   handleAction(e, action, element) {
     e.stopPropagation();
 
-    if (action.type === 'multiple') {
-      this.activateActions.emit({
-        action,
-        selectedRows: [this.tableData.getQueryParams(element)]
-      })
-    } else {
-      this.activateAction.emit({
-        action,
-        primaryKeys: this.tableData.getQueryParams(element),
-        identityFieldValue: element[this.tableData.identityColumn]
-      })
-    }
+    console.log(element);
+
+    this.activateActions.emit({
+      action,
+      primaryKeys: [this.tableData.getQueryParams(element)],
+      identityFieldValues: [element[this.tableData.identityColumn]]
+    })
+  }
+
+  handleActions(action) {
+    const primaryKeys = this.getPrimaryKeys();
+    const identityFieldValues = this.getIdentityFieldsValues();
+
+    this.activateActions.emit({
+      action,
+      primaryKeys,
+      identityFieldValues
+    })
   }
 
   handleDeleteRow(e, element){
     e.stopPropagation();
     this.stashFilters();
 
-    this.activateAction.emit({
+    this.activateActions.emit({
       action: {
           title: 'Delete row',
           type: 'multiple',
           requireConfirmation: true
       },
-      primaryKeys: this.tableData.getQueryParams(element),
-      identityFieldValue: element[this.tableData.identityColumn]})
+      primaryKeys: [this.tableData.getQueryParams(element)],
+      identityFieldValues: [element[this.tableData.identityColumn]]
+    })
   }
 
   handleViewRow(row: TableRow) {

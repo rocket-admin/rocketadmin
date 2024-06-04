@@ -1,7 +1,7 @@
 import { AlertActionType, AlertType } from '../models/alert';
 import { BehaviorSubject, EMPTY } from 'rxjs';
 import { CustomAction, TableSettings, Widget } from '../models/table';
-import { NavigationEnd, Router, RouterEvent } from '@angular/router';
+import { NavigationEnd, Router } from '@angular/router';
 import { catchError, filter, map } from 'rxjs/operators';
 
 import { HttpClient } from '@angular/common/http';
@@ -462,37 +462,7 @@ export class TablesService {
       );
   }
 
-  activateAction(connectionID: string, tableName: string, actionId: string, actionTitle: string, primaryKeys: object, confirmed?: boolean) {
-    return this._http.post<any>(`/table/action/activate/${connectionID}`, primaryKeys, {
-      params: {
-        tableName,
-        actionId,
-        ...(confirmed ? {confirmed} : {}),
-      }
-    })
-      .pipe(
-        map((res) => {
-          if (res) {
-            return res;
-          } else {
-            this._notifications.showSuccessSnackbar(`${actionTitle} is done.`);
-          }
-        }),
-        catchError((err) => {
-          console.log(err);
-          this._notifications.showAlert(AlertType.Error, {abstract: err.error.message, details: err.error.originalMessage}, [
-            {
-              type: AlertActionType.Button,
-              caption: 'Dismiss',
-              action: (id: number) => this._notifications.dismissAlert()
-            }
-          ]);
-          return EMPTY;
-        })
-      );
-  }
-
-  activateActions(connectionID: string, tableName: string, actionId: string, actionTitle: string, primaryKeys, confirmed?: boolean) {
+  activateActions(connectionID: string, tableName: string, actionId: string, actionTitle: string, primaryKeys: object[], confirmed?: boolean) {
     return this._http.post<any>(`/table/actions/activate/${connectionID}`, primaryKeys, {
       params: {
         tableName,
@@ -501,9 +471,10 @@ export class TablesService {
       }
     })
       .pipe(
-        map(() => {
+        map((res) => {
           this.tables.next('activate actions');
           this._notifications.showSuccessSnackbar(`${actionTitle} is done for ${primaryKeys.length} rows.`);
+          return res
         }),
         catchError((err) => {
           console.log(err);

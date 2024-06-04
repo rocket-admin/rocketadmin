@@ -7,10 +7,8 @@ import { UIwidgets, fieldTypes } from 'src/app/consts/field-types';
 
 import { ConnectionsService } from 'src/app/services/connections.service';
 import { DBtype } from 'src/app/models/connection';
-import { DbActionConfirmationDialogComponent } from '../dashboard/db-action-confirmation-dialog/db-action-confirmation-dialog.component';
 import { DbActionLinkDialogComponent } from '../dashboard/db-action-link-dialog/db-action-link-dialog.component';
 import JsonURL from "@jsonurl/jsonurl";
-import { Location } from '@angular/common';
 import { MatDialog } from '@angular/material/dialog';
 import { NotificationsService } from 'src/app/services/notifications.service';
 import { ServerError } from 'src/app/models/alert';
@@ -20,6 +18,7 @@ import { TablesService } from 'src/app/services/tables.service';
 import { Title } from '@angular/platform-browser';
 import { getTableTypes } from 'src/app/lib/setup-table-row-structure';
 import { normalizeTableName } from '../../lib/normalize';
+import { BbBulkActionConfirmationDialogComponent } from '../dashboard/db-bulk-action-confirmation-dialog/db-bulk-action-confirmation-dialog.component';
 
 @Component({
   selector: 'app-db-table-row-edit',
@@ -404,12 +403,12 @@ export class DbTableRowEditComponent implements OnInit {
 
   handleActivateAction(action: CustomAction) {
     if (action.requireConfirmation) {
-      this.dialog.open(DbActionConfirmationDialogComponent, {
+      this.dialog.open(BbBulkActionConfirmationDialogComponent, {
         width: '25em',
-        data: {id: action.id, title: action.title, primaryKeys: this.keyAttributesFromURL}
+        data: {id: action.id, title: action.title, primaryKeys: [this.keyAttributesFromURL]}
       });
     } else {
-      this._tables.activateAction(this.connectionID, this.tableName, action.id, action.title, this.keyAttributesFromURL)
+      this._tables.activateActions(this.connectionID, this.tableName, action.id, action.title, [this.keyAttributesFromURL])
         .subscribe((res) => {
           if (res && res.location) this.dialog.open(DbActionLinkDialogComponent, {
             width: '25em',

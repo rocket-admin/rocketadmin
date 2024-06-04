@@ -89,7 +89,7 @@ export class TableRowService {
       );
   }
 
-  deleteTableRow(connectionID: string, tableName: string, params) {
+  deleteTableRow(connectionID: string, tableName: string, params: object) {
     return this._http.delete<any>(`/table/row/${connectionID}`, {
       params: {
         ...params,
