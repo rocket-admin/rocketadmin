@@ -1,6 +1,6 @@
 ## Rocket Admin
 
-<img width="1722" alt="image" src="https://github.com/rocket-admin/rocketadmin/assets/75169/c5a638cd-9d71-4be8-b57e-eaaf11a1eaa1">
+![720](https://github.com/rocket-admin/rocketadmin/assets/75169/31f1ac1b-ded0-40b6-984a-e50a3ddc4ee2)
 
 
 Create admin panel for your service with a few clicks

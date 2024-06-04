@@ -41,7 +41,8 @@
                     routerLink="/dashboard/{{connectionID}}/{{name}}/entry"
                     data-testid="table-add-record-link"
                     angulartics2On="click"
-                    angularticsAction="Dashboard: add row is clicked">
+                    angularticsAction="Dashboard: add row is clicked"
+                    (click)="stashFilters()">
                     <mat-icon>add</mat-icon>
                     Add row
                 </a>
@@ -184,26 +185,60 @@
                 <mat-header-cell *matHeaderCellDef mat-sort-header [disabled]="!isSortable(column)"> {{ tableData.dataNormalizedColumns[column] }} </mat-header-cell>
                 <mat-cell *matCellDef="let element; let i = index" data-hj-suppress>
                     <div class="table-cell-content">
-                        <ng-container *ngIf="isForeignKey(column); else contentCell">
+                        <span *ngIf="isForeignKey(column); else contentCell" class="field-value">
                             <a routerLink="/dashboard/{{connectionID}}/{{tableData.foreignKeys[column].referenced_table_name}}/entry"
                                 class="foreign-key-link"
                                 [queryParams]="getForeignKeyQueryParams(tableData.foreignKeys[column], element[column])">
                                 {{ getCellValue(tableData.foreignKeys[column], element[column]) }}
                             </a>
-                        </ng-container>
+                            <button type="button" mat-icon-button
+                                class="field-value-copy-button"
+                                matTooltip="Copy"
+                                [cdkCopyToClipboard]="getCellValue(tableData.foreignKeys[column], element[column])"
+                                (click)="$event.stopPropagation()"
+                                (cdkCopyToClipboardCopied)="showCopyNotification('Field value was copied to clipboard.')">
+                                <mat-icon>content_copy</mat-icon>
+                            </button>
+                        </span>
                         <ng-template #contentCell>
-                            <ng-container *ngIf="isWidget(column); else simpleValue">
+                            <span *ngIf="isWidget(column); else simpleValue" class="field-value">
                                 {{ getWidgetValue(column, element[column]) }}
-                            </ng-container>
+
+                                <button type="button" mat-icon-button
+                                    class="field-value-copy-button"
+                                    matTooltip="Copy"
+                                    [cdkCopyToClipboard]="getWidgetValue(column, element[column])"
+                                    (click)="$event.stopPropagation()"
+                                    (cdkCopyToClipboardCopied)="showCopyNotification('Field value was copied to clipboard.')">
+                                    <mat-icon>content_copy</mat-icon>
+                                </button>
+                            </span>
                             <ng-template #simpleValue>
                                 <span *ngIf="tableData.keyAttributes[0]?.column_name === column; else nonPrimaryKey"
-                                    attr.data-testid="table-primary-key-{{i}}-cell">
+                                    attr.data-testid="table-primary-key-{{i}}-cell"
+                                    class="field-value">
                                     {{element[column] || '—'}}
+                                    <button type="button" mat-icon-button
+                                        class="field-value-copy-button"
+                                        matTooltip="Copy"
+                                        [cdkCopyToClipboard]="element[column]"
+                                        (click)="$event.stopPropagation()"
+                                        (cdkCopyToClipboardCopied)="showCopyNotification('Field value was copied to clipboard.')">
+                                        <mat-icon>content_copy</mat-icon>
+                                    </button>
                                 </span>
                                 <ng-template #nonPrimaryKey>
-                                    <ng-container>
+                                    <span class="field-value">
                                         {{element[column] || '—'}}
-                                    </ng-container>
+                                        <button type="button" mat-icon-button
+                                            class="field-value-copy-button"
+                                            matTooltip="Copy"
+                                            [cdkCopyToClipboard]="element[column]"
+                                            (click)="$event.stopPropagation()"
+                                            (cdkCopyToClipboardCopied)="showCopyNotification('Field value was copied to clipboard.')">
+                                            <mat-icon>content_copy</mat-icon>
+                                        </button>
+                                    </span>
                                 </ng-template>
                             </ng-template>
                         </ng-template>
@@ -218,7 +253,7 @@
                     <ng-container *ngIf="tableData.tableActions && tableData.tableActions.length">
                         <button type="button" mat-icon-button *ngFor="let action of tableData.tableActions"
                             [matTooltip]="action.title"
-                            (click)="action.type === 'multiple' ? activateActions.emit({action, selectedRows: [tableData.getQueryParams(element)]}) : activateAction.emit({action, primaryKeys: tableData.getQueryParams(element), identityFieldValue: element[tableData.identityColumn]})">
+                            (click)="handleAction($event, action, element)">
                             <mat-icon fontSet="material-icons-outlined">
                                 {{action.icon}}
                             </mat-icon>
@@ -232,7 +267,8 @@
                         attr.data-test-primary-key-value="{{element[tableData.keyAttributes[0]?.column_name]}}"
                         angulartics2On="click"
                         angularticsAction="Dashboard: edit row is clicked"
-                        matTooltip="Edit row">
+                        matTooltip="Edit row"
+                        (click)="stashFilters()">
                         <mat-icon fontSet="material-icons-outlined">create</mat-icon>
                     </a>
                     <a mat-icon-button *ngIf="tableData.permissions.add"
@@ -243,7 +279,8 @@
                         attr.data-test-primary-key-value="{{element[tableData.keyAttributes[0]?.column_name]}}"
                         angulartics2On="click"
                         angularticsAction="Dashboard: duplicate row is clicked"
-                        matTooltip="Duplicate row">
+                        matTooltip="Duplicate row"
+                        (click)="stashFilters()">
                         <mat-icon fontSet="material-icons-outlined">difference</mat-icon>
                     </a>
                     <button type="button" mat-icon-button *ngIf="tableData.permissions.delete"
@@ -251,14 +288,17 @@
                         angulartics2On="click"
                         angularticsAction="Dashboard: delete row is clicked"
                         matTooltip="Delete row"
-                        (click)="activateAction.emit({action: {title: 'Delete row', type: 'multiple',  requireConfirmation: true}, primaryKeys: tableData.getQueryParams(element), identityFieldValue: element[tableData.identityColumn]})">
+                        (click)="handleDeleteRow($event, element)">
                         <mat-icon fontSet="material-icons-outlined">delete</mat-icon>
                     </button>
                 </mat-cell>
             </ng-container>
 
             <mat-header-row *matHeaderRowDef="tableData.actionsColumnWidth === '0' ? tableData.displayedDataColumns : tableData.displayedColumns"></mat-header-row>
-            <mat-row *matRowDef="let row; columns: tableData.actionsColumnWidth === '0' ? tableData.displayedDataColumns : tableData.displayedColumns;" (click)="viewRow.emit({row, queryParams: tableData.getQueryParams(row)})"></mat-row>
+            <mat-row *matRowDef="let row; columns: tableData.actionsColumnWidth === '0' ? tableData.displayedDataColumns : tableData.displayedColumns;"
+                [ngClass]="{'row_selected': isRowSelected(tableData.getQueryParams(row))}"
+                (click)="handleViewRow({record: row, primaryKeys: tableData.getQueryParams(row)})">
+            </mat-row>
         </mat-table>
     </div>
 

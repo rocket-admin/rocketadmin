@@ -1,19 +1,25 @@
-import { Component, NgZone, OnInit } from '@angular/core';
+import { AfterViewInit, Component, NgZone, OnInit } from '@angular/core';
+import { AlertActionType, AlertType } from 'src/app/models/alert';
 
 import { Angulartics2 } from 'angulartics2';
 import { AuthService } from 'src/app/services/auth.service';
 import { ExistingAuthUser } from 'src/app/models/user';
-import { Router } from '@angular/router';
 import { NotificationsService } from 'src/app/services/notifications.service';
-import { AlertActionType, AlertType } from 'src/app/models/alert';
+import { Router } from '@angular/router';
+import { environment } from 'src/environments/environment';
+import { accounts } from 'google-one-tap';
+
+
+declare var google: any;
 
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css']
 })
-export class LoginComponent implements OnInit {
+export class LoginComponent implements OnInit, AfterViewInit {
 
+  public isSaas = (environment as any).saas;
   public user: ExistingAuthUser = {
     email: '',
     password: '',
@@ -39,8 +45,19 @@ export class LoginComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    //@ts-ignore
-    google.accounts.id.initialize({
+    const error = new URLSearchParams(location.search).get('error');
+    if (error) this._notifications.showAlert(AlertType.Error, this.errors[error] || error, [
+      {
+        type: AlertActionType.Button,
+        caption: 'Dismiss',
+        action: (id: number) => this._notifications.dismissAlert()
+      }
+    ]);
+  }
+
+  ngAfterViewInit() {
+    const gAccounts: accounts = google.accounts;
+    gAccounts.id.initialize({
       client_id: "681163285738-e4l0lrv5vv7m616ucrfhnhso9r396lum.apps.googleusercontent.com",
       callback: (authUser) => {
         this.ngZone.run(() => {
@@ -53,22 +70,11 @@ export class LoginComponent implements OnInit {
         })
       }
     });
-    //@ts-ignore
-    google.accounts.id.renderButton(
-      document.getElementById("google_login_button"),
-      { theme: "outline", size: "large", width: "360px", text: "continue_with" }
+    gAccounts.id.renderButton(
+       document.getElementById("google_login_button"),
+       { theme: "outline", size: "large", width: 360, text: "continue_with" }
     );
-    //@ts-ignore
-    google.accounts.id.prompt();
-
-    const error = new URLSearchParams(location.search).get('error');
-    if (error) this._notifications.showAlert(AlertType.Error, this.errors[error] || error, [
-      {
-        type: AlertActionType.Button,
-        caption: 'Dismiss',
-        action: (id: number) => this._notifications.dismissAlert()
-      }
-    ]);
+    gAccounts.id.prompt();
   }
 
   requestUserCompanies() {

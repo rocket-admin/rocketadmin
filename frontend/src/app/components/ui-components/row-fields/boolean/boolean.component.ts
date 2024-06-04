@@ -1,33 +1,29 @@
-import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
-import { TableField, Widget } from 'src/app/models/table';
-import { normalizeFieldName } from '../../../../lib/normalize';
-import { DBtype } from 'src/app/models/connection';
+import { Component, Input, OnInit } from '@angular/core';
+
+import { BaseRowFieldComponent } from '../base-row-field/base-row-field.component';
 import { ConnectionsService } from 'src/app/services/connections.service';
+import { DBtype } from 'src/app/models/connection';
+import { normalizeFieldName } from '../../../../lib/normalize';
 
 @Component({
   selector: 'app-row-boolean',
   templateUrl: './boolean.component.html',
   styleUrls: ['./boolean.component.css']
 })
-export class BooleanRowComponent implements OnInit {
-  @Input() key: string;
-  @Input() label: string;
-  @Input() value;
-  @Input() readonly: boolean;
-  @Input() disabled: boolean;
-  @Input() structure: TableField;
-  @Input() widgetStructure: Widget;
+export class BooleanRowComponent extends BaseRowFieldComponent {
+  @Input() value: boolean | number | string | null;
 
-  @Output() onFieldChange = new EventEmitter();
-
-  public normalizedLabel: string;
   public isRadiogroup: boolean;
   private connectionType: DBtype;
+
   constructor(
     private _connections: ConnectionsService,
-  ) { }
+  ) {
+    super();
+  }
 
   ngOnInit(): void {
+    super.ngOnInit();
     this.connectionType = this._connections.currentConnection.type;
 
     if (this.value) {
@@ -41,8 +37,6 @@ export class BooleanRowComponent implements OnInit {
     this.onFieldChange.emit(this.value);
 
     this.isRadiogroup = (this.structure?.allow_null) || !!(this.widgetStructure?.widget_params?.structure?.allow_null);
-
-    this.normalizedLabel = normalizeFieldName(this.label);
   }
 
   onToggleChange(optionValue: boolean): void {

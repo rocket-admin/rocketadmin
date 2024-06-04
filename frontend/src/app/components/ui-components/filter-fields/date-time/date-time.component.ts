@@ -1,40 +1,29 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 
+import { BaseFilterFieldComponent } from '../base-filter-field/base-filter-field.component';
 import { format } from 'date-fns'
-import { normalizeFieldName } from '../../../../lib/normalize';
 
 @Component({
   selector: 'app-filter-date-time',
   templateUrl: './date-time.component.html',
   styleUrls: ['./date-time.component.css']
 })
-export class DateTimeFilterComponent implements OnInit {
-
-  @Input() key: string;
-  @Input() label: string;
+export class DateTimeFilterComponent extends BaseFilterFieldComponent {
   @Input() value: string;
-  @Input() required: boolean;
-  @Input() readonly: boolean;
-  @Input() disabled: boolean;
 
   @Output() onFieldChange = new EventEmitter();
 
   static type = 'datetime';
   public date: string;
   public time: string;
-  public normalizedLabel: string;
-
-  constructor() {
-  }
 
   ngOnInit(): void {
+    super.ngOnInit();
     if (this.value) {
       const datetime = new Date(this.value);
       this.date = format(datetime, 'yyyy-MM-dd');
       this.time = format(datetime, 'HH:mm:ss');
     }
-
-    this.normalizedLabel = normalizeFieldName(this.label);
   }
 
   onDateChange() {

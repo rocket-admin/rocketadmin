@@ -1,0 +1,50 @@
+<span *ngIf="widget.field_name; else fieldsSelect" class="widget-field-name">
+    {{ widget.field_name }}
+</span>
+<ng-template #fieldsSelect>
+    <mat-form-field appearance="outline">
+        <mat-label>Field</mat-label>
+        <mat-select [(ngModel)]="widget.field_name" name="{{widget.field_name}}-field-name">
+            <mat-option *ngFor="let field of fields"
+                [value]="field" (click)="onSelectWidgetField.emit(field)">{{ field }}</mat-option>
+        </mat-select>
+    </mat-form-field>
+</ng-template>
+
+<mat-form-field appearance="outline">
+    <mat-label>Widget type</mat-label>
+    <mat-select name="{{widget.field_name}}-field-type"
+        [(ngModel)]="widget.widget_type"
+        (ngModelChange)="onWidgetTypeChange.emit(widget.field_name)">
+        <mat-option *ngFor="let widgetType of widgetTypes"
+            [value]="widgetType">{{ widgetType }}</mat-option>
+    </mat-select>
+</mat-form-field>
+
+<div class="code-editor-box">
+    <ngs-code-editor
+        name="{{widget.field_name}}-params-editor"
+        theme="vs"
+        [codeModel]="mutableWidgetParams"
+        [options]="paramsEditorOptions"
+        [readOnly]="isReadonlyParams"
+        (valueChanged)="onWidgetParamsChange.emit({value: $event, fieldName: widget.field_name})"
+        >
+    </ngs-code-editor>
+</div>
+
+<mat-form-field appearance="outline">
+    <mat-label>Field name</mat-label>
+    <input matInput [(ngModel)]="widget.name" name="{{widget.field_name}}-field-new-name">
+</mat-form-field>
+
+<mat-form-field appearance="outline">
+    <mat-label>Description</mat-label>
+    <textarea matInput [(ngModel)]="widget.description" name="{{widget.field_name}}-field-description"></textarea>
+</mat-form-field>
+
+<button mat-icon-button type="button" class="widget-delete-button"
+    matTooltip="Delete widget"
+    (click)="onWidgetDelete.emit(widget.field_name)">
+    <mat-icon>delete_outline</mat-icon>
+</button>

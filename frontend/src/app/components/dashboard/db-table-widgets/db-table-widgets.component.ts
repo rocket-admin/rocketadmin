@@ -29,6 +29,14 @@ export class DbTableWidgetsComponent implements OnInit {
   public widgetTypes = Object.keys(UIwidgets);
   public submitting: boolean = false;
   public widgetsWithSettings: string[];
+  public paramsEditorOptions = {
+    minimap: { enabled: false },
+    lineNumbersMinChars:  3,
+    folding: false,
+    automaticLayout: true,
+    scrollBeyondLastLine: false,
+    wordWrap: 'on',
+  };
   public defaultParams = {
     Boolean:
 `// Specify allow_null in field structure
@@ -36,7 +44,7 @@ export class DbTableWidgetsComponent implements OnInit {
 // use true to display yes/no/unknown radiogroup
 
 {
-	structure: {
+	"structure": {
 		"allow_null": false
 	}
 }`,
@@ -47,7 +55,7 @@ export class DbTableWidgetsComponent implements OnInit {
     JSON: `// No settings required`,
     Textarea: `// provide number of strings to show.
 {
-  rows: 5
+  "rows": 5
 }`,
     String: `// No settings required`,
     Readonly: `// No settings required`,
@@ -59,19 +67,19 @@ export class DbTableWidgetsComponent implements OnInit {
 // CA => California
 
 {
-  allow_null: true,
-  options: [
+  "allow_null": true,
+  "options": [
     {
-      value: 'UA',
-      label: '🇺🇦 Ukraine'
+      "value": "UA",
+      "label": "🇺🇦 Ukraine"
     },
     {
-      value: 'PL',
-      label: '🇵🇱 Poland'
+      "value": "PL",
+      "label": "🇵🇱 Poland"
     },
     {
-      value: 'US',
-      label: '🇺🇸 United States'
+      "value": "US",
+      "label": "🇺🇸 United States"
     }
   ]
 }`,
@@ -81,7 +89,7 @@ export class DbTableWidgetsComponent implements OnInit {
 // example:
 
 {
-  algorithm: 'sha224'
+  "algorithm": "sha224"
 }
 
 `,
@@ -89,7 +97,7 @@ export class DbTableWidgetsComponent implements OnInit {
 `// provide type of file: 'hex', 'base64' or 'file'
 // example:
 {
-  type: 'hex'
+  "type": "hex"
 }
 `
   }
@@ -161,16 +169,25 @@ export class DbTableWidgetsComponent implements OnInit {
     this.fields.splice(this.fields.indexOf(column_name), 1)
   }
 
-  onWidgetTypeChange(currentWidget: Widget) {
-    // let currentWidget = this.widgets.find(widget => widget.field_name === fieldName);
-    if (currentWidget.widget_type === 'Default') currentWidget.widget_type = '';
+  widgetTypeChange(fieldName) {
+    let currentWidget = this.widgets.find(widget => widget.field_name === fieldName);
 
-    //default widget settings:
+    if (currentWidget.widget_type === 'Default') currentWidget.widget_type = '';
     currentWidget.widget_params = this.defaultParams[currentWidget.widget_type || 'Default'];
+
+    this.widgetParamsChange({fieldName: currentWidget.field_name, value: currentWidget.widget_params});
   }
 
   isReadOnly(type: string) {
     return !this.widgetsWithSettings.includes(type);
+  }
+
+  widgetParamsChange(e: {
+    fieldName: string,
+    value: any
+  }) {
+    let currentWidget = this.widgets.find(widget => widget.field_name === e.fieldName);
+    currentWidget.widget_params = e.value;
   }
 
   openDeleteWidgetDialog(widgetFieldName: string) {
@@ -182,7 +199,7 @@ export class DbTableWidgetsComponent implements OnInit {
     dialogRef.afterClosed().subscribe(action => {
       if (action === 'delete') {
         this.fields.push(widgetFieldName);
-        this.widgets = this.widgets.filter((widget: Widget) => widget.field_name !== widgetFieldName);
+        this.widgets = this.widgets.filter((widget) => widget.field_name !== widgetFieldName);
         this.updateWidgets(true);
       }
     })
@@ -205,11 +222,11 @@ export class DbTableWidgetsComponent implements OnInit {
 
   getWidgets() {
     this._tables.fetchTableWidgets(this.connectionID, this.tableName)
-    .subscribe(res => {
-      const currentWidgetTypes = res.map((widget: Widget) => widget.field_name);
-      this.fields = difference(this.fields, currentWidgetTypes);
-      this.widgets = res
-    });
+      .subscribe(res => {
+        const currentWidgetTypes = res.map((widget: Widget) => widget.field_name);
+        this.fields = difference(this.fields, currentWidgetTypes);
+        this.widgets = res;
+      });
   }
 
   updateWidgets(afterDeleteAll?: boolean) {

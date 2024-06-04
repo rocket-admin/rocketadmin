@@ -1,8 +1,8 @@
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { Component, OnInit } from '@angular/core';
+import { ConnectionSettingsUI, UiSettings } from 'src/app/models/ui-settings';
 import { CustomAction, CustomActionType, TableProperties } from 'src/app/models/table';
 import { first, map } from 'rxjs/operators';
-import { getComparatorsFromUrl } from 'src/app/lib/parse-filter-params';
 
 import { Angulartics2 } from 'angulartics2';
 import { BbBulkActionConfirmationDialogComponent } from './db-bulk-action-confirmation-dialog/db-bulk-action-confirmation-dialog.component';
@@ -11,6 +11,7 @@ import { DbActionConfirmationDialogComponent } from './db-action-confirmation-di
 import { DbActionLinkDialogComponent } from './db-action-link-dialog/db-action-link-dialog.component';
 import { DbTableFiltersDialogComponent } from './db-table-filters-dialog/db-table-filters-dialog.component';
 import { HttpErrorResponse } from '@angular/common/http';
+import JsonURL from "@jsonurl/jsonurl";
 import { MatDialog } from '@angular/material/dialog';
 import { NotificationsService } from 'src/app/services/notifications.service';
 import { SelectionModel } from '@angular/cdk/collections';
@@ -19,13 +20,13 @@ import { TableRowService } from 'src/app/services/table-row.service';
 import { TablesDataSource } from './db-tables-data-source';
 import { TablesService } from 'src/app/services/tables.service';
 import { Title } from '@angular/platform-browser';
+import { UiSettingsService } from 'src/app/services/ui-settings.service';
 import { User } from 'src/app/models/user';
+import { UserService } from 'src/app/services/user.service';
+import { getComparatorsFromUrl } from 'src/app/lib/parse-filter-params';
 import { normalizeTableName } from '../../lib/normalize'
 import { omitBy } from "lodash";
-import JsonURL from "@jsonurl/jsonurl";
-import { UserService } from 'src/app/services/user.service';
-import { UiSettingsService } from 'src/app/services/ui-settings.service';
-import { ConnectionSettingsUI, UiSettings } from 'src/app/models/ui-settings';
+import { TableStateService } from 'src/app/services/table-state.service';
 
 interface DataToActivateActions {
   action: CustomAction,
@@ -49,7 +50,6 @@ export class DashboardComponent implements OnInit {
   public tablesList: TableProperties[] = null;
   public selectedTableName: string;
   public selectedTableDisplayName: string;
-  // public selectedTablePermissions: Object = null;
   public currentPage: number = 1;
   public shownTableTitles: boolean = true;
   public connectionID: string;
@@ -77,6 +77,7 @@ export class DashboardComponent implements OnInit {
     private _tableRow: TableRowService,
     private _user: UserService,
     private _uiSettings: UiSettingsService,
+    private _tableState: TableStateService,
     public router: Router,
     private route: ActivatedRoute,
     public dialog: MatDialog,
@@ -92,15 +93,24 @@ export class DashboardComponent implements OnInit {
     return this._connections.currentConnection.title || this._connections.currentConnection.database || 'Tables'
   }
 
-  async ngOnInit() {
+  ngOnInit() {
     this.connectionID = this._connections.currentConnectionID;
     this.dataSource = new TablesDataSource(this._tables, this._connections, this._uiSettings);
-    this._uiSettings.cast
-      .subscribe( (settings: UiSettings) => {
-        this.uiSettings = settings?.connections[this.connectionID];
-        this.shownTableTitles = settings?.connections[this.connectionID]?.shownTableTitles ?? true;
+
+    this._tableState.cast.subscribe(row => {
+      this.selectedRow = row;
     });
 
+    this._uiSettings.getUiSettings()
+      .subscribe ((settings: UiSettings) => {
+        this.uiSettings = settings?.connections[this.connectionID];
+        this.shownTableTitles = settings?.connections[this.connectionID]?.shownTableTitles ?? true;
+
+        this.getData();
+    });
+  }
+
+  async getData() {
     let tables;
     try {
       tables = await this.getTables();
@@ -264,17 +274,24 @@ export class DashboardComponent implements OnInit {
   }
 
   getRows(search?: string) {
-    const shownColumns = this.uiSettings?.tables[this.selectedTableName]?.shownColumns;
-    this.dataSource.fetchRows({
-      connectionID: this.connectionID,
-      tableName: this.selectedTableName,
-      requstedPage: 0,
-      sortColumn: undefined,
-      sortOrder: undefined,
-      filters: this.filters,
-      search,
-      shownColumns
+    this._uiSettings.getUiSettings()
+      .subscribe ((settings: UiSettings) => {
+        this.uiSettings = settings?.connections[this.connectionID];
+        this.shownTableTitles = settings?.connections[this.connectionID]?.shownTableTitles ?? true;
+
+        const shownColumns = this.uiSettings?.tables[this.selectedTableName]?.shownColumns;
+        this.dataSource.fetchRows({
+          connectionID: this.connectionID,
+          tableName: this.selectedTableName,
+          requstedPage: 0,
+          sortColumn: undefined,
+          sortOrder: undefined,
+          filters: this.filters,
+          search,
+          shownColumns
+        });
     });
+
   }
 
   openIntercome() {
@@ -335,22 +352,5 @@ export class DashboardComponent implements OnInit {
   toggleSideBar() {
     this.shownTableTitles = !this.shownTableTitles;
     this._uiSettings.updateConnectionSetting(this.connectionID, 'shownTableTitles', this.shownTableTitles);
-    // (this.uiSettings.dashboard[this.connectionID] = this.uiSettings.dashboard[this.connectionID] || { }).shownTableTitles = this.shownTableTitles;
-    // this._uiSettings.updateUiSettings(this.uiSettings).subscribe();
-  }
-
-  viewRow(row: {row: object, queryParams: object}) {
-    this.selectedRow = {...row, link: `/dashboard/${this.connectionID}/${this.selectedTableName}/entry`};
-    this.angulartics2.eventTrack.next({
-      action: 'Dashboard: row preview is opened',
-    });
-  }
-
-  closeRowPreview() {
-    this.selectedRow = null;
-  }
-
-  updateUiSettings() {
-    // this._uiSettings.updateUiSettings(this.uiSettings).subscribe();
   }
 }

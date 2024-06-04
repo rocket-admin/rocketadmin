@@ -65,9 +65,10 @@
 }
 
 .plan-badge {
+    --mdc-chip-label-text-size: 0.75em;
+
     background-color: var(--color-primaryPalette-100) !important;
     border-radius: 4px;
-    font-size: 0.75em;
     opacity: 1 !important;
     height: 20px;
 }

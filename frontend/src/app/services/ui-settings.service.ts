@@ -1,9 +1,10 @@
+import { BehaviorSubject, EMPTY, Observable } from 'rxjs';
+import { ConnectionSettingsUI, GlobalSettingsUI, UiSettings } from '../models/ui-settings';
+import { catchError, map } from 'rxjs/operators';
+
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { NotificationsService } from './notifications.service';
-import { BehaviorSubject, EMPTY } from 'rxjs';
-import { catchError, map } from 'rxjs/operators';
-import { ConnectionSettingsUI, GlobalSettingsUI, UiSettings } from '../models/ui-settings';
 
 @Injectable({
   providedIn: 'root'
@@ -14,8 +15,7 @@ export class UiSettingsService {
     connections: {} as { [connectionId: string]: ConnectionSettingsUI }
   }
 
-  private uiSettings = new BehaviorSubject<any>(this.settings);
-  public cast = this.uiSettings.asObservable();
+  private uiSettings = null;
 
   constructor(
     private _http: HttpClient,
@@ -51,22 +51,26 @@ export class UiSettingsService {
     this.syncUiSettings().subscribe();
   }
 
-  getUiSettings() {
-    return this._http.get<any>('/user/settings')
-      .pipe(
-        map(res => {
-          const settings = res.userSettings ? JSON.parse(res.userSettings) : null;
-          console.log('getUiSettings settings')
-          console.log(settings)
-          this.uiSettings.next(settings);
-          return res
-        }),
-        catchError((err) => {
-          console.log(err);
-          this._notifications.showErrorSnackbar(err.error.message);
-          return EMPTY;
-        })
-      );
+  getUiSettings(): Observable<UiSettings> {
+    if (!this.uiSettings) {
+      return this._http.get<any>('/user/settings')
+        .pipe(
+          map(res => {
+            const settings = res.userSettings ? JSON.parse(res.userSettings) : null;
+            console.log('getUiSettings settings')
+            console.log(settings)
+            this.uiSettings = settings;
+            return settings
+          }),
+          catchError((err) => {
+            console.log(err);
+            this._notifications.showErrorSnackbar(err.error.message);
+            return EMPTY;
+          })
+        );
+      } else {
+        return new Observable(s => s.next(this.uiSettings));
+      }
   };
 
   syncUiSettings() {
@@ -74,7 +78,7 @@ export class UiSettingsService {
       .pipe(
         map(res => {
           const settings = res.userSettings ? JSON.parse(res.userSettings) : null;
-          this.uiSettings.next(settings);
+          this.uiSettings = settings;
           return res
         }),
         catchError((err) => {

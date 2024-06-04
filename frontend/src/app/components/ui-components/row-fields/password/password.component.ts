@@ -1,30 +1,19 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, Input } from '@angular/core';
 
-import { normalizeFieldName } from 'src/app/lib/normalize';
+import { BaseRowFieldComponent } from '../base-row-field/base-row-field.component';
 
 @Component({
   selector: 'app-row-password',
   templateUrl: './password.component.html',
   styleUrls: ['./password.component.css']
 })
-export class PasswordRowComponent implements OnInit {
-
-  @Input() key: string;
-  @Input() label: string;
+export class PasswordRowComponent extends BaseRowFieldComponent {
   @Input() value: string;
-  @Input() required: boolean;
-  @Input() readonly: boolean;
-  @Input() disabled: boolean;
 
-  @Output() onFieldChange = new EventEmitter();
-
-  public normalizedLabel: string;
   public clearPassword: boolean;
 
-  constructor() { }
-
   ngOnInit(): void {
-    this.normalizedLabel = normalizeFieldName(this.label);
+    super.ngOnInit();
     if (this.value === '***') this.value = '';
     this.onFieldChange.emit(this.value);
   }

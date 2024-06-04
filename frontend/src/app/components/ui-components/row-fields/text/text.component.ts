@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Injectable, Input, OnInit, Output } from '@angular/core';
 
-import { normalizeFieldName } from '../../../../lib/normalize';
+import { BaseRowFieldComponent } from '../base-row-field/base-row-field.component';
 
 @Injectable()
 
@@ -9,24 +9,8 @@ import { normalizeFieldName } from '../../../../lib/normalize';
   templateUrl: './text.component.html',
   styleUrls: ['./text.component.css']
 })
-export class TextRowComponent implements OnInit {
-
-  @Input() key: string;
-  @Input() label: string;
+export class TextRowComponent extends BaseRowFieldComponent {
   @Input() value: string;
-  @Input() required: boolean;
-  @Input() readonly: boolean;
-  @Input() disabled: boolean;
-
-  @Output() onFieldChange = new EventEmitter();
 
   static type = 'text';
-  public normalizedLabel: string;
-
-  constructor() { }
-
-  ngOnInit(): void {
-    this.normalizedLabel = normalizeFieldName(this.label);
-  }
-
 }

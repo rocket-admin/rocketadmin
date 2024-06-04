@@ -1,5 +1,6 @@
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { ChangeDetectorRef, Component, HostListener, NgZone } from '@angular/core';
+import { catchError, filter, map } from 'rxjs/operators';
 
 import { Angulartics2Amplitude } from 'angulartics2';
 import { AuthService } from './services/auth.service';
@@ -8,14 +9,13 @@ import { DomSanitizer } from '@angular/platform-browser';
 import { MatIconRegistry } from '@angular/material/icon';
 import { Subject } from 'rxjs';
 import { TablesService } from './services/tables.service';
+import { UiSettingsService } from './services/ui-settings.service';
 import { User } from '@sentry/angular-ivy';
 import { UserService } from './services/user.service';
 import amplitude from 'amplitude-js';
 import { differenceInMilliseconds } from 'date-fns';
 import { environment } from '../environments/environment';
 import { normalizeTableName } from './lib/normalize';
-import { catchError, filter, map } from 'rxjs/operators';
-import { UiSettingsService } from './services/ui-settings.service';
 
 //@ts-ignore
 window.amplitude = amplitude;
@@ -126,7 +126,8 @@ export class AppComponent {
                 user_id: res.id,
                 email: res.email
               });
-              this.router.navigate(['/connections-list'])
+              this.router.navigate(['/connections-list']);
+              this._uiSettings.getUiSettings().subscribe();
             }
         )
 
@@ -156,21 +157,20 @@ export class AppComponent {
                     user_id: res.id,
                     email: res.email
                   });
+                this._uiSettings.getUiSettings().subscribe();
                 }
             );
 
             setTimeout(() => {
-              this.logOut(true);
+              if (this.userLoggedIn) this.logOut(true);
               this.router.navigate(['/login']);
             }, expirationInterval);
           } else {
-            this.logOut(true);
+            if (this.userLoggedIn) this.logOut(true);
             this.router.navigate(['/login']);
           }
         }
       }
-
-      this._uiSettings.getUiSettings().subscribe();
     });
 
     this._user.cast.subscribe( arg => {

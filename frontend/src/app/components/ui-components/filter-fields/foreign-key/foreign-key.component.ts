@@ -1,12 +1,11 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 
+import { BaseFilterFieldComponent } from '../base-filter-field/base-filter-field.component';
 import { ConnectionsService } from 'src/app/services/connections.service';
 import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { Subject } from 'rxjs';
-import { TableForeignKey } from 'src/app/models/table';
 import { TablesService } from 'src/app/services/tables.service';
-import { normalizeFieldName } from '../../../../lib/normalize';
 
 interface Suggestion {
   displayString: string;
@@ -19,17 +18,8 @@ interface Suggestion {
   templateUrl: './foreign-key.component.html',
   styleUrls: ['./foreign-key.component.css']
 })
-export class ForeignKeyFilterComponent implements OnInit {
-
-  @Input() key: string;
-  @Input() label: string;
+export class ForeignKeyFilterComponent extends BaseFilterFieldComponent {
   @Input() value;
-  @Input() relations: TableForeignKey;
-  @Input() required: boolean;
-  @Input() readonly: boolean;
-  @Input() disabled: boolean;
-
-  @Output() onFieldChange = new EventEmitter();
 
   public connectionID: string;
   public currentDisplayedString: string;
@@ -37,7 +27,6 @@ export class ForeignKeyFilterComponent implements OnInit {
   public currentFieldQueryParams: any;
   public suggestions: Suggestion[];
   public fetching: boolean = true;
-  public normalizedLabel: string;
   public identityColumn: string;
   public primaeyKeys: {data_type: string, column_name: string}[];
 
@@ -47,6 +36,7 @@ export class ForeignKeyFilterComponent implements OnInit {
     private _tables: TablesService,
     private _connections: ConnectionsService,
   ) {
+    super();
     this.autocmpleteUpdate.pipe(
       debounceTime(500),
       distinctUntilChanged())
@@ -57,8 +47,8 @@ export class ForeignKeyFilterComponent implements OnInit {
    }
 
   ngOnInit(): void {
+    super.ngOnInit();
     this.connectionID = this._connections.currentConnectionID;
-    this.normalizedLabel = normalizeFieldName(this.label);
     this.relations && this._tables.fetchTable({
         connectionID: this.connectionID,
         tableName: this.relations.referenced_table_name,

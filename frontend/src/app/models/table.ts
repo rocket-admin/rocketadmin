@@ -36,6 +36,12 @@ export interface TableSettings {
     sensitive_fields: string[]
 }
 
+export interface TableRow {
+    record: object,
+    primaryKeys: object
+    link?: string
+}
+
 export interface TableField {
     column_name: string,
     column_default: string,
@@ -57,10 +63,18 @@ export interface TableForeignKey {
     column_default?: string,
 }
 
+export interface WidgetStructure {
+    field_name: string,
+    widget_type: string,
+    widget_params: Record<string, any>,
+    name: string,
+    description: string
+}
+
 export interface Widget {
     field_name: string,
     widget_type: string,
-    widget_params: any,
+    widget_params: string,
     name: string,
     description: string
 }

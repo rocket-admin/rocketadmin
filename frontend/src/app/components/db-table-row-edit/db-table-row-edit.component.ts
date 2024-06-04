@@ -15,6 +15,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { NotificationsService } from 'src/app/services/notifications.service';
 import { ServerError } from 'src/app/models/alert';
 import { TableRowService } from 'src/app/services/table-row.service';
+import { TableStateService } from 'src/app/services/table-state.service';
 import { TablesService } from 'src/app/services/tables.service';
 import { Title } from '@angular/platform-browser';
 import { getTableTypes } from 'src/app/lib/setup-table-row-structure';
@@ -55,6 +56,7 @@ export class DbTableRowEditComponent implements OnInit {
   public referencedTablesURLParams: any;
   public permissions: TablePermissions;
   public pageAction: string;
+  public tableFiltersUrlString: string;
 
   public tableForeignKeys: TableForeignKey[];
 
@@ -65,7 +67,7 @@ export class DbTableRowEditComponent implements OnInit {
     private _tables: TablesService,
     private _tableRow: TableRowService,
     private _notifications: NotificationsService,
-    private _location: Location,
+    private _tableState: TableStateService,
     private route: ActivatedRoute,
     private ngZone: NgZone,
     public router: Router,
@@ -77,6 +79,7 @@ export class DbTableRowEditComponent implements OnInit {
     this.loading = true;
     this.connectionID = this._connections.currentConnectionID;
     this.tableName = this._tables.currentTableName;
+    this.tableFiltersUrlString = JsonURL.stringify(this._tableState.getBackUrlFilters());
 
     this.route.queryParams.subscribe((params) => {
       if (Object.keys(params).length === 0) {
@@ -306,7 +309,9 @@ export class DbTableRowEditComponent implements OnInit {
       .map(jsonField => jsonField[0]);
     if (jsonFields.length) {
       for (const jsonField of jsonFields) {
-        if (updatedRow[jsonField] !== null && updatedRow[jsonField] !== undefined) {
+        if (updatedRow[jsonField] === '') updatedRow[jsonField] = null;
+        if (typeof(updatedRow[jsonField]) === 'string') {
+          console.log(updatedRow[jsonField].toString());
           const updatedFiled = JSON.parse(updatedRow[jsonField].toString());
           updatedRow[jsonField] = updatedFiled;
         }
@@ -345,7 +350,10 @@ export class DbTableRowEditComponent implements OnInit {
           if (continueEditing) {
             this.router.navigate([`/dashboard/${this.connectionID}/${this.tableName}/entry`], { queryParams: this.keyAttributesFromURL });
           } else {
-            this.router.navigate([`/dashboard/${this.connectionID}/${this.tableName}`]);
+            this.router.navigate([`/dashboard/${this.connectionID}/${this.tableName}`], { queryParams: {
+              filters: this.tableFiltersUrlString,
+              pageIndex: 0
+            }});
           }
         });
 
@@ -382,11 +390,14 @@ export class DbTableRowEditComponent implements OnInit {
             this._notifications.dismissAlert();
           } else {
             this._notifications.dismissAlert();
-            this.router.navigate([`/dashboard/${this.connectionID}/${this.tableName}`]);
+            this.router.navigate([`/dashboard/${this.connectionID}/${this.tableName}`], { queryParams: {
+              filters: this.tableFiltersUrlString,
+              pageIndex: 0
+            }});
           }
         });
       },
-      undefined,
+      () => {this.submitting = false},
       () => {this.submitting = false}
     )
   }

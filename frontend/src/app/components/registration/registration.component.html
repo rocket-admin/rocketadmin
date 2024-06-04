@@ -9,12 +9,21 @@
                 <span class="registrationTitle__emphasis">Manage Your Database</span>
             </h1>
 
-            <div id="google_registration_button"
+            <div *ngIf="isSaas"
+                class="g_id_signin login-form__google-button"
+                data-type="standard"
+                data-size="large"
+                data-theme="filled_blue"
+                data-text="signup_with"
+                data-shape="rectangular"
+                data-logo_alignment="left"
+                data-width="400px"
+                data-testid="registration-google-button"
                 angulartics2On="click"
                 angularticsAction="Reg: sign up with google">
             </div>
 
-            <button type="button" mat-stroked-button color="primary"
+            <button *ngIf="isSaas" type="button" mat-stroked-button color="primary"
                 class="register-form__github-button"
                 angulartics2On="click"
                 angularticsAction="Reg: sign up with github is clicked"
@@ -23,7 +32,7 @@
                 <span class="register-form__github-caption">Continue with GitHub</span>
             </button>
 
-            <div class="divider"><span class="divider__label">or</span></div>
+            <div *ngIf="isSaas" class="divider"><span class="divider__label">or</span></div>
 
             <mat-form-field appearance="outline">
                 <mat-label>Email</mat-label>
