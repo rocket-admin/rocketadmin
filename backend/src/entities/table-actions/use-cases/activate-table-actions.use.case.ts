@@ -88,6 +88,7 @@ export class ActivateTableActionsUseCase
         validateStatus: function (status) {
           return status <= 599;
         },
+        maxRedirects: 0,
       });
 
 
