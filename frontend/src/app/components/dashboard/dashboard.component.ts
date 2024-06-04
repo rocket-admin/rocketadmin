@@ -300,7 +300,7 @@ export class DashboardComponent implements OnInit {
         .subscribe((res) => {
           if (res && res.location) this.dialog.open(DbActionLinkDialogComponent, {
             width: '25em',
-            data: {href: res.location, actionName: action.title, primaryKeys: primaryKeys}
+            data: {href: res.location, actionName: action.title, primaryKeys: primaryKeys[0]}
           })
         })
     }
