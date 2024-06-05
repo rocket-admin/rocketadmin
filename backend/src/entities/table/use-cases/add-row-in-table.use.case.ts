@@ -185,6 +185,7 @@ export class AddRowInTableUseCase extends AbstractUseCase<AddRowInTableDs, Table
     }
 
     const formedTableStructure = formFullTableStructure(tableStructure, tableSettings);
+    let addedRow: Record<string, unknown> = {};
     try {
       row = await hashPasswordsInRowUtil(row, tableWidgets);
       row = processUuidsInRowUtil(row, tableWidgets);
@@ -192,7 +193,7 @@ export class AddRowInTableUseCase extends AbstractUseCase<AddRowInTableDs, Table
       const result = (await dao.addRowInTable(tableName, row, userEmail)) as Record<string, unknown>;
       if (result && !isObjectEmpty(result)) {
         operationResult = OperationResultStatusEnum.successfully;
-        let addedRow = await dao.getRowByPrimaryKey(tableName, result, tableSettings, userEmail);
+        addedRow = await dao.getRowByPrimaryKey(tableName, result, tableSettings, userEmail);
         addedRow = removePasswordsFromRowsUtil(addedRow, tableWidgets);
 
         return {
@@ -238,7 +239,8 @@ export class AddRowInTableUseCase extends AbstractUseCase<AddRowInTableDs, Table
         connectionId,
         tableName,
       );
-      await activateTableActions(foundAddTableActions, connection, row, userId, tableName);
+
+      await activateTableActions(foundAddTableActions, connection, addedRow, userId, tableName);
     }
   }
 

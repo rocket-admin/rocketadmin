@@ -3456,6 +3456,7 @@ __metadata:
     mongodb: ^6.5.0
     nanoid: 5.0.7
     nest-winston: 1.9.4
+    nock: ^13.5.4
     node-gyp: ^10.1.0
     nodemailer: ^6.9.13
     otplib: ^12.0.1
@@ -7849,6 +7850,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"json-stringify-safe@npm:^5.0.1":
+  version: 5.0.1
+  resolution: "json-stringify-safe@npm:5.0.1"
+  checksum: 48ec0adad5280b8a96bb93f4563aa1667fd7a36334f79149abd42446d0989f2ddc58274b479f4819f1f00617957e6344c886c55d05a4e15ebb4ab931e4a6a8ee
+  languageName: node
+  linkType: hard
+
 "json2csv@npm:^5.0.7":
   version: 5.0.7
   resolution: "json2csv@npm:5.0.7"
@@ -8863,6 +8871,17 @@ __metadata:
     just-extend: ^4.0.2
     path-to-regexp: ^1.7.0
   checksum: c763dc62c5796cafa5c9268e14a5b34db6e6fa2f1dbc57a891fe5d7ea632a87868e22b5bb34965006f984630793ea11368351e94971163228d9e20b2e88edce8
+  languageName: node
+  linkType: hard
+
+"nock@npm:^13.5.4":
+  version: 13.5.4
+  resolution: "nock@npm:13.5.4"
+  dependencies:
+    debug: ^4.1.0
+    json-stringify-safe: ^5.0.1
+    propagate: ^2.0.0
+  checksum: d31f924e34c87ae985edfb7b5a56e8a4dcfc3a072334ceb6d686326581f93090b3e23492663a64ce61b8df4f365b113231d926bc300bcfe9e5eb309c3e4b8628
   languageName: node
   linkType: hard
 
@@ -9931,6 +9950,13 @@ __metadata:
     kleur: ^3.0.3
     sisteransi: ^1.0.5
   checksum: d8fd1fe63820be2412c13bfc5d0a01909acc1f0367e32396962e737cb2fc52d004f3302475d5ce7d18a1e8a79985f93ff04ee03007d091029c3f9104bffc007d
+  languageName: node
+  linkType: hard
+
+"propagate@npm:^2.0.0":
+  version: 2.0.1
+  resolution: "propagate@npm:2.0.1"
+  checksum: c4febaee2be0979e82fb6b3727878fd122a98d64a7fa3c9d09b0576751b88514a9e9275b1b92e76b364d488f508e223bd7e1dcdc616be4cdda876072fbc2a96c
   languageName: node
   linkType: hard
 
