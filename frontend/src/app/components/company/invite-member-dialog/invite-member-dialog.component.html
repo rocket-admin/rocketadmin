@@ -17,6 +17,21 @@
                 <mat-option value="USER">Member</mat-option>
             </mat-select>
         </mat-form-field>
+
+        <mat-form-field appearance="outline" class="add-member-input">
+            <mat-label>Group</mat-label>
+            <mat-select name="connectionGroup" #connectionGroup="ngModel"
+                [(ngModel)]="companyUsersGroup">
+                <mat-option>-- None --</mat-option>
+                <mat-optgroup *ngFor="let connection of groups"
+                    [label]="connection.title">
+                    <mat-option *ngFor="let group of connection.groups"
+                        [value]="group.id">
+                        {{group.title}}
+                    </mat-option>
+                </mat-optgroup>
+            </mat-select>
+        </mat-form-field>
     </mat-dialog-content>
     <mat-dialog-actions align="end">
         <button type="button" mat-flat-button mat-dialog-close>Cancel</button>

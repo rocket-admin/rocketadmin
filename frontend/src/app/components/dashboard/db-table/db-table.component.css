@@ -222,14 +222,13 @@ th.mat-header-cell, td.mat-cell {
     position: absolute;
     right: 0;
     top: 50%;
+    display: none;
     transform: translate(0, -50%) scale(0.85);
     background-color: var(--color-primaryPalette-50);
-    opacity: 0;
-    transition: opacity 400ms;
 }
 
-.field-value:hover .field-value-copy-button {
-    opacity: 1;
+.table-cell:hover .field-value-copy-button {
+    display: initial;
 }
 
 tr.mat-row:hover {
