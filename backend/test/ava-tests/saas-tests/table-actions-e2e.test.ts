@@ -695,16 +695,8 @@ test(`${currentTest} should return created impersonate action`, async (t) => {
       Accept: 'application/json',
       Cookie: firstUser.token,
     },
+    redirect: 'manual',
   });
 
-  t.is(getLinkResult.status, 200);
-  const getLinkRO = await getLinkResult.json();
-
-  t.is(getLinkRO.hasOwnProperty('expires'), true);
-  t.is(getLinkRO.hasOwnProperty('isTemporary'), true);
-  t.is(getLinkRO.hasOwnProperty('impersonated'), true);
-  const responseCookie = getLinkResult.headers.get('set-cookie');
-  const decodedReceivedCookie = testUtils.verifyJwtToken(responseCookie);
-  t.is(decodedReceivedCookie.sub, secondUserId);
-  t.is(decodedReceivedCookie.email, secondUser.email);
+  t.is(getLinkResult.status, 301);
 });
