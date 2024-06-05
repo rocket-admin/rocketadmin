@@ -183,7 +183,7 @@
 
             <ng-container [matColumnDef]="column" *ngFor="let column of tableData.displayedDataColumns">
                 <mat-header-cell *matHeaderCellDef mat-sort-header [disabled]="!isSortable(column)"> {{ tableData.dataNormalizedColumns[column] }} </mat-header-cell>
-                <mat-cell *matCellDef="let element; let i = index" data-hj-suppress>
+                <mat-cell *matCellDef="let element; let i = index" class="table-cell" data-hj-suppress>
                     <div class="table-cell-content">
                         <span *ngIf="isForeignKey(column); else contentCell" class="field-value">
                             <a routerLink="/dashboard/{{connectionID}}/{{tableData.foreignKeys[column].referenced_table_name}}/entry"
