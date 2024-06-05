@@ -13,6 +13,11 @@ export class InviteMemberDialogComponent {
   public companyMemberEmail: string;
   public companyMemberRole: CompanyMemberRole = CompanyMemberRole.Member;
   public submitting: boolean = false;
+  public companyUsersGroup: string = null;
+  public groups: {
+    title: string,
+    groups: object[]
+  }[] = [];
 
   constructor(
     @Inject(MAT_DIALOG_DATA) public company: any,
@@ -22,12 +27,12 @@ export class InviteMemberDialogComponent {
   ) { }
 
   ngOnInit(): void {
-    this._company.cast.subscribe();
+    this.groups = this.company.connections;
   }
 
   addCompanyMember() {
     this.submitting = true;
-    this._company.inviteCompanyMember(this.company.id, null, this.companyMemberEmail, this.companyMemberRole)
+    this._company.inviteCompanyMember(this.company.id, this.companyUsersGroup, this.companyMemberEmail, this.companyMemberRole)
     .subscribe(() => {
       this.angulartics2.eventTrack.next({
         action: 'Company: member is invited successfully',

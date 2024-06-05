@@ -116,7 +116,7 @@ export class CompanyComponent {
   handleAddMemberDialogOpen() {
     this.dialog.open(InviteMemberDialogComponent, {
       width: '25em',
-      data: {id: this.company.id, name: this.company.name}
+      data: this.company
     });
   }
 
