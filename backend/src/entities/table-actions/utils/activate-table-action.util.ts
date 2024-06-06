@@ -5,28 +5,36 @@ import { TableActionEntity } from '../table-action.entity.js';
 import axios from 'axios';
 import { OperationResultStatusEnum } from '../../../enums/operation-result-status.enum.js';
 import { HttpException } from '@nestjs/common';
-import { PrimaryKeyDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/primary-key.ds.js';
 import PQueue from 'p-queue';
 
 export async function activateTableAction(
   tableAction: TableActionEntity,
   foundConnection: ConnectionEntity,
-  request_body: Record<string, unknown>,
+  request_body: Array<Record<string, unknown>>,
   userId: string,
   tableName: string,
 ): Promise<{
   location?: string;
   receivedOperationResult: OperationResultStatusEnum;
-  receivedPrimaryKeysObj: Record<string, unknown>;
+  receivedPrimaryKeysObj: Array<Record<string, unknown>>;
 }> {
   let operationResult = OperationResultStatusEnum.unknown;
   const dataAccessObject = getDataAccessObject(foundConnection);
   const tablePrimaryKeys = await dataAccessObject.getTablePrimaryColumns(tableName, null);
-  const primaryKeysObj = getPrimaryKeysFromBody(request_body, tablePrimaryKeys);
+  const primaryKeyValuesArray: Array<Record<string, unknown>> = [];
+  for (const primaryKeyInBody of request_body) {
+    for (const primaryKey of tablePrimaryKeys) {
+      const pKeysObj: Record<string, unknown> = {};
+      if (primaryKeyInBody.hasOwnProperty(primaryKey.column_name) && primaryKeyInBody[primaryKey.column_name]) {
+        pKeysObj[primaryKey.column_name] = primaryKeyInBody[primaryKey.column_name];
+        primaryKeyValuesArray.push(pKeysObj);
+      }
+    }
+  }
   const dateString = new Date().toISOString();
   const actionRequestBody = JSON.stringify({
     $$_raUserId: userId,
-    primaryKeys: primaryKeysObj,
+    primaryKeys: primaryKeyValuesArray,
     $$_date: dateString,
     $$_actionId: tableAction.id,
     $$_tableName: tableName,
@@ -44,7 +52,7 @@ export async function activateTableAction(
     operationResult = OperationResultStatusEnum.successfully;
     return {
       receivedOperationResult: operationResult,
-      receivedPrimaryKeysObj: primaryKeysObj,
+      receivedPrimaryKeysObj: primaryKeyValuesArray,
     };
   }
   if (operationStatusCode >= 300 && operationStatusCode < 400) {
@@ -52,7 +60,7 @@ export async function activateTableAction(
     return {
       receivedOperationResult: operationResult,
       location: result?.headers?.location,
-      receivedPrimaryKeysObj: primaryKeysObj,
+      receivedPrimaryKeysObj: primaryKeyValuesArray,
     };
   }
   if (operationStatusCode >= 400 && operationStatusCode <= 599) {
@@ -65,21 +73,8 @@ export async function activateTableAction(
   }
   return {
     receivedOperationResult: operationResult,
-    receivedPrimaryKeysObj: primaryKeysObj,
+    receivedPrimaryKeysObj: primaryKeyValuesArray,
   };
-}
-
-function getPrimaryKeysFromBody(
-  body: Record<string, unknown>,
-  primaryKeys: Array<PrimaryKeyDS>,
-): Record<string, unknown> {
-  const pKeysObj: Record<string, unknown> = {};
-  for (const keyItem of primaryKeys) {
-    if (body.hasOwnProperty(keyItem.column_name) && body[keyItem.column_name]) {
-      pKeysObj[keyItem.column_name] = body[keyItem.column_name];
-    }
-  }
-  return pKeysObj;
 }
 
 export async function activateTableActions(
@@ -97,7 +92,7 @@ export async function activateTableActions(
     await Promise.all(
       tableActions.map((tableAction) =>
         queue
-          .add(() => activateTableAction(tableAction, connection, request_body, userId, tableName))
+          .add(() => activateTableAction(tableAction, connection, [request_body], userId, tableName))
           .catch((error) => {
             console.error('Error in activateTableActions', error);
           }),
