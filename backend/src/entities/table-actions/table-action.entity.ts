@@ -1,8 +1,19 @@
-import { Column, Entity, ManyToMany, ManyToOne, PrimaryGeneratedColumn, Relation } from 'typeorm';
+import {
+  AfterLoad,
+  BeforeInsert,
+  BeforeUpdate,
+  Column,
+  Entity,
+  ManyToMany,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+  Relation,
+} from 'typeorm';
 import { TableActionTypeEnum } from '../../enums/index.js';
 import { TableSettingsEntity } from '../table-settings/table-settings.entity.js';
 import { TableTriggersEntity } from '../table-triggers/table-triggers.entity.js';
 import { TableActionMethodEnum } from '../../enums/table-action-method-enum.js';
+import { Encryptor } from '../../helpers/encryption/encryptor.js';
 
 @Entity('table_actions')
 export class TableActionEntity {
@@ -50,4 +61,35 @@ export class TableActionEntity {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   @ManyToMany((type) => TableTriggersEntity, (triggers) => triggers.table_actions)
   table_triggers: Relation<TableTriggersEntity>[];
+
+  @BeforeInsert()
+  encryptEmailsAndTokens(): void {
+    if (this.emails && Array.isArray(this.emails) && this.emails.length > 0) {
+      this.emails = this.emails.map((email) => Encryptor.encryptData(email));
+    }
+    if (this.slack_bot_token) {
+      this.slack_bot_token = Encryptor.encryptData(this.slack_bot_token);
+    }
+    if (this.slack_channel) {
+      this.slack_channel = Encryptor.encryptData(this.slack_channel);
+    }
+  }
+
+  @BeforeUpdate()
+   encryptEmailsAndTokensBeforeUpdate(): void {
+    this.encryptEmailsAndTokens();
+  }
+
+  @AfterLoad()
+  decryptEmailsAndTokens(): void {
+    if (this.emails && Array.isArray(this.emails) && this.emails.length > 0) {
+      this.emails = this.emails.map((email) => Encryptor.decryptData(email));
+    }
+    if (this.slack_bot_token) {
+      this.slack_bot_token = Encryptor.decryptData(this.slack_bot_token);
+    }
+    if (this.slack_channel) {
+      this.slack_channel = Encryptor.decryptData(this.slack_channel);
+    }
+  }
 }
