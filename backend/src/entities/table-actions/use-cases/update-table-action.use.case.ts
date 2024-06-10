@@ -38,6 +38,7 @@ export class UpdateTableActionUseCase
     }
     const updated = Object.assign(foundTableActionEntity, updatingTableAction);
     const savedAction = await this._dbContext.tableActionRepository.saveNewOrUpdatedTableAction(updated);
-    return buildCreatedTableActionDS(savedAction);
+    const foundUpdatedAction = await this._dbContext.tableActionRepository.findTableActionById(savedAction.id);
+    return buildCreatedTableActionDS(foundUpdatedAction);
   }
 }

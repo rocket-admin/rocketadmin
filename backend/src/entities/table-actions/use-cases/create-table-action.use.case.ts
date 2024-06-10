@@ -46,6 +46,7 @@ export class CreateTableActionUseCase
     const savedTableAction = await this._dbContext.tableActionRepository.saveNewOrUpdatedTableAction(newTableAction);
     tableSettingToUpdate.table_actions.push(savedTableAction);
     await this._dbContext.tableSettingsRepository.saveNewOrUpdatedSettings(tableSettingToUpdate);
-    return buildCreatedTableActionDS(savedTableAction);
+    const foundTableAction = await this._dbContext.tableActionRepository.findTableActionById(savedTableAction.id);
+    return buildCreatedTableActionDS(foundTableAction);
   }
 }

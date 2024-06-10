@@ -9,5 +9,9 @@ export function buildNewTableActionEntity(actionData: CreateTableActionDTO | Upd
   newTableAction.url = actionData.url;
   newTableAction.icon = actionData.icon;
   newTableAction.require_confirmation = actionData.requireConfirmation;
+  newTableAction.slack_bot_token = actionData.slackBotToken;
+  newTableAction.slack_channel = actionData.slackChannel;
+  newTableAction.method = actionData.method;
+  newTableAction.emails = actionData.emails;
   return newTableAction;
 }

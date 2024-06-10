@@ -1,4 +1,5 @@
 import { TableActionTypeEnum } from '../../../../enums/index.js';
+import { TableActionMethodEnum } from '../../../../enums/table-action-method-enum.js';
 
 export class UpdateTableActionDS {
   actionId: string;
@@ -7,4 +8,8 @@ export class UpdateTableActionDS {
   url: string;
   icon: string;
   requireConfirmation: boolean;
+  method: TableActionMethodEnum;
+  slackChannel: string;
+  slackBotToken: string;
+  emails: string[];
 }

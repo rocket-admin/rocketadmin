@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -38,6 +39,7 @@ import {
 import { FoundTableActionsDS } from './application/data-sctructures/found-table-actions.ds.js';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CreateTableActionDTO } from './dto/create-table-action.dto.js';
+import { TableActionMethodEnum } from '../../enums/table-action-method-enum.js';
 
 @UseInterceptors(SentryInterceptor)
 @Controller()
@@ -119,7 +121,8 @@ export class TableActionsController {
     @QueryTableName() tableName: string,
     @Body() tableActionData: CreateTableActionDTO,
   ): Promise<CreatedTableActionDS> {
-    const { title, url, icon, type, requireConfirmation } = tableActionData;
+    const { title, url, icon, type, requireConfirmation, slackChannel, emails, method, slackBotToken } =
+      tableActionData;
     const inputData: CreateTableActionDS = {
       connectionId: connectionId,
       masterPwd: masterPwd,
@@ -130,6 +133,10 @@ export class TableActionsController {
       type: type,
       icon: icon,
       requireConfirmation: requireConfirmation,
+      emails: emails,
+      method: method || TableActionMethodEnum.HTTP,
+      slackChannel: slackChannel,
+      slackBotToken: slackBotToken,
     };
     this.validateTableAction(inputData);
     return await this.createTableActionUseCase.execute(inputData, InTransactionEnum.OFF);
@@ -148,7 +155,8 @@ export class TableActionsController {
     @Query('actionId') actionId: string,
     @Body() tableActionData: CreateTableActionDTO,
   ): Promise<CreatedTableActionDS> {
-    const { title, url, icon, type, requireConfirmation } = tableActionData;
+    const { title, url, icon, type, requireConfirmation, emails, method, slackBotToken, slackChannel } =
+      tableActionData;
     const inputData: UpdateTableActionDS = {
       actionId: actionId,
       title: title,
@@ -156,6 +164,10 @@ export class TableActionsController {
       type: type,
       icon: icon,
       requireConfirmation: requireConfirmation,
+      emails: emails,
+      method: method || TableActionMethodEnum.HTTP,
+      slackBotToken: slackBotToken,
+      slackChannel: slackChannel,
     };
     this.validateTableAction(inputData);
     return await this.updateTableActionUseCase.execute(inputData, InTransactionEnum.OFF);
@@ -203,17 +215,29 @@ export class TableActionsController {
   }
 
   private validateTableAction(tableAction: CreateTableActionDS | UpdateTableActionDS): void {
-    const result = validateStringWithEnum(tableAction.type, TableActionTypeEnum);
+    const { url, type, emails, method, slackBotToken, slackChannel } = tableAction;
+
+    const result = validateStringWithEnum(type, TableActionTypeEnum);
     if (!result) {
-      throw new HttpException(
-        {
-          message: Messages.TABLE_ACTION_TYPE_INCORRECT,
-        },
-        HttpStatus.BAD_REQUEST,
-      );
+      throw new BadRequestException(Messages.TABLE_ACTION_TYPE_INCORRECT);
     }
-    if (!validator.isURL(tableAction.url) && process.env.NODE_ENV !== 'test') {
-      throw new HttpException({ message: Messages.URL_INVALID }, HttpStatus.BAD_REQUEST);
+
+    if (method === TableActionMethodEnum.SLACK) {
+      if (!slackBotToken || !slackChannel) {
+        throw new BadRequestException(Messages.SLACK_CREDENTIALS_MISSING);
+      }
+    }
+
+    if (method === TableActionMethodEnum.EMAIL) {
+      if (!emails || emails.length === 0) {
+        throw new BadRequestException(Messages.TABLE_TRIGGERS_EMAILS_REQUIRED);
+      }
+    }
+
+    if (method === TableActionMethodEnum.HTTP) {
+      if (!validator.isURL(url) && process.env.NODE_ENV !== 'test') {
+        throw new BadRequestException(Messages.URL_INVALID);
+      }
     }
   }
 }

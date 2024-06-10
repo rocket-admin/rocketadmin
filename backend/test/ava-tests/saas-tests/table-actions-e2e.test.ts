@@ -20,12 +20,15 @@ import { ValidationException } from '../../../src/exceptions/custom-exceptions/v
 import { ValidationError } from 'class-validator';
 import { CreateConnectionDto } from '../../../src/entities/connection/application/dto/create-connection.dto.js';
 import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/enums/connection-types-enum.js';
+import { TableActionTypeEnum } from '../../../src/enums/table-action-type.enum.js';
+import { TableActionMethodEnum } from '../../../src/enums/table-action-method-enum.js';
+import { CreateTableActionDTO } from '../../../src/entities/table-actions/dto/create-table-action.dto.js';
 
 const mockFactory = new MockFactory();
 let app: INestApplication;
 let testUtils: TestUtils;
 let newConnection;
-let newTableAction: TableActionEntity;
+let newTableAction: CreateTableActionDTO;
 let currentTest;
 const testTableName = 'users';
 const testTableColumnName = 'name';
@@ -52,7 +55,7 @@ test.before(async () => {
   );
   await app.init();
   app.getHttpServer().listen(0);
-  newTableAction = mockFactory.generateNewTableAction();
+  newTableAction = mockFactory.generateNewTableAction() as any;
   newConnection = mockFactory.generateConnectionToTestPostgresDBInDocker();
   await resetPostgresTestDB();
 });
@@ -133,6 +136,47 @@ test(`${currentTest} should return created table action`, async (t) => {
   t.is(createTableActionRO.title, newTableAction.title);
   t.is(createTableActionRO.type, newTableAction.type);
   t.is(createTableActionRO.url, newTableAction.url);
+  t.is(createTableActionRO.hasOwnProperty('id'), true);
+});
+
+test(`${currentTest} should return created slack table action`, async (t) => {
+  const { token } = await registerUserAndReturnUserInfo(app);
+  const createConnectionResult = await request(app.getHttpServer())
+    .post('/connection')
+    .send(newConnection)
+    .set('Cookie', token)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+
+  const createConnectionRO = JSON.parse(createConnectionResult.text);
+  t.is(createConnectionResult.status, 201);
+
+  const tableActionCopy = {
+    ...newTableAction,
+  };
+
+  tableActionCopy.type = TableActionTypeEnum.multiple;
+  tableActionCopy.method = TableActionMethodEnum.SLACK;
+  tableActionCopy.slackChannel = faker.word.words(1);
+  tableActionCopy.slackBotToken = faker.string.uuid();
+
+  const createTableActionResult = await request(app.getHttpServer())
+    .post(`/table/action/${createConnectionRO.id}?tableName=${testTableName}`)
+    .send(tableActionCopy)
+    .set('Cookie', token)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+
+  const createTableActionRO = JSON.parse(createTableActionResult.text);
+  console.log('🚀 ~ test ~ createTableActionRO:', createTableActionRO)
+  t.is(createTableActionResult.status, 201);
+  t.is(typeof createTableActionRO, 'object');
+  t.is(createTableActionRO.title, tableActionCopy.title);
+  t.is(createTableActionRO.type, tableActionCopy.type);
+  t.is(createTableActionRO.url, tableActionCopy.url);
+  t.is(createTableActionRO.slackChannel, tableActionCopy.slackChannel);
+  t.is(createTableActionRO.slackBotToken, tableActionCopy.slackBotToken);
+  t.is(createTableActionRO.method, tableActionCopy.method);
   t.is(createTableActionRO.hasOwnProperty('id'), true);
 });
 
@@ -283,11 +327,12 @@ test(`${currentTest} should return updated table action`, async (t) => {
   const createTableActionRO = JSON.parse(createTableActionResult.text);
   t.is(createTableActionResult.status, 201);
 
-  const updatedTableAction = {
+  const updatedTableAction: any = {
     ...newTableAction,
   };
   updatedTableAction.title = faker.lorem.words(2);
   updatedTableAction.url = faker.internet.url();
+
   delete updatedTableAction.id;
 
   const updateTableActionResult = await request(app.getHttpServer())
