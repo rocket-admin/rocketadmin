@@ -21,6 +21,7 @@ export function buildFoundCompanyFullInfoDs(
       createdAt: connection.createdAt,
       updatedAt: connection.updatedAt,
       title: connection.title,
+      isTestConnection: connection.isTestConnection,
       author: buildSimpleUserInfoDs(connection.author),
       groups: connection.groups.map((group) => {
         return {

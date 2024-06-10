@@ -122,6 +122,9 @@ export class FoundSipleConnectionInfoDS {
   @ApiProperty({ enum: ConnectionTypesEnum })
   type?: ConnectionTypesEnum | string;
 
+  @ApiProperty()
+  isTestConnection: boolean;
+
   @ApiProperty({ required: false })
   author: SimpleFoundUserInfoDs;
 
