@@ -113,7 +113,7 @@ test(`${currentTest} should return full found company info for company admin use
     t.is(foundCompanyInfoRO.connections.length > 3, true);
     t.is(foundCompanyInfoRO.hasOwnProperty('invitations'), true);
     t.is(foundCompanyInfoRO.invitations.length, 0);
-    t.is(Object.keys(foundCompanyInfoRO.connections[0]).length, 6);
+    t.is(Object.keys(foundCompanyInfoRO.connections[0]).length, 7);
     t.is(foundCompanyInfoRO.connections[0].hasOwnProperty('id'), true);
     t.is(foundCompanyInfoRO.connections[0].hasOwnProperty('title'), true);
     t.is(foundCompanyInfoRO.connections[0].hasOwnProperty('createdAt'), true);
