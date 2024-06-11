@@ -15,6 +15,6 @@ export async function actionSlackPostMessage(message: string, channel: string, s
       { headers: { authorization: `Bearer ${slackBotToken}` } },
     );
   } catch (error) {
-    return;
+    throw error;
   }
 }

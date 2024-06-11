@@ -31,6 +31,7 @@ import { ExceptionOperations } from '../../../exceptions/custom-exceptions/excep
 import { ReferencedTableNamesAndColumnsDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/referenced-table-names-columns.ds.js';
 import JSON5 from 'json5';
 import { activateTableActions } from '../../table-actions/utils/activate-table-action.util.js';
+import { TableTriggerEventEnum } from '../../../enums/table-trigger-event-enum.js';
 
 @Injectable()
 export class UpdateRowInTableUseCase
@@ -290,7 +291,14 @@ export class UpdateRowInTableUseCase
       );
       const foundAddTableActions =
         await this._dbContext.tableTriggersRepository.findTableActionsFromTriggersOnUpdateRow(connectionId, tableName);
-      await activateTableActions(foundAddTableActions, connection, primaryKey, userId, tableName);
+      await activateTableActions(
+        foundAddTableActions,
+        connection,
+        primaryKey,
+        userId,
+        tableName,
+        TableTriggerEventEnum.UPDATE_ROW,
+      );
     }
   }
 

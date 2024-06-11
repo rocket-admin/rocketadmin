@@ -58,6 +58,7 @@ export class ActivateTableActionsUseCase
         request_body,
         userId,
         tableName,
+        null,
       );
       operationResult = receivedOperationResult;
       primaryKeyValuesArray = receivedPrimaryKeysObj;
