@@ -1,16 +1,14 @@
 import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
-import axios from 'axios';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
-import { getDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/create-data-access-object.js';
 import { LogOperationTypeEnum, OperationResultStatusEnum } from '../../../enums/index.js';
 import { Messages } from '../../../exceptions/text/messages.js';
-import { Encryptor } from '../../../helpers/encryption/encryptor.js';
 import { TableLogsService } from '../../table-logs/table-logs.service.js';
 import { ActivateTableActionsDS } from '../application/data-sctructures/activate-table-actions.ds.js';
 import { ActivatedTableActionsDS } from '../application/data-sctructures/activated-table-action.ds.js';
 import { IActivateTableActions } from './table-actions-use-cases.interface.js';
+import { activateTableAction } from '../utils/activate-table-action.util.js';
 
 @Injectable()
 export class ActivateTableActionsUseCase
@@ -52,65 +50,21 @@ export class ActivateTableActionsUseCase
       masterPwd,
     );
 
-    const dataAccessObject = getDataAccessObject(foundConnection);
-    const tablePrimaryKeys = await dataAccessObject.getTablePrimaryColumns(tableName, null);
-    const primaryKeyValuesArray: Array<Record<string, unknown>> = [];
-    for (const primaryKeyInBody of request_body) {
-      for (const primaryKey of tablePrimaryKeys) {
-        const pKeysObj: Record<string, unknown> = {};
-        if (primaryKeyInBody.hasOwnProperty(primaryKey.column_name) && primaryKeyInBody[primaryKey.column_name]) {
-          pKeysObj[primaryKey.column_name] = primaryKeyInBody[primaryKey.column_name];
-          primaryKeyValuesArray.push(pKeysObj);
-        }
-      }
-    }
-
-    const dateString = new Date().toISOString();
-
-    const requestBody = {
-      $$_raUserId: userId,
-      primaryKeys: primaryKeyValuesArray,
-      $$_date: dateString,
-      $$_actionId: actionId,
-      $$_tableName: tableName,
-    };
-
-    const bodyString = JSON.stringify(requestBody);
-
-    const rocketadminSignatureHeader = Encryptor.hashDataHMACexternalKey(foundConnection.signing_key, bodyString);
-
+    let primaryKeyValuesArray = [];
     try {
-      const result = await axios.post(foundTableAction.url, bodyString, {
-        headers: {
-          'Rocketadmin-Signature': rocketadminSignatureHeader,
-          'Content-Type': 'application/json',
-        },
-        validateStatus: function (status) {
-          return status <= 599;
-        },
-        maxRedirects: 0,
-      });
-
-
-      const operationStatusCode = result.status;
-      if (operationStatusCode >= 200 && operationStatusCode < 300) {
-        operationResult = OperationResultStatusEnum.successfully;
-        return result.data;
+      const { receivedOperationResult, receivedPrimaryKeysObj, location } = await activateTableAction(
+        foundTableAction,
+        foundConnection,
+        request_body,
+        userId,
+        tableName,
+      );
+      operationResult = receivedOperationResult;
+      primaryKeyValuesArray = receivedPrimaryKeysObj;
+      if (location) {
+        return { location };
       }
-      if (operationStatusCode >= 300 && operationStatusCode < 400) {
-        operationResult = OperationResultStatusEnum.successfully;
-        return { location: result.headers?.location } as unknown as ActivatedTableActionsDS;
-      }
-      if (operationStatusCode >= 400 && operationStatusCode <= 599) {
-        operationResult = OperationResultStatusEnum.unsuccessfully;
-        throw new HttpException(
-          {
-            message: result.data,
-          },
-          operationStatusCode,
-        );
-      }
-      return;
+      return operationResult;
     } catch (e) {
       operationResult = OperationResultStatusEnum.unsuccessfully;
       throw new HttpException(

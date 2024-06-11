@@ -6,8 +6,30 @@ import axios from 'axios';
 import { OperationResultStatusEnum } from '../../../enums/operation-result-status.enum.js';
 import { HttpException } from '@nestjs/common';
 import PQueue from 'p-queue';
+import { TableActionMethodEnum } from '../../../enums/table-action-method-enum.js';
+
+export type ActionActivationResult = {
+  location?: string;
+  receivedOperationResult: OperationResultStatusEnum;
+  receivedPrimaryKeysObj: Array<Record<string, unknown>>;
+};
 
 export async function activateTableAction(
+  tableAction: TableActionEntity,
+  foundConnection: ConnectionEntity,
+  request_body: Array<Record<string, unknown>>,
+  userId: string,
+  tableName: string,
+): Promise<ActionActivationResult> {
+  switch (tableAction.method) {
+    case TableActionMethodEnum.HTTP:
+      return activateHttpTableAction(tableAction, foundConnection, request_body, userId, tableName);
+    default:
+      throw new Error(`Method ${tableAction.method} is not supported`);
+  }
+}
+
+async function activateHttpTableAction(
   tableAction: TableActionEntity,
   foundConnection: ConnectionEntity,
   request_body: Array<Record<string, unknown>>,

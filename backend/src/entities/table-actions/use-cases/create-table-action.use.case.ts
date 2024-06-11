@@ -41,7 +41,6 @@ export class CreateTableActionUseCase
       const newTableSettings = buildNewTableSettingsEntity(emptyTableSettingsDs, foundConnection);
       tableSettingToUpdate = await this._dbContext.tableSettingsRepository.saveNewOrUpdatedSettings(newTableSettings);
     }
-
     const newTableAction = buildNewTableActionEntity(inputData);
     const savedTableAction = await this._dbContext.tableActionRepository.saveNewOrUpdatedTableAction(newTableAction);
     tableSettingToUpdate.table_actions.push(savedTableAction);

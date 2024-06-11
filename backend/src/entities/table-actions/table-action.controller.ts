@@ -235,7 +235,7 @@ export class TableActionsController {
     }
 
     if (method === TableActionMethodEnum.HTTP) {
-      if (!validator.isURL(url) && process.env.NODE_ENV !== 'test') {
+      if ((!validator.isURL(url) && process.env.NODE_ENV !== 'test') || !url) {
         throw new BadRequestException(Messages.URL_INVALID);
       }
     }

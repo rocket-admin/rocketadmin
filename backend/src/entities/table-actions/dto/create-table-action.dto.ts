@@ -15,6 +15,8 @@ export class CreateTableActionDTO {
   type: TableActionTypeEnum;
 
   @ApiProperty()
+  @IsOptional()
+  @IsString()
   url: string;
 
   @ApiProperty()
