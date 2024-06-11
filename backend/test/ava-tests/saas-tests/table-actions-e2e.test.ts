@@ -168,7 +168,6 @@ test(`${currentTest} should return created slack table action`, async (t) => {
     .set('Accept', 'application/json');
 
   const createTableActionRO = JSON.parse(createTableActionResult.text);
-  console.log('🚀 ~ test ~ createTableActionRO:', createTableActionRO)
   t.is(createTableActionResult.status, 201);
   t.is(typeof createTableActionRO, 'object');
   t.is(createTableActionRO.title, tableActionCopy.title);
@@ -178,6 +177,81 @@ test(`${currentTest} should return created slack table action`, async (t) => {
   t.is(createTableActionRO.slackBotToken, tableActionCopy.slackBotToken);
   t.is(createTableActionRO.method, tableActionCopy.method);
   t.is(createTableActionRO.hasOwnProperty('id'), true);
+});
+
+test(`${currentTest} should return created email table action`, async (t) => {
+  const { token, email } = await registerUserAndReturnUserInfo(app);
+  const createConnectionResult = await request(app.getHttpServer())
+    .post('/connection')
+    .send(newConnection)
+    .set('Cookie', token)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+
+  const createConnectionRO = JSON.parse(createConnectionResult.text);
+  t.is(createConnectionResult.status, 201);
+
+  const tableActionCopy = {
+    ...newTableAction,
+  };
+  delete tableActionCopy.url;
+
+  tableActionCopy.type = TableActionTypeEnum.multiple;
+  tableActionCopy.method = TableActionMethodEnum.EMAIL;
+  tableActionCopy.emails = [email];
+
+  const createTableActionResult = await request(app.getHttpServer())
+    .post(`/table/action/${createConnectionRO.id}?tableName=${testTableName}`)
+    .send(tableActionCopy)
+    .set('Cookie', token)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+
+  const createTableActionRO = JSON.parse(createTableActionResult.text);
+  t.is(createTableActionResult.status, 201);
+  t.is(typeof createTableActionRO, 'object');
+  t.is(createTableActionRO.title, tableActionCopy.title);
+  t.is(createTableActionRO.type, tableActionCopy.type);
+  t.is(JSON.stringify(createTableActionRO.emails), JSON.stringify(tableActionCopy.emails));
+  t.is(createTableActionRO.method, tableActionCopy.method);
+  t.is(createTableActionRO.hasOwnProperty('id'), true);
+});
+
+test(`${currentTest} should return throw an exception when emails are not from users company`, async (t) => {
+  const { token, email } = await registerUserAndReturnUserInfo(app);
+  const createConnectionResult = await request(app.getHttpServer())
+    .post('/connection')
+    .send(newConnection)
+    .set('Cookie', token)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+
+  const createConnectionRO = JSON.parse(createConnectionResult.text);
+  t.is(createConnectionResult.status, 201);
+
+  const tableActionCopy = {
+    ...newTableAction,
+  };
+  delete tableActionCopy.url;
+
+  tableActionCopy.type = TableActionTypeEnum.multiple;
+  tableActionCopy.method = TableActionMethodEnum.EMAIL;
+  const randomEmails = [faker.internet.email(), faker.internet.email(), faker.internet.email()];
+  tableActionCopy.emails = randomEmails;
+
+  const createTableActionResult = await request(app.getHttpServer())
+    .post(`/table/action/${createConnectionRO.id}?tableName=${testTableName}`)
+    .send(tableActionCopy)
+    .set('Cookie', token)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+
+  const createTableActionRO = JSON.parse(createTableActionResult.text);
+  t.is(createTableActionResult.status, 400);
+
+  randomEmails.forEach((email) => {
+    t.is(createTableActionRO.message.includes(email), true);
+  });
 });
 
 test(`${currentTest} should throw exception when type is incorrect`, async (t) => {

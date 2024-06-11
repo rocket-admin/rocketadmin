@@ -154,6 +154,7 @@ export class TableActionsController {
   async updateAction(
     @Query('actionId') actionId: string,
     @Body() tableActionData: CreateTableActionDTO,
+    @UserId() userId: string,
   ): Promise<CreatedTableActionDS> {
     const { title, url, icon, type, requireConfirmation, emails, method, slackBotToken, slackChannel } =
       tableActionData;
@@ -168,6 +169,7 @@ export class TableActionsController {
       method: method || TableActionMethodEnum.HTTP,
       slackBotToken: slackBotToken,
       slackChannel: slackChannel,
+      userId: userId,
     };
     this.validateTableAction(inputData);
     return await this.updateTableActionUseCase.execute(inputData, InTransactionEnum.OFF);

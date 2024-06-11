@@ -87,6 +87,7 @@ export const Messages = {
     `Unsupported algorithm type${alg ? ` ${alg}.` : '.'} We supports only ${enumToString(
       EncryptionAlgorithmEnum,
     )} algorithms.`,
+  EMAILS_NOT_IN_COMPANY: (emails: Array<string>) => `Emails ${emails.join(', ')} are not in the company`,
   ERROR_MESSAGE: 'Error message: ',
   ERROR_MESSAGE_ORIGINAL: 'Error message from database: ',
   EXCLUDED_OR_NOT_EXISTS: (fieldName: string) =>
@@ -291,6 +292,7 @@ export const Messages = {
   USER_CREATED_CONNECTION: (email: string) => `User "${email}" created connection.`,
   USER_SUCCESSFULLY_TESTED_CONNECTION: (userEmail: string, connectionType: ConnectionTypesEnum) =>
     `User "${userEmail}" successfully tested the "${connectionType}" connection.`,
+  USERS_NOT_VERIFIED: (emails: Array<string>) => `Users ${emails.join(', ')} are not verified`,
   USERNAME_MISSING: 'Username is missing',
   USER_ACTION_INCORRECT: `User action message if incorrect. Supported actions are ${enumToString(UserActionEnum)}`,
   USER_NOT_ACTIVE: 'User is not active. Please confirm your email address.',

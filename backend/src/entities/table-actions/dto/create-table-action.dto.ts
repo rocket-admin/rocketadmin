@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { TableActionTypeEnum } from '../../../enums/index.js';
-import { IsArray, IsBoolean, IsEnum, IsOptional, IsString, Matches, MaxLength } from 'class-validator';
+import { IsArray, IsBoolean, IsEmail, IsEnum, IsOptional, IsString, MaxLength } from 'class-validator';
 import { TableActionMethodEnum } from '../../../enums/table-action-method-enum.js';
 
 export class CreateTableActionDTO {
@@ -43,7 +43,7 @@ export class CreateTableActionDTO {
   @IsOptional()
   @IsArray()
   @IsString({ each: true })
-  @Matches('/S+@S+.S+/', undefined, { each: true })
+  @IsEmail({}, { each: true })
   emails: string[];
 
   @ApiProperty()

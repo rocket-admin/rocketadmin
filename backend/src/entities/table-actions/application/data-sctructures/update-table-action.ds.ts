@@ -12,4 +12,5 @@ export class UpdateTableActionDS {
   slackChannel: string;
   slackBotToken: string;
   emails: string[];
+  userId: string;
 }
