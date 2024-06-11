@@ -28,6 +28,7 @@ import { IDataAccessObjectAgent } from '@rocketadmin/shared-code/dist/src/data-a
 import { ForeignKeyWithAutocompleteColumnsDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/foreign-key-with-autocomplete-columns.ds.js';
 import { ForeignKeyDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/foreign-key.ds.js';
 import { activateTableActions } from '../../table-actions/utils/activate-table-action.util.js';
+import { TableTriggerEventEnum } from '../../../enums/table-trigger-event-enum.js';
 
 @Injectable()
 export class AddRowInTableUseCase extends AbstractUseCase<AddRowInTableDs, TableRowRODs> implements IAddRowInTable {
@@ -240,7 +241,7 @@ export class AddRowInTableUseCase extends AbstractUseCase<AddRowInTableDs, Table
         tableName,
       );
 
-      await activateTableActions(foundAddTableActions, connection, addedRow, userId, tableName);
+      await activateTableActions(foundAddTableActions, connection, addedRow, userId, tableName, TableTriggerEventEnum.ADD_ROW);
     }
   }
 

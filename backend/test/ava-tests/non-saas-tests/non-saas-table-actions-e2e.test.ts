@@ -53,7 +53,7 @@ test.before(async () => {
   );
   await app.init();
   app.getHttpServer().listen(0);
-  newTableAction = mockFactory.generateNewTableAction();
+  newTableAction = mockFactory.generateNewTableAction() as any;
   newConnection = mockFactory.generateConnectionToTestPostgresDBInDocker();
   await resetPostgresTestDB();
 });

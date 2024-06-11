@@ -17,6 +17,7 @@ import { DeleteRowException } from '../../../exceptions/custom-exceptions/delete
 import { UnknownSQLException } from '../../../exceptions/custom-exceptions/unknown-sql-exception.js';
 import { ExceptionOperations } from '../../../exceptions/custom-exceptions/exception-operation.js';
 import { activateTableActions } from '../../table-actions/utils/activate-table-action.util.js';
+import { TableTriggerEventEnum } from '../../../enums/table-trigger-event-enum.js';
 
 @Injectable()
 export class DeleteRowFromTableUseCase
@@ -153,7 +154,7 @@ export class DeleteRowFromTableUseCase
 
       const foundAddTableActions =
         await this._dbContext.tableTriggersRepository.findTableActionsFromTriggersOnDeleteRow(connectionId, tableName);
-      await activateTableActions(foundAddTableActions, connection, primaryKey, userId, tableName);
+      await activateTableActions(foundAddTableActions, connection, primaryKey, userId, tableName, TableTriggerEventEnum.DELETE_ROW);
     }
   }
 }

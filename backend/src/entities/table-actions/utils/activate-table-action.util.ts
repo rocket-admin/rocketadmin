@@ -6,6 +6,19 @@ import axios from 'axios';
 import { OperationResultStatusEnum } from '../../../enums/operation-result-status.enum.js';
 import { HttpException } from '@nestjs/common';
 import PQueue from 'p-queue';
+import { TableActionMethodEnum } from '../../../enums/table-action-method-enum.js';
+import { TableTriggerEventEnum } from '../../../enums/table-trigger-event-enum.js';
+import { actionSlackPostMessage } from '../../../helpers/slack/action-slack-post-message.js';
+import { IMessage } from '../../email/email/email.interface.js';
+import { Constants } from '../../../helpers/constants/constants.js';
+import { getProcessVariable } from '../../../helpers/get-process-variable.js';
+import { sendEmailToUser } from '../../email/send-email.js';
+
+export type ActionActivationResult = {
+  location?: string;
+  receivedOperationResult: OperationResultStatusEnum;
+  receivedPrimaryKeysObj: Array<Record<string, unknown>>;
+};
 
 export async function activateTableAction(
   tableAction: TableActionEntity,
@@ -13,11 +26,147 @@ export async function activateTableAction(
   request_body: Array<Record<string, unknown>>,
   userId: string,
   tableName: string,
-): Promise<{
-  location?: string;
-  receivedOperationResult: OperationResultStatusEnum;
-  receivedPrimaryKeysObj: Array<Record<string, unknown>>;
-}> {
+  triggerOperation: TableTriggerEventEnum,
+): Promise<ActionActivationResult> {
+  switch (tableAction.method) {
+    case TableActionMethodEnum.HTTP:
+      return await activateHttpTableAction(tableAction, foundConnection, request_body, userId, tableName);
+    case TableActionMethodEnum.SLACK:
+      return await activateSlackTableAction(
+        tableAction,
+        foundConnection,
+        request_body,
+        userId,
+        tableName,
+        triggerOperation,
+      );
+    case TableActionMethodEnum.EMAIL:
+      return await activateEmailTableAction(
+        tableAction,
+        foundConnection,
+        request_body,
+        userId,
+        tableName,
+        triggerOperation,
+      );
+    default:
+      throw new Error(`Method ${tableAction.method} is not supported`);
+  }
+}
+
+async function activateSlackTableAction(
+  tableAction: TableActionEntity,
+  foundConnection: ConnectionEntity,
+  request_body: Array<Record<string, unknown>>,
+  userId: string,
+  tableName: string,
+  triggerOperation?: TableTriggerEventEnum,
+): Promise<ActionActivationResult> {
+  let operationResult = OperationResultStatusEnum.unknown;
+  const dataAccessObject = getDataAccessObject(foundConnection);
+  const tablePrimaryKeys = await dataAccessObject.getTablePrimaryColumns(tableName, null);
+  const primaryKeyValuesArray: Array<Record<string, unknown>> = [];
+  for (const primaryKeyInBody of request_body) {
+    for (const primaryKey of tablePrimaryKeys) {
+      const pKeysObj: Record<string, unknown> = {};
+      if (primaryKeyInBody.hasOwnProperty(primaryKey.column_name) && primaryKeyInBody[primaryKey.column_name]) {
+        pKeysObj[primaryKey.column_name] = primaryKeyInBody[primaryKey.column_name];
+        primaryKeyValuesArray.push(pKeysObj);
+      }
+    }
+  }
+  const slackMessage = `User with id "${userId}" ${
+    triggerOperation === TableTriggerEventEnum.ADD_ROW
+      ? 'added'
+      : triggerOperation === TableTriggerEventEnum.UPDATE_ROW
+        ? 'updated'
+        : triggerOperation === TableTriggerEventEnum.DELETE_ROW
+          ? 'deleted'
+          : 'performed an action on'
+  } a row in table "${tableName}" with primary keys: ${JSON.stringify(primaryKeyValuesArray)}`;
+
+  try {
+    await actionSlackPostMessage(slackMessage, tableAction.slack_channel, tableAction.slack_bot_token);
+    operationResult = OperationResultStatusEnum.successfully;
+  } catch (e) {
+    operationResult = OperationResultStatusEnum.unsuccessfully;
+  }
+  return {
+    receivedOperationResult: operationResult,
+    receivedPrimaryKeysObj: primaryKeyValuesArray,
+  };
+}
+
+async function activateEmailTableAction(
+  tableAction: TableActionEntity,
+  foundConnection: ConnectionEntity,
+  request_body: Array<Record<string, unknown>>,
+  userId: string,
+  tableName: string,
+  triggerOperation: TableTriggerEventEnum,
+): Promise<ActionActivationResult> {
+  let operationResult = OperationResultStatusEnum.unknown;
+  const dataAccessObject = getDataAccessObject(foundConnection);
+  const tablePrimaryKeys = await dataAccessObject.getTablePrimaryColumns(tableName, null);
+  const primaryKeyValuesArray: Array<Record<string, unknown>> = [];
+  for (const primaryKeyInBody of request_body) {
+    for (const primaryKey of tablePrimaryKeys) {
+      const pKeysObj: Record<string, unknown> = {};
+      if (primaryKeyInBody.hasOwnProperty(primaryKey.column_name) && primaryKeyInBody[primaryKey.column_name]) {
+        pKeysObj[primaryKey.column_name] = primaryKeyInBody[primaryKey.column_name];
+        primaryKeyValuesArray.push(pKeysObj);
+      }
+    }
+  }
+  const emailMessage = `User with id "${userId}" ${
+    triggerOperation === TableTriggerEventEnum.ADD_ROW
+      ? 'added'
+      : triggerOperation === TableTriggerEventEnum.UPDATE_ROW
+        ? 'updated'
+        : triggerOperation === TableTriggerEventEnum.DELETE_ROW
+          ? 'deleted'
+          : 'performed an action on'
+  } a row in table "${tableName}" with primary keys: ${JSON.stringify(primaryKeyValuesArray)}`;
+
+  const emailFrom = getProcessVariable('EMAIL_FROM') || Constants.AUTOADMIN_SUPPORT_MAIL;
+
+  const queue = new PQueue({ concurrency: 2 });
+  try {
+    await Promise.all(
+      tableAction.emails.map((email) =>
+        queue.add(() => {
+          const letterContent: IMessage = {
+            from: emailFrom,
+            to: email,
+            subject: 'Rocketadmin action notification',
+            text: emailMessage,
+            html: emailMessage,
+          };
+          return sendEmailToUser(letterContent);
+        }),
+      ),
+    );
+    operationResult = OperationResultStatusEnum.successfully;
+    return {
+      receivedOperationResult: operationResult,
+      receivedPrimaryKeysObj: primaryKeyValuesArray,
+    };
+  } catch (error) {
+    operationResult = OperationResultStatusEnum.unsuccessfully;
+    return {
+      receivedOperationResult: operationResult,
+      receivedPrimaryKeysObj: primaryKeyValuesArray,
+    };
+  }
+}
+
+async function activateHttpTableAction(
+  tableAction: TableActionEntity,
+  foundConnection: ConnectionEntity,
+  request_body: Array<Record<string, unknown>>,
+  userId: string,
+  tableName: string,
+): Promise<ActionActivationResult> {
   let operationResult = OperationResultStatusEnum.unknown;
   const dataAccessObject = getDataAccessObject(foundConnection);
   const tablePrimaryKeys = await dataAccessObject.getTablePrimaryColumns(tableName, null);
@@ -83,6 +232,7 @@ export async function activateTableActions(
   request_body: Record<string, unknown>,
   userId: string,
   tableName: string,
+  triggerOperation: TableTriggerEventEnum,
 ): Promise<void> {
   if (!tableActions.length) {
     return;
@@ -92,7 +242,7 @@ export async function activateTableActions(
     await Promise.all(
       tableActions.map((tableAction) =>
         queue
-          .add(() => activateTableAction(tableAction, connection, [request_body], userId, tableName))
+          .add(() => activateTableAction(tableAction, connection, [request_body], userId, tableName, triggerOperation))
           .catch((error) => {
             console.error('Error in activateTableActions', error);
           }),

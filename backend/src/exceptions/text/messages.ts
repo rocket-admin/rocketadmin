@@ -87,6 +87,7 @@ export const Messages = {
     `Unsupported algorithm type${alg ? ` ${alg}.` : '.'} We supports only ${enumToString(
       EncryptionAlgorithmEnum,
     )} algorithms.`,
+  EMAILS_NOT_IN_COMPANY: (emails: Array<string>) => `Emails ${emails.join(', ')} are not in the company`,
   ERROR_MESSAGE: 'Error message: ',
   ERROR_MESSAGE_ORIGINAL: 'Error message from database: ',
   EXCLUDED_OR_NOT_EXISTS: (fieldName: string) =>
@@ -201,6 +202,7 @@ export const Messages = {
   SAAS_UPDATE_2FA_STATUS_FAILED_UNHANDLED_ERROR: `Failed to update 2fa status in SaaS. Please contact our support team.`,
   SAAS_SUSPEND_USERS_FAILED_UNHANDLED_ERROR: `Failed to suspend users in SaaS. Please contact our support team.`,
   SAAS_UNSUSPEND_USERS_FAILED_UNHANDLED_ERROR: `Failed to unsuspend users in SaaS. Please contact our support team.`,
+  SLACK_CREDENTIALS_MISSING: 'Slack credentials are missing',
   SOMETHING_WENT_WRONG_ROW_ADD: 'Something went wrong on row insertion, check inserted parameters and try again',
   SSH_FORMAT_INCORRECT: 'Ssh value must be a boolean',
   SSH_HOST_MISSING: 'Ssh host is missing',
@@ -225,6 +227,7 @@ export const Messages = {
   TABLE_TRIGGERS_NOT_FOUND: 'Table triggers with this parameters not found',
   TABLE_TRIGGERS_NOT_FOUND_FOR_UPDATE: 'No triggers found for update',
   TABLE_TRIGGERS_NOT_FOUND_FOR_DELETE: 'No triggers found for delete',
+  TABLE_TRIGGERS_EMAILS_REQUIRED: 'Emails are required for email trigger',
   TEST_CONNECTIONS_UPDATE_NOT_ALLOWED: `You can't update test connection`,
   TRY_AGAIN_LATER: 'Please try again later. If the problem persists, please contact our support team',
   TRY_VERIFY_ADD_USER_WHEN_LOGGED_IN: `You can't join a group when you are logged in as another user. Please log out and try again.`,
@@ -289,6 +292,7 @@ export const Messages = {
   USER_CREATED_CONNECTION: (email: string) => `User "${email}" created connection.`,
   USER_SUCCESSFULLY_TESTED_CONNECTION: (userEmail: string, connectionType: ConnectionTypesEnum) =>
     `User "${userEmail}" successfully tested the "${connectionType}" connection.`,
+  USERS_NOT_VERIFIED: (emails: Array<string>) => `Users ${emails.join(', ')} are not verified`,
   USERNAME_MISSING: 'Username is missing',
   USER_ACTION_INCORRECT: `User action message if incorrect. Supported actions are ${enumToString(UserActionEnum)}`,
   USER_NOT_ACTIVE: 'User is not active. Please confirm your email address.',

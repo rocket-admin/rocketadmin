@@ -12,7 +12,7 @@ import { TestUtils } from '../../utils/test.utils.js';
 import { Test } from '@nestjs/testing';
 import { TableActionEntity } from '../../../src/entities/table-actions/table-action.entity.js';
 import { MockFactory } from '../../mock.factory.js';
-import { faker } from '@faker-js/faker';
+import { fa, faker } from '@faker-js/faker';
 import knex from 'knex';
 import { Cacher } from '../../../src/helpers/cache/cacher.js';
 import { registerUserAndReturnUserInfo } from '../../utils/register-user-and-return-user-info.js';
@@ -20,6 +20,9 @@ import request from 'supertest';
 import { CreateTableTriggersBodyDTO } from '../../../src/entities/table-triggers/application/dto/create-table-triggers-body.dto.js';
 import { TableTriggerEventEnum } from '../../../src/enums/table-trigger-event-enum.js';
 import nock from 'nock';
+import { CreateTableActionDTO } from '../../../src/entities/table-actions/dto/create-table-action.dto.js';
+import { TableActionTypeEnum } from '../../../src/enums/table-action-type.enum.js';
+import { TableActionMethodEnum } from '../../../src/enums/table-action-method-enum.js';
 
 const mockFactory = new MockFactory();
 let app: INestApplication;
@@ -52,7 +55,7 @@ test.before(async () => {
   );
   await app.init();
   app.getHttpServer().listen(0);
-  newTableAction = mockFactory.generateNewTableAction();
+  newTableAction = mockFactory.generateNewTableAction() as any;
   newConnection = mockFactory.generateConnectionToTestPostgresDBInDocker();
   await resetPostgresTestDB();
 });
@@ -528,10 +531,10 @@ test(`${currentTest} should return found table triggers`, async (t) => {
   t.is(getTableTriggersAfterDeleteRO.length, 1);
 });
 
-//check that tabla action was triggered on add row
+//check that table action (webhook) was triggered on add row
 currentTest = 'POST/PUT/DELETE /table/row/:slug';
 
-test(`${currentTest} should create trigger and activate table action on add row`, async (t) => {
+test(`${currentTest} should create trigger and activate http table action on add row`, async (t) => {
   const { token } = await registerUserAndReturnUserInfo(app);
 
   const createConnectionResult = await request(app.getHttpServer())
@@ -650,6 +653,127 @@ test(`${currentTest} should create trigger and activate table action on add row`
     (body) => Object.keys(body.primaryKeys).length > 0,
   );
   t.is(bodiesWithNonEmptyPrimaryKeysObjects.length, 3);
+
+  scope.done();
+});
+
+//check that table action (slack message) was triggered on add row
+
+test(`${currentTest} should create trigger and activate slack table action on add row`, async (t) => {
+  const { token } = await registerUserAndReturnUserInfo(app);
+
+  const createConnectionResult = await request(app.getHttpServer())
+    .post('/connection')
+    .send(newConnection)
+    .set('Cookie', token)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+
+  const createConnectionRO = JSON.parse(createConnectionResult.text);
+  t.is(createConnectionResult.status, 201);
+
+  // create table action to attach to trigger
+  const newTableActionDto = new CreateTableActionDTO();
+
+  newTableActionDto.title = 'Send slack message';
+  newTableActionDto.type = TableActionTypeEnum.multiple;
+  newTableActionDto.slackBotToken = faker.internet.password();
+  newTableActionDto.slackChannel = faker.word.words(1);
+  newTableActionDto.method = TableActionMethodEnum.SLACK;
+
+  const createTableActionResult = await request(app.getHttpServer())
+    .post(`/table/action/${createConnectionRO.id}?tableName=${testTableName}`)
+    .send(newTableActionDto)
+    .set('Cookie', token)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+
+  const createTableActionRO = JSON.parse(createTableActionResult.text);
+  t.is(createTableActionResult.status, 201);
+
+  // create table trigger
+
+  const tableTriggerDTO: CreateTableTriggersBodyDTO = {
+    actions_ids: [createTableActionRO.id],
+    trigger_events: [TableTriggerEventEnum.ADD_ROW, TableTriggerEventEnum.UPDATE_ROW, TableTriggerEventEnum.DELETE_ROW],
+  };
+
+  const createTableTriggerResult = await request(app.getHttpServer())
+    .post(`/table/triggers/${createConnectionRO.id}?tableName=${testTableName}`)
+    .send(tableTriggerDTO)
+    .set('Cookie', token)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+
+  t.is(createTableTriggerResult.status, 201);
+
+  // add row to table
+
+  const fakeName = faker.person.firstName();
+  const fakeMail = faker.internet.email();
+
+  const row = {
+    [testTableColumnName]: fakeName,
+    [testTAbleSecondColumnName]: fakeMail,
+  };
+
+  // check that table action will be triggered
+  const nockBodiesArray = [];
+  const scope = nock('https://slack.com')
+    .post('/api/chat.postMessage')
+    .times(3)
+    .reply(201, (uri, requestBody) => {
+
+      nockBodiesArray.push(requestBody);
+      return {
+        status: 201,
+        message: 'Table action was triggered',
+      };
+    });
+
+  // trigger add row
+
+  const addRowInTableResponse = await request(app.getHttpServer())
+    .post(`/table/row/${createConnectionRO.id}?tableName=${testTableName}`)
+    .send(JSON.stringify(row))
+    .set('Cookie', token)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+  t.is(addRowInTableResponse.status, 201);
+
+  // trigger update row
+
+  const updatedRow = {
+    [testTableColumnName]: fakeName,
+    [testTAbleSecondColumnName]: fakeMail,
+  };
+
+  const updateRowInTableResponse = await request(app.getHttpServer())
+    .put(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&id=10`)
+    .send(JSON.stringify(updatedRow))
+    .set('Cookie', token)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+
+  const updateRowInTableResponseRO = JSON.parse(updateRowInTableResponse.text);
+  t.is(updateRowInTableResponse.status, 200);
+
+  // trigger delete row
+
+  const idForDeletion = 5;
+  const deleteRowInTableResponse = await request(app.getHttpServer())
+    .delete(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&id=${idForDeletion}`)
+    .set('Cookie', token)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+  t.is(deleteRowInTableResponse.status, 200);
+
+  t.is(nockBodiesArray.length, 3);
+  for (const body of nockBodiesArray) {
+    t.is(body.hasOwnProperty('channel'), true);
+    t.is(body.hasOwnProperty('text'), true);
+    t.is(body.text.length > 0, true);
+  }
 
   scope.done();
 });

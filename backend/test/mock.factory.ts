@@ -17,6 +17,7 @@ import json5 from 'json5';
 import { ConnectionTypeTestEnum } from '../src/enums/connection-type.enum.js';
 import { CreateConnectionDto } from '../src/entities/connection/application/dto/create-connection.dto.js';
 import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/enums/connection-types-enum.js';
+import { CreateTableActionDTO } from '../src/entities/table-actions/dto/create-table-action.dto.js';
 export class MockFactory {
   generateCognitoUserName() {
     return 'a876284a-e902-11ea-adc1-0242ac120002';
@@ -132,11 +133,11 @@ export class MockFactory {
     const dto = new CreateConnectionDto() as any;
     dto.title = 'Test connection to MongoDB in Docker';
     dto.type = 'mongodb';
-    dto.host = 'test-mongo-e2e-testing'
+    dto.host = 'test-mongo-e2e-testing';
     dto.port = 27017;
-    dto.database = 'admin',
-    dto.username = 'root',
-    dto.password = 'example',
+    dto.database = 'admin';
+    dto.username = 'root';
+    dto.password = 'example';
     dto.ssh = false;
     return dto;
   }
@@ -814,7 +815,7 @@ export class MockFactory {
     };
   }
 
-  public generateNewTableAction(): TableActionEntity {
+  public generateNewTableAction(): TableActionEntity | CreateTableActionDTO {
     const newTableAction = new TableActionEntity();
     newTableAction.url = faker.internet.url();
     newTableAction.title = faker.lorem.words(2);
