@@ -8,11 +8,11 @@ import { DbTableImportDialogComponent } from '../db-table-import-dialog/db-table
 import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
+import { NotificationsService } from 'src/app/services/notifications.service';
 import { TableStateService } from 'src/app/services/table-state.service';
 import { merge } from 'rxjs';
 import { normalizeTableName } from '../../../lib/normalize'
 import { tap } from 'rxjs/operators';
-import { NotificationsService } from 'src/app/services/notifications.service';
 
 interface Column {
   title: string,
@@ -85,7 +85,7 @@ export class DbTableComponent implements OnInit {
     this.tableData.paginator = this.paginator;
 
     this.tableData.sort = this.sort;
-    this.sort.sortChange.subscribe(() => this.paginator.pageIndex = 0);
+    this.sort.sortChange.subscribe(() => { this.paginator.pageIndex = 0 });
 
     merge(this.sort.sortChange, this.paginator.page)
       .pipe(
@@ -94,11 +94,20 @@ export class DbTableComponent implements OnInit {
       .subscribe();
   }
 
+  ngOnInit() {
+    this.searchString = this.route.snapshot.queryParams.search;
+    this._tableState.cast.subscribe(row => {
+      this.selectedRow = row;
+    });
+  }
+
   loadRowsPage() {
+    console.log(this.paginator);
     this.tableData.fetchRows({
       connectionID: this.connectionID,
       tableName: this.name,
       requstedPage: this.paginator.pageIndex,
+      pageSize: this.paginator.pageSize,
       sortColumn: this.sort.active,
       sortOrder: this.sort.direction.toLocaleUpperCase(),
       filters: this.activeFilters,
@@ -202,13 +211,6 @@ export class DbTableComponent implements OnInit {
     this.search.emit(this.searchString);
   }
 
-  ngOnInit() {
-    this.searchString = this.route.snapshot.queryParams.search;
-    this._tableState.cast.subscribe(row => {
-      this.selectedRow = row;
-    });
-  }
-
   getFilter(activeFilter: {key: string, value: object}) {
     const displayedName = normalizeTableName(activeFilter.key);
     const comparator = Object.keys(activeFilter.value)[0];
@@ -246,6 +248,11 @@ export class DbTableComponent implements OnInit {
       return `${this.isAllSelected() ? 'deselect' : 'select'} all`;
     }
     return `${this.selection.isSelected(row) ? 'deselect' : 'select'} row ${row.position + 1}`;
+  }
+
+  stashUrlParams() {
+    this._tableState.setBackUrlParams(this.paginator.pageIndex, this.paginator.pageSize);
+    this.stashFilters();
   }
 
   stashFilters() {

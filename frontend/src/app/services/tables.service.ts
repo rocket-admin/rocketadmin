@@ -4,10 +4,10 @@ import { CustomAction, TableSettings, Widget } from '../models/table';
 import { NavigationEnd, Router } from '@angular/router';
 import { catchError, filter, map } from 'rxjs/operators';
 
+import { Angulartics2 } from 'angulartics2';
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { NotificationsService } from './notifications.service';
-import { Angulartics2 } from 'angulartics2';
 
 export enum SortOrdering {
   Ascending = 'ASC',

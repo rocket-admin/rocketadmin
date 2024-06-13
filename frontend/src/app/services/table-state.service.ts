@@ -11,6 +11,18 @@ export class TableStateService {
   cast = this.selectedRowSubject.asObservable();
 
   private backUrlFilters: any;
+  private backUrlParams: any;
+
+  setBackUrlParams(pageIndex, pageSize) {
+    this.backUrlParams = {
+      page_index: pageIndex,
+      page_size: pageSize
+    };
+  }
+
+  getBackUrlParams() {
+    return this.backUrlParams;
+  }
 
   setBackUrlFilters(filters: any) {
     this.backUrlFilters = filters;

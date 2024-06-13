@@ -94,7 +94,7 @@
 
         <div class="actions">
             <a mat-stroked-button type="button" routerLink="/dashboard/{{connectionID}}/{{tableName}}"
-                [queryParams]="{filters: tableFiltersUrlString}"
+                [queryParams]="backUrlParams"
                 data-testid="record-back-to-table-button">
                 Back
             </a>
