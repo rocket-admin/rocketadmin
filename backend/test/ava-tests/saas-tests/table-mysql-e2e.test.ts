@@ -3565,7 +3565,6 @@ test(`${currentTest} should import csv file with table data`, async (t) => {
     .set('Accept', 'application/json');
 
   const importCsvResponseRO = JSON.parse(importCsvResponse.text);
-  console.log('🚀 ~ test.only ~ importCsvResponseRO:', importCsvResponseRO);
   t.is(importCsvResponse.status, 201);
 
   //checking that the lines was added
