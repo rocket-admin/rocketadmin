@@ -76,4 +76,10 @@ export class FoundTableSettingsDs {
 
   @ApiProperty()
   icon: string;
+
+  @ApiProperty()
+  allow_csv_export: boolean;
+
+  @ApiProperty()
+  allow_csv_import: boolean;
 }

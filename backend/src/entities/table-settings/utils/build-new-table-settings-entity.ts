@@ -30,6 +30,8 @@ export function buildNewTableSettingsEntity(
     can_delete,
     can_update,
     icon,
+    allow_csv_export,
+    allow_csv_import,
   } = settings;
   newSettings.connection_id = connection;
   newSettings.display_name = display_name;
@@ -54,5 +56,7 @@ export function buildNewTableSettingsEntity(
   newSettings.can_delete = can_delete;
   newSettings.can_update = can_update;
   newSettings.icon = icon;
+  newSettings.allow_csv_export = allow_csv_export;
+  newSettings.allow_csv_import = allow_csv_import;
   return newSettings;
 }

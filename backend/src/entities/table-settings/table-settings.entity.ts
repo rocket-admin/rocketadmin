@@ -67,6 +67,12 @@ export class TableSettingsEntity {
   @Column({ default: true })
   can_add: boolean;
 
+  @Column({ default: true })
+  allow_csv_export: boolean;
+
+  @Column({ default: true })
+  allow_csv_import: boolean;
+
   @Column('varchar', { array: true, default: null })
   sensitive_fields: string[];
 

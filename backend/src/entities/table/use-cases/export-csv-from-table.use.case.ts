@@ -54,6 +54,15 @@ export class ExportCSVFromTableUseCase extends AbstractUseCase<GetTableRowsDs, a
         tableSettings = {} as any;
       }
 
+      if (tableSettings.allow_csv_export === false) {
+        throw new HttpException(
+          {
+            message: Messages.CSV_EXPORT_DISABLED,
+          },
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+
       const filteringFields: Array<FilteringFieldsDs> = isObjectEmpty(filters)
         ? findFilteringFieldsUtil(query, tableStructure)
         : parseFilteringFieldsFromBodyData(filters, tableStructure);
@@ -94,7 +103,9 @@ export class ExportCSVFromTableUseCase extends AbstractUseCase<GetTableRowsDs, a
       }
       return new StreamableFile(rowsStream.pipe(csv.stringify({ header: true })));
     } catch (error) {
-      console.error(error);
+      if(error instanceof HttpException) {
+        throw error;
+      }
       throw new HttpException(
         {
           message: Messages.CSV_EXPORT_FAILED,

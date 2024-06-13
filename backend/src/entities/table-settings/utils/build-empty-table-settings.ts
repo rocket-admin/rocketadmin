@@ -27,6 +27,8 @@ export function buildEmptyTableSettings(connectionId: string, tableName: string)
     can_delete: undefined,
     can_update: undefined,
     icon: undefined,
+    allow_csv_export: true,
+    allow_csv_import: true,
   };
 }
 
@@ -61,5 +63,7 @@ export function buildEmptyTableSettingsWithEmptyWidgets(
     can_delete: undefined,
     can_update: undefined,
     icon: undefined,
+    allow_csv_export: true,
+    allow_csv_import: true,
   };
 }
