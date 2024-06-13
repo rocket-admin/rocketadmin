@@ -516,6 +516,8 @@ export class MockFactory {
     autocompleteColumns: Array<string>,
     identification_fields: Array<string>,
     identity_column: string,
+    allow_csv_import = true,
+    allow_csv_export = true,
   ) {
     /*eslint-disable*/
     return {
@@ -533,6 +535,8 @@ export class MockFactory {
       autocomplete_columns: autocompleteColumns,
       identification_fields: identification_fields,
       identity_column: identity_column,
+      allow_csv_import: allow_csv_import,
+      allow_csv_export: allow_csv_export,
     };
     /*eslint-enable*/
   }

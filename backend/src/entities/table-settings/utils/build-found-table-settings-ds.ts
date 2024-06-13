@@ -26,7 +26,9 @@ export function buildFoundTableSettingsDs(tableSettings: TableSettingsEntity): F
     can_add,
     can_delete,
     can_update,
-    icon
+    icon,
+    allow_csv_export,
+    allow_csv_import,
   } = tableSettings;
   let connection_id = tableSettings.connection_id as unknown;
   if (connection_id instanceof ConnectionEntity) {
@@ -56,6 +58,8 @@ export function buildFoundTableSettingsDs(tableSettings: TableSettingsEntity): F
     can_add: can_add,
     can_delete: can_delete,
     can_update: can_update,
-    icon: icon
+    icon: icon,
+    allow_csv_export: allow_csv_export,
+    allow_csv_import: allow_csv_import,
   };
 }

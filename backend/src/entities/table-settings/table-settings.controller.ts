@@ -112,6 +112,8 @@ export class TableSettingsController {
     @Body('can_update') can_update: boolean,
     @Body('can_add') can_add: boolean,
     @Body('icon') icon: string,
+    @Body('allow_csv_export') allow_csv_export: boolean,
+    @Body('allow_csv_import') allow_csv_import: boolean,
     @UserId() userId: string,
     @MasterPassword() masterPwd: string,
   ): Promise<FoundTableSettingsDs> {
@@ -140,6 +142,8 @@ export class TableSettingsController {
       can_update: can_update,
       can_add: can_add,
       icon: icon,
+      allow_csv_export: allow_csv_export,
+      allow_csv_import: allow_csv_import,
     };
     /* eslint-enable */
     const errors = this.validateParameters(inputData);
@@ -186,6 +190,8 @@ export class TableSettingsController {
     @Body('can_update') can_update: boolean,
     @Body('can_add') can_add: boolean,
     @Body('icon') icon: string,
+    @Body('allow_csv_export') allow_csv_export: boolean,
+    @Body('allow_csv_import') allow_csv_import: boolean,
     @UserId() userId: string,
     @MasterPassword() masterPwd: string,
   ): Promise<FoundTableSettingsDs> {
@@ -213,6 +219,8 @@ export class TableSettingsController {
       can_update: can_update,
       can_add: can_add,
       icon: icon,
+      allow_csv_export: allow_csv_export,
+      allow_csv_import: allow_csv_import,
     };
     /* eslint-enable */
     const errors = this.validateParameters(inputData);

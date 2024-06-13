@@ -31,6 +31,18 @@ export class ImportCSVInTableUseCase
         HttpStatus.BAD_REQUEST,
       );
     }
+
+    const foundTableSettings = await this._dbContext.tableSettingsRepository.findTableSettings(connectionId, tableName);
+
+    if (foundTableSettings?.allow_csv_import === false) {
+      throw new HttpException(
+        {
+          message: Messages.CSV_IMPORT_DISABLED,
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
     try {
       const dao = getDataAccessObject(connection);
       let userEmail: string;
@@ -40,6 +52,9 @@ export class ImportCSVInTableUseCase
       await dao.importCSVInTable(file, tableName, userEmail);
       return true;
     } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
       throw new HttpException(
         {
           message: `${Messages.CSV_IMPORT_FAILED}. ${error.message}`,

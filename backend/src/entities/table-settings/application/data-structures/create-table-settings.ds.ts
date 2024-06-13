@@ -75,4 +75,10 @@ export class CreateTableSettingsDs {
 
   @ApiProperty()
   icon: string;
+
+  @ApiProperty()
+  allow_csv_export: boolean;
+
+  @ApiProperty()
+  allow_csv_import: boolean;
 }
