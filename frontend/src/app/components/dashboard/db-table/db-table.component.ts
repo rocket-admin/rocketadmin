@@ -85,7 +85,7 @@ export class DbTableComponent implements OnInit {
     this.tableData.paginator = this.paginator;
 
     this.tableData.sort = this.sort;
-    this.sort.sortChange.subscribe(() => { this.paginator.pageIndex = 0 });
+    // this.sort.sortChange.subscribe(() => { this.paginator.pageIndex = 0 });
 
     merge(this.sort.sortChange, this.paginator.page)
       .pipe(
