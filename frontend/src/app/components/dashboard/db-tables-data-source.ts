@@ -30,6 +30,7 @@ interface RowsParams {
   tableName: string,
   sortColumn?: string,
   requstedPage?: number,
+  pageSize?: number,
   sortOrder?: 'ASC' | 'DESC',
   filters?: object,
   comparators?: object,
@@ -132,6 +133,7 @@ export class TablesDataSource implements DataSource<Object> {
     connectionID,
     tableName,
     requstedPage,
+    pageSize,
     sortColumn,
     sortOrder,
     filters, comparators,
@@ -143,11 +145,19 @@ export class TablesDataSource implements DataSource<Object> {
       this.alert_primaryKeysInfo = null;
       this.alert_settingsInfo = null;
       this.alert_widgetsWarning = null;
+
+      console.log('requstedPage');
+      console.log(requstedPage);
+
+      console.log('pageSize');
+      console.log(pageSize);
+
       const fetchedTable = this._tables.fetchTable({
         connectionID,
         tableName,
         requstedPage: requstedPage + 1 || 1,
-        chunkSize: this.paginator?.pageSize || 30,
+        // chunkSize: this.paginator?.pageSize || 30,
+        chunkSize: pageSize || 30,
         sortColumn,
         sortOrder,
         filters,

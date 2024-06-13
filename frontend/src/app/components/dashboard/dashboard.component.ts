@@ -7,6 +7,7 @@ import { first, map } from 'rxjs/operators';
 import { Angulartics2 } from 'angulartics2';
 import { BbBulkActionConfirmationDialogComponent } from './db-bulk-action-confirmation-dialog/db-bulk-action-confirmation-dialog.component';
 import { ConnectionsService } from 'src/app/services/connections.service';
+import { DbActionLinkDialogComponent } from './db-action-link-dialog/db-action-link-dialog.component';
 import { DbTableFiltersDialogComponent } from './db-table-filters-dialog/db-table-filters-dialog.component';
 import { HttpErrorResponse } from '@angular/common/http';
 import JsonURL from "@jsonurl/jsonurl";
@@ -14,6 +15,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { SelectionModel } from '@angular/cdk/collections';
 import { ServerError } from 'src/app/models/alert';
 import { TableRowService } from 'src/app/services/table-row.service';
+import { TableStateService } from 'src/app/services/table-state.service';
 import { TablesDataSource } from './db-tables-data-source';
 import { TablesService } from 'src/app/services/tables.service';
 import { Title } from '@angular/platform-browser';
@@ -22,8 +24,6 @@ import { User } from 'src/app/models/user';
 import { getComparatorsFromUrl } from 'src/app/lib/parse-filter-params';
 import { normalizeTableName } from '../../lib/normalize'
 import { omitBy } from "lodash";
-import { TableStateService } from 'src/app/services/table-state.service';
-import { DbActionLinkDialogComponent } from './db-action-link-dialog/db-action-link-dialog.component';
 
 interface DataToActivateActions {
   action: CustomAction,
@@ -47,6 +47,8 @@ export class DashboardComponent implements OnInit {
   public connectionID: string;
   public filters: object = {};
   public comparators: object;
+  public pageIndex: number;
+  public pageSize: number;
 
   public loading: boolean = true;
   public isServerError: boolean = false;
@@ -183,6 +185,8 @@ export class DashboardComponent implements OnInit {
     this.route.queryParams.pipe(first()).subscribe((queryParams) => {
       this.filters = JsonURL.parse( queryParams.filters );
       this.comparators = getComparatorsFromUrl(this.filters);
+      this.pageIndex = parseInt(queryParams.page_index) || 0;
+      this.pageSize = parseInt(queryParams.page_size) || 30;
       const search = queryParams.search;
       this.getRows(search);
     })
@@ -226,8 +230,15 @@ export class DashboardComponent implements OnInit {
 
           const filters = JsonURL.stringify( this.filters );
 
+          this.router.navigate([`/dashboard/${this.connectionID}/${this.selectedTableName}`], {
+            queryParams: {
+              filters,
+              page_index: 0,
+              page_size: this.pageSize
+            }
+          });
           this.getRows();
-          this.router.navigate([`/dashboard/${this.connectionID}/${this.selectedTableName}`], { queryParams: {filters, page_index: 0} });
+
           this.angulartics2.eventTrack.next({
             action: 'Dashboard: filter is applied',
           });
@@ -247,20 +258,37 @@ export class DashboardComponent implements OnInit {
     const filters = JsonURL.stringify( this.filters );
 
     this.getRows();
-    this.router.navigate([`/dashboard/${this.connectionID}/${this.selectedTableName}`], { queryParams: {filters, page_index: 0} });
+    this.router.navigate([`/dashboard/${this.connectionID}/${this.selectedTableName}`], {
+      queryParams: {
+        filters,
+        page_index: 0,
+        page_size: this.pageSize
+      }
+    });
   }
 
   clearAllFilters() {
     this.filters = {};
     this.comparators = {};
     this.getRows();
-    this.router.navigate([`/dashboard/${this.connectionID}/${this.selectedTableName}`], { queryParams: {page_index: 0} });
+    this.router.navigate([`/dashboard/${this.connectionID}/${this.selectedTableName}`], {
+      queryParams: {
+        page_index: 0,
+        page_size: this.pageSize
+      }
+    });
   }
 
   search(value: string) {
     this.getRows(value);
     this.filters = {};
-    this.router.navigate([`/dashboard/${this.connectionID}/${this.selectedTableName}`], { queryParams: {page_index: 0, search: value} });
+    this.router.navigate([`/dashboard/${this.connectionID}/${this.selectedTableName}`], {
+      queryParams: {
+        page_index: 0,
+        page_size: this.pageSize,
+        search: value
+      }
+    });
   }
 
   getRows(search?: string) {
@@ -273,7 +301,8 @@ export class DashboardComponent implements OnInit {
         this.dataSource.fetchRows({
           connectionID: this.connectionID,
           tableName: this.selectedTableName,
-          requstedPage: 0,
+          requstedPage: this.pageIndex,
+          pageSize: this.pageSize,
           sortColumn: undefined,
           sortOrder: undefined,
           filters: this.filters,

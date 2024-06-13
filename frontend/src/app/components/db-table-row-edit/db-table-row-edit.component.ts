@@ -5,6 +5,7 @@ import { Component, NgZone, OnInit } from '@angular/core';
 import { CustomAction, TableField, TableForeignKey, TablePermissions, Widget } from 'src/app/models/table';
 import { UIwidgets, fieldTypes } from 'src/app/consts/field-types';
 
+import { BbBulkActionConfirmationDialogComponent } from '../dashboard/db-bulk-action-confirmation-dialog/db-bulk-action-confirmation-dialog.component';
 import { ConnectionsService } from 'src/app/services/connections.service';
 import { DBtype } from 'src/app/models/connection';
 import { DbActionLinkDialogComponent } from '../dashboard/db-action-link-dialog/db-action-link-dialog.component';
@@ -16,9 +17,9 @@ import { TableRowService } from 'src/app/services/table-row.service';
 import { TableStateService } from 'src/app/services/table-state.service';
 import { TablesService } from 'src/app/services/tables.service';
 import { Title } from '@angular/platform-browser';
+import { filter } from 'lodash';
 import { getTableTypes } from 'src/app/lib/setup-table-row-structure';
 import { normalizeTableName } from '../../lib/normalize';
-import { BbBulkActionConfirmationDialogComponent } from '../dashboard/db-bulk-action-confirmation-dialog/db-bulk-action-confirmation-dialog.component';
 
 @Component({
   selector: 'app-db-table-row-edit',
@@ -56,6 +57,7 @@ export class DbTableRowEditComponent implements OnInit {
   public permissions: TablePermissions;
   public pageAction: string;
   public tableFiltersUrlString: string;
+  public backUrlParams: object;
 
   public tableForeignKeys: TableForeignKey[];
 
@@ -79,6 +81,8 @@ export class DbTableRowEditComponent implements OnInit {
     this.connectionID = this._connections.currentConnectionID;
     this.tableName = this._tables.currentTableName;
     this.tableFiltersUrlString = JsonURL.stringify(this._tableState.getBackUrlFilters());
+    const navUrlParams = this._tableState.getBackUrlParams();
+    this.backUrlParams = {...navUrlParams, filters: this.tableFiltersUrlString};
 
     this.route.queryParams.subscribe((params) => {
       if (Object.keys(params).length === 0) {
@@ -351,7 +355,7 @@ export class DbTableRowEditComponent implements OnInit {
           } else {
             this.router.navigate([`/dashboard/${this.connectionID}/${this.tableName}`], { queryParams: {
               filters: this.tableFiltersUrlString,
-              pageIndex: 0
+              page_index: 0
             }});
           }
         });
@@ -389,10 +393,7 @@ export class DbTableRowEditComponent implements OnInit {
             this._notifications.dismissAlert();
           } else {
             this._notifications.dismissAlert();
-            this.router.navigate([`/dashboard/${this.connectionID}/${this.tableName}`], { queryParams: {
-              filters: this.tableFiltersUrlString,
-              pageIndex: 0
-            }});
+            this.router.navigate([`/dashboard/${this.connectionID}/${this.tableName}`], { queryParams: this.backUrlParams});
           }
         });
       },
