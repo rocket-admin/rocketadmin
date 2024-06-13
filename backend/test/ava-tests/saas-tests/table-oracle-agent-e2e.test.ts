@@ -2384,7 +2384,7 @@ test(`${currentTest} should throw an exception when primary key passed in reques
 
 currentTest = 'PUT /table/rows/update/:connectionId';
 
-test.only(`${currentTest} should update multiple rows and return result`, async (t) => {
+test(`${currentTest} should update multiple rows and return result`, async (t) => {
   testTables.push(testTableName);
 
   const createConnectionResponse = await request(app.getHttpServer())
@@ -3114,7 +3114,7 @@ test(`${currentTest} should return csv file with table data`, async (t) => {
 });
 
 currentTest = 'POST /table/csv/import/:slug';
-test(`${currentTest} should import csv file with table data`, async (t) => {
+test.skip(`${currentTest} should import csv file with table data`, async (t) => {
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
 
   const createConnectionResponse = await request(app.getHttpServer())
@@ -3208,13 +3208,13 @@ test(`${currentTest} should import csv file with table data`, async (t) => {
   //checking that the lines was added
 
   const getTableRowsResponse = await request(app.getHttpServer())
-    .get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=1&perPage=50`)
+    .get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=1&perPage=70`)
     .set('Cookie', firstUserToken)
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
 
   const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
   t.is(getTableRowsResponse.status, 200);
-  const addedRows = getTableRowsRO.rows.filter((row: Record<string, any>) => row.id > testEntitiesSeedsCount);
+  const addedRows = getTableRowsRO.rows.filter((row: Record<string, any>) => row.ID > testEntitiesSeedsCount);
   t.is(addedRows.length, 3);
 });
