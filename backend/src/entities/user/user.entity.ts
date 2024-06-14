@@ -24,6 +24,7 @@ import { GitHubUserIdentifierEntity } from './user-github-identifier/github-user
 import { CompanyInfoEntity } from '../company-info/company-info.entity.js';
 import { UserRoleEnum } from './enums/user-role.enum.js';
 import { ExternalRegistrationProviderEnum } from './enums/external-registration-provider.enum.js';
+import { UserApiKeyEntity } from '../api-key/api-key.entity.js';
 
 @Entity('user')
 export class UserEntity {
@@ -104,6 +105,10 @@ export class UserEntity {
 
   @OneToOne(() => GitHubUserIdentifierEntity, (github_user_identifier) => github_user_identifier.user)
   github_user_identifier: Relation<GitHubUserIdentifierEntity>;
+
+  @OneToMany(() => UserApiKeyEntity, (api_key) => api_key.user)
+  api_keys: Relation<UserApiKeyEntity>[];
+
 
   @Column({ default: false })
   isActive: boolean;

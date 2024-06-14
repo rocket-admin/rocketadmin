@@ -70,7 +70,7 @@ export class Encryptor {
     if (connection.password) {
       connection.password = this.decryptDataMasterPwd(connection.password, masterPwd);
     }
-    if(connection.authSource) connection.authSource = this.decryptDataMasterPwd(connection.authSource, masterPwd);
+    if (connection.authSource) connection.authSource = this.decryptDataMasterPwd(connection.authSource, masterPwd);
     if (connection.ssh) {
       if (connection.privateSSHKey)
         connection.privateSSHKey = this.decryptDataMasterPwd(connection.privateSSHKey, masterPwd);
@@ -253,5 +253,10 @@ export class Encryptor {
 
   static generateUUID(): string {
     return crypto.randomUUID();
+  }
+
+  static generateApiKey(): string {
+    const generatedString = crypto.randomBytes(99).toString('hex');
+    return `sk_${generatedString}`;
   }
 }
