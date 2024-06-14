@@ -3,6 +3,9 @@ SHELL ["/bin/bash", "-c"]
 WORKDIR /app/frontend
 COPY frontend/package.json frontend/yarn.lock frontend/angular.json frontend/tsconfig.app.json frontend/tsconfig.json /app/frontend/
 COPY frontend/.yarn /app/frontend/.yarn
+RUN apt-get update && apt-get install -y \
+    git \
+    && rm -rf /var/lib/apt/lists/*
 RUN yarn install --immutable --network-timeout 1000000 --silent
 COPY frontend/src /app/frontend/src
 ARG SAAS
