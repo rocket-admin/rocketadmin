@@ -85,7 +85,7 @@ export class DbTableComponent implements OnInit {
     this.tableData.paginator = this.paginator;
 
     this.tableData.sort = this.sort;
-    this.sort.sortChange.subscribe(() => { this.paginator.pageIndex = 0 });
+    // this.sort.sortChange.subscribe(() => { this.paginator.pageIndex = 0 });
 
     merge(this.sort.sortChange, this.paginator.page)
       .pipe(
@@ -251,7 +251,7 @@ export class DbTableComponent implements OnInit {
   }
 
   stashUrlParams() {
-    this._tableState.setBackUrlParams(this.paginator.pageIndex, this.paginator.pageSize);
+    this._tableState.setBackUrlParams(this.paginator.pageIndex, this.paginator.pageSize, this.sort.active, this.sort.direction);
     this.stashFilters();
   }
 
