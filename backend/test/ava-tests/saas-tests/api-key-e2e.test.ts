@@ -15,7 +15,7 @@ import { registerUserAndReturnUserInfo } from '../../utils/register-user-and-ret
 
 let app: INestApplication;
 let currentTest: string;
-let testUtils: TestUtils;
+// let testUtils: TestUtils;
 
 test.before(async () => {
   const moduleFixture = await Test.createTestingModule({
@@ -23,7 +23,7 @@ test.before(async () => {
     providers: [DatabaseService, TestUtils],
   }).compile();
   app = moduleFixture.createNestApplication();
-  testUtils = moduleFixture.get<TestUtils>(TestUtils);
+  // testUtils = moduleFixture.get<TestUtils>(TestUtils);
 
   app.use(cookieParser());
   app.useGlobalFilters(new AllExceptionsFilter());
@@ -122,6 +122,47 @@ test(`${currentTest} should return all users api keys`, async (t) => {
       t.falsy(getApiKeysRO[i].hash);
       t.truthy(getApiKeysRO[i].id);
     }
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+  t.pass();
+});
+
+currentTest = `GET /apikey/:apiKeyId`;
+
+test(`${currentTest} found user api key`, async (t) => {
+  try {
+    const adminUserRegisterInfo = await registerUserAndReturnUserInfo(app);
+    const { token } = adminUserRegisterInfo;
+
+    const apiKeysData = [{ title: 'Test API Key 1' }, { title: 'Test API Key 2' }, { title: 'Test API Key 3' }];
+
+    const createdApiKeys = [];
+    for (const apiKeyData of apiKeysData) {
+      const createApiKeyResult = await request(app.getHttpServer())
+        .post('/apikey')
+        .send(apiKeyData)
+        .set('Content-Type', 'application/json')
+        .set('Cookie', token)
+        .set('Accept', 'application/json');
+      t.is(createApiKeyResult.status, 201);
+      createdApiKeys.push(JSON.parse(createApiKeyResult.text));
+    }
+
+    const apiKeyToSearch = createdApiKeys[Math.floor(Math.random() * createdApiKeys.length)];
+
+    const getApiKeyResult = await request(app.getHttpServer())
+      .get(`/apikey/${apiKeyToSearch.id}`)
+      .set('Cookie', token)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+
+    t.is(getApiKeyResult.status, 200);
+    const getApiKeyRO = JSON.parse(getApiKeyResult.text);
+    t.is(getApiKeyRO.title, apiKeyToSearch.title);
+    t.falsy(getApiKeyRO.hash);
+    t.is(getApiKeyRO.id, apiKeyToSearch.id);
   } catch (error) {
     console.error(error);
     throw error;

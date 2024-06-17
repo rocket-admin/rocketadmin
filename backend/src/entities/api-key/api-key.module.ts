@@ -9,6 +9,7 @@ import { CreateApiKeyUseCase } from './use-cases/create-api-key.use.case.js';
 import { UserEntity } from '../user/user.entity.js';
 import { LogOutEntity } from '../log-out/log-out.entity.js';
 import { GetAllUserApiKeysUseCase } from './use-cases/get-all-user-api-keys.use.case.js';
+import { GetUserApiKeyUseCase } from './use-cases/get-user-api-key.use.case.js';
 
 @Module({
   imports: [TypeOrmModule.forFeature([UserApiKeyEntity, UserEntity, LogOutEntity])],
@@ -25,6 +26,10 @@ import { GetAllUserApiKeysUseCase } from './use-cases/get-all-user-api-keys.use.
       provide: UseCaseType.GET_API_KEYS,
       useClass: GetAllUserApiKeysUseCase,
     },
+    {
+      provide: UseCaseType.GET_API_KEY,
+      useClass: GetUserApiKeyUseCase,
+    },
   ],
   controllers: [ApiKeyController],
 })
@@ -37,6 +42,7 @@ export class ApiKeyModule implements NestModule {
         { path: '/apikey', method: RequestMethod.DELETE },
         { path: '/apikey', method: RequestMethod.PUT },
         { path: '/apikeys', method: RequestMethod.GET },
+        { path: '/apikey/:apiKeyId', method: RequestMethod.GET },
       );
   }
 }

@@ -6,7 +6,7 @@ import { ValidationHelper } from '../helpers/validators/validation-helper.js';
 
 export const SlugUuid = createParamDecorator((parameterName: string = 'slug', ctx: ExecutionContext): string => {
   const request: IRequestWithCognitoInfo = ctx.switchToHttp().getRequest();
-  const availableSlagParameters = ['slug', 'connectionId', 'groupId', 'userId'];
+  const availableSlagParameters = ['slug', 'connectionId', 'groupId', 'userId', 'apiKeyId'];
   if (!availableSlagParameters.includes(parameterName)) {
     throw buildBadRequestException(Messages.UUID_INVALID);
   }

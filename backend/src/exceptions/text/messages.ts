@@ -19,6 +19,7 @@ export const Messages = {
   AGENT_ID_MISSING: 'Agent id is missing',
   AGENT_NOT_FOUND: 'Agent not found',
   ALREADY_SUBSCRIBED_AT_THIS_LEVEL: `You already have a subscription of this level `,
+  API_KEY_NOT_FOUND: 'Api key not found',
   AUTHORIZATION_REQUIRED: 'Authorization is required',
   AUTHORIZATION_REJECTED: 'Authorization is rejected',
   BULK_DELETE_FAILED_GET_ROWS: (errorReasonsArray: Array<string>) =>

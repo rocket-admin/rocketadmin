@@ -145,4 +145,5 @@ export enum UseCaseType {
 
   CREATE_API_KEY = 'CREATE_API_KEY',
   GET_API_KEYS = 'GET_API_KEYS',
+  GET_API_KEY = 'GET_API_KEY',
 }

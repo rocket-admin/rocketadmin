@@ -8,4 +8,12 @@ export const userApiRepositoryExtension: IUserApiKeyRepository = {
       .where('user.id = :userId', { userId })
       .getMany();
   },
+
+  async findApiKeyByIdAndUserId(apiKeyId: string, userId: string): Promise<UserApiKeyEntity> {
+    return await this.createQueryBuilder('user_api_key')
+      .leftJoinAndSelect('user_api_key.user', 'user')
+      .where('user.id = :userId', { userId })
+      .andWhere('user_api_key.id = :apiKeyId', { apiKeyId })
+      .getOne();
+  },
 };
