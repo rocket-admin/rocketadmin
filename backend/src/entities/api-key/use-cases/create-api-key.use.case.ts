@@ -26,7 +26,9 @@ export class CreateApiKeyUseCase extends AbstractUseCase<CreateApiKeyDS, Created
     }
     const newApiKey = buildNewApiKeyEntity(inputData);
     newApiKey.user = foundUser;
+    const hashOriginal = newApiKey.hash;
     const createdApiKey = await this._dbContext.userApiKeysRepository.save(newApiKey);
+    createdApiKey.hash = hashOriginal;
     return buildCreatedApiKeyDS(createdApiKey);
   }
 }
