@@ -35,6 +35,7 @@ export class ApiKeyModule implements NestModule {
       .forRoutes(
         { path: '/apikey', method: RequestMethod.POST },
         { path: '/apikey', method: RequestMethod.DELETE },
+        { path: '/apikey', method: RequestMethod.PUT },
         { path: '/apikeys', method: RequestMethod.GET },
       );
   }
