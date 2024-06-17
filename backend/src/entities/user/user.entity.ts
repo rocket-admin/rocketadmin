@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { ConnectionEntity } from '../connection/connection.entity.js';
 import {
   Entity,
@@ -106,7 +107,7 @@ export class UserEntity {
   @OneToOne(() => GitHubUserIdentifierEntity, (github_user_identifier) => github_user_identifier.user)
   github_user_identifier: Relation<GitHubUserIdentifierEntity>;
 
-  @OneToMany(() => UserApiKeyEntity, (api_key) => api_key.user)
+  @OneToMany((type) => UserApiKeyEntity, (api_key) => api_key.user)
   api_keys: Relation<UserApiKeyEntity>[];
 
 

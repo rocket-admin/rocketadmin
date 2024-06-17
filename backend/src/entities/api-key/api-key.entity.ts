@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { BeforeInsert, Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, Relation } from 'typeorm';
 import { UserEntity } from '../user/user.entity.js';
 import { Encryptor } from '../../helpers/encryption/encryptor.js';
@@ -14,7 +15,7 @@ export class UserApiKeyEntity {
   @Column({ type: 'varchar', unique: true, nullable: false })
   hash: string;
 
-  @ManyToOne(() => UserEntity, (user) => user.api_keys, { onDelete: 'CASCADE' })
+  @ManyToOne((type) => UserEntity, (user) => user.api_keys, { onDelete: 'CASCADE' })
   @JoinColumn()
   user: Relation<UserEntity>;
 
