@@ -357,15 +357,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@angular/core@npm:~17.3.9":
-  version: 17.3.9
-  resolution: "@angular/core@npm:17.3.9"
+"@angular/core@npm:~17.3.10":
+  version: 17.3.11
+  resolution: "@angular/core@npm:17.3.11"
   dependencies:
     tslib: ^2.3.0
   peerDependencies:
     rxjs: ^6.5.3 || ^7.4.0
     zone.js: ~0.14.0
-  checksum: c172788ac33e328269f2e55f8402953456bdcdfb20c7bd43f3ed7c752d4687d8f6a8289330fdbc55b7daae2e140825ffe265097af6486352b7427a11c5e4a0cc
+  checksum: 968cc664df5a7228d5295cc0842cc645d2145204f6db2da8a155a51126eba5364a686d03fec8ad479f2b66c28f01d730fe67aa5bc5820880d7cacfc9eaf1ce94
   languageName: node
   linkType: hard
 
@@ -7465,7 +7465,7 @@ __metadata:
     "@angular/common": ~17.3.9
     "@angular/compiler": ~17.3.9
     "@angular/compiler-cli": ~17.3.9
-    "@angular/core": ~17.3.9
+    "@angular/core": ~17.3.10
     "@angular/forms": ~17.3.9
     "@angular/language-service": ~17.3.9
     "@angular/material": ~17.3.9
@@ -10615,15 +10615,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"nanoid@npm:^3.3.4":
-  version: 3.3.4
-  resolution: "nanoid@npm:3.3.4"
-  bin:
-    nanoid: bin/nanoid.cjs
-  checksum: 2fddd6dee994b7676f008d3ffa4ab16035a754f4bb586c61df5a22cf8c8c94017aadd360368f47d653829e0569a92b129979152ff97af23a558331e47e37cd9c
-  languageName: node
-  linkType: hard
-
 "nanoid@npm:^3.3.7":
   version: 3.3.7
   resolution: "nanoid@npm:3.3.7"
@@ -11603,18 +11594,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"postcss@npm:^8.0.9, postcss@npm:^8.2.14":
-  version: 8.4.21
-  resolution: "postcss@npm:8.4.21"
-  dependencies:
-    nanoid: ^3.3.4
-    picocolors: ^1.0.0
-    source-map-js: ^1.0.2
-  checksum: e39ac60ccd1542d4f9d93d894048aac0d686b3bb38e927d8386005718e6793dbbb46930f0a523fe382f1bbd843c6d980aaea791252bf5e176180e5a4336d9679
-  languageName: node
-  linkType: hard
-
-"postcss@npm:^8.4.23, postcss@npm:^8.4.33, postcss@npm:^8.4.35":
+"postcss@npm:^8.0.9, postcss@npm:^8.2.14, postcss@npm:^8.4.23, postcss@npm:^8.4.33, postcss@npm:^8.4.35":
   version: 8.4.38
   resolution: "postcss@npm:8.4.38"
   dependencies:
@@ -14235,7 +14215,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ws@npm:8.17.0":
+"ws@npm:8.17.0, ws@npm:^8.13.0":
   version: 8.17.0
   resolution: "ws@npm:8.17.0"
   peerDependencies:
@@ -14251,8 +14231,8 @@ __metadata:
   linkType: hard
 
 "ws@npm:^7.3.1":
-  version: 7.5.9
-  resolution: "ws@npm:7.5.9"
+  version: 7.5.10
+  resolution: "ws@npm:7.5.10"
   peerDependencies:
     bufferutil: ^4.0.1
     utf-8-validate: ^5.0.2
@@ -14261,22 +14241,7 @@ __metadata:
       optional: true
     utf-8-validate:
       optional: true
-  checksum: c3c100a181b731f40b7f2fddf004aa023f79d64f489706a28bc23ff88e87f6a64b3c6651fbec3a84a53960b75159574d7a7385709847a62ddb7ad6af76f49138
-  languageName: node
-  linkType: hard
-
-"ws@npm:^8.13.0":
-  version: 8.16.0
-  resolution: "ws@npm:8.16.0"
-  peerDependencies:
-    bufferutil: ^4.0.1
-    utf-8-validate: ">=5.0.2"
-  peerDependenciesMeta:
-    bufferutil:
-      optional: true
-    utf-8-validate:
-      optional: true
-  checksum: feb3eecd2bae82fa8a8beef800290ce437d8b8063bdc69712725f21aef77c49cb2ff45c6e5e7fce622248f9c7abaee506bae0a9064067ffd6935460c7357321b
+  checksum: f9bb062abf54cc8f02d94ca86dcd349c3945d63851f5d07a3a61c2fcb755b15a88e943a63cf580cbdb5b74436d67ef6b67f745b8f7c0814e411379138e1863cb
   languageName: node
   linkType: hard
 
