@@ -72,6 +72,9 @@ import { IUserSessionSettings } from '../../entities/user/user-session-settings/
 import { TableTriggersEntity } from '../../entities/table-triggers/table-triggers.entity.js';
 import { ITableTriggersRepository } from '../../entities/table-triggers/repository/table-triggers-custom-repository.interface.js';
 import { tableTriggersCustomRepositoryExtension } from '../../entities/table-triggers/repository/table-triggers-custom-repository.js';
+import { IUserApiKeyRepository } from '../../entities/api-key/repository/user-api-key-repository.interface.js';
+import { UserApiKeyEntity } from '../../entities/api-key/api-key.entity.js';
+import { userApiRepositoryExtension } from '../../entities/api-key/repository/user-api-key-repository.extension.js';
 
 @Injectable({ scope: Scope.REQUEST })
 export class GlobalDatabaseContext implements IGlobalDatabaseContext {
@@ -102,6 +105,7 @@ export class GlobalDatabaseContext implements IGlobalDatabaseContext {
   private _invitationInCompanyRepository: Repository<InvitationInCompanyEntity> & IInvitationInCompanyRepository;
   private _userSessionSettingsRepository: Repository<UserSessionSettingsEntity> & IUserSessionSettings;
   private _tableTriggersRepository: Repository<TableTriggersEntity> & ITableTriggersRepository;
+  private _userApiKeysRepository: Repository<UserApiKeyEntity> & IUserApiKeyRepository;
 
   public constructor(
     @Inject(BaseType.DATA_SOURCE)
@@ -174,6 +178,7 @@ export class GlobalDatabaseContext implements IGlobalDatabaseContext {
     this._tableTriggersRepository = this.appDataSource
       .getRepository(TableTriggersEntity)
       .extend(tableTriggersCustomRepositoryExtension);
+    this._userApiKeysRepository = this.appDataSource.getRepository(UserApiKeyEntity).extend(userApiRepositoryExtension);
   }
 
   public get userRepository(): Repository<UserEntity> & IUserRepository {
@@ -274,6 +279,10 @@ export class GlobalDatabaseContext implements IGlobalDatabaseContext {
 
   public get tableTriggersRepository(): Repository<TableTriggersEntity> & ITableTriggersRepository {
     return this._tableTriggersRepository;
+  }
+
+  public get userApiKeysRepository(): Repository<UserApiKeyEntity> & IUserApiKeyRepository {
+    return this._userApiKeysRepository;
   }
 
   public startTransaction(): Promise<void> {

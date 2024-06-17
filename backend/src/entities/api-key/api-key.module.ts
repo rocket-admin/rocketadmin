@@ -8,6 +8,7 @@ import { BaseType, UseCaseType } from '../../common/data-injection.tokens.js';
 import { CreateApiKeyUseCase } from './use-cases/create-api-key.use.case.js';
 import { UserEntity } from '../user/user.entity.js';
 import { LogOutEntity } from '../log-out/log-out.entity.js';
+import { GetAllUserApiKeysUseCase } from './use-cases/get-all-user-api-keys.use.case.js';
 
 @Module({
   imports: [TypeOrmModule.forFeature([UserApiKeyEntity, UserEntity, LogOutEntity])],
@@ -19,6 +20,10 @@ import { LogOutEntity } from '../log-out/log-out.entity.js';
     {
       provide: UseCaseType.CREATE_API_KEY,
       useClass: CreateApiKeyUseCase,
+    },
+    {
+      provide: UseCaseType.GET_API_KEYS,
+      useClass: GetAllUserApiKeysUseCase,
     },
   ],
   controllers: [ApiKeyController],

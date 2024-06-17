@@ -31,6 +31,8 @@ import { UserEntity } from '../../entities/user/user.entity.js';
 import { ConnectionEntity } from '../../entities/connection/connection.entity.js';
 import { TableTriggersEntity } from '../../entities/table-triggers/table-triggers.entity.js';
 import { ITableTriggersRepository } from '../../entities/table-triggers/repository/table-triggers-custom-repository.interface.js';
+import { UserApiKeyEntity } from '../../entities/api-key/api-key.entity.js';
+import { IUserApiKeyRepository } from '../../entities/api-key/repository/user-api-key-repository.interface.js';
 
 export interface IGlobalDatabaseContext extends IDatabaseContext {
   userRepository: Repository<UserEntity> & IUserRepository;
@@ -58,4 +60,5 @@ export interface IGlobalDatabaseContext extends IDatabaseContext {
   invitationInCompanyRepository: Repository<InvitationInCompanyEntity> & IInvitationInCompanyRepository;
   userSessionSettingsRepository: Repository<UserSessionSettingsEntity> & IUserSessionSettings;
   tableTriggersRepository: Repository<TableTriggersEntity> & ITableTriggersRepository;
+  userApiKeysRepository: Repository<UserApiKeyEntity> & IUserApiKeyRepository;
 }
