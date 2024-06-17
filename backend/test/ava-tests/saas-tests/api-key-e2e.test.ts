@@ -1,3 +1,4 @@
+/* eslint-disable security/detect-object-injection */
 import test from 'ava';
 import { Test } from '@nestjs/testing';
 import request from 'supertest';
@@ -80,6 +81,47 @@ test(`${currentTest} should throw an exception when title not passed`, async (t)
     t.is(createApiKeyResult.status, 400);
     const createApiKeyRO = JSON.parse(createApiKeyResult.text);
     t.truthy(createApiKeyRO.message.includes(`Property "title" validation failed`));
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+  t.pass();
+});
+
+currentTest = `GET /apikeys`;
+
+test(`${currentTest} should return all users api keys`, async (t) => {
+  try {
+    const adminUserRegisterInfo = await registerUserAndReturnUserInfo(app);
+    const { token } = adminUserRegisterInfo;
+
+    const apiKeysData = [{ title: 'Test API Key 1' }, { title: 'Test API Key 2' }, { title: 'Test API Key 3' }];
+
+    for (const apiKeyData of apiKeysData) {
+      const createApiKeyResult = await request(app.getHttpServer())
+        .post('/apikey')
+        .send(apiKeyData)
+        .set('Content-Type', 'application/json')
+        .set('Cookie', token)
+        .set('Accept', 'application/json');
+      t.is(createApiKeyResult.status, 201);
+    }
+
+    const getApiKeysResult = await request(app.getHttpServer())
+      .get('/apikeys')
+      .set('Cookie', token)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+
+    t.is(getApiKeysResult.status, 200);
+    const getApiKeysRO = JSON.parse(getApiKeysResult.text);
+    t.is(getApiKeysRO.length, apiKeysData.length);
+
+    for (let i = 0; i < apiKeysData.length; i++) {
+      t.is(getApiKeysRO[i].title, apiKeysData[i].title);
+      t.falsy(getApiKeysRO[i].hash);
+      t.truthy(getApiKeysRO[i].id);
+    }
   } catch (error) {
     console.error(error);
     throw error;
