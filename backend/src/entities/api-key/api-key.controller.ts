@@ -1,8 +1,8 @@
-import { UseInterceptors, Controller, Injectable, Inject, Post, Body, Get } from '@nestjs/common';
+import { UseInterceptors, Controller, Injectable, Inject, Post, Body, Get, Delete } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { SentryInterceptor } from '../../interceptors/sentry.interceptor.js';
 import { UseCaseType } from '../../common/data-injection.tokens.js';
-import { ICreateApiKey, IGetApiKey, IGetApiKeys } from './use-cases/api-key-use-cases.interface.js';
+import { ICreateApiKey, IDeleteApiKey, IGetApiKey, IGetApiKeys } from './use-cases/api-key-use-cases.interface.js';
 import { UserId } from '../../decorators/user-id.decorator.js';
 import { CreateApiKeyDto } from './application/dto/create-api-key.dto.js';
 import { InTransactionEnum } from '../../enums/in-transaction.enum.js';
@@ -25,6 +25,8 @@ export class ApiKeyController {
     private readonly getApiKeysUseCase: IGetApiKeys,
     @Inject(UseCaseType.GET_API_KEY)
     private readonly getApiKeyUseCase: IGetApiKey,
+    @Inject(UseCaseType.DELETE_API_KEY)
+    private readonly deleteApiKeyUseCase: IDeleteApiKey,
   ) {}
 
   @ApiOperation({ summary: 'Create new API key' })
@@ -68,5 +70,17 @@ export class ApiKeyController {
   public async getApiKey(@UserId() userId: string, @SlugUuid('apiKeyId') apiKeyId: string): Promise<FoundApiKeyDto> {
     const foundApiKey = await this.getApiKeyUseCase.execute({ userId, apiKeyId });
     return buildFoundApiKeyDto(foundApiKey);
+  }
+
+  @ApiOperation({ summary: 'Delete api key by id' })
+  @ApiResponse({
+    status: 200,
+    description: 'Get api key by id.',
+    type: FoundApiKeyDto,
+  })
+  @Delete('/apikey/:apiKeyId')
+  public async deleteApiKey(@UserId() userId: string, @SlugUuid('apiKeyId') apiKeyId: string): Promise<FoundApiKeyDto> {
+    const deletedApiKey = await this.deleteApiKeyUseCase.execute({ userId, apiKeyId }, InTransactionEnum.ON);
+    return buildFoundApiKeyDto(deletedApiKey);
   }
 }

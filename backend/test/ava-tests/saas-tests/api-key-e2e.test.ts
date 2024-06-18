@@ -12,6 +12,8 @@ import { ValidationException } from '../../../src/exceptions/custom-exceptions/v
 import { DatabaseService } from '../../../src/shared/database/database.service.js';
 import { TestUtils } from '../../utils/test.utils.js';
 import { registerUserAndReturnUserInfo } from '../../utils/register-user-and-return-user-info.js';
+import { Messages } from '../../../src/exceptions/text/messages.js';
+import { faker } from '@faker-js/faker';
 
 let app: INestApplication;
 let currentTest: string;
@@ -131,7 +133,7 @@ test(`${currentTest} should return all users api keys`, async (t) => {
 
 currentTest = `GET /apikey/:apiKeyId`;
 
-test(`${currentTest} found user api key`, async (t) => {
+test(`${currentTest} should return found user api key`, async (t) => {
   try {
     const adminUserRegisterInfo = await registerUserAndReturnUserInfo(app);
     const { token } = adminUserRegisterInfo;
@@ -163,6 +165,95 @@ test(`${currentTest} found user api key`, async (t) => {
     t.is(getApiKeyRO.title, apiKeyToSearch.title);
     t.falsy(getApiKeyRO.hash);
     t.is(getApiKeyRO.id, apiKeyToSearch.id);
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+  t.pass();
+});
+
+test(`${currentTest} should throw an exception when key with id not exist in database`, async (t) => {
+  try {
+    const adminUserRegisterInfo = await registerUserAndReturnUserInfo(app);
+    const { token } = adminUserRegisterInfo;
+
+    const apiKeysData = [{ title: 'Test API Key 1' }, { title: 'Test API Key 2' }, { title: 'Test API Key 3' }];
+
+    const createdApiKeys = [];
+    for (const apiKeyData of apiKeysData) {
+      const createApiKeyResult = await request(app.getHttpServer())
+        .post('/apikey')
+        .send(apiKeyData)
+        .set('Content-Type', 'application/json')
+        .set('Cookie', token)
+        .set('Accept', 'application/json');
+      t.is(createApiKeyResult.status, 201);
+      createdApiKeys.push(JSON.parse(createApiKeyResult.text));
+    }
+
+    const apiKeyToSearch = faker.string.uuid();
+
+    const getApiKeyResult = await request(app.getHttpServer())
+      .get(`/apikey/${apiKeyToSearch}`)
+      .set('Cookie', token)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+
+    t.is(getApiKeyResult.status, 404);
+    const getApiKeyRO = JSON.parse(getApiKeyResult.text);
+    t.is(getApiKeyRO.message, Messages.API_KEY_NOT_FOUND);
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+  t.pass();
+});
+
+test(`${currentTest} should delete api key and return deleted key`, async (t) => {
+  try {
+    const adminUserRegisterInfo = await registerUserAndReturnUserInfo(app);
+    const { token } = adminUserRegisterInfo;
+
+    const apiKeysData = [{ title: 'Test API Key 1' }, { title: 'Test API Key 2' }, { title: 'Test API Key 3' }];
+
+    const createdApiKeys = [];
+    for (const apiKeyData of apiKeysData) {
+      const createApiKeyResult = await request(app.getHttpServer())
+        .post('/apikey')
+        .send(apiKeyData)
+        .set('Content-Type', 'application/json')
+        .set('Cookie', token)
+        .set('Accept', 'application/json');
+      t.is(createApiKeyResult.status, 201);
+      createdApiKeys.push(JSON.parse(createApiKeyResult.text));
+    }
+
+    const apiKeyToDeletion = createdApiKeys[Math.floor(Math.random() * createdApiKeys.length)];
+
+    const deleteApiKeyResult = await request(app.getHttpServer())
+      .get(`/apikey/${apiKeyToDeletion.id}`)
+      .set('Cookie', token)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+
+    t.is(deleteApiKeyResult.status, 200);
+    const deleteApiKeyRO = JSON.parse(deleteApiKeyResult.text);
+    t.is(deleteApiKeyRO.title, apiKeyToDeletion.title);
+    t.falsy(deleteApiKeyRO.hash);
+    t.is(deleteApiKeyRO.id, apiKeyToDeletion.id);
+
+    // check that key is deleted
+
+    const getApiKeyResult = await request(app.getHttpServer())
+    .get(`/apikey/${apiKeyToDeletion.id}`)
+    .set('Cookie', token)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+
+  t.is(getApiKeyResult.status, 404);
+  const getApiKeyRO = JSON.parse(getApiKeyResult.text);
+  t.is(getApiKeyRO.message, Messages.API_KEY_NOT_FOUND);
+
   } catch (error) {
     console.error(error);
     throw error;

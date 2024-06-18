@@ -15,3 +15,7 @@ export interface IGetApiKeys {
 export interface IGetApiKey {
   execute(apiKeyData: FindApiKeyDS): Promise<FoundApiKeyDS>;
 }
+
+export interface IDeleteApiKey {
+  execute(apiKeyData: FindApiKeyDS, inTransaction: InTransactionEnum): Promise<FoundApiKeyDS>;
+}
