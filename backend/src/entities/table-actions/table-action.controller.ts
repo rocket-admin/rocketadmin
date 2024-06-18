@@ -209,7 +209,14 @@ export class TableActionsController {
       request_body: body,
     };
 
-    return await this.activateTableActionsUseCase.execute(inputData, InTransactionEnum.OFF);
+    const activationResult = await this.activateTableActionsUseCase.execute(inputData, InTransactionEnum.OFF);
+    if (typeof activationResult === 'object') {
+      return activationResult;
+    }
+    if (activationResult) {
+      return { success: activationResult };
+    }
+    return activationResult;
   }
 
   private validateTableAction(tableAction: CreateTableActionDS | UpdateTableActionDS): void {
