@@ -47,10 +47,7 @@ export class TableActionEntity {
   method!: TableActionMethodEnum;
 
   @Column({ default: null })
-  slack_channel: string;
-
-  @Column({ default: null })
-  slack_bot_token: string;
+  slack_url: string;
 
   @Column('varchar', { array: true, default: {} })
   emails: string[];
@@ -64,32 +61,20 @@ export class TableActionEntity {
 
   @BeforeInsert()
   encryptEmailsAndTokens(): void {
-    if (this.emails && Array.isArray(this.emails) && this.emails.length > 0) {
-      this.emails = this.emails.map((email) => Encryptor.encryptData(email));
-    }
-    if (this.slack_bot_token) {
-      this.slack_bot_token = Encryptor.encryptData(this.slack_bot_token);
-    }
-    if (this.slack_channel) {
-      this.slack_channel = Encryptor.encryptData(this.slack_channel);
+    if (this.slack_url) {
+      this.slack_url = Encryptor.encryptData(this.slack_url);
     }
   }
 
   @BeforeUpdate()
-   encryptEmailsAndTokensBeforeUpdate(): void {
+  encryptEmailsAndTokensBeforeUpdate(): void {
     this.encryptEmailsAndTokens();
   }
 
   @AfterLoad()
   decryptEmailsAndTokens(): void {
-    if (this.emails && Array.isArray(this.emails) && this.emails.length > 0) {
-      this.emails = this.emails.map((email) => Encryptor.decryptData(email));
-    }
-    if (this.slack_bot_token) {
-      this.slack_bot_token = Encryptor.decryptData(this.slack_bot_token);
-    }
-    if (this.slack_channel) {
-      this.slack_channel = Encryptor.decryptData(this.slack_channel);
+    if (this.slack_url) {
+      this.slack_url = Encryptor.decryptData(this.slack_url);
     }
   }
 }

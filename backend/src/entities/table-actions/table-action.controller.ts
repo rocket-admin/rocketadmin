@@ -121,8 +121,7 @@ export class TableActionsController {
     @QueryTableName() tableName: string,
     @Body() tableActionData: CreateTableActionDTO,
   ): Promise<CreatedTableActionDS> {
-    const { title, url, icon, type, requireConfirmation, slackChannel, emails, method, slackBotToken } =
-      tableActionData;
+    const { title, url, icon, type, requireConfirmation, emails, method, slack_url } = tableActionData;
     const inputData: CreateTableActionDS = {
       connectionId: connectionId,
       masterPwd: masterPwd,
@@ -135,8 +134,7 @@ export class TableActionsController {
       requireConfirmation: requireConfirmation,
       emails: emails,
       method: method || TableActionMethodEnum.HTTP,
-      slackChannel: slackChannel,
-      slackBotToken: slackBotToken,
+      slack_url: slack_url,
     };
     this.validateTableAction(inputData);
     return await this.createTableActionUseCase.execute(inputData, InTransactionEnum.OFF);
@@ -156,8 +154,7 @@ export class TableActionsController {
     @Body() tableActionData: CreateTableActionDTO,
     @UserId() userId: string,
   ): Promise<CreatedTableActionDS> {
-    const { title, url, icon, type, requireConfirmation, emails, method, slackBotToken, slackChannel } =
-      tableActionData;
+    const { title, url, icon, type, requireConfirmation, emails, method, slack_url } = tableActionData;
     const inputData: UpdateTableActionDS = {
       actionId: actionId,
       title: title,
@@ -167,8 +164,7 @@ export class TableActionsController {
       requireConfirmation: requireConfirmation,
       emails: emails,
       method: method || TableActionMethodEnum.HTTP,
-      slackBotToken: slackBotToken,
-      slackChannel: slackChannel,
+      slack_url: slack_url,
       userId: userId,
     };
     this.validateTableAction(inputData);
@@ -217,7 +213,7 @@ export class TableActionsController {
   }
 
   private validateTableAction(tableAction: CreateTableActionDS | UpdateTableActionDS): void {
-    const { url, type, emails, method, slackBotToken, slackChannel } = tableAction;
+    const { url, type, emails, method, slack_url } = tableAction;
 
     const result = validateStringWithEnum(type, TableActionTypeEnum);
     if (!result) {
@@ -225,7 +221,7 @@ export class TableActionsController {
     }
 
     if (method === TableActionMethodEnum.SLACK) {
-      if (!slackBotToken || !slackChannel) {
+      if (!slack_url) {
         throw new BadRequestException(Messages.SLACK_CREDENTIALS_MISSING);
       }
     }

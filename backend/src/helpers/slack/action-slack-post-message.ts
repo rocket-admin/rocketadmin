@@ -1,19 +1,11 @@
 import axios from 'axios';
 
-export async function actionSlackPostMessage(message: string, channel: string, slackBotToken: string): Promise<void> {
+export async function actionSlackPostMessage(message: string, slack_url: string): Promise<void> {
   try {
-    if (!slackBotToken || !channel || !message) {
+    if (!slack_url || !message) {
       return;
     }
-    const url = 'https://slack.com/api/chat.postMessage';
-    await axios.post(
-      url,
-      {
-        channel: channel,
-        text: message,
-      },
-      { headers: { authorization: `Bearer ${slackBotToken}` } },
-    );
+    await axios.post(slack_url, { text: message });
   } catch (error) {
     throw error;
   }

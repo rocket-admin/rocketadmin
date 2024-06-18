@@ -9,8 +9,7 @@ export class UpdateTableActionDS {
   icon: string;
   requireConfirmation: boolean;
   method: TableActionMethodEnum;
-  slackChannel: string;
-  slackBotToken: string;
+  slack_url: string;
   emails: string[];
   userId: string;
 }

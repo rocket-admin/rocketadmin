@@ -86,7 +86,7 @@ async function activateSlackTableAction(
   } a row in table "${tableName}" with primary keys: ${JSON.stringify(primaryKeyValuesArray)}`;
 
   try {
-    await actionSlackPostMessage(slackMessage, tableAction.slack_channel, tableAction.slack_bot_token);
+    await actionSlackPostMessage(slackMessage, tableAction.slack_url);
     operationResult = OperationResultStatusEnum.successfully;
   } catch (e) {
     operationResult = OperationResultStatusEnum.unsuccessfully;
