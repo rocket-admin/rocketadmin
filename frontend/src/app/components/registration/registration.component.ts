@@ -68,10 +68,10 @@ export class RegistrationComponent implements OnInit, AfterViewInit {
       }
     });
     //@ts-ignore
-    // google.accounts.id.renderButton(
-    //   document.getElementById("google_registration_button"),
-    //   { theme: "filled_blue", size: "large", width: "400px", text: "signup_with" }
-    // );
+    google.accounts.id.renderButton(
+      document.getElementById("google_registration_button"),
+      { theme: "filled_blue", size: "large", width: 400, text: "signup_with" }
+    );
     //@ts-ignore
     google.accounts.id.prompt();
   }
