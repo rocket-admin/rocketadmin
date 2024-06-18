@@ -10,8 +10,7 @@ export function buildCreatedTableActionDS(tableAction: TableActionEntity): Creat
     icon: tableAction.icon,
     requireConfirmation: tableAction.require_confirmation,
     method: tableAction.method,
-    slackChannel: tableAction.slack_channel,
-    slackBotToken: tableAction.slack_bot_token,
+    slack_url: tableAction.slack_url,
     emails: tableAction.emails,
   };
 }

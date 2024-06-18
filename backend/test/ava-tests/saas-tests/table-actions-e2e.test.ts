@@ -157,8 +157,7 @@ test(`${currentTest} should return created slack table action`, async (t) => {
 
   tableActionCopy.type = TableActionTypeEnum.multiple;
   tableActionCopy.method = TableActionMethodEnum.SLACK;
-  tableActionCopy.slackChannel = faker.word.words(1);
-  tableActionCopy.slackBotToken = faker.string.uuid();
+  tableActionCopy.slack_url = faker.internet.url();
 
   const createTableActionResult = await request(app.getHttpServer())
     .post(`/table/action/${createConnectionRO.id}?tableName=${testTableName}`)
@@ -173,8 +172,7 @@ test(`${currentTest} should return created slack table action`, async (t) => {
   t.is(createTableActionRO.title, tableActionCopy.title);
   t.is(createTableActionRO.type, tableActionCopy.type);
   t.is(createTableActionRO.url, tableActionCopy.url);
-  t.is(createTableActionRO.slackChannel, tableActionCopy.slackChannel);
-  t.is(createTableActionRO.slackBotToken, tableActionCopy.slackBotToken);
+  t.is(createTableActionRO.slack_url, tableActionCopy.slack_url);
   t.is(createTableActionRO.method, tableActionCopy.method);
   t.is(createTableActionRO.hasOwnProperty('id'), true);
 });

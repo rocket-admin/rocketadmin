@@ -32,12 +32,7 @@ export class CreateTableActionDTO {
   @ApiProperty()
   @IsOptional()
   @IsString()
-  slackChannel: string;
-
-  @ApiProperty()
-  @IsOptional()
-  @IsString()
-  slackBotToken: string;
+  slack_url: string;
 
   @ApiProperty()
   @IsOptional()

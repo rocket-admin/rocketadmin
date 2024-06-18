@@ -677,8 +677,7 @@ test(`${currentTest} should create trigger and activate slack table action on ad
 
   newTableActionDto.title = 'Send slack message';
   newTableActionDto.type = TableActionTypeEnum.multiple;
-  newTableActionDto.slackBotToken = faker.internet.password();
-  newTableActionDto.slackChannel = faker.word.words(1);
+  newTableActionDto.slack_url = 'https://slack.com/api/chat.postMessage';
   newTableActionDto.method = TableActionMethodEnum.SLACK;
 
   const createTableActionResult = await request(app.getHttpServer())
@@ -723,7 +722,6 @@ test(`${currentTest} should create trigger and activate slack table action on ad
     .post('/api/chat.postMessage')
     .times(3)
     .reply(201, (uri, requestBody) => {
-
       nockBodiesArray.push(requestBody);
       return {
         status: 201,
@@ -770,7 +768,6 @@ test(`${currentTest} should create trigger and activate slack table action on ad
 
   t.is(nockBodiesArray.length, 3);
   for (const body of nockBodiesArray) {
-    t.is(body.hasOwnProperty('channel'), true);
     t.is(body.hasOwnProperty('text'), true);
     t.is(body.text.length > 0, true);
   }

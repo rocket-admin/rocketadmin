@@ -25,10 +25,7 @@ export class CreatedTableActionDS {
   method: TableActionMethodEnum;
 
   @ApiProperty()
-  slackChannel?: string;
-
-  @ApiProperty()
-  slackBotToken?: string;
+  slack_url: string;
 
   @ApiProperty({ isArray: true, type: String })
   emails?: string[];
