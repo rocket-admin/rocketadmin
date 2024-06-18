@@ -40,6 +40,7 @@ import { FoundTableActionsDS } from './application/data-sctructures/found-table-
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CreateTableActionDTO } from './dto/create-table-action.dto.js';
 import { TableActionMethodEnum } from '../../enums/table-action-method-enum.js';
+import { SuccessResponse } from '../../microservices/saas-microservice/data-structures/common-responce.ds.js';
 
 @UseInterceptors(SentryInterceptor)
 @Controller()
@@ -209,7 +210,14 @@ export class TableActionsController {
       request_body: body,
     };
 
-    return await this.activateTableActionsUseCase.execute(inputData, InTransactionEnum.OFF);
+    const activationResult = await this.activateTableActionsUseCase.execute(inputData, InTransactionEnum.OFF);
+    if (typeof activationResult === 'object') {
+      return activationResult;
+    }
+    if (activationResult) {
+      return { success: activationResult };
+    }
+    return activationResult;
   }
 
   private validateTableAction(tableAction: CreateTableActionDS | UpdateTableActionDS): void {
