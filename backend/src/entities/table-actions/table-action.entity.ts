@@ -11,7 +11,7 @@ import {
 } from 'typeorm';
 import { TableActionTypeEnum } from '../../enums/index.js';
 import { TableSettingsEntity } from '../table-settings/table-settings.entity.js';
-import { TableTriggersEntity } from '../table-triggers/table-triggers.entity.js';
+import { ActionRulesEntity } from '../table-triggers/action-rules.entity.js';
 import { TableActionMethodEnum } from '../../enums/table-action-method-enum.js';
 import { Encryptor } from '../../helpers/encryption/encryptor.js';
 
@@ -50,8 +50,8 @@ export class TableActionEntity {
   settings: Relation<TableSettingsEntity>;
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  @ManyToMany((type) => TableTriggersEntity, (triggers) => triggers.table_actions)
-  table_triggers: Relation<TableTriggersEntity>[];
+  @ManyToMany((type) => ActionRulesEntity, (rules) => rules.table_actions)
+  action_rules: Relation<ActionRulesEntity>[];
 
   @BeforeInsert()
   encryptEmailsAndTokens(): void {

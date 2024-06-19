@@ -1,8 +1,8 @@
 import { FoundTableTriggersWithActionsDTO } from '../application/dto/found-table-triggers-with-actions.dto.js';
-import { TableTriggersEntity } from '../table-triggers.entity.js';
+import { ActionRulesEntity } from '../action-rules.entity.js';
 
 export function buildFoundTableTriggersDto(
-  tableTriggers: Array<TableTriggersEntity>,
+  tableTriggers: Array<ActionRulesEntity>,
 ): Array<FoundTableTriggersWithActionsDTO> {
   return tableTriggers.map((tableTrigger) => {
     return {
@@ -22,7 +22,7 @@ export function buildFoundTableTriggersDto(
   });
 }
 
-export function buildFoundTableTriggerDto(tableTriggers: TableTriggersEntity): FoundTableTriggersWithActionsDTO {
+export function buildFoundTableTriggerDto(tableTriggers: ActionRulesEntity): FoundTableTriggersWithActionsDTO {
   return {
     id: tableTriggers.id,
     table_name: tableTriggers.table_name,

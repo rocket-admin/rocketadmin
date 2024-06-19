@@ -6,7 +6,7 @@ import { AgentEntity } from '../../entities/agent/agent.entity.js';
 import { ConnectionPropertiesEntity } from '../../entities/connection-properties/connection-properties.entity.js';
 import { TableInfoEntity } from '../../entities/table-info/table-info.entity.js';
 import { CompanyInfoEntity } from '../../entities/company-info/company-info.entity.js';
-import { TableTriggersEntity } from '../../entities/table-triggers/table-triggers.entity.js';
+import { ActionRulesEntity } from '../../entities/table-triggers/action-rules.entity.js';
 
 export interface IEncryptorInterfaceDTO {
   id: string;
@@ -44,5 +44,5 @@ export interface IEncryptorInterfaceDTO {
   signing_key: string;
   company: CompanyInfoEntity;
   authSource?: string;
-  table_triggers: Array<TableTriggersEntity>
+  action_rules: Array<ActionRulesEntity>;
 }

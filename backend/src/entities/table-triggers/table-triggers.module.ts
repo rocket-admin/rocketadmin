@@ -5,7 +5,7 @@ import { TableTriggersController } from './table-triggers.controller.js';
 import { MiddlewareConsumer, Module, RequestMethod } from '@nestjs/common';
 import { AuthMiddleware } from '../../authorization/auth.middleware.js';
 import { FindAllTableTriggersUseCase } from './use-cases/find-all-table-triggers.use.case.js';
-import { TableTriggersEntity } from './table-triggers.entity.js';
+import { ActionRulesEntity } from './action-rules.entity.js';
 import { CreateTableTriggersUseCase } from './use-cases/create-table-triggers.use.case.js';
 import { UpdateTableTriggersUseCase } from './use-cases/update-table-triggers.use.case.js';
 import { DeleteTableTriggersUseCase } from './use-cases/delete-table-triggers.use.case.js';
@@ -14,7 +14,7 @@ import { LogOutEntity } from '../log-out/log-out.entity.js';
 import { FindTableTriggerUseCase } from './use-cases/find-table-trigger.use.case.js';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([TableTriggersEntity, UserEntity, LogOutEntity])],
+  imports: [TypeOrmModule.forFeature([ActionRulesEntity, UserEntity, LogOutEntity])],
   providers: [
     {
       provide: BaseType.GLOBAL_DB_CONTEXT,

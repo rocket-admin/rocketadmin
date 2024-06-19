@@ -22,7 +22,7 @@ import { TableLogsEntity } from '../table-logs/table-logs.entity.js';
 import { TableSettingsEntity } from '../table-settings/table-settings.entity.js';
 import { UserEntity } from '../user/user.entity.js';
 import { CompanyInfoEntity } from '../company-info/company-info.entity.js';
-import { TableTriggersEntity } from '../table-triggers/table-triggers.entity.js';
+import { ActionRulesEntity } from '../table-triggers/action-rules.entity.js';
 
 @Entity('connection')
 export class ConnectionEntity {
@@ -179,8 +179,8 @@ export class ConnectionEntity {
   @OneToMany(() => TableSettingsEntity, (settings) => settings.connection_id)
   settings: Relation<TableSettingsEntity>[];
 
-  @OneToMany(() => TableTriggersEntity, (triggers) => triggers.connection)
-  table_triggers: Relation<TableTriggersEntity>[];
+  @OneToMany(() => ActionRulesEntity, (rules) => rules.connection)
+  action_rules: Relation<ActionRulesEntity>[];
 
   @OneToMany(() => TableLogsEntity, (logs) => logs.connection_id)
   logs: Relation<TableLogsEntity>[];

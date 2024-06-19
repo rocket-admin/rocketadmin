@@ -1,16 +1,16 @@
 import { TableActionEntity } from '../../table-actions/table-action.entity.js';
-import { TableTriggersEntity } from '../table-triggers.entity.js';
+import { ActionRulesEntity } from '../action-rules.entity.js';
 
-export interface ITableTriggersRepository {
-  saveNewOrUpdatedTriggers(triggers: TableTriggersEntity): Promise<TableTriggersEntity>;
+export interface IActionRulesRepository {
+  saveNewOrUpdatedTriggers(triggers: ActionRulesEntity): Promise<ActionRulesEntity>;
 
-  findTriggersForTableWithTableActions(connectionId: string, tableName: string): Promise<TableTriggersEntity[]>;
+  findTriggersForTableWithTableActions(connectionId: string, tableName: string): Promise<ActionRulesEntity[]>;
 
-  findTableTriggersWithActionsOnAddRow(connectionId: string, tableName: string): Promise<TableTriggersEntity[]>;
+  findTableTriggersWithActionsOnAddRow(connectionId: string, tableName: string): Promise<ActionRulesEntity[]>;
 
-  findTableTriggersWithActionsOnDeleteRow(connectionId: string, tableName: string): Promise<TableTriggersEntity[]>;
+  findTableTriggersWithActionsOnDeleteRow(connectionId: string, tableName: string): Promise<ActionRulesEntity[]>;
 
-  findTableTriggersWithActionsOnUpdateRow(connectionId: string, tableName: string): Promise<TableTriggersEntity[]>;
+  findTableTriggersWithActionsOnUpdateRow(connectionId: string, tableName: string): Promise<ActionRulesEntity[]>;
 
   findTableActionsFromTriggersOnAddRow(connectionId: string, tableName: string): Promise<TableActionEntity[]>;
 

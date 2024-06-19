@@ -7,7 +7,7 @@ import { IGlobalDatabaseContext } from '../../../common/application/global-datab
 import { BaseType } from '../../../common/data-injection.tokens.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { Encryptor } from '../../../helpers/encryption/encryptor.js';
-import { TableTriggersEntity } from '../table-triggers.entity.js';
+import { ActionRulesEntity } from '../action-rules.entity.js';
 import { buildFoundTableTriggerDto } from '../utils/build-found-table-triggers-dto.util.js';
 
 @Injectable({ scope: Scope.REQUEST })
@@ -40,7 +40,7 @@ export class CreateTableTriggersUseCase
       throw new NotFoundException(Messages.TABLE_ACTION_NOT_FOUND);
     }
 
-    const newTableTriggers = new TableTriggersEntity();
+    const newTableTriggers = new ActionRulesEntity();
     newTableTriggers.connection = foundConnection;
     newTableTriggers.table_name = tableName;
     newTableTriggers.trigger_events = trigger_events;

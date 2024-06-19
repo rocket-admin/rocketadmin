@@ -1,13 +1,13 @@
 import { TableActionEntity } from '../../table-actions/table-action.entity.js';
-import { TableTriggersEntity } from '../table-triggers.entity.js';
-import { ITableTriggersRepository } from './table-triggers-custom-repository.interface.js';
+import { ActionRulesEntity } from '../action-rules.entity.js';
+import { IActionRulesRepository } from './table-triggers-custom-repository.interface.js';
 
-export const tableTriggersCustomRepositoryExtension: ITableTriggersRepository = {
-  async saveNewOrUpdatedTriggers(triggers: TableTriggersEntity): Promise<TableTriggersEntity> {
+export const tableTriggersCustomRepositoryExtension: IActionRulesRepository = {
+  async saveNewOrUpdatedTriggers(triggers: ActionRulesEntity): Promise<ActionRulesEntity> {
     return await this.save(triggers);
   },
 
-  async findTriggersForTableWithTableActions(connectionId: string, tableName: string): Promise<TableTriggersEntity[]> {
+  async findTriggersForTableWithTableActions(connectionId: string, tableName: string): Promise<ActionRulesEntity[]> {
     return await this.createQueryBuilder('table_triggers')
       .leftJoinAndSelect('table_triggers.table_actions', 'table_actions')
       .where('table_triggers.connection = :connectionId', { connectionId })
@@ -15,7 +15,7 @@ export const tableTriggersCustomRepositoryExtension: ITableTriggersRepository = 
       .getMany();
   },
 
-  async findTableTriggersWithActionsOnAddRow(connectionId: string, tableName: string): Promise<TableTriggersEntity[]> {
+  async findTableTriggersWithActionsOnAddRow(connectionId: string, tableName: string): Promise<ActionRulesEntity[]> {
     return await this.createQueryBuilder('table_triggers')
       .leftJoinAndSelect('table_triggers.table_actions', 'table_actions')
       .where('table_triggers.connection = :connectionId', { connectionId })
@@ -27,7 +27,7 @@ export const tableTriggersCustomRepositoryExtension: ITableTriggersRepository = 
   },
 
   async findTableActionsFromTriggersOnAddRow(connectionId: string, tableName: string): Promise<TableActionEntity[]> {
-    const foundTriggersWithAction: TableTriggersEntity[] = await this.findTableTriggersWithActionsOnAddRow(
+    const foundTriggersWithAction: ActionRulesEntity[] = await this.findTableTriggersWithActionsOnAddRow(
       connectionId,
       tableName,
     );
@@ -40,10 +40,7 @@ export const tableTriggersCustomRepositoryExtension: ITableTriggersRepository = 
     return tableActions;
   },
 
-  async findTableTriggersWithActionsOnDeleteRow(
-    connectionId: string,
-    tableName: string,
-  ): Promise<TableTriggersEntity[]> {
+  async findTableTriggersWithActionsOnDeleteRow(connectionId: string, tableName: string): Promise<ActionRulesEntity[]> {
     return await this.createQueryBuilder('table_triggers')
       .leftJoinAndSelect('table_triggers.table_actions', 'table_actions')
       .where('table_triggers.connection = :connectionId', { connectionId })
@@ -55,7 +52,7 @@ export const tableTriggersCustomRepositoryExtension: ITableTriggersRepository = 
   },
 
   async findTableActionsFromTriggersOnDeleteRow(connectionId: string, tableName: string): Promise<TableActionEntity[]> {
-    const foundTriggersWithAction: TableTriggersEntity[] = await this.findTableTriggersWithActionsOnDeleteRow(
+    const foundTriggersWithAction: ActionRulesEntity[] = await this.findTableTriggersWithActionsOnDeleteRow(
       connectionId,
       tableName,
     );
@@ -68,10 +65,7 @@ export const tableTriggersCustomRepositoryExtension: ITableTriggersRepository = 
     return tableActions;
   },
 
-  async findTableTriggersWithActionsOnUpdateRow(
-    connectionId: string,
-    tableName: string,
-  ): Promise<TableTriggersEntity[]> {
+  async findTableTriggersWithActionsOnUpdateRow(connectionId: string, tableName: string): Promise<ActionRulesEntity[]> {
     return await this.createQueryBuilder('table_triggers')
       .leftJoinAndSelect('table_triggers.table_actions', 'table_actions')
       .where('table_triggers.connection = :connectionId', { connectionId })
@@ -83,7 +77,7 @@ export const tableTriggersCustomRepositoryExtension: ITableTriggersRepository = 
   },
 
   async findTableActionsFromTriggersOnUpdateRow(connectionId: string, tableName: string): Promise<TableActionEntity[]> {
-    const foundTriggersWithAction: TableTriggersEntity[] = await this.findTableTriggersWithActionsOnUpdateRow(
+    const foundTriggersWithAction: ActionRulesEntity[] = await this.findTableTriggersWithActionsOnUpdateRow(
       connectionId,
       tableName,
     );
