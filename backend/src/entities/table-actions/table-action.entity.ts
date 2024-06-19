@@ -20,9 +20,6 @@ export class TableActionEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ default: null })
-  title: string;
-
   @Column('enum', {
     nullable: false,
     enum: TableActionTypeEnum,
@@ -32,9 +29,6 @@ export class TableActionEntity {
 
   @Column({ default: null })
   url: string;
-
-  @Column({ default: null })
-  icon: string;
 
   @Column({ default: false })
   require_confirmation: boolean;

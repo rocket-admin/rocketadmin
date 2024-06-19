@@ -4,10 +4,8 @@ import { TableActionEntity } from '../table-action.entity.js';
 
 export function buildNewTableActionEntity(actionData: CreateTableActionDTO | UpdateTableActionDS): TableActionEntity {
   const newTableAction = new TableActionEntity();
-  newTableAction.title = actionData.title;
   newTableAction.type = actionData.type;
   newTableAction.url = actionData.url;
-  newTableAction.icon = actionData.icon;
   newTableAction.require_confirmation = actionData.requireConfirmation;
   newTableAction.slack_url = actionData.slack_url;
   newTableAction.method = actionData.method;

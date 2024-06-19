@@ -3,13 +3,11 @@ import { TableActionMethodEnum } from '../../../../enums/table-action-method-enu
 
 export class CreateTableActionDS {
   connectionId: string;
-  title: string;
   type: TableActionTypeEnum;
   url: string;
   tableName: string;
   masterPwd: string;
   userId: string;
-  icon: string;
   requireConfirmation: boolean;
   method: TableActionMethodEnum;
   slack_url: string;

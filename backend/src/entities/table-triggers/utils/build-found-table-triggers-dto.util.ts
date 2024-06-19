@@ -13,10 +13,8 @@ export function buildFoundTableTriggersDto(
       table_actions: tableTrigger.table_actions.map((tableAction) => {
         return {
           id: tableAction.id,
-          title: tableAction.title,
           type: tableAction.type,
           url: tableAction.url,
-          icon: tableAction.icon,
           require_confirmation: tableAction.require_confirmation,
         };
       }),
@@ -33,10 +31,8 @@ export function buildFoundTableTriggerDto(tableTriggers: TableTriggersEntity): F
     table_actions: tableTriggers.table_actions.map((tableAction) => {
       return {
         id: tableAction.id,
-        title: tableAction.title,
         type: tableAction.type,
         url: tableAction.url,
-        icon: tableAction.icon,
         require_confirmation: tableAction.require_confirmation,
       };
     }),

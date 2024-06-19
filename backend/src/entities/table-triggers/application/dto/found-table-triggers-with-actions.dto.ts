@@ -6,17 +6,11 @@ export class FoundTableActionInTriggersDTO {
   @ApiProperty()
   id: string;
 
-  @ApiProperty()
-  title: string;
-
   @ApiProperty({ enum: TableActionTypeEnum })
   type: TableActionTypeEnum;
 
   @ApiProperty({ required: false })
   url?: string;
-
-  @ApiProperty({ required: false })
-  icon?: string;
 
   @ApiProperty()
   require_confirmation: boolean;

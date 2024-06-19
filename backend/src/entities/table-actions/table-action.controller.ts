@@ -121,16 +121,14 @@ export class TableActionsController {
     @QueryTableName() tableName: string,
     @Body() tableActionData: CreateTableActionDTO,
   ): Promise<CreatedTableActionDS> {
-    const { title, url, icon, type, requireConfirmation, emails, method, slack_url } = tableActionData;
+    const { url, type, requireConfirmation, emails, method, slack_url } = tableActionData;
     const inputData: CreateTableActionDS = {
       connectionId: connectionId,
       masterPwd: masterPwd,
       userId: userId,
       tableName: tableName,
-      title: title,
       url: url,
       type: type,
-      icon: icon,
       requireConfirmation: requireConfirmation,
       emails: emails,
       method: method || TableActionMethodEnum.HTTP,
@@ -154,13 +152,11 @@ export class TableActionsController {
     @Body() tableActionData: CreateTableActionDTO,
     @UserId() userId: string,
   ): Promise<CreatedTableActionDS> {
-    const { title, url, icon, type, requireConfirmation, emails, method, slack_url } = tableActionData;
+    const { url, type, requireConfirmation, emails, method, slack_url } = tableActionData;
     const inputData: UpdateTableActionDS = {
       actionId: actionId,
-      title: title,
       url: url,
       type: type,
-      icon: icon,
       requireConfirmation: requireConfirmation,
       emails: emails,
       method: method || TableActionMethodEnum.HTTP,
