@@ -9,7 +9,6 @@ export function buildFoundTableTriggersDto(
       id: tableTrigger.id,
       table_name: tableTrigger.table_name,
       created_at: tableTrigger.created_at,
-      trigger_events: tableTrigger.trigger_events,
       table_actions: tableTrigger.table_actions.map((tableAction) => {
         return {
           id: tableAction.id,
@@ -27,7 +26,6 @@ export function buildFoundTableTriggerDto(tableTriggers: ActionRulesEntity): Fou
     id: tableTriggers.id,
     table_name: tableTriggers.table_name,
     created_at: tableTriggers.created_at,
-    trigger_events: tableTriggers.trigger_events,
     table_actions: tableTriggers.table_actions.map((tableAction) => {
       return {
         id: tableAction.id,

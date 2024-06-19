@@ -1,5 +1,4 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { TableTriggerEventEnum } from '../../../../enums/table-trigger-event-enum.js';
 import { TableActionTypeEnum } from '../../../../enums/table-action-type.enum.js';
 
 export class FoundTableActionInTriggersDTO {
@@ -25,13 +24,6 @@ export class FoundTableTriggersWithActionsDTO {
 
   @ApiProperty()
   created_at: Date;
-
-  @ApiProperty({
-    isArray: true,
-    enum: TableTriggerEventEnum,
-    example: [TableTriggerEventEnum.ADD_ROW, TableTriggerEventEnum.DELETE_ROW, TableTriggerEventEnum.UPDATE_ROW],
-  })
-  trigger_events: Array<TableTriggerEventEnum>;
 
   @ApiProperty({
     isArray: true,

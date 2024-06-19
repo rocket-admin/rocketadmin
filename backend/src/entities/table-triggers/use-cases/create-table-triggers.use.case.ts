@@ -23,7 +23,7 @@ export class CreateTableTriggersUseCase
   }
 
   protected async implementation(inputData: CreateTableTriggersDS): Promise<FoundTableTriggersWithActionsDTO> {
-    const { connectionId, tableName, actions_ids, trigger_events } = inputData;
+    const { connectionId, tableName, actions_ids } = inputData;
     const foundConnection = await this._dbContext.connectionRepository.findOne({ where: { id: connectionId } });
 
     if (!foundConnection) {
@@ -40,15 +40,14 @@ export class CreateTableTriggersUseCase
       throw new NotFoundException(Messages.TABLE_ACTION_NOT_FOUND);
     }
 
-    const newTableTriggers = new ActionRulesEntity();
-    newTableTriggers.connection = foundConnection;
-    newTableTriggers.table_name = tableName;
-    newTableTriggers.trigger_events = trigger_events;
-    newTableTriggers.table_actions = [];
+    const newActionRules = new ActionRulesEntity();
+    newActionRules.connection = foundConnection;
+    newActionRules.table_name = tableName;
+    newActionRules.table_actions = [];
 
-    const savedTrigger = await this._dbContext.tableTriggersRepository.saveNewOrUpdatedTriggers(newTableTriggers);
+    const savedTrigger = await this._dbContext.tableTriggersRepository.saveNewOrUpdatedTriggers(newActionRules);
     savedTrigger.table_actions.push(...foundTableActions);
     await this._dbContext.tableTriggersRepository.saveNewOrUpdatedTriggers(savedTrigger);
-    return buildFoundTableTriggerDto(newTableTriggers);
+    return buildFoundTableTriggerDto(newActionRules);
   }
 }
