@@ -35,9 +35,9 @@ import { QueryUuid } from '../../decorators/query-uuid.decorator.js';
 @UseInterceptors(SentryInterceptor)
 @Controller()
 @ApiBearerAuth()
-@ApiTags('table triggers')
+@ApiTags('action rules')
 @Injectable()
-export class TableTriggersController {
+export class ActionRulesController {
   constructor(
     @Inject(UseCaseType.FIND_TABLE_TRIGGERS)
     private readonly findAllTableTriggersUseCase: IFindAllTableTriggers,
@@ -51,15 +51,15 @@ export class TableTriggersController {
     private readonly deleteTableTriggersUseCase: IDeleteTableTriggers,
   ) {}
 
-  @ApiOperation({ summary: 'Get all table triggers for this table' })
+  @ApiOperation({ summary: 'Get all action rules for this table' })
   @ApiResponse({
     status: 200,
-    description: 'Return all triggers for this table.',
+    description: 'Return all rules for this table.',
     type: FoundTableTriggersWithActionsDTO,
     isArray: true,
   })
   @UseGuards(ConnectionEditGuard)
-  @Get('/table/triggers/:connectionId')
+  @Get('/table/rules/:connectionId')
   async findAll(
     @SlugUuid('connectionId') connectionId: string,
     @QueryTableName() tableName: string,
@@ -67,29 +67,29 @@ export class TableTriggersController {
     return await this.findAllTableTriggersUseCase.execute({ connectionId, tableName });
   }
 
-  @ApiOperation({ summary: 'Get table triggers by id' })
+  @ApiOperation({ summary: 'Get action rules by id' })
   @ApiResponse({
     status: 200,
-    description: 'Return all triggers for this table.',
+    description: 'Return all rules for this table.',
     type: FoundTableTriggersWithActionsDTO,
     isArray: false,
   })
   @UseGuards(ConnectionEditGuard)
-  @Get('/table/trigger/:connectionId')
+  @Get('/table/rules/:connectionId')
   async findOneTrigger(@QueryUuid('triggerId') triggerId: string): Promise<FoundTableTriggersWithActionsDTO> {
     return await this.findTableTriggerUseCase.execute(triggerId);
   }
 
-  @ApiOperation({ summary: 'Create triggers for table' })
+  @ApiOperation({ summary: 'Create rules for table' })
   @ApiResponse({
     status: 200,
-    description: 'Return created triggers table.',
+    description: 'Return created rules table.',
     type: FoundTableTriggersWithActionsDTO,
     isArray: false,
   })
   @ApiBody({ type: CreateTableTriggersBodyDTO })
   @UseGuards(ConnectionEditGuard)
-  @Post('/table/triggers/:connectionId')
+  @Post('/table/rules/:connectionId')
   async createTriggers(
     @Body() createTableTriggerData: CreateTableTriggersBodyDTO,
     @SlugUuid('connectionId') connectionId: string,
@@ -108,16 +108,16 @@ export class TableTriggersController {
   @ApiOperation({ summary: 'Update table trigger' })
   @ApiResponse({
     status: 200,
-    description: 'Return created triggers table.',
+    description: 'Return created rules table.',
     type: FoundTableTriggersWithActionsDTO,
     isArray: false,
   })
   @ApiBody({ type: CreateTableTriggersBodyDTO })
   @UseGuards(ConnectionEditGuard)
-  @Put('/table/triggers/:connectionId/')
+  @Put('/table/rules/:connectionId/')
   async updateTrigger(
     @Body() createTableTriggerData: CreateTableTriggersBodyDTO,
-    @QueryUuid('triggersId') triggersId: string,
+    @QueryUuid('ruleId') triggersId: string,
     @QueryTableName() tableName: string,
   ): Promise<FoundTableTriggersWithActionsDTO> {
     const { actions_ids, trigger_events } = createTableTriggerData;
@@ -130,18 +130,18 @@ export class TableTriggersController {
     return await this.updateTableTriggersUseCase.execute(inputData, InTransactionEnum.OFF);
   }
 
-  @ApiOperation({ summary: 'Delete table trigger' })
+  @ApiOperation({ summary: 'Delete table rule' })
   @ApiResponse({
     status: 200,
-    description: 'Return created triggers table.',
+    description: 'Return created triggers rule.',
     type: FoundTableTriggersWithActionsDTO,
     isArray: false,
   })
   @UseGuards(ConnectionEditGuard)
   @Delete('/table/triggers/:connectionId')
-  async deleteTrigger(@QueryUuid('triggersId') triggersId: string): Promise<FoundTableTriggersWithActionsDTO> {
+  async deleteTrigger(@QueryUuid('ruleId') triggersId: string): Promise<FoundTableTriggersWithActionsDTO> {
     if (!triggersId) {
-      throw new BadRequestException(Messages.REQUIRED_PARAMETERS_MISSING(['triggersId']));
+      throw new BadRequestException(Messages.REQUIRED_PARAMETERS_MISSING(['ruleId']));
     }
     return await this.deleteTableTriggersUseCase.execute(triggersId, InTransactionEnum.OFF);
   }

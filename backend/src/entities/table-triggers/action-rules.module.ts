@@ -1,7 +1,7 @@
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { GlobalDatabaseContext } from '../../common/application/global-database-context.js';
 import { BaseType, UseCaseType } from '../../common/data-injection.tokens.js';
-import { TableTriggersController } from './table-triggers.controller.js';
+import { ActionRulesController } from './action-rules.controller.js';
 import { MiddlewareConsumer, Module, RequestMethod } from '@nestjs/common';
 import { AuthMiddleware } from '../../authorization/auth.middleware.js';
 import { FindAllTableTriggersUseCase } from './use-cases/find-all-table-triggers.use.case.js';
@@ -41,7 +41,7 @@ import { FindTableTriggerUseCase } from './use-cases/find-table-trigger.use.case
       useClass: FindTableTriggerUseCase,
     },
   ],
-  controllers: [TableTriggersController],
+  controllers: [ActionRulesController],
 })
 export class TableTriggersModule {
   public configure(consumer: MiddlewareConsumer): any {
