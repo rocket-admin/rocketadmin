@@ -31,7 +31,7 @@
                         <div>
                             <span class="price">${{ plan.price }}</span><span class="per">/monthly</span>
                         </div>
-                        <span class="per period">per user</span>
+                        <span class="per period">{{plan.price ? 'per each 10 users' : 'up to 3 users'}}</span>
                         <button mat-flat-button color="accent"
                             *ngIf="plan.key === currentPlan.key; else activeButton"
                             disabled class="current">
