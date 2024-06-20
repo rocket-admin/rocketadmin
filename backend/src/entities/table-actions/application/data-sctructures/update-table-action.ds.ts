@@ -5,7 +5,6 @@ export class UpdateTableActionDS {
   actionId: string;
   type: TableActionTypeEnum;
   url: string;
-  requireConfirmation: boolean;
   method: TableActionMethodEnum;
   slack_url: string;
   emails: string[];

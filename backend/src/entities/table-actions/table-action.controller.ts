@@ -121,7 +121,7 @@ export class TableActionsController {
     @QueryTableName() tableName: string,
     @Body() tableActionData: CreateTableActionDTO,
   ): Promise<CreatedTableActionDS> {
-    const { url, type, requireConfirmation, emails, method, slack_url } = tableActionData;
+    const { url, type, emails, method, slack_url } = tableActionData;
     const inputData: CreateTableActionDS = {
       connectionId: connectionId,
       masterPwd: masterPwd,
@@ -129,9 +129,8 @@ export class TableActionsController {
       tableName: tableName,
       url: url,
       type: type,
-      requireConfirmation: requireConfirmation,
       emails: emails,
-      method: method || TableActionMethodEnum.HTTP,
+      method: method || TableActionMethodEnum.URL,
       slack_url: slack_url,
     };
     this.validateTableAction(inputData);
@@ -152,14 +151,13 @@ export class TableActionsController {
     @Body() tableActionData: CreateTableActionDTO,
     @UserId() userId: string,
   ): Promise<CreatedTableActionDS> {
-    const { url, type, requireConfirmation, emails, method, slack_url } = tableActionData;
+    const { url, type, emails, method, slack_url } = tableActionData;
     const inputData: UpdateTableActionDS = {
       actionId: actionId,
       url: url,
       type: type,
-      requireConfirmation: requireConfirmation,
       emails: emails,
-      method: method || TableActionMethodEnum.HTTP,
+      method: method || TableActionMethodEnum.URL,
       slack_url: slack_url,
       userId: userId,
     };
@@ -235,7 +233,7 @@ export class TableActionsController {
       }
     }
 
-    if (method === TableActionMethodEnum.HTTP) {
+    if (method === TableActionMethodEnum.URL) {
       if ((!validator.isURL(url) && process.env.NODE_ENV !== 'test') || !url) {
         throw new BadRequestException(Messages.URL_INVALID);
       }

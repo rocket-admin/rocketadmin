@@ -8,7 +8,6 @@ export class CreateTableActionDS {
   tableName: string;
   masterPwd: string;
   userId: string;
-  requireConfirmation: boolean;
   method: TableActionMethodEnum;
   slack_url: string;
   emails: string[];

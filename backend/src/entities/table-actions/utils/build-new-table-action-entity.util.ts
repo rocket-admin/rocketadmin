@@ -6,7 +6,6 @@ export function buildNewTableActionEntity(actionData: CreateTableActionDTO | Upd
   const newTableAction = new TableActionEntity();
   newTableAction.type = actionData.type;
   newTableAction.url = actionData.url;
-  newTableAction.require_confirmation = actionData.requireConfirmation;
   newTableAction.slack_url = actionData.slack_url;
   newTableAction.method = actionData.method;
   newTableAction.emails = actionData.emails;

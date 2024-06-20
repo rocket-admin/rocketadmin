@@ -14,7 +14,6 @@ export function buildFoundTableTriggersDto(
           id: tableAction.id,
           type: tableAction.type,
           url: tableAction.url,
-          require_confirmation: tableAction.require_confirmation,
         };
       }),
     };
@@ -31,7 +30,6 @@ export function buildFoundTableTriggerDto(tableTriggers: ActionRulesEntity): Fou
         id: tableAction.id,
         type: tableAction.type,
         url: tableAction.url,
-        require_confirmation: tableAction.require_confirmation,
       };
     }),
   };

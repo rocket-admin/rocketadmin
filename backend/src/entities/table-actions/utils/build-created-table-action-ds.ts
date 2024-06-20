@@ -6,7 +6,6 @@ export function buildCreatedTableActionDS(tableAction: TableActionEntity): Creat
     id: tableAction.id,
     type: tableAction.type,
     url: tableAction.url,
-    requireConfirmation: tableAction.require_confirmation,
     method: tableAction.method,
     slack_url: tableAction.slack_url,
     emails: tableAction.emails,

@@ -10,9 +10,6 @@ export class FoundTableActionInTriggersDTO {
 
   @ApiProperty({ required: false })
   url?: string;
-
-  @ApiProperty()
-  require_confirmation: boolean;
 }
 
 export class FoundTableTriggersWithActionsDTO {

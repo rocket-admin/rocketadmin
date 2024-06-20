@@ -29,7 +29,7 @@ export async function activateTableAction(
   triggerOperation: TableTriggerEventEnum,
 ): Promise<ActionActivationResult> {
   switch (tableAction.method) {
-    case TableActionMethodEnum.HTTP:
+    case TableActionMethodEnum.URL:
       return await activateHttpTableAction(tableAction, foundConnection, request_body, userId, tableName);
     case TableActionMethodEnum.SLACK:
       return await activateSlackTableAction(

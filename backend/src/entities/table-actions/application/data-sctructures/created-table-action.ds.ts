@@ -12,9 +12,6 @@ export class CreatedTableActionDS {
   @ApiProperty()
   url: string;
 
-  @ApiProperty()
-  requireConfirmation: boolean;
-
   @ApiProperty({ enum: TableActionMethodEnum })
   method: TableActionMethodEnum;
 

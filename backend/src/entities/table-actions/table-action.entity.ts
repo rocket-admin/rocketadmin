@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import {
   AfterLoad,
   BeforeInsert,
@@ -30,13 +31,10 @@ export class TableActionEntity {
   @Column({ default: null })
   url: string;
 
-  @Column({ default: false })
-  require_confirmation: boolean;
-
   @Column('enum', {
     nullable: false,
     enum: TableActionMethodEnum,
-    default: TableActionMethodEnum.HTTP,
+    default: TableActionMethodEnum.URL,
   })
   method!: TableActionMethodEnum;
 
@@ -46,15 +44,14 @@ export class TableActionEntity {
   @Column('varchar', { array: true, default: {} })
   emails: string[];
 
-  @ManyToOne(() => TableSettingsEntity, (settings) => settings.table_actions, { onDelete: 'CASCADE' })
+  @ManyToOne((type) => TableSettingsEntity, (settings) => settings.table_actions, { onDelete: 'CASCADE' })
   settings: Relation<TableSettingsEntity>;
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   @ManyToMany((type) => ActionRulesEntity, (rules) => rules.table_actions)
   action_rules: Relation<ActionRulesEntity>[];
 
   @BeforeInsert()
-  encryptEmailsAndTokens(): void {
+  encryptSlackUrl(): void {
     if (this.slack_url) {
       this.slack_url = Encryptor.encryptData(this.slack_url);
     }
@@ -62,11 +59,11 @@ export class TableActionEntity {
 
   @BeforeUpdate()
   encryptEmailsAndTokensBeforeUpdate(): void {
-    this.encryptEmailsAndTokens();
+    this.encryptSlackUrl();
   }
 
   @AfterLoad()
-  decryptEmailsAndTokens(): void {
+  decryptSlackUrl(): void {
     if (this.slack_url) {
       this.slack_url = Encryptor.decryptData(this.slack_url);
     }
