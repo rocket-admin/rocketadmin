@@ -45,9 +45,9 @@ export class CreateTableTriggersUseCase
     newActionRules.table_name = tableName;
     newActionRules.table_actions = [];
 
-    const savedTrigger = await this._dbContext.tableTriggersRepository.saveNewOrUpdatedTriggers(newActionRules);
+    const savedTrigger = await this._dbContext.tableTriggersRepository.saveNewOrUpdatedTableRules(newActionRules);
     savedTrigger.table_actions.push(...foundTableActions);
-    await this._dbContext.tableTriggersRepository.saveNewOrUpdatedTriggers(savedTrigger);
+    await this._dbContext.tableTriggersRepository.saveNewOrUpdatedTableRules(savedTrigger);
     return buildFoundTableTriggerDto(newActionRules);
   }
 }

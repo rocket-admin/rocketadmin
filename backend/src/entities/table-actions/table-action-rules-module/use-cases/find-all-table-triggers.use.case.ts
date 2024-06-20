@@ -21,7 +21,7 @@ export class FindAllTableTriggersUseCase
 
   protected async implementation(inputData: FindTableTriggersDS): Promise<FoundTableTriggersWithActionsDTO[]> {
     const { connectionId, tableName } = inputData;
-    const foundTableTriggers = await this._dbContext.tableTriggersRepository.findTriggersForTableWithTableActions(
+    const foundTableTriggers = await this._dbContext.tableTriggersRepository.findActionRulesForTableWithTableActions(
       connectionId,
       tableName,
     );

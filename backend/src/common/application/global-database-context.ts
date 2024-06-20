@@ -71,7 +71,7 @@ import { userSessionSettingsRepositoryExtension } from '../../entities/user/user
 import { IUserSessionSettings } from '../../entities/user/user-session-settings/reposiotory/user-session-settings-repository.interface.js';
 import { ActionRulesEntity } from '../../entities/table-actions/table-action-rules-module/action-rules.entity.js';
 import { IActionRulesRepository } from '../../entities/table-actions/table-action-rules-module/repository/table-triggers-custom-repository.interface.js';
-import { tableTriggersCustomRepositoryExtension } from '../../entities/table-actions/table-action-rules-module/repository/table-triggers-custom-repository.js';
+import { actionRulesCustomRepositoryExtension } from '../../entities/table-actions/table-action-rules-module/repository/table-triggers-custom-repository.js';
 
 @Injectable({ scope: Scope.REQUEST })
 export class GlobalDatabaseContext implements IGlobalDatabaseContext {
@@ -173,7 +173,7 @@ export class GlobalDatabaseContext implements IGlobalDatabaseContext {
       .extend(userSessionSettingsRepositoryExtension);
     this._tableTriggersRepository = this.appDataSource
       .getRepository(ActionRulesEntity)
-      .extend(tableTriggersCustomRepositoryExtension);
+      .extend(actionRulesCustomRepositoryExtension);
   }
 
   public get userRepository(): Repository<UserEntity> & IUserRepository {

@@ -152,8 +152,10 @@ export class DeleteRowFromTableUseCase
         userId,
       );
 
-      const foundAddTableActions =
-        await this._dbContext.tableTriggersRepository.findTableActionsFromTriggersOnDeleteRow(connectionId, tableName);
+      const foundAddTableActions = await this._dbContext.tableTriggersRepository.findActionRulesFromTriggersOnDeleteRow(
+        connectionId,
+        tableName,
+      );
       await activateTableActions(
         foundAddTableActions,
         connection,

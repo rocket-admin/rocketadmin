@@ -32,7 +32,7 @@ export class UpdateTableTriggersUseCase
     }
     foundTableTriggers.table_actions = foundTableActions;
     foundTableTriggers.table_name = table_name;
-    const savedTriggers = await this._dbContext.tableTriggersRepository.saveNewOrUpdatedTriggers(foundTableTriggers);
+    const savedTriggers = await this._dbContext.tableTriggersRepository.saveNewOrUpdatedTableRules(foundTableTriggers);
     return buildFoundTableTriggerDto(savedTriggers);
   }
 }

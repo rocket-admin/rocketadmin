@@ -289,8 +289,10 @@ export class UpdateRowInTableUseCase
         isTest ? AmplitudeEventTypeEnum.tableRowAddedTest : AmplitudeEventTypeEnum.tableRowAdded,
         userId,
       );
-      const foundAddTableActions =
-        await this._dbContext.tableTriggersRepository.findTableActionsFromTriggersOnUpdateRow(connectionId, tableName);
+      const foundAddTableActions = await this._dbContext.tableTriggersRepository.findActionRulesFromTriggersOnUpdateRow(
+        connectionId,
+        tableName,
+      );
       await activateTableActions(
         foundAddTableActions,
         connection,

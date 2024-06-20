@@ -236,7 +236,7 @@ export class AddRowInTableUseCase extends AbstractUseCase<AddRowInTableDs, Table
         isTest ? AmplitudeEventTypeEnum.tableRowAddedTest : AmplitudeEventTypeEnum.tableRowAdded,
         userId,
       );
-      const foundAddTableActions = await this._dbContext.tableTriggersRepository.findTableActionsFromTriggersOnAddRow(
+      const foundAddTableActions = await this._dbContext.tableTriggersRepository.findActionRulesFromTriggersOnAddRow(
         connectionId,
         tableName,
       );
