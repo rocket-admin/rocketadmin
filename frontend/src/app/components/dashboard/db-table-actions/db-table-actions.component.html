@@ -1,7 +1,7 @@
 <mat-drawer-container class="drawer">
     <mat-drawer mode="side" opened>
         <div class="drawer-header">
-            <h1 class="mat-h1">Actions</h1>
+            <h1 class="mat-h1">Rules</h1>
 
             <button mat-icon-button color="primary" *ngIf="actionsData && actions && actions.length !== 0"
                 type="button" class="add-icon-button"
@@ -12,13 +12,13 @@
             </button>
         </div>
         <div class="no-actions" *ngIf="actionsData && actions && actions.length === 0 && !newAction">
-            <span class="mat-body-1">No actions added</span>
+            <span class="mat-body-1">No rules added</span>
             <button mat-stroked-button color="primary" type="button"
                 angulartics2On="click"
                 angularticsAction="Actions: add action is clicked"
                 (click)="addNewAction()">
                 <mat-icon>add</mat-icon>
-                Add action
+                Add rule
             </button>
         </div>
         <mat-action-list *ngIf="actionsData && actions && actions.length">
@@ -30,10 +30,6 @@
                 }"
                 (click)="switchActionView(action)">
                 <span>{{ action.title }}</span>
-                <mat-icon *ngIf="!action.id" fontSet="material-icons-outlined"
-                    class="list-action-list-item__savingIcon">
-                    save
-                </mat-icon>
             </button>
         </mat-action-list>
         <mat-form-field *ngIf="newAction" appearance="fill" class="new-action-input">
@@ -62,15 +58,54 @@
                     <input matInput [(ngModel)]="updatedActionTitle" name="action-title" required>
                 </mat-form-field>
 
-                <div class="actions-icon-selector">
-                    <span>Icon</span>
-                    <app-icon-picker class="icon-picker"
-                        [icon]="selectedAction.icon"
-                        [defaultIcons]="defaultIcons"
-                        tooltip="Choose an icon"
-                        (onFieldChange)="updateIcon($event)">
-                    </app-icon-picker>
+                <div>
+                    <span>When</span>
+                    <mat-form-field appearance="outline">
+                        <mat-label>Events</mat-label>
+                        <mat-select name="action-column" (change)="onEventChange($event)">
+                            <mat-option value="add">Added row</mat-option>
+                            <mat-option value="edit">Edited row</mat-option>
+                            <mat-option value="delete">Deleted row</mat-option>
+                            <mat-option value="custom">Custom event</mat-option>
+                        </mat-select>
+                    </mat-form-field>
                 </div>
+
+                <div *ngIf="customEventSettingsShown">
+                    <mat-form-field appearance="outline">
+                        <mat-label>Name</mat-label>
+                        <input matInput [(ngModel)]="updatedActionTitle" name="action-title" required>
+                    </mat-form-field>
+                    <div class="actions-icon-selector">
+                        <span>Icon</span>
+                        <app-icon-picker class="icon-picker"
+                            [icon]="selectedAction.icon"
+                            [defaultIcons]="defaultIcons"
+                            tooltip="Choose an icon"
+                            (onFieldChange)="updateIcon($event)">
+                        </app-icon-picker>
+                    </div>
+                    <mat-radio-group
+                        name="action-type"
+                        [(ngModel)]="selectedAction.type">
+                        <mat-label>Affects</mat-label>
+                        <mat-radio-button value='single' class="radio-button_first" checked>
+                            Single row
+                        </mat-radio-button>
+                        <mat-radio-button value='multiple' class="radio-button_second">
+                            Multiple rows
+                        </mat-radio-button>
+                    </mat-radio-group>
+
+                    <mat-checkbox name="action-confirmation" #confirmation="ngModel"
+                        labelPosition="after"
+                        class="confirmation-checkbox"
+                        [(ngModel)]="selectedAction.requireConfirmation">
+                        Request confirmation
+                    </mat-checkbox>
+                </div>
+
+
 
                 <mat-form-field appearance="outline">
                     <mat-label>Action URL</mat-label>
@@ -78,24 +113,7 @@
                     <!-- <mat-error *ngIf="sslCert.errors?.required && (sslCert.invalid && sslCert.touched)">SSL certificate should not be empty.</mat-error> -->
                 </mat-form-field>
 
-                <mat-radio-group
-                    name="action-type"
-                    [(ngModel)]="selectedAction.type">
-                    <mat-label>Affects</mat-label>
-                    <mat-radio-button value='single' class="radio-button_first" checked>
-                        Single row
-                    </mat-radio-button>
-                    <mat-radio-button value='multiple' class="radio-button_second">
-                        Multiple rows
-                    </mat-radio-button>
-                </mat-radio-group>
 
-                <mat-checkbox name="action-confirmation" #confirmation="ngModel"
-                    labelPosition="after"
-                    class="confirmation-checkbox"
-                    [(ngModel)]="selectedAction.requireConfirmation">
-                    Request confirmation
-                </mat-checkbox>
 
                 <div class="action__actions">
                     <button mat-stroked-button color="warn" type="button"

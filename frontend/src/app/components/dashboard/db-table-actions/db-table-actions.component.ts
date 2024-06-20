@@ -35,6 +35,8 @@ export class DbTableActionsComponent implements OnInit {
   public actionNameError: string;
   public codeSnippets: object;
 
+  public customEventSettingsShown = false;
+
   public defaultIcons = ['favorite_outline', 'star_outline', 'done', 'arrow_forward', 'key_outline', 'lock', 'visibility', 'language', 'notifications', 'schedule'];
 
   public codeLangSelected: string = 'cs';
@@ -250,5 +252,12 @@ export class DbTableActionsComponent implements OnInit {
 
   showCopyNotification(message: string) {
     this._notifications.showSuccessSnackbar(message);
+  }
+
+  onEventChange(event: any) {
+    console.log(event);
+    if (event === 'custom') {
+      this.customEventSettingsShown = true;
+    }
   }
 }
