@@ -7,7 +7,7 @@ import { getDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-acce
 import { WidgetTypeEnum } from '../../../enums/index.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { compareArrayElements, isConnectionTypeAgent } from '../../../helpers/index.js';
-import { buildCreatedTableActionDS } from '../../table-actions/utils/build-created-table-action-ds.js';
+import { buildCreatedTableActionDS } from '../../table-actions/table-actions-module/utils/build-created-table-action-ds.js';
 import { GetRowByPrimaryKeyDs } from '../application/data-structures/get-row-by-primary-key.ds.js';
 import { ForeignKeyDSInfo, ReferencedTableNamesAndColumnsDs, TableRowRODs } from '../table-datastructures.js';
 import { convertBinaryDataInRowUtil } from '../utils/convert-binary-data-in-row.util.js';

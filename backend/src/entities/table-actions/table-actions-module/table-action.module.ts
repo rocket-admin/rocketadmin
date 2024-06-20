@@ -1,10 +1,10 @@
 import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { AuthMiddleware } from '../../authorization/index.js';
-import { GlobalDatabaseContext } from '../../common/application/global-database-context.js';
-import { BaseType, UseCaseType } from '../../common/data-injection.tokens.js';
-import { LogOutEntity } from '../log-out/log-out.entity.js';
-import { UserEntity } from '../user/user.entity.js';
+import { AuthMiddleware } from '../../../authorization/index.js';
+import { GlobalDatabaseContext } from '../../../common/application/global-database-context.js';
+import { BaseType, UseCaseType } from '../../../common/data-injection.tokens.js';
+import { LogOutEntity } from '../../log-out/log-out.entity.js';
+import { UserEntity } from '../../user/user.entity.js';
 import { TableActionsController } from './table-action.controller.js';
 import { TableActionEntity } from './table-action.entity.js';
 import { ActivateTableActionsUseCase } from './use-cases/activate-table-actions.use.case.js';

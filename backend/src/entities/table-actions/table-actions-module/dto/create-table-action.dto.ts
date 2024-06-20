@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { TableActionTypeEnum } from '../../../enums/index.js';
+import { TableActionTypeEnum } from '../../../../enums/index.js';
 import { IsArray, IsEmail, IsEnum, IsOptional, IsString } from 'class-validator';
-import { TableActionMethodEnum } from '../../../enums/table-action-method-enum.js';
+import { TableActionMethodEnum } from '../../../../enums/table-action-method-enum.js';
 
 export class CreateTableActionDTO {
   @ApiProperty({ enum: TableActionTypeEnum })

@@ -1,4 +1,4 @@
-import { InTransactionEnum } from '../../../enums/index.js';
+import { InTransactionEnum } from '../../../../enums/index.js';
 import { ActivateTableActionDS } from '../application/data-sctructures/activate-table-action.ds.js';
 import { ActivateTableActionsDS } from '../application/data-sctructures/activate-table-actions.ds.js';
 import {

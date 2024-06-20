@@ -24,9 +24,9 @@ import { ILogOutRepository } from '../../entities/log-out/repository/log-out-rep
 import { PermissionEntity } from '../../entities/permission/permission.entity.js';
 import { permissionCustomRepositoryExtension } from '../../entities/permission/repository/permission-custom-repository-extension.js';
 import { IPermissionRepository } from '../../entities/permission/repository/permission.repository.interface.js';
-import { ITableActionRepository } from '../../entities/table-actions/repository/table-action-custom-repository.interface.js';
-import { tableActionsCustomRepositoryExtension } from '../../entities/table-actions/repository/table-actions-custom-repository.extension.js';
-import { TableActionEntity } from '../../entities/table-actions/table-action.entity.js';
+import { ITableActionRepository } from '../../entities/table-actions/table-actions-module/repository/table-action-custom-repository.interface.js';
+import { tableActionsCustomRepositoryExtension } from '../../entities/table-actions/table-actions-module/repository/table-actions-custom-repository.extension.js';
+import { TableActionEntity } from '../../entities/table-actions/table-actions-module/table-action.entity.js';
 import { TableFieldInfoEntity } from '../../entities/table-field-info/table-field-info.entity.js';
 import { TableInfoEntity } from '../../entities/table-info/table-info.entity.js';
 import { tableLogsCustomRepositoryExtension } from '../../entities/table-logs/repository/table-logs-custom-repository-extension.js';

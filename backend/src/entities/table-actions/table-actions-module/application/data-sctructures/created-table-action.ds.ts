@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { TableActionTypeEnum } from '../../../../enums/index.js';
-import { TableActionMethodEnum } from '../../../../enums/table-action-method-enum.js';
+import { TableActionTypeEnum } from '../../../../../enums/index.js';
+import { TableActionMethodEnum } from '../../../../../enums/table-action-method-enum.js';
 
 export class CreatedTableActionDS {
   @ApiProperty()

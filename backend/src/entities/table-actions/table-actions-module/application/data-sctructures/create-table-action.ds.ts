@@ -1,5 +1,5 @@
-import { TableActionTypeEnum } from '../../../../enums/index.js';
-import { TableActionMethodEnum } from '../../../../enums/table-action-method-enum.js';
+import { TableActionTypeEnum } from '../../../../../enums/index.js';
+import { TableActionMethodEnum } from '../../../../../enums/table-action-method-enum.js';
 
 export class CreateTableActionDS {
   connectionId: string;

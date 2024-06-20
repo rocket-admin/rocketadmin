@@ -15,13 +15,13 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import validator from 'validator';
-import { UseCaseType } from '../../common/data-injection.tokens.js';
-import { MasterPassword, QueryTableName, SlugUuid, UserId } from '../../decorators/index.js';
-import { InTransactionEnum, TableActionTypeEnum } from '../../enums/index.js';
-import { Messages } from '../../exceptions/text/messages.js';
-import { ConnectionEditGuard, ConnectionReadGuard } from '../../guards/index.js';
-import { validateStringWithEnum } from '../../helpers/validators/validate-string-with-enum.js';
-import { SentryInterceptor } from '../../interceptors/index.js';
+import { UseCaseType } from '../../../common/data-injection.tokens.js';
+import { MasterPassword, QueryTableName, SlugUuid, UserId } from '../../../decorators/index.js';
+import { InTransactionEnum, TableActionTypeEnum } from '../../../enums/index.js';
+import { Messages } from '../../../exceptions/text/messages.js';
+import { ConnectionEditGuard, ConnectionReadGuard } from '../../../guards/index.js';
+import { validateStringWithEnum } from '../../../helpers/validators/validate-string-with-enum.js';
+import { SentryInterceptor } from '../../../interceptors/index.js';
 import { ActivateTableActionsDS } from './application/data-sctructures/activate-table-actions.ds.js';
 import { ActivatedTableActionsDS } from './application/data-sctructures/activated-table-action.ds.js';
 import { CreateTableActionDS } from './application/data-sctructures/create-table-action.ds.js';
@@ -39,7 +39,7 @@ import {
 import { FoundTableActionsDS } from './application/data-sctructures/found-table-actions.ds.js';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CreateTableActionDTO } from './dto/create-table-action.dto.js';
-import { TableActionMethodEnum } from '../../enums/table-action-method-enum.js';
+import { TableActionMethodEnum } from '../../../enums/table-action-method-enum.js';
 
 @UseInterceptors(SentryInterceptor)
 @Controller()

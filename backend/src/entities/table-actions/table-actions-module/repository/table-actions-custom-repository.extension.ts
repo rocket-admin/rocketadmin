@@ -1,4 +1,4 @@
-import { TableSettingsEntity } from '../../table-settings/table-settings.entity.js';
+import { TableSettingsEntity } from '../../../table-settings/table-settings.entity.js';
 import { TableActionEntity } from '../table-action.entity.js';
 import { ITableActionRepository } from './table-action-custom-repository.interface.js';
 

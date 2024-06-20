@@ -30,7 +30,7 @@ import { UnknownSQLException } from '../../../exceptions/custom-exceptions/unkno
 import { ExceptionOperations } from '../../../exceptions/custom-exceptions/exception-operation.js';
 import { ReferencedTableNamesAndColumnsDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/referenced-table-names-columns.ds.js';
 import JSON5 from 'json5';
-import { activateTableActions } from '../../table-actions/utils/activate-table-action.util.js';
+import { activateTableActions } from '../../table-actions/table-actions-module/utils/activate-table-action.util.js';
 import { TableTriggerEventEnum } from '../../../enums/table-trigger-event-enum.js';
 
 @Injectable()

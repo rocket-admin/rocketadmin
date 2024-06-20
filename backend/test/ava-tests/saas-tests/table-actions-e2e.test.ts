@@ -7,7 +7,7 @@ import cookieParser from 'cookie-parser';
 import knex from 'knex';
 import request from 'supertest';
 import { ApplicationModule } from '../../../src/app.module.js';
-import { TableActionEntity } from '../../../src/entities/table-actions/table-action.entity.js';
+import { TableActionEntity } from '../../../src/entities/table-actions/table-actions-module/table-action.entity.js';
 import { AllExceptionsFilter } from '../../../src/exceptions/all-exceptions.filter.js';
 import { Messages } from '../../../src/exceptions/text/messages.js';
 import { Cacher } from '../../../src/helpers/cache/cacher.js';
@@ -22,7 +22,7 @@ import { CreateConnectionDto } from '../../../src/entities/connection/applicatio
 import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/enums/connection-types-enum.js';
 import { TableActionTypeEnum } from '../../../src/enums/table-action-type.enum.js';
 import { TableActionMethodEnum } from '../../../src/enums/table-action-method-enum.js';
-import { CreateTableActionDTO } from '../../../src/entities/table-actions/dto/create-table-action.dto.js';
+import { CreateTableActionDTO } from '../../../src/entities/table-actions/table-actions-module/dto/create-table-action.dto.js';
 
 const mockFactory = new MockFactory();
 let app: INestApplication;

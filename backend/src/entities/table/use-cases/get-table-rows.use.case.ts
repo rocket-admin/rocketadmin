@@ -14,7 +14,7 @@ import { hexToBinary, isBinary } from '../../../helpers/binary-to-hex.js';
 import { Constants } from '../../../helpers/constants/constants.js';
 import { isConnectionTypeAgent, isObjectEmpty } from '../../../helpers/index.js';
 import { AmplitudeService } from '../../amplitude/amplitude.service.js';
-import { buildCreatedTableActionDS } from '../../table-actions/utils/build-created-table-action-ds.js';
+import { buildCreatedTableActionDS } from '../../table-actions/table-actions-module/utils/build-created-table-action-ds.js';
 import { TableLogsService } from '../../table-logs/table-logs.service.js';
 import { TableSettingsEntity } from '../../table-settings/table-settings.entity.js';
 import { FoundTableRowsDs } from '../application/data-structures/found-table-rows.ds.js';

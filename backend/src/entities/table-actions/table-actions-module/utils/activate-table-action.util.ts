@@ -1,18 +1,18 @@
 import { getDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/create-data-access-object.js';
-import { Encryptor } from '../../../helpers/encryption/encryptor.js';
-import { ConnectionEntity } from '../../connection/connection.entity.js';
+import { Encryptor } from '../../../../helpers/encryption/encryptor.js';
+import { ConnectionEntity } from '../../../connection/connection.entity.js';
 import { TableActionEntity } from '../table-action.entity.js';
 import axios from 'axios';
-import { OperationResultStatusEnum } from '../../../enums/operation-result-status.enum.js';
+import { OperationResultStatusEnum } from '../../../../enums/operation-result-status.enum.js';
 import { HttpException } from '@nestjs/common';
 import PQueue from 'p-queue';
-import { TableActionMethodEnum } from '../../../enums/table-action-method-enum.js';
-import { TableTriggerEventEnum } from '../../../enums/table-trigger-event-enum.js';
-import { actionSlackPostMessage } from '../../../helpers/slack/action-slack-post-message.js';
-import { IMessage } from '../../email/email/email.interface.js';
-import { Constants } from '../../../helpers/constants/constants.js';
-import { getProcessVariable } from '../../../helpers/get-process-variable.js';
-import { sendEmailToUser } from '../../email/send-email.js';
+import { TableActionMethodEnum } from '../../../../enums/table-action-method-enum.js';
+import { TableTriggerEventEnum } from '../../../../enums/table-trigger-event-enum.js';
+import { actionSlackPostMessage } from '../../../../helpers/slack/action-slack-post-message.js';
+import { IMessage } from '../../../email/email/email.interface.js';
+import { Constants } from '../../../../helpers/constants/constants.js';
+import { getProcessVariable } from '../../../../helpers/get-process-variable.js';
+import { sendEmailToUser } from '../../../email/send-email.js';
 
 export type ActionActivationResult = {
   location?: string;

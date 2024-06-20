@@ -10,7 +10,7 @@ import { ValidationException } from '../../../src/exceptions/custom-exceptions/v
 import { DatabaseService } from '../../../src/shared/database/database.service.js';
 import { TestUtils } from '../../utils/test.utils.js';
 import { Test } from '@nestjs/testing';
-import { TableActionEntity } from '../../../src/entities/table-actions/table-action.entity.js';
+import { TableActionEntity } from '../../../src/entities/table-actions/table-actions-module/table-action.entity.js';
 import { MockFactory } from '../../mock.factory.js';
 import { fa, faker } from '@faker-js/faker';
 import knex from 'knex';
@@ -20,7 +20,7 @@ import request from 'supertest';
 import { CreateTableTriggersBodyDTO } from '../../../src/entities/table-triggers/application/dto/create-table-triggers-body.dto.js';
 import { TableTriggerEventEnum } from '../../../src/enums/table-trigger-event-enum.js';
 import nock from 'nock';
-import { CreateTableActionDTO } from '../../../src/entities/table-actions/dto/create-table-action.dto.js';
+import { CreateTableActionDTO } from '../../../src/entities/table-actions/table-actions-module/dto/create-table-action.dto.js';
 import { TableActionTypeEnum } from '../../../src/enums/table-action-type.enum.js';
 import { TableActionMethodEnum } from '../../../src/enums/table-action-method-enum.js';
 

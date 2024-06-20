@@ -1,17 +1,17 @@
 import { BadRequestException, Inject, Injectable } from '@nestjs/common';
-import AbstractUseCase from '../../../common/abstract-use.case.js';
-import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
-import { BaseType } from '../../../common/data-injection.tokens.js';
-import { Encryptor } from '../../../helpers/encryption/encryptor.js';
-import { buildEmptyTableSettingsWithEmptyWidgets } from '../../table-settings/utils/build-empty-table-settings.js';
-import { buildNewTableSettingsEntity } from '../../table-settings/utils/build-new-table-settings-entity.js';
+import AbstractUseCase from '../../../../common/abstract-use.case.js';
+import { IGlobalDatabaseContext } from '../../../../common/application/global-database-context.interface.js';
+import { BaseType } from '../../../../common/data-injection.tokens.js';
+import { Encryptor } from '../../../../helpers/encryption/encryptor.js';
+import { buildEmptyTableSettingsWithEmptyWidgets } from '../../../table-settings/utils/build-empty-table-settings.js';
+import { buildNewTableSettingsEntity } from '../../../table-settings/utils/build-new-table-settings-entity.js';
 import { CreateTableActionDS } from '../application/data-sctructures/create-table-action.ds.js';
 import { CreatedTableActionDS } from '../application/data-sctructures/created-table-action.ds.js';
 import { buildCreatedTableActionDS } from '../utils/build-created-table-action-ds.js';
 import { buildNewTableActionEntity } from '../utils/build-new-table-action-entity.util.js';
 import { ICreateTableAction } from './table-actions-use-cases.interface.js';
-import { TableActionMethodEnum } from '../../../enums/table-action-method-enum.js';
-import { Messages } from '../../../exceptions/text/messages.js';
+import { TableActionMethodEnum } from '../../../../enums/table-action-method-enum.js';
+import { Messages } from '../../../../exceptions/text/messages.js';
 
 @Injectable()
 export class CreateTableActionUseCase

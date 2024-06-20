@@ -1,7 +1,7 @@
 import { FilterCriteriaEnum, QueryOrderingEnum } from '../../../../enums/index.js';
 import { FullTableStructureDs } from './found-table-structure.ds.js';
 import { TableWidgetEntity } from '../../../widget/table-widget.entity.js';
-import { CreatedTableActionDS } from '../../../table-actions/application/data-sctructures/created-table-action.ds.js';
+import { CreatedTableActionDS } from '../../../table-actions/table-actions-module/application/data-sctructures/created-table-action.ds.js';
 import { ForeignKeyDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/foreign-key.ds.js';
 import { PrimaryKeyDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/primary-key.ds.js';
 import { RowsPaginationDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/rows-pagination.ds.js';
