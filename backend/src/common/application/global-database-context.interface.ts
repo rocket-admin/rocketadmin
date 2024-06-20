@@ -29,8 +29,8 @@ import { IUserSessionSettings } from '../../entities/user/user-session-settings/
 import { UserSessionSettingsEntity } from '../../entities/user/user-session-settings/user-session-settings.entity.js';
 import { UserEntity } from '../../entities/user/user.entity.js';
 import { ConnectionEntity } from '../../entities/connection/connection.entity.js';
-import { ActionRulesEntity } from '../../entities/table-triggers/action-rules.entity.js';
-import { IActionRulesRepository } from '../../entities/table-triggers/repository/table-triggers-custom-repository.interface.js';
+import { ActionRulesEntity } from '../../entities/table-actions/table-action-rules-module/action-rules.entity.js';
+import { IActionRulesRepository } from '../../entities/table-actions/table-action-rules-module/repository/table-triggers-custom-repository.interface.js';
 
 export interface IGlobalDatabaseContext extends IDatabaseContext {
   userRepository: Repository<UserEntity> & IUserRepository;

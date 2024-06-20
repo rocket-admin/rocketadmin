@@ -1,4 +1,4 @@
-import { TableTriggerEventEnum } from '../../../../enums/table-trigger-event-enum.js';
+import { TableTriggerEventEnum } from '../../../../../enums/table-trigger-event-enum.js';
 
 export class CreateTableTriggersDS {
   connectionId: string;

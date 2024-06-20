@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { ArrayNotEmpty, IsArray } from 'class-validator';
-import { TableTriggerEventEnum } from '../../../../enums/table-trigger-event-enum.js';
+import { TableTriggerEventEnum } from '../../../../../enums/table-trigger-event-enum.js';
 
 export class CreateTableTriggersBodyDTO {
   @ApiProperty({ isArray: true, type: 'string' })

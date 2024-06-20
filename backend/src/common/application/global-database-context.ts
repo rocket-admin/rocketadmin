@@ -69,9 +69,9 @@ import { invitationInCompanyCustomRepositoryExtension } from '../../entities/com
 import { UserSessionSettingsEntity } from '../../entities/user/user-session-settings/user-session-settings.entity.js';
 import { userSessionSettingsRepositoryExtension } from '../../entities/user/user-session-settings/reposiotory/user-session-settings-custom-repository.extension.js';
 import { IUserSessionSettings } from '../../entities/user/user-session-settings/reposiotory/user-session-settings-repository.interface.js';
-import { ActionRulesEntity } from '../../entities/table-triggers/action-rules.entity.js';
-import { IActionRulesRepository } from '../../entities/table-triggers/repository/table-triggers-custom-repository.interface.js';
-import { tableTriggersCustomRepositoryExtension } from '../../entities/table-triggers/repository/table-triggers-custom-repository.js';
+import { ActionRulesEntity } from '../../entities/table-actions/table-action-rules-module/action-rules.entity.js';
+import { IActionRulesRepository } from '../../entities/table-actions/table-action-rules-module/repository/table-triggers-custom-repository.interface.js';
+import { tableTriggersCustomRepositoryExtension } from '../../entities/table-actions/table-action-rules-module/repository/table-triggers-custom-repository.js';
 
 @Injectable({ scope: Scope.REQUEST })
 export class GlobalDatabaseContext implements IGlobalDatabaseContext {

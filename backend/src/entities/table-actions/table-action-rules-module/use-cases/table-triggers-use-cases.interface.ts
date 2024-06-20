@@ -1,4 +1,4 @@
-import { InTransactionEnum } from '../../../enums/in-transaction.enum.js';
+import { InTransactionEnum } from '../../../../enums/in-transaction.enum.js';
 import { CreateTableTriggersDS } from '../application/data-structures/create-table-triggers.ds.js';
 import { FindTableTriggersDS } from '../application/data-structures/find-all-table-triggers.ds.js';
 import { UpdateTableTriggersDS } from '../application/data-structures/update-table-triggers.ds.js';

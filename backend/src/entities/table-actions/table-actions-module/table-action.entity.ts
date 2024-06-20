@@ -12,7 +12,7 @@ import {
 } from 'typeorm';
 import { TableActionTypeEnum } from '../../../enums/index.js';
 import { TableSettingsEntity } from '../../table-settings/table-settings.entity.js';
-import { ActionRulesEntity } from '../../table-triggers/action-rules.entity.js';
+import { ActionRulesEntity } from '../table-action-rules-module/action-rules.entity.js';
 import { TableActionMethodEnum } from '../../../enums/table-action-method-enum.js';
 import { Encryptor } from '../../../helpers/encryption/encryptor.js';
 

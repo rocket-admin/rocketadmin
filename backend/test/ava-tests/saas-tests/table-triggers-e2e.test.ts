@@ -17,7 +17,7 @@ import knex from 'knex';
 import { Cacher } from '../../../src/helpers/cache/cacher.js';
 import { registerUserAndReturnUserInfo } from '../../utils/register-user-and-return-user-info.js';
 import request from 'supertest';
-import { CreateTableTriggersBodyDTO } from '../../../src/entities/table-triggers/application/dto/create-table-triggers-body.dto.js';
+import { CreateTableTriggersBodyDTO } from '../../../src/entities/table-actions/table-action-rules-module/application/dto/create-table-triggers-body.dto.js';
 import { TableTriggerEventEnum } from '../../../src/enums/table-trigger-event-enum.js';
 import nock from 'nock';
 import { CreateTableActionDTO } from '../../../src/entities/table-actions/table-actions-module/dto/create-table-action.dto.js';

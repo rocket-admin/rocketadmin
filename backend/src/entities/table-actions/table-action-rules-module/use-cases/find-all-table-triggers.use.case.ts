@@ -1,9 +1,9 @@
 import { Inject, Injectable } from '@nestjs/common';
-import AbstractUseCase from '../../../common/abstract-use.case.js';
+import AbstractUseCase from '../../../../common/abstract-use.case.js';
 import { FindTableTriggersDS } from '../application/data-structures/find-all-table-triggers.ds.js';
 import { IFindAllTableTriggers } from './table-triggers-use-cases.interface.js';
-import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
-import { BaseType } from '../../../common/data-injection.tokens.js';
+import { IGlobalDatabaseContext } from '../../../../common/application/global-database-context.interface.js';
+import { BaseType } from '../../../../common/data-injection.tokens.js';
 import { FoundTableTriggersWithActionsDTO } from '../application/dto/found-table-triggers-with-actions.dto.js';
 import { buildFoundTableTriggersDto } from '../utils/build-found-table-triggers-dto.util.js';
 

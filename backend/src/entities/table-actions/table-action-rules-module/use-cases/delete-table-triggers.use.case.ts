@@ -1,11 +1,11 @@
 import { Inject, Injectable, NotFoundException, Scope } from '@nestjs/common';
-import AbstractUseCase from '../../../common/abstract-use.case.js';
+import AbstractUseCase from '../../../../common/abstract-use.case.js';
 import { FoundTableTriggersWithActionsDTO } from '../application/dto/found-table-triggers-with-actions.dto.js';
 import { IDeleteTableTriggers } from './table-triggers-use-cases.interface.js';
-import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
-import { BaseType } from '../../../common/data-injection.tokens.js';
+import { IGlobalDatabaseContext } from '../../../../common/application/global-database-context.interface.js';
+import { BaseType } from '../../../../common/data-injection.tokens.js';
 import { buildFoundTableTriggerDto } from '../utils/build-found-table-triggers-dto.util.js';
-import { Messages } from '../../../exceptions/text/messages.js';
+import { Messages } from '../../../../exceptions/text/messages.js';
 
 @Injectable({ scope: Scope.REQUEST })
 export class DeleteTableTriggersUseCase

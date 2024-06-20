@@ -1,4 +1,4 @@
-import { TableActionEntity } from '../../table-actions/table-actions-module/table-action.entity.js';
+import { TableActionEntity } from '../../table-actions-module/table-action.entity.js';
 import { ActionRulesEntity } from '../action-rules.entity.js';
 import { IActionRulesRepository } from './table-triggers-custom-repository.interface.js';
 

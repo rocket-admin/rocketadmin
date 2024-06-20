@@ -30,7 +30,7 @@ import { fileURLToPath } from 'url';
 import { SaasModule } from './microservices/saas-microservice/saas.module.js';
 import { SaaSGatewayModule } from './microservices/gateways/saas-gateway.ts/saas-gateway.module.js';
 import { CompanyInfoModule } from './entities/company-info/company-info.module.js';
-import { TableTriggersModule } from './entities/table-triggers/action-rules.module.js';
+import { TableTriggersModule } from './entities/table-actions/table-action-rules-module/action-rules.module.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 

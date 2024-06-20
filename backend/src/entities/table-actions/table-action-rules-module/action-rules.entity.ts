@@ -9,8 +9,8 @@ import {
   PrimaryGeneratedColumn,
   Relation,
 } from 'typeorm';
-import { ConnectionEntity } from '../connection/connection.entity.js';
-import { TableActionEntity } from '../table-actions/table-actions-module/table-action.entity.js';
+import { ConnectionEntity } from '../../connection/connection.entity.js';
+import { TableActionEntity } from '../table-actions-module/table-action.entity.js';
 
 @Entity('action_rules')
 export class ActionRulesEntity {

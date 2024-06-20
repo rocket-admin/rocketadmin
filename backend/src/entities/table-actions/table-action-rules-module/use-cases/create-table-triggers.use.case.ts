@@ -1,12 +1,12 @@
 import { Inject, Injectable, NotFoundException, Scope } from '@nestjs/common';
-import AbstractUseCase from '../../../common/abstract-use.case.js';
+import AbstractUseCase from '../../../../common/abstract-use.case.js';
 import { ICreateTableTriggers } from './table-triggers-use-cases.interface.js';
 import { FoundTableTriggersWithActionsDTO } from '../application/dto/found-table-triggers-with-actions.dto.js';
 import { CreateTableTriggersDS } from '../application/data-structures/create-table-triggers.ds.js';
-import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
-import { BaseType } from '../../../common/data-injection.tokens.js';
-import { Messages } from '../../../exceptions/text/messages.js';
-import { Encryptor } from '../../../helpers/encryption/encryptor.js';
+import { IGlobalDatabaseContext } from '../../../../common/application/global-database-context.interface.js';
+import { BaseType } from '../../../../common/data-injection.tokens.js';
+import { Messages } from '../../../../exceptions/text/messages.js';
+import { Encryptor } from '../../../../helpers/encryption/encryptor.js';
 import { ActionRulesEntity } from '../action-rules.entity.js';
 import { buildFoundTableTriggerDto } from '../utils/build-found-table-triggers-dto.util.js';
 

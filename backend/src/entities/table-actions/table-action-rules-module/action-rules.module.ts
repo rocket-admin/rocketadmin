@@ -1,16 +1,16 @@
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { GlobalDatabaseContext } from '../../common/application/global-database-context.js';
-import { BaseType, UseCaseType } from '../../common/data-injection.tokens.js';
+import { GlobalDatabaseContext } from '../../../common/application/global-database-context.js';
+import { BaseType, UseCaseType } from '../../../common/data-injection.tokens.js';
 import { ActionRulesController } from './action-rules.controller.js';
 import { MiddlewareConsumer, Module, RequestMethod } from '@nestjs/common';
-import { AuthMiddleware } from '../../authorization/auth.middleware.js';
+import { AuthMiddleware } from '../../../authorization/auth.middleware.js';
 import { FindAllTableTriggersUseCase } from './use-cases/find-all-table-triggers.use.case.js';
 import { ActionRulesEntity } from './action-rules.entity.js';
 import { CreateTableTriggersUseCase } from './use-cases/create-table-triggers.use.case.js';
 import { UpdateTableTriggersUseCase } from './use-cases/update-table-triggers.use.case.js';
 import { DeleteTableTriggersUseCase } from './use-cases/delete-table-triggers.use.case.js';
-import { UserEntity } from '../user/user.entity.js';
-import { LogOutEntity } from '../log-out/log-out.entity.js';
+import { UserEntity } from '../../user/user.entity.js';
+import { LogOutEntity } from '../../log-out/log-out.entity.js';
 import { FindTableTriggerUseCase } from './use-cases/find-table-trigger.use.case.js';
 
 @Module({

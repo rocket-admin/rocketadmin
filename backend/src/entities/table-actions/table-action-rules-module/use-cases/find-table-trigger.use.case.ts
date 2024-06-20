@@ -1,10 +1,10 @@
 import { Injectable, Inject, NotFoundException } from '@nestjs/common';
-import AbstractUseCase from '../../../common/abstract-use.case.js';
-import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
-import { BaseType } from '../../../common/data-injection.tokens.js';
+import AbstractUseCase from '../../../../common/abstract-use.case.js';
+import { IGlobalDatabaseContext } from '../../../../common/application/global-database-context.interface.js';
+import { BaseType } from '../../../../common/data-injection.tokens.js';
 import { FoundTableTriggersWithActionsDTO } from '../application/dto/found-table-triggers-with-actions.dto.js';
 import { IFindTableTrigger } from './table-triggers-use-cases.interface.js';
-import { Messages } from '../../../exceptions/text/messages.js';
+import { Messages } from '../../../../exceptions/text/messages.js';
 import { buildFoundTableTriggerDto } from '../utils/build-found-table-triggers-dto.util.js';
 
 @Injectable()
