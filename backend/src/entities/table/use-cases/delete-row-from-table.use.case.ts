@@ -17,7 +17,7 @@ import { DeleteRowException } from '../../../exceptions/custom-exceptions/delete
 import { UnknownSQLException } from '../../../exceptions/custom-exceptions/unknown-sql-exception.js';
 import { ExceptionOperations } from '../../../exceptions/custom-exceptions/exception-operation.js';
 import { activateTableActions } from '../../table-actions/table-actions-module/utils/activate-table-action.util.js';
-import { TableTriggerEventEnum } from '../../../enums/table-trigger-event-enum.js';
+import { TableActionEventEnum } from '../../../enums/table-action-event-enum.js';
 
 @Injectable()
 export class DeleteRowFromTableUseCase
@@ -162,7 +162,7 @@ export class DeleteRowFromTableUseCase
         primaryKey,
         userId,
         tableName,
-        TableTriggerEventEnum.DELETE_ROW,
+        TableActionEventEnum.DELETE_ROW,
       );
     }
   }

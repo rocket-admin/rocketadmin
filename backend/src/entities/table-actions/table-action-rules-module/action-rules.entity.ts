@@ -11,6 +11,7 @@ import {
 } from 'typeorm';
 import { ConnectionEntity } from '../../connection/connection.entity.js';
 import { TableActionEntity } from '../table-actions-module/table-action.entity.js';
+import { ActionEventsEntity } from '../table-action-events-module/action-event.entity.js';
 
 @Entity('action_rules')
 export class ActionRulesEntity {
@@ -42,6 +43,20 @@ export class ActionRulesEntity {
     },
   })
   table_actions: Relation<TableActionEntity>[];
+
+  @ManyToMany((type) => ActionEventsEntity, (event) => event.action_rules, { onDelete: 'CASCADE' })
+  @JoinTable({
+    name: 'rules_events',
+    joinColumn: {
+      name: 'action_rules',
+      referencedColumnName: 'id',
+    },
+    inverseJoinColumn: {
+      name: 'action_events',
+      referencedColumnName: 'id',
+    },
+  })
+  action_events: Relation<TableActionEntity>[];
 
   @Column({ default: null })
   created_at: Date;

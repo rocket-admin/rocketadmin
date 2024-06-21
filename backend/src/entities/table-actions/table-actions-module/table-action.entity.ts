@@ -50,6 +50,9 @@ export class TableActionEntity {
   @ManyToMany((type) => ActionRulesEntity, (rules) => rules.table_actions)
   action_rules: Relation<ActionRulesEntity>[];
 
+  @Column({ default: null })
+  created_at: Date;
+
   @BeforeInsert()
   encryptSlackUrl(): void {
     if (this.slack_url) {

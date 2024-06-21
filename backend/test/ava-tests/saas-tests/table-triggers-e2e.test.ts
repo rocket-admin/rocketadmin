@@ -18,7 +18,7 @@ import { Cacher } from '../../../src/helpers/cache/cacher.js';
 import { registerUserAndReturnUserInfo } from '../../utils/register-user-and-return-user-info.js';
 import request from 'supertest';
 import { CreateTableTriggersBodyDTO } from '../../../src/entities/table-actions/table-action-rules-module/application/dto/create-table-triggers-body.dto.js';
-import { TableTriggerEventEnum } from '../../../src/enums/table-trigger-event-enum.js';
+import { TableActionEventEnum } from '../../../src/enums/table-action-event-enum.js';
 import nock from 'nock';
 import { CreateTableActionDTO } from '../../../src/entities/table-actions/table-actions-module/dto/create-table-action.dto.js';
 import { TableActionTypeEnum } from '../../../src/enums/table-action-type.enum.js';
@@ -144,7 +144,7 @@ test(`${currentTest} should return created table trigger`, async (t) => {
 
   const tableTriggerDTO: CreateTableTriggersBodyDTO = {
     actions_ids: [createTableActionRO.id],
-    trigger_events: [TableTriggerEventEnum.ADD_ROW, TableTriggerEventEnum.UPDATE_ROW],
+    trigger_events: [TableActionEventEnum.ADD_ROW, TableActionEventEnum.UPDATE_ROW],
   };
 
   const createTableTriggerResult = await request(app.getHttpServer())
@@ -204,7 +204,7 @@ test(`${currentTest} should return found table triggers`, async (t) => {
 
   const tableTriggerDTO: CreateTableTriggersBodyDTO = {
     actions_ids: [createTableActionRO.id],
-    trigger_events: [TableTriggerEventEnum.ADD_ROW, TableTriggerEventEnum.UPDATE_ROW],
+    trigger_events: [TableActionEventEnum.ADD_ROW, TableActionEventEnum.UPDATE_ROW],
   };
 
   const createTableTriggerResult = await request(app.getHttpServer())
@@ -287,7 +287,7 @@ test(`${currentTest} should return found table triggers`, async (t) => {
 
   const tableTriggerDTO: CreateTableTriggersBodyDTO = {
     actions_ids: [createTableActionRO.id],
-    trigger_events: [TableTriggerEventEnum.ADD_ROW, TableTriggerEventEnum.UPDATE_ROW],
+    trigger_events: [TableActionEventEnum.ADD_ROW, TableActionEventEnum.UPDATE_ROW],
   };
 
   const createTableTriggerResult = await request(app.getHttpServer())
@@ -372,7 +372,7 @@ test(`${currentTest} should return found table triggers`, async (t) => {
 
   const tableTriggerDTO: CreateTableTriggersBodyDTO = {
     actions_ids: [createFirstTableActionRO.id],
-    trigger_events: [TableTriggerEventEnum.ADD_ROW, TableTriggerEventEnum.UPDATE_ROW],
+    trigger_events: [TableActionEventEnum.ADD_ROW, TableActionEventEnum.UPDATE_ROW],
   };
 
   const createTableTriggerResult = await request(app.getHttpServer())
@@ -399,7 +399,7 @@ test(`${currentTest} should return found table triggers`, async (t) => {
   // get table triggers
   const updateTableTriggerDTO: CreateTableTriggersBodyDTO = {
     actions_ids: [createSecondTableActionRO.id],
-    trigger_events: [TableTriggerEventEnum.DELETE_ROW, TableTriggerEventEnum.UPDATE_ROW],
+    trigger_events: [TableActionEventEnum.DELETE_ROW, TableActionEventEnum.UPDATE_ROW],
   };
 
   const updateTableTriggerResult = await request(app.getHttpServer())
@@ -461,7 +461,7 @@ test(`${currentTest} should return found table triggers`, async (t) => {
 
   const tableTriggerDTO: CreateTableTriggersBodyDTO = {
     actions_ids: [createFirstTableActionRO.id],
-    trigger_events: [TableTriggerEventEnum.ADD_ROW, TableTriggerEventEnum.UPDATE_ROW],
+    trigger_events: [TableActionEventEnum.ADD_ROW, TableActionEventEnum.UPDATE_ROW],
   };
 
   const createFirstTableTriggerResult = await request(app.getHttpServer())
@@ -564,7 +564,7 @@ test(`${currentTest} should create trigger and activate http table action on add
 
   const tableTriggerDTO: CreateTableTriggersBodyDTO = {
     actions_ids: [createTableActionRO.id],
-    trigger_events: [TableTriggerEventEnum.ADD_ROW, TableTriggerEventEnum.UPDATE_ROW, TableTriggerEventEnum.DELETE_ROW],
+    trigger_events: [TableActionEventEnum.ADD_ROW, TableActionEventEnum.UPDATE_ROW, TableActionEventEnum.DELETE_ROW],
   };
 
   const createTableTriggerResult = await request(app.getHttpServer())
@@ -694,7 +694,7 @@ test(`${currentTest} should create trigger and activate slack table action on ad
 
   const tableTriggerDTO: CreateTableTriggersBodyDTO = {
     actions_ids: [createTableActionRO.id],
-    trigger_events: [TableTriggerEventEnum.ADD_ROW, TableTriggerEventEnum.UPDATE_ROW, TableTriggerEventEnum.DELETE_ROW],
+    trigger_events: [TableActionEventEnum.ADD_ROW, TableActionEventEnum.UPDATE_ROW, TableActionEventEnum.DELETE_ROW],
   };
 
   const createTableTriggerResult = await request(app.getHttpServer())

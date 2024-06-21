@@ -31,7 +31,7 @@ import { ExceptionOperations } from '../../../exceptions/custom-exceptions/excep
 import { ReferencedTableNamesAndColumnsDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/referenced-table-names-columns.ds.js';
 import JSON5 from 'json5';
 import { activateTableActions } from '../../table-actions/table-actions-module/utils/activate-table-action.util.js';
-import { TableTriggerEventEnum } from '../../../enums/table-trigger-event-enum.js';
+import { TableActionEventEnum } from '../../../enums/table-action-event-enum.js';
 
 @Injectable()
 export class UpdateRowInTableUseCase
@@ -299,7 +299,7 @@ export class UpdateRowInTableUseCase
         primaryKey,
         userId,
         tableName,
-        TableTriggerEventEnum.UPDATE_ROW,
+        TableActionEventEnum.UPDATE_ROW,
       );
     }
   }

@@ -7,7 +7,7 @@ import { OperationResultStatusEnum } from '../../../../enums/operation-result-st
 import { HttpException } from '@nestjs/common';
 import PQueue from 'p-queue';
 import { TableActionMethodEnum } from '../../../../enums/table-action-method-enum.js';
-import { TableTriggerEventEnum } from '../../../../enums/table-trigger-event-enum.js';
+import { TableActionEventEnum } from '../../../../enums/table-action-event-enum.js';
 import { actionSlackPostMessage } from '../../../../helpers/slack/action-slack-post-message.js';
 import { IMessage } from '../../../email/email/email.interface.js';
 import { Constants } from '../../../../helpers/constants/constants.js';
@@ -26,7 +26,7 @@ export async function activateTableAction(
   request_body: Array<Record<string, unknown>>,
   userId: string,
   tableName: string,
-  triggerOperation: TableTriggerEventEnum,
+  triggerOperation: TableActionEventEnum,
 ): Promise<ActionActivationResult> {
   switch (tableAction.method) {
     case TableActionMethodEnum.URL:
@@ -60,7 +60,7 @@ async function activateSlackTableAction(
   request_body: Array<Record<string, unknown>>,
   userId: string,
   tableName: string,
-  triggerOperation?: TableTriggerEventEnum,
+  triggerOperation?: TableActionEventEnum,
 ): Promise<ActionActivationResult> {
   let operationResult = OperationResultStatusEnum.unknown;
   const dataAccessObject = getDataAccessObject(foundConnection);
@@ -76,11 +76,11 @@ async function activateSlackTableAction(
     }
   }
   const slackMessage = `User with id "${userId}" ${
-    triggerOperation === TableTriggerEventEnum.ADD_ROW
+    triggerOperation === TableActionEventEnum.ADD_ROW
       ? 'added'
-      : triggerOperation === TableTriggerEventEnum.UPDATE_ROW
+      : triggerOperation === TableActionEventEnum.UPDATE_ROW
         ? 'updated'
-        : triggerOperation === TableTriggerEventEnum.DELETE_ROW
+        : triggerOperation === TableActionEventEnum.DELETE_ROW
           ? 'deleted'
           : 'performed an action on'
   } a row in table "${tableName}" with primary keys: ${JSON.stringify(primaryKeyValuesArray)}`;
@@ -103,7 +103,7 @@ async function activateEmailTableAction(
   request_body: Array<Record<string, unknown>>,
   userId: string,
   tableName: string,
-  triggerOperation: TableTriggerEventEnum,
+  triggerOperation: TableActionEventEnum,
 ): Promise<ActionActivationResult> {
   let operationResult = OperationResultStatusEnum.unknown;
   const dataAccessObject = getDataAccessObject(foundConnection);
@@ -119,11 +119,11 @@ async function activateEmailTableAction(
     }
   }
   const emailMessage = `User with id "${userId}" ${
-    triggerOperation === TableTriggerEventEnum.ADD_ROW
+    triggerOperation === TableActionEventEnum.ADD_ROW
       ? 'added'
-      : triggerOperation === TableTriggerEventEnum.UPDATE_ROW
+      : triggerOperation === TableActionEventEnum.UPDATE_ROW
         ? 'updated'
-        : triggerOperation === TableTriggerEventEnum.DELETE_ROW
+        : triggerOperation === TableActionEventEnum.DELETE_ROW
           ? 'deleted'
           : 'performed an action on'
   } a row in table "${tableName}" with primary keys: ${JSON.stringify(primaryKeyValuesArray)}`;
@@ -232,7 +232,7 @@ export async function activateTableActions(
   request_body: Record<string, unknown>,
   userId: string,
   tableName: string,
-  triggerOperation: TableTriggerEventEnum,
+  triggerOperation: TableActionEventEnum,
 ): Promise<void> {
   if (!tableActions.length) {
     return;
