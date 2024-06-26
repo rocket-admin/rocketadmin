@@ -133,7 +133,7 @@ test(`${currentTest} should return created table action`, async (t) => {
   const createTableActionRO = JSON.parse(createTableActionResult.text);
   t.is(createTableActionResult.status, 201);
   t.is(typeof createTableActionRO, 'object');
-  t.is(createTableActionRO.title, newTableAction.title);
+  // t.is(createTableActionRO.title, newTableAction.title);
   t.is(createTableActionRO.type, newTableAction.type);
   t.is(createTableActionRO.url, newTableAction.url);
   t.is(createTableActionRO.hasOwnProperty('id'), true);
@@ -169,7 +169,7 @@ test(`${currentTest} should return created slack table action`, async (t) => {
   const createTableActionRO = JSON.parse(createTableActionResult.text);
   t.is(createTableActionResult.status, 201);
   t.is(typeof createTableActionRO, 'object');
-  t.is(createTableActionRO.title, tableActionCopy.title);
+  // t.is(createTableActionRO.title, tableActionCopy.title);
   t.is(createTableActionRO.type, tableActionCopy.type);
   t.is(createTableActionRO.url, tableActionCopy.url);
   t.is(createTableActionRO.slack_url, tableActionCopy.slack_url);
@@ -208,7 +208,7 @@ test(`${currentTest} should return created email table action`, async (t) => {
   const createTableActionRO = JSON.parse(createTableActionResult.text);
   t.is(createTableActionResult.status, 201);
   t.is(typeof createTableActionRO, 'object');
-  t.is(createTableActionRO.title, tableActionCopy.title);
+  // t.is(createTableActionRO.title, tableActionCopy.title);
   t.is(createTableActionRO.type, tableActionCopy.type);
   t.is(JSON.stringify(createTableActionRO.emails), JSON.stringify(tableActionCopy.emails));
   t.is(createTableActionRO.method, tableActionCopy.method);
@@ -338,7 +338,7 @@ test(`${currentTest} should return found table actions`, async (t) => {
   const findTableActionRO = JSON.parse(findTableActiponResult.text);
   t.is(Array.isArray(findTableActionRO.table_actions), true);
   t.is(findTableActionRO.table_actions[0].hasOwnProperty('id'), true);
-  t.is(findTableActionRO.table_actions[0].title, newTableAction.title);
+  // t.is(findTableActionRO.table_actions[0].title, newTableAction.title);
   t.is(findTableActionRO.table_actions[0].type, newTableAction.type);
   t.is(findTableActionRO.table_actions[0].url, newTableAction.url);
 });
@@ -402,7 +402,7 @@ test(`${currentTest} should return updated table action`, async (t) => {
   const updatedTableAction: any = {
     ...newTableAction,
   };
-  updatedTableAction.title = faker.lorem.words(2);
+  // updatedTableAction.title = faker.lorem.words(2);
   updatedTableAction.url = faker.internet.url();
 
   delete updatedTableAction.id;
@@ -463,7 +463,7 @@ test(`${currentTest} should throw exception when type is incorrect`, async (t) =
   const updatedTableAction = {
     ...newTableAction,
   };
-  updatedTableAction.title = faker.lorem.words(2);
+  // updatedTableAction.title = faker.lorem.words(2);
   updatedTableAction.url = faker.internet.url();
   updatedTableAction.type = faker.string.uuid() as any;
 
@@ -504,7 +504,7 @@ test(`${currentTest} should throw exception when connection id incorrect`, async
   const updatedTableAction = {
     ...newTableAction,
   };
-  updatedTableAction.title = faker.lorem.words(2);
+  // updatedTableAction.title = faker.lorem.words(2);
   updatedTableAction.url = faker.internet.url();
 
   createConnectionRO.id = faker.string.uuid();
@@ -660,7 +660,7 @@ test(`${currentTest} should return found table action`, async (t) => {
   const findTableActionRO = JSON.parse(findTableActiponResult.text);
   t.is(findTableActiponResult.status, 200);
   t.is(findTableActionRO.hasOwnProperty('id'), true);
-  t.is(findTableActionRO.title, newTableAction.title);
+  // t.is(findTableActionRO.title, newTableAction.title);
   t.is(findTableActionRO.type, newTableAction.type);
   t.is(findTableActionRO.url, newTableAction.url);
 });

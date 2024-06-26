@@ -50,7 +50,7 @@ export class TableActionEntity {
   @ManyToMany((type) => ActionRulesEntity, (rules) => rules.table_actions)
   action_rules: Relation<ActionRulesEntity>[];
 
-  @Column({ default: null })
+  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   created_at: Date;
 
   @BeforeInsert()

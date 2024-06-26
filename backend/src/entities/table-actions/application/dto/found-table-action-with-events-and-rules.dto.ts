@@ -36,7 +36,7 @@ export class FoundActionRuleDto {
   title: string;
 
   @ApiProperty({ isArray: true, type: FoundActionEventDto })
-  events_data: Array<FoundActionEventDto>;
+  action_events: Array<FoundActionEventDto>;
 }
 
 export class FoundTableActionWithEventsAndRulesDto {
@@ -62,5 +62,5 @@ export class FoundTableActionWithEventsAndRulesDto {
   created_at: Date;
 
   @ApiProperty({ type: FoundActionRuleDto, isArray: true })
-  action_rules_data: Array<FoundActionRuleDto>;
+  action_rules: Array<FoundActionRuleDto>;
 }

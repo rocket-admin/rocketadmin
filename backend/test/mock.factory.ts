@@ -822,7 +822,6 @@ export class MockFactory {
   public generateNewTableAction(): TableActionEntity | CreateTableActionDTO {
     const newTableAction = new TableActionEntity();
     newTableAction.url = faker.internet.url();
-    newTableAction.title = faker.lorem.words(2);
     newTableAction.type = TableActionTypeEnum.single;
     return newTableAction;
   }

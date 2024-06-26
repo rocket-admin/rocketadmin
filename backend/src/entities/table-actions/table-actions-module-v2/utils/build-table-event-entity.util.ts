@@ -1,5 +1,5 @@
-import { CreateTableActionEventDS } from '../application/data-structures/create-table-action-with-event-and-rule.ds.js';
-import { ActionEventsEntity } from '../table-action-events-module/action-event.entity.js';
+import { CreateTableActionEventDS } from '../../application/data-structures/create-table-action-with-event-and-rule.ds.js';
+import { ActionEventsEntity } from '../../table-action-events-module/action-event.entity.js';
 
 export function buildTableActionEventEntity(eventData: CreateTableActionEventDS): ActionEventsEntity {
   const { event, event_title, icon, require_confirmation } = eventData;

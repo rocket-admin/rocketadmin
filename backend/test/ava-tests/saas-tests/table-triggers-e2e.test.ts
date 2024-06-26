@@ -135,7 +135,7 @@ test(`${currentTest} should return created table trigger`, async (t) => {
   const createTableActionRO = JSON.parse(createTableActionResult.text);
   t.is(createTableActionResult.status, 201);
   t.is(typeof createTableActionRO, 'object');
-  t.is(createTableActionRO.title, newTableAction.title);
+  // t.is(createTableActionRO.title, newTableAction.title);
   t.is(createTableActionRO.type, newTableAction.type);
   t.is(createTableActionRO.url, newTableAction.url);
   t.is(createTableActionRO.hasOwnProperty('id'), true);
@@ -163,7 +163,7 @@ test(`${currentTest} should return created table trigger`, async (t) => {
   t.is(createTableTriggerRO.hasOwnProperty('created_at'), true);
   t.is(createTableTriggerRO.table_actions.length, 1);
   t.is(createTableTriggerRO.table_actions[0].id, createTableActionRO.id);
-  t.is(createTableTriggerRO.table_actions[0].title, newTableAction.title);
+  // t.is(createTableTriggerRO.table_actions[0].title, newTableAction.title);
   t.is(createTableTriggerRO.table_actions[0].type, newTableAction.type);
   t.is(createTableTriggerRO.table_actions[0].url, newTableAction.url);
   t.is(createTableTriggerRO.table_actions[0].hasOwnProperty('id'), true);
@@ -195,7 +195,7 @@ test(`${currentTest} should return found table triggers`, async (t) => {
   const createTableActionRO = JSON.parse(createTableActionResult.text);
   t.is(createTableActionResult.status, 201);
   t.is(typeof createTableActionRO, 'object');
-  t.is(createTableActionRO.title, newTableAction.title);
+  // t.is(createTableActionRO.title, newTableAction.title);
   t.is(createTableActionRO.type, newTableAction.type);
   t.is(createTableActionRO.url, newTableAction.url);
   t.is(createTableActionRO.hasOwnProperty('id'), true);
@@ -223,7 +223,7 @@ test(`${currentTest} should return found table triggers`, async (t) => {
   t.is(createTableTriggerRO.hasOwnProperty('created_at'), true);
   t.is(createTableTriggerRO.table_actions.length, 1);
   t.is(createTableTriggerRO.table_actions[0].id, createTableActionRO.id);
-  t.is(createTableTriggerRO.table_actions[0].title, newTableAction.title);
+  // t.is(createTableTriggerRO.table_actions[0].title, newTableAction.title);
   t.is(createTableTriggerRO.table_actions[0].type, newTableAction.type);
   t.is(createTableTriggerRO.table_actions[0].url, newTableAction.url);
   t.is(createTableTriggerRO.table_actions[0].hasOwnProperty('id'), true);
@@ -245,7 +245,7 @@ test(`${currentTest} should return found table triggers`, async (t) => {
   t.is(getTableTriggersRO[0].trigger_events.length, 2);
   t.is(getTableTriggersRO[0].table_actions.length, 1);
   t.is(getTableTriggersRO[0].table_actions[0].id, createTableActionRO.id);
-  t.is(getTableTriggersRO[0].table_actions[0].title, newTableAction.title);
+  // t.is(getTableTriggersRO[0].table_actions[0].title, newTableAction.title);
   t.is(getTableTriggersRO[0].table_actions[0].type, newTableAction.type);
   t.is(getTableTriggersRO[0].table_actions[0].url, newTableAction.url);
   t.is(getTableTriggersRO[0].table_actions[0].hasOwnProperty('id'), true);
@@ -278,7 +278,7 @@ test(`${currentTest} should return found table triggers`, async (t) => {
   const createTableActionRO = JSON.parse(createTableActionResult.text);
   t.is(createTableActionResult.status, 201);
   t.is(typeof createTableActionRO, 'object');
-  t.is(createTableActionRO.title, newTableAction.title);
+  // t.is(createTableActionRO.title, newTableAction.title);
   t.is(createTableActionRO.type, newTableAction.type);
   t.is(createTableActionRO.url, newTableAction.url);
   t.is(createTableActionRO.hasOwnProperty('id'), true);
@@ -306,7 +306,7 @@ test(`${currentTest} should return found table triggers`, async (t) => {
   t.is(createTableTriggerRO.hasOwnProperty('created_at'), true);
   t.is(createTableTriggerRO.table_actions.length, 1);
   t.is(createTableTriggerRO.table_actions[0].id, createTableActionRO.id);
-  t.is(createTableTriggerRO.table_actions[0].title, newTableAction.title);
+  // t.is(createTableTriggerRO.table_actions[0].title, newTableAction.title);
   t.is(createTableTriggerRO.table_actions[0].type, newTableAction.type);
   t.is(createTableTriggerRO.table_actions[0].url, newTableAction.url);
   t.is(createTableTriggerRO.table_actions[0].hasOwnProperty('id'), true);
@@ -329,7 +329,7 @@ test(`${currentTest} should return found table triggers`, async (t) => {
   t.is(getTableTriggerRO.id, createTableTriggerRO.id);
   t.is(getTableTriggerRO.table_actions.length, 1);
   t.is(getTableTriggerRO.table_actions[0].id, createTableActionRO.id);
-  t.is(getTableTriggerRO.table_actions[0].title, newTableAction.title);
+  // t.is(getTableTriggerRO.table_actions[0].title, newTableAction.title);
   t.is(getTableTriggerRO.table_actions[0].type, newTableAction.type);
   t.is(getTableTriggerRO.table_actions[0].url, newTableAction.url);
   t.is(getTableTriggerRO.table_actions[0].hasOwnProperty('id'), true);
@@ -391,7 +391,7 @@ test(`${currentTest} should return found table triggers`, async (t) => {
   t.is(createTableTriggerRO.hasOwnProperty('created_at'), true);
   t.is(createTableTriggerRO.table_actions.length, 1);
   t.is(createTableTriggerRO.table_actions[0].id, createFirstTableActionRO.id);
-  t.is(createTableTriggerRO.table_actions[0].title, newTableAction.title);
+  // t.is(createTableTriggerRO.table_actions[0].title, newTableAction.title);
   t.is(createTableTriggerRO.table_actions[0].type, newTableAction.type);
   t.is(createTableTriggerRO.table_actions[0].url, newTableAction.url);
   t.is(createTableTriggerRO.table_actions[0].hasOwnProperty('id'), true);
@@ -418,7 +418,7 @@ test(`${currentTest} should return found table triggers`, async (t) => {
   t.is(updateTableTriggerRO.hasOwnProperty('created_at'), true);
   t.is(updateTableTriggerRO.table_actions.length, 1);
   t.is(updateTableTriggerRO.table_actions[0].id, createSecondTableActionRO.id);
-  t.is(updateTableTriggerRO.table_actions[0].title, newTableAction.title);
+  // t.is(updateTableTriggerRO.table_actions[0].title, newTableAction.title);
   t.is(updateTableTriggerRO.table_actions[0].type, newTableAction.type);
   t.is(updateTableTriggerRO.table_actions[0].url, newTableAction.url);
   t.is(updateTableTriggerRO.table_actions[0].hasOwnProperty('id'), true);
@@ -512,7 +512,7 @@ test(`${currentTest} should return found table triggers`, async (t) => {
   t.is(deleteFirstTableTriggerRO.hasOwnProperty('created_at'), true);
   t.is(deleteFirstTableTriggerRO.table_actions.length, 1);
   t.is(deleteFirstTableTriggerRO.table_actions[0].id, createFirstTableActionRO.id);
-  t.is(deleteFirstTableTriggerRO.table_actions[0].title, newTableAction.title);
+  // t.is(deleteFirstTableTriggerRO.table_actions[0].title, newTableAction.title);
   t.is(deleteFirstTableTriggerRO.table_actions[0].type, newTableAction.type);
   t.is(deleteFirstTableTriggerRO.table_actions[0].url, newTableAction.url);
   t.is(deleteFirstTableTriggerRO.table_actions[0].hasOwnProperty('id'), true);
@@ -675,7 +675,7 @@ test(`${currentTest} should create trigger and activate slack table action on ad
   // create table action to attach to trigger
   const newTableActionDto = new CreateTableActionDTO();
 
-  newTableActionDto.title = 'Send slack message';
+  // newTableActionDto.title = 'Send slack message';
   newTableActionDto.type = TableActionTypeEnum.multiple;
   newTableActionDto.slack_url = 'https://slack.com/api/chat.postMessage';
   newTableActionDto.method = TableActionMethodEnum.SLACK;

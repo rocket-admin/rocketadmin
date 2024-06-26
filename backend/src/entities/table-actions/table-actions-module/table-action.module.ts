@@ -13,8 +13,8 @@ import { DeleteTableActionUseCase } from './use-cases/delete-table-action.use.ca
 import { FindTableActionsUseCase } from './use-cases/find-all-table-actions.use.case.js';
 import { FindTableActionUseCase } from './use-cases/find-table-action.use.case.js';
 import { UpdateTableActionUseCase } from './use-cases/update-table-action.use.case.js';
-import { CreateTableActionV2UseCase } from '../use-cases/create-table-action-v2-use.case.js';
-import { TableActionV2Controller } from '../table-action-v2.controller.js';
+import { CreateTableActionV2UseCase } from '../table-actions-module-v2/use-cases/create-table-action-v2-use.case.js';
+import { TableActionV2Controller } from '../table-actions-module-v2/table-action-v2.controller.js';
 
 @Module({
   imports: [TypeOrmModule.forFeature([TableActionEntity, UserEntity, LogOutEntity])],

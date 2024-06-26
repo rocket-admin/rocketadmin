@@ -60,7 +60,7 @@ export class CreateActionRuleDto {
   @IsArray()
   @IsObject({ each: true })
   @ValidateNested({ each: true })
-  events_data: Array<CreateTableActionEventDto>;
+  action_events: Array<CreateTableActionEventDto>;
 }
 
 export class CreateTableActionDto {
@@ -101,12 +101,12 @@ export class CreateTableActionBodyDataDto {
   @IsNotEmpty()
   @IsObject()
   @ValidateNested()
-  table_action_data: CreateTableActionDto;
+  table_action: CreateTableActionDto;
 
   @ApiProperty({ type: CreateActionRuleDto, isArray: true })
   @IsNotEmpty()
   @IsArray()
   @IsObject({ each: true })
   @ValidateNested({ each: true })
-  action_rules_data: Array<CreateActionRuleDto>;
+  action_rules: Array<CreateActionRuleDto>;
 }
