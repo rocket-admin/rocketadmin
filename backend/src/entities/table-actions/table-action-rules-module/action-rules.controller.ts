@@ -39,15 +39,15 @@ import { QueryUuid } from '../../../decorators/query-uuid.decorator.js';
 @Injectable()
 export class ActionRulesController {
   constructor(
-    @Inject(UseCaseType.FIND_TABLE_TRIGGERS)
+    @Inject(UseCaseType.FIND_ACTION_RULES)
     private readonly findAllTableTriggersUseCase: IFindAllTableTriggers,
-    @Inject(UseCaseType.FIND_TABLE_TRIGGER)
+    @Inject(UseCaseType.FIND_ACTION_RULES)
     private readonly findTableTriggerUseCase: IFindTableTrigger,
-    @Inject(UseCaseType.CREATE_TABLE_TRIGGERS)
+    @Inject(UseCaseType.CREATE_ACTION_RULES)
     private readonly createTableTriggersUseCase: ICreateTableTriggers,
-    @Inject(UseCaseType.UPDATE_TABLE_TRIGGERS)
+    @Inject(UseCaseType.UPDATE_ACTION_RULES)
     private readonly updateTableTriggersUseCase: IUpdateTableTriggers,
-    @Inject(UseCaseType.DELETE_TABLE_TRIGGERS)
+    @Inject(UseCaseType.DELETE_ACTION_RULE)
     private readonly deleteTableTriggersUseCase: IDeleteTableTriggers,
   ) {}
 

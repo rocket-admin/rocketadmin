@@ -22,7 +22,7 @@ export class UpdateTableTriggersUseCase
 
   protected async implementation(inputData: UpdateTableTriggersDS): Promise<FoundTableTriggersWithActionsDTO> {
     const { actions_ids, triggersId, table_name } = inputData;
-    const foundTableTriggers = await this._dbContext.tableTriggersRepository.findOne({ where: { id: triggersId } });
+    const foundTableTriggers = await this._dbContext.actionRulesRepository.findOne({ where: { id: triggersId } });
     if (!foundTableTriggers) {
       throw new NotFoundException(Messages.TABLE_TRIGGERS_NOT_FOUND_FOR_UPDATE);
     }
@@ -32,7 +32,7 @@ export class UpdateTableTriggersUseCase
     }
     foundTableTriggers.table_actions = foundTableActions;
     foundTableTriggers.table_name = table_name;
-    const savedTriggers = await this._dbContext.tableTriggersRepository.saveNewOrUpdatedTableRules(foundTableTriggers);
+    const savedTriggers = await this._dbContext.actionRulesRepository.saveNewOrUpdatedActionRules(foundTableTriggers);
     return buildFoundTableTriggerDto(savedTriggers);
   }
 }

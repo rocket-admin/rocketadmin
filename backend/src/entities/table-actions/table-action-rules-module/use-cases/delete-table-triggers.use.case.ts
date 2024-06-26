@@ -20,14 +20,14 @@ export class DeleteTableTriggersUseCase
   }
 
   protected async implementation(triggersId: string): Promise<FoundTableTriggersWithActionsDTO> {
-    const foundTableTriggers = await this._dbContext.tableTriggersRepository.findOne({
+    const foundTableTriggers = await this._dbContext.actionRulesRepository.findOne({
       where: { id: triggersId },
       relations: ['table_actions'],
     });
     if (!foundTableTriggers) {
       throw new NotFoundException(Messages.TABLE_TRIGGERS_NOT_FOUND_FOR_DELETE);
     }
-    await this._dbContext.tableTriggersRepository.delete({ id: triggersId });
+    await this._dbContext.actionRulesRepository.delete({ id: triggersId });
     return buildFoundTableTriggerDto(foundTableTriggers);
   }
 }

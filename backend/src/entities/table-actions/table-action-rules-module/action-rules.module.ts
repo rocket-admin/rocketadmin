@@ -21,23 +21,23 @@ import { FindTableTriggerUseCase } from './use-cases/find-table-trigger.use.case
       useClass: GlobalDatabaseContext,
     },
     {
-      provide: UseCaseType.FIND_TABLE_TRIGGERS,
+      provide: UseCaseType.FIND_ACTION_RULES,
       useClass: FindAllTableTriggersUseCase,
     },
     {
-      provide: UseCaseType.CREATE_TABLE_TRIGGERS,
+      provide: UseCaseType.CREATE_ACTION_RULES,
       useClass: CreateTableTriggersUseCase,
     },
     {
-      provide: UseCaseType.UPDATE_TABLE_TRIGGERS,
+      provide: UseCaseType.UPDATE_ACTION_RULES,
       useClass: UpdateTableTriggersUseCase,
     },
     {
-      provide: UseCaseType.DELETE_TABLE_TRIGGERS,
+      provide: UseCaseType.DELETE_ACTION_RULE,
       useClass: DeleteTableTriggersUseCase,
     },
     {
-      provide: UseCaseType.FIND_TABLE_TRIGGER,
+      provide: UseCaseType.FIND_ACTION_RULES,
       useClass: FindTableTriggerUseCase,
     },
   ],

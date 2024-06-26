@@ -1,15 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import {
-  Column,
-  Entity,
-  JoinColumn,
-  JoinTable,
-  ManyToMany,
-  ManyToOne,
-  PrimaryGeneratedColumn,
-  Relation,
-} from 'typeorm';
-import { ConnectionEntity } from '../../connection/connection.entity.js';
+import { Column, Entity, JoinTable, ManyToMany, PrimaryGeneratedColumn, Relation } from 'typeorm';
 import { TableActionEntity } from '../table-actions-module/table-action.entity.js';
 import { ActionEventsEntity } from '../table-action-events-module/action-event.entity.js';
 
@@ -23,12 +13,6 @@ export class ActionRulesEntity {
 
   @Column({ default: null })
   title: string;
-
-  @ManyToOne(() => ConnectionEntity, (connection) => connection.action_rules, {
-    onDelete: 'CASCADE',
-  })
-  @JoinColumn()
-  connection: Relation<ConnectionEntity>;
 
   @ManyToMany((type) => TableActionEntity, (action) => action.action_rules, { onDelete: 'CASCADE' })
   @JoinTable({
@@ -56,8 +40,8 @@ export class ActionRulesEntity {
       referencedColumnName: 'id',
     },
   })
-  action_events: Relation<TableActionEntity>[];
+  action_events: Relation<ActionEventsEntity>[];
 
-  @Column({ default: null })
+  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   created_at: Date;
 }

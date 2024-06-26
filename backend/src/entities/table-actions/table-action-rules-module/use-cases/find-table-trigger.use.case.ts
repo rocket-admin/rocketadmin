@@ -20,7 +20,7 @@ export class FindTableTriggerUseCase
   }
 
   protected async implementation(triggerId: string): Promise<FoundTableTriggersWithActionsDTO> {
-    const foundTableTriggers = await this._dbContext.tableTriggersRepository.findOne({
+    const foundTableTriggers = await this._dbContext.actionRulesRepository.findOne({
       where: { id: triggerId },
       relations: ['table_actions'],
     });

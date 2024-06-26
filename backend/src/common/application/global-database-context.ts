@@ -70,8 +70,11 @@ import { UserSessionSettingsEntity } from '../../entities/user/user-session-sett
 import { userSessionSettingsRepositoryExtension } from '../../entities/user/user-session-settings/reposiotory/user-session-settings-custom-repository.extension.js';
 import { IUserSessionSettings } from '../../entities/user/user-session-settings/reposiotory/user-session-settings-repository.interface.js';
 import { ActionRulesEntity } from '../../entities/table-actions/table-action-rules-module/action-rules.entity.js';
-import { IActionRulesRepository } from '../../entities/table-actions/table-action-rules-module/repository/table-triggers-custom-repository.interface.js';
-import { actionRulesCustomRepositoryExtension } from '../../entities/table-actions/table-action-rules-module/repository/table-triggers-custom-repository.js';
+import { IActionRulesRepository } from '../../entities/table-actions/table-action-rules-module/repository/action-rules-custom-repository.interface.js';
+import { actionRulesCustomRepositoryExtension } from '../../entities/table-actions/table-action-rules-module/repository/action-rules-custom-repository.js';
+import { ActionEventsEntity } from '../../entities/table-actions/table-action-events-module/action-event.entity.js';
+import { IActionEventsRepository } from '../../entities/table-actions/table-action-events-module/repository/action-events-custom-repository.interface.js';
+import { actionEventsCustomRepositoryExtension } from '../../entities/table-actions/table-action-events-module/repository/action-events-custom-repository.extension.js';
 
 @Injectable({ scope: Scope.REQUEST })
 export class GlobalDatabaseContext implements IGlobalDatabaseContext {
@@ -101,7 +104,8 @@ export class GlobalDatabaseContext implements IGlobalDatabaseContext {
   private _companyInfoRepository: Repository<CompanyInfoEntity> & ICompanyInfoRepository;
   private _invitationInCompanyRepository: Repository<InvitationInCompanyEntity> & IInvitationInCompanyRepository;
   private _userSessionSettingsRepository: Repository<UserSessionSettingsEntity> & IUserSessionSettings;
-  private _tableTriggersRepository: Repository<ActionRulesEntity> & IActionRulesRepository;
+  private _actionRulesRepository: Repository<ActionRulesEntity> & IActionRulesRepository;
+  private _actionEventsRepository: Repository<ActionEventsEntity> & IActionEventsRepository;
 
   public constructor(
     @Inject(BaseType.DATA_SOURCE)
@@ -171,9 +175,12 @@ export class GlobalDatabaseContext implements IGlobalDatabaseContext {
     this._userSessionSettingsRepository = this.appDataSource
       .getRepository(UserSessionSettingsEntity)
       .extend(userSessionSettingsRepositoryExtension);
-    this._tableTriggersRepository = this.appDataSource
+    this._actionRulesRepository = this.appDataSource
       .getRepository(ActionRulesEntity)
       .extend(actionRulesCustomRepositoryExtension);
+    this._actionEventsRepository = this.appDataSource
+      .getRepository(ActionEventsEntity)
+      .extend(actionEventsCustomRepositoryExtension);
   }
 
   public get userRepository(): Repository<UserEntity> & IUserRepository {
@@ -272,8 +279,12 @@ export class GlobalDatabaseContext implements IGlobalDatabaseContext {
     return this._userSessionSettingsRepository;
   }
 
-  public get tableTriggersRepository(): Repository<ActionRulesEntity> & IActionRulesRepository {
-    return this._tableTriggersRepository;
+  public get actionRulesRepository(): Repository<ActionRulesEntity> & IActionRulesRepository {
+    return this._actionRulesRepository;
+  }
+
+  public get actionEventsRepository(): Repository<ActionEventsEntity> & IActionEventsRepository {
+    return this._actionEventsRepository;
   }
 
   public startTransaction(): Promise<void> {

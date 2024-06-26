@@ -41,13 +41,12 @@ export class CreateTableTriggersUseCase
     }
 
     const newActionRules = new ActionRulesEntity();
-    newActionRules.connection = foundConnection;
     newActionRules.table_name = tableName;
     newActionRules.table_actions = [];
 
-    const savedTrigger = await this._dbContext.tableTriggersRepository.saveNewOrUpdatedTableRules(newActionRules);
+    const savedTrigger = await this._dbContext.actionRulesRepository.saveNewOrUpdatedActionRules(newActionRules);
     savedTrigger.table_actions.push(...foundTableActions);
-    await this._dbContext.tableTriggersRepository.saveNewOrUpdatedTableRules(savedTrigger);
+    await this._dbContext.actionRulesRepository.saveNewOrUpdatedActionRules(savedTrigger);
     return buildFoundTableTriggerDto(newActionRules);
   }
 }

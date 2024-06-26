@@ -236,19 +236,20 @@ export class AddRowInTableUseCase extends AbstractUseCase<AddRowInTableDs, Table
         isTest ? AmplitudeEventTypeEnum.tableRowAddedTest : AmplitudeEventTypeEnum.tableRowAdded,
         userId,
       );
-      const foundAddTableActions = await this._dbContext.tableTriggersRepository.findActionRulesFromTriggersOnAddRow(
-        connectionId,
-        tableName,
-      );
+      // todo: rework
+      // const foundAddTableActions = await this._dbContext.actionRulesRepository.findActionRulesFromTriggersOnAddRow(
+      //   connectionId,
+      //   tableName,
+      // );
 
-      await activateTableActions(
-        foundAddTableActions,
-        connection,
-        addedRow,
-        userId,
-        tableName,
-        TableActionEventEnum.ADD_ROW,
-      );
+      // await activateTableActions(
+      //   foundAddTableActions,
+      //   connection,
+      //   addedRow,
+      //   userId,
+      //   tableName,
+      //   TableActionEventEnum.ADD_ROW,
+      // );
     }
   }
 

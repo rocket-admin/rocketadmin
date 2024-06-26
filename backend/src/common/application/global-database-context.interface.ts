@@ -30,7 +30,9 @@ import { UserSessionSettingsEntity } from '../../entities/user/user-session-sett
 import { UserEntity } from '../../entities/user/user.entity.js';
 import { ConnectionEntity } from '../../entities/connection/connection.entity.js';
 import { ActionRulesEntity } from '../../entities/table-actions/table-action-rules-module/action-rules.entity.js';
-import { IActionRulesRepository } from '../../entities/table-actions/table-action-rules-module/repository/table-triggers-custom-repository.interface.js';
+import { IActionRulesRepository } from '../../entities/table-actions/table-action-rules-module/repository/action-rules-custom-repository.interface.js';
+import { IActionEventsRepository } from '../../entities/table-actions/table-action-events-module/repository/action-events-custom-repository.interface.js';
+import { ActionEventsEntity } from '../../entities/table-actions/table-action-events-module/action-event.entity.js';
 
 export interface IGlobalDatabaseContext extends IDatabaseContext {
   userRepository: Repository<UserEntity> & IUserRepository;
@@ -57,5 +59,6 @@ export interface IGlobalDatabaseContext extends IDatabaseContext {
   companyInfoRepository: Repository<CompanyInfoEntity> & ICompanyInfoRepository;
   invitationInCompanyRepository: Repository<InvitationInCompanyEntity> & IInvitationInCompanyRepository;
   userSessionSettingsRepository: Repository<UserSessionSettingsEntity> & IUserSessionSettings;
-  tableTriggersRepository: Repository<ActionRulesEntity> & IActionRulesRepository;
+  actionRulesRepository: Repository<ActionRulesEntity> & IActionRulesRepository;
+  actionEventsRepository: Repository<ActionEventsEntity> & IActionEventsRepository;
 }

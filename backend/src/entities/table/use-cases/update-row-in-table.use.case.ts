@@ -289,18 +289,19 @@ export class UpdateRowInTableUseCase
         isTest ? AmplitudeEventTypeEnum.tableRowAddedTest : AmplitudeEventTypeEnum.tableRowAdded,
         userId,
       );
-      const foundAddTableActions = await this._dbContext.tableTriggersRepository.findActionRulesFromTriggersOnUpdateRow(
-        connectionId,
-        tableName,
-      );
-      await activateTableActions(
-        foundAddTableActions,
-        connection,
-        primaryKey,
-        userId,
-        tableName,
-        TableActionEventEnum.UPDATE_ROW,
-      );
+      //todo: rework
+      // const foundAddTableActions = await this._dbContext.actionRulesRepository.findActionRulesFromTriggersOnUpdateRow(
+      //   connectionId,
+      //   tableName,
+      // );
+      // await activateTableActions(
+      //   foundAddTableActions,
+      //   connection,
+      //   primaryKey,
+      //   userId,
+      //   tableName,
+      //   TableActionEventEnum.UPDATE_ROW,
+      // );
     }
   }
 

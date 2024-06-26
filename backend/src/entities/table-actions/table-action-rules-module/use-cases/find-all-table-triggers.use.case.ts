@@ -21,10 +21,11 @@ export class FindAllTableTriggersUseCase
 
   protected async implementation(inputData: FindTableTriggersDS): Promise<FoundTableTriggersWithActionsDTO[]> {
     const { connectionId, tableName } = inputData;
-    const foundTableTriggers = await this._dbContext.tableTriggersRepository.findActionRulesForTableWithTableActions(
-      connectionId,
-      tableName,
-    );
-    return buildFoundTableTriggersDto(foundTableTriggers);
+    return [];
+    // const foundTableTriggers = await this._dbContext.actionRulesRepository.findActionRulesForTableWithTableActions(
+    //   connectionId,
+    //   tableName,
+    // );
+    // return buildFoundTableTriggersDto(foundTableTriggers);
   }
 }
