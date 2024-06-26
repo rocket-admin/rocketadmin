@@ -166,3 +166,76 @@ test(`${currentTest} should return created table action with rules and events`, 
   t.is(createTableActionRO.action_rules[0].action_events.length, 1);
   t.is(createTableActionRO.action_rules[0].action_events[0].event, TableActionEventEnum.CUSTOM);
 });
+
+currentTest = 'GET /v2/table/actions/:slug';
+
+test.only(`${currentTest} should return found table actions with rules and events`, async (t) => {
+  const { token } = await registerUserAndReturnUserInfo(app);
+  const createConnectionResult = await request(app.getHttpServer())
+    .post('/connection')
+    .send(newConnection)
+    .set('Cookie', token)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+
+  const createConnectionRO = JSON.parse(createConnectionResult.text);
+  t.is(createConnectionResult.status, 201);
+
+  const tableActionRequestDTO: CreateTableActionBodyDataDto = {
+    action_rules: [
+      {
+        title: faker.lorem.words(1),
+        table_name: testTableName,
+        action_events: [
+          {
+            event: TableActionEventEnum.CUSTOM,
+            title: faker.lorem.words(1),
+            icon: faker.image.avatar(),
+            require_confirmation: false,
+          },
+        ],
+      },
+    ],
+    table_action: {
+      action_type: TableActionTypeEnum.multiple,
+      action_method: TableActionMethodEnum.URL,
+      emails: [faker.internet.email()],
+      url: faker.internet.url(),
+      slack_url: faker.internet.url(),
+    },
+  };
+
+  const createTableActionResult = await request(app.getHttpServer())
+    .post(`/v2/table/action/${createConnectionRO.id}`)
+    .send(tableActionRequestDTO)
+    .set('Cookie', token)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+
+  const createTableActionRO = JSON.parse(createTableActionResult.text);
+  t.is(createTableActionResult.status, 201);
+
+  const getTableActionsResult = await request(app.getHttpServer())
+    .get(`/v2/table/actions/${createConnectionRO.id}?tableName=${testTableName}`)
+    .set('Cookie', token)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+
+  const getTableActionsRO = JSON.parse(getTableActionsResult.text);
+  console.log('🚀 ~ test ~ getTableActionsRO:', getTableActionsRO)
+  t.is(getTableActionsResult.status, 200);
+  t.is(getTableActionsRO.length, 1);
+  t.truthy(getTableActionsRO[0].id);
+  t.truthy(getTableActionsRO[0].created_at);
+  t.is(getTableActionsRO[0].type, TableActionTypeEnum.multiple);
+  t.is(getTableActionsRO[0].method, TableActionMethodEnum.URL);
+  t.is(getTableActionsRO[0].url, tableActionRequestDTO.table_action.url);
+  t.truthy(getTableActionsRO[0].slack_url);
+  t.deepEqual(getTableActionsRO[0].emails, tableActionRequestDTO.table_action.emails);
+  t.is(getTableActionsRO[0].action_rules.length, 1);
+  t.is(getTableActionsRO[0].action_rules[0].title, tableActionRequestDTO.action_rules[0].title);
+  t.is(getTableActionsRO[0].action_rules[0].table_name, tableActionRequestDTO.action_rules[0].table_name);
+  t.is(getTableActionsRO[0].action_rules[0].action_events.length, 1);
+  t.is(getTableActionsRO[0].action_rules[0].action_events[0].event, TableActionEventEnum.CUSTOM);
+  
+});

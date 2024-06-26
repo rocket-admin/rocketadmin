@@ -18,6 +18,16 @@ export const tableActionsCustomRepositoryExtension: ITableActionRepository = {
     return result?.table_actions ? result.table_actions : [];
   },
 
+  async findTableActionsWithRulesAndEvents(connectionId: string, tableName: string): Promise<Array<TableActionEntity>> {
+    const qb = this.createQueryBuilder('table_actions')
+      .leftJoinAndSelect('table_actions.action_rules', 'action_rules')
+      .leftJoinAndSelect('action_rules.action_events', 'action_events')
+      .leftJoinAndSelect('table_actions.settings', 'table_settings')
+      .where('table_settings.connection_id = :connection_id', { connection_id: connectionId })
+      .andWhere('action_rules.table_name = :table_name', { table_name: tableName });
+    return await qb.getMany();
+  },
+
   async findTableActionById(actionId: string): Promise<TableActionEntity> {
     return await this.findOne({ where: { id: actionId } });
   },

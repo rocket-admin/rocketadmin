@@ -15,6 +15,7 @@ import { FindTableActionUseCase } from './use-cases/find-table-action.use.case.j
 import { UpdateTableActionUseCase } from './use-cases/update-table-action.use.case.js';
 import { CreateTableActionV2UseCase } from '../table-actions-module-v2/use-cases/create-table-action-v2-use.case.js';
 import { TableActionV2Controller } from '../table-actions-module-v2/table-action-v2.controller.js';
+import { FindAllTableActionsWithRulesAndEventsUseCase } from '../table-actions-module-v2/use-cases/find-all-table-actions-with-rules-and-events.use.case.js';
 
 @Module({
   imports: [TypeOrmModule.forFeature([TableActionEntity, UserEntity, LogOutEntity])],
@@ -51,6 +52,10 @@ import { TableActionV2Controller } from '../table-actions-module-v2/table-action
       provide: UseCaseType.CREATE_TABLE_ACTION_V2,
       useClass: CreateTableActionV2UseCase,
     },
+    {
+      provide: UseCaseType.GET_TABLE_ACTION_V2,
+      useClass: FindAllTableActionsWithRulesAndEventsUseCase,
+    },
   ],
   controllers: [TableActionsController, TableActionV2Controller],
 })
@@ -63,6 +68,7 @@ export class TableActionModule implements NestModule {
         { path: '/table/action/:slug', method: RequestMethod.GET },
         { path: '/table/action/:slug', method: RequestMethod.POST },
         { path: '/v2/table/action/:slug', method: RequestMethod.POST },
+        { path: '/v2/table/actions/:slug', method: RequestMethod.GET },
         { path: '/table/actions/activate/:slug', method: RequestMethod.POST },
         { path: '/table/action/:slug', method: RequestMethod.PUT },
         { path: '/table/action/:slug', method: RequestMethod.DELETE },

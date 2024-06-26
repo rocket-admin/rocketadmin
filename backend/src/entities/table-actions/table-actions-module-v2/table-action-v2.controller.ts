@@ -1,4 +1,4 @@
-import { UseInterceptors, Controller, Injectable, UseGuards, Post, Inject, Body } from '@nestjs/common';
+import { UseInterceptors, Controller, Injectable, UseGuards, Post, Inject, Body, Get } from '@nestjs/common';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { SentryInterceptor } from '../../../interceptors/sentry.interceptor.js';
 import { ConnectionReadGuard } from '../../../guards/connection-read.guard.js';
@@ -7,10 +7,12 @@ import { MasterPassword } from '../../../decorators/master-password.decorator.js
 import { UserId } from '../../../decorators/user-id.decorator.js';
 import { FoundTableActionWithEventsAndRulesDto } from '../application/dto/found-table-action-with-events-and-rules.dto.js';
 import { UseCaseType } from '../../../common/data-injection.tokens.js';
-import { ICreateTableActionV2 } from './use-cases/table-actions-v2-use-cases.interface.js';
+import { ICreateTableActionV2, IGetTableActionV2 } from './use-cases/table-actions-v2-use-cases.interface.js';
 import { InTransactionEnum } from '../../../enums/in-transaction.enum.js';
 import { CreateTableActionWithEventAndRuleDS } from '../application/data-structures/create-table-action-with-event-and-rule.ds.js';
 import { CreateTableActionBodyDataDto } from '../application/dto/create-table-action-body-data.dto.js';
+import { ConnectionEditGuard } from '../../../guards/connection-edit.guard.js';
+import { QueryTableName } from '../../../decorators/query-table-name.decorator.js';
 
 @UseInterceptors(SentryInterceptor)
 @Controller('v2')
@@ -21,6 +23,8 @@ export class TableActionV2Controller {
   constructor(
     @Inject(UseCaseType.CREATE_TABLE_ACTION_V2)
     private readonly createTableActionUseCase: ICreateTableActionV2,
+    @Inject(UseCaseType.GET_TABLE_ACTION_V2)
+    private readonly getTableActionUseCase: IGetTableActionV2,
   ) {}
 
   @ApiOperation({ summary: 'Create table action with rules and events' })
@@ -30,9 +34,9 @@ export class TableActionV2Controller {
     type: FoundTableActionWithEventsAndRulesDto,
   })
   @ApiBody({ type: CreateTableActionBodyDataDto })
-  @UseGuards(ConnectionReadGuard)
+  @UseGuards(ConnectionEditGuard)
   @Post('/table/action/:connectionId')
-  async findTableActions(
+  public async findTableActions(
     @SlugUuid('connectionId') connectionId: string,
     @UserId() userId: string,
     @MasterPassword() masterPwd: string,
@@ -64,5 +68,28 @@ export class TableActionV2Controller {
     };
 
     return await this.createTableActionUseCase.execute(inputData, InTransactionEnum.ON);
+  }
+
+  @ApiOperation({ summary: 'Find table actions with rules and events' })
+  @ApiResponse({
+    status: 200,
+    description: 'Return found table actions.',
+    type: FoundTableActionWithEventsAndRulesDto,
+    isArray: true,
+  })
+  @UseGuards(ConnectionReadGuard)
+  @Get('/table/actions/:connectionId')
+  public async getAllTableActionForTable(
+    @SlugUuid('connectionId') connectionId: string,
+    @QueryTableName() tableName: string,
+    @MasterPassword() masterPwd: string,
+    @UserId() userId: string,
+  ): Promise<Array<FoundTableActionWithEventsAndRulesDto>> {
+    return await this.getTableActionUseCase.execute({
+      connectionId,
+      masterPwd,
+      userId,
+      tableName,
+    });
   }
 }

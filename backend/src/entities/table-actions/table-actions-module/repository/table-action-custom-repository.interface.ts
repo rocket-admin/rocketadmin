@@ -10,4 +10,6 @@ export interface ITableActionRepository {
   deleteTableAction(action: TableActionEntity): Promise<TableActionEntity>;
 
   findTableActionsByIds(actionIds: Array<string>): Promise<Array<TableActionEntity>>;
+
+  findTableActionsWithRulesAndEvents(connectionId: string, tableName: string): Promise<Array<TableActionEntity>>;
 }
