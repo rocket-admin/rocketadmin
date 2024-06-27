@@ -1,6 +1,6 @@
 import { AlertActionType, AlertType } from '../models/alert';
 import { BehaviorSubject, EMPTY } from 'rxjs';
-import { CustomAction, TableSettings, Widget } from '../models/table';
+import { CustomAction, Rule, TableSettings, Widget } from '../models/table';
 import { NavigationEnd, Router } from '@angular/router';
 import { catchError, filter, map } from 'rxjs/operators';
 
@@ -363,7 +363,7 @@ export class TablesService {
       );
   }
 
-  fetchActions(connectionID: string, tableName: string) {
+  fetchRules(connectionID: string, tableName: string) {
     return this._http.get<any>(`/table/actions/${connectionID}`, {
       params: {
         tableName
@@ -385,8 +385,8 @@ export class TablesService {
       );
   }
 
-  saveAction(connectionID: string, tableName: string, action: CustomAction) {
-    return this._http.post<any>(`/table/action/${connectionID}`, action, {
+  saveRule(connectionID: string, tableName: string, rule: Rule) {
+    return this._http.post<any>(`/table/action/${connectionID}`, rule, {
       params: {
         tableName
       }
@@ -410,11 +410,11 @@ export class TablesService {
       );
   }
 
-  updateAction(connectionID: string, tableName: string, action: CustomAction) {
-    return this._http.put<any>(`/table/action/${connectionID}`, action, {
+  updateRule(connectionID: string, tableName: string, rule: Rule) {
+    return this._http.put<any>(`/table/action/${connectionID}`, rule, {
       params: {
         tableName,
-        actionId: action.id
+        ruleId: rule.id
       }
     })
       .pipe(
@@ -436,10 +436,10 @@ export class TablesService {
       );
   }
 
-  deleteAction(connectionID: string, tableName: string, actionId: string) {
+  deleteRule(connectionID: string, tableName: string, ruleId: string) {
     return this._http.delete<any>(`/table/action/${connectionID}`, {
       params: {
-        actionId
+        ruleId
       }
     })
       .pipe(

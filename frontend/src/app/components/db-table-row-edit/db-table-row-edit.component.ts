@@ -2,7 +2,7 @@ import * as JSON5 from 'json5';
 
 import { ActivatedRoute, Router } from '@angular/router';
 import { Component, NgZone, OnInit } from '@angular/core';
-import { CustomAction, TableField, TableForeignKey, TablePermissions, Widget } from 'src/app/models/table';
+import { CustomAction, CustomEvent, TableField, TableForeignKey, TablePermissions, Widget } from 'src/app/models/table';
 import { UIwidgets, fieldTypes } from 'src/app/consts/field-types';
 
 import { BbBulkActionConfirmationDialogComponent } from '../dashboard/db-bulk-action-confirmation-dialog/db-bulk-action-confirmation-dialog.component';
@@ -402,7 +402,7 @@ export class DbTableRowEditComponent implements OnInit {
     )
   }
 
-  handleActivateAction(action: CustomAction) {
+  handleActivateAction(action: CustomEvent) {
     if (action.requireConfirmation) {
       this.dialog.open(BbBulkActionConfirmationDialogComponent, {
         width: '25em',

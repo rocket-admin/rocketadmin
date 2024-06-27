@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { CustomAction, CustomActionType } from 'src/app/models/table';
+import { CustomAction, CustomActionMethod, CustomActionType, CustomEvent, EventType, Rule } from 'src/app/models/table';
 
 import { ActionDeleteDialogComponent } from './action-delete-dialog/action-delete-dialog.component';
 import { Angulartics2 } from 'angulartics2';
@@ -11,7 +11,6 @@ import { TablesService } from 'src/app/services/tables.service';
 import { Title } from '@angular/platform-browser';
 import { codeSnippets } from 'src/app/consts/code-snippets';
 import { normalizeTableName } from 'src/app/lib/normalize';
-import { unionBy } from "lodash";
 
 @Component({
   selector: 'app-db-table-actions',
@@ -22,20 +21,22 @@ export class DbTableActionsComponent implements OnInit {
   public connectionID: string | null = null;
   public tableName: string | null = null;
   public normalizedTableName: string;
-  public actionsData: {
+  public rulesData: {
     table_name: string,
     display_name: string,
-    table_actions: CustomAction[]
+    // table_rules: Rule[]
+    table_actions: Rule[]
   };
-  public actions: CustomAction[];
+  public rules: Rule[];
   public submitting: boolean;
-  public selectedAction: CustomAction = null;
-  public updatedActionTitle: string;
+  public selectedRule: Rule = null;
+  public selectedRuleCustomEvent: CustomEvent = null;
+  public customAction: CustomAction = null;
+  public selectedRuleTitle: string;
+  public newRule: Rule =null;
   public newAction: CustomAction =null;
   public actionNameError: string;
   public codeSnippets: object;
-
-  public customEventSettingsShown = false;
 
   public defaultIcons = ['favorite_outline', 'star_outline', 'done', 'arrow_forward', 'key_outline', 'lock', 'visibility', 'language', 'notifications', 'schedule'];
 
@@ -48,6 +49,13 @@ export class DbTableActionsComponent implements OnInit {
     wordWrap: 'on',
     automaticLayout: true,
   };
+
+  public availableEvents = [
+    { value: EventType.AddRow, label: 'Add row' },
+    { value: EventType.UpdateRow, label: 'Update row' },
+    { value: EventType.DeleteRow, label: 'Delete row' },
+    { value: EventType.Custom, label: 'Custom' }
+  ];
 
   constructor(
     private _connections: ConnectionsService,
@@ -66,25 +74,26 @@ export class DbTableActionsComponent implements OnInit {
     this.codeSnippets = codeSnippets(this._connections.currentConnection.signing_key);
 
     try {
-      this.actionsData = await this.getActions();
-      console.log(this.actionsData);
-      this.actions = this.actionsData.table_actions;
-      if (this.actions.length) this.setSelectedAction(this.actions[0]);
-      this.title.setTitle(`${this.actionsData.display_name || this.normalizedTableName} - Actions | Rocketadmin`);
+      this.rulesData = await this.getRules();
+      console.log(this.rulesData);
+      // this.rules = this.rulesData.table_rules;
+      this.rules = this.rulesData.table_actions;
+      if (this.rules.length) this.setSelectedRule(this.rules[0]);
+      this.title.setTitle(`${this.rulesData.display_name || this.normalizedTableName} - Actions | Rocketadmin`);
     } catch(error) {
       if (error instanceof HttpErrorResponse) {
-        this.actionsData = null;
+        this.rulesData = null;
         console.log(error.error.message);
       } else  { throw error };
     }
 
     this._tables.cast.subscribe(async (arg) =>  {
-      if (arg === 'delete-action') {
-        this.actions = this.actions.filter((action:CustomAction) => action.id !== this.selectedAction.id)
+      if (arg === 'delete-rule') {
         try {
-          const undatedActionsData = await this.getActions();
-          this.actions = unionBy(undatedActionsData.table_actions, this.actions, "title");
-          if (this.actions.length) this.setSelectedAction(this.actions[0]);
+          this.rulesData = await this.getRules();
+          console.log(this.rulesData);
+          // this.rules = this.rulesData.table_rules;
+          this.rules = this.rulesData.table_actions;
         } catch(error) {
           if (error instanceof HttpErrorResponse) {
             console.log(error.error.message);
@@ -105,7 +114,7 @@ export class DbTableActionsComponent implements OnInit {
         link: `/dashboard/${this.connectionID}`
       },
       {
-        label: this.actionsData.display_name || this.normalizedTableName,
+        label: this.rulesData.display_name || this.normalizedTableName,
         link: `/dashboard/${this.connectionID}/${this.tableName}`
       },
       {
@@ -119,92 +128,113 @@ export class DbTableActionsComponent implements OnInit {
     return index; // or item.id
   }
 
-  setSelectedAction(action: CustomAction) {
-    this.selectedAction = action;
-    this.updatedActionTitle = action.title;
+  setSelectedRule(rule: Rule) {
+    this.selectedRule = rule;
+    this.selectedRuleTitle = rule.title;
+
+    const customEvent = this.selectedRule.events.find((event) => event.event_type === EventType.Custom);
+    if (customEvent) {
+        this.selectedRuleCustomEvent = customEvent as CustomEvent;
+    } else {
+        this.selectedRuleCustomEvent = null;
+    }
   }
 
   updateIcon(icon: string) {
-    this.selectedAction.icon = icon;
+    this.selectedRuleCustomEvent.icon = icon;
   }
 
-  switchActionView(action: CustomAction) {
-    this.setSelectedAction(action);
+  switchRulesView(rule: Rule) {
+    this.setSelectedRule(rule);
+  }
+
+  addNewRule() {
+    this.newRule = {
+      id: '',
+      title: '',
+      events: [
+        {
+          event_type: null
+        }
+      ],
+      actions: [
+        {
+          method: CustomActionMethod.HTTP,
+          emails: [],
+          url: '',
+        }
+      ]
+    };
   }
 
   addNewAction() {
     this.newAction = {
-      id: '',
-      title: '',
-      type: CustomActionType.Single,
+      method: CustomActionMethod.HTTP,
+      emails: [],
       url: '',
-      tableName: '',
-      icon: '',
-      requireConfirmation: false
     };
   }
 
-  handleAddNewAction() {
+  handleAddNewRule() {
     this.actionNameError = null;
-    if (this.newAction.title === '') {
+    if (this.newRule.title === '') {
       this.actionNameError = 'The name cannot be empty.';
     } else {
-      const coinsidingName = this.actions.find((action: CustomAction) => action.title === this.newAction.title);
+      const coinsidingName = this.rules.find((rule: Rule) => rule.title === this.newRule.title);
       if (!coinsidingName) {
-        this.selectedAction = {... this.newAction};
-        this.updatedActionTitle = this.selectedAction.title;
-        this.actions.push(this.selectedAction);
-        this.newAction = null;
+        this.selectedRule = {... this.newRule};
+        this.selectedRuleTitle = this.selectedRule.title;
+        this.rules.push(this.selectedRule);
+        this.newRule = null;
       } else {
         this.actionNameError = 'You already have an action with this name.'
       }
     }
   }
 
-  undoAction() {
-    this.newAction = null;
-    if (this.actions.length) this.setSelectedAction(this.actions[0]);
+  undoRule() {
+    this.newRule = null;
+    if (this.rules.length) this.setSelectedRule(this.rules[0]);
   }
 
-  handleRemoveAction() {
-    if (this.selectedAction.id) {
-      this.openDeleteActionDialog();
+  handleRemoveRule() {
+    if (this.selectedRule.id) {
+      this.openDeleteRuleDialog();
     } else {
-      this.removeActionFromLocalList(this.selectedAction.title)
+      this.removeRuleFromLocalList(this.selectedRule.title)
     }
   }
 
-  removeActionFromLocalList(actionTitle: string) {
-    this.actions = this.actions.filter((action: CustomAction)  => action.title != actionTitle);
-    if (this.actions.length) this.setSelectedAction(this.actions[0]);
+  removeRuleFromLocalList(ruleTitle: string) {
+    this.rules = this.rules.filter((rule: Rule)  => rule.title != ruleTitle);
+    if (this.rules.length) this.setSelectedRule(this.rules[0]);
   }
 
-  getActions() {
-    return this._tables.fetchActions(this.connectionID, this.tableName).toPromise();
+  getRules() {
+    return this._tables.fetchRules(this.connectionID, this.tableName).toPromise();
   }
 
-  handleActionSubmetting() {
-    if (this.selectedAction.id) {
-      this.updateAction();
+  handleRuleSubmitting() {
+    if (this.selectedRule.id) {
+      this.updateRule();
     } else {
-      this.addAction();
+      this.addRule();
     }
   }
 
-  addAction() {
+  addRule() {
     this.submitting = true;
-    if (!this.selectedAction.icon) this.selectedAction.icon = 'add_reaction';
-    this._tables.saveAction(this.connectionID, this.tableName, this.selectedAction)
+    this._tables.saveRule(this.connectionID, this.tableName, this.selectedRule)
       .subscribe(async (res) => {
         this.submitting = false;
         this.angulartics2.eventTrack.next({
-          action: 'Actions: action is saved successfully'
+          action: 'Rules: rule is saved successfully'
         });
         try {
-          const undatedActionsData = await this.getActions();
-          this.actions = unionBy(undatedActionsData.table_actions, this.actions, "title");
-          const currentAction = this.actions.find((action: CustomAction) => action.id === res.id);
-          this.setSelectedAction(currentAction);
+          const undatedRulesData = await this.getRules();
+          this.rules = undatedRulesData.table_rules;
+          const currentRule = this.rules.find((rule: Rule) => rule.id === res.id);
+          this.setSelectedRule(currentRule);
         } catch(error) {
           if (error instanceof HttpErrorResponse) {
             console.log(error.error.message);
@@ -216,18 +246,17 @@ export class DbTableActionsComponent implements OnInit {
       )
   }
 
-  updateAction() {
+  updateRule() {
     this.submitting = true;
-    if (this.updatedActionTitle) this.selectedAction.title = this.updatedActionTitle;
-    this._tables.updateAction(this.connectionID, this.tableName, this.selectedAction)
+    if (this.selectedRuleTitle) this.selectedRule.title = this.selectedRuleTitle;
+    this._tables.updateRule(this.connectionID, this.tableName, this.selectedRule)
       .subscribe(async (res) => {
         this.submitting = false;
         try {
-          const undatedActionsData = await this.getActions();
-          this.actions = this.actions.filter((action: CustomAction)  => action.title != this.selectedAction.id);
-          this.actions = unionBy(undatedActionsData.table_actions, this.actions, "title");
-          const currentAction = this.actions.find((action: CustomAction) => action.id === res.id);
-          this.selectedAction = {...currentAction};
+          const undatedRulesData = await this.getRules();
+          this.rules = undatedRulesData.table_rules;
+          const currentRule = this.rules.find((rule: Rule) => rule.id === res.id);
+          this.setSelectedRule(currentRule);
         } catch(error) {
           if (error instanceof HttpErrorResponse) {
             console.log(error.error.message);
@@ -239,13 +268,13 @@ export class DbTableActionsComponent implements OnInit {
       )
   }
 
-  openDeleteActionDialog() {
+  openDeleteRuleDialog() {
     this.dialog.open(ActionDeleteDialogComponent, {
       width: '25em',
       data: {
         connectionID: this.connectionID,
         tableName: this.tableName,
-        action: this.selectedAction
+        rule: this.selectedRule
       }
     })
   }
@@ -256,8 +285,21 @@ export class DbTableActionsComponent implements OnInit {
 
   onEventChange(event: any) {
     console.log(event);
-    if (event === 'custom') {
-      this.customEventSettingsShown = true;
+    const updatedAvailsbleEvents = this.availableEvents.filter((availableEvent) => availableEvent.value !== event.value);
+    this.availableEvents = [...updatedAvailsbleEvents];
+
+    if (event.value === EventType.Custom) {
+      const customEvent = {
+        event_type: event.value,
+        title: '',
+        type: CustomActionType.Single,
+        icon: '',
+        requireConfirmation: false
+      };
+      this.selectedRule.events.push(customEvent);
+      this.selectedRuleCustomEvent = customEvent;
     }
+
+    if (this.selectedRule.events.length < 4) this.selectedRule.events.push({ event_type: null });
   }
 }

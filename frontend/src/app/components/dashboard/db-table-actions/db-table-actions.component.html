@@ -3,132 +3,142 @@
         <div class="drawer-header">
             <h1 class="mat-h1">Rules</h1>
 
-            <button mat-icon-button color="primary" *ngIf="actionsData && actions && actions.length !== 0"
+            <button mat-icon-button color="primary" *ngIf="rulesData && rules && rules.length !== 0"
                 type="button" class="add-icon-button"
                 angulartics2On="click"
                 angularticsAction="Actions: add first action is clicked"
-                (click)="addNewAction()">
+                (click)="addNewRule()">
                 <mat-icon>add</mat-icon>
             </button>
         </div>
-        <div class="no-actions" *ngIf="actionsData && actions && actions.length === 0 && !newAction">
+        <div class="no-actions" *ngIf="rulesData && rules && rules.length === 0 && !newRule">
             <span class="mat-body-1">No rules added</span>
             <button mat-stroked-button color="primary" type="button"
                 angulartics2On="click"
                 angularticsAction="Actions: add action is clicked"
-                (click)="addNewAction()">
+                (click)="addNewRule()">
                 <mat-icon>add</mat-icon>
                 Add rule
             </button>
         </div>
-        <mat-action-list *ngIf="actionsData && actions && actions.length">
-            <button mat-list-item *ngFor="let action of actions; let i = index"
+        <mat-action-list *ngIf="rulesData && rules && rules.length">
+            <button mat-list-item *ngFor="let rule of rules; let i = index"
                 class="list-action-list-item"
                 [ngClass]="{
-                    'list-action-list-item_active': selectedAction && action.title === selectedAction.title,
-                    'list-action-list-item_notSaved': action.id === ''
+                    'list-action-list-item_active': selectedRule && rule.title === selectedRule.title,
+                    'list-action-list-item_notSaved': rule.id === ''
                 }"
-                (click)="switchActionView(action)">
-                <span>{{ action.title }}</span>
+                (click)="switchRulesView(rule)">
+                <span>{{ rule.title }}</span>
             </button>
         </mat-action-list>
-        <mat-form-field *ngIf="newAction" appearance="fill" class="new-action-input">
-            <input matInput autofocus="true" name="newActionTitle" #newActionTitle="matInput"
+        <mat-form-field *ngIf="newRule" appearance="fill" class="new-action-input">
+            <input matInput autofocus="true" name="newRuleTitle" #newActionTitle="matInput"
                 required
-                placeholder="Enter action name"
-                [(ngModel)]="newAction.title"
-                (keyup.enter)="handleAddNewAction()">
+                placeholder="Enter rule name"
+                [(ngModel)]="newRule.title"
+                (keyup.enter)="handleAddNewRule()">
             <span *ngIf="actionNameError" class="action-error">{{actionNameError}}</span>
             <button mat-icon-button matSuffix
-                (click)="undoAction()">
+                (click)="undoRule()">
                 <mat-icon>close</mat-icon>
             </button>
         </mat-form-field>
     </mat-drawer>
 
-    <mat-drawer-content *ngIf="actionsData">
+    <mat-drawer-content *ngIf="rulesData">
         <app-alert></app-alert>
         <app-breadcrumbs [crumbs]="getCrumbs(currentConnection.title || currentConnection.database)" class="actions-breadcrumbs"></app-breadcrumbs>
-        <app-content-loader *ngIf="!actions"></app-content-loader>
+        <app-content-loader *ngIf="!rules"></app-content-loader>
 
-        <div class="action" *ngIf="selectedAction && actions.length">
-            <form (ngSubmit)="handleActionSubmetting()" class="action-settings">
+        <div class="action" *ngIf="selectedRule && rules.length">
+            <form (ngSubmit)="handleRuleSubmitting()" class="action-settings">
                 <mat-form-field appearance="outline">
                     <mat-label>Name</mat-label>
-                    <input matInput [(ngModel)]="updatedActionTitle" name="action-title" required>
+                    <input matInput [(ngModel)]="selectedRuleTitle" name="action-title" required>
                 </mat-form-field>
 
                 <div>
                     <span>When</span>
+                    <div *ngFor="let event of selectedRule.events">
+                        <span *ngIf="event.event_type">{{event.event_type}}</span>
+                        <mat-form-field appearance="outline" *ngIf="event.event_type === null">
+                            <mat-label>Events</mat-label>
+                            <mat-select name="{{event.event_type}}-event-type" [(ngModel)]="event.event_type" (selectionChange)="onEventChange($event)">
+                                <mat-option *ngFor="let availableEvent of availableEvents" [value]="availableEvent.value">
+                                    {{ availableEvent.label }}
+                                </mat-option>
+                            </mat-select>
+                        </mat-form-field>
+                        <div *ngIf="event.event_type === 'CUSTOM'">
+                            <mat-form-field appearance="outline">
+                                <mat-label>Name</mat-label>
+                                <input matInput name="action-title" [(ngModel)]="selectedRuleCustomEvent.title" required>
+                            </mat-form-field>
+                            <div class="actions-icon-selector">
+                                <span>Icon</span>
+                                <app-icon-picker class="icon-picker"
+                                    [icon]="selectedRuleCustomEvent.icon"
+                                    [defaultIcons]="defaultIcons"
+                                    tooltip="Choose an icon"
+                                    (onFieldChange)="updateIcon($event)">
+                                </app-icon-picker>
+                            </div>
+                            <mat-radio-group
+                                name="action-type"
+                                [(ngModel)]="selectedRuleCustomEvent.type">
+                                <mat-label>Affects</mat-label>
+                                <mat-radio-button value='single' class="radio-button_first" checked>
+                                    Single row
+                                </mat-radio-button>
+                                <mat-radio-button value='multiple' class="radio-button_second">
+                                    Multiple rows
+                                </mat-radio-button>
+                            </mat-radio-group>
+
+                            <mat-checkbox name="action-confirmation" #confirmation="ngModel"
+                                labelPosition="after"
+                                class="confirmation-checkbox"
+                                [(ngModel)]="selectedRuleCustomEvent.requireConfirmation">
+                                Request confirmation
+                            </mat-checkbox>
+                        </div>
+                    </div>
+                </div>
+
+                <span class="mat-body-1">than perform action(s)</span>
+                <div *ngFor="let action of selectedRule.actions">
                     <mat-form-field appearance="outline">
-                        <mat-label>Events</mat-label>
-                        <mat-select name="action-column" (change)="onEventChange($event)">
-                            <mat-option value="add">Added row</mat-option>
-                            <mat-option value="edit">Edited row</mat-option>
-                            <mat-option value="delete">Deleted row</mat-option>
-                            <mat-option value="custom">Custom event</mat-option>
+                        <mat-label>Actions type</mat-label>
+                        <mat-select name="action-column" [(ngModel)]="action.method">
+                            <mat-option value="email">Email notification</mat-option>
+                            <mat-option value="salck">Slack notification</mat-option>
+                            <mat-option value="http">URL webhook</mat-option>
                         </mat-select>
                     </mat-form-field>
-                </div>
-
-                <div *ngIf="customEventSettingsShown">
-                    <mat-form-field appearance="outline">
-                        <mat-label>Name</mat-label>
-                        <input matInput [(ngModel)]="updatedActionTitle" name="action-title" required>
+                    <mat-form-field appearance="outline" *ngIf="action.method === 'http'">
+                        <mat-label>Action URL</mat-label>
+                        <input matInput name="action-url" required>
+                        <!-- <mat-error *ngIf="sslCert.errors?.required && (sslCert.invalid && sslCert.touched)">SSL certificate should not be empty.</mat-error> -->
                     </mat-form-field>
-                    <div class="actions-icon-selector">
-                        <span>Icon</span>
-                        <app-icon-picker class="icon-picker"
-                            [icon]="selectedAction.icon"
-                            [defaultIcons]="defaultIcons"
-                            tooltip="Choose an icon"
-                            (onFieldChange)="updateIcon($event)">
-                        </app-icon-picker>
-                    </div>
-                    <mat-radio-group
-                        name="action-type"
-                        [(ngModel)]="selectedAction.type">
-                        <mat-label>Affects</mat-label>
-                        <mat-radio-button value='single' class="radio-button_first" checked>
-                            Single row
-                        </mat-radio-button>
-                        <mat-radio-button value='multiple' class="radio-button_second">
-                            Multiple rows
-                        </mat-radio-button>
-                    </mat-radio-group>
-
-                    <mat-checkbox name="action-confirmation" #confirmation="ngModel"
-                        labelPosition="after"
-                        class="confirmation-checkbox"
-                        [(ngModel)]="selectedAction.requireConfirmation">
-                        Request confirmation
-                    </mat-checkbox>
                 </div>
-
-
-
-                <mat-form-field appearance="outline">
-                    <mat-label>Action URL</mat-label>
-                    <input matInput [(ngModel)]="selectedAction.url" name="action-url" required>
-                    <!-- <mat-error *ngIf="sslCert.errors?.required && (sslCert.invalid && sslCert.touched)">SSL certificate should not be empty.</mat-error> -->
-                </mat-form-field>
 
 
 
                 <div class="action__actions">
                     <button mat-stroked-button color="warn" type="button"
-                        (click)="handleRemoveAction()">
+                        (click)="handleRemoveRule()">
                         Delete
                     </button>
 
                     <button mat-flat-button color="primary" type="submit"
-                        [disabled]="submitting || !updatedActionTitle">
+                        [disabled]="submitting || !selectedRuleTitle">
                         Save
                     </button>
                 </div>
             </form>
 
-            <div class="code-snippet-box">
+            <div *ngIf="selectedRuleCustomEvent" class="code-snippet-box">
                 <mat-form-field appearance="outline" class="lang-select">
                     <mat-label>Language</mat-label>
                     <mat-select [(ngModel)]="codeLangSelected">
@@ -140,7 +150,7 @@
                     mat-icon-button
                     class="copy-button"
                     matTooltip="Copy mater password"
-                    [cdkCopyToClipboard]="codeSnippets[codeLangSelected].snippet[selectedAction.type]"
+                    [cdkCopyToClipboard]="codeSnippets[codeLangSelected].snippet[selectedRuleCustomEvent.type]"
                     (cdkCopyToClipboardCopied)="showCopyNotification(codeSnippets[codeLangSelected].langName + 'code snippet was copied to clipboard.')">
                     <mat-icon>content_copy</mat-icon>
                 </button>
@@ -150,23 +160,11 @@
                         theme="vs"
                         [codeModel]="{
                             language: codeSnippets[codeLangSelected].mode,
-                            value: codeSnippets[codeLangSelected].snippet[selectedAction.type]
+                            value: codeSnippets[codeLangSelected].snippet[selectedRuleCustomEvent.type]
                         }"
                         [options]="codeViewerOptions">
                     </ngs-code-editor>
                 </div>
-
-                <!-- <ngx-codemirror class="action-codeSnippet"
-                    [(ngModel)]="codeSnippets[codeLangSelected].snippet[selectedAction.type]"
-                    name="code-snippet"
-                    [options]="{
-                        lineNumbers: true,
-                        lineWrapping: true,
-                        matchBrackets: true,
-                        mode: codeSnippets[codeLangSelected].mode,
-                        theme: 'ttcn'
-                    }"
-                ></ngx-codemirror> -->
             </div>
         </div>
 

@@ -1,7 +1,7 @@
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { Component, OnInit } from '@angular/core';
 import { ConnectionSettingsUI, UiSettings } from 'src/app/models/ui-settings';
-import { CustomAction, TableProperties } from 'src/app/models/table';
+import { CustomEvent, TableProperties } from 'src/app/models/table';
 import { first, map } from 'rxjs/operators';
 
 import { Angulartics2 } from 'angulartics2';
@@ -26,7 +26,7 @@ import { normalizeTableName } from '../../lib/normalize'
 import { omitBy } from "lodash";
 
 interface DataToActivateActions {
-  action: CustomAction,
+  action: CustomEvent,
   primaryKeys: object[],
   identityFieldValues: string[]
 }

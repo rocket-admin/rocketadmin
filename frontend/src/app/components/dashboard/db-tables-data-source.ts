@@ -2,7 +2,7 @@ import * as JSON5 from 'json5';
 
 import { Alert, AlertActionType, AlertType } from 'src/app/models/alert';
 import { BehaviorSubject, Observable, of } from 'rxjs';
-import { CustomAction, CustomActionType, TableField, TableForeignKey, Widget } from 'src/app/models/table';
+import { CustomAction, CustomActionType, TableField, TableForeignKey, Widget, CustomEvent } from 'src/app/models/table';
 import { catchError, finalize } from 'rxjs/operators';
 
 import { AccessLevel } from 'src/app/models/user';
@@ -189,7 +189,7 @@ export class TablesDataSource implements DataSource<Object> {
           this.keyAttributes = res.primaryColumns;
           this.identityColumn = res.identity_column;
           this.tableActions = res.table_actions;
-          this.tableBulkActions = res.table_actions.filter((action: CustomAction) => action.type === CustomActionType.Multiple);
+          this.tableBulkActions = res.table_actions.filter((action: CustomEvent) => action.type === CustomActionType.Multiple);
 
           let orderedColumns: TableField[];
           if (res.list_fields.length) {
