@@ -33,7 +33,7 @@ export class FindTableActionsUseCase
         HttpStatus.BAD_REQUEST,
       );
     }
-    const foundTableActions = await this._dbContext.tableActionRepository.findTableActions(connectionId, tableName);
+    const foundTableActions = await this._dbContext.tableActionRepository.findTableActionsWithRulesAndEvents(connectionId, tableName);
     const foundTableSettings = await this._dbContext.tableSettingsRepository.findTableSettings(connectionId, tableName);
     const formedTableActionsDS = foundTableActions.map((action) => buildCreatedTableActionDS(action));
     return {

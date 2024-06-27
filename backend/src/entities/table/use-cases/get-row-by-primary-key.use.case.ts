@@ -79,7 +79,7 @@ export class GetRowByPrimaryKeyUseCase
       this._dbContext.tableSettingsRepository.findTableSettings(connectionId, tableName),
       dao.getTableForeignKeys(tableName, userEmail),
       dao.getTablePrimaryColumns(tableName, userEmail),
-      this._dbContext.tableActionRepository.findTableActions(connectionId, tableName),
+      this._dbContext.tableActionRepository.findTableActionsWithRulesAndEvents(connectionId, tableName),
       dao.getReferencedTableNamesAndColumns(tableName, userEmail),
       this._dbContext.userAccessRepository.getUserTablePermissions(userId, connectionId, tableName, masterPwd),
     ]);

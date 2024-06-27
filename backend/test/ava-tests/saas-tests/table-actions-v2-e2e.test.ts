@@ -222,7 +222,6 @@ test.only(`${currentTest} should return found table actions with rules and event
     .set('Accept', 'application/json');
 
   const getTableActionsRO = JSON.parse(getTableActionsResult.text);
-  console.log('🚀 ~ test ~ getTableActionsRO:', getTableActionsRO)
   t.is(getTableActionsResult.status, 200);
   t.is(getTableActionsRO.length, 1);
   t.truthy(getTableActionsRO[0].id);
@@ -237,5 +236,4 @@ test.only(`${currentTest} should return found table actions with rules and event
   t.is(getTableActionsRO[0].action_rules[0].table_name, tableActionRequestDTO.action_rules[0].table_name);
   t.is(getTableActionsRO[0].action_rules[0].action_events.length, 1);
   t.is(getTableActionsRO[0].action_rules[0].action_events[0].event, TableActionEventEnum.CUSTOM);
-  
 });

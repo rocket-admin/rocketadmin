@@ -90,7 +90,7 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
         this._dbContext.tableWidgetsRepository.findTableWidgets(connectionId, tableName),
         this._dbContext.customFieldsRepository.getCustomFields(connectionId, tableName),
         this._dbContext.userAccessRepository.getUserTablePermissions(userId, connectionId, tableName, masterPwd),
-        this._dbContext.tableActionRepository.findTableActions(connectionId, tableName),
+        this._dbContext.tableActionRepository.findTableActionsWithRulesAndEvents(connectionId, tableName),
       ]);
 
       const filteringFields: Array<FilteringFieldsDs> = isObjectEmpty(filters)

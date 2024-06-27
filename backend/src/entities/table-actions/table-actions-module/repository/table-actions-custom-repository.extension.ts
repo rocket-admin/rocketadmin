@@ -1,21 +1,9 @@
-import { TableSettingsEntity } from '../../../table-settings/table-settings.entity.js';
 import { TableActionEntity } from '../table-action.entity.js';
 import { ITableActionRepository } from './table-action-custom-repository.interface.js';
 
 export const tableActionsCustomRepositoryExtension: ITableActionRepository = {
   async saveNewOrUpdatedTableAction(action: TableActionEntity): Promise<TableActionEntity> {
     return await this.save(action);
-  },
-
-  async findTableActions(connectionId: string, tableName: string): Promise<Array<TableActionEntity>> {
-    const qb = this.manager
-      .getRepository(TableSettingsEntity)
-      .createQueryBuilder('tableSettings')
-      .leftJoinAndSelect('tableSettings.table_actions', 'table_actions');
-    qb.where('tableSettings.connection_id = :connection_id', { connection_id: connectionId });
-    qb.andWhere('tableSettings.table_name = :table_name', { table_name: tableName });
-    const result = await qb.getOne();
-    return result?.table_actions ? result.table_actions : [];
   },
 
   async findTableActionsWithRulesAndEvents(connectionId: string, tableName: string): Promise<Array<TableActionEntity>> {
