@@ -1,21 +1,18 @@
 import {
+  HttpErrorResponse,
   HttpEvent,
   HttpHandler,
-  HttpHeaders,
   HttpInterceptor,
   HttpRequest
 } from '@angular/common/http';
-import { Observable, ReplaySubject, from } from 'rxjs';
+import { Observable, throwError } from 'rxjs';
 
 import { ConnectionsService } from './connections.service';
 import { CookieService } from 'ngx-cookie-service';
 import { Injectable } from '@angular/core';
 import { ConfigurationService } from './configuration.service';
-import { switchMap } from 'rxjs/operators';
+import { catchError } from 'rxjs/operators';
 import { environment } from "../../environments/environment";
-
-// import { Connection } from '../models/connection';
-// import { UserService } from './user.service';
 
 @Injectable()
 export class TokenInterceptor implements HttpInterceptor {
@@ -25,7 +22,6 @@ export class TokenInterceptor implements HttpInterceptor {
     private cookieService: CookieService,
     private _connections: ConnectionsService,
     private _configuration: ConfigurationService
-    // private _user: UserService
   ) {}
 
   normalizeURL(url: string, baseURL: string): string {
@@ -59,6 +55,13 @@ export class TokenInterceptor implements HttpInterceptor {
         },
       });
     };
-    return next.handle(request);
+    return next.handle(request).pipe(
+      catchError((error: HttpErrorResponse) => {
+        if (error.status === 401) {
+          location.href = '/login';
+        }
+        return throwError(error);
+      })
+    );
   }
 }
