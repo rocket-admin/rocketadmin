@@ -198,6 +198,7 @@ export const Messages = {
       paramsNames.length > 1 ? 'are' : 'is'
     } missing`,
   ROW_PRIMARY_KEY_NOT_FOUND: 'Row with this primary key not found',
+  RULE_NOT_FOUND: 'Rule not found',
   SAAS_COMPANY_NOT_REGISTERED_WITH_USER_INVITATION: `Failed to invite user in SaaS. Please contact our support team.`,
   SAAS_UPDATE_USERS_ROLES_FAILED_UNHANDLED_ERROR: `Failed to update users roles in SaaS. Please contact our support team.`,
   SAAS_DELETE_COMPANY_FAILED_UNHANDLED_ERROR: `Failed to delete company in SaaS. Please contact our support team.`,

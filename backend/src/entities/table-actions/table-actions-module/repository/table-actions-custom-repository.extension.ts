@@ -20,6 +20,15 @@ export const tableActionsCustomRepositoryExtension: ITableActionRepository = {
     return await this.findOne({ where: { id: actionId } });
   },
 
+  async findFullTableActionById(actionId: string): Promise<TableActionEntity> {
+    const qb = this.createQueryBuilder('table_actions')
+      .leftJoinAndSelect('table_actions.action_rules', 'action_rules')
+      .leftJoinAndSelect('action_rules.action_events', 'action_events')
+      .leftJoinAndSelect('table_actions.settings', 'table_settings')
+      .where('table_actions.id = :id', { id: actionId });
+    return await qb.getOne();
+  },
+
   async deleteTableAction(action: TableActionEntity): Promise<TableActionEntity> {
     await this.createQueryBuilder('table_actions')
       .delete()

@@ -1,19 +1,15 @@
-import { Inject, Injectable, NotFoundException, Scope } from '@nestjs/common';
+import { Inject, Injectable, Scope } from '@nestjs/common';
 import AbstractUseCase from '../../../../common/abstract-use.case.js';
-import { ICreateTableTriggers } from './table-triggers-use-cases.interface.js';
-import { FoundTableTriggersWithActionsDTO } from '../application/dto/found-table-triggers-with-actions.dto.js';
-import { CreateTableTriggersDS } from '../application/data-structures/create-table-triggers.ds.js';
 import { IGlobalDatabaseContext } from '../../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../../common/data-injection.tokens.js';
-import { Messages } from '../../../../exceptions/text/messages.js';
-import { Encryptor } from '../../../../helpers/encryption/encryptor.js';
-import { ActionRulesEntity } from '../action-rules.entity.js';
-import { buildFoundTableTriggerDto } from '../utils/build-found-table-triggers-dto.util.js';
+import { ICreateActionRule } from './action-rules-use-cases.interface.js';
+import { CreateActionRuleDS } from '../application/data-structures/create-action-rules.ds.js';
+import { FoundActionRulesWithActionsAndEventsDTO } from '../application/dto/found-table-triggers-with-actions.dto.js';
 
 @Injectable({ scope: Scope.REQUEST })
-export class CreateTableTriggersUseCase
-  extends AbstractUseCase<CreateTableTriggersDS, FoundTableTriggersWithActionsDTO>
-  implements ICreateTableTriggers
+export class CreateActionRuleUseCase
+  extends AbstractUseCase<CreateActionRuleDS, FoundActionRulesWithActionsAndEventsDTO>
+  implements ICreateActionRule
 {
   constructor(
     @Inject(BaseType.GLOBAL_DB_CONTEXT)
@@ -22,31 +18,7 @@ export class CreateTableTriggersUseCase
     super();
   }
 
-  protected async implementation(inputData: CreateTableTriggersDS): Promise<FoundTableTriggersWithActionsDTO> {
-    const { connectionId, tableName, actions_ids } = inputData;
-    const foundConnection = await this._dbContext.connectionRepository.findOne({ where: { id: connectionId } });
-
-    if (!foundConnection) {
-      throw new NotFoundException(Messages.CONNECTION_NOT_FOUND);
-    }
-
-    if (!foundConnection.signing_key) {
-      foundConnection.signing_key = Encryptor.generateRandomString(40);
-      await this._dbContext.connectionRepository.saveUpdatedConnection(foundConnection);
-    }
-
-    const foundTableActions = await this._dbContext.tableActionRepository.findTableActionsByIds(actions_ids);
-    if (foundTableActions.length !== actions_ids.length) {
-      throw new NotFoundException(Messages.TABLE_ACTION_NOT_FOUND);
-    }
-
-    const newActionRules = new ActionRulesEntity();
-    newActionRules.table_name = tableName;
-    newActionRules.table_actions = [];
-
-    const savedTrigger = await this._dbContext.actionRulesRepository.saveNewOrUpdatedActionRules(newActionRules);
-    savedTrigger.table_actions.push(...foundTableActions);
-    await this._dbContext.actionRulesRepository.saveNewOrUpdatedActionRules(savedTrigger);
-    return buildFoundTableTriggerDto(newActionRules);
+  protected async implementation(inputData: CreateActionRuleDS): Promise<FoundActionRulesWithActionsAndEventsDTO> {
+    return null;
   }
 }

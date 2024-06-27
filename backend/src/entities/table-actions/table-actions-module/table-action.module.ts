@@ -13,9 +13,6 @@ import { DeleteTableActionUseCase } from './use-cases/delete-table-action.use.ca
 import { FindTableActionsUseCase } from './use-cases/find-all-table-actions.use.case.js';
 import { FindTableActionUseCase } from './use-cases/find-table-action.use.case.js';
 import { UpdateTableActionUseCase } from './use-cases/update-table-action.use.case.js';
-import { CreateTableActionV2UseCase } from '../table-actions-module-v2/use-cases/create-table-action-v2-use.case.js';
-import { TableActionV2Controller } from '../table-actions-module-v2/table-action-v2.controller.js';
-import { FindAllTableActionsWithRulesAndEventsUseCase } from '../table-actions-module-v2/use-cases/find-all-table-actions-with-rules-and-events.use.case.js';
 
 @Module({
   imports: [TypeOrmModule.forFeature([TableActionEntity, UserEntity, LogOutEntity])],
@@ -48,16 +45,8 @@ import { FindAllTableActionsWithRulesAndEventsUseCase } from '../table-actions-m
       provide: UseCaseType.FIND_TABLE_ACTION,
       useClass: FindTableActionUseCase,
     },
-    {
-      provide: UseCaseType.CREATE_TABLE_ACTION_V2,
-      useClass: CreateTableActionV2UseCase,
-    },
-    {
-      provide: UseCaseType.GET_TABLE_ACTION_V2,
-      useClass: FindAllTableActionsWithRulesAndEventsUseCase,
-    },
   ],
-  controllers: [TableActionsController, TableActionV2Controller],
+  controllers: [TableActionsController],
 })
 export class TableActionModule implements NestModule {
   public configure(consumer: MiddlewareConsumer): any {
@@ -67,8 +56,6 @@ export class TableActionModule implements NestModule {
         { path: '/table/actions/:slug', method: RequestMethod.GET },
         { path: '/table/action/:slug', method: RequestMethod.GET },
         { path: '/table/action/:slug', method: RequestMethod.POST },
-        { path: '/v2/table/action/:slug', method: RequestMethod.POST },
-        { path: '/v2/table/actions/:slug', method: RequestMethod.GET },
         { path: '/table/actions/activate/:slug', method: RequestMethod.POST },
         { path: '/table/action/:slug', method: RequestMethod.PUT },
         { path: '/table/action/:slug', method: RequestMethod.DELETE },

@@ -6,6 +6,8 @@ export interface ITableActionRepository {
 
   findTableActionById(actionId: string): Promise<TableActionEntity>;
 
+  findFullTableActionById(actionId: string): Promise<TableActionEntity>;
+
   deleteTableAction(action: TableActionEntity): Promise<TableActionEntity>;
 
   findTableActionsByIds(actionIds: Array<string>): Promise<Array<TableActionEntity>>;
