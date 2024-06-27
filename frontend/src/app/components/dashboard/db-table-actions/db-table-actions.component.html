@@ -61,11 +61,11 @@
                 <div>
                     <span>When</span>
                     <div *ngFor="let event of selectedRule.events">
-                        <span *ngIf="event.event_type">{{event.event_type}}</span>
-                        <mat-form-field appearance="outline" *ngIf="event.event_type === null">
+                        <mat-form-field appearance="outline">
                             <mat-label>Events</mat-label>
                             <mat-select name="{{event.event_type}}-event-type" [(ngModel)]="event.event_type" (selectionChange)="onEventChange($event)">
-                                <mat-option *ngFor="let availableEvent of availableEvents" [value]="availableEvent.value">
+                                <mat-option *ngFor="let availableEvent of availableEvents" [value]="availableEvent.value"
+                                    [disabled]="selectedEvents.includes(availableEvent.value)">
                                     {{ availableEvent.label }}
                                 </mat-option>
                             </mat-select>

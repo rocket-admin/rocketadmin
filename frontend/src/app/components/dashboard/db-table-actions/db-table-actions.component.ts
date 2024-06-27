@@ -56,6 +56,7 @@ export class DbTableActionsComponent implements OnInit {
     { value: EventType.DeleteRow, label: 'Delete row' },
     { value: EventType.Custom, label: 'Custom' }
   ];
+  public selectedEvents: string[] = [];
 
   constructor(
     private _connections: ConnectionsService,
@@ -284,22 +285,23 @@ export class DbTableActionsComponent implements OnInit {
   }
 
   onEventChange(event: any) {
-    console.log(event);
-    const updatedAvailsbleEvents = this.availableEvents.filter((availableEvent) => availableEvent.value !== event.value);
-    this.availableEvents = [...updatedAvailsbleEvents];
+    console.log(this.selectedRule.events);
+    this.selectedEvents.push(event.value);
+
+    let customEvent = this.selectedRule.events.find((event) => event.event_type === EventType.Custom);
 
     if (event.value === EventType.Custom) {
-      const customEvent = {
-        event_type: event.value,
+      customEvent = {
+        ...customEvent,
         title: '',
         type: CustomActionType.Single,
         icon: '',
         requireConfirmation: false
       };
-      this.selectedRule.events.push(customEvent);
+      // this.selectedRule.events.push(customEvent);
       this.selectedRuleCustomEvent = customEvent;
+    } else if (this.selectedRule.events.length < 4) {
+      this.selectedRule.events.push({ event_type: null });
     }
-
-    if (this.selectedRule.events.length < 4) this.selectedRule.events.push({ event_type: null });
   }
 }
