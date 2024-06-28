@@ -5,7 +5,7 @@ import {
   BeforeUpdate,
   Column,
   Entity,
-  ManyToMany,
+  JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
   Relation,
@@ -47,8 +47,9 @@ export class TableActionEntity {
   @ManyToOne((type) => TableSettingsEntity, (settings) => settings.table_actions, { onDelete: 'CASCADE' })
   settings: Relation<TableSettingsEntity>;
 
-  @ManyToMany((type) => ActionRulesEntity, (rules) => rules.table_actions)
-  action_rules: Relation<ActionRulesEntity>[];
+  @ManyToOne((type) => ActionRulesEntity, (rules) => rules.table_actions, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'action_rule_id' })
+  action_rule: Relation<ActionRulesEntity>[];
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   created_at: Date;

@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { Column, Entity, ManyToMany, PrimaryGeneratedColumn, Relation } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, Relation } from 'typeorm';
 import { TableActionEventEnum } from '../../../enums/table-action-event-enum.js';
 import { ActionRulesEntity } from '../table-action-rules-module/action-rules.entity.js';
 
@@ -30,6 +30,7 @@ export class ActionEventsEntity {
   @Column({ default: false })
   require_confirmation: boolean;
 
-  @ManyToMany((type) => ActionRulesEntity, (rules) => rules.table_actions)
-  action_rules: Relation<ActionRulesEntity>[];
+  @ManyToOne((type) => ActionRulesEntity, (rules) => rules.table_actions, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'action_rule_id' })
+  action_rule: Relation<ActionRulesEntity>[];
 }
