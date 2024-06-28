@@ -10,6 +10,7 @@ export function buildFoundActionRulesWithActionsAndEventsDTO(
     id: actionRule.id,
     table_name: actionRule.table_name,
     created_at: actionRule.created_at,
+    title: actionRule.title,
     table_actions: actionRule.table_actions.map((tableAction) => buildFoundTableActionDTO(tableAction)),
     events: actionRule.action_events.map((actionEvent) => buildFoundActionEventDTO(actionEvent)),
   };

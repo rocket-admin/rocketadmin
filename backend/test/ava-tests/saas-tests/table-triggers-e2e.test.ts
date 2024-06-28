@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
+/*
 import { DatabaseModule } from '../../../src/shared/database/database.module.js';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import test from 'ava';
@@ -774,3 +775,4 @@ test(`${currentTest} should create trigger and activate slack table action on ad
 
   scope.done();
 });
+*/

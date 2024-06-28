@@ -21,7 +21,7 @@ export class ActionEventsEntity {
   @Column({ default: null })
   icon: string;
 
-  @Column({ default: null })
+  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   created_at: Date;
 
   @Column({ default: false })

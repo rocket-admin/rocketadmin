@@ -28,7 +28,7 @@ export class TableTriggersModule {
     consumer
       .apply(AuthMiddleware)
       .forRoutes(
-        { path: '/table/triggers/:connectionId', method: RequestMethod.POST },
+        { path: '/table/rule/:connectionId', method: RequestMethod.POST },
       );
   }
 }

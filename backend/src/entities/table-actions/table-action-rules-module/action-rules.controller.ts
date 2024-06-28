@@ -63,6 +63,6 @@ export class ActionRulesController {
         action_emails: action.emails,
       })),
     };
-    return await this.createTableActionRule.execute(inputData, InTransactionEnum.OFF);
+    return await this.createTableActionRule.execute(inputData, InTransactionEnum.ON);
   }
 }

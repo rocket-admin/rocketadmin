@@ -54,6 +54,9 @@ export class FoundActionRulesWithActionsAndEventsDTO {
   table_name: string;
 
   @ApiProperty()
+  title: string;
+
+  @ApiProperty()
   created_at: Date;
 
   @ApiProperty({ type: FoundTableActionDTO, isArray: true })

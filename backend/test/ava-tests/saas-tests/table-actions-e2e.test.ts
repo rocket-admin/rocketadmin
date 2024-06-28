@@ -7,7 +7,6 @@ import cookieParser from 'cookie-parser';
 import knex from 'knex';
 import request from 'supertest';
 import { ApplicationModule } from '../../../src/app.module.js';
-import { TableActionEntity } from '../../../src/entities/table-actions/table-actions-module/table-action.entity.js';
 import { AllExceptionsFilter } from '../../../src/exceptions/all-exceptions.filter.js';
 import { Messages } from '../../../src/exceptions/text/messages.js';
 import { Cacher } from '../../../src/helpers/cache/cacher.js';
