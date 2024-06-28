@@ -35,7 +35,8 @@ export class CreateActionRuleUseCase
     await this.validateTableNameOrThrowException(table_name, connectionId, masterPwd);
     await this.validateTableActionDataOrThrowException(table_actions_data);
 
-    const newActionRule = buildEmptyActionRule(rule_data);
+    const foundConnection = await this._dbContext.connectionRepository.findOne({ where: { id: connectionId } });
+    const newActionRule = buildEmptyActionRule(rule_data, foundConnection);
     const savedActionRule = await this._dbContext.actionRulesRepository.saveNewOrUpdatedActionRule(newActionRule);
 
     const savedTableActions = await Promise.all(

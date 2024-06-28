@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Expose } from 'class-transformer';
 import {
   AfterLoad,
@@ -22,6 +23,7 @@ import { TableLogsEntity } from '../table-logs/table-logs.entity.js';
 import { TableSettingsEntity } from '../table-settings/table-settings.entity.js';
 import { UserEntity } from '../user/user.entity.js';
 import { CompanyInfoEntity } from '../company-info/company-info.entity.js';
+import { ActionRulesEntity } from '../table-actions/table-action-rules-module/action-rules.entity.js';
 
 @Entity('connection')
 export class ConnectionEntity {
@@ -180,6 +182,9 @@ export class ConnectionEntity {
 
   @OneToMany(() => TableLogsEntity, (logs) => logs.connection_id)
   logs: Relation<TableLogsEntity>[];
+
+  @OneToMany((type) => ActionRulesEntity, (action_rules) => action_rules.connection)
+  action_rules: Relation<ActionRulesEntity>[];
 
   @OneToOne(() => AgentEntity, (agent) => agent.connection)
   agent: Relation<AgentEntity>;
