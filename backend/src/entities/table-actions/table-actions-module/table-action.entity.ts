@@ -49,7 +49,7 @@ export class TableActionEntity {
 
   @ManyToOne((type) => ActionRulesEntity, (rules) => rules.table_actions, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'action_rule_id' })
-  action_rule: Relation<ActionRulesEntity>[];
+  action_rule: Relation<ActionRulesEntity>;
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   created_at: Date;

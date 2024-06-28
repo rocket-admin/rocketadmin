@@ -22,9 +22,6 @@ export class ActionEventsEntity {
   icon: string;
 
   @Column({ default: null })
-  table_name: string;
-
-  @Column({ default: null })
   created_at: Date;
 
   @Column({ default: false })
@@ -32,5 +29,5 @@ export class ActionEventsEntity {
 
   @ManyToOne((type) => ActionRulesEntity, (rules) => rules.table_actions, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'action_rule_id' })
-  action_rule: Relation<ActionRulesEntity>[];
+  action_rule: Relation<ActionRulesEntity>;
 }

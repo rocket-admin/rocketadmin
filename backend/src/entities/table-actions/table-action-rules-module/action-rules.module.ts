@@ -7,7 +7,7 @@ import { AuthMiddleware } from '../../../authorization/auth.middleware.js';
 import { ActionRulesEntity } from './action-rules.entity.js';
 import { UserEntity } from '../../user/user.entity.js';
 import { LogOutEntity } from '../../log-out/log-out.entity.js';
-import { CreateActionRuleUseCase } from './use-cases/create-table-triggers.use.case.js';
+import { CreateActionRuleUseCase } from './use-cases/create-action-rule.use.case.js';
 
 @Module({
   imports: [TypeOrmModule.forFeature([ActionRulesEntity, UserEntity, LogOutEntity])],

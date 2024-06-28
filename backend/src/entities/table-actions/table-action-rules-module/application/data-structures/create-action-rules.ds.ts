@@ -17,15 +17,17 @@ export class CreateTableActionEventDS {
   require_confirmation: boolean;
 }
 
+export class CreateRuleDataDs {
+  rule_title: string;
+  table_name: string;
+}
+
 export class CreateActionRuleDS {
-  rule_data: {
-    rule_title: string;
-    table_name: string;
-  };
+  rule_data: CreateRuleDataDs;
   connection_data: {
-    connectionId: string,
-    masterPwd: string,
-    userId: string,
+    connectionId: string;
+    masterPwd: string;
+    userId: string;
   };
   table_actions_data: Array<CreateTableActionData>;
   action_events_data: Array<CreateTableActionEventDS>;

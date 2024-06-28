@@ -90,6 +90,7 @@ export const Messages = {
       EncryptionAlgorithmEnum,
     )} algorithms.`,
   EMAILS_NOT_IN_COMPANY: (emails: Array<string>) => `Emails ${emails.join(', ')} are not in the company`,
+  EMAILS_REQUIRED_FOR_EMAIL_ACTION: `Emails are required for email action`,
   ERROR_MESSAGE: 'Error message: ',
   ERROR_MESSAGE_ORIGINAL: 'Error message from database: ',
   EXCLUDED_OR_NOT_EXISTS: (fieldName: string) =>
@@ -206,6 +207,7 @@ export const Messages = {
   SAAS_SUSPEND_USERS_FAILED_UNHANDLED_ERROR: `Failed to suspend users in SaaS. Please contact our support team.`,
   SAAS_UNSUSPEND_USERS_FAILED_UNHANDLED_ERROR: `Failed to unsuspend users in SaaS. Please contact our support team.`,
   SLACK_CREDENTIALS_MISSING: 'Slack credentials are missing',
+  SLACK_URL_MISSING: 'Slack url is missing',
   SOMETHING_WENT_WRONG_ROW_ADD: 'Something went wrong on row insertion, check inserted parameters and try again',
   SSH_FORMAT_INCORRECT: 'Ssh value must be a boolean',
   SSH_HOST_MISSING: 'Ssh host is missing',
