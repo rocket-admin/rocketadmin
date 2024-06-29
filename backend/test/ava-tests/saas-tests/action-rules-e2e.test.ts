@@ -291,12 +291,125 @@ test(`${currentTest} should return found table rules with action and events`, as
   t.is(foundMultipleAction.method, tableRuleDTO.table_actions[0].method);
   t.is(foundMultipleAction.slack_url, null);
   t.is(foundMultipleAction.emails.length, tableRuleDTO.table_actions[0].emails.length);
-  const foundSingleAction = findTableRuleRO.table_actions.find(
-    (action) => action.type === TableActionTypeEnum.single,
-  );
+  const foundSingleAction = findTableRuleRO.table_actions.find((action) => action.type === TableActionTypeEnum.single);
   t.truthy(foundSingleAction);
   t.is(foundSingleAction.url, null);
   t.is(foundSingleAction.method, tableRuleDTO.table_actions[1].method);
   t.truthy(foundSingleAction.slack_url);
   t.deepEqual(foundSingleAction.emails, []);
+});
+
+currentTest = `DELETE /action/rule/:actionId/:connectionId`;
+
+test(`${currentTest} should delete table action rule with action and events and return deleted result`, async (t) => {
+  const { token } = await registerUserAndReturnUserInfo(app);
+  const createConnectionResult = await request(app.getHttpServer())
+    .post('/connection')
+    .send(newConnection)
+    .set('Cookie', token)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+
+  const createConnectionRO = JSON.parse(createConnectionResult.text);
+  t.is(createConnectionResult.status, 201);
+
+  const tableRuleDTO: CreateTableActionRuleBodyDTO = {
+    title: 'Test rule',
+    table_name: testTableName,
+    events: [
+      {
+        event: TableActionEventEnum.CUSTOM,
+        title: 'Test event',
+        icon: 'test-icon',
+        require_confirmation: false,
+      },
+      {
+        event: TableActionEventEnum.ADD_ROW,
+        title: 'Test event 2',
+        icon: 'test-icon 2',
+        require_confirmation: true,
+      },
+    ],
+    table_actions: [
+      {
+        type: TableActionTypeEnum.multiple,
+        url: faker.internet.url(),
+        method: TableActionMethodEnum.URL,
+        slack_url: undefined,
+        emails: [faker.internet.email()],
+      },
+      {
+        type: TableActionTypeEnum.single,
+        url: undefined,
+        method: TableActionMethodEnum.SLACK,
+        slack_url: faker.internet.url(),
+        emails: undefined,
+      },
+    ],
+  };
+
+  const createTableRuleResult = await request(app.getHttpServer())
+    .post(`/action/rule/${createConnectionRO.id}`)
+    .send(tableRuleDTO)
+    .set('Cookie', token)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+
+  const createTableRuleRO: FoundActionRulesWithActionsAndEventsDTO = JSON.parse(createTableRuleResult.text);
+  t.is(createTableRuleResult.status, 201);
+
+  const deleteTableRuleResult = await request(app.getHttpServer())
+    .delete(`/action/rule/${createTableRuleRO.id}/${createConnectionRO.id}`)
+    .set('Cookie', token)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+
+  const deleteTableRuleRO: FoundActionRulesWithActionsAndEventsDTO = JSON.parse(deleteTableRuleResult.text);
+  t.is(deleteTableRuleResult.status, 200);
+
+  t.truthy(deleteTableRuleRO.id);
+  t.is(deleteTableRuleRO.title, tableRuleDTO.title);
+  t.is(deleteTableRuleRO.table_name, tableRuleDTO.table_name);
+  t.is(deleteTableRuleRO.table_actions.length, tableRuleDTO.table_actions.length);
+  t.is(deleteTableRuleRO.events.length, tableRuleDTO.events.length);
+  const deletedCustomEvent = deleteTableRuleRO.events.find((event) => event.event === TableActionEventEnum.CUSTOM);
+  t.truthy(deletedCustomEvent);
+  t.is(deletedCustomEvent.title, tableRuleDTO.events[0].title);
+  t.is(deletedCustomEvent.icon, tableRuleDTO.events[0].icon);
+  t.is(deletedCustomEvent.require_confirmation, tableRuleDTO.events[0].require_confirmation);
+  const deletedAddRowEvent = deleteTableRuleRO.events.find((event) => event.event === TableActionEventEnum.ADD_ROW);
+  t.truthy(deletedAddRowEvent);
+  t.is(deletedAddRowEvent.title, tableRuleDTO.events[1].title);
+  t.is(deletedAddRowEvent.icon, tableRuleDTO.events[1].icon);
+  t.is(deletedAddRowEvent.require_confirmation, tableRuleDTO.events[1].require_confirmation);
+  const deletedMultipleAction = deleteTableRuleRO.table_actions.find(
+    (action) => action.type === TableActionTypeEnum.multiple,
+  );
+  t.truthy(deletedMultipleAction);
+  t.is(deletedMultipleAction.url, tableRuleDTO.table_actions[0].url);
+  t.is(deletedMultipleAction.method, tableRuleDTO.table_actions[0].method);
+  t.is(deletedMultipleAction.slack_url, null);
+  t.is(deletedMultipleAction.emails.length, tableRuleDTO.table_actions[0].emails.length);
+  const deletedSingleAction = deleteTableRuleRO.table_actions.find(
+    (action) => action.type === TableActionTypeEnum.single,
+  );
+  t.truthy(deletedSingleAction);
+  t.is(deletedSingleAction.url, null);
+  t.is(deletedSingleAction.method, tableRuleDTO.table_actions[1].method);
+  t.truthy(deletedSingleAction.slack_url);
+  t.deepEqual(deletedSingleAction.emails, []);
+
+  // Check if the rule is deleted
+  const findTableRuleResult = await request(app.getHttpServer())
+    .get(`/action/rules/${createConnectionRO.id}?tableName=${testTableName}`)
+    .set('Cookie', token)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+
+  const findTableRulesRO: Array<FoundActionRulesWithActionsAndEventsDTO> = JSON.parse(findTableRuleResult.text);
+
+  t.is(findTableRuleResult.status, 200);
+
+  t.is(findTableRulesRO.length, 0);
+  
 });

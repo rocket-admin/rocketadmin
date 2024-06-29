@@ -1,4 +1,4 @@
-import { UseInterceptors, Controller, Injectable, UseGuards, Inject, Post, Body, Get } from '@nestjs/common';
+import { UseInterceptors, Controller, Injectable, UseGuards, Inject, Post, Body, Get, Delete } from '@nestjs/common';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { SentryInterceptor } from '../../../interceptors/sentry.interceptor.js';
 import { ConnectionEditGuard } from '../../../guards/connection-edit.guard.js';
@@ -9,7 +9,7 @@ import { InTransactionEnum } from '../../../enums/in-transaction.enum.js';
 import { CreateActionRuleDS } from './application/data-structures/create-action-rules.ds.js';
 import { UserId } from '../../../decorators/user-id.decorator.js';
 import { MasterPassword } from '../../../decorators/master-password.decorator.js';
-import { ICreateActionRule, IFindActionRulesForTable } from './use-cases/action-rules-use-cases.interface.js';
+import { ICreateActionRule, IDeleteActionRuleInTable, IFindActionRulesForTable } from './use-cases/action-rules-use-cases.interface.js';
 import { FoundActionRulesWithActionsAndEventsDTO } from './application/dto/found-table-triggers-with-actions.dto.js';
 import { ConnectionReadGuard } from '../../../guards/connection-read.guard.js';
 import { QueryTableName } from '../../../decorators/query-table-name.decorator.js';
@@ -25,6 +25,8 @@ export class ActionRulesController {
     private readonly createTableActionRule: ICreateActionRule,
     @Inject(UseCaseType.FIND_ACTION_RULES_FOR_TABLE)
     private readonly findActionRulesForTable: IFindActionRulesForTable,
+    @Inject(UseCaseType.DELETE_ACTION_RULE_IN_TABLE)
+    private readonly deleteActionRuleInTable: IDeleteActionRuleInTable,
   ) {}
 
   @ApiOperation({ summary: 'Create rules for table' })
@@ -84,5 +86,21 @@ export class ActionRulesController {
     @QueryTableName() tableName: string,
   ): Promise<Array<FoundActionRulesWithActionsAndEventsDTO>> {
     return await this.findActionRulesForTable.execute({ connectionId, tableName });
+  }
+
+  @ApiOperation({ summary: 'Delete rule in table' })
+  @ApiResponse({
+    status: 200,
+    description: 'Delete rule in table with actions and events. Return deleted.',
+    type: FoundActionRulesWithActionsAndEventsDTO,
+    isArray: false,
+  })
+  @UseGuards(ConnectionReadGuard)
+  @Delete('/action/rule/:ruleId/:connectionId')
+  async deleteActionRuleInTableWithEventsAndActions(
+    @SlugUuid('connectionId') connectionId: string,
+    @SlugUuid('ruleId') ruleId: string,
+  ): Promise<FoundActionRulesWithActionsAndEventsDTO> {
+    return await this.deleteActionRuleInTable.execute({ connectionId, ruleId }, InTransactionEnum.ON);
   }
 }

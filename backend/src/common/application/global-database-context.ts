@@ -99,7 +99,7 @@ export class GlobalDatabaseContext implements IGlobalDatabaseContext {
   private _tableWidgetsRepository: ITableWidgetsRepository;
   private _tableFieldInfoRepository: Repository<TableFieldInfoEntity>;
   private _tableInfoReposioty: Repository<TableInfoEntity>;
-  private _tableActionRepository: ITableActionRepository;
+  private _tableActionRepository: Repository<TableActionEntity> & ITableActionRepository;
   private _userGitHubIdentifierRepository: IUserGitHubIdentifierRepository;
   private _companyInfoRepository: Repository<CompanyInfoEntity> & ICompanyInfoRepository;
   private _invitationInCompanyRepository: Repository<InvitationInCompanyEntity> & IInvitationInCompanyRepository;
@@ -259,7 +259,7 @@ export class GlobalDatabaseContext implements IGlobalDatabaseContext {
     return this._tableFieldInfoRepository;
   }
 
-  public get tableActionRepository(): ITableActionRepository {
+  public get tableActionRepository(): Repository<TableActionEntity> & ITableActionRepository {
     return this._tableActionRepository;
   }
 

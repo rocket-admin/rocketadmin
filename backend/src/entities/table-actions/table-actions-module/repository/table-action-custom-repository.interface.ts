@@ -1,7 +1,6 @@
 import { TableActionEntity } from '../table-action.entity.js';
 
 export interface ITableActionRepository {
-
   saveNewOrUpdatedTableAction(action: TableActionEntity): Promise<TableActionEntity>;
 
   findTableActionById(actionId: string): Promise<TableActionEntity>;

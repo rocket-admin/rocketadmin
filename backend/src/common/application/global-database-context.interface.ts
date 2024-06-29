@@ -33,6 +33,7 @@ import { ActionRulesEntity } from '../../entities/table-actions/table-action-rul
 import { IActionRulesRepository } from '../../entities/table-actions/table-action-rules-module/repository/action-rules-custom-repository.interface.js';
 import { IActionEventsRepository } from '../../entities/table-actions/table-action-events-module/repository/action-events-custom-repository.interface.js';
 import { ActionEventsEntity } from '../../entities/table-actions/table-action-events-module/action-event.entity.js';
+import { TableActionEntity } from '../../entities/table-actions/table-actions-module/table-action.entity.js';
 
 export interface IGlobalDatabaseContext extends IDatabaseContext {
   userRepository: Repository<UserEntity> & IUserRepository;
@@ -54,7 +55,7 @@ export interface IGlobalDatabaseContext extends IDatabaseContext {
   tableWidgetsRepository: ITableWidgetsRepository;
   tableInfoRepository: Repository<TableInfoEntity>;
   tableFieldInfoRepository: Repository<TableFieldInfoEntity>;
-  tableActionRepository: ITableActionRepository;
+  tableActionRepository: Repository<TableActionEntity> & ITableActionRepository;
   userGitHubIdentifierRepository: IUserGitHubIdentifierRepository;
   companyInfoRepository: Repository<CompanyInfoEntity> & ICompanyInfoRepository;
   invitationInCompanyRepository: Repository<InvitationInCompanyEntity> & IInvitationInCompanyRepository;

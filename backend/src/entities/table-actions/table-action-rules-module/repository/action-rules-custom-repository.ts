@@ -18,4 +18,14 @@ export const actionRulesCustomRepositoryExtension: IActionRulesRepository = {
       .andWhere('action_rules.table_name = :tableName', { tableName })
       .getMany();
   },
+
+  async findOneWithActionsAndEvents(ruleId: string, connectionId: string): Promise<ActionRulesEntity> {
+    return await this.createQueryBuilder('action_rules')
+      .leftJoinAndSelect('action_rules.table_actions', 'table_actions')
+      .leftJoinAndSelect('action_rules.action_events', 'action_events')
+      .leftJoinAndSelect('action_rules.connection', 'connection')
+      .where('action_rules.id = :ruleId', { ruleId })
+      .andWhere('connection.id = :connectionId', { connectionId })
+      .getOne();
+  },
 };
