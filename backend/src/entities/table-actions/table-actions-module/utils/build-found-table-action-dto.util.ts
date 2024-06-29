@@ -1,4 +1,4 @@
-import { FoundTableActionDTO } from '../../table-action-rules-module/application/dto/found-table-triggers-with-actions.dto.js';
+import { FoundTableActionDTO } from '../../table-action-rules-module/application/dto/found-action-rules-with-actions-and-events.dto.js';
 import { TableActionEntity } from '../table-action.entity.js';
 
 export function buildFoundTableActionDTO(tableAction: TableActionEntity): FoundTableActionDTO {

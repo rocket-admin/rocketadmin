@@ -1,10 +1,21 @@
-import { UseInterceptors, Controller, Injectable, UseGuards, Inject, Post, Body, Get, Delete } from '@nestjs/common';
+import {
+  UseInterceptors,
+  Controller,
+  Injectable,
+  UseGuards,
+  Inject,
+  Post,
+  Body,
+  Get,
+  Delete,
+  Put,
+} from '@nestjs/common';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { SentryInterceptor } from '../../../interceptors/sentry.interceptor.js';
 import { ConnectionEditGuard } from '../../../guards/connection-edit.guard.js';
 import { UseCaseType } from '../../../common/data-injection.tokens.js';
 import { SlugUuid } from '../../../decorators/slug-uuid.decorator.js';
-import { CreateTableActionRuleBodyDTO } from './application/dto/create-table-triggers-body.dto.js';
+import { CreateTableActionRuleBodyDTO } from './application/dto/create-action-rules-with-actions-and-events-body.dto.js';
 import { InTransactionEnum } from '../../../enums/in-transaction.enum.js';
 import { CreateActionRuleDS } from './application/data-structures/create-action-rules.ds.js';
 import { UserId } from '../../../decorators/user-id.decorator.js';
@@ -14,10 +25,13 @@ import {
   IDeleteActionRuleInTable,
   IFindActionRuleById,
   IFindActionRulesForTable,
+  IUpdateActionRule,
 } from './use-cases/action-rules-use-cases.interface.js';
-import { FoundActionRulesWithActionsAndEventsDTO } from './application/dto/found-table-triggers-with-actions.dto.js';
+import { FoundActionRulesWithActionsAndEventsDTO } from './application/dto/found-action-rules-with-actions-and-events.dto.js';
 import { ConnectionReadGuard } from '../../../guards/connection-read.guard.js';
 import { QueryTableName } from '../../../decorators/query-table-name.decorator.js';
+import { UpdateTableActionRuleBodyDTO } from './application/dto/update-action-rule-with-actions-and-events.dto.js';
+import { UpdateActionRuleDS } from './application/data-structures/update-action-rule.ds.js';
 
 @UseInterceptors(SentryInterceptor)
 @Controller()
@@ -34,6 +48,8 @@ export class ActionRulesController {
     private readonly deleteActionRuleInTable: IDeleteActionRuleInTable,
     @Inject(UseCaseType.FIND_ACTION_RULE_BY_ID)
     private readonly findActionRuleById: IFindActionRuleById,
+    @Inject(UseCaseType.UPDATE_ACTION_RULE)
+    private readonly updateTableActionRule: IUpdateActionRule,
   ) {}
 
   @ApiOperation({ summary: 'Create rules for table' })
@@ -46,7 +62,7 @@ export class ActionRulesController {
   @ApiBody({ type: CreateTableActionRuleBodyDTO })
   @UseGuards(ConnectionEditGuard)
   @Post('/action/rule/:connectionId')
-  async createTriggers(
+  async createActionRule(
     @SlugUuid('connectionId') connectionId: string,
     @UserId() userId: string,
     @MasterPassword() masterPwd: string,
@@ -102,7 +118,7 @@ export class ActionRulesController {
     type: FoundActionRulesWithActionsAndEventsDTO,
     isArray: false,
   })
-  @UseGuards(ConnectionReadGuard)
+  @UseGuards(ConnectionEditGuard)
   @Delete('/action/rule/:ruleId/:connectionId')
   async deleteActionRuleInTableWithEventsAndActions(
     @SlugUuid('connectionId') connectionId: string,
@@ -125,5 +141,52 @@ export class ActionRulesController {
     @SlugUuid('ruleId') ruleId: string,
   ): Promise<FoundActionRulesWithActionsAndEventsDTO> {
     return await this.findActionRuleById.execute({ connectionId, ruleId });
+  }
+
+  @ApiOperation({ summary: 'Update rule' })
+  @ApiResponse({
+    status: 200,
+    description: 'Return update rule for table.',
+    type: FoundActionRulesWithActionsAndEventsDTO,
+    isArray: false,
+  })
+  @ApiBody({ type: UpdateTableActionRuleBodyDTO })
+  @UseGuards(ConnectionEditGuard)
+  @Put('/action/rule/:ruleId/:connectionId')
+  async createTriggers(
+    @SlugUuid('connectionId') connectionId: string,
+    @SlugUuid('ruleId') ruleId: string,
+    @UserId() userId: string,
+    @MasterPassword() masterPwd: string,
+    @Body() tableRuleData: UpdateTableActionRuleBodyDTO,
+  ): Promise<FoundActionRulesWithActionsAndEventsDTO> {
+    const inputData: UpdateActionRuleDS = {
+      connection_data: {
+        connectionId,
+        masterPwd,
+        userId,
+      },
+      action_events_data: tableRuleData.events.map((event) => ({
+        event: event.event,
+        event_title: event.title,
+        icon: event.icon,
+        require_confirmation: event.require_confirmation,
+        event_id: event.id,
+      })),
+      rule_data: {
+        rule_id: ruleId,
+        rule_title: tableRuleData.title,
+        table_name: tableRuleData.table_name,
+      },
+      table_actions_data: tableRuleData.table_actions.map((action) => ({
+        action_type: action.type,
+        action_url: action.url,
+        action_method: action.method,
+        action_slack_url: action.slack_url,
+        action_emails: action.emails,
+        action_id: action.id,
+      })),
+    };
+    return await this.updateTableActionRule.execute(inputData, InTransactionEnum.ON);
   }
 }

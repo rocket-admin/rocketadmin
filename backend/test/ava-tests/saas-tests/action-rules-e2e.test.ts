@@ -17,11 +17,12 @@ import { registerUserAndReturnUserInfo } from '../../utils/register-user-and-ret
 import { TestUtils } from '../../utils/test.utils.js';
 import { ValidationException } from '../../../src/exceptions/custom-exceptions/validation-exception.js';
 import { ValidationError } from 'class-validator';
-import { CreateTableActionRuleBodyDTO } from '../../../src/entities/table-actions/table-action-rules-module/application/dto/create-table-triggers-body.dto.js';
+import { CreateTableActionRuleBodyDTO } from '../../../src/entities/table-actions/table-action-rules-module/application/dto/create-action-rules-with-actions-and-events-body.dto.js';
 import { TableActionEventEnum } from '../../../src/enums/table-action-event-enum.js';
 import { TableActionTypeEnum } from '../../../src/enums/table-action-type.enum.js';
 import { TableActionMethodEnum } from '../../../src/enums/table-action-method-enum.js';
-import { FoundActionRulesWithActionsAndEventsDTO } from '../../../src/entities/table-actions/table-action-rules-module/application/dto/found-table-triggers-with-actions.dto.js';
+import { FoundActionRulesWithActionsAndEventsDTO } from '../../../src/entities/table-actions/table-action-rules-module/application/dto/found-action-rules-with-actions-and-events.dto.js';
+import { UpdateTableActionRuleBodyDTO } from '../../../src/entities/table-actions/table-action-rules-module/application/dto/update-action-rule-with-actions-and-events.dto.js';
 
 const mockFactory = new MockFactory();
 let app: INestApplication;
@@ -509,4 +510,225 @@ test(`${currentTest} should delete table action rule with action and events and 
   t.is(foundSingleAction.method, tableRuleDTO.table_actions[1].method);
   t.truthy(foundSingleAction.slack_url);
   t.deepEqual(foundSingleAction.emails, []);
+});
+
+currentTest = `PUT /action/rule/:actionId/:connectionId`;
+
+test(`${currentTest} should return created table rule with action and events`, async (t) => {
+  const { token } = await registerUserAndReturnUserInfo(app);
+  const createConnectionResult = await request(app.getHttpServer())
+    .post('/connection')
+    .send(newConnection)
+    .set('Cookie', token)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+
+  const createConnectionRO = JSON.parse(createConnectionResult.text);
+  t.is(createConnectionResult.status, 201);
+
+  const tableRuleDTO: CreateTableActionRuleBodyDTO = {
+    title: 'Test rule',
+    table_name: testTableName,
+    events: [
+      {
+        event: TableActionEventEnum.CUSTOM,
+        title: 'Test event',
+        icon: 'test-icon',
+        require_confirmation: false,
+      },
+      {
+        event: TableActionEventEnum.ADD_ROW,
+        title: 'Test event 2',
+        icon: 'test-icon 2',
+        require_confirmation: true,
+      },
+    ],
+    table_actions: [
+      {
+        type: TableActionTypeEnum.multiple,
+        url: faker.internet.url(),
+        method: TableActionMethodEnum.URL,
+        slack_url: undefined,
+        emails: [faker.internet.email()],
+      },
+      {
+        type: TableActionTypeEnum.single,
+        url: undefined,
+        method: TableActionMethodEnum.ZAPIER,
+        slack_url: faker.internet.url(),
+        emails: undefined,
+      },
+    ],
+  };
+
+  const createTableRuleResult = await request(app.getHttpServer())
+    .post(`/action/rule/${createConnectionRO.id}`)
+    .send(tableRuleDTO)
+    .set('Cookie', token)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+
+  t.is(createTableRuleResult.status, 201);
+
+  const createTableRuleRO: FoundActionRulesWithActionsAndEventsDTO = JSON.parse(createTableRuleResult.text);
+  const customEventId = createTableRuleRO.events.find((event) => event.event === TableActionEventEnum.CUSTOM).id;
+  const addRowEventId = createTableRuleRO.events.find((event) => event.event === TableActionEventEnum.ADD_ROW).id;
+  const multipleActionId = createTableRuleRO.table_actions.find(
+    (action) => action.type === TableActionTypeEnum.multiple,
+  ).id;
+  const singleActionId = createTableRuleRO.table_actions.find(
+    (action) => action.type === TableActionTypeEnum.single,
+  ).id;
+  const createTableRuleROId = createTableRuleRO.id;
+  const createdZapierAction = createTableRuleRO.table_actions.find(
+    (action) => action.type === TableActionTypeEnum.single && action.method === TableActionMethodEnum.ZAPIER,
+  );
+  t.truthy(createdZapierAction);
+
+  const updateTableRuleDTO: UpdateTableActionRuleBodyDTO = {
+    title: 'Test rule updated',
+    table_name: testTableName,
+    events: [
+      {
+        id: customEventId,
+        event: TableActionEventEnum.CUSTOM,
+        title: 'Test event updated',
+        icon: 'test-icon updated',
+        require_confirmation: false,
+      },
+      {
+        event: TableActionEventEnum.DELETE_ROW,
+        title: 'Test event 3 created',
+        icon: 'test-icon 3 created',
+        require_confirmation: false,
+      },
+    ],
+    table_actions: [
+      {
+        id: multipleActionId,
+        type: TableActionTypeEnum.multiple,
+        url: faker.internet.url(),
+        method: TableActionMethodEnum.URL,
+        slack_url: undefined,
+        emails: [faker.internet.email()],
+      },
+      {
+        type: TableActionTypeEnum.single,
+        url: undefined,
+        method: TableActionMethodEnum.SLACK,
+        slack_url: faker.internet.url(),
+        emails: undefined,
+      },
+      {
+        type: TableActionTypeEnum.single,
+        url: undefined,
+        method: TableActionMethodEnum.SLACK,
+        slack_url: faker.internet.url(),
+        emails: undefined,
+      },
+    ],
+  };
+
+  const updateTableRuleResult = await request(app.getHttpServer())
+    .put(`/action/rule/${createTableRuleROId}/${createConnectionRO.id}`)
+    .send(updateTableRuleDTO)
+    .set('Cookie', token)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+
+  const updateTableRuleRO: FoundActionRulesWithActionsAndEventsDTO = JSON.parse(updateTableRuleResult.text);
+  t.is(updateTableRuleResult.status, 200);
+
+  t.truthy(updateTableRuleRO.id);
+  t.is(updateTableRuleRO.title, updateTableRuleDTO.title);
+  t.is(updateTableRuleRO.table_name, updateTableRuleDTO.table_name);
+  t.is(updateTableRuleRO.table_actions.length, updateTableRuleDTO.table_actions.length);
+  t.is(updateTableRuleRO.events.length, updateTableRuleDTO.events.length);
+  const updatedCustomEvent = updateTableRuleRO.events.find((event) => event.event === TableActionEventEnum.CUSTOM);
+  t.truthy(updatedCustomEvent);
+  t.is(updatedCustomEvent.title, updateTableRuleDTO.events[0].title);
+  t.is(updatedCustomEvent.icon, updateTableRuleDTO.events[0].icon);
+  t.is(updatedCustomEvent.require_confirmation, updateTableRuleDTO.events[0].require_confirmation);
+  const deletedAddRowEvent = updateTableRuleRO.events.find((event) => event.event === TableActionEventEnum.ADD_ROW);
+  t.falsy(deletedAddRowEvent);
+
+  const createdDeleteRowEvent = updateTableRuleRO.events.find(
+    (event) => event.event === TableActionEventEnum.DELETE_ROW,
+  );
+  t.truthy(createdDeleteRowEvent);
+  t.is(createdDeleteRowEvent.title, updateTableRuleDTO.events[1].title);
+  t.is(createdDeleteRowEvent.icon, updateTableRuleDTO.events[1].icon);
+  t.is(createdDeleteRowEvent.require_confirmation, updateTableRuleDTO.events[1].require_confirmation);
+  const updatedMultipleAction = updateTableRuleRO.table_actions.find(
+    (action) => action.type === TableActionTypeEnum.multiple && action.method === TableActionMethodEnum.URL,
+  );
+  t.truthy(updatedMultipleAction);
+  t.is(updatedMultipleAction.url, updateTableRuleDTO.table_actions[0].url);
+  t.is(updatedMultipleAction.method, updateTableRuleDTO.table_actions[0].method);
+  t.is(updatedMultipleAction.slack_url, null);
+  t.is(updatedMultipleAction.emails.length, updateTableRuleDTO.table_actions[0].emails.length);
+
+  const createdSlackActions = updateTableRuleRO.table_actions.filter(
+    (action) => action.type === TableActionTypeEnum.single && action.method === TableActionMethodEnum.SLACK,
+  );
+  t.is(createdSlackActions.length, 2);
+  t.truthy(createdSlackActions[0].slack_url);
+  t.deepEqual(createdSlackActions[0].emails, []);
+  t.truthy(createdSlackActions[1].slack_url);
+  t.deepEqual(createdSlackActions[1].emails, []);
+
+  const deletedZapierAction = updateTableRuleRO.table_actions.find(
+    (action) => action.type === TableActionTypeEnum.single && action.method === TableActionMethodEnum.ZAPIER,
+  );
+  t.falsy(deletedZapierAction);
+
+  // Check if the rule is updated
+
+  const findTableRuleResult = await request(app.getHttpServer())
+    .get(`/action/rules/${createConnectionRO.id}?tableName=${testTableName}`)
+    .set('Cookie', token)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+
+  const findTableRulesRO: Array<FoundActionRulesWithActionsAndEventsDTO> = JSON.parse(findTableRuleResult.text);
+
+  t.is(findTableRuleResult.status, 200);
+  t.is(findTableRulesRO.length, 1);
+  const findTableRuleRO = findTableRulesRO[0];
+
+  t.truthy(findTableRuleRO.id);
+  t.is(findTableRuleRO.title, updateTableRuleDTO.title);
+  t.is(findTableRuleRO.table_name, updateTableRuleDTO.table_name);
+  t.is(findTableRuleRO.table_actions.length, updateTableRuleDTO.table_actions.length);
+  t.is(findTableRuleRO.events.length, updateTableRuleDTO.events.length);
+  const foundCustomEvent = findTableRuleRO.events.find((event) => event.event === TableActionEventEnum.CUSTOM);
+  t.truthy(foundCustomEvent);
+  t.is(foundCustomEvent.title, updateTableRuleDTO.events[0].title);
+  t.is(foundCustomEvent.icon, updateTableRuleDTO.events[0].icon);
+  t.is(foundCustomEvent.require_confirmation, updateTableRuleDTO.events[0].require_confirmation);
+  const foundDeleteRowEvent = findTableRuleRO.events.find((event) => event.event === TableActionEventEnum.DELETE_ROW);
+  t.truthy(foundDeleteRowEvent);
+  t.is(foundDeleteRowEvent.title, updateTableRuleDTO.events[1].title);
+  t.is(foundDeleteRowEvent.icon, updateTableRuleDTO.events[1].icon);
+  t.is(foundDeleteRowEvent.require_confirmation, updateTableRuleDTO.events[1].require_confirmation);
+  const foundMultipleAction = findTableRuleRO.table_actions.find(
+    (action) => action.type === TableActionTypeEnum.multiple && action.method === TableActionMethodEnum.URL,
+  );
+  t.truthy(foundMultipleAction);
+  t.is(foundMultipleAction.url, updateTableRuleDTO.table_actions[0].url);
+  t.is(foundMultipleAction.method, updateTableRuleDTO.table_actions[0].method);
+  t.is(foundMultipleAction.slack_url, null);
+  t.is(foundMultipleAction.emails.length, updateTableRuleDTO.table_actions[0].emails.length);
+  const foundSlackActions = findTableRuleRO.table_actions.filter(
+    (action) => action.type === TableActionTypeEnum.single && action.method === TableActionMethodEnum.SLACK,
+  );
+  t.is(foundSlackActions.length, 2);
+  t.truthy(foundSlackActions[0].slack_url);
+  t.deepEqual(foundSlackActions[0].emails, []);
+  t.truthy(foundSlackActions[1].slack_url);
+  t.deepEqual(foundSlackActions[1].emails, []);
+  const foundZapierAction = findTableRuleRO.table_actions.find(
+    (action) => action.type === TableActionTypeEnum.single && action.method === TableActionMethodEnum.ZAPIER,
+  );
+  t.falsy(foundZapierAction);
 });
