@@ -1,4 +1,4 @@
-import { UseInterceptors, Controller, Injectable, UseGuards, Inject, Post, Body } from '@nestjs/common';
+import { UseInterceptors, Controller, Injectable, UseGuards, Inject, Post, Body, Get } from '@nestjs/common';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { SentryInterceptor } from '../../../interceptors/sentry.interceptor.js';
 import { ConnectionEditGuard } from '../../../guards/connection-edit.guard.js';
@@ -9,8 +9,10 @@ import { InTransactionEnum } from '../../../enums/in-transaction.enum.js';
 import { CreateActionRuleDS } from './application/data-structures/create-action-rules.ds.js';
 import { UserId } from '../../../decorators/user-id.decorator.js';
 import { MasterPassword } from '../../../decorators/master-password.decorator.js';
-import { ICreateActionRule } from './use-cases/action-rules-use-cases.interface.js';
+import { ICreateActionRule, IFindActionRulesForTable } from './use-cases/action-rules-use-cases.interface.js';
 import { FoundActionRulesWithActionsAndEventsDTO } from './application/dto/found-table-triggers-with-actions.dto.js';
+import { ConnectionReadGuard } from '../../../guards/connection-read.guard.js';
+import { QueryTableName } from '../../../decorators/query-table-name.decorator.js';
 
 @UseInterceptors(SentryInterceptor)
 @Controller()
@@ -21,18 +23,20 @@ export class ActionRulesController {
   constructor(
     @Inject(UseCaseType.CREATE_ACTION_RULES)
     private readonly createTableActionRule: ICreateActionRule,
+    @Inject(UseCaseType.FIND_ACTION_RULES_FOR_TABLE)
+    private readonly findActionRulesForTable: IFindActionRulesForTable,
   ) {}
 
   @ApiOperation({ summary: 'Create rules for table' })
   @ApiResponse({
     status: 200,
-    description: 'Return created rules table.',
+    description: 'Return created rules for table.',
     type: FoundActionRulesWithActionsAndEventsDTO,
     isArray: false,
   })
   @ApiBody({ type: CreateTableActionRuleBodyDTO })
   @UseGuards(ConnectionEditGuard)
-  @Post('/table/rule/:connectionId')
+  @Post('/action/rule/:connectionId')
   async createTriggers(
     @SlugUuid('connectionId') connectionId: string,
     @UserId() userId: string,
@@ -64,5 +68,21 @@ export class ActionRulesController {
       })),
     };
     return await this.createTableActionRule.execute(inputData, InTransactionEnum.ON);
+  }
+
+  @ApiOperation({ summary: 'Get rules for table' })
+  @ApiResponse({
+    status: 200,
+    description: 'Return found rules for table with action and events.',
+    type: FoundActionRulesWithActionsAndEventsDTO,
+    isArray: true,
+  })
+  @UseGuards(ConnectionReadGuard)
+  @Get('/action/rules/:connectionId')
+  async findActionRulesForTableWithEventsAndActions(
+    @SlugUuid('connectionId') connectionId: string,
+    @QueryTableName() tableName: string,
+  ): Promise<Array<FoundActionRulesWithActionsAndEventsDTO>> {
+    return await this.findActionRulesForTable.execute({ connectionId, tableName });
   }
 }

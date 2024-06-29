@@ -8,6 +8,7 @@ import { ActionRulesEntity } from './action-rules.entity.js';
 import { UserEntity } from '../../user/user.entity.js';
 import { LogOutEntity } from '../../log-out/log-out.entity.js';
 import { CreateActionRuleUseCase } from './use-cases/create-action-rule.use.case.js';
+import { FindActionRulesFotTableUseCase } from './use-cases/find-action-rules-for-table.use.case.js';
 
 @Module({
   imports: [TypeOrmModule.forFeature([ActionRulesEntity, UserEntity, LogOutEntity])],
@@ -20,6 +21,10 @@ import { CreateActionRuleUseCase } from './use-cases/create-action-rule.use.case
       provide: UseCaseType.CREATE_ACTION_RULES,
       useClass: CreateActionRuleUseCase,
     },
+    {
+      provide: UseCaseType.FIND_ACTION_RULES_FOR_TABLE,
+      useClass: FindActionRulesFotTableUseCase,
+    },
   ],
   controllers: [ActionRulesController],
 })
@@ -28,7 +33,8 @@ export class TableTriggersModule {
     consumer
       .apply(AuthMiddleware)
       .forRoutes(
-        { path: '/table/rule/:connectionId', method: RequestMethod.POST },
+        { path: '/action/rule/:connectionId', method: RequestMethod.POST },
+        { path: '/action/rules/:connectionId', method: RequestMethod.GET },
       );
   }
 }

@@ -1,4 +1,4 @@
-export class FindTableTriggersDS {
+export class FindActionRulesDS {
   connectionId: string;
   tableName: string;
 }
