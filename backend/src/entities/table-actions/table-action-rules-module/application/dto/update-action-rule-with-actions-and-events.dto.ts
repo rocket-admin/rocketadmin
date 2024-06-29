@@ -3,7 +3,7 @@ import { IsString, IsNotEmpty, MaxLength, MinLength, IsArray, IsObject, IsOption
 import { CreateTableActionDTO, CreateActionEventDTO } from './create-action-rules-with-actions-and-events-body.dto.js';
 
 export class UpdateTableActionDTO extends CreateTableActionDTO {
-  @ApiProperty()
+  @ApiProperty({ type: String, required: false })
   @IsOptional()
   @IsString()
   @IsUUID()
@@ -11,7 +11,7 @@ export class UpdateTableActionDTO extends CreateTableActionDTO {
 }
 
 export class UpdateActionEventDTO extends CreateActionEventDTO {
-  @ApiProperty()
+  @ApiProperty({ type: String, required: false})
   @IsOptional()
   @IsString()
   @IsUUID()
@@ -33,13 +33,13 @@ export class UpdateTableActionRuleBodyDTO {
   @MinLength(1)
   table_name: string;
 
-  @ApiProperty()
+  @ApiProperty({ type: UpdateTableActionDTO, isArray: true})
   @IsArray()
   @IsNotEmpty({ each: true })
   @IsObject({ each: true })
   table_actions: Array<UpdateTableActionDTO>;
 
-  @ApiProperty()
+  @ApiProperty({ type: UpdateActionEventDTO, isArray: true })
   @IsArray()
   @IsNotEmpty({ each: true })
   @IsObject({ each: true })

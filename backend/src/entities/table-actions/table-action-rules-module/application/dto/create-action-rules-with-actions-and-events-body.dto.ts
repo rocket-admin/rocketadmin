@@ -22,7 +22,7 @@ export class CreateTableActionDTO {
   @IsNotEmpty()
   type: TableActionTypeEnum;
 
-  @ApiProperty()
+  @ApiProperty({ type: String, required: false })
   @IsOptional()
   @IsString()
   @IsUrl()
@@ -33,14 +33,14 @@ export class CreateTableActionDTO {
   @IsNotEmpty()
   method: TableActionMethodEnum;
 
-  @ApiProperty()
+  @ApiProperty({ type: String, required: false })
   @IsOptional()
   @IsString()
   @MaxLength(255)
   @MinLength(1)
   slack_url?: string;
 
-  @ApiProperty()
+  @ApiProperty({ type: String, isArray: true, required: false })
   @IsOptional()
   @IsArray()
   @IsString({ each: true })
@@ -61,7 +61,7 @@ export class CreateActionEventDTO {
   @MinLength(1)
   title: string;
 
-  @ApiProperty()
+  @ApiProperty({ type: String, required: false})
   @IsOptional()
   @IsString()
   @IsNotEmpty()
@@ -88,13 +88,13 @@ export class CreateTableActionRuleBodyDTO {
   @MinLength(1)
   table_name: string;
 
-  @ApiProperty()
+  @ApiProperty({ type: CreateTableActionDTO, isArray: true })
   @IsArray()
   @IsNotEmpty({ each: true })
   @IsObject({ each: true })
   table_actions: Array<CreateTableActionDTO>;
 
-  @ApiProperty()
+  @ApiProperty({ type: CreateActionEventDTO, isArray: true })
   @IsArray()
   @IsNotEmpty({ each: true })
   @IsObject({ each: true })
