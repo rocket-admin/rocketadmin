@@ -1,4 +1,4 @@
-export class DeleteActionRuleDS {
+export class FindActionRuleByIdDS {
   connectionId: string;
   ruleId: string;
 }

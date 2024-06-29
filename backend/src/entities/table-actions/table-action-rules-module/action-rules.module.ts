@@ -10,6 +10,7 @@ import { LogOutEntity } from '../../log-out/log-out.entity.js';
 import { CreateActionRuleUseCase } from './use-cases/create-action-rule.use.case.js';
 import { FindActionRulesFotTableUseCase } from './use-cases/find-action-rules-for-table.use.case.js';
 import { DeleteActionRuleWithActionsAndEventsUseCase } from './use-cases/delete-action-rule-with-actions-and-events.use.case.js';
+import { FindActionRuleWithActionsAndEventsUseCase } from './use-cases/find-action-rule-with-action-and-events-by-id.use.case.js';
 
 @Module({
   imports: [TypeOrmModule.forFeature([ActionRulesEntity, UserEntity, LogOutEntity])],
@@ -30,6 +31,10 @@ import { DeleteActionRuleWithActionsAndEventsUseCase } from './use-cases/delete-
       provide: UseCaseType.DELETE_ACTION_RULE_IN_TABLE,
       useClass: DeleteActionRuleWithActionsAndEventsUseCase,
     },
+    {
+      provide: UseCaseType.FIND_ACTION_RULE_BY_ID,
+      useClass: FindActionRuleWithActionsAndEventsUseCase,
+    },
   ],
   controllers: [ActionRulesController],
 })
@@ -41,6 +46,7 @@ export class TableTriggersModule {
         { path: '/action/rule/:connectionId', method: RequestMethod.POST },
         { path: '/action/rules/:connectionId', method: RequestMethod.GET },
         { path: '/action/rule/:ruleI/:connectionId', method: RequestMethod.DELETE },
+        { path: '/action/rule/:ruleI/:connectionId', method: RequestMethod.GET },
       );
   }
 }

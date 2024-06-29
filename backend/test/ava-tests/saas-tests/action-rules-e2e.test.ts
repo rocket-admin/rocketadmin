@@ -411,5 +411,102 @@ test(`${currentTest} should delete table action rule with action and events and 
   t.is(findTableRuleResult.status, 200);
 
   t.is(findTableRulesRO.length, 0);
-  
+});
+
+currentTest = `GET /action/rule/:actionId/:connectionId`;
+
+test(`${currentTest} should delete table action rule with action and events and return deleted result`, async (t) => {
+  const { token } = await registerUserAndReturnUserInfo(app);
+  const createConnectionResult = await request(app.getHttpServer())
+    .post('/connection')
+    .send(newConnection)
+    .set('Cookie', token)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+
+  const createConnectionRO = JSON.parse(createConnectionResult.text);
+  t.is(createConnectionResult.status, 201);
+
+  const tableRuleDTO: CreateTableActionRuleBodyDTO = {
+    title: 'Test rule',
+    table_name: testTableName,
+    events: [
+      {
+        event: TableActionEventEnum.CUSTOM,
+        title: 'Test event',
+        icon: 'test-icon',
+        require_confirmation: false,
+      },
+      {
+        event: TableActionEventEnum.ADD_ROW,
+        title: 'Test event 2',
+        icon: 'test-icon 2',
+        require_confirmation: true,
+      },
+    ],
+    table_actions: [
+      {
+        type: TableActionTypeEnum.multiple,
+        url: faker.internet.url(),
+        method: TableActionMethodEnum.URL,
+        slack_url: undefined,
+        emails: [faker.internet.email()],
+      },
+      {
+        type: TableActionTypeEnum.single,
+        url: undefined,
+        method: TableActionMethodEnum.SLACK,
+        slack_url: faker.internet.url(),
+        emails: undefined,
+      },
+    ],
+  };
+  const createTableRuleResult = await request(app.getHttpServer())
+    .post(`/action/rule/${createConnectionRO.id}`)
+    .send(tableRuleDTO)
+    .set('Cookie', token)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+
+  const createTableRuleRO: FoundActionRulesWithActionsAndEventsDTO = JSON.parse(createTableRuleResult.text);
+  t.is(createTableRuleResult.status, 201);
+
+  const getTableRuleResult = await request(app.getHttpServer())
+    .get(`/action/rule/${createTableRuleRO.id}/${createConnectionRO.id}`)
+    .set('Cookie', token)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+
+  const findTableRuleRO: FoundActionRulesWithActionsAndEventsDTO = JSON.parse(getTableRuleResult.text);
+  t.is(getTableRuleResult.status, 200);
+
+  t.truthy(findTableRuleRO.id);
+  t.is(findTableRuleRO.title, tableRuleDTO.title);
+  t.is(findTableRuleRO.table_name, tableRuleDTO.table_name);
+  t.is(findTableRuleRO.table_actions.length, tableRuleDTO.table_actions.length);
+  t.is(findTableRuleRO.events.length, tableRuleDTO.events.length);
+  const foundCustomEvent = findTableRuleRO.events.find((event) => event.event === TableActionEventEnum.CUSTOM);
+  t.truthy(foundCustomEvent);
+  t.is(foundCustomEvent.title, tableRuleDTO.events[0].title);
+  t.is(foundCustomEvent.icon, tableRuleDTO.events[0].icon);
+  t.is(foundCustomEvent.require_confirmation, tableRuleDTO.events[0].require_confirmation);
+  const foundAddRowEvent = findTableRuleRO.events.find((event) => event.event === TableActionEventEnum.ADD_ROW);
+  t.truthy(foundAddRowEvent);
+  t.is(foundAddRowEvent.title, tableRuleDTO.events[1].title);
+  t.is(foundAddRowEvent.icon, tableRuleDTO.events[1].icon);
+  t.is(foundAddRowEvent.require_confirmation, tableRuleDTO.events[1].require_confirmation);
+  const foundMultipleAction = findTableRuleRO.table_actions.find(
+    (action) => action.type === TableActionTypeEnum.multiple,
+  );
+  t.truthy(foundMultipleAction);
+  t.is(foundMultipleAction.url, tableRuleDTO.table_actions[0].url);
+  t.is(foundMultipleAction.method, tableRuleDTO.table_actions[0].method);
+  t.is(foundMultipleAction.slack_url, null);
+  t.is(foundMultipleAction.emails.length, tableRuleDTO.table_actions[0].emails.length);
+  const foundSingleAction = findTableRuleRO.table_actions.find((action) => action.type === TableActionTypeEnum.single);
+  t.truthy(foundSingleAction);
+  t.is(foundSingleAction.url, null);
+  t.is(foundSingleAction.method, tableRuleDTO.table_actions[1].method);
+  t.truthy(foundSingleAction.slack_url);
+  t.deepEqual(foundSingleAction.emails, []);
 });

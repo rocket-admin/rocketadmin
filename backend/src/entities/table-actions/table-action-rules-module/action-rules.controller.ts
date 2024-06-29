@@ -9,7 +9,12 @@ import { InTransactionEnum } from '../../../enums/in-transaction.enum.js';
 import { CreateActionRuleDS } from './application/data-structures/create-action-rules.ds.js';
 import { UserId } from '../../../decorators/user-id.decorator.js';
 import { MasterPassword } from '../../../decorators/master-password.decorator.js';
-import { ICreateActionRule, IDeleteActionRuleInTable, IFindActionRulesForTable } from './use-cases/action-rules-use-cases.interface.js';
+import {
+  ICreateActionRule,
+  IDeleteActionRuleInTable,
+  IFindActionRuleById,
+  IFindActionRulesForTable,
+} from './use-cases/action-rules-use-cases.interface.js';
 import { FoundActionRulesWithActionsAndEventsDTO } from './application/dto/found-table-triggers-with-actions.dto.js';
 import { ConnectionReadGuard } from '../../../guards/connection-read.guard.js';
 import { QueryTableName } from '../../../decorators/query-table-name.decorator.js';
@@ -27,6 +32,8 @@ export class ActionRulesController {
     private readonly findActionRulesForTable: IFindActionRulesForTable,
     @Inject(UseCaseType.DELETE_ACTION_RULE_IN_TABLE)
     private readonly deleteActionRuleInTable: IDeleteActionRuleInTable,
+    @Inject(UseCaseType.FIND_ACTION_RULE_BY_ID)
+    private readonly findActionRuleById: IFindActionRuleById,
   ) {}
 
   @ApiOperation({ summary: 'Create rules for table' })
@@ -102,5 +109,21 @@ export class ActionRulesController {
     @SlugUuid('ruleId') ruleId: string,
   ): Promise<FoundActionRulesWithActionsAndEventsDTO> {
     return await this.deleteActionRuleInTable.execute({ connectionId, ruleId }, InTransactionEnum.ON);
+  }
+
+  @ApiOperation({ summary: 'Find rule by id' })
+  @ApiResponse({
+    status: 200,
+    description: 'Find rule by id.',
+    type: FoundActionRulesWithActionsAndEventsDTO,
+    isArray: false,
+  })
+  @UseGuards(ConnectionReadGuard)
+  @Get('/action/rule/:ruleId/:connectionId')
+  async findActionRuleInTableWithEventsAndActionsById(
+    @SlugUuid('connectionId') connectionId: string,
+    @SlugUuid('ruleId') ruleId: string,
+  ): Promise<FoundActionRulesWithActionsAndEventsDTO> {
+    return await this.findActionRuleById.execute({ connectionId, ruleId });
   }
 }
