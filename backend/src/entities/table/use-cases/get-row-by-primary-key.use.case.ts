@@ -7,7 +7,6 @@ import { getDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-acce
 import { WidgetTypeEnum } from '../../../enums/index.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { compareArrayElements, isConnectionTypeAgent } from '../../../helpers/index.js';
-import { buildFoundTableActionDS } from '../../table-actions/table-actions-module/utils/build-created-table-action-ds.js';
 import { GetRowByPrimaryKeyDs } from '../application/data-structures/get-row-by-primary-key.ds.js';
 import { ForeignKeyDSInfo, ReferencedTableNamesAndColumnsDs, TableRowRODs } from '../table-datastructures.js';
 import { convertBinaryDataInRowUtil } from '../utils/convert-binary-data-in-row.util.js';
@@ -23,6 +22,7 @@ import { UnknownSQLException } from '../../../exceptions/custom-exceptions/unkno
 import { ExceptionOperations } from '../../../exceptions/custom-exceptions/exception-operation.js';
 import { ReferencedTableNamesAndColumnsDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/referenced-table-names-columns.ds.js';
 import JSON5 from 'json5';
+import { buildActionEventDto } from '../../table-actions/table-action-rules-module/utils/build-found-action-event-dto.util.js';
 
 @Injectable()
 export class GetRowByPrimaryKeyUseCase
@@ -70,7 +70,7 @@ export class GetRowByPrimaryKeyUseCase
       tableSettings,
       tableForeignKeys,
       tablePrimaryKeys,
-      tableActions,
+      customActionEvents,
       referencedTableNamesAndColumns,
       tableAccessLevel,
     ] = await Promise.all([
@@ -79,7 +79,7 @@ export class GetRowByPrimaryKeyUseCase
       this._dbContext.tableSettingsRepository.findTableSettings(connectionId, tableName),
       dao.getTableForeignKeys(tableName, userEmail),
       dao.getTablePrimaryColumns(tableName, userEmail),
-      this._dbContext.tableActionRepository.findTableActionsWithRulesAndEvents(connectionId, tableName),
+      this._dbContext.actionEventsRepository.findCustomEventsForTable(connectionId, tableName),
       dao.getReferencedTableNamesAndColumns(tableName, userEmail),
       this._dbContext.userAccessRepository.getUserTablePermissions(userId, connectionId, tableName, masterPwd),
     ]);
@@ -212,7 +212,7 @@ export class GetRowByPrimaryKeyUseCase
       table_widgets: tableWidgets,
       readonly_fields: tableSettings?.readonly_fields ? tableSettings.readonly_fields : [],
       list_fields: tableSettings?.list_fields?.length > 0 ? tableSettings.list_fields : [],
-      table_actions: tableActions?.length > 0 ? tableActions.map((el) => buildFoundTableActionDS(el)) : [],
+      action_events: customActionEvents.map((event) => buildActionEventDto(event)),
       identity_column: tableSettings?.identity_column ? tableSettings.identity_column : null,
       referenced_table_names_and_columns: referencedTableNamesAndColumnsWithTablesDisplayNames,
       display_name: tableSettings?.display_name ? tableSettings.display_name : null,
