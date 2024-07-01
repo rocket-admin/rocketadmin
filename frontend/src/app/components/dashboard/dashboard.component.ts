@@ -1,5 +1,5 @@
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ConnectionSettingsUI, UiSettings } from 'src/app/models/ui-settings';
 import { CustomEvent, TableProperties } from 'src/app/models/table';
 import { first, map } from 'rxjs/operators';
@@ -36,7 +36,7 @@ interface DataToActivateActions {
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.css']
 })
-export class DashboardComponent implements OnInit {
+export class DashboardComponent implements OnInit, OnDestroy {
 
   public user: User = null;
   public tablesList: TableProperties[] = null;
@@ -100,6 +100,10 @@ export class DashboardComponent implements OnInit {
 
         this.getData();
     });
+  }
+
+  ngOnDestroy() {
+    this._tableState.clearSelection();
   }
 
   async getData() {
