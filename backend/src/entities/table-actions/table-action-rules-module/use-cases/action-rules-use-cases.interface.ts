@@ -3,7 +3,10 @@ import { CreateActionRuleDS } from '../application/data-structures/create-action
 import { FindActionRuleByIdDS } from '../application/data-structures/delete-action-rule.ds.js';
 import { FindActionRulesDS } from '../application/data-structures/find-all-table-triggers.ds.js';
 import { UpdateActionRuleDS } from '../application/data-structures/update-action-rule.ds.js';
-import { FoundActionRulesWithActionsAndEventsDTO } from '../application/dto/found-action-rules-with-actions-and-events.dto.js';
+import {
+  FoundActionEventDTO,
+  FoundActionRulesWithActionsAndEventsDTO,
+} from '../application/dto/found-action-rules-with-actions-and-events.dto.js';
 
 export interface ICreateActionRule {
   execute(
@@ -14,6 +17,10 @@ export interface ICreateActionRule {
 
 export interface IFindActionRulesForTable {
   execute(inputData: FindActionRulesDS): Promise<Array<FoundActionRulesWithActionsAndEventsDTO>>;
+}
+
+export interface IFindCustomEvents {
+  execute(inputData: FindActionRulesDS): Promise<Array<FoundActionEventDTO>>;
 }
 
 export interface IFindActionRuleById {

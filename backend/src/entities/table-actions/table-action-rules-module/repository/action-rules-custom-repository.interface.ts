@@ -9,4 +9,6 @@ export interface IActionRulesRepository {
   ): Promise<Array<ActionRulesEntity>>;
 
   findOneWithActionsAndEvents(ruleId: string, connectionId: string): Promise<ActionRulesEntity>;
+
+  findActionRulesWithCustomEvents(connectionId: string, tableName: string): Promise<Array<ActionRulesEntity>>;
 }

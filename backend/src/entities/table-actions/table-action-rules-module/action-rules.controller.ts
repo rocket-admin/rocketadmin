@@ -25,9 +25,10 @@ import {
   IDeleteActionRuleInTable,
   IFindActionRuleById,
   IFindActionRulesForTable,
+  IFindCustomEvents,
   IUpdateActionRule,
 } from './use-cases/action-rules-use-cases.interface.js';
-import { FoundActionRulesWithActionsAndEventsDTO } from './application/dto/found-action-rules-with-actions-and-events.dto.js';
+import { FoundActionEventDTO, FoundActionRulesWithActionsAndEventsDTO } from './application/dto/found-action-rules-with-actions-and-events.dto.js';
 import { ConnectionReadGuard } from '../../../guards/connection-read.guard.js';
 import { QueryTableName } from '../../../decorators/query-table-name.decorator.js';
 import { UpdateTableActionRuleBodyDTO } from './application/dto/update-action-rule-with-actions-and-events.dto.js';
@@ -41,15 +42,17 @@ import { UpdateActionRuleDS } from './application/data-structures/update-action-
 export class ActionRulesController {
   constructor(
     @Inject(UseCaseType.CREATE_ACTION_RULES)
-    private readonly createTableActionRule: ICreateActionRule,
+    private readonly createTableActionRuleUseCase: ICreateActionRule,
     @Inject(UseCaseType.FIND_ACTION_RULES_FOR_TABLE)
-    private readonly findActionRulesForTable: IFindActionRulesForTable,
+    private readonly findActionRulesForTableUseCase: IFindActionRulesForTable,
     @Inject(UseCaseType.DELETE_ACTION_RULE_IN_TABLE)
-    private readonly deleteActionRuleInTable: IDeleteActionRuleInTable,
+    private readonly deleteActionRuleInTableUseCase: IDeleteActionRuleInTable,
     @Inject(UseCaseType.FIND_ACTION_RULE_BY_ID)
-    private readonly findActionRuleById: IFindActionRuleById,
+    private readonly findActionRuleByIdUseCase: IFindActionRuleById,
     @Inject(UseCaseType.UPDATE_ACTION_RULE)
-    private readonly updateTableActionRule: IUpdateActionRule,
+    private readonly updateTableActionRuleUseCase: IUpdateActionRule,
+    @Inject(UseCaseType.FIND_ACTION_RULE_CUSTOM_EVENTS)
+    private readonly findCustomEventsUseCase: IFindCustomEvents,
   ) {}
 
   @ApiOperation({ summary: 'Create rules for table' })
@@ -92,7 +95,7 @@ export class ActionRulesController {
         action_emails: action.emails,
       })),
     };
-    return await this.createTableActionRule.execute(inputData, InTransactionEnum.ON);
+    return await this.createTableActionRuleUseCase.execute(inputData, InTransactionEnum.ON);
   }
 
   @ApiOperation({ summary: 'Get rules for table' })
@@ -108,7 +111,23 @@ export class ActionRulesController {
     @SlugUuid('connectionId') connectionId: string,
     @QueryTableName() tableName: string,
   ): Promise<Array<FoundActionRulesWithActionsAndEventsDTO>> {
-    return await this.findActionRulesForTable.execute({ connectionId, tableName });
+    return await this.findActionRulesForTableUseCase.execute({ connectionId, tableName });
+  }
+
+  @ApiOperation({ summary: 'Get custom rules for table' })
+  @ApiResponse({
+    status: 200,
+    description: 'Return found rules for table with action and events.',
+    type: FoundActionEventDTO,
+    isArray: true,
+  })
+  @UseGuards(ConnectionReadGuard)
+  @Get('/action/events/custom/:connectionId')
+  async findCustomEvents(
+    @SlugUuid('connectionId') connectionId: string,
+    @QueryTableName() tableName: string,
+  ): Promise<Array<FoundActionEventDTO>> {
+    return await this.findCustomEventsUseCase.execute({ connectionId, tableName });
   }
 
   @ApiOperation({ summary: 'Delete rule in table' })
@@ -124,7 +143,7 @@ export class ActionRulesController {
     @SlugUuid('connectionId') connectionId: string,
     @SlugUuid('ruleId') ruleId: string,
   ): Promise<FoundActionRulesWithActionsAndEventsDTO> {
-    return await this.deleteActionRuleInTable.execute({ connectionId, ruleId }, InTransactionEnum.ON);
+    return await this.deleteActionRuleInTableUseCase.execute({ connectionId, ruleId }, InTransactionEnum.ON);
   }
 
   @ApiOperation({ summary: 'Find rule by id' })
@@ -140,7 +159,7 @@ export class ActionRulesController {
     @SlugUuid('connectionId') connectionId: string,
     @SlugUuid('ruleId') ruleId: string,
   ): Promise<FoundActionRulesWithActionsAndEventsDTO> {
-    return await this.findActionRuleById.execute({ connectionId, ruleId });
+    return await this.findActionRuleByIdUseCase.execute({ connectionId, ruleId });
   }
 
   @ApiOperation({ summary: 'Update rule' })
@@ -187,6 +206,6 @@ export class ActionRulesController {
         action_id: action.id,
       })),
     };
-    return await this.updateTableActionRule.execute(inputData, InTransactionEnum.ON);
+    return await this.updateTableActionRuleUseCase.execute(inputData, InTransactionEnum.ON);
   }
 }

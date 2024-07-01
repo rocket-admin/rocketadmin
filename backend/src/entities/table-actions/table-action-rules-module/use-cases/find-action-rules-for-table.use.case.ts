@@ -8,7 +8,7 @@ import { BaseType } from '../../../../common/data-injection.tokens.js';
 import { buildFoundActionRulesWithActionsAndEventsDTO } from '../utils/build-found-action-rules-with-actions-and-events-dto.util.js';
 
 @Injectable()
-export class FindActionRulesFotTableUseCase
+export class FindActionRulesForTableUseCase
   extends AbstractUseCase<FindActionRulesDS, Array<FoundActionRulesWithActionsAndEventsDTO>>
   implements IFindActionRulesForTable
 {

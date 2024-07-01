@@ -21,7 +21,7 @@ import { CreateTableActionRuleBodyDTO } from '../../../src/entities/table-action
 import { TableActionEventEnum } from '../../../src/enums/table-action-event-enum.js';
 import { TableActionTypeEnum } from '../../../src/enums/table-action-type.enum.js';
 import { TableActionMethodEnum } from '../../../src/enums/table-action-method-enum.js';
-import { FoundActionRulesWithActionsAndEventsDTO } from '../../../src/entities/table-actions/table-action-rules-module/application/dto/found-action-rules-with-actions-and-events.dto.js';
+import { FoundActionEventDTO, FoundActionRulesWithActionsAndEventsDTO } from '../../../src/entities/table-actions/table-action-rules-module/application/dto/found-action-rules-with-actions-and-events.dto.js';
 import { UpdateTableActionRuleBodyDTO } from '../../../src/entities/table-actions/table-action-rules-module/application/dto/update-action-rule-with-actions-and-events.dto.js';
 
 const mockFactory = new MockFactory();
@@ -298,6 +298,81 @@ test(`${currentTest} should return found table rules with action and events`, as
   t.is(foundSingleAction.method, tableRuleDTO.table_actions[1].method);
   t.truthy(foundSingleAction.slack_url);
   t.deepEqual(foundSingleAction.emails, []);
+});
+
+currentTest = `/action/events/custom/:connectionId`;
+
+test(`${currentTest} should return found table custom action events`, async (t) => {
+  const { token } = await registerUserAndReturnUserInfo(app);
+  const createConnectionResult = await request(app.getHttpServer())
+    .post('/connection')
+    .send(newConnection)
+    .set('Cookie', token)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+
+  const createConnectionRO = JSON.parse(createConnectionResult.text);
+  t.is(createConnectionResult.status, 201);
+
+  const tableRuleDTO: CreateTableActionRuleBodyDTO = {
+    title: 'Test rule',
+    table_name: testTableName,
+    events: [
+      {
+        event: TableActionEventEnum.CUSTOM,
+        title: 'Test event',
+        icon: 'test-icon',
+        require_confirmation: false,
+      },
+      {
+        event: TableActionEventEnum.ADD_ROW,
+        title: 'Test event 2',
+        icon: 'test-icon 2',
+        require_confirmation: true,
+      },
+    ],
+    table_actions: [
+      {
+        type: TableActionTypeEnum.multiple,
+        url: faker.internet.url(),
+        method: TableActionMethodEnum.URL,
+        slack_url: undefined,
+        emails: [faker.internet.email()],
+      },
+      {
+        type: TableActionTypeEnum.single,
+        url: undefined,
+        method: TableActionMethodEnum.SLACK,
+        slack_url: faker.internet.url(),
+        emails: undefined,
+      },
+    ],
+  };
+
+  const createTableRuleResult = await request(app.getHttpServer())
+    .post(`/action/rule/${createConnectionRO.id}`)
+    .send(tableRuleDTO)
+    .set('Cookie', token)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+
+  t.is(createTableRuleResult.status, 201);
+
+  const findCustomEventsResult = await request(app.getHttpServer())
+    .get(`/action/events/custom/${createConnectionRO.id}?tableName=${testTableName}`)
+    .set('Cookie', token)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+
+  const findActionCustomEvents: Array<FoundActionEventDTO> = JSON.parse(findCustomEventsResult.text);
+  t.is(findCustomEventsResult.status, 200);
+  t.is(findActionCustomEvents.length, 1);
+  const foundCustomEvent = findActionCustomEvents[0];
+  t.truthy(foundCustomEvent.id);
+  t.is(foundCustomEvent.event, TableActionEventEnum.CUSTOM);
+  t.is(foundCustomEvent.title, tableRuleDTO.events[0].title);
+  t.is(foundCustomEvent.icon, tableRuleDTO.events[0].icon);
+  t.is(foundCustomEvent.require_confirmation, tableRuleDTO.events[0].require_confirmation);
 });
 
 currentTest = `DELETE /action/rule/:actionId/:connectionId`;
