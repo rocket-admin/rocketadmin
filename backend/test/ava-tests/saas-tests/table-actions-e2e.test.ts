@@ -19,9 +19,13 @@ import { ValidationException } from '../../../src/exceptions/custom-exceptions/v
 import { ValidationError } from 'class-validator';
 import { CreateConnectionDto } from '../../../src/entities/connection/application/dto/create-connection.dto.js';
 import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/enums/connection-types-enum.js';
+import { CreateTableActionDTO } from '../../../src/entities/table-actions/table-actions-module/dto/create-table-action.dto.js';
 import { TableActionTypeEnum } from '../../../src/enums/table-action-type.enum.js';
 import { TableActionMethodEnum } from '../../../src/enums/table-action-method-enum.js';
-import { CreateTableActionDTO } from '../../../src/entities/table-actions/table-actions-module/dto/create-table-action.dto.js';
+import { CreateTableActionRuleBodyDTO } from '../../../src/entities/table-actions/table-action-rules-module/application/dto/create-action-rules-with-actions-and-events-body.dto.js';
+import { FoundActionRulesWithActionsAndEventsDTO } from '../../../src/entities/table-actions/table-action-rules-module/application/dto/found-action-rules-with-actions-and-events.dto.js';
+import { TableActionEventEnum } from '../../../src/enums/table-action-event-enum.js';
+import { FoundTableActionsDS } from '../../../src/entities/table-actions/table-actions-module/application/data-sctructures/found-table-actions.ds.js';
 
 const mockFactory = new MockFactory();
 let app: INestApplication;
@@ -108,203 +112,6 @@ test.after.always('Close app connection', async () => {
   }
 });
 
-currentTest = 'POST /table/action/:slug';
-
-test(`${currentTest} should return created table action`, async (t) => {
-  const { token } = await registerUserAndReturnUserInfo(app);
-  const createConnectionResult = await request(app.getHttpServer())
-    .post('/connection')
-    .send(newConnection)
-    .set('Cookie', token)
-    .set('Content-Type', 'application/json')
-    .set('Accept', 'application/json');
-
-  const createConnectionRO = JSON.parse(createConnectionResult.text);
-  t.is(createConnectionResult.status, 201);
-
-  const createTableActionResult = await request(app.getHttpServer())
-    .post(`/table/action/${createConnectionRO.id}?tableName=${testTableName}`)
-    .send(newTableAction)
-    .set('Cookie', token)
-    .set('Content-Type', 'application/json')
-    .set('Accept', 'application/json');
-
-  const createTableActionRO = JSON.parse(createTableActionResult.text);
-  t.is(createTableActionResult.status, 201);
-  t.is(typeof createTableActionRO, 'object');
-  // t.is(createTableActionRO.title, newTableAction.title);
-  t.is(createTableActionRO.type, newTableAction.type);
-  t.is(createTableActionRO.url, newTableAction.url);
-  t.is(createTableActionRO.hasOwnProperty('id'), true);
-});
-
-test(`${currentTest} should return created slack table action`, async (t) => {
-  const { token } = await registerUserAndReturnUserInfo(app);
-  const createConnectionResult = await request(app.getHttpServer())
-    .post('/connection')
-    .send(newConnection)
-    .set('Cookie', token)
-    .set('Content-Type', 'application/json')
-    .set('Accept', 'application/json');
-
-  const createConnectionRO = JSON.parse(createConnectionResult.text);
-  t.is(createConnectionResult.status, 201);
-
-  const tableActionCopy = {
-    ...newTableAction,
-  };
-
-  tableActionCopy.type = TableActionTypeEnum.multiple;
-  tableActionCopy.method = TableActionMethodEnum.SLACK;
-  tableActionCopy.slack_url = faker.internet.url();
-
-  const createTableActionResult = await request(app.getHttpServer())
-    .post(`/table/action/${createConnectionRO.id}?tableName=${testTableName}`)
-    .send(tableActionCopy)
-    .set('Cookie', token)
-    .set('Content-Type', 'application/json')
-    .set('Accept', 'application/json');
-
-  const createTableActionRO = JSON.parse(createTableActionResult.text);
-  t.is(createTableActionResult.status, 201);
-  t.is(typeof createTableActionRO, 'object');
-  // t.is(createTableActionRO.title, tableActionCopy.title);
-  t.is(createTableActionRO.type, tableActionCopy.type);
-  t.is(createTableActionRO.url, tableActionCopy.url);
-  t.is(createTableActionRO.slack_url, tableActionCopy.slack_url);
-  t.is(createTableActionRO.method, tableActionCopy.method);
-  t.is(createTableActionRO.hasOwnProperty('id'), true);
-});
-
-test(`${currentTest} should return created email table action`, async (t) => {
-  const { token, email } = await registerUserAndReturnUserInfo(app);
-  const createConnectionResult = await request(app.getHttpServer())
-    .post('/connection')
-    .send(newConnection)
-    .set('Cookie', token)
-    .set('Content-Type', 'application/json')
-    .set('Accept', 'application/json');
-
-  const createConnectionRO = JSON.parse(createConnectionResult.text);
-  t.is(createConnectionResult.status, 201);
-
-  const tableActionCopy = {
-    ...newTableAction,
-  };
-  delete tableActionCopy.url;
-
-  tableActionCopy.type = TableActionTypeEnum.multiple;
-  tableActionCopy.method = TableActionMethodEnum.EMAIL;
-  tableActionCopy.emails = [email];
-
-  const createTableActionResult = await request(app.getHttpServer())
-    .post(`/table/action/${createConnectionRO.id}?tableName=${testTableName}`)
-    .send(tableActionCopy)
-    .set('Cookie', token)
-    .set('Content-Type', 'application/json')
-    .set('Accept', 'application/json');
-
-  const createTableActionRO = JSON.parse(createTableActionResult.text);
-  t.is(createTableActionResult.status, 201);
-  t.is(typeof createTableActionRO, 'object');
-  // t.is(createTableActionRO.title, tableActionCopy.title);
-  t.is(createTableActionRO.type, tableActionCopy.type);
-  t.is(JSON.stringify(createTableActionRO.emails), JSON.stringify(tableActionCopy.emails));
-  t.is(createTableActionRO.method, tableActionCopy.method);
-  t.is(createTableActionRO.hasOwnProperty('id'), true);
-});
-
-test(`${currentTest} should return throw an exception when emails are not from users company`, async (t) => {
-  const { token, email } = await registerUserAndReturnUserInfo(app);
-  const createConnectionResult = await request(app.getHttpServer())
-    .post('/connection')
-    .send(newConnection)
-    .set('Cookie', token)
-    .set('Content-Type', 'application/json')
-    .set('Accept', 'application/json');
-
-  const createConnectionRO = JSON.parse(createConnectionResult.text);
-  t.is(createConnectionResult.status, 201);
-
-  const tableActionCopy = {
-    ...newTableAction,
-  };
-  delete tableActionCopy.url;
-
-  tableActionCopy.type = TableActionTypeEnum.multiple;
-  tableActionCopy.method = TableActionMethodEnum.EMAIL;
-  const randomEmails = [faker.internet.email(), faker.internet.email(), faker.internet.email()];
-  tableActionCopy.emails = randomEmails;
-
-  const createTableActionResult = await request(app.getHttpServer())
-    .post(`/table/action/${createConnectionRO.id}?tableName=${testTableName}`)
-    .send(tableActionCopy)
-    .set('Cookie', token)
-    .set('Content-Type', 'application/json')
-    .set('Accept', 'application/json');
-
-  const createTableActionRO = JSON.parse(createTableActionResult.text);
-  t.is(createTableActionResult.status, 400);
-
-  randomEmails.forEach((email) => {
-    t.is(createTableActionRO.message.includes(email), true);
-  });
-});
-
-test(`${currentTest} should throw exception when type is incorrect`, async (t) => {
-  const { token } = await registerUserAndReturnUserInfo(app);
-  const createConnectionResult = await request(app.getHttpServer())
-    .post('/connection')
-    .send(newConnection)
-    .set('Cookie', token)
-    .set('Content-Type', 'application/json')
-    .set('Accept', 'application/json');
-
-  const createConnectionRO = JSON.parse(createConnectionResult.text);
-  t.is(createConnectionResult.status, 201);
-
-  const tableActionCopy = {
-    ...newTableAction,
-  };
-  tableActionCopy.type = faker.lorem.words(1) as any;
-
-  const createTableActionResult = await request(app.getHttpServer())
-    .post(`/table/action/${createConnectionRO.id}?tableName=${testTableName}`)
-    .send(tableActionCopy)
-    .set('Cookie', token)
-    .set('Content-Type', 'application/json')
-    .set('Accept', 'application/json');
-
-  const createTableActionRO = JSON.parse(createTableActionResult.text);
-  t.is(createTableActionResult.status, 400);
-  // t.is(createTableActionRO.message, ErrorsMessages.VALIDATION_FAILED);
-});
-
-test(`${currentTest} should throw exception when connection id incorrect`, async (t) => {
-  const { token } = await registerUserAndReturnUserInfo(app);
-  const createConnectionResult = await request(app.getHttpServer())
-    .post('/connection')
-    .send(newConnection)
-    .set('Cookie', token)
-    .set('Content-Type', 'application/json')
-    .set('Accept', 'application/json');
-
-  const createConnectionRO = JSON.parse(createConnectionResult.text);
-  t.is(createConnectionResult.status, 201);
-
-  createConnectionRO.id = faker.string.uuid();
-  const createTableActionResult = await request(app.getHttpServer())
-    .post(`/table/action/${createConnectionRO.id}?tableName=${testTableName}`)
-    .send(newTableAction)
-    .set('Cookie', token)
-    .set('Content-Type', 'application/json')
-    .set('Accept', 'application/json');
-
-  const createTableActionRO = JSON.parse(createTableActionResult.text);
-  t.is(createTableActionResult.status, 403);
-  t.is(createTableActionRO.message, Messages.DONT_HAVE_PERMISSIONS);
-});
-
 currentTest = 'GET /table/actions/:slug';
 
 test(`${currentTest} should return found table actions`, async (t) => {
@@ -319,27 +126,82 @@ test(`${currentTest} should return found table actions`, async (t) => {
   const createConnectionRO = JSON.parse(createConnectionResult.text);
   t.is(createConnectionResult.status, 201);
 
-  const createTableActionResult = await request(app.getHttpServer())
-    .post(`/table/action/${createConnectionRO.id}?tableName=${testTableName}`)
-    .send(newTableAction)
+  const tableRuleDTO: CreateTableActionRuleBodyDTO = {
+    title: 'Test rule',
+    table_name: testTableName,
+    events: [
+      {
+        event: TableActionEventEnum.CUSTOM,
+        title: 'Test event',
+        icon: 'test-icon',
+        require_confirmation: false,
+      },
+      {
+        event: TableActionEventEnum.ADD_ROW,
+        title: 'Test event 2',
+        icon: 'test-icon 2',
+        require_confirmation: true,
+      },
+    ],
+    table_actions: [
+      {
+        type: TableActionTypeEnum.multiple,
+        url: faker.internet.url(),
+        method: TableActionMethodEnum.URL,
+        slack_url: undefined,
+        emails: [faker.internet.email()],
+      },
+      {
+        type: TableActionTypeEnum.single,
+        url: undefined,
+        method: TableActionMethodEnum.SLACK,
+        slack_url: faker.internet.url(),
+        emails: undefined,
+      },
+    ],
+  };
+
+  const createTableRuleResult = await request(app.getHttpServer())
+    .post(`/action/rule/${createConnectionRO.id}`)
+    .send(tableRuleDTO)
     .set('Cookie', token)
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
 
-  t.is(createTableActionResult.status, 201);
+  const createTableRuleRO: FoundActionRulesWithActionsAndEventsDTO = JSON.parse(createTableRuleResult.text);
+  t.is(createTableRuleResult.status, 201);
 
-  const findTableActiponResult = await request(app.getHttpServer())
+  const findTableActionResult = await request(app.getHttpServer())
     .get(`/table/actions/${createConnectionRO.id}?tableName=${testTableName}`)
     .set('Cookie', token)
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
 
-  const findTableActionRO = JSON.parse(findTableActiponResult.text);
-  t.is(Array.isArray(findTableActionRO.table_actions), true);
-  t.is(findTableActionRO.table_actions[0].hasOwnProperty('id'), true);
-  // t.is(findTableActionRO.table_actions[0].title, newTableAction.title);
-  t.is(findTableActionRO.table_actions[0].type, newTableAction.type);
-  t.is(findTableActionRO.table_actions[0].url, newTableAction.url);
+  const findTableActionRO: FoundTableActionsDS = JSON.parse(findTableActionResult.text);
+  console.log('🚀 ~ test.only ~ findTableActionRO:', findTableActionRO);
+  t.is(findTableActionResult.status, 200);
+  t.is(findTableActionRO.hasOwnProperty('table_name'), true);
+  t.is(findTableActionRO.table_name, testTableName);
+  t.is(findTableActionRO.hasOwnProperty('table_actions'), true);
+  t.is(findTableActionRO.table_actions.length, 2);
+  const foundSingleAction = findTableActionRO.table_actions.find(
+    (action) => action.type === TableActionTypeEnum.single,
+  );
+  const foundMultipleAction = findTableActionRO.table_actions.find(
+    (action) => action.type === TableActionTypeEnum.multiple,
+  );
+  t.is(foundSingleAction.hasOwnProperty('id'), true);
+  t.is(foundSingleAction.hasOwnProperty('type'), true);
+  t.is(foundSingleAction.hasOwnProperty('url'), true);
+  t.is(foundSingleAction.hasOwnProperty('method'), true);
+  t.is(foundSingleAction.hasOwnProperty('slack_url'), true);
+  t.is(foundSingleAction.hasOwnProperty('emails'), true);
+  t.is(foundMultipleAction.hasOwnProperty('id'), true);
+  t.is(foundMultipleAction.hasOwnProperty('type'), true);
+  t.is(foundMultipleAction.hasOwnProperty('url'), true);
+  t.is(foundMultipleAction.hasOwnProperty('method'), true);
+  t.is(foundMultipleAction.hasOwnProperty('slack_url'), true);
+  t.is(foundMultipleAction.hasOwnProperty('emails'), true);
 });
 
 test(`${currentTest} should throw exception when connection id incorrect`, async (t) => {
@@ -372,259 +234,6 @@ test(`${currentTest} should throw exception when connection id incorrect`, async
   const findTableActionRO = JSON.parse(findTableActiponResult.text);
   t.is(findTableActiponResult.status, 403);
   t.is(findTableActionRO.message, Messages.DONT_HAVE_PERMISSIONS);
-});
-
-currentTest = 'PUT /table/action/:slug';
-
-test(`${currentTest} should return updated table action`, async (t) => {
-  const { token } = await registerUserAndReturnUserInfo(app);
-  const createConnectionResult = await request(app.getHttpServer())
-    .post('/connection')
-    .send(newConnection)
-    .set('Cookie', token)
-    .set('Content-Type', 'application/json')
-    .set('Accept', 'application/json');
-
-  const createConnectionRO = JSON.parse(createConnectionResult.text);
-  t.is(createConnectionResult.status, 201);
-
-  const createTableActionResult = await request(app.getHttpServer())
-    .post(`/table/action/${createConnectionRO.id}?tableName=${testTableName}`)
-    .send(newTableAction)
-    .set('Cookie', token)
-    .set('Content-Type', 'application/json')
-    .set('Accept', 'application/json');
-
-  const createTableActionRO = JSON.parse(createTableActionResult.text);
-  t.is(createTableActionResult.status, 201);
-
-  const updatedTableAction: any = {
-    ...newTableAction,
-  };
-  // updatedTableAction.title = faker.lorem.words(2);
-  updatedTableAction.url = faker.internet.url();
-
-  delete updatedTableAction.id;
-
-  const updateTableActionResult = await request(app.getHttpServer())
-    .put(`/table/action/${createConnectionRO.id}?tableName=${testTableName}&actionId=${createTableActionRO.id}`)
-    .send(updatedTableAction)
-    .set('Cookie', token)
-    .set('Content-Type', 'application/json')
-    .set('Accept', 'application/json');
-
-  const updateTableActionRO = JSON.parse(updateTableActionResult.text);
-
-  t.is(updateTableActionResult.status, 200);
-
-  t.is(updateTableActionRO.id, createTableActionRO.id);
-  t.is(updateTableActionRO.title, updatedTableAction.title);
-  t.is(updateTableActionRO.url, updatedTableAction.url);
-  t.is(updateTableActionRO.type, newTableAction.type);
-
-  //check if table action was updated in db
-  const findTableActiponResult = await request(app.getHttpServer())
-    .get(`/table/actions/${createConnectionRO.id}?tableName=${testTableName}`)
-    .set('Cookie', token)
-    .set('Content-Type', 'application/json')
-    .set('Accept', 'application/json');
-  const findTableActionRO = JSON.parse(findTableActiponResult.text);
-
-  t.is(findTableActiponResult.status, 200);
-  t.is(findTableActionRO.table_actions[0].id, createTableActionRO.id);
-  t.is(findTableActionRO.table_actions[0].title, updatedTableAction.title);
-  t.is(findTableActionRO.table_actions[0].url, updatedTableAction.url);
-  t.is(findTableActionRO.table_actions[0].type, newTableAction.type);
-});
-
-test(`${currentTest} should throw exception when type is incorrect`, async (t) => {
-  const { token } = await registerUserAndReturnUserInfo(app);
-  const createConnectionResult = await request(app.getHttpServer())
-    .post('/connection')
-    .send(newConnection)
-    .set('Cookie', token)
-    .set('Content-Type', 'application/json')
-    .set('Accept', 'application/json');
-
-  const createConnectionRO = JSON.parse(createConnectionResult.text);
-  t.is(createConnectionResult.status, 201);
-
-  const createTableActionResult = await request(app.getHttpServer())
-    .post(`/table/action/${createConnectionRO.id}?tableName=${testTableName}`)
-    .send(newTableAction)
-    .set('Cookie', token)
-    .set('Content-Type', 'application/json')
-    .set('Accept', 'application/json');
-
-  const createTableActionRO = JSON.parse(createTableActionResult.text);
-  t.is(createTableActionResult.status, 201);
-
-  const updatedTableAction = {
-    ...newTableAction,
-  };
-  // updatedTableAction.title = faker.lorem.words(2);
-  updatedTableAction.url = faker.internet.url();
-  updatedTableAction.type = faker.string.uuid() as any;
-
-  const updateTableActionResult = await request(app.getHttpServer())
-    .post(`/table/action/${createConnectionRO.id}?tableName=${testTableName}&actionId=${createTableActionRO.id}`)
-    .send(updatedTableAction)
-    .set('Cookie', token)
-    .set('Content-Type', 'application/json')
-    .set('Accept', 'application/json');
-
-  const updateTableActionRO = JSON.parse(updateTableActionResult.text);
-  t.is(updateTableActionResult.status, 400);
-  // t.is(updateTableActionRO.message, ErrorsMessages.VALIDATION_FAILED);
-});
-
-test(`${currentTest} should throw exception when connection id incorrect`, async (t) => {
-  const { token } = await registerUserAndReturnUserInfo(app);
-  const createConnectionResult = await request(app.getHttpServer())
-    .post('/connection')
-    .send(newConnection)
-    .set('Cookie', token)
-    .set('Content-Type', 'application/json')
-    .set('Accept', 'application/json');
-
-  const createConnectionRO = JSON.parse(createConnectionResult.text);
-  t.is(createConnectionResult.status, 201);
-
-  const createTableActionResult = await request(app.getHttpServer())
-    .post(`/table/action/${createConnectionRO.id}?tableName=${testTableName}`)
-    .send(newTableAction)
-    .set('Cookie', token)
-    .set('Content-Type', 'application/json')
-    .set('Accept', 'application/json');
-
-  const createTableActionRO = JSON.parse(createTableActionResult.text);
-  t.is(createTableActionResult.status, 201);
-
-  const updatedTableAction = {
-    ...newTableAction,
-  };
-  // updatedTableAction.title = faker.lorem.words(2);
-  updatedTableAction.url = faker.internet.url();
-
-  createConnectionRO.id = faker.string.uuid();
-  const updateTableActionResult = await request(app.getHttpServer())
-    .post(`/table/action/${createConnectionRO.id}?tableName=${testTableName}&actionId=${createTableActionRO.id}`)
-    .send(updatedTableAction)
-    .set('Cookie', token)
-    .set('Content-Type', 'application/json')
-    .set('Accept', 'application/json');
-
-  const updateTableActionRO = JSON.parse(updateTableActionResult.text);
-  t.is(updateTableActionResult.status, 403);
-  t.is(updateTableActionRO.message, Messages.DONT_HAVE_PERMISSIONS);
-});
-
-currentTest = `DELETE /table/action/:slug`;
-test(`${currentTest} should delete table action and return deleted table action`, async (t) => {
-  const { token } = await registerUserAndReturnUserInfo(app);
-  const createConnectionResult = await request(app.getHttpServer())
-    .post('/connection')
-    .send(newConnection)
-    .set('Cookie', token)
-    .set('Content-Type', 'application/json')
-    .set('Accept', 'application/json');
-
-  const createConnectionRO = JSON.parse(createConnectionResult.text);
-  t.is(createConnectionResult.status, 201);
-
-  const createTableActionResult = await request(app.getHttpServer())
-    .post(`/table/action/${createConnectionRO.id}?tableName=${testTableName}`)
-    .send(newTableAction)
-    .set('Cookie', token)
-    .set('Content-Type', 'application/json')
-    .set('Accept', 'application/json');
-
-  const createTableActionRO = JSON.parse(createTableActionResult.text);
-  t.is(createTableActionResult.status, 201);
-
-  const deleteTableActionResult = await request(app.getHttpServer())
-    .delete(`/table/action/${createConnectionRO.id}?actionId=${createTableActionRO.id}`)
-    .set('Cookie', token)
-    .set('Content-Type', 'application/json')
-    .set('Accept', 'application/json');
-  const deleteTableActionRO = JSON.parse(deleteTableActionResult.text);
-  t.is(deleteTableActionResult.status, 200);
-  t.is(deleteTableActionRO.utl, createTableActionRO.utl);
-  t.is(deleteTableActionRO.type, createTableActionRO.type);
-  t.is(deleteTableActionRO.title, createTableActionRO.title);
-
-  const getTableActionResult = await request(app.getHttpServer())
-    .get(`/table/action/${createConnectionRO.id}?actionId=${createTableActionRO.id}`)
-    .set('Cookie', token)
-    .set('Content-Type', 'application/json')
-    .set('Accept', 'application/json');
-  const getTableActionRO = JSON.parse(getTableActionResult.text);
-  t.is(getTableActionResult.status, 400);
-  t.is(getTableActionRO.message, Messages.TABLE_ACTION_NOT_FOUND);
-});
-
-test(`${currentTest} should throw exception when connection id incorrect`, async (t) => {
-  const { token } = await registerUserAndReturnUserInfo(app);
-  const createConnectionResult = await request(app.getHttpServer())
-    .post('/connection')
-    .send(newConnection)
-    .set('Cookie', token)
-    .set('Content-Type', 'application/json')
-    .set('Accept', 'application/json');
-
-  const createConnectionRO = JSON.parse(createConnectionResult.text);
-  t.is(createConnectionResult.status, 201);
-
-  const createTableActionResult = await request(app.getHttpServer())
-    .post(`/table/action/${createConnectionRO.id}?tableName=${testTableName}`)
-    .send(newTableAction)
-    .set('Cookie', token)
-    .set('Content-Type', 'application/json')
-    .set('Accept', 'application/json');
-  const createTableActionRO = JSON.parse(createTableActionResult.text);
-  t.is(createTableActionResult.status, 201);
-
-  createConnectionRO.id = faker.string.uuid();
-  const deleteTableActionResult = await request(app.getHttpServer())
-    .delete(`/table/action/${createConnectionRO.id}?actionId=${createTableActionRO.id}`)
-    .set('Cookie', token)
-    .set('Content-Type', 'application/json')
-    .set('Accept', 'application/json');
-  const deleteTableActionRO = JSON.parse(deleteTableActionResult.text);
-  t.is(deleteTableActionResult.status, 403);
-  t.is(deleteTableActionRO.message, Messages.DONT_HAVE_PERMISSIONS);
-});
-
-test(`${currentTest} should throw exception when table action id incorrect`, async (t) => {
-  const { token } = await registerUserAndReturnUserInfo(app);
-  const createConnectionResult = await request(app.getHttpServer())
-    .post('/connection')
-    .send(newConnection)
-    .set('Cookie', token)
-    .set('Content-Type', 'application/json')
-    .set('Accept', 'application/json');
-
-  const createConnectionRO = JSON.parse(createConnectionResult.text);
-  t.is(createConnectionResult.status, 201);
-
-  const createTableActionResult = await request(app.getHttpServer())
-    .post(`/table/action/${createConnectionRO.id}?tableName=${testTableName}`)
-    .send(newTableAction)
-    .set('Cookie', token)
-    .set('Content-Type', 'application/json')
-    .set('Accept', 'application/json');
-  const createTableActionRO = JSON.parse(createTableActionResult.text);
-  t.is(createTableActionResult.status, 201);
-
-  createTableActionRO.id = faker.string.uuid();
-  const deleteTableActionResult = await request(app.getHttpServer())
-    .delete(`/table/action/${createConnectionRO.id}?actionId=${createTableActionRO.id}`)
-    .set('Cookie', token)
-    .set('Content-Type', 'application/json')
-    .set('Accept', 'application/json');
-  const deleteTableActionRO = JSON.parse(deleteTableActionResult.text);
-  t.is(deleteTableActionResult.status, 400);
-  t.is(deleteTableActionRO.message, Messages.TABLE_ACTION_NOT_FOUND);
 });
 
 currentTest = 'GET /table/action/:slug';

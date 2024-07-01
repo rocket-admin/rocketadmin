@@ -7,7 +7,7 @@ import { getDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-acce
 import { WidgetTypeEnum } from '../../../enums/index.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { compareArrayElements, isConnectionTypeAgent } from '../../../helpers/index.js';
-import { buildCreatedTableActionDS } from '../../table-actions/table-actions-module/utils/build-created-table-action-ds.js';
+import { buildFoundTableActionDS } from '../../table-actions/table-actions-module/utils/build-created-table-action-ds.js';
 import { GetRowByPrimaryKeyDs } from '../application/data-structures/get-row-by-primary-key.ds.js';
 import { ForeignKeyDSInfo, ReferencedTableNamesAndColumnsDs, TableRowRODs } from '../table-datastructures.js';
 import { convertBinaryDataInRowUtil } from '../utils/convert-binary-data-in-row.util.js';
@@ -212,7 +212,7 @@ export class GetRowByPrimaryKeyUseCase
       table_widgets: tableWidgets,
       readonly_fields: tableSettings?.readonly_fields ? tableSettings.readonly_fields : [],
       list_fields: tableSettings?.list_fields?.length > 0 ? tableSettings.list_fields : [],
-      table_actions: tableActions?.length > 0 ? tableActions.map((el) => buildCreatedTableActionDS(el)) : [],
+      table_actions: tableActions?.length > 0 ? tableActions.map((el) => buildFoundTableActionDS(el)) : [],
       identity_column: tableSettings?.identity_column ? tableSettings.identity_column : null,
       referenced_table_names_and_columns: referencedTableNamesAndColumnsWithTablesDisplayNames,
       display_name: tableSettings?.display_name ? tableSettings.display_name : null,

@@ -8,11 +8,12 @@ export const tableActionsCustomRepositoryExtension: ITableActionRepository = {
 
   async findTableActionsWithRulesAndEvents(connectionId: string, tableName: string): Promise<Array<TableActionEntity>> {
     const qb = this.createQueryBuilder('table_actions')
-      .leftJoinAndSelect('table_actions.action_rules', 'action_rules')
-      .leftJoinAndSelect('action_rules.action_events', 'action_events')
+      .leftJoinAndSelect('table_actions.action_rule', 'action_rule')
+      .leftJoinAndSelect('action_rule.connection', 'connection')
+      .leftJoinAndSelect('action_rule.action_events', 'action_events')
       .leftJoinAndSelect('table_actions.settings', 'table_settings')
-      .where('table_settings.connection_id = :connection_id', { connection_id: connectionId })
-      .andWhere('action_rules.table_name = :table_name', { table_name: tableName });
+      .where('connection.id = :connectionId', { connectionId })
+      .andWhere('action_rule.table_name = :tableName', { tableName });
     return await qb.getMany();
   },
 

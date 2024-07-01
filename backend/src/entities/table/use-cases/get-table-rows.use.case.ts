@@ -14,7 +14,7 @@ import { hexToBinary, isBinary } from '../../../helpers/binary-to-hex.js';
 import { Constants } from '../../../helpers/constants/constants.js';
 import { isConnectionTypeAgent, isObjectEmpty } from '../../../helpers/index.js';
 import { AmplitudeService } from '../../amplitude/amplitude.service.js';
-import { buildCreatedTableActionDS } from '../../table-actions/table-actions-module/utils/build-created-table-action-ds.js';
+import { buildFoundTableActionDS } from '../../table-actions/table-actions-module/utils/build-created-table-action-ds.js';
 import { TableLogsService } from '../../table-logs/table-logs.service.js';
 import { TableSettingsEntity } from '../../table-settings/table-settings.entity.js';
 import { FoundTableRowsDs } from '../application/data-structures/found-table-rows.ds.js';
@@ -214,7 +214,7 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
         identity_column: tableSettings.identity_column ? tableSettings.identity_column : null,
         table_permissions: userTablePermissions,
         list_fields: tableSettings.list_fields?.length > 0 ? tableSettings.list_fields : [],
-        table_actions: tableActions.map((el) => buildCreatedTableActionDS(el)),
+        table_actions: tableActions.map((el) => buildFoundTableActionDS(el)),
         large_dataset: largeDataset,
       };
 

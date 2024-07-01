@@ -1,19 +1,13 @@
 import { InTransactionEnum } from '../../../../enums/index.js';
+import { FoundTableActionDTO } from '../../table-action-rules-module/application/dto/found-action-rules-with-actions-and-events.dto.js';
 import { ActivateTableActionDS } from '../application/data-sctructures/activate-table-action.ds.js';
 import { ActivateTableActionsDS } from '../application/data-sctructures/activate-table-actions.ds.js';
 import {
   ActivatedTableActionDS,
   ActivatedTableActionsDS,
 } from '../application/data-sctructures/activated-table-action.ds.js';
-import { CreateTableActionDS } from '../application/data-sctructures/create-table-action.ds.js';
-import { CreatedTableActionDS } from '../application/data-sctructures/created-table-action.ds.js';
 import { FindTableActionsDS } from '../application/data-sctructures/find-table-actions.ds.js';
 import { FoundTableActionsDS } from '../application/data-sctructures/found-table-actions.ds.js';
-import { UpdateTableActionDS } from '../application/data-sctructures/update-table-action.ds.js';
-
-export interface ICreateTableAction {
-  execute(inputData: CreateTableActionDS, inTransaction: InTransactionEnum): Promise<CreatedTableActionDS>;
-}
 
 export interface IFindAllTableActions {
   execute(inputData: FindTableActionsDS, inTransaction: InTransactionEnum): Promise<FoundTableActionsDS>;
@@ -27,14 +21,6 @@ export interface IActivateTableActions {
   execute(inputData: ActivateTableActionsDS, inTransaction: InTransactionEnum): Promise<ActivatedTableActionsDS>;
 }
 
-export interface IUpdateTableAction {
-  execute(inputData: UpdateTableActionDS, inTransaction: InTransactionEnum): Promise<CreatedTableActionDS>;
-}
-
-export interface IDeleteTableAction {
-  execute(actionId: string, inTransaction: InTransactionEnum): Promise<CreatedTableActionDS>;
-}
-
 export interface IFindTableAction {
-  execute(actionId: string, inTransaction: InTransactionEnum): Promise<CreatedTableActionDS>;
+  execute(actionId: string, inTransaction: InTransactionEnum): Promise<FoundTableActionDTO>;
 }

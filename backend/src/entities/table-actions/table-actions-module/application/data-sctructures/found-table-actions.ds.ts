@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { CreatedTableActionDS } from './created-table-action.ds.js';
+import { FoundTableActionDTO } from '../../../table-action-rules-module/application/dto/found-action-rules-with-actions-and-events.dto.js';
 
 export class FoundTableActionsDS {
   @ApiProperty()
@@ -8,6 +8,6 @@ export class FoundTableActionsDS {
   @ApiProperty()
   display_name: string;
 
-  @ApiProperty({ isArray: true, type: CreatedTableActionDS })
-  table_actions: Array<CreatedTableActionDS>;
+  @ApiProperty({ isArray: true, type: FoundTableActionDTO })
+  table_actions: Array<FoundTableActionDTO>;
 }
