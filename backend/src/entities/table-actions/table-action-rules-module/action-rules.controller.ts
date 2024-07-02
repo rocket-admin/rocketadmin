@@ -9,6 +9,7 @@ import {
   Get,
   Delete,
   Put,
+  BadRequestException,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { SentryInterceptor } from '../../../interceptors/sentry.interceptor.js';
@@ -21,6 +22,7 @@ import { CreateActionRuleDS } from './application/data-structures/create-action-
 import { UserId } from '../../../decorators/user-id.decorator.js';
 import { MasterPassword } from '../../../decorators/master-password.decorator.js';
 import {
+  IActivateTableActionsInRule,
   ICreateActionRule,
   IDeleteActionRuleInTable,
   IFindActionRuleById,
@@ -28,11 +30,17 @@ import {
   IFindCustomEvents,
   IUpdateActionRule,
 } from './use-cases/action-rules-use-cases.interface.js';
-import { FoundActionEventDTO, FoundActionRulesWithActionsAndEventsDTO } from './application/dto/found-action-rules-with-actions-and-events.dto.js';
+import {
+  FoundActionEventDTO,
+  FoundActionRulesWithActionsAndEventsDTO,
+} from './application/dto/found-action-rules-with-actions-and-events.dto.js';
 import { ConnectionReadGuard } from '../../../guards/connection-read.guard.js';
 import { QueryTableName } from '../../../decorators/query-table-name.decorator.js';
 import { UpdateTableActionRuleBodyDTO } from './application/dto/update-action-rule-with-actions-and-events.dto.js';
 import { UpdateActionRuleDS } from './application/data-structures/update-action-rule.ds.js';
+import { ActivatedTableActionsDTO } from './application/dto/activated-table-actions.dto.js';
+import { ActivateEventActionsDS } from './application/data-structures/activate-rule-actions.ds.js';
+import { Messages } from '../../../exceptions/text/messages.js';
 
 @UseInterceptors(SentryInterceptor)
 @Controller()
@@ -53,6 +61,8 @@ export class ActionRulesController {
     private readonly updateTableActionRuleUseCase: IUpdateActionRule,
     @Inject(UseCaseType.FIND_ACTION_RULE_CUSTOM_EVENTS)
     private readonly findCustomEventsUseCase: IFindCustomEvents,
+    @Inject(UseCaseType.ACTIVATE_TABLE_ACTIONS_IN_EVENT)
+    private readonly activateTableActionsInRuleUseCase: IActivateTableActionsInRule,
   ) {}
 
   @ApiOperation({ summary: 'Create rules for table' })
@@ -207,5 +217,42 @@ export class ActionRulesController {
       })),
     };
     return await this.updateTableActionRuleUseCase.execute(inputData, InTransactionEnum.ON);
+  }
+
+  @ApiOperation({ summary: 'Activate all actions with custom event in this rule' })
+  @ApiResponse({
+    status: 200,
+    description: 'Return action activation result.',
+    type: ActivatedTableActionsDTO,
+    isArray: true,
+  })
+  @ApiBody({ type: Object })
+  @UseGuards(ConnectionReadGuard)
+  @Post('/event/actions/activate/:eventId/:connectionId')
+  async activateTableActionsInRule(
+    @SlugUuid('connectionId') connectionId: string,
+    @SlugUuid('eventId') eventId: string,
+    @UserId() userId: string,
+    @MasterPassword() masterPwd: string,
+    @Body() body: Array<Record<string, unknown>>,
+  ): Promise<ActivatedTableActionsDTO> {
+    if (!Array.isArray(body)) {
+      throw new BadRequestException(Messages.MUST_CONTAIN_ARRAY_OF_PRIMARY_KEYS);
+    }
+    body.forEach((item) => {
+      if (typeof item !== 'object') {
+        throw new BadRequestException(Messages.MUST_CONTAIN_ARRAY_OF_PRIMARY_KEYS);
+      }
+    });
+    const inputData: ActivateEventActionsDS = {
+      connection_data: {
+        connectionId,
+        masterPwd,
+        userId,
+      },
+      event_id: eventId,
+      request_body: body,
+    };
+    return await this.activateTableActionsInRuleUseCase.execute(inputData);
   }
 }

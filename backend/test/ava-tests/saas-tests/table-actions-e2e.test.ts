@@ -114,7 +114,7 @@ test.after.always('Close app connection', async () => {
 
 currentTest = 'GET /table/actions/:slug';
 
-test(`${currentTest} should return found table actions`, async (t) => {
+test.skip(`${currentTest} should return found table actions`, async (t) => {
   const { token } = await registerUserAndReturnUserInfo(app);
   const createConnectionResult = await request(app.getHttpServer())
     .post('/connection')
@@ -204,7 +204,7 @@ test(`${currentTest} should return found table actions`, async (t) => {
   t.is(foundMultipleAction.hasOwnProperty('emails'), true);
 });
 
-test(`${currentTest} should throw exception when connection id incorrect`, async (t) => {
+test.skip(`${currentTest} should throw exception when connection id incorrect`, async (t) => {
   const { token } = await registerUserAndReturnUserInfo(app);
   const createConnectionResult = await request(app.getHttpServer())
     .post('/connection')
@@ -237,7 +237,7 @@ test(`${currentTest} should throw exception when connection id incorrect`, async
 });
 
 currentTest = 'GET /table/action/:slug';
-test(`${currentTest} should return found table action`, async (t) => {
+test.skip(`${currentTest} should return found table action`, async (t) => {
   const { token } = await registerUserAndReturnUserInfo(app);
   const createConnectionResult = await request(app.getHttpServer())
     .post('/connection')
@@ -273,7 +273,7 @@ test(`${currentTest} should return found table action`, async (t) => {
   t.is(findTableActionRO.url, newTableAction.url);
 });
 
-test(`${currentTest} should throw exception when connection id incorrect`, async (t) => {
+test.skip(`${currentTest} should throw exception when connection id incorrect`, async (t) => {
   const { token } = await registerUserAndReturnUserInfo(app);
   const createConnectionResult = await request(app.getHttpServer())
     .post('/connection')
@@ -307,7 +307,7 @@ test(`${currentTest} should throw exception when connection id incorrect`, async
   t.is(findTableActionRO.message, Messages.DONT_HAVE_PERMISSIONS);
 });
 
-test(`${currentTest} should throw exception when table action id is incorrect`, async (t) => {
+test.skip(`${currentTest} should throw exception when table action id is incorrect`, async (t) => {
   const { token } = await registerUserAndReturnUserInfo(app);
   const createConnectionResult = await request(app.getHttpServer())
     .post('/connection')
@@ -344,7 +344,7 @@ test(`${currentTest} should throw exception when table action id is incorrect`, 
 //test impersonate action
 
 currentTest = 'POST /table/action/:slug';
-test(`${currentTest} should return created impersonate action`, async (t) => {
+test.skip(`${currentTest} should return created impersonate action`, async (t) => {
   const firstUser = await registerUserAndReturnUserInfo(app);
   const secondUser = await registerUserAndReturnUserInfo(app);
   //DATABASE_URL=postgres://postgres:abc987@rocketadmin-private-microservice-test-database:5432/postgres

@@ -4,11 +4,11 @@ import { Messages } from '../exceptions/text/messages.js';
 import { buildBadRequestException } from '../guards/utils/index.js';
 import { ValidationHelper } from '../helpers/validators/validation-helper.js';
 
-export type SlugUuidParameter = 'slug' | 'connectionId' | 'groupId' | 'userId' | 'actionId' | 'ruleId';
+export type SlugUuidParameter = 'slug' | 'connectionId' | 'groupId' | 'userId' | 'actionId' | 'ruleId' | 'eventId';
 export const SlugUuid = createParamDecorator(
   (parameterName: SlugUuidParameter = 'slug', ctx: ExecutionContext): string => {
     const request: IRequestWithCognitoInfo = ctx.switchToHttp().getRequest();
-    const availableSlagParameters = ['slug', 'connectionId', 'groupId', 'userId', 'actionId', 'ruleId'];
+    const availableSlagParameters = ['slug', 'connectionId', 'groupId', 'userId', 'actionId', 'ruleId', 'eventId'];
     if (!availableSlagParameters.includes(parameterName)) {
       throw buildBadRequestException(Messages.UUID_INVALID);
     }

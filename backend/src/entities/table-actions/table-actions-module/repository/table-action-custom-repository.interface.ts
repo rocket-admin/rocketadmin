@@ -12,4 +12,9 @@ export interface ITableActionRepository {
   findTableActionsByIds(actionIds: Array<string>): Promise<Array<TableActionEntity>>;
 
   findTableActionsWithRulesAndEvents(connectionId: string, tableName: string): Promise<Array<TableActionEntity>>;
+
+  findActionsWithCustomEventsByEventIdConnectionId(
+    eventId: string,
+    connectionId: string,
+  ): Promise<Array<TableActionEntity>>;
 }

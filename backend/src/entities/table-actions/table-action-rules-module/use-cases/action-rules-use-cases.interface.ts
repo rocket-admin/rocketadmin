@@ -1,8 +1,10 @@
 import { InTransactionEnum } from '../../../../enums/in-transaction.enum.js';
+import { ActivateEventActionsDS } from '../application/data-structures/activate-rule-actions.ds.js';
 import { CreateActionRuleDS } from '../application/data-structures/create-action-rules.ds.js';
 import { FindActionRuleByIdDS } from '../application/data-structures/delete-action-rule.ds.js';
 import { FindActionRulesDS } from '../application/data-structures/find-all-table-triggers.ds.js';
 import { UpdateActionRuleDS } from '../application/data-structures/update-action-rule.ds.js';
+import { ActivatedTableActionsDTO } from '../application/dto/activated-table-actions.dto.js';
 import {
   FoundActionEventDTO,
   FoundActionRulesWithActionsAndEventsDTO,
@@ -39,4 +41,8 @@ export interface IUpdateActionRule {
     inputData: UpdateActionRuleDS,
     inTransaction: InTransactionEnum,
   ): Promise<FoundActionRulesWithActionsAndEventsDTO>;
+}
+
+export interface IActivateTableActionsInRule {
+  execute(inputData: ActivateEventActionsDS): Promise<ActivatedTableActionsDTO>;
 }

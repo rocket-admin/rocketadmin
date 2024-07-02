@@ -13,6 +13,7 @@ import { DeleteActionRuleWithActionsAndEventsUseCase } from './use-cases/delete-
 import { FindActionRuleWithActionsAndEventsUseCase } from './use-cases/find-action-rule-with-action-and-events-by-id.use.case.js';
 import { UpdateRuleUseCase } from './use-cases/update-action-rule-with-actions-and-events.use.case.js';
 import { FindCustomEventsUseCase } from './use-cases/find-custom-events-use.case.js';
+import { ActivateActionsInEventUseCase } from './use-cases/activate-actions-in-rule.use.case.js';
 
 @Module({
   imports: [TypeOrmModule.forFeature([ActionRulesEntity, UserEntity, LogOutEntity])],
@@ -45,6 +46,10 @@ import { FindCustomEventsUseCase } from './use-cases/find-custom-events-use.case
       provide: UseCaseType.FIND_ACTION_RULE_CUSTOM_EVENTS,
       useClass: FindCustomEventsUseCase,
     },
+    {
+      provide: UseCaseType.ACTIVATE_TABLE_ACTIONS_IN_EVENT,
+      useClass: ActivateActionsInEventUseCase,
+    },
   ],
   controllers: [ActionRulesController],
 })
@@ -59,6 +64,7 @@ export class TableTriggersModule {
         { path: '/action/rule/:ruleId/:connectionId', method: RequestMethod.GET },
         { path: '/action/rule/:ruleId/:connectionId', method: RequestMethod.PUT },
         { path: '/action/events/custom/:connectionId', method: RequestMethod.GET },
+        { path: '/event/actions/activate/:eventId/:connectionId', method: RequestMethod.POST },
       );
   }
 }

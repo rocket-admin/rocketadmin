@@ -8,7 +8,6 @@ import knex from 'knex';
 import request from 'supertest';
 import { ApplicationModule } from '../../../src/app.module.js';
 import { AllExceptionsFilter } from '../../../src/exceptions/all-exceptions.filter.js';
-import { Messages } from '../../../src/exceptions/text/messages.js';
 import { Cacher } from '../../../src/helpers/cache/cacher.js';
 import { DatabaseModule } from '../../../src/shared/database/database.module.js';
 import { DatabaseService } from '../../../src/shared/database/database.service.js';
@@ -21,8 +20,13 @@ import { CreateTableActionRuleBodyDTO } from '../../../src/entities/table-action
 import { TableActionEventEnum } from '../../../src/enums/table-action-event-enum.js';
 import { TableActionTypeEnum } from '../../../src/enums/table-action-type.enum.js';
 import { TableActionMethodEnum } from '../../../src/enums/table-action-method-enum.js';
-import { FoundActionEventDTO, FoundActionRulesWithActionsAndEventsDTO } from '../../../src/entities/table-actions/table-action-rules-module/application/dto/found-action-rules-with-actions-and-events.dto.js';
+import {
+  FoundActionEventDTO,
+  FoundActionRulesWithActionsAndEventsDTO,
+} from '../../../src/entities/table-actions/table-action-rules-module/application/dto/found-action-rules-with-actions-and-events.dto.js';
 import { UpdateTableActionRuleBodyDTO } from '../../../src/entities/table-actions/table-action-rules-module/application/dto/update-action-rule-with-actions-and-events.dto.js';
+import { ActivatedTableActionsDTO } from '../../../src/entities/table-actions/table-action-rules-module/application/dto/activated-table-actions.dto.js';
+import nock from 'nock';
 
 const mockFactory = new MockFactory();
 let app: INestApplication;
@@ -806,4 +810,99 @@ test(`${currentTest} should return created table rule with action and events`, a
     (action) => action.type === TableActionTypeEnum.single && action.method === TableActionMethodEnum.ZAPIER,
   );
   t.falsy(foundZapierAction);
+});
+
+currentTest = 'POST /rule/actions/activate/:ruleId/:connectionId';
+
+test.only(`${currentTest} should return created table rule with action and events`, async (t) => {
+  const { token } = await registerUserAndReturnUserInfo(app);
+  const createConnectionResult = await request(app.getHttpServer())
+    .post('/connection')
+    .send(newConnection)
+    .set('Cookie', token)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+
+  const createConnectionRO = JSON.parse(createConnectionResult.text);
+  t.is(createConnectionResult.status, 201);
+
+  const fakeUrl = 'http://www.example.com';
+  const tableRuleDTO: CreateTableActionRuleBodyDTO = {
+    title: 'Test rule',
+    table_name: testTableName,
+    events: [
+      {
+        event: TableActionEventEnum.CUSTOM,
+        title: 'Test event',
+        icon: 'test-icon',
+        require_confirmation: false,
+      },
+    ],
+    table_actions: [
+      {
+        type: TableActionTypeEnum.multiple,
+        url: fakeUrl,
+        method: TableActionMethodEnum.URL,
+        slack_url: undefined,
+        emails: [],
+      },
+      {
+        type: TableActionTypeEnum.multiple,
+        url: undefined,
+        method: TableActionMethodEnum.SLACK,
+        slack_url: fakeUrl,
+        emails: undefined,
+      },
+    ],
+  };
+
+  const createTableRuleResult = await request(app.getHttpServer())
+    .post(`/action/rule/${createConnectionRO.id}`)
+    .send(tableRuleDTO)
+    .set('Cookie', token)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+
+  const createTableRuleRO: FoundActionRulesWithActionsAndEventsDTO = JSON.parse(createTableRuleResult.text);
+  t.is(createTableRuleResult.status, 201);
+
+  const nockBodiesArray = [];
+  const scope = nock(fakeUrl)
+    .post('/')
+    .times(2)
+    .reply(201, (uri, requestBody) => {
+      nockBodiesArray.push(requestBody);
+      return {
+        status: 201,
+        message: 'Table action was triggered',
+      };
+    });
+
+  const activateTableRuleResult = await request(app.getHttpServer())
+    .post(`/event/actions/activate/${createTableRuleRO.events[0].id}/${createConnectionRO.id}`)
+    .set('Cookie', token)
+    .send([{ id: 2 }])
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+  const activateTableRuleRO: ActivatedTableActionsDTO = JSON.parse(activateTableRuleResult.text);
+  t.is(activateTableRuleResult.status, 201);
+  t.is(activateTableRuleRO.hasOwnProperty('activationResults'), true);
+  t.is(activateTableRuleRO.activationResults.length, 2);
+
+  t.is(nockBodiesArray.length, 2);
+  const urlActionRequestBody = nockBodiesArray.find((body) => body.hasOwnProperty(`$$_raUserId`));
+  t.truthy(urlActionRequestBody);
+  t.truthy(urlActionRequestBody['$$_raUserId']);
+  t.truthy(urlActionRequestBody['$$_date']);
+  t.truthy(urlActionRequestBody['$$_tableName']);
+  t.truthy(urlActionRequestBody['$$_actionId']);
+  t.is(urlActionRequestBody['$$_tableName'], testTableName);
+  t.is(urlActionRequestBody['primaryKeys'][0].id, 2);
+
+  const slackActionRequestBody = nockBodiesArray.find((body) => body.hasOwnProperty(`text`));
+  t.truthy(slackActionRequestBody);
+  t.truthy(slackActionRequestBody['text']);
+  t.truthy(slackActionRequestBody['text'].includes(testTableName));
+  t.truthy(slackActionRequestBody['text'].includes(`[{"id":2}]`));
+  scope.done();
 });

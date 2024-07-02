@@ -1,3 +1,4 @@
+import { TableActionEventEnum } from '../../../../enums/table-action-event-enum.js';
 import { TableActionEntity } from '../table-action.entity.js';
 import { ITableActionRepository } from './table-action-custom-repository.interface.js';
 
@@ -14,6 +15,20 @@ export const tableActionsCustomRepositoryExtension: ITableActionRepository = {
       .leftJoinAndSelect('table_actions.settings', 'table_settings')
       .where('connection.id = :connectionId', { connectionId })
       .andWhere('action_rule.table_name = :tableName', { tableName });
+    return await qb.getMany();
+  },
+
+  async findActionsWithCustomEventsByEventIdConnectionId(
+    eventId: string,
+    connectionId: string,
+  ): Promise<Array<TableActionEntity>> {
+    const qb = this.createQueryBuilder('table_actions')
+      .leftJoinAndSelect('table_actions.action_rule', 'action_rule')
+      .leftJoinAndSelect('action_rule.connection', 'connection')
+      .leftJoinAndSelect('action_rule.action_events', 'action_events')
+      .where('connection.id = :connectionId', { connectionId })
+      .andWhere('action_events.id = :eventId', { eventId })
+      .andWhere('action_events.event = :eventType', { eventType: TableActionEventEnum.CUSTOM });
     return await qb.getMany();
   },
 
