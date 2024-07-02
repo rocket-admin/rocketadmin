@@ -18,6 +18,42 @@ export const tableActionsCustomRepositoryExtension: ITableActionRepository = {
     return await qb.getMany();
   },
 
+  async findTableActionsWithAddRowEvents(connectionId: string, tableName: string): Promise<Array<TableActionEntity>> {
+    const qb = this.createQueryBuilder('table_actions')
+      .leftJoinAndSelect('table_actions.action_rule', 'action_rule')
+      .leftJoinAndSelect('action_rule.connection', 'connection')
+      .leftJoinAndSelect('action_rule.action_events', 'action_events')
+      .leftJoinAndSelect('table_actions.settings', 'table_settings')
+      .where('connection.id = :connectionId', { connectionId })
+      .andWhere('action_rule.table_name = :tableName', { tableName })
+      .andWhere('action_events.event = :eventType', { eventType: TableActionEventEnum.ADD_ROW });
+    return await qb.getMany();
+  },
+
+  async findTableActionsWithUpdateRowEvents(connectionId: string, tableName: string): Promise<Array<TableActionEntity>> {
+    const qb = this.createQueryBuilder('table_actions')
+      .leftJoinAndSelect('table_actions.action_rule', 'action_rule')
+      .leftJoinAndSelect('action_rule.connection', 'connection')
+      .leftJoinAndSelect('action_rule.action_events', 'action_events')
+      .leftJoinAndSelect('table_actions.settings', 'table_settings')
+      .where('connection.id = :connectionId', { connectionId })
+      .andWhere('action_rule.table_name = :tableName', { tableName })
+      .andWhere('action_events.event = :eventType', { eventType: TableActionEventEnum.UPDATE_ROW });
+    return qb.getMany();
+  },
+
+  async findTableActionsWithDeleteRowEvents(connectionId: string, tableName: string): Promise<Array<TableActionEntity>> {
+    const qb = this.createQueryBuilder('table_actions')
+      .leftJoinAndSelect('table_actions.action_rule', 'action_rule')
+      .leftJoinAndSelect('action_rule.connection', 'connection')
+      .leftJoinAndSelect('action_rule.action_events', 'action_events')
+      .leftJoinAndSelect('table_actions.settings', 'table_settings')
+      .where('connection.id = :connectionId', { connectionId })
+      .andWhere('action_rule.table_name = :tableName', { tableName })
+      .andWhere('action_events.event = :eventType', { eventType: TableActionEventEnum.DELETE_ROW });
+    return qb.getMany();
+  },
+
   async findActionsWithCustomEventsByEventIdConnectionId(
     eventId: string,
     connectionId: string,
@@ -34,15 +70,6 @@ export const tableActionsCustomRepositoryExtension: ITableActionRepository = {
 
   async findTableActionById(actionId: string): Promise<TableActionEntity> {
     return await this.findOne({ where: { id: actionId } });
-  },
-
-  async findFullTableActionById(actionId: string): Promise<TableActionEntity> {
-    const qb = this.createQueryBuilder('table_actions')
-      .leftJoinAndSelect('table_actions.action_rules', 'action_rules')
-      .leftJoinAndSelect('action_rules.action_events', 'action_events')
-      .leftJoinAndSelect('table_actions.settings', 'table_settings')
-      .where('table_actions.id = :id', { id: actionId });
-    return await qb.getOne();
   },
 
   async deleteTableAction(action: TableActionEntity): Promise<TableActionEntity> {

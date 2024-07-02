@@ -151,19 +151,19 @@ export class DeleteRowFromTableUseCase
         isTest ? AmplitudeEventTypeEnum.tableRowDeletedTest : AmplitudeEventTypeEnum.tableRowDeleted,
         userId,
       );
-      // todo: rework
-      // const foundAddTableActions = await this._dbContext.actionRulesRepository.findActionRulesFromTriggersOnDeleteRow(
-      //   connectionId,
-      //   tableName,
-      // );
-      // await activateTableActions(
-      //   foundAddTableActions,
-      //   connection,
-      //   primaryKey,
-      //   userId,
-      //   tableName,
-      //   TableActionEventEnum.DELETE_ROW,
-      // );
+    
+      const foundAddTableActions = await this._dbContext.tableActionRepository.findTableActionsWithDeleteRowEvents(
+        connectionId,
+        tableName,
+      );
+      await activateTableActions(
+        foundAddTableActions,
+        connection,
+        primaryKey,
+        userId,
+        tableName,
+        TableActionEventEnum.DELETE_ROW,
+      );
     }
   }
 }

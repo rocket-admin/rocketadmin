@@ -814,7 +814,7 @@ test(`${currentTest} should return created table rule with action and events`, a
 
 currentTest = 'POST /rule/actions/activate/:ruleId/:connectionId';
 
-test.only(`${currentTest} should return created table rule with action and events`, async (t) => {
+test(`${currentTest} should return created table rule with action and events`, async (t) => {
   const { token } = await registerUserAndReturnUserInfo(app);
   const createConnectionResult = await request(app.getHttpServer())
     .post('/connection')
@@ -904,5 +904,149 @@ test.only(`${currentTest} should return created table rule with action and event
   t.truthy(slackActionRequestBody['text']);
   t.truthy(slackActionRequestBody['text'].includes(testTableName));
   t.truthy(slackActionRequestBody['text'].includes(`[{"id":2}]`));
+  scope.done();
+});
+
+currentTest = 'POST/PUT/DELETE /table/row/:slug';
+
+test(`${currentTest} should create trigger and activate http table action on add row`, async (t) => {
+  const { token } = await registerUserAndReturnUserInfo(app);
+  const createConnectionResult = await request(app.getHttpServer())
+    .post('/connection')
+    .send(newConnection)
+    .set('Cookie', token)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+
+  const createConnectionRO = JSON.parse(createConnectionResult.text);
+  t.is(createConnectionResult.status, 201);
+
+  const fakeUrl = 'http://www.example.com';
+  const tableRuleDTO: CreateTableActionRuleBodyDTO = {
+    title: 'Test rule',
+    table_name: testTableName,
+    events: [
+      {
+        event: TableActionEventEnum.ADD_ROW,
+        title: 'Test event',
+        icon: 'test-icon',
+        require_confirmation: false,
+      },
+      {
+        event: TableActionEventEnum.DELETE_ROW,
+        title: 'Test event',
+        icon: 'test-icon',
+        require_confirmation: false,
+      },
+      {
+        event: TableActionEventEnum.UPDATE_ROW,
+        title: 'Test event',
+        icon: 'test-icon',
+        require_confirmation: false,
+      },
+    ],
+    table_actions: [
+      {
+        type: TableActionTypeEnum.multiple,
+        url: fakeUrl,
+        method: TableActionMethodEnum.URL,
+        slack_url: undefined,
+        emails: [],
+      },
+      {
+        type: TableActionTypeEnum.multiple,
+        url: undefined,
+        method: TableActionMethodEnum.SLACK,
+        slack_url: fakeUrl,
+        emails: undefined,
+      },
+    ],
+  };
+
+  const createTableRuleResult = await request(app.getHttpServer())
+    .post(`/action/rule/${createConnectionRO.id}`)
+    .send(tableRuleDTO)
+    .set('Cookie', token)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+
+  const createTableRuleRO: FoundActionRulesWithActionsAndEventsDTO = JSON.parse(createTableRuleResult.text);
+  t.is(createTableRuleResult.status, 201);
+
+  const nockBodiesArray = [];
+  const scope = nock(fakeUrl)
+    .post('/')
+    .times(6)
+    .reply(201, (uri, requestBody) => {
+      nockBodiesArray.push(requestBody);
+      return {
+        status: 201,
+        message: 'Table action was triggered',
+      };
+    });
+
+  const fakeName = faker.person.firstName();
+  const fakeMail = faker.internet.email();
+
+  const row = {
+    [testTableColumnName]: fakeName,
+    [testTAbleSecondColumnName]: fakeMail,
+  };
+
+  const addRowInTableResponse = await request(app.getHttpServer())
+    .post(`/table/row/${createConnectionRO.id}?tableName=${testTableName}`)
+    .send(JSON.stringify(row))
+    .set('Cookie', token)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+  t.is(addRowInTableResponse.status, 201);
+
+  const updatedRow = {
+    [testTableColumnName]: fakeName,
+    [testTAbleSecondColumnName]: fakeMail,
+  };
+
+  const updateRowInTableResponse = await request(app.getHttpServer())
+    .put(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&id=1`)
+    .send(JSON.stringify(updatedRow))
+    .set('Cookie', token)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+
+  t.is(updateRowInTableResponse.status, 200);
+
+  const idForDeletion = 1;
+  const deleteRowInTableResponse = await request(app.getHttpServer())
+    .delete(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&id=${idForDeletion}`)
+    .set('Cookie', token)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+  t.is(deleteRowInTableResponse.status, 200);
+
+  t.is(nockBodiesArray.length, 6);
+  const userDeletedRowSlackMessageRequestBody = nockBodiesArray.find(
+    (body) => body.hasOwnProperty(`text`) && body['text'].includes('deleted'),
+  );
+  t.truthy(userDeletedRowSlackMessageRequestBody);
+  t.truthy(userDeletedRowSlackMessageRequestBody['text']);
+  t.truthy(userDeletedRowSlackMessageRequestBody['text'].includes(testTableName));
+  t.truthy(userDeletedRowSlackMessageRequestBody['text'].includes(`[{"id":"${idForDeletion}"}]`));
+
+  const userAddedRowSlackMessageRequestBody = nockBodiesArray.find(
+    (body) => body.hasOwnProperty(`text`) && body['text'].includes('added'),
+  );
+
+  t.truthy(userAddedRowSlackMessageRequestBody);
+  t.truthy(userAddedRowSlackMessageRequestBody['text']);
+  t.truthy(userAddedRowSlackMessageRequestBody['text'].includes(testTableName));
+  t.truthy(userAddedRowSlackMessageRequestBody['text'].includes(`[{"id":${testEntitiesSeedsCount + 1}}]`));
+
+  const userUpdatedRowSlackMessageRequestBody = nockBodiesArray.find(
+    (body) => body.hasOwnProperty(`text`) && body['text'].includes('updated'),
+  );
+  t.truthy(userUpdatedRowSlackMessageRequestBody);
+  t.truthy(userUpdatedRowSlackMessageRequestBody['text']);
+  t.truthy(userUpdatedRowSlackMessageRequestBody['text'].includes(testTableName));
+  t.truthy(userUpdatedRowSlackMessageRequestBody['text'].includes(`[{"id":"1"}]`));
   scope.done();
 });
