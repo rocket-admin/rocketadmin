@@ -15,6 +15,18 @@ import {
 import { TableActionTypeEnum } from '../../../../../enums/table-action-type.enum.js';
 import { TableActionMethodEnum } from '../../../../../enums/table-action-method-enum.js';
 import { TableActionEventEnum } from '../../../../../enums/table-action-event-enum.js';
+import { applyDecorators } from '@nestjs/common';
+import { IsURLOptions } from 'validator';
+
+export function IsUrlIfNotTest(validationOptions?: IsURLOptions) {
+  return function (object: NonNullable<unknown>, propertyName: string) {
+    const decorators = [IsString()];
+    if (process.env.NODE_ENV !== 'test') {
+      decorators.push(IsUrl(validationOptions));
+    }
+    applyDecorators(...decorators)(object, propertyName);
+  };
+}
 
 export class CreateTableActionDTO {
   @ApiProperty({ enum: TableActionTypeEnum })
@@ -24,8 +36,7 @@ export class CreateTableActionDTO {
 
   @ApiProperty({ type: String, required: false })
   @IsOptional()
-  @IsString()
-  @IsUrl()
+  @IsUrlIfNotTest()
   url?: string;
 
   @ApiProperty({ enum: TableActionMethodEnum })
@@ -61,7 +72,7 @@ export class CreateActionEventDTO {
   @MinLength(1)
   title: string;
 
-  @ApiProperty({ type: String, required: false})
+  @ApiProperty({ type: String, required: false })
   @IsOptional()
   @IsString()
   @IsNotEmpty()

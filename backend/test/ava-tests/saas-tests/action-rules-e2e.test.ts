@@ -27,6 +27,8 @@ import {
 import { UpdateTableActionRuleBodyDTO } from '../../../src/entities/table-actions/table-action-rules-module/application/dto/update-action-rule-with-actions-and-events.dto.js';
 import { ActivatedTableActionsDTO } from '../../../src/entities/table-actions/table-action-rules-module/application/dto/activated-table-actions.dto.js';
 import nock from 'nock';
+import { CreateConnectionDto } from '../../../src/entities/connection/application/dto/create-connection.dto.js';
+import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/enums/connection-types-enum.js';
 
 const mockFactory = new MockFactory();
 let app: INestApplication;
@@ -905,6 +907,100 @@ test(`${currentTest} should return created table rule with action and events`, a
   t.truthy(slackActionRequestBody['text'].includes(testTableName));
   t.truthy(slackActionRequestBody['text'].includes(`[{"id":2}]`));
   scope.done();
+});
+
+//test impersonate action
+
+test(`${currentTest} should create impersonate action`, async (t) => {
+  const firstUser = await registerUserAndReturnUserInfo(app);
+  const secondUser = await registerUserAndReturnUserInfo(app);
+
+  const connectionToSaasDatabase: CreateConnectionDto = {
+    host: 'rocketadmin-private-microservice-test-database',
+    username: 'postgres',
+    password: 'abc987',
+    database: 'postgres',
+    port: 5432,
+    type: ConnectionTypesEnum.postgres,
+    masterEncryption: false,
+    ssh: false,
+  } as any;
+
+  const createConnectionResult = await request(app.getHttpServer())
+    .post('/connection')
+    .send(connectionToSaasDatabase)
+    .set('Cookie', firstUser.token)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+
+  const createConnectionRO = JSON.parse(createConnectionResult.text);
+  t.is(createConnectionResult.status, 201);
+
+  const actionTableName = `user_info`;
+
+  const url = `http://rocketadmin-private-microservice:3001/actions/impersonate/link`;
+  const tableRuleDTO: CreateTableActionRuleBodyDTO = {
+    title: 'Test impersonate rule',
+    table_name: actionTableName,
+    events: [
+      {
+        event: TableActionEventEnum.CUSTOM,
+        title: 'Impersonate',
+        icon: 'test-icon',
+        require_confirmation: false,
+      },
+    ],
+    table_actions: [
+      {
+        type: TableActionTypeEnum.multiple,
+        url: url,
+        method: TableActionMethodEnum.URL,
+        slack_url: undefined,
+        emails: [],
+      },
+    ],
+  };
+
+  const createTableRuleResult = await request(app.getHttpServer())
+    .post(`/action/rule/${createConnectionRO.id}`)
+    .send(tableRuleDTO)
+    .set('Cookie', firstUser.token)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+
+  const createTableRuleRO: FoundActionRulesWithActionsAndEventsDTO = JSON.parse(createTableRuleResult.text);
+  console.log('🚀 ~ test.only ~ createTableRuleRO:', createTableRuleRO)
+  t.is(createTableRuleResult.status, 201);
+
+  //get second user id from jwt token
+
+  const secondUserId = testUtils.verifyJwtToken(secondUser.token).sub;
+
+  //activate impersonate action and receive redirection link
+
+  const activateTableActionResult = await request(app.getHttpServer())
+    .post(`/event/actions/activate/${createTableRuleRO.events[0].id}/${createConnectionRO.id}`)
+    .send([{ id: secondUserId }])
+    .set('Cookie', firstUser.token)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+
+  const actionActivationRO = JSON.parse(activateTableActionResult.text);
+  t.is(activateTableActionResult.status, 201);
+  t.is(actionActivationRO.hasOwnProperty('location'), true);
+
+  const redirectionLink = actionActivationRO.location;
+  const getLinkResult = await fetch(redirectionLink, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      Accept: 'application/json',
+      Cookie: firstUser.token,
+    },
+    redirect: 'manual',
+  });
+
+  t.is(getLinkResult.status, 301);
 });
 
 currentTest = 'POST/PUT/DELETE /table/row/:slug';
