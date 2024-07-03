@@ -27,7 +27,7 @@ export class InviteMemberDialogComponent {
   ) { }
 
   ngOnInit(): void {
-    this.groups = this.company.connections;
+    this.groups = this.company.connections.sort((a, b) => a.isTestConnection - b.isTestConnection);
   }
 
   addCompanyMember() {
