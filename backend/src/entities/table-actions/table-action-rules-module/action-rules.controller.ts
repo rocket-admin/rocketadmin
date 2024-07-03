@@ -11,7 +11,7 @@ import {
   Put,
   BadRequestException,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { SentryInterceptor } from '../../../interceptors/sentry.interceptor.js';
 import { ConnectionEditGuard } from '../../../guards/connection-edit.guard.js';
 import { UseCaseType } from '../../../common/data-injection.tokens.js';
@@ -115,6 +115,7 @@ export class ActionRulesController {
     type: FoundActionRulesWithActionsAndEventsDTO,
     isArray: true,
   })
+  @ApiQuery({ name: 'tableName', required: true })
   @UseGuards(ConnectionReadGuard)
   @Get('/action/rules/:connectionId')
   async findActionRulesForTableWithEventsAndActions(
@@ -131,6 +132,7 @@ export class ActionRulesController {
     type: FoundActionEventDTO,
     isArray: true,
   })
+  @ApiQuery({ name: 'tableName', required: true })
   @UseGuards(ConnectionReadGuard)
   @Get('/action/events/custom/:connectionId')
   async findCustomEvents(
