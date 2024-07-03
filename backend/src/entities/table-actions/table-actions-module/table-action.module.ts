@@ -8,8 +8,6 @@ import { UserEntity } from '../../user/user.entity.js';
 import { TableActionsController } from './table-action.controller.js';
 import { TableActionEntity } from './table-action.entity.js';
 import { ActivateTableActionsUseCase } from './use-cases/activate-table-actions.use.case.js';
-import { FindTableActionsUseCase } from './use-cases/find-all-table-actions.use.case.js';
-import { FindTableActionUseCase } from './use-cases/find-table-action.use.case.js';
 
 @Module({
   imports: [TypeOrmModule.forFeature([TableActionEntity, UserEntity, LogOutEntity])],
@@ -19,16 +17,8 @@ import { FindTableActionUseCase } from './use-cases/find-table-action.use.case.j
       useClass: GlobalDatabaseContext,
     },
     {
-      provide: UseCaseType.FIND_TABLE_ACTIONS,
-      useClass: FindTableActionsUseCase,
-    },
-    {
       provide: UseCaseType.ACTIVATE_TABLE_ACTIONS,
       useClass: ActivateTableActionsUseCase,
-    },
-    {
-      provide: UseCaseType.FIND_TABLE_ACTION,
-      useClass: FindTableActionUseCase,
     },
   ],
   controllers: [TableActionsController],
