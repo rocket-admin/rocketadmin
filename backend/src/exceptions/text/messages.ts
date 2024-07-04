@@ -12,6 +12,8 @@ import { toPrettyErrorsMsg } from '../../helpers/index.js';
 import { enumToString } from '../../helpers/enum-to-string.js';
 import { UserRoleEnum } from '../../entities/user/enums/user-role.enum.js';
 import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/enums/connection-types-enum.js';
+import { TableActionMethodEnum } from '../../enums/table-action-method-enum.js';
+import { TableActionEventEnum } from '../../enums/table-action-event-enum.js';
 export const Messages = {
   ACCOUNT_SUSPENDED:
     'Your account has been suspended. Please reach out to your company administrator for assistance or contact our support team for further help',
@@ -333,4 +335,8 @@ export const Messages = {
   NOTHING_TO_REVOKE: `Nothing to revoke`,
   NO_USERS_FOUND_TO_UPDATE_ROLES: `No users found to update roles`,
   USER_ROLES_UPDATE_FAILED: `Failed to update user roles`,
+  INVALID_ACTION_METHOD: (method: string) =>
+    `Invalid action method ${method}, supported methods are ${enumToString(TableActionMethodEnum)}`,
+  INVALID_EVENT_TYPE: (type: string) =>
+    `Invalid event type ${type}, supported types are ${enumToString(TableActionEventEnum)}`,
 };

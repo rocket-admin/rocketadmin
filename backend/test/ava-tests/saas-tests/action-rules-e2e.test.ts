@@ -205,6 +205,123 @@ test(`${currentTest} should return created table rule with action and events`, a
   t.deepEqual(createdSingleAction.emails, []);
 });
 
+test(`${currentTest} throw validation exceptions when create dto includes null values`, async (t) => {
+  const { token } = await registerUserAndReturnUserInfo(app);
+  const createConnectionResult = await request(app.getHttpServer())
+    .post('/connection')
+    .send(newConnection)
+    .set('Cookie', token)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+
+  const createConnectionRO = JSON.parse(createConnectionResult.text);
+  t.is(createConnectionResult.status, 201);
+
+  const tableRuleDTO: CreateTableActionRuleBodyDTO = {
+    title: 'Test rule',
+    table_name: testTableName,
+    events: [
+      null,
+      {
+        event: TableActionEventEnum.ADD_ROW,
+        title: undefined,
+        icon: null,
+        require_confirmation: true,
+      },
+    ],
+    table_actions: [
+      {
+        type: TableActionTypeEnum.multiple,
+        url: faker.internet.url(),
+        method: 'wrong-method' as any,
+        slack_url: undefined,
+        emails: [faker.internet.email()],
+      },
+      {
+        type: TableActionTypeEnum.single,
+        url: undefined,
+        method: TableActionMethodEnum.SLACK,
+        slack_url: faker.internet.url(),
+        emails: undefined,
+      },
+      null,
+    ],
+  };
+
+  const createTableRuleResult = await request(app.getHttpServer())
+    .post(`/action/rule/${createConnectionRO.id}`)
+    .send(tableRuleDTO)
+    .set('Cookie', token)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+
+  const createTableRuleRO = JSON.parse(createTableRuleResult.text);
+  console.log('🚀 ~ test ~ createTableRuleRO:', createTableRuleRO);
+  t.is(createTableRuleResult.status, 400);
+  const { message } = createTableRuleRO;
+  t.truthy(message);
+  t.truthy(message.includes('each value in table_actions must be an object'));
+  t.truthy(message.includes('each value in events must be an object'));
+  t.truthy(message.includes('each value in events should not be empty'));
+  t.truthy(message.includes('each value in table_actions should not be empty'));
+});
+
+test(`${currentTest} throw validation exceptions when create dto includes wrong values`, async (t) => {
+  const { token } = await registerUserAndReturnUserInfo(app);
+  const createConnectionResult = await request(app.getHttpServer())
+    .post('/connection')
+    .send(newConnection)
+    .set('Cookie', token)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+
+  const createConnectionRO = JSON.parse(createConnectionResult.text);
+  t.is(createConnectionResult.status, 201);
+
+  const tableRuleDTO: CreateTableActionRuleBodyDTO = {
+    title: 'Test rule',
+    table_name: testTableName,
+    events: [
+      {
+        event: TableActionEventEnum.ADD_ROW,
+        title: undefined,
+        icon: null,
+        require_confirmation: true,
+      },
+    ],
+    table_actions: [
+      {
+        type: TableActionTypeEnum.multiple,
+        url: faker.internet.url(),
+        method: 'wrong-method' as any,
+        slack_url: undefined,
+        emails: [faker.internet.email()],
+      },
+      {
+        type: TableActionTypeEnum.single,
+        url: undefined,
+        method: TableActionMethodEnum.SLACK,
+        slack_url: faker.internet.url(),
+        emails: undefined,
+      },
+    ],
+  };
+
+  const createTableRuleResult = await request(app.getHttpServer())
+    .post(`/action/rule/${createConnectionRO.id}`)
+    .send(tableRuleDTO)
+    .set('Cookie', token)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+
+  const createTableRuleRO = JSON.parse(createTableRuleResult.text);
+  console.log('🚀 ~ test ~ createTableRuleRO:', createTableRuleRO);
+  t.is(createTableRuleResult.status, 400);
+  const { message } = createTableRuleRO;
+  t.truthy(message);
+  t.truthy(message.includes('Invalid action method wrong-method'));
+});
+
 currentTest = `GET /action/rules/:connectionId`;
 
 test(`${currentTest} should return found table rules with action and events`, async (t) => {
@@ -971,7 +1088,6 @@ test(`${currentTest} should create impersonate action`, async (t) => {
     .set('Accept', 'application/json');
 
   const createTableRuleRO: FoundActionRulesWithActionsAndEventsDTO = JSON.parse(createTableRuleResult.text);
-  console.log('🚀 ~ test.only ~ createTableRuleRO:', createTableRuleRO);
   t.is(createTableRuleResult.status, 201);
 
   //get second user id from jwt token
