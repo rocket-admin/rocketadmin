@@ -13,7 +13,7 @@ export class RemoveRequireConfirmationReworkMethodEnumInTableAction1718874144113
     );
     await queryRunner.query(`ALTER TABLE "table_actions" ALTER COLUMN "method" DROP DEFAULT`);
     await queryRunner.query(
-      `ALTER TABLE "table_actions" ALTER COLUMN "method" TYPE "public"."table_actions_method_enum" USING "method"::"text"::"public"."table_actions_method_enum"`,
+      `ALTER TABLE "table_actions" ALTER COLUMN "method" TYPE "public"."table_actions_method_enum" USING replace("method"::"text", 'HTTP', 'URL')::"public"."table_actions_method_enum"`,
     );
     await queryRunner.query(`ALTER TABLE "table_actions" ALTER COLUMN "method" SET DEFAULT 'URL'`);
     await queryRunner.query(`DROP TYPE "public"."table_actions_method_enum_old"`);
