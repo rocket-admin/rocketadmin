@@ -16,7 +16,10 @@ import { SentryInterceptor } from '../../../interceptors/sentry.interceptor.js';
 import { ConnectionEditGuard } from '../../../guards/connection-edit.guard.js';
 import { UseCaseType } from '../../../common/data-injection.tokens.js';
 import { SlugUuid } from '../../../decorators/slug-uuid.decorator.js';
-import { CreateTableActionRuleBodyDTO } from './application/dto/create-action-rules-with-actions-and-events-body.dto.js';
+import {
+  CreateActionEventDTO,
+  CreateTableActionRuleBodyDTO,
+} from './application/dto/create-action-rules-with-actions-and-events-body.dto.js';
 import { InTransactionEnum } from '../../../enums/in-transaction.enum.js';
 import { CreateActionRuleDS } from './application/data-structures/create-action-rules.ds.js';
 import { UserId } from '../../../decorators/user-id.decorator.js';
@@ -42,6 +45,8 @@ import { ActivatedTableActionsDTO } from './application/dto/activated-table-acti
 import { ActivateEventActionsDS } from './application/data-structures/activate-rule-actions.ds.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { FoundTableActionRulesRoDTO } from './application/dto/found-table-action-rules.ro.dto.js';
+import { validateStringWithEnum } from '../../../helpers/validators/validate-string-with-enum.js';
+import { TableActionEventEnum } from '../../../enums/table-action-event-enum.js';
 
 @UseInterceptors(SentryInterceptor)
 @Controller()
@@ -106,6 +111,7 @@ export class ActionRulesController {
         action_emails: action.emails,
       })),
     };
+    this.validateEventsDataOrThrowException(tableRuleData.events);
     return await this.createTableActionRuleUseCase.execute(inputData, InTransactionEnum.ON);
   }
 
@@ -219,6 +225,7 @@ export class ActionRulesController {
         action_id: action.id,
       })),
     };
+    this.validateEventsDataOrThrowException(tableRuleData.events);
     return await this.updateTableActionRuleUseCase.execute(inputData, InTransactionEnum.ON);
   }
 
@@ -257,5 +264,13 @@ export class ActionRulesController {
       request_body: body,
     };
     return await this.activateTableActionsInRuleUseCase.execute(inputData);
+  }
+
+  private validateEventsDataOrThrowException(createEventsData: Array<CreateActionEventDTO>) {
+    createEventsData.forEach(({ event }) => {
+      if (!validateStringWithEnum(event, TableActionEventEnum)) {
+        throw new BadRequestException(Messages.INVALID_EVENT_TYPE(event));
+      }
+    });
   }
 }

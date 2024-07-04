@@ -13,6 +13,7 @@ import { ValidationHelper } from '../../../../helpers/validators/validation-help
 import { buildTableActionWithRule } from '../../table-actions-module/utils/build-table-action-with-rule.util.js';
 import { buildActionEventWithRule } from '../../table-action-events-module/utils/build-action-event-with-rule.util.js';
 import { buildFoundActionRulesWithActionsAndEventsDTO } from '../utils/build-found-action-rules-with-actions-and-events-dto.util.js';
+import { validateStringWithEnum } from '../../../../helpers/validators/validate-string-with-enum.js';
 
 @Injectable({ scope: Scope.REQUEST })
 export class CreateActionRuleUseCase
@@ -113,6 +114,9 @@ export class CreateActionRuleUseCase
         if (!action.action_slack_url) {
           throw new BadRequestException(Messages.SLACK_URL_MISSING);
         }
+      }
+      if (!validateStringWithEnum(action.action_method, TableActionMethodEnum)) {
+        throw new BadRequestException(Messages.INVALID_ACTION_METHOD(action.action_method));
       }
       if (action.action_method === TableActionMethodEnum.URL) {
         if (process.env.NODE_ENV === 'test') {
