@@ -12,7 +12,7 @@ import { CronJobsModule } from './entities/cron-jobs/cron-jobs.module.js';
 import { CustomFieldModule } from './entities/custom-field/custom-field.module.js';
 import { GroupModule } from './entities/group/group.module.js';
 import { PermissionModule } from './entities/permission/permission.module.js';
-import { TableActionModule } from './entities/table-actions/table-action.module.js';
+import { TableActionModule } from './entities/table-actions/table-actions-module/table-action.module.js';
 import { TableLogsModule } from './entities/table-logs/table-logs.module.js';
 import { TableSettingsModule } from './entities/table-settings/table-settings.module.js';
 import { TableModule } from './entities/table/table.module.js';
@@ -30,7 +30,7 @@ import { fileURLToPath } from 'url';
 import { SaasModule } from './microservices/saas-microservice/saas.module.js';
 import { SaaSGatewayModule } from './microservices/gateways/saas-gateway.ts/saas-gateway.module.js';
 import { CompanyInfoModule } from './entities/company-info/company-info.module.js';
-import { TableTriggersModule } from './entities/table-triggers/table-triggers.module.js';
+import { TableTriggersModule } from './entities/table-actions/table-action-rules-module/action-rules.module.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 

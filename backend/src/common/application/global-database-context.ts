@@ -24,9 +24,9 @@ import { ILogOutRepository } from '../../entities/log-out/repository/log-out-rep
 import { PermissionEntity } from '../../entities/permission/permission.entity.js';
 import { permissionCustomRepositoryExtension } from '../../entities/permission/repository/permission-custom-repository-extension.js';
 import { IPermissionRepository } from '../../entities/permission/repository/permission.repository.interface.js';
-import { ITableActionRepository } from '../../entities/table-actions/repository/table-action-custom-repository.interface.js';
-import { tableActionsCustomRepositoryExtension } from '../../entities/table-actions/repository/table-actions-custom-repository.extension.js';
-import { TableActionEntity } from '../../entities/table-actions/table-action.entity.js';
+import { ITableActionRepository } from '../../entities/table-actions/table-actions-module/repository/table-action-custom-repository.interface.js';
+import { tableActionsCustomRepositoryExtension } from '../../entities/table-actions/table-actions-module/repository/table-actions-custom-repository.extension.js';
+import { TableActionEntity } from '../../entities/table-actions/table-actions-module/table-action.entity.js';
 import { TableFieldInfoEntity } from '../../entities/table-field-info/table-field-info.entity.js';
 import { TableInfoEntity } from '../../entities/table-info/table-info.entity.js';
 import { tableLogsCustomRepositoryExtension } from '../../entities/table-logs/repository/table-logs-custom-repository-extension.js';
@@ -69,9 +69,12 @@ import { invitationInCompanyCustomRepositoryExtension } from '../../entities/com
 import { UserSessionSettingsEntity } from '../../entities/user/user-session-settings/user-session-settings.entity.js';
 import { userSessionSettingsRepositoryExtension } from '../../entities/user/user-session-settings/reposiotory/user-session-settings-custom-repository.extension.js';
 import { IUserSessionSettings } from '../../entities/user/user-session-settings/reposiotory/user-session-settings-repository.interface.js';
-import { TableTriggersEntity } from '../../entities/table-triggers/table-triggers.entity.js';
-import { ITableTriggersRepository } from '../../entities/table-triggers/repository/table-triggers-custom-repository.interface.js';
-import { tableTriggersCustomRepositoryExtension } from '../../entities/table-triggers/repository/table-triggers-custom-repository.js';
+import { ActionRulesEntity } from '../../entities/table-actions/table-action-rules-module/action-rules.entity.js';
+import { IActionRulesRepository } from '../../entities/table-actions/table-action-rules-module/repository/action-rules-custom-repository.interface.js';
+import { actionRulesCustomRepositoryExtension } from '../../entities/table-actions/table-action-rules-module/repository/action-rules-custom-repository.js';
+import { ActionEventsEntity } from '../../entities/table-actions/table-action-events-module/action-event.entity.js';
+import { IActionEventsRepository } from '../../entities/table-actions/table-action-events-module/repository/action-events-custom-repository.interface.js';
+import { actionEventsCustomRepositoryExtension } from '../../entities/table-actions/table-action-events-module/repository/action-events-custom-repository.extension.js';
 
 @Injectable({ scope: Scope.REQUEST })
 export class GlobalDatabaseContext implements IGlobalDatabaseContext {
@@ -96,12 +99,13 @@ export class GlobalDatabaseContext implements IGlobalDatabaseContext {
   private _tableWidgetsRepository: ITableWidgetsRepository;
   private _tableFieldInfoRepository: Repository<TableFieldInfoEntity>;
   private _tableInfoReposioty: Repository<TableInfoEntity>;
-  private _tableActionRepository: ITableActionRepository;
+  private _tableActionRepository: Repository<TableActionEntity> & ITableActionRepository;
   private _userGitHubIdentifierRepository: IUserGitHubIdentifierRepository;
   private _companyInfoRepository: Repository<CompanyInfoEntity> & ICompanyInfoRepository;
   private _invitationInCompanyRepository: Repository<InvitationInCompanyEntity> & IInvitationInCompanyRepository;
   private _userSessionSettingsRepository: Repository<UserSessionSettingsEntity> & IUserSessionSettings;
-  private _tableTriggersRepository: Repository<TableTriggersEntity> & ITableTriggersRepository;
+  private _actionRulesRepository: Repository<ActionRulesEntity> & IActionRulesRepository;
+  private _actionEventsRepository: Repository<ActionEventsEntity> & IActionEventsRepository;
 
   public constructor(
     @Inject(BaseType.DATA_SOURCE)
@@ -171,9 +175,12 @@ export class GlobalDatabaseContext implements IGlobalDatabaseContext {
     this._userSessionSettingsRepository = this.appDataSource
       .getRepository(UserSessionSettingsEntity)
       .extend(userSessionSettingsRepositoryExtension);
-    this._tableTriggersRepository = this.appDataSource
-      .getRepository(TableTriggersEntity)
-      .extend(tableTriggersCustomRepositoryExtension);
+    this._actionRulesRepository = this.appDataSource
+      .getRepository(ActionRulesEntity)
+      .extend(actionRulesCustomRepositoryExtension);
+    this._actionEventsRepository = this.appDataSource
+      .getRepository(ActionEventsEntity)
+      .extend(actionEventsCustomRepositoryExtension);
   }
 
   public get userRepository(): Repository<UserEntity> & IUserRepository {
@@ -252,7 +259,7 @@ export class GlobalDatabaseContext implements IGlobalDatabaseContext {
     return this._tableFieldInfoRepository;
   }
 
-  public get tableActionRepository(): ITableActionRepository {
+  public get tableActionRepository(): Repository<TableActionEntity> & ITableActionRepository {
     return this._tableActionRepository;
   }
 
@@ -272,8 +279,12 @@ export class GlobalDatabaseContext implements IGlobalDatabaseContext {
     return this._userSessionSettingsRepository;
   }
 
-  public get tableTriggersRepository(): Repository<TableTriggersEntity> & ITableTriggersRepository {
-    return this._tableTriggersRepository;
+  public get actionRulesRepository(): Repository<ActionRulesEntity> & IActionRulesRepository {
+    return this._actionRulesRepository;
+  }
+
+  public get actionEventsRepository(): Repository<ActionEventsEntity> & IActionEventsRepository {
+    return this._actionEventsRepository;
   }
 
   public startTransaction(): Promise<void> {

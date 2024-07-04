@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { QueryOrderingEnum } from '../../../../enums/index.js';
 import { CustomFieldsEntity } from '../../../custom-field/custom-fields.entity.js';
-import { TableActionEntity } from '../../../table-actions/table-action.entity.js';
+import { TableActionEntity } from '../../../table-actions/table-actions-module/table-action.entity.js';
 import { TableWidgetEntity } from '../../../widget/table-widget.entity.js';
 
 export class CreateTableSettingsDs {

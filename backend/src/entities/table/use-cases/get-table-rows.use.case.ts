@@ -14,7 +14,6 @@ import { hexToBinary, isBinary } from '../../../helpers/binary-to-hex.js';
 import { Constants } from '../../../helpers/constants/constants.js';
 import { isConnectionTypeAgent, isObjectEmpty } from '../../../helpers/index.js';
 import { AmplitudeService } from '../../amplitude/amplitude.service.js';
-import { buildCreatedTableActionDS } from '../../table-actions/utils/build-created-table-action-ds.js';
 import { TableLogsService } from '../../table-logs/table-logs.service.js';
 import { TableSettingsEntity } from '../../table-settings/table-settings.entity.js';
 import { FoundTableRowsDs } from '../application/data-structures/found-table-rows.ds.js';
@@ -36,6 +35,7 @@ import { ExceptionOperations } from '../../../exceptions/custom-exceptions/excep
 import Sentry from '@sentry/minimal';
 import { processRowsUtil } from '../utils/process-found-rows-util.js';
 import JSON5 from 'json5';
+import { buildActionEventDto } from '../../table-actions/table-action-rules-module/utils/build-found-action-event-dto.util.js';
 
 @Injectable()
 export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTableRowsDs> implements IGetTableRows {
@@ -80,7 +80,7 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
         tableWidgets,
         tableCustomFields,
         userTablePermissions,
-        tableActions,
+        customActionEvents,
         /* eslint-enable */
       ] = await Promise.all([
         this._dbContext.tableSettingsRepository.findTableSettings(connectionId, tableName),
@@ -90,7 +90,7 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
         this._dbContext.tableWidgetsRepository.findTableWidgets(connectionId, tableName),
         this._dbContext.customFieldsRepository.getCustomFields(connectionId, tableName),
         this._dbContext.userAccessRepository.getUserTablePermissions(userId, connectionId, tableName, masterPwd),
-        this._dbContext.tableActionRepository.findTableActions(connectionId, tableName),
+        this._dbContext.actionEventsRepository.findCustomEventsForTable(connectionId, tableName),
       ]);
 
       const filteringFields: Array<FilteringFieldsDs> = isObjectEmpty(filters)
@@ -214,7 +214,7 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
         identity_column: tableSettings.identity_column ? tableSettings.identity_column : null,
         table_permissions: userTablePermissions,
         list_fields: tableSettings.list_fields?.length > 0 ? tableSettings.list_fields : [],
-        table_actions: tableActions.map((el) => buildCreatedTableActionDS(el)),
+        action_events: customActionEvents.map((el) => buildActionEventDto(el)),
         large_dataset: largeDataset,
       };
 

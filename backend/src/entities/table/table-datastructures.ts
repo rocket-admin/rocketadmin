@@ -4,7 +4,7 @@ import {
   TablePermissionDs,
 } from '../permission/application/data-structures/create-permissions.ds.js';
 import { ITableAccessLevel } from '../permission/permission.interface.js';
-import { CreatedTableActionDS } from '../table-actions/application/data-sctructures/created-table-action.ds.js';
+import { FoundActionEventDTO } from '../table-actions/table-action-rules-module/application/dto/found-action-rules-with-actions-and-events.dto.js';
 import { TableWidgetRO } from '../widget/table-widget.interface.js';
 import { ApiProperty } from '@nestjs/swagger';
 
@@ -205,8 +205,8 @@ export class TableRowRODs {
   @ApiProperty({ isArray: true })
   list_fields: Array<string>;
 
-  @ApiProperty({ isArray: true, type: CreatedTableActionDS })
-  table_actions?: Array<CreatedTableActionDS>;
+  @ApiProperty({ isArray: true, type: FoundActionEventDTO })
+  action_events?: Array<FoundActionEventDTO>;
 
   @ApiProperty()
   identity_column: string;
