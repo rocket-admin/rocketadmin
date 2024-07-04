@@ -30,8 +30,8 @@ export function IsUrlIfNotTest(validationOptions?: IsURLOptions) {
 
 export class CreateTableActionDTO {
   @ApiProperty({ enum: TableActionTypeEnum })
-  @IsEnum(TableActionTypeEnum)
   @IsNotEmpty()
+  @IsEnum(TableActionTypeEnum)
   type: TableActionTypeEnum;
 
   @ApiProperty({ type: String, required: false })
@@ -40,8 +40,8 @@ export class CreateTableActionDTO {
   url?: string;
 
   @ApiProperty({ enum: TableActionMethodEnum, required: true })
-  @IsEnum(TableActionMethodEnum)
   @IsNotEmpty()
+  @IsEnum(TableActionMethodEnum)
   method: TableActionMethodEnum;
 
   @ApiProperty({ type: String, required: false })
@@ -61,8 +61,8 @@ export class CreateTableActionDTO {
 
 export class CreateActionEventDTO {
   @ApiProperty({ enum: TableActionEventEnum })
+  @IsNotEmpty()
   @IsEnum(TableActionEventEnum)
-  @IsNotEmpty({ each: true })
   event: TableActionEventEnum;
 
   @ApiProperty()
