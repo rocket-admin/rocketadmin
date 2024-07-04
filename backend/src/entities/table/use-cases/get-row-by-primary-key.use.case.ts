@@ -204,6 +204,7 @@ export class GetRowByPrimaryKeyUseCase
           return responseObject;
         }),
       );
+      //todo remove unnecessary fields
     return {
       row: rowData,
       foreignKeys: foreignKeysWithAutocompleteColumns,
@@ -213,11 +214,12 @@ export class GetRowByPrimaryKeyUseCase
       readonly_fields: tableSettings?.readonly_fields ? tableSettings.readonly_fields : [],
       list_fields: tableSettings?.list_fields?.length > 0 ? tableSettings.list_fields : [],
       action_events: customActionEvents.map((event) => buildActionEventDto(event)),
+      table_actions: customActionEvents.map((el) => buildActionEventDto(el)),
       identity_column: tableSettings?.identity_column ? tableSettings.identity_column : null,
       referenced_table_names_and_columns: referencedTableNamesAndColumnsWithTablesDisplayNames,
       display_name: tableSettings?.display_name ? tableSettings.display_name : null,
       table_access_level: tableAccessLevel.accessLevel,
-    };
+    } as any;
   }
 
   private async attachForeignColumnNames(

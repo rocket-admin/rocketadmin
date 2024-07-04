@@ -215,6 +215,7 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
         table_permissions: userTablePermissions,
         list_fields: tableSettings.list_fields?.length > 0 ? tableSettings.list_fields : [],
         action_events: customActionEvents.map((el) => buildActionEventDto(el)),
+        table_actions: customActionEvents.map((el) => buildActionEventDto(el)),
         large_dataset: largeDataset,
       };
 
