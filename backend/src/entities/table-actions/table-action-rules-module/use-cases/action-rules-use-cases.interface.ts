@@ -9,6 +9,7 @@ import {
   FoundActionEventDTO,
   FoundActionRulesWithActionsAndEventsDTO,
 } from '../application/dto/found-action-rules-with-actions-and-events.dto.js';
+import { FoundTableActionRulesRoDTO } from '../application/dto/found-table-action-rules.ro.dto.js';
 
 export interface ICreateActionRule {
   execute(
@@ -18,7 +19,7 @@ export interface ICreateActionRule {
 }
 
 export interface IFindActionRulesForTable {
-  execute(inputData: FindActionRulesDS): Promise<Array<FoundActionRulesWithActionsAndEventsDTO>>;
+  execute(inputData: FindActionRulesDS): Promise<FoundTableActionRulesRoDTO>;
 }
 
 export interface IFindCustomEvents {
