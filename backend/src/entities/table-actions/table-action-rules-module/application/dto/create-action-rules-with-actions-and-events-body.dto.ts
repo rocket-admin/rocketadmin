@@ -39,7 +39,7 @@ export class CreateTableActionDTO {
   @IsUrlIfNotTest()
   url?: string;
 
-  @ApiProperty({ enum: TableActionMethodEnum })
+  @ApiProperty({ enum: TableActionMethodEnum, required: true })
   @IsEnum(TableActionMethodEnum)
   @IsNotEmpty()
   method: TableActionMethodEnum;
@@ -62,7 +62,7 @@ export class CreateTableActionDTO {
 export class CreateActionEventDTO {
   @ApiProperty({ enum: TableActionEventEnum })
   @IsEnum(TableActionEventEnum)
-  @IsNotEmpty()
+  @IsNotEmpty({ each: true })
   event: TableActionEventEnum;
 
   @ApiProperty()
