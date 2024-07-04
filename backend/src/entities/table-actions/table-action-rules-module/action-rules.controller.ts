@@ -41,6 +41,7 @@ import { UpdateActionRuleDS } from './application/data-structures/update-action-
 import { ActivatedTableActionsDTO } from './application/dto/activated-table-actions.dto.js';
 import { ActivateEventActionsDS } from './application/data-structures/activate-rule-actions.ds.js';
 import { Messages } from '../../../exceptions/text/messages.js';
+import { FoundTableActionRulesRoDTO } from './application/dto/found-table-action-rules.ro.dto.js';
 
 @UseInterceptors(SentryInterceptor)
 @Controller()
@@ -112,7 +113,7 @@ export class ActionRulesController {
   @ApiResponse({
     status: 200,
     description: 'Return found rules for table with action and events.',
-    type: FoundActionRulesWithActionsAndEventsDTO,
+    type: FoundTableActionRulesRoDTO,
     isArray: true,
   })
   @ApiQuery({ name: 'tableName', required: true })
@@ -121,7 +122,7 @@ export class ActionRulesController {
   async findActionRulesForTableWithEventsAndActions(
     @SlugUuid('connectionId') connectionId: string,
     @QueryTableName() tableName: string,
-  ): Promise<Array<FoundActionRulesWithActionsAndEventsDTO>> {
+  ): Promise<FoundTableActionRulesRoDTO> {
     return await this.findActionRulesForTableUseCase.execute({ connectionId, tableName });
   }
 

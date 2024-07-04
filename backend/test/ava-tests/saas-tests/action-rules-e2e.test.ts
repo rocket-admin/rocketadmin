@@ -29,6 +29,7 @@ import { ActivatedTableActionsDTO } from '../../../src/entities/table-actions/ta
 import nock from 'nock';
 import { CreateConnectionDto } from '../../../src/entities/connection/application/dto/create-connection.dto.js';
 import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/enums/connection-types-enum.js';
+import { FoundTableActionRulesRoDTO } from '../../../src/entities/table-actions/table-action-rules-module/application/dto/found-table-action-rules.ro.dto.js';
 
 const mockFactory = new MockFactory();
 let app: INestApplication;
@@ -268,12 +269,12 @@ test(`${currentTest} should return found table rules with action and events`, as
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
 
-  const findTableRulesRO: Array<FoundActionRulesWithActionsAndEventsDTO> = JSON.parse(findTableRuleResult.text);
+  const findTableRulesRO: FoundTableActionRulesRoDTO = JSON.parse(findTableRuleResult.text);
 
   t.is(findTableRuleResult.status, 200);
 
-  t.is(findTableRulesRO.length, 1);
-  const findTableRuleRO = findTableRulesRO[0];
+  t.is(findTableRulesRO.action_rules.length, 1);
+  const findTableRuleRO = findTableRulesRO.action_rules[0];
 
   t.truthy(findTableRuleRO.id);
   t.is(findTableRuleRO.title, tableRuleDTO.title);
@@ -488,11 +489,11 @@ test(`${currentTest} should delete table action rule with action and events and 
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
 
-  const findTableRulesRO: Array<FoundActionRulesWithActionsAndEventsDTO> = JSON.parse(findTableRuleResult.text);
+  const findTableRulesRO: FoundTableActionRulesRoDTO = JSON.parse(findTableRuleResult.text);
 
   t.is(findTableRuleResult.status, 200);
 
-  t.is(findTableRulesRO.length, 0);
+  t.is(findTableRulesRO.action_rules.length, 0);
 });
 
 currentTest = `GET /action/rule/:actionId/:connectionId`;
@@ -771,11 +772,12 @@ test(`${currentTest} should return created table rule with action and events`, a
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
 
-  const findTableRulesRO: Array<FoundActionRulesWithActionsAndEventsDTO> = JSON.parse(findTableRuleResult.text);
+  const findTableRulesRO: FoundTableActionRulesRoDTO = JSON.parse(findTableRuleResult.text);
 
   t.is(findTableRuleResult.status, 200);
-  t.is(findTableRulesRO.length, 1);
-  const findTableRuleRO = findTableRulesRO[0];
+  t.truthy(findTableRulesRO.action_rules);
+  t.is(findTableRulesRO.action_rules.length, 1);
+  const findTableRuleRO = findTableRulesRO.action_rules[0];
 
   t.truthy(findTableRuleRO.id);
   t.is(findTableRuleRO.title, updateTableRuleDTO.title);
@@ -969,7 +971,7 @@ test(`${currentTest} should create impersonate action`, async (t) => {
     .set('Accept', 'application/json');
 
   const createTableRuleRO: FoundActionRulesWithActionsAndEventsDTO = JSON.parse(createTableRuleResult.text);
-  console.log('🚀 ~ test.only ~ createTableRuleRO:', createTableRuleRO)
+  console.log('🚀 ~ test.only ~ createTableRuleRO:', createTableRuleRO);
   t.is(createTableRuleResult.status, 201);
 
   //get second user id from jwt token
