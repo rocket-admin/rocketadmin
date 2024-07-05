@@ -251,7 +251,7 @@ export class DbTableComponent implements OnInit {
   }
 
   stashUrlParams() {
-    this._tableState.setBackUrlParams(this.paginator.pageIndex, this.paginator.pageSize);
+    this._tableState.setBackUrlParams(this.paginator.pageIndex, this.paginator.pageSize, this.sort.active, this.sort.direction);
     this.stashFilters();
   }
 

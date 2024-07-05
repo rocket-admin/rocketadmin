@@ -3,7 +3,7 @@ import jwt from 'jsonwebtoken';
 import { IRequestWithCognitoInfo } from '../src/authorization/index.js';
 import { CreateConnectionPropertiesDto } from '../src/entities/connection-properties/dto/index.js';
 import { CreateGroupDto } from '../src/entities/group/dto/index.js';
-import { TableActionEntity } from '../src/entities/table-actions/table-action.entity.js';
+import { TableActionEntity } from '../src/entities/table-actions/table-actions-module/table-action.entity.js';
 import { CreateTableWidgetDto } from '../src/entities/widget/dto/index.js';
 import {
   AccessLevelEnum,
@@ -17,7 +17,7 @@ import json5 from 'json5';
 import { ConnectionTypeTestEnum } from '../src/enums/connection-type.enum.js';
 import { CreateConnectionDto } from '../src/entities/connection/application/dto/create-connection.dto.js';
 import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/enums/connection-types-enum.js';
-import { CreateTableActionDTO } from '../src/entities/table-actions/dto/create-table-action.dto.js';
+import { CreateTableActionDTO } from '../src/entities/table-actions/table-actions-module/dto/create-table-action.dto.js';
 export class MockFactory {
   generateCognitoUserName() {
     return 'a876284a-e902-11ea-adc1-0242ac120002';
@@ -822,7 +822,6 @@ export class MockFactory {
   public generateNewTableAction(): TableActionEntity | CreateTableActionDTO {
     const newTableAction = new TableActionEntity();
     newTableAction.url = faker.internet.url();
-    newTableAction.title = faker.lorem.words(2);
     newTableAction.type = TableActionTypeEnum.single;
     return newTableAction;
   }

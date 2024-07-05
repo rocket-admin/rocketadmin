@@ -12,6 +12,8 @@ import { toPrettyErrorsMsg } from '../../helpers/index.js';
 import { enumToString } from '../../helpers/enum-to-string.js';
 import { UserRoleEnum } from '../../entities/user/enums/user-role.enum.js';
 import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/enums/connection-types-enum.js';
+import { TableActionMethodEnum } from '../../enums/table-action-method-enum.js';
+import { TableActionEventEnum } from '../../enums/table-action-event-enum.js';
 export const Messages = {
   ACCOUNT_SUSPENDED:
     'Your account has been suspended. Please reach out to your company administrator for assistance or contact our support team for further help',
@@ -91,6 +93,7 @@ export const Messages = {
       EncryptionAlgorithmEnum,
     )} algorithms.`,
   EMAILS_NOT_IN_COMPANY: (emails: Array<string>) => `Emails ${emails.join(', ')} are not in the company`,
+  EMAILS_REQUIRED_FOR_EMAIL_ACTION: `Emails are required for email action`,
   ERROR_MESSAGE: 'Error message: ',
   ERROR_MESSAGE_ORIGINAL: 'Error message from database: ',
   EXCLUDED_OR_NOT_EXISTS: (fieldName: string) =>
@@ -156,6 +159,7 @@ export const Messages = {
   MASTER_PASSWORD_REQUIRED: `A master password is required if you want to apply additional encryption.`,
   MUST_BE_ARRAY: (fieldName: string) => `The field "${fieldName}" must be an array`,
   MUST_CONTAIN_ARRAY_OF_PRIMARY_KEYS: `Body must contain array of primary keys`,
+  NO_CUSTOM_ACTIONS_FOUND_FOR_THIS_RULE: `No custom actions found for this rule`,
   NO_SUCH_FIELDS_IN_TABLES: (fields: Array<string>, tableName: string) =>
     `There are no such fields: ${fields.join(', ')} - in the table "${tableName}"`,
   NO_SUCH_FIELD_IN_TABLE: (fieldName: string, tableName: string) =>
@@ -199,6 +203,7 @@ export const Messages = {
       paramsNames.length > 1 ? 'are' : 'is'
     } missing`,
   ROW_PRIMARY_KEY_NOT_FOUND: 'Row with this primary key not found',
+  RULE_NOT_FOUND: 'Rule not found',
   SAAS_COMPANY_NOT_REGISTERED_WITH_USER_INVITATION: `Failed to invite user in SaaS. Please contact our support team.`,
   SAAS_UPDATE_USERS_ROLES_FAILED_UNHANDLED_ERROR: `Failed to update users roles in SaaS. Please contact our support team.`,
   SAAS_DELETE_COMPANY_FAILED_UNHANDLED_ERROR: `Failed to delete company in SaaS. Please contact our support team.`,
@@ -206,6 +211,7 @@ export const Messages = {
   SAAS_SUSPEND_USERS_FAILED_UNHANDLED_ERROR: `Failed to suspend users in SaaS. Please contact our support team.`,
   SAAS_UNSUSPEND_USERS_FAILED_UNHANDLED_ERROR: `Failed to unsuspend users in SaaS. Please contact our support team.`,
   SLACK_CREDENTIALS_MISSING: 'Slack credentials are missing',
+  SLACK_URL_MISSING: 'Slack url is missing',
   SOMETHING_WENT_WRONG_ROW_ADD: 'Something went wrong on row insertion, check inserted parameters and try again',
   SSH_FORMAT_INCORRECT: 'Ssh value must be a boolean',
   SSH_HOST_MISSING: 'Ssh host is missing',
@@ -330,4 +336,8 @@ export const Messages = {
   NOTHING_TO_REVOKE: `Nothing to revoke`,
   NO_USERS_FOUND_TO_UPDATE_ROLES: `No users found to update roles`,
   USER_ROLES_UPDATE_FAILED: `Failed to update user roles`,
+  INVALID_ACTION_METHOD: (method: string) =>
+    `Invalid action method ${method}, supported methods are ${enumToString(TableActionMethodEnum)}`,
+  INVALID_EVENT_TYPE: (type: string) =>
+    `Invalid event type ${type}, supported types are ${enumToString(TableActionEventEnum)}`,
 };

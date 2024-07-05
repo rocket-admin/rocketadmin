@@ -1,6 +1,6 @@
+import { BehaviorSubject } from 'rxjs';
 import { Injectable } from '@angular/core';
 import { TableRow } from '../models/table';
-import { BehaviorSubject } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -13,10 +13,12 @@ export class TableStateService {
   private backUrlFilters: any;
   private backUrlParams: any;
 
-  setBackUrlParams(pageIndex, pageSize) {
+  setBackUrlParams(pageIndex, pageSize, sortField, sortDirection) {
     this.backUrlParams = {
       page_index: pageIndex,
-      page_size: pageSize
+      page_size: pageSize,
+      sort_active: sortField,
+      sort_direction: sortDirection
     };
   }
 

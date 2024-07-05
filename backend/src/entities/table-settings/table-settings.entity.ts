@@ -3,7 +3,7 @@ import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColum
 import { QueryOrderingEnum } from '../../enums/index.js';
 import { ConnectionEntity } from '../connection/connection.entity.js';
 import { CustomFieldsEntity } from '../custom-field/custom-fields.entity.js';
-import { TableActionEntity } from '../table-actions/table-action.entity.js';
+import { TableActionEntity } from '../table-actions/table-actions-module/table-action.entity.js';
 import { TableWidgetEntity } from '../widget/table-widget.entity.js';
 
 @Entity('tableSettings')
