@@ -9,4 +9,7 @@ export class CreatedApiKeyDto {
 
   @ApiProperty()
   hash: string;
+
+  @ApiProperty()
+  created_at: Date;
 }

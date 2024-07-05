@@ -23,7 +23,8 @@ export class DeleteApiKeyUseCase extends AbstractUseCase<FindApiKeyDS, FoundApiK
     if (!foundApiKey) {
       throw new NotFoundException(Messages.API_KEY_NOT_FOUND);
     }
-    await this._dbContext.userApiKeysRepository.delete({ id: apiKeyId });
-    return buildFoundApiKeyDS(foundApiKey);
+    const foundApiKeyCopy = Object.assign({}, foundApiKey);
+    await this._dbContext.userApiKeysRepository.remove(foundApiKey);
+    return buildFoundApiKeyDS(foundApiKeyCopy);
   }
 }

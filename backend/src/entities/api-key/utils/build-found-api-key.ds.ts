@@ -5,5 +5,6 @@ export function buildFoundApiKeyDS(apiKey: UserApiKeyEntity): FoundApiKeyDS {
   return {
     id: apiKey.id,
     title: apiKey.title,
+    created_at: apiKey.created_at,
   };
 }

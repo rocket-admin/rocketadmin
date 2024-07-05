@@ -19,6 +19,9 @@ export class UserApiKeyEntity {
   @JoinColumn()
   user: Relation<UserEntity>;
 
+  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  created_at: Date;
+
   @BeforeInsert()
   async generateHash() {
     this.hash = await Encryptor.processDataWithAlgorithm(this.hash, EncryptionAlgorithmEnum.sha256);

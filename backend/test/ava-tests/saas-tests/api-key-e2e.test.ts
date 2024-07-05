@@ -231,7 +231,7 @@ test(`${currentTest} should delete api key and return deleted key`, async (t) =>
     const apiKeyToDeletion = createdApiKeys[Math.floor(Math.random() * createdApiKeys.length)];
 
     const deleteApiKeyResult = await request(app.getHttpServer())
-      .get(`/apikey/${apiKeyToDeletion.id}`)
+      .delete(`/apikey/${apiKeyToDeletion.id}`)
       .set('Cookie', token)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');

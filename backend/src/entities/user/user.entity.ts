@@ -110,7 +110,6 @@ export class UserEntity {
   @OneToMany((type) => UserApiKeyEntity, (api_key) => api_key.user)
   api_keys: Relation<UserApiKeyEntity>[];
 
-
   @Column({ default: false })
   isActive: boolean;
 

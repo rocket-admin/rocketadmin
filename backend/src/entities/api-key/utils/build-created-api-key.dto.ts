@@ -7,5 +7,6 @@ export function buildCreatedApiKeyDto(apiKey: UserApiKeyEntity | CreatedApiKeyDS
     id: apiKey.id,
     title: apiKey.title,
     hash: apiKey.hash,
+    created_at: apiKey.created_at,
   };
 }
