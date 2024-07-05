@@ -2999,7 +2999,10 @@ test(`${currentTest} should not return all found logs in connection, when table 
 
     t.is(updateConnectionResponse.status, 200);
 
-    const newConnectionProperties = mockFactory.generateConnectionPropertiesUserExcluded(null, false);
+    const newConnectionProperties = mockFactory.generateConnectionPropertiesUserExcluded(
+      firstTableInfo.testTableName,
+      false,
+    );
 
     const createConnectionPropertiesResponse = await request(app.getHttpServer())
       .post(`/connection/properties/${connections.firstId}`)
@@ -3008,7 +3011,7 @@ test(`${currentTest} should not return all found logs in connection, when table 
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
 
-    t.is(createConnectionPropertiesResponse.status, 201);  
+    t.is(createConnectionPropertiesResponse.status, 201);
 
     const addRowInTable = await request(app.getHttpServer())
       .post(`/table/row/${connections.firstId}?tableName=${firstTableInfo.testTableName}`)
