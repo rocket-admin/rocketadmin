@@ -2219,7 +2219,7 @@ test(`${currentTest} should not return all found logs in connection, when table 
 
     t.is(updateConnectionResponse.status, 200);
 
-    const newConnectionProperties = mockFactory.generateConnectionPropertiesUserExcluded(null, false);
+    const newConnectionProperties = mockFactory.generateConnectionPropertiesUserExcluded(firstTableInfo.testTableName, false);
 
     const createConnectionPropertiesResponse = await request(app.getHttpServer())
       .post(`/connection/properties/${connections.firstId}`)
