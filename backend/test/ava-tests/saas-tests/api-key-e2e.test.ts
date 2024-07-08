@@ -14,10 +14,13 @@ import { TestUtils } from '../../utils/test.utils.js';
 import { registerUserAndReturnUserInfo } from '../../utils/register-user-and-return-user-info.js';
 import { Messages } from '../../../src/exceptions/text/messages.js';
 import { faker } from '@faker-js/faker';
+import { createTestTable } from '../../utils/create-test-table.js';
+import { getTestData } from '../../utils/get-test-data.js';
+import { MockFactory } from '../../mock.factory.js';
 
 let app: INestApplication;
 let currentTest: string;
-// let testUtils: TestUtils;
+const mockFactory = new MockFactory();
 
 test.before(async () => {
   const moduleFixture = await Test.createTestingModule({
@@ -44,6 +47,67 @@ currentTest = `POST /apikey`;
 
 test(`${currentTest} should return created api key for this user`, async (t) => {
   try {
+    const connectionToTestDB = getTestData(mockFactory).connectionToPostgres;
+    const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
+    const { testTableName } = await createTestTable(connectionToTestDB);
+
+    const apiKeyTitle = 'Test API Key';
+
+    const createApiKeyResult = await request(app.getHttpServer())
+      .post('/apikey')
+      .send({ title: apiKeyTitle })
+      .set('Content-Type', 'application/json')
+      .set('Cookie', firstUserToken)
+      .set('Accept', 'application/json');
+
+    t.is(createApiKeyResult.status, 201);
+    const createApiKeyRO = JSON.parse(createApiKeyResult.text);
+    t.is(createApiKeyRO.title, apiKeyTitle);
+    t.truthy(createApiKeyRO.hash);
+    t.truthy(createApiKeyRO.hash.includes('sk_'));
+    t.truthy(createApiKeyRO.id);
+
+    // check that user has access to table controller
+
+    const createConnectionResponse = await request(app.getHttpServer())
+      .post('/connection')
+      .send(connectionToTestDB)
+      .set('Cookie', firstUserToken)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+    const createConnectionRO = JSON.parse(createConnectionResponse.text);
+    t.is(createConnectionResponse.status, 201);
+
+    const getTablesResponse = await request(app.getHttpServer())
+      .get(`/connection/tables/${createConnectionRO.id}`)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json')
+      .set('x-api-key', createApiKeyRO.hash);
+
+    const getTablesRO = JSON.parse(getTablesResponse.text);
+    t.is(typeof getTablesRO, 'object');
+    t.is(getTablesRO.length > 0, true);
+
+    const testTableIndex = getTablesRO.findIndex((t) => t.table === testTableName);
+
+    t.is(getTablesRO[testTableIndex].hasOwnProperty('table'), true);
+    t.is(getTablesRO[testTableIndex].hasOwnProperty('permissions'), true);
+    t.is(typeof getTablesRO[testTableIndex].permissions, 'object');
+    t.is(Object.keys(getTablesRO[testTableIndex].permissions).length, 5);
+    t.is(getTablesRO[testTableIndex].table, testTableName);
+    t.is(getTablesRO[testTableIndex].permissions.visibility, true);
+    t.is(getTablesRO[testTableIndex].permissions.readonly, false);
+    t.is(getTablesRO[testTableIndex].permissions.add, true);
+    t.is(getTablesRO[testTableIndex].permissions.delete, true);
+    t.is(getTablesRO[testTableIndex].permissions.edit, true);
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+});
+
+test(`${currentTest} user should have access to table controller by api key`, async (t) => {
+  try {
     const adminUserRegisterInfo = await registerUserAndReturnUserInfo(app);
     const { token } = adminUserRegisterInfo;
 
@@ -66,7 +130,6 @@ test(`${currentTest} should return created api key for this user`, async (t) => 
     console.error(error);
     throw error;
   }
-  t.pass();
 });
 
 test(`${currentTest} should throw an exception when title not passed`, async (t) => {
@@ -87,7 +150,6 @@ test(`${currentTest} should throw an exception when title not passed`, async (t)
     console.error(error);
     throw error;
   }
-  t.pass();
 });
 
 currentTest = `GET /apikeys`;
@@ -128,7 +190,6 @@ test(`${currentTest} should return all users api keys`, async (t) => {
     console.error(error);
     throw error;
   }
-  t.pass();
 });
 
 currentTest = `GET /apikey/:apiKeyId`;
@@ -169,7 +230,6 @@ test(`${currentTest} should return found user api key`, async (t) => {
     console.error(error);
     throw error;
   }
-  t.pass();
 });
 
 test(`${currentTest} should throw an exception when key with id not exist in database`, async (t) => {
@@ -206,7 +266,6 @@ test(`${currentTest} should throw an exception when key with id not exist in dat
     console.error(error);
     throw error;
   }
-  t.pass();
 });
 
 test(`${currentTest} should delete api key and return deleted key`, async (t) => {
@@ -245,18 +304,16 @@ test(`${currentTest} should delete api key and return deleted key`, async (t) =>
     // check that key is deleted
 
     const getApiKeyResult = await request(app.getHttpServer())
-    .get(`/apikey/${apiKeyToDeletion.id}`)
-    .set('Cookie', token)
-    .set('Content-Type', 'application/json')
-    .set('Accept', 'application/json');
+      .get(`/apikey/${apiKeyToDeletion.id}`)
+      .set('Cookie', token)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
 
-  t.is(getApiKeyResult.status, 404);
-  const getApiKeyRO = JSON.parse(getApiKeyResult.text);
-  t.is(getApiKeyRO.message, Messages.API_KEY_NOT_FOUND);
-
+    t.is(getApiKeyResult.status, 404);
+    const getApiKeyRO = JSON.parse(getApiKeyResult.text);
+    t.is(getApiKeyRO.message, Messages.API_KEY_NOT_FOUND);
   } catch (error) {
     console.error(error);
     throw error;
   }
-  t.pass();
 });

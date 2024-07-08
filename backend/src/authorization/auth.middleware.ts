@@ -56,16 +56,6 @@ export class AuthMiddleware implements NestMiddleware {
       if (!userId) {
         throw new Error('JWT verification failed');
       }
-      // const foundUser = await this.userRepository.findOne({ where: { id: userId } });
-      // if (!foundUser) {
-      //   throw new HttpException(
-      //     {
-      //       message: Messages.USER_NOT_FOUND,
-      //     },
-      //     HttpStatus.UNAUTHORIZED,
-      //   );
-      // }
-
       const addedScope: Array<JwtScopesEnum> = data['scope'];
       if (addedScope && addedScope.length > 0) {
         if (addedScope.includes(JwtScopesEnum.TWO_FA_ENABLE)) {
