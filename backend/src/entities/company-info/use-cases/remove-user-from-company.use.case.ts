@@ -33,6 +33,14 @@ export class RemoveUserFromCompanyUseCase
         HttpStatus.NOT_FOUND,
       );
     }
+    if (foundCompanyWithUsers.users.length === 1) {
+      throw new HttpException(
+        {
+          message: Messages.CANT_REMOVE_LAST_USER_FROM_COMPANY,
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
     const foundUser = foundCompanyWithUsers.users.find((user) => user.id === userId);
     if (!foundUser) {
       throw new HttpException(

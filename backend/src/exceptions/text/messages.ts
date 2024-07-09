@@ -38,6 +38,7 @@ export const Messages = {
   CANT_CREATE_PERMISSION_TYPE_GROUP: 'You can not create more than one permission of type "Group" for the same group',
   CANT_DELETE_ADMIN_GROUP: 'You can not delete Admin group from connection',
   CANT_DELETE_LAST_USER: 'You can not delete the last user from the Admin group',
+  CANT_REMOVE_LAST_USER_FROM_COMPANY: 'You can not remove the last user from the company.',
   CANT_DELETE_PERMISSION_ADMIN_GROUP: `You can not delete editing permission for Connection from Admin group`,
   CANT_CONNECT_AUTOADMIN_WS: `Connection to autoadmin websocket server failed.`,
   CANT_INSERT_DUPLICATE_KEY: 'You can not insert duplicate Key values into database',
