@@ -20,9 +20,8 @@ export class AuthWithApiMiddleware implements NestMiddleware {
   ) {}
 
   async use(req: Request, res: Response, next: (err?: any, res?: any) => void): Promise<void> {
-    console.info(`auth with api middleware triggered ->: ${new Date().toISOString()}`);
+    console.info(`Auth with api middleware triggered ->: ${new Date().toISOString()}`);
     try {
-      console.info(`Auth with API middleware triggered ->: ${new Date().toISOString()}`);
       await this.authenticateRequest(req);
       next();
     } catch (error) {

@@ -93,11 +93,12 @@ export class TableController {
     protected _dbContext: IGlobalDatabaseContext,
   ) {}
 
-  @ApiOperation({ summary: 'Get tables from connection' })
+  @ApiOperation({ summary: 'Get tables from connection. API+' })
   @ApiResponse({
     status: 200,
     description: 'Returns all tables from connection.',
-    type: Array<FoundTableDs>,
+    type: FoundTableDs,
+    isArray: true,
   })
   @Get('/connection/tables/:slug')
   async findTablesInConnection(
@@ -124,7 +125,7 @@ export class TableController {
     return await this.findTablesInConnectionUseCase.execute(inputData, InTransactionEnum.OFF);
   }
 
-  @ApiOperation({ summary: 'Get all table rows' })
+  @ApiOperation({ summary: 'Get all table rows. API+' })
   @ApiResponse({
     status: 200,
     description: 'Returns all table rows.',
@@ -175,7 +176,7 @@ export class TableController {
     return await this.getTableRowsUseCase.execute(inputData, InTransactionEnum.OFF);
   }
 
-  @ApiOperation({ summary: 'Get all table rows with filter parameters in body' })
+  @ApiOperation({ summary: 'Get all table rows with filter parameters in body. API+' })
   @ApiResponse({
     status: 200,
     description: 'Returns all table rows.',
@@ -229,7 +230,7 @@ export class TableController {
     return await this.getTableRowsUseCase.execute(inputData, InTransactionEnum.OFF);
   }
 
-  @ApiOperation({ summary: 'Get table structure' })
+  @ApiOperation({ summary: 'Get table structure. API+' })
   @ApiResponse({
     status: 200,
     description: 'Returns table structure.',
@@ -260,7 +261,7 @@ export class TableController {
     return await this.getTableStructureUseCase.execute(inputData, InTransactionEnum.OFF);
   }
 
-  @ApiOperation({ summary: 'Add row in table' })
+  @ApiOperation({ summary: 'Add row in table. API+' })
   @ApiBody({ type: Object })
   @ApiResponse({
     status: 201,
@@ -294,7 +295,7 @@ export class TableController {
     };
     return await this.addRowInTableUseCase.execute(inputData, InTransactionEnum.OFF);
   }
-  @ApiOperation({ summary: 'Update row in table by primary key' })
+  @ApiOperation({ summary: 'Update row in table by primary key. API+' })
   @ApiBody({ type: Object })
   @ApiResponse({
     status: 200,
@@ -336,7 +337,7 @@ export class TableController {
     return await this.updateRowInTableUseCase.execute(inputData, InTransactionEnum.OFF);
   }
 
-  @ApiOperation({ summary: 'Delete row from table by primary key' })
+  @ApiOperation({ summary: 'Delete row from table by primary key. API+' })
   @ApiResponse({
     status: 200,
     description: 'Delete row from table.',
@@ -375,11 +376,12 @@ export class TableController {
     return await this.deleteRowFromTableUseCase.execute(inputData, InTransactionEnum.OFF);
   }
 
-  @ApiOperation({ summary: 'Multiple delete rows from table by primary key' })
+  @ApiOperation({ summary: 'Multiple delete rows from table by primary key. API+' })
   @ApiResponse({
     status: 200,
     description: 'Delete rows from table.',
-    type: Array<Record<string, unknown>>,
+    type: Object,
+    isArray: true,
   })
   @UseGuards(TableDeleteGuard)
   @Put('/table/rows/delete/:slug')
@@ -416,11 +418,11 @@ export class TableController {
     return await this.deleteRowsFromTableUseCase.execute(inputData, InTransactionEnum.OFF);
   }
 
-  @ApiOperation({ summary: 'Multiple update rows in table by primary key' })
+  @ApiOperation({ summary: 'Multiple update rows in table by primary key. API+' })
   @ApiResponse({
     status: 200,
     description: 'Update rows in table.',
-    type: UpdateRowsDto,
+    type: SuccessResponse,
   })
   @UseGuards(TableEditGuard)
   @Put('/table/rows/update/:slug')
@@ -451,7 +453,7 @@ export class TableController {
     return await this.bulkUpdateRowsInTableUseCase.execute(inputData, InTransactionEnum.OFF);
   }
 
-  @ApiOperation({ summary: 'Get row from table by primary key' })
+  @ApiOperation({ summary: 'Get row from table by primary key. API+' })
   @ApiResponse({
     status: 200,
     description: 'Get row from table.',
@@ -500,7 +502,7 @@ export class TableController {
     }
   }
 
-  @ApiOperation({ summary: 'Export table as csv file' })
+  @ApiOperation({ summary: 'Export table as csv file. API+' })
   @ApiResponse({
     status: 201,
     description: 'Export table as csv file.',
@@ -553,12 +555,12 @@ export class TableController {
     return await this.exportCSVFromTableUseCase.execute(inputData, InTransactionEnum.OFF);
   }
 
-  @ApiOperation({ summary: 'Import csv file in table' })
+  @ApiOperation({ summary: 'Import csv file in table. API+' })
   @ApiResponse({
     status: 201,
     description: 'Import csv file in table.',
+    type: SuccessResponse,
   })
-  // @ApiBody({ type: FindAllRowsWithBodyFiltersDto })
   @UseGuards(TableEditGuard)
   @Post('/table/csv/import/:slug')
   @UseInterceptors(FileInterceptor('file'))
