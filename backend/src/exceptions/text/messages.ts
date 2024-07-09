@@ -82,6 +82,7 @@ export const Messages = {
   CSV_EXPORT_DISABLED: 'CSV export is disabled',
   CSV_IMPORT_FAILED: 'CSV import failed',
   CSV_IMPORT_DISABLED: 'CSV import is disabled',
+  CSV_IMPORT_DISABLED_FOR_TEST_CONNECTIONS: 'CSV import is disabled for test connections',
   DATABASE_MISSING: 'Database is missing',
   DELETE_ROW_FAILED: 'Row deletion failed',
   DESCRIPTION_MISSING: 'Description is missing',
