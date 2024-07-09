@@ -25,6 +25,16 @@ export class SaasCompanyGatewayService extends BaseSaasGatewayService {
       gitHubId,
     });
 
+    if (registrationResult.status > 299) {
+      throw new HttpException(
+        {
+          message: Messages.FAILED_REGISTER_COMPANY_AND_INVITE_USER_IN_GROUP_UNHANDLED_ERROR,
+          originalMessage: registrationResult?.body?.message ? registrationResult.body.message : undefined,
+        },
+        registrationResult.status || 500,
+      );
+    }
+
     if (isObjectEmpty(registrationResult.body)) {
       return null;
     }
@@ -60,6 +70,15 @@ export class SaasCompanyGatewayService extends BaseSaasGatewayService {
       userRole: userRole,
       inviterId: inviterId,
     });
+    if (registrationResult.status > 299) {
+      throw new HttpException(
+        {
+          message: Messages.FAILED_INVITE_USER_IN_COMPANY_UNHANDLED_ERROR,
+          originalMessage: registrationResult?.body?.message ? registrationResult.body.message : undefined,
+        },
+        registrationResult.status,
+      );
+    }
     if (isObjectEmpty(registrationResult.body)) {
       return null;
     }
@@ -74,6 +93,15 @@ export class SaasCompanyGatewayService extends BaseSaasGatewayService {
       userId: userId,
       companyId: companyId,
     });
+    if (removalResult.status > 299) {
+      throw new HttpException(
+        {
+          message: Messages.FAILED_REMOVE_USER_FROM_COMPANY_UNHANDLED_ERROR,
+          originalMessage: removalResult?.body?.message ? removalResult.body.message : undefined,
+        },
+        removalResult.status,
+      );
+    }
     if (isObjectEmpty(removalResult.body)) {
       return null;
     }
@@ -90,6 +118,15 @@ export class SaasCompanyGatewayService extends BaseSaasGatewayService {
       verification_string: verification_string,
       companyId: companyId,
     });
+    if (removalResult.status > 299) {
+      throw new HttpException(
+        {
+          message: Messages.FAILED_REVOKE_USER_INVITATION_UNHANDLED_ERROR,
+          originalMessage: removalResult?.body?.message ? removalResult.body.message : undefined,
+        },
+        removalResult.status,
+      );
+    }
     if (isObjectEmpty(removalResult.body)) {
       return null;
     }
@@ -113,13 +150,22 @@ export class SaasCompanyGatewayService extends BaseSaasGatewayService {
     inviterId: string,
     verificationString: string,
   ): Promise<void> {
-    await this.sendRequestToSaaS(`/webhook/company/invitation`, 'POST', {
+    const { body, status } = await this.sendRequestToSaaS(`/webhook/company/invitation`, 'POST', {
       userEmail: newUserEmail,
       companyId: companyId,
       userRole: userRole,
       inviterId: inviterId,
       verificationString: verificationString,
     });
+    if (status > 299) {
+      throw new HttpException(
+        {
+          message: Messages.FAILED_SEND_INVITATION_SAAS_UNHANDLED_ERROR,
+          originalMessage: body?.message ? body.message : undefined,
+        },
+        status,
+      );
+    }
   }
 
   public async invitationAcceptedWebhook(
