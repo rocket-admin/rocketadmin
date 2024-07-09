@@ -31,6 +31,7 @@ import { SaasModule } from './microservices/saas-microservice/saas.module.js';
 import { SaaSGatewayModule } from './microservices/gateways/saas-gateway.ts/saas-gateway.module.js';
 import { CompanyInfoModule } from './entities/company-info/company-info.module.js';
 import { TableTriggersModule } from './entities/table-actions/table-action-rules-module/action-rules.module.js';
+import { ApiKeyModule } from './entities/api-key/api-key.module.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -56,6 +57,7 @@ const __dirname = path.dirname(__filename);
     CompanyInfoModule,
     SaaSGatewayModule,
     TableTriggersModule,
+    ApiKeyModule,
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'client'),
     }),

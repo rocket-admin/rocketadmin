@@ -32,6 +32,8 @@ import { ConnectionEntity } from '../../entities/connection/connection.entity.js
 import { ActionRulesEntity } from '../../entities/table-actions/table-action-rules-module/action-rules.entity.js';
 import { IActionRulesRepository } from '../../entities/table-actions/table-action-rules-module/repository/action-rules-custom-repository.interface.js';
 import { IActionEventsRepository } from '../../entities/table-actions/table-action-events-module/repository/action-events-custom-repository.interface.js';
+import { UserApiKeyEntity } from '../../entities/api-key/api-key.entity.js';
+import { IUserApiKeyRepository } from '../../entities/api-key/repository/user-api-key-repository.interface.js';
 import { ActionEventsEntity } from '../../entities/table-actions/table-action-events-module/action-event.entity.js';
 import { TableActionEntity } from '../../entities/table-actions/table-actions-module/table-action.entity.js';
 
@@ -62,4 +64,5 @@ export interface IGlobalDatabaseContext extends IDatabaseContext {
   userSessionSettingsRepository: Repository<UserSessionSettingsEntity> & IUserSessionSettings;
   actionRulesRepository: Repository<ActionRulesEntity> & IActionRulesRepository;
   actionEventsRepository: Repository<ActionEventsEntity> & IActionEventsRepository;
+  userApiKeysRepository: Repository<UserApiKeyEntity> & IUserApiKeyRepository;
 }

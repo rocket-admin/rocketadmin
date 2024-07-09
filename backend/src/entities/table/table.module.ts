@@ -1,6 +1,5 @@
 import { MiddlewareConsumer, Module, RequestMethod } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { AuthMiddleware } from '../../authorization/index.js';
 import { GlobalDatabaseContext } from '../../common/application/global-database-context.js';
 import { BaseType, UseCaseType } from '../../common/data-injection.tokens.js';
 import { AgentModule } from '../agent/agent.module.js';
@@ -28,6 +27,7 @@ import { UpdateRowInTableUseCase } from './use-cases/update-row-in-table.use.cas
 import { ExportCSVFromTableUseCase } from './use-cases/export-csv-from-table.use.case.js';
 import { BulkUpdateRowsInTableUseCase } from './use-cases/bulk-update-rows-in-table.use.case.js';
 import { ImportCSVInTableUseCase } from './use-cases/import-csv-in-table-user.case.js';
+import { AuthWithApiMiddleware } from '../../authorization/auth-with-api.middleware.js';
 
 @Module({
   imports: [
@@ -102,23 +102,23 @@ import { ImportCSVInTableUseCase } from './use-cases/import-csv-in-table-user.ca
 export class TableModule {
   public configure(consumer: MiddlewareConsumer): any {
     consumer
-      .apply(AuthMiddleware)
+      .apply(AuthWithApiMiddleware)
       .forRoutes(
-        { path: '/table/columns/:slug', method: RequestMethod.GET },
-        { path: '/table/rows/:slug', method: RequestMethod.GET },
-        { path: '/table/:slug', method: RequestMethod.GET },
-        { path: '/connection/tables/:slug', method: RequestMethod.GET },
-        { path: '/table/rows/:slug', method: RequestMethod.GET },
-        { path: '/table/rows/find/:slug', method: RequestMethod.POST },
-        { path: '/table/structure/:slug', method: RequestMethod.GET },
-        { path: '/table/row/:slug', method: RequestMethod.POST },
-        { path: '/table/row/:slug', method: RequestMethod.PUT },
-        { path: '/table/row/:slug', method: RequestMethod.DELETE },
-        { path: '/table/rows/delete/:slug', method: RequestMethod.PUT },
-        { path: '/table/rows/update/:slug', method: RequestMethod.PUT },
-        { path: '/table/row/:slug', method: RequestMethod.GET },
-        { path: '/table/csv/export/:slug', method: RequestMethod.POST },
-        { path: '/table/csv/import/:slug', method: RequestMethod.POST },
+        { path: '/table/columns/:connectionId', method: RequestMethod.GET },
+        { path: '/table/rows/:connectionId', method: RequestMethod.GET },
+        { path: '/table/:connectionId', method: RequestMethod.GET },
+        { path: '/connection/tables/:connectionId', method: RequestMethod.GET },
+        { path: '/table/rows/:connectionId', method: RequestMethod.GET },
+        { path: '/table/rows/find/:connectionId', method: RequestMethod.POST },
+        { path: '/table/structure/:connectionId', method: RequestMethod.GET },
+        { path: '/table/row/:connectionId', method: RequestMethod.POST },
+        { path: '/table/row/:connectionId', method: RequestMethod.PUT },
+        { path: '/table/row/:connectionId', method: RequestMethod.DELETE },
+        { path: '/table/rows/delete/:connectionId', method: RequestMethod.PUT },
+        { path: '/table/rows/update/:connectionId', method: RequestMethod.PUT },
+        { path: '/table/row/:connectionId', method: RequestMethod.GET },
+        { path: '/table/csv/export/:connectionId', method: RequestMethod.POST },
+        { path: '/table/csv/import/:connectionId', method: RequestMethod.POST },
       );
   }
 }

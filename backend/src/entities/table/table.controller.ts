@@ -50,7 +50,7 @@ import {
   IImportCSVFinTable,
   IUpdateRowInTable,
 } from './use-cases/table-use-cases.interface.js';
-import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UpdateRowsDto } from './dto/update-rows.dto.js';
 import { UpdateRowsInTableDs } from './application/data-structures/update-rows-in-table.ds.js';
 import { SuccessResponse } from '../../microservices/saas-microservice/data-structures/common-responce.ds.js';
@@ -93,15 +93,16 @@ export class TableController {
     protected _dbContext: IGlobalDatabaseContext,
   ) {}
 
-  @ApiOperation({ summary: 'Get tables from connection' })
+  @ApiOperation({ summary: 'Get tables from connection. API+' })
   @ApiResponse({
     status: 200,
     description: 'Returns all tables from connection.',
-    type: Array<FoundTableDs>,
+    type: FoundTableDs,
+    isArray: true,
   })
-  @Get('/connection/tables/:slug')
+  @Get('/connection/tables/:connectionId')
   async findTablesInConnection(
-    @SlugUuid() connectionId: string,
+    @SlugUuid('connectionId') connectionId: string,
     @UserId() userId: string,
     @MasterPassword() masterPwd: string,
     @Query('hidden') hidden_tables: string,
@@ -124,21 +125,22 @@ export class TableController {
     return await this.findTablesInConnectionUseCase.execute(inputData, InTransactionEnum.OFF);
   }
 
-  @ApiOperation({ summary: 'Get all table rows' })
+  @ApiOperation({ summary: 'Get all table rows. API+' })
   @ApiResponse({
     status: 200,
     description: 'Returns all table rows.',
     type: FoundTableRowsDs,
   })
   @UseGuards(TableReadGuard)
-  @Get('/table/rows/:slug')
+  @ApiQuery({ name: 'tableName', required: true })
+  @Get('/table/rows/:connectionId')
   async findAllRows(
     @QueryTableName() tableName: string,
     @Query('page') page: any,
     @Query('perPage') perPage: any,
     @Query('search') searchingFieldValue: string,
     @Query() query,
-    @SlugUuid() connectionId: string,
+    @SlugUuid('connectionId') connectionId: string,
     @UserId() userId: string,
     @MasterPassword() masterPwd: string,
   ): Promise<FoundTableRowsDs> {
@@ -175,22 +177,23 @@ export class TableController {
     return await this.getTableRowsUseCase.execute(inputData, InTransactionEnum.OFF);
   }
 
-  @ApiOperation({ summary: 'Get all table rows with filter parameters in body' })
+  @ApiOperation({ summary: 'Get all table rows with filter parameters in body. API+' })
   @ApiResponse({
     status: 200,
     description: 'Returns all table rows.',
     type: FoundTableRowsDs,
   })
   @ApiBody({ type: FindAllRowsWithBodyFiltersDto })
+  @ApiQuery({ name: 'tableName', required: true })
   @UseGuards(TableReadGuard)
-  @Post('/table/rows/find/:slug')
+  @Post('/table/rows/find/:connectionId')
   async findAllRowsWithBodyFilter(
     @QueryTableName() tableName: string,
     @Query('page') page: any,
     @Query('perPage') perPage: any,
     @Query('search') searchingFieldValue: string,
     @Query() query,
-    @SlugUuid() connectionId: string,
+    @SlugUuid('connectionId') connectionId: string,
     @UserId() userId: string,
     @MasterPassword() masterPwd: string,
     @Body() body: FindAllRowsWithBodyFiltersDto,
@@ -229,18 +232,19 @@ export class TableController {
     return await this.getTableRowsUseCase.execute(inputData, InTransactionEnum.OFF);
   }
 
-  @ApiOperation({ summary: 'Get table structure' })
+  @ApiOperation({ summary: 'Get table structure. API+' })
   @ApiResponse({
     status: 200,
     description: 'Returns table structure.',
     type: TableStructureDs,
   })
+  @ApiQuery({ name: 'tableName', required: true })
   @UseGuards(TableReadGuard)
-  @Get('/table/structure/:slug')
+  @Get('/table/structure/:connectionId')
   async getTableStructure(
     @QueryTableName() tableName: string,
     @UserId() userId: string,
-    @SlugUuid() connectionId: string,
+    @SlugUuid('connectionId') connectionId: string,
     @MasterPassword() masterPwd: string,
   ): Promise<TableStructureDs> {
     if (!connectionId) {
@@ -260,19 +264,20 @@ export class TableController {
     return await this.getTableStructureUseCase.execute(inputData, InTransactionEnum.OFF);
   }
 
-  @ApiOperation({ summary: 'Add row in table' })
+  @ApiOperation({ summary: 'Add row in table. API+' })
   @ApiBody({ type: Object })
   @ApiResponse({
     status: 201,
     description: 'Add row in table.',
     type: TableRowRODs,
   })
+  @ApiQuery({ name: 'tableName', required: true })
   @UseGuards(TableAddGuard)
-  @Post('/table/row/:slug')
+  @Post('/table/row/:connectionId')
   async addRowInTable(
     @Body() body: Record<string, unknown>,
     @Query() query: string,
-    @SlugUuid() connectionId: string,
+    @SlugUuid('connectionId') connectionId: string,
     @UserId() userId: string,
     @MasterPassword() masterPwd: string,
     @QueryTableName() tableName: string,
@@ -294,21 +299,22 @@ export class TableController {
     };
     return await this.addRowInTableUseCase.execute(inputData, InTransactionEnum.OFF);
   }
-  @ApiOperation({ summary: 'Update row in table by primary key' })
+  @ApiOperation({ summary: 'Update row in table by primary key. API+' })
   @ApiBody({ type: Object })
   @ApiResponse({
     status: 200,
     description: 'Update row in table.',
     type: TableRowRODs,
   })
+  @ApiQuery({ name: 'tableName', required: true })
   @UseGuards(TableEditGuard)
-  @Put('/table/row/:slug')
+  @Put('/table/row/:connectionId')
   async updateRowInTable(
     @Body() body: string,
     @Query() query: string,
     @UserId() userId: string,
     @MasterPassword() masterPwd: string,
-    @SlugUuid() connectionId: string,
+    @SlugUuid('connectionId') connectionId: string,
     @QueryTableName() tableName: string,
   ): Promise<TableRowRODs> {
     if (!connectionId || !body) {
@@ -336,18 +342,19 @@ export class TableController {
     return await this.updateRowInTableUseCase.execute(inputData, InTransactionEnum.OFF);
   }
 
-  @ApiOperation({ summary: 'Delete row from table by primary key' })
+  @ApiOperation({ summary: 'Delete row from table by primary key. API+' })
   @ApiResponse({
     status: 200,
     description: 'Delete row from table.',
     type: DeletedRowFromTableDs,
   })
+  @ApiQuery({ name: 'tableName', required: true })
   @UseGuards(TableDeleteGuard)
-  @Delete('/table/row/:slug')
+  @Delete('/table/row/:connectionId')
   async deleteRowInTable(
     @Query() query: string,
     @MasterPassword() masterPwd: string,
-    @SlugUuid() connectionId: string,
+    @SlugUuid('connectionId') connectionId: string,
     @UserId() userId: string,
     @QueryTableName() tableName: string,
   ): Promise<DeletedRowFromTableDs> {
@@ -375,17 +382,19 @@ export class TableController {
     return await this.deleteRowFromTableUseCase.execute(inputData, InTransactionEnum.OFF);
   }
 
-  @ApiOperation({ summary: 'Multiple delete rows from table by primary key' })
+  @ApiOperation({ summary: 'Multiple delete rows from table by primary key. API+' })
   @ApiResponse({
     status: 200,
     description: 'Delete rows from table.',
-    type: Array<Record<string, unknown>>,
+    type: Object,
+    isArray: true,
   })
+  @ApiQuery({ name: 'tableName', required: true })
   @UseGuards(TableDeleteGuard)
-  @Put('/table/rows/delete/:slug')
+  @Put('/table/rows/delete/:connectionId')
   async deleteRowsInTable(
     @MasterPassword() masterPwd: string,
-    @SlugUuid() connectionId: string,
+    @SlugUuid('connectionId') connectionId: string,
     @UserId() userId: string,
     @QueryTableName() tableName: string,
     @Body() body: Array<Record<string, unknown>>,
@@ -416,18 +425,19 @@ export class TableController {
     return await this.deleteRowsFromTableUseCase.execute(inputData, InTransactionEnum.OFF);
   }
 
-  @ApiOperation({ summary: 'Multiple update rows in table by primary key' })
+  @ApiOperation({ summary: 'Multiple update rows in table by primary key. API+' })
   @ApiResponse({
     status: 200,
     description: 'Update rows in table.',
-    type: UpdateRowsDto,
+    type: SuccessResponse,
   })
+  @ApiQuery({ name: 'tableName', required: true })
   @UseGuards(TableEditGuard)
-  @Put('/table/rows/update/:slug')
+  @Put('/table/rows/update/:connectionId')
   async updateRowsInTable(
     @MasterPassword() masterPwd: string,
     @QueryTableName() tableName: string,
-    @SlugUuid() connectionId: string,
+    @SlugUuid('connectionId') connectionId: string,
     @UserId() userId: string,
     @Body() body: UpdateRowsDto,
   ): Promise<SuccessResponse> {
@@ -451,18 +461,19 @@ export class TableController {
     return await this.bulkUpdateRowsInTableUseCase.execute(inputData, InTransactionEnum.OFF);
   }
 
-  @ApiOperation({ summary: 'Get row from table by primary key' })
+  @ApiOperation({ summary: 'Get row from table by primary key. API+' })
   @ApiResponse({
     status: 200,
     description: 'Get row from table.',
     type: TableRowRODs,
   })
+  @ApiQuery({ name: 'tableName', required: true })
   @UseGuards(TableReadGuard)
-  @Get('/table/row/:slug')
+  @Get('/table/row/:connectionId')
   async getRowByPrimaryKey(
     @Query() query: string,
     @MasterPassword() masterPwd: string,
-    @SlugUuid() connectionId: string,
+    @SlugUuid('connectionId') connectionId: string,
     @UserId() userId: string,
     @QueryTableName() tableName: string,
   ): Promise<TableRowRODs> {
@@ -500,21 +511,22 @@ export class TableController {
     }
   }
 
-  @ApiOperation({ summary: 'Export table as csv file' })
+  @ApiOperation({ summary: 'Export table as csv file. API+' })
   @ApiResponse({
     status: 201,
     description: 'Export table as csv file.',
   })
   @ApiBody({ type: FindAllRowsWithBodyFiltersDto })
+  @ApiQuery({ name: 'tableName', required: true })
   @UseGuards(TableReadGuard)
-  @Post('/table/csv/export/:slug')
+  @Post('/table/csv/export/:connectionId')
   async exportCSVFromTable(
     @QueryTableName() tableName: string,
     @Query('page') page: any,
     @Query('perPage') perPage: any,
     @Query('search') searchingFieldValue: string,
     @Query() query,
-    @SlugUuid() connectionId: string,
+    @SlugUuid('connectionId') connectionId: string,
     @UserId() userId: string,
     @MasterPassword() masterPwd: string,
     @Body() body: FindAllRowsWithBodyFiltersDto,
@@ -553,18 +565,19 @@ export class TableController {
     return await this.exportCSVFromTableUseCase.execute(inputData, InTransactionEnum.OFF);
   }
 
-  @ApiOperation({ summary: 'Import csv file in table' })
+  @ApiOperation({ summary: 'Import csv file in table. API+' })
   @ApiResponse({
     status: 201,
     description: 'Import csv file in table.',
+    type: SuccessResponse,
   })
-  // @ApiBody({ type: FindAllRowsWithBodyFiltersDto })
+  @ApiQuery({ name: 'tableName', required: true })
   @UseGuards(TableEditGuard)
-  @Post('/table/csv/import/:slug')
+  @Post('/table/csv/import/:connectionId')
   @UseInterceptors(FileInterceptor('file'))
   async importCSVFromTable(
     @QueryTableName() tableName: string,
-    @SlugUuid() connectionId: string,
+    @SlugUuid('connectionId') connectionId: string,
     @MasterPassword() masterPwd: string,
     @UserId() userId: string,
     @UploadedFile(

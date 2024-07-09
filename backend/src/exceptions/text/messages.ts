@@ -21,6 +21,7 @@ export const Messages = {
   AGENT_ID_MISSING: 'Agent id is missing',
   AGENT_NOT_FOUND: 'Agent not found',
   ALREADY_SUBSCRIBED_AT_THIS_LEVEL: `You already have a subscription of this level `,
+  API_KEY_NOT_FOUND: 'Api key not found',
   AUTHORIZATION_REQUIRED: 'Authorization is required',
   AUTHORIZATION_REJECTED: 'Authorization is rejected',
   BULK_DELETE_FAILED_GET_ROWS: (errorReasonsArray: Array<string>) =>
@@ -158,6 +159,7 @@ export const Messages = {
   MASTER_PASSWORD_REQUIRED: `A master password is required if you want to apply additional encryption.`,
   MUST_BE_ARRAY: (fieldName: string) => `The field "${fieldName}" must be an array`,
   MUST_CONTAIN_ARRAY_OF_PRIMARY_KEYS: `Body must contain array of primary keys`,
+  NO_AUTH_KEYS_FOUND: 'No authorization keys found',
   NO_CUSTOM_ACTIONS_FOUND_FOR_THIS_RULE: `No custom actions found for this rule`,
   NO_SUCH_FIELDS_IN_TABLES: (fields: Array<string>, tableName: string) =>
     `There are no such fields: ${fields.join(', ')} - in the table "${tableName}"`,

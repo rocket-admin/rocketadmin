@@ -75,6 +75,9 @@ import { actionRulesCustomRepositoryExtension } from '../../entities/table-actio
 import { ActionEventsEntity } from '../../entities/table-actions/table-action-events-module/action-event.entity.js';
 import { IActionEventsRepository } from '../../entities/table-actions/table-action-events-module/repository/action-events-custom-repository.interface.js';
 import { actionEventsCustomRepositoryExtension } from '../../entities/table-actions/table-action-events-module/repository/action-events-custom-repository.extension.js';
+import { IUserApiKeyRepository } from '../../entities/api-key/repository/user-api-key-repository.interface.js';
+import { UserApiKeyEntity } from '../../entities/api-key/api-key.entity.js';
+import { userApiRepositoryExtension } from '../../entities/api-key/repository/user-api-key-repository.extension.js';
 
 @Injectable({ scope: Scope.REQUEST })
 export class GlobalDatabaseContext implements IGlobalDatabaseContext {
@@ -106,6 +109,7 @@ export class GlobalDatabaseContext implements IGlobalDatabaseContext {
   private _userSessionSettingsRepository: Repository<UserSessionSettingsEntity> & IUserSessionSettings;
   private _actionRulesRepository: Repository<ActionRulesEntity> & IActionRulesRepository;
   private _actionEventsRepository: Repository<ActionEventsEntity> & IActionEventsRepository;
+  private _userApiKeysRepository: Repository<UserApiKeyEntity> & IUserApiKeyRepository;
 
   public constructor(
     @Inject(BaseType.DATA_SOURCE)
@@ -181,6 +185,7 @@ export class GlobalDatabaseContext implements IGlobalDatabaseContext {
     this._actionEventsRepository = this.appDataSource
       .getRepository(ActionEventsEntity)
       .extend(actionEventsCustomRepositoryExtension);
+    this._userApiKeysRepository = this.appDataSource.getRepository(UserApiKeyEntity).extend(userApiRepositoryExtension);
   }
 
   public get userRepository(): Repository<UserEntity> & IUserRepository {
@@ -285,6 +290,10 @@ export class GlobalDatabaseContext implements IGlobalDatabaseContext {
 
   public get actionEventsRepository(): Repository<ActionEventsEntity> & IActionEventsRepository {
     return this._actionEventsRepository;
+  }
+
+  public get userApiKeysRepository(): Repository<UserApiKeyEntity> & IUserApiKeyRepository {
+    return this._userApiKeysRepository;
   }
 
   public startTransaction(): Promise<void> {
