@@ -50,7 +50,7 @@ import {
   IImportCSVFinTable,
   IUpdateRowInTable,
 } from './use-cases/table-use-cases.interface.js';
-import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UpdateRowsDto } from './dto/update-rows.dto.js';
 import { UpdateRowsInTableDs } from './application/data-structures/update-rows-in-table.ds.js';
 import { SuccessResponse } from '../../microservices/saas-microservice/data-structures/common-responce.ds.js';
@@ -100,9 +100,9 @@ export class TableController {
     type: FoundTableDs,
     isArray: true,
   })
-  @Get('/connection/tables/:slug')
+  @Get('/connection/tables/:connectionId')
   async findTablesInConnection(
-    @SlugUuid() connectionId: string,
+    @SlugUuid('connectionId') connectionId: string,
     @UserId() userId: string,
     @MasterPassword() masterPwd: string,
     @Query('hidden') hidden_tables: string,
@@ -132,14 +132,15 @@ export class TableController {
     type: FoundTableRowsDs,
   })
   @UseGuards(TableReadGuard)
-  @Get('/table/rows/:slug')
+  @ApiQuery({ name: 'tableName', required: true })
+  @Get('/table/rows/:connectionId')
   async findAllRows(
     @QueryTableName() tableName: string,
     @Query('page') page: any,
     @Query('perPage') perPage: any,
     @Query('search') searchingFieldValue: string,
     @Query() query,
-    @SlugUuid() connectionId: string,
+    @SlugUuid('connectionId') connectionId: string,
     @UserId() userId: string,
     @MasterPassword() masterPwd: string,
   ): Promise<FoundTableRowsDs> {
@@ -183,15 +184,16 @@ export class TableController {
     type: FoundTableRowsDs,
   })
   @ApiBody({ type: FindAllRowsWithBodyFiltersDto })
+  @ApiQuery({ name: 'tableName', required: true })
   @UseGuards(TableReadGuard)
-  @Post('/table/rows/find/:slug')
+  @Post('/table/rows/find/:connectionId')
   async findAllRowsWithBodyFilter(
     @QueryTableName() tableName: string,
     @Query('page') page: any,
     @Query('perPage') perPage: any,
     @Query('search') searchingFieldValue: string,
     @Query() query,
-    @SlugUuid() connectionId: string,
+    @SlugUuid('connectionId') connectionId: string,
     @UserId() userId: string,
     @MasterPassword() masterPwd: string,
     @Body() body: FindAllRowsWithBodyFiltersDto,
@@ -236,12 +238,13 @@ export class TableController {
     description: 'Returns table structure.',
     type: TableStructureDs,
   })
+  @ApiQuery({ name: 'tableName', required: true })
   @UseGuards(TableReadGuard)
-  @Get('/table/structure/:slug')
+  @Get('/table/structure/:connectionId')
   async getTableStructure(
     @QueryTableName() tableName: string,
     @UserId() userId: string,
-    @SlugUuid() connectionId: string,
+    @SlugUuid('connectionId') connectionId: string,
     @MasterPassword() masterPwd: string,
   ): Promise<TableStructureDs> {
     if (!connectionId) {
@@ -268,12 +271,13 @@ export class TableController {
     description: 'Add row in table.',
     type: TableRowRODs,
   })
+  @ApiQuery({ name: 'tableName', required: true })
   @UseGuards(TableAddGuard)
-  @Post('/table/row/:slug')
+  @Post('/table/row/:connectionId')
   async addRowInTable(
     @Body() body: Record<string, unknown>,
     @Query() query: string,
-    @SlugUuid() connectionId: string,
+    @SlugUuid('connectionId') connectionId: string,
     @UserId() userId: string,
     @MasterPassword() masterPwd: string,
     @QueryTableName() tableName: string,
@@ -302,14 +306,15 @@ export class TableController {
     description: 'Update row in table.',
     type: TableRowRODs,
   })
+  @ApiQuery({ name: 'tableName', required: true })
   @UseGuards(TableEditGuard)
-  @Put('/table/row/:slug')
+  @Put('/table/row/:connectionId')
   async updateRowInTable(
     @Body() body: string,
     @Query() query: string,
     @UserId() userId: string,
     @MasterPassword() masterPwd: string,
-    @SlugUuid() connectionId: string,
+    @SlugUuid('connectionId') connectionId: string,
     @QueryTableName() tableName: string,
   ): Promise<TableRowRODs> {
     if (!connectionId || !body) {
@@ -343,12 +348,13 @@ export class TableController {
     description: 'Delete row from table.',
     type: DeletedRowFromTableDs,
   })
+  @ApiQuery({ name: 'tableName', required: true })
   @UseGuards(TableDeleteGuard)
-  @Delete('/table/row/:slug')
+  @Delete('/table/row/:connectionId')
   async deleteRowInTable(
     @Query() query: string,
     @MasterPassword() masterPwd: string,
-    @SlugUuid() connectionId: string,
+    @SlugUuid('connectionId') connectionId: string,
     @UserId() userId: string,
     @QueryTableName() tableName: string,
   ): Promise<DeletedRowFromTableDs> {
@@ -383,11 +389,12 @@ export class TableController {
     type: Object,
     isArray: true,
   })
+  @ApiQuery({ name: 'tableName', required: true })
   @UseGuards(TableDeleteGuard)
-  @Put('/table/rows/delete/:slug')
+  @Put('/table/rows/delete/:connectionId')
   async deleteRowsInTable(
     @MasterPassword() masterPwd: string,
-    @SlugUuid() connectionId: string,
+    @SlugUuid('connectionId') connectionId: string,
     @UserId() userId: string,
     @QueryTableName() tableName: string,
     @Body() body: Array<Record<string, unknown>>,
@@ -424,12 +431,13 @@ export class TableController {
     description: 'Update rows in table.',
     type: SuccessResponse,
   })
+  @ApiQuery({ name: 'tableName', required: true })
   @UseGuards(TableEditGuard)
-  @Put('/table/rows/update/:slug')
+  @Put('/table/rows/update/:connectionId')
   async updateRowsInTable(
     @MasterPassword() masterPwd: string,
     @QueryTableName() tableName: string,
-    @SlugUuid() connectionId: string,
+    @SlugUuid('connectionId') connectionId: string,
     @UserId() userId: string,
     @Body() body: UpdateRowsDto,
   ): Promise<SuccessResponse> {
@@ -459,12 +467,13 @@ export class TableController {
     description: 'Get row from table.',
     type: TableRowRODs,
   })
+  @ApiQuery({ name: 'tableName', required: true })
   @UseGuards(TableReadGuard)
-  @Get('/table/row/:slug')
+  @Get('/table/row/:connectionId')
   async getRowByPrimaryKey(
     @Query() query: string,
     @MasterPassword() masterPwd: string,
-    @SlugUuid() connectionId: string,
+    @SlugUuid('connectionId') connectionId: string,
     @UserId() userId: string,
     @QueryTableName() tableName: string,
   ): Promise<TableRowRODs> {
@@ -508,15 +517,16 @@ export class TableController {
     description: 'Export table as csv file.',
   })
   @ApiBody({ type: FindAllRowsWithBodyFiltersDto })
+  @ApiQuery({ name: 'tableName', required: true })
   @UseGuards(TableReadGuard)
-  @Post('/table/csv/export/:slug')
+  @Post('/table/csv/export/:connectionId')
   async exportCSVFromTable(
     @QueryTableName() tableName: string,
     @Query('page') page: any,
     @Query('perPage') perPage: any,
     @Query('search') searchingFieldValue: string,
     @Query() query,
-    @SlugUuid() connectionId: string,
+    @SlugUuid('connectionId') connectionId: string,
     @UserId() userId: string,
     @MasterPassword() masterPwd: string,
     @Body() body: FindAllRowsWithBodyFiltersDto,
@@ -561,12 +571,13 @@ export class TableController {
     description: 'Import csv file in table.',
     type: SuccessResponse,
   })
+  @ApiQuery({ name: 'tableName', required: true })
   @UseGuards(TableEditGuard)
-  @Post('/table/csv/import/:slug')
+  @Post('/table/csv/import/:connectionId')
   @UseInterceptors(FileInterceptor('file'))
   async importCSVFromTable(
     @QueryTableName() tableName: string,
-    @SlugUuid() connectionId: string,
+    @SlugUuid('connectionId') connectionId: string,
     @MasterPassword() masterPwd: string,
     @UserId() userId: string,
     @UploadedFile(

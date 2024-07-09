@@ -104,21 +104,21 @@ export class TableModule {
     consumer
       .apply(AuthWithApiMiddleware)
       .forRoutes(
-        { path: '/table/columns/:slug', method: RequestMethod.GET },
-        { path: '/table/rows/:slug', method: RequestMethod.GET },
-        { path: '/table/:slug', method: RequestMethod.GET },
-        { path: '/connection/tables/:slug', method: RequestMethod.GET },
-        { path: '/table/rows/:slug', method: RequestMethod.GET },
-        { path: '/table/rows/find/:slug', method: RequestMethod.POST },
-        { path: '/table/structure/:slug', method: RequestMethod.GET },
-        { path: '/table/row/:slug', method: RequestMethod.POST },
-        { path: '/table/row/:slug', method: RequestMethod.PUT },
-        { path: '/table/row/:slug', method: RequestMethod.DELETE },
-        { path: '/table/rows/delete/:slug', method: RequestMethod.PUT },
-        { path: '/table/rows/update/:slug', method: RequestMethod.PUT },
-        { path: '/table/row/:slug', method: RequestMethod.GET },
-        { path: '/table/csv/export/:slug', method: RequestMethod.POST },
-        { path: '/table/csv/import/:slug', method: RequestMethod.POST },
+        { path: '/table/columns/:connectionId', method: RequestMethod.GET },
+        { path: '/table/rows/:connectionId', method: RequestMethod.GET },
+        { path: '/table/:connectionId', method: RequestMethod.GET },
+        { path: '/connection/tables/:connectionId', method: RequestMethod.GET },
+        { path: '/table/rows/:connectionId', method: RequestMethod.GET },
+        { path: '/table/rows/find/:connectionId', method: RequestMethod.POST },
+        { path: '/table/structure/:connectionId', method: RequestMethod.GET },
+        { path: '/table/row/:connectionId', method: RequestMethod.POST },
+        { path: '/table/row/:connectionId', method: RequestMethod.PUT },
+        { path: '/table/row/:connectionId', method: RequestMethod.DELETE },
+        { path: '/table/rows/delete/:connectionId', method: RequestMethod.PUT },
+        { path: '/table/rows/update/:connectionId', method: RequestMethod.PUT },
+        { path: '/table/row/:connectionId', method: RequestMethod.GET },
+        { path: '/table/csv/export/:connectionId', method: RequestMethod.POST },
+        { path: '/table/csv/import/:connectionId', method: RequestMethod.POST },
       );
   }
 }
