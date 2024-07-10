@@ -42,9 +42,9 @@ import { UpdateConnectionPropertiesUseCase } from './use-cases/update-connection
 })
 export class ConnectionPropertiesModule implements NestModule {
   public configure(consumer: MiddlewareConsumer): void {
-    consumer.apply(AuthMiddleware).forRoutes({ path: '/connection/properties/:slug', method: RequestMethod.GET });
-    consumer.apply(AuthMiddleware).forRoutes({ path: '/connection/properties/:slug', method: RequestMethod.POST });
-    consumer.apply(AuthMiddleware).forRoutes({ path: '/connection/properties/:slug', method: RequestMethod.PUT });
-    consumer.apply(AuthMiddleware).forRoutes({ path: '/connection/properties/:slug', method: RequestMethod.DELETE });
+    consumer.apply(AuthMiddleware).forRoutes({ path: '/connection/properties/:connectionId', method: RequestMethod.GET });
+    consumer.apply(AuthMiddleware).forRoutes({ path: '/connection/properties/:connectionId', method: RequestMethod.POST });
+    consumer.apply(AuthMiddleware).forRoutes({ path: '/connection/properties/:connectionId', method: RequestMethod.PUT });
+    consumer.apply(AuthMiddleware).forRoutes({ path: '/connection/properties/:connectionId', method: RequestMethod.DELETE });
   }
 }
