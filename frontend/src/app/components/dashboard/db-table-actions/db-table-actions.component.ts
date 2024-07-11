@@ -24,8 +24,7 @@ export class DbTableActionsComponent implements OnInit {
   public rulesData: {
     table_name: string,
     display_name: string,
-    // table_rules: Rule[]
-    table_actions: Rule[]
+    action_rules: Rule[]
   };
   public rules: Rule[];
   public submitting: boolean;
@@ -77,8 +76,7 @@ export class DbTableActionsComponent implements OnInit {
     try {
       this.rulesData = await this.getRules();
       console.log(this.rulesData);
-      // this.rules = this.rulesData.table_rules;
-      this.rules = this.rulesData.table_actions;
+      this.rules = this.rulesData.action_rules;
       if (this.rules.length) this.setSelectedRule(this.rules[0]);
       this.title.setTitle(`${this.rulesData.display_name || this.normalizedTableName} - Actions | Rocketadmin`);
     } catch(error) {
@@ -93,8 +91,9 @@ export class DbTableActionsComponent implements OnInit {
         try {
           this.rulesData = await this.getRules();
           console.log(this.rulesData);
-          // this.rules = this.rulesData.table_rules;
-          this.rules = this.rulesData.table_actions;
+          this.rules = this.rulesData.action_rules;
+          this.selectedRule = this.rules[0];
+          this.selectedRuleTitle = this.selectedRule.title;
         } catch(error) {
           if (error instanceof HttpErrorResponse) {
             console.log(error.error.message);
@@ -132,8 +131,9 @@ export class DbTableActionsComponent implements OnInit {
   setSelectedRule(rule: Rule) {
     this.selectedRule = rule;
     this.selectedRuleTitle = rule.title;
+    if (this.selectedRule.events.length !== 4) this.selectedRule.events.push({ event: null });
 
-    const customEvent = this.selectedRule.events.find((event) => event.event_type === EventType.Custom);
+    const customEvent = this.selectedRule.events.find((event) => event.event === EventType.Custom);
     if (customEvent) {
         this.selectedRuleCustomEvent = customEvent as CustomEvent;
     } else {
@@ -153,14 +153,15 @@ export class DbTableActionsComponent implements OnInit {
     this.newRule = {
       id: '',
       title: '',
+      table_name: this.tableName,
       events: [
         {
-          event_type: null
+          event: null
         }
       ],
-      actions: [
+      table_actions: [
         {
-          method: CustomActionMethod.HTTP,
+          method: CustomActionMethod.URL,
           emails: [],
           url: '',
         }
@@ -170,7 +171,7 @@ export class DbTableActionsComponent implements OnInit {
 
   addNewAction() {
     this.newAction = {
-      method: CustomActionMethod.HTTP,
+      method: CustomActionMethod.URL,
       emails: [],
       url: '',
     };
@@ -225,6 +226,7 @@ export class DbTableActionsComponent implements OnInit {
 
   addRule() {
     this.submitting = true;
+    this.selectedRule.events = this.selectedRule.events.filter((event) => event.event !== null);
     this._tables.saveRule(this.connectionID, this.tableName, this.selectedRule)
       .subscribe(async (res) => {
         this.submitting = false;
@@ -233,7 +235,7 @@ export class DbTableActionsComponent implements OnInit {
         });
         try {
           const undatedRulesData = await this.getRules();
-          this.rules = undatedRulesData.table_rules;
+          this.rules = undatedRulesData.action_rules;
           const currentRule = this.rules.find((rule: Rule) => rule.id === res.id);
           this.setSelectedRule(currentRule);
         } catch(error) {
@@ -249,13 +251,14 @@ export class DbTableActionsComponent implements OnInit {
 
   updateRule() {
     this.submitting = true;
+    this.selectedRule.events = this.selectedRule.events.filter((event) => event.event !== null);
     if (this.selectedRuleTitle) this.selectedRule.title = this.selectedRuleTitle;
     this._tables.updateRule(this.connectionID, this.tableName, this.selectedRule)
       .subscribe(async (res) => {
         this.submitting = false;
         try {
           const undatedRulesData = await this.getRules();
-          this.rules = undatedRulesData.table_rules;
+          this.rules = undatedRulesData.action_rules;
           const currentRule = this.rules.find((rule: Rule) => rule.id === res.id);
           this.setSelectedRule(currentRule);
         } catch(error) {
@@ -288,7 +291,7 @@ export class DbTableActionsComponent implements OnInit {
     console.log(this.selectedRule.events);
     this.selectedEvents.push(event.value);
 
-    let customEvent = this.selectedRule.events.find((event) => event.event_type === EventType.Custom);
+    let customEvent = this.selectedRule.events.find((event) => event.event === EventType.Custom);
 
     if (event.value === EventType.Custom) {
       customEvent = {
@@ -301,7 +304,14 @@ export class DbTableActionsComponent implements OnInit {
       // this.selectedRule.events.push(customEvent);
       this.selectedRuleCustomEvent = customEvent;
     } else if (this.selectedRule.events.length < 4) {
-      this.selectedRule.events.push({ event_type: null });
+      this.selectedRule.events.push({ event: null });
+    }
+  }
+
+  removeEvent(event: any) {
+    this.selectedRule.events = this.selectedRule.events.filter((e) => e.event !== event);
+    if (event === EventType.Custom) {
+      this.selectedRuleCustomEvent = null;
     }
   }
 }

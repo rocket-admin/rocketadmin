@@ -87,7 +87,7 @@ export enum CustomActionType {
 export enum CustomActionMethod {
     Slack = "slack",
     Email = "email",
-    HTTP = "http",
+    URL = "URL",
     Zapier = "zapier"
 }
 
@@ -105,12 +105,12 @@ export enum EventType {
 }
 
 export interface Event {
-    event_type: EventType,
+    event: EventType,
 }
 
 export interface CustomEvent {
     id?: string,
-    event_type: EventType,
+    event: EventType,
     title: string,
     type: CustomActionType,
     icon: string,
@@ -120,6 +120,7 @@ export interface CustomEvent {
 export interface Rule {
     id?: string,
     title: string,
+    table_name: string,
     events: (Event | CustomEvent)[],
-    actions: CustomAction[]
+    table_actions: CustomAction[]
 };

@@ -364,7 +364,7 @@ export class TablesService {
   }
 
   fetchRules(connectionID: string, tableName: string) {
-    return this._http.get<any>(`/table/actions/${connectionID}`, {
+    return this._http.get<any>(`/action/rules/${connectionID}`, {
       params: {
         tableName
       }
@@ -386,11 +386,7 @@ export class TablesService {
   }
 
   saveRule(connectionID: string, tableName: string, rule: Rule) {
-    return this._http.post<any>(`/table/action/${connectionID}`, rule, {
-      params: {
-        tableName
-      }
-    })
+    return this._http.post<any>(`/action/rule/${connectionID}`, rule)
       .pipe(
         map(res => {
           this._notifications.showSuccessSnackbar(`${res.title} action has been created.`);
@@ -411,12 +407,7 @@ export class TablesService {
   }
 
   updateRule(connectionID: string, tableName: string, rule: Rule) {
-    return this._http.put<any>(`/table/action/${connectionID}`, rule, {
-      params: {
-        tableName,
-        ruleId: rule.id
-      }
-    })
+    return this._http.put<any>(`/action/rule/${rule.id}/${connectionID}`, rule)
       .pipe(
         map(res => {
           this._notifications.showSuccessSnackbar(`${res.title} action has been updated.`);
@@ -437,14 +428,10 @@ export class TablesService {
   }
 
   deleteRule(connectionID: string, tableName: string, ruleId: string) {
-    return this._http.delete<any>(`/table/action/${connectionID}`, {
-      params: {
-        ruleId
-      }
-    })
+    return this._http.delete<any>(`/action/rule/${ruleId}/${connectionID}`)
       .pipe(
         map(res => {
-          this.tables.next('delete-action');
+          this.tables.next('delete-rule');
           this._notifications.showSuccessSnackbar(`${res.title} action has been deleted.`);
           return res
         }),

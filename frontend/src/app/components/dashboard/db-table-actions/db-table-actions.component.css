@@ -233,3 +233,17 @@
 .confirmation-checkbox {
     margin-top: 12px;
 }
+
+.event {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.event__or {
+    margin-top: -8px;
+}
+
+.event__removeButton {
+    margin-top: -16px;
+}

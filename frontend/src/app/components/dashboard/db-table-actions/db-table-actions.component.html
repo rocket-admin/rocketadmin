@@ -57,20 +57,30 @@
                     <mat-label>Name</mat-label>
                     <input matInput [(ngModel)]="selectedRuleTitle" name="action-title" required>
                 </mat-form-field>
-
                 <div>
-                    <span>When</span>
-                    <div *ngFor="let event of selectedRule.events">
-                        <mat-form-field appearance="outline">
-                            <mat-label>Events</mat-label>
-                            <mat-select name="{{event.event_type}}-event-type" [(ngModel)]="event.event_type" (selectionChange)="onEventChange($event)">
-                                <mat-option *ngFor="let availableEvent of availableEvents" [value]="availableEvent.value"
-                                    [disabled]="selectedEvents.includes(availableEvent.value)">
-                                    {{ availableEvent.label }}
-                                </mat-option>
-                            </mat-select>
-                        </mat-form-field>
-                        <div *ngIf="event.event_type === 'CUSTOM'">
+                    <span class="mat-body-1">When</span>
+                    <br/>
+                    <div *ngFor="let event of selectedRule.events; let i = index">
+                        <div class="event">
+                            <span *ngIf="i > 0" class="mat-body-1 event__or">or</span>
+                            <mat-form-field appearance="outline">
+                                <mat-label>Events</mat-label>
+                                <mat-select name="{{event.event}}-event-type" [(ngModel)]="event.event" (selectionChange)="onEventChange($event)">
+                                    <mat-option *ngFor="let availableEvent of availableEvents" [value]="availableEvent.value"
+                                        [disabled]="selectedEvents.includes(availableEvent.value)">
+                                        {{ availableEvent.label }}
+                                    </mat-option>
+                                </mat-select>
+                            </mat-form-field>
+                            <button *ngIf="selectedRule.events.length > 1" mat-icon-button matSuffix
+                                class="event__removeButton"
+                                matTooltip="Remove event"
+                                (click)="removeEvent(event.event)">
+                                <mat-icon>close</mat-icon>
+                            </button>
+                        </div>
+
+                        <div *ngIf="event.event === 'CUSTOM'">
                             <mat-form-field appearance="outline">
                                 <mat-label>Name</mat-label>
                                 <input matInput name="action-title" [(ngModel)]="selectedRuleCustomEvent.title" required>
@@ -107,23 +117,21 @@
                 </div>
 
                 <span class="mat-body-1">than perform action(s)</span>
-                <div *ngFor="let action of selectedRule.actions">
+                <div *ngFor="let action of selectedRule.table_actions">
                     <mat-form-field appearance="outline">
                         <mat-label>Actions type</mat-label>
                         <mat-select name="action-column" [(ngModel)]="action.method">
-                            <mat-option value="email">Email notification</mat-option>
-                            <mat-option value="salck">Slack notification</mat-option>
-                            <mat-option value="http">URL webhook</mat-option>
+                            <mat-option value="EMAIL">Email notification</mat-option>
+                            <mat-option value="SALCK">Slack notification</mat-option>
+                            <mat-option value="URL">URL webhook</mat-option>
                         </mat-select>
                     </mat-form-field>
-                    <mat-form-field appearance="outline" *ngIf="action.method === 'http'">
+                    <mat-form-field appearance="outline" *ngIf="action.method === 'URL'">
                         <mat-label>Action URL</mat-label>
-                        <input matInput name="action-url" required>
+                        <input matInput [(ngModel)]="action.url" name="action-url" required>
                         <!-- <mat-error *ngIf="sslCert.errors?.required && (sslCert.invalid && sslCert.touched)">SSL certificate should not be empty.</mat-error> -->
                     </mat-form-field>
                 </div>
-
-
 
                 <div class="action__actions">
                     <button mat-stroked-button color="warn" type="button"
