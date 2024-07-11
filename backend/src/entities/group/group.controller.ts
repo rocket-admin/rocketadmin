@@ -96,8 +96,11 @@ export class GroupController {
     type: Array<FoundUserInGroupDs>,
   })
   @UseGuards(GroupReadGuard)
-  @Get('group/users/:slug')
-  async findAllUsersInGroup(@UserId() userId: string, @SlugUuid() groupId: string): Promise<Array<FoundUserInGroupDs>> {
+  @Get('group/users/:groupId')
+  async findAllUsersInGroup(
+    @UserId() userId: string,
+    @SlugUuid('groupId') groupId: string,
+  ): Promise<Array<FoundUserInGroupDs>> {
     try {
       return this.findAllUsersInGroupUseCase.execute(groupId, InTransactionEnum.OFF);
     } catch (e) {
@@ -151,11 +154,11 @@ export class GroupController {
     description: 'Verify user in group invitation.',
     type: TokenExpirationResponseDto,
   })
-  @Put('/group/user/verify/:slug')
+  @Put('/group/user/verify/:verificationString')
   async verifyUserInvitation(
     @Body() verificationData: VerifyUserInGroupInvitationDto,
     @Res({ passthrough: true }) response: Response,
-    @VerificationString() verificationString: string,
+    @VerificationString('verificationString') verificationString: string,
     @Req() req: Request,
   ): Promise<ITokenExp> {
     const { password, name } = verificationData;
@@ -202,8 +205,8 @@ export class GroupController {
     type: DeletedGroupResultDs,
   })
   @UseGuards(GroupEditGuard)
-  @Delete('/group/:slug')
-  async delete(@SlugUuid() groupId: string, @UserId() userId: string): Promise<DeletedGroupResultDs> {
+  @Delete('/group/:groupId')
+  async delete(@SlugUuid('groupId') groupId: string, @UserId() userId: string): Promise<DeletedGroupResultDs> {
     try {
       return this.deleteGroupUseCase.execute(groupId, InTransactionEnum.ON);
     } catch (e) {

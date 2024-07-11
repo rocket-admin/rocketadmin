@@ -144,8 +144,11 @@ export class ConnectionController {
     type: Array<FoundUserDs>,
   })
   @UseGuards(ConnectionReadGuard)
-  @Get('/connection/users/:slug')
-  async findAllUsers(@UserId() userId: string, @SlugUuid() connectionId: string): Promise<Array<FoundUserDs>> {
+  @Get('/connection/users/:connectionId')
+  async findAllUsers(
+    @UserId() userId: string,
+    @SlugUuid('connectionId') connectionId: string,
+  ): Promise<Array<FoundUserDs>> {
     try {
       return await this.findAllUsersInConnectionUseCase.execute(connectionId, InTransactionEnum.OFF);
     } catch (e) {
@@ -166,9 +169,9 @@ export class ConnectionController {
     status: 200,
     type: FoundOneConnectionDs,
   })
-  @Get('/connection/one/:slug')
+  @Get('/connection/one/:connectionId')
   async findOne(
-    @SlugUuid() connectionId: string,
+    @SlugUuid('connectionId') connectionId: string,
     @MasterPassword() masterPwd: string,
     @UserId() userId: string,
   ): Promise<FoundOneConnectionDs> {
@@ -269,10 +272,10 @@ export class ConnectionController {
     type: UpdatedConnectionResponseDTO,
   })
   @UseGuards(ConnectionEditGuard)
-  @Put('/connection/:slug')
+  @Put('/connection/:connectionId')
   async update(
     @Body() updateConnectionDto: CreateConnectionDto,
-    @SlugUuid() connectionId: string,
+    @SlugUuid('connectionId') connectionId: string,
     @UserId() userId: string,
     @MasterPassword() masterPwd: string,
   ): Promise<UpdatedConnectionResponseDTO> {
@@ -329,11 +332,11 @@ export class ConnectionController {
     type: CreatedConnectionDs,
   })
   @UseGuards(ConnectionEditGuard)
-  @Put('/connection/delete/:slug')
+  @Put('/connection/delete/:connectionId')
   async delete(
     @Body() reasonData: DeleteConnectionReasonDto,
     @UserId() userId: string,
-    @SlugUuid() connectionId: string,
+    @SlugUuid('connectionId') connectionId: string,
     @MasterPassword() masterPwd: string,
   ): Promise<CreatedConnectionDs> {
     const inputData: DeleteConnectionDs = {
@@ -367,10 +370,10 @@ export class ConnectionController {
     type: CreateDeleteGroupInConnectionResponseDTO,
   })
   @UseGuards(ConnectionEditGuard)
-  @Put('/connection/group/delete/:slug')
+  @Put('/connection/group/delete/:connectionId')
   async deleteGroupFromConnection(
     @BodyUuid('groupId') groupId: string,
-    @SlugUuid() connectionId: string,
+    @SlugUuid('connectionId') connectionId: string,
     @UserId() userId: string,
   ): Promise<CreateDeleteGroupInConnectionResponseDTO> {
     if (!groupId) {
@@ -397,10 +400,10 @@ export class ConnectionController {
     type: CreateDeleteGroupInConnectionResponseDTO,
   })
   @UseGuards(ConnectionEditGuard)
-  @Post('/connection/group/:slug')
+  @Post('/connection/group/:connectionId')
   async createGroupInConnection(
     @Body() groupData: CreateGroupInConnectionDTO,
-    @SlugUuid() connectionId: string,
+    @SlugUuid('connectionId') connectionId: string,
     @UserId() userId: string,
   ): Promise<Omit<GroupEntity, 'connection'>> {
     const { title } = groupData;
@@ -430,10 +433,10 @@ export class ConnectionController {
     type: FoundUserGroupsInConnectionDs,
     isArray: true,
   })
-  @Get('/connection/groups/:slug')
+  @Get('/connection/groups/:connectionId')
   async getGroupsInConnection(
     @UserId() userId: string,
-    @SlugUuid() connectionId: string,
+    @SlugUuid('connectionId') connectionId: string,
   ): Promise<Array<FoundUserGroupsInConnectionDs>> {
     if (!connectionId) {
       throw new HttpException(
@@ -566,9 +569,9 @@ export class ConnectionController {
     status: 200,
   })
   @UseGuards(ConnectionEditGuard)
-  @Put('/connection/encryption/update/:slug')
+  @Put('/connection/encryption/update/:connectionId')
   async updateConnectionMasterPwd(
-    @SlugUuid() connectionId: string,
+    @SlugUuid('connectionId') connectionId: string,
     @Body() passwordData: UpdateMasterPasswordRequestBodyDto,
   ): Promise<boolean> {
     if (!connectionId) {
@@ -613,10 +616,10 @@ export class ConnectionController {
     type: RestoredConnectionDs,
   })
   @UseGuards(ConnectionEditGuard)
-  @Put('/connection/encryption/restore/:slug')
+  @Put('/connection/encryption/restore/:connectionId')
   async restore(
     @Body() restoreConnectionData: CreateConnectionDto,
-    @SlugUuid() connectionId: string,
+    @SlugUuid('connectionId') connectionId: string,
     @UserId() userId: string,
     @MasterPassword() masterPwd: string,
   ): Promise<RestoredConnectionDs> {
@@ -689,8 +692,8 @@ export class ConnectionController {
     type: ConnectionTokenResponseDTO,
   })
   @UseGuards(ConnectionEditGuard)
-  @Get('/connection/token/refresh/:slug')
-  async refreshConnectionAgentToken(@SlugUuid() connectionId: string): Promise<{ token: string }> {
+  @Get('/connection/token/refresh/:connectionId')
+  async refreshConnectionAgentToken(@SlugUuid('connectionId') connectionId: string): Promise<{ token: string }> {
     if (!connectionId) {
       throw new HttpException(
         {

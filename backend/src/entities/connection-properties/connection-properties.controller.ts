@@ -54,8 +54,8 @@ export class ConnectionPropertiesController {
     type: FoundConnectionPropertiesDs,
   })
   @UseGuards(ConnectionReadGuard)
-  @Get('/connection/properties/:slug')
-  async findConnectionProperties(@SlugUuid() connectionId: string): Promise<FoundConnectionPropertiesDs | null> {
+  @Get('/connection/properties/:connectionId')
+  async findConnectionProperties(@SlugUuid('connectionId') connectionId: string): Promise<FoundConnectionPropertiesDs | null> {
     if (!connectionId) {
       throw new HttpException(
         {
@@ -77,12 +77,12 @@ export class ConnectionPropertiesController {
     type: FoundConnectionPropertiesDs,
   })
   @UseGuards(ConnectionEditGuard)
-  @Post('/connection/properties/:slug')
+  @Post('/connection/properties/:connectionId')
   async createConnectionProperties(
     @Body() connectionPropertiesData: CreateConnectionPropertiesDto,
     @UserId() userId: string,
     @MasterPassword() masterPwd: string,
-    @SlugUuid() connectionId: string,
+    @SlugUuid('connectionId') connectionId: string,
   ): Promise<FoundConnectionPropertiesDs> {
     if (!connectionId) {
       throw new HttpException(
@@ -118,12 +118,12 @@ export class ConnectionPropertiesController {
     type: FoundConnectionPropertiesDs,
   })
   @UseGuards(ConnectionEditGuard)
-  @Put('/connection/properties/:slug')
+  @Put('/connection/properties/:connectionId')
   async updateConnectionProperties(
     @Body() connectionPropertiesData: CreateConnectionPropertiesDto,
     @UserId() userId: string,
     @MasterPassword() masterPwd: string,
-    @SlugUuid() connectionId: string,
+    @SlugUuid('connectionId') connectionId: string,
   ): Promise<IConnectionPropertiesRO> {
     if (!connectionId) {
       throw new HttpException(
@@ -157,8 +157,8 @@ export class ConnectionPropertiesController {
     type: FoundConnectionPropertiesDs,
   })
   @UseGuards(ConnectionEditGuard)
-  @Delete('/connection/properties/:slug')
-  async deleteConnectionProperties(@SlugUuid() connectionId: string): Promise<IConnectionPropertiesRO> {
+  @Delete('/connection/properties/:connectionId')
+  async deleteConnectionProperties(@SlugUuid('connectionId') connectionId: string): Promise<IConnectionPropertiesRO> {
     if (!connectionId) {
       throw new HttpException(
         {

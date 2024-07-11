@@ -68,10 +68,10 @@ export class CustomFieldModule {
     consumer
       .apply(AuthMiddleware)
       .forRoutes(
-        { path: '/fields/:slug', method: RequestMethod.GET },
-        { path: '/field/:slug', method: RequestMethod.POST },
-        { path: '/field/:slug', method: RequestMethod.PUT },
-        { path: '/field/:slug', method: RequestMethod.DELETE },
+        { path: '/fields/:connectionId', method: RequestMethod.GET },
+        { path: '/field/:connectionId', method: RequestMethod.POST },
+        { path: '/field/:connectionId', method: RequestMethod.PUT },
+        { path: '/field/:connectionId', method: RequestMethod.DELETE },
       );
   }
 }
