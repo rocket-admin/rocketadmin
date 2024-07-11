@@ -7,6 +7,7 @@ import { ForeignKeyDSInfo } from '../../table/table-datastructures.js';
 import { findTableFieldsUtil } from '../../table/utils/find-table-fields.util.js';
 import { findTablesInConnectionUtil } from '../../table/utils/find-tables-in-connection.util.js';
 import { CreateTableWidgetDs } from '../application/data-sctructures/create-table-widgets.ds.js';
+import JSON5 from 'json5';
 
 export async function validateCreateWidgetsDs(
   widgetsDS: Array<CreateTableWidgetDs>,
@@ -52,7 +53,7 @@ export async function validateCreateWidgetsDs(
     }
 
     if (widget_type && widget_type === WidgetTypeEnum.Foreign_key) {
-      const widget_params: ForeignKeyDSInfo = widgetDS.widget_params as any;
+      const widget_params: ForeignKeyDSInfo = JSON5.parse(widgetDS.widget_params);
 
       for (const key in widget_params) {
         if (!Constants.FOREIGN_KEY_FIELDS.includes(key)) {

@@ -76,8 +76,6 @@ export class GetTableStructureUseCase
 
       tableForeignKeys = tableForeignKeys.concat(foreignKeysFromWidgets);
       let transformedTableForeignKeys: Array<ForeignKeyWithAutocompleteColumnsDS> = [];
-
-      tableForeignKeys = tableForeignKeys.concat(foreignKeysFromWidgets);
       const canUserReadForeignTables: Array<{
         tableName: string;
         canRead: boolean;
