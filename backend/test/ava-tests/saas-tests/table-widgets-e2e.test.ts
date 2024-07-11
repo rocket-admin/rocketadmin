@@ -18,6 +18,11 @@ import { registerUserAndReturnUserInfo } from '../../utils/register-user-and-ret
 import { TestUtils } from '../../utils/test.utils.js';
 import { ValidationException } from '../../../src/exceptions/custom-exceptions/validation-exception.js';
 import { ValidationError } from 'class-validator';
+import { CreateOrUpdateTableWidgetsDto } from '../../../src/entities/widget/dto/create-table-widget.dto.js';
+import { WidgetTypeEnum } from '../../../src/enums/widget-type.enum.js';
+import { createTestTable } from '../../utils/create-test-table.js';
+import { getTestKnex } from '../../utils/get-test-knex.js';
+import JSON5 from 'json5';
 
 const mockFactory = new MockFactory();
 let app: INestApplication;
@@ -664,4 +669,111 @@ test(`${currentTest} should throw exception when tableName not passed in request
   const createTableWidgetRO = JSON.parse(createTableWidgetResponse.text);
   t.is(createTableWidgetResponse.status, 400);
   t.is(createTableWidgetRO.message, Messages.TABLE_NAME_MISSING);
+});
+
+//foreign key widget tests
+currentTest = 'POST /widget/:slug/';
+test(`${currentTest} should return created table widgets`, async (t) => {
+  const connectionToTestDB = getTestData(mockFactory).connectionToPostgres;
+  const { token } = await registerUserAndReturnUserInfo(app);
+  const firstTableData = await createTestTable(connectionToTestDB);
+  const connectionParamsCopy = {
+    ...connectionToTestDB,
+  };
+  if (connectionToTestDB.type === 'mysql') {
+    connectionParamsCopy.type = 'mysql2';
+  }
+
+  const Knex = getTestKnex(connectionParamsCopy);
+  const referencedTableTableName = `referenced_table_${faker.string.uuid()}`;
+  const referencedColumnName = 'referenced_on_id';
+  const secondColumnInReferencedTable = faker.lorem.words(1);
+  await Knex.schema.createTable(referencedTableTableName, function (table) {
+    table.increments();
+    table.integer(referencedColumnName);
+    table.string(secondColumnInReferencedTable);
+    table.timestamps();
+  });
+
+  for (let index = 0; index < 42; index++) {
+    await Knex(referencedTableTableName).insert({
+      [referencedColumnName]: faker.number.int({ min: 1, max: 42 }),
+      [secondColumnInReferencedTable]: faker.internet.email(),
+      created_at: new Date(),
+      updated_at: new Date(),
+    });
+  }
+
+  const foreignKeyWidgetsDTO: CreateOrUpdateTableWidgetsDto = {
+    widgets: [
+      {
+        widget_type: WidgetTypeEnum.Foreign_key,
+        widget_params: JSON.stringify({
+          referenced_column_name: 'id',
+          referenced_table_name: firstTableData.testTableName,
+          constraint_name: 'manually_created_constraint',
+          column_name: referencedColumnName,
+        }),
+        field_name: referencedColumnName,
+        description: 'User ID as foreign key',
+        name: 'User ID',
+        widget_options: JSON.stringify({}),
+      },
+    ],
+  };
+
+  const createConnectionResponse = await request(app.getHttpServer())
+    .post('/connection')
+    .send(connectionToTestDB)
+    .set('Cookie', token)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+  const createConnectionRO = JSON.parse(createConnectionResponse.text);
+  t.is(createConnectionResponse.status, 201);
+  const connectionId = createConnectionRO.id;
+
+  const createTableWidgetResponse = await request(app.getHttpServer())
+    .post(`/widget/${connectionId}?tableName=${referencedTableTableName}`)
+    .send(foreignKeyWidgetsDTO)
+    .set('Content-Type', 'application/json')
+    .set('Cookie', token)
+    .set('Accept', 'application/json');
+  const createTableWidgetRO = JSON.parse(createTableWidgetResponse.text);
+  t.is(createTableWidgetResponse.status, 201);
+
+  const getTableWidgets = await request(app.getHttpServer())
+    .get(`/widgets/${connectionId}?tableName=${referencedTableTableName}`)
+    .set('Content-Type', 'application/json')
+    .set('Cookie', token)
+    .set('Accept', 'application/json');
+  t.is(getTableWidgets.status, 200);
+  const getTableWidgetsRO = JSON.parse(getTableWidgets.text);
+  t.is(typeof getTableWidgetsRO, 'object');
+  t.is(getTableWidgetsRO.length, 1);
+  t.is(uuidRegex.test(getTableWidgetsRO[0].id), true);
+  t.is(getTableWidgetsRO[0].widget_type, foreignKeyWidgetsDTO.widgets[0].widget_type);
+
+  const getTableStructureResponse = await request(app.getHttpServer())
+    .get(`/table/structure/${connectionId}?tableName=${referencedTableTableName}`)
+    .set('Content-Type', 'application/json')
+    .set('Cookie', token)
+    .set('Accept', 'application/json');
+
+  const getTableStructureRO = JSON.parse(getTableStructureResponse.text);
+  t.is(getTableStructureResponse.status, 200);
+  t.is(getTableStructureRO.hasOwnProperty('table_widgets'), true);
+  t.is(getTableStructureRO.table_widgets.length, 1);
+  t.is(getTableStructureRO.table_widgets[0].field_name, foreignKeyWidgetsDTO.widgets[0].field_name);
+  t.is(getTableStructureRO.table_widgets[0].widget_type, foreignKeyWidgetsDTO.widgets[0].widget_type);
+  t.is(getTableStructureRO.hasOwnProperty('foreignKeys'), true);
+  t.is(getTableStructureRO.foreignKeys.length, 1);
+  t.is(getTableStructureRO.foreignKeys[0].column_name, foreignKeyWidgetsDTO.widgets[0].field_name);
+  t.is(getTableStructureRO.foreignKeys[0].referenced_table_name, firstTableData.testTableName);
+  const widgetParams = JSON5.parse(getTableStructureRO.table_widgets[0].widget_params);
+  t.is(widgetParams.referenced_table_name, firstTableData.testTableName);
+  t.is(widgetParams.referenced_column_name, 'id');
+  t.is(widgetParams.constraint_name, 'manually_created_constraint');
+  t.is(widgetParams.column_name, referencedColumnName);
+  t.is(getTableStructureRO.foreignKeys[0].hasOwnProperty('autocomplete_columns'), true);
+  t.is(getTableStructureRO.foreignKeys[0].autocomplete_columns.length, 5);
 });

@@ -171,8 +171,6 @@ export class UpdateRowInTableUseCase
     tableForeignKeys = tableForeignKeys.concat(foreignKeysFromWidgets);
 
     let foreignKeysWithAutocompleteColumns: Array<ForeignKeyWithAutocompleteColumnsDS> = [];
-
-    tableForeignKeys = tableForeignKeys.concat(foreignKeysFromWidgets);
     const canUserReadForeignTables: Array<{
       tableName: string;
       canRead: boolean;
