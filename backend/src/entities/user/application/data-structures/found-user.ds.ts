@@ -10,19 +10,20 @@ export class CompanyIdDS {
 export class FoundUserDs {
   @ApiProperty()
   id: string;
+
   @ApiProperty()
   isActive: boolean;
 
   @ApiProperty()
   email: string;
 
-  @ApiProperty()
+  @ApiProperty({ type: Date })
   createdAt: Date;
 
   @ApiProperty()
   suspended: boolean;
 
-  @ApiProperty({ required: false })
+  @ApiProperty({ required: false, type: String })
   intercom_hash?: string;
 
   @ApiProperty()
@@ -31,13 +32,13 @@ export class FoundUserDs {
   @ApiProperty()
   is_2fa_enabled: boolean;
 
-  @ApiProperty()
+  @ApiProperty({ enum: UserRoleEnum })
   role: UserRoleEnum;
 
   @ApiProperty({ required: false })
   company?: CompanyIdDS;
 
-  @ApiProperty()
+  @ApiProperty({ enum: ExternalRegistrationProviderEnum })
   externalRegistrationProvider: ExternalRegistrationProviderEnum;
 }
 
@@ -63,9 +64,9 @@ export class SimpleFoundUserInfoDs {
   @ApiProperty()
   is_2fa_enabled: boolean;
 
-  @ApiProperty()
+  @ApiProperty({ enum: UserRoleEnum })
   role: UserRoleEnum;
 
-  @ApiProperty()
+  @ApiProperty({ enum: ExternalRegistrationProviderEnum })
   externalRegistrationProvider: ExternalRegistrationProviderEnum;
 }
