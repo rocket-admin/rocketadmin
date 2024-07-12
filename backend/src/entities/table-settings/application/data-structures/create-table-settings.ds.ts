@@ -5,10 +5,10 @@ import { TableActionEntity } from '../../../table-actions/table-actions-module/t
 import { TableWidgetEntity } from '../../../widget/table-widget.entity.js';
 
 export class CreateTableSettingsDs {
-  @ApiProperty({ isArray: true })
+  @ApiProperty({ isArray: true, type: 'string' })
   autocomplete_columns: Array<string>;
 
-  @ApiProperty({ isArray: true })
+  @ApiProperty({ isArray: true, type: 'string', required: false })
   columns_view?: Array<string>;
 
   connection_id: string;
@@ -19,16 +19,16 @@ export class CreateTableSettingsDs {
   @ApiProperty()
   display_name: string;
 
-  @ApiProperty({ isArray: true })
+  @ApiProperty({ isArray: true, type: 'string' })
   excluded_fields: Array<string>;
 
-  @ApiProperty({ isArray: true })
+  @ApiProperty({ isArray: true, type: 'string' })
   identification_fields: Array<string>;
 
   @ApiProperty()
   identity_column: string;
 
-  @ApiProperty({ isArray: true })
+  @ApiProperty({ isArray: true, type: 'string' })
   list_fields: Array<string>;
 
   @ApiProperty()
@@ -42,16 +42,16 @@ export class CreateTableSettingsDs {
   @ApiProperty()
   ordering_field: string;
 
-  @ApiProperty({ isArray: true })
+  @ApiProperty({ isArray: true, type: 'string' })
   readonly_fields: Array<string>;
 
-  @ApiProperty({ isArray: true })
+  @ApiProperty({ isArray: true, type: 'string' })
   search_fields: Array<string>;
 
-  @ApiProperty({ isArray: true })
+  @ApiProperty({ isArray: true, type: 'string' })
   sortable_by: Array<string>;
 
-  @ApiProperty({ isArray: true })
+  @ApiProperty({ isArray: true, type: 'string' })
   sensitive_fields: Array<string>;
 
   table_name: string;
