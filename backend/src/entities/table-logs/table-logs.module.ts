@@ -41,6 +41,6 @@ export class TableLogsModule {
   public configure(consumer: MiddlewareConsumer): any {
     consumer
       .apply(AuthMiddleware)
-      .forRoutes({ path: '/logs/:slug', method: RequestMethod.GET }, { path: '/logs/', method: RequestMethod.DELETE });
+      .forRoutes({ path: '/logs/:connectionId', method: RequestMethod.GET }, { path: '/logs/', method: RequestMethod.DELETE });
   }
 }

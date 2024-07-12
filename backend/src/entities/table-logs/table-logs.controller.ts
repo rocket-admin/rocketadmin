@@ -17,7 +17,7 @@ import { SentryInterceptor } from '../../interceptors/index.js';
 import { FindLogsDs } from './application/data-structures/find-logs.ds.js';
 import { FoundLogsDs } from './application/data-structures/found-logs.ds.js';
 import { IFindLogs } from './use-cases/use-cases.interface.js';
-import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 @UseInterceptors(SentryInterceptor)
 @Controller()
@@ -48,10 +48,19 @@ export class TableLogsController {
     description: 'Return all table logs.',
     type: FoundLogsDs,
   })
-  @Get('/logs/:slug')
+  @ApiQuery({ name: 'tableName', required: false })
+  @ApiQuery({ name: 'order', required: false })
+  @ApiQuery({ name: 'page', required: false })
+  @ApiQuery({ name: 'perPage', required: false })
+  @ApiQuery({ name: 'dateFrom', required: false })
+  @ApiQuery({ name: 'dateTo', required: false })
+  @ApiQuery({ name: 'email', required: false })
+  @ApiQuery({ name: 'limit', required: false })
+  @ApiQuery({ name: 'operationTypes', required: false, isArray: true })
+  @Get('/logs/:connectionId')
   async findAll(
     @Query() query,
-    @SlugUuid() connectionId: string,
+    @SlugUuid('connectionId') connectionId: string,
     @UserId() userId: string,
     @Query('operationTypes', new ParseArrayPipe({ separator: ',', optional: true }))
     operationTypes: Array<LogOperationTypeEnum>,
