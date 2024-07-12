@@ -61,10 +61,9 @@ export class RemoveUserFromCompanyUseCase
         );
       }
     }
-    foundUser.company = null;
-    foundUser.groups = [];
-    foundUser.connections = [];
-    await this._dbContext.userRepository.saveUserEntity(foundUser);
+    foundCompanyWithUsers.users = foundCompanyWithUsers.users.filter((user) => user.id !== userId);
+    await this._dbContext.companyInfoRepository.save(foundCompanyWithUsers);
+    await this._dbContext.userRepository.remove(foundUser);
     return {
       success: true,
     };

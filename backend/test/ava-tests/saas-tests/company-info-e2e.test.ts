@@ -237,7 +237,7 @@ test(`${currentTest} should return found company infos for non-admin user`, asyn
   }
 });
 
-currentTest = 'POST /company/remove';
+currentTest = 'DELETE /:companyId/user/:userId';
 
 test(`${currentTest} should remove user from company`, async (t) => {
   try {
@@ -300,6 +300,8 @@ test(`${currentTest} should remove user from company`, async (t) => {
     throw error;
   }
 });
+
+test.skip(`${currentTest} should remove user from company. User with the same email can be invited in this company one more time`, async (t) => {});
 
 currentTest = 'PUT invitation/revoke/:slug';
 
