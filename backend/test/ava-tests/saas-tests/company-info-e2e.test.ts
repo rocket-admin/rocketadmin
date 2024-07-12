@@ -18,7 +18,10 @@ import { faker } from '@faker-js/faker';
 import { nanoid } from 'nanoid';
 import { Messages } from '../../../src/exceptions/text/messages.js';
 import { Constants } from '../../../src/helpers/constants/constants.js';
-import { inviteUserInCompanyAndGroupAndAcceptInvitation } from '../../utils/register-user-and-return-user-info.js';
+import {
+  inviteUserInCompanyAndAcceptInvitation,
+  inviteUserInCompanyAndGroupAndAcceptInvitation,
+} from '../../utils/register-user-and-return-user-info.js';
 
 const mockFactory = new MockFactory();
 let app: INestApplication;
@@ -301,7 +304,79 @@ test(`${currentTest} should remove user from company`, async (t) => {
   }
 });
 
-test.skip(`${currentTest} should remove user from company. User with the same email can be invited in this company one more time`, async (t) => {});
+test(`${currentTest} should remove user from company. User with the same email can be invited in this company one more time`, async (t) => {
+  try {
+    const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
+    const {
+      connections,
+      firstTableInfo,
+      groups,
+      permissions,
+      secondTableInfo,
+      users: { adminUserToken, simpleUserToken, adminUserEmail, simpleUserEmail },
+      groups: { createdGroupId },
+    } = testData;
+
+    const foundCompanyInfo = await request(app.getHttpServer())
+      .get('/company/my/full')
+      .set('Content-Type', 'application/json')
+      .set('Cookie', adminUserToken)
+      .set('Accept', 'application/json');
+
+    const foundCompanyInfoRO = JSON.parse(foundCompanyInfo.text);
+
+    t.is(foundCompanyInfo.status, 200);
+
+    const allGroupsInResult = foundCompanyInfoRO.connections.map((connection) => connection.groups).flat();
+    const allUsersInResult = allGroupsInResult.map((group) => group.users).flat();
+    const foundSimpleUserInResult = allUsersInResult.find((user) => user.email === simpleUserEmail);
+
+    t.is(foundSimpleUserInResult.email, simpleUserEmail);
+
+    const removeUserFromCompanyResult = await request(app.getHttpServer())
+      .delete(`/company/${foundCompanyInfoRO.id}/user/${foundSimpleUserInResult.id}`)
+      .set('Content-Type', 'application/json')
+      .set('Cookie', adminUserToken)
+      .set('Accept', 'application/json');
+
+    const removeUserFromCompany = JSON.parse(removeUserFromCompanyResult.text);
+
+    t.is(removeUserFromCompanyResult.status, 200);
+    t.is(removeUserFromCompany.success, true);
+
+    const foundCompanyInfoAfterUserDeletion = await request(app.getHttpServer())
+      .get('/company/my/full')
+      .set('Content-Type', 'application/json')
+      .set('Cookie', adminUserToken)
+      .set('Accept', 'application/json');
+
+    const foundCompanyInfoROAfterUserDeletion = JSON.parse(foundCompanyInfoAfterUserDeletion.text);
+
+    const allGroupsInResultAfterUserDeletion = foundCompanyInfoROAfterUserDeletion.connections
+      .map((connection) => connection.groups)
+      .flat();
+    const allUsersInResultAfterUserDeletion = allGroupsInResultAfterUserDeletion.map((group) => group.users).flat();
+    const foundSimpleUserInResultAfterUserDeletion = !!allUsersInResultAfterUserDeletion.find(
+      (user) => user.email === simpleUserEmail,
+    );
+
+    t.is(foundSimpleUserInResultAfterUserDeletion, false);
+
+    const invitedDeletedUser = await inviteUserInCompanyAndAcceptInvitation(
+      adminUserToken,
+      'USER',
+      app,
+      createdGroupId,
+      simpleUserEmail,
+    );
+    t.is(invitedDeletedUser.email, simpleUserEmail);
+    t.truthy(invitedDeletedUser.token);
+    t.truthy(invitedDeletedUser.password);
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+});
 
 currentTest = 'PUT invitation/revoke/:slug';
 

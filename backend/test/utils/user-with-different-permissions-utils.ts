@@ -133,6 +133,7 @@ export async function createConnectionsAndInviteNewUserInNewGroupInFirstConnecti
 
 export async function createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(
   app: INestApplication,
+  invitedUserEmail?: string,
 ): Promise<IUserDifferentTableOnlyPermissionsFooData> {
   const connectionsId = {
     firstId: null,
@@ -146,6 +147,7 @@ export async function createConnectionsAndInviteNewUserInNewGroupWithGroupPermis
     undefined,
     app,
     undefined,
+    invitedUserEmail,
   );
   const connectionAdminUserToken = connectionAdminUserInfo.token;
   const simpleUserToken = simpleUserRegisterInfo.token;
