@@ -50,7 +50,7 @@ import {
   IImportCSVFinTable,
   IUpdateRowInTable,
 } from './use-cases/table-use-cases.interface.js';
-import { ApiBearerAuth, ApiBody, ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiProperty, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UpdateRowsDto } from './dto/update-rows.dto.js';
 import { UpdateRowsInTableDs } from './application/data-structures/update-rows-in-table.ds.js';
 import { SuccessResponse } from '../../microservices/saas-microservice/data-structures/common-responce.ds.js';
@@ -101,6 +101,7 @@ export class TableController {
     isArray: true,
   })
   @Get('/connection/tables/:connectionId')
+  @ApiQuery({ name: 'hidden', required: false })
   async findTablesInConnection(
     @SlugUuid('connectionId') connectionId: string,
     @UserId() userId: string,
@@ -133,6 +134,9 @@ export class TableController {
   })
   @UseGuards(TableReadGuard)
   @ApiQuery({ name: 'tableName', required: true })
+  @ApiQuery({ name: 'page', required: false })
+  @ApiQuery({ name: 'perPage', required: false })
+  @ApiQuery({ name: 'search', required: false })
   @Get('/table/rows/:connectionId')
   async findAllRows(
     @QueryTableName() tableName: string,
@@ -185,6 +189,9 @@ export class TableController {
   })
   @ApiBody({ type: FindAllRowsWithBodyFiltersDto })
   @ApiQuery({ name: 'tableName', required: true })
+  @ApiQuery({ name: 'page', required: false })
+  @ApiQuery({ name: 'perPage', required: false })
+  @ApiQuery({ name: 'search', required: false })
   @UseGuards(TableReadGuard)
   @Post('/table/rows/find/:connectionId')
   async findAllRowsWithBodyFilter(
@@ -276,7 +283,6 @@ export class TableController {
   @Post('/table/row/:connectionId')
   async addRowInTable(
     @Body() body: Record<string, unknown>,
-    @Query() query: string,
     @SlugUuid('connectionId') connectionId: string,
     @UserId() userId: string,
     @MasterPassword() masterPwd: string,
@@ -431,6 +437,7 @@ export class TableController {
     description: 'Update rows in table.',
     type: SuccessResponse,
   })
+  @ApiBody({ type: UpdateRowsDto })
   @ApiQuery({ name: 'tableName', required: true })
   @UseGuards(TableEditGuard)
   @Put('/table/rows/update/:connectionId')
@@ -518,6 +525,9 @@ export class TableController {
   })
   @ApiBody({ type: FindAllRowsWithBodyFiltersDto })
   @ApiQuery({ name: 'tableName', required: true })
+  @ApiProperty({ name: 'page', required: false })
+  @ApiProperty({ name: 'perPage', required: false })
+  @ApiProperty({ name: 'search', required: false })
   @UseGuards(TableReadGuard)
   @Post('/table/csv/export/:connectionId')
   async exportCSVFromTable(
