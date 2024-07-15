@@ -47,19 +47,28 @@ export class VerifyOtpUseCase extends AbstractUseCase<VerifyOtpDS, OtpValidation
         HttpStatus.BAD_REQUEST,
       );
     }
-    const isValid = authenticator.check(otpToken, otpSecretKey);
-    if (isValid) {
-      foundUser.isOTPEnabled = true;
-      await this._dbContext.userRepository.saveUserEntity(foundUser);
-      return {
-        validated: true,
-      };
+    try {
+      const isValid = authenticator.check(otpToken, otpSecretKey);
+      if (isValid) {
+        foundUser.isOTPEnabled = true;
+        await this._dbContext.userRepository.saveUserEntity(foundUser);
+        return {
+          validated: true,
+        };
+      }
+    } catch (error) {
+      throw new HttpException(
+        {
+          message: Messages.OTP_VALIDATION_FAILED,
+        },
+        HttpStatus.BAD_REQUEST,
+      );
     }
     throw new HttpException(
       {
         message: Messages.OTP_VALIDATION_FAILED,
       },
-      HttpStatus.BAD_GATEWAY,
+      HttpStatus.INTERNAL_SERVER_ERROR,
     );
   }
 }
