@@ -1,4 +1,4 @@
-FROM node:20-slim AS front_builder
+FROM node:18-slim AS front_builder
 SHELL ["/bin/bash", "-c"]
 WORKDIR /app/frontend
 COPY frontend/package.json frontend/yarn.lock frontend/angular.json frontend/tsconfig.app.json frontend/tsconfig.json /app/frontend/
@@ -35,9 +35,5 @@ CMD [ "/app/backend/runner.sh" ]
 ENTRYPOINT ["/app/backend/entrypoint.sh"]
 
 
-ENV ORACLE_BASE /usr/lib/instantclient
-ENV LD_LIBRARY_PATH /usr/lib/instantclient
-ENV TNS_ADMIN /usr/lib/instantclient
-ENV ORACLE_HOME /usr/lib/instantclient
 ENV TYPEORM_CONNECTION postgres
 ENV TYPEORM_MIGRATIONS dist/src/migrations/*.js
