@@ -136,8 +136,8 @@ export class CompanyInfoController {
     isArray: true,
   })
   @UseGuards(CompanyUserGuard)
-  @Get('users/:slug')
-  async getUsersInCompany(@SlugUuid() companyId: string): Promise<Array<SimpleFoundUserInfoDs>> {
+  @Get('users/:companyId')
+  async getUsersInCompany(@SlugUuid('companyId') companyId: string): Promise<Array<SimpleFoundUserInfoDs>> {
     return await this.getUsersInCompanyUseCase.execute(companyId);
   }
 
@@ -174,10 +174,10 @@ export class CompanyInfoController {
     type: InvitedUserInCompanyAndConnectionGroupDs,
   })
   @UseGuards(CompanyAdminGuard)
-  @Put('user/:slug')
+  @Put('user/:companyId')
   async inviteUserInCompanyAndConnectionGroup(
     @UserId() userId: string,
-    @SlugUuid() companyId: string,
+    @SlugUuid('companyId') companyId: string,
     @Body() inviteUserData: InviteUserInCompanyAndConnectionGroupDto,
   ) {
     const { email, groupId, role } = inviteUserData;
@@ -198,7 +198,7 @@ export class CompanyInfoController {
   })
   @UseGuards(CompanyAdminGuard)
   @Delete('/:companyId/user/:userId')
-  async removeUserFromCompany(@Param('userId') userId: string, @Param('companyId') companyId: string) {
+  async removeUserFromCompany(@SlugUuid('userId') userId: string, @SlugUuid('companyId') companyId: string) {
     if (!ValidationHelper.isValidUUID(userId) || !ValidationHelper.isValidUUID(companyId)) {
       throw new HttpException(
         {
@@ -218,9 +218,9 @@ export class CompanyInfoController {
     type: SuccessResponse,
   })
   @UseGuards(CompanyAdminGuard)
-  @Put('invitation/revoke/:slug')
+  @Put('invitation/revoke/:companyId')
   async revokeUserInvitationInCompany(
-    @SlugUuid() companyId: string,
+    @SlugUuid('companyId') companyId: string,
     @Body() revokeInvitationData: RevokeInvitationRequestDto,
   ) {
     const { email } = revokeInvitationData;
@@ -309,9 +309,9 @@ export class CompanyInfoController {
     type: SuccessResponse,
   })
   @UseGuards(CompanyAdminGuard)
-  @Put('/name/:slug')
+  @Put('/name/:companyId')
   async updateCompanyName(
-    @SlugUuid() companyId: string,
+    @SlugUuid('companyId') companyId: string,
     @Body() nameData: UpdateCompanyNameDto,
   ): Promise<SuccessResponse> {
     const { name } = nameData;
@@ -371,7 +371,7 @@ export class CompanyInfoController {
   @UseGuards(CompanyAdminGuard)
   @Put('/2fa/:companyId')
   async update2faAuthForUsersInCompany(
-    @Param('companyId') companyId: string,
+    @SlugUuid('companyId') companyId: string,
     @Body() update2faStatusData: UpdateUsers2faStatusInCompanyDto,
   ): Promise<SuccessResponse> {
     const { is2faEnabled } = update2faStatusData;
@@ -400,7 +400,7 @@ export class CompanyInfoController {
   @UseGuards(CompanyAdminGuard)
   @Put('/users/suspend/:companyId')
   async suspendUsersInCompany(
-    @Param('companyId') companyInfoId: string,
+    @SlugUuid('companyId') companyInfoId: string,
     @Body() { usersEmails }: SuspendUsersInCompanyDto,
   ): Promise<SuccessResponse> {
     return await this.suspendUsersInCompanyUseCase.execute({ companyInfoId, usersEmails }, InTransactionEnum.ON);
@@ -416,7 +416,7 @@ export class CompanyInfoController {
   @UseGuards(CompanyAdminGuard)
   @Put('/users/unsuspend/:companyId')
   async unSuspendUsersInCompany(
-    @Param('companyId') companyInfoId: string,
+    @SlugUuid('companyId') companyInfoId: string,
     @Body() { usersEmails }: SuspendUsersInCompanyDto,
   ): Promise<SuccessResponse> {
     return await this.unSuspendUsersInCompanyUseCase.execute({ companyInfoId, usersEmails }, InTransactionEnum.ON);
