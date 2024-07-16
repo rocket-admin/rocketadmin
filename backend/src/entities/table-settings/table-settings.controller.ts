@@ -32,7 +32,7 @@ import {
   IFindTableSettings,
   IUpdateTableSettings,
 } from './use-cases/use-cases.interface.js';
-import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 @UseInterceptors(SentryInterceptor)
 @Controller()
@@ -57,6 +57,8 @@ export class TableSettingsController {
     description: 'Return all table settings.',
     type: FoundTableSettingsDs,
   })
+  @ApiQuery({ name: 'connectionId', required: true })
+  @ApiQuery({ name: 'tableName', required: true })
   @UseGuards(ConnectionReadGuard)
   @Get('/settings/')
   @UseInterceptors(ClassSerializerInterceptor)
@@ -87,6 +89,8 @@ export class TableSettingsController {
     description: 'The settings was successfully created.',
     type: FoundTableSettingsDs,
   })
+  @ApiQuery({ name: 'connectionId', required: true })
+  @ApiQuery({ name: 'tableName', required: true })
   @UseGuards(ConnectionEditGuard)
   @Post('/settings/')
   async createSettings(
@@ -165,6 +169,8 @@ export class TableSettingsController {
     description: 'The settings was successfully updated.',
     type: FoundTableSettingsDs,
   })
+  @ApiQuery({ name: 'connectionId', required: true })
+  @ApiQuery({ name: 'tableName', required: true })
   @UseGuards(ConnectionEditGuard)
   @Put('/settings/')
   async updateSettings(
@@ -242,6 +248,8 @@ export class TableSettingsController {
     description: 'The settings was successfully deleted.',
     type: FoundTableSettingsDs,
   })
+  @ApiQuery({ name: 'connectionId', required: true })
+  @ApiQuery({ name: 'tableName', required: true })
   @UseGuards(ConnectionEditGuard)
   @Delete('/settings/')
   async deleteSettings(

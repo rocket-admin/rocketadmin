@@ -5,6 +5,7 @@ export class UpdateRowsDto {
   @ApiProperty()
   @IsNotEmpty()
   @IsArray()
+  @IsObject({ each: true })
   primaryKeys: Array<Record<string, unknown>>;
 
   @ApiProperty()

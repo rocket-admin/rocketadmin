@@ -18,7 +18,7 @@ export class ConnectionReadGuard implements CanActivate {
     return new Promise(async (resolve, reject) => {
       const request: IRequestWithCognitoInfo = context.switchToHttp().getRequest();
       const cognitoUserName = request.decoded.sub;
-      let connectionId: string = request.params?.slug;
+      let connectionId: string = request.params?.slug || request.params?.connectionId;
       if (!connectionId || !validateUuidByRegex(connectionId)) {
         connectionId = request.query['connectionId'];
       }

@@ -50,14 +50,14 @@ export class TablesDataSource implements DataSource<Object> {
 
   public structure;
   public keyAttributes;
-  public columns: Column[];
+  public columns: Column[] = [];
   public dataColumns: string[];
   public dataNormalizedColumns: object;
   public displayedColumns: string[];
   public displayedDataColumns: string[];
   public sortByColumns: string[];
-  public foreignKeysList: string[];
-  public foreignKeys: TableForeignKey[];
+  public foreignKeysList: string[] = [];
+  public foreignKeys: TableForeignKey[] = [];
   public widgetsList: string[];
   public widgets: Widget[];
   public widgetsCount: number = 0;

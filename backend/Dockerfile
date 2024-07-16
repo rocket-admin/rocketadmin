@@ -1,4 +1,4 @@
-FROM public.ecr.aws/docker/library/node:20
+FROM public.ecr.aws/docker/library/node:18
 RUN apt-get update && apt-get install -y \
     tini \
  && rm -rf /var/lib/apt/lists/*
@@ -13,7 +13,7 @@ ENTRYPOINT ["/app/entrypoint.sh"]
 RUN apt update && \
     apt install libaio1 libc6 curl -y && \
     cd /tmp && \
-    curl -o instantclient-basiclite.zip https://download.oracle.com/otn_software/linux/instantclient/instantclient-basiclite-linuxx64.zip -SL && \
+    curl -o instantclient-basiclite.zip https://download.oracle.com/otn_software/linux/instantclient/instantclient-basiclite-linuxx64.zip -sl && \
     unzip instantclient-basiclite.zip && \
     mv instantclient*/ /usr/lib/instantclient && \
     rm instantclient-basiclite.zip && \

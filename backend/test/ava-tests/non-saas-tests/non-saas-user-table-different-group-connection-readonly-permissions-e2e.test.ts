@@ -1233,7 +1233,7 @@ test(`${currentTest} should throw an exception do not have permission`, async (t
     };
 
     const createOrUpdatePermissionResponse = await request(app.getHttpServer())
-     .put(`/permissions/${newGroupId}?connectionId=${testData.connections.firstId}`)
+      .put(`/permissions/${newGroupId}?connectionId=${testData.connections.firstId}`)
       .send({ permissions })
       .set('Cookie', simpleUserToken)
       .set('Content-Type', 'application/json')
@@ -2161,7 +2161,8 @@ test(`${currentTest} should return all found logs in connection'`, async (t) => 
 
 test(`${currentTest} should not return all found logs in connection, when table audit is disabled in connection'`, async (t) => {
   try {
-    const testData = await createConnectionsAndInviteNewUserInNewGroupWithTableDifferentConnectionGroupReadOnlyPermissions(app);
+    const testData =
+      await createConnectionsAndInviteNewUserInNewGroupWithTableDifferentConnectionGroupReadOnlyPermissions(app);
     const {
       connections,
       firstTableInfo,
@@ -2186,7 +2187,7 @@ test(`${currentTest} should not return all found logs in connection, when table 
 
     t.is(updateConnectionResponse.status, 200);
 
-    const newConnectionProperties = mockFactory.generateConnectionPropertiesUserExcluded(null, false);
+    const newConnectionProperties = mockFactory.generateConnectionPropertiesUserExcluded(firstTableInfo.testTableName, false);
 
     const createConnectionPropertiesResponse = await request(app.getHttpServer())
       .post(`/connection/properties/${connections.firstId}`)
@@ -2195,7 +2196,9 @@ test(`${currentTest} should not return all found logs in connection, when table 
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
 
-    t.is(createConnectionPropertiesResponse.status, 201);  
+    const createConnectionPropertiesResponseRO = JSON.parse(createConnectionPropertiesResponse.text);
+    console.log('🚀 ~ test ~ createConnectionPropertiesResponseRO:', createConnectionPropertiesResponseRO);
+    t.is(createConnectionPropertiesResponse.status, 201);
 
     const addRowInTable = await request(app.getHttpServer())
       .post(`/table/row/${connections.firstId}?tableName=${firstTableInfo.testTableName}`)

@@ -5,6 +5,10 @@ import { buildBadRequestException } from '../../guards/utils/index.js';
 import { Constants } from '../constants/constants.js';
 
 export class ValidationHelper {
+  public static isValidUrl(url: string): boolean {
+    return validator.isURL(url);
+  }
+
   public static isValidEmail(email: string): boolean {
     return validator.isEmail(email);
   }

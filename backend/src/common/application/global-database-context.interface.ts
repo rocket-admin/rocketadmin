@@ -7,7 +7,7 @@ import { IEmailVerificationRepository } from '../../entities/email/repository/em
 import { IGroupRepository } from '../../entities/group/repository/group.repository.interface.js';
 import { ILogOutRepository } from '../../entities/log-out/repository/log-out-repository.interface.js';
 import { IPermissionRepository } from '../../entities/permission/repository/permission.repository.interface.js';
-import { ITableActionRepository } from '../../entities/table-actions/repository/table-action-custom-repository.interface.js';
+import { ITableActionRepository } from '../../entities/table-actions/table-actions-module/repository/table-action-custom-repository.interface.js';
 import { TableFieldInfoEntity } from '../../entities/table-field-info/table-field-info.entity.js';
 import { TableInfoEntity } from '../../entities/table-info/table-info.entity.js';
 import { ITableLogsRepository } from '../../entities/table-logs/repository/table-logs-repository.interface.js';
@@ -29,8 +29,13 @@ import { IUserSessionSettings } from '../../entities/user/user-session-settings/
 import { UserSessionSettingsEntity } from '../../entities/user/user-session-settings/user-session-settings.entity.js';
 import { UserEntity } from '../../entities/user/user.entity.js';
 import { ConnectionEntity } from '../../entities/connection/connection.entity.js';
-import { TableTriggersEntity } from '../../entities/table-triggers/table-triggers.entity.js';
-import { ITableTriggersRepository } from '../../entities/table-triggers/repository/table-triggers-custom-repository.interface.js';
+import { ActionRulesEntity } from '../../entities/table-actions/table-action-rules-module/action-rules.entity.js';
+import { IActionRulesRepository } from '../../entities/table-actions/table-action-rules-module/repository/action-rules-custom-repository.interface.js';
+import { IActionEventsRepository } from '../../entities/table-actions/table-action-events-module/repository/action-events-custom-repository.interface.js';
+import { UserApiKeyEntity } from '../../entities/api-key/api-key.entity.js';
+import { IUserApiKeyRepository } from '../../entities/api-key/repository/user-api-key-repository.interface.js';
+import { ActionEventsEntity } from '../../entities/table-actions/table-action-events-module/action-event.entity.js';
+import { TableActionEntity } from '../../entities/table-actions/table-actions-module/table-action.entity.js';
 
 export interface IGlobalDatabaseContext extends IDatabaseContext {
   userRepository: Repository<UserEntity> & IUserRepository;
@@ -52,10 +57,12 @@ export interface IGlobalDatabaseContext extends IDatabaseContext {
   tableWidgetsRepository: ITableWidgetsRepository;
   tableInfoRepository: Repository<TableInfoEntity>;
   tableFieldInfoRepository: Repository<TableFieldInfoEntity>;
-  tableActionRepository: ITableActionRepository;
+  tableActionRepository: Repository<TableActionEntity> & ITableActionRepository;
   userGitHubIdentifierRepository: IUserGitHubIdentifierRepository;
   companyInfoRepository: Repository<CompanyInfoEntity> & ICompanyInfoRepository;
   invitationInCompanyRepository: Repository<InvitationInCompanyEntity> & IInvitationInCompanyRepository;
   userSessionSettingsRepository: Repository<UserSessionSettingsEntity> & IUserSessionSettings;
-  tableTriggersRepository: Repository<TableTriggersEntity> & ITableTriggersRepository;
+  actionRulesRepository: Repository<ActionRulesEntity> & IActionRulesRepository;
+  actionEventsRepository: Repository<ActionEventsEntity> & IActionEventsRepository;
+  userApiKeysRepository: Repository<UserApiKeyEntity> & IUserApiKeyRepository;
 }

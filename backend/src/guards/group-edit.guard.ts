@@ -18,7 +18,7 @@ export class GroupEditGuard implements CanActivate {
     return new Promise(async (resolve, reject) => {
       const request: IRequestWithCognitoInfo = context.switchToHttp().getRequest();
       const cognitoUserName = request.decoded.sub;
-      let groupId: string = request.params?.slug;
+      let groupId: string = request.params?.groupId || request.params?.slug;
       if (!groupId || !validateUuidByRegex(groupId)) {
         groupId = request.body['groupId'];
       }

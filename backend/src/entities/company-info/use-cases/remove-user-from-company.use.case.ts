@@ -33,6 +33,14 @@ export class RemoveUserFromCompanyUseCase
         HttpStatus.NOT_FOUND,
       );
     }
+    if (foundCompanyWithUsers.users.length === 1) {
+      throw new HttpException(
+        {
+          message: Messages.CANT_REMOVE_LAST_USER_FROM_COMPANY,
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
     const foundUser = foundCompanyWithUsers.users.find((user) => user.id === userId);
     if (!foundUser) {
       throw new HttpException(
@@ -53,10 +61,9 @@ export class RemoveUserFromCompanyUseCase
         );
       }
     }
-    foundUser.company = null;
-    foundUser.groups = [];
-    foundUser.connections = [];
-    await this._dbContext.userRepository.saveUserEntity(foundUser);
+    foundCompanyWithUsers.users = foundCompanyWithUsers.users.filter((user) => user.id !== userId);
+    await this._dbContext.companyInfoRepository.save(foundCompanyWithUsers);
+    await this._dbContext.userRepository.remove(foundUser);
     return {
       success: true,
     };

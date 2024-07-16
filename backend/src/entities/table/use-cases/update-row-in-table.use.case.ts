@@ -30,8 +30,8 @@ import { UnknownSQLException } from '../../../exceptions/custom-exceptions/unkno
 import { ExceptionOperations } from '../../../exceptions/custom-exceptions/exception-operation.js';
 import { ReferencedTableNamesAndColumnsDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/referenced-table-names-columns.ds.js';
 import JSON5 from 'json5';
-import { activateTableActions } from '../../table-actions/utils/activate-table-action.util.js';
-import { TableTriggerEventEnum } from '../../../enums/table-trigger-event-enum.js';
+import { activateTableActions } from '../../table-actions/table-actions-module/utils/activate-table-action.util.js';
+import { TableActionEventEnum } from '../../../enums/table-action-event-enum.js';
 
 @Injectable()
 export class UpdateRowInTableUseCase
@@ -171,8 +171,6 @@ export class UpdateRowInTableUseCase
     tableForeignKeys = tableForeignKeys.concat(foreignKeysFromWidgets);
 
     let foreignKeysWithAutocompleteColumns: Array<ForeignKeyWithAutocompleteColumnsDS> = [];
-
-    tableForeignKeys = tableForeignKeys.concat(foreignKeysFromWidgets);
     const canUserReadForeignTables: Array<{
       tableName: string;
       canRead: boolean;
@@ -289,15 +287,17 @@ export class UpdateRowInTableUseCase
         isTest ? AmplitudeEventTypeEnum.tableRowAddedTest : AmplitudeEventTypeEnum.tableRowAdded,
         userId,
       );
-      const foundAddTableActions =
-        await this._dbContext.tableTriggersRepository.findTableActionsFromTriggersOnUpdateRow(connectionId, tableName);
+      const foundAddTableActions = await this._dbContext.tableActionRepository.findTableActionsWithUpdateRowEvents(
+        connectionId,
+        tableName,
+      );
       await activateTableActions(
         foundAddTableActions,
         connection,
         primaryKey,
         userId,
         tableName,
-        TableTriggerEventEnum.UPDATE_ROW,
+        TableActionEventEnum.UPDATE_ROW,
       );
     }
   }

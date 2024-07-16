@@ -80,11 +80,10 @@ export class GroupModule {
         { path: 'group/:slug', method: RequestMethod.DELETE },
         { path: 'group/user', method: RequestMethod.PUT },
         { path: '/group/user/delete', method: RequestMethod.PUT },
-        { path: 'group/permissions/:slug', method: RequestMethod.GET },
         { path: 'group/permission', method: RequestMethod.PUT },
         { path: '/group/permission/delete', method: RequestMethod.PUT },
-        { path: 'group/delete/:slug', method: RequestMethod.DELETE },
-        { path: 'group/users/:slug', method: RequestMethod.GET },
+        { path: 'group/delete/:groupId', method: RequestMethod.DELETE },
+        { path: 'group/users/:groupId', method: RequestMethod.GET },
         { path: 'group/title', method: RequestMethod.PUT },
       );
   }
