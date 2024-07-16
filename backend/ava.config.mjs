@@ -13,4 +13,7 @@ export default  {
     compile: 'tsc'
   },
   workerThreads: false,
+  verbose: true,
+  serial: true,
+  tap: true,
 }
