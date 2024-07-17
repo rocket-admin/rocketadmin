@@ -48,16 +48,16 @@ test.before(async () => {
       },
     }),
   );
-  
-   app.useGlobalPipes(
+
+  app.useGlobalPipes(
     new ValidationPipe({
       exceptionFactory(validationErrors: ValidationError[] = []) {
         return new ValidationException(validationErrors);
       },
     }),
   );
-await app.init();
- app.getHttpServer().listen(0);
+  await app.init();
+  app.getHttpServer().listen(0);
 });
 
 let currentTest = 'GET /groups';
@@ -1188,7 +1188,7 @@ test.serial(`${currentTest} should return a group with new title`, async (t) => 
 
     const { newConnection, newConnection2, newGroup1 } = getTestData(mockFactory);
 
-    let createConnectionResponse = await request(app.getHttpServer())
+    const createConnectionResponse = await request(app.getHttpServer())
       .post('/connection')
       .send(newConnection)
       .set('Cookie', firstUserToken)
