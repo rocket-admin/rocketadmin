@@ -1,19 +1,14 @@
-export default  {
-  files: [
-     "test/ava-tests/**"
-  ],
+export default {
+  files: ['test/ava-tests/**'],
   typescript: {
-    
-    extensions: [
-      "ts",
-    ],
+    extensions: ['ts'],
     rewritePaths: {
-      "src/": "dist/src/", "test/": "dist/test/"
+      'src/': 'dist/src/',
+      'test/': 'dist/test/',
     },
-    compile: 'tsc'
+    compile: 'tsc',
   },
   workerThreads: false,
   verbose: true,
   serial: true,
-  tap: true,
-}
+};
