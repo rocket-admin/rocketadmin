@@ -35,9 +35,5 @@ CMD [ "/app/backend/runner.sh" ]
 ENTRYPOINT ["/app/backend/entrypoint.sh"]
 
 
-ENV ORACLE_BASE /usr/lib/instantclient
-ENV LD_LIBRARY_PATH /usr/lib/instantclient
-ENV TNS_ADMIN /usr/lib/instantclient
-ENV ORACLE_HOME /usr/lib/instantclient
 ENV TYPEORM_CONNECTION postgres
 ENV TYPEORM_MIGRATIONS dist/src/migrations/*.js
