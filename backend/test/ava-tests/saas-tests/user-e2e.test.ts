@@ -152,74 +152,68 @@ test.serial(`${currentTest} should return expiration token when user login with 
   t.pass();
 });
 
-test.serial(
-  `${currentTest} should return expiration token when user login with company id and have more than one company`,
-  async (t) => {
-    try {
-      const testEmail = 'test@mail.com';
-      const testData_1 = await registerUserOnSaasAndReturnUserInfo(testEmail);
-      const testData_2 = await registerUserOnSaasAndReturnUserInfo(testEmail);
+test.serial(`${currentTest} should return expiration token when user login with company id and have more than one company`, async (t) => {
+  try {
+    const testEmail = 'test@mail.com';
+    const testData_1 = await registerUserOnSaasAndReturnUserInfo(testEmail);
+    const testData_2 = await registerUserOnSaasAndReturnUserInfo(testEmail);
 
-      const foundCompanyInfos = await request(app.getHttpServer())
-        .get(`/company/my/email/${testEmail}`)
-        .set('Content-Type', 'application/json')
-        .set('Accept', 'application/json');
+    const foundCompanyInfos = await request(app.getHttpServer())
+      .get(`/company/my/email/${testEmail}`)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
 
-      const foundCompanyInfosRO = JSON.parse(foundCompanyInfos.text);
+    const foundCompanyInfosRO = JSON.parse(foundCompanyInfos.text);
 
-      const loginBodyRequest = {
-        email: testEmail,
-        password: testData_1.password,
-        companyId: foundCompanyInfosRO[0].id,
-      };
+    const loginBodyRequest = {
+      email: testEmail,
+      password: testData_1.password,
+      companyId: foundCompanyInfosRO[0].id,
+    };
 
-      const loginUserResult = await request(app.getHttpServer())
-        .post('/user/login/')
-        .send(loginBodyRequest)
-        .set('Content-Type', 'application/json')
-        .set('Accept', 'application/json');
-      const loginUserRO = JSON.parse(loginUserResult.text);
-      t.is(loginUserResult.status, 201);
-      t.is(loginUserRO.hasOwnProperty('expires'), true);
-    } catch (err) {
-      throw err;
-    }
-    t.pass();
-  },
-);
+    const loginUserResult = await request(app.getHttpServer())
+      .post('/user/login/')
+      .send(loginBodyRequest)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+    const loginUserRO = JSON.parse(loginUserResult.text);
+    t.is(loginUserResult.status, 201);
+    t.is(loginUserRO.hasOwnProperty('expires'), true);
+  } catch (err) {
+    throw err;
+  }
+  t.pass();
+});
 
-test.serial(
-  `${currentTest} should throw an error when user login without company id with more than one company`,
-  async (t) => {
-    try {
-      const testEmail = 'test@mail.com';
-      const testData_1 = await registerUserOnSaasAndReturnUserInfo(testEmail);
-      const testData_2 = await registerUserOnSaasAndReturnUserInfo(testEmail);
+test.serial(`${currentTest} should throw an error when user login without company id with more than one company`, async (t) => {
+  try {
+    const testEmail = 'test@mail.com';
+    const testData_1 = await registerUserOnSaasAndReturnUserInfo(testEmail);
+    const testData_2 = await registerUserOnSaasAndReturnUserInfo(testEmail);
 
-      const foundCompanyInfos = await request(app.getHttpServer())
-        .get(`/company/my/email/${testEmail}`)
-        .set('Content-Type', 'application/json')
-        .set('Accept', 'application/json');
+    const foundCompanyInfos = await request(app.getHttpServer())
+      .get(`/company/my/email/${testEmail}`)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
 
-      const loginBodyRequest = {
-        email: testEmail,
-        password: testData_1.password,
-      };
+    const loginBodyRequest = {
+      email: testEmail,
+      password: testData_1.password,
+    };
 
-      const loginUserResult = await request(app.getHttpServer())
-        .post('/user/login/')
-        .send(loginBodyRequest)
-        .set('Content-Type', 'application/json')
-        .set('Accept', 'application/json');
-      const loginUserRO = JSON.parse(loginUserResult.text);
-      t.is(loginUserResult.status, 401);
-      t.is(loginUserRO.message, Messages.LOGIN_DENIED_SHOULD_CHOOSE_COMPANY);
-    } catch (err) {
-      throw err;
-    }
-    t.pass();
-  },
-);
+    const loginUserResult = await request(app.getHttpServer())
+      .post('/user/login/')
+      .send(loginBodyRequest)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+    const loginUserRO = JSON.parse(loginUserResult.text);
+    t.is(loginUserResult.status, 401);
+    t.is(loginUserRO.message, Messages.LOGIN_DENIED_SHOULD_CHOOSE_COMPANY);
+  } catch (err) {
+    throw err;
+  }
+  t.pass();
+});
 
 test.serial(`${currentTest} reject authorization when try to login with wrong password`, async (t) => {
   try {
@@ -307,7 +301,7 @@ test.serial(`${currentTest} should return user settings when it was created`, as
       .send({ userSettings: settings })
       .set('Cookie', token)
       .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
+      .set('Accept', 'application/json'); 
 
     t.is(saveUserSettingsResult.status, 201);
 

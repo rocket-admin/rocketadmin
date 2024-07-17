@@ -340,35 +340,38 @@ test.serial(`${currentTest} should return a found connection`, async (t) => {
   }
 });
 
-test.serial(`${currentTest} should throw an exception "id is missing" when connection id not passed in the request`, async (t) => {
-  try {
-    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
-    const { token } = await registerUserAndReturnUserInfo(app);
+test.serial(
+  `${currentTest} should throw an exception "id is missing" when connection id not passed in the request`,
+  async (t) => {
+    try {
+      const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
+      const { token } = await registerUserAndReturnUserInfo(app);
 
-    const createConnectionResponse = await request(app.getHttpServer())
-      .post('/connection')
-      .send(newConnection)
-      .set('Cookie', token)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
+      const createConnectionResponse = await request(app.getHttpServer())
+        .post('/connection')
+        .send(newConnection)
+        .set('Cookie', token)
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json');
 
-    const createConnectionRO = JSON.parse(createConnectionResponse.text);
-    createConnectionRO.id = undefined;
-    const findOneResponce = await request(app.getHttpServer())
-      .get(`/connection/one/${createConnectionRO.id}`)
-      .set('Content-Type', 'application/json')
-      .set('Cookie', token)
-      .set('Accept', 'application/json');
+      const createConnectionRO = JSON.parse(createConnectionResponse.text);
+      createConnectionRO.id = undefined;
+      const findOneResponce = await request(app.getHttpServer())
+        .get(`/connection/one/${createConnectionRO.id}`)
+        .set('Content-Type', 'application/json')
+        .set('Cookie', token)
+        .set('Accept', 'application/json');
 
-    t.is(findOneResponce.status, 400);
-    const { message } = JSON.parse(findOneResponce.text);
-    t.is(message, Messages.UUID_INVALID);
+      t.is(findOneResponce.status, 400);
+      const { message } = JSON.parse(findOneResponce.text);
+      t.is(message, Messages.UUID_INVALID);
 
-    t.pass();
-  } catch (e) {
-    throw e;
-  }
-});
+      t.pass();
+    } catch (e) {
+      throw e;
+    }
+  },
+);
 
 currentTest = 'POST /connection';
 test.serial(`${currentTest} should return created connection`, async (t) => {
@@ -593,30 +596,33 @@ test.serial(`${currentTest} should throw error when create connection without pa
   }
 });
 
-test.serial(`${currentTest} should throw error with complex message when create connection without database, type, port`, async (t) => {
-  try {
-    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
-    const { token } = await registerUserAndReturnUserInfo(app);
-    delete newConnection.database;
-    delete newConnection.type;
-    delete newConnection.port;
+test.serial(
+  `${currentTest} should throw error with complex message when create connection without database, type, port`,
+  async (t) => {
+    try {
+      const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
+      const { token } = await registerUserAndReturnUserInfo(app);
+      delete newConnection.database;
+      delete newConnection.type;
+      delete newConnection.port;
 
-    const response = await request(app.getHttpServer())
-      .post('/connection')
-      .send(newConnection)
-      .set('Content-Type', 'application/json')
-      .set('Cookie', token)
-      .set('Accept', 'application/json');
+      const response = await request(app.getHttpServer())
+        .post('/connection')
+        .send(newConnection)
+        .set('Content-Type', 'application/json')
+        .set('Cookie', token)
+        .set('Accept', 'application/json');
 
-    t.is(response.status, 400);
-    const { message } = JSON.parse(response.text);
-    // t.is(message, ErrorsMessages.VALIDATION_FAILED);
+      t.is(response.status, 400);
+      const { message } = JSON.parse(response.text);
+      // t.is(message, ErrorsMessages.VALIDATION_FAILED);
 
-    t.pass();
-  } catch (e) {
-    throw e;
-  }
-});
+      t.pass();
+    } catch (e) {
+      throw e;
+    }
+  },
+);
 
 currentTest = 'PUT /connection';
 test.serial(`${currentTest} should return updated connection`, async (t) => {
@@ -879,39 +885,42 @@ test.serial(`${currentTest} should throw error when update connection without da
   }
 });
 
-test.serial(`${currentTest} should throw error with complex message when update connection without database, type, port`, async (t) => {
-  try {
-    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
-    const { token } = await registerUserAndReturnUserInfo(app);
+test.serial(
+  `${currentTest} should throw error with complex message when update connection without database, type, port`,
+  async (t) => {
+    try {
+      const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
+      const { token } = await registerUserAndReturnUserInfo(app);
 
-    const createConnectionResponse = await request(app.getHttpServer())
-      .post('/connection')
-      .send(newConnection)
-      .set('Content-Type', 'application/json')
-      .set('Cookie', token)
-      .set('Accept', 'application/json');
-    const createConnectionRO = JSON.parse(createConnectionResponse.text);
+      const createConnectionResponse = await request(app.getHttpServer())
+        .post('/connection')
+        .send(newConnection)
+        .set('Content-Type', 'application/json')
+        .set('Cookie', token)
+        .set('Accept', 'application/json');
+      const createConnectionRO = JSON.parse(createConnectionResponse.text);
 
-    delete updateConnection.database;
-    delete updateConnection.type;
-    delete updateConnection.port;
+      delete updateConnection.database;
+      delete updateConnection.type;
+      delete updateConnection.port;
 
-    const response = await request(app.getHttpServer())
-      .put(`/connection/${createConnectionRO.id}`)
-      .send(updateConnection)
-      .set('Content-Type', 'application/json')
-      .set('Cookie', token)
-      .set('Accept', 'application/json');
+      const response = await request(app.getHttpServer())
+        .put(`/connection/${createConnectionRO.id}`)
+        .send(updateConnection)
+        .set('Content-Type', 'application/json')
+        .set('Cookie', token)
+        .set('Accept', 'application/json');
 
-    t.is(response.status, 400);
-    const { message } = JSON.parse(response.text);
-    // t.is(message, ErrorsMessages.VALIDATION_FAILED);
+      t.is(response.status, 400);
+      const { message } = JSON.parse(response.text);
+      // t.is(message, ErrorsMessages.VALIDATION_FAILED);
 
-    t.pass();
-  } catch (e) {
-    throw e;
-  }
-});
+      t.pass();
+    } catch (e) {
+      throw e;
+    }
+  },
+);
 
 currentTest = 'DELETE /connection/:slug';
 test.serial(`${currentTest} should return delete result`, async (t) => {
