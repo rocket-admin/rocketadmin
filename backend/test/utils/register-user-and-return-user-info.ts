@@ -181,7 +181,6 @@ export async function inviteUserInCompanyAndGroupAndAcceptInvitation(
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
   const foundUserJson = JSON.parse(foundUser.text);
-  console.log('🚀 ~ foundUserJson:', foundUserJson)
   const companyId = foundUserJson.company.id;
   if (!newEmail) {
     newEmail = `${faker.lorem.words(1)}_${faker.lorem.words(1)}_${faker.internet.email()}`;

@@ -123,14 +123,14 @@ export class CompanyInfoModule implements NestModule {
     consumer
       .apply(AuthMiddleware)
       .forRoutes(
-        { path: '/company/user/:slug', method: RequestMethod.PUT },
+        { path: '/company/user/:companyId', method: RequestMethod.PUT },
         { path: '/company/my', method: RequestMethod.GET },
         { path: '/company/my', method: RequestMethod.DELETE },
         { path: 'company/my/full', method: RequestMethod.GET },
-        { path: '/company/users/:slug', method: RequestMethod.GET },
+        { path: '/company/users/:companyId', method: RequestMethod.GET },
         { path: '/company/:companyId/user/:userId', method: RequestMethod.DELETE },
-        { path: '/company/invitation/revoke/:slug', method: RequestMethod.PUT },
-        { path: '/company/name/:slug', method: RequestMethod.PUT },
+        { path: '/company/invitation/revoke/:companyId', method: RequestMethod.PUT },
+        { path: '/company/name/:companyId', method: RequestMethod.PUT },
         { path: '/company/users/roles/:companyId', method: RequestMethod.PUT },
         { path: 'company/2fa/:companyId', method: RequestMethod.PUT },
         { path: '/company/users/suspend/:companyId', method: RequestMethod.PUT },
