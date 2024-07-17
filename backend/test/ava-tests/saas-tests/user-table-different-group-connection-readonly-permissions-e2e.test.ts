@@ -75,7 +75,7 @@ test.after.always('Close app connection', async () => {
 
 currentTest = 'GET /connections/';
 
-test(`${currentTest} should return connections, where second user have access`, async (t) => {
+test.serial(`${currentTest} should return connections, where second user have access`, async (t) => {
   try {
     const testData =
       await createConnectionsAndInviteNewUserInNewGroupWithTableDifferentConnectionGroupReadOnlyPermissions(app);
@@ -124,7 +124,7 @@ test(`${currentTest} should return connections, where second user have access`, 
 
 currentTest = 'GET /connection/one/:slug';
 
-test(`${currentTest} should return a found connection`, async (t) => {
+test.serial(`${currentTest} should return a found connection`, async (t) => {
   try {
     const testData =
       await createConnectionsAndInviteNewUserInNewGroupWithTableDifferentConnectionGroupReadOnlyPermissions(app);
@@ -166,40 +166,43 @@ test(`${currentTest} should return a found connection`, async (t) => {
   }
 });
 
-test(`${currentTest} should throw an exception, when you do not have permission in this connection`, async (t) => {
-  try {
-    const testData =
-      await createConnectionsAndInviteNewUserInNewGroupWithTableDifferentConnectionGroupReadOnlyPermissions(app);
-    const {
-      connections,
-      firstTableInfo,
-      groups,
-      permissions,
-      secondTableInfo,
-      users: { adminUserToken, simpleUserToken },
-    } = testData;
+test.serial(
+  `${currentTest} should throw an exception, when you do not have permission in this connection`,
+  async (t) => {
+    try {
+      const testData =
+        await createConnectionsAndInviteNewUserInNewGroupWithTableDifferentConnectionGroupReadOnlyPermissions(app);
+      const {
+        connections,
+        firstTableInfo,
+        groups,
+        permissions,
+        secondTableInfo,
+        users: { adminUserToken, simpleUserToken },
+      } = testData;
 
-    const searchedConnectionId = connections.secondId;
+      const searchedConnectionId = connections.secondId;
 
-    const findOneResponce = await request(app.getHttpServer())
-      .get(`/connection/one/${searchedConnectionId}`)
-      .set('Content-Type', 'application/json')
-      .set('Cookie', simpleUserToken)
-      .set('Accept', 'application/json');
+      const findOneResponce = await request(app.getHttpServer())
+        .get(`/connection/one/${searchedConnectionId}`)
+        .set('Content-Type', 'application/json')
+        .set('Cookie', simpleUserToken)
+        .set('Accept', 'application/json');
 
-    // todo add checking connection object properties
-    t.is(findOneResponce.status, 200);
-    const findOneRO = JSON.parse(findOneResponce.text);
-    t.is(findOneRO.hasOwnProperty('host'), false);
-  } catch (e) {
-    console.error(e);
-    throw e;
-  }
-});
+      // todo add checking connection object properties
+      t.is(findOneResponce.status, 200);
+      const findOneRO = JSON.parse(findOneResponce.text);
+      t.is(findOneRO.hasOwnProperty('host'), false);
+    } catch (e) {
+      console.error(e);
+      throw e;
+    }
+  },
+);
 
 currentTest = 'PUT /connection';
 
-test(`${currentTest} should throw exception you do not have permission`, async (t) => {
+test.serial(`${currentTest} should throw exception you do not have permission`, async (t) => {
   try {
     const testData =
       await createConnectionsAndInviteNewUserInNewGroupWithTableDifferentConnectionGroupReadOnlyPermissions(app);
@@ -227,36 +230,39 @@ test(`${currentTest} should throw exception you do not have permission`, async (
   }
 });
 
-test(`${currentTest} should return throw an exception, when you try update a connection without permissions in it`, async (t) => {
-  try {
-    const testData =
-      await createConnectionsAndInviteNewUserInNewGroupWithTableDifferentConnectionGroupReadOnlyPermissions(app);
-    const {
-      connections,
-      firstTableInfo,
-      groups,
-      permissions,
-      secondTableInfo,
-      users: { adminUserToken, simpleUserToken },
-    } = testData;
-    const updateConnectionResponse = await request(app.getHttpServer())
-      .put(`/connection/${connections.secondId}`)
-      .send(updateConnection)
-      .set('Cookie', simpleUserToken)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
+test.serial(
+  `${currentTest} should return throw an exception, when you try update a connection without permissions in it`,
+  async (t) => {
+    try {
+      const testData =
+        await createConnectionsAndInviteNewUserInNewGroupWithTableDifferentConnectionGroupReadOnlyPermissions(app);
+      const {
+        connections,
+        firstTableInfo,
+        groups,
+        permissions,
+        secondTableInfo,
+        users: { adminUserToken, simpleUserToken },
+      } = testData;
+      const updateConnectionResponse = await request(app.getHttpServer())
+        .put(`/connection/${connections.secondId}`)
+        .send(updateConnection)
+        .set('Cookie', simpleUserToken)
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json');
 
-    t.is(updateConnectionResponse.status, 403);
-    t.is(JSON.parse(updateConnectionResponse.text).message, Messages.DONT_HAVE_PERMISSIONS);
-  } catch (e) {
-    console.error(e);
-    throw e;
-  }
-});
+      t.is(updateConnectionResponse.status, 403);
+      t.is(JSON.parse(updateConnectionResponse.text).message, Messages.DONT_HAVE_PERMISSIONS);
+    } catch (e) {
+      console.error(e);
+      throw e;
+    }
+  },
+);
 
 currentTest = 'DELETE /connection/:slug';
 
-test(`${currentTest} should throw an exception do not have permissions`, async (t) => {
+test.serial(`${currentTest} should throw an exception do not have permissions`, async (t) => {
   try {
     const testData =
       await createConnectionsAndInviteNewUserInNewGroupWithTableDifferentConnectionGroupReadOnlyPermissions(app);
@@ -292,44 +298,47 @@ test(`${currentTest} should throw an exception do not have permissions`, async (
   }
 });
 
-test(`${currentTest} should throw an exception, when you try to delete connection without permission`, async (t) => {
-  try {
-    const testData =
-      await createConnectionsAndInviteNewUserInNewGroupWithTableDifferentConnectionGroupReadOnlyPermissions(app);
-    const {
-      connections,
-      firstTableInfo,
-      groups,
-      permissions,
-      secondTableInfo,
-      users: { adminUserToken, simpleUserToken },
-    } = testData;
+test.serial(
+  `${currentTest} should throw an exception, when you try to delete connection without permission`,
+  async (t) => {
+    try {
+      const testData =
+        await createConnectionsAndInviteNewUserInNewGroupWithTableDifferentConnectionGroupReadOnlyPermissions(app);
+      const {
+        connections,
+        firstTableInfo,
+        groups,
+        permissions,
+        secondTableInfo,
+        users: { adminUserToken, simpleUserToken },
+      } = testData;
 
-    const response = await request(app.getHttpServer())
-      .put(`/connection/delete/${connections.secondId}`)
-      .set('Cookie', simpleUserToken)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-    t.is(response.status, 403);
-    t.is(JSON.parse(response.text).message, Messages.DONT_HAVE_PERMISSIONS);
+      const response = await request(app.getHttpServer())
+        .put(`/connection/delete/${connections.secondId}`)
+        .set('Cookie', simpleUserToken)
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json');
+      t.is(response.status, 403);
+      t.is(JSON.parse(response.text).message, Messages.DONT_HAVE_PERMISSIONS);
 
-    //connection wasn't deleted
-    const findOneResponce = await request(app.getHttpServer())
-      .get(`/connection/one/${connections.firstId}`)
-      .set('Cookie', simpleUserToken)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
+      //connection wasn't deleted
+      const findOneResponce = await request(app.getHttpServer())
+        .get(`/connection/one/${connections.firstId}`)
+        .set('Cookie', simpleUserToken)
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json');
 
-    t.is(findOneResponce.status, 200);
-  } catch (e) {
-    console.error(e);
-    throw e;
-  }
-});
+      t.is(findOneResponce.status, 200);
+    } catch (e) {
+      console.error(e);
+      throw e;
+    }
+  },
+);
 
 currentTest = 'POST /connection/group/:slug';
 
-test(`${currentTest} should throw an exception don not have permission`, async (t) => {
+test.serial(`${currentTest} should throw an exception don not have permission`, async (t) => {
   try {
     const testData =
       await createConnectionsAndInviteNewUserInNewGroupWithTableDifferentConnectionGroupReadOnlyPermissions(app);
@@ -357,36 +366,39 @@ test(`${currentTest} should throw an exception don not have permission`, async (
   }
 });
 
-test(`${currentTest} should throw an exception when you try add group in connection without permission in it`, async (t) => {
-  try {
-    const testData =
-      await createConnectionsAndInviteNewUserInNewGroupWithTableDifferentConnectionGroupReadOnlyPermissions(app);
-    const {
-      connections,
-      firstTableInfo,
-      groups,
-      permissions,
-      secondTableInfo,
-      users: { adminUserToken, simpleUserToken },
-    } = testData;
-    const createGroupResponse = await request(app.getHttpServer())
-      .post(`/connection/group/${connections.secondId}`)
-      .set('Cookie', simpleUserToken)
-      .send(newGroup1)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
+test.serial(
+  `${currentTest} should throw an exception when you try add group in connection without permission in it`,
+  async (t) => {
+    try {
+      const testData =
+        await createConnectionsAndInviteNewUserInNewGroupWithTableDifferentConnectionGroupReadOnlyPermissions(app);
+      const {
+        connections,
+        firstTableInfo,
+        groups,
+        permissions,
+        secondTableInfo,
+        users: { adminUserToken, simpleUserToken },
+      } = testData;
+      const createGroupResponse = await request(app.getHttpServer())
+        .post(`/connection/group/${connections.secondId}`)
+        .set('Cookie', simpleUserToken)
+        .send(newGroup1)
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json');
 
-    t.is(createGroupResponse.status, 403);
-    t.is(JSON.parse(createGroupResponse.text).message, Messages.DONT_HAVE_PERMISSIONS);
-  } catch (e) {
-    console.error(e);
-    throw e;
-  }
-});
+      t.is(createGroupResponse.status, 403);
+      t.is(JSON.parse(createGroupResponse.text).message, Messages.DONT_HAVE_PERMISSIONS);
+    } catch (e) {
+      console.error(e);
+      throw e;
+    }
+  },
+);
 
 currentTest = 'PUT /connection/group/:slug';
 
-test(`${currentTest} should return connection without deleted group result`, async (t) => {
+test.serial(`${currentTest} should return connection without deleted group result`, async (t) => {
   try {
     const testData =
       await createConnectionsAndInviteNewUserInNewGroupWithTableDifferentConnectionGroupReadOnlyPermissions(app);
@@ -434,53 +446,56 @@ test(`${currentTest} should return connection without deleted group result`, asy
   }
 });
 
-test(`${currentTest} should throw an exception, when you try delete group in connection without permissions`, async (t) => {
-  try {
-    const testData =
-      await createConnectionsAndInviteNewUserInNewGroupWithTableDifferentConnectionGroupReadOnlyPermissions(app);
-    const {
-      connections,
-      firstTableInfo,
-      groups,
-      permissions,
-      secondTableInfo,
-      users: { adminUserToken, simpleUserToken },
-    } = testData;
-    const createGroupResponse = await request(app.getHttpServer())
-      .post(`/connection/group/${connections.secondId}`)
-      .set('Cookie', adminUserToken)
-      .send(newGroup1)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
+test.serial(
+  `${currentTest} should throw an exception, when you try delete group in connection without permissions`,
+  async (t) => {
+    try {
+      const testData =
+        await createConnectionsAndInviteNewUserInNewGroupWithTableDifferentConnectionGroupReadOnlyPermissions(app);
+      const {
+        connections,
+        firstTableInfo,
+        groups,
+        permissions,
+        secondTableInfo,
+        users: { adminUserToken, simpleUserToken },
+      } = testData;
+      const createGroupResponse = await request(app.getHttpServer())
+        .post(`/connection/group/${connections.secondId}`)
+        .set('Cookie', adminUserToken)
+        .send(newGroup1)
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json');
 
-    // create group in connection
-    const result = createGroupResponse.body;
+      // create group in connection
+      const result = createGroupResponse.body;
 
-    t.is(createGroupResponse.status, 201);
+      t.is(createGroupResponse.status, 201);
 
-    t.is(result.hasOwnProperty('id'), true);
-    t.is(result.title, newGroup1.title);
+      t.is(result.hasOwnProperty('id'), true);
+      t.is(result.title, newGroup1.title);
 
-    const createGroupRO = JSON.parse(createGroupResponse.text);
+      const createGroupRO = JSON.parse(createGroupResponse.text);
 
-    const response = await request(app.getHttpServer())
-      .put(`/connection/group/delete/${connections.secondId}`)
-      .set('Cookie', simpleUserToken)
-      .send({ groupId: createGroupRO.id })
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
+      const response = await request(app.getHttpServer())
+        .put(`/connection/group/delete/${connections.secondId}`)
+        .set('Cookie', simpleUserToken)
+        .send({ groupId: createGroupRO.id })
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json');
 
-    t.is(response.status, 403);
-    t.is(JSON.parse(response.text).message, Messages.DONT_HAVE_PERMISSIONS);
-  } catch (e) {
-    console.error(e);
-    throw e;
-  }
-});
+      t.is(response.status, 403);
+      t.is(JSON.parse(response.text).message, Messages.DONT_HAVE_PERMISSIONS);
+    } catch (e) {
+      console.error(e);
+      throw e;
+    }
+  },
+);
 
 currentTest = 'GET /connection/groups/:slug';
 
-test(`${currentTest} should groups in connection`, async (t) => {
+test.serial(`${currentTest} should groups in connection`, async (t) => {
   try {
     const testData =
       await createConnectionsAndInviteNewUserInNewGroupWithTableDifferentConnectionGroupReadOnlyPermissions(app);
@@ -528,45 +543,48 @@ test(`${currentTest} should groups in connection`, async (t) => {
   }
 });
 
-test(`${currentTest} it should throw an exception, when you try get groups in connection, where you do not have permission`, async (t) => {
-  try {
-    const testData =
-      await createConnectionsAndInviteNewUserInNewGroupWithTableDifferentConnectionGroupReadOnlyPermissions(app);
-    const {
-      connections,
-      firstTableInfo,
-      groups,
-      permissions,
-      secondTableInfo,
-      users: { adminUserToken, simpleUserToken },
-    } = testData;
-    const createGroupResponse = await request(app.getHttpServer())
-      .post(`/connection/group/${connections.secondId}`)
-      .set('Cookie', adminUserToken)
-      .send(newGroup1)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
+test.serial(
+  `${currentTest} it should throw an exception, when you try get groups in connection, where you do not have permission`,
+  async (t) => {
+    try {
+      const testData =
+        await createConnectionsAndInviteNewUserInNewGroupWithTableDifferentConnectionGroupReadOnlyPermissions(app);
+      const {
+        connections,
+        firstTableInfo,
+        groups,
+        permissions,
+        secondTableInfo,
+        users: { adminUserToken, simpleUserToken },
+      } = testData;
+      const createGroupResponse = await request(app.getHttpServer())
+        .post(`/connection/group/${connections.secondId}`)
+        .set('Cookie', adminUserToken)
+        .send(newGroup1)
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json');
 
-    t.is(createGroupResponse.status, 201);
+      t.is(createGroupResponse.status, 201);
 
-    const response = await request(app.getHttpServer())
-      .get(`/connection/groups/${connections.secondId}`)
-      .set('Cookie', simpleUserToken)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-    t.is(response.status, 200);
+      const response = await request(app.getHttpServer())
+        .get(`/connection/groups/${connections.secondId}`)
+        .set('Cookie', simpleUserToken)
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json');
+      t.is(response.status, 200);
 
-    const result = JSON.parse(response.text);
-    t.is(result.length, 0);
-  } catch (e) {
-    console.error(e);
-    throw e;
-  }
-});
+      const result = JSON.parse(response.text);
+      t.is(result.length, 0);
+    } catch (e) {
+      console.error(e);
+      throw e;
+    }
+  },
+);
 
 currentTest = 'GET /connection/permissions';
 
-test(`${currentTest} should return permissions object for current group in current connection`, async (t) => {
+test.serial(`${currentTest} should return permissions object for current group in current connection`, async (t) => {
   try {
     const testData =
       await createConnectionsAndInviteNewUserInNewGroupWithTableDifferentConnectionGroupReadOnlyPermissions(app);
@@ -624,7 +642,7 @@ test(`${currentTest} should return permissions object for current group in curre
 
 currentTest = 'GET /connection/user/permissions';
 
-test(`${currentTest} should return permissions object for current group in current connection`, async (t) => {
+test.serial(`${currentTest} should return permissions object for current group in current connection`, async (t) => {
   try {
     const testData =
       await createConnectionsAndInviteNewUserInNewGroupWithTableDifferentConnectionGroupReadOnlyPermissions(app);
@@ -681,59 +699,62 @@ test(`${currentTest} should return permissions object for current group in curre
   }
 });
 
-test(`${currentTest} should return permissions object for current group in current connection for current user`, async (t) => {
-  try {
-    const testData =
-      await createConnectionsAndInviteNewUserInNewGroupWithTableDifferentConnectionGroupReadOnlyPermissions(app);
-    const {
-      connections,
-      firstTableInfo,
-      groups,
-      permissions,
-      secondTableInfo,
-      users: { adminUserToken, simpleUserToken },
-    } = testData;
+test.serial(
+  `${currentTest} should return permissions object for current group in current connection for current user`,
+  async (t) => {
+    try {
+      const testData =
+        await createConnectionsAndInviteNewUserInNewGroupWithTableDifferentConnectionGroupReadOnlyPermissions(app);
+      const {
+        connections,
+        firstTableInfo,
+        groups,
+        permissions,
+        secondTableInfo,
+        users: { adminUserToken, simpleUserToken },
+      } = testData;
 
-    const getGroupsResponse = await request(app.getHttpServer())
-      .get(`/connection/groups/${connections.secondId}`)
-      .set('Cookie', adminUserToken)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-    t.is(getGroupsResponse.status, 200);
-    const getGroupsRO = JSON.parse(getGroupsResponse.text);
+      const getGroupsResponse = await request(app.getHttpServer())
+        .get(`/connection/groups/${connections.secondId}`)
+        .set('Cookie', adminUserToken)
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json');
+      t.is(getGroupsResponse.status, 200);
+      const getGroupsRO = JSON.parse(getGroupsResponse.text);
 
-    const groupId = getGroupsRO[0].group.id;
+      const groupId = getGroupsRO[0].group.id;
 
-    const response = await request(app.getHttpServer())
-      .get(`/connection/user/permissions?connectionId=${connections.secondId}&groupId=${groupId}`)
-      .set('Cookie', simpleUserToken)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
+      const response = await request(app.getHttpServer())
+        .get(`/connection/user/permissions?connectionId=${connections.secondId}&groupId=${groupId}`)
+        .set('Cookie', simpleUserToken)
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json');
 
-    t.is(response.status, 200);
-    const result = JSON.parse(response.text);
+      t.is(response.status, 200);
+      const result = JSON.parse(response.text);
 
-    t.is(result.hasOwnProperty('connection'), true);
-    t.is(result.hasOwnProperty('group'), true);
-    t.is(result.hasOwnProperty('tables'), true);
-    t.is(typeof result.connection, 'object');
-    t.is(typeof result.group, 'object');
-    t.is(result.connection.connectionId, connections.secondId);
-    t.is(result.group.groupId, groupId);
-    t.is(result.connection.accessLevel, AccessLevelEnum.none);
-    t.is(result.group.accessLevel, AccessLevelEnum.none);
-    t.is(typeof result.tables, 'object');
-  } catch (e) {
-    console.error(e);
-    throw e;
-  }
-});
+      t.is(result.hasOwnProperty('connection'), true);
+      t.is(result.hasOwnProperty('group'), true);
+      t.is(result.hasOwnProperty('tables'), true);
+      t.is(typeof result.connection, 'object');
+      t.is(typeof result.group, 'object');
+      t.is(result.connection.connectionId, connections.secondId);
+      t.is(result.group.groupId, groupId);
+      t.is(result.connection.accessLevel, AccessLevelEnum.none);
+      t.is(result.group.accessLevel, AccessLevelEnum.none);
+      t.is(typeof result.tables, 'object');
+    } catch (e) {
+      console.error(e);
+      throw e;
+    }
+  },
+);
 
 //****************************** GROUP CONTROLLER ******************************//
 
 currentTest = 'GET /groups/';
 
-test(`${currentTest} should return found groups with current user`, async (t) => {
+test.serial(`${currentTest} should return found groups with current user`, async (t) => {
   try {
     const testData =
       await createConnectionsAndInviteNewUserInNewGroupWithTableDifferentConnectionGroupReadOnlyPermissions(app);
@@ -763,7 +784,7 @@ test(`${currentTest} should return found groups with current user`, async (t) =>
 });
 
 currentTest = 'GET /group/users/:slug';
-test(`${currentTest} it should return users in groups`, async (t) => {
+test.serial(`${currentTest} it should return users in groups`, async (t) => {
   try {
     const testData =
       await createConnectionsAndInviteNewUserInNewGroupWithTableDifferentConnectionGroupReadOnlyPermissions(app);
@@ -800,44 +821,47 @@ test(`${currentTest} it should return users in groups`, async (t) => {
   }
 });
 
-test(`${currentTest} it should throw an exception when you try to receive user in group where you dont have permission`, async (t) => {
-  try {
-    const testData =
-      await createConnectionsAndInviteNewUserInNewGroupWithTableDifferentConnectionGroupReadOnlyPermissions(app);
-    const {
-      connections,
-      firstTableInfo,
-      groups,
-      permissions,
-      secondTableInfo,
-      users: { adminUserToken, simpleUserToken },
-    } = testData;
-    const getGroupsResponse = await request(app.getHttpServer())
-      .get(`/connection/groups/${connections.secondId}`)
-      .set('Cookie', adminUserToken)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-    t.is(getGroupsResponse.status, 200);
-    const getGroupsRO = JSON.parse(getGroupsResponse.text);
+test.serial(
+  `${currentTest} it should throw an exception when you try to receive user in group where you dont have permission`,
+  async (t) => {
+    try {
+      const testData =
+        await createConnectionsAndInviteNewUserInNewGroupWithTableDifferentConnectionGroupReadOnlyPermissions(app);
+      const {
+        connections,
+        firstTableInfo,
+        groups,
+        permissions,
+        secondTableInfo,
+        users: { adminUserToken, simpleUserToken },
+      } = testData;
+      const getGroupsResponse = await request(app.getHttpServer())
+        .get(`/connection/groups/${connections.secondId}`)
+        .set('Cookie', adminUserToken)
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json');
+      t.is(getGroupsResponse.status, 200);
+      const getGroupsRO = JSON.parse(getGroupsResponse.text);
 
-    const groupId = getGroupsRO[0].group.id;
+      const groupId = getGroupsRO[0].group.id;
 
-    const response = await request(app.getHttpServer())
-      .get(`/group/users/${groupId}`)
-      .set('Cookie', simpleUserToken)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-    const getUsersRO = JSON.parse(response.text);
-    t.is(getUsersRO.message, Messages.DONT_HAVE_PERMISSIONS);
-  } catch (e) {
-    console.error(e);
-    throw e;
-  }
-});
+      const response = await request(app.getHttpServer())
+        .get(`/group/users/${groupId}`)
+        .set('Cookie', simpleUserToken)
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json');
+      const getUsersRO = JSON.parse(response.text);
+      t.is(getUsersRO.message, Messages.DONT_HAVE_PERMISSIONS);
+    } catch (e) {
+      console.error(e);
+      throw e;
+    }
+  },
+);
 
 currentTest = 'PUT /group/user';
 
-test(`${currentTest} should throw exception ${Messages.DONT_HAVE_PERMISSIONS}`, async (t) => {
+test.serial(`${currentTest} should throw exception ${Messages.DONT_HAVE_PERMISSIONS}`, async (t) => {
   try {
     const testData =
       await createConnectionsAndInviteNewUserInNewGroupWithTableDifferentConnectionGroupReadOnlyPermissions(app);
@@ -878,7 +902,7 @@ test(`${currentTest} should throw exception ${Messages.DONT_HAVE_PERMISSIONS}`, 
   }
 });
 
-test(`${currentTest} should throw exception, when group id not passed in request`, async (t) => {
+test.serial(`${currentTest} should throw exception, when group id not passed in request`, async (t) => {
   try {
     const testData =
       await createConnectionsAndInviteNewUserInNewGroupWithTableDifferentConnectionGroupReadOnlyPermissions(app);
@@ -916,7 +940,7 @@ test(`${currentTest} should throw exception, when group id not passed in request
   }
 });
 
-test(`${currentTest} should throw exception, when group id passed in request is incorrect`, async (t) => {
+test.serial(`${currentTest} should throw exception, when group id passed in request is incorrect`, async (t) => {
   try {
     const testData =
       await createConnectionsAndInviteNewUserInNewGroupWithTableDifferentConnectionGroupReadOnlyPermissions(app);
@@ -956,7 +980,7 @@ test(`${currentTest} should throw exception, when group id passed in request is 
 
 currentTest = 'DELETE /group/:slug';
 
-test(`${currentTest} should throw ${Messages.DONT_HAVE_PERMISSIONS} exception`, async (t) => {
+test.serial(`${currentTest} should throw ${Messages.DONT_HAVE_PERMISSIONS} exception`, async (t) => {
   try {
     const testData =
       await createConnectionsAndInviteNewUserInNewGroupWithTableDifferentConnectionGroupReadOnlyPermissions(app);
@@ -990,7 +1014,7 @@ test(`${currentTest} should throw ${Messages.DONT_HAVE_PERMISSIONS} exception`, 
   }
 });
 
-test(`${currentTest} should throw an exception when you try delete admin group`, async (t) => {
+test.serial(`${currentTest} should throw an exception when you try delete admin group`, async (t) => {
   try {
     const testData =
       await createConnectionsAndInviteNewUserInNewGroupWithTableDifferentConnectionGroupReadOnlyPermissions(app);
@@ -1027,7 +1051,7 @@ test(`${currentTest} should throw an exception when you try delete admin group`,
   }
 });
 
-test(`${currentTest} should throw an exception when group id not passed in request`, async (t) => {
+test.serial(`${currentTest} should throw an exception when group id not passed in request`, async (t) => {
   try {
     const testData =
       await createConnectionsAndInviteNewUserInNewGroupWithTableDifferentConnectionGroupReadOnlyPermissions(app);
@@ -1061,7 +1085,7 @@ test(`${currentTest} should throw an exception when group id not passed in reque
   }
 });
 
-test(`${currentTest} should throw an exception when group id passed in request is incorrect`, async (t) => {
+test.serial(`${currentTest} should throw an exception when group id passed in request is incorrect`, async (t) => {
   try {
     const testData =
       await createConnectionsAndInviteNewUserInNewGroupWithTableDifferentConnectionGroupReadOnlyPermissions(app);
@@ -1097,7 +1121,7 @@ test(`${currentTest} should throw an exception when group id passed in request i
 
 currentTest = 'PUT /group/user/delete';
 
-test(`${currentTest} should throw an exception ${Messages.DONT_HAVE_PERMISSIONS}`, async (t) => {
+test.serial(`${currentTest} should throw an exception ${Messages.DONT_HAVE_PERMISSIONS}`, async (t) => {
   try {
     const testData =
       await createConnectionsAndInviteNewUserInNewGroupWithTableDifferentConnectionGroupReadOnlyPermissions(app);
@@ -1144,7 +1168,7 @@ test(`${currentTest} should throw an exception ${Messages.DONT_HAVE_PERMISSIONS}
   }
 });
 
-test(`${currentTest} should throw exception, when group id not passed in request`, async (t) => {
+test.serial(`${currentTest} should throw exception, when group id not passed in request`, async (t) => {
   try {
     const testData =
       await createConnectionsAndInviteNewUserInNewGroupWithTableDifferentConnectionGroupReadOnlyPermissions(app);
@@ -1195,7 +1219,7 @@ test(`${currentTest} should throw exception, when group id not passed in request
 
 currentTest = 'PUT permissions/:slug';
 
-test(`${currentTest} should throw an exception do not have permission`, async (t) => {
+test.serial(`${currentTest} should throw an exception do not have permission`, async (t) => {
   try {
     const testData =
       await createConnectionsAndInviteNewUserInNewGroupWithTableDifferentConnectionGroupReadOnlyPermissions(app);
@@ -1255,68 +1279,71 @@ test(`${currentTest} should throw an exception do not have permission`, async (t
   }
 });
 
-test(`${currentTest} should throw ${Messages.DONT_HAVE_PERMISSIONS} exception object when you update permissions`, async (t) => {
-  try {
-    const testData =
-      await createConnectionsAndInviteNewUserInNewGroupWithTableDifferentConnectionGroupReadOnlyPermissions(app);
-    const {
-      connections,
-      firstTableInfo,
-      groups,
-      secondTableInfo,
-      users: { adminUserToken, simpleUserToken },
-    } = testData;
+test.serial(
+  `${currentTest} should throw ${Messages.DONT_HAVE_PERMISSIONS} exception object when you update permissions`,
+  async (t) => {
+    try {
+      const testData =
+        await createConnectionsAndInviteNewUserInNewGroupWithTableDifferentConnectionGroupReadOnlyPermissions(app);
+      const {
+        connections,
+        firstTableInfo,
+        groups,
+        secondTableInfo,
+        users: { adminUserToken, simpleUserToken },
+      } = testData;
 
-    const getGroupsResponse = await request(app.getHttpServer())
-      .get(`/connection/groups/${connections.firstId}`)
-      .set('Cookie', simpleUserToken)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
+      const getGroupsResponse = await request(app.getHttpServer())
+        .get(`/connection/groups/${connections.firstId}`)
+        .set('Cookie', simpleUserToken)
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json');
 
-    t.is(getGroupsResponse.status, 200);
-    const getGroupsRO = JSON.parse(getGroupsResponse.text);
+      t.is(getGroupsResponse.status, 200);
+      const getGroupsRO = JSON.parse(getGroupsResponse.text);
 
-    const groupId = getGroupsRO[0].group.id;
+      const groupId = getGroupsRO[0].group.id;
 
-    const permissions = {
-      connection: {
-        accessLevel: AccessLevelEnum.none,
-        connectionId: connections.firstId,
-      },
-      group: {
-        accessLevel: AccessLevelEnum.readonly,
-        groupId: groupId,
-      },
-      tables: [
-        {
-          accessLevel: {
-            add: false,
-            delete: false,
-            edit: true,
-            readonly: false,
-            visibility: true,
-          },
-          tableName: firstTableInfo.testTableName,
+      const permissions = {
+        connection: {
+          accessLevel: AccessLevelEnum.none,
+          connectionId: connections.firstId,
         },
-      ],
-    };
+        group: {
+          accessLevel: AccessLevelEnum.readonly,
+          groupId: groupId,
+        },
+        tables: [
+          {
+            accessLevel: {
+              add: false,
+              delete: false,
+              edit: true,
+              readonly: false,
+              visibility: true,
+            },
+            tableName: firstTableInfo.testTableName,
+          },
+        ],
+      };
 
-    const createOrUpdatePermissionResponse = await request(app.getHttpServer())
-      .put(`/permissions/${groupId}?connectionId=${connections.firstId}`)
-      .send({ permissions })
-      .set('Cookie', simpleUserToken)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-    const createOrUpdatePermissionRO = JSON.parse(createOrUpdatePermissionResponse.text);
-    t.is(createOrUpdatePermissionResponse.status, 403);
-    t.is(createOrUpdatePermissionRO.message, Messages.DONT_HAVE_PERMISSIONS);
-  } catch (e) {
-    console.error(e);
-    throw e;
-  }
-});
+      const createOrUpdatePermissionResponse = await request(app.getHttpServer())
+        .put(`/permissions/${groupId}?connectionId=${connections.firstId}`)
+        .send({ permissions })
+        .set('Cookie', simpleUserToken)
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json');
+      const createOrUpdatePermissionRO = JSON.parse(createOrUpdatePermissionResponse.text);
+      t.is(createOrUpdatePermissionResponse.status, 403);
+      t.is(createOrUpdatePermissionRO.message, Messages.DONT_HAVE_PERMISSIONS);
+    } catch (e) {
+      console.error(e);
+      throw e;
+    }
+  },
+);
 
-test(`${currentTest} should throw an exception, when you try change admin group`, async (t) => {
+test.serial(`${currentTest} should throw an exception, when you try change admin group`, async (t) => {
   try {
     const testData =
       await createConnectionsAndInviteNewUserInNewGroupWithTableDifferentConnectionGroupReadOnlyPermissions(app);
@@ -1370,7 +1397,7 @@ test(`${currentTest} should throw an exception, when you try change admin group`
 
 currentTest = 'GET /connection/tables/:slug';
 
-test(`${currentTest} should return all tables in connection`, async (t) => {
+test.serial(`${currentTest} should return all tables in connection`, async (t) => {
   try {
     const testData =
       await createConnectionsAndInviteNewUserInNewGroupWithTableDifferentConnectionGroupReadOnlyPermissions(app);
@@ -1407,7 +1434,7 @@ test(`${currentTest} should return all tables in connection`, async (t) => {
   }
 });
 
-test(`${currentTest} should throw an exception, when connection id not passed in request`, async (t) => {
+test.serial(`${currentTest} should throw an exception, when connection id not passed in request`, async (t) => {
   try {
     const testData =
       await createConnectionsAndInviteNewUserInNewGroupWithTableDifferentConnectionGroupReadOnlyPermissions(app);
@@ -1431,36 +1458,39 @@ test(`${currentTest} should throw an exception, when connection id not passed in
   }
 });
 
-test(`${currentTest} should throw an exception, when connection id passed in request is incorrect`, async (t) => {
-  try {
-    const testData =
-      await createConnectionsAndInviteNewUserInNewGroupWithTableDifferentConnectionGroupReadOnlyPermissions(app);
-    const {
-      connections,
-      firstTableInfo,
-      groups,
-      permissions,
-      secondTableInfo,
-      users: { adminUserToken, simpleUserToken },
-    } = testData;
-    const fakeConnectionId = faker.string.uuid();
-    const getTablesInConnection = await request(app.getHttpServer())
-      .get(`/connection/tables/${fakeConnectionId}`)
-      .set('Cookie', simpleUserToken)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-    t.is(getTablesInConnection.status, 400);
-    const getTablesInConnectionRO = JSON.parse(getTablesInConnection.text);
-    t.is(getTablesInConnectionRO.message, Messages.CONNECTION_NOT_FOUND);
-  } catch (e) {
-    console.error(e);
-    throw e;
-  }
-});
+test.serial(
+  `${currentTest} should throw an exception, when connection id passed in request is incorrect`,
+  async (t) => {
+    try {
+      const testData =
+        await createConnectionsAndInviteNewUserInNewGroupWithTableDifferentConnectionGroupReadOnlyPermissions(app);
+      const {
+        connections,
+        firstTableInfo,
+        groups,
+        permissions,
+        secondTableInfo,
+        users: { adminUserToken, simpleUserToken },
+      } = testData;
+      const fakeConnectionId = faker.string.uuid();
+      const getTablesInConnection = await request(app.getHttpServer())
+        .get(`/connection/tables/${fakeConnectionId}`)
+        .set('Cookie', simpleUserToken)
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json');
+      t.is(getTablesInConnection.status, 400);
+      const getTablesInConnectionRO = JSON.parse(getTablesInConnection.text);
+      t.is(getTablesInConnectionRO.message, Messages.CONNECTION_NOT_FOUND);
+    } catch (e) {
+      console.error(e);
+      throw e;
+    }
+  },
+);
 
 currentTest = 'GET /table/rows/:slug';
 
-test(`${currentTest} should return found rows from table`, async (t) => {
+test.serial(`${currentTest} should return found rows from table`, async (t) => {
   try {
     const testData =
       await createConnectionsAndInviteNewUserInNewGroupWithTableDifferentConnectionGroupReadOnlyPermissions(app);
@@ -1493,7 +1523,7 @@ test(`${currentTest} should return found rows from table`, async (t) => {
   }
 });
 
-test(`${currentTest} should throw an exception when connection id not passed in request`, async (t) => {
+test.serial(`${currentTest} should throw an exception when connection id not passed in request`, async (t) => {
   try {
     const testData =
       await createConnectionsAndInviteNewUserInNewGroupWithTableDifferentConnectionGroupReadOnlyPermissions(app);
@@ -1517,7 +1547,7 @@ test(`${currentTest} should throw an exception when connection id not passed in 
   }
 });
 
-test(`${currentTest} should throw an exception when connection id passed in request is incorrec`, async (t) => {
+test.serial(`${currentTest} should throw an exception when connection id passed in request is incorrec`, async (t) => {
   try {
     const testData =
       await createConnectionsAndInviteNewUserInNewGroupWithTableDifferentConnectionGroupReadOnlyPermissions(app);
@@ -1544,7 +1574,7 @@ test(`${currentTest} should throw an exception when connection id passed in requ
   }
 });
 
-test(`${currentTest} should throw an exception when table name passed in request is incorrect`, async (t) => {
+test.serial(`${currentTest} should throw an exception when table name passed in request is incorrect`, async (t) => {
   try {
     const testData =
       await createConnectionsAndInviteNewUserInNewGroupWithTableDifferentConnectionGroupReadOnlyPermissions(app);
@@ -1573,7 +1603,7 @@ test(`${currentTest} should throw an exception when table name passed in request
 
 currentTest = 'GET /table/structure/:slug';
 
-test(`${currentTest} should return table structure`, async (t) => {
+test.serial(`${currentTest} should return table structure`, async (t) => {
   try {
     const testData =
       await createConnectionsAndInviteNewUserInNewGroupWithTableDifferentConnectionGroupReadOnlyPermissions(app);
@@ -1608,7 +1638,7 @@ test(`${currentTest} should return table structure`, async (t) => {
   }
 });
 
-test(`${currentTest} should throw an exception when connection id not passed in request`, async (t) => {
+test.serial(`${currentTest} should throw an exception when connection id not passed in request`, async (t) => {
   try {
     const testData =
       await createConnectionsAndInviteNewUserInNewGroupWithTableDifferentConnectionGroupReadOnlyPermissions(app);
@@ -1633,7 +1663,7 @@ test(`${currentTest} should throw an exception when connection id not passed in 
   }
 });
 
-test(`${currentTest} should throw an exception when connection id passed in request is incorrect`, async (t) => {
+test.serial(`${currentTest} should throw an exception when connection id passed in request is incorrect`, async (t) => {
   try {
     const testData =
       await createConnectionsAndInviteNewUserInNewGroupWithTableDifferentConnectionGroupReadOnlyPermissions(app);
@@ -1661,7 +1691,7 @@ test(`${currentTest} should throw an exception when connection id passed in requ
   }
 });
 
-test(`${currentTest} should throw an exception when table name not passed in request`, async (t) => {
+test.serial(`${currentTest} should throw an exception when table name not passed in request`, async (t) => {
   try {
     const testData =
       await createConnectionsAndInviteNewUserInNewGroupWithTableDifferentConnectionGroupReadOnlyPermissions(app);
@@ -1687,7 +1717,7 @@ test(`${currentTest} should throw an exception when table name not passed in req
   }
 });
 
-test(`${currentTest} should throw an exception when table name passed in request is incorrect`, async (t) => {
+test.serial(`${currentTest} should throw an exception when table name passed in request is incorrect`, async (t) => {
   try {
     const testData =
       await createConnectionsAndInviteNewUserInNewGroupWithTableDifferentConnectionGroupReadOnlyPermissions(app);
@@ -1716,7 +1746,7 @@ test(`${currentTest} should throw an exception when table name passed in request
 
 currentTest = 'POST /table/row/:slug';
 
-test(`${currentTest} should return added row`, async (t) => {
+test.serial(`${currentTest} should return added row`, async (t) => {
   try {
     const testData =
       await createConnectionsAndInviteNewUserInNewGroupWithTableDifferentConnectionGroupReadOnlyPermissions(app);
@@ -1762,7 +1792,7 @@ test(`${currentTest} should return added row`, async (t) => {
   }
 });
 
-test(`${currentTest} should throw an exception when connection id passed in request is incorrect`, async (t) => {
+test.serial(`${currentTest} should throw an exception when connection id passed in request is incorrect`, async (t) => {
   try {
     const testData =
       await createConnectionsAndInviteNewUserInNewGroupWithTableDifferentConnectionGroupReadOnlyPermissions(app);
@@ -1798,7 +1828,7 @@ test(`${currentTest} should throw an exception when connection id passed in requ
   }
 });
 
-test(`${currentTest} should throw an exception when table name passed in request is incorrect`, async (t) => {
+test.serial(`${currentTest} should throw an exception when table name passed in request is incorrect`, async (t) => {
   try {
     const testData =
       await createConnectionsAndInviteNewUserInNewGroupWithTableDifferentConnectionGroupReadOnlyPermissions(app);
@@ -1836,44 +1866,47 @@ test(`${currentTest} should throw an exception when table name passed in request
 
 currentTest = 'PUT /table/row/:slug';
 
-test(`${currentTest} should throw an exception do not have permission, when you do not have edit permission`, async (t) => {
-  try {
-    const testData =
-      await createConnectionsAndInviteNewUserInNewGroupWithTableDifferentConnectionGroupReadOnlyPermissions(app);
-    const {
-      connections,
-      firstTableInfo,
-      groups,
-      permissions,
-      secondTableInfo,
-      users: { adminUserToken, simpleUserToken },
-    } = testData;
+test.serial(
+  `${currentTest} should throw an exception do not have permission, when you do not have edit permission`,
+  async (t) => {
+    try {
+      const testData =
+        await createConnectionsAndInviteNewUserInNewGroupWithTableDifferentConnectionGroupReadOnlyPermissions(app);
+      const {
+        connections,
+        firstTableInfo,
+        groups,
+        permissions,
+        secondTableInfo,
+        users: { adminUserToken, simpleUserToken },
+      } = testData;
 
-    const randomName = faker.person.firstName();
-    const randomEmail = faker.internet.email();
-    const created_at = new Date();
-    const updated_at = new Date();
-    const updateRowInTable = await request(app.getHttpServer())
-      .put(`/table/row/${connections.firstId}?tableName=${firstTableInfo.testTableName}&id=2`)
-      .send({
-        name: randomName,
-        email: randomEmail,
-        created_at: created_at,
-        updated_at: updated_at,
-      })
-      .set('Cookie', simpleUserToken)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-    const addRowInTableRO = JSON.parse(updateRowInTable.text);
-    t.is(updateRowInTable.status, 403);
-    t.is(addRowInTableRO.message, Messages.DONT_HAVE_PERMISSIONS);
-  } catch (e) {
-    console.error(e);
-    throw e;
-  }
-});
+      const randomName = faker.person.firstName();
+      const randomEmail = faker.internet.email();
+      const created_at = new Date();
+      const updated_at = new Date();
+      const updateRowInTable = await request(app.getHttpServer())
+        .put(`/table/row/${connections.firstId}?tableName=${firstTableInfo.testTableName}&id=2`)
+        .send({
+          name: randomName,
+          email: randomEmail,
+          created_at: created_at,
+          updated_at: updated_at,
+        })
+        .set('Cookie', simpleUserToken)
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json');
+      const addRowInTableRO = JSON.parse(updateRowInTable.text);
+      t.is(updateRowInTable.status, 403);
+      t.is(addRowInTableRO.message, Messages.DONT_HAVE_PERMISSIONS);
+    } catch (e) {
+      console.error(e);
+      throw e;
+    }
+  },
+);
 
-test(`${currentTest} should throw an exception when connection id passed in request is incorrect`, async (t) => {
+test.serial(`${currentTest} should throw an exception when connection id passed in request is incorrect`, async (t) => {
   try {
     const testData =
       await createConnectionsAndInviteNewUserInNewGroupWithTableDifferentConnectionGroupReadOnlyPermissions(app);
@@ -1909,7 +1942,7 @@ test(`${currentTest} should throw an exception when connection id passed in requ
   }
 });
 
-test(`${currentTest} should throw an exception when table name passed in request is incorrect`, async (t) => {
+test.serial(`${currentTest} should throw an exception when table name passed in request is incorrect`, async (t) => {
   try {
     const testData =
       await createConnectionsAndInviteNewUserInNewGroupWithTableDifferentConnectionGroupReadOnlyPermissions(app);
@@ -1947,7 +1980,7 @@ test(`${currentTest} should throw an exception when table name passed in request
 
 currentTest = 'DELETE /table/row/:slug';
 
-test(`${currentTest} should return delete result`, async (t) => {
+test.serial(`${currentTest} should return delete result`, async (t) => {
   try {
     const testData =
       await createConnectionsAndInviteNewUserInNewGroupWithTableDifferentConnectionGroupReadOnlyPermissions(app);
@@ -1972,7 +2005,7 @@ test(`${currentTest} should return delete result`, async (t) => {
   }
 });
 
-test(`${currentTest} should throw an exception when connection id passed in request is incorrect`, async (t) => {
+test.serial(`${currentTest} should throw an exception when connection id passed in request is incorrect`, async (t) => {
   try {
     const testData =
       await createConnectionsAndInviteNewUserInNewGroupWithTableDifferentConnectionGroupReadOnlyPermissions(app);
@@ -1999,7 +2032,7 @@ test(`${currentTest} should throw an exception when connection id passed in requ
   }
 });
 
-test(`${currentTest} should throw an exception when table name passed in request is incorrect`, async (t) => {
+test.serial(`${currentTest} should throw an exception when table name passed in request is incorrect`, async (t) => {
   try {
     const testData =
       await createConnectionsAndInviteNewUserInNewGroupWithTableDifferentConnectionGroupReadOnlyPermissions(app);
@@ -2027,7 +2060,7 @@ test(`${currentTest} should throw an exception when table name passed in request
 
 currentTest = 'GET /table/row/:slug';
 
-test(`${currentTest} should return row`, async (t) => {
+test.serial(`${currentTest} should return row`, async (t) => {
   try {
     const testData =
       await createConnectionsAndInviteNewUserInNewGroupWithTableDifferentConnectionGroupReadOnlyPermissions(app);
@@ -2059,7 +2092,7 @@ test(`${currentTest} should return row`, async (t) => {
   }
 });
 
-test(`${currentTest} should throw an exception when connection id passed in request is incorrect`, async (t) => {
+test.serial(`${currentTest} should throw an exception when connection id passed in request is incorrect`, async (t) => {
   try {
     const testData =
       await createConnectionsAndInviteNewUserInNewGroupWithTableDifferentConnectionGroupReadOnlyPermissions(app);
@@ -2085,7 +2118,7 @@ test(`${currentTest} should throw an exception when connection id passed in requ
   }
 });
 
-test(`${currentTest} should throw an exception when table name passed in request is incorrect`, async (t) => {
+test.serial(`${currentTest} should throw an exception when table name passed in request is incorrect`, async (t) => {
   try {
     const testData =
       await createConnectionsAndInviteNewUserInNewGroupWithTableDifferentConnectionGroupReadOnlyPermissions(app);
@@ -2115,7 +2148,7 @@ test(`${currentTest} should throw an exception when table name passed in request
 
 currentTest = 'GET /logs/:slug';
 
-test(`${currentTest} should return all found logs in connection'`, async (t) => {
+test.serial(`${currentTest} should return all found logs in connection'`, async (t) => {
   try {
     const testData =
       await createConnectionsAndInviteNewUserInNewGroupWithTableDifferentConnectionGroupReadOnlyPermissions(app);
@@ -2167,77 +2200,80 @@ test(`${currentTest} should return all found logs in connection'`, async (t) => 
   }
 });
 
-test(`${currentTest} should not return all found logs in connection, when table audit is disabled in connection'`, async (t) => {
-  try {
-    const testData =
-      await createConnectionsAndInviteNewUserInNewGroupWithTableDifferentConnectionGroupReadOnlyPermissions(app);
-    const {
-      connections,
-      firstTableInfo,
-      groups,
-      permissions,
-      secondTableInfo,
-      users: { adminUserToken, simpleUserToken },
-    } = testData;
-    const randomName = faker.person.firstName();
-    const randomEmail = faker.internet.email();
-    const created_at = new Date();
-    const updated_at = new Date();
+test.serial(
+  `${currentTest} should not return all found logs in connection, when table audit is disabled in connection'`,
+  async (t) => {
+    try {
+      const testData =
+        await createConnectionsAndInviteNewUserInNewGroupWithTableDifferentConnectionGroupReadOnlyPermissions(app);
+      const {
+        connections,
+        firstTableInfo,
+        groups,
+        permissions,
+        secondTableInfo,
+        users: { adminUserToken, simpleUserToken },
+      } = testData;
+      const randomName = faker.person.firstName();
+      const randomEmail = faker.internet.email();
+      const created_at = new Date();
+      const updated_at = new Date();
 
-    const updateConnection = mockFactory.generateConnectionToTestPostgresDBInDocker();
+      const updateConnection = mockFactory.generateConnectionToTestPostgresDBInDocker();
 
-    const updateConnectionResponse = await request(app.getHttpServer())
-      .put(`/connection/${connections.firstId}`)
-      .send(updateConnection)
-      .set('Cookie', adminUserToken)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
+      const updateConnectionResponse = await request(app.getHttpServer())
+        .put(`/connection/${connections.firstId}`)
+        .send(updateConnection)
+        .set('Cookie', adminUserToken)
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json');
 
-    t.is(updateConnectionResponse.status, 200);
+      t.is(updateConnectionResponse.status, 200);
 
-    const newConnectionProperties = mockFactory.generateConnectionPropertiesUserExcluded(null, false);
+      const newConnectionProperties = mockFactory.generateConnectionPropertiesUserExcluded(null, false);
 
-    const createConnectionPropertiesResponse = await request(app.getHttpServer())
-      .post(`/connection/properties/${connections.firstId}`)
-      .send(newConnectionProperties)
-      .set('Cookie', adminUserToken)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
+      const createConnectionPropertiesResponse = await request(app.getHttpServer())
+        .post(`/connection/properties/${connections.firstId}`)
+        .send(newConnectionProperties)
+        .set('Cookie', adminUserToken)
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json');
 
-    t.is(createConnectionPropertiesResponse.status, 201);
+      t.is(createConnectionPropertiesResponse.status, 201);
 
-    const addRowInTable = await request(app.getHttpServer())
-      .post(`/table/row/${connections.firstId}?tableName=${firstTableInfo.testTableName}`)
-      .send({
-        [firstTableInfo.testTableColumnName]: randomName,
-        [firstTableInfo.testTableSecondColumnName]: randomEmail,
-        created_at: created_at,
-        updated_at: updated_at,
-      })
-      .set('Cookie', simpleUserToken)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-    t.is(addRowInTable.status, 201);
+      const addRowInTable = await request(app.getHttpServer())
+        .post(`/table/row/${connections.firstId}?tableName=${firstTableInfo.testTableName}`)
+        .send({
+          [firstTableInfo.testTableColumnName]: randomName,
+          [firstTableInfo.testTableSecondColumnName]: randomEmail,
+          created_at: created_at,
+          updated_at: updated_at,
+        })
+        .set('Cookie', simpleUserToken)
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json');
+      t.is(addRowInTable.status, 201);
 
-    const getTableLogs = await request(app.getHttpServer())
-      .get(`/logs/${connections.firstId}`)
-      .set('Cookie', simpleUserToken)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-    const getRowInTableRO = JSON.parse(getTableLogs.text);
+      const getTableLogs = await request(app.getHttpServer())
+        .get(`/logs/${connections.firstId}`)
+        .set('Cookie', simpleUserToken)
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json');
+      const getRowInTableRO = JSON.parse(getTableLogs.text);
 
-    t.is(getRowInTableRO.logs.length, 0);
-  } catch (e) {
-    console.error(e);
-    throw e;
-  }
-});
+      t.is(getRowInTableRO.logs.length, 0);
+    } catch (e) {
+      console.error(e);
+      throw e;
+    }
+  },
+);
 
 //****************************** TABLE SETTINGS CONTROLLER TESTS ******************************//
 
 currentTest = 'GET /settings/';
 
-test(`${currentTest} should return empty object when table settings was not created`, async (t) => {
+test.serial(`${currentTest} should return empty object when table settings was not created`, async (t) => {
   try {
     const testData =
       await createConnectionsAndInviteNewUserInNewGroupWithTableDifferentConnectionGroupReadOnlyPermissions(app);
@@ -2263,7 +2299,7 @@ test(`${currentTest} should return empty object when table settings was not crea
   }
 });
 
-test(`${currentTest} 'should should return created table settings`, async (t) => {
+test.serial(`${currentTest} 'should should return created table settings`, async (t) => {
   try {
     const testData =
       await createConnectionsAndInviteNewUserInNewGroupWithTableDifferentConnectionGroupReadOnlyPermissions(app);
@@ -2313,61 +2349,64 @@ test(`${currentTest} 'should should return created table settings`, async (t) =>
   }
 });
 
-test(`${currentTest} should throw an exception when you try get settings in connection where you do not have permission`, async (t) => {
-  try {
-    const testData =
-      await createConnectionsAndInviteNewUserInNewGroupWithTableDifferentConnectionGroupReadOnlyPermissions(app);
-    const {
-      connections,
-      firstTableInfo,
-      groups,
-      permissions,
-      secondTableInfo,
-      users: { adminUserToken, simpleUserToken },
-    } = testData;
+test.serial(
+  `${currentTest} should throw an exception when you try get settings in connection where you do not have permission`,
+  async (t) => {
+    try {
+      const testData =
+        await createConnectionsAndInviteNewUserInNewGroupWithTableDifferentConnectionGroupReadOnlyPermissions(app);
+      const {
+        connections,
+        firstTableInfo,
+        groups,
+        permissions,
+        secondTableInfo,
+        users: { adminUserToken, simpleUserToken },
+      } = testData;
 
-    const createTableSettingsDTO = mockFactory.generateTableSettings(
-      connections.secondId,
-      secondTableInfo.testTableName,
-      ['id'],
-      [secondTableInfo.testTableSecondColumnName],
-      [secondTableInfo.testTableColumnName],
-      3,
-      QueryOrderingEnum.DESC,
-      'id',
-      ['updated_at'],
-      ['created_at'],
-      undefined,
-      undefined,
-      undefined,
-    );
+      const createTableSettingsDTO = mockFactory.generateTableSettings(
+        connections.secondId,
+        secondTableInfo.testTableName,
+        ['id'],
+        [secondTableInfo.testTableSecondColumnName],
+        [secondTableInfo.testTableColumnName],
+        3,
+        QueryOrderingEnum.DESC,
+        'id',
+        ['updated_at'],
+        ['created_at'],
+        undefined,
+        undefined,
+        undefined,
+      );
 
-    const createTableSettingsResponse = await request(app.getHttpServer())
-      .post(`/settings?connectionId=${connections.secondId}&tableName=${secondTableInfo.testTableName}`)
-      .send(createTableSettingsDTO)
-      .set('Cookie', adminUserToken)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
+      const createTableSettingsResponse = await request(app.getHttpServer())
+        .post(`/settings?connectionId=${connections.secondId}&tableName=${secondTableInfo.testTableName}`)
+        .send(createTableSettingsDTO)
+        .set('Cookie', adminUserToken)
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json');
 
-    t.is(createTableSettingsResponse.status, 201);
+      t.is(createTableSettingsResponse.status, 201);
 
-    const getTableSettings = await request(app.getHttpServer())
-      .get(`/settings/?connectionId=${connections.secondId}&tableName=${secondTableInfo.testTableName}`)
-      .set('Cookie', simpleUserToken)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-    const getTableSettingsRO = JSON.parse(getTableSettings.text);
-    t.is(getTableSettings.status, 403);
-    t.is(getTableSettingsRO.message, Messages.DONT_HAVE_PERMISSIONS);
-  } catch (e) {
-    console.error(e);
-    throw e;
-  }
-});
+      const getTableSettings = await request(app.getHttpServer())
+        .get(`/settings/?connectionId=${connections.secondId}&tableName=${secondTableInfo.testTableName}`)
+        .set('Cookie', simpleUserToken)
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json');
+      const getTableSettingsRO = JSON.parse(getTableSettings.text);
+      t.is(getTableSettings.status, 403);
+      t.is(getTableSettingsRO.message, Messages.DONT_HAVE_PERMISSIONS);
+    } catch (e) {
+      console.error(e);
+      throw e;
+    }
+  },
+);
 
 currentTest = 'POST /settings/';
 
-test(`${currentTest} should throw an exception do not have permission`, async (t) => {
+test.serial(`${currentTest} should throw an exception do not have permission`, async (t) => {
   try {
     const testData =
       await createConnectionsAndInviteNewUserInNewGroupWithTableDifferentConnectionGroupReadOnlyPermissions(app);
@@ -2410,54 +2449,57 @@ test(`${currentTest} should throw an exception do not have permission`, async (t
   }
 });
 
-test(`${currentTest} should throw an exception when you try create settings in connection where you do not have permission`, async (t) => {
-  try {
-    const testData =
-      await createConnectionsAndInviteNewUserInNewGroupWithTableDifferentConnectionGroupReadOnlyPermissions(app);
-    const {
-      connections,
-      firstTableInfo,
-      groups,
-      permissions,
-      secondTableInfo,
-      users: { adminUserToken, simpleUserToken },
-    } = testData;
+test.serial(
+  `${currentTest} should throw an exception when you try create settings in connection where you do not have permission`,
+  async (t) => {
+    try {
+      const testData =
+        await createConnectionsAndInviteNewUserInNewGroupWithTableDifferentConnectionGroupReadOnlyPermissions(app);
+      const {
+        connections,
+        firstTableInfo,
+        groups,
+        permissions,
+        secondTableInfo,
+        users: { adminUserToken, simpleUserToken },
+      } = testData;
 
-    const createTableSettingsDTO = mockFactory.generateTableSettings(
-      connections.secondId,
-      secondTableInfo.testTableName,
-      ['id'],
-      [secondTableInfo.testTableSecondColumnName],
-      [secondTableInfo.testTableColumnName],
-      3,
-      QueryOrderingEnum.DESC,
-      'id',
-      ['updated_at'],
-      ['created_at'],
-      undefined,
-      undefined,
-      undefined,
-    );
+      const createTableSettingsDTO = mockFactory.generateTableSettings(
+        connections.secondId,
+        secondTableInfo.testTableName,
+        ['id'],
+        [secondTableInfo.testTableSecondColumnName],
+        [secondTableInfo.testTableColumnName],
+        3,
+        QueryOrderingEnum.DESC,
+        'id',
+        ['updated_at'],
+        ['created_at'],
+        undefined,
+        undefined,
+        undefined,
+      );
 
-    const createTableSettingsResponse = await request(app.getHttpServer())
-      .post(`/settings?connectionId=${connections.secondId}&tableName=${secondTableInfo.testTableName}}`)
-      .send(createTableSettingsDTO)
-      .set('Cookie', simpleUserToken)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-    t.is(createTableSettingsResponse.status, 403);
+      const createTableSettingsResponse = await request(app.getHttpServer())
+        .post(`/settings?connectionId=${connections.secondId}&tableName=${secondTableInfo.testTableName}}`)
+        .send(createTableSettingsDTO)
+        .set('Cookie', simpleUserToken)
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json');
+      t.is(createTableSettingsResponse.status, 403);
 
-    const createTableSettingsRO = JSON.parse(createTableSettingsResponse.text);
-    t.is(createTableSettingsRO.message, Messages.DONT_HAVE_PERMISSIONS);
-  } catch (e) {
-    console.error(e);
-    throw e;
-  }
-});
+      const createTableSettingsRO = JSON.parse(createTableSettingsResponse.text);
+      t.is(createTableSettingsRO.message, Messages.DONT_HAVE_PERMISSIONS);
+    } catch (e) {
+      console.error(e);
+      throw e;
+    }
+  },
+);
 
 currentTest = 'PUT /settings/';
 
-test(`${currentTest} should throw an exception do not have permission`, async (t) => {
+test.serial(`${currentTest} should throw an exception do not have permission`, async (t) => {
   try {
     const testData =
       await createConnectionsAndInviteNewUserInNewGroupWithTableDifferentConnectionGroupReadOnlyPermissions(app);
@@ -2523,75 +2565,78 @@ test(`${currentTest} should throw an exception do not have permission`, async (t
   }
 });
 
-test(`${currentTest} should throw an exception when you try update settings in connection where you do not have permission`, async (t) => {
-  try {
-    const testData =
-      await createConnectionsAndInviteNewUserInNewGroupWithTableDifferentConnectionGroupReadOnlyPermissions(app);
-    const {
-      connections,
-      firstTableInfo,
-      groups,
-      permissions,
-      secondTableInfo,
-      users: { adminUserToken, simpleUserToken },
-    } = testData;
-    const createTableSettingsDTO = mockFactory.generateTableSettings(
-      connections.secondId,
-      secondTableInfo.testTableName,
-      ['id'],
-      [secondTableInfo.testTableSecondColumnName],
-      [secondTableInfo.testTableColumnName],
-      3,
-      QueryOrderingEnum.DESC,
-      'id',
-      ['updated_at'],
-      ['created_at'],
-      undefined,
-      undefined,
-      undefined,
-    );
+test.serial(
+  `${currentTest} should throw an exception when you try update settings in connection where you do not have permission`,
+  async (t) => {
+    try {
+      const testData =
+        await createConnectionsAndInviteNewUserInNewGroupWithTableDifferentConnectionGroupReadOnlyPermissions(app);
+      const {
+        connections,
+        firstTableInfo,
+        groups,
+        permissions,
+        secondTableInfo,
+        users: { adminUserToken, simpleUserToken },
+      } = testData;
+      const createTableSettingsDTO = mockFactory.generateTableSettings(
+        connections.secondId,
+        secondTableInfo.testTableName,
+        ['id'],
+        [secondTableInfo.testTableSecondColumnName],
+        [secondTableInfo.testTableColumnName],
+        3,
+        QueryOrderingEnum.DESC,
+        'id',
+        ['updated_at'],
+        ['created_at'],
+        undefined,
+        undefined,
+        undefined,
+      );
 
-    const createTableSettingsResponse = await request(app.getHttpServer())
-      .post(`/settings?connectionId=${connections.secondId}&tableName=${secondTableInfo.testTableName}`)
-      .send(createTableSettingsDTO)
-      .set('Cookie', adminUserToken)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-    t.is(createTableSettingsResponse.status, 201);
+      const createTableSettingsResponse = await request(app.getHttpServer())
+        .post(`/settings?connectionId=${connections.secondId}&tableName=${secondTableInfo.testTableName}`)
+        .send(createTableSettingsDTO)
+        .set('Cookie', adminUserToken)
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json');
+      t.is(createTableSettingsResponse.status, 201);
 
-    const updateTableSettingsDTO = mockFactory.generateTableSettings(
-      connections.firstId,
-      firstTableInfo.testTableName,
-      [firstTableInfo.testTableSecondColumnName],
-      ['id'],
-      [firstTableInfo.testTableColumnName],
-      50,
-      QueryOrderingEnum.ASC,
-      'created_at',
-      ['updated_at'],
-      ['created_at'],
-      undefined,
-      undefined,
-      undefined,
-    );
+      const updateTableSettingsDTO = mockFactory.generateTableSettings(
+        connections.firstId,
+        firstTableInfo.testTableName,
+        [firstTableInfo.testTableSecondColumnName],
+        ['id'],
+        [firstTableInfo.testTableColumnName],
+        50,
+        QueryOrderingEnum.ASC,
+        'created_at',
+        ['updated_at'],
+        ['created_at'],
+        undefined,
+        undefined,
+        undefined,
+      );
 
-    const updateTableSettingsResponse = await request(app.getHttpServer())
-      .put(`/settings?connectionId=${connections.secondId}&tableName=${secondTableInfo.testTableName}}}`)
-      .send(updateTableSettingsDTO)
-      .set('Cookie', simpleUserToken)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-    t.is(updateTableSettingsResponse.status, 403);
-    t.is(JSON.parse(updateTableSettingsResponse.text).message, Messages.DONT_HAVE_PERMISSIONS);
-  } catch (e) {
-    console.error(e);
-    throw e;
-  }
-});
+      const updateTableSettingsResponse = await request(app.getHttpServer())
+        .put(`/settings?connectionId=${connections.secondId}&tableName=${secondTableInfo.testTableName}}}`)
+        .send(updateTableSettingsDTO)
+        .set('Cookie', simpleUserToken)
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json');
+      t.is(updateTableSettingsResponse.status, 403);
+      t.is(JSON.parse(updateTableSettingsResponse.text).message, Messages.DONT_HAVE_PERMISSIONS);
+    } catch (e) {
+      console.error(e);
+      throw e;
+    }
+  },
+);
 
 currentTest = 'DELETE /settings/';
 
-test(`${currentTest} should return array without deleted table settings`, async (t) => {
+test.serial(`${currentTest} should return array without deleted table settings`, async (t) => {
   try {
     const testData =
       await createConnectionsAndInviteNewUserInNewGroupWithTableDifferentConnectionGroupReadOnlyPermissions(app);
@@ -2641,61 +2686,64 @@ test(`${currentTest} should return array without deleted table settings`, async 
   }
 });
 
-test(`${currentTest} should throw an exception when you try delete settings in connection where you do not have permission`, async (t) => {
-  try {
-    const testData =
-      await createConnectionsAndInviteNewUserInNewGroupWithTableDifferentConnectionGroupReadOnlyPermissions(app);
-    const {
-      connections,
-      firstTableInfo,
-      groups,
-      permissions,
-      secondTableInfo,
-      users: { adminUserToken, simpleUserToken },
-    } = testData;
-    const createTableSettingsDTO = mockFactory.generateTableSettings(
-      connections.secondId,
-      secondTableInfo.testTableName,
-      ['id'],
-      [secondTableInfo.testTableSecondColumnName],
-      [secondTableInfo.testTableColumnName],
-      3,
-      QueryOrderingEnum.DESC,
-      'id',
-      ['updated_at'],
-      ['created_at'],
-      undefined,
-      undefined,
-      undefined,
-    );
+test.serial(
+  `${currentTest} should throw an exception when you try delete settings in connection where you do not have permission`,
+  async (t) => {
+    try {
+      const testData =
+        await createConnectionsAndInviteNewUserInNewGroupWithTableDifferentConnectionGroupReadOnlyPermissions(app);
+      const {
+        connections,
+        firstTableInfo,
+        groups,
+        permissions,
+        secondTableInfo,
+        users: { adminUserToken, simpleUserToken },
+      } = testData;
+      const createTableSettingsDTO = mockFactory.generateTableSettings(
+        connections.secondId,
+        secondTableInfo.testTableName,
+        ['id'],
+        [secondTableInfo.testTableSecondColumnName],
+        [secondTableInfo.testTableColumnName],
+        3,
+        QueryOrderingEnum.DESC,
+        'id',
+        ['updated_at'],
+        ['created_at'],
+        undefined,
+        undefined,
+        undefined,
+      );
 
-    const createTableSettingsResponse = await request(app.getHttpServer())
-      .post(`/settings?connectionId=${connections.secondId}&tableName=${secondTableInfo.testTableName}`)
-      .send(createTableSettingsDTO)
-      .set('Cookie', adminUserToken)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-    t.is(createTableSettingsResponse.status, 201);
+      const createTableSettingsResponse = await request(app.getHttpServer())
+        .post(`/settings?connectionId=${connections.secondId}&tableName=${secondTableInfo.testTableName}`)
+        .send(createTableSettingsDTO)
+        .set('Cookie', adminUserToken)
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json');
+      t.is(createTableSettingsResponse.status, 201);
 
-    const deleteTableSettingsResponse = await request(app.getHttpServer())
-      .delete(`/settings/?connectionId=${connections.secondId}&tableName=${secondTableInfo.testTableName}`)
-      .set('Cookie', simpleUserToken)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-    const deleteTableSettingsRO = JSON.parse(deleteTableSettingsResponse.text);
-    t.is(deleteTableSettingsResponse.status, 403);
-    t.is(deleteTableSettingsRO.message, Messages.DONT_HAVE_PERMISSIONS);
-  } catch (e) {
-    console.error(e);
-    throw e;
-  }
-});
+      const deleteTableSettingsResponse = await request(app.getHttpServer())
+        .delete(`/settings/?connectionId=${connections.secondId}&tableName=${secondTableInfo.testTableName}`)
+        .set('Cookie', simpleUserToken)
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json');
+      const deleteTableSettingsRO = JSON.parse(deleteTableSettingsResponse.text);
+      t.is(deleteTableSettingsResponse.status, 403);
+      t.is(deleteTableSettingsRO.message, Messages.DONT_HAVE_PERMISSIONS);
+    } catch (e) {
+      console.error(e);
+      throw e;
+    }
+  },
+);
 
 //****************************** TABLE WIDGETS CONTROLLER TESTS ******************************//
 
 currentTest = 'GET /widgets/:slug';
 
-test(`${currentTest} should return empty widgets array when widgets not created`, async (t) => {
+test.serial(`${currentTest} should return empty widgets array when widgets not created`, async (t) => {
   try {
     const testData =
       await createConnectionsAndInviteNewUserInNewGroupWithTableDifferentConnectionGroupReadOnlyPermissions(app);
@@ -2721,7 +2769,7 @@ test(`${currentTest} should return empty widgets array when widgets not created`
   }
 });
 
-test(`${currentTest} should return array of table widgets for table`, async (t) => {
+test.serial(`${currentTest} should return array of table widgets for table`, async (t) => {
   try {
     const testData =
       await createConnectionsAndInviteNewUserInNewGroupWithTableDifferentConnectionGroupReadOnlyPermissions(app);
@@ -2780,52 +2828,55 @@ test(`${currentTest} should return array of table widgets for table`, async (t) 
   }
 });
 
-test(`${currentTest} should throw an exception, when you try to get widgets from connection, when you do not have permissions`, async (t) => {
-  try {
-    const testData =
-      await createConnectionsAndInviteNewUserInNewGroupWithTableDifferentConnectionGroupReadOnlyPermissions(app);
-    const {
-      connections,
-      firstTableInfo,
-      groups,
-      permissions,
-      secondTableInfo,
-      users: { adminUserToken, simpleUserToken },
-    } = testData;
-    const newTableWidgets = mockFactory.generateCreateWidgetDTOsArrayForUsersTable(
-      'id',
-      firstTableInfo.testTableColumnName,
-    );
-    const createTableWidgetResponse = await request(app.getHttpServer())
-      .post(`/widget/${connections.firstId}?tableName=${firstTableInfo.testTableName}`)
-      .send({ widgets: newTableWidgets })
-      .set('Content-Type', 'application/json')
-      .set('Cookie', adminUserToken)
-      .set('Accept', 'application/json');
-    const createTableWidgetRO = JSON.parse(createTableWidgetResponse.text);
-    t.is(createTableWidgetResponse.status, 201);
-    t.is(typeof createTableWidgetRO, 'object');
-    t.is(createTableWidgetRO.length, 2);
+test.serial(
+  `${currentTest} should throw an exception, when you try to get widgets from connection, when you do not have permissions`,
+  async (t) => {
+    try {
+      const testData =
+        await createConnectionsAndInviteNewUserInNewGroupWithTableDifferentConnectionGroupReadOnlyPermissions(app);
+      const {
+        connections,
+        firstTableInfo,
+        groups,
+        permissions,
+        secondTableInfo,
+        users: { adminUserToken, simpleUserToken },
+      } = testData;
+      const newTableWidgets = mockFactory.generateCreateWidgetDTOsArrayForUsersTable(
+        'id',
+        firstTableInfo.testTableColumnName,
+      );
+      const createTableWidgetResponse = await request(app.getHttpServer())
+        .post(`/widget/${connections.firstId}?tableName=${firstTableInfo.testTableName}`)
+        .send({ widgets: newTableWidgets })
+        .set('Content-Type', 'application/json')
+        .set('Cookie', adminUserToken)
+        .set('Accept', 'application/json');
+      const createTableWidgetRO = JSON.parse(createTableWidgetResponse.text);
+      t.is(createTableWidgetResponse.status, 201);
+      t.is(typeof createTableWidgetRO, 'object');
+      t.is(createTableWidgetRO.length, 2);
 
-    t.is(uuidRegex.test(createTableWidgetRO[0].id), true);
+      t.is(uuidRegex.test(createTableWidgetRO[0].id), true);
 
-    const getTableWidgets = await request(app.getHttpServer())
-      .get(`/widgets/${connections.secondId}?tableName=${secondTableInfo.testTableName}`)
-      .set('Content-Type', 'application/json')
-      .set('Cookie', simpleUserToken)
-      .set('Accept', 'application/json');
-    const getTableWidgetsRO = JSON.parse(getTableWidgets.text);
-    t.is(getTableWidgets.status, 403);
-    t.is(getTableWidgetsRO.message, Messages.DONT_HAVE_PERMISSIONS);
-  } catch (e) {
-    console.error(e);
-    throw e;
-  }
-});
+      const getTableWidgets = await request(app.getHttpServer())
+        .get(`/widgets/${connections.secondId}?tableName=${secondTableInfo.testTableName}`)
+        .set('Content-Type', 'application/json')
+        .set('Cookie', simpleUserToken)
+        .set('Accept', 'application/json');
+      const getTableWidgetsRO = JSON.parse(getTableWidgets.text);
+      t.is(getTableWidgets.status, 403);
+      t.is(getTableWidgetsRO.message, Messages.DONT_HAVE_PERMISSIONS);
+    } catch (e) {
+      console.error(e);
+      throw e;
+    }
+  },
+);
 
 currentTest = 'POST /widget/:slug';
 
-test(`${currentTest} should throw an exception do not have permissions`, async (t) => {
+test.serial(`${currentTest} should throw an exception do not have permissions`, async (t) => {
   try {
     const testData =
       await createConnectionsAndInviteNewUserInNewGroupWithTableDifferentConnectionGroupReadOnlyPermissions(app);
@@ -2858,34 +2909,37 @@ test(`${currentTest} should throw an exception do not have permissions`, async (
   }
 });
 
-test(`${currentTest} should throw an exception, when you try add widget in connection, when you do not have permissions`, async (t) => {
-  try {
-    const testData =
-      await createConnectionsAndInviteNewUserInNewGroupWithTableDifferentConnectionGroupReadOnlyPermissions(app);
-    const {
-      connections,
-      firstTableInfo,
-      groups,
-      permissions,
-      secondTableInfo,
-      users: { adminUserToken, simpleUserToken },
-    } = testData;
-    const newTableWidgets = mockFactory.generateCreateWidgetDTOsArrayForUsersTable(
-      'id',
-      firstTableInfo.testTableColumnName,
-    );
+test.serial(
+  `${currentTest} should throw an exception, when you try add widget in connection, when you do not have permissions`,
+  async (t) => {
+    try {
+      const testData =
+        await createConnectionsAndInviteNewUserInNewGroupWithTableDifferentConnectionGroupReadOnlyPermissions(app);
+      const {
+        connections,
+        firstTableInfo,
+        groups,
+        permissions,
+        secondTableInfo,
+        users: { adminUserToken, simpleUserToken },
+      } = testData;
+      const newTableWidgets = mockFactory.generateCreateWidgetDTOsArrayForUsersTable(
+        'id',
+        firstTableInfo.testTableColumnName,
+      );
 
-    const createTableWidgetResponse = await request(app.getHttpServer())
-      .post(`/widget/${connections.secondId}?tableName=${secondTableInfo.testTableName}`)
-      .send({ widgets: newTableWidgets })
-      .set('Content-Type', 'application/json')
-      .set('Cookie', simpleUserToken)
-      .set('Accept', 'application/json');
-    const createTableWidgetRO = JSON.parse(createTableWidgetResponse.text);
-    t.is(createTableWidgetResponse.status, 403);
-    t.is(createTableWidgetRO.message, Messages.DONT_HAVE_PERMISSIONS);
-  } catch (e) {
-    console.error(e);
-    throw e;
-  }
-});
+      const createTableWidgetResponse = await request(app.getHttpServer())
+        .post(`/widget/${connections.secondId}?tableName=${secondTableInfo.testTableName}`)
+        .send({ widgets: newTableWidgets })
+        .set('Content-Type', 'application/json')
+        .set('Cookie', simpleUserToken)
+        .set('Accept', 'application/json');
+      const createTableWidgetRO = JSON.parse(createTableWidgetResponse.text);
+      t.is(createTableWidgetResponse.status, 403);
+      t.is(createTableWidgetRO.message, Messages.DONT_HAVE_PERMISSIONS);
+    } catch (e) {
+      console.error(e);
+      throw e;
+    }
+  },
+);

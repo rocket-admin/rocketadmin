@@ -50,7 +50,7 @@ test.before(async () => {
 
 currentTest = 'GET /user';
 
-test(`${currentTest} should user info for this user`, async (t) => {
+test.serial(`${currentTest} should user info for this user`, async (t) => {
   try {
     const adminUserRegisterInfo = await registerUserAndReturnUserInfo(app);
     const { token } = adminUserRegisterInfo;
@@ -73,7 +73,7 @@ test(`${currentTest} should user info for this user`, async (t) => {
 
 currentTest = 'DELETE /user';
 
-test(`${currentTest} should return user deletion result`, async (t) => {
+test.serial(`${currentTest} should return user deletion result`, async (t) => {
   try {
     const adminUserRegisterInfo = await registerUserAndReturnUserInfo(app);
     const { token } = adminUserRegisterInfo;
@@ -104,7 +104,7 @@ test(`${currentTest} should return user deletion result`, async (t) => {
 });
 
 currentTest = 'POST /user/login';
-test(`${currentTest} should return expiration token when user login`, async (t) => {
+test.serial(`${currentTest} should return expiration token when user login`, async (t) => {
   try {
     const adminUserRegisterInfo = await registerUserAndReturnUserInfo(app);
     const { email, password } = adminUserRegisterInfo;
@@ -122,7 +122,7 @@ test(`${currentTest} should return expiration token when user login`, async (t) 
   t.pass();
 });
 
-test(`${currentTest} should return expiration token when user login with company id`, async (t) => {
+test.serial(`${currentTest} should return expiration token when user login with company id`, async (t) => {
   try {
     const adminUserRegisterInfo = await registerUserAndReturnUserInfo(app);
     const { email, password } = adminUserRegisterInfo;
@@ -152,70 +152,76 @@ test(`${currentTest} should return expiration token when user login with company
   t.pass();
 });
 
-test(`${currentTest} should return expiration token when user login with company id and have more than one company`, async (t) => {
-  try {
-    const testEmail = 'test@mail.com';
-    const testData_1 = await registerUserOnSaasAndReturnUserInfo(testEmail);
-    const testData_2 = await registerUserOnSaasAndReturnUserInfo(testEmail);
+test.serial(
+  `${currentTest} should return expiration token when user login with company id and have more than one company`,
+  async (t) => {
+    try {
+      const testEmail = 'test@mail.com';
+      const testData_1 = await registerUserOnSaasAndReturnUserInfo(testEmail);
+      const testData_2 = await registerUserOnSaasAndReturnUserInfo(testEmail);
 
-    const foundCompanyInfos = await request(app.getHttpServer())
-      .get(`/company/my/email/${testEmail}`)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
+      const foundCompanyInfos = await request(app.getHttpServer())
+        .get(`/company/my/email/${testEmail}`)
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json');
 
-    const foundCompanyInfosRO = JSON.parse(foundCompanyInfos.text);
+      const foundCompanyInfosRO = JSON.parse(foundCompanyInfos.text);
 
-    const loginBodyRequest = {
-      email: testEmail,
-      password: testData_1.password,
-      companyId: foundCompanyInfosRO[0].id,
-    };
+      const loginBodyRequest = {
+        email: testEmail,
+        password: testData_1.password,
+        companyId: foundCompanyInfosRO[0].id,
+      };
 
-    const loginUserResult = await request(app.getHttpServer())
-      .post('/user/login/')
-      .send(loginBodyRequest)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-    const loginUserRO = JSON.parse(loginUserResult.text);
-    t.is(loginUserResult.status, 201);
-    t.is(loginUserRO.hasOwnProperty('expires'), true);
-  } catch (err) {
-    throw err;
-  }
-  t.pass();
-});
+      const loginUserResult = await request(app.getHttpServer())
+        .post('/user/login/')
+        .send(loginBodyRequest)
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json');
+      const loginUserRO = JSON.parse(loginUserResult.text);
+      t.is(loginUserResult.status, 201);
+      t.is(loginUserRO.hasOwnProperty('expires'), true);
+    } catch (err) {
+      throw err;
+    }
+    t.pass();
+  },
+);
 
-test(`${currentTest} should throw an error when user login without company id with more than one company`, async (t) => {
-  try {
-    const testEmail = 'test@mail.com';
-    const testData_1 = await registerUserOnSaasAndReturnUserInfo(testEmail);
-    const testData_2 = await registerUserOnSaasAndReturnUserInfo(testEmail);
+test.serial(
+  `${currentTest} should throw an error when user login without company id with more than one company`,
+  async (t) => {
+    try {
+      const testEmail = 'test@mail.com';
+      const testData_1 = await registerUserOnSaasAndReturnUserInfo(testEmail);
+      const testData_2 = await registerUserOnSaasAndReturnUserInfo(testEmail);
 
-    const foundCompanyInfos = await request(app.getHttpServer())
-      .get(`/company/my/email/${testEmail}`)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
+      const foundCompanyInfos = await request(app.getHttpServer())
+        .get(`/company/my/email/${testEmail}`)
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json');
 
-    const loginBodyRequest = {
-      email: testEmail,
-      password: testData_1.password,
-    };
+      const loginBodyRequest = {
+        email: testEmail,
+        password: testData_1.password,
+      };
 
-    const loginUserResult = await request(app.getHttpServer())
-      .post('/user/login/')
-      .send(loginBodyRequest)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-    const loginUserRO = JSON.parse(loginUserResult.text);
-    t.is(loginUserResult.status, 401);
-    t.is(loginUserRO.message, Messages.LOGIN_DENIED_SHOULD_CHOOSE_COMPANY);
-  } catch (err) {
-    throw err;
-  }
-  t.pass();
-});
+      const loginUserResult = await request(app.getHttpServer())
+        .post('/user/login/')
+        .send(loginBodyRequest)
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json');
+      const loginUserRO = JSON.parse(loginUserResult.text);
+      t.is(loginUserResult.status, 401);
+      t.is(loginUserRO.message, Messages.LOGIN_DENIED_SHOULD_CHOOSE_COMPANY);
+    } catch (err) {
+      throw err;
+    }
+    t.pass();
+  },
+);
 
-test(`${currentTest} reject authorization when try to login with wrong password`, async (t) => {
+test.serial(`${currentTest} reject authorization when try to login with wrong password`, async (t) => {
   try {
     const adminUserRegisterInfo = await registerUserAndReturnUserInfo(app);
     const { email, password } = adminUserRegisterInfo;
@@ -244,7 +250,7 @@ test(`${currentTest} reject authorization when try to login with wrong password`
 });
 
 currentTest = 'POST /user/settings';
-test(`${currentTest} should return created user settings`, async (t) => {
+test.serial(`${currentTest} should return created user settings`, async (t) => {
   try {
     const adminUserRegisterInfo = await registerUserAndReturnUserInfo(app);
     const { token } = adminUserRegisterInfo;
@@ -269,7 +275,7 @@ test(`${currentTest} should return created user settings`, async (t) => {
 });
 
 currentTest = 'GET /user/settings';
-test(`${currentTest} should return empty user settings when it was not created`, async (t) => {
+test.serial(`${currentTest} should return empty user settings when it was not created`, async (t) => {
   try {
     const adminUserRegisterInfo = await registerUserAndReturnUserInfo(app);
     const { token } = adminUserRegisterInfo;
@@ -289,7 +295,7 @@ test(`${currentTest} should return empty user settings when it was not created`,
   t.pass();
 });
 
-test(`${currentTest} should return user settings when it was created`, async (t) => {
+test.serial(`${currentTest} should return user settings when it was created`, async (t) => {
   try {
     const adminUserRegisterInfo = await registerUserAndReturnUserInfo(app);
     const { token } = adminUserRegisterInfo;
@@ -301,7 +307,7 @@ test(`${currentTest} should return user settings when it was created`, async (t)
       .send({ userSettings: settings })
       .set('Cookie', token)
       .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json'); 
+      .set('Accept', 'application/json');
 
     t.is(saveUserSettingsResult.status, 201);
 

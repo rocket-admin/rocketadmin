@@ -76,7 +76,7 @@ test.after('Drop test tables', async () => {
 
 currentTest = 'GET /connection/tables/:slug';
 
-test(`${currentTest} should return list of tables in connection`, async (t) => {
+test.serial(`${currentTest} should return list of tables in connection`, async (t) => {
   try {
     const { connectionToTestMSSQL } = getTestData(mockFactory);
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
@@ -122,7 +122,7 @@ test(`${currentTest} should return list of tables in connection`, async (t) => {
   }
 });
 
-test(`${currentTest} should throw an error when connectionId not passed in request`, async (t) => {
+test.serial(`${currentTest} should throw an error when connectionId not passed in request`, async (t) => {
   try {
     const { connectionToTestMSSQL } = getTestData(mockFactory);
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
@@ -152,7 +152,7 @@ test(`${currentTest} should throw an error when connectionId not passed in reque
   }
 });
 
-test(`${currentTest} should throw an error when connection id is incorrect`, async (t) => {
+test.serial(`${currentTest} should throw an error when connection id is incorrect`, async (t) => {
   try {
     const { connectionToTestMSSQL } = getTestData(mockFactory);
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
@@ -186,7 +186,7 @@ test(`${currentTest} should throw an error when connection id is incorrect`, asy
 
 currentTest = 'GET /table/rows/:slug';
 
-test(`${currentTest} should return rows of selected table without search and without pagination`, async (t) => {
+test.serial(`${currentTest} should return rows of selected table without search and without pagination`, async (t) => {
   try {
     const { connectionToTestMSSQL } = getTestData(mockFactory);
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
@@ -233,7 +233,7 @@ test(`${currentTest} should return rows of selected table without search and wit
   }
 });
 
-test(`${currentTest} should return rows of selected table with search and without pagination`, async (t) => {
+test.serial(`${currentTest} should return rows of selected table with search and without pagination`, async (t) => {
   try {
     const { connectionToTestMSSQL } = getTestData(mockFactory);
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
@@ -306,7 +306,7 @@ test(`${currentTest} should return rows of selected table with search and withou
   }
 });
 
-test(`${currentTest} should return page of all rows with pagination page=1, perPage=2`, async (t) => {
+test.serial(`${currentTest} should return page of all rows with pagination page=1, perPage=2`, async (t) => {
   try {
     const { connectionToTestMSSQL } = getTestData(mockFactory);
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
@@ -380,7 +380,7 @@ test(`${currentTest} should return page of all rows with pagination page=1, perP
   }
 });
 
-test(`${currentTest} should return page of all rows with pagination page=3, perPage=2`, async (t) => {
+test.serial(`${currentTest} should return page of all rows with pagination page=3, perPage=2`, async (t) => {
   try {
     const { connectionToTestMSSQL } = getTestData(mockFactory);
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
@@ -454,1104 +454,1149 @@ test(`${currentTest} should return page of all rows with pagination page=3, perP
   }
 });
 
-test(`${currentTest} with search, with pagination, without sorting
-should return all found rows with pagination page=1 perPage=2`, async (t) => {
-  try {
-    const { connectionToTestMSSQL } = getTestData(mockFactory);
-    const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-    const { testTableName, testTableColumnName } = await createTestTable(connectionToTestMSSQL);
-
-    testTables.push(testTableName);
-
-    const createConnectionResponse = await request(app.getHttpServer())
-      .post('/connection')
-      .send(connectionToTestMSSQL)
-      .set('Cookie', firstUserToken)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-    const createConnectionRO = JSON.parse(createConnectionResponse.text);
-    t.is(createConnectionResponse.status, 201);
-
-    const createTableSettingsDTO = mockFactory.generateTableSettings(
-      createConnectionRO.id,
-      testTableName,
-      [testTableColumnName],
-      undefined,
-      undefined,
-      3,
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-    );
-
-    const createTableSettingsResponse = await request(app.getHttpServer())
-      .post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
-      .send(createTableSettingsDTO)
-      .set('Cookie', firstUserToken)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-    t.is(createTableSettingsResponse.status, 201);
-
-    const getTableRowsResponse = await request(app.getHttpServer())
-      .get(
-        `/table/rows/${createConnectionRO.id}?tableName=${testTableName}&search=${testSearchedUserName}&page=1&perPage=2`,
-      )
-      .set('Cookie', firstUserToken)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-    t.is(getTableRowsResponse.status, 200);
-    const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
-
-    t.is(typeof getTableRowsRO, 'object');
-    t.is(getTableRowsRO.hasOwnProperty('rows'), true);
-    t.is(getTableRowsRO.hasOwnProperty('primaryColumns'), true);
-    t.is(getTableRowsRO.hasOwnProperty('pagination'), true);
-    t.is(getTableRowsRO.rows.length, 2);
-    t.is(Object.keys(getTableRowsRO.rows[0]).length, 5);
-    t.is(getTableRowsRO.rows[0][testTableColumnName], testSearchedUserName);
-    t.is(typeof getTableRowsRO.primaryColumns, 'object');
-    t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('column_name'), true);
-    t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('data_type'), true);
-    t.is(getTableRowsRO.primaryColumns[0].column_name, 'id');
-    t.is(getTableRowsRO.primaryColumns[0].data_type, 'int');
-
-    t.is(getTableRowsRO.pagination.total, 3);
-    t.is(getTableRowsRO.pagination.lastPage, 2);
-    t.is(getTableRowsRO.pagination.perPage, 2);
-    t.is(getTableRowsRO.pagination.currentPage, 1);
-  } catch (e) {
-    console.error(e);
-    throw e;
-  }
-});
-
-test(`${currentTest} with search, with pagination, without sorting
-should return all found rows with pagination page=1 perPage=3`, async (t) => {
-  try {
-    const { connectionToTestMSSQL } = getTestData(mockFactory);
-    const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-    const { testTableName, testTableColumnName } = await createTestTable(connectionToTestMSSQL);
-
-    testTables.push(testTableName);
-
-    const createConnectionResponse = await request(app.getHttpServer())
-      .post('/connection')
-      .send(connectionToTestMSSQL)
-      .set('Cookie', firstUserToken)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-    const createConnectionRO = JSON.parse(createConnectionResponse.text);
-    t.is(createConnectionResponse.status, 201);
-
-    const createTableSettingsDTO = mockFactory.generateTableSettings(
-      createConnectionRO.id,
-      testTableName,
-      [testTableColumnName],
-      undefined,
-      undefined,
-      3,
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-    );
-
-    const createTableSettingsResponse = await request(app.getHttpServer())
-      .post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
-      .send(createTableSettingsDTO)
-      .set('Cookie', firstUserToken)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-    t.is(createTableSettingsResponse.status, 201);
-
-    const getTableRowsResponse = await request(app.getHttpServer())
-      .get(
-        `/table/rows/${createConnectionRO.id}?tableName=${testTableName}&search=${testSearchedUserName}&page=1&perPage=2`,
-      )
-      .set('Cookie', firstUserToken)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-    t.is(getTableRowsResponse.status, 200);
-    const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
-
-    t.is(typeof getTableRowsRO, 'object');
-    t.is(getTableRowsRO.hasOwnProperty('rows'), true);
-    t.is(getTableRowsRO.hasOwnProperty('primaryColumns'), true);
-    t.is(getTableRowsRO.hasOwnProperty('pagination'), true);
-    t.is(getTableRowsRO.rows.length, 2);
-    t.is(Object.keys(getTableRowsRO.rows[0]).length, 5);
-    t.is(getTableRowsRO.rows[0][testTableColumnName], testSearchedUserName);
-    t.is(typeof getTableRowsRO.primaryColumns, 'object');
-    t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('column_name'), true);
-    t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('data_type'), true);
-    t.is(getTableRowsRO.primaryColumns[0].column_name, 'id');
-    t.is(getTableRowsRO.primaryColumns[0].data_type, 'int');
-
-    t.is(getTableRowsRO.pagination.total, 3);
-    t.is(getTableRowsRO.pagination.lastPage, 2);
-    t.is(getTableRowsRO.pagination.perPage, 2);
-    t.is(getTableRowsRO.pagination.currentPage, 1);
-  } catch (e) {
-    console.error(e);
-    throw e;
-  }
-});
-
-test(`${currentTest} without search and without pagination and with sorting
-should return all found rows with sorting ids by DESC`, async (t) => {
-  try {
-    const { connectionToTestMSSQL } = getTestData(mockFactory);
-    const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-    const { testTableName, testTableColumnName } = await createTestTable(connectionToTestMSSQL);
-
-    testTables.push(testTableName);
-
-    const createConnectionResponse = await request(app.getHttpServer())
-      .post('/connection')
-      .send(connectionToTestMSSQL)
-      .set('Cookie', firstUserToken)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-    const createConnectionRO = JSON.parse(createConnectionResponse.text);
-    t.is(createConnectionResponse.status, 201);
-
-    const createTableSettingsDTO = mockFactory.generateTableSettings(
-      createConnectionRO.id,
-      testTableName,
-      [testTableColumnName],
-      undefined,
-      undefined,
-      42,
-      QueryOrderingEnum.DESC,
-      'id',
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-    );
-
-    const createTableSettingsResponse = await request(app.getHttpServer())
-      .post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
-      .send(createTableSettingsDTO)
-      .set('Cookie', firstUserToken)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-    t.is(createTableSettingsResponse.status, 201);
-
-    const getTableRowsResponse = await request(app.getHttpServer())
-      .get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}`)
-      .set('Cookie', firstUserToken)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-    t.is(getTableRowsResponse.status, 200);
-    const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
-
-    t.is(typeof getTableRowsRO, 'object');
-    t.is(getTableRowsRO.hasOwnProperty('rows'), true);
-    t.is(getTableRowsRO.hasOwnProperty('primaryColumns'), true);
-    t.is(getTableRowsRO.hasOwnProperty('pagination'), true);
-    t.is(getTableRowsRO.rows.length, 42);
-    t.is(Object.keys(getTableRowsRO.rows[1]).length, 5);
-    t.is(getTableRowsRO.rows[0].id, 42);
-    t.is(getTableRowsRO.rows[1].id, 41);
-    t.is(getTableRowsRO.rows[41].id, 1);
-
-    t.is(typeof getTableRowsRO.primaryColumns, 'object');
-    t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('column_name'), true);
-    t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('data_type'), true);
-  } catch (e) {
-    console.error(e);
-    throw e;
-  }
-});
-
-test(`${currentTest} without search and without pagination and with sorting
-should return all found rows with sorting ids by ASC`, async (t) => {
-  try {
-    const { connectionToTestMSSQL } = getTestData(mockFactory);
-    const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-    const { testTableName, testTableColumnName } = await createTestTable(connectionToTestMSSQL);
-
-    testTables.push(testTableName);
-
-    const createConnectionResponse = await request(app.getHttpServer())
-      .post('/connection')
-      .send(connectionToTestMSSQL)
-      .set('Cookie', firstUserToken)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-    const createConnectionRO = JSON.parse(createConnectionResponse.text);
-    t.is(createConnectionResponse.status, 201);
-
-    const createTableSettingsDTO = mockFactory.generateTableSettings(
-      createConnectionRO.id,
-      testTableName,
-      [testTableColumnName],
-      undefined,
-      undefined,
-      42,
-      QueryOrderingEnum.ASC,
-      'id',
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-    );
-
-    const createTableSettingsResponse = await request(app.getHttpServer())
-      .post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
-      .send(createTableSettingsDTO)
-      .set('Cookie', firstUserToken)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-    t.is(createTableSettingsResponse.status, 201);
-
-    const getTableRowsResponse = await request(app.getHttpServer())
-      .get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}`)
-      .set('Cookie', firstUserToken)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-    t.is(getTableRowsResponse.status, 200);
-    const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
-
-    t.is(typeof getTableRowsRO, 'object');
-    t.is(getTableRowsRO.hasOwnProperty('rows'), true);
-    t.is(getTableRowsRO.hasOwnProperty('primaryColumns'), true);
-    t.is(getTableRowsRO.hasOwnProperty('pagination'), true);
-    t.is(getTableRowsRO.rows.length, 42);
-    t.is(Object.keys(getTableRowsRO.rows[1]).length, 5);
-    t.is(getTableRowsRO.rows[0].id, 1);
-    t.is(getTableRowsRO.rows[1].id, 2);
-    t.is(getTableRowsRO.rows[41].id, 42);
-
-    t.is(typeof getTableRowsRO.primaryColumns, 'object');
-    t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('column_name'), true);
-    t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('data_type'), true);
-  } catch (e) {
-    console.error(e);
-    throw e;
-  }
-});
-
-test(`${currentTest} without search and with pagination and with sorting
-should return all found rows with sorting ports by DESC and with pagination page=1, perPage=2`, async (t) => {
-  try {
-    const { connectionToTestMSSQL } = getTestData(mockFactory);
-    const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-    const { testTableName, testTableColumnName } = await createTestTable(connectionToTestMSSQL);
-
-    testTables.push(testTableName);
-
-    const createConnectionResponse = await request(app.getHttpServer())
-      .post('/connection')
-      .send(connectionToTestMSSQL)
-      .set('Cookie', firstUserToken)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-    const createConnectionRO = JSON.parse(createConnectionResponse.text);
-    t.is(createConnectionResponse.status, 201);
-
-    const createTableSettingsDTO = mockFactory.generateTableSettings(
-      createConnectionRO.id,
-      testTableName,
-      [testTableColumnName],
-      undefined,
-      undefined,
-      3,
-      QueryOrderingEnum.DESC,
-      'id',
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-    );
-
-    const createTableSettingsResponse = await request(app.getHttpServer())
-      .post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
-      .send(createTableSettingsDTO)
-      .set('Cookie', firstUserToken)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-    t.is(createTableSettingsResponse.status, 201);
-
-    const getTableRowsResponse = await request(app.getHttpServer())
-      .get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=1&perPage=2`)
-      .set('Cookie', firstUserToken)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-    t.is(getTableRowsResponse.status, 200);
-
-    const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
-
-    t.is(typeof getTableRowsRO, 'object');
-    t.is(getTableRowsRO.hasOwnProperty('rows'), true);
-    t.is(getTableRowsRO.hasOwnProperty('primaryColumns'), true);
-    t.is(getTableRowsRO.hasOwnProperty('pagination'), true);
-    t.is(getTableRowsRO.rows.length, 2);
-    t.is(Object.keys(getTableRowsRO.rows[1]).length, 5);
-    t.is(getTableRowsRO.rows[0].id, 42);
-    t.is(getTableRowsRO.rows[1].id, 41);
-
-    t.is(typeof getTableRowsRO.primaryColumns, 'object');
-    t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('column_name'), true);
-    t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('data_type'), true);
-  } catch (e) {
-    console.error(e);
-    throw e;
-  }
-});
-
-test(`${currentTest} should return all found rows with sorting ports by ASC and with pagination page=1, perPage=2`, async (t) => {
-  try {
-    const { connectionToTestMSSQL } = getTestData(mockFactory);
-    const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-    const { testTableName, testTableColumnName } = await createTestTable(connectionToTestMSSQL);
-
-    testTables.push(testTableName);
-
-    const createConnectionResponse = await request(app.getHttpServer())
-      .post('/connection')
-      .send(connectionToTestMSSQL)
-      .set('Cookie', firstUserToken)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-    const createConnectionRO = JSON.parse(createConnectionResponse.text);
-    t.is(createConnectionResponse.status, 201);
-
-    const createTableSettingsDTO = mockFactory.generateTableSettings(
-      createConnectionRO.id,
-      testTableName,
-      [testTableColumnName],
-      undefined,
-      undefined,
-      3,
-      QueryOrderingEnum.ASC,
-      'id',
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-    );
-
-    const createTableSettingsResponse = await request(app.getHttpServer())
-      .post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
-      .send(createTableSettingsDTO)
-      .set('Cookie', firstUserToken)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-    t.is(createTableSettingsResponse.status, 201);
-
-    const getTableRowsResponse = await request(app.getHttpServer())
-      .get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=1&perPage=2`)
-      .set('Cookie', firstUserToken)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-    t.is(getTableRowsResponse.status, 200);
-
-    const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
-
-    t.is(typeof getTableRowsRO, 'object');
-    t.is(getTableRowsRO.hasOwnProperty('rows'), true);
-    t.is(getTableRowsRO.hasOwnProperty('primaryColumns'), true);
-    t.is(getTableRowsRO.hasOwnProperty('pagination'), true);
-    t.is(getTableRowsRO.rows.length, 2);
-    t.is(Object.keys(getTableRowsRO.rows[1]).length, 5);
-    t.is(getTableRowsRO.rows[0].id, 1);
-    t.is(getTableRowsRO.rows[1].id, 2);
-
-    t.is(typeof getTableRowsRO.primaryColumns, 'object');
-    t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('column_name'), true);
-    t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('data_type'), true);
-  } catch (e) {
-    console.error(e);
-    throw e;
-  }
-});
-
-test(`${currentTest} should return all found rows with sorting ports by DESC and with pagination page=2, perPage=3`, async (t) => {
-  try {
-    const { connectionToTestMSSQL } = getTestData(mockFactory);
-    const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-    const { testTableName, testTableColumnName } = await createTestTable(connectionToTestMSSQL);
-
-    testTables.push(testTableName);
-
-    const createConnectionResponse = await request(app.getHttpServer())
-      .post('/connection')
-      .send(connectionToTestMSSQL)
-      .set('Cookie', firstUserToken)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-    const createConnectionRO = JSON.parse(createConnectionResponse.text);
-    t.is(createConnectionResponse.status, 201);
-
-    const createTableSettingsDTO = mockFactory.generateTableSettings(
-      createConnectionRO.id,
-      testTableName,
-      [testTableColumnName],
-      undefined,
-      undefined,
-      3,
-      QueryOrderingEnum.DESC,
-      'id',
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-    );
-
-    const createTableSettingsResponse = await request(app.getHttpServer())
-      .post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
-      .send(createTableSettingsDTO)
-      .set('Cookie', firstUserToken)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-    t.is(createTableSettingsResponse.status, 201);
-
-    const getTableRowsResponse = await request(app.getHttpServer())
-      .get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=2&perPage=3`)
-      .set('Cookie', firstUserToken)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-    t.is(getTableRowsResponse.status, 200);
-
-    const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
-
-    t.is(typeof getTableRowsRO, 'object');
-    t.is(getTableRowsRO.hasOwnProperty('rows'), true);
-    t.is(getTableRowsRO.hasOwnProperty('primaryColumns'), true);
-    t.is(getTableRowsRO.hasOwnProperty('pagination'), true);
-    t.is(getTableRowsRO.rows.length, 3);
-    t.is(Object.keys(getTableRowsRO.rows[1]).length, 5);
-    t.is(getTableRowsRO.rows[0].id, 39);
-    t.is(getTableRowsRO.rows[1].id, 38);
-
-    t.is(typeof getTableRowsRO.primaryColumns, 'object');
-    t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('column_name'), true);
-    t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('data_type'), true);
-  } catch (e) {
-    console.error(e);
-    throw e;
-  }
-});
-
-test(`${currentTest} with search, with pagination and with sorting
-should return all found rows with search, pagination: page=1, perPage=2 and DESC sorting`, async (t) => {
-  try {
-    const { connectionToTestMSSQL } = getTestData(mockFactory);
-    const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-    const { testTableName, testTableColumnName } = await createTestTable(connectionToTestMSSQL);
-
-    testTables.push(testTableName);
-
-    const createConnectionResponse = await request(app.getHttpServer())
-      .post('/connection')
-      .send(connectionToTestMSSQL)
-      .set('Cookie', firstUserToken)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-    const createConnectionRO = JSON.parse(createConnectionResponse.text);
-    t.is(createConnectionResponse.status, 201);
-
-    const createTableSettingsDTO = mockFactory.generateTableSettings(
-      createConnectionRO.id,
-      testTableName,
-      [testTableColumnName],
-      undefined,
-      undefined,
-      3,
-      QueryOrderingEnum.DESC,
-      'id',
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-    );
-
-    const createTableSettingsResponse = await request(app.getHttpServer())
-      .post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
-      .send(createTableSettingsDTO)
-      .set('Cookie', firstUserToken)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-    t.is(createTableSettingsResponse.status, 201);
-
-    const getTableRowsResponse = await request(app.getHttpServer())
-      .get(
-        `/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=1&perPage=2&search=${testSearchedUserName}`,
-      )
-      .set('Cookie', firstUserToken)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-    t.is(getTableRowsResponse.status, 200);
-
-    const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
-
-    t.is(typeof getTableRowsRO, 'object');
-    t.is(getTableRowsRO.hasOwnProperty('rows'), true);
-    t.is(getTableRowsRO.hasOwnProperty('primaryColumns'), true);
-    t.is(getTableRowsRO.hasOwnProperty('pagination'), true);
-    t.is(getTableRowsRO.rows.length, 2);
-    t.is(Object.keys(getTableRowsRO.rows[1]).length, 5);
-    t.is(getTableRowsRO.rows[0].id, 38);
-    t.is(getTableRowsRO.rows[1].id, 22);
-    t.is(getTableRowsRO.pagination.currentPage, 1);
-    t.is(getTableRowsRO.pagination.perPage, 2);
-
-    t.is(typeof getTableRowsRO.primaryColumns, 'object');
-    t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('column_name'), true);
-    t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('data_type'), true);
-  } catch (e) {
-    console.error(e);
-    throw e;
-  }
-});
-
-test(`${currentTest} with search, with pagination and with sorting
-should return all found rows with search, pagination: page=2, perPage=2 and DESC sorting`, async (t) => {
-  try {
-    const { connectionToTestMSSQL } = getTestData(mockFactory);
-    const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-    const { testTableName, testTableColumnName } = await createTestTable(connectionToTestMSSQL);
-
-    testTables.push(testTableName);
-
-    const createConnectionResponse = await request(app.getHttpServer())
-      .post('/connection')
-      .send(connectionToTestMSSQL)
-      .set('Cookie', firstUserToken)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-    const createConnectionRO = JSON.parse(createConnectionResponse.text);
-    t.is(createConnectionResponse.status, 201);
-
-    const createTableSettingsDTO = mockFactory.generateTableSettings(
-      createConnectionRO.id,
-      testTableName,
-      [testTableColumnName],
-      undefined,
-      undefined,
-      3,
-      QueryOrderingEnum.DESC,
-      'id',
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-    );
-
-    const createTableSettingsResponse = await request(app.getHttpServer())
-      .post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
-      .send(createTableSettingsDTO)
-      .set('Cookie', firstUserToken)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-    t.is(createTableSettingsResponse.status, 201);
-
-    const getTableRowsResponse = await request(app.getHttpServer())
-      .get(
-        `/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=2&perPage=2&search=${testSearchedUserName}`,
-      )
-      .set('Cookie', firstUserToken)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-    t.is(getTableRowsResponse.status, 200);
-
-    const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
-
-    t.is(typeof getTableRowsRO, 'object');
-    t.is(getTableRowsRO.hasOwnProperty('rows'), true);
-    t.is(getTableRowsRO.hasOwnProperty('primaryColumns'), true);
-    t.is(getTableRowsRO.hasOwnProperty('pagination'), true);
-    t.is(getTableRowsRO.rows.length, 1);
-    t.is(Object.keys(getTableRowsRO.rows[0]).length, 5);
-    t.is(getTableRowsRO.rows[0].id, 1);
-    t.is(getTableRowsRO.pagination.currentPage, 2);
-    t.is(getTableRowsRO.pagination.perPage, 2);
-
-    t.is(typeof getTableRowsRO.primaryColumns, 'object');
-    t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('column_name'), true);
-    t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('data_type'), true);
-  } catch (e) {
-    console.error(e);
-    throw e;
-  }
-});
-
-test(`${currentTest} with search, with pagination and with sorting
-should return all found rows with search, pagination: page=1, perPage=2 and ASC sorting`, async (t) => {
-  try {
-    const { connectionToTestMSSQL } = getTestData(mockFactory);
-    const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-    const { testTableName, testTableColumnName } = await createTestTable(connectionToTestMSSQL);
-
-    testTables.push(testTableName);
-
-    const createConnectionResponse = await request(app.getHttpServer())
-      .post('/connection')
-      .send(connectionToTestMSSQL)
-      .set('Cookie', firstUserToken)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-    const createConnectionRO = JSON.parse(createConnectionResponse.text);
-    t.is(createConnectionResponse.status, 201);
-    const createTableSettingsDTO = mockFactory.generateTableSettings(
-      createConnectionRO.id,
-      testTableName,
-      [testTableColumnName],
-      undefined,
-      undefined,
-      3,
-      QueryOrderingEnum.ASC,
-      'id',
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-    );
-
-    const createTableSettingsResponse = await request(app.getHttpServer())
-      .post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
-      .send(createTableSettingsDTO)
-      .set('Cookie', firstUserToken)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-    t.is(createTableSettingsResponse.status, 201);
-
-    const getTableRowsResponse = await request(app.getHttpServer())
-      .get(
-        `/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=1&perPage=2&search=${testSearchedUserName}`,
-      )
-      .set('Cookie', firstUserToken)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-
-    t.is(getTableRowsResponse.status, 200);
-
-    const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
-
-    t.is(typeof getTableRowsRO, 'object');
-    t.is(getTableRowsRO.hasOwnProperty('rows'), true);
-    t.is(getTableRowsRO.hasOwnProperty('primaryColumns'), true);
-    t.is(getTableRowsRO.hasOwnProperty('pagination'), true);
-    t.is(getTableRowsRO.rows.length, 2);
-    t.is(Object.keys(getTableRowsRO.rows[0]).length, 5);
-    t.is(getTableRowsRO.rows[0].id, 1);
-    t.is(getTableRowsRO.rows[1].id, 22);
-    t.is(getTableRowsRO.pagination.currentPage, 1);
-    t.is(getTableRowsRO.pagination.perPage, 2);
-
-    t.is(typeof getTableRowsRO.primaryColumns, 'object');
-    t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('column_name'), true);
-    t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('data_type'), true);
-  } catch (e) {
-    console.error(e);
-    throw e;
-  }
-});
-
-test(`${currentTest} with search, with pagination and with sorting
-should return all found rows with search, pagination: page=2, perPage=2 and ASC sorting`, async (t) => {
-  try {
-    const { connectionToTestMSSQL } = getTestData(mockFactory);
-    const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-    const { testTableName, testTableColumnName } = await createTestTable(connectionToTestMSSQL);
-
-    testTables.push(testTableName);
-
-    const createConnectionResponse = await request(app.getHttpServer())
-      .post('/connection')
-      .send(connectionToTestMSSQL)
-      .set('Cookie', firstUserToken)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-    const createConnectionRO = JSON.parse(createConnectionResponse.text);
-    t.is(createConnectionResponse.status, 201);
-
-    const createTableSettingsDTO = mockFactory.generateTableSettings(
-      createConnectionRO.id,
-      testTableName,
-      [testTableColumnName],
-      undefined,
-      undefined,
-      3,
-      QueryOrderingEnum.ASC,
-      'id',
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-    );
-
-    const createTableSettingsResponse = await request(app.getHttpServer())
-      .post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
-      .send(createTableSettingsDTO)
-      .set('Cookie', firstUserToken)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-    t.is(createTableSettingsResponse.status, 201);
-
-    const getTableRowsResponse = await request(app.getHttpServer())
-      .get(
-        `/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=2&perPage=2&search=${testSearchedUserName}`,
-      )
-      .set('Cookie', firstUserToken)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-    t.is(getTableRowsResponse.status, 200);
-
-    const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
-
-    t.is(typeof getTableRowsRO, 'object');
-    t.is(getTableRowsRO.hasOwnProperty('rows'), true);
-    t.is(getTableRowsRO.hasOwnProperty('primaryColumns'), true);
-    t.is(getTableRowsRO.hasOwnProperty('pagination'), true);
-    t.is(getTableRowsRO.rows.length, 1);
-    t.is(Object.keys(getTableRowsRO.rows[0]).length, 5);
-    t.is(getTableRowsRO.rows[0].id, 38);
-    t.is(getTableRowsRO.pagination.currentPage, 2);
-    t.is(getTableRowsRO.pagination.perPage, 2);
-
-    t.is(typeof getTableRowsRO.primaryColumns, 'object');
-    t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('column_name'), true);
-    t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('data_type'), true);
-  } catch (e) {
-    console.error(e);
-    throw e;
-  }
-});
-
-test(`${currentTest} with search, with pagination, with sorting and with filtering
-should return all found rows with search, pagination: page=1, perPage=2 and DESC sorting and filtering`, async (t) => {
-  try {
-    const { connectionToTestMSSQL } = getTestData(mockFactory);
-    const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-    const { testTableName, testTableColumnName } = await createTestTable(connectionToTestMSSQL);
-
-    testTables.push(testTableName);
-
-    const createConnectionResponse = await request(app.getHttpServer())
-      .post('/connection')
-      .send(connectionToTestMSSQL)
-      .set('Cookie', firstUserToken)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-    const createConnectionRO = JSON.parse(createConnectionResponse.text);
-    t.is(createConnectionResponse.status, 201);
-
-    const createTableSettingsDTO = mockFactory.generateTableSettings(
-      createConnectionRO.id,
-      testTableName,
-      [testTableColumnName],
-      undefined,
-      undefined,
-      3,
-      QueryOrderingEnum.DESC,
-      'id',
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-    );
-
-    const createTableSettingsResponse = await request(app.getHttpServer())
-      .post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
-      .send(createTableSettingsDTO)
-      .set('Cookie', firstUserToken)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-    t.is(createTableSettingsResponse.status, 201);
-
-    const fieldname = 'id';
-    const fieldvalue = '45';
-
-    const getTableRowsResponse = await request(app.getHttpServer())
-      .get(
-        `/table/rows/${createConnectionRO.id}?tableName=${testTableName}&search=${testSearchedUserName}&page=1&perPage=2&f_${fieldname}__lt=${fieldvalue}`,
-      )
-      .set('Cookie', firstUserToken)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-    t.is(getTableRowsResponse.status, 200);
-
-    const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
-    t.is(typeof getTableRowsRO, 'object');
-    t.is(getTableRowsRO.hasOwnProperty('rows'), true);
-    t.is(getTableRowsRO.hasOwnProperty('primaryColumns'), true);
-    t.is(getTableRowsRO.hasOwnProperty('pagination'), true);
-    t.is(getTableRowsRO.rows.length, 2);
-    t.is(Object.keys(getTableRowsRO.rows[1]).length, 5);
-
-    t.is(getTableRowsRO.rows[0][testTableColumnName], testSearchedUserName);
-    t.is(getTableRowsRO.rows[0].id, 38);
-    t.is(getTableRowsRO.rows[1][testTableColumnName], testSearchedUserName);
-    t.is(getTableRowsRO.rows[1].id, 22);
-
-    t.is(getTableRowsRO.pagination.currentPage, 1);
-    t.is(getTableRowsRO.pagination.perPage, 2);
-
-    t.is(typeof getTableRowsRO.primaryColumns, 'object');
-    t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('column_name'), true);
-    t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('data_type'), true);
-  } catch (e) {
-    console.error(e);
-    throw e;
-  }
-});
-
-test(`${currentTest} with search, with pagination, with sorting and with filtering
-should return all found rows with search, pagination: page=1, perPage=10 and DESC sorting and filtering'`, async (t) => {
-  try {
-    const { connectionToTestMSSQL } = getTestData(mockFactory);
-    const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-    const { testTableName, testTableColumnName } = await createTestTable(connectionToTestMSSQL);
-
-    testTables.push(testTableName);
-
-    const createConnectionResponse = await request(app.getHttpServer())
-      .post('/connection')
-      .send(connectionToTestMSSQL)
-      .set('Cookie', firstUserToken)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-    const createConnectionRO = JSON.parse(createConnectionResponse.text);
-    t.is(createConnectionResponse.status, 201);
-
-    const createTableSettingsDTO = mockFactory.generateTableSettings(
-      createConnectionRO.id,
-      testTableName,
-      [testTableColumnName],
-      undefined,
-      undefined,
-      3,
-      QueryOrderingEnum.DESC,
-      'id',
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-    );
-
-    const createTableSettingsResponse = await request(app.getHttpServer())
-      .post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
-      .send(createTableSettingsDTO)
-      .set('Cookie', firstUserToken)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-    t.is(createTableSettingsResponse.status, 201);
-
-    const fieldname = 'id';
-    const fieldvalue = '41';
-    const getTableRowsResponse = await request(app.getHttpServer())
-      .get(
-        `/table/rows/${createConnectionRO.id}?tableName=${testTableName}&search=${testSearchedUserName}&page=1&perPage=10&f_${fieldname}__lt=${fieldvalue}`,
-      )
-      .set('Cookie', firstUserToken)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-    t.is(getTableRowsResponse.status, 200);
-
-    const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
-    t.is(typeof getTableRowsRO, 'object');
-    t.is(getTableRowsRO.hasOwnProperty('rows'), true);
-    t.is(getTableRowsRO.hasOwnProperty('primaryColumns'), true);
-    t.is(getTableRowsRO.hasOwnProperty('pagination'), true);
-    t.is(getTableRowsRO.rows.length, 3);
-    t.is(Object.keys(getTableRowsRO.rows[1]).length, 5);
-
-    t.is(getTableRowsRO.rows[0][testTableColumnName], testSearchedUserName);
-    t.is(getTableRowsRO.rows[0].id, 38);
-    t.is(getTableRowsRO.rows[1][testTableColumnName], testSearchedUserName);
-    t.is(getTableRowsRO.rows[1].id, 22);
-    t.is(getTableRowsRO.rows[2][testTableColumnName], testSearchedUserName);
-    t.is(getTableRowsRO.rows[2].id, 1);
-
-    t.is(getTableRowsRO.pagination.currentPage, 1);
-    t.is(getTableRowsRO.pagination.perPage, 10);
-
-    t.is(typeof getTableRowsRO.primaryColumns, 'object');
-    t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('column_name'), true);
-    t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('data_type'), true);
-  } catch (e) {
-    console.error(e);
-    throw e;
-  }
-});
-
-test(`${currentTest} with search, with pagination, with sorting and with filtering
-should return all found rows with search, pagination: page=2, perPage=2 and DESC sorting and filtering`, async (t) => {
-  try {
-    const { connectionToTestMSSQL } = getTestData(mockFactory);
-    const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-    const { testTableName, testTableColumnName } = await createTestTable(connectionToTestMSSQL);
-
-    testTables.push(testTableName);
-
-    const createConnectionResponse = await request(app.getHttpServer())
-      .post('/connection')
-      .send(connectionToTestMSSQL)
-      .set('Cookie', firstUserToken)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-    const createConnectionRO = JSON.parse(createConnectionResponse.text);
-    t.is(createConnectionResponse.status, 201);
-
-    const createTableSettingsDTO = mockFactory.generateTableSettings(
-      createConnectionRO.id,
-      testTableName,
-      [testTableColumnName],
-      undefined,
-      undefined,
-      3,
-      QueryOrderingEnum.DESC,
-      'id',
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-    );
-
-    const createTableSettingsResponse = await request(app.getHttpServer())
-      .post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
-      .send(createTableSettingsDTO)
-      .set('Cookie', firstUserToken)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-    t.is(createTableSettingsResponse.status, 201);
-
-    const fieldname = 'id';
-    const fieldvalue = '41';
-    const getTableRowsResponse = await request(app.getHttpServer())
-      .get(
-        `/table/rows/${createConnectionRO.id}?tableName=${testTableName}&search=${testSearchedUserName}&page=2&perPage=2&f_${fieldname}__lt=${fieldvalue}`,
-      )
-      .set('Cookie', firstUserToken)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-    t.is(getTableRowsResponse.status, 200);
-
-    const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
-    t.is(typeof getTableRowsRO, 'object');
-    t.is(getTableRowsRO.hasOwnProperty('rows'), true);
-    t.is(getTableRowsRO.hasOwnProperty('primaryColumns'), true);
-    t.is(getTableRowsRO.hasOwnProperty('pagination'), true);
-    t.is(getTableRowsRO.rows.length, 1);
-    t.is(Object.keys(getTableRowsRO.rows[0]).length, 5);
-
-    t.is(getTableRowsRO.rows[0][testTableColumnName], testSearchedUserName);
-    t.is(getTableRowsRO.rows[0].id, 1);
-
-    t.is(getTableRowsRO.pagination.currentPage, 2);
-    t.is(getTableRowsRO.pagination.perPage, 2);
-
-    t.is(typeof getTableRowsRO.primaryColumns, 'object');
-    t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('column_name'), true);
-    t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('data_type'), true);
-  } catch (e) {
-    console.error(e);
-    throw e;
-  }
-});
-
-test(`${currentTest} with search, with pagination, with sorting and with filtering
-should return all found rows with search, pagination: page=1, perPage=2 and DESC sorting and with multi filtering`, async (t) => {
-  try {
-    const { connectionToTestMSSQL } = getTestData(mockFactory);
-    const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-    const { testTableName, testTableColumnName } = await createTestTable(connectionToTestMSSQL);
-
-    testTables.push(testTableName);
-
-    const createConnectionResponse = await request(app.getHttpServer())
-      .post('/connection')
-      .send(connectionToTestMSSQL)
-      .set('Cookie', firstUserToken)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-    const createConnectionRO = JSON.parse(createConnectionResponse.text);
-    t.is(createConnectionResponse.status, 201);
-
-    const createTableSettingsDTO = mockFactory.generateTableSettings(
-      createConnectionRO.id,
-      testTableName,
-      [testTableColumnName],
-      undefined,
-      undefined,
-      3,
-      QueryOrderingEnum.DESC,
-      'id',
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-    );
-
-    const createTableSettingsResponse = await request(app.getHttpServer())
-      .post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
-      .send(createTableSettingsDTO)
-      .set('Cookie', firstUserToken)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-    t.is(createTableSettingsResponse.status, 201);
-
-    const fieldname = 'id';
-    const fieldGtvalue = '25';
-    const fieldLtvalue = '40';
-
-    const getTableRowsResponse = await request(app.getHttpServer())
-      .get(
-        `/table/rows/${createConnectionRO.id}?tableName=${testTableName}&search=${testSearchedUserName}&page=1&perPage=2&f_${fieldname}__lt=${fieldLtvalue}&f_${fieldname}__gt=${fieldGtvalue}`,
-      )
-      .set('Cookie', firstUserToken)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-    t.is(getTableRowsResponse.status, 200);
-
-    const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
-
-    t.is(typeof getTableRowsRO, 'object');
-    t.is(getTableRowsRO.hasOwnProperty('rows'), true);
-    t.is(getTableRowsRO.hasOwnProperty('primaryColumns'), true);
-    t.is(getTableRowsRO.hasOwnProperty('pagination'), true);
-    t.is(getTableRowsRO.rows.length, 1);
-    t.is(Object.keys(getTableRowsRO.rows[0]).length, 5);
-
-    t.is(getTableRowsRO.rows[0].id, 38);
-    t.is(getTableRowsRO.rows[0][testTableColumnName], testSearchedUserName);
-
-    t.is(getTableRowsRO.pagination.currentPage, 1);
-    t.is(getTableRowsRO.pagination.perPage, 2);
-
-    t.is(typeof getTableRowsRO.primaryColumns, 'object');
-    t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('column_name'), true);
-    t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('data_type'), true);
-  } catch (e) {
-    console.error(e);
-    throw e;
-  }
-});
-
-test(`${currentTest} should throw an exception when connection id is not passed in request`, async (t) => {
+test.serial(
+  `${currentTest} with search, with pagination, without sorting
+should return all found rows with pagination page=1 perPage=2`,
+  async (t) => {
+    try {
+      const { connectionToTestMSSQL } = getTestData(mockFactory);
+      const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
+      const { testTableName, testTableColumnName } = await createTestTable(connectionToTestMSSQL);
+
+      testTables.push(testTableName);
+
+      const createConnectionResponse = await request(app.getHttpServer())
+        .post('/connection')
+        .send(connectionToTestMSSQL)
+        .set('Cookie', firstUserToken)
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json');
+      const createConnectionRO = JSON.parse(createConnectionResponse.text);
+      t.is(createConnectionResponse.status, 201);
+
+      const createTableSettingsDTO = mockFactory.generateTableSettings(
+        createConnectionRO.id,
+        testTableName,
+        [testTableColumnName],
+        undefined,
+        undefined,
+        3,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+      );
+
+      const createTableSettingsResponse = await request(app.getHttpServer())
+        .post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
+        .send(createTableSettingsDTO)
+        .set('Cookie', firstUserToken)
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json');
+      t.is(createTableSettingsResponse.status, 201);
+
+      const getTableRowsResponse = await request(app.getHttpServer())
+        .get(
+          `/table/rows/${createConnectionRO.id}?tableName=${testTableName}&search=${testSearchedUserName}&page=1&perPage=2`,
+        )
+        .set('Cookie', firstUserToken)
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json');
+      t.is(getTableRowsResponse.status, 200);
+      const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
+
+      t.is(typeof getTableRowsRO, 'object');
+      t.is(getTableRowsRO.hasOwnProperty('rows'), true);
+      t.is(getTableRowsRO.hasOwnProperty('primaryColumns'), true);
+      t.is(getTableRowsRO.hasOwnProperty('pagination'), true);
+      t.is(getTableRowsRO.rows.length, 2);
+      t.is(Object.keys(getTableRowsRO.rows[0]).length, 5);
+      t.is(getTableRowsRO.rows[0][testTableColumnName], testSearchedUserName);
+      t.is(typeof getTableRowsRO.primaryColumns, 'object');
+      t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('column_name'), true);
+      t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('data_type'), true);
+      t.is(getTableRowsRO.primaryColumns[0].column_name, 'id');
+      t.is(getTableRowsRO.primaryColumns[0].data_type, 'int');
+
+      t.is(getTableRowsRO.pagination.total, 3);
+      t.is(getTableRowsRO.pagination.lastPage, 2);
+      t.is(getTableRowsRO.pagination.perPage, 2);
+      t.is(getTableRowsRO.pagination.currentPage, 1);
+    } catch (e) {
+      console.error(e);
+      throw e;
+    }
+  },
+);
+
+test.serial(
+  `${currentTest} with search, with pagination, without sorting
+should return all found rows with pagination page=1 perPage=3`,
+  async (t) => {
+    try {
+      const { connectionToTestMSSQL } = getTestData(mockFactory);
+      const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
+      const { testTableName, testTableColumnName } = await createTestTable(connectionToTestMSSQL);
+
+      testTables.push(testTableName);
+
+      const createConnectionResponse = await request(app.getHttpServer())
+        .post('/connection')
+        .send(connectionToTestMSSQL)
+        .set('Cookie', firstUserToken)
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json');
+      const createConnectionRO = JSON.parse(createConnectionResponse.text);
+      t.is(createConnectionResponse.status, 201);
+
+      const createTableSettingsDTO = mockFactory.generateTableSettings(
+        createConnectionRO.id,
+        testTableName,
+        [testTableColumnName],
+        undefined,
+        undefined,
+        3,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+      );
+
+      const createTableSettingsResponse = await request(app.getHttpServer())
+        .post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
+        .send(createTableSettingsDTO)
+        .set('Cookie', firstUserToken)
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json');
+      t.is(createTableSettingsResponse.status, 201);
+
+      const getTableRowsResponse = await request(app.getHttpServer())
+        .get(
+          `/table/rows/${createConnectionRO.id}?tableName=${testTableName}&search=${testSearchedUserName}&page=1&perPage=2`,
+        )
+        .set('Cookie', firstUserToken)
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json');
+      t.is(getTableRowsResponse.status, 200);
+      const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
+
+      t.is(typeof getTableRowsRO, 'object');
+      t.is(getTableRowsRO.hasOwnProperty('rows'), true);
+      t.is(getTableRowsRO.hasOwnProperty('primaryColumns'), true);
+      t.is(getTableRowsRO.hasOwnProperty('pagination'), true);
+      t.is(getTableRowsRO.rows.length, 2);
+      t.is(Object.keys(getTableRowsRO.rows[0]).length, 5);
+      t.is(getTableRowsRO.rows[0][testTableColumnName], testSearchedUserName);
+      t.is(typeof getTableRowsRO.primaryColumns, 'object');
+      t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('column_name'), true);
+      t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('data_type'), true);
+      t.is(getTableRowsRO.primaryColumns[0].column_name, 'id');
+      t.is(getTableRowsRO.primaryColumns[0].data_type, 'int');
+
+      t.is(getTableRowsRO.pagination.total, 3);
+      t.is(getTableRowsRO.pagination.lastPage, 2);
+      t.is(getTableRowsRO.pagination.perPage, 2);
+      t.is(getTableRowsRO.pagination.currentPage, 1);
+    } catch (e) {
+      console.error(e);
+      throw e;
+    }
+  },
+);
+
+test.serial(
+  `${currentTest} without search and without pagination and with sorting
+should return all found rows with sorting ids by DESC`,
+  async (t) => {
+    try {
+      const { connectionToTestMSSQL } = getTestData(mockFactory);
+      const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
+      const { testTableName, testTableColumnName } = await createTestTable(connectionToTestMSSQL);
+
+      testTables.push(testTableName);
+
+      const createConnectionResponse = await request(app.getHttpServer())
+        .post('/connection')
+        .send(connectionToTestMSSQL)
+        .set('Cookie', firstUserToken)
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json');
+      const createConnectionRO = JSON.parse(createConnectionResponse.text);
+      t.is(createConnectionResponse.status, 201);
+
+      const createTableSettingsDTO = mockFactory.generateTableSettings(
+        createConnectionRO.id,
+        testTableName,
+        [testTableColumnName],
+        undefined,
+        undefined,
+        42,
+        QueryOrderingEnum.DESC,
+        'id',
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+      );
+
+      const createTableSettingsResponse = await request(app.getHttpServer())
+        .post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
+        .send(createTableSettingsDTO)
+        .set('Cookie', firstUserToken)
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json');
+      t.is(createTableSettingsResponse.status, 201);
+
+      const getTableRowsResponse = await request(app.getHttpServer())
+        .get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}`)
+        .set('Cookie', firstUserToken)
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json');
+      t.is(getTableRowsResponse.status, 200);
+      const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
+
+      t.is(typeof getTableRowsRO, 'object');
+      t.is(getTableRowsRO.hasOwnProperty('rows'), true);
+      t.is(getTableRowsRO.hasOwnProperty('primaryColumns'), true);
+      t.is(getTableRowsRO.hasOwnProperty('pagination'), true);
+      t.is(getTableRowsRO.rows.length, 42);
+      t.is(Object.keys(getTableRowsRO.rows[1]).length, 5);
+      t.is(getTableRowsRO.rows[0].id, 42);
+      t.is(getTableRowsRO.rows[1].id, 41);
+      t.is(getTableRowsRO.rows[41].id, 1);
+
+      t.is(typeof getTableRowsRO.primaryColumns, 'object');
+      t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('column_name'), true);
+      t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('data_type'), true);
+    } catch (e) {
+      console.error(e);
+      throw e;
+    }
+  },
+);
+
+test.serial(
+  `${currentTest} without search and without pagination and with sorting
+should return all found rows with sorting ids by ASC`,
+  async (t) => {
+    try {
+      const { connectionToTestMSSQL } = getTestData(mockFactory);
+      const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
+      const { testTableName, testTableColumnName } = await createTestTable(connectionToTestMSSQL);
+
+      testTables.push(testTableName);
+
+      const createConnectionResponse = await request(app.getHttpServer())
+        .post('/connection')
+        .send(connectionToTestMSSQL)
+        .set('Cookie', firstUserToken)
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json');
+      const createConnectionRO = JSON.parse(createConnectionResponse.text);
+      t.is(createConnectionResponse.status, 201);
+
+      const createTableSettingsDTO = mockFactory.generateTableSettings(
+        createConnectionRO.id,
+        testTableName,
+        [testTableColumnName],
+        undefined,
+        undefined,
+        42,
+        QueryOrderingEnum.ASC,
+        'id',
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+      );
+
+      const createTableSettingsResponse = await request(app.getHttpServer())
+        .post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
+        .send(createTableSettingsDTO)
+        .set('Cookie', firstUserToken)
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json');
+      t.is(createTableSettingsResponse.status, 201);
+
+      const getTableRowsResponse = await request(app.getHttpServer())
+        .get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}`)
+        .set('Cookie', firstUserToken)
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json');
+      t.is(getTableRowsResponse.status, 200);
+      const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
+
+      t.is(typeof getTableRowsRO, 'object');
+      t.is(getTableRowsRO.hasOwnProperty('rows'), true);
+      t.is(getTableRowsRO.hasOwnProperty('primaryColumns'), true);
+      t.is(getTableRowsRO.hasOwnProperty('pagination'), true);
+      t.is(getTableRowsRO.rows.length, 42);
+      t.is(Object.keys(getTableRowsRO.rows[1]).length, 5);
+      t.is(getTableRowsRO.rows[0].id, 1);
+      t.is(getTableRowsRO.rows[1].id, 2);
+      t.is(getTableRowsRO.rows[41].id, 42);
+
+      t.is(typeof getTableRowsRO.primaryColumns, 'object');
+      t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('column_name'), true);
+      t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('data_type'), true);
+    } catch (e) {
+      console.error(e);
+      throw e;
+    }
+  },
+);
+
+test.serial(
+  `${currentTest} without search and with pagination and with sorting
+should return all found rows with sorting ports by DESC and with pagination page=1, perPage=2`,
+  async (t) => {
+    try {
+      const { connectionToTestMSSQL } = getTestData(mockFactory);
+      const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
+      const { testTableName, testTableColumnName } = await createTestTable(connectionToTestMSSQL);
+
+      testTables.push(testTableName);
+
+      const createConnectionResponse = await request(app.getHttpServer())
+        .post('/connection')
+        .send(connectionToTestMSSQL)
+        .set('Cookie', firstUserToken)
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json');
+      const createConnectionRO = JSON.parse(createConnectionResponse.text);
+      t.is(createConnectionResponse.status, 201);
+
+      const createTableSettingsDTO = mockFactory.generateTableSettings(
+        createConnectionRO.id,
+        testTableName,
+        [testTableColumnName],
+        undefined,
+        undefined,
+        3,
+        QueryOrderingEnum.DESC,
+        'id',
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+      );
+
+      const createTableSettingsResponse = await request(app.getHttpServer())
+        .post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
+        .send(createTableSettingsDTO)
+        .set('Cookie', firstUserToken)
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json');
+      t.is(createTableSettingsResponse.status, 201);
+
+      const getTableRowsResponse = await request(app.getHttpServer())
+        .get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=1&perPage=2`)
+        .set('Cookie', firstUserToken)
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json');
+      t.is(getTableRowsResponse.status, 200);
+
+      const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
+
+      t.is(typeof getTableRowsRO, 'object');
+      t.is(getTableRowsRO.hasOwnProperty('rows'), true);
+      t.is(getTableRowsRO.hasOwnProperty('primaryColumns'), true);
+      t.is(getTableRowsRO.hasOwnProperty('pagination'), true);
+      t.is(getTableRowsRO.rows.length, 2);
+      t.is(Object.keys(getTableRowsRO.rows[1]).length, 5);
+      t.is(getTableRowsRO.rows[0].id, 42);
+      t.is(getTableRowsRO.rows[1].id, 41);
+
+      t.is(typeof getTableRowsRO.primaryColumns, 'object');
+      t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('column_name'), true);
+      t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('data_type'), true);
+    } catch (e) {
+      console.error(e);
+      throw e;
+    }
+  },
+);
+
+test.serial(
+  `${currentTest} should return all found rows with sorting ports by ASC and with pagination page=1, perPage=2`,
+  async (t) => {
+    try {
+      const { connectionToTestMSSQL } = getTestData(mockFactory);
+      const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
+      const { testTableName, testTableColumnName } = await createTestTable(connectionToTestMSSQL);
+
+      testTables.push(testTableName);
+
+      const createConnectionResponse = await request(app.getHttpServer())
+        .post('/connection')
+        .send(connectionToTestMSSQL)
+        .set('Cookie', firstUserToken)
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json');
+      const createConnectionRO = JSON.parse(createConnectionResponse.text);
+      t.is(createConnectionResponse.status, 201);
+
+      const createTableSettingsDTO = mockFactory.generateTableSettings(
+        createConnectionRO.id,
+        testTableName,
+        [testTableColumnName],
+        undefined,
+        undefined,
+        3,
+        QueryOrderingEnum.ASC,
+        'id',
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+      );
+
+      const createTableSettingsResponse = await request(app.getHttpServer())
+        .post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
+        .send(createTableSettingsDTO)
+        .set('Cookie', firstUserToken)
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json');
+      t.is(createTableSettingsResponse.status, 201);
+
+      const getTableRowsResponse = await request(app.getHttpServer())
+        .get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=1&perPage=2`)
+        .set('Cookie', firstUserToken)
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json');
+      t.is(getTableRowsResponse.status, 200);
+
+      const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
+
+      t.is(typeof getTableRowsRO, 'object');
+      t.is(getTableRowsRO.hasOwnProperty('rows'), true);
+      t.is(getTableRowsRO.hasOwnProperty('primaryColumns'), true);
+      t.is(getTableRowsRO.hasOwnProperty('pagination'), true);
+      t.is(getTableRowsRO.rows.length, 2);
+      t.is(Object.keys(getTableRowsRO.rows[1]).length, 5);
+      t.is(getTableRowsRO.rows[0].id, 1);
+      t.is(getTableRowsRO.rows[1].id, 2);
+
+      t.is(typeof getTableRowsRO.primaryColumns, 'object');
+      t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('column_name'), true);
+      t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('data_type'), true);
+    } catch (e) {
+      console.error(e);
+      throw e;
+    }
+  },
+);
+
+test.serial(
+  `${currentTest} should return all found rows with sorting ports by DESC and with pagination page=2, perPage=3`,
+  async (t) => {
+    try {
+      const { connectionToTestMSSQL } = getTestData(mockFactory);
+      const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
+      const { testTableName, testTableColumnName } = await createTestTable(connectionToTestMSSQL);
+
+      testTables.push(testTableName);
+
+      const createConnectionResponse = await request(app.getHttpServer())
+        .post('/connection')
+        .send(connectionToTestMSSQL)
+        .set('Cookie', firstUserToken)
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json');
+      const createConnectionRO = JSON.parse(createConnectionResponse.text);
+      t.is(createConnectionResponse.status, 201);
+
+      const createTableSettingsDTO = mockFactory.generateTableSettings(
+        createConnectionRO.id,
+        testTableName,
+        [testTableColumnName],
+        undefined,
+        undefined,
+        3,
+        QueryOrderingEnum.DESC,
+        'id',
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+      );
+
+      const createTableSettingsResponse = await request(app.getHttpServer())
+        .post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
+        .send(createTableSettingsDTO)
+        .set('Cookie', firstUserToken)
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json');
+      t.is(createTableSettingsResponse.status, 201);
+
+      const getTableRowsResponse = await request(app.getHttpServer())
+        .get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=2&perPage=3`)
+        .set('Cookie', firstUserToken)
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json');
+      t.is(getTableRowsResponse.status, 200);
+
+      const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
+
+      t.is(typeof getTableRowsRO, 'object');
+      t.is(getTableRowsRO.hasOwnProperty('rows'), true);
+      t.is(getTableRowsRO.hasOwnProperty('primaryColumns'), true);
+      t.is(getTableRowsRO.hasOwnProperty('pagination'), true);
+      t.is(getTableRowsRO.rows.length, 3);
+      t.is(Object.keys(getTableRowsRO.rows[1]).length, 5);
+      t.is(getTableRowsRO.rows[0].id, 39);
+      t.is(getTableRowsRO.rows[1].id, 38);
+
+      t.is(typeof getTableRowsRO.primaryColumns, 'object');
+      t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('column_name'), true);
+      t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('data_type'), true);
+    } catch (e) {
+      console.error(e);
+      throw e;
+    }
+  },
+);
+
+test.serial(
+  `${currentTest} with search, with pagination and with sorting
+should return all found rows with search, pagination: page=1, perPage=2 and DESC sorting`,
+  async (t) => {
+    try {
+      const { connectionToTestMSSQL } = getTestData(mockFactory);
+      const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
+      const { testTableName, testTableColumnName } = await createTestTable(connectionToTestMSSQL);
+
+      testTables.push(testTableName);
+
+      const createConnectionResponse = await request(app.getHttpServer())
+        .post('/connection')
+        .send(connectionToTestMSSQL)
+        .set('Cookie', firstUserToken)
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json');
+      const createConnectionRO = JSON.parse(createConnectionResponse.text);
+      t.is(createConnectionResponse.status, 201);
+
+      const createTableSettingsDTO = mockFactory.generateTableSettings(
+        createConnectionRO.id,
+        testTableName,
+        [testTableColumnName],
+        undefined,
+        undefined,
+        3,
+        QueryOrderingEnum.DESC,
+        'id',
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+      );
+
+      const createTableSettingsResponse = await request(app.getHttpServer())
+        .post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
+        .send(createTableSettingsDTO)
+        .set('Cookie', firstUserToken)
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json');
+      t.is(createTableSettingsResponse.status, 201);
+
+      const getTableRowsResponse = await request(app.getHttpServer())
+        .get(
+          `/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=1&perPage=2&search=${testSearchedUserName}`,
+        )
+        .set('Cookie', firstUserToken)
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json');
+      t.is(getTableRowsResponse.status, 200);
+
+      const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
+
+      t.is(typeof getTableRowsRO, 'object');
+      t.is(getTableRowsRO.hasOwnProperty('rows'), true);
+      t.is(getTableRowsRO.hasOwnProperty('primaryColumns'), true);
+      t.is(getTableRowsRO.hasOwnProperty('pagination'), true);
+      t.is(getTableRowsRO.rows.length, 2);
+      t.is(Object.keys(getTableRowsRO.rows[1]).length, 5);
+      t.is(getTableRowsRO.rows[0].id, 38);
+      t.is(getTableRowsRO.rows[1].id, 22);
+      t.is(getTableRowsRO.pagination.currentPage, 1);
+      t.is(getTableRowsRO.pagination.perPage, 2);
+
+      t.is(typeof getTableRowsRO.primaryColumns, 'object');
+      t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('column_name'), true);
+      t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('data_type'), true);
+    } catch (e) {
+      console.error(e);
+      throw e;
+    }
+  },
+);
+
+test.serial(
+  `${currentTest} with search, with pagination and with sorting
+should return all found rows with search, pagination: page=2, perPage=2 and DESC sorting`,
+  async (t) => {
+    try {
+      const { connectionToTestMSSQL } = getTestData(mockFactory);
+      const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
+      const { testTableName, testTableColumnName } = await createTestTable(connectionToTestMSSQL);
+
+      testTables.push(testTableName);
+
+      const createConnectionResponse = await request(app.getHttpServer())
+        .post('/connection')
+        .send(connectionToTestMSSQL)
+        .set('Cookie', firstUserToken)
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json');
+      const createConnectionRO = JSON.parse(createConnectionResponse.text);
+      t.is(createConnectionResponse.status, 201);
+
+      const createTableSettingsDTO = mockFactory.generateTableSettings(
+        createConnectionRO.id,
+        testTableName,
+        [testTableColumnName],
+        undefined,
+        undefined,
+        3,
+        QueryOrderingEnum.DESC,
+        'id',
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+      );
+
+      const createTableSettingsResponse = await request(app.getHttpServer())
+        .post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
+        .send(createTableSettingsDTO)
+        .set('Cookie', firstUserToken)
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json');
+      t.is(createTableSettingsResponse.status, 201);
+
+      const getTableRowsResponse = await request(app.getHttpServer())
+        .get(
+          `/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=2&perPage=2&search=${testSearchedUserName}`,
+        )
+        .set('Cookie', firstUserToken)
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json');
+      t.is(getTableRowsResponse.status, 200);
+
+      const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
+
+      t.is(typeof getTableRowsRO, 'object');
+      t.is(getTableRowsRO.hasOwnProperty('rows'), true);
+      t.is(getTableRowsRO.hasOwnProperty('primaryColumns'), true);
+      t.is(getTableRowsRO.hasOwnProperty('pagination'), true);
+      t.is(getTableRowsRO.rows.length, 1);
+      t.is(Object.keys(getTableRowsRO.rows[0]).length, 5);
+      t.is(getTableRowsRO.rows[0].id, 1);
+      t.is(getTableRowsRO.pagination.currentPage, 2);
+      t.is(getTableRowsRO.pagination.perPage, 2);
+
+      t.is(typeof getTableRowsRO.primaryColumns, 'object');
+      t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('column_name'), true);
+      t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('data_type'), true);
+    } catch (e) {
+      console.error(e);
+      throw e;
+    }
+  },
+);
+
+test.serial(
+  `${currentTest} with search, with pagination and with sorting
+should return all found rows with search, pagination: page=1, perPage=2 and ASC sorting`,
+  async (t) => {
+    try {
+      const { connectionToTestMSSQL } = getTestData(mockFactory);
+      const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
+      const { testTableName, testTableColumnName } = await createTestTable(connectionToTestMSSQL);
+
+      testTables.push(testTableName);
+
+      const createConnectionResponse = await request(app.getHttpServer())
+        .post('/connection')
+        .send(connectionToTestMSSQL)
+        .set('Cookie', firstUserToken)
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json');
+      const createConnectionRO = JSON.parse(createConnectionResponse.text);
+      t.is(createConnectionResponse.status, 201);
+      const createTableSettingsDTO = mockFactory.generateTableSettings(
+        createConnectionRO.id,
+        testTableName,
+        [testTableColumnName],
+        undefined,
+        undefined,
+        3,
+        QueryOrderingEnum.ASC,
+        'id',
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+      );
+
+      const createTableSettingsResponse = await request(app.getHttpServer())
+        .post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
+        .send(createTableSettingsDTO)
+        .set('Cookie', firstUserToken)
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json');
+      t.is(createTableSettingsResponse.status, 201);
+
+      const getTableRowsResponse = await request(app.getHttpServer())
+        .get(
+          `/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=1&perPage=2&search=${testSearchedUserName}`,
+        )
+        .set('Cookie', firstUserToken)
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json');
+
+      t.is(getTableRowsResponse.status, 200);
+
+      const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
+
+      t.is(typeof getTableRowsRO, 'object');
+      t.is(getTableRowsRO.hasOwnProperty('rows'), true);
+      t.is(getTableRowsRO.hasOwnProperty('primaryColumns'), true);
+      t.is(getTableRowsRO.hasOwnProperty('pagination'), true);
+      t.is(getTableRowsRO.rows.length, 2);
+      t.is(Object.keys(getTableRowsRO.rows[0]).length, 5);
+      t.is(getTableRowsRO.rows[0].id, 1);
+      t.is(getTableRowsRO.rows[1].id, 22);
+      t.is(getTableRowsRO.pagination.currentPage, 1);
+      t.is(getTableRowsRO.pagination.perPage, 2);
+
+      t.is(typeof getTableRowsRO.primaryColumns, 'object');
+      t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('column_name'), true);
+      t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('data_type'), true);
+    } catch (e) {
+      console.error(e);
+      throw e;
+    }
+  },
+);
+
+test.serial(
+  `${currentTest} with search, with pagination and with sorting
+should return all found rows with search, pagination: page=2, perPage=2 and ASC sorting`,
+  async (t) => {
+    try {
+      const { connectionToTestMSSQL } = getTestData(mockFactory);
+      const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
+      const { testTableName, testTableColumnName } = await createTestTable(connectionToTestMSSQL);
+
+      testTables.push(testTableName);
+
+      const createConnectionResponse = await request(app.getHttpServer())
+        .post('/connection')
+        .send(connectionToTestMSSQL)
+        .set('Cookie', firstUserToken)
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json');
+      const createConnectionRO = JSON.parse(createConnectionResponse.text);
+      t.is(createConnectionResponse.status, 201);
+
+      const createTableSettingsDTO = mockFactory.generateTableSettings(
+        createConnectionRO.id,
+        testTableName,
+        [testTableColumnName],
+        undefined,
+        undefined,
+        3,
+        QueryOrderingEnum.ASC,
+        'id',
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+      );
+
+      const createTableSettingsResponse = await request(app.getHttpServer())
+        .post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
+        .send(createTableSettingsDTO)
+        .set('Cookie', firstUserToken)
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json');
+      t.is(createTableSettingsResponse.status, 201);
+
+      const getTableRowsResponse = await request(app.getHttpServer())
+        .get(
+          `/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=2&perPage=2&search=${testSearchedUserName}`,
+        )
+        .set('Cookie', firstUserToken)
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json');
+      t.is(getTableRowsResponse.status, 200);
+
+      const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
+
+      t.is(typeof getTableRowsRO, 'object');
+      t.is(getTableRowsRO.hasOwnProperty('rows'), true);
+      t.is(getTableRowsRO.hasOwnProperty('primaryColumns'), true);
+      t.is(getTableRowsRO.hasOwnProperty('pagination'), true);
+      t.is(getTableRowsRO.rows.length, 1);
+      t.is(Object.keys(getTableRowsRO.rows[0]).length, 5);
+      t.is(getTableRowsRO.rows[0].id, 38);
+      t.is(getTableRowsRO.pagination.currentPage, 2);
+      t.is(getTableRowsRO.pagination.perPage, 2);
+
+      t.is(typeof getTableRowsRO.primaryColumns, 'object');
+      t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('column_name'), true);
+      t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('data_type'), true);
+    } catch (e) {
+      console.error(e);
+      throw e;
+    }
+  },
+);
+
+test.serial(
+  `${currentTest} with search, with pagination, with sorting and with filtering
+should return all found rows with search, pagination: page=1, perPage=2 and DESC sorting and filtering`,
+  async (t) => {
+    try {
+      const { connectionToTestMSSQL } = getTestData(mockFactory);
+      const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
+      const { testTableName, testTableColumnName } = await createTestTable(connectionToTestMSSQL);
+
+      testTables.push(testTableName);
+
+      const createConnectionResponse = await request(app.getHttpServer())
+        .post('/connection')
+        .send(connectionToTestMSSQL)
+        .set('Cookie', firstUserToken)
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json');
+      const createConnectionRO = JSON.parse(createConnectionResponse.text);
+      t.is(createConnectionResponse.status, 201);
+
+      const createTableSettingsDTO = mockFactory.generateTableSettings(
+        createConnectionRO.id,
+        testTableName,
+        [testTableColumnName],
+        undefined,
+        undefined,
+        3,
+        QueryOrderingEnum.DESC,
+        'id',
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+      );
+
+      const createTableSettingsResponse = await request(app.getHttpServer())
+        .post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
+        .send(createTableSettingsDTO)
+        .set('Cookie', firstUserToken)
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json');
+      t.is(createTableSettingsResponse.status, 201);
+
+      const fieldname = 'id';
+      const fieldvalue = '45';
+
+      const getTableRowsResponse = await request(app.getHttpServer())
+        .get(
+          `/table/rows/${createConnectionRO.id}?tableName=${testTableName}&search=${testSearchedUserName}&page=1&perPage=2&f_${fieldname}__lt=${fieldvalue}`,
+        )
+        .set('Cookie', firstUserToken)
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json');
+      t.is(getTableRowsResponse.status, 200);
+
+      const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
+      t.is(typeof getTableRowsRO, 'object');
+      t.is(getTableRowsRO.hasOwnProperty('rows'), true);
+      t.is(getTableRowsRO.hasOwnProperty('primaryColumns'), true);
+      t.is(getTableRowsRO.hasOwnProperty('pagination'), true);
+      t.is(getTableRowsRO.rows.length, 2);
+      t.is(Object.keys(getTableRowsRO.rows[1]).length, 5);
+
+      t.is(getTableRowsRO.rows[0][testTableColumnName], testSearchedUserName);
+      t.is(getTableRowsRO.rows[0].id, 38);
+      t.is(getTableRowsRO.rows[1][testTableColumnName], testSearchedUserName);
+      t.is(getTableRowsRO.rows[1].id, 22);
+
+      t.is(getTableRowsRO.pagination.currentPage, 1);
+      t.is(getTableRowsRO.pagination.perPage, 2);
+
+      t.is(typeof getTableRowsRO.primaryColumns, 'object');
+      t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('column_name'), true);
+      t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('data_type'), true);
+    } catch (e) {
+      console.error(e);
+      throw e;
+    }
+  },
+);
+
+test.serial(
+  `${currentTest} with search, with pagination, with sorting and with filtering
+should return all found rows with search, pagination: page=1, perPage=10 and DESC sorting and filtering'`,
+  async (t) => {
+    try {
+      const { connectionToTestMSSQL } = getTestData(mockFactory);
+      const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
+      const { testTableName, testTableColumnName } = await createTestTable(connectionToTestMSSQL);
+
+      testTables.push(testTableName);
+
+      const createConnectionResponse = await request(app.getHttpServer())
+        .post('/connection')
+        .send(connectionToTestMSSQL)
+        .set('Cookie', firstUserToken)
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json');
+      const createConnectionRO = JSON.parse(createConnectionResponse.text);
+      t.is(createConnectionResponse.status, 201);
+
+      const createTableSettingsDTO = mockFactory.generateTableSettings(
+        createConnectionRO.id,
+        testTableName,
+        [testTableColumnName],
+        undefined,
+        undefined,
+        3,
+        QueryOrderingEnum.DESC,
+        'id',
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+      );
+
+      const createTableSettingsResponse = await request(app.getHttpServer())
+        .post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
+        .send(createTableSettingsDTO)
+        .set('Cookie', firstUserToken)
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json');
+      t.is(createTableSettingsResponse.status, 201);
+
+      const fieldname = 'id';
+      const fieldvalue = '41';
+      const getTableRowsResponse = await request(app.getHttpServer())
+        .get(
+          `/table/rows/${createConnectionRO.id}?tableName=${testTableName}&search=${testSearchedUserName}&page=1&perPage=10&f_${fieldname}__lt=${fieldvalue}`,
+        )
+        .set('Cookie', firstUserToken)
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json');
+      t.is(getTableRowsResponse.status, 200);
+
+      const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
+      t.is(typeof getTableRowsRO, 'object');
+      t.is(getTableRowsRO.hasOwnProperty('rows'), true);
+      t.is(getTableRowsRO.hasOwnProperty('primaryColumns'), true);
+      t.is(getTableRowsRO.hasOwnProperty('pagination'), true);
+      t.is(getTableRowsRO.rows.length, 3);
+      t.is(Object.keys(getTableRowsRO.rows[1]).length, 5);
+
+      t.is(getTableRowsRO.rows[0][testTableColumnName], testSearchedUserName);
+      t.is(getTableRowsRO.rows[0].id, 38);
+      t.is(getTableRowsRO.rows[1][testTableColumnName], testSearchedUserName);
+      t.is(getTableRowsRO.rows[1].id, 22);
+      t.is(getTableRowsRO.rows[2][testTableColumnName], testSearchedUserName);
+      t.is(getTableRowsRO.rows[2].id, 1);
+
+      t.is(getTableRowsRO.pagination.currentPage, 1);
+      t.is(getTableRowsRO.pagination.perPage, 10);
+
+      t.is(typeof getTableRowsRO.primaryColumns, 'object');
+      t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('column_name'), true);
+      t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('data_type'), true);
+    } catch (e) {
+      console.error(e);
+      throw e;
+    }
+  },
+);
+
+test.serial(
+  `${currentTest} with search, with pagination, with sorting and with filtering
+should return all found rows with search, pagination: page=2, perPage=2 and DESC sorting and filtering`,
+  async (t) => {
+    try {
+      const { connectionToTestMSSQL } = getTestData(mockFactory);
+      const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
+      const { testTableName, testTableColumnName } = await createTestTable(connectionToTestMSSQL);
+
+      testTables.push(testTableName);
+
+      const createConnectionResponse = await request(app.getHttpServer())
+        .post('/connection')
+        .send(connectionToTestMSSQL)
+        .set('Cookie', firstUserToken)
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json');
+      const createConnectionRO = JSON.parse(createConnectionResponse.text);
+      t.is(createConnectionResponse.status, 201);
+
+      const createTableSettingsDTO = mockFactory.generateTableSettings(
+        createConnectionRO.id,
+        testTableName,
+        [testTableColumnName],
+        undefined,
+        undefined,
+        3,
+        QueryOrderingEnum.DESC,
+        'id',
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+      );
+
+      const createTableSettingsResponse = await request(app.getHttpServer())
+        .post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
+        .send(createTableSettingsDTO)
+        .set('Cookie', firstUserToken)
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json');
+      t.is(createTableSettingsResponse.status, 201);
+
+      const fieldname = 'id';
+      const fieldvalue = '41';
+      const getTableRowsResponse = await request(app.getHttpServer())
+        .get(
+          `/table/rows/${createConnectionRO.id}?tableName=${testTableName}&search=${testSearchedUserName}&page=2&perPage=2&f_${fieldname}__lt=${fieldvalue}`,
+        )
+        .set('Cookie', firstUserToken)
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json');
+      t.is(getTableRowsResponse.status, 200);
+
+      const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
+      t.is(typeof getTableRowsRO, 'object');
+      t.is(getTableRowsRO.hasOwnProperty('rows'), true);
+      t.is(getTableRowsRO.hasOwnProperty('primaryColumns'), true);
+      t.is(getTableRowsRO.hasOwnProperty('pagination'), true);
+      t.is(getTableRowsRO.rows.length, 1);
+      t.is(Object.keys(getTableRowsRO.rows[0]).length, 5);
+
+      t.is(getTableRowsRO.rows[0][testTableColumnName], testSearchedUserName);
+      t.is(getTableRowsRO.rows[0].id, 1);
+
+      t.is(getTableRowsRO.pagination.currentPage, 2);
+      t.is(getTableRowsRO.pagination.perPage, 2);
+
+      t.is(typeof getTableRowsRO.primaryColumns, 'object');
+      t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('column_name'), true);
+      t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('data_type'), true);
+    } catch (e) {
+      console.error(e);
+      throw e;
+    }
+  },
+);
+
+test.serial(
+  `${currentTest} with search, with pagination, with sorting and with filtering
+should return all found rows with search, pagination: page=1, perPage=2 and DESC sorting and with multi filtering`,
+  async (t) => {
+    try {
+      const { connectionToTestMSSQL } = getTestData(mockFactory);
+      const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
+      const { testTableName, testTableColumnName } = await createTestTable(connectionToTestMSSQL);
+
+      testTables.push(testTableName);
+
+      const createConnectionResponse = await request(app.getHttpServer())
+        .post('/connection')
+        .send(connectionToTestMSSQL)
+        .set('Cookie', firstUserToken)
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json');
+      const createConnectionRO = JSON.parse(createConnectionResponse.text);
+      t.is(createConnectionResponse.status, 201);
+
+      const createTableSettingsDTO = mockFactory.generateTableSettings(
+        createConnectionRO.id,
+        testTableName,
+        [testTableColumnName],
+        undefined,
+        undefined,
+        3,
+        QueryOrderingEnum.DESC,
+        'id',
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+      );
+
+      const createTableSettingsResponse = await request(app.getHttpServer())
+        .post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
+        .send(createTableSettingsDTO)
+        .set('Cookie', firstUserToken)
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json');
+      t.is(createTableSettingsResponse.status, 201);
+
+      const fieldname = 'id';
+      const fieldGtvalue = '25';
+      const fieldLtvalue = '40';
+
+      const getTableRowsResponse = await request(app.getHttpServer())
+        .get(
+          `/table/rows/${createConnectionRO.id}?tableName=${testTableName}&search=${testSearchedUserName}&page=1&perPage=2&f_${fieldname}__lt=${fieldLtvalue}&f_${fieldname}__gt=${fieldGtvalue}`,
+        )
+        .set('Cookie', firstUserToken)
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json');
+      t.is(getTableRowsResponse.status, 200);
+
+      const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
+
+      t.is(typeof getTableRowsRO, 'object');
+      t.is(getTableRowsRO.hasOwnProperty('rows'), true);
+      t.is(getTableRowsRO.hasOwnProperty('primaryColumns'), true);
+      t.is(getTableRowsRO.hasOwnProperty('pagination'), true);
+      t.is(getTableRowsRO.rows.length, 1);
+      t.is(Object.keys(getTableRowsRO.rows[0]).length, 5);
+
+      t.is(getTableRowsRO.rows[0].id, 38);
+      t.is(getTableRowsRO.rows[0][testTableColumnName], testSearchedUserName);
+
+      t.is(getTableRowsRO.pagination.currentPage, 1);
+      t.is(getTableRowsRO.pagination.perPage, 2);
+
+      t.is(typeof getTableRowsRO.primaryColumns, 'object');
+      t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('column_name'), true);
+      t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('data_type'), true);
+    } catch (e) {
+      console.error(e);
+      throw e;
+    }
+  },
+);
+
+test.serial(`${currentTest} should throw an exception when connection id is not passed in request`, async (t) => {
   try {
     const { connectionToTestMSSQL } = getTestData(mockFactory);
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
@@ -1610,7 +1655,7 @@ test(`${currentTest} should throw an exception when connection id is not passed 
   }
 });
 
-test(`${currentTest} should throw an exception when connection id passed in request is incorrect`, async (t) => {
+test.serial(`${currentTest} should throw an exception when connection id passed in request is incorrect`, async (t) => {
   try {
     const { connectionToTestMSSQL } = getTestData(mockFactory);
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
@@ -1674,7 +1719,7 @@ test(`${currentTest} should throw an exception when connection id passed in requ
   }
 });
 
-test(`${currentTest} should throw an exception when table name passed in request is incorrect`, async (t) => {
+test.serial(`${currentTest} should throw an exception when table name passed in request is incorrect`, async (t) => {
   try {
     const { connectionToTestMSSQL } = getTestData(mockFactory);
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
@@ -1738,74 +1783,77 @@ test(`${currentTest} should throw an exception when table name passed in request
   }
 });
 
-test(`${currentTest} should return an array with searched fields when filtered name passed in request is incorrect`, async (t) => {
-  try {
-    const { connectionToTestMSSQL } = getTestData(mockFactory);
-    const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-    const { testTableName, testTableColumnName } = await createTestTable(connectionToTestMSSQL);
+test.serial(
+  `${currentTest} should return an array with searched fields when filtered name passed in request is incorrect`,
+  async (t) => {
+    try {
+      const { connectionToTestMSSQL } = getTestData(mockFactory);
+      const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
+      const { testTableName, testTableColumnName } = await createTestTable(connectionToTestMSSQL);
 
-    testTables.push(testTableName);
+      testTables.push(testTableName);
 
-    const createConnectionResponse = await request(app.getHttpServer())
-      .post('/connection')
-      .send(connectionToTestMSSQL)
-      .set('Cookie', firstUserToken)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-    const createConnectionRO = JSON.parse(createConnectionResponse.text);
-    t.is(createConnectionResponse.status, 201);
+      const createConnectionResponse = await request(app.getHttpServer())
+        .post('/connection')
+        .send(connectionToTestMSSQL)
+        .set('Cookie', firstUserToken)
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json');
+      const createConnectionRO = JSON.parse(createConnectionResponse.text);
+      t.is(createConnectionResponse.status, 201);
 
-    const createTableSettingsDTO = mockFactory.generateTableSettings(
-      createConnectionRO.id,
-      testTableName,
-      [testTableColumnName],
-      undefined,
-      undefined,
-      3,
-      QueryOrderingEnum.DESC,
-      'id',
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-    );
+      const createTableSettingsDTO = mockFactory.generateTableSettings(
+        createConnectionRO.id,
+        testTableName,
+        [testTableColumnName],
+        undefined,
+        undefined,
+        3,
+        QueryOrderingEnum.DESC,
+        'id',
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+      );
 
-    const createTableSettingsResponse = await request(app.getHttpServer())
-      .post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
-      .send(createTableSettingsDTO)
-      .set('Cookie', firstUserToken)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-    t.is(createTableSettingsResponse.status, 201);
+      const createTableSettingsResponse = await request(app.getHttpServer())
+        .post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
+        .send(createTableSettingsDTO)
+        .set('Cookie', firstUserToken)
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json');
+      t.is(createTableSettingsResponse.status, 201);
 
-    const fieldname = faker.lorem.words(1);
-    const fieldGtvalue = '25';
-    const fieldLtvalue = '40';
+      const fieldname = faker.lorem.words(1);
+      const fieldGtvalue = '25';
+      const fieldLtvalue = '40';
 
-    const getTableRowsResponse = await request(app.getHttpServer())
-      .get(
-        `/table/rows/${createConnectionRO.id}?tableName=${testTableName}&search=${testSearchedUserName}&page=1&perPage=2&f_${fieldname}__lt=${fieldLtvalue}&f_${fieldname}__gt=${fieldGtvalue}`,
-      )
-      .set('Cookie', firstUserToken)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-    t.is(getTableRowsResponse.status, 200);
+      const getTableRowsResponse = await request(app.getHttpServer())
+        .get(
+          `/table/rows/${createConnectionRO.id}?tableName=${testTableName}&search=${testSearchedUserName}&page=1&perPage=2&f_${fieldname}__lt=${fieldLtvalue}&f_${fieldname}__gt=${fieldGtvalue}`,
+        )
+        .set('Cookie', firstUserToken)
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json');
+      t.is(getTableRowsResponse.status, 200);
 
-    const getTablesRO = JSON.parse(getTableRowsResponse.text);
-    t.is(getTablesRO.rows.length, 2);
-    t.is(getTablesRO.rows[0][testTableColumnName], testSearchedUserName);
-    t.is(getTablesRO.rows[1][testTableColumnName], testSearchedUserName);
-    t.is(getTablesRO.hasOwnProperty('primaryColumns'), true);
-    t.is(getTablesRO.hasOwnProperty('pagination'), true);
-  } catch (e) {
-    console.error(e);
-    throw e;
-  }
-});
+      const getTablesRO = JSON.parse(getTableRowsResponse.text);
+      t.is(getTablesRO.rows.length, 2);
+      t.is(getTablesRO.rows[0][testTableColumnName], testSearchedUserName);
+      t.is(getTablesRO.rows[1][testTableColumnName], testSearchedUserName);
+      t.is(getTablesRO.hasOwnProperty('primaryColumns'), true);
+      t.is(getTablesRO.hasOwnProperty('pagination'), true);
+    } catch (e) {
+      console.error(e);
+      throw e;
+    }
+  },
+);
 
 currentTest = 'GET /table/structure/:slug';
-test(`${currentTest} should return table structure`, async (t) => {
+test.serial(`${currentTest} should return table structure`, async (t) => {
   const { connectionToTestMSSQL } = getTestData(mockFactory);
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
   const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
@@ -1858,7 +1906,7 @@ test(`${currentTest} should return table structure`, async (t) => {
   }
 });
 
-test(`${currentTest} should throw an exception whe connection id not passed in request`, async (t) => {
+test.serial(`${currentTest} should throw an exception whe connection id not passed in request`, async (t) => {
   const { connectionToTestMSSQL } = getTestData(mockFactory);
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
   const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
@@ -1883,7 +1931,7 @@ test(`${currentTest} should throw an exception whe connection id not passed in r
   t.is(getTableStructure.status, 404);
 });
 
-test(`${currentTest} should throw an exception whe connection id passed in request id incorrect`, async (t) => {
+test.serial(`${currentTest} should throw an exception whe connection id passed in request id incorrect`, async (t) => {
   const { connectionToTestMSSQL } = getTestData(mockFactory);
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
   const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
@@ -1911,7 +1959,7 @@ test(`${currentTest} should throw an exception whe connection id passed in reque
   t.is(message, Messages.CONNECTION_NOT_FOUND);
 });
 
-test(`${currentTest}should throw an exception when tableName not passed in request`, async (t) => {
+test.serial(`${currentTest}should throw an exception when tableName not passed in request`, async (t) => {
   const { connectionToTestMSSQL } = getTestData(mockFactory);
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
   const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
@@ -1938,7 +1986,7 @@ test(`${currentTest}should throw an exception when tableName not passed in reque
   t.is(message, Messages.TABLE_NAME_MISSING);
 });
 
-test(`${currentTest} should throw an exception when tableName passed in request is incorrect`, async (t) => {
+test.serial(`${currentTest} should throw an exception when tableName passed in request is incorrect`, async (t) => {
   const { connectionToTestMSSQL } = getTestData(mockFactory);
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
   const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
@@ -1967,7 +2015,7 @@ test(`${currentTest} should throw an exception when tableName passed in request 
 
 currentTest = 'POST /table/row/:slug';
 
-test(`${currentTest} should add row in table and return result`, async (t) => {
+test.serial(`${currentTest} should add row in table and return result`, async (t) => {
   const { connectionToTestMSSQL } = getTestData(mockFactory);
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
   const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
@@ -2032,7 +2080,7 @@ test(`${currentTest} should add row in table and return result`, async (t) => {
   t.is(rows[42].id, rows[41].id + 1);
 });
 
-test(`${currentTest} should throw an exception when connection id is not passed in request`, async (t) => {
+test.serial(`${currentTest} should throw an exception when connection id is not passed in request`, async (t) => {
   const { connectionToTestMSSQL } = getTestData(mockFactory);
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
   const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
@@ -2086,7 +2134,7 @@ test(`${currentTest} should throw an exception when connection id is not passed 
   t.is(rows.length, 42);
 });
 
-test(`${currentTest} should throw an exception when table name is not passed in request`, async (t) => {
+test.serial(`${currentTest} should throw an exception when table name is not passed in request`, async (t) => {
   const { connectionToTestMSSQL } = getTestData(mockFactory);
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
   const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
@@ -2143,7 +2191,7 @@ test(`${currentTest} should throw an exception when table name is not passed in 
   t.is(rows.length, 42);
 });
 
-test(`${currentTest} should throw an exception when row is not passed in request`, async (t) => {
+test.serial(`${currentTest} should throw an exception when row is not passed in request`, async (t) => {
   const { connectionToTestMSSQL } = getTestData(mockFactory);
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
   const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
@@ -2190,7 +2238,7 @@ test(`${currentTest} should throw an exception when row is not passed in request
   t.is(rows.length, 42);
 });
 
-test(`${currentTest} should throw an exception when table name passed in request is incorrect`, async (t) => {
+test.serial(`${currentTest} should throw an exception when table name passed in request is incorrect`, async (t) => {
   const { connectionToTestMSSQL } = getTestData(mockFactory);
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
   const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
@@ -2249,7 +2297,7 @@ test(`${currentTest} should throw an exception when table name passed in request
 
 currentTest = 'PUT /table/row/:slug';
 
-test(`${currentTest} should update row in table and return result`, async (t) => {
+test.serial(`${currentTest} should update row in table and return result`, async (t) => {
   const { connectionToTestMSSQL } = getTestData(mockFactory);
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
   const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
@@ -2314,7 +2362,7 @@ test(`${currentTest} should update row in table and return result`, async (t) =>
   t.is(rows[updateRowIndex][testTableSecondColumnName], row[testTableSecondColumnName]);
 });
 
-test(`${currentTest} should throw an exception when connection id not passed in request`, async (t) => {
+test.serial(`${currentTest} should throw an exception when connection id not passed in request`, async (t) => {
   const { connectionToTestMSSQL } = getTestData(mockFactory);
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
   const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
@@ -2350,7 +2398,7 @@ test(`${currentTest} should throw an exception when connection id not passed in 
   t.is(updateRowInTableResponse.status, 404);
 });
 
-test(`${currentTest} should throw an exception when connection id passed in request is incorrect`, async (t) => {
+test.serial(`${currentTest} should throw an exception when connection id passed in request is incorrect`, async (t) => {
   const { connectionToTestMSSQL } = getTestData(mockFactory);
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
   const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
@@ -2389,7 +2437,7 @@ test(`${currentTest} should throw an exception when connection id passed in requ
   t.is(message, Messages.CONNECTION_NOT_FOUND);
 });
 
-test(`${currentTest} should throw an exception when tableName not passed in request`, async (t) => {
+test.serial(`${currentTest} should throw an exception when tableName not passed in request`, async (t) => {
   const { connectionToTestMSSQL } = getTestData(mockFactory);
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
   const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
@@ -2427,7 +2475,7 @@ test(`${currentTest} should throw an exception when tableName not passed in requ
   t.is(message, Messages.TABLE_NAME_MISSING);
 });
 
-test(`${currentTest} should throw an exception when tableName passed in request is incorrect`, async (t) => {
+test.serial(`${currentTest} should throw an exception when tableName passed in request is incorrect`, async (t) => {
   const { connectionToTestMSSQL } = getTestData(mockFactory);
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
   const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
@@ -2465,7 +2513,7 @@ test(`${currentTest} should throw an exception when tableName passed in request 
   t.is(message, Messages.TABLE_NOT_FOUND);
 });
 
-test(`${currentTest} should throw an exception when primary key not passed in request`, async (t) => {
+test.serial(`${currentTest} should throw an exception when primary key not passed in request`, async (t) => {
   const { connectionToTestMSSQL } = getTestData(mockFactory);
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
   const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
@@ -2502,83 +2550,89 @@ test(`${currentTest} should throw an exception when primary key not passed in re
   t.is(message, Messages.PRIMARY_KEY_INVALID);
 });
 
-test(`${currentTest} should throw an exception when primary key passed in request has incorrect field name`, async (t) => {
-  const { connectionToTestMSSQL } = getTestData(mockFactory);
-  const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-  const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
-    await createTestTable(connectionToTestMSSQL);
+test.serial(
+  `${currentTest} should throw an exception when primary key passed in request has incorrect field name`,
+  async (t) => {
+    const { connectionToTestMSSQL } = getTestData(mockFactory);
+    const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
+    const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
+      await createTestTable(connectionToTestMSSQL);
 
-  testTables.push(testTableName);
+    testTables.push(testTableName);
 
-  const createConnectionResponse = await request(app.getHttpServer())
-    .post('/connection')
-    .send(connectionToTestMSSQL)
-    .set('Cookie', firstUserToken)
-    .set('Content-Type', 'application/json')
-    .set('Accept', 'application/json');
-  const createConnectionRO = JSON.parse(createConnectionResponse.text);
-  t.is(createConnectionResponse.status, 201);
+    const createConnectionResponse = await request(app.getHttpServer())
+      .post('/connection')
+      .send(connectionToTestMSSQL)
+      .set('Cookie', firstUserToken)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+    const createConnectionRO = JSON.parse(createConnectionResponse.text);
+    t.is(createConnectionResponse.status, 201);
 
-  const fakeName = faker.person.firstName();
-  const fakeMail = faker.internet.email();
+    const fakeName = faker.person.firstName();
+    const fakeMail = faker.internet.email();
 
-  const row = {
-    [testTableColumnName]: fakeName,
-    [testTableSecondColumnName]: fakeMail,
-  };
+    const row = {
+      [testTableColumnName]: fakeName,
+      [testTableSecondColumnName]: fakeMail,
+    };
 
-  const updateRowInTableResponse = await request(app.getHttpServer())
-    .put(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&IncorrectField=1`)
-    .send(JSON.stringify(row))
-    .set('Cookie', firstUserToken)
-    .set('Content-Type', 'application/json')
-    .set('Accept', 'application/json');
+    const updateRowInTableResponse = await request(app.getHttpServer())
+      .put(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&IncorrectField=1`)
+      .send(JSON.stringify(row))
+      .set('Cookie', firstUserToken)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
 
-  t.is(updateRowInTableResponse.status, 400);
-  const { message } = JSON.parse(updateRowInTableResponse.text);
-  t.is(message, Messages.PRIMARY_KEY_INVALID);
-});
+    t.is(updateRowInTableResponse.status, 400);
+    const { message } = JSON.parse(updateRowInTableResponse.text);
+    t.is(message, Messages.PRIMARY_KEY_INVALID);
+  },
+);
 
-test(`${currentTest} should throw an exception when primary key passed in request has incorrect field value`, async (t) => {
-  const { connectionToTestMSSQL } = getTestData(mockFactory);
-  const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-  const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
-    await createTestTable(connectionToTestMSSQL);
+test.serial(
+  `${currentTest} should throw an exception when primary key passed in request has incorrect field value`,
+  async (t) => {
+    const { connectionToTestMSSQL } = getTestData(mockFactory);
+    const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
+    const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
+      await createTestTable(connectionToTestMSSQL);
 
-  testTables.push(testTableName);
+    testTables.push(testTableName);
 
-  const createConnectionResponse = await request(app.getHttpServer())
-    .post('/connection')
-    .send(connectionToTestMSSQL)
-    .set('Cookie', firstUserToken)
-    .set('Content-Type', 'application/json')
-    .set('Accept', 'application/json');
-  const createConnectionRO = JSON.parse(createConnectionResponse.text);
-  t.is(createConnectionResponse.status, 201);
+    const createConnectionResponse = await request(app.getHttpServer())
+      .post('/connection')
+      .send(connectionToTestMSSQL)
+      .set('Cookie', firstUserToken)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+    const createConnectionRO = JSON.parse(createConnectionResponse.text);
+    t.is(createConnectionResponse.status, 201);
 
-  const fakeName = faker.person.firstName();
-  const fakeMail = faker.internet.email();
+    const fakeName = faker.person.firstName();
+    const fakeMail = faker.internet.email();
 
-  const row = {
-    [testTableColumnName]: fakeName,
-    [testTableSecondColumnName]: fakeMail,
-  };
+    const row = {
+      [testTableColumnName]: fakeName,
+      [testTableSecondColumnName]: fakeMail,
+    };
 
-  const updateRowInTableResponse = await request(app.getHttpServer())
-    .put(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&id=100000000`)
-    .send(JSON.stringify(row))
-    .set('Cookie', firstUserToken)
-    .set('Content-Type', 'application/json')
-    .set('Accept', 'application/json');
+    const updateRowInTableResponse = await request(app.getHttpServer())
+      .put(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&id=100000000`)
+      .send(JSON.stringify(row))
+      .set('Cookie', firstUserToken)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
 
-  t.is(updateRowInTableResponse.status, 400);
-  const { message } = JSON.parse(updateRowInTableResponse.text);
-  t.is(message, Messages.ROW_PRIMARY_KEY_NOT_FOUND);
-});
+    t.is(updateRowInTableResponse.status, 400);
+    const { message } = JSON.parse(updateRowInTableResponse.text);
+    t.is(message, Messages.ROW_PRIMARY_KEY_NOT_FOUND);
+  },
+);
 
 currentTest = 'DELETE /table/row/:slug';
 
-test(`${currentTest} should delete row in table and return result`, async (t) => {
+test.serial(`${currentTest} should delete row in table and return result`, async (t) => {
   const { connectionToTestMSSQL } = getTestData(mockFactory);
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
   const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
@@ -2628,7 +2682,7 @@ test(`${currentTest} should delete row in table and return result`, async (t) =>
   t.is(deletedRowIndex < 0, true);
 });
 
-test(`${currentTest} should throw an exception when connection id not passed in request`, async (t) => {
+test.serial(`${currentTest} should throw an exception when connection id not passed in request`, async (t) => {
   const { connectionToTestMSSQL } = getTestData(mockFactory);
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
   const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
@@ -2676,7 +2730,7 @@ test(`${currentTest} should throw an exception when connection id not passed in 
   t.is(deletedRowIndex < 0, false);
 });
 
-test(`${currentTest} should throw an exception when connection id passed in request is incorrect`, async (t) => {
+test.serial(`${currentTest} should throw an exception when connection id passed in request is incorrect`, async (t) => {
   const { connectionToTestMSSQL } = getTestData(mockFactory);
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
   const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
@@ -2726,7 +2780,7 @@ test(`${currentTest} should throw an exception when connection id passed in requ
   t.is(deletedRowIndex < 0, false);
 });
 
-test(`${currentTest} should throw an exception when tableName not passed in request`, async (t) => {
+test.serial(`${currentTest} should throw an exception when tableName not passed in request`, async (t) => {
   const { connectionToTestMSSQL } = getTestData(mockFactory);
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
   const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
@@ -2776,7 +2830,7 @@ test(`${currentTest} should throw an exception when tableName not passed in requ
   t.is(deletedRowIndex < 0, false);
 });
 
-test(`${currentTest} should throw an exception when tableName passed in request is incorrect`, async (t) => {
+test.serial(`${currentTest} should throw an exception when tableName passed in request is incorrect`, async (t) => {
   const { connectionToTestMSSQL } = getTestData(mockFactory);
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
   const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
@@ -2826,7 +2880,7 @@ test(`${currentTest} should throw an exception when tableName passed in request 
   t.is(deletedRowIndex < 0, false);
 });
 
-test(`${currentTest} should throw an exception when primary key not passed in request`, async (t) => {
+test.serial(`${currentTest} should throw an exception when primary key not passed in request`, async (t) => {
   const { connectionToTestMSSQL } = getTestData(mockFactory);
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
   const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
@@ -2875,86 +2929,92 @@ test(`${currentTest} should throw an exception when primary key not passed in re
   t.is(deletedRowIndex < 0, false);
 });
 
-test(`${currentTest} should throw an exception when primary key passed in request has incorrect field name`, async (t) => {
-  const { connectionToTestMSSQL } = getTestData(mockFactory);
-  const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-  const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
-    await createTestTable(connectionToTestMSSQL);
+test.serial(
+  `${currentTest} should throw an exception when primary key passed in request has incorrect field name`,
+  async (t) => {
+    const { connectionToTestMSSQL } = getTestData(mockFactory);
+    const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
+    const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
+      await createTestTable(connectionToTestMSSQL);
 
-  testTables.push(testTableName);
+    testTables.push(testTableName);
 
-  const createConnectionResponse = await request(app.getHttpServer())
-    .post('/connection')
-    .send(connectionToTestMSSQL)
-    .set('Cookie', firstUserToken)
-    .set('Content-Type', 'application/json')
-    .set('Accept', 'application/json');
-  const createConnectionRO = JSON.parse(createConnectionResponse.text);
-  t.is(createConnectionResponse.status, 201);
+    const createConnectionResponse = await request(app.getHttpServer())
+      .post('/connection')
+      .send(connectionToTestMSSQL)
+      .set('Cookie', firstUserToken)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+    const createConnectionRO = JSON.parse(createConnectionResponse.text);
+    t.is(createConnectionResponse.status, 201);
 
-  const idForDeletion = 1;
-  const deleteRowInTableResponse = await request(app.getHttpServer())
-    .delete(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&fakePKey=1`)
-    .set('Cookie', firstUserToken)
-    .set('Content-Type', 'application/json')
-    .set('Accept', 'application/json');
+    const idForDeletion = 1;
+    const deleteRowInTableResponse = await request(app.getHttpServer())
+      .delete(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&fakePKey=1`)
+      .set('Cookie', firstUserToken)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
 
-  t.is(deleteRowInTableResponse.status, 400);
-  const { message } = JSON.parse(deleteRowInTableResponse.text);
-  t.is(message, Messages.PRIMARY_KEY_INVALID);
+    t.is(deleteRowInTableResponse.status, 400);
+    const { message } = JSON.parse(deleteRowInTableResponse.text);
+    t.is(message, Messages.PRIMARY_KEY_INVALID);
 
-  //checking that the line wasn't deleted
-  const getTableRowsResponse = await request(app.getHttpServer())
-    .get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=1&perPage=50`)
-    .set('Cookie', firstUserToken)
-    .set('Content-Type', 'application/json')
-    .set('Accept', 'application/json');
-  t.is(getTableRowsResponse.status, 200);
+    //checking that the line wasn't deleted
+    const getTableRowsResponse = await request(app.getHttpServer())
+      .get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=1&perPage=50`)
+      .set('Cookie', firstUserToken)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+    t.is(getTableRowsResponse.status, 200);
 
-  const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
+    const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
 
-  t.is(getTableRowsRO.hasOwnProperty('rows'), true);
-  t.is(getTableRowsRO.hasOwnProperty('primaryColumns'), true);
-  t.is(getTableRowsRO.hasOwnProperty('pagination'), true);
+    t.is(getTableRowsRO.hasOwnProperty('rows'), true);
+    t.is(getTableRowsRO.hasOwnProperty('primaryColumns'), true);
+    t.is(getTableRowsRO.hasOwnProperty('pagination'), true);
 
-  const { rows, primaryColumns, pagination } = getTableRowsRO;
+    const { rows, primaryColumns, pagination } = getTableRowsRO;
 
-  t.is(rows.length, 42);
-  const deletedRowIndex = rows.map((row: Record<string, unknown>) => row.id).indexOf(idForDeletion);
-  t.is(deletedRowIndex < 0, false);
-});
+    t.is(rows.length, 42);
+    const deletedRowIndex = rows.map((row: Record<string, unknown>) => row.id).indexOf(idForDeletion);
+    t.is(deletedRowIndex < 0, false);
+  },
+);
 
-test(`${currentTest} should throw an exception when primary key passed in request has incorrect field value`, async (t) => {
-  const { connectionToTestMSSQL } = getTestData(mockFactory);
-  const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-  const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
-    await createTestTable(connectionToTestMSSQL);
+test.serial(
+  `${currentTest} should throw an exception when primary key passed in request has incorrect field value`,
+  async (t) => {
+    const { connectionToTestMSSQL } = getTestData(mockFactory);
+    const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
+    const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
+      await createTestTable(connectionToTestMSSQL);
 
-  testTables.push(testTableName);
+    testTables.push(testTableName);
 
-  const createConnectionResponse = await request(app.getHttpServer())
-    .post('/connection')
-    .send(connectionToTestMSSQL)
-    .set('Cookie', firstUserToken)
-    .set('Content-Type', 'application/json')
-    .set('Accept', 'application/json');
-  const createConnectionRO = JSON.parse(createConnectionResponse.text);
-  t.is(createConnectionResponse.status, 201);
+    const createConnectionResponse = await request(app.getHttpServer())
+      .post('/connection')
+      .send(connectionToTestMSSQL)
+      .set('Cookie', firstUserToken)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+    const createConnectionRO = JSON.parse(createConnectionResponse.text);
+    t.is(createConnectionResponse.status, 201);
 
-  const deleteRowInTableResponse = await request(app.getHttpServer())
-    .delete(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&id=100000`)
-    .set('Cookie', firstUserToken)
-    .set('Content-Type', 'application/json')
-    .set('Accept', 'application/json');
+    const deleteRowInTableResponse = await request(app.getHttpServer())
+      .delete(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&id=100000`)
+      .set('Cookie', firstUserToken)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
 
-  const deleteRowInTableRO = JSON.parse(deleteRowInTableResponse.text);
-  t.is(deleteRowInTableResponse.status, 400);
-  t.is(deleteRowInTableRO.message, Messages.ROW_PRIMARY_KEY_NOT_FOUND);
-});
+    const deleteRowInTableRO = JSON.parse(deleteRowInTableResponse.text);
+    t.is(deleteRowInTableResponse.status, 400);
+    t.is(deleteRowInTableRO.message, Messages.ROW_PRIMARY_KEY_NOT_FOUND);
+  },
+);
 
 currentTest = 'GET /table/row/:slug';
 
-test(`${currentTest} should return list of tables in connection`, async (t) => {
+test.serial(`${currentTest} should return list of tables in connection`, async (t) => {
   const { connectionToTestMSSQL } = getTestData(mockFactory);
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
   const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
@@ -2995,7 +3055,7 @@ test(`${currentTest} should return list of tables in connection`, async (t) => {
   t.is(Object.keys(foundRowInTableRO.row).length, 5);
 });
 
-test(`${currentTest} should throw an exception, when connection id is not passed in request`, async (t) => {
+test.serial(`${currentTest} should throw an exception, when connection id is not passed in request`, async (t) => {
   const { connectionToTestMSSQL } = getTestData(mockFactory);
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
   const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
@@ -3022,37 +3082,40 @@ test(`${currentTest} should throw an exception, when connection id is not passed
   t.is(foundRowInTableResponse.status, 404);
 });
 
-test(`${currentTest} should throw an exception, when connection id passed in request is incorrect`, async (t) => {
-  const { connectionToTestMSSQL } = getTestData(mockFactory);
-  const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-  const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
-    await createTestTable(connectionToTestMSSQL);
+test.serial(
+  `${currentTest} should throw an exception, when connection id passed in request is incorrect`,
+  async (t) => {
+    const { connectionToTestMSSQL } = getTestData(mockFactory);
+    const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
+    const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
+      await createTestTable(connectionToTestMSSQL);
 
-  testTables.push(testTableName);
+    testTables.push(testTableName);
 
-  const createConnectionResponse = await request(app.getHttpServer())
-    .post('/connection')
-    .send(connectionToTestMSSQL)
-    .set('Cookie', firstUserToken)
-    .set('Content-Type', 'application/json')
-    .set('Accept', 'application/json');
-  const createConnectionRO = JSON.parse(createConnectionResponse.text);
-  t.is(createConnectionResponse.status, 201);
+    const createConnectionResponse = await request(app.getHttpServer())
+      .post('/connection')
+      .send(connectionToTestMSSQL)
+      .set('Cookie', firstUserToken)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+    const createConnectionRO = JSON.parse(createConnectionResponse.text);
+    t.is(createConnectionResponse.status, 201);
 
-  const idForSearch = 1;
-  createConnectionRO.id = faker.string.uuid();
-  const foundRowInTableResponse = await request(app.getHttpServer())
-    .get(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&id=${idForSearch}`)
-    .set('Cookie', firstUserToken)
-    .set('Content-Type', 'application/json')
-    .set('Accept', 'application/json');
+    const idForSearch = 1;
+    createConnectionRO.id = faker.string.uuid();
+    const foundRowInTableResponse = await request(app.getHttpServer())
+      .get(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&id=${idForSearch}`)
+      .set('Cookie', firstUserToken)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
 
-  t.is(foundRowInTableResponse.status, 400);
-  const { message } = JSON.parse(foundRowInTableResponse.text);
-  t.is(message, Messages.CONNECTION_NOT_FOUND);
-});
+    t.is(foundRowInTableResponse.status, 400);
+    const { message } = JSON.parse(foundRowInTableResponse.text);
+    t.is(message, Messages.CONNECTION_NOT_FOUND);
+  },
+);
 
-test(`${currentTest} should throw an exception, when tableName in not passed in request`, async (t) => {
+test.serial(`${currentTest} should throw an exception, when tableName in not passed in request`, async (t) => {
   const { connectionToTestMSSQL } = getTestData(mockFactory);
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
   const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
@@ -3082,7 +3145,7 @@ test(`${currentTest} should throw an exception, when tableName in not passed in 
   t.is(message, Messages.TABLE_NAME_MISSING);
 });
 
-test(`${currentTest} should throw an exception, when tableName passed in request is incorrect`, async (t) => {
+test.serial(`${currentTest} should throw an exception, when tableName passed in request is incorrect`, async (t) => {
   const { connectionToTestMSSQL } = getTestData(mockFactory);
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
   const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
@@ -3112,7 +3175,7 @@ test(`${currentTest} should throw an exception, when tableName passed in request
   t.is(message, Messages.TABLE_NOT_FOUND);
 });
 
-test(`${currentTest} should throw an exception, when primary key is not passed in request`, async (t) => {
+test.serial(`${currentTest} should throw an exception, when primary key is not passed in request`, async (t) => {
   const { connectionToTestMSSQL } = getTestData(mockFactory);
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
   const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
@@ -3140,67 +3203,73 @@ test(`${currentTest} should throw an exception, when primary key is not passed i
   t.is(message, Messages.PRIMARY_KEY_INVALID);
 });
 
-test(`${currentTest} should throw an exception, when primary key passed in request has incorrect name`, async (t) => {
-  const { connectionToTestMSSQL } = getTestData(mockFactory);
-  const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-  const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
-    await createTestTable(connectionToTestMSSQL);
+test.serial(
+  `${currentTest} should throw an exception, when primary key passed in request has incorrect name`,
+  async (t) => {
+    const { connectionToTestMSSQL } = getTestData(mockFactory);
+    const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
+    const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
+      await createTestTable(connectionToTestMSSQL);
 
-  testTables.push(testTableName);
+    testTables.push(testTableName);
 
-  const createConnectionResponse = await request(app.getHttpServer())
-    .post('/connection')
-    .send(connectionToTestMSSQL)
-    .set('Cookie', firstUserToken)
-    .set('Content-Type', 'application/json')
-    .set('Accept', 'application/json');
-  const createConnectionRO = JSON.parse(createConnectionResponse.text);
-  t.is(createConnectionResponse.status, 201);
+    const createConnectionResponse = await request(app.getHttpServer())
+      .post('/connection')
+      .send(connectionToTestMSSQL)
+      .set('Cookie', firstUserToken)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+    const createConnectionRO = JSON.parse(createConnectionResponse.text);
+    t.is(createConnectionResponse.status, 201);
 
-  const idForSearch = 1;
-  const foundRowInTableResponse = await request(app.getHttpServer())
-    .get(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&fakeKeyName=${idForSearch}`)
-    .set('Cookie', firstUserToken)
-    .set('Content-Type', 'application/json')
-    .set('Accept', 'application/json');
+    const idForSearch = 1;
+    const foundRowInTableResponse = await request(app.getHttpServer())
+      .get(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&fakeKeyName=${idForSearch}`)
+      .set('Cookie', firstUserToken)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
 
-  t.is(foundRowInTableResponse.status, 400);
-  const { message } = JSON.parse(foundRowInTableResponse.text);
-  t.is(message, Messages.PRIMARY_KEY_INVALID);
-});
+    t.is(foundRowInTableResponse.status, 400);
+    const { message } = JSON.parse(foundRowInTableResponse.text);
+    t.is(message, Messages.PRIMARY_KEY_INVALID);
+  },
+);
 
-test(`${currentTest} should throw an exception, when primary key passed in request has incorrect value`, async (t) => {
-  const { connectionToTestMSSQL } = getTestData(mockFactory);
-  const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-  const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
-    await createTestTable(connectionToTestMSSQL);
+test.serial(
+  `${currentTest} should throw an exception, when primary key passed in request has incorrect value`,
+  async (t) => {
+    const { connectionToTestMSSQL } = getTestData(mockFactory);
+    const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
+    const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
+      await createTestTable(connectionToTestMSSQL);
 
-  testTables.push(testTableName);
+    testTables.push(testTableName);
 
-  const createConnectionResponse = await request(app.getHttpServer())
-    .post('/connection')
-    .send(connectionToTestMSSQL)
-    .set('Cookie', firstUserToken)
-    .set('Content-Type', 'application/json')
-    .set('Accept', 'application/json');
-  const createConnectionRO = JSON.parse(createConnectionResponse.text);
-  t.is(createConnectionResponse.status, 201);
+    const createConnectionResponse = await request(app.getHttpServer())
+      .post('/connection')
+      .send(connectionToTestMSSQL)
+      .set('Cookie', firstUserToken)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+    const createConnectionRO = JSON.parse(createConnectionResponse.text);
+    t.is(createConnectionResponse.status, 201);
 
-  const idForSearch = 1000000;
-  const foundRowInTableResponse = await request(app.getHttpServer())
-    .get(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&id=${idForSearch}`)
-    .set('Cookie', firstUserToken)
-    .set('Content-Type', 'application/json')
-    .set('Accept', 'application/json');
+    const idForSearch = 1000000;
+    const foundRowInTableResponse = await request(app.getHttpServer())
+      .get(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&id=${idForSearch}`)
+      .set('Cookie', firstUserToken)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
 
-  t.is(foundRowInTableResponse.status, 400);
-  const { message } = JSON.parse(foundRowInTableResponse.text);
-  t.is(message, Messages.ROW_PRIMARY_KEY_NOT_FOUND);
-});
+    t.is(foundRowInTableResponse.status, 400);
+    const { message } = JSON.parse(foundRowInTableResponse.text);
+    t.is(message, Messages.ROW_PRIMARY_KEY_NOT_FOUND);
+  },
+);
 
 currentTest = 'PUT /table/rows/delete/:slug';
 
-test(`${currentTest} should delete row in table and return result`, async (t) => {
+test.serial(`${currentTest} should delete row in table and return result`, async (t) => {
   const { connectionToTestMSSQL } = getTestData(mockFactory);
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
   const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
@@ -3280,7 +3349,7 @@ test(`${currentTest} should delete row in table and return result`, async (t) =>
   }
 });
 
-test(`${currentTest} should test connection and return result`, async (t) => {
+test.serial(`${currentTest} should test connection and return result`, async (t) => {
   const { connectionToTestMSSQL } = getTestData(mockFactory);
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
 

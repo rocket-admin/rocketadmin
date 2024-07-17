@@ -111,7 +111,7 @@ test.after.always('Close app connection', async () => {
 });
 
 currentTest = 'POST /table/triggers/:connectionId';
-test(`${currentTest} should return created table trigger`, async (t) => {
+test.serial(`${currentTest} should return created table trigger`, async (t) => {
   const { token } = await registerUserAndReturnUserInfo(app);
 
   const createConnectionResult = await request(app.getHttpServer())
@@ -171,7 +171,7 @@ test(`${currentTest} should return created table trigger`, async (t) => {
 });
 
 currentTest = 'GET /table/triggers/:connectionId';
-test(`${currentTest} should return found table triggers`, async (t) => {
+test.serial(`${currentTest} should return found table triggers`, async (t) => {
   const { token } = await registerUserAndReturnUserInfo(app);
 
   const createConnectionResult = await request(app.getHttpServer())
@@ -254,7 +254,7 @@ test(`${currentTest} should return found table triggers`, async (t) => {
 
 currentTest = 'GET /table/trigger/:connectionId';
 
-test(`${currentTest} should return found table triggers`, async (t) => {
+test.serial(`${currentTest} should return found table triggers`, async (t) => {
   const { token } = await registerUserAndReturnUserInfo(app);
 
   const createConnectionResult = await request(app.getHttpServer())
@@ -338,7 +338,7 @@ test(`${currentTest} should return found table triggers`, async (t) => {
 
 currentTest = 'PUT /table/triggers/:connectionId';
 
-test(`${currentTest} should return found table triggers`, async (t) => {
+test.serial(`${currentTest} should return found table triggers`, async (t) => {
   const { token } = await registerUserAndReturnUserInfo(app);
 
   const createConnectionResult = await request(app.getHttpServer())
@@ -427,7 +427,7 @@ test(`${currentTest} should return found table triggers`, async (t) => {
 
 currentTest = 'DELETE /table/triggers/:connectionId';
 
-test(`${currentTest} should return found table triggers`, async (t) => {
+test.serial(`${currentTest} should return found table triggers`, async (t) => {
   const { token } = await registerUserAndReturnUserInfo(app);
 
   const createConnectionResult = await request(app.getHttpServer())
@@ -535,7 +535,7 @@ test(`${currentTest} should return found table triggers`, async (t) => {
 //check that table action (webhook) was triggered on add row
 currentTest = 'POST/PUT/DELETE /table/row/:slug';
 
-test(`${currentTest} should create trigger and activate http table action on add row`, async (t) => {
+test.serial(`${currentTest} should create trigger and activate http table action on add row`, async (t) => {
   const { token } = await registerUserAndReturnUserInfo(app);
 
   const createConnectionResult = await request(app.getHttpServer())
@@ -660,7 +660,7 @@ test(`${currentTest} should create trigger and activate http table action on add
 
 //check that table action (slack message) was triggered on add row
 
-test(`${currentTest} should create trigger and activate slack table action on add row`, async (t) => {
+test.serial(`${currentTest} should create trigger and activate slack table action on add row`, async (t) => {
   const { token } = await registerUserAndReturnUserInfo(app);
 
   const createConnectionResult = await request(app.getHttpServer())

@@ -45,7 +45,7 @@ test.before(async () => {
 
 currentTest = `POST /apikey`;
 
-test(`${currentTest} should return created api key for this user`, async (t) => {
+test.serial(`${currentTest} should return created api key for this user`, async (t) => {
   try {
     const connectionToTestDB = getTestData(mockFactory).connectionToPostgres;
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
@@ -106,7 +106,7 @@ test(`${currentTest} should return created api key for this user`, async (t) => 
   }
 });
 
-test(`${currentTest} user should have access to table controller by api key`, async (t) => {
+test.serial(`${currentTest} user should have access to table controller by api key`, async (t) => {
   try {
     const adminUserRegisterInfo = await registerUserAndReturnUserInfo(app);
     const { token } = adminUserRegisterInfo;
@@ -132,7 +132,7 @@ test(`${currentTest} user should have access to table controller by api key`, as
   }
 });
 
-test(`${currentTest} should throw an exception when title not passed`, async (t) => {
+test.serial(`${currentTest} should throw an exception when title not passed`, async (t) => {
   try {
     const adminUserRegisterInfo = await registerUserAndReturnUserInfo(app);
     const { token } = adminUserRegisterInfo;
@@ -154,7 +154,7 @@ test(`${currentTest} should throw an exception when title not passed`, async (t)
 
 currentTest = `GET /apikeys`;
 
-test(`${currentTest} should return all users api keys`, async (t) => {
+test.serial(`${currentTest} should return all users api keys`, async (t) => {
   try {
     const adminUserRegisterInfo = await registerUserAndReturnUserInfo(app);
     const { token } = adminUserRegisterInfo;
@@ -194,7 +194,7 @@ test(`${currentTest} should return all users api keys`, async (t) => {
 
 currentTest = `GET /apikey/:apiKeyId`;
 
-test(`${currentTest} should return found user api key`, async (t) => {
+test.serial(`${currentTest} should return found user api key`, async (t) => {
   try {
     const adminUserRegisterInfo = await registerUserAndReturnUserInfo(app);
     const { token } = adminUserRegisterInfo;
@@ -232,7 +232,7 @@ test(`${currentTest} should return found user api key`, async (t) => {
   }
 });
 
-test(`${currentTest} should throw an exception when key with id not exist in database`, async (t) => {
+test.serial(`${currentTest} should throw an exception when key with id not exist in database`, async (t) => {
   try {
     const adminUserRegisterInfo = await registerUserAndReturnUserInfo(app);
     const { token } = adminUserRegisterInfo;
@@ -268,7 +268,7 @@ test(`${currentTest} should throw an exception when key with id not exist in dat
   }
 });
 
-test(`${currentTest} should delete api key and return deleted key`, async (t) => {
+test.serial(`${currentTest} should delete api key and return deleted key`, async (t) => {
   try {
     const adminUserRegisterInfo = await registerUserAndReturnUserInfo(app);
     const { token } = adminUserRegisterInfo;

@@ -48,7 +48,7 @@ test.before(async () => {
 
 currentTest = '';
 
-test(`${currentTest} should return list of tables in connection`, async (t) => {
+test.serial(`${currentTest} should return list of tables in connection`, async (t) => {
   try {
     const connectionToTestDB = getTestData(mockFactory).connectionToPostgres;
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
