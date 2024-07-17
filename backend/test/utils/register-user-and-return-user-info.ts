@@ -200,12 +200,14 @@ export async function inviteUserInCompanyAndGroupAndAcceptInvitation(
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
 
-  const invitationRO: InvitedUserInCompanyAndConnectionGroupDs = JSON.parse(invitationResult.text);
+  const invitationRO: InvitedUserInCompanyAndConnectionGroupDs & { verificationString: string } = JSON.parse(
+    invitationResult.text,
+  );
   if (invitationResult.status > 201) {
     console.info('invitationResult.body -> ', invitationRO);
   }
   const verificationResult = await request(app.getHttpServer())
-    .post(`/company/invite/verify/test`)
+    .post(`/company/invite/verify/${invitationRO.verificationString}`)
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json')
     .send({

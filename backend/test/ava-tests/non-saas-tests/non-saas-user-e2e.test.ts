@@ -31,7 +31,7 @@ test.beforeEach(async () => {
   }).compile();
   app = moduleFixture.createNestApplication();
   testUtils = moduleFixture.get<TestUtils>(TestUtils);
-  await testUtils.resetDb();
+  // await testUtils.resetDb();
   app.use(cookieParser());
   app.useGlobalFilters(new AllExceptionsFilter());
   app.useGlobalPipes(
@@ -146,6 +146,27 @@ test(`${currentTest} reject authorization when try to login with wrong password`
   t.pass();
 });
 
+currentTest = 'GET /user/settings';
+test(`${currentTest} should return empty user settings when it was not created`, async (t) => {
+  try {
+    const adminUserRegisterInfo = await registerUserAndReturnUserInfo(app);
+    const { token } = adminUserRegisterInfo;
+
+    const getUserSettingsResult = await request(app.getHttpServer())
+      .get('/user/settings')
+      .set('Cookie', token)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+    const getUserSettingsRO = JSON.parse(getUserSettingsResult.text);
+    t.is(getUserSettingsResult.status, 200);
+    t.is(getUserSettingsRO.hasOwnProperty('userSettings'), true);
+    t.is(getUserSettingsRO.userSettings, null);
+  } catch (err) {
+    throw err;
+  }
+  t.pass();
+});
+
 currentTest = 'POST /user/settings';
 test(`${currentTest} should return created user settings`, async (t) => {
   try {
@@ -165,27 +186,6 @@ test(`${currentTest} should return created user settings`, async (t) => {
     const saveUserSettingsRO = JSON.parse(saveUserSettingsResult.text);
     t.is(saveUserSettingsRO.hasOwnProperty('userSettings'), true);
     t.is(JSON.parse(saveUserSettingsRO.userSettings).test, 'test');
-  } catch (err) {
-    throw err;
-  }
-  t.pass();
-});
-
-currentTest = 'GET /user/settings';
-test(`${currentTest} should return empty user settings when it was not created`, async (t) => {
-  try {
-    const adminUserRegisterInfo = await registerUserAndReturnUserInfo(app);
-    const { token } = adminUserRegisterInfo;
-
-    const getUserSettingsResult = await request(app.getHttpServer())
-      .get('/user/settings')
-      .set('Cookie', token)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-    const getUserSettingsRO = JSON.parse(getUserSettingsResult.text);
-    t.is(getUserSettingsResult.status, 200);
-    t.is(getUserSettingsRO.hasOwnProperty('userSettings'), true);
-    t.is(getUserSettingsRO.userSettings, null);
   } catch (err) {
     throw err;
   }

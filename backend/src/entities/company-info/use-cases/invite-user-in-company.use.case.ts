@@ -116,11 +116,15 @@ export class InviteUserInCompanyAndConnectionGroupUseCase
         newInvitation.verification_string,
       );
     }
-    return {
+    const invitationRO: any = {
       companyId: companyId,
       groupId: groupId,
       email: invitedUserEmail,
       role: invitedUserCompanyRole,
     };
+    if (process.env.NODE_ENV === 'test') {
+      invitationRO.verificationString = newInvitation.verification_string;
+    }
+    return invitationRO;
   }
 }
