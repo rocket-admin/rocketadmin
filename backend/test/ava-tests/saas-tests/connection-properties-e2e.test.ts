@@ -79,7 +79,7 @@ async function resetPostgresTestDB(testTableName) {
 }
 
 test.beforeEach(async (t) => {
-  testTableName = faker.lorem.words(1);
+  testTableName = `${faker.lorem.words(1)}_${faker.string.uuid()}`;
   testTables.push(testTableName);
   newConnectionProperties = mockFactory.generateConnectionPropertiesUserExcluded(testTableName);
   await resetPostgresTestDB(testTableName);
