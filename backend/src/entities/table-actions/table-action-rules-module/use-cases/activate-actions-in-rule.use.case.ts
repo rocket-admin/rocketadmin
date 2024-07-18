@@ -9,7 +9,7 @@ import { OperationResultStatusEnum } from '../../../../enums/operation-result-st
 import { Messages } from '../../../../exceptions/text/messages.js';
 import { TableLogsService } from '../../../table-logs/table-logs.service.js';
 import { LogOperationTypeEnum } from '../../../../enums/index.js';
-import { activateTableAction } from '../../table-actions-module/utils/activate-table-action.util.js';
+import { TableActionActivationService } from '../../table-actions-module/table-action-activation.service.js';
 
 @Injectable()
 export class ActivateActionsInEventUseCase
@@ -20,6 +20,7 @@ export class ActivateActionsInEventUseCase
     @Inject(BaseType.GLOBAL_DB_CONTEXT)
     protected _dbContext: IGlobalDatabaseContext,
     private tableLogsService: TableLogsService,
+    private tableActionActivationService: TableActionActivationService,
   ) {
     super();
   }
@@ -54,14 +55,15 @@ export class ActivateActionsInEventUseCase
     for (const action of foundActionsWithCustomEvents) {
       let primaryKeyValuesArray = [];
       try {
-        const { receivedOperationResult, receivedPrimaryKeysObj, location } = await activateTableAction(
-          action,
-          foundConnection,
-          request_body,
-          userId,
-          tableName,
-          null,
-        );
+        const { receivedOperationResult, receivedPrimaryKeysObj, location } =
+          await this.tableActionActivationService.activateTableAction(
+            action,
+            foundConnection,
+            request_body,
+            userId,
+            tableName,
+            null,
+          );
         operationResult = receivedOperationResult;
         primaryKeyValuesArray = receivedPrimaryKeysObj;
         if (location) {
