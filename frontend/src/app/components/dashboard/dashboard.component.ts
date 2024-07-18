@@ -323,7 +323,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   activateActions({action, primaryKeys, identityFieldValues}: DataToActivateActions) {
-    if (action.requireConfirmation) {
+    if (action.require_confirmation) {
       this.dialog.open(BbBulkActionConfirmationDialogComponent, {
         width: '25em',
         data: {id: action.id, title: action.title, primaryKeys, identityFieldValues, tableDisplayName: this.selectedTableDisplayName}

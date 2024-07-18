@@ -11,6 +11,9 @@ import { TablesService } from 'src/app/services/tables.service';
 import { Title } from '@angular/platform-browser';
 import { codeSnippets } from 'src/app/consts/code-snippets';
 import { normalizeTableName } from 'src/app/lib/normalize';
+import { CompanyService } from 'src/app/services/company.service';
+import { CompanyMember } from 'src/app/models/company';
+import { UserService } from 'src/app/services/user.service';
 
 @Component({
   selector: 'app-db-table-actions',
@@ -36,6 +39,7 @@ export class DbTableActionsComponent implements OnInit {
   public newAction: CustomAction =null;
   public actionNameError: string;
   public codeSnippets: object;
+  public companyMembers: CompanyMember[];
 
   public defaultIcons = ['favorite_outline', 'star_outline', 'done', 'arrow_forward', 'key_outline', 'lock', 'visibility', 'language', 'notifications', 'schedule'];
 
@@ -61,6 +65,8 @@ export class DbTableActionsComponent implements OnInit {
     private _connections: ConnectionsService,
     private _tables: TablesService,
     private _notifications: NotificationsService,
+    private _company: CompanyService,
+    private _userService: UserService,
     public dialog: MatDialog,
     private title: Title,
     private angulartics2: Angulartics2,
@@ -85,6 +91,13 @@ export class DbTableActionsComponent implements OnInit {
         console.log(error.error.message);
       } else  { throw error };
     }
+
+    this._userService.cast
+      .subscribe(user => {
+        this._company.fetchCompanyMembers(user.company.id).subscribe(members => {
+          this.companyMembers = members;
+        })
+      });
 
     this._tables.cast.subscribe(async (arg) =>  {
       if (arg === 'delete-rule') {
@@ -131,7 +144,7 @@ export class DbTableActionsComponent implements OnInit {
   setSelectedRule(rule: Rule) {
     this.selectedRule = rule;
     this.selectedRuleTitle = rule.title;
-    if (this.selectedRule.events.length !== 4) this.selectedRule.events.push({ event: null });
+    if (this.selectedRule.events[this.selectedRule.events.length - 1].event !== null) this.selectedRule.events.push({ event: null });
 
     const customEvent = this.selectedRule.events.find((event) => event.event === EventType.Custom);
     if (customEvent) {
@@ -227,6 +240,13 @@ export class DbTableActionsComponent implements OnInit {
   addRule() {
     this.submitting = true;
     this.selectedRule.events = this.selectedRule.events.filter((event) => event.event !== null);
+    this.selectedRule.events.map(event => {
+      if (event.event === 'CUSTOM') {
+        return {...event, ...this.selectedRuleCustomEvent};
+      }
+      return event;
+    });
+
     this._tables.saveRule(this.connectionID, this.tableName, this.selectedRule)
       .subscribe(async (res) => {
         this.submitting = false;
@@ -253,6 +273,13 @@ export class DbTableActionsComponent implements OnInit {
     this.submitting = true;
     this.selectedRule.events = this.selectedRule.events.filter((event) => event.event !== null);
     if (this.selectedRuleTitle) this.selectedRule.title = this.selectedRuleTitle;
+    this.selectedRule.events.map(event => {
+      if (event.event === 'CUSTOM') {
+        return {...event, ...this.selectedRuleCustomEvent};
+      }
+      return event;
+    });
+
     this._tables.updateRule(this.connectionID, this.tableName, this.selectedRule)
       .subscribe(async (res) => {
         this.submitting = false;
@@ -299,7 +326,7 @@ export class DbTableActionsComponent implements OnInit {
         title: '',
         type: CustomActionType.Single,
         icon: '',
-        requireConfirmation: false
+        require_confirmation: false
       };
       // this.selectedRule.events.push(customEvent);
       this.selectedRuleCustomEvent = customEvent;

@@ -114,7 +114,7 @@ export interface CustomEvent {
     title: string,
     type: CustomActionType,
     icon: string,
-    requireConfirmation: boolean
+    require_confirmation: boolean
 }
 
 export interface Rule {

@@ -113,7 +113,9 @@
 
 
 .list-action-list-item_active {
-    color: var(--color-accentedPalette-500);
+    --mdc-list-list-item-label-text-color: var(--color-accentedPalette-500);
+    --mdc-list-list-item-hover-label-text-color: var(--color-accentedPalette-500);
+    --mdc-list-list-item-focus-label-text-color: var(--color-accentedPalette-500);
 }
 
 .actions-icon-selector {

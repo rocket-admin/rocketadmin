@@ -450,13 +450,7 @@ export class TablesService {
   }
 
   activateActions(connectionID: string, tableName: string, actionId: string, actionTitle: string, primaryKeys: object[], confirmed?: boolean) {
-    return this._http.post<any>(`/table/actions/activate/${connectionID}`, primaryKeys, {
-      params: {
-        tableName,
-        actionId,
-        ...(confirmed ? {confirmed} : {}),
-      }
-    })
+    return this._http.post<any>(`/event/actions/activate/${actionId}/${connectionID}`, primaryKeys)
       .pipe(
         map((res) => {
           this.tables.next('activate actions');

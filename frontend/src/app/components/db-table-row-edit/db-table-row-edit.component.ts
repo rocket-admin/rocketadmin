@@ -403,7 +403,7 @@ export class DbTableRowEditComponent implements OnInit {
   }
 
   handleActivateAction(action: CustomEvent) {
-    if (action.requireConfirmation) {
+    if (action.require_confirmation) {
       this.dialog.open(BbBulkActionConfirmationDialogComponent, {
         width: '25em',
         data: {id: action.id, title: action.title, primaryKeys: [this.keyAttributesFromURL]}

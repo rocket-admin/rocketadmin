@@ -188,8 +188,8 @@ export class TablesDataSource implements DataSource<Object> {
           }
           this.keyAttributes = res.primaryColumns;
           this.identityColumn = res.identity_column;
-          this.tableActions = res.table_actions;
-          this.tableBulkActions = res.table_actions.filter((action: CustomEvent) => action.type === CustomActionType.Multiple);
+          this.tableActions = res.action_events;
+          this.tableBulkActions = res.action_events.filter((action: CustomEvent) => action.type === CustomActionType.Multiple);
 
           let orderedColumns: TableField[];
           if (res.list_fields.length) {
