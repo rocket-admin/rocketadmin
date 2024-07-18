@@ -8,7 +8,7 @@ import { TableLogsService } from '../../../table-logs/table-logs.service.js';
 import { ActivateTableActionsDS } from '../application/data-sctructures/activate-table-actions.ds.js';
 import { ActivatedTableActionsDS } from '../application/data-sctructures/activated-table-action.ds.js';
 import { IActivateTableActions } from './table-actions-use-cases.interface.js';
-import { activateTableAction } from '../utils/activate-table-action.util.js';
+import { TableActionActivationService } from '../table-action-activation.service.js';
 
 @Injectable()
 export class ActivateTableActionsUseCase
@@ -19,6 +19,7 @@ export class ActivateTableActionsUseCase
     @Inject(BaseType.GLOBAL_DB_CONTEXT)
     protected _dbContext: IGlobalDatabaseContext,
     private tableLogsService: TableLogsService,
+    private tableActionActivationService: TableActionActivationService,
   ) {
     super();
   }
@@ -43,14 +44,15 @@ export class ActivateTableActionsUseCase
 
     let primaryKeyValuesArray = [];
     try {
-      const { receivedOperationResult, receivedPrimaryKeysObj, location } = await activateTableAction(
-        foundTableAction,
-        foundConnection,
-        request_body,
-        userId,
-        tableName,
-        null,
-      );
+      const { receivedOperationResult, receivedPrimaryKeysObj, location } =
+        await this.tableActionActivationService.activateTableAction(
+          foundTableAction,
+          foundConnection,
+          request_body,
+          userId,
+          tableName,
+          null,
+        );
       operationResult = receivedOperationResult;
       primaryKeyValuesArray = receivedPrimaryKeysObj;
       if (location) {

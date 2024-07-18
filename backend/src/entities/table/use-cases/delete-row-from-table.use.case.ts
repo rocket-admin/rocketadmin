@@ -16,8 +16,8 @@ import { IDeleteRowFromTable } from './table-use-cases.interface.js';
 import { DeleteRowException } from '../../../exceptions/custom-exceptions/delete-row-exception.js';
 import { UnknownSQLException } from '../../../exceptions/custom-exceptions/unknown-sql-exception.js';
 import { ExceptionOperations } from '../../../exceptions/custom-exceptions/exception-operation.js';
-import { activateTableActions } from '../../table-actions/table-actions-module/utils/activate-table-action.util.js';
 import { TableActionEventEnum } from '../../../enums/table-action-event-enum.js';
+import { TableActionActivationService } from '../../table-actions/table-actions-module/table-action-activation.service.js';
 
 @Injectable()
 export class DeleteRowFromTableUseCase
@@ -29,6 +29,7 @@ export class DeleteRowFromTableUseCase
     protected _dbContext: IGlobalDatabaseContext,
     private amplitudeService: AmplitudeService,
     private tableLogsService: TableLogsService,
+    private tableActionActivationService: TableActionActivationService,
   ) {
     super();
   }
@@ -151,12 +152,13 @@ export class DeleteRowFromTableUseCase
         isTest ? AmplitudeEventTypeEnum.tableRowDeletedTest : AmplitudeEventTypeEnum.tableRowDeleted,
         userId,
       );
-    
+
       const foundAddTableActions = await this._dbContext.tableActionRepository.findTableActionsWithDeleteRowEvents(
         connectionId,
         tableName,
       );
-      await activateTableActions(
+
+      await this.tableActionActivationService.activateTableActions(
         foundAddTableActions,
         connection,
         primaryKey,
