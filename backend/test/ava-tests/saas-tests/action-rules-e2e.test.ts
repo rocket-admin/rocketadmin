@@ -134,11 +134,13 @@ test(`${currentTest} should return created table rule with action and events`, a
       {
         event: TableActionEventEnum.CUSTOM,
         title: 'Test event',
+        type: TableActionTypeEnum.single,
         icon: 'test-icon',
         require_confirmation: false,
       },
       {
         event: TableActionEventEnum.ADD_ROW,
+        type: TableActionTypeEnum.multiple,
         title: 'Test event 2',
         icon: 'test-icon 2',
         require_confirmation: true,
@@ -146,14 +148,12 @@ test(`${currentTest} should return created table rule with action and events`, a
     ],
     table_actions: [
       {
-        type: TableActionTypeEnum.multiple,
         url: faker.internet.url(),
         method: TableActionMethodEnum.URL,
         slack_url: undefined,
         emails: [faker.internet.email()],
       },
       {
-        type: TableActionTypeEnum.single,
         url: undefined,
         method: TableActionMethodEnum.SLACK,
         slack_url: faker.internet.url(),
@@ -187,22 +187,23 @@ test(`${currentTest} should return created table rule with action and events`, a
   t.is(createdAddRowEvent.title, tableRuleDTO.events[1].title);
   t.is(createdAddRowEvent.icon, tableRuleDTO.events[1].icon);
   t.is(createdAddRowEvent.require_confirmation, tableRuleDTO.events[1].require_confirmation);
-  const createdMultipleAction = createTableRuleRO.table_actions.find(
-    (action) => action.type === TableActionTypeEnum.multiple,
+
+  const createdUrlAction = createTableRuleRO.table_actions.find(
+    (action) => action.method === TableActionMethodEnum.URL,
   );
-  t.truthy(createdMultipleAction);
-  t.is(createdMultipleAction.url, tableRuleDTO.table_actions[0].url);
-  t.is(createdMultipleAction.method, tableRuleDTO.table_actions[0].method);
-  t.is(createdMultipleAction.slack_url, null);
-  t.is(createdMultipleAction.emails.length, tableRuleDTO.table_actions[0].emails.length);
-  const createdSingleAction = createTableRuleRO.table_actions.find(
-    (action) => action.type === TableActionTypeEnum.single,
+  t.truthy(createdUrlAction);
+  t.is(createdUrlAction.url, tableRuleDTO.table_actions[0].url);
+  t.is(createdUrlAction.method, tableRuleDTO.table_actions[0].method);
+  t.is(createdUrlAction.slack_url, null);
+  t.is(createdUrlAction.emails.length, tableRuleDTO.table_actions[0].emails.length);
+  const createdSlackAction = createTableRuleRO.table_actions.find(
+    (action) => action.method === TableActionMethodEnum.SLACK,
   );
-  t.truthy(createdSingleAction);
-  t.is(createdSingleAction.url, null);
-  t.is(createdSingleAction.method, tableRuleDTO.table_actions[1].method);
-  t.truthy(createdSingleAction.slack_url);
-  t.deepEqual(createdSingleAction.emails, []);
+  t.truthy(createdSlackAction);
+  t.is(createdSlackAction.url, null);
+  t.is(createdSlackAction.method, tableRuleDTO.table_actions[1].method);
+  t.truthy(createdSlackAction.slack_url);
+  t.deepEqual(createdSlackAction.emails, []);
 });
 
 test(`${currentTest} throw validation exceptions when create dto includes null values`, async (t) => {
@@ -223,6 +224,7 @@ test(`${currentTest} throw validation exceptions when create dto includes null v
     events: [
       null,
       {
+        type: TableActionTypeEnum.single,
         event: TableActionEventEnum.ADD_ROW,
         title: undefined,
         icon: null,
@@ -231,14 +233,12 @@ test(`${currentTest} throw validation exceptions when create dto includes null v
     ],
     table_actions: [
       {
-        type: TableActionTypeEnum.multiple,
         url: faker.internet.url(),
         method: 'wrong-method' as any,
         slack_url: undefined,
         emails: [faker.internet.email()],
       },
       {
-        type: TableActionTypeEnum.single,
         url: undefined,
         method: TableActionMethodEnum.SLACK,
         slack_url: faker.internet.url(),
@@ -256,7 +256,6 @@ test(`${currentTest} throw validation exceptions when create dto includes null v
     .set('Accept', 'application/json');
 
   const createTableRuleRO = JSON.parse(createTableRuleResult.text);
-  console.log('🚀 ~ test ~ createTableRuleRO:', createTableRuleRO);
   t.is(createTableRuleResult.status, 400);
   const { message } = createTableRuleRO;
   t.truthy(message);
@@ -283,6 +282,7 @@ test(`${currentTest} throw validation exceptions when create dto includes wrong 
     table_name: testTableName,
     events: [
       {
+        type: TableActionTypeEnum.single,
         event: TableActionEventEnum.ADD_ROW,
         title: undefined,
         icon: null,
@@ -291,14 +291,12 @@ test(`${currentTest} throw validation exceptions when create dto includes wrong 
     ],
     table_actions: [
       {
-        type: TableActionTypeEnum.multiple,
         url: faker.internet.url(),
         method: 'wrong-method' as any,
         slack_url: undefined,
         emails: [faker.internet.email()],
       },
       {
-        type: TableActionTypeEnum.single,
         url: undefined,
         method: TableActionMethodEnum.SLACK,
         slack_url: faker.internet.url(),
@@ -315,7 +313,6 @@ test(`${currentTest} throw validation exceptions when create dto includes wrong 
     .set('Accept', 'application/json');
 
   const createTableRuleRO = JSON.parse(createTableRuleResult.text);
-  console.log('🚀 ~ test ~ createTableRuleRO:', createTableRuleRO);
   t.is(createTableRuleResult.status, 400);
   const { message } = createTableRuleRO;
   t.truthy(message);
@@ -341,12 +338,14 @@ test(`${currentTest} should return found table rules with action and events`, as
     table_name: testTableName,
     events: [
       {
+        type: TableActionTypeEnum.single,
         event: TableActionEventEnum.CUSTOM,
         title: 'Test event',
         icon: 'test-icon',
         require_confirmation: false,
       },
       {
+        type: TableActionTypeEnum.multiple,
         event: TableActionEventEnum.ADD_ROW,
         title: 'Test event 2',
         icon: 'test-icon 2',
@@ -355,14 +354,12 @@ test(`${currentTest} should return found table rules with action and events`, as
     ],
     table_actions: [
       {
-        type: TableActionTypeEnum.multiple,
         url: faker.internet.url(),
         method: TableActionMethodEnum.URL,
         slack_url: undefined,
         emails: [faker.internet.email()],
       },
       {
-        type: TableActionTypeEnum.single,
         url: undefined,
         method: TableActionMethodEnum.SLACK,
         slack_url: faker.internet.url(),
@@ -408,20 +405,20 @@ test(`${currentTest} should return found table rules with action and events`, as
   t.is(foundAddRowEvent.title, tableRuleDTO.events[1].title);
   t.is(foundAddRowEvent.icon, tableRuleDTO.events[1].icon);
   t.is(foundAddRowEvent.require_confirmation, tableRuleDTO.events[1].require_confirmation);
-  const foundMultipleAction = findTableRuleRO.table_actions.find(
-    (action) => action.type === TableActionTypeEnum.multiple,
+  const foundUrlAction = findTableRuleRO.table_actions.find((action) => action.method === TableActionMethodEnum.URL);
+  t.truthy(foundUrlAction);
+  t.is(foundUrlAction.url, tableRuleDTO.table_actions[0].url);
+  t.is(foundUrlAction.method, tableRuleDTO.table_actions[0].method);
+  t.is(foundUrlAction.slack_url, null);
+  t.is(foundUrlAction.emails.length, tableRuleDTO.table_actions[0].emails.length);
+  const foundSlackAction = findTableRuleRO.table_actions.find(
+    (action) => action.method === TableActionMethodEnum.SLACK,
   );
-  t.truthy(foundMultipleAction);
-  t.is(foundMultipleAction.url, tableRuleDTO.table_actions[0].url);
-  t.is(foundMultipleAction.method, tableRuleDTO.table_actions[0].method);
-  t.is(foundMultipleAction.slack_url, null);
-  t.is(foundMultipleAction.emails.length, tableRuleDTO.table_actions[0].emails.length);
-  const foundSingleAction = findTableRuleRO.table_actions.find((action) => action.type === TableActionTypeEnum.single);
-  t.truthy(foundSingleAction);
-  t.is(foundSingleAction.url, null);
-  t.is(foundSingleAction.method, tableRuleDTO.table_actions[1].method);
-  t.truthy(foundSingleAction.slack_url);
-  t.deepEqual(foundSingleAction.emails, []);
+  t.truthy(foundSlackAction);
+  t.is(foundSlackAction.url, null);
+  t.is(foundSlackAction.method, tableRuleDTO.table_actions[1].method);
+  t.truthy(foundSlackAction.slack_url);
+  t.deepEqual(foundSlackAction.emails, []);
 });
 
 currentTest = `/action/events/custom/:connectionId`;
@@ -443,12 +440,14 @@ test(`${currentTest} should return found table custom action events`, async (t) 
     table_name: testTableName,
     events: [
       {
+        type: TableActionTypeEnum.single,
         event: TableActionEventEnum.CUSTOM,
         title: 'Test event',
         icon: 'test-icon',
         require_confirmation: false,
       },
       {
+        type: TableActionTypeEnum.multiple,
         event: TableActionEventEnum.ADD_ROW,
         title: 'Test event 2',
         icon: 'test-icon 2',
@@ -457,14 +456,12 @@ test(`${currentTest} should return found table custom action events`, async (t) 
     ],
     table_actions: [
       {
-        type: TableActionTypeEnum.multiple,
         url: faker.internet.url(),
         method: TableActionMethodEnum.URL,
         slack_url: undefined,
         emails: [faker.internet.email()],
       },
       {
-        type: TableActionTypeEnum.single,
         url: undefined,
         method: TableActionMethodEnum.SLACK,
         slack_url: faker.internet.url(),
@@ -518,12 +515,14 @@ test(`${currentTest} should delete table action rule with action and events and 
     table_name: testTableName,
     events: [
       {
+        type: TableActionTypeEnum.single,
         event: TableActionEventEnum.CUSTOM,
         title: 'Test event',
         icon: 'test-icon',
         require_confirmation: false,
       },
       {
+        type: TableActionTypeEnum.multiple,
         event: TableActionEventEnum.ADD_ROW,
         title: 'Test event 2',
         icon: 'test-icon 2',
@@ -532,14 +531,12 @@ test(`${currentTest} should delete table action rule with action and events and 
     ],
     table_actions: [
       {
-        type: TableActionTypeEnum.multiple,
         url: faker.internet.url(),
         method: TableActionMethodEnum.URL,
         slack_url: undefined,
         emails: [faker.internet.email()],
       },
       {
-        type: TableActionTypeEnum.single,
         url: undefined,
         method: TableActionMethodEnum.SLACK,
         slack_url: faker.internet.url(),
@@ -577,27 +574,30 @@ test(`${currentTest} should delete table action rule with action and events and 
   t.is(deletedCustomEvent.title, tableRuleDTO.events[0].title);
   t.is(deletedCustomEvent.icon, tableRuleDTO.events[0].icon);
   t.is(deletedCustomEvent.require_confirmation, tableRuleDTO.events[0].require_confirmation);
+  
   const deletedAddRowEvent = deleteTableRuleRO.events.find((event) => event.event === TableActionEventEnum.ADD_ROW);
   t.truthy(deletedAddRowEvent);
   t.is(deletedAddRowEvent.title, tableRuleDTO.events[1].title);
   t.is(deletedAddRowEvent.icon, tableRuleDTO.events[1].icon);
   t.is(deletedAddRowEvent.require_confirmation, tableRuleDTO.events[1].require_confirmation);
-  const deletedMultipleAction = deleteTableRuleRO.table_actions.find(
-    (action) => action.type === TableActionTypeEnum.multiple,
+
+  const deletedSlackAction = deleteTableRuleRO.table_actions.find(
+    (action) => action.method === TableActionMethodEnum.URL,
   );
-  t.truthy(deletedMultipleAction);
-  t.is(deletedMultipleAction.url, tableRuleDTO.table_actions[0].url);
-  t.is(deletedMultipleAction.method, tableRuleDTO.table_actions[0].method);
-  t.is(deletedMultipleAction.slack_url, null);
-  t.is(deletedMultipleAction.emails.length, tableRuleDTO.table_actions[0].emails.length);
-  const deletedSingleAction = deleteTableRuleRO.table_actions.find(
-    (action) => action.type === TableActionTypeEnum.single,
+  t.truthy(deletedSlackAction);
+  t.is(deletedSlackAction.url, tableRuleDTO.table_actions[0].url);
+  t.is(deletedSlackAction.method, tableRuleDTO.table_actions[0].method);
+  t.is(deletedSlackAction.slack_url, null);
+  t.is(deletedSlackAction.emails.length, tableRuleDTO.table_actions[0].emails.length);
+
+  const deletedUrlAction = deleteTableRuleRO.table_actions.find(
+    (action) => action.method === TableActionMethodEnum.SLACK,
   );
-  t.truthy(deletedSingleAction);
-  t.is(deletedSingleAction.url, null);
-  t.is(deletedSingleAction.method, tableRuleDTO.table_actions[1].method);
-  t.truthy(deletedSingleAction.slack_url);
-  t.deepEqual(deletedSingleAction.emails, []);
+  t.truthy(deletedUrlAction);
+  t.is(deletedUrlAction.url, null);
+  t.is(deletedUrlAction.method, tableRuleDTO.table_actions[1].method);
+  t.truthy(deletedUrlAction.slack_url);
+  t.deepEqual(deletedUrlAction.emails, []);
 
   // Check if the rule is deleted
   const findTableRuleResult = await request(app.getHttpServer())
@@ -632,12 +632,14 @@ test(`${currentTest} should delete table action rule with action and events and 
     table_name: testTableName,
     events: [
       {
+        type: TableActionTypeEnum.single,
         event: TableActionEventEnum.CUSTOM,
         title: 'Test event',
         icon: 'test-icon',
         require_confirmation: false,
       },
       {
+        type: TableActionTypeEnum.multiple,
         event: TableActionEventEnum.ADD_ROW,
         title: 'Test event 2',
         icon: 'test-icon 2',
@@ -646,14 +648,12 @@ test(`${currentTest} should delete table action rule with action and events and 
     ],
     table_actions: [
       {
-        type: TableActionTypeEnum.multiple,
         url: faker.internet.url(),
         method: TableActionMethodEnum.URL,
         slack_url: undefined,
         emails: [faker.internet.email()],
       },
       {
-        type: TableActionTypeEnum.single,
         url: undefined,
         method: TableActionMethodEnum.SLACK,
         slack_url: faker.internet.url(),
@@ -695,20 +695,20 @@ test(`${currentTest} should delete table action rule with action and events and 
   t.is(foundAddRowEvent.title, tableRuleDTO.events[1].title);
   t.is(foundAddRowEvent.icon, tableRuleDTO.events[1].icon);
   t.is(foundAddRowEvent.require_confirmation, tableRuleDTO.events[1].require_confirmation);
-  const foundMultipleAction = findTableRuleRO.table_actions.find(
-    (action) => action.type === TableActionTypeEnum.multiple,
+  const foundUrlAction = findTableRuleRO.table_actions.find((action) => action.method === TableActionMethodEnum.URL);
+  t.truthy(foundUrlAction);
+  t.is(foundUrlAction.url, tableRuleDTO.table_actions[0].url);
+  t.is(foundUrlAction.method, tableRuleDTO.table_actions[0].method);
+  t.is(foundUrlAction.slack_url, null);
+  t.is(foundUrlAction.emails.length, tableRuleDTO.table_actions[0].emails.length);
+  const foundSlackAction = findTableRuleRO.table_actions.find(
+    (action) => action.method === TableActionMethodEnum.SLACK,
   );
-  t.truthy(foundMultipleAction);
-  t.is(foundMultipleAction.url, tableRuleDTO.table_actions[0].url);
-  t.is(foundMultipleAction.method, tableRuleDTO.table_actions[0].method);
-  t.is(foundMultipleAction.slack_url, null);
-  t.is(foundMultipleAction.emails.length, tableRuleDTO.table_actions[0].emails.length);
-  const foundSingleAction = findTableRuleRO.table_actions.find((action) => action.type === TableActionTypeEnum.single);
-  t.truthy(foundSingleAction);
-  t.is(foundSingleAction.url, null);
-  t.is(foundSingleAction.method, tableRuleDTO.table_actions[1].method);
-  t.truthy(foundSingleAction.slack_url);
-  t.deepEqual(foundSingleAction.emails, []);
+  t.truthy(foundSlackAction);
+  t.is(foundSlackAction.url, null);
+  t.is(foundSlackAction.method, tableRuleDTO.table_actions[1].method);
+  t.truthy(foundSlackAction.slack_url);
+  t.deepEqual(foundSlackAction.emails, []);
 });
 
 currentTest = `PUT /action/rule/:actionId/:connectionId`;
@@ -730,12 +730,14 @@ test(`${currentTest} should return created table rule with action and events`, a
     table_name: testTableName,
     events: [
       {
+        type: TableActionTypeEnum.single,
         event: TableActionEventEnum.CUSTOM,
         title: 'Test event',
         icon: 'test-icon',
         require_confirmation: false,
       },
       {
+        type: TableActionTypeEnum.multiple,
         event: TableActionEventEnum.ADD_ROW,
         title: 'Test event 2',
         icon: 'test-icon 2',
@@ -744,14 +746,12 @@ test(`${currentTest} should return created table rule with action and events`, a
     ],
     table_actions: [
       {
-        type: TableActionTypeEnum.multiple,
         url: faker.internet.url(),
         method: TableActionMethodEnum.URL,
         slack_url: undefined,
         emails: [faker.internet.email()],
       },
       {
-        type: TableActionTypeEnum.single,
         url: undefined,
         method: TableActionMethodEnum.ZAPIER,
         slack_url: faker.internet.url(),
@@ -772,15 +772,11 @@ test(`${currentTest} should return created table rule with action and events`, a
   const createTableRuleRO: FoundActionRulesWithActionsAndEventsDTO = JSON.parse(createTableRuleResult.text);
   const customEventId = createTableRuleRO.events.find((event) => event.event === TableActionEventEnum.CUSTOM).id;
   const addRowEventId = createTableRuleRO.events.find((event) => event.event === TableActionEventEnum.ADD_ROW).id;
-  const multipleActionId = createTableRuleRO.table_actions.find(
-    (action) => action.type === TableActionTypeEnum.multiple,
-  ).id;
-  const singleActionId = createTableRuleRO.table_actions.find(
-    (action) => action.type === TableActionTypeEnum.single,
-  ).id;
+  const urlActionId = createTableRuleRO.table_actions.find((action) => action.method === TableActionMethodEnum.URL).id;
+
   const createTableRuleROId = createTableRuleRO.id;
   const createdZapierAction = createTableRuleRO.table_actions.find(
-    (action) => action.type === TableActionTypeEnum.single && action.method === TableActionMethodEnum.ZAPIER,
+    (action) => action.method === TableActionMethodEnum.ZAPIER,
   );
   t.truthy(createdZapierAction);
 
@@ -789,6 +785,7 @@ test(`${currentTest} should return created table rule with action and events`, a
     table_name: testTableName,
     events: [
       {
+        type: TableActionTypeEnum.single,
         id: customEventId,
         event: TableActionEventEnum.CUSTOM,
         title: 'Test event updated',
@@ -796,6 +793,7 @@ test(`${currentTest} should return created table rule with action and events`, a
         require_confirmation: false,
       },
       {
+        type: TableActionTypeEnum.single,
         event: TableActionEventEnum.DELETE_ROW,
         title: 'Test event 3 created',
         icon: 'test-icon 3 created',
@@ -804,22 +802,19 @@ test(`${currentTest} should return created table rule with action and events`, a
     ],
     table_actions: [
       {
-        id: multipleActionId,
-        type: TableActionTypeEnum.multiple,
+        id: urlActionId,
         url: faker.internet.url(),
         method: TableActionMethodEnum.URL,
         slack_url: undefined,
         emails: [faker.internet.email()],
       },
       {
-        type: TableActionTypeEnum.single,
         url: undefined,
         method: TableActionMethodEnum.SLACK,
         slack_url: faker.internet.url(),
         emails: undefined,
       },
       {
-        type: TableActionTypeEnum.single,
         url: undefined,
         method: TableActionMethodEnum.SLACK,
         slack_url: faker.internet.url(),
@@ -858,9 +853,7 @@ test(`${currentTest} should return created table rule with action and events`, a
   t.is(createdDeleteRowEvent.title, updateTableRuleDTO.events[1].title);
   t.is(createdDeleteRowEvent.icon, updateTableRuleDTO.events[1].icon);
   t.is(createdDeleteRowEvent.require_confirmation, updateTableRuleDTO.events[1].require_confirmation);
-  const updatedMultipleAction = updateTableRuleRO.table_actions.find(
-    (action) => action.type === TableActionTypeEnum.multiple && action.method === TableActionMethodEnum.URL,
-  );
+  const updatedMultipleAction = updateTableRuleRO.table_actions.find((action) => action.id === urlActionId);
   t.truthy(updatedMultipleAction);
   t.is(updatedMultipleAction.url, updateTableRuleDTO.table_actions[0].url);
   t.is(updatedMultipleAction.method, updateTableRuleDTO.table_actions[0].method);
@@ -868,7 +861,7 @@ test(`${currentTest} should return created table rule with action and events`, a
   t.is(updatedMultipleAction.emails.length, updateTableRuleDTO.table_actions[0].emails.length);
 
   const createdSlackActions = updateTableRuleRO.table_actions.filter(
-    (action) => action.type === TableActionTypeEnum.single && action.method === TableActionMethodEnum.SLACK,
+    (action) => action.method === TableActionMethodEnum.SLACK,
   );
   t.is(createdSlackActions.length, 2);
   t.truthy(createdSlackActions[0].slack_url);
@@ -877,7 +870,7 @@ test(`${currentTest} should return created table rule with action and events`, a
   t.deepEqual(createdSlackActions[1].emails, []);
 
   const deletedZapierAction = updateTableRuleRO.table_actions.find(
-    (action) => action.type === TableActionTypeEnum.single && action.method === TableActionMethodEnum.ZAPIER,
+    (action) => action.method === TableActionMethodEnum.ZAPIER,
   );
   t.falsy(deletedZapierAction);
 
@@ -911,16 +904,14 @@ test(`${currentTest} should return created table rule with action and events`, a
   t.is(foundDeleteRowEvent.title, updateTableRuleDTO.events[1].title);
   t.is(foundDeleteRowEvent.icon, updateTableRuleDTO.events[1].icon);
   t.is(foundDeleteRowEvent.require_confirmation, updateTableRuleDTO.events[1].require_confirmation);
-  const foundMultipleAction = findTableRuleRO.table_actions.find(
-    (action) => action.type === TableActionTypeEnum.multiple && action.method === TableActionMethodEnum.URL,
-  );
+  const foundMultipleAction = findTableRuleRO.table_actions.find((action) => action.id === urlActionId);
   t.truthy(foundMultipleAction);
   t.is(foundMultipleAction.url, updateTableRuleDTO.table_actions[0].url);
   t.is(foundMultipleAction.method, updateTableRuleDTO.table_actions[0].method);
   t.is(foundMultipleAction.slack_url, null);
   t.is(foundMultipleAction.emails.length, updateTableRuleDTO.table_actions[0].emails.length);
   const foundSlackActions = findTableRuleRO.table_actions.filter(
-    (action) => action.type === TableActionTypeEnum.single && action.method === TableActionMethodEnum.SLACK,
+    (action) => action.method === TableActionMethodEnum.SLACK,
   );
   t.is(foundSlackActions.length, 2);
   t.truthy(foundSlackActions[0].slack_url);
@@ -928,7 +919,7 @@ test(`${currentTest} should return created table rule with action and events`, a
   t.truthy(foundSlackActions[1].slack_url);
   t.deepEqual(foundSlackActions[1].emails, []);
   const foundZapierAction = findTableRuleRO.table_actions.find(
-    (action) => action.type === TableActionTypeEnum.single && action.method === TableActionMethodEnum.ZAPIER,
+    (action) => action.method === TableActionMethodEnum.ZAPIER,
   );
   t.falsy(foundZapierAction);
 });
@@ -953,6 +944,7 @@ test(`${currentTest} should return created table rule with action and events`, a
     table_name: testTableName,
     events: [
       {
+        type: TableActionTypeEnum.single,
         event: TableActionEventEnum.CUSTOM,
         title: 'Test event',
         icon: 'test-icon',
@@ -961,14 +953,12 @@ test(`${currentTest} should return created table rule with action and events`, a
     ],
     table_actions: [
       {
-        type: TableActionTypeEnum.multiple,
         url: fakeUrl,
         method: TableActionMethodEnum.URL,
         slack_url: undefined,
         emails: [],
       },
       {
-        type: TableActionTypeEnum.multiple,
         url: undefined,
         method: TableActionMethodEnum.SLACK,
         slack_url: fakeUrl,
@@ -1063,6 +1053,7 @@ test(`${currentTest} should create impersonate action`, async (t) => {
     table_name: actionTableName,
     events: [
       {
+        type: TableActionTypeEnum.single,
         event: TableActionEventEnum.CUSTOM,
         title: 'Impersonate',
         icon: 'test-icon',
@@ -1071,7 +1062,6 @@ test(`${currentTest} should create impersonate action`, async (t) => {
     ],
     table_actions: [
       {
-        type: TableActionTypeEnum.multiple,
         url: url,
         method: TableActionMethodEnum.URL,
         slack_url: undefined,
@@ -1141,18 +1131,21 @@ test(`${currentTest} should create trigger and activate http table action on add
     table_name: testTableName,
     events: [
       {
+        type: TableActionTypeEnum.single,
         event: TableActionEventEnum.ADD_ROW,
         title: 'Test event',
         icon: 'test-icon',
         require_confirmation: false,
       },
       {
+        type: TableActionTypeEnum.multiple,
         event: TableActionEventEnum.DELETE_ROW,
         title: 'Test event',
         icon: 'test-icon',
         require_confirmation: false,
       },
       {
+        type: TableActionTypeEnum.multiple,
         event: TableActionEventEnum.UPDATE_ROW,
         title: 'Test event',
         icon: 'test-icon',
@@ -1161,14 +1154,12 @@ test(`${currentTest} should create trigger and activate http table action on add
     ],
     table_actions: [
       {
-        type: TableActionTypeEnum.multiple,
         url: fakeUrl,
         method: TableActionMethodEnum.URL,
         slack_url: undefined,
         emails: [],
       },
       {
-        type: TableActionTypeEnum.multiple,
         url: undefined,
         method: TableActionMethodEnum.SLACK,
         slack_url: fakeUrl,

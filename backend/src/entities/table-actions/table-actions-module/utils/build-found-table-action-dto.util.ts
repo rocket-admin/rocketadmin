@@ -4,7 +4,6 @@ import { TableActionEntity } from '../table-action.entity.js';
 export function buildFoundTableActionDTO(tableAction: TableActionEntity): FoundTableActionDTO {
   return {
     id: tableAction.id,
-    type: tableAction.type,
     emails: tableAction.emails,
     method: tableAction.method,
     url: tableAction.url,

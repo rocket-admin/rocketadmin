@@ -94,6 +94,7 @@ export class ActionRulesController {
         userId,
       },
       action_events_data: tableRuleData.events.map((event) => ({
+        type: event.type,
         event: event.event,
         event_title: event.title,
         icon: event.icon,
@@ -104,7 +105,6 @@ export class ActionRulesController {
         table_name: tableRuleData.table_name,
       },
       table_actions_data: tableRuleData.table_actions.map((action) => ({
-        action_type: action.type,
         action_url: action.url,
         action_method: action.method,
         action_slack_url: action.slack_url,
@@ -205,6 +205,7 @@ export class ActionRulesController {
         userId,
       },
       action_events_data: tableRuleData.events.map((event) => ({
+        type: event.type,
         event: event.event,
         event_title: event.title,
         icon: event.icon,
@@ -217,7 +218,6 @@ export class ActionRulesController {
         table_name: tableRuleData.table_name,
       },
       table_actions_data: tableRuleData.table_actions.map((action) => ({
-        action_type: action.type,
         action_url: action.url,
         action_method: action.method,
         action_slack_url: action.slack_url,

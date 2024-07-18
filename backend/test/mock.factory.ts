@@ -9,7 +9,6 @@ import {
   AccessLevelEnum,
   PermissionTypeEnum,
   QueryOrderingEnum,
-  TableActionTypeEnum,
   WidgetTypeEnum,
 } from '../src/enums/index.js';
 import { TestConstants } from './mocks/test-constants.js';
@@ -822,7 +821,6 @@ export class MockFactory {
   public generateNewTableAction(): TableActionEntity | CreateTableActionDTO {
     const newTableAction = new TableActionEntity();
     newTableAction.url = faker.internet.url();
-    newTableAction.type = TableActionTypeEnum.single;
     return newTableAction;
   }
 }
