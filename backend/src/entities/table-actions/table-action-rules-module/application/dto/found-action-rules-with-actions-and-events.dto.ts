@@ -7,9 +7,6 @@ export class FoundTableActionDTO {
   @ApiProperty()
   id: string;
 
-  @ApiProperty({ enum: TableActionTypeEnum })
-  type: TableActionTypeEnum;
-
   @ApiProperty({ type: String, nullable: true })
   url?: string | null;
 
@@ -32,6 +29,9 @@ export class FoundActionEventDTO {
 
   @ApiProperty({ enum: TableActionEventEnum })
   event: TableActionEventEnum;
+
+  @ApiProperty({ enum: TableActionTypeEnum })
+  type: TableActionTypeEnum;
 
   @ApiProperty()
   title: string;

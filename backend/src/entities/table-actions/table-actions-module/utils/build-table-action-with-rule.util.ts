@@ -6,13 +6,12 @@ export function buildTableActionWithRule(
   tableActionData: CreateTableActionData,
   actionRule: ActionRulesEntity,
 ): TableActionEntity {
-  const { action_emails, action_method, action_url, action_slack_url, action_type } = tableActionData;
+  const { action_emails, action_method, action_url, action_slack_url } = tableActionData;
   const newTableAction = new TableActionEntity();
   newTableAction.action_rule = actionRule;
   newTableAction.emails = action_emails;
   newTableAction.method = action_method;
   newTableAction.url = action_url;
   newTableAction.slack_url = action_slack_url;
-  newTableAction.type = action_type;
   return newTableAction;
 }
