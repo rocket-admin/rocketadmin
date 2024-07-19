@@ -145,6 +145,7 @@ export class DbTableActionsComponent implements OnInit {
     this.selectedRule = rule;
     this.selectedRuleTitle = rule.title;
     if (this.selectedRule.events[this.selectedRule.events.length - 1].event !== null) this.selectedRule.events.push({ event: null });
+    this.selectedEvents = this.selectedRule.events.map((event) => event.event);
 
     const customEvent = this.selectedRule.events.find((event) => event.event === EventType.Custom);
     if (customEvent) {
@@ -240,7 +241,7 @@ export class DbTableActionsComponent implements OnInit {
   addRule() {
     this.submitting = true;
     this.selectedRule.events = this.selectedRule.events.filter((event) => event.event !== null);
-    this.selectedRule.events.map(event => {
+    this.selectedRule.events = this.selectedRule.events.map(event => {
       if (event.event === 'CUSTOM') {
         return {...event, ...this.selectedRuleCustomEvent};
       }
@@ -273,7 +274,7 @@ export class DbTableActionsComponent implements OnInit {
     this.submitting = true;
     this.selectedRule.events = this.selectedRule.events.filter((event) => event.event !== null);
     if (this.selectedRuleTitle) this.selectedRule.title = this.selectedRuleTitle;
-    this.selectedRule.events.map(event => {
+    this.selectedRule.events = this.selectedRule.events.map(event => {
       if (event.event === 'CUSTOM') {
         return {...event, ...this.selectedRuleCustomEvent};
       }
@@ -337,6 +338,7 @@ export class DbTableActionsComponent implements OnInit {
 
   removeEvent(event: any) {
     this.selectedRule.events = this.selectedRule.events.filter((e) => e.event !== event);
+    this.selectedEvents = this.selectedRule.events.map((event) => event.event);
     if (event === EventType.Custom) {
       this.selectedRuleCustomEvent = null;
     }

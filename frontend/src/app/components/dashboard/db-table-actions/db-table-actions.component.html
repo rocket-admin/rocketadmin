@@ -51,13 +51,13 @@
         <app-breadcrumbs [crumbs]="getCrumbs(currentConnection.title || currentConnection.database)" class="actions-breadcrumbs"></app-breadcrumbs>
         <app-content-loader *ngIf="!rules"></app-content-loader>
 
-        <div class="action" *ngIf="selectedRule && rules.length">
-            <form (ngSubmit)="handleRuleSubmitting()" class="action-settings">
+        <div class="rule" *ngIf="selectedRule && rules.length">
+            <form (ngSubmit)="handleRuleSubmitting()" class="rule-settings">
                 <mat-form-field appearance="outline">
                     <mat-label>Name</mat-label>
                     <input matInput [(ngModel)]="selectedRuleTitle" name="rule-title" required>
                 </mat-form-field>
-                <div>
+                <div class="event">
                     <span class="mat-body-1">When</span>
                     <br/>
                     <div *ngFor="let event of selectedRule.events; let i = index">
@@ -81,41 +81,45 @@
                                 <mat-icon>close</mat-icon>
                             </button>
                         </div>
+                    </div>
+                </div>
 
-                        <div *ngIf="event.event === 'CUSTOM'">
-                            <mat-form-field appearance="outline">
-                                <mat-label>Name</mat-label>
-                                <input matInput name="action-title" [(ngModel)]="selectedRuleCustomEvent.title" required>
-                            </mat-form-field>
-                            <div class="actions-icon-selector">
-                                <span>Icon</span>
-                                <app-icon-picker class="icon-picker"
-                                    [icon]="selectedRuleCustomEvent.icon"
-                                    [defaultIcons]="defaultIcons"
-                                    tooltip="Choose an icon"
-                                    (onFieldChange)="updateIcon($event)">
-                                </app-icon-picker>
-                            </div>
-                            <mat-radio-group
-                                name="action-type"
-                                [(ngModel)]="selectedRuleCustomEvent.type">
-                                <mat-label>Affects</mat-label>
-                                <mat-radio-button value='single' class="radio-button_first" checked>
-                                    Single row
-                                </mat-radio-button>
-                                <mat-radio-button value='multiple' class="radio-button_second">
-                                    Multiple rows
-                                </mat-radio-button>
-                            </mat-radio-group>
-
-                            <mat-checkbox name="action-confirmation" #confirmation="ngModel"
-                                labelPosition="after"
-                                class="confirmation-checkbox"
-                                [(ngModel)]="selectedRuleCustomEvent.require_confirmation">
-                                Request confirmation
-                            </mat-checkbox>
+                <div *ngIf="selectedRuleCustomEvent" class="custom-event">
+                    <span class="mat-body-1">Custom event</span>
+                    <div>
+                        <mat-form-field appearance="outline">
+                            <mat-label>Name</mat-label>
+                            <input matInput name="action-title" [(ngModel)]="selectedRuleCustomEvent.title" required>
+                        </mat-form-field>
+                        <div class="actions-icon-selector">
+                            <span>Icon</span>
+                            <app-icon-picker class="icon-picker"
+                                [icon]="selectedRuleCustomEvent.icon"
+                                [defaultIcons]="defaultIcons"
+                                tooltip="Choose an icon"
+                                (onFieldChange)="updateIcon($event)">
+                            </app-icon-picker>
                         </div>
                     </div>
+
+                    <mat-radio-group
+                        name="action-type"
+                        [(ngModel)]="selectedRuleCustomEvent.type">
+                        <mat-label>Affects</mat-label>
+                        <mat-radio-button value='single' class="radio-button_first" checked>
+                            Single row
+                        </mat-radio-button>
+                        <mat-radio-button value='multiple' class="radio-button_second">
+                            Multiple rows
+                        </mat-radio-button>
+                    </mat-radio-group>
+
+                    <mat-checkbox name="action-confirmation" #confirmation="ngModel"
+                        labelPosition="after"
+                        class="confirmation-checkbox"
+                        [(ngModel)]="selectedRuleCustomEvent.require_confirmation">
+                        Request confirmation
+                    </mat-checkbox>
                 </div>
 
                 <span class="mat-body-1">than perform action(s)</span>
@@ -159,7 +163,7 @@
                 </div>
             </form>
 
-            <div *ngIf="selectedRuleCustomEvent" class="code-snippet-box">
+            <!--<div *ngIf="selectedRuleCustomEvent" class="code-snippet-box">
                 <mat-form-field appearance="outline" class="lang-select">
                     <mat-label>Language</mat-label>
                     <mat-select [(ngModel)]="codeLangSelected">
@@ -186,7 +190,7 @@
                         [options]="codeViewerOptions">
                     </ngs-code-editor>
                 </div>
-            </div>
+            </div> -->
         </div>
 
     </mat-drawer-content>

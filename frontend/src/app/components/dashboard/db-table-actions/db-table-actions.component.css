@@ -85,7 +85,7 @@
     padding: 20px 24px;
 }
 
-.action {
+.rule {
     flex-grow: 1;
     display: flex;
     align-items: stretch;
@@ -93,16 +93,32 @@
     margin-top: 20px;
 }
 
-.action-settings {
+.rule-settings {
     display: flex;
     flex-direction: column;
     gap: 4px;
-    min-width: 420px;
-    width: 45%;
+    /* min-width: 420px; */
+    /* width: 45%; */
 }
 
 ::ng-deep .mat-menu-content {
     padding: 16px !important;
+}
+
+.event {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 24px;
+}
+
+.custom-event {
+    display: flex;
+    flex-direction: column;
+    padding-left: 128px;
+    padding-top: 72px;
+    padding-bottom: 72px;
 }
 
 .list-action-list-item ::ng-deep .mdc-list-item__primary-text {
@@ -124,45 +140,6 @@
     gap: 8px;
     margin-top: -8px;
     margin-bottom: 16px;
-}
-
-.icons-menu {
-    display: flex;
-    flex-direction: column;
-    padding: 0 16px;
-}
-
-.icons-list {
-    list-style: none;
-    display: grid;
-    grid-template-columns: repeat(5, 40px);
-    grid-gap: 4px;
-    justify-content: space-between;
-    margin-top: 12px;
-    margin-bottom: 12px;
-}
-
-.icon-button {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-    height: 40px;
-    width: 40px;
-}
-
-.icon-radio-button:checked + ::ng-deep.icon-button {
-    background-color: rgba(0,0,0,0.16);
-}
-
-.apply-icon-button {
-    align-self: flex-end;
-    margin-top: 4px;
-}
-
-.google-icons-link {
-    color: var(--color-primaryPalette-500);
-    text-decoration: none;
 }
 
 .radio-button_first {
