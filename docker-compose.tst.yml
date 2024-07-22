@@ -112,78 +112,78 @@ services:
       - APPLICATION_CONFIG_FILE_NAME=.oracle_test_agent_config.txt
     command: ["yarn", "start:dev"]
 
-  rocketadmin-agent_postgres:
-    build:
-      context: .
-      dockerfile: ./rocketadmin-agent/Dockerfile
-    ports:
-      - 8098:8098
-    volumes:
-      - ./rocketadmin-agent/dist:/app/dist
-      - ./rocketadmin-agent/src:/app/src
-    links:
-      - autoadmin-ws-server
-    depends_on:
-      - autoadmin-ws-server
-    environment:
-      - REMOTE_WEBSOCKET_ADDRESS=ws://autoadmin-ws-server:8009
-      - APPLICATION_CONFIG_FILE_NAME=.postgres_test_agent_config.txt
-    command: ["yarn", "start:dev"]
+  # rocketadmin-agent_postgres:
+  #   build:
+  #     context: .
+  #     dockerfile: ./rocketadmin-agent/Dockerfile
+  #   ports:
+  #     - 8098:8098
+  #   volumes:
+  #     - ./rocketadmin-agent/dist:/app/dist
+  #     - ./rocketadmin-agent/src:/app/src
+  #   links:
+  #     - autoadmin-ws-server
+  #   depends_on:
+  #     - autoadmin-ws-server
+  #   environment:
+  #     - REMOTE_WEBSOCKET_ADDRESS=ws://autoadmin-ws-server:8009
+  #     - APPLICATION_CONFIG_FILE_NAME=.postgres_test_agent_config.txt
+  #   command: ["yarn", "start:dev"]
 
-  rocketadmin-agent_mysql:
-    build:
-      context: .
-      dockerfile: ./rocketadmin-agent/Dockerfile
-    ports:
-      - 8108:8108
-    volumes:
-      - ./rocketadmin-agent/dist:/app/dist
-      - ./rocketadmin-agent/src:/app/src
-    links:
-      - autoadmin-ws-server
-    depends_on:
-      - autoadmin-ws-server
-    environment:
-      - REMOTE_WEBSOCKET_ADDRESS=ws://autoadmin-ws-server:8009
-      - APPLICATION_CONFIG_FILE_NAME=.mysql_test_agent_config.txt
-    command: ["yarn", "start:dev"]
+  # rocketadmin-agent_mysql:
+  #   build:
+  #     context: .
+  #     dockerfile: ./rocketadmin-agent/Dockerfile
+  #   ports:
+  #     - 8108:8108
+  #   volumes:
+  #     - ./rocketadmin-agent/dist:/app/dist
+  #     - ./rocketadmin-agent/src:/app/src
+  #   links:
+  #     - autoadmin-ws-server
+  #   depends_on:
+  #     - autoadmin-ws-server
+  #   environment:
+  #     - REMOTE_WEBSOCKET_ADDRESS=ws://autoadmin-ws-server:8009
+  #     - APPLICATION_CONFIG_FILE_NAME=.mysql_test_agent_config.txt
+  #   command: ["yarn", "start:dev"]
 
-  rocketadmin-agent_mssql:
-    build:
-      context: .
-      dockerfile: ./rocketadmin-agent/Dockerfile
-    ports:
-      - 8118:8118
-    volumes:
-      - ./rocketadmin-agent/dist:/app/dist
-      - ./rocketadmin-agent/src:/app/src
-    links:
-      - autoadmin-ws-server
-    depends_on:
-      - autoadmin-ws-server
-    environment:
-      - REMOTE_WEBSOCKET_ADDRESS=ws://autoadmin-ws-server:8009
-      - APPLICATION_CONFIG_FILE_NAME=.mssql_test_agent_config.txt
-    command: ["yarn", "start:dev"]
+  # rocketadmin-agent_mssql:
+  #   build:
+  #     context: .
+  #     dockerfile: ./rocketadmin-agent/Dockerfile
+  #   ports:
+  #     - 8118:8118
+  #   volumes:
+  #     - ./rocketadmin-agent/dist:/app/dist
+  #     - ./rocketadmin-agent/src:/app/src
+  #   links:
+  #     - autoadmin-ws-server
+  #   depends_on:
+  #     - autoadmin-ws-server
+  #   environment:
+  #     - REMOTE_WEBSOCKET_ADDRESS=ws://autoadmin-ws-server:8009
+  #     - APPLICATION_CONFIG_FILE_NAME=.mssql_test_agent_config.txt
+  #   command: ["yarn", "start:dev"]
 
-  rocketadmin-agent_ibmdb2:
-    build:
-      context: .
-      dockerfile: ./rocketadmin-agent/Dockerfile
-    ports:
-      - 8308:8308
-    volumes:
-      - ./rocketadmin-agent/dist:/app/dist
-      - ./rocketadmin-agent/src:/app/src
-      - ./rocketadmin-agent/wait-for-db2.sh:/app/wait-for-db2.sh
-    links:
-      - autoadmin-ws-server
-    depends_on:
-      - autoadmin-ws-server
-    environment:
-      - REMOTE_WEBSOCKET_ADDRESS=ws://autoadmin-ws-server:8009
-      - APPLICATION_CONFIG_FILE_NAME=.ibmdb2_test_agent_config.txt
-    command: ["/bin/sh", "/app/wait-for-db2.sh"] 
+  # rocketadmin-agent_ibmdb2:
+  #   build:
+  #     context: .
+  #     dockerfile: ./rocketadmin-agent/Dockerfile
+  #   ports:
+  #     - 8308:8308
+  #   volumes:
+  #     - ./rocketadmin-agent/dist:/app/dist
+  #     - ./rocketadmin-agent/src:/app/src
+  #     - ./rocketadmin-agent/wait-for-db2.sh:/app/wait-for-db2.sh
+  #   links:
+  #     - autoadmin-ws-server
+  #   depends_on:
+  #     - autoadmin-ws-server
+  #   environment:
+  #     - REMOTE_WEBSOCKET_ADDRESS=ws://autoadmin-ws-server:8009
+  #     - APPLICATION_CONFIG_FILE_NAME=.ibmdb2_test_agent_config.txt
+  #   command: ["/bin/sh", "/app/wait-for-db2.sh"] 
 
   test-ibm-db2-e2e-testing:
     image: icr.io/db2_community/db2
