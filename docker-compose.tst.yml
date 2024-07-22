@@ -94,23 +94,23 @@ services:
     depends_on:
       - backend
 
-  rocketadmin-agent_oracle:
-    build:
-      context: .
-      dockerfile: ./rocketadmin-agent/Dockerfile
-    ports:
-      - 8088:8088
-    volumes:
-      - ./rocketadmin-agent/dist:/app/dist
-      - ./rocketadmin-agent/src:/app/src
-    links:
-      - autoadmin-ws-server
-    depends_on:
-      - autoadmin-ws-server
-    environment:
-      - REMOTE_WEBSOCKET_ADDRESS=ws://autoadmin-ws-server:8009
-      - APPLICATION_CONFIG_FILE_NAME=.oracle_test_agent_config.txt
-    command: ["yarn", "start:dev"]
+  # rocketadmin-agent_oracle:
+  #   build:
+  #     context: .
+  #     dockerfile: ./rocketadmin-agent/Dockerfile
+  #   ports:
+  #     - 8088:8088
+  #   volumes:
+  #     - ./rocketadmin-agent/dist:/app/dist
+  #     - ./rocketadmin-agent/src:/app/src
+  #   links:
+  #     - autoadmin-ws-server
+  #   depends_on:
+  #     - autoadmin-ws-server
+  #   environment:
+  #     - REMOTE_WEBSOCKET_ADDRESS=ws://autoadmin-ws-server:8009
+  #     - APPLICATION_CONFIG_FILE_NAME=.oracle_test_agent_config.txt
+  #   command: ["yarn", "start:dev"]
 
   # rocketadmin-agent_postgres:
   #   build:
