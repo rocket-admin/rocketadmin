@@ -42,7 +42,7 @@ jobs:
           retention-days: 1
 
   build:
-    runs-on: ${{matrix.platform}}
+    runs-on: ${{matrix.platform/linux-/}}
     needs:
       - prepare
     strategy:
