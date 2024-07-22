@@ -1,3 +1,4 @@
+
 export default {
   files: ['test/ava-tests/**'],
   typescript: {
@@ -10,5 +11,7 @@ export default {
   },
   workerThreads: false,
   verbose: true,
-  serial: true,
+  timeout: '5m',
+  failFast: true,
+  concurrency: 3,
 };
