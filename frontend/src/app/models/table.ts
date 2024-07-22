@@ -84,12 +84,43 @@ export enum CustomActionType {
     Multiple = "multiple"
 }
 
+export enum CustomActionMethod {
+    Slack = "slack",
+    Email = "email",
+    URL = "URL",
+    Zapier = "zapier"
+}
+
 export interface CustomAction {
+    method: CustomActionMethod,
+    emails: string[],
+    url: string,
+}
+
+export enum EventType {
+    AddRow = "ADD_ROW",
+    UpdateRow = "UPDATE_ROW",
+    DeleteRow = "DELETE_ROW",
+    Custom = "CUSTOM"
+}
+
+export interface Event {
+    event: EventType,
+}
+
+export interface CustomEvent {
     id?: string,
+    event: EventType,
     title: string,
     type: CustomActionType,
-    url: string,
-    tableName: string,
     icon: string,
-    requireConfirmation: boolean
+    require_confirmation: boolean
 }
+
+export interface Rule {
+    id?: string,
+    title: string,
+    table_name: string,
+    events: (Event | CustomEvent)[],
+    table_actions: CustomAction[]
+};

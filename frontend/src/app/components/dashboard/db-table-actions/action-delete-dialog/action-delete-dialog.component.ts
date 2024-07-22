@@ -24,7 +24,7 @@ export class ActionDeleteDialogComponent implements OnInit {
 
   deleteAction() {
     this.submitting = true;
-    this._tables.deleteAction(this.data.connectionID, this.data.selectedTableName, this.data.action.id)
+    this._tables.deleteRule(this.data.connectionID, this.data.selectedTableName, this.data.rule.id)
       .subscribe(() => {
         this.dialogRef.close();
         this.submitting = false;
