@@ -20,7 +20,7 @@ test.before(async () => {
   await app.init();
 });
 
-test(' > get hello', async (t) => {
+test.serial(' > get hello', async (t) => {
   const result = await request(app.getHttpServer()).get('/hello');
   const responseText = result.text;
   t.assert('Hello World!', responseText);

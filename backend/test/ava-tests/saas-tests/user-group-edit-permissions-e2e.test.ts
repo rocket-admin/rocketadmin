@@ -76,7 +76,7 @@ test.after.always('Close app connection', async () => {
 
 currentTest = 'GET /connections/';
 
-test(`${currentTest} should return connections, where second user have access`, async (t) => {
+test.serial(`${currentTest} should return connections, where second user have access`, async (t) => {
   try {
     const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
     const {
@@ -120,7 +120,7 @@ test(`${currentTest} should return connections, where second user have access`, 
 
 currentTest = 'GET /connection/one/:slug';
 
-test(`${currentTest} should return a found connection`, async (t) => {
+test.serial(`${currentTest} should return a found connection`, async (t) => {
   try {
     const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
     const {
@@ -160,7 +160,7 @@ test(`${currentTest} should return a found connection`, async (t) => {
   }
 });
 
-test(`${currentTest} should throw an exception, when you do not have permission in this connection`, async (t) => {
+test.serial(`${currentTest} should throw an exception, when you do not have permission in this connection`, async (t) => {
   try {
     const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
     const {
@@ -191,7 +191,7 @@ test(`${currentTest} should throw an exception, when you do not have permission 
 
 currentTest = 'PUT /connection';
 
-test(`${currentTest} should throw exception you do not have permission`, async (t) => {
+test.serial(`${currentTest} should throw exception you do not have permission`, async (t) => {
   try {
     const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
     const {
@@ -217,7 +217,7 @@ test(`${currentTest} should throw exception you do not have permission`, async (
   }
 });
 
-test(`${currentTest} should return throw an exception, when you try update a connection without permissions in it`, async (t) => {
+test.serial(`${currentTest} should return throw an exception, when you try update a connection without permissions in it`, async (t) => {
   try {
     const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
     const {
@@ -244,7 +244,7 @@ test(`${currentTest} should return throw an exception, when you try update a con
 
 currentTest = 'DELETE /connection/:slug';
 
-test(`${currentTest} should throw an exception do not have permissions`, async (t) => {
+test.serial(`${currentTest} should throw an exception do not have permissions`, async (t) => {
   try {
     const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
     const {
@@ -278,7 +278,7 @@ test(`${currentTest} should throw an exception do not have permissions`, async (
   }
 });
 
-test(`${currentTest} should throw an exception, when you try to delete connection without permission`, async (t) => {
+test.serial(`${currentTest} should throw an exception, when you try to delete connection without permission`, async (t) => {
   try {
     const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
     const {
@@ -313,7 +313,7 @@ test(`${currentTest} should throw an exception, when you try to delete connectio
 
 currentTest = 'POST /connection/group/:slug';
 
-test(`${currentTest} should throw an exception don not have permission`, async (t) => {
+test.serial(`${currentTest} should throw an exception don not have permission`, async (t) => {
   try {
     const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
     const {
@@ -339,7 +339,7 @@ test(`${currentTest} should throw an exception don not have permission`, async (
   }
 });
 
-test(`${currentTest} should throw an exception when you try add group in connection without permission in it`, async (t) => {
+test.serial(`${currentTest} should throw an exception when you try add group in connection without permission in it`, async (t) => {
   try {
     const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
     const {
@@ -366,7 +366,7 @@ test(`${currentTest} should throw an exception when you try add group in connect
 
 currentTest = 'PUT /connection/group/:slug';
 
-test(`${currentTest} should return connection without deleted group result`, async (t) => {
+test.serial(`${currentTest} should return connection without deleted group result`, async (t) => {
   try {
     const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
     const {
@@ -412,7 +412,7 @@ test(`${currentTest} should return connection without deleted group result`, asy
   }
 });
 
-test(`${currentTest} should throw an exception, when you try delete group in connection without permissions`, async (t) => {
+test.serial(`${currentTest} should throw an exception, when you try delete group in connection without permissions`, async (t) => {
   try {
     const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
     const {
@@ -456,7 +456,7 @@ test(`${currentTest} should throw an exception, when you try delete group in con
 
 currentTest = 'GET /connection/groups/:slug';
 
-test(`${currentTest} should groups in connection`, async (t) => {
+test.serial(`${currentTest} should groups in connection`, async (t) => {
   try {
     const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
     const {
@@ -502,7 +502,7 @@ test(`${currentTest} should groups in connection`, async (t) => {
   }
 });
 
-test(`${currentTest} it should throw an exception, when you try get groups in connection, where you do not have permission`, async (t) => {
+test.serial(`${currentTest} it should throw an exception, when you try get groups in connection, where you do not have permission`, async (t) => {
   try {
     const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
     const {
@@ -538,7 +538,7 @@ test(`${currentTest} it should throw an exception, when you try get groups in co
 
 currentTest = 'GET /connection/permissions';
 
-test(`${currentTest} should return permissions object for current group in current connection`, async (t) => {
+test.serial(`${currentTest} should return permissions object for current group in current connection`, async (t) => {
   try {
     const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
     const {
@@ -594,7 +594,7 @@ test(`${currentTest} should return permissions object for current group in curre
 
 currentTest = 'GET /connection/user/permissions';
 
-test(`${currentTest} should return permissions object for current group in current connection`, async (t) => {
+test.serial(`${currentTest} should return permissions object for current group in current connection`, async (t) => {
   try {
     const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
     const {
@@ -649,7 +649,7 @@ test(`${currentTest} should return permissions object for current group in curre
   }
 });
 
-test(`${currentTest} should return permissions object for current group in current connection for current user`, async (t) => {
+test.serial(`${currentTest} should return permissions object for current group in current connection for current user`, async (t) => {
   try {
     const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
     const {
@@ -711,7 +711,7 @@ test(`${currentTest} should return permissions object for current group in curre
 
 currentTest = 'GET /groups/';
 
-test(`${currentTest} should return found groups with current user`, async (t) => {
+test.serial(`${currentTest} should return found groups with current user`, async (t) => {
   try {
     const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
     const {
@@ -739,7 +739,7 @@ test(`${currentTest} should return found groups with current user`, async (t) =>
 });
 
 currentTest = 'GET /group/users/:slug';
-test(`${currentTest} it should return users in group`, async (t) => {
+test.serial(`${currentTest} it should return users in group`, async (t) => {
   try {
     const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
     const {
@@ -778,7 +778,7 @@ test(`${currentTest} it should return users in group`, async (t) => {
   }
 });
 
-test(`${currentTest} it should throw an exception when you try to receive user in group where you dont have permission`, async (t) => {
+test.serial(`${currentTest} it should throw an exception when you try to receive user in group where you dont have permission`, async (t) => {
   try {
     const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
     const {
@@ -813,7 +813,7 @@ test(`${currentTest} it should throw an exception when you try to receive user i
 
 currentTest = 'PUT /group/user';
 
-test(`${currentTest} should return group with added user`, async (t) => {
+test.serial(`${currentTest} should return group with added user`, async (t) => {
   try {
     const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
     const {
@@ -858,7 +858,7 @@ test(`${currentTest} should return group with added user`, async (t) => {
   }
 });
 
-test(`${currentTest} should throw exception, when user email not passed in request`, async (t) => {
+test.serial(`${currentTest} should throw exception, when user email not passed in request`, async (t) => {
   try {
     const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
     const {
@@ -893,7 +893,7 @@ test(`${currentTest} should throw exception, when user email not passed in reque
   }
 });
 
-test(`${currentTest} should throw exception, when group id not passed in request`, async (t) => {
+test.serial(`${currentTest} should throw exception, when group id not passed in request`, async (t) => {
   try {
     const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
     const {
@@ -929,7 +929,7 @@ test(`${currentTest} should throw exception, when group id not passed in request
   }
 });
 
-test(`${currentTest} should throw exception, when group id passed in request is incorrect`, async (t) => {
+test.serial(`${currentTest} should throw exception, when group id passed in request is incorrect`, async (t) => {
   try {
     const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
     const {
@@ -967,7 +967,7 @@ test(`${currentTest} should throw exception, when group id passed in request is 
 
 currentTest = 'DELETE /group/:slug';
 
-test(`${currentTest} should delete result after group deletion`, async (t) => {
+test.serial(`${currentTest} should delete result after group deletion`, async (t) => {
   try {
     const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
     const {
@@ -999,7 +999,7 @@ test(`${currentTest} should delete result after group deletion`, async (t) => {
   }
 });
 
-test(`${currentTest} should throw an exception when you try delete admin group`, async (t) => {
+test.serial(`${currentTest} should throw an exception when you try delete admin group`, async (t) => {
   try {
     const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
     const {
@@ -1034,7 +1034,7 @@ test(`${currentTest} should throw an exception when you try delete admin group`,
   }
 });
 
-test(`${currentTest} should throw an exception when group id not passed in request`, async (t) => {
+test.serial(`${currentTest} should throw an exception when group id not passed in request`, async (t) => {
   try {
     const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
     const {
@@ -1066,7 +1066,7 @@ test(`${currentTest} should throw an exception when group id not passed in reque
   }
 });
 
-test(`${currentTest} should throw an exception when group id passed in request is incorrect`, async (t) => {
+test.serial(`${currentTest} should throw an exception when group id passed in request is incorrect`, async (t) => {
   try {
     const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
     const {
@@ -1100,7 +1100,7 @@ test(`${currentTest} should throw an exception when group id passed in request i
 
 currentTest = 'PUT /group/user/delete';
 
-test(`${currentTest} should return group without deleted user`, async (t) => {
+test.serial(`${currentTest} should return group without deleted user`, async (t) => {
   try {
     const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
     const {
@@ -1158,7 +1158,7 @@ test(`${currentTest} should return group without deleted user`, async (t) => {
   }
 });
 
-test(`${currentTest} should throw exception, when user email not passed in request`, async (t) => {
+test.serial(`${currentTest} should throw exception, when user email not passed in request`, async (t) => {
   try {
     const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
     const {
@@ -1202,7 +1202,7 @@ test(`${currentTest} should throw exception, when user email not passed in reque
   }
 });
 
-test(`${currentTest} should throw exception, when group id not passed in request`, async (t) => {
+test.serial(`${currentTest} should throw exception, when group id not passed in request`, async (t) => {
   try {
     const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
     const {
@@ -1246,7 +1246,7 @@ test(`${currentTest} should throw exception, when group id not passed in request
   }
 });
 
-test(`${currentTest} should throw exception, when group id passed in request is incorrect`, async (t) => {
+test.serial(`${currentTest} should throw exception, when group id passed in request is incorrect`, async (t) => {
   try {
     const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
     const {
@@ -1295,7 +1295,7 @@ test(`${currentTest} should throw exception, when group id passed in request is 
 
 currentTest = 'PUT permissions/:slug';
 
-test(`${currentTest} should throw an exception do not have permission`, async (t) => {
+test.serial(`${currentTest} should throw an exception do not have permission`, async (t) => {
   try {
     const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
     const {
@@ -1353,7 +1353,7 @@ test(`${currentTest} should throw an exception do not have permission`, async (t
   }
 });
 
-test(`${currentTest} should return updated complex permissions object when you update permissions`, async (t) => {
+test.serial(`${currentTest} should return updated complex permissions object when you update permissions`, async (t) => {
   try {
     const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
     const {
@@ -1412,7 +1412,7 @@ test(`${currentTest} should return updated complex permissions object when you u
   }
 });
 
-test(`${currentTest} should throw an exception, when you try change admin group`, async (t) => {
+test.serial(`${currentTest} should throw an exception, when you try change admin group`, async (t) => {
   try {
     const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
     const {
@@ -1464,7 +1464,7 @@ test(`${currentTest} should throw an exception, when you try change admin group`
 
 currentTest = 'GET /connection/tables/:slug';
 
-test(`${currentTest} should return all tables in connection`, async (t) => {
+test.serial(`${currentTest} should return all tables in connection`, async (t) => {
   try {
     const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
     const {
@@ -1499,7 +1499,7 @@ test(`${currentTest} should return all tables in connection`, async (t) => {
   }
 });
 
-test(`${currentTest} should throw an exception, when connection id not passed in request`, async (t) => {
+test.serial(`${currentTest} should throw an exception, when connection id not passed in request`, async (t) => {
   try {
     const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
     const {
@@ -1521,7 +1521,7 @@ test(`${currentTest} should throw an exception, when connection id not passed in
   }
 });
 
-test(`${currentTest} should throw an exception, when connection id passed in request is incorrect`, async (t) => {
+test.serial(`${currentTest} should throw an exception, when connection id passed in request is incorrect`, async (t) => {
   try {
     const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
     const {
@@ -1548,7 +1548,7 @@ test(`${currentTest} should throw an exception, when connection id passed in req
 
 currentTest = 'GET /table/rows/:slug';
 
-test(`${currentTest} should return found rows from table`, async (t) => {
+test.serial(`${currentTest} should return found rows from table`, async (t) => {
   try {
     const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
     const {
@@ -1579,7 +1579,7 @@ test(`${currentTest} should return found rows from table`, async (t) => {
   }
 });
 
-test(`${currentTest} should throw an exception when connection id not passed in request`, async (t) => {
+test.serial(`${currentTest} should throw an exception when connection id not passed in request`, async (t) => {
   try {
     const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
     const {
@@ -1601,7 +1601,7 @@ test(`${currentTest} should throw an exception when connection id not passed in 
   }
 });
 
-test(`${currentTest} should throw an exception when connection id passed in request is incorrec`, async (t) => {
+test.serial(`${currentTest} should throw an exception when connection id passed in request is incorrec`, async (t) => {
   try {
     const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
     const {
@@ -1626,7 +1626,7 @@ test(`${currentTest} should throw an exception when connection id passed in requ
   }
 });
 
-test(`${currentTest} should throw an exception when table name passed in request is incorrect`, async (t) => {
+test.serial(`${currentTest} should throw an exception when table name passed in request is incorrect`, async (t) => {
   try {
     const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
     const {
@@ -1653,7 +1653,7 @@ test(`${currentTest} should throw an exception when table name passed in request
 
 currentTest = 'GET /table/structure/:slug';
 
-test(`${currentTest} should return table structure`, async (t) => {
+test.serial(`${currentTest} should return table structure`, async (t) => {
   try {
     const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
     const {
@@ -1686,7 +1686,7 @@ test(`${currentTest} should return table structure`, async (t) => {
   }
 });
 
-test(`${currentTest} should throw an exception when connection id not passed in request`, async (t) => {
+test.serial(`${currentTest} should throw an exception when connection id not passed in request`, async (t) => {
   try {
     const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
     const {
@@ -1709,7 +1709,7 @@ test(`${currentTest} should throw an exception when connection id not passed in 
   }
 });
 
-test(`${currentTest} should throw an exception when connection id passed in request is incorrect`, async (t) => {
+test.serial(`${currentTest} should throw an exception when connection id passed in request is incorrect`, async (t) => {
   try {
     const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
     const {
@@ -1735,7 +1735,7 @@ test(`${currentTest} should throw an exception when connection id passed in requ
   }
 });
 
-test(`${currentTest} should throw an exception when table name not passed in request`, async (t) => {
+test.serial(`${currentTest} should throw an exception when table name not passed in request`, async (t) => {
   try {
     const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
     const {
@@ -1759,7 +1759,7 @@ test(`${currentTest} should throw an exception when table name not passed in req
   }
 });
 
-test(`${currentTest} should throw an exception when table name passed in request is incorrect`, async (t) => {
+test.serial(`${currentTest} should throw an exception when table name passed in request is incorrect`, async (t) => {
   try {
     const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
     const {
@@ -1786,7 +1786,7 @@ test(`${currentTest} should throw an exception when table name passed in request
 
 currentTest = 'POST /table/row/:slug';
 
-test(`${currentTest} should return added row`, async (t) => {
+test.serial(`${currentTest} should return added row`, async (t) => {
   try {
     const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
     const {
@@ -1830,7 +1830,7 @@ test(`${currentTest} should return added row`, async (t) => {
   }
 });
 
-test(`${currentTest} should throw an exception when connection id passed in request is incorrect`, async (t) => {
+test.serial(`${currentTest} should throw an exception when connection id passed in request is incorrect`, async (t) => {
   try {
     const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
     const {
@@ -1864,7 +1864,7 @@ test(`${currentTest} should throw an exception when connection id passed in requ
   }
 });
 
-test(`${currentTest} should throw an exception when table name passed in request is incorrect`, async (t) => {
+test.serial(`${currentTest} should throw an exception when table name passed in request is incorrect`, async (t) => {
   try {
     const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
     const {
@@ -1900,7 +1900,7 @@ test(`${currentTest} should throw an exception when table name passed in request
 
 currentTest = 'PUT /table/row/:slug';
 
-test(`${currentTest} should throw an exception do not have permission, when you do not have edit permission`, async (t) => {
+test.serial(`${currentTest} should throw an exception do not have permission, when you do not have edit permission`, async (t) => {
   try {
     const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
     const {
@@ -1935,7 +1935,7 @@ test(`${currentTest} should throw an exception do not have permission, when you 
   }
 });
 
-test(`${currentTest} should throw an exception when connection id passed in request is incorrect`, async (t) => {
+test.serial(`${currentTest} should throw an exception when connection id passed in request is incorrect`, async (t) => {
   try {
     const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
     const {
@@ -1969,7 +1969,7 @@ test(`${currentTest} should throw an exception when connection id passed in requ
   }
 });
 
-test(`${currentTest} should throw an exception when table name passed in request is incorrect`, async (t) => {
+test.serial(`${currentTest} should throw an exception when table name passed in request is incorrect`, async (t) => {
   try {
     const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
     const {
@@ -2005,7 +2005,7 @@ test(`${currentTest} should throw an exception when table name passed in request
 
 currentTest = 'DELETE /table/row/:slug';
 
-test(`${currentTest} should return delete result`, async (t) => {
+test.serial(`${currentTest} should return delete result`, async (t) => {
   try {
     const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
     const {
@@ -2028,7 +2028,7 @@ test(`${currentTest} should return delete result`, async (t) => {
   }
 });
 
-test(`${currentTest} should throw an exception when connection id passed in request is incorrect`, async (t) => {
+test.serial(`${currentTest} should throw an exception when connection id passed in request is incorrect`, async (t) => {
   try {
     const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
     const {
@@ -2053,7 +2053,7 @@ test(`${currentTest} should throw an exception when connection id passed in requ
   }
 });
 
-test(`${currentTest} should throw an exception when table name passed in request is incorrect`, async (t) => {
+test.serial(`${currentTest} should throw an exception when table name passed in request is incorrect`, async (t) => {
   try {
     const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
     const {
@@ -2079,7 +2079,7 @@ test(`${currentTest} should throw an exception when table name passed in request
 
 currentTest = 'GET /table/row/:slug';
 
-test(`${currentTest} should return row`, async (t) => {
+test.serial(`${currentTest} should return row`, async (t) => {
   try {
     const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
     const {
@@ -2109,7 +2109,7 @@ test(`${currentTest} should return row`, async (t) => {
   }
 });
 
-test(`${currentTest} should throw an exception when connection id passed in request is incorrect`, async (t) => {
+test.serial(`${currentTest} should throw an exception when connection id passed in request is incorrect`, async (t) => {
   try {
     const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
     const {
@@ -2133,7 +2133,7 @@ test(`${currentTest} should throw an exception when connection id passed in requ
   }
 });
 
-test(`${currentTest} should throw an exception when table name passed in request is incorrect`, async (t) => {
+test.serial(`${currentTest} should throw an exception when table name passed in request is incorrect`, async (t) => {
   try {
     const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
     const {
@@ -2161,7 +2161,7 @@ test(`${currentTest} should throw an exception when table name passed in request
 
 currentTest = 'GET /logs/:slug';
 
-test(`${currentTest} should return all found logs in connection'`, async (t) => {
+test.serial(`${currentTest} should return all found logs in connection'`, async (t) => {
   try {
     const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
     const {
@@ -2211,7 +2211,7 @@ test(`${currentTest} should return all found logs in connection'`, async (t) => 
   }
 });
 
-test(`${currentTest} should not return all found logs in connection, when table audit is disabled in connection'`, async (t) => {
+test.serial(`${currentTest} should not return all found logs in connection, when table audit is disabled in connection'`, async (t) => {
   try {
     const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
     const {
@@ -2281,7 +2281,7 @@ test(`${currentTest} should not return all found logs in connection, when table 
 
 currentTest = 'GET /settings/';
 
-test(`${currentTest} should return empty table settings when it was not created`, async (t) => {
+test.serial(`${currentTest} should return empty table settings when it was not created`, async (t) => {
   try {
     const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
     const {
@@ -2305,7 +2305,7 @@ test(`${currentTest} should return empty table settings when it was not created`
   }
 });
 
-test(`${currentTest} 'should return table settings when it was created`, async (t) => {
+test.serial(`${currentTest} 'should return table settings when it was created`, async (t) => {
   try {
     const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
     const {
@@ -2367,7 +2367,7 @@ test(`${currentTest} 'should return table settings when it was created`, async (
   }
 });
 
-test(`${currentTest} should throw an exception when you try get settings in connection where you do not have permission`, async (t) => {
+test.serial(`${currentTest} should throw an exception when you try get settings in connection where you do not have permission`, async (t) => {
   try {
     const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
     const {
@@ -2419,7 +2419,7 @@ test(`${currentTest} should throw an exception when you try get settings in conn
 
 currentTest = 'POST /settings/';
 
-test(`${currentTest} should throw an exception do not have permission`, async (t) => {
+test.serial(`${currentTest} should throw an exception do not have permission`, async (t) => {
   try {
     const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
     const {
@@ -2460,7 +2460,7 @@ test(`${currentTest} should throw an exception do not have permission`, async (t
   }
 });
 
-test(`${currentTest} should throw an exception when you try create settings in connection where you do not have permission`, async (t) => {
+test.serial(`${currentTest} should throw an exception when you try create settings in connection where you do not have permission`, async (t) => {
   try {
     const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
     const {
@@ -2505,7 +2505,7 @@ test(`${currentTest} should throw an exception when you try create settings in c
 
 currentTest = 'PUT /settings/';
 
-test(`${currentTest} should throw an exception do not have permission`, async (t) => {
+test.serial(`${currentTest} should throw an exception do not have permission`, async (t) => {
   try {
     const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
     const {
@@ -2569,7 +2569,7 @@ test(`${currentTest} should throw an exception do not have permission`, async (t
   }
 });
 
-test(`${currentTest} should throw an exception when you try update settings in connection where you do not have permission`, async (t) => {
+test.serial(`${currentTest} should throw an exception when you try update settings in connection where you do not have permission`, async (t) => {
   try {
     const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
     const {
@@ -2635,7 +2635,7 @@ test(`${currentTest} should throw an exception when you try update settings in c
 
 currentTest = 'DELETE /settings/';
 
-test(`${currentTest} should return array without deleted table settings`, async (t) => {
+test.serial(`${currentTest} should return array without deleted table settings`, async (t) => {
   try {
     const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
     const {
@@ -2683,7 +2683,7 @@ test(`${currentTest} should return array without deleted table settings`, async 
   }
 });
 
-test(`${currentTest} should throw an exception when you try delete settings in connection where you do not have permission`, async (t) => {
+test.serial(`${currentTest} should throw an exception when you try delete settings in connection where you do not have permission`, async (t) => {
   try {
     const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
     const {
@@ -2735,7 +2735,7 @@ test(`${currentTest} should throw an exception when you try delete settings in c
 
 currentTest = 'GET /widgets/:slug';
 
-test(`${currentTest} should return empty widgets array when widgets not created`, async (t) => {
+test.serial(`${currentTest} should return empty widgets array when widgets not created`, async (t) => {
   try {
     const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
     const {
@@ -2760,7 +2760,7 @@ test(`${currentTest} should return empty widgets array when widgets not created`
   }
 });
 
-test(`${currentTest} should return array of table widgets for table`, async (t) => {
+test.serial(`${currentTest} should return array of table widgets for table`, async (t) => {
   try {
     const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
     const {
@@ -2822,7 +2822,7 @@ test(`${currentTest} should return array of table widgets for table`, async (t) 
   }
 });
 
-test(`${currentTest} should throw an exception, when you try to get widgets from connection, when you do not have permissions`, async (t) => {
+test.serial(`${currentTest} should throw an exception, when you try to get widgets from connection, when you do not have permissions`, async (t) => {
   try {
     const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
     const {
@@ -2865,7 +2865,7 @@ test(`${currentTest} should throw an exception, when you try to get widgets from
 
 currentTest = 'POST /widget/:slug';
 
-test(`${currentTest} should throw an exception do not have permissions`, async (t) => {
+test.serial(`${currentTest} should throw an exception do not have permissions`, async (t) => {
   try {
     const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
     const {
@@ -2896,7 +2896,7 @@ test(`${currentTest} should throw an exception do not have permissions`, async (
   }
 });
 
-test(`${currentTest} should throw an exception, when you try add widget in connection, when you do not have permissions`, async (t) => {
+test.serial(`${currentTest} should throw an exception, when you try add widget in connection, when you do not have permissions`, async (t) => {
   try {
     const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
     const {

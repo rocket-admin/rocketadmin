@@ -81,7 +81,7 @@ async function resetPostgresTestDB(testTableName) {
 }
 
 test.beforeEach(async (t) => {
-  testTableName = faker.lorem.words(1);
+  testTableName = `${faker.lorem.words(1)}_${faker.string.uuid()}`;
   testTables.push(testTableName);
   newConnectionProperties = mockFactory.generateConnectionPropertiesUserExcluded(testTableName);
   await resetPostgresTestDB(testTableName);
@@ -112,7 +112,7 @@ function getTestData() {
 }
 
 currentTest = 'POST /connection/properties/:slug';
-test(`${currentTest} should return created connection properties`, async (t) => {
+test.serial(`${currentTest} should return created connection properties`, async (t) => {
   try {
     const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
     const { token } = await registerUserAndReturnUserInfo(app);
@@ -142,7 +142,7 @@ test(`${currentTest} should return created connection properties`, async (t) => 
   }
 });
 
-test(`${currentTest} should return connection without excluded tables`, async (t) => {
+test.serial(`${currentTest} should return connection without excluded tables`, async (t) => {
   try {
     const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
     const { token } = await registerUserAndReturnUserInfo(app);
@@ -182,7 +182,7 @@ test(`${currentTest} should return connection without excluded tables`, async (t
   }
 });
 
-test(`${currentTest} should throw an exception when excluded table name is incorrect`, async (t) => {
+test.serial(`${currentTest} should throw an exception when excluded table name is incorrect`, async (t) => {
   try {
     const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
     const { token } = await registerUserAndReturnUserInfo(app);
@@ -214,7 +214,7 @@ test(`${currentTest} should throw an exception when excluded table name is incor
 });
 
 currentTest = 'GET /connection/properties/:slug';
-test(`${currentTest} should return connection properties`, async (t) => {
+test.serial(`${currentTest} should return connection properties`, async (t) => {
   try {
     const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
     const { token } = await registerUserAndReturnUserInfo(app);
@@ -251,7 +251,7 @@ test(`${currentTest} should return connection properties`, async (t) => {
   }
 });
 
-test(`${currentTest} should throw exception when connection id is incorrect`, async (t) => {
+test.serial(`${currentTest} should throw exception when connection id is incorrect`, async (t) => {
   try {
     const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
     const { token } = await registerUserAndReturnUserInfo(app);
@@ -285,7 +285,7 @@ test(`${currentTest} should throw exception when connection id is incorrect`, as
 });
 
 currentTest = 'DELETE /connection/properties/:slug';
-test(`${currentTest} should return deleted connection properties`, async (t) => {
+test.serial(`${currentTest} should return deleted connection properties`, async (t) => {
   try {
     const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
     const { token } = await registerUserAndReturnUserInfo(app);
@@ -343,7 +343,7 @@ test(`${currentTest} should return deleted connection properties`, async (t) => 
   }
 });
 
-test(`${currentTest} should throw exception when connection id is incorrect`, async (t) => {
+test.serial(`${currentTest} should throw exception when connection id is incorrect`, async (t) => {
   try {
     const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
     const { token } = await registerUserAndReturnUserInfo(app);
@@ -377,7 +377,7 @@ test(`${currentTest} should throw exception when connection id is incorrect`, as
 });
 
 currentTest = 'PUT /connection/properties/:slug';
-test(`${currentTest} should return updated connection properties`, async (t) => {
+test.serial(`${currentTest} should return updated connection properties`, async (t) => {
   try {
     const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
     const { token } = await registerUserAndReturnUserInfo(app);
@@ -407,7 +407,7 @@ test(`${currentTest} should return updated connection properties`, async (t) => 
   }
 });
 
-// test(`${currentTest} `, async (t) => {
+// test.serial(`${currentTest} `, async (t) => {
 //   try {
 //   } catch (e) {
 //     throw e;

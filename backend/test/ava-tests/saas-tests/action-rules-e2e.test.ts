@@ -115,7 +115,7 @@ test.after.always('Close app connection', async () => {
 
 let currentTest = `POST /action/rule/:connectionId`;
 
-test(`${currentTest} should return created table rule with action and events`, async (t) => {
+test.serial(`${currentTest} should return created table rule with action and events`, async (t) => {
   const { token } = await registerUserAndReturnUserInfo(app);
   const createConnectionResult = await request(app.getHttpServer())
     .post('/connection')
@@ -206,7 +206,7 @@ test(`${currentTest} should return created table rule with action and events`, a
   t.deepEqual(createdSlackAction.emails, []);
 });
 
-test(`${currentTest} throw validation exceptions when create dto includes null values`, async (t) => {
+test.serial(`${currentTest} throw validation exceptions when create dto includes null values`, async (t) => {
   const { token } = await registerUserAndReturnUserInfo(app);
   const createConnectionResult = await request(app.getHttpServer())
     .post('/connection')
@@ -265,7 +265,7 @@ test(`${currentTest} throw validation exceptions when create dto includes null v
   t.truthy(message.includes('each value in table_actions should not be empty'));
 });
 
-test(`${currentTest} throw validation exceptions when create dto includes wrong values`, async (t) => {
+test.serial(`${currentTest} throw validation exceptions when create dto includes wrong values`, async (t) => {
   const { token } = await registerUserAndReturnUserInfo(app);
   const createConnectionResult = await request(app.getHttpServer())
     .post('/connection')
@@ -321,7 +321,7 @@ test(`${currentTest} throw validation exceptions when create dto includes wrong 
 
 currentTest = `GET /action/rules/:connectionId`;
 
-test(`${currentTest} should return found table rules with action and events`, async (t) => {
+test.serial(`${currentTest} should return found table rules with action and events`, async (t) => {
   const { token } = await registerUserAndReturnUserInfo(app);
   const createConnectionResult = await request(app.getHttpServer())
     .post('/connection')
@@ -423,7 +423,7 @@ test(`${currentTest} should return found table rules with action and events`, as
 
 currentTest = `/action/events/custom/:connectionId`;
 
-test(`${currentTest} should return found table custom action events`, async (t) => {
+test.serial(`${currentTest} should return found table custom action events`, async (t) => {
   const { token } = await registerUserAndReturnUserInfo(app);
   const createConnectionResult = await request(app.getHttpServer())
     .post('/connection')
@@ -498,7 +498,7 @@ test(`${currentTest} should return found table custom action events`, async (t) 
 
 currentTest = `DELETE /action/rule/:actionId/:connectionId`;
 
-test(`${currentTest} should delete table action rule with action and events and return deleted result`, async (t) => {
+test.serial(`${currentTest} should delete table action rule with action and events and return deleted result`, async (t) => {
   const { token } = await registerUserAndReturnUserInfo(app);
   const createConnectionResult = await request(app.getHttpServer())
     .post('/connection')
@@ -615,7 +615,7 @@ test(`${currentTest} should delete table action rule with action and events and 
 
 currentTest = `GET /action/rule/:actionId/:connectionId`;
 
-test(`${currentTest} should delete table action rule with action and events and return deleted result`, async (t) => {
+test.serial(`${currentTest} should delete table action rule with action and events and return deleted result`, async (t) => {
   const { token } = await registerUserAndReturnUserInfo(app);
   const createConnectionResult = await request(app.getHttpServer())
     .post('/connection')
@@ -713,7 +713,7 @@ test(`${currentTest} should delete table action rule with action and events and 
 
 currentTest = `PUT /action/rule/:actionId/:connectionId`;
 
-test(`${currentTest} should return created table rule with action and events`, async (t) => {
+test.serial(`${currentTest} should return created table rule with action and events`, async (t) => {
   const { token } = await registerUserAndReturnUserInfo(app);
   const createConnectionResult = await request(app.getHttpServer())
     .post('/connection')
@@ -926,7 +926,7 @@ test(`${currentTest} should return created table rule with action and events`, a
 
 currentTest = 'POST /rule/actions/activate/:ruleId/:connectionId';
 
-test(`${currentTest} should return created table rule with action and events`, async (t) => {
+test.serial(`${currentTest} should return created table rule with action and events`, async (t) => {
   const { token } = await registerUserAndReturnUserInfo(app);
   const createConnectionResult = await request(app.getHttpServer())
     .post('/connection')
@@ -1020,7 +1020,7 @@ test(`${currentTest} should return created table rule with action and events`, a
 
 //test impersonate action
 
-test(`${currentTest} should create impersonate action`, async (t) => {
+test.serial(`${currentTest} should create impersonate action`, async (t) => {
   const firstUser = await registerUserAndReturnUserInfo(app);
   const secondUser = await registerUserAndReturnUserInfo(app);
 
@@ -1113,7 +1113,7 @@ test(`${currentTest} should create impersonate action`, async (t) => {
 
 currentTest = 'POST/PUT/DELETE /table/row/:slug';
 
-test(`${currentTest} should create trigger and activate http table action on add row`, async (t) => {
+test.serial(`${currentTest} should create trigger and activate http table action on add row`, async (t) => {
   const { token } = await registerUserAndReturnUserInfo(app);
   const createConnectionResult = await request(app.getHttpServer())
     .post('/connection')

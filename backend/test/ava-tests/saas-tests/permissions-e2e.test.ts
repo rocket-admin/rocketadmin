@@ -48,7 +48,7 @@ test.before(async () => {
 });
 
 let currentTest = 'PUT permissions/:slug';
-test(`${currentTest} should return created permissions`, async (t) => {
+test.serial(`${currentTest} should return created permissions`, async (t) => {
   try {
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
     const { newConnectionInDocker, newGroup1 } = getTestData(mockFactory);
@@ -135,7 +135,7 @@ test(`${currentTest} should return created permissions`, async (t) => {
   }
 });
 
-test(`${currentTest} should throw an exception when groupId not passed`, async (t) => {
+test.serial(`${currentTest} should throw an exception when groupId not passed`, async (t) => {
   try {
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
     const { newConnectionInDocker, newGroup1 } = getTestData(mockFactory);
@@ -179,7 +179,7 @@ test(`${currentTest} should throw an exception when groupId not passed`, async (
   }
 });
 
-test(`${currentTest} should throw an exception when groupId passed in request is incorrect`, async (t) => {
+test.serial(`${currentTest} should throw an exception when groupId passed in request is incorrect`, async (t) => {
   try {
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
     const { newConnectionInDocker, newGroup1 } = getTestData(mockFactory);
@@ -226,7 +226,7 @@ test(`${currentTest} should throw an exception when groupId passed in request is
   }
 });
 
-test(`${currentTest} should throw an exception when connectionId is incorrect`, async (t) => {
+test.serial(`${currentTest} should throw an exception when connectionId is incorrect`, async (t) => {
   try {
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
     const { newConnectionInDocker, newGroup1 } = getTestData(mockFactory);

@@ -21,7 +21,7 @@ export const invitationInCompanyCustomRepositoryExtension: IInvitationInCompanyR
       await this.remove(foundInvitation);
     }
     const newInvitation = new InvitationInCompanyEntity();
-    newInvitation.verification_string = process.env.NODE_ENV === 'test' ? 'test' : Encryptor.generateRandomString();
+    newInvitation.verification_string = Encryptor.generateRandomString();
     newInvitation.company = companyInfo;
     newInvitation.groupId = groupId ? groupId : null;
     newInvitation.inviterId = inviterId;

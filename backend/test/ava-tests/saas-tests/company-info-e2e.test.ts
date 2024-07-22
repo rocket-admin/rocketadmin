@@ -51,7 +51,7 @@ test.before(async () => {
 
 currentTest = 'GET /company/my';
 
-test(`${currentTest} should return found company info for user`, async (t) => {
+test.serial(`${currentTest} should return found company info for user`, async (t) => {
   try {
     const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
     const {
@@ -85,7 +85,7 @@ test(`${currentTest} should return found company info for user`, async (t) => {
 
 currentTest = 'GET /company/my/full';
 
-test(`${currentTest} should return full found company info for company admin user`, async (t) => {
+test.serial(`${currentTest} should return full found company info for company admin user`, async (t) => {
   try {
     const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
     const {
@@ -143,7 +143,7 @@ test(`${currentTest} should return full found company info for company admin use
   }
 });
 
-test(`${currentTest} should return found company info for non-admin user`, async (t) => {
+test.serial(`${currentTest} should return found company info for non-admin user`, async (t) => {
   try {
     const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
     const {
@@ -179,7 +179,7 @@ test(`${currentTest} should return found company info for non-admin user`, async
 
 currentTest = 'GET /company/my/email';
 
-test(`${currentTest} should return found company infos for admin user`, async (t) => {
+test.serial(`${currentTest} should return found company infos for admin user`, async (t) => {
   try {
     const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
     const {
@@ -210,7 +210,7 @@ test(`${currentTest} should return found company infos for admin user`, async (t
   }
 });
 
-test(`${currentTest} should return found company infos for non-admin user`, async (t) => {
+test.serial(`${currentTest} should return found company infos for non-admin user`, async (t) => {
   try {
     const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
     const {
@@ -242,7 +242,7 @@ test(`${currentTest} should return found company infos for non-admin user`, asyn
 
 currentTest = 'DELETE /:companyId/user/:userId';
 
-test(`${currentTest} should remove user from company`, async (t) => {
+test.serial(`${currentTest} should remove user from company`, async (t) => {
   try {
     const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
     const {
@@ -304,83 +304,86 @@ test(`${currentTest} should remove user from company`, async (t) => {
   }
 });
 
-test(`${currentTest} should remove user from company. User with the same email can be invited in this company one more time`, async (t) => {
-  try {
-    const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
-    const {
-      connections,
-      firstTableInfo,
-      groups,
-      permissions,
-      secondTableInfo,
-      users: { adminUserToken, simpleUserToken, adminUserEmail, simpleUserEmail },
-      groups: { createdGroupId },
-    } = testData;
+test.serial(
+  `${currentTest} should remove user from company. User with the same email can be invited in this company one more time`,
+  async (t) => {
+    try {
+      const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
+      const {
+        connections,
+        firstTableInfo,
+        groups,
+        permissions,
+        secondTableInfo,
+        users: { adminUserToken, simpleUserToken, adminUserEmail, simpleUserEmail },
+        groups: { createdGroupId },
+      } = testData;
 
-    const foundCompanyInfo = await request(app.getHttpServer())
-      .get('/company/my/full')
-      .set('Content-Type', 'application/json')
-      .set('Cookie', adminUserToken)
-      .set('Accept', 'application/json');
+      const foundCompanyInfo = await request(app.getHttpServer())
+        .get('/company/my/full')
+        .set('Content-Type', 'application/json')
+        .set('Cookie', adminUserToken)
+        .set('Accept', 'application/json');
 
-    const foundCompanyInfoRO = JSON.parse(foundCompanyInfo.text);
+      const foundCompanyInfoRO = JSON.parse(foundCompanyInfo.text);
 
-    t.is(foundCompanyInfo.status, 200);
+      t.is(foundCompanyInfo.status, 200);
 
-    const allGroupsInResult = foundCompanyInfoRO.connections.map((connection) => connection.groups).flat();
-    const allUsersInResult = allGroupsInResult.map((group) => group.users).flat();
-    const foundSimpleUserInResult = allUsersInResult.find((user) => user.email === simpleUserEmail);
+      const allGroupsInResult = foundCompanyInfoRO.connections.map((connection) => connection.groups).flat();
+      const allUsersInResult = allGroupsInResult.map((group) => group.users).flat();
+      const foundSimpleUserInResult = allUsersInResult.find((user) => user.email === simpleUserEmail);
 
-    t.is(foundSimpleUserInResult.email, simpleUserEmail);
+      t.is(foundSimpleUserInResult.email, simpleUserEmail);
 
-    const removeUserFromCompanyResult = await request(app.getHttpServer())
-      .delete(`/company/${foundCompanyInfoRO.id}/user/${foundSimpleUserInResult.id}`)
-      .set('Content-Type', 'application/json')
-      .set('Cookie', adminUserToken)
-      .set('Accept', 'application/json');
+      const removeUserFromCompanyResult = await request(app.getHttpServer())
+        .delete(`/company/${foundCompanyInfoRO.id}/user/${foundSimpleUserInResult.id}`)
+        .set('Content-Type', 'application/json')
+        .set('Cookie', adminUserToken)
+        .set('Accept', 'application/json');
 
-    const removeUserFromCompany = JSON.parse(removeUserFromCompanyResult.text);
+      const removeUserFromCompany = JSON.parse(removeUserFromCompanyResult.text);
 
-    t.is(removeUserFromCompanyResult.status, 200);
-    t.is(removeUserFromCompany.success, true);
+      t.is(removeUserFromCompanyResult.status, 200);
+      t.is(removeUserFromCompany.success, true);
 
-    const foundCompanyInfoAfterUserDeletion = await request(app.getHttpServer())
-      .get('/company/my/full')
-      .set('Content-Type', 'application/json')
-      .set('Cookie', adminUserToken)
-      .set('Accept', 'application/json');
+      const foundCompanyInfoAfterUserDeletion = await request(app.getHttpServer())
+        .get('/company/my/full')
+        .set('Content-Type', 'application/json')
+        .set('Cookie', adminUserToken)
+        .set('Accept', 'application/json');
 
-    const foundCompanyInfoROAfterUserDeletion = JSON.parse(foundCompanyInfoAfterUserDeletion.text);
+      const foundCompanyInfoROAfterUserDeletion = JSON.parse(foundCompanyInfoAfterUserDeletion.text);
 
-    const allGroupsInResultAfterUserDeletion = foundCompanyInfoROAfterUserDeletion.connections
-      .map((connection) => connection.groups)
-      .flat();
-    const allUsersInResultAfterUserDeletion = allGroupsInResultAfterUserDeletion.map((group) => group.users).flat();
-    const foundSimpleUserInResultAfterUserDeletion = !!allUsersInResultAfterUserDeletion.find(
-      (user) => user.email === simpleUserEmail,
-    );
+      const allGroupsInResultAfterUserDeletion = foundCompanyInfoROAfterUserDeletion.connections
+        .map((connection) => connection.groups)
+        .flat();
+      const allUsersInResultAfterUserDeletion = allGroupsInResultAfterUserDeletion.map((group) => group.users).flat();
+      const foundSimpleUserInResultAfterUserDeletion = !!allUsersInResultAfterUserDeletion.find(
+        (user) => user.email === simpleUserEmail,
+      );
 
-    t.is(foundSimpleUserInResultAfterUserDeletion, false);
+      t.is(foundSimpleUserInResultAfterUserDeletion, false);
 
-    const invitedDeletedUser = await inviteUserInCompanyAndAcceptInvitation(
-      adminUserToken,
-      'USER',
-      app,
-      createdGroupId,
-      simpleUserEmail,
-    );
-    t.is(invitedDeletedUser.email, simpleUserEmail);
-    t.truthy(invitedDeletedUser.token);
-    t.truthy(invitedDeletedUser.password);
-  } catch (error) {
-    console.error(error);
-    throw error;
-  }
-});
+      const invitedDeletedUser = await inviteUserInCompanyAndAcceptInvitation(
+        adminUserToken,
+        'USER',
+        app,
+        createdGroupId,
+        simpleUserEmail,
+      );
+      t.is(invitedDeletedUser.email, simpleUserEmail);
+      t.truthy(invitedDeletedUser.token);
+      t.truthy(invitedDeletedUser.password);
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  },
+);
 
 currentTest = 'PUT invitation/revoke/:slug';
 
-test(`${currentTest} should revoke user invitation from company`, async (t) => {
+test.serial(`${currentTest} should revoke user invitation from company`, async (t) => {
   try {
     const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
     const {
@@ -466,7 +469,7 @@ test(`${currentTest} should revoke user invitation from company`, async (t) => {
 
 currentTest = 'PUT company/name/:slug';
 
-test(`${currentTest} should update company name`, async (t) => {
+test.serial(`${currentTest} should update company name`, async (t) => {
   const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
   const {
     connections,
@@ -513,7 +516,7 @@ test(`${currentTest} should update company name`, async (t) => {
 
 currentTest = 'GET company/name/:companyId';
 
-test(`${currentTest} should return company name`, async (t) => {
+test.serial(`${currentTest} should return company name`, async (t) => {
   const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
   const {
     connections,
@@ -548,7 +551,7 @@ test(`${currentTest} should return company name`, async (t) => {
 
 currentTest = `PUT company/users/roles/:companyId`;
 
-test(`${currentTest} should update user roles in company`, async (t) => {
+test.serial(`${currentTest} should update user roles in company`, async (t) => {
   const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
   const {
     connections,
@@ -621,7 +624,7 @@ test(`${currentTest} should update user roles in company`, async (t) => {
 
 currentTest = `DELETE company`;
 
-test(`${currentTest} should delete company`, async (t) => {
+test.serial(`${currentTest} should delete company`, async (t) => {
   const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
   const {
     connections,
@@ -659,7 +662,7 @@ test(`${currentTest} should delete company`, async (t) => {
 });
 
 currentTest = `PUT company/2fa/:companyId`;
-test(`${currentTest} should enable 2fa for company`, async (t) => {
+test.serial(`${currentTest} should enable 2fa for company`, async (t) => {
   const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
   const {
     connections,
@@ -736,105 +739,110 @@ test(`${currentTest} should enable 2fa for company`, async (t) => {
 });
 
 currentTest = `PUT /subscription/upgrade/:companyId`;
-test(`${currentTest} should call function subscription upgrade for company in sass, and suspend users`, async (t) => {
-  const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
-  const {
-    connections,
-    firstTableInfo,
-    groups,
-    permissions,
-    secondTableInfo,
-    users: { adminUserToken, simpleUserToken, adminUserEmail, simpleUserEmail, simpleUserPassword },
-  } = testData;
+test.serial(
+  `${currentTest} should call function subscription upgrade for company in sass, and suspend users`,
+  async (t) => {
+    const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
+    const {
+      connections,
+      firstTableInfo,
+      groups,
+      permissions,
+      secondTableInfo,
+      users: { adminUserToken, simpleUserToken, adminUserEmail, simpleUserEmail, simpleUserPassword },
+    } = testData;
 
-  const foundCompanyInfo = await request(app.getHttpServer())
-    .get('/company/my/full')
-    .set('Content-Type', 'application/json')
-    .set('Cookie', adminUserToken)
-    .set('Accept', 'application/json');
+    const foundCompanyInfo = await request(app.getHttpServer())
+      .get('/company/my/full')
+      .set('Content-Type', 'application/json')
+      .set('Cookie', adminUserToken)
+      .set('Accept', 'application/json');
 
-  t.is(foundCompanyInfo.status, 200);
-  const foundCompanyInfoRO = JSON.parse(foundCompanyInfo.text);
+    t.is(foundCompanyInfo.status, 200);
+    const foundCompanyInfoRO = JSON.parse(foundCompanyInfo.text);
 
-  let firstConnection = foundCompanyInfoRO.connections.find((connectionRO) => connections.firstId === connectionRO.id);
-  const createdGroup = firstConnection.groups.find((groupRO) => groupRO.id === groups.createdGroupId);
-
-  const additionalUsers: Array<{
-    email: string;
-    password: string;
-    token: string;
-  }> = [];
-  for (let i = 0; i < 5; i++) {
-    const invitationResult = await inviteUserInCompanyAndGroupAndAcceptInvitation(
-      adminUserToken,
-      'USER',
-      createdGroup.id,
-      app,
+    let firstConnection = foundCompanyInfoRO.connections.find(
+      (connectionRO) => connections.firstId === connectionRO.id,
     );
-    additionalUsers.push(invitationResult);
-  }
-  const foundCompanyInfoWithAddedUsers = await request(app.getHttpServer())
-    .get('/company/my/full')
-    .set('Content-Type', 'application/json')
-    .set('Cookie', adminUserToken)
-    .set('Accept', 'application/json');
+    const createdGroup = firstConnection.groups.find((groupRO) => groupRO.id === groups.createdGroupId);
 
-  t.is(foundCompanyInfo.status, 200);
-  const foundCompanyInfoWithAddedUsersRO = JSON.parse(foundCompanyInfoWithAddedUsers.text);
-  firstConnection = foundCompanyInfoWithAddedUsersRO.connections.find(
-    (connectionRO) => connections.firstId === connectionRO.id,
-  );
-  const { users } = firstConnection.groups.find((groupRO) => groupRO.id === groups.createdGroupId);
-  users.forEach((user: any) => {
-    t.is(user.suspended, false);
-  });
+    const additionalUsers: Array<{
+      email: string;
+      password: string;
+      token: string;
+    }> = [];
+    for (let i = 0; i < 5; i++) {
+      const invitationResult = await inviteUserInCompanyAndGroupAndAcceptInvitation(
+        adminUserToken,
+        'USER',
+        createdGroup.id,
+        app,
+      );
+      additionalUsers.push(invitationResult);
+    }
+    const foundCompanyInfoWithAddedUsers = await request(app.getHttpServer())
+      .get('/company/my/full')
+      .set('Content-Type', 'application/json')
+      .set('Cookie', adminUserToken)
+      .set('Accept', 'application/json');
 
-  const subscriptionUpgradeResult = await fetch(
-    `http://rocketadmin-private-microservice:3001/company/subscription/upgrade/${foundCompanyInfoRO.id}`,
-    {
-      method: 'POST',
-      headers: {
-        Cookie: adminUserToken,
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
+    t.is(foundCompanyInfo.status, 200);
+    const foundCompanyInfoWithAddedUsersRO = JSON.parse(foundCompanyInfoWithAddedUsers.text);
+    firstConnection = foundCompanyInfoWithAddedUsersRO.connections.find(
+      (connectionRO) => connections.firstId === connectionRO.id,
+    );
+    const { users } = firstConnection.groups.find((groupRO) => groupRO.id === groups.createdGroupId);
+    users.forEach((user: any) => {
+      t.is(user.suspended, false);
+    });
+
+    const subscriptionUpgradeResult = await fetch(
+      `http://rocketadmin-private-microservice:3001/company/subscription/upgrade/${foundCompanyInfoRO.id}`,
+      {
+        method: 'POST',
+        headers: {
+          Cookie: adminUserToken,
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
+        body: JSON.stringify({
+          subscriptionLevel: 'FREE_PLAN',
+        }),
       },
-      body: JSON.stringify({
-        subscriptionLevel: 'FREE_PLAN',
-      }),
-    },
-  );
+    );
 
-  const foundCompanyInfoAfterUpgrade = await request(app.getHttpServer())
-    .get('/company/my/full')
-    .set('Content-Type', 'application/json')
-    .set('Cookie', adminUserToken)
-    .set('Accept', 'application/json');
+    const foundCompanyInfoAfterUpgrade = await request(app.getHttpServer())
+      .get('/company/my/full')
+      .set('Content-Type', 'application/json')
+      .set('Cookie', adminUserToken)
+      .set('Accept', 'application/json');
 
-  const foundCompanyInfoAfterUpgradeRO = JSON.parse(foundCompanyInfoAfterUpgrade.text);
-  firstConnection = foundCompanyInfoAfterUpgradeRO.connections.find(
-    (connectionRO) => connections.firstId === connectionRO.id,
-  );
-  const { users: usersAfterUpgrade } = firstConnection.groups.find((groupRO) => groupRO.id === groups.createdGroupId);
-  const suspendUsersCount = usersAfterUpgrade.filter((user: any) => user.suspended).length;
-  t.is(suspendUsersCount, 4);
-  const unSuspendedUsersCount = usersAfterUpgrade.filter((user: any) => !user.suspended).length;
-  t.is(unSuspendedUsersCount, 3);
+    const foundCompanyInfoAfterUpgradeRO = JSON.parse(foundCompanyInfoAfterUpgrade.text);
+    firstConnection = foundCompanyInfoAfterUpgradeRO.connections.find(
+      (connectionRO) => connections.firstId === connectionRO.id,
+    );
+    const { users: usersAfterUpgrade } = firstConnection.groups.find((groupRO) => groupRO.id === groups.createdGroupId);
+    const suspendUsersCount = usersAfterUpgrade.filter((user: any) => user.suspended).length;
+    t.is(suspendUsersCount, 4);
+    const unSuspendedUsersCount = usersAfterUpgrade.filter((user: any) => !user.suspended).length;
+    t.is(unSuspendedUsersCount, 3);
 
-  // suspended users should not be able to access endpoints
+    // suspended users should not be able to access endpoints
 
-  const findAllConnectionsResponse = await request(app.getHttpServer())
-    .get('/connections')
-    .set('Cookie', additionalUsers[additionalUsers.length - 1].token)
-    .set('Content-Type', 'application/json')
-    .set('Accept', 'application/json');
+    const findAllConnectionsResponse = await request(app.getHttpServer())
+      .get('/connections')
+      .set('Cookie', additionalUsers[additionalUsers.length - 1].token)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
 
-  const findAllConnectionsResponseRO = JSON.parse(findAllConnectionsResponse.text);
-  t.is(findAllConnectionsResponse.status, 403);
-  t.is(findAllConnectionsResponseRO.message, Messages.ACCOUNT_SUSPENDED);
-});
+    const findAllConnectionsResponseRO = JSON.parse(findAllConnectionsResponse.text);
+    t.is(findAllConnectionsResponse.status, 403);
+    t.is(findAllConnectionsResponseRO.message, Messages.ACCOUNT_SUSPENDED);
+  },
+);
 
 currentTest = `PUT /company/users/suspend/:companyId`;
-test(`${currentTest} should suspend users in company`, async (t) => {
+test.serial(`${currentTest} should suspend users in company`, async (t) => {
   const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
   const {
     connections,
@@ -914,7 +922,7 @@ test(`${currentTest} should suspend users in company`, async (t) => {
 });
 
 currentTest = `PUT /company/users/unsuspend/:companyId`;
-test(`${currentTest} should suspend users in company`, async (t) => {
+test.serial(`${currentTest} should suspend users in company`, async (t) => {
   const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
   const {
     connections,

@@ -65,7 +65,7 @@ test.after.always('Close app connection', async () => {
 
 currentTest = 'GET /widgets/:slug';
 
-test(`${currentTest} should return empty array, table widgets not created`, async (t) => {
+test.serial(`${currentTest} should return empty array, table widgets not created`, async (t) => {
   const { token } = await registerUserAndReturnUserInfo(app);
   const newConnection = getTestData(mockFactory).newEncryptedConnection;
   const createdConnection = await request(app.getHttpServer())
@@ -91,7 +91,7 @@ test(`${currentTest} should return empty array, table widgets not created`, asyn
   t.is(getTableWidgetsRO.length, 0);
 });
 
-test(`${currentTest} should return array of table widgets for table`, async (t) => {
+test.serial(`${currentTest} should return array of table widgets for table`, async (t) => {
   const { token } = await registerUserAndReturnUserInfo(app);
   const newConnection = getTestData(mockFactory).newEncryptedConnection;
   const createdConnection = await request(app.getHttpServer())
@@ -151,7 +151,7 @@ test(`${currentTest} should return array of table widgets for table`, async (t) 
   t.is(compareTableWidgetsArrays(getTableStructureRO.table_widgets, newTableWidgets), true);
 });
 
-test(`${currentTest} should throw exception when connection id not passed in request`, async (t) => {
+test.serial(`${currentTest} should throw exception when connection id not passed in request`, async (t) => {
   const { token } = await registerUserAndReturnUserInfo(app);
   const newConnection = getTestData(mockFactory).newEncryptedConnection;
   const createdConnection = await request(app.getHttpServer())
@@ -192,7 +192,7 @@ test(`${currentTest} should throw exception when connection id not passed in req
   t.is(getTableWidgets.status, 404);
 });
 
-test(`${currentTest} should throw exception when connection id passed in request is incorrect`, async (t) => {
+test.serial(`${currentTest} should throw exception when connection id passed in request is incorrect`, async (t) => {
   const { token } = await registerUserAndReturnUserInfo(app);
   const newConnection = getTestData(mockFactory).newEncryptedConnection;
   const createdConnection = await request(app.getHttpServer())
@@ -236,7 +236,7 @@ test(`${currentTest} should throw exception when connection id passed in request
   t.is(getTableWidgetsRO.message, Messages.DONT_HAVE_PERMISSIONS);
 });
 
-test(`${currentTest} should throw exception when tableName passed in request is incorrect`, async (t) => {
+test.serial(`${currentTest} should throw exception when tableName passed in request is incorrect`, async (t) => {
   const { token } = await registerUserAndReturnUserInfo(app);
   const newConnection = getTestData(mockFactory).newEncryptedConnection;
   const createdConnection = await request(app.getHttpServer())
@@ -281,7 +281,7 @@ test(`${currentTest} should throw exception when tableName passed in request is 
   t.is(getTableWidgetsRO.message, Messages.TABLE_NOT_FOUND);
 });
 
-test(`${currentTest} should throw exception when tableName not passed in request`, async (t) => {
+test.serial(`${currentTest} should throw exception when tableName not passed in request`, async (t) => {
   const { token } = await registerUserAndReturnUserInfo(app);
   const newConnection = getTestData(mockFactory).newEncryptedConnection;
   const createdConnection = await request(app.getHttpServer())
@@ -327,7 +327,7 @@ test(`${currentTest} should throw exception when tableName not passed in request
 });
 
 currentTest = 'POST /widget/:slug';
-test(`${currentTest} should return created table widgets`, async (t) => {
+test.serial(`${currentTest} should return created table widgets`, async (t) => {
   const { token } = await registerUserAndReturnUserInfo(app);
   const newConnection = getTestData(mockFactory).newEncryptedConnection;
   const createdConnection = await request(app.getHttpServer())
@@ -365,7 +365,7 @@ test(`${currentTest} should return created table widgets`, async (t) => {
   t.is(compareTableWidgetsArrays(getTableWidgetsRO, newTableWidgets), true);
 });
 
-test(`${currentTest} hould return updated table widgets`, async (t) => {
+test.serial(`${currentTest} hould return updated table widgets`, async (t) => {
   const { token } = await registerUserAndReturnUserInfo(app);
   const newConnection = getTestData(mockFactory).newEncryptedConnection;
   const createdConnection = await request(app.getHttpServer())
@@ -414,7 +414,7 @@ test(`${currentTest} hould return updated table widgets`, async (t) => {
   t.is(compareTableWidgetsArrays(getTableWidgetsRO, updatedTableWidgets), true);
 });
 
-test(`${currentTest} should return updated table widgets when old widget updated and new added`, async (t) => {
+test.serial(`${currentTest} should return updated table widgets when old widget updated and new added`, async (t) => {
   const { token } = await registerUserAndReturnUserInfo(app);
   const newConnection = getTestData(mockFactory).newEncryptedConnection;
   const createdConnection = await request(app.getHttpServer())
@@ -464,7 +464,7 @@ test(`${currentTest} should return updated table widgets when old widget updated
   t.is(compareTableWidgetsArrays(getTableWidgetsRO, updatedTableWidgets), true);
 });
 
-test(`${currentTest} should return table widgets without deleted widget`, async (t) => {
+test.serial(`${currentTest} should return table widgets without deleted widget`, async (t) => {
   const { token } = await registerUserAndReturnUserInfo(app);
   const newConnection = getTestData(mockFactory).newEncryptedConnection;
   const createdConnection = await request(app.getHttpServer())
@@ -515,7 +515,7 @@ test(`${currentTest} should return table widgets without deleted widget`, async 
   t.is(uuidRegex.test(getTableWidgetsRO[0].id), true);
 });
 
-test(`${currentTest} should throw exception when table widget with incorrect type passed in request`, async (t) => {
+test.serial(`${currentTest} should throw exception when table widget with incorrect type passed in request`, async (t) => {
   const { token } = await registerUserAndReturnUserInfo(app);
   const newConnection = getTestData(mockFactory).newEncryptedConnection;
   const createdConnection = await request(app.getHttpServer())
@@ -542,7 +542,7 @@ test(`${currentTest} should throw exception when table widget with incorrect typ
   t.is(createTableWidgetRO.message, Messages.WIDGET_TYPE_INCORRECT);
 });
 
-test(`${currentTest} should throw exception when table widget passed in request has incorrect field_name`, async (t) => {
+test.serial(`${currentTest} should throw exception when table widget passed in request has incorrect field_name`, async (t) => {
   const { token } = await registerUserAndReturnUserInfo(app);
   const newConnection = getTestData(mockFactory).newEncryptedConnection;
   const createdConnection = await request(app.getHttpServer())
@@ -569,7 +569,7 @@ test(`${currentTest} should throw exception when table widget passed in request 
   t.is(createTableWidgetRO.message, Messages.EXCLUDED_OR_NOT_EXISTS(copyWidgets[0].field_name));
 });
 
-test(`${currentTest} should throw exception when connection id not passed in request`, async (t) => {
+test.serial(`${currentTest} should throw exception when connection id not passed in request`, async (t) => {
   const { token } = await registerUserAndReturnUserInfo(app);
   const newConnection = getTestData(mockFactory).newEncryptedConnection;
   const createdConnection = await request(app.getHttpServer())
@@ -593,7 +593,7 @@ test(`${currentTest} should throw exception when connection id not passed in req
   t.is(createTableWidgetResponse.status, 404);
 });
 
-test(`${currentTest} should throw exception when connection id passed in request is incorrect`, async (t) => {
+test.serial(`${currentTest} should throw exception when connection id passed in request is incorrect`, async (t) => {
   const { token } = await registerUserAndReturnUserInfo(app);
   const newConnection = getTestData(mockFactory).newEncryptedConnection;
   const createdConnection = await request(app.getHttpServer())
@@ -618,7 +618,7 @@ test(`${currentTest} should throw exception when connection id passed in request
   t.is(createTableWidgetRO.message, Messages.DONT_HAVE_PERMISSIONS);
 });
 
-test(`${currentTest} should throw exception when tableName passed in request is incorrect`, async (t) => {
+test.serial(`${currentTest} should throw exception when tableName passed in request is incorrect`, async (t) => {
   const { token } = await registerUserAndReturnUserInfo(app);
   const newConnection = getTestData(mockFactory).newEncryptedConnection;
   const createdConnection = await request(app.getHttpServer())
@@ -645,7 +645,7 @@ test(`${currentTest} should throw exception when tableName passed in request is 
   t.is(createTableWidgetRO.message, Messages.TABLE_NOT_FOUND);
 });
 
-test(`${currentTest} should throw exception when tableName not passed in request`, async (t) => {
+test.serial(`${currentTest} should throw exception when tableName not passed in request`, async (t) => {
   const { token } = await registerUserAndReturnUserInfo(app);
   const newConnection = getTestData(mockFactory).newEncryptedConnection;
   const createdConnection = await request(app.getHttpServer())
@@ -673,7 +673,7 @@ test(`${currentTest} should throw exception when tableName not passed in request
 
 //foreign key widget tests
 currentTest = 'POST /widget/:slug/';
-test(`${currentTest} should return created table widgets`, async (t) => {
+test.serial(`${currentTest} should return created table widgets`, async (t) => {
   const connectionToTestDB = getTestData(mockFactory).connectionToPostgres;
   const { token } = await registerUserAndReturnUserInfo(app);
   const firstTableData = await createTestTable(connectionToTestDB);
