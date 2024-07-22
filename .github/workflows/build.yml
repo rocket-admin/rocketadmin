@@ -14,13 +14,10 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: touch dotenv
-        run: touch .enw
-      
       - name: Create matrix
         id: platforms
         run: |
-          echo "matrix=$(docker buildx bake image-all --print | jq -cr '.target."image-all".platforms')" >>${GITHUB_OUTPUT}
+          echo "matrix=$(docker buildx bake image-all -f docker-bake.hcl --print | jq -cr '.target."image-all".platforms')" >>${GITHUB_OUTPUT}
       
       - name: Show matrix
         run: |
