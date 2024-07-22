@@ -98,11 +98,21 @@
     flex-direction: column;
     gap: 4px;
     /* min-width: 420px; */
-    /* width: 45%; */
+    width: 100%;
+}
+
+.rule-name {
+    width: 50%;
 }
 
 ::ng-deep .mat-menu-content {
     padding: 16px !important;
+}
+
+.text_highlighted {
+    background: var(--color-accentedPalette-100);
+    margin-bottom: 0;
+    padding: 4px;
 }
 
 .event {
@@ -116,9 +126,15 @@
 .custom-event {
     display: flex;
     flex-direction: column;
-    padding-left: 128px;
-    padding-top: 72px;
-    padding-bottom: 72px;
+    /* padding-left: 128px; */
+    padding-top: 20px;
+    padding-bottom: 32px;
+}
+
+.custom-event__row {
+    display: flex;
+    align-items: center;
+    gap: 24px;
 }
 
 .list-action-list-item ::ng-deep .mdc-list-item__primary-text {
@@ -134,13 +150,13 @@
     --mdc-list-list-item-focus-label-text-color: var(--color-accentedPalette-500);
 }
 
-.actions-icon-selector {
+/* .actions-icon-selector {
     display: flex;
     align-items: center;
     gap: 8px;
     margin-top: -8px;
     margin-bottom: 16px;
-}
+} */
 
 .radio-button_first {
     margin-left: 16px;
@@ -209,8 +225,9 @@
     }
 }
 
-.confirmation-checkbox {
-    margin-top: 12px;
+.confirmation-checkbox,
+.icon-picker {
+    margin-top: -16px;
 }
 
 .event {
@@ -220,9 +237,19 @@
 }
 
 .event__or {
-    margin-top: -8px;
+    margin-top: -22px;
 }
 
 .event__removeButton {
-    margin-top: -16px;
+    margin-top: -22px;
+}
+
+.rule-action {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.rule-action__param {
+    width: 50%;
 }

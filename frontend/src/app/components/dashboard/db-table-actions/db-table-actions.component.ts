@@ -181,6 +181,8 @@ export class DbTableActionsComponent implements OnInit {
         }
       ]
     };
+
+    this.setSelectedRule(this.newRule);
   }
 
   addNewAction() {
