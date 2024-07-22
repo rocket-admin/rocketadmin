@@ -82,7 +82,6 @@
     "get-port": "7.1.0",
     "google-auth-library": "^9.8.0",
     "helmet": "7.1.0",
-    "ibm_db": "^3.2.4",
     "ip-range-check": "0.2.0",
     "json2csv": "^5.0.7",
     "jsonwebtoken": "^9.0.2",
@@ -113,6 +112,9 @@
     "uuid": "^9.0.1",
     "validator": "^13.11.0",
     "winston": "3.13.0"
+  },
+  "optionalDependencies": {
+    "ibm_db": "^3.2.4"
   },
   "devDependencies": {
     "@ava/typescript": "^4.1.0",

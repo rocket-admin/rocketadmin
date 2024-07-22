@@ -3484,6 +3484,9 @@ __metadata:
     uuid: ^9.0.1
     validator: ^13.11.0
     winston: 3.13.0
+  dependenciesMeta:
+    ibm_db:
+      optional: true
   languageName: unknown
   linkType: soft
 
