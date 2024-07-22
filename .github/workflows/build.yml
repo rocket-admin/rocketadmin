@@ -42,7 +42,7 @@ jobs:
           retention-days: 1
 
   build:
-    runs-on: ${{matrix.platform/linux-/}}
+    runs-on: ${{contains(matrix.platform, 'arm') && 'arm64' || 'ubuntu-latest'/}}
     needs:
       - prepare
     strategy:
