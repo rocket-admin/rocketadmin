@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { BeforeInsert, Column, Entity, OneToMany, PrimaryColumn, Relation } from 'typeorm';
 import { UserEntity } from '../user/user.entity.js';
 import { ConnectionEntity } from '../connection/connection.entity.js';
@@ -9,7 +10,7 @@ export class CompanyInfoEntity {
   @PrimaryColumn('uuid')
   id: string;
 
-  @OneToMany(() => UserEntity, (user) => user.company, {
+  @OneToMany((_) => UserEntity, (user) => user.company, {
     onDelete: 'NO ACTION',
   })
   users: Relation<UserEntity>[];
@@ -27,12 +28,12 @@ export class CompanyInfoEntity {
     }
   }
 
-  @OneToMany(() => ConnectionEntity, (connection) => connection.company, {
+  @OneToMany((_) => ConnectionEntity, (connection) => connection.company, {
     onDelete: 'NO ACTION',
   })
   connections: Relation<ConnectionEntity>[];
 
-  @OneToMany(() => InvitationInCompanyEntity, (invitation) => invitation.company, {
+  @OneToMany((_) => InvitationInCompanyEntity, (invitation) => invitation.company, {
     onDelete: 'NO ACTION',
   })
   invitations: Relation<InvitationInCompanyEntity>[];

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, Relation } from 'typeorm';
 import { CompanyInfoEntity } from '../company-info.entity.js';
 import { UserRoleEnum } from '../../user/enums/user-role.enum.js';
@@ -29,7 +30,7 @@ export class InvitationInCompanyEntity {
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;
 
-  @ManyToOne(() => CompanyInfoEntity, (companyInfo) => companyInfo.invitations, { onDelete: 'CASCADE' })
+  @ManyToOne((_) => CompanyInfoEntity, (companyInfo) => companyInfo.invitations, { onDelete: 'CASCADE' })
   @JoinColumn()
   company: Relation<CompanyInfoEntity>;
 }
