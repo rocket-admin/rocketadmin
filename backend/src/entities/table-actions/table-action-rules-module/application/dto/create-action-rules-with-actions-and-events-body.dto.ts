@@ -29,11 +29,6 @@ export function IsUrlIfNotTest(validationOptions?: IsURLOptions) {
 }
 
 export class CreateTableActionDTO {
-  @ApiProperty({ enum: TableActionTypeEnum })
-  @IsNotEmpty()
-  @IsEnum(TableActionTypeEnum)
-  type: TableActionTypeEnum;
-
   @ApiProperty({ type: String, required: false })
   @IsOptional()
   @IsUrlIfNotTest()
@@ -64,6 +59,11 @@ export class CreateActionEventDTO {
   @IsNotEmpty()
   @IsEnum(TableActionEventEnum)
   event: TableActionEventEnum;
+
+  @ApiProperty({ enum: TableActionTypeEnum })
+  @IsNotEmpty()
+  @IsEnum(TableActionTypeEnum)
+  type: TableActionTypeEnum;
 
   @ApiProperty()
   @IsString()

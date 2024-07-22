@@ -23,7 +23,7 @@
                 </div>
             </div>
 
-            <mat-form-field class="login-form__email">
+            <mat-form-field appearance="fill" class="login-form__email">
                 <mat-label>Email</mat-label>
                 <input matInput type="email" name="email" emailValidator
                     data-testid="login-email-input"
@@ -45,7 +45,7 @@
                 </mat-select>
             </mat-form-field>
 
-            <mat-form-field *ngIf="isPasswordFieldShown || user.companyId" class="login-form__password">
+            <mat-form-field *ngIf="isPasswordFieldShown || user.companyId" appearance="fill" class="login-form__password">
                 <mat-label>Password</mat-label>
                 <input matInput type="password" name="password" data-testid="login-password-input"
                     #password="ngModel" required

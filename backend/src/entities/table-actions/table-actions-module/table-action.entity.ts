@@ -10,7 +10,6 @@ import {
   PrimaryGeneratedColumn,
   Relation,
 } from 'typeorm';
-import { TableActionTypeEnum } from '../../../enums/index.js';
 import { TableSettingsEntity } from '../../table-settings/table-settings.entity.js';
 import { ActionRulesEntity } from '../table-action-rules-module/action-rules.entity.js';
 import { TableActionMethodEnum } from '../../../enums/table-action-method-enum.js';
@@ -20,13 +19,6 @@ import { Encryptor } from '../../../helpers/encryption/encryptor.js';
 export class TableActionEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
-
-  @Column('enum', {
-    nullable: false,
-    enum: TableActionTypeEnum,
-    default: TableActionTypeEnum.single,
-  })
-  type!: TableActionTypeEnum;
 
   @Column({ default: null })
   url: string;

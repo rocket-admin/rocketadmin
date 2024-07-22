@@ -1,4 +1,4 @@
-import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/common';
+import { Global, MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthMiddleware } from '../../../authorization/index.js';
 import { GlobalDatabaseContext } from '../../../common/application/global-database-context.js';
@@ -8,7 +8,9 @@ import { UserEntity } from '../../user/user.entity.js';
 import { TableActionsController } from './table-action.controller.js';
 import { TableActionEntity } from './table-action.entity.js';
 import { ActivateTableActionsUseCase } from './use-cases/activate-table-actions.use.case.js';
+import { TableActionActivationService } from './table-action-activation.service.js';
 
+@Global()
 @Module({
   imports: [TypeOrmModule.forFeature([TableActionEntity, UserEntity, LogOutEntity])],
   providers: [
@@ -20,7 +22,9 @@ import { ActivateTableActionsUseCase } from './use-cases/activate-table-actions.
       provide: UseCaseType.ACTIVATE_TABLE_ACTIONS,
       useClass: ActivateTableActionsUseCase,
     },
+    TableActionActivationService,
   ],
+  exports: [TableActionActivationService],
   controllers: [TableActionsController],
 })
 export class TableActionModule implements NestModule {

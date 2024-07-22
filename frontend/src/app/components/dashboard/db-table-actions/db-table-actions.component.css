@@ -85,7 +85,7 @@
     padding: 20px 24px;
 }
 
-.action {
+.rule {
     flex-grow: 1;
     display: flex;
     align-items: stretch;
@@ -93,16 +93,48 @@
     margin-top: 20px;
 }
 
-.action-settings {
+.rule-settings {
     display: flex;
     flex-direction: column;
     gap: 4px;
-    min-width: 420px;
-    width: 45%;
+    /* min-width: 420px; */
+    width: 100%;
+}
+
+.rule-name {
+    width: 50%;
 }
 
 ::ng-deep .mat-menu-content {
     padding: 16px !important;
+}
+
+.text_highlighted {
+    background: var(--color-accentedPalette-100);
+    margin-bottom: 0;
+    padding: 4px;
+}
+
+.event {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 24px;
+}
+
+.custom-event {
+    display: flex;
+    flex-direction: column;
+    /* padding-left: 128px; */
+    padding-top: 20px;
+    padding-bottom: 32px;
+}
+
+.custom-event__row {
+    display: flex;
+    align-items: center;
+    gap: 24px;
 }
 
 .list-action-list-item ::ng-deep .mdc-list-item__primary-text {
@@ -113,85 +145,18 @@
 
 
 .list-action-list-item_active {
-    color: var(--color-accentedPalette-500);
+    --mdc-list-list-item-label-text-color: var(--color-accentedPalette-500);
+    --mdc-list-list-item-hover-label-text-color: var(--color-accentedPalette-500);
+    --mdc-list-list-item-focus-label-text-color: var(--color-accentedPalette-500);
 }
 
-.list-action-list-item_notSaved .mat-icon {
-    color: #F9A825;
-}
-
-.list-action-list-item__savingIcon {
-    position: relative;
-    margin-left: auto;
-    margin-right: 8px !important;
-}
-
-.list-action-list-item__savingIcon::after {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%) rotate(-45deg);
-    display: block;
-    background: rgba(0,0,0,0.87);
-    height: 2px;
-    width: 40px;
-}
-
-.list-action-list-item_active .list-action-list-item__savingIcon::after {
-    background: var(--color-accentedPalette-500);
-}
-
-.list-action-list-item_notSaved .list-action-list-item__savingIcon::after {
-    background: #F9A825;
-}
-
-.actions-icon-selector {
+/* .actions-icon-selector {
     display: flex;
     align-items: center;
     gap: 8px;
     margin-top: -8px;
     margin-bottom: 16px;
-}
-
-.icons-menu {
-    display: flex;
-    flex-direction: column;
-    padding: 0 16px;
-}
-
-.icons-list {
-    list-style: none;
-    display: grid;
-    grid-template-columns: repeat(5, 40px);
-    grid-gap: 4px;
-    justify-content: space-between;
-    margin-top: 12px;
-    margin-bottom: 12px;
-}
-
-.icon-button {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-    height: 40px;
-    width: 40px;
-}
-
-.icon-radio-button:checked + ::ng-deep.icon-button {
-    background-color: rgba(0,0,0,0.16);
-}
-
-.apply-icon-button {
-    align-self: flex-end;
-    margin-top: 4px;
-}
-
-.google-icons-link {
-    color: var(--color-primaryPalette-500);
-    text-decoration: none;
-}
+} */
 
 .radio-button_first {
     margin-left: 16px;
@@ -260,6 +225,31 @@
     }
 }
 
-.confirmation-checkbox {
-    margin-top: 12px;
+.confirmation-checkbox,
+.icon-picker {
+    margin-top: -16px;
+}
+
+.event {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.event__or {
+    margin-top: -22px;
+}
+
+.event__removeButton {
+    margin-top: -22px;
+}
+
+.rule-action {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.rule-action__param {
+    width: 50%;
 }

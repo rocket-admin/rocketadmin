@@ -6,6 +6,7 @@ export function buildActionEventDto(actionEvent: ActionEventsEntity): FoundActio
     id: actionEvent.id,
     event: actionEvent.event,
     title: actionEvent.title,
+    type: actionEvent.type,
     icon: actionEvent.icon,
     require_confirmation: actionEvent.require_confirmation,
     created_at: actionEvent.created_at,

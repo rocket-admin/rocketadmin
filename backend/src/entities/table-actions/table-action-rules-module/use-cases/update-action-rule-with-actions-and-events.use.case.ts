@@ -102,6 +102,7 @@ export class UpdateRuleUseCase
         foundActionEvent.event = actionEvent.event;
         foundActionEvent.title = actionEvent.event_title;
         foundActionEvent.icon = actionEvent.icon;
+        foundActionEvent.type = actionEvent.type;
         foundActionEvent.require_confirmation = actionEvent.require_confirmation;
         return this._dbContext.actionEventsRepository.saveNewOrUpdatedActionEvent(foundActionEvent);
       }),
