@@ -51,7 +51,7 @@ services:
       - mssql-e2e-testing
       - test-oracle-e2e-testing
       - test-ibm-db2-e2e-testing
-    command: ["yarn", "test"]
+    command: ["/bin/sh", "-c", "sleep 300 && yarn test"]
 
   testDB:
     image: postgres
