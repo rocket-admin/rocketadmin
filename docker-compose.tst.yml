@@ -43,6 +43,7 @@ services:
       - mssql-e2e-testing
       - test-oracle-e2e-testing
       - test-ibm-db2-e2e-testing
+      - test-mongo-e2e-testing
     links:
       - postgres
       - testDB
@@ -51,7 +52,8 @@ services:
       - mssql-e2e-testing
       - test-oracle-e2e-testing
       - test-ibm-db2-e2e-testing
-    command: ["yarn", "test"]
+      - test-mongo-e2e-testing
+    command: ["/bin/sh", "-c", "sleep 300 && yarn test"]
 
   testDB:
     image: postgres
@@ -81,6 +83,15 @@ services:
     environment:
       POSTGRES_PASSWORD: 123
     command: postgres -c 'max_connections=300'
+
+  test-mongo-e2e-testing:
+    image: mongo
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+    ports:
+      - 27017:27017    
 
   postgres:
     image: postgres
