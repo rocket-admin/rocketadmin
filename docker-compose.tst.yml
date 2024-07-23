@@ -27,6 +27,31 @@ services:
       - test-oracle-e2e-testing
       - test-ibm-db2-e2e-testing
     command: ["yarn", "start"]
+  backend_test:
+    build:
+      context: .
+    env_file: ./backend/.development.env
+    volumes:
+      - ./backend/dist:/app/dist
+      - ./backend/src:/app/src
+      - ./backend/src/migrations:/app/src/migrations
+    depends_on:
+      - postgres
+      - testDB
+      - testMySQL-e2e-testing
+      - testPg-e2e-testing
+      - mssql-e2e-testing
+      - test-oracle-e2e-testing
+      - test-ibm-db2-e2e-testing
+    links:
+      - postgres
+      - testDB
+      - testMySQL-e2e-testing
+      - testPg-e2e-testing
+      - mssql-e2e-testing
+      - test-oracle-e2e-testing
+      - test-ibm-db2-e2e-testing
+    command: ["yarn", "test"]
 
   testDB:
     image: postgres
