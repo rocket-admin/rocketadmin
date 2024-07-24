@@ -4,11 +4,7 @@ module.exports = {
     sourceType: 'module',
   },
   plugins: ['@typescript-eslint/eslint-plugin', 'security'],
-  extends: [
-    'plugin:@typescript-eslint/eslint-recommended',
-    'plugin:@typescript-eslint/recommended',
-    'prettier',
-  ],
+  extends: ['plugin:@typescript-eslint/eslint-recommended', 'plugin:@typescript-eslint/recommended', 'prettier'],
   root: true,
   env: {
     node: true,
@@ -19,7 +15,6 @@ module.exports = {
     '@typescript-eslint/no-explicit-any': 'off',
     '@typescript-eslint/camelcase': 'off',
 
-    
     'security/detect-buffer-noassert': 'error',
     'security/detect-child-process': 'error',
     'security/detect-disable-mustache-escape': 'error',
@@ -33,5 +28,15 @@ module.exports = {
     'security/detect-possible-timing-attacks': 'error',
     'security/detect-pseudoRandomBytes': 'error',
     'security/detect-unsafe-regex': 'error',
+
+    'no-unused-vars': 'off',
+    '@typescript-eslint/no-unused-vars': [
+      'error',
+      {
+        argsIgnorePattern: '^_[^_].*$|^_$',
+        varsIgnorePattern: '^_[^_].*$|^_$',
+        caughtErrorsIgnorePattern: '^_[^_].*$|^_$',
+      },
+    ],
   },
 };

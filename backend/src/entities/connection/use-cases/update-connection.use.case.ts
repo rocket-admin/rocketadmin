@@ -34,9 +34,9 @@ export class UpdateConnectionUseCase
     updateConnectionData: UpdateConnectionDs,
   ): Promise<Omit<CreatedConnectionDTO, 'groups'>> {
     const {
-      connection_parameters,
       update_info: { masterPwd, connectionId, authorId },
     } = updateConnectionData;
+    let { connection_parameters } = updateConnectionData;
     await validateCreateConnectionData(updateConnectionData);
     const foundConnectionToUpdate = await this._dbContext.connectionRepository.findAndDecryptConnection(
       connectionId,
@@ -54,19 +54,24 @@ export class UpdateConnectionUseCase
     }
 
     this.checkPasswordRequired(foundConnectionToUpdate, updateConnectionData.connection_parameters);
-    const booleanKeys = Object.keys(connection_parameters).map((key: string) => {
-      // eslint-disable-next-line security/detect-object-injection
-      if (typeof connection_parameters[key] === 'boolean') {
-        return key;
-      }
-    });
-    for (const key of Object.keys(connection_parameters)) {
-      // eslint-disable-next-line security/detect-object-injection
-      if (!connection_parameters[key] && !booleanKeys.includes(key) && key !== 'title' && key !== 'schema') {
+    
+    const booleanKeys = Object.entries(connection_parameters)
+      .filter(([_, value]) => typeof value === 'boolean')
+      .map(([key, _]) => key);
+
+    const keysToKeep = ['title', 'schema', ...booleanKeys];
+    connection_parameters = Object.keys(connection_parameters).reduce(
+      (acc, key) => {
         // eslint-disable-next-line security/detect-object-injection
-        delete connection_parameters[key];
-      }
-    }
+        if (connection_parameters[key] || keysToKeep.includes(key)) {
+          // eslint-disable-next-line security/detect-object-injection
+          acc[key] = connection_parameters[key];
+        }
+        return acc;
+      },
+      {} as UpdateConnectionDs['connection_parameters'],
+    );
+
     let updatedConnection: ConnectionEntity = Object.assign(foundConnectionToUpdate, connection_parameters);
     let connectionToken = null;
     if (isConnectionTypeAgent(updatedConnection.type)) {
@@ -88,13 +93,7 @@ export class UpdateConnectionUseCase
     foundConnectionToUpdate: ConnectionEntity,
     newConnectionParameters: UpdateConnectionDs['connection_parameters'],
   ): void {
-    if (
-      newConnectionParameters.type &&
-      !isConnectionTypeAgent(newConnectionParameters.type) &&
-      !newConnectionParameters.password &&
-      (newConnectionParameters.host !== foundConnectionToUpdate.host ||
-        newConnectionParameters.port !== foundConnectionToUpdate.port)
-    ) {
+    if (this.isPasswordUpdateRequired(newConnectionParameters, foundConnectionToUpdate)) {
       throw new HttpException(
         {
           message: Messages.PASSWORD_MISSING,
@@ -102,6 +101,19 @@ export class UpdateConnectionUseCase
         HttpStatus.BAD_REQUEST,
       );
     }
+  }
+
+  private isPasswordUpdateRequired(
+    newConnectionParameters: UpdateConnectionDs['connection_parameters'],
+    foundConnectionToUpdate: ConnectionEntity,
+  ): boolean {
+    const isTypeAgent = isConnectionTypeAgent(newConnectionParameters.type);
+    const isPasswordMissing = !newConnectionParameters.password;
+    const isHostOrPortChanged =
+      newConnectionParameters.host !== foundConnectionToUpdate.host ||
+      newConnectionParameters.port !== foundConnectionToUpdate.port;
+
+    return newConnectionParameters.type && !isTypeAgent && isPasswordMissing && isHostOrPortChanged;
   }
 
   private async renewOrCreateConnectionToken(connectionId: string): Promise<string> {
