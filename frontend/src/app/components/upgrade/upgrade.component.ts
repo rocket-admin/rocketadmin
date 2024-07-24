@@ -23,18 +23,30 @@ export class UpgradeComponent implements OnInit {
   plansTable = [
     {
       title: 'Database',
-      free: 'MySQL, PostgreSQL',
-      team: 'MySQL, PostgreSQL',
-      enterprise: 'MySQL, PostgreSQL, \n Microsoft SQL, Oracle'
+      free: 'MySQL, PostgreSQL, MongoDB',
+      team: 'MySQL, PostgreSQL, MongoDB',
+      enterprise: 'MySQL, PostgreSQL, MongoDB, \n Oracle, Microsoft SQL'
+    },
+    // {
+    //   title: 'Number of users',
+    //   free: 'up to 3 members',
+    //   team: 'per 10 members',
+    //   enterprise: 'per 10 members'
+    // },
+    {
+      title: 'Standard actions (CRUD)',
+      free: true,
+      team: true,
+      enterprise: true
     },
     {
-      title: 'User access',
-      free: '3 members',
-      team: 'unlimited',
-      enterprise: 'unlimited'
+      title: 'Custom actions and webhooks',
+      free: true,
+      team: true,
+      enterprise: true
     },
     {
-      title: 'View, create and edit',
+      title: 'Export / Import',
       free: true,
       team: true,
       enterprise: true
@@ -46,7 +58,7 @@ export class UpgradeComponent implements OnInit {
       enterprise: true
     },
     {
-      title: 'Log audit',
+      title: 'Record fields customization',
       free: true,
       team: true,
       enterprise: true
@@ -57,6 +69,18 @@ export class UpgradeComponent implements OnInit {
       team: true,
       enterprise: true
     },
+    {
+      title: 'Color theme and logo',
+      free: true,
+      team: true,
+      enterprise: true
+    },
+    {
+      title: 'Log audit',
+      free: '',
+      team: true,
+      enterprise: true
+    }
   ]
 
   public plans = plans;
