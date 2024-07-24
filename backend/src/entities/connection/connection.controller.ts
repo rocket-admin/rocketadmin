@@ -34,12 +34,11 @@ import { FindUserDs } from '../user/application/data-structures/find-user.ds.js'
 import { FoundUserDs } from '../user/application/data-structures/found-user.ds.js';
 import { CreateConnectionDs } from './application/data-structures/create-connection.ds.js';
 import { CreateGroupInConnectionDs } from './application/data-structures/create-group-in-connection.ds.js';
-import { CreatedConnectionDs } from './application/data-structures/created-connection.ds.js';
+import { CreatedConnectionDTO } from './application/dto/created-connection.dto.js';
 import { DeleteConnectionDs } from './application/data-structures/delete-connection.ds.js';
 import { DeleteGroupInConnectionDs } from './application/data-structures/delete-group-in-connection.ds.js';
 import { FindOneConnectionDs } from './application/data-structures/find-one-connection.ds.js';
 import { FoundConnectionsDs } from './application/data-structures/found-connections.ds.js';
-import { FoundOneConnectionDs } from './application/data-structures/found-one-connection.ds.js';
 import { FoundUserGroupsInConnectionDs } from './application/data-structures/found-user-groups-in-connection.ds.js';
 import { GetGroupsInConnectionDs } from './application/data-structures/get-groups-in-connection.ds.js';
 import { GetPermissionsInConnectionDs } from './application/data-structures/get-permissions-in-connection.ds.js';
@@ -78,6 +77,7 @@ import { FoundPermissionsInConnectionDs } from './application/data-structures/fo
 import { TestConnectionResponseDTO } from './application/dto/test-connection-response.dto.js';
 import { ConnectionTokenResponseDTO } from './application/dto/new-connection-token-response.dto.js';
 import { UpdateMasterPasswordRequestBodyDto } from './application/dto/update-master-password-request-body.dto.js';
+import { FoundOneConnectionDs } from './application/data-structures/found-one-connection.ds.js';
 
 @UseInterceptors(SentryInterceptor)
 @Controller()
@@ -202,14 +202,14 @@ export class ConnectionController {
   @ApiResponse({
     status: 201,
     description: 'Connection was created.',
-    type: CreatedConnectionDs,
+    type: CreatedConnectionDTO,
   })
   @Post('/connection')
   async create(
     @Body() createConnectionDto: CreateConnectionDto,
     @UserId() userId: string,
     @MasterPassword() masterPwd: string,
-  ): Promise<CreatedConnectionDs> {
+  ): Promise<CreatedConnectionDTO> {
     if (!createConnectionDto.password && !isConnectionTypeAgent(createConnectionDto.type)) {
       throw new HttpException(
         {
@@ -329,7 +329,7 @@ export class ConnectionController {
   @ApiResponse({
     status: 200,
     description: 'Connection was deleted.',
-    type: CreatedConnectionDs,
+    type: CreatedConnectionDTO,
   })
   @UseGuards(ConnectionEditGuard)
   @Put('/connection/delete/:connectionId')
@@ -338,7 +338,7 @@ export class ConnectionController {
     @UserId() userId: string,
     @SlugUuid('connectionId') connectionId: string,
     @MasterPassword() masterPwd: string,
-  ): Promise<CreatedConnectionDs> {
+  ): Promise<CreatedConnectionDTO> {
     const inputData: DeleteConnectionDs = {
       connectionId: connectionId,
       cognitoUserName: userId,

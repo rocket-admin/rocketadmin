@@ -1,8 +1,22 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/enums/connection-types-enum.js';
-import { GroupEntity } from '../../../group/group.entity.js';
+import { FoundUserDs } from '../../../user/application/data-structures/found-user.ds.js';
 
-export class CreatedConnectionDs {
+export class CreatedGroupInConnectionDTO {
+  @ApiProperty()
+  id: string;
+
+  @ApiProperty()
+  title: string;
+
+  @ApiProperty()
+  isMain: boolean;
+
+  @ApiProperty({ isArray: true, type: FoundUserDs })
+  users: Array<FoundUserDs>;
+}
+
+export class CreatedConnectionDTO {
   @ApiProperty()
   id: string;
 
@@ -72,6 +86,6 @@ export class CreatedConnectionDs {
   @ApiProperty()
   authSource: string;
 
-  @ApiProperty({ isArray: true, type: GroupEntity })
-  groups: Array<GroupEntity>;
+  @ApiProperty({ isArray: true, type: CreatedGroupInConnectionDTO })
+  groups: Array<CreatedGroupInConnectionDTO>;
 }

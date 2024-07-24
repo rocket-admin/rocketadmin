@@ -6,7 +6,7 @@ import { Messages } from '../../../exceptions/text/messages.js';
 import { isConnectionTypeAgent, slackPostMessage } from '../../../helpers/index.js';
 import { UserEntity } from '../../user/user.entity.js';
 import { CreateConnectionDs } from '../application/data-structures/create-connection.ds.js';
-import { CreatedConnectionDs } from '../application/data-structures/created-connection.ds.js';
+import { CreatedConnectionDTO } from '../application/dto/created-connection.dto.js';
 import { ConnectionEntity } from '../connection.entity.js';
 import { buildConnectionEntity } from '../utils/build-connection-entity.js';
 import { buildCreatedConnectionDs } from '../utils/build-created-connection.ds.js';
@@ -17,7 +17,7 @@ import { getDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-acce
 
 @Injectable()
 export class CreateConnectionUseCase
-  extends AbstractUseCase<CreateConnectionDs, CreatedConnectionDs>
+  extends AbstractUseCase<CreateConnectionDs, CreatedConnectionDTO>
   implements ICreateConnection
 {
   constructor(
@@ -26,7 +26,7 @@ export class CreateConnectionUseCase
   ) {
     super();
   }
-  protected async implementation(createConnectionData: CreateConnectionDs): Promise<CreatedConnectionDs> {
+  protected async implementation(createConnectionData: CreateConnectionDs): Promise<CreatedConnectionDTO> {
     const {
       creation_info: { authorId, masterPwd },
     } = createConnectionData;

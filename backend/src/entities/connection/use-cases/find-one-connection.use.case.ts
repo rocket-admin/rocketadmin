@@ -10,8 +10,8 @@ import { Encryptor } from '../../../helpers/encryption/encryptor.js';
 import { FoundConnectionPropertiesDs } from '../../connection-properties/application/data-structures/found-connection-properties.ds.js';
 import { buildFoundConnectionPropertiesDs } from '../../connection-properties/utils/build-found-connection-properties-ds.js';
 import { FindOneConnectionDs } from '../application/data-structures/find-one-connection.ds.js';
-import { FoundOneConnectionDs } from '../application/data-structures/found-one-connection.ds.js';
 import { IFindOneConnection } from './use-cases.interfaces.js';
+import { FoundOneConnectionDs } from '../application/data-structures/found-one-connection.ds.js';
 
 @Injectable()
 export class FindOneConnectionUseCase

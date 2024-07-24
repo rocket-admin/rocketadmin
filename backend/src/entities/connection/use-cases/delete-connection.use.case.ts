@@ -4,14 +4,14 @@ import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
 import { Messages } from '../../../exceptions/text/messages.js';
-import { CreatedConnectionDs } from '../application/data-structures/created-connection.ds.js';
+import { CreatedConnectionDTO } from '../application/dto/created-connection.dto.js';
 import { DeleteConnectionDs } from '../application/data-structures/delete-connection.ds.js';
 import { buildCreatedConnectionDs } from '../utils/build-created-connection.ds.js';
 import { IDeleteConnection } from './use-cases.interfaces.js';
 
 @Injectable()
 export class DeleteConnectionUseCase
-  extends AbstractUseCase<DeleteConnectionDs, CreatedConnectionDs>
+  extends AbstractUseCase<DeleteConnectionDs, CreatedConnectionDTO>
   implements IDeleteConnection
 {
   constructor(
@@ -21,7 +21,7 @@ export class DeleteConnectionUseCase
     super();
   }
 
-  protected async implementation(inputData: DeleteConnectionDs): Promise<CreatedConnectionDs> {
+  protected async implementation(inputData: DeleteConnectionDs): Promise<CreatedConnectionDTO> {
     const connectionToDelete = await this._dbContext.connectionRepository.findAndDecryptConnection(
       inputData.connectionId,
       inputData.masterPwd,

@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { CreatedConnectionDs } from '../data-structures/created-connection.ds.js';
+import { CreatedConnectionDTO } from './created-connection.dto.js';
 
 export class UpdatedConnectionResponseDTO {
   @ApiProperty()
-  connection: Omit<CreatedConnectionDs, 'groups'>;
+  connection: Omit<CreatedConnectionDTO, 'groups'>;
 }

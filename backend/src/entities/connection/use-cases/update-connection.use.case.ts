@@ -9,7 +9,7 @@ import { isConnectionTypeAgent } from '../../../helpers/index.js';
 import { Constants } from '../../../helpers/constants/constants.js';
 import { Encryptor } from '../../../helpers/encryption/encryptor.js';
 import { AmplitudeService } from '../../amplitude/amplitude.service.js';
-import { CreatedConnectionDs } from '../application/data-structures/created-connection.ds.js';
+import { CreatedConnectionDTO } from '../application/dto/created-connection.dto.js';
 import { UpdateConnectionDs } from '../application/data-structures/update-connection.ds.js';
 import { ConnectionEntity } from '../connection.entity.js';
 import { buildCreatedConnectionDs } from '../utils/build-created-connection.ds.js';
@@ -19,7 +19,7 @@ import { IUpdateConnection } from './use-cases.interfaces.js';
 
 @Injectable()
 export class UpdateConnectionUseCase
-  extends AbstractUseCase<UpdateConnectionDs, Omit<CreatedConnectionDs, 'groups'>>
+  extends AbstractUseCase<UpdateConnectionDs, Omit<CreatedConnectionDTO, 'groups'>>
   implements IUpdateConnection
 {
   constructor(
@@ -32,7 +32,7 @@ export class UpdateConnectionUseCase
 
   protected async implementation(
     updateConnectionData: UpdateConnectionDs,
-  ): Promise<Omit<CreatedConnectionDs, 'groups'>> {
+  ): Promise<Omit<CreatedConnectionDTO, 'groups'>> {
     const {
       connection_parameters,
       update_info: { masterPwd, connectionId, authorId },

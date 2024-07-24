@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { CreatedConnectionDs } from './created-connection.ds.js';
+import { CreatedConnectionDTO } from '../dto/created-connection.dto.js';
 
 export class RestoredConnectionDs {
   @ApiProperty()
-  connection: CreatedConnectionDs;
+  connection: CreatedConnectionDTO;
 }
