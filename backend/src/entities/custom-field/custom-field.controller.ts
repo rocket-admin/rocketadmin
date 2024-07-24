@@ -58,11 +58,11 @@ export class CustomFieldController {
     type: Array<FoundCustomFieldsDs>,
   })
   @UseGuards(ConnectionReadGuard)
-  @Get('/fields/:slug')
+  @Get('/fields/:connectionId')
   @UseInterceptors(ClassSerializerInterceptor)
   async findAll(
     @QueryTableName() tableName: string,
-    @SlugUuid() connectionId: string,
+    @SlugUuid('connectionId') connectionId: string,
   ): Promise<Array<FoundCustomFieldsDs>> {
     const inputData: GetCustomFieldsDs = {
       connectionId: connectionId,
@@ -79,12 +79,12 @@ export class CustomFieldController {
     type: FoundTableSettingsDs,
   })
   @UseGuards(ConnectionEditGuard)
-  @Post('/field/:slug')
+  @Post('/field/:connectionId')
   @UseInterceptors(ClassSerializerInterceptor)
   async createCustomField(
     @QueryTableName() tableName: string,
     @Body() customFieldData: CreateCustomFieldDto,
-    @SlugUuid() connectionId: string,
+    @SlugUuid('connectionId') connectionId: string,
     @MasterPassword() masterPwd: string,
     @UserId() userId: string,
   ): Promise<FoundTableSettingsDs> {
@@ -112,12 +112,12 @@ export class CustomFieldController {
     type: FoundCustomFieldsDs,
   })
   @UseGuards(ConnectionEditGuard)
-  @Put('/field/:slug')
+  @Put('/field/:connectionId')
   @UseInterceptors(ClassSerializerInterceptor)
   async updateCustomField(
     @QueryTableName() tableName: string,
     @Body() customFieldData: UpdateCustomFieldDTO,
-    @SlugUuid() connectionId: string,
+    @SlugUuid('connectionId') connectionId: string,
     @MasterPassword() masterPwd: string,
     @UserId() userId: string,
   ): Promise<FoundCustomFieldsDs> {
@@ -153,12 +153,12 @@ export class CustomFieldController {
     type: FoundTableSettingsDs,
   })
   @UseGuards(ConnectionEditGuard)
-  @Delete('/field/:slug')
+  @Delete('/field/:connectionId')
   @UseInterceptors(ClassSerializerInterceptor)
   async deleteCustomField(
     @QueryTableName() tableName: string,
     @QueryUuid('id') fieldId: string,
-    @SlugUuid() connectionId: string,
+    @SlugUuid('connectionId') connectionId: string,
   ): Promise<FoundTableSettingsDs> {
     if (!fieldId) {
       throw new HttpException(

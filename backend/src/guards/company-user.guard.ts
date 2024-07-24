@@ -19,7 +19,7 @@ export class CompanyUserGuard implements CanActivate {
     return new Promise(async (resolve, reject) => {
       const request: IRequestWithCognitoInfo = context.switchToHttp().getRequest();
       const userId: string = request.decoded.sub;
-      let companyId: string = request.params?.slug;
+      let companyId: string = request.params?.companyId || request.params?.slug;
       if (!companyId || !validateUuidByRegex(companyId)) {
         companyId = request.body['companyId'];
       }

@@ -50,7 +50,7 @@ test.before(async () => {
 });
 
 let currentTest = 'GET /groups';
-test(`${currentTest} should return all user groups`, async (t) => {
+test.serial(`${currentTest} should return all user groups`, async (t) => {
   try {
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
     const { newConnection, newConnection2, newGroup1 } = getTestData(mockFactory);
@@ -102,7 +102,7 @@ test(`${currentTest} should return all user groups`, async (t) => {
 });
 
 currentTest = 'GET /group/users/:slug';
-test(`${currentTest} should return all users in current group`, async (t) => {
+test.serial(`${currentTest} should return all users in current group`, async (t) => {
   try {
     const registeredUserInfo = await registerUserAndReturnUserInfo(app);
     const firstUserToken = registeredUserInfo.token;
@@ -155,7 +155,7 @@ test(`${currentTest} should return all users in current group`, async (t) => {
   }
 });
 
-test(`${currentTest} should throw an error when group id is not real`, async (t) => {
+test.serial(`${currentTest} should throw an error when group id is not real`, async (t) => {
   try {
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
     const { newConnection, newConnection2, newGroup1 } = getTestData(mockFactory);
@@ -203,7 +203,7 @@ test(`${currentTest} should throw an error when group id is not real`, async (t)
   }
 });
 
-test(`${currentTest} should throw an error when group id not passed`, async (t) => {
+test.serial(`${currentTest} should throw an error when group id not passed`, async (t) => {
   try {
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
     const { newConnection, newConnection2, newGroup1 } = getTestData(mockFactory);
@@ -250,7 +250,7 @@ test(`${currentTest} should throw an error when group id not passed`, async (t) 
 });
 
 currentTest = 'PUT /group/user/:slug';
-test(`${currentTest} should return a group with new added user`, async (t) => {
+test.serial(`${currentTest} should return a group with new added user`, async (t) => {
   try {
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
     const secondUserRegisterInfo = await inviteUserInCompanyAndAcceptInvitation(
@@ -314,7 +314,7 @@ test(`${currentTest} should return a group with new added user`, async (t) => {
   }
 });
 
-test(`${currentTest} should throw an error when groupId not passed in request`, async (t) => {
+test.serial(`${currentTest} should throw an error when groupId not passed in request`, async (t) => {
   try {
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
     const secondUserRegisterInfo = await inviteUserInCompanyAndAcceptInvitation(
@@ -370,7 +370,7 @@ test(`${currentTest} should throw an error when groupId not passed in request`, 
   }
 });
 
-test(`${currentTest} should throw an error when user email not passed in request`, async (t) => {
+test.serial(`${currentTest} should throw an error when user email not passed in request`, async (t) => {
   try {
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
     const { newConnection, newConnection2, newGroup1 } = getTestData(mockFactory);
@@ -422,7 +422,7 @@ test(`${currentTest} should throw an error when user email not passed in request
   }
 });
 
-test(`${currentTest} should throw an error when groupId is incorrect`, async (t) => {
+test.serial(`${currentTest} should throw an error when groupId is incorrect`, async (t) => {
   try {
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
     const secondUserRegisterInfo = await inviteUserInCompanyAndAcceptInvitation(
@@ -483,7 +483,7 @@ test(`${currentTest} should throw an error when groupId is incorrect`, async (t)
   }
 });
 
-test(`${currentTest} should throw an error when add a user what been already added in this group`, async (t) => {
+test.serial(`${currentTest} should throw an error when add a user what been already added in this group`, async (t) => {
   try {
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
     const secondUserRegisterInfo = await inviteUserInCompanyAndAcceptInvitation(
@@ -555,7 +555,7 @@ test(`${currentTest} should throw an error when add a user what been already add
 
 currentTest = 'DELETE /group';
 
-test(`${currentTest} should return an delete result`, async (t) => {
+test.serial(`${currentTest} should return an delete result`, async (t) => {
   try {
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
 
@@ -628,7 +628,7 @@ test(`${currentTest} should return an delete result`, async (t) => {
   }
 });
 
-test(`${currentTest} should return throw an exception when groupId is incorrect`, async (t) => {
+test.serial(`${currentTest} should return throw an exception when groupId is incorrect`, async (t) => {
   try {
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
 
@@ -678,7 +678,7 @@ test(`${currentTest} should return throw an exception when groupId is incorrect`
   }
 });
 
-test(`${currentTest} should throw an exception when groupId is not passed in request`, async (t) => {
+test.serial(`${currentTest} should throw an exception when groupId is not passed in request`, async (t) => {
   try {
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
 
@@ -727,7 +727,7 @@ test(`${currentTest} should throw an exception when groupId is not passed in req
 });
 
 currentTest = 'PUT /group/user/delete';
-test(`${currentTest} should return a group without deleted user`, async (t) => {
+test.serial(`${currentTest} should return a group without deleted user`, async (t) => {
   try {
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
     const secondUserRegisterInfo = await inviteUserInCompanyAndAcceptInvitation(
@@ -810,7 +810,7 @@ test(`${currentTest} should return a group without deleted user`, async (t) => {
   }
 });
 
-test(`${currentTest} should throw an error, when group id not passed in request`, async (t) => {
+test.serial(`${currentTest} should throw an error, when group id not passed in request`, async (t) => {
   try {
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
     const secondUserRegisterInfo = await inviteUserInCompanyAndAcceptInvitation(
@@ -888,7 +888,7 @@ test(`${currentTest} should throw an error, when group id not passed in request`
   }
 });
 
-test(`${currentTest} should throw an error, when email is not passed in request`, async (t) => {
+test.serial(`${currentTest} should throw an error, when email is not passed in request`, async (t) => {
   try {
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
     const secondUserRegisterInfo = await inviteUserInCompanyAndAcceptInvitation(
@@ -965,7 +965,7 @@ test(`${currentTest} should throw an error, when email is not passed in request`
   }
 });
 
-test(`${currentTest} should throw an error, when there is no this email in database`, async (t) => {
+test.serial(`${currentTest} should throw an error, when there is no this email in database`, async (t) => {
   try {
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
     const secondUserRegisterInfo = await inviteUserInCompanyAndAcceptInvitation(
@@ -1036,7 +1036,7 @@ test(`${currentTest} should throw an error, when there is no this email in datab
   }
 });
 
-test(`${currentTest} should throw an error, when group id is incorrect`, async (t) => {
+test.serial(`${currentTest} should throw an error, when group id is incorrect`, async (t) => {
   try {
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
     const secondUserRegisterInfo = await inviteUserInCompanyAndAcceptInvitation(
@@ -1113,7 +1113,7 @@ test(`${currentTest} should throw an error, when group id is incorrect`, async (
   }
 });
 
-test(`${currentTest} should throw an error, trying delete last user from admin group`, async (t) => {
+test.serial(`${currentTest} should throw an error, trying delete last user from admin group`, async (t) => {
   try {
     const firstUserRegisterInfo = await registerUserAndReturnUserInfo(app);
     const firstUserToken = firstUserRegisterInfo.token;
@@ -1171,7 +1171,7 @@ test(`${currentTest} should throw an error, trying delete last user from admin g
 
 currentTest = 'PUT /group/title/';
 
-test(`${currentTest} should return a group with new title`, async (t) => {
+test.serial(`${currentTest} should return a group with new title`, async (t) => {
   try {
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
 

@@ -35,9 +35,8 @@ export class TableWidgetModule {
     consumer
       .apply(AuthMiddleware)
       .forRoutes(
-        { path: '/widgets/:slug', method: RequestMethod.GET },
-        { path: '/widget/:slug', method: RequestMethod.POST },
-        { path: '/widget/:slug', method: RequestMethod.DELETE },
+        { path: '/widgets/:connectionId', method: RequestMethod.GET },
+        { path: '/widget/:connectionId', method: RequestMethod.POST },
       );
   }
 }

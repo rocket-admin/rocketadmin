@@ -238,8 +238,8 @@ export class UserController {
     description: 'Verify user email.',
     type: OperationResultMessageDs,
   })
-  @Get('user/email/verify/:slug')
-  async verifyEmail(@VerificationString() verificationString: string): Promise<OperationResultMessageDs> {
+  @Get('user/email/verify/:verificationString')
+  async verifyEmail(@VerificationString('verificationString') verificationString: string): Promise<OperationResultMessageDs> {
     return await this.verifyEmailUseCase.execute(verificationString, InTransactionEnum.ON);
   }
 
@@ -251,10 +251,10 @@ export class UserController {
     description: 'Verify user password reset.',
     type: RegisteredUserDs,
   })
-  @Post('user/password/reset/verify/:slug')
+  @Post('user/password/reset/verify/:verificationString')
   async resetUserPassword(
     @Body() passwordData: PasswordDto,
-    @VerificationString() verificationString: string,
+    @VerificationString('verificationString') verificationString: string,
   ): Promise<RegisteredUserDs> {
     const inputData: ResetUsualUserPasswordDs = {
       verificationString: verificationString,
@@ -293,10 +293,10 @@ export class UserController {
     description: 'Verify user email change.',
     type: OperationResultMessageDs,
   })
-  @Post('user/email/change/verify/:slug')
+  @Post('user/email/change/verify/:verificationString')
   async verifyChangeUserEmail(
     @BodyEmail('email') email: string,
-    @VerificationString() verificationString: string,
+    @VerificationString('verificationString') verificationString: string,
   ): Promise<OperationResultMessageDs> {
     const inputData: ChangeUserEmailDs = {
       newEmail: email,

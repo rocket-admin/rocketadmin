@@ -58,7 +58,7 @@ test.before(async () => {
 
 currentTest = 'GET /connection/tables/:slug';
 
-test(`${currentTest} should return list of tables in connection`, async (t) => {
+test.serial(`${currentTest} should return list of tables in connection`, async (t) => {
   try {
     const connectionToTestDB = getTestData(mockFactory).mongoDbConnection;
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
@@ -103,7 +103,7 @@ test(`${currentTest} should return list of tables in connection`, async (t) => {
   }
 });
 
-test(`${currentTest} should throw an error when connectionId not passed in request`, async (t) => {
+test.serial(`${currentTest} should throw an error when connectionId not passed in request`, async (t) => {
   try {
     const connectionToTestDB = getTestData(mockFactory).mongoDbConnection;
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
@@ -133,7 +133,7 @@ test(`${currentTest} should throw an error when connectionId not passed in reque
   }
 });
 
-test(`${currentTest} should throw an error when connection id is incorrect`, async (t) => {
+test.serial(`${currentTest} should throw an error when connection id is incorrect`, async (t) => {
   try {
     const connectionToTestDB = getTestData(mockFactory).mongoDbConnection;
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
@@ -167,7 +167,7 @@ test(`${currentTest} should throw an error when connection id is incorrect`, asy
 
 currentTest = 'GET /table/rows/:slug';
 
-test(`${currentTest} should return rows of selected table without search and without pagination`, async (t) => {
+test.serial(`${currentTest} should return rows of selected table without search and without pagination`, async (t) => {
   try {
     const connectionToTestDB = getTestData(mockFactory).mongoDbConnection;
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
@@ -214,7 +214,7 @@ test(`${currentTest} should return rows of selected table without search and wit
   }
 });
 
-test(`${currentTest} should return rows of selected table with search and without pagination`, async (t) => {
+test.serial(`${currentTest} should return rows of selected table with search and without pagination`, async (t) => {
   try {
     const connectionToTestDB = getTestData(mockFactory).mongoDbConnection;
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
@@ -287,7 +287,7 @@ test(`${currentTest} should return rows of selected table with search and withou
   }
 });
 
-test(`${currentTest} should return page of all rows with pagination page=1, perPage=2`, async (t) => {
+test.serial(`${currentTest} should return page of all rows with pagination page=1, perPage=2`, async (t) => {
   try {
     const connectionToTestDB = getTestData(mockFactory).mongoDbConnection;
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
@@ -361,7 +361,7 @@ test(`${currentTest} should return page of all rows with pagination page=1, perP
   }
 });
 
-test(`${currentTest} should return page of all rows with pagination page=3, perPage=2`, async (t) => {
+test.serial(`${currentTest} should return page of all rows with pagination page=3, perPage=2`, async (t) => {
   try {
     const connectionToTestDB = getTestData(mockFactory).mongoDbConnection;
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
@@ -435,7 +435,7 @@ test(`${currentTest} should return page of all rows with pagination page=3, perP
   }
 });
 
-test(`${currentTest} with search, with pagination, without sorting
+test.serial(`${currentTest} with search, with pagination, without sorting
 should return all found rows with pagination page=1 perPage=2`, async (t) => {
   try {
     const connectionToTestDB = getTestData(mockFactory).mongoDbConnection;
@@ -510,7 +510,7 @@ should return all found rows with pagination page=1 perPage=2`, async (t) => {
   }
 });
 
-test(`${currentTest} with search, with pagination, without sorting
+test.serial(`${currentTest} with search, with pagination, without sorting
 should return all found rows with pagination page=1 perPage=3`, async (t) => {
   try {
     const connectionToTestDB = getTestData(mockFactory).mongoDbConnection;
@@ -585,7 +585,7 @@ should return all found rows with pagination page=1 perPage=3`, async (t) => {
   }
 });
 
-test(`${currentTest} without search and without pagination and with sorting
+test.serial(`${currentTest} without search and without pagination and with sorting
 should return all found rows with sorting ids by DESC`, async (t) => {
   try {
     const connectionToTestDB = getTestData(mockFactory).mongoDbConnection;
@@ -654,7 +654,7 @@ should return all found rows with sorting ids by DESC`, async (t) => {
   }
 });
 
-test(`${currentTest} without search and without pagination and with sorting
+test.serial(`${currentTest} without search and without pagination and with sorting
 should return all found rows with sorting ids by ASC`, async (t) => {
   try {
     const connectionToTestDB = getTestData(mockFactory).mongoDbConnection;
@@ -727,7 +727,7 @@ should return all found rows with sorting ids by ASC`, async (t) => {
   }
 });
 
-test(`${currentTest} without search and with pagination and with sorting
+test.serial(`${currentTest} without search and with pagination and with sorting
 should return all found rows with sorting ports by DESC and with pagination page=1, perPage=2`, async (t) => {
   try {
     const connectionToTestDB = getTestData(mockFactory).mongoDbConnection;
@@ -800,7 +800,7 @@ should return all found rows with sorting ports by DESC and with pagination page
   }
 });
 
-test(`${currentTest} should return all found rows with sorting ports by ASC and with pagination page=1, perPage=2`, async (t) => {
+test.serial(`${currentTest} should return all found rows with sorting ports by ASC and with pagination page=1, perPage=2`, async (t) => {
   try {
     const connectionToTestDB = getTestData(mockFactory).mongoDbConnection;
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
@@ -872,7 +872,7 @@ test(`${currentTest} should return all found rows with sorting ports by ASC and 
   }
 });
 
-test(`${currentTest} should return all found rows with sorting ports by DESC and with pagination page=2, perPage=3`, async (t) => {
+test.serial(`${currentTest} should return all found rows with sorting ports by DESC and with pagination page=2, perPage=3`, async (t) => {
   try {
     const connectionToTestDB = getTestData(mockFactory).mongoDbConnection;
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
@@ -944,7 +944,7 @@ test(`${currentTest} should return all found rows with sorting ports by DESC and
   }
 });
 
-test(`${currentTest} with search, with pagination and with sorting
+test.serial(`${currentTest} with search, with pagination and with sorting
 should return all found rows with search, pagination: page=1, perPage=2 and DESC sorting`, async (t) => {
   try {
     const connectionToTestDB = getTestData(mockFactory).mongoDbConnection;
@@ -1021,7 +1021,7 @@ should return all found rows with search, pagination: page=1, perPage=2 and DESC
   }
 });
 
-test(`${currentTest} with search, with pagination and with sorting
+test.serial(`${currentTest} with search, with pagination and with sorting
 should return all found rows with search, pagination: page=2, perPage=2 and DESC sorting`, async (t) => {
   try {
     const connectionToTestDB = getTestData(mockFactory).mongoDbConnection;
@@ -1094,7 +1094,7 @@ should return all found rows with search, pagination: page=2, perPage=2 and DESC
   }
 });
 
-test(`${currentTest} with search, with pagination and with sorting
+test.serial(`${currentTest} with search, with pagination and with sorting
 should return all found rows with search, pagination: page=1, perPage=2 and ASC sorting`, async (t) => {
   try {
     const connectionToTestDB = getTestData(mockFactory).mongoDbConnection;
@@ -1170,7 +1170,7 @@ should return all found rows with search, pagination: page=1, perPage=2 and ASC 
   }
 });
 
-test(`${currentTest} with search, with pagination and with sorting
+test.serial(`${currentTest} with search, with pagination and with sorting
 should return all found rows with search, pagination: page=2, perPage=2 and ASC sorting`, async (t) => {
   try {
     const connectionToTestDB = getTestData(mockFactory).mongoDbConnection;
@@ -1244,7 +1244,7 @@ should return all found rows with search, pagination: page=2, perPage=2 and ASC 
 });
 
 // todo: rework for other tables after removing old endpoint
-test(`${currentTest} with search, with pagination, with sorting and with filtering
+test.serial(`${currentTest} with search, with pagination, with sorting and with filtering
 should return all found rows with search, pagination: page=1, perPage=2 and DESC sorting and filtering in body`, async (t) => {
   try {
     const connectionToTestDB = getTestData(mockFactory).mongoDbConnection;
@@ -1326,7 +1326,7 @@ should return all found rows with search, pagination: page=1, perPage=2 and DESC
   }
 });
 
-test(`${currentTest} with search, with pagination, with sorting and with filtering
+test.serial(`${currentTest} with search, with pagination, with sorting and with filtering
 should return all found rows with search, pagination: page=1, perPage=10 and DESC sorting and filtering'`, async (t) => {
   try {
     const connectionToTestDB = getTestData(mockFactory).mongoDbConnection;
@@ -1411,7 +1411,7 @@ should return all found rows with search, pagination: page=1, perPage=10 and DES
   }
 });
 
-test(`${currentTest} with search, with pagination, with sorting and with filtering
+test.serial(`${currentTest} with search, with pagination, with sorting and with filtering
 should return all found rows with search, pagination: page=1, perPage=2 and DESC sorting and with multi filtering`, async (t) => {
   try {
     const connectionToTestDB = getTestData(mockFactory).mongoDbConnection;
@@ -1497,7 +1497,7 @@ should return all found rows with search, pagination: page=1, perPage=2 and DESC
   }
 });
 
-test(`${currentTest} should throw an exception when connection id is not passed in request`, async (t) => {
+test.serial(`${currentTest} should throw an exception when connection id is not passed in request`, async (t) => {
   try {
     const connectionToTestDB = getTestData(mockFactory).mongoDbConnection;
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
@@ -1556,7 +1556,7 @@ test(`${currentTest} should throw an exception when connection id is not passed 
   }
 });
 
-test(`${currentTest} should throw an exception when connection id passed in request is incorrect`, async (t) => {
+test.serial(`${currentTest} should throw an exception when connection id passed in request is incorrect`, async (t) => {
   try {
     const connectionToTestDB = getTestData(mockFactory).mongoDbConnection;
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
@@ -1620,7 +1620,7 @@ test(`${currentTest} should throw an exception when connection id passed in requ
   }
 });
 
-test(`${currentTest} should throw an exception when table name passed in request is incorrect`, async (t) => {
+test.serial(`${currentTest} should throw an exception when table name passed in request is incorrect`, async (t) => {
   try {
     const connectionToTestDB = getTestData(mockFactory).mongoDbConnection;
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
@@ -1684,7 +1684,7 @@ test(`${currentTest} should throw an exception when table name passed in request
   }
 });
 
-test(`${currentTest} should return an array with searched fields when filtered name passed in request is incorrect`, async (t) => {
+test.serial(`${currentTest} should return an array with searched fields when filtered name passed in request is incorrect`, async (t) => {
   try {
     const connectionToTestDB = getTestData(mockFactory).mongoDbConnection;
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
@@ -1751,7 +1751,7 @@ test(`${currentTest} should return an array with searched fields when filtered n
 });
 
 currentTest = 'GET /table/structure/:slug';
-test(`${currentTest} should return table structure`, async (t) => {
+test.serial(`${currentTest} should return table structure`, async (t) => {
   const connectionToTestDB = getTestData(mockFactory).mongoDbConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
   const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
@@ -1804,7 +1804,7 @@ test(`${currentTest} should return table structure`, async (t) => {
   }
 });
 
-test(`${currentTest} should throw an exception whe connection id not passed in request`, async (t) => {
+test.serial(`${currentTest} should throw an exception whe connection id not passed in request`, async (t) => {
   const connectionToTestDB = getTestData(mockFactory).mongoDbConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
   const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
@@ -1829,7 +1829,7 @@ test(`${currentTest} should throw an exception whe connection id not passed in r
   t.is(getTableStructure.status, 404);
 });
 
-test(`${currentTest} should throw an exception whe connection id passed in request id incorrect`, async (t) => {
+test.serial(`${currentTest} should throw an exception whe connection id passed in request id incorrect`, async (t) => {
   const connectionToTestDB = getTestData(mockFactory).mongoDbConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
   const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
@@ -1857,7 +1857,7 @@ test(`${currentTest} should throw an exception whe connection id passed in reque
   t.is(message, Messages.CONNECTION_NOT_FOUND);
 });
 
-test(`${currentTest}should throw an exception when tableName not passed in request`, async (t) => {
+test.serial(`${currentTest}should throw an exception when tableName not passed in request`, async (t) => {
   const connectionToTestDB = getTestData(mockFactory).mongoDbConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
   const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
@@ -1884,7 +1884,7 @@ test(`${currentTest}should throw an exception when tableName not passed in reque
   t.is(message, Messages.TABLE_NAME_MISSING);
 });
 
-test(`${currentTest} should throw an exception when tableName passed in request is incorrect`, async (t) => {
+test.serial(`${currentTest} should throw an exception when tableName passed in request is incorrect`, async (t) => {
   const connectionToTestDB = getTestData(mockFactory).mongoDbConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
   const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
@@ -1913,7 +1913,7 @@ test(`${currentTest} should throw an exception when tableName passed in request 
 
 currentTest = 'POST /table/row/:slug';
 
-test(`${currentTest} should add row in table and return result`, async (t) => {
+test.serial(`${currentTest} should add row in table and return result`, async (t) => {
   const connectionToTestDB = getTestData(mockFactory).mongoDbConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
   const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
@@ -1977,7 +1977,7 @@ test(`${currentTest} should add row in table and return result`, async (t) => {
   t.is(rows[42][testTableSecondColumnName], row[testTableSecondColumnName]);
 });
 
-test(`${currentTest} should throw an exception when connection id is not passed in request`, async (t) => {
+test.serial(`${currentTest} should throw an exception when connection id is not passed in request`, async (t) => {
   const connectionToTestDB = getTestData(mockFactory).mongoDbConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
   const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
@@ -2031,7 +2031,7 @@ test(`${currentTest} should throw an exception when connection id is not passed 
   t.is(rows.length, 42);
 });
 
-test(`${currentTest} should throw an exception when table name is not passed in request`, async (t) => {
+test.serial(`${currentTest} should throw an exception when table name is not passed in request`, async (t) => {
   const connectionToTestDB = getTestData(mockFactory).mongoDbConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
   const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
@@ -2088,7 +2088,7 @@ test(`${currentTest} should throw an exception when table name is not passed in 
   t.is(rows.length, 42);
 });
 
-test(`${currentTest} should throw an exception when row is not passed in request`, async (t) => {
+test.serial(`${currentTest} should throw an exception when row is not passed in request`, async (t) => {
   const connectionToTestDB = getTestData(mockFactory).mongoDbConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
   const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
@@ -2135,7 +2135,7 @@ test(`${currentTest} should throw an exception when row is not passed in request
   t.is(rows.length, 42);
 });
 
-test(`${currentTest} should throw an exception when table name passed in request is incorrect`, async (t) => {
+test.serial(`${currentTest} should throw an exception when table name passed in request is incorrect`, async (t) => {
   const connectionToTestDB = getTestData(mockFactory).mongoDbConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
   const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
@@ -2194,7 +2194,7 @@ test(`${currentTest} should throw an exception when table name passed in request
 
 currentTest = 'PUT /table/row/:slug';
 
-test(`${currentTest} should update row in table and return result`, async (t) => {
+test.serial(`${currentTest} should update row in table and return result`, async (t) => {
   const connectionToTestDB = getTestData(mockFactory).mongoDbConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
   const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName, insertedSearchedIds } =
@@ -2259,7 +2259,7 @@ test(`${currentTest} should update row in table and return result`, async (t) =>
   t.is(rows[updateRowIndex][testTableSecondColumnName], row[testTableSecondColumnName]);
 });
 
-test(`${currentTest} should throw an exception when connection id not passed in request`, async (t) => {
+test.serial(`${currentTest} should throw an exception when connection id not passed in request`, async (t) => {
   const connectionToTestDB = getTestData(mockFactory).mongoDbConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
   const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
@@ -2295,7 +2295,7 @@ test(`${currentTest} should throw an exception when connection id not passed in 
   t.is(updateRowInTableResponse.status, 404);
 });
 
-test(`${currentTest} should throw an exception when connection id passed in request is incorrect`, async (t) => {
+test.serial(`${currentTest} should throw an exception when connection id passed in request is incorrect`, async (t) => {
   const connectionToTestDB = getTestData(mockFactory).mongoDbConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
   const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
@@ -2334,7 +2334,7 @@ test(`${currentTest} should throw an exception when connection id passed in requ
   t.is(message, Messages.CONNECTION_NOT_FOUND);
 });
 
-test(`${currentTest} should throw an exception when tableName not passed in request`, async (t) => {
+test.serial(`${currentTest} should throw an exception when tableName not passed in request`, async (t) => {
   const connectionToTestDB = getTestData(mockFactory).mongoDbConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
   const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
@@ -2372,7 +2372,7 @@ test(`${currentTest} should throw an exception when tableName not passed in requ
   t.is(message, Messages.TABLE_NAME_MISSING);
 });
 
-test(`${currentTest} should throw an exception when tableName passed in request is incorrect`, async (t) => {
+test.serial(`${currentTest} should throw an exception when tableName passed in request is incorrect`, async (t) => {
   const connectionToTestDB = getTestData(mockFactory).mongoDbConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
   const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
@@ -2410,7 +2410,7 @@ test(`${currentTest} should throw an exception when tableName passed in request 
   t.is(message, Messages.TABLE_NOT_FOUND);
 });
 
-test(`${currentTest} should throw an exception when primary key not passed in request`, async (t) => {
+test.serial(`${currentTest} should throw an exception when primary key not passed in request`, async (t) => {
   const connectionToTestDB = getTestData(mockFactory).mongoDbConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
   const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
@@ -2447,7 +2447,7 @@ test(`${currentTest} should throw an exception when primary key not passed in re
   t.is(message, Messages.PRIMARY_KEY_INVALID);
 });
 
-test(`${currentTest} should throw an exception when primary key passed in request has incorrect field name`, async (t) => {
+test.serial(`${currentTest} should throw an exception when primary key passed in request has incorrect field name`, async (t) => {
   const connectionToTestDB = getTestData(mockFactory).mongoDbConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
   const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
@@ -2484,7 +2484,7 @@ test(`${currentTest} should throw an exception when primary key passed in reques
   t.is(message, Messages.PRIMARY_KEY_INVALID);
 });
 
-test(`${currentTest} should throw an exception when primary key passed in request has incorrect field value`, async (t) => {
+test.serial(`${currentTest} should throw an exception when primary key passed in request has incorrect field value`, async (t) => {
   const connectionToTestDB = getTestData(mockFactory).mongoDbConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
   const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
@@ -2523,7 +2523,7 @@ test(`${currentTest} should throw an exception when primary key passed in reques
 
 currentTest = 'PUT /table/rows/update/:connectionId';
 
-test(`${currentTest} should update multiple rows and return result`, async (t) => {
+test.serial(`${currentTest} should update multiple rows and return result`, async (t) => {
   const connectionToTestDB = getTestData(mockFactory).mongoDbConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
   const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName, insertedSearchedIds } =
@@ -2591,7 +2591,7 @@ test(`${currentTest} should update multiple rows and return result`, async (t) =
 
 currentTest = 'DELETE /table/row/:slug';
 
-test(`${currentTest} should delete row in table and return result`, async (t) => {
+test.serial(`${currentTest} should delete row in table and return result`, async (t) => {
   const connectionToTestDB = getTestData(mockFactory).mongoDbConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
   const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName, insertedSearchedIds } =
@@ -2641,7 +2641,7 @@ test(`${currentTest} should delete row in table and return result`, async (t) =>
   t.is(deletedRowIndex < 0, true);
 });
 
-test(`${currentTest} should throw an exception when connection id not passed in request`, async (t) => {
+test.serial(`${currentTest} should throw an exception when connection id not passed in request`, async (t) => {
   const connectionToTestDB = getTestData(mockFactory).mongoDbConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
   const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName, insertedSearchedIds } =
@@ -2689,7 +2689,7 @@ test(`${currentTest} should throw an exception when connection id not passed in 
   t.is(deletedRowIndex < 0, false);
 });
 
-test(`${currentTest} should throw an exception when connection id passed in request is incorrect`, async (t) => {
+test.serial(`${currentTest} should throw an exception when connection id passed in request is incorrect`, async (t) => {
   const connectionToTestDB = getTestData(mockFactory).mongoDbConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
   const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName, insertedSearchedIds } =
@@ -2739,7 +2739,7 @@ test(`${currentTest} should throw an exception when connection id passed in requ
   t.is(deletedRowIndex < 0, false);
 });
 
-test(`${currentTest} should throw an exception when tableName not passed in request`, async (t) => {
+test.serial(`${currentTest} should throw an exception when tableName not passed in request`, async (t) => {
   const connectionToTestDB = getTestData(mockFactory).mongoDbConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
   const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName, insertedSearchedIds } =
@@ -2789,7 +2789,7 @@ test(`${currentTest} should throw an exception when tableName not passed in requ
   t.is(deletedRowIndex < 0, false);
 });
 
-test(`${currentTest} should throw an exception when tableName passed in request is incorrect`, async (t) => {
+test.serial(`${currentTest} should throw an exception when tableName passed in request is incorrect`, async (t) => {
   const connectionToTestDB = getTestData(mockFactory).mongoDbConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
   const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName, insertedSearchedIds } =
@@ -2839,7 +2839,7 @@ test(`${currentTest} should throw an exception when tableName passed in request 
   t.is(deletedRowIndex < 0, false);
 });
 
-test(`${currentTest} should throw an exception when primary key not passed in request`, async (t) => {
+test.serial(`${currentTest} should throw an exception when primary key not passed in request`, async (t) => {
   const connectionToTestDB = getTestData(mockFactory).mongoDbConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
   const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName, insertedSearchedIds } =
@@ -2888,7 +2888,7 @@ test(`${currentTest} should throw an exception when primary key not passed in re
   t.is(deletedRowIndex < 0, false);
 });
 
-test(`${currentTest} should throw an exception when primary key passed in request has incorrect field name`, async (t) => {
+test.serial(`${currentTest} should throw an exception when primary key passed in request has incorrect field name`, async (t) => {
   const connectionToTestDB = getTestData(mockFactory).mongoDbConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
   const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName, insertedSearchedIds } =
@@ -2937,7 +2937,7 @@ test(`${currentTest} should throw an exception when primary key passed in reques
   t.is(deletedRowIndex < 0, false);
 });
 
-test(`${currentTest} should throw an exception when primary key passed in request has incorrect field value`, async (t) => {
+test.serial(`${currentTest} should throw an exception when primary key passed in request has incorrect field value`, async (t) => {
   const connectionToTestDB = getTestData(mockFactory).mongoDbConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
   const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
@@ -2967,7 +2967,7 @@ test(`${currentTest} should throw an exception when primary key passed in reques
 
 currentTest = 'GET /table/row/:slug';
 
-test(`${currentTest} found row`, async (t) => {
+test.serial(`${currentTest} found row`, async (t) => {
   const connectionToTestDB = getTestData(mockFactory).mongoDbConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
   const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName, insertedSearchedIds } =
@@ -3008,7 +3008,7 @@ test(`${currentTest} found row`, async (t) => {
   t.is(Object.keys(foundRowInTableRO.row).length, 6);
 });
 
-test(`${currentTest} should throw an exception, when connection id is not passed in request`, async (t) => {
+test.serial(`${currentTest} should throw an exception, when connection id is not passed in request`, async (t) => {
   const connectionToTestDB = getTestData(mockFactory).mongoDbConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
   const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
@@ -3035,7 +3035,7 @@ test(`${currentTest} should throw an exception, when connection id is not passed
   t.is(foundRowInTableResponse.status, 404);
 });
 
-test(`${currentTest} should throw an exception, when connection id passed in request is incorrect`, async (t) => {
+test.serial(`${currentTest} should throw an exception, when connection id passed in request is incorrect`, async (t) => {
   const connectionToTestDB = getTestData(mockFactory).mongoDbConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
   const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
@@ -3065,7 +3065,7 @@ test(`${currentTest} should throw an exception, when connection id passed in req
   t.is(message, Messages.CONNECTION_NOT_FOUND);
 });
 
-test(`${currentTest} should throw an exception, when tableName in not passed in request`, async (t) => {
+test.serial(`${currentTest} should throw an exception, when tableName in not passed in request`, async (t) => {
   const connectionToTestDB = getTestData(mockFactory).mongoDbConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
   const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
@@ -3095,7 +3095,7 @@ test(`${currentTest} should throw an exception, when tableName in not passed in 
   t.is(message, Messages.TABLE_NAME_MISSING);
 });
 
-test(`${currentTest} should throw an exception, when tableName passed in request is incorrect`, async (t) => {
+test.serial(`${currentTest} should throw an exception, when tableName passed in request is incorrect`, async (t) => {
   const connectionToTestDB = getTestData(mockFactory).mongoDbConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
   const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
@@ -3125,7 +3125,7 @@ test(`${currentTest} should throw an exception, when tableName passed in request
   t.is(message, Messages.TABLE_NOT_FOUND);
 });
 
-test(`${currentTest} should throw an exception, when primary key is not passed in request`, async (t) => {
+test.serial(`${currentTest} should throw an exception, when primary key is not passed in request`, async (t) => {
   const connectionToTestDB = getTestData(mockFactory).mongoDbConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
   const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
@@ -3153,7 +3153,7 @@ test(`${currentTest} should throw an exception, when primary key is not passed i
   t.is(message, Messages.PRIMARY_KEY_INVALID);
 });
 
-test(`${currentTest} should throw an exception, when primary key passed in request has incorrect name`, async (t) => {
+test.serial(`${currentTest} should throw an exception, when primary key passed in request has incorrect name`, async (t) => {
   const connectionToTestDB = getTestData(mockFactory).mongoDbConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
   const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName, insertedSearchedIds } =
@@ -3182,7 +3182,7 @@ test(`${currentTest} should throw an exception, when primary key passed in reque
   t.is(message, Messages.PRIMARY_KEY_INVALID);
 });
 
-test(`${currentTest} should throw an exception, when primary key passed in request has incorrect value`, async (t) => {
+test.serial(`${currentTest} should throw an exception, when primary key passed in request has incorrect value`, async (t) => {
   const connectionToTestDB = getTestData(mockFactory).mongoDbConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
   const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName, insertedSearchedIds } =
@@ -3213,7 +3213,7 @@ test(`${currentTest} should throw an exception, when primary key passed in reque
 
 currentTest = 'PUT /table/rows/delete/:slug';
 
-test(`${currentTest} should delete row in table and return result`, async (t) => {
+test.serial(`${currentTest} should delete row in table and return result`, async (t) => {
   const connectionToTestDB = getTestData(mockFactory).mongoDbConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
   const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName, insertedSearchedIds } =
@@ -3296,7 +3296,7 @@ test(`${currentTest} should delete row in table and return result`, async (t) =>
 
 currentTest = 'DELETE /table/rows/:slug';
 
-test(`${currentTest} should delete row in table and return result`, async (t) => {
+test.serial(`${currentTest} should delete row in table and return result`, async (t) => {
   const connectionToTestDB = getTestData(mockFactory).mongoDbConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
   const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName, insertedSearchedIds } =
@@ -3359,7 +3359,7 @@ test(`${currentTest} should delete row in table and return result`, async (t) =>
   }
 });
 
-test(`${currentTest} should test connection and return result`, async (t) => {
+test.serial(`${currentTest} should test connection and return result`, async (t) => {
   const connectionToTestDB = getTestData(mockFactory).mongoDbConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
 
@@ -3377,7 +3377,7 @@ test(`${currentTest} should test connection and return result`, async (t) => {
 
 currentTest = 'GET table/csv/:slug';
 
-test(`${currentTest} should return csv file with table data`, async (t) => {
+test.serial(`${currentTest} should return csv file with table data`, async (t) => {
   const connectionToTestDB = getTestData(mockFactory).mongoDbConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
 
@@ -3418,7 +3418,7 @@ test(`${currentTest} should return csv file with table data`, async (t) => {
   t.is(isFileExists, true);
 });
 
-test(`${currentTest} should return csv file with table data with search, with pagination, with sorting,
+test.serial(`${currentTest} should return csv file with table data with search, with pagination, with sorting,
 with search and pagination: page=1, perPage=2 and DESC sorting`, async (t) => {
   const connectionToTestDB = getTestData(mockFactory).mongoDbConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
@@ -3487,7 +3487,7 @@ with search and pagination: page=1, perPage=2 and DESC sorting`, async (t) => {
 });
 
 currentTest = 'POST /table/csv/import/:slug';
-test(`${currentTest} should import csv file with table data`, async (t) => {
+test.serial(`${currentTest} should import csv file with table data`, async (t) => {
   const connectionToTestDB = getTestData(mockFactory).mongoDbConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
 

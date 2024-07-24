@@ -1,4 +1,11 @@
-import { BadRequestException, Inject, Injectable, InternalServerErrorException, NotFoundException, Scope } from '@nestjs/common';
+import {
+  BadRequestException,
+  Inject,
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+  Scope,
+} from '@nestjs/common';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { SuccessResponse } from '../../../microservices/saas-microservice/data-structures/common-responce.ds.js';
 import { SuspendUsersInCompanyDS } from '../application/data-structures/suspend-users-in-company.ds.js';

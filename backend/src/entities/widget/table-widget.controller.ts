@@ -6,7 +6,6 @@ import {
   HttpStatus,
   Inject,
   Injectable,
-  Param,
   Post,
   UseGuards,
   UseInterceptors,
@@ -24,7 +23,7 @@ import { FoundTableWidgetsDs } from './application/data-sctructures/found-table-
 import { CreateOrUpdateTableWidgetsDto } from './dto/index.js';
 import { TableWidgetRO } from './table-widget.interface.js';
 import { ICreateUpdateDeleteTableWidgets, IFindTableWidgets } from './use-cases/table-widgets-use-cases.interface.js';
-import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 @UseInterceptors(SentryInterceptor)
 @Controller()
@@ -46,13 +45,13 @@ export class TableWidgetController {
     description: 'Return all table widgets',
     type: Array<TableWidgetRO>,
   })
-  @Get('/widgets/:slug')
+  @ApiQuery({ name: 'tableName', required: true })
+  @Get('/widgets/:connectionId')
   @UseInterceptors(ClassSerializerInterceptor)
   async findAll(
-    @SlugUuid() connectionId: string,
+    @SlugUuid('connectionId') connectionId: string,
     @UserId() userId: string,
     @MasterPassword() masterPwd: string,
-    @Param() params,
     @QueryTableName() tableName: string,
   ): Promise<Array<TableWidgetRO>> {
     if (!connectionId) {
@@ -81,12 +80,13 @@ export class TableWidgetController {
     type: Array<TableWidgetRO>,
   })
   @ApiBody({ type: CreateOrUpdateTableWidgetsDto })
-  @Post('/widget/:slug')
+  @ApiQuery({ name: 'tableName', required: true })
+  @Post('/widget/:connectionId')
   @UseInterceptors(ClassSerializerInterceptor)
   async createOrUpdateTableWidgets(
     @QueryTableName() tableName: string,
     @Body() tableWidgetsData: CreateOrUpdateTableWidgetsDto,
-    @SlugUuid() connectionId: string,
+    @SlugUuid('connectionId') connectionId: string,
     @MasterPassword() masterPwd: string,
     @UserId() userId: string,
   ): Promise<Array<FoundTableWidgetsDs>> {

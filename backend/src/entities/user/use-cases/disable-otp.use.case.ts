@@ -48,20 +48,29 @@ export class DisableOtpUseCase extends AbstractUseCase<VerifyOtpDS, OtpDisabling
         HttpStatus.BAD_REQUEST,
       );
     }
-    const isValid = authenticator.check(otpToken, otpSecretKey);
-    if (isValid) {
-      foundUser.isOTPEnabled = false;
-      foundUser.otpSecretKey = null;
-      await this._dbContext.userRepository.saveUserEntity(foundUser);
-      return {
-        disabled: true,
-      };
+    try {
+      const isValid = authenticator.check(otpToken, otpSecretKey);
+      if (isValid) {
+        foundUser.isOTPEnabled = false;
+        foundUser.otpSecretKey = null;
+        await this._dbContext.userRepository.saveUserEntity(foundUser);
+        return {
+          disabled: true,
+        };
+      }
+    } catch (error) {
+      throw new HttpException(
+        {
+          message: Messages.OTP_DISABLING_FAILED,
+        },
+        HttpStatus.UNAUTHORIZED,
+      );
     }
     throw new HttpException(
       {
         message: Messages.OTP_DISABLING_FAILED,
       },
-      HttpStatus.BAD_GATEWAY,
+      HttpStatus.UNAUTHORIZED,
     );
   }
 }

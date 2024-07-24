@@ -1,6 +1,6 @@
 import { AlertActionType, AlertType } from '../models/alert';
 import { BehaviorSubject, EMPTY } from 'rxjs';
-import { CustomAction, TableSettings, Widget } from '../models/table';
+import { CustomAction, Rule, TableSettings, Widget } from '../models/table';
 import { NavigationEnd, Router } from '@angular/router';
 import { catchError, filter, map } from 'rxjs/operators';
 
@@ -363,8 +363,8 @@ export class TablesService {
       );
   }
 
-  fetchActions(connectionID: string, tableName: string) {
-    return this._http.get<any>(`/table/actions/${connectionID}`, {
+  fetchRules(connectionID: string, tableName: string) {
+    return this._http.get<any>(`/action/rules/${connectionID}`, {
       params: {
         tableName
       }
@@ -385,12 +385,8 @@ export class TablesService {
       );
   }
 
-  saveAction(connectionID: string, tableName: string, action: CustomAction) {
-    return this._http.post<any>(`/table/action/${connectionID}`, action, {
-      params: {
-        tableName
-      }
-    })
+  saveRule(connectionID: string, tableName: string, rule: Rule) {
+    return this._http.post<any>(`/action/rule/${connectionID}`, rule)
       .pipe(
         map(res => {
           this._notifications.showSuccessSnackbar(`${res.title} action has been created.`);
@@ -410,13 +406,8 @@ export class TablesService {
       );
   }
 
-  updateAction(connectionID: string, tableName: string, action: CustomAction) {
-    return this._http.put<any>(`/table/action/${connectionID}`, action, {
-      params: {
-        tableName,
-        actionId: action.id
-      }
-    })
+  updateRule(connectionID: string, tableName: string, rule: Rule) {
+    return this._http.put<any>(`/action/rule/${rule.id}/${connectionID}`, rule)
       .pipe(
         map(res => {
           this._notifications.showSuccessSnackbar(`${res.title} action has been updated.`);
@@ -436,15 +427,11 @@ export class TablesService {
       );
   }
 
-  deleteAction(connectionID: string, tableName: string, actionId: string) {
-    return this._http.delete<any>(`/table/action/${connectionID}`, {
-      params: {
-        actionId
-      }
-    })
+  deleteRule(connectionID: string, tableName: string, ruleId: string) {
+    return this._http.delete<any>(`/action/rule/${ruleId}/${connectionID}`)
       .pipe(
         map(res => {
-          this.tables.next('delete-action');
+          this.tables.next('delete-rule');
           this._notifications.showSuccessSnackbar(`${res.title} action has been deleted.`);
           return res
         }),
@@ -463,13 +450,7 @@ export class TablesService {
   }
 
   activateActions(connectionID: string, tableName: string, actionId: string, actionTitle: string, primaryKeys: object[], confirmed?: boolean) {
-    return this._http.post<any>(`/table/actions/activate/${connectionID}`, primaryKeys, {
-      params: {
-        tableName,
-        actionId,
-        ...(confirmed ? {confirmed} : {}),
-      }
-    })
+    return this._http.post<any>(`/event/actions/activate/${actionId}/${connectionID}`, primaryKeys)
       .pipe(
         map((res) => {
           this.tables.next('activate actions');

@@ -106,12 +106,13 @@ export async function inviteUserInCompanyAndAcceptInvitation(
   role: 'ADMIN' | 'USER' = 'USER',
   app: INestApplication,
   groupId: string,
+  invitedUserEmail?: string,
 ): Promise<{
   email: string;
   password: string;
   token: string;
 }> {
-  return await inviteUserInCompanyAndGroupAndAcceptInvitation(inviterJwtToken, role, groupId, app);
+  return await inviteUserInCompanyAndGroupAndAcceptInvitation(inviterJwtToken, role, groupId, app, invitedUserEmail);
   /*
 
   const foundUser: any = await request(app.getHttpServer())
@@ -168,6 +169,7 @@ export async function inviteUserInCompanyAndGroupAndAcceptInvitation(
   role: 'ADMIN' | 'USER' = 'USER',
   groupId: string,
   app: INestApplication,
+  newEmail?: string,
 ): Promise<{
   email: string;
   password: string;
@@ -180,7 +182,9 @@ export async function inviteUserInCompanyAndGroupAndAcceptInvitation(
     .set('Accept', 'application/json');
   const foundUserJson = JSON.parse(foundUser.text);
   const companyId = foundUserJson.company.id;
-  const newEmail = `${faker.lorem.words(1)}_${faker.lorem.words(1)}_${faker.internet.email()}`;
+  if (!newEmail) {
+    newEmail = `${faker.lorem.words(1)}_${faker.lorem.words(1)}_${faker.internet.email()}`;
+  }
   const newPassword = `#r@dY^e&7R4b5Ib@31iE4xbn`;
   const invitationRequestBody = {
     companyId: foundUserJson.company.id,
@@ -196,12 +200,14 @@ export async function inviteUserInCompanyAndGroupAndAcceptInvitation(
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
 
-  const invitationRO: InvitedUserInCompanyAndConnectionGroupDs = JSON.parse(invitationResult.text);
+  const invitationRO: InvitedUserInCompanyAndConnectionGroupDs & { verificationString: string } = JSON.parse(
+    invitationResult.text,
+  );
   if (invitationResult.status > 201) {
     console.info('invitationResult.body -> ', invitationRO);
   }
   const verificationResult = await request(app.getHttpServer())
-    .post(`/company/invite/verify/test`)
+    .post(`/company/invite/verify/${invitationRO.verificationString}`)
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json')
     .send({

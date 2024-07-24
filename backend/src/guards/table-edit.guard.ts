@@ -19,7 +19,7 @@ export class TableEditGuard implements CanActivate {
     return new Promise(async (resolve, reject) => {
       const request: IRequestWithCognitoInfo = context.switchToHttp().getRequest();
       const cognitoUserName = request.decoded.sub;
-      const connectionId: string = request.params?.slug;
+      const connectionId: string = request.params?.slug || request.params?.connectionId;
       const tableName: string = request.query?.tableName;
       const masterPwd = getMasterPwd(request);
       if (!tableName) {

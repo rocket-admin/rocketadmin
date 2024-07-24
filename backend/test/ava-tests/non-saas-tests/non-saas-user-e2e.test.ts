@@ -31,7 +31,7 @@ test.beforeEach(async () => {
   }).compile();
   app = moduleFixture.createNestApplication();
   testUtils = moduleFixture.get<TestUtils>(TestUtils);
-  await testUtils.resetDb();
+  // await testUtils.resetDb();
   app.use(cookieParser());
   app.useGlobalFilters(new AllExceptionsFilter());
   app.useGlobalPipes(
@@ -47,7 +47,7 @@ test.beforeEach(async () => {
 
 currentTest = 'GET /user';
 
-test(`${currentTest} should return user info for this user`, async (t) => {
+test.serial(`${currentTest} should return user info for this user`, async (t) => {
   try {
     const adminUserRegisterInfo = await registerUserAndReturnUserInfo(app);
     const { token } = adminUserRegisterInfo;
@@ -70,7 +70,7 @@ test(`${currentTest} should return user info for this user`, async (t) => {
 
 currentTest = 'DELETE /user';
 
-test(`${currentTest} should return user deletion result`, async (t) => {
+test.serial(`${currentTest} should return user deletion result`, async (t) => {
   try {
     const adminUserRegisterInfo = await registerUserAndReturnUserInfo(app);
     const { token } = adminUserRegisterInfo;
@@ -100,7 +100,7 @@ test(`${currentTest} should return user deletion result`, async (t) => {
   t.pass();
 });
 
-test(`${currentTest} should return expiration token when user login`, async (t) => {
+test.serial(`${currentTest} should return expiration token when user login`, async (t) => {
   try {
     const adminUserRegisterInfo = await registerUserAndReturnUserInfo(app);
     const { email, password } = adminUserRegisterInfo;
@@ -118,7 +118,7 @@ test(`${currentTest} should return expiration token when user login`, async (t) 
   t.pass();
 });
 
-test(`${currentTest} reject authorization when try to login with wrong password`, async (t) => {
+test.serial(`${currentTest} reject authorization when try to login with wrong password`, async (t) => {
   try {
     const adminUserRegisterInfo = await registerUserAndReturnUserInfo(app);
     const { email, password } = adminUserRegisterInfo;
@@ -146,8 +146,29 @@ test(`${currentTest} reject authorization when try to login with wrong password`
   t.pass();
 });
 
+currentTest = 'GET /user/settings';
+test.serial(`${currentTest} should return empty user settings when it was not created`, async (t) => {
+  try {
+    const adminUserRegisterInfo = await registerUserAndReturnUserInfo(app);
+    const { token } = adminUserRegisterInfo;
+
+    const getUserSettingsResult = await request(app.getHttpServer())
+      .get('/user/settings')
+      .set('Cookie', token)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+    const getUserSettingsRO = JSON.parse(getUserSettingsResult.text);
+    t.is(getUserSettingsResult.status, 200);
+    t.is(getUserSettingsRO.hasOwnProperty('userSettings'), true);
+    t.is(getUserSettingsRO.userSettings, null);
+  } catch (err) {
+    throw err;
+  }
+  t.pass();
+});
+
 currentTest = 'POST /user/settings';
-test(`${currentTest} should return created user settings`, async (t) => {
+test.serial(`${currentTest} should return created user settings`, async (t) => {
   try {
     const adminUserRegisterInfo = await registerUserAndReturnUserInfo(app);
     const { token } = adminUserRegisterInfo;
@@ -171,28 +192,7 @@ test(`${currentTest} should return created user settings`, async (t) => {
   t.pass();
 });
 
-currentTest = 'GET /user/settings';
-test(`${currentTest} should return empty user settings when it was not created`, async (t) => {
-  try {
-    const adminUserRegisterInfo = await registerUserAndReturnUserInfo(app);
-    const { token } = adminUserRegisterInfo;
-
-    const getUserSettingsResult = await request(app.getHttpServer())
-      .get('/user/settings')
-      .set('Cookie', token)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-    const getUserSettingsRO = JSON.parse(getUserSettingsResult.text);
-    t.is(getUserSettingsResult.status, 200);
-    t.is(getUserSettingsRO.hasOwnProperty('userSettings'), true);
-    t.is(getUserSettingsRO.userSettings, null);
-  } catch (err) {
-    throw err;
-  }
-  t.pass();
-});
-
-test(`${currentTest} should return user settings when it was created`, async (t) => {
+test.serial(`${currentTest} should return user settings when it was created`, async (t) => {
   try {
     const adminUserRegisterInfo = await registerUserAndReturnUserInfo(app);
     const { token } = adminUserRegisterInfo;

@@ -32,6 +32,15 @@ export class ImportCSVInTableUseCase
       );
     }
 
+    if (connection.isTestConnection) {
+      throw new HttpException(
+        {
+          message: Messages.CSV_IMPORT_DISABLED_FOR_TEST_CONNECTIONS,
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
     const foundTableSettings = await this._dbContext.tableSettingsRepository.findTableSettings(connectionId, tableName);
 
     if (foundTableSettings?.allow_csv_import === false) {

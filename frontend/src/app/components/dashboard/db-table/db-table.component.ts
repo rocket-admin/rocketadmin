@@ -300,7 +300,7 @@ export class DbTableComponent implements OnInit {
       action: {
           title: 'Delete row',
           type: 'multiple',
-          requireConfirmation: true
+          require_confirmation: true
       },
       primaryKeys: [this.tableData.getQueryParams(element)],
       ...(this.tableData.identityColumn ? {identityFieldValues: [element[this.tableData.identityColumn]]} : null)

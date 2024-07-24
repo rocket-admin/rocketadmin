@@ -49,7 +49,7 @@ test.before(async () => {
 
 currentTest = 'GET /company/my';
 
-test(`${currentTest} should return found company info for user`, async (t) => {
+test.serial(`${currentTest} should return found company info for user`, async (t) => {
   try {
     const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
     const {
@@ -79,7 +79,7 @@ test(`${currentTest} should return found company info for user`, async (t) => {
 
 currentTest = 'GET /company/my/full';
 
-test(`${currentTest} should return full found company info for company admin user`, async (t) => {
+test.serial(`${currentTest} should return full found company info for company admin user`, async (t) => {
   try {
     const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
     const {
@@ -139,7 +139,7 @@ test(`${currentTest} should return full found company info for company admin use
   }
 });
 
-test(`${currentTest} should return found company info for non-admin user`, async (t) => {
+test.serial(`${currentTest} should return found company info for non-admin user`, async (t) => {
   try {
     const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
     const {
@@ -171,7 +171,7 @@ test(`${currentTest} should return found company info for non-admin user`, async
 
 currentTest = 'GET /company/my/email';
 
-test(`${currentTest} should return found company infos for admin user`, async (t) => {
+test.serial(`${currentTest} should return found company infos for admin user`, async (t) => {
   try {
     const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
     const {
@@ -200,7 +200,7 @@ test(`${currentTest} should return found company infos for admin user`, async (t
   }
 });
 
-test(`${currentTest} should return found company infos for non-admin user`, async (t) => {
+test.serial(`${currentTest} should return found company infos for non-admin user`, async (t) => {
   try {
     const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
     const {
@@ -231,7 +231,7 @@ test(`${currentTest} should return found company infos for non-admin user`, asyn
 
 currentTest = 'POST /company/remove';
 
-test(`${currentTest} should remove user from company`, async (t) => {
+test.serial(`${currentTest} should remove user from company`, async (t) => {
   try {
     const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
     const {
@@ -295,7 +295,7 @@ test(`${currentTest} should remove user from company`, async (t) => {
 
 currentTest = 'PUT invitation/revoke/:slug';
 
-test(`${currentTest} should remove user invitation from company`, async (t) => {
+test.serial(`${currentTest} should remove user invitation from company`, async (t) => {
   try {
     const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
     const {
@@ -379,7 +379,7 @@ test(`${currentTest} should remove user invitation from company`, async (t) => {
 
 currentTest = 'PUT company/name/:slug';
 
-test(`${currentTest} should update company name`, async (t) => {
+test.serial(`${currentTest} should update company name`, async (t) => {
   const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
   const {
     connections,
@@ -426,7 +426,7 @@ test(`${currentTest} should update company name`, async (t) => {
 
 currentTest = 'GET company/name/:companyId';
 
-test(`${currentTest} should return company name`, async (t) => {
+test.serial(`${currentTest} should return company name`, async (t) => {
   const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
   const {
     connections,
@@ -461,7 +461,7 @@ test(`${currentTest} should return company name`, async (t) => {
 
 currentTest = `PUT company/users/roles/:companyId`;
 
-test(`${currentTest} should update user roles in company`, async (t) => {
+test.serial(`${currentTest} should update user roles in company`, async (t) => {
   const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
   const {
     connections,
@@ -611,7 +611,7 @@ test.skip(`${currentTest} should enable 2fa for company`, async (t) => {
 
 currentTest = `DELETE company`;
 
-test(`${currentTest} should delete company`, async (t) => {
+test.serial(`${currentTest} should delete company`, async (t) => {
   const testData = await createConnectionsAndInviteNewUserInNewGroupWithGroupPermissions(app);
   const {
     connections,

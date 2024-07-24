@@ -21,7 +21,7 @@ export class GetUserCompanyUseCase extends AbstractUseCase<string, FoundUserComp
 
   protected async implementation(userId: string): Promise<FoundUserCompanyInfoDs> {
     const foundUserCoreCompanyInfo = await this._dbContext.companyInfoRepository.findCompanyInfoByUserId(userId);
-    
+
     if (!foundUserCoreCompanyInfo) {
       throw new HttpException(
         {
