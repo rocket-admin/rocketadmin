@@ -19,7 +19,6 @@ export interface IConnectionRepository {
   findOneConnection(connectionId: string): Promise<ConnectionEntity>;
 
   getConnectionAuthorIdByGroupInConnectionId(groupId: string): Promise<string>;
-  // findFullConnectionEntity(connectionId: string): Promise<ConnectionEntity>;
 
   findAndDecryptConnection(connectionId: string, masterPwd: string): Promise<ConnectionEntity>;
 

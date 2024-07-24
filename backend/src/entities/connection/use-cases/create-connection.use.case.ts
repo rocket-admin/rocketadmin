@@ -79,7 +79,7 @@ export class CreateConnectionUseCase
       connectionAuthor.id,
     );
     if (foundUserCompany) {
-      const connection = await this._dbContext.connectionRepository.findOneById(savedConnection.id);
+      const connection = await this._dbContext.connectionRepository.findOne({ where: { id: savedConnection.id } });
       connection.company = foundUserCompany;
       await this._dbContext.connectionRepository.saveUpdatedConnection(connection);
     }
