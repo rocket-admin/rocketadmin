@@ -23,9 +23,9 @@ export class UpgradeComponent implements OnInit {
   plansTable = [
     {
       title: 'Database',
-      free: 'MySQL, PostgreSQL',
-      team: 'MySQL, PostgreSQL',
-      enterprise: 'MySQL, PostgreSQL, \n Microsoft SQL, Oracle'
+      free: 'MySQL, PostgreSQL, MongoDB',
+      team: 'MySQL, PostgreSQL, MongoDB',
+      enterprise: 'MySQL, PostgreSQL, MongoDB, \n Oracle, Microsoft SQL'
     },
     // {
     //   title: 'Number of users',
