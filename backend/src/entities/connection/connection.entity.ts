@@ -38,28 +38,28 @@ export class ConnectionEntity {
   masterEncryption: boolean;
 
   @Column({ default: null })
-  type?: string;
+  type?: string | null;
 
   @Column({ default: null })
-  host?: string;
+  host?: string | null;
 
   @Column({ default: null })
   port?: number;
 
   @Column({ default: null })
-  username?: string;
+  username?: string | null;
 
   @Column({ default: null })
-  password?: string;
+  password?: string | null;
 
   @Column({ default: null })
-  database?: string;
+  database?: string | null;
 
   @Column({ default: null })
-  schema?: string;
+  schema?: string | null;
 
   @Column({ default: null, length: 255 })
-  sid?: string;
+  sid?: string | null;
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;
@@ -71,37 +71,37 @@ export class ConnectionEntity {
   ssh?: boolean;
 
   @Column({ default: null })
-  privateSSHKey?: string;
+  privateSSHKey?: string | null;
 
   @Column({ default: null })
-  sshHost?: string;
+  sshHost?: string | null;
 
   @Column({ default: null })
-  sshPort?: number;
+  sshPort?: number | null;
 
   @Column({ default: null })
-  sshUsername?: string;
+  sshUsername?: string | null;
 
   @Column({ default: false })
-  ssl?: boolean;
+  ssl?: boolean | null;
 
   @Column({ default: null })
-  cert?: string;
+  cert?: string | null;
 
   @Column({ default: false })
-  isTestConnection?: boolean;
+  isTestConnection: boolean;
 
   @Column({ default: false })
-  azure_encryption?: boolean;
+  azure_encryption: boolean;
 
   @Column({ default: 0 })
-  saved_table_info?: number;
+  saved_table_info: number;
 
   @Column({ default: null })
   signing_key: string;
 
   @Column({ default: null })
-  authSource?: string;
+  authSource?: string | null;
 
   @BeforeUpdate()
   updateTimestampEncryptCredentials(): void {

@@ -16,7 +16,7 @@ export interface IConnectionRepository {
 
   findAllUsersInConnection(connectionId): Promise<Array<UserEntity>>;
 
-  findOneConnection(connectionId: string): Promise<Omit<ConnectionEntity, 'password' | 'privateSSHKey' | 'groups'>>;
+  findOneConnection(connectionId: string): Promise<ConnectionEntity>;
 
   getConnectionAuthorIdByGroupInConnectionId(groupId: string): Promise<string>;
   // findFullConnectionEntity(connectionId: string): Promise<ConnectionEntity>;

@@ -80,9 +80,7 @@ export const customConnectionRepositoryExtension: IConnectionRepository = {
     return await usersQb.getMany();
   },
 
-  async findOneConnection(
-    connectionId: string,
-  ): Promise<Omit<ConnectionEntity, 'password' | 'privateSSHKey' | 'groups'> | null> {
+  async findOneConnection(connectionId: string): Promise<ConnectionEntity> {
     const connectionQb = this.createQueryBuilder('connection')
       .leftJoinAndSelect('connection.connection_properties', 'connection_properties')
       .where('connection.id = :connectionId', {
