@@ -1,9 +1,8 @@
 import { CreateConnectionDs } from '../application/data-structures/create-connection.ds.js';
-import { CreatedConnectionDs } from '../application/data-structures/created-connection.ds.js';
+import { CreatedConnectionDTO } from '../application/dto/created-connection.dto.js';
 import { CreateUserDs } from '../../user/application/data-structures/create-user.ds.js';
 import { FindOneConnectionDs } from '../application/data-structures/find-one-connection.ds.js';
 import { FoundConnectionsDs } from '../application/data-structures/found-connections.ds.js';
-import { FoundOneConnectionDs } from '../application/data-structures/found-one-connection.ds.js';
 import { FoundUserDs } from '../../user/application/data-structures/found-user.ds.js';
 import { UpdateConnectionDs } from '../application/data-structures/update-connection.ds.js';
 import { DeleteConnectionDs } from '../application/data-structures/delete-connection.ds.js';
@@ -19,6 +18,8 @@ import { UpdateMasterPasswordDs } from '../application/data-structures/update-ma
 import { RestoredConnectionDs } from '../application/data-structures/restored-connection.ds.js';
 import { TokenDs } from '../application/data-structures/token.ds.js';
 import { InTransactionEnum } from '../../../enums/index.js';
+import { FoundOneConnectionDs } from '../application/data-structures/found-one-connection.ds.js';
+import { FoundGroupResponseDto } from '../../group/dto/found-group-response.dto.js';
 
 export interface IFindConnections {
   execute(user: CreateUserDs, inTransaction: InTransactionEnum): Promise<FoundConnectionsDs>;
@@ -33,25 +34,25 @@ export interface IFindOneConnection {
 }
 
 export interface ICreateConnection {
-  execute(inputData: CreateConnectionDs, inTransaction: InTransactionEnum): Promise<CreatedConnectionDs>;
+  execute(inputData: CreateConnectionDs, inTransaction: InTransactionEnum): Promise<CreatedConnectionDTO>;
 }
 
 export interface IUpdateConnection {
   execute(
     inputData: UpdateConnectionDs,
     inTransaction: InTransactionEnum,
-  ): Promise<Omit<CreatedConnectionDs, 'groups'>>;
+  ): Promise<Omit<CreatedConnectionDTO, 'groups'>>;
 }
 
 export interface IDeleteConnection {
-  execute(inputData: DeleteConnectionDs, inTransaction: InTransactionEnum): Promise<CreatedConnectionDs>;
+  execute(inputData: DeleteConnectionDs, inTransaction: InTransactionEnum): Promise<CreatedConnectionDTO>;
 }
 
 export interface IDeleteGroupInConnection {
   execute(
     inputData: DeleteGroupInConnectionDs,
     inTransaction: InTransactionEnum,
-  ): Promise<Omit<GroupEntity, 'connection'>>;
+  ): Promise<FoundGroupResponseDto>;
 }
 
 export interface ICreateGroupInConnection {

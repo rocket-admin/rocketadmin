@@ -27,44 +27,21 @@ export const customConnectionRepositoryExtension: IConnectionRepository = {
     return savedConnection;
   },
 
-  async findAllUserConnections(
-    userId: string,
-  ): Promise<Array<Omit<ConnectionEntity, 'password' | 'privateSSHKey' | 'groups'>>> {
+  async findAllUserConnections(userId: string): Promise<Array<ConnectionEntity>> {
     const connectionQb = this.createQueryBuilder('connection')
       .leftJoinAndSelect('connection.groups', 'group')
       .leftJoinAndSelect('group.users', 'user')
       .leftJoinAndSelect('connection.connection_properties', 'connection_properties')
       .andWhere('user.id = :userId', { userId: userId });
-    const allConnections = await connectionQb.getMany();
-    return allConnections.map((connection) => {
-      delete connection.password;
-      delete connection.privateSSHKey;
-      delete connection.groups;
-      return connection;
-    });
+    return await connectionQb.getMany();
   },
 
-  async findAllUserNonTestsConnections(
-    userId: string,
-  ): Promise<Array<Omit<ConnectionEntity, 'password' | 'privateSSHKey' | 'groups'>>> {
+  async findAllUserNonTestsConnections(userId: string): Promise<Array<ConnectionEntity>> {
     const connectionQb = this.createQueryBuilder('connection')
       .leftJoinAndSelect('connection.groups', 'group')
       .leftJoinAndSelect('group.users', 'user')
       .andWhere('user.id = :userId', { userId: userId })
       .andWhere('connection.isTestConnection = :isTest', { isTest: false });
-    const allConnections = await connectionQb.getMany();
-    return allConnections.map((connection) => {
-      delete connection.password;
-      delete connection.privateSSHKey;
-      delete connection.groups;
-      return connection;
-    });
-  },
-
-  async findAllNonTestsConnectionsWhereUserIsOwner(userId: string): Promise<Array<ConnectionEntity>> {
-    const connectionQb = this.createQueryBuilder('connection')
-      .leftJoinAndSelect('connection.author', 'author')
-      .andWhere('connection.authorId = :id', { id: userId });
     return await connectionQb.getMany();
   },
 
@@ -80,9 +57,7 @@ export const customConnectionRepositoryExtension: IConnectionRepository = {
     return await usersQb.getMany();
   },
 
-  async findOneConnection(
-    connectionId: string,
-  ): Promise<Omit<ConnectionEntity, 'password' | 'privateSSHKey' | 'groups'> | null> {
+  async findOneConnection(connectionId: string): Promise<ConnectionEntity> {
     const connectionQb = this.createQueryBuilder('connection')
       .leftJoinAndSelect('connection.connection_properties', 'connection_properties')
       .where('connection.id = :connectionId', {
@@ -96,9 +71,6 @@ export const customConnectionRepositoryExtension: IConnectionRepository = {
       connection.signing_key = Encryptor.generateRandomString(40);
       await this.save(connection);
     }
-    delete connection.password;
-    delete connection.privateSSHKey;
-    delete connection.groups;
     return connection;
   },
 
@@ -124,17 +96,11 @@ export const customConnectionRepositoryExtension: IConnectionRepository = {
     return await this.remove(connection);
   },
 
-  async findConnectionWithGroups(
-    connectionId: string,
-  ): Promise<Omit<ConnectionEntity, 'password' | 'privateSSHKey' | 'cert'>> {
+  async findConnectionWithGroups(connectionId: string): Promise<ConnectionEntity> {
     const qb = this.createQueryBuilder('connection')
       .leftJoinAndSelect('connection.groups', 'group')
       .andWhere('connection.id = :connectionId', { connectionId: connectionId });
-    const connection = await qb.getOne();
-    delete connection.password;
-    delete connection.privateSSHKey;
-    delete connection.cert;
-    return connection;
+    return await qb.getOne();
   },
 
   async getConnectionsWithNonNullUsersGCLIDs(): Promise<Array<ConnectionEntity>> {
@@ -212,29 +178,6 @@ export const customConnectionRepositoryExtension: IConnectionRepository = {
 
   async saveUpdatedConnection(connection: ConnectionEntity): Promise<ConnectionEntity> {
     return this.save(connection);
-  },
-
-  async calculateUsersInAllConnectionsOfThisOwner(connectionOwnerId: string): Promise<{
-    usersInConnections: Array<UserEntity>;
-    usersInConnectionsCount: number;
-  }> {
-    const allUserConnections = await this.findAllNonTestsConnectionsWhereUserIsOwner(connectionOwnerId);
-    const testConnectionsHosts = Constants.getTestConnectionsHostNamesArr();
-    const filteredNonTestConnections = allUserConnections.filter((connection: ConnectionEntity) => {
-      return !testConnectionsHosts.includes(connection.host);
-    });
-    const allUserInAllGroupsInThisConnections: Array<Array<UserEntity>> = await Promise.all(
-      filteredNonTestConnections.map(async (connection: ConnectionEntity) => {
-        return await this.findAllUsersInConnection(connection.id);
-      }),
-    );
-
-    const allUserArray = allUserInAllGroupsInThisConnections.flat();
-    const filteredUsers = [...new Map(allUserArray.map((user) => [user['id'], user])).values()];
-    return {
-      usersInConnections: filteredUsers,
-      usersInConnectionsCount: filteredUsers.length,
-    };
   },
 
   decryptConnectionField(field: string): string {

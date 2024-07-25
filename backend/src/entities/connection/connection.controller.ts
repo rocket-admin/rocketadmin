@@ -1,8 +1,8 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Get,
-  HttpStatus,
   Inject,
   Injectable,
   Post,
@@ -11,7 +11,6 @@ import {
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import { HttpException } from '@nestjs/common/exceptions/http.exception.js';
 import validator from 'validator';
 import { IGlobalDatabaseContext } from '../../common/application/global-database-context.interface.js';
 import { BaseType, UseCaseType } from '../../common/data-injection.tokens.js';
@@ -34,12 +33,11 @@ import { FindUserDs } from '../user/application/data-structures/find-user.ds.js'
 import { FoundUserDs } from '../user/application/data-structures/found-user.ds.js';
 import { CreateConnectionDs } from './application/data-structures/create-connection.ds.js';
 import { CreateGroupInConnectionDs } from './application/data-structures/create-group-in-connection.ds.js';
-import { CreatedConnectionDs } from './application/data-structures/created-connection.ds.js';
+import { CreatedConnectionDTO } from './application/dto/created-connection.dto.js';
 import { DeleteConnectionDs } from './application/data-structures/delete-connection.ds.js';
 import { DeleteGroupInConnectionDs } from './application/data-structures/delete-group-in-connection.ds.js';
 import { FindOneConnectionDs } from './application/data-structures/find-one-connection.ds.js';
 import { FoundConnectionsDs } from './application/data-structures/found-connections.ds.js';
-import { FoundOneConnectionDs } from './application/data-structures/found-one-connection.ds.js';
 import { FoundUserGroupsInConnectionDs } from './application/data-structures/found-user-groups-in-connection.ds.js';
 import { GetGroupsInConnectionDs } from './application/data-structures/get-groups-in-connection.ds.js';
 import { GetPermissionsInConnectionDs } from './application/data-structures/get-permissions-in-connection.ds.js';
@@ -78,6 +76,8 @@ import { FoundPermissionsInConnectionDs } from './application/data-structures/fo
 import { TestConnectionResponseDTO } from './application/dto/test-connection-response.dto.js';
 import { ConnectionTokenResponseDTO } from './application/dto/new-connection-token-response.dto.js';
 import { UpdateMasterPasswordRequestBodyDto } from './application/dto/update-master-password-request-body.dto.js';
+import { FoundOneConnectionDs } from './application/data-structures/found-one-connection.ds.js';
+import { FoundGroupResponseDto } from '../group/dto/found-group-response.dto.js';
 
 @UseInterceptors(SentryInterceptor)
 @Controller()
@@ -202,37 +202,22 @@ export class ConnectionController {
   @ApiResponse({
     status: 201,
     description: 'Connection was created.',
-    type: CreatedConnectionDs,
+    type: CreatedConnectionDTO,
   })
   @Post('/connection')
   async create(
     @Body() createConnectionDto: CreateConnectionDto,
     @UserId() userId: string,
     @MasterPassword() masterPwd: string,
-  ): Promise<CreatedConnectionDs> {
+  ): Promise<CreatedConnectionDTO> {
     if (!createConnectionDto.password && !isConnectionTypeAgent(createConnectionDto.type)) {
-      throw new HttpException(
-        {
-          message: Messages.PASSWORD_MISSING,
-        },
-        HttpStatus.BAD_REQUEST,
-      );
+      throw new BadRequestException(Messages.PASSWORD_MISSING);
     }
     if (createConnectionDto.masterEncryption && !masterPwd) {
-      throw new HttpException(
-        {
-          message: Messages.MASTER_PASSWORD_REQUIRED,
-        },
-        HttpStatus.BAD_REQUEST,
-      );
+      throw new BadRequestException(Messages.MASTER_PASSWORD_REQUIRED);
     }
     if (createConnectionDto.ssh && !createConnectionDto.privateSSHKey) {
-      throw new HttpException(
-        {
-          message: Messages.SSH_PASSWORD_MISSING,
-        },
-        HttpStatus.BAD_REQUEST,
-      );
+      throw new BadRequestException(Messages.SSH_PASSWORD_MISSING);
     }
     const createConnectionDs: CreateConnectionDs = {
       connection_parameters: {
@@ -284,12 +269,7 @@ export class ConnectionController {
       errors.push(Messages.MASTER_PASSWORD_REQUIRED);
     }
     if (errors.length > 0) {
-      throw new HttpException(
-        {
-          message: toPrettyErrorsMsg(errors),
-        },
-        HttpStatus.BAD_REQUEST,
-      );
+      throw new BadRequestException(toPrettyErrorsMsg(errors));
     }
     const connectionData: UpdateConnectionDs = {
       connection_parameters: {
@@ -329,7 +309,7 @@ export class ConnectionController {
   @ApiResponse({
     status: 200,
     description: 'Connection was deleted.',
-    type: CreatedConnectionDs,
+    type: CreatedConnectionDTO,
   })
   @UseGuards(ConnectionEditGuard)
   @Put('/connection/delete/:connectionId')
@@ -338,7 +318,7 @@ export class ConnectionController {
     @UserId() userId: string,
     @SlugUuid('connectionId') connectionId: string,
     @MasterPassword() masterPwd: string,
-  ): Promise<CreatedConnectionDs> {
+  ): Promise<CreatedConnectionDTO> {
     const inputData: DeleteConnectionDs = {
       connectionId: connectionId,
       cognitoUserName: userId,
@@ -367,7 +347,7 @@ export class ConnectionController {
   @ApiResponse({
     status: 200,
     description: 'Group was removed from connection.',
-    type: CreateDeleteGroupInConnectionResponseDTO,
+    type: FoundGroupResponseDto,
   })
   @UseGuards(ConnectionEditGuard)
   @Put('/connection/group/delete/:connectionId')
@@ -375,14 +355,9 @@ export class ConnectionController {
     @BodyUuid('groupId') groupId: string,
     @SlugUuid('connectionId') connectionId: string,
     @UserId() userId: string,
-  ): Promise<CreateDeleteGroupInConnectionResponseDTO> {
+  ): Promise<FoundGroupResponseDto> {
     if (!groupId) {
-      throw new HttpException(
-        {
-          message: Messages.GROUP_ID_MISSING,
-        },
-        HttpStatus.BAD_REQUEST,
-      );
+      throw new BadRequestException(Messages.GROUP_ID_MISSING);
     }
     const inputData: DeleteGroupInConnectionDs = {
       groupId: groupId,
@@ -408,12 +383,7 @@ export class ConnectionController {
   ): Promise<Omit<GroupEntity, 'connection'>> {
     const { title } = groupData;
     if (!title) {
-      throw new HttpException(
-        {
-          message: Messages.GROUP_TITLE_MISSING,
-        },
-        HttpStatus.BAD_REQUEST,
-      );
+      throw new BadRequestException(Messages.GROUP_TITLE_MISSING);
     }
     const inputData: CreateGroupInConnectionDs = {
       group_parameters: {
@@ -439,12 +409,7 @@ export class ConnectionController {
     @SlugUuid('connectionId') connectionId: string,
   ): Promise<Array<FoundUserGroupsInConnectionDs>> {
     if (!connectionId) {
-      throw new HttpException(
-        {
-          message: Messages.ID_MISSING,
-        },
-        HttpStatus.BAD_REQUEST,
-      );
+      throw new BadRequestException(Messages.ID_MISSING);
     }
     const inputData: GetGroupsInConnectionDs = {
       connectionId: connectionId,
@@ -466,12 +431,7 @@ export class ConnectionController {
     @MasterPassword() masterPwd: string,
   ): Promise<IComplexPermission> {
     if (!connectionId || !groupId) {
-      throw new HttpException(
-        {
-          message: Messages.PARAMETER_MISSING,
-        },
-        HttpStatus.BAD_REQUEST,
-      );
+      throw new BadRequestException(Messages.PARAMETER_MISSING);
     }
     const inputData: GetPermissionsInConnectionDs = {
       groupId: groupId,
@@ -495,12 +455,7 @@ export class ConnectionController {
     @MasterPassword() masterPwd: string,
   ): Promise<IComplexPermission> {
     if (!connectionId || !groupId) {
-      throw new HttpException(
-        {
-          message: Messages.PARAMETER_MISSING,
-        },
-        HttpStatus.BAD_REQUEST,
-      );
+      throw new BadRequestException(Messages.PARAMETER_MISSING);
     }
     const inputData: GetPermissionsInConnectionDs = {
       groupId: groupId,
@@ -575,30 +530,15 @@ export class ConnectionController {
     @Body() passwordData: UpdateMasterPasswordRequestBodyDto,
   ): Promise<boolean> {
     if (!connectionId) {
-      throw new HttpException(
-        {
-          message: Messages.CONNECTION_ID_MISSING,
-        },
-        HttpStatus.BAD_REQUEST,
-      );
+      throw new BadRequestException(Messages.CONNECTION_ID_MISSING);
     }
     const { oldMasterPwd, newMasterPwd } = passwordData;
 
     if (!oldMasterPwd) {
-      throw new HttpException(
-        {
-          message: Messages.MASTED_OLD_PASSWORD_MISSING,
-        },
-        HttpStatus.BAD_REQUEST,
-      );
+      throw new BadRequestException(Messages.MASTED_OLD_PASSWORD_MISSING);
     }
     if (!newMasterPwd) {
-      throw new HttpException(
-        {
-          message: Messages.MASTED_NEW_PASSWORD_MISSING,
-        },
-        HttpStatus.BAD_REQUEST,
-      );
+      throw new BadRequestException(Messages.MASTED_NEW_PASSWORD_MISSING);
     }
     const inputData: UpdateMasterPasswordDs = {
       connectionId: connectionId,
@@ -661,12 +601,7 @@ export class ConnectionController {
     }
 
     if (errors.length > 0) {
-      throw new HttpException(
-        {
-          message: toPrettyErrorsMsg(errors),
-        },
-        HttpStatus.BAD_REQUEST,
-      );
+      throw new BadRequestException(toPrettyErrorsMsg(errors));
     }
     return await this.restoreConnectionUseCase.execute(connectionData, InTransactionEnum.ON);
   }
@@ -695,12 +630,7 @@ export class ConnectionController {
   @Get('/connection/token/refresh/:connectionId')
   async refreshConnectionAgentToken(@SlugUuid('connectionId') connectionId: string): Promise<{ token: string }> {
     if (!connectionId) {
-      throw new HttpException(
-        {
-          message: Messages.CONNECTION_ID_MISSING,
-        },
-        HttpStatus.BAD_REQUEST,
-      );
+      throw new BadRequestException(Messages.CONNECTION_ID_MISSING);
     }
     return await this.refreshConnectionAgentTokenUseCase.execute(connectionId, InTransactionEnum.ON);
   }

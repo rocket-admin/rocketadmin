@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, InternalServerErrorException, Scope } from '@nestjs/common';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
@@ -6,7 +6,7 @@ import { Messages } from '../../../exceptions/text/messages.js';
 import { isConnectionTypeAgent, slackPostMessage } from '../../../helpers/index.js';
 import { UserEntity } from '../../user/user.entity.js';
 import { CreateConnectionDs } from '../application/data-structures/create-connection.ds.js';
-import { CreatedConnectionDs } from '../application/data-structures/created-connection.ds.js';
+import { CreatedConnectionDTO } from '../application/dto/created-connection.dto.js';
 import { ConnectionEntity } from '../connection.entity.js';
 import { buildConnectionEntity } from '../utils/build-connection-entity.js';
 import { buildCreatedConnectionDs } from '../utils/build-created-connection.ds.js';
@@ -15,9 +15,9 @@ import { ICreateConnection } from './use-cases.interfaces.js';
 import { processAWSConnection } from '../utils/process-aws-connection.util.js';
 import { getDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/create-data-access-object.js';
 
-@Injectable()
+@Injectable({ scope: Scope.REQUEST })
 export class CreateConnectionUseCase
-  extends AbstractUseCase<CreateConnectionDs, CreatedConnectionDs>
+  extends AbstractUseCase<CreateConnectionDs, CreatedConnectionDTO>
   implements ICreateConnection
 {
   constructor(
@@ -26,19 +26,16 @@ export class CreateConnectionUseCase
   ) {
     super();
   }
-  protected async implementation(createConnectionData: CreateConnectionDs): Promise<CreatedConnectionDs> {
+  protected async implementation(createConnectionData: CreateConnectionDs): Promise<CreatedConnectionDTO> {
     const {
       creation_info: { authorId, masterPwd },
     } = createConnectionData;
     const connectionAuthor: UserEntity = await this._dbContext.userRepository.findOneUserById(authorId);
+
     if (!connectionAuthor) {
-      throw new HttpException(
-        {
-          message: Messages.USER_NOT_FOUND,
-        },
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
+      throw new InternalServerErrorException(Messages.USER_NOT_FOUND);
     }
+
     await slackPostMessage(Messages.USER_TRY_CREATE_CONNECTION(connectionAuthor.email));
     await validateCreateConnectionData(createConnectionData);
     createConnectionData = await processAWSConnection(createConnectionData);
@@ -79,7 +76,7 @@ export class CreateConnectionUseCase
       connectionAuthor.id,
     );
     if (foundUserCompany) {
-      const connection = await this._dbContext.connectionRepository.findOneById(savedConnection.id);
+      const connection = await this._dbContext.connectionRepository.findOne({ where: { id: savedConnection.id } });
       connection.company = foundUserCompany;
       await this._dbContext.connectionRepository.saveUpdatedConnection(connection);
     }

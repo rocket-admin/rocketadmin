@@ -6,9 +6,7 @@ import { PrimaryKeyDS } from '@rocketadmin/shared-code/dist/src/data-access-laye
 import { RowsPaginationDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/rows-pagination.ds.js';
 import { ApiProperty } from '@nestjs/swagger';
 import { TablePermissionDs } from '../../../permission/application/data-structures/create-permissions.ds.js';
-import {
-  FoundActionEventDTO,
-} from '../../../table-actions/table-action-rules-module/application/dto/found-action-rules-with-actions-and-events.dto.js';
+import { FoundActionEventDTO } from '../../../table-actions/table-action-rules-module/application/dto/found-action-rules-with-actions-and-events.dto.js';
 
 export class FoundTableRowsDs {
   @ApiProperty({ isArray: true })
@@ -55,6 +53,12 @@ export class FoundTableRowsDs {
 
   @ApiProperty()
   large_dataset: boolean;
+
+  @ApiProperty()
+  allow_csv_export: boolean;
+
+  @ApiProperty()
+  allow_csv_import: boolean;
 }
 
 export class TableStructureDs {

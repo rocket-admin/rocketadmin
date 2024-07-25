@@ -1,27 +1,14 @@
 import { ConnectionEntity } from '../connection.entity.js';
-import { CreatedConnectionDs } from '../application/data-structures/created-connection.ds.js';
+import { CreatedConnectionDTO } from '../application/dto/created-connection.dto.js';
 import { Encryptor } from '../../../helpers/encryption/encryptor.js';
-import { GroupEntity } from '../../group/group.entity.js';
 
 export function buildCreatedConnectionDs(
   connection: ConnectionEntity,
   token: string,
   masterPwd: string,
-): CreatedConnectionDs {
+): CreatedConnectionDTO {
   if (connection.masterEncryption && masterPwd) {
     connection = Encryptor.decryptConnectionCredentials(connection, masterPwd);
-  }
-  let groupsWithProcessedUsers: Array<GroupEntity>;
-  if (connection.groups) {
-    groupsWithProcessedUsers = connection.groups.map((group) => {
-      if (group.users) {
-        group.users = group.users.map((user) => {
-          delete user.password;
-          return user;
-        });
-      }
-      return group;
-    });
   }
   return {
     author: connection.author?.id ? connection.author.id : undefined,
@@ -47,6 +34,25 @@ export function buildCreatedConnectionDs(
     updatedAt: connection.updatedAt,
     username: connection.username,
     authSource: connection.authSource,
-    groups: groupsWithProcessedUsers,
+    groups: connection.groups?.map((group) => {
+      return {
+        id: group.id,
+        title: group.title,
+        isMain: group.isMain,
+        users: group.users?.map((user) => {
+          return {
+            id: user.id,
+            isActive: user.isActive,
+            email: user.email,
+            createdAt: user.createdAt,
+            suspended: user.suspended,
+            name: user.name,
+            is_2fa_enabled: user.isOTPEnabled,
+            role: user.role,
+            externalRegistrationProvider: user.externalRegistrationProvider,
+          };
+        }),
+      };
+    }),
   };
 }

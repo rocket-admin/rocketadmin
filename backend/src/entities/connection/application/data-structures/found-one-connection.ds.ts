@@ -8,7 +8,7 @@ import {
 import { ApiProperty } from '@nestjs/swagger';
 
 export class FoundOneConnectionDs {
-  @ApiProperty()
+  @ApiProperty({ type: FoundDirectConnectionsDs })
   connection: FoundDirectConnectionsDs | FoundAgentConnectionsDs | FoundDirectConnectionsNonePermissionDs;
 
   @ApiProperty({ enum: AccessLevelEnum })
@@ -17,6 +17,6 @@ export class FoundOneConnectionDs {
   @ApiProperty()
   groupManagement: boolean;
 
-  @ApiProperty()
+  @ApiProperty({ type: FoundConnectionPropertiesDs })
   connectionProperties: FoundConnectionPropertiesDs;
 }

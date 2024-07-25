@@ -4,9 +4,10 @@ import {
   FoundDirectConnectionsNonePermissionDs,
 } from '../application/data-structures/found-connections.ds.js';
 import { ConnectionEntity } from '../connection.entity.js';
+import { FilteredConnection } from '../use-cases/find-all-connections.use.case.js';
 
 export function buildFoundConnectionDs(
-  connection: ConnectionEntity,
+  connection: ConnectionEntity | FilteredConnection,
 ): FoundDirectConnectionsDs | FoundAgentConnectionsDs | FoundDirectConnectionsNonePermissionDs {
   return {
     author: connection.author?.id,

@@ -45,4 +45,5 @@ export interface IEncryptorInterfaceDTO {
   company: CompanyInfoEntity;
   authSource?: string;
   action_rules: Array<ActionRulesEntity>;
+  azure_encryption: boolean;
 }

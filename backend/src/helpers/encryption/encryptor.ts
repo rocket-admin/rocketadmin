@@ -6,7 +6,7 @@ import { createHmac, randomBytes, scrypt } from 'crypto';
 import CryptoJS from 'crypto-js';
 import { EncryptionAlgorithmEnum } from '../../enums/index.js';
 import { Constants } from '../constants/constants.js';
-import { IEncryptorInterfaceDTO } from './encryptor.interface.js';
+import { ConnectionEntity } from '../../entities/connection/connection.entity.js';
 
 export class Encryptor {
   static getPrivateKey(): string {
@@ -46,7 +46,7 @@ export class Encryptor {
     }
   }
 
-  static encryptConnectionCredentials(connection: IEncryptorInterfaceDTO, masterPwd: string): IEncryptorInterfaceDTO {
+  static encryptConnectionCredentials(connection: ConnectionEntity, masterPwd: string): ConnectionEntity {
     if (connection.username) connection.username = this.encryptDataMasterPwd(connection.username, masterPwd);
     if (connection.database) connection.database = this.encryptDataMasterPwd(connection.database, masterPwd);
     if (connection.password) connection.password = this.encryptDataMasterPwd(connection.password, masterPwd);
@@ -64,7 +64,7 @@ export class Encryptor {
   }
 
   //todo types
-  static decryptConnectionCredentials(connection: any, masterPwd: string): any {
+  static decryptConnectionCredentials(connection: ConnectionEntity, masterPwd: string): ConnectionEntity {
     if (connection.username) connection.username = this.decryptDataMasterPwd(connection.username, masterPwd);
     if (connection.database) connection.database = this.decryptDataMasterPwd(connection.database, masterPwd);
     if (connection.password) {
