@@ -78,6 +78,7 @@ import { TestConnectionResponseDTO } from './application/dto/test-connection-res
 import { ConnectionTokenResponseDTO } from './application/dto/new-connection-token-response.dto.js';
 import { UpdateMasterPasswordRequestBodyDto } from './application/dto/update-master-password-request-body.dto.js';
 import { FoundOneConnectionDs } from './application/data-structures/found-one-connection.ds.js';
+import { FoundGroupResponseDto } from '../group/dto/found-group-response.dto.js';
 
 @UseInterceptors(SentryInterceptor)
 @Controller()
@@ -367,7 +368,7 @@ export class ConnectionController {
   @ApiResponse({
     status: 200,
     description: 'Group was removed from connection.',
-    type: CreateDeleteGroupInConnectionResponseDTO,
+    type: FoundGroupResponseDto,
   })
   @UseGuards(ConnectionEditGuard)
   @Put('/connection/group/delete/:connectionId')
@@ -375,7 +376,7 @@ export class ConnectionController {
     @BodyUuid('groupId') groupId: string,
     @SlugUuid('connectionId') connectionId: string,
     @UserId() userId: string,
-  ): Promise<CreateDeleteGroupInConnectionResponseDTO> {
+  ): Promise<FoundGroupResponseDto> {
     if (!groupId) {
       throw new HttpException(
         {

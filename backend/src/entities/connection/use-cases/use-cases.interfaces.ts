@@ -19,6 +19,7 @@ import { RestoredConnectionDs } from '../application/data-structures/restored-co
 import { TokenDs } from '../application/data-structures/token.ds.js';
 import { InTransactionEnum } from '../../../enums/index.js';
 import { FoundOneConnectionDs } from '../application/data-structures/found-one-connection.ds.js';
+import { FoundGroupResponseDto } from '../../group/dto/found-group-response.dto.js';
 
 export interface IFindConnections {
   execute(user: CreateUserDs, inTransaction: InTransactionEnum): Promise<FoundConnectionsDs>;
@@ -51,7 +52,7 @@ export interface IDeleteGroupInConnection {
   execute(
     inputData: DeleteGroupInConnectionDs,
     inTransaction: InTransactionEnum,
-  ): Promise<Omit<GroupEntity, 'connection'>>;
+  ): Promise<FoundGroupResponseDto>;
 }
 
 export interface ICreateGroupInConnection {
