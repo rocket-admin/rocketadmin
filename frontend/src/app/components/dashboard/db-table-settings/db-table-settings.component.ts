@@ -44,7 +44,9 @@ export class DbTableSettingsComponent implements OnInit {
     readonly_fields: [],
     sortable_by: [],
     columns_view: [],
-    sensitive_fields: []
+    sensitive_fields: [],
+    allow_csv_export: true,
+    allow_csv_import: true,
   }
   public tableSettings: TableSettings = null;
   public defaultIcons = ['favorite', 'star', 'done', 'arrow_forward', 'key', 'lock', 'visibility', 'language', 'notifications', 'schedule'];

@@ -33,7 +33,9 @@ export interface TableSettings {
     readonly_fields: string[],
     sortable_by: string[],
     columns_view: string[],
-    sensitive_fields: string[]
+    sensitive_fields: string[],
+    allow_csv_export: boolean,
+    allow_csv_import: boolean,
 }
 
 export interface TableRow {

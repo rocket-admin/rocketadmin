@@ -17,8 +17,16 @@
     padding: 24px max(calc(50vw - 325px), 10%) 60px;
 }
 
+.settings-fields__heading {
+    margin-top: 20px;
+}
+
 .settings-form__full-line {
     grid-column: 1 / span 2;
+}
+
+.settings-form__toggle {
+    margin-bottom: 12px;
 }
 
 .icon-picker {

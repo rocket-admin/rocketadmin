@@ -2,7 +2,7 @@ import * as JSON5 from 'json5';
 
 import { Alert, AlertActionType, AlertType } from 'src/app/models/alert';
 import { BehaviorSubject, Observable, of } from 'rxjs';
-import { CustomAction, CustomActionType, TableField, TableForeignKey, Widget, CustomEvent } from 'src/app/models/table';
+import { CustomAction, CustomActionType, CustomEvent, TableField, TableForeignKey, Widget } from 'src/app/models/table';
 import { catchError, finalize } from 'rxjs/operators';
 
 import { AccessLevel } from 'src/app/models/user';
@@ -63,6 +63,8 @@ export class TablesDataSource implements DataSource<Object> {
   public widgetsCount: number = 0;
   public selectWidgetsOptions: object;
   public permissions;
+  public isExportAllowed: boolean;
+  public isImportAllowed: boolean;
   public isEmptyTable: boolean;
   public tableActions: CustomAction[];
   public tableBulkActions: CustomAction[];
@@ -253,6 +255,9 @@ export class TablesDataSource implements DataSource<Object> {
               ]
             }
           };
+
+          this.isExportAllowed = res.allow_csv_export;
+          this.isImportAllowed = res.allow_csv_import;
 
           this.sortByColumns = res.sortable_by;
 

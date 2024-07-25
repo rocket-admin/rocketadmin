@@ -1,6 +1,7 @@
+import { Alert, AlertAction, AlertType, ServerError } from '../models/alert';
+
 import { Injectable } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { Alert, AlertAction, ServerError, AlertType } from '../models/alert';
 
 let idCounter = 0;
 
