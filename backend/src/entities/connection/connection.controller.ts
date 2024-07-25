@@ -1,8 +1,8 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Get,
-  HttpStatus,
   Inject,
   Injectable,
   Post,
@@ -11,7 +11,6 @@ import {
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import { HttpException } from '@nestjs/common/exceptions/http.exception.js';
 import validator from 'validator';
 import { IGlobalDatabaseContext } from '../../common/application/global-database-context.interface.js';
 import { BaseType, UseCaseType } from '../../common/data-injection.tokens.js';
@@ -212,28 +211,13 @@ export class ConnectionController {
     @MasterPassword() masterPwd: string,
   ): Promise<CreatedConnectionDTO> {
     if (!createConnectionDto.password && !isConnectionTypeAgent(createConnectionDto.type)) {
-      throw new HttpException(
-        {
-          message: Messages.PASSWORD_MISSING,
-        },
-        HttpStatus.BAD_REQUEST,
-      );
+      throw new BadRequestException(Messages.PASSWORD_MISSING);
     }
     if (createConnectionDto.masterEncryption && !masterPwd) {
-      throw new HttpException(
-        {
-          message: Messages.MASTER_PASSWORD_REQUIRED,
-        },
-        HttpStatus.BAD_REQUEST,
-      );
+      throw new BadRequestException(Messages.MASTER_PASSWORD_REQUIRED);
     }
     if (createConnectionDto.ssh && !createConnectionDto.privateSSHKey) {
-      throw new HttpException(
-        {
-          message: Messages.SSH_PASSWORD_MISSING,
-        },
-        HttpStatus.BAD_REQUEST,
-      );
+      throw new BadRequestException(Messages.SSH_PASSWORD_MISSING);
     }
     const createConnectionDs: CreateConnectionDs = {
       connection_parameters: {
@@ -285,12 +269,7 @@ export class ConnectionController {
       errors.push(Messages.MASTER_PASSWORD_REQUIRED);
     }
     if (errors.length > 0) {
-      throw new HttpException(
-        {
-          message: toPrettyErrorsMsg(errors),
-        },
-        HttpStatus.BAD_REQUEST,
-      );
+      throw new BadRequestException(toPrettyErrorsMsg(errors));
     }
     const connectionData: UpdateConnectionDs = {
       connection_parameters: {
@@ -378,12 +357,7 @@ export class ConnectionController {
     @UserId() userId: string,
   ): Promise<FoundGroupResponseDto> {
     if (!groupId) {
-      throw new HttpException(
-        {
-          message: Messages.GROUP_ID_MISSING,
-        },
-        HttpStatus.BAD_REQUEST,
-      );
+      throw new BadRequestException(Messages.GROUP_ID_MISSING);
     }
     const inputData: DeleteGroupInConnectionDs = {
       groupId: groupId,
@@ -409,12 +383,7 @@ export class ConnectionController {
   ): Promise<Omit<GroupEntity, 'connection'>> {
     const { title } = groupData;
     if (!title) {
-      throw new HttpException(
-        {
-          message: Messages.GROUP_TITLE_MISSING,
-        },
-        HttpStatus.BAD_REQUEST,
-      );
+      throw new BadRequestException(Messages.GROUP_TITLE_MISSING);
     }
     const inputData: CreateGroupInConnectionDs = {
       group_parameters: {
@@ -440,12 +409,7 @@ export class ConnectionController {
     @SlugUuid('connectionId') connectionId: string,
   ): Promise<Array<FoundUserGroupsInConnectionDs>> {
     if (!connectionId) {
-      throw new HttpException(
-        {
-          message: Messages.ID_MISSING,
-        },
-        HttpStatus.BAD_REQUEST,
-      );
+      throw new BadRequestException(Messages.ID_MISSING);
     }
     const inputData: GetGroupsInConnectionDs = {
       connectionId: connectionId,
@@ -467,12 +431,7 @@ export class ConnectionController {
     @MasterPassword() masterPwd: string,
   ): Promise<IComplexPermission> {
     if (!connectionId || !groupId) {
-      throw new HttpException(
-        {
-          message: Messages.PARAMETER_MISSING,
-        },
-        HttpStatus.BAD_REQUEST,
-      );
+      throw new BadRequestException(Messages.PARAMETER_MISSING);
     }
     const inputData: GetPermissionsInConnectionDs = {
       groupId: groupId,
@@ -496,12 +455,7 @@ export class ConnectionController {
     @MasterPassword() masterPwd: string,
   ): Promise<IComplexPermission> {
     if (!connectionId || !groupId) {
-      throw new HttpException(
-        {
-          message: Messages.PARAMETER_MISSING,
-        },
-        HttpStatus.BAD_REQUEST,
-      );
+      throw new BadRequestException(Messages.PARAMETER_MISSING);
     }
     const inputData: GetPermissionsInConnectionDs = {
       groupId: groupId,
@@ -576,30 +530,15 @@ export class ConnectionController {
     @Body() passwordData: UpdateMasterPasswordRequestBodyDto,
   ): Promise<boolean> {
     if (!connectionId) {
-      throw new HttpException(
-        {
-          message: Messages.CONNECTION_ID_MISSING,
-        },
-        HttpStatus.BAD_REQUEST,
-      );
+      throw new BadRequestException(Messages.CONNECTION_ID_MISSING);
     }
     const { oldMasterPwd, newMasterPwd } = passwordData;
 
     if (!oldMasterPwd) {
-      throw new HttpException(
-        {
-          message: Messages.MASTED_OLD_PASSWORD_MISSING,
-        },
-        HttpStatus.BAD_REQUEST,
-      );
+      throw new BadRequestException(Messages.MASTED_OLD_PASSWORD_MISSING);
     }
     if (!newMasterPwd) {
-      throw new HttpException(
-        {
-          message: Messages.MASTED_NEW_PASSWORD_MISSING,
-        },
-        HttpStatus.BAD_REQUEST,
-      );
+      throw new BadRequestException(Messages.MASTED_NEW_PASSWORD_MISSING);
     }
     const inputData: UpdateMasterPasswordDs = {
       connectionId: connectionId,
@@ -662,12 +601,7 @@ export class ConnectionController {
     }
 
     if (errors.length > 0) {
-      throw new HttpException(
-        {
-          message: toPrettyErrorsMsg(errors),
-        },
-        HttpStatus.BAD_REQUEST,
-      );
+      throw new BadRequestException(toPrettyErrorsMsg(errors));
     }
     return await this.restoreConnectionUseCase.execute(connectionData, InTransactionEnum.ON);
   }
@@ -696,12 +630,7 @@ export class ConnectionController {
   @Get('/connection/token/refresh/:connectionId')
   async refreshConnectionAgentToken(@SlugUuid('connectionId') connectionId: string): Promise<{ token: string }> {
     if (!connectionId) {
-      throw new HttpException(
-        {
-          message: Messages.CONNECTION_ID_MISSING,
-        },
-        HttpStatus.BAD_REQUEST,
-      );
+      throw new BadRequestException(Messages.CONNECTION_ID_MISSING);
     }
     return await this.refreshConnectionAgentTokenUseCase.execute(connectionId, InTransactionEnum.ON);
   }
