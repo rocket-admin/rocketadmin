@@ -87,23 +87,18 @@ export class AppComponent {
 
     this.navigationTabs = {
       'dashboard': {
-        icon: 'dashboard',
         caption: 'Tables'
       },
       'audit': {
-        icon: 'fact_check',
         caption: 'Audit'
       },
-      'users': {
-        icon: 'group',
-        caption: 'Users'
+      'permissions': {
+        caption: 'Permissions'
       },
       'edit-db': {
-        icon: 'edit',
         caption: 'Edit connection'
       },
       'connection-settings': {
-        icon: 'settings',
         caption: 'Connection settings'
       }
     }
