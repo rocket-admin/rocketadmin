@@ -65,7 +65,7 @@ const routes: Routes = [
   {path: 'dashboard/:connection-id/:table-name/widgets', pathMatch: 'full', component: DbTableWidgetsComponent, canActivate: [AuthGuard]},
   {path: 'dashboard/:connection-id/:table-name/settings', pathMatch: 'full', component: DbTableSettingsComponent, canActivate: [AuthGuard]},
   {path: 'dashboard/:connection-id/:table-name/actions', pathMatch: 'full', component: DbTableActionsComponent, canActivate: [AuthGuard]},
-  {path: 'users/:connection-id', component: UsersComponent, canActivate: [AuthGuard]},
+  {path: 'permissions/:connection-id', component: UsersComponent, canActivate: [AuthGuard]},
   {path: '**', component: PageNotFoundComponent},
 ];
 
