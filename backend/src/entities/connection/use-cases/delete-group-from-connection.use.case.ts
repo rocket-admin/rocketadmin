@@ -1,5 +1,4 @@
-import { HttpStatus, Inject, Injectable } from '@nestjs/common';
-import { HttpException } from '@nestjs/common/exceptions/http.exception.js';
+import { BadRequestException, ForbiddenException, Inject, Injectable, Scope } from '@nestjs/common';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
@@ -8,7 +7,7 @@ import { GroupEntity } from '../../group/group.entity.js';
 import { DeleteGroupInConnectionDs } from '../application/data-structures/delete-group-in-connection.ds.js';
 import { IDeleteGroupInConnection } from './use-cases.interfaces.js';
 
-@Injectable()
+@Injectable({ scope: Scope.REQUEST })
 export class DeleteGroupFromConnectionUseCase
   extends AbstractUseCase<DeleteGroupInConnectionDs, Omit<GroupEntity, 'connection'>>
   implements IDeleteGroupInConnection
@@ -26,22 +25,11 @@ export class DeleteGroupFromConnectionUseCase
       inputData.connectionId,
     );
     if (!groupToDelete) {
-      throw new HttpException(
-        {
-          message: Messages.GROUP_NOT_FOUND,
-        },
-        HttpStatus.BAD_REQUEST,
-      );
+      throw new BadRequestException(Messages.GROUP_NOT_FOUND);
     }
     if (groupToDelete.isMain) {
-      throw new HttpException(
-        {
-          message: Messages.CANT_DELETE_ADMIN_GROUP,
-        },
-        HttpStatus.FORBIDDEN,
-      );
+      throw new ForbiddenException(Messages.CANT_DELETE_ADMIN_GROUP);
     }
-
     const removedGroup = await this._dbContext.groupRepository.removeGroupEntity(groupToDelete);
     delete removedGroup.connection;
     return removedGroup;

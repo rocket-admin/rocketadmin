@@ -4,15 +4,9 @@ import { ConnectionEntity } from '../connection.entity.js';
 export interface IConnectionRepository {
   saveNewConnection(connection: ConnectionEntity): Promise<ConnectionEntity>;
 
-  findAllUserConnections(
-    userId: string,
-  ): Promise<Array<Omit<ConnectionEntity, 'password' | 'privateSSHKey' | 'groups'>>>;
+  findAllUserConnections(userId: string): Promise<Array<ConnectionEntity>>;
 
-  findAllUserNonTestsConnections(
-    userId: string,
-  ): Promise<Array<Omit<ConnectionEntity, 'password' | 'privateSSHKey' | 'groups'>>>;
-
-  findAllNonTestsConnectionsWhereUserIsOwner(userId: string): Promise<Array<ConnectionEntity>>;
+  findAllUserNonTestsConnections(userId: string): Promise<Array<ConnectionEntity>>;
 
   findAllUsersInConnection(connectionId): Promise<Array<UserEntity>>;
 
@@ -24,9 +18,7 @@ export interface IConnectionRepository {
 
   removeConnection(connection: ConnectionEntity): Promise<ConnectionEntity>;
 
-  findConnectionWithGroups(
-    connectionId: string,
-  ): Promise<Omit<ConnectionEntity, 'password' | 'privateSSHKey' | 'cert'>>;
+  findConnectionWithGroups(connectionId: string): Promise<ConnectionEntity>;
 
   getConnectionsWithNonNullUsersGCLIDs(): Promise<Array<ConnectionEntity>>;
 
@@ -42,9 +34,5 @@ export interface IConnectionRepository {
 
   findOneAgentConnectionByToken(connectionToken: string): Promise<ConnectionEntity>;
 
-  calculateUsersInAllConnectionsOfThisOwner(connectionOwnerId: string): Promise<{
-    usersInConnections: Array<UserEntity>;
-    usersInConnectionsCount: number;
-  }>;
   decryptConnectionField(field: string): string;
 }

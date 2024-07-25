@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, InternalServerErrorException, Scope } from '@nestjs/common';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
@@ -15,7 +15,7 @@ import { ICreateConnection } from './use-cases.interfaces.js';
 import { processAWSConnection } from '../utils/process-aws-connection.util.js';
 import { getDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/create-data-access-object.js';
 
-@Injectable()
+@Injectable({ scope: Scope.REQUEST })
 export class CreateConnectionUseCase
   extends AbstractUseCase<CreateConnectionDs, CreatedConnectionDTO>
   implements ICreateConnection
@@ -31,14 +31,11 @@ export class CreateConnectionUseCase
       creation_info: { authorId, masterPwd },
     } = createConnectionData;
     const connectionAuthor: UserEntity = await this._dbContext.userRepository.findOneUserById(authorId);
+
     if (!connectionAuthor) {
-      throw new HttpException(
-        {
-          message: Messages.USER_NOT_FOUND,
-        },
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
+      throw new InternalServerErrorException(Messages.USER_NOT_FOUND);
     }
+
     await slackPostMessage(Messages.USER_TRY_CREATE_CONNECTION(connectionAuthor.email));
     await validateCreateConnectionData(createConnectionData);
     createConnectionData = await processAWSConnection(createConnectionData);

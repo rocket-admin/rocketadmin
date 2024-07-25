@@ -12,6 +12,7 @@ import { buildFoundConnectionPropertiesDs } from '../../connection-properties/ut
 import { FindOneConnectionDs } from '../application/data-structures/find-one-connection.ds.js';
 import { IFindOneConnection } from './use-cases.interfaces.js';
 import { FoundOneConnectionDs } from '../application/data-structures/found-one-connection.ds.js';
+import { buildFoundConnectionDs } from '../utils/build-found-connection.ds.js';
 
 @Injectable()
 export class FindOneConnectionUseCase
@@ -85,7 +86,7 @@ export class FindOneConnectionUseCase
       ? buildFoundConnectionPropertiesDs(connection.connection_properties)
       : null;
     return {
-      connection: connection,
+      connection: buildFoundConnectionDs(connection),
       accessLevel: accessLevel,
       groupManagement: groupManagement,
       connectionProperties: connectionProperties,
