@@ -1,4 +1,4 @@
-import { FoundUserDs } from '../../../entities/user/application/data-structures/found-user.ds.js';
+import { FoundUserDto } from '../../../entities/user/dto/found-user.dto.js';
 import {
   RegisterInvitedUserDS,
   SaasUsualUserRegisterDS,
@@ -30,11 +30,11 @@ export interface ISaasGetUsersInfosByEmail {
 }
 
 export interface ISaasRegisterUser {
-  execute(userData: SaasUsualUserRegisterDS): Promise<FoundUserDs>;
+  execute(userData: SaasUsualUserRegisterDS): Promise<FoundUserDto>;
 }
 
 export interface ISaaSRegisterInvitedUser {
-  execute(userData: RegisterInvitedUserDS): Promise<FoundUserDs>;
+  execute(userData: RegisterInvitedUserDS): Promise<FoundUserDto>;
 }
 
 export interface ILoginUserWithGoogle {

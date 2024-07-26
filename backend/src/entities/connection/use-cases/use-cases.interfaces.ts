@@ -3,7 +3,7 @@ import { CreatedConnectionDTO } from '../application/dto/created-connection.dto.
 import { CreateUserDs } from '../../user/application/data-structures/create-user.ds.js';
 import { FindOneConnectionDs } from '../application/data-structures/find-one-connection.ds.js';
 import { FoundConnectionsDs } from '../application/data-structures/found-connections.ds.js';
-import { FoundUserDs } from '../../user/application/data-structures/found-user.ds.js';
+import { FoundUserDto } from '../../user/dto/found-user.dto.js';
 import { UpdateConnectionDs } from '../application/data-structures/update-connection.ds.js';
 import { DeleteConnectionDs } from '../application/data-structures/delete-connection.ds.js';
 import { DeleteGroupInConnectionDs } from '../application/data-structures/delete-group-in-connection.ds.js';
@@ -26,7 +26,7 @@ export interface IFindConnections {
 }
 
 export interface IFindUsersInConnection {
-  execute(connectionId: string, inTransaction: InTransactionEnum): Promise<Array<FoundUserDs>>;
+  execute(connectionId: string, inTransaction: InTransactionEnum): Promise<Array<FoundUserDto>>;
 }
 
 export interface IFindOneConnection {
@@ -49,10 +49,7 @@ export interface IDeleteConnection {
 }
 
 export interface IDeleteGroupInConnection {
-  execute(
-    inputData: DeleteGroupInConnectionDs,
-    inTransaction: InTransactionEnum,
-  ): Promise<FoundGroupResponseDto>;
+  execute(inputData: DeleteGroupInConnectionDs, inTransaction: InTransactionEnum): Promise<FoundGroupResponseDto>;
 }
 
 export interface ICreateGroupInConnection {

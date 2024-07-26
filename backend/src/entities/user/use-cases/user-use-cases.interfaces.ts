@@ -5,7 +5,7 @@ import { ChangeUsualUserPasswordDs } from '../application/data-structures/change
 import { CreateUserDs } from '../application/data-structures/create-user.ds.js';
 import { CreatedUserDs } from '../application/data-structures/created-user.ds.js';
 import { FindUserDs } from '../application/data-structures/find-user.ds.js';
-import { FoundUserDs } from '../application/data-structures/found-user.ds.js';
+import { FoundUserDto } from '../dto/found-user.dto.js';
 import { GoogleLoginDs } from '../application/data-structures/google-login.ds.js';
 import { OperationResultMessageDs } from '../application/data-structures/operation-result-message.ds.js';
 import { OtpSecretDS } from '../application/data-structures/otp-secret.ds.js';
@@ -25,7 +25,7 @@ export interface ICreateUserUseCase {
 }
 
 export interface IFindUserUseCase {
-  execute(userData: FindUserDs | CreateUserDs, inTransaction: InTransactionEnum): Promise<FoundUserDs>;
+  execute(userData: FindUserDs | CreateUserDs, inTransaction: InTransactionEnum): Promise<FoundUserDto>;
 }
 
 export interface IUsualLogin {
@@ -85,7 +85,7 @@ export interface IDeleteUserAccount {
 }
 
 export interface IChangeUserName {
-  execute(inputData: ChangeUserNameDS, inTransaction: InTransactionEnum): Promise<FoundUserDs>;
+  execute(inputData: ChangeUserNameDS, inTransaction: InTransactionEnum): Promise<FoundUserDto>;
 }
 
 export interface IGenerateOTP {

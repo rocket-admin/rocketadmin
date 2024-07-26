@@ -2,7 +2,7 @@ import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
-import { FoundUserDs } from '../../../entities/user/application/data-structures/found-user.ds.js';
+import { FoundUserDto } from '../../../entities/user/dto/found-user.dto.js';
 import { RegisterInvitedUserDS } from '../../../entities/user/application/data-structures/usual-register-user.ds.js';
 import { sendEmailConfirmation } from '../../../entities/email/send-email.js';
 import { RegisterUserDs } from '../../../entities/user/application/data-structures/register-user-ds.js';
@@ -12,7 +12,7 @@ import { ISaaSRegisterInvitedUser } from './saas-use-cases.interface.js';
 
 @Injectable()
 export class SaasRegisterInvitedUserUseCase
-  extends AbstractUseCase<RegisterInvitedUserDS, FoundUserDs>
+  extends AbstractUseCase<RegisterInvitedUserDS, FoundUserDto>
   implements ISaaSRegisterInvitedUser
 {
   constructor(
@@ -22,7 +22,7 @@ export class SaasRegisterInvitedUserUseCase
     super();
   }
 
-  protected async implementation(userData: RegisterInvitedUserDS): Promise<FoundUserDs> {
+  protected async implementation(userData: RegisterInvitedUserDS): Promise<FoundUserDto> {
     const { email, password, name, companyId } = userData;
     ValidationHelper.isPasswordStrongOrThrowError(password);
     const foundUser = await this._dbContext.userRepository.findOneUserByEmailAndCompanyId(email, companyId);
@@ -54,13 +54,12 @@ export class SaasRegisterInvitedUserUseCase
       name: name,
     };
     const savedUser = await this._dbContext.userRepository.saveRegisteringUser(registerUserData);
-    
+
     savedUser.company = foundCompany;
     await this._dbContext.userRepository.saveUserEntity(savedUser);
 
-    const createdEmailVerification = await this._dbContext.emailVerificationRepository.createOrUpdateEmailVerification(
-      savedUser,
-    );
+    const createdEmailVerification =
+      await this._dbContext.emailVerificationRepository.createOrUpdateEmailVerification(savedUser);
 
     await sendEmailConfirmation(savedUser.email, createdEmailVerification.verification_string);
     return {

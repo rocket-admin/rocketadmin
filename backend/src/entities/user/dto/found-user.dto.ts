@@ -1,13 +1,13 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { UserRoleEnum } from '../../enums/user-role.enum.js';
-import { ExternalRegistrationProviderEnum } from '../../enums/external-registration-provider.enum.js';
+import { UserRoleEnum } from '../enums/user-role.enum.js';
+import { ExternalRegistrationProviderEnum } from '../enums/external-registration-provider.enum.js';
 
 export class CompanyIdDS {
   @ApiProperty()
   id: string;
 }
 
-export class FoundUserDs {
+export class FoundUserDto {
   @ApiProperty()
   id: string;
 

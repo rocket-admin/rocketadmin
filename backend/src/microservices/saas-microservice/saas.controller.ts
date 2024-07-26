@@ -16,7 +16,7 @@ import {
 } from './use-cases/saas-use-cases.interface.js';
 import { RegisteredCompanyDS } from './data-structures/registered-company.ds.js';
 import { UserEntity } from '../../entities/user/user.entity.js';
-import { FoundUserDs } from '../../entities/user/application/data-structures/found-user.ds.js';
+import { FoundUserDto } from '../../entities/user/dto/found-user.dto.js';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { RegisterCompanyWebhookDS } from './data-structures/register-company.ds.js';
 import {
@@ -134,7 +134,7 @@ export class SaasController {
   @ApiResponse({
     status: 201,
     description: 'User has been successfully registered.',
-    type: FoundUserDs,
+    type: FoundUserDto,
   })
   @Post('user/register')
   async usualUserRegister(
@@ -144,7 +144,7 @@ export class SaasController {
     @Body('name') name: string,
     @Body('companyId') companyId: string,
     @Body('companyName') companyName: string,
-  ): Promise<FoundUserDs> {
+  ): Promise<FoundUserDto> {
     companyId = companyId ? companyId : null;
     return await this.usualRegisterUserUseCase.execute({ email, password, gclidValue, name, companyId, companyName });
   }
@@ -154,7 +154,7 @@ export class SaasController {
   @ApiResponse({
     status: 201,
     description: 'User was successfully invited.',
-    type: FoundUserDs,
+    type: FoundUserDto,
   })
   @Post('/user/register/invite')
   async registerInvitedUser(
@@ -162,7 +162,7 @@ export class SaasController {
     @Body('password') password: string,
     @Body('name') name: string,
     @Body('companyId') companyId: string,
-  ): Promise<FoundUserDs> {
+  ): Promise<FoundUserDto> {
     return await this.registerInvitedUserUseCase.execute({ email, password, name, companyId });
   }
 

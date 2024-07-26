@@ -1,6 +1,6 @@
 import { UserEntity } from '../user.entity.js';
 import { CreatedUserDs } from '../application/data-structures/created-user.ds.js';
-import { SimpleFoundUserInfoDs } from '../application/data-structures/found-user.ds.js';
+import { SimpleFoundUserInfoDs } from '../dto/found-user.dto.js';
 
 export function buildCreatedUserDs(user: UserEntity): CreatedUserDs {
   return {

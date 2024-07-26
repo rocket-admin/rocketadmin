@@ -30,7 +30,7 @@ import { AmplitudeService } from '../amplitude/amplitude.service.js';
 import { GroupEntity } from '../group/group.entity.js';
 import { IComplexPermission } from '../permission/permission.interface.js';
 import { FindUserDs } from '../user/application/data-structures/find-user.ds.js';
-import { FoundUserDs } from '../user/application/data-structures/found-user.ds.js';
+import { FoundUserDto } from '../user/dto/found-user.dto.js';
 import { CreateConnectionDs } from './application/data-structures/create-connection.ds.js';
 import { CreateGroupInConnectionDs } from './application/data-structures/create-group-in-connection.ds.js';
 import { CreatedConnectionDTO } from './application/dto/created-connection.dto.js';
@@ -141,14 +141,14 @@ export class ConnectionController {
   @ApiOperation({ summary: 'Get all users in connection' })
   @ApiResponse({
     status: 200,
-    type: Array<FoundUserDs>,
+    type: Array<FoundUserDto>,
   })
   @UseGuards(ConnectionReadGuard)
   @Get('/connection/users/:connectionId')
   async findAllUsers(
     @UserId() userId: string,
     @SlugUuid('connectionId') connectionId: string,
-  ): Promise<Array<FoundUserDs>> {
+  ): Promise<Array<FoundUserDto>> {
     try {
       return await this.findAllUsersInConnectionUseCase.execute(connectionId, InTransactionEnum.OFF);
     } catch (e) {
