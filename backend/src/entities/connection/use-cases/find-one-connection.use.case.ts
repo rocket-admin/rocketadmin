@@ -1,4 +1,4 @@
-import { HttpStatus, Inject, Injectable } from '@nestjs/common';
+import { BadRequestException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { HttpException } from '@nestjs/common/exceptions/http.exception.js';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
@@ -13,6 +13,8 @@ import { FindOneConnectionDs } from '../application/data-structures/find-one-con
 import { IFindOneConnection } from './use-cases.interfaces.js';
 import { FoundOneConnectionDs } from '../application/data-structures/found-one-connection.ds.js';
 import { buildFoundConnectionDs } from '../utils/build-found-connection.ds.js';
+import { ConnectionEntity } from '../connection.entity.js';
+import { FilteredConnection } from './find-all-connections.use.case.js';
 
 @Injectable()
 export class FindOneConnectionUseCase
@@ -27,14 +29,9 @@ export class FindOneConnectionUseCase
   }
 
   protected async implementation(inputData: FindOneConnectionDs): Promise<FoundOneConnectionDs> {
-    let connection = await this._dbContext.connectionRepository.findOneConnection(inputData.connectionId);
+    const connection = await this._dbContext.connectionRepository.findOneConnection(inputData.connectionId);
     if (!connection) {
-      throw new HttpException(
-        {
-          message: Messages.CONNECTION_NOT_FOUND,
-        },
-        HttpStatus.BAD_REQUEST,
-      );
+      throw new BadRequestException(Messages.CONNECTION_NOT_FOUND);
     }
     const accessLevel: AccessLevelEnum = await this._dbContext.userAccessRepository.getUserConnectionAccessLevel(
       inputData.cognitoUserName,
@@ -51,21 +48,28 @@ export class FindOneConnectionUseCase
       );
     }
 
-    if (accessLevel === AccessLevelEnum.none) {
-      for (const key in connection) {
-        if (!Constants.CONNECTION_KEYS_NONE_PERMISSION.includes(key)) {
+    const filterConnectionKeys = (connection: ConnectionEntity, allowedKeys: Array<string>): FilteredConnection => {
+      return Object.keys(connection).reduce((acc, key) => {
+        if (allowedKeys.includes(key)) {
           // eslint-disable-next-line security/detect-object-injection
-          delete connection[key];
+          acc[key] = connection[key];
         }
-      }
-    }
-    if (accessLevel !== AccessLevelEnum.edit) {
-      delete connection.signing_key;
+        return acc;
+      }, {} as FilteredConnection);
+    };
+    let filteredConnection: FilteredConnection = connection;
+    
+    if (accessLevel === AccessLevelEnum.none) {
+      filteredConnection = filterConnectionKeys(connection, Constants.CONNECTION_KEYS_NONE_PERMISSION);
+    } else if (accessLevel !== AccessLevelEnum.edit) {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { signing_key, ...rest } = connection;
+      filteredConnection = rest;
     }
 
-    if (connection.masterEncryption && inputData.masterPwd && accessLevel !== AccessLevelEnum.none) {
+    if (filteredConnection.masterEncryption && inputData.masterPwd && accessLevel !== AccessLevelEnum.none) {
       try {
-        connection = Encryptor.decryptConnectionCredentials(connection, inputData.masterPwd);
+        filteredConnection = Encryptor.decryptConnectionCredentials(connection, inputData.masterPwd);
       } catch (e) {
         console.log('-> Error decrypting connection credentials', e);
         throw new HttpException(
@@ -86,7 +90,7 @@ export class FindOneConnectionUseCase
       ? buildFoundConnectionPropertiesDs(connection.connection_properties)
       : null;
     return {
-      connection: buildFoundConnectionDs(connection),
+      connection: buildFoundConnectionDs(filteredConnection),
       accessLevel: accessLevel,
       groupManagement: groupManagement,
       connectionProperties: connectionProperties,
