@@ -3,14 +3,15 @@ import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
 import { Messages } from '../../../exceptions/text/messages.js';
-import { GroupEntity } from '../../group/group.entity.js';
 import { CreateGroupInConnectionDs } from '../application/data-structures/create-group-in-connection.ds.js';
 import { buildNewGroupEntityForConnectionWithUser } from '../utils/build-new-group-entity-for-connection-with-user.js';
 import { ICreateGroupInConnection } from './use-cases.interfaces.js';
+import { buildFoundGroupResponseDto } from '../../group/utils/biuld-found-group-response.dto.js';
+import { FoundGroupResponseDto } from '../../group/dto/found-group-response.dto.js';
 
 @Injectable({ scope: Scope.REQUEST })
 export class CreateGroupInConnectionUseCase
-  extends AbstractUseCase<CreateGroupInConnectionDs, Omit<GroupEntity, 'connection' | 'users' | 'permissions'>>
+  extends AbstractUseCase<CreateGroupInConnectionDs, FoundGroupResponseDto>
   implements ICreateGroupInConnection
 {
   constructor(
@@ -20,7 +21,7 @@ export class CreateGroupInConnectionUseCase
     super();
   }
 
-  protected async implementation(inputData: CreateGroupInConnectionDs): Promise<Omit<GroupEntity, 'connection'>> {
+  protected async implementation(inputData: CreateGroupInConnectionDs): Promise<FoundGroupResponseDto> {
     const {
       group_parameters: { connectionId, title },
       creation_info: { cognitoUserName },
@@ -32,7 +33,6 @@ export class CreateGroupInConnectionUseCase
     const foundUser = await this._dbContext.userRepository.findOneUserById(cognitoUserName);
     const newGroupEntity = buildNewGroupEntityForConnectionWithUser(connectionToUpdate, foundUser, title);
     const savedGroup = await this._dbContext.groupRepository.saveNewOrUpdatedGroup(newGroupEntity);
-    delete savedGroup.connection;
-    return savedGroup;
+    return buildFoundGroupResponseDto(savedGroup);
   }
 }

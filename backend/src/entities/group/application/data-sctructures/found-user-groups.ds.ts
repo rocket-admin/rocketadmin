@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { AccessLevelEnum } from '../../../../enums/index.js';
-import { SimpleFoundUserInfoDs } from '../../../user/application/data-structures/found-user.ds.js';
+import { SimpleFoundUserInfoDs } from '../../../user/dto/found-user.dto.js';
 
 export class FoundGroupDataInfoDs {
   @ApiProperty()

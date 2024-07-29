@@ -3,7 +3,7 @@ import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
 import { IGetUsersInCompany } from './company-info-use-cases.interface.js';
-import { SimpleFoundUserInfoDs } from '../../user/application/data-structures/found-user.ds.js';
+import { SimpleFoundUserInfoDs } from '../../user/dto/found-user.dto.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { buildSimpleUserInfoDs } from '../../user/utils/build-created-user.ds.js';
 

@@ -5,7 +5,7 @@ import { UserEntity } from '../../user/user.entity.js';
 export interface IGroupRepository {
   saveNewOrUpdatedGroup(groupData: GroupEntity): Promise<GroupEntity>;
 
-  findAllGroupsInConnection(connectionId: string): Promise<Array<Omit<GroupEntity, 'connection'>>>;
+  findAllGroupsInConnection(connectionId: string): Promise<Array<GroupEntity>>;
 
   createdAdminGroupInConnection(connection: ConnectionEntity, user: UserEntity): Promise<GroupEntity>;
 
@@ -13,10 +13,7 @@ export interface IGroupRepository {
 
   removeGroupEntity(group: GroupEntity): Promise<GroupEntity>;
 
-  findAllUserGroupsInConnection(
-    connectionId: string,
-    cognitoUserName: string,
-  ): Promise<Array<Omit<GroupEntity, 'connection' | 'users'>>>;
+  findAllUserGroupsInConnection(connectionId: string, cognitoUserName: string): Promise<Array<GroupEntity>>;
 
   findGroupById(groupId: string): Promise<GroupEntity>;
 

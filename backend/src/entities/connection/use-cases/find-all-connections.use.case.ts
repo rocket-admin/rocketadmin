@@ -13,7 +13,7 @@ import { Messages } from '../../../exceptions/text/messages.js';
 import { ConnectionEntity } from '../connection.entity.js';
 import { buildFoundConnectionDs } from '../utils/build-found-connection.ds.js';
 
-export type RequiredConnectionKeys = Pick<ConnectionEntity, 'id' | 'database'>;
+export type RequiredConnectionKeys = Pick<ConnectionEntity, 'id' | 'database' | 'isTestConnection'>;
 export type OptionalConnectionKeys = Partial<Omit<ConnectionEntity, keyof RequiredConnectionKeys>>;
 export type FilteredConnection = RequiredConnectionKeys & OptionalConnectionKeys;
 

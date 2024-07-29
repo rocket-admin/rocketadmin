@@ -1,7 +1,7 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { isSaaS } from '../../helpers/app/is-saas.js';
 import { FoundUserInGroupDs } from './application/data-structures/found-user-in-group.ds.js';
-import { FoundUserDs } from './application/data-structures/found-user.ds.js';
+import { FoundUserDto } from './dto/found-user.dto.js';
 import { UserEntity } from './user.entity.js';
 import { getUserIntercomHash } from './utils/get-user-intercom-hash.js';
 import { Encryptor } from '../../helpers/encryption/encryptor.js';
@@ -33,7 +33,7 @@ export class UserHelperService implements OnModuleInit {
     };
   }
 
-  public async buildFoundUserDs(user: UserEntity): Promise<FoundUserDs> {
+  public async buildFoundUserDs(user: UserEntity): Promise<FoundUserDto> {
     const intercomHash = getUserIntercomHash(user.id);
     return {
       id: user.id,

@@ -92,8 +92,10 @@ test.serial(`${currentTest} should return all user groups`, async (t) => {
 
     t.is(result.length, 2);
     t.is(uuidRegex.test(result[0].group.id), true);
-    t.is(result[1].group.hasOwnProperty('users'), false);
+    t.is(result[1].group.hasOwnProperty('users'), true);
+    t.is(result[1].group.users[0].hasOwnProperty('password'), false)
     t.is(result[0].group.hasOwnProperty('title'), true);
+    t.is(result[0].group.hasOwnProperty('connection'), false);
     t.is(result[1].accessLevel, AccessLevelEnum.edit);
   } catch (e) {
     console.error(e);
@@ -1177,7 +1179,7 @@ test.serial(`${currentTest} should return a group with new title`, async (t) => 
 
     const { newConnection, newConnection2, newGroup1 } = getTestData(mockFactory);
 
-    let createConnectionResponse = await request(app.getHttpServer())
+    const createConnectionResponse = await request(app.getHttpServer())
       .post('/connection')
       .send(newConnection)
       .set('Cookie', firstUserToken)

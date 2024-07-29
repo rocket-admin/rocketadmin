@@ -4,12 +4,12 @@ import { IGlobalDatabaseContext } from '../../../common/application/global-datab
 import { BaseType } from '../../../common/data-injection.tokens.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { ChangeUserNameDS } from '../application/data-structures/change-user-name.ds.js';
-import { FoundUserDs } from '../application/data-structures/found-user.ds.js';
+import { FoundUserDto } from '../dto/found-user.dto.js';
 import { UserHelperService } from '../user-helper.service.js';
 import { IChangeUserName } from './user-use-cases.interfaces.js';
 
 @Injectable()
-export class ChangeUserNameUseCase extends AbstractUseCase<ChangeUserNameDS, FoundUserDs> implements IChangeUserName {
+export class ChangeUserNameUseCase extends AbstractUseCase<ChangeUserNameDS, FoundUserDto> implements IChangeUserName {
   constructor(
     @Inject(BaseType.GLOBAL_DB_CONTEXT)
     protected _dbContext: IGlobalDatabaseContext,
@@ -18,7 +18,7 @@ export class ChangeUserNameUseCase extends AbstractUseCase<ChangeUserNameDS, Fou
     super();
   }
 
-  protected async implementation(inputData: ChangeUserNameDS): Promise<FoundUserDs> {
+  protected async implementation(inputData: ChangeUserNameDS): Promise<FoundUserDto> {
     const { id, name } = inputData;
     const foundUser = await this._dbContext.userRepository.findOneUserById(id);
     if (!foundUser) {

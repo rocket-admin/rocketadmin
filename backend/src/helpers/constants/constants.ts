@@ -11,7 +11,7 @@ export const Constants = {
   DEFAULT_LOG_ROWS_LIMIT: 500,
   MIDNIGHT_CRON_KEY: 1,
   MORNING_CRON_KEY: 2,
-  CONNECTION_KEYS_NONE_PERMISSION: ['id', 'title', 'database', 'type', 'connection_properties'],
+  CONNECTION_KEYS_NONE_PERMISSION: ['id', 'title', 'database', 'type', 'connection_properties', 'isTestConnection'],
   FREE_PLAN_USERS_COUNT: 3,
   MAX_FILE_SIZE_IN_BYTES: 10485760,
 

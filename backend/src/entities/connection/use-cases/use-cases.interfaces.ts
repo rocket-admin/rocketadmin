@@ -3,14 +3,12 @@ import { CreatedConnectionDTO } from '../application/dto/created-connection.dto.
 import { CreateUserDs } from '../../user/application/data-structures/create-user.ds.js';
 import { FindOneConnectionDs } from '../application/data-structures/find-one-connection.ds.js';
 import { FoundConnectionsDs } from '../application/data-structures/found-connections.ds.js';
-import { FoundUserDs } from '../../user/application/data-structures/found-user.ds.js';
+import { FoundUserDto } from '../../user/dto/found-user.dto.js';
 import { UpdateConnectionDs } from '../application/data-structures/update-connection.ds.js';
 import { DeleteConnectionDs } from '../application/data-structures/delete-connection.ds.js';
 import { DeleteGroupInConnectionDs } from '../application/data-structures/delete-group-in-connection.ds.js';
-import { GroupEntity } from '../../group/group.entity.js';
 import { CreateGroupInConnectionDs } from '../application/data-structures/create-group-in-connection.ds.js';
 import { GetGroupsInConnectionDs } from '../application/data-structures/get-groups-in-connection.ds.js';
-import { FoundUserGroupsInConnectionDs } from '../application/data-structures/found-user-groups-in-connection.ds.js';
 import { GetPermissionsInConnectionDs } from '../application/data-structures/get-permissions-in-connection.ds.js';
 import { FoundPermissionsInConnectionDs } from '../application/data-structures/found-permissions-in-connection.ds.js';
 import { TestConnectionResultDs } from '../application/data-structures/test-connection-result.ds.js';
@@ -20,13 +18,14 @@ import { TokenDs } from '../application/data-structures/token.ds.js';
 import { InTransactionEnum } from '../../../enums/index.js';
 import { FoundOneConnectionDs } from '../application/data-structures/found-one-connection.ds.js';
 import { FoundGroupResponseDto } from '../../group/dto/found-group-response.dto.js';
+import { FoundUserGroupsInConnectionDTO } from '../application/dto/found-user-groups-in-connection.dto.js';
 
 export interface IFindConnections {
   execute(user: CreateUserDs, inTransaction: InTransactionEnum): Promise<FoundConnectionsDs>;
 }
 
 export interface IFindUsersInConnection {
-  execute(connectionId: string, inTransaction: InTransactionEnum): Promise<Array<FoundUserDs>>;
+  execute(connectionId: string, inTransaction: InTransactionEnum): Promise<Array<FoundUserDto>>;
 }
 
 export interface IFindOneConnection {
@@ -49,24 +48,18 @@ export interface IDeleteConnection {
 }
 
 export interface IDeleteGroupInConnection {
-  execute(
-    inputData: DeleteGroupInConnectionDs,
-    inTransaction: InTransactionEnum,
-  ): Promise<FoundGroupResponseDto>;
+  execute(inputData: DeleteGroupInConnectionDs, inTransaction: InTransactionEnum): Promise<FoundGroupResponseDto>;
 }
 
 export interface ICreateGroupInConnection {
-  execute(
-    inputData: CreateGroupInConnectionDs,
-    inTransaction: InTransactionEnum,
-  ): Promise<Omit<GroupEntity, 'connection'>>;
+  execute(inputData: CreateGroupInConnectionDs, inTransaction: InTransactionEnum): Promise<FoundGroupResponseDto>;
 }
 
 export interface IGetUserGroupsInConnection {
   execute(
     inputData: GetGroupsInConnectionDs,
     inTransaction: InTransactionEnum,
-  ): Promise<Array<FoundUserGroupsInConnectionDs>>;
+  ): Promise<Array<FoundUserGroupsInConnectionDTO>>;
 }
 
 export interface IGetPermissionsForGroupInConnection {

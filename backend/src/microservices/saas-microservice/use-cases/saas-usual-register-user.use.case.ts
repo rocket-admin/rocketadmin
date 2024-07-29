@@ -2,7 +2,7 @@ import { HttpException, HttpStatus, Inject } from '@nestjs/common';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
-import { FoundUserDs } from '../../../entities/user/application/data-structures/found-user.ds.js';
+import { FoundUserDto } from '../../../entities/user/dto/found-user.dto.js';
 import { SaasUsualUserRegisterDS } from '../../../entities/user/application/data-structures/usual-register-user.ds.js';
 import { TableSettingsEntity } from '../../../entities/table-settings/table-settings.entity.js';
 import assert from 'assert';
@@ -23,7 +23,7 @@ import { UserEntity } from '../../../entities/user/user.entity.js';
 import { UserRoleEnum } from '../../../entities/user/enums/user-role.enum.js';
 
 export class SaasUsualRegisterUseCase
-  extends AbstractUseCase<SaasUsualUserRegisterDS, FoundUserDs>
+  extends AbstractUseCase<SaasUsualUserRegisterDS, FoundUserDto>
   implements ISaasRegisterUser
 {
   constructor(
@@ -33,7 +33,7 @@ export class SaasUsualRegisterUseCase
     super();
   }
 
-  protected async implementation(userData: SaasUsualUserRegisterDS): Promise<FoundUserDs> {
+  protected async implementation(userData: SaasUsualUserRegisterDS): Promise<FoundUserDto> {
     const { email, password, gclidValue, name, companyId, companyName } = userData;
     const foundUser = await this._dbContext.userRepository.findOneUserByEmailAndCompanyId(email, companyId);
     const foundCompany = await this._dbContext.companyInfoRepository.findCompanyInfoWithUsersById(companyId);

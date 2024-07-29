@@ -53,7 +53,7 @@ import {
   FoundUserEmailCompaniesInfoDs,
   FoundUserFullCompanyInfoDs,
 } from './application/data-structures/found-company-info.ds.js';
-import { SimpleFoundUserInfoDs } from '../user/application/data-structures/found-user.ds.js';
+import { SimpleFoundUserInfoDs } from '../user/dto/found-user.dto.js';
 import { SuccessResponse } from '../../microservices/saas-microservice/data-structures/common-responce.ds.js';
 import { RevokeInvitationRequestDto } from './application/dto/revoke-invitation-request.dto.js';
 import { UpdateCompanyNameDto } from './application/dto/update-company-name.dto.js';

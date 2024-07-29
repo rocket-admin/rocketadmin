@@ -25,7 +25,7 @@ import { ChangeUserEmailDs } from './application/data-structures/change-user-ema
 import { ChangeUserNameDS } from './application/data-structures/change-user-name.ds.js';
 import { ChangeUsualUserPasswordDs } from './application/data-structures/change-usual-user-password.ds.js';
 import { FindUserDs } from './application/data-structures/find-user.ds.js';
-import { FoundUserDs } from './application/data-structures/found-user.ds.js';
+import { FoundUserDto } from './dto/found-user.dto.js';
 import { OperationResultMessageDs } from './application/data-structures/operation-result-message.ds.js';
 import { RegisteredUserDs } from './application/data-structures/registered-user.ds.js';
 import { ResetUsualUserPasswordDs } from './application/data-structures/reset-usual-user-password.ds.js';
@@ -112,10 +112,10 @@ export class UserController {
   @ApiResponse({
     status: 200,
     description: 'Returns found user.',
-    type: FoundUserDs,
+    type: FoundUserDto,
   })
   @Get('user')
-  async findMe(@UserId() userId: string, @GCLlId() glidCookieValue: string): Promise<FoundUserDs> {
+  async findMe(@UserId() userId: string, @GCLlId() glidCookieValue: string): Promise<FoundUserDto> {
     const findUserDs: FindUserDs = {
       id: userId,
       gclidValue: glidCookieValue,
@@ -239,7 +239,9 @@ export class UserController {
     type: OperationResultMessageDs,
   })
   @Get('user/email/verify/:verificationString')
-  async verifyEmail(@VerificationString('verificationString') verificationString: string): Promise<OperationResultMessageDs> {
+  async verifyEmail(
+    @VerificationString('verificationString') verificationString: string,
+  ): Promise<OperationResultMessageDs> {
     return await this.verifyEmailUseCase.execute(verificationString, InTransactionEnum.ON);
   }
 
@@ -318,10 +320,10 @@ export class UserController {
   @ApiResponse({
     status: 200,
     description: 'Change user name.',
-    type: FoundUserDs,
+    type: FoundUserDto,
   })
   @Put('user/name/')
-  async changeUserName(@UserId() userId: string, @Body() nameData: UserNameDto): Promise<FoundUserDs> {
+  async changeUserName(@UserId() userId: string, @Body() nameData: UserNameDto): Promise<FoundUserDto> {
     const inputData: ChangeUserNameDS = {
       id: userId,
       name: nameData.name,
@@ -428,7 +430,6 @@ export class UserController {
       isTemporary: tokenInfo.isTemporary,
     };
   }
-
 
   @ApiOperation({ summary: 'Save user session settings' })
   @ApiBody({ type: UserSettingsDataRequestDto })

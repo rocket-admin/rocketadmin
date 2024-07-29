@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/enums/connection-types-enum.js';
-import { FoundUserDs } from '../../../user/application/data-structures/found-user.ds.js';
+import { FoundUserDto } from '../../../user/dto/found-user.dto.js';
 
 export class CreatedGroupInConnectionDTO {
   @ApiProperty()
@@ -12,8 +12,8 @@ export class CreatedGroupInConnectionDTO {
   @ApiProperty()
   isMain: boolean;
 
-  @ApiProperty({ isArray: true, type: FoundUserDs })
-  users: Array<FoundUserDs>;
+  @ApiProperty({ isArray: true, type: FoundUserDto })
+  users: Array<FoundUserDto>;
 }
 
 export class CreatedConnectionDTO {

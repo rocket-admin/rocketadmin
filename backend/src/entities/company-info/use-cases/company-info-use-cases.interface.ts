@@ -1,6 +1,6 @@
 import { InTransactionEnum } from '../../../enums/in-transaction.enum.js';
 import { SuccessResponse } from '../../../microservices/saas-microservice/data-structures/common-responce.ds.js';
-import { SimpleFoundUserInfoDs } from '../../user/application/data-structures/found-user.ds.js';
+import { SimpleFoundUserInfoDs } from '../../user/dto/found-user.dto.js';
 import { IToken } from '../../user/utils/generate-gwt-token.js';
 import { AcceptUserValidationInCompany } from '../application/data-structures/accept-user-invitation-in-company.ds.js';
 import {

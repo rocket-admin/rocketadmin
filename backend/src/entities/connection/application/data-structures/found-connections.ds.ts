@@ -3,7 +3,7 @@ import { AccessLevelEnum } from '../../../../enums/index.js';
 import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/enums/connection-types-enum.js';
 import { UserEntity } from '../../../user/user.entity.js';
 import { FoundGroupDataWithUsersDs } from '../../../group/application/data-sctructures/found-user-groups.ds.js';
-import { SimpleFoundUserInfoDs } from '../../../user/application/data-structures/found-user.ds.js';
+import { SimpleFoundUserInfoDs } from '../../../user/dto/found-user.dto.js';
 
 export class FoundDirectConnectionsDs {
   @ApiProperty()
@@ -71,6 +71,9 @@ export class FoundDirectConnectionsDs {
 
   @ApiProperty({ required: false })
   authSource?: string;
+
+  @ApiProperty()
+  isTestConnection: boolean;
 }
 
 export class FoundDirectConnectionsNonePermissionDs {
@@ -85,6 +88,9 @@ export class FoundDirectConnectionsNonePermissionDs {
 
   @ApiProperty()
   database: string;
+
+  @ApiProperty()
+  isTestConnection: boolean;
 }
 
 export class FoundAgentConnectionsDs {
@@ -105,6 +111,9 @@ export class FoundAgentConnectionsDs {
 
   @ApiProperty()
   signing_key: string;
+
+  @ApiProperty()
+  isTestConnection: boolean;
 }
 
 export class FoundDirectConnectionsWithGroupAndUsersDs extends FoundDirectConnectionsDs {
