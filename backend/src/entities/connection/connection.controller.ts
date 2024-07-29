@@ -38,7 +38,6 @@ import { DeleteConnectionDs } from './application/data-structures/delete-connect
 import { DeleteGroupInConnectionDs } from './application/data-structures/delete-group-in-connection.ds.js';
 import { FindOneConnectionDs } from './application/data-structures/find-one-connection.ds.js';
 import { FoundConnectionsDs } from './application/data-structures/found-connections.ds.js';
-import { FoundUserGroupsInConnectionDs } from './application/data-structures/found-user-groups-in-connection.ds.js';
 import { GetGroupsInConnectionDs } from './application/data-structures/get-groups-in-connection.ds.js';
 import { GetPermissionsInConnectionDs } from './application/data-structures/get-permissions-in-connection.ds.js';
 import { RestoredConnectionDs } from './application/data-structures/restored-connection.ds.js';
@@ -78,6 +77,7 @@ import { ConnectionTokenResponseDTO } from './application/dto/new-connection-tok
 import { UpdateMasterPasswordRequestBodyDto } from './application/dto/update-master-password-request-body.dto.js';
 import { FoundOneConnectionDs } from './application/data-structures/found-one-connection.ds.js';
 import { FoundGroupResponseDto } from '../group/dto/found-group-response.dto.js';
+import { FoundUserGroupsInConnectionDTO } from './application/dto/found-user-groups-in-connection.dto.js';
 
 @UseInterceptors(SentryInterceptor)
 @Controller()
@@ -400,14 +400,14 @@ export class ConnectionController {
   @ApiOperation({ summary: 'Get all groups in connection' })
   @ApiResponse({
     status: 200,
-    type: FoundUserGroupsInConnectionDs,
+    type: FoundUserGroupsInConnectionDTO,
     isArray: true,
   })
   @Get('/connection/groups/:connectionId')
   async getGroupsInConnection(
     @UserId() userId: string,
     @SlugUuid('connectionId') connectionId: string,
-  ): Promise<Array<FoundUserGroupsInConnectionDs>> {
+  ): Promise<Array<FoundUserGroupsInConnectionDTO>> {
     if (!connectionId) {
       throw new BadRequestException(Messages.ID_MISSING);
     }

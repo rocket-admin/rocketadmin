@@ -2,20 +2,18 @@ import { AccessLevelEnum, PermissionTypeEnum } from '../../../enums/index.js';
 import { ConnectionEntity } from '../../connection/connection.entity.js';
 import { UserEntity } from '../../user/user.entity.js';
 import { GroupEntity } from '../group.entity.js';
+import { IGroupRepository } from './group.repository.interface.js';
 
-export const groupCustomRepositoryExtension = {
+export const groupCustomRepositoryExtension: IGroupRepository = {
   async saveNewOrUpdatedGroup(groupData: GroupEntity): Promise<GroupEntity> {
     return await this.save(groupData);
   },
 
-  async findAllGroupsInConnection(connectionId: string): Promise<Array<Omit<GroupEntity, 'connection'>>> {
-    const qb = this.createQueryBuilder('group').leftJoinAndSelect('group.connection', 'connection');
-    qb.andWhere('connection.id = :id', { id: connectionId });
-    const groups: Array<GroupEntity> = await qb.getMany();
-    groups.map((e) => {
-      delete e.connection;
-    });
-    return groups;
+  async findAllGroupsInConnection(connectionId: string): Promise<Array<GroupEntity>> {
+    const qb = this.createQueryBuilder('group')
+      .leftJoinAndSelect('group.connection', 'connection')
+      .andWhere('connection.id = :id', { id: connectionId });
+    return await qb.getMany();
   },
 
   async createdAdminGroupInConnection(connection: ConnectionEntity, user: UserEntity): Promise<GroupEntity> {
@@ -39,21 +37,13 @@ export const groupCustomRepositoryExtension = {
     return await this.remove(group);
   },
 
-  async findAllUserGroupsInConnection(
-    connectionId: string,
-    cognitoUserName: string,
-  ): Promise<Array<Omit<GroupEntity, 'connection' | 'users'>>> {
+  async findAllUserGroupsInConnection(connectionId: string, cognitoUserName: string): Promise<Array<GroupEntity>> {
     const qb = this.createQueryBuilder('group')
       .leftJoinAndSelect('group.connection', 'connection')
       .leftJoinAndSelect('group.users', 'user')
       .andWhere('connection.id = :connectionId', { connectionId: connectionId })
       .andWhere('user.id = :cognitoUserName', { cognitoUserName: cognitoUserName });
-    const foundGroups = await qb.getMany();
-    return foundGroups.map((group: GroupEntity) => {
-      delete group.connection;
-      delete group.users;
-      return group;
-    });
+    return await qb.getMany();
   },
 
   async findGroupById(groupId: string): Promise<GroupEntity> {

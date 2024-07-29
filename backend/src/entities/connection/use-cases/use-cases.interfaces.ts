@@ -10,7 +10,6 @@ import { DeleteGroupInConnectionDs } from '../application/data-structures/delete
 import { GroupEntity } from '../../group/group.entity.js';
 import { CreateGroupInConnectionDs } from '../application/data-structures/create-group-in-connection.ds.js';
 import { GetGroupsInConnectionDs } from '../application/data-structures/get-groups-in-connection.ds.js';
-import { FoundUserGroupsInConnectionDs } from '../application/data-structures/found-user-groups-in-connection.ds.js';
 import { GetPermissionsInConnectionDs } from '../application/data-structures/get-permissions-in-connection.ds.js';
 import { FoundPermissionsInConnectionDs } from '../application/data-structures/found-permissions-in-connection.ds.js';
 import { TestConnectionResultDs } from '../application/data-structures/test-connection-result.ds.js';
@@ -20,6 +19,7 @@ import { TokenDs } from '../application/data-structures/token.ds.js';
 import { InTransactionEnum } from '../../../enums/index.js';
 import { FoundOneConnectionDs } from '../application/data-structures/found-one-connection.ds.js';
 import { FoundGroupResponseDto } from '../../group/dto/found-group-response.dto.js';
+import { FoundUserGroupsInConnectionDTO } from '../application/dto/found-user-groups-in-connection.dto.js';
 
 export interface IFindConnections {
   execute(user: CreateUserDs, inTransaction: InTransactionEnum): Promise<FoundConnectionsDs>;
@@ -63,7 +63,7 @@ export interface IGetUserGroupsInConnection {
   execute(
     inputData: GetGroupsInConnectionDs,
     inTransaction: InTransactionEnum,
-  ): Promise<Array<FoundUserGroupsInConnectionDs>>;
+  ): Promise<Array<FoundUserGroupsInConnectionDTO>>;
 }
 
 export interface IGetPermissionsForGroupInConnection {
