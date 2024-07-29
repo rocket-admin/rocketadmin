@@ -9,6 +9,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { NotificationsService } from 'src/app/services/notifications.service';
+import { SelectionModel } from '@angular/cdk/collections';
 import { TableStateService } from 'src/app/services/table-state.service';
 import { merge } from 'rxjs';
 import { normalizeTableName } from '../../../lib/normalize'
@@ -34,6 +35,7 @@ export class DbTableComponent implements OnInit {
   @Input() connectionID: string;
   @Input() activeFilters: object;
   @Input() filterComparators: object;
+  @Input() selection: SelectionModel<any>;
 
   @Output() openFilters = new EventEmitter();
   @Output() openPage = new EventEmitter();
@@ -45,7 +47,7 @@ export class DbTableComponent implements OnInit {
   @Output() activateActions = new EventEmitter();
 
   public tableData: any;
-  public selection: any;
+  // public selection: any;
   public columns: Column[];
   public displayedColumns: string[] = [];
   public columnsToDisplay: string[] = [];
@@ -65,10 +67,6 @@ export class DbTableComponent implements OnInit {
 
   @Input() set table(value){
     if (value) this.tableData = value;
-  }
-
-  @Input() set rowSelection(value){
-    if (value) this.selection = value;
   }
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
@@ -230,7 +228,7 @@ export class DbTableComponent implements OnInit {
 
   /** Whether the number of selected elements matches the total number of rows. */
   isAllSelected() {
-    return this.paginator.pageSize === this.selection.selected.length;
+    return this.tableData.rowsSubject.value.length === this.selection.selected.length;
   }
 
   /** Selects all rows if they are not all selected; otherwise clear selection. */

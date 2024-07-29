@@ -261,6 +261,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
     const filters = JsonURL.stringify( this.filters );
 
+    this.selection.clear();
+
     this.getRows();
     this.router.navigate([`/dashboard/${this.connectionID}/${this.selectedTableName}`], {
       queryParams: {
