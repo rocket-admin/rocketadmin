@@ -76,6 +76,7 @@ import { UpdateMasterPasswordRequestBodyDto } from './application/dto/update-mas
 import { FoundOneConnectionDs } from './application/data-structures/found-one-connection.ds.js';
 import { FoundGroupResponseDto } from '../group/dto/found-group-response.dto.js';
 import { FoundUserGroupsInConnectionDTO } from './application/dto/found-user-groups-in-connection.dto.js';
+import { SuccessResponse } from '../../microservices/saas-microservice/data-structures/common-responce.ds.js';
 
 @UseInterceptors(SentryInterceptor)
 @Controller()
@@ -520,13 +521,15 @@ export class ConnectionController {
   @ApiBody({ type: UpdateMasterPasswordDs })
   @ApiResponse({
     status: 200,
+    type: SuccessResponse,
+    description: 'Connection master password was updated.',
   })
   @UseGuards(ConnectionEditGuard)
   @Put('/connection/encryption/update/:connectionId')
   async updateConnectionMasterPwd(
     @SlugUuid('connectionId') connectionId: string,
     @Body() passwordData: UpdateMasterPasswordRequestBodyDto,
-  ): Promise<boolean> {
+  ): Promise<SuccessResponse> {
     if (!connectionId) {
       throw new BadRequestException(Messages.CONNECTION_ID_MISSING);
     }

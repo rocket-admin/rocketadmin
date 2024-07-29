@@ -41,15 +41,15 @@ export class FoundTablesWithPermissionsDs {
   @ApiProperty()
   display_name: string;
 
-  @ApiProperty()
+  @ApiProperty({ type: FoundTablePermissionsDs })
   accessLevel: FoundTablePermissionsDs;
 }
 
 export class FoundPermissionsInConnectionDs {
-  @ApiProperty()
+  @ApiProperty({ type: FoundConnectionPermissionsDs })
   connection: FoundConnectionPermissionsDs;
 
-  @ApiProperty()
+  @ApiProperty({ type: FoundConnectionGroupPermissionDs })
   group: FoundConnectionGroupPermissionDs;
 
   @ApiProperty({ isArray: true, type: FoundTablesWithPermissionsDs })
