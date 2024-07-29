@@ -31,5 +31,6 @@ export function buildFoundConnectionDs(
     updatedAt: connection.updatedAt,
     username: connection.username,
     signing_key: connection.signing_key,
+    isTestConnection: connection.isTestConnection,
   };
 }

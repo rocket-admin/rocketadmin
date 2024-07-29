@@ -71,6 +71,9 @@ export class FoundDirectConnectionsDs {
 
   @ApiProperty({ required: false })
   authSource?: string;
+
+  @ApiProperty()
+  isTestConnection: boolean;
 }
 
 export class FoundDirectConnectionsNonePermissionDs {
@@ -85,6 +88,9 @@ export class FoundDirectConnectionsNonePermissionDs {
 
   @ApiProperty()
   database: string;
+
+  @ApiProperty()
+  isTestConnection: boolean;
 }
 
 export class FoundAgentConnectionsDs {
@@ -105,6 +111,9 @@ export class FoundAgentConnectionsDs {
 
   @ApiProperty()
   signing_key: string;
+
+  @ApiProperty()
+  isTestConnection: boolean;
 }
 
 export class FoundDirectConnectionsWithGroupAndUsersDs extends FoundDirectConnectionsDs {
