@@ -41,7 +41,7 @@ export const Messages = {
   CANT_REMOVE_LAST_USER_FROM_COMPANY: 'You can not remove the last user from the company.',
   CANT_DELETE_PERMISSION_ADMIN_GROUP: `You can not delete editing permission for Connection from Admin group`,
   CANT_CONNECT_AUTOADMIN_WS: `Connection to autoadmin websocket server failed.`,
-  CANT_INSERT_DUPLICATE_KEY: 'You can not insert duplicate Key values into database',
+  CANT_INSERT_DUPLICATE_KEY: 'It seems like the value you entered for the unique field already exists in database. Please check your input and try again with a different value',
   CANT_LIST_AND_EXCLUDE: (fieldName: string) =>
     `You cannot select the same field ${fieldName ? fieldName : 'names'} to list and exclude`,
   CANT_VIEW_AND_EXCLUDE: (fieldName: string) =>

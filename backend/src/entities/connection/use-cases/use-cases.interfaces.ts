@@ -7,7 +7,6 @@ import { FoundUserDto } from '../../user/dto/found-user.dto.js';
 import { UpdateConnectionDs } from '../application/data-structures/update-connection.ds.js';
 import { DeleteConnectionDs } from '../application/data-structures/delete-connection.ds.js';
 import { DeleteGroupInConnectionDs } from '../application/data-structures/delete-group-in-connection.ds.js';
-import { GroupEntity } from '../../group/group.entity.js';
 import { CreateGroupInConnectionDs } from '../application/data-structures/create-group-in-connection.ds.js';
 import { GetGroupsInConnectionDs } from '../application/data-structures/get-groups-in-connection.ds.js';
 import { GetPermissionsInConnectionDs } from '../application/data-structures/get-permissions-in-connection.ds.js';
@@ -53,10 +52,7 @@ export interface IDeleteGroupInConnection {
 }
 
 export interface ICreateGroupInConnection {
-  execute(
-    inputData: CreateGroupInConnectionDs,
-    inTransaction: InTransactionEnum,
-  ): Promise<Omit<GroupEntity, 'connection'>>;
+  execute(inputData: CreateGroupInConnectionDs, inTransaction: InTransactionEnum): Promise<FoundGroupResponseDto>;
 }
 
 export interface IGetUserGroupsInConnection {

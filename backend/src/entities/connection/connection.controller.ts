@@ -27,7 +27,6 @@ import {
 } from '../../helpers/index.js';
 import { SentryInterceptor } from '../../interceptors/index.js';
 import { AmplitudeService } from '../amplitude/amplitude.service.js';
-import { GroupEntity } from '../group/group.entity.js';
 import { IComplexPermission } from '../permission/permission.interface.js';
 import { FindUserDs } from '../user/application/data-structures/find-user.ds.js';
 import { FoundUserDto } from '../user/dto/found-user.dto.js';
@@ -69,7 +68,6 @@ import { CreateConnectionDto } from './application/dto/index.js';
 import { UpdatedConnectionResponseDTO } from './application/dto/updated-connection-responce.dto.js';
 import { DeleteConnectionReasonDto } from './application/dto/delete-connection.dto.js';
 import { DeleteGroupFromConnectionDTO } from './application/dto/delete-group-from-connection-request.dto.js';
-import { CreateDeleteGroupInConnectionResponseDTO } from './application/dto/delete-froup-from-connection-response.dto.js';
 import { CreateGroupInConnectionDTO } from './application/dto/create-group-in-connection.dto.js';
 import { FoundPermissionsInConnectionDs } from './application/data-structures/found-permissions-in-connection.ds.js';
 import { TestConnectionResponseDTO } from './application/dto/test-connection-response.dto.js';
@@ -372,7 +370,7 @@ export class ConnectionController {
   @ApiResponse({
     status: 201,
     description: 'Group was created.',
-    type: CreateDeleteGroupInConnectionResponseDTO,
+    type: FoundGroupResponseDto,
   })
   @UseGuards(ConnectionEditGuard)
   @Post('/connection/group/:connectionId')
@@ -380,7 +378,7 @@ export class ConnectionController {
     @Body() groupData: CreateGroupInConnectionDTO,
     @SlugUuid('connectionId') connectionId: string,
     @UserId() userId: string,
-  ): Promise<Omit<GroupEntity, 'connection'>> {
+  ): Promise<FoundGroupResponseDto> {
     const { title } = groupData;
     if (!title) {
       throw new BadRequestException(Messages.GROUP_TITLE_MISSING);

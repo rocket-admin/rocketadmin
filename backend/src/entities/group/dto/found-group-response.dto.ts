@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { SimpleFoundUserInfoDs } from '../../user/dto/found-user.dto.js';
 
 export class FoundGroupResponseDto {
   @ApiProperty()
@@ -9,4 +10,7 @@ export class FoundGroupResponseDto {
 
   @ApiProperty()
   isMain: boolean;
+
+  @ApiProperty({ required: false, isArray: true, type: SimpleFoundUserInfoDs })
+  users?: Array<SimpleFoundUserInfoDs>;
 }
