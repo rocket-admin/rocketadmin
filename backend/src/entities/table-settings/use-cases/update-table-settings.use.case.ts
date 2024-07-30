@@ -1,4 +1,4 @@
-import { HttpStatus, Inject, Injectable } from '@nestjs/common';
+import { HttpStatus, Inject, Injectable, Scope } from '@nestjs/common';
 import { HttpException } from '@nestjs/common/exceptions/http.exception.js';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
@@ -14,7 +14,7 @@ import { IUpdateTableSettings } from './use-cases.interface.js';
 import { ValidateTableSettingsDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/validate-table-settings.ds.js';
 import { buildValidateTableSettingsDS } from '@rocketadmin/shared-code/dist/src/helpers/data-structures-builders/validate-table-settings-ds.builder.js';
 
-@Injectable()
+@Injectable({ scope: Scope.REQUEST })
 export class UpdateTableSettingsUseCase
   extends AbstractUseCase<CreateTableSettingsDs, FoundTableSettingsDs>
   implements IUpdateTableSettings
