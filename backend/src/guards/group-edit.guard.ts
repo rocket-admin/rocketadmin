@@ -1,10 +1,16 @@
-import { CanActivate, ExecutionContext, Inject, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  CanActivate,
+  ExecutionContext,
+  ForbiddenException,
+  Inject,
+  Injectable,
+} from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { IRequestWithCognitoInfo } from '../authorization/index.js';
 import { IGlobalDatabaseContext } from '../common/application/global-database-context.interface.js';
 import { BaseType } from '../common/data-injection.tokens.js';
 import { Messages } from '../exceptions/text/messages.js';
-import { buildBadRequestException, buildForbiddenException } from './utils/index.js';
 import { validateUuidByRegex } from './utils/validate-uuid-by-regex.js';
 
 @Injectable()
@@ -23,7 +29,7 @@ export class GroupEditGuard implements CanActivate {
         groupId = request.body['groupId'];
       }
       if (!groupId || !validateUuidByRegex(groupId)) {
-        reject(buildBadRequestException(Messages.GROUP_ID_MISSING));
+        reject(new BadRequestException(Messages.GROUP_ID_MISSING));
         return;
       }
       let userGroupEdit = false;
@@ -38,7 +44,7 @@ export class GroupEditGuard implements CanActivate {
         resolve(true);
         return;
       } else {
-        reject(buildForbiddenException(Messages.DONT_HAVE_PERMISSIONS));
+        reject(new ForbiddenException(Messages.DONT_HAVE_PERMISSIONS));
         return;
       }
     });
