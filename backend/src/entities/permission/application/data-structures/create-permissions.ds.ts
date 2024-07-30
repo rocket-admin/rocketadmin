@@ -44,7 +44,7 @@ export class TableAccessLevelsDs {
 }
 
 export class TablePermissionDs {
-  @ApiProperty()
+  @ApiProperty({ type: TableAccessLevelsDs })
   @ValidateNested()
   accessLevel: TableAccessLevelsDs;
 
@@ -76,11 +76,11 @@ export class ConnectionPermissionDs {
 }
 
 export class ComplexPermissionDs {
-  @ApiProperty()
+  @ApiProperty({ type: ConnectionPermissionDs })
   @ValidateNested()
   connection: ConnectionPermissionDs;
 
-  @ApiProperty()
+  @ApiProperty({ type: GroupPermissionDs })
   @ValidateNested()
   group: GroupPermissionDs;
 
