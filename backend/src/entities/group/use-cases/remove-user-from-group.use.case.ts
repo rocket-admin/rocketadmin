@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Inject, Injectable, Scope } from '@nestjs/common';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
@@ -8,7 +8,7 @@ import { RemoveUserFromGroupResultDs } from '../application/data-sctructures/rem
 import { buildRemoveUserFromGroupResultDs } from '../utils/build-remove-user-from-group-result.ds.js';
 import { IRemoveUserFromGroup } from './use-cases.interfaces.js';
 
-@Injectable()
+@Injectable({ scope: Scope.REQUEST })
 export class RemoveUserFromGroupUseCase
   extends AbstractUseCase<AddUserInGroupDs, RemoveUserFromGroupResultDs>
   implements IRemoveUserFromGroup

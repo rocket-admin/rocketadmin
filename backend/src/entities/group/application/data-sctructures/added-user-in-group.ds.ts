@@ -1,9 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { GroupEntity } from '../../group.entity.js';
+import { FoundGroupResponseDto } from '../../dto/found-group-response.dto.js';
 
 export class AddedUserInGroupDs {
   @ApiProperty()
-  group: Omit<GroupEntity, 'connection'>;
+  group: FoundGroupResponseDto;
 
   @ApiProperty()
   message: string;

@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Inject } from '@nestjs/common';
+import { HttpException, HttpStatus, Inject, Injectable, Scope } from '@nestjs/common';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
@@ -7,6 +7,7 @@ import { UpdateGroupTitleDto } from '../dto/update-group-title.dto.js';
 import { IUpdateGroupTitle } from './use-cases.interfaces.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 
+@Injectable({ scope: Scope.REQUEST })
 export class UpdateGroupTitleUseCase
   extends AbstractUseCase<UpdateGroupTitleDto, FoundGroupDataInfoDs>
   implements IUpdateGroupTitle

@@ -10,10 +10,6 @@ import { VerifyAddUserInGroupDs } from '../application/data-sctructures/verify-a
 import { UpdateGroupTitleDto } from '../dto/update-group-title.dto.js';
 
 export interface IAddUserInGroup {
-  execute(inputData: AddUserInGroupDs, inTransaction: InTransactionEnum): Promise<AddedUserInGroupDs>;
-}
-
-export interface ISaaSAddUserInGroup {
   execute(inputData: AddUserInGroupWithSaaSDs, inTransaction: InTransactionEnum): Promise<AddedUserInGroupDs>;
 }
 
