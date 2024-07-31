@@ -1,20 +1,20 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { GroupUser, User, UserGroup, UserGroupInfo } from 'src/app/models/user';
+import { Subscription, first } from 'rxjs';
 
 import { Angulartics2 } from 'angulartics2';
 import { Connection } from 'src/app/models/connection';
 import { ConnectionsService } from 'src/app/services/connections.service';
 import { GroupAddDialogComponent } from './group-add-dialog/group-add-dialog.component';
 import { GroupDeleteDialogComponent } from './group-delete-dialog/group-delete-dialog.component';
+import { GroupNameEditDialogComponent } from './group-name-edit-dialog/group-name-edit-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
 import { PermissionsAddDialogComponent } from './permissions-add-dialog/permissions-add-dialog.component';
-import { Subscription, first } from 'rxjs';
 import { Title } from '@angular/platform-browser';
 import { UserAddDialogComponent } from './user-add-dialog/user-add-dialog.component';
 import { UserDeleteDialogComponent } from './user-delete-dialog/user-delete-dialog.component';
 import { UserService } from 'src/app/services/user.service';
 import { UsersService } from '../../services/users.service';
-import { GroupNameEditDialogComponent } from './group-name-edit-dialog/group-name-edit-dialog.component';
 
 @Component({
   selector: 'app-users',
@@ -30,6 +30,7 @@ export class UsersComponent implements OnInit, OnDestroy {
   public connectionID: string | null = null;
 
   private getTitleSubscription: Subscription;
+  private usersSubscription: Subscription;
 
   constructor(
     private _usersService: UsersService,
@@ -47,7 +48,7 @@ export class UsersComponent implements OnInit, OnDestroy {
     this.connectionID = this._connections.currentConnectionID;
     this.getUsersGroups();
     this._userService.cast.subscribe(user => this.currentUser = user);
-    this._usersService.cast.subscribe( arg =>  {
+    this.usersSubscription = this._usersService.cast.subscribe( arg =>  {
       if (arg.action === 'add group' || arg.action === 'delete group' || arg.action === 'edit group name') {
         this.getUsersGroups()
 
@@ -64,6 +65,7 @@ export class UsersComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this.getTitleSubscription.unsubscribe();
+    this.usersSubscription.unsubscribe();
   }
 
   get connectionAccessLevel() {
