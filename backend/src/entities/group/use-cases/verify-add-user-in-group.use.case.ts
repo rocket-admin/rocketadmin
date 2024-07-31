@@ -6,7 +6,6 @@ import { Messages } from '../../../exceptions/text/messages.js';
 import { Constants } from '../../../helpers/constants/constants.js';
 import { Encryptor } from '../../../helpers/encryption/encryptor.js';
 import { ValidationHelper } from '../../../helpers/validators/validation-helper.js';
-import { UserHelperService } from '../../user/user-helper.service.js';
 import { generateGwtToken, IToken } from '../../user/utils/generate-gwt-token.js';
 import { VerifyAddUserInGroupDs } from '../application/data-sctructures/verify-add-user-in-group.ds.js';
 import { IVerifyAddUserInGroup } from './use-cases.interfaces.js';
@@ -20,7 +19,6 @@ export class VerifyAddUserInGroupUseCase
   constructor(
     @Inject(BaseType.GLOBAL_DB_CONTEXT)
     protected _dbContext: IGlobalDatabaseContext,
-    private readonly userHelperService: UserHelperService,
   ) {
     super();
   }

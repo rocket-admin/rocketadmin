@@ -31,7 +31,7 @@ export class RemoveUserFromGroupUseCase
         HttpStatus.BAD_REQUEST,
       );
     }
-    const groupToUpdate = await this._dbContext.groupRepository.findGroupById(groupId);
+    const groupToUpdate = await this._dbContext.groupRepository.findGroupByIdWithConnectionAndUsers(groupId);
     if (groupToUpdate.isMain && groupToUpdate.users.length <= 1) {
       throw new HttpException(
         {

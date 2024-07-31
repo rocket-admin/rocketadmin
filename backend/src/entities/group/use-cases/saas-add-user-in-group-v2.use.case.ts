@@ -7,11 +7,11 @@ import { AddedUserInGroupDs } from '../application/data-sctructures/added-user-i
 import { IAddUserInGroup } from './use-cases.interfaces.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { SaasCompanyGatewayService } from '../../../microservices/gateways/saas-gateway.ts/saas-company-gateway.service.js';
-import { ConnectionEntity } from '../../connection/connection.entity.js';
-import { UserEntity } from '../../user/user.entity.js';
 import { sendEmailConfirmation, sendInvitationToGroup } from '../../email/send-email.js';
 import { UserInvitationEntity } from '../../user/user-invitation/user-invitation.entity.js';
 import { buildFoundGroupResponseDto } from '../utils/biuld-found-group-response.dto.js';
+import { slackPostMessage } from '../../../helpers/index.js';
+import { isSaaS } from '../../../helpers/app/is-saas.js';
 
 export class AddUserInGroupUseCase
   extends AbstractUseCase<AddUserInGroupWithSaaSDs, AddedUserInGroupDs>
@@ -27,7 +27,8 @@ export class AddUserInGroupUseCase
 
   protected async implementation(inputData: AddUserInGroupWithSaaSDs): Promise<AddedUserInGroupDs> {
     const { email, groupId, inviterId } = inputData;
-    const foundGroup = await this._dbContext.groupRepository.findGroupById(groupId);
+    const foundGroup = await this._dbContext.groupRepository.findGroupByIdWithConnectionAndUsers(groupId);
+
     const foundConnection =
       await this._dbContext.connectionRepository.getConnectionByGroupIdWithCompanyAndUsersInCompany(groupId);
     if (!foundConnection) {
@@ -39,21 +40,29 @@ export class AddUserInGroupUseCase
       );
     }
 
-    if (!foundConnection.company) {
+    if (!foundConnection.company || !foundConnection.company.id) {
       throw new HttpException(
         {
           message: Messages.COMPANY_NOT_EXISTS_IN_CONNECTION,
         },
-        HttpStatus.NOT_FOUND,
+        HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
 
-    const foundUser =
-      await this._dbContext.userRepository.findUserByEmailEndCompanyIdWithEmailVerificationAndInvitation(
-        email,
-        foundConnection.company.id,
-      );
+    const companyWithUsers = await this._dbContext.companyInfoRepository.findCompanyInfoWithUsersById(
+      foundConnection.company.id,
+    );
 
+    if (!companyWithUsers) {
+      throw new HttpException(
+        {
+          message: Messages.COMPANY_NOT_EXISTS_IN_CONNECTION,
+        },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+
+    const foundUser = companyWithUsers.users.find((u) => u.email === email);
     if (!foundUser) {
       throw new HttpException(
         {
@@ -62,15 +71,14 @@ export class AddUserInGroupUseCase
         HttpStatus.BAD_REQUEST,
       );
     }
-    const isUserInCompany = this.isUserAlreadyInCompany(foundConnection, foundUser);
-    const canInviteMoreUsers = await this.saasCompanyGatewayService.canInviteMoreUsers(foundConnection.company.id);
-    if (!canInviteMoreUsers && !isUserInCompany) {
-      throw new HttpException(
-        {
-          message: Messages.MAXIMUM_FREE_INVITATION_REACHED,
-        },
-        HttpStatus.PAYMENT_REQUIRED,
-      );
+    //todo remove in future
+    if (isSaaS()) {
+      const saasFoundCompany = await this.saasCompanyGatewayService.getCompanyInfo(foundConnection.company.id);
+      const saasFoundUserInCompany = saasFoundCompany?.users.find((u) => u.email === email);
+
+      if (foundUser && !saasFoundUserInCompany) {
+        await slackPostMessage('probable desynchronization of users (adding a user to a group)');
+      }
     }
 
     if (foundUser && foundUser.isActive) {
@@ -86,7 +94,6 @@ export class AddUserInGroupUseCase
 
       foundGroup.users.push(foundUser);
       const savedGroup = await this._dbContext.groupRepository.saveNewOrUpdatedGroup(foundGroup);
-      delete savedGroup.connection;
       return {
         group: buildFoundGroupResponseDto(savedGroup),
         message: Messages.USER_ADDED_IN_GROUP(foundUser.email),
@@ -110,7 +117,7 @@ export class AddUserInGroupUseCase
         foundGroup.users.push(foundUser);
       }
       const savedGroup = await this._dbContext.groupRepository.saveNewOrUpdatedGroup(foundGroup);
-      delete savedGroup.connection;
+
       const newEmailVerification =
         await this._dbContext.emailVerificationRepository.createOrUpdateEmailVerification(foundUser);
       const confiramtionMailResult = await sendEmailConfirmation(
@@ -150,18 +157,5 @@ export class AddUserInGroupUseCase
         external_invite: false,
       };
     }
-  }
-
-  private isUserAlreadyInCompany(connectionWithCompanyAndUsers: ConnectionEntity, foundUser: UserEntity): boolean {
-    if (
-      !connectionWithCompanyAndUsers.company ||
-      !connectionWithCompanyAndUsers.company.users ||
-      !connectionWithCompanyAndUsers.company.users.length ||
-      !foundUser
-    ) {
-      return false;
-    }
-    const foundUserInCompany = connectionWithCompanyAndUsers.company.users.find((u) => u.id === foundUser.id);
-    return !!foundUserInCompany;
   }
 }

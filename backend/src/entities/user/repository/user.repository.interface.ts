@@ -28,7 +28,7 @@ export interface IUserRepository {
 
   findOneUserWithEmailVerification(userId: string): Promise<UserEntity>;
 
-  findUserByEmailEndCompanyIdWithEmailVerificationAndInvitation(email: string, companyId?: string): Promise<UserEntity>;
+  findUserByEmailEndCompanyIdWithEmailVerificationAndInvitation(email: string, companyId: string): Promise<UserEntity>;
 
   deleteUserEntity(user: UserEntity): Promise<UserEntity>;
 
