@@ -264,7 +264,7 @@ export class CompanyInfoController {
         userPassword: password,
         userName,
       },
-      InTransactionEnum.ON,
+      InTransactionEnum.OFF,
     );
     response.cookie(Constants.JWT_COOKIE_KEY_NAME, tokenInfo.token, {
       httpOnly: true,
