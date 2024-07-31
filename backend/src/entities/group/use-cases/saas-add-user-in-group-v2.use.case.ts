@@ -7,8 +7,7 @@ import { AddedUserInGroupDs } from '../application/data-sctructures/added-user-i
 import { IAddUserInGroup } from './use-cases.interfaces.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { SaasCompanyGatewayService } from '../../../microservices/gateways/saas-gateway.ts/saas-company-gateway.service.js';
-import { sendEmailConfirmation, sendInvitationToGroup } from '../../email/send-email.js';
-import { UserInvitationEntity } from '../../user/user-invitation/user-invitation.entity.js';
+import { sendInvitedInNewGroup } from '../../email/send-email.js';
 import { buildFoundGroupResponseDto } from '../utils/biuld-found-group-response.dto.js';
 import { slackPostMessage } from '../../../helpers/index.js';
 import { isSaaS } from '../../../helpers/app/is-saas.js';
@@ -26,11 +25,12 @@ export class AddUserInGroupUseCase
   }
 
   protected async implementation(inputData: AddUserInGroupWithSaaSDs): Promise<AddedUserInGroupDs> {
-    const { email, groupId, inviterId } = inputData;
+    const { email, groupId } = inputData;
     const foundGroup = await this._dbContext.groupRepository.findGroupByIdWithConnectionAndUsers(groupId);
 
     const foundConnection =
       await this._dbContext.connectionRepository.getConnectionByGroupIdWithCompanyAndUsersInCompany(groupId);
+
     if (!foundConnection) {
       throw new HttpException(
         {
@@ -76,86 +76,29 @@ export class AddUserInGroupUseCase
       const saasFoundCompany = await this.saasCompanyGatewayService.getCompanyInfo(foundConnection.company.id);
       const saasFoundUserInCompany = saasFoundCompany?.users.find((u) => u.email === email);
 
-      if (foundUser && !saasFoundUserInCompany) {
-        await slackPostMessage('probable desynchronization of users (adding a user to a group)');
+      if (foundUser && !saasFoundUserInCompany && saasFoundCompany.users.length) {
+        await slackPostMessage(`probable desynchronization of users (adding a user to a group, user not found is saas, but found in core)
+          user: ${email}, company: ${foundConnection.company.id}`);
       }
     }
 
-    if (foundUser && foundUser.isActive) {
-      const userAlreadyAdded = !!foundGroup.users.find((u) => u.id === foundUser.id);
-      if (userAlreadyAdded) {
-        throw new HttpException(
-          {
-            message: Messages.USER_ALREADY_ADDED,
-          },
-          HttpStatus.BAD_REQUEST,
-        );
-      }
-
-      foundGroup.users.push(foundUser);
-      const savedGroup = await this._dbContext.groupRepository.saveNewOrUpdatedGroup(foundGroup);
-      return {
-        group: buildFoundGroupResponseDto(savedGroup),
-        message: Messages.USER_ADDED_IN_GROUP(foundUser.email),
-        external_invite: false,
-      };
-    }
-
-    if (foundUser && !foundUser.isActive) {
-      const userAlreadyAdded = !!foundGroup.users.find((u) => u.id === foundUser.id);
-      let savedInvitation: UserInvitationEntity;
-      if (userAlreadyAdded) {
-        savedInvitation = await this._dbContext.userInvitationRepository.createOrUpdateInvitationEntity(
-          foundUser,
-          inviterId,
-        );
-      } else {
-        savedInvitation = await this._dbContext.userInvitationRepository.createOrUpdateInvitationEntity(
-          foundUser,
-          null,
-        );
-        foundGroup.users.push(foundUser);
-      }
-      const savedGroup = await this._dbContext.groupRepository.saveNewOrUpdatedGroup(foundGroup);
-
-      const newEmailVerification =
-        await this._dbContext.emailVerificationRepository.createOrUpdateEmailVerification(foundUser);
-      const confiramtionMailResult = await sendEmailConfirmation(
-        foundUser.email,
-        newEmailVerification.verification_string,
+    const userAlreadyAdded = !!foundGroup.users.find((u) => u.id === foundUser.id);
+    if (userAlreadyAdded) {
+      throw new HttpException(
+        {
+          message: Messages.USER_ALREADY_ADDED,
+        },
+        HttpStatus.BAD_REQUEST,
       );
-
-      if (confiramtionMailResult?.rejected.includes(foundUser.email)) {
-        throw new HttpException(
-          {
-            message: Messages.FAILED_TO_SEND_CONFIRMATION_EMAIL(foundUser.email),
-          },
-          HttpStatus.INTERNAL_SERVER_ERROR,
-        );
-      }
-      const invitationMailResult = await sendInvitationToGroup(foundUser.email, savedInvitation.verification_string);
-
-      if (invitationMailResult?.rejected.includes(foundUser.email)) {
-        throw new HttpException(
-          {
-            message: Messages.FAILED_TO_SEND_INVITATION_EMAIL(foundUser.email),
-          },
-          HttpStatus.INTERNAL_SERVER_ERROR,
-        );
-      }
-      if (userAlreadyAdded) {
-        throw new HttpException(
-          {
-            message: Messages.USER_ALREADY_ADDED_BUT_NOT_ACTIVE,
-          },
-          HttpStatus.BAD_REQUEST,
-        );
-      }
-      return {
-        group: buildFoundGroupResponseDto(savedGroup),
-        message: Messages.USER_ADDED_IN_GROUP(foundUser.email),
-        external_invite: false,
-      };
     }
+
+    foundGroup.users.push(foundUser);
+    const savedGroup = await this._dbContext.groupRepository.saveNewOrUpdatedGroup(foundGroup);
+    await sendInvitedInNewGroup(foundUser.email, foundGroup.title);
+    return {
+      group: buildFoundGroupResponseDto(savedGroup),
+      message: Messages.USER_ADDED_IN_GROUP(foundUser.email),
+      external_invite: false,
+    };
   }
 }

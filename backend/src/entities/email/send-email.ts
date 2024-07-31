@@ -86,21 +86,6 @@ export async function sendEmailChanged(email: string): Promise<SMTPTransport.Sen
   return await sendEmailToUser(letterContent);
 }
 
-export async function sendInvitationToGroup(
-  email: string,
-  verificationString: string,
-): Promise<SMTPTransport.SentMessageInfo> {
-  const emailFrom = getProcessVariable('EMAIL_FROM') || Constants.AUTOADMIN_SUPPORT_MAIL;
-  const letterContent: IMessage = {
-    from: emailFrom,
-    to: email,
-    subject: Constants.EMAIL.GROUP_INVITE.GROUP_INVITE_SUBJECT_DATA,
-    text: Constants.EMAIL.GROUP_INVITE.GROUP_INVITE_TEXT_DATA(verificationString),
-    html: Constants.EMAIL.GROUP_INVITE.GROUP_INVITE_HTML_DATA(verificationString),
-  };
-  return await sendEmailToUser(letterContent);
-}
-
 export async function sendReminderToUser(email: string): Promise<SMTPTransport.SentMessageInfo> {
   const emailFrom = getProcessVariable('EMAIL_FROM') || Constants.AUTOADMIN_SUPPORT_MAIL;
   const letterContent: IMessage = {
@@ -156,6 +141,18 @@ export async function send2faEnabledInCompanyToUser(
     subject: Constants.EMAIL.COMPANY_2FA_ENABLED.COMPANY_2FA_ENABLED_SUBJECT_DATA,
     text: Constants.EMAIL.COMPANY_2FA_ENABLED.COMPANY_2FA_ENABLED_TEXT_DATA(companyName),
     html: Constants.EMAIL.COMPANY_2FA_ENABLED.COMPANY_2FA_ENABLED_HTML_DATA(companyName),
+  };
+  return await sendEmailToUser(letterContent);
+}
+
+export async function sendInvitedInNewGroup(email: string, groupTitle: string) {
+  const emailFrom = getProcessVariable('EMAIL_FROM') || Constants.AUTOADMIN_SUPPORT_MAIL;
+  const letterContent: IMessage = {
+    from: emailFrom,
+    to: email,
+    subject: Constants.EMAIL.GROUP_INVITE.GROUP_INVITE_SUBJECT_DATA,
+    text: Constants.EMAIL.GROUP_INVITE.GROUP_INVITE_TEXT_DATA(groupTitle),
+    html: Constants.EMAIL.GROUP_INVITE.GROUP_INVITE_HTML_DATA(groupTitle),
   };
   return await sendEmailToUser(letterContent);
 }

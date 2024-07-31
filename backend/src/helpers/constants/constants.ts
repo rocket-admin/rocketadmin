@@ -358,21 +358,17 @@ export const Constants = {
     },
     GROUP_INVITE: {
       GROUP_INVITE_SUBJECT_DATA: 'You were invited to a group in the Rocketadmin project',
-      GROUP_INVITE_TEXT_DATA: function (verificationString) {
-        return `You have been added to a group in the Rocketadmin project.
-         Please follow the link and accept the invitation:
-           ${Constants.APP_DOMAIN_ADDRESS}/external/group/user/verify/${verificationString}/`;
+      GROUP_INVITE_TEXT_DATA: function (groupTitle: string) {
+        return `You have been added to a "${groupTitle}" group in the Rocketadmin project.`;
       },
-      GROUP_INVITE_HTML_DATA: function (verificationString) {
+      GROUP_INVITE_HTML_DATA: function (groupTitle: string) {
         return `
         <body>
           <p>
             Hi!
           </p>
           <p>
-          You have been added to a group in the Rocketadmin project.
-          Please follow the link and accept the invitation:
-          <a href="${Constants.APP_DOMAIN_ADDRESS}/external/group/user/verify/${verificationString}"></a>
+          You have been added to a "${groupTitle}" group in the Rocketadmin project.
           </p>
           <p>
             Thanks.
