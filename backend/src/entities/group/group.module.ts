@@ -16,7 +16,6 @@ import { DeleteGroupUseCase } from './use-cases/delete-group.use.case.js';
 import { FindAllUserGroupsUseCase } from './use-cases/find-all-user-groups.use.case.js';
 import { FindAllUsersInGroupUseCase } from './use-cases/find-all-users-in-group.use.case.js';
 import { RemoveUserFromGroupUseCase } from './use-cases/remove-user-from-group.use.case.js';
-import { VerifyAddUserInGroupUseCase } from './use-cases/verify-add-user-in-group.use.case.js';
 import { AddUserInGroupUseCase } from './use-cases/saas-add-user-in-group-v2.use.case.js';
 import { UpdateGroupTitleUseCase } from './use-cases/update-group-title.use.case.js';
 
@@ -41,10 +40,6 @@ import { UpdateGroupTitleUseCase } from './use-cases/update-group-title.use.case
     {
       provide: UseCaseType.INVITE_USER_IN_GROUP,
       useClass: AddUserInGroupUseCase,
-    },
-    {
-      provide: UseCaseType.VERIFY_INVITE_USER_IN_GROUP,
-      useClass: VerifyAddUserInGroupUseCase,
     },
     {
       provide: UseCaseType.FIND_ALL_USER_GROUPS,
