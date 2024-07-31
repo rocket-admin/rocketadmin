@@ -16,7 +16,7 @@ export class DeleteGroupUseCase extends AbstractUseCase<string, DeletedGroupResu
   }
 
   protected async implementation(groupId: string): Promise<DeletedGroupResultDs> {
-    const groupToDelete = await this._dbContext.groupRepository.findGroupById(groupId);
+    const groupToDelete = await this._dbContext.groupRepository.findGroupByIdWithConnectionAndUsers(groupId);
     if (groupToDelete.isMain) {
       throw new HttpException(
         {

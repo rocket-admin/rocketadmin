@@ -66,16 +66,14 @@ export const userCustomRepositoryExtension: IUserRepository = {
 
   async findUserByEmailEndCompanyIdWithEmailVerificationAndInvitation(
     email: string,
-    companyId?: string,
+    companyId: string,
   ): Promise<UserEntity> {
     const usersQb = this.createQueryBuilder('user')
       .leftJoinAndSelect('user.email_verification', 'email_verification')
       .leftJoinAndSelect('user.user_invitation', 'user_invitation')
       .leftJoinAndSelect('user.company', 'company')
-      .where('user.email = :userEmail', { userEmail: email });
-    if (companyId) {
-      usersQb.andWhere('company.id = :companyId', { companyId: companyId });
-    }
+      .where('user.email = :userEmail', { userEmail: email })
+      .andWhere('company.id = :companyId', { companyId: companyId });
     return await usersQb.getOne();
   },
 

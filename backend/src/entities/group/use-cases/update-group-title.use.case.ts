@@ -21,7 +21,7 @@ export class UpdateGroupTitleUseCase
 
   protected async implementation(groupData: UpdateGroupTitleDto): Promise<FoundGroupDataInfoDs> {
     const { groupId, title } = groupData;
-    const groupToUpdate = await this._dbContext.groupRepository.findGroupById(groupId);
+    const groupToUpdate = await this._dbContext.groupRepository.findGroupByIdWithConnectionAndUsers(groupId);
     if (!groupToUpdate) {
       throw new HttpException(
         {

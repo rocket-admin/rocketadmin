@@ -69,7 +69,7 @@ export class VerifyInviteUserInCompanyAndConnectionGroupUseCase
     newUser.company = foundInvitation.company;
     const savedUser = await this._dbContext.userRepository.saveUserEntity(newUser);
     if (groupId) {
-      const foundGroup = await this._dbContext.groupRepository.findGroupById(groupId);
+      const foundGroup = await this._dbContext.groupRepository.findGroupByIdWithConnectionAndUsers(groupId);
       if (!foundGroup) {
         throw new HttpException(
           {

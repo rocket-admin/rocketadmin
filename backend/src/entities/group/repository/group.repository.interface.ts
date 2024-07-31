@@ -15,7 +15,7 @@ export interface IGroupRepository {
 
   findAllUserGroupsInConnection(connectionId: string, cognitoUserName: string): Promise<Array<GroupEntity>>;
 
-  findGroupById(groupId: string): Promise<GroupEntity>;
+  findGroupByIdWithConnectionAndUsers(groupId: string): Promise<GroupEntity>;
 
   findAllUserGroups(userId: string): Promise<Array<GroupEntity>>;
 
