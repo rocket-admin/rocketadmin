@@ -11,8 +11,9 @@ import { ConnectionEntity } from '../../connection/connection.entity.js';
 import { UserEntity } from '../../user/user.entity.js';
 import { sendEmailConfirmation, sendInvitationToGroup } from '../../email/send-email.js';
 import { UserInvitationEntity } from '../../user/user-invitation/user-invitation.entity.js';
+import { buildFoundGroupResponseDto } from '../utils/biuld-found-group-response.dto.js';
 
-export class SaaSAddUserInGroupV2UseCase
+export class AddUserInGroupUseCase
   extends AbstractUseCase<AddUserInGroupWithSaaSDs, AddedUserInGroupDs>
   implements IAddUserInGroup
 {
@@ -37,7 +38,7 @@ export class SaaSAddUserInGroupV2UseCase
         HttpStatus.NOT_FOUND,
       );
     }
-  
+
     if (!foundConnection.company) {
       throw new HttpException(
         {
@@ -87,7 +88,7 @@ export class SaaSAddUserInGroupV2UseCase
       const savedGroup = await this._dbContext.groupRepository.saveNewOrUpdatedGroup(foundGroup);
       delete savedGroup.connection;
       return {
-        group: savedGroup,
+        group: buildFoundGroupResponseDto(savedGroup),
         message: Messages.USER_ADDED_IN_GROUP(foundUser.email),
         external_invite: false,
       };
@@ -110,9 +111,8 @@ export class SaaSAddUserInGroupV2UseCase
       }
       const savedGroup = await this._dbContext.groupRepository.saveNewOrUpdatedGroup(foundGroup);
       delete savedGroup.connection;
-      const newEmailVerification = await this._dbContext.emailVerificationRepository.createOrUpdateEmailVerification(
-        foundUser,
-      );
+      const newEmailVerification =
+        await this._dbContext.emailVerificationRepository.createOrUpdateEmailVerification(foundUser);
       const confiramtionMailResult = await sendEmailConfirmation(
         foundUser.email,
         newEmailVerification.verification_string,
@@ -145,7 +145,7 @@ export class SaaSAddUserInGroupV2UseCase
         );
       }
       return {
-        group: savedGroup,
+        group: buildFoundGroupResponseDto(savedGroup),
         message: Messages.USER_ADDED_IN_GROUP(foundUser.email),
         external_invite: false,
       };

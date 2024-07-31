@@ -32,11 +32,11 @@ import { FoundGroupDataInfoDs, FoundUserGroupsDs } from './application/data-sctr
 import { RemoveUserFromGroupResultDs } from './application/data-sctructures/remove-user-from-group-result.ds.js';
 import { VerifyAddUserInGroupDs } from './application/data-sctructures/verify-add-user-in-group.ds.js';
 import {
+  IAddUserInGroup,
   IDeleteGroup,
   IFindAllUsersInGroup,
   IFindUserGroups,
   IRemoveUserFromGroup,
-  ISaaSAddUserInGroup,
   IUpdateGroupTitle,
   IVerifyAddUserInGroup,
 } from './use-cases/use-cases.interfaces.js';
@@ -56,7 +56,7 @@ import { UpdateGroupTitleDto } from './dto/update-group-title.dto.js';
 export class GroupController {
   constructor(
     @Inject(UseCaseType.INVITE_USER_IN_GROUP)
-    private readonly addUserInGroupUseCase: ISaaSAddUserInGroup,
+    private readonly addUserInGroupUseCase: IAddUserInGroup,
     @Inject(UseCaseType.VERIFY_INVITE_USER_IN_GROUP)
     private readonly verifyAddUserInGroupUseCase: IVerifyAddUserInGroup,
     @Inject(UseCaseType.FIND_ALL_USER_GROUPS)

@@ -1,7 +1,6 @@
-import { createParamDecorator, ExecutionContext } from '@nestjs/common';
+import { BadRequestException, createParamDecorator, ExecutionContext } from '@nestjs/common';
 import { IRequestWithCognitoInfo } from '../authorization/index.js';
 import { Messages } from '../exceptions/text/messages.js';
-import { buildBadRequestException } from '../guards/utils/index.js';
 import { ValidationHelper } from '../helpers/validators/validation-helper.js';
 
 export const BodyEmail = createParamDecorator((data: any, ctx: ExecutionContext): string => {
@@ -13,7 +12,7 @@ export const BodyEmail = createParamDecorator((data: any, ctx: ExecutionContext)
     if (ValidationHelper.isValidEmail(email)) {
       return email;
     }
-    throw buildBadRequestException(Messages.EMAIL_SYNTAX_INVALID);
+    throw new BadRequestException(Messages.EMAIL_SYNTAX_INVALID);
   }
-  throw buildBadRequestException(Messages.USER_EMAIL_MISSING);
+  throw new BadRequestException(Messages.USER_EMAIL_MISSING);
 });

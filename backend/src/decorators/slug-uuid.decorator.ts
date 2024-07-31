@@ -1,7 +1,6 @@
-import { createParamDecorator, ExecutionContext } from '@nestjs/common';
+import { BadRequestException, createParamDecorator, ExecutionContext } from '@nestjs/common';
 import { IRequestWithCognitoInfo } from '../authorization/index.js';
 import { Messages } from '../exceptions/text/messages.js';
-import { buildBadRequestException } from '../guards/utils/index.js';
 import { ValidationHelper } from '../helpers/validators/validation-helper.js';
 
 export type SlugUuidParameter =
@@ -29,7 +28,7 @@ export const SlugUuid = createParamDecorator(
       'companyId',
     ];
     if (!availableSlagParameters.includes(parameterName)) {
-      throw buildBadRequestException(Messages.UUID_INVALID);
+      throw new BadRequestException(Messages.UUID_INVALID);
     }
     // eslint-disable-next-line security/detect-object-injection
     const uuId: string = request.params?.[parameterName];
@@ -37,6 +36,6 @@ export const SlugUuid = createParamDecorator(
     if (validationResult) {
       return uuId;
     }
-    throw buildBadRequestException(Messages.UUID_INVALID);
+    throw new BadRequestException(Messages.UUID_INVALID);
   },
 );

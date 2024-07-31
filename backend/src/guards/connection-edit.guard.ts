@@ -1,8 +1,14 @@
-import { CanActivate, ExecutionContext, Inject, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  CanActivate,
+  ExecutionContext,
+  ForbiddenException,
+  Inject,
+  Injectable,
+} from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { IRequestWithCognitoInfo } from '../authorization/index.js';
 import { Messages } from '../exceptions/text/messages.js';
-import { buildBadRequestException, buildForbiddenException } from './utils/index.js';
 import { validateUuidByRegex } from './utils/validate-uuid-by-regex.js';
 import { BaseType } from '../common/data-injection.tokens.js';
 import { IGlobalDatabaseContext } from '../common/application/global-database-context.interface.js';
@@ -23,7 +29,7 @@ export class ConnectionEditGuard implements CanActivate {
         connectionId = request.params?.slug || request.params?.connectionId;
       }
       if (!connectionId || !validateUuidByRegex(connectionId)) {
-        reject(buildBadRequestException(Messages.CONNECTION_ID_MISSING));
+        reject(new BadRequestException(Messages.CONNECTION_ID_MISSING));
         return;
       }
       let userConnectionEdit = false;
@@ -40,7 +46,7 @@ export class ConnectionEditGuard implements CanActivate {
         resolve(true);
         return;
       } else {
-        reject(buildForbiddenException(Messages.DONT_HAVE_PERMISSIONS));
+        reject(new ForbiddenException(Messages.DONT_HAVE_PERMISSIONS));
         return;
       }
     });

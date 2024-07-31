@@ -1,7 +1,6 @@
-import { createParamDecorator, ExecutionContext } from '@nestjs/common';
+import { BadRequestException, createParamDecorator, ExecutionContext } from '@nestjs/common';
 import { IRequestWithCognitoInfo } from '../authorization/index.js';
 import { Messages } from '../exceptions/text/messages.js';
-import { buildBadRequestException } from '../guards/utils/index.js';
 import { ValidationHelper } from '../helpers/validators/validation-helper.js';
 
 export const BodyUuid = createParamDecorator((paramName: string, ctx: ExecutionContext): string => {
@@ -13,7 +12,7 @@ export const BodyUuid = createParamDecorator((paramName: string, ctx: ExecutionC
     if (ValidationHelper.isValidUUID(uuId)) {
       return uuId;
     }
-    throw buildBadRequestException(Messages.UUID_INVALID);
+    throw new BadRequestException(Messages.UUID_INVALID);
   }
-  throw buildBadRequestException(Messages.PARAMETER_NAME_MISSING(paramName));
+  throw new BadRequestException(Messages.PARAMETER_NAME_MISSING(paramName));
 });

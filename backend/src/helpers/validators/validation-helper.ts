@@ -1,7 +1,6 @@
-import { HttpException, HttpStatus } from '@nestjs/common';
+import { BadRequestException, HttpException, HttpStatus } from '@nestjs/common';
 import validator from 'validator';
 import { Messages } from '../../exceptions/text/messages.js';
-import { buildBadRequestException } from '../../guards/utils/index.js';
 import { Constants } from '../constants/constants.js';
 
 export class ValidationHelper {
@@ -30,7 +29,7 @@ export class ValidationHelper {
     if (isEmailValid) {
       return true;
     }
-    throw buildBadRequestException(Messages.EMAIL_INVALID);
+    throw new BadRequestException(Messages.EMAIL_INVALID);
   }
 
   public static validateOrThrowHttpExceptionUUID(uuid: string): boolean {
@@ -38,7 +37,7 @@ export class ValidationHelper {
     if (isValidUUID) {
       return true;
     }
-    throw buildBadRequestException(Messages.UUID_INVALID);
+    throw new BadRequestException(Messages.UUID_INVALID);
   }
 
   public static validateOrThrowHttpExceptionVerificationString(verificationString: string): boolean {
@@ -46,7 +45,7 @@ export class ValidationHelper {
     if (isVerificationStringValid) {
       return true;
     }
-    throw buildBadRequestException(Messages.VERIFICATION_STRING_INCORRECT);
+    throw new BadRequestException(Messages.VERIFICATION_STRING_INCORRECT);
   }
 
   public static validateOrThrowHttpExceptionJWT(token: string): boolean {
@@ -54,7 +53,7 @@ export class ValidationHelper {
     if (isJWTValid) {
       return true;
     }
-    throw buildBadRequestException(Messages.INVALID_JWT_TOKEN);
+    throw new BadRequestException(Messages.INVALID_JWT_TOKEN);
   }
 
   public static isPasswordStrongOrThrowError(password: string): boolean {

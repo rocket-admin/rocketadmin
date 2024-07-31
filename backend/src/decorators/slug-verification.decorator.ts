@@ -1,7 +1,6 @@
-import { createParamDecorator, ExecutionContext } from '@nestjs/common';
+import { BadRequestException, createParamDecorator, ExecutionContext } from '@nestjs/common';
 import { IRequestWithCognitoInfo } from '../authorization/index.js';
 import { Messages } from '../exceptions/text/messages.js';
-import { buildBadRequestException } from '../guards/utils/index.js';
 import { ValidationHelper } from '../helpers/validators/validation-helper.js';
 
 type SlugVerificationType = 'verificationString';
@@ -14,6 +13,6 @@ export const VerificationString = createParamDecorator(
     if (isValidString) {
       return verificationString;
     }
-    throw buildBadRequestException(Messages.VERIFICATION_STRING_INCORRECT);
+    throw new BadRequestException(Messages.VERIFICATION_STRING_INCORRECT);
   },
 );
