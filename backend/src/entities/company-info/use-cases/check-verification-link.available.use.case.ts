@@ -1,10 +1,11 @@
-import { Inject } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
 import { SuccessResponse } from '../../../microservices/saas-microservice/data-structures/common-responce.ds.js';
 import { ICheckVerificationLinkAvailable } from './company-info-use-cases.interface.js';
 
+@Injectable()
 export class CheckIsVerificationLinkAvailable
   extends AbstractUseCase<string, SuccessResponse>
   implements ICheckVerificationLinkAvailable
