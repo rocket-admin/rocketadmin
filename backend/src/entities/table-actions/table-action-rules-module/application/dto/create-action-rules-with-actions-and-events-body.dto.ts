@@ -11,6 +11,7 @@ import {
   IsUrl,
   MaxLength,
   MinLength,
+  ValidateNested,
 } from 'class-validator';
 import { TableActionTypeEnum } from '../../../../../enums/table-action-type.enum.js';
 import { TableActionMethodEnum } from '../../../../../enums/table-action-method-enum.js';
@@ -103,11 +104,13 @@ export class CreateTableActionRuleBodyDTO {
   @IsArray()
   @IsNotEmpty({ each: true })
   @IsObject({ each: true })
+  @ValidateNested({ each: true })
   table_actions: Array<CreateTableActionDTO>;
 
   @ApiProperty({ type: CreateActionEventDTO, isArray: true })
   @IsArray()
   @IsNotEmpty({ each: true })
   @IsObject({ each: true })
+  @ValidateNested({ each: true })
   events: Array<CreateActionEventDTO>;
 }
