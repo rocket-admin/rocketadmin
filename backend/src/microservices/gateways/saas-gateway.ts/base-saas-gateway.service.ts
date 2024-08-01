@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import Sentry from '@sentry/node';
+import * as Sentry from '@sentry/node';
 import { generateSaaSJwt } from './utils/generate-saas-jwt.js';
 import { isSaaS } from '../../../helpers/app/is-saas.js';
 
