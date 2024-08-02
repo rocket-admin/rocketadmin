@@ -94,18 +94,12 @@ export class TableActionActivationService {
     triggerOperation?: TableActionEventEnum,
   ): Promise<ActionActivationResult> {
     let operationResult = OperationResultStatusEnum.unknown;
-    const dataAccessObject = getDataAccessObject(foundConnection);
-    const tablePrimaryKeys = await dataAccessObject.getTablePrimaryColumns(tableName, null);
-    const primaryKeyValuesArray: Array<Record<string, unknown>> = [];
-    for (const primaryKeyInBody of request_body) {
-      for (const primaryKey of tablePrimaryKeys) {
-        const pKeysObj: Record<string, unknown> = {};
-        if (primaryKeyInBody.hasOwnProperty(primaryKey.column_name) && primaryKeyInBody[primaryKey.column_name]) {
-          pKeysObj[primaryKey.column_name] = primaryKeyInBody[primaryKey.column_name];
-          primaryKeyValuesArray.push(pKeysObj);
-        }
-      }
-    }
+    const primaryKeyValuesArray: Array<Record<string, unknown>> = await this.getPrimaryKeysObjects(
+      foundConnection,
+      request_body,
+      tableName,
+    );
+
     const slackMessage = this.generateMessageString(userInfo, triggerOperation, tableName, primaryKeyValuesArray);
 
     try {
@@ -129,18 +123,11 @@ export class TableActionActivationService {
     triggerOperation: TableActionEventEnum,
   ): Promise<ActionActivationResult> {
     let operationResult = OperationResultStatusEnum.unknown;
-    const dataAccessObject = getDataAccessObject(foundConnection);
-    const tablePrimaryKeys = await dataAccessObject.getTablePrimaryColumns(tableName, null);
-    const primaryKeyValuesArray: Array<Record<string, unknown>> = [];
-    for (const primaryKeyInBody of request_body) {
-      for (const primaryKey of tablePrimaryKeys) {
-        const pKeysObj: Record<string, unknown> = {};
-        if (primaryKeyInBody.hasOwnProperty(primaryKey.column_name) && primaryKeyInBody[primaryKey.column_name]) {
-          pKeysObj[primaryKey.column_name] = primaryKeyInBody[primaryKey.column_name];
-          primaryKeyValuesArray.push(pKeysObj);
-        }
-      }
-    }
+    const primaryKeyValuesArray: Array<Record<string, unknown>> = await this.getPrimaryKeysObjects(
+      foundConnection,
+      request_body,
+      tableName,
+    );
     const emailMessage = this.generateMessageString(userInfo, triggerOperation, tableName, primaryKeyValuesArray);
 
     const emailFrom = getProcessVariable('EMAIL_FROM') || Constants.AUTOADMIN_SUPPORT_MAIL;
@@ -184,19 +171,13 @@ export class TableActionActivationService {
   ): Promise<ActionActivationResult> {
     const { userId } = userInfo;
     let operationResult = OperationResultStatusEnum.unknown;
-    const dataAccessObject = getDataAccessObject(foundConnection);
-    const tablePrimaryKeys = await dataAccessObject.getTablePrimaryColumns(tableName, null);
 
-    const primaryKeyValuesArray: Array<Record<string, unknown>> = [];
-    for (const primaryKeyInBody of request_body) {
-      for (const primaryKey of tablePrimaryKeys) {
-        const pKeysObj: Record<string, unknown> = {};
-        if (primaryKeyInBody.hasOwnProperty(primaryKey.column_name) && primaryKeyInBody[primaryKey.column_name]) {
-          pKeysObj[primaryKey.column_name] = primaryKeyInBody[primaryKey.column_name];
-          primaryKeyValuesArray.push(pKeysObj);
-        }
-      }
-    }
+    const primaryKeyValuesArray: Array<Record<string, unknown>> = await this.getPrimaryKeysObjects(
+      foundConnection,
+      request_body,
+      tableName,
+    );
+
     const dateString = new Date().toISOString();
     const actionRequestBody = JSON.stringify({
       $$_raUserId: userId,
@@ -302,6 +283,29 @@ export class TableActionActivationService {
     } catch (_error) {
       return;
     }
+  }
+
+  private async getPrimaryKeysObjects(
+    foundConnection: ConnectionEntity,
+    request_body: Array<Record<string, unknown>>,
+    tableName: string,
+  ): Promise<Array<Record<string, unknown>>> {
+    const dataAccessObject = getDataAccessObject(foundConnection);
+    const tablePrimaryKeys = await dataAccessObject.getTablePrimaryColumns(tableName, null);
+    const primaryKeyValuesArray: Array<Record<string, unknown>> = [];
+    for (const primaryKeyInBody of request_body) {
+      const pKeysObj: Record<string, unknown> = {};
+      for (const primaryKey of tablePrimaryKeys) {
+        if (primaryKeyInBody.hasOwnProperty(primaryKey.column_name) && primaryKeyInBody[primaryKey.column_name]) {
+          pKeysObj[primaryKey.column_name] = primaryKeyInBody[primaryKey.column_name];
+        }
+      }
+      if (Object.keys(pKeysObj).length) {
+        primaryKeyValuesArray.push(pKeysObj);
+      }
+    }
+
+    return primaryKeyValuesArray;
   }
 
   private generateMessageString(

@@ -104,6 +104,69 @@ async function resetPostgresTestDB() {
   await Knex.destroy();
 }
 
+async function deleteTable(tableName: string): Promise<void> {
+  const { host, username, password, database, port, type, ssl, cert } = newConnection;
+  const Knex = knex({
+    client: type,
+    connection: {
+      host: host,
+      user: username,
+      password: password,
+      database: database,
+      port: port,
+    },
+  });
+  await Knex.schema.dropTableIfExists(tableName);
+  await Knex.destroy();
+}
+
+async function resetPostgresTestDbTableCompositePrimaryKeys(
+  secondTestTableName: string,
+  secondTableCompositeKeyName: string,
+): Promise<void> {
+  const { host, username, password, database, port, type, ssl, cert } = newConnection;
+  const Knex = knex({
+    client: type,
+    connection: {
+      host: host,
+      user: username,
+      password: password,
+      database: database,
+      port: port,
+    },
+  });
+  await Knex.schema.dropTableIfExists(secondTestTableName);
+  await Knex.schema.createTableIfNotExists(secondTestTableName, function (table) {
+    table.increments('id');
+    table.string(testTableColumnName);
+    table.string(testTAbleSecondColumnName);
+    table.string(secondTableCompositeKeyName);
+    table.primary(['id', secondTableCompositeKeyName]);
+    table.timestamps();
+  });
+
+  for (let i = 0; i < testEntitiesSeedsCount; i++) {
+    if (i === 0 || i === testEntitiesSeedsCount - 21 || i === testEntitiesSeedsCount - 5) {
+      await Knex(secondTestTableName).insert({
+        [testTableColumnName]: testSearchedUserName,
+        [testTAbleSecondColumnName]: faker.internet.email(),
+        [secondTableCompositeKeyName]: faker.string.uuid(),
+        created_at: new Date(),
+        updated_at: new Date(),
+      });
+    } else {
+      await Knex(secondTestTableName).insert({
+        [testTableColumnName]: faker.person.firstName(),
+        [testTAbleSecondColumnName]: faker.internet.email(),
+        [secondTableCompositeKeyName]: faker.string.uuid(),
+        created_at: new Date(),
+        updated_at: new Date(),
+      });
+    }
+  }
+  await Knex.destroy();
+}
+
 test.after.always('Close app connection', async () => {
   try {
     await Cacher.clearAllCache();
@@ -944,6 +1007,10 @@ test.serial(`${currentTest} should return created table rule with action and eve
   const createConnectionRO = JSON.parse(createConnectionResult.text);
   t.is(createConnectionResult.status, 201);
 
+  const secondPrimaryKeyPart = 'second_id';
+
+  await resetPostgresTestDbTableCompositePrimaryKeys(testTableName, secondPrimaryKeyPart);
+
   const fakeUrl = 'http://www.example.com';
   const tableRuleDTO: CreateTableActionRuleBodyDTO = {
     title: 'Test rule',
@@ -988,7 +1055,6 @@ test.serial(`${currentTest} should return created table rule with action and eve
     .post('/')
     .times(2)
     .reply(201, (uri, requestBody) => {
-      console.log('🚀 ~ .reply ~ requestBody:', requestBody);
       nockBodiesArray.push(requestBody);
       return {
         status: 201,
@@ -999,7 +1065,7 @@ test.serial(`${currentTest} should return created table rule with action and eve
   const activateTableRuleResult = await request(app.getHttpServer())
     .post(`/event/actions/activate/${createTableRuleRO.events[0].id}/${createConnectionRO.id}`)
     .set('Cookie', token)
-    .send([{ id: 2 }])
+    .send([{ id: 2, second_id: 'test_key' }])
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
   const activateTableRuleRO: ActivatedTableActionsDTO = JSON.parse(activateTableRuleResult.text);
@@ -1018,11 +1084,13 @@ test.serial(`${currentTest} should return created table rule with action and eve
   t.is(urlActionRequestBody['primaryKeys'][0].id, 2);
 
   const slackActionRequestBody = nockBodiesArray.find((body) => body.hasOwnProperty(`text`));
+
   t.truthy(slackActionRequestBody);
   t.truthy(slackActionRequestBody['text']);
   t.truthy(slackActionRequestBody['text'].includes(testTableName));
-  t.truthy(slackActionRequestBody['text'].includes(`[{"id":2}]`));
+  t.truthy(slackActionRequestBody['text'].includes(`[{"id":2,"second_id":"test_key"}]`));
   scope.done();
+  await deleteTable(testTableName);
 });
 
 //test impersonate action
