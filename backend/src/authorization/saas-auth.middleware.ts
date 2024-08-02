@@ -33,7 +33,7 @@ export class SaaSAuthMiddleware implements NestMiddleware {
 
       req['decoded'] = data;
       next();
-    } catch (e) {
+    } catch (_e) {
       throw new HttpException(
         {
           message: Messages.AUTHORIZATION_REJECTED,

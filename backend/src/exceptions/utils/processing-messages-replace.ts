@@ -24,7 +24,7 @@ export const PROCESSING_MESSAGES_REPLACE = {
       Before the operation, you need to update/delete the associated record in table ${secondTableName} or set up in that table an option with operation for the associated entry ("Cascade option").
       `;
       return message;
-    } catch (e) {
+    } catch (_e) {
       return originalMessage;
     }
   },

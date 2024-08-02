@@ -75,7 +75,7 @@ export class TableLogsEntity {
           constructorAction: 'remove',
         });
       }
-    } catch (e) {}
+    } catch (_e) {}
   }
 
   @Transform((connection: any) => connection.id)

@@ -58,7 +58,7 @@ export class DisableOtpUseCase extends AbstractUseCase<VerifyOtpDS, OtpDisabling
           disabled: true,
         };
       }
-    } catch (error) {
+    } catch (_error) {
       throw new HttpException(
         {
           message: Messages.OTP_DISABLING_FAILED,

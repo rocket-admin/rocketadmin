@@ -17,7 +17,7 @@ export async function slackPostMessage(message: string, channel = Constants.DEFA
       { headers: { authorization: `Bearer ${slackBotToken}` } },
     );
     return res.data;
-  } catch (e) {
+  } catch (_e) {
     return;
   }
 }

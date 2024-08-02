@@ -50,7 +50,7 @@ export class BaseSaasGatewayService {
     }
     try {
       return await res.json();
-    } catch (error) {
+    } catch (_error) {
       return {};
     }
   }

@@ -106,7 +106,7 @@ export class GetRowByPrimaryKeyUseCase
           try {
             const widgetParams = JSON5.parse(widget.widget_params) as ForeignKeyDSInfo;
             return widgetParams;
-          } catch (e) {
+          } catch (_e) {
             return null;
           }
         }
@@ -143,7 +143,7 @@ export class GetRowByPrimaryKeyUseCase
         tableForeignKeys.map((el) => {
           try {
             return this.attachForeignColumnNames(el, userId, connectionId, dao);
-          } catch (e) {
+          } catch (_e) {
             return el as ForeignKeyWithAutocompleteColumnsDS;
           }
         }),
@@ -247,7 +247,7 @@ export class GetRowByPrimaryKeyUseCase
         ...foreignKey,
         autocomplete_columns: columnNames,
       };
-    } catch (e) {
+    } catch (_e) {
       return {
         ...foreignKey,
         autocomplete_columns: [],
