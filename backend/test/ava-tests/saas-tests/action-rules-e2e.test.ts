@@ -498,218 +498,224 @@ test.serial(`${currentTest} should return found table custom action events`, asy
 
 currentTest = `DELETE /action/rule/:actionId/:connectionId`;
 
-test.serial(`${currentTest} should delete table action rule with action and events and return deleted result`, async (t) => {
-  const { token } = await registerUserAndReturnUserInfo(app);
-  const createConnectionResult = await request(app.getHttpServer())
-    .post('/connection')
-    .send(newConnection)
-    .set('Cookie', token)
-    .set('Content-Type', 'application/json')
-    .set('Accept', 'application/json');
+test.serial(
+  `${currentTest} should delete table action rule with action and events and return deleted result`,
+  async (t) => {
+    const { token } = await registerUserAndReturnUserInfo(app);
+    const createConnectionResult = await request(app.getHttpServer())
+      .post('/connection')
+      .send(newConnection)
+      .set('Cookie', token)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
 
-  const createConnectionRO = JSON.parse(createConnectionResult.text);
-  t.is(createConnectionResult.status, 201);
+    const createConnectionRO = JSON.parse(createConnectionResult.text);
+    t.is(createConnectionResult.status, 201);
 
-  const tableRuleDTO: CreateTableActionRuleBodyDTO = {
-    title: 'Test rule',
-    table_name: testTableName,
-    events: [
-      {
-        type: TableActionTypeEnum.single,
-        event: TableActionEventEnum.CUSTOM,
-        title: 'Test event',
-        icon: 'test-icon',
-        require_confirmation: false,
-      },
-      {
-        type: TableActionTypeEnum.multiple,
-        event: TableActionEventEnum.ADD_ROW,
-        title: 'Test event 2',
-        icon: 'test-icon 2',
-        require_confirmation: true,
-      },
-    ],
-    table_actions: [
-      {
-        url: faker.internet.url(),
-        method: TableActionMethodEnum.URL,
-        slack_url: undefined,
-        emails: [faker.internet.email()],
-      },
-      {
-        url: undefined,
-        method: TableActionMethodEnum.SLACK,
-        slack_url: faker.internet.url(),
-        emails: undefined,
-      },
-    ],
-  };
+    const tableRuleDTO: CreateTableActionRuleBodyDTO = {
+      title: 'Test rule',
+      table_name: testTableName,
+      events: [
+        {
+          type: TableActionTypeEnum.single,
+          event: TableActionEventEnum.CUSTOM,
+          title: 'Test event',
+          icon: 'test-icon',
+          require_confirmation: false,
+        },
+        {
+          type: TableActionTypeEnum.multiple,
+          event: TableActionEventEnum.ADD_ROW,
+          title: 'Test event 2',
+          icon: 'test-icon 2',
+          require_confirmation: true,
+        },
+      ],
+      table_actions: [
+        {
+          url: faker.internet.url(),
+          method: TableActionMethodEnum.URL,
+          slack_url: undefined,
+          emails: [faker.internet.email()],
+        },
+        {
+          url: undefined,
+          method: TableActionMethodEnum.SLACK,
+          slack_url: faker.internet.url(),
+          emails: undefined,
+        },
+      ],
+    };
 
-  const createTableRuleResult = await request(app.getHttpServer())
-    .post(`/action/rule/${createConnectionRO.id}`)
-    .send(tableRuleDTO)
-    .set('Cookie', token)
-    .set('Content-Type', 'application/json')
-    .set('Accept', 'application/json');
+    const createTableRuleResult = await request(app.getHttpServer())
+      .post(`/action/rule/${createConnectionRO.id}`)
+      .send(tableRuleDTO)
+      .set('Cookie', token)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
 
-  const createTableRuleRO: FoundActionRulesWithActionsAndEventsDTO = JSON.parse(createTableRuleResult.text);
-  t.is(createTableRuleResult.status, 201);
+    const createTableRuleRO: FoundActionRulesWithActionsAndEventsDTO = JSON.parse(createTableRuleResult.text);
+    t.is(createTableRuleResult.status, 201);
 
-  const deleteTableRuleResult = await request(app.getHttpServer())
-    .delete(`/action/rule/${createTableRuleRO.id}/${createConnectionRO.id}`)
-    .set('Cookie', token)
-    .set('Content-Type', 'application/json')
-    .set('Accept', 'application/json');
+    const deleteTableRuleResult = await request(app.getHttpServer())
+      .delete(`/action/rule/${createTableRuleRO.id}/${createConnectionRO.id}`)
+      .set('Cookie', token)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
 
-  const deleteTableRuleRO: FoundActionRulesWithActionsAndEventsDTO = JSON.parse(deleteTableRuleResult.text);
-  t.is(deleteTableRuleResult.status, 200);
+    const deleteTableRuleRO: FoundActionRulesWithActionsAndEventsDTO = JSON.parse(deleteTableRuleResult.text);
+    t.is(deleteTableRuleResult.status, 200);
 
-  t.truthy(deleteTableRuleRO.id);
-  t.is(deleteTableRuleRO.title, tableRuleDTO.title);
-  t.is(deleteTableRuleRO.table_name, tableRuleDTO.table_name);
-  t.is(deleteTableRuleRO.table_actions.length, tableRuleDTO.table_actions.length);
-  t.is(deleteTableRuleRO.events.length, tableRuleDTO.events.length);
-  const deletedCustomEvent = deleteTableRuleRO.events.find((event) => event.event === TableActionEventEnum.CUSTOM);
-  t.truthy(deletedCustomEvent);
-  t.is(deletedCustomEvent.title, tableRuleDTO.events[0].title);
-  t.is(deletedCustomEvent.icon, tableRuleDTO.events[0].icon);
-  t.is(deletedCustomEvent.require_confirmation, tableRuleDTO.events[0].require_confirmation);
-  
-  const deletedAddRowEvent = deleteTableRuleRO.events.find((event) => event.event === TableActionEventEnum.ADD_ROW);
-  t.truthy(deletedAddRowEvent);
-  t.is(deletedAddRowEvent.title, tableRuleDTO.events[1].title);
-  t.is(deletedAddRowEvent.icon, tableRuleDTO.events[1].icon);
-  t.is(deletedAddRowEvent.require_confirmation, tableRuleDTO.events[1].require_confirmation);
+    t.truthy(deleteTableRuleRO.id);
+    t.is(deleteTableRuleRO.title, tableRuleDTO.title);
+    t.is(deleteTableRuleRO.table_name, tableRuleDTO.table_name);
+    t.is(deleteTableRuleRO.table_actions.length, tableRuleDTO.table_actions.length);
+    t.is(deleteTableRuleRO.events.length, tableRuleDTO.events.length);
+    const deletedCustomEvent = deleteTableRuleRO.events.find((event) => event.event === TableActionEventEnum.CUSTOM);
+    t.truthy(deletedCustomEvent);
+    t.is(deletedCustomEvent.title, tableRuleDTO.events[0].title);
+    t.is(deletedCustomEvent.icon, tableRuleDTO.events[0].icon);
+    t.is(deletedCustomEvent.require_confirmation, tableRuleDTO.events[0].require_confirmation);
 
-  const deletedSlackAction = deleteTableRuleRO.table_actions.find(
-    (action) => action.method === TableActionMethodEnum.URL,
-  );
-  t.truthy(deletedSlackAction);
-  t.is(deletedSlackAction.url, tableRuleDTO.table_actions[0].url);
-  t.is(deletedSlackAction.method, tableRuleDTO.table_actions[0].method);
-  t.is(deletedSlackAction.slack_url, null);
-  t.is(deletedSlackAction.emails.length, tableRuleDTO.table_actions[0].emails.length);
+    const deletedAddRowEvent = deleteTableRuleRO.events.find((event) => event.event === TableActionEventEnum.ADD_ROW);
+    t.truthy(deletedAddRowEvent);
+    t.is(deletedAddRowEvent.title, tableRuleDTO.events[1].title);
+    t.is(deletedAddRowEvent.icon, tableRuleDTO.events[1].icon);
+    t.is(deletedAddRowEvent.require_confirmation, tableRuleDTO.events[1].require_confirmation);
 
-  const deletedUrlAction = deleteTableRuleRO.table_actions.find(
-    (action) => action.method === TableActionMethodEnum.SLACK,
-  );
-  t.truthy(deletedUrlAction);
-  t.is(deletedUrlAction.url, null);
-  t.is(deletedUrlAction.method, tableRuleDTO.table_actions[1].method);
-  t.truthy(deletedUrlAction.slack_url);
-  t.deepEqual(deletedUrlAction.emails, []);
+    const deletedSlackAction = deleteTableRuleRO.table_actions.find(
+      (action) => action.method === TableActionMethodEnum.URL,
+    );
+    t.truthy(deletedSlackAction);
+    t.is(deletedSlackAction.url, tableRuleDTO.table_actions[0].url);
+    t.is(deletedSlackAction.method, tableRuleDTO.table_actions[0].method);
+    t.is(deletedSlackAction.slack_url, null);
+    t.is(deletedSlackAction.emails.length, tableRuleDTO.table_actions[0].emails.length);
 
-  // Check if the rule is deleted
-  const findTableRuleResult = await request(app.getHttpServer())
-    .get(`/action/rules/${createConnectionRO.id}?tableName=${testTableName}`)
-    .set('Cookie', token)
-    .set('Content-Type', 'application/json')
-    .set('Accept', 'application/json');
+    const deletedUrlAction = deleteTableRuleRO.table_actions.find(
+      (action) => action.method === TableActionMethodEnum.SLACK,
+    );
+    t.truthy(deletedUrlAction);
+    t.is(deletedUrlAction.url, null);
+    t.is(deletedUrlAction.method, tableRuleDTO.table_actions[1].method);
+    t.truthy(deletedUrlAction.slack_url);
+    t.deepEqual(deletedUrlAction.emails, []);
 
-  const findTableRulesRO: FoundTableActionRulesRoDTO = JSON.parse(findTableRuleResult.text);
+    // Check if the rule is deleted
+    const findTableRuleResult = await request(app.getHttpServer())
+      .get(`/action/rules/${createConnectionRO.id}?tableName=${testTableName}`)
+      .set('Cookie', token)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
 
-  t.is(findTableRuleResult.status, 200);
+    const findTableRulesRO: FoundTableActionRulesRoDTO = JSON.parse(findTableRuleResult.text);
 
-  t.is(findTableRulesRO.action_rules.length, 0);
-});
+    t.is(findTableRuleResult.status, 200);
+
+    t.is(findTableRulesRO.action_rules.length, 0);
+  },
+);
 
 currentTest = `GET /action/rule/:actionId/:connectionId`;
 
-test.serial(`${currentTest} should delete table action rule with action and events and return deleted result`, async (t) => {
-  const { token } = await registerUserAndReturnUserInfo(app);
-  const createConnectionResult = await request(app.getHttpServer())
-    .post('/connection')
-    .send(newConnection)
-    .set('Cookie', token)
-    .set('Content-Type', 'application/json')
-    .set('Accept', 'application/json');
+test.serial(
+  `${currentTest} should delete table action rule with action and events and return deleted result`,
+  async (t) => {
+    const { token } = await registerUserAndReturnUserInfo(app);
+    const createConnectionResult = await request(app.getHttpServer())
+      .post('/connection')
+      .send(newConnection)
+      .set('Cookie', token)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
 
-  const createConnectionRO = JSON.parse(createConnectionResult.text);
-  t.is(createConnectionResult.status, 201);
+    const createConnectionRO = JSON.parse(createConnectionResult.text);
+    t.is(createConnectionResult.status, 201);
 
-  const tableRuleDTO: CreateTableActionRuleBodyDTO = {
-    title: 'Test rule',
-    table_name: testTableName,
-    events: [
-      {
-        type: TableActionTypeEnum.single,
-        event: TableActionEventEnum.CUSTOM,
-        title: 'Test event',
-        icon: 'test-icon',
-        require_confirmation: false,
-      },
-      {
-        type: TableActionTypeEnum.multiple,
-        event: TableActionEventEnum.ADD_ROW,
-        title: 'Test event 2',
-        icon: 'test-icon 2',
-        require_confirmation: true,
-      },
-    ],
-    table_actions: [
-      {
-        url: faker.internet.url(),
-        method: TableActionMethodEnum.URL,
-        slack_url: undefined,
-        emails: [faker.internet.email()],
-      },
-      {
-        url: undefined,
-        method: TableActionMethodEnum.SLACK,
-        slack_url: faker.internet.url(),
-        emails: undefined,
-      },
-    ],
-  };
-  const createTableRuleResult = await request(app.getHttpServer())
-    .post(`/action/rule/${createConnectionRO.id}`)
-    .send(tableRuleDTO)
-    .set('Cookie', token)
-    .set('Content-Type', 'application/json')
-    .set('Accept', 'application/json');
+    const tableRuleDTO: CreateTableActionRuleBodyDTO = {
+      title: 'Test rule',
+      table_name: testTableName,
+      events: [
+        {
+          type: TableActionTypeEnum.single,
+          event: TableActionEventEnum.CUSTOM,
+          title: 'Test event',
+          icon: 'test-icon',
+          require_confirmation: false,
+        },
+        {
+          type: TableActionTypeEnum.multiple,
+          event: TableActionEventEnum.ADD_ROW,
+          title: 'Test event 2',
+          icon: 'test-icon 2',
+          require_confirmation: true,
+        },
+      ],
+      table_actions: [
+        {
+          url: faker.internet.url(),
+          method: TableActionMethodEnum.URL,
+          slack_url: undefined,
+          emails: [faker.internet.email()],
+        },
+        {
+          url: undefined,
+          method: TableActionMethodEnum.SLACK,
+          slack_url: faker.internet.url(),
+          emails: undefined,
+        },
+      ],
+    };
+    const createTableRuleResult = await request(app.getHttpServer())
+      .post(`/action/rule/${createConnectionRO.id}`)
+      .send(tableRuleDTO)
+      .set('Cookie', token)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
 
-  const createTableRuleRO: FoundActionRulesWithActionsAndEventsDTO = JSON.parse(createTableRuleResult.text);
-  t.is(createTableRuleResult.status, 201);
+    const createTableRuleRO: FoundActionRulesWithActionsAndEventsDTO = JSON.parse(createTableRuleResult.text);
+    t.is(createTableRuleResult.status, 201);
 
-  const getTableRuleResult = await request(app.getHttpServer())
-    .get(`/action/rule/${createTableRuleRO.id}/${createConnectionRO.id}`)
-    .set('Cookie', token)
-    .set('Content-Type', 'application/json')
-    .set('Accept', 'application/json');
+    const getTableRuleResult = await request(app.getHttpServer())
+      .get(`/action/rule/${createTableRuleRO.id}/${createConnectionRO.id}`)
+      .set('Cookie', token)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
 
-  const findTableRuleRO: FoundActionRulesWithActionsAndEventsDTO = JSON.parse(getTableRuleResult.text);
-  t.is(getTableRuleResult.status, 200);
+    const findTableRuleRO: FoundActionRulesWithActionsAndEventsDTO = JSON.parse(getTableRuleResult.text);
+    t.is(getTableRuleResult.status, 200);
 
-  t.truthy(findTableRuleRO.id);
-  t.is(findTableRuleRO.title, tableRuleDTO.title);
-  t.is(findTableRuleRO.table_name, tableRuleDTO.table_name);
-  t.is(findTableRuleRO.table_actions.length, tableRuleDTO.table_actions.length);
-  t.is(findTableRuleRO.events.length, tableRuleDTO.events.length);
-  const foundCustomEvent = findTableRuleRO.events.find((event) => event.event === TableActionEventEnum.CUSTOM);
-  t.truthy(foundCustomEvent);
-  t.is(foundCustomEvent.title, tableRuleDTO.events[0].title);
-  t.is(foundCustomEvent.icon, tableRuleDTO.events[0].icon);
-  t.is(foundCustomEvent.require_confirmation, tableRuleDTO.events[0].require_confirmation);
-  const foundAddRowEvent = findTableRuleRO.events.find((event) => event.event === TableActionEventEnum.ADD_ROW);
-  t.truthy(foundAddRowEvent);
-  t.is(foundAddRowEvent.title, tableRuleDTO.events[1].title);
-  t.is(foundAddRowEvent.icon, tableRuleDTO.events[1].icon);
-  t.is(foundAddRowEvent.require_confirmation, tableRuleDTO.events[1].require_confirmation);
-  const foundUrlAction = findTableRuleRO.table_actions.find((action) => action.method === TableActionMethodEnum.URL);
-  t.truthy(foundUrlAction);
-  t.is(foundUrlAction.url, tableRuleDTO.table_actions[0].url);
-  t.is(foundUrlAction.method, tableRuleDTO.table_actions[0].method);
-  t.is(foundUrlAction.slack_url, null);
-  t.is(foundUrlAction.emails.length, tableRuleDTO.table_actions[0].emails.length);
-  const foundSlackAction = findTableRuleRO.table_actions.find(
-    (action) => action.method === TableActionMethodEnum.SLACK,
-  );
-  t.truthy(foundSlackAction);
-  t.is(foundSlackAction.url, null);
-  t.is(foundSlackAction.method, tableRuleDTO.table_actions[1].method);
-  t.truthy(foundSlackAction.slack_url);
-  t.deepEqual(foundSlackAction.emails, []);
-});
+    t.truthy(findTableRuleRO.id);
+    t.is(findTableRuleRO.title, tableRuleDTO.title);
+    t.is(findTableRuleRO.table_name, tableRuleDTO.table_name);
+    t.is(findTableRuleRO.table_actions.length, tableRuleDTO.table_actions.length);
+    t.is(findTableRuleRO.events.length, tableRuleDTO.events.length);
+    const foundCustomEvent = findTableRuleRO.events.find((event) => event.event === TableActionEventEnum.CUSTOM);
+    t.truthy(foundCustomEvent);
+    t.is(foundCustomEvent.title, tableRuleDTO.events[0].title);
+    t.is(foundCustomEvent.icon, tableRuleDTO.events[0].icon);
+    t.is(foundCustomEvent.require_confirmation, tableRuleDTO.events[0].require_confirmation);
+    const foundAddRowEvent = findTableRuleRO.events.find((event) => event.event === TableActionEventEnum.ADD_ROW);
+    t.truthy(foundAddRowEvent);
+    t.is(foundAddRowEvent.title, tableRuleDTO.events[1].title);
+    t.is(foundAddRowEvent.icon, tableRuleDTO.events[1].icon);
+    t.is(foundAddRowEvent.require_confirmation, tableRuleDTO.events[1].require_confirmation);
+    const foundUrlAction = findTableRuleRO.table_actions.find((action) => action.method === TableActionMethodEnum.URL);
+    t.truthy(foundUrlAction);
+    t.is(foundUrlAction.url, tableRuleDTO.table_actions[0].url);
+    t.is(foundUrlAction.method, tableRuleDTO.table_actions[0].method);
+    t.is(foundUrlAction.slack_url, null);
+    t.is(foundUrlAction.emails.length, tableRuleDTO.table_actions[0].emails.length);
+    const foundSlackAction = findTableRuleRO.table_actions.find(
+      (action) => action.method === TableActionMethodEnum.SLACK,
+    );
+    t.truthy(foundSlackAction);
+    t.is(foundSlackAction.url, null);
+    t.is(foundSlackAction.method, tableRuleDTO.table_actions[1].method);
+    t.truthy(foundSlackAction.slack_url);
+    t.deepEqual(foundSlackAction.emails, []);
+  },
+);
 
 currentTest = `PUT /action/rule/:actionId/:connectionId`;
 
@@ -926,7 +932,7 @@ test.serial(`${currentTest} should return created table rule with action and eve
 
 currentTest = 'POST /rule/actions/activate/:ruleId/:connectionId';
 
-test.serial(`${currentTest} should return created table rule with action and events`, async (t) => {
+test.only(`${currentTest} should return created table rule with action and events`, async (t) => {
   const { token } = await registerUserAndReturnUserInfo(app);
   const createConnectionResult = await request(app.getHttpServer())
     .post('/connection')
@@ -982,6 +988,7 @@ test.serial(`${currentTest} should return created table rule with action and eve
     .post('/')
     .times(2)
     .reply(201, (uri, requestBody) => {
+      console.log('🚀 ~ .reply ~ requestBody:', requestBody);
       nockBodiesArray.push(requestBody);
       return {
         status: 201,
