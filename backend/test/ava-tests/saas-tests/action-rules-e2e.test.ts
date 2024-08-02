@@ -1090,7 +1090,7 @@ test.serial(`${currentTest} should return created table rule with action and eve
   t.truthy(slackActionRequestBody['text'].includes(testTableName));
   t.truthy(slackActionRequestBody['text'].includes(`[{"id":2,"second_id":"test_key"}]`));
   scope.done();
-  await deleteTable(testTableName);
+  await resetPostgresTestDB();
 });
 
 //test impersonate action
@@ -1251,6 +1251,7 @@ test.serial(`${currentTest} should create trigger and activate http table action
     .set('Accept', 'application/json');
 
   const createTableRuleRO: FoundActionRulesWithActionsAndEventsDTO = JSON.parse(createTableRuleResult.text);
+  console.log('🚀 ~ test.serial ~ createTableRuleRO:', createTableRuleRO);
   t.is(createTableRuleResult.status, 201);
 
   const nockBodiesArray = [];
