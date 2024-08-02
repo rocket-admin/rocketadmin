@@ -14,7 +14,7 @@ import { getProcessVariable } from '../../../helpers/get-process-variable.js';
 import { IMessage } from '../../email/email/email.interface.js';
 import { sendEmailToUser } from '../../email/send-email.js';
 import { Encryptor } from '../../../helpers/encryption/encryptor.js';
-import axios from 'axios';
+import axios, { AxiosResponse } from 'axios';
 import PQueue from 'p-queue';
 import { isSaaS } from '../../../helpers/app/is-saas.js';
 
@@ -207,7 +207,7 @@ export class TableActionActivationService {
     });
     const autoadminSignatureHeader = Encryptor.hashDataHMACexternalKey(foundConnection.signing_key, actionRequestBody);
 
-    let result;
+    let result: AxiosResponse<any, any>;
     try {
       result = await axios.post(tableAction.url, actionRequestBody, {
         headers: { 'Rocketadmin-Signature': autoadminSignatureHeader, 'Content-Type': 'application/json' },
@@ -224,8 +224,12 @@ export class TableActionActivationService {
     } catch (error) {
       if (axios.isAxiosError(error)) {
         const errorMessage =
-          error.response?.data?.message || error.response?.data?.errorMessage || error.message || 'An error occurred';
-        const responseStatus = error.response?.status || 500;
+          result?.data?.error ||
+          result?.data?.message ||
+          result?.data?.errorMessage ||
+          result?.data?.response ||
+          'An error occurred';
+        const responseStatus = error.response?.status || result?.status || 500;
         throw new HttpException(
           {
             message: errorMessage,
@@ -233,6 +237,7 @@ export class TableActionActivationService {
           responseStatus,
         );
       }
+      throw error;
     }
     const operationStatusCode = result.status;
     if (operationStatusCode >= 200 && operationStatusCode < 300) {
@@ -252,7 +257,11 @@ export class TableActionActivationService {
     }
     if (operationStatusCode >= 400 && operationStatusCode <= 599) {
       const errorMessage =
-        result?.data?.message || result?.data?.errorMessage || result?.data?.response || 'An error occurred';
+        result?.data?.error ||
+        result?.data?.message ||
+        result?.data?.errorMessage ||
+        result?.data?.response ||
+        'An error occurred';
       throw new HttpException(
         {
           message: errorMessage,
