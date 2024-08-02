@@ -185,6 +185,7 @@ export class TableActionActivationService {
     let operationResult = OperationResultStatusEnum.unknown;
     const dataAccessObject = getDataAccessObject(foundConnection);
     const tablePrimaryKeys = await dataAccessObject.getTablePrimaryColumns(tableName, null);
+
     const primaryKeyValuesArray: Array<Record<string, unknown>> = [];
     for (const primaryKeyInBody of request_body) {
       for (const primaryKey of tablePrimaryKeys) {
@@ -204,6 +205,7 @@ export class TableActionActivationService {
       $$_tableName: tableName,
     });
     const autoadminSignatureHeader = Encryptor.hashDataHMACexternalKey(foundConnection.signing_key, actionRequestBody);
+
     const result = await axios.post(tableAction.url, actionRequestBody, {
       headers: { 'Rocketadmin-Signature': autoadminSignatureHeader, 'Content-Type': 'application/json' },
       maxRedirects: 0,
@@ -228,9 +230,11 @@ export class TableActionActivationService {
       };
     }
     if (operationStatusCode >= 400 && operationStatusCode <= 599) {
+      const errorMessage =
+        result?.data?.message || result?.data?.errorMessage || result?.data?.response || 'An error occurred';
       throw new HttpException(
         {
-          message: result.data,
+          message: errorMessage,
         },
         operationStatusCode,
       );
