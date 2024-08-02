@@ -5,6 +5,8 @@ export async function listTables(knex: any, schema = null): Promise<Array<string
   switch (knex.client.constructor.name) {
     case 'Client_MSSQL':
       bindingSchema = schema ? schema : 'public';
+      //todo refactor/remove file
+      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
       (query = 'SELECT table_name FROM information_schema.tables WHERE table_schema = ? AND table_catalog = ?'),
         (bindings = [bindingSchema, knex.client.database()]);
       break;

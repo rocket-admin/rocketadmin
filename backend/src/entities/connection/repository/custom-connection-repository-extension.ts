@@ -183,7 +183,7 @@ export const customConnectionRepositoryExtension: IConnectionRepository = {
   decryptConnectionField(field: string): string {
     try {
       return Encryptor.decryptData(field);
-    } catch (e) {
+    } catch (_e) {
       return field;
     }
   },

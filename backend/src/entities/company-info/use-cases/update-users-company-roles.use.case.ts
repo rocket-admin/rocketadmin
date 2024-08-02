@@ -86,7 +86,7 @@ export class UpdateUsersCompanyRolesUseCase
       return {
         success: true,
       };
-    } catch (e) {
+    } catch (_e) {
       throw new HttpException(
         {
           message: Messages.USER_ROLES_UPDATE_FAILED,

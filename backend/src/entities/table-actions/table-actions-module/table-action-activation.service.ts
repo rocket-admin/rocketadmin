@@ -110,7 +110,7 @@ export class TableActionActivationService {
     try {
       await actionSlackPostMessage(slackMessage, tableAction.slack_url);
       operationResult = OperationResultStatusEnum.successfully;
-    } catch (e) {
+    } catch (_e) {
       operationResult = OperationResultStatusEnum.unsuccessfully;
     }
     return {
@@ -165,7 +165,7 @@ export class TableActionActivationService {
         receivedOperationResult: operationResult,
         receivedPrimaryKeysObj: primaryKeyValuesArray,
       };
-    } catch (error) {
+    } catch (_error) {
       operationResult = OperationResultStatusEnum.unsuccessfully;
       return {
         receivedOperationResult: operationResult,
@@ -265,7 +265,7 @@ export class TableActionActivationService {
             }),
         ),
       );
-    } catch (error) {
+    } catch (_error) {
       return;
     }
   }

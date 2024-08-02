@@ -161,7 +161,7 @@ export class Encryptor {
         default:
           return data;
       }
-    } catch (e) {
+    } catch (_e) {
       return data;
     }
   }
@@ -229,13 +229,13 @@ export class Encryptor {
                 const hashToString = hash.toString(Constants.BYTE_TO_STRING_ENCODING);
                 const result = crypto.timingSafeEqual(Buffer.from(passwordHash), Buffer.from(hashToString));
                 resolve(result);
-              } catch (e) {
+              } catch (_e) {
                 resolve(false);
               }
             }
           },
         );
-      } catch (e) {
+      } catch (_e) {
         resolve(false);
       }
     });

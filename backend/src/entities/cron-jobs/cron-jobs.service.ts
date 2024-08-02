@@ -89,7 +89,7 @@ export class CronJobsService {
     try {
       await this.jobListRepository.insert({ id: jobId });
       return true;
-    } catch (error) {
+    } catch (_error) {
       return false;
     }
   }

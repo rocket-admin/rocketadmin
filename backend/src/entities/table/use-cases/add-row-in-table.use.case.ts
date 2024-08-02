@@ -169,7 +169,7 @@ export class AddRowInTableUseCase extends AbstractUseCase<AddRowInTableDs, Table
         foreignKeysWithKeysFromWidgets.map(async (el) => {
           try {
             return await this.attachForeignColumnNames(el, userId, connectionId, dao);
-          } catch (e) {
+          } catch (_e) {
             return el as ForeignKeyWithAutocompleteColumnsDS;
           }
         }),
@@ -275,7 +275,7 @@ export class AddRowInTableUseCase extends AbstractUseCase<AddRowInTableDs, Table
         ...foreignKey,
         autocomplete_columns: columnNames,
       };
-    } catch (e) {
+    } catch (_e) {
       return {
         ...foreignKey,
         autocomplete_columns: [],

@@ -93,7 +93,7 @@ export class LoginUserWithGithubUseCase
       }
 
       return savedUser;
-    } catch (e) {
+    } catch (_e) {
       throw new HttpException(
         {
           message: Messages.GITHUB_REGISTRATION_FAILED,

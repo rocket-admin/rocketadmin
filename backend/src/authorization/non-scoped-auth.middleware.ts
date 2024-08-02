@@ -20,7 +20,7 @@ export class NonScopedAuthMiddleware implements NestMiddleware {
     let token: string;
     try {
       token = req.cookies[Constants.JWT_COOKIE_KEY_NAME];
-    } catch (e) {
+    } catch (_e) {
       if (process.env.NODE_ENV !== 'test') {
         throw new HttpException(
           {

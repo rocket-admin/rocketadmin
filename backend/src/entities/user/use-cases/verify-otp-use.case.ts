@@ -56,7 +56,7 @@ export class VerifyOtpUseCase extends AbstractUseCase<VerifyOtpDS, OtpValidation
           validated: true,
         };
       }
-    } catch (error) {
+    } catch (_error) {
       throw new HttpException(
         {
           message: Messages.OTP_VALIDATION_FAILED,

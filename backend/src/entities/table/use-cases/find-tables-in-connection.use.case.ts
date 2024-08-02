@@ -1,5 +1,5 @@
 import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
-import Sentry from '@sentry/node';
+import * as Sentry from '@sentry/node';
 import PQueue from 'p-queue';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
@@ -233,7 +233,7 @@ export class FindTablesInConnectionUseCase
       const tablesStructures: Array<{
         tableName: string;
         structure: Array<TableStructureDS>;
-      }> = await Promise.all(
+      }> = (await Promise.all(
         tableNames.map(async (tableName) => {
           return await queue.add(async () => {
             const structure = await dao.getTableStructure(tableName, undefined);
@@ -243,11 +243,11 @@ export class FindTablesInConnectionUseCase
             };
           });
         }),
-      ) as Array<{
+      )) as Array<{
         tableName: string;
         structure: Array<TableStructureDS>;
-      }>
-      connection.tables_info = await Promise.all(
+      }>;
+      connection.tables_info = (await Promise.all(
         tablesStructures.map(async (tableStructure) => {
           return await queue.add(async () => {
             const newTableInfo = buildTableInfoEntity(tableStructure.tableName, connection);
@@ -260,7 +260,7 @@ export class FindTablesInConnectionUseCase
             return newTableInfo;
           });
         }),
-      ) as Array<TableInfoEntity>;
+      )) as Array<TableInfoEntity>;
       connection.saved_table_info = ++connection.saved_table_info;
       await this._dbContext.connectionRepository.saveUpdatedConnection(connection);
     } catch (e) {

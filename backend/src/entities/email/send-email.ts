@@ -5,7 +5,7 @@ import { EmailConfigService } from './email-config/email-config.service.js';
 import { EmailTransporterService } from './transporter/email-transporter-service.js';
 import { EmailService } from './email/email.service.js';
 import { Constants } from '../../helpers/constants/constants.js';
-import Sentry from '@sentry/node';
+import * as Sentry from '@sentry/node';
 import { getProcessVariable } from '../../helpers/get-process-variable.js';
 
 export async function sendEmailToUser(letterContent: IMessage): Promise<SMTPTransport.SentMessageInfo | null> {

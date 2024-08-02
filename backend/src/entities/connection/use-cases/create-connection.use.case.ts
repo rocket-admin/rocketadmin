@@ -52,7 +52,7 @@ export class CreateConnectionUseCase
           try {
             const updatedDao = getDataAccessObject(createdConnection);
             await updatedDao.testConnect();
-          } catch (e) {
+          } catch (_e) {
             createdConnection.ssl = false;
           }
         }
