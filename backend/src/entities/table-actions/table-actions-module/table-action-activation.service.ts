@@ -16,6 +16,7 @@ import { sendEmailToUser } from '../../email/send-email.js';
 import { Encryptor } from '../../../helpers/encryption/encryptor.js';
 import axios from 'axios';
 import PQueue from 'p-queue';
+import { isSaaS } from '../../../helpers/app/is-saas.js';
 
 export type ActionActivationResult = {
   location?: string;
@@ -215,6 +216,11 @@ export class TableActionActivationService {
           return status <= 599;
         },
       });
+      if (!isSaaS()) {
+        console.info('HTTP action result data', result.data);
+        console.info('HTTP action result status', result.status);
+        console.info('HTTP action result headers', result.headers);
+      }
     } catch (error) {
       if (axios.isAxiosError(error)) {
         const errorMessage =
