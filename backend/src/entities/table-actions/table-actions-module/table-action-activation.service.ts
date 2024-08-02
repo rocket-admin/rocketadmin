@@ -206,13 +206,28 @@ export class TableActionActivationService {
     });
     const autoadminSignatureHeader = Encryptor.hashDataHMACexternalKey(foundConnection.signing_key, actionRequestBody);
 
-    const result = await axios.post(tableAction.url, actionRequestBody, {
-      headers: { 'Rocketadmin-Signature': autoadminSignatureHeader, 'Content-Type': 'application/json' },
-      maxRedirects: 0,
-      validateStatus: function (status) {
-        return status <= 599;
-      },
-    });
+    let result;
+    try {
+      result = await axios.post(tableAction.url, actionRequestBody, {
+        headers: { 'Rocketadmin-Signature': autoadminSignatureHeader, 'Content-Type': 'application/json' },
+        maxRedirects: 0,
+        validateStatus: function (status) {
+          return status <= 599;
+        },
+      });
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        const errorMessage =
+          error.response?.data?.message || error.response?.data?.errorMessage || error.message || 'An error occurred';
+        const responseStatus = error.response?.status || 500;
+        throw new HttpException(
+          {
+            message: errorMessage,
+          },
+          responseStatus,
+        );
+      }
+    }
     const operationStatusCode = result.status;
     if (operationStatusCode >= 200 && operationStatusCode < 300) {
       operationResult = OperationResultStatusEnum.successfully;
