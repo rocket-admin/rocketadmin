@@ -185,6 +185,7 @@ export class TableActionActivationService {
     let operationResult = OperationResultStatusEnum.unknown;
     const dataAccessObject = getDataAccessObject(foundConnection);
     const tablePrimaryKeys = await dataAccessObject.getTablePrimaryColumns(tableName, null);
+
     const primaryKeyValuesArray: Array<Record<string, unknown>> = [];
     for (const primaryKeyInBody of request_body) {
       for (const primaryKey of tablePrimaryKeys) {
@@ -204,13 +205,29 @@ export class TableActionActivationService {
       $$_tableName: tableName,
     });
     const autoadminSignatureHeader = Encryptor.hashDataHMACexternalKey(foundConnection.signing_key, actionRequestBody);
-    const result = await axios.post(tableAction.url, actionRequestBody, {
-      headers: { 'Rocketadmin-Signature': autoadminSignatureHeader, 'Content-Type': 'application/json' },
-      maxRedirects: 0,
-      validateStatus: function (status) {
-        return status <= 599;
-      },
-    });
+
+    let result;
+    try {
+      result = await axios.post(tableAction.url, actionRequestBody, {
+        headers: { 'Rocketadmin-Signature': autoadminSignatureHeader, 'Content-Type': 'application/json' },
+        maxRedirects: 0,
+        validateStatus: function (status) {
+          return status <= 599;
+        },
+      });
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        const errorMessage =
+          error.response?.data?.message || error.response?.data?.errorMessage || error.message || 'An error occurred';
+        const responseStatus = error.response?.status || 500;
+        throw new HttpException(
+          {
+            message: errorMessage,
+          },
+          responseStatus,
+        );
+      }
+    }
     const operationStatusCode = result.status;
     if (operationStatusCode >= 200 && operationStatusCode < 300) {
       operationResult = OperationResultStatusEnum.successfully;
@@ -228,9 +245,11 @@ export class TableActionActivationService {
       };
     }
     if (operationStatusCode >= 400 && operationStatusCode <= 599) {
+      const errorMessage =
+        result?.data?.message || result?.data?.errorMessage || result?.data?.response || 'An error occurred';
       throw new HttpException(
         {
-          message: result.data,
+          message: errorMessage,
         },
         operationStatusCode,
       );

@@ -5,26 +5,26 @@
   "type": "module",
   "dependencies": {
     "@types/multer": "^1.4.11",
-    "axios": "^1.6.8",
-    "csv": "^6.3.8",
+    "axios": "^1.7.3",
+    "csv": "^6.3.10",
     "get-port": "^7.1.0",
     "jsonwebtoken": "^9.0.2",
     "knex": "^3.1.0",
-    "lru-cache": "^10.2.0",
-    "mysql2": "^3.9.4",
-    "oracledb": "^6.4.0",
+    "lru-cache": "^11.0.0",
+    "mysql2": "^3.11.0",
+    "oracledb": "^6.6.0",
     "p-queue": "^8.0.1",
-    "pg": "^8.11.5",
+    "pg": "^8.12.0",
     "pg-copy-streams": "^6.0.6",
-    "pg-query-stream": "^4.5.5",
+    "pg-query-stream": "^4.6.0",
     "ssh2": "^1.15.0",
-    "tedious": "^18.1.0",
+    "tedious": "^18.3.0",
     "tunnel-ssh": "5.1.2"
   },
   "devDependencies": {
-    "@types/oracledb": "^6.4.0",
+    "@types/oracledb": "^6.5.1",
     "@types/pg-copy-streams": "^1.2.5",
-    "prettier": "3.2.5",
-    "typescript": "^5.4.5"
+    "prettier": "3.3.3",
+    "typescript": "^5.5.4"
   }
 }
