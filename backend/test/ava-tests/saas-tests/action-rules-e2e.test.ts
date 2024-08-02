@@ -932,7 +932,7 @@ test.serial(`${currentTest} should return created table rule with action and eve
 
 currentTest = 'POST /rule/actions/activate/:ruleId/:connectionId';
 
-test.only(`${currentTest} should return created table rule with action and events`, async (t) => {
+test.serial(`${currentTest} should return created table rule with action and events`, async (t) => {
   const { token } = await registerUserAndReturnUserInfo(app);
   const createConnectionResult = await request(app.getHttpServer())
     .post('/connection')
