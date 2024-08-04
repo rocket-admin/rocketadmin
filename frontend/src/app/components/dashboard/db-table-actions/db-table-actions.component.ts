@@ -1,19 +1,20 @@
+import { AlertActionType, AlertType } from 'src/app/models/alert';
 import { Component, OnInit } from '@angular/core';
 import { CustomAction, CustomActionMethod, CustomActionType, CustomEvent, EventType, Rule } from 'src/app/models/table';
 
 import { ActionDeleteDialogComponent } from './action-delete-dialog/action-delete-dialog.component';
 import { Angulartics2 } from 'angulartics2';
+import { CompanyMember } from 'src/app/models/company';
+import { CompanyService } from 'src/app/services/company.service';
 import { ConnectionsService } from 'src/app/services/connections.service';
 import { HttpErrorResponse } from '@angular/common/http';
 import { MatDialog } from '@angular/material/dialog';
 import { NotificationsService } from 'src/app/services/notifications.service';
 import { TablesService } from 'src/app/services/tables.service';
 import { Title } from '@angular/platform-browser';
+import { UserService } from 'src/app/services/user.service';
 import { codeSnippets } from 'src/app/consts/code-snippets';
 import { normalizeTableName } from 'src/app/lib/normalize';
-import { CompanyService } from 'src/app/services/company.service';
-import { CompanyMember } from 'src/app/models/company';
-import { UserService } from 'src/app/services/user.service';
 
 @Component({
   selector: 'app-db-table-actions',
@@ -131,7 +132,7 @@ export class DbTableActionsComponent implements OnInit {
         link: `/dashboard/${this.connectionID}/${this.tableName}`
       },
       {
-        label: 'Actions',
+        label: 'Rules',
         link: null
       }
     ]
@@ -233,10 +234,12 @@ export class DbTableActionsComponent implements OnInit {
   }
 
   handleRuleSubmitting() {
-    if (this.selectedRule.id) {
-      this.updateRule();
-    } else {
-      this.addRule();
+    if (this.selectedRule.events.filter(event => event.event !== null).length > 0) {
+      if (this.selectedRule.id) {
+        this.updateRule();
+      } else {
+        this.addRule();
+      }
     }
   }
 

@@ -65,7 +65,10 @@
                             <span *ngIf="i > 0" class="mat-body-1 event__or text_highlighted">or</span>
                             <mat-form-field appearance="outline">
                                 <mat-label>Events</mat-label>
-                                <mat-select name="{{event.event}}-event-type" [(ngModel)]="event.event" (selectionChange)="onEventChange($event)">
+                                <mat-select name="{{event.event}}-event-type"
+                                    [required]="selectedRule.events.length === 1"
+                                    [(ngModel)]="event.event"
+                                    (selectionChange)="onEventChange($event)">
                                     <mat-option *ngFor="let availableEvent of availableEvents" [value]="availableEvent.value"
                                         [disabled]="selectedEvents.includes(availableEvent.value)">
                                         {{ availableEvent.label }}
