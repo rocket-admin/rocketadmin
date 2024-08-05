@@ -336,7 +336,9 @@ export class DbTableActionsComponent implements OnInit {
       };
       // this.selectedRule.events.push(customEvent);
       this.selectedRuleCustomEvent = customEvent;
-    } else if (this.selectedRule.events.length < 4) {
+    }
+
+    if (this.selectedRule.events.length < 4) {
       this.selectedRule.events.push({ event: null });
     }
   }
@@ -344,8 +346,13 @@ export class DbTableActionsComponent implements OnInit {
   removeEvent(event: any) {
     this.selectedRule.events = this.selectedRule.events.filter((e) => e.event !== event);
     this.selectedEvents = this.selectedRule.events.map((event) => event.event);
+
     if (event === EventType.Custom) {
       this.selectedRuleCustomEvent = null;
+    }
+
+    if (this.selectedRule.events.length === 3) {
+      this.selectedRule.events.push({ event: null });
     }
   }
 }
