@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
@@ -24,22 +24,13 @@ export class ChangeUsualPasswordUseCase
   protected async implementation(userData: ChangeUsualUserPasswordDs): Promise<IToken> {
     const user = await this._dbContext.userRepository.findOneUserByEmail(userData.email);
     if (!user) {
-      throw new HttpException(
-        {
-          message: Messages.USER_NOT_FOUND,
-        },
-        HttpStatus.UNAUTHORIZED,
-      );
+      throw new NotFoundException(Messages.USER_NOT_FOUND);
     }
     const oldPasswordValidationResult = await Encryptor.verifyUserPassword(userData.oldPassword, user.password);
     if (!oldPasswordValidationResult) {
-      throw new HttpException(
-        {
-          message: Messages.PASSWORD_OLD_INVALID,
-        },
-        HttpStatus.FORBIDDEN,
-      );
+      throw new BadRequestException(Messages.PASSWORD_OLD_INVALID);
     }
+
     user.password = await Encryptor.hashUserPassword(userData.newPassword);
     const updatedUser = await this._dbContext.userRepository.saveUserEntity(user);
     const foundUserCompany = await this._dbContext.companyInfoRepository.finOneCompanyInfoByUserId(updatedUser.id);

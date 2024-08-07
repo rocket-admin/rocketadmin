@@ -732,7 +732,7 @@ test.serial(`${currentTest} should enable 2fa for company`, async (t) => {
     .set('Cookie', newSimpleUserToken)
     .set('Accept', 'application/json');
 
-  t.is(connectionsResult.status, 401);
+  t.is(connectionsResult.status, 400);
 
   const connectionsResultsObject = JSON.parse(connectionsResult.text);
   t.is(connectionsResultsObject.message, Messages.TWO_FA_REQUIRED);

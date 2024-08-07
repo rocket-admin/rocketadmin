@@ -14,6 +14,10 @@ header {
     margin: 0;
 }
 
+.expansion-panel_admin {
+    margin-bottom: 20px;
+}
+
 .add-group-button .mat-icon{
     font-size: 2em;
 }
@@ -22,9 +26,24 @@ header {
     align-items: center;
 }
 
-.mat-expansion-panel-header-description {
+.title-edit-button {
+    display: none;
+    color: var(--mat-expansion-header-description-color);
+    margin-left: 12px;
+}
+
+.group-actions {
+    display: none;
     justify-content: flex-end;
     align-items: center;
+}
+
+.group-item:hover .title-edit-button {
+    display: block;
+}
+
+.group-item:hover .group-actions {
+    display: flex;
 }
 
 .user {

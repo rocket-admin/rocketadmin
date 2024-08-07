@@ -106,6 +106,20 @@ export class PermissionsAddDialogComponent implements OnInit {
     }
   }
 
+  onVisibilityChange(event: Event, index: number) {
+    if (!this.tablesAccess[index].accessLevel.visibility) {
+      event.preventDefault();
+      this.tablesAccess[index].accessLevel.readonly = !this.tablesAccess[index].accessLevel.readonly;
+    }
+    this.tablesAccess[index].accessLevel.visibility = true;
+  }
+
+  onRecordActionPermissionChange(action: string, index: number) {
+    this.tablesAccess[index].accessLevel[action] = !this.tablesAccess[index].accessLevel[action];
+    this.tablesAccess[index].accessLevel.readonly = false;
+    this.tablesAccess[index].accessLevel.visibility = true;
+  }
+
   addPermissions() {
     this.submitting = true;
     let permissions = {
