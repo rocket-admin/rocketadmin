@@ -79,7 +79,15 @@ export class UsersComponent implements OnInit, OnDestroy {
   getUsersGroups() {
     this._usersService.fetchConnectionGroups(this.connectionID)
       .subscribe((res: any) => {
-        this.groups = res;
+        // this.groups = res;
+        this.groups = res.sort((a, b) => {
+          if (a.group.title === 'Admin') return -1;
+          if (b.group.title === 'Admin') return 1;
+          return 0;
+        });
+
+        console.log('this.groups');
+        console.log(this.groups);
       });
   }
 
@@ -112,7 +120,8 @@ export class UsersComponent implements OnInit, OnDestroy {
     })
   }
 
-  openEditGroupNameDialog(group: UserGroup) {
+  openEditGroupNameDialog(e: Event, group: UserGroup) {
+    e.stopPropagation();
     this.dialog.open(GroupNameEditDialogComponent, {
       width: '25em',
       data: group
