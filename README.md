@@ -15,6 +15,8 @@ In order to set up a Docker container with the `rocketadmin/rocketadmin` image a
 
 ```bash
 docker pull rocketadmin/rocketadmin
+# or
+podman pull quay.io/rocketadmin/rocketadmin
 ```
 
 3. Generate a random 64-character string for the JWT_SECRET variable. You can use an online tool like https://randomkeygen.com/ or create it using a script in your preferred programming language.
