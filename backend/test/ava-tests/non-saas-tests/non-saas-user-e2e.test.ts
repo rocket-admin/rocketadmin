@@ -131,7 +131,7 @@ test.serial(`${currentTest} reject authorization when try to login with wrong pa
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
 
-    t.is(wrongUserLogin.status, 401);
+    t.is(wrongUserLogin.status, 400);
 
     const loginUserResult = await request(app.getHttpServer())
       .post('/user/login/')

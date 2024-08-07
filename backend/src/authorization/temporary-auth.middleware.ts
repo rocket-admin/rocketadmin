@@ -1,4 +1,10 @@
-import { HttpException, HttpStatus, Injectable, NestMiddleware } from '@nestjs/common';
+import {
+  HttpException,
+  Injectable,
+  InternalServerErrorException,
+  NestMiddleware,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
@@ -25,27 +31,17 @@ export class TemporaryAuthMiddleware implements NestMiddleware {
       token = req.cookies[Constants.JWT_COOKIE_KEY_NAME];
     } catch (_e) {
       if (process.env.NODE_ENV !== 'test') {
-        throw new HttpException(
-          {
-            message: 'JWT verification failed',
-          },
-          HttpStatus.UNAUTHORIZED,
-        );
+        throw new UnauthorizedException('JWT verification failed');
       }
     }
 
     if (!token) {
-      throw new HttpException('Token is missing', HttpStatus.UNAUTHORIZED);
+      throw new UnauthorizedException('Token is missing');
     }
 
     const isLoggedOut = !!(await this.logOutRepository.findOne({ where: { jwtToken: token } }));
     if (isLoggedOut) {
-      throw new HttpException(
-        {
-          message: 'JWT verification failed',
-        },
-        HttpStatus.UNAUTHORIZED,
-      );
+      throw new UnauthorizedException('JWT verification failed');
     }
 
     try {
@@ -53,17 +49,8 @@ export class TemporaryAuthMiddleware implements NestMiddleware {
       const data = jwt.verify(token, jwtSecret);
       const userId = data['id'];
       if (!userId) {
-        throw new Error('JWT verification failed');
+        throw new UnauthorizedException('JWT verification failed');
       }
-      // const foundUser = await this.userRepository.findOne({ where: { id: userId } });
-      // if (!foundUser) {
-      //   throw new HttpException(
-      //     {
-      //       message: Messages.USER_NOT_FOUND,
-      //     },
-      //     HttpStatus.UNAUTHORIZED,
-      //   );
-      // }
       const payload = {
         sub: userId,
         email: data['email'],
@@ -71,18 +58,16 @@ export class TemporaryAuthMiddleware implements NestMiddleware {
         iat: data['iat'],
       };
       if (!payload || isObjectEmpty(payload)) {
-        throw new Error('JWT verification failed');
+        throw new UnauthorizedException('JWT verification failed');
       }
       req['decoded'] = payload;
       next();
     } catch (e) {
       Sentry.captureException(e);
-      throw new HttpException(
-        {
-          message: Messages.AUTHORIZATION_REJECTED,
-        },
-        HttpStatus.UNAUTHORIZED,
-      );
+      if (e instanceof HttpException || e instanceof UnauthorizedException) {
+        throw e;
+      }
+      throw new InternalServerErrorException(Messages.AUTHORIZATION_REJECTED);
     }
   }
 }

@@ -207,7 +207,7 @@ test.serial(`${currentTest} should throw an error when user login without compan
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
     const loginUserRO = JSON.parse(loginUserResult.text);
-    t.is(loginUserResult.status, 401);
+    t.is(loginUserResult.status, 400);
     t.is(loginUserRO.message, Messages.LOGIN_DENIED_SHOULD_CHOOSE_COMPANY);
   } catch (err) {
     throw err;
@@ -228,7 +228,7 @@ test.serial(`${currentTest} reject authorization when try to login with wrong pa
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
 
-    t.is(wrongUserLogin.status, 401);
+    t.is(wrongUserLogin.status, 400);
 
     const loginUserResult = await request(app.getHttpServer())
       .post('/user/login/')

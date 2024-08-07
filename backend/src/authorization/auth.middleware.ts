@@ -1,4 +1,11 @@
-import { HttpException, HttpStatus, Injectable, NestMiddleware } from '@nestjs/common';
+import {
+  BadRequestException,
+  HttpException,
+  Injectable,
+  InternalServerErrorException,
+  NestMiddleware,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
@@ -26,27 +33,17 @@ export class AuthMiddleware implements NestMiddleware {
       token = req.cookies[Constants.JWT_COOKIE_KEY_NAME];
     } catch (_e) {
       if (process.env.NODE_ENV !== 'test') {
-        throw new HttpException(
-          {
-            message: 'JWT verification failed',
-          },
-          HttpStatus.UNAUTHORIZED,
-        );
+        throw new UnauthorizedException('JWT verification failed');
       }
     }
 
     if (!token) {
-      throw new HttpException('Token is missing', HttpStatus.UNAUTHORIZED);
+      throw new UnauthorizedException('Token is missing');
     }
 
     const isLoggedOut = !!(await this.logOutRepository.findOne({ where: { jwtToken: token } }));
     if (isLoggedOut) {
-      throw new HttpException(
-        {
-          message: 'JWT verification failed',
-        },
-        HttpStatus.UNAUTHORIZED,
-      );
+      throw new UnauthorizedException('Token is invalid');
     }
 
     try {
@@ -54,17 +51,12 @@ export class AuthMiddleware implements NestMiddleware {
       const data = jwt.verify(token, jwtSecret);
       const userId = data['id'];
       if (!userId) {
-        throw new Error('JWT verification failed');
+        throw new UnauthorizedException('JWT verification failed');
       }
       const addedScope: Array<JwtScopesEnum> = data['scope'];
       if (addedScope && addedScope.length > 0) {
         if (addedScope.includes(JwtScopesEnum.TWO_FA_ENABLE)) {
-          throw new HttpException(
-            {
-              message: Messages.TWO_FA_REQUIRED,
-            },
-            HttpStatus.UNAUTHORIZED,
-          );
+          throw new BadRequestException(Messages.TWO_FA_REQUIRED);
         }
       }
 
@@ -75,18 +67,16 @@ export class AuthMiddleware implements NestMiddleware {
         iat: data['iat'],
       };
       if (!payload || isObjectEmpty(payload)) {
-        throw new Error('JWT verification failed');
+        throw new UnauthorizedException('JWT verification failed');
       }
       req['decoded'] = payload;
       next();
     } catch (e) {
       Sentry.captureException(e);
-      throw new HttpException(
-        {
-          message: e.message === Messages.TWO_FA_REQUIRED ? e.message : Messages.AUTHORIZATION_REJECTED,
-        },
-        HttpStatus.UNAUTHORIZED,
-      );
+      if (e instanceof HttpException || e instanceof UnauthorizedException) {
+        throw e;
+      }
+      throw new InternalServerErrorException(Messages.AUTHORIZATION_REJECTED);
     }
   }
 }

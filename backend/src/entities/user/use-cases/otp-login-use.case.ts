@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
+import { BadRequestException, HttpException, HttpStatus, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
@@ -22,21 +22,11 @@ export class OtpLoginUseCase extends AbstractUseCase<VerifyOtpDS, IToken> implem
     const { userId, otpToken } = inputData;
     const foundUser = await this._dbContext.userRepository.findOneUserById(userId);
     if (!foundUser) {
-      throw new HttpException(
-        {
-          message: Messages.LOGIN_DENIED,
-        },
-        HttpStatus.UNAUTHORIZED,
-      );
+      throw new NotFoundException(Messages.USER_NOT_FOUND);
     }
     const isValid = authenticator.check(otpToken, foundUser.otpSecretKey);
     if (!isValid) {
-      throw new HttpException(
-        {
-          message: Messages.LOGIN_DENIED,
-        },
-        HttpStatus.UNAUTHORIZED,
-      );
+      throw new BadRequestException(Messages.LOGIN_DENIED_INVALID_OTP);
     }
     const foundUserCompany = await this._dbContext.companyInfoRepository.finOneCompanyInfoByUserId(foundUser.id);
     return generateGwtToken(foundUser, get2FaScope(foundUser, foundUserCompany));
