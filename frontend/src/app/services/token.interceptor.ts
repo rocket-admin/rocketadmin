@@ -7,10 +7,10 @@ import {
 } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 
+import { ConfigurationService } from './configuration.service';
 import { ConnectionsService } from './connections.service';
 import { CookieService } from 'ngx-cookie-service';
 import { Injectable } from '@angular/core';
-import { ConfigurationService } from './configuration.service';
 import { catchError } from 'rxjs/operators';
 import { environment } from "../../environments/environment";
 
@@ -58,6 +58,7 @@ export class TokenInterceptor implements HttpInterceptor {
     return next.handle(request).pipe(
       catchError((error: HttpErrorResponse) => {
         if (error.status === 401) {
+          localStorage.deleteItem('token_expiration')
           location.href = '/login';
         }
         return throwError(error);
