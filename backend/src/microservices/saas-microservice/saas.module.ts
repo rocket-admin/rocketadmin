@@ -90,6 +90,7 @@ export class SaasModule {
         { path: 'saas/user/:userId/company/:companyId', method: RequestMethod.PUT },
         { path: 'saas/company/:companyId/users/suspend', method: RequestMethod.PUT },
         { path: 'sass/user/register/invite', method: RequestMethod.POST },
+        { path: 'saas/user/:userId/company', method: RequestMethod.GET },
       );
   }
 }
