@@ -13,25 +13,27 @@
     <app-placeholder-user-groups *ngIf="groups === null"></app-placeholder-user-groups>
 
     <mat-accordion multi="true" *ngIf="groups">
-        <mat-expansion-panel *ngFor="let groupItem of groups" (opened)="openUsersList(groupItem.group.id)">
-            <mat-expansion-panel-header>
+        <mat-expansion-panel *ngFor="let groupItem of groups" (opened)="openUsersList(groupItem.group.id)"
+            [ngClass]="{'expansion-panel_admin': groupItem.group.title === 'Admin'}">
+            <mat-expansion-panel-header class="group-item">
                 <mat-panel-title>
-                    {{ groupItem.group.title }}
+                    <span>{{ groupItem.group.title }}</span>
+                    <button mat-icon-button *ngIf="isPermitted(groupItem.accessLevel) && groupItem.group.title !== 'Admin'"
+                        class="title-edit-button"
+                        angulartics2On="click"
+                        angularticsAction="Users access: edit group name is clicked"
+                        matTooltip="Edit group name"
+                        (click)="openEditGroupNameDialog($event, groupItem.group)">
+                        <mat-icon fontSet="material-icons-outlined">edit</mat-icon>
+                    </button>
                 </mat-panel-title>
-                <mat-panel-description (click)="$event.stopPropagation();">
+                <mat-panel-description (click)="$event.stopPropagation();" class="group-actions">
                     <button mat-icon-button *ngIf="connectionAccessLevel === 'edit'"
                         angulartics2On="click"
                         angularticsAction="Users access: permissions is clicked"
                         matTooltip="Configure permissions"
                         (click)="openPermissionsDialog(groupItem.group)">
-                        <mat-icon>vpn_key</mat-icon>
-                    </button>
-                    <button mat-icon-button *ngIf="isPermitted(groupItem.accessLevel) && groupItem.group.title !== 'Admin'"
-                        angulartics2On="click"
-                        angularticsAction="Users access: edit group name is clicked"
-                        matTooltip="Edit group name"
-                        (click)="openEditGroupNameDialog(groupItem.group)">
-                        <mat-icon>edit</mat-icon>
+                        <mat-icon fontSet="material-icons-outlined">vpn_key_outline</mat-icon>
                     </button>
                     <button mat-icon-button *ngIf="isPermitted(groupItem.accessLevel) && groupItem.group.title !== 'Admin'"
                         angulartics2On="click"
@@ -45,7 +47,7 @@
                         angularticsAction="Users access: add user is clicked"
                         matTooltip="Add user"
                         (click)="openAddUserDialog(groupItem.group)">
-                        <mat-icon>person_add</mat-icon>
+                        <mat-icon fontSet="material-icons-outlined">person_add</mat-icon>
                     </button>
                 </mat-panel-description>
             </mat-expansion-panel-header>
