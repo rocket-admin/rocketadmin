@@ -1,4 +1,4 @@
-import { Injectable, NestMiddleware, HttpException, HttpStatus } from '@nestjs/common';
+import { Injectable, NestMiddleware, UnauthorizedException } from '@nestjs/common';
 import { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import { Messages } from '../exceptions/text/messages.js';
@@ -10,12 +10,7 @@ export class SaaSAuthMiddleware implements NestMiddleware {
     console.log(`saas auth middleware triggered ->: ${new Date().toISOString()}`);
     const token = extractTokenFromHeader(req);
     if (!token) {
-      throw new HttpException(
-        {
-          message: 'Token is missing',
-        },
-        HttpStatus.UNAUTHORIZED,
-      );
+      throw new UnauthorizedException('Token is missing');
     }
     try {
       const jwtSecret = process.env.MICROSERVICE_JWT_SECRET;
@@ -23,23 +18,13 @@ export class SaaSAuthMiddleware implements NestMiddleware {
       const requestId = data['request_id'];
 
       if (!requestId) {
-        throw new HttpException(
-          {
-            message: Messages.AUTHORIZATION_REJECTED,
-          },
-          HttpStatus.UNAUTHORIZED,
-        );
+        throw new UnauthorizedException(Messages.AUTHORIZATION_REJECTED);
       }
 
       req['decoded'] = data;
       next();
     } catch (_e) {
-      throw new HttpException(
-        {
-          message: Messages.AUTHORIZATION_REJECTED,
-        },
-        HttpStatus.UNAUTHORIZED,
-      );
+      throw new UnauthorizedException(Messages.AUTHORIZATION_REJECTED);
     }
   }
 }

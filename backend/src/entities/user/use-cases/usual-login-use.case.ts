@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
@@ -26,50 +26,25 @@ export class UsualLoginUseCase extends AbstractUseCase<UsualLoginDs, IToken> imp
     if (companyId) {
       user = await this._dbContext.userRepository.findOneUserByEmailAndCompanyId(email, companyId);
       if (!user) {
-        throw new HttpException(
-          {
-            message: Messages.LOGIN_DENIED,
-          },
-          HttpStatus.UNAUTHORIZED,
-        );
+        throw new NotFoundException(Messages.USER_NOT_FOUND);
       }
     } else {
       const foundUsers = await this._dbContext.userRepository.findAllUsersWithEmail(email);
       if (foundUsers.length > 1) {
-        throw new HttpException(
-          {
-            message: Messages.LOGIN_DENIED_SHOULD_CHOOSE_COMPANY,
-          },
-          HttpStatus.UNAUTHORIZED,
-        );
+        throw new BadRequestException(Messages.LOGIN_DENIED_SHOULD_CHOOSE_COMPANY);
       }
       user = foundUsers[0];
     }
 
     if (!user) {
-      throw new HttpException(
-        {
-          message: Messages.LOGIN_DENIED,
-        },
-        HttpStatus.UNAUTHORIZED,
-      );
+      throw new NotFoundException(Messages.USER_NOT_FOUND);
     }
     if (!userData.password) {
-      throw new HttpException(
-        {
-          message: Messages.LOGIN_DENIED,
-        },
-        HttpStatus.UNAUTHORIZED,
-      );
+      throw new BadRequestException(Messages.PASSWORD_MISSING);
     }
     const passwordValidationResult = await Encryptor.verifyUserPassword(userData.password, user.password);
     if (!passwordValidationResult) {
-      throw new HttpException(
-        {
-          message: Messages.LOGIN_DENIED,
-        },
-        HttpStatus.UNAUTHORIZED,
-      );
+      throw new BadRequestException(Messages.LOGIN_DENIED);
     }
     if (user.isOTPEnabled) {
       return generateTemporaryJwtToken(user);

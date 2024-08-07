@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, InternalServerErrorException } from '@nestjs/common';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
@@ -94,12 +94,7 @@ export class LoginUserWithGithubUseCase
 
       return savedUser;
     } catch (_e) {
-      throw new HttpException(
-        {
-          message: Messages.GITHUB_REGISTRATION_FAILED,
-        },
-        HttpStatus.UNAUTHORIZED,
-      );
+      throw new InternalServerErrorException(Messages.GITHUB_REGISTRATION_FAILED);
     }
   }
 }

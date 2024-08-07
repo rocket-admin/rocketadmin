@@ -1,4 +1,4 @@
-import { Injectable, NestMiddleware, HttpException, HttpStatus } from '@nestjs/common';
+import { Injectable, NestMiddleware, UnauthorizedException } from '@nestjs/common';
 import { Request, Response } from 'express';
 import auth from 'basic-auth';
 import { Messages } from '../exceptions/text/messages.js';
@@ -10,21 +10,11 @@ export class BasicAuthMiddleware implements NestMiddleware {
     const basicAuthPassword = process.env.BASIC_AUTH_PWD;
     const userCredentials = auth(req);
     if (!userCredentials) {
-      throw new HttpException(
-        {
-          message: Messages.AUTHORIZATION_REQUIRED,
-        },
-        HttpStatus.UNAUTHORIZED,
-      );
+      throw new UnauthorizedException(Messages.AUTHORIZATION_REQUIRED);
     }
     const { name: loginUserName, pass: loginUserPassword } = userCredentials;
     if (basicAuthLogin !== loginUserName || basicAuthPassword !== loginUserPassword) {
-      throw new HttpException(
-        {
-          message: Messages.INVALID_USERNAME_OR_PASSWORD,
-        },
-        HttpStatus.UNAUTHORIZED,
-      );
+      throw new UnauthorizedException(Messages.INVALID_USERNAME_OR_PASSWORD);
     } else {
       next();
     }
