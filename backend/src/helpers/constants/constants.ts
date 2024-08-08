@@ -969,28 +969,149 @@ export const Constants = {
       },
     },
     GROUP_INVITE: {
-      GROUP_INVITE_SUBJECT_DATA: 'You were invited to a group in the Rocketadmin project',
+      GROUP_INVITE_SUBJECT_DATA: 'You were added to a group on Rocketadmin',
       GROUP_INVITE_TEXT_DATA: function (groupTitle: string) {
-        return `You have been added to a "${groupTitle}" group in the Rocketadmin project.`;
+        return `You have been added to the "${groupTitle}" group. Glad to see you there.`;
       },
       GROUP_INVITE_HTML_DATA: function (groupTitle: string) {
         return `
-        <body>
-          <p>
-            Hi!
-          </p>
-          <p>
-          You have been added to a "${groupTitle}" group in the Rocketadmin project.
-          </p>
-          <p>
-            Thanks.
-          </p>
-        </body>
+        <!doctype html>
+          <html>
+            <head>
+              <meta name="viewport" content="width=device-width">
+              <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+              <title>You were added to a group on Rocketadmin</title>
+            <style>
+          @media only screen and (max-width: 620px) {
+            table[class=body] h1 {
+              font-size: 28px !important;
+              margin-bottom: 10px !important;
+            }
+
+            table[class=body] p,
+          table[class=body] ul,
+          table[class=body] ol,
+          table[class=body] td,
+          table[class=body] span,
+          table[class=body] a {
+              font-size: 16px !important;
+            }
+
+            table[class=body] .wrapper,
+          table[class=body] .article {
+              padding: 10px !important;
+            }
+
+            table[class=body] .content {
+              padding: 0 !important;
+            }
+
+            table[class=body] .container {
+              padding: 0 !important;
+              width: 100% !important;
+            }
+
+            table[class=body] .main {
+              border-left-width: 0 !important;
+              border-radius: 0 !important;
+              border-right-width: 0 !important;
+            }
+
+            table[class=body] .btn table {
+              width: 100% !important;
+            }
+
+            table[class=body] .btn a {
+              width: 100% !important;
+            }
+
+            table[class=body] .img-responsive {
+              height: auto !important;
+              max-width: 100% !important;
+              width: auto !important;
+            }
+          }
+          @media all {
+            .ExternalClass {
+              width: 100%;
+            }
+
+            .ExternalClass,
+          .ExternalClass p,
+          .ExternalClass span,
+          .ExternalClass font,
+          .ExternalClass td,
+          .ExternalClass div {
+              line-height: 100%;
+            }
+          }
+          </style></head>
+            <body class style="background-color: #f4e7ff; font-family: Arial, sans-serif; -webkit-font-smoothing: antialiased; font-size: 18px; line-height: 1.4; margin: 0; padding: 0; -ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%;">
+              <table role="presentation" border="0" cellpadding="0" cellspacing="0" class="body" style="border-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; min-width: 100%; background-color: #f4e7ff; width: 100%;" width="100%" bgcolor="#f4e7ff">
+                <tr>
+                  <td style="font-family: sans-serif; font-size: 14px; vertical-align: top;" valign="top">&nbsp;</td>
+                  <td class="container" style="font-family: sans-serif; font-size: 14px; vertical-align: top; display: block; max-width: 580px; padding: 10px; width: 580px; Margin: 0 auto;" width="580" valign="top">
+                    <div class="content" style="box-sizing: border-box; display: block; Margin: 0 auto; max-width: 580px; padding: 10px;">
+
+                      <!-- START CENTERED WHITE CONTAINER -->
+                      <span class="preheader" style="color: transparent; display: none; height: 0; max-height: 0; max-width: 0; opacity: 0; overflow: hidden; mso-hide: all; visibility: hidden; width: 0;">Welcome to your new group!</span>
+                      <table role="presentation" class="main" style="border-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; min-width: 100%; background: #ffffff; border-radius: 3px; width: 100%;" width="100%">
+
+                        <!-- START MAIN CONTENT AREA -->
+                        <tr>
+                          <td class="wrapper" style="font-family: sans-serif; font-size: 14px; vertical-align: top; box-sizing: border-box; padding: 20px;" valign="top">
+                            <table role="presentation" border="0" cellpadding="0" cellspacing="0" style="border-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; min-width: 100%; width: 100%;" width="100%">
+                              <tr>
+                                <td style="font-family: sans-serif; font-size: 14px; vertical-align: top;" valign="top">
+                                  <a href="https://rocketadmin.com/" class="logo" style="color: #ec0867; text-decoration: underline; display: block; margin-bottom: 60px;">
+                                    <img src="https://app.rocketadmin.com/assets/rocketadmin_logo_black.png" height="30" alt="Rocketadmin logo" style="border: none; -ms-interpolation-mode: bicubic; max-width: 100%;">
+                                    </a>
+                                </td>
+                              </tr>
+                              <tr>
+                                <td style="font-family: sans-serif; font-size: 14px; vertical-align: top;" valign="top">
+                                  <h1 class="title" style="font-size: 32px; font-weight: 600; line-height: 1.15; margin-top: 20px; margin-bottom: 40px;">Welcome to Your New Group!</h1>
+                                </td>
+                              </tr>
+                              <tr>
+                                <td style="font-family: sans-serif; font-size: 14px; vertical-align: top;" valign="top">
+                                  <p style="font-size: 18px; font-weight: normal; margin: 0; margin-bottom: 15px;">
+                                    You have been added to the "${groupTitle}" group. Glad to see you there.
+                                  </p>
+                                </td>
+                              </tr>
+                              <tr>
+                                <td style="font-family: sans-serif; font-size: 14px; vertical-align: top;" valign="top">
+                                  <p class="note" style="font-weight: normal; margin: 0; margin-bottom: 15px; font-size: 14px; margin-top: 40px;">
+                                    If you have any questions or need assistance, please feel free to reach out to our support team.
+                                  </p>
+                                </td>
+                              </tr>
+                              <tr>
+                                <td class="footer" style="font-family: sans-serif; font-size: 14px; vertical-align: top; text-align: center; padding-top: 60px;" valign="top" align="center">
+                                  <span class="footer__content" style="font-size: 14px;">© 2024 Rocketadmin</span>
+                                </td>
+                              </tr>
+                            </table>
+                          </td>
+                        </tr>
+
+                      <!-- END MAIN CONTENT AREA -->
+                      </table>
+                    <!-- END CENTERED WHITE CONTAINER -->
+                    </div>
+                  </td>
+                  <td style="font-family: sans-serif; font-size: 14px; vertical-align: top;" valign="top">&nbsp;</td>
+                </tr>
+              </table>
+            </body>
+          </html>
+
         `;
       },
     },
     COMPANY_INVITE: {
-      COMPANY_INVITE_SUBJECT_DATA: 'You were invited to a company in the Rocketadmin project',
+      COMPANY_INVITE_SUBJECT_DATA: 'You were invited to a company on Rocketadmin',
       COMPANY_INVITE_TEXT_DATA: function (verificationString: string, companyId: string, companyName: string) {
         return `You have been added to a company${companyName ? ` "${companyName}" ` : ` `}in the Rocketadmin project.
          Please follow the link and accept the invitation:
@@ -998,19 +1119,158 @@ export const Constants = {
       },
       COMPANY_INVITE_HTML_DATA: function (verificationString: string, companyId: string, companyName: string) {
         return `
-        <body>
-          <p>
-            Hi!
-          </p>
-          <p>
-          You have been added to a company${companyName ? ` "${companyName}" ` : ` `}in the Rocketadmin project.
-          Please follow the link and accept the invitation:
-          <a href="${Constants.APP_DOMAIN_ADDRESS}/company/${companyId}/verify/${verificationString}"></a>
-          </p>
-          <p>
-            Thanks.
-          </p>
-        </body>
+        <!doctype html>
+          <html>
+            <head>
+              <meta name="viewport" content="width=device-width">
+              <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+              <title>You were invited to a company on Rocketadmin</title>
+            <style>
+          @media only screen and (max-width: 620px) {
+            table[class=body] h1 {
+              font-size: 28px !important;
+              margin-bottom: 10px !important;
+            }
+
+            table[class=body] p,
+          table[class=body] ul,
+          table[class=body] ol,
+          table[class=body] td,
+          table[class=body] span,
+          table[class=body] a {
+              font-size: 16px !important;
+            }
+
+            table[class=body] .wrapper,
+          table[class=body] .article {
+              padding: 10px !important;
+            }
+
+            table[class=body] .content {
+              padding: 0 !important;
+            }
+
+            table[class=body] .container {
+              padding: 0 !important;
+              width: 100% !important;
+            }
+
+            table[class=body] .main {
+              border-left-width: 0 !important;
+              border-radius: 0 !important;
+              border-right-width: 0 !important;
+            }
+
+            table[class=body] .btn table {
+              width: 100% !important;
+            }
+
+            table[class=body] .btn a {
+              width: 100% !important;
+            }
+
+            table[class=body] .img-responsive {
+              height: auto !important;
+              max-width: 100% !important;
+              width: auto !important;
+            }
+          }
+          @media all {
+            .ExternalClass {
+              width: 100%;
+            }
+
+            .ExternalClass,
+          .ExternalClass p,
+          .ExternalClass span,
+          .ExternalClass font,
+          .ExternalClass td,
+          .ExternalClass div {
+              line-height: 100%;
+            }
+          }
+          </style></head>
+            <body class style="background-color: #f4e7ff; font-family: Arial, sans-serif; -webkit-font-smoothing: antialiased; font-size: 14px; line-height: 1.4; margin: 0; padding: 0; -ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%;">
+              <table role="presentation" border="0" cellpadding="0" cellspacing="0" class="body" style="border-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; min-width: 100%; background-color: #f4e7ff; width: 100%;" width="100%" bgcolor="#f4e7ff">
+                <tr>
+                  <td style="font-family: sans-serif; font-size: 14px; vertical-align: top;" valign="top">&nbsp;</td>
+                  <td class="container" style="font-family: sans-serif; font-size: 14px; vertical-align: top; display: block; max-width: 580px; padding: 10px; width: 580px; Margin: 0 auto;" width="580" valign="top">
+                    <div class="content" style="box-sizing: border-box; display: block; Margin: 0 auto; max-width: 580px; padding: 10px;">
+
+                      <!-- START CENTERED WHITE CONTAINER -->
+                      <span class="preheader" style="color: transparent; display: none; height: 0; max-height: 0; max-width: 0; opacity: 0; overflow: hidden; mso-hide: all; visibility: hidden; width: 0;">Join your company on Rocketadmin.</span>
+                      <table role="presentation" class="main" style="border-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; min-width: 100%; background: #ffffff; border-radius: 3px; width: 100%;" width="100%">
+
+                        <!-- START MAIN CONTENT AREA -->
+                        <tr>
+                          <td class="wrapper" style="font-family: sans-serif; font-size: 14px; vertical-align: top; box-sizing: border-box; padding: 20px;" valign="top">
+                            <table role="presentation" border="0" cellpadding="0" cellspacing="0" style="border-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; min-width: 100%; width: 100%;" width="100%">
+                              <tr>
+                                <td style="font-family: sans-serif; font-size: 14px; vertical-align: top;" valign="top">
+                                  <a href="https://rocketadmin.com/" class="logo" style="color: #ec0867; text-decoration: underline; display: block; margin-bottom: 60px;">
+                                    <img src="https://app.rocketadmin.com/assets/rocketadmin_logo_black.png" height="30" alt="Rocketadmin logo" style="border: none; -ms-interpolation-mode: bicubic; max-width: 100%;">
+                                    </a>
+                                </td>
+                              </tr>
+                              <tr>
+                                <td style="font-family: sans-serif; font-size: 14px; vertical-align: top;" valign="top">
+                                  <h1 class="title" style="font-size: 32px; font-weight: 600; margin-top: 20px; margin-bottom: 20px;">You're invited to join ${companyName ? ` "${companyName}" ` : ` `} company on Rocketadmin</h1>
+                                </td>
+                              </tr>
+                              <tr>
+                                <td width="100%" style="font-size: 14px; font-family: sans-serif; vertical-align: top;" valign="top">
+                                  <img src="https://app.rocketadmin.com/assets/email-illustration.png" alt="Rocketadmin interface" class="illustration img-responsive" style="border: none; -ms-interpolation-mode: bicubic; max-width: 100%; margin-bottom: 20px;">
+                                </td>
+                              </tr>
+                              <tr>
+                                <td style="font-family: sans-serif; font-size: 14px; vertical-align: top;" valign="top">
+                                  <p style="font-size: 18px; font-weight: normal; margin: 0; margin-bottom: 15px;">
+                                    We're excited to have you on board.
+                                  </p>
+                                  <table role="presentation" border="0" cellpadding="0" cellspacing="0" class="btn btn-primary" style="border-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; box-sizing: border-box; min-width: 100%; width: 100%;" width="100%">
+                                    <tbody>
+                                      <tr>
+                                        <td align="left" style="font-family: sans-serif; font-size: 14px; vertical-align: top; padding-bottom: 15px;" valign="top">
+                                          <table role="presentation" border="0" cellpadding="0" cellspacing="0" style="border-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; min-width: auto; width: auto;" width="auto">
+                                            <tbody>
+                                              <tr>
+                                                <td style="font-family: sans-serif; font-size: 14px; vertical-align: top; border-radius: 5px; text-align: center; background-color: #212121;" valign="top" align="center" bgcolor="#212121"> <a href="${Constants.APP_DOMAIN_ADDRESS}/company/${companyId}/verify/${verificationString}" target="_blank" style="border: solid 1px #212121; border-radius: 5px; box-sizing: border-box; cursor: pointer; display: inline-block; font-size: 14px; font-weight: bold; margin: 0; padding: 12px 45px; text-decoration: none; text-transform: capitalize; background-color: #212121; border-color: #212121; color: #ffffff;">Accept Invitation</a> </td>
+                                              </tr>
+                                            </tbody>
+                                          </table>
+                                        </td>
+                                      </tr>
+                                    </tbody>
+                                  </table>
+                                </td>
+                              </tr>
+                              <tr>
+                                <td style="font-family: sans-serif; font-size: 14px; vertical-align: top;" valign="top">
+                                  <p class="note" style="font-weight: normal; margin: 0; margin-bottom: 15px; font-size: 14px; margin-top: 40px;">
+                                    If you have any questions or need assistance please contact our support team or reply to this email with your questions.
+                                  </p>
+                                </td>
+                              </tr>
+                              <tr>
+                                <td class="footer" style="font-family: sans-serif; font-size: 14px; vertical-align: top; text-align: center; padding-top: 60px;" valign="top" align="center">
+                                  <span class="footer__content" style="font-size: 14px;">© 2024 Rocketadmin</span>
+                                </td>
+                              </tr>
+                            </table>
+                          </td>
+                        </tr>
+
+                      <!-- END MAIN CONTENT AREA -->
+                      </table>
+                    <!-- END CENTERED WHITE CONTAINER -->
+                    </div>
+                  </td>
+                  <td style="font-family: sans-serif; font-size: 14px; vertical-align: top;" valign="top">&nbsp;</td>
+                </tr>
+              </table>
+            </body>
+          </html>
+
         `;
       },
     },
