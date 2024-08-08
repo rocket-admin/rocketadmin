@@ -15,6 +15,7 @@ import { RemoveCompanyIdFromUserUseCase } from './use-cases/remove-company-id-fr
 import { SaasRegisterInvitedUserUseCase } from './use-cases/register-invited-user-use.case.js';
 import { GetUsersInfosByEmailUseCase } from './use-cases/get-users-infos-by-email.use.case.js';
 import { SuspendUsersUseCase } from './use-cases/suspend-users.use.case.js';
+import { GetUserCompanyFullInfoUseCase } from '../../entities/company-info/use-cases/get-full-user-company-info.use.case.js';
 
 @Module({
   imports: [],
@@ -70,6 +71,10 @@ import { SuspendUsersUseCase } from './use-cases/suspend-users.use.case.js';
     {
       provide: UseCaseType.SAAS_SUSPEND_USERS,
       useClass: SuspendUsersUseCase,
+    },
+    {
+      provide: UseCaseType.SAAS_GET_COMPANY_INFO_BY_USER_ID,
+      useClass: GetUserCompanyFullInfoUseCase,
     },
   ],
   controllers: [SaasController],
