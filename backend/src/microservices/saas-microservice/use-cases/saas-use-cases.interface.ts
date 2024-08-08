@@ -12,6 +12,7 @@ import { RegisteredCompanyDS } from '../data-structures/registered-company.ds.js
 import { SaasRegisterUserWithGithub } from '../data-structures/saas-register-user-with-github.js';
 import { SaasRegisterUserWithGoogleDS } from '../data-structures/sass-register-user-with-google.js';
 import { SuspendUsersDS } from '../data-structures/suspend-users.ds.js';
+import { CompanyInfoEntity } from '../../../entities/company-info/company-info.entity.js';
 
 export interface ICompanyRegistration {
   execute(inputData: RegisterCompanyWebhookDS): Promise<RegisteredCompanyDS>;
@@ -55,4 +56,12 @@ export interface IAddOrRemoveCompanyIdToUser {
 
 export interface ISuspendUsers {
   execute(usersData: SuspendUsersDS): Promise<void>;
+}
+
+export interface ISaaSGetCompanyInfoByUserId {
+  execute(userId: string): Promise<CompanyInfoEntity>;
+}
+
+export interface ISaaSGetUsersInCompany {
+  execute(companyId: string): Promise<UserEntity[]>;
 }

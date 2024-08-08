@@ -100,6 +100,10 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
       const orderingField = findOrderingFieldUtil(query, tableStructure, tableSettings);
 
       const configured = !!tableSettings;
+
+      const allowCsvExport = tableSettings ? tableSettings.allow_csv_export : true;
+      const allowCsvImport = tableSettings ? tableSettings.allow_csv_import : true;
+
       //todo rework in daos
       tableSettings = tableSettings ? tableSettings : ({} as TableSettingsEntity);
 
@@ -217,8 +221,8 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
         action_events: customActionEvents.map((el) => buildActionEventDto(el)),
         table_actions: customActionEvents.map((el) => buildActionEventDto(el)),
         large_dataset: largeDataset,
-        allow_csv_export: tableSettings.allow_csv_export,
-        allow_csv_import: tableSettings.allow_csv_import,
+        allow_csv_export: allowCsvExport,
+        allow_csv_import: allowCsvImport,
       };
 
       let identities = [];

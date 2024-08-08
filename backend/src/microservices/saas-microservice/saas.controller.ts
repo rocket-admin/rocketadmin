@@ -9,6 +9,8 @@ import {
   IGetUserInfoByEmail,
   ILoginUserWithGitHub,
   ILoginUserWithGoogle,
+  ISaaSGetCompanyInfoByUserId,
+  ISaaSGetUsersInCompany,
   ISaaSRegisterInvitedUser,
   ISaasGetUsersInfosByEmail,
   ISaasRegisterUser,
@@ -28,6 +30,7 @@ import { SaasRegisterUserWithGithub } from './data-structures/saas-register-user
 import { SuccessResponse } from './data-structures/common-responce.ds.js';
 import { ExternalRegistrationProviderEnum } from '../../entities/user/enums/external-registration-provider.enum.js';
 import { UserRoleEnum } from '../../entities/user/enums/user-role.enum.js';
+import { CompanyInfoEntity } from '../../entities/company-info/company-info.entity.js';
 
 @UseInterceptors(SentryInterceptor)
 @Controller('saas')
@@ -60,6 +63,10 @@ export class SaasController {
     private readonly registerInvitedUserUseCase: ISaaSRegisterInvitedUser,
     @Inject(UseCaseType.SAAS_SUSPEND_USERS)
     private readonly suspendUsersUseCase: ISuspendUsers,
+    @Inject(UseCaseType.SAAS_GET_COMPANY_INFO_BY_USER_ID)
+    private readonly getCompanyInfoByUserIdUseCase: ISaaSGetCompanyInfoByUserId,
+    @Inject(UseCaseType.SAAS_GET_USERS_IN_COMPANY_BY_ID)
+    private readonly getUsersInCompanyByIdUseCase: ISaaSGetUsersInCompany,
   ) {}
 
   @ApiOperation({ summary: 'Company registered webhook' })
@@ -233,5 +240,20 @@ export class SaasController {
   ): Promise<SuccessResponse> {
     await this.suspendUsersUseCase.execute({ emailsToSuspend, companyId });
     return { success: true };
+  }
+
+  @ApiOperation({ summary: 'Get company info by user id' })
+  @ApiResponse({
+    status: 200,
+  })
+  @Get('/user/:userId/company')
+  async getCompanyInfoByUserId(@Param('userId') userId: string): Promise<CompanyInfoEntity> {
+    return await this.getCompanyInfoByUserIdUseCase.execute(userId);
+  }
+
+  @ApiOperation({ summary: 'Users in company by company id' })
+  @Get('/company/:companyId/users')
+  async getUsersInCompany(@Param('companyId') companyId: string): Promise<Array<UserEntity>> {
+    return await this.getUsersInCompanyByIdUseCase.execute(companyId);
   }
 }

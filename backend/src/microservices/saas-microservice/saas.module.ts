@@ -15,6 +15,8 @@ import { RemoveCompanyIdFromUserUseCase } from './use-cases/remove-company-id-fr
 import { SaasRegisterInvitedUserUseCase } from './use-cases/register-invited-user-use.case.js';
 import { GetUsersInfosByEmailUseCase } from './use-cases/get-users-infos-by-email.use.case.js';
 import { SuspendUsersUseCase } from './use-cases/suspend-users.use.case.js';
+import { GetUserCompanyFullInfoUseCase } from '../../entities/company-info/use-cases/get-full-user-company-info.use.case.js';
+import { GetUsersInCompanyByIdUseCase } from './use-cases/get-users-in-company-by-id.use.case.js';
 
 @Module({
   imports: [],
@@ -71,6 +73,14 @@ import { SuspendUsersUseCase } from './use-cases/suspend-users.use.case.js';
       provide: UseCaseType.SAAS_SUSPEND_USERS,
       useClass: SuspendUsersUseCase,
     },
+    {
+      provide: UseCaseType.SAAS_GET_COMPANY_INFO_BY_USER_ID,
+      useClass: GetUserCompanyFullInfoUseCase,
+    },
+    {
+      provide: UseCaseType.SAAS_GET_USERS_IN_COMPANY_BY_ID,
+      useClass: GetUsersInCompanyByIdUseCase,
+    },
   ],
   controllers: [SaasController],
   exports: [],
@@ -90,6 +100,8 @@ export class SaasModule {
         { path: 'saas/user/:userId/company/:companyId', method: RequestMethod.PUT },
         { path: 'saas/company/:companyId/users/suspend', method: RequestMethod.PUT },
         { path: 'sass/user/register/invite', method: RequestMethod.POST },
+        { path: 'saas/user/:userId/company', method: RequestMethod.GET },
+        { path: 'saas/company/:companyId/users', method: RequestMethod.GET },
       );
   }
 }
