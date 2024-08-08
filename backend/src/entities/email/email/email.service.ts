@@ -13,6 +13,7 @@ export class EmailService implements IEmailService {
       to: letterContent.to,
       subject: letterContent.subject,
       text: letterContent.text,
+      html: letterContent.html,
     });
 
     const emailMessage = this.emailGenerator.generateEmail(testEmail);
