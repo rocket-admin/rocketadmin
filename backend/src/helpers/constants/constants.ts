@@ -1,7 +1,7 @@
-import { Knex } from 'knex';
 import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/enums/connection-types-enum.js';
-import { getProcessVariable } from '../get-process-variable.js';
 import { CreateConnectionDto } from '../../entities/connection/application/dto/create-connection.dto.js';
+import { Knex } from 'knex';
+import { getProcessVariable } from '../get-process-variable.js';
 
 export const Constants = {
   ROCKETADMIN_AUTHENTICATED_COOKIE: 'rocketadmin_authenticated',
@@ -211,24 +211,18 @@ export const Constants = {
   APP_DOMAIN_ADDRESS: process.env.APP_DOMAIN_ADDRESS || `http://localhost:3000`,
 
   AUTOADMIN_SUPPORT_MAIL: 'support@autoadmin.org',
-  AUTOADMIN_EMAIL_TEXT: `Hi!
+  AUTOADMIN_EMAIL_TEXT: `Hi there!
 
-  We've noticed that you attempted to add a connection in our tool, but did not complete it.
-  Did you have any issues while adding your connection? Do you need any assistance?
-  Our support will be happy to help or to listen for your feedback.
-  Just reply to this email with your questions.
+  We saw you tried to connect a database to our tool but didn't finish. Need any help? Just reply to this email, and our support team will be happy to assist!
 
   Thanks.
   `,
   AUTOADMIN_EMAIL_BODY: `<body>
   <p>
-  Hi!
+  Hi there!
   </p>
   <p>
-  We've noticed that you attempted to add a connection in our tool, but did not complete it.
-  Did you have any issues while adding your connection? Do you need any assistance?
-  Our support will be happy to help or to listen for your feedback.
-  Just reply to this email with your questions.
+  We saw you tried to connect a database to our tool but didn't finish. Need any help? Just reply to this email, and our support team will be happy to assist!
   </p>
   <p>
   Thanks.
@@ -241,28 +235,161 @@ export const Constants = {
     AUTOADMIN_SUPPORT_MAIL: 'support@autoadmin.org',
     API_PATH: 'v2.autoadmin.org/api',
     PASSWORD: {
-      RESET_PASSWORD_REQUEST_SUBJECT_DATA: 'Reset password requested',
+      RESET_PASSWORD_REQUEST_SUBJECT_DATA: 'Reset password request',
       RESET_PASSWORD_EMAIL_TEXT: function (requestString: string): string {
         return `Hi! Password change requested. Follow the link to confirm - ${Constants.APP_DOMAIN_ADDRESS}/external/user/password/reset/verify/${requestString}
          If it wasn't you, please contact our support team.`;
       },
       RESET_PASSWORD_EMAIL_HTML: function (requestString: string): string {
         return `
-        <body>
-          <p>
-            Hi!
-          </p>
-          <p>
-          Password change requested. Follow the link to confirm -
-          <a href="${Constants.APP_DOMAIN_ADDRESS}/external/user/password/reset/verify/${requestString}"></a>
-          </p>
-          <p>
-          If it wasn't you, please contact our support team or reply to this email with your questions.
-          </p>
-          <p>
-          Thanks.
-          </p>
-        </body>
+        <!doctype html>
+          <html>
+            <head>
+              <meta name="viewport" content="width=device-width">
+              <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+              <title>Finish your registration in Rocketadmin project</title>
+            <style>
+          @media only screen and (max-width: 620px) {
+            table[class=body] h1 {
+              font-size: 28px !important;
+              margin-bottom: 10px !important;
+            }
+
+            table[class=body] p,
+          table[class=body] ul,
+          table[class=body] ol,
+          table[class=body] td,
+          table[class=body] span,
+          table[class=body] a {
+              font-size: 16px !important;
+            }
+
+            table[class=body] .wrapper,
+          table[class=body] .article {
+              padding: 10px !important;
+            }
+
+            table[class=body] .content {
+              padding: 0 !important;
+            }
+
+            table[class=body] .container {
+              padding: 0 !important;
+              width: 100% !important;
+            }
+
+            table[class=body] .main {
+              border-left-width: 0 !important;
+              border-radius: 0 !important;
+              border-right-width: 0 !important;
+            }
+
+            table[class=body] .btn table {
+              width: 100% !important;
+            }
+
+            table[class=body] .btn a {
+              width: 100% !important;
+            }
+
+            table[class=body] .img-responsive {
+              height: auto !important;
+              max-width: 100% !important;
+              width: auto !important;
+            }
+          }
+          @media all {
+            .ExternalClass {
+              width: 100%;
+            }
+
+            .ExternalClass,
+          .ExternalClass p,
+          .ExternalClass span,
+          .ExternalClass font,
+          .ExternalClass td,
+          .ExternalClass div {
+              line-height: 100%;
+            }
+          }
+          </style></head>
+            <body class style="background-color: #f4e7ff; font-family: Arial, sans-serif; -webkit-font-smoothing: antialiased; font-size: 18px; line-height: 1.4; margin: 0; padding: 0; -ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%;">
+              <table role="presentation" border="0" cellpadding="0" cellspacing="0" class="body" style="border-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; min-width: 100%; background-color: #f4e7ff; width: 100%;" width="100%" bgcolor="#f4e7ff">
+                <tr>
+                  <td style="font-family: sans-serif; font-size: 14px; vertical-align: top;" valign="top">&nbsp;</td>
+                  <td class="container" style="font-family: sans-serif; font-size: 14px; vertical-align: top; display: block; max-width: 580px; padding: 10px; width: 580px; Margin: 0 auto;" width="580" valign="top">
+                    <div class="content" style="box-sizing: border-box; display: block; Margin: 0 auto; max-width: 580px; padding: 10px;">
+
+                      <!-- START CENTERED WHITE CONTAINER -->
+                      <span class="preheader" style="color: transparent; display: none; height: 0; max-height: 0; max-width: 0; opacity: 0; overflow: hidden; mso-hide: all; visibility: hidden; width: 0;">Finish your registration in Rocketadmin.</span>
+                      <table role="presentation" class="main" style="border-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; min-width: 100%; background: #ffffff; border-radius: 3px; width: 100%;" width="100%">
+
+                        <!-- START MAIN CONTENT AREA -->
+                        <tr>
+                          <td class="wrapper" style="font-family: sans-serif; font-size: 14px; vertical-align: top; box-sizing: border-box; padding: 20px;" valign="top">
+                            <table role="presentation" border="0" cellpadding="0" cellspacing="0" style="border-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; min-width: 100%; width: 100%;" width="100%">
+                              <tr>
+                                <td style="font-family: sans-serif; font-size: 14px; vertical-align: top;" valign="top">
+                                  <a href="https://rocketadmin.com/" class="logo" style="color: #ec0867; text-decoration: underline; display: block; margin-bottom: 60px;">
+                                    <img src="https://app.rocketadmin.com/assets/rocketadmin_logo_black.png" height="30" alt="Rocketadmin logo" style="border: none; -ms-interpolation-mode: bicubic; max-width: 100%;">
+                                    </a>
+                                </td>
+                              </tr>
+                              <tr>
+                                <td style="font-family: sans-serif; font-size: 14px; vertical-align: top;" valign="top">
+                                  <h1 class="title" style="font-size: 32px; font-weight: 600; line-height: 1.15; margin-top: 20px; margin-bottom: 40px;">We've received a request to change your password.</h1>
+                                </td>
+                              </tr>
+                              <tr>
+                                <td style="font-family: sans-serif; font-size: 14px; vertical-align: top;" valign="top">
+                                  <p style="font-size: 18px; font-weight: normal; margin: 0; margin-bottom: 15px;">
+                                    To reset your password, click the button below:
+                                  </p>
+                                  <table role="presentation" border="0" cellpadding="0" cellspacing="0" class="btn btn-primary" style="border-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; box-sizing: border-box; min-width: 100%; width: 100%;" width="100%">
+                                    <tbody>
+                                      <tr>
+                                        <td align="left" style="font-family: sans-serif; font-size: 14px; vertical-align: top; padding-bottom: 15px;" valign="top">
+                                          <table role="presentation" border="0" cellpadding="0" cellspacing="0" style="border-collapse: separate; mso-table-lspace: 0pt; mso-table-rspace: 0pt; min-width: auto; width: auto;" width="auto">
+                                            <tbody>
+                                              <tr>
+                                                <td style="font-family: sans-serif; font-size: 14px; vertical-align: top; border-radius: 5px; text-align: center; background-color: #ec0867;" valign="top" align="center" bgcolor="#ec0867"> <a href="${Constants.APP_DOMAIN_ADDRESS}/external/user/password/reset/verify/${requestString}" target="_blank" style="border: solid 1px #ec0867; border-radius: 5px; box-sizing: border-box; cursor: pointer; display: inline-block; font-size: 14px; font-weight: bold; margin: 0; padding: 12px 25px; text-decoration: none; text-transform: capitalize; background-color: #212121; border-color: #212121; color: #ffffff;">Reset Password</a> </td>
+                                              </tr>
+                                            </tbody>
+                                          </table>
+                                        </td>
+                                      </tr>
+                                    </tbody>
+                                  </table>
+                                </td>
+                              </tr>
+                              <tr>
+                                <td style="font-family: sans-serif; font-size: 14px; vertical-align: top;" valign="top">
+                                  <p class="note" style="font-weight: normal; margin: 0; margin-bottom: 15px; font-size: 14px; margin-top: 40px;">
+                                    <strong>Note:</strong> If you don't use this link within 3 hours, it will expire.
+                                  </p>
+                                  <p class="note" style="font-weight: normal; margin: 0; margin-bottom: 15px; font-size: 14px; margin-top: 40px;">If you didn't request a password reset, you can ignore this email; your password will not be changed.</p>
+                                </td>
+                              </tr>
+                              <tr>
+                                <td class="footer" style="font-family: sans-serif; font-size: 14px; vertical-align: top; text-align: center; padding-top: 60px;" valign="top" align="center">
+                                  <span class="footer__content" style="font-size: 14px;">© 2024 Rocketadmin</span>
+                                </td>
+                              </tr>
+                            </table>
+                          </td>
+                        </tr>
+
+                      <!-- END MAIN CONTENT AREA -->
+                      </table>
+                    <!-- END CENTERED WHITE CONTAINER -->
+                    </div>
+                  </td>
+                  <td style="font-family: sans-serif; font-size: 14px; vertical-align: top;" valign="top">&nbsp;</td>
+                </tr>
+              </table>
+            </body>
+          </html>
+
         `;
       },
 
@@ -330,7 +457,7 @@ export const Constants = {
           </p>
       </body>
       `,
-      CONFIRM_EMAIL_SUBJECT: `Finish your registration in Rocketadmin project`,
+      CONFIRM_EMAIL_SUBJECT: `Finish your registration in Rocketadmin`,
       CONFIRM_EMAIL_TEXT: function (verificationString: string) {
         return `Hi! You have registered in the Rocketadmin project. Please follow the link and verify your email:
        ${Constants.APP_DOMAIN_ADDRESS}/external/user/email/verify/${verificationString}
@@ -343,7 +470,7 @@ export const Constants = {
             Hi!
           </p>
           <p>
-          Password email change requested. Follow the link to confirm -
+          Password email change requested.  Follow the link to confirm -
           <a href="${Constants.APP_DOMAIN_ADDRESS}/external/user/email/verify/${verificationString}"></a>
           </p>
           <p>
