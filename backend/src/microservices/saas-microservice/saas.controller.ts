@@ -10,6 +10,7 @@ import {
   ILoginUserWithGitHub,
   ILoginUserWithGoogle,
   ISaaSGetCompanyInfoByUserId,
+  ISaaSGetUsersInCompany,
   ISaaSRegisterInvitedUser,
   ISaasGetUsersInfosByEmail,
   ISaasRegisterUser,
@@ -64,6 +65,8 @@ export class SaasController {
     private readonly suspendUsersUseCase: ISuspendUsers,
     @Inject(UseCaseType.SAAS_GET_COMPANY_INFO_BY_USER_ID)
     private readonly getCompanyInfoByUserIdUseCase: ISaaSGetCompanyInfoByUserId,
+    @Inject(UseCaseType.SAAS_GET_USERS_IN_COMPANY_BY_ID)
+    private readonly getUsersInCompanyByIdUseCase: ISaaSGetUsersInCompany,
   ) {}
 
   @ApiOperation({ summary: 'Company registered webhook' })
@@ -246,5 +249,11 @@ export class SaasController {
   @Get('/user/:userId/company')
   async getCompanyInfoByUserId(@Param('userId') userId: string): Promise<CompanyInfoEntity> {
     return await this.getCompanyInfoByUserIdUseCase.execute(userId);
+  }
+
+  @ApiOperation({ summary: 'Users in company by company id' })
+  @Get('/company/:companyId/users')
+  async getUsersInCompany(@Param('companyId') companyId: string): Promise<Array<UserEntity>> {
+    return await this.getUsersInCompanyByIdUseCase.execute(companyId);
   }
 }

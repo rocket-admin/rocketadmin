@@ -61,3 +61,7 @@ export interface ISuspendUsers {
 export interface ISaaSGetCompanyInfoByUserId {
   execute(userId: string): Promise<CompanyInfoEntity>;
 }
+
+export interface ISaaSGetUsersInCompany {
+  execute(companyId: string): Promise<UserEntity[]>;
+}
