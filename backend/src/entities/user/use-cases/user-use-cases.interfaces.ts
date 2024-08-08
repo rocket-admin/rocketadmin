@@ -19,6 +19,7 @@ import { SaveUserSettingsDs } from '../application/data-structures/save-user-set
 import { UsualLoginDs } from '../application/data-structures/usual-login.ds.js';
 import { VerifyOtpDS } from '../application/data-structures/verify-otp.ds.js';
 import { IToken } from '../utils/generate-gwt-token.js';
+import { RequestRestUserPasswordDto } from '../dto/request-rest-user-password.dto.js';
 
 export interface ICreateUserUseCase {
   execute(userData: CreateUserDs): Promise<CreatedUserDs>;
@@ -65,7 +66,7 @@ export interface IVerifyPasswordReset {
 }
 
 export interface IRequestPasswordReset {
-  execute(userId: string, inTransaction: InTransactionEnum): Promise<OperationResultMessageDs>;
+  execute(emailData: RequestRestUserPasswordDto, inTransaction: InTransactionEnum): Promise<OperationResultMessageDs>;
 }
 
 export interface IRequestEmailChange {

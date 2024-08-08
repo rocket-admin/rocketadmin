@@ -62,6 +62,7 @@ import { LoginUserDto } from './dto/login-user.dto.js';
 import { UserNameDto } from './dto/user-name.dto.js';
 import { OtpTokenDto } from './dto/otp-token.dto.js';
 import { UserSettingsDataRequestDto } from './dto/user-settings-data-request.dto.js';
+import { RequestRestUserPasswordDto } from './dto/request-rest-user-password.dto.js';
 
 @UseInterceptors(SentryInterceptor)
 @Controller()
@@ -266,15 +267,15 @@ export class UserController {
   }
 
   @ApiOperation({ summary: 'Request user password reset' })
-  @ApiBody({ type: EmailDto })
+  @ApiBody({ type: RequestRestUserPasswordDto })
   @ApiResponse({
     status: 201,
     description: 'Request user password reset.',
     type: OperationResultMessageDs,
   })
   @Post('user/password/reset/request/')
-  async askResetUserPassword(@BodyEmail('email') email: string): Promise<OperationResultMessageDs> {
-    return await this.requestResetUserPasswordUseCase.execute(email, InTransactionEnum.ON);
+  async askResetUserPassword(@Body() emailData: RequestRestUserPasswordDto): Promise<OperationResultMessageDs> {
+    return await this.requestResetUserPasswordUseCase.execute(emailData, InTransactionEnum.ON);
   }
 
   @ApiOperation({ summary: 'Request user email change' })
