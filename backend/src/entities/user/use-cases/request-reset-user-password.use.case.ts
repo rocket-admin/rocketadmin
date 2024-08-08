@@ -6,9 +6,10 @@ import { IGlobalDatabaseContext } from '../../../common/application/global-datab
 import { sendPasswordResetRequest } from '../../email/send-email.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { OperationResultMessageDs } from '../application/data-structures/operation-result-message.ds.js';
+import { RequestRestUserPasswordDto } from '../dto/request-rest-user-password.dto.js';
 
 export class RequestResetUserPasswordUseCase
-  extends AbstractUseCase<string, OperationResultMessageDs>
+  extends AbstractUseCase<RequestRestUserPasswordDto, OperationResultMessageDs>
   implements IRequestPasswordReset
 {
   constructor(
@@ -18,8 +19,9 @@ export class RequestResetUserPasswordUseCase
     super();
   }
 
-  protected async implementation(email: string): Promise<OperationResultMessageDs> {
-    const foundUser = await this._dbContext.userRepository.findOneUserByEmail(email);
+  protected async implementation(emailData: RequestRestUserPasswordDto): Promise<OperationResultMessageDs> {
+    const { email, companyId } = emailData;
+    const foundUser = await this._dbContext.userRepository.findOneUserByEmailAndCompanyId(email, companyId);
     if (!foundUser) {
       throw new HttpException(
         {
@@ -28,9 +30,8 @@ export class RequestResetUserPasswordUseCase
         HttpStatus.FORBIDDEN,
       );
     }
-    const savedResetPasswordRequest = await this._dbContext.passwordResetRepository.createOrUpdatePasswordResetEntity(
-      foundUser,
-    );
+    const savedResetPasswordRequest =
+      await this._dbContext.passwordResetRepository.createOrUpdatePasswordResetEntity(foundUser);
     const mailingResult = await sendPasswordResetRequest(
       foundUser.email,
       savedResetPasswordRequest.verification_string,
