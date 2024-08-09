@@ -313,7 +313,7 @@ export class UserController {
         HttpStatus.BAD_REQUEST,
       );
     }
-    return await this.verifyChangeUserEmailUseCase.execute(inputData, InTransactionEnum.ON);
+    return await this.verifyChangeUserEmailUseCase.execute(inputData, InTransactionEnum.OFF);
   }
 
   @ApiOperation({ summary: 'Change user name' })
