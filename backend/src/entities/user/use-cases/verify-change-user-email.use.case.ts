@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Inject, Injectable, Scope } from '@nestjs/common';
+import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
@@ -10,7 +10,7 @@ import { IVerifyEmailChange } from './user-use-cases.interfaces.js';
 import { isSaaS } from '../../../helpers/app/is-saas.js';
 import { SaasUserGatewayService } from '../../../microservices/gateways/saas-gateway.ts/saas-user-gateway.service.js';
 
-@Injectable({ scope: Scope.REQUEST })
+@Injectable()
 export class VerifyChangeUserEmailUseCase
   extends AbstractUseCase<ChangeUserEmailDs, OperationResultMessageDs>
   implements IVerifyEmailChange
@@ -35,6 +35,20 @@ export class VerifyChangeUserEmailUseCase
         HttpStatus.BAD_REQUEST,
       );
     }
+
+    const foundExistingUsersWithThisEmail = await this._dbContext.userRepository.find({
+      where: { email: newEmail },
+    });
+
+    if (foundExistingUsersWithThisEmail.length > 0) {
+      throw new HttpException(
+        {
+          message: Messages.CANNOT_SET_THIS_EMAIL,
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
     const foundUser = await this._dbContext.userRepository.findOneUserById(verificationEntity.user.id);
     if (!foundUser) {
       throw new HttpException(
