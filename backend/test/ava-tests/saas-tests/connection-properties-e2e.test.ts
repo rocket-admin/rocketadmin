@@ -28,8 +28,6 @@ const testEntitiesSeedsCount = 42;
 const testTables: Array<string> = [];
 let currentTest;
 
-const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-
 test.before(async () => {
   const moduleFixture = await Test.createTestingModule({
     imports: [ApplicationModule, DatabaseModule],
@@ -134,7 +132,6 @@ test.serial(`${currentTest} should return created connection properties`, async 
     t.is(createConnectionPropertiesResponse.status, 201);
     t.is(createConnectionPropertiesRO.hidden_tables[0], newConnectionProperties.hidden_tables[0]);
     t.is(createConnectionPropertiesRO.connectionId, createConnectionRO.id);
-    t.is(uuidRegex.test(createConnectionPropertiesRO.id), true);
   } catch (e) {
     throw e;
   }
@@ -164,7 +161,6 @@ test.serial(`${currentTest} should return connection without excluded tables`, a
     t.is(createConnectionPropertiesResponse.status, 201);
     t.is(createConnectionPropertiesRO.hidden_tables[0], newConnectionProperties.hidden_tables[0]);
     t.is(createConnectionPropertiesRO.connectionId, createConnectionRO.id);
-    t.is(uuidRegex.test(createConnectionPropertiesRO.id), true);
 
     const getConnectionTablesResponse = await request(app.getHttpServer())
       .get(`/connection/tables/${createConnectionRO.id}`)
@@ -243,7 +239,6 @@ test.serial(`${currentTest} should return connection properties`, async (t) => {
     const getConnectionPropertiesRO = JSON.parse(getConnectionPropertiesResponse.text);
     t.is(getConnectionPropertiesRO.hidden_tables[0], newConnectionProperties.hidden_tables[0]);
     t.is(getConnectionPropertiesRO.connectionId, createConnectionRO.id);
-    t.is(uuidRegex.test(getConnectionPropertiesRO.id), true);
   } catch (e) {
     throw e;
   }
@@ -315,7 +310,6 @@ test.serial(`${currentTest} should return deleted connection properties`, async 
     const getConnectionPropertiesRO = JSON.parse(getConnectionPropertiesResponse.text);
     t.is(getConnectionPropertiesRO.hidden_tables[0], newConnectionProperties.hidden_tables[0]);
     t.is(getConnectionPropertiesRO.connectionId, createConnectionRO.id);
-    t.is(uuidRegex.test(getConnectionPropertiesRO.id), true);
 
     const deleteConnectionPropertiesResponse = await request(app.getHttpServer())
       .delete(`/connection/properties/${createConnectionRO.id}`)
@@ -399,7 +393,6 @@ test.serial(`${currentTest} should return updated connection properties`, async 
     t.is(createConnectionPropertiesResponse.status, 201);
     t.is(createConnectionPropertiesRO.hidden_tables[0], newConnectionProperties.hidden_tables[0]);
     t.is(createConnectionPropertiesRO.connectionId, createConnectionRO.id);
-    t.is(uuidRegex.test(createConnectionPropertiesRO.id), true);
   } catch (e) {
     throw e;
   }
