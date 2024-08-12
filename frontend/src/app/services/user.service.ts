@@ -3,11 +3,11 @@ import { BehaviorSubject, EMPTY, throwError } from 'rxjs';
 import { SubscriptionPlans, User } from '../models/user';
 import { catchError, map } from 'rxjs/operators';
 
+import { CompanyMemberRole } from '../models/company';
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { NotificationsService } from './notifications.service';
 import { Router } from '@angular/router';
-import { CompanyMemberRole } from '../models/company';
 
 @Injectable({
   providedIn: 'root'
@@ -113,8 +113,8 @@ export class UserService {
     );
   }
 
-  requestPasswordReset(email: string) {
-    return this._http.post<any>(`/user/password/reset/request`, { email })
+  requestPasswordReset(email: string, companyId: string) {
+    return this._http.post<any>(`/user/password/reset/request`, { email, companyId })
     .pipe(
       map(res => {
         this._notifications.showAlert(AlertType.Success, 'Check your email.', [
