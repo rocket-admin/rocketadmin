@@ -29,6 +29,7 @@ type RegisterUserData = {
   email: string;
   password: string;
 };
+const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 test.before(async () => {
   const moduleFixture = await Test.createTestingModule({
@@ -111,7 +112,7 @@ test.serial(`${currentTest} should return all connections for this user`, async 
     t.is(result[0].hasOwnProperty('connection'), true);
     t.is(result[1].hasOwnProperty('accessLevel'), true);
     t.is(result[2].accessLevel, AccessLevelEnum.edit);
-
+    t.is(uuidRegex.test(result[0].connection.id), true);
     t.is(result[3].hasOwnProperty('accessLevel'), true);
     t.is(result[4].connection.hasOwnProperty('host'), true);
     t.is(result[3].connection.hasOwnProperty('host'), true);
@@ -155,7 +156,7 @@ test.serial(`${currentTest} should return all connection users`, async (t) => {
 
     const foundUsersRO = JSON.parse(findAllUsersResponse.text);
     t.is(foundUsersRO.length, 1);
-
+    t.is(uuidRegex.test(foundUsersRO[0].id), true);
     t.is(foundUsersRO[0].isActive, false);
     t.is(foundUsersRO[0].hasOwnProperty('createdAt'), true);
     t.pass();
@@ -213,6 +214,8 @@ test.serial(`${currentTest} should return all connection users from different gr
     t.is(findAllUsersResponse.status, 200);
     const foundUsersRO = JSON.parse(findAllUsersResponse.text);
     t.is(foundUsersRO.length, 2);
+    t.is(uuidRegex.test(foundUsersRO[0].id), true);
+    t.is(uuidRegex.test(foundUsersRO[1].id), true);
 
     t.is(foundUsersRO[0].isActive, false);
     t.is(foundUsersRO[1].isActive, true);
@@ -282,7 +285,7 @@ test.serial(`${currentTest} should throw an exception, when connection id is inc
 });
 
 currentTest = 'GET /connection/one/:slug';
-test(`${currentTest} should return a found connection`, async (t) => {
+test.serial(`${currentTest} should return a found connection`, async (t) => {
   try {
     const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
     const { token } = await registerUserAndReturnUserInfo(app);
@@ -304,7 +307,7 @@ test(`${currentTest} should return a found connection`, async (t) => {
 
     t.is(findOneResponce.status, 200);
     const result = findOneResponce.body.connection;
-
+    t.is(uuidRegex.test(result.id), true);
     t.is(result.title, 'Test Connection');
     t.is(result.type, 'postgres');
     t.is(result.host, 'nestjs_testing');
@@ -318,7 +321,6 @@ test(`${currentTest} should return a found connection`, async (t) => {
     t.is(result.hasOwnProperty('password'), false);
     t.is(result.hasOwnProperty('groups'), false);
     t.is(result.hasOwnProperty('author'), false);
-    t.is(result.hasOwnProperty('id'), true);
 
     t.pass();
   } catch (e) {
@@ -326,38 +328,35 @@ test(`${currentTest} should return a found connection`, async (t) => {
   }
 });
 
-test.serial(
-  `${currentTest} should throw an exception "id is missing" when connection id not passed in the request`,
-  async (t) => {
-    try {
-      const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
-      const { token } = await registerUserAndReturnUserInfo(app);
+test.serial(`${currentTest} should throw an exception "id is missing" when connection id not passed in the request`, async (t) => {
+  try {
+    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
+    const { token } = await registerUserAndReturnUserInfo(app);
 
-      const createConnectionResponse = await request(app.getHttpServer())
-        .post('/connection')
-        .send(newConnection)
-        .set('Cookie', token)
-        .set('Content-Type', 'application/json')
-        .set('Accept', 'application/json');
+    const createConnectionResponse = await request(app.getHttpServer())
+      .post('/connection')
+      .send(newConnection)
+      .set('Cookie', token)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
 
-      const createConnectionRO = JSON.parse(createConnectionResponse.text);
-      createConnectionRO.id = undefined;
-      const findOneResponce = await request(app.getHttpServer())
-        .get(`/connection/one/${createConnectionRO.id}`)
-        .set('Content-Type', 'application/json')
-        .set('Cookie', token)
-        .set('Accept', 'application/json');
+    const createConnectionRO = JSON.parse(createConnectionResponse.text);
+    createConnectionRO.id = undefined;
+    const findOneResponce = await request(app.getHttpServer())
+      .get(`/connection/one/${createConnectionRO.id}`)
+      .set('Content-Type', 'application/json')
+      .set('Cookie', token)
+      .set('Accept', 'application/json');
 
-      t.is(findOneResponce.status, 400);
-      const { message } = JSON.parse(findOneResponce.text);
-      t.is(message, Messages.UUID_INVALID);
+    t.is(findOneResponce.status, 400);
+    const { message } = JSON.parse(findOneResponce.text);
+    t.is(message, Messages.UUID_INVALID);
 
-      t.pass();
-    } catch (e) {
-      throw e;
-    }
-  },
-);
+    t.pass();
+  } catch (e) {
+    throw e;
+  }
+});
 
 currentTest = 'POST /connection';
 test.serial(`${currentTest} should return created connection`, async (t) => {
@@ -375,6 +374,7 @@ test.serial(`${currentTest} should return created connection`, async (t) => {
     t.is(response.status, 201);
     const result = JSON.parse(response.text);
 
+    t.is(uuidRegex.test(result.id), true);
     t.is(result.title, 'Test Connection');
     t.is(result.type, 'postgres');
     t.is(result.host, 'nestjs_testing');
@@ -389,6 +389,7 @@ test.serial(`${currentTest} should return created connection`, async (t) => {
     t.is(result.hasOwnProperty('groups'), true);
     t.is(typeof result.groups, 'object');
     t.is(result.groups.length >= 1, true);
+    t.is(uuidRegex.test(result.groups[0].id), true);
 
     const index = result.groups
       .map((e) => {
@@ -580,33 +581,30 @@ test.serial(`${currentTest} should throw error when create connection without pa
   }
 });
 
-test.serial(
-  `${currentTest} should throw error with complex message when create connection without database, type, port`,
-  async (t) => {
-    try {
-      const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
-      const { token } = await registerUserAndReturnUserInfo(app);
-      delete newConnection.database;
-      delete newConnection.type;
-      delete newConnection.port;
+test.serial(`${currentTest} should throw error with complex message when create connection without database, type, port`, async (t) => {
+  try {
+    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
+    const { token } = await registerUserAndReturnUserInfo(app);
+    delete newConnection.database;
+    delete newConnection.type;
+    delete newConnection.port;
 
-      const response = await request(app.getHttpServer())
-        .post('/connection')
-        .send(newConnection)
-        .set('Content-Type', 'application/json')
-        .set('Cookie', token)
-        .set('Accept', 'application/json');
+    const response = await request(app.getHttpServer())
+      .post('/connection')
+      .send(newConnection)
+      .set('Content-Type', 'application/json')
+      .set('Cookie', token)
+      .set('Accept', 'application/json');
 
-      t.is(response.status, 400);
-      const { message } = JSON.parse(response.text);
-      // t.is(message, ErrorsMessages.VALIDATION_FAILED);
+    t.is(response.status, 400);
+    const { message } = JSON.parse(response.text);
+    // t.is(message, ErrorsMessages.VALIDATION_FAILED);
 
-      t.pass();
-    } catch (e) {
-      throw e;
-    }
-  },
-);
+    t.pass();
+  } catch (e) {
+    throw e;
+  }
+});
 
 currentTest = 'PUT /connection';
 test.serial(`${currentTest} should return updated connection`, async (t) => {
@@ -630,7 +628,7 @@ test.serial(`${currentTest} should return updated connection`, async (t) => {
 
     t.is(updateConnectionResponse.status, 200);
     const result = updateConnectionResponse.body.connection;
-
+    t.is(uuidRegex.test(result.id), true);
     t.is(result.title, 'Updated Test Connection');
     t.is(result.type, 'postgres');
     t.is(result.host, 'testing_nestjs');
@@ -869,42 +867,39 @@ test.serial(`${currentTest} should throw error when update connection without da
   }
 });
 
-test.serial(
-  `${currentTest} should throw error with complex message when update connection without database, type, port`,
-  async (t) => {
-    try {
-      const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
-      const { token } = await registerUserAndReturnUserInfo(app);
+test.serial(`${currentTest} should throw error with complex message when update connection without database, type, port`, async (t) => {
+  try {
+    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
+    const { token } = await registerUserAndReturnUserInfo(app);
 
-      const createConnectionResponse = await request(app.getHttpServer())
-        .post('/connection')
-        .send(newConnection)
-        .set('Content-Type', 'application/json')
-        .set('Cookie', token)
-        .set('Accept', 'application/json');
-      const createConnectionRO = JSON.parse(createConnectionResponse.text);
+    const createConnectionResponse = await request(app.getHttpServer())
+      .post('/connection')
+      .send(newConnection)
+      .set('Content-Type', 'application/json')
+      .set('Cookie', token)
+      .set('Accept', 'application/json');
+    const createConnectionRO = JSON.parse(createConnectionResponse.text);
 
-      delete updateConnection.database;
-      delete updateConnection.type;
-      delete updateConnection.port;
+    delete updateConnection.database;
+    delete updateConnection.type;
+    delete updateConnection.port;
 
-      const response = await request(app.getHttpServer())
-        .put(`/connection/${createConnectionRO.id}`)
-        .send(updateConnection)
-        .set('Content-Type', 'application/json')
-        .set('Cookie', token)
-        .set('Accept', 'application/json');
+    const response = await request(app.getHttpServer())
+      .put(`/connection/${createConnectionRO.id}`)
+      .send(updateConnection)
+      .set('Content-Type', 'application/json')
+      .set('Cookie', token)
+      .set('Accept', 'application/json');
 
-      t.is(response.status, 400);
-      const { message } = JSON.parse(response.text);
-      // t.is(message, ErrorsMessages.VALIDATION_FAILED);
+    t.is(response.status, 400);
+    const { message } = JSON.parse(response.text);
+    // t.is(message, ErrorsMessages.VALIDATION_FAILED);
 
-      t.pass();
-    } catch (e) {
-      throw e;
-    }
-  },
-);
+    t.pass();
+  } catch (e) {
+    throw e;
+  }
+});
 
 currentTest = 'DELETE /connection/:slug';
 test.serial(`${currentTest} should return delete result`, async (t) => {
@@ -1045,13 +1040,14 @@ test.serial(`${currentTest} should return a created group`, async (t) => {
 
     t.is(createGroupResponse.status, 201);
     const result = JSON.parse(createGroupResponse.text);
-
+    t.is(uuidRegex.test(result.id), true);
     t.is(result.title, newGroup1.title);
     t.is(result.hasOwnProperty('users'), true);
     t.is(typeof result.users, 'object');
     t.is(result.users.length, 1);
     t.is(result.users[0].email, email);
     t.is(result.users[0].isActive, false);
+    t.is(uuidRegex.test(result.users[0].id), true);
 
     t.pass();
   } catch (e) {
@@ -1152,7 +1148,7 @@ test.serial(`${currentTest} throw an exception when connectionId is incorrect`, 
   }
 });
 
-test(`${currentTest} throw an exception when group name is not unique`, async (t) => {
+test.serial(`${currentTest} throw an exception when group name is not unique`, async (t) => {
   try {
     const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
     const { token } = await registerUserAndReturnUserInfo(app);
@@ -1165,7 +1161,6 @@ test(`${currentTest} throw an exception when group name is not unique`, async (t
       .set('Accept', 'application/json');
 
     const createConnectionRO = JSON.parse(createConnectionResponse.text);
-    console.log('🚀 ~ test.serial ~ createConnectionRO:', createConnectionRO)
     newGroup1.title = 'Admin';
     const createGroupResponse = await request(app.getHttpServer())
       .post(`/connection/group/${createConnectionRO.id}`)
@@ -1243,7 +1238,7 @@ test.serial(`${currentTest} should return connection without deleted group resul
     result = JSON.parse(response.text);
     t.is(result.length, 1);
     const groupId = result[0].group.id;
-
+    t.is(uuidRegex.test(groupId), true);
     t.is(result[0].group.hasOwnProperty('title'), true);
     t.is(result[0].accessLevel, AccessLevelEnum.edit);
 
@@ -1572,7 +1567,7 @@ test.serial(`${currentTest} should groups in connection`, async (t) => {
     t.is(response.status, 200);
     const result = JSON.parse(response.text);
     const groupId = result[0].group.id;
-
+    t.is(uuidRegex.test(groupId), true);
     t.is(result[1].group.hasOwnProperty('title'), true);
     t.is(result[0].accessLevel, AccessLevelEnum.edit);
 

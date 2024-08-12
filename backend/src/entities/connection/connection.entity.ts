@@ -10,7 +10,7 @@ import {
   ManyToOne,
   OneToMany,
   OneToOne,
-  PrimaryColumn,
+  PrimaryGeneratedColumn,
   Relation,
 } from 'typeorm';
 import { isConnectionTypeAgent } from '../../helpers/index.js';
@@ -24,12 +24,11 @@ import { TableSettingsEntity } from '../table-settings/table-settings.entity.js'
 import { UserEntity } from '../user/user.entity.js';
 import { CompanyInfoEntity } from '../company-info/company-info.entity.js';
 import { ActionRulesEntity } from '../table-actions/table-action-rules-module/action-rules.entity.js';
-import { nanoid } from 'nanoid';
 
 @Entity('connection')
 export class ConnectionEntity {
   @Expose()
-  @PrimaryColumn('varchar', { length: 38 })
+  @PrimaryGeneratedColumn('uuid')
   id: string;
 
   @Column({ default: '' })
@@ -127,10 +126,7 @@ export class ConnectionEntity {
   }
 
   @BeforeInsert()
-  encryptCredentialsAndGenerateNanoid(): void {
-    if (!this.id) {
-      this.id = nanoid(8);
-    }
+  encryptCredentials(): void {
     this.signing_key = Encryptor.generateRandomString(40);
     if (process.env.NODE_ENV === 'test') {
       this.signing_key = 'test';
@@ -175,31 +171,31 @@ export class ConnectionEntity {
     }
   }
 
-  @ManyToOne((_) => UserEntity, (user) => user.connections, { onDelete: 'SET NULL', nullable: true })
+  @ManyToOne(() => UserEntity, (user) => user.connections, { onDelete: 'SET NULL', nullable: true })
   author: Relation<UserEntity>;
 
-  @OneToMany((_) => GroupEntity, (group) => group.connection)
+  @OneToMany(() => GroupEntity, (group) => group.connection)
   groups: Relation<GroupEntity>[];
 
-  @OneToMany((_) => TableSettingsEntity, (settings) => settings.connection_id)
+  @OneToMany(() => TableSettingsEntity, (settings) => settings.connection_id)
   settings: Relation<TableSettingsEntity>[];
 
-  @OneToMany((_) => TableLogsEntity, (logs) => logs.connection_id)
+  @OneToMany(() => TableLogsEntity, (logs) => logs.connection_id)
   logs: Relation<TableLogsEntity>[];
 
-  @OneToMany((_) => ActionRulesEntity, (action_rules) => action_rules.connection)
+  @OneToMany((type) => ActionRulesEntity, (action_rules) => action_rules.connection)
   action_rules: Relation<ActionRulesEntity>[];
 
-  @OneToOne((_) => AgentEntity, (agent) => agent.connection)
+  @OneToOne(() => AgentEntity, (agent) => agent.connection)
   agent: Relation<AgentEntity>;
 
-  @OneToOne((_) => ConnectionPropertiesEntity, (connection_properties) => connection_properties.connection)
+  @OneToOne(() => ConnectionPropertiesEntity, (connection_properties) => connection_properties.connection)
   connection_properties: Relation<ConnectionPropertiesEntity>;
 
-  @OneToMany((_) => TableInfoEntity, (table_info) => table_info.connection)
+  @OneToMany(() => TableInfoEntity, (table_info) => table_info.connection)
   tables_info: Relation<TableInfoEntity>[];
 
-  @ManyToOne((_) => CompanyInfoEntity, (company) => company.connections)
+  @ManyToOne(() => CompanyInfoEntity, (company) => company.connections)
   @JoinTable()
   company: Relation<CompanyInfoEntity>;
 }

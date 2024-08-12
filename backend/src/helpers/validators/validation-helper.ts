@@ -56,19 +56,6 @@ export class ValidationHelper {
     throw new BadRequestException(Messages.INVALID_JWT_TOKEN);
   }
 
-  public static isValidNanoId(id: string): boolean {
-    const validChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_';
-    if (id.length !== 8) {
-      return false;
-    }
-    for (let i = 0; i < id.length; i++) {
-      if (!validChars.includes(id.at(i))) {
-        return false;
-      }
-    }
-    return true;
-  }
-
   public static isPasswordStrongOrThrowError(password: string): boolean {
     if (process.env.NODE_ENV === 'test') {
       return true;
