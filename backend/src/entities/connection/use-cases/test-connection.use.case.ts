@@ -8,6 +8,7 @@ import { Messages } from '../../../exceptions/text/messages.js';
 import { processExceptionMessage } from '../../../exceptions/utils/process-exception-message.js';
 import { isConnectionTypeAgent, slackPostMessage } from '../../../helpers/index.js';
 import { Encryptor } from '../../../helpers/encryption/encryptor.js';
+import { ValidationHelper } from '../../../helpers/validators/validation-helper.js';
 import { TestConnectionResultDs } from '../application/data-structures/test-connection-result.ds.js';
 import { UpdateConnectionDs } from '../application/data-structures/update-connection.ds.js';
 import { ConnectionEntity } from '../connection.entity.js';
@@ -42,7 +43,7 @@ export class TestConnectionUseCase
       connection_parameters: connectionData,
     } = inputData;
     if (connectionId) {
-      
+      ValidationHelper.validateOrThrowHttpExceptionUUID(connectionId);
       let toUpdate;
       try {
         toUpdate = await this._dbContext.connectionRepository.findAndDecryptConnection(connectionId, masterPwd);

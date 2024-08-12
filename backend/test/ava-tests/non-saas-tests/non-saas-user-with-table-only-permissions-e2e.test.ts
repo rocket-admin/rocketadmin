@@ -27,6 +27,7 @@ import { ValidationError } from 'class-validator';
 let app: INestApplication;
 let testUtils: TestUtils;
 let currentTest: string;
+const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 const mockFactory = new MockFactory();
 const newConnectionToPostgres = mockFactory.generateConnectionToTestPostgresDBInDocker();
@@ -492,7 +493,7 @@ test.serial(`${currentTest} should groups in connection`, async (t) => {
     t.is(response.status, 200);
     const result = JSON.parse(response.text);
     const groupId = result[0].group.id;
-
+    t.is(uuidRegex.test(groupId), true);
     t.is(result[0].group.hasOwnProperty('title'), true);
     t.is(result[0].accessLevel, AccessLevelEnum.none);
 
@@ -733,7 +734,7 @@ test.serial(`${currentTest} should return found groups with current user`, async
     t.is(groups.length, 1);
     t.is(groups[0].hasOwnProperty('group'), true);
     t.is(groups[0].hasOwnProperty('accessLevel'), true);
-
+    t.is(uuidRegex.test(groups[0].group.id), true);
     t.is(groups[0].group.hasOwnProperty('title'), true);
     t.is(groups[0].group.hasOwnProperty('isMain'), true);
   } catch (e) {
@@ -2704,6 +2705,7 @@ test.serial(`${currentTest} should return array of table widgets for table`, asy
     t.is(createTableWidgetRO[0].widget_type, newTableWidgets[0].widget_type);
     t.is(createTableWidgetRO[1].field_name, newTableWidgets[1].field_name);
     t.is(createTableWidgetRO[0].name, newTableWidgets[0].name);
+    t.is(uuidRegex.test(createTableWidgetRO[0].id), true);
 
     const getTableWidgets = await request(app.getHttpServer())
       .get(`/widgets/${connections.firstId}?tableName=${firstTableInfo.testTableName}`)
@@ -2759,6 +2761,8 @@ test.serial(
       t.is(createTableWidgetResponse.status, 201);
       t.is(typeof createTableWidgetRO, 'object');
       t.is(createTableWidgetRO.length, 2);
+
+      t.is(uuidRegex.test(createTableWidgetRO[0].id), true);
 
       const getTableWidgets = await request(app.getHttpServer())
         .get(`/widgets/${connections.secondId}?tableName=${secondTableInfo.testTableName}`)

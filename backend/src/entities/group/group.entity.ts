@@ -15,17 +15,17 @@ export class GroupEntity {
   @Column({ default: false })
   isMain: boolean;
 
-  @ManyToMany((_) => PermissionEntity, (permission) => permission.groups, {
+  @ManyToMany(() => PermissionEntity, (permission) => permission.groups, {
     onDelete: 'CASCADE',
   })
   permissions?: Relation<PermissionEntity>[];
 
-  @ManyToMany((_) => UserEntity, (user) => user.groups, {
+  @ManyToMany(() => UserEntity, (user) => user.groups, {
     onDelete: 'CASCADE',
   })
   users?: Relation<UserEntity>[];
 
-  @ManyToOne((_) => ConnectionEntity, (connection) => connection.groups, {
+  @ManyToOne(() => ConnectionEntity, (connection) => connection.groups, {
     onDelete: 'CASCADE',
   })
   @JoinColumn()

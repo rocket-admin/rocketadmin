@@ -77,37 +77,37 @@ export class UserEntity {
   @Column({ default: null })
   otpSecretKey: string;
 
-  @OneToMany((_) => ConnectionEntity, (connection) => connection.author)
+  @OneToMany(() => ConnectionEntity, (connection) => connection.author)
   @JoinTable()
   connections: Relation<ConnectionEntity>[];
 
-  @ManyToOne((_) => CompanyInfoEntity, (company) => company.users, { onDelete: 'SET NULL' })
+  @ManyToOne(() => CompanyInfoEntity, (company) => company.users, { onDelete: 'SET NULL' })
   @JoinTable()
   company: Relation<CompanyInfoEntity>;
 
-  @ManyToMany((_) => GroupEntity, (group) => group.users)
+  @ManyToMany(() => GroupEntity, (group) => group.users)
   @JoinTable()
   groups: Relation<GroupEntity>[];
 
-  @OneToOne((_) => UserActionEntity, (user_action) => user_action.user)
+  @OneToOne(() => UserActionEntity, (user_action) => user_action.user)
   user_action: Relation<UserActionEntity>;
 
-  @OneToOne((_) => EmailVerificationEntity, (email_verification) => email_verification.user)
+  @OneToOne(() => EmailVerificationEntity, (email_verification) => email_verification.user)
   email_verification: Relation<EmailVerificationEntity>;
 
-  @OneToOne((_) => PasswordResetEntity, (password_reset) => password_reset.user)
+  @OneToOne(() => PasswordResetEntity, (password_reset) => password_reset.user)
   password_reset: Relation<PasswordResetEntity>;
 
-  @OneToOne((_) => EmailChangeEntity, (email_change) => email_change.user)
+  @OneToOne(() => EmailChangeEntity, (email_change) => email_change.user)
   email_change: Relation<EmailChangeEntity>;
 
-  @OneToOne((_) => UserInvitationEntity, (user_invitation) => user_invitation.user)
+  @OneToOne(() => UserInvitationEntity, (user_invitation) => user_invitation.user)
   user_invitation: Relation<UserInvitationEntity>;
 
-  @OneToOne((_) => GitHubUserIdentifierEntity, (github_user_identifier) => github_user_identifier.user)
+  @OneToOne(() => GitHubUserIdentifierEntity, (github_user_identifier) => github_user_identifier.user)
   github_user_identifier: Relation<GitHubUserIdentifierEntity>;
 
-  @OneToMany((_) => UserApiKeyEntity, (api_key) => api_key.user)
+  @OneToMany((type) => UserApiKeyEntity, (api_key) => api_key.user)
   api_keys: Relation<UserApiKeyEntity>[];
 
   @Column({ default: false })

@@ -34,6 +34,8 @@ const decryptValueMaterPwd = (data) => {
   return Encryptor.decryptDataMasterPwd(data, masterPwd);
 };
 
+const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
 test.before(async () => {
   const moduleFixture = await Test.createTestingModule({
     imports: [ApplicationModule, DatabaseModule],
@@ -122,7 +124,7 @@ test.serial(`${currentTest} should return custom fields array, when custom field
 
   t.is(typeof getCustomFieldsRO, 'object');
   t.is(getCustomFieldsRO.length, 1);
-
+  t.is(uuidRegex.test(getCustomFieldsRO[0].id), true);
   t.is(getCustomFieldsRO[0].type, newCustomField.type);
   t.is(getCustomFieldsRO[0].text, newCustomField.text);
   t.is(getCustomFieldsRO[0].template_string, 'https//?connectionId={{id}}&connectionTitle={{title}}');
@@ -312,7 +314,7 @@ test.serial(`${currentTest} should return table settings with created custom fie
 
   t.is(typeof getCustomFieldsRO, 'object');
   t.is(getCustomFieldsRO.length, 1);
-
+  t.is(uuidRegex.test(getCustomFieldsRO[0].id), true);
   t.is(getCustomFieldsRO[0].type, newCustomField.type);
   t.is(getCustomFieldsRO[0].text, newCustomField.text);
   t.is(getCustomFieldsRO[0].template_string, 'https//?connectionId={{id}}&connectionTitle={{title}}');
@@ -629,7 +631,7 @@ test.serial(`${currentTest} should return updated custom field`, async (t) => {
 
   t.is(typeof getCustomFieldsRO, 'object');
   t.is(getCustomFieldsRO.length, 1);
-
+  t.is(uuidRegex.test(getCustomFieldsRO[0].id), true);
   t.is(getCustomFieldsRO[0].type, newCustomField.type);
   t.is(getCustomFieldsRO[0].text, newCustomField.text);
   t.is(getCustomFieldsRO[0].template_string, 'https//?connectionId={{id}}&connectionTitle={{title}}');
@@ -649,7 +651,7 @@ test.serial(`${currentTest} should return updated custom field`, async (t) => {
     .set('Accept', 'application/json');
   t.is(updateCustomFieldResponse.status, 200);
   const updateCustomFieldRO = JSON.parse(updateCustomFieldResponse.text);
-
+  t.is(uuidRegex.test(updateCustomFieldRO.id), true);
   t.is(updateCustomFieldRO.type, updateDTO.type);
   t.is(updateCustomFieldRO.template_string, updateDTO.template_string);
   t.is(updateCustomFieldRO.text, updateDTO.text);
@@ -693,7 +695,7 @@ test.serial(`${currentTest} should throw exception, when connection id not passe
 
   t.is(typeof getCustomFieldsRO, 'object');
   t.is(getCustomFieldsRO.length, 1);
-
+  t.is(uuidRegex.test(getCustomFieldsRO[0].id), true);
   t.is(getCustomFieldsRO[0].type, newCustomField.type);
   t.is(getCustomFieldsRO[0].text, newCustomField.text);
   t.is(getCustomFieldsRO[0].template_string, 'https//?connectionId={{id}}&connectionTitle={{title}}');
@@ -752,7 +754,7 @@ test.serial(`${currentTest} should throw exception, when connection id passed in
 
   t.is(typeof getCustomFieldsRO, 'object');
   t.is(getCustomFieldsRO.length, 1);
-
+  t.is(uuidRegex.test(getCustomFieldsRO[0].id), true);
   t.is(getCustomFieldsRO[0].type, newCustomField.type);
   t.is(getCustomFieldsRO[0].text, newCustomField.text);
   t.is(getCustomFieldsRO[0].template_string, 'https//?connectionId={{id}}&connectionTitle={{title}}');
@@ -814,7 +816,7 @@ test.serial(`${currentTest} should throw exception, when tableName passed in req
 
   t.is(typeof getCustomFieldsRO, 'object');
   t.is(getCustomFieldsRO.length, 1);
-
+  t.is(uuidRegex.test(getCustomFieldsRO[0].id), true);
   t.is(getCustomFieldsRO[0].type, newCustomField.type);
   t.is(getCustomFieldsRO[0].text, newCustomField.text);
   t.is(getCustomFieldsRO[0].template_string, 'https//?connectionId={{id}}&connectionTitle={{title}}');
@@ -876,7 +878,7 @@ test.serial(`${currentTest} should throw exception, when tableName not passed in
 
   t.is(typeof getCustomFieldsRO, 'object');
   t.is(getCustomFieldsRO.length, 1);
-
+  t.is(uuidRegex.test(getCustomFieldsRO[0].id), true);
   t.is(getCustomFieldsRO[0].type, newCustomField.type);
   t.is(getCustomFieldsRO[0].text, newCustomField.text);
   t.is(getCustomFieldsRO[0].template_string, 'https//?connectionId={{id}}&connectionTitle={{title}}');
@@ -938,7 +940,7 @@ test.serial(`${currentTest} should throw exception, when field id not passed in 
 
   t.is(typeof getCustomFieldsRO, 'object');
   t.is(getCustomFieldsRO.length, 1);
-
+  t.is(uuidRegex.test(getCustomFieldsRO[0].id), true);
   t.is(getCustomFieldsRO[0].type, newCustomField.type);
   t.is(getCustomFieldsRO[0].text, newCustomField.text);
   t.is(getCustomFieldsRO[0].template_string, 'https//?connectionId={{id}}&connectionTitle={{title}}');
@@ -1000,7 +1002,7 @@ test.serial(`${currentTest} should throw exception, when field type not passed i
 
   t.is(typeof getCustomFieldsRO, 'object');
   t.is(getCustomFieldsRO.length, 1);
-
+  t.is(uuidRegex.test(getCustomFieldsRO[0].id), true);
   t.is(getCustomFieldsRO[0].type, newCustomField.type);
   t.is(getCustomFieldsRO[0].text, newCustomField.text);
   t.is(getCustomFieldsRO[0].template_string, 'https//?connectionId={{id}}&connectionTitle={{title}}');
@@ -1061,7 +1063,7 @@ test.serial(`${currentTest} should throw exception, when field type passed in re
 
   t.is(typeof getCustomFieldsRO, 'object');
   t.is(getCustomFieldsRO.length, 1);
-
+  t.is(uuidRegex.test(getCustomFieldsRO[0].id), true);
   t.is(getCustomFieldsRO[0].type, newCustomField.type);
   t.is(getCustomFieldsRO[0].text, newCustomField.text);
   t.is(getCustomFieldsRO[0].template_string, 'https//?connectionId={{id}}&connectionTitle={{title}}');
@@ -1122,7 +1124,7 @@ test.serial(`${currentTest} should throw exception, when field text is not passe
 
   t.is(typeof getCustomFieldsRO, 'object');
   t.is(getCustomFieldsRO.length, 1);
-
+  t.is(uuidRegex.test(getCustomFieldsRO[0].id), true);
   t.is(getCustomFieldsRO[0].type, newCustomField.type);
   t.is(getCustomFieldsRO[0].text, newCustomField.text);
   t.is(getCustomFieldsRO[0].template_string, 'https//?connectionId={{id}}&connectionTitle={{title}}');
@@ -1184,7 +1186,7 @@ test.serial(`${currentTest} should throw exception, when field template_string i
 
   t.is(typeof getCustomFieldsRO, 'object');
   t.is(getCustomFieldsRO.length, 1);
-
+  t.is(uuidRegex.test(getCustomFieldsRO[0].id), true);
   t.is(getCustomFieldsRO[0].type, newCustomField.type);
   t.is(getCustomFieldsRO[0].text, newCustomField.text);
   t.is(getCustomFieldsRO[0].template_string, 'https//?connectionId={{id}}&connectionTitle={{title}}');
@@ -1245,7 +1247,7 @@ test.serial(`${currentTest} should throw exception, when fields passed in templa
 
   t.is(typeof getCustomFieldsRO, 'object');
   t.is(getCustomFieldsRO.length, 1);
-
+  t.is(uuidRegex.test(getCustomFieldsRO[0].id), true);
   t.is(getCustomFieldsRO[0].type, newCustomField.type);
   t.is(getCustomFieldsRO[0].text, newCustomField.text);
   t.is(getCustomFieldsRO[0].template_string, 'https//?connectionId={{id}}&connectionTitle={{title}}');
@@ -1313,7 +1315,7 @@ test.serial(
 
     t.is(typeof getCustomFieldsRO, 'object');
     t.is(getCustomFieldsRO.length, 1);
-
+    t.is(uuidRegex.test(getCustomFieldsRO[0].id), true);
     t.is(getCustomFieldsRO[0].type, newCustomField.type);
     t.is(getCustomFieldsRO[0].text, newCustomField.text);
     t.is(getCustomFieldsRO[0].template_string, 'https//?connectionId={{id}}&connectionTitle={{title}}');
@@ -1377,7 +1379,7 @@ test.serial(`${currentTest} should return table settings without deleted custom 
 
   t.is(typeof getCustomFieldsRO, 'object');
   t.is(getCustomFieldsRO.length, 1);
-
+  t.is(uuidRegex.test(getCustomFieldsRO[0].id), true);
   t.is(getCustomFieldsRO[0].type, newCustomField.type);
   t.is(getCustomFieldsRO[0].text, newCustomField.text);
   t.is(getCustomFieldsRO[0].template_string, 'https//?connectionId={{id}}&connectionTitle={{title}}');
@@ -1393,7 +1395,7 @@ test.serial(`${currentTest} should return table settings without deleted custom 
 
   t.is(typeof getCustomFieldsRO, 'object');
   t.is(deleteCustomFieldsRO.length, 1);
-
+  t.is(uuidRegex.test(getCustomFieldsRO[0].id), true);
   t.is(deleteCustomFieldsRO[0].type, newCustomField.type);
   t.is(deleteCustomFieldsRO[0].text, newCustomField.text);
   t.is(deleteCustomFieldsRO[0].template_string, 'https//?connectionId={{id}}&connectionTitle={{title}}');
@@ -1448,7 +1450,7 @@ test.serial(`${currentTest} should throw exception, when connection id not passe
 
   t.is(typeof getCustomFieldsRO, 'object');
   t.is(getCustomFieldsRO.length, 1);
-
+  t.is(uuidRegex.test(getCustomFieldsRO[0].id), true);
   t.is(getCustomFieldsRO[0].type, newCustomField.type);
   t.is(getCustomFieldsRO[0].text, newCustomField.text);
   t.is(getCustomFieldsRO[0].template_string, 'https//?connectionId={{id}}&connectionTitle={{title}}');
@@ -1500,7 +1502,7 @@ test.serial(`${currentTest} should throw exception, when connection id passed in
 
   t.is(typeof getCustomFieldsRO, 'object');
   t.is(getCustomFieldsRO.length, 1);
-
+  t.is(uuidRegex.test(getCustomFieldsRO[0].id), true);
   t.is(getCustomFieldsRO[0].type, newCustomField.type);
   t.is(getCustomFieldsRO[0].text, newCustomField.text);
   t.is(getCustomFieldsRO[0].template_string, 'https//?connectionId={{id}}&connectionTitle={{title}}');
@@ -1554,7 +1556,7 @@ test.serial(`${currentTest} should throw exception, when tableName not passed in
 
   t.is(typeof getCustomFieldsRO, 'object');
   t.is(getCustomFieldsRO.length, 1);
-
+  t.is(uuidRegex.test(getCustomFieldsRO[0].id), true);
   t.is(getCustomFieldsRO[0].type, newCustomField.type);
   t.is(getCustomFieldsRO[0].text, newCustomField.text);
   t.is(getCustomFieldsRO[0].template_string, 'https//?connectionId={{id}}&connectionTitle={{title}}');
@@ -1608,7 +1610,7 @@ test.serial(`${currentTest} should throw exception, when tableName passed in req
 
   t.is(typeof getCustomFieldsRO, 'object');
   t.is(getCustomFieldsRO.length, 1);
-
+  t.is(uuidRegex.test(getCustomFieldsRO[0].id), true);
   t.is(getCustomFieldsRO[0].type, newCustomField.type);
   t.is(getCustomFieldsRO[0].text, newCustomField.text);
   t.is(getCustomFieldsRO[0].template_string, 'https//?connectionId={{id}}&connectionTitle={{title}}');
@@ -1662,7 +1664,7 @@ test.serial(`${currentTest} should throw exception, when field id is not passed 
 
   t.is(typeof getCustomFieldsRO, 'object');
   t.is(getCustomFieldsRO.length, 1);
-
+  t.is(uuidRegex.test(getCustomFieldsRO[0].id), true);
   t.is(getCustomFieldsRO[0].type, newCustomField.type);
   t.is(getCustomFieldsRO[0].text, newCustomField.text);
   t.is(getCustomFieldsRO[0].template_string, 'https//?connectionId={{id}}&connectionTitle={{title}}');
@@ -1716,7 +1718,7 @@ test.serial(`${currentTest} should throw exception, when field id passed in requ
 
   t.is(typeof getCustomFieldsRO, 'object');
   t.is(getCustomFieldsRO.length, 1);
-
+  t.is(uuidRegex.test(getCustomFieldsRO[0].id), true);
   t.is(getCustomFieldsRO[0].type, newCustomField.type);
   t.is(getCustomFieldsRO[0].text, newCustomField.text);
   t.is(getCustomFieldsRO[0].template_string, 'https//?connectionId={{id}}&connectionTitle={{title}}');
