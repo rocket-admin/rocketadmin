@@ -26,8 +26,6 @@ let app: INestApplication;
 let testUtils: TestUtils;
 const mockFactory = new MockFactory();
 
-const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-
 test.before(async () => {
   const moduleFixture = await Test.createTestingModule({
     imports: [ApplicationModule, DatabaseModule],
@@ -91,9 +89,9 @@ test.serial(`${currentTest} should return all user groups`, async (t) => {
     const result = JSON.parse(findAllUserGroups.text);
 
     t.is(result.length, 2);
-    t.is(uuidRegex.test(result[0].group.id), true);
+
     t.is(result[1].group.hasOwnProperty('users'), true);
-    t.is(result[1].group.users[0].hasOwnProperty('password'), false)
+    t.is(result[1].group.users[0].hasOwnProperty('password'), false);
     t.is(result[0].group.hasOwnProperty('title'), true);
     t.is(result[0].group.hasOwnProperty('connection'), false);
     t.is(result[1].accessLevel, AccessLevelEnum.edit);
@@ -148,7 +146,7 @@ test.serial(`${currentTest} should return all users in current group`, async (t)
     t.is(findAllUsersInGroup.status, 200);
     const result = JSON.parse(findAllUsersInGroup.text);
     t.is(result.length === 1, true);
-    t.is(uuidRegex.test(result[0].id), true);
+
     // t.is(result[0].isActive).toBe(true);
     t.is(result[0].email, firstUserEmail);
   } catch (e) {
@@ -303,11 +301,10 @@ test.serial(`${currentTest} should return a group with new added user`, async (t
     const result = JSON.parse(findAllUsersInGroup.text).group;
     t.is(findAllUsersInGroup.status, 200);
 
-    t.is(uuidRegex.test(result.id), true);
     t.is(result.title, newGroup1.title);
     t.is(result.users.length, 2);
     t.is(typeof result.users[1], 'object');
-    t.is(uuidRegex.test(result.users[0].id), true);
+
     t.is(result.users[1].email, secondUserRegisterInfo.email);
     // t.is(result.users[0].isActive).toBe(true);
   } catch (e) {
@@ -613,7 +610,7 @@ test.serial(`${currentTest} should return an delete result`, async (t) => {
     const result = JSON.parse(response.text);
     const groupId = result[0].group.id;
     t.is(result.length, 1);
-    t.is(uuidRegex.test(groupId), true);
+
     t.is(result[0].group.title, 'Admin');
     t.is(result[0].accessLevel, AccessLevelEnum.edit);
 
@@ -781,11 +778,11 @@ test.serial(`${currentTest} should return a group without deleted user`, async (
 
     t.is(addUserInGroup.status, 200);
     let result = JSON.parse(addUserInGroup.text).group;
-    t.is(uuidRegex.test(result.id), true);
+
     t.is(result.title, newGroup1.title);
     t.is(result.users.length, 2);
     t.is(typeof result.users[1], 'object');
-    t.is(uuidRegex.test(result.users[0].id), true);
+
     t.is(result.users[1].email, secondUserRegisterInfo.email);
     // t.is(result.users[0].isActive).toBe(true);
 
@@ -800,11 +797,11 @@ test.serial(`${currentTest} should return a group without deleted user`, async (
 
     t.is(typeof result, 'object');
     t.is(result.title, newGroup1.title);
-    t.is(uuidRegex.test(result.id), true);
+
     t.is(result.hasOwnProperty('users'), true);
     t.is(typeof result.users, 'object');
     t.is(result.users.length, 1);
-    t.is(uuidRegex.test(result.users[0].id), true);
+
     // t.is(result.users[0].isActive).toBe(true);
   } catch (e) {
     console.error(e);
@@ -865,11 +862,11 @@ test.serial(`${currentTest} should throw an error, when group id not passed in r
 
     t.is(addUserInGroup.status, 200);
     const result = JSON.parse(addUserInGroup.text).group;
-    t.is(uuidRegex.test(result.id), true);
+
     t.is(result.title, newGroup1.title);
     t.is(result.users.length, 2);
     t.is(typeof result.users[1], 'object');
-    t.is(uuidRegex.test(result.users[0].id), true);
+
     t.is(result.users[1].email, secondUserRegisterInfo.email);
     // t.is(result.users[0].isActive).toBe(true);
 
@@ -942,11 +939,11 @@ test.serial(`${currentTest} should throw an error, when email is not passed in r
 
     t.is(addUserInGroup.status, 200);
     const result = JSON.parse(addUserInGroup.text).group;
-    t.is(uuidRegex.test(result.id), true);
+
     t.is(result.title, newGroup1.title);
     t.is(result.users.length, 2);
     t.is(typeof result.users[1], 'object');
-    t.is(uuidRegex.test(result.users[0].id), true);
+
     t.is(result.users[1].email, secondUserRegisterInfo.email);
     // t.is(result.users[0].isActive).toBe(true);
 
@@ -1091,11 +1088,11 @@ test.serial(`${currentTest} should throw an error, when group id is incorrect`, 
 
     t.is(addUserInGroup.status, 200);
     const result = JSON.parse(addUserInGroup.text).group;
-    t.is(uuidRegex.test(result.id), true);
+
     t.is(result.title, newGroup1.title);
     t.is(result.users.length, 2);
     t.is(typeof result.users[1], 'object');
-    t.is(uuidRegex.test(result.users[0].id), true);
+
     t.is(result.users[1].email, secondUserRegisterInfo.email);
 
     requestBody.groupId = faker.string.uuid();

@@ -67,7 +67,6 @@ export class GroupPermissionDs {
 export class ConnectionPermissionDs {
   @ApiProperty()
   @IsString()
-  @IsUUID()
   connectionId: string;
 
   @ApiProperty({ enum: AccessLevelEnum })

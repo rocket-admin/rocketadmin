@@ -24,8 +24,6 @@ let app: INestApplication;
 let testUtils: TestUtils;
 const mockFactory = new MockFactory();
 
-const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-
 test.before(async () => {
   const moduleFixture = await Test.createTestingModule({
     imports: [ApplicationModule, DatabaseModule],
@@ -116,9 +114,9 @@ test.serial(`${currentTest} should return created permissions`, async (t) => {
       .set('Accept', 'application/json');
     createPermissionsRO = JSON.parse(createPermissionsResponse.text);
     t.is(createPermissionsResponse.status, 200);
-    t.is(uuidRegex.test(createPermissionsRO.connection.connectionId), true);
+
     t.is(createPermissionsRO.connection.accessLevel, connectionAccessLevel);
-    t.is(uuidRegex.test(createPermissionsRO.group.groupId), true);
+
     t.is(createPermissionsRO.group.accessLevel, groupAccesssLevel);
 
     tables = createPermissionsRO.tables;

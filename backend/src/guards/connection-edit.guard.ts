@@ -12,6 +12,7 @@ import { Messages } from '../exceptions/text/messages.js';
 import { validateUuidByRegex } from './utils/validate-uuid-by-regex.js';
 import { BaseType } from '../common/data-injection.tokens.js';
 import { IGlobalDatabaseContext } from '../common/application/global-database-context.interface.js';
+import { ValidationHelper } from '../helpers/validators/validation-helper.js';
 
 @Injectable()
 export class ConnectionEditGuard implements CanActivate {
@@ -25,10 +26,10 @@ export class ConnectionEditGuard implements CanActivate {
       const request: IRequestWithCognitoInfo = context.switchToHttp().getRequest();
       const cognitoUserName = request.decoded.sub;
       let connectionId: string = request.query['connectionId'];
-      if (!connectionId || !validateUuidByRegex(connectionId)) {
-        connectionId = request.params?.slug || request.params?.connectionId;
+      if (!connectionId || (!validateUuidByRegex(connectionId) && !ValidationHelper.isValidNanoId(connectionId))) {
+        connectionId = request.params?.slug || request.params?.connectionId;   
       }
-      if (!connectionId || !validateUuidByRegex(connectionId)) {
+      if (!connectionId || (!validateUuidByRegex(connectionId) && !ValidationHelper.isValidNanoId(connectionId))) {
         reject(new BadRequestException(Messages.CONNECTION_ID_MISSING));
         return;
       }

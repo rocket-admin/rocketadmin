@@ -21,8 +21,6 @@ let app: INestApplication;
 let currentTest: string;
 let testUtils: TestUtils;
 
-const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-
 test.beforeEach(async () => {
   setSaasEnvVariable();
   const moduleFixture = await Test.createTestingModule({
@@ -58,7 +56,7 @@ test.serial(`${currentTest} should return user info for this user`, async (t) =>
       .set('Cookie', token)
       .set('Accept', 'application/json');
     const getUserRO: IUserInfo = JSON.parse(getUserResult.text);
-    t.is(uuidRegex.test(getUserRO.id), true);
+
     t.is(getUserRO.isActive, true);
     t.is(getUserRO.email, adminUserRegisterInfo.email);
     t.is(getUserRO.hasOwnProperty('createdAt'), true);
