@@ -80,18 +80,18 @@ export class TableSettingsEntity {
   icon: string;
 
   @Transform(({ value: connection }) => connection.id)
-  @ManyToOne(() => ConnectionEntity, (connection) => connection.settings, {
+  @ManyToOne((_) => ConnectionEntity, (connection) => connection.settings, {
     onDelete: 'CASCADE',
   })
   @JoinColumn()
   connection_id: Relation<ConnectionEntity>;
 
-  @OneToMany(() => CustomFieldsEntity, (fields) => fields.settings)
+  @OneToMany((_) => CustomFieldsEntity, (fields) => fields.settings)
   custom_fields: Relation<CustomFieldsEntity>[];
 
-  @OneToMany(() => TableWidgetEntity, (table_widgets) => table_widgets.settings)
+  @OneToMany((_) => TableWidgetEntity, (table_widgets) => table_widgets.settings)
   table_widgets: Relation<TableWidgetEntity>[];
 
-  @OneToMany(() => TableActionEntity, (table_actions) => table_actions.settings)
+  @OneToMany((_) => TableActionEntity, (table_actions) => table_actions.settings)
   table_actions: Relation<TableActionEntity>[];
 }

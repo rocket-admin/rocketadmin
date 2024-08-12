@@ -9,7 +9,7 @@ export const BodyUuid = createParamDecorator((paramName: string, ctx: ExecutionC
   if (body.hasOwnProperty(paramName)) {
     // eslint-disable-next-line security/detect-object-injection
     const uuId = body[paramName];
-    if (ValidationHelper.isValidUUID(uuId)) {
+    if (ValidationHelper.isValidUUID(uuId) || ValidationHelper.isValidNanoId(uuId)) {
       return uuId;
     }
     throw new BadRequestException(Messages.UUID_INVALID);
