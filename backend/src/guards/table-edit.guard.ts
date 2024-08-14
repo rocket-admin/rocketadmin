@@ -1,4 +1,11 @@
-import { BadRequestException, CanActivate, ExecutionContext, ForbiddenException, Inject, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  CanActivate,
+  ExecutionContext,
+  ForbiddenException,
+  Inject,
+  Injectable,
+} from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { IRequestWithCognitoInfo } from '../authorization/index.js';
 import { IGlobalDatabaseContext } from '../common/application/global-database-context.interface.js';
@@ -6,6 +13,7 @@ import { BaseType } from '../common/data-injection.tokens.js';
 import { Messages } from '../exceptions/text/messages.js';
 import { getMasterPwd } from '../helpers/index.js';
 import { validateUuidByRegex } from './utils/validate-uuid-by-regex.js';
+import { ValidationHelper } from '../helpers/validators/validation-helper.js';
 
 @Injectable()
 export class TableEditGuard implements CanActivate {
@@ -25,7 +33,7 @@ export class TableEditGuard implements CanActivate {
         reject(new BadRequestException(Messages.TABLE_NAME_MISSING));
         return;
       }
-      if (!connectionId || !validateUuidByRegex(connectionId)) {
+      if (!connectionId || (!validateUuidByRegex(connectionId) && !ValidationHelper.isValidNanoId(connectionId))) {
         reject(new BadRequestException(Messages.CONNECTION_ID_MISSING));
         return;
       }

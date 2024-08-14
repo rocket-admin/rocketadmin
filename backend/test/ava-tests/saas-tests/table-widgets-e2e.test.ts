@@ -119,7 +119,7 @@ test.serial(`${currentTest} should return array of table widgets for table`, asy
   t.is(createTableWidgetRO[0].widget_type, newTableWidgets[0].widget_type);
   t.is(createTableWidgetRO[1].field_name, newTableWidgets[1].field_name);
   t.is(createTableWidgetRO[0].name, newTableWidgets[0].name);
-  t.is(uuidRegex.test(createTableWidgetRO[1].id), true);
+
   t.is(createTableWidgetRO[0].description, newTableWidgets[0].description);
 
   const getTableWidgets = await request(app.getHttpServer())
@@ -132,7 +132,7 @@ test.serial(`${currentTest} should return array of table widgets for table`, asy
   const getTableWidgetsRO = JSON.parse(getTableWidgets.text);
   t.is(typeof getTableWidgetsRO, 'object');
   t.is(getTableWidgetsRO.length, 2);
-  t.is(uuidRegex.test(getTableWidgetsRO[0].id), true);
+
   t.is(getTableWidgetsRO[0].field_name, newTableWidgets[0].field_name);
   t.is(getTableWidgetsRO[1].widget_type, newTableWidgets[1].widget_type);
 
@@ -179,7 +179,7 @@ test.serial(`${currentTest} should throw exception when connection id not passed
   t.is(createTableWidgetRO[0].widget_type, newTableWidgets[0].widget_type);
   t.is(createTableWidgetRO[1].field_name, newTableWidgets[1].field_name);
   t.is(createTableWidgetRO[0].name, newTableWidgets[0].name);
-  t.is(uuidRegex.test(createTableWidgetRO[1].id), true);
+
   t.is(createTableWidgetRO[0].description, newTableWidgets[0].description);
 
   const emptyConnectionId = '';
@@ -220,7 +220,7 @@ test.serial(`${currentTest} should throw exception when connection id passed in 
   t.is(createTableWidgetRO[0].widget_type, newTableWidgets[0].widget_type);
   t.is(createTableWidgetRO[1].field_name, newTableWidgets[1].field_name);
   t.is(createTableWidgetRO[0].name, newTableWidgets[0].name);
-  t.is(uuidRegex.test(createTableWidgetRO[1].id), true);
+
   t.is(createTableWidgetRO[0].description, newTableWidgets[0].description);
 
   const fakeConnectionId = faker.string.uuid();
@@ -264,7 +264,7 @@ test.serial(`${currentTest} should throw exception when tableName passed in requ
   t.is(createTableWidgetRO[0].widget_type, newTableWidgets[0].widget_type);
   t.is(createTableWidgetRO[1].field_name, newTableWidgets[1].field_name);
   t.is(createTableWidgetRO[0].name, newTableWidgets[0].name);
-  t.is(uuidRegex.test(createTableWidgetRO[1].id), true);
+
   t.is(createTableWidgetRO[0].description, newTableWidgets[0].description);
 
   const fakeTableName = `${faker.lorem.words(1)}_${faker.string.uuid()}`;
@@ -309,7 +309,7 @@ test.serial(`${currentTest} should throw exception when tableName not passed in 
   t.is(createTableWidgetRO[0].widget_type, newTableWidgets[0].widget_type);
   t.is(createTableWidgetRO[1].field_name, newTableWidgets[1].field_name);
   t.is(createTableWidgetRO[0].name, newTableWidgets[0].name);
-  t.is(uuidRegex.test(createTableWidgetRO[1].id), true);
+
   t.is(createTableWidgetRO[0].description, newTableWidgets[0].description);
 
   const fakeTableName = '';
@@ -360,7 +360,7 @@ test.serial(`${currentTest} should return created table widgets`, async (t) => {
   const getTableWidgetsRO = JSON.parse(getTableWidgets.text);
   t.is(typeof getTableWidgetsRO, 'object');
   t.is(getTableWidgetsRO.length, 2);
-  t.is(uuidRegex.test(getTableWidgetsRO[0].id), true);
+
   t.is(getTableWidgetsRO[0].widget_type, newTableWidget.widget_type);
   t.is(compareTableWidgetsArrays(getTableWidgetsRO, newTableWidgets), true);
 });
@@ -409,7 +409,7 @@ test.serial(`${currentTest} hould return updated table widgets`, async (t) => {
   const getTableWidgetsRO = JSON.parse(getTableWidgets.text);
   t.is(typeof getTableWidgetsRO, 'object');
   t.is(getTableWidgetsRO.length, 2);
-  t.is(uuidRegex.test(getTableWidgetsRO[0].id), true);
+
   t.is(getTableWidgetsRO[0].widget_type, updatedTableWidgets[0].widget_type);
   t.is(compareTableWidgetsArrays(getTableWidgetsRO, updatedTableWidgets), true);
 });
@@ -458,9 +458,9 @@ test.serial(`${currentTest} should return updated table widgets when old widget 
   const getTableWidgetsRO = JSON.parse(getTableWidgets.text);
   t.is(typeof getTableWidgetsRO, 'object');
   t.is(getTableWidgetsRO.length, 2);
-  t.is(uuidRegex.test(getTableWidgetsRO[0].id), true);
+
   t.is(getTableWidgetsRO[0].widget_type, updatedTableWidgets[0].widget_type);
-  t.is(uuidRegex.test(getTableWidgetsRO[0].id), true);
+
   t.is(compareTableWidgetsArrays(getTableWidgetsRO, updatedTableWidgets), true);
 });
 
@@ -512,62 +512,67 @@ test.serial(`${currentTest} should return table widgets without deleted widget`,
   const getTableWidgetsRO = JSON.parse(getTableWidgets.text);
   t.is(typeof getTableWidgetsRO, 'object');
   t.is(getTableWidgetsRO.length, 1);
-  t.is(uuidRegex.test(getTableWidgetsRO[0].id), true);
 });
 
-test.serial(`${currentTest} should throw exception when table widget with incorrect type passed in request`, async (t) => {
-  const { token } = await registerUserAndReturnUserInfo(app);
-  const newConnection = getTestData(mockFactory).newEncryptedConnection;
-  const createdConnection = await request(app.getHttpServer())
-    .post('/connection')
-    .send(newConnection)
-    .set('Cookie', token)
-    .set('masterpwd', 'ahalaimahalai')
-    .set('Content-Type', 'application/json')
-    .set('Accept', 'application/json');
+test.serial(
+  `${currentTest} should throw exception when table widget with incorrect type passed in request`,
+  async (t) => {
+    const { token } = await registerUserAndReturnUserInfo(app);
+    const newConnection = getTestData(mockFactory).newEncryptedConnection;
+    const createdConnection = await request(app.getHttpServer())
+      .post('/connection')
+      .send(newConnection)
+      .set('Cookie', token)
+      .set('masterpwd', 'ahalaimahalai')
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
 
-  const connectionId = JSON.parse(createdConnection.text).id;
-  const newTableWidgets = mockFactory.generateCreateWidgetDTOsArrayForConnectionTable();
-  const copyWidgets = [...newTableWidgets];
-  copyWidgets[0].widget_type = faker.lorem.words(1);
-  const createTableWidgetResponse = await request(app.getHttpServer())
-    .post(`/widget/${connectionId}?tableName=${tableNameForWidgets}`)
-    .send({ widgets: copyWidgets })
-    .set('Content-Type', 'application/json')
-    .set('Cookie', token)
-    .set('masterpwd', 'ahalaimahalai')
-    .set('Accept', 'application/json');
-  const createTableWidgetRO = JSON.parse(createTableWidgetResponse.text);
-  t.is(createTableWidgetResponse.status, 400);
-  t.is(createTableWidgetRO.message, Messages.WIDGET_TYPE_INCORRECT);
-});
+    const connectionId = JSON.parse(createdConnection.text).id;
+    const newTableWidgets = mockFactory.generateCreateWidgetDTOsArrayForConnectionTable();
+    const copyWidgets = [...newTableWidgets];
+    copyWidgets[0].widget_type = faker.lorem.words(1);
+    const createTableWidgetResponse = await request(app.getHttpServer())
+      .post(`/widget/${connectionId}?tableName=${tableNameForWidgets}`)
+      .send({ widgets: copyWidgets })
+      .set('Content-Type', 'application/json')
+      .set('Cookie', token)
+      .set('masterpwd', 'ahalaimahalai')
+      .set('Accept', 'application/json');
+    const createTableWidgetRO = JSON.parse(createTableWidgetResponse.text);
+    t.is(createTableWidgetResponse.status, 400);
+    t.is(createTableWidgetRO.message, Messages.WIDGET_TYPE_INCORRECT);
+  },
+);
 
-test.serial(`${currentTest} should throw exception when table widget passed in request has incorrect field_name`, async (t) => {
-  const { token } = await registerUserAndReturnUserInfo(app);
-  const newConnection = getTestData(mockFactory).newEncryptedConnection;
-  const createdConnection = await request(app.getHttpServer())
-    .post('/connection')
-    .send(newConnection)
-    .set('Cookie', token)
-    .set('masterpwd', 'ahalaimahalai')
-    .set('Content-Type', 'application/json')
-    .set('Accept', 'application/json');
+test.serial(
+  `${currentTest} should throw exception when table widget passed in request has incorrect field_name`,
+  async (t) => {
+    const { token } = await registerUserAndReturnUserInfo(app);
+    const newConnection = getTestData(mockFactory).newEncryptedConnection;
+    const createdConnection = await request(app.getHttpServer())
+      .post('/connection')
+      .send(newConnection)
+      .set('Cookie', token)
+      .set('masterpwd', 'ahalaimahalai')
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
 
-  const connectionId = JSON.parse(createdConnection.text).id;
-  const newTableWidgets = mockFactory.generateCreateWidgetDTOsArrayForConnectionTable();
-  const copyWidgets = [...newTableWidgets];
-  copyWidgets[0].field_name = faker.lorem.words(1);
-  const createTableWidgetResponse = await request(app.getHttpServer())
-    .post(`/widget/${connectionId}?tableName=${tableNameForWidgets}`)
-    .send({ widgets: newTableWidgets })
-    .set('Content-Type', 'application/json')
-    .set('Cookie', token)
-    .set('masterpwd', 'ahalaimahalai')
-    .set('Accept', 'application/json');
-  const createTableWidgetRO = JSON.parse(createTableWidgetResponse.text);
-  t.is(createTableWidgetResponse.status, 400);
-  t.is(createTableWidgetRO.message, Messages.EXCLUDED_OR_NOT_EXISTS(copyWidgets[0].field_name));
-});
+    const connectionId = JSON.parse(createdConnection.text).id;
+    const newTableWidgets = mockFactory.generateCreateWidgetDTOsArrayForConnectionTable();
+    const copyWidgets = [...newTableWidgets];
+    copyWidgets[0].field_name = faker.lorem.words(1);
+    const createTableWidgetResponse = await request(app.getHttpServer())
+      .post(`/widget/${connectionId}?tableName=${tableNameForWidgets}`)
+      .send({ widgets: newTableWidgets })
+      .set('Content-Type', 'application/json')
+      .set('Cookie', token)
+      .set('masterpwd', 'ahalaimahalai')
+      .set('Accept', 'application/json');
+    const createTableWidgetRO = JSON.parse(createTableWidgetResponse.text);
+    t.is(createTableWidgetResponse.status, 400);
+    t.is(createTableWidgetRO.message, Messages.EXCLUDED_OR_NOT_EXISTS(copyWidgets[0].field_name));
+  },
+);
 
 test.serial(`${currentTest} should throw exception when connection id not passed in request`, async (t) => {
   const { token } = await registerUserAndReturnUserInfo(app);
@@ -750,7 +755,7 @@ test.serial(`${currentTest} should return created table widgets`, async (t) => {
   const getTableWidgetsRO = JSON.parse(getTableWidgets.text);
   t.is(typeof getTableWidgetsRO, 'object');
   t.is(getTableWidgetsRO.length, 1);
-  t.is(uuidRegex.test(getTableWidgetsRO[0].id), true);
+
   t.is(getTableWidgetsRO[0].widget_type, foreignKeyWidgetsDTO.widgets[0].widget_type);
 
   const getTableStructureResponse = await request(app.getHttpServer())

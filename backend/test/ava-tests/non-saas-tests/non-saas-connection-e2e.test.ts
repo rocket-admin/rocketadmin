@@ -30,7 +30,6 @@ type RegisterUserData = {
   email: string;
   password: string;
 };
-const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 test.before(async () => {
   setSaasEnvVariable();
@@ -114,7 +113,7 @@ test.serial(`${currentTest} should return all connections for this user`, async 
     t.is(result[0].hasOwnProperty('connection'), true);
     t.is(result[1].hasOwnProperty('accessLevel'), true);
     t.is(result[0].accessLevel, AccessLevelEnum.edit);
-    t.is(uuidRegex.test(result[0].connection.id), true);
+
     t.is(result[1].hasOwnProperty('accessLevel'), true);
     t.is(result[0].connection.hasOwnProperty('host'), true);
     t.is(result[1].connection.hasOwnProperty('host'), true);
@@ -158,7 +157,7 @@ test.serial(`${currentTest} should return all connection users`, async (t) => {
 
     const foundUsersRO = JSON.parse(findAllUsersResponse.text);
     t.is(foundUsersRO.length, 1);
-    t.is(uuidRegex.test(foundUsersRO[0].id), true);
+
     t.is(foundUsersRO[0].isActive, true);
     t.is(foundUsersRO[0].hasOwnProperty('createdAt'), true);
     t.pass();
@@ -221,8 +220,6 @@ test.serial(`${currentTest} should return all connection users from different gr
     t.is(findAllUsersResponse.status, 200);
     const foundUsersRO = JSON.parse(findAllUsersResponse.text);
     t.is(foundUsersRO.length, 2);
-    t.is(uuidRegex.test(foundUsersRO[0].id), true);
-    t.is(uuidRegex.test(foundUsersRO[1].id), true);
 
     t.is(foundUsersRO[0].isActive, true);
     t.is(foundUsersRO[1].isActive, true);
@@ -319,7 +316,7 @@ test.serial(`${currentTest} should return a found connection`, async (t) => {
 
     t.is(findOneResponce.status, 200);
     const result = findOneResponce.body.connection;
-    t.is(uuidRegex.test(result.id), true);
+
     t.is(result.title, 'Test Connection');
     t.is(result.type, 'postgres');
     t.is(result.host, 'nestjs_testing');
@@ -389,7 +386,6 @@ test.serial(`${currentTest} should return created connection`, async (t) => {
     t.is(response.status, 201);
     const result = JSON.parse(response.text);
 
-    t.is(uuidRegex.test(result.id), true);
     t.is(result.title, 'Test Connection');
     t.is(result.type, 'postgres');
     t.is(result.host, 'nestjs_testing');
@@ -404,7 +400,6 @@ test.serial(`${currentTest} should return created connection`, async (t) => {
     t.is(result.hasOwnProperty('groups'), true);
     t.is(typeof result.groups, 'object');
     t.is(result.groups.length >= 1, true);
-    t.is(uuidRegex.test(result.groups[0].id), true);
 
     const index = result.groups
       .map((e) => {
@@ -646,7 +641,7 @@ test.serial(`${currentTest} should return updated connection`, async (t) => {
 
     t.is(updateConnectionResponse.status, 200);
     const result = updateConnectionResponse.body.connection;
-    t.is(uuidRegex.test(result.id), true);
+
     t.is(result.title, 'Updated Test Connection');
     t.is(result.type, 'postgres');
     t.is(result.host, 'testing_nestjs');
@@ -1061,14 +1056,13 @@ test.serial(`${currentTest} should return a created group`, async (t) => {
 
     t.is(createGroupResponse.status, 201);
     const result = JSON.parse(createGroupResponse.text);
-    t.is(uuidRegex.test(result.id), true);
+
     t.is(result.title, newGroup1.title);
     t.is(result.hasOwnProperty('users'), true);
     t.is(typeof result.users, 'object');
     t.is(result.users.length, 1);
     t.is(result.users[0].email, email);
     t.is(result.users[0].isActive, true);
-    t.is(uuidRegex.test(result.users[0].id), true);
 
     t.pass();
   } catch (e) {
@@ -1259,7 +1253,7 @@ test.serial(`${currentTest} should return connection without deleted group resul
     result = JSON.parse(response.text);
     t.is(result.length, 1);
     const groupId = result[0].group.id;
-    t.is(uuidRegex.test(groupId), true);
+
     t.is(result[0].group.hasOwnProperty('title'), true);
     t.is(result[0].accessLevel, AccessLevelEnum.edit);
 
@@ -1588,7 +1582,7 @@ test.serial(`${currentTest} should groups in connection`, async (t) => {
     t.is(response.status, 200);
     const result = JSON.parse(response.text);
     const groupId = result[0].group.id;
-    t.is(uuidRegex.test(groupId), true);
+
     t.is(result[1].group.hasOwnProperty('title'), true);
     t.is(result[0].accessLevel, AccessLevelEnum.edit);
 
