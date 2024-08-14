@@ -57,6 +57,9 @@ export class ValidationHelper {
   }
 
   public static isValidNanoId(id: string): boolean {
+    if (typeof id !== 'string') {
+      return false;
+    }
     const validChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_';
     if (id.length !== 8) {
       return false;
