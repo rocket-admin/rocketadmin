@@ -56,7 +56,8 @@ export class UserHelperService implements OnModuleInit {
     }
     const email = process.env.ADMIN_EMAIL || 'admin@email.local';
     const password =
-      process.env.ADMIN_PASSWORD || process.env.NODE_ENV === 'test' ? 'test12345' : Encryptor.generateRandomString(10);
+      process.env.ADMIN_PASSWORD ||
+      (process.env.NODE_ENV === 'test' ? 'test12345' : Encryptor.generateRandomString(10));
 
     const foundTestUser = await this.userRepository.findOneBy({ email: email });
     if (foundTestUser) {
