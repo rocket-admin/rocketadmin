@@ -52,14 +52,15 @@
             <div class="codeSnippet">
                 <code class="code">
                     <pre>GRANT CONNECT ON DATABASE &quot;{{db.database}}&quot; TO &quot;{{db.username}}&quot;;</pre>
-                    <pre>ALTER DEFAULT PRIVILEGES IN SCHEMA &quot;{{db.schema || 'public'}}&quot;;</pre>
-                    <pre>GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO &quot;{{db.username}}&quot;;</pre>
+                    <pre>ALTER DEFAULT PRIVILEGES IN SCHEMA &quot;{{db.schema || 'public'}}&quot; GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO &quot;{{db.username}}&quot;;</pre>
+                    <pre>GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA "public" TO &quot;{{db.username}}&quot;;</pre>
+
                 </code>
                 <button type="button" mat-icon-button
                     matTooltip="Copy the command."
                     cdkCopyToClipboard="GRANT CONNECT ON DATABASE &quot;{{db.database}}&quot; TO &quot;{{db.username}}&quot;;
-    ALTER DEFAULT PRIVILEGES IN SCHEMA &quot;{{db.schema || 'public'}}&quot;;
-    GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO &quot;{{db.username}}&quot;;"
+ALTER DEFAULT PRIVILEGES IN SCHEMA &quot;{{db.schema || 'public'}}&quot; GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO &quot;{{db.username}}&quot;;
+GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA &quot;{{db.schema || 'public'}}&quot; TO &quot;{{db.username}}&quot;;"
                     (cdkCopyToClipboardCopied)="showCopyNotification('Command was copied to clipboard.')">
                     <mat-icon>content_copy</mat-icon>
                 </button>
@@ -69,11 +70,11 @@
 
             <div class="codeSnippet">
                 <code class="code">
-                    <pre>host    all    all    18.221.81.73/port    trust</pre>
+                    <pre>host    all    all    18.221.81.73/32    trust</pre>
                 </code>
                 <button type="button" mat-icon-button
                     matTooltip="Copy the command."
-                    cdkCopyToClipboard="host    all         all         18.221.81.73/port    trust"
+                    cdkCopyToClipboard="host    all         all         18.221.81.73/32    trust"
                     (cdkCopyToClipboardCopied)="showCopyNotification('Command was copied to clipboard.')">
                     <mat-icon>content_copy</mat-icon>
                 </button>
