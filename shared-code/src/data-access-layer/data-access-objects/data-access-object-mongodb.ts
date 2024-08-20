@@ -271,7 +271,13 @@ export class DataAccessObjectMongo extends BasicDataAccessObject implements IDat
   public async getTableStructure(tableName: string): Promise<TableStructureDS[]> {
     const db = await this.getConnectionToDatabase();
     const collection = db.collection(tableName);
-    const document = await collection.findOne({});
+    let document = await collection.findOne({});
+    if (!document) {
+      document = await collection.findOne({ $nor: [{ $eq: null }] });
+      if (!document) {
+        return [];
+      }
+    }
     const structure: TableStructureDS[] = Object.keys(document).map((key) => ({
       allow_null: document[key] === null,
       character_maximum_length: null,
