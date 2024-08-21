@@ -16,6 +16,7 @@ import { buildTestTableSettings } from '../../../entities/user/utils/build-test-
 import { ILoginUserWithGoogle } from './saas-use-cases.interface.js';
 import { SaasRegisterUserWithGoogleDS } from '../data-structures/sass-register-user-with-google.js';
 import { ExternalRegistrationProviderEnum } from '../../../entities/user/enums/external-registration-provider.enum.js';
+import * as Sentry from '@sentry/node';
 
 @Injectable()
 export class LoginWithGoogleUseCase
@@ -79,7 +80,12 @@ export class LoginWithGoogleUseCase
     for (const tableSettingsArray of testTableSettingsArrays) {
       await Promise.all(
         tableSettingsArray.map(async (tableSettings: TableSettingsEntity) => {
-          await this._dbContext.tableSettingsRepository.saveNewOrUpdatedSettings(tableSettings);
+          try {
+            await this._dbContext.tableSettingsRepository.saveNewOrUpdatedSettings(tableSettings);
+          } catch (error) {
+            Sentry.captureException(error);
+            console.error('Error saving table settings', error);
+          }
         }),
       );
     }
