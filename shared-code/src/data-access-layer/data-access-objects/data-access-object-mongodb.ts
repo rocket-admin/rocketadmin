@@ -273,10 +273,7 @@ export class DataAccessObjectMongo extends BasicDataAccessObject implements IDat
     const collection = db.collection(tableName);
     let document = await collection.findOne({});
     if (!document) {
-      document = await collection.findOne({ $nor: [{ $eq: null }] });
-      if (!document) {
-        return [];
-      }
+      return [];
     }
     const structure: TableStructureDS[] = Object.keys(document).map((key) => ({
       allow_null: document[key] === null,
