@@ -17,7 +17,7 @@ export async function sendEmailToUser(letterContent: IMessage): Promise<SMTPTran
   console.error('Email sending timed out. Probably the email sending configuration is incorrect');
   return null;
 
-  async function sendEmailWithTimeout(letterContent: IMessage) {
+  async function sendEmailWithTimeout(letterContent: IMessage): Promise<SMTPTransport.SentMessageInfo | null> {
     return new Promise<SMTPTransport.SentMessageInfo>(async (resolve) => {
       setTimeout(() => {
         resolve(null);
@@ -118,7 +118,7 @@ export async function sendInvitationToCompany(
   verificationString: string,
   companyId: string,
   companyName: string,
-): Promise<SMTPTransport.SentMessageInfo> {
+): Promise<SMTPTransport.SentMessageInfo | null> {
   const emailFrom = getProcessVariable('EMAIL_FROM') || Constants.AUTOADMIN_SUPPORT_MAIL;
   const letterContent: IMessage = {
     from: emailFrom,
