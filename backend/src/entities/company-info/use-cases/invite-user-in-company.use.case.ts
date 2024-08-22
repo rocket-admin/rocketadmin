@@ -10,6 +10,7 @@ import { sendInvitationToCompany } from '../../email/send-email.js';
 import { Logger } from '../../../helpers/logging/Logger.js';
 import { isSaaS } from '../../../helpers/app/is-saas.js';
 import { SaasCompanyGatewayService } from '../../../microservices/gateways/saas-gateway.ts/saas-company-gateway.service.js';
+import { isTest } from '../../../helpers/app/is-test.js';
 
 @Injectable({ scope: Scope.REQUEST })
 export class InviteUserInCompanyAndConnectionGroupUseCase
@@ -72,12 +73,21 @@ export class InviteUserInCompanyAndConnectionGroupUseCase
         invitedUserEmail,
         invitedUserCompanyRole,
       );
-      await sendInvitationToCompany(
+      const sendEmailResult = await sendInvitationToCompany(
         invitedUserEmail,
         renewedInvitation.verification_string,
         foundCompany.id,
         foundCompany.name,
       );
+
+      if (!sendEmailResult && !isTest() && !isSaaS()) {
+        throw new HttpException(
+          {
+            message: Messages.EMAIL_SEND_FAILED(invitedUserEmail),
+          },
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
 
       if (!isSaaS()) {
         Logger.printTechString(`Invitation verification string: ${renewedInvitation.verification_string}`);
