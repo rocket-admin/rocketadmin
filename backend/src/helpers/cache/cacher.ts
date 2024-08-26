@@ -14,8 +14,37 @@ const invitationCache = new LRUCache(Constants.DEFAULT_INVITATION_CACHE_OPTIONS)
 const tableStructureCache = new LRUCache(Constants.DEFAULT_TABLE_STRUCTURE_ELEMENTS_CACHE_OPTIONS);
 const tableForeignKeysCache = new LRUCache(Constants.DEFAULT_TABLE_STRUCTURE_ELEMENTS_CACHE_OPTIONS);
 const tablePrimaryKeysCache = new LRUCache(Constants.DEFAULT_TABLE_STRUCTURE_ELEMENTS_CACHE_OPTIONS);
+const tableReadPermissionCache = new LRUCache(Constants.DEFAULT_TABLE_PERMISSIONS_CACHE_OPTIONS);
 
 export class Cacher {
+  public static setUserTableReadPermissionCache(
+    userId: string,
+    connectionId: string,
+    tableName: string,
+    permission: boolean,
+  ): void {
+    const cacheKey = `${userId}-${connectionId}-${tableName}`;
+    tableReadPermissionCache.set(cacheKey, permission);
+  }
+
+  public static getUserTableReadPermissionCache(
+    userId: string,
+    connectionId: string,
+    tableName: string,
+  ): boolean | null {
+    const cacheKey = `${userId}-${connectionId}-${tableName}`;
+    const permission = tableReadPermissionCache.get(cacheKey) as boolean;
+    if (permission === null || permission === undefined) {
+      return null;
+    }
+    return permission;
+  }
+
+  public static clearUserTableReadPermissionCache(userId: string, connectionId: string, tableName: string): void {
+    const cacheKey = `${userId}-${connectionId}-${tableName}`;
+    tableReadPermissionCache.delete(cacheKey);
+  }
+
   public static increaseGroupInvitationsCacheCount(groupId: string): void {
     let groupCount = Cacher.getGroupInvitationCachedCount(groupId);
     invitationCache.set(groupId, ++groupCount);
@@ -153,5 +182,6 @@ export class Cacher {
     await tableStructureCache.clear();
     await tableForeignKeysCache.clear();
     await tablePrimaryKeysCache.clear();
+    await tableReadPermissionCache.clear();
   }
 }

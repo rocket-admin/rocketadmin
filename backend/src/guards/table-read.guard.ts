@@ -39,7 +39,7 @@ export class TableReadGuard implements CanActivate {
       }
       let userTableRead = false;
       try {
-        userTableRead = await this._dbContext.userAccessRepository.checkTableRead(
+        userTableRead = await this._dbContext.userAccessRepository.improvedCheckTableRead(
           cognitoUserName,
           connectionId,
           tableName,

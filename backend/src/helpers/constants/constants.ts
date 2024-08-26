@@ -92,8 +92,13 @@ export const Constants = {
   },
 
   DEFAULT_TABLE_STRUCTURE_ELEMENTS_CACHE_OPTIONS: {
-    max: 150,
+    max: 1000,
     ttl: 1000 * 60,
+  },
+
+  DEFAULT_TABLE_PERMISSIONS_CACHE_OPTIONS: {
+    max: 1000,
+    ttl: 1000 * 10,
   },
 
   DEFAULT_FORWARD_IN_HOST: '127.0.0.1',

@@ -633,6 +633,18 @@ export class TableController {
       userEmail = await this._dbContext.userRepository.getUserEmailOrReturnNull(userId);
     }
     const dao = getDataAccessObject(connection);
+
+    const tablesInConnection = await dao.getTablesFromDB(userEmail);
+    const tableNames = tablesInConnection.map((table) => table.tableName);
+    if (!tableNames.includes(tableName)) {
+      throw new HttpException(
+        {
+          message: Messages.TABLE_NOT_FOUND,
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
     const primaryColumns = await dao.getTablePrimaryColumns(tableName, userEmail);
 
     for (const primaryColumn of primaryColumns) {

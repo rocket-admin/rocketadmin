@@ -92,7 +92,7 @@ export class AddRowInTableUseCase extends AbstractUseCase<AddRowInTableDs, Table
     for (const referencedTable of referencedTableNamesAndColumns) {
       referencedTable.referenced_by = await Promise.all(
         referencedTable.referenced_by.map(async (referencedByTable) => {
-          const canUserReadTable = await this._dbContext.userAccessRepository.checkTableRead(
+          const canUserReadTable = await this._dbContext.userAccessRepository.improvedCheckTableRead(
             userId,
             connectionId,
             referencedByTable.table_name,
@@ -145,7 +145,7 @@ export class AddRowInTableUseCase extends AbstractUseCase<AddRowInTableDs, Table
 
     const canUserReadForeignTables = await Promise.all(
       foreignKeysWithKeysFromWidgets.map(async (foreignKey) => {
-        const canRead = await this._dbContext.userAccessRepository.checkTableRead(
+        const canRead = await this._dbContext.userAccessRepository.improvedCheckTableRead(
           userId,
           connectionId,
           foreignKey.referenced_table_name,

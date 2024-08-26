@@ -39,4 +39,8 @@ export interface IUserAccessRepository {
   ): Promise<boolean>;
 
   checkTableEdit(cognitoUserName: string, connectionId: string, tableName: string, masterPwd: string): Promise<boolean>;
+
+  getConnectionId(groupId: string): Promise<string>;
+
+  improvedCheckTableRead(userId: string, connectionId: string, tableName: string, masterPwd?: string): Promise<boolean>;
 }

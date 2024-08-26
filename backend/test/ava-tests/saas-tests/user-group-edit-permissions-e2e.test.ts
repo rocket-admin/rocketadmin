@@ -1646,9 +1646,9 @@ test.serial(`${currentTest} should throw an exception when connection id passed 
       .set('Cookie', simpleUserToken)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
-    t.is(getTableRows.status, 400);
+    t.is(getTableRows.status, 403);
     const getTablesInConnectionRO = JSON.parse(getTableRows.text);
-    t.is(getTablesInConnectionRO.message, Messages.CONNECTION_NOT_FOUND);
+    t.is(getTablesInConnectionRO.message, Messages.DONT_HAVE_PERMISSIONS);
   } catch (e) {
     console.error(e);
   }
@@ -1671,9 +1671,9 @@ test.serial(`${currentTest} should throw an exception when table name passed in 
       .set('Cookie', simpleUserToken)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
-    t.is(getTablesRows.status, 400);
+    t.is(getTablesRows.status, 403);
     const getTablesInConnectionRO = JSON.parse(getTablesRows.text);
-    t.is(getTablesInConnectionRO.message, Messages.TABLE_NOT_FOUND);
+    t.is(getTablesInConnectionRO.message, Messages.DONT_HAVE_PERMISSIONS);
   } catch (e) {
     console.error(e);
   }
@@ -1755,9 +1755,9 @@ test.serial(`${currentTest} should throw an exception when connection id passed 
       .set('Cookie', simpleUserToken)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
-    t.is(getTablesStructure.status, 400);
+    t.is(getTablesStructure.status, 403);
     const getTablesStructureRO = JSON.parse(getTablesStructure.text);
-    t.is(getTablesStructureRO.message, Messages.CONNECTION_NOT_FOUND);
+    t.is(getTablesStructureRO.message, Messages.DONT_HAVE_PERMISSIONS);
   } catch (e) {
     console.error(e);
   }
@@ -1804,9 +1804,9 @@ test.serial(`${currentTest} should throw an exception when table name passed in 
       .set('Cookie', simpleUserToken)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
-    t.is(getTablesStructure.status, 400);
+    t.is(getTablesStructure.status, 403);
     const getTablesStructureRO = JSON.parse(getTablesStructure.text);
-    t.is(getTablesStructureRO.message, Messages.TABLE_NOT_FOUND);
+    t.is(getTablesStructureRO.message, Messages.DONT_HAVE_PERMISSIONS);
   } catch (e) {
     console.error(e);
   }
@@ -2158,7 +2158,7 @@ test.serial(`${currentTest} should throw an exception when connection id passed 
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
     const addRowInTableRO = JSON.parse(addRowInTable.text);
-    t.is(addRowInTableRO.message, Messages.CONNECTION_NOT_FOUND);
+    t.is(addRowInTableRO.message, Messages.DONT_HAVE_PERMISSIONS);
   } catch (e) {
     console.error(e);
   }
@@ -2182,7 +2182,7 @@ test.serial(`${currentTest} should throw an exception when table name passed in 
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
     const addRowInTableRO = JSON.parse(addRowInTable.text);
-    t.is(addRowInTableRO.message, Messages.TABLE_NOT_FOUND);
+    t.is(addRowInTableRO.message, Messages.DONT_HAVE_PERMISSIONS);
   } catch (e) {
     console.error(e);
   }

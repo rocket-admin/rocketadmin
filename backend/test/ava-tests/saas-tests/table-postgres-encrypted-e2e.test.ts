@@ -1724,11 +1724,11 @@ test.serial(`${currentTest} should throw an exception when connection id passed 
       .set('masterpwd', masterPwd)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
-    t.is(getTableRowsResponse.status, 400);
+    t.is(getTableRowsResponse.status, 403);
 
     const { message } = JSON.parse(getTableRowsResponse.text);
 
-    t.is(message, Messages.CONNECTION_NOT_FOUND);
+    t.is(message, Messages.DONT_HAVE_PERMISSIONS);
   } catch (e) {
     console.error(e);
     throw e;
@@ -1979,9 +1979,9 @@ test.serial(`${currentTest} should throw an exception whe connection id passed i
     .set('masterpwd', masterPwd)
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
-  t.is(getTableStructure.status, 400);
+  t.is(getTableStructure.status, 403);
   const { message } = JSON.parse(getTableStructure.text);
-  t.is(message, Messages.CONNECTION_NOT_FOUND);
+  t.is(message, Messages.DONT_HAVE_PERMISSIONS);
 });
 
 test.serial(`${currentTest}should throw an exception when tableName not passed in request`, async (t) => {
@@ -3189,9 +3189,9 @@ test.serial(`${currentTest} should throw an exception, when connection id passed
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
 
-  t.is(foundRowInTableResponse.status, 400);
+  t.is(foundRowInTableResponse.status, 403);
   const { message } = JSON.parse(foundRowInTableResponse.text);
-  t.is(message, Messages.CONNECTION_NOT_FOUND);
+  t.is(message, Messages.DONT_HAVE_PERMISSIONS);
 });
 
 test.serial(`${currentTest} should throw an exception, when tableName in not passed in request`, async (t) => {
