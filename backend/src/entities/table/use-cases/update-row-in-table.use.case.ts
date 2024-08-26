@@ -103,7 +103,7 @@ export class UpdateRowInTableUseCase
     for (const referencedTable of referencedTableNamesAndColumns) {
       referencedTable.referenced_by = await Promise.all(
         referencedTable.referenced_by.map(async (referencedByTable) => {
-          const canUserReadTable = await this._dbContext.userAccessRepository.checkTableRead(
+          const canUserReadTable = await this._dbContext.userAccessRepository.improvedCheckTableRead(
             userId,
             connectionId,
             referencedByTable.table_name,
@@ -177,7 +177,7 @@ export class UpdateRowInTableUseCase
       canRead: boolean;
     }> = await Promise.all(
       tableForeignKeys.map(async (foreignKey) => {
-        const cenTableRead = await this._dbContext.userAccessRepository.checkTableRead(
+        const cenTableRead = await this._dbContext.userAccessRepository.improvedCheckTableRead(
           userId,
           connectionId,
           foreignKey.referenced_table_name,

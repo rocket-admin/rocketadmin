@@ -6,8 +6,9 @@ import { Encryptor } from '../../../helpers/encryption/encryptor.js';
 import { ConnectionEntity } from '../../connection/connection.entity.js';
 import { PermissionEntity } from '../../permission/permission.entity.js';
 import { ITablePermissionData } from '../../permission/permission.interface.js';
+import { IUserAccessRepository } from './user-access.repository.interface.js';
 
-export const userAccessCustomReposiotoryExtension = {
+export const userAccessCustomReposiotoryExtension: IUserAccessRepository = {
   async getUserConnectionAccessLevel(cognitoUserName: string, connectionId: string): Promise<AccessLevelEnum> {
     const qb = this.createQueryBuilder('permission')
       .leftJoinAndSelect('permission.groups', 'group')
@@ -356,5 +357,46 @@ export const userAccessCustomReposiotoryExtension = {
       );
     }
     return connection.id;
+  },
+
+  async improvedCheckTableRead(userId: string, connectionId: string, tableName: string): Promise<boolean> {
+    const qb = this.createQueryBuilder('permission')
+      .leftJoinAndSelect('permission.groups', 'group')
+      .leftJoinAndSelect('group.users', 'user')
+      .leftJoinAndSelect('group.connection', 'connection')
+      .andWhere('connection.id = :connectionId', { connectionId: connectionId })
+      .andWhere('user.id = :userId', { userId: userId })
+      .andWhere('user.suspended = :isSuspended', { isSuspended: false });
+    const allUserPermissions: Array<PermissionEntity> = await qb.getMany();
+
+    if (allUserPermissions.length === 0) {
+      return false;
+    }
+    const foundConnectionEditPermission = allUserPermissions.find(
+      (permission) =>
+        permission.type === PermissionTypeEnum.Connection && permission.accessLevel === AccessLevelEnum.edit,
+    );
+    if (foundConnectionEditPermission) {
+      return true;
+    }
+    const userPermissionsForThisTable = allUserPermissions.filter(
+      (permission) => permission.tableName === tableName && permission.type === PermissionTypeEnum.Table,
+    );
+    if (userPermissionsForThisTable.length === 0) {
+      return false;
+    }
+
+    for (const { accessLevel } of userPermissionsForThisTable) {
+      switch (true) {
+        case accessLevel === AccessLevelEnum.visibility:
+        case accessLevel === AccessLevelEnum.add:
+        case accessLevel === AccessLevelEnum.delete:
+        case accessLevel === AccessLevelEnum.edit:
+          return true;
+        default:
+          continue;
+      }
+    }
+    return false;
   },
 };

@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
+import { BadRequestException, HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IGlobalDatabaseContext } from '../../../common/application/global-database-context.interface.js';
 import { BaseType } from '../../../common/data-injection.tokens.js';
@@ -65,6 +65,11 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
 
     try {
       const dao = getDataAccessObject(connection);
+      const tablesInConnection = await dao.getTablesFromDB();
+      const tableNames = tablesInConnection.map((table) => table.tableName);
+      if (!tableNames.includes(tableName)) {
+        throw new BadRequestException(Messages.TABLE_NOT_FOUND);
+      }
 
       let userEmail: string;
       if (isConnectionTypeAgent(connection.type)) {
@@ -167,7 +172,7 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
       const canUserReadForeignTables = await Promise.all(
         tableForeignKeys.map((foreignKey) =>
           this._dbContext.userAccessRepository
-            .checkTableRead(userId, connectionId, foreignKey.referenced_table_name, masterPwd)
+            .improvedCheckTableRead(userId, connectionId, foreignKey.referenced_table_name, masterPwd)
             .then((canRead) => ({
               tableName: foreignKey.referenced_table_name,
               canRead,
@@ -280,6 +285,9 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
     } catch (e) {
       Sentry.captureException(e);
       operationResult = OperationResultStatusEnum.unsuccessfully;
+      if (e instanceof HttpException) {
+        throw e;
+      }
       throw new HttpException(
         {
           message: `${Messages.FAILED_GET_TABLE_ROWS} ${Messages.ERROR_MESSAGE}

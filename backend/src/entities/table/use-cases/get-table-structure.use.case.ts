@@ -47,7 +47,15 @@ export class GetTableStructureUseCase
     }
     try {
       const dao = getDataAccessObject(foundConnection);
-
+      const foundTalesInConnection = await dao.getTablesFromDB();
+      if (!foundTalesInConnection.find((el) => el.tableName === tableName)) {
+        throw new HttpException(
+          {
+            message: Messages.TABLE_NOT_FOUND,
+          },
+          HttpStatus.BAD_REQUEST,
+        );
+      }
       let userEmail: string;
       if (isConnectionTypeAgent(foundConnection.type)) {
         userEmail = await this._dbContext.userRepository.getUserEmailOrReturnNull(userId);
@@ -81,7 +89,7 @@ export class GetTableStructureUseCase
         canRead: boolean;
       }> = await Promise.all(
         tableForeignKeys.map(async (foreignKey) => {
-          const cenTableRead = await this._dbContext.userAccessRepository.checkTableRead(
+          const cenTableRead = await this._dbContext.userAccessRepository.improvedCheckTableRead(
             userId,
             connectionId,
             foreignKey.referenced_table_name,
@@ -122,6 +130,9 @@ export class GetTableStructureUseCase
         display_name: tableSettings?.display_name ? tableSettings.display_name : null,
       };
     } catch (e) {
+      if (e instanceof HttpException) {
+        throw e;
+      }
       throw new UnknownSQLException(e.message, ExceptionOperations.FAILED_TO_GET_TABLE_STRUCTURE);
     }
   }
