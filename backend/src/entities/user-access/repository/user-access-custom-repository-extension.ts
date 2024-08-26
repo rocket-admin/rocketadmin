@@ -7,6 +7,7 @@ import { ConnectionEntity } from '../../connection/connection.entity.js';
 import { PermissionEntity } from '../../permission/permission.entity.js';
 import { ITablePermissionData } from '../../permission/permission.interface.js';
 import { IUserAccessRepository } from './user-access.repository.interface.js';
+import { Cacher } from '../../../helpers/cache/cacher.js';
 
 export const userAccessCustomReposiotoryExtension: IUserAccessRepository = {
   async getUserConnectionAccessLevel(cognitoUserName: string, connectionId: string): Promise<AccessLevelEnum> {
@@ -360,6 +361,15 @@ export const userAccessCustomReposiotoryExtension: IUserAccessRepository = {
   },
 
   async improvedCheckTableRead(userId: string, connectionId: string, tableName: string): Promise<boolean> {
+    const cachedReadPermission: boolean | null = Cacher.getUserTableReadPermissionCache(
+      userId,
+      connectionId,
+      tableName,
+    );
+    if (cachedReadPermission !== null) {
+      return cachedReadPermission;
+    }
+
     const qb = this.createQueryBuilder('permission')
       .leftJoinAndSelect('permission.groups', 'group')
       .leftJoinAndSelect('group.users', 'user')
@@ -370,6 +380,7 @@ export const userAccessCustomReposiotoryExtension: IUserAccessRepository = {
     const allUserPermissions: Array<PermissionEntity> = await qb.getMany();
 
     if (allUserPermissions.length === 0) {
+      Cacher.setUserTableReadPermissionCache(userId, connectionId, tableName, false);
       return false;
     }
     const foundConnectionEditPermission = allUserPermissions.find(
@@ -377,12 +388,14 @@ export const userAccessCustomReposiotoryExtension: IUserAccessRepository = {
         permission.type === PermissionTypeEnum.Connection && permission.accessLevel === AccessLevelEnum.edit,
     );
     if (foundConnectionEditPermission) {
+      Cacher.setUserTableReadPermissionCache(userId, connectionId, tableName, true);
       return true;
     }
     const userPermissionsForThisTable = allUserPermissions.filter(
       (permission) => permission.tableName === tableName && permission.type === PermissionTypeEnum.Table,
     );
     if (userPermissionsForThisTable.length === 0) {
+      Cacher.setUserTableReadPermissionCache(userId, connectionId, tableName, false);
       return false;
     }
 
@@ -392,11 +405,13 @@ export const userAccessCustomReposiotoryExtension: IUserAccessRepository = {
         case accessLevel === AccessLevelEnum.add:
         case accessLevel === AccessLevelEnum.delete:
         case accessLevel === AccessLevelEnum.edit:
+          Cacher.setUserTableReadPermissionCache(userId, connectionId, tableName, true);
           return true;
         default:
           continue;
       }
     }
+    Cacher.setUserTableReadPermissionCache(userId, connectionId, tableName, false);
     return false;
   },
 };
