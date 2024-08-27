@@ -68,17 +68,21 @@ export const userAccessCustomReposiotoryExtension: IUserAccessRepository = {
   async getGroupAccessLevel(cognitoUserName: string, groupId: string): Promise<AccessLevelEnum> {
     const connectionId = await this.getConnectionId(groupId);
 
-    const connectionEditQueryResult = await this.createQueryBuilder('permission')
-      .leftJoinAndSelect('permission.groups', 'group')
-      .leftJoinAndSelect('group.users', 'user')
-      .leftJoinAndSelect('group.connection', 'connection')
-      .andWhere('connection.id = :connectionId', { connectionId: connectionId })
-      .andWhere('user.id = :cognitoUserName', { cognitoUserName: cognitoUserName })
-      .andWhere('permission.type = :permissionType', { permissionType: PermissionTypeEnum.Connection })
-      .andWhere('permission.accessLevel = :accessLevel', { accessLevel: AccessLevelEnum.edit })
-      .getOne();
+    const connectionEdit = !!(await this.createQueryBuilder('permission')
+      .leftJoin('permission.groups', 'group')
+      .leftJoin('group.users', 'user')
+      .leftJoin('group.connection', 'connection')
+      .where(
+        'connection.id = :connectionId AND user.id = :cognitoUserName AND permission.type = :permissionType AND permission.accessLevel = :accessLevel',
+        {
+          connectionId,
+          cognitoUserName,
+          permissionType: PermissionTypeEnum.Connection,
+          accessLevel: AccessLevelEnum.edit,
+        },
+      )
+      .getCount());
 
-    const connectionEdit = !!connectionEditQueryResult;
     if (connectionEdit) {
       return AccessLevelEnum.edit;
     }
@@ -145,17 +149,21 @@ export const userAccessCustomReposiotoryExtension: IUserAccessRepository = {
     tableName: string,
     _masterPwd: string,
   ): Promise<ITablePermissionData> {
-    const connectionEditQueryResult = await this.createQueryBuilder('permission')
-      .leftJoinAndSelect('permission.groups', 'group')
-      .leftJoinAndSelect('group.users', 'user')
-      .leftJoinAndSelect('group.connection', 'connection')
-      .andWhere('connection.id = :connectionId', { connectionId: connectionId })
-      .andWhere('user.id = :cognitoUserName', { cognitoUserName: cognitoUserName })
-      .andWhere('permission.type = :permissionType', { permissionType: PermissionTypeEnum.Connection })
-      .andWhere('permission.accessLevel = :accessLevel', { accessLevel: AccessLevelEnum.edit })
-      .getOne();
+    const connectionEdit = !!(await this.createQueryBuilder('permission')
+      .leftJoin('permission.groups', 'group')
+      .leftJoin('group.users', 'user')
+      .leftJoin('group.connection', 'connection')
+      .where(
+        'connection.id = :connectionId AND user.id = :cognitoUserName AND permission.type = :permissionType AND permission.accessLevel = :accessLevel',
+        {
+          connectionId,
+          cognitoUserName,
+          permissionType: PermissionTypeEnum.Connection,
+          accessLevel: AccessLevelEnum.edit,
+        },
+      )
+      .getCount());
 
-    const connectionEdit = !!connectionEditQueryResult;
     if (connectionEdit) {
       return {
         tableName: tableName,
@@ -211,17 +219,20 @@ export const userAccessCustomReposiotoryExtension: IUserAccessRepository = {
     connectionId: string,
     tableNames: Array<string>,
   ): Promise<Array<ITablePermissionData>> {
-    const connectionEditQueryResult = await this.createQueryBuilder('permission')
-      .leftJoinAndSelect('permission.groups', 'group')
-      .leftJoinAndSelect('group.users', 'user')
-      .leftJoinAndSelect('group.connection', 'connection')
-      .andWhere('connection.id = :connectionId', { connectionId: connectionId })
-      .andWhere('user.id = :cognitoUserName', { cognitoUserName: cognitoUserName })
-      .andWhere('permission.type = :permissionType', { permissionType: PermissionTypeEnum.Connection })
-      .andWhere('permission.accessLevel = :accessLevel', { accessLevel: AccessLevelEnum.edit })
-      .getOne();
-
-    const connectionEdit = !!connectionEditQueryResult;
+    const connectionEdit = !!(await this.createQueryBuilder('permission')
+      .leftJoin('permission.groups', 'group')
+      .leftJoin('group.users', 'user')
+      .leftJoin('group.connection', 'connection')
+      .where(
+        'connection.id = :connectionId AND user.id = :cognitoUserName AND permission.type = :permissionType AND permission.accessLevel = :accessLevel',
+        {
+          connectionId,
+          cognitoUserName,
+          permissionType: PermissionTypeEnum.Connection,
+          accessLevel: AccessLevelEnum.edit,
+        },
+      )
+      .getCount());
 
     const tablesWithPermissionsArr = [];
     if (connectionEdit) {
