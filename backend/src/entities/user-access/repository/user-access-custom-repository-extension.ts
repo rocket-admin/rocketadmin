@@ -67,8 +67,19 @@ export const userAccessCustomReposiotoryExtension: IUserAccessRepository = {
 
   async getGroupAccessLevel(cognitoUserName: string, groupId: string): Promise<AccessLevelEnum> {
     const connectionId = await this.getConnectionId(groupId);
-    const userConnectionAccessLevel = await this.checkUserConnectionEdit(cognitoUserName, connectionId);
-    if (userConnectionAccessLevel) {
+
+    const connectionEditQueryResult = await this.createQueryBuilder('permission')
+      .leftJoinAndSelect('permission.groups', 'group')
+      .leftJoinAndSelect('group.users', 'user')
+      .leftJoinAndSelect('group.connection', 'connection')
+      .andWhere('connection.id = :connectionId', { connectionId: connectionId })
+      .andWhere('user.id = :cognitoUserName', { cognitoUserName: cognitoUserName })
+      .andWhere('permission.type = :permissionType', { permissionType: PermissionTypeEnum.Connection })
+      .andWhere('permission.accessLevel = :accessLevel', { accessLevel: AccessLevelEnum.edit })
+      .getOne();
+
+    const connectionEdit = !!connectionEditQueryResult;
+    if (connectionEdit) {
       return AccessLevelEnum.edit;
     }
     const qb = this.createQueryBuilder('permission')
