@@ -2419,9 +2419,9 @@ test.serial(`${currentTest} should throw an exception when connection id passed 
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
 
-  t.is(updateRowInTableResponse.status, 400);
+  t.is(updateRowInTableResponse.status, 403);
   const { message } = JSON.parse(updateRowInTableResponse.text);
-  t.is(message, Messages.CONNECTION_NOT_FOUND);
+  t.is(message, Messages.DONT_HAVE_PERMISSIONS);
 });
 
 test.serial(`${currentTest} should throw an exception when tableName not passed in request`, async (t) => {
@@ -2742,9 +2742,9 @@ test.serial(`${currentTest} should throw an exception when connection id passed 
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
 
-  t.is(deleteRowInTableResponse.status, 400);
+  t.is(deleteRowInTableResponse.status, 403);
   const { message } = JSON.parse(deleteRowInTableResponse.text);
-  t.is(message, Messages.CONNECTION_NOT_FOUND);
+  t.is(message, Messages.DONT_HAVE_PERMISSIONS);
 
   //checking that the line wasn't deleted
   const getTableRowsResponse = await request(app.getHttpServer())

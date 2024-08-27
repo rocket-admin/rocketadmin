@@ -2279,7 +2279,7 @@ test.serial(`${currentTest} should throw an exception when connection id passed 
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
     const addRowInTableRO = JSON.parse(addRowInTable.text);
-    t.is(addRowInTableRO.message, Messages.CONNECTION_NOT_FOUND);
+    t.is(addRowInTableRO.message, Messages.DONT_HAVE_PERMISSIONS);
   } catch (error) {
     console.error(error);
     throw error;
@@ -2503,7 +2503,7 @@ test.serial(`${currentTest} should throw an exception when connection id passed 
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
     const addRowInTableRO = JSON.parse(addRowInTable.text);
-    t.is(addRowInTableRO.message, Messages.CONNECTION_NOT_FOUND);
+    t.is(addRowInTableRO.message, Messages.DONT_HAVE_PERMISSIONS);
   } catch (error) {
     console.error(error);
     throw error;
@@ -2694,8 +2694,8 @@ test.serial(`${currentTest} should throw an exception when connection id passed 
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
     const deleteRowInTableRO = JSON.parse(deleteRowInTable.text);
-    t.is(deleteRowInTableRO.message, Messages.CONNECTION_NOT_FOUND);
-    t.is(deleteRowInTable.status, 400);
+    t.is(deleteRowInTableRO.message, Messages.DONT_HAVE_PERMISSIONS);
+    t.is(deleteRowInTable.status, 403);
   } catch (error) {
     console.error(error);
     throw error;

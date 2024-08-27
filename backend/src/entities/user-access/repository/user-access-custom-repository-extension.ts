@@ -1,8 +1,6 @@
 import { HttpException, HttpStatus } from '@nestjs/common';
-import { getDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/create-data-access-object.js';
 import { AccessLevelEnum, PermissionTypeEnum } from '../../../enums/index.js';
 import { Messages } from '../../../exceptions/text/messages.js';
-import { Encryptor } from '../../../helpers/encryption/encryptor.js';
 import { ConnectionEntity } from '../../connection/connection.entity.js';
 import { PermissionEntity } from '../../permission/permission.entity.js';
 import { ITablePermissionData } from '../../permission/permission.interface.js';
@@ -134,45 +132,19 @@ export const userAccessCustomReposiotoryExtension: IUserAccessRepository = {
     cognitoUserName: string,
     connectionId: string,
     tableName: string,
-    masterPwd: string,
+    _masterPwd: string,
   ): Promise<ITablePermissionData> {
-    const connectionQB = this.manager
-      .getRepository(ConnectionEntity)
-      .createQueryBuilder('connection')
-      .leftJoinAndSelect('connection.agent', 'agent');
-    connectionQB.andWhere('connection.id = :id', { id: connectionId });
+    const connectionEditQueryResult = await this.createQueryBuilder('permission')
+      .leftJoinAndSelect('permission.groups', 'group')
+      .leftJoinAndSelect('group.users', 'user')
+      .leftJoinAndSelect('group.connection', 'connection')
+      .andWhere('connection.id = :connectionId', { connectionId: connectionId })
+      .andWhere('user.id = :cognitoUserName', { cognitoUserName: cognitoUserName })
+      .andWhere('permission.type = :permissionType', { permissionType: PermissionTypeEnum.Connection })
+      .andWhere('permission.accessLevel = :accessLevel', { accessLevel: AccessLevelEnum.edit })
+      .getOne();
 
-    let foundConnection: ConnectionEntity = await connectionQB.getOne();
-    if (!foundConnection) {
-      throw new HttpException(
-        {
-          message: Messages.CONNECTION_NOT_FOUND,
-        },
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-    if (foundConnection.masterEncryption && !masterPwd) {
-      throw new HttpException(
-        {
-          message: Messages.MASTER_PASSWORD_MISSING,
-        },
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-    if (foundConnection.masterEncryption) {
-      foundConnection = Encryptor.decryptConnectionCredentials(foundConnection, masterPwd);
-    }
-    const dao = getDataAccessObject(foundConnection);
-    const availableTables = (await dao.getTablesFromDB()).map((table) => table.tableName);
-    if (availableTables.indexOf(tableName) < 0) {
-      throw new HttpException(
-        {
-          message: Messages.TABLE_NOT_FOUND,
-        },
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-    const connectionEdit = await this.checkUserConnectionEdit(cognitoUserName, connectionId);
+    const connectionEdit = !!connectionEditQueryResult;
     if (connectionEdit) {
       return {
         tableName: tableName,
@@ -228,7 +200,18 @@ export const userAccessCustomReposiotoryExtension: IUserAccessRepository = {
     connectionId: string,
     tableNames: Array<string>,
   ): Promise<Array<ITablePermissionData>> {
-    const connectionEdit = await this.checkUserConnectionEdit(cognitoUserName, connectionId);
+    const connectionEditQueryResult = await this.createQueryBuilder('permission')
+      .leftJoinAndSelect('permission.groups', 'group')
+      .leftJoinAndSelect('group.users', 'user')
+      .leftJoinAndSelect('group.connection', 'connection')
+      .andWhere('connection.id = :connectionId', { connectionId: connectionId })
+      .andWhere('user.id = :cognitoUserName', { cognitoUserName: cognitoUserName })
+      .andWhere('permission.type = :permissionType', { permissionType: PermissionTypeEnum.Connection })
+      .andWhere('permission.accessLevel = :accessLevel', { accessLevel: AccessLevelEnum.edit })
+      .getOne();
+
+    const connectionEdit = !!connectionEditQueryResult;
+
     const tablesWithPermissionsArr = [];
     if (connectionEdit) {
       for (const tableName of tableNames) {
