@@ -376,46 +376,36 @@ export const userAccessCustomReposiotoryExtension: IUserAccessRepository = {
     }
 
     const qb = this.createQueryBuilder('permission')
-      .leftJoinAndSelect('permission.groups', 'group')
-      .leftJoinAndSelect('group.users', 'user')
-      .leftJoinAndSelect('group.connection', 'connection')
-      .andWhere('connection.id = :connectionId', { connectionId: connectionId })
-      .andWhere('user.id = :userId', { userId: userId })
-      .andWhere('user.suspended = :isSuspended', { isSuspended: false });
+      .leftJoin('permission.groups', 'group')
+      .leftJoin('group.users', 'user')
+      .leftJoin('group.connection', 'connection')
+      .where('connection.id = :connectionId AND user.id = :userId AND user.suspended = :isSuspended', {
+        connectionId,
+        userId,
+        isSuspended: false,
+      });
+
     const allUserPermissions: Array<PermissionEntity> = await qb.getMany();
 
     if (allUserPermissions.length === 0) {
       Cacher.setUserTableReadPermissionCache(userId, connectionId, tableName, false);
       return false;
     }
-    const foundConnectionEditPermission = allUserPermissions.find(
-      (permission) =>
-        permission.type === PermissionTypeEnum.Connection && permission.accessLevel === AccessLevelEnum.edit,
-    );
-    if (foundConnectionEditPermission) {
-      Cacher.setUserTableReadPermissionCache(userId, connectionId, tableName, true);
-      return true;
-    }
-    const userPermissionsForThisTable = allUserPermissions.filter(
-      (permission) => permission.tableName === tableName && permission.type === PermissionTypeEnum.Table,
-    );
-    if (userPermissionsForThisTable.length === 0) {
-      Cacher.setUserTableReadPermissionCache(userId, connectionId, tableName, false);
-      return false;
-    }
 
-    for (const { accessLevel } of userPermissionsForThisTable) {
-      switch (true) {
-        case accessLevel === AccessLevelEnum.visibility:
-        case accessLevel === AccessLevelEnum.add:
-        case accessLevel === AccessLevelEnum.delete:
-        case accessLevel === AccessLevelEnum.edit:
-          Cacher.setUserTableReadPermissionCache(userId, connectionId, tableName, true);
-          return true;
-        default:
-          continue;
+    for (const permission of allUserPermissions) {
+      if (
+        (permission.type === PermissionTypeEnum.Connection && permission.accessLevel === AccessLevelEnum.edit) ||
+        (permission.type === PermissionTypeEnum.Table &&
+          permission.tableName === tableName &&
+          [AccessLevelEnum.visibility, AccessLevelEnum.add, AccessLevelEnum.delete, AccessLevelEnum.edit].includes(
+            permission.accessLevel as AccessLevelEnum,
+          ))
+      ) {
+        Cacher.setUserTableReadPermissionCache(userId, connectionId, tableName, true);
+        return true;
       }
     }
+
     Cacher.setUserTableReadPermissionCache(userId, connectionId, tableName, false);
     return false;
   },
