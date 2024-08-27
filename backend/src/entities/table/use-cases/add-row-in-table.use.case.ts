@@ -63,6 +63,17 @@ export class AddRowInTableUseCase extends AbstractUseCase<AddRowInTableDs, Table
       userEmail = await this._dbContext.userRepository.getUserEmailOrReturnNull(userId);
     }
 
+    const tablesInConnection = await dao.getTablesFromDB(userEmail);
+    const isTableInConnection = tablesInConnection.some((el) => el.tableName === tableName);
+    if (!isTableInConnection) {
+      throw new HttpException(
+        {
+          message: Messages.TABLE_NOT_FOUND,
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+    
     const isView = await dao.isView(tableName, userEmail);
     if (isView) {
       throw new HttpException(
