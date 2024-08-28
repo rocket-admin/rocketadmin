@@ -43,6 +43,12 @@ export class SuspendUsersInCompanyUseCase
       throw new BadRequestException(Messages.NO_USERS_TO_SUSPEND);
     }
 
+    const isOneUnsuspendUserLeft = foundCompany.users.length - userIdsToSuspend.length <= 1;
+
+    if (isOneUnsuspendUserLeft) {
+      throw new BadRequestException(Messages.CANNOT_SUSPEND_LAST_USER);
+    }
+
     if (isSaaS()) {
       const { success } = await this.saasCompanyGatewayService.suspendUsersInCompany(companyInfoId, userIdsToSuspend);
       if (!success) {
