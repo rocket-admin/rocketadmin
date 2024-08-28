@@ -43,7 +43,8 @@ export class SuspendUsersInCompanyUseCase
       throw new BadRequestException(Messages.NO_USERS_TO_SUSPEND);
     }
 
-    const isOneUnsuspendUserLeft = foundCompany.users.length - userIdsToSuspend.length <= 1;
+    const currentUnsuspendUsersInCompany = foundCompany.users.filter((user) => !user.suspended);
+    const isOneUnsuspendUserLeft = currentUnsuspendUsersInCompany.length - userIdsToSuspend.length <= 1;
 
     if (isOneUnsuspendUserLeft) {
       throw new BadRequestException(Messages.CANNOT_SUSPEND_LAST_USER);
