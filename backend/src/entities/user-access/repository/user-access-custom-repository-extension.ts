@@ -300,52 +300,73 @@ export const userAccessCustomReposiotoryExtension: IUserAccessRepository = {
     }
 
     const qb = this.createQueryBuilder('permission')
-      .leftJoinAndSelect('permission.groups', 'group')
-      .leftJoinAndSelect('group.users', 'user')
-      .leftJoinAndSelect('group.connection', 'connection')
-      .andWhere('connection.id = :connectionId', { connectionId: connectionId })
-      .andWhere('user.id = :cognitoUserName', { cognitoUserName: cognitoUserName })
-      .andWhere('permission.type = :permissionType', { permissionType: PermissionTypeEnum.Table });
-    const allTablePermissions = await qb.getMany();
-    const tablesAndAccessLevels = {};
+      .leftJoin('permission.groups', 'group')
+      .leftJoin('group.users', 'user')
+      .leftJoin('group.connection', 'connection')
+      .where(
+        'connection.id = :connectionId AND user.id = :cognitoUserName AND user.suspended = :isSuspended AND permission.type = :permissionType',
+        {
+          connectionId,
+          cognitoUserName,
+          isSuspended: false,
+          permissionType: PermissionTypeEnum.Table,
+        },
+      );
+
+    const allTablePermissions: Array<PermissionEntity> = await qb.getMany();
+
+    if (allTablePermissions.length === 0) {
+      const isUserSuspended = !!(await this.manager
+        .getRepository(UserEntity)
+        .createQueryBuilder('user')
+        .where('user.id = :cognitoUserName AND user.suspended = :isSuspended', {
+          cognitoUserName,
+          isSuspended: true,
+        })
+        .getCount());
+
+      if (isUserSuspended) {
+        throw new HttpException(
+          {
+            message: Messages.ACCOUNT_SUSPENDED,
+          },
+          HttpStatus.FORBIDDEN,
+        );
+      }
+    }
+
+    const tablesAndAccessLevels = new Map<string, Set<AccessLevelEnum>>();
+
     for (const tableName of tableNames) {
       if (tableName !== '__proto__') {
-        // eslint-disable-next-line security/detect-object-injection
-        tablesAndAccessLevels[tableName] = [];
+        tablesAndAccessLevels.set(tableName, new Set<AccessLevelEnum>());
       }
     }
-    for (const tableName of tableNames) {
-      for (const permission of allTablePermissions) {
-        if (permission.tableName === tableName && tablesAndAccessLevels.hasOwnProperty(tableName)) {
-          // eslint-disable-next-line security/detect-object-injection
-          tablesAndAccessLevels[tableName].push(permission.accessLevel);
-        }
+
+    for (const permission of allTablePermissions) {
+      const { tableName, accessLevel } = permission;
+      if (tablesAndAccessLevels.has(tableName)) {
+        tablesAndAccessLevels.get(tableName)!.add(accessLevel as AccessLevelEnum);
       }
     }
-    for (const key in tablesAndAccessLevels) {
-      if (tablesAndAccessLevels.hasOwnProperty(key)) {
-        // eslint-disable-next-line security/detect-object-injection
-        const addPermission = tablesAndAccessLevels[key].includes(AccessLevelEnum.add);
-        // eslint-disable-next-line security/detect-object-injection
-        const deletePermission = tablesAndAccessLevels[key].includes(AccessLevelEnum.delete);
-        // eslint-disable-next-line security/detect-object-injection
-        const editPermission = tablesAndAccessLevels[key].includes(AccessLevelEnum.edit);
-        tablesWithPermissionsArr.push({
-          tableName: key,
-          accessLevel: {
-            // eslint-disable-next-line security/detect-object-injection
-            visibility: tablesAndAccessLevels[key].includes(AccessLevelEnum.visibility),
-            // eslint-disable-next-line security/detect-object-injection
-            readonly: tablesAndAccessLevels[key].includes(AccessLevelEnum.readonly),
-            add: addPermission,
-            delete: deletePermission,
-            edit: editPermission,
-          },
-        });
-      }
+
+    for (const [tableName, accessLevels] of tablesAndAccessLevels) {
+      const accessLevelObj = {
+        visibility: accessLevels.has(AccessLevelEnum.visibility),
+        readonly: accessLevels.has(AccessLevelEnum.readonly),
+        add: accessLevels.has(AccessLevelEnum.add),
+        delete: accessLevels.has(AccessLevelEnum.delete),
+        edit: accessLevels.has(AccessLevelEnum.edit),
+      };
+
+      tablesWithPermissionsArr.push({
+        tableName,
+        accessLevel: accessLevelObj,
+      });
     }
+
     return tablesWithPermissionsArr.filter((tableWithPermission: ITablePermissionData) => {
-      return !!tableWithPermission.accessLevel.visibility;
+      return tableWithPermission.accessLevel.visibility;
     });
   },
 
