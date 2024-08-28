@@ -58,7 +58,7 @@ export class TokenInterceptor implements HttpInterceptor {
     return next.handle(request).pipe(
       catchError((error: HttpErrorResponse) => {
         if (error.status === 401) {
-          localStorage.deleteItem('token_expiration')
+          localStorage.removeItem('token_expiration')
           location.href = '/login';
         }
         return throwError(error);
