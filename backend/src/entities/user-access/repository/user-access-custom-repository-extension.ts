@@ -377,15 +377,7 @@ export const userAccessCustomReposiotoryExtension: IUserAccessRepository = {
     masterPwd: string,
   ): Promise<boolean> {
     const { accessLevel } = await this.getUserTablePermissions(cognitoUserName, connectionId, tableName, masterPwd);
-    switch (true) {
-      case accessLevel.visibility:
-      case accessLevel.add:
-      case accessLevel.delete:
-      case accessLevel.edit:
-        return true;
-      default:
-        return false;
-    }
+    return accessLevel.visibility || accessLevel.add || accessLevel.delete || accessLevel.edit;
   },
 
   async checkTableAdd(
@@ -420,17 +412,16 @@ export const userAccessCustomReposiotoryExtension: IUserAccessRepository = {
 
   async getConnectionId(groupId: string): Promise<string> {
     const connectionRepository = this.manager.getRepository(ConnectionEntity);
-    const qb = connectionRepository.createQueryBuilder('connection').leftJoinAndSelect('connection.groups', 'group');
-    qb.andWhere('group.id = :id', { id: groupId });
-    const connection = await qb.getOne();
+    const connection = await connectionRepository
+      .createQueryBuilder('connection')
+      .leftJoin('connection.groups', 'group')
+      .where('group.id = :id', { id: groupId })
+      .getOne();
+
     if (!connection) {
-      throw new HttpException(
-        {
-          message: Messages.CONNECTION_NOT_FOUND,
-        },
-        HttpStatus.BAD_REQUEST,
-      );
+      throw new HttpException({ message: Messages.CONNECTION_NOT_FOUND }, HttpStatus.BAD_REQUEST);
     }
+
     return connection.id;
   },
 
