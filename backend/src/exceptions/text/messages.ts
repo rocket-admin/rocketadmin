@@ -55,6 +55,7 @@ export const Messages = {
   CANT_EXCLUDE_PRIMARY_KEY: (key: string) => `You cannot exclude primary key ${key}`,
   CANT_DO_TABLE_OPERATION: `This type of operations is prohibited in the table settings`,
   CANT_UPDATE_TABLE_VIEW: `You can't update table view`,
+  CANNOT_SUSPEND_LAST_USER: 'You cannot suspend the last user in the company',
   COGNITO_USERNAME_MISSING: 'Cognito username missing',
   COMPANY_ALREADY_EXISTS: 'Company already exists',
   COMPANY_NOT_EXISTS_IN_CONNECTION: `Connection does not attached to company. Please contact our support team`,
