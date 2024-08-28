@@ -88,7 +88,7 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
         customActionEvents,
         /* eslint-enable */
       ] = await Promise.all([
-        this._dbContext.tableSettingsRepository.findTableSettings(connectionId, tableName),
+        this._dbContext.tableSettingsRepository.findTableSettingsPure(connectionId, tableName),
         dao.getTablePrimaryColumns(tableName, userEmail),
         dao.getTableForeignKeys(tableName, userEmail),
         dao.getTableStructure(tableName, userEmail),

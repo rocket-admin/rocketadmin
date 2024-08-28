@@ -76,7 +76,7 @@ export class GetRowByPrimaryKeyUseCase
     ] = await Promise.all([
       dao.getTableStructure(tableName, userEmail),
       this._dbContext.tableWidgetsRepository.findTableWidgets(connectionId, tableName),
-      this._dbContext.tableSettingsRepository.findTableSettings(connectionId, tableName),
+      this._dbContext.tableSettingsRepository.findTableSettingsPure(connectionId, tableName),
       dao.getTableForeignKeys(tableName, userEmail),
       dao.getTablePrimaryColumns(tableName, userEmail),
       this._dbContext.actionEventsRepository.findCustomEventsForTable(connectionId, tableName),

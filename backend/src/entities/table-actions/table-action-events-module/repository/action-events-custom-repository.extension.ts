@@ -9,8 +9,8 @@ export const actionEventsCustomRepositoryExtension: IActionEventsRepository = {
 
   async findCustomEventsForTable(connectionId: string, tableName: string): Promise<Array<ActionEventsEntity>> {
     return await this.createQueryBuilder('action_events')
-      .leftJoinAndSelect('action_events.action_rule', 'action_rule')
-      .leftJoinAndSelect('action_rule.connection', 'connection')
+      .leftJoin('action_events.action_rule', 'action_rule')
+      .leftJoin('action_rule.connection', 'connection')
       .where('connection.id = :connectionId', { connectionId })
       .andWhere('action_rule.table_name = :tableName', { tableName })
       .andWhere('action_events.event = :event', { event: TableActionEventEnum.CUSTOM })
