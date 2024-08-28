@@ -131,7 +131,7 @@ export class FindTablesInConnectionUseCase
     connectionId: string,
     tablesObjArr: Array<ITableAndViewPermissionData>,
   ): Promise<Array<FoundTableDs>> {
-    const tableSettings = await this._dbContext.tableSettingsRepository.findTableSettingsInConnection(connectionId);
+    const tableSettings = await this._dbContext.tableSettingsRepository.findTableSettingsInConnectionPure(connectionId);
     return tablesObjArr.map((tableObj: ITableAndViewPermissionData) => {
       const foundTableSettings =
         tableSettings[

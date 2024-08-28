@@ -4,8 +4,9 @@ import { ConnectionEntity } from '../../connection/connection.entity.js';
 import { CreateTableSettingsDs } from '../application/data-structures/create-table-settings.ds.js';
 import { TableSettingsEntity } from '../table-settings.entity.js';
 import { buildNewTableSettingsEntity } from '../utils/build-new-table-settings-entity.js';
+import { ITableSettingsRepository } from './table-settings.repository.interface.js';
 
-export const tableSettingsCustomRepositoryExtension = {
+export const tableSettingsCustomRepositoryExtension: ITableSettingsRepository = {
   async saveNewOrUpdatedSettings(settings: TableSettingsEntity): Promise<TableSettingsEntity> {
     return await this.save(settings);
   },
@@ -56,6 +57,14 @@ export const tableSettingsCustomRepositoryExtension = {
     return await qb.getOne();
   },
 
+  async findTableSettingsPure(connectionId: string, tableName: string): Promise<TableSettingsEntity> {
+    return await this.createQueryBuilder('tableSettings')
+      .leftJoin('tableSettings.connection_id', 'connection_id')
+      .where('tableSettings.connection_id = :connection_id', { connection_id: connectionId })
+      .andWhere('tableSettings.table_name = :table_name', { table_name: tableName })
+      .getOne();
+  },
+
   //todo: remove after dao's and table settings refactor
   async findTableSettingsOrReturnEmpty(connectionId: string, tableName: string): Promise<any> {
     const foundSettings = await this.findTableSettings(connectionId, tableName);
@@ -69,6 +78,13 @@ export const tableSettingsCustomRepositoryExtension = {
     );
     qb.where('tableSettings.connection_id = :connection_id', { connection_id: connectionId });
     return await qb.getMany();
+  },
+
+  async findTableSettingsInConnectionPure(connectionId: string): Promise<Array<TableSettingsEntity>> {
+    return await this.createQueryBuilder('tableSettings')
+      .leftJoin('tableSettings.connection_id', 'connection_id')
+      .where('tableSettings.connection_id = :connection_id', { connection_id: connectionId })
+      .getMany();
   },
 
   async findTableSettingsWithTableWidgets(connectionId: string, tableName: string): Promise<TableSettingsEntity> {

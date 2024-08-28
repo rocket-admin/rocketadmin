@@ -10,6 +10,10 @@ export interface ITableSettingsRepository {
 
   findTableSettings(connectionId: string, tableName: string): Promise<TableSettingsEntity>;
 
+  findTableSettingsPure(connectionId: string, tableName: string): Promise<TableSettingsEntity>;
+
+  findTableSettingsInConnectionPure(connectionId: string): Promise<Array<TableSettingsEntity>>;
+
   findTableSettingsOrReturnEmpty(connectionId: string, tableName: string): Promise<any>;
 
   removeTableSettings(tableSettings: TableSettingsEntity): Promise<TableSettingsEntity>;
