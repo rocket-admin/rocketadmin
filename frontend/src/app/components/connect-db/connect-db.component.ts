@@ -24,6 +24,7 @@ import { environment } from 'src/environments/environment';
 })
 export class ConnectDBComponent implements OnInit, OnDestroy {
 
+  public isSaas = (environment as any).saas;
   public connectionID: string | null = null;
   public masterKey: string;
   public connectionToken: string | null = null;
@@ -79,7 +80,7 @@ export class ConnectDBComponent implements OnInit, OnDestroy {
 
     if (!this.connectionID) {
       this._user.sendUserAction('CONNECTION_CREATION_NOT_FINISHED').subscribe();
-      if ((environment as any).saas) {
+      if (this.isSaas) {
         // @ts-ignore
         fbq('trackCustom', 'Add_connection');
       }

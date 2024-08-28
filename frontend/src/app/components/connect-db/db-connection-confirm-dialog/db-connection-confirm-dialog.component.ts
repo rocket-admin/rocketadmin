@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { ConnectionsService } from 'src/app/services/connections.service';
 import { NotificationsService } from 'src/app/services/notifications.service';
 import { DbConnectionDeleteDialogComponent } from '../db-connection-delete-dialog/db-connection-delete-dialog.component';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-db-connection-confirm-dialog',
@@ -12,6 +13,7 @@ import { DbConnectionDeleteDialogComponent } from '../db-connection-delete-dialo
 })
 export class DbConnectionConfirmDialogComponent implements OnInit {
 
+  public isSaas = (environment as any).saas;
   public submitting: boolean = false;
 
   constructor(

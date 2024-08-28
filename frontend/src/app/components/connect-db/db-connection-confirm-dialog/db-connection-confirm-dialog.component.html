@@ -18,5 +18,9 @@
             Add anyway
         </button>
     </ng-template>
-    <button mat-flat-button color="accent" (click)="openIntercome()">Chat with support</button>
+    <button *ngIf="isSaas" mat-flat-button color="accent" (click)="openIntercome()">Chat with support</button>
+    <a *ngIf="!isSaas" mat-flat-button color="accent"
+        href="https://github.com/rocket-admin/rocketadmin/issues" target="_blank">
+        Report a bug
+    </a>
 </mat-dialog-actions>

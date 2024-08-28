@@ -21,6 +21,7 @@ import { TablesService } from 'src/app/services/tables.service';
 import { Title } from '@angular/platform-browser';
 import { UiSettingsService } from 'src/app/services/ui-settings.service';
 import { User } from 'src/app/models/user';
+import { environment } from 'src/environments/environment';
 import { getComparatorsFromUrl } from 'src/app/lib/parse-filter-params';
 import { normalizeTableName } from '../../lib/normalize'
 import { omitBy } from "lodash";
@@ -38,6 +39,7 @@ interface DataToActivateActions {
 })
 export class DashboardComponent implements OnInit, OnDestroy {
 
+  public isSaas = (environment as any).saas;
   public user: User = null;
   public tablesList: TableProperties[] = null;
   public selectedTableName: string;

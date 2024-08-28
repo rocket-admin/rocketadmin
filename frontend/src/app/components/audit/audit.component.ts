@@ -15,6 +15,7 @@ import { User } from '@sentry/angular-ivy';
 import { UsersService } from 'src/app/services/users.service';
 import { tap } from 'rxjs/operators';
 import { normalizeTableName } from 'src/app/lib/normalize';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-audit',
@@ -22,6 +23,7 @@ import { normalizeTableName } from 'src/app/lib/normalize';
   styleUrls: ['./audit.component.css']
 })
 export class AuditComponent implements OnInit, OnDestroy {
+  public isSaas = (environment as any).saas;
   public connectionID: string;
   public accesLevel: string;
   public columns: string[];

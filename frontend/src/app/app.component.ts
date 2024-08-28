@@ -28,6 +28,8 @@ amplitude.getInstance().init("9afd282be91f94da735c11418d5ff4f5");
 })
 
 export class AppComponent {
+
+  public isSaas = (environment as any).saas;
   userActivity;
   userInactive: Subject<any> = new Subject();
   chatHasBeenShownOnce: boolean = false;
@@ -226,7 +228,7 @@ export class AppComponent {
       this.setUserLoggedIn(null);
       localStorage.removeItem('token_expiration');
 
-      if ((environment as any).saas) {
+      if (this.isSaas) {
         if (!isTokenExpired) window.location.href="https://rocketadmin.com/";
       } else {
         this.router.navigate(['/login'])
