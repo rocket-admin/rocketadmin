@@ -6,38 +6,57 @@ import { PermissionEntity } from '../../permission/permission.entity.js';
 import { ITablePermissionData } from '../../permission/permission.interface.js';
 import { IUserAccessRepository } from './user-access.repository.interface.js';
 import { Cacher } from '../../../helpers/cache/cacher.js';
+import { UserEntity } from '../../user/user.entity.js';
 
 export const userAccessCustomReposiotoryExtension: IUserAccessRepository = {
   async getUserConnectionAccessLevel(cognitoUserName: string, connectionId: string): Promise<AccessLevelEnum> {
     const qb = this.createQueryBuilder('permission')
-      .leftJoinAndSelect('permission.groups', 'group')
-      .leftJoinAndSelect('group.users', 'user')
-      .leftJoinAndSelect('group.connection', 'connection')
-      .andWhere('connection.id = :connectionId', { connectionId: connectionId })
-      .andWhere('user.id = :cognitoUserName', { cognitoUserName: cognitoUserName })
-      .andWhere('permission.type = :permissionType', { permissionType: PermissionTypeEnum.Connection });
+      .leftJoin('permission.groups', 'group')
+      .leftJoin('group.users', 'user')
+      .leftJoin('group.connection', 'connection')
+      .where(
+        'connection.id = :connectionId AND user.id = :cognitoUserName AND user.suspended = :isSuspended AND permission.type = :permissionType',
+        {
+          connectionId,
+          cognitoUserName,
+          isSuspended: false,
+          permissionType: PermissionTypeEnum.Connection,
+        },
+      );
+
     const resultPermissions = await qb.getMany();
 
-    if (resultPermissions[0]?.groups[0]?.users[0]?.suspended) {
-      throw new HttpException(
-        {
-          message: Messages.ACCOUNT_SUSPENDED,
-        },
-        HttpStatus.FORBIDDEN,
-      );
-    }
+    if (resultPermissions.length === 0) {
+      const isUserSuspended = !!(await this.manager
+        .getRepository(UserEntity)
+        .createQueryBuilder('user')
+        .where('user.id = :cognitoUserName AND user.suspended = :isSuspended', {
+          cognitoUserName,
+          isSuspended: true,
+        })
+        .getCount());
 
-    if (resultPermissions?.length === 0) {
+      if (isUserSuspended) {
+        throw new HttpException(
+          {
+            message: Messages.ACCOUNT_SUSPENDED,
+          },
+          HttpStatus.FORBIDDEN,
+        );
+      }
       return AccessLevelEnum.none;
     }
-    const connectionAccessLevels = resultPermissions.map((permission: PermissionEntity) => {
-      return permission.accessLevel.toLowerCase();
-    });
-    if (connectionAccessLevels.includes(AccessLevelEnum.edit)) {
-      return AccessLevelEnum.edit;
+
+    for (const permission of resultPermissions) {
+      if (permission.accessLevel === AccessLevelEnum.edit) {
+        return AccessLevelEnum.edit;
+      }
     }
-    if (connectionAccessLevels.includes(AccessLevelEnum.readonly)) {
-      return AccessLevelEnum.readonly;
+
+    for (const permission of resultPermissions) {
+      if (permission.accessLevel === AccessLevelEnum.readonly) {
+        return AccessLevelEnum.readonly;
+      }
     }
     return AccessLevelEnum.none;
   },
