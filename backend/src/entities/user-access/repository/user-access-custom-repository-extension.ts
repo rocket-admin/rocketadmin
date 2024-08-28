@@ -63,25 +63,12 @@ export const userAccessCustomReposiotoryExtension: IUserAccessRepository = {
 
   async checkUserConnectionRead(cognitoUserName: string, connectionId: string): Promise<boolean> {
     const connectionAccessLevel = await this.getUserConnectionAccessLevel(cognitoUserName, connectionId);
-    switch (connectionAccessLevel) {
-      case AccessLevelEnum.edit:
-      case AccessLevelEnum.readonly:
-        return true;
-      default:
-        return false;
-    }
+    return connectionAccessLevel === AccessLevelEnum.edit || connectionAccessLevel === AccessLevelEnum.readonly;
   },
 
   async checkUserConnectionEdit(cognitoUserName: string, connectionId: string): Promise<boolean> {
     const connectionAccessLevel = await this.getUserConnectionAccessLevel(cognitoUserName, connectionId);
-    switch (connectionAccessLevel) {
-      case AccessLevelEnum.edit:
-        return true;
-      case AccessLevelEnum.readonly:
-        return false;
-      default:
-        return false;
-    }
+    return connectionAccessLevel === AccessLevelEnum.edit;
   },
 
   async getGroupAccessLevel(cognitoUserName: string, groupId: string): Promise<AccessLevelEnum> {
@@ -92,10 +79,11 @@ export const userAccessCustomReposiotoryExtension: IUserAccessRepository = {
       .leftJoin('group.users', 'user')
       .leftJoin('group.connection', 'connection')
       .where(
-        'connection.id = :connectionId AND user.id = :cognitoUserName AND permission.type = :permissionType AND permission.accessLevel = :accessLevel',
+        'connection.id = :connectionId AND user.id = :cognitoUserName AND user.suspended = :isSuspended AND permission.type = :permissionType AND permission.accessLevel = :accessLevel',
         {
           connectionId,
           cognitoUserName,
+          isSuspended: false,
           permissionType: PermissionTypeEnum.Connection,
           accessLevel: AccessLevelEnum.edit,
         },
@@ -106,60 +94,66 @@ export const userAccessCustomReposiotoryExtension: IUserAccessRepository = {
       return AccessLevelEnum.edit;
     }
     const qb = this.createQueryBuilder('permission')
-      .leftJoinAndSelect('permission.groups', 'group')
-      .leftJoinAndSelect('group.users', 'user')
-      .leftJoinAndSelect('group.connection', 'connection')
-      .andWhere('connection.id = :connectionId', { connectionId: connectionId })
-      .andWhere('user.id = :cognitoUserName', { cognitoUserName: cognitoUserName })
-      .andWhere('permission.type = :permissionType', { permissionType: PermissionTypeEnum.Group })
-      .andWhere('group.id = :groupId', { groupId: groupId });
+      .leftJoin('permission.groups', 'group')
+      .leftJoin('group.users', 'user')
+      .leftJoin('group.connection', 'connection')
+      .where(
+        'connection.id = :connectionId AND user.id = :cognitoUserName AND user.suspended = :isSuspended AND permission.type = :permissionType AND group.id = :groupId',
+        {
+          connectionId,
+          cognitoUserName,
+          isSuspended: false,
+          permissionType: PermissionTypeEnum.Group,
+          groupId,
+        },
+      );
+
     const resultPermissions = await qb.getMany();
 
-    if (resultPermissions[0]?.groups[0]?.users[0]?.suspended) {
-      throw new HttpException(
-        {
-          message: Messages.ACCOUNT_SUSPENDED,
-        },
-        HttpStatus.FORBIDDEN,
-      );
-    }
+    if (resultPermissions.length === 0) {
+      const isUserSuspended = !!(await this.manager
+        .getRepository(UserEntity)
+        .createQueryBuilder('user')
+        .where('user.id = :cognitoUserName AND user.suspended = :isSuspended', {
+          cognitoUserName,
+          isSuspended: true,
+        })
+        .getCount());
 
-    if (resultPermissions?.length === 0) {
+      if (isUserSuspended) {
+        throw new HttpException(
+          {
+            message: Messages.ACCOUNT_SUSPENDED,
+          },
+          HttpStatus.FORBIDDEN,
+        );
+      }
       return AccessLevelEnum.none;
     }
+
     const connectionAccessLevels = resultPermissions.map((permission: PermissionEntity) => {
       return permission.accessLevel.toLowerCase();
     });
+
     if (connectionAccessLevels.includes(AccessLevelEnum.edit)) {
       return AccessLevelEnum.edit;
     }
+
     if (connectionAccessLevels.includes(AccessLevelEnum.readonly)) {
       return AccessLevelEnum.readonly;
     }
+
     return AccessLevelEnum.none;
   },
 
   async checkUserGroupRead(cognitoUserName: string, groupId: string): Promise<boolean> {
     const userGroupAccessLevel = await this.getGroupAccessLevel(cognitoUserName, groupId);
-    switch (userGroupAccessLevel) {
-      case AccessLevelEnum.edit:
-      case AccessLevelEnum.readonly:
-        return true;
-      default:
-        return false;
-    }
+    return userGroupAccessLevel === AccessLevelEnum.edit || userGroupAccessLevel === AccessLevelEnum.readonly;
   },
 
   async checkUserGroupEdit(cognitoUserName: string, groupId: string): Promise<boolean> {
     const userGroupAccessLevel = await this.getGroupAccessLevel(cognitoUserName, groupId);
-    switch (userGroupAccessLevel) {
-      case AccessLevelEnum.edit:
-        return true;
-      case AccessLevelEnum.readonly:
-        return false;
-      default:
-        return false;
-    }
+    return userGroupAccessLevel === AccessLevelEnum.edit;
   },
 
   async getUserTablePermissions(
@@ -173,10 +167,11 @@ export const userAccessCustomReposiotoryExtension: IUserAccessRepository = {
       .leftJoin('group.users', 'user')
       .leftJoin('group.connection', 'connection')
       .where(
-        'connection.id = :connectionId AND user.id = :cognitoUserName AND permission.type = :permissionType AND permission.accessLevel = :accessLevel',
+        'connection.id = :connectionId AND user.id = :cognitoUserName AND user.suspended = :isSuspended AND permission.type = :permissionType AND permission.accessLevel = :accessLevel',
         {
           connectionId,
           cognitoUserName,
+          isSuspended: false,
           permissionType: PermissionTypeEnum.Connection,
           accessLevel: AccessLevelEnum.edit,
         },
@@ -197,39 +192,73 @@ export const userAccessCustomReposiotoryExtension: IUserAccessRepository = {
     }
 
     const qb = this.createQueryBuilder('permission')
-      .leftJoinAndSelect('permission.groups', 'group')
-      .leftJoinAndSelect('group.users', 'user')
-      .leftJoinAndSelect('group.connection', 'connection')
-      .andWhere('connection.id = :connectionId', { connectionId: connectionId })
-      .andWhere('user.id = :cognitoUserName', { cognitoUserName: cognitoUserName })
-      .andWhere('permission.type = :permissionType', { permissionType: PermissionTypeEnum.Table })
-      .andWhere('permission.tableName = :tableName', { tableName: tableName });
-    const resultPermissions = await qb.getMany();
-
-    if (resultPermissions[0]?.groups[0]?.users[0]?.suspended) {
-      throw new HttpException(
+      .leftJoin('permission.groups', 'group')
+      .leftJoin('group.users', 'user')
+      .leftJoin('group.connection', 'connection')
+      .where(
+        'connection.id = :connectionId AND user.id = :cognitoUserName AND user.suspended = :isSuspended AND permission.type = :permissionType AND permission.tableName = :tableName',
         {
-          message: Messages.ACCOUNT_SUSPENDED,
+          connectionId,
+          cognitoUserName,
+          isSuspended: false,
+          permissionType: PermissionTypeEnum.Table,
+          tableName,
         },
-        HttpStatus.FORBIDDEN,
       );
+
+    const resultPermissions: Array<PermissionEntity> = await qb.getMany();
+
+    if (resultPermissions.length === 0) {
+      const isUserSuspended = !!(await this.manager
+        .getRepository(UserEntity)
+        .createQueryBuilder('user')
+        .where('user.id = :cognitoUserName AND user.suspended = :isSuspended', {
+          cognitoUserName,
+          isSuspended: true,
+        })
+        .getCount());
+
+      if (isUserSuspended) {
+        throw new HttpException(
+          {
+            message: Messages.ACCOUNT_SUSPENDED,
+          },
+          HttpStatus.FORBIDDEN,
+        );
+      }
     }
 
-    const tableAccessLevels = resultPermissions.map((permission: PermissionEntity) => {
-      return permission.accessLevel;
-    });
-    const addPermission = tableAccessLevels.includes(AccessLevelEnum.add);
-    const deletePermission = tableAccessLevels.includes(AccessLevelEnum.delete);
-    const editPermission = tableAccessLevels.includes(AccessLevelEnum.edit);
+    const accessLevels = {
+      visibility: false,
+      readonly: false,
+      add: false,
+      delete: false,
+      edit: false,
+    };
+
+    for (const permission of resultPermissions) {
+      switch (permission.accessLevel) {
+        case AccessLevelEnum.visibility:
+          accessLevels.visibility = true;
+          break;
+        case AccessLevelEnum.readonly:
+          accessLevels.readonly = true;
+          break;
+        case AccessLevelEnum.add:
+          accessLevels.add = true;
+          break;
+        case AccessLevelEnum.delete:
+          accessLevels.delete = true;
+          break;
+        case AccessLevelEnum.edit:
+          accessLevels.edit = true;
+          break;
+      }
+    }
+
     return {
       tableName: tableName,
-      accessLevel: {
-        visibility: tableAccessLevels.includes(AccessLevelEnum.visibility),
-        readonly: tableAccessLevels.includes(AccessLevelEnum.readonly),
-        add: addPermission,
-        delete: deletePermission,
-        edit: editPermission,
-      },
+      accessLevel: accessLevels,
     };
   },
 
