@@ -64,7 +64,7 @@
             </mat-radio-group>
         </div>-->
 
-        <div *ngIf="db && db.connectionType === 'direct' && !db.isTestConnection"
+        <div *ngIf="db && db.connectionType === 'direct' && !db.isTestConnection && isSaas"
             data-testid="direct-connection-warning"
             class="connectForm__fullLine">
             <div *ngIf="connectionID; else warningAlert" class="warningMessage">

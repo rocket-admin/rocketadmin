@@ -9,6 +9,7 @@ import { Subscription } from 'rxjs';
 import { TableProperties } from 'src/app/models/table';
 import { TablesService } from 'src/app/services/tables.service';
 import { Title } from '@angular/platform-browser';
+import { environment } from 'src/environments/environment';
 import { normalizeTableName } from '../../lib/normalize'
 
 @Component({
@@ -18,6 +19,7 @@ import { normalizeTableName } from '../../lib/normalize'
 })
 export class ConnectionSettingsComponent implements OnInit, OnDestroy {
 
+  public isSaas = (environment as any).saas;
   public connectionID: string | null = null;
   public tablesList: TableProperties[] = null;
   public connectionSettingsInitial: ConnectionSettings = {

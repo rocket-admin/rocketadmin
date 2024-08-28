@@ -18,7 +18,7 @@
             <a mat-list-item href="https://help.rocketadmin.com/" target="_blank">
                 Help
             </a>
-            <a mat-list-item class="nav-bar__upgrade-button" routerLink="/upgrade"
+            <a mat-list-item *ngIf="isSaas" class="nav-bar__upgrade-button" routerLink="/upgrade"
                 routerLinkActive="nav-bar__button_active">
                 Upgrade
             </a>
@@ -77,7 +77,9 @@
             </button>
 
             <div *ngIf="userLoggedIn === true" class="actions actions_auth">
-                <a routerLink="/upgrade" mat-flat-button color="accent" data-testid="upgrade-header-link"
+                <a routerLink="/upgrade" *ngIf="isSaas"
+                    mat-flat-button color="accent"
+                    data-testid="upgrade-header-link"
                     routerLinkActive="mat-accent" class="nav-bar__upgrade-button">
                     Upgrade
                 </a>

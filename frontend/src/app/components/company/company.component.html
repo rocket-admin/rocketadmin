@@ -25,7 +25,7 @@
         </button>
     </form>
 
-    <div class="company-plan">
+    <div *ngIf="isSaas" class="company-plan">
         <div>
             <strong>Current plan: </strong>
             <span class="company-plan-name">{{currentPlan}}</span>
@@ -41,7 +41,7 @@
     </div>
 
     <div class="tableHeader">
-        <h2 class="heading-2">Members <span *ngIf="currentPlan === 'free'">(max 3)</span></h2>
+        <h2 class="heading-2">Members <span *ngIf="currentPlan === 'free' && isSaas">(max 3)</span></h2>
         <div [matTooltip]="currentPlan === 'free' && usersCount >= 3 && isSaas ? 'To add more members please upgrade your plan.' : null">
             <button *ngIf="currentUser && currentUser.role === 'ADMIN'"
                 mat-flat-button type="button"
