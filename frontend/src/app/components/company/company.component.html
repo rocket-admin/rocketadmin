@@ -115,7 +115,7 @@
             <th mat-header-cell *matHeaderCellDef>Active status</th>
             <td mat-cell *matCellDef="let element" class="active-status-cell">
                 <mat-slide-toggle *ngIf="!element.invitedUserEmail"
-                    [disabled]="(adminsCount === 1 && suspendedAdminsCount === 1 && element.role === 'ADMIN')"
+                    [disabled]="unsuspendedAdminsCount === 1 && element.role === 'ADMIN' && currentUser.email === element.email"
                     angulartics2On="click"
                     angularticsAction="Company: suspend user is toggled"
                     [angularticsProperties]="{'enable': element.suspended}"
