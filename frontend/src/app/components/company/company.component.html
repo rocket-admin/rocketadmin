@@ -28,11 +28,12 @@
     <div *ngIf="isSaas" class="company-plan">
         <div>
             <strong>Current plan: </strong>
-            <span class="company-plan-name">{{currentPlan}}</span>
+            <span class="company-plan-name" data-testid="company-plan-string">{{currentPlan}}</span>
         </div>
         <a *ngIf="currentUser && currentUser.role === 'ADMIN'"
             mat-button color="accent" class="upgrade-button"
             routerLink="/upgrade"
+            data-testid="company-payment-settings-link"
             class="user-settings__button"
             angulartics2On="click"
             angularticsAction="Company: Manage payment settings is clicked">
@@ -41,10 +42,12 @@
     </div>
 
     <div class="tableHeader">
-        <h2 class="heading-2">Members <span *ngIf="currentPlan === 'free' && isSaas">(max 3)</span></h2>
-        <div [matTooltip]="currentPlan === 'free' && usersCount >= 3 && isSaas ? 'To add more members please upgrade your plan.' : null">
+        <h2 class="heading-2">Members <span *ngIf="currentPlan === 'free' && isSaas" data-testid="company-members-max-string">(max 3)</span></h2>
+        <div data-testid="company-invitation-button-wrapper"
+            [matTooltip]="currentPlan === 'free' && usersCount >= 3 && isSaas ? 'To add more members please upgrade your plan.' : null">
             <button *ngIf="currentUser && currentUser.role === 'ADMIN'"
                 mat-flat-button type="button"
+                data-testid="company-invitation-button"
                 angulartics2On="click"
                 angularticsAction="Company: invite member is clicked"
                 class="tableHeader__button" color="primary"
@@ -63,35 +66,36 @@
         <!-- Email Column -->
         <ng-container matColumnDef="email">
           <th mat-header-cell *matHeaderCellDef>Email</th>
-          <td mat-cell *matCellDef="let element"> {{element.email}} </td>
+          <td mat-cell *matCellDef="let element; let i = index" attr.data-testid="company-member-email-{{i}}-cell"> {{element.email}} </td>
         </ng-container>
 
         <!-- Name Column -->
         <ng-container matColumnDef="name">
             <th mat-header-cell *matHeaderCellDef>Name</th>
-            <td mat-cell *matCellDef="let element">
-                <span *ngIf="!element.invitedUserEmail">{{element.name || '—'}}</span>
+            <td mat-cell *matCellDef="let element; let i = index">
+                <span *ngIf="!element.invitedUserEmail" attr.data-testid="company-member-name-{{i}}-cell">{{element.name || '—'}}</span>
             </td>
         </ng-container>
 
         <!-- Role Column -->
         <ng-container matColumnDef="role">
             <th mat-header-cell *matHeaderCellDef>Role</th>
-            <td mat-cell *matCellDef="let element">
+            <td mat-cell *matCellDef="let element; let i = index">
                 <mat-select *ngIf="currentUser && currentUser.role === 'ADMIN' && (adminsCount > 1 || element.role === 'USER') && !element.invitedUserEmail; else noSelect"
+                    attr.data-testid="company-member-role-{{i}}-select"
                     class="role-select"
                     angulartics2On="click"
                     angularticsAction="Company: role is clicked"
                     [(ngModel)]="element.role"
                     (ngModelChange)="updateRole(element.id, element.role)">
-                    <mat-option value="ADMIN">
+                    <mat-option value="ADMIN" attr.data-testid="company-member-superadmin-role-{{i}}-select-option">
                         Superadmin
                     </mat-option>
-                    <mat-option value="USER">
+                    <mat-option value="USER" attr.data-testid="company-member-user-role-{{i}}-select-option">
                         Member
                     </mat-option>
                 </mat-select>
-                <ng-template #noSelect>
+                <ng-template #noSelect attr.data-testid="company-member-user-role-{{i}}-cell">
                     {{element.role === "ADMIN" ? 'Superadmin' : 'Member'}}
                 </ng-template>
             </td>
@@ -100,11 +104,14 @@
         <!-- 2fa Column -->
         <ng-container matColumnDef="twoFA">
             <th mat-header-cell *matHeaderCellDef>2fa</th>
-            <td mat-cell *matCellDef="let element">
+            <td mat-cell *matCellDef="let element; let i = index">
                 <div *ngIf="!element.invitedUserEmail">
-                    <mat-icon *ngIf="element.is_2fa_enabled; else noTwoFA" color="accente">done</mat-icon>
+                    <mat-icon *ngIf="element.is_2fa_enabled; else noTwoFA" color="accente"
+                        attr.data-testid="company-member-2fa-{{i}}-enabled-icon">
+                        done
+                    </mat-icon>
                     <ng-template #noTwoFA>
-                        <mat-icon>remove</mat-icon>
+                        <mat-icon attr.data-testid="company-member-2fa-{{i}}-disabled-icon">remove</mat-icon>
                     </ng-template>
                 </div>
             </td>
@@ -113,9 +120,10 @@
         <!-- Active Column -->
         <ng-container matColumnDef="active">
             <th mat-header-cell *matHeaderCellDef>Active status</th>
-            <td mat-cell *matCellDef="let element" class="active-status-cell">
+            <td mat-cell *matCellDef="let element; let i = index" class="active-status-cell">
                 <mat-slide-toggle *ngIf="!element.invitedUserEmail"
                     [disabled]="unsuspendedAdminsCount === 1 && element.role === 'ADMIN' && currentUser.email === element.email"
+                    attr.data-testid="company-member-active-{{i}}-toggle"
                     angulartics2On="click"
                     angularticsAction="Company: suspend user is toggled"
                     [angularticsProperties]="{'enable': element.suspended}"
@@ -128,9 +136,10 @@
         <!-- Delete Column -->
         <ng-container matColumnDef="actions">
             <th mat-header-cell *matHeaderCellDef></th>
-            <td mat-cell *matCellDef="let element">
+            <td mat-cell *matCellDef="let element; let i = index">
                 <button mat-button *ngIf="element.invitedUserEmail; else deleteUserButton"
                     type="button" color="warn"
+                    attr.data-testid="company-member-revoke-{{i}}-button"
                     angulartics2On="click"
                     angularticsAction="Company: Revoke invitation is clicked"
                     (click)="handleRevokeInvitationDialogOpen(element.email)">
@@ -139,6 +148,7 @@
                 <ng-template #deleteUserButton>
                     <button mat-button *ngIf="(adminsCount > 1 && currentUser.role === 'ADMIN') || element.role === 'USER'"
                         type="button" color="warn"
+                        attr.data-testid="company-member-delete-{{i}}-button"
                         angulartics2On="click"
                         angularticsAction="Company: Delete member is clicked"
                         (click)="handleDeleteMemberDialogOpen(element)">
