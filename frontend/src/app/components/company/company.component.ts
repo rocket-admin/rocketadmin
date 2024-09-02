@@ -26,7 +26,7 @@ export class CompanyComponent {
   public submitting: boolean;
   public usersCount: number;
   public adminsCount: number;
-  public suspendedAdminsCount: number;
+  public unsuspendedAdminsCount: number;
   public membersTableDisplayedColumns: string[];
   // public invitationsTableDisplayColumns: string[] = ['invitedUserEmail', 'role'];
   public submittingChangedName: boolean =false;
@@ -98,7 +98,7 @@ export class CompanyComponent {
           this.members = [...currentMembers, ...this.company.invitations];
       });
       this.adminsCount = res.filter(user => user.role === 'ADMIN').length;
-      this.suspendedAdminsCount = res.filter(user => user.role === 'ADMIN' && user.suspended).length;
+      this.unsuspendedAdminsCount = res.filter(user => user.role === 'ADMIN' && !user.suspended).length;
       this.usersCount = this.company.invitations.length + res.length;
       this.submittingUsersChange = false;
     });
