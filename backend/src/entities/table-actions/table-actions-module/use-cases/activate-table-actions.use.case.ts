@@ -76,6 +76,7 @@ export class ActivateTableActionsUseCase
         operationStatusResult: operationResult,
         row: { keys: primaryKeyValuesArray },
         old_data: null,
+        table_primary_key: JSON.stringify(primaryKeyValuesArray),
       };
       await this.tableLogsService.crateAndSaveNewLogUtil(logRecord);
     }

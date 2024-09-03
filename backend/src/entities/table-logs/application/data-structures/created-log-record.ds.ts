@@ -9,6 +9,7 @@ export class CreatedLogRecordDs {
   operationStatusResult!: OperationResultStatusEnum;
   operationType: LogOperationTypeEnum;
   received_data: string;
+  affected_primary_key: string;
   table_name: string;
   userId: string;
 }

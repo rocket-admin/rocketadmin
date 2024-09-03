@@ -145,6 +145,7 @@ export class DeleteRowFromTableUseCase
         operationStatusResult: operationResult,
         row: primaryKey,
         old_data: oldRowData,
+        table_primary_key: primaryKey,
       };
       await this.tableLogsService.crateAndSaveNewLogUtil(logRecord);
       const isTest = isTestConnectionUtil(connection);

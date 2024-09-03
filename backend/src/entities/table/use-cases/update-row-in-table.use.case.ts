@@ -281,6 +281,7 @@ export class UpdateRowInTableUseCase
         operationStatusResult: operationResult,
         row: row,
         old_data: oldRowDataLog,
+        table_primary_key: primaryKey,
       };
       await this.tableLogsService.crateAndSaveNewLogUtil(logRecord);
       const isTest = isTestConnectionUtil(connection);
