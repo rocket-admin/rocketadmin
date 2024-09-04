@@ -53,7 +53,7 @@ export class ActivateActionsInEventUseCase
     const activationResults: Array<{ actionId: string; result: OperationResultStatusEnum }> = [];
 
     for (const action of foundActionsWithCustomEvents) {
-      let primaryKeyValuesArray = [];
+      let primaryKeyValuesArray: Array<Record<string, unknown>> = [];
       try {
         const { receivedOperationResult, receivedPrimaryKeysObj, location } =
           await this.tableActionActivationService.activateTableAction(
@@ -88,6 +88,7 @@ export class ActivateActionsInEventUseCase
           operationStatusResult: operationResult,
           row: { keys: primaryKeyValuesArray },
           old_data: null,
+          table_primary_key: JSON.stringify(primaryKeyValuesArray),
         };
         await this.tableLogsService.crateAndSaveNewLogUtil(logRecord);
       }

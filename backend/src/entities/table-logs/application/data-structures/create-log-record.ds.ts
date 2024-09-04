@@ -9,4 +9,5 @@ export class CreateLogRecordDs {
   row?: string | Record<string, unknown>;
   table_name: string;
   userId: string;
+  affected_primary_key?: string | Record<string, unknown>;
 }

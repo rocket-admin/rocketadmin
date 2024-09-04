@@ -1,3 +1,4 @@
+import { ReadStream } from 'typeorm/platform/PlatformTools.js';
 import { LogOperationTypeEnum, QueryOrderingEnum } from '../../../enums/index.js';
 import { CreateLogRecordDs } from '../application/data-structures/create-log-record.ds.js';
 import { CreatedLogRecordDs } from '../application/data-structures/created-log-record.ds.js';
@@ -10,6 +11,8 @@ export interface ITableLogsRepository {
   findLogs(findOptions: IFindLogsOptions): Promise<FoundLogsEntities>;
 
   saveNewOrUpdatedLogRecord(logRecord: TableLogsEntity): Promise<TableLogsEntity>;
+
+  findLogsAsStream(findOptions: IFindLogsOptions): Promise<ReadStream>;
 }
 
 export interface IFindLogsOptions {

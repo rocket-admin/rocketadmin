@@ -12,6 +12,7 @@ export function buildFoundLogRecordDs(log: TableLogsEntity): FoundLogRecordDs {
     operationType,
     received_data,
     table_name,
+    affected_primary_key,
   } = log;
   return {
     table_name: table_name,
@@ -23,5 +24,6 @@ export function buildFoundLogRecordDs(log: TableLogsEntity): FoundLogRecordDs {
     operationStatusResult: operationStatusResult,
     createdAt: createdAt,
     connection_id: connection_id.id,
+    affected_primary_key: affected_primary_key,
   };
 }

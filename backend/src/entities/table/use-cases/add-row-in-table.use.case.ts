@@ -73,7 +73,7 @@ export class AddRowInTableUseCase extends AbstractUseCase<AddRowInTableDs, Table
         HttpStatus.BAD_REQUEST,
       );
     }
-    
+
     const isView = await dao.isView(tableName, userEmail);
     if (isView) {
       throw new HttpException(
@@ -199,14 +199,15 @@ export class AddRowInTableUseCase extends AbstractUseCase<AddRowInTableDs, Table
 
     const formedTableStructure = formFullTableStructure(tableStructure, tableSettings);
     let addedRow: Record<string, unknown> = {};
+    let addedRowPrimaryKey: Record<string, unknown>;
     try {
       row = await hashPasswordsInRowUtil(row, tableWidgets);
       row = processUuidsInRowUtil(row, tableWidgets);
       row = convertHexDataInRowUtil(row, tableStructure);
-      const result = (await dao.addRowInTable(tableName, row, userEmail)) as Record<string, unknown>;
-      if (result && !isObjectEmpty(result)) {
+      addedRowPrimaryKey = (await dao.addRowInTable(tableName, row, userEmail)) as Record<string, unknown>;
+      if (addedRowPrimaryKey && !isObjectEmpty(addedRowPrimaryKey)) {
         operationResult = OperationResultStatusEnum.successfully;
-        addedRow = await dao.getRowByPrimaryKey(tableName, result, tableSettings, userEmail);
+        addedRow = await dao.getRowByPrimaryKey(tableName, addedRowPrimaryKey, tableSettings, userEmail);
         addedRow = removePasswordsFromRowsUtil(addedRow, tableWidgets);
 
         return {
@@ -241,6 +242,7 @@ export class AddRowInTableUseCase extends AbstractUseCase<AddRowInTableDs, Table
         operationType: LogOperationTypeEnum.addRow,
         operationStatusResult: operationResult,
         row: row,
+        affected_primary_key: addedRowPrimaryKey,
       };
       await this.tableLogsService.crateAndSaveNewLogUtil(logRecord);
       const isTest = isTestConnectionUtil(connection);

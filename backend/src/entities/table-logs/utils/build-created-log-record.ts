@@ -13,6 +13,7 @@ export function buildCreatedLogRecord(log: TableLogsEntity): CreatedLogRecordDs 
     operationType,
     received_data,
     table_name,
+    affected_primary_key,
   } = log;
   return {
     createdAt: createdAt,
@@ -25,5 +26,6 @@ export function buildCreatedLogRecord(log: TableLogsEntity): CreatedLogRecordDs 
     table_name: table_name,
     connection_id: connection_id as unknown as string,
     userId: cognitoUserName,
+    affected_primary_key: affected_primary_key,
   };
 }

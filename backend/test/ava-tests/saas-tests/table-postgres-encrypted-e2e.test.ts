@@ -2110,6 +2110,27 @@ test.serial(`${currentTest} should add row in table and return result`, async (t
   t.is(rows[42][testTableColumnName], row[testTableColumnName]);
   t.is(rows[42][testTableSecondColumnName], row[testTableSecondColumnName]);
   t.is(rows[42].id, rows[41].id + 1);
+
+  
+  
+  // check that rows adding was logged
+
+  const getLogsResponse = await request(app.getHttpServer())
+    .get(`/logs/${createConnectionRO.id}?page=1&perPage=50`)
+    .set('Cookie', firstUserToken)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+
+  t.is(getLogsResponse.status, 200);
+  const getLogsRO = JSON.parse(getLogsResponse.text);
+  t.is(getLogsRO.hasOwnProperty('logs'), true);
+  t.is(getLogsRO.hasOwnProperty('pagination'), true);
+  t.is(getLogsRO.logs.length > 0 , true);
+  const addRowLogIndex = getLogsRO.logs.findIndex((log) => log.operationType === 'addRow');
+  t.is(getLogsRO.logs[addRowLogIndex].hasOwnProperty('affected_primary_key'), true);
+  t.is(typeof getLogsRO.logs[addRowLogIndex].affected_primary_key, 'object');
+  t.is(getLogsRO.logs[addRowLogIndex].affected_primary_key.hasOwnProperty('id'), true);
+  t.is(getLogsRO.logs[addRowLogIndex].affected_primary_key.id, 43);
 });
 
 test.serial(`${currentTest} should throw an exception when connection id is not passed in request`, async (t) => {

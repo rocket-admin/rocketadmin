@@ -22,6 +22,7 @@ type DeleteRowsFromTableResult = {
   row: Record<string, unknown>;
   old_data: Record<string, unknown>;
   error: string;
+  affected_primary_key: string;
 };
 
 @Injectable()
@@ -191,6 +192,7 @@ export class DeleteRowsFromTableUseCase
         row: primaryKey,
         old_data: findObjectsWithProperties(oldRowsData, primaryKey).at(0),
         error: null,
+        affected_primary_key: primaryKey as unknown as string,
       };
     } catch (error) {
       operationResult = OperationResultStatusEnum.unsuccessfully;
@@ -199,6 +201,7 @@ export class DeleteRowsFromTableUseCase
         row: primaryKey,
         old_data: findObjectsWithProperties(oldRowsData, primaryKey).at(0),
         error: error.message,
+        affected_primary_key: primaryKey as unknown as string,
       };
     }
   }

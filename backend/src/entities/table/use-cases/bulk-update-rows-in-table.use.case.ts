@@ -115,6 +115,7 @@ export class BulkUpdateRowsInTableUseCase
           operationStatusResult: operationResult,
           row: newValues,
           old_data: oldRowData,
+          affected_primary_key: primaryKeys as unknown as string,
         };
       });
       await this.tableLogsService.createAndSaveNewLogsUtil(

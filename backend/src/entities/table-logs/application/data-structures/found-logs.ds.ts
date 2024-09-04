@@ -19,6 +19,9 @@ export class FoundLogRecordDs {
   @ApiProperty()
   old_data: string;
 
+  @ApiProperty()
+  affected_primary_key: string;
+
   @ApiProperty({ enum: OperationResultStatusEnum })
   operationStatusResult: OperationResultStatusEnum;
 

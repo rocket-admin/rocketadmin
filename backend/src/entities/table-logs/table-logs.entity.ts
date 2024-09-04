@@ -22,6 +22,9 @@ export class TableLogsEntity {
   table_name: string;
 
   @Column({ default: null })
+  affected_primary_key: string;
+
+  @Column({ default: null })
   received_data: string;
 
   @Column({ default: null })
@@ -58,6 +61,9 @@ export class TableLogsEntity {
     if (this.received_data) {
       this.received_data = JSON.stringify(this.received_data);
     }
+    if(this.affected_primary_key) {
+      this.affected_primary_key = JSON.stringify(this.affected_primary_key);
+    }
   }
 
   @AfterLoad()
@@ -71,6 +77,12 @@ export class TableLogsEntity {
       }
       if (this.received_data) {
         this.received_data = sjson.parse(this.received_data, null, {
+          protoAction: 'remove',
+          constructorAction: 'remove',
+        });
+      }
+      if(this.affected_primary_key) {
+        this.affected_primary_key = sjson.parse(this.affected_primary_key, null, {
           protoAction: 'remove',
           constructorAction: 'remove',
         });
