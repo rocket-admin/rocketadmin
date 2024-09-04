@@ -6,6 +6,7 @@ import { TableLogsEntity } from '../table-logs.entity.js';
 import { buildCreatedLogRecord } from '../utils/build-created-log-record.js';
 import { buildTableLogsEntity } from '../utils/build-table-logs-entity.js';
 import { IFindLogsOptions, ITableLogsRepository } from './table-logs-repository.interface.js';
+import { ReadStream } from 'typeorm/platform/PlatformTools';
 
 export const tableLogsCustomRepositoryExtension: ITableLogsRepository = {
   async createLogRecord(logData: CreateLogRecordDs): Promise<CreatedLogRecordDs> {
@@ -86,5 +87,58 @@ export const tableLogsCustomRepositoryExtension: ITableLogsRepository = {
         total: rowsCount,
       },
     };
+  },
+
+  async findLogsAsStream(findOptions: IFindLogsOptions): Promise<ReadStream> {
+    const {
+      connectionId,
+      currentUserId,
+      dateFrom,
+      dateTo,
+      order,
+      page,
+      perPage,
+      searchedEmail,
+      tableName,
+      userConnectionEdit,
+      userInGroupsIds,
+      logOperationType,
+      logOperationTypes,
+    } = findOptions;
+    const qb = this.createQueryBuilder('tableLogs').leftJoinAndSelect('tableLogs.connection_id', 'connection_id');
+    qb.andWhere('tableLogs.connection_id = :connection_id', { connection_id: connectionId });
+    if (tableName) {
+      qb.andWhere('tableLogs.table_name = :table_name', { table_name: tableName });
+    }
+    if (!userConnectionEdit) {
+      if (userInGroupsIds.length > 0) {
+        for (const userId of userInGroupsIds) {
+          qb.orWhere('tableLogs.cognitoUserName = :userIdInAdminGroup', { userIdInAdminGroup: userId });
+        }
+      } else {
+        qb.andWhere('tableLogs.cognitoUserName = :currentUserId', { currentUserId: currentUserId });
+      }
+    }
+    qb.orderBy('tableLogs.createdAt', order);
+    if (dateFrom && dateTo) {
+      qb.andWhere('tableLogs.createdAt >= :date_from', { date_from: dateFrom });
+      qb.andWhere('tableLogs.createdAt <= :date_to', { date_to: dateTo });
+    }
+    if (searchedEmail) {
+      qb.andWhere('tableLogs.email = :searchMail', { searchMail: searchedEmail });
+    }
+    if (logOperationType) {
+      qb.andWhere('tableLogs.operationType = :logOperationType', { logOperationType: logOperationType });
+    }
+    if (logOperationTypes.length > 0) {
+      for (const type of logOperationTypes) {
+        qb.orWhere('tableLogs.operationType = :type', { type: type });
+      }
+    }
+
+    const offset = (page - 1) * perPage;
+    qb.limit(perPage);
+    qb.offset(offset);
+    return qb.stream();
   },
 };

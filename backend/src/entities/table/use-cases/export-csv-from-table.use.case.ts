@@ -16,7 +16,7 @@ import { isObjectEmpty } from '../../../helpers/is-object-empty.js';
 import { FilteringFieldsDs } from '../table-datastructures.js';
 
 @Injectable()
-export class ExportCSVFromTableUseCase extends AbstractUseCase<GetTableRowsDs, any> implements IExportCSVFromTable {
+export class ExportCSVFromTableUseCase extends AbstractUseCase<GetTableRowsDs, StreamableFile> implements IExportCSVFromTable {
   constructor(
     @Inject(BaseType.GLOBAL_DB_CONTEXT)
     protected _dbContext: IGlobalDatabaseContext,

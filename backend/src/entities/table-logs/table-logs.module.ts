@@ -11,6 +11,7 @@ import { TableLogsEntity } from './table-logs.entity.js';
 import { TableLogsService } from './table-logs.service.js';
 import { FindLogsUseCase } from './use-cases/find-logs.use.case.js';
 import { ConnectionPropertiesEntity } from '../connection-properties/connection-properties.entity.js';
+import { ExportLogsAsCsvUseCase } from './use-cases/export-logs-as-csv.use.case.js';
 
 @Global()
 @Module({
@@ -32,6 +33,10 @@ import { ConnectionPropertiesEntity } from '../connection-properties/connection-
       provide: UseCaseType.FIND_LOGS,
       useClass: FindLogsUseCase,
     },
+    {
+      provide: UseCaseType.EXPORT_LOGS_AS_CSV,
+      useClass: ExportLogsAsCsvUseCase,
+    },
     TableLogsService,
   ],
   controllers: [TableLogsController],
@@ -41,6 +46,10 @@ export class TableLogsModule {
   public configure(consumer: MiddlewareConsumer): any {
     consumer
       .apply(AuthMiddleware)
-      .forRoutes({ path: '/logs/:connectionId', method: RequestMethod.GET }, { path: '/logs/', method: RequestMethod.DELETE });
+      .forRoutes(
+        { path: '/logs/:connectionId', method: RequestMethod.GET },
+        { path: '/logs/', method: RequestMethod.DELETE },
+        { path: '/logs/export/:connectionId', method: RequestMethod.GET },
+      );
   }
 }
