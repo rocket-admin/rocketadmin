@@ -24,6 +24,11 @@ export type ActionActivationResult = {
   receivedPrimaryKeysObj: Array<Record<string, unknown>>;
 };
 
+type MessageContent = {
+  text: string;
+  html: string;
+};
+
 type UserInfoMessageData = {
   userId: string;
   email: string;
@@ -100,7 +105,12 @@ export class TableActionActivationService {
       tableName,
     );
 
-    const slackMessage = this.generateMessageString(userInfo, triggerOperation, tableName, primaryKeyValuesArray);
+    const { text: slackMessage } = this.generateMessageContent(
+      userInfo,
+      triggerOperation,
+      tableName,
+      primaryKeyValuesArray,
+    );
 
     try {
       await actionSlackPostMessage(slackMessage, tableAction.slack_url);
@@ -128,7 +138,7 @@ export class TableActionActivationService {
       request_body,
       tableName,
     );
-    const emailMessage = this.generateMessageString(userInfo, triggerOperation, tableName, primaryKeyValuesArray);
+    const { text, html } = this.generateMessageContent(userInfo, triggerOperation, tableName, primaryKeyValuesArray);
 
     const emailFrom = getProcessVariable('EMAIL_FROM') || Constants.AUTOADMIN_SUPPORT_MAIL;
 
@@ -141,8 +151,8 @@ export class TableActionActivationService {
               from: emailFrom,
               to: email,
               subject: 'Rocketadmin action notification',
-              text: emailMessage,
-              html: emailMessage,
+              text: text,
+              html: html,
             };
             return sendEmailToUser(letterContent);
           }),
@@ -308,14 +318,14 @@ export class TableActionActivationService {
     return primaryKeyValuesArray;
   }
 
-  private generateMessageString(
+  private generateMessageContent(
     userInfo: UserInfoMessageData,
     triggerOperation: TableActionEventEnum,
     tableName: string,
     primaryKeyValuesArray: Array<Record<string, unknown>>,
-  ): string {
+  ): MessageContent {
     const { email, userId, userName } = userInfo;
-    return `User with id "${userId}", email "${email}", name "${userName}" ${
+    const textContent = `User with id "${userId}", email "${email}", name "${userName}" ${
       triggerOperation === TableActionEventEnum.ADD_ROW
         ? 'added'
         : triggerOperation === TableActionEventEnum.UPDATE_ROW
@@ -324,5 +334,11 @@ export class TableActionActivationService {
             ? 'deleted'
             : 'performed an action on'
     } a row in table "${tableName}" with primary keys: ${JSON.stringify(primaryKeyValuesArray)}`;
+
+    const htmlContent = `<p>${textContent}</p>`;
+    return {
+      text: textContent,
+      html: htmlContent,
+    };
   }
 }
