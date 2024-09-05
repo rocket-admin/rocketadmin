@@ -29,4 +29,5 @@ export interface IFindLogsOptions {
   userInGroupsIds: Array<string>;
   logOperationType: LogOperationTypeEnum;
   logOperationTypes: Array<LogOperationTypeEnum>;
+  searchedAffectedPrimaryKey: string;
 }

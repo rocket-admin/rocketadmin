@@ -32,6 +32,7 @@ export class FindLogsUseCase extends AbstractUseCase<FindLogsDs, FoundLogsDs> im
     const dateFrom = query['dateFrom'];
     const dateTo = query['dateTo'];
     const searchedEmail = query['email'];
+    const searchedAffectedPrimaryKey: string = query['affected_primary_key'];
     const operationType: LogOperationTypeEnum = query['operationType'];
     if (operationType) {
       const actionValidationResult = validateStringWithEnum(operationType, LogOperationTypeEnum);
@@ -110,6 +111,7 @@ export class FindLogsUseCase extends AbstractUseCase<FindLogsDs, FoundLogsDs> im
       userInGroupsIds: userIdsInGroupsWhereUserIsAdmin,
       logOperationType: operationType,
       logOperationTypes: operationTypes,
+      searchedAffectedPrimaryKey: searchedAffectedPrimaryKey,
     };
     const { logs, pagination }: FoundLogsEntities = await this._dbContext.tableLogsRepository.findLogs(findOptions);
     return {
