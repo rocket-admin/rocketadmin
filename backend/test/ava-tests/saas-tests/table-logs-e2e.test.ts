@@ -94,6 +94,118 @@ test.serial(`${currentTest} should return all found logs in connection`, async (
   }
 });
 
+test.serial(`${currentTest} should return all found logs in connection with included searched primary keys`, async (t) => {
+  try {
+    const testData = await createConnectionsAndInviteNewUserInAdminGroupOfFirstConnection(app);
+
+    const randomName = faker.person.firstName();
+    const randomEmail = faker.internet.email();
+    /* eslint-disable */
+    const created_at = new Date();
+    const updated_at = new Date();
+    const addRowInTable = await request(app.getHttpServer())
+      .post(`/table/row/${testData.connections.firstId}?tableName=${testData.firstTableInfo.testTableName}`)
+      .send({
+        [testData.firstTableInfo.testTableColumnName]: randomName,
+        [testData.firstTableInfo.testTableSecondColumnName]: randomEmail,
+        created_at: created_at,
+        updated_at: updated_at,
+      })
+      .set('Cookie', testData.users.simpleUserToken)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+    t.is(addRowInTable.status, 201);
+
+    const getTableLogs = await request(app.getHttpServer())
+      .get(`/logs/${testData.connections.firstId}`)
+      .set('Cookie', testData.users.adminUserToken)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+    const getLogsInTableRO = JSON.parse(getTableLogs.text);
+
+    t.is(getLogsInTableRO.logs.length, 1);
+    t.is(getLogsInTableRO.logs[0].hasOwnProperty('affected_primary_key'), true);
+    const searchedAffectedPrimaryKey = JSON.stringify(getLogsInTableRO.logs[0].affected_primary_key);
+
+    let additionalRowAddResponse = await request(app.getHttpServer())
+      .post(`/table/row/${testData.connections.firstId}?tableName=${testData.firstTableInfo.testTableName}`)
+      .send({
+        [testData.firstTableInfo.testTableColumnName]: faker.person.firstName(),
+        [testData.firstTableInfo.testTableSecondColumnName]: faker.internet.email(),
+        created_at: new Date(),
+        updated_at: new Date(),
+      })
+      .set('Cookie', testData.users.simpleUserToken)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+    t.is(additionalRowAddResponse.status, 201);
+
+    additionalRowAddResponse = await request(app.getHttpServer())
+      .post(`/table/row/${testData.connections.firstId}?tableName=${testData.firstTableInfo.testTableName}`)
+      .send({
+        [testData.firstTableInfo.testTableColumnName]: faker.person.firstName(),
+        [testData.firstTableInfo.testTableSecondColumnName]: faker.internet.email(),
+        created_at: new Date(),
+        updated_at: new Date(),
+      })
+      .set('Cookie', testData.users.simpleUserToken)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+    t.is(additionalRowAddResponse.status, 201);
+
+    additionalRowAddResponse = await request(app.getHttpServer())
+      .post(`/table/row/${testData.connections.firstId}?tableName=${testData.firstTableInfo.testTableName}`)
+      .send({
+        [testData.firstTableInfo.testTableColumnName]: faker.person.firstName(),
+        [testData.firstTableInfo.testTableSecondColumnName]: faker.internet.email(),
+        created_at: new Date(),
+        updated_at: new Date(),
+      })
+      .set('Cookie', testData.users.simpleUserToken)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+    t.is(additionalRowAddResponse.status, 201);
+
+    additionalRowAddResponse = await request(app.getHttpServer())
+      .post(`/table/row/${testData.connections.firstId}?tableName=${testData.firstTableInfo.testTableName}`)
+      .send({
+        [testData.firstTableInfo.testTableColumnName]: faker.person.firstName(),
+        [testData.firstTableInfo.testTableSecondColumnName]: faker.internet.email(),
+        created_at: new Date(),
+        updated_at: new Date(),
+      })
+      .set('Cookie', testData.users.simpleUserToken)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+    t.is(additionalRowAddResponse.status, 201);
+
+    //check that logs was created
+
+    const getTableLogsAfterAddingExtraRows = await request(app.getHttpServer())
+      .get(`/logs/${testData.connections.firstId}`)
+      .set('Cookie', testData.users.adminUserToken)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+    const getRowAfterAddingExtraRowsRO = JSON.parse(getTableLogsAfterAddingExtraRows.text);
+
+    t.is(getRowAfterAddingExtraRowsRO.logs.length, 5);
+
+    const getTableLogsSearched = await request(app.getHttpServer())
+      .get(`/logs/${testData.connections.firstId}?affected_primary_key=${searchedAffectedPrimaryKey}`)
+      .set('Cookie', testData.users.adminUserToken)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+
+    const getRowInTableSearchedRO = JSON.parse(getTableLogsSearched.text);
+    t.is(getTableLogsSearched.status, 200);
+    t.is(getRowInTableSearchedRO.logs.length, 1);
+    t.is(JSON.stringify(getRowInTableSearchedRO.logs[0].affected_primary_key), searchedAffectedPrimaryKey);
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+});
+
 test.serial(
   `${currentTest} should not return all found logs in connection, when table audit is disabled in connection'`,
   async (t) => {
@@ -163,7 +275,7 @@ test.serial(
 );
 
 currentTest = 'GET /logs/export/:connectionId';
-test.only(`${currentTest} should return all found logs in connection as csv`, async (t) => {
+test.serial(`${currentTest} should return all found logs in connection as csv`, async (t) => {
   try {
     const testData = await createConnectionsAndInviteNewUserInAdminGroupOfFirstConnection(app);
 

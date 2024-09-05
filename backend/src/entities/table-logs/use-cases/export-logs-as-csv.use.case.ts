@@ -34,6 +34,7 @@ export class ExportLogsAsCsvUseCase extends AbstractUseCase<FindLogsDs, Streamab
     const dateTo = query['dateTo'];
     const searchedEmail = query['email'];
     const operationType: LogOperationTypeEnum = query['operationType'];
+    const searchedAffectedPrimaryKey: string = query['affected_primary_key'];
 
     if (operationType) {
       const actionValidationResult = validateStringWithEnum(operationType, LogOperationTypeEnum);
@@ -112,6 +113,7 @@ export class ExportLogsAsCsvUseCase extends AbstractUseCase<FindLogsDs, Streamab
       userInGroupsIds: userIdsInGroupsWhereUserIsAdmin,
       logOperationType: operationType,
       logOperationTypes: operationTypes,
+      searchedAffectedPrimaryKey: searchedAffectedPrimaryKey,
     };
 
     const logsAsStream = await this._dbContext.tableLogsRepository.findLogsAsStream(findOptions);

@@ -40,6 +40,7 @@ export const tableLogsCustomRepositoryExtension: ITableLogsRepository = {
       userInGroupsIds,
       logOperationType,
       logOperationTypes,
+      searchedAffectedPrimaryKey,
     } = findOptions;
     const qb = this.createQueryBuilder('tableLogs').leftJoinAndSelect('tableLogs.connection_id', 'connection_id');
     qb.andWhere('tableLogs.connection_id = :connection_id', { connection_id: connectionId });
@@ -47,6 +48,13 @@ export const tableLogsCustomRepositoryExtension: ITableLogsRepository = {
     if (tableName) {
       qb.andWhere('tableLogs.table_name = :table_name', { table_name: tableName });
     }
+
+    if (searchedAffectedPrimaryKey) {
+      qb.andWhere('tableLogs.affected_primary_key LIKE :searchString', {
+        searchString: `%${searchedAffectedPrimaryKey}%`,
+      });
+    }
+
     if (!userConnectionEdit) {
       if (userInGroupsIds.length > 0) {
         for (const userId of userInGroupsIds) {
@@ -104,11 +112,17 @@ export const tableLogsCustomRepositoryExtension: ITableLogsRepository = {
       userInGroupsIds,
       logOperationType,
       logOperationTypes,
+      searchedAffectedPrimaryKey,
     } = findOptions;
     const qb = this.createQueryBuilder('tableLogs').leftJoinAndSelect('tableLogs.connection_id', 'connection_id');
     qb.andWhere('tableLogs.connection_id = :connection_id', { connection_id: connectionId });
     if (tableName) {
       qb.andWhere('tableLogs.table_name = :table_name', { table_name: tableName });
+    }
+    if (searchedAffectedPrimaryKey) {
+      qb.andWhere('tableLogs.affected_primary_key LIKE :searchString', {
+        searchString: `%${searchedAffectedPrimaryKey}%`,
+      });
     }
     if (!userConnectionEdit) {
       if (userInGroupsIds.length > 0) {

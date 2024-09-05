@@ -60,6 +60,7 @@ export class TableLogsController {
   @ApiQuery({ name: 'email', required: false })
   @ApiQuery({ name: 'limit', required: false })
   @ApiQuery({ name: 'operationTypes', required: false, isArray: true })
+  @ApiQuery({ name: 'affected_primary_key', required: false })
   @Get('/logs/:connectionId')
   async findAll(
     @Query() query,
@@ -111,6 +112,7 @@ export class TableLogsController {
   @ApiQuery({ name: 'email', required: false })
   @ApiQuery({ name: 'limit', required: false })
   @ApiQuery({ name: 'operationTypes', required: false, isArray: true })
+  @ApiQuery({ name: 'affected_primary_key', required: false })
   @Get('/logs/export/:connectionId')
   async exportLogsAsCSV(
     @Query() query,
