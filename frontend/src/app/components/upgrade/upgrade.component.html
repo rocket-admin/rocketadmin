@@ -76,7 +76,47 @@
 
         </div>
 
-        <table mat-table [dataSource]="plansTable" class="plansTable mat-elevation-z2">
+        <h2 class="mat-header-2">Databases</h2>
+
+        <table mat-table [dataSource]="databases" class="plansTable mat-elevation-z2">
+            <colgroup>
+                <col style="width: 28%">
+                <col style="width: 24%">
+                <col style="width: 24%">
+                <col style="width: 24%">
+            </colgroup>
+            <ng-container *ngFor="let plan of plans" [matColumnDef]="plan.key">
+                <td mat-cell *matCellDef="let element"
+                    [ngClass]="{'cell_centered': plan.key !== 'title', cell_current: plan.key === currentPlan.key}">
+                    <span *ngIf="element[plan.key] === true; else nonBoolValue">✓</span>
+                    <ng-template #nonBoolValue>{{element[plan.key]}}</ng-template>
+                </td>
+            </ng-container>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        </table>
+
+        <h2 class="mat-header-2">Users</h2>
+
+        <table mat-table [dataSource]="users" class="plansTable mat-elevation-z2">
+            <colgroup>
+                <col style="width: 28%">
+                <col style="width: 24%">
+                <col style="width: 24%">
+                <col style="width: 24%">
+            </colgroup>
+            <ng-container *ngFor="let plan of plans" [matColumnDef]="plan.key">
+                <td mat-cell *matCellDef="let element"
+                    [ngClass]="{'cell_centered': plan.key !== 'title', cell_current: plan.key === currentPlan.key}">
+                    <span *ngIf="element[plan.key] === true; else nonBoolValue">✓</span>
+                    <ng-template #nonBoolValue>{{element[plan.key]}}</ng-template>
+                </td>
+            </ng-container>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        </table>
+
+        <h2 class="mat-header-2">Features</h2>
+
+        <table mat-table [dataSource]="features" class="plansTable mat-elevation-z2">
             <colgroup>
                 <col style="width: 28%">
                 <col style="width: 24%">
