@@ -80,17 +80,19 @@ export class ActivateActionsInEventUseCase
           e.response?.status || HttpStatus.BAD_REQUEST,
         );
       } finally {
-        const logRecord = {
-          table_name: tableName,
-          userId: userId,
-          connection: foundConnection,
-          operationType: LogOperationTypeEnum.actionActivated,
-          operationStatusResult: operationResult,
-          row: { keys: primaryKeyValuesArray },
-          old_data: null,
-          table_primary_key: JSON.stringify(primaryKeyValuesArray),
-        };
-        await this.tableLogsService.crateAndSaveNewLogUtil(logRecord);
+        for (const primaryKey of primaryKeyValuesArray) {
+          const logRecord = {
+            table_name: tableName,
+            userId: userId,
+            connection: foundConnection,
+            operationType: LogOperationTypeEnum.actionActivated,
+            operationStatusResult: operationResult,
+            row: primaryKey,
+            old_data: null,
+            table_primary_key: primaryKey,
+          };
+          await this.tableLogsService.crateAndSaveNewLogUtil(logRecord);
+        }
       }
     }
     return { location: locationFromResult, activationResults };
