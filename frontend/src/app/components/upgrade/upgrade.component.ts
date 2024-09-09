@@ -1,10 +1,11 @@
 import { Component, OnInit } from '@angular/core';
-import { User } from 'src/app/models/user';
-import { UserService } from 'src/app/services/user.service';
-import plans from '../../consts/plans';
+
 import { CompanyService } from 'src/app/services/company.service';
 import { PaymentService } from 'src/app/services/payment.service';
 import { PlanKey } from 'src/app/models/plans';
+import { User } from 'src/app/models/user';
+import { UserService } from 'src/app/services/user.service';
+import plans from '../../consts/plans';
 
 @Component({
   selector: 'app-upgrade',
@@ -20,13 +21,67 @@ export class UpgradeComponent implements OnInit {
   public companyId: string;
   public submitting = false;
 
-  plansTable = [
+  databases = [
     {
-      title: 'Database',
-      free: 'MySQL, PostgreSQL, MongoDB',
-      team: 'MySQL, PostgreSQL, MongoDB',
-      enterprise: 'MySQL, PostgreSQL, MongoDB, \n Oracle, Microsoft SQL'
+      title: 'MySQL',
+      free: true,
+      team: true,
+      enterprise: true
     },
+    {
+      title: 'PostgreSQL',
+      free: true,
+      team: true,
+      enterprise: true
+    },
+    {
+      title: 'MongoDB',
+      free: true,
+      team: true,
+      enterprise: true
+    },
+    {
+      title: 'Oracle',
+      free: '',
+      team: true,
+      enterprise: true
+    },
+    {
+      title: 'Microsoft SQL',
+      free: '',
+      team: true,
+      enterprise: true
+    }
+  ]
+
+  users = [
+    {
+      title:'User limit',
+      free: 'up to 3',
+      team: 'unlimited',
+      enterprise: 'unlimited'
+    },
+    {
+      title: 'Priority support',
+      free: '',
+      team: true,
+      enterprise: true
+    },
+    {
+      title: '99.9% uptime SLA',
+      free: '',
+      team: '',
+      enterprise: true
+    }
+  ]
+
+  features = [
+    // {
+    //   title: 'Database',
+    //   free: 'MySQL, PostgreSQL, MongoDB',
+    //   team: 'MySQL, PostgreSQL, MongoDB',
+    //   enterprise: 'MySQL, PostgreSQL, MongoDB, \n Oracle, Microsoft SQL'
+    // },
     // {
     //   title: 'Number of users',
     //   free: 'up to 3 members',

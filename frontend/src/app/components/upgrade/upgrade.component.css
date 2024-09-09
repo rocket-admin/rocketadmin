@@ -104,6 +104,8 @@
 .plansTable {
     border-radius: 12px;
     overflow: hidden;
+    margin-top: -8px;
+    margin-bottom: 20px;
 }
 
 /* .plansTable :ng-deep.mdc-data-table__cell {
