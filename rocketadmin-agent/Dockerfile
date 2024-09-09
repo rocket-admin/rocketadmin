@@ -1,6 +1,6 @@
 FROM node:20
 WORKDIR /app
-RUN apt-get update && apt-get install -y netcat-openbsd
+RUN apt-get update && apt-get install -y netcat-openbsd make gcc g++ python3
 COPY package.json ./yarn.lock .yarnrc.yml /app/
 COPY ./.yarn /app/.yarn
 COPY ./rocketadmin-agent/package.json /app/rocketadmin-agent/
