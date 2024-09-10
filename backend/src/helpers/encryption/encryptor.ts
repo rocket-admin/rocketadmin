@@ -256,7 +256,7 @@ export class Encryptor {
   }
 
   static generateApiKey(): string {
-    const generatedString = crypto.randomBytes(99).toString('hex');
+    const generatedString = crypto.randomBytes(36).toString('hex');
     return `sk_${generatedString}`;
   }
 }
