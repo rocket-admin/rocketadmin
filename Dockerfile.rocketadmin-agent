@@ -23,3 +23,4 @@ COPY ./rocketadmin-agent/ssl-cert.txt /app/rocketadmin-agent/
 
 RUN cd /app/shared-code && ../node_modules/.bin/tsc
 RUN yarn run nest build
+CMD [ "./node_modules/.bin/nest", "start"]
