@@ -25,7 +25,7 @@
     margin-bottom: 8px;
 }
 
-.user-settings__name {
+.user-settings__text-input {
     width: 100%
 }
 
@@ -53,6 +53,38 @@
 
 .qr-verification {
     margin-top: 28px;
+}
+
+.api-key-form {
+    display: flex;
+    align-items: center;
+}
+
+.api-key-form__generate-button {
+    margin-top: -20px;
+    margin-left: -82px;
+}
+
+.api-key-value {
+    display: flex;
+    margin-bottom: 8px;
+    width: 100%;
+}
+
+.api-key-value__copy-button {
+    margin-top: 4px;
+    margin-left: 12px;
+}
+
+.api-key-list-item:hover {
+    background: var(--color-primaryPalette-50);
+}
+
+.api-key {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    /* width: 100%; */
 }
 
 .delete-button {

@@ -8,7 +8,7 @@
 
     <div class="user-settings mat-body-1">
         <form class="user-settings__name-form" (ngSubmit)="changeUserName()">
-            <mat-form-field appearance="outline" class="user-settings__name">
+            <mat-form-field appearance="outline" class="user-settings__text-input">
                 <mat-label>Name</mat-label>
                 <input matInput name="user-name" #nameField="ngModel"
                     data-testid="user-name-input"
@@ -67,7 +67,7 @@
             </div>
 
             <form *ngIf="is2FAswitchingOffSettingsShown" class="qr-verification" (ngSubmit)="switchOff2FA()">
-                <mat-form-field appearance="outline" class="user-settings__name">
+                <mat-form-field appearance="outline" class="user-settings__text-input">
                     <mat-label>Enter the code from your authenticator</mat-label>
                     <input matInput [(ngModel)]="authCode" name="code" #codeField="ngModel">
                 </mat-form-field>
@@ -75,6 +75,64 @@
                     Disable
                 </button>
             </form>
+        </div>
+
+        <div>
+            <div class="user-settings__section-heading">
+                <strong>API keys</strong>
+            </div>
+
+            <form class="api-key-form" (ngSubmit)="generateAPIkey()">
+                <mat-form-field appearance="outline" class="user-settings__text-input">
+                    <mat-label>API key title</mat-label>
+                    <input matInput name="api-key-title" #apiKeyTitle="ngModel"
+                        data-testid="api-key-input"
+                        angulartics2On="change"
+                        angularticsAction="User settings: api key title is edited"
+                        [(ngModel)]="generatingAPIkeyTitle">
+                </mat-form-field>
+                <button type="submit" mat-button color="primary" data-testid="generate-api-key-button"
+                    class="api-key-form__generate-button"
+                    [disabled]="!apiKeyTitle.dirty || submittingChangedName">
+                    Generate
+                </button>
+            </form>
+
+            <div *ngIf="generatedAPIkeyHash" class="api-key-value">
+                <mat-form-field appearance="outline" style="width:100%">
+                    <mat-label>API key</mat-label>
+                    <input matInput name="token" #token="ngModel" readonly
+                        data-testid="api-key-value-input"
+                        [(ngModel)]="generatedAPIkeyHash">
+                    <mat-hint>
+                        Please save this API key.
+                    </mat-hint>
+                </mat-form-field>
+                <button type="button" mat-icon-button
+                    data-testid="api-key-value-copy-button"
+                    class="api-key-value__copy-button"
+                    matTooltip="Copy mater password"
+                    [cdkCopyToClipboard]="generatedAPIkeyHash"
+                    (cdkCopyToClipboardCopied)="showCopyNotification('API key was copied to clipboard.')">
+                    <mat-icon>content_copy</mat-icon>
+                </button>
+            </div>
+
+            <span *ngIf="apiKeys && apiKeys.length === 0">You don't have API keys.</span>
+
+            <mat-list role="list" *ngIf="apiKeys && apiKeys.length" class="api-keys">
+                <mat-list-item role="listitem" *ngFor="let apiKey of apiKeys; let i=index" class="api-key-list-item">
+                    <div class="api-key">
+                        <span>{{apiKey.title}}</span>
+                        <button type="button" mat-icon-button
+                            attr.data-testid="api-key-{{i}}-delete-button"
+                            matTooltip="Remove API key"
+                            (click)="deleteAPIkey(apiKey)">
+                            <mat-icon>delete_outline</mat-icon>
+                        </button>
+                    </div>
+                </mat-list-item>
+            </mat-list>
         </div>
 
     </div>

@@ -90,3 +90,8 @@ export interface Permissions {
     },
     tables: TablePermission[]
 }
+
+export interface ApiKey {
+    title: string,
+    id: string
+}
