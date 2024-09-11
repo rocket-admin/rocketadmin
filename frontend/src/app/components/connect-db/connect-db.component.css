@@ -133,12 +133,29 @@
     margin-right: 20px;
 }
 
-.docker-instruction {
-    margin-top: 20px;
+.instruction__docker {
+    margin-top: 32px;
+    margin-bottom: auto;
 }
 
-.download-button {
-    margin-left: 8px;
+.github-button {
+    margin-bottom: 20px;
+}
+
+.github-button ::ng-deep .mdc-button__label {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.github-icon {
+    margin-right: 8px;
+    height: 18px;
+    width: 18px;
+}
+
+.docker-instruction {
+    margin-top: 20px;
 }
 
 .instruction-steps {
