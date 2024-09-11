@@ -29,7 +29,7 @@ export class ConnectDBComponent implements OnInit, OnDestroy {
   public masterKey: string;
   public connectionToken: string | null = null;
   public submitting: boolean = false;
-  public userOS = null;
+  // public userOS = null;
   public otherOS = [];
   public warning: Alert = {
     id: 10000000,
@@ -45,11 +45,11 @@ export class ConnectDBComponent implements OnInit, OnDestroy {
     [DBtype.Mongo]: '27017'
   }
 
-  public osAgents = {
-    Mac: 'https://github.com/rocket-admin/rocketadmin-cli/releases/download/latest/rocketadmin-cli-macos',
-    Windows: 'https://github.com/rocket-admin/rocketadmin-cli/releases/download/latest/rocketadmin-cli-windows.exe',
-    Linux: 'https://github.com/rocket-admin/rocketadmin-cli/releases/download/latest/rocketadmin-cli-linux'
-  }
+  // public osAgents = {
+  //   Mac: 'https://github.com/rocket-admin/rocketadmin-cli/releases/download/latest/rocketadmin-cli-macos',
+  //   Windows: 'https://github.com/rocket-admin/rocketadmin-cli/releases/download/latest/rocketadmin-cli-windows.exe',
+  //   Linux: 'https://github.com/rocket-admin/rocketadmin-cli/releases/download/latest/rocketadmin-cli-linux'
+  // }
 
   private getTitleSubscription: Subscription;
 
@@ -71,12 +71,12 @@ export class ConnectDBComponent implements OnInit, OnDestroy {
       this.title.setTitle(`Edit connection ${connectionTitle} | Rocketadmin`);
     });
 
-    if (navigator.appVersion.indexOf("Win") != -1) this.userOS = "Windows";
-    if (navigator.appVersion.indexOf("Mac") != -1) this.userOS = "Mac";
-    if (navigator.appVersion.indexOf("Linux") != -1) this.userOS = "Linux";
-    if (this.userOS === null) this.userOS = "Linux";
+    // if (navigator.appVersion.indexOf("Win") != -1) this.userOS = "Windows";
+    // if (navigator.appVersion.indexOf("Mac") != -1) this.userOS = "Mac";
+    // if (navigator.appVersion.indexOf("Linux") != -1) this.userOS = "Linux";
+    // if (this.userOS === null) this.userOS = "Linux";
 
-    this.otherOS = Object.keys(this.osAgents).filter(os => os !== this.userOS);
+    // this.otherOS = Object.keys(this.osAgents).filter(os => os !== this.userOS);
 
     if (!this.connectionID) {
       this._user.sendUserAction('CONNECTION_CREATION_NOT_FINISHED').subscribe();
