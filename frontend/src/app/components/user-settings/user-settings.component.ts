@@ -6,8 +6,10 @@ import { Angulartics2 } from 'angulartics2';
 import { AuthService } from 'src/app/services/auth.service';
 import { EnableTwoFADialogComponent } from './enable-two-fa-dialog/enable-two-fa-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
-import { User } from 'src/app/models/user';
+import { ApiKey, User } from 'src/app/models/user';
 import { UserService } from 'src/app/services/user.service';
+import { NotificationsService } from 'src/app/services/notifications.service';
+import { ApiKeyDeleteDialogComponent } from './api-key-delete-dialog/api-key-delete-dialog.component';
 
 @Component({
   selector: 'app-user-settings',
@@ -35,9 +37,14 @@ export class UserSettingsComponent implements OnInit {
   public is2FAswitchingOffSettingsShown: boolean = false;
   public is2FAEnabledToggle: boolean;
 
+  public apiKeys: [];
+  public generatingAPIkeyTitle: string;
+  public generatedAPIkeyHash: string;
+
   constructor(
     private _userService: UserService,
     private _authService: AuthService,
+    private _notifications: NotificationsService,
     public dialog: MatDialog,
     private angulartics2: Angulartics2,
   ) {}
@@ -50,6 +57,7 @@ export class UserSettingsComponent implements OnInit {
         this.userName = user.name;
         this.is2FAEnabledToggle = user.is_2fa_enabled;
       });
+    this.getAPIkeys();
   }
 
   requestEmailVerification() {
@@ -128,5 +136,31 @@ export class UserSettingsComponent implements OnInit {
           });
         }
       });
+  }
+
+  getAPIkeys() {
+    this._userService.getAPIkeys().subscribe(res => this.apiKeys = res);
+  }
+
+  generateAPIkey() {
+    this._userService.generateAPIkey(this.generatingAPIkeyTitle).subscribe(res => {
+      this.generatedAPIkeyHash = res.hash;
+      this.getAPIkeys();
+    });
+  }
+
+  deleteAPIkey(apiKey: ApiKey) {
+    const deleteConfirmation = this.dialog.open(ApiKeyDeleteDialogComponent, {
+      width: '25em',
+      data: apiKey
+    });
+
+    deleteConfirmation.afterClosed().subscribe( action => {
+      if (action === 'delete') this.getAPIkeys();
+    });
+  }
+
+  showCopyNotification(message: string) {
+    this._notifications.showSuccessSnackbar(message);
   }
 }

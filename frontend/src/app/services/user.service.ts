@@ -1,6 +1,6 @@
 import { AlertActionType, AlertType } from '../models/alert';
 import { BehaviorSubject, EMPTY, throwError } from 'rxjs';
-import { SubscriptionPlans, User } from '../models/user';
+import { ApiKey, SubscriptionPlans, User } from '../models/user';
 import { catchError, map } from 'rxjs/operators';
 
 import { CompanyMemberRole } from '../models/company';
@@ -231,6 +231,57 @@ export class UserService {
       .pipe(
         map((res) => {
           this._notifications.showSuccessSnackbar('2FA is turned off successfully.');
+          return res
+        }),
+        catchError((err) => {
+          console.log(err);
+          this._notifications.showErrorSnackbar(err.error.message);
+          return EMPTY;
+        })
+      );
+  }
+
+  getAPIkeys() {
+    return this._http.get<any>(`/apikeys`)
+      .pipe(
+        map(res => {
+          return res
+        }),
+        catchError((err) => {
+          console.log(err);
+          this._notifications.showAlert(AlertType.Error, {abstract: err.error.message, details: err.error.originalMessage}, [
+            {
+              type: AlertActionType.Button,
+              caption: 'Dismiss',
+              action: (id: number) => this._notifications.dismissAlert()
+            }
+          ]);
+          return EMPTY;
+        })
+      );
+  }
+
+  generateAPIkey(title: string) {
+    return this._http.post<any>('/apikey', { title })
+      .pipe(
+        map((res) => {
+          this._notifications.showSuccessSnackbar(`${title} key is generated successfully.`);
+          return res
+        }),
+        catchError((err) => {
+          console.log(err);
+          this._notifications.showErrorSnackbar(err.error.message);
+          return EMPTY;
+        })
+      );
+  }
+
+  deleteAPIkey(apiKey: ApiKey) {
+    return this._http.delete<any>(`/apikey/${apiKey.id}`)
+      .pipe(
+        map((res) => {
+          // this.user.next('delete api key');
+          this._notifications.showSuccessSnackbar(`${apiKey.title} API key is deleted successfully.`);
           return res
         }),
         catchError((err) => {
