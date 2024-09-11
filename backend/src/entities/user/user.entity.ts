@@ -126,4 +126,7 @@ export class UserEntity {
     default: null,
   })
   externalRegistrationProvider: ExternalRegistrationProviderEnum;
+
+  @Column({ default: true })
+  showTestConnections: boolean;
 }
