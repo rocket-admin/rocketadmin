@@ -35,4 +35,6 @@ export interface IConnectionRepository {
   findOneAgentConnectionByToken(connectionToken: string): Promise<ConnectionEntity>;
 
   decryptConnectionField(field: string): string;
+
+  findAllUserTestConnections(userId: string): Promise<Array<ConnectionEntity>>;
 }

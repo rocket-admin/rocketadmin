@@ -37,6 +37,11 @@ export class FindAllConnectionsUseCase
     }
     const allFoundUserConnections = await this._dbContext.connectionRepository.findAllUserConnections(user.id, false);
 
+    if(user.showTestConnections) {
+      const allFoundUserTestConnections = await this._dbContext.connectionRepository.findAllUserTestConnections(user.id);
+      allFoundUserConnections.push(...allFoundUserTestConnections);
+    }
+
     const filterConnectionKeys = (connection: ConnectionEntity, allowedKeys: Array<string>): FilteredConnection => {
       return Object.keys(connection).reduce((acc, key) => {
         if (allowedKeys.includes(key)) {
