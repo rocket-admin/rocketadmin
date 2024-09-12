@@ -332,7 +332,7 @@ export class TableActionActivationService {
       : triggerOperation === TableActionEventEnum.DELETE_ROW
         ? 'deleted a row'
         : 'performed an action';
-    const textContent = `${userName ? userName : 'User'} (email: ${email}, user id: ${userId}) has ${action} in table "${tableName}".`;
+    const textContent = `${userName ? userName : 'User'} (email: ${email}, user id: ${userId}) has ${action} in the table "${tableName}".`;
 
     const htmlContent = `<!doctype html>
 <html>
@@ -434,7 +434,6 @@ table[class=body] .article {
                     </tr>
                     <tr>
                       <td style="font-family: sans-serif; font-size: 14px; vertical-align: top;" valign="top">
-                        <p style="font-size: 18px; font-weight: normal; margin: 0; margin-bottom: 15px;">Dear Team,</p>
                         <p style="font-size: 18px; font-weight: normal; margin: 0; margin-bottom: 15px;">${textContent}</p>
                         <p style="font-size: 18px; font-weight: normal; margin: 0; margin-bottom: 15px;">Primary Keys: ${JSON.stringify(primaryKeyValuesArray)}</p>
                       </td>
