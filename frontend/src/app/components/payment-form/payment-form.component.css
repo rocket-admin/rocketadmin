@@ -1,6 +1,6 @@
 .payment-page {
     margin: 0 auto;
-    width: clamp(18.75em, 96%, 42em);
+    width: clamp(18.75em, 96%, 45em);
 }
 
 .payment-page__header {
@@ -22,8 +22,7 @@
     grid-column: 1 / span 2;
 }
 
-.plan-details {
-    display: grid;
-    grid-template-columns: auto 1fr;
-    grid-gap: 12px 20px;
+.note {
+    margin-top: 20px;
+    margin-bottom: 52px;
 }
