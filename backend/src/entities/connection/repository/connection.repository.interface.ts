@@ -4,7 +4,7 @@ import { ConnectionEntity } from '../connection.entity.js';
 export interface IConnectionRepository {
   saveNewConnection(connection: ConnectionEntity): Promise<ConnectionEntity>;
 
-  findAllUserConnections(userId: string): Promise<Array<ConnectionEntity>>;
+  findAllUserConnections(userId: string, includeTestConnections: boolean): Promise<Array<ConnectionEntity>>;
 
   findAllUserNonTestsConnections(userId: string): Promise<Array<ConnectionEntity>>;
 

@@ -35,7 +35,7 @@ export class FindAllConnectionsUseCase
     if (!user) {
       throw new InternalServerErrorException(Messages.USER_NOT_FOUND);
     }
-    const allFoundUserConnections = await this._dbContext.connectionRepository.findAllUserConnections(user.id);
+    const allFoundUserConnections = await this._dbContext.connectionRepository.findAllUserConnections(user.id, false);
 
     const filterConnectionKeys = (connection: ConnectionEntity, allowedKeys: Array<string>): FilteredConnection => {
       return Object.keys(connection).reduce((acc, key) => {

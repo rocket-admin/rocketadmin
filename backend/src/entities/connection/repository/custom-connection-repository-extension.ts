@@ -27,12 +27,15 @@ export const customConnectionRepositoryExtension: IConnectionRepository = {
     return savedConnection;
   },
 
-  async findAllUserConnections(userId: string): Promise<Array<ConnectionEntity>> {
+  async findAllUserConnections(userId: string, includeTestConnections: boolean): Promise<Array<ConnectionEntity>> {
     const connectionQb = this.createQueryBuilder('connection')
       .leftJoinAndSelect('connection.groups', 'group')
       .leftJoinAndSelect('group.users', 'user')
       .leftJoinAndSelect('connection.connection_properties', 'connection_properties')
       .andWhere('user.id = :userId', { userId: userId });
+    if (!includeTestConnections) {
+      connectionQb.andWhere('connection.isTestConnection = :isTest', { isTest: false });
+    }
     return await connectionQb.getMany();
   },
 
