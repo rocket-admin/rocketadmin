@@ -65,8 +65,11 @@ export class PaymentFormComponent implements OnInit {
   public price: number;
   public isAnnually: boolean;
   public subscriptionLevel: string;
-  public nextPaymentDate: string;
+  public endOfTrialDate: string;
   public companyId: string;
+
+  public displayedColumns: string[] = ['plan', 'charge-date', 'amount', 'users', 'trial'];
+  public subscriptionInfo = [];
 
   ngOnInit(): void {
     const queryParams = this.route.snapshot.queryParams;
@@ -75,7 +78,11 @@ export class PaymentFormComponent implements OnInit {
     const chosenPlan = plans.find(plan => plan.key === this.plan);
     this.price = chosenPlan.price;
     this.subscriptionLevel = `${ this.isAnnually ? 'ANNUAL_' : '' }${this.plan.toUpperCase()}_PLAN`;
-    this.nextPaymentDate = format(addMonths(new Date(), 1), 'P');
+    this.endOfTrialDate = format(addMonths(new Date(), 1), 'P');
+
+    this.subscriptionInfo = [
+      {plan: this.plan, chargeDate: this.endOfTrialDate, amount: `${this.price} * n`, users: 'per each 10 user', trial: '1 month free trial' }
+    ]
 
     this._userService.cast.subscribe(user => {
       if (user) this._paymentService.createIntentToSubscription(user.company.id).subscribe(res => {
