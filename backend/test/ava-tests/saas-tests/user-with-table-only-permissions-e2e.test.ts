@@ -94,7 +94,7 @@ test.serial(`${currentTest} should return connections, where second user have ac
     t.is(findAll.status, 200);
 
     const result = findAll.body.connections;
-    t.is(result.length, 1);
+    t.is(result.length, 5);
     const nonTestConnection = result.find(({ connection }) => connection.id === connections.firstId);
     for (const key in nonTestConnection.connection) {
       t.is(Constants.CONNECTION_KEYS_NONE_PERMISSION.includes(key), true);
