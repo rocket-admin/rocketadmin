@@ -6,6 +6,7 @@ import {
   HttpStatus,
   Inject,
   Injectable,
+  Param,
   Post,
   Put,
   Req,
@@ -43,6 +44,7 @@ import {
   IRequestEmailVerification,
   IRequestPasswordReset,
   ISaveUserSettings,
+  IToggleTestConnectionsMode,
   IUsualLogin,
   IUsualPasswordChange,
   IVerifyEmail,
@@ -54,7 +56,7 @@ import { ITokenExp, TokenExpDs } from './utils/generate-gwt-token.js';
 import { OtpSecretDS } from './application/data-structures/otp-secret.ds.js';
 import { OtpDisablingResultDS, OtpValidationResultDS } from './application/data-structures/otp-validation-result.ds.js';
 import { getCookieDomainOptions } from './utils/get-cookie-domain-options.js';
-import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { PasswordDto } from './dto/password.dto.js';
 import { EmailDto } from './dto/email.dto.js';
 import { DeleteUserAccountDTO } from './dto/delete-user-account-request.dto.js';
@@ -63,6 +65,7 @@ import { UserNameDto } from './dto/user-name.dto.js';
 import { OtpTokenDto } from './dto/otp-token.dto.js';
 import { UserSettingsDataRequestDto } from './dto/user-settings-data-request.dto.js';
 import { RequestRestUserPasswordDto } from './dto/request-rest-user-password.dto.js';
+import { SuccessResponse } from '../../microservices/saas-microservice/data-structures/common-responce.ds.js';
 
 @UseInterceptors(SentryInterceptor)
 @Controller()
@@ -107,6 +110,8 @@ export class UserController {
     private readonly saveUserSessionSettingsUseCase: ISaveUserSettings,
     @Inject(UseCaseType.GET_USER_SESSION_SETTINGS)
     private readonly getUserSessionSettingsUseCase: IGetUserSettings,
+    @Inject(UseCaseType.TOGGLE_TEST_CONNECTIONS_DISPLAY_MODE)
+    private readonly toggleTestConnectionsDisplayModeUseCase: IToggleTestConnectionsMode,
   ) {}
 
   @ApiOperation({ summary: 'Get user' })
@@ -459,5 +464,28 @@ export class UserController {
   @Get('user/settings/')
   async getUserSessionSettings(@UserId() userId: string): Promise<UserSettingsDataRequestDto> {
     return await this.getUserSessionSettingsUseCase.execute(userId, InTransactionEnum.OFF);
+  }
+
+  @ApiOperation({ summary: 'Toggle display mode of test connections' })
+  @ApiResponse({
+    status: 200,
+    description: 'Display mode of test connections changed.',
+    type: SuccessResponse,
+  })
+  @ApiParam({ name: 'displayMode', required: true, type: 'string', enum: ['on', 'off'] })
+  @Put('user/test/connections/display/')
+  async toggleTestConnectionsDisplayMode(
+    @UserId() userId: string,
+    @Param('displayMode') displayMode: string,
+  ): Promise<SuccessResponse> {
+    const newDisplayMode = displayMode === 'on';
+    const toggleConnectionDisplayModeDs = {
+      userId: userId,
+      displayMode: newDisplayMode,
+    };
+    return await this.toggleTestConnectionsDisplayModeUseCase.execute(
+      toggleConnectionDisplayModeDs,
+      InTransactionEnum.OFF,
+    );
   }
 }
