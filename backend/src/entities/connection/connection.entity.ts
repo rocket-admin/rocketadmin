@@ -25,6 +25,7 @@ import { UserEntity } from '../user/user.entity.js';
 import { CompanyInfoEntity } from '../company-info/company-info.entity.js';
 import { ActionRulesEntity } from '../table-actions/table-action-rules-module/action-rules.entity.js';
 import { nanoid } from 'nanoid';
+import { Constants } from '../../helpers/constants/constants.js';
 
 @Entity('connection')
 export class ConnectionEntity {
@@ -156,21 +157,47 @@ export class ConnectionEntity {
 
   @AfterLoad()
   decryptCredentials(): void {
-    if (!isConnectionTypeAgent(this.type)) {
-      this.host = Encryptor.decryptData(this.host);
-      this.database = Encryptor.decryptData(this.database);
-      this.password = Encryptor.decryptData(this.password);
-      this.username = Encryptor.decryptData(this.username);
-      if (this.authSource) {
-        this.authSource = Encryptor.decryptData(this.authSource);
+    if (this.isTestConnection) {
+      const testConnectionsArray = Constants.getTestConnectionsArr();
+      const foundTestConnectionByType = testConnectionsArray.find(
+        (testConnection) => testConnection.type === this.type,
+      );
+      if (foundTestConnectionByType) {
+        this.host = foundTestConnectionByType.host;
+        this.database = foundTestConnectionByType.database;
+        this.username = foundTestConnectionByType.username;
+        this.password = foundTestConnectionByType.password;
+        this.port = foundTestConnectionByType.port;
+        this.ssh = foundTestConnectionByType.ssh;
+        this.privateSSHKey = foundTestConnectionByType.privateSSHKey;
+        this.sshHost = foundTestConnectionByType.sshHost;
+        this.sshPort = foundTestConnectionByType.sshPort;
+        this.sshUsername = foundTestConnectionByType.sshUsername;
+        this.ssl = foundTestConnectionByType.ssl;
+        this.cert = foundTestConnectionByType.cert;
+        this.authSource = foundTestConnectionByType.authSource;
+        this.sid = foundTestConnectionByType.sid;
+        this.schema = foundTestConnectionByType.schema;
+        this.cert = foundTestConnectionByType.cert;
+        this.azure_encryption = foundTestConnectionByType.azure_encryption;
       }
-      if (this.ssh) {
-        this.privateSSHKey = Encryptor.decryptData(this.privateSSHKey);
-        this.sshHost = Encryptor.decryptData(this.sshHost);
-        this.sshUsername = Encryptor.decryptData(this.sshUsername);
-      }
-      if (this.ssl && this.cert) {
-        this.cert = Encryptor.decryptData(this.cert);
+    } else {
+      if (!isConnectionTypeAgent(this.type)) {
+        this.host = Encryptor.decryptData(this.host);
+        this.database = Encryptor.decryptData(this.database);
+        this.password = Encryptor.decryptData(this.password);
+        this.username = Encryptor.decryptData(this.username);
+        if (this.authSource) {
+          this.authSource = Encryptor.decryptData(this.authSource);
+        }
+        if (this.ssh) {
+          this.privateSSHKey = Encryptor.decryptData(this.privateSSHKey);
+          this.sshHost = Encryptor.decryptData(this.sshHost);
+          this.sshUsername = Encryptor.decryptData(this.sshUsername);
+        }
+        if (this.ssl && this.cert) {
+          this.cert = Encryptor.decryptData(this.cert);
+        }
       }
     }
   }

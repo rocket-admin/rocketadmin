@@ -19,6 +19,7 @@ import {
 import { ValidationException } from '../../../src/exceptions/custom-exceptions/validation-exception.js';
 import { ValidationError } from 'class-validator';
 import { ErrorsMessages } from '../../../src/exceptions/custom-exceptions/messages/custom-errors-messages.js';
+import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/enums/connection-types-enum.js';
 
 const mockFactory = new MockFactory();
 let app: INestApplication;
@@ -106,6 +107,7 @@ test.serial(`${currentTest} should return all connections for this user`, async 
     t.is(findAll.status, 200);
 
     const result = findAll.body.connections;
+    console.log('🚀 ~ test.only ~ result:', result);
 
     t.is(result.length, 6);
     t.is(result[0].hasOwnProperty('connection'), true);
@@ -118,11 +120,13 @@ test.serial(`${currentTest} should return all connections for this user`, async 
     t.is(typeof result[0].connection.port, 'number');
     t.is(result[2].connection.hasOwnProperty('username'), true);
     t.is(result[3].connection.hasOwnProperty('database'), true);
-    t.is(result[4].connection.hasOwnProperty('sid'), true);
     t.is(result[0].connection.hasOwnProperty('createdAt'), true);
     t.is(result[1].connection.hasOwnProperty('updatedAt'), true);
     t.is(result[2].connection.hasOwnProperty('password'), false);
     t.is(result[3].connection.hasOwnProperty('groups'), false);
+    const oracleConnectionIndex = result.findIndex((e) => e.connection.type === ConnectionTypesEnum.oracledb);
+    // eslint-disable-next-line security/detect-object-injection
+    t.is(result[oracleConnectionIndex].connection.hasOwnProperty('sid'), true);
     t.pass();
   } catch (e) {
     throw e;
@@ -1165,7 +1169,7 @@ test(`${currentTest} throw an exception when group name is not unique`, async (t
       .set('Accept', 'application/json');
 
     const createConnectionRO = JSON.parse(createConnectionResponse.text);
-    console.log('🚀 ~ test.serial ~ createConnectionRO:', createConnectionRO)
+    console.log('🚀 ~ test.serial ~ createConnectionRO:', createConnectionRO);
     newGroup1.title = 'Admin';
     const createGroupResponse = await request(app.getHttpServer())
       .post(`/connection/group/${createConnectionRO.id}`)

@@ -2,6 +2,25 @@ import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/data-acce
 import { CreateConnectionDto } from '../../entities/connection/application/dto/create-connection.dto.js';
 import { Knex } from 'knex';
 import { getProcessVariable } from '../get-process-variable.js';
+import { isSaaS } from '../app/is-saas.js';
+import {
+  parseTestMySQLConnectionString,
+  parseTestPostgresConnectionString,
+  parseTestMSSQLConnectionString,
+  parseTestOracleDBConnectionString,
+  parseTestMongoDBConnectionString,
+  parseTestIbmDB2ConnectionString,
+} from '../parsers/string-connection-to-database-parsers.js';
+
+export type TestConnectionsFromJSON = {
+  //string value represents the connection string, to connect to the database
+  'test-mysql': string;
+  'test-postgres': string;
+  'test-mssql': string;
+  'test-oracle': string;
+  'test-mongo': string;
+  'test-ibmdb2': string;
+};
 
 export const Constants = {
   ROCKETADMIN_AUTHENTICATED_COOKIE: 'rocketadmin_authenticated',
@@ -193,20 +212,68 @@ export const Constants = {
     if (!isSaaS || isSaaS !== 'true') {
       return [];
     }
-    const testConnections: Array<CreateConnectionDto> = [];
-    testConnections.push(
-      this.TEST_CONNECTION_TO_ORACLE,
-      this.TEST_CONNECTION_TO_POSTGRES,
-      this.TEST_SSH_CONNECTION_TO_MYSQL,
-      this.TEST_CONNECTION_TO_MSSQL,
-      this.TEST_CONNECTION_TO_MONGO,
-      this.TEST_CONNECTION_TO_IBMBD2,
-    );
+    const testConnections: Array<CreateConnectionDto> = Constants.getTestConnectionsFromDSN() || [];
+    if (!testConnections.length) {
+      testConnections.push(
+        Constants.TEST_CONNECTION_TO_ORACLE as CreateConnectionDto,
+        Constants.TEST_CONNECTION_TO_POSTGRES as CreateConnectionDto,
+        Constants.TEST_SSH_CONNECTION_TO_MYSQL as unknown as CreateConnectionDto,
+        Constants.TEST_CONNECTION_TO_MSSQL as CreateConnectionDto,
+        Constants.TEST_CONNECTION_TO_MONGO as CreateConnectionDto,
+        Constants.TEST_CONNECTION_TO_IBMBD2 as CreateConnectionDto,
+      );
+    }
+
     return testConnections.filter((dto) => {
       const values = Object.values(dto);
       const nullElementIndex = values.findIndex((el) => el === null);
       return nullElementIndex < 0;
     });
+  },
+
+  getTestConnectionsFromDSN: function (): Array<CreateConnectionDto | null> {
+    if (!isSaaS()) {
+      return [];
+    }
+    const testConnectionsJSON = getProcessVariable('TEST_CONNECTIONS');
+    if (!testConnectionsJSON) {
+      return null;
+    }
+    try {
+      const testConnectionsDSNFromJSON: TestConnectionsFromJSON = JSON.parse(testConnectionsJSON);
+      const testConnectionsArr: Array<CreateConnectionDto | null> = [];
+      for (const [connection_type, connection_string] of Object.entries(testConnectionsDSNFromJSON)) {
+        let connection: CreateConnectionDto | null = null;
+        const type = connection_type.toLowerCase();
+        switch (true) {
+          case type.toLowerCase().includes('mysql'):
+            connection = parseTestMySQLConnectionString(connection_string) as CreateConnectionDto;
+            break;
+          case type.toLowerCase().includes('postgres'):
+            connection = parseTestPostgresConnectionString(connection_string) as CreateConnectionDto;
+            break;
+          case type.toLowerCase().includes('mssql'):
+            connection = parseTestMSSQLConnectionString(connection_string) as CreateConnectionDto;
+            break;
+          case type.toLowerCase().includes('oracle'):
+            connection = parseTestOracleDBConnectionString(connection_string) as CreateConnectionDto;
+            break;
+          case type.toLowerCase().includes('mongo'):
+            connection = parseTestMongoDBConnectionString(connection_string) as CreateConnectionDto;
+            break;
+          case type.toLowerCase().includes('ibmdb2'):
+            connection = parseTestIbmDB2ConnectionString(connection_string) as CreateConnectionDto;
+            break;
+          default:
+            break;
+        }
+        testConnectionsArr.push(connection);
+      }
+      return testConnectionsArr;
+    } catch (e) {
+      console.error('Error parsing test connections from DSN: ' + e);
+      return null;
+    }
   },
 
   getTestConnectionsHostNamesArr: function (): Array<string> {

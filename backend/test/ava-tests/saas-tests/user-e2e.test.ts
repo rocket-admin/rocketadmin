@@ -323,3 +323,49 @@ test.serial(`${currentTest} should return user settings when it was created`, as
   }
   t.pass();
 });
+
+currentTest = 'PUT user/test/connections/display/';
+test.serial(`${currentTest} should toggle test connections display mode`, async (t) => {
+  try {
+    const adminUserRegisterInfo = await registerUserAndReturnUserInfo(app);
+    const { token } = adminUserRegisterInfo;
+
+    //get user connections (test connections should be included)
+
+    const getUserConnectionsResult = await request(app.getHttpServer())
+      .get('/connections')
+      .set('Cookie', token)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+
+    const getUserConnectionsRO = JSON.parse(getUserConnectionsResult.text);
+    t.is(getUserConnectionsResult.status, 200);
+    t.is(getUserConnectionsRO.hasOwnProperty('connections'), true);
+    t.is(getUserConnectionsRO.connections.length, 4);
+
+    const toggleTestConnectionsDisplayModeResult = await request(app.getHttpServer())
+      .put('/user/test/connections/display/?displayMode=off')
+      .set('Cookie', token)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+    const toggleTestConnectionsDisplayModeRO = JSON.parse(toggleTestConnectionsDisplayModeResult.text);
+    t.is(toggleTestConnectionsDisplayModeResult.status, 200);
+    t.truthy(toggleTestConnectionsDisplayModeRO.success);
+
+    //get user connections (test connections shouldn't be included)
+
+    const getUserConnectionsResultAfterToggleMode = await request(app.getHttpServer())
+      .get('/connections')
+      .set('Cookie', token)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+
+    const getUserConnectionsROAfterToggleMode = JSON.parse(getUserConnectionsResultAfterToggleMode.text);
+    t.is(getUserConnectionsResultAfterToggleMode.status, 200);
+    t.is(getUserConnectionsROAfterToggleMode.hasOwnProperty('connections'), true);
+    t.is(getUserConnectionsROAfterToggleMode.connections.length, 0);
+  } catch (err) {
+    throw err;
+  }
+  t.pass();
+});

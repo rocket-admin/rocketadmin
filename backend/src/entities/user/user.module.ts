@@ -37,6 +37,7 @@ import { GetUserSessionSettingsUseCase } from './use-cases/get-user-session-sett
 import { SaveUserSettingsUseCase } from './use-cases/save-user-session-settings.use.case.js';
 import { CompanyInfoEntity } from '../company-info/company-info.entity.js';
 import { NonScopedAuthMiddleware } from '../../authorization/non-scoped-auth.middleware.js';
+import { ToggleTestConnectionsDisplayModeUseCase } from './use-cases/toggle-test-connections-display-mode.use.case.js';
 
 @Module({
   imports: [
@@ -132,6 +133,10 @@ import { NonScopedAuthMiddleware } from '../../authorization/non-scoped-auth.mid
       provide: UseCaseType.GET_USER_SESSION_SETTINGS,
       useClass: GetUserSessionSettingsUseCase,
     },
+    {
+      provide: UseCaseType.TOGGLE_TEST_CONNECTIONS_DISPLAY_MODE,
+      useClass: ToggleTestConnectionsDisplayModeUseCase,
+    },
     UserHelperService,
   ],
   controllers: [UserController],
@@ -152,6 +157,7 @@ export class UserModule implements NestModule {
         { path: 'user/email/change/request', method: RequestMethod.GET },
         { path: 'user/settings', method: RequestMethod.POST },
         { path: 'user/settings', method: RequestMethod.GET },
+        {path: 'user/test/connections/display/', method: RequestMethod.PUT},
       )
       .apply(TemporaryAuthMiddleware)
       .forRoutes({ path: 'user/otp/login', method: RequestMethod.POST })

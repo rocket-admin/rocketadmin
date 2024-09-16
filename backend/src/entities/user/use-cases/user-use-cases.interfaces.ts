@@ -20,6 +20,8 @@ import { UsualLoginDs } from '../application/data-structures/usual-login.ds.js';
 import { VerifyOtpDS } from '../application/data-structures/verify-otp.ds.js';
 import { IToken } from '../utils/generate-gwt-token.js';
 import { RequestRestUserPasswordDto } from '../dto/request-rest-user-password.dto.js';
+import { ToggleConnectionDisplayModeDs } from '../application/data-structures/toggle-connection-display-mode.ds.js';
+import { SuccessResponse } from '../../../microservices/saas-microservice/data-structures/common-responce.ds.js';
 
 export interface ICreateUserUseCase {
   execute(userData: CreateUserDs): Promise<CreatedUserDs>;
@@ -115,4 +117,8 @@ export interface ISaveUserSettings {
 
 export interface IGetUserSettings {
   execute(userId: string, inTransaction: InTransactionEnum): Promise<SaveUserSettingsDs>;
+}
+
+export interface IToggleTestConnectionsMode {
+  execute(inputData: ToggleConnectionDisplayModeDs, inTransaction: InTransactionEnum): Promise<SuccessResponse>;
 }

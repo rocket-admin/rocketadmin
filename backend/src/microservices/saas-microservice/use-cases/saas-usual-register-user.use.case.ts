@@ -4,7 +4,6 @@ import { IGlobalDatabaseContext } from '../../../common/application/global-datab
 import { BaseType } from '../../../common/data-injection.tokens.js';
 import { FoundUserDto } from '../../../entities/user/dto/found-user.dto.js';
 import { SaasUsualUserRegisterDS } from '../../../entities/user/application/data-structures/usual-register-user.ds.js';
-import { TableSettingsEntity } from '../../../entities/table-settings/table-settings.entity.js';
 import assert from 'assert';
 import { ConnectionEntity } from '../../../entities/connection/connection.entity.js';
 import { sendEmailConfirmation } from '../../../entities/email/send-email.js';
@@ -14,7 +13,6 @@ import { RegisterUserDs } from '../../../entities/user/application/data-structur
 import { buildConnectionEntitiesFromTestDtos } from '../../../entities/user/utils/build-connection-entities-from-test-dtos.js';
 import { buildDefaultAdminGroups } from '../../../entities/user/utils/build-default-admin-groups.js';
 import { buildDefaultAdminPermissions } from '../../../entities/user/utils/build-default-admin-permissions.js';
-import { buildTestTableSettings } from '../../../entities/user/utils/build-test-table-settings.js';
 import { Messages } from '../../../exceptions/text/messages.js';
 import { Constants } from '../../../helpers/constants/constants.js';
 import { ISaasRegisterUser } from './saas-use-cases.interface.js';
@@ -76,14 +74,14 @@ export class SaasUsualRegisterUseCase
         await this._dbContext.permissionRepository.saveNewOrUpdatedPermission(permission);
       }),
     );
-    const testTableSettingsArrays: Array<Array<TableSettingsEntity>> = buildTestTableSettings(createdTestConnections);
-    for (const tableSettingsArray of testTableSettingsArrays) {
-      await Promise.all(
-        tableSettingsArray.map(async (tableSettings: TableSettingsEntity) => {
-          await this._dbContext.tableSettingsRepository.saveNewOrUpdatedSettings(tableSettings);
-        }),
-      );
-    }
+    // const testTableSettingsArrays: Array<Array<TableSettingsEntity>> = buildTestTableSettings(createdTestConnections);
+    // for (const tableSettingsArray of testTableSettingsArrays) {
+    //   await Promise.all(
+    //     tableSettingsArray.map(async (tableSettings: TableSettingsEntity) => {
+    //       await this._dbContext.tableSettingsRepository.saveNewOrUpdatedSettings(tableSettings);
+    //     }),
+    //   );
+    // }
     const createdEmailVerification =
       await this._dbContext.emailVerificationRepository.createOrUpdateEmailVerification(savedUser);
     await sendEmailConfirmation(savedUser.email, createdEmailVerification.verification_string);
