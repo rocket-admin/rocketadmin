@@ -28,6 +28,8 @@ export function processExceptionMessage(message: string): string {
       return PROCESSING_MESSAGES_REPLACE.VIOLATES_FOREIGN_CONSTRAINT_MSSQL(msgInLowerCase);
     case msgInLowerCase.includes(PROCESSING_MESSAGES_FIND.SELECT_COMMAND_DENIED_MYSQL):
       return PROCESSING_MESSAGES_REPLACE.SELECT_COMMAND_DENIED_MYSQL(msgInLowerCase);
+    case msgInLowerCase.includes(PROCESSING_MESSAGES_FIND.Malformed_UTF_data):
+      return PROCESSING_MESSAGES_REPLACE.Malformed_UTF_data;
     default:
       return message;
   }

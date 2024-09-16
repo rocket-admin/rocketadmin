@@ -70,4 +70,6 @@ export const PROCESSING_MESSAGES_REPLACE = {
     `;
     return message;
   },
+
+  Malformed_UTF_data: 'Failed to decrypt connection. Please check that master password is correct.',
 };
