@@ -54,6 +54,12 @@ export class TestConnectionUseCase
           };
         }
         toUpdate = await this._dbContext.connectionRepository.findAndDecryptConnection(connectionId, masterPwd);
+        if (!toUpdate) {
+          return {
+            result: false,
+            message: Messages.CONNECTION_NOT_FOUND,
+          };
+        }
         if (isConnectionTypeAgent(toUpdate.type)) {
           const qb = await getRepository(ConnectionEntity)
             .createQueryBuilder('connection')
