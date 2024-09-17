@@ -325,15 +325,16 @@ export class TableActionActivationService {
     primaryKeyValuesArray: Array<Record<string, unknown>>,
   ): MessageContent {
     const { email, userId, userName } = userInfo;
-    const action = triggerOperation === TableActionEventEnum.ADD_ROW
-    ? 'added a row'
-    : triggerOperation === TableActionEventEnum.UPDATE_ROW
-      ? 'updated a row'
-      : triggerOperation === TableActionEventEnum.DELETE_ROW
-        ? 'deleted a row'
-        : 'performed an action';
+    const action =
+      triggerOperation === TableActionEventEnum.ADD_ROW
+        ? 'added a row'
+        : triggerOperation === TableActionEventEnum.UPDATE_ROW
+          ? 'updated a row'
+          : triggerOperation === TableActionEventEnum.DELETE_ROW
+            ? 'deleted a row'
+            : 'performed an action';
     const textContent = `${userName ? userName : 'User'} (email: ${email}, user id: ${userId}) has ${action} in the table "${tableName}".`;
-
+    const testContentWithPrimaryKeys = `${textContent} Primary Keys: ${JSON.stringify(primaryKeyValuesArray)}`;
     const htmlContent = `<!doctype html>
 <html>
   <head>
@@ -466,7 +467,7 @@ table[class=body] .article {
 </html>
 `;
     return {
-      text: textContent,
+      text: testContentWithPrimaryKeys,
       html: htmlContent,
     };
   }
