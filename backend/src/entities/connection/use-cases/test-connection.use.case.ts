@@ -41,18 +41,18 @@ export class TestConnectionUseCase
       update_info: { connectionId, masterPwd },
       connection_parameters: connectionData,
     } = inputData;
-    const foundConnection = await this._dbContext.connectionRepository.findOne({
-      where: { id: connectionId },
-    });
-    if (foundConnection.masterEncryption && !masterPwd) {
-      return {
-        result: false,
-        message: Messages.MASTER_PASSWORD_MISSING,
-      };
-    }
     if (connectionId) {
       let toUpdate;
       try {
+        const foundConnection = await this._dbContext.connectionRepository.findOne({
+          where: { id: connectionId },
+        });
+        if (foundConnection?.masterEncryption && !masterPwd) {
+          return {
+            result: false,
+            message: Messages.MASTER_PASSWORD_MISSING,
+          };
+        }
         toUpdate = await this._dbContext.connectionRepository.findAndDecryptConnection(connectionId, masterPwd);
         if (isConnectionTypeAgent(toUpdate.type)) {
           const qb = await getRepository(ConnectionEntity)
