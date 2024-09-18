@@ -2089,26 +2089,26 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@rocketadmin/shared-code@workspace:shared-code"
   dependencies:
-    "@types/multer": ^1.4.11
+    "@types/multer": ^1.4.12
     "@types/oracledb": ^6.5.1
     "@types/pg-copy-streams": ^1.2.5
-    axios: ^1.7.3
+    axios: ^1.7.7
     csv: ^6.3.10
     get-port: ^7.1.0
     jsonwebtoken: ^9.0.2
     knex: ^3.1.0
-    lru-cache: ^11.0.0
-    mysql2: ^3.11.0
+    lru-cache: ^11.0.1
+    mysql2: ^3.11.3
     oracledb: ^6.6.0
     p-queue: ^8.0.1
-    pg: ^8.12.0
+    pg: ^8.13.0
     pg-copy-streams: ^6.0.6
-    pg-query-stream: ^4.6.0
+    pg-query-stream: ^4.7.0
     prettier: 3.3.3
-    ssh2: ^1.15.0
-    tedious: ^18.3.0
+    ssh2: ^1.16.0
+    tedious: ^18.6.1
     tunnel-ssh: 5.1.2
-    typescript: ^5.5.4
+    typescript: ^5.6.2
   languageName: unknown
   linkType: soft
 
@@ -2551,7 +2551,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/multer@npm:^1.4.11, @types/multer@npm:^1.4.12":
+"@types/multer@npm:^1.4.12":
   version: 1.4.12
   resolution: "@types/multer@npm:1.4.12"
   dependencies:
@@ -3893,7 +3893,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"axios@npm:^1.6.2, axios@npm:^1.7.3, axios@npm:^1.7.7":
+"axios@npm:^1.6.2, axios@npm:^1.7.7":
   version: 1.7.7
   resolution: "axios@npm:1.7.7"
   dependencies:
@@ -4952,14 +4952,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cpu-features@npm:~0.0.9":
-  version: 0.0.9
-  resolution: "cpu-features@npm:0.0.9"
+"cpu-features@npm:~0.0.10":
+  version: 0.0.10
+  resolution: "cpu-features@npm:0.0.10"
   dependencies:
     buildcheck: ~0.0.6
-    nan: ^2.17.0
+    nan: ^2.19.0
     node-gyp: latest
-  checksum: 1ff6045a16d32d9667d5dd69c7d485944494d3378ac9381c52bca772bd0c948812eaeda55a76ef09212b0c0e0c575e5d53221899ce51692b1196089452c5aef1
+  checksum: ab17e25cea0b642bdcfd163d3d872be4cc7d821e854d41048557799e990d672ee1cc7bd1d4e7c4de0309b1683d4c001d36ba8569b5035d1e7e2ff2d681f681d7
   languageName: node
   linkType: hard
 
@@ -8507,10 +8507,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"lru-cache@npm:^8.0.0":
-  version: 8.0.5
-  resolution: "lru-cache@npm:8.0.5"
-  checksum: 87d72196d8f46e8299c4ab576ed2ec8a07e3cbef517dc9874399c0b2470bd9bf62aacec3b67f84ed6d74aaa1ef31636d048edf996f76248fd17db72bfb631609
+"lru.min@npm:^1.0.0":
+  version: 1.1.0
+  resolution: "lru.min@npm:1.1.0"
+  checksum: c03dcc83f031387f254856bccc8418daff716b79b67886eceb110e3af57f593f752821a7b019ea382f8f48927767ddb1869087586f4bfc5bf9c90674ca80dfa2
   languageName: node
   linkType: hard
 
@@ -9020,20 +9020,20 @@ __metadata:
   languageName: node
   linkType: hard
 
-"mysql2@npm:^3.11.0, mysql2@npm:^3.9.4":
-  version: 3.11.0
-  resolution: "mysql2@npm:3.11.0"
+"mysql2@npm:^3.11.3, mysql2@npm:^3.9.4":
+  version: 3.11.3
+  resolution: "mysql2@npm:3.11.3"
   dependencies:
     aws-ssl-profiles: ^1.1.1
     denque: ^2.1.0
     generate-function: ^2.3.1
     iconv-lite: ^0.6.3
     long: ^5.2.1
-    lru-cache: ^8.0.0
+    lru.min: ^1.0.0
     named-placeholders: ^1.1.3
     seq-queue: ^0.0.5
     sqlstring: ^2.3.2
-  checksum: 0a3e80c95ca9e26821bc11658cbd065704d5f07f76efd952fc84115cc28f8a0100f14646fb3dd577f28831b8d6d2bfe0ef46fd4273ba5dcbfbeabb311302874d
+  checksum: ae62b5b997da429a33f0762158db965d22daece0030e75ac8e822b0b342ad082fa5f1ead87d922d0ba93595e9d5491036916ef91457c762517f25f41afa6e2d9
   languageName: node
   linkType: hard
 
@@ -9057,12 +9057,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"nan@npm:^2.17.0, nan@npm:^2.18.0":
-  version: 2.18.0
-  resolution: "nan@npm:2.18.0"
+"nan@npm:^2.18.0, nan@npm:^2.19.0, nan@npm:^2.20.0":
+  version: 2.20.0
+  resolution: "nan@npm:2.20.0"
   dependencies:
     node-gyp: latest
-  checksum: 4fe42f58456504eab3105c04a5cffb72066b5f22bd45decf33523cb17e7d6abc33cca2a19829407b9000539c5cb25f410312d4dc5b30220167a3594896ea6a0a
+  checksum: eb09286e6c238a3582db4d88c875db73e9b5ab35f60306090acd2f3acae21696c9b653368b4a0e32abcef64ee304a923d6223acaddd16169e5eaaf5c508fb533
   languageName: node
   linkType: hard
 
@@ -9810,7 +9810,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"pg-connection-string@npm:^2.6.4, pg-connection-string@npm:^2.7.0":
+"pg-connection-string@npm:^2.7.0":
   version: 2.7.0
   resolution: "pg-connection-string@npm:2.7.0"
   checksum: 68015a8874b7ca5dad456445e4114af3d2602bac2fdb8069315ecad0ff9660ec93259b9af7186606529ac4f6f72a06831e6f20897a689b16cc7fda7ca0e247fd
@@ -9826,12 +9826,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"pg-cursor@npm:^2.11.0":
-  version: 2.11.0
-  resolution: "pg-cursor@npm:2.11.0"
+"pg-cursor@npm:^2.12.0":
+  version: 2.12.0
+  resolution: "pg-cursor@npm:2.12.0"
   peerDependencies:
     pg: ^8
-  checksum: e38b7829d225b664b72dc17a022850ea0693edfecdd67185bbc0644ab62e7bd1b55a1f0467d11cce747a05b3a86fbe5f90156a21ca8bf77dd2d1a98ad99ea05b
+  checksum: 198f8d95e72a2760924adbc7e342f36a85ffc1022c1cf92bbdd90c5a49e3818a91221431fe7d24f450bd64cdaa11c8431bc4284183cbf4c80f5aceba224a7db8
   languageName: node
   linkType: hard
 
@@ -9849,30 +9849,30 @@ __metadata:
   languageName: node
   linkType: hard
 
-"pg-pool@npm:^3.6.2":
-  version: 3.6.2
-  resolution: "pg-pool@npm:3.6.2"
+"pg-pool@npm:^3.7.0":
+  version: 3.7.0
+  resolution: "pg-pool@npm:3.7.0"
   peerDependencies:
     pg: ">=8.0"
-  checksum: 5ceee4320a35fce08777d085d50a30a1253574257e1e7c5c56c915056d387d340f797115580c8d90a46691f83c39a9b4da1fd810d9ad168cc455c79c289116f4
+  checksum: 66fc1a5ad0e17b72671b9a2cd4c7a856fb08d3cb82da7af0b322590ada23127ac591111e855740405fde4f06c9de888abe9f3aa685ed6038c3232578e1fce8cf
   languageName: node
   linkType: hard
 
-"pg-protocol@npm:*, pg-protocol@npm:^1.6.1":
-  version: 1.6.1
-  resolution: "pg-protocol@npm:1.6.1"
-  checksum: cce3f72cc4bdc04db9ce3fa38b2c45b745f0a95a925847b349087f52c02c4d51b7c74d8867e40639699d0c7609accfaffb6b1d221b3268d2bdc4bb8d6a2995a3
+"pg-protocol@npm:*, pg-protocol@npm:^1.7.0":
+  version: 1.7.0
+  resolution: "pg-protocol@npm:1.7.0"
+  checksum: 2dba740f6fc4b7f9761682c4c42d183b444292cdc7638b373f5247ec995c8199c369953343479281da3c41611fe34130a80c8668348d49a399c164f802f76be2
   languageName: node
   linkType: hard
 
-"pg-query-stream@npm:^4.6.0":
-  version: 4.6.0
-  resolution: "pg-query-stream@npm:4.6.0"
+"pg-query-stream@npm:^4.7.0":
+  version: 4.7.0
+  resolution: "pg-query-stream@npm:4.7.0"
   dependencies:
-    pg-cursor: ^2.11.0
+    pg-cursor: ^2.12.0
   peerDependencies:
     pg: ^8
-  checksum: 97a2ccd723c05b452eaef61797a4c63efc214c28414953805dce54c1af73b6e10e975715fc1ccaf162f20d3e053b01a786f9bd6227f23aaf53443123942791f1
+  checksum: 6a5209b30e9b90d044f498be0fd46265c6d14fc0638e9cd2e7ff634867a493780e604b803a57e5b76f8066da35dbe5df2fba13584f93c4e859bd2ab0ef67925f
   languageName: node
   linkType: hard
 
@@ -9904,14 +9904,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"pg@npm:^8.11.5, pg@npm:^8.12.0":
-  version: 8.12.0
-  resolution: "pg@npm:8.12.0"
+"pg@npm:^8.11.5, pg@npm:^8.13.0":
+  version: 8.13.0
+  resolution: "pg@npm:8.13.0"
   dependencies:
     pg-cloudflare: ^1.1.1
-    pg-connection-string: ^2.6.4
-    pg-pool: ^3.6.2
-    pg-protocol: ^1.6.1
+    pg-connection-string: ^2.7.0
+    pg-pool: ^3.7.0
+    pg-protocol: ^1.7.0
     pg-types: ^2.1.0
     pgpass: 1.x
   peerDependencies:
@@ -9922,7 +9922,7 @@ __metadata:
   peerDependenciesMeta:
     pg-native:
       optional: true
-  checksum: 8450b61c787f360e22182aa853548f834f13622714868d0789a60f63743d66ae28930cdca0ef0251bfc89b04679e9074c1398f172c2937bf59b5a360337f4149
+  checksum: 81560755ff4ee62b71bf1204dd696f66451574d1db56cbd5aa514ce91c6474030ee8078461b3cb85cce8d2f185be5846e0a7a707a818f5e2e3fb198a7ea795ea
   languageName: node
   linkType: hard
 
@@ -11070,20 +11070,20 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ssh2@npm:^1.15.0":
-  version: 1.15.0
-  resolution: "ssh2@npm:1.15.0"
+"ssh2@npm:^1.15.0, ssh2@npm:^1.16.0":
+  version: 1.16.0
+  resolution: "ssh2@npm:1.16.0"
   dependencies:
     asn1: ^0.2.6
     bcrypt-pbkdf: ^1.0.2
-    cpu-features: ~0.0.9
-    nan: ^2.18.0
+    cpu-features: ~0.0.10
+    nan: ^2.20.0
   dependenciesMeta:
     cpu-features:
       optional: true
     nan:
       optional: true
-  checksum: 56baa07dc0dd8d97aefa05033b8a95d220a34b2f203aa9116173d7adc5e9fd46be22d7cfed99cdd9f5548862ae44abd1ec136e20ea856d5c470a0df0e5aea9d1
+  checksum: c024c4a432aae2457852037f31c0d9bec323fb062ace3a31e4a6dd6c55842246c80e7d20ff93ffed22dde1e523250d8438bc2f7d4a1450cf4fa4887818176f0e
   languageName: node
   linkType: hard
 
@@ -11466,9 +11466,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tedious@npm:^18.1.0, tedious@npm:^18.3.0":
-  version: 18.4.0
-  resolution: "tedious@npm:18.4.0"
+"tedious@npm:^18.1.0, tedious@npm:^18.6.1":
+  version: 18.6.2
+  resolution: "tedious@npm:18.6.2"
   dependencies:
     "@azure/core-auth": ^1.7.2
     "@azure/identity": ^4.2.1
@@ -11480,7 +11480,7 @@ __metadata:
     js-md4: ^0.3.2
     native-duplexpair: ^1.0.0
     sprintf-js: ^1.1.3
-  checksum: 3220155f604ad9666043933777f7e9296cb442a58f27dc711dd342b7b02633e26c23cdfa76710cdf53f510c6cbffc2da0b52fec996c3a9d704bd24e54e2e08e2
+  checksum: 6203be9ef9c576c41e8946fb832ff6464b4cd9d05f6d2f963f9cdc49e2bf0f78b4a75593b3ecd9fc5e1075946e9b82de6f23e9c4d81910f241143f2cf5117a6b
   languageName: node
   linkType: hard
 
@@ -12050,7 +12050,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript@npm:5.6.2, typescript@npm:^5.4.5, typescript@npm:^5.5.4":
+"typescript@npm:5.6.2, typescript@npm:^5.4.5, typescript@npm:^5.6.2":
   version: 5.6.2
   resolution: "typescript@npm:5.6.2"
   bin:
@@ -12070,7 +12070,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript@patch:typescript@5.6.2#~builtin<compat/typescript>, typescript@patch:typescript@^5.4.5#~builtin<compat/typescript>, typescript@patch:typescript@^5.5.4#~builtin<compat/typescript>":
+"typescript@patch:typescript@5.6.2#~builtin<compat/typescript>, typescript@patch:typescript@^5.4.5#~builtin<compat/typescript>, typescript@patch:typescript@^5.6.2#~builtin<compat/typescript>":
   version: 5.6.2
   resolution: "typescript@patch:typescript@npm%3A5.6.2#~builtin<compat/typescript>::version=5.6.2&hash=1f5320"
   bin:
