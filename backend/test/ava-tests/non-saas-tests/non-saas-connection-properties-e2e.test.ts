@@ -192,7 +192,7 @@ test.serial(`${currentTest} should throw an exception when excluded table name i
     const createConnectionRO = JSON.parse(createConnectionResponse.text);
     t.is(createConnectionResponse.status, 201);
     const copyNewConnectionResponse = JSON.parse(JSON.stringify(newConnectionProperties));
-    copyNewConnectionResponse.hidden_tables[0] = `${faker.lorem.words(1)}_${faker.datatype.number({
+    copyNewConnectionResponse.hidden_tables[0] = `${faker.lorem.words(1)}_${faker.number.int({
       min: 1,
       max: 10000,
     })}`;
