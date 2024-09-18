@@ -1800,7 +1800,7 @@ test.serial(`${currentTest} should throw an exception when table name passed in 
       secondTableInfo,
       users: { adminUserToken, simpleUserToken },
     } = testData;
-    const fakeTableName = `${faker.lorem.words(1)}_${faker.datatype.number({ min: 1, max: 10000 })}`;
+    const fakeTableName = `${faker.lorem.words(1)}_${faker.number.int({ min: 1, max: 10000 })}`;
     const getTablesStructure = await request(app.getHttpServer())
       .get(`/table/structure/${connections.firstId}?tableName=${fakeTableName}`)
       .set('Cookie', simpleUserToken)
@@ -1909,7 +1909,7 @@ test.serial(`${currentTest} should throw an exception when table name passed in 
     const randomEmail = faker.internet.email();
     const created_at = new Date();
     const updated_at = new Date();
-    const fakeTableName = `${faker.lorem.words(1)}_${faker.datatype.number({ min: 1, max: 10000 })}`;
+    const fakeTableName = `${faker.lorem.words(1)}_${faker.number.int({ min: 1, max: 10000 })}`;
     const addRowInTable = await request(app.getHttpServer())
       .post(`/table/row/${connections.firstId}?tableName=${fakeTableName}`)
       .send({

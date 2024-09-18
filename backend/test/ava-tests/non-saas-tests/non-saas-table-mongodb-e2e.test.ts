@@ -2228,7 +2228,7 @@ test.serial(`${currentTest} should throw an exception when table name passed in 
     [testTableSecondColumnName]: fakeMail,
   };
 
-  const fakeTableName = `${faker.lorem.words(1)}_${faker.datatype.number({ min: 1, max: 10000 })}`;
+  const fakeTableName = `${faker.lorem.words(1)}_${faker.number.int({ min: 1, max: 10000 })}`;
   const addRowInTableResponse = await request(app.getHttpServer())
     .post(`/table/row/${createConnectionRO.id}?tableName=${fakeTableName}`)
     .send(JSON.stringify(row))
