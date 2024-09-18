@@ -3,6 +3,13 @@
     padding: 16px;
 }
 
+@media (width <= 600px) {
+    .wrapper {
+        padding: 0;
+        width: 100vw;
+    }
+}
+
 .login-page {
     display: flex;
     flex-direction: column;
@@ -11,9 +18,9 @@
     height: 100%;
 }
 
-@media screen and (max-width: 600px) {
+@media (width <= 600px) {
     .login-page {
-        width: 98%;
+        justify-content: flex-start;
     }
 }
 
@@ -24,6 +31,17 @@
     justify-items: center;
 }
 
+@media (width <= 600px) {
+    .login-form {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+        padding: 40px 9vw;
+        width: 100%;
+    }
+}
+
 .login-header {
     grid-column: 1 / span 3;
     display: flex;
@@ -32,9 +50,21 @@
     padding-bottom: 40px;
 }
 
+@media (width <= 600px) {
+    .login-header {
+        padding-bottom: 0;
+    }
+}
+
 .login-header__logo {
     margin-bottom: 36px;
     width: 44px;
+}
+
+@media (width <= 600px) {
+    .login-header__logo {
+        margin-bottom: 12px;
+    }
 }
 
 .loginTitle {
@@ -47,6 +77,12 @@
     color: var(--color-accentedPalette-500);
 }
 
+@media (width <= 600px) {
+    .login-header__directions {
+        display: none;
+    }
+}
+
 [hidden] { display: none !important;}
 
 .login-form__email {
@@ -55,14 +91,32 @@
     width: 100%;
 }
 
+@media (width <= 600px) {
+    .login-form__email {
+        order: 1;
+    }
+}
+
 .login-form__companies {
     width: 100%;
+}
+
+@media (width <= 600px) {
+    .login-form__companies {
+        order: 2;
+    }
 }
 
 .login-form__password {
     /* grid-column: 1;
     grid-row: 3; */
     width: 100%;
+}
+
+@media (width <= 600px) {
+    .login-form__password {
+        order: 3;
+    }
 }
 
 .login-form__login-button {
@@ -72,14 +126,37 @@
     margin-top: 40px;
 }
 
+@media (width <= 600px) {
+    .login-form__login-button {
+        order: 4;
+        margin-top: 0;
+        width: 100%;
+    }
+}
+
 .login-form__google-button {
     grid-column: 3;
     grid-row: 2;
 }
+
+@media (width <= 600px) {
+    .login-form__google-button {
+        order: 6;
+        margin: 4px 0;
+    }
+}
+
 .login-form__github-button-box {
     grid-column: 3;
     grid-row: 3;
     width: 100%;
+}
+
+@media (width <= 600px) {
+    .login-form__github-button-box {
+        order: 7;
+        margin: 4px 0;
+    }
 }
 
 .login-form__github-button {
@@ -111,6 +188,13 @@
     grid-column: 3;
     grid-row: 4;
     width: 100%;
+}
+
+@media (width <= 600px) {
+    .login-form__sso-button-box {
+        order: 8;
+        margin: 4px 0;
+    }
 }
 
 .login-form__sso-button {
@@ -146,6 +230,12 @@
     text-decoration: none;
 }
 
+@media (width <= 600px) {
+    .login-form__link {
+        order: 9;
+    }
+}
+
 .link {
     color: var(--color-primaryPalette-500);
     text-decoration: none;
@@ -160,6 +250,15 @@
     margin: 36px 0;
     height: 100%;
     width: 1px;
+}
+
+@media (width <= 600px) {
+    .divider {
+        order: 5;
+        height: 1px;
+        margin: 16px 0 8px;
+        width: 100%;
+    }
 }
 
 .divider__label {
@@ -195,6 +294,12 @@
     overflow: hidden;
     height: 44px;
     width: 100%;
+}
+
+@media (width <= 600px) {
+    .login-form__field-loader {
+        order: 2;
+    }
 }
 
 .login-form__field-loader::after {
