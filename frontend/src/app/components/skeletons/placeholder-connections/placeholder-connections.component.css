@@ -6,12 +6,23 @@
     width: 100%;
 }
 
+@media (width <= 600px) {
+    .connections {
+        flex-direction: column;
+    }
+}
+
 .connectionCard {
     flex: 0 0 calc((100% - 40px)/3);
-    height: 148px;
     border-radius: 4px;
     height: 148px;
     width: 100%;
+}
+
+@media (width <= 600px) {
+    .connectionCard {
+        flex: initial;
+    }
 }
 
 .connectionAddButton {
