@@ -2156,10 +2156,10 @@ test.serial(`${currentTest} should add row in table and return result`, async (t
 
   t.is(getLogsResponse.status, 200);
   const getLogsRO = JSON.parse(getLogsResponse.text);
-  console.log('🚀 ~ test.serial ~ getLogsRO:', getLogsRO.logs[1].affected_primary_key)
+  console.log('🚀 ~ test.serial ~ getLogsRO:', getLogsRO.logs[1].affected_primary_key);
   t.is(getLogsRO.hasOwnProperty('logs'), true);
   t.is(getLogsRO.hasOwnProperty('pagination'), true);
-  t.is(getLogsRO.logs.length > 0 , true);
+  t.is(getLogsRO.logs.length > 0, true);
   const addRowLogIndex = getLogsRO.logs.findIndex((log) => log.operationType === 'addRow');
   t.is(getLogsRO.logs[addRowLogIndex].hasOwnProperty('affected_primary_key'), true);
   t.is(typeof getLogsRO.logs[addRowLogIndex].affected_primary_key, 'object');
@@ -2351,7 +2351,7 @@ test.serial(`${currentTest} should throw an exception when table name passed in 
     [testTableSecondColumnName]: fakeMail,
   };
 
-  const fakeTableName = `${faker.lorem.words(1)}_${faker.datatype.number({ min: 1, max: 10000 })}`;
+  const fakeTableName = `${faker.lorem.words(1)}_${faker.number.int({ min: 1, max: 10000 })}`;
   const addRowInTableResponse = await request(app.getHttpServer())
     .post(`/table/row/${createConnectionRO.id}?tableName=${fakeTableName}`)
     .send(JSON.stringify(row))
@@ -2360,7 +2360,7 @@ test.serial(`${currentTest} should throw an exception when table name passed in 
     .set('Accept', 'application/json');
 
   const { message } = JSON.parse(addRowInTableResponse.text);
-  console.log('🚀 ~ test.serial ~ message:', message)
+  console.log('🚀 ~ test.serial ~ message:', message);
   t.is(addRowInTableResponse.status, 400);
   t.is(message, Messages.TABLE_NOT_FOUND);
 
@@ -3236,35 +3236,38 @@ test.serial(`${currentTest} should throw an exception, when connection id is not
   t.is(foundRowInTableResponse.status, 404);
 });
 
-test.serial(`${currentTest} should throw an exception, when connection id passed in request is incorrect`, async (t) => {
-  const connectionToTestDB = getTestData(mockFactory).connectionToPostgres;
-  const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-  const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
-    await createTestTable(connectionToTestDB);
+test.serial(
+  `${currentTest} should throw an exception, when connection id passed in request is incorrect`,
+  async (t) => {
+    const connectionToTestDB = getTestData(mockFactory).connectionToPostgres;
+    const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
+    const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
+      await createTestTable(connectionToTestDB);
 
-  testTables.push(testTableName);
+    testTables.push(testTableName);
 
-  const createConnectionResponse = await request(app.getHttpServer())
-    .post('/connection')
-    .send(connectionToTestDB)
-    .set('Cookie', firstUserToken)
-    .set('Content-Type', 'application/json')
-    .set('Accept', 'application/json');
-  const createConnectionRO = JSON.parse(createConnectionResponse.text);
-  t.is(createConnectionResponse.status, 201);
+    const createConnectionResponse = await request(app.getHttpServer())
+      .post('/connection')
+      .send(connectionToTestDB)
+      .set('Cookie', firstUserToken)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+    const createConnectionRO = JSON.parse(createConnectionResponse.text);
+    t.is(createConnectionResponse.status, 201);
 
-  const idForSearch = 1;
-  createConnectionRO.id = faker.string.uuid();
-  const foundRowInTableResponse = await request(app.getHttpServer())
-    .get(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&id=${idForSearch}`)
-    .set('Cookie', firstUserToken)
-    .set('Content-Type', 'application/json')
-    .set('Accept', 'application/json');
+    const idForSearch = 1;
+    createConnectionRO.id = faker.string.uuid();
+    const foundRowInTableResponse = await request(app.getHttpServer())
+      .get(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&id=${idForSearch}`)
+      .set('Cookie', firstUserToken)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
 
-  t.is(foundRowInTableResponse.status, 403);
-  const { message } = JSON.parse(foundRowInTableResponse.text);
-  t.is(message, Messages.DONT_HAVE_PERMISSIONS);
-});
+    t.is(foundRowInTableResponse.status, 403);
+    const { message } = JSON.parse(foundRowInTableResponse.text);
+    t.is(message, Messages.DONT_HAVE_PERMISSIONS);
+  },
+);
 
 test.serial(`${currentTest} should throw an exception, when tableName in not passed in request`, async (t) => {
   const connectionToTestDB = getTestData(mockFactory).connectionToPostgres;

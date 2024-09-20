@@ -93,7 +93,7 @@ export class TestUtils {
   //   const newMockEntity = new MockEntity();
   //   newMockEntity.textField = faker.lorem.words(1);
   //   newMockEntity.booleanField = faker.datatype.boolean();
-  //   newMockEntity.integerField = faker.datatype.number({ min: 5, max: 10, precision: 1 });
+  //   newMockEntity.integerField = faker.number.int({ min: 5, max: 10, precision: 1 });
   //   const repository = await this.databaseService.getRepository('MockEntity');
   //   await repository.save(newMockEntity);
   // }
