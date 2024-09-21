@@ -3,7 +3,7 @@ import * as JSON5 from 'json5';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Component, NgZone, OnInit } from '@angular/core';
 import { CustomAction, CustomEvent, TableField, TableForeignKey, TablePermissions, Widget } from 'src/app/models/table';
-import { UIwidgets, fieldTypes } from 'src/app/consts/field-types';
+import { UIwidgets, defaultTimestampValues, fieldTypes, timestampTypes } from 'src/app/consts/field-types';
 
 import { BbBulkActionConfirmationDialogComponent } from '../dashboard/db-bulk-action-confirmation-dialog/db-bulk-action-confirmation-dialog.component';
 import { ConnectionsService } from 'src/app/services/connections.service';
@@ -37,7 +37,7 @@ export class DbTableRowEditComponent implements OnInit {
   public tableRowRequiredValues: object;
   public identityColumn: string;
   public readonlyFields: string[];
-  public autoincrementFields: string[];
+  public nonModifyingFields: string[];
   public keyAttributesFromURL: object = {};
   public hasKeyAttributesFromURL: boolean;
   public keyAttributesFromStructure: [] = [];
@@ -103,7 +103,7 @@ export class DbTableRowEditComponent implements OnInit {
             this.tableForeignKeys = res.foreignKeys;
             this.setRowStructure(res.structure);
             res.table_widgets && this.setWidgets(res.table_widgets);
-            this.shownRows = res.structure.filter((field: TableField) => !field.auto_increment && !(field.data_type.startsWith('timestamp') && field.column_default === 'CURRENT_TIMESTAMP'));
+            this.shownRows = this.getModifyingFields(res.structure);
             const allowNullFields = res.structure
               .filter((field: TableField) => field.allow_null)
               .map((field: TableField) => field.column_name);
@@ -138,9 +138,8 @@ export class DbTableRowEditComponent implements OnInit {
             this.title.setTitle(`${this.dispalyTableName} - Edit record | Rocketadmin`);
             this.permissions = res.table_access_level;
 
-            this.autoincrementFields = res.structure.filter((field: TableField) => field.auto_increment).map((field: TableField) => field.column_name);
-            const autoTimestampFields = res.structure.filter((field: TableField) => field.data_type.startsWith('timestamp') && field.column_default === 'CURRENT_TIMESTAMP').map((field: TableField) => field.column_name);
-            this.readonlyFields = [...res.readonly_fields, ...this.autoincrementFields, ...autoTimestampFields];
+            this.nonModifyingFields = res.structure.filter((field: TableField) => !this.getModifyingFields(res.structure).some(modifyingField => field.column_name === modifyingField.column_name)).map((field: TableField) => field.column_name);
+            this.readonlyFields = [...res.readonly_fields, ...this.nonModifyingFields];
             this.tableForeignKeys = res.foreignKeys;
             // this.shownRows = res.structure.filter((field: TableField) => !field.column_default?.startsWith('nextval'));
             this.tableRowValues = {...res.row};
@@ -152,7 +151,7 @@ export class DbTableRowEditComponent implements OnInit {
             };
 
             if (this.pageAction === 'dub') {
-              this.fieldsOrdered = this.fieldsOrdered.filter(field => !this.autoincrementFields.includes(field));
+              this.fieldsOrdered = this.fieldsOrdered.filter(field => !this.nonModifyingFields.includes(field));
             }
 
             if (res.table_actions) this.rowActions = res.table_actions;
@@ -271,6 +270,10 @@ export class DbTableRowEditComponent implements OnInit {
     return this.tableWidgetsList.includes(columnName);
   }
 
+  getModifyingFields(fields) {
+    return fields.filter((field: TableField) => !field.auto_increment && !(timestampTypes.includes(field.data_type) && field.column_default && defaultTimestampValues.includes(field.column_default.toLowerCase().replace(/\(.*\)/, ""))));
+  }
+
   updateField = (updatedValue: any, field: string) => {
     console.log(typeof(updatedValue));
     if (typeof(updatedValue) === 'object' && updatedValue !== null) {
@@ -323,7 +326,7 @@ export class DbTableRowEditComponent implements OnInit {
     }
 
     if (this.pageAction === 'dub') {
-      this.autoincrementFields.forEach((field) => {
+      this.nonModifyingFields.forEach((field) => {
         delete updatedRow[field];
       });
     }
