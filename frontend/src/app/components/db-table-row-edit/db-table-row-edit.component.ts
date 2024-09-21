@@ -103,7 +103,7 @@ export class DbTableRowEditComponent implements OnInit {
             this.tableForeignKeys = res.foreignKeys;
             this.setRowStructure(res.structure);
             res.table_widgets && this.setWidgets(res.table_widgets);
-            this.shownRows = res.structure.filter((field: TableField) => !field.auto_increment);
+            this.shownRows = res.structure.filter((field: TableField) => !field.auto_increment && !(field.data_type.startsWith('timestamp') && field.column_default === 'CURRENT_TIMESTAMP'));
             const allowNullFields = res.structure
               .filter((field: TableField) => field.allow_null)
               .map((field: TableField) => field.column_name);
@@ -139,7 +139,8 @@ export class DbTableRowEditComponent implements OnInit {
             this.permissions = res.table_access_level;
 
             this.autoincrementFields = res.structure.filter((field: TableField) => field.auto_increment).map((field: TableField) => field.column_name);
-            this.readonlyFields = [...res.readonly_fields, ...this.autoincrementFields];
+            const autoTimestampFields = res.structure.filter((field: TableField) => field.data_type.startsWith('timestamp') && field.column_default === 'CURRENT_TIMESTAMP').map((field: TableField) => field.column_name);
+            this.readonlyFields = [...res.readonly_fields, ...this.autoincrementFields, ...autoTimestampFields];
             this.tableForeignKeys = res.foreignKeys;
             // this.shownRows = res.structure.filter((field: TableField) => !field.column_default?.startsWith('nextval'));
             this.tableRowValues = {...res.row};
