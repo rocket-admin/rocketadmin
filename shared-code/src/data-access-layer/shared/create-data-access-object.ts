@@ -49,7 +49,7 @@ export function getDataAccessObject(
       return new DataAccessObjectIbmDb2(connectionParamsToIbmDB2);
     case ConnectionTypesEnum.mongodb:
       const connectionParamsMongo = buildConnectionParams(connectionParams);
-      return new DataAccessObjectMongo(connectionParamsMongo);  
+      return new DataAccessObjectMongo(connectionParamsMongo);
     default:
       if (!agentTypes.includes(connectionParams.type)) {
         throw new Error(ERROR_MESSAGES.CONNECTION_TYPE_INVALID);
@@ -69,6 +69,7 @@ function buildAgentConnectionParams(connectionParams: IUnknownConnectionParams):
     signing_key: connectionParams.signing_key,
     token: connectionParams.agent.token,
     type: connectionParams.type,
+    isTestConnection: false,
   };
 }
 
@@ -78,7 +79,7 @@ function buildConnectionParams(connectionParams: IUnknownConnectionParams): Conn
   if (connectionParams.ssh) {
     requiredKeys.push('sshHost', 'sshPort', 'sshUsername');
   }
-  
+
   const missingKeys = requiredKeys.filter((key) => !connectionParams[key]);
   if (missingKeys.length > 0) {
     throw new Error(`Missing required key${missingKeys.length > 1 ? 's' : ''}: ${missingKeys.join(', ')}`);
@@ -104,5 +105,6 @@ function buildConnectionParams(connectionParams: IUnknownConnectionParams): Conn
     azure_encryption: connectionParams.azure_encryption || false,
     signing_key: connectionParams.signing_key || null,
     authSource: connectionParams.authSource || null,
+    isTestConnection: connectionParams.isTestConnection || false,
   };
 }
