@@ -97,7 +97,6 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
         this._dbContext.userAccessRepository.getUserTablePermissions(userId, connectionId, tableName, masterPwd),
         this._dbContext.actionEventsRepository.findCustomEventsForTable(connectionId, tableName),
       ]);
-
       const filteringFields: Array<FilteringFieldsDs> = isObjectEmpty(filters)
         ? findFilteringFieldsUtil(query, tableStructure)
         : parseFilteringFieldsFromBodyData(filters, tableStructure);
@@ -123,7 +122,6 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
         tableSettings.ordering_field = orderingField.field;
         tableSettings.ordering = orderingField.value;
       }
-
       if (isHexString(searchingFieldValue)) {
         searchingFieldValue = hexToBinary(searchingFieldValue) as any;
         tableSettings.search_fields = tableStructure
@@ -147,10 +145,10 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
           userEmail,
         );
       } catch (e) {
+        console.log('🚀 ~ GetTableRowsUseCase ~ implementation ~ e:', e)
         Sentry.captureException(e);
         throw new UnknownSQLException(e.message, ExceptionOperations.FAILED_TO_GET_ROWS_FROM_TABLE);
       }
-
       rows = processRowsUtil(rows, tableWidgets, tableStructure, tableCustomFields);
 
       const foreignKeysFromWidgets: Array<ForeignKeyDSInfo> = tableWidgets
@@ -311,6 +309,7 @@ export class GetTableRowsUseCase extends AbstractUseCase<GetTableRowsDs, FoundTa
         userId,
       );
     }
+
   }
 
   private async attachForeignColumnNames(

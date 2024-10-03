@@ -6,6 +6,7 @@ export enum ConnectionTypesEnum {
   mssql = 'mssql',
   ibmdb2 = 'ibmdb2',
   mongodb = 'mongodb',
+  dynamodb = 'dynamodb',
   agent_postgres = 'agent_postgres',
   agent_mysql = 'agent_mysql',
   agent_oracledb = 'agent_oracledb',

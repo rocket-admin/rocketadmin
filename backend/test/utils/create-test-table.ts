@@ -1,10 +1,12 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { faker } from '@faker-js/faker';
+import { fa, faker, th } from '@faker-js/faker';
 import { getRandomConstraintName, getRandomTestTableName } from './get-random-test-table-name.js';
 import { getTestKnex } from './get-test-knex.js';
 import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/enums/connection-types-enum.js';
 import ibmdb, { Database } from 'ibm_db';
 import { MongoClient, Db, ObjectId } from 'mongodb';
+import { DynamoDB, PutItemCommand, PutItemCommandInput } from '@aws-sdk/client-dynamodb';
+import { BatchWriteCommand, DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb';
 
 export async function createTestTable(
   connectionParams: any,
@@ -17,6 +19,10 @@ export async function createTestTable(
 
   if (connectionParams.type === ConnectionTypesEnum.mongodb) {
     return createTestMongoTable(connectionParams, testEntitiesSeedsCount, testSearchedUserName);
+  }
+
+  if (connectionParams.type === ConnectionTypesEnum.dynamodb) {
+    return createTestDynamoDBTable(connectionParams, testEntitiesSeedsCount, testSearchedUserName);
   }
 
   const testTableName = getRandomTestTableName();
@@ -384,6 +390,75 @@ export async function createTestPostgresTableWithSchema(
         });
     }
   }
+  return {
+    testTableName: testTableName,
+    testTableColumnName: testTableColumnName,
+    testTableSecondColumnName: testTableSecondColumnName,
+    testEntitiesSeedsCount: testEntitiesSeedsCount,
+  };
+}
+
+export async function createTestDynamoDBTable(
+  connectionParams: any,
+  testEntitiesSeedsCount = 42,
+  testSearchedUserName = 'Vasia',
+) {
+  const dynamoDb = new DynamoDB({
+    endpoint: connectionParams.host,
+    credentials: {
+      accessKeyId: connectionParams.username,
+      secretAccessKey: connectionParams.password,
+    },
+    region: 'localhost',
+  });
+
+  const testTableName = getRandomTestTableName();
+  const testTableColumnName = 'name';
+  const testTableSecondColumnName = 'email';
+
+  const params = {
+    TableName: testTableName,
+    KeySchema: [
+      { AttributeName: 'id', KeyType: 'HASH' }, // Primary key
+    ],
+    AttributeDefinitions: [
+      { AttributeName: 'id', AttributeType: 'S' },
+    ],
+    ProvisionedThroughput: {
+      ReadCapacityUnits: 5,
+      WriteCapacityUnits: 5,
+    },
+  } as any;
+
+  try {
+    await dynamoDb.createTable(params);
+  } catch (error) {
+    console.error(`Error creating dynamodb table: ${error.message}`);
+  }
+
+  const documentClient = DynamoDBDocumentClient.from(dynamoDb);
+  try {
+    for (let i = 0; i < testEntitiesSeedsCount; i++) {
+      const isSearchedUser = i === 0 || i === testEntitiesSeedsCount - 21 || i === testEntitiesSeedsCount - 5;
+      const item = {
+        id: { S: `${i}` },
+        name: { S: isSearchedUser ? testSearchedUserName : faker.person.firstName() },
+        email: { S: faker.internet.email() },
+        created_at: { S: new Date().toISOString() },
+        updated_at: { S: new Date().toISOString() },
+      };
+  
+      const params: PutItemCommandInput = {
+        TableName: testTableName,
+        Item: item as any,
+      };
+      await documentClient.send(new PutItemCommand(params));
+    }
+  } catch (error) {
+    console.error(`Error inserting item into dynamodb table: ${error.message}`);
+    throw error;
+  }
+
   return {
     testTableName: testTableName,
     testTableColumnName: testTableColumnName,
