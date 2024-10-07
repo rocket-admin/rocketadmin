@@ -103,7 +103,9 @@ export class TestConnectionUseCase
           };
         }
 
-        toUpdate = Encryptor.decryptConnectionCredentials(toUpdate, masterPwd);
+        if (toUpdate.masterEncryption) {
+          toUpdate = Encryptor.decryptConnectionCredentials(toUpdate, masterPwd);
+        }
 
         let updated: any = Object.assign(toUpdate, connectionData);
         const dataForProcessing: CreateConnectionDs = {
