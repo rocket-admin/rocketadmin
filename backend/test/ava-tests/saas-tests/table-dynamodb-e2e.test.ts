@@ -194,73 +194,71 @@ test.serial(`${currentTest} should return rows of selected table without search 
 });
 
 test.serial(`${currentTest} should return rows of selected table with search and without pagination`, async (t) => {
-    const connectionToTestDB = getTestData(mockFactory).dynamoDBConnection;
-    const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-    const { testTableName, testTableColumnName, testTableSecondColumnName } =
-      await createTestTable(connectionToTestDB);
+  const connectionToTestDB = getTestData(mockFactory).dynamoDBConnection;
+  const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
+  const { testTableName, testTableColumnName, testTableSecondColumnName } = await createTestTable(connectionToTestDB);
 
-    testTables.push(testTableName);
+  testTables.push(testTableName);
 
-    const createConnectionResponse = await request(app.getHttpServer())
-      .post('/connection')
-      .send(connectionToTestDB)
-      .set('Cookie', firstUserToken)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-    const createConnectionRO = JSON.parse(createConnectionResponse.text);
-    t.is(createConnectionResponse.status, 201);
+  const createConnectionResponse = await request(app.getHttpServer())
+    .post('/connection')
+    .send(connectionToTestDB)
+    .set('Cookie', firstUserToken)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+  const createConnectionRO = JSON.parse(createConnectionResponse.text);
+  t.is(createConnectionResponse.status, 201);
 
-    const createTableSettingsDTO = mockFactory.generateTableSettings(
-      createConnectionRO.id,
-      testTableName,
-      ['id'],
-      undefined,
-      undefined,
-      3,
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-    );
+  const createTableSettingsDTO = mockFactory.generateTableSettings(
+    createConnectionRO.id,
+    testTableName,
+    ['id'],
+    undefined,
+    undefined,
+    3,
+    undefined,
+    undefined,
+    undefined,
+    undefined,
+    undefined,
+    undefined,
+    undefined,
+  );
 
-    const createTableSettingsResponse = await request(app.getHttpServer())
-      .post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
-      .send(createTableSettingsDTO)
-      .set('Cookie', firstUserToken)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
+  const createTableSettingsResponse = await request(app.getHttpServer())
+    .post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
+    .send(createTableSettingsDTO)
+    .set('Cookie', firstUserToken)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
 
-    t.is(createTableSettingsResponse.status, 201);
+  t.is(createTableSettingsResponse.status, 201);
 
-    const searchedDescription = '5';
+  const searchedDescription = '5';
 
-    const getTableRowsResponse = await request(app.getHttpServer())
-      .get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&search=${searchedDescription}`)
-      .set('Cookie', firstUserToken)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
+  const getTableRowsResponse = await request(app.getHttpServer())
+    .get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&search=${searchedDescription}`)
+    .set('Cookie', firstUserToken)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
 
-    const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
-    console.log('🚀 ~ test.only ~ getTableRowsRO:', getTableRowsRO);
+  const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
 
-    t.is(getTableRowsResponse.status, 200);
-    t.is(typeof getTableRowsRO, 'object');
-    t.is(getTableRowsRO.hasOwnProperty('rows'), true);
-    t.is(getTableRowsRO.hasOwnProperty('primaryColumns'), true);
-    t.is(getTableRowsRO.hasOwnProperty('pagination'), true);
-    t.is(getTableRowsRO.rows.length, 1);
-    t.is(Object.keys(getTableRowsRO.rows[0]).length, 5);
-    t.is(getTableRowsRO.rows[0].id, searchedDescription);
-    t.is(getTableRowsRO.rows[0].hasOwnProperty(testTableColumnName), true);
-    t.is(getTableRowsRO.rows[0].hasOwnProperty(testTableSecondColumnName), true);
-    t.is(getTableRowsRO.rows[0].hasOwnProperty('created_at'), true);
-    t.is(getTableRowsRO.rows[0].hasOwnProperty('updated_at'), true);
-    t.is(typeof getTableRowsRO.primaryColumns, 'object');
-    t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('column_name'), true);
-    t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('data_type'), true);
+  t.is(getTableRowsResponse.status, 200);
+  t.is(typeof getTableRowsRO, 'object');
+  t.is(getTableRowsRO.hasOwnProperty('rows'), true);
+  t.is(getTableRowsRO.hasOwnProperty('primaryColumns'), true);
+  t.is(getTableRowsRO.hasOwnProperty('pagination'), true);
+  t.is(getTableRowsRO.rows.length, 1);
+  t.is(Object.keys(getTableRowsRO.rows[0]).length, 5);
+  t.is(getTableRowsRO.rows[0].id, searchedDescription);
+  t.is(getTableRowsRO.rows[0].hasOwnProperty(testTableColumnName), true);
+  t.is(getTableRowsRO.rows[0].hasOwnProperty(testTableSecondColumnName), true);
+  t.is(getTableRowsRO.rows[0].hasOwnProperty('created_at'), true);
+  t.is(getTableRowsRO.rows[0].hasOwnProperty('updated_at'), true);
+  t.is(typeof getTableRowsRO.primaryColumns, 'object');
+  t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('column_name'), true);
+  t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('data_type'), true);
 });
 
 test.serial(`${currentTest} should return page of all rows with pagination page=1, perPage=2`, async (t) => {
@@ -470,7 +468,7 @@ should return all found rows with pagination page=1 perPage=2`,
       t.is(getTableRowsRO.hasOwnProperty('primaryColumns'), true);
       t.is(getTableRowsRO.hasOwnProperty('pagination'), true);
       t.is(getTableRowsRO.rows.length, 2);
-      t.is(Object.keys(getTableRowsRO.rows[0]).length, 6);
+      t.is(Object.keys(getTableRowsRO.rows[0]).length, 5);
       t.is(getTableRowsRO.rows[0][testTableColumnName], testSearchedUserName);
       t.is(typeof getTableRowsRO.primaryColumns, 'object');
       t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('column_name'), true);
@@ -548,7 +546,7 @@ should return all found rows with pagination page=1 perPage=3`,
       t.is(getTableRowsRO.hasOwnProperty('primaryColumns'), true);
       t.is(getTableRowsRO.hasOwnProperty('pagination'), true);
       t.is(getTableRowsRO.rows.length, 2);
-      t.is(Object.keys(getTableRowsRO.rows[0]).length, 6);
+      t.is(Object.keys(getTableRowsRO.rows[0]).length, 5);
       t.is(getTableRowsRO.rows[0][testTableColumnName], testSearchedUserName);
       t.is(typeof getTableRowsRO.primaryColumns, 'object');
       t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('column_name'), true);
@@ -691,9 +689,11 @@ should return all found rows with sorting ids by ASC`,
       t.is(getTableRowsResponse.status, 200);
       const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
 
-      const searchedLastId = '41';
-      const searchedFirstId = '1';
-      const searchedSecondId = '2';
+      console.log('🚀 ~ getTableRowsRO:', getTableRowsRO);
+
+      const searchedLastId = '9';
+      const searchedFirstId = '0';
+      const searchedSecondId = '1';
 
       t.is(typeof getTableRowsRO, 'object');
       t.is(getTableRowsRO.hasOwnProperty('rows'), true);
@@ -767,10 +767,11 @@ should return all found rows with sorting ports by DESC and with pagination page
       t.is(getTableRowsResponse.status, 200);
 
       const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
+      console.log('🚀 ~ getTableRowsRO:', getTableRowsRO);
 
-      const searchedLastId = '1';
+      const searchedLastId = '8';
 
-      const preSearchedLastId = '2';
+      const preSearchedLastId = '9';
 
       t.is(typeof getTableRowsRO, 'object');
       t.is(getTableRowsRO.hasOwnProperty('rows'), true);
@@ -918,9 +919,9 @@ test.serial(
 
       const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
 
-      const searchedFirstId = '3';
+      const searchedFirstId = '6';
 
-      const searchedSecondId = '4';
+      const searchedSecondId = '5';
 
       t.is(typeof getTableRowsRO, 'object');
       t.is(getTableRowsRO.hasOwnProperty('rows'), true);
@@ -995,8 +996,9 @@ should return all found rows with search, pagination: page=1, perPage=2 and DESC
       t.is(getTableRowsResponse.status, 200);
 
       const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
+      console.log('🚀 ~ getTableRowsRO:', getTableRowsRO);
 
-      const searchedFirstId = '0';
+      const searchedFirstId = '37';
 
       const searchedSecondId = '21';
 
@@ -1075,14 +1077,14 @@ should return all found rows with search, pagination: page=2, perPage=2 and DESC
       t.is(getTableRowsResponse.status, 200);
 
       const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
-      const searchedFirstId = '31';
+      const searchedFirstId = '0';
 
       t.is(typeof getTableRowsRO, 'object');
       t.is(getTableRowsRO.hasOwnProperty('rows'), true);
       t.is(getTableRowsRO.hasOwnProperty('primaryColumns'), true);
       t.is(getTableRowsRO.hasOwnProperty('pagination'), true);
       t.is(getTableRowsRO.rows.length, 1);
-      t.is(Object.keys(getTableRowsRO.rows[0]).length, 6);
+      t.is(Object.keys(getTableRowsRO.rows[0]).length, 5);
       t.is(getTableRowsRO.rows[0].id, searchedFirstId);
       t.is(getTableRowsRO.pagination.currentPage, 2);
       t.is(getTableRowsRO.pagination.perPage, 2);
@@ -1160,7 +1162,7 @@ should return all found rows with search, pagination: page=1, perPage=2 and ASC 
       t.is(getTableRowsRO.hasOwnProperty('primaryColumns'), true);
       t.is(getTableRowsRO.hasOwnProperty('pagination'), true);
       t.is(getTableRowsRO.rows.length, 2);
-      t.is(Object.keys(getTableRowsRO.rows[0]).length, 6);
+      t.is(Object.keys(getTableRowsRO.rows[0]).length, 5);
       t.is(getTableRowsRO.rows[0].id, searchedFirstId);
       t.is(getTableRowsRO.rows[1].id, searchedSecondId);
       t.is(getTableRowsRO.pagination.currentPage, 1);
@@ -1237,7 +1239,7 @@ should return all found rows with search, pagination: page=2, perPage=2 and ASC 
       t.is(getTableRowsRO.hasOwnProperty('primaryColumns'), true);
       t.is(getTableRowsRO.hasOwnProperty('pagination'), true);
       t.is(getTableRowsRO.rows.length, 1);
-      t.is(Object.keys(getTableRowsRO.rows[0]).length, 6);
+      t.is(Object.keys(getTableRowsRO.rows[0]).length, 5);
       t.is(getTableRowsRO.rows[0].id, searchedFirstId);
       t.is(getTableRowsRO.pagination.currentPage, 2);
       t.is(getTableRowsRO.pagination.perPage, 2);
@@ -1253,90 +1255,89 @@ should return all found rows with search, pagination: page=2, perPage=2 and ASC 
 );
 
 // todo: rework for other tables after removing old endpoint
-test.serial(
-  `${currentTest} with search, with pagination, with sorting and with filtering
-should return all found rows with search, pagination: page=1, perPage=2 and DESC sorting and filtering in body`,
-  async (t) => {
-    try {
-      const connectionToTestDB = getTestData(mockFactory).dynamoDBConnection;
-      const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-      const { testTableName, testTableColumnName, insertedSearchedIds } = await createTestTable(connectionToTestDB);
+test.only(`${currentTest} with search, with pagination, with sorting and with filtering
+should return all found rows with search, pagination: page=1, perPage=2 and DESC sorting and filtering in body`, async (t) => {
+  try {
+    const connectionToTestDB = getTestData(mockFactory).dynamoDBConnection;
+    const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
+    const { testTableName, testTableColumnName, insertedSearchedIds } = await createTestTable(connectionToTestDB);
 
-      testTables.push(testTableName);
+    testTables.push(testTableName);
 
-      const createConnectionResponse = await request(app.getHttpServer())
-        .post('/connection')
-        .send(connectionToTestDB)
-        .set('Cookie', firstUserToken)
-        .set('Content-Type', 'application/json')
-        .set('Accept', 'application/json');
-      const createConnectionRO = JSON.parse(createConnectionResponse.text);
-      t.is(createConnectionResponse.status, 201);
+    const createConnectionResponse = await request(app.getHttpServer())
+      .post('/connection')
+      .send(connectionToTestDB)
+      .set('Cookie', firstUserToken)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+    const createConnectionRO = JSON.parse(createConnectionResponse.text);
+    t.is(createConnectionResponse.status, 201);
 
-      const createTableSettingsDTO = mockFactory.generateTableSettings(
-        createConnectionRO.id,
-        testTableName,
-        [testTableColumnName],
-        undefined,
-        undefined,
-        3,
-        QueryOrderingEnum.DESC,
-        'id',
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-      );
+    const createTableSettingsDTO = mockFactory.generateTableSettings(
+      createConnectionRO.id,
+      testTableName,
+      [testTableColumnName],
+      undefined,
+      undefined,
+      3,
+      QueryOrderingEnum.DESC,
+      'id',
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+    );
 
-      const createTableSettingsResponse = await request(app.getHttpServer())
-        .post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
-        .send(createTableSettingsDTO)
-        .set('Cookie', firstUserToken)
-        .set('Content-Type', 'application/json')
-        .set('Accept', 'application/json');
-      t.is(createTableSettingsResponse.status, 201);
+    const createTableSettingsResponse = await request(app.getHttpServer())
+      .post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
+      .send(createTableSettingsDTO)
+      .set('Cookie', firstUserToken)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+    t.is(createTableSettingsResponse.status, 201);
 
-      const fieldname = 'age';
-      const fieldvalue = 18;
+    const fieldname = 'id';
+    const fieldvalue = 50;
 
-      const filters = {
-        [fieldname]: { lt: fieldvalue },
-      };
+    const filters = {
+      [fieldname]: { lt: fieldvalue },
+    };
 
-      const getTableRowsResponse = await request(app.getHttpServer())
-        .post(
-          `/table/rows/find/${createConnectionRO.id}?tableName=${testTableName}&search=${testSearchedUserName}&page=1&perPage=2`,
-        )
-        .send({ filters })
-        .set('Cookie', firstUserToken)
-        .set('Content-Type', 'application/json')
-        .set('Accept', 'application/json');
+    const getTableRowsResponse = await request(app.getHttpServer())
+      .post(
+        `/table/rows/find/${createConnectionRO.id}?tableName=${testTableName}&search=${testSearchedUserName}&page=1&perPage=2`,
+      )
+      .send({ filters })
+      .set('Cookie', firstUserToken)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
 
-      const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
-      t.is(typeof getTableRowsRO, 'object');
-      t.is(getTableRowsRO.hasOwnProperty('rows'), true);
-      t.is(getTableRowsRO.hasOwnProperty('primaryColumns'), true);
-      t.is(getTableRowsRO.hasOwnProperty('pagination'), true);
-      t.is(getTableRowsRO.rows.length, 1);
-      t.is(Object.keys(getTableRowsRO.rows[0]).length, 6);
+    const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
+    console.log('🚀 ~ getTableRowsRO:', getTableRowsRO);
+    
+    t.is(typeof getTableRowsRO, 'object');
+    t.is(getTableRowsRO.hasOwnProperty('rows'), true);
+    t.is(getTableRowsRO.hasOwnProperty('primaryColumns'), true);
+    t.is(getTableRowsRO.hasOwnProperty('pagination'), true);
+    t.is(getTableRowsRO.rows.length, 2);
+    t.is(Object.keys(getTableRowsRO.rows[0]).length, 5);
 
-      const foundId = '0';
-      t.is(getTableRowsRO.rows[0][testTableColumnName], testSearchedUserName);
-      t.is(getTableRowsRO.rows[0].id, foundId);
+    const foundId = '0';
+    t.is(getTableRowsRO.rows[0][testTableColumnName], testSearchedUserName);
+    t.is(getTableRowsRO.rows[0].id, foundId);
 
-      t.is(getTableRowsRO.pagination.currentPage, 1);
-      t.is(getTableRowsRO.pagination.perPage, 2);
+    t.is(getTableRowsRO.pagination.currentPage, 1);
+    t.is(getTableRowsRO.pagination.perPage, 2);
 
-      t.is(typeof getTableRowsRO.primaryColumns, 'object');
-      t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('column_name'), true);
-      t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('data_type'), true);
-    } catch (e) {
-      console.error(e);
-      throw e;
-    }
-  },
-);
+    t.is(typeof getTableRowsRO.primaryColumns, 'object');
+    t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('column_name'), true);
+    t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('data_type'), true);
+  } catch (e) {
+    console.error(e);
+    throw e;
+  }
+});
 
 test.serial(
   `${currentTest} with search, with pagination, with sorting and with filtering

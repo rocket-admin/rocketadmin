@@ -19,6 +19,7 @@ import { tableSettingsFieldValidator } from '../../helpers/validation/table-sett
 import { DynamoDB, PutItemCommandInput, ScanCommand } from '@aws-sdk/client-dynamodb';
 import { BatchWriteCommand, DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb';
 import * as csv from 'csv';
+import { QueryOrderingEnum } from '../shared/enums/query-ordering.enum.js';
 
 export class DataAccessObjectDynamoDB extends BasicDataAccessObject implements IDataAccessObject {
   constructor(connection: ConnectionParams) {
@@ -124,7 +125,7 @@ export class DataAccessObjectDynamoDB extends BasicDataAccessObject implements I
 
     if (autocompleteFields?.value && autocompleteFields.fields?.length > 0) {
       const { fields, value } = autocompleteFields;
-      filterExpression = fields.map((field) => `contains(#${field}, :value)`).join(' OR ');
+      filterExpression = fields.map((field) => `#${field} = :value`).join(' OR ');
       expressionAttributeValues = { ':value': { S: value } };
       fields.forEach((field) => {
         expressionAttributeNames[`#${field}`] = field;
@@ -207,34 +208,59 @@ export class DataAccessObjectDynamoDB extends BasicDataAccessObject implements I
         }
       });
     }
+    console.log('🚀 ~ DataAccessObjectDynamoDB ~ filteringFields.forEach ~ expressionAttributeNames:', expressionAttributeNames)
+    console.log('🚀 ~ DataAccessObjectDynamoDB ~ filteringFields.forEach ~ expressionAttributeValues:', expressionAttributeValues)
+    console.log('🚀 ~ DataAccessObjectDynamoDB ~ filteringFields.forEach ~ filterExpression:', filterExpression)
+
+    const totalRowsCount = await this.countTotalRows(
+      tableName,
+      filterExpression,
+      expressionAttributeValues,
+      expressionAttributeNames,
+    );
 
     let lastEvaluatedKey = null;
     let rows = [];
     let rowsCount = 0;
 
     do {
-      const params = {
+      const params: any = {
         TableName: tableName,
-        FilterExpression: filterExpression || undefined,
-        ExpressionAttributeValues: Object.keys(expressionAttributeValues).length
-          ? expressionAttributeValues
-          : undefined,
-        ExpressionAttributeNames: Object.keys(expressionAttributeNames).length ? expressionAttributeNames : undefined,
         Limit: perPage,
         ExclusiveStartKey: lastEvaluatedKey,
       };
 
+      if (filterExpression) {
+        params.FilterExpression = filterExpression;
+      }
+
+      if (Object.keys(expressionAttributeValues).length) {
+        params.ExpressionAttributeValues = expressionAttributeValues;
+      }
+
+      if (Object.keys(expressionAttributeNames).length) {
+        params.ExpressionAttributeNames = expressionAttributeNames;
+      }
+
       const result = await dynamoDB.scan(params);
+
       rows = rows.concat(result.Items);
       rowsCount += result.Count;
       lastEvaluatedKey = result.LastEvaluatedKey;
-    } while (lastEvaluatedKey && rows.length < perPage);
+    } while (lastEvaluatedKey);
 
-    const large_dataset = rowsCount >= perPage;
+    if (settings.ordering_field && settings.ordering) {
+      rows = this.sortRows(rows, settings.ordering_field, settings.ordering);
+    }
+
+    const itemsToSkip = (page - 1) * perPage;
+    rows = rows.slice(itemsToSkip, itemsToSkip + perPage);
+
+    const large_dataset = totalRowsCount >= DAO_CONSTANTS.LARGE_DATASET_ROW_LIMIT;
 
     const pagination = {
-      total: rowsCount,
-      lastPage: Math.ceil(rowsCount / perPage),
+      total: totalRowsCount,
+      lastPage: Math.ceil(totalRowsCount / perPage),
       perPage: perPage,
       currentPage: page,
     };
@@ -518,5 +544,58 @@ export class DataAccessObjectDynamoDB extends BasicDataAccessObject implements I
     });
 
     return transformedRow;
+  }
+
+  private async countTotalRows(
+    tableName: string,
+    filterExpression: string,
+    expressionAttributeValues: { [key: string]: any },
+    expressionAttributeNames: { [key: string]: string },
+  ): Promise<number> {
+    try {
+      let lastEvaluatedKey = null;
+      let totalRowsCount = 0;
+      const dynamoDB = this.getDynamoDb();
+      do {
+        const params: any = {
+          TableName: tableName,
+          ExclusiveStartKey: lastEvaluatedKey,
+        };
+
+        if (filterExpression) {
+          params.FilterExpression = filterExpression;
+        }
+
+        if (filterExpression && Object.keys(expressionAttributeValues).length) {
+          params.ExpressionAttributeValues = expressionAttributeValues;
+        }
+
+        if (filterExpression && Object.keys(expressionAttributeNames).length) {
+          params.ExpressionAttributeNames = expressionAttributeNames;
+        }
+
+        const result = await dynamoDB.scan(params);
+        totalRowsCount += result.Count;
+        lastEvaluatedKey = result.LastEvaluatedKey;
+      } while (lastEvaluatedKey);
+
+      return totalRowsCount;
+    } catch (error) {
+      console.log('🚀 ~ DataAccessObjectDynamoDB ~ error:', error);
+      throw error;
+    }
+  }
+
+  private sortRows(rows: any[], orderingField: string, ordering: QueryOrderingEnum): any[] {
+    return rows.sort((a, b) => {
+      const aValue = a[orderingField]?.S || a[orderingField]?.N || '';
+      const bValue = b[orderingField]?.S || b[orderingField]?.N || '';
+
+      if (ordering === QueryOrderingEnum.ASC) {
+        return aValue > bValue ? 1 : aValue < bValue ? -1 : 0;
+      } else {
+        return aValue < bValue ? 1 : aValue > bValue ? -1 : 0;
+      }
+    });
   }
 }
