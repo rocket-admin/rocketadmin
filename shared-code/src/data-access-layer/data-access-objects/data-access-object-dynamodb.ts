@@ -160,45 +160,46 @@ export class DataAccessObjectDynamoDB extends BasicDataAccessObject implements I
     }
 
     if (filteringFields?.length > 0) {
-      filteringFields.forEach((filter) => {
+      filteringFields.forEach((filter, index) => {
         const { field, criteria, value } = filter;
         expressionAttributeNames[`#${field}`] = field;
+        const uniquePlaceholder = `:${field}${index}`;
         switch (criteria) {
           case FilterCriteriaEnum.eq:
-            filterExpression += ` AND #${field} = :${field}`;
-            expressionAttributeValues[`:${field}`] = { S: value };
+            filterExpression += ` AND #${field} = ${uniquePlaceholder}`;
+            expressionAttributeValues[uniquePlaceholder] = { S: value };
             break;
           case FilterCriteriaEnum.contains:
-            filterExpression += ` AND contains(#${field}, :${field})`;
-            expressionAttributeValues[`:${field}`] = { S: value };
+            filterExpression += ` AND contains(#${field}, ${uniquePlaceholder})`;
+            expressionAttributeValues[uniquePlaceholder] = { S: value };
             break;
           case FilterCriteriaEnum.gt:
-            filterExpression += ` AND #${field} > :${field}`;
-            expressionAttributeValues[`:${field}`] = { N: value };
+            filterExpression += ` AND #${field} > ${uniquePlaceholder}`;
+            expressionAttributeValues[uniquePlaceholder] = { N: value };
             break;
           case FilterCriteriaEnum.lt:
-            filterExpression += ` AND #${field} < :${field}`;
-            expressionAttributeValues[`:${field}`] = { N: value };
+            filterExpression += ` AND #${field} < ${uniquePlaceholder}`;
+            expressionAttributeValues[uniquePlaceholder] = { N: value };
             break;
           case FilterCriteriaEnum.gte:
-            filterExpression += ` AND #${field} >= :${field}`;
-            expressionAttributeValues[`:${field}`] = { N: value };
+            filterExpression += ` AND #${field} >= ${uniquePlaceholder}`;
+            expressionAttributeValues[uniquePlaceholder] = { N: value };
             break;
           case FilterCriteriaEnum.lte:
-            filterExpression += ` AND #${field} <= :${field}`;
-            expressionAttributeValues[`:${field}`] = { N: value };
+            filterExpression += ` AND #${field} <= ${uniquePlaceholder}`;
+            expressionAttributeValues[uniquePlaceholder] = { N: value };
             break;
           case FilterCriteriaEnum.icontains:
-            filterExpression += ` AND NOT contains(#${field}, :${field})`;
-            expressionAttributeValues[`:${field}`] = { S: value };
+            filterExpression += ` AND NOT contains(#${field}, ${uniquePlaceholder})`;
+            expressionAttributeValues[uniquePlaceholder] = { S: value };
             break;
           case FilterCriteriaEnum.startswith:
-            filterExpression += ` AND begins_with(#${field}, :${field})`;
-            expressionAttributeValues[`:${field}`] = { S: value };
+            filterExpression += ` AND begins_with(#${field}, ${uniquePlaceholder})`;
+            expressionAttributeValues[uniquePlaceholder] = { S: value };
             break;
           case FilterCriteriaEnum.endswith:
-            filterExpression += ` AND ends_with(#${field}, :${field})`;
-            expressionAttributeValues[`:${field}`] = { S: value };
+            filterExpression += ` AND ends_with(#${field}, ${uniquePlaceholder})`;
+            expressionAttributeValues[uniquePlaceholder] = { S: value };
             break;
           case FilterCriteriaEnum.empty:
             filterExpression += ` AND attribute_not_exists(#${field})`;
