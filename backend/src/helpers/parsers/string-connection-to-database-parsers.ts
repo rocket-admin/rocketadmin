@@ -123,18 +123,12 @@ export const parseTestMongoDBConnectionString = (connectionString: string): Part
 
 // db2://user:password@localhost:50000/mydatabase?schema=myschema&ssh=true&privateSSHKey=key&sshHost=sshHost&sshPort=22&sshUsername=sshUser&ssl=true&cert=cert
 export const parseTestIbmDB2ConnectionString = (connectionString: string): Partial<CreateConnectionDto> => {
-  const [protocolAndCredentials, hostAndParams] = connectionString.split('@');
-  const [protocol, credentials] = protocolAndCredentials.split('://');
-  const encodedCredentials = encodeURIComponent(credentials);
-  const modifiedConnectionString = `${protocol}://${encodedCredentials}@${hostAndParams}`;
-
-  const finalConnectionString = modifiedConnectionString.replace('ibmdb2://', 'http://');
-  const url = new URL(finalConnectionString);
+  const url = new URL(connectionString);
   const config: Partial<CreateConnectionDto> = {};
   config.host = url.hostname || null;
   config.port = parseInt(url.port, 10) || 50000;
-  config.username = decodeURIComponent(url.username) || null;
-  config.password = decodeURIComponent(url.password) || null;
+  config.username = url.username || null;
+  config.password = url.password || null;
   config.database = url.pathname.split('/')[1] || null;
   const params = new URLSearchParams(url.search);
   config.schema = params.get('schema') || undefined;
