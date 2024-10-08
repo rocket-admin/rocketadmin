@@ -993,7 +993,6 @@ should return all found rows with search, pagination: page=1, perPage=2 and DESC
       t.is(getTableRowsResponse.status, 200);
 
       const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
-      console.log('🚀 ~ getTableRowsRO:', getTableRowsRO);
 
       const searchedFirstId = '37';
 
@@ -1772,3 +1771,165 @@ test.serial(
 );
 
 currentTest = 'GET /table/structure/:slug';
+
+test.serial(`${currentTest} should return table structure`, async (t) => {
+  const connectionToTestDB = getTestData(mockFactory).dynamoDBConnection;
+  const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
+  const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
+    await createTestTable(connectionToTestDB);
+
+  testTables.push(testTableName);
+
+  const createConnectionResponse = await request(app.getHttpServer())
+    .post('/connection')
+    .send(connectionToTestDB)
+    .set('Cookie', firstUserToken)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+  const createConnectionRO = JSON.parse(createConnectionResponse.text);
+  t.is(createConnectionResponse.status, 201);
+
+  const getTableStructure = await request(app.getHttpServer())
+    .get(`/table/structure/${createConnectionRO.id}?tableName=${testTableName}`)
+    .set('Cookie', firstUserToken)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+  t.is(getTableStructure.status, 200);
+  const getTableStructureRO = JSON.parse(getTableStructure.text);
+
+  t.is(typeof getTableStructureRO, 'object');
+  t.is(typeof getTableStructureRO.structure, 'object');
+  t.is(getTableStructureRO.structure.length, 6);
+
+  for (const element of getTableStructureRO.structure) {
+    t.is(element.hasOwnProperty('column_name'), true);
+    t.is(element.hasOwnProperty('column_default'), true);
+    t.is(element.hasOwnProperty('data_type'), true);
+    t.is(element.hasOwnProperty('isExcluded'), true);
+    t.is(element.hasOwnProperty('isSearched'), true);
+  }
+
+  t.is(getTableStructureRO.hasOwnProperty('primaryColumns'), true);
+  t.is(getTableStructureRO.hasOwnProperty('foreignKeys'), true);
+
+  for (const element of getTableStructureRO.primaryColumns) {
+    t.is(element.hasOwnProperty('column_name'), true);
+    t.is(element.hasOwnProperty('data_type'), true);
+  }
+
+  for (const element of getTableStructureRO.foreignKeys) {
+    t.is(element.hasOwnProperty('referenced_column_name'), true);
+    t.is(element.hasOwnProperty('referenced_table_name'), true);
+    t.is(element.hasOwnProperty('constraint_name'), true);
+    t.is(element.hasOwnProperty('column_name'), true);
+  }
+});
+
+test.serial(`${currentTest} should throw an exception whe connection id not passed in request`, async (t) => {
+  const connectionToTestDB = getTestData(mockFactory).dynamoDBConnection;
+  const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
+  const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
+    await createTestTable(connectionToTestDB);
+
+  testTables.push(testTableName);
+
+  const createConnectionResponse = await request(app.getHttpServer())
+    .post('/connection')
+    .send(connectionToTestDB)
+    .set('Cookie', firstUserToken)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+  const createConnectionRO = JSON.parse(createConnectionResponse.text);
+  t.is(createConnectionResponse.status, 201);
+  createConnectionRO.id = '';
+  const getTableStructure = await request(app.getHttpServer())
+    .get(`/table/structure/${createConnectionRO.id}?tableName=${testTableName}`)
+    .set('Cookie', firstUserToken)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+  t.is(getTableStructure.status, 404);
+});
+
+test.serial(`${currentTest} should throw an exception whe connection id passed in request id incorrect`, async (t) => {
+  const connectionToTestDB = getTestData(mockFactory).dynamoDBConnection;
+  const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
+  const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
+    await createTestTable(connectionToTestDB);
+
+  testTables.push(testTableName);
+
+  const createConnectionResponse = await request(app.getHttpServer())
+    .post('/connection')
+    .send(connectionToTestDB)
+    .set('Cookie', firstUserToken)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+  const createConnectionRO = JSON.parse(createConnectionResponse.text);
+  t.is(createConnectionResponse.status, 201);
+
+  createConnectionRO.id = faker.string.uuid();
+  const getTableStructure = await request(app.getHttpServer())
+    .get(`/table/structure/${createConnectionRO.id}?tableName=${testTableName}`)
+    .set('Cookie', firstUserToken)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+  t.is(getTableStructure.status, 403);
+  const { message } = JSON.parse(getTableStructure.text);
+  t.is(message, Messages.DONT_HAVE_PERMISSIONS);
+});
+
+test.serial(`${currentTest}should throw an exception when tableName not passed in request`, async (t) => {
+  const connectionToTestDB = getTestData(mockFactory).dynamoDBConnection;
+  const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
+  const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
+    await createTestTable(connectionToTestDB);
+
+  testTables.push(testTableName);
+
+  const createConnectionResponse = await request(app.getHttpServer())
+    .post('/connection')
+    .send(connectionToTestDB)
+    .set('Cookie', firstUserToken)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+  const createConnectionRO = JSON.parse(createConnectionResponse.text);
+  t.is(createConnectionResponse.status, 201);
+  const tableName = '';
+  const getTableStructure = await request(app.getHttpServer())
+    .get(`/table/structure/${createConnectionRO.id}?tableName=${tableName}`)
+    .set('Cookie', firstUserToken)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+  t.is(getTableStructure.status, 400);
+  const { message } = JSON.parse(getTableStructure.text);
+  t.is(message, Messages.TABLE_NAME_MISSING);
+});
+
+test.serial(`${currentTest} should throw an exception when tableName passed in request is incorrect`, async (t) => {
+  const connectionToTestDB = getTestData(mockFactory).dynamoDBConnection;
+  const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
+  const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
+    await createTestTable(connectionToTestDB);
+
+  testTables.push(testTableName);
+
+  const createConnectionResponse = await request(app.getHttpServer())
+    .post('/connection')
+    .send(connectionToTestDB)
+    .set('Cookie', firstUserToken)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+  const createConnectionRO = JSON.parse(createConnectionResponse.text);
+  t.is(createConnectionResponse.status, 201);
+  const tableName = faker.lorem.words(1);
+  const getTableStructure = await request(app.getHttpServer())
+    .get(`/table/structure/${createConnectionRO.id}?tableName=${tableName}`)
+    .set('Cookie', firstUserToken)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+  t.is(getTableStructure.status, 400);
+  const { message } = JSON.parse(getTableStructure.text);
+  t.is(message, Messages.TABLE_NOT_FOUND);
+});
+
+currentTest = 'POST /table/row/:slug';
