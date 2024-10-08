@@ -181,7 +181,7 @@ test.serial(`${currentTest} should return rows of selected table without search 
   t.is(getTableRowsRO.hasOwnProperty('pagination'), true);
   t.is(getTableRowsRO.hasOwnProperty('large_dataset'), true);
   t.is(getTableRowsRO.rows.length, Constants.DEFAULT_PAGINATION.perPage);
-  t.is(Object.keys(getTableRowsRO.rows[1]).length, 5);
+  t.is(Object.keys(getTableRowsRO.rows[1]).length, 6);
   t.is(getTableRowsRO.rows[0].hasOwnProperty('id'), true);
   t.is(getTableRowsRO.rows[1].hasOwnProperty(testTableColumnName), true);
   t.is(getTableRowsRO.rows[10].hasOwnProperty(testTableSecondColumnName), true);
@@ -250,7 +250,7 @@ test.serial(`${currentTest} should return rows of selected table with search and
   t.is(getTableRowsRO.hasOwnProperty('primaryColumns'), true);
   t.is(getTableRowsRO.hasOwnProperty('pagination'), true);
   t.is(getTableRowsRO.rows.length, 1);
-  t.is(Object.keys(getTableRowsRO.rows[0]).length, 5);
+  t.is(Object.keys(getTableRowsRO.rows[0]).length, 6);
   t.is(getTableRowsRO.rows[0].id, searchedDescription);
   t.is(getTableRowsRO.rows[0].hasOwnProperty(testTableColumnName), true);
   t.is(getTableRowsRO.rows[0].hasOwnProperty(testTableSecondColumnName), true);
@@ -315,7 +315,7 @@ test.serial(`${currentTest} should return page of all rows with pagination page=
     t.is(getTableRowsRO.hasOwnProperty('primaryColumns'), true);
     t.is(getTableRowsRO.hasOwnProperty('pagination'), true);
     t.is(getTableRowsRO.rows.length, 2);
-    t.is(Object.keys(getTableRowsRO.rows[1]).length, 5);
+    t.is(Object.keys(getTableRowsRO.rows[1]).length, 6);
     t.is(getTableRowsRO.rows[0].hasOwnProperty('id'), true);
     t.is(getTableRowsRO.rows[1].hasOwnProperty(testTableColumnName), true);
 
@@ -389,7 +389,7 @@ test.serial(`${currentTest} should return page of all rows with pagination page=
     t.is(getTableRowsRO.hasOwnProperty('primaryColumns'), true);
     t.is(getTableRowsRO.hasOwnProperty('pagination'), true);
     t.is(getTableRowsRO.rows.length, 2);
-    t.is(Object.keys(getTableRowsRO.rows[1]).length, 5);
+    t.is(Object.keys(getTableRowsRO.rows[1]).length, 6);
     t.is(getTableRowsRO.rows[0].hasOwnProperty('id'), true);
     t.is(getTableRowsRO.rows[1].hasOwnProperty(testTableColumnName), true);
 
@@ -468,7 +468,7 @@ should return all found rows with pagination page=1 perPage=2`,
       t.is(getTableRowsRO.hasOwnProperty('primaryColumns'), true);
       t.is(getTableRowsRO.hasOwnProperty('pagination'), true);
       t.is(getTableRowsRO.rows.length, 2);
-      t.is(Object.keys(getTableRowsRO.rows[0]).length, 5);
+      t.is(Object.keys(getTableRowsRO.rows[0]).length, 6);
       t.is(getTableRowsRO.rows[0][testTableColumnName], testSearchedUserName);
       t.is(typeof getTableRowsRO.primaryColumns, 'object');
       t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('column_name'), true);
@@ -546,7 +546,7 @@ should return all found rows with pagination page=1 perPage=3`,
       t.is(getTableRowsRO.hasOwnProperty('primaryColumns'), true);
       t.is(getTableRowsRO.hasOwnProperty('pagination'), true);
       t.is(getTableRowsRO.rows.length, 2);
-      t.is(Object.keys(getTableRowsRO.rows[0]).length, 5);
+      t.is(Object.keys(getTableRowsRO.rows[0]).length, 6);
       t.is(getTableRowsRO.rows[0][testTableColumnName], testSearchedUserName);
       t.is(typeof getTableRowsRO.primaryColumns, 'object');
       t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('column_name'), true);
@@ -622,7 +622,7 @@ should return all found rows with sorting ids by DESC`,
       t.is(getTableRowsRO.hasOwnProperty('primaryColumns'), true);
       t.is(getTableRowsRO.hasOwnProperty('pagination'), true);
       t.is(getTableRowsRO.rows.length, 42);
-      t.is(Object.keys(getTableRowsRO.rows[1]).length, 5);
+      t.is(Object.keys(getTableRowsRO.rows[1]).length, 6);
       // t.is(getTableRowsRO.rows[0].id, 42);
       // t.is(getTableRowsRO.rows[1].id, 41);
       // t.is(getTableRowsRO.rows[41].id, 1);
@@ -689,8 +689,6 @@ should return all found rows with sorting ids by ASC`,
       t.is(getTableRowsResponse.status, 200);
       const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
 
-      console.log('🚀 ~ getTableRowsRO:', getTableRowsRO);
-
       const searchedLastId = '9';
       const searchedFirstId = '0';
       const searchedSecondId = '1';
@@ -700,7 +698,7 @@ should return all found rows with sorting ids by ASC`,
       t.is(getTableRowsRO.hasOwnProperty('primaryColumns'), true);
       t.is(getTableRowsRO.hasOwnProperty('pagination'), true);
       t.is(getTableRowsRO.rows.length, 42);
-      t.is(Object.keys(getTableRowsRO.rows[1]).length, 5);
+      t.is(Object.keys(getTableRowsRO.rows[1]).length, 6);
       t.is(getTableRowsRO.rows[0].id, searchedFirstId);
       t.is(getTableRowsRO.rows[1].id, searchedSecondId);
       t.is(getTableRowsRO.rows[41].id, searchedLastId);
@@ -767,7 +765,6 @@ should return all found rows with sorting ports by DESC and with pagination page
       t.is(getTableRowsResponse.status, 200);
 
       const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
-      console.log('🚀 ~ getTableRowsRO:', getTableRowsRO);
 
       const searchedLastId = '8';
 
@@ -778,7 +775,7 @@ should return all found rows with sorting ports by DESC and with pagination page
       t.is(getTableRowsRO.hasOwnProperty('primaryColumns'), true);
       t.is(getTableRowsRO.hasOwnProperty('pagination'), true);
       t.is(getTableRowsRO.rows.length, 2);
-      t.is(Object.keys(getTableRowsRO.rows[1]).length, 5);
+      t.is(Object.keys(getTableRowsRO.rows[1]).length, 6);
       t.is(getTableRowsRO.rows[0].id, preSearchedLastId);
       t.is(getTableRowsRO.rows[1].id, searchedLastId);
 
@@ -853,7 +850,7 @@ test.serial(
       t.is(getTableRowsRO.hasOwnProperty('primaryColumns'), true);
       t.is(getTableRowsRO.hasOwnProperty('pagination'), true);
       t.is(getTableRowsRO.rows.length, 2);
-      t.is(Object.keys(getTableRowsRO.rows[1]).length, 5);
+      t.is(Object.keys(getTableRowsRO.rows[1]).length, 6);
       t.is(getTableRowsRO.rows[0].id, searchedFirstId);
       t.is(getTableRowsRO.rows[1].id, preSearchedSecondId);
 
@@ -928,7 +925,7 @@ test.serial(
       t.is(getTableRowsRO.hasOwnProperty('primaryColumns'), true);
       t.is(getTableRowsRO.hasOwnProperty('pagination'), true);
       t.is(getTableRowsRO.rows.length, 3);
-      t.is(Object.keys(getTableRowsRO.rows[1]).length, 5);
+      t.is(Object.keys(getTableRowsRO.rows[1]).length, 6);
       t.is(getTableRowsRO.rows[0].id, searchedFirstId);
       t.is(getTableRowsRO.rows[1].id, searchedSecondId);
 
@@ -1007,7 +1004,7 @@ should return all found rows with search, pagination: page=1, perPage=2 and DESC
       t.is(getTableRowsRO.hasOwnProperty('primaryColumns'), true);
       t.is(getTableRowsRO.hasOwnProperty('pagination'), true);
       t.is(getTableRowsRO.rows.length, 2);
-      t.is(Object.keys(getTableRowsRO.rows[1]).length, 5);
+      t.is(Object.keys(getTableRowsRO.rows[1]).length, 6);
       t.is(getTableRowsRO.rows[0].id, searchedFirstId);
       t.is(getTableRowsRO.rows[1].id, searchedSecondId);
       t.is(getTableRowsRO.pagination.currentPage, 1);
@@ -1084,7 +1081,7 @@ should return all found rows with search, pagination: page=2, perPage=2 and DESC
       t.is(getTableRowsRO.hasOwnProperty('primaryColumns'), true);
       t.is(getTableRowsRO.hasOwnProperty('pagination'), true);
       t.is(getTableRowsRO.rows.length, 1);
-      t.is(Object.keys(getTableRowsRO.rows[0]).length, 5);
+      t.is(Object.keys(getTableRowsRO.rows[0]).length, 6);
       t.is(getTableRowsRO.rows[0].id, searchedFirstId);
       t.is(getTableRowsRO.pagination.currentPage, 2);
       t.is(getTableRowsRO.pagination.perPage, 2);
@@ -1162,7 +1159,7 @@ should return all found rows with search, pagination: page=1, perPage=2 and ASC 
       t.is(getTableRowsRO.hasOwnProperty('primaryColumns'), true);
       t.is(getTableRowsRO.hasOwnProperty('pagination'), true);
       t.is(getTableRowsRO.rows.length, 2);
-      t.is(Object.keys(getTableRowsRO.rows[0]).length, 5);
+      t.is(Object.keys(getTableRowsRO.rows[0]).length, 6);
       t.is(getTableRowsRO.rows[0].id, searchedFirstId);
       t.is(getTableRowsRO.rows[1].id, searchedSecondId);
       t.is(getTableRowsRO.pagination.currentPage, 1);
@@ -1239,7 +1236,7 @@ should return all found rows with search, pagination: page=2, perPage=2 and ASC 
       t.is(getTableRowsRO.hasOwnProperty('primaryColumns'), true);
       t.is(getTableRowsRO.hasOwnProperty('pagination'), true);
       t.is(getTableRowsRO.rows.length, 1);
-      t.is(Object.keys(getTableRowsRO.rows[0]).length, 5);
+      t.is(Object.keys(getTableRowsRO.rows[0]).length, 6);
       t.is(getTableRowsRO.rows[0].id, searchedFirstId);
       t.is(getTableRowsRO.pagination.currentPage, 2);
       t.is(getTableRowsRO.pagination.perPage, 2);
@@ -1255,7 +1252,7 @@ should return all found rows with search, pagination: page=2, perPage=2 and ASC 
 );
 
 // todo: rework for other tables after removing old endpoint
-test.only(`${currentTest} with search, with pagination, with sorting and with filtering
+test.serial(`${currentTest} with search, with pagination, with sorting and with filtering
 should return all found rows with search, pagination: page=1, perPage=2 and DESC sorting and filtering in body`, async (t) => {
   try {
     const connectionToTestDB = getTestData(mockFactory).dynamoDBConnection;
@@ -1314,14 +1311,13 @@ should return all found rows with search, pagination: page=1, perPage=2 and DESC
       .set('Accept', 'application/json');
 
     const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
-    console.log('🚀 ~ getTableRowsRO:', getTableRowsRO);
     
     t.is(typeof getTableRowsRO, 'object');
     t.is(getTableRowsRO.hasOwnProperty('rows'), true);
     t.is(getTableRowsRO.hasOwnProperty('primaryColumns'), true);
     t.is(getTableRowsRO.hasOwnProperty('pagination'), true);
-    t.is(getTableRowsRO.rows.length, 2);
-    t.is(Object.keys(getTableRowsRO.rows[0]).length, 5);
+    t.is(getTableRowsRO.rows.length, 1);
+    t.is(Object.keys(getTableRowsRO.rows[0]).length, 6);
 
     const foundId = '0';
     t.is(getTableRowsRO.rows[0][testTableColumnName], testSearchedUserName);
@@ -1427,7 +1423,7 @@ should return all found rows with search, pagination: page=1, perPage=10 and DES
   },
 );
 
-test.serial(
+test.only(
   `${currentTest} with search, with pagination, with sorting and with filtering
 should return all found rows with search, pagination: page=1, perPage=2 and DESC sorting and with multi filtering`,
   async (t) => {
@@ -1476,12 +1472,14 @@ should return all found rows with search, pagination: page=1, perPage=2 and DESC
       const fieldLtvalue = 95;
 
       const filters = {
-        [fieldname]: { lt: fieldLtvalue, gt: fieldGtvalue },
+       [fieldname]: { gt: fieldGtvalue, lt: fieldLtvalue },
       };
+
+      // lt: fieldLtvalue, gt: fieldGtvalue
 
       const getTableRowsResponse = await request(app.getHttpServer())
         .post(
-          `/table/rows/find/${createConnectionRO.id}?tableName=${testTableName}&search=${testSearchedUserName}&page=1&perPage=3`,
+          `/table/rows/find/${createConnectionRO.id}?tableName=${testTableName}&search=${testSearchedUserName}&page=1&perPage=300`,
         )
         .send({ filters })
         .set('Cookie', firstUserToken)
@@ -1490,6 +1488,7 @@ should return all found rows with search, pagination: page=1, perPage=2 and DESC
       t.is(getTableRowsResponse.status, 201);
 
       const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
+      console.log('🚀 ~ getTableRowsRO:', getTableRowsRO)
 
       t.is(typeof getTableRowsRO, 'object');
       t.is(getTableRowsRO.hasOwnProperty('rows'), true);

@@ -442,7 +442,15 @@ export async function createTestDynamoDBTable(
         id: { S: `${i}` },
         name: { S: isSearchedUser ? testSearchedUserName : faker.person.firstName() },
         email: { S: faker.internet.email() },
-        age: { N: isSearchedUser ? i : faker.number.int({ min: 16, max: 80 }) },
+        age: {
+          N: !isSearchedUser
+            ? faker.number.int({ min: 16, max: 80 })
+            : i === 0
+              ? 14
+              : i === testEntitiesSeedsCount - 21
+                ? 90
+                : 95,
+        },
         created_at: { S: new Date().toISOString() },
         updated_at: { S: new Date().toISOString() },
       };

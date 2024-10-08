@@ -208,9 +208,6 @@ export class DataAccessObjectDynamoDB extends BasicDataAccessObject implements I
         }
       });
     }
-    console.log('🚀 ~ DataAccessObjectDynamoDB ~ filteringFields.forEach ~ expressionAttributeNames:', expressionAttributeNames)
-    console.log('🚀 ~ DataAccessObjectDynamoDB ~ filteringFields.forEach ~ expressionAttributeValues:', expressionAttributeValues)
-    console.log('🚀 ~ DataAccessObjectDynamoDB ~ filteringFields.forEach ~ filterExpression:', filterExpression)
 
     const totalRowsCount = await this.countTotalRows(
       tableName,
@@ -581,7 +578,6 @@ export class DataAccessObjectDynamoDB extends BasicDataAccessObject implements I
 
       return totalRowsCount;
     } catch (error) {
-      console.log('🚀 ~ DataAccessObjectDynamoDB ~ error:', error);
       throw error;
     }
   }
