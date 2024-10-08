@@ -194,12 +194,11 @@
                             angularticsAction="Connection creds {{ db.id ? 'edit' : 'add' }}: client-side encryption is switched"
                             [angularticsProperties]="{'enable': db.masterEncryption}"
                             [disabled]="accessLevel === 'readonly' || submitting || db.isTestConnection"
-                            [(ngModel)]="db.masterEncryption"
-                            [(ngModel)]="db.masterEncryption"
+                            [(ngModel)]="isMasterKeyTurnedOn"
                             (ngModelChange)="generatePassword()">
                             Use client-side encryption
                         </mat-slide-toggle>
-                        <div *ngIf="db.masterEncryption && masterKey" class="encription-password">
+                        <div *ngIf="isMasterKeyTurnedOn && masterKey" class="encription-password">
                             <mat-form-field appearance="outline" style="width:100%">
                                 <mat-label>Master password</mat-label>
                                 <input matInput data-testid="connection-master-password-input"
