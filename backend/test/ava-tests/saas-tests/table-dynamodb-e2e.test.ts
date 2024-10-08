@@ -1297,8 +1297,8 @@ should return all found rows with search, pagination: page=1, perPage=2 and DESC
       .set('Accept', 'application/json');
     t.is(createTableSettingsResponse.status, 201);
 
-    const fieldname = 'id';
-    const fieldvalue = 50;
+    const fieldname = 'age';
+    const fieldvalue = 18;
 
     const filters = {
       [fieldname]: { lt: fieldvalue },

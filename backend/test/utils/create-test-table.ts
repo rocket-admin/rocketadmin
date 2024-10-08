@@ -421,9 +421,7 @@ export async function createTestDynamoDBTable(
     KeySchema: [
       { AttributeName: 'id', KeyType: 'HASH' }, // Primary key
     ],
-    AttributeDefinitions: [
-      { AttributeName: 'id', AttributeType: 'S' },
-    ],
+    AttributeDefinitions: [{ AttributeName: 'id', AttributeType: 'S' }],
     ProvisionedThroughput: {
       ReadCapacityUnits: 5,
       WriteCapacityUnits: 5,
@@ -444,10 +442,11 @@ export async function createTestDynamoDBTable(
         id: { S: `${i}` },
         name: { S: isSearchedUser ? testSearchedUserName : faker.person.firstName() },
         email: { S: faker.internet.email() },
+        age: { N: isSearchedUser ? i : faker.number.int({ min: 16, max: 80 }) },
         created_at: { S: new Date().toISOString() },
         updated_at: { S: new Date().toISOString() },
       };
-  
+
       const params: PutItemCommandInput = {
         TableName: testTableName,
         Item: item as any,
