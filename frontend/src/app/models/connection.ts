@@ -5,7 +5,8 @@ export enum DBtype {
     MySQL = 'mysql',
     Oracle = 'oracledb',
     MSSQL = 'mssql',
-    Mongo = 'mongodb'
+    Mongo = 'mongodb',
+    DB2 = 'ibmdb2'
 }
 
 export enum ConnectionType {
