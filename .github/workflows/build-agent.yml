@@ -17,7 +17,7 @@ jobs:
       - name: Create matrix
         id: platforms
         run: |
-          echo "matrix=$(docker buildx bake image-all -f docker-bake.hcl --print | jq -cr '.target."image-all".platforms')" >>${GITHUB_OUTPUT}
+          echo "matrix=$(docker buildx bake image-all -f rocketadmin-agent/docker-bake.hcl --print | jq -cr '.target."image-all".platforms')" >>${GITHUB_OUTPUT}
 
       - name: Show matrix
         run: |
@@ -81,7 +81,7 @@ jobs:
         uses: docker/bake-action@v5
         with:
           files: |
-            ./docker-bake.hcl
+            ./rocketadmin-agent/docker-bake.hcl
             /tmp/bake-meta.json
           targets: image
           set: |
