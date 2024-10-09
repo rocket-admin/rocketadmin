@@ -16,11 +16,17 @@ import { ConnectionParams } from '../shared/data-structures/connections-params.d
 import { DAO_CONSTANTS } from '../../helpers/data-access-objects-constants.js';
 import { FilterCriteriaEnum } from '../shared/enums/filter-criteria.enum.js';
 import { tableSettingsFieldValidator } from '../../helpers/validation/table-settings-validator.js';
-import { DynamoDB, PutItemCommandInput, ScanCommand } from '@aws-sdk/client-dynamodb';
+import { DynamoDB, GetItemCommand, ScanCommand } from '@aws-sdk/client-dynamodb';
+import { PutItemCommand } from '@aws-sdk/client-dynamodb';
 import { BatchWriteCommand, DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb';
+import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
 import * as csv from 'csv';
 import { QueryOrderingEnum } from '../shared/enums/query-ordering.enum.js';
 
+export type DdAndClient = {
+  dynamoDb: DynamoDB;
+  documentClient: DynamoDBDocumentClient;
+};
 export class DataAccessObjectDynamoDB extends BasicDataAccessObject implements IDataAccessObject {
   constructor(connection: ConnectionParams) {
     super(connection);
@@ -30,22 +36,31 @@ export class DataAccessObjectDynamoDB extends BasicDataAccessObject implements I
     tableName: string,
     row: Record<string, unknown>,
   ): Promise<Record<string, unknown> | number> {
-    const dynamoDb = this.getDynamoDb();
-    const params: PutItemCommandInput = {
-      TableName: tableName,
-      Item: row as any,
-      ReturnValues: 'ALL_OLD',
-    };
-    const insertResult = await dynamoDb.putItem(params);
-    const insertedData = insertResult.Attributes;
-    return insertedData;
+    try {
+      const { documentClient } = this.getDynamoDb();
+      const params = {
+        TableName: tableName,
+        Item: marshall(row),
+        ReturnValues: 'ALL_OLD' as const,
+      };
+      await documentClient.send(new PutItemCommand(params));
+      const primaryKey = await this.getTablePrimaryColumns(tableName);
+      const responseObject = {};
+      primaryKey.forEach((key) => {
+        responseObject[key.column_name] = row[key.column_name];
+      });
+      return responseObject;
+    } catch (e) {
+      e.message += '.';
+      throw e;
+    }
   }
 
   public async deleteRowInTable(
     tableName: string,
     primaryKey: Record<string, unknown>,
   ): Promise<Record<string, unknown>> {
-    const dynamoDb = this.getDynamoDb();
+    const { dynamoDb } = this.getDynamoDb();
     const params = {
       TableName: tableName,
       Key: primaryKey as any,
@@ -76,13 +91,13 @@ export class DataAccessObjectDynamoDB extends BasicDataAccessObject implements I
       availableFields = this.findAvailableFields(settings, tableStructure);
     }
 
-    const dynamoDb = this.getDynamoDb();
+    const { documentClient } = this.getDynamoDb();
     const params = {
       TableName: tableName,
-      Key: primaryKey as any,
+      Key: marshall(primaryKey),
     };
-    const result = await dynamoDb.getItem(params);
-    const foundRow = result.Item;
+    const result = await documentClient.send(new GetItemCommand(params));
+    const foundRow = result.Item ? unmarshall(result.Item) : null;
     if (!foundRow) {
       return null;
     }
@@ -106,7 +121,7 @@ export class DataAccessObjectDynamoDB extends BasicDataAccessObject implements I
     filteringFields: FilteringFieldsDS[],
     autocompleteFields: AutocompleteFieldsDS,
   ): Promise<FoundRowsDS> {
-    const dynamoDB = this.getDynamoDb();
+    const { dynamoDb } = this.getDynamoDb();
 
     page = page > 0 ? page : DAO_CONSTANTS.DEFAULT_PAGINATION.page;
     perPage =
@@ -139,7 +154,7 @@ export class DataAccessObjectDynamoDB extends BasicDataAccessObject implements I
         Limit: DAO_CONSTANTS.AUTOCOMPLETE_ROW_LIMIT,
       };
 
-      const result = await dynamoDB.scan(params);
+      const result = await dynamoDb.scan(params);
       const rows = result.Items;
       const large_dataset = rows.length >= DAO_CONSTANTS.AUTOCOMPLETE_ROW_LIMIT;
 
@@ -240,7 +255,7 @@ export class DataAccessObjectDynamoDB extends BasicDataAccessObject implements I
         params.ExpressionAttributeNames = expressionAttributeNames;
       }
 
-      const result = await dynamoDB.scan(params);
+      const result = await dynamoDb.scan(params);
 
       rows = rows.concat(result.Items);
       rowsCount += result.Count;
@@ -275,11 +290,11 @@ export class DataAccessObjectDynamoDB extends BasicDataAccessObject implements I
   }
 
   public async getTablePrimaryColumns(tableName: string): Promise<Array<PrimaryKeyDS>> {
-    const dynamoDB = this.getDynamoDb();
+    const { dynamoDb } = this.getDynamoDb();
     const params = {
       TableName: tableName,
     };
-    const tableDescription = await dynamoDB.describeTable(params);
+    const tableDescription = await dynamoDb.describeTable(params);
     const keySchema = tableDescription.Table.KeySchema;
     const primaryKeys = keySchema.map((key) => {
       return {
@@ -291,7 +306,7 @@ export class DataAccessObjectDynamoDB extends BasicDataAccessObject implements I
   }
 
   public async getTablesFromDB(): Promise<Array<TableDS>> {
-    const dynamoDb = this.getDynamoDb();
+    const { dynamoDb } = this.getDynamoDb();
     const result = await dynamoDb.listTables();
     const tableNames = result.TableNames;
     const tables = tableNames.map((tableName) => {
@@ -305,7 +320,7 @@ export class DataAccessObjectDynamoDB extends BasicDataAccessObject implements I
 
   public async getTableStructure(tableName: string): Promise<Array<TableStructureDS>> {
     try {
-      const dynamoDb = this.getDynamoDb();
+      const { dynamoDb } = this.getDynamoDb();
       const documentClient = DynamoDBDocumentClient.from(dynamoDb);
 
       const params = {
@@ -347,7 +362,7 @@ export class DataAccessObjectDynamoDB extends BasicDataAccessObject implements I
   }
 
   public async testConnect(): Promise<TestConnectionResultDS> {
-    const dynamoDb = this.getDynamoDb();
+    const { dynamoDb } = this.getDynamoDb();
     try {
       await dynamoDb.listTables();
       return {
@@ -367,7 +382,7 @@ export class DataAccessObjectDynamoDB extends BasicDataAccessObject implements I
     row: Record<string, unknown>,
     primaryKey: Record<string, unknown>,
   ): Promise<Record<string, unknown>> {
-    const dynamoDb = this.getDynamoDb();
+    const { dynamoDb } = this.getDynamoDb();
     const params = {
       TableName: tableName,
       Key: primaryKey,
@@ -384,7 +399,7 @@ export class DataAccessObjectDynamoDB extends BasicDataAccessObject implements I
     newValues: Record<string, unknown>,
     primaryKeys: Array<Record<string, unknown>>,
   ): Promise<Record<string, unknown>> {
-    const dynamoDb = this.getDynamoDb();
+    const { dynamoDb } = this.getDynamoDb();
     const updatePromises = primaryKeys.map((primaryKey) => {
       const params = {
         TableName: tableName,
@@ -435,8 +450,8 @@ export class DataAccessObjectDynamoDB extends BasicDataAccessObject implements I
   }
 
   public async importCSVInTable(file: Express.Multer.File, tableName: string): Promise<void> {
-    const dynamoDbClient = this.getDynamoDb();
-    const documentClient = DynamoDBDocumentClient.from(dynamoDbClient);
+    const { documentClient } = this.getDynamoDb();
+
     const fileStream = new Stream.PassThrough();
     fileStream.end(file.buffer);
 
@@ -452,7 +467,6 @@ export class DataAccessObjectDynamoDB extends BasicDataAccessObject implements I
             },
           });
 
-          // If the items array reaches 25, write the batch and reset the array
           if (items.length === 25) {
             const params = {
               RequestItems: {
@@ -462,7 +476,7 @@ export class DataAccessObjectDynamoDB extends BasicDataAccessObject implements I
             documentClient
               .send(new BatchWriteCommand(params))
               .then(() => {
-                items.length = 0; // Clear the array
+                items.length = 0;
               })
               .catch((err) => {
                 reject(err);
@@ -470,7 +484,6 @@ export class DataAccessObjectDynamoDB extends BasicDataAccessObject implements I
           }
         })
         .on('end', async () => {
-          // Write any remaining items
           if (items.length > 0) {
             const params = {
               RequestItems: {
@@ -493,7 +506,7 @@ export class DataAccessObjectDynamoDB extends BasicDataAccessObject implements I
     });
   }
 
-  private getDynamoDb(): DynamoDB {
+  private getDynamoDb(): DdAndClient {
     const endpoint = this.connection.host;
     const accessKeyId = this.connection.username;
     const secretAccessKey = this.connection.password;
@@ -505,7 +518,8 @@ export class DataAccessObjectDynamoDB extends BasicDataAccessObject implements I
         secretAccessKey: secretAccessKey,
       },
     });
-    return dynamoDb;
+    const documentClient = DynamoDBDocumentClient.from(dynamoDb);
+    return { dynamoDb, documentClient };
   }
 
   private convertTypeName(dynamoDbType: string): string {
@@ -553,7 +567,7 @@ export class DataAccessObjectDynamoDB extends BasicDataAccessObject implements I
     try {
       let lastEvaluatedKey = null;
       let totalRowsCount = 0;
-      const dynamoDB = this.getDynamoDb();
+      const { dynamoDb } = this.getDynamoDb();
       do {
         const params: any = {
           TableName: tableName,
@@ -572,7 +586,7 @@ export class DataAccessObjectDynamoDB extends BasicDataAccessObject implements I
           params.ExpressionAttributeNames = expressionAttributeNames;
         }
 
-        const result = await dynamoDB.scan(params);
+        const result = await dynamoDb.scan(params);
         totalRowsCount += result.Count;
         lastEvaluatedKey = result.LastEvaluatedKey;
       } while (lastEvaluatedKey);
