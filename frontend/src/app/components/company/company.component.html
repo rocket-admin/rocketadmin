@@ -32,12 +32,20 @@
         </div>
         <a *ngIf="currentUser && currentUser.role === 'ADMIN'"
             mat-button color="accent" class="upgrade-button"
-            routerLink="/upgrade"
-            data-testid="company-payment-settings-link"
-            class="user-settings__button"
+            [href]="company.portal_link" target="_blank"
+            class="company-plan__button"
+            data-testid="company-payment-portal-link"
             angulartics2On="click"
             angularticsAction="Company: Manage payment settings is clicked">
-            Manage payment settings
+            <span>Stripe settings</span>
+        </a>
+        <a *ngIf="currentUser && currentUser.role === 'ADMIN'"
+            mat-stroked-button color="accent" class="upgrade-button"
+            routerLink="/upgrade"
+            data-testid="company-payment-settings-link"
+            angulartics2On="click"
+            angularticsAction="Company: Manage payment settings is clicked">
+            Update
         </a>
     </div>
 
