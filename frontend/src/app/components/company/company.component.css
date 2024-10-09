@@ -25,6 +25,11 @@
     text-transform: capitalize;
 }
 
+.company-plan__button {
+    margin-left: auto;
+    margin-right: 12px;
+}
+
 .tableHeader {
     display: flex;
     align-items: center;
