@@ -38,6 +38,8 @@ export class ConnectionParams {
   signing_key: string;
 
   authSource: string | null;
+
+  isTestConnection: boolean;
 }
 
 export class ConnectionAgentParams {
@@ -46,4 +48,5 @@ export class ConnectionAgentParams {
   signing_key: string;
   token: string;
   type: string;
+  isTestConnection: boolean;
 }

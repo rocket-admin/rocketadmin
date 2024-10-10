@@ -31,9 +31,10 @@
                 (ngModelChange)="dbTypeChange()" >
                 <mat-option value="mysql">MySQL</mat-option>
                 <mat-option value="postgres">PostgreSQL</mat-option>
+                <mat-option value="mongodb">MongoDB</mat-option>
                 <mat-option value="oracledb">Oracle</mat-option>
                 <mat-option value="mssql">MS SQL</mat-option>
-                <mat-option value="mongodb">MongoDB</mat-option>
+                <mat-option value="ibmdb2">IBM DB2</mat-option>
             </mat-select>
         </mat-form-field>
 
@@ -172,7 +173,7 @@
                     data-testid="connection-schema-input"
                     angulartics2On="change"
                     angularticsAction="Connection creds {{ db.id ? 'edit' : 'add' }}: database schema is edited"
-                    [required]="db.type === 'mssql'"
+                    [required]="db.type === 'mssql' || db.type === 'ibmdb2'"
                     [readonly]="(accessLevel === 'readonly' || db.isTestConnection) && db.id"
                     [disabled]="submitting"
                     [(ngModel)]="db.schema">

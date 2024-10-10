@@ -83,4 +83,18 @@ export class ApiKeyController {
     const deletedApiKey = await this.deleteApiKeyUseCase.execute({ userId, apiKeyId }, InTransactionEnum.ON);
     return buildFoundApiKeyDto(deletedApiKey);
   }
+
+  @ApiOperation({ summary: 'Check api key' })
+  @ApiResponse({
+    status: 200,
+    description: 'Api key is valid.',
+  })
+  @Get('/check/apikey')
+  public async checkApiKey(): Promise<any> {
+    console.log('Api key is valid');
+    return {
+      result: true,
+      message: 'Api key is valid',
+    };
+  }
 }
