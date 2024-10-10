@@ -414,17 +414,36 @@ export class DataAccessObjectDynamoDB extends BasicDataAccessObject implements I
     newValues: Record<string, unknown>,
     primaryKeys: Array<Record<string, unknown>>,
   ): Promise<Record<string, unknown>> {
-    const { dynamoDb } = this.getDynamoDb();
+    const { documentClient } = this.getDynamoDb();
+
     const updatePromises = primaryKeys.map((primaryKey) => {
+      const updateExpression =
+        'SET ' +
+        Object.keys(newValues)
+          .map((key, index) => `#key${index} = :value${index}`)
+          .join(', ');
+      const expressionAttributeNames = Object.keys(newValues).reduce((acc, key, index) => {
+        acc[`#key${index}`] = key;
+        return acc;
+      }, {});
+      const expressionAttributeValues = Object.keys(newValues).reduce((acc, key, index) => {
+        acc[`:value${index}`] = newValues[key];
+        return acc;
+      }, {});
+
       const params = {
         TableName: tableName,
-        Key: primaryKey,
-        Item: newValues as any,
-        returnValues: 'ALL_OLD',
+        Key: marshall(primaryKey),
+        UpdateExpression: updateExpression,
+        ExpressionAttributeNames: expressionAttributeNames,
+        ExpressionAttributeValues: marshall(expressionAttributeValues),
+        ReturnValues: 'ALL_NEW' as const,
       };
-      return dynamoDb.putItem(params);
+
+      return documentClient.send(new UpdateItemCommand(params));
     });
-    const updatedData = await Promise.all(updatePromises);
+
+    await Promise.all(updatePromises);
     return primaryKeys as any;
   }
 
