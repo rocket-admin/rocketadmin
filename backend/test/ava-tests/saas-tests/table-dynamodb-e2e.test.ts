@@ -2571,7 +2571,7 @@ test.serial(
 
 currentTest = 'PUT /table/rows/update/:connectionId';
 
-test.only(`${currentTest} should update multiple rows and return result`, async (t) => {
+test.serial(`${currentTest} should update multiple rows and return result`, async (t) => {
   const connectionToTestDB = getTestData(mockFactory).dynamoDBConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
   const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName, insertedSearchedIds } =
@@ -2609,7 +2609,6 @@ test.only(`${currentTest} should update multiple rows and return result`, async 
     .set('Accept', 'application/json');
 
   const updateRowInTableRO = JSON.parse(updateRowInTableResponse.text);
-  console.log('🚀 ~ test.serial ~ updateRowInTableRO:', updateRowInTableRO)
 
   t.is(updateRowInTableResponse.status, 200);
   t.is(updateRowInTableRO.success, true);
@@ -2639,3 +2638,391 @@ test.only(`${currentTest} should update multiple rows and return result`, async 
 });
 
 currentTest = 'DELETE /table/row/:slug';
+
+test.serial(`${currentTest} should delete row in table and return result`, async (t) => {
+  const connectionToTestDB = getTestData(mockFactory).dynamoDBConnection;
+  const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
+  const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName, insertedSearchedIds } =
+    await createTestTable(connectionToTestDB);
+
+  testTables.push(testTableName);
+
+  const createConnectionResponse = await request(app.getHttpServer())
+    .post('/connection')
+    .send(connectionToTestDB)
+    .set('Cookie', firstUserToken)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+  const createConnectionRO = JSON.parse(createConnectionResponse.text);
+  t.is(createConnectionResponse.status, 201);
+
+  const idForDeletion = '1';
+  const deleteRowInTableResponse = await request(app.getHttpServer())
+    .delete(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&id=${idForDeletion}`)
+    .set('Cookie', firstUserToken)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+
+  t.is(deleteRowInTableResponse.status, 200);
+  const deleteRowInTableRO = JSON.parse(deleteRowInTableResponse.text);
+  console.log('🚀 ~ test.serial ~ deleteRowInTableRO:', deleteRowInTableRO)
+
+  t.is(deleteRowInTableRO.hasOwnProperty('row'), true);
+
+  //checking that the line was deleted
+  const getTableRowsResponse = await request(app.getHttpServer())
+    .get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=1&perPage=50`)
+    .set('Cookie', firstUserToken)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+  t.is(getTableRowsResponse.status, 200);
+
+  const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
+
+  t.is(getTableRowsRO.hasOwnProperty('rows'), true);
+  t.is(getTableRowsRO.hasOwnProperty('primaryColumns'), true);
+  t.is(getTableRowsRO.hasOwnProperty('pagination'), true);
+
+  const { rows, primaryColumns, pagination } = getTableRowsRO;
+
+  t.is(rows.length, 41);
+  const deletedRowIndex = rows.map((row: Record<string, unknown>) => row.id).indexOf(idForDeletion);
+  t.is(deletedRowIndex < 0, true);
+});
+
+test.serial(`${currentTest} should throw an exception when connection id not passed in request`, async (t) => {
+  const connectionToTestDB = getTestData(mockFactory).dynamoDBConnection;
+  const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
+  const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName, insertedSearchedIds } =
+    await createTestTable(connectionToTestDB);
+
+  testTables.push(testTableName);
+
+  const createConnectionResponse = await request(app.getHttpServer())
+    .post('/connection')
+    .send(connectionToTestDB)
+    .set('Cookie', firstUserToken)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+  const createConnectionRO = JSON.parse(createConnectionResponse.text);
+  t.is(createConnectionResponse.status, 201);
+
+  const idForDeletion = '1';
+  const connectionId = '';
+  const deleteRowInTableResponse = await request(app.getHttpServer())
+    .delete(`/table/row/${connectionId}?tableName=${testTableName}&id=${idForDeletion}`)
+    .set('Cookie', firstUserToken)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+
+  t.is(deleteRowInTableResponse.status, 404);
+
+  //checking that the line wasn't deleted
+  const getTableRowsResponse = await request(app.getHttpServer())
+    .get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=1&perPage=50`)
+    .set('Cookie', firstUserToken)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+  t.is(getTableRowsResponse.status, 200);
+
+  const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
+
+  t.is(getTableRowsRO.hasOwnProperty('rows'), true);
+  t.is(getTableRowsRO.hasOwnProperty('primaryColumns'), true);
+  t.is(getTableRowsRO.hasOwnProperty('pagination'), true);
+
+  const { rows, primaryColumns, pagination } = getTableRowsRO;
+
+  t.is(rows.length, 42);
+  const deletedRowIndex = rows.map((row: Record<string, unknown>) => row.id).indexOf(idForDeletion);
+  t.is(deletedRowIndex < 0, false);
+});
+
+test.serial(`${currentTest} should throw an exception when connection id passed in request is incorrect`, async (t) => {
+  const connectionToTestDB = getTestData(mockFactory).dynamoDBConnection;
+  const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
+  const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName, insertedSearchedIds } =
+    await createTestTable(connectionToTestDB);
+
+  testTables.push(testTableName);
+
+  const createConnectionResponse = await request(app.getHttpServer())
+    .post('/connection')
+    .send(connectionToTestDB)
+    .set('Cookie', firstUserToken)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+  const createConnectionRO = JSON.parse(createConnectionResponse.text);
+  t.is(createConnectionResponse.status, 201);
+
+  const idForDeletion = '1';
+  const connectionId = faker.string.uuid();
+  const deleteRowInTableResponse = await request(app.getHttpServer())
+    .delete(`/table/row/${connectionId}?tableName=${testTableName}&id=${idForDeletion}`)
+    .set('Cookie', firstUserToken)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+
+  t.is(deleteRowInTableResponse.status, 403);
+  const { message } = JSON.parse(deleteRowInTableResponse.text);
+  t.is(message, Messages.DONT_HAVE_PERMISSIONS);
+
+  //checking that the line wasn't deleted
+  const getTableRowsResponse = await request(app.getHttpServer())
+    .get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=1&perPage=50`)
+    .set('Cookie', firstUserToken)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+  t.is(getTableRowsResponse.status, 200);
+
+  const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
+
+  t.is(getTableRowsRO.hasOwnProperty('rows'), true);
+  t.is(getTableRowsRO.hasOwnProperty('primaryColumns'), true);
+  t.is(getTableRowsRO.hasOwnProperty('pagination'), true);
+
+  const { rows, primaryColumns, pagination } = getTableRowsRO;
+
+  t.is(rows.length, 42);
+  const deletedRowIndex = rows.map((row: Record<string, unknown>) => row.id).indexOf(idForDeletion);
+  t.is(deletedRowIndex < 0, false);
+});
+
+test.serial(`${currentTest} should throw an exception when tableName not passed in request`, async (t) => {
+  const connectionToTestDB = getTestData(mockFactory).dynamoDBConnection;
+  const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
+  const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName, insertedSearchedIds } =
+    await createTestTable(connectionToTestDB);
+
+  testTables.push(testTableName);
+
+  const createConnectionResponse = await request(app.getHttpServer())
+    .post('/connection')
+    .send(connectionToTestDB)
+    .set('Cookie', firstUserToken)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+  const createConnectionRO = JSON.parse(createConnectionResponse.text);
+  t.is(createConnectionResponse.status, 201);
+
+  const idForDeletion = '1';
+  const fakeTableName = '';
+  const deleteRowInTableResponse = await request(app.getHttpServer())
+    .delete(`/table/row/${createConnectionRO.id}?tableName=${fakeTableName}&id=${idForDeletion}`)
+    .set('Cookie', firstUserToken)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+
+  t.is(deleteRowInTableResponse.status, 400);
+  const { message } = JSON.parse(deleteRowInTableResponse.text);
+  t.is(message, Messages.TABLE_NAME_MISSING);
+
+  //checking that the line wasn't deleted
+  const getTableRowsResponse = await request(app.getHttpServer())
+    .get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=1&perPage=50`)
+    .set('Cookie', firstUserToken)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+  t.is(getTableRowsResponse.status, 200);
+
+  const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
+
+  t.is(getTableRowsRO.hasOwnProperty('rows'), true);
+  t.is(getTableRowsRO.hasOwnProperty('primaryColumns'), true);
+  t.is(getTableRowsRO.hasOwnProperty('pagination'), true);
+
+  const { rows, primaryColumns, pagination } = getTableRowsRO;
+
+  t.is(rows.length, 42);
+  const deletedRowIndex = rows.map((row: Record<string, unknown>) => row.id).indexOf(idForDeletion);
+  t.is(deletedRowIndex < 0, false);
+});
+
+test.serial(`${currentTest} should throw an exception when tableName passed in request is incorrect`, async (t) => {
+  const connectionToTestDB = getTestData(mockFactory).dynamoDBConnection;
+  const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
+  const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName, insertedSearchedIds } =
+    await createTestTable(connectionToTestDB);
+
+  testTables.push(testTableName);
+
+  const createConnectionResponse = await request(app.getHttpServer())
+    .post('/connection')
+    .send(connectionToTestDB)
+    .set('Cookie', firstUserToken)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+  const createConnectionRO = JSON.parse(createConnectionResponse.text);
+  t.is(createConnectionResponse.status, 201);
+
+  const idForDeletion = '1';
+  const fakeTableName = `${faker.lorem.words(1)}_${faker.string.uuid()}`;
+  const deleteRowInTableResponse = await request(app.getHttpServer())
+    .delete(`/table/row/${createConnectionRO.id}?tableName=${fakeTableName}&id=${idForDeletion}`)
+    .set('Cookie', firstUserToken)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+
+  t.is(deleteRowInTableResponse.status, 400);
+  const { message } = JSON.parse(deleteRowInTableResponse.text);
+  t.is(message, Messages.TABLE_NOT_FOUND);
+
+  //checking that the line wasn't deleted
+  const getTableRowsResponse = await request(app.getHttpServer())
+    .get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=1&perPage=50`)
+    .set('Cookie', firstUserToken)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+  t.is(getTableRowsResponse.status, 200);
+
+  const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
+
+  t.is(getTableRowsRO.hasOwnProperty('rows'), true);
+  t.is(getTableRowsRO.hasOwnProperty('primaryColumns'), true);
+  t.is(getTableRowsRO.hasOwnProperty('pagination'), true);
+
+  const { rows, primaryColumns, pagination } = getTableRowsRO;
+
+  t.is(rows.length, 42);
+  const deletedRowIndex = rows.map((row: Record<string, unknown>) => row.id).indexOf(idForDeletion);
+  t.is(deletedRowIndex < 0, false);
+});
+
+test.serial(`${currentTest} should throw an exception when primary key not passed in request`, async (t) => {
+  const connectionToTestDB = getTestData(mockFactory).dynamoDBConnection;
+  const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
+  const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName, insertedSearchedIds } =
+    await createTestTable(connectionToTestDB);
+
+  testTables.push(testTableName);
+
+  const createConnectionResponse = await request(app.getHttpServer())
+    .post('/connection')
+    .send(connectionToTestDB)
+    .set('Cookie', firstUserToken)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+  const createConnectionRO = JSON.parse(createConnectionResponse.text);
+  t.is(createConnectionResponse.status, 201);
+
+  const idForDeletion = '1';
+  const deleteRowInTableResponse = await request(app.getHttpServer())
+    .delete(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&`)
+    .set('Cookie', firstUserToken)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+
+  t.is(deleteRowInTableResponse.status, 400);
+  const { message } = JSON.parse(deleteRowInTableResponse.text);
+  t.is(message, Messages.PRIMARY_KEY_INVALID);
+
+  //checking that the line wasn't deleted
+  const getTableRowsResponse = await request(app.getHttpServer())
+    .get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=1&perPage=50`)
+    .set('Cookie', firstUserToken)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+  t.is(getTableRowsResponse.status, 200);
+
+  const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
+
+  t.is(getTableRowsRO.hasOwnProperty('rows'), true);
+  t.is(getTableRowsRO.hasOwnProperty('primaryColumns'), true);
+  t.is(getTableRowsRO.hasOwnProperty('pagination'), true);
+
+  const { rows, primaryColumns, pagination } = getTableRowsRO;
+
+  t.is(rows.length, 42);
+  const deletedRowIndex = rows.map((row: Record<string, unknown>) => row.id).indexOf(idForDeletion);
+  t.is(deletedRowIndex < 0, false);
+});
+
+test.serial(
+  `${currentTest} should throw an exception when primary key passed in request has incorrect field name`,
+  async (t) => {
+    const connectionToTestDB = getTestData(mockFactory).dynamoDBConnection;
+    const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
+    const {
+      testTableName,
+      testTableColumnName,
+      testEntitiesSeedsCount,
+      testTableSecondColumnName,
+      insertedSearchedIds,
+    } = await createTestTable(connectionToTestDB);
+
+    testTables.push(testTableName);
+
+    const createConnectionResponse = await request(app.getHttpServer())
+      .post('/connection')
+      .send(connectionToTestDB)
+      .set('Cookie', firstUserToken)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+    const createConnectionRO = JSON.parse(createConnectionResponse.text);
+    t.is(createConnectionResponse.status, 201);
+
+    const idForDeletion = '1';
+    const deleteRowInTableResponse = await request(app.getHttpServer())
+      .delete(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&fakePKey=${idForDeletion}`)
+      .set('Cookie', firstUserToken)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+
+    t.is(deleteRowInTableResponse.status, 400);
+    const { message } = JSON.parse(deleteRowInTableResponse.text);
+    t.is(message, Messages.PRIMARY_KEY_INVALID);
+
+    //checking that the line wasn't deleted
+    const getTableRowsResponse = await request(app.getHttpServer())
+      .get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=1&perPage=50`)
+      .set('Cookie', firstUserToken)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+    t.is(getTableRowsResponse.status, 200);
+
+    const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
+
+    t.is(getTableRowsRO.hasOwnProperty('rows'), true);
+    t.is(getTableRowsRO.hasOwnProperty('primaryColumns'), true);
+    t.is(getTableRowsRO.hasOwnProperty('pagination'), true);
+
+    const { rows, primaryColumns, pagination } = getTableRowsRO;
+
+    t.is(rows.length, 42);
+    const deletedRowIndex = rows.map((row: Record<string, unknown>) => row.id).indexOf(idForDeletion);
+    t.is(deletedRowIndex < 0, false);
+  },
+);
+
+test.serial(
+  `${currentTest} should throw an exception when primary key passed in request has incorrect field value`,
+  async (t) => {
+    const connectionToTestDB = getTestData(mockFactory).dynamoDBConnection;
+    const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
+    const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
+      await createTestTable(connectionToTestDB);
+
+    testTables.push(testTableName);
+
+    const createConnectionResponse = await request(app.getHttpServer())
+      .post('/connection')
+      .send(connectionToTestDB)
+      .set('Cookie', firstUserToken)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+    const createConnectionRO = JSON.parse(createConnectionResponse.text);
+    t.is(createConnectionResponse.status, 201);
+
+    const deleteRowInTableResponse = await request(app.getHttpServer())
+      .delete(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&id=100000`)
+      .set('Cookie', firstUserToken)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+
+    const deleteRowInTableRO = JSON.parse(deleteRowInTableResponse.text);
+    t.is(deleteRowInTableResponse.status, 400);
+    t.is(deleteRowInTableRO.message, Messages.ROW_PRIMARY_KEY_NOT_FOUND);
+  },
+);
+
+currentTest = 'GET /table/row/:slug';

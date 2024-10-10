@@ -16,7 +16,7 @@ import { ConnectionParams } from '../shared/data-structures/connections-params.d
 import { DAO_CONSTANTS } from '../../helpers/data-access-objects-constants.js';
 import { FilterCriteriaEnum } from '../shared/enums/filter-criteria.enum.js';
 import { tableSettingsFieldValidator } from '../../helpers/validation/table-settings-validator.js';
-import { DynamoDB, GetItemCommand, ScanCommand, UpdateItemCommand } from '@aws-sdk/client-dynamodb';
+import { DeleteItemCommand, DynamoDB, GetItemCommand, ScanCommand, UpdateItemCommand } from '@aws-sdk/client-dynamodb';
 import { PutItemCommand } from '@aws-sdk/client-dynamodb';
 import { BatchWriteCommand, DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
@@ -60,15 +60,19 @@ export class DataAccessObjectDynamoDB extends BasicDataAccessObject implements I
     tableName: string,
     primaryKey: Record<string, unknown>,
   ): Promise<Record<string, unknown>> {
-    const { dynamoDb } = this.getDynamoDb();
-    const params = {
-      TableName: tableName,
-      Key: primaryKey as any,
-      returnValues: 'ALL_OLD',
-    };
-    const deleteResult = await dynamoDb.deleteItem(params);
-    const deletedData = deleteResult.Attributes;
-    return deletedData;
+    try {
+      const { documentClient } = this.getDynamoDb();
+      const params = {
+        TableName: tableName,
+        Key: marshall(primaryKey),
+        ReturnValues: 'ALL_OLD' as const,
+      };
+      await documentClient.send(new DeleteItemCommand(params));
+      return primaryKey;
+    } catch (e) {
+      e.message += '.';
+      throw e;
+    }
   }
 
   public async getIdentityColumns(
