@@ -3026,3 +3026,268 @@ test.serial(
 );
 
 currentTest = 'GET /table/row/:slug';
+
+test.serial(`${currentTest} found row`, async (t) => {
+  const connectionToTestDB = getTestData(mockFactory).dynamoDBConnection;
+  const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
+  const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName, insertedSearchedIds } =
+    await createTestTable(connectionToTestDB);
+
+  testTables.push(testTableName);
+
+  const createConnectionResponse = await request(app.getHttpServer())
+    .post('/connection')
+    .send(connectionToTestDB)
+    .set('Cookie', firstUserToken)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+  const createConnectionRO = JSON.parse(createConnectionResponse.text);
+  t.is(createConnectionResponse.status, 201);
+
+  const idForSearch = '21';
+  const foundRowInTableResponse = await request(app.getHttpServer())
+    .get(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&id=${idForSearch}`)
+    .set('Cookie', firstUserToken)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+
+  t.is(foundRowInTableResponse.status, 200);
+  const foundRowInTableRO = JSON.parse(foundRowInTableResponse.text);
+  t.is(foundRowInTableRO.hasOwnProperty('row'), true);
+  t.is(foundRowInTableRO.hasOwnProperty('structure'), true);
+  t.is(foundRowInTableRO.hasOwnProperty('foreignKeys'), true);
+  t.is(foundRowInTableRO.hasOwnProperty('primaryColumns'), true);
+  t.is(foundRowInTableRO.hasOwnProperty('readonly_fields'), true);
+  t.is(typeof foundRowInTableRO.row, 'object');
+  t.is(typeof foundRowInTableRO.structure, 'object');
+  t.is(typeof foundRowInTableRO.primaryColumns, 'object');
+  t.is(typeof foundRowInTableRO.readonly_fields, 'object');
+  t.is(typeof foundRowInTableRO.foreignKeys, 'object');
+  t.is(foundRowInTableRO.row.id, idForSearch);
+  t.is(foundRowInTableRO.row[testTableColumnName], testSearchedUserName);
+  t.is(Object.keys(foundRowInTableRO.row).length, 6);
+});
+
+test.serial(`${currentTest} should throw an exception, when connection id is not passed in request`, async (t) => {
+  const connectionToTestDB = getTestData(mockFactory).dynamoDBConnection;
+  const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
+  const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
+    await createTestTable(connectionToTestDB);
+
+  testTables.push(testTableName);
+
+  const createConnectionResponse = await request(app.getHttpServer())
+    .post('/connection')
+    .send(connectionToTestDB)
+    .set('Cookie', firstUserToken)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+  const createConnectionRO = JSON.parse(createConnectionResponse.text);
+  t.is(createConnectionResponse.status, 201);
+  const idForSearch = 1;
+  createConnectionRO.id = '';
+  const foundRowInTableResponse = await request(app.getHttpServer())
+    .get(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&id=${idForSearch}`)
+    .set('Cookie', firstUserToken)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+
+  t.is(foundRowInTableResponse.status, 404);
+});
+
+test.serial(
+  `${currentTest} should throw an exception, when connection id passed in request is incorrect`,
+  async (t) => {
+    const connectionToTestDB = getTestData(mockFactory).dynamoDBConnection;
+    const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
+    const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
+      await createTestTable(connectionToTestDB);
+
+    testTables.push(testTableName);
+
+    const createConnectionResponse = await request(app.getHttpServer())
+      .post('/connection')
+      .send(connectionToTestDB)
+      .set('Cookie', firstUserToken)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+    const createConnectionRO = JSON.parse(createConnectionResponse.text);
+    t.is(createConnectionResponse.status, 201);
+
+    const idForSearch = 1;
+    createConnectionRO.id = faker.string.uuid();
+    const foundRowInTableResponse = await request(app.getHttpServer())
+      .get(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&id=${idForSearch}`)
+      .set('Cookie', firstUserToken)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+
+    t.is(foundRowInTableResponse.status, 403);
+    const { message } = JSON.parse(foundRowInTableResponse.text);
+    t.is(message, Messages.DONT_HAVE_PERMISSIONS);
+  },
+);
+
+test.serial(`${currentTest} should throw an exception, when tableName in not passed in request`, async (t) => {
+  const connectionToTestDB = getTestData(mockFactory).dynamoDBConnection;
+  const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
+  const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
+    await createTestTable(connectionToTestDB);
+
+  testTables.push(testTableName);
+
+  const createConnectionResponse = await request(app.getHttpServer())
+    .post('/connection')
+    .send(connectionToTestDB)
+    .set('Cookie', firstUserToken)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+  const createConnectionRO = JSON.parse(createConnectionResponse.text);
+  t.is(createConnectionResponse.status, 201);
+
+  const idForSearch = 1;
+  const fakeTableName = '';
+  const foundRowInTableResponse = await request(app.getHttpServer())
+    .get(`/table/row/${createConnectionRO.id}?tableName=${fakeTableName}&id=${idForSearch}`)
+    .set('Cookie', firstUserToken)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+
+  t.is(foundRowInTableResponse.status, 400);
+  const { message } = JSON.parse(foundRowInTableResponse.text);
+  t.is(message, Messages.TABLE_NAME_MISSING);
+});
+
+test.serial(`${currentTest} should throw an exception, when tableName passed in request is incorrect`, async (t) => {
+  const connectionToTestDB = getTestData(mockFactory).dynamoDBConnection;
+  const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
+  const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
+    await createTestTable(connectionToTestDB);
+
+  testTables.push(testTableName);
+
+  const createConnectionResponse = await request(app.getHttpServer())
+    .post('/connection')
+    .send(connectionToTestDB)
+    .set('Cookie', firstUserToken)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+  const createConnectionRO = JSON.parse(createConnectionResponse.text);
+  t.is(createConnectionResponse.status, 201);
+
+  const idForSearch = 1;
+  const fakeTableName = `${faker.lorem.words(1)}_${faker.string.uuid()}`;
+  const foundRowInTableResponse = await request(app.getHttpServer())
+    .get(`/table/row/${createConnectionRO.id}?tableName=${fakeTableName}&id=${idForSearch}`)
+    .set('Cookie', firstUserToken)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+
+  t.is(foundRowInTableResponse.status, 400);
+  const { message } = JSON.parse(foundRowInTableResponse.text);
+  t.is(message, Messages.TABLE_NOT_FOUND);
+});
+
+test.serial(`${currentTest} should throw an exception, when primary key is not passed in request`, async (t) => {
+  const connectionToTestDB = getTestData(mockFactory).dynamoDBConnection;
+  const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
+  const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
+    await createTestTable(connectionToTestDB);
+
+  testTables.push(testTableName);
+
+  const createConnectionResponse = await request(app.getHttpServer())
+    .post('/connection')
+    .send(connectionToTestDB)
+    .set('Cookie', firstUserToken)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+  const createConnectionRO = JSON.parse(createConnectionResponse.text);
+  t.is(createConnectionResponse.status, 201);
+
+  const foundRowInTableResponse = await request(app.getHttpServer())
+    .get(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&`)
+    .set('Cookie', firstUserToken)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+
+  t.is(foundRowInTableResponse.status, 400);
+  const { message } = JSON.parse(foundRowInTableResponse.text);
+  t.is(message, Messages.PRIMARY_KEY_INVALID);
+});
+
+test.serial(
+  `${currentTest} should throw an exception, when primary key passed in request has incorrect name`,
+  async (t) => {
+    const connectionToTestDB = getTestData(mockFactory).dynamoDBConnection;
+    const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
+    const {
+      testTableName,
+      testTableColumnName,
+      testEntitiesSeedsCount,
+      testTableSecondColumnName,
+      insertedSearchedIds,
+    } = await createTestTable(connectionToTestDB);
+
+    testTables.push(testTableName);
+
+    const createConnectionResponse = await request(app.getHttpServer())
+      .post('/connection')
+      .send(connectionToTestDB)
+      .set('Cookie', firstUserToken)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+    const createConnectionRO = JSON.parse(createConnectionResponse.text);
+    t.is(createConnectionResponse.status, 201);
+
+    const idForSearch = '1';
+    const foundRowInTableResponse = await request(app.getHttpServer())
+      .get(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&fakeKeyName=${idForSearch}`)
+      .set('Cookie', firstUserToken)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+
+    t.is(foundRowInTableResponse.status, 400);
+    const { message } = JSON.parse(foundRowInTableResponse.text);
+    t.is(message, Messages.PRIMARY_KEY_INVALID);
+  },
+);
+
+test.serial(
+  `${currentTest} should throw an exception, when primary key passed in request has incorrect value`,
+  async (t) => {
+    const connectionToTestDB = getTestData(mockFactory).dynamoDBConnection;
+    const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
+    const {
+      testTableName,
+      testTableColumnName,
+      testEntitiesSeedsCount,
+      testTableSecondColumnName,
+      insertedSearchedIds,
+    } = await createTestTable(connectionToTestDB);
+
+    testTables.push(testTableName);
+
+    const createConnectionResponse = await request(app.getHttpServer())
+      .post('/connection')
+      .send(connectionToTestDB)
+      .set('Cookie', firstUserToken)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+    const createConnectionRO = JSON.parse(createConnectionResponse.text);
+    t.is(createConnectionResponse.status, 201);
+
+    const idForSearch = '6604197dab8d910eb77783f9';
+    const foundRowInTableResponse = await request(app.getHttpServer())
+      .get(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&id=${idForSearch}`)
+      .set('Cookie', firstUserToken)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+
+    t.is(foundRowInTableResponse.status, 400);
+    const findRowResponse = JSON.parse(foundRowInTableResponse.text);
+    t.is(findRowResponse.message, Messages.ROW_PRIMARY_KEY_NOT_FOUND);
+  },
+);
+
+currentTest = 'PUT /table/rows/delete/:slug';
