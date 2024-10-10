@@ -16,7 +16,7 @@ import { ConnectionParams } from '../shared/data-structures/connections-params.d
 import { DAO_CONSTANTS } from '../../helpers/data-access-objects-constants.js';
 import { FilterCriteriaEnum } from '../shared/enums/filter-criteria.enum.js';
 import { tableSettingsFieldValidator } from '../../helpers/validation/table-settings-validator.js';
-import { DynamoDB, GetItemCommand, ScanCommand } from '@aws-sdk/client-dynamodb';
+import { DynamoDB, GetItemCommand, ScanCommand, UpdateItemCommand } from '@aws-sdk/client-dynamodb';
 import { PutItemCommand } from '@aws-sdk/client-dynamodb';
 import { BatchWriteCommand, DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
@@ -382,16 +382,31 @@ export class DataAccessObjectDynamoDB extends BasicDataAccessObject implements I
     row: Record<string, unknown>,
     primaryKey: Record<string, unknown>,
   ): Promise<Record<string, unknown>> {
-    const { dynamoDb } = this.getDynamoDb();
-    const params = {
-      TableName: tableName,
-      Key: primaryKey,
-      Item: row as any,
-      returnValues: 'ALL_OLD',
-    };
-    const updateResult = await dynamoDb.putItem(params);
-    const updatedData = updateResult.Attributes;
-    return primaryKey;
+    try {
+      const { documentClient } = this.getDynamoDb();
+      const params = {
+        TableName: tableName,
+        Key: marshall(primaryKey),
+        AttributeUpdates: Object.entries(row).reduce((acc, [key, value]) => {
+          acc[key] = {
+            Action: 'PUT',
+            Value: marshall({ [key]: value })[key],
+          };
+          return acc;
+        }, {}),
+        ReturnValues: 'ALL_NEW' as const,
+      };
+      await documentClient.send(new UpdateItemCommand(params));
+      const primaryKeyColumns = await this.getTablePrimaryColumns(tableName);
+      const responseObject = {};
+      primaryKeyColumns.forEach((key) => {
+        responseObject[key.column_name] = row[key.column_name];
+      });
+      return responseObject;
+    } catch (e) {
+      e.message += '.';
+      throw e;
+    }
   }
 
   public async bulkUpdateRowsInTable(

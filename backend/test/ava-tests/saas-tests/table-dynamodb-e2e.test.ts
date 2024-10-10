@@ -1968,7 +1968,6 @@ test.serial(`${currentTest} should add row in table and return result`, async (t
     .set('Accept', 'application/json');
 
   const addRowInTableRO = JSON.parse(addRowInTableResponse.text);
-  console.log('🚀 ~ test.only ~ addRowInTableRO:', addRowInTableRO)
   t.is(addRowInTableResponse.status, 201);
 
   t.is(addRowInTableRO.hasOwnProperty('row'), true);
@@ -1988,7 +1987,6 @@ test.serial(`${currentTest} should add row in table and return result`, async (t
   t.is(getTableRowsResponse.status, 200);
 
   const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
-  console.log('🚀 ~ test.only ~ getTableRowsRO:', getTableRowsRO)
 
   t.is(getTableRowsRO.hasOwnProperty('rows'), true);
   t.is(getTableRowsRO.hasOwnProperty('primaryColumns'), true);
@@ -2041,7 +2039,7 @@ test.serial(`${currentTest} should throw an exception when connection id is not 
   const fakeMail = faker.internet.email();
 
   const row = {
-    _id: 999,
+    id: 999,
     [testTableColumnName]: fakeName,
     [testTableSecondColumnName]: fakeMail,
   };
@@ -2095,7 +2093,7 @@ test.serial(`${currentTest} should throw an exception when table name is not pas
   const fakeMail = faker.internet.email();
 
   const row = {
-    _id: 999,
+    id: 999,
     [testTableColumnName]: fakeName,
     [testTableSecondColumnName]: fakeMail,
   };
@@ -2199,7 +2197,7 @@ test.serial(`${currentTest} should throw an exception when table name passed in 
   const fakeMail = faker.internet.email();
 
   const row = {
-    _id: 999,
+    id: 999,
     [testTableColumnName]: fakeName,
     [testTableSecondColumnName]: fakeMail,
   };
@@ -2236,3 +2234,337 @@ test.serial(`${currentTest} should throw an exception when table name passed in 
 });
 
 currentTest = 'PUT /table/row/:slug';
+
+test.serial(`${currentTest} should update row in table and return result`, async (t) => {
+  const connectionToTestDB = getTestData(mockFactory).dynamoDBConnection;
+  const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
+  const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
+    await createTestTable(connectionToTestDB);
+
+  testTables.push(testTableName);
+
+  const createConnectionResponse = await request(app.getHttpServer())
+    .post('/connection')
+    .send(connectionToTestDB)
+    .set('Cookie', firstUserToken)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+  const createConnectionRO = JSON.parse(createConnectionResponse.text);
+  t.is(createConnectionResponse.status, 201);
+
+  const fakeName = faker.person.firstName();
+  const fakeMail = faker.internet.email();
+
+  const row = {
+    [testTableColumnName]: fakeName,
+    [testTableSecondColumnName]: fakeMail,
+  };
+  const foundIdForUpdate = '1';
+  const updateRowInTableResponse = await request(app.getHttpServer())
+    .put(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&id=${foundIdForUpdate}`)
+    .send(JSON.stringify(row))
+    .set('Cookie', firstUserToken)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+
+  const updateRowInTableRO = JSON.parse(updateRowInTableResponse.text);
+
+  t.is(updateRowInTableResponse.status, 200);
+
+  t.is(updateRowInTableRO.hasOwnProperty('row'), true);
+  t.is(updateRowInTableRO.hasOwnProperty('structure'), true);
+  t.is(updateRowInTableRO.hasOwnProperty('foreignKeys'), true);
+  t.is(updateRowInTableRO.hasOwnProperty('primaryColumns'), true);
+  t.is(updateRowInTableRO.hasOwnProperty('readonly_fields'), true);
+  t.is(updateRowInTableRO.row[testTableColumnName], row[testTableColumnName]);
+  t.is(updateRowInTableRO.row[testTableSecondColumnName], row[testTableSecondColumnName]);
+
+  //checking that the line was updated
+  const getTableRowsResponse = await request(app.getHttpServer())
+    .get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=1&perPage=50`)
+    .set('Cookie', firstUserToken)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+  t.is(getTableRowsResponse.status, 200);
+
+  const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
+
+  t.is(getTableRowsRO.hasOwnProperty('rows'), true);
+  t.is(getTableRowsRO.hasOwnProperty('primaryColumns'), true);
+  t.is(getTableRowsRO.hasOwnProperty('pagination'), true);
+
+  const { rows, primaryColumns, pagination } = getTableRowsRO;
+
+  const updateRowIndex = rows.map((row) => row.id).indexOf(foundIdForUpdate);
+  t.is(rows.length, 42);
+  t.is(rows[updateRowIndex][testTableColumnName], row[testTableColumnName]);
+  t.is(rows[updateRowIndex][testTableSecondColumnName], row[testTableSecondColumnName]);
+});
+
+test.serial(`${currentTest} should throw an exception when connection id not passed in request`, async (t) => {
+  const connectionToTestDB = getTestData(mockFactory).dynamoDBConnection;
+  const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
+  const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
+    await createTestTable(connectionToTestDB);
+
+  testTables.push(testTableName);
+
+  const createConnectionResponse = await request(app.getHttpServer())
+    .post('/connection')
+    .send(connectionToTestDB)
+    .set('Cookie', firstUserToken)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+  const createConnectionRO = JSON.parse(createConnectionResponse.text);
+  t.is(createConnectionResponse.status, 201);
+
+  const fakeName = faker.person.firstName();
+  const fakeMail = faker.internet.email();
+
+  const row = {
+    [testTableColumnName]: fakeName,
+    [testTableSecondColumnName]: fakeMail,
+  };
+
+  createConnectionRO.id = '';
+  const updateRowInTableResponse = await request(app.getHttpServer())
+    .put(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&id=1`)
+    .send(JSON.stringify(row))
+    .set('Cookie', firstUserToken)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+
+  t.is(updateRowInTableResponse.status, 404);
+});
+
+test.serial(`${currentTest} should throw an exception when connection id passed in request is incorrect`, async (t) => {
+  const connectionToTestDB = getTestData(mockFactory).dynamoDBConnection;
+  const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
+  const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
+    await createTestTable(connectionToTestDB);
+
+  testTables.push(testTableName);
+
+  const createConnectionResponse = await request(app.getHttpServer())
+    .post('/connection')
+    .send(connectionToTestDB)
+    .set('Cookie', firstUserToken)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+  const createConnectionRO = JSON.parse(createConnectionResponse.text);
+
+  t.is(createConnectionResponse.status, 201);
+
+  const fakeName = faker.person.firstName();
+  const fakeMail = faker.internet.email();
+
+  const row = {
+    [testTableColumnName]: fakeName,
+    [testTableSecondColumnName]: fakeMail,
+  };
+
+  createConnectionRO.id = faker.string.uuid();
+  const updateRowInTableResponse = await request(app.getHttpServer())
+    .put(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&id=1`)
+    .send(JSON.stringify(row))
+    .set('Cookie', firstUserToken)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+
+  t.is(updateRowInTableResponse.status, 403);
+  const { message } = JSON.parse(updateRowInTableResponse.text);
+  t.is(message, Messages.DONT_HAVE_PERMISSIONS);
+});
+
+test.serial(`${currentTest} should throw an exception when tableName not passed in request`, async (t) => {
+  const connectionToTestDB = getTestData(mockFactory).dynamoDBConnection;
+  const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
+  const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
+    await createTestTable(connectionToTestDB);
+
+  testTables.push(testTableName);
+
+  const createConnectionResponse = await request(app.getHttpServer())
+    .post('/connection')
+    .send(connectionToTestDB)
+    .set('Cookie', firstUserToken)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+  const createConnectionRO = JSON.parse(createConnectionResponse.text);
+  t.is(createConnectionResponse.status, 201);
+
+  const fakeName = faker.person.firstName();
+  const fakeMail = faker.internet.email();
+
+  const row = {
+    [testTableColumnName]: fakeName,
+    [testTableSecondColumnName]: fakeMail,
+  };
+
+  createConnectionRO.id = faker.string.uuid();
+  const updateRowInTableResponse = await request(app.getHttpServer())
+    .put(`/table/row/${createConnectionRO.id}?tableName=&id=1`)
+    .send(JSON.stringify(row))
+    .set('Cookie', firstUserToken)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+
+  t.is(updateRowInTableResponse.status, 400);
+  const { message } = JSON.parse(updateRowInTableResponse.text);
+  t.is(message, Messages.TABLE_NAME_MISSING);
+});
+
+test.serial(`${currentTest} should throw an exception when tableName passed in request is incorrect`, async (t) => {
+  const connectionToTestDB = getTestData(mockFactory).dynamoDBConnection;
+  const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
+  const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
+    await createTestTable(connectionToTestDB);
+
+  testTables.push(testTableName);
+
+  const createConnectionResponse = await request(app.getHttpServer())
+    .post('/connection')
+    .send(connectionToTestDB)
+    .set('Cookie', firstUserToken)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+  const createConnectionRO = JSON.parse(createConnectionResponse.text);
+  t.is(createConnectionResponse.status, 201);
+
+  const fakeName = faker.person.firstName();
+  const fakeMail = faker.internet.email();
+
+  const row = {
+    [testTableColumnName]: fakeName,
+    [testTableSecondColumnName]: fakeMail,
+  };
+
+  const fakeTableName = faker.string.uuid();
+  const updateRowInTableResponse = await request(app.getHttpServer())
+    .put(`/table/row/${createConnectionRO.id}?tableName=${fakeTableName}&id=1`)
+    .send(JSON.stringify(row))
+    .set('Cookie', firstUserToken)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+
+  t.is(updateRowInTableResponse.status, 400);
+  const { message } = JSON.parse(updateRowInTableResponse.text);
+  t.is(message, Messages.TABLE_NOT_FOUND);
+});
+
+test.serial(`${currentTest} should throw an exception when primary key not passed in request`, async (t) => {
+  const connectionToTestDB = getTestData(mockFactory).dynamoDBConnection;
+  const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
+  const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
+    await createTestTable(connectionToTestDB);
+
+  testTables.push(testTableName);
+
+  const createConnectionResponse = await request(app.getHttpServer())
+    .post('/connection')
+    .send(connectionToTestDB)
+    .set('Cookie', firstUserToken)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+
+  const createConnectionRO = JSON.parse(createConnectionResponse.text);
+  t.is(createConnectionResponse.status, 201);
+  const fakeName = faker.person.firstName();
+  const fakeMail = faker.internet.email();
+
+  const row = {
+    [testTableColumnName]: fakeName,
+    [testTableSecondColumnName]: fakeMail,
+  };
+
+  const updateRowInTableResponse = await request(app.getHttpServer())
+    .put(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&`)
+    .send(JSON.stringify(row))
+    .set('Cookie', firstUserToken)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+
+  t.is(updateRowInTableResponse.status, 400);
+  const { message } = JSON.parse(updateRowInTableResponse.text);
+  t.is(message, Messages.PRIMARY_KEY_INVALID);
+});
+
+test.serial(
+  `${currentTest} should throw an exception when primary key passed in request has incorrect field name`,
+  async (t) => {
+    const connectionToTestDB = getTestData(mockFactory).dynamoDBConnection;
+    const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
+    const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
+      await createTestTable(connectionToTestDB);
+
+    testTables.push(testTableName);
+
+    const createConnectionResponse = await request(app.getHttpServer())
+      .post('/connection')
+      .send(connectionToTestDB)
+      .set('Cookie', firstUserToken)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+    const createConnectionRO = JSON.parse(createConnectionResponse.text);
+    t.is(createConnectionResponse.status, 201);
+
+    const fakeName = faker.person.firstName();
+    const fakeMail = faker.internet.email();
+
+    const row = {
+      [testTableColumnName]: fakeName,
+      [testTableSecondColumnName]: fakeMail,
+    };
+
+    const updateRowInTableResponse = await request(app.getHttpServer())
+      .put(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&IncorrectField=1`)
+      .send(JSON.stringify(row))
+      .set('Cookie', firstUserToken)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+
+    t.is(updateRowInTableResponse.status, 400);
+    const { message } = JSON.parse(updateRowInTableResponse.text);
+    t.is(message, Messages.PRIMARY_KEY_INVALID);
+  },
+);
+
+test.serial(
+  `${currentTest} should throw an exception when primary key passed in request has incorrect field value`,
+  async (t) => {
+    const connectionToTestDB = getTestData(mockFactory).dynamoDBConnection;
+    const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
+    const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
+      await createTestTable(connectionToTestDB);
+
+    testTables.push(testTableName);
+
+    const createConnectionResponse = await request(app.getHttpServer())
+      .post('/connection')
+      .send(connectionToTestDB)
+      .set('Cookie', firstUserToken)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+    const createConnectionRO = JSON.parse(createConnectionResponse.text);
+    t.is(createConnectionResponse.status, 201);
+
+    const fakeName = faker.person.firstName();
+    const fakeMail = faker.internet.email();
+
+    const row = {
+      [testTableColumnName]: fakeName,
+      [testTableSecondColumnName]: fakeMail,
+    };
+
+    const updateRowInTableResponse = await request(app.getHttpServer())
+      .put(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&id=100000000`)
+      .send(JSON.stringify(row))
+      .set('Cookie', firstUserToken)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+
+    t.is(updateRowInTableResponse.status, 400);
+    const responseObject = JSON.parse(updateRowInTableResponse.text);
+    t.is(responseObject.message, Messages.ROW_PRIMARY_KEY_NOT_FOUND);
+  },
+);
