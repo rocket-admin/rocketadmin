@@ -96,7 +96,6 @@ export class TestConnectionUseCase
           toUpdate = Encryptor.decryptConnectionCredentials(toUpdate, masterPwd);
         }
 
-        
         if (
           !connectionData.password &&
           (connectionData.host !== toUpdate.host || connectionData.port !== toUpdate.port) &&
@@ -108,7 +107,7 @@ export class TestConnectionUseCase
           };
         }
 
-        if(!connectionData.password){
+        if (!connectionData.password) {
           delete connectionData.password;
         }
 
