@@ -2665,7 +2665,7 @@ test.serial(`${currentTest} should delete row in table and return result`, async
 
   t.is(deleteRowInTableResponse.status, 200);
   const deleteRowInTableRO = JSON.parse(deleteRowInTableResponse.text);
-  console.log('🚀 ~ test.serial ~ deleteRowInTableRO:', deleteRowInTableRO)
+  console.log('🚀 ~ test.serial ~ deleteRowInTableRO:', deleteRowInTableRO);
 
   t.is(deleteRowInTableRO.hasOwnProperty('row'), true);
 
@@ -3291,3 +3291,104 @@ test.serial(
 );
 
 currentTest = 'PUT /table/rows/delete/:slug';
+
+test.serial(`${currentTest} should delete rows in table and return result`, async (t) => {
+  const connectionToTestDB = getTestData(mockFactory).dynamoDBConnection;
+  const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
+  const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName, insertedSearchedIds } =
+    await createTestTable(connectionToTestDB);
+
+  testTables.push(testTableName);
+
+  const createConnectionResponse = await request(app.getHttpServer())
+    .post('/connection')
+    .send(connectionToTestDB)
+    .set('Cookie', firstUserToken)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+  const createConnectionRO = JSON.parse(createConnectionResponse.text);
+  t.is(createConnectionResponse.status, 201);
+
+  const primaryKeysForDeletion: Array<Record<string, unknown>> = [
+    {
+      id: '1',
+    },
+    {
+      id: '2',
+    },
+    {
+      id: '31',
+    },
+  ];
+  const deleteRowsInTableResponse = await request(app.getHttpServer())
+    .put(`/table/rows/delete/${createConnectionRO.id}?tableName=${testTableName}`)
+    .send(primaryKeysForDeletion)
+    .set('Cookie', firstUserToken)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+
+  t.is(deleteRowsInTableResponse.status, 200);
+
+  //checking that the line was deleted
+  const getTableRowsResponse = await request(app.getHttpServer())
+    .get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=1&perPage=50`)
+    .set('Cookie', firstUserToken)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+  t.is(getTableRowsResponse.status, 200);
+
+  const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
+
+  t.is(getTableRowsRO.hasOwnProperty('rows'), true);
+  t.is(getTableRowsRO.hasOwnProperty('primaryColumns'), true);
+  t.is(getTableRowsRO.hasOwnProperty('pagination'), true);
+  // check that lines was deleted
+
+  const { rows, primaryColumns, pagination } = getTableRowsRO;
+
+  t.is(rows.length, testEntitiesSeedsCount - primaryKeysForDeletion.length);
+
+  for (const key of primaryKeysForDeletion) {
+    t.is(
+      rows.findIndex((row) => row.id === key.id),
+      -1,
+    );
+  }
+
+  // check that table deletaion was logged
+  const tableLogsResponse = await request(app.getHttpServer())
+    .get(`/logs/${createConnectionRO.id}?tableName=${testTableName}`)
+    .set('Cookie', firstUserToken)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+
+  t.is(tableLogsResponse.status, 200);
+
+  const tableLogsRO = JSON.parse(tableLogsResponse.text);
+  t.is(tableLogsRO.logs.length, primaryKeysForDeletion.length + 1);
+  const onlyDeleteLogs = tableLogsRO.logs.filter((log) => log.operationType === LogOperationTypeEnum.deleteRow);
+  for (const key of primaryKeysForDeletion) {
+    t.is(onlyDeleteLogs.findIndex((log) => log.received_data.id === key.id) >= 0, true);
+  }
+});
+
+currentTest = 'POST /connection/test';
+
+test.only(`${currentTest} should test connection and return result`, async (t) => {
+  const connectionToTestDB = getTestData(mockFactory).dynamoDBConnection;
+  const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
+
+  const testConnectionResponse = await request(app.getHttpServer())
+    .post('/connection/test/')
+    .send(connectionToTestDB)
+    .set('Cookie', firstUserToken)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+
+  const testConnectionRO = JSON.parse(testConnectionResponse.text);
+  console.log('🚀 ~ test.only ~ testConnectionRO:', testConnectionRO)
+
+  t.is(testConnectionResponse.status, 201);
+  const { message } = JSON.parse(testConnectionResponse.text);
+  t.is(message, 'Successfully connected');
+});
