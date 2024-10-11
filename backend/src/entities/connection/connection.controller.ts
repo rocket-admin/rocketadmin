@@ -652,12 +652,12 @@ export class ConnectionController {
       }
 
       if (!connectionData.username) errors.push(Messages.USERNAME_MISSING);
-      if (!connectionData.database) errors.push(Messages.DATABASE_MISSING);
 
       if (connectionData.type === ConnectionTypesEnum.dynamodb) {
         return errors;
       }
-
+      
+      if (!connectionData.database) errors.push(Messages.DATABASE_MISSING);
       if (process.env.NODE_ENV !== 'test' && !connectionData.ssh) {
         if (!this.isMongoHost(connectionData.host)) {
           if (!validator.isFQDN(connectionData.host) && !validator.isIP(connectionData.host))

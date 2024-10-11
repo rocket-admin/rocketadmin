@@ -3374,7 +3374,7 @@ test.serial(`${currentTest} should delete rows in table and return result`, asyn
 
 currentTest = 'POST /connection/test';
 
-test.only(`${currentTest} should test connection and return result`, async (t) => {
+test.serial(`${currentTest} should test connection and return result`, async (t) => {
   const connectionToTestDB = getTestData(mockFactory).dynamoDBConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
 
@@ -3385,10 +3385,246 @@ test.only(`${currentTest} should test connection and return result`, async (t) =
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
 
-  const testConnectionRO = JSON.parse(testConnectionResponse.text);
-  console.log('🚀 ~ test.only ~ testConnectionRO:', testConnectionRO)
-
   t.is(testConnectionResponse.status, 201);
   const { message } = JSON.parse(testConnectionResponse.text);
   t.is(message, 'Successfully connected');
+});
+
+currentTest = 'GET table/csv/:slug';
+
+test.serial(`${currentTest} should return csv file with table data`, async (t) => {
+  const connectionToTestDB = getTestData(mockFactory).dynamoDBConnection;
+  const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
+
+  const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
+    await createTestTable(connectionToTestDB);
+
+  const createConnectionResponse = await request(app.getHttpServer())
+    .post('/connection')
+    .send(connectionToTestDB)
+    .set('Cookie', firstUserToken)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+  const createConnectionRO = JSON.parse(createConnectionResponse.text);
+  t.is(createConnectionResponse.status, 201);
+
+  const getTableCsvResponse = await request(app.getHttpServer())
+    .post(`/table/csv/export/${createConnectionRO.id}?tableName=${testTableName}`)
+    .set('Cookie', firstUserToken)
+    .set('Content-Type', 'text/csv')
+    .set('Accept', 'text/csv');
+
+  if (getTableCsvResponse.status !== 201) {
+    console.log(getTableCsvResponse.text);
+  }
+  t.is(getTableCsvResponse.status, 201);
+  const fileName = `${testTableName}.csv`;
+  const downloadedFilePatch = join(__dirname, 'response-files', fileName);
+
+  const dir = join(__dirname, 'response-files');
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir);
+  }
+  // eslint-disable-next-line security/detect-non-literal-fs-filename
+  fs.writeFileSync(downloadedFilePatch, getTableCsvResponse.body);
+
+  // eslint-disable-next-line security/detect-non-literal-fs-filename
+  const isFileExists = fs.existsSync(downloadedFilePatch);
+  t.is(isFileExists, true);
+});
+
+test.serial(
+  `${currentTest} should return csv file with table data with search, with pagination, with sorting,
+with search and pagination: page=1, perPage=2 and DESC sorting`,
+  async (t) => {
+    const connectionToTestDB = getTestData(mockFactory).dynamoDBConnection;
+    const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
+
+    const {
+      testTableName,
+      testTableColumnName,
+      testEntitiesSeedsCount,
+      testTableSecondColumnName,
+      insertedSearchedIds,
+    } = await createTestTable(connectionToTestDB);
+
+    const createConnectionResponse = await request(app.getHttpServer())
+      .post('/connection')
+      .send(connectionToTestDB)
+      .set('Cookie', firstUserToken)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+    const createConnectionRO = JSON.parse(createConnectionResponse.text);
+    t.is(createConnectionResponse.status, 201);
+
+    const createTableSettingsDTO = mockFactory.generateTableSettings(
+      createConnectionRO.id,
+      testTableName,
+      [testTableColumnName],
+      undefined,
+      undefined,
+      3,
+      QueryOrderingEnum.DESC,
+      'id',
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+    );
+
+    const createTableSettingsResponse = await request(app.getHttpServer())
+      .post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
+      .send(createTableSettingsDTO)
+      .set('Cookie', firstUserToken)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+    t.is(createTableSettingsResponse.status, 201);
+
+    const getTableCsvResponse = await request(app.getHttpServer())
+      .post(
+        `/table/csv/export/${createConnectionRO.id}?tableName=${testTableName}&search=${testSearchedUserName}&page=1&perPage=2`,
+      )
+      .set('Cookie', firstUserToken)
+      .set('Content-Type', 'text/csv')
+      .set('Accept', 'text/csv');
+
+    if (getTableCsvResponse.status !== 201) {
+      console.log(getTableCsvResponse.text);
+    }
+    t.is(getTableCsvResponse.status, 201);
+    const fileName = `${testTableName}.csv`;
+    const downloadedFilePatch = join(__dirname, 'response-files', fileName);
+
+    const dir = join(__dirname, 'response-files');
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir);
+    }
+    // eslint-disable-next-line security/detect-non-literal-fs-filename
+    fs.writeFileSync(downloadedFilePatch, getTableCsvResponse.body);
+
+    // eslint-disable-next-line security/detect-non-literal-fs-filename
+    const isFileExists = fs.existsSync(downloadedFilePatch);
+    t.is(isFileExists, true);
+  },
+);
+
+currentTest = 'POST /table/csv/import/:slug';
+
+test.serial(`${currentTest} should import csv file with table data`, async (t) => {
+  const connectionToTestDB = getTestData(mockFactory).dynamoDBConnection;
+  const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
+
+  const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
+    await createTestTable(connectionToTestDB);
+
+  const createConnectionResponse = await request(app.getHttpServer())
+    .post('/connection')
+    .send(connectionToTestDB)
+    .set('Cookie', firstUserToken)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+  const createConnectionRO = JSON.parse(createConnectionResponse.text);
+  t.is(createConnectionResponse.status, 201);
+
+  const createTableSettingsDTO = mockFactory.generateTableSettings(
+    createConnectionRO.id,
+    testTableName,
+    [testTableColumnName],
+    undefined,
+    undefined,
+    3,
+    QueryOrderingEnum.DESC,
+    'id',
+    undefined,
+    undefined,
+    undefined,
+    undefined,
+    undefined,
+  );
+
+  const createTableSettingsResponse = await request(app.getHttpServer())
+    .post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
+    .send(createTableSettingsDTO)
+    .set('Cookie', firstUserToken)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+  t.is(createTableSettingsResponse.status, 201);
+
+  const getTableCsvResponse = await request(app.getHttpServer())
+    .post(
+      `/table/csv/export/${createConnectionRO.id}?tableName=${testTableName}&search=${testSearchedUserName}&page=1&perPage=2`,
+    )
+    .set('Cookie', firstUserToken)
+    .set('Content-Type', 'text/csv')
+    .set('Accept', 'text/csv');
+
+  if (getTableCsvResponse.status !== 201) {
+    console.log(getTableCsvResponse.text);
+  }
+  t.is(getTableCsvResponse.status, 201);
+  const fileName = `${testTableName}.csv`;
+  const downloadedFilePatch = join(__dirname, 'response-files', fileName);
+
+  const dir = join(__dirname, 'response-files');
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir);
+  }
+  // eslint-disable-next-line security/detect-non-literal-fs-filename
+  fs.writeFileSync(downloadedFilePatch, getTableCsvResponse.body);
+  // eslint-disable-next-line security/detect-non-literal-fs-filename
+  const isFileExists = fs.existsSync(downloadedFilePatch);
+  t.is(isFileExists, true);
+
+  function changeIdFieldsValuesInCsvFile(filePath: string): string {
+    // eslint-disable-next-line security/detect-non-literal-fs-filename
+    const fileContent = fs.readFileSync(filePath).toString();
+    const rows = fileContent.split('\n');
+
+    const header = rows[0].split(',');
+    const idIndex = header.indexOf('id');
+
+    if (idIndex === -1) {
+      throw new Error("The 'id' column was not found in the CSV file.");
+    }
+
+    // Process each row and change the 'id' field
+    const newRows = rows.map((row, index) => {
+      if (index === 0) {
+        return row; // Skip the header row
+      }
+      const columns = row.split(',');
+      if (columns.length <= idIndex) {
+        return row; // Skip rows that don't have enough columns
+      }
+      columns[idIndex] = `5${index}`;
+      return columns.join(',');
+    });
+
+    return newRows.join('\n');
+  }
+
+  const newFileContent = changeIdFieldsValuesInCsvFile(downloadedFilePatch);
+  // eslint-disable-next-line security/detect-non-literal-fs-filename
+  fs.writeFileSync(downloadedFilePatch, newFileContent);
+
+  const importCsvResponse = await request(app.getHttpServer())
+    .post(`/table/csv/import/${createConnectionRO.id}?tableName=${testTableName}`)
+    .attach('file', downloadedFilePatch)
+    .set('Cookie', firstUserToken)
+    .set('Accept', 'application/json');
+
+  t.is(importCsvResponse.status, 201);
+
+  //checking that the lines was added
+
+  const getTableRowsResponse = await request(app.getHttpServer())
+    .get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=1&perPage=50`)
+    .set('Cookie', firstUserToken)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+
+  const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
+  t.is(getTableRowsResponse.status, 200);
+  t.is(getTableRowsRO.rows.length, testEntitiesSeedsCount + 2);
 });

@@ -488,55 +488,21 @@ export class DataAccessObjectDynamoDB extends BasicDataAccessObject implements I
   }
 
   public async importCSVInTable(file: Express.Multer.File, tableName: string): Promise<void> {
-    const { documentClient } = this.getDynamoDb();
-
     const fileStream = new Stream.PassThrough();
     fileStream.end(file.buffer);
-
-    const items: any[] = [];
-
+  
     return new Promise((resolve, reject) => {
       fileStream
         .pipe(csv.parse({ columns: true }))
-        .on('data', (data) => {
-          items.push({
-            PutRequest: {
-              Item: data,
-            },
-          });
-
-          if (items.length === 25) {
-            const params = {
-              RequestItems: {
-                [tableName]: items,
-              },
-            };
-            documentClient
-              .send(new BatchWriteCommand(params))
-              .then(() => {
-                items.length = 0;
-              })
-              .catch((err) => {
-                reject(err);
-              });
+        .on('data', async (data) => {
+          try {
+            await this.addRowInTable(tableName, data);
+          } catch (err) {
+            reject(err);
           }
         })
-        .on('end', async () => {
-          if (items.length > 0) {
-            const params = {
-              RequestItems: {
-                [tableName]: items,
-              },
-            };
-            try {
-              await documentClient.send(new BatchWriteCommand(params));
-              resolve();
-            } catch (err) {
-              reject(err);
-            }
-          } else {
-            resolve();
-          }
+        .on('end', () => {
+          resolve();
         })
         .on('error', (err) => {
           reject(err);

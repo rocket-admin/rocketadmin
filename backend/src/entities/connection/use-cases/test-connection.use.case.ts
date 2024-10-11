@@ -30,7 +30,6 @@ export class TestConnectionUseCase
   }
 
   protected async implementation(inputData: UpdateConnectionDs): Promise<TestConnectionResultDs> {
-    console.log(' C A L L E D 1');
     const checkingResult = await isHostAllowed(inputData.connection_parameters);
     if (!checkingResult) {
       return {
