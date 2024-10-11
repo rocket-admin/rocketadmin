@@ -77,17 +77,6 @@ export class TestConnectionUseCase
           };
         }
 
-        if (
-          (!connectionData.password || !connectionData.password.length) &&
-          (connectionData.host !== toUpdate.host || connectionData.port !== toUpdate.port) &&
-          !isConnectionTypeAgent(connectionData.type)
-        ) {
-          return {
-            result: false,
-            message: Messages.PASSWORD_MISSING,
-          };
-        }
-
         ['password', 'privateSSHKey', 'cert'].forEach((key) => {
           // eslint-disable-next-line security/detect-object-injection
           if (!connectionData[key]) {
@@ -105,6 +94,21 @@ export class TestConnectionUseCase
 
         if (toUpdate.masterEncryption) {
           toUpdate = Encryptor.decryptConnectionCredentials(toUpdate, masterPwd);
+        }
+
+        if (
+          !connectionData.password &&
+          (connectionData.host !== toUpdate.host || connectionData.port !== toUpdate.port) &&
+          !isConnectionTypeAgent(connectionData.type)
+        ) {
+          return {
+            result: false,
+            message: Messages.PASSWORD_MISSING,
+          };
+        }
+
+        if (!connectionData.password) {
+          delete connectionData.password;
         }
 
         let updated: any = Object.assign(toUpdate, connectionData);
