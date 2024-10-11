@@ -78,7 +78,7 @@ export class TestConnectionUseCase
         }
 
         if (
-          !connectionData.password &&
+          (!connectionData.password || !connectionData.password.length) &&
           (connectionData.host !== toUpdate.host || connectionData.port !== toUpdate.port) &&
           !isConnectionTypeAgent(connectionData.type)
         ) {
