@@ -175,6 +175,7 @@ export class TestConnectionUseCase
           testResult = await dao.testConnect();
           return testResult;
         } catch (e) {
+          console.log('🚀 ~ e:', e)
           text = e.message;
         }
       }

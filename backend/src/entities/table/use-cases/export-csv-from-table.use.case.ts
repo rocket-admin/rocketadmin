@@ -16,7 +16,10 @@ import { isObjectEmpty } from '../../../helpers/is-object-empty.js';
 import { FilteringFieldsDs } from '../table-datastructures.js';
 
 @Injectable()
-export class ExportCSVFromTableUseCase extends AbstractUseCase<GetTableRowsDs, StreamableFile> implements IExportCSVFromTable {
+export class ExportCSVFromTableUseCase
+  extends AbstractUseCase<GetTableRowsDs, StreamableFile>
+  implements IExportCSVFromTable
+{
   constructor(
     @Inject(BaseType.GLOBAL_DB_CONTEXT)
     protected _dbContext: IGlobalDatabaseContext,
@@ -97,13 +100,14 @@ export class ExportCSVFromTableUseCase extends AbstractUseCase<GetTableRowsDs, S
         connection.type === 'oracledb' ||
         connection.type === 'ibmdb2' ||
         connection.type === 'mongodb' ||
+        connection.type === 'dynamodb' ||
         isConnectionTypeAgent(connection.type)
       ) {
         return new StreamableFile(csv.stringify(rowsStream as any, { header: true }));
       }
       return new StreamableFile(rowsStream.pipe(csv.stringify({ header: true })));
     } catch (error) {
-      if(error instanceof HttpException) {
+      if (error instanceof HttpException) {
         throw error;
       }
       throw new HttpException(
