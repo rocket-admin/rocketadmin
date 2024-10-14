@@ -12,20 +12,20 @@ services:
       - ./backend/src/migrations:/app/src/migrations
     depends_on:
       - postgres
-      - testDB
       - testMySQL-e2e-testing
       - testPg-e2e-testing
       - mssql-e2e-testing
       - test-oracle-e2e-testing
       - test-ibm-db2-e2e-testing
+      - test-dynamodb-e2e-testing
     links:
       - postgres
-      - testDB
       - testMySQL-e2e-testing
       - testPg-e2e-testing
       - mssql-e2e-testing
       - test-oracle-e2e-testing
       - test-ibm-db2-e2e-testing
+      - test-dynamodb-e2e-testing
     command: ["yarn", "start"]
   backend_test:
     build:
@@ -37,34 +37,23 @@ services:
       - ./backend/src/migrations:/app/src/migrations
     depends_on:
       - postgres
-      - testDB
       - testMySQL-e2e-testing
       - testPg-e2e-testing
       - mssql-e2e-testing
       - test-oracle-e2e-testing
       - test-ibm-db2-e2e-testing
       - test-mongo-e2e-testing
+      - test-dynamodb-e2e-testing
     links:
       - postgres
-      - testDB
       - testMySQL-e2e-testing
       - testPg-e2e-testing
       - mssql-e2e-testing
       - test-oracle-e2e-testing
       - test-ibm-db2-e2e-testing
       - test-mongo-e2e-testing
+      - test-dynamodb-e2e-testing
     command: ["/bin/sh", "-c", "sleep 300 && yarn test"]
-
-  testDB:
-    image: postgres
-    ports:
-      - 8000:8000
-    tmpfs:
-      - /pgtmpfs:uid=1000,gid=1000
-    environment:
-      POSTGRES_PASSWORD: 123
-      PGDATA: /pgtmpfs
-    command: postgres -c 'max_connections=300'
 
   testMySQL-e2e-testing:
     image: mysql:8.0.23
@@ -91,7 +80,7 @@ services:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: example
     ports:
-      - 27017:27017    
+      - 27017:27017
 
   postgres:
     image: postgres
@@ -219,7 +208,7 @@ services:
   #   environment:
   #     - REMOTE_WEBSOCKET_ADDRESS=ws://autoadmin-ws-server:8009
   #     - APPLICATION_CONFIG_FILE_NAME=.ibmdb2_test_agent_config.txt
-  #   command: ["/bin/sh", "/app/wait-for-db2.sh"] 
+  #   command: ["/bin/sh", "/app/wait-for-db2.sh"]
 
   test-ibm-db2-e2e-testing:
     image: icr.io/db2_community/db2
@@ -243,3 +232,11 @@ services:
       - ETCD_PASSWORD=
     ports:
       - 50000:50000
+
+  test-dynamodb-e2e-testing:
+    image: amazon/dynamodb-local
+    ports:
+      - 8000:8000
+    environment:
+      - AWS_ACCESS_KEY_ID=SuperSecretAwsAccessKey
+      - AWS_SECRET=SuperSecretAwsSecret

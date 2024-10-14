@@ -12,31 +12,23 @@ services:
       - ./backend/src/migrations:/app/src/migrations
     depends_on:
       - postgres
-      - testDB
       - testMySQL-e2e-testing
       - testPg-e2e-testing
       - mssql-e2e-testing
       - test-oracle-e2e-testing
       - test-ibm-db2-e2e-testing
       - test-mongo-e2e-testing
+      - test-dynamodb-e2e-testing
     links:
       - postgres
-      - testDB
       - testMySQL-e2e-testing
       - testPg-e2e-testing
       - mssql-e2e-testing
       - test-oracle-e2e-testing
       - test-ibm-db2-e2e-testing
       - test-mongo-e2e-testing
+      - test-dynamodb-e2e-testing
     command: ["yarn", "start"]
-
-  testDB:
-    image: postgres
-    ports:
-      - 8000:8000
-    environment:
-      POSTGRES_PASSWORD: 123
-    command: postgres -c 'max_connections=300'
 
   testMySQL-e2e-testing:
     image: mysql:8.0.23
@@ -242,7 +234,7 @@ services:
       context: .
       dockerfile: ./rocketadmin-agent/Dockerfile
     ports:
-       - 8229:8229
+      - 8229:8229
     volumes:
       - ./rocketadmin-agent/dist:/app/dist
       - ./rocketadmin-agent/src:/app/src
@@ -254,3 +246,11 @@ services:
       - REMOTE_WEBSOCKET_ADDRESS=ws://autoadmin-ws-server:8009
       - APPLICATION_CONFIG_FILE_NAME=.mongodb_test_agent_config.txt
     command: ["yarn", "start:dev"]
+
+  test-dynamodb-e2e-testing:
+    image: amazon/dynamodb-local
+    ports:
+      - 8000:8000
+    environment:
+      - AWS_ACCESS_KEY_ID=SuperSecretAwsAccessKey
+      - AWS_SECRET=SuperSecretAwsSecret

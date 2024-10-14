@@ -11,6 +11,7 @@ import { LogOutEntity } from '../log-out/log-out.entity.js';
 import { GetAllUserApiKeysUseCase } from './use-cases/get-all-user-api-keys.use.case.js';
 import { GetUserApiKeyUseCase } from './use-cases/get-user-api-key.use.case.js';
 import { DeleteApiKeyUseCase } from './use-cases/delete-api-key.use.case.js';
+import { AuthWithApiMiddleware } from '../../authorization/auth-with-api.middleware.js';
 
 @Module({
   imports: [TypeOrmModule.forFeature([UserApiKeyEntity, UserEntity, LogOutEntity])],
@@ -48,6 +49,8 @@ export class ApiKeyModule implements NestModule {
         { path: '/apikey', method: RequestMethod.PUT },
         { path: '/apikeys', method: RequestMethod.GET },
         { path: '/apikey/:apiKeyId', method: RequestMethod.GET },
-      );
+      )
+      .apply(AuthWithApiMiddleware)
+      .forRoutes({ path: '/check/apikey', method: RequestMethod.GET });
   }
 }

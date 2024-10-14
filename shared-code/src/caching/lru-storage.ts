@@ -19,7 +19,6 @@ const tableForeignKeysCache = new LRUCache(CACHING_CONSTANTS.DEFAULT_TABLE_STRUC
 const tablePrimaryKeysCache = new LRUCache(CACHING_CONSTANTS.DEFAULT_TABLE_STRUCTURE_ELEMENTS_CACHE_OPTIONS);
 
 export class LRUStorage {
-
   public static setMongoDbCache(connection: ConnectionParams, newDb: MongoClientDB): void {
     mongoDbCache.set(this.getConnectionIdentifier(connection), newDb);
   }
@@ -140,6 +139,9 @@ export class LRUStorage {
         signing_key: connectionParams.signing_key,
       };
       return JSON.stringify(cacheObj);
+    }
+    if (connectionParams.isTestConnection) {
+      return connectionParams.host;
     }
     if (connectionParams.ssh) {
       const cacheObj = {
