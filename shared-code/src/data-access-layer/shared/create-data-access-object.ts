@@ -73,6 +73,7 @@ function buildAgentConnectionParams(connectionParams: IUnknownConnectionParams):
     signing_key: connectionParams.signing_key,
     token: connectionParams.agent.token,
     type: connectionParams.type,
+    isTestConnection: false,
   };
 }
 
@@ -111,6 +112,7 @@ function buildConnectionParams(connectionParams: IUnknownConnectionParams): Conn
     azure_encryption: connectionParams.azure_encryption || false,
     signing_key: connectionParams.signing_key || null,
     authSource: connectionParams.authSource || null,
+    isTestConnection: connectionParams.isTestConnection || false,
   };
   return connection;
 }

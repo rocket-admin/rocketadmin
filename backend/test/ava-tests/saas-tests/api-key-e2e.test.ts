@@ -317,3 +317,36 @@ test.serial(`${currentTest} should delete api key and return deleted key`, async
     throw error;
   }
 });
+
+currentTest = `GET /check/apikey`;
+
+test.serial(`${currentTest} should return created api key for this user`, async (t) => {
+  try {
+    const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
+    const apiKeyTitle = 'Test API Key';
+
+    const createApiKeyResult = await request(app.getHttpServer())
+      .post('/apikey')
+      .send({ title: apiKeyTitle })
+      .set('Content-Type', 'application/json')
+      .set('Cookie', firstUserToken)
+      .set('Accept', 'application/json');
+
+    t.is(createApiKeyResult.status, 201);
+    const createApiKeyRO = JSON.parse(createApiKeyResult.text);
+    t.is(createApiKeyRO.title, apiKeyTitle);
+    t.truthy(createApiKeyRO.hash);
+    t.truthy(createApiKeyRO.hash.includes('sk_'));
+    t.truthy(createApiKeyRO.id);
+
+    const checkApiKeyResponse = await request(app.getHttpServer())
+      .get(`/check/apikey`)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json')
+      .set('x-api-key', createApiKeyRO.hash);
+    t.is(checkApiKeyResponse.status, 200);
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+});
