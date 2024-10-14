@@ -490,7 +490,7 @@ export class DataAccessObjectDynamoDB extends BasicDataAccessObject implements I
   public async importCSVInTable(file: Express.Multer.File, tableName: string): Promise<void> {
     const fileStream = new Stream.PassThrough();
     fileStream.end(file.buffer);
-  
+
     return new Promise((resolve, reject) => {
       fileStream
         .pipe(csv.parse({ columns: true }))
@@ -536,6 +536,20 @@ export class DataAccessObjectDynamoDB extends BasicDataAccessObject implements I
         return 'binary';
       case 'HASH':
         return 'string';
+      case 'BOOL':
+        return 'boolean';
+      case 'L':
+        return 'array';
+      case 'M':
+        return 'json';
+      case 'SS':
+        return 'array';
+      case 'NS':
+        return 'array';
+      case 'BS':
+        return 'array';
+      case 'NULL':
+        return 'null';
       default:
         return 'string';
     }
