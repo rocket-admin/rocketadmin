@@ -20,6 +20,7 @@ import { ValidationException } from '../../../src/exceptions/custom-exceptions/v
 import { ValidationError } from 'class-validator';
 import { ErrorsMessages } from '../../../src/exceptions/custom-exceptions/messages/custom-errors-messages.js';
 import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/enums/connection-types-enum.js';
+import { getTestData } from '../../utils/get-test-data.js';
 
 const mockFactory = new MockFactory();
 let app: INestApplication;
@@ -51,7 +52,7 @@ test.before(async () => {
   app.getHttpServer().listen(0);
 });
 
-function getTestData() {
+function getTestConnectionData() {
   const newConnection = mockFactory.generateCreateConnectionDto();
   const newConnection2 = mockFactory.generateCreateConnectionDto2();
   const newConnectionToTestDB = mockFactory.generateCreateConnectionDtoToTEstDB();
@@ -69,7 +70,8 @@ function getTestData() {
 currentTest = '> GET /connections >';
 test.serial(`${currentTest} should return all connections for this user`, async (t) => {
   try {
-    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
+    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } =
+      getTestConnectionData();
     const { token } = await registerUserAndReturnUserInfo(app);
     const findAllConnectionsResponse = await request(app.getHttpServer())
       .get('/connections')
@@ -107,7 +109,6 @@ test.serial(`${currentTest} should return all connections for this user`, async 
     t.is(findAll.status, 200);
 
     const result = findAll.body.connections;
-    console.log('🚀 ~ test.only ~ result:', result);
 
     t.is(result.length, 6);
     t.is(result[0].hasOwnProperty('connection'), true);
@@ -136,7 +137,8 @@ test.serial(`${currentTest} should return all connections for this user`, async 
 currentTest = '> GET connection/users/:slug >';
 test.serial(`${currentTest} should return all connection users`, async (t) => {
   try {
-    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
+    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } =
+      getTestConnectionData();
     const { token } = await registerUserAndReturnUserInfo(app);
     const createConnectionResponse = await request(app.getHttpServer())
       .post('/connection')
@@ -170,7 +172,8 @@ test.serial(`${currentTest} should return all connection users`, async (t) => {
 
 test.serial(`${currentTest} should return all connection users from different groups`, async (t) => {
   try {
-    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
+    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } =
+      getTestConnectionData();
     const { token } = await registerUserAndReturnUserInfo(app);
     const createConnectionResponse = await request(app.getHttpServer())
       .post('/connection')
@@ -233,7 +236,8 @@ test.serial(`${currentTest} should return all connection users from different gr
 
 test.serial(`${currentTest} should throw an exception, when connection id is incorrect`, async (t) => {
   try {
-    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
+    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } =
+      getTestConnectionData();
     const { token } = await registerUserAndReturnUserInfo(app);
     const createConnectionResponse = await request(app.getHttpServer())
       .post('/connection')
@@ -288,7 +292,8 @@ test.serial(`${currentTest} should throw an exception, when connection id is inc
 currentTest = 'GET /connection/one/:slug';
 test(`${currentTest} should return a found connection`, async (t) => {
   try {
-    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
+    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } =
+      getTestConnectionData();
     const { token } = await registerUserAndReturnUserInfo(app);
 
     const createConnectionResponse = await request(app.getHttpServer())
@@ -334,7 +339,8 @@ test.serial(
   `${currentTest} should throw an exception "id is missing" when connection id not passed in the request`,
   async (t) => {
     try {
-      const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
+      const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } =
+        getTestConnectionData();
       const { token } = await registerUserAndReturnUserInfo(app);
 
       const createConnectionResponse = await request(app.getHttpServer())
@@ -366,7 +372,8 @@ test.serial(
 currentTest = 'POST /connection';
 test.serial(`${currentTest} should return created connection`, async (t) => {
   try {
-    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
+    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } =
+      getTestConnectionData();
     const { token } = await registerUserAndReturnUserInfo(app);
 
     const response = await request(app.getHttpServer())
@@ -410,7 +417,8 @@ test.serial(`${currentTest} should return created connection`, async (t) => {
 
 test.serial(`${currentTest} should throw error when create connection without type`, async (t) => {
   try {
-    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
+    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } =
+      getTestConnectionData();
     const { token } = await registerUserAndReturnUserInfo(app);
 
     delete newConnection.type;
@@ -433,7 +441,8 @@ test.serial(`${currentTest} should throw error when create connection without ty
 
 test.serial(`${currentTest} should throw error when create connection without host`, async (t) => {
   try {
-    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
+    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } =
+      getTestConnectionData();
     const { token } = await registerUserAndReturnUserInfo(app);
     delete newConnection.host;
     const response = await request(app.getHttpServer())
@@ -455,7 +464,8 @@ test.serial(`${currentTest} should throw error when create connection without ho
 
 test.serial(`${currentTest} should throw error when create connection without port`, async (t) => {
   try {
-    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
+    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } =
+      getTestConnectionData();
     const { token } = await registerUserAndReturnUserInfo(app);
     delete newConnection.port;
     const response = await request(app.getHttpServer())
@@ -477,7 +487,8 @@ test.serial(`${currentTest} should throw error when create connection without po
 
 test.serial(`${currentTest} should throw error when create connection wit port value more than 65535`, async (t) => {
   try {
-    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
+    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } =
+      getTestConnectionData();
     const { token } = await registerUserAndReturnUserInfo(app);
     newConnection.port = 65536;
     const response = await request(app.getHttpServer())
@@ -499,7 +510,8 @@ test.serial(`${currentTest} should throw error when create connection wit port v
 
 test.serial(`${currentTest} should throw error when create connection wit port value less than 0`, async (t) => {
   try {
-    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
+    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } =
+      getTestConnectionData();
     const { token } = await registerUserAndReturnUserInfo(app);
 
     newConnection.port = -1;
@@ -521,7 +533,8 @@ test.serial(`${currentTest} should throw error when create connection wit port v
 
 test.serial(`${currentTest} should throw error when create connection without username`, async (t) => {
   try {
-    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
+    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } =
+      getTestConnectionData();
     const { token } = await registerUserAndReturnUserInfo(app);
     delete newConnection.username;
     const response = await request(app.getHttpServer())
@@ -543,7 +556,8 @@ test.serial(`${currentTest} should throw error when create connection without us
 
 test.serial(`${currentTest} should throw error when create connection without database`, async (t) => {
   try {
-    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
+    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } =
+      getTestConnectionData();
     const { token } = await registerUserAndReturnUserInfo(app);
     delete newConnection.database;
     const response = await request(app.getHttpServer())
@@ -565,7 +579,8 @@ test.serial(`${currentTest} should throw error when create connection without da
 
 test.serial(`${currentTest} should throw error when create connection without password`, async (t) => {
   try {
-    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
+    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } =
+      getTestConnectionData();
     const { token } = await registerUserAndReturnUserInfo(app);
     delete newConnection.password;
     const response = await request(app.getHttpServer())
@@ -588,7 +603,8 @@ test.serial(
   `${currentTest} should throw error with complex message when create connection without database, type, port`,
   async (t) => {
     try {
-      const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
+      const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } =
+        getTestConnectionData();
       const { token } = await registerUserAndReturnUserInfo(app);
       delete newConnection.database;
       delete newConnection.type;
@@ -615,7 +631,8 @@ test.serial(
 currentTest = 'PUT /connection';
 test.serial(`${currentTest} should return updated connection`, async (t) => {
   try {
-    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
+    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } =
+      getTestConnectionData();
     const { token } = await registerUserAndReturnUserInfo(app);
     const createConnectionResponse = await request(app.getHttpServer())
       .post('/connection')
@@ -656,7 +673,8 @@ test.serial(`${currentTest} should return updated connection`, async (t) => {
 
 test.serial(`${currentTest} 'should throw error when update connection without type'`, async (t) => {
   try {
-    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
+    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } =
+      getTestConnectionData();
     const { token } = await registerUserAndReturnUserInfo(app);
     const createConnectionResponse = await request(app.getHttpServer())
       .post('/connection')
@@ -687,7 +705,8 @@ test.serial(`${currentTest} 'should throw error when update connection without t
 
 test.serial(`${currentTest} should throw error when update connection without host`, async (t) => {
   try {
-    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
+    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } =
+      getTestConnectionData();
     const { token } = await registerUserAndReturnUserInfo(app);
     const createConnectionResponse = await request(app.getHttpServer())
       .post('/connection')
@@ -717,7 +736,8 @@ test.serial(`${currentTest} should throw error when update connection without ho
 
 test.serial(`${currentTest} should throw error when update connection without port`, async (t) => {
   try {
-    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
+    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } =
+      getTestConnectionData();
     const { token } = await registerUserAndReturnUserInfo(app);
 
     const createConnectionResponse = await request(app.getHttpServer())
@@ -749,7 +769,8 @@ test.serial(`${currentTest} should throw error when update connection without po
 
 test.serial(`${currentTest} should throw error when update connection wit port value more than 65535`, async (t) => {
   try {
-    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
+    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } =
+      getTestConnectionData();
     const { token } = await registerUserAndReturnUserInfo(app);
     const createConnectionResponse = await request(app.getHttpServer())
       .post('/connection')
@@ -780,7 +801,8 @@ test.serial(`${currentTest} should throw error when update connection wit port v
 
 test.serial(`${currentTest} should throw error when update connection wit port value less than 0`, async (t) => {
   try {
-    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
+    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } =
+      getTestConnectionData();
     const { token } = await registerUserAndReturnUserInfo(app);
 
     const createConnectionResponse = await request(app.getHttpServer())
@@ -812,7 +834,8 @@ test.serial(`${currentTest} should throw error when update connection wit port v
 
 test.serial(`${currentTest} should throw error when update connection without username`, async (t) => {
   try {
-    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
+    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } =
+      getTestConnectionData();
     const { token } = await registerUserAndReturnUserInfo(app);
     const createConnectionResponse = await request(app.getHttpServer())
       .post('/connection')
@@ -843,7 +866,8 @@ test.serial(`${currentTest} should throw error when update connection without us
 
 test.serial(`${currentTest} should throw error when update connection without database`, async (t) => {
   try {
-    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
+    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } =
+      getTestConnectionData();
     const { token } = await registerUserAndReturnUserInfo(app);
 
     const createConnectionResponse = await request(app.getHttpServer())
@@ -877,7 +901,8 @@ test.serial(
   `${currentTest} should throw error with complex message when update connection without database, type, port`,
   async (t) => {
     try {
-      const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
+      const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } =
+        getTestConnectionData();
       const { token } = await registerUserAndReturnUserInfo(app);
 
       const createConnectionResponse = await request(app.getHttpServer())
@@ -913,7 +938,8 @@ test.serial(
 currentTest = 'DELETE /connection/:slug';
 test.serial(`${currentTest} should return delete result`, async (t) => {
   try {
-    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
+    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } =
+      getTestConnectionData();
     const { token } = await registerUserAndReturnUserInfo(app);
     const createConnectionResult = await request(app.getHttpServer())
       .post('/connection')
@@ -967,7 +993,8 @@ test.serial(`${currentTest} should return delete result`, async (t) => {
 
 test.serial(`${currentTest} should throw an exception when connection not found`, async (t) => {
   try {
-    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
+    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } =
+      getTestConnectionData();
     const { token } = await registerUserAndReturnUserInfo(app);
 
     const createConnectionResult = await request(app.getHttpServer())
@@ -998,7 +1025,8 @@ test.serial(`${currentTest} should throw an exception when connection not found`
 
 test.serial(`${currentTest} should throw an exception when connection id not passed in the request`, async (t) => {
   try {
-    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
+    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } =
+      getTestConnectionData();
     const { token } = await registerUserAndReturnUserInfo(app);
 
     const createConnectionResult = await request(app.getHttpServer())
@@ -1028,7 +1056,8 @@ test.serial(`${currentTest} should throw an exception when connection id not pas
 currentTest = 'POST /connection/group/:slug';
 test.serial(`${currentTest} should return a created group`, async (t) => {
   try {
-    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
+    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } =
+      getTestConnectionData();
     const { token, email } = await registerUserAndReturnUserInfo(app);
 
     const createConnectionResponse = await request(app.getHttpServer())
@@ -1065,7 +1094,8 @@ test.serial(`${currentTest} should return a created group`, async (t) => {
 
 test.serial(`${currentTest} throw an exception when connectionId not passed in request`, async (t) => {
   try {
-    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
+    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } =
+      getTestConnectionData();
     const { token } = await registerUserAndReturnUserInfo(app);
 
     const createConnectionResponse = await request(app.getHttpServer())
@@ -1094,7 +1124,8 @@ test.serial(`${currentTest} throw an exception when connectionId not passed in r
 
 test.serial(`${currentTest} throw an exception when group title not passed in request`, async (t) => {
   try {
-    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
+    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } =
+      getTestConnectionData();
     const { token } = await registerUserAndReturnUserInfo(app);
 
     const createConnectionResponse = await request(app.getHttpServer())
@@ -1126,7 +1157,8 @@ test.serial(`${currentTest} throw an exception when group title not passed in re
 
 test.serial(`${currentTest} throw an exception when connectionId is incorrect`, async (t) => {
   try {
-    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
+    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } =
+      getTestConnectionData();
     const { token } = await registerUserAndReturnUserInfo(app);
 
     const createConnectionResponse = await request(app.getHttpServer())
@@ -1158,7 +1190,8 @@ test.serial(`${currentTest} throw an exception when connectionId is incorrect`, 
 
 test(`${currentTest} throw an exception when group name is not unique`, async (t) => {
   try {
-    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
+    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } =
+      getTestConnectionData();
     const { token } = await registerUserAndReturnUserInfo(app);
 
     const createConnectionResponse = await request(app.getHttpServer())
@@ -1169,7 +1202,6 @@ test(`${currentTest} throw an exception when group name is not unique`, async (t
       .set('Accept', 'application/json');
 
     const createConnectionRO = JSON.parse(createConnectionResponse.text);
-    console.log('🚀 ~ test.serial ~ createConnectionRO:', createConnectionRO);
     newGroup1.title = 'Admin';
     const createGroupResponse = await request(app.getHttpServer())
       .post(`/connection/group/${createConnectionRO.id}`)
@@ -1192,7 +1224,8 @@ test(`${currentTest} throw an exception when group name is not unique`, async (t
 currentTest = 'PUT /connection/group/delete/:slug';
 test.serial(`${currentTest} should return connection without deleted group result`, async (t) => {
   try {
-    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
+    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } =
+      getTestConnectionData();
     const { token } = await registerUserAndReturnUserInfo(app);
 
     const createConnectionResult = await request(app.getHttpServer())
@@ -1267,7 +1300,8 @@ test.serial(`${currentTest} should return connection without deleted group resul
 
 test.serial(`${currentTest}`, async (t) => {
   try {
-    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
+    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } =
+      getTestConnectionData();
     const { token } = await registerUserAndReturnUserInfo(app);
     t.pass();
   } catch (e) {
@@ -1277,7 +1311,8 @@ test.serial(`${currentTest}`, async (t) => {
 
 test.serial(`${currentTest} should throw an exception when connection id is not passed in the request`, async (t) => {
   try {
-    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
+    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } =
+      getTestConnectionData();
     const { token } = await registerUserAndReturnUserInfo(app);
     const createConnectionResult = await request(app.getHttpServer())
       .post('/connection')
@@ -1321,7 +1356,8 @@ test.serial(`${currentTest} should throw an exception when connection id is not 
 
 test.serial(`${currentTest} should throw an exception when group id is not passed in the request`, async (t) => {
   try {
-    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
+    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } =
+      getTestConnectionData();
     const { token } = await registerUserAndReturnUserInfo(app);
 
     const createConnectionResult = await request(app.getHttpServer())
@@ -1368,7 +1404,8 @@ test.serial(`${currentTest} should throw an exception when group id is not passe
 
 test.serial(`${currentTest} should throw an exception when group id is incorrect`, async (t) => {
   try {
-    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
+    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } =
+      getTestConnectionData();
     const { token } = await registerUserAndReturnUserInfo(app);
 
     const createConnectionResult = await request(app.getHttpServer())
@@ -1416,7 +1453,8 @@ test.serial(`${currentTest} should throw an exception when group id is incorrect
 
 test.serial(`${currentTest} should throw an exception when connection id is incorrect`, async (t) => {
   try {
-    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
+    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } =
+      getTestConnectionData();
     const { token } = await registerUserAndReturnUserInfo(app);
 
     const createConnectionResult = await request(app.getHttpServer())
@@ -1464,7 +1502,8 @@ test.serial(`${currentTest} should throw an exception when connection id is inco
 
 test.serial(`${currentTest} should throw an exception when trying delete admin group`, async (t) => {
   try {
-    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
+    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } =
+      getTestConnectionData();
     const { token } = await registerUserAndReturnUserInfo(app);
 
     const createConnectionResult = await request(app.getHttpServer())
@@ -1496,7 +1535,8 @@ test.serial(`${currentTest} should throw an exception when trying delete admin g
 currentTest = 'PUT /connection/encryption/restore/:slug';
 test.serial(`${currentTest} should return restored connection`, async (t) => {
   try {
-    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
+    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } =
+      getTestConnectionData();
     const { token } = await registerUserAndReturnUserInfo(app);
 
     const newPgConnection = mockFactory.generateConnectionToTestPostgresDBInDocker();
@@ -1546,7 +1586,8 @@ test.serial(`${currentTest} should return restored connection`, async (t) => {
 currentTest = 'GET /connection/groups/:slug';
 test.serial(`${currentTest} should groups in connection`, async (t) => {
   try {
-    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
+    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } =
+      getTestConnectionData();
     const { token } = await registerUserAndReturnUserInfo(app);
 
     const createConnectionResponse = await request(app.getHttpServer())
@@ -1596,7 +1637,8 @@ test.serial(`${currentTest} should groups in connection`, async (t) => {
 
 test.serial(`${currentTest} should throw an exception when connection id not passed in the request`, async (t) => {
   try {
-    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
+    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } =
+      getTestConnectionData();
     const { token } = await registerUserAndReturnUserInfo(app);
 
     const createConnectionResponse = await request(app.getHttpServer())
@@ -1634,7 +1676,8 @@ test.serial(`${currentTest} should throw an exception when connection id not pas
 
 test.serial(`${currentTest} should throw an exception when connection id is invalid`, async (t) => {
   try {
-    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
+    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } =
+      getTestConnectionData();
     const { token } = await registerUserAndReturnUserInfo(app);
     const createConnectionResponse = await request(app.getHttpServer())
       .post('/connection')
@@ -1672,15 +1715,108 @@ test.serial(`${currentTest} should throw an exception when connection id is inva
   }
 });
 
-//todo realise
-currentTest = 'GET /connection/permissions';
-currentTest = 'GET /connection/user/permissions';
-// test.serial(`${currentTest}`, async (t) => {
-//   try {
-//     const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } = getTestData();
-//     const { token } = await registerUserAndReturnUserInfo(app);
-//     t.pass();
-//   } catch (e) {
-//     throw e;
-//   }
-// });
+currentTest = 'POST /connection/test/';
+
+test.serial(`${currentTest} should test connection and return result`, async (t) => {
+  const connectionToTestDB = getTestData(mockFactory).connectionToMySQL;
+  const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
+
+  const testConnectionResponse = await request(app.getHttpServer())
+    .post('/connection/test/')
+    .send(connectionToTestDB)
+    .set('Cookie', firstUserToken)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+
+  t.is(testConnectionResponse.status, 201);
+  const { message } = JSON.parse(testConnectionResponse.text);
+  t.is(message, 'Successfully connected');
+});
+
+test.serial(`${currentTest} should be successfully tested after update and without changing password during update`, async (t) => {
+  const connectionToTestDB = getTestData(mockFactory).connectionToMySQL;
+  const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
+
+  // test connection
+  const testConnectionResponse = await request(app.getHttpServer())
+    .post('/connection/test/')
+    .send(connectionToTestDB)
+    .set('Cookie', firstUserToken)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+
+  t.is(testConnectionResponse.status, 201);
+  const { message } = JSON.parse(testConnectionResponse.text);
+  t.is(message, 'Successfully connected');
+
+  // create connection
+
+  const createConnectionResponse = await request(app.getHttpServer())
+    .post('/connection')
+    .send(connectionToTestDB)
+    .set('Cookie', firstUserToken)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+
+  t.is(createConnectionResponse.status, 201);
+  const createConnectionRO = JSON.parse(createConnectionResponse.text);
+
+  // test newly created connection
+
+  const testConnectionResponse2 = await request(app.getHttpServer())
+    .post('/connection/test/?connectionId=' + createConnectionRO.id)
+    .send(connectionToTestDB)
+    .set('Cookie', firstUserToken)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+
+  t.is(testConnectionResponse2.status, 201);
+  const { message: message2 } = JSON.parse(testConnectionResponse2.text);
+  t.is(message2, 'Successfully connected');
+
+  // test connection with some changed properties and removed password property
+
+  const connectionToTestDB2 = { ...connectionToTestDB };
+  connectionToTestDB2.title = 'Test Connection 2';
+  delete connectionToTestDB2.password;
+
+  const testConnectionResponse3 = await request(app.getHttpServer())
+    .post('/connection/test/?connectionId=' + createConnectionRO.id)
+    .send(connectionToTestDB2)
+    .set('Cookie', firstUserToken)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+
+  t.is(testConnectionResponse3.status, 201);
+  const { message: message3 } = JSON.parse(testConnectionResponse3.text);
+  t.is(message3, 'Successfully connected');
+
+  // encrypt connection with master password
+
+  const connectionToTestDB3 = { ...connectionToTestDB2 };
+  delete connectionToTestDB3.password;
+  connectionToTestDB3.masterEncryption = true;
+  const encryptConnectionResponse = await request(app.getHttpServer())
+    .put(`/connection/${createConnectionRO.id}`)
+    .send(connectionToTestDB3)
+    .set('Cookie', firstUserToken)
+    .set('masterpwd', 'ahalaimahalai')
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+
+  t.is(encryptConnectionResponse.status, 200);
+  const encryptConnectionRO = JSON.parse(encryptConnectionResponse.text);
+
+  // test encrypted connection
+  const testConnectionResponse4 = await request(app.getHttpServer())
+    .post('/connection/test/?connectionId=' + createConnectionRO.id)
+    .send(connectionToTestDB2)
+    .set('Cookie', firstUserToken)
+    .set('masterpwd', 'ahalaimahalai')
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+
+  t.is(testConnectionResponse4.status, 201);
+  const { message: message4 } = JSON.parse(testConnectionResponse4.text);
+  t.is(message4, 'Successfully connected');
+});

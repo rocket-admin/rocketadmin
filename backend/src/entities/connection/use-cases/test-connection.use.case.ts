@@ -46,22 +46,19 @@ export class TestConnectionUseCase
 
     if (connectionId) {
       try {
-        const foundConnection = await this._dbContext.connectionRepository.findOne({ where: { id: connectionId } });
-        if (foundConnection?.masterEncryption && !masterPwd) {
-          return {
-            result: false,
-            message: Messages.MASTER_PASSWORD_MISSING,
-          };
-        }
-
-        let toUpdate = await this._dbContext.connectionRepository.findAndDecryptConnection(connectionId, masterPwd);
+        let toUpdate = await this._dbContext.connectionRepository.findOne({ where: { id: connectionId } });
         if (!toUpdate) {
           return {
             result: false,
             message: Messages.CONNECTION_NOT_FOUND,
           };
         }
-
+        if (toUpdate?.masterEncryption && !masterPwd) {
+          return {
+            result: false,
+            message: Messages.MASTER_PASSWORD_MISSING,
+          };
+        }
         if (isConnectionTypeAgent(toUpdate.type)) {
           const qb = await getRepository(ConnectionEntity)
             .createQueryBuilder('connection')
@@ -105,10 +102,6 @@ export class TestConnectionUseCase
             result: false,
             message: Messages.PASSWORD_MISSING,
           };
-        }
-
-        if (!connectionData.password) {
-          delete connectionData.password;
         }
 
         let updated: any = Object.assign(toUpdate, connectionData);
@@ -175,7 +168,7 @@ export class TestConnectionUseCase
           testResult = await dao.testConnect();
           return testResult;
         } catch (e) {
-          console.log('🚀 ~ e:', e)
+          console.log('🚀 ~ e:', e);
           text = e.message;
         }
       }
