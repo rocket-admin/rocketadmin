@@ -58,6 +58,7 @@ import { FindAllRowsWithBodyFiltersDto } from './dto/find-rows-with-body-filters
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Constants } from '../../helpers/constants/constants.js';
 import { ImportCSVInTableDs } from './application/data-structures/import-scv-in-table.ds.js';
+import { TablesReceiveGuard } from '../../guards/tables-receive.guard.js';
 
 @UseInterceptors(SentryInterceptor)
 @Controller()
@@ -100,6 +101,7 @@ export class TableController {
     type: FoundTableDs,
     isArray: true,
   })
+  @UseGuards(TablesReceiveGuard)
   @Get('/connection/tables/:connectionId')
   @ApiQuery({ name: 'hidden', required: false })
   async findTablesInConnection(
