@@ -192,6 +192,16 @@ export const customConnectionRepositoryExtension: IConnectionRepository = {
     return this.save(connection);
   },
 
+  async isUserFromConnection(userId: string, connectionId: string): Promise<boolean> {
+    const qb = this.createQueryBuilder('connection')
+      .leftJoin('connection.groups', 'group')
+      .leftJoin('group.users', 'user')
+      .andWhere('user.id = :userId', { userId: userId })
+      .andWhere('connection.id = :connectionId', { connectionId: connectionId });
+    const foundConnection = await qb.getOne();
+    return !!foundConnection;
+  },
+
   decryptConnectionField(field: string): string {
     try {
       return Encryptor.decryptData(field);
