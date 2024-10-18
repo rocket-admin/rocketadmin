@@ -27,7 +27,7 @@ export class DbConnectionConfirmDialogComponent implements OnInit {
   ngOnInit(): void {}
 
   editConnection() {
-    this._connections.updateConnection(this.data.dbCreds)
+    this._connections.updateConnection(this.data.dbCreds, this.data.masterKey)
       .subscribe(() => {
         this.router.navigate([`/dashboard/${this.data.dbCreds.id}`]);
       }, undefined, () => {
@@ -36,7 +36,7 @@ export class DbConnectionConfirmDialogComponent implements OnInit {
   }
 
   createConnection() {
-    this._connections.createConnection(this.data.dbCreds)
+    this._connections.createConnection(this.data.dbCreds, this.data.masterKey)
       .subscribe((res: any) => {
           const connectionID = res.id!;
           this.router.navigate([`/dashboard/${connectionID}`]);
