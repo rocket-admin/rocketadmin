@@ -4,6 +4,8 @@
   "description": "shared code for rocketadmin backend and client applications (agent version, cli version)",
   "type": "module",
   "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.658.1",
+    "@aws-sdk/lib-dynamodb": "^3.658.1",
     "@types/multer": "^1.4.12",
     "axios": "^1.7.7",
     "csv": "^6.3.10",

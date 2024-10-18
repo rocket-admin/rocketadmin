@@ -1,5 +1,6 @@
 import { ERROR_MESSAGES } from '../../helpers/errors/error-messages.js';
 import { DataAccessObjectAgent } from '../data-access-objects/data-access-object-agent.js';
+import { DataAccessObjectDynamoDB } from '../data-access-objects/data-access-object-dynamodb.js';
 import { DataAccessObjectIbmDb2 } from '../data-access-objects/data-access-object-ibmdb2.js';
 import { DataAccessObjectMongo } from '../data-access-objects/data-access-object-mongodb.js';
 import { DataAccessObjectMssql } from '../data-access-objects/data-access-object-mssql.js';
@@ -50,6 +51,9 @@ export function getDataAccessObject(
     case ConnectionTypesEnum.mongodb:
       const connectionParamsMongo = buildConnectionParams(connectionParams);
       return new DataAccessObjectMongo(connectionParamsMongo);
+    case ConnectionTypesEnum.dynamodb:
+      const connectionParamsDynamoDB = buildConnectionParams(connectionParams);
+      return new DataAccessObjectDynamoDB(connectionParamsDynamoDB);
     default:
       if (!agentTypes.includes(connectionParams.type)) {
         throw new Error(ERROR_MESSAGES.CONNECTION_TYPE_INVALID);
@@ -74,7 +78,10 @@ function buildAgentConnectionParams(connectionParams: IUnknownConnectionParams):
 }
 
 function buildConnectionParams(connectionParams: IUnknownConnectionParams): ConnectionParams {
-  const requiredKeys = ['type', 'host', 'port', 'username', 'password', 'database'];
+  const requiredKeys =
+    connectionParams.type !== ConnectionTypesEnum.dynamodb
+      ? ['type', 'host', 'port', 'username', 'password', 'database']
+      : ['host', 'username', 'password'];
 
   if (connectionParams.ssh) {
     requiredKeys.push('sshHost', 'sshPort', 'sshUsername');
@@ -84,7 +91,7 @@ function buildConnectionParams(connectionParams: IUnknownConnectionParams): Conn
   if (missingKeys.length > 0) {
     throw new Error(`Missing required key${missingKeys.length > 1 ? 's' : ''}: ${missingKeys.join(', ')}`);
   }
-  return {
+  const connection = {
     id: connectionParams.id,
     title: connectionParams.title,
     type: connectionParams.type === ConnectionTypesEnum.mysql ? 'mysql2' : connectionParams.type,
@@ -107,4 +114,5 @@ function buildConnectionParams(connectionParams: IUnknownConnectionParams): Conn
     authSource: connectionParams.authSource || null,
     isTestConnection: connectionParams.isTestConnection || false,
   };
+  return connection;
 }
