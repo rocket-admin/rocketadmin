@@ -299,8 +299,8 @@ export class TablesDataSource implements DataSource<Object> {
             && this._connections.connectionAccessLevel !== AccessLevel.Readonly)
             this.alert_settingsInfo = {
               id: 10001,
-              type: AlertType.Warning,
-              message: 'This table is not configured.',
+              type: AlertType.Info,
+              message: 'Configure now to reveal advanced table functionality and features.',
               actions: [
                 {
                   type: AlertActionType.Link,
