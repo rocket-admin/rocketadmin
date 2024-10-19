@@ -37,4 +37,6 @@ export interface IConnectionRepository {
   decryptConnectionField(field: string): string;
 
   findAllUserTestConnections(userId: string): Promise<Array<ConnectionEntity>>;
+
+  isUserFromConnection(userId: string, connectionId: string): Promise<boolean>;
 }
