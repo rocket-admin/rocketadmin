@@ -22,6 +22,12 @@
     transform: translate3d(0, 0, 0);
 }
 
+@media (width <= 600px) {
+    .side-bar_collapsed {
+        margin-left: -65px;
+    }
+}
+
 .mat-list-item {
     text-decoration: none;
 }
