@@ -2,7 +2,7 @@ variable "DEFAULT_TAG" {
   default = "rocketadmin-agent:local"
 }
 
-// Special target: https://github.com/docker/metadata-action#bake-definition
+# Special target: https://github.com/docker/metadata-action#bake-definition
 target "docker-metadata-action" {
   tags = ["${DEFAULT_TAG}"]
 }
@@ -12,13 +12,13 @@ group "default" {
 }
 
 target "image-local" {
-  context = "../"
+  context = ".."
   dockerfile = "../Dockerfile.rocketadmin-agent"
 }
 
 target "image" {
   inherits = ["docker-metadata-action"]
-  context = "../"
+  context = ".."
   dockerfile = "../Dockerfile.rocketadmin-agent"
 }
 
