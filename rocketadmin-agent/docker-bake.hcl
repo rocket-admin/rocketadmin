@@ -6,16 +6,20 @@ variable "DEFAULT_TAG" {
 target "docker-metadata-action" {
   tags = ["${DEFAULT_TAG}"]
 }
+
 group "default" {
-	targets = ["image-local"]
+  targets = ["image-local"]
 }
 
 target "image-local" {
-	context = "."
+  context = "."
+  dockerfile = "../Dockerfile.rocketadmin-agent"
 }
 
 target "image" {
   inherits = ["docker-metadata-action"]
+  context = "."
+  dockerfile = "../Dockerfile.rocketadmin-agent"
 }
 
 target "image-all" {
