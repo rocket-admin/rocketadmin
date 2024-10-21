@@ -357,15 +357,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@angular/core@npm:~17.3.12":
-  version: 17.3.12
-  resolution: "@angular/core@npm:17.3.12"
+"@angular/core@npm:~18.0.0":
+  version: 18.0.7
+  resolution: "@angular/core@npm:18.0.7"
   dependencies:
     tslib: ^2.3.0
   peerDependencies:
     rxjs: ^6.5.3 || ^7.4.0
     zone.js: ~0.14.0
-  checksum: 10a1253c4785b761d2fcaa5c6119c7da7618b4c0bf2985517a7151d6c0885571a937e9cdd4d07c74b5cacf64d07d0a56b7c5c235c21adfa2e5dd401c6d66d8ca
+  checksum: c52d76325254f4e0593cc447d71b1a70202a28c94814fbeccc3ce4dc87dc920a3641c79b7e99e72285ab0e02e13cf66cc0b1cd27b3c7b9c828f70c7467df2989
   languageName: node
   linkType: hard
 
@@ -6413,7 +6413,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"braces@npm:^3.0.2, braces@npm:~3.0.2":
+"braces@npm:^3.0.2, braces@npm:^3.0.3, braces@npm:~3.0.2":
   version: 3.0.3
   resolution: "braces@npm:3.0.3"
   dependencies:
@@ -7465,7 +7465,7 @@ __metadata:
     "@angular/common": ~17.3.9
     "@angular/compiler": ~17.3.9
     "@angular/compiler-cli": ~17.3.9
-    "@angular/core": ~17.3.12
+    "@angular/core": ~18.0.0
     "@angular/forms": ~17.3.9
     "@angular/language-service": ~17.3.9
     "@angular/material": ~17.3.9
@@ -10306,12 +10306,12 @@ __metadata:
   linkType: hard
 
 "micromatch@npm:^4.0.2, micromatch@npm:^4.0.4, micromatch@npm:^4.0.5":
-  version: 4.0.5
-  resolution: "micromatch@npm:4.0.5"
+  version: 4.0.8
+  resolution: "micromatch@npm:4.0.8"
   dependencies:
-    braces: ^3.0.2
+    braces: ^3.0.3
     picomatch: ^2.3.1
-  checksum: 02a17b671c06e8fefeeb6ef996119c1e597c942e632a21ef589154f23898c9c6a9858526246abb14f8bca6e77734aa9dcf65476fca47cedfb80d9577d52843fc
+  checksum: 79920eb634e6f400b464a954fcfa589c4e7c7143209488e44baf627f9affc8b1e306f41f4f0deedde97e69cb725920879462d3e750ab3bd3c1aed675bb3a8966
   languageName: node
   linkType: hard
 
