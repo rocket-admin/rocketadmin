@@ -15,25 +15,30 @@ docker run -it rocketadmin/rocketadmin-agent:latest
 
 Running these commands will start the application in interactive mode, displaying a command line dialog where you can enter the necessary connection parameters.
 
-## Install via Docker Compose
+## Build rocketadmin docker image from code
 
-First step is installing [Docker Engine](https://docker.com).
-On Linux, please install [Docker Compose](https://docs.docker.com/compose/install/) as well.
+Clone the Rocketadmin Git Repository:
 
-> Note: Docker Desktop on Windows and MacOS already include Docker Compose.
+```bash
 
-Second step – create **docker-compose.yml** file.
-Copy and paste configuration from [(source file)](https://github.com/rocket-admin/rocketadmin/tree/main/rocketadmin-agent/docker-compose.yml) or download this file.
+git clone https://github.com/rocket-admin/rocketadmin.git
 
-Third step – create **.config.env** file in the same directory.
-Copy and paste the contents of [(source file)](https://github.com/rocket-admin/rocketadmin/tree/main/rocketadmin-agent/.config.env) or download this file.
-
-Fourth step – open **.config.env** file and specify all required credentials.
-
-Open Terminal app and run:
-
-```sh
-docker compose up --build
 ```
 
-After sucessfull execution, new connection will appear in Rocketadmin Connections List.
+Alternatively, download the ZIP archive, extract it, and open the containing folder in your terminal.
+
+Build the Docker Image:
+
+```bash
+
+docker build -t rocketadmin-agent -f Dockerfile.rocketadmin-agent .
+
+```
+
+Run the Application in Interactive Mode:
+
+```bash
+
+docker run -it rocketadmin-agent
+
+```
