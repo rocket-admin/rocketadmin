@@ -4,6 +4,13 @@
     width: 100%;
 }
 
+@media (width <= 600px) {
+    .wrapper {
+        padding: 0 9vw;
+        width: 100vw;
+    }
+}
+
 .title {
     height: 32px;
     margin-bottom: 32px;
@@ -31,9 +38,21 @@
     width: 142px;
 }
 
+@media (width <= 600px) {
+    .form__title {
+        width: 120px;
+    }
+}
+
 .form__string {
     height: 24px;
     width: 120px;
+}
+
+@media (width <= 600px) {
+    .form__string {
+        width: 80px;
+    }
 }
 
 .form__button {
@@ -45,8 +64,20 @@
     width: 190px;
 }
 
+@media (width <= 600px) {
+    .form__button_plan {
+        width: 124px;
+    }
+}
+
 .form__button_invite {
     width: 152px;
+}
+
+@media (width <= 600px) {
+    .form__button_plan {
+        width: 132px;
+    }
 }
 
 .form__table {

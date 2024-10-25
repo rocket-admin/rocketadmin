@@ -7,6 +7,13 @@
     width: 96%;
 }
 
+@media (width <= 600px) {
+    .page {
+        padding: 0 9vw;
+        width: 100vw;
+    }
+}
+
 .user-settings {
     margin-top: 32px;
 }
