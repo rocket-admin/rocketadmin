@@ -25,8 +25,17 @@
     z-index: 1;
 }
 
+@media (width <= 600px) {
+    .db-table-title {
+        flex-grow: 1;
+        margin-right: 0;
+        justify-content: space-between;
+    }
+}
+
 .db-table-title .mat-h2 {
     margin-bottom: 0;
+    margin-right: 8px;
 }
 
 .db-table-bulk-actions {
