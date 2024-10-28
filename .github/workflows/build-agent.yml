@@ -83,6 +83,7 @@ jobs:
         id: bake
         uses: docker/bake-action@v5
         with:
+          sbom: true
           files: |
             ./docker-bake-agent.hcl
             /tmp/bake-meta.json
