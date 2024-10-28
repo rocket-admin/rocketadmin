@@ -14,6 +14,9 @@ RUN if [[ -n $SAAS ]]; then API_ROOT=/api yarn build --configuration=saas-produc
 RUN ls /app/frontend/dist/dissendium-v0
 
 FROM node:20-slim
+
+RUN groupadd -r appuser && useradd -r -g appuser -d /app -s /sbin/nologin appuser
+
 RUN apt-get update && apt-get install -y \
     tini nginx \
     make gcc g++ python3 \
@@ -31,6 +34,11 @@ RUN cd shared-code && ../node_modules/.bin/tsc
 RUN cd backend && yarn run nest build
 COPY --from=front_builder /app/frontend/dist/dissendium-v0 /var/www/html
 COPY frontend/nginx/default.conf /etc/nginx/sites-enabled/default
+
+RUN chown -R appuser:appuser /app
+
+USER appuser
+
 WORKDIR /app/backend
 CMD [ "/app/backend/runner.sh" ]
 ENTRYPOINT ["/app/backend/entrypoint.sh"]
