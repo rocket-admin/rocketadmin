@@ -42,6 +42,10 @@ jobs:
           retention-days: 1
 
   build:
+    permissions:
+      id-token: write
+      contents: read
+      attestations: write
     runs-on: ${{ contains(matrix.platform, 'arm') && 'arm64' || 'ubuntu-latest' }}
     needs: prepare
     strategy:
@@ -105,7 +109,7 @@ jobs:
       - name: Attest Build Provenance
         uses: actions/attest-build-provenance@v1
         with:
-          subject-path: ${{ steps.bake.outputs.metadata }}
+          subject-path: "/tmp/digests/${{ fromJSON(steps.bake.outputs.metadata).image['containerimage.digest'] }}"
 
   merge:
     runs-on: ubuntu-latest
