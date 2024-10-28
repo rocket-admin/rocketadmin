@@ -1,7 +1,7 @@
-FROM node:20
+FROM node:20-slim
 
 WORKDIR /app
-RUN apt-get update && apt-get install -y netcat-openbsd make gcc g++ python3
+RUN apt-get update && apt-get install -y netcat-openbsd make gcc g++ python3 libxml2
 
 COPY package.json .yarnrc.yml yarn.lock /app/
 COPY shared-code /app/shared-code
