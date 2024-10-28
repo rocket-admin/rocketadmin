@@ -110,7 +110,7 @@ jobs:
         uses: actions/attest-build-provenance@v1
         with:
           subject-digest: "${{ fromJSON(steps.bake.outputs.metadata).image['containerimage.digest'] }}"
-          push-to-registry: true
+          push-to-registry: false
           subject-name: ${{ env.REGISTRY_IMAGE }}
 
   merge:
