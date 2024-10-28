@@ -42,9 +42,12 @@ jobs:
           retention-days: 1
 
   build:
-    runs-on: ${{contains(matrix.platform, 'arm') && 'arm64' || 'ubuntu-latest'}}
-    needs:
-      - prepare
+    permissions:
+      id-token: write
+      contents: read
+      attestations: write
+    runs-on: ${{ contains(matrix.platform, 'arm') && 'arm64' || 'ubuntu-latest' }}
+    needs: prepare
     strategy:
       fail-fast: false
       matrix:
@@ -80,6 +83,7 @@ jobs:
         id: bake
         uses: docker/bake-action@v5
         with:
+          sbom: true
           files: |
             ./docker-bake-agent.hcl
             /tmp/bake-meta.json
@@ -102,6 +106,13 @@ jobs:
           path: /tmp/digests/*
           if-no-files-found: error
           retention-days: 1
+
+      - name: Attest Build Provenance
+        uses: actions/attest-build-provenance@v1
+        with:
+          subject-digest: "${{ fromJSON(steps.bake.outputs.metadata).image['containerimage.digest'] }}"
+          push-to-registry: false
+          subject-name: ${{ env.REGISTRY_IMAGE }}
 
   merge:
     runs-on: ubuntu-latest
