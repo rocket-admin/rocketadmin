@@ -109,7 +109,7 @@ jobs:
       - name: Attest Build Provenance
         uses: actions/attest-build-provenance@v1
         with:
-          subject-digest: /tmp/digests/*
+          subject-digest: "${{ fromJSON(steps.bake.outputs.metadata).image['containerimage.digest'] }}"
           push-to-registry: true
           subject-name: ${{ env.REGISTRY_IMAGE }}
 
