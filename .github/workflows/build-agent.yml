@@ -42,9 +42,8 @@ jobs:
           retention-days: 1
 
   build:
-    runs-on: ${{contains(matrix.platform, 'arm') && 'arm64' || 'ubuntu-latest'}}
-    needs:
-      - prepare
+    runs-on: ${{ contains(matrix.platform, 'arm') && 'arm64' || 'ubuntu-latest' }}
+    needs: prepare
     strategy:
       fail-fast: false
       matrix:
@@ -102,6 +101,11 @@ jobs:
           path: /tmp/digests/*
           if-no-files-found: error
           retention-days: 1
+
+      - name: Attest Build Provenance
+        uses: actions/attest-build-provenance@v1
+        with:
+          subject-path: ${{ steps.bake.outputs.metadata }}
 
   merge:
     runs-on: ubuntu-latest
