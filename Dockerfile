@@ -38,7 +38,3 @@ COPY frontend/nginx/default.conf /etc/nginx/sites-enabled/default
 WORKDIR /app/backend
 CMD [ "/app/backend/runner.sh" ]
 ENTRYPOINT ["/app/backend/entrypoint.sh"]
-
-
-ENV TYPEORM_CONNECTION=postgres
-ENV TYPEORM_MIGRATIONS=dist/src/migrations/*.js
