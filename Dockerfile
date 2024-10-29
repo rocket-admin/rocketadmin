@@ -35,6 +35,11 @@ RUN cd backend && yarn run nest build
 COPY --from=front_builder /app/frontend/dist/dissendium-v0 /var/www/html
 COPY frontend/nginx/default.conf /etc/nginx/sites-enabled/default
 
+RUN chown -R appuser:appuser /app
+RUN chown -R appuser:appuser  /var/lib/nginx
+RUN chown -R appuser:appuser  /var/log/nginx
+
+USER appuser
 
 WORKDIR /app/backend
 CMD [ "/app/backend/runner.sh" ]
