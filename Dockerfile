@@ -37,6 +37,7 @@ COPY frontend/nginx/default.conf /etc/nginx/sites-enabled/default
 
 RUN chown -R appuser:appuser /app
 RUN chown -R appuser:appuser  /var/lib/nginx
+RUN chown -R appuser:appuser  /var/log/nginx
 
 USER appuser
 
