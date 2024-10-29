@@ -23,17 +23,11 @@ import { TimeoutInterceptor } from './interceptors/index.js';
 import { AppLoggerMiddleware } from './middlewares/logging-middleware/app-logger-middlewate.js';
 import { DatabaseModule } from './shared/database/database.module.js';
 import { GetHelloUseCase } from './use-cases-app/get-hello.use.case.js';
-import { ServeStaticModule } from '@nestjs/serve-static';
-import { join } from 'path';
-import path from 'path';
-import { fileURLToPath } from 'url';
 import { SaasModule } from './microservices/saas-microservice/saas.module.js';
 import { SaaSGatewayModule } from './microservices/gateways/saas-gateway.ts/saas-gateway.module.js';
 import { CompanyInfoModule } from './entities/company-info/company-info.module.js';
 import { TableTriggersModule } from './entities/table-actions/table-action-rules-module/action-rules.module.js';
 import { ApiKeyModule } from './entities/api-key/api-key.module.js';
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 @Module({
   imports: [
@@ -58,9 +52,6 @@ const __dirname = path.dirname(__filename);
     SaaSGatewayModule,
     TableTriggersModule,
     ApiKeyModule,
-    ServeStaticModule.forRoot({
-      rootPath: join(__dirname, '..', 'client'),
-    }),
   ],
   controllers: [AppController],
   providers: [

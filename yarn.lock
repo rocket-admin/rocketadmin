@@ -2017,28 +2017,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nestjs/serve-static@npm:^4.0.2":
-  version: 4.0.2
-  resolution: "@nestjs/serve-static@npm:4.0.2"
-  dependencies:
-    path-to-regexp: 0.2.5
-  peerDependencies:
-    "@fastify/static": ^6.5.0 || ^7.0.0
-    "@nestjs/common": ^9.0.0 || ^10.0.0
-    "@nestjs/core": ^9.0.0 || ^10.0.0
-    express: ^4.18.1
-    fastify: ^4.7.0
-  peerDependenciesMeta:
-    "@fastify/static":
-      optional: true
-    express:
-      optional: true
-    fastify:
-      optional: true
-  checksum: f424f804458b55330b4c4921daac6cec6cdc91d8182f3e71bf435f22fcfb12e893afd3e1422ff75a8ba93d7d1755a5e70007faf0cae6d38e142415ec4eb32c1f
-  languageName: node
-  linkType: hard
-
 "@nestjs/swagger@npm:^8.0.1":
   version: 8.0.1
   resolution: "@nestjs/swagger@npm:8.0.1"
@@ -4726,7 +4704,6 @@ __metadata:
     "@nestjs/platform-express": 10.4.6
     "@nestjs/schedule": ^4.1.1
     "@nestjs/schematics": 10.2.3
-    "@nestjs/serve-static": ^4.0.2
     "@nestjs/swagger": ^8.0.1
     "@nestjs/testing": ^10.4.6
     "@nestjs/typeorm": ^10.0.2
@@ -10761,13 +10738,6 @@ __metadata:
   version: 0.1.10
   resolution: "path-to-regexp@npm:0.1.10"
   checksum: ab7a3b7a0b914476d44030340b0a65d69851af2a0f33427df1476100ccb87d409c39e2182837a96b98fb38c4ef2ba6b87bdad62bb70a2c153876b8061760583c
-  languageName: node
-  linkType: hard
-
-"path-to-regexp@npm:0.2.5":
-  version: 0.2.5
-  resolution: "path-to-regexp@npm:0.2.5"
-  checksum: 44adcbd847d170786490de80d2abc4762d5e65cd8857f230b87bdff6ab1bd17a91baa201fea549954b4cbfd208ae021a3a4ebac19a69ebdf3fdc628c8344ad39
   languageName: node
   linkType: hard
 
