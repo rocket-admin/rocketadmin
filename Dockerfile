@@ -40,5 +40,5 @@ CMD [ "/app/backend/runner.sh" ]
 ENTRYPOINT ["/app/backend/entrypoint.sh"]
 
 
-ENV TYPEORM_CONNECTION postgres
-ENV TYPEORM_MIGRATIONS dist/src/migrations/*.js
+ENV TYPEORM_CONNECTION=postgres
+ENV TYPEORM_MIGRATIONS=dist/src/migrations/*.js

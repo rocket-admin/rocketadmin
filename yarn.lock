@@ -815,16 +815,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@azure/core-tracing@npm:^1.0.0, @azure/core-tracing@npm:^1.0.1":
-  version: 1.1.2
-  resolution: "@azure/core-tracing@npm:1.1.2"
-  dependencies:
-    tslib: ^2.6.2
-  checksum: dc4133115051460748e281c80fdf90a6052350e558716f1afef4b3f8973c4fdd93538ba99c58613b390e9013d0c738108a0155e1903bbbdd8f7910a7a3be1c21
-  languageName: node
-  linkType: hard
-
-"@azure/core-tracing@npm:^1.2.0":
+"@azure/core-tracing@npm:^1.0.0, @azure/core-tracing@npm:^1.0.1, @azure/core-tracing@npm:^1.2.0":
   version: 1.2.0
   resolution: "@azure/core-tracing@npm:1.2.0"
   dependencies:
@@ -2048,9 +2039,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nestjs/swagger@npm:^7.4.2":
-  version: 7.4.2
-  resolution: "@nestjs/swagger@npm:7.4.2"
+"@nestjs/swagger@npm:^8.0.1":
+  version: 8.0.1
+  resolution: "@nestjs/swagger@npm:8.0.1"
   dependencies:
     "@microsoft/tsdoc": ^0.15.0
     "@nestjs/mapped-types": 2.0.5
@@ -2072,7 +2063,7 @@ __metadata:
       optional: true
     class-validator:
       optional: true
-  checksum: 89427d882d2671217a39e4925da6cd244263f15d5b48be89e70bb9171c1480912dce9decf94bff638b4331b9a922bd5ab52e5c74228be8d45d5168d963139d98
+  checksum: 03887801602342c6b2990f79360f8b9ed8ec2475b6f0610a8e2f9e42f8d3cd15a19701cfc7e1e446be76127f83c1fbb0cdc707473f2cb534b8f5e2ef42209032
   languageName: node
   linkType: hard
 
@@ -4736,7 +4727,7 @@ __metadata:
     "@nestjs/schedule": ^4.1.1
     "@nestjs/schematics": 10.2.3
     "@nestjs/serve-static": ^4.0.2
-    "@nestjs/swagger": ^7.4.2
+    "@nestjs/swagger": ^8.0.1
     "@nestjs/testing": ^10.4.6
     "@nestjs/typeorm": ^10.0.2
     "@nestjsx/crud": 4.6.2
