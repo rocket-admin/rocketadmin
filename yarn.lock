@@ -815,12 +815,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@azure/core-tracing@npm:^1.0.0, @azure/core-tracing@npm:^1.0.1, @azure/core-tracing@npm:^1.1.2":
+"@azure/core-tracing@npm:^1.0.0, @azure/core-tracing@npm:^1.0.1":
   version: 1.1.2
   resolution: "@azure/core-tracing@npm:1.1.2"
   dependencies:
     tslib: ^2.6.2
   checksum: dc4133115051460748e281c80fdf90a6052350e558716f1afef4b3f8973c4fdd93538ba99c58613b390e9013d0c738108a0155e1903bbbdd8f7910a7a3be1c21
+  languageName: node
+  linkType: hard
+
+"@azure/core-tracing@npm:^1.2.0":
+  version: 1.2.0
+  resolution: "@azure/core-tracing@npm:1.2.0"
+  dependencies:
+    tslib: ^2.6.2
+  checksum: 202ebf411a3076bd2c48b7a4c1b63335f53be6dd97f7d53500e3191b7ed0fdad25de219f422e777fde824031fd5c67087654de0304a5c0cd67c38cdcab96117c
   languageName: node
   linkType: hard
 
@@ -1836,7 +1845,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nestjs/common@npm:10.4.6, @nestjs/common@npm:^10.4.3":
+"@nestjs/common@npm:10.4.6, @nestjs/common@npm:^10.4.6":
   version: 10.4.6
   resolution: "@nestjs/common@npm:10.4.6"
   dependencies:
@@ -1857,7 +1866,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nestjs/config@npm:3.3.0, @nestjs/config@npm:^3.2.3":
+"@nestjs/config@npm:3.3.0, @nestjs/config@npm:^3.3.0":
   version: 3.3.0
   resolution: "@nestjs/config@npm:3.3.0"
   dependencies:
@@ -1871,7 +1880,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nestjs/core@npm:10.4.6, @nestjs/core@npm:^10.4.3":
+"@nestjs/core@npm:10.4.6, @nestjs/core@npm:^10.4.6":
   version: 10.4.6
   resolution: "@nestjs/core@npm:10.4.6"
   dependencies:
@@ -1959,7 +1968,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nestjs/platform-express@npm:10.4.6, @nestjs/platform-express@npm:^10.4.3":
+"@nestjs/platform-express@npm:10.4.6, @nestjs/platform-express@npm:^10.4.6":
   version: 10.4.6
   resolution: "@nestjs/platform-express@npm:10.4.6"
   dependencies:
@@ -1975,9 +1984,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nestjs/platform-ws@npm:^10.4.3":
-  version: 10.4.3
-  resolution: "@nestjs/platform-ws@npm:10.4.3"
+"@nestjs/platform-ws@npm:^10.4.6":
+  version: 10.4.6
+  resolution: "@nestjs/platform-ws@npm:10.4.6"
   dependencies:
     tslib: 2.7.0
     ws: 8.18.0
@@ -1985,7 +1994,7 @@ __metadata:
     "@nestjs/common": ^10.0.0
     "@nestjs/websockets": ^10.0.0
     rxjs: ^7.1.0
-  checksum: 0e8f5a4f582041b7beaa5a241e50dacc7f439fedde9a5b52f30a4d0c6b67dd804cdfac56eb6f6a010eae16a7304e15356d09cb310852ec307c7aaf1f7dd63b1e
+  checksum: 77dbd330a618d55f909ef2a0d89818dca16e313ca665c2dd237c503ffb360c57c5948dba639e389ac94a24671e3400c29293954f3d8cfc78e9daaa5d66582661
   languageName: node
   linkType: hard
 
@@ -2002,7 +2011,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nestjs/schematics@npm:10.2.3, @nestjs/schematics@npm:^10.0.1, @nestjs/schematics@npm:^10.1.4":
+"@nestjs/schematics@npm:10.2.3, @nestjs/schematics@npm:^10.0.1, @nestjs/schematics@npm:^10.2.3":
   version: 10.2.3
   resolution: "@nestjs/schematics@npm:10.2.3"
   dependencies:
@@ -2067,7 +2076,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nestjs/testing@npm:^10.4.3, @nestjs/testing@npm:^10.4.6":
+"@nestjs/testing@npm:^10.4.6":
   version: 10.4.6
   resolution: "@nestjs/testing@npm:10.4.6"
   dependencies:
@@ -3559,18 +3568,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/express-serve-static-core@npm:^4.17.33":
-  version: 4.17.35
-  resolution: "@types/express-serve-static-core@npm:4.17.35"
-  dependencies:
-    "@types/node": "*"
-    "@types/qs": "*"
-    "@types/range-parser": "*"
-    "@types/send": "*"
-  checksum: cc8995d10c6feda475ec1b3a0e69eb0f35f21ab6b49129ad5c6f279e0bc5de8175bc04ec51304cb79a43eec3ed2f5a1e01472eb6d5f827b8c35c6ca8ad24eb6e
-  languageName: node
-  linkType: hard
-
 "@types/express-serve-static-core@npm:^5.0.0":
   version: 5.0.1
   resolution: "@types/express-serve-static-core@npm:5.0.1"
@@ -3592,18 +3589,6 @@ __metadata:
     "@types/qs": "*"
     "@types/serve-static": "*"
   checksum: ef68d8e2b7593c930093b1e79bf4df15413773508c9acd6a1a933ed7017f2a4892a8d128b2222d7eab9a3fa43181067a378c2600d9258bd7ae917f170e962df4
-  languageName: node
-  linkType: hard
-
-"@types/express@npm:^4.17.21":
-  version: 4.17.21
-  resolution: "@types/express@npm:4.17.21"
-  dependencies:
-    "@types/body-parser": "*"
-    "@types/express-serve-static-core": ^4.17.33
-    "@types/qs": "*"
-    "@types/serve-static": "*"
-  checksum: fb238298630370a7392c7abdc80f495ae6c716723e114705d7e3fb67e3850b3859bbfd29391463a3fb8c0b32051847935933d99e719c0478710f8098ee7091c5
   languageName: node
   linkType: hard
 
@@ -3648,13 +3633,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/jest@npm:^29.5.13":
-  version: 29.5.13
-  resolution: "@types/jest@npm:29.5.13"
+"@types/jest@npm:^29.5.14":
+  version: 29.5.14
+  resolution: "@types/jest@npm:29.5.14"
   dependencies:
     expect: ^29.0.0
     pretty-format: ^29.0.0
-  checksum: 875ac23c2398cdcf22aa56c6ba24560f11d2afda226d4fa23936322dde6202f9fdbd2b91602af51c27ecba223d9fc3c1e33c9df7e47b3bf0e2aefc6baf13ce53
+  checksum: 18dba4623f26661641d757c63da2db45e9524c9be96a29ef713c703a9a53792df9ecee9f7365a0858ddbd6440d98fe6b65ca67895ca5884b73cbc7ffc11f3838
   languageName: node
   linkType: hard
 
@@ -3736,7 +3721,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:*, @types/node@npm:>=18, @types/node@npm:^22.5.5, @types/node@npm:^22.8.2":
+"@types/node@npm:*, @types/node@npm:>=18, @types/node@npm:^22.8.2":
   version: 22.8.2
   resolution: "@types/node@npm:22.8.2"
   dependencies:
@@ -3966,7 +3951,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@typescript-eslint/eslint-plugin@npm:^8.12.1, @typescript-eslint/eslint-plugin@npm:^8.6.0":
+"@typescript-eslint/eslint-plugin@npm:^8.12.1":
   version: 8.12.1
   resolution: "@typescript-eslint/eslint-plugin@npm:8.12.1"
   dependencies:
@@ -3989,7 +3974,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@typescript-eslint/parser@npm:^8.12.1, @typescript-eslint/parser@npm:^8.6.0":
+"@typescript-eslint/parser@npm:^8.12.1":
   version: 8.12.1
   resolution: "@typescript-eslint/parser@npm:8.12.1"
   dependencies:
@@ -9954,7 +9939,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"mongodb@npm:^6.10.0, mongodb@npm:^6.9.0":
+"mongodb@npm:^6.10.0":
   version: 6.10.0
   resolution: "mongodb@npm:6.10.0"
   dependencies:
@@ -10917,7 +10902,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"pg@npm:^8.13.0, pg@npm:^8.13.1":
+"pg@npm:^8.13.1":
   version: 8.13.1
   resolution: "pg@npm:8.13.1"
   dependencies:
@@ -11563,24 +11548,24 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "rocketadmin-agent@workspace:rocketadmin-agent"
   dependencies:
-    "@azure/core-tracing": ^1.1.2
+    "@azure/core-tracing": ^1.2.0
     "@nestjs/cli": ^10.4.5
-    "@nestjs/common": ^10.4.3
-    "@nestjs/config": ^3.2.3
-    "@nestjs/core": ^10.4.3
-    "@nestjs/platform-express": ^10.4.3
-    "@nestjs/platform-ws": ^10.4.3
-    "@nestjs/schematics": ^10.1.4
-    "@nestjs/testing": ^10.4.3
+    "@nestjs/common": ^10.4.6
+    "@nestjs/config": ^3.3.0
+    "@nestjs/core": ^10.4.6
+    "@nestjs/platform-express": ^10.4.6
+    "@nestjs/platform-ws": ^10.4.6
+    "@nestjs/schematics": ^10.2.3
+    "@nestjs/testing": ^10.4.6
     "@rocketadmin/shared-code": "workspace:*"
-    "@types/express": ^4.17.21
-    "@types/jest": ^29.5.13
-    "@types/node": ^22.5.5
+    "@types/express": ^5.0.0
+    "@types/jest": ^29.5.14
+    "@types/node": ^22.8.2
     "@types/pg": ^8.11.10
     "@types/readline-sync": ^1.4.8
     "@types/supertest": ^6.0.2
-    "@typescript-eslint/eslint-plugin": ^8.6.0
-    "@typescript-eslint/parser": ^8.6.0
+    "@typescript-eslint/eslint-plugin": ^8.12.1
+    "@typescript-eslint/parser": ^8.12.1
     argon2: ^0.41.1
     crypto-js: ^4.2.0
     eslint: ^8.43.0
@@ -11590,10 +11575,10 @@ __metadata:
     ibm_db: ^3.2.4
     jest: ^29.7.0
     knex: 3.1.0
-    mongodb: ^6.9.0
+    mongodb: ^6.10.0
     mysql2: ^3.11.3
     oracledb: ^6.6.0
-    pg: ^8.13.0
+    pg: ^8.13.1
     prettier: ^3.3.3
     readline-sync: ^1.4.10
     reflect-metadata: ^0.2.2
@@ -11606,8 +11591,8 @@ __metadata:
     ts-loader: ^9.5.1
     ts-node: ^10.9.2
     tsconfig-paths: ^4.2.0
-    typescript: ^5.6.2
-    winston: ^3.14.2
+    typescript: ^5.6.3
+    winston: ^3.15.0
     yarn: ^1.22.22
   dependenciesMeta:
     ibm_db:
@@ -13026,7 +13011,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript@npm:5.6.3, typescript@npm:^5.6.2, typescript@npm:^5.6.3":
+"typescript@npm:5.6.3, typescript@npm:^5.6.3":
   version: 5.6.3
   resolution: "typescript@npm:5.6.3"
   bin:
@@ -13046,7 +13031,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript@patch:typescript@5.6.3#~builtin<compat/typescript>, typescript@patch:typescript@^5.6.2#~builtin<compat/typescript>, typescript@patch:typescript@^5.6.3#~builtin<compat/typescript>":
+"typescript@patch:typescript@5.6.3#~builtin<compat/typescript>, typescript@patch:typescript@^5.6.3#~builtin<compat/typescript>":
   version: 5.6.3
   resolution: "typescript@patch:typescript@npm%3A5.6.3#~builtin<compat/typescript>::version=5.6.3&hash=1f5320"
   bin:
@@ -13415,7 +13400,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"winston@npm:3.15.0, winston@npm:^3.14.2":
+"winston@npm:3.15.0, winston@npm:^3.15.0":
   version: 3.15.0
   resolution: "winston@npm:3.15.0"
   dependencies:
