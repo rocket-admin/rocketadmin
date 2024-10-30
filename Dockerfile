@@ -1,4 +1,4 @@
-FROM node:20-slim AS front_builder
+FROM node:22-slim AS front_builder
 SHELL ["/bin/bash", "-c"]
 WORKDIR /app/frontend
 COPY frontend/package.json frontend/yarn.lock frontend/angular.json frontend/tsconfig.app.json frontend/tsconfig.json /app/frontend/
@@ -13,7 +13,7 @@ RUN if [[ -n $SAAS ]]; then API_ROOT=/api yarn build --configuration=saas-produc
     else API_ROOT=/api yarn build --configuration=production; fi
 RUN ls /app/frontend/dist/dissendium-v0
 
-FROM node:20-slim
+FROM node:22-slim
 
 RUN groupadd -r appuser && useradd -r -g appuser -d /app -s /sbin/nologin appuser
 
