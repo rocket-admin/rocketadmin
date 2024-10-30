@@ -121,9 +121,9 @@ async function bootstrap() {
     saving_logs_option: false,
   };
 
-  const savedConfig: ICLIConnectionCredentials = await Config.readConfigFromFile();
-  if (savedConfig) {
-    await Config.setConnectionConfig(savedConfig);
+  const configFromEnvironment = Config.readConnectionConfigFromEnv();
+  if (configFromEnvironment) {
+    await Config.setConnectionConfig(configFromEnvironment);
     bootstrap()
       .then(() => {
         console.info('-> Application launched');
@@ -132,45 +132,59 @@ async function bootstrap() {
         console.error(`-> Failed to start application with error: ${e}`);
         process.exit(0);
       });
+    return;
   } else {
-    connectionCredentials.token = CLIQuestionUtility.askConnectionToken();
-    connectionCredentials.type = CLIQuestionUtility.askConnectionType();
-    connectionCredentials.host = CLIQuestionUtility.askConnectionHost();
-    connectionCredentials.port = CLIQuestionUtility.askConnectionPort();
-    connectionCredentials.username = CLIQuestionUtility.askConnectionUserName();
-    connectionCredentials.password = CLIQuestionUtility.askConnectionPassword();
-    connectionCredentials.database = CLIQuestionUtility.askConnectionDatabase();
-    connectionCredentials.schema = CLIQuestionUtility.askConnectionSchema();
-    if (connectionCredentials.type === ConnectionTypesEnum.oracledb) {
-      connectionCredentials.sid = CLIQuestionUtility.askConnectionSid();
-    }
-    if (connectionCredentials.type === ConnectionTypesEnum.mssql) {
-      connectionCredentials.azure_encryption = CLIQuestionUtility.askConnectionAzureEncryption();
-    }
-    connectionCredentials.cert = null;
-    connectionCredentials.ssl = CLIQuestionUtility.askConnectionSslOption();
-    connectionCredentials.application_save_option = CLIQuestionUtility.askApplicationSaveConfig();
-    if (connectionCredentials.application_save_option) {
-      connectionCredentials.config_encryption_option = CLIQuestionUtility.askApplicationEncryptConfigOption();
-    }
-    if (connectionCredentials.config_encryption_option) {
-      connectionCredentials.encryption_password = CLIQuestionUtility.askApplicationEncryptionPassword();
-    }
-    connectionCredentials.saving_logs_option = CLIQuestionUtility.askApplicationSaveLogsOption();
-    if (connectionCredentials.saving_logs_option) {
-      await mkDirIfNotExistsUtil(Constants.DEFAULT_LOGS_DIRNAME);
-    }
-    console.info(Messages.CREDENTIALS_ACCEPTED);
+    const savedConfig: ICLIConnectionCredentials = await Config.readConfigFromFile();
+    if (savedConfig) {
+      await Config.setConnectionConfig(savedConfig);
+      bootstrap()
+        .then(() => {
+          console.info('-> Application launched');
+        })
+        .catch((e) => {
+          console.error(`-> Failed to start application with error: ${e}`);
+          process.exit(0);
+        });
+    } else {
+      connectionCredentials.token = CLIQuestionUtility.askConnectionToken();
+      connectionCredentials.type = CLIQuestionUtility.askConnectionType();
+      connectionCredentials.host = CLIQuestionUtility.askConnectionHost();
+      connectionCredentials.port = CLIQuestionUtility.askConnectionPort();
+      connectionCredentials.username = CLIQuestionUtility.askConnectionUserName();
+      connectionCredentials.password = CLIQuestionUtility.askConnectionPassword();
+      connectionCredentials.database = CLIQuestionUtility.askConnectionDatabase();
+      connectionCredentials.schema = CLIQuestionUtility.askConnectionSchema();
+      if (connectionCredentials.type === ConnectionTypesEnum.oracledb) {
+        connectionCredentials.sid = CLIQuestionUtility.askConnectionSid();
+      }
+      if (connectionCredentials.type === ConnectionTypesEnum.mssql) {
+        connectionCredentials.azure_encryption = CLIQuestionUtility.askConnectionAzureEncryption();
+      }
+      connectionCredentials.cert = null;
+      connectionCredentials.ssl = CLIQuestionUtility.askConnectionSslOption();
+      connectionCredentials.application_save_option = CLIQuestionUtility.askApplicationSaveConfig();
+      if (connectionCredentials.application_save_option) {
+        connectionCredentials.config_encryption_option = CLIQuestionUtility.askApplicationEncryptConfigOption();
+      }
+      if (connectionCredentials.config_encryption_option) {
+        connectionCredentials.encryption_password = CLIQuestionUtility.askApplicationEncryptionPassword();
+      }
+      connectionCredentials.saving_logs_option = CLIQuestionUtility.askApplicationSaveLogsOption();
+      if (connectionCredentials.saving_logs_option) {
+        await mkDirIfNotExistsUtil(Constants.DEFAULT_LOGS_DIRNAME);
+      }
+      console.info(Messages.CREDENTIALS_ACCEPTED);
 
-    await Config.setConnectionConfig(connectionCredentials, true);
+      await Config.setConnectionConfig(connectionCredentials, true);
 
-    bootstrap()
-      .then(() => {
-        console.info('-> Application launched');
-      })
-      .catch((e) => {
-        console.error(`-> Failed to start apllication with error: ${e}`);
-        process.exit(0);
-      });
+      bootstrap()
+        .then(() => {
+          console.info('-> Application launched');
+        })
+        .catch((e) => {
+          console.error(`-> Failed to start apllication with error: ${e}`);
+          process.exit(0);
+        });
+    }
   }
 })();
