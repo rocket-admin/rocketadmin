@@ -1,6 +1,6 @@
-FROM node:20
+FROM node:22-slim
 WORKDIR /app
-RUN apt-get update && apt-get install -y netcat-openbsd make gcc g++ python3
+RUN apt-get update && apt-get install -y netcat-openbsd make gcc g++ python3 libxml2
 COPY package.json ./yarn.lock .yarnrc.yml /app/
 COPY ./.yarn /app/.yarn
 COPY ./rocketadmin-agent/package.json /app/rocketadmin-agent/
