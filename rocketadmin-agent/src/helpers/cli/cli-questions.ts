@@ -27,7 +27,14 @@ export class CLIQuestionUtility {
 
   public static askConnectionType(): ConnectionTypesEnum {
     console.log(Messages.INTRO_MESSAGES.CONNECTION_TYPE_MESSAGE);
-    const connectionTypeList: Array<string> = ['PostgreSQL', 'MySQL', 'Oracle Database', 'Microsoft SQL Server'];
+    const connectionTypeList: Array<string> = [
+      'PostgreSQL',
+      'MySQL',
+      'Oracle Database',
+      'Microsoft SQL Server',
+      'MongoDB',
+      'IBM Db2',
+    ];
     const connectionTypeIndex = readlineSync.keyInSelect(connectionTypeList, '-> \n') + 1;
     switch (connectionTypeIndex) {
       case 1:
@@ -42,6 +49,12 @@ export class CLIQuestionUtility {
       case 4:
         console.log(`${connectionTypeList[connectionTypeIndex - 1]} selected.`);
         return ConnectionTypesEnum.mssql;
+      case 5:
+        console.log(`${connectionTypeList[connectionTypeIndex - 1]} selected.`);
+        return ConnectionTypesEnum.mongodb;
+      case 6:
+        console.log(`${connectionTypeList[connectionTypeIndex - 1]} selected.`);
+        return ConnectionTypesEnum.ibmdb2;
       case 0:
         console.log(Messages.INTRO_MESSAGES.APPLICATION_CLI_QUIT);
         process.exit(0);
