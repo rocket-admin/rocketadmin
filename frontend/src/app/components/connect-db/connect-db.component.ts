@@ -68,6 +68,7 @@ export class ConnectDBComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.connectionID = this._connections.currentConnectionID;
+    this.isMasterKeyTurnedOn = this._connections.currentConnection.masterEncryption;
 
     if (this.connectionID) this.getTitleSubscription = this._connections.getCurrentConnectionTitle().subscribe(connectionTitle => {
       this.title.setTitle(`Edit connection ${connectionTitle} | Rocketadmin`);
@@ -94,7 +95,6 @@ export class ConnectDBComponent implements OnInit, OnDestroy {
   }
 
   get db():Connection {
-    this.isMasterKeyTurnedOn = this._connections.currentConnection.masterEncryption;
     return this._connections.currentConnection;
   }
 
