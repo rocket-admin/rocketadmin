@@ -108,8 +108,11 @@ async function checkConnectionToken(connectionToken) {
     } else {
       checkConnectionTokenUrl = `http://autoadmin-internal-auth.local:3000/connection/token?token=${connectionToken}`;
     }
+    console.info('-> checkConnectionTokenUrl', checkConnectionTokenUrl);
     const response = await axios.get(checkConnectionTokenUrl);
     if (response.status !== 200) {
+      console.info('-> response.status', response.status);
+      console.info('-> response.data', response.data);
       return false;
     }
     const result = response.data === true;
