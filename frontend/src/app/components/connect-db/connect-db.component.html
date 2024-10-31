@@ -196,7 +196,7 @@
                             [angularticsProperties]="{'enable': db.masterEncryption}"
                             [disabled]="accessLevel === 'readonly' || submitting || db.isTestConnection"
                             [(ngModel)]="isMasterKeyTurnedOn"
-                            (ngModelChange)="generatePassword()">
+                            (ngModelChange)="generatePassword($event)">
                             Use client-side encryption
                         </mat-slide-toggle>
                         <div *ngIf="isMasterKeyTurnedOn && masterKey" class="encription-password">
