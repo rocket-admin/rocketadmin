@@ -259,7 +259,13 @@ export class ConnectionsService {
       dbCredentials.type = `agent_${dbCredentials.type}`
     }
 
-    return this._http.post('/connection', dbCredentials)
+
+
+    return this._http.post('/connection', dbCredentials, {
+      headers: {
+        masterpwd: masterKey
+      }
+    })
     .pipe(
       map(res => {
         this._masterPassword.checkMasterPassword(connection.masterEncryption, connection.id, masterKey);
@@ -287,7 +293,11 @@ export class ConnectionsService {
       dbCredentials.type = `agent_${dbCredentials.type}`
     }
 
-    return this._http.put(`/connection/${connection.id}`, dbCredentials)
+    return this._http.put(`/connection/${connection.id}`, dbCredentials, {
+      headers: {
+        masterpwd: masterKey
+      }
+    })
     .pipe(
       map(res => {
         this._masterPassword.checkMasterPassword(connection.masterEncryption, connection.id, masterKey);

@@ -6,6 +6,13 @@
     padding: 36px 0 16px;
 }
 
+@media (width <= 600px) {
+    .wrapper {
+        padding: 36px 9vw 16px;
+        width: 100vw;
+    }
+}
+
 .row-edit-header {
     display: flex;
     align-items: center;
@@ -17,8 +24,14 @@
     margin: 24px auto 40px;
     max-width: 520px;
     min-width: 300px;
-    width: 96%;
+    /* width: 96%; */
 }
+
+/* @media (width <= 600px) {
+    .form {
+        padding: 0 9vw;
+    }
+} */
 
 .related-views {
     position: fixed;
