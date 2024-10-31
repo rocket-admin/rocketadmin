@@ -74,6 +74,9 @@ export class FoundDirectConnectionsDs {
 
   @ApiProperty()
   isTestConnection: boolean;
+
+  @ApiProperty({ required: false })
+  connection_properties?: any;
 }
 
 export class FoundDirectConnectionsNonePermissionDs {
@@ -91,6 +94,9 @@ export class FoundDirectConnectionsNonePermissionDs {
 
   @ApiProperty()
   isTestConnection: boolean;
+
+  @ApiProperty()
+  connection_properties: any;
 }
 
 export class FoundAgentConnectionsDs {
@@ -114,6 +120,9 @@ export class FoundAgentConnectionsDs {
 
   @ApiProperty()
   isTestConnection: boolean;
+
+  @ApiProperty({ required: false })
+  connection_properties: any;
 }
 
 export class FoundDirectConnectionsWithGroupAndUsersDs extends FoundDirectConnectionsDs {
