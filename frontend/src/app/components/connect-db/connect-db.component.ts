@@ -283,10 +283,12 @@ export class ConnectDBComponent implements OnInit, OnDestroy {
     });
   }
 
-  generatePassword () {
-    let randomArray = new Uint8Array(32);
-    window.crypto.getRandomValues(randomArray);
-    this.masterKey = btoa(String.fromCharCode(...randomArray));
+  generatePassword (checked: boolean) {
+    if (checked) {
+      let randomArray = new Uint8Array(32);
+      window.crypto.getRandomValues(randomArray);
+      this.masterKey = btoa(String.fromCharCode(...randomArray));
+    }
   }
 
   showCopyNotification(message: string) {

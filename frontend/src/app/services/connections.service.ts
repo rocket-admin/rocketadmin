@@ -262,9 +262,9 @@ export class ConnectionsService {
 
 
     return this._http.post('/connection', dbCredentials, {
-      headers: {
+      headers: masterKey ? {
         masterpwd: masterKey
-      }
+      } : {}
     })
     .pipe(
       map(res => {
@@ -282,6 +282,7 @@ export class ConnectionsService {
   }
 
   updateConnection(connection: Connection, masterKey: string) {
+    console.log('updateConnection');
     let dbCredentials;
     dbCredentials = {
       ...connection,
@@ -294,9 +295,9 @@ export class ConnectionsService {
     }
 
     return this._http.put(`/connection/${connection.id}`, dbCredentials, {
-      headers: {
+      headers: masterKey ? {
         masterpwd: masterKey
-      }
+      } : {}
     })
     .pipe(
       map(res => {
