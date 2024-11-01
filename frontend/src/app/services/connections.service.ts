@@ -267,8 +267,8 @@ export class ConnectionsService {
       } : {}
     })
     .pipe(
-      map(res => {
-        this._masterPassword.checkMasterPassword(connection.masterEncryption, connection.id, masterKey);
+      map((res: Connection) => {
+        this._masterPassword.checkMasterPassword(connection.masterEncryption, res.id, masterKey);
         this._notifications.showSuccessSnackbar('Connection was added successfully.');
         return res;
       }),
