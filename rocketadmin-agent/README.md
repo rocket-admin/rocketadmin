@@ -42,3 +42,32 @@ Run the Application in Interactive Mode:
 docker run -it rocketadmin-agent
 
 ```
+
+To avoid starting the container in interactive mode, you can pass environment variables directly in the `docker run` command:
+
+```bash
+
+docker run -d \
+  -p 3000:3000 \ # Maps port 3000 of the host to port 3000 of the container
+  --name rocketadmin \
+  -e CONNECTION_TOKEN=my_secure_token \ # Token for connecting to the database
+  -e CONNECTION_TYPE=postgres \ # Type of the database (e.g., postgres, mysql)
+  -e CONNECTION_HOST=localhost \ # Hostname or IP address of the database
+  -e CONNECTION_PORT=5432 \ # Port number of the database
+  -e CONNECTION_USERNAME=my_db_user \ # Username for the database
+  -e CONNECTION_PASSWORD=my_db_password \ # Password for the database
+  -e CONNECTION_DATABASE=my_database \ # Name of the database
+  -e CONNECTION_SCHEMA=public \ # Schema of the database
+  -e CONNECTION_SID= \ # SID for Oracle databases (leave empty if not using Oracle)
+  -e CONNECTION_SSL=0 \ # Set to 1 to use SSL
+  -e CONNECTION_SSL_CERTIFICATE=my_ssl_certificate \ # SSL certificate text value
+  -e LOGS_TO_TEXT_FILE=0 \ # Set to 1 to write logs to a file
+  -e CONNECTION_AZURE_ENCRYPTION=0 \ # Set to 1 to enable encryption for MSSQL in Azure
+  -e APP_PORT=3000 \ # Port where the application will run (default is 3000)
+  rocketadmin/rocketadmin-agent:latest
+
+```
+
+You can also run the project in Docker Compose mode by creating a `docker-compose.yml` file (an example can be found in the root of the `rocketadmin-agent` repository folder). Open the folder containing this file in your terminal and run the command `docker compose up`.
+
+(Note: You can also create a `.config.env` file, an example of which can be found in the root of the `rocketadmin-agent` repository folder. Fill in all necessary variables and reference it in the `docker-compose.yml` file.)

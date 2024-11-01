@@ -1,11 +1,32 @@
-version: '2'
+version: '3.9'
 services:
-  rocketadmin-agent:
-    image: rocketadmin/rocketadmin-agent
+  postgres:
+    image: postgres
     ports:
-      - 7007:7007
-    env_file: .config.env
-    volumes:
-      - ./dist:/app/dist
-      - ./src:/app/src
-    command: [ "yarn", "start:dev" ]
+      - 5432:5432
+    environment:
+      POSTGRES_PASSWORD: 123
+
+  rocketadmin:
+    image: rocketadmin/rocketadmin-agent:latest
+    ports:
+      - 3000:3000
+    depends_on:
+      - postgres
+    links:
+      - postgres
+    environment:
+      CONNECTION_TOKEN: my_secure_token
+      CONNECTION_TYPE: postgres
+      CONNECTION_HOST: postgres
+      CONNECTION_PORT: 5432
+      CONNECTION_USERNAME: postgres
+      CONNECTION_PASSWORD: 123
+      CONNECTION_DATABASE: postgres
+      CONNECTION_SCHEMA: public
+      CONNECTION_SID:
+      CONNECTION_SSL: 0
+      CONNECTION_SSL_SERTIFICATE:
+      LOGS_TO_TEXT_FILE: 1
+      CONNECTION_AZURE_ENCRYPTION:
+      APP_PORT: 3000
