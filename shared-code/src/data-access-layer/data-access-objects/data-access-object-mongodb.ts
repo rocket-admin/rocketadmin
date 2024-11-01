@@ -42,7 +42,7 @@ export class DataAccessObjectMongo extends BasicDataAccessObject implements IDat
     const collection = db.collection(tableName);
     delete row._id;
     const result = await collection.insertOne(row);
-    return { _id: result.insertedId.toHexString() };
+    return { _id: result?.insertedId?.toHexString() };
   }
 
   public async deleteRowInTable(
@@ -53,7 +53,7 @@ export class DataAccessObjectMongo extends BasicDataAccessObject implements IDat
     const collection = db.collection(tableName);
     const objectId = this.createObjectIdFromSting(primaryKey._id as string);
     await collection.deleteOne({ _id: objectId });
-    return { _id: objectId.toHexString() };
+    return { _id: objectId?.toHexString() };
   }
 
   public async getIdentityColumns(
@@ -95,7 +95,7 @@ export class DataAccessObjectMongo extends BasicDataAccessObject implements IDat
     }
     return {
       ...foundRow,
-      _id: objectId.toHexString(),
+      _id: objectId?.toHexString(),
     };
   }
 
@@ -140,7 +140,7 @@ export class DataAccessObjectMongo extends BasicDataAccessObject implements IDat
           });
           return {
             ...row,
-            _id: row._id.toHexString(),
+            _id: row?._id?.toHexString(),
           };
         }),
         large_dataset,
@@ -314,7 +314,7 @@ export class DataAccessObjectMongo extends BasicDataAccessObject implements IDat
     const objectId = this.createObjectIdFromSting(primaryKey._id as string);
     delete row._id;
     await collection.updateOne({ _id: objectId }, { $set: row });
-    return { _id: objectId.toHexString() };
+    return { _id: objectId?.toHexString() };
   }
 
   public async bulkUpdateRowsInTable(
@@ -326,7 +326,7 @@ export class DataAccessObjectMongo extends BasicDataAccessObject implements IDat
     const collection = db.collection(tableName);
     const objectIds = primaryKeys.map((primaryKey) => this.createObjectIdFromSting(primaryKey._id as string));
     await collection.updateMany({ _id: { $in: objectIds } }, { $set: newValues });
-    return { _id: objectIds.map((objectId) => objectId.toHexString()) };
+    return { _id: objectIds.map((objectId) => objectId?.toHexString()) };
   }
 
   public async validateSettings(settings: ValidateTableSettingsDS, tableName: string): Promise<string[]> {
