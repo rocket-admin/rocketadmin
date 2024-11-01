@@ -100,8 +100,14 @@
                     [disabled]="submitting"
                     [(ngModel)]="db.host">
                 <mat-hint>
-                    E.g. <strong><code>my-test-db.cvfuxe8nltiq.us-east-2.rds.amazonaws.com</code></strong>.
-                    Connections from internal IPs (e.g. localhost) are not supported.
+                    <span *ngIf="db.type === 'mongodb'">
+                        E.g. <strong><code>mongodb+srv://my-test-db.8a8grvb.mongodb.net</code></strong>.
+                        Connections from internal IPs (e.g. localhost) are not supported.
+                    </span>
+                    <span *ngIf="db.type !== 'mongodb'">
+                        E.g. <strong><code>my-test-db.cvfuxe8nltiq.us-east-2.rds.amazonaws.com</code></strong>.
+                        Connections from internal IPs (e.g. localhost) are not supported.
+                    </span>
                 </mat-hint>
 
                 <mat-error *ngIf="hostname.errors?.isLocalhost && hostname.invalid">

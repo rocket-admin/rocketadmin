@@ -36,19 +36,18 @@
                 [href]="company.portal_link" target="_blank"
                 data-testid="company-payment-portal-link"
                 angulartics2On="click"
-                angularticsAction="Company: Manage payment settings is clicked">
-                <span>Stripe settings</span>
+                angularticsAction="Company: Payment settings is clicked">
+                <span>Payment settings</span>
             </a>
             <a *ngIf="currentUser && currentUser.role === 'ADMIN'"
                 mat-stroked-button color="accent" class="upgrade-button"
                 routerLink="/upgrade"
-                data-testid="company-payment-settings-link"
+                data-testid="company-payment-upgrade-link"
                 angulartics2On="click"
-                angularticsAction="Company: Manage payment settings is clicked">
-                Update
+                angularticsAction="Company: Upgrade is clicked">
+                Upgrade
             </a>
         </div>
-
     </div>
 
     <div class="tableHeader">
