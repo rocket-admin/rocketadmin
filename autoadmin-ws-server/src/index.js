@@ -115,7 +115,7 @@ async function checkConnectionToken(connectionToken) {
       console.info('-> response.data', response.data);
       return false;
     }
-    const result = response.data === true;
+    const result = !!response.data.isValid;
     if (result) {
       tokenCacheResult.set(connectionToken, true);
     }
