@@ -6,9 +6,11 @@
     padding: 40px 24px;
 }
 
-@media screen and (max-width: 600px) {
+@media (width <= 600px) {
     .wrapper {
-        grid-template-columns: 1fr;
+        display: flex;
+        flex-direction: column;
+        padding: 0;
     }
 }
 
@@ -17,6 +19,23 @@
     margin-top: -4px;
     margin-bottom: 32px;
 }
+
+.registrationTitle_mobile {
+    display: none;
+}
+
+@media (width <= 600px) {
+    .registrationTitle_desktop {
+        display: none;
+    }
+
+    .registrationTitle_mobile {
+        display: initial;
+    }
+}
+
+
+
 
 .registrationTitle__emphasis {
     color: var(--color-accentedPalette-500)
@@ -29,6 +48,12 @@
     padding-bottom: 20px;
 }
 
+@media (width <= 600px) {
+    .register-form-box {
+        height: 100%;
+    }
+}
+
 .register-form {
     display: flex;
     flex-direction: column;
@@ -38,9 +63,10 @@
     width: 496px;
 }
 
-@media screen and (max-width: 600px) {
+@media (width <= 600px) {
     .register-form {
-        width: 90%;
+        padding: 40px 9vw 0;
+        width: 100%;
     }
 }
 
@@ -132,6 +158,12 @@
     margin-top: 20px;
     padding: 6px;
     width: 400px;
+}
+
+@media (width <= 600px) {
+    .register-form__github-button {
+        width: auto;
+    }
 }
 
 .register-form__github-button ::ng-deep .mdc-button__label {

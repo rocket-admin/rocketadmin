@@ -1,4 +1,4 @@
-FROM node:20-slim AS front_builder
+FROM node:22-slim AS front_builder
 SHELL ["/bin/bash", "-c"]
 WORKDIR /app/frontend
 COPY frontend/package.json frontend/yarn.lock frontend/angular.json frontend/tsconfig.app.json frontend/tsconfig.json /app/frontend/
@@ -13,10 +13,14 @@ RUN if [[ -n $SAAS ]]; then API_ROOT=/api yarn build --configuration=saas-produc
     else API_ROOT=/api yarn build --configuration=production; fi
 RUN ls /app/frontend/dist/dissendium-v0
 
-FROM node:20
+FROM node:22-slim
+
+RUN groupadd -r appuser && useradd -r -g appuser -d /app -s /sbin/nologin appuser
+
 RUN apt-get update && apt-get install -y \
     tini nginx \
     make gcc g++ python3 \
+    libxml2 \
     && rm -rf /var/lib/apt/lists/* 
 
 WORKDIR /app
@@ -30,10 +34,14 @@ RUN cd shared-code && ../node_modules/.bin/tsc
 RUN cd backend && yarn run nest build
 COPY --from=front_builder /app/frontend/dist/dissendium-v0 /var/www/html
 COPY frontend/nginx/default.conf /etc/nginx/sites-enabled/default
+
+RUN chown -R appuser:appuser /app
+RUN chown -R appuser:appuser  /var/lib/nginx
+RUN chown -R appuser:appuser  /var/log/nginx
+RUN chown -R appuser:appuser  /run
+
+USER appuser
+
 WORKDIR /app/backend
 CMD [ "/app/backend/runner.sh" ]
 ENTRYPOINT ["/app/backend/entrypoint.sh"]
-
-
-ENV TYPEORM_CONNECTION postgres
-ENV TYPEORM_MIGRATIONS dist/src/migrations/*.js

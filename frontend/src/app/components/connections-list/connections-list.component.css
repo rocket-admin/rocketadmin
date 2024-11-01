@@ -12,11 +12,23 @@
     padding: 72px max(calc(50vw - 535px), 10%) 24px;
 }
 
+@media (width <= 600px) {
+    .wrapper {
+        padding: 48px 9vw;
+        width: 100%;
+    }
+}
+
 .pageTitleHeader {
     position: relative;
     align-self: center;
     margin-bottom: 54px;
+}
 
+@media (width <= 600px) {
+    .pageTitleHeader {
+        margin-bottom: 32px;
+    }
 }
 
 .pageTitle {
@@ -31,6 +43,12 @@
     transform: translateY(-50%);
     opacity: 0;
     transition: opacity 200ms;
+}
+
+@media (width <= 600px) {
+    .companyEditLink {
+        opacity: 1;
+    }
 }
 
 .pageTitleHeader:hover .companyEditLink {
@@ -62,6 +80,12 @@
     margin-bottom: -56px;
 }
 
+@media (width <= 600px) {
+    .showAllButton {
+        margin-bottom: 0;
+    }
+}
+
 .addButton {
     margin-top: 12px;
     height: 40px;
@@ -79,6 +103,14 @@
     width: 178px;
 }
 
+@media (width <= 600px) {
+    .fabAddButton {
+        position: fixed;
+        bottom: max(64px, 10vw);
+        z-index: 1;
+    }
+}
+
 .connections {
     list-style: none;
     display: flex;
@@ -88,8 +120,21 @@
     width: 100%;
 }
 
+@media (width <= 600px) {
+    .connections {
+        flex-direction: column;
+        flex-wrap: nowrap;
+    }
+}
+
 .connectionItem {
     flex: 0 0 calc((100% - 40px)/3);
+}
+
+@media (width <= 600px) {
+    .connectionItem {
+        flex: initial;
+    }
 }
 
 .connection {
@@ -163,10 +208,16 @@
 .testConnections {
     list-style: none;
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(4, minmax(0, 1fr));
     grid-gap: 20px;
     margin-top: 48px;
     width: 100%;
+}
+
+@media (width <= 600px) {
+    .testConnections {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
 }
 
 .testConnectionLink {
@@ -185,6 +236,12 @@
     padding: 0 16px;
     text-decoration: none;
     transition: box-shadow 200ms, background 200ms;
+}
+
+@media (width <= 600px) {
+    .testConnectionLink {
+        justify-content: flex-start;
+    }
 }
 
 .testConnectionLink:hover {
@@ -222,6 +279,12 @@
     margin-left: auto;
     opacity: 0.65;
     transition: opacity 200ms;
+}
+
+@media (width <= 600px) {
+    .testConnectionLink .connection__goIcon {
+        display: none;
+    }
 }
 
 .testConnectionLink:hover .connection__goIcon,

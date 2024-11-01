@@ -26,6 +26,7 @@ export class ConnectDBComponent implements OnInit, OnDestroy {
 
   public isSaas = (environment as any).saas;
   public connectionID: string | null = null;
+  public isMasterKeyTurnedOn: boolean = false;
   public masterKey: string;
   public connectionToken: string | null = null;
   public submitting: boolean = false;
@@ -67,6 +68,7 @@ export class ConnectDBComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.connectionID = this._connections.currentConnectionID;
+    this.isMasterKeyTurnedOn = this._connections.currentConnection.masterEncryption;
 
     if (this.connectionID) this.getTitleSubscription = this._connections.getCurrentConnectionTitle().subscribe(connectionTitle => {
       this.title.setTitle(`Edit connection ${connectionTitle} | Rocketadmin`);
@@ -133,17 +135,8 @@ export class ConnectDBComponent implements OnInit, OnDestroy {
       );
   }
 
-  checkMasterPassword() {
-    if (this.db.masterEncryption) {
-      localStorage.setItem(`${this.connectionID}__masterKey`, this.masterKey);
-    } else {
-      localStorage.removeItem(`${this.connectionID}__masterKey`);
-    }
-  }
-
   createConnectionRequest() {
-    this.checkMasterPassword();
-    this._connections.createConnection(this.db)
+    this._connections.createConnection(this.db, this.masterKey)
     .subscribe((res: any) => {
         this.ngZone.run(() => {
           const createdConnectionID = res.id!;
@@ -171,8 +164,7 @@ export class ConnectDBComponent implements OnInit, OnDestroy {
   }
 
   updateConnectionRequest() {
-    this.checkMasterPassword();
-    this._connections.updateConnection(this.db)
+    this._connections.updateConnection(this.db, this.masterKey)
     .subscribe((res: any) => {
       this.ngZone.run(() => {
         const connectionID = res.connection.id!;
@@ -207,6 +199,7 @@ export class ConnectDBComponent implements OnInit, OnDestroy {
       width: '25em',
       data: {
         dbCreds: this.db,
+        masterKey: this.masterKey,
         errorMessage
       }
     });
@@ -216,6 +209,7 @@ export class ConnectDBComponent implements OnInit, OnDestroy {
   }
 
   handleCredentialsSubmitting(connectForm: NgForm) {
+    this.db.masterEncryption = this.isMasterKeyTurnedOn;
     if (this.db.id) {
       this.editConnection();
     } else {
@@ -256,8 +250,6 @@ export class ConnectDBComponent implements OnInit, OnDestroy {
           this.submitting = true;
           let credsCorrect: TestConnection = null;
 
-          this.checkMasterPassword();
-
           try {
             (credsCorrect as any) = await this._connections.testConnection(this.connectionID, this.db).toPromise();
 
@@ -291,10 +283,12 @@ export class ConnectDBComponent implements OnInit, OnDestroy {
     });
   }
 
-  generatePassword () {
-    let randomArray = new Uint8Array(32);
-    window.crypto.getRandomValues(randomArray);
-    this.masterKey = btoa(String.fromCharCode(...randomArray));
+  generatePassword (checked: boolean) {
+    if (checked) {
+      let randomArray = new Uint8Array(32);
+      window.crypto.getRandomValues(randomArray);
+      this.masterKey = btoa(String.fromCharCode(...randomArray));
+    }
   }
 
   showCopyNotification(message: string) {

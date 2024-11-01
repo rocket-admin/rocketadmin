@@ -30,23 +30,24 @@
             <strong>Current plan: </strong>
             <span class="company-plan-name" data-testid="company-plan-string">{{currentPlan}}</span>
         </div>
-        <a *ngIf="currentUser && currentUser.role === 'ADMIN'"
-            mat-button color="accent" class="upgrade-button"
-            [href]="company.portal_link" target="_blank"
-            class="company-plan__button"
-            data-testid="company-payment-portal-link"
-            angulartics2On="click"
-            angularticsAction="Company: Manage payment settings is clicked">
-            <span>Payment settings</span>
-        </a>
-        <a *ngIf="currentUser && currentUser.role === 'ADMIN'"
-            mat-stroked-button color="accent" class="upgrade-button"
-            routerLink="/upgrade"
-            data-testid="company-payment-settings-link"
-            angulartics2On="click"
-            angularticsAction="Company: Manage payment settings is clicked">
-            Upgrade
-        </a>
+        <div class="company-plan__paymnent-buttons">
+            <a *ngIf="currentUser && currentUser.role === 'ADMIN'"
+                mat-button color="accent" class="upgrade-button"
+                [href]="company.portal_link" target="_blank"
+                data-testid="company-payment-portal-link"
+                angulartics2On="click"
+                angularticsAction="Company: Payment settings is clicked">
+                <span>Payment settings</span>
+            </a>
+            <a *ngIf="currentUser && currentUser.role === 'ADMIN'"
+                mat-stroked-button color="accent" class="upgrade-button"
+                routerLink="/upgrade"
+                data-testid="company-payment-upgrade-link"
+                angulartics2On="click"
+                angularticsAction="Company: Upgrade is clicked">
+                Upgrade
+            </a>
+        </div>
     </div>
 
     <div class="tableHeader">
@@ -70,17 +71,24 @@
     </div>
 
     <app-placeholder-table-data *ngIf="submittingUsersChange"></app-placeholder-table-data>
-    <table *ngIf="currentUser && members.length && !submittingUsersChange" mat-table [dataSource]="members" class="mat-elevation-z4">
+    <table *ngIf="currentUser && members.length && !submittingUsersChange" mat-table [dataSource]="members" class="mat-elevation-z4 company-members-table">
         <!-- Email Column -->
         <ng-container matColumnDef="email">
           <th mat-header-cell *matHeaderCellDef>Email</th>
-          <td mat-cell *matCellDef="let element; let i = index" attr.data-testid="company-member-email-{{i}}-cell"> {{element.email}} </td>
+          <td mat-cell *matCellDef="let element; let i = index"
+            class="company-member-cell"
+            data-label="Email"
+            attr.data-testid="company-member-email-{{i}}-cell">
+            <span>{{element.email}}</span>
+        </td>
         </ng-container>
 
         <!-- Name Column -->
         <ng-container matColumnDef="name">
             <th mat-header-cell *matHeaderCellDef>Name</th>
-            <td mat-cell *matCellDef="let element; let i = index">
+            <td mat-cell *matCellDef="let element; let i = index"
+                data-label="Name"
+                class="company-member-cell">
                 <span *ngIf="!element.invitedUserEmail" attr.data-testid="company-member-name-{{i}}-cell">{{element.name || '—'}}</span>
             </td>
         </ng-container>
@@ -88,7 +96,9 @@
         <!-- Role Column -->
         <ng-container matColumnDef="role">
             <th mat-header-cell *matHeaderCellDef>Role</th>
-            <td mat-cell *matCellDef="let element; let i = index">
+            <td mat-cell *matCellDef="let element; let i = index"
+                data-label="Role"
+                class="company-member-cell">
                 <mat-select *ngIf="currentUser && currentUser.role === 'ADMIN' && (adminsCount > 1 || element.role === 'USER') && !element.invitedUserEmail; else noSelect"
                     attr.data-testid="company-member-role-{{i}}-select"
                     class="role-select"
@@ -112,7 +122,9 @@
         <!-- 2fa Column -->
         <ng-container matColumnDef="twoFA">
             <th mat-header-cell *matHeaderCellDef>2fa</th>
-            <td mat-cell *matCellDef="let element; let i = index">
+            <td mat-cell *matCellDef="let element; let i = index"
+                data-label="2fa"
+                class="company-member-cell">
                 <div *ngIf="!element.invitedUserEmail">
                     <mat-icon *ngIf="element.is_2fa_enabled; else noTwoFA" color="accente"
                         attr.data-testid="company-member-2fa-{{i}}-enabled-icon">
@@ -128,8 +140,11 @@
         <!-- Active Column -->
         <ng-container matColumnDef="active">
             <th mat-header-cell *matHeaderCellDef>Active status</th>
-            <td mat-cell *matCellDef="let element; let i = index" class="active-status-cell">
+            <td mat-cell *matCellDef="let element; let i = index"
+                data-label="Active status"
+                class="active-status-cell company-member-cell">
                 <mat-slide-toggle *ngIf="!element.invitedUserEmail"
+                    class="active-status-toggle"
                     [disabled]="unsuspendedAdminsCount === 1 && element.role === 'ADMIN' && currentUser.email === element.email"
                     attr.data-testid="company-member-active-{{i}}-toggle"
                     angulartics2On="click"
@@ -144,7 +159,8 @@
         <!-- Delete Column -->
         <ng-container matColumnDef="actions">
             <th mat-header-cell *matHeaderCellDef></th>
-            <td mat-cell *matCellDef="let element; let i = index">
+            <td mat-cell *matCellDef="let element; let i = index"
+                class="company-member-cell-action">
                 <button mat-button *ngIf="element.invitedUserEmail; else deleteUserButton"
                     type="button" color="warn"
                     attr.data-testid="company-member-revoke-{{i}}-button"
@@ -166,8 +182,8 @@
             </td>
         </ng-container>
 
-        <tr mat-header-row *matHeaderRowDef="membersTableDisplayedColumns"></tr>
-        <tr mat-row *matRowDef="let row; columns: membersTableDisplayedColumns;"></tr>
+        <tr mat-header-row *matHeaderRowDef="membersTableDisplayedColumns" class="company-members-table-heading"></tr>
+        <tr mat-row *matRowDef="let row; columns: membersTableDisplayedColumns;" class="company-member-row"></tr>
     </table>
 </div>
 

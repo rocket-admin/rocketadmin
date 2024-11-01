@@ -32,5 +32,6 @@ export function buildFoundConnectionDs(
     username: connection.username,
     signing_key: connection.signing_key,
     isTestConnection: connection.isTestConnection,
+    connection_properties: connection.connection_properties,
   };
 }

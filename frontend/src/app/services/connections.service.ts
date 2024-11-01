@@ -62,7 +62,7 @@ export class ConnectionsService {
     private _http: HttpClient,
     private router: Router,
     private _notifications: NotificationsService,
-    private _masterPasswordRequest: MasterPasswordService,
+    private _masterPassword: MasterPasswordService,
     private _themeService: NgxThemeService<IColorConfig<Palettes, Colors>>
   ) {
     this.connection = {...this.connectionInitialState};
@@ -211,7 +211,7 @@ export class ConnectionsService {
         catchError((err) => {
           console.log(err);
           if (err.error.type === 'no_master_key' && this.router.url !== '/connections-list') {
-            this._masterPasswordRequest.showMasterPasswordDialog()
+            this._masterPassword.showMasterPasswordDialog()
           };
           this._notifications.showErrorSnackbar(err.error.message);
           return EMPTY;
@@ -247,7 +247,7 @@ export class ConnectionsService {
     );
   }
 
-  createConnection(connection: Connection) {
+  createConnection(connection: Connection, masterKey: string) {
     let dbCredentials;
     dbCredentials = {
       ...connection,
@@ -259,9 +259,16 @@ export class ConnectionsService {
       dbCredentials.type = `agent_${dbCredentials.type}`
     }
 
-    return this._http.post('/connection', dbCredentials)
+
+
+    return this._http.post('/connection', dbCredentials, {
+      headers: masterKey ? {
+        masterpwd: masterKey
+      } : {}
+    })
     .pipe(
       map(res => {
+        this._masterPassword.checkMasterPassword(connection.masterEncryption, connection.id, masterKey);
         this._notifications.showSuccessSnackbar('Connection was added successfully.');
         return res;
       }),
@@ -274,7 +281,8 @@ export class ConnectionsService {
     );
   }
 
-  updateConnection(connection: Connection) {
+  updateConnection(connection: Connection, masterKey: string) {
+    console.log('updateConnection');
     let dbCredentials;
     dbCredentials = {
       ...connection,
@@ -286,9 +294,14 @@ export class ConnectionsService {
       dbCredentials.type = `agent_${dbCredentials.type}`
     }
 
-    return this._http.put(`/connection/${connection.id}`, dbCredentials)
+    return this._http.put(`/connection/${connection.id}`, dbCredentials, {
+      headers: masterKey ? {
+        masterpwd: masterKey
+      } : {}
+    })
     .pipe(
       map(res => {
+        this._masterPassword.checkMasterPassword(connection.masterEncryption, connection.id, masterKey);
         this._notifications.showSuccessSnackbar('Connection has been updated successfully.');
         return res;
       }),

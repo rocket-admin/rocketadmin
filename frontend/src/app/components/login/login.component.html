@@ -15,10 +15,10 @@
                     Welcome back to <br>
                     <span class="loginTitle__emphasis">Rocketadmin</span>
                 </h1>
-                <div *ngIf="!userCompanies" class="mat-body-1">
+                <div *ngIf="!userCompanies" class="mat-body-1 login-header__directions">
                     To log in, please start by entering your email address and click next to continue.
                 </div>
-                <div *ngIf="userCompanies && userCompanies.length > 1" class="mat-body-1">
+                <div *ngIf="userCompanies && userCompanies.length > 1" class="mat-body-1 login-header__directions">
                     Please select the company or organization you wish to log into and click next to continue.
                 </div>
             </div>

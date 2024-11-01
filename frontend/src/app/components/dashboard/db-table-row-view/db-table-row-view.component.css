@@ -16,6 +16,12 @@
     width: clamp(200px, 22vw, 400px);
 }
 
+@media (width <= 600px) {
+    .row-preview-sidebar_open {
+        width: 0;
+    }
+}
+
 .row-preview-sidebar__header {
     display: flex;
     align-items: center;

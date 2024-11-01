@@ -36,18 +36,21 @@ export async function validateCreateConnectionData(
         );
       }
     }
-    if (port < 0 || port > 65535 || !port) errors.push(Messages.PORT_MISSING);
-    if (typeof port !== 'number') errors.push(Messages.PORT_FORMAT_INCORRECT);
     if (!username) errors.push(Messages.USERNAME_MISSING);
-    if (!database) errors.push(Messages.DATABASE_MISSING);
-    if (typeof ssh !== 'boolean') errors.push(Messages.SSH_FORMAT_INCORRECT);
-    if (ssh) {
-      if (typeof sshPort !== 'number') {
-        errors.push(Messages.SSH_PORT_FORMAT_INCORRECT);
+
+    if (type !== ConnectionTypesEnum.dynamodb) {
+      if (!database) errors.push(Messages.DATABASE_MISSING);
+      if (port < 0 || port > 65535 || !port) errors.push(Messages.PORT_MISSING);
+      if (typeof port !== 'number') errors.push(Messages.PORT_FORMAT_INCORRECT);
+      if (typeof ssh !== 'boolean') errors.push(Messages.SSH_FORMAT_INCORRECT);
+      if (ssh) {
+        if (typeof sshPort !== 'number') {
+          errors.push(Messages.SSH_PORT_FORMAT_INCORRECT);
+        }
+        if (!sshPort) errors.push(Messages.SSH_PORT_MISSING);
+        if (!sshUsername) errors.push(Messages.SSH_USERNAME_MISSING);
+        if (!sshHost) errors.push(Messages.SSH_HOST_MISSING);
       }
-      if (!sshPort) errors.push(Messages.SSH_PORT_MISSING);
-      if (!sshUsername) errors.push(Messages.SSH_USERNAME_MISSING);
-      if (!sshHost) errors.push(Messages.SSH_HOST_MISSING);
     }
   } else {
     if (!title) errors.push('Connection title missing');

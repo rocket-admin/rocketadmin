@@ -20,6 +20,7 @@ import { FoundOneConnectionDs } from '../application/data-structures/found-one-c
 import { FoundGroupResponseDto } from '../../group/dto/found-group-response.dto.js';
 import { FoundUserGroupsInConnectionDTO } from '../application/dto/found-user-groups-in-connection.dto.js';
 import { SuccessResponse } from '../../../microservices/saas-microservice/data-structures/common-responce.ds.js';
+import { TokenValidationResult } from './validate-connection-token.use.case.js';
 
 export interface IFindConnections {
   execute(user: CreateUserDs, inTransaction: InTransactionEnum): Promise<FoundConnectionsDs>;
@@ -83,7 +84,7 @@ export interface IRestoreConnection {
 }
 
 export interface IValidateConnectionToken {
-  execute(token: string, inTransaction: InTransactionEnum): Promise<boolean>;
+  execute(token: string, inTransaction: InTransactionEnum): Promise<TokenValidationResult>;
 }
 
 export interface IRefreshConnectionAgentToken {

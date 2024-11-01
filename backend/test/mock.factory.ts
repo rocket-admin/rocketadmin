@@ -5,12 +5,7 @@ import { CreateConnectionPropertiesDto } from '../src/entities/connection-proper
 import { CreateGroupDto } from '../src/entities/group/dto/index.js';
 import { TableActionEntity } from '../src/entities/table-actions/table-actions-module/table-action.entity.js';
 import { CreateTableWidgetDto } from '../src/entities/widget/dto/index.js';
-import {
-  AccessLevelEnum,
-  PermissionTypeEnum,
-  QueryOrderingEnum,
-  WidgetTypeEnum,
-} from '../src/enums/index.js';
+import { AccessLevelEnum, PermissionTypeEnum, QueryOrderingEnum, WidgetTypeEnum } from '../src/enums/index.js';
 import { TestConstants } from './mocks/test-constants.js';
 import json5 from 'json5';
 import { ConnectionTypeTestEnum } from '../src/enums/connection-type.enum.js';
@@ -145,6 +140,16 @@ export class MockFactory {
     const dto = new CreateConnectionDto() as any;
     dto.title = 'Test connection to agent db';
     dto.type = ConnectionTypesEnum.agent_mongodb;
+    return dto;
+  }
+
+  generateConnectionToTestDynamoDBInDocker() {
+    const dto = new CreateConnectionDto();
+    dto.title = 'Test connection to DynamoDB in Docker';
+    dto.type = ConnectionTypesEnum.dynamodb;
+    dto.host = 'http://test-dynamodb-e2e-testing:8000';
+    dto.username = 'SuperSecretAwsAccessKey';
+    dto.password = 'SuperSecretAwsSecret';
     return dto;
   }
 

@@ -12,14 +12,14 @@ group "default" {
 }
 
 target "image-local" {
-  context = ".."
-  dockerfile = "../Dockerfile.rocketadmin-agent"
+  context = "."
+  dockerfile = "Dockerfile.rocketadmin-agent"
 }
 
 target "image" {
   inherits = ["docker-metadata-action"]
-  context = ".."
-  dockerfile = "../Dockerfile.rocketadmin-agent"
+  context = "."
+  dockerfile = "Dockerfile.rocketadmin-agent"
 }
 
 target "image-all" {

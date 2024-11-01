@@ -4,9 +4,14 @@
         <form class="register-form"
             #registrationForm="ngForm"
             (ngSubmit)="registerUser()">
-            <h1 class="mat-headline-4 registrationTitle">
+            <h1 class="mat-headline-4 registrationTitle registrationTitle_desktop">
                 Create an Account to
                 <span class="registrationTitle__emphasis">Manage Your Database</span>
+            </h1>
+
+            <h1 class="mat-headline-4 registrationTitle registrationTitle_mobile">
+                Create an Account on
+                <span class="registrationTitle__emphasis">Rocketadmin</span>
             </h1>
 
             <div *ngIf="isSaas" id="google_registration_button"

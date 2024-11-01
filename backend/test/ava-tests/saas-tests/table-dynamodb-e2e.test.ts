@@ -56,55 +56,46 @@ test.before(async () => {
 });
 
 currentTest = 'GET /connection/tables/:slug';
-
 test.serial(`${currentTest} should return list of tables in connection`, async (t) => {
-  try {
-    const connectionToTestDB = getTestData(mockFactory).mongoDbConnection;
-    const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-    const { testTableName } = await createTestTable(connectionToTestDB);
+  const connectionToTestDB = getTestData(mockFactory).dynamoDBConnection;
+  const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
+  const { testTableName } = await createTestTable(connectionToTestDB);
 
-    testTables.push(testTableName);
+  const createConnectionResponse = await request(app.getHttpServer())
+    .post('/connection')
+    .send(connectionToTestDB)
+    .set('Cookie', firstUserToken)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+  const createConnectionRO = JSON.parse(createConnectionResponse.text);
 
-    const createConnectionResponse = await request(app.getHttpServer())
-      .post('/connection')
-      .send(connectionToTestDB)
-      .set('Cookie', firstUserToken)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-    const createConnectionRO = JSON.parse(createConnectionResponse.text);
-    t.is(createConnectionResponse.status, 201);
+  t.is(createConnectionResponse.status, 201);
+  const getTablesResponse = await request(app.getHttpServer())
+    .get(`/connection/tables/${createConnectionRO.id}`)
+    .set('Cookie', firstUserToken)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+  const getTablesRO = JSON.parse(getTablesResponse.text);
+  t.is(typeof getTablesRO, 'object');
+  t.is(getTablesRO.length > 0, true);
 
-    const getTablesResponse = await request(app.getHttpServer())
-      .get(`/connection/tables/${createConnectionRO.id}`)
-      .set('Cookie', firstUserToken)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
+  const testTableIndex = getTablesRO.findIndex((t) => t.table === testTableName);
 
-    const getTablesRO = JSON.parse(getTablesResponse.text);
-    t.is(typeof getTablesRO, 'object');
-    t.is(getTablesRO.length > 0, true);
-
-    const testTableIndex = getTablesRO.findIndex((t) => t.table === testTableName);
-
-    t.is(getTablesRO[testTableIndex].hasOwnProperty('table'), true);
-    t.is(getTablesRO[testTableIndex].hasOwnProperty('permissions'), true);
-    t.is(typeof getTablesRO[testTableIndex].permissions, 'object');
-    t.is(Object.keys(getTablesRO[testTableIndex].permissions).length, 5);
-    t.is(getTablesRO[testTableIndex].table, testTableName);
-    t.is(getTablesRO[testTableIndex].permissions.visibility, true);
-    t.is(getTablesRO[testTableIndex].permissions.readonly, false);
-    t.is(getTablesRO[testTableIndex].permissions.add, true);
-    t.is(getTablesRO[testTableIndex].permissions.delete, true);
-    t.is(getTablesRO[testTableIndex].permissions.edit, true);
-  } catch (e) {
-    console.error(e);
-    throw e;
-  }
+  t.is(getTablesRO[testTableIndex].hasOwnProperty('table'), true);
+  t.is(getTablesRO[testTableIndex].hasOwnProperty('permissions'), true);
+  t.is(typeof getTablesRO[testTableIndex].permissions, 'object');
+  t.is(Object.keys(getTablesRO[testTableIndex].permissions).length, 5);
+  t.is(getTablesRO[testTableIndex].table, testTableName);
+  t.is(getTablesRO[testTableIndex].permissions.visibility, true);
+  t.is(getTablesRO[testTableIndex].permissions.readonly, false);
+  t.is(getTablesRO[testTableIndex].permissions.add, true);
+  t.is(getTablesRO[testTableIndex].permissions.delete, true);
+  t.is(getTablesRO[testTableIndex].permissions.edit, true);
 });
 
 test.serial(`${currentTest} should throw an error when connectionId not passed in request`, async (t) => {
   try {
-    const connectionToTestDB = getTestData(mockFactory).mongoDbConnection;
+    const connectionToTestDB = getTestData(mockFactory).dynamoDBConnection;
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
     const { testTableName } = await createTestTable(connectionToTestDB);
 
@@ -133,162 +124,146 @@ test.serial(`${currentTest} should throw an error when connectionId not passed i
 });
 
 test.serial(`${currentTest} should throw an error when connection id is incorrect`, async (t) => {
-  try {
-    const connectionToTestDB = getTestData(mockFactory).mongoDbConnection;
-    const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-    const { testTableName } = await createTestTable(connectionToTestDB);
+  const connectionToTestDB = getTestData(mockFactory).dynamoDBConnection;
+  const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
+  const { testTableName } = await createTestTable(connectionToTestDB);
 
-    testTables.push(testTableName);
+  testTables.push(testTableName);
 
-    const createConnectionResponse = await request(app.getHttpServer())
-      .post('/connection')
-      .send(connectionToTestDB)
-      .set('Cookie', firstUserToken)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-    const createConnectionRO = JSON.parse(createConnectionResponse.text);
+  const createConnectionResponse = await request(app.getHttpServer())
+    .post('/connection')
+    .send(connectionToTestDB)
+    .set('Cookie', firstUserToken)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+  const createConnectionRO = JSON.parse(createConnectionResponse.text);
 
-    t.is(createConnectionResponse.status, 201);
-    createConnectionRO.id = faker.string.uuid();
-    const getTablesResponse = await request(app.getHttpServer())
-      .get(`/connection/tables/${createConnectionRO.id}`)
-      .set('Cookie', firstUserToken)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-    t.is(getTablesResponse.status, 400);
-    const { message } = JSON.parse(getTablesResponse.text);
-    t.is(message, Messages.CONNECTION_NOT_FOUND);
-  } catch (e) {
-    console.error(e);
-    throw e;
-  }
+  t.is(createConnectionResponse.status, 201);
+  createConnectionRO.id = faker.string.uuid();
+  const getTablesResponse = await request(app.getHttpServer())
+    .get(`/connection/tables/${createConnectionRO.id}`)
+    .set('Cookie', firstUserToken)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+  t.is(getTablesResponse.status, 400);
+  const { message } = JSON.parse(getTablesResponse.text);
+  t.is(message, Messages.CONNECTION_NOT_FOUND);
 });
 
 currentTest = 'GET /table/rows/:slug';
 
 test.serial(`${currentTest} should return rows of selected table without search and without pagination`, async (t) => {
-  try {
-    const connectionToTestDB = getTestData(mockFactory).mongoDbConnection;
-    const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-    const { testTableName, testTableColumnName, testTableSecondColumnName } = await createTestTable(connectionToTestDB);
+  const connectionToTestDB = getTestData(mockFactory).dynamoDBConnection;
+  const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
+  const { testTableName, testTableColumnName, testTableSecondColumnName } = await createTestTable(connectionToTestDB);
 
-    testTables.push(testTableName);
+  const createConnectionResponse = await request(app.getHttpServer())
+    .post('/connection')
+    .send(connectionToTestDB)
+    .set('Cookie', firstUserToken)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+  const createConnectionRO = JSON.parse(createConnectionResponse.text);
+  t.is(createConnectionResponse.status, 201);
 
-    const createConnectionResponse = await request(app.getHttpServer())
-      .post('/connection')
-      .send(connectionToTestDB)
-      .set('Cookie', firstUserToken)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-    const createConnectionRO = JSON.parse(createConnectionResponse.text);
-    t.is(createConnectionResponse.status, 201);
+  const getTableRowsResponse = await request(app.getHttpServer())
+    .get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}`)
+    .set('Cookie', firstUserToken)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+  const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
 
-    const getTableRowsResponse = await request(app.getHttpServer())
-      .get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}`)
-      .set('Cookie', firstUserToken)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-    t.is(getTableRowsResponse.status, 200);
+  t.is(getTableRowsResponse.status, 200);
 
-    const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
-    t.is(typeof getTableRowsRO, 'object');
-    t.is(getTableRowsRO.hasOwnProperty('rows'), true);
-    t.is(getTableRowsRO.hasOwnProperty('primaryColumns'), true);
-    t.is(getTableRowsRO.hasOwnProperty('pagination'), true);
-    t.is(getTableRowsRO.hasOwnProperty('large_dataset'), true);
-    t.is(getTableRowsRO.rows.length, Constants.DEFAULT_PAGINATION.perPage);
-    t.is(Object.keys(getTableRowsRO.rows[1]).length, 6);
-    t.is(getTableRowsRO.rows[0].hasOwnProperty('_id'), true);
-    t.is(getTableRowsRO.rows[1].hasOwnProperty(testTableColumnName), true);
-    t.is(getTableRowsRO.rows[10].hasOwnProperty(testTableSecondColumnName), true);
-    t.is(getTableRowsRO.rows[15].hasOwnProperty('created_at'), true);
-    t.is(getTableRowsRO.rows[19].hasOwnProperty('updated_at'), true);
+  t.is(typeof getTableRowsRO, 'object');
+  t.is(getTableRowsRO.hasOwnProperty('rows'), true);
+  t.is(getTableRowsRO.hasOwnProperty('primaryColumns'), true);
+  t.is(getTableRowsRO.hasOwnProperty('pagination'), true);
+  t.is(getTableRowsRO.hasOwnProperty('large_dataset'), true);
+  t.is(getTableRowsRO.rows.length, Constants.DEFAULT_PAGINATION.perPage);
+  t.is(Object.keys(getTableRowsRO.rows[1]).length, 6);
+  t.is(getTableRowsRO.rows[0].hasOwnProperty('id'), true);
+  t.is(getTableRowsRO.rows[1].hasOwnProperty(testTableColumnName), true);
+  t.is(getTableRowsRO.rows[10].hasOwnProperty(testTableSecondColumnName), true);
+  t.is(getTableRowsRO.rows[15].hasOwnProperty('created_at'), true);
+  t.is(getTableRowsRO.rows[19].hasOwnProperty('updated_at'), true);
 
-    t.is(typeof getTableRowsRO.primaryColumns, 'object');
-    t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('column_name'), true);
-    t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('data_type'), true);
-  } catch (e) {
-    console.error(e);
-    throw e;
-  }
+  t.is(typeof getTableRowsRO.primaryColumns, 'object');
+  t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('column_name'), true);
+  t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('data_type'), true);
 });
 
 test.serial(`${currentTest} should return rows of selected table with search and without pagination`, async (t) => {
-  try {
-    const connectionToTestDB = getTestData(mockFactory).mongoDbConnection;
-    const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-    const { testTableName, testTableColumnName, testTableSecondColumnName, insertedSearchedIds } =
-      await createTestTable(connectionToTestDB);
+  const connectionToTestDB = getTestData(mockFactory).dynamoDBConnection;
+  const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
+  const { testTableName, testTableColumnName, testTableSecondColumnName } = await createTestTable(connectionToTestDB);
 
-    testTables.push(testTableName);
+  testTables.push(testTableName);
 
-    const createConnectionResponse = await request(app.getHttpServer())
-      .post('/connection')
-      .send(connectionToTestDB)
-      .set('Cookie', firstUserToken)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-    const createConnectionRO = JSON.parse(createConnectionResponse.text);
-    t.is(createConnectionResponse.status, 201);
+  const createConnectionResponse = await request(app.getHttpServer())
+    .post('/connection')
+    .send(connectionToTestDB)
+    .set('Cookie', firstUserToken)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
+  const createConnectionRO = JSON.parse(createConnectionResponse.text);
+  t.is(createConnectionResponse.status, 201);
 
-    const createTableSettingsDTO = mockFactory.generateTableSettings(
-      createConnectionRO.id,
-      testTableName,
-      ['_id'],
-      undefined,
-      undefined,
-      3,
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-    );
+  const createTableSettingsDTO = mockFactory.generateTableSettings(
+    createConnectionRO.id,
+    testTableName,
+    ['id'],
+    undefined,
+    undefined,
+    3,
+    undefined,
+    undefined,
+    undefined,
+    undefined,
+    undefined,
+    undefined,
+    undefined,
+  );
 
-    const createTableSettingsResponse = await request(app.getHttpServer())
-      .post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
-      .send(createTableSettingsDTO)
-      .set('Cookie', firstUserToken)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
+  const createTableSettingsResponse = await request(app.getHttpServer())
+    .post(`/settings?connectionId=${createConnectionRO.id}&tableName=${testTableName}`)
+    .send(createTableSettingsDTO)
+    .set('Cookie', firstUserToken)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
 
-    t.is(createTableSettingsResponse.status, 201);
+  t.is(createTableSettingsResponse.status, 201);
 
-    const searchedDescription = insertedSearchedIds.find((id) => id.number === 5)._id;
+  const searchedDescription = '5';
 
-    const getTableRowsResponse = await request(app.getHttpServer())
-      .get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&search=${searchedDescription}`)
-      .set('Cookie', firstUserToken)
-      .set('Content-Type', 'application/json')
-      .set('Accept', 'application/json');
-    t.is(getTableRowsResponse.status, 200);
-    const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
+  const getTableRowsResponse = await request(app.getHttpServer())
+    .get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&search=${searchedDescription}`)
+    .set('Cookie', firstUserToken)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json');
 
-    t.is(typeof getTableRowsRO, 'object');
-    t.is(getTableRowsRO.hasOwnProperty('rows'), true);
-    t.is(getTableRowsRO.hasOwnProperty('primaryColumns'), true);
-    t.is(getTableRowsRO.hasOwnProperty('pagination'), true);
-    t.is(getTableRowsRO.rows.length, 1);
-    t.is(Object.keys(getTableRowsRO.rows[0]).length, 6);
-    t.is(getTableRowsRO.rows[0]._id, searchedDescription);
-    t.is(getTableRowsRO.rows[0].hasOwnProperty(testTableColumnName), true);
-    t.is(getTableRowsRO.rows[0].hasOwnProperty(testTableSecondColumnName), true);
-    t.is(getTableRowsRO.rows[0].hasOwnProperty('created_at'), true);
-    t.is(getTableRowsRO.rows[0].hasOwnProperty('updated_at'), true);
-    t.is(typeof getTableRowsRO.primaryColumns, 'object');
-    t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('column_name'), true);
-    t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('data_type'), true);
-  } catch (e) {
-    console.error(e);
-    throw e;
-  }
+  const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
+
+  t.is(getTableRowsResponse.status, 200);
+  t.is(typeof getTableRowsRO, 'object');
+  t.is(getTableRowsRO.hasOwnProperty('rows'), true);
+  t.is(getTableRowsRO.hasOwnProperty('primaryColumns'), true);
+  t.is(getTableRowsRO.hasOwnProperty('pagination'), true);
+  t.is(getTableRowsRO.rows.length, 1);
+  t.is(Object.keys(getTableRowsRO.rows[0]).length, 6);
+  t.is(getTableRowsRO.rows[0].id, searchedDescription);
+  t.is(getTableRowsRO.rows[0].hasOwnProperty(testTableColumnName), true);
+  t.is(getTableRowsRO.rows[0].hasOwnProperty(testTableSecondColumnName), true);
+  t.is(getTableRowsRO.rows[0].hasOwnProperty('created_at'), true);
+  t.is(getTableRowsRO.rows[0].hasOwnProperty('updated_at'), true);
+  t.is(typeof getTableRowsRO.primaryColumns, 'object');
+  t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('column_name'), true);
+  t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('data_type'), true);
 });
 
 test.serial(`${currentTest} should return page of all rows with pagination page=1, perPage=2`, async (t) => {
   try {
-    const connectionToTestDB = getTestData(mockFactory).mongoDbConnection;
+    const connectionToTestDB = getTestData(mockFactory).dynamoDBConnection;
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
     const { testTableName, testTableColumnName } = await createTestTable(connectionToTestDB);
 
@@ -306,7 +281,7 @@ test.serial(`${currentTest} should return page of all rows with pagination page=
     const createTableSettingsDTO = mockFactory.generateTableSettings(
       createConnectionRO.id,
       testTableName,
-      ['_id'],
+      ['id'],
       undefined,
       undefined,
       3,
@@ -341,13 +316,13 @@ test.serial(`${currentTest} should return page of all rows with pagination page=
     t.is(getTableRowsRO.hasOwnProperty('pagination'), true);
     t.is(getTableRowsRO.rows.length, 2);
     t.is(Object.keys(getTableRowsRO.rows[1]).length, 6);
-    t.is(getTableRowsRO.rows[0].hasOwnProperty('_id'), true);
+    t.is(getTableRowsRO.rows[0].hasOwnProperty('id'), true);
     t.is(getTableRowsRO.rows[1].hasOwnProperty(testTableColumnName), true);
 
     t.is(typeof getTableRowsRO.primaryColumns, 'object');
     t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('column_name'), true);
     t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('data_type'), true);
-    t.is(getTableRowsRO.primaryColumns[0].column_name, '_id');
+    t.is(getTableRowsRO.primaryColumns[0].column_name, 'id');
     t.is(getTableRowsRO.primaryColumns[0].data_type, 'string');
 
     t.is(getTableRowsRO.pagination.total, 42);
@@ -362,7 +337,7 @@ test.serial(`${currentTest} should return page of all rows with pagination page=
 
 test.serial(`${currentTest} should return page of all rows with pagination page=3, perPage=2`, async (t) => {
   try {
-    const connectionToTestDB = getTestData(mockFactory).mongoDbConnection;
+    const connectionToTestDB = getTestData(mockFactory).dynamoDBConnection;
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
     const { testTableName, testTableColumnName } = await createTestTable(connectionToTestDB);
 
@@ -380,7 +355,7 @@ test.serial(`${currentTest} should return page of all rows with pagination page=
     const createTableSettingsDTO = mockFactory.generateTableSettings(
       createConnectionRO.id,
       testTableName,
-      ['_id'],
+      ['id'],
       undefined,
       undefined,
       3,
@@ -415,13 +390,13 @@ test.serial(`${currentTest} should return page of all rows with pagination page=
     t.is(getTableRowsRO.hasOwnProperty('pagination'), true);
     t.is(getTableRowsRO.rows.length, 2);
     t.is(Object.keys(getTableRowsRO.rows[1]).length, 6);
-    t.is(getTableRowsRO.rows[0].hasOwnProperty('_id'), true);
+    t.is(getTableRowsRO.rows[0].hasOwnProperty('id'), true);
     t.is(getTableRowsRO.rows[1].hasOwnProperty(testTableColumnName), true);
 
     t.is(typeof getTableRowsRO.primaryColumns, 'object');
     t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('column_name'), true);
     t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('data_type'), true);
-    t.is(getTableRowsRO.primaryColumns[0].column_name, '_id');
+    t.is(getTableRowsRO.primaryColumns[0].column_name, 'id');
     t.is(getTableRowsRO.primaryColumns[0].data_type, 'string');
 
     t.is(getTableRowsRO.pagination.total, 42);
@@ -439,7 +414,7 @@ test.serial(
 should return all found rows with pagination page=1 perPage=2`,
   async (t) => {
     try {
-      const connectionToTestDB = getTestData(mockFactory).mongoDbConnection;
+      const connectionToTestDB = getTestData(mockFactory).dynamoDBConnection;
       const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
       const { testTableName, testTableColumnName } = await createTestTable(connectionToTestDB);
 
@@ -498,7 +473,7 @@ should return all found rows with pagination page=1 perPage=2`,
       t.is(typeof getTableRowsRO.primaryColumns, 'object');
       t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('column_name'), true);
       t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('data_type'), true);
-      t.is(getTableRowsRO.primaryColumns[0].column_name, '_id');
+      t.is(getTableRowsRO.primaryColumns[0].column_name, 'id');
       t.is(getTableRowsRO.primaryColumns[0].data_type, 'string');
 
       t.is(getTableRowsRO.pagination.total, 3);
@@ -517,7 +492,7 @@ test.serial(
 should return all found rows with pagination page=1 perPage=3`,
   async (t) => {
     try {
-      const connectionToTestDB = getTestData(mockFactory).mongoDbConnection;
+      const connectionToTestDB = getTestData(mockFactory).dynamoDBConnection;
       const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
       const { testTableName, testTableColumnName } = await createTestTable(connectionToTestDB);
 
@@ -576,7 +551,7 @@ should return all found rows with pagination page=1 perPage=3`,
       t.is(typeof getTableRowsRO.primaryColumns, 'object');
       t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('column_name'), true);
       t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('data_type'), true);
-      t.is(getTableRowsRO.primaryColumns[0].column_name, '_id');
+      t.is(getTableRowsRO.primaryColumns[0].column_name, 'id');
       t.is(getTableRowsRO.primaryColumns[0].data_type, 'string');
 
       t.is(getTableRowsRO.pagination.total, 3);
@@ -595,7 +570,7 @@ test.serial(
 should return all found rows with sorting ids by DESC`,
   async (t) => {
     try {
-      const connectionToTestDB = getTestData(mockFactory).mongoDbConnection;
+      const connectionToTestDB = getTestData(mockFactory).dynamoDBConnection;
       const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
       const { testTableName, testTableColumnName } = await createTestTable(connectionToTestDB);
 
@@ -618,7 +593,7 @@ should return all found rows with sorting ids by DESC`,
         undefined,
         42,
         QueryOrderingEnum.DESC,
-        '_id',
+        'id',
         undefined,
         undefined,
         undefined,
@@ -648,9 +623,9 @@ should return all found rows with sorting ids by DESC`,
       t.is(getTableRowsRO.hasOwnProperty('pagination'), true);
       t.is(getTableRowsRO.rows.length, 42);
       t.is(Object.keys(getTableRowsRO.rows[1]).length, 6);
-      // t.is(getTableRowsRO.rows[0]._id, 42);
-      // t.is(getTableRowsRO.rows[1]._id, 41);
-      // t.is(getTableRowsRO.rows[41]._id, 1);
+      // t.is(getTableRowsRO.rows[0].id, 42);
+      // t.is(getTableRowsRO.rows[1].id, 41);
+      // t.is(getTableRowsRO.rows[41].id, 1);
 
       t.is(typeof getTableRowsRO.primaryColumns, 'object');
       t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('column_name'), true);
@@ -667,9 +642,9 @@ test.serial(
 should return all found rows with sorting ids by ASC`,
   async (t) => {
     try {
-      const connectionToTestDB = getTestData(mockFactory).mongoDbConnection;
+      const connectionToTestDB = getTestData(mockFactory).dynamoDBConnection;
       const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-      const { testTableName, testTableColumnName, insertedSearchedIds } = await createTestTable(connectionToTestDB);
+      const { testTableName, testTableColumnName } = await createTestTable(connectionToTestDB);
 
       testTables.push(testTableName);
 
@@ -690,7 +665,7 @@ should return all found rows with sorting ids by ASC`,
         undefined,
         42,
         QueryOrderingEnum.ASC,
-        '_id',
+        'id',
         undefined,
         undefined,
         undefined,
@@ -714,9 +689,9 @@ should return all found rows with sorting ids by ASC`,
       t.is(getTableRowsResponse.status, 200);
       const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
 
-      const searchedLastId = insertedSearchedIds.find((id) => id.number === 41)._id;
-      const searchedFirstId = insertedSearchedIds.find((id) => id.number === 0)._id;
-      const searchedSecondId = insertedSearchedIds.find((id) => id.number === 1)._id;
+      const searchedLastId = '9';
+      const searchedFirstId = '0';
+      const searchedSecondId = '1';
 
       t.is(typeof getTableRowsRO, 'object');
       t.is(getTableRowsRO.hasOwnProperty('rows'), true);
@@ -724,9 +699,9 @@ should return all found rows with sorting ids by ASC`,
       t.is(getTableRowsRO.hasOwnProperty('pagination'), true);
       t.is(getTableRowsRO.rows.length, 42);
       t.is(Object.keys(getTableRowsRO.rows[1]).length, 6);
-      t.is(getTableRowsRO.rows[0]._id, searchedFirstId);
-      t.is(getTableRowsRO.rows[1]._id, searchedSecondId);
-      t.is(getTableRowsRO.rows[41]._id, searchedLastId);
+      t.is(getTableRowsRO.rows[0].id, searchedFirstId);
+      t.is(getTableRowsRO.rows[1].id, searchedSecondId);
+      t.is(getTableRowsRO.rows[41].id, searchedLastId);
 
       t.is(typeof getTableRowsRO.primaryColumns, 'object');
       t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('column_name'), true);
@@ -743,7 +718,7 @@ test.serial(
 should return all found rows with sorting ports by DESC and with pagination page=1, perPage=2`,
   async (t) => {
     try {
-      const connectionToTestDB = getTestData(mockFactory).mongoDbConnection;
+      const connectionToTestDB = getTestData(mockFactory).dynamoDBConnection;
       const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
       const { testTableName, testTableColumnName, insertedSearchedIds } = await createTestTable(connectionToTestDB);
 
@@ -766,7 +741,7 @@ should return all found rows with sorting ports by DESC and with pagination page
         undefined,
         3,
         QueryOrderingEnum.DESC,
-        '_id',
+        'id',
         undefined,
         undefined,
         undefined,
@@ -791,9 +766,9 @@ should return all found rows with sorting ports by DESC and with pagination page
 
       const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
 
-      const searchedLastId = insertedSearchedIds.find((id) => id.number === 1)._id;
+      const searchedLastId = '8';
 
-      const preSearchedLastId = insertedSearchedIds.find((id) => id.number === 0)._id;
+      const preSearchedLastId = '9';
 
       t.is(typeof getTableRowsRO, 'object');
       t.is(getTableRowsRO.hasOwnProperty('rows'), true);
@@ -801,8 +776,8 @@ should return all found rows with sorting ports by DESC and with pagination page
       t.is(getTableRowsRO.hasOwnProperty('pagination'), true);
       t.is(getTableRowsRO.rows.length, 2);
       t.is(Object.keys(getTableRowsRO.rows[1]).length, 6);
-      t.is(getTableRowsRO.rows[0]._id, preSearchedLastId);
-      t.is(getTableRowsRO.rows[1]._id, searchedLastId);
+      t.is(getTableRowsRO.rows[0].id, preSearchedLastId);
+      t.is(getTableRowsRO.rows[1].id, searchedLastId);
 
       t.is(typeof getTableRowsRO.primaryColumns, 'object');
       t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('column_name'), true);
@@ -818,7 +793,7 @@ test.serial(
   `${currentTest} should return all found rows with sorting ports by ASC and with pagination page=1, perPage=2`,
   async (t) => {
     try {
-      const connectionToTestDB = getTestData(mockFactory).mongoDbConnection;
+      const connectionToTestDB = getTestData(mockFactory).dynamoDBConnection;
       const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
       const { testTableName, testTableColumnName, insertedSearchedIds } = await createTestTable(connectionToTestDB);
 
@@ -841,7 +816,7 @@ test.serial(
         undefined,
         3,
         QueryOrderingEnum.ASC,
-        '_id',
+        'id',
         undefined,
         undefined,
         undefined,
@@ -866,9 +841,9 @@ test.serial(
 
       const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
 
-      const searchedFirstId = insertedSearchedIds.find((id) => id.number === 0)._id;
+      const searchedFirstId = '0';
 
-      const preSearchedSecondId = insertedSearchedIds.find((id) => id.number === 1)._id;
+      const preSearchedSecondId = '1';
 
       t.is(typeof getTableRowsRO, 'object');
       t.is(getTableRowsRO.hasOwnProperty('rows'), true);
@@ -876,8 +851,8 @@ test.serial(
       t.is(getTableRowsRO.hasOwnProperty('pagination'), true);
       t.is(getTableRowsRO.rows.length, 2);
       t.is(Object.keys(getTableRowsRO.rows[1]).length, 6);
-      t.is(getTableRowsRO.rows[0]._id, searchedFirstId);
-      t.is(getTableRowsRO.rows[1]._id, preSearchedSecondId);
+      t.is(getTableRowsRO.rows[0].id, searchedFirstId);
+      t.is(getTableRowsRO.rows[1].id, preSearchedSecondId);
 
       t.is(typeof getTableRowsRO.primaryColumns, 'object');
       t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('column_name'), true);
@@ -893,7 +868,7 @@ test.serial(
   `${currentTest} should return all found rows with sorting ports by DESC and with pagination page=2, perPage=3`,
   async (t) => {
     try {
-      const connectionToTestDB = getTestData(mockFactory).mongoDbConnection;
+      const connectionToTestDB = getTestData(mockFactory).dynamoDBConnection;
       const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
       const { testTableName, testTableColumnName, insertedSearchedIds } = await createTestTable(connectionToTestDB);
 
@@ -916,7 +891,7 @@ test.serial(
         undefined,
         3,
         QueryOrderingEnum.DESC,
-        '_id',
+        'id',
         undefined,
         undefined,
         undefined,
@@ -941,9 +916,9 @@ test.serial(
 
       const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
 
-      const searchedFirstId = insertedSearchedIds.find((id) => id.number === 3)._id;
+      const searchedFirstId = '6';
 
-      const searchedSecondId = insertedSearchedIds.find((id) => id.number === 4)._id;
+      const searchedSecondId = '5';
 
       t.is(typeof getTableRowsRO, 'object');
       t.is(getTableRowsRO.hasOwnProperty('rows'), true);
@@ -951,8 +926,8 @@ test.serial(
       t.is(getTableRowsRO.hasOwnProperty('pagination'), true);
       t.is(getTableRowsRO.rows.length, 3);
       t.is(Object.keys(getTableRowsRO.rows[1]).length, 6);
-      t.is(getTableRowsRO.rows[0]._id, searchedFirstId);
-      t.is(getTableRowsRO.rows[1]._id, searchedSecondId);
+      t.is(getTableRowsRO.rows[0].id, searchedFirstId);
+      t.is(getTableRowsRO.rows[1].id, searchedSecondId);
 
       t.is(typeof getTableRowsRO.primaryColumns, 'object');
       t.is(getTableRowsRO.primaryColumns[0].hasOwnProperty('column_name'), true);
@@ -969,7 +944,7 @@ test.serial(
 should return all found rows with search, pagination: page=1, perPage=2 and DESC sorting`,
   async (t) => {
     try {
-      const connectionToTestDB = getTestData(mockFactory).mongoDbConnection;
+      const connectionToTestDB = getTestData(mockFactory).dynamoDBConnection;
       const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
       const { testTableName, testTableColumnName, insertedSearchedIds } = await createTestTable(connectionToTestDB);
 
@@ -992,7 +967,7 @@ should return all found rows with search, pagination: page=1, perPage=2 and DESC
         undefined,
         3,
         QueryOrderingEnum.DESC,
-        '_id',
+        'id',
         undefined,
         undefined,
         undefined,
@@ -1019,9 +994,9 @@ should return all found rows with search, pagination: page=1, perPage=2 and DESC
 
       const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
 
-      const searchedFirstId = insertedSearchedIds.find((id) => id.number === 0)._id;
+      const searchedFirstId = '37';
 
-      const searchedSecondId = insertedSearchedIds.find((id) => id.number === 21)._id;
+      const searchedSecondId = '21';
 
       t.is(typeof getTableRowsRO, 'object');
       t.is(getTableRowsRO.hasOwnProperty('rows'), true);
@@ -1029,8 +1004,8 @@ should return all found rows with search, pagination: page=1, perPage=2 and DESC
       t.is(getTableRowsRO.hasOwnProperty('pagination'), true);
       t.is(getTableRowsRO.rows.length, 2);
       t.is(Object.keys(getTableRowsRO.rows[1]).length, 6);
-      t.is(getTableRowsRO.rows[0]._id, searchedFirstId);
-      t.is(getTableRowsRO.rows[1]._id, searchedSecondId);
+      t.is(getTableRowsRO.rows[0].id, searchedFirstId);
+      t.is(getTableRowsRO.rows[1].id, searchedSecondId);
       t.is(getTableRowsRO.pagination.currentPage, 1);
       t.is(getTableRowsRO.pagination.perPage, 2);
 
@@ -1049,7 +1024,7 @@ test.serial(
 should return all found rows with search, pagination: page=2, perPage=2 and DESC sorting`,
   async (t) => {
     try {
-      const connectionToTestDB = getTestData(mockFactory).mongoDbConnection;
+      const connectionToTestDB = getTestData(mockFactory).dynamoDBConnection;
       const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
       const { testTableName, testTableColumnName, insertedSearchedIds } = await createTestTable(connectionToTestDB);
 
@@ -1072,7 +1047,7 @@ should return all found rows with search, pagination: page=2, perPage=2 and DESC
         undefined,
         3,
         QueryOrderingEnum.DESC,
-        '_id',
+        'id',
         undefined,
         undefined,
         undefined,
@@ -1098,7 +1073,7 @@ should return all found rows with search, pagination: page=2, perPage=2 and DESC
       t.is(getTableRowsResponse.status, 200);
 
       const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
-      const searchedFirstId = insertedSearchedIds.find((id) => id.number === 37)._id;
+      const searchedFirstId = '0';
 
       t.is(typeof getTableRowsRO, 'object');
       t.is(getTableRowsRO.hasOwnProperty('rows'), true);
@@ -1106,7 +1081,7 @@ should return all found rows with search, pagination: page=2, perPage=2 and DESC
       t.is(getTableRowsRO.hasOwnProperty('pagination'), true);
       t.is(getTableRowsRO.rows.length, 1);
       t.is(Object.keys(getTableRowsRO.rows[0]).length, 6);
-      t.is(getTableRowsRO.rows[0]._id, searchedFirstId);
+      t.is(getTableRowsRO.rows[0].id, searchedFirstId);
       t.is(getTableRowsRO.pagination.currentPage, 2);
       t.is(getTableRowsRO.pagination.perPage, 2);
 
@@ -1125,7 +1100,7 @@ test.serial(
 should return all found rows with search, pagination: page=1, perPage=2 and ASC sorting`,
   async (t) => {
     try {
-      const connectionToTestDB = getTestData(mockFactory).mongoDbConnection;
+      const connectionToTestDB = getTestData(mockFactory).dynamoDBConnection;
       const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
       const { testTableName, testTableColumnName, insertedSearchedIds } = await createTestTable(connectionToTestDB);
 
@@ -1147,7 +1122,7 @@ should return all found rows with search, pagination: page=1, perPage=2 and ASC 
         undefined,
         3,
         QueryOrderingEnum.ASC,
-        '_id',
+        'id',
         undefined,
         undefined,
         undefined,
@@ -1173,8 +1148,8 @@ should return all found rows with search, pagination: page=1, perPage=2 and ASC 
 
       t.is(getTableRowsResponse.status, 200);
 
-      const searchedFirstId = insertedSearchedIds.find((id) => id.number === 0)._id;
-      const searchedSecondId = insertedSearchedIds.find((id) => id.number === 21)._id;
+      const searchedFirstId = '0';
+      const searchedSecondId = '21';
 
       const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
 
@@ -1184,8 +1159,8 @@ should return all found rows with search, pagination: page=1, perPage=2 and ASC 
       t.is(getTableRowsRO.hasOwnProperty('pagination'), true);
       t.is(getTableRowsRO.rows.length, 2);
       t.is(Object.keys(getTableRowsRO.rows[0]).length, 6);
-      t.is(getTableRowsRO.rows[0]._id, searchedFirstId);
-      t.is(getTableRowsRO.rows[1]._id, searchedSecondId);
+      t.is(getTableRowsRO.rows[0].id, searchedFirstId);
+      t.is(getTableRowsRO.rows[1].id, searchedSecondId);
       t.is(getTableRowsRO.pagination.currentPage, 1);
       t.is(getTableRowsRO.pagination.perPage, 2);
 
@@ -1204,7 +1179,7 @@ test.serial(
 should return all found rows with search, pagination: page=2, perPage=2 and ASC sorting`,
   async (t) => {
     try {
-      const connectionToTestDB = getTestData(mockFactory).mongoDbConnection;
+      const connectionToTestDB = getTestData(mockFactory).dynamoDBConnection;
       const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
       const { testTableName, testTableColumnName, insertedSearchedIds } = await createTestTable(connectionToTestDB);
 
@@ -1227,7 +1202,7 @@ should return all found rows with search, pagination: page=2, perPage=2 and ASC 
         undefined,
         3,
         QueryOrderingEnum.ASC,
-        '_id',
+        'id',
         undefined,
         undefined,
         undefined,
@@ -1253,7 +1228,7 @@ should return all found rows with search, pagination: page=2, perPage=2 and ASC 
       t.is(getTableRowsResponse.status, 200);
 
       const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
-      const searchedFirstId = insertedSearchedIds.find((id) => id.number === 37)._id;
+      const searchedFirstId = '37';
 
       t.is(typeof getTableRowsRO, 'object');
       t.is(getTableRowsRO.hasOwnProperty('rows'), true);
@@ -1261,7 +1236,7 @@ should return all found rows with search, pagination: page=2, perPage=2 and ASC 
       t.is(getTableRowsRO.hasOwnProperty('pagination'), true);
       t.is(getTableRowsRO.rows.length, 1);
       t.is(Object.keys(getTableRowsRO.rows[0]).length, 6);
-      t.is(getTableRowsRO.rows[0]._id, searchedFirstId);
+      t.is(getTableRowsRO.rows[0].id, searchedFirstId);
       t.is(getTableRowsRO.pagination.currentPage, 2);
       t.is(getTableRowsRO.pagination.perPage, 2);
 
@@ -1281,7 +1256,7 @@ test.serial(
 should return all found rows with search, pagination: page=1, perPage=2 and DESC sorting and filtering in body`,
   async (t) => {
     try {
-      const connectionToTestDB = getTestData(mockFactory).mongoDbConnection;
+      const connectionToTestDB = getTestData(mockFactory).dynamoDBConnection;
       const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
       const { testTableName, testTableColumnName, insertedSearchedIds } = await createTestTable(connectionToTestDB);
 
@@ -1304,7 +1279,7 @@ should return all found rows with search, pagination: page=1, perPage=2 and DESC
         undefined,
         3,
         QueryOrderingEnum.DESC,
-        '_id',
+        'id',
         undefined,
         undefined,
         undefined,
@@ -1337,6 +1312,7 @@ should return all found rows with search, pagination: page=1, perPage=2 and DESC
         .set('Accept', 'application/json');
 
       const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
+
       t.is(typeof getTableRowsRO, 'object');
       t.is(getTableRowsRO.hasOwnProperty('rows'), true);
       t.is(getTableRowsRO.hasOwnProperty('primaryColumns'), true);
@@ -1344,9 +1320,9 @@ should return all found rows with search, pagination: page=1, perPage=2 and DESC
       t.is(getTableRowsRO.rows.length, 1);
       t.is(Object.keys(getTableRowsRO.rows[0]).length, 6);
 
-      const foundId = insertedSearchedIds.find((id) => id.number === 0)._id;
+      const foundId = '0';
       t.is(getTableRowsRO.rows[0][testTableColumnName], testSearchedUserName);
-      t.is(getTableRowsRO.rows[0]._id, foundId);
+      t.is(getTableRowsRO.rows[0].id, foundId);
 
       t.is(getTableRowsRO.pagination.currentPage, 1);
       t.is(getTableRowsRO.pagination.perPage, 2);
@@ -1366,7 +1342,7 @@ test.serial(
 should return all found rows with search, pagination: page=1, perPage=10 and DESC sorting and filtering'`,
   async (t) => {
     try {
-      const connectionToTestDB = getTestData(mockFactory).mongoDbConnection;
+      const connectionToTestDB = getTestData(mockFactory).dynamoDBConnection;
       const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
       const { testTableName, testTableColumnName, insertedSearchedIds } = await createTestTable(connectionToTestDB);
 
@@ -1389,7 +1365,7 @@ should return all found rows with search, pagination: page=1, perPage=10 and DES
         undefined,
         3,
         QueryOrderingEnum.DESC,
-        '_id',
+        'id',
         undefined,
         undefined,
         undefined,
@@ -1430,10 +1406,10 @@ should return all found rows with search, pagination: page=1, perPage=10 and DES
       t.is(getTableRowsRO.rows.length, 1);
       t.is(Object.keys(getTableRowsRO.rows[0]).length, 6);
 
-      const foundId = insertedSearchedIds.find((id) => id.number === 0)._id;
+      const foundId = '0';
 
       t.is(getTableRowsRO.rows[0][testTableColumnName], testSearchedUserName);
-      t.is(getTableRowsRO.rows[0]._id, foundId);
+      t.is(getTableRowsRO.rows[0].id, foundId);
       t.is(getTableRowsRO.rows[0][testTableColumnName], testSearchedUserName);
 
       t.is(getTableRowsRO.pagination.currentPage, 1);
@@ -1454,7 +1430,7 @@ test.serial(
 should return all found rows with search, pagination: page=1, perPage=2 and DESC sorting and with multi filtering`,
   async (t) => {
     try {
-      const connectionToTestDB = getTestData(mockFactory).mongoDbConnection;
+      const connectionToTestDB = getTestData(mockFactory).dynamoDBConnection;
       const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
       const { testTableName, testTableColumnName, insertedSearchedIds } = await createTestTable(connectionToTestDB);
 
@@ -1477,7 +1453,7 @@ should return all found rows with search, pagination: page=1, perPage=2 and DESC
         undefined,
         3,
         QueryOrderingEnum.DESC,
-        '_id',
+        'id',
         undefined,
         undefined,
         undefined,
@@ -1498,7 +1474,7 @@ should return all found rows with search, pagination: page=1, perPage=2 and DESC
       const fieldLtvalue = 95;
 
       const filters = {
-        [fieldname]: { lt: fieldLtvalue, gt: fieldGtvalue },
+        [fieldname]: { gt: fieldGtvalue, lt: fieldLtvalue },
       };
 
       const getTableRowsResponse = await request(app.getHttpServer())
@@ -1520,9 +1496,9 @@ should return all found rows with search, pagination: page=1, perPage=2 and DESC
       t.is(getTableRowsRO.rows.length, 1);
       t.is(Object.keys(getTableRowsRO.rows[0]).length, 6);
 
-      const findRowId = insertedSearchedIds.find((id) => id.number === 21)._id;
+      const findRowId = '21';
 
-      t.is(getTableRowsRO.rows[0]._id, findRowId);
+      t.is(getTableRowsRO.rows[0].id, findRowId);
       t.is(getTableRowsRO.rows[0][testTableColumnName], testSearchedUserName);
 
       t.is(getTableRowsRO.pagination.currentPage, 1);
@@ -1540,7 +1516,7 @@ should return all found rows with search, pagination: page=1, perPage=2 and DESC
 
 test.serial(`${currentTest} should throw an exception when connection id is not passed in request`, async (t) => {
   try {
-    const connectionToTestDB = getTestData(mockFactory).mongoDbConnection;
+    const connectionToTestDB = getTestData(mockFactory).dynamoDBConnection;
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
     const { testTableName, testTableColumnName } = await createTestTable(connectionToTestDB);
 
@@ -1563,7 +1539,7 @@ test.serial(`${currentTest} should throw an exception when connection id is not 
       undefined,
       3,
       QueryOrderingEnum.DESC,
-      '_id',
+      'id',
       undefined,
       undefined,
       undefined,
@@ -1579,7 +1555,7 @@ test.serial(`${currentTest} should throw an exception when connection id is not 
       .set('Accept', 'application/json');
     t.is(createTableSettingsResponse.status, 201);
 
-    const fieldname = '_id';
+    const fieldname = 'id';
     const fieldGtvalue = '25';
     const fieldLtvalue = '40';
     createConnectionRO.id = '';
@@ -1599,7 +1575,7 @@ test.serial(`${currentTest} should throw an exception when connection id is not 
 
 test.serial(`${currentTest} should throw an exception when connection id passed in request is incorrect`, async (t) => {
   try {
-    const connectionToTestDB = getTestData(mockFactory).mongoDbConnection;
+    const connectionToTestDB = getTestData(mockFactory).dynamoDBConnection;
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
     const { testTableName, testTableColumnName } = await createTestTable(connectionToTestDB);
 
@@ -1622,7 +1598,7 @@ test.serial(`${currentTest} should throw an exception when connection id passed 
       undefined,
       3,
       QueryOrderingEnum.DESC,
-      '_id',
+      'id',
       undefined,
       undefined,
       undefined,
@@ -1638,7 +1614,7 @@ test.serial(`${currentTest} should throw an exception when connection id passed 
       .set('Accept', 'application/json');
     t.is(createTableSettingsResponse.status, 201);
 
-    const fieldname = '_id';
+    const fieldname = 'id';
     const fieldGtvalue = '25';
     const fieldLtvalue = '40';
 
@@ -1663,7 +1639,7 @@ test.serial(`${currentTest} should throw an exception when connection id passed 
 
 test.serial(`${currentTest} should throw an exception when table name passed in request is incorrect`, async (t) => {
   try {
-    const connectionToTestDB = getTestData(mockFactory).mongoDbConnection;
+    const connectionToTestDB = getTestData(mockFactory).dynamoDBConnection;
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
     const { testTableName, testTableColumnName } = await createTestTable(connectionToTestDB);
 
@@ -1686,7 +1662,7 @@ test.serial(`${currentTest} should throw an exception when table name passed in 
       undefined,
       3,
       QueryOrderingEnum.DESC,
-      '_id',
+      'id',
       undefined,
       undefined,
       undefined,
@@ -1702,7 +1678,7 @@ test.serial(`${currentTest} should throw an exception when table name passed in 
       .set('Accept', 'application/json');
     t.is(createTableSettingsResponse.status, 201);
 
-    const fieldname = '_id';
+    const fieldname = 'id';
     const fieldGtvalue = '25';
     const fieldLtvalue = '40';
 
@@ -1729,7 +1705,7 @@ test.serial(
   `${currentTest} should return an array with searched fields when filtered name passed in request is incorrect`,
   async (t) => {
     try {
-      const connectionToTestDB = getTestData(mockFactory).mongoDbConnection;
+      const connectionToTestDB = getTestData(mockFactory).dynamoDBConnection;
       const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
       const { testTableName, testTableColumnName } = await createTestTable(connectionToTestDB);
 
@@ -1752,7 +1728,7 @@ test.serial(
         undefined,
         3,
         QueryOrderingEnum.DESC,
-        '_id',
+        'id',
         undefined,
         undefined,
         undefined,
@@ -1795,8 +1771,9 @@ test.serial(
 );
 
 currentTest = 'GET /table/structure/:slug';
+
 test.serial(`${currentTest} should return table structure`, async (t) => {
-  const connectionToTestDB = getTestData(mockFactory).mongoDbConnection;
+  const connectionToTestDB = getTestData(mockFactory).dynamoDBConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
   const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
     await createTestTable(connectionToTestDB);
@@ -1849,7 +1826,7 @@ test.serial(`${currentTest} should return table structure`, async (t) => {
 });
 
 test.serial(`${currentTest} should throw an exception whe connection id not passed in request`, async (t) => {
-  const connectionToTestDB = getTestData(mockFactory).mongoDbConnection;
+  const connectionToTestDB = getTestData(mockFactory).dynamoDBConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
   const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
     await createTestTable(connectionToTestDB);
@@ -1874,7 +1851,7 @@ test.serial(`${currentTest} should throw an exception whe connection id not pass
 });
 
 test.serial(`${currentTest} should throw an exception whe connection id passed in request id incorrect`, async (t) => {
-  const connectionToTestDB = getTestData(mockFactory).mongoDbConnection;
+  const connectionToTestDB = getTestData(mockFactory).dynamoDBConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
   const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
     await createTestTable(connectionToTestDB);
@@ -1902,7 +1879,7 @@ test.serial(`${currentTest} should throw an exception whe connection id passed i
 });
 
 test.serial(`${currentTest}should throw an exception when tableName not passed in request`, async (t) => {
-  const connectionToTestDB = getTestData(mockFactory).mongoDbConnection;
+  const connectionToTestDB = getTestData(mockFactory).dynamoDBConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
   const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
     await createTestTable(connectionToTestDB);
@@ -1929,7 +1906,7 @@ test.serial(`${currentTest}should throw an exception when tableName not passed i
 });
 
 test.serial(`${currentTest} should throw an exception when tableName passed in request is incorrect`, async (t) => {
-  const connectionToTestDB = getTestData(mockFactory).mongoDbConnection;
+  const connectionToTestDB = getTestData(mockFactory).dynamoDBConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
   const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
     await createTestTable(connectionToTestDB);
@@ -1958,7 +1935,7 @@ test.serial(`${currentTest} should throw an exception when tableName passed in r
 currentTest = 'POST /table/row/:slug';
 
 test.serial(`${currentTest} should add row in table and return result`, async (t) => {
-  const connectionToTestDB = getTestData(mockFactory).mongoDbConnection;
+  const connectionToTestDB = getTestData(mockFactory).dynamoDBConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
   const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
     await createTestTable(connectionToTestDB);
@@ -1978,6 +1955,7 @@ test.serial(`${currentTest} should add row in table and return result`, async (t
   const fakeMail = faker.internet.email();
 
   const row = {
+    id: `999`,
     [testTableColumnName]: fakeName,
     [testTableSecondColumnName]: fakeMail,
   };
@@ -2017,8 +1995,9 @@ test.serial(`${currentTest} should add row in table and return result`, async (t
   const { rows, primaryColumns, pagination } = getTableRowsRO;
 
   t.is(rows.length, 43);
-  t.is(rows[42][testTableColumnName], row[testTableColumnName]);
-  t.is(rows[42][testTableSecondColumnName], row[testTableSecondColumnName]);
+  const rowWithAddedId = rows.findIndex((r) => r.id === '999');
+  t.is(rows[rowWithAddedId][testTableColumnName], row[testTableColumnName]);
+  t.is(rows[rowWithAddedId][testTableSecondColumnName], row[testTableSecondColumnName]);
 
   // check that rows adding was logged
 
@@ -2036,11 +2015,11 @@ test.serial(`${currentTest} should add row in table and return result`, async (t
   const addRowLogIndex = getLogsRO.logs.findIndex((log) => log.operationType === 'addRow');
   t.is(getLogsRO.logs[addRowLogIndex].hasOwnProperty('affected_primary_key'), true);
   t.is(typeof getLogsRO.logs[addRowLogIndex].affected_primary_key, 'object');
-  t.is(getLogsRO.logs[addRowLogIndex].affected_primary_key.hasOwnProperty('_id'), true);
+  t.is(getLogsRO.logs[addRowLogIndex].affected_primary_key.hasOwnProperty('id'), true);
 });
 
 test.serial(`${currentTest} should throw an exception when connection id is not passed in request`, async (t) => {
-  const connectionToTestDB = getTestData(mockFactory).mongoDbConnection;
+  const connectionToTestDB = getTestData(mockFactory).dynamoDBConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
   const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
     await createTestTable(connectionToTestDB);
@@ -2060,7 +2039,7 @@ test.serial(`${currentTest} should throw an exception when connection id is not 
   const fakeMail = faker.internet.email();
 
   const row = {
-    _id: 999,
+    id: 999,
     [testTableColumnName]: fakeName,
     [testTableSecondColumnName]: fakeMail,
   };
@@ -2094,7 +2073,7 @@ test.serial(`${currentTest} should throw an exception when connection id is not 
 });
 
 test.serial(`${currentTest} should throw an exception when table name is not passed in request`, async (t) => {
-  const connectionToTestDB = getTestData(mockFactory).mongoDbConnection;
+  const connectionToTestDB = getTestData(mockFactory).dynamoDBConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
   const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
     await createTestTable(connectionToTestDB);
@@ -2114,7 +2093,7 @@ test.serial(`${currentTest} should throw an exception when table name is not pas
   const fakeMail = faker.internet.email();
 
   const row = {
-    _id: 999,
+    id: 999,
     [testTableColumnName]: fakeName,
     [testTableSecondColumnName]: fakeMail,
   };
@@ -2151,7 +2130,7 @@ test.serial(`${currentTest} should throw an exception when table name is not pas
 });
 
 test.serial(`${currentTest} should throw an exception when row is not passed in request`, async (t) => {
-  const connectionToTestDB = getTestData(mockFactory).mongoDbConnection;
+  const connectionToTestDB = getTestData(mockFactory).dynamoDBConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
   const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
     await createTestTable(connectionToTestDB);
@@ -2198,7 +2177,7 @@ test.serial(`${currentTest} should throw an exception when row is not passed in 
 });
 
 test.serial(`${currentTest} should throw an exception when table name passed in request is incorrect`, async (t) => {
-  const connectionToTestDB = getTestData(mockFactory).mongoDbConnection;
+  const connectionToTestDB = getTestData(mockFactory).dynamoDBConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
   const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
     await createTestTable(connectionToTestDB);
@@ -2218,7 +2197,7 @@ test.serial(`${currentTest} should throw an exception when table name passed in 
   const fakeMail = faker.internet.email();
 
   const row = {
-    _id: 999,
+    id: 999,
     [testTableColumnName]: fakeName,
     [testTableSecondColumnName]: fakeMail,
   };
@@ -2257,9 +2236,9 @@ test.serial(`${currentTest} should throw an exception when table name passed in 
 currentTest = 'PUT /table/row/:slug';
 
 test.serial(`${currentTest} should update row in table and return result`, async (t) => {
-  const connectionToTestDB = getTestData(mockFactory).mongoDbConnection;
+  const connectionToTestDB = getTestData(mockFactory).dynamoDBConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-  const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName, insertedSearchedIds } =
+  const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
     await createTestTable(connectionToTestDB);
 
   testTables.push(testTableName);
@@ -2280,16 +2259,17 @@ test.serial(`${currentTest} should update row in table and return result`, async
     [testTableColumnName]: fakeName,
     [testTableSecondColumnName]: fakeMail,
   };
-  const foundIdForUpdate = insertedSearchedIds[0]._id;
+  const foundIdForUpdate = '1';
   const updateRowInTableResponse = await request(app.getHttpServer())
-    .put(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&_id=${foundIdForUpdate}`)
+    .put(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&id=${foundIdForUpdate}`)
     .send(JSON.stringify(row))
     .set('Cookie', firstUserToken)
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
 
-  t.is(updateRowInTableResponse.status, 200);
   const updateRowInTableRO = JSON.parse(updateRowInTableResponse.text);
+
+  t.is(updateRowInTableResponse.status, 200);
 
   t.is(updateRowInTableRO.hasOwnProperty('row'), true);
   t.is(updateRowInTableRO.hasOwnProperty('structure'), true);
@@ -2315,14 +2295,14 @@ test.serial(`${currentTest} should update row in table and return result`, async
 
   const { rows, primaryColumns, pagination } = getTableRowsRO;
 
-  const updateRowIndex = rows.map((row) => row._id).indexOf(foundIdForUpdate);
+  const updateRowIndex = rows.map((row) => row.id).indexOf(foundIdForUpdate);
   t.is(rows.length, 42);
   t.is(rows[updateRowIndex][testTableColumnName], row[testTableColumnName]);
   t.is(rows[updateRowIndex][testTableSecondColumnName], row[testTableSecondColumnName]);
 });
 
 test.serial(`${currentTest} should throw an exception when connection id not passed in request`, async (t) => {
-  const connectionToTestDB = getTestData(mockFactory).mongoDbConnection;
+  const connectionToTestDB = getTestData(mockFactory).dynamoDBConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
   const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
     await createTestTable(connectionToTestDB);
@@ -2348,7 +2328,7 @@ test.serial(`${currentTest} should throw an exception when connection id not pas
 
   createConnectionRO.id = '';
   const updateRowInTableResponse = await request(app.getHttpServer())
-    .put(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&_id=1`)
+    .put(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&id=1`)
     .send(JSON.stringify(row))
     .set('Cookie', firstUserToken)
     .set('Content-Type', 'application/json')
@@ -2358,7 +2338,7 @@ test.serial(`${currentTest} should throw an exception when connection id not pas
 });
 
 test.serial(`${currentTest} should throw an exception when connection id passed in request is incorrect`, async (t) => {
-  const connectionToTestDB = getTestData(mockFactory).mongoDbConnection;
+  const connectionToTestDB = getTestData(mockFactory).dynamoDBConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
   const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
     await createTestTable(connectionToTestDB);
@@ -2385,7 +2365,7 @@ test.serial(`${currentTest} should throw an exception when connection id passed 
 
   createConnectionRO.id = faker.string.uuid();
   const updateRowInTableResponse = await request(app.getHttpServer())
-    .put(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&_id=1`)
+    .put(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&id=1`)
     .send(JSON.stringify(row))
     .set('Cookie', firstUserToken)
     .set('Content-Type', 'application/json')
@@ -2397,7 +2377,7 @@ test.serial(`${currentTest} should throw an exception when connection id passed 
 });
 
 test.serial(`${currentTest} should throw an exception when tableName not passed in request`, async (t) => {
-  const connectionToTestDB = getTestData(mockFactory).mongoDbConnection;
+  const connectionToTestDB = getTestData(mockFactory).dynamoDBConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
   const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
     await createTestTable(connectionToTestDB);
@@ -2423,7 +2403,7 @@ test.serial(`${currentTest} should throw an exception when tableName not passed 
 
   createConnectionRO.id = faker.string.uuid();
   const updateRowInTableResponse = await request(app.getHttpServer())
-    .put(`/table/row/${createConnectionRO.id}?tableName=&_id=1`)
+    .put(`/table/row/${createConnectionRO.id}?tableName=&id=1`)
     .send(JSON.stringify(row))
     .set('Cookie', firstUserToken)
     .set('Content-Type', 'application/json')
@@ -2435,7 +2415,7 @@ test.serial(`${currentTest} should throw an exception when tableName not passed 
 });
 
 test.serial(`${currentTest} should throw an exception when tableName passed in request is incorrect`, async (t) => {
-  const connectionToTestDB = getTestData(mockFactory).mongoDbConnection;
+  const connectionToTestDB = getTestData(mockFactory).dynamoDBConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
   const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
     await createTestTable(connectionToTestDB);
@@ -2461,7 +2441,7 @@ test.serial(`${currentTest} should throw an exception when tableName passed in r
 
   const fakeTableName = faker.string.uuid();
   const updateRowInTableResponse = await request(app.getHttpServer())
-    .put(`/table/row/${createConnectionRO.id}?tableName=${fakeTableName}&_id=1`)
+    .put(`/table/row/${createConnectionRO.id}?tableName=${fakeTableName}&id=1`)
     .send(JSON.stringify(row))
     .set('Cookie', firstUserToken)
     .set('Content-Type', 'application/json')
@@ -2473,7 +2453,7 @@ test.serial(`${currentTest} should throw an exception when tableName passed in r
 });
 
 test.serial(`${currentTest} should throw an exception when primary key not passed in request`, async (t) => {
-  const connectionToTestDB = getTestData(mockFactory).mongoDbConnection;
+  const connectionToTestDB = getTestData(mockFactory).dynamoDBConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
   const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
     await createTestTable(connectionToTestDB);
@@ -2512,7 +2492,7 @@ test.serial(`${currentTest} should throw an exception when primary key not passe
 test.serial(
   `${currentTest} should throw an exception when primary key passed in request has incorrect field name`,
   async (t) => {
-    const connectionToTestDB = getTestData(mockFactory).mongoDbConnection;
+    const connectionToTestDB = getTestData(mockFactory).dynamoDBConnection;
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
     const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
       await createTestTable(connectionToTestDB);
@@ -2552,7 +2532,7 @@ test.serial(
 test.serial(
   `${currentTest} should throw an exception when primary key passed in request has incorrect field value`,
   async (t) => {
-    const connectionToTestDB = getTestData(mockFactory).mongoDbConnection;
+    const connectionToTestDB = getTestData(mockFactory).dynamoDBConnection;
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
     const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
       await createTestTable(connectionToTestDB);
@@ -2577,22 +2557,22 @@ test.serial(
     };
 
     const updateRowInTableResponse = await request(app.getHttpServer())
-      .put(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&_id=100000000`)
+      .put(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&id=100000000`)
       .send(JSON.stringify(row))
       .set('Cookie', firstUserToken)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
 
-    t.is(updateRowInTableResponse.status, 500);
+    t.is(updateRowInTableResponse.status, 400);
     const responseObject = JSON.parse(updateRowInTableResponse.text);
-    t.is(responseObject.originalMessage, `Invalid object id format`);
+    t.is(responseObject.message, Messages.ROW_PRIMARY_KEY_NOT_FOUND);
   },
 );
 
 currentTest = 'PUT /table/rows/update/:connectionId';
 
 test.serial(`${currentTest} should update multiple rows and return result`, async (t) => {
-  const connectionToTestDB = getTestData(mockFactory).mongoDbConnection;
+  const connectionToTestDB = getTestData(mockFactory).dynamoDBConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
   const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName, insertedSearchedIds } =
     await createTestTable(connectionToTestDB);
@@ -2611,10 +2591,10 @@ test.serial(`${currentTest} should update multiple rows and return result`, asyn
   const fakeName = faker.person.firstName();
   const fakeMail = faker.internet.email();
 
-  const foundFirstIdForUpdate = insertedSearchedIds[0]._id;
-  const foundSecondIdForUpdate = insertedSearchedIds[1]._id;
+  const foundFirstIdForUpdate = '1';
+  const foundSecondIdForUpdate = '2';
   const requestData = {
-    primaryKeys: [{ _id: foundFirstIdForUpdate }, { _id: foundSecondIdForUpdate }],
+    primaryKeys: [{ id: foundFirstIdForUpdate }, { id: foundSecondIdForUpdate }],
     newValues: {
       [testTableColumnName]: fakeName,
       [testTableSecondColumnName]: fakeMail,
@@ -2635,7 +2615,7 @@ test.serial(`${currentTest} should update multiple rows and return result`, asyn
 
   // check that the rows were updated
   const firstRowResponse = await request(app.getHttpServer())
-    .get(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&_id=${foundFirstIdForUpdate}`)
+    .get(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&id=${foundFirstIdForUpdate}`)
     .set('Cookie', firstUserToken)
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
@@ -2646,7 +2626,7 @@ test.serial(`${currentTest} should update multiple rows and return result`, asyn
   t.is(firstRow.row[testTableSecondColumnName], fakeMail);
 
   const secondRowResponse = await request(app.getHttpServer())
-    .get(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&_id=${foundSecondIdForUpdate}`)
+    .get(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&id=${foundSecondIdForUpdate}`)
     .set('Cookie', firstUserToken)
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
@@ -2660,7 +2640,7 @@ test.serial(`${currentTest} should update multiple rows and return result`, asyn
 currentTest = 'DELETE /table/row/:slug';
 
 test.serial(`${currentTest} should delete row in table and return result`, async (t) => {
-  const connectionToTestDB = getTestData(mockFactory).mongoDbConnection;
+  const connectionToTestDB = getTestData(mockFactory).dynamoDBConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
   const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName, insertedSearchedIds } =
     await createTestTable(connectionToTestDB);
@@ -2676,15 +2656,16 @@ test.serial(`${currentTest} should delete row in table and return result`, async
   const createConnectionRO = JSON.parse(createConnectionResponse.text);
   t.is(createConnectionResponse.status, 201);
 
-  const idForDeletion = insertedSearchedIds[0]._id;
+  const idForDeletion = '1';
   const deleteRowInTableResponse = await request(app.getHttpServer())
-    .delete(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&_id=${idForDeletion}`)
+    .delete(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&id=${idForDeletion}`)
     .set('Cookie', firstUserToken)
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
 
   t.is(deleteRowInTableResponse.status, 200);
   const deleteRowInTableRO = JSON.parse(deleteRowInTableResponse.text);
+  console.log('🚀 ~ test.serial ~ deleteRowInTableRO:', deleteRowInTableRO);
 
   t.is(deleteRowInTableRO.hasOwnProperty('row'), true);
 
@@ -2705,12 +2686,12 @@ test.serial(`${currentTest} should delete row in table and return result`, async
   const { rows, primaryColumns, pagination } = getTableRowsRO;
 
   t.is(rows.length, 41);
-  const deletedRowIndex = rows.map((row: Record<string, unknown>) => row._id).indexOf(idForDeletion);
+  const deletedRowIndex = rows.map((row: Record<string, unknown>) => row.id).indexOf(idForDeletion);
   t.is(deletedRowIndex < 0, true);
 });
 
 test.serial(`${currentTest} should throw an exception when connection id not passed in request`, async (t) => {
-  const connectionToTestDB = getTestData(mockFactory).mongoDbConnection;
+  const connectionToTestDB = getTestData(mockFactory).dynamoDBConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
   const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName, insertedSearchedIds } =
     await createTestTable(connectionToTestDB);
@@ -2726,10 +2707,10 @@ test.serial(`${currentTest} should throw an exception when connection id not pas
   const createConnectionRO = JSON.parse(createConnectionResponse.text);
   t.is(createConnectionResponse.status, 201);
 
-  const idForDeletion = insertedSearchedIds[0]._id;
+  const idForDeletion = '1';
   const connectionId = '';
   const deleteRowInTableResponse = await request(app.getHttpServer())
-    .delete(`/table/row/${connectionId}?tableName=${testTableName}&_id=${idForDeletion}`)
+    .delete(`/table/row/${connectionId}?tableName=${testTableName}&id=${idForDeletion}`)
     .set('Cookie', firstUserToken)
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
@@ -2753,12 +2734,12 @@ test.serial(`${currentTest} should throw an exception when connection id not pas
   const { rows, primaryColumns, pagination } = getTableRowsRO;
 
   t.is(rows.length, 42);
-  const deletedRowIndex = rows.map((row: Record<string, unknown>) => row._id).indexOf(idForDeletion);
+  const deletedRowIndex = rows.map((row: Record<string, unknown>) => row.id).indexOf(idForDeletion);
   t.is(deletedRowIndex < 0, false);
 });
 
 test.serial(`${currentTest} should throw an exception when connection id passed in request is incorrect`, async (t) => {
-  const connectionToTestDB = getTestData(mockFactory).mongoDbConnection;
+  const connectionToTestDB = getTestData(mockFactory).dynamoDBConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
   const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName, insertedSearchedIds } =
     await createTestTable(connectionToTestDB);
@@ -2774,10 +2755,10 @@ test.serial(`${currentTest} should throw an exception when connection id passed 
   const createConnectionRO = JSON.parse(createConnectionResponse.text);
   t.is(createConnectionResponse.status, 201);
 
-  const idForDeletion = insertedSearchedIds[0]._id;
+  const idForDeletion = '1';
   const connectionId = faker.string.uuid();
   const deleteRowInTableResponse = await request(app.getHttpServer())
-    .delete(`/table/row/${connectionId}?tableName=${testTableName}&_id=${idForDeletion}`)
+    .delete(`/table/row/${connectionId}?tableName=${testTableName}&id=${idForDeletion}`)
     .set('Cookie', firstUserToken)
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
@@ -2803,12 +2784,12 @@ test.serial(`${currentTest} should throw an exception when connection id passed 
   const { rows, primaryColumns, pagination } = getTableRowsRO;
 
   t.is(rows.length, 42);
-  const deletedRowIndex = rows.map((row: Record<string, unknown>) => row._id).indexOf(idForDeletion);
+  const deletedRowIndex = rows.map((row: Record<string, unknown>) => row.id).indexOf(idForDeletion);
   t.is(deletedRowIndex < 0, false);
 });
 
 test.serial(`${currentTest} should throw an exception when tableName not passed in request`, async (t) => {
-  const connectionToTestDB = getTestData(mockFactory).mongoDbConnection;
+  const connectionToTestDB = getTestData(mockFactory).dynamoDBConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
   const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName, insertedSearchedIds } =
     await createTestTable(connectionToTestDB);
@@ -2824,10 +2805,10 @@ test.serial(`${currentTest} should throw an exception when tableName not passed 
   const createConnectionRO = JSON.parse(createConnectionResponse.text);
   t.is(createConnectionResponse.status, 201);
 
-  const idForDeletion = insertedSearchedIds[0]._id;
+  const idForDeletion = '1';
   const fakeTableName = '';
   const deleteRowInTableResponse = await request(app.getHttpServer())
-    .delete(`/table/row/${createConnectionRO.id}?tableName=${fakeTableName}&_id=${idForDeletion}`)
+    .delete(`/table/row/${createConnectionRO.id}?tableName=${fakeTableName}&id=${idForDeletion}`)
     .set('Cookie', firstUserToken)
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
@@ -2853,12 +2834,12 @@ test.serial(`${currentTest} should throw an exception when tableName not passed 
   const { rows, primaryColumns, pagination } = getTableRowsRO;
 
   t.is(rows.length, 42);
-  const deletedRowIndex = rows.map((row: Record<string, unknown>) => row._id).indexOf(idForDeletion);
+  const deletedRowIndex = rows.map((row: Record<string, unknown>) => row.id).indexOf(idForDeletion);
   t.is(deletedRowIndex < 0, false);
 });
 
 test.serial(`${currentTest} should throw an exception when tableName passed in request is incorrect`, async (t) => {
-  const connectionToTestDB = getTestData(mockFactory).mongoDbConnection;
+  const connectionToTestDB = getTestData(mockFactory).dynamoDBConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
   const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName, insertedSearchedIds } =
     await createTestTable(connectionToTestDB);
@@ -2874,10 +2855,10 @@ test.serial(`${currentTest} should throw an exception when tableName passed in r
   const createConnectionRO = JSON.parse(createConnectionResponse.text);
   t.is(createConnectionResponse.status, 201);
 
-  const idForDeletion = insertedSearchedIds[0]._id;
+  const idForDeletion = '1';
   const fakeTableName = `${faker.lorem.words(1)}_${faker.string.uuid()}`;
   const deleteRowInTableResponse = await request(app.getHttpServer())
-    .delete(`/table/row/${createConnectionRO.id}?tableName=${fakeTableName}&_id=${idForDeletion}`)
+    .delete(`/table/row/${createConnectionRO.id}?tableName=${fakeTableName}&id=${idForDeletion}`)
     .set('Cookie', firstUserToken)
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
@@ -2903,12 +2884,12 @@ test.serial(`${currentTest} should throw an exception when tableName passed in r
   const { rows, primaryColumns, pagination } = getTableRowsRO;
 
   t.is(rows.length, 42);
-  const deletedRowIndex = rows.map((row: Record<string, unknown>) => row._id).indexOf(idForDeletion);
+  const deletedRowIndex = rows.map((row: Record<string, unknown>) => row.id).indexOf(idForDeletion);
   t.is(deletedRowIndex < 0, false);
 });
 
 test.serial(`${currentTest} should throw an exception when primary key not passed in request`, async (t) => {
-  const connectionToTestDB = getTestData(mockFactory).mongoDbConnection;
+  const connectionToTestDB = getTestData(mockFactory).dynamoDBConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
   const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName, insertedSearchedIds } =
     await createTestTable(connectionToTestDB);
@@ -2924,7 +2905,7 @@ test.serial(`${currentTest} should throw an exception when primary key not passe
   const createConnectionRO = JSON.parse(createConnectionResponse.text);
   t.is(createConnectionResponse.status, 201);
 
-  const idForDeletion = insertedSearchedIds[0]._id;
+  const idForDeletion = '1';
   const deleteRowInTableResponse = await request(app.getHttpServer())
     .delete(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&`)
     .set('Cookie', firstUserToken)
@@ -2952,14 +2933,14 @@ test.serial(`${currentTest} should throw an exception when primary key not passe
   const { rows, primaryColumns, pagination } = getTableRowsRO;
 
   t.is(rows.length, 42);
-  const deletedRowIndex = rows.map((row: Record<string, unknown>) => row._id).indexOf(idForDeletion);
+  const deletedRowIndex = rows.map((row: Record<string, unknown>) => row.id).indexOf(idForDeletion);
   t.is(deletedRowIndex < 0, false);
 });
 
 test.serial(
   `${currentTest} should throw an exception when primary key passed in request has incorrect field name`,
   async (t) => {
-    const connectionToTestDB = getTestData(mockFactory).mongoDbConnection;
+    const connectionToTestDB = getTestData(mockFactory).dynamoDBConnection;
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
     const {
       testTableName,
@@ -2980,7 +2961,7 @@ test.serial(
     const createConnectionRO = JSON.parse(createConnectionResponse.text);
     t.is(createConnectionResponse.status, 201);
 
-    const idForDeletion = insertedSearchedIds[0]._id;
+    const idForDeletion = '1';
     const deleteRowInTableResponse = await request(app.getHttpServer())
       .delete(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&fakePKey=${idForDeletion}`)
       .set('Cookie', firstUserToken)
@@ -3008,7 +2989,7 @@ test.serial(
     const { rows, primaryColumns, pagination } = getTableRowsRO;
 
     t.is(rows.length, 42);
-    const deletedRowIndex = rows.map((row: Record<string, unknown>) => row._id).indexOf(idForDeletion);
+    const deletedRowIndex = rows.map((row: Record<string, unknown>) => row.id).indexOf(idForDeletion);
     t.is(deletedRowIndex < 0, false);
   },
 );
@@ -3016,7 +2997,7 @@ test.serial(
 test.serial(
   `${currentTest} should throw an exception when primary key passed in request has incorrect field value`,
   async (t) => {
-    const connectionToTestDB = getTestData(mockFactory).mongoDbConnection;
+    const connectionToTestDB = getTestData(mockFactory).dynamoDBConnection;
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
     const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
       await createTestTable(connectionToTestDB);
@@ -3033,21 +3014,21 @@ test.serial(
     t.is(createConnectionResponse.status, 201);
 
     const deleteRowInTableResponse = await request(app.getHttpServer())
-      .delete(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&_id=100000`)
+      .delete(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&id=100000`)
       .set('Cookie', firstUserToken)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
 
     const deleteRowInTableRO = JSON.parse(deleteRowInTableResponse.text);
-    t.is(deleteRowInTableResponse.status, 500);
-    t.is(deleteRowInTableRO.originalMessage, `Invalid object id format`);
+    t.is(deleteRowInTableResponse.status, 400);
+    t.is(deleteRowInTableRO.message, Messages.ROW_PRIMARY_KEY_NOT_FOUND);
   },
 );
 
 currentTest = 'GET /table/row/:slug';
 
 test.serial(`${currentTest} found row`, async (t) => {
-  const connectionToTestDB = getTestData(mockFactory).mongoDbConnection;
+  const connectionToTestDB = getTestData(mockFactory).dynamoDBConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
   const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName, insertedSearchedIds } =
     await createTestTable(connectionToTestDB);
@@ -3063,9 +3044,9 @@ test.serial(`${currentTest} found row`, async (t) => {
   const createConnectionRO = JSON.parse(createConnectionResponse.text);
   t.is(createConnectionResponse.status, 201);
 
-  const idForSearch = insertedSearchedIds[0]._id;
+  const idForSearch = '21';
   const foundRowInTableResponse = await request(app.getHttpServer())
-    .get(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&_id=${idForSearch}`)
+    .get(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&id=${idForSearch}`)
     .set('Cookie', firstUserToken)
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
@@ -3082,13 +3063,13 @@ test.serial(`${currentTest} found row`, async (t) => {
   t.is(typeof foundRowInTableRO.primaryColumns, 'object');
   t.is(typeof foundRowInTableRO.readonly_fields, 'object');
   t.is(typeof foundRowInTableRO.foreignKeys, 'object');
-  t.is(foundRowInTableRO.row._id, idForSearch);
+  t.is(foundRowInTableRO.row.id, idForSearch);
   t.is(foundRowInTableRO.row[testTableColumnName], testSearchedUserName);
   t.is(Object.keys(foundRowInTableRO.row).length, 6);
 });
 
 test.serial(`${currentTest} should throw an exception, when connection id is not passed in request`, async (t) => {
-  const connectionToTestDB = getTestData(mockFactory).mongoDbConnection;
+  const connectionToTestDB = getTestData(mockFactory).dynamoDBConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
   const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
     await createTestTable(connectionToTestDB);
@@ -3106,7 +3087,7 @@ test.serial(`${currentTest} should throw an exception, when connection id is not
   const idForSearch = 1;
   createConnectionRO.id = '';
   const foundRowInTableResponse = await request(app.getHttpServer())
-    .get(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&_id=${idForSearch}`)
+    .get(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&id=${idForSearch}`)
     .set('Cookie', firstUserToken)
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
@@ -3117,7 +3098,7 @@ test.serial(`${currentTest} should throw an exception, when connection id is not
 test.serial(
   `${currentTest} should throw an exception, when connection id passed in request is incorrect`,
   async (t) => {
-    const connectionToTestDB = getTestData(mockFactory).mongoDbConnection;
+    const connectionToTestDB = getTestData(mockFactory).dynamoDBConnection;
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
     const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
       await createTestTable(connectionToTestDB);
@@ -3136,7 +3117,7 @@ test.serial(
     const idForSearch = 1;
     createConnectionRO.id = faker.string.uuid();
     const foundRowInTableResponse = await request(app.getHttpServer())
-      .get(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&_id=${idForSearch}`)
+      .get(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&id=${idForSearch}`)
       .set('Cookie', firstUserToken)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
@@ -3148,7 +3129,7 @@ test.serial(
 );
 
 test.serial(`${currentTest} should throw an exception, when tableName in not passed in request`, async (t) => {
-  const connectionToTestDB = getTestData(mockFactory).mongoDbConnection;
+  const connectionToTestDB = getTestData(mockFactory).dynamoDBConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
   const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
     await createTestTable(connectionToTestDB);
@@ -3167,7 +3148,7 @@ test.serial(`${currentTest} should throw an exception, when tableName in not pas
   const idForSearch = 1;
   const fakeTableName = '';
   const foundRowInTableResponse = await request(app.getHttpServer())
-    .get(`/table/row/${createConnectionRO.id}?tableName=${fakeTableName}&_id=${idForSearch}`)
+    .get(`/table/row/${createConnectionRO.id}?tableName=${fakeTableName}&id=${idForSearch}`)
     .set('Cookie', firstUserToken)
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
@@ -3178,7 +3159,7 @@ test.serial(`${currentTest} should throw an exception, when tableName in not pas
 });
 
 test.serial(`${currentTest} should throw an exception, when tableName passed in request is incorrect`, async (t) => {
-  const connectionToTestDB = getTestData(mockFactory).mongoDbConnection;
+  const connectionToTestDB = getTestData(mockFactory).dynamoDBConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
   const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
     await createTestTable(connectionToTestDB);
@@ -3197,7 +3178,7 @@ test.serial(`${currentTest} should throw an exception, when tableName passed in 
   const idForSearch = 1;
   const fakeTableName = `${faker.lorem.words(1)}_${faker.string.uuid()}`;
   const foundRowInTableResponse = await request(app.getHttpServer())
-    .get(`/table/row/${createConnectionRO.id}?tableName=${fakeTableName}&_id=${idForSearch}`)
+    .get(`/table/row/${createConnectionRO.id}?tableName=${fakeTableName}&id=${idForSearch}`)
     .set('Cookie', firstUserToken)
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json');
@@ -3208,7 +3189,7 @@ test.serial(`${currentTest} should throw an exception, when tableName passed in 
 });
 
 test.serial(`${currentTest} should throw an exception, when primary key is not passed in request`, async (t) => {
-  const connectionToTestDB = getTestData(mockFactory).mongoDbConnection;
+  const connectionToTestDB = getTestData(mockFactory).dynamoDBConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
   const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
     await createTestTable(connectionToTestDB);
@@ -3238,7 +3219,7 @@ test.serial(`${currentTest} should throw an exception, when primary key is not p
 test.serial(
   `${currentTest} should throw an exception, when primary key passed in request has incorrect name`,
   async (t) => {
-    const connectionToTestDB = getTestData(mockFactory).mongoDbConnection;
+    const connectionToTestDB = getTestData(mockFactory).dynamoDBConnection;
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
     const {
       testTableName,
@@ -3259,7 +3240,7 @@ test.serial(
     const createConnectionRO = JSON.parse(createConnectionResponse.text);
     t.is(createConnectionResponse.status, 201);
 
-    const idForSearch = insertedSearchedIds[0]._id;
+    const idForSearch = '1';
     const foundRowInTableResponse = await request(app.getHttpServer())
       .get(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&fakeKeyName=${idForSearch}`)
       .set('Cookie', firstUserToken)
@@ -3275,7 +3256,7 @@ test.serial(
 test.serial(
   `${currentTest} should throw an exception, when primary key passed in request has incorrect value`,
   async (t) => {
-    const connectionToTestDB = getTestData(mockFactory).mongoDbConnection;
+    const connectionToTestDB = getTestData(mockFactory).dynamoDBConnection;
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
     const {
       testTableName,
@@ -3298,7 +3279,7 @@ test.serial(
 
     const idForSearch = '6604197dab8d910eb77783f9';
     const foundRowInTableResponse = await request(app.getHttpServer())
-      .get(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&_id=${idForSearch}`)
+      .get(`/table/row/${createConnectionRO.id}?tableName=${testTableName}&id=${idForSearch}`)
       .set('Cookie', firstUserToken)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
@@ -3311,8 +3292,8 @@ test.serial(
 
 currentTest = 'PUT /table/rows/delete/:slug';
 
-test.serial(`${currentTest} should delete row in table and return result`, async (t) => {
-  const connectionToTestDB = getTestData(mockFactory).mongoDbConnection;
+test.serial(`${currentTest} should delete rows in table and return result`, async (t) => {
+  const connectionToTestDB = getTestData(mockFactory).dynamoDBConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
   const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName, insertedSearchedIds } =
     await createTestTable(connectionToTestDB);
@@ -3330,13 +3311,13 @@ test.serial(`${currentTest} should delete row in table and return result`, async
 
   const primaryKeysForDeletion: Array<Record<string, unknown>> = [
     {
-      _id: insertedSearchedIds[0]._id,
+      id: '1',
     },
     {
-      _id: insertedSearchedIds[9]._id,
+      id: '2',
     },
     {
-      _id: insertedSearchedIds[31]._id,
+      id: '31',
     },
   ];
   const deleteRowsInTableResponse = await request(app.getHttpServer())
@@ -3347,7 +3328,6 @@ test.serial(`${currentTest} should delete row in table and return result`, async
     .set('Accept', 'application/json');
 
   t.is(deleteRowsInTableResponse.status, 200);
-  const deleteRowInTableRO = JSON.parse(deleteRowsInTableResponse.text);
 
   //checking that the line was deleted
   const getTableRowsResponse = await request(app.getHttpServer())
@@ -3370,7 +3350,7 @@ test.serial(`${currentTest} should delete row in table and return result`, async
 
   for (const key of primaryKeysForDeletion) {
     t.is(
-      rows.findIndex((row) => row._id === key._id),
+      rows.findIndex((row) => row.id === key.id),
       -1,
     );
   }
@@ -3388,77 +3368,14 @@ test.serial(`${currentTest} should delete row in table and return result`, async
   t.is(tableLogsRO.logs.length, primaryKeysForDeletion.length + 1);
   const onlyDeleteLogs = tableLogsRO.logs.filter((log) => log.operationType === LogOperationTypeEnum.deleteRow);
   for (const key of primaryKeysForDeletion) {
-    t.is(onlyDeleteLogs.findIndex((log) => log.received_data._id === key._id) >= 0, true);
+    t.is(onlyDeleteLogs.findIndex((log) => log.received_data.id === key.id) >= 0, true);
   }
 });
 
-currentTest = 'DELETE /table/rows/:slug';
-
-test.serial(`${currentTest} should delete row in table and return result`, async (t) => {
-  const connectionToTestDB = getTestData(mockFactory).mongoDbConnection;
-  const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
-  const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName, insertedSearchedIds } =
-    await createTestTable(connectionToTestDB);
-
-  testTables.push(testTableName);
-
-  const createConnectionResponse = await request(app.getHttpServer())
-    .post('/connection')
-    .send(connectionToTestDB)
-    .set('Cookie', firstUserToken)
-    .set('Content-Type', 'application/json')
-    .set('Accept', 'application/json');
-  const createConnectionRO = JSON.parse(createConnectionResponse.text);
-  t.is(createConnectionResponse.status, 201);
-
-  const primaryKeysForDeletion = [
-    {
-      _id: insertedSearchedIds[0]._id,
-    },
-    {
-      _id: insertedSearchedIds[9]._id,
-    },
-    {
-      _id: insertedSearchedIds[31]._id,
-    },
-  ];
-  const deleteRowInTableResponse = await request(app.getHttpServer())
-    .put(`/table/rows/delete/${createConnectionRO.id}?tableName=${testTableName}`)
-    .send(primaryKeysForDeletion)
-    .set('Cookie', firstUserToken)
-    .set('Content-Type', 'application/json')
-    .set('Accept', 'application/json');
-
-  t.is(deleteRowInTableResponse.status, 200);
-  const deleteRowInTableRO = JSON.parse(deleteRowInTableResponse.text);
-
-  //checking that the line was deleted
-  const getTableRowsResponse = await request(app.getHttpServer())
-    .get(`/table/rows/${createConnectionRO.id}?tableName=${testTableName}&page=1&perPage=50`)
-    .set('Cookie', firstUserToken)
-    .set('Content-Type', 'application/json')
-    .set('Accept', 'application/json');
-
-  const getTableRowsRO = JSON.parse(getTableRowsResponse.text);
-  t.is(getTableRowsResponse.status, 200);
-
-  t.is(getTableRowsRO.hasOwnProperty('rows'), true);
-  t.is(getTableRowsRO.hasOwnProperty('primaryColumns'), true);
-  t.is(getTableRowsRO.hasOwnProperty('pagination'), true);
-
-  const { rows, primaryColumns, pagination } = getTableRowsRO;
-
-  t.is(rows.length, 39);
-  for (const primaryKey of primaryKeysForDeletion) {
-    t.is(
-      rows.findIndex((row) => row._id === primaryKey._id),
-      -1,
-    );
-  }
-});
+currentTest = 'POST /connection/test';
 
 test.serial(`${currentTest} should test connection and return result`, async (t) => {
-  const connectionToTestDB = getTestData(mockFactory).mongoDbConnection;
+  const connectionToTestDB = getTestData(mockFactory).dynamoDBConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
 
   const testConnectionResponse = await request(app.getHttpServer())
@@ -3476,7 +3393,7 @@ test.serial(`${currentTest} should test connection and return result`, async (t)
 currentTest = 'GET table/csv/:slug';
 
 test.serial(`${currentTest} should return csv file with table data`, async (t) => {
-  const connectionToTestDB = getTestData(mockFactory).mongoDbConnection;
+  const connectionToTestDB = getTestData(mockFactory).dynamoDBConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
 
   const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
@@ -3520,7 +3437,7 @@ test.serial(
   `${currentTest} should return csv file with table data with search, with pagination, with sorting,
 with search and pagination: page=1, perPage=2 and DESC sorting`,
   async (t) => {
-    const connectionToTestDB = getTestData(mockFactory).mongoDbConnection;
+    const connectionToTestDB = getTestData(mockFactory).dynamoDBConnection;
     const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
 
     const {
@@ -3548,7 +3465,7 @@ with search and pagination: page=1, perPage=2 and DESC sorting`,
       undefined,
       3,
       QueryOrderingEnum.DESC,
-      '_id',
+      'id',
       undefined,
       undefined,
       undefined,
@@ -3593,8 +3510,9 @@ with search and pagination: page=1, perPage=2 and DESC sorting`,
 );
 
 currentTest = 'POST /table/csv/import/:slug';
+
 test.serial(`${currentTest} should import csv file with table data`, async (t) => {
-  const connectionToTestDB = getTestData(mockFactory).mongoDbConnection;
+  const connectionToTestDB = getTestData(mockFactory).dynamoDBConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
 
   const { testTableName, testTableColumnName, testEntitiesSeedsCount, testTableSecondColumnName } =
@@ -3617,7 +3535,7 @@ test.serial(`${currentTest} should import csv file with table data`, async (t) =
     undefined,
     3,
     QueryOrderingEnum.DESC,
-    '_id',
+    'id',
     undefined,
     undefined,
     undefined,
@@ -3658,25 +3576,35 @@ test.serial(`${currentTest} should import csv file with table data`, async (t) =
   const isFileExists = fs.existsSync(downloadedFilePatch);
   t.is(isFileExists, true);
 
-  function deleteIdColumnsInCSVFile(filePatch: string) {
+  function changeIdFieldsValuesInCsvFile(filePath: string): string {
     // eslint-disable-next-line security/detect-non-literal-fs-filename
-    const fileContent = fs.readFileSync(filePatch).toString();
+    const fileContent = fs.readFileSync(filePath).toString();
     const rows = fileContent.split('\n');
-    const idColumnIndex = rows[0].split(',').findIndex((column) => column === '_id');
-    const newRows = rows.map((row) => {
+
+    const header = rows[0].split(',');
+    const idIndex = header.indexOf('id');
+
+    if (idIndex === -1) {
+      throw new Error("The 'id' column was not found in the CSV file.");
+    }
+
+    // Process each row and change the 'id' field
+    const newRows = rows.map((row, index) => {
+      if (index === 0) {
+        return row; // Skip the header row
+      }
       const columns = row.split(',');
-      if (columns.length === 1) {
-        return row;
+      if (columns.length <= idIndex) {
+        return row; // Skip rows that don't have enough columns
       }
-      if (idColumnIndex >= 0) {
-        columns.splice(idColumnIndex, 1);
-      }
+      columns[idIndex] = `5${index}`;
       return columns.join(',');
     });
+
     return newRows.join('\n');
   }
 
-  const newFileContent = deleteIdColumnsInCSVFile(downloadedFilePatch);
+  const newFileContent = changeIdFieldsValuesInCsvFile(downloadedFilePatch);
   // eslint-disable-next-line security/detect-non-literal-fs-filename
   fs.writeFileSync(downloadedFilePatch, newFileContent);
 

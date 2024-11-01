@@ -168,6 +168,37 @@ export class Config {
     }
   }
 
+  public static readConnectionConfigFromEnv(): ICLIConnectionCredentials {
+    const connectionConfig: ICLIConnectionCredentials = {
+      type: process.env.CONNECTION_TYPE,
+      host: process.env.CONNECTION_HOST,
+      port: parseInt(process.env.CONNECTION_PORT, 10),
+      username: process.env.CONNECTION_USERNAME,
+      password: process.env.CONNECTION_PASSWORD,
+      database: process.env.CONNECTION_DATABASE,
+      schema: process.env.CONNECTION_SCHEMA,
+      sid: process.env.CONNECTION_SID,
+      ssl: process.env.CONNECTION_SSL === '1',
+      cert: process.env.CONNECTION_SSL_SERTIFICATE,
+      token: process.env.CONNECTION_TOKEN,
+      app_port: parseInt(process.env.APP_PORT) || 3000,
+      azure_encryption: process.env.CONNECTION_AZURE_ENCRYPTION === '1',
+      application_save_option: false,
+      config_encryption_option: false,
+      encryption_password: null,
+      saving_logs_option: process.env.LOGS_TO_TEXT_FILE === '1',
+    };
+
+    const errors = validateConnectionData(connectionConfig);
+    if (errors.length > 0) {
+      console.error(`-> Environment configuration not found.`);
+      return null;
+    }
+    console.log('-> Configuration loaded from environment variables');
+
+    return connectionConfig;
+  }
+
   private static async readSslSertificate(): Promise<string> {
     return await readFileUtil('cert.pem');
   }

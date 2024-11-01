@@ -28,6 +28,18 @@
 </app-banner>
 
 <ng-container *ngIf="!loading && !isServerError && !noTablesError">
+
+    <!-- toggle button for mobile version -->
+    <div class="sidenav-content__toggle-button" [ngClass]="{'sidenav-content__toggle-button_shown-mobile': !shownTableTitles}">
+        <button mat-button type="button" class="toggle-button" (click)="toggleSideBar()"
+            angulartics2On="click"
+            angularticsAction="Dashboard: toggle sidebar"
+            [angularticsProperties]="{'collapsed': !shownTableTitles}">
+            <mat-icon>chevron_right</mat-icon>
+        </button>
+    </div>
+
+
     <mat-sidenav-container>
         <mat-sidenav #sideList mode="side" [(opened)]="shownTableTitles"
             class="table-list-sidenav"

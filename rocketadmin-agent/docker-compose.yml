@@ -1,7 +1,7 @@
 version: '2'
 services:
-  autoadmin-agent:
-    build: .
+  rocketadmin-agent:
+    image: rocketadmin/rocketadmin-agent
     ports:
       - 7007:7007
     env_file: .config.env

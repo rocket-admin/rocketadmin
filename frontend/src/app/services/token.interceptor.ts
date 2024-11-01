@@ -47,7 +47,7 @@ export class TokenInterceptor implements HttpInterceptor {
       withCredentials: true
     });
 
-    if (connectionID) {
+    if (connectionID && !request.headers.has('masterpwd')) {
       const masterKey = localStorage.getItem(`${connectionID}__masterKey`) || '';
       request = request.clone({
         setHeaders: {
