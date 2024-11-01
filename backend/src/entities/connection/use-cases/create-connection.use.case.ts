@@ -38,26 +38,32 @@ export class CreateConnectionUseCase
 
     await slackPostMessage(Messages.USER_TRY_CREATE_CONNECTION(connectionAuthor.email));
     await validateCreateConnectionData(createConnectionData);
-    createConnectionData = await processAWSConnection(createConnectionData);
-    const createdConnection: ConnectionEntity = buildConnectionEntity(createConnectionData, connectionAuthor);
 
-    if (!isConnectionTypeAgent(createdConnection.type)) {
-      const dao = getDataAccessObject(createdConnection);
+    createConnectionData = await processAWSConnection(createConnectionData);
+
+    if (!isConnectionTypeAgent(createConnectionData.connection_parameters.type)) {
+      const connectionParamsCopy = { ...createConnectionData.connection_parameters };
+      const dao = getDataAccessObject(connectionParamsCopy);
       try {
         await dao.testConnect();
       } catch (e) {
         const text: string = e.message.toLowerCase();
         if (text.includes('ssl required') || text.includes('ssl connection required')) {
-          createdConnection.ssl = true;
+          createConnectionData.connection_parameters.ssl = true;
+          connectionParamsCopy.ssl = true;
           try {
-            const updatedDao = getDataAccessObject(createdConnection);
+            const updatedDao = getDataAccessObject(connectionParamsCopy);
             await updatedDao.testConnect();
           } catch (_e) {
-            createdConnection.ssl = false;
+            createConnectionData.connection_parameters.ssl = false;
+            connectionParamsCopy.ssl = false;
           }
         }
       }
     }
+
+    const createdConnection: ConnectionEntity = buildConnectionEntity(createConnectionData, connectionAuthor);
+
     const savedConnection: ConnectionEntity =
       await this._dbContext.connectionRepository.saveNewConnection(createdConnection);
     let token: string;
