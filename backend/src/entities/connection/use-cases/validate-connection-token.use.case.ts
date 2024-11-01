@@ -5,9 +5,12 @@ import { BaseType } from '../../../common/data-injection.tokens.js';
 import { Encryptor } from '../../../helpers/encryption/encryptor.js';
 import { IValidateConnectionToken } from './use-cases.interfaces.js';
 
+export type TokenValidationResult = {
+  isValid: boolean;
+};
 @Injectable()
 export class ValidateConnectionTokenUseCase
-  extends AbstractUseCase<string, boolean>
+  extends AbstractUseCase<string, TokenValidationResult>
   implements IValidateConnectionToken
 {
   constructor(
@@ -17,9 +20,9 @@ export class ValidateConnectionTokenUseCase
     super();
   }
 
-  protected async implementation(connectionToken: string): Promise<boolean> {
+  protected async implementation(connectionToken: string): Promise<TokenValidationResult> {
     connectionToken = Encryptor.hashDataHMAC(connectionToken);
     const foundConnection = await this._dbContext.connectionRepository.findOneAgentConnectionByToken(connectionToken);
-    return !!foundConnection;
+    return { isValid: !!foundConnection };
   }
 }

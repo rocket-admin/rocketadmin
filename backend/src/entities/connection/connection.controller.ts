@@ -77,6 +77,7 @@ import { FoundOneConnectionDs } from './application/data-structures/found-one-co
 import { FoundGroupResponseDto } from '../group/dto/found-group-response.dto.js';
 import { FoundUserGroupsInConnectionDTO } from './application/dto/found-user-groups-in-connection.dto.js';
 import { SuccessResponse } from '../../microservices/saas-microservice/data-structures/common-responce.ds.js';
+import { TokenValidationResult } from './use-cases/validate-connection-token.use.case.js';
 
 @UseInterceptors(SentryInterceptor)
 @Controller()
@@ -614,9 +615,9 @@ export class ConnectionController {
     type: Boolean,
   })
   @Get('/connection/token/')
-  async validateConnectionAgentToken(@Query('token') token: string): Promise<boolean> {
+  async validateConnectionAgentToken(@Query('token') token: string): Promise<TokenValidationResult> {
     if (!token || typeof token !== 'string' || token.length === 0) {
-      return false;
+      return { isValid: false };
     }
     return await this.validateConnectionTokenUseCase.execute(token, InTransactionEnum.OFF);
   }
@@ -656,7 +657,7 @@ export class ConnectionController {
       if (connectionData.type === ConnectionTypesEnum.dynamodb) {
         return errors;
       }
-      
+
       if (!connectionData.database) errors.push(Messages.DATABASE_MISSING);
       if (process.env.NODE_ENV !== 'test' && !connectionData.ssh) {
         if (!this.isMongoHost(connectionData.host)) {
