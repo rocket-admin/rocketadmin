@@ -33,6 +33,11 @@ export class UserSettingsComponent implements OnInit {
     ]
   }
 
+  public authProviderIcons = {
+    GOOGLE: 'google',
+    GITHUB: 'github',
+  }
+
   public authCode: string;
   public is2FAswitchingOffSettingsShown: boolean = false;
   public is2FAEnabledToggle: boolean;

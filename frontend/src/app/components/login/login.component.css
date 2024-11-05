@@ -176,8 +176,8 @@
 }
 
 .login-form__github-icon {
-    height: 18px;
-    width: 18px;
+    --mat-outlined-button-icon-spacing: 0;
+    --mat-outlined-button-icon-offset: 0;
 }
 
 .login-form__github-button:disabled .login-form__github-icon {

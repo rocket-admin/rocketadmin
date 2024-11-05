@@ -24,6 +24,14 @@
         </form>
 
         <div class="user-settings__section-heading">
+            <mat-icon *ngIf="currentUser.externalRegistrationProvider === null"
+                matTooltip="You registred with your email">
+                mail_outline
+            </mat-icon>
+            <mat-icon *ngIf="currentUser.externalRegistrationProvider !== null"
+                svgIcon="authProviderIcons[currentUser.externalRegistrationProvider]"
+                matTooltip="You registred with {{currentUser.externalRegistrationProvider}}">
+            </mat-icon>
             <strong>Email:</strong>
             <span class="mat-body-1 user-settings__value">{{currentUser.email}}</span>
         </div>
