@@ -29,7 +29,7 @@
                 mail_outline
             </mat-icon>
             <mat-icon *ngIf="currentUser.externalRegistrationProvider !== null"
-                svgIcon="authProviderIcons[currentUser.externalRegistrationProvider]"
+                [svgIcon]="authProviderIcons[currentUser.externalRegistrationProvider]"
                 matTooltip="You registred with {{currentUser.externalRegistrationProvider}}">
             </mat-icon>
             <strong>Email:</strong>
