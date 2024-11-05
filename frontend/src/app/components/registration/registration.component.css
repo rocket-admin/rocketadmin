@@ -180,6 +180,13 @@
 }
 
 .register-form__github-icon {
-    height: 24px;
-    width: 24px;
+    --mat-outlined-button-icon-spacing: 0;
+    --mat-outlined-button-icon-offset: 0;
+
+    height: 24px !important;
+    width: 24px !important;
+}
+
+.register-form__github-icon ::ng-deep svg path {
+    fill: #fff;
 }
