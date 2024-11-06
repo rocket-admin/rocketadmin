@@ -42,7 +42,7 @@ export class DataAccessObjectMongo extends BasicDataAccessObject implements IDat
     const collection = db.collection(tableName);
     delete row._id;
     const result = await collection.insertOne(row);
-    return { _id: result?.insertedId?.toHexString() };
+    return { _id: this.processMongoIdField(result?.insertedId) };
   }
 
   public async deleteRowInTable(
@@ -53,7 +53,7 @@ export class DataAccessObjectMongo extends BasicDataAccessObject implements IDat
     const collection = db.collection(tableName);
     const objectId = this.createObjectIdFromSting(primaryKey._id as string);
     await collection.deleteOne({ _id: objectId });
-    return { _id: objectId?.toHexString() };
+    return { _id: this.processMongoIdField(objectId) };
   }
 
   public async getIdentityColumns(
@@ -95,7 +95,7 @@ export class DataAccessObjectMongo extends BasicDataAccessObject implements IDat
     }
     return {
       ...foundRow,
-      _id: objectId?.toHexString(),
+      _id: this.processMongoIdField(objectId),
     };
   }
 
@@ -140,7 +140,7 @@ export class DataAccessObjectMongo extends BasicDataAccessObject implements IDat
           });
           return {
             ...row,
-            _id: row?._id?.toHexString(),
+            _id: this.processMongoIdField(row?._id),
           };
         }),
         large_dataset,
@@ -236,7 +236,7 @@ export class DataAccessObjectMongo extends BasicDataAccessObject implements IDat
         });
         return {
           ...row,
-          _id: row?._id?.toHexString(),
+          _id: this.processMongoIdField(row?._id),
         };
       }),
       pagination,
@@ -314,7 +314,7 @@ export class DataAccessObjectMongo extends BasicDataAccessObject implements IDat
     const objectId = this.createObjectIdFromSting(primaryKey._id as string);
     delete row._id;
     await collection.updateOne({ _id: objectId }, { $set: row });
-    return { _id: objectId?.toHexString() };
+    return { _id: this.processMongoIdField(objectId) };
   }
 
   public async bulkUpdateRowsInTable(
@@ -326,7 +326,7 @@ export class DataAccessObjectMongo extends BasicDataAccessObject implements IDat
     const collection = db.collection(tableName);
     const objectIds = primaryKeys.map((primaryKey) => this.createObjectIdFromSting(primaryKey._id as string));
     await collection.updateMany({ _id: { $in: objectIds } }, { $set: newValues });
-    return { _id: objectIds.map((objectId) => objectId?.toHexString()) };
+    return { _id: objectIds.map((objectId) => this.processMongoIdField(objectId)) };
   }
 
   public async validateSettings(settings: ValidateTableSettingsDS, tableName: string): Promise<string[]> {
@@ -531,6 +531,26 @@ export class DataAccessObjectMongo extends BasicDataAccessObject implements IDat
         return 'date';
       default:
         return 'unknown';
+    }
+  }
+
+  private processMongoIdField(_id: unknown): string | undefined {
+    if (!_id) {
+      return;
+    }
+    if (typeof _id === 'string') {
+      return _id;
+    }
+    if (_id instanceof ObjectId) {
+      return (_id as ObjectId).toHexString();
+    }
+    try {
+      return _id.toString();
+    } catch (_error) {}
+    try {
+      return new ObjectId(_id as string).toHexString();
+    } catch (_error) {
+      return _id as any;
     }
   }
 }
