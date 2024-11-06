@@ -401,26 +401,21 @@ export class DataAccessObjectMongo extends BasicDataAccessObject implements IDat
     let mongoConnectionString = '';
     if (this.connection.host.includes('mongodb+srv')) {
       const hostNameParts = this.connection.host.split('//');
-      mongoConnectionString = `${hostNameParts[0]}//${this.connection.username}:${this.connection.password}@${hostNameParts[1]}`;
+      mongoConnectionString = `${hostNameParts[0]}//${encodeURIComponent(this.connection.username)}:${encodeURIComponent(this.connection.password)}@${hostNameParts[1]}/${this.connection.database}`;
     } else {
-      mongoConnectionString = `mongodb://${this.connection.username}:${this.connection.password}@${this.connection.host}:${this.connection.port}/${this.connection.database ? this.connection.database : ''}`;
+      mongoConnectionString = `mongodb://${encodeURIComponent(this.connection.username)}:${encodeURIComponent(this.connection.password)}@${this.connection.host}:${this.connection.port}/${this.connection.database || ''}`;
     }
 
     let options: any = {};
     if (this.connection.ssl) {
-      mongoConnectionString += `?ssl=true`;
       options = {
         ssl: true,
-        sslValidate: this.connection?.cert ? true : false,
-        sslCA: this.connection?.cert,
+        sslCA: this.connection.cert ? [this.connection.cert] : undefined,
       };
     }
+
     if (this.connection.authSource) {
-      if (mongoConnectionString.includes('?')) {
-        mongoConnectionString += '&';
-      } else {
-        mongoConnectionString += '?';
-      }
+      mongoConnectionString += mongoConnectionString.includes('?') ? '&' : '?';
       mongoConnectionString += `authSource=${this.connection.authSource}`;
     }
 
@@ -431,7 +426,7 @@ export class DataAccessObjectMongo extends BasicDataAccessObject implements IDat
       clientDb = { db: connectedClient.db(this.connection.database), dbClient: connectedClient };
       LRUStorage.setMongoDbCache(this.connection, clientDb);
     } catch (error) {
-      console.error(error);
+      console.error('Mongo connection error:', error);
       throw error;
     }
     return clientDb;
