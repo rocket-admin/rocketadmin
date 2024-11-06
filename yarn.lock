@@ -2715,6 +2715,7 @@ __metadata:
     jsonwebtoken: ^9.0.2
     knex: ^3.1.0
     lru-cache: ^11.0.1
+    mongodb: ^6.10.0
     mysql2: ^3.11.3
     oracledb: ^6.6.0
     p-queue: ^8.0.1
@@ -4758,7 +4759,6 @@ __metadata:
     jsonwebtoken: ^9.0.2
     knex: 3.1.0
     lru-cache: ^11.0.1
-    mongodb: ^6.10.0
     nanoid: 5.0.8
     nock: ^13.5.5
     node-gyp: ^10.2.0
