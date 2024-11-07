@@ -10,7 +10,6 @@ import { Messages } from '../../../exceptions/text/messages.js';
 import { isConnectionTypeAgent } from '../../../helpers/index.js';
 import { Logger } from '../../../helpers/logging/Logger.js';
 import { AmplitudeService } from '../../amplitude/amplitude.service.js';
-import { ConnectionEntity } from '../../connection/connection.entity.js';
 import { isTestConnectionUtil } from '../../connection/utils/is-test-connection-util.js';
 import { ITableAndViewPermissionData } from '../../permission/permission.interface.js';
 import { TableSettingsEntity } from '../../table-settings/table-settings.entity.js';
@@ -82,7 +81,7 @@ export class FindTablesInConnectionUseCase
         operationResult &&
         process.env.NODE_ENV !== 'test'
       ) {
-        this.saveTableInfoInDatabase(connection, userId, tables);
+        this.saveTableInfoInDatabase(connection.id, userId, tables, masterPwd);
       }
     }
     const tablesWithPermissions = await this.getUserPermissionsForAvailableTables(userId, connectionId, tables);
@@ -222,14 +221,23 @@ export class FindTablesInConnectionUseCase
   }
 
   private async saveTableInfoInDatabase(
-    connection: ConnectionEntity,
+    connectionId: string,
     userId: string,
     tables: Array<TableDS>,
+    masterPwd: string,
   ): Promise<void> {
     try {
+      const foundConnection = await this._dbContext.connectionRepository.findOne({ where: { id: connectionId } });
+      if (!foundConnection) {
+        return;
+      }
+      const decryptedConnection = await this._dbContext.connectionRepository.findAndDecryptConnection(
+        connectionId,
+        masterPwd,
+      );
       const tableNames: Array<string> = tables.map((table) => table.tableName);
       const queue = new PQueue({ concurrency: 2 });
-      const dao = getDataAccessObject(connection);
+      const dao = getDataAccessObject(decryptedConnection);
       const tablesStructures: Array<{
         tableName: string;
         structure: Array<TableStructureDS>;
@@ -247,10 +255,10 @@ export class FindTablesInConnectionUseCase
         tableName: string;
         structure: Array<TableStructureDS>;
       }>;
-      connection.tables_info = (await Promise.all(
+      foundConnection.tables_info = (await Promise.all(
         tablesStructures.map(async (tableStructure) => {
           return await queue.add(async () => {
-            const newTableInfo = buildTableInfoEntity(tableStructure.tableName, connection);
+            const newTableInfo = buildTableInfoEntity(tableStructure.tableName, foundConnection);
             const savedTableInfo = await this._dbContext.tableInfoRepository.save(newTableInfo);
             const newTableFieldsInfos = tableStructure.structure.map((el) =>
               buildTableFieldInfoEntity(el, savedTableInfo),
@@ -261,8 +269,8 @@ export class FindTablesInConnectionUseCase
           });
         }),
       )) as Array<TableInfoEntity>;
-      connection.saved_table_info = ++connection.saved_table_info;
-      await this._dbContext.connectionRepository.saveUpdatedConnection(connection);
+      foundConnection.saved_table_info = ++foundConnection.saved_table_info;
+      await this._dbContext.connectionRepository.saveUpdatedConnection(foundConnection);
     } catch (e) {
       Sentry.captureException(e);
       console.error(e);
