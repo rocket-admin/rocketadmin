@@ -55,7 +55,9 @@ export class ConnectionPropertiesController {
   })
   @UseGuards(ConnectionReadGuard)
   @Get('/connection/properties/:connectionId')
-  async findConnectionProperties(@SlugUuid('connectionId') connectionId: string): Promise<FoundConnectionPropertiesDs | null> {
+  async findConnectionProperties(
+    @SlugUuid('connectionId') connectionId: string,
+  ): Promise<FoundConnectionPropertiesDs | null> {
     if (!connectionId) {
       throw new HttpException(
         {
@@ -103,6 +105,7 @@ export class ConnectionPropertiesController {
       hostname: connectionPropertiesData.hostname,
       company_name: connectionPropertiesData.company_name,
       tables_audit: connectionPropertiesData.tables_audit,
+      human_readable_table_names: connectionPropertiesData.human_readable_table_names,
     };
 
     return await this.createConnectionPropertiesUseCase.execute(createConnectionPropertiesDs, InTransactionEnum.ON);
@@ -145,6 +148,7 @@ export class ConnectionPropertiesController {
       company_name: connectionPropertiesData.company_name,
       hostname: connectionPropertiesData.hostname,
       tables_audit: connectionPropertiesData.tables_audit,
+      human_readable_table_names: connectionPropertiesData.human_readable_table_names,
     };
 
     return await this.updateConnectionPropertiesUseCase.execute(inputData, InTransactionEnum.ON);

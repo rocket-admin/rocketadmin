@@ -36,4 +36,9 @@ export class CreateConnectionPropertiesDto {
   @IsBoolean()
   @ApiProperty()
   tables_audit: boolean;
+
+  @IsOptional()
+  @IsBoolean()
+  @ApiProperty()
+  human_readable_table_names: boolean;
 }

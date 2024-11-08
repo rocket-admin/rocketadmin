@@ -16,5 +16,6 @@ export function buildConnectionPropertiesEntity(
   newConnectionProperties.hostname = propertiesInfo.hostname;
   newConnectionProperties.company_name = propertiesInfo.company_name;
   newConnectionProperties.tables_audit = propertiesInfo.tables_audit;
+  newConnectionProperties.human_readable_table_names = propertiesInfo.human_readable_table_names;
   return newConnectionProperties;
 }

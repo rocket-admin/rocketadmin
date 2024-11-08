@@ -14,5 +14,6 @@ export function buildFoundConnectionPropertiesDs(
     hostname: connectionProperties.hostname,
     company_name: connectionProperties.company_name,
     tables_audit: connectionProperties.tables_audit,
+    human_readable_table_names: connectionProperties.human_readable_table_names,
   };
 }

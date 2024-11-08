@@ -27,6 +27,9 @@ export class ConnectionPropertiesEntity {
   @Column({ default: true })
   tables_audit: boolean;
 
+  @Column({ default: true })
+  human_readable_table_names: boolean;
+
   @OneToOne((_) => ConnectionEntity, (connection) => connection.connection_properties, {
     onDelete: 'CASCADE',
   })
