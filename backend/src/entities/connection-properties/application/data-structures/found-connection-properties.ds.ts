@@ -27,4 +27,7 @@ export class FoundConnectionPropertiesDs {
 
   @ApiProperty()
   tables_audit: boolean;
+
+  @ApiProperty()
+  human_readable_table_names: boolean;
 }

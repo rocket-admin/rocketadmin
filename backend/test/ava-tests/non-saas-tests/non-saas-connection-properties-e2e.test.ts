@@ -134,6 +134,12 @@ test.serial(`${currentTest} should return created connection properties`, async 
     t.is(createConnectionPropertiesResponse.status, 201);
     t.is(createConnectionPropertiesRO.hidden_tables[0], newConnectionProperties.hidden_tables[0]);
     t.is(createConnectionPropertiesRO.connectionId, createConnectionRO.id);
+    t.is(createConnectionPropertiesRO.logo_url, newConnectionProperties.logo_url);
+    t.is(createConnectionPropertiesRO.primary_color, newConnectionProperties.primary_color);
+    t.is(createConnectionPropertiesRO.secondary_color, newConnectionProperties.secondary_color);
+    t.is(createConnectionPropertiesRO.hostname, newConnectionProperties.hostname);
+    t.is(createConnectionPropertiesRO.human_readable_table_names, newConnectionProperties.human_readable_table_names);
+    t.is(createConnectionPropertiesRO.tables_audit, newConnectionProperties.tables_audit);
   } catch (e) {
     throw e;
   }

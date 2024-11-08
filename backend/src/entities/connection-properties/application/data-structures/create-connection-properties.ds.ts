@@ -9,4 +9,5 @@ export class CreateConnectionPropertiesDs {
   hostname: string;
   company_name: string;
   tables_audit: boolean;
+  human_readable_table_names: boolean;
 }

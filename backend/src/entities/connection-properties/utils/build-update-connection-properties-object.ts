@@ -3,7 +3,7 @@ import { CreateConnectionPropertiesDs } from '../application/data-structures/cre
 export function buildUpdateConnectionPropertiesObject(
   inputData: CreateConnectionPropertiesDs,
 ): IUpdateConnectionPropertiesObject {
-  const { hidden_tables, logo_url, primary_color, secondary_color, hostname, company_name, tables_audit } = inputData;
+  const { hidden_tables, logo_url, primary_color, secondary_color, hostname, company_name, tables_audit, human_readable_table_names } = inputData;
   return {
     hidden_tables: hidden_tables,
     logo_url: logo_url,
@@ -12,6 +12,7 @@ export function buildUpdateConnectionPropertiesObject(
     hostname: hostname,
     company_name: company_name,
     tables_audit: tables_audit,
+    human_readable_table_names: human_readable_table_names,
   };
 }
 
@@ -23,4 +24,5 @@ export interface IUpdateConnectionPropertiesObject {
   hostname: string;
   company_name: string;
   tables_audit: boolean;
+  human_readable_table_names: boolean;
 }

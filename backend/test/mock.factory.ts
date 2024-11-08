@@ -820,6 +820,7 @@ export class MockFactory {
       hostname: faker.internet.url(),
       company_name: faker.company.name(),
       tables_audit: tables_audit,
+      human_readable_table_names: faker.datatype.boolean(),
     };
   }
 
