@@ -17,7 +17,10 @@ import { IdRowComponent } from '../components/ui-components/row-fields/id/id.com
 import { FileRowComponent } from '../components/ui-components/row-fields/file/file.component';
 
 export const timestampTypes = ['timestamp without time zone', 'timestamp with time zone', 'timestamp', 'date', 'time without time zone', 'time with time zone' , 'time'];
-export const defaultTimestampValues = ['current_date', 'current_time', 'current_timestamp', 'localtime', 'localtimestamp', 'now']
+export const defaultTimestampValues = {
+    postgres: ['current_date', 'current_time', 'current_timestamp', 'localtime', 'localtimestamp', 'now'],
+    mysql: ['curdate', 'curtime', 'now'],
+}
 
 export const UIwidgets = {
     Default: '',

@@ -30,6 +30,7 @@ export class DbTableRowEditComponent implements OnInit {
   public loading: boolean = true;
   public connectionID: string | null = null;
   public connectionName: string | null = null;
+  public connectionType: DBtype | null = null;
   public tableName: string | null = null;
   public dispalyTableName: string | null = null;
   public tableRowValues: object;
@@ -80,6 +81,7 @@ export class DbTableRowEditComponent implements OnInit {
     this.loading = true;
     this.connectionID = this._connections.currentConnectionID;
     this.tableName = this._tables.currentTableName;
+    this.connectionType = this._connections.currentConnection.type;
     this.tableFiltersUrlString = JsonURL.stringify(this._tableState.getBackUrlFilters());
     const navUrlParams = this._tableState.getBackUrlParams();
     this.backUrlParams = {...navUrlParams, filters: this.tableFiltersUrlString};
@@ -187,7 +189,7 @@ export class DbTableRowEditComponent implements OnInit {
   }
 
   get inputs() {
-    return fieldTypes[this._connections.currentConnection.type]
+    return fieldTypes[this.connectionType]
   }
 
   get currentConnection() {
@@ -271,7 +273,7 @@ export class DbTableRowEditComponent implements OnInit {
   }
 
   getModifyingFields(fields) {
-    return fields.filter((field: TableField) => !field.auto_increment && !(timestampTypes.includes(field.data_type) && field.column_default && defaultTimestampValues.includes(field.column_default.toLowerCase().replace(/\(.*\)/, ""))));
+    return fields.filter((field: TableField) => !field.auto_increment && !(timestampTypes.includes(field.data_type) && field.column_default && defaultTimestampValues[this.connectionType].includes(field.column_default.toLowerCase().replace(/\(.*\)/, ""))));
   }
 
   updateField = (updatedValue: any, field: string) => {
@@ -297,7 +299,7 @@ export class DbTableRowEditComponent implements OnInit {
     //crutch, format datetime fields
     //if no one edit manually datetime field, we have to remove '.000Z', cuz mysql return this format but it doesn't record it
 
-    if (this._connections.currentConnection.type === DBtype.MySQL) {
+    if (this.connectionType === DBtype.MySQL) {
       const datetimeFields = Object.entries(this.tableTypes)
         .filter(([key, value]) => value === 'datetime');
       if (datetimeFields.length) {
