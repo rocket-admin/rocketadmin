@@ -66,6 +66,9 @@ export const Messages = {
   CONNECTION_ID_MISSING: 'Connection id is missing',
   CONNECTION_NOT_CREATED: 'Connection was not successfully created.',
   CONNECTION_NOT_FOUND: 'Connection with specified parameters not found',
+  CONNECTION_NOT_ENCRYPTED: 'Connection is not encrypted',
+  CONNECTION_MASTER_PASSWORD_NOT_SET:
+    'Connection master password is not set (or connection created before this feature)',
   CONNECTION_TEST_FILED: 'Connection test failed. ',
   CONNECTION_TEST_FILED_WITH_ERROR: (message: string) =>
     `Connection test failed with error: ${
