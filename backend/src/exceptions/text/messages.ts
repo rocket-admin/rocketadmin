@@ -168,6 +168,7 @@ export const Messages = {
   MASTED_OLD_PASSWORD_MISSING: `Old master password is missing.`,
   MASTER_PASSWORD_MISSING: `Master password is missing.`,
   MASTER_PASSWORD_REQUIRED: `A master password is required if you want to apply additional encryption.`,
+  MASTER_PASSWORD_INCORRECT: `Master password is incorrect`,
   MUST_BE_ARRAY: (fieldName: string) => `The field "${fieldName}" must be an array`,
   MUST_CONTAIN_ARRAY_OF_PRIMARY_KEYS: `Body must contain array of primary keys`,
   NO_AUTH_KEYS_FOUND: 'No authorization keys found',

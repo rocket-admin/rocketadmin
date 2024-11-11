@@ -23,6 +23,7 @@ export class UpdateConnectionMasterPasswordUseCase
     const { connectionId, newMasterPwd, oldMasterPwd } = inputData;
     let connection = await this._dbContext.connectionRepository.findAndDecryptConnection(connectionId, oldMasterPwd);
     connection = Encryptor.encryptConnectionCredentials(connection, newMasterPwd);
+    connection.master_hash = await Encryptor.hashUserPassword(newMasterPwd);
     const updatedConnection = await this._dbContext.connectionRepository.saveNewConnection(connection);
     return { success: !!updatedConnection };
   }

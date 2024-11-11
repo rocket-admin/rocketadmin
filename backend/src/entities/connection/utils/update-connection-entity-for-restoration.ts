@@ -50,6 +50,12 @@ export async function updateConnectionEntityForRestoration(
     toUpdate.cert = connection_parameters.cert;
     toUpdate.schema = connection_parameters.schema;
     toUpdate.azure_encryption = connection_parameters.azure_encryption;
+    toUpdate.authSource =
+      connection_parameters.masterEncryption && masterPwd
+        ? Encryptor.encryptDataMasterPwd(connection_parameters.authSource, masterPwd)
+        : connection_parameters.authSource;
+    toUpdate.master_hash =
+      connection_parameters.masterEncryption && masterPwd ? await Encryptor.hashUserPassword(masterPwd) : undefined;
   }
   return toUpdate;
 }

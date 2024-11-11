@@ -6,6 +6,7 @@ import { UserEntity } from '../../user/user.entity.js';
 import { ConnectionEntity } from '../connection.entity.js';
 import { isTestConnectionUtil } from '../utils/is-test-connection-util.js';
 import { IConnectionRepository } from './connection.repository.interface.js';
+import { Messages } from '../../../exceptions/text/messages.js';
 
 export const customConnectionRepositoryExtension: IConnectionRepository = {
   async saveNewConnection(connection: ConnectionEntity): Promise<ConnectionEntity> {
@@ -99,6 +100,12 @@ export const customConnectionRepositoryExtension: IConnectionRepository = {
       await this.save(connection);
     }
     if (connection.masterEncryption && masterPwd) {
+      if (connection.master_hash) {
+        const isMasterPwdCorrect = await Encryptor.verifyUserPassword(masterPwd, connection.master_hash);
+        if (!isMasterPwdCorrect) {
+          throw new Error(Messages.MASTER_PASSWORD_INCORRECT);
+        }
+      }
       connection = Encryptor.decryptConnectionCredentials(connection, masterPwd);
     }
     return connection;
