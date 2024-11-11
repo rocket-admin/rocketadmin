@@ -152,6 +152,42 @@ test.serial(`${currentTest} should throw an error when connectionId not passed i
   }
 });
 
+test.serial(`${currentTest} should throw an exception when master password is incorrect`, async (t) => {
+  try {
+    const connectionToTestDB = getTestData(mockFactory).encryptedPostgresConnection;
+    const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
+    const { testTableName } = await createTestTable(connectionToTestDB);
+
+    testTables.push(testTableName);
+
+    const incorrectMasterPwd = faker.internet.password();
+    const createConnectionResponse = await request(app.getHttpServer())
+      .post('/connection')
+      .send(connectionToTestDB)
+      .set('Cookie', firstUserToken)
+      .set('masterpwd', masterPwd)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+    const createConnectionRO = JSON.parse(createConnectionResponse.text);
+    t.is(createConnectionResponse.status, 201);
+
+    const getTablesResponse = await request(app.getHttpServer())
+      .get(`/connection/tables/${createConnectionRO.id}`)
+      .set('Cookie', firstUserToken)
+      .set('masterpwd', incorrectMasterPwd)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+    t.is(getTablesResponse.status, 500);
+    const getTablesRO = JSON.parse(getTablesResponse.text);
+    t.is(typeof getTablesRO, 'object');
+    t.is(getTablesRO.message, Messages.MASTER_PASSWORD_INCORRECT);
+  } catch (e) {
+    console.error(e);
+    throw e;
+  }
+});
+
+
 test.serial(`${currentTest} should throw an error when connection id is incorrect`, async (t) => {
   try {
     const connectionToTestDB = getTestData(mockFactory).encryptedPostgresConnection;
