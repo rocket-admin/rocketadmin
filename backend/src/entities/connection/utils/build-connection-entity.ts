@@ -4,10 +4,10 @@ import { isConnectionTypeAgent } from '../../../helpers/index.js';
 import { UserEntity } from '../../user/user.entity.js';
 import { Encryptor } from '../../../helpers/encryption/encryptor.js';
 
-export function buildConnectionEntity(
+export async function buildConnectionEntity(
   createConnectionData: CreateConnectionDs,
   connectionAuthor: UserEntity,
-): ConnectionEntity {
+): Promise<ConnectionEntity> {
   let connection: ConnectionEntity = new ConnectionEntity();
   const {
     connection_parameters: {
@@ -57,6 +57,7 @@ export function buildConnectionEntity(
 
   if (connection.masterEncryption && masterPwd && !isConnectionTypeAgent(connection.type)) {
     connection = Encryptor.encryptConnectionCredentials(connection, masterPwd);
+    connection.master_hash = await Encryptor.hashUserPassword(masterPwd);
   }
   return connection;
 }

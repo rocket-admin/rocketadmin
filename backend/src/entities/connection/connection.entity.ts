@@ -105,6 +105,9 @@ export class ConnectionEntity {
   @Column({ default: null })
   authSource?: string | null;
 
+  @Column({ default: null })
+  master_hash?: string | null;
+
   @BeforeUpdate()
   updateTimestampEncryptCredentials(): void {
     this.updatedAt = new Date();

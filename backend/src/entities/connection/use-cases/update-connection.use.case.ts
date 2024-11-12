@@ -79,6 +79,7 @@ export class UpdateConnectionUseCase
     }
     if (updatedConnection.masterEncryption && masterPwd) {
       updatedConnection = Encryptor.encryptConnectionCredentials(updatedConnection, masterPwd);
+      updatedConnection.master_hash = await Encryptor.hashUserPassword(masterPwd);
     }
     const savedConnection = await this._dbContext.connectionRepository.saveNewConnection(updatedConnection);
     const isTest = isTestConnectionUtil(savedConnection);

@@ -21,6 +21,8 @@ import { FoundGroupResponseDto } from '../../group/dto/found-group-response.dto.
 import { FoundUserGroupsInConnectionDTO } from '../application/dto/found-user-groups-in-connection.dto.js';
 import { SuccessResponse } from '../../../microservices/saas-microservice/data-structures/common-responce.ds.js';
 import { TokenValidationResult } from './validate-connection-token.use.case.js';
+import { ValidateConnectionMasterPasswordDs } from '../application/data-structures/validate-connection-master-password.ds.js';
+import { ValidationResultRo } from '../application/dto/validation-result.ro.js';
 
 export interface IFindConnections {
   execute(user: CreateUserDs, inTransaction: InTransactionEnum): Promise<FoundConnectionsDs>;
@@ -89,4 +91,8 @@ export interface IValidateConnectionToken {
 
 export interface IRefreshConnectionAgentToken {
   execute(connectionId: string, inTransaction: InTransactionEnum): Promise<TokenDs>;
+}
+
+export interface IValidateConnectionMasterPassword {
+  execute(inputData: ValidateConnectionMasterPasswordDs, inTransaction: InTransactionEnum): Promise<ValidationResultRo>;
 }

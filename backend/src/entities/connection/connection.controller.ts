@@ -58,6 +58,7 @@ import {
   ITestConnection,
   IUpdateConnection,
   IUpdateMasterPassword,
+  IValidateConnectionMasterPassword,
   IValidateConnectionToken,
 } from './use-cases/use-cases.interfaces.js';
 import { isTestConnectionUtil } from './utils/is-test-connection-util.js';
@@ -78,6 +79,8 @@ import { FoundGroupResponseDto } from '../group/dto/found-group-response.dto.js'
 import { FoundUserGroupsInConnectionDTO } from './application/dto/found-user-groups-in-connection.dto.js';
 import { SuccessResponse } from '../../microservices/saas-microservice/data-structures/common-responce.ds.js';
 import { TokenValidationResult } from './use-cases/validate-connection-token.use.case.js';
+import { ValidationResultRo } from './application/dto/validation-result.ro.js';
+import { ValidateConnectionMasterPasswordDs } from './application/data-structures/validate-connection-master-password.ds.js';
 
 @UseInterceptors(SentryInterceptor)
 @Controller()
@@ -118,6 +121,8 @@ export class ConnectionController {
     private readonly validateConnectionTokenUseCase: IValidateConnectionToken,
     @Inject(UseCaseType.REFRESH_CONNECTION_AGENT_TOKEN)
     private readonly refreshConnectionAgentTokenUseCase: IRefreshConnectionAgentToken,
+    @Inject(UseCaseType.VALIDATE_CONNECTION_MASTER_PASSWORD)
+    private readonly validateConnectionMasterPasswordUseCase: IValidateConnectionMasterPassword,
     @Inject(BaseType.GLOBAL_DB_CONTEXT)
     protected _dbContext: IGlobalDatabaseContext,
     private readonly amplitudeService: AmplitudeService,
@@ -163,6 +168,31 @@ export class ConnectionController {
       );
     }
   }
+
+  @ApiOperation({ summary: 'Check connection master password' })
+  @ApiResponse({
+    status: 200,
+    type: ValidationResultRo,
+    description: 'Connection master password is valid.',
+  })
+  @Get('/connection/masterpwd/verify/:connectionId')
+  async verifyConnectionMasterPwd(
+    @SlugUuid('connectionId') connectionId: string,
+    @MasterPassword() masterPwd: string,
+  ): Promise<ValidationResultRo> {
+    if (!connectionId) {
+      throw new BadRequestException(Messages.CONNECTION_ID_MISSING);
+    }
+    if (!masterPwd) {
+      throw new BadRequestException(Messages.MASTER_PASSWORD_REQUIRED);
+    }
+    const inputData: ValidateConnectionMasterPasswordDs = {
+      connectionId: connectionId,
+      masterPassword: masterPwd,
+    };
+    return await this.validateConnectionMasterPasswordUseCase.execute(inputData, InTransactionEnum.OFF);
+  }
+
 
   @ApiOperation({ summary: 'One connection by id' })
   @ApiResponse({
