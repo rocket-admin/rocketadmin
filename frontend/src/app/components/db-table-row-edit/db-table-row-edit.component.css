@@ -24,12 +24,12 @@
     margin: 24px auto 40px;
     max-width: 520px;
     min-width: 300px;
-    /* width: 96%; */
+    width: 100%;
 }
 
 /* @media (width <= 600px) {
     .form {
-        padding: 0 9vw;
+        width: 96%;
     }
 } */
 

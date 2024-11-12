@@ -9,30 +9,46 @@
             <a mat-list-item routerLink="/connections-list"
                 routerLinkActive="nav-bar__button_active"
                 aria-label="List of connections">
-                Connections
+                <mat-icon matListItemIcon class="connection-navigation__icon">
+                    list
+                </mat-icon>
+                <div matListItemTitle>Connections</div>
             </a>
-            <a mat-list-item routerLink="/user-settings"
-                routerLinkActive="nav-bar__button_active">
-                Settings
+            <mat-nav-list *ngIf="connectionID && visibleTabs" class="connection-navigation">
+                <a mat-list-item *ngFor="let tab of visibleTabs" attr.data-testid="{{tab}}-header-link"
+                    routerLink="{{tab}}/{{connectionID}}"
+                    routerLinkActive="nav-bar__button_active">
+                    {{navigationTabs[tab].caption}}
+                </a>
+            </mat-nav-list>
+            <a mat-list-item routerLink="/user-settings" class="connection-navigation__item_user" data-testid="account-link-account-menu">
+                <mat-icon matListItemIcon class="connection-navigation__icon connection-navigation__icon_account"
+                    matBadge="1" [matBadgeHidden]="currentUser.isActive"
+                    matBadgeColor="accent" matBadgeSize="small">
+                    face
+                </mat-icon>
+                <div matListItemTitle>Account</div>
+                <div matListItemLine>{{currentUser.email}}</div>
             </a>
-            <a mat-list-item routerLink="/company"
-                routerLinkActive="nav-bar__button_active">
-                Company
+            <a mat-list-item routerLink="/company" data-testid="company-link-account-menu">
+                <mat-icon matListItemIcon class="connection-navigation__icon">
+                    apartment
+                </mat-icon>
+                <div matListItemTitle>Company</div>
             </a>
             <a mat-list-item href="https://help.rocketadmin.com/" target="_blank">
-                Help
+                <mat-icon matListItemIcon class="connection-navigation__icon" fontSet="material-icons-outlined">help_outlined</mat-icon>
+                <div matListItemTitle>Help center</div>
             </a>
-            <a mat-list-item *ngIf="isSaas" class="nav-bar__upgrade-button" routerLink="/upgrade"
-                routerLinkActive="nav-bar__button_active">
-                Upgrade
-            </a>
-            <div mat-list-item>
-                <button mat-button (click)="logOut()">
-                    Log out
-                    <mat-icon>exit_to_app</mat-icon>
-                </button>
-            </div>
+            <mat-list-item (click)="logOut()" data-testid="logout-button-account-menu">
+                <mat-icon matListItemIcon class="connection-navigation__icon">exit_to_app</mat-icon>
+                <div matListItemTitle>Log out</div>
+            </mat-list-item>
         </mat-nav-list>
+        <a mat-flat-button color="accent" *ngIf="isSaas" class="connection-navigation__upgrade-button" routerLink="/upgrade"
+            routerLinkActive="nav-bar__button_active">
+            Upgrade
+        </a>
     </mat-sidenav>
 
     <mat-sidenav-content class="main-menu-content">

@@ -128,6 +128,38 @@
     .actions_auth {
         display: none;
     }
+
+    .connection-navigation {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        border-top: var(--mat-table-row-item-outline-width, 1px) solid var(--mat-table-row-item-outline-color, rgba(0, 0, 0, 0.12));
+        border-bottom: var(--mat-table-row-item-outline-width, 1px) solid var(--mat-table-row-item-outline-color, rgba(0, 0, 0, 0.12));
+        margin-left: 8px;
+        margin-bottom: 12px;
+        padding: 8px 0;
+        width: calc(100% - 16px);
+    }
+
+    .connection-navigation__item_user {
+        margin-top: -12px !important;
+    }
+
+    .connection-navigation__icon {
+        --mdc-list-list-item-leading-icon-color: var(--mdc-list-list-item-label-text-color);
+
+        margin-right: 12px !important;
+    }
+
+    .connection-navigation__icon_account {
+        margin-top: 24px !important;
+    }
+
+    .connection-navigation__upgrade-button {
+        margin-top: 8px;
+        margin-left: 8px;
+        width: calc(100% - 16px);
+    }
 }
 
 /* .breadcrumbs {
