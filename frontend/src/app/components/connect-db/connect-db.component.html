@@ -32,6 +32,7 @@
                 <mat-option value="mysql">MySQL</mat-option>
                 <mat-option value="postgres">PostgreSQL</mat-option>
                 <mat-option value="mongodb">MongoDB</mat-option>
+                <mat-option value="dynamodb">DynamoDB</mat-option>
                 <mat-option value="oracledb">Oracle</mat-option>
                 <mat-option value="mssql">MS SQL</mat-option>
                 <mat-option value="ibmdb2">IBM DB2</mat-option>
@@ -88,7 +89,20 @@
             </ng-template>
         </div>
 
-        <ng-container *ngIf="db.connectionType === 'direct'">
+        <app-mysql-credentials-form class="credentials-fieldset"
+            [connection]="db"
+            [submitting]="submitting"
+            [accessLevel]="accessLevel"
+            [masterKey]="masterKey"
+            [isMasterKeyTurnedOn]="isMasterKeyTurnedOn"
+            [readonly]="(accessLevel === 'readonly' || db.isTestConnection) && db.id"
+            (switchToAgent)="switchToAgent"
+            (masterKeyChange)="handleMasterKeyChange($event)"
+            (masterKeyToggle)="handleMasterKeyToggle($event)">
+
+        </app-mysql-credentials-form>
+
+        <!--<ng-container *ngIf="db.connectionType === 'direct'">
             <mat-form-field appearance="outline" class="connectForm__hostname">
                 <mat-label>Hostname</mat-label>
                 <input matInput name="hostname" #hostname="ngModel"
@@ -157,10 +171,9 @@
                     [(ngModel)]="db.password">
                 <mat-hint *ngIf="db.id && (hostname.pristine && port.pristine)">To keep password the same keep this field blank.</mat-hint>
                 <mat-hint *ngIf="db.id && (hostname.dirty || port.dirty)">Password needed due to hostname/port change.</mat-hint>
-                <!-- <mat-error *ngIf="email.errors.required && (email.invalid && email.touched)">Email should not be empty.</mat-error> -->
             </mat-form-field>
 
-            <mat-form-field appearance="outline" [ngClass]="(db.type === 'mysql' || db.type === 'mongodb') ? 'connectForm__fullLine' : 'connectForm__firstHalf'">
+            <mat-form-field appearance="outline" [ngClass]="(db.type === 'mysql' || db.type === 'mongodb' || db.type === 'dynamodb') ? 'connectForm__fullLine' : 'connectForm__firstHalf'">
                 <mat-label>Database Name</mat-label>
                 <input matInput name="database" #database="ngModel"
                     data-testid="connection-database-input"
@@ -173,7 +186,7 @@
                 <mat-error *ngIf="database.errors?.required && (database.invalid && database.touched)">Name should not be empty.</mat-error>
             </mat-form-field>
 
-            <mat-form-field *ngIf="db.type !== 'mysql' && db.type !== 'mongodb'" appearance="outline" class="connectForm__secondHalf">
+            <mat-form-field *ngIf="db.type !== 'mysql' && db.type !== 'mongodb' && db.type !== 'dynamodb'" appearance="outline" class="connectForm__secondHalf">
                 <mat-label>Schema</mat-label>
                 <input matInput name="schema" #schema="ngModel"
                     data-testid="connection-schema-input"
@@ -239,7 +252,6 @@
                             [readonly]="(accessLevel === 'readonly' || db.isTestConnection) && db.id"
                             [disabled]="submitting"
                             [(ngModel)]="db.sid" name="sid" #sid="ngModel">
-                        <!-- <mat-error *ngIf="sid.invalid && sid.touched">Email should not be empty.</mat-error> -->
                     </mat-form-field>
 
                     <mat-checkbox class="checkbox-line advanced-settings__fullLine" name="ssh" #ssh="ngModel"
@@ -339,7 +351,7 @@
                 </div>
             </mat-expansion-panel>
 
-        </ng-container>
+        </ng-container>-->
 
         <div *ngIf="db.connectionType === 'agent'" class="connectForm__fullLine instruction">
 
@@ -504,7 +516,7 @@
                 data-testid="edit-connection-actions-edit-button"
                 angulartics2On="click"
                 angularticsAction="Connection creds edit: db edit is clicked"
-                [disabled]="submitting || connectForm.form.pristine || db.isTestConnection">
+                [disabled]="submitting || db.isTestConnection">
                 {{ submitting ? 'Checking' : 'Edit'}}
             </button>
 

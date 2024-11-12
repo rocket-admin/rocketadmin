@@ -144,6 +144,8 @@ import { WidgetDeleteDialogComponent } from './components/dashboard/db-table-wid
 import { environment } from '../environments/environment';
 import { provideZxvbnServiceForPSM } from 'angular-password-strength-meter/zxcvbn';
 import { ApiKeyDeleteDialogComponent } from "./components/user-settings/api-key-delete-dialog/api-key-delete-dialog.component";
+import { MysqlCredentialsFormComponent } from "./components/connect-db/db-credentials-forms/mysql-credentials-form/mysql-credentials-form.component";
+import { MasterEncryptionPasswordComponent } from "./components/connect-db/master-encryption-password/master-encryption-password.component";
 
 type Palettes = { primaryPalette: string, accentedPalette: string, warnPalette: string };
 type Colors = { myColorName: string };
@@ -294,6 +296,8 @@ const saasExtraProviders = (environment as any).saas ? [
     UserSettingsComponent,
     WidgetDeleteDialogComponent,
     WidgetComponent,
+    MysqlCredentialsFormComponent,
+    MasterEncryptionPasswordComponent
   ],
   providers: [
     ConnectionsService,

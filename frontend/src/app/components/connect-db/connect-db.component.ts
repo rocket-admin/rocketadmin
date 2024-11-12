@@ -44,6 +44,7 @@ export class ConnectDBComponent implements OnInit, OnDestroy {
     [DBtype.Oracle]: '1521',
     [DBtype.MSSQL]: '1433',
     [DBtype.Mongo]: '27017',
+    [DBtype.Dynamo]: '',
     [DBtype.DB2]: '50000'
   }
 
@@ -297,5 +298,13 @@ export class ConnectDBComponent implements OnInit, OnDestroy {
 
   switchToAgent() {
     this.db.connectionType = ConnectionType.Agent;
+  }
+
+  handleMasterKeyChange(newMasterKey: string): void {
+    this.masterKey = newMasterKey;
+  }
+
+  handleMasterKeyToggle(isTurnedOn: boolean): void {
+    this.isMasterKeyTurnedOn = isTurnedOn;
   }
 }
