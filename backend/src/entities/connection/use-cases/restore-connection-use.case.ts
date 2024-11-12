@@ -30,6 +30,16 @@ export class RestoreConnectionUseCase
       connection_parameters,
       update_info: { connectionId },
     } = connectionData;
+
+    if (connection_parameters.masterEncryption && !connectionData.update_info.masterPwd) {
+      throw new HttpException(
+        {
+          message: Messages.MASTER_PASSWORD_REQUIRED,
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
     const foundConnection = await this._dbContext.connectionRepository.findOneById(connectionId);
     if (!foundConnection) {
       throw new HttpException(
@@ -57,10 +67,13 @@ export class RestoreConnectionUseCase
     if (isConnectionEntityAgent(updatedConnection)) {
       updatedConnection.agent = await this._dbContext.agentRepository.createNewAgentForConnection(updatedConnection);
     }
-    const savedConnection = await this._dbContext.connectionRepository.saveNewConnection(updatedConnection);
+    const savedConnection = await this._dbContext.connectionRepository.save(updatedConnection);
+    const foundConnectionAfterSave = await this._dbContext.connectionRepository.findOne({
+      where: { id: savedConnection.id },
+    });
     const token = updatedConnection.agent?.token || null;
     return {
-      connection: buildCreatedConnectionDs(savedConnection, token, connectionData.update_info.masterPwd),
+      connection: buildCreatedConnectionDs(foundConnectionAfterSave, token, connectionData.update_info.masterPwd),
     };
   }
 }

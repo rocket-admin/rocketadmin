@@ -151,6 +151,7 @@ export class ConnectionModule implements NestModule {
         { path: '/connection/encryption/update/:connectionId', method: RequestMethod.PUT },
         { path: '/connection/encryption/restore/:connectionId', method: RequestMethod.PUT },
         { path: '/connection/token/refresh/:connectionId', method: RequestMethod.GET },
+        { path: '/connection/masterpwd/verify/:connectionId', method: RequestMethod.GET },
       );
   }
 }
