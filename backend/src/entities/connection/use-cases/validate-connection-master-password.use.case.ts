@@ -7,7 +7,6 @@ import { ValidateConnectionMasterPasswordDs } from '../application/data-structur
 import { ConnectionEntity } from '../connection.entity.js';
 import { IValidateConnectionMasterPassword } from './use-cases.interfaces.js';
 import { Encryptor } from '../../../helpers/encryption/encryptor.js';
-import { TokenValidationResult } from './validate-connection-token.use.case.js';
 import { ValidationResultRo } from '../application/dto/validation-result.ro.js';
 
 @Injectable({ scope: Scope.REQUEST })
