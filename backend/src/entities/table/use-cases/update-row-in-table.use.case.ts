@@ -49,7 +49,7 @@ export class UpdateRowInTableUseCase
   }
 
   protected async implementation(inputData: UpdateRowInTableDs): Promise<TableRowRODs> {
-    // eslint-disable-next-line prefer-const
+     
     let { connectionId, masterPwd, primaryKey, row, tableName, userId } = inputData;
     let operationResult = OperationResultStatusEnum.unknown;
 

@@ -7,7 +7,7 @@ export const BodyEmail = createParamDecorator((data: any, ctx: ExecutionContext)
   const request: IRequestWithCognitoInfo = ctx.switchToHttp().getRequest();
   const body = request.body;
   if (body.hasOwnProperty('email')) {
-    // eslint-disable-next-line security/detect-object-injection
+     
     const email = body['email'];
     if (ValidationHelper.isValidEmail(email)) {
       return email;
