@@ -1,13 +1,7 @@
 export function objectKeysToLowercase(obj: any): any {
-  // eslint-disable-next-line prefer-const
-  let key,
-    // eslint-disable-next-line prefer-const
-    keys = Object.keys(obj);
-  let n = keys.length;
   const newobj = {};
-  while (n--) {
-    key = keys[n];
-    newobj[key.toLowerCase()] = obj[key];
+  for (const [key, value] of Object.entries(obj)) {
+    newobj[key.toLowerCase()] = value;
   }
   return newobj;
 }

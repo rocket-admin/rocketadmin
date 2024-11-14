@@ -140,7 +140,7 @@ export class Config {
             }
             console.log('-> Configuration loaded from file');
             return decryptedCredentialsObj;
-          } catch (e) {
+          } catch (_e) {
             console.log(Messages.CORRUPTED_DATA_OR_PASSWORD);
             process.exit(0);
           }
@@ -156,13 +156,13 @@ export class Config {
             }
             console.log('-> Configuration loaded from file');
             return decryptedCredentials;
-          } catch (e) {
+          } catch (_e) {
             console.log(Messages.CORRUPTED_DATA);
             process.exit(0);
           }
         }
       }
-    } catch (e) {
+    } catch (_e) {
       console.log('-> Failed to load configuration from file');
       return null;
     }

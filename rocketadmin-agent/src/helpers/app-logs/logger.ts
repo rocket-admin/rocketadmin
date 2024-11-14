@@ -34,7 +34,7 @@ export class Logger {
 
   private static printLogRecord(createLogRecordDto: CreateLogRecordDto): void {
     const log = {
-      /* eslint-disable */
+       
       received_data: createLogRecordDto.row,
       table_name: createLogRecordDto.table_name,
       user_email: createLogRecordDto.email,
@@ -42,7 +42,7 @@ export class Logger {
       operation_type: createLogRecordDto.operationType,
       operation_status: createLogRecordDto.operationStatusResult,
       old_data: createLogRecordDto.old_data,
-      /* eslint-enable */
+       
     };
     this.logger.info(log);
     this.writeLogToFile(log);
@@ -55,6 +55,7 @@ export class Logger {
     }
     log = JSON.stringify(log) + '\n';
     const filePath = path.join(process.cwd(), Constants.DEFAULT_LOGS_DIRNAME, Constants.DEFAULT_LOGS_FILENAME);
+    // eslint-disable-next-line security/detect-non-literal-fs-filename
     fs.appendFile(filePath, log, (err) => {
       if (err) {
         console.log(err);
