@@ -1,3 +1,4 @@
+/* eslint-disable security/detect-non-literal-fs-filename */
 import fs from 'fs';
 import path from 'path';
 import { access, mkdir } from 'fs/promises';
@@ -21,7 +22,7 @@ export function writeFileIfNotExistsUtil(fileName: string, data: string): Promis
         '-> Configuration file already exists. If you want ro renew configuration, please delete current file',
       );
       resolve();
-    } catch (e) {
+    } catch (_e) {
       fs.writeFile(path.join(process.cwd(), fileName), data, 'utf8', (err) => {
         if (err) {
           reject(err);
@@ -35,7 +36,7 @@ export function writeFileIfNotExistsUtil(fileName: string, data: string): Promis
 export async function mkDirIfNotExistsUtil(dirname: string): Promise<void> {
   try {
     await access(path.join(process.cwd(), dirname));
-  } catch (e) {
+  } catch (_e) {
     await mkdir(path.join(process.cwd(), dirname));
   }
 }
