@@ -1,3 +1,5 @@
+/* eslint-disable security/detect-object-injection */
+/* eslint-disable security/detect-non-literal-regexp */
 import { Stream, Readable } from 'stream';
 import { AutocompleteFieldsDS } from '../shared/data-structures/autocomplete-fields.ds.js';
 import { ConnectionParams } from '../shared/data-structures/connections-params.ds.js';
@@ -57,10 +59,10 @@ export class DataAccessObjectMongo extends BasicDataAccessObject implements IDat
   }
 
   public async getIdentityColumns(
-    tableName: string,
-    referencedFieldName: string,
-    identityColumnName: string,
-    fieldValues: (string | number)[],
+    _tableName: string,
+    _referencedFieldName: string,
+    _identityColumnName: string,
+    _fieldValues: (string | number)[],
   ): Promise<Record<string, unknown>[]> {
     return [];
   }
@@ -172,6 +174,7 @@ export class DataAccessObjectMongo extends BasicDataAccessObject implements IDat
 
     if (filteringFields?.length > 0) {
       const groupedFilters = filteringFields.reduce((acc, filterObject) => {
+        // eslint-disable-next-line prefer-const
         let { field, criteria, value } = filterObject;
         if (field === '_id') {
           value = this.createObjectIdFromSting(value as string);
@@ -244,11 +247,11 @@ export class DataAccessObjectMongo extends BasicDataAccessObject implements IDat
     };
   }
 
-  public async getTableForeignKeys(tableName: string): Promise<ForeignKeyDS[]> {
+  public async getTableForeignKeys(_tableName: string): Promise<ForeignKeyDS[]> {
     return [];
   }
 
-  public async getTablePrimaryColumns(tableName: string): Promise<PrimaryKeyDS[]> {
+  public async getTablePrimaryColumns(_tableName: string): Promise<PrimaryKeyDS[]> {
     return [
       {
         column_name: '_id',
@@ -271,7 +274,7 @@ export class DataAccessObjectMongo extends BasicDataAccessObject implements IDat
   public async getTableStructure(tableName: string): Promise<TableStructureDS[]> {
     const db = await this.getConnectionToDatabase();
     const collection = db.collection(tableName);
-    let document = await collection.findOne({});
+    const document = await collection.findOne({});
     if (!document) {
       return [];
     }
@@ -337,11 +340,11 @@ export class DataAccessObjectMongo extends BasicDataAccessObject implements IDat
     return tableSettingsFieldValidator(tableStructure, primaryColumns, settings);
   }
 
-  public async getReferencedTableNamesAndColumns(tableName: string): Promise<ReferencedTableNamesAndColumnsDS[]> {
+  public async getReferencedTableNamesAndColumns(_tableName: string): Promise<ReferencedTableNamesAndColumnsDS[]> {
     return [];
   }
 
-  public async isView(tableName: string): Promise<boolean> {
+  public async isView(_tableName: string): Promise<boolean> {
     return false;
   }
 
@@ -489,7 +492,7 @@ export class DataAccessObjectMongo extends BasicDataAccessObject implements IDat
   private createObjectIdFromSting(id: string): ObjectId {
     try {
       return new ObjectId(id);
-    } catch (error) {
+    } catch (_error) {
       throw new Error(ERROR_MESSAGES.INVALID_OBJECT_ID_FORMAT);
     }
   }

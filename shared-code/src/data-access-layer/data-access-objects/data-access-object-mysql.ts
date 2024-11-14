@@ -1,3 +1,4 @@
+/* eslint-disable security/detect-object-injection */
 import { LRUStorage } from '../../caching/lru-storage.js';
 import { checkFieldAutoincrement } from '../../helpers/check-field-autoincrement.js';
 import { DAO_CONSTANTS } from '../../helpers/data-access-objects-constants.js';
@@ -612,8 +613,8 @@ export class DataAccessObjectMysql extends BasicDataAccessObject implements IDat
 
     try {
       await knex.transaction(async (trx) => {
-        for (let row of results) {
-          for (let column of timestampColumnNames) {
+        for (const row of results) {
+          for (const column of timestampColumnNames) {
             if (row[column] && !isMySQLDateStringByRegexp(row[column])) {
               const date = new Date(Number(row[column]));
               const formattedDate = date.toISOString().slice(0, 19).replace('T', ' ');
@@ -673,7 +674,7 @@ export class DataAccessObjectMysql extends BasicDataAccessObject implements IDat
       try {
         const slowCount = (await countRowsQB.count('*'))[0]['count(*)'] as number;
         resolve(slowCount);
-      } catch (error) {
+      } catch (_error) {
         resolve(null);
       }
     });

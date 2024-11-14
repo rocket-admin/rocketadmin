@@ -10,14 +10,14 @@ export async function getTunnel(connection: ConnectionParams, freePort: number) 
     privateKey: privateSSHKey,
   };
 
-  let forwardOptions = {
+  const forwardOptions = {
     srcAddr: 'localhost',
     srcPort: freePort,
     dstAddr: host,
     dstPort: port,
   };
 
-  let tunnelOptions = {
+  const tunnelOptions = {
     autoClose: true,
   };
 

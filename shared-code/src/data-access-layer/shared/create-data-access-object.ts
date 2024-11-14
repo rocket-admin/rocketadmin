@@ -87,6 +87,7 @@ function buildConnectionParams(connectionParams: IUnknownConnectionParams): Conn
     requiredKeys.push('sshHost', 'sshPort', 'sshUsername');
   }
 
+  // eslint-disable-next-line security/detect-object-injection
   const missingKeys = requiredKeys.filter((key) => !connectionParams[key]);
   if (missingKeys.length > 0) {
     throw new Error(`Missing required key${missingKeys.length > 1 ? 's' : ''}: ${missingKeys.join(', ')}`);

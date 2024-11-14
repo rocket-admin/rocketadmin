@@ -1,3 +1,4 @@
+/* eslint-disable security/detect-object-injection */
 interface RenamableObject {
   [key: string]: any;
 }

@@ -40,6 +40,7 @@ export function formatOracleDate(date: Date) {
   const day = date.getDate();
   const monthIndex = date.getMonth();
   const year = date.getFullYear().toString().slice(-2);
+  // eslint-disable-next-line security/detect-object-injection
   const resultString = `${day}-${monthNames[monthIndex]}-${year}`;
   return resultString;
 }
