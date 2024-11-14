@@ -1,3 +1,4 @@
+/* eslint-disable security/detect-object-injection */
 import { Stream } from 'stream';
 import { AutocompleteFieldsDS } from '../shared/data-structures/autocomplete-fields.ds.js';
 import { FilteringFieldsDS } from '../shared/data-structures/filtering-fields.ds.js';
@@ -18,7 +19,7 @@ import { FilterCriteriaEnum } from '../shared/enums/filter-criteria.enum.js';
 import { tableSettingsFieldValidator } from '../../helpers/validation/table-settings-validator.js';
 import { DeleteItemCommand, DynamoDB, GetItemCommand, ScanCommand, UpdateItemCommand } from '@aws-sdk/client-dynamodb';
 import { PutItemCommand } from '@aws-sdk/client-dynamodb';
-import { BatchWriteCommand, DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb';
+import { DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
 import * as csv from 'csv';
 import { QueryOrderingEnum } from '../shared/enums/query-ordering.enum.js';
@@ -76,10 +77,10 @@ export class DataAccessObjectDynamoDB extends BasicDataAccessObject implements I
   }
 
   public async getIdentityColumns(
-    tableName: string,
-    referencedFieldName: string,
-    identityColumnName: string,
-    fieldValues: Array<string | number>,
+    _tableName: string,
+    _referencedFieldName: string,
+    _identityColumnName: string,
+    _fieldValues: Array<string | number>,
   ): Promise<Array<Record<string, unknown>>> {
     return [];
   }
@@ -140,7 +141,7 @@ export class DataAccessObjectDynamoDB extends BasicDataAccessObject implements I
 
     let filterExpression = '';
     let expressionAttributeValues: { [key: string]: any } = {};
-    let expressionAttributeNames: { [key: string]: string } = {};
+    const expressionAttributeNames: { [key: string]: string } = {};
 
     if (autocompleteFields?.value && autocompleteFields.fields?.length > 0) {
       const { fields, value } = autocompleteFields;
@@ -238,7 +239,6 @@ export class DataAccessObjectDynamoDB extends BasicDataAccessObject implements I
 
     let lastEvaluatedKey = null;
     let rows = [];
-    let rowsCount = 0;
 
     do {
       const params: any = {
@@ -262,7 +262,7 @@ export class DataAccessObjectDynamoDB extends BasicDataAccessObject implements I
       const result = await dynamoDb.scan(params);
 
       rows = rows.concat(result.Items);
-      rowsCount += result.Count;
+     
       lastEvaluatedKey = result.LastEvaluatedKey;
     } while (lastEvaluatedKey);
 
@@ -289,7 +289,7 @@ export class DataAccessObjectDynamoDB extends BasicDataAccessObject implements I
     };
   }
 
-  public async getTableForeignKeys(tableName: string): Promise<Array<ForeignKeyDS>> {
+  public async getTableForeignKeys(_tableName: string): Promise<Array<ForeignKeyDS>> {
     return [];
   }
 
@@ -459,11 +459,11 @@ export class DataAccessObjectDynamoDB extends BasicDataAccessObject implements I
     return tableSettingsFieldValidator(tableStructure, primaryColumns, settings);
   }
 
-  public async getReferencedTableNamesAndColumns(tableName: string): Promise<Array<ReferencedTableNamesAndColumnsDS>> {
+  public async getReferencedTableNamesAndColumns(_tableName: string): Promise<Array<ReferencedTableNamesAndColumnsDS>> {
     return [];
   }
 
-  public async isView(tableName: string): Promise<boolean> {
+  public async isView(_tableName: string): Promise<boolean> {
     return false;
   }
 

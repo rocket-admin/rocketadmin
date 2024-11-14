@@ -10,7 +10,7 @@ export function tableSettingsFieldValidator(
   primaryColumns: Array<PrimaryKeyDS>,
   settings: ValidateTableSettingsDS | TableSettingsDS,
 ): Array<string> {
-  /* eslint-disable */
+   
   const errorMessages = [];
   if (isObjectEmpty(settings)) {
     return errorMessages;
@@ -150,5 +150,5 @@ export function tableSettingsFieldValidator(
   }
 
   return errorMessages;
-  /* eslint-enable */
+   
 }

@@ -1,3 +1,4 @@
+/* eslint-disable security/detect-object-injection */
 import axios from 'axios';
 import jwt from 'jsonwebtoken';
 import { ERROR_MESSAGES } from '../../helpers/errors/error-messages.js';
@@ -699,8 +700,8 @@ export class DataAccessObjectAgent implements IDataAccessObjectAgent {
     rows: Array<Record<string, any>>,
     timestampColumnNames: Array<string>,
   ): Array<Record<string, unknown>> {
-    for (let row of rows) {
-      for (let column of timestampColumnNames) {
+    for (const row of rows) {
+      for (const column of timestampColumnNames) {
         if (row[column] && !isOracleDateStringByRegexp(row[column])) {
           const date = new Date(Number(row[column]));
           row[column] = formatOracleDate(date);
@@ -714,8 +715,8 @@ export class DataAccessObjectAgent implements IDataAccessObjectAgent {
     rows: Array<Record<string, any>>,
     timestampColumnNames: Array<string>,
   ): Array<Record<string, unknown>> {
-    for (let row of rows) {
-      for (let column of timestampColumnNames) {
+    for (const row of rows) {
+      for (const column of timestampColumnNames) {
         if (row[column] && !isMySQLDateStringByRegexp(row[column])) {
           let dateStr = row[column];
           if (dateStr.endsWith('Z')) {
@@ -731,8 +732,8 @@ export class DataAccessObjectAgent implements IDataAccessObjectAgent {
   }
 
   private processMSSQLDateColumnsInRows(rows: Array<Record<string, any>>, timestampColumnNames: Array<string>) {
-    for (let row of rows) {
-      for (let column of timestampColumnNames) {
+    for (const row of rows) {
+      for (const column of timestampColumnNames) {
         if (row[column] && !isMSSQLDateStringByRegexp(row[column])) {
           const date = new Date(Number(row[column]));
           row[column] = date.toISOString();
@@ -746,14 +747,14 @@ export class DataAccessObjectAgent implements IDataAccessObjectAgent {
     rows: Array<Record<string, any>>,
     timestampColumnNames: Array<string>,
   ): Array<Record<string, unknown>> {
-    for (let row of rows) {
-      for (let column of timestampColumnNames) {
+    for (const row of rows) {
+      for (const column of timestampColumnNames) {
         try {
           if (row[column] && !isPostgresDateStringByRegexp(row[column])) {
             const date = new Date(Number(row[column]));
             row[column] = date.toISOString();
           }
-        } catch (error) {
+        } catch (_error) {
           continue;
         }
       }

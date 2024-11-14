@@ -1,6 +1,5 @@
 import knex, { Knex } from 'knex';
 import { LRUCache } from 'lru-cache';
-import { createTunnel } from 'tunnel-ssh';
 import getPort from 'get-port';
 import { ConnectionParams } from '../data-access-layer/shared/data-structures/connections-params.ds.js';
 import { CACHING_CONSTANTS } from '../caching/caching-constants.js';
@@ -19,7 +18,7 @@ export class KnexManager {
         try {
           await cachedKnex.raw('SELECT 1');
           return cachedKnex;
-        } catch (error) {
+        } catch (_error) {
           knexCache.delete(JSON.stringify(connection));
         }
       }
