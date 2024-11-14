@@ -86,6 +86,7 @@ import { LongTextRowComponent } from './components/ui-components/row-fields/long
 import { MasterEncryptionPasswordComponent } from "./components/connect-db/master-encryption-password/master-encryption-password.component";
 import { MasterPasswordDialogComponent } from './components/master-password-dialog/master-password-dialog.component';
 import { MaterialModule } from './modules/material.module';
+import { MongodbCredentialsFormComponent } from "./components/connect-db/db-credentials-forms/mongodb-credentials-form/mongodb-credentials-form.component";
 import { MysqlCredentialsFormComponent } from "./components/connect-db/db-credentials-forms/mysql-credentials-form/mysql-credentials-form.component";
 import { NewVersionComponent } from './components/new-version/new-version.component';
 import { NgmatTableQueryReflectorModule } from './modules/ngmat-table-query-reflector.module';
@@ -299,7 +300,8 @@ const saasExtraProviders = (environment as any).saas ? [
     WidgetComponent,
     MysqlCredentialsFormComponent,
     MasterEncryptionPasswordComponent,
-    PostgresCredentialsFormComponent
+    PostgresCredentialsFormComponent,
+    MongodbCredentialsFormComponent
   ],
   providers: [
     ConnectionsService,
