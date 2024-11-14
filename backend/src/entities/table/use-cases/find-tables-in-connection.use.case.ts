@@ -177,14 +177,14 @@ export class FindTablesInConnectionUseCase
     const tablesAndAccessLevels = {};
     tables.map((table) => {
       if (table.tableName !== '__proto__') {
-        // eslint-disable-next-line security/detect-object-injection
+         
         tablesAndAccessLevels[table.tableName] = [];
       }
     });
     tables.map((table) => {
       allTablePermissions.map((permission) => {
         if (permission.tableName === table.tableName && tablesAndAccessLevels.hasOwnProperty(table.tableName)) {
-          // eslint-disable-next-line security/detect-object-injection
+           
           tablesAndAccessLevels[table.tableName].push(permission.accessLevel);
         }
       });

@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
+ 
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, Relation } from 'typeorm';
 import { CompanyInfoEntity } from '../company-info.entity.js';
 import { UserRoleEnum } from '../../user/enums/user-role.enum.js';

@@ -163,12 +163,12 @@ export class TableLogsService {
             row[fieldName] = Constants.REMOVED_SENSITIVE_FIELD_IF_CHANGED;
           }
         } else {
-          // eslint-disable-next-line security/detect-object-injection
+           
           if (old_data && typeof old_data === 'object' && old_data.hasOwnProperty(fieldName)) {
             // eslint-disable-next-line security/detect-object-injection
             old_data[fieldName] = Constants.REMOVED_SENSITIVE_FIELD_IF_NOT_CHANGED;
           }
-          // eslint-disable-next-line security/detect-object-injection
+           
           if (row && typeof row === 'object' && row.hasOwnProperty(fieldName)) {
             // eslint-disable-next-line security/detect-object-injection
             row[fieldName] = Constants.REMOVED_SENSITIVE_FIELD_IF_CHANGED;

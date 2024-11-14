@@ -37,7 +37,7 @@ export class GetRowByPrimaryKeyUseCase
   }
 
   protected async implementation(inputData: GetRowByPrimaryKeyDs): Promise<TableRowRODs> {
-    // eslint-disable-next-line prefer-const
+     
     let { connectionId, masterPwd, primaryKey, tableName, userId } = inputData;
     if (!primaryKey) {
       throw new HttpException(

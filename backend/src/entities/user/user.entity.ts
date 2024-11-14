@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
+ 
 import { ConnectionEntity } from '../connection/connection.entity.js';
 import {
   Entity,
