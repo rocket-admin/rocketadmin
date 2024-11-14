@@ -50,22 +50,6 @@
             </mat-button-toggle-group>
         </div>
 
-
-        <!--<div class="connectForm__fullLine connectForm__agentRadio">
-            <mat-radio-group required
-                name="connectionType"
-                class="radio-group"
-                [disabled]="submitting"
-                [(ngModel)]="db.connectionType">
-                <mat-radio-button value='direct' class="radio-button">
-                    Direct connection
-                </mat-radio-button>
-                <mat-radio-button value='agent' class="radio-button">
-                    Agent connection
-                </mat-radio-button>
-            </mat-radio-group>
-        </div>-->
-
         <div *ngIf="db && db.connectionType === 'direct' && !db.isTestConnection && isSaas"
             data-testid="direct-connection-warning"
             class="connectForm__fullLine">
@@ -89,7 +73,8 @@
             </ng-template>
         </div>
 
-        <app-mysql-credentials-form class="credentials-fieldset"
+        <app-mysql-credentials-form *ngIf="db.type === 'mysql'"
+            class="credentials-fieldset"
             [connection]="db"
             [submitting]="submitting"
             [accessLevel]="accessLevel"
@@ -99,8 +84,20 @@
             (switchToAgent)="switchToAgent"
             (masterKeyChange)="handleMasterKeyChange($event)"
             (masterKeyToggle)="handleMasterKeyToggle($event)">
-
         </app-mysql-credentials-form>
+
+        <app-postgres-credentials-form *ngIf="db.type === 'postgres'"
+            class="credentials-fieldset"
+            [connection]="db"
+            [submitting]="submitting"
+            [accessLevel]="accessLevel"
+            [masterKey]="masterKey"
+            [isMasterKeyTurnedOn]="isMasterKeyTurnedOn"
+            [readonly]="(accessLevel === 'readonly' || db.isTestConnection) && db.id"
+            (switchToAgent)="switchToAgent"
+            (masterKeyChange)="handleMasterKeyChange($event)"
+            (masterKeyToggle)="handleMasterKeyToggle($event)">
+        </app-postgres-credentials-form>
 
         <!--<ng-container *ngIf="db.connectionType === 'direct'">
             <mat-form-field appearance="outline" class="connectForm__hostname">

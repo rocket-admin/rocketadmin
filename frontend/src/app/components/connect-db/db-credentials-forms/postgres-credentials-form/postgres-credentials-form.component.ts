@@ -1,13 +1,12 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-
 import { Connection } from 'src/app/models/connection';
 
 @Component({
-  selector: 'app-mysql-credentials-form',
-  templateUrl: './mysql-credentials-form.component.html',
-  styleUrls: ['./../credential-form-grid.css', './mysql-credentials-form.component.css']
+  selector: 'app-postgres-credentials-form',
+  templateUrl: './postgres-credentials-form.component.html',
+  styleUrls: ['./../credential-form-grid.css', './postgres-credentials-form.component.css']
 })
-export class MysqlCredentialsFormComponent {
+export class PostgresCredentialsFormComponent {
   @Input() connection: Connection;
   @Input() readonly: boolean;
   @Input() submitting: boolean;
