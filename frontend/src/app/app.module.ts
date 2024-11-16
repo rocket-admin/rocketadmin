@@ -148,6 +148,7 @@ import { WidgetComponent } from "./components/dashboard/db-table-widgets/widget/
 import { WidgetDeleteDialogComponent } from './components/dashboard/db-table-widgets/widget-delete-dialog/widget-delete-dialog.component';
 import { environment } from '../environments/environment';
 import { provideZxvbnServiceForPSM } from 'angular-password-strength-meter/zxcvbn';
+import { OracledbCredentialsFormComponent } from "./components/connect-db/db-credentials-forms/oracledb-credentials-form/oracledb-credentials-form.component";
 
 type Palettes = { primaryPalette: string, accentedPalette: string, warnPalette: string };
 type Colors = { myColorName: string };
@@ -301,7 +302,8 @@ const saasExtraProviders = (environment as any).saas ? [
     MysqlCredentialsFormComponent,
     MasterEncryptionPasswordComponent,
     PostgresCredentialsFormComponent,
-    MongodbCredentialsFormComponent
+    MongodbCredentialsFormComponent,
+    OracledbCredentialsFormComponent
   ],
   providers: [
     ConnectionsService,

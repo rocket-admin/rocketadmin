@@ -112,6 +112,32 @@
             (masterKeyToggle)="handleMasterKeyToggle($event)">
         </app-mongodb-credentials-form>
 
+        <!--<app-dynamodb-credentials-form *ngIf="db.type === 'dynamodb'"
+            class="credentials-fieldset"
+            [connection]="db"
+            [submitting]="submitting"
+            [accessLevel]="accessLevel"
+            [masterKey]="masterKey"
+            [isMasterKeyTurnedOn]="isMasterKeyTurnedOn"
+            [readonly]="(accessLevel === 'readonly' || db.isTestConnection) && db.id"
+            (switchToAgent)="switchToAgent"
+            (masterKeyChange)="handleMasterKeyChange($event)"
+            (masterKeyToggle)="handleMasterKeyToggle($event)">
+        </app-dynamodb-credentials-form>-->
+
+        <app-oracledb-credentials-form *ngIf="db.type === 'oracledb'"
+            class="credentials-fieldset"
+            [connection]="db"
+            [submitting]="submitting"
+            [accessLevel]="accessLevel"
+            [masterKey]="masterKey"
+            [isMasterKeyTurnedOn]="isMasterKeyTurnedOn"
+            [readonly]="(accessLevel === 'readonly' || db.isTestConnection) && db.id"
+            (switchToAgent)="switchToAgent"
+            (masterKeyChange)="handleMasterKeyChange($event)"
+            (masterKeyToggle)="handleMasterKeyToggle($event)">
+        </app-oracledb-credentials-form>
+
         <!--<ng-container *ngIf="db.connectionType === 'direct'">
             <mat-form-field appearance="outline" class="connectForm__hostname">
                 <mat-label>Hostname</mat-label>
