@@ -1,29 +1,12 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component } from '@angular/core';
 
-import { Connection } from 'src/app/models/connection';
+import { BaseCredentialsFormComponent } from '../base-credentials-form/base-credentials-form.component';
 
 @Component({
   selector: 'app-oracledb-credentials-form',
   templateUrl: './oracledb-credentials-form.component.html',
-  styleUrls: ['./../credential-form-grid.css', './oracledb-credentials-form.component.css']
+  styleUrls: ['../base-credentials-form/base-credentials-form.component.css', './oracledb-credentials-form.component.css']
 })
-export class OracledbCredentialsFormComponent {
-  @Input() connection: Connection;
-  @Input() readonly: boolean;
-  @Input() submitting: boolean;
-  @Input() masterKey: string;
-  @Input() isMasterKeyTurnedOn: boolean;
-  @Input() accessLevel: string;
+export class OracledbCredentialsFormComponent extends BaseCredentialsFormComponent {
 
-  @Output() switchToAgent = new EventEmitter<void>();
-  @Output() masterKeyChange = new EventEmitter<string>();
-  @Output() masterKeyToggle = new EventEmitter<boolean>();
-
-  handleMasterKeyChange(newMasterKey: string): void {
-    this.masterKeyChange.emit(newMasterKey);
-  }
-
-  handleMasterKeyToggle(isTurnedOn: boolean): void {
-    this.masterKeyToggle.emit(isTurnedOn);
-  }
 }
