@@ -272,24 +272,7 @@ export class DataAccessObjectMongo extends BasicDataAccessObject implements IDat
   }
 
   public async getTableStructure(tableName: string): Promise<TableStructureDS[]> {
-    const db = await this.getConnectionToDatabase();
-    const collection = db.collection(tableName);
-    const document = await collection.findOne({});
-    if (!document) {
-      return [];
-    }
-    const structure: TableStructureDS[] = Object.keys(document).map((key) => ({
-      allow_null: document[key] === null,
-      character_maximum_length: null,
-      column_default: key === '_id' ? 'autoincrement' : null,
-      column_name: key,
-      data_type: key === '_id' ? 'string' : this.getMongoDataTypeByValue(document[key]),
-      data_type_params: null,
-      udt_name: null,
-      extra: null,
-    }));
-
-    return structure;
+    return await this.getTableStructureOrReturnPrimaryKeysIfNothingToScan(tableName);
   }
 
   public async testConnect(): Promise<TestConnectionResultDS> {
@@ -530,6 +513,40 @@ export class DataAccessObjectMongo extends BasicDataAccessObject implements IDat
       default:
         return 'unknown';
     }
+  }
+
+  private async getTableStructureOrReturnPrimaryKeysIfNothingToScan(tableName: string): Promise<TableStructureDS[]> {
+    const db = await this.getConnectionToDatabase();
+    const collection = db.collection(tableName);
+    const document = await collection.findOne({});
+    if (!document) {
+      return [];
+    }
+    const structure: TableStructureDS[] = Object.keys(document).map((key) => ({
+      allow_null: document[key] === null,
+      character_maximum_length: null,
+      column_default: key === '_id' ? 'autoincrement' : null,
+      column_name: key,
+      data_type: key === '_id' ? 'string' : this.getMongoDataTypeByValue(document[key]),
+      data_type_params: null,
+      udt_name: null,
+      extra: null,
+    }));
+
+    if (!structure.length) {
+      const primaryColumns = await this.getTablePrimaryColumns(tableName);
+      return primaryColumns.map((column) => ({
+        allow_null: false,
+        character_maximum_length: null,
+        column_default: null,
+        column_name: column.column_name,
+        data_type: column.data_type,
+        data_type_params: null,
+        udt_name: null,
+        extra: null,
+      }));
+    }
+    return structure;
   }
 
   private processMongoIdField(_id: unknown): string | undefined {
