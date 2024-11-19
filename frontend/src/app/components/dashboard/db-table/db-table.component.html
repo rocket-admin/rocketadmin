@@ -2,43 +2,9 @@
     <div class="db-table-title">
         <h2 class="mat-h2">{{ displayName }}</h2>
 
-        <button mat-icon-button type="button"
-            *ngIf="accessLevel === 'edit'"
-            [matMenuTriggerFor]="settingsMenu"
-            angulartics2On="click"
-            angularticsAction="Dashboard: settings dropdown is clicked">
-            <mat-icon>settings</mat-icon>
-        </button>
-        <mat-menu #settingsMenu="matMenu">
-            <a mat-menu-item *ngIf="accessLevel === 'edit'"
-                routerLink="/dashboard/{{connectionID}}/{{name}}/settings"
-                angulartics2On="click"
-                angularticsAction="Dashboard: settings is clicked">
-                Settings
-            </a>
-            <a mat-menu-item *ngIf="tableData"
-                routerLink="/dashboard/{{connectionID}}/{{name}}/widgets"
-                [ngClass]="{'action_active': tableData.widgetsCount}"
-                angulartics2On="click"
-                angularticsAction="Dashboard: widgets is clicked">
-                Widgets
-            </a>
-            <a mat-menu-item *ngIf="tableData" [ngClass]="{ 'action-button_disabled': !tableData.keyAttributes?.length }"
-                routerLink="/dashboard/{{connectionID}}/{{name}}/actions"
-                [disabled]="!tableData.keyAttributes?.length"
-                angulartics2On="click"
-                angularticsAction="Dashboard: actions is clicked">
-                Actions
-                <br />
-                <span *ngIf="!tableData.keyAttributes?.length" class="mat-small">
-                    Primary keys are required.
-                </span>
-            </a>
-        </mat-menu>
-
-        <!--<button mat-icon-button (click)="loadRowsPage()">
+        <button mat-icon-button (click)="loadRowsPage()">
             <mat-icon>refresh</mat-icon>
-        </button>-->
+        </button>
     </div>
     <div *ngIf="selection.selected.length; else generalActions" class="db-table-bulk-actions">
         <div class="actions">
@@ -127,6 +93,39 @@
                         </button>
                     </mat-menu>
                 </div>
+                <button mat-icon-button type="button"
+                    *ngIf="accessLevel === 'edit'"
+                    [matMenuTriggerFor]="settingsMenu"
+                    angulartics2On="click"
+                    angularticsAction="Dashboard: settings dropdown is clicked">
+                    <mat-icon>more_vert</mat-icon>
+                </button>
+                <mat-menu #settingsMenu="matMenu">
+                    <a mat-menu-item *ngIf="accessLevel === 'edit'"
+                        routerLink="/dashboard/{{connectionID}}/{{name}}/settings"
+                        angulartics2On="click"
+                        angularticsAction="Dashboard: settings is clicked">
+                        Settings
+                    </a>
+                    <a mat-menu-item *ngIf="tableData"
+                        routerLink="/dashboard/{{connectionID}}/{{name}}/widgets"
+                        [ngClass]="{'action_active': tableData.widgetsCount}"
+                        angulartics2On="click"
+                        angularticsAction="Dashboard: widgets is clicked">
+                        Widgets
+                    </a>
+                    <a mat-menu-item *ngIf="tableData" [ngClass]="{ 'action-button_disabled': !tableData.keyAttributes?.length }"
+                        routerLink="/dashboard/{{connectionID}}/{{name}}/actions"
+                        [disabled]="!tableData.keyAttributes?.length"
+                        angulartics2On="click"
+                        angularticsAction="Dashboard: actions is clicked">
+                        Actions
+                        <br />
+                        <span *ngIf="!tableData.keyAttributes?.length" class="mat-small">
+                            Primary keys are required.
+                        </span>
+                    </a>
+                </mat-menu>
             </div>
         </div>
     </ng-template>
