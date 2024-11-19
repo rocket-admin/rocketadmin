@@ -112,7 +112,7 @@
             (masterKeyToggle)="handleMasterKeyToggle($event)">
         </app-mongodb-credentials-form>
 
-        <!--<app-dynamodb-credentials-form *ngIf="db.type === 'dynamodb'"
+        <app-dynamodb-credentials-form *ngIf="db.type === 'dynamodb'"
             class="credentials-fieldset"
             [connection]="db"
             [submitting]="submitting"
@@ -123,7 +123,7 @@
             (switchToAgent)="switchToAgent"
             (masterKeyChange)="handleMasterKeyChange($event)"
             (masterKeyToggle)="handleMasterKeyToggle($event)">
-        </app-dynamodb-credentials-form>-->
+        </app-dynamodb-credentials-form>
 
         <app-oracledb-credentials-form *ngIf="db.type === 'oracledb'"
             class="credentials-fieldset"

@@ -150,6 +150,7 @@ import { environment } from '../environments/environment';
 import { provideZxvbnServiceForPSM } from 'angular-password-strength-meter/zxcvbn';
 import { OracledbCredentialsFormComponent } from "./components/connect-db/db-credentials-forms/oracledb-credentials-form/oracledb-credentials-form.component";
 import { MssqlCredentialsFormComponent } from "./components/connect-db/db-credentials-forms/mssql-credentials-form/mssql-credentials-form.component";
+import { DynamodbCredentialsFormComponent } from "./components/connect-db/db-credentials-forms/dynamodb-credentials-form/dynamodb-credentials-form.component";
 
 type Palettes = { primaryPalette: string, accentedPalette: string, warnPalette: string };
 type Colors = { myColorName: string };
@@ -305,7 +306,8 @@ const saasExtraProviders = (environment as any).saas ? [
     PostgresCredentialsFormComponent,
     MongodbCredentialsFormComponent,
     OracledbCredentialsFormComponent,
-    MssqlCredentialsFormComponent
+    MssqlCredentialsFormComponent,
+    DynamodbCredentialsFormComponent
   ],
   providers: [
     ConnectionsService,
