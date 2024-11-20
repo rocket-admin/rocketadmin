@@ -249,5 +249,8 @@ export const fieldTypes = {
         unknown: TextRowComponent,
 
         "foreign key": ForeignKeyRowComponent
+    },
+    dynamodb: {
+        string: TextRowComponent,
     }
 }

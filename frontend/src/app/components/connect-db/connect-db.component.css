@@ -28,6 +28,14 @@
     grid-row: 5 / span 4;
 }
 
+.credentials-fieldset-no-warning {
+    display: grid;
+    grid-template-columns: subgrid;
+    grid-template-rows: subgrid;
+    grid-column: 1 / span 4;
+    grid-row: 4 / span 4;
+}
+
 .mat-h1 {
     margin-top: 2vw;
 }
@@ -161,12 +169,3 @@
     padding: 8px 12px;
 }
 
-
-
-.connectForm__agent-connection-button {
-    color: inherit;
-    background: transparent;
-    border: none;
-    text-decoration: underline;
-    cursor: pointer;
-}

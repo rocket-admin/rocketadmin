@@ -50,7 +50,7 @@
             </mat-button-toggle-group>
         </div>
 
-        <div *ngIf="db && db.connectionType === 'direct' && !db.isTestConnection && isSaas"
+        <div *ngIf="db && db.connectionType === 'direct' && !db.isTestConnection && isSaas && db.type !== 'dynamodb'"
             data-testid="direct-connection-warning"
             class="connectForm__fullLine">
             <div *ngIf="connectionID; else warningAlert" class="warningMessage">
@@ -113,7 +113,7 @@
         </app-mongodb-credentials-form>
 
         <app-dynamodb-credentials-form *ngIf="db.type === 'dynamodb'"
-            class="credentials-fieldset"
+            class="credentials-fieldset-no-warning"
             [connection]="db"
             [submitting]="submitting"
             [accessLevel]="accessLevel"

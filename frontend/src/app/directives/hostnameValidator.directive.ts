@@ -1,6 +1,7 @@
-import { Directive } from "@angular/core";
+import { Directive, Input } from "@angular/core";
 import { AbstractControl, NG_VALIDATORS, ValidationErrors, Validator } from "@angular/forms";
 import { hostnameValidation } from "../validators/hostname.validator";
+import { DBtype } from "../models/connection";
 
 @Directive({
     selector: '[hostnameValidator][ngModel]',
@@ -14,7 +15,9 @@ import { hostnameValidation } from "../validators/hostname.validator";
 })
 
 export class HostnameValidationDirective implements Validator {
+    @Input() hostnameValidator: DBtype;
+
     validate(control: AbstractControl): ValidationErrors | null {
-      return hostnameValidation()(control);
+      return hostnameValidation(this.hostnameValidator)(control);
     }
 }

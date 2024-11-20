@@ -297,6 +297,7 @@ export class ConnectDBComponent implements OnInit, OnDestroy {
   }
 
   switchToAgent() {
+    console.log('switchToAgent');
     this.db.connectionType = ConnectionType.Agent;
   }
 
