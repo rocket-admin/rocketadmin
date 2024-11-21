@@ -73,7 +73,7 @@
             </ng-template>
         </div>
 
-        <app-mysql-credentials-form *ngIf="db.type === 'mysql'"
+        <app-mysql-credentials-form *ngIf="db.type === 'mysql' && db.connectionType === 'direct'"
             class="credentials-fieldset"
             [connection]="db"
             [submitting]="submitting"
@@ -81,12 +81,12 @@
             [masterKey]="masterKey"
             [isMasterKeyTurnedOn]="isMasterKeyTurnedOn"
             [readonly]="(accessLevel === 'readonly' || db.isTestConnection) && db.id"
-            (switchToAgent)="switchToAgent"
+            (switchToAgent)="switchToAgent()"
             (masterKeyChange)="handleMasterKeyChange($event)"
             (masterKeyToggle)="handleMasterKeyToggle($event)">
         </app-mysql-credentials-form>
 
-        <app-postgres-credentials-form *ngIf="db.type === 'postgres'"
+        <app-postgres-credentials-form *ngIf="db.type === 'postgres' && db.connectionType === 'direct'"
             class="credentials-fieldset"
             [connection]="db"
             [submitting]="submitting"
@@ -99,7 +99,7 @@
             (masterKeyToggle)="handleMasterKeyToggle($event)">
         </app-postgres-credentials-form>
 
-        <app-mongodb-credentials-form *ngIf="db.type === 'mongodb'"
+        <app-mongodb-credentials-form *ngIf="db.type === 'mongodb' && db.connectionType === 'direct'"
             class="credentials-fieldset"
             [connection]="db"
             [submitting]="submitting"
@@ -112,7 +112,7 @@
             (masterKeyToggle)="handleMasterKeyToggle($event)">
         </app-mongodb-credentials-form>
 
-        <app-dynamodb-credentials-form *ngIf="db.type === 'dynamodb'"
+        <app-dynamodb-credentials-form *ngIf="db.type === 'dynamodb' && db.connectionType === 'direct'"
             class="credentials-fieldset-no-warning"
             [connection]="db"
             [submitting]="submitting"
@@ -125,7 +125,7 @@
             (masterKeyToggle)="handleMasterKeyToggle($event)">
         </app-dynamodb-credentials-form>
 
-        <app-oracledb-credentials-form *ngIf="db.type === 'oracledb'"
+        <app-oracledb-credentials-form *ngIf="db.type === 'oracledb' && db.connectionType === 'direct'"
             class="credentials-fieldset"
             [connection]="db"
             [submitting]="submitting"
@@ -138,7 +138,7 @@
             (masterKeyToggle)="handleMasterKeyToggle($event)">
         </app-oracledb-credentials-form>
 
-        <app-mssql-credentials-form *ngIf="db.type === 'mssql'"
+        <app-mssql-credentials-form *ngIf="db.type === 'mssql' && db.connectionType === 'direct'"
             class="credentials-fieldset"
             [connection]="db"
             [submitting]="submitting"
