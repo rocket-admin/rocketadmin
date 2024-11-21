@@ -607,7 +607,9 @@ export class DataAccessObjectDynamoDB extends BasicDataAccessObject implements I
       items.forEach((item) => {
         Object.keys(item).forEach((key) => {
           if (!attributeTypes[key]) {
-            attributeTypes[key] = typeof item[key];
+            const attributeValue = item[key];
+            const attributeType = Object.keys(attributeValue)[0];
+            attributeTypes[key] = attributeType;
           }
         });
       });
