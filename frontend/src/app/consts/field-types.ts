@@ -15,6 +15,7 @@ import { TimeRowComponent } from '../components/ui-components/row-fields/time/ti
 import { TimeIntervalRowComponent } from '../components/ui-components/row-fields/time-interval/time-interval.component';
 import { IdRowComponent } from '../components/ui-components/row-fields/id/id.component';
 import { FileRowComponent } from '../components/ui-components/row-fields/file/file.component';
+import { CodeRowComponent } from '../components/ui-components/row-fields/code/code.component';
 
 export const timestampTypes = ['timestamp without time zone', 'timestamp with time zone', 'timestamp', 'date', 'time without time zone', 'time with time zone' , 'time'];
 export const defaultTimestampValues = {
@@ -35,7 +36,8 @@ export const UIwidgets = {
     Number: NumberRowComponent,
     Select: SelectRowComponent,
     Password: PasswordRowComponent,
-    File: FileRowComponent
+    File: FileRowComponent,
+    Code: CodeRowComponent,
 }
 
 export const fieldTypes = {

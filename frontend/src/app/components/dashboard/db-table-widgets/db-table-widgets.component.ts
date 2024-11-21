@@ -99,6 +99,13 @@ export class DbTableWidgetsComponent implements OnInit {
 {
   "type": "hex"
 }
+`,
+    Code:
+`// provide language of code to highlight
+// example:
+{
+  "language": "json"
+}
 `
   }
 
