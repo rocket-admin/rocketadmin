@@ -86,6 +86,9 @@ export class CreatedConnectionDTO {
   @ApiProperty()
   authSource: string;
 
+  @ApiProperty()
+  master_hash: string;
+
   @ApiProperty({ isArray: true, type: CreatedGroupInConnectionDTO })
   groups: Array<CreatedGroupInConnectionDTO>;
 }

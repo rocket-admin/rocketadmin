@@ -96,7 +96,7 @@ export class TableSettingsController {
   async createSettings(
     @QueryUuid('connectionId') connectionId: string,
     @QueryTableName() tableName: string,
-    /* eslint-disable */
+     
     @Body('search_fields') search_fields: Array<string>,
     @Body('display_name') display_name: string,
     @Body('excluded_fields') excluded_fields: Array<string>,
@@ -149,7 +149,7 @@ export class TableSettingsController {
       allow_csv_export: allow_csv_export,
       allow_csv_import: allow_csv_import,
     };
-    /* eslint-enable */
+     
     const errors = this.validateParameters(inputData);
     if (errors.length > 0) {
       throw new HttpException(
@@ -176,7 +176,7 @@ export class TableSettingsController {
   async updateSettings(
     @QueryUuid('connectionId') connectionId: string,
     @QueryTableName() tableName: string,
-    /* eslint-disable */
+     
     @Body('search_fields') search_fields: Array<string>,
     @Body('display_name') display_name: string,
     @Body('excluded_fields') excluded_fields: Array<string>,
@@ -228,7 +228,7 @@ export class TableSettingsController {
       allow_csv_export: allow_csv_export,
       allow_csv_import: allow_csv_import,
     };
-    /* eslint-enable */
+     
     const errors = this.validateParameters(inputData);
     if (errors.length > 0) {
       throw new HttpException(

@@ -45,6 +45,7 @@ export class DataAccessObjectIbmDb2 extends BasicDataAccessObject implements IDa
 
     for (const key in row) {
       if (jsonColumnNames.includes(key)) {
+        // eslint-disable-next-line security/detect-object-injection
         row[key] = JSON.stringify(row[key]);
       }
     }

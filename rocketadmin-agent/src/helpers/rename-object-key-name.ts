@@ -9,6 +9,7 @@ export function renameObjectKeyName(
       newKey,
       Object.getOwnPropertyDescriptor(obj, oldKey),
     );
+    // eslint-disable-next-line security/detect-object-injection
     delete obj[oldKey];
   }
 }

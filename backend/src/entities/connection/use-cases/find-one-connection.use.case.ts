@@ -48,6 +48,19 @@ export class FindOneConnectionUseCase
       );
     }
 
+    if (connection.masterEncryption && inputData.masterPwd && accessLevel !== AccessLevelEnum.none) {
+      const isMaterPwdValid = await Encryptor.verifyUserPassword(inputData.masterPwd, connection.master_hash);
+      if (!isMaterPwdValid) {
+        throw new HttpException(
+          {
+            message: Messages.MASTER_PASSWORD_INCORRECT,
+            type: 'invalid_master_key',
+          },
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+    }
+
     const filterConnectionKeys = (connection: ConnectionEntity, allowedKeys: Array<string>): FilteredConnection => {
       return Object.keys(connection).reduce((acc, key) => {
         if (allowedKeys.includes(key)) {
@@ -58,7 +71,7 @@ export class FindOneConnectionUseCase
       }, {} as FilteredConnection);
     };
     let filteredConnection: FilteredConnection = connection;
-    
+
     if (accessLevel === AccessLevelEnum.none) {
       filteredConnection = filterConnectionKeys(connection, Constants.CONNECTION_KEYS_NONE_PERMISSION);
     } else if (accessLevel !== AccessLevelEnum.edit) {

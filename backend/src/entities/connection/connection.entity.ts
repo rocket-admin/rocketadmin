@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
+ 
 import { Expose } from 'class-transformer';
 import {
   AfterLoad,
@@ -104,6 +104,9 @@ export class ConnectionEntity {
 
   @Column({ default: null })
   authSource?: string | null;
+
+  @Column({ default: null })
+  master_hash?: string | null;
 
   @BeforeUpdate()
   updateTimestampEncryptCredentials(): void {

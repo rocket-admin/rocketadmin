@@ -62,7 +62,7 @@ export class CreateConnectionUseCase
       }
     }
 
-    const createdConnection: ConnectionEntity = buildConnectionEntity(createConnectionData, connectionAuthor);
+    const createdConnection: ConnectionEntity = await buildConnectionEntity(createConnectionData, connectionAuthor);
 
     const savedConnection: ConnectionEntity =
       await this._dbContext.connectionRepository.saveNewConnection(createdConnection);

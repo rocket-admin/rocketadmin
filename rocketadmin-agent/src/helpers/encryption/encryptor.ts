@@ -19,7 +19,7 @@ export class Encryptor {
   public static async verifyPassword(hash: string, password: string): Promise<boolean> {
     try {
       return await argon2.verify(hash, password);
-    } catch (err) {
+    } catch (_err) {
       console.log(Messages.CORRUPTED_DATA);
       process.exit(0);
     }

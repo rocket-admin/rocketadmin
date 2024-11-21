@@ -1583,6 +1583,55 @@ test.serial(`${currentTest} should return restored connection`, async (t) => {
   }
 });
 
+test.serial(`${currentTest} should return restored connection. Restored connection should will return list of tables correctly`, async (t) => {
+  try {
+    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } =
+      getTestConnectionData();
+    const { token } = await registerUserAndReturnUserInfo(app);
+
+    const newPgConnection = mockFactory.generateConnectionToTestPostgresDBInDocker();
+    newPgConnection.masterEncryption = true;
+
+    const createConnectionResult = await request(app.getHttpServer())
+      .post('/connection')
+      .send(newPgConnection)
+      .set('masterpwd', 'ahalaimahalai')
+      .set('Cookie', token)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+    t.is(createConnectionResult.status, 201);
+
+    const createConnectionRO = JSON.parse(createConnectionResult.text);
+    const { id, groups } = createConnectionRO;
+    const groupId = groups[0].id;
+    const restoreConnectionResult = await request(app.getHttpServer())
+      .put(`/connection/encryption/restore/${id}`)
+      .send(newPgConnection)
+      .set('masterpwd', 'hamalaiahalai')
+      .set('Cookie', token)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+    t.is(restoreConnectionResult.status, 200);
+    const restoreConnectionResultRO = JSON.parse(restoreConnectionResult.text);
+    const { connection } = restoreConnectionResultRO;
+    t.is(connection.id, id);
+
+    const findTablesResponse = await request(app.getHttpServer())
+      .get(`/connection/tables/${id}`)
+      .set('Content-Type', 'application/json')
+       .set('masterpwd', 'hamalaiahalai')
+      .set('Cookie', token)
+      .set('Accept', 'application/json');
+
+    const tables = JSON.parse(findTablesResponse.text);
+  
+    t.is(findTablesResponse.status, 200);
+    t.is(tables.length > 0, true);
+  } catch (e) {
+    throw e;
+  }
+});
+
 currentTest = 'GET /connection/groups/:slug';
 test.serial(`${currentTest} should groups in connection`, async (t) => {
   try {
@@ -1733,90 +1782,166 @@ test.serial(`${currentTest} should test connection and return result`, async (t)
   t.is(message, 'Successfully connected');
 });
 
-test.serial(`${currentTest} should be successfully tested after update and without changing password during update`, async (t) => {
-  const connectionToTestDB = getTestData(mockFactory).connectionToMySQL;
-  const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
+test.serial(
+  `${currentTest} should be successfully tested after update and without changing password during update`,
+  async (t) => {
+    const connectionToTestDB = getTestData(mockFactory).connectionToMySQL;
+    const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
 
-  // test connection
-  const testConnectionResponse = await request(app.getHttpServer())
-    .post('/connection/test/')
-    .send(connectionToTestDB)
-    .set('Cookie', firstUserToken)
-    .set('Content-Type', 'application/json')
-    .set('Accept', 'application/json');
+    // test connection
+    const testConnectionResponse = await request(app.getHttpServer())
+      .post('/connection/test/')
+      .send(connectionToTestDB)
+      .set('Cookie', firstUserToken)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
 
-  t.is(testConnectionResponse.status, 201);
-  const { message } = JSON.parse(testConnectionResponse.text);
-  t.is(message, 'Successfully connected');
+    t.is(testConnectionResponse.status, 201);
+    const { message } = JSON.parse(testConnectionResponse.text);
+    t.is(message, 'Successfully connected');
 
-  // create connection
+    // create connection
 
-  const createConnectionResponse = await request(app.getHttpServer())
-    .post('/connection')
-    .send(connectionToTestDB)
-    .set('Cookie', firstUserToken)
-    .set('Content-Type', 'application/json')
-    .set('Accept', 'application/json');
+    const createConnectionResponse = await request(app.getHttpServer())
+      .post('/connection')
+      .send(connectionToTestDB)
+      .set('Cookie', firstUserToken)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
 
-  t.is(createConnectionResponse.status, 201);
-  const createConnectionRO = JSON.parse(createConnectionResponse.text);
+    t.is(createConnectionResponse.status, 201);
+    const createConnectionRO = JSON.parse(createConnectionResponse.text);
 
-  // test newly created connection
+    // test newly created connection
 
-  const testConnectionResponse2 = await request(app.getHttpServer())
-    .post('/connection/test/?connectionId=' + createConnectionRO.id)
-    .send(connectionToTestDB)
-    .set('Cookie', firstUserToken)
-    .set('Content-Type', 'application/json')
-    .set('Accept', 'application/json');
+    const testConnectionResponse2 = await request(app.getHttpServer())
+      .post('/connection/test/?connectionId=' + createConnectionRO.id)
+      .send(connectionToTestDB)
+      .set('Cookie', firstUserToken)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
 
-  t.is(testConnectionResponse2.status, 201);
-  const { message: message2 } = JSON.parse(testConnectionResponse2.text);
-  t.is(message2, 'Successfully connected');
+    t.is(testConnectionResponse2.status, 201);
+    const { message: message2 } = JSON.parse(testConnectionResponse2.text);
+    t.is(message2, 'Successfully connected');
 
-  // test connection with some changed properties and removed password property
+    // test connection with some changed properties and removed password property
 
-  const connectionToTestDB2 = { ...connectionToTestDB };
-  connectionToTestDB2.title = 'Test Connection 2';
-  delete connectionToTestDB2.password;
+    const connectionToTestDB2 = { ...connectionToTestDB };
+    connectionToTestDB2.title = 'Test Connection 2';
+    delete connectionToTestDB2.password;
 
-  const testConnectionResponse3 = await request(app.getHttpServer())
-    .post('/connection/test/?connectionId=' + createConnectionRO.id)
-    .send(connectionToTestDB2)
-    .set('Cookie', firstUserToken)
-    .set('Content-Type', 'application/json')
-    .set('Accept', 'application/json');
+    const testConnectionResponse3 = await request(app.getHttpServer())
+      .post('/connection/test/?connectionId=' + createConnectionRO.id)
+      .send(connectionToTestDB2)
+      .set('Cookie', firstUserToken)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
 
-  t.is(testConnectionResponse3.status, 201);
-  const { message: message3 } = JSON.parse(testConnectionResponse3.text);
-  t.is(message3, 'Successfully connected');
+    t.is(testConnectionResponse3.status, 201);
+    const { message: message3 } = JSON.parse(testConnectionResponse3.text);
+    t.is(message3, 'Successfully connected');
 
-  // encrypt connection with master password
+    // encrypt connection with master password
 
-  const connectionToTestDB3 = { ...connectionToTestDB2 };
-  delete connectionToTestDB3.password;
-  connectionToTestDB3.masterEncryption = true;
-  const encryptConnectionResponse = await request(app.getHttpServer())
-    .put(`/connection/${createConnectionRO.id}`)
-    .send(connectionToTestDB3)
-    .set('Cookie', firstUserToken)
-    .set('masterpwd', 'ahalaimahalai')
-    .set('Content-Type', 'application/json')
-    .set('Accept', 'application/json');
+    const connectionToTestDB3 = { ...connectionToTestDB2 };
+    delete connectionToTestDB3.password;
+    connectionToTestDB3.masterEncryption = true;
+    const encryptConnectionResponse = await request(app.getHttpServer())
+      .put(`/connection/${createConnectionRO.id}`)
+      .send(connectionToTestDB3)
+      .set('Cookie', firstUserToken)
+      .set('masterpwd', 'ahalaimahalai')
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
 
-  t.is(encryptConnectionResponse.status, 200);
-  const encryptConnectionRO = JSON.parse(encryptConnectionResponse.text);
+    t.is(encryptConnectionResponse.status, 200);
+    const encryptConnectionRO = JSON.parse(encryptConnectionResponse.text);
 
-  // test encrypted connection
-  const testConnectionResponse4 = await request(app.getHttpServer())
-    .post('/connection/test/?connectionId=' + createConnectionRO.id)
-    .send(connectionToTestDB2)
-    .set('Cookie', firstUserToken)
-    .set('masterpwd', 'ahalaimahalai')
-    .set('Content-Type', 'application/json')
-    .set('Accept', 'application/json');
+    // test encrypted connection
+    const testConnectionResponse4 = await request(app.getHttpServer())
+      .post('/connection/test/?connectionId=' + createConnectionRO.id)
+      .send(connectionToTestDB2)
+      .set('Cookie', firstUserToken)
+      .set('masterpwd', 'ahalaimahalai')
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
 
-  t.is(testConnectionResponse4.status, 201);
-  const { message: message4 } = JSON.parse(testConnectionResponse4.text);
-  t.is(message4, 'Successfully connected');
+    t.is(testConnectionResponse4.status, 201);
+    const { message: message4 } = JSON.parse(testConnectionResponse4.text);
+    t.is(message4, 'Successfully connected');
+  },
+);
+
+currentTest = 'GET /connection/masterpwd/verify/:connectionId';
+test.serial(`${currentTest} should return positive result if passed connection master password is valid`, async (t) => {
+  try {
+    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } =
+      getTestConnectionData();
+    const { token } = await registerUserAndReturnUserInfo(app);
+
+    const newPgConnection = mockFactory.generateConnectionToTestPostgresDBInDocker();
+    newPgConnection.masterEncryption = true;
+
+    const createConnectionResult = await request(app.getHttpServer())
+      .post('/connection')
+      .send(newPgConnection)
+      .set('masterpwd', 'ahalaimahalai')
+      .set('Cookie', token)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+    t.is(createConnectionResult.status, 201);
+
+    const createConnectionRO = JSON.parse(createConnectionResult.text);
+    const { id } = createConnectionRO;
+
+    const masterPwdValidationResponse = await request(app.getHttpServer())
+      .get(`/connection/masterpwd/verify/${id}`)
+      .set('masterpwd', 'ahalaimahalai')
+      .set('Cookie', token)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+
+    t.is(masterPwdValidationResponse.status, 200);
+    const { isValid } = JSON.parse(masterPwdValidationResponse.text);
+    t.is(isValid, true);
+  } catch (e) {
+    throw e;
+  }
+});
+
+test.serial(`${currentTest} negative result if passed connection master password is invalid`, async (t) => {
+  try {
+    const { newConnection2, newConnectionToTestDB, updateConnection, newGroup1, newConnection } =
+      getTestConnectionData();
+    const { token } = await registerUserAndReturnUserInfo(app);
+
+    const newPgConnection = mockFactory.generateConnectionToTestPostgresDBInDocker();
+    newPgConnection.masterEncryption = true;
+
+    const createConnectionResult = await request(app.getHttpServer())
+      .post('/connection')
+      .send(newPgConnection)
+      .set('masterpwd', 'ahalaimahalai')
+      .set('Cookie', token)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+    t.is(createConnectionResult.status, 201);
+
+    const createConnectionRO = JSON.parse(createConnectionResult.text);
+    const { id } = createConnectionRO;
+
+    const masterPwdValidationResponse = await request(app.getHttpServer())
+      .get(`/connection/masterpwd/verify/${id}`)
+      .set('masterpwd', 'invalidMaterPwd')
+      .set('Cookie', token)
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+
+    t.is(masterPwdValidationResponse.status, 200);
+    const { isValid } = JSON.parse(masterPwdValidationResponse.text);
+    t.is(isValid, false);
+  } catch (e) {
+    throw e;
+  }
 });

@@ -33,6 +33,7 @@ import { TestConnectionUseCase } from './use-cases/test-connection.use.case.js';
 import { UpdateConnectionMasterPasswordUseCase } from './use-cases/update-connection-master-password.use.case.js';
 import { UpdateConnectionUseCase } from './use-cases/update-connection.use.case.js';
 import { ValidateConnectionTokenUseCase } from './use-cases/validate-connection-token.use.case.js';
+import { ValidateConnectionMasterPasswordUseCase } from './use-cases/validate-connection-master-password.use.case.js';
 
 @Module({
   imports: [
@@ -121,6 +122,10 @@ import { ValidateConnectionTokenUseCase } from './use-cases/validate-connection-
       provide: UseCaseType.REFRESH_CONNECTION_AGENT_TOKEN,
       useClass: RefreshConnectionAgentTokenUseCase,
     },
+    {
+      provide: UseCaseType.VALIDATE_CONNECTION_MASTER_PASSWORD,
+      useClass: ValidateConnectionMasterPasswordUseCase,
+    },
   ],
   controllers: [ConnectionController],
 })
@@ -146,6 +151,7 @@ export class ConnectionModule implements NestModule {
         { path: '/connection/encryption/update/:connectionId', method: RequestMethod.PUT },
         { path: '/connection/encryption/restore/:connectionId', method: RequestMethod.PUT },
         { path: '/connection/token/refresh/:connectionId', method: RequestMethod.GET },
+        { path: '/connection/masterpwd/verify/:connectionId', method: RequestMethod.GET },
       );
   }
 }

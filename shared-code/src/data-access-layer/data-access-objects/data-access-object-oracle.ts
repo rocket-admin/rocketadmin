@@ -1,3 +1,4 @@
+/* eslint-disable security/detect-object-injection */
 import { Knex } from 'knex';
 import { checkFieldAutoincrement } from '../../helpers/check-field-autoincrement.js';
 import { DAO_CONSTANTS } from '../../helpers/data-access-objects-constants.js';
@@ -47,7 +48,7 @@ export class DataAccessObjectOracle extends BasicDataAccessObject implements IDa
     ]);
 
     const primaryKey = primaryColumns[0];
-    let primaryKeyStructure =
+    const primaryKeyStructure =
       primaryColumns?.length > 0 ? tableStructure.find((e) => e.column_name === primaryKey.column_name) : undefined;
 
     const knex = await this.configureKnex();
@@ -232,7 +233,7 @@ export class DataAccessObjectOracle extends BasicDataAccessObject implements IDa
     const tableStructure = await this.getTableStructure(tableName);
     const availableFields = this.findAvailableFields(settings, tableStructure);
 
-    let searchedFields =
+    const searchedFields =
       settings?.search_fields?.length > 0 ? settings.search_fields : searchedFieldValue ? availableFields : [];
 
     const tableSchema = this.connection.schema || this.connection.username.toUpperCase();
@@ -633,7 +634,7 @@ export class DataAccessObjectOracle extends BasicDataAccessObject implements IDa
     const tableStructure = await this.getTableStructure(tableName);
     const availableFields = this.findAvailableFields(settings, tableStructure);
 
-    let searchedFields =
+    const searchedFields =
       settings.search_fields?.length > 0 ? settings.search_fields : searchedFieldValue ? availableFields : undefined;
 
     const tableSchema = this.connection.schema ? this.connection.schema : this.connection.username.toUpperCase();
@@ -718,8 +719,8 @@ export class DataAccessObjectOracle extends BasicDataAccessObject implements IDa
 
     try {
       await knex.transaction(async (trx) => {
-        for (let row of results) {
-          for (let column of timestampColumnNames) {
+        for (const row of results) {
+          for (const column of timestampColumnNames) {
             if (row[column] && !isOracleDateStringByRegexp(row[column])) {
               const date = new Date(Number(row[column]));
               row[column] = this.formatDate(date);

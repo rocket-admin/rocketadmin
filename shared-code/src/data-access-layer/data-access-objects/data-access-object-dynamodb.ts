@@ -1,3 +1,4 @@
+/* eslint-disable security/detect-object-injection */
 import { Stream } from 'stream';
 import { AutocompleteFieldsDS } from '../shared/data-structures/autocomplete-fields.ds.js';
 import { FilteringFieldsDS } from '../shared/data-structures/filtering-fields.ds.js';
@@ -18,7 +19,7 @@ import { FilterCriteriaEnum } from '../shared/enums/filter-criteria.enum.js';
 import { tableSettingsFieldValidator } from '../../helpers/validation/table-settings-validator.js';
 import { DeleteItemCommand, DynamoDB, GetItemCommand, ScanCommand, UpdateItemCommand } from '@aws-sdk/client-dynamodb';
 import { PutItemCommand } from '@aws-sdk/client-dynamodb';
-import { BatchWriteCommand, DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb';
+import { DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
 import * as csv from 'csv';
 import { QueryOrderingEnum } from '../shared/enums/query-ordering.enum.js';
@@ -76,10 +77,10 @@ export class DataAccessObjectDynamoDB extends BasicDataAccessObject implements I
   }
 
   public async getIdentityColumns(
-    tableName: string,
-    referencedFieldName: string,
-    identityColumnName: string,
-    fieldValues: Array<string | number>,
+    _tableName: string,
+    _referencedFieldName: string,
+    _identityColumnName: string,
+    _fieldValues: Array<string | number>,
   ): Promise<Array<Record<string, unknown>>> {
     return [];
   }
@@ -140,7 +141,7 @@ export class DataAccessObjectDynamoDB extends BasicDataAccessObject implements I
 
     let filterExpression = '';
     let expressionAttributeValues: { [key: string]: any } = {};
-    let expressionAttributeNames: { [key: string]: string } = {};
+    const expressionAttributeNames: { [key: string]: string } = {};
 
     if (autocompleteFields?.value && autocompleteFields.fields?.length > 0) {
       const { fields, value } = autocompleteFields;
@@ -238,7 +239,6 @@ export class DataAccessObjectDynamoDB extends BasicDataAccessObject implements I
 
     let lastEvaluatedKey = null;
     let rows = [];
-    let rowsCount = 0;
 
     do {
       const params: any = {
@@ -262,7 +262,7 @@ export class DataAccessObjectDynamoDB extends BasicDataAccessObject implements I
       const result = await dynamoDb.scan(params);
 
       rows = rows.concat(result.Items);
-      rowsCount += result.Count;
+
       lastEvaluatedKey = result.LastEvaluatedKey;
     } while (lastEvaluatedKey);
 
@@ -289,7 +289,7 @@ export class DataAccessObjectDynamoDB extends BasicDataAccessObject implements I
     };
   }
 
-  public async getTableForeignKeys(tableName: string): Promise<Array<ForeignKeyDS>> {
+  public async getTableForeignKeys(_tableName: string): Promise<Array<ForeignKeyDS>> {
     return [];
   }
 
@@ -323,46 +323,7 @@ export class DataAccessObjectDynamoDB extends BasicDataAccessObject implements I
   }
 
   public async getTableStructure(tableName: string): Promise<Array<TableStructureDS>> {
-    try {
-      const { dynamoDb } = this.getDynamoDb();
-      const documentClient = DynamoDBDocumentClient.from(dynamoDb);
-
-      const params = {
-        TableName: tableName,
-        Limit: 100,
-      };
-
-      const scanResult = await documentClient.send(new ScanCommand(params));
-      const items = scanResult.Items || [];
-
-      const attributeTypes: { [key: string]: string } = {};
-
-      items.forEach((item) => {
-        Object.keys(item).forEach((key) => {
-          if (!attributeTypes[key]) {
-            attributeTypes[key] = typeof item[key];
-          }
-        });
-      });
-
-      const tableStructure = Object.keys(attributeTypes).map((attributeName) => {
-        return {
-          allow_null: true,
-          character_maximum_length: null,
-          column_default: null,
-          column_name: attributeName,
-          data_type: this.convertTypeName(attributeTypes[attributeName]),
-          data_type_params: null,
-          udt_name: null,
-          extra: null,
-        };
-      });
-
-      return tableStructure;
-    } catch (error) {
-      console.error(error);
-      throw error;
-    }
+    return this.getTableStructureOrReturnPrimaryKeysIfNothingToScan(tableName);
   }
 
   public async testConnect(): Promise<TestConnectionResultDS> {
@@ -459,11 +420,11 @@ export class DataAccessObjectDynamoDB extends BasicDataAccessObject implements I
     return tableSettingsFieldValidator(tableStructure, primaryColumns, settings);
   }
 
-  public async getReferencedTableNamesAndColumns(tableName: string): Promise<Array<ReferencedTableNamesAndColumnsDS>> {
+  public async getReferencedTableNamesAndColumns(_tableName: string): Promise<Array<ReferencedTableNamesAndColumnsDS>> {
     return [];
   }
 
-  public async isView(tableName: string): Promise<boolean> {
+  public async isView(_tableName: string): Promise<boolean> {
     return false;
   }
 
@@ -514,9 +475,11 @@ export class DataAccessObjectDynamoDB extends BasicDataAccessObject implements I
     const endpoint = this.connection.host;
     const accessKeyId = this.connection.username;
     const secretAccessKey = this.connection.password;
+    const regionMatch = endpoint.match(/dynamodb\.(.+?)\.amazonaws\.com/);
+    const region = regionMatch ? regionMatch[1] : 'us-east-1';
     const dynamoDb = new DynamoDB({
       endpoint: endpoint,
-      region: process.env.NODE_ENV === 'test' ? 'localhost' : undefined,
+      region: process.env.NODE_ENV === 'test' ? 'localhost' : region,
       credentials: {
         accessKeyId: accessKeyId,
         secretAccessKey: secretAccessKey,
@@ -626,5 +589,66 @@ export class DataAccessObjectDynamoDB extends BasicDataAccessObject implements I
         return aValue < bValue ? 1 : aValue > bValue ? -1 : 0;
       }
     });
+  }
+
+  private async getTableStructureOrReturnPrimaryKeysIfNothingToScan(tableName: string): Promise<TableStructureDS[]> {
+    try {
+      const { dynamoDb } = this.getDynamoDb();
+      const documentClient = DynamoDBDocumentClient.from(dynamoDb);
+
+      const params = {
+        TableName: tableName,
+        Limit: 100,
+      };
+
+      const scanResult = await documentClient.send(new ScanCommand(params));
+      const items = scanResult.Items || [];
+
+      const attributeTypes: { [key: string]: string } = {};
+
+      items.forEach((item) => {
+        Object.keys(item).forEach((key) => {
+          if (!attributeTypes[key]) {
+            const attributeValue = item[key];
+            const attributeType = Object.keys(attributeValue)[0];
+            attributeTypes[key] = attributeType;
+          }
+        });
+      });
+
+      const tableStructure = Object.keys(attributeTypes).map((attributeName) => {
+        return {
+          allow_null: true,
+          character_maximum_length: null,
+          column_default: null,
+          column_name: attributeName,
+          data_type: this.convertTypeName(attributeTypes[attributeName]),
+          data_type_params: null,
+          udt_name: null,
+          extra: null,
+        };
+      });
+
+      if (!tableStructure.length) {
+        const primaryKeys = await this.getTablePrimaryColumns(tableName);
+        return primaryKeys.map((key) => {
+          return {
+            allow_null: false,
+            character_maximum_length: null,
+            column_default: null,
+            column_name: key.column_name,
+            data_type: key.data_type,
+            data_type_params: null,
+            udt_name: null,
+            extra: null,
+          };
+        });
+      }
+
+      return tableStructure;
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
   }
 }

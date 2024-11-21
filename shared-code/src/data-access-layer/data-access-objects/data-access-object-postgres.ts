@@ -1,3 +1,4 @@
+/* eslint-disable security/detect-object-injection */
 import { Knex } from 'knex';
 import { AutocompleteFieldsDS } from '../shared/data-structures/autocomplete-fields.ds.js';
 import { FilteringFieldsDS } from '../shared/data-structures/filtering-fields.ds.js';
@@ -611,8 +612,8 @@ export class DataAccessObjectPostgres extends BasicDataAccessObject implements I
 
     try {
       await knex.transaction(async (trx) => {
-        for (let row of results) {
-          for (let column of timestampColumnNames) {
+        for (const row of results) {
+          for (const column of timestampColumnNames) {
             if (row[column] && !isPostgresDateStringByRegexp(row[column])) {
               const date = new Date(Number(row[column]));
               row[column] = date.toISOString();
@@ -676,7 +677,7 @@ export class DataAccessObjectPostgres extends BasicDataAccessObject implements I
         const count = (await countRowsQB.count('*')) as any;
         const slowCount = parseInt(count[0].count);
         resolve(slowCount);
-      } catch (error) {
+      } catch (_error) {
         resolve(null);
       }
     });

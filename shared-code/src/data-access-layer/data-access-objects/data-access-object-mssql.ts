@@ -1,3 +1,4 @@
+/* eslint-disable security/detect-object-injection */
 import { Knex } from 'knex';
 import { LRUStorage } from '../../caching/lru-storage.js';
 import { DAO_CONSTANTS } from '../../helpers/data-access-objects-constants.js';
@@ -287,7 +288,7 @@ SELECT TABLE_NAME,
 FROM ??.INFORMATION_SCHEMA.TABLES
 WHERE TABLE_TYPE = 'VIEW'
     `;
-    let result = await knex.raw(query, [this.connection.database, this.connection.database]);
+    const result = await knex.raw(query, [this.connection.database, this.connection.database]);
 
     return result.map(({ TABLE_NAME, isView }: { TABLE_NAME: string; isView: number }) => ({
       tableName: TABLE_NAME,
@@ -553,8 +554,8 @@ WHERE TABLE_TYPE = 'VIEW'
 
     try {
       await knex.transaction(async (trx) => {
-        for (let row of results) {
-          for (let column of timestampColumnNames) {
+        for (const row of results) {
+          for (const column of timestampColumnNames) {
             if (row[column] && !isMSSQLDateStringByRegexp(row[column])) {
               const date = new Date(Number(row[column]));
               row[column] = date.toISOString();
@@ -634,7 +635,7 @@ WHERE TABLE_TYPE = 'VIEW'
         const slowRowsCountQueryResult = await countRowsQB.count('*');
         const slowRowsCount = Object.values(slowRowsCountQueryResult[0])[0];
         resolve(slowRowsCount as number);
-      } catch (e) {
+      } catch (_e) {
         resolve(null);
       }
     });
@@ -645,7 +646,7 @@ WHERE TABLE_TYPE = 'VIEW'
       const slowRowsCountQueryResult = await countRowsQB.count('*');
       const slowRowsCount = Object.values(slowRowsCountQueryResult[0])[0];
       return slowRowsCount as number;
-    } catch (error) {
+    } catch (_error) {
       return null;
     }
   }
