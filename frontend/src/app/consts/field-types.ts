@@ -252,5 +252,11 @@ export const fieldTypes = {
     },
     dynamodb: {
         string: TextRowComponent,
+        number: NumberRowComponent,
+        boolean: BooleanRowComponent,
+        null: StaticTextRowComponent,
+        array: JsonEditorRowComponent,
+        json: JsonEditorRowComponent,
+        binary: FileRowComponent,
     }
 }
