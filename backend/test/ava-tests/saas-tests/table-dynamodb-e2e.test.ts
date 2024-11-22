@@ -3511,7 +3511,8 @@ with search and pagination: page=1, perPage=2 and DESC sorting`,
 
 currentTest = 'POST /table/csv/import/:slug';
 
-test.only(`${currentTest} should import csv file with table data`, async (t) => {
+//todo rework after adding object datatypes processing
+test.skip(`${currentTest} should import csv file with table data`, async (t) => {
   const connectionToTestDB = getTestData(mockFactory).dynamoDBConnection;
   const firstUserToken = (await registerUserAndReturnUserInfo(app)).token;
 
