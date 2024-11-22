@@ -140,8 +140,8 @@ export class DbTableComponent implements OnInit {
   }
 
   getWidgetValue(column: string, value: string) {
-    if (this.tableData.widgets[column].widget_type === 'Select' && this.tableData.selectWidgetsOptions) {
-        const fieldOptions = this.tableData.selectWidgetsOptions[column];
+    if (this.tableData.widgets[column].widget_type === 'Select') {
+        const fieldOptions = this.tableData.widgets[column].widget_params.options;
         if (fieldOptions) {
           const cellValue = fieldOptions.find(option => option.value === value);
             if (cellValue) return cellValue.label

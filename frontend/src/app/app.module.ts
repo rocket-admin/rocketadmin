@@ -145,6 +145,8 @@ import { environment } from '../environments/environment';
 import { provideZxvbnServiceForPSM } from 'angular-password-strength-meter/zxcvbn';
 import { ApiKeyDeleteDialogComponent } from "./components/user-settings/api-key-delete-dialog/api-key-delete-dialog.component";
 import { CodeRowComponent } from "./components/ui-components/row-fields/code/code.component";
+import { ImageRowComponent } from "./components/ui-components/row-fields/image/image.component";
+import { UrlValidatorDirective } from "./directives/url-validator.directive";
 
 type Palettes = { primaryPalette: string, accentedPalette: string, warnPalette: string };
 type Colors = { myColorName: string };
@@ -233,6 +235,7 @@ const saasExtraProviders = (environment as any).saas ? [
     GroupNameEditDialogComponent,
     HexValidationDirective,
     HostnameValidationDirective,
+    UrlValidatorDirective,
     IconPickerComponent,
     IdFilterComponent,
     IdRowComponent,
@@ -296,6 +299,7 @@ const saasExtraProviders = (environment as any).saas ? [
     UserSettingsComponent,
     WidgetDeleteDialogComponent,
     WidgetComponent,
+    ImageRowComponent
   ],
   providers: [
     ConnectionsService,

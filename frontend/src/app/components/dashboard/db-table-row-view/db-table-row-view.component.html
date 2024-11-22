@@ -25,11 +25,20 @@
     <br />
     <div *ngFor="let column of columns" class="row-preview-sidebar__field">
         <strong>{{column.normalizedTitle}}</strong>
-        <span *ngIf="isForeignKey(column.title); else stringValue">
+        <span *ngIf="isForeignKey(column.title); else recordContent">
             {{getForeignKeyValue(column.title)}}
         </span>
-        <ng-template #stringValue>
-            <span>{{selectedRow.record[column.title] || '—'}}</span>
+        <ng-template #recordContent>
+            <div *ngIf="isWidget(column.title); else stringValue">
+                <div *ngIf="widgets[column.title].widget_type === 'Image'">
+                    <img [src]="selectedRow.record[column.title]" alt="Image" class="row-preview-sidebar__image">
+                </div>
+                <span>{{selectedRow.record[column.title] || '—'}}</span>
+            </div>
+            <ng-template #stringValue>
+                <span>{{selectedRow.record[column.title] || '—'}}</span>
+            </ng-template>
         </ng-template>
+
     </div>
 </div>
