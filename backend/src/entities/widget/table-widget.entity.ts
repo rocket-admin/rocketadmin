@@ -21,7 +21,7 @@ export class TableWidgetEntity {
   @Column()
   field_name: string;
 
-  @Column({ default: null })
+  @Column({ default: null, type: 'varchar' })
   widget_type?: WidgetTypeEnum;
 
   @Column('json', { default: null })
