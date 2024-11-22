@@ -108,7 +108,12 @@ export class DbTableWidgetsComponent implements OnInit {
 }
 `,
     Image:
-`// No settings required`
+`// provide image height in px to dispaly in table
+// example:
+{
+  "height": 100
+}
+`
   }
 
   constructor(
