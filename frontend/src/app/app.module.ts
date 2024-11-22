@@ -144,6 +144,7 @@ import { WidgetDeleteDialogComponent } from './components/dashboard/db-table-wid
 import { environment } from '../environments/environment';
 import { provideZxvbnServiceForPSM } from 'angular-password-strength-meter/zxcvbn';
 import { ApiKeyDeleteDialogComponent } from "./components/user-settings/api-key-delete-dialog/api-key-delete-dialog.component";
+import { CodeRowComponent } from "./components/ui-components/row-fields/code/code.component";
 
 type Palettes = { primaryPalette: string, accentedPalette: string, warnPalette: string };
 type Colors = { myColorName: string };
@@ -188,6 +189,7 @@ const saasExtraProviders = (environment as any).saas ? [
     BooleanFilterComponent,
     BooleanRowComponent,
     BreadcrumbsComponent,
+    CodeRowComponent,
     CompanyComponent,
     CompanyMemberInvitationComponent,
     ConnectDBComponent,
