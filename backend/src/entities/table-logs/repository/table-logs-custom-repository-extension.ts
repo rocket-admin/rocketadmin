@@ -6,7 +6,7 @@ import { TableLogsEntity } from '../table-logs.entity.js';
 import { buildCreatedLogRecord } from '../utils/build-created-log-record.js';
 import { buildTableLogsEntity } from '../utils/build-table-logs-entity.js';
 import { IFindLogsOptions, ITableLogsRepository } from './table-logs-repository.interface.js';
-import { ReadStream } from 'typeorm/platform/PlatformTools';
+import { ReadStream } from 'typeorm/platform/PlatformTools.js';
 
 export const tableLogsCustomRepositoryExtension: ITableLogsRepository = {
   async createLogRecord(logData: CreateLogRecordDs): Promise<CreatedLogRecordDs> {
