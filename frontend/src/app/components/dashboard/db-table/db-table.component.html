@@ -203,7 +203,7 @@
                         </span>
                         <ng-template #contentCell>
                             <div *ngIf="isWidget(column); else simpleValue" class="field-value">
-                                <img *ngIf="tableData.widgets[column].widget_type === 'Image'"
+                                <img *ngIf="tableData.widgets[column].widget_type === 'Image' && element[column]"
                                     [src]="element[column]"
                                     [style.--height.px]="tableData.widgets[column].widget_params.height"
                                     class="field-image">
