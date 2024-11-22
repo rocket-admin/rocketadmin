@@ -1,0 +1,12 @@
+<div class="image-box">
+    <mat-form-field class="image-box__url" appearance="outline">
+        <mat-label>{{normalizedLabel}}</mat-label>
+        <input matInput type="text" name="{{label}}-{{key}}" #image="ngModel"
+            [required]="required" [disabled]="disabled" [readonly]="readonly"
+            urlValidator
+            attr.data-testid="record-{{label}}-image"
+            [(ngModel)]="value" (ngModelChange)="onFieldChange.emit($event)">
+            <mat-error *ngIf="image.errors?.isInvalidURL">URL is invalid.</mat-error>
+    </mat-form-field>
+    <img *ngIf="!image.errors?.isInvalidURL" [src]="value" class="image-box__image">
+</div>

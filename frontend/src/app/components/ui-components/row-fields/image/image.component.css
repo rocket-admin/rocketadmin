@@ -1,0 +1,11 @@
+.image-box__url {
+    width: 100%;
+}
+
+.image-box__image {
+    /* width: 100%; */
+    height: auto;
+    max-height: 200px;
+    margin-top: 20px;
+    margin-bottom: 20px;
+}

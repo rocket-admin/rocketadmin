@@ -106,7 +106,9 @@ export class DbTableWidgetsComponent implements OnInit {
 {
   "language": "html"
 }
-`
+`,
+    Image:
+`// No settings required`
   }
 
   constructor(
