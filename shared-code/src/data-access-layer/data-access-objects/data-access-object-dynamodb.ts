@@ -475,9 +475,11 @@ export class DataAccessObjectDynamoDB extends BasicDataAccessObject implements I
     const endpoint = this.connection.host;
     const accessKeyId = this.connection.username;
     const secretAccessKey = this.connection.password;
+    const regionMatch = endpoint.match(/dynamodb\.(.+?)\.amazonaws\.com/);
+    const region = regionMatch ? regionMatch[1] : 'us-east-1';
     const dynamoDb = new DynamoDB({
       endpoint: endpoint,
-      region: process.env.NODE_ENV === 'test' ? 'localhost' : undefined,
+      region: process.env.NODE_ENV === 'test' ? 'localhost' : region,
       credentials: {
         accessKeyId: accessKeyId,
         secretAccessKey: secretAccessKey,
