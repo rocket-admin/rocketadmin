@@ -100,11 +100,11 @@ export class DbTableWidgetsComponent implements OnInit {
   "type": "hex"
 }
 `,
-    Code:
-`// provide language of code to highlight
+  Code:
+`// provide language of code to highlight: 'html', 'css', 'typescript', 'yaml', 'markdown'
 // example:
 {
-  "language": "json"
+  "language": "html"
 }
 `
   }
