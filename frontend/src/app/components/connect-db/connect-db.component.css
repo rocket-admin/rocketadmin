@@ -20,6 +20,22 @@
     }
 }
 
+.credentials-fieldset {
+    display: grid;
+    grid-template-columns: subgrid;
+    grid-template-rows: subgrid;
+    grid-column: 1 / span 4;
+    grid-row: 5 / span 4;
+}
+
+.credentials-fieldset-no-warning {
+    display: grid;
+    grid-template-columns: subgrid;
+    grid-template-rows: subgrid;
+    grid-column: 1 / span 4;
+    grid-row: 4 / span 4;
+}
+
 .mat-h1 {
     margin-top: 2vw;
 }
@@ -43,28 +59,7 @@
     margin-bottom: 0;
 }
 
-.encription-setting {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-    margin-bottom: 20px;
-}
-
-.encription-password {
-    display: flex;
-    margin-top: 32px;
-    margin-bottom: 8px;
-    width: 100%;
-}
-
-.encription-password__copy-button {
-    margin-top: 4px;
-    margin-left: 12px;
-}
-
-.connectForm__title,
-.connectForm__hostname {
+.connectForm__title {
     grid-column: 1 / span 3;
 }
 
@@ -77,14 +72,6 @@
     grid-column: 1 / span 4;
 }
 
-.connectForm__firstHalf {
-    grid-column: 1 / span 2;
-}
-
-.connectForm__secondHalf {
-    grid-column: 3 / span 2;
-}
-
 .connectForm__typeSwitch {
     margin-bottom: 12px;
 }
@@ -95,10 +82,6 @@
 
 .radio-button {
     margin-right: 20px;
-}
-
-.checkbox-line {
-    margin-bottom: 16px;
 }
 
 .form-textarea {
@@ -186,27 +169,3 @@
     padding: 8px 12px;
 }
 
-.advanced-settings {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    grid-gap: 0.25em 1.5em;
-}
-
-@media screen and (max-width: 600px) {
-    .advanced-settings {
-        display: flex;
-        flex-direction: column;
-    }
-}
-
-.advanced-settings__fullLine {
-    grid-column: 1 / span 3;
-}
-
-.connectForm__agent-connection-button {
-    color: inherit;
-    background: transparent;
-    border: none;
-    text-decoration: underline;
-    cursor: pointer;
-}

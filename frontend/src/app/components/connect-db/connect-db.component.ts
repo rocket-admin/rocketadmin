@@ -26,7 +26,7 @@ export class ConnectDBComponent implements OnInit, OnDestroy {
 
   public isSaas = (environment as any).saas;
   public connectionID: string | null = null;
-  public isMasterKeyTurnedOn: boolean = false;
+  // public isMasterKeyTurnedOn: boolean = false;
   public masterKey: string;
   public connectionToken: string | null = null;
   public submitting: boolean = false;
@@ -44,6 +44,7 @@ export class ConnectDBComponent implements OnInit, OnDestroy {
     [DBtype.Oracle]: '1521',
     [DBtype.MSSQL]: '1433',
     [DBtype.Mongo]: '27017',
+    [DBtype.Dynamo]: '',
     [DBtype.DB2]: '50000'
   }
 
@@ -68,7 +69,7 @@ export class ConnectDBComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.connectionID = this._connections.currentConnectionID;
-    this.isMasterKeyTurnedOn = this._connections.currentConnection.masterEncryption;
+    // this.isMasterKeyTurnedOn = this._connections.currentConnection.masterEncryption;
 
     if (this.connectionID) this.getTitleSubscription = this._connections.getCurrentConnectionTitle().subscribe(connectionTitle => {
       this.title.setTitle(`Edit connection ${connectionTitle} | Rocketadmin`);
@@ -209,7 +210,7 @@ export class ConnectDBComponent implements OnInit, OnDestroy {
   }
 
   handleCredentialsSubmitting(connectForm: NgForm) {
-    this.db.masterEncryption = this.isMasterKeyTurnedOn;
+    this.db.masterEncryption = !!this.masterKey;
     if (this.db.id) {
       this.editConnection();
     } else {
@@ -296,6 +297,15 @@ export class ConnectDBComponent implements OnInit, OnDestroy {
   }
 
   switchToAgent() {
+    console.log('switchToAgent');
     this.db.connectionType = ConnectionType.Agent;
   }
+
+  handleMasterKeyChange(newMasterKey: string): void {
+    this.masterKey = newMasterKey;
+  }
+
+  // handleMasterKeyToggle(isTurnedOn: boolean): void {
+  //   this.isMasterKeyTurnedOn = isTurnedOn;
+  // }
 }

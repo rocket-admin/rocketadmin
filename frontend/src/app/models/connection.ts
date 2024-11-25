@@ -6,6 +6,7 @@ export enum DBtype {
     Oracle = 'oracledb',
     MSSQL = 'mssql',
     Mongo = 'mongodb',
+    Dynamo = 'dynamodb',
     DB2 = 'ibmdb2'
 }
 

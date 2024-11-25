@@ -12,6 +12,7 @@ import { AccountDeleteDialogComponent } from './components/user-settings/account
 import { ActionDeleteDialogComponent } from "./components/dashboard/db-table-actions/action-delete-dialog/action-delete-dialog.component";
 import { AlertComponent } from './components/ui-components/alert/alert.component';
 import { Angulartics2Module } from 'angulartics2';
+import { ApiKeyDeleteDialogComponent } from "./components/user-settings/api-key-delete-dialog/api-key-delete-dialog.component";
 import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app-routing.module';
 import { AuditComponent } from './components/audit/audit.component';
@@ -82,8 +83,11 @@ import { JsonEditorRowComponent } from './components/ui-components/row-fields/js
 import { LoginComponent } from './components/login/login.component';
 import { LongTextFilterComponent } from './components/ui-components/filter-fields/long-text/long-text.component';
 import { LongTextRowComponent } from './components/ui-components/row-fields/long-text/long-text.component';
+import { MasterEncryptionPasswordComponent } from "./components/connect-db/master-encryption-password/master-encryption-password.component";
 import { MasterPasswordDialogComponent } from './components/master-password-dialog/master-password-dialog.component';
 import { MaterialModule } from './modules/material.module';
+import { MongodbCredentialsFormComponent } from "./components/connect-db/db-credentials-forms/mongodb-credentials-form/mongodb-credentials-form.component";
+import { MysqlCredentialsFormComponent } from "./components/connect-db/db-credentials-forms/mysql-credentials-form/mysql-credentials-form.component";
 import { NewVersionComponent } from './components/new-version/new-version.component';
 import { NgmatTableQueryReflectorModule } from './modules/ngmat-table-query-reflector.module';
 import { NgxStripeModule } from 'ngx-stripe';
@@ -116,6 +120,7 @@ import { PlaceholderUserGroupComponent } from './components/skeletons/placeholde
 import { PlaceholderUserGroupsComponent } from './components/skeletons/placeholder-user-groups/placeholder-user-groups.component';
 import { PointFilterComponent } from './components/ui-components/filter-fields/point/point.component';
 import { PointRowComponent } from './components/ui-components/row-fields/point/point.component';
+import { PostgresCredentialsFormComponent } from "./components/connect-db/db-credentials-forms/postgres-credentials-form/postgres-credentials-form.component";
 import { RegistrationComponent } from './components/registration/registration.component';
 import { RevokeInvitationDialogComponent } from './components/company/revoke-invitation-dialog/revoke-invitation-dialog.component';
 import { SelectFilterComponent } from './components/ui-components/filter-fields/select/select.component';
@@ -143,7 +148,9 @@ import { WidgetComponent } from "./components/dashboard/db-table-widgets/widget/
 import { WidgetDeleteDialogComponent } from './components/dashboard/db-table-widgets/widget-delete-dialog/widget-delete-dialog.component';
 import { environment } from '../environments/environment';
 import { provideZxvbnServiceForPSM } from 'angular-password-strength-meter/zxcvbn';
-import { ApiKeyDeleteDialogComponent } from "./components/user-settings/api-key-delete-dialog/api-key-delete-dialog.component";
+import { OracledbCredentialsFormComponent } from "./components/connect-db/db-credentials-forms/oracledb-credentials-form/oracledb-credentials-form.component";
+import { MssqlCredentialsFormComponent } from "./components/connect-db/db-credentials-forms/mssql-credentials-form/mssql-credentials-form.component";
+import { DynamodbCredentialsFormComponent } from "./components/connect-db/db-credentials-forms/dynamodb-credentials-form/dynamodb-credentials-form.component";
 import { CodeRowComponent } from "./components/ui-components/row-fields/code/code.component";
 import { ImageRowComponent } from "./components/ui-components/row-fields/image/image.component";
 import { UrlValidatorDirective } from "./directives/url-validator.directive";
@@ -299,6 +306,13 @@ const saasExtraProviders = (environment as any).saas ? [
     UserSettingsComponent,
     WidgetDeleteDialogComponent,
     WidgetComponent,
+    MysqlCredentialsFormComponent,
+    MasterEncryptionPasswordComponent,
+    PostgresCredentialsFormComponent,
+    MongodbCredentialsFormComponent,
+    OracledbCredentialsFormComponent,
+    MssqlCredentialsFormComponent,
+    DynamodbCredentialsFormComponent,
     ImageRowComponent
   ],
   providers: [
