@@ -202,8 +202,13 @@
                             </button>
                         </span>
                         <ng-template #contentCell>
-                            <span *ngIf="isWidget(column); else simpleValue" class="field-value">
-                                {{ getWidgetValue(column, element[column]) }}
+                            <div *ngIf="isWidget(column); else simpleValue" class="field-value">
+                                <img *ngIf="tableData.widgets[column].widget_type === 'Image' && element[column]"
+                                    [src]="element[column]"
+                                    [style.--height.px]="tableData.widgets[column].widget_params.height"
+                                    class="field-image">
+
+                                <span>{{ getWidgetValue(column, element[column]) }}</span>
 
                                 <button type="button" mat-icon-button
                                     class="field-value-copy-button"
@@ -213,7 +218,7 @@
                                     (cdkCopyToClipboardCopied)="showCopyNotification('Field value was copied to clipboard.')">
                                     <mat-icon>content_copy</mat-icon>
                                 </button>
-                            </span>
+                            </div>
                             <ng-template #simpleValue>
                                 <span *ngIf="tableData.keyAttributes[0]?.column_name === column; else nonPrimaryKey"
                                     attr.data-testid="table-primary-key-{{i}}-cell"

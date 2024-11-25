@@ -322,6 +322,11 @@ th.mat-header-cell, td.mat-cell {
     text-align: left;
 }
 
+.db-table-cell-checkbox {
+    display: flex;
+    align-items: center;
+}
+
 @media (width <= 600px) {
     .db-table-cell-checkbox {
         position: absolute;
@@ -363,6 +368,12 @@ th.mat-header-cell, td.mat-cell {
     position: relative;
     display: inline-block;
     width: 100%;
+}
+
+.field-image {
+    display: block;
+    height: var(--height);
+    margin: 12px 0;
 }
 
 .field-value-copy-button {

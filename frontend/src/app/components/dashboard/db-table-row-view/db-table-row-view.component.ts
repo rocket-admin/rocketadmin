@@ -1,5 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { TableRow } from 'src/app/models/table';
+import { TableRow, Widget } from 'src/app/models/table';
 import { NotificationsService } from 'src/app/services/notifications.service';
 import { TableStateService } from 'src/app/services/table-state.service';
 
@@ -12,6 +12,8 @@ export class DbTableRowViewComponent implements OnInit {
   @Input() columns: object[];
   @Input() foreignKeys: object;
   @Input() foreignKeysList: string[];
+  @Input() widgets: { string: Widget };
+  @Input() widgetsList: string[];
 
   public selectedRow: TableRow;
 
@@ -41,6 +43,10 @@ export class DbTableRowViewComponent implements OnInit {
       }
     };
     return '';
+  }
+
+  isWidget(columnName: string) {
+    return this.widgetsList.includes(columnName);
   }
 
   getDedicatedPageLink() {

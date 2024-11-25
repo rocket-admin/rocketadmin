@@ -266,31 +266,36 @@ export class TablesDataSource implements DataSource<Object> {
 
           if (res.widgets) {
             this.widgetsList = res.widgets.map((widget: Widget) => {return widget['field_name']});
-            this.widgets = Object.assign({}, ...res.widgets.map((widget: Widget) => ({[widget.field_name]: widget})));
+            this.widgets = Object.assign({}, ...res.widgets.map((widget: Widget) => ({
+              [widget.field_name]: {
+                ...widget,
+                widget_params: JSON5.parse(widget.widget_params)
+              }
+            })));
             this.widgetsCount = this.widgetsList.length;
 
             /*** for select widget ***/
-            const selectWidgets = res.widgets.filter((widget: Widget) => widget.widget_type === 'Select');
-            this.selectWidgetsOptions =
-            Object.assign({}, ...selectWidgets.map((widget: Widget) => {
-              const params = JSON5.parse(widget.widget_params);
-              if (params.options) {
-                return {[widget.field_name]: params.options}
-              } else {
-                this.alert_widgetsWarning = {
-                  id: 10002,
-                  type: AlertType.Warning,
-                  message: `Select widget for ${widget.field_name} column is configured incorrectly.`,
-                  actions: [
-                    {
-                      type: AlertActionType.Anchor,
-                      caption: 'Instruction',
-                      to: 'https://help.rocketadmin.com/'
-                    }
-                  ]
-                }
-              }
-            }))
+            // const selectWidgets = res.widgets.filter((widget: Widget) => widget.widget_type === 'Select');
+            // this.selectWidgetsOptions =
+            // Object.assign({}, ...selectWidgets.map((widget: Widget) => {
+            //   const params = JSON5.parse(widget.widget_params);
+            //   if (params.options) {
+            //     return {[widget.field_name]: params.options}
+            //   } else {
+            //     this.alert_widgetsWarning = {
+            //       id: 10002,
+            //       type: AlertType.Warning,
+            //       message: `Select widget for ${widget.field_name} column is configured incorrectly.`,
+            //       actions: [
+            //         {
+            //           type: AlertActionType.Anchor,
+            //           caption: 'Instruction',
+            //           to: 'https://help.rocketadmin.com/'
+            //         }
+            //       ]
+            //     }
+            //   }
+            // }))
           }
 
           const widgetsConfigured = res.widgets && res.widgets.length;

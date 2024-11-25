@@ -151,6 +151,9 @@ import { provideZxvbnServiceForPSM } from 'angular-password-strength-meter/zxcvb
 import { OracledbCredentialsFormComponent } from "./components/connect-db/db-credentials-forms/oracledb-credentials-form/oracledb-credentials-form.component";
 import { MssqlCredentialsFormComponent } from "./components/connect-db/db-credentials-forms/mssql-credentials-form/mssql-credentials-form.component";
 import { DynamodbCredentialsFormComponent } from "./components/connect-db/db-credentials-forms/dynamodb-credentials-form/dynamodb-credentials-form.component";
+import { CodeRowComponent } from "./components/ui-components/row-fields/code/code.component";
+import { ImageRowComponent } from "./components/ui-components/row-fields/image/image.component";
+import { UrlValidatorDirective } from "./directives/url-validator.directive";
 
 type Palettes = { primaryPalette: string, accentedPalette: string, warnPalette: string };
 type Colors = { myColorName: string };
@@ -195,6 +198,7 @@ const saasExtraProviders = (environment as any).saas ? [
     BooleanFilterComponent,
     BooleanRowComponent,
     BreadcrumbsComponent,
+    CodeRowComponent,
     CompanyComponent,
     CompanyMemberInvitationComponent,
     ConnectDBComponent,
@@ -238,6 +242,7 @@ const saasExtraProviders = (environment as any).saas ? [
     GroupNameEditDialogComponent,
     HexValidationDirective,
     HostnameValidationDirective,
+    UrlValidatorDirective,
     IconPickerComponent,
     IdFilterComponent,
     IdRowComponent,
@@ -307,7 +312,8 @@ const saasExtraProviders = (environment as any).saas ? [
     MongodbCredentialsFormComponent,
     OracledbCredentialsFormComponent,
     MssqlCredentialsFormComponent,
-    DynamodbCredentialsFormComponent
+    DynamodbCredentialsFormComponent,
+    ImageRowComponent
   ],
   providers: [
     ConnectionsService,

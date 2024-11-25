@@ -453,6 +453,9 @@ export async function createTestDynamoDBTable(
         },
         created_at: { S: new Date().toISOString() },
         updated_at: { S: new Date().toISOString() },
+        list_column: { L: [{ S: 'value1' }, { S: 'value2' }] },
+        set_column: { SS: ['value1', 'value2'] },
+        map_column: { M: { key1: { S: 'value1' }, key2: { S: 'value2' } } },
       };
 
       const params: PutItemCommandInput = {
