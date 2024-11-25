@@ -1,4 +1,5 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { ConnectionsService } from 'src/app/services/connections.service';
 import { NotificationsService } from 'src/app/services/notifications.service';
 
 @Component({
@@ -6,17 +7,24 @@ import { NotificationsService } from 'src/app/services/notifications.service';
   templateUrl: './master-encryption-password.component.html',
   styleUrl: './master-encryption-password.component.css'
 })
-export class MasterEncryptionPasswordComponent {
+export class MasterEncryptionPasswordComponent implements OnInit {
   @Input() disabled: boolean;
   @Input() masterKey: string;
-  @Input() isMasterKeyTurnedOn: boolean;
+  // @Input() isMasterKeyTurnedOn: boolean;
 
   @Output() onMasterKeyChange = new EventEmitter<string>();
-  @Output() onMasterKeyToggle = new EventEmitter<boolean>();
+  // @Output() onMasterKeyToggle = new EventEmitter<boolean>();
+
+  public isMasterKeyTurnedOn: boolean = false;
 
   constructor(
+    private _connections: ConnectionsService,
     private _notifications: NotificationsService,
   ) { }
+
+  ngOnInit() {
+    this.isMasterKeyTurnedOn = this._connections.currentConnection.masterEncryption;
+  }
 
   generatePassword (checked: boolean) {
     if (checked) {
@@ -26,7 +34,7 @@ export class MasterEncryptionPasswordComponent {
 
       this.onMasterKeyChange.emit(this.masterKey);
     }
-    this.onMasterKeyToggle.emit(checked);
+    // this.onMasterKeyToggle.emit(checked);
   }
 
   showCopyNotification(message: string) {

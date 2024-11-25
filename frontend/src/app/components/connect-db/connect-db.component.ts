@@ -26,7 +26,7 @@ export class ConnectDBComponent implements OnInit, OnDestroy {
 
   public isSaas = (environment as any).saas;
   public connectionID: string | null = null;
-  public isMasterKeyTurnedOn: boolean = false;
+  // public isMasterKeyTurnedOn: boolean = false;
   public masterKey: string;
   public connectionToken: string | null = null;
   public submitting: boolean = false;
@@ -69,7 +69,7 @@ export class ConnectDBComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.connectionID = this._connections.currentConnectionID;
-    this.isMasterKeyTurnedOn = this._connections.currentConnection.masterEncryption;
+    // this.isMasterKeyTurnedOn = this._connections.currentConnection.masterEncryption;
 
     if (this.connectionID) this.getTitleSubscription = this._connections.getCurrentConnectionTitle().subscribe(connectionTitle => {
       this.title.setTitle(`Edit connection ${connectionTitle} | Rocketadmin`);
@@ -210,7 +210,7 @@ export class ConnectDBComponent implements OnInit, OnDestroy {
   }
 
   handleCredentialsSubmitting(connectForm: NgForm) {
-    this.db.masterEncryption = this.isMasterKeyTurnedOn;
+    this.db.masterEncryption = !!this.masterKey;
     if (this.db.id) {
       this.editConnection();
     } else {
@@ -305,7 +305,7 @@ export class ConnectDBComponent implements OnInit, OnDestroy {
     this.masterKey = newMasterKey;
   }
 
-  handleMasterKeyToggle(isTurnedOn: boolean): void {
-    this.isMasterKeyTurnedOn = isTurnedOn;
-  }
+  // handleMasterKeyToggle(isTurnedOn: boolean): void {
+  //   this.isMasterKeyTurnedOn = isTurnedOn;
+  // }
 }

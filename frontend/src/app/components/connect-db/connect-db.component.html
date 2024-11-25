@@ -82,11 +82,9 @@
             [submitting]="submitting"
             [accessLevel]="accessLevel"
             [masterKey]="masterKey"
-            [isMasterKeyTurnedOn]="isMasterKeyTurnedOn"
             [readonly]="(accessLevel === 'readonly' || db.isTestConnection) && db.id"
             (switchToAgent)="switchToAgent()"
-            (masterKeyChange)="handleMasterKeyChange($event)"
-            (masterKeyToggle)="handleMasterKeyToggle($event)">
+            (masterKeyChange)="handleMasterKeyChange($event)">
         </app-mysql-credentials-form>
 
         <app-postgres-credentials-form *ngIf="db.type === 'postgres' && db.connectionType === 'direct'"
@@ -98,11 +96,9 @@
             [submitting]="submitting"
             [accessLevel]="accessLevel"
             [masterKey]="masterKey"
-            [isMasterKeyTurnedOn]="isMasterKeyTurnedOn"
             [readonly]="(accessLevel === 'readonly' || db.isTestConnection) && db.id"
             (switchToAgent)="switchToAgent"
-            (masterKeyChange)="handleMasterKeyChange($event)"
-            (masterKeyToggle)="handleMasterKeyToggle($event)">
+            (masterKeyChange)="handleMasterKeyChange($event)">
         </app-postgres-credentials-form>
 
         <app-mongodb-credentials-form *ngIf="db.type === 'mongodb' && db.connectionType === 'direct'"
@@ -114,11 +110,9 @@
             [submitting]="submitting"
             [accessLevel]="accessLevel"
             [masterKey]="masterKey"
-            [isMasterKeyTurnedOn]="isMasterKeyTurnedOn"
             [readonly]="(accessLevel === 'readonly' || db.isTestConnection) && db.id"
             (switchToAgent)="switchToAgent"
-            (masterKeyChange)="handleMasterKeyChange($event)"
-            (masterKeyToggle)="handleMasterKeyToggle($event)">
+            (masterKeyChange)="handleMasterKeyChange($event)">
         </app-mongodb-credentials-form>
 
         <app-dynamodb-credentials-form *ngIf="db.type === 'dynamodb' && db.connectionType === 'direct'"
@@ -127,11 +121,9 @@
             [submitting]="submitting"
             [accessLevel]="accessLevel"
             [masterKey]="masterKey"
-            [isMasterKeyTurnedOn]="isMasterKeyTurnedOn"
             [readonly]="(accessLevel === 'readonly' || db.isTestConnection) && db.id"
             (switchToAgent)="switchToAgent"
-            (masterKeyChange)="handleMasterKeyChange($event)"
-            (masterKeyToggle)="handleMasterKeyToggle($event)">
+            (masterKeyChange)="handleMasterKeyChange($event)">
         </app-dynamodb-credentials-form>
 
         <app-oracledb-credentials-form *ngIf="db.type === 'oracledb' && db.connectionType === 'direct'"
@@ -143,11 +135,9 @@
             [submitting]="submitting"
             [accessLevel]="accessLevel"
             [masterKey]="masterKey"
-            [isMasterKeyTurnedOn]="isMasterKeyTurnedOn"
             [readonly]="(accessLevel === 'readonly' || db.isTestConnection) && db.id"
             (switchToAgent)="switchToAgent"
-            (masterKeyChange)="handleMasterKeyChange($event)"
-            (masterKeyToggle)="handleMasterKeyToggle($event)">
+            (masterKeyChange)="handleMasterKeyChange($event)">
         </app-oracledb-credentials-form>
 
         <app-mssql-credentials-form *ngIf="db.type === 'mssql' && db.connectionType === 'direct'"
@@ -159,11 +149,9 @@
             [submitting]="submitting"
             [accessLevel]="accessLevel"
             [masterKey]="masterKey"
-            [isMasterKeyTurnedOn]="isMasterKeyTurnedOn"
             [readonly]="(accessLevel === 'readonly' || db.isTestConnection) && db.id"
             (switchToAgent)="switchToAgent"
-            (masterKeyChange)="handleMasterKeyChange($event)"
-            (masterKeyToggle)="handleMasterKeyToggle($event)">
+            (masterKeyChange)="handleMasterKeyChange($event)">
         </app-mssql-credentials-form>
 
         <div *ngIf="db.connectionType === 'agent'" class="connectForm__fullLine instruction">
