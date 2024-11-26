@@ -188,6 +188,7 @@ services:
       - ./rocketadmin-agent/dist:/app/dist
       - ./rocketadmin-agent/src:/app/src
       - ./rocketadmin-agent/wait-for-db2.sh:/app/wait-for-db2.sh
+      - ./rocketadmin-agent/wait-for-db2.js:/app/wait-for-db2.js
     links:
       - autoadmin-ws-server
     depends_on:
@@ -195,7 +196,7 @@ services:
     environment:
       - REMOTE_WEBSOCKET_ADDRESS=ws://autoadmin-ws-server:8009
       - APPLICATION_CONFIG_FILE_NAME=.ibmdb2_test_agent_config.txt
-    command: ["/bin/sh", "/app/wait-for-db2.sh"]
+    command: ["node", "/app/wait-for-db2.js"]
 
   test-ibm-db2-e2e-testing:
     image: icr.io/db2_community/db2

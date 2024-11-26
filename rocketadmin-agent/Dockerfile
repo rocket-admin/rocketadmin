@@ -21,4 +21,5 @@ COPY shared-code /app/shared-code
 COPY ./rocketadmin-agent/ssl-cert.txt /app/rocketadmin-agent/
 RUN cd shared-code && ../node_modules/.bin/tsc
 RUN cd rocketadmin-agent && yarn run nest build
+COPY ./rocketadmin-agent/wait-for-db2.js /app/
 CMD [ "./node_modules/.bin/nest", "start"]
