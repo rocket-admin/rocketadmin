@@ -16,6 +16,7 @@
     padding-right: 36px;
     padding-bottom: 4px;
     text-overflow: ellipsis;
+    word-wrap: anywhere;
 }
 
 .mat-icon-button {
