@@ -7,18 +7,18 @@
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix"
   },
   "dependencies": {
-    "@aws-sdk/client-dynamodb": "^3.691.0",
-    "@aws-sdk/lib-dynamodb": "^3.691.0",
+    "@aws-sdk/client-dynamodb": "^3.699.0",
+    "@aws-sdk/lib-dynamodb": "^3.699.0",
     "@types/multer": "^1.4.12",
-    "axios": "^1.7.7",
-    "csv": "^6.3.10",
+    "axios": "^1.7.8",
+    "csv": "^6.3.11",
     "get-port": "^7.1.0",
     "jsonwebtoken": "^9.0.2",
     "knex": "^3.1.0",
     "lru-cache": "^11.0.2",
-    "mongodb": "^6.10.0",
+    "mongodb": "^6.11.0",
     "mysql2": "^3.11.4",
-    "oracledb": "^6.6.0",
+    "oracledb": "^6.7.0",
     "p-queue": "^8.0.1",
     "pg": "^8.13.1",
     "pg-copy-streams": "^6.0.6",
@@ -30,12 +30,12 @@
   "devDependencies": {
     "@types/oracledb": "^6.5.2",
     "@types/pg-copy-streams": "^1.2.5",
-    "@typescript-eslint/eslint-plugin": "^8.14.0",
-    "@typescript-eslint/parser": "^8.14.0",
-    "eslint": "^9.14.0",
+    "@typescript-eslint/eslint-plugin": "^8.16.0",
+    "@typescript-eslint/parser": "^8.16.0",
+    "eslint": "^9.15.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-import": "^2.31.0",
-    "prettier": "^3.3.3",
-    "typescript": "^5.6.3"
+    "prettier": "^3.4.1",
+    "typescript": "^5.7.2"
   }
 }
