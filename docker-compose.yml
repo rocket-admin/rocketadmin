@@ -94,7 +94,6 @@ services:
       - backend
       - rocketadmin-private-microservice-test-database
     depends_on:
-      - backend
       - rocketadmin-private-microservice-test-database
     command: ["yarn", "start"]
 
