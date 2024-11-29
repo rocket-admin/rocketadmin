@@ -48,8 +48,6 @@ export class RequestInfoFromTableWithAIUseCase
     Table structure: ${JSON.stringify(tableStructure)}. 
     User question: "${user_message}". 
     Generate a safe and efficient ${databaseType === ConnectionTypesEnum.mongodb ? ' MongoDB command ' : ' SQL query '} to answer the user's question. Ensure the ${databaseType === ConnectionTypesEnum.mongodb ? ' command ' : ' query '} is read-only and does not modify the database.`;
-   
-    console.log('🚀 ~ implementation ~ prompt:', prompt)
 
     const chatCompletion = await openai.chat.completions.create({
       messages: [{ role: 'user', content: prompt }],
@@ -64,7 +62,7 @@ export class RequestInfoFromTableWithAIUseCase
       databaseType === ConnectionTypesEnum.mongodb
         ? this.isValidMongoDbCommand(generatedQuery)
         : this.isValidSQLQuery(generatedQuery);
-        
+
     if (!isValidQuery) {
       throw new BadRequestException('Sorry, can not provide an answer to this question.');
     }
@@ -87,12 +85,10 @@ export class RequestInfoFromTableWithAIUseCase
   }
 
   private isValidSQLQuery(query: string): boolean {
-    console.log('🚀 ~ isValidQuery ~ query:', query);
     const upperCaseQuery = query.toUpperCase();
     const forbiddenKeywords = ['DROP', 'DELETE', 'ALTER', 'TRUNCATE', 'INSERT', 'UPDATE'];
 
     if (forbiddenKeywords.some((keyword) => upperCaseQuery.includes(keyword))) {
-      console.log('🚀 ~ isValidQuery ~ forbiddenKeywords triggered');
       return false;
     }
 
@@ -101,18 +97,15 @@ export class RequestInfoFromTableWithAIUseCase
     const sqlInjectionPatterns = [/--/, /\/\*/, /\*\//, /'/, /"/];
 
     if (sqlInjectionPatterns.some((pattern) => pattern.test(cleanedQuery))) {
-      console.log('🚀 ~ isValidQuery ~ sqlInjectionPatterns triggered');
       return false;
     }
 
     if (cleanedQuery.split(';').length > 1) {
-      console.log('🚀 ~ isValidQuery ~ cleanedQuery.split triggered');
       return false;
     }
 
     const selectPattern = /^\s*SELECT\s+.*\s+FROM\s+/i;
     if (!selectPattern.test(cleanedQuery)) {
-      console.log('🚀 ~ isValidQuery ~ selectPattern triggered');
       return false;
     }
 
@@ -124,14 +117,12 @@ export class RequestInfoFromTableWithAIUseCase
     const forbiddenKeywords = ['DROP', 'REMOVE', 'UPDATE', 'INSERT'];
 
     if (forbiddenKeywords.some((keyword) => upperCaseCommand.includes(keyword))) {
-      console.log('🚀 ~ isValidMongoDbCommand ~ forbiddenKeywords triggered');
       return false;
     }
 
     const injectionPatterns = [/\/\*/, /\*\//, /'/, /"/];
 
     if (injectionPatterns.some((pattern) => pattern.test(command))) {
-      console.log('🚀 ~ isValidMongoDbCommand ~ injectionPatterns triggered');
       return false;
     }
 
