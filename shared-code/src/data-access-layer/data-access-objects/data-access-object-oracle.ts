@@ -735,6 +735,11 @@ export class DataAccessObjectOracle extends BasicDataAccessObject implements IDa
     }
   }
 
+  public async executeRawQuery(query: string): Promise<Array<Record<string, unknown>>> {
+    const knex = await this.configureKnex();
+    return await knex.raw(query);
+  }
+
   private setupPagination(page: number, perPage: number, settings: TableSettingsDS) {
     if (!page || page <= 0) {
       page = DAO_CONSTANTS.DEFAULT_PAGINATION.page;

@@ -17,4 +17,5 @@ export enum OperationTypeEnum {
   getReferencedTableNamesAndColumns = 'getReferencedTableNamesAndColumns',
   isView = 'isView',
   getRowsAsStream = 'getRowsAsStream',
+  executeRawQuery = 'executeRawQuery',
 }

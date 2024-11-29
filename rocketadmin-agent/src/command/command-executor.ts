@@ -234,6 +234,13 @@ export class CommandExecutor {
           Logger.createLogRecord(row, tableName, email, LogOperationTypeEnum.updateRow, operationStatusResult, null);
         }
         break;
+      case OperationTypeEnum.executeRawQuery:
+        try {
+          return await dao.executeRawQuery(row);
+        } catch (error) {
+          console.log(Messages.FAIL_MESSAGE(error.message));
+          return new Error(Messages.FAILED_EXECUTE_RAW_QUERY);
+        }
       default:
         return new Error(Messages.UNKNOWN_OPERATION(operationType));
     }
