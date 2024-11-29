@@ -9,7 +9,6 @@ import { Messages } from '../../../exceptions/text/messages.js';
 import { getDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/create-data-access-object.js';
 import OpenAI from 'openai';
 import { isSaaS } from '../../../helpers/app/is-saas.js';
-import { console } from 'inspector';
 import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/enums/connection-types-enum.js';
 
 @Injectable()
@@ -85,6 +84,7 @@ export class RequestInfoFromTableWithAIUseCase
   }
 
   private isValidSQLQuery(query: string): boolean {
+
     const upperCaseQuery = query.toUpperCase();
     const forbiddenKeywords = ['DROP', 'DELETE', 'ALTER', 'TRUNCATE', 'INSERT', 'UPDATE'];
 
