@@ -42,11 +42,13 @@ export class RequestInfoFromTableWithAIUseCase
     const tableStructure = await dao.getTableStructure(tableName, undefined);
     const databaseType = foundConnection.type;
 
-    const prompt = `You are an AI assistant. The user has a question about a database table. 
-    Database type: ${databaseType}. 
-    Table structure: ${JSON.stringify(tableStructure)}. 
-    User question: "${user_message}". 
-    Generate a safe and efficient ${databaseType === ConnectionTypesEnum.mongodb ? ' MongoDB command ' : ' SQL query '} to answer the user's question. Ensure the ${databaseType === ConnectionTypesEnum.mongodb ? ' command ' : ' query '} is read-only and does not modify the database.`;
+    const prompt = `You are an AI assistant. The user has a question about a database table.
+Database type: ${this.convertDdTypeEnumToReadableString(databaseType as any)}.
+Table structure: ${JSON.stringify(tableStructure)}.
+Table name: "${tableName}".
+${foundConnection.schema ? `Schema: "${foundConnection.schema}".` : ''}
+User question: "${user_message}".
+Generate a safe and efficient ${databaseType === ConnectionTypesEnum.mongodb ? 'MongoDB command' : 'SQL query'} to answer the user's question. Ensure the ${databaseType === ConnectionTypesEnum.mongodb ? 'command' : 'query'} is read-only and does not modify or remove any data from the table or database.`;
 
     const chatCompletion = await openai.chat.completions.create({
       messages: [{ role: 'user', content: prompt }],
@@ -84,7 +86,6 @@ export class RequestInfoFromTableWithAIUseCase
   }
 
   private isValidSQLQuery(query: string): boolean {
-
     const upperCaseQuery = query.toUpperCase();
     const forbiddenKeywords = ['DROP', 'DELETE', 'ALTER', 'TRUNCATE', 'INSERT', 'UPDATE'];
 
@@ -94,7 +95,7 @@ export class RequestInfoFromTableWithAIUseCase
 
     const cleanedQuery = query.trim().replace(/;$/, '');
 
-    const sqlInjectionPatterns = [/--/, /\/\*/, /\*\//, /'/, /"/];
+    const sqlInjectionPatterns = [/--/, /\/\*/, /\*\//, /"/];
 
     if (sqlInjectionPatterns.some((pattern) => pattern.test(cleanedQuery))) {
       return false;
@@ -104,7 +105,7 @@ export class RequestInfoFromTableWithAIUseCase
       return false;
     }
 
-    const selectPattern = /^\s*SELECT\s+.*\s+FROM\s+/i;
+    const selectPattern = /^\s*SELECT\s+[\s\S]+\s+FROM\s+/i;
     if (!selectPattern.test(cleanedQuery)) {
       return false;
     }
@@ -120,12 +121,31 @@ export class RequestInfoFromTableWithAIUseCase
       return false;
     }
 
-    const injectionPatterns = [/\/\*/, /\*\//, /'/, /"/];
+    const injectionPatterns = [/\/\*/, /\*\//, /"/];
 
     if (injectionPatterns.some((pattern) => pattern.test(command))) {
       return false;
     }
 
     return true;
+  }
+
+  private convertDdTypeEnumToReadableString(dataType: ConnectionTypesEnum): string {
+    switch (dataType) {
+      case ConnectionTypesEnum.postgres:
+        return 'PostgreSQL';
+      case ConnectionTypesEnum.mysql:
+        return 'MySQL';
+      case ConnectionTypesEnum.mongodb:
+        return 'MongoDB';
+      case ConnectionTypesEnum.mssql:
+        return 'Microsoft SQL Server';
+      case ConnectionTypesEnum.oracledb:
+        return 'Oracle DB';
+      case ConnectionTypesEnum.ibmdb2:
+        return 'IBM DB2';
+      default:
+        throw new Error('Unknown database type');
+    }
   }
 }
