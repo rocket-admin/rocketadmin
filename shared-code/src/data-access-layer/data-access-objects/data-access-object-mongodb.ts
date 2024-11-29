@@ -369,6 +369,12 @@ export class DataAccessObjectMongo extends BasicDataAccessObject implements IDat
     return result.data as any;
   }
 
+  public async executeRawQuery(query: string): Promise<Record<string, unknown>[]> {
+    const db = await this.getConnectionToDatabase();
+    const result = await db.command({ eval: query });
+    return result.retval;
+  }
+
   private async getConnectionToDatabase(): Promise<Db> {
     if (this.connection.ssh) {
       const { db } = await this.createTunneledConnection(this.connection);

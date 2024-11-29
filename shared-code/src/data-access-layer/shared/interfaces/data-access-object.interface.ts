@@ -77,4 +77,6 @@ export interface IDataAccessObject {
   ): Promise<Stream & AsyncIterable<any>>;
 
   importCSVInTable(file: Express.Multer.File, tableName: string): Promise<void>;
+
+  executeRawQuery(query: string): Promise<Array<Record<string, unknown>>>;
 }

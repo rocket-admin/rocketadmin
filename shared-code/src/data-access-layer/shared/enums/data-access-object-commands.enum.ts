@@ -15,4 +15,5 @@ export enum DataAccessObjectCommandsEnum {
   getReferencedTableNamesAndColumns = 'getReferencedTableNamesAndColumns',
   isView = 'isView',
   getRowsAsStream = 'getRowsAsStream',
+  executeRawQuery = 'executeRawQuery',
 }

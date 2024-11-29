@@ -180,6 +180,7 @@ export const Messages = {
     `There are no such fields: ${fields.join(', ')} - in the table "${tableName}"`,
   NO_SUCH_FIELD_IN_TABLE: (fieldName: string, tableName: string) =>
     `There is no such field: "${fieldName}" in the table "${tableName}"`,
+  NOT_ALLOWED_IN_THIS_MODE: 'This operation is not allowed in this mode',
   ORDERING_FIELD_INCORRECT: `Value of sorting order is incorrect. You can choose from values ${enumToString(
     QueryOrderingEnum,
   )}`,

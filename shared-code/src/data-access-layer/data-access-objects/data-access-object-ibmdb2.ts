@@ -582,6 +582,12 @@ WHERE
     }
   }
 
+  public async executeRawQuery(query: string): Promise<Array<Record<string, unknown>>> {
+    const connectionToDb = await this.getConnectionToDatabase();
+    const result = await connectionToDb.query(query);
+    return result;
+  }
+
   private async getConnectionToDatabase(): Promise<Database> {
     if (this.connection.ssh) {
       return this.createTunneledConnection(this.connection);

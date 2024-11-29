@@ -36,6 +36,7 @@ export const Messages = {
   FAILED_VALIDATE_TABLE_SETTINGS: `Failed validate table settings`,
   FAILED_TO_GET_IDENTITY_COLUMNS: `Failed to get identity columns`,
   FAILED_TO_CHECK_IS_VIEW: `Failed to check is view`,
+  FAILED_EXECUTE_RAW_QUERY: `Failed to execute raw query`,
   HOST_MISSING: 'Host is missing',
   LIST_PER_PAGE_INCORRECT: `You can't display less than one row per page`,
   MUST_BE_ARRAY: (fieldName: string) => `The field "${fieldName}" must be an array`,

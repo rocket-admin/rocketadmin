@@ -630,6 +630,11 @@ export class DataAccessObjectPostgres extends BasicDataAccessObject implements I
     }
   }
 
+  public async executeRawQuery(query: string): Promise<Array<Record<string, unknown>>> {
+    const knex = await this.configureKnex();
+    return knex.raw(query);
+  }
+
   private async getRowsCount(
     knex: Knex<any, any[]>,
     countRowsQB: Knex.QueryBuilder<any, any[]> | null,

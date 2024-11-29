@@ -471,6 +471,10 @@ export class DataAccessObjectDynamoDB extends BasicDataAccessObject implements I
     });
   }
 
+  public async executeRawQuery(_query: string): Promise<Array<Record<string, unknown>>> {
+    throw new Error('Method not implemented.');
+  }
+
   private getDynamoDb(): DdAndClient {
     const endpoint = this.connection.host;
     const accessKeyId = this.connection.username;

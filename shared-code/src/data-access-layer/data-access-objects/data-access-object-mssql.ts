@@ -570,6 +570,11 @@ WHERE TABLE_TYPE = 'VIEW'
     }
   }
 
+  public async executeRawQuery(query: string): Promise<Array<Record<string, unknown>>> {
+    const knex = await this.configureKnex();
+    return await knex.raw(query);
+  }
+
   private async getSchemaName(tableName: string): Promise<string> {
     if (this.connection.schema) {
       return `[${this.connection.schema}]`;

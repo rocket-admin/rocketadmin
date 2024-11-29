@@ -28,6 +28,7 @@ import { SaaSGatewayModule } from './microservices/gateways/saas-gateway.ts/saas
 import { CompanyInfoModule } from './entities/company-info/company-info.module.js';
 import { TableTriggersModule } from './entities/table-actions/table-action-rules-module/action-rules.module.js';
 import { ApiKeyModule } from './entities/api-key/api-key.module.js';
+import { AIModule } from './entities/ai/ai.module.js';
 
 @Module({
   imports: [
@@ -52,6 +53,7 @@ import { ApiKeyModule } from './entities/api-key/api-key.module.js';
     SaaSGatewayModule,
     TableTriggersModule,
     ApiKeyModule,
+    AIModule,
   ],
   controllers: [AppController],
   providers: [
