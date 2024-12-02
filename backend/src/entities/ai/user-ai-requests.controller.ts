@@ -1,5 +1,5 @@
 import { UseInterceptors, Controller, Injectable, Inject, UseGuards, Post, Body } from '@nestjs/common';
-import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { SentryInterceptor } from '../../interceptors/sentry.interceptor.js';
 import { UseCaseType } from '../../common/data-injection.tokens.js';
 import { IRequestInfoFromTable } from './ai-use-cases.interface.js';
@@ -32,6 +32,7 @@ export class UserAIRequestsController {
   })
   @UseGuards(TableReadGuard)
   @ApiBody({ type: RequestInfoFromTableBodyDTO })
+  @ApiQuery({ name: 'tableName', required: true, type: String })
   @Post('/ai/request/:connectionId')
   public async requestInfoFromTableWithAI(
     @SlugUuid('connectionId') connectionId: string,
