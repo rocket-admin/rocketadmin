@@ -68,6 +68,12 @@ async function bootstrap() {
       .setVersion('1.0')
       .addTag('rocketadmin')
       .setBasePath(globalPrefix)
+      .addApiKey({
+        type: 'apiKey',
+        name: 'x-api-key',
+        in: 'header',
+      })
+      .addCookieAuth(Constants.JWT_COOKIE_KEY_NAME)
       .build();
     const document = SwaggerModule.createDocument(app, config);
     SwaggerModule.setup('docs', app, document);
