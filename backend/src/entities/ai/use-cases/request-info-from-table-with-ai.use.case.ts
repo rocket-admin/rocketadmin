@@ -27,6 +27,7 @@ export class RequestInfoFromTableWithAIUseCase
     if (!isSaaS()) {
       throw new MethodNotAllowedException(Messages.NOT_ALLOWED_IN_THIS_MODE);
     }
+
     const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
     const { connectionId, tableName, user_message, master_password } = inputData;
     const foundConnection = await this._dbContext.connectionRepository.findAndDecryptConnection(
@@ -36,6 +37,13 @@ export class RequestInfoFromTableWithAIUseCase
 
     if (!foundConnection) {
       throw new NotFoundException(Messages.CONNECTION_NOT_FOUND);
+    }
+
+    const connectionProperties =
+      await this._dbContext.connectionPropertiesRepository.findConnectionProperties(connectionId);
+
+    if (!connectionProperties.allow_ai_requests) {
+      throw new BadRequestException(Messages.AI_REQUESTS_NOT_ALLOWED);
     }
 
     const dao = getDataAccessObject(foundConnection);

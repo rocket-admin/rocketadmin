@@ -30,4 +30,7 @@ export class FoundConnectionPropertiesDs {
 
   @ApiProperty()
   human_readable_table_names: boolean;
+
+  @ApiProperty()
+  allow_ai_requests: boolean;
 }
