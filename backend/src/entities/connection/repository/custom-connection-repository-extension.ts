@@ -99,6 +99,11 @@ export const customConnectionRepositoryExtension: IConnectionRepository = {
       connection.signing_key = Encryptor.generateRandomString(40);
       await this.save(connection);
     }
+
+    if (connection.masterEncryption && !masterPwd) {
+      throw new Error(Messages.MASTER_PASSWORD_INCORRECT);
+    }
+
     if (connection.masterEncryption && masterPwd) {
       if (connection.master_hash) {
         const isMasterPwdCorrect = await Encryptor.verifyUserPassword(masterPwd, connection.master_hash);
