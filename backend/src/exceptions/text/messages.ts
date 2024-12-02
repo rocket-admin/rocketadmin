@@ -15,6 +15,7 @@ import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/data-acce
 import { TableActionMethodEnum } from '../../enums/table-action-method-enum.js';
 import { TableActionEventEnum } from '../../enums/table-action-event-enum.js';
 export const Messages = {
+  AI_REQUESTS_NOT_ALLOWED: 'AI requests are not allowed for this connection',
   ACCOUNT_SUSPENDED:
     'Your account has been suspended. Please reach out to your company administrator for assistance or contact our support team for further help',
   ACCESS_LEVEL_INVALID: 'Access level is invalid',

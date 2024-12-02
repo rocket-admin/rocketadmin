@@ -106,6 +106,7 @@ export class ConnectionPropertiesController {
       company_name: connectionPropertiesData.company_name,
       tables_audit: connectionPropertiesData.tables_audit,
       human_readable_table_names: connectionPropertiesData.human_readable_table_names,
+      allow_ai_requests: connectionPropertiesData.allow_ai_requests,
     };
 
     return await this.createConnectionPropertiesUseCase.execute(createConnectionPropertiesDs, InTransactionEnum.ON);
@@ -149,6 +150,7 @@ export class ConnectionPropertiesController {
       hostname: connectionPropertiesData.hostname,
       tables_audit: connectionPropertiesData.tables_audit,
       human_readable_table_names: connectionPropertiesData.human_readable_table_names,
+      allow_ai_requests: connectionPropertiesData.allow_ai_requests,
     };
 
     return await this.updateConnectionPropertiesUseCase.execute(inputData, InTransactionEnum.ON);

@@ -10,4 +10,5 @@ export class CreateConnectionPropertiesDs {
   company_name: string;
   tables_audit: boolean;
   human_readable_table_names: boolean;
+  allow_ai_requests: boolean;
 }

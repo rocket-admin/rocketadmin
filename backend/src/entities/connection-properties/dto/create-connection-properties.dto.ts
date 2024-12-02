@@ -41,4 +41,9 @@ export class CreateConnectionPropertiesDto {
   @IsBoolean()
   @ApiProperty()
   human_readable_table_names: boolean;
+
+  @IsOptional()
+  @IsBoolean()
+  @ApiProperty()
+  allow_ai_requests: boolean;
 }
