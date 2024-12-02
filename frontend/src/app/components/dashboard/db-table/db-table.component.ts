@@ -309,6 +309,10 @@ export class DbTableComponent implements OnInit {
     this._tableState.selectRow({...row, link: `/dashboard/${this.connectionID}/${this.name}/entry`});
   }
 
+  handleViewAIpanel() {
+    this._tableState.handleViewAIpanel();
+  }
+
   isRowSelected(primaryKeys) {
     return this.selectedRow && JSON.stringify(this.selectedRow.primaryKeys) === JSON.stringify(primaryKeys);
   }

@@ -24,6 +24,7 @@
 .nav-bar_connection {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
+    z-index: 2;
 }
 
 @media (width <= 600px) {

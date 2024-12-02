@@ -37,6 +37,13 @@
                 </mat-form-field>
             </form>
             <div class="actions">
+                <button mat-icon-button type="button"
+                    angulartics2On="click"
+                    angularticsAction="Dashboard: AI is clicked"
+                    (click)="handleViewAIpanel()">
+                    <mat-icon>rocket_launch</mat-icon>
+                </button>
+
                 <a mat-button *ngIf="tableData && tableData.permissions && tableData.permissions.add && (!tableData.isEmptyTable || searchString || getFiltersCount(activeFilters))"
                     routerLink="/dashboard/{{connectionID}}/{{name}}/entry"
                     data-testid="table-add-record-link"

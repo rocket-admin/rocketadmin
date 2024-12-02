@@ -10,6 +10,9 @@ export class TableStateService {
   private selectedRowSubject = new BehaviorSubject<any>(null);
   cast = this.selectedRowSubject.asObservable();
 
+  private aiPanelSubject = new BehaviorSubject<any>(null);
+  aiPanelCast = this.aiPanelSubject.asObservable();
+
   // private backUrlFilters: any;
   // private backUrlParams: any;
 
@@ -57,7 +60,13 @@ export class TableStateService {
       this.selectedRowSubject.next(null);
     } else {
       this.selectedRowSubject.next(row);
+      this.aiPanelSubject.next(false);
     }
+  }
+
+  handleViewAIpanel() {
+    this.clearSelection();
+    this.aiPanelSubject.next(!this.aiPanelSubject.value);
   }
 
   clearSelection() {

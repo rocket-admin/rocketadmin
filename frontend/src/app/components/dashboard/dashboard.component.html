@@ -94,6 +94,8 @@
                 [widgets]="dataSource.widgets"
                 [widgetsList]="dataSource.widgetsList"
             ></app-db-table-row-view>
+            <app-db-table-ai-panel *ngIf="isAIpanelOpened"
+            ></app-db-table-ai-panel>
         </mat-sidenav-content>
     </mat-sidenav-container>
 </ng-container>

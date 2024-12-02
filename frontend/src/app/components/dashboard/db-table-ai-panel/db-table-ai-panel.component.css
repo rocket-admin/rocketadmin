@@ -1,0 +1,86 @@
+.ai-panel-sidebar {
+    position: relative;
+    opacity: 0;
+    transform: translateX(100%);
+    height: calc(100vh - 56px);
+    width: 0;
+    overflow-y: auto;
+    transition: width 400ms ease, transform 400ms ease, opacity 400ms ease;
+}
+
+.ai-panel-sidebar_open {
+    opacity: 1;
+    transform: translateX(24px);
+    width: clamp(200px, 22vw, 400px);
+}
+
+@media (width <= 600px) {
+    .ai-panel-sidebar_open {
+        width: 0;
+    }
+}
+
+.ai-panel-sidebar-content {
+    position: fixed;
+    top: 0;
+    left: calc(100% - clamp(200px, 22vw, 400px));
+    display: flex;
+    flex-direction: column;
+    background-color: #fff;
+    border-left: solid 1px rgba(0, 0, 0, 0.12);
+    padding-top: 56px;
+    height: 100vh;
+    width: clamp(200px, 22vw, 400px);
+    z-index: 0;
+}
+
+.ai-panel-sidebar__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 20px;
+    padding-left: 16px;
+    padding-right: 16px;
+}
+
+.ai-panel-sidebar__title {
+    margin-bottom: 0;
+}
+
+.ai-panel-chat {
+    display: flex;
+    flex-direction: column;
+    margin-top: auto;
+    padding-left: 16px;
+    padding-right: 16px;
+}
+
+.ai-message-form {
+    position: relative;
+    /* display: flex;
+    align-items: flex-end; */
+    width: 100%;
+}
+
+.ai-message-form__textarea {
+    width: 100%;
+}
+
+.ai-message-form__button {
+    position: absolute;
+    right: 8px;
+    bottom: 24px;
+}
+
+.ai-panel-sidebar__message {
+    resize: none;
+    width: 100%;
+}
+
+.ai-response {
+    margin: 16px 0;
+}
+
+.loading {
+    margin: 16px 0;
+}

@@ -154,6 +154,7 @@ import { DynamodbCredentialsFormComponent } from "./components/connect-db/db-cre
 import { CodeRowComponent } from "./components/ui-components/row-fields/code/code.component";
 import { ImageRowComponent } from "./components/ui-components/row-fields/image/image.component";
 import { UrlValidatorDirective } from "./directives/url-validator.directive";
+import { DbTableAiPanelComponent } from "./components/dashboard/db-table-ai-panel/db-table-ai-panel.component";
 
 type Palettes = { primaryPalette: string, accentedPalette: string, warnPalette: string };
 type Colors = { myColorName: string };
@@ -313,7 +314,8 @@ const saasExtraProviders = (environment as any).saas ? [
     OracledbCredentialsFormComponent,
     MssqlCredentialsFormComponent,
     DynamodbCredentialsFormComponent,
-    ImageRowComponent
+    ImageRowComponent,
+    DbTableAiPanelComponent
   ],
   providers: [
     ConnectionsService,
