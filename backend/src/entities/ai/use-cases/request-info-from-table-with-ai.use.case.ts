@@ -75,6 +75,18 @@ export class RequestInfoFromTableWithAIUseCase
     const resolvedStructures = await Promise.all(structurePromises);
     referencedTablesStructures.push(...resolvedStructures);
 
+    const foreignTablesStructures: { tableName: string; structure: TableStructureDS[] }[] = [];
+
+    const foreignTablesStructurePromises = tableForeignKeys.flatMap((foreignKey) =>
+      dao.getTableStructure(foreignKey.referenced_table_name, userEmail).then((structure) => ({
+        tableName: foreignKey.referenced_table_name,
+        structure,
+      })),
+    );
+
+    const resolvedForeignTablesStructures = await Promise.all(foreignTablesStructurePromises);
+    foreignTablesStructures.push(...resolvedForeignTablesStructures);
+
     const databaseType = foundConnection.type;
 
     let prompt: string;
@@ -88,6 +100,7 @@ export class RequestInfoFromTableWithAIUseCase
         tableForeignKeys,
         referencedTableNamesAndColumns,
         referencedTablesStructures,
+        foreignTablesStructures,
       );
     } else {
       prompt = this.generateSqlQueryPrompt(
@@ -99,6 +112,7 @@ export class RequestInfoFromTableWithAIUseCase
         tableForeignKeys,
         referencedTableNamesAndColumns,
         referencedTablesStructures,
+        foreignTablesStructures,
       );
     }
 
@@ -220,6 +234,7 @@ export class RequestInfoFromTableWithAIUseCase
     tableForeignKeys: any[],
     referencedTableNamesAndColumns: any[],
     referencedTablesStructures: any[],
+    foreignTablesStructures: any[],
   ): string {
     let prompt = `You are an AI assistant. The user has a question about a database table.
 Database type: ${this.convertDdTypeEnumToReadableString(databaseType as any)}.
@@ -241,6 +256,10 @@ Generate a safe and efficient SQL query to answer the user's question. Ensure th
       prompt += `\nReferenced tables structures: ${JSON.stringify(referencedTablesStructures)}.`;
     }
 
+    if (foreignTablesStructures.length) {
+      prompt += `\nForeign tables structures: ${JSON.stringify(foreignTablesStructures)}.`;
+    }
+
     return prompt;
   }
 
@@ -253,6 +272,7 @@ Generate a safe and efficient SQL query to answer the user's question. Ensure th
     tableForeignKeys: any[],
     referencedTableNamesAndColumns: any[],
     referencedTablesStructures: any[],
+    foreignTablesStructures: any[],
   ): string {
     let prompt = `You are an AI assistant. The user has a question about a database table.
 Database type: ${this.convertDdTypeEnumToReadableString(databaseType as any)}.
@@ -272,6 +292,10 @@ Generate a safe and efficient MongoDB aggregation pipeline to answer the user's 
 
     if (referencedTablesStructures.length) {
       prompt += `\nReferenced tables structures: ${JSON.stringify(referencedTablesStructures)}.`;
+    }
+
+    if (foreignTablesStructures.length) {
+      prompt += `\nForeign tables structures: ${JSON.stringify(foreignTablesStructures)}.`;
     }
 
     return prompt;
