@@ -236,7 +236,7 @@ export class CommandExecutor {
         break;
       case OperationTypeEnum.executeRawQuery:
         try {
-          return await dao.executeRawQuery(row);
+          return await dao.executeRawQuery(row, tableName);
         } catch (error) {
           console.log(Messages.FAIL_MESSAGE(error.message));
           return new Error(Messages.FAILED_EXECUTE_RAW_QUERY);

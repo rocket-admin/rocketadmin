@@ -77,24 +77,29 @@ export class RequestInfoFromTableWithAIUseCase
 
     const databaseType = foundConnection.type;
 
-    let prompt = `You are an AI assistant. The user has a question about a database table.
-Database type: ${this.convertDdTypeEnumToReadableString(databaseType as any)}.
-Table structure: ${JSON.stringify(tableStructure)}.
-Table name: "${tableName}".
-${foundConnection.schema ? `Schema: "${foundConnection.schema}".` : ''}
-User question: "${user_message}".
-Generate a safe and efficient ${databaseType === ConnectionTypesEnum.mongodb ? 'MongoDB command' : 'SQL query'} to answer the user's question. Ensure the ${databaseType === ConnectionTypesEnum.mongodb ? 'command' : 'query'} is read-only, does not modify or remove any data from the table or database and fields are properly escaped.`;
-
-    if (tableForeignKeys.length) {
-      prompt += `\nTable ${tableName} foreign keys: ${JSON.stringify(tableForeignKeys)}.`;
-    }
-
-    if (referencedTableNamesAndColumns.length) {
-      prompt += `\nReferenced tables on our table ${tableName} and their columns: ${JSON.stringify(referencedTableNamesAndColumns)}.`;
-    }
-
-    if (referencedTablesStructures.length) {
-      prompt += `\nReferenced tables structures: ${JSON.stringify(referencedTablesStructures)}.`;
+    let prompt: string;
+    if (databaseType === ConnectionTypesEnum.mongodb) {
+      prompt = this.generateMongoDbCommandPrompt(
+        databaseType,
+        tableStructure,
+        tableName,
+        foundConnection,
+        user_message,
+        tableForeignKeys,
+        referencedTableNamesAndColumns,
+        referencedTablesStructures,
+      );
+    } else {
+      prompt = this.generateSqlQueryPrompt(
+        databaseType,
+        tableStructure,
+        tableName,
+        foundConnection,
+        user_message,
+        tableForeignKeys,
+        referencedTableNamesAndColumns,
+        referencedTablesStructures,
+      );
     }
 
     const chatCompletion = await openai.chat.completions.create({
@@ -104,7 +109,11 @@ Generate a safe and efficient ${databaseType === ConnectionTypesEnum.mongodb ? '
 
     const generatedResponse = chatCompletion.choices[0].message.content;
     const sqlQueryMatch = generatedResponse.match(/```sql\s*([\s\S]*?)\s*```/i);
-    const generatedQuery = sqlQueryMatch ? sqlQueryMatch[1].trim() : generatedResponse.trim();
+    let generatedQuery = sqlQueryMatch ? sqlQueryMatch[1].trim() : generatedResponse.trim();
+
+    if (databaseType === ConnectionTypesEnum.mongodb) {
+      generatedQuery = this.extractAggregationPipeline(generatedQuery);
+    }
 
     const isValidQuery =
       databaseType === ConnectionTypesEnum.mongodb
@@ -115,7 +124,7 @@ Generate a safe and efficient ${databaseType === ConnectionTypesEnum.mongodb ? '
       throw new BadRequestException('Sorry, can not provide an answer to this question.');
     }
 
-    const queryResult = await dao.executeRawQuery(generatedQuery, undefined);
+    const queryResult = await dao.executeRawQuery(generatedQuery, tableName, userEmail);
 
     const responsePrompt = `You are an AI assistant. The user asked: "${user_message}". 
     The SQL query was executed and the result is: ${JSON.stringify(queryResult)}. 
@@ -168,7 +177,7 @@ Generate a safe and efficient ${databaseType === ConnectionTypesEnum.mongodb ? '
       return false;
     }
 
-    const injectionPatterns = [/\/\*/, /\*\//, /"/];
+    const injectionPatterns = [/\/\*/, /\*\//];
 
     if (injectionPatterns.some((pattern) => pattern.test(command))) {
       return false;
@@ -200,5 +209,76 @@ Generate a safe and efficient ${databaseType === ConnectionTypesEnum.mongodb ? '
       default:
         throw new Error('Unknown database type');
     }
+  }
+
+  private generateSqlQueryPrompt(
+    databaseType: string,
+    tableStructure: any,
+    tableName: string,
+    foundConnection: any,
+    user_message: string,
+    tableForeignKeys: any[],
+    referencedTableNamesAndColumns: any[],
+    referencedTablesStructures: any[],
+  ): string {
+    let prompt = `You are an AI assistant. The user has a question about a database table.
+Database type: ${this.convertDdTypeEnumToReadableString(databaseType as any)}.
+Table structure: ${JSON.stringify(tableStructure)}.
+Table name: "${tableName}".
+${foundConnection.schema ? `Schema: "${foundConnection.schema}".` : ''}
+User question: "${user_message}".
+Generate a safe and efficient SQL query to answer the user's question. Ensure the query is read-only, does not modify or remove any data from the table or database and fields are properly escaped.`;
+
+    if (tableForeignKeys.length) {
+      prompt += `\nTable ${tableName} foreign keys: ${JSON.stringify(tableForeignKeys)}.`;
+    }
+
+    if (referencedTableNamesAndColumns.length) {
+      prompt += `\nReferenced tables on our table ${tableName} and their columns: ${JSON.stringify(referencedTableNamesAndColumns)}.`;
+    }
+
+    if (referencedTablesStructures.length) {
+      prompt += `\nReferenced tables structures: ${JSON.stringify(referencedTablesStructures)}.`;
+    }
+
+    return prompt;
+  }
+
+  private generateMongoDbCommandPrompt(
+    databaseType: string,
+    tableStructure: any,
+    tableName: string,
+    foundConnection: any,
+    user_message: string,
+    tableForeignKeys: any[],
+    referencedTableNamesAndColumns: any[],
+    referencedTablesStructures: any[],
+  ): string {
+    let prompt = `You are an AI assistant. The user has a question about a database table.
+Database type: ${this.convertDdTypeEnumToReadableString(databaseType as any)}.
+Table structure: ${JSON.stringify(tableStructure)}.
+Table name: "${tableName}".
+${foundConnection.schema ? `Schema: "${foundConnection.schema}".` : ''}
+User question: "${user_message}".
+Generate a safe and efficient MongoDB aggregation pipeline to answer the user's question. Ensure the pipeline is read-only, does not modify or remove any data from the table or database, and fields are properly escaped. Return only the aggregation pipeline array.`;
+
+    if (tableForeignKeys.length) {
+      prompt += `\nTable ${tableName} foreign keys: ${JSON.stringify(tableForeignKeys)}.`;
+    }
+
+    if (referencedTableNamesAndColumns.length) {
+      prompt += `\nReferenced tables on our table ${tableName} and their columns: ${JSON.stringify(referencedTableNamesAndColumns)}.`;
+    }
+
+    if (referencedTablesStructures.length) {
+      prompt += `\nReferenced tables structures: ${JSON.stringify(referencedTablesStructures)}.`;
+    }
+
+    return prompt;
+  }
+
+  private extractAggregationPipeline(response: string): string {
+    const match = response.match(/\[\s*{[\s\S]*}\s*\]/);
+    return match ? match[0] : '';
   }
 }

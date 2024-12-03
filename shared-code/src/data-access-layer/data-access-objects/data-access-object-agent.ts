@@ -623,7 +623,7 @@ export class DataAccessObjectAgent implements IDataAccessObjectAgent {
     }
   }
 
-  public async executeRawQuery(query: string, userEmail: string): Promise<Array<Record<string, unknown>>> {
+  public async executeRawQuery(query: string, tableName: string, userEmail: string): Promise<Array<Record<string, unknown>>> {
     const jwtAuthToken = this.generateJWT(this.connection.token);
     axios.defaults.headers.common['Authorization'] = `Bearer ${jwtAuthToken}`;
 
@@ -632,6 +632,7 @@ export class DataAccessObjectAgent implements IDataAccessObjectAgent {
         operationType: DataAccessObjectCommandsEnum.executeRawQuery,
         query,
         email: userEmail,
+        tableName,
       });
 
       if (commandResult instanceof Error) {
