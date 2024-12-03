@@ -49,7 +49,7 @@ export class RequestInfoFromTableWithAIUseCase
     const connectionProperties =
       await this._dbContext.connectionPropertiesRepository.findConnectionProperties(connectionId);
 
-    if (!connectionProperties.allow_ai_requests) {
+    if (connectionProperties && !connectionProperties.allow_ai_requests) {
       throw new BadRequestException(Messages.AI_REQUESTS_NOT_ALLOWED);
     }
 
