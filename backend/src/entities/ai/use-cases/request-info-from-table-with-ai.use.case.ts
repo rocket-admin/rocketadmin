@@ -10,6 +10,8 @@ import { getDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-acce
 import OpenAI from 'openai';
 import { isSaaS } from '../../../helpers/app/is-saas.js';
 import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/enums/connection-types-enum.js';
+import { TableStructureDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/table-structure.ds.js';
+import { isConnectionTypeAgent } from '../../../helpers/is-connection-entity-agent.js';
 
 @Injectable()
 export class RequestInfoFromTableWithAIUseCase
@@ -29,7 +31,7 @@ export class RequestInfoFromTableWithAIUseCase
     }
 
     const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-    const { connectionId, tableName, user_message, master_password } = inputData;
+    const { connectionId, tableName, user_message, master_password, user_id } = inputData;
     const foundConnection = await this._dbContext.connectionRepository.findAndDecryptConnection(
       connectionId,
       master_password,
@@ -37,6 +39,11 @@ export class RequestInfoFromTableWithAIUseCase
 
     if (!foundConnection) {
       throw new NotFoundException(Messages.CONNECTION_NOT_FOUND);
+    }
+
+    let userEmail: string;
+    if (isConnectionTypeAgent(foundConnection.type)) {
+      userEmail = await this._dbContext.userRepository.getUserEmailOrReturnNull(user_id);
     }
 
     const connectionProperties =
@@ -47,16 +54,48 @@ export class RequestInfoFromTableWithAIUseCase
     }
 
     const dao = getDataAccessObject(foundConnection);
-    const tableStructure = await dao.getTableStructure(tableName, undefined);
+
+    const [tableStructure, tableForeignKeys, referencedTableNamesAndColumns] = await Promise.all([
+      dao.getTableStructure(tableName, userEmail),
+      dao.getTableForeignKeys(tableName, userEmail),
+      dao.getReferencedTableNamesAndColumns(tableName, userEmail),
+    ]);
+
+    const referencedTablesStructures: { tableName: string; structure: TableStructureDS[] }[] = [];
+
+    const structurePromises = referencedTableNamesAndColumns.flatMap((referencedTable) =>
+      referencedTable.referenced_by.map((table) =>
+        dao.getTableStructure(table.table_name, userEmail).then((structure) => ({
+          tableName: table.table_name,
+          structure,
+        })),
+      ),
+    );
+
+    const resolvedStructures = await Promise.all(structurePromises);
+    referencedTablesStructures.push(...resolvedStructures);
+
     const databaseType = foundConnection.type;
 
-    const prompt = `You are an AI assistant. The user has a question about a database table.
+    let prompt = `You are an AI assistant. The user has a question about a database table.
 Database type: ${this.convertDdTypeEnumToReadableString(databaseType as any)}.
 Table structure: ${JSON.stringify(tableStructure)}.
 Table name: "${tableName}".
 ${foundConnection.schema ? `Schema: "${foundConnection.schema}".` : ''}
 User question: "${user_message}".
 Generate a safe and efficient ${databaseType === ConnectionTypesEnum.mongodb ? 'MongoDB command' : 'SQL query'} to answer the user's question. Ensure the ${databaseType === ConnectionTypesEnum.mongodb ? 'command' : 'query'} is read-only and does not modify or remove any data from the table or database.`;
+
+    if (tableForeignKeys.length) {
+      prompt += `\nTable ${tableName} foreign keys: ${JSON.stringify(tableForeignKeys)}.`;
+    }
+
+    if (referencedTableNamesAndColumns.length) {
+      prompt += `\nReferenced tables on our table ${tableName} and their columns: ${JSON.stringify(referencedTableNamesAndColumns)}.`;
+    }
+
+    if (referencedTablesStructures.length) {
+      prompt += `\nReferenced tables structures: ${JSON.stringify(referencedTablesStructures)}.`;
+    }
 
     const chatCompletion = await openai.chat.completions.create({
       messages: [{ role: 'user', content: prompt }],
