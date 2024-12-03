@@ -72,20 +72,25 @@
     background-color: var(--color-primaryPalette-50);
     color: var(--color-primaryPalette-50-contrast);
     border-radius: 8px;
-    padding: 8px;
+    padding: 8px 8px 0;
     margin: 4px 0;
 }
 .ai-message {
     background-color: var(--color-primaryPalette-100);
     color: var(--color-primaryPalette-100-contrast);
     border-radius: 8px;
-    padding: 8px;
+    padding: 8px 8px 0;
     margin: 4px 0;
 }
 
 .ai-message ::ng-deep ol,
 .ai-message ::ng-deep ul {
-    padding-left: 16px;
+    padding-left: 28px;
+}
+
+.user-message ::ng-deep p,
+.ai-message ::ng-deep p {
+    margin-bottom: 8px;
 }
 
 .loading {
@@ -104,10 +109,26 @@
     width: 100%;
 }
 
-.ai-message-form__button {
+.ai-message-form__textarea ::ng-deep .mat-mdc-text-field-wrapper {
+    padding-bottom: 24px !important;
+}
+
+.ai-message-form__footer {
     position: absolute;
-    right: 4px;
-    bottom: 20px;
+    right: 0;
+    left: 2px;
+    bottom: 21px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #fff;
+    padding-left: 16px;
+    padding-right: 4px;
+    width: calc(100% - 4px);
+}
+
+.ai-message-form__button {
+
 }
 
 .ai-panel-sidebar__message {

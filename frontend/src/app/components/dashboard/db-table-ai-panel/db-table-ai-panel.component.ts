@@ -15,8 +15,8 @@ export class DbTableAiPanelComponent implements OnInit {
   public connectionID: string;
   public tableName: string;
   public isAIpanelOpened: boolean = false;
-  public message: string;
-  // public response: string = null;
+  public message: string = '';
+  public charactrsNumber: number = 0;
   public messageChain: {
     type: string;
     text: string
@@ -43,6 +43,8 @@ export class DbTableAiPanelComponent implements OnInit {
   }
 
   onKeydown(event: KeyboardEvent): void {
+    this.charactrsNumber = this.message.length + 1;
+
     if (event.key === 'Enter') {
       if (event.shiftKey) {
         event.preventDefault();
@@ -68,6 +70,7 @@ export class DbTableAiPanelComponent implements OnInit {
     });
     const messageCopy = this.message;
     this.message = '';
+    this.charactrsNumber = 0;
     this._tables.requestAI(this.connectionID, this.tableName, messageCopy).subscribe((response) => {
       this.messageChain.push({
         type: 'ai',

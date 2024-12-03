@@ -19,8 +19,6 @@
             </div>
         </div>
 
-
-
         <div class="loading">
             <div *ngIf="submitting">
                 loading...
@@ -32,18 +30,22 @@
                 <mat-label class="ai-message-form__label">Need data insights? Drop your query here!</mat-label>
                 <textarea matInput name="message"
                     class="ai-panel-sidebar__message"
-                    rows="5"
+                    rows="4"
                     data-testid="user-message"
+                    maxlength="255"
                     (keydown)="onKeydown($event)"
                     [(ngModel)]="message">
                 </textarea>
             </mat-form-field>
 
-            <button mat-icon-button type="submit"
-                class="ai-message-form__button"
-                (click)="sendMessage()">
-                <mat-icon>send</mat-icon>
-            </button>
+            <div class="ai-message-form__footer">
+                <span> {{charactrsNumber}} / 256</span>
+                <button mat-icon-button type="submit"
+                    class="ai-message-form__button"
+                    (click)="sendMessage()">
+                    <mat-icon>send</mat-icon>
+                </button>
+            </div>
         </form>
     </div>
 </div>
