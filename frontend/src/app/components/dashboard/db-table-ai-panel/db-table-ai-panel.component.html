@@ -1,0 +1,58 @@
+<div *ngIf="isAIpanelOpened"
+    class="ai-panel-sidebar"
+    [ngClass]="{'ai-panel-sidebar_open': isAIpanelOpened}">
+</div>
+<div class="ai-panel-sidebar-content">
+    <div class="ai-panel-sidebar__header">
+        <h2 class="mat-heading-2 ai-panel-sidebar__title">
+            <mat-icon svgIcon="ai_rocket"></mat-icon>
+            <span>AI insights</span>
+        </h2>
+        <button mat-icon-button (click)="handleClose()">
+            <mat-icon>close</mat-icon>
+        </button>
+    </div>
+
+    <div *ngIf="messageChain.length === 0" class="ai-placeholder">
+        Insights from <strong>"{{displayName}}"</strong> table are waiting — type your query to unlock them.
+    </div>
+
+    <div class="ai-panel-chat">
+        <div *ngIf="messageChain.length" class="ai-message-chain-box" #chatContainer>
+            <div class="ai-message-chain">
+                <div *ngFor="let message of messageChain" class="{{message.type}}-message">
+                    <markdown>{{message.text}}</markdown>
+                </div>
+            </div>
+        </div>
+
+        <div class="loading">
+            <div *ngIf="submitting">
+                loading...
+            </div>
+        </div>
+
+        <form (ngSubmit)="sendMessage()" class="ai-message-form">
+            <mat-form-field class="form-field" appearance="outline" class="ai-message-form__textarea">
+                <mat-label class="ai-message-form__label">Drop your query here!</mat-label>
+                <textarea matInput name="message"
+                    class="ai-panel-sidebar__message"
+                    rows="4"
+                    data-testid="user-message"
+                    maxlength="255"
+                    (keydown)="onKeydown($event)"
+                    [(ngModel)]="message">
+                </textarea>
+            </mat-form-field>
+
+            <div class="ai-message-form__footer">
+                <span> {{charactrsNumber}} / 256</span>
+                <button mat-icon-button type="submit"
+                    class="ai-message-form__button"
+                    (click)="sendMessage()">
+                    <mat-icon>send</mat-icon>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

@@ -63,6 +63,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   public selection = new SelectionModel<any>(true, []);
 
   public selectedRow = null;
+  public isAIpanelOpened: boolean = false;
 
   public uiSettings: ConnectionSettingsUI;
 
@@ -93,6 +94,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
     this._tableState.cast.subscribe(row => {
       this.selectedRow = row;
+    });
+
+    this._tableState.aiPanelCast.subscribe(isAIpanelOpened => {
+      this.isAIpanelOpened = isAIpanelOpened;
     });
 
     this._uiSettings.getUiSettings()

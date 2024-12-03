@@ -12,7 +12,17 @@
 .nav-bar {
     flex-shrink: 0;
     background-color: #212121;
-    height: 56px !important;
+}
+
+.nav-bar_interior {
+    --mat-toolbar-standard-height: 44px !important;
+
+    position: sticky;
+    top: 0;
+}
+
+.nav-bar_exterior {
+    --mat-toolbar-standard-height: 56px !important;
 }
 
 .nav-bar_home {
@@ -24,6 +34,7 @@
 .nav-bar_connection {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
+    z-index: 2;
 }
 
 @media (width <= 600px) {
@@ -36,6 +47,7 @@
 .nav-bar__button {
     --mdc-text-button-label-text-color: rgba(255, 255, 255, 1) !important;
     --mat-mdc-button-persistent-ripple-color: transparent !important;
+
     font-weight: 400 !important;
     outline: 2px solid transparent;
     transition: outline 0.2s;
@@ -70,7 +82,9 @@
 }
 
 .nav-bar__upgrade-button {
-    margin-right: 8px;
+    --mdc-filled-button-container-height: 28px;
+
+    margin-right: -8px;
 }
 
 .nav-bar__account-button {

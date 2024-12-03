@@ -44,6 +44,7 @@
     "lodash": "^4.17.21",
     "ng-dynamic-component": "^10.7.0",
     "ngx-cookie-service": "^17.1.0",
+    "ngx-markdown": "^19.0.0",
     "ngx-stripe": "^17.2.0",
     "pluralize": "^8.0.0",
     "postgres-interval": "^4.0.2",

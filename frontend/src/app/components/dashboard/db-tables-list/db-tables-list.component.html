@@ -26,7 +26,7 @@
                 matTooltipPosition="right"
                 routerLinkActive="list-item_active"
                 class="table-list-item"
-                (click)="closeRowPreview()">
+                (click)="closeSidebar()">
                 <div *ngIf="collapsed; else fullTableName"
                     class="table-list-initials"
                     [matTooltip]="getTableName(tableItem)">

@@ -1,5 +1,6 @@
 .mat-sidenav-container {
     height: 100%;
+    /* height: calc(100vh - 56px); */
     overflow-x: hidden !important;
 }
 
@@ -91,6 +92,7 @@
 .dashboard {
     display: flex;
     flex-direction: column;
+    height: calc(100vh - 60px - 56px);
     max-width: 1000px;
     margin: 20px auto;
     widows: 96%;
