@@ -38,10 +38,11 @@
             </form>
             <div class="actions">
                 <button mat-icon-button type="button"
+                    matTooltip="AI assistant"
                     angulartics2On="click"
                     angularticsAction="Dashboard: AI is clicked"
                     (click)="handleViewAIpanel()">
-                    <mat-icon>rocket_launch</mat-icon>
+                    <mat-icon svgIcon="ai_rocket"></mat-icon>
                 </button>
 
                 <a mat-button *ngIf="tableData && tableData.permissions && tableData.permissions.add && (!tableData.isEmptyTable || searchString || getFiltersCount(activeFilters))"

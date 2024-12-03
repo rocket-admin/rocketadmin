@@ -1,7 +1,6 @@
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
 import { MarkdownService } from 'ngx-markdown';
 import { ConnectionsService } from 'src/app/services/connections.service';
-import { NotificationsService } from 'src/app/services/notifications.service';
 import { TableStateService } from 'src/app/services/table-state.service';
 import { TablesService } from 'src/app/services/tables.service';
 
@@ -11,6 +10,9 @@ import { TablesService } from 'src/app/services/tables.service';
   styleUrl: './db-table-ai-panel.component.css'
 })
 export class DbTableAiPanelComponent implements OnInit {
+
+  @Input() public displayName: string;
+  @ViewChild('chatContainer') private chatContainer!: ElementRef;
 
   public connectionID: string;
   public tableName: string;
@@ -27,11 +29,8 @@ export class DbTableAiPanelComponent implements OnInit {
     private _connections: ConnectionsService,
     private _tables: TablesService,
     private _tableState: TableStateService,
-    private _notifications: NotificationsService,
     private markdownService: MarkdownService
   ) { }
-
-  @ViewChild('chatContainer') private chatContainer!: ElementRef;
 
   ngOnInit(): void {
     this.connectionID = this._connections.currentConnectionID;

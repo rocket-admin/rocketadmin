@@ -44,6 +44,9 @@
 }
 
 .ai-panel-sidebar__title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
     margin-bottom: 0;
 }
 
@@ -134,4 +137,11 @@
 .ai-panel-sidebar__message {
     resize: none;
     width: 100%;
+}
+
+.ai-placeholder {
+    margin-top:160px;
+    padding-left: 16px;
+    padding-right: 16px;
+    text-align: center;
 }
