@@ -37,8 +37,7 @@ export class DbTableAiPanelComponent implements OnInit {
   onKeydown(event: KeyboardEvent): void {
     if (event.key === 'Enter') {
       if (event.shiftKey) {
-        // Add a new line
-        event.preventDefault(); // Prevent the default form submission
+        event.preventDefault();
         const textarea = event.target as HTMLTextAreaElement;
         const cursorPos = textarea.selectionStart;
         this.message =
@@ -47,9 +46,7 @@ export class DbTableAiPanelComponent implements OnInit {
           textarea.selectionStart = textarea.selectionEnd = cursorPos + 1;
         });
       } else {
-        // Prevent default "Enter" key behavior
         event.preventDefault();
-        // Submit the form
         this.sendMessage();
       }
     }

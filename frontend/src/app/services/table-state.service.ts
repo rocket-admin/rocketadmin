@@ -60,7 +60,7 @@ export class TableStateService {
       this.selectedRowSubject.next(null);
     } else {
       this.selectedRowSubject.next(row);
-      this.aiPanelSubject.next(false);
+      this.closeAIpanel();
     }
   }
 
@@ -71,5 +71,9 @@ export class TableStateService {
 
   clearSelection() {
     this.selectedRowSubject.next(null);
+  }
+
+  closeAIpanel() {
+    this.aiPanelSubject.next(false);
   }
 }

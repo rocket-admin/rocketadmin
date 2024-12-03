@@ -38,7 +38,8 @@ export class DbTablesListComponent {
     return tableName.length;
   }
 
-  closeRowPreview() {
+  closeSidebar() {
     this._tableState.clearSelection();
+    this._tableState.closeAIpanel();
   }
 }
