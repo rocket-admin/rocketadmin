@@ -11,6 +11,7 @@ import OpenAI from 'openai';
 import { isSaaS } from '../../../helpers/app/is-saas.js';
 import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/enums/connection-types-enum.js';
 import { TableStructureDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/table-structure.ds.js';
+import { isConnectionTypeAgent } from '../../../helpers/is-connection-entity-agent.js';
 
 @Injectable()
 export class RequestInfoFromTableWithAIUseCase
@@ -30,7 +31,7 @@ export class RequestInfoFromTableWithAIUseCase
     }
 
     const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-    const { connectionId, tableName, user_message, master_password } = inputData;
+    const { connectionId, tableName, user_message, master_password, user_id } = inputData;
     const foundConnection = await this._dbContext.connectionRepository.findAndDecryptConnection(
       connectionId,
       master_password,
@@ -38,6 +39,11 @@ export class RequestInfoFromTableWithAIUseCase
 
     if (!foundConnection) {
       throw new NotFoundException(Messages.CONNECTION_NOT_FOUND);
+    }
+
+    let userEmail: string;
+    if (isConnectionTypeAgent(foundConnection.type)) {
+      userEmail = await this._dbContext.userRepository.getUserEmailOrReturnNull(user_id);
     }
 
     const connectionProperties =
@@ -50,16 +56,16 @@ export class RequestInfoFromTableWithAIUseCase
     const dao = getDataAccessObject(foundConnection);
 
     const [tableStructure, tableForeignKeys, referencedTableNamesAndColumns] = await Promise.all([
-      dao.getTableStructure(tableName, undefined),
-      dao.getTableForeignKeys(tableName, undefined),
-      dao.getReferencedTableNamesAndColumns(tableName, undefined),
+      dao.getTableStructure(tableName, userEmail),
+      dao.getTableForeignKeys(tableName, userEmail),
+      dao.getReferencedTableNamesAndColumns(tableName, userEmail),
     ]);
 
     const referencedTablesStructures: { tableName: string; structure: TableStructureDS[] }[] = [];
 
     const structurePromises = referencedTableNamesAndColumns.flatMap((referencedTable) =>
       referencedTable.referenced_by.map((table) =>
-        dao.getTableStructure(table.table_name, undefined).then((structure) => ({
+        dao.getTableStructure(table.table_name, userEmail).then((structure) => ({
           tableName: table.table_name,
           structure,
         })),
