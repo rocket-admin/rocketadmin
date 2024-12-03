@@ -83,7 +83,7 @@ Table structure: ${JSON.stringify(tableStructure)}.
 Table name: "${tableName}".
 ${foundConnection.schema ? `Schema: "${foundConnection.schema}".` : ''}
 User question: "${user_message}".
-Generate a safe and efficient ${databaseType === ConnectionTypesEnum.mongodb ? 'MongoDB command' : 'SQL query'} to answer the user's question. Ensure the ${databaseType === ConnectionTypesEnum.mongodb ? 'command' : 'query'} is read-only and does not modify or remove any data from the table or database.`;
+Generate a safe and efficient ${databaseType === ConnectionTypesEnum.mongodb ? 'MongoDB command' : 'SQL query'} to answer the user's question. Ensure the ${databaseType === ConnectionTypesEnum.mongodb ? 'command' : 'query'} is read-only, does not modify or remove any data from the table or database and fields are properly escape.`;
 
     if (tableForeignKeys.length) {
       prompt += `\nTable ${tableName} foreign keys: ${JSON.stringify(tableForeignKeys)}.`;
@@ -119,7 +119,7 @@ Generate a safe and efficient ${databaseType === ConnectionTypesEnum.mongodb ? '
 
     const responsePrompt = `You are an AI assistant. The user asked: "${user_message}". 
     The SQL query was executed and the result is: ${JSON.stringify(queryResult)}. 
-    Based on this result, provide a clear and concise answer to the user's question. 
+    Based on this result only, provide a clear and concise answer to the user's question. 
     Use the context from the previous completion with id: ${chatCompletion.id}.`;
 
     const finalCompletion = await openai.chat.completions.create({
