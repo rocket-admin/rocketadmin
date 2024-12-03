@@ -3,7 +3,6 @@ import { ApiBearerAuth, ApiBody, ApiOperation, ApiQuery, ApiResponse, ApiTags } 
 import { SentryInterceptor } from '../../interceptors/sentry.interceptor.js';
 import { UseCaseType } from '../../common/data-injection.tokens.js';
 import { IRequestInfoFromTable } from './ai-use-cases.interface.js';
-import { TableReadGuard } from '../../guards/table-read.guard.js';
 import { RequestInfoFromTableBodyDTO } from './application/dto/request-info-from-table-body.dto.js';
 import { SlugUuid } from '../../decorators/slug-uuid.decorator.js';
 import { RequestInfoFromTableDS } from './application/data-structures/request-info-from-table.ds.js';
@@ -12,6 +11,7 @@ import { InTransactionEnum } from '../../enums/in-transaction.enum.js';
 import { MasterPassword } from '../../decorators/master-password.decorator.js';
 import { ResponseInfoDS } from './application/data-structures/response-info.ds.js';
 import { UserId } from '../../decorators/user-id.decorator.js';
+import { ConnectionEditGuard } from '../../guards/connection-edit.guard.js';
 
 @UseInterceptors(SentryInterceptor)
 @Controller()
@@ -30,7 +30,7 @@ export class UserAIRequestsController {
     description: 'Returned info.',
     type: ResponseInfoDS,
   })
-  @UseGuards(TableReadGuard)
+  @UseGuards(ConnectionEditGuard)
   @ApiBody({ type: RequestInfoFromTableBodyDTO })
   @ApiQuery({ name: 'tableName', required: true, type: String })
   @Post('/ai/request/:connectionId')
