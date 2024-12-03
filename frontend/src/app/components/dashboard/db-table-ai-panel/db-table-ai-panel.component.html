@@ -11,12 +11,20 @@
     </div>
 
     <div class="ai-panel-chat">
-        <div *ngIf="response" class="ai-response">
-            {{response}}
+        <div class="ai-message-chain-box" #chatContainer>
+            <div class="ai-message-chain">
+                <div *ngFor="let message of messageChain" class="{{message.type}}-message">
+                    <markdown>{{message.text}}</markdown>
+                </div>
+            </div>
         </div>
 
-        <div *ngIf="submitting" class="loading">
-            loading...
+
+
+        <div class="loading">
+            <div *ngIf="submitting">
+                loading...
+            </div>
         </div>
 
         <form (ngSubmit)="sendMessage()" class="ai-message-form">
