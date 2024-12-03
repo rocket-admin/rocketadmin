@@ -83,7 +83,7 @@ Table structure: ${JSON.stringify(tableStructure)}.
 Table name: "${tableName}".
 ${foundConnection.schema ? `Schema: "${foundConnection.schema}".` : ''}
 User question: "${user_message}".
-Generate a safe and efficient ${databaseType === ConnectionTypesEnum.mongodb ? 'MongoDB command' : 'SQL query'} to answer the user's question. Ensure the ${databaseType === ConnectionTypesEnum.mongodb ? 'command' : 'query'} is read-only, does not modify or remove any data from the table or database and fields are properly escape.`;
+Generate a safe and efficient ${databaseType === ConnectionTypesEnum.mongodb ? 'MongoDB command' : 'SQL query'} to answer the user's question. Ensure the ${databaseType === ConnectionTypesEnum.mongodb ? 'command' : 'query'} is read-only, does not modify or remove any data from the table or database and fields are properly escaped.`;
 
     if (tableForeignKeys.length) {
       prompt += `\nTable ${tableName} foreign keys: ${JSON.stringify(tableForeignKeys)}.`;
