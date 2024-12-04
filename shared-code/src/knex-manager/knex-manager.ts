@@ -1,84 +1,79 @@
 import knex, { Knex } from 'knex';
-import { LRUCache } from 'lru-cache';
 import getPort from 'get-port';
 import { ConnectionParams } from '../data-access-layer/shared/data-structures/connections-params.ds.js';
-import { CACHING_CONSTANTS } from '../caching/caching-constants.js';
 import { getTunnel } from '../helpers/get-ssh-tunnel.js';
-
-const knexCache = new LRUCache(CACHING_CONSTANTS.DEFAULT_CONNECTION_CACHE_OPTIONS);
-const tunnelCache = new LRUCache(CACHING_CONSTANTS.DEFAULT_TUNNEL_CACHE_OPTIONS);
-
+import { LRUStorage } from '../caching/lru-storage.js';
 export class KnexManager {
   static knexStorage() {
     const knexMap = new Map<ConnectionParams['type'], (connection: ConnectionParams) => Promise<Knex<any, any[]>>>();
 
     knexMap.set('postgres', async (connection: ConnectionParams): Promise<Knex<any, any[]>> => {
-      const cachedKnex = knexCache.get(JSON.stringify(connection));
+      const cachedKnex = LRUStorage.getCachedKnex(connection);
       if (cachedKnex) {
         try {
           await cachedKnex.raw('SELECT 1');
           return cachedKnex;
         } catch (_error) {
-          knexCache.delete(JSON.stringify(connection));
+          LRUStorage.delKnexCache(connection);
         }
       }
       if (connection.ssh) {
         const newKnex = await KnexManager.createTunneledKnex(connection);
-        knexCache.set(JSON.stringify(connection), newKnex);
+        LRUStorage.setKnexCache(connection, newKnex);
         return newKnex;
       }
       const newKnex = KnexManager.getPostgresKnex(connection);
-      knexCache.set(JSON.stringify(connection), newKnex);
+      LRUStorage.setKnexCache(connection, newKnex);
       return newKnex;
     });
 
     knexMap.set('mysql2', async (connection: ConnectionParams): Promise<Knex<any, any[]>> => {
-      const cachedKnex = knexCache.get(JSON.stringify(connection));
+      const cachedKnex = LRUStorage.getCachedKnex(connection);
       if (cachedKnex) {
         try {
           await cachedKnex.raw('SELECT 1');
           return cachedKnex;
         } catch (_error) {
-          knexCache.delete(JSON.stringify(connection));
+          LRUStorage.delKnexCache(connection);
         }
       }
       if (connection.ssh) {
         const newKnex = await KnexManager.createTunneledKnex(connection);
-        knexCache.set(JSON.stringify(connection), newKnex);
+        LRUStorage.setKnexCache(connection, newKnex);
         return newKnex;
       }
       const newKnex = KnexManager.getMysqlKnex(connection);
-      knexCache.set(JSON.stringify(connection), newKnex);
+      LRUStorage.setKnexCache(connection, newKnex);
       return newKnex;
     });
 
     knexMap.set('mssql', async (connection: ConnectionParams): Promise<Knex<any, any[]>> => {
-      const cachedKnex = knexCache.get(JSON.stringify(connection));
+      const cachedKnex = LRUStorage.getCachedKnex(connection);
       if (cachedKnex) {
         return cachedKnex;
       }
       if (connection.ssh) {
         const newKnex = await KnexManager.createTunneledKnex(connection);
-        knexCache.set(JSON.stringify(connection), newKnex);
+        LRUStorage.setKnexCache(connection, newKnex);
         return newKnex;
       }
       const newKnex = KnexManager.getMssqlKnex(connection);
-      knexCache.set(JSON.stringify(connection), newKnex);
+      LRUStorage.setKnexCache(connection, newKnex);
       return newKnex;
     });
 
     knexMap.set('oracledb', async (connection: ConnectionParams): Promise<Knex<any, any[]>> => {
-      const cachedKnex = knexCache.get(JSON.stringify(connection));
+      const cachedKnex = LRUStorage.getCachedKnex(connection);
       if (cachedKnex) {
         return cachedKnex;
       }
       if (connection.ssh) {
         const newKnex = await KnexManager.createTunneledKnex(connection);
-        knexCache.set(JSON.stringify(connection), newKnex);
+        LRUStorage.setKnexCache(connection, newKnex);
         return newKnex;
       }
       const newKnex = KnexManager.getOracleKnex(connection);
-      knexCache.set(JSON.stringify(connection), newKnex);
+      LRUStorage.setKnexCache(connection, newKnex);
       return newKnex;
     });
 
@@ -88,7 +83,7 @@ export class KnexManager {
   private static async createTunneledKnex(connection: ConnectionParams): Promise<Knex<any, any[]>> {
     const connectionCopy = { ...connection };
     return new Promise<Knex<any, any[]>>(async (resolve, reject): Promise<Knex<any, any[]>> => {
-      const cachedTnl = tunnelCache.get(JSON.stringify(connectionCopy));
+      const cachedTnl = LRUStorage.getTunnelCache(connectionCopy);
       if (cachedTnl && cachedTnl.knex && cachedTnl.server && cachedTnl.client) {
         resolve(cachedTnl.knex);
         return;
@@ -105,24 +100,24 @@ export class KnexManager {
           knex: knex,
         };
 
-        tunnelCache.set(JSON.stringify(connectionCopy), tnlCachedObj);
+        LRUStorage.setTunnelCache(connectionCopy, tnlCachedObj);
 
         resolve(tnlCachedObj.knex);
 
         client.on('error', (e) => {
-          tunnelCache.delete(JSON.stringify(connectionCopy));
+          LRUStorage.delTunnelCache(connectionCopy);
           reject(e);
           return;
         });
 
         server.on('error', (e) => {
-          tunnelCache.delete(JSON.stringify(connectionCopy));
+          LRUStorage.delTunnelCache(connectionCopy);
           reject(e);
           return;
         });
         return;
       } catch (error) {
-        tunnelCache.delete(JSON.stringify(connectionCopy));
+        LRUStorage.delTunnelCache(connectionCopy);
         reject(error);
         return;
       }
