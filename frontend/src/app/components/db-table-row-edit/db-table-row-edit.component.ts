@@ -12,7 +12,7 @@ import { DbActionLinkDialogComponent } from '../dashboard/db-action-link-dialog/
 import JsonURL from "@jsonurl/jsonurl";
 import { MatDialog } from '@angular/material/dialog';
 import { NotificationsService } from 'src/app/services/notifications.service';
-import { ServerError } from 'src/app/models/alert';
+import { Alert, AlertType, ServerError } from 'src/app/models/alert';
 import { TableRowService } from 'src/app/services/table-row.service';
 import { TableStateService } from 'src/app/services/table-state.service';
 import { TablesService } from 'src/app/services/tables.service';
@@ -30,7 +30,6 @@ export class DbTableRowEditComponent implements OnInit {
   public loading: boolean = true;
   public connectionID: string | null = null;
   public connectionName: string | null = null;
-  public connectionType: DBtype | null = null;
   public tableName: string | null = null;
   public dispalyTableName: string | null = null;
   public tableRowValues: object;
@@ -62,6 +61,12 @@ export class DbTableRowEditComponent implements OnInit {
 
   public tableForeignKeys: TableForeignKey[];
 
+  public isTestConnectionWarning: Alert = {
+    id: 10000000,
+    type: AlertType.Error,
+    message: 'This is a TEST DATABASE, public to all. Avoid entering sensitive data!'
+  }
+
   originalOrder = () => { return 0; }
 
   constructor(
@@ -77,11 +82,18 @@ export class DbTableRowEditComponent implements OnInit {
     private title: Title,
   ) { }
 
+  get isTestConnection() {
+    return this._connections.currentConnection.isTestConnection;
+  }
+
+  get connectionType() {
+    return this._connections.currentConnection.type;
+  }
+
   ngOnInit(): void {
     this.loading = true;
     this.connectionID = this._connections.currentConnectionID;
     this.tableName = this._tables.currentTableName;
-    this.connectionType = this._connections.currentConnection.type;
     this.tableFiltersUrlString = JsonURL.stringify(this._tableState.getBackUrlFilters());
     const navUrlParams = this._tableState.getBackUrlParams();
     this.backUrlParams = {...navUrlParams, filters: this.tableFiltersUrlString};

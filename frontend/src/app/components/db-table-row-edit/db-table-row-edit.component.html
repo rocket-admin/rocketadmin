@@ -1,4 +1,5 @@
 <app-alert></app-alert>
+<app-alert *ngIf="isTestConnection" [alert]="isTestConnectionWarning"></app-alert>
 <app-placeholder-row-edit *ngIf="loading"></app-placeholder-row-edit>
 
 <app-banner *ngIf="isServerError" type="error" class="row-banner">
