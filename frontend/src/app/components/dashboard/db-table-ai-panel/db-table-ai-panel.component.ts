@@ -1,4 +1,5 @@
-import { Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { Angulartics2 } from 'angulartics2';
 import { MarkdownService } from 'ngx-markdown';
 import { ConnectionsService } from 'src/app/services/connections.service';
 import { TableStateService } from 'src/app/services/table-state.service';
@@ -9,7 +10,7 @@ import { TablesService } from 'src/app/services/tables.service';
   templateUrl: './db-table-ai-panel.component.html',
   styleUrl: './db-table-ai-panel.component.css'
 })
-export class DbTableAiPanelComponent implements OnInit {
+export class DbTableAiPanelComponent implements OnInit, OnDestroy {
 
   @Input() public displayName: string;
   @ViewChild('chatContainer') private chatContainer!: ElementRef;
@@ -19,7 +20,7 @@ export class DbTableAiPanelComponent implements OnInit {
   public isAIpanelOpened: boolean = false;
   public message: string = '';
   public charactrsNumber: number = 0;
-  public messageChain: {
+  public messagesChain: {
     type: string;
     text: string
   }[] = [];
@@ -29,7 +30,8 @@ export class DbTableAiPanelComponent implements OnInit {
     private _connections: ConnectionsService,
     private _tables: TablesService,
     private _tableState: TableStateService,
-    private markdownService: MarkdownService
+    private markdownService: MarkdownService,
+    private angulartics2: Angulartics2,
   ) { }
 
   ngOnInit(): void {
@@ -38,6 +40,15 @@ export class DbTableAiPanelComponent implements OnInit {
 
     this._tableState.aiPanelCast.subscribe((isAIpanelOpened) => {
       this.isAIpanelOpened = isAIpanelOpened;
+    });
+  }
+
+  ngOnDestroy() {
+    this.angulartics2.eventTrack.next({
+      action: 'AI panel: destroyed',
+      properties: {
+        messagesLength: this.messagesChain.length
+      }
     });
   }
 
@@ -63,7 +74,7 @@ export class DbTableAiPanelComponent implements OnInit {
 
   sendMessage() {
     this.submitting = true;
-    this.messageChain.push({
+    this.messagesChain.push({
       type: 'user',
       text: this.message
     });
@@ -71,14 +82,21 @@ export class DbTableAiPanelComponent implements OnInit {
     this.message = '';
     this.charactrsNumber = 0;
     this._tables.requestAI(this.connectionID, this.tableName, messageCopy).subscribe((response) => {
-      this.messageChain.push({
+      this.messagesChain.push({
         type: 'ai',
         text: this.markdownService.parse(response.response_message) as string
       });
       this.submitting = false;
+
+      this.angulartics2.eventTrack.next({
+        action: 'AI panel: message sent successfully',
+      });
     },
       () => {
         this.submitting = false;
+        this.angulartics2.eventTrack.next({
+          action: 'AI panel: message sent and returned an error',
+        });
       },
       () => {
         this.submitting = false;
@@ -86,11 +104,7 @@ export class DbTableAiPanelComponent implements OnInit {
   }
 
   scrollToBottom(): void {
-    try {
-      this.chatContainer.nativeElement.scrollTop = this.chatContainer.nativeElement.scrollHeight;
-    } catch (err) {
-      console.error('Error scrolling to bottom:', err);
-    }
+    if (this.chatContainer) this.chatContainer.nativeElement.scrollTop = this.chatContainer.nativeElement.scrollHeight;
   }
 
   ngAfterViewChecked(): void {
