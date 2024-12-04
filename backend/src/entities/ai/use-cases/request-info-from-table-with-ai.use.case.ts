@@ -1,4 +1,4 @@
-import { BadRequestException, Inject, Injectable, MethodNotAllowedException, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import AbstractUseCase from '../../../common/abstract-use.case.js';
 import { IRequestInfoFromTable } from '../ai-use-cases.interface.js';
 import { RequestInfoFromTableDS } from '../application/data-structures/request-info-from-table.ds.js';
@@ -8,10 +8,10 @@ import { ResponseInfoDS } from '../application/data-structures/response-info.ds.
 import { Messages } from '../../../exceptions/text/messages.js';
 import { getDataAccessObject } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/create-data-access-object.js';
 import OpenAI from 'openai';
-import { isSaaS } from '../../../helpers/app/is-saas.js';
 import { ConnectionTypesEnum } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/enums/connection-types-enum.js';
 import { TableStructureDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/shared/data-structures/table-structure.ds.js';
 import { isConnectionTypeAgent } from '../../../helpers/is-connection-entity-agent.js';
+import { getRequiredEnvVariable } from '../../../helpers/app/get-requeired-env-variable.js';
 
 @Injectable()
 export class RequestInfoFromTableWithAIUseCase
@@ -26,11 +26,8 @@ export class RequestInfoFromTableWithAIUseCase
   }
 
   public async implementation(inputData: RequestInfoFromTableDS): Promise<ResponseInfoDS> {
-    if (!isSaaS()) {
-      throw new MethodNotAllowedException(Messages.NOT_ALLOWED_IN_THIS_MODE);
-    }
-
-    const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+    const openApiKey = getRequiredEnvVariable('OPENAI_API_KEY');
+    const openai = new OpenAI({ apiKey: openApiKey });
     const { connectionId, tableName, user_message, master_password, user_id } = inputData;
     const foundConnection = await this._dbContext.connectionRepository.findAndDecryptConnection(
       connectionId,
