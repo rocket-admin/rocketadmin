@@ -47,6 +47,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   public currentPage: number = 1;
   public shownTableTitles: boolean = true;
   public connectionID: string;
+  // public isTestConnection: boolean = false;
   public filters: object = {};
   public comparators: object;
   public pageIndex: number;
@@ -88,8 +89,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
     return this._connections.currentConnection.title || this._connections.currentConnection.database || 'Tables'
   }
 
+  get currentConnectionIsTest () {
+    return this._connections.currentConnection.isTestConnection
+  }
+
   ngOnInit() {
     this.connectionID = this._connections.currentConnectionID;
+    // this.isTestConnection = this._connections.currentConnection.isTestConnection;
     this.dataSource = new TablesDataSource(this._tables, this._connections, this._uiSettings);
 
     this._tableState.cast.subscribe(row => {

@@ -79,6 +79,7 @@
                     [table]="dataSource"
                     [selection]="selection"
                     [connectionID]="connectionID"
+                    [isTestConnection]="currentConnectionIsTest"
                     [accessLevel]="currentConnectionAccessLevel"
                     (openFilters)="openTableFilters($event)"
                     (removeFilter)="removeFilter($event)"
