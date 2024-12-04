@@ -46,6 +46,10 @@ export class LRUStorage {
     knexCache.set(this.getConnectionIdentifier(connectionConfig), newKnex);
   }
 
+  public static delKnexCache(connectionConfig: ConnectionParams): void {
+    knexCache.delete(this.getConnectionIdentifier(connectionConfig));
+  }
+
   public static getTunnelCache(connection: ConnectionParams): any {
     const cachedTnl = tunnelCache.get(this.getConnectionIdentifier(connection));
     return cachedTnl ? cachedTnl : null;
