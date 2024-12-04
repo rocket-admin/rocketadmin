@@ -35,7 +35,12 @@ export class KnexManager {
     knexMap.set('mysql2', async (connection: ConnectionParams): Promise<Knex<any, any[]>> => {
       const cachedKnex = knexCache.get(JSON.stringify(connection));
       if (cachedKnex) {
-        return cachedKnex;
+        try {
+          await cachedKnex.raw('SELECT 1');
+          return cachedKnex;
+        } catch (_error) {
+          knexCache.delete(JSON.stringify(connection));
+        }
       }
       if (connection.ssh) {
         const newKnex = await KnexManager.createTunneledKnex(connection);
