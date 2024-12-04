@@ -13,3 +13,9 @@
 .upload-btn {
     margin-right: 12px;
 }
+
+.form__warning {
+    color: var(--color-warnPalette-500);
+    margin-top: -12px;
+    margin-bottom: 20px;
+}

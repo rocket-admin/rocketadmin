@@ -1,9 +1,10 @@
 <h1 mat-dialog-title>Import</h1>
 <form #importTableForm="ngForm" (ngSubmit)="importCSV()" class="form">
     <mat-dialog-content>
+        <p *ngIf="data.isTestConnection" class="mat-body-1 form__warning">This is a <strong>TEST DATABASE</strong>, public to all. Avoid importing sensitive data!</p>
         <div class="file-uploader-appearance">
             <button mat-stroked-button type="button" (click)="fileInput.click()">Browse File</button>
-            <span >{{ file && file.name ? file.name : 'No file selected.' }}</span>
+            <span>{{ file && file.name ? file.name : 'No file selected.' }}</span>
             <input #fileInput type="file" class="file-input" name="db-table-file" (change)="onFileSelected($event)" hidden>
         </div>
     </mat-dialog-content>

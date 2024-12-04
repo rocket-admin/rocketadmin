@@ -33,6 +33,7 @@ export class DbTableComponent implements OnInit {
   @Input() permissions: TablePermissions;
   @Input() accessLevel: AccessLevel;
   @Input() connectionID: string;
+  @Input() isTestConnection: boolean;
   @Input() activeFilters: object;
   @Input() filterComparators: object;
   @Input() selection: SelectionModel<any>;
@@ -200,6 +201,7 @@ export class DbTableComponent implements OnInit {
       data: {
         connectionID: this.connectionID,
         tableName: this.name,
+        isTestConnection: this.isTestConnection
       }
     })
   }
