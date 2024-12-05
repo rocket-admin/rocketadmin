@@ -6,7 +6,7 @@
   "packageExtensions": {
     "ibm_db": {
       "dependencies": {
-        "node-gyp": "^11.0.0"
+        "node-gyp": "^10.2.0"
       }
     }
   },
