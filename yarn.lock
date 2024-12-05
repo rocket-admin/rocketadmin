@@ -4871,7 +4871,6 @@ __metadata:
     express: 4.21.1
     express-rate-limit: 7.4.1
     helmet: 8.0.0
-    ibm_db: ^3.2.5
     ip-range-check: 0.2.0
     json2csv: ^5.0.7
     jsonwebtoken: ^9.0.2
@@ -4879,7 +4878,6 @@ __metadata:
     lru-cache: ^11.0.2
     nanoid: 5.0.9
     nock: ^13.5.6
-    node-gyp: ^10.2.0
     nodemailer: ^6.9.16
     openai: ^4.73.1
     otplib: ^12.0.1
@@ -4902,9 +4900,6 @@ __metadata:
     uuid: ^11.0.3
     validator: ^13.12.0
     winston: 3.17.0
-  dependenciesMeta:
-    ibm_db:
-      optional: true
   languageName: unknown
   linkType: soft
 
@@ -10307,7 +10302,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"node-gyp@npm:^10.0.1, node-gyp@npm:^10.2.0":
+"node-gyp@npm:^10.0.1":
   version: 10.2.0
   resolution: "node-gyp@npm:10.2.0"
   dependencies:
