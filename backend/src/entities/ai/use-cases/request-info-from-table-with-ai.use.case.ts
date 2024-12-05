@@ -179,7 +179,7 @@ export class RequestInfoFromTableWithAIUseCase
       return { response_message: generatedResponse };
     }
 
-    const generatedQueryOrPipeline =
+    let generatedQueryOrPipeline =
       // eslint-disable-next-line security/detect-object-injection
       JSON.parse(chatCompletion.choices[0].message.tool_calls[0].function.arguments)[functionArguments];
 
@@ -193,6 +193,13 @@ export class RequestInfoFromTableWithAIUseCase
       throw new BadRequestException('Sorry, can not provide an answer to this question.');
     }
 
+    if (!isMongoDb) {
+      generatedQueryOrPipeline = this.wrapQueryWithLimit(
+        generatedQueryOrPipeline,
+        foundConnection.type as ConnectionTypesEnum,
+      );
+    }
+    
     const queryResult = await dao.executeRawQuery(generatedQueryOrPipeline, tableName, userEmail);
 
     const responsePrompt = `You are an AI assistant. The user asked: "${user_message}".
@@ -357,5 +364,26 @@ Answer question about users data.`;
     }
 
     return prompt;
+  }
+
+  private wrapQueryWithLimit(query: string, databaseType: ConnectionTypesEnum): string {
+    const queryWithoutSemicolon = query.replace(/;$/, '');
+    switch (databaseType) {
+      case ConnectionTypesEnum.postgres:
+      case ConnectionTypesEnum.agent_postgres:
+      case ConnectionTypesEnum.mysql:
+      case ConnectionTypesEnum.agent_mysql:
+      case ConnectionTypesEnum.mssql:
+      case ConnectionTypesEnum.agent_mssql:
+        return `SELECT * FROM (${queryWithoutSemicolon}) AS ai_query LIMIT 1000`;
+      case ConnectionTypesEnum.ibmdb2:
+      case ConnectionTypesEnum.agent_ibmdb2:
+        return `SELECT * FROM (${queryWithoutSemicolon}) AS ai_query FETCH FIRST 1000 ROWS ONLY`;
+      case ConnectionTypesEnum.oracledb:
+      case ConnectionTypesEnum.agent_oracledb:
+        return `SELECT * FROM (${queryWithoutSemicolon}) WHERE ROWNUM <= 1000`;
+      default:
+        throw new Error('Unsupported database type');
+    }
   }
 }
