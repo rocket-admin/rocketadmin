@@ -6,6 +6,13 @@
   "private": true,
   "license": "UNLICENSED",
   "type": "module",
+  "packageExtensions": {
+    "ibm_db": {
+      "dependencies": {
+        "node-gyp": "^10.2.0"
+      }
+    }
+  },
   "scripts": {
     "prebuild": "rimraf dist",
     "build": "nest build",
