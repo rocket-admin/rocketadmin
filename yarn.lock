@@ -2815,6 +2815,7 @@ __metadata:
     lru-cache: ^11.0.2
     mongodb: ^6.11.0
     mysql2: ^3.11.5
+    node-gyp: ^11.0.0
     oracledb: ^6.7.0
     p-queue: ^8.0.1
     pg: ^8.13.1
