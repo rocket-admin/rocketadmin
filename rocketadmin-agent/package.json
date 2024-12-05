@@ -9,7 +9,7 @@
   "packageExtensions": {
     "ibm_db": {
       "dependencies": {
-        "node-gyp": "^10.2.0"
+        "node-gyp": "^11.0.0"
       }
     }
   },
@@ -44,6 +44,7 @@
     "knex": "3.1.0",
     "mongodb": "^6.11.0",
     "mysql2": "^3.11.4",
+    "node-gyp": "^11.0.0",
     "oracledb": "^6.7.0",
     "pg": "^8.13.1",
     "readline-sync": "^1.4.10",
