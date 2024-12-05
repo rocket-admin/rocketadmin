@@ -9,7 +9,7 @@
   "packageExtensions": {
     "ibm_db": {
       "dependencies": {
-        "node-gyp": "^10.2.0"
+        "node-gyp": "^11.0.0"
       }
     }
   },
@@ -57,7 +57,7 @@
     "yarn": "^1.22.22"
   },
   "optionalDependencies": {
-    "ibm_db": "^3.2.5"
+    "ibm_db": "^3.3.0"
   },
   "devDependencies": {
     "@nestjs/cli": "^10.4.8",

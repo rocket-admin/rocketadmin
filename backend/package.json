@@ -6,13 +6,6 @@
   "private": true,
   "license": "UNLICENSED",
   "type": "module",
-  "packageExtensions": {
-    "ibm_db": {
-      "dependencies": {
-        "node-gyp": "^10.2.0"
-      }
-    }
-  },
   "scripts": {
     "prebuild": "rimraf dist",
     "build": "nest build",
@@ -103,7 +96,6 @@
     "@types/cookie-parser": "^1.4.8",
     "@types/cron": "^2.4.3",
     "@types/express": "^5.0.0",
-    "@types/ibm_db": "^3.2.0",
     "@types/json2csv": "^5.0.7",
     "@types/node": "^22.10.1",
     "@types/safe-regex": "^1.1.6",

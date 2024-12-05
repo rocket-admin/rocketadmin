@@ -3,16 +3,25 @@
   "version": "1.0.0",
   "description": "shared code for rocketadmin backend and client applications (agent version, cli version)",
   "type": "module",
+  "packageExtensions": {
+    "ibm_db": {
+      "dependencies": {
+        "node-gyp": "^11.0.0"
+      }
+    }
+  },
   "scripts": {
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix"
   },
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.705.0",
     "@aws-sdk/lib-dynamodb": "^3.705.0",
+    "@types/ibm_db": "^3.2.0",
     "@types/multer": "^1.4.12",
     "axios": "^1.7.9",
     "csv": "^6.3.11",
     "get-port": "^7.1.0",
+    "ibm_db": "^3.3.0",
     "jsonwebtoken": "^9.0.2",
     "knex": "^3.1.0",
     "lru-cache": "^11.0.2",

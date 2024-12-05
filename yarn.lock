@@ -2766,6 +2766,7 @@ __metadata:
   dependencies:
     "@aws-sdk/client-dynamodb": ^3.705.0
     "@aws-sdk/lib-dynamodb": ^3.705.0
+    "@types/ibm_db": ^3.2.0
     "@types/multer": ^1.4.12
     "@types/oracledb": ^6.5.2
     "@types/pg-copy-streams": ^1.2.5
@@ -2777,6 +2778,7 @@ __metadata:
     eslint-config-prettier: ^9.1.0
     eslint-plugin-import: ^2.31.0
     get-port: ^7.1.0
+    ibm_db: ^3.3.0
     jsonwebtoken: ^9.0.2
     knex: ^3.1.0
     lru-cache: ^11.0.2
@@ -4825,7 +4827,6 @@ __metadata:
     "@types/cron": ^2.4.3
     "@types/crypto-js": ^4.2.2
     "@types/express": ^5.0.0
-    "@types/ibm_db": ^3.2.0
     "@types/json2csv": ^5.0.7
     "@types/jsonwebtoken": ^9.0.7
     "@types/multer": ^1.4.12
@@ -8008,9 +8009,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ibm_db@npm:^3.2.5":
-  version: 3.2.5
-  resolution: "ibm_db@npm:3.2.5"
+"ibm_db@npm:^3.3.0":
+  version: 3.3.0
+  resolution: "ibm_db@npm:3.3.0"
   dependencies:
     adm-zip: ^0.5.16
     axios: ^1.7.4
@@ -8021,7 +8022,7 @@ __metadata:
     nan: ^2.22.0
     q: ^1.5.1
     targz: ^1.0.1
-  checksum: b2871410639777e27f33025963f722160f051e7b2e20d45f4c7d1644e5d0ad46e982630b172ac69878232a424ffc82e3e85afbdb0acc99b6336cf2a2c6a88434
+  checksum: 7a266c6bd5bbc9ba3d3fd83c82e7b207f704be72a80ceeed1b8f22fc05ebeb65e6baada7e6ca9710c773f48cb2a1a53ddc7a593eacf7b0d5b5f376696007bc5b
   languageName: node
   linkType: hard
 
@@ -10138,24 +10139,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"mysql2@npm:^3.11.4":
-  version: 3.11.4
-  resolution: "mysql2@npm:3.11.4"
-  dependencies:
-    aws-ssl-profiles: ^1.1.1
-    denque: ^2.1.0
-    generate-function: ^2.3.1
-    iconv-lite: ^0.6.3
-    long: ^5.2.1
-    lru.min: ^1.0.0
-    named-placeholders: ^1.1.3
-    seq-queue: ^0.0.5
-    sqlstring: ^2.3.2
-  checksum: b4415028fad374b5bd5303968c28fc95feee60c1c946ef47f3581e0303c0e5978a306f44d6f665e3fdada5d6a0dd6c55515427a195700b90943d188f6db2f7ed
-  languageName: node
-  linkType: hard
-
-"mysql2@npm:^3.11.5":
+"mysql2@npm:^3.11.4, mysql2@npm:^3.11.5":
   version: 3.11.5
   resolution: "mysql2@npm:3.11.5"
   dependencies:
@@ -11726,7 +11710,7 @@ __metadata:
     eslint-config-prettier: ^9.1.0
     eslint-plugin-prettier: ^5.2.1
     get-port: ^7.1.0
-    ibm_db: ^3.2.5
+    ibm_db: ^3.3.0
     jest: ^29.7.0
     knex: 3.1.0
     mongodb: ^6.11.0
