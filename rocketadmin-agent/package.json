@@ -6,13 +6,6 @@
   "private": true,
   "license": "UNLICENSED",
   "type": "module",
-  "packageExtensions": {
-    "ibm_db": {
-      "dependencies": {
-        "node-gyp": "^11.0.0"
-      }
-    }
-  },
   "scripts": {
     "prebuild": "rimraf dist",
     "build": "nest build",
@@ -55,9 +48,6 @@
     "wait-on": "^8.0.1",
     "winston": "^3.17.0",
     "yarn": "^1.22.22"
-  },
-  "optionalDependencies": {
-    "ibm_db": "^3.3.0"
   },
   "devDependencies": {
     "@nestjs/cli": "^10.4.8",
