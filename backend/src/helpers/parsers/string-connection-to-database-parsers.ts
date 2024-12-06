@@ -144,3 +144,18 @@ export const parseTestIbmDB2ConnectionString = (connectionString: string): Parti
   config.cert = params.get('cert') || undefined;
   return config;
 };
+
+// dynamodb://accessKeyId:secretAccessKey@localhost:8000/
+export const parseTestDynamoDBConnectionString = (connectionString: string): Partial<CreateConnectionDto> => {
+  const url = new URL(connectionString);
+  const config: Partial<CreateConnectionDto> = {};
+
+  config.username = url.username || null;
+  config.password = url.password || null;
+  config.host = url.hostname || null;
+  config.type = ConnectionTypesEnum.dynamodb;
+  config.title = 'DynamoDB';
+  config.isTestConnection = true;
+  config.ssl = false;
+  return config;
+};

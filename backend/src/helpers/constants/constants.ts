@@ -10,6 +10,7 @@ import {
   parseTestOracleDBConnectionString,
   parseTestMongoDBConnectionString,
   parseTestIbmDB2ConnectionString,
+  parseTestDynamoDBConnectionString,
 } from '../parsers/string-connection-to-database-parsers.js';
 
 export type TestConnectionsFromJSON = {
@@ -264,6 +265,8 @@ export const Constants = {
           case type.toLowerCase().includes('ibmdb2'):
             connection = parseTestIbmDB2ConnectionString(connection_string) as CreateConnectionDto;
             break;
+          case type.toLowerCase().includes('dynamodb'):
+            connection = parseTestDynamoDBConnectionString(connection_string) as CreateConnectionDto;
           default:
             break;
         }
