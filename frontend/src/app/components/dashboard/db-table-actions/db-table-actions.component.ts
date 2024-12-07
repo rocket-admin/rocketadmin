@@ -132,7 +132,7 @@ export class DbTableActionsComponent implements OnInit {
         link: `/dashboard/${this.connectionID}/${this.tableName}`
       },
       {
-        label: 'Rules',
+        label: 'Rules for actions',
         link: null
       }
     ]

@@ -37,12 +37,13 @@
                 </mat-form-field>
             </form>
             <div class="actions">
-                <button mat-icon-button type="button"
+                <button mat-button type="button"
                     matTooltip="AI assistant"
                     angulartics2On="click"
                     angularticsAction="Dashboard: AI is clicked"
                     (click)="handleViewAIpanel()">
                     <mat-icon svgIcon="ai_rocket"></mat-icon>
+                    AI
                 </button>
 
                 <a mat-button *ngIf="tableData && tableData.permissions && tableData.permissions.add && (!tableData.isEmptyTable || searchString || getFiltersCount(activeFilters))"
@@ -61,22 +62,6 @@
                     (click)="handleOpenFilters()">
                     <mat-icon>filter_list</mat-icon>
                     Filter
-                </button>
-                <button *ngIf="tableData && tableData.isImportAllowed"
-                    mat-button type="button"
-                    angulartics2On="click"
-                    angularticsAction="Dashboard: import is clicked"
-                    (click)="handleOpenImportDialog()">
-                    <mat-icon>download</mat-icon>
-                    Import
-                </button>
-                <button *ngIf="tableData && tableData.isExportAllowed"
-                    mat-button type="button"
-                    angulartics2On="click"
-                    angularticsAction="Dashboard: export is clicked"
-                    (click)="handleOpenExportDialog()">
-                    <mat-icon>ios_share</mat-icon>
-                    Export
                 </button>
                 <div *ngIf="tableData" class="db-table-manage-columns-button">
                     <button *ngIf="tableData.displayedColumns && tableData.columns" mat-button [matMenuTriggerFor]="menu"
@@ -101,6 +86,28 @@
                         </button>
                     </mat-menu>
                 </div>
+                <button mat-icon-button type="button"
+                    *ngIf="accessLevel === 'edit'"
+                    matTooltip="Emport / Export"
+                    [matMenuTriggerFor]="transferDataMenu"
+                    angulartics2On="click"
+                    angularticsAction="Dashboard: settings dropdown is clicked">
+                    <mat-icon>swap_vert</mat-icon>
+                </button>
+                <mat-menu #transferDataMenu="matMenu">
+                    <button mat-menu-item *ngIf="tableData && tableData.isImportAllowed" type="button"
+                        angulartics2On="click"
+                        angularticsAction="Dashboard: import is clicked"
+                        (click)="handleOpenImportDialog()">
+                        Import
+                    </button>
+                    <button mat-menu-item *ngIf="tableData && tableData.isExportAllowed" type="button"
+                        angulartics2On="click"
+                        angularticsAction="Dashboard: export is clicked"
+                        (click)="handleOpenExportDialog()">
+                        Export
+                    </button>
+                </mat-menu>
                 <button mat-icon-button type="button"
                     *ngIf="accessLevel === 'edit'"
                     [matMenuTriggerFor]="settingsMenu"
