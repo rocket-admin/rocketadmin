@@ -113,7 +113,8 @@ export class DbTableWidgetsComponent implements OnInit {
 {
   "height": 100
 }
-`
+`,
+  URL: `// No settings required`,
   }
 
   constructor(

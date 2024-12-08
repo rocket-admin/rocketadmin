@@ -266,13 +266,24 @@ export class TablesDataSource implements DataSource<Object> {
 
           if (res.widgets) {
             this.widgetsList = res.widgets.map((widget: Widget) => {return widget['field_name']});
-            this.widgets = Object.assign({}, ...res.widgets.map((widget: Widget) => ({
-              [widget.field_name]: {
-                ...widget,
-                widget_params: JSON5.parse(widget.widget_params)
-              }
-            })));
             this.widgetsCount = this.widgetsList.length;
+            this.widgets = Object.assign({}, ...res.widgets.map((widget: Widget) => {
+                let parsedParams;
+
+                try {
+                  parsedParams = JSON5.parse(widget.widget_params);
+                } catch {
+                  parsedParams = {};
+                }
+
+                return {
+                  [widget.field_name]: {
+                    ...widget,
+                    widget_params: parsedParams,
+                  },
+                };
+              })
+            );
 
             /*** for select widget ***/
             // const selectWidgets = res.widgets.filter((widget: Widget) => widget.widget_type === 'Select');
