@@ -17,6 +17,7 @@ import { IdRowComponent } from '../components/ui-components/row-fields/id/id.com
 import { FileRowComponent } from '../components/ui-components/row-fields/file/file.component';
 import { CodeRowComponent } from '../components/ui-components/row-fields/code/code.component';
 import { ImageRowComponent } from '../components/ui-components/row-fields/image/image.component';
+import { UrlRowComponent } from '../components/ui-components/row-fields/url/url.component';
 
 export const timestampTypes = ['timestamp without time zone', 'timestamp with time zone', 'timestamp', 'date', 'time without time zone', 'time with time zone' , 'time'];
 export const defaultTimestampValues = {
@@ -40,6 +41,7 @@ export const UIwidgets = {
     File: FileRowComponent,
     Code: CodeRowComponent,
     Image: ImageRowComponent,
+    URL: UrlRowComponent
 }
 
 export const fieldTypes = {
