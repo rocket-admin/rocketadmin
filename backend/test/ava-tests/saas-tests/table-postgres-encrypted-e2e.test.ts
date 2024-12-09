@@ -143,7 +143,7 @@ test.serial(`${currentTest} should throw an exception when master password is in
       .set('masterpwd', incorrectMasterPwd)
       .set('Content-Type', 'application/json')
       .set('Accept', 'application/json');
-    t.is(getTablesResponse.status, 500);
+    t.is(getTablesResponse.status, 400);
     const getTablesRO = JSON.parse(getTablesResponse.text);
     t.is(typeof getTablesRO, 'object');
     t.is(getTablesRO.message, Messages.MASTER_PASSWORD_INCORRECT);
