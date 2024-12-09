@@ -101,7 +101,7 @@ export const customConnectionRepositoryExtension: IConnectionRepository = {
     }
 
     if (connection.masterEncryption && !masterPwd) {
-      throw new Error(Messages.MASTER_PASSWORD_INCORRECT);
+      throw new Error(Messages.MASTER_PASSWORD_MISSING);
     }
 
     if (connection.masterEncryption && masterPwd) {

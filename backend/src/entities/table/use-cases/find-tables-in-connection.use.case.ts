@@ -22,6 +22,7 @@ import { TableDS } from '@rocketadmin/shared-code/dist/src/data-access-layer/sha
 import { UnknownSQLException } from '../../../exceptions/custom-exceptions/unknown-sql-exception.js';
 import { ExceptionOperations } from '../../../exceptions/custom-exceptions/exception-operation.js';
 import { TableInfoEntity } from '../../table-info/table-info.entity.js';
+import { ConnectionEntity } from '../../connection/connection.entity.js';
 
 @Injectable()
 export class FindTablesInConnectionUseCase
@@ -38,7 +39,29 @@ export class FindTablesInConnectionUseCase
 
   protected async implementation(inputData: FindTablesDs): Promise<Array<FoundTableDs>> {
     const { connectionId, hiddenTablesOption, masterPwd, userId } = inputData;
-    const connection = await this._dbContext.connectionRepository.findAndDecryptConnection(connectionId, masterPwd);
+    let connection: ConnectionEntity;
+    try {
+      connection = await this._dbContext.connectionRepository.findAndDecryptConnection(connectionId, masterPwd);
+    } catch (error) {
+      if (error.message === Messages.MASTER_PASSWORD_MISSING) {
+        throw new HttpException(
+          {
+            message: Messages.MASTER_PASSWORD_MISSING,
+            type: 'no_master_key',
+          },
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+      if (error.message === Messages.MASTER_PASSWORD_INCORRECT) {
+        throw new HttpException(
+          {
+            message: Messages.MASTER_PASSWORD_INCORRECT,
+            type: 'invalid_master_key',
+          },
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+    }
     if (!connection) {
       throw new HttpException(
         {
@@ -177,14 +200,12 @@ export class FindTablesInConnectionUseCase
     const tablesAndAccessLevels = {};
     tables.map((table) => {
       if (table.tableName !== '__proto__') {
-         
         tablesAndAccessLevels[table.tableName] = [];
       }
     });
     tables.map((table) => {
       allTablePermissions.map((permission) => {
         if (permission.tableName === table.tableName && tablesAndAccessLevels.hasOwnProperty(table.tableName)) {
-           
           tablesAndAccessLevels[table.tableName].push(permission.accessLevel);
         }
       });
