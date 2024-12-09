@@ -7,6 +7,7 @@ import { AuthMiddleware } from '../../authorization/auth.middleware.js';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserEntity } from '../user/user.entity.js';
 import { LogOutEntity } from '../log-out/log-out.entity.js';
+import { UserAIThreadsController } from './user-ai-threads.controller.js';
 
 @Module({
   imports: [TypeOrmModule.forFeature([UserEntity, LogOutEntity])],
@@ -20,7 +21,7 @@ import { LogOutEntity } from '../log-out/log-out.entity.js';
       useClass: RequestInfoFromTableWithAIUseCase,
     },
   ],
-  controllers: [UserAIRequestsController],
+  controllers: [UserAIRequestsController, UserAIThreadsController],
 })
 export class AIModule implements NestModule {
   public configure(consumer: MiddlewareConsumer): any {
