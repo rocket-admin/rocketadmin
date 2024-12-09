@@ -147,12 +147,15 @@ export const parseTestIbmDB2ConnectionString = (connectionString: string): Parti
 
 // dynamodb://accessKeyId:secretAccessKey@localhost:8000/
 export const parseTestDynamoDBConnectionString = (connectionString: string): Partial<CreateConnectionDto> => {
-  const url = new URL(connectionString);
+  const modifiedConnectionString = connectionString.replace('dynamodb://', '');
+  const [credentials, nestedUrl] = modifiedConnectionString.split('@');
+  const [username, password] = credentials.split(':');
+  const url = new URL(nestedUrl);
   const config: Partial<CreateConnectionDto> = {};
-
-  config.username = url.username || null;
-  config.password = url.password || null;
-  config.host = url.hostname || null;
+  config.username = username || null;
+  config.password = password || null;
+  const host = `${url.protocol}//${url.hostname}:${url.port}`;
+  config.host = host;
   config.type = ConnectionTypesEnum.dynamodb;
   config.title = 'DynamoDB';
   config.isTestConnection = true;
